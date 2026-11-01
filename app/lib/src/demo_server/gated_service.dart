@@ -204,6 +204,9 @@ class GatedWalletService implements WalletService {
       _inner.pinFailures(config: config);
 
   @override
+  Stream<StoreMigrationProgress> get storeMigrationProgress => _inner.storeMigrationProgress;
+
+  @override
   Future<void> deleteWallet({required WalletConfig config}) =>
       _inner.deleteWallet(config: config);
 
@@ -228,6 +231,12 @@ class GatedWalletSession implements WalletSession {
 
   @override
   void dispose() => _inner.dispose();
+
+  @override
+  StoreOpenOutcome get storeOpen => _inner.storeOpen;
+
+  @override
+  bool get contactsAvailable => _inner.contactsAvailable;
 
   @override
   Future<String> mnemonic({required String password}) =>

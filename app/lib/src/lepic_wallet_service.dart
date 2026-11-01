@@ -224,6 +224,8 @@ WalletError mapLepicError(lepic.WalletError error) {
     // Decided on by kind, never by the core's English message.
     lepic.WalletErrorKind.unsupported => WalletErrorKind.unsupported,
     lepic.WalletErrorKind.cancelled => WalletErrorKind.cancelled,
+    // Store encryption (H2): after the pin moves to the encrypted store, LEPIC's WrongKey
+    // (code 90) maps here: `lepic.WalletErrorKind.wrongKey => WalletErrorKind.wrongKey,`.
     lepic.WalletErrorKind.changedDuringCancel ||
     lepic.WalletErrorKind.other ||
     lepic.WalletErrorKind.locked ||
@@ -1281,6 +1283,14 @@ class LepicWalletService implements WalletService {
   /// The count is read before a PIN is tried (the unlock screen, the PIN prompt): with
   /// [keyWrap], the Keystore key that attempt rotates to is made meanwhile, while the user
   /// types ([HardwarePinStore.prepareNextKey]).
+  /// Store encryption (H2): fed from LEPIC's copy-step progress events once the binding has
+  /// them (the open's progress callback or event stream: `done`/`total` rows). Until the pin
+  /// moves, LEPIC opens the plain store and nothing is copied, so no event comes.
+  final StreamController<StoreMigrationProgress> _storeMigration = StreamController<StoreMigrationProgress>.broadcast();
+
+  @override
+  Stream<StoreMigrationProgress> get storeMigrationProgress => _storeMigration.stream;
+
   @override
   Future<int> pinFailures({required WalletConfig config}) async {
     final text = await (await _storeKeys(config)).read('lepic.pin-failures');
@@ -1326,6 +1336,16 @@ class LepicWalletService implements WalletService {
 
 /// What a history file names as the program that wrote it. Informational only.
 const String historyAppVersion = 'wfe-lepic';
+
+/// Store encryption (H2): the files LEPIC keeps in a wallet's `lepic` folder once it encrypts
+/// the records. The first open copies the plain database into the encrypted one, checks it and
+/// switches, then renames the plain one aside; a plain database an older build made after a
+/// rollback is set aside by its time. Never renamed: they are on disk (install contract).
+const String lepicPlainStoreFile = 'wallet.sqlite3';
+const String lepicEncryptedStoreFile = 'wallet.enc.sqlite3';
+const String lepicStoreCheckFile = 'wallet.enc.sqlite3.check';
+const String lepicPreEncryptionFile = 'wallet.sqlite3.pre-encryption';
+const String lepicAfterRollbackPrefix = 'wallet.sqlite3.after-rollback-';
 
 /// The app's files sealed by an open LEPIC wallet (`sealed_file.dart`): LEPIC's `sealAppData`
 /// and `openAppData`, with LEPIC's refusals as [SealedOpenError].
@@ -1430,6 +1450,15 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
 
   /// Ends this wallet's use of the sealed address book.
   Future<void> Function()? _detachBook;
+
+  /// Store encryption (H2): LEPIC's open outcome (encrypted / migrated now / fell back to
+  /// plain) once the binding reports it, read from the opened wallet here. Until the pin
+  /// moves, every store LEPIC opens is the one it always opened: no fallback notice.
+  @override
+  StoreOpenOutcome get storeOpen => StoreOpenOutcome.encrypted;
+
+  @override
+  bool get contactsAvailable => _history.contactsAvailable;
 
   final lepic.EpicWallet _wallet;
   final WalletHistory _history;

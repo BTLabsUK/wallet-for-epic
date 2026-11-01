@@ -517,10 +517,16 @@ class ProgressView extends StatelessWidget {
     this.note,
     this.onBack,
     this.onRetry,
+    this.progress,
+    this.progressText,
   });
 
   final String title;
   final String? lead;
+
+  /// A bar under the running stage, 0..1, with [progressText] under it; null for none.
+  final double? progress;
+  final String? progressText;
   final List<Stage> stages;
   final String current;
   final String failed;
@@ -566,6 +572,21 @@ class ProgressView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   StageList(stages: stages, current: current, failed: failure != null ? failed : ''),
+                  if (progress != null && failure == null) ...[
+                    Padding(
+                      padding: EdgeInsets.only(left: Ctl.iconLg + Sp.x3),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          EProgress(value: progress),
+                          if (progressText != null) ...[
+                            SizedBox(height: Sp.x1),
+                            Text(progressText!, style: ts.caption),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
                   if (note != null && failure == null) ...[
                     SizedBox(height: Sp.x3),
                     Row(

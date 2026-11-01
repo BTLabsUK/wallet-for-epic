@@ -95,14 +95,46 @@
       ]
     },
     {
+      "id": "all.wallet_db_files",
+      "platforms": [
+        "windows",
+        "linux",
+        "android"
+      ],
+      "what": "LEPIC's database files inside the lepic folder. 26.10.24-r2 and older keep the plain wallet.sqlite3 (+ -wal, -shm). From 26.10.25 the records are in the encrypted wallet.enc.sqlite3 with its key check wallet.enc.sqlite3.check; the first open copies the plain database into it, checks it and switches, then renames the plain one wallet.sqlite3.pre-encryption (+ -wal; -shm deleted), kept for one release. A plain wallet.sqlite3 an older build made after a rollback is set aside as wallet.sqlite3.after-rollback-<unix> and a restore scan runs.",
+      "value": "<wallet folder>/lepic/wallet.enc.sqlite3 + wallet.enc.sqlite3.check; wallet.sqlite3 → wallet.sqlite3.pre-encryption; wallet.sqlite3.after-rollback-<unix>",
+      "probes": [
+        {
+          "file": "app/lib/src/lepic_wallet_service.dart",
+          "contains": "const String lepicPlainStoreFile = 'wallet.sqlite3';"
+        },
+        {
+          "file": "app/lib/src/lepic_wallet_service.dart",
+          "contains": "const String lepicEncryptedStoreFile = 'wallet.enc.sqlite3';"
+        },
+        {
+          "file": "app/lib/src/lepic_wallet_service.dart",
+          "contains": "const String lepicStoreCheckFile = 'wallet.enc.sqlite3.check';"
+        },
+        {
+          "file": "app/lib/src/lepic_wallet_service.dart",
+          "contains": "const String lepicPreEncryptionFile = 'wallet.sqlite3.pre-encryption';"
+        },
+        {
+          "file": "app/lib/src/lepic_wallet_service.dart",
+          "contains": "const String lepicAfterRollbackPrefix = 'wallet.sqlite3.after-rollback-';"
+        }
+      ]
+    },
+    {
       "id": "all.wallet_meta_file",
       "platforms": [
         "windows",
         "linux",
         "android"
       ],
-      "what": "The app's own per-wallet file beside LEPIC's database (notes, contacts, imported history, the old core's records).",
-      "value": "<wallet folder>/wfe_meta.json, version 1",
+      "what": "The app's own per-wallet file beside LEPIC's database (notes, contacts, imported history, the old core's records). From 26.10.25 sealed by the wallet into wfe_meta.sealed beside it on unlock; wfe_meta.json stays in place, never written again, read as the migration source (merged in, adding only, when an older build changed it) until the release after 26.10.25 retires it.",
+      "value": "<wallet folder>/wfe_meta.json, version 1 (kept, read only); <wallet folder>/wfe_meta.sealed",
       "probes": [
         {
           "file": "app/lib/src/history/meta_store.dart",
@@ -111,6 +143,10 @@
         {
           "file": "app/lib/src/history/meta_store.dart",
           "contains": "const int metaVersion = 1;"
+        },
+        {
+          "file": "app/lib/src/history/meta_store.dart",
+          "contains": "const String metaSealedFileName = 'wfe_meta.sealed';"
         }
       ]
     },
@@ -252,8 +288,8 @@
         "linux",
         "android"
       ],
-      "what": "The shared address book in the data folder.",
-      "value": "<data>/contacts.json",
+      "what": "The shared address book in the data folder. From 26.10.25 sealed into contacts.sealed under a random key that each wallet keeps sealed by itself in contacts.keys/<walletId>.key, with contacts.lock as the one-process lock; contacts.json stays in place, never written again, read as the migration source (merged in, adding only, when an older build changed it) until the release after 26.10.25 retires it.",
+      "value": "<data>/contacts.json (kept, read only); <data>/contacts.sealed, <data>/contacts.keys/<walletId>.key, <data>/contacts.lock",
       "probes": [
         {
           "file": "app/lib/src/contact_store.dart",
@@ -262,6 +298,22 @@
         {
           "file": "app/lib/src/wallet_backend_io.dart",
           "contains": "contactsDir: () async => (await appDataDirectory()).path,"
+        },
+        {
+          "file": "app/lib/src/contact_store.dart",
+          "contains": "const String contactsSealedFileName = 'contacts.sealed';"
+        },
+        {
+          "file": "app/lib/src/contact_store.dart",
+          "contains": "const String contactsKeysDirName = 'contacts.keys';"
+        },
+        {
+          "file": "app/lib/src/contact_store.dart",
+          "contains": "String _wrapPath(String walletId) => '$_keysDir${Platform.pathSeparator}$walletId.key';"
+        },
+        {
+          "file": "app/lib/src/contact_store.dart",
+          "contains": "const String contactsLockFileName = 'contacts.lock';"
         }
       ]
     },
@@ -770,6 +822,14 @@
       "migration": "Once at start, after the data folder is settled and settings.toml is open (importLanNodesFile in openAppSettings): each node of the Node list that lan_nodes.json agreed for (matched by host:port, 80 when none) joins [node] plain_http through the settings writer (comments, unknown keys and order kept; tmp file and rename); agreements for nodes no longer in the list are dropped. The store mark app.lanNodesMoved is written only after the file holds them; a rerun after a crash adds nothing the file has. lan_nodes.json is left as it was and never written again, so a rollback to 26.10.25 still finds it; its reader can be taken out one release after this ships. Installs without the file keep the first-run rule: tailnet nodes already in the list count as agreed when first used.",
       "migration_test": "app/test/install_upgrade_test.dart",
       "approved_by": "the owner, 2026-11-01 (explicit yes to this install-contract change, lan-nodes-merge job)"
+    },
+    {
+      "date": "2026-11-01",
+      "items_sha256": "884f14f37cb73cf420d161241c13b3a2090b10ffa744636b0bba0ceb6d0cd366",
+      "change": "Wallet records encrypted at rest. New item all.wallet_db_files: LEPIC's database moves from the plain <wallet folder>/lepic/wallet.sqlite3 to the encrypted wallet.enc.sqlite3 (SQLite3 Multiple Ciphers, ChaCha20-Poly1305, key from the seed) with its key check wallet.enc.sqlite3.check; the plain database is renamed wallet.sqlite3.pre-encryption, so an older build never resumes from a stale database (output keys the new build already used). all.wallet_meta_file and all.contacts_file gain the sealed files beside them (wfe_meta.sealed; contacts.sealed, contacts.keys/<walletId>.key, contacts.lock); wfe_meta.json and contacts.json stay where they are.",
+      "migration": "At the first unlock, under LEPIC's directory lock: the plain database is opened read-only (its schema never migrated before the switch), copied with its WAL into wallet.enc.sqlite3.tmp under the store key, checked (quick_check, user_version, row count of every table), the key check written, then tmp renamed to wallet.enc.sqlite3 (the switch), the plain file renamed wallet.sqlite3.pre-encryption and kept one release. Before the switch nothing outside tmp changes and a crash restarts the copy from scratch; after it a plain file beside a matching record only finishes the rename. A copy that fails (disk full) keeps the session on the plain file and tries again at the next open. Then the app seals wfe_meta.json into wfe_meta.sealed and contacts.json into contacts.sealed (each tmp, flushed, read back and opened, renamed), recording the plain file's size and hash; the plain files are left as they were, so a rollback to 26.10.24-r2 keeps notes and the address book, and a plain file an older build changed since is merged back in (adding only). After a rollback the older build's new plain database is set aside as wallet.sqlite3.after-rollback-<unix> and a restore scan runs. The shared book is used by one app process at a time (contacts.lock); a second one waits, then leaves it closed.",
+      "migration_test": "app/test/store_encryption_upgrade_test.dart",
+      "approved_by": "the owner, 2026-11-01 (explicit yes to this install-contract record: database renamed, app files kept)"
     }
   ]
 }

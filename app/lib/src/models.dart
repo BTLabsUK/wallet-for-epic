@@ -2155,9 +2155,52 @@ enum WalletErrorKind {
   /// The core ended the call before it finished (a lock, a stop); what it did so far may be
   /// stored.
   cancelled,
+
+  /// The wallet's encrypted records do not open with the key from this phrase (the key check
+  /// beside the database does not match). Nothing was changed or set aside; Recover with the
+  /// phrase stays open.
+  wrongKey,
   io,
   other,
 }
+
+/// How an open found the wallet's records (LEPIC's store, `<wallet>/lepic`).
+enum StoreOpenOutcome {
+  /// The encrypted store opened as it was.
+  encrypted,
+
+  /// This open copied the plain database into the encrypted store, checked it and switched;
+  /// the plain file is set aside as `wallet.sqlite3.pre-encryption`.
+  migratedNow,
+
+  /// The copy did not go through (disk full, any error before the switch): this session runs
+  /// on the plain database and the next open tries again.
+  plainFallback,
+}
+
+/// The copy step of a first open: [done] of [total] records copied into the encrypted store.
+class StoreMigrationProgress {
+  const StoreMigrationProgress({required this.done, required this.total});
+
+  final int done;
+  final int total;
+
+  /// The copy is through; the open goes on.
+  bool get finished => total > 0 && done >= total;
+
+  @override
+  bool operator ==(Object other) => other is StoreMigrationProgress && other.done == done && other.total == total;
+
+  @override
+  int get hashCode => Object.hash(done, total);
+
+  @override
+  String toString() => 'StoreMigrationProgress($done/$total)';
+}
+
+/// From this many records the copy step shows its count and a bar: a smaller wallet copies in
+/// a moment and shows the line only.
+const int storeProgressCountFrom = 1000;
 
 /// The key part of an epicbox address, before `@`. Services are matched on it alone: the
 /// relay checks the signature with the key, never the domain, so the domain proves nothing.

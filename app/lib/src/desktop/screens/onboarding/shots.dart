@@ -98,6 +98,7 @@ final List<DeskShot> onboardingShots = [
   const DeskShot(id: '05-unlock', title: 'Unlock', route: DeskRoute.unlock),
   const DeskShot(id: '05b-unlock-error', title: 'Unlock: wrong password', route: DeskRoute.unlock, arg: UnlockShow.wrongPassword),
   const DeskShot(id: '05c-unlock-progress', title: 'Unlock: unlocking', route: DeskRoute.unlock, arg: UnlockShow.progress),
+  const DeskShot(id: '05c2-unlock-encrypting', title: 'Unlock: encrypting records', route: DeskRoute.unlock, arg: UnlockShow.encrypting),
   const DeskShot(id: '05d-unlock-failed', title: 'Unlock: failed', route: DeskRoute.unlock, arg: UnlockShow.failed),
   const DeskShot(id: '05e-unlock-missing', title: 'Unlock: folder missing', route: DeskRoute.unlock, arg: UnlockShow.missing),
   const DeskShot(id: '05h-unlock-list', title: 'Unlock: the wallet list open', route: DeskRoute.unlock, arg: UnlockShow.listOpen),

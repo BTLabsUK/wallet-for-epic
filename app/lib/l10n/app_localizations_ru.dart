@@ -19319,4 +19319,35 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Остановка';
+
+  @override
+  String get storeEncrypting => 'Шифрование данных кошелька…';
+
+  @override
+  String storeEncryptingCount(int done, int total) {
+    final intl.NumberFormat doneNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String doneString = doneNumberFormat.format(done);
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    return '$doneString из $totalString записей';
+  }
+
+  @override
+  String get storeRecordsPlain =>
+      'Данные кошелька пока остаются незашифрованными. Следующая попытка — при следующем запуске.';
+
+  @override
+  String get errorStoreWrongKey =>
+      'Данные этого кошелька не удалось открыть этой фразой. Ничего не изменено.';
+
+  @override
+  String get contactsClosedTitle => 'Адресная книга закрыта';
+
+  @override
+  String get contactsClosedText =>
+      'Она откроется, когда будет разблокирован кошелёк, который её использует.';
 }

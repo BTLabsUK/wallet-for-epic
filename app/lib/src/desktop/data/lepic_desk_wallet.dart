@@ -969,6 +969,9 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<void> forgetRemembered(String id) => _remember.forget(id);
 
+  @override
+  Stream<core.StoreMigrationProgress> get storeMigration => _service.storeMigrationProgress;
+
   /// Opens the selected wallet. [remember]: keep the password, forget it, or (null, for the
   /// remembered password itself) leave it and its expiry as they are.
   Future<bool> _unlock(String password, {bool? remember}) async {
@@ -1000,6 +1003,9 @@ class LepicDeskWallet implements DeskWalletApi {
       session = await _service.open(config: config, password: password);
     } on core.WalletError catch (e) {
       if (e.kind == core.WalletErrorKind.wrongPassword) return false;
+      // The records do not open with this wallet's key: nothing was touched; Unlock words it in
+      // the password's error slot and stays ready.
+      if (e.kind == core.WalletErrorKind.wrongKey) rethrow;
       if (e.kind != core.WalletErrorKind.damagedDatabase) throw _deskError(e);
       // LEPIC set the damaged database aside; opening again rebuilds it from the vault, and a
       // scan brings the funds back.
@@ -2398,6 +2404,8 @@ class LepicDeskWallet implements DeskWalletApi {
       restoreScan: _restoreView,
       lastUpdate: _lastUpdate,
       notice: _notice,
+      recordsPlain: _session?.storeOpen == core.StoreOpenOutcome.plainFallback,
+      contactsClosed: !(_session?.contactsAvailable ?? true),
     );
   }
 

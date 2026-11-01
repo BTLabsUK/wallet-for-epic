@@ -812,6 +812,8 @@ class ServiceStatus {
     this.restoreScan,
     this.lastUpdate,
     this.notice,
+    this.recordsPlain = false,
+    this.contactsClosed = false,
   });
 
   final NodeServer node;
@@ -884,6 +886,14 @@ class ServiceStatus {
   /// A one-line state the wallet is in, e.g. a database being rebuilt; null when none.
   final String? notice;
 
+  /// This session runs on the wallet's unencrypted records: the copy into the encrypted store
+  /// did not go through at this unlock, and the next one tries again. Overview says so once.
+  final bool recordsPlain;
+
+  /// The shared address book is closed to the open wallet (no key to it yet): Contacts says
+  /// so instead of showing an empty list.
+  final bool contactsClosed;
+
   // Every field: an equal status is not written again, so a field left out here would never show.
   @override
   bool operator ==(Object other) =>
@@ -910,7 +920,9 @@ class ServiceStatus {
       scanning == other.scanning &&
       restoreScan == other.restoreScan &&
       lastUpdate == other.lastUpdate &&
-      notice == other.notice;
+      notice == other.notice &&
+      recordsPlain == other.recordsPlain &&
+      contactsClosed == other.contactsClosed;
 
   @override
   int get hashCode => Object.hashAll([
@@ -937,6 +949,8 @@ class ServiceStatus {
     restoreScan,
     lastUpdate,
     notice,
+    recordsPlain,
+    contactsClosed,
   ]);
 }
 

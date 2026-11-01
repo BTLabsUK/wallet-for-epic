@@ -4864,5 +4864,11 @@
   "deskNodeSwitchConnecting": "正在连接 {host}…",
   "deskNodeSwitchStarting": "正在启动本地节点…",
   "deskNodeSwitchStopping": "正在停止本地节点…",
-  "deskNodeSwitchStoppingWord": "正在停止"
+  "deskNodeSwitchStoppingWord": "正在停止",
+  "storeEncrypting": "正在加密钱包记录…",
+  "storeEncryptingCount": "已完成 {done}/{total} 条记录",
+  "storeRecordsPlain": "钱包记录暂时保持未加密。下次启动时会再次尝试。",
+  "errorStoreWrongKey": "无法用此助记词打开该钱包的记录。未做任何更改。",
+  "contactsClosedTitle": "通讯录已关闭",
+  "contactsClosedText": "解锁使用该通讯录的钱包后即可打开。"
 }

@@ -18276,4 +18276,34 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'กำลังหยุด';
+
+  @override
+  String get storeEncrypting => 'กำลังเข้ารหัสข้อมูลกระเป๋า…';
+
+  @override
+  String storeEncryptingCount(int done, int total) {
+    final intl.NumberFormat doneNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String doneString = doneNumberFormat.format(done);
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    return '$doneString จาก $totalString รายการ';
+  }
+
+  @override
+  String get storeRecordsPlain =>
+      'ข้อมูลกระเป๋ายังไม่ได้เข้ารหัสในตอนนี้ จะลองอีกครั้งในครั้งถัดไป';
+
+  @override
+  String get errorStoreWrongKey =>
+      'ไม่สามารถเปิดข้อมูลของกระเป๋านี้ด้วยวลีนี้ได้ ไม่มีสิ่งใดถูกเปลี่ยนแปลง';
+
+  @override
+  String get contactsClosedTitle => 'สมุดที่อยู่ปิดอยู่';
+
+  @override
+  String get contactsClosedText => 'จะเปิดเมื่อปลดล็อกกระเป๋าที่ใช้สมุดนี้';
 }

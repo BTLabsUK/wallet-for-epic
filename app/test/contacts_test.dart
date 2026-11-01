@@ -130,6 +130,16 @@ void main() {
   });
 
   group('list', () {
+    testWidgets('a book this wallet has no key to is shown closed, not empty', (tester) async {
+      final h = _Harness();
+      h.session.contactsAvailableValue = false;
+      await h.pump(tester, const ContactsScreen());
+      expect(find.byKey(const ValueKey('contacts-closed')), findsOneWidget);
+      expect(find.text(_l.contactsClosedTitle), findsOneWidget);
+      expect(find.text(_l.contactsClosedText), findsOneWidget);
+      expect(find.text(_l.contactsEmptyTitle), findsNothing);
+    });
+
     testWidgets('empty: the next step, no search field', (tester) async {
       final h = _Harness();
       await h.pump(tester, const ContactsScreen());

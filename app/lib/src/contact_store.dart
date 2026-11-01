@@ -20,6 +20,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 
 import 'log.dart';
 import 'recipient.dart';
@@ -114,6 +115,11 @@ String _randomHex(int bytes) {
 /// The sealed book beside the plain one, and the folder of its key's wraps.
 const String contactsSealedFileName = 'contacts.sealed';
 const String contactsKeysDirName = 'contacts.keys';
+
+/// The OS lock on the sealed book: held by the one app process that has the book open, so a
+/// second process (another instance, where the system lets one start) never seals, merges or
+/// writes it at the same time. Never deleted: two openers must lock the same file.
+const String contactsLockFileName = 'contacts.lock';
 
 /// The sealed book's format version: in its header and in the AES-GCM associated data.
 const int contactsSealedVersion = 1;
@@ -237,13 +243,19 @@ class ContactStore {
     final store = _sealedOpen[abs] ??= ContactStore._sealed(abs);
     await store._queue(() async {
       store._wallets.remove(walletId);
-      final wrap = store._wrapPath(walletId);
-      await _deleteIfThere(wrap);
-      await _deleteIfThere(SealedFile.tmpOf(wrap));
-      if ((await store._wraps()).isEmpty) {
-        await _deleteIfThere(store._sealedPath);
-        await _deleteIfThere(SealedFile.tmpOf(store._sealedPath));
-        store._lock();
+      final claimed = await store._takeClaim();
+      try {
+        final wrap = store._wrapPath(walletId);
+        await _deleteIfThere(wrap);
+        await _deleteIfThere(SealedFile.tmpOf(wrap));
+        // The book itself only under the lock: another process may be adding a wrap.
+        if (claimed && (await store._wraps()).isEmpty) {
+          await _deleteIfThere(store._sealedPath);
+          await _deleteIfThere(SealedFile.tmpOf(store._sealedPath));
+          store._lock();
+        }
+      } finally {
+        if (store._wallets.isEmpty) store._lock();
       }
     });
   }
@@ -251,7 +263,59 @@ class ContactStore {
   /// Forgets the loaded stores (tests that delete their folder).
   static void forgetAll() {
     _open.clear();
+    for (final s in _sealedOpen.values) {
+      s._release();
+    }
     _sealedOpen.clear();
+  }
+
+  /// How long an unlock waits for another process to let go of the book before it leaves the
+  /// book closed for this session.
+  @visibleForTesting
+  static Duration claimWait = const Duration(seconds: 3);
+
+  /// This process's lock on [contactsLockFileName], while the book is in use here.
+  RandomAccessFile? _claim;
+
+  String get _claimPath => '$_dir${Platform.pathSeparator}$contactsLockFileName';
+
+  /// Takes the book's OS lock, waiting up to [claimWait] for another process to release it.
+  /// False when it stays held there.
+  Future<bool> _takeClaim() async {
+    if (_claim != null) return true;
+    final RandomAccessFile file;
+    try {
+      await Directory(_dir!).create(recursive: true);
+      file = await File(_claimPath).open(mode: FileMode.append);
+    } on FileSystemException catch (e) {
+      throw _io('opening $_claimPath: ${e.message}');
+    }
+    final until = DateTime.now().add(claimWait);
+    while (true) {
+      try {
+        await file.lock(FileLock.exclusive);
+        _claim = file;
+        return true;
+      } on FileSystemException {
+        if (DateTime.now().isAfter(until)) {
+          await file.close();
+          return false;
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }
+    }
+  }
+
+  /// Lets another process have the book.
+  void _release() {
+    final c = _claim;
+    _claim = null;
+    if (c == null) return;
+    try {
+      c.closeSync();
+    } on FileSystemException {
+      // Closed with the process at the latest.
+    }
   }
 
   /// `contacts.json`; null for [ContactStore.memory].
@@ -348,6 +412,7 @@ class ContactStore {
   });
 
   void _lock() {
+    _release();
     final k = _key;
     if (k != null) k.fillRange(0, k.length, 0);
     _key = null;
@@ -421,6 +486,11 @@ class ContactStore {
   /// 6. every attached wallet without a wrap gets one.
   Future<void> _attach(String walletId, AppDataSealer sealer) async {
     _wallets[walletId] = sealer;
+    // Another process has the book open: closed here for this session, nothing read or written.
+    if (!await _takeClaim()) {
+      logWarn('contacts', 'the address book is open in another instance of the app; closed here');
+      return;
+    }
     if (_key == null) {
       try {
         await SealedFile.dropTmp(_sealedPath);

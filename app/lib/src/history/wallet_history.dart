@@ -174,6 +174,10 @@ class WalletHistory {
 
   final ContactStore? _shared;
 
+  /// False while the shared book is closed to this wallet (no key to it yet): [contacts] is
+  /// then empty because nothing could be read, not because there are none.
+  bool get contactsAvailable => _shared?.available ?? true;
+
   final MetaStore _store;
 
   /// The wallet's chain, named in exports and checked on import.

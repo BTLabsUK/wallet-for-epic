@@ -25300,5 +25300,41 @@
   "deskNodeSwitchStoppingWord": "Stopping",
   "@deskNodeSwitchStoppingWord": {
     "description": "Sidebar Node status word, one word: the built-in local node is shutting down after a switch to a public node."
+  },
+  "storeEncrypting": "Encrypting wallet records…",
+  "@storeEncrypting": {
+    "description": "Unlock progress, phone and desktop: the first unlock after the update copies the wallet's records into its encrypted store. Shown while it runs."
+  },
+  "storeEncryptingCount": "{done} of {total} records",
+  "@storeEncryptingCount": {
+    "description": "Under 'Encrypting wallet records…' for a large wallet: how many records are copied so far.",
+    "placeholders": {
+      "done": {
+        "type": "int",
+        "example": "4200",
+        "format": "decimalPattern"
+      },
+      "total": {
+        "type": "int",
+        "example": "10000",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "storeRecordsPlain": "Wallet records stay unencrypted for now. The app tries again next time.",
+  "@storeRecordsPlain": {
+    "description": "Info notice after unlock, once per session, phone and desktop: the copy into the encrypted store did not go through (for example a full disk), so this session uses the unencrypted records."
+  },
+  "errorStoreWrongKey": "This wallet's records could not be opened with this phrase. Nothing was changed.",
+  "@errorStoreWrongKey": {
+    "description": "Unlock or recovery error: the wallet's encrypted records do not open with the key from this wallet's phrase. No file was changed."
+  },
+  "contactsClosedTitle": "Address book closed",
+  "@contactsClosedTitle": {
+    "description": "Contacts screen, phone and desktop, in place of the list: the shared address book cannot be opened by this wallet yet (it has no key to it)."
+  },
+  "contactsClosedText": "It opens once a wallet that uses it is unlocked.",
+  "@contactsClosedText": {
+    "description": "Under 'Address book closed'."
   }
 }

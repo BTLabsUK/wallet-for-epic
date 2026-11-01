@@ -18913,4 +18913,35 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Stoppt';
+
+  @override
+  String get storeEncrypting => 'Wallet-Daten werden verschlüsselt…';
+
+  @override
+  String storeEncryptingCount(int done, int total) {
+    final intl.NumberFormat doneNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String doneString = doneNumberFormat.format(done);
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    return '$doneString von $totalString Einträgen';
+  }
+
+  @override
+  String get storeRecordsPlain =>
+      'Die Wallet-Daten bleiben vorerst unverschlüsselt. Beim nächsten Start wird es erneut versucht.';
+
+  @override
+  String get errorStoreWrongKey =>
+      'Die Daten dieser Wallet ließen sich mit dieser Phrase nicht öffnen. Nichts wurde geändert.';
+
+  @override
+  String get contactsClosedTitle => 'Adressbuch geschlossen';
+
+  @override
+  String get contactsClosedText =>
+      'Es öffnet sich, sobald eine Wallet entsperrt wird, die es nutzt.';
 }

@@ -558,6 +558,10 @@ class RemoteWalletService implements WalletService {
     'sealedPassword': sealedPassword,
   });
 
+  /// The demo server's wallets are made in this build's format: nothing is ever copied.
+  @override
+  Stream<StoreMigrationProgress> get storeMigrationProgress => const Stream.empty();
+
   @override
   Future<int> pinFailures({required WalletConfig config}) => _call(
     ServiceMember.pinFailures.name,
@@ -625,6 +629,13 @@ class RemoteWalletSession implements WalletSession {
 
   @override
   void dispose() => _service._notify(SessionMember.dispose.name, handle);
+
+  /// The server's wallets are made encrypted; the server keeps its own book.
+  @override
+  StoreOpenOutcome get storeOpen => StoreOpenOutcome.encrypted;
+
+  @override
+  bool get contactsAvailable => true;
 
   @override
   Future<String> mnemonic({required String password}) =>

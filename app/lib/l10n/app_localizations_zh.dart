@@ -17628,4 +17628,32 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => '正在停止';
+
+  @override
+  String get storeEncrypting => '正在加密钱包记录…';
+
+  @override
+  String storeEncryptingCount(int done, int total) {
+    final intl.NumberFormat doneNumberFormat = intl.NumberFormat.decimalPattern(
+      localeName,
+    );
+    final String doneString = doneNumberFormat.format(done);
+    final intl.NumberFormat totalNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String totalString = totalNumberFormat.format(total);
+
+    return '已完成 $doneString/$totalString 条记录';
+  }
+
+  @override
+  String get storeRecordsPlain => '钱包记录暂时保持未加密。下次启动时会再次尝试。';
+
+  @override
+  String get errorStoreWrongKey => '无法用此助记词打开该钱包的记录。未做任何更改。';
+
+  @override
+  String get contactsClosedTitle => '通讯录已关闭';
+
+  @override
+  String get contactsClosedText => '解锁使用该通讯录的钱包后即可打开。';
 }

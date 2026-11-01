@@ -1211,6 +1211,41 @@ void main() {
       expect(find.textContaining('A wallet data file brings back payment history'), findsNothing);
     });
 
+    testWidgets('the first unlock after the update shows the copy of the records, then Home', (tester) async {
+      final gate = Completer<void>();
+      final service = _existing(session: _fundedSession())
+        ..migrationSteps = const [StoreMigrationProgress(done: 4200, total: 10000), StoreMigrationProgress(done: 10000, total: 10000)]
+        ..migrationGate = gate
+        ..storeOutcome = StoreOpenOutcome.migratedNow;
+      await _pumpApp(tester, service, _Device(sealedMainnet: true));
+      expect(find.text('Unlock wallet'), findsOneWidget);
+      await _enterNow(tester, 'PIN', _pin);
+      expect(find.text('Encrypting wallet records…'), findsOneWidget);
+      expect(find.text('4,200 of 10,000 records'), findsOneWidget);
+      gate.complete();
+      await _pumpFrames(tester);
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      // Migrated: no notice at all.
+      expect(find.textContaining('unencrypted'), findsNothing);
+    });
+
+    testWidgets('a copy that fell back to the plain records says so once after unlock', (tester) async {
+      final service = _existing(session: _fundedSession())..storeOutcome = StoreOpenOutcome.plainFallback;
+      await _pumpApp(tester, service, _Device(sealedMainnet: true));
+      await _unlockToHome(tester);
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
+      expect(find.text('Wallet records stay unencrypted for now. The app tries again next time.'), findsOneWidget);
+    });
+
+    testWidgets('records that do not open with the key say so on the unlock screen, which stays', (tester) async {
+      final service = _existing(session: _fundedSession())..wrongKey = true;
+      await _pumpApp(tester, service, _Device(sealedMainnet: true));
+      await _unlockToHome(tester);
+      expect(find.text("This wallet's records could not be opened with this phrase. Nothing was changed."), findsOneWidget);
+      expect(find.byKey(balanceFigureKey), findsNothing);
+      expect(find.text('Unlock wallet'), findsOneWidget);
+    });
+
     testWidgets('the restore scan keeps the screen on and the auto-lock away, and Stop and Try again go on', (tester) async {
       final calls = <MethodCall>[];
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(

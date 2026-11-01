@@ -4864,5 +4864,11 @@
   "deskNodeSwitchConnecting": "Łączenie z {host}…",
   "deskNodeSwitchStarting": "Uruchamianie węzła lokalnego…",
   "deskNodeSwitchStopping": "Zatrzymywanie węzła lokalnego…",
-  "deskNodeSwitchStoppingWord": "Zatrzymywanie"
+  "deskNodeSwitchStoppingWord": "Zatrzymywanie",
+  "storeEncrypting": "Szyfrowanie danych portfela…",
+  "storeEncryptingCount": "{done} z {total} rekordów",
+  "storeRecordsPlain": "Dane portfela na razie pozostają niezaszyfrowane. Kolejna próba nastąpi przy następnym uruchomieniu.",
+  "errorStoreWrongKey": "Danych tego portfela nie udało się otworzyć tą frazą. Nic nie zostało zmienione.",
+  "contactsClosedTitle": "Książka adresowa zamknięta",
+  "contactsClosedText": "Otworzy się po odblokowaniu portfela, który z niej korzysta."
 }

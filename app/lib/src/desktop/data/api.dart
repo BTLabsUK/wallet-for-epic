@@ -8,7 +8,7 @@ import 'dart:typed_data';
 
 import '../../devices/device_model.dart' show DeviceBook;
 import '../../cancel_final.dart' show CancelResult;
-import '../../models.dart' show FinishedPayment;
+import '../../models.dart' show FinishedPayment, StoreMigrationProgress;
 import '../../devices/device_service.dart' show DeviceHost;
 import '../../pairing_api.dart';
 
@@ -43,6 +43,10 @@ abstract interface class DeskWalletApi {
   /// Opens the selected wallet with the password remembered on this computer; false when
   /// none is kept, it expired, or it no longer opens the wallet (then it is forgotten).
   Future<bool> unlockRemembered();
+
+  /// The copy step of a first unlock after the update that encrypts the wallet's records:
+  /// events while [unlock] or [unlockRemembered] copies, none otherwise. Broadcast.
+  Stream<StoreMigrationProgress> get storeMigration;
 
   /// Whether a password is remembered on this computer for the wallet [id].
   Future<bool> isRemembered(String id);
