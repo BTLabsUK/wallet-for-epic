@@ -12,6 +12,7 @@ import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayP
 import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/levels/quiet_invoices.dart';
+import 'package:epic_wallet/src/ui/home_status.dart' show connectionsSheetKey;
 import 'package:epic_wallet/src/ui/levels/shell_status.dart';
 import 'package:epic_wallet/src/ui/levels/status_sheets.dart';
 import 'package:epic_wallet/src/ui/notices.dart';
@@ -159,14 +160,26 @@ void main() {
     for (var i = 0; i < 5; i++) {
       await tester.pump(const Duration(milliseconds: 100));
     }
+    // The icon opens the connections sheet; its Network row the Network sheet.
+    expect(find.byKey(connectionsSheetKey), findsOneWidget);
+    await tester.tap(find.descendant(of: find.byKey(connectionsSheetKey), matching: find.textContaining('Network')));
+    for (var i = 0; i < 5; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
     expect(find.byKey(networkSheetKey), findsOneWidget);
     final okBottom = tester.getBottomLeft(find.widgetWithText(TextButton, 'OK')).dy;
     expect(okBottom, lessThanOrEqualTo(2400 / 3 - 48));
   });
 
-  testWidgets('level 1: a tap on Epicbox opens its sheet', (tester) async {
+  testWidgets('level 1: a tap on Epicbox opens the connections sheet, its row the Epicbox sheet', (tester) async {
     await _pump(tester, level: '1');
     await tester.tap(find.byKey(shellEpicboxIconKey));
+    for (var i = 0; i < 5; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.byKey(connectionsSheetKey), findsOneWidget);
+    expect(find.byKey(epicboxSheetKey), findsNothing);
+    await tester.tap(find.descendant(of: find.byKey(connectionsSheetKey), matching: find.textContaining('Epicbox')));
     for (var i = 0; i < 5; i++) {
       await tester.pump(const Duration(milliseconds: 100));
     }

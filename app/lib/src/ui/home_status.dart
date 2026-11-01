@@ -19,7 +19,8 @@ import '../providers.dart';
 import '../tor_phone.dart';
 import '../tor_routes.dart';
 import '../levels/level_providers.dart';
-import 'levels/shell_status.dart' show shellStatusesShown;
+import 'levels/shell_status.dart' show shellEpicboxFace, shellNetworkFace, shellStatusesShown;
+import 'levels/status_sheets.dart' show showEpicboxSheet, showNetworkSheet;
 import 'network_status.dart' show nodeBehind, nodeTorWay;
 import 'network_mode_phone.dart';
 import 'network_mode_text.dart';
@@ -132,10 +133,22 @@ typedef StatusEntry = ({
   StatusDot dot,
   String label,
   String detail,
+  String brief,
   String actionHint,
   bool pulse,
   VoidCallback onTap,
 });
+
+/// One line for a connections row out of a tooltip's [detail]: its first line, with [host]
+/// after a middle dot when that line does not name it. A sentence's end mark goes before the
+/// dot ("Up to date · node.epiccash.com"). The rest of the detail (block, version, the
+/// server's port) stays in the tooltip and the service's own screen.
+String statusBrief(String detail, {String? host}) {
+  var first = detail.split('\n').first.trim();
+  if (host == null || host.isEmpty || first.contains(host)) return first;
+  if (first.endsWith('.') || first.endsWith('。')) first = first.substring(0, first.length - 1);
+  return '$first · $host';
+}
 
 /// The statuses in their order, Node, Epicbox, Tor, Link. A service the network mode turns off
 /// (Epicbox and Link in Node only; all of them in Kill switch) stays in its place as Off
@@ -199,6 +212,7 @@ typedef StatusEntry = ({
     dot: StatusDot.off,
     label: '$service, ${statusOffByModeWord(l, mode)}',
     detail: l.statusOffByModeDetail,
+    brief: l.statusOffByModeDetail,
     actionHint: l.netStatusOpenHint,
     pulse: false,
     onTap: () => openNetworkSection(context),
@@ -217,6 +231,7 @@ typedef StatusEntry = ({
           dot: nodeTor.dot,
           label: nodeTor.label,
           detail: nodeTor.detail,
+          brief: statusBrief(nodeTor.detail, host: nodeUrl == null ? null : serverHost(nodeUrl)),
           actionHint: l.netStatusOpenHint,
           // Only a sync in progress pulses: a connecting or waiting service sits still.
           pulse: status.node.state == NodeState.syncing,
@@ -232,6 +247,7 @@ typedef StatusEntry = ({
           dot: epicboxTor.dot,
           label: epicboxTor.label,
           detail: status.epicbox == null ? l.netStatusTurnOnHint : epicboxTor.detail,
+          brief: statusBrief(status.epicbox == null ? l.netStatusTurnOnHint : epicboxTor.detail, host: config?.epicboxDomain),
           actionHint: status.epicbox == null ? l.netStatusTurnOnHint : l.netStatusOpenHint,
           pulse: false,
           onTap: status.epicbox == null
@@ -251,6 +267,7 @@ typedef StatusEntry = ({
           dot: torDot(torState),
           label: torOn ? '${l.netStatusTor}, ${torWord(l, torState)}' : '${l.netStatusTor}, ${l.netStatusOff}',
           detail: !torOn ? l.netStatusTurnOnHintPrivacy : torState == TorState.on ? l.netStatusOn : torFace.text,
+          brief: statusBrief(!torOn ? l.netStatusTurnOnHintPrivacy : torState == TorState.on ? l.netStatusOn : torFace.text),
           actionHint: l.netStatusTorOpenHint,
           pulse: torState == TorState.starting,
           onTap: () => openPrivacySettings(context),
@@ -265,6 +282,7 @@ typedef StatusEntry = ({
           dot: link.dot,
           label: '${l.receiveTabDirect}, ${link.word}',
           detail: linkOn ? link.detail : l.netStatusTurnOnHint,
+          brief: statusBrief(linkOn ? link.detail : l.netStatusTurnOnHint),
           actionHint: linkOn ? l.netStatusDirectOpenHint : l.netStatusTurnOnHint,
           pulse: link.dot == StatusDot.busy,
           onTap: linkOn
@@ -280,8 +298,9 @@ typedef StatusEntry = ({
 
 /// The status icons side by side: Node, Epicbox, Tor, Link, in that order ([statusEntries]),
 /// after the network mode's mark when the mode is not Normal. Under Wallet's figure and, with [bar], in Send's
-/// and Receive's balance header: the same icons, dots, labels, details and taps. A long press
-/// on any icon opens the connections sheet ([showConnectionsSheet]).
+/// and Receive's balance header: the same icons, dots, labels and details. A tap (or a long
+/// press) on any icon opens the connections sheet ([showConnectionsSheet]), the one status entry
+/// point at every View; its rows open the services.
 class StatusIcons extends ConsumerWidget {
   const StatusIcons({super.key, this.bar = false});
 
@@ -290,6 +309,7 @@ class StatusIcons extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
     final (:mode, :entries) = statusEntries(context, ref, bar: bar);
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -304,9 +324,9 @@ class StatusIcons extends ConsumerWidget {
             dot: e.dot,
             label: e.label,
             detail: e.detail,
-            actionHint: e.actionHint,
+            actionHint: l.lvShellOpensDetails,
             pulse: e.pulse,
-            onTap: e.onTap,
+            onTap: () => showConnectionsSheet(context),
             onLongPress: () => showConnectionsSheet(context),
           ),
       ],
@@ -317,10 +337,11 @@ class StatusIcons extends ConsumerWidget {
 /// The key of the connections sheet, for tests.
 const Key connectionsSheetKey = ValueKey('connections-sheet');
 
-/// Opens the connections sheet: one row per status ([statusEntries]) with its glyph, the
-/// service and its state word, the detail under them, and a tap that closes the sheet and
-/// opens the service as its icon does. The network mode, when one holds the network back, is
-/// the first row.
+/// Opens the connections sheet, the status entry point at every View: one row per status
+/// ([statusEntries]; at Shallow its Network and Epicbox) with its glyph, the service and its
+/// state word, one line under them, and a tap that closes the sheet and opens the service
+/// (its server list or settings; at Shallow its own sheet with Switch server). The network
+/// mode, when one holds the network back, is the first row.
 Future<void> showConnectionsSheet(BuildContext context) => showPhoneSheet<void>(
   context: context,
   showDragHandle: true,
@@ -329,7 +350,7 @@ Future<void> showConnectionsSheet(BuildContext context) => showPhoneSheet<void>(
 );
 
 /// The connections sheet's body: a header, then one row per service, its glyph with the state
-/// mark on a tile, the service and its state word, the detail under them, a chevron; a hairline
+/// mark on a tile, the service and its state word, one line under them, a chevron; a hairline
 /// between rows. A row that reports a problem is tinted.
 class ConnectionsSheet extends ConsumerWidget {
   const ConnectionsSheet({super.key});
@@ -340,6 +361,7 @@ class ConnectionsSheet extends ConsumerWidget {
     final t = context.tokens;
     final theme = Theme.of(context);
     final (:mode, :entries) = statusEntries(context, ref, bar: false);
+    final shallow = shellStatusesShown(ref.watch(levelFeaturesProvider));
     final ring = t.surface;
     Widget row({
       required IconData icon,
@@ -409,16 +431,45 @@ class ConnectionsSheet extends ConsumerWidget {
           dot: StatusDot.off,
           onTap: () => openNetworkSection(context),
         ),
-      for (final e in entries)
-        row(
-          icon: e.icon,
-          glyph: StatusGlyph(icon: e.icon, enabled: e.enabled, dot: e.dot, ring: ring),
-          enabled: e.enabled,
-          label: e.label,
-          detail: e.detail,
-          dot: e.enabled ? e.dot : StatusDot.off,
-          onTap: e.onTap,
-        ),
+      // Shallow: its two statuses, each opening its own sheet (status_sheets.dart).
+      if (shallow) ...[
+        () {
+          final face = shellNetworkFace(context, ref);
+          final url = ref.watch(walletConfigProvider)?.nodeUrl;
+          return row(
+            icon: EpicGlyphs.node,
+            glyph: StatusGlyph(icon: EpicGlyphs.node, enabled: face.dot != StatusDot.off, dot: face.dot, ring: ring),
+            enabled: face.dot != StatusDot.off,
+            label: l.lvShellStatusTip(l.settingsAboutNetwork, face.word),
+            detail: url == null || url.isEmpty ? face.word : serverHost(url),
+            dot: face.dot,
+            onTap: () => showNetworkSheet(context),
+          );
+        }(),
+        () {
+          final face = shellEpicboxFace(context, ref);
+          final config = ref.watch(walletConfigProvider);
+          return row(
+            icon: EpicGlyphs.epicbox,
+            glyph: StatusGlyph(icon: EpicGlyphs.epicbox, enabled: face.dot != StatusDot.off, dot: face.dot, ring: ring),
+            enabled: face.dot != StatusDot.off,
+            label: l.lvShellStatusTip(l.netStatusEpicbox, face.word),
+            detail: config == null ? face.word : relayLabel(config),
+            dot: face.dot,
+            onTap: () => showEpicboxSheet(context),
+          );
+        }(),
+      ] else
+        for (final e in entries)
+          row(
+            icon: e.icon,
+            glyph: StatusGlyph(icon: e.icon, enabled: e.enabled, dot: e.dot, ring: ring),
+            enabled: e.enabled,
+            label: e.label,
+            detail: e.brief,
+            dot: e.enabled ? e.dot : StatusDot.off,
+            onTap: e.onTap,
+          ),
     ];
     return SingleChildScrollView(
       key: connectionsSheetKey,

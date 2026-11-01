@@ -163,9 +163,12 @@ typedef DeskFact = ({String label, String value, bool mono});
 /// a hairline between them; a long value (an address) takes a row of its own. The strip sits
 /// between two hairlines, like the figures under a balance.
 class DeskFactStrip extends StatelessWidget {
-  const DeskFactStrip(this.facts, {super.key});
+  const DeskFactStrip(this.facts, {super.key, this.bottomLine = true});
 
   final List<DeskFact> facts;
+
+  /// False when a band with its own top line follows (the popover's footer): one line, never two.
+  final bool bottomLine;
 
   /// A value wider than this reads on its own row.
   static const int longValue = 18;
@@ -215,7 +218,7 @@ class DeskFactStrip extends StatelessWidget {
       rows.add(cell(f, padEnd: false));
     }
     return Container(
-      decoration: BoxDecoration(border: Border(top: BorderSide(color: c.lineStrong), bottom: BorderSide(color: c.lineStrong))),
+      decoration: BoxDecoration(border: Border(top: BorderSide(color: c.lineStrong), bottom: bottomLine ? BorderSide(color: c.lineStrong) : BorderSide.none)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,

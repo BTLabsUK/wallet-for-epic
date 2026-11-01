@@ -90,7 +90,7 @@ class PreviewRelaySwitch extends RelaySwitchNotifier {
       state = RelaySwitchOffer(
         from: EpicboxRelay(host: mockBox),
         to: to,
-        name: mockBoxOp(1),
+        name: mockBoxAt(1),
         address: addressAtRelay(session.address, to),
       );
     });
