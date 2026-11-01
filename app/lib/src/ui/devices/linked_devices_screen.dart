@@ -223,6 +223,7 @@ class _DeviceActions extends ConsumerWidget {
                 body: l.devicesRemoveBody(device.name),
                 action: l.devicesRemove,
                 risky: true,
+                icon: Icons.link_off,
               );
               if (!yes || !context.mounted) return;
               await service?.removeDevice(device.deviceId);
@@ -277,7 +278,7 @@ class _HeldRow extends ConsumerWidget {
       subtitle: Text(l.devicesHeldBy(name)),
       trailing: TextButton(
         onPressed: () async {
-          final yes = await confirmDeviceAction(context, title: l.devicesReleaseTitle, body: l.devicesReleaseBody(name), action: l.devicesRelease, risky: true);
+          final yes = await confirmDeviceAction(context, title: l.devicesReleaseTitle, body: l.devicesReleaseBody(name), action: l.devicesRelease, risky: true, icon: Icons.lock_open_outlined);
           if (!yes || !context.mounted) return;
           await ref.read(deviceServiceProvider)?.releaseByHandOf(hold.deviceId, hold.slateId);
           ref.read(noticeProvider.notifier).show(l.devicesReleased, level: NoticeLevel.success);

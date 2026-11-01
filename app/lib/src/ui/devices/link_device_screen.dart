@@ -371,6 +371,7 @@ class _LinkDeviceScreenState extends ConsumerState<LinkDeviceScreen> {
                   action: l.linkReplace,
                   cancel: l.linkKeep(linked.name),
                   risky: true,
+                  icon: Icons.swap_horiz,
                 );
                 if (!yes || !context.mounted) return;
                 await _run((s) => s.replaceLinked());
