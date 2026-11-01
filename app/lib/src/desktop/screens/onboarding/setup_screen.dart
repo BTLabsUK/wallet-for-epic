@@ -428,6 +428,8 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       listNote: nodeListNoteText(l),
       chooseOnly: true,
       keepBelow: Ctl.md + Sp.x8,
+      // The field sits Sp.x4 in from the choice cards (below); the open list reaches their edges.
+      panelOverhang: Sp.x4,
       openInitially: _demo?.listOpen ?? false,
       onChoose: (v) async => setState(() {
         _picked = true;

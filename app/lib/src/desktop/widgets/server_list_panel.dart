@@ -207,10 +207,16 @@ class ServerListPanel extends ConsumerStatefulWidget {
     this.demo,
     this.selection,
     this.keepBelow = 0,
+    this.panelOverhang = 0,
   });
 
   /// Room the open list leaves free under it, so the page's main button stays in view.
   final double keepBelow;
+
+  /// How far the open list reaches past the field on each side: a field inset in a column of
+  /// cards (setup's node step) passes the inset, so the list lands flush with the cards' edges
+  /// and none shows beside it.
+  final double panelOverhang;
 
   final ServerKind kind;
 
@@ -1022,10 +1028,12 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     final below = box == null || !_laidOut(box) ? 480.u : MediaQuery.sizeOf(context).height - box.localToGlobal(Offset.zero).dy - anchor - Sp.x4 - widget.keepBelow;
     final maxHeight = below.clamp(widget.keepBelow > 0 ? 160.u : 260.u, 520.u);
 
+    final reach = widget.panelOverhang;
+    final width = _width + 2 * reach;
     return CompositedTransformFollower(
       link: _link,
       targetAnchor: Alignment.bottomLeft,
-      offset: Offset(0, Sp.x1),
+      offset: Offset(-reach, Sp.x1),
       child: Align(
         alignment: Alignment.topLeft,
         child: TapRegion(
@@ -1041,7 +1049,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong)),
               clipBehavior: Clip.antiAlias,
               child: ConstrainedBox(
-                constraints: BoxConstraints(minWidth: _width, maxWidth: _width, maxHeight: maxHeight),
+                constraints: BoxConstraints(minWidth: width, maxWidth: width, maxHeight: maxHeight),
                 child: Semantics(
                   label: widget.label,
                   explicitChildNodes: true,
