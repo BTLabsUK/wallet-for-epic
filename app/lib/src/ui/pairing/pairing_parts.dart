@@ -16,9 +16,9 @@ import '../../wallet_service.dart';
 import '../badge.dart';
 import '../contact_page.dart' show contactInitials;
 import '../info_hint.dart';
+import '../sas_picture.dart';
 import '../status_icons.dart';
 import '../theme/brand.dart';
-import '../theme/fonts.dart' show sasEmojiFallback;
 import '../theme/protocol.dart';
 import '../theme/tokens.dart';
 
@@ -34,7 +34,7 @@ enum WordTileSize {
   final double name;
 }
 
-/// A row of word tiles (the four of the check, the five pairing words): each emoji in a
+/// A row of word tiles (the four of the check, the five pairing words): each picture in a
 /// square tile with its name under it. A null entry is an empty slot (dashed, its number in
 /// it) while the words are typed; indexes in [bad] get a risk border. Tiles shrink to fit the
 /// width, never below two thirds of their size. Each name has its whole slot and shrinks to
@@ -163,8 +163,8 @@ class _WordTile extends StatelessWidget {
         child: CustomPaint(
           foregroundPainter: CornerTicksPainter(t.tick, length: 8, width: 2),
           child: Center(
-            // The emoji is drawn by the bundled picture font (the platform's own on Android).
-            child: Text(w.emoji, style: TextStyle(fontSize: side * 0.48, height: 1, fontFamilyFallback: sasEmojiFallback)),
+            // The bundled picture, the same on every system; the tile's label says its name.
+            child: SasPicture(w, size: side * 0.6, excludeFromSemantics: true),
           ),
         ),
       );
