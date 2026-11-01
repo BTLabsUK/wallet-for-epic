@@ -544,9 +544,10 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
       contentTextStyle: TextStyle(color: t.bg),
       actionTextColor: t.bg,
     ),
-    // Progress is work in progress: the blue, never the gold.
+    // Every bar and spinner takes the app's accent; none stays stock.
     progressIndicatorTheme: ProgressIndicatorThemeData(
-      color: t.info,
+      color: t.accent,
+      refreshBackgroundColor: t.surface,
       linearTrackColor: t.line,
       circularTrackColor: t.line,
     ),

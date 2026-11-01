@@ -3,6 +3,7 @@
 // filters and adds, a Node row that switches at once, an Epicbox row that asks first, a bin on
 // every row with Undo, "Restore removed servers", the directory's servers
 // joining the list, the operators' icons, and the sheet on small phones.
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -20,6 +21,7 @@ import 'package:epic_wallet/src/server_list_store.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/settings_file/settings_providers.dart';
 import 'package:epic_wallet/src/server_switch.dart';
+import 'package:epic_wallet/src/ui/notices.dart' show noticeProvider;
 import 'package:epic_wallet/src/ui/server_list_sheet.dart';
 import 'package:epic_wallet/src/ui/server_picker.dart' show showEpicboxPicker, showNodePicker;
 import 'package:epic_wallet/src/ui/server_tile.dart' show ServerTileView;
@@ -194,6 +196,9 @@ class _Env {
   /// The Epicbox listener: connected unless a test says otherwise.
   ListenerNotifier Function() listener = _Listener.new;
 
+  /// Holds a live switch until completed.
+  Completer<void>? hold;
+
   List<Override> get overrides => [
     secretStoreProvider.overrideWithValue(store),
     walletServiceProvider.overrideWithValue(service),
@@ -218,6 +223,7 @@ class _Env {
     required EpicboxRelay relay,
   }) async {
     live.add((nodeUrl: nodeUrl, relay: relay.label));
+    await hold?.future;
     if (liveAnswer) return true;
     // No wallet open: save and hand over, as the real one does.
     await switchServersLive(ref, nodeUrl: nodeUrl, relay: relay);
@@ -482,8 +488,35 @@ void main() {
       await tester.pumpAndSettle();
       expect(env.live.single, (nodeUrl: _btlabs, relay: 'box.net.invalid'));
       expect(env.saved, 0);
-      expect(_foot('Switched to box.net.invalid'), findsOneWidget);
+      // An Epicbox switch gives the new-address notice, not the foot line.
+      expect(_foot('Switched to box.net.invalid'), findsNothing);
+      final container = ProviderScope.containerOf(tester.element(find.byType(ServerListSheet)));
+      expect(container.read(noticeProvider)?.text, contains('box.net.invalid'));
       await _timers(tester);
+    });
+
+    testWidgets('epicbox: the tapped row says Connecting… then Connected, and the other rows '
+        'keep their dots while it switches', (tester) async {
+      final env = _Env()
+        ..liveAnswer = true
+        ..hold = Completer<void>();
+      await _pump(tester, ServerKind.relay, env);
+      List<NodeHealthState?> dots() => [
+        for (final t in tester.widgetList<ServerTileView>(find.byType(ServerTileView))) t.state,
+      ];
+      final before = dots();
+      await tester.tap(_row('box.net.invalid'));
+      await tester.pumpAndSettle();
+      await tester.tap(_confirmSwitch());
+      await tester.pump();
+      expect(_inRow('box.net.invalid', 'Connecting'), findsOneWidget);
+      expect(dots(), before);
+      env.hold!.complete();
+      await tester.pump();
+      await tester.pump();
+      expect(_inRow('box.net.invalid', 'Connected'), findsOneWidget);
+      await _timers(tester);
+      expect(_inRow('box.net.invalid', 'Connected'), findsNothing);
     });
 
     testWidgets('epicbox: the server up but this wallet not connected says so, and Retry '
