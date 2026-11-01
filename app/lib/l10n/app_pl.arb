@@ -810,6 +810,7 @@
   "settingsPinTitle": "Zmień PIN",
   "settingsPinEnterCurrent": "Wpisz obecny PIN",
   "settingsPinCurrentLabel": "Obecny PIN",
+  "settingsPinNewLabel": "Nowy PIN",
   "settingsPinChooseNew": "{digits, plural, few{Wybierz nowy {digits}-cyfrowy PIN} many{Wybierz nowy {digits}-cyfrowy PIN} other{Wybierz nowy {digits}-cyfrowy PIN}}",
   "settingsPinChanged": "Zmieniono PIN",
   "settingsPinChangedBiometricsOff": "Zmieniono PIN. Odblokowanie biometryczne jest wyłączone; włącz je ponownie poniżej.",

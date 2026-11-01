@@ -3161,6 +3161,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsPinCurrentLabel => 'Текущий PIN-код';
 
   @override
+  String get settingsPinNewLabel => 'Новый PIN-код';
+
+  @override
   String settingsPinChooseNew(int digits) {
     String _temp0 = intl.Intl.pluralLogic(
       digits,

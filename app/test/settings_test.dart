@@ -885,10 +885,16 @@ void main() {
       await h.openSettings(tester, SettingsSection.security);
       await _tapText(tester, 'Change PIN');
 
+      final field = find.byType(TextField);
+      final at = tester.getRect(field);
       await _enter(tester, 'Current PIN', '000000');
       expect(find.textContaining('Wrong PIN'), findsOneWidget);
+      expect(tester.getRect(field), at, reason: 'the error line was held');
       await _enter(tester, 'Current PIN', _pin);
-      await _enter(tester, 'PIN', '654321');
+      // The new PIN's field is named so, and takes the current one's place (#64).
+      expect(tester.getRect(find.widgetWithText(TextField, 'New PIN')), at);
+      await _enter(tester, 'New PIN', '654321');
+      expect(tester.getRect(find.widgetWithText(TextField, 'Repeat PIN')), at);
       await _enter(tester, 'Repeat PIN', '654321');
 
       // Back on settings, docked under the app bar, and gone after a while.

@@ -3084,6 +3084,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPinCurrentLabel => 'Current PIN';
 
   @override
+  String get settingsPinNewLabel => 'New PIN';
+
+  @override
   String settingsPinChooseNew(int digits) {
     String _temp0 = intl.Intl.pluralLogic(
       digits,

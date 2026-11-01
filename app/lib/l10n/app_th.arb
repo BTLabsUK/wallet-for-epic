@@ -810,6 +810,7 @@
   "settingsPinTitle": "เปลี่ยน PIN",
   "settingsPinEnterCurrent": "ป้อน PIN ปัจจุบัน",
   "settingsPinCurrentLabel": "PIN ปัจจุบัน",
+  "settingsPinNewLabel": "PIN ใหม่",
   "settingsPinChooseNew": "{digits, plural, other{ตั้ง PIN ใหม่ {digits} หลัก}}",
   "settingsPinChanged": "เปลี่ยน PIN แล้ว",
   "settingsPinChangedBiometricsOff": "เปลี่ยน PIN แล้ว การปลดล็อกด้วยไบโอเมตริกปิดอยู่ เปิดอีกครั้งได้ด้านล่าง",

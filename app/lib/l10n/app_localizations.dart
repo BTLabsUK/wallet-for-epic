@@ -4981,6 +4981,12 @@ abstract class AppLocalizations {
   /// **'Current PIN'**
   String get settingsPinCurrentLabel;
 
+  /// Label of the field for the new PIN on Change PIN (the step after the current PIN).
+  ///
+  /// In en, this message translates to:
+  /// **'New PIN'**
+  String get settingsPinNewLabel;
+
   /// Heading above the field for the new PIN.
   ///
   /// In en, this message translates to:

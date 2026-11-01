@@ -3904,6 +3904,10 @@
   "@settingsPinCurrentLabel": {
     "description": "Label of the PIN field."
   },
+  "settingsPinNewLabel": "New PIN",
+  "@settingsPinNewLabel": {
+    "description": "Label of the field for the new PIN on Change PIN (the step after the current PIN)."
+  },
   "settingsPinChooseNew": "{digits, plural, other{Choose a new {digits}-digit PIN}}",
   "@settingsPinChooseNew": {
     "description": "Heading above the field for the new PIN.",

@@ -137,17 +137,21 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
               : l.passphraseSetTitle,
         ),
       ),
+      // Every step has one frame: the glyph, a progress line, a two-line heading, the field
+      // with its error line, and the room of the confirm step's button ([PinStepFoot]); so
+      // going from the current PIN to the new one, a check running and an error move nothing.
       body: CenteredBody(
         children: [
           const Center(
             child: GlyphTile(size: 80, child: Icon(Icons.lock_outline)),
           ),
-          const SizedBox(height: 24),
+          SizedBox(
+            height: 24,
+            child: Center(child: _busy ? const LinearProgressIndicator() : null),
+          ),
           if (_currentPin == null) ...[
-            Text(
+            PinStepTitle(
               usesPassphrase ? l.passphraseEnterCurrent : l.settingsPinEnterCurrent,
-              style: Theme.of(context).textTheme.titleMedium,
-              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             PinField(
@@ -155,21 +159,25 @@ class _ChangePinScreenState extends ConsumerState<ChangePinScreen> {
               label: usesPassphrase ? l.passphraseCurrentLabel : l.settingsPinCurrentLabel,
               enabled: !_busy,
               errorText: _pinError,
+              reserveError: true,
               onCompleted: _checkCurrent,
               passphrase: usesPassphrase,
             ),
-          ] else if (_busy)
-            const LinearProgressIndicator()
-          else if (widget.passphrase)
-            _PassphraseSetup(onDone: (passphrase) => _change(passphrase, false))
-          else
-            PinSetupView(
-              askBiometrics: false,
-              chooseTitle: l.settingsPinChooseNew(pinLength),
-              onDone: _change,
+            const SizedBox(height: 8),
+            PinStepFoot(child: _error == null ? null : ErrorText(_error!)),
+          ] else
+            // Kept on screen while the change runs: the progress line says it is busy.
+            AbsorbPointer(
+              absorbing: _busy,
+              child: widget.passphrase
+                  ? _PassphraseSetup(onDone: (passphrase) => _change(passphrase, false))
+                  : PinSetupView(
+                      askBiometrics: false,
+                      chooseTitle: l.settingsPinChooseNew(pinLength),
+                      chooseLabel: l.settingsPinNewLabel,
+                      onDone: _change,
+                    ),
             ),
-          if (_busy && _currentPin == null) const LinearProgressIndicator(),
-          if (_error != null) ErrorText(_error!),
         ],
       ),
     );

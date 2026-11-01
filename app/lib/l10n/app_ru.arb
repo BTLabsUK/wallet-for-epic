@@ -810,6 +810,7 @@
   "settingsPinTitle": "Изменить PIN-код",
   "settingsPinEnterCurrent": "Введите текущий PIN-код",
   "settingsPinCurrentLabel": "Текущий PIN-код",
+  "settingsPinNewLabel": "Новый PIN-код",
   "settingsPinChooseNew": "{digits, plural, few{Придумайте новый {digits}-значный PIN-код} many{Придумайте новый {digits}-значный PIN-код} other{Придумайте новый {digits}-значный PIN-код}}",
   "settingsPinChanged": "PIN-код изменён",
   "settingsPinChangedBiometricsOff": "PIN-код изменён. Биометрическая разблокировка выключена; включите её снова ниже.",

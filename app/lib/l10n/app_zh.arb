@@ -810,6 +810,7 @@
   "settingsPinTitle": "修改 PIN 码",
   "settingsPinEnterCurrent": "请输入当前 PIN 码",
   "settingsPinCurrentLabel": "当前 PIN 码",
+  "settingsPinNewLabel": "新 PIN 码",
   "settingsPinChooseNew": "{digits, plural, other{设置新的 {digits} 位 PIN 码}}",
   "settingsPinChanged": "PIN 码已修改",
   "settingsPinChangedBiometricsOff": "PIN 码已修改。生物识别解锁已关闭，请在下方重新开启。",

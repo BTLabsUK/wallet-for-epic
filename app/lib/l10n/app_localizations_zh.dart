@@ -2914,6 +2914,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsPinCurrentLabel => '当前 PIN 码';
 
   @override
+  String get settingsPinNewLabel => '新 PIN 码';
+
+  @override
   String settingsPinChooseNew(int digits) {
     String _temp0 = intl.Intl.pluralLogic(
       digits,
