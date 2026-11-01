@@ -13,6 +13,7 @@ import '../devices/device_ending.dart';
 import 'info_hint.dart' show InfoHint;
 import '../contacts.dart' show contactNameFor, contactsProvider;
 import '../l10n.dart';
+import '../trust/contact_trust.dart' show mailboxStageWord;
 import '../network_gate.dart' show NetGate;
 import '../phrase_clipboard.dart' show copySecretToClipboard;
 import '../pairing_providers.dart' show PairNet, pairNetProvider, pairingNameProvider, pairingSlateProvider, pairingSupportedProvider;
@@ -724,6 +725,9 @@ TxPhase txPhase(TxEntry tx, BigInt? tip, {int? target}) {
 /// `Waiting for recipient`, `Confirming 1/3`, `Completed`, …; `Waiting for Anna` for a
 /// payment to or from the paired contact [pairedWith] through its mailbox ([txMailboxName]),
 /// and for a send to it while Epicbox is off ([paused]) that it waits in the outbox.
+/// When [tx] was made, from its creation time.
+DateTime txSentAt(TxEntry tx) => DateTime.fromMillisecondsSinceEpoch(tx.createdAtUnix * 1000);
+
 String txStatusLabel(
   AppLocalizations l,
   TxEntry tx,
@@ -737,6 +741,10 @@ String txStatusLabel(
   TxPhase.waitingRecipient when now != null && invoicePaymentStalled(tx, now) =>
     l.txStatusStalled,
   TxPhase.waitingRecipient when pairedWith != null && paused => l.contactPausedEpicboxOff,
+  // Through a paired contact's mailbox, unanswered for a day or gone from the relay after
+  // seven: the stage, not the name (trust policy).
+  TxPhase.waitingRecipient when pairedWith != null && now != null && _outgoingKind(tx) && mailboxStageWord(l, txSentAt(tx), now) != null =>
+    mailboxStageWord(l, txSentAt(tx), now)!,
   TxPhase.waitingRecipient when pairedWith != null => l.txStatusWaitingFor(pairedWith),
   TxPhase.waitingRecipient => l.txStatusWaitingRecipient,
   // The sender's word: the wallet clears it by itself (sender_cancel.dart).

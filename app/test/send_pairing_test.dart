@@ -272,11 +272,13 @@ void main() {
   });
 
   group('the payment\'s row', () {
+    // Made an hour ago: a send unanswered for a day reads "Not answered yet" instead.
     TxEntry waiting(String slateId) => fakeTx(
       id: 7,
       slateId: slateId,
       kind: TxKind.sent,
       status: TxStatus.awaitingRecipient,
+      createdAtUnix: DateTime.now().subtract(const Duration(hours: 1)).millisecondsSinceEpoch ~/ 1000,
       amountDebited: _epic(1.5),
       fee: BigInt.from(700000),
       transport: 'file',

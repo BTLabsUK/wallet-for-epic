@@ -34,6 +34,23 @@ void main() {
       expect(redact(broken), broken);
     });
 
+    test('drops what was learned about another wallet\'s key, in every mode', () {
+      // A compat row: the key, its dates and bits never leave the device (privacy rule P8).
+      const row = 'peer_compat $_address last_marked_at=2026-10-02T10:00:00Z claimed=0x3 works=1';
+      for (final details in [false, true]) {
+        final out = redact(row, details: details);
+        expect(out, 'peer_compat [redacted]', reason: 'details $details');
+      }
+      // The fields on their own, as a structured log line would write them.
+      expect(
+        redact('trust: last_unmarked_at: 2026-10-02T10:00:00Z, features_at=2026-09-01, claimed: 3, works=1 ok', details: true),
+        'trust: last_unmarked_at: [redacted], features_at=[redacted], claimed: [redacted], works=[redacted] ok',
+      );
+      // The words in prose stay.
+      const prose = 'the wallet works and the claimed amount is right';
+      expect(redact(prose), prose);
+    });
+
     test('keeps ordinary sentences', () {
       const text =
           'the payment to alice could not reach the node, please try again later';

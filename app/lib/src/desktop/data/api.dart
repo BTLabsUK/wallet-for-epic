@@ -15,6 +15,7 @@ import '../../pairing_api.dart';
 import 'backup_settings_desk.dart' show DeskBackupSettings;
 import 'http_address.dart';
 import 'invoices.dart';
+import '../../trust/policy.dart' show PeerCompat;
 import 'models.dart';
 
 abstract interface class DeskWalletApi {
@@ -477,6 +478,13 @@ abstract interface class DeskWalletApi {
   /// Pairing (RFC 0002) of the open wallet: [PairingApi.supported] false while locked or on a
   /// core without it. The types are the core's (`models.dart`), shared with the phone.
   PairingApi get pairing;
+
+  /// What the wallet has learned about the software behind [address] (an Epicbox address), or
+  /// null when it knows nothing. Feeds the trust policy (`trust/policy.dart`).
+  Future<PeerCompat?> peerCompat(String address);
+
+  /// Drops what the wallet learned about Epicbox keys silent for [olderThan]; called on open.
+  Future<void> forgetPeers({required Duration olderThan});
 
   /// What linked devices (`devices/`) need from the open wallet: its pairing engine, outputs,
   /// history and the coins every send leaves out; null while locked. [online] says whether the

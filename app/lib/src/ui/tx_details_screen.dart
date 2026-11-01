@@ -23,7 +23,10 @@ import '../settings_file/host_settings.dart' show hostSettings;
 import '../wallet_service.dart';
 import '../stall_retry.dart' show invoicePaymentStalled;
 import '../watch_mode.dart' show BlockWait;
+import '../contacts.dart' show contactsProvider;
+import '../trust/contact_trust.dart' show mailboxResendOffer, relationshipOf, trustAddressOf;
 import 'common.dart';
+import 'mailbox_resend.dart';
 import 'finished_not_posted.dart';
 import 'contacts_screen.dart' show ContactEditScreen;
 import 'invoice_request_screen.dart' show IssuedInvoiceBlock;
@@ -597,6 +600,36 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     }
   }
 
+  /// Cancel and send by Epicbox (trust policy, an unanswered mailbox send): the waiting send
+  /// is cancelled through the ordinary cancel, then an ordinary Epicbox send of the same amount
+  /// and message goes to [address], the contact's Epicbox address. One confirm first; two rows
+  /// stay in the history, so the details close on the list.
+  Future<void> _resendByEpicbox(TxEntry tx, String name, String address) async {
+    if (!await confirmCancelAndSendByEpicbox(context, name) || !mounted) return;
+    final session = ref.read(sessionProvider);
+    if (session == null) return;
+    final minimum = ref.read(countedConfirmationsProvider);
+    final (:amount, outgoing: _) = txAmount(tx);
+    final message = messageBy(tx.messages, SlateRole.sender);
+    setState(() => _busy = true);
+    try {
+      await ref.read(cancelFinalProvider).cancel(session, tx, spendBack: false);
+      // The linked devices free its coins at once, not at the next tick.
+      unawaited(ref.read(deviceServiceProvider)?.announceNow());
+      await session.sendEpicbox(amount: amount, minimumConfirmations: minimum, address: address, message: message);
+      if (!mounted) return;
+      _showMessage(context.l10n.mailboxResent, level: NoticeLevel.success);
+      await _reload();
+      if (mounted) await Navigator.of(context).maybePop();
+    } catch (error) {
+      if (!mounted) return;
+      _showMessage(describeError(context.l10n, error), level: NoticeLevel.error);
+      await _reload();
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -649,12 +682,25 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             null => null,
           };
     final mailboxWaiting = mailboxName != null && tx.status == TxStatus.awaitingRecipient;
+    // The paired contact behind the mailbox and its Epicbox address: Cancel and send by Epicbox
+    // needs one (trust policy, mailboxResendOffer).
+    final mailboxContact = mailboxPairing?.contactId == null
+        ? null
+        : (ref.watch(contactsProvider).value ?? const <Contact>[]).where((c) => c.id == mailboxPairing!.contactId).firstOrNull;
+    final resendAddress = trustAddressOf(mailboxContact?.epicbox, mailboxPairing);
     final name = txPartyName(ref, tx) ?? mailboxName;
     final fiat = tx.status == TxStatus.cancelled
         ? null
         : approxFiat(l, amount, display);
     final ttl = ttlLine(l, tx, tip);
     final now = ref.watch(clockProvider)();
+    final resendOffer = mailboxWaiting && mailboxPairing != null && txAmount(tx).outgoing
+        ? mailboxResendOffer(
+            relationshipOf(inContacts: mailboxContact != null, epicboxAddress: mailboxContact?.epicbox, pairing: mailboxPairing),
+            txSentAt(tx),
+            now,
+          )
+        : null;
     final wait = tip == null ? BlockWait.none : ref.read(blockWatchProvider).waitOf(tx, now: now, tip: tip);
     final stuck = isStuck(tx);
     final url = chain == null ? null : explorerUrl(chain, tx);
@@ -839,6 +885,18 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                         tone: BadgeTone.warn,
                         title: l.contactRelayDownTitle(mailboxName),
                         body: l.contactRelayDownBody,
+                      ),
+                    ]
+                    // Unanswered for a day, or gone from the relay after seven: Cancel and send
+                    // by Epicbox, when the contact has an Epicbox address.
+                    else if (resendOffer != null) ...[
+                      const SizedBox(height: 12),
+                      MailboxResendCard(
+                        offer: resendOffer,
+                        name: mailboxName!,
+                        busy: _busy,
+                        onResend: resendAddress == null ? null : () => _resendByEpicbox(tx, mailboxName, resendAddress),
+                        onKeepWaiting: () => Navigator.of(context).maybePop(),
                       ),
                     ],
                     if (txTimeline(

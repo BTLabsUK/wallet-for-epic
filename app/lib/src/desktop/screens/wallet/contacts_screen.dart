@@ -16,6 +16,7 @@ import '../../../ui/pairing/pairing_parts.dart' show PairPendingBadge, TrustBadg
 import '../../data/pairing_state.dart';
 import '../pairing/pair_screens.dart';
 import '../settings/help_pairing.dart' show HelpAt;
+import 'contact_trust_line.dart';
 import 'contacts_transfer.dart';
 import 'tx_display.dart';
 
@@ -755,6 +756,8 @@ class _ContactDetail extends ConsumerWidget {
         if (x.note != null) ...[SizedBox(height: Sp.x5), Text(l.deskConNote, style: ts.label), SizedBox(height: Sp.x1), Text(x.note!, style: ts.body)],
         // Pairing (RFC 0002): trust, Seal payments, Allow invoices, the relay, Remove pairing.
         if (pairs) ...[SizedBox(height: Sp.x6), DeskPairingBlock(contact: x, pairing: pairing)],
+        // The compatibility line (trust policy): one sentence, never a badge.
+        DeskContactTrustLine(contact: x),
         SizedBox(height: Sp.x6),
         Row(
           children: [

@@ -4864,5 +4864,16 @@
   "deskNodeSwitchConnecting": "正在连接 {host}…",
   "deskNodeSwitchStarting": "正在启动本地节点…",
   "deskNodeSwitchStopping": "正在停止本地节点…",
-  "deskNodeSwitchStoppingWord": "正在停止"
+  "deskNodeSwitchStoppingWord": "正在停止",
+  "trustLineOtherApp": "{name} 的上一笔付款由另一款钱包应用应答。",
+  "trustLineNotHeard": "自 {date} 起未收到 {name} 的钱包的任何消息。",
+  "mailboxNotAnswered": "尚未应答",
+  "mailboxNotPickedUp": "未取件",
+  "mailboxNeverPickedUp": "{name} 的钱包从未收取这笔付款。",
+  "mailboxResendTitle": "取消并经 Epicbox 发送",
+  "mailboxResendBody": "等待中的付款将被取消，相同金额将作为普通付款发送到 {name} 的 Epicbox 地址。历史记录中保留两行。",
+  "mailboxResendAction": "取消并发送",
+  "mailboxKeepWaiting": "继续等待",
+  "mailboxResent": "已取消并经 Epicbox 发送。",
+  "torRelayCaption": "经 Tor 时，Epicbox 服务器看不到此设备的地址。"
 }

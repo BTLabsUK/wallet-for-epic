@@ -17628,4 +17628,45 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => '正在停止';
+
+  @override
+  String trustLineOtherApp(Object name) {
+    return '$name 的上一笔付款由另一款钱包应用应答。';
+  }
+
+  @override
+  String trustLineNotHeard(Object name, Object date) {
+    return '自 $date 起未收到 $name 的钱包的任何消息。';
+  }
+
+  @override
+  String get mailboxNotAnswered => '尚未应答';
+
+  @override
+  String get mailboxNotPickedUp => '未取件';
+
+  @override
+  String mailboxNeverPickedUp(Object name) {
+    return '$name 的钱包从未收取这笔付款。';
+  }
+
+  @override
+  String get mailboxResendTitle => '取消并经 Epicbox 发送';
+
+  @override
+  String mailboxResendBody(Object name) {
+    return '等待中的付款将被取消，相同金额将作为普通付款发送到 $name 的 Epicbox 地址。历史记录中保留两行。';
+  }
+
+  @override
+  String get mailboxResendAction => '取消并发送';
+
+  @override
+  String get mailboxKeepWaiting => '继续等待';
+
+  @override
+  String get mailboxResent => '已取消并经 Epicbox 发送。';
+
+  @override
+  String get torRelayCaption => '经 Tor 时，Epicbox 服务器看不到此设备的地址。';
 }

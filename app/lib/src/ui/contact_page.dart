@@ -17,6 +17,7 @@ import '../pairing_providers.dart';
 import '../providers.dart';
 import '../wallet_service.dart';
 import 'common.dart';
+import 'contact_trust_line.dart';
 import 'contacts_screen.dart';
 import 'history_screen.dart' show HistoryScreen;
 import 'method_names.dart';
@@ -311,6 +312,9 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                 onCheck: () => _openCheck(pairing.id),
               ),
           ],
+          // The compatibility line (trust policy): one sentence, never a badge; a plain
+          // contact's key can answer as another wallet app with pairing off too.
+          ContactTrustLine(contactId: contact.id, name: contact.name),
           if (contact.note?.trim() case final note? when note.isNotEmpty) ...[
             PairSection(l.contactsNoteHeading),
             Text(note, style: Theme.of(context).textTheme.bodyMedium),

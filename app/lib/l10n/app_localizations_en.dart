@@ -18692,4 +18692,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Stopping';
+
+  @override
+  String trustLineOtherApp(Object name) {
+    return '$name’s last payment was answered by another wallet app.';
+  }
+
+  @override
+  String trustLineNotHeard(Object name, Object date) {
+    return 'Not heard from $name’s wallet since $date.';
+  }
+
+  @override
+  String get mailboxNotAnswered => 'Not answered yet';
+
+  @override
+  String get mailboxNotPickedUp => 'Not picked up';
+
+  @override
+  String mailboxNeverPickedUp(Object name) {
+    return '$name’s wallet never picked this up.';
+  }
+
+  @override
+  String get mailboxResendTitle => 'Cancel and send by Epicbox';
+
+  @override
+  String mailboxResendBody(Object name) {
+    return 'The waiting send is cancelled and the same amount goes to $name’s Epicbox address as an ordinary payment. Two rows stay in the history.';
+  }
+
+  @override
+  String get mailboxResendAction => 'Cancel and send';
+
+  @override
+  String get mailboxKeepWaiting => 'Keep waiting';
+
+  @override
+  String get mailboxResent => 'Cancelled and sent by Epicbox.';
+
+  @override
+  String get torRelayCaption =>
+      'Over Tor the relay does not see this device’s address.';
 }

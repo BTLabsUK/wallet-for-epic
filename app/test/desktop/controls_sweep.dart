@@ -18,6 +18,7 @@ import 'package:epic_wallet/src/desktop/data/http_address.dart' show HttpReach;
 import 'package:epic_wallet/src/desktop/data/invoices.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/models.dart' show FinishedPayment;
+import 'package:epic_wallet/src/trust/policy.dart' show PeerCompat;
 import 'package:epic_wallet/src/pairing_api.dart' show PairingApi;
 import 'package:epic_wallet/src/devices/device_model.dart' show DeviceBook;
 import 'package:epic_wallet/src/devices/device_service.dart' show DeviceHost;
@@ -375,6 +376,12 @@ class _Recorder implements DeskWalletApi, MockBacked {
   // Pairing calls go to the pairing API, not through the recorder.
   @override
   PairingApi get pairing => _m.pairing;
+
+  @override
+  Future<PeerCompat?> peerCompat(String address) => _r('peerCompat', () => _m.peerCompat(address));
+
+  @override
+  Future<void> forgetPeers({required Duration olderThan}) => _r('forgetPeers', () => _m.forgetPeers(olderThan: olderThan));
 
   @override
   DeviceHost? deviceHost({required bool Function() online}) => _m.deviceHost(online: online);

@@ -25300,5 +25300,62 @@
   "deskNodeSwitchStoppingWord": "Stopping",
   "@deskNodeSwitchStoppingWord": {
     "description": "Sidebar Node status word, one word: the built-in local node is shutting down after a switch to a public node."
+  },
+  "trustLineOtherApp": "{name}’s last payment was answered by another wallet app.",
+  "@trustLineOtherApp": {
+    "description": "Contact page line (not a badge): the contact's last Epicbox payment came from a wallet that is not this app, newer than its last one that was.",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "trustLineNotHeard": "Not heard from {name}’s wallet since {date}.",
+  "@trustLineNotHeard": {
+    "description": "Contact page line: a paired contact whose wallet sent nothing for 90 days; date is a day and month.",
+    "placeholders": {
+      "name": {},
+      "date": {}
+    }
+  },
+  "mailboxNotAnswered": "Not answered yet",
+  "@mailboxNotAnswered": {
+    "description": "Status of a send through a paired contact's mailbox with no answer after 24 hours (row and details)."
+  },
+  "mailboxNotPickedUp": "Not picked up",
+  "@mailboxNotPickedUp": {
+    "description": "Status of a send through a paired contact's mailbox with no answer after 7 days: the relay has dropped it."
+  },
+  "mailboxNeverPickedUp": "{name}’s wallet never picked this up.",
+  "@mailboxNeverPickedUp": {
+    "description": "Line under the status of a mailbox send unanswered for 7 days.",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "mailboxResendTitle": "Cancel and send by Epicbox",
+  "@mailboxResendTitle": {
+    "description": "Button and dialog title: cancel an unanswered mailbox send and send the same amount to the contact's Epicbox address as an ordinary payment."
+  },
+  "mailboxResendBody": "The waiting send is cancelled and the same amount goes to {name}’s Epicbox address as an ordinary payment. Two rows stay in the history.",
+  "@mailboxResendBody": {
+    "description": "Body of the Cancel and send by Epicbox confirm dialog.",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "mailboxResendAction": "Cancel and send",
+  "@mailboxResendAction": {
+    "description": "The confirming button of the Cancel and send by Epicbox dialog."
+  },
+  "mailboxKeepWaiting": "Keep waiting",
+  "@mailboxKeepWaiting": {
+    "description": "The closing button of the Cancel and send by Epicbox dialog and of the unanswered mailbox send's details: nothing changes."
+  },
+  "mailboxResent": "Cancelled and sent by Epicbox.",
+  "@mailboxResent": {
+    "description": "Notice after Cancel and send by Epicbox finished: the old send is cancelled and the new one is on its way."
+  },
+  "torRelayCaption": "Over Tor the relay does not see this device’s address.",
+  "@torRelayCaption": {
+    "description": "Caption under the Epicbox row in Settings while Tor is off, and a Help › Privacy line."
   }
 }

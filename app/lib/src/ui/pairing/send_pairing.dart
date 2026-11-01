@@ -13,6 +13,7 @@ import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../payment_prefs.dart';
 import '../../settings.dart';
+import '../../trust/trust_providers.dart' show mailboxRouteOffered;
 import '../../wallet_service.dart';
 import '../badge.dart';
 import '../method_names.dart';
@@ -78,7 +79,9 @@ class SendPairingLine extends ConsumerWidget {
     final kinds = contact.kinds;
     final current = parseRecipient(address).kind;
     final prefs = ref.watch(appSettingsProvider).value?.payments ?? PaymentPrefs.defaults;
-    final mailbox = pairing != null && epicbox && pairing.seals && ref.watch(pairNetProvider) == PairNet.online;
+    // Hidden while the contact's key answers as another wallet app (trust policy): the plain
+    // route is used then.
+    final mailbox = pairing != null && epicbox && pairing.seals && ref.watch(pairNetProvider) == PairNet.online && mailboxRouteOffered(ref, contact, pairing);
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Column(

@@ -4864,5 +4864,16 @@
   "deskNodeSwitchConnecting": "Łączenie z {host}…",
   "deskNodeSwitchStarting": "Uruchamianie węzła lokalnego…",
   "deskNodeSwitchStopping": "Zatrzymywanie węzła lokalnego…",
-  "deskNodeSwitchStoppingWord": "Zatrzymywanie"
+  "deskNodeSwitchStoppingWord": "Zatrzymywanie",
+  "trustLineOtherApp": "Na ostatnią płatność {name} odpowiedziała inna aplikacja portfela.",
+  "trustLineNotHeard": "Brak wieści od portfela {name} od {date}.",
+  "mailboxNotAnswered": "Jeszcze bez odpowiedzi",
+  "mailboxNotPickedUp": "Nieodebrana",
+  "mailboxNeverPickedUp": "Portfel {name} nigdy tego nie odebrał.",
+  "mailboxResendTitle": "Anuluj i wyślij przez Epicbox",
+  "mailboxResendBody": "Oczekująca płatność zostanie anulowana, a ta sama kwota trafi na adres Epicbox {name} jako zwykła płatność. W historii zostaną dwa wiersze.",
+  "mailboxResendAction": "Anuluj i wyślij",
+  "mailboxKeepWaiting": "Czekaj dalej",
+  "mailboxResent": "Anulowano i wysłano przez Epicbox.",
+  "torRelayCaption": "Przez Tor serwer Epicbox nie widzi adresu tego urządzenia."
 }

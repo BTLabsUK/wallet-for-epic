@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../../tor_routes.dart' show TorState;
 import '../../../advanced.dart' show NetworkMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -45,6 +46,9 @@ ETone epicboxTone(ServiceHealth h) => switch (h) {
 /// listener switch, Start with the wallet and the server; Link · HTTP its state line and
 /// options (the method switch is the one HTTP switch, there is no second one) while it is on
 /// or its listener still runs; Link · Tor its state line (Tor itself is Settings › Privacy's).
+/// The Tor caption under the Epicbox rows, for tests.
+const Key deskTorRelayCaptionKey = ValueKey('tor-relay-caption');
+
 class SettingsReceivingScreen extends ConsumerStatefulWidget {
   const SettingsReceivingScreen({super.key, this.arg});
 
@@ -513,6 +517,12 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
             ),
           ),
           _autostart(TxMethod.epicbox, s.epicboxAutostart, (v) => _saveAutostart(s.copyWith(epicboxAutostart: v))),
+          // While Tor is off: where the relay would not see this computer's address.
+          if (status.torIncluded && netTorState(s, status) == TorState.off)
+            Padding(
+              padding: EdgeInsets.fromLTRB(Sp.x3, Sp.x2, Sp.x3, 0),
+              child: Text(l.torRelayCaption, key: deskTorRelayCaptionKey, style: context.ts.small),
+            ),
         ],
       ]),
       // Link · HTTP on; a listener that is on keeps its rows. The switch is the method's: these

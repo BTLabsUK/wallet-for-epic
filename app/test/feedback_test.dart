@@ -219,6 +219,23 @@ void main() {
       }
     });
 
+    test('never carries what the wallet learned about another wallet\'s key', () {
+      const row = 'INFO trust: peer_compat $_address last_marked_at=2026-10-02T10:00:00Z claimed=0x3 works=1';
+      for (final full in [false, true]) {
+        final report = buildFeedbackReport(
+          message: 'Anna cannot pay me',
+          details: _details,
+          log: '$row\nINFO trust: last_unmarked_at=2026-10-03T10:00:00Z\n',
+          at: DateTime.utc(2026, 10, 1, 8, 5),
+          fullDetails: full,
+        ).text;
+        expect(report, contains('peer_compat [redacted]'), reason: 'full $full');
+        for (final secret in ['esWn9r', '2026-10-02', '2026-10-03', '0x3', 'works=1']) {
+          expect(report, isNot(contains(secret)), reason: '$secret full $full');
+        }
+      }
+    });
+
     test('names a private node by a stand-in, the same in the facts and the log', () {
       final report = buildFeedbackReport(
         message: 'Sync stuck',

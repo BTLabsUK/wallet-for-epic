@@ -31,6 +31,7 @@ import 'net/lan_node_relay.dart';
 import 'network_gate.dart';
 import 'pin_wrap.dart';
 import 'tor_build.dart';
+import 'trust/policy.dart' show PeerCompat;
 import 'relay_refused.dart' show refusedHandshake;
 import 'recipient.dart' show plainHttpToOtherDevice;
 import 'redact.dart';
@@ -248,6 +249,23 @@ Future<T> _guard<T>(Future<T> Function() call) async {
   } on lepic.WalletError catch (error) {
     throw mapLepicError(error);
   }
+}
+
+/// LEPIC's `PeerCompat` as the app's: the stored facts only; what follows from them (LEPIC's
+/// `lepic`, `notices`, `fresh`) the trust policy derives itself from the same dates. Null for a
+/// key nothing is known about (everything unset), so the policy sees no row at all.
+PeerCompat? lepicPeerCompat(lepic.PeerCompat c) {
+  if (c.lastMarkedAtMs == null && c.lastUnmarkedAtMs == null && c.featuresAtMs == null && c.claimed == 0 && c.works == 0) {
+    return null;
+  }
+  DateTime? at(int? ms) => ms == null ? null : DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true);
+  return PeerCompat(
+    lastMarkedAt: at(c.lastMarkedAtMs),
+    lastUnmarkedAt: at(c.lastUnmarkedAtMs),
+    claimed: c.claimed,
+    works: c.works,
+    featuresAt: at(c.featuresAtMs),
+  );
 }
 
 T _guardSync<T>(T Function() call) {
@@ -1070,6 +1088,21 @@ class LepicWalletService implements WalletService {
         ),
       );
 
+  /// The open wallet's rows: null while no wallet is open, for an address LEPIC refuses (it
+  /// does not parse, or is on the other network) and for a key nothing is known about. The
+  /// trust policy treats null as the safe default.
+  @override
+  Future<PeerCompat?> peerCompat(String address) async {
+    final session = _open;
+    if (session == null) return null;
+    try {
+      return await session.peerCompat(address);
+    } on WalletError catch (e) {
+      if (e.kind == WalletErrorKind.invalidArgument) return null;
+      rethrow;
+    }
+  }
+
   @override
   Future<SlateInfo> inspectSlate({required String json}) => _guard(
     () async => lepicSlateInfo(
@@ -1200,7 +1233,7 @@ class LepicWalletService implements WalletService {
     lepic.EpicWallet wallet,
   ) async {
     try {
-      return (await LepicWalletSession.openOn(
+      final session = (await LepicWalletSession.openOn(
         wallet,
         config.dataDir,
         config.chain,
@@ -1208,12 +1241,21 @@ class LepicWalletService implements WalletService {
       ))
         ..nodeUrl = config.nodeUrl
         ..nodeApiSecret = config.nodeApiSecret;
+      // The open wallet, for [peerCompat]; forgotten when the session goes.
+      _open = session;
+      session.onDispose = () {
+        if (identical(_open, session)) _open = null;
+      };
+      return session;
     } catch (_) {
       wallet.lock();
       wallet.dispose();
       rethrow;
     }
   }
+
+  /// The session opened last and not disposed yet, whose store [peerCompat] reads.
+  LepicWalletSession? _open;
 
   /// The shared address book, or null without [contactsDir]. A book that cannot be read (its
   /// folder unreadable) never keeps a wallet from opening: the wallet then keeps its own list.
@@ -1377,8 +1419,13 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   final lepic.EpicWallet _wallet;
   final WalletHistory _history;
 
+  /// Told once, first thing in [dispose]: the service drops its handle on this session.
+  void Function()? onDispose;
+
   @override
   void dispose() {
+    onDispose?.call();
+    onDispose = null;
     _walletEvents?.cancel();
     _walletEvents = null;
     _pairing.close();
@@ -1574,6 +1621,18 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   @override
   Future<void> cancelTransaction({required int txId}) =>
       _guard(() => _wallet.cancelTransaction(txId: txId));
+
+  /// What LEPIC learned about the key at [address] ([lepicPeerCompat]); null for a key nothing
+  /// is known about. Throws [WalletErrorKind.invalidArgument] for an address LEPIC refuses.
+  Future<PeerCompat?> peerCompat(String address) =>
+      _guard(() async => lepicPeerCompat(await _wallet.peerCompat(address: address)));
+
+  @override
+  Future<void> forgetPeers({required Duration olderThan}) => _guard(() async {
+    final forgotten = await _wallet.forgetPeers(olderThanDays: olderThan.inDays);
+    // A count only: the keys themselves never reach the log.
+    if (forgotten > 0) logDebug('trust', 'forgot $forgotten silent peers');
+  });
 
   @override
   Future<void> repostTransaction({required String key}) =>
