@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import '../../../demo_tip.dart';
+import '../../../demo_fixtures.dart';
 import '../../../levels/level_providers.dart' show walletLevelProvider;
 import '../../../levels/wallet_level.dart';
 import '../../data/desk_levels.dart' show deskLevelControlProvider;
@@ -76,7 +76,7 @@ Future<void> showLocalNode(ProviderContainer c, LocalNodeState state, FallbackCo
 
 /// An update to [phase] for the tour: the next version, from the download folder.
 void _update(ProviderContainer c, DeskUpdatePhase phase, {bool inApp = true}) {
-  const v = '26.10.19';
+  final v = demoUpdateVersion;
   c.read(deskUpdateProvider.notifier).showDemo(DeskUpdateState(
     phase,
     version: v,

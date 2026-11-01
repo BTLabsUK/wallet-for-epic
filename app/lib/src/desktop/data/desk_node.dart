@@ -9,7 +9,7 @@
 /// does, after the user agreed.
 library;
 
-import '../../demo_tip.dart';
+import '../../demo_fixtures.dart';
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';

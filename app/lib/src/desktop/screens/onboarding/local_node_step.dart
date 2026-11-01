@@ -8,7 +8,7 @@ library;
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
-import '../../../demo_tip.dart';
+import '../../../demo_fixtures.dart';
 import 'package:flutter/services.dart' show FilteringTextInputFormatter, LengthLimitingTextInputFormatter;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

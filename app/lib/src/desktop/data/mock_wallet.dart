@@ -4,7 +4,7 @@
 /// is anything but "wrong"; "wrong" fails the unlock.
 library;
 
-import '../../demo_tip.dart';
+import '../../demo_fixtures.dart';
 import '../../settings_file/host_settings.dart' show hostSettings, shippedHostSettings;
 import 'mock_hosts.dart';
 import '../../cancel_final.dart' show CancelResult;

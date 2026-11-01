@@ -11,7 +11,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/misc.dart' show Override;
 
 import '../demo.dart' show pinlessProvider;
-import '../demo_tip.dart';
+import '../demo_fixtures.dart';
 import '../levels/first_start.dart' show firstStartProvider;
 import '../levels/relay_switch_providers.dart' show relaySwitchProvider;
 import '../net/http_types.dart' show NetError;
