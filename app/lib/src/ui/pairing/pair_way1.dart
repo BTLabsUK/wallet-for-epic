@@ -18,7 +18,7 @@ import '../../pairing_text.dart';
 import '../../trust/policy.dart';
 import '../../wallet_service.dart';
 import '../common.dart';
-import '../contact_page.dart' show AddressText;
+import '../address_view.dart' show ShortAddressText;
 import '../phone_sheet.dart';
 import '../settings_rows.dart' show NavChevron;
 import '../theme/brand.dart';
@@ -195,7 +195,7 @@ class _RequestRow extends ConsumerWidget {
               children: [
                 Text(l.pairWantsToPair(name), style: theme.textTheme.bodyLarge, maxLines: 2, overflow: TextOverflow.ellipsis),
                 const SizedBox(height: 2),
-                AddressText(request.fromAddress, short: true),
+                ShortAddressText(request.fromAddress, style: const TextStyle(fontSize: 13)),
               ],
             ),
           ),

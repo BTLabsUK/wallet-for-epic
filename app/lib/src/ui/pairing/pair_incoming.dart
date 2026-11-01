@@ -25,7 +25,7 @@ import '../../updater.dart' show updateProvider;
 import '../../wallet_service.dart';
 import '../app_dialog.dart';
 import '../common.dart';
-import '../contact_page.dart' show AddressText;
+import '../address_view.dart' show ShortAddressText;
 import '../phone_sheet.dart';
 import '../theme/brand.dart';
 import '../theme/tokens.dart';
@@ -233,7 +233,7 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
           ),
           if (p.fromAddress case final from?) ...[
             const SizedBox(height: 12),
-            AddressText(from, short: true),
+            ShortAddressText(from, style: const TextStyle(fontSize: 13)),
           ],
           const SizedBox(height: 20),
           // The primary over the secondary, as every foot on the phone (UP-029).
