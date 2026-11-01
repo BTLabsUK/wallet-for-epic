@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'app_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -785,27 +786,18 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
     final contact = widget.contact;
     if (contact == null) return;
     final pairing = ref.read(contactPairingProvider(contact.id));
-    final sure = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        final l = context.l10n;
-        return AlertDialog(
-          title: Text(l.contactsDeleteTitle(contact.name)),
-          content: Text(pairing == null ? l.contactsDeleteBody : '${l.contactsDeleteBody}\n\n${l.contactDeletePaired(contact.name)}'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(l.contactsKeep),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(l.commonDelete),
-            ),
-          ],
-        );
-      },
+    final l = context.l10n;
+    final sure = await confirmAppDialog(
+      context,
+      title: l.contactsDeleteTitle(contact.name),
+      icon: Icons.person_remove_outlined,
+      tone: DialogTone.risk,
+      description: pairing == null ? l.contactsDeleteBody : '${l.contactsDeleteBody}\n\n${l.contactDeletePaired(contact.name)}',
+      cancelLabel: l.contactsKeep,
+      confirmLabel: l.commonDelete,
+      risk: true,
     );
-    if (sure != true || !mounted) return;
+    if (!sure || !mounted) return;
     try {
       // Deleting a paired contact removes its pairing (C-19).
       if (pairing != null) await pairingCall(ref, (api) => api.removePairing(pairing.id));

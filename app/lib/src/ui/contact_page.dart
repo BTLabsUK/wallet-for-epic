@@ -5,6 +5,7 @@
 /// keys-changed and relay notices, and Remove pairing. Replaces the contact sheet.
 library;
 
+import 'app_dialog.dart';
 import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -171,22 +172,17 @@ class _ContactPageState extends ConsumerState<ContactPage> {
 
   Future<void> _delete(Contact contact, PairingRecord? pairing) async {
     final l = context.l10n;
-    final sure = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.contactsDeleteTitle(contact.name)),
-        content: Text(pairing == null ? l.contactsDeleteConfirmBody : '${l.contactsDeleteConfirmBody}\n\n${l.contactDeletePaired(contact.name)}'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.commonCancel)),
-          TextButton(
-            style: TextButton.styleFrom(foregroundColor: context.tokens.risk),
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l.commonDelete),
-          ),
-        ],
-      ),
+    final sure = await confirmAppDialog(
+      context,
+      title: l.contactsDeleteTitle(contact.name),
+      icon: Icons.person_remove_outlined,
+      tone: DialogTone.risk,
+      description: pairing == null ? l.contactsDeleteConfirmBody : '${l.contactsDeleteConfirmBody}\n\n${l.contactDeletePaired(contact.name)}',
+      cancelLabel: l.commonCancel,
+      confirmLabel: l.commonDelete,
+      risk: true,
     );
-    if (sure != true || !mounted) return;
+    if (!sure || !mounted) return;
     final notices = ref.read(noticeProvider.notifier);
     try {
       // Deleting a paired contact removes its pairing (C-19).
