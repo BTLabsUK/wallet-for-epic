@@ -27,7 +27,10 @@ void _namesWhole(WidgetTester tester, List<SasWord> words) {
     final text = find.text(w.name);
     expect(text, findsWidgets, reason: w.name);
     for (final e in text.evaluate()) {
-      final paragraph = e.renderObject! as RenderParagraph;
+      // The paragraph itself: a Text in a selectable area puts a mouse region above it.
+      final paragraph = tester.renderObject<RenderParagraph>(
+        find.descendant(of: find.byElementPredicate((x) => x == e), matching: find.byType(RichText), matchRoot: true).first,
+      );
       expect(paragraph.didExceedMaxLines, isFalse, reason: '${w.name} is cut');
       // Scaled down to fit, never wider than its slot.
       final shown = tester.getRect(find.byElementPredicate((x) => x == e));
