@@ -5523,7 +5523,9 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     // yet (it read "Waiting for a block"). A paid request is this wallet's to post, so posted.
     core.TxStatus.awaitingConfirmation when height == null && e.kind == core.TxKind.received && !e.isRequest => TxState.waitingRecipient,
     core.TxStatus.awaitingConfirmation => height == null ? TxState.posted : TxState.confirming,
-    core.TxStatus.confirmed => confirmations > 0 && confirmations < minConf ? TxState.confirming : TxState.confirmed,
+    // In a block and short of the wallet's confirmations: confirming, a block above this
+    // wallet's height too (a linked payment its kernel dated before the wallet caught up).
+    core.TxStatus.confirmed => height != null && tip > 0 && confirmations < minConf ? TxState.confirming : TxState.confirmed,
   };
   final to = e.counterparty;
   final method = switch (e.transport) {

@@ -1376,18 +1376,20 @@ class DeviceService {
       if (kernel == null || !kernelWanted(h) || answers.containsKey(kernel) || _kernelSettled.contains(kernel)) continue;
       final last = _kernelAsked[kernel];
       if (last != null && last >= tip) continue;
-      _kernelAsked[kernel] = tip;
       final KernelLocation? found;
       try {
         found = await host.kernelOnChain(kernel, minHeight: kernelFloor(h, tip: tip, now: now));
       } on Object catch (e) {
+        // Unknown, not absent: asked again on the next sweep.
         if (!_kernelLookupWarned) logWarn('devices', 'kernel lookup failed: ${_kind(e)}');
         _kernelLookupWarned = true;
         continue;
       }
+      _kernelAsked[kernel] = tip;
       if (found == null && (_kernelAbsent[kernel] ??= tip) >= tip) continue;
       answers[kernel] = found;
-      if (h.state == HoldState.spent) _kernelSettled.add(kernel);
+      // Only a kernel found settles it: an absent one is the sweep's to judge.
+      if (found != null && h.state == HoldState.spent) _kernelSettled.add(kernel);
     }
     return answers;
   }
