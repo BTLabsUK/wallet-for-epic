@@ -365,6 +365,7 @@ class _FolderDialogState extends State<_FolderDialog> {
   @override
   Widget build(BuildContext context) => EDialog(
     title: context.l10n.deskOnbWelcomeChooseFolder,
+    icon: EIcons.folderOpen,
     body: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

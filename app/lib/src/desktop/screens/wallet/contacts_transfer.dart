@@ -96,7 +96,7 @@ Future<void> deskExportContacts(BuildContext context) async {
     builder: (context) => EDialog(
       title: l.contactsExport,
       icon: EIcons.fileUp,
-      width: 520.u,
+      size: DialogWidth.standard,
       body: Text(l.contactsExportHolds, style: context.ts.body),
       actions: [
         EButton(label: l.commonCancel, onPressed: () => Navigator.pop(context, false)),
@@ -198,7 +198,7 @@ Future<void> _failed(BuildContext context, String message) => showEDialog<void>(
   builder: (context) => EDialog(
     title: context.l10n.contactsImport,
     icon: EIcons.fileDown,
-    width: 520.u,
+    size: DialogWidth.standard,
     body: ENotice(title: message, tone: ETone.risk),
     actions: [EButton(label: context.l10n.commonClose, onPressed: () => Navigator.pop(context))],
   ),
@@ -228,7 +228,7 @@ class _ImportConfirm extends StatelessWidget {
       title: l.contactsImportTitle,
       description: plan.hasChanges ? null : l.contactsImportNothing,
       icon: EIcons.fileDown,
-      width: 520.u,
+      size: DialogWidth.standard,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

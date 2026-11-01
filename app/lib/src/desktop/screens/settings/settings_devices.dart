@@ -227,6 +227,7 @@ Future<void> _rename(BuildContext context, WidgetRef ref, DeviceService service,
     context,
     builder: (ctx) => EDialog(
       title: thisDevice ? l.deskDevRenameThis : l.deskDevRenameDevice(name),
+      icon: EIcons.pencil,
       body: EField(
         label: l.devicesNameLabel,
         child: EInput(
@@ -238,8 +239,8 @@ Future<void> _rename(BuildContext context, WidgetRef ref, DeviceService service,
         ),
       ),
       actions: [
-        EButton(label: l.commonCancel, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx)),
-        EButton.primary(key: devicesRenameSaveKey, label: l.commonSave, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, text.text)),
+        EButton(label: l.commonCancel, onPressed: () => Navigator.pop(ctx)),
+        EButton.primary(key: devicesRenameSaveKey, label: l.commonSave, onPressed: () => Navigator.pop(ctx, text.text)),
       ],
     ),
   );
@@ -263,8 +264,8 @@ Future<void> removeLinkedDevice(BuildContext context, DeviceService service, Lin
       tone: ETone.warn,
       description: l.devicesRemoveBody(d.name),
       actions: [
-        EButton(label: l.commonCancel, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, false)),
-        EButton(key: devicesRemoveConfirmKey, label: l.devicesRemove, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, true)),
+        EButton(label: l.commonCancel, onPressed: () => Navigator.pop(ctx, false)),
+        EButton(key: devicesRemoveConfirmKey, label: l.devicesRemove, kind: EBtnKind.danger, onPressed: () => Navigator.pop(ctx, true)),
       ],
     ),
   );
@@ -427,8 +428,8 @@ Future<void> _release(BuildContext context, DeviceService service, HeldPayment h
       icon: EIcons.lockOpen,
       description: l.devicesReleaseBody(device),
       actions: [
-        EButton(label: l.commonCancel, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, false)),
-        EButton.primary(key: devicesReleaseConfirmKey, label: l.devicesRelease, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, true)),
+        EButton(label: l.commonCancel, onPressed: () => Navigator.pop(ctx, false)),
+        EButton.primary(key: devicesReleaseConfirmKey, label: l.devicesRelease, onPressed: () => Navigator.pop(ctx, true)),
       ],
     ),
   );

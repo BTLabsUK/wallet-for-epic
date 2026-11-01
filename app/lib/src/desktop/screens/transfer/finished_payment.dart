@@ -314,7 +314,7 @@ class _PostFinishedDialogState extends ConsumerState<PostFinishedDialog> {
             ),
       actions: [
         if (_posted)
-          EButton.primary(label: l.commonDone, autofocus: true, onPressed: () => Navigator.pop(context))
+          EButton(label: l.commonDone, autofocus: true, onPressed: () => Navigator.pop(context))
         else ...[
           EButton(label: l.commonClose, onPressed: () => Navigator.pop(context)),
           if (p != null)

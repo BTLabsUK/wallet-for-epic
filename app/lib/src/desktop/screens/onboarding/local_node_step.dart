@@ -492,7 +492,7 @@ class _LocalNodeSetupDialogState extends ConsumerState<LocalNodeSetupDialog> {
       title: l.deskOnbNodeDialogTitle,
       description: l.deskOnbNodeDialogBody,
       icon: EIcons.monitor,
-      width: 640.u,
+      size: DialogWidth.wide,
       body: LocalNodeStep(
         compact: true,
         demo: widget.demo,
@@ -506,7 +506,7 @@ class _LocalNodeSetupDialogState extends ConsumerState<LocalNodeSetupDialog> {
         }),
       ),
       actions: [
-        EButton.ghost(label: l.commonCancel, size: EBtnSize.md, onPressed: () => Navigator.of(context).pop()),
+        EButton(label: l.commonCancel, onPressed: () => Navigator.of(context).pop()),
         EButton.primary(
           label: existing ? l.deskOnbNodeUseThis : l.deskOnbNodeStart,
           busy: _checking,

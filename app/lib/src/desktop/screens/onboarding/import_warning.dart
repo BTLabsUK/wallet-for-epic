@@ -67,7 +67,7 @@ class _ImportWarningDialogState extends State<ImportWarningDialog> {
         ],
       ),
       actions: [
-        EButton.ghost(label: l.commonCancel, onPressed: () => Navigator.pop(context, false)),
+        EButton(label: l.commonCancel, onPressed: () => Navigator.pop(context, false)),
         EButton.primary(label: l.commonContinue, onPressed: _ack ? () => Navigator.pop(context, true) : null),
       ],
     );

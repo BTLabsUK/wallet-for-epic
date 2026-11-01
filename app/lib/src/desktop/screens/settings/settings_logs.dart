@@ -47,8 +47,8 @@ class _LogsGroupState extends ConsumerState<LogsGroup> {
         tone: ETone.warn,
         description: context.l10n.deskSetLogsClearDesc,
         actions: [
-          EButton(label: context.l10n.deskSetLogsKeep, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, false)),
-          EButton(label: context.l10n.deskSetLogsClear, icon: EIcons.trash, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),
+          EButton(label: context.l10n.deskSetLogsKeep, onPressed: () => Navigator.pop(context, false)),
+          EButton(label: context.l10n.deskSetLogsClear, icon: EIcons.trash, kind: EBtnKind.danger, onPressed: () => Navigator.pop(context, true)),
         ],
       ),
     );
