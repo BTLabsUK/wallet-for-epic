@@ -9,9 +9,9 @@ import '../../data/desk_errors.dart' show deskErrorText;
 import '../../app/tour.dart';
 import '../../../l10n.dart' show AppLocalizations, localDayMonth;
 import '../../widgets/kit.dart';
-import '../../../models.dart' show KeysChoice, PairingRecord, PairingState, SealMode, contactKinds, pairingVouchesFor;
+import '../../../models.dart' show KeysChoice, PairRequest, PairingEndReason, PairingRecord, PairingState, SealMode, contactKinds, pairingVouchesFor;
+import '../../../pairing_text.dart' show pairingEndedText;
 import '../../../ui/method_names.dart' show recipientMethodWord;
-import '../../../help/help_content.dart' show HelpId;
 import '../../../ui/pairing/pairing_parts.dart' show PairPendingBadge, TrustBadge;
 import '../../data/pairing_state.dart';
 import '../pairing/pair_screens.dart';
@@ -247,11 +247,6 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
           ),
           Divider(height: 1, color: c.line),
           ],
-          // What pairing is for, while nobody is paired yet.
-          if (ref.watch(deskPairsProvider) && q.isEmpty && ref.watch(deskPairedProvider).isEmpty) ...[
-            const DeskPairHint(),
-            Divider(height: 1, color: c.line),
-          ],
           // Pairings in no contact, by the name they chose.
           for (final r in orphans)
             if (q.isEmpty || r.shownName.toLowerCase().contains(q)) _OrphanRow(record: r),
@@ -300,17 +295,17 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       title: l.deskConTitle,
       width: EPageWidth.full,
       actions: [
-        // Pair in one place, labelled at every width and never gold (Pairing UX plan 4.3). In a
-        // phone-wide window Pending invites folds into it.
+        // Pair in one place, labelled at every width and never gold (Pairing UX plan 4.3).
+        // Requests from contacts show beside it while any wait.
         if (ref.watch(deskPairsProvider)) ...[
-          if (ref.watch(deskPendingPairingsProvider).isNotEmpty && !compactBar)
+          if ((ref.watch(deskPairRequestsProvider).value ?? const <PairRequest>[]).isNotEmpty)
             EButton.ghost(
-              key: deskContactsPendingKey,
-              label: '${l.pendingTitle} · ${ref.watch(deskPendingPairingsProvider).length}',
-              icon: EIcons.clock,
-              onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.pairPending),
+              key: deskContactsRequestsKey,
+              label: l.pairRequestsRow((ref.watch(deskPairRequestsProvider).value ?? const <PairRequest>[]).length),
+              icon: EIcons.trusted,
+              onPressed: () => showDeskPairRequests(context, ref),
             ),
-          DeskContactsPairButton(foldPending: compactBar),
+          const DeskContactsPairButton(),
         ],
         // Already on the new contact form: nothing more to add from here.
         compactBar
@@ -394,7 +389,6 @@ class _Empty extends ConsumerWidget {
               EButton.ghost(label: l.deskConSendToAddress, size: EBtnSize.md, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.send)),
             ],
           ),
-          if (ref.watch(deskPairsProvider)) ...[SizedBox(height: Sp.x5), const DeskPairHint(center: true)],
         ],
       ),
     );
@@ -440,7 +434,16 @@ class _OrphanRow extends ConsumerWidget {
     final ts = context.ts;
     final r = record;
     final suggested = deskSuggestedContact(ref, r);
+    final inFlight = r.state.isPending || r.state == PairingState.waiting;
+    final line = r.ended
+        ? pairingEndedText(l, r.endedReason ?? PairingEndReason.neverFinished, r.shownName)
+        : r.state == PairingState.waiting
+            ? l.pairAnsweredNotHeard
+            : r.state == PairingState.pendingReply
+                ? l.pairPairingWith(r.shownName)
+                : l.pairNotInContacts;
     return Padding(
+      key: deskPairingRowKey(r.id),
       padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x3),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -455,27 +458,42 @@ class _OrphanRow extends ConsumerWidget {
                   children: [
                     Flexible(child: Text(r.shownName, style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
                     SizedBox(width: Sp.x2),
-                    TrustBadge(r, short: true),
+                    if (r.state.isPending) const PairPendingBadge() else TrustBadge(r, short: true),
                   ],
                 ),
-                Text(l.pairNotInContacts, style: ts.small),
+                Text(line, style: ts.small),
                 SizedBox(height: Sp.x2),
                 Wrap(
                   spacing: Sp.x2,
                   runSpacing: Sp.x2,
                   children: [
-                    if (suggested != null)
-                      EButton.primary(label: l.pairAddToNamed(suggested.name), size: EBtnSize.sm, onPressed: () => deskAttachPairing(context, ref, r, suggested)),
-                    EButton(label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: true)),
-                    EButton(label: l.pairAddToAContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: false)),
-                    EButton(
-                      label: l.contactRemovePairing,
-                      kind: EBtnKind.danger,
-                      size: EBtnSize.sm,
-                      onPressed: () async {
-                        if (await deskConfirmRemovePairing(context, r.shownName)) await deskPairingCall(ref, (api) => api.removePairing(r.id));
-                      },
-                    ),
+                    if (!inFlight && !r.ended) ...[
+                      if (suggested != null)
+                        EButton.primary(label: l.pairAddToNamed(suggested.name), size: EBtnSize.sm, onPressed: () => deskAttachPairing(context, ref, r, suggested)),
+                      EButton(label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: true)),
+                      EButton(label: l.pairAddToAContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: false)),
+                    ],
+                    if (inFlight)
+                      EButton(
+                        key: deskPairingCancelKey,
+                        label: l.commonCancel,
+                        kind: EBtnKind.danger,
+                        size: EBtnSize.sm,
+                        onPressed: () async {
+                          if (await deskConfirmCancelPairing(context, r.shownName)) {
+                            await deskPairingCall(ref, (api) => r.state.isPending ? api.cancelInvite(r.id) : api.removePairing(r.id));
+                          }
+                        },
+                      )
+                    else
+                      EButton(
+                        label: l.contactRemovePairing,
+                        kind: EBtnKind.danger,
+                        size: EBtnSize.sm,
+                        onPressed: () async {
+                          if (r.ended || await deskConfirmRemovePairing(context, r.shownName)) await deskPairingCall(ref, (api) => api.removePairing(r.id));
+                        },
+                      ),
                   ],
                 ),
               ],
@@ -542,7 +560,7 @@ class _ContactRowState extends ConsumerState<_ContactRow> {
                         // Never Verified beside an Epicbox address the pairing did not bring.
                         if (ref.watch(deskPairsProvider) ? ref.watch(deskContactPairingProvider(x.id)) : null case final p? when pairingVouchesFor(p, x.epicbox))
                           Padding(padding: EdgeInsets.only(left: Sp.x2), child: TrustBadge(p, short: true))
-                        else if (ref.watch(deskPairsProvider) && deskPairingInFlight(ref.watch(deskPairingsProvider).value, x.id))
+                        else if (ref.watch(deskPairsProvider) && ref.watch(deskContactPendingProvider(x.id)) != null)
                           Padding(padding: EdgeInsets.only(left: Sp.x2), child: const PairPendingBadge()),
                       ],
                     ),
@@ -612,10 +630,11 @@ class _ContactDetail extends ConsumerWidget {
         // Send and Pair stay buttons; Edit, Star and Delete fold into a ⋯ menu where the pane
         // is too narrow for the row (Pairing UX plan 4.3), so the row never wraps.
         LayoutBuilder(builder: (context, box) {
-          final pairLabel = !pairs || (pairing != null && !pairing.removedByPeer)
+          final pending = pairs ? ref.watch(deskContactPendingProvider(x.id)) : null;
+          final pairLabel = !pairs || (pairing != null && !pairing.ended)
               ? null
-              : deskPairingInFlight(ref.watch(deskPairingsProvider).value, x.id)
-                  ? l.pairBadgePending
+              : pending != null
+                  ? l.trustWaiting
                   : l.pairTitle;
           final fold = !_actionsFit(context, [
             l.deskConSend,
@@ -663,15 +682,15 @@ class _ContactDetail extends ConsumerWidget {
                 size: EBtnSize.sm,
                 onPressed: (x.addresses.isEmpty || torOnly) && !(pairing?.paysByMailbox ?? false) ? null : () => nav.go(DeskRoute.send, x),
               ),
-              // Not paired, or the other side removed the pairing: Pair (again).
-              if (pairs && (pairing == null || pairing.removedByPeer))
-                deskPairingInFlight(ref.watch(deskPairingsProvider).value, x.id)
+              // Not paired, or the pairing ended: Pair (again). Waiting opens the Pair page.
+              if (pairs && (pairing == null || pairing.ended))
+                pending != null
                     ? EButton(
                         key: deskContactPairKey,
-                        label: l.pairBadgePending,
+                        label: l.trustWaiting,
                         busy: true,
                         size: EBtnSize.sm,
-                        onPressed: () => nav.go(DeskRoute.pairPending),
+                        onPressed: () => nav.go(DeskRoute.pair, x),
                       )
                     : EButton(
                         key: deskContactPairKey,
@@ -679,7 +698,7 @@ class _ContactDetail extends ConsumerWidget {
                         icon: EIcons.trusted,
                         tooltip: l.pairWithName(x.name),
                         size: EBtnSize.sm,
-                        onPressed: () => nav.go(DeskRoute.pair, x),
+                        onPressed: () => showDeskPairWithContact(context, ref, x),
                       ),
               if (fold)
                 _ContactMoreMenu(
@@ -755,7 +774,7 @@ class _ContactDetail extends ConsumerWidget {
         ),
         if (x.note != null) ...[SizedBox(height: Sp.x5), Text(l.deskConNote, style: ts.label), SizedBox(height: Sp.x1), Text(x.note!, style: ts.body)],
         // Pairing (RFC 0002): trust, Seal payments, Allow invoices, the relay, Remove pairing.
-        if (pairs) ...[SizedBox(height: Sp.x6), DeskPairingBlock(contact: x, pairing: pairing)],
+        if (pairs) ...[SizedBox(height: Sp.x6), DeskPairingBlock(contact: x, pairing: pairing, pending: ref.watch(deskContactPendingProvider(x.id)))],
         // The compatibility line (trust policy): one sentence, never a badge.
         DeskContactTrustLine(contact: x),
         SizedBox(height: Sp.x6),
@@ -1141,15 +1160,20 @@ Future<bool?> showDeleteContactDialog(BuildContext context, Contact x, {bool pai
   },
 );
 
-/// A contact's Pairing: Not paired with Pair; or the status row (Verified
-/// with the date and Check again, or Paired, not verified with Check the words), Seal
-/// payments and Allow invoices with their info, Delivered via, Remove pairing; the keys-changed
-/// and relay notices above it; Issue an invoice for a verified contact that pays requests.
+/// A contact's Pairing block, per state: Not paired with Pair; a request sent (the date,
+/// Cancel, Show my invite; expired: No answer, Pair again, Remove); Waiting for the other
+/// wallet (Check the words, Cancel); Paired with "has not checked yet" and Check the words;
+/// Verified with "confirmed too"; Keys changed; Ended with its reason, the sealed sends still
+/// waiting (each with Cancel) and Remove. Seal payments and Allow invoices as before; Issue an
+/// invoice for a verified contact that pays requests.
 class DeskPairingBlock extends ConsumerStatefulWidget {
-  const DeskPairingBlock({super.key, required this.contact, required this.pairing});
+  const DeskPairingBlock({super.key, required this.contact, required this.pairing, this.pending});
 
   final Contact contact;
   final PairingRecord? pairing;
+
+  /// A request sent to the contact, or an answer to its invite waiting for the confirmation.
+  final PairingRecord? pending;
 
   @override
   ConsumerState<DeskPairingBlock> createState() => _DeskPairingBlockState();
@@ -1176,33 +1200,118 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
     final ts = context.ts;
     final x = widget.contact;
     final p = widget.pairing;
+    final q = widget.pending;
     final nav = ref.read(deskNavProvider.notifier);
-    // Not paired, or the other side removed it (no switches on a dead pairing): Pair (again).
-    if (p == null || p.removedByPeer) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(l.contactPairing, style: ts.label),
-          SizedBox(height: Sp.x2),
-          ESetGroup(
-            gap: false,
-            rows: [
-              ESetRow(
-                title: p == null ? l.pairNotPaired : l.trustRemovedBy(x.name),
-                text: p == null ? l.pairNotPairedHint : l.noticeUnpaired(x.name),
-                control: EButton(label: l.pairTitle, icon: EIcons.trusted, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair, x)),
-              ),
-            ],
+    Widget titled(List<Widget> children) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [Text(l.contactPairing, style: ts.label), SizedBox(height: Sp.x2), ...children],
+    );
+    if (p == null && q != null) {
+      final expired = q.state == PairingState.pendingInvite && q.expiredAt(DateTime.now());
+      return titled([
+        ESetGroup(
+          gap: false,
+          rows: [
+            ESetRow(
+              key: deskContactWaitingKey,
+              title: expired ? l.pairNoAnswerFrom(x.name) : l.pairWaitingFor(x.name),
+              text: q.state == PairingState.pendingInvite ? l.pairRequestSent(localDayMonth(l, q.createdAt)) : l.pairPairingWith(x.name),
+              control: expired
+                  ? EButton(key: deskContactPairAgainKey, label: l.pairAgain, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair, x))
+                  : EButton(key: deskContactShowInviteKey, label: l.pairShowMyCode, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair, x)),
+            ),
+          ],
+        ),
+        SizedBox(height: Sp.x3),
+        Align(
+          alignment: AlignmentDirectional.centerStart,
+          child: EButton(
+            key: deskContactCancelPairingKey,
+            label: expired ? l.contactRemove : l.commonCancel,
+            kind: EBtnKind.danger,
+            size: EBtnSize.sm,
+            onPressed: _busy
+                ? null
+                : () async {
+                    if (expired || await deskConfirmCancelPairing(context, x.name)) await _run(() => deskPairingCall(ref, (api) => api.cancelInvite(q.id)));
+                  },
           ),
-        ],
-      );
+        ),
+      ]);
+    }
+    if (p == null) {
+      return titled([
+        ESetGroup(
+          gap: false,
+          rows: [
+            ESetRow(
+              title: l.pairNotPaired,
+              text: l.pairNotPairedHint,
+              control: EButton(label: l.pairTitle, icon: EIcons.trusted, size: EBtnSize.sm, onPressed: () => showDeskPairWithContact(context, ref, x)),
+            ),
+          ],
+        ),
+      ]);
     }
     final name = x.name;
+    if (p.state == PairingState.ended) {
+      final held = ref.watch(deskHeldSendsProvider(p.id));
+      return titled([
+        ESetGroup(
+          key: deskContactEndedKey,
+          gap: false,
+          rows: [
+            ESetRow(title: l.pairEndedShort, text: pairingEndedText(l, p.endedReason ?? PairingEndReason.neverFinished, name)),
+            for (final t in held)
+              ESetRow(
+                key: deskContactHeldSendKey,
+                title: l.pairHeldSend,
+                text: t.slateId,
+                control: EButton(
+                  label: l.commonCancel,
+                  kind: EBtnKind.danger,
+                  size: EBtnSize.sm,
+                  onPressed: _busy ? null : () => _run(() async => ref.read(deskProvider.notifier).cancelTx(t.id)),
+                ),
+              ),
+          ],
+        ),
+        SizedBox(height: Sp.x3),
+        Wrap(
+          spacing: Sp.x2,
+          runSpacing: Sp.x2,
+          children: [
+            EButton(key: deskContactPairAgainKey, label: l.pairAgain, icon: EIcons.trusted, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair, x)),
+            EButton(
+              key: deskContactRemovePairingKey,
+              label: l.contactRemovePairing,
+              kind: EBtnKind.danger,
+              size: EBtnSize.sm,
+              onPressed: _busy
+                  ? null
+                  : () async {
+                      if (await deskConfirmRemovePairing(context, name)) await _run(() => deskPairingCall(ref, (api) => api.removePairing(p.id)));
+                    },
+            ),
+          ],
+        ),
+      ]);
+    }
     final verified = p.state == PairingState.verified;
     final changed = p.state == PairingState.keysChanged;
+    final waiting = p.state == PairingState.waiting;
     final paused = ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff;
-    final locked = _busy || paused || changed;
+    final locked = _busy || paused || changed || waiting;
     final back = ref.watch(deskKeysBackProvider).contains(p.id);
+    final provesOther = p.paymentsAddress != null && x.epicbox != null && !pairingVouchesFor(p, x.epicbox);
+    final statusTitle = changed ? l.trustKeysChanged : waiting ? l.pairWaitingFor(name) : verified ? l.trustVerified : l.trustPaired;
+    final statusLine = changed
+        ? l.contactKeysChangedStatus
+        : waiting
+            ? l.pairAnsweredNotHeard
+            : (verified && p.peerVerifiedAt != null)
+                ? l.pairConfirmedToo(name)
+                : l.pairNotChecked(name);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -1213,7 +1322,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
             tone: ETone.warn,
             actionsBelow: true,
             actions: [
-              EButton.primary(label: l.noticeCheckWords, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, p.id, recheck: true)),
+              EButton.primary(label: l.pairCheckWords, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, p.id, recheck: true)),
               EButton(label: l.contactKeepOldKeys, size: EBtnSize.sm, onPressed: () => _run(() => deskPairingCall(ref, (api) => api.resolveKeysChanged(p.id, KeysChoice.keepOld)))),
               EButton(label: l.contactUseNewKeys, size: EBtnSize.sm, onPressed: () => _run(() => deskPairingCall(ref, (api) => api.resolveKeysChanged(p.id, KeysChoice.useNew)))),
             ],
@@ -1233,9 +1342,27 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
           ENotice(title: l.contactRelayDownTitle(name), text: l.contactRelayDownBody, tone: ETone.warn),
           SizedBox(height: Sp.x4),
         ],
-        // Attached before attaching checked the address: said, its address not marked verified.
-        if (!pairingVouchesFor(p, x.epicbox)) ...[
-          ENotice(title: l.pairOtherAddressBody(name), tone: ETone.warn),
+        // A later card proved another address than the contact's: the user decides.
+        if (provesOther) ...[
+          ENotice(
+            title: l.pairProvesOther(name),
+            text: p.paymentsAddress,
+            tone: ETone.warn,
+            actionsBelow: true,
+            actions: [
+              EButton.primary(
+                key: deskContactUpdateAddressKey,
+                label: l.pairUpdateAddress,
+                size: EBtnSize.sm,
+                onPressed: () => _run(() async {
+                  await ref.read(deskProvider.notifier).saveContact(
+                    Contact(id: x.id, name: x.name, epicbox: p.paymentsAddress, http: x.http, tor: x.tor, note: x.note, favourite: x.favourite, lastUsed: x.lastUsed, hasPicture: x.hasPicture),
+                  );
+                }),
+              ),
+              EButton(key: deskContactDetachKey, label: l.pairDetach, size: EBtnSize.sm, onPressed: () => _run(() => deskPairingCall(ref, (api) => api.attach(p.id, null)))),
+            ],
+          ),
           SizedBox(height: Sp.x4),
         ],
         if (p.seal == SealMode.degraded && !changed) ...[
@@ -1251,45 +1378,41 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
         ESetGroup(
           gap: false,
           rows: [
-            if (!changed)
-              ESetRow(
-                title: verified ? l.trustVerified : l.trustPaired,
-                text: verified && p.verifiedAt != null ? l.contactWordsChecked(localDayMonth(l, p.verifiedAt!)) : null,
-                control: EButton(
-                  label: verified ? l.contactCheckAgain : l.noticeCheckWords,
-                  size: EBtnSize.sm,
-                  onPressed: () => showDeskCheckWords(context, ref, p.id, recheck: verified),
-                ),
-              )
-            else
-              ESetRow(title: l.trustKeysChanged, text: l.contactKeysChangedStatus),
+            ESetRow(
+              title: statusTitle,
+              text: verified && p.verifiedAt != null ? '${l.contactWordsChecked(localDayMonth(l, p.verifiedAt!))} · $statusLine' : statusLine,
+              control: !changed && p.sas.isNotEmpty && (waiting || p.state == PairingState.paired)
+                  ? EButton(key: deskContactCheckKey, label: l.pairCheckWords, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, p.id, recheck: !waiting))
+                  : null,
+            ),
             ESetRow(
               title: l.contactSealPayments,
-              text: changed ? l.contactPausedUntilChecked : null,
+              text: changed ? l.contactPausedUntilChecked : (waiting ? l.pairWaitingFor(name) : null),
               hint: l.contactSealInfo(name),
               control: ESwitch(
-                value: !changed && p.seal != SealMode.off,
+                value: !changed && !waiting && p.seal != SealMode.off,
                 semanticLabel: l.contactSealPayments,
                 onChanged: locked ? null : (v) => _run(() => deskPairingCall(ref, (api) => api.setSeal(p.id, v))),
               ),
             ),
-            if (ref.watch(deskInvoicesOnProvider)) ESetRow(
-              title: l.contactAllowInvoices,
-              text: changed ? l.contactPausedUntilChecked : (verified ? null : l.contactCheckWordsFirst),
-              hint: l.contactAllowInfoDesktop(name),
-              control: ESwitch(
-                value: verified && p.allowInvoices,
-                semanticLabel: l.contactAllowInvoices,
-                onChanged: locked || !verified
-                    ? null
-                    : (v) => _run(() async {
-                        final declined = await deskPairingCall(ref, (api) => api.setAllowInvoices(p.id, v));
-                        if (!v && mounted) {
-                          showEToast(this.context, l.invSetSwitchedOff(name), text: declined > 0 ? l.invSetDeclinedCount(declined) : null, tone: ETone.info);
-                        }
-                      }),
+            if (ref.watch(deskInvoicesOnProvider))
+              ESetRow(
+                title: l.contactAllowInvoices,
+                text: changed ? l.contactPausedUntilChecked : (verified ? null : l.contactCheckWordsFirst),
+                hint: l.contactAllowInfoDesktop(name),
+                control: ESwitch(
+                  value: verified && p.allowInvoices,
+                  semanticLabel: l.contactAllowInvoices,
+                  onChanged: locked || !verified
+                      ? null
+                      : (v) => _run(() async {
+                          final declined = await deskPairingCall(ref, (api) => api.setAllowInvoices(p.id, v));
+                          if (!v && mounted) {
+                            showEToast(this.context, l.invSetSwitchedOff(name), text: declined > 0 ? l.invSetDeclinedCount(declined) : null, tone: ETone.info);
+                          }
+                        }),
+                ),
               ),
-            ),
             ESetRow(title: paused ? l.contactPausedEpicboxOff : l.contactDeliveredVia(p.homeRelay)),
           ],
         ),
@@ -1300,14 +1423,17 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
           children: [
             if (verified && p.caps.paysInvoices && ref.watch(deskInvoicesShownProvider))
               EButton(label: l.deskInvIssueAction, icon: EIcons.request, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.invoiceIssue, p.id)),
+            if (waiting) EButton(key: deskContactShowInviteKey, label: l.pairShowMyCode, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair, x)),
             EButton(
-              label: l.contactRemovePairing,
+              key: waiting ? deskContactCancelPairingKey : deskContactRemovePairingKey,
+              label: waiting ? l.commonCancel : l.contactRemovePairing,
               kind: EBtnKind.danger,
               size: EBtnSize.sm,
               onPressed: _busy
                   ? null
                   : () async {
-                      if (await deskConfirmRemovePairing(context, name)) await _run(() => deskPairingCall(ref, (api) => api.removePairing(p.id)));
+                      final ok = waiting ? await deskConfirmCancelPairing(context, name) : await deskConfirmRemovePairing(context, name);
+                      if (ok) await _run(() => deskPairingCall(ref, (api) => api.removePairing(p.id)));
                     },
             ),
           ],
@@ -1317,10 +1443,24 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
   }
 }
 
+/// Keys of the Pairing block, for tests.
+const Key deskContactWaitingKey = ValueKey('desk-contact-waiting');
+const Key deskContactEndedKey = ValueKey('desk-contact-ended');
+const Key deskContactHeldSendKey = ValueKey('desk-contact-held-send');
+const Key deskContactCheckKey = ValueKey('desk-contact-check');
+const Key deskContactCancelPairingKey = ValueKey('desk-contact-cancel-pairing');
+const Key deskContactRemovePairingKey = ValueKey('desk-contact-remove-pairing');
+const Key deskContactShowInviteKey = ValueKey('desk-contact-show-invite');
+const Key deskContactPairAgainKey = ValueKey('desk-contact-pair-again');
+const Key deskContactUpdateAddressKey = ValueKey('desk-contact-update-address');
+const Key deskContactDetachKey = ValueKey('desk-contact-detach');
+
 /// The Contacts header's Pair (secondary, glyph and label), and its key.
 const Key deskContactsPairKey = ValueKey('desk-contacts-pair');
-const Key deskContactsPendingKey = ValueKey('desk-contacts-pending');
+const Key deskContactsRequestsKey = ValueKey('desk-contacts-requests');
 const Key deskContactPairKey = ValueKey('desk-contact-pair');
+Key deskPairingRowKey(String id) => ValueKey('desk-pairing-row-$id');
+const Key deskPairingCancelKey = ValueKey('desk-pairing-cancel');
 const Key deskContactMoreKey = ValueKey('desk-contact-more');
 const Key deskContactEditKey = ValueKey('desk-contact-edit');
 const Key deskContactStarKey = ValueKey('desk-contact-star');
@@ -1391,101 +1531,13 @@ class _ContactMoreMenu extends StatelessWidget {
 const Key deskPairHintKey = ValueKey('desk-pair-hint');
 const Key deskPairLearnKey = ValueKey('desk-pair-learn');
 
-/// An invite or answer for the contact [contactId] is in flight.
-bool deskPairingInFlight(List<PairingRecord>? all, String contactId) =>
-    (all ?? const <PairingRecord>[]).any((r) => r.contactId == contactId && r.state.isPending);
-
-/// Pair in the Contacts header. With [foldPending] (a phone-wide window) and invites in
-/// flight it reads "Pair · 2" and opens a menu of Pair and Pending invites.
+/// Pair in the Contacts header.
 class DeskContactsPairButton extends ConsumerWidget {
-  const DeskContactsPairButton({super.key, this.foldPending = false});
-
-  final bool foldPending;
+  const DeskContactsPairButton({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final c = context.dc;
-    final ts = context.ts;
-    final nav = ref.read(deskNavProvider.notifier);
-    final pending = ref.watch(deskPendingPairingsProvider).length;
-    if (!foldPending || pending == 0) {
-      return EButton(key: deskContactsPairKey, label: l.pairTitle, icon: EIcons.trusted, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair));
-    }
-    Widget item(IconData icon, String label, VoidCallback run) => MenuItemButton(
-      onPressed: run,
-      style: ButtonStyle(
-        minimumSize: WidgetStatePropertyAll(Size(200.u, 40.u)),
-        padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: Sp.x3)),
-        backgroundColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.hovered) || s.contains(WidgetState.focused) ? c.s3 : null),
-      ),
-      leadingIcon: Icon(icon, size: Ctl.iconSm, color: c.dim),
-      child: Text(label, style: ts.body),
-    );
-    return MenuAnchor(
-      consumeOutsideTap: true,
-      style: MenuStyle(
-        backgroundColor: WidgetStatePropertyAll(c.s4),
-        surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
-        padding: WidgetStatePropertyAll(EdgeInsets.all(Sp.x2)),
-        shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(Rad.sm), side: BorderSide(color: c.lineStrong))),
-      ),
-      menuChildren: [
-        item(EIcons.trusted, l.pairTitle, () => nav.go(DeskRoute.pair)),
-        item(EIcons.clock, '${l.pendingTitle} · $pending', () => nav.go(DeskRoute.pairPending)),
-      ],
-      builder: (context, controller, _) => CallbackShortcuts(
-        bindings: {const SingleActivator(LogicalKeyboardKey.escape): controller.close},
-        child: EButton(
-          key: deskContactsPairKey,
-          label: '${l.pairTitle} · $pending',
-          icon: EIcons.trusted,
-          size: EBtnSize.sm,
-          onPressed: () => controller.isOpen ? controller.close() : controller.open(),
-        ),
-      ),
-    );
-  }
-}
-
-/// The line over the list while no contact is paired: what pairing is for and How it works
-/// (Help › Pairing › Three ways to pair). Pair itself is in the header only.
-class DeskPairHint extends ConsumerWidget {
-  const DeskPairHint({super.key, this.center = false});
-
-  /// In the empty book, under its buttons.
-  final bool center;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final c = context.dc;
-    final ts = context.ts;
-    final learn = EButton.ghost(
-      key: deskPairLearnKey,
-      label: l.contactsPairLearn,
-      size: EBtnSize.inline,
-      onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp, HelpAt.topic(HelpId.pairingWays)),
-    );
-    final text = Text(l.contactsPairHint, style: ts.small, textAlign: center ? TextAlign.center : TextAlign.start);
-    if (center) return Column(key: deskPairHintKey, mainAxisSize: MainAxisSize.min, children: [text, SizedBox(height: Sp.x1), learn]);
-    // The list is narrow: the link goes under the sentence, not beside it.
-    return Padding(
-      key: deskPairHintKey,
-      padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(padding: EdgeInsets.only(top: 2.u), child: Icon(EIcons.trusted, size: 16.u, color: c.dim)),
-          SizedBox(width: Sp.x3),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [text, SizedBox(height: Sp.x1), learn],
-            ),
-          ),
-        ],
-      ),
-    );
+    return EButton(key: deskContactsPairKey, label: l.pairTitle, icon: EIcons.trusted, size: EBtnSize.sm, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.pair));
   }
 }

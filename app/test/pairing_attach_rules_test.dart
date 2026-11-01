@@ -28,14 +28,14 @@ void main() {
   Future<Contact> save(Contact c) => session.saveContact(contact: c);
   Contact book(String id) => session.contactsValue.singleWhere((c) => c.id == id);
 
-  test('1: no Epicbox address: it attaches, its address fills the slot, HTTP and Tor stay', () async {
+  test('1: no Epicbox address: it attaches; the proven address is the app\'s to write at Verified, HTTP and Tor stay', () async {
     final c = await save(Contact(id: '', name: 'Ana', http: _http, tor: _tor));
     final r = api.seedPaired(name: 'Ana', paymentsAddress: '$_key@epicbox.example.org');
 
-    final attached = await api.attach(r.id, c.id);
+    final attached = await api.attach(r.id, c.id, contactAddress: c.epicbox);
 
     expect(attached.contactId, c.id);
-    expect((book(c.id).epicbox, book(c.id).http, book(c.id).tor), ('$_key@epicbox.example.org', _http, _tor));
+    expect((book(c.id).epicbox, book(c.id).http, book(c.id).tor), (null, _http, _tor));
     expect(pairingVouchesFor(attached, book(c.id).epicbox), isTrue);
   });
 
@@ -43,7 +43,7 @@ void main() {
     final c = await save(Contact(id: '', name: 'Ana', epicbox: '$_key@relay.example.net'));
     final r = api.seedPaired(name: 'Ana', paymentsAddress: '$_key@epicbox.example.org');
 
-    final attached = await api.attach(r.id, c.id);
+    final attached = await api.attach(r.id, c.id, contactAddress: c.epicbox);
 
     expect(attached.contactId, c.id);
     expect(book(c.id).epicbox, '$_key@relay.example.net');
@@ -54,7 +54,7 @@ void main() {
     final c = await save(Contact(id: '', name: 'BT Labs', epicbox: '$_otherKey@epicbox.example.org'));
     final r = api.seedPaired(name: 'the owner PC', paymentsAddress: '$_key@epicbox.example.org');
 
-    await expectLater(api.attach(r.id, c.id), _refused);
+    await expectLater(api.attach(r.id, c.id, contactAddress: c.epicbox), _refused);
 
     expect((await api.pairing(r.id))!.contactId, isNull);
     expect(book(c.id).epicbox, '$_otherKey@epicbox.example.org');
@@ -62,7 +62,7 @@ void main() {
 
   test('3: a pairing that brought no Epicbox address cannot confirm the one the contact has', () {
     final c = Contact(id: 'c1', name: 'Ana', epicbox: '$_key@epicbox.example.org');
-    final r = PairingRecord(id: 'p1', state: PairingState.verified, way: PairingWay.inPerson, inviter: false, createdAt: DateTime(2026, 10, 1));
+    final r = PairingRecord(id: 'p1', state: PairingState.verified, way: PairingWay.link, inviter: false, createdAt: DateTime(2026, 10, 1));
 
     expect(() => contactForPairing(c, r), _refused);
     expect(contactForPairing(Contact(id: 'c2', name: 'Ana', http: _http), r), isNull, reason: 'attaches, nothing to fill');
@@ -75,12 +75,12 @@ void main() {
     final again = api.seedPaired(name: 'Ana', paymentsAddress: '$_key@epicbox.example.org');
 
     // Someone else's pairing is refused by the address, the old one untouched.
-    await expectLater(api.attach(other.id, c.id), _refused);
+    await expectLater(api.attach(other.id, c.id, contactAddress: c.epicbox), _refused);
     expect((await api.pairing(old.id))!.contactId, c.id);
 
     // The same wallet again (a restore): the key check runs, its mismatch asks the user.
     api.keyCheckFindsOldKeys = false;
-    final changed = await api.attach(again.id, c.id);
+    final changed = await api.attach(again.id, c.id, contactAddress: c.epicbox);
     expect(changed.state, PairingState.keysChanged);
   });
 
@@ -88,7 +88,7 @@ void main() {
     final r = PairingRecord(
       id: 'p1',
       state: PairingState.verified,
-      way: PairingWay.inPerson,
+      way: PairingWay.link,
       inviter: false,
       createdAt: DateTime(2026, 10, 1),
       paymentsAddress: '$_key@epicbox.example.org',
@@ -96,12 +96,12 @@ void main() {
     expect(pairingVouchesFor(r, '$_key@other.example.net'), isTrue);
     expect(pairingVouchesFor(r, '$_otherKey@epicbox.example.org'), isFalse);
     expect(pairingVouchesFor(r, null), isTrue, reason: 'no Epicbox address to mark');
-    final none = PairingRecord(id: 'p2', state: PairingState.verified, way: PairingWay.inPerson, inviter: false, createdAt: DateTime(2026, 10, 1));
+    final none = PairingRecord(id: 'p2', state: PairingState.verified, way: PairingWay.link, inviter: false, createdAt: DateTime(2026, 10, 1));
     expect(pairingVouchesFor(none, '$_key@epicbox.example.org'), isFalse);
   });
 
   test('the same-name offer never names a contact attaching would refuse', () {
-    final r = PairingRecord(id: 'p1', state: PairingState.verified, way: PairingWay.inPerson, inviter: false, createdAt: DateTime(2026, 10, 1), name: 'BT Labs');
+    final r = PairingRecord(id: 'p1', state: PairingState.verified, way: PairingWay.link, inviter: false, createdAt: DateTime(2026, 10, 1), name: 'BT Labs');
     final named = Contact(id: 'c1', name: 'BT Labs', epicbox: '$_otherKey@epicbox.example.org');
     expect(sameNamedContact<Contact>(r, [named], (c) => c.name, paired: (_) => false, epicboxOf: (c) => c.epicbox), isNull);
     final bare = Contact(id: 'c2', name: 'BT Labs');

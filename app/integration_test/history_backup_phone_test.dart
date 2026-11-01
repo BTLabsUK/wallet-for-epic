@@ -599,7 +599,7 @@ void main() {
     record('3 contacts saved, Carol starred', ben.id.isNotEmpty && carol.id.isNotEmpty && dave.id.isNotEmpty);
 
     // Pairing: B invites, A answers (as "Phone A", invoices allowed, attached to Ben Shop).
-    final invite = (await tester.runAsync(() => b.pairing.makeInvite(name: 'Shop B', expiry: const Duration(hours: 2))))!;
+    final invite = (await tester.runAsync(() => b.pairing.standingCode(name: 'Shop B')))!;
     final preview = (await tester.runAsync(() => a.pairing.openInvite(invite.inviteLink!)))!;
     final answer = (await tester.runAsync(() => a.pairing.acceptInvite(token: preview.token, name: 'Phone A', allowInvoices: true, contactId: ben.id)))!;
     final paired = await waitFor(tester, 'pairing answered', () async {

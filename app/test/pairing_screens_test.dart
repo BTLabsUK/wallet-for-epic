@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
-// The phone's pairing screens against the fake engine: the three ways in,
-// an online invite from making to answered, entering words or a link, the incoming invite,
-// the words check and what follows it, Pending invites, and a contact's Pairing block.
-import 'package:epic_wallet/src/sas_table.dart';
+// The phone's pairing screens against the fake engine (pairing v3): the Pair screen (your
+// invite, Have their invite?), an invite pasted and answered, the wait with the answer by
+// hand, the confirmation after an answer taken by hand, the words check without Skip, the
+// contact page's Pairing block in every state, Contacts rows and the Pair requests row, the
+// Way 1 sheet, and the Experimental switch gone.
+
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/pairing_providers.dart';
@@ -11,25 +13,20 @@ import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/slate_files.dart';
+import 'package:epic_wallet/src/trust/policy.dart';
 import 'package:epic_wallet/src/ui/common.dart';
-import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/ui/contact_page.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
+import 'package:epic_wallet/src/ui/pairing/contact_pairing_block.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_check.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_incoming.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_screen.dart';
-import 'package:epic_wallet/src/ui/pairing/pair_steps.dart';
+import 'package:epic_wallet/src/ui/pairing/pair_way1.dart';
 import 'package:epic_wallet/src/ui/pairing/pairing_notices.dart' show PairingNotices, pairingNoticeOf;
-import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart';
-import 'package:epic_wallet/src/ui/pairing/pending_invites.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
-import 'package:epic_wallet/src/ui/slate_file_screen.dart';
-import 'package:epic_wallet/src/ui/tx_details_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'dart:async';
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -39,6 +36,9 @@ import 'support/experimental.dart';
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
 
 final String _anna = 'es${'a' * 50}@epicbox.epiccash.com';
+final String _tom = 'es${'t' * 50}@epicbox.epiccash.com';
+
+BigInt _epic(int n) => BigInt.from(n) * BigInt.from(100000000);
 
 class _OpenSession extends SessionNotifier {
   _OpenSession(this.session);
@@ -55,19 +55,20 @@ class _NoPrice implements PriceSource {
 }
 
 class _Harness {
-  _Harness({String? seenAs = 'Alex'}) {
+  _Harness({String? seenAs = 'Alex', this.prefs = phoneExperimentalOn}) {
     if (seenAs != null) store.values['pairing.seen_as'] = seenAs;
+    store.values[phoneAdvancedPrefsKey] = prefs;
   }
 
+  final String prefs;
   final session = FakeWalletSession();
-  final store = MemorySecretStore()..values[phoneAdvancedPrefsKey] = phoneExperimentalOn;
+  final store = MemorySecretStore();
   final files = FakeSlateFiles();
   late final service = FakeWalletService(session: session);
 
   FakePairing get api => session.pairing;
 
-  ProviderContainer container(WidgetTester tester) =>
-      ProviderScope.containerOf(tester.element(find.byType(Navigator).first));
+  ProviderContainer container(WidgetTester tester) => ProviderScope.containerOf(tester.element(find.byType(Navigator).first));
 
   Future<void> pump(WidgetTester tester, Widget home, {PairNet? net, bool settle = true}) async {
     tester.view.physicalSize = const Size(1080, 2340);
@@ -79,8 +80,6 @@ class _Harness {
         overrides: [
           walletServiceProvider.overrideWithValue(service),
           secretStoreProvider.overrideWithValue(store),
-          // On from the first frame, before the stored settings load.
-          pairingOnProvider.overrideWithValue(true),
           invoicesOnProvider.overrideWithValue(true),
           updatePlatformProvider.overrideWithValue(null),
           priceSourceProvider.overrideWithValue(_NoPrice()),
@@ -105,8 +104,8 @@ class _Harness {
 }
 
 /// Frames for a screen with a spinner, which never settles.
-Future<void> _frames(WidgetTester tester) async {
-  for (var i = 0; i < 10; i++) {
+Future<void> _frames(WidgetTester tester, [int n = 10]) async {
+  for (var i = 0; i < n; i++) {
     await tester.pump(const Duration(milliseconds: 100));
   }
 }
@@ -120,1105 +119,475 @@ void _clipboard(WidgetTester tester, String text) {
   addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
 }
 
-String? _notice(WidgetTester tester) =>
-    ProviderScope.containerOf(tester.element(find.byType(Navigator).first)).read(noticeProvider)?.text;
+String? _notice(WidgetTester tester) => ProviderScope.containerOf(tester.element(find.byType(Navigator).first)).read(noticeProvider)?.text;
 
-/// Opens the menu that ends row number [at] of Pending invites (UP-017).
-Future<void> _openRowMenu(WidgetTester tester, {int at = 0}) async {
-  await tester.tap(find.byType(PopupMenuButton<String>).at(at));
-  await tester.pumpAndSettle();
-}
+/// A proven peer at [address]: a marked payment yesterday, pair requests claimed.
+PeerCompat _proven() => PeerCompat(lastMarkedAt: DateTime.now().subtract(const Duration(days: 1)), claimed: featureMarker | featurePairRequests, featuresAt: DateTime.now());
 
 void main() {
-  test('a key check LEPIC refuses (one a day) is said, not silent', () {
-    final n = pairingNoticeOf(_l, const PairingEvent(PairingEventKind.keyCheckRefused, pairingId: 'p', name: 'Anna'));
-    expect(n?.text, _l.noticeKeyCheckRefused('Anna'));
+  test('the notices: heard, ended, a request, answered elsewhere', () {
+    expect(pairingNoticeOf(_l, const PairingEvent(PairingEventKind.heard, pairingId: 'p', name: 'Anna'))?.text, _l.pairPairedWith('Anna'));
+    expect(pairingNoticeOf(_l, const PairingEvent(PairingEventKind.ended, pairingId: 'p', name: 'Anna', endedReason: PairingEndReason.peerMismatch))?.text, _l.pairEndedPeerMismatch('Anna'));
+    expect(pairingNoticeOf(_l, const PairingEvent(PairingEventKind.requested, requestId: 'q', sender: 'x', name: 'Anna'))?.text, _l.pairWantsToPair('Anna'));
+    expect(pairingNoticeOf(_l, const PairingEvent(PairingEventKind.pairedElsewhere, requestId: 'q', name: 'Desktop'))?.text, _l.pairPairedOn('Desktop'));
   });
 
   group('Pair', () {
-    testWidgets('offers Words, Invite by message and In person, Got words or a link? apart, and How pairing works', (tester) async {
+    testWidgets('your invite as a QR with Share, the name they see with Change, Have their invite? with Paste', (tester) async {
       final h = _Harness();
-      await h.pump(tester, const PairScreen());
-      expect(find.text(_l.pairWaysLead), findsOneWidget);
-      for (final t in [_l.pairWayWords, _l.pairWayAutomatic, _l.pairWayMessage, _l.pairInPerson, _l.pairGotInvite, _l.pairHowItWorks]) {
-        expect(find.text(t, skipOffstage: false), findsOneWidget, reason: t);
-      }
-      expect(find.text(_l.pairWayWordsHint), findsOneWidget);
-      await tester.tap(find.byKey(pairMessageKey));
-      await tester.pumpAndSettle();
-      expect(find.byType(PairMessageScreen), findsOneWidget);
-      expect(find.byKey(pairStepsKey), findsOneWidget);
-      expect(find.bySemanticsLabel(_l.pairStepOf(1, _l.pairStepInvite)), findsOneWidget);
+      await h.pump(tester, const PairScreen(), settle: false);
+      expect(find.text(_l.pairYourCode), findsOneWidget);
+      expect(find.text(_l.pairCodeCaption), findsOneWidget);
+      expect(find.byKey(pairShareKey), findsOneWidget);
+      expect(find.text(_l.pairSeenAsLine('Alex')), findsOneWidget);
+      expect(find.text(_l.pairHaveTheirCode), findsOneWidget);
+      expect(find.byKey(pairPasteKey), findsOneWidget);
+      expect(find.byKey(pairScanKey), findsNothing, reason: 'no camera on this device');
+      expect(h.api.standing, isNotNull, reason: 'the standing invite is made on open');
+      expect(await h.api.pairings(), isEmpty, reason: 'an unused invite is no row');
+      await tester.tap(find.byKey(pairShareKey));
+      await _frames(tester);
+      expect(h.files.sharedTexts.single, contains(h.api.standing!.inviteLink!));
     });
 
-    testWidgets('the clipboard is read on Paste link only: nothing on open, the press opens the invite there', (tester) async {
+    testWidgets('Change: one name per wallet, a new invite carries it', (tester) async {
       final h = _Harness();
-      // The link is made by another fake wallet: this one opens it as theirs.
+      await h.pump(tester, const PairScreen(), settle: false);
+      final before = h.api.standing!.id;
+      await tester.tap(find.byKey(pairChangeNameKey));
+      await _frames(tester);
+      await tester.enterText(find.byKey(pairNameFieldKey), 'Alexander');
+      await tester.tap(find.byKey(pairNameSaveKey));
+      await _frames(tester);
+      expect(find.text(_l.pairSeenAsLine('Alexander')), findsOneWidget);
+      expect(h.api.standing!.id, isNot(before));
+      expect(h.api.standingName, 'Alexander');
+      expect(h.store.values['pairing.seen_as'], 'Alexander');
+    });
+
+    testWidgets('framed for a contact: the title and captions name it', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, PairScreen(contact: Contact(id: 'c1', name: 'Anna', address: _anna)), settle: false);
+      expect(find.text(_l.pairWithName('Anna')), findsOneWidget);
+      expect(find.text(_l.pairCodeCaptionFor('Anna')), findsOneWidget);
+      expect(find.text(_l.pairHaveNamesCode('Anna')), findsOneWidget);
+    });
+
+    testWidgets('Epicbox off: one line under Share, nothing else', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const PairScreen(), net: PairNet.epicboxOff, settle: false);
+      expect(find.text(_l.pairEpicboxOffLine), findsOneWidget);
+    });
+
+    testWidgets('Paste with no invite on the clipboard: Not a pairing invite', (tester) async {
+      final h = _Harness();
+      _clipboard(tester, 'hello');
+      await h.pump(tester, const PairScreen(), settle: false);
+      await tester.tap(find.byKey(pairPasteKey));
+      await _frames(tester);
+      expect(_notice(tester), _l.pairNotACode);
+      expect(find.byType(IncomingInviteSheet), findsNothing);
+    });
+
+    testWidgets('Paste an invite: Pair with …? (by invite: name chosen by them); Pair opens the wait', (tester) async {
+      final h = _Harness();
       _clipboard(tester, 'Pair with me in Epic Cash: ${h.api.inviteLinkFrom(name: 'Northwind')}');
-      await h.pump(tester, const PairScreen());
-      expect(find.byType(IncomingInviteSheet), findsNothing, reason: 'no clipboard read on open');
-      expect(find.text(_l.pairPasteLink, skipOffstage: false), findsOneWidget);
-      await tester.ensureVisible(find.byKey(pairPasteLinkKey, skipOffstage: false));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(pairPasteLinkKey));
+      await h.pump(tester, const PairScreen(), settle: false);
+      await tester.tap(find.byKey(pairPasteKey));
       await _frames(tester);
       expect(find.byType(IncomingInviteSheet), findsOneWidget);
       expect(find.text(_l.pairIncomingTitle('Northwind')), findsOneWidget);
-    });
-
-    testWidgets('Paste link with no pairing link on the clipboard: a notice, nothing opens', (tester) async {
-      final h = _Harness();
-      _clipboard(tester, 'hello');
-      await h.pump(tester, const PairScreen());
-      await tester.ensureVisible(find.byKey(pairPasteLinkKey, skipOffstage: false));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(pairPasteLinkKey));
-      await _frames(tester);
-      expect(find.byType(IncomingInviteSheet), findsNothing);
-      expect(_notice(tester), _l.pairInvalidLink);
-    });
-
-    testWidgets('offline: Words is off with the reason, the message way works', (tester) async {
-      final h = _Harness();
-      await h.pump(tester, const PairScreen(), net: PairNet.offline);
-      final words = tester.widget<ListTile>(find.descendant(of: find.byKey(pairWordsKey), matching: find.byType(ListTile)));
-      expect(words.enabled, isFalse);
-      expect(find.text(_l.pairWordsNeedEpicbox), findsOneWidget);
-      expect(_notice(tester), _l.pairOfflineHint);
-      await tester.tap(find.byKey(pairMessageKey));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(pairShareKey));
-      await _frames(tester);
-      expect(h.api.records.single.state, PairingState.pendingInvite);
-      expect(find.text(_l.pairAwaitReplyTitle), findsOneWidget);
-      expect(find.text(_l.pairByItself), findsNothing, reason: 'no relay offline');
-    });
-
-    testWidgets('names the contact it pairs with', (tester) async {
-      final h = _Harness();
-      await h.pump(tester, PairScreen(contact: Contact(id: 'c1', name: 'Anna', address: _anna)));
-      expect(find.text(_l.pairWithName('Anna')), findsOneWidget);
-    });
-  });
-
-  group('invite by message', () {
-    testWidgets('the invite: 24 hours by default, shared as "Pair with me…", then the wait for the reply', (tester) async {
-      final h = _Harness();
-      await h.pump(tester, const PairMessageScreen());
-      final expiry = tester.widget<SegmentedButton<Duration>>(find.byType(SegmentedButton<Duration>));
-      expect(expiry.selected, {const Duration(hours: 24)});
-      expect(find.text(_l.pairShareWarning), findsOneWidget);
-      expect(find.text(_l.pairInviteMessage('epiccash://pair/1/…')), findsOneWidget);
-      await tester.tap(find.byKey(pairShareKey));
-      await _frames(tester);
-      final invite = h.api.records.single;
-      expect(invite.state, PairingState.pendingInvite);
-      expect(h.files.sharedTexts.single, _l.pairInviteMessage(invite.inviteLink!));
-      // The link ends the text: a one-line field drops the line breaks.
-      expect(h.files.sharedTexts.single, endsWith(invite.inviteLink!));
-      expect(find.text(_l.pairAwaitReplyTitle), findsOneWidget);
-      expect(find.byKey(pairPasteReplyKey), findsOneWidget);
-      expect(find.bySemanticsLabel(_l.pairStepOf(2, _l.pairStepReply)), findsOneWidget);
-    });
-
-    testWidgets('a reply through the relay: the relay sent the finish link too, so the words open', (tester) async {
-      final h = _Harness();
-      await h.pump(tester, const PairMessageScreen());
-      await tester.tap(find.byKey(pairShareKey));
-      await _frames(tester);
-      h.api.answerInvite(h.api.records.single.id, name: 'Anna');
-      await _frames(tester);
-      expect(find.byType(CheckWordsScreen), findsOneWidget);
-      expect(find.byType(PairFinishScreen), findsNothing);
-    });
-
-    testWidgets('Paste reply: the finish link opens by itself, shared, then Check the words', (tester) async {
-      final h = _Harness();
-      await h.pump(tester, const PairMessageScreen());
-      await tester.tap(find.byKey(pairShareKey));
-      await _frames(tester);
-      final invite = h.api.records.single;
-      final reply = _l.pairReplyMessage(fakePairingLink('pair-reply', {'t': invite.id, 'n': 'Ola'}));
-      _clipboard(tester, reply);
-      await tester.tap(find.byKey(pairPasteReplyKey));
-      await _frames(tester);
-      expect(find.byType(PairFinishScreen), findsOneWidget);
-      expect(find.byType(PairMessageScreen, skipOffstage: false), findsNothing, reason: 'the wait made way');
-      expect(find.text(_l.pairFinishLead('Ola')), findsOneWidget);
-      expect(find.bySemanticsLabel(_l.pairStepOf(3, _l.pairStepFinish)), findsOneWidget);
-      await tester.tap(find.byKey(finishShareKey));
-      await _frames(tester);
-      final finish = await h.api.confirmLink(invite.id);
-      expect(h.files.sharedTexts.last, _l.pairFinishMessage(finish));
-      await tester.tap(find.byKey(finishCheckKey));
-      await _frames(tester);
-      expect(find.byType(CheckWordsScreen), findsOneWidget);
-    });
-
-    testWidgets('a reply pasted after the relay finished the pairing: Already paired, nothing else', (tester) async {
-      final h = _Harness();
-      final invite = await h.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 24));
-      h.api.answerInvite(invite.id, name: 'Ola');
-      await h.pump(tester, const EnterLinkScreen());
-      await tester.enterText(find.byKey(pairEnterFieldKey), fakePairingLink('pair-reply', {'t': invite.id, 'n': 'Ola'}));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(pairEnterGoKey));
-      await _frames(tester);
-      expect(_notice(tester), _l.pairAlreadyPaired('Ola'));
-      expect(find.byType(PairFinishScreen), findsNothing);
-    });
-
-    testWidgets('without the name they will see, nothing is made', (tester) async {
-      final h = _Harness(seenAs: null);
-      await h.pump(tester, const PairMessageScreen());
-      expect(tester.widget<FilledButton>(find.byKey(pairShareKey)).onPressed, isNull);
-      expect(h.api.records, isEmpty);
-    });
-
-    testWidgets('a name typed and Share tapped at once, keyboard still up: the invite carries it', (tester) async {
-      final h = _Harness(seenAs: null);
-      await h.pump(tester, const PairMessageScreen());
-      await tester.enterText(find.byKey(pairNameFieldKey), 'Ola');
-      await tester.pump();
-      await tester.tap(find.byKey(pairShareKey));
-      await _frames(tester);
-      expect(find.text(_l.pairSeenAsMissing), findsNothing);
-      expect(h.api.records.single.state, PairingState.pendingInvite);
-      expect(h.api.calls, contains('makeInvite'));
-      await tester.pump(const Duration(seconds: 1));
-      expect(h.store.values['pairing.seen_as'], 'Ola', reason: 'kept once typing paused');
-    });
-
-    testWidgets('Cancel invite asks first, then cancels', (tester) async {
-      final h = _Harness();
-      await h.pump(tester, const PairMessageScreen());
-      await tester.tap(find.byKey(pairShareKey));
-      await _frames(tester);
-      await tester.tap(find.byKey(pairCancelInviteKey));
-      await _frames(tester);
-      expect(find.text(_l.pairCancelInviteTitle(_l.pairUnnamedInvite)), findsOneWidget);
-      await tester.tap(find.descendant(of: find.byType(AlertDialog), matching: find.text(_l.pairCancelInvite)));
-      await _frames(tester);
-      expect(h.api.calls, contains('cancelInvite'));
-      expect(find.byType(PairMessageScreen), findsNothing);
-    });
-
-    Future<PairingRecord> answerLink(WidgetTester tester, _Harness h) async {
-      await h.pump(tester, const EnterLinkScreen());
-      await tester.enterText(find.byKey(pairEnterFieldKey), _l.pairInviteMessage(h.api.inviteLinkFrom(name: 'Anna')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(pairEnterGoKey));
-      await _frames(tester);
+      expect(find.text(_l.pairNameClaimed), findsOneWidget);
+      expect(find.text(_l.pairInContacts), findsNothing);
+      expect(find.byKey(pairNameFieldKey), findsNothing, reason: 'no name field on the sheet');
       await tester.tap(find.byKey(incomingPairKey));
       await _frames(tester);
-      return h.api.records.single;
-    }
-
-    testWidgets('the joiner, relay on: Pair on a link opens the wait, no reply to share; the confirm by the relay opens the words', (tester) async {
-      final h = _Harness();
-      final answered = await answerLink(tester, h);
       expect(find.byType(PairingWaitingScreen), findsOneWidget);
-      expect(find.byType(PairReplyScreen), findsNothing);
-      expect(find.byKey(waitingReplyFallbackKey), findsNothing);
-      expect(find.byKey(waitingByHandKey), findsNothing);
-      h.api.confirmAnswer(answered.id);
-      await _frames(tester);
-      expect(find.byType(CheckWordsScreen), findsOneWidget);
-      expect(find.byType(PairReplyScreen, skipOffstage: false), findsNothing);
-    });
-
-    testWidgets('the joiner: the relay slow, Send your reply as the fallback, then the wait for the finish link, then the words', (tester) async {
-      final h = _Harness();
-      final answered = await answerLink(tester, h);
-      await tester.pump(pairReplyFallbackAfter);
-      await _frames(tester);
-      expect(find.text(_l.pairReplyLateTitle), findsOneWidget);
-      await tester.ensureVisible(find.byKey(waitingReplyFallbackKey));
-      await tester.tap(find.byKey(waitingReplyFallbackKey));
-      await _frames(tester);
-      expect(find.byType(PairReplyScreen), findsOneWidget);
-      expect(find.text(_l.pairReplyLead('Anna')), findsOneWidget);
-      await tester.tap(find.byKey(replyShareKey));
-      await _frames(tester);
-      expect(h.files.sharedTexts.single, _l.pairReplyMessage(await h.api.replyLink(answered.id)));
-      expect(find.text(_l.pairAwaitFinishTitle), findsOneWidget);
-      expect(find.byKey(waitingPasteFinishKey), findsOneWidget);
-      expect(find.bySemanticsLabel(_l.pairStepOf(3, _l.pairStepFinish)), findsOneWidget);
-      _clipboard(tester, _l.pairFinishMessage(fakePairingLink('pair-confirm', {'t': answered.id, 'n': 'Anna'})));
-      await tester.tap(find.byKey(waitingPasteFinishKey));
-      await _frames(tester);
-      expect(find.byType(CheckWordsScreen), findsOneWidget);
-      expect(find.byType(PairingWaitingScreen, skipOffstage: false), findsNothing);
-    });
-
-    testWidgets('pairing words opened again: the open invite shows again, no new one each visit', (tester) async {
-      final h = _Harness();
-      await h.pump(tester, const PairingWordsScreen(), settle: false);
-      final first = h.api.records.single;
-      await tester.pumpWidget(const SizedBox());
-      await h.pump(tester, const PairingWordsScreen(), settle: false);
-      expect(h.api.records.single.id, first.id);
-      expect(h.api.calls.where((c) => c == 'makeInvite'), hasLength(1));
-      for (final w in first.inviteWords) {
-        expect(find.text(w.name), findsOneWidget, reason: w.name);
-      }
-    });
-
-    testWidgets('pairing words: five of them, good for 10 minutes, both wallets online, waiting', (tester) async {
-      final h = _Harness();
-      await h.pump(tester, const PairingWordsScreen(), settle: false);
-      final invite = h.api.records.single;
-      expect(invite.inviteWords, hasLength(pairingWordCount));
-      for (final t in [_l.pairWordsLead, _l.pairWordsFooter, _l.pairWordsBothOnline, _l.pairWordsWaiting]) {
-        expect(find.text(t), findsOneWidget, reason: t);
-      }
-      for (final w in invite.inviteWords) {
-        expect(find.text(w.name), findsOneWidget, reason: w.name);
-      }
-    });
-
-    testWidgets('pairing words with no pairing relay reachable: says so and offers Invite by message instead (report utc3fhjj)', (tester) async {
-      final h = _Harness();
-      h.api.relayUnreachable = true;
-      await h.pump(tester, const PairingWordsScreen(), settle: false);
-      await _frames(tester);
-      expect(find.text(_l.pairNoRelay), findsOneWidget);
-      expect(find.text(_l.pairRelayUnreachableTitle), findsNothing);
-      await tester.tap(find.byKey(pairUseMessageKey));
-      await tester.pumpAndSettle();
-      expect(find.byType(PairMessageScreen), findsOneWidget);
-    });
-  });
-
-  group('enter a link or words', () {
-    testWidgets('words nobody offered: says so, nothing is stored', (tester) async {
-      final h = _Harness();
-      await h.pump(tester, const EnterLinkScreen());
-      final words = fakeSasWords('nobody', count: pairingWordCount).map((w) => w.name).join(' ');
-      await tester.enterText(find.byKey(pairEnterFieldKey), '$words ');
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(pairEnterGoKey));
-      await tester.pumpAndSettle();
-      expect(find.text(_l.pairEnterNotFound), findsOneWidget);
-      expect(h.api.records, isEmpty);
-    });
-
-    testWidgets('pairing words pasted with their emoji, as the copy once put them, open the invite', (tester) async {
-      final h = _Harness();
-      final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Northwind'));
-      final five = [sasTable[7], sasTable[42], sasTable[7], sasTable[200], sasTable[3]];
-      h.api.wordsInvites[five.map((w) => w.name).join(' ')] = preview;
-      await h.pump(tester, const EnterLinkScreen());
-      await tester.enterText(find.byKey(pairEnterFieldKey), '${five.map((w) => '${w.emoji} ${w.name}').join('  ')}\n');
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(pairEnterGoKey));
-      // The incoming invite's countdown never settles.
-      await _frames(tester);
-      expect(find.text(_l.pairIncomingTitle('Northwind')), findsOneWidget);
-    });
-
-    testWidgets('words with no pairing relay reachable: says so, not "no invite found"', (tester) async {
-      final h = _Harness();
-      h.api.relayUnreachable = true;
-      await h.pump(tester, const EnterLinkScreen());
-      final words = fakeSasWords('nobody', count: pairingWordCount).map((w) => w.name).join(' ');
-      await tester.enterText(find.byKey(pairEnterFieldKey), '$words ');
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(pairEnterGoKey));
-      await tester.pumpAndSettle();
-      // And the way that needs no relay.
-      expect(find.text('${_l.pairNoRelay} ${_l.pairAskForMessage}'), findsOneWidget);
-      expect(find.text(_l.pairEnterNotFound), findsNothing);
-    });
-
-    testWidgets('a word being typed is completed from the table', (tester) async {
-      final h = _Harness();
-      await h.pump(tester, const EnterLinkScreen());
-      final word = fakeSasWords('one', count: 1).single;
-      await tester.enterText(find.byKey(pairEnterFieldKey), word.name.substring(0, 3));
-      await tester.pumpAndSettle();
-      final suggestion = find.widgetWithText(ActionChip, word.name);
-      expect(suggestion, findsWidgets);
-      await tester.tap(suggestion.first);
-      await tester.pumpAndSettle();
-      final field = tester.widget<TextField>(find.byKey(pairEnterFieldKey));
-      expect(field.controller!.text, '${word.name} ');
-    });
-
-    testWidgets('this wallet\'s own invite: This is your own code, no Pair with …', (tester) async {
-      final h = _Harness();
-      final mine = await h.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 24));
-      await h.pump(tester, const EnterLinkScreen());
-      await tester.enterText(find.byKey(pairEnterFieldKey), mine.inviteLink!);
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(pairEnterGoKey));
-      await _frames(tester);
-      expect(find.text(_l.pairOwnCode), findsOneWidget);
-      expect(find.text(_l.pairIncomingTitle('Alex')), findsNothing);
-      expect(h.api.records.single.state, PairingState.pendingInvite, reason: 'nothing answered');
-    });
-
-    testWidgets('the incoming invite with no name kept: the field stays while typing, and Pair with the keyboard up uses it', (tester) async {
-      final h = _Harness(seenAs: null);
-      await h.pump(tester, const EnterLinkScreen());
-      await tester.enterText(find.byKey(pairEnterFieldKey), h.api.inviteLinkFrom(name: 'Anna'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(pairEnterGoKey));
-      await _frames(tester);
-      expect(find.byKey(pairNameFieldKey), findsOneWidget);
-      await tester.enterText(find.byKey(pairNameFieldKey), 'O');
-      await tester.pump();
-      expect(find.byKey(pairNameFieldKey), findsOneWidget, reason: 'the field does not go after the first letter');
-      await tester.enterText(find.byKey(pairNameFieldKey), 'Ola');
-      await tester.pump();
-      await tester.tap(find.byKey(incomingPairKey));
-      await _frames(tester);
-      expect(find.text(_l.pairSeenAsMissing), findsNothing);
-      expect(h.api.records.single.state, PairingState.pendingReply);
-    });
-
-    testWidgets('the incoming invite with the keyboard up: the name field and Pair stay above it', (tester) async {
-      final h = _Harness(seenAs: null);
-      await h.pump(tester, const EnterLinkScreen());
-      await tester.enterText(find.byKey(pairEnterFieldKey), h.api.inviteLinkFrom(name: 'Anna'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(pairEnterGoKey));
-      await _frames(tester);
-      // Edge-to-edge Android 15+: the keyboard is a view inset the sheet itself must clear.
-      tester.view.viewInsets = const FakeViewPadding(bottom: 300 * 3);
-      await _frames(tester);
-      final keyboardTop = 2340 / 3 - 300;
-      expect(tester.getBottomLeft(find.byKey(incomingPairKey)).dy, lessThanOrEqualTo(keyboardTop));
-      expect(tester.getBottomLeft(find.byKey(pairNameFieldKey)).dy, lessThanOrEqualTo(keyboardTop));
-    });
-
-    testWidgets('an invite link opens the incoming invite; Pair answers and waits for the relay; a relay confirm opens the words', (tester) async {
-      final h = _Harness();
-      await h.pump(tester, const EnterLinkScreen());
-      final link = h.api.inviteLinkFrom(name: 'Northwind', kind: PairingParty.exchange, asksInvoices: true);
-      await tester.enterText(find.byKey(pairEnterFieldKey), link);
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(pairEnterGoKey));
-      await _frames(tester);
-      expect(find.text(_l.pairIncomingTitle('Northwind')), findsOneWidget);
-      expect(find.byType(ClaimedNameBadge), findsOneWidget);
-      // The claimed kind and name prove nothing: invoices stay off until the user says so.
-      final allow = tester.widget<Switch>(find.byKey(incomingAllowKey));
-      expect(allow.value, isFalse);
-      await tester.tap(find.byKey(incomingPairKey));
-      await _frames(tester);
+      expect(find.text(_l.pairPairingWith('Northwind')), findsOneWidget);
+      expect(find.byKey(waitingAnswerBoxKey), findsNothing, reason: 'the relay carries it first');
+      // The confirm came through the relay: the words open.
       final answered = h.api.records.single;
-      expect((answered.state, answered.asksInvoices), (PairingState.pendingReply, false));
-      // The relay carries the answer: the wait, the reply in the chat only as the fallback.
-      expect(find.byType(PairingWaitingScreen), findsOneWidget);
-      expect(find.byType(PairReplyScreen), findsNothing);
-
       h.api.confirmAnswer(answered.id);
       await _frames(tester);
       expect(find.byType(CheckWordsScreen), findsOneWidget);
     });
 
-    testWidgets('an expired invite says so and stores nothing', (tester) async {
+    testWidgets('the wait: Your answer after 30 s with a QR, Share and the confirmation field; at once with Epicbox off', (tester) async {
       final h = _Harness();
-      await h.pump(tester, const EnterLinkScreen());
-      await tester.enterText(
-        find.byKey(pairEnterFieldKey),
-        h.api.inviteLinkFrom(name: 'Anna', expiresIn: const Duration(minutes: -5)),
-      );
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(pairEnterGoKey));
-      await tester.pumpAndSettle();
-      expect(find.byType(PairingOutcomeScreen), findsOneWidget);
-      expect(find.text(_l.pairExpiredTitle), findsOneWidget);
-      expect(h.api.records, isEmpty);
+      final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
+      final answered = await h.api.acceptInvite(token: preview.token, name: 'Alex');
+      await h.pump(tester, PairingWaitingScreen(pairingId: answered.id, name: 'Anna'), settle: false);
+      expect(find.byKey(waitingAnswerBoxKey), findsNothing);
+      await tester.pump(pairReplyFallbackAfter + const Duration(seconds: 1));
+      await _frames(tester);
+      expect(find.byKey(waitingAnswerBoxKey), findsOneWidget);
+      expect(find.text(_l.pairByHandYourAnswer), findsOneWidget);
+      expect(find.byKey(waitingShareKey), findsOneWidget);
+      expect(find.byKey(waitingFinishFieldKey), findsOneWidget);
+      await tester.tap(find.byKey(waitingShareKey));
+      await _frames(tester);
+      expect(h.files.sharedTexts.single, contains('epiccash://pair-reply/'));
+      // The confirmation pasted in the field opens the words.
+      await tester.enterText(find.byKey(waitingFinishFieldKey), fakePairingLink('pair-confirm', {'t': answered.id}));
+      await tester.tap(find.byKey(waitingFinishGoKey));
+      await _frames(tester);
+      expect(find.byType(CheckWordsScreen), findsOneWidget);
     });
 
-    testWidgets('the relay is not reachable: the answer goes by hand', (tester) async {
+    testWidgets('Epicbox off: the answer box at once; Cancel asks, then forgets the answer', (tester) async {
       final h = _Harness();
       h.api.relayUnreachable = true;
       final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
       final answered = await h.api.acceptInvite(token: preview.token, name: 'Alex');
-      await h.pump(tester, PairingWaitingScreen(pairingId: answered.id), settle: false);
-      expect(find.text(_l.pairRelayUnreachableTitle), findsOneWidget);
-      await tester.tap(find.byKey(waitingByHandKey));
+      await h.pump(tester, PairingWaitingScreen(pairingId: answered.id, name: 'Anna'), net: PairNet.epicboxOff, settle: false);
+      expect(find.byKey(waitingAnswerBoxKey), findsOneWidget);
+      await tester.tap(find.byKey(waitingCancelKey));
       await _frames(tester);
-      expect(find.byType(PairingByHandScreen), findsOneWidget);
-      expect(find.text(_l.pairByHandLead('Anna')), findsOneWidget);
+      expect(find.text(_l.pairCancelPairingTitle), findsOneWidget);
+      await tester.tap(find.text(_l.pairCancelPairing));
+      await _frames(tester);
+      expect(h.api.records, isEmpty);
     });
-    testWidgets('waiting while this wallet is Offline or has Epicbox off: says which, not a relay fault (qa-linux)', (tester) async {
-      for (final (net, text) in [(PairNet.offline, _l.pairOfflineHint), (PairNet.epicboxOff, _l.pairEpicboxOffNotice)]) {
-        final h = _Harness();
-        final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
-        final answered = await h.api.acceptInvite(token: preview.token, name: 'Alex', byHand: true);
-        await h.pump(tester, PairingWaitingScreen(pairingId: answered.id), net: net, settle: false);
-        expect(find.text(text), findsOneWidget, reason: '$net');
-        expect(find.text(_l.pairRelayUnreachableTitle), findsNothing, reason: '$net');
-        await tester.pumpWidget(const SizedBox());
-      }
+
+    testWidgets('an answer pasted on the Pair screen: the confirmation box, Share, Check the words', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const PairScreen(), settle: false);
+      final invite = h.api.standing!;
+      _clipboard(tester, fakePairingLink('pair-reply', {'t': invite.id, 'n': 'Anna'}));
+      await tester.tap(find.byKey(pairPasteKey));
+      await _frames(tester);
+      expect(find.byKey(pairFinishBoxKey), findsOneWidget);
+      expect(find.text(_l.pairFinishCodeTitle), findsOneWidget);
+      expect(find.text(_l.pairFinishCodeBody('Anna')), findsOneWidget);
+      expect(h.api.standing!.id, isNot(invite.id), reason: 'the used invite was replaced');
+      await tester.scrollUntilVisible(find.byKey(pairFinishShareKey), 200, scrollable: find.byType(Scrollable).first);
+      await _frames(tester);
+      await tester.tap(find.byKey(pairFinishShareKey));
+      await _frames(tester);
+      expect(h.files.sharedTexts.single, contains('epiccash://pair-confirm/'));
+      await tester.ensureVisible(find.byKey(pairCheckWordsKey).first);
+      await tester.tap(find.byKey(pairCheckWordsKey).first);
+      await _frames(tester);
+      expect(find.byType(CheckWordsScreen), findsOneWidget);
+    });
+
+    testWidgets('an answer through the relay: the words open; a request answered ends Verified with a notice', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, const PairScreen(), settle: false);
+      h.api.answerInvite(h.api.standing!.id, name: 'Anna');
+      await _frames(tester);
+      expect(find.byType(CheckWordsScreen), findsOneWidget);
+    });
+
+    testWidgets('a confirmation pasted elsewhere opens the words; a request confirm just says Paired with', (tester) async {
+      final h = _Harness();
+      h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));
+      final q = h.api.receiveRequest(from: _anna, name: 'Anna')!;
+      final preview = await h.api.openRequest(q.id);
+      final answered = await h.api.acceptInvite(token: preview.token, name: 'Alex', contactId: 'c1');
+      _clipboard(tester, fakePairingLink('pair-confirm', {'t': answered.id}));
+      await h.pump(tester, const PairScreen(), settle: false);
+      await tester.tap(find.byKey(pairPasteKey));
+      await _frames(tester);
+      expect(find.byType(CheckWordsScreen), findsNothing);
+      expect(_notice(tester), _l.pairPairedWith('Anna'));
+      expect(h.api.records.single.state, PairingState.verified);
     });
   });
 
   group('check the words', () {
-    Future<PairingRecord> open(WidgetTester tester, _Harness h, {String? contactId, String? paymentsAddress}) async {
-      final r = h.api.seedPaired(id: 'p1', name: 'Anna', state: PairingState.paired, contactId: contactId, paymentsAddress: paymentsAddress);
-      await h.pump(tester, const CheckWordsScreen(pairingId: 'p1'));
-      return r;
-    }
-
-    testWidgets('shows the four words; They match verifies and offers to save the contact', (tester) async {
+    testWidgets('They match · They do not match, no Skip; a match verifies and offers to save the contact', (tester) async {
       final h = _Harness();
-      final r = await open(tester, h);
+      final r = h.api.seedPaired(name: 'Anna', state: PairingState.paired);
+      await h.pump(tester, CheckWordsScreen(pairingId: r.id));
+      expect(find.text(_l.sasTitle), findsOneWidget);
       expect(find.text(_l.sasLead('Anna')), findsOneWidget);
-      for (final w in r.sas) {
-        expect(find.text(w.name), findsOneWidget, reason: w.name);
-      }
+      expect(find.byKey(checkMatchKey), findsOneWidget);
+      expect(find.byKey(checkNoMatchKey), findsOneWidget);
+      expect(find.text(_l.sasSkip), findsNothing);
+      expect(find.text(_l.sasLater), findsNothing);
       await tester.tap(find.byKey(checkMatchKey));
       await tester.pumpAndSettle();
-      expect((await h.api.pairing('p1'))!.state, PairingState.verified);
-      expect(find.text(_l.sasMatchedTitle('Anna')), findsOneWidget);
-      expect(find.text(_l.pairSaveContactTitle('Anna')), findsOneWidget);
-      // Never "already in your contacts": the user picks, a new contact or one of theirs.
-      expect(find.byKey(resultSaveNewKey), findsOneWidget);
-      expect(find.byKey(resultAddToKey), findsOneWidget);
-
-      await tester.tap(find.byKey(resultSaveNewKey));
-      await tester.pumpAndSettle();
-      expect(find.byType(ContactEditScreen), findsOneWidget);
-      await tester.tap(find.text(_l.contactsSave));
-      await tester.pumpAndSettle();
-      final saved = (await h.session.contacts()).singleWhere((c) => c.name == 'Anna');
-      expect((await h.api.pairing('p1'))!.contactId, saved.id);
-      expect(_notice(tester), _l.pairSavedAs('Anna'));
-      expect(find.text(_l.pairSaveContactTitle('Anna')), findsNothing);
-    });
-
-    testWidgets('a re-pair: a contact of its name with an old pairing is offered first, and Add to starts the key check', (tester) async {
-      final h = _Harness();
-      final anna = await h.session.saveContact(contact: Contact(id: '', name: ' anna  ', address: _anna));
-      h.api.seedPaired(id: 'old', name: 'Anna', state: PairingState.verified, contactId: anna.id, paymentsAddress: _anna);
-      // The same wallet again: its card brings the contact's address.
-      await open(tester, h, paymentsAddress: _anna);
-      await tester.tap(find.byKey(checkMatchKey));
-      await tester.pumpAndSettle();
-      expect(find.byKey(resultAddToNamedKey), findsOneWidget);
-      expect(find.text(_l.pairAddToNamed(anna.name)), findsOneWidget);
-      expect(find.byKey(resultSaveNewKey), findsOneWidget, reason: 'the other choices stay');
-      expect(find.byKey(resultAddToKey), findsOneWidget);
-      await tester.tap(find.byKey(resultAddToNamedKey));
-      await tester.pumpAndSettle();
-      expect(h.api.calls, contains('attach'));
-      // The fake's key check found the old keys: the new pairing folded into the old one.
-      expect(await h.api.pairing('p1'), isNull);
-      expect((await h.api.pairing('old'))!.contactId, anna.id);
-      // Not an empty page: the contact, whose notice says the keys are back.
-      expect(find.byType(PairingResultScreen), findsNothing);
-      expect(find.byType(ContactPage), findsOneWidget);
-    });
-
-    testWidgets('re-pair answered while the old contact page is open: the notice opens the new words, They match shows the result', (tester) async {
-      final h = _Harness();
-      final anna = await h.session.saveContact(contact: Contact(id: '', name: 'Anna', address: _anna));
-      h.api.seedPaired(id: 'old', name: 'Anna', state: PairingState.verified, contactId: anna.id);
-      await h.pump(tester, const Scaffold(body: PairingNotices()));
-      // The test font's wide glyphs: the notice with its action needs more than 360 dp.
-      tester.view.physicalSize = const Size(1800, 2340);
-      final invite = await h.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 1));
-      final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
-      unawaited(nav.push(MaterialPageRoute<void>(builder: (_) => ContactPage(contactId: anna.id))));
-      await tester.pumpAndSettle();
-      h.api.answerInvite(invite.id, name: 'Anna');
-      await tester.pumpAndSettle();
-      final c = ProviderScope.containerOf(tester.element(find.byType(Navigator).first));
-      c.read(noticeProvider)!.action!.onPressed();
-      await tester.pumpAndSettle();
-      expect(find.byType(CheckWordsScreen), findsOneWidget);
-      await tester.tap(find.byKey(checkMatchKey));
-      await tester.pumpAndSettle();
-      expect(h.api.calls, contains('check:match'));
-      expect((await h.api.pairing(invite.id))!.state, PairingState.verified);
+      expect(h.api.records.single.state, PairingState.verified);
       expect(find.byType(PairingResultScreen), findsOneWidget);
-    });
-
-    testWidgets('the notice\'s Check the words opens the words even after the widget that showed it was rebuilt away', (tester) async {
-      final h = _Harness();
-      await h.pump(tester, const Scaffold(body: PairingNotices(key: ValueKey('first'))));
-      tester.view.physicalSize = const Size(1800, 2340);
-      final invite = await h.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 1));
-      h.api.answerInvite(invite.id, name: 'Anna');
-      await tester.pumpAndSettle();
-      final c = ProviderScope.containerOf(tester.element(find.byType(Navigator).first));
-      final action = c.read(noticeProvider)!.action!;
-      // The home screen rebuilt: a new PairingNotices, the one that showed the notice is gone.
-      final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
-      nav.pushReplacement(MaterialPageRoute<void>(builder: (_) => const Scaffold(body: PairingNotices(key: ValueKey('second')))));
-      await tester.pumpAndSettle();
-      action.onPressed();
-      await tester.pumpAndSettle();
-      expect(find.byType(CheckWordsScreen), findsOneWidget);
-    });
-
-    testWidgets('no contact of its name, or two unpaired ones: nothing is suggested', (tester) async {
-      final h = _Harness();
-      await h.session.saveContact(contact: Contact(id: '', name: 'Anna', address: _anna));
-      await h.session.saveContact(contact: Contact(id: '', name: 'ANNA', address: 'esOtherKeyForAnnaTwo@epicbox.example'));
-      await open(tester, h);
-      await tester.tap(find.byKey(checkMatchKey));
-      await tester.pumpAndSettle();
-      expect(find.byKey(resultAddToNamedKey), findsNothing);
+      expect(find.text(_l.pairNotChecked('Anna')), findsOneWidget);
       expect(find.byKey(resultSaveNewKey), findsOneWidget);
     });
 
-    testWidgets('They don\'t match asks, then drops the pairing', (tester) async {
+    testWidgets('They do not match asks, then ends the pairing (kept) with the notice', (tester) async {
       final h = _Harness();
-      await open(tester, h);
+      final r = h.api.seedPaired(name: 'Anna', state: PairingState.paired);
+      await h.pump(tester, CheckWordsScreen(pairingId: r.id));
       await tester.tap(find.byKey(checkNoMatchKey));
       await tester.pumpAndSettle();
-      expect(find.text(_l.sasNoMatchTitle), findsOneWidget);
       expect(find.text(_l.sasNoMatchBody), findsOneWidget);
       await tester.tap(find.byKey(checkStopKey));
       await tester.pumpAndSettle();
-      expect(await h.api.pairing('p1'), isNull);
-      expect(find.byType(CheckWordsScreen), findsNothing);
+      final ended = h.api.records.single;
+      expect((ended.state, ended.endedReason), (PairingState.ended, PairingEndReason.mismatch));
+      expect(_notice(tester), _l.pairEndedNotice);
     });
 
-    testWidgets('Skip for now: paired, not verified, invoices wait', (tester) async {
+    testWidgets('Back is later: the pairing stays Paired', (tester) async {
       final h = _Harness();
-      await open(tester, h, contactId: 'c1');
-      await tester.tap(find.byKey(checkSkipKey));
+      final r = h.api.seedPaired(name: 'Anna', state: PairingState.paired);
+      await h.pump(tester, const Scaffold(body: SizedBox.shrink()));
+      final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
+      unawaited(nav.push(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: r.id))));
       await tester.pumpAndSettle();
-      expect(find.text(_l.sasSkippedTitle('Anna')), findsOneWidget);
-      expect(find.text(_l.sasSkippedBody('Anna')), findsOneWidget);
-      expect((await h.api.pairing('p1'))!.state, PairingState.paired);
+      expect(find.byKey(checkMatchKey), findsOneWidget);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      expect(find.byKey(checkMatchKey), findsNothing);
+      expect(h.api.records.single.state, PairingState.paired);
     });
   });
 
-  test('a span counts whole minutes: a fresh 24 h invite is 23 h 59 min, not 1 d 0 h', () {
-    expect(pairingSpan(_l, const Duration(hours: 23, minutes: 59, seconds: 59)), _l.pairDurHours(23, 59));
-    expect(pairingSpan(_l, const Duration(days: 6, hours: 23, minutes: 59, seconds: 59)), _l.pairDurDays(6, 23));
-    expect(pairingSpan(_l, const Duration(minutes: 1, seconds: 30)), _l.pairDurMinutes(1));
-    expect(pairingSpan(_l, const Duration(seconds: 59)), _l.pairDurUnderMinute);
+  group('the contact page', () {
+    Future<_Harness> page(WidgetTester tester, void Function(_Harness h) seed, {PairNet? net}) async {
+      final h = _Harness();
+      h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));
+      seed(h);
+      await h.pump(tester, const ContactPage(contactId: 'c1'), net: net, settle: false);
+      await _frames(tester);
+      return h;
+    }
+
+    testWidgets('not paired: Pair in the header and the block; a proven peer gets the request sheet', (tester) async {
+      final h = await page(tester, (h) {
+        h.service.peerCompats[_anna] = _proven();
+        h.api.provenPeers.add(_anna);
+      });
+      expect(find.byKey(contactPageHeaderPairKey), findsOneWidget);
+      expect(find.text(_l.pairNotPaired), findsOneWidget);
+      await tester.tap(find.byKey(contactPagePairKey));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.pairRequestBody), findsOneWidget);
+      expect(find.byKey(way1SendKey), findsOneWidget);
+      expect(find.byKey(way1ShowCodeKey), findsOneWidget);
+      await tester.tap(find.byKey(way1SendKey));
+      await _frames(tester);
+      expect(h.api.sentRequests.single.to, _anna);
+      expect(find.text(_l.pairWaitingFor('Anna')), findsWidgets);
+      expect(find.byKey(contactPageShowCodeKey), findsOneWidget, reason: 'Show my invite from the first moment');
+      expect(find.byKey(contactPageCancelPairingKey), findsOneWidget);
+    });
+
+    testWidgets('not a proven peer: Pair opens the Pair screen framed for the contact, no sentence about why', (tester) async {
+      await page(tester, (_) {});
+      await tester.tap(find.byKey(contactPagePairKey));
+      await tester.pumpAndSettle();
+      expect(find.byType(PairScreen), findsOneWidget);
+      expect(find.text(_l.pairWithName('Anna')), findsOneWidget);
+      expect(find.text(_l.pairNotProvenBody('Anna')), findsNothing);
+    });
+
+    testWidgets('Epicbox off: Pair opens the framed Pair screen too, even for a proven peer', (tester) async {
+      await page(tester, (h) => h.service.peerCompats[_anna] = _proven(), net: PairNet.epicboxOff);
+      await tester.tap(find.byKey(contactPagePairKey));
+      await tester.pumpAndSettle();
+      expect(find.byType(PairScreen), findsOneWidget);
+      expect(find.text(_l.pairEpicboxOffLine), findsOneWidget);
+    });
+
+    testWidgets('a request expired unanswered: No answer, Pair again, Remove', (tester) async {
+      final h = await page(tester, (h) {
+        h.api.provenPeers.add(_anna);
+        h.api.clock = () => DateTime.now().subtract(const Duration(days: 8));
+      });
+      await h.api.requestPairing(toAddress: _anna, name: 'Alex', contactId: 'c1');
+      h.api.clock = DateTime.now;
+      await h.container(tester).read(pairingsProvider.notifier).reload();
+      await _frames(tester);
+      expect(find.text(_l.pairNoAnswerFrom('Anna')), findsOneWidget);
+      expect(find.byKey(contactPagePairAgainKey), findsOneWidget);
+      await tester.tap(find.byKey(contactPageCancelPairingKey));
+      await _frames(tester);
+      expect(h.api.records, isEmpty);
+      expect(find.text(_l.pairNotPaired), findsOneWidget);
+    });
+
+    testWidgets('waiting (answered, not heard): the line, Check the words, Cancel; heard: Paired', (tester) async {
+      final h = await page(tester, (h) => h.api.seedPaired(name: 'Anna', contactId: 'c1', state: PairingState.waiting, paymentsAddress: _anna));
+      expect(find.text(_l.pairWaitingFor('Anna')), findsWidgets);
+      expect(find.text(_l.pairAnsweredNotHeard), findsOneWidget);
+      expect(find.byKey(contactPageCheckKey), findsOneWidget);
+      expect(find.byKey(contactPageCancelPairingKey), findsOneWidget);
+      final seal = tester.widget<Switch>(find.byKey(contactPageSealKey));
+      expect(seal.onChanged, isNull, reason: 'nothing is sealed to a wallet not heard');
+      h.api.hear(h.api.records.single.id);
+      await _frames(tester);
+      expect(find.text(_l.trustPaired), findsWidgets);
+      expect(find.text(_l.pairNotChecked('Anna')), findsOneWidget);
+    });
+
+    testWidgets('verified: the date, "confirmed too" once the verdict came, both switches', (tester) async {
+      final h = await page(tester, (h) => h.api.seedPaired(id: 'p', name: 'Anna', contactId: 'c1', paymentsAddress: _anna));
+      expect(find.text(_l.pairNotChecked('Anna')), findsOneWidget);
+      h.api.peerMatch('p');
+      await tester.pumpAndSettle();
+      expect(find.text(_l.pairConfirmedToo('Anna')), findsOneWidget);
+      expect(tester.widget<Switch>(find.byKey(contactPageSealKey)).onChanged, isNotNull);
+      expect(tester.widget<Switch>(find.byKey(contactPageInvoicesKey)).onChanged, isNotNull);
+    });
+
+    testWidgets('ended by the peer: the reason, the held send with Cancel, Pair again and Remove', (tester) async {
+      final h = await page(tester, (h) {
+        h.session.summaryValue = WalletSummary(lastConfirmedHeight: BigInt.from(10), minimumConfirmations: BigInt.one, total: _epic(100), spendable: _epic(100), awaitingConfirmation: BigInt.zero, awaitingFinalization: BigInt.zero, immature: BigInt.zero, locked: BigInt.zero, validatedWithNode: true);
+        h.api.seedPaired(id: 'p', name: 'Anna', contactId: 'c1', state: PairingState.paired, paymentsAddress: _anna);
+      });
+      await h.api.sendViaMailbox(id: 'p', amount: _epic(25), minimumConfirmations: BigInt.one);
+      h.container(tester).invalidate(homeProvider);
+      h.api.peerMismatch('p');
+      await tester.pumpAndSettle();
+      expect(find.byKey(contactPageEndedKey), findsOneWidget);
+      expect(find.text(_l.pairEndedPeerMismatch('Anna')), findsOneWidget);
+      expect(find.byKey(contactPageHeldSendKey), findsOneWidget);
+      expect(find.text(_l.pairHeldSend), findsOneWidget);
+      expect(find.byKey(contactPagePairAgainKey), findsOneWidget);
+      expect(find.byKey(contactPageRemovePairingKey), findsOneWidget);
+      expect(find.byKey(contactPageSealKey), findsNothing, reason: 'no switches on an ended pairing');
+      await tester.tap(find.widgetWithText(TextButton, _l.commonCancel).first);
+      await _frames(tester);
+      expect(h.session.cancelledTxIds, isNotEmpty, reason: 'the held send was cancelled');
+    });
+
+    testWidgets('never finished: the reason line; Remove drops it, the contact stays', (tester) async {
+      final h = await page(tester, (h) => h.api.seedPaired(id: 'p', name: 'Anna', contactId: 'c1', state: PairingState.ended, endedReason: PairingEndReason.neverFinished));
+      expect(find.text(_l.pairEndedNeverFinished('Anna')), findsOneWidget);
+      await tester.tap(find.byKey(contactPageRemovePairingKey));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(confirmRemovePairingKey));
+      await tester.pumpAndSettle();
+      expect(h.api.records, isEmpty);
+      expect(find.text(_l.pairNotPaired), findsOneWidget);
+    });
+
+    testWidgets('a later card proves another address: Update the contact\'s address or Detach', (tester) async {
+      final h = await page(tester, (h) => h.api.seedPaired(id: 'p', name: 'Anna', contactId: 'c1', paymentsAddress: _tom));
+      expect(find.text(_l.pairProvesOther('Anna')), findsOneWidget);
+      await tester.tap(find.byKey(contactPageUpdateAddressKey));
+      await tester.pumpAndSettle();
+      expect(h.session.contactsValue.single.epicbox, _tom);
+      expect(find.text(_l.pairProvesOther('Anna')), findsNothing);
+    });
+
+    testWidgets('keys changed: the notice with its three ways out', (tester) async {
+      final h = await page(tester, (h) => h.api.seedPaired(id: 'p', name: 'Anna', contactId: 'c1', paymentsAddress: _anna));
+      h.api.changeKeys('p');
+      await tester.pumpAndSettle();
+      expect(find.text(_l.contactKeysChangedTitle('Anna')), findsOneWidget);
+      for (final t in [_l.pairCheckWords, _l.contactKeepOldKeys, _l.contactUseNewKeys]) {
+        expect(find.text(t), findsWidgets, reason: t);
+      }
+    });
   });
 
   group('Contacts', () {
-    testWidgets('a pairing in no contact is listed by its name with Not in contacts and its menu', (tester) async {
+    testWidgets('rows carry one badge each: Verified, Paired, Waiting, Keys changed, Ended; no hint card', (tester) async {
       final h = _Harness();
-      h.api.seedPaired(id: 'p-floo', name: 'Floo C', state: PairingState.verified);
+      h.session.contactsValue.addAll([
+        Contact(id: 'c1', name: 'Anna', address: _anna),
+        Contact(id: 'c2', name: 'Bob', address: _tom),
+        Contact(id: 'c3', name: 'Carl'),
+        Contact(id: 'c4', name: 'Dana'),
+        Contact(id: 'c5', name: 'Eve'),
+      ]);
+      h.api
+        ..seedPaired(name: 'Anna', contactId: 'c1', paymentsAddress: _anna)
+        ..seedPaired(name: 'Bob', contactId: 'c2', paymentsAddress: _tom, state: PairingState.paired)
+        ..seedPaired(name: 'Carl', contactId: 'c3', state: PairingState.waiting)
+        ..seedPaired(name: 'Dana', contactId: 'c4', state: PairingState.ended, endedReason: PairingEndReason.peerMismatch)
+        ..seedPaired(id: 'e', name: 'Eve', contactId: 'c5');
+      h.api.changeKeys('e');
       await h.pump(tester, const ContactsScreen());
-      expect(find.text(_l.contactsEmptyTitle), findsNothing, reason: 'not the empty book');
-      expect(find.text('Floo C'), findsOneWidget);
-      expect(find.text(_l.pairNotInContacts), findsOneWidget);
-      await tester.tap(find.byKey(contactsOrphanMenuKey('p-floo')));
-      await tester.pumpAndSettle();
-      expect(find.text(_l.pairSaveNewContact), findsOneWidget);
-      expect(find.text(_l.pairAddToAContact), findsOneWidget);
-      await tester.tap(find.text(_l.contactRemovePairing));
-      await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(TextButton, _l.contactRemove).last);
-      await tester.pumpAndSettle();
-      expect(await h.api.pairing('p-floo'), isNull);
-      expect(find.text('Floo C'), findsNothing);
-    });
-  });
-
-  testWidgets('a contact saved without an address keeps none: its name and note change and save', (tester) async {
-    final h = _Harness();
-    final saved = await h.session.saveContact(contact: Contact(id: '', name: 'Floo C'));
-    await h.pump(tester, ContactEditScreen(contact: saved));
-    await tester.enterText(find.widgetWithText(TextField, _l.contactsNameLabel).first, 'Floo Cee');
-    await tester.tap(find.text(_l.contactsSave));
-    await tester.pumpAndSettle();
-    expect(find.text(_l.contactsAddressMissing), findsNothing);
-    expect((await h.session.contacts()).single.name, 'Floo Cee');
-  });
-
-  testWidgets('a new plain contact still needs an address', (tester) async {
-    final h = _Harness();
-    await h.pump(tester, const ContactEditScreen());
-    await tester.enterText(find.widgetWithText(TextField, _l.contactsNameLabel).first, 'Nobody');
-    await tester.tap(find.text(_l.contactsSave));
-    await tester.pumpAndSettle();
-    expect(find.text(_l.contactsAddressMissing), findsOneWidget);
-    expect(await h.session.contacts(), isEmpty);
-  });
-
-  testWidgets('a scan of the same card again replaces the unchecked one; the row has Remove', (tester) async {
-    final h = _Harness();
-    final first = await h.api.scanCard(cardId: (await h.api.showCard(name: 'Alex')).id, text: h.api.cardLinkFrom('Ola'));
-    final second = await h.api.scanCard(cardId: (await h.api.showCard(name: 'Alex')).id, text: h.api.cardLinkFrom('Ola'));
-    await dropOlderInPersonPairings(h.api, second);
-    expect(await h.api.pairing(first.id), isNull);
-    expect((await h.api.pairing(second.id))!.state, PairingState.paired);
-    await h.pump(tester, const PendingInvitesScreen());
-    expect(find.text('Ola'), findsOneWidget);
-    await tester.tap(find.byKey(pendingRowMenuKey(second.id)));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text(_l.contactRemovePairing));
-    await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(TextButton, _l.contactRemove).last);
-    await tester.pumpAndSettle();
-    expect(await h.api.pairing(second.id), isNull);
-  });
-
-  testWidgets('by hand: the inviter takes the answer, sends the confirm back, then checks the words', (tester) async {
-    // The inviter, Epicbox off: an invite, then the answer pasted by hand.
-    final a = _Harness();
-    final invite = await a.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 24));
-    final reply = fakePairingLink('pair-reply', {'t': invite.id, 'n': 'Ola'});
-    await a.pump(tester, const EnterLinkScreen(), net: PairNet.epicboxOff);
-    await tester.enterText(find.byKey(pairEnterFieldKey), reply);
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(pairEnterGoKey));
-    await _frames(tester);
-    expect(find.byType(PairFinishScreen), findsOneWidget, reason: 'the finish link goes back first');
-    expect(find.text(_l.pairFinishLead('Ola')), findsOneWidget);
-    final confirm = await a.api.confirmLink(invite.id);
-    expect(find.text(_l.pairFinishMessage(confirm)), findsOneWidget);
-    await tester.tap(find.byKey(finishCheckKey));
-    await _frames(tester);
-    expect(find.byType(CheckWordsScreen), findsOneWidget);
-    await tester.tap(find.byKey(checkMatchKey));
-    await tester.pumpAndSettle();
-    expect((await a.api.pairing(invite.id))!.state, PairingState.verified);
-  });
-
-  testWidgets('by hand: the one who answered pastes the confirm and its words open', (tester) async {
-    final a = _Harness();
-    final invite = await a.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 24));
-    final b = _Harness();
-    final preview = await b.api.openInvite(invite.inviteLink!);
-    final answered = await b.api.acceptInvite(token: preview.token, name: 'Ola', byHand: true);
-    final confirm = fakePairingLink('pair-confirm', {'t': answered.id, 'n': 'Alex'});
-    await b.pump(tester, const EnterLinkScreen(), net: PairNet.epicboxOff);
-    await tester.enterText(find.byKey(pairEnterFieldKey), confirm);
-    await tester.pumpAndSettle();
-    await tester.tap(find.byKey(pairEnterGoKey));
-    await _frames(tester);
-    expect(find.byType(CheckWordsScreen), findsOneWidget);
-    expect(b.api.records.single.state, PairingState.paired);
-  });
-
-  testWidgets('the wait for the confirm closes once the confirm came by hand under it (item 25)', (tester) async {
-    final h = _Harness();
-    final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
-    final answered = await h.api.acceptInvite(token: preview.token, name: 'Alex', byHand: true);
-    await h.pump(tester, const Scaffold(body: Text('home')));
-    final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
-    unawaited(nav.push(MaterialPageRoute<void>(builder: (_) => PairingWaitingScreen(pairingId: answered.id))));
-    await _frames(tester);
-    unawaited(nav.push(MaterialPageRoute<void>(builder: (_) => const EnterLinkScreen())));
-    await _frames(tester);
-    await tester.enterText(find.byKey(pairEnterFieldKey), fakePairingLink('pair-confirm', {'t': answered.id, 'n': 'Anna'}));
-    await tester.pump();
-    await tester.tap(find.byKey(pairEnterGoKey));
-    await _frames(tester);
-    expect(find.byType(CheckWordsScreen), findsOneWidget);
-    await tester.tap(find.byKey(checkMatchKey));
-    await _frames(tester);
-    await tester.tap(find.byKey(checkDoneKey));
-    await _frames(tester);
-    expect(find.byType(PairingWaitingScreen, skipOffstage: false), findsNothing, reason: 'Done never lands on the old wait');
-  });
-
-  testWidgets('an answer the relay did not take: Send by hand on its row while the link is known', (tester) async {
-    final h = _Harness();
-    h.api.relayUnreachable = true;
-    final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
-    await h.api.acceptInvite(token: preview.token, name: 'Alex');
-    await h.pump(tester, const PendingInvitesScreen());
-    // Every row ends in a menu (UP-017).
-    await _openRowMenu(tester);
-    expect(find.byKey(pendingByHandKey), findsOneWidget);
-    expect(find.byKey(pendingRemoveReplyKey), findsOneWidget);
-    await tester.tap(find.byKey(pendingByHandKey));
-    await tester.pumpAndSettle();
-    expect(find.byType(PairingByHandScreen), findsOneWidget);
-  });
-
-  group('Contacts: where Pair is', () {
-    testWidgets('Pair is a labelled button in the app bar, with the hint and How it works while nobody is paired', (tester) async {
-      final h = _Harness();
-      h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));
-      await h.pump(tester, const ContactsScreen());
-      final pair = find.byKey(contactsPairKey);
-      expect(find.descendant(of: find.byType(AppBar), matching: pair), findsOneWidget);
-      expect(find.descendant(of: pair, matching: find.text(_l.pairTitle)), findsOneWidget);
-      expect(find.bySemanticsLabel(_l.contactsPairTooltip), findsOneWidget);
-      expect(find.byKey(contactsPairHintKey), findsOneWidget);
-      expect(find.text(_l.contactsPairHint), findsOneWidget);
-      expect(find.byKey(contactsPairLearnKey), findsOneWidget);
-      // Never a gold button, and never a second Pair in the list.
-      expect(find.byType(FloatingActionButton), findsNothing);
-      expect(find.text(_l.pairTitle), findsOneWidget);
-      await tester.tap(pair);
-      await tester.pumpAndSettle();
-      expect(find.byType(PairScreen), findsOneWidget);
-    });
-
-    testWidgets('the hint goes once a contact is paired; rows show their trust or Pairing…', (tester) async {
-      final h = _Harness();
-      h.session.contactsValue
-        ..add(Contact(id: 'c1', name: 'Anna', address: _anna))
-        ..add(Contact(id: 'c2', name: 'Bob', address: 'es${'b' * 50}@epicbox.epiccash.com'))
-        ..add(Contact(id: 'c3', name: 'Dan', address: 'es${'d' * 50}@epicbox.epiccash.com'));
-      h.api.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', paymentsAddress: _anna);
-      await h.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 24), label: 'Bob', contactId: 'c2');
-      await h.pump(tester, const ContactsScreen(), settle: false);
-      expect(find.byKey(contactsPairHintKey), findsNothing);
-      expect(find.text(_l.trustVerified), findsOneWidget);
-      expect(find.text(_l.pairBadgePending), findsOneWidget);
-      // Not paired: no badge for it, the absence says so.
-      final dan = find.ancestor(of: find.text('Dan'), matching: find.byType(InkWell)).first;
-      expect(find.descendant(of: dan, matching: find.byType(TrustBadge)), findsNothing);
-      expect(find.descendant(of: dan, matching: find.byType(PairPendingBadge)), findsNothing);
-    });
-
-    testWidgets('a contact page: Send and Pair in one row, Pair with the name only as its tooltip', (tester) async {
-      final h = _Harness();
-      h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));
-      await h.pump(tester, const ContactPage(contactId: 'c1'));
-      final pair = find.byKey(contactPageHeaderPairKey);
-      expect(find.descendant(of: pair, matching: find.text(_l.pairTitle)), findsOneWidget);
-      expect(find.text(_l.pairWithName('Anna')), findsNothing, reason: 'never a visible label');
-      expect(find.byTooltip(_l.pairWithName('Anna')), findsOneWidget);
-      expect(tester.getCenter(pair).dy, tester.getCenter(find.byKey(contactPageSendKey)).dy, reason: 'one row');
-      // Soft gold, not a filled block.
-      expect(find.ancestor(of: find.text(_l.contactsSendAction), matching: find.byType(FilledButton)), findsOneWidget);
-      final send = tester.widget<FilledButton>(find.ancestor(of: find.text(_l.contactsSendAction), matching: find.byType(FilledButton)));
-      final ctx = tester.element(pair);
-      expect(send.style!.backgroundColor!.resolve({}), ctx.tokens.accentSoft);
-      await tester.tap(pair);
-      await tester.pumpAndSettle();
-      expect(find.text(_l.pairWithName('Anna')), findsOneWidget, reason: 'the Pair screen names the contact');
-    });
-
-    testWidgets('header buttons are one line each in German and Russian', (tester) async {
-      for (final lang in ['de', 'ru']) {
-        final h = _Harness();
-        h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));
-        tester.view.physicalSize = const Size(1080, 2340);
-        tester.view.devicePixelRatio = 3;
-        await tester.pumpWidget(
-          ProviderScope(
-            retry: (_, _) => null,
-            overrides: [
-              walletServiceProvider.overrideWithValue(h.service),
-              secretStoreProvider.overrideWithValue(h.store),
-              pairingOnProvider.overrideWithValue(true),
-              updatePlatformProvider.overrideWithValue(null),
-              priceSourceProvider.overrideWithValue(_NoPrice()),
-              slateFilesProvider.overrideWithValue(h.files),
-              sessionProvider.overrideWith(() => _OpenSession(h.session)),
-            ],
-            child: MaterialApp(
-              locale: Locale(lang),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: const ContactPage(contactId: 'c1'),
-            ),
-          ),
-        );
-        await tester.pumpAndSettle();
-        final l = lookupAppLocalizations(Locale(lang));
-        for (final (key, label) in [(contactPageSendKey, l.contactsSendAction), (contactPageHeaderPairKey, l.pairTitle)]) {
-          final text = find.descendant(of: find.byKey(key), matching: find.text(label));
-          expect(text, findsOneWidget, reason: '$lang $label');
-          expect(tester.getSize(text).height, lessThan(24), reason: '$lang $label is one line');
-        }
-        // Overflow at 360 dp is checked on the tour shots: the test font is far wider than the
-        // app's.
-        tester.takeException();
-        await tester.pumpWidget(const SizedBox());
+      expect(find.byKey(contactsPairKey), findsOneWidget);
+      expect(find.text(_l.contactsPairHint), findsNothing);
+      expect(find.text(_l.pendingTitle), findsNothing);
+      for (final t in [_l.trustVerified, _l.trustPairedShort, _l.trustWaiting, _l.trustKeysChanged, _l.trustEnded]) {
+        expect(find.text(t), findsOneWidget, reason: t);
       }
-      tester.view.reset();
+    });
+
+    testWidgets('a pending row (an invite answered, not heard) sits in the list with Cancel; an unused invite is no row', (tester) async {
+      final h = _Harness();
+      await h.api.standingCode(name: 'Alex');
+      final invite = h.api.standing!;
+      h.api.answerInvite(invite.id, name: 'Northwind');
+      await h.pump(tester, const ContactsScreen());
+      expect(find.byKey(contactsPairingRowKey(invite.id)), findsOneWidget);
+      expect(find.text(_l.pairAnsweredNotHeard), findsOneWidget);
+      await tester.tap(find.byKey(contactsOrphanMenuKey(invite.id)));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(contactsCancelPairingKey));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(_l.pairCancelPairing));
+      await tester.pumpAndSettle();
+      expect(h.api.records, isEmpty);
+      expect(find.byKey(contactsPairingRowKey(invite.id)), findsNothing);
+    });
+
+    testWidgets('Pair requests · 1 for a contact\'s request only; Pair opens the from-a-contact sheet; Not now dismisses', (tester) async {
+      final h = _Harness();
+      h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));
+      h.api.receiveRequest(from: _tom, name: 'Stranger');
+      h.api.receiveRequest(from: _anna, name: 'Anna');
+      await h.pump(tester, const ContactsScreen());
+      expect(find.byKey(contactsRequestsKey), findsOneWidget);
+      expect(find.text(_l.pairRequestsRow(1)), findsOneWidget);
+      await tester.tap(find.byKey(contactsRequestsKey));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.pairWantsToPair('Anna')), findsOneWidget);
+      expect(find.text(_l.pairWantsToPair('Stranger')), findsNothing);
+      await tester.tap(find.byKey(requestsPairKey));
+      await tester.pumpAndSettle();
+      expect(find.byType(IncomingInviteSheet), findsOneWidget);
+      expect(find.text(_l.pairInContacts), findsOneWidget);
+      expect(find.text(_l.pairIncomingTitle('Anna')), findsOneWidget);
+      await tester.tap(find.byKey(incomingNotNowKey));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(requestsNotNowKey));
+      await tester.pumpAndSettle();
+      expect((await h.api.requests()).where((r) => r.fromAddress == _anna), isEmpty);
+    });
+
+    testWidgets('a stranger\'s request is dismissed on arrival by the notices, a contact\'s is announced', (tester) async {
+      final h = _Harness();
+      h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));
+      await h.pump(tester, const Scaffold(body: PairingNotices()));
+      h.api.receiveRequest(from: _tom, name: 'Stranger');
+      await tester.pumpAndSettle();
+      expect(await h.api.requests(), isEmpty, reason: 'dismissed unseen');
+      expect(_notice(tester), isNull);
+      h.api.receiveRequest(from: _anna, name: 'Anna');
+      await tester.pumpAndSettle();
+      expect((await h.api.requests()).single.fromAddress, _anna);
+      expect(_notice(tester), _l.pairWantsToPair('Anna'));
+    });
+
+    testWidgets('a request answered on the linked device: hidden, "Paired on Desktop."', (tester) async {
+      final h = _Harness();
+      h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));
+      final q = h.api.receiveRequest(from: _anna, name: 'Anna')!;
+      await h.pump(tester, const Scaffold(body: PairingNotices()));
+      await h.api.requestHandledOn(q.id, 'Desktop');
+      await tester.pumpAndSettle();
+      expect(_notice(tester), _l.pairPairedOn('Desktop'));
     });
   });
 
-  group('pair-core states in the message way', () {
-    testWidgets('the inviter\'s wait: an invite that ends without a reply says why', (tester) async {
-      final h = _Harness();
-      await h.pump(tester, const PairMessageScreen());
-      await tester.tap(find.byKey(pairShareKey));
-      await _frames(tester);
-      h.api.failPending(h.api.records.single.id, PairingFailure.noAnswer);
-      await _frames(tester);
-      expect(find.byType(PairingOutcomeScreen), findsOneWidget);
-    });
-
-    testWidgets('the joiner\'s reply: an answer never confirmed ends as Not completed', (tester) async {
-      final h = _Harness();
-      final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
-      final answered = await h.api.acceptInvite(token: preview.token, name: 'Alex', byHand: true);
-      await h.pump(tester, PairReplyScreen(pairingId: answered.id, name: 'Anna'), settle: false);
-      h.api.failPending(answered.id, PairingFailure.notCompleted);
-      await _frames(tester);
-      expect(find.byType(PairingOutcomeScreen), findsOneWidget);
-      expect(find.text(_l.pairNotCompletedTitle), findsOneWidget);
-    });
-
-    testWidgets('the inviter\'s wait past its time: Checking for a late answer, and a silent relay by name', (tester) async {
-      final h = _Harness();
-      await h.pump(tester, const PairMessageScreen());
-      await tester.tap(find.byKey(pairShareKey));
-      await _frames(tester);
-      final id = h.api.records.single.id;
-      h.api.records[0] = h.api.records[0].copyWith(relayDown: true, homeRelay: 'epicbox.example.com', expiresAt: DateTime.now().subtract(const Duration(minutes: 1)));
-      await h.container(tester).read(pairingsProvider.notifier).reload();
-      await _frames(tester);
-      expect(h.api.records.single.id, id);
-      expect(find.text(_l.pairLateCheck), findsOneWidget);
-      expect(find.text(_l.pairRelayUnreachableTitle), findsOneWidget);
-      expect(find.text('epicbox.example.com'), findsOneWidget);
-    });
-
-    testWidgets('a contact whose pairing the other side removed: Removed by, and Pair again', (tester) async {
-      final h = _Harness();
+  group('the Experimental switch', () {
+    testWidgets('Pair shows with the old pairing switch stored off', (tester) async {
+      final h = _Harness(prefs: 'outputs|standard');
       h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));
-      h.api.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', paymentsAddress: _anna);
-      h.api.removedByPeer('p1');
+      await h.pump(tester, const ContactsScreen());
+      expect(find.byKey(contactsPairKey), findsOneWidget);
       await h.pump(tester, const ContactPage(contactId: 'c1'));
-      // The badge and the Pairing card both say so; the dead pairing has no switches.
-      expect(find.text(_l.trustRemovedBy('Anna')), findsNWidgets(2));
-      expect(find.text(_l.noticeUnpaired('Anna')), findsOneWidget);
-      expect(find.byKey(contactPageSealKey), findsNothing);
-      expect(find.byKey(contactPageHeaderPairKey), findsOneWidget);
       expect(find.byKey(contactPagePairKey), findsOneWidget);
     });
   });
 
-  group('Pending invites', () {
-    testWidgets('empty: says how an invite gets here', (tester) async {
-      final h = _Harness();
-      await h.pump(tester, const PendingInvitesScreen());
-      expect(find.text(_l.pendingEmpty), findsOneWidget);
-    });
-
-    testWidgets('an answer waiting for a confirm can be removed; an unnamed invite has a glyph', (tester) async {
-      final h = _Harness();
-      final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
-      await h.api.acceptInvite(token: preview.token, name: 'Alex');
-      await h.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 24));
-      await h.pump(tester, const PendingInvitesScreen());
-      expect(find.text(_l.pairUnnamedInvite), findsOneWidget);
-      final open = find.ancestor(of: find.text(_l.pairUnnamedInvite), matching: find.byType(Row)).first;
-      expect(find.descendant(of: open, matching: find.byIcon(Icons.link)), findsOneWidget);
-      expect(find.descendant(of: open, matching: find.text('?')), findsNothing);
-      // The menu of the answer's row (the other row is an open invite).
-      final menus = find.byType(PopupMenuButton<String>);
-      for (var i = 0; i < menus.evaluate().length && find.byKey(pendingRemoveReplyKey).evaluate().isEmpty; i++) {
-        await _openRowMenu(tester, at: i);
-        if (find.byKey(pendingRemoveReplyKey).evaluate().isEmpty) {
-          await tester.tapAt(const Offset(1, 1));
-          await tester.pumpAndSettle();
-        }
-      }
-      await tester.tap(find.byKey(pendingRemoveReplyKey));
-      await tester.pumpAndSettle();
-      expect(h.api.records.where((r) => r.state == PairingState.pendingReply), isEmpty);
-      expect(find.text('Anna'), findsNothing);
-    });
-
-    testWidgets('lists a link, words, and an expired invite with Invite again', (tester) async {
-      final h = _Harness();
-      await h.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 24), label: 'Anna');
-      await h.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 1), words: true, label: 'Tom');
-      h.api.clock = () => DateTime.now().subtract(const Duration(hours: 3));
-      await h.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 1), label: 'Marta');
-      h.api.clock = DateTime.now;
-      await h.pump(tester, const PendingInvitesScreen());
-      for (final name in ['Anna', 'Tom', 'Marta']) {
-        expect(find.text(name), findsOneWidget, reason: name);
-      }
-      expect(find.textContaining(_l.pendingExpired, findRichText: true), findsOneWidget);
-      // The menus: only the expired invite offers Invite again.
-      var again = 0;
-      final menus = find.byType(PopupMenuButton<String>);
-      for (var i = 0; i < menus.evaluate().length; i++) {
-        await _openRowMenu(tester, at: i);
-        again += find.byKey(pendingInviteAgainKey).evaluate().length;
-        await tester.tapAt(const Offset(1, 1));
-        await tester.pumpAndSettle();
-      }
-      expect(again, 1);
-    });
-  });
-
-  group('a contact\'s Pairing', () {
-    Future<_Harness> open(WidgetTester tester, {PairingState state = PairingState.verified, bool keysChanged = false}) async {
-      final h = _Harness();
-      h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));
-      final r = h.api.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', state: state, paymentsAddress: _anna);
-      if (keysChanged) h.api.changeKeys(r.id);
-      await h.pump(tester, const ContactPage(contactId: 'c1'));
-      return h;
-    }
-
-    testWidgets('verified: the badge, Seal payments on, Allow invoices off until turned on', (tester) async {
-      final h = await open(tester);
-      expect(find.text(_l.contactPairing), findsOneWidget);
-      expect(find.text(_l.trustVerified), findsWidgets);
-      expect(tester.widget<Switch>(find.byKey(contactPageSealKey)).value, isTrue);
-      expect(tester.widget<Switch>(find.byKey(contactPageInvoicesKey)).value, isFalse);
-      await tester.ensureVisible(find.byKey(contactPageInvoicesKey));
-      await tester.tap(find.byKey(contactPageInvoicesKey));
-      await tester.pumpAndSettle();
-      expect((await h.api.pairing('p1'))!.allowInvoices, isTrue);
-    });
-
-    testWidgets('paired, not verified: Allow invoices waits for the words check', (tester) async {
-      await open(tester, state: PairingState.paired);
-      expect(find.text(_l.trustPaired), findsWidgets);
-      expect(find.text(_l.contactCheckWordsFirst), findsOneWidget);
-      expect(tester.widget<Switch>(find.byKey(contactPageInvoicesKey)).onChanged, isNull);
-    });
-
-    testWidgets('keys changed: the text as written, and Keep the old keys', (tester) async {
-      final h = await open(tester, keysChanged: true);
-      expect(find.text(_l.contactKeysChangedTitle('Anna')), findsOneWidget);
-      expect(
-        _l.contactKeysChangedBody,
-        'This can mean they use a different wallet now, or someone else is using their name. Verify the contact again.',
-      );
-      expect(find.text(_l.contactKeysChangedBody), findsOneWidget);
-      await tester.tap(find.text(_l.contactKeepOldKeys));
-      await tester.pumpAndSettle();
-      expect((await h.api.pairing('p1'))!.state, PairingState.verified);
-      expect(find.text(_l.contactKeysChangedTitle('Anna')), findsNothing);
-    });
-
-    testWidgets('keys back while the page is open: the page docks the notice until OK', (tester) async {
-      final h = await open(tester);
-      expect(find.text(_l.contactKeysBack('Anna')), findsNothing);
-      h.api.restoreKeys('p1');
-      await tester.pumpAndSettle();
-      expect(find.text(_l.contactKeysBack('Anna')), findsOneWidget);
-      expect(find.text(_l.contactKeysBackBody), findsOneWidget);
-      await tester.tap(find.widgetWithText(TextButton, _l.commonOk));
-      await tester.pumpAndSettle();
-      expect(find.text(_l.contactKeysBack('Anna')), findsNothing);
-    });
-
-    testWidgets('Remove pairing asks first; the contact stays', (tester) async {
-      final h = await open(tester);
-      await tester.ensureVisible(find.byKey(contactPageRemovePairingKey));
-      await tester.tap(find.byKey(contactPageRemovePairingKey));
-      await tester.pumpAndSettle();
-      expect(find.text(_l.contactRemovePairingTitle('Anna')), findsOneWidget);
-      await tester.tap(find.descendant(of: find.byType(AlertDialog), matching: find.text(_l.contactRemove)));
-      await tester.pumpAndSettle();
-      expect(await h.api.pairing('p1'), isNull);
-      expect(h.session.contactsValue.single.name, 'Anna');
-      expect(find.text(_l.pairNotPaired), findsOneWidget);
-    });
-
-    testWidgets('not paired: offers Pair', (tester) async {
-      final h = _Harness();
-      h.session.contactsValue.add(Contact(id: 'c2', name: 'Tom', address: _anna));
-      await h.pump(tester, const ContactPage(contactId: 'c2'));
-      expect(find.text(_l.pairNotPaired), findsOneWidget);
-      await tester.ensureVisible(find.byKey(contactPagePairKey));
-      await tester.tap(find.byKey(contactPagePairKey));
-      await tester.pumpAndSettle();
-      expect(find.text(_l.pairWithName('Tom')), findsOneWidget);
-    });
-
-    testWidgets('a core without pairing shows no Pairing section', (tester) async {
-      final h = _Harness();
-      h.api.enabled = false;
-      h.session.contactsValue.add(Contact(id: 'c2', name: 'Tom', address: _anna));
-      await h.pump(tester, const ContactPage(contactId: 'c2'));
-      expect(find.text(_l.contactPairing), findsNothing);
-      expect(find.byType(TrustBadge), findsNothing);
-    });
-  });
-
-  group('opening a sealed file', () {
-    const json = '{"id":"in-1"}';
-
-    /// A payment Anna's wallet sent, as the fake reads it.
-    _Harness anna() {
-      final h = _Harness();
-      h.service.slateInfos[json] = SlateInfo(slateId: 'in-1', amount: BigInt.from(500000000), fee: BigInt.zero, stage: SlateStage.send);
-      h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));
-      h.api.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', paymentsAddress: _anna);
-      return h;
-    }
-
-    testWidgets('sealed for this wallet: opens, and the answer goes back sealed', (tester) async {
-      final h = anna();
-      final sealed = await h.api.sealSlate(id: 'p1', slateJson: json);
-      await h.pump(tester, SlateFileScreen(file: SlateFile(name: 'from-anna.epicsealed', json: sealed)));
-      expect(find.textContaining('5'), findsWidgets);
-      await tester.tap(find.text(_l.slateAcceptPayment));
-      await tester.pumpAndSettle();
-      expect(h.session.receivedSlates, [json], reason: 'the slate inside went to the wallet');
-      expect(find.text(_l.trustSealedFor('Anna')), findsOneWidget);
-      expect(find.textContaining(sealedFileName('in-1')), findsWidgets);
-    });
-
-    testWidgets('sealed for another wallet or install: says so, nothing is signed', (tester) async {
-      final h = anna();
-      final other = FakeWalletSession().pairing..seedPaired(id: 'p-elsewhere', name: 'Someone');
-      final sealed = await other.sealSlate(id: 'p-elsewhere', slateJson: json);
-      await h.pump(tester, SlateFileScreen(file: SlateFile(name: 'x.epicsealed', json: sealed)));
-      expect(find.text(_l.openSealedOtherTitle), findsOneWidget);
-      expect(find.text(_l.openSealedOtherBody), findsOneWidget);
-      expect(find.text(_l.slateAcceptPayment), findsNothing);
-      expect(h.session.receivedSlates, isEmpty);
-    });
-
-    testWidgets('sealed by a newer wallet: Update Epic Cash to open this', (tester) async {
-      final h = anna();
-      await h.pump(tester, const SlateFileScreen(file: SlateFile(name: 'x.epicsealed', json: 'BEGINEPICSEALED.v2.ENDEPICSEALED.')));
-      expect(find.text(_l.pairNewerTitle), findsOneWidget);
-      expect(find.text(_l.pairNewerFileBody), findsOneWidget);
-      expect(find.byKey(slateCheckUpdatesKey), findsOneWidget);
-    });
-
-    testWidgets('a plain file from a contact that seals: This arrived unsealed', (tester) async {
-      final h = anna();
-      h.api.plainFrom[json] = 'p1';
-      await h.pump(tester, const SlateFileScreen(file: SlateFile(name: 'from-anna.tx', json: json)));
-      expect(_notice(tester), '${_l.openArrivedUnsealed} ${_l.openArrivedUnsealedBody('Anna')}');
-      expect(find.text(_l.slateAcceptPayment), findsOneWidget);
-    });
-
-    test('a sealed file passes the file check; other text does not', () {
-      expect(decodeSlateFile(utf8.encode('  BEGINEPICSEALED. abc. ENDEPICSEALED.')), startsWith('BEGINEPICSEALED'));
-      expect(() => decodeSlateFile(utf8.encode('hello')), throwsA(isA<FormatException>()));
-    });
-  });
-
-  group('a withdrawal from a paired exchange', () {
-    testWidgets('its page: Withdrawal from …, waiting for it to post, the timeline', (tester) async {
-      final h = _Harness();
-      h.session.contactsValue.add(Contact(id: 'c8', name: 'Northwind Exchange', address: _anna));
-      h.api.seedPaired(id: 'p-nw', name: 'Northwind', contactId: 'c8', kind: PairingParty.exchange, paymentsAddress: _anna);
-      final events = <PairingEvent>[];
-      h.api.events().listen(events.add);
-      final slateId = h.api.withdrawalFrom('p-nw', BigInt.from(10000000000), reference: 'WD-1042');
-      await tester.pump();
-      expect(events.single.kind, PairingEventKind.withdrawalFromContact);
-      expect(await h.api.slateOf(slateId), const PairingSlate(pairingId: 'p-nw', purpose: SlatePurpose.withdrawal, reference: 'WD-1042'));
-      await h.pump(tester, TxDetailsScreen(txKey: 's:$slateId'), settle: false);
-      expect(find.text(_l.reqWithdrawalFrom('Northwind Exchange')), findsOneWidget);
-      expect(find.text(_l.reqReceivedWaiting('Northwind Exchange')), findsOneWidget);
-      expect(find.text(_l.reqTlAnswerDelivered('Northwind Exchange')), findsOneWidget);
-      expect(find.text(_l.reqTlPosted('Northwind Exchange')), findsOneWidget);
-      expect(find.text('WD-1042'), findsOneWidget);
-    });
-
-    testWidgets('a withdrawal still waiting: Cancel waits out the 15-minute hold, without a second status', (tester) async {
-      final h = _Harness();
-      h.api.seedPaired(id: 'p-nw', name: 'Northwind', kind: PairingParty.exchange, paymentsAddress: _anna);
-      final slateId = h.api.withdrawalFrom('p-nw', BigInt.from(10000000000));
-      await tester.pump();
-      await h.pump(tester, TxDetailsScreen(txKey: 's:$slateId'), settle: false);
-      expect(find.text(_l.reqReceivedWaiting('Northwind')), findsOneWidget);
-      // Just accepted: no Cancel yet, a line says when it comes (the receive Cancel rule).
-      await tester.scrollUntilVisible(find.byKey(txDetailsCancelHoldKey), 200, scrollable: find.byType(Scrollable).first);
-      expect(find.byKey(txDetailsCancelHoldKey), findsOneWidget);
-      expect(find.byKey(txDetailsCancelReceiveKey), findsNothing);
-      expect(find.byType(TxStatusChip), findsNothing, reason: 'the withdrawal block says where it stands');
-    });
+  test('a span counts whole minutes: a fresh 7 d invite is 6 d 23 h', () {
+    expect(pairingSpan(_l, const Duration(days: 7) - const Duration(seconds: 30)), _l.pairDurDays(6, 23));
   });
 }

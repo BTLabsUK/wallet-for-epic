@@ -32,7 +32,6 @@ import 'network_gate.dart';
 import 'pin_wrap.dart';
 import 'tor_build.dart';
 import 'trust/policy.dart' show PeerCompat;
-import 'relay_refused.dart' show refusedHandshake;
 import 'recipient.dart' show plainHttpToOtherDevice;
 import 'redact.dart';
 import 'secret_store_api.dart';
@@ -3083,6 +3082,31 @@ PairingFailure? lepicPairingFailure(lepic.WalletErrorKind k, [String message = '
   lepic.WalletErrorKind.epicboxOff => PairingFailure.relayUnreachable,
   lepic.WalletErrorKind.sealedForAnotherWallet => PairingFailure.sealedForOther,
   lepic.WalletErrorKind.sealedUnopenable => PairingFailure.changedOnTheWay,
+  // Pairing v3 (LEPIC schema v13). The binding does not carry these kinds yet: once it does,
+  // the arms below are the mapping, with [lepicPairingFailureByCode] for the error's code.
+  // lepic.WalletErrorKind.otherAddress => PairingFailure.otherWallet,
+  // lepic.WalletErrorKind.addressProofMissing => PairingFailure.addressProofMissing,
+  // lepic.WalletErrorKind.peerNotProven => PairingFailure.peerNotProven,
+  // lepic.WalletErrorKind.pairingInProgress => PairingFailure.inProgress,
+  // lepic.WalletErrorKind.pairingCrossed => PairingFailure.crossed,
+  // lepic.WalletErrorKind.inviteDismissed => PairingFailure.inviteDismissed,
+  // lepic.WalletErrorKind.pairingEnded => PairingFailure.ended,
+  // lepic.WalletErrorKind.pairingWaiting => PairingFailure.waiting,
+  _ => null,
+};
+
+/// The pairing v3 error kinds by their wire code (the FFI spec's 81 to 88), for the LEPIC
+/// adapter once the binding carries them: `otherAddress` 81 is the attach refusal when the
+/// call was `contact_attach`, else "This answer came from another wallet".
+PairingFailure? lepicPairingFailureByCode(int code, {bool attach = false}) => switch (code) {
+  81 => attach ? PairingFailure.otherAddress : PairingFailure.otherWallet,
+  82 => PairingFailure.addressProofMissing,
+  83 => PairingFailure.peerNotProven,
+  84 => PairingFailure.inProgress,
+  85 => PairingFailure.crossed,
+  86 => PairingFailure.inviteDismissed,
+  87 => PairingFailure.ended,
+  88 => PairingFailure.waiting,
   _ => null,
 };
 
@@ -3108,13 +3132,18 @@ class _LepicPairing implements PairingApi {
   /// What the engine does not list again: an invite's link and words, the answer to send by
   /// hand, the confirmation of a reply pasted by hand, how a pairing was made.
   final Map<String, String> _inviteLinks = {};
-  final Map<String, List<SasWord>> _inviteWords = {};
   final Map<String, String> _replyLinks = {};
   final Map<String, String> _confirmLinks = {};
   final Map<String, PairingWay> _ways = {};
 
   /// The address-book contact a pending pairing attaches to once it completes.
   final Map<String, String> _attachLater = {};
+
+  /// Where a request went, by its pending pairing, while this run made it (D6: from the view).
+  final Map<String, String> _expectAddresses = {};
+
+  /// The standing code of this run (D6: `pairing_standing_invite`, kept by LEPIC).
+  PairingRecord? _standing;
 
   /// Allow invoices the user turned on before the words check; set on a match.
   final Set<String> _wantsInvoices = {};
@@ -3137,15 +3166,10 @@ class _LepicPairing implements PairingApi {
   final Set<String> _folded = {};
 
   /// A call to LEPIC: its pairing errors as the app's [PairingFailure], the rest mapped.
-  /// [words]: a pairing-words call, where a relay failure means not one built-in relay was
-  /// reached (LEPIC posts and looks on all of them) and reads as such.
-  Future<T> _call<T>(Future<T> Function() call, {bool words = false}) async {
+  Future<T> _call<T>(Future<T> Function() call) async {
     try {
       return await call();
     } on lepic.WalletError catch (error) {
-      if (words && error.kind == lepic.WalletErrorKind.transportFailed) {
-        throw pairingError(refusedHandshake(error.message) ? PairingFailure.relaysBlocked : PairingFailure.noRelay);
-      }
       final failure = lepicPairingFailure(error.kind, error.message);
       if (failure != null) throw pairingError(failure);
       throw mapLepicError(error);
@@ -3159,8 +3183,9 @@ class _LepicPairing implements PairingApi {
   /// [inviter], [inviteLink] and [way] are given for a private pairing (a device link).
   PairingRecord _record(lepic.ContactView c, {bool? inviter, String? inviteLink, PairingWay? way}) => PairingRecord(
     id: c.contactId,
-    state: lepicPairingState(c.state),
-    way: way ?? _ways[c.contactId] ?? PairingWay.inPerson,
+    // Pairing v3 (D6): the view's status once the binding carries it; removed by the peer is ended.
+    state: c.removedByPeer ? PairingState.ended : lepicPairingState(c.state),
+    way: way ?? _ways[c.contactId] ?? PairingWay.link,
     // The inviter of a pairing whose answer came by hand: its confirm can be sent again.
     inviter: inviter ?? _confirmLinks.containsKey(c.contactId),
     inviteLink: inviteLink,
@@ -3184,7 +3209,11 @@ class _LepicPairing implements PairingApi {
     relayDown: c.homeRelay != null && _relaysDown.contains(c.homeRelay),
     otherDevice: c.importedFromBackup,
     checksKeys: _checking.containsKey(c.contactId),
-    removedByPeer: c.removedByPeer,
+    // Pairing v3 (D6): `c.status`, `c.paymentsAddress`, `c.peerHeardAtMs`, `c.peerVerifiedAtMs`,
+    // `c.peerFeatures`, `c.endedReason` and `c.endedAtMs` once the binding carries them. Until
+    // then every stored record counts as heard, and only a peer's removal ends one.
+    peerHeardAt: _ms(c.createdAtMs.toInt()),
+    endedReason: c.removedByPeer ? PairingEndReason.unpaired : null,
   );
 
   PairingRecord _pending(lepic.PendingPairingView p) => PairingRecord(
@@ -3197,7 +3226,8 @@ class _LepicPairing implements PairingApi {
     label: p.label.isEmpty ? null : p.label,
     expiresAt: _ms(p.expiresAtMs.toInt()),
     inviteLink: _inviteLinks[p.contactId],
-    inviteWords: _inviteWords[p.contactId] ?? const [],
+    // Pairing v3 (D6): `p.expectAddress` once the binding carries it.
+    expectAddress: _expectAddresses[p.contactId],
     homeRelay: p.homeRelay,
     // An answer the relay did not take, or a home relay that did not answer the last collect:
     // past its time such a pairing still waits for one drain (LEPIC LATE_DRAIN_WAIT).
@@ -3272,58 +3302,89 @@ class _LepicPairing implements PairingApi {
   @override
   Future<void> removeStray(String id) async {}
 
-  lepic.InviteExpiry _expiry(Duration d) => d <= const Duration(hours: 1)
-      ? lepic.InviteExpiry.oneHour
-      : d <= const Duration(hours: 24)
-      ? lepic.InviteExpiry.oneDay
-      : lepic.InviteExpiry.sevenDays;
 
   @override
-  Future<PairingRecord> makeInvite({
-    required String name,
-    required Duration expiry,
-    bool words = false,
-    String? label,
-    String? contactId,
-  }) => _call(() async {
-    // Words meet on the Connection servers (the settings file's). In Tor only they wait for
-    // tor: the words go to the meeting relays.
-    if (words) checkTorReady('pairing words');
+  Future<PairingRecord> standingCode({required String name}) => _call(() async {
+    // Pairing v3 (D6): `_w.pairingStandingInvite(name:)` returns the live standing code and
+    // rotates it (answered, under 24 h left, relay changed, name changed). Until the binding
+    // carries it, one 7-day code per run stands in, renewed by the same rules here.
+    final old = _standing;
+    final now = DateTime.now();
+    if (old != null && old.name == name.trim() && old.expiresAt != null && old.expiresAt!.difference(now) >= pairingInviteRenewBefore) {
+      final still = (await _w.pairingsPending()).any((p) => p.contactId == old.id);
+      if (still) return old;
+    }
     final invite = await _w.pairingInvite(
       name: name.trim(),
       kind: lepic.ContactKind.person,
-      expiry: _expiry(expiry),
-      offerWords: words,
+      expiry: lepic.InviteExpiry.sevenDays,
+      offerWords: false,
       relayMode: lepicRelayMode(),
       meetingRelays: _meetingRelays,
       pairingClass: lepic.PairingClass.contact,
     );
     final id = invite.contactId;
     _inviteLinks[id] = invite.link;
-    _inviteWords[id] = _sas(invite.words);
-    _ways[id] = words ? PairingWay.words : PairingWay.link;
-    if (contactId != null) _attachLater[id] = contactId;
-    if (label != null && label.trim().isNotEmpty) {
+    _ways[id] = PairingWay.link;
+    if (old != null && old.name != name.trim()) {
       try {
-        await _w.contactSetLabel(contactId: id, label: label.trim());
+        await _w.pairingCancel(contactId: old.id);
       } on lepic.WalletError {
-        // A pending pairing may not take a label yet; Pending invites shows the name then.
+        // Answered or gone already.
       }
     }
-    return (await pairing(id)) ??
+    final made = (await pairing(id))?.copyWith(name: name.trim()) ??
         PairingRecord(
           id: id,
           state: PairingState.pendingInvite,
-          way: _ways[id]!,
+          way: PairingWay.link,
           inviter: true,
-          createdAt: DateTime.now(),
-          label: label,
+          createdAt: now,
+          name: name.trim(),
           expiresAt: _ms(invite.expiresAtMs.toInt()),
           inviteLink: invite.link,
-          inviteWords: _inviteWords[id]!,
-          contactId: contactId,
         );
-  }, words: words);
+    return _standing = made;
+  });
+
+  @override
+  Future<int> setOwnName(String name) async {
+    // Pairing v3 (D6): `_w.contactsSetOwnName(name:)`. Nothing to tell the peers until then.
+    return 0;
+  }
+
+  @override
+  Future<PairingRecord> requestPairing({required String toAddress, required String name, String? contactId}) => _call(() async {
+    // Pairing v3 (D6): `_w.pairingRequestSend(toAddress:, name:, relayMode:)`, which posts the
+    // request and returns the pending view; keep `_expectAddresses[id] = toAddress` and
+    // `_attachLater[id] = contactId`. Not in the binding yet.
+    throw const WalletError(kind: WalletErrorKind.unsupported, message: 'pair requests need LEPIC with pairing v3');
+  });
+
+  @override
+  Future<List<PairRequest>> requests() async {
+    // Pairing v3 (D6): `_w.pairingRequests()` mapped to [PairRequest]. None until then.
+    return const [];
+  }
+
+  @override
+  Future<PairingInvitePreview> openRequest(String requestId) => _call(() async {
+    // Pairing v3 (D6): the stored request's `inviteLink` through `pairingPreview`, with
+    // `fromAddress` and `requestId` set on the preview.
+    throw const WalletError(kind: WalletErrorKind.unsupported, message: 'pair requests need LEPIC with pairing v3');
+  });
+
+  @override
+  Future<void> dismissRequest(String requestId) => _call(() async {
+    // Pairing v3 (D6): `_w.pairingRequestDismiss(requestId:)`.
+    throw const WalletError(kind: WalletErrorKind.unsupported, message: 'pair requests need LEPIC with pairing v3');
+  });
+
+  @override
+  Future<void> requestHandledOn(String requestId, String device) => _call(() async {
+    // Pairing v3 (D6): dismiss it, then raise [PairingEventKind.pairedElsewhere] with [device].
+    throw const WalletError(kind: WalletErrorKind.unsupported, message: 'pair requests need LEPIC with pairing v3');
+  });
 
   @override
   Future<void> cancelInvite(String id) => _call(() => _w.pairingCancel(contactId: id));
@@ -3363,14 +3424,6 @@ class _LepicPairing implements PairingApi {
     await _refuseOwn(link.trim(), preview);
     return _preview(link.trim(), preview);
   });
-
-  @override
-  Future<PairingInvitePreview> openWords(List<String> words) => _call(() async {
-    checkTorReady('pairing words');
-    final found = await _w.pairingFindWords(words: words, relayMode: lepicRelayMode(), meetingRelays: _meetingRelays);
-    await _refuseOwn(found.link, found.preview);
-    return _preview(found.link, found.preview);
-  }, words: true);
 
   /// This wallet's own invite, opened here: refused before "Pair with …?", which
   /// LEPIC would only refuse on the answer. Known by its link while this run made it, else by
@@ -3422,20 +3475,6 @@ class _LepicPairing implements PairingApi {
   Future<String> replyLink(String id) async => _replyLinks[id] ?? (throw pairingError(PairingFailure.notFound));
 
   @override
-  Future<PairingCard> showCard({required String name}) => _call(() async {
-    final card = await _w.pairingShowCard(name: name.trim(), kind: lepic.ContactKind.person, relayMode: lepicRelayMode());
-    _ways[card.contactId] = PairingWay.inPerson;
-    return PairingCard(id: card.contactId, link: card.link);
-  });
-
-  @override
-  Future<PairingRecord> scanCard({required String cardId, required String text}) => _call(() async {
-    final c = await _w.pairingScanCard(contactId: cardId, link: text.trim(), relayMode: lepicRelayMode());
-    _ways[c.contactId] = PairingWay.inPerson;
-    return _record(c);
-  });
-
-  @override
   Future<PairingRecord?> checkWords(String id, PairingCheck check) => _call(() async {
     await _w.pairingSas(
       contactId: id,
@@ -3446,6 +3485,8 @@ class _LepicPairing implements PairingApi {
       },
       relayMode: lepicRelayMode(),
     );
+    // Pairing v3 (D6): a mismatch ends the record (kept, `PairingEnded`), so the ended record
+    // comes back; today's engine deletes it.
     if (check == PairingCheck.mismatch) return null;
     // Allow invoices the user turned on while answering applies once the words match.
     if (check == PairingCheck.match && _wantsInvoices.remove(id)) {
@@ -3535,7 +3576,10 @@ class _LepicPairing implements PairingApi {
   }
 
   @override
-  Future<PairingRecord> attach(String id, String? contactId) => _call(() async {
+  Future<PairingRecord> attach(String id, String? contactId, {String? contactAddress}) => _call(() async {
+    // Pairing v3 (D6): pass `appAddress: contactAddress` to `contactAttach`, and map its
+    // `OtherAddress` / `AddressProofMissing` refusals; [contactForPairing] below does the same
+    // check on the app's side until then.
     // The one check of every way in (pickers, the same-name offer, an invite made from a
     // contact): refused before anything is stored when the contact's Epicbox address is not
     // the pairing's.
@@ -3831,6 +3875,10 @@ class _LepicPairing implements PairingApi {
       lepic.WalletEventKind.outboxStuck => PairingEventKind.outboxStuck,
       lepic.WalletEventKind.contactPaymentFinalized => PairingEventKind.paymentFinalized,
       lepic.WalletEventKind.contactUnpaired => PairingEventKind.unpaired,
+      // Pairing v3 (D6): `pairingRequested` → requested (requestId, sender); `contactUpdated`
+      // by `e.contactChange`: heard → heard, peerVerified → peerVerified, address →
+      // addressUpdated, ended → ended (with `e.endedReason`); `pairingFailed` gains
+      // otherAddress → otherWallet, addressProofMissing, crossed.
       _ => null,
     };
     if (kind == null || _events.isClosed) return;

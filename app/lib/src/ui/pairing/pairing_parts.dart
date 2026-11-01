@@ -230,8 +230,9 @@ class _DashedBox extends CustomPainter {
 AppLocalizations _l10n(BuildContext context) =>
     Localizations.of<AppLocalizations>(context, AppLocalizations) ?? englishStrings;
 
-/// The trust badge of [record]: Verified (ok), Paired, not verified (warn, "Paired"
-/// with [short]), Keys changed (risk). Nothing for a pending record.
+/// The trust badge of [record]: Waiting (info), Verified (ok), Paired, not verified (warn,
+/// "Paired" with [short]), Keys changed (risk), Ended (neutral; "Removed by" when the other
+/// side removed it). Nothing for a pending code or answer.
 class TrustBadge extends StatelessWidget {
   const TrustBadge(this.record, {super.key, this.short = false});
 
@@ -244,7 +245,7 @@ class TrustBadge extends StatelessWidget {
     final r = record;
     if (r == null) return const SizedBox.shrink();
     // Nothing sent through it arrives any more, whatever its trust was.
-    if (r.removedByPeer && r.state.isPaired) {
+    if (r.removedByPeer) {
       final name = r.shownName;
       return EBadge(short || name.isEmpty ? l.trustRemovedShort : l.trustRemovedBy(name), icon: EpicGlyphs.keysChanged, tone: BadgeTone.risk);
     }
@@ -252,19 +253,21 @@ class TrustBadge extends StatelessWidget {
       PairingState.verified => EBadge(l.trustVerified, icon: EpicGlyphs.verified, tone: BadgeTone.ok),
       PairingState.paired => EBadge(short ? l.trustPairedShort : l.trustPaired, icon: EpicGlyphs.paired, tone: BadgeTone.warn),
       PairingState.keysChanged => EBadge(l.trustKeysChanged, icon: EpicGlyphs.keysChanged, tone: BadgeTone.risk),
+      PairingState.waiting => EBadge(l.trustWaiting, icon: Icons.schedule, tone: BadgeTone.info),
+      PairingState.ended => EBadge(l.trustEnded, icon: Icons.block, tone: BadgeTone.neutral),
       PairingState.pendingInvite || PairingState.pendingReply => const SizedBox.shrink(),
     };
   }
 }
 
-/// "Pairing…": an invite or answer for the contact is in flight, not finished yet.
+/// "Waiting": a request sent or a code answered for the contact, not finished yet.
 class PairPendingBadge extends StatelessWidget {
   const PairPendingBadge({super.key});
 
   @override
   Widget build(BuildContext context) {
     final l = _l10n(context);
-    return EBadge(l.pairBadgePending, tone: BadgeTone.info, busy: true);
+    return EBadge(l.trustWaiting, tone: BadgeTone.info, busy: true);
   }
 }
 

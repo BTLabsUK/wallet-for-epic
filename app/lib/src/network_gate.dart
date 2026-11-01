@@ -253,20 +253,19 @@ abstract final class NetGate {
   /// off, nothing collects the pairing or contact mailboxes ([pairing]) or invoices from
   /// them ([invoices]). The phone's settings and the desktop's store set them at launch, before a
   /// wallet opens, and on every change; on until then, so a core test without settings pairs.
-  static bool _pairing = true;
   static bool _invoices = true;
   static bool _linkedDevices = true;
 
-  static bool get pairing => _pairing;
+  /// Pairing is on for everyone; the stored switch value is ignored.
+  static bool get pairing => true;
 
-  static bool get invoices => _invoices && _pairing;
+  static bool get invoices => _invoices;
 
   /// Linked devices: their private pairings are collected and posted to ([linkedDevices]), with
   /// the contact mailboxes left alone while [pairing] is off.
   static bool get linkedDevices => _linkedDevices;
 
   static void setExperimental(AdvancedPrefs prefs) {
-    _pairing = prefs.pairingOn;
     _invoices = prefs.invoicesOn;
     _linkedDevices = prefs.linkedDevicesOn;
   }

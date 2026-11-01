@@ -7,6 +7,7 @@
 // A press that does nothing, or only shows a toast, fails unless [_allowed] says why. A press
 // that reaches an API method the real wallet (LepicDeskWallet) only stubs fails too.
 import 'package:epic_wallet/src/cancel_final.dart' show CancelResult;
+import 'package:epic_wallet/src/trust/policy.dart' show PeerCompat;
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/shell.dart';
 import 'package:epic_wallet/src/desktop/app/shots.dart' show DeskShot;

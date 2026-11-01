@@ -13997,7 +13997,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pairInPersonTitle => 'Сопряжение лично';
 
   @override
-  String get pairShowMyCode => 'Показать мой код';
+  String get pairShowMyCode => 'Показать моё приглашение';
 
   @override
   String get pairScanTheirs => 'Сканировать код';
@@ -14011,7 +14011,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Сканируют оба. Проверка слов откроется, когда оба кода считаны.';
 
   @override
-  String get pairScanPrompt => 'Наведите камеру на код собеседника';
+  String get pairScanPrompt => 'Отсканируйте их QR';
 
   @override
   String get pairSeenAs => 'Собеседник увидит вас как';
@@ -14024,7 +14024,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pairCameraDeniedBody =>
-      'Разрешите камеру для сканирования или используйте слова.';
+      'Разрешите камеру для сканирования или вставьте приглашение.';
 
   @override
   String get pairOpenSettings => 'Открыть настройки';
@@ -14326,7 +14326,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Любой, у кого есть это приглашение, может выполнить сопряжение от вашего имени, пока оно действует. Отправляйте его только нужному человеку, затем проверьте вместе.';
 
   @override
-  String get pairShareInvite => 'Поделиться';
+  String get pairShareInvite => 'Поделиться приглашением';
 
   @override
   String get pairCopyInvite => 'Копировать приглашение';
@@ -14436,11 +14436,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get pairExpiredTitle => 'Срок приглашения истёк';
+  String get pairExpiredTitle => 'Это приглашение истекло';
 
   @override
   String pairExpiredBody(String name) {
-    return 'Попросите у $name новое.';
+    return 'Попросите новое.';
   }
 
   @override
@@ -14451,7 +14451,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String pairCancelledTitle(String name) {
-    return '$name: приглашение отменено';
+    return '$name отменил(а) это сопряжение';
   }
 
   @override
@@ -14518,7 +14518,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String pairSecondReplyTitle(String name) {
-    return 'На приглашение $name ответил кто-то ещё.';
+    return 'Кто-то ещё тоже ответил на ваше приглашение';
   }
 
   @override
@@ -14526,11 +14526,11 @@ class AppLocalizationsRu extends AppLocalizations {
       'Ответ на то же приглашение · не сохранён';
 
   @override
-  String get sasTitle => 'Сравните проверочные слова';
+  String get sasTitle => 'Проверьте слова';
 
   @override
   String sasLead(String name) {
-    return 'Кошелёк $name показывает те же четыре проверочных слова. Сравните их по телефону или лично.';
+    return 'Кошелёк $name показывает те же четыре. Сравните их.';
   }
 
   @override
@@ -14570,7 +14570,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get sasNoMatchBody =>
-      'Возможно, кто-то изменил приглашение в пути. Ничего не сохраняется. Повторите сопряжение лично или с новым приглашением.';
+      'Сопряжение завершится с обеих сторон, и ничего отправленного через него не будет завершено. Сопрягите снова с новым приглашением.';
 
   @override
   String get sasStopPairing => 'Прервать сопряжение';
@@ -15201,15 +15201,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get restoreUseHere => 'Использовать здесь';
 
   @override
-  String get pairInvalidLink => 'Это не ссылка для сопряжения';
+  String get pairInvalidLink => 'Это не приглашение к сопряжению.';
 
   @override
   String get pairInvalidBody =>
-      'Проверьте, что ссылка скопирована целиком, или попросите новую.';
+      'Проверьте, что приглашение скопировано целиком, или попросите новое.';
 
   @override
-  String get pairWrongNetworkBody =>
-      'Его создал кошелёк в другой сети. Кошельки сопрягаются только в одной сети.';
+  String get pairWrongNetworkBody => 'Это приглашение для другой сети.';
 
   @override
   String get pairOwnCode => 'Это ваш собственный код';
@@ -15270,7 +15269,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String sasDialogTitle(String name) {
-    return 'Проверить слова с $name';
+    return 'Проверьте слова с $name';
   }
 
   @override
@@ -15434,7 +15433,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairWhatP1 =>
-      'Сопряжение связывает два кошелька один раз: лично, когда вы сканируете коды друг друга, или онлайн через ссылку-приглашение или пять слов сопряжения. Каждый кошелёк хранит ключ, созданный только для этого контакта; ничего из этого не передаётся серверу Epicbox.';
+      'Сопряжение связывает два кошелька один раз: запросом контакту, которому вы платили через Epicbox, или вашим приглашением, отсканированным как QR или открытым как ссылка. Каждый кошелёк хранит ключ, созданный только для этого контакта; ни с кем другим ничего не делится.';
 
   @override
   String get helpPairWhatP2 =>
@@ -15446,10 +15445,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairWhatStep2 =>
-      'Выберите способ: Устно, Приглашение в сообщении или Лично.';
+      'Сопрягитесь с контактом или покажите своё приглашение и дайте его отсканировать.';
 
   @override
-  String get helpPairWhatStep3 => 'Проверьте вместе, затем **Совпадают**.';
+  String get helpPairWhatStep3 =>
+      'Проверьте слова вместе (после запроса не нужно), затем **Совпадают**.';
 
   @override
   String get helpPairWhatP3 =>
@@ -19340,4 +19340,290 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get linkConfirmInvite =>
       'Связать это устройство с тем, что прислало приглашение?';
+
+  @override
+  String get pairYourCode => 'Ваше приглашение';
+
+  @override
+  String get pairCodeCaption =>
+      'Пусть отсканируют QR или отправьте приглашение.';
+
+  @override
+  String pairCodeCaptionFor(String name) {
+    return 'Пусть $name отсканирует QR, или отправьте приглашение.';
+  }
+
+  @override
+  String pairSeenAsLine(String name) {
+    return 'Вас видят как $name';
+  }
+
+  @override
+  String get pairChange => 'Изменить';
+
+  @override
+  String get pairSeenAsField => 'Вас видят как';
+
+  @override
+  String get pairCopyLink => 'Копировать приглашение';
+
+  @override
+  String get pairHaveTheirCode => 'Есть их приглашение?';
+
+  @override
+  String pairHaveNamesCode(String name) {
+    return 'Есть приглашение от $name?';
+  }
+
+  @override
+  String get pairScan => 'Сканировать QR';
+
+  @override
+  String get pairPasteField => 'Вставьте приглашение';
+
+  @override
+  String get pairNotACode => 'Это не приглашение к сопряжению.';
+
+  @override
+  String get pairEpicboxOffLine =>
+      'Epicbox выключен. Вставьте ответ ниже, когда он придёт.';
+
+  @override
+  String get pairWaitingAnswer => 'Ожидание ответа…';
+
+  @override
+  String pairAnsweredFinishing(String name) {
+    return '$name ответил(а) на приглашение. Ожидание, пока кошелёк $name завершит.';
+  }
+
+  @override
+  String get pairFinishCodeTitle => 'Подтверждение';
+
+  @override
+  String pairFinishCodeBody(String name) {
+    return 'Отправьте это $name. Проверка слов откроется, когда тот кошелёк это прочитает.';
+  }
+
+  @override
+  String get pairYourAnswerBody =>
+      'Отправьте его тем же путём, которым пришло приглашение. Затем вставьте то, что вернётся.';
+
+  @override
+  String get pairPasteFinishField => 'Вставьте подтверждение';
+
+  @override
+  String pairPairingWith(String name) {
+    return 'Сопряжение с $name…';
+  }
+
+  @override
+  String get pairInContacts => 'В ваших контактах';
+
+  @override
+  String get pairRequestBody =>
+      'Запрос уходит на Epicbox-адрес этого контакта. Его кошелёк покажет запрос, когда будет открыт.';
+
+  @override
+  String get pairSendRequest => 'Отправить запрос';
+
+  @override
+  String get pairShowMyCodeInstead => 'Вместо этого показать моё приглашение';
+
+  @override
+  String pairRequestSent(String date) {
+    return 'Запрос отправлен · $date';
+  }
+
+  @override
+  String pairWaitingFor(String name) {
+    return 'Ожидание кошелька $name';
+  }
+
+  @override
+  String get pairAnsweredNotHeard =>
+      'Ответ на ваше приглашение · пока нет вестей';
+
+  @override
+  String pairNotChecked(String name) {
+    return '$name ещё не проверил(а)';
+  }
+
+  @override
+  String pairConfirmedToo(String name) {
+    return '$name тоже подтвердил(а).';
+  }
+
+  @override
+  String get pairEndedShort => 'Сопряжение завершено';
+
+  @override
+  String get pairEndedMismatch => 'Вы сообщили, что слова не совпадают.';
+
+  @override
+  String pairEndedPeerMismatch(String name) {
+    return '$name сообщил(а), что слова не совпадают.';
+  }
+
+  @override
+  String pairEndedNeverFinished(String name) {
+    return 'Кошелёк $name так и не завершил.';
+  }
+
+  @override
+  String pairNoAnswerFrom(String name) {
+    return 'Нет ответа от кошелька $name';
+  }
+
+  @override
+  String get pairAgain => 'Сопрячь снова';
+
+  @override
+  String get pairHeldSend => 'Ожидает получателя';
+
+  @override
+  String pairProvesOther(String name) {
+    return 'Кошелёк $name подтверждает другой адрес';
+  }
+
+  @override
+  String get pairUpdateAddress => 'Обновить адрес контакта';
+
+  @override
+  String get pairDetach => 'Отвязать';
+
+  @override
+  String get pairCheckWords => 'Проверить слова';
+
+  @override
+  String pairWantsToPair(String name) {
+    return '$name хочет сопряжение.';
+  }
+
+  @override
+  String pairPairedWith(String name) {
+    return 'Сопряжено с $name.';
+  }
+
+  @override
+  String pairPairedOn(String device) {
+    return 'Сопряжено на $device.';
+  }
+
+  @override
+  String pairRequestsRow(int count) {
+    return 'Запросы на сопряжение · $count';
+  }
+
+  @override
+  String get pairRequestsTitle => 'Запросы на сопряжение';
+
+  @override
+  String get pairEndedNotice =>
+      'Сопряжение завершено. Сопрягите снова с новым приглашением.';
+
+  @override
+  String get pairOtherWalletTitle => 'Этот ответ пришёл из другого кошелька.';
+
+  @override
+  String get pairOtherWalletBody => 'Ничего не сохранено.';
+
+  @override
+  String pairNotProvenBody(String name) {
+    return 'С $name ещё не было платежа Epic Cash, поэтому запрос отправить нельзя.';
+  }
+
+  @override
+  String pairInProgressTitle(String name) {
+    return 'Сопряжение с $name уже идёт.';
+  }
+
+  @override
+  String pairCrossedTitle(String name) {
+    return 'Кошелёк $name тоже начал сопряжение. Ожидание его ответа.';
+  }
+
+  @override
+  String pairDismissedTitle(String name) {
+    return 'Этот запрос был отклонён. Попросите $name прислать новый.';
+  }
+
+  @override
+  String get pairEndedBody =>
+      'Ничего нового через него не пройдёт. Удалите его или сопрягите снова с новым приглашением.';
+
+  @override
+  String get pairWaitingSendBody => 'Отправьте вместо этого через Epicbox.';
+
+  @override
+  String get pairNotFoundTitle => 'Ни одно сопряжение этому не соответствует.';
+
+  @override
+  String get trustWaiting => 'Ожидание';
+
+  @override
+  String get trustEnded => 'Завершено';
+
+  @override
+  String get pairRequestPair => 'Сопрячь';
+
+  @override
+  String get pairCancelPairingTitle => 'Отменить это сопряжение?';
+
+  @override
+  String pairCancelPairingBody(String name) {
+    return 'Кошелёк $name узнает об этом, если ответит поздно. Ничего не сохраняется.';
+  }
+
+  @override
+  String get pairCancelPairing => 'Отменить сопряжение';
+
+  @override
+  String get pairBackLater => 'Назад';
+
+  @override
+  String get pairProofPending => 'Адрес ещё не подтверждён';
+
+  @override
+  String get helpPairTwoWaysTitle => 'Два способа сопряжения';
+
+  @override
+  String get helpPairTwoWaysShort => 'Запрос контакту или ваше приглашение.';
+
+  @override
+  String get helpPairTwoWaysP1 =>
+      '**Сопряжение с контактом.** У контакта, которому вы платили или который платил вам через Epicbox, кнопка Сопрячь отправляет запрос на этот адрес. Его кошелёк покажет запрос, когда будет открыт; одно нажатие отвечает. Оба кошелька получают статус Проверено без проверки слов: запрос и ответ подтверждают адрес, который уже есть в контактах другой стороны.';
+
+  @override
+  String get helpPairTwoWaysP2 =>
+      '**Сопряжение по приглашению.** Контакты › Сопрячь показывает ваше приглашение, действующее 7 дней. Другой кошелёк сканирует его или открывает ссылку; оба завершают через Epicbox и затем сравнивают четыре слова. Если на одной из сторон Epicbox выключен, тот же экран переносит ответ и подтверждение вручную: Поделиться и Вставить.';
+
+  @override
+  String get helpPairTwoWaysP3 =>
+      'Запрос уходит только кошельку, который показал, что работает на Epic Cash: отмеченный платёж между двумя адресами за последние 30 дней. Для всех остальных Сопрячь показывает ваше приглашение.';
+
+  @override
+  String get helpPairWhyTitle2 => 'Зачем проверять слова';
+
+  @override
+  String get helpPairWhyShort2 => 'Сравните их лично, голосом или по видео.';
+
+  @override
+  String get helpPairWhyP1b =>
+      'После сопряжения по приглашению оба кошелька показывают одни и те же четыре картинки и названия. Сравните их с другим человеком лично, голосом или по видеосвязи, но никогда в том чате, через который пришло приглашение: кто мог подменить приглашение по пути, мог подменить и то, что показывает этот чат.';
+
+  @override
+  String get helpPairWhyP2b =>
+      '**Совпадают** отмечает контакт как Проверено; другой кошелёк узнаёт об этом и показывает «тоже подтвердил(а)». **Не совпадают** завершает сопряжение с обеих сторон, и ничего отправленного через него не будет завершено. Ошибочное «нет» тоже его завершает: сопрягите снова с новым приглашением.';
+
+  @override
+  String get helpPairWhyP3b =>
+      'Проверено означает: кошелёк за адресом в ваших контактах. После запроса между двумя контактами статус ставится без слов, потому что запрос и ответ уже подтвердили этот адрес.';
+
+  @override
+  String get helpPairWhyP4b =>
+      '«Подтверждённый» означает, что за последние 30 дней между двумя Epicbox-адресами прошёл платёж, отмеченный обоими кошельками. Контакт, которому с тех пор ответило другое приложение-кошелёк, не считается подтверждённым до следующего отмеченного платежа.';
+
+  @override
+  String get pairStandingFootnote =>
+      'Действует 7 дней. Новое приглашение появится, когда это будет использовано.';
 }

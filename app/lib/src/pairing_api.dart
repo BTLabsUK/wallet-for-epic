@@ -4,34 +4,29 @@
 /// adapter maps its binding onto them (U-24), the fakes play both sides for tests, the
 /// tour and the web preview.
 ///
+/// One code, two ways. The wallet holds one standing code (7 days), shown as a QR and shared
+/// as a link. Way 1 sends a request to a contact's Epicbox address; Way 2 is the code, scanned
+/// or pasted, finished over Epicbox or by hand, then the four words. A request between two
+/// contacts proves both addresses and ends Verified without words.
+///
 /// Nothing here pays or signs a payment. A pairing step that cannot go on throws a
 /// [WalletError] of kind [WalletErrorKind.pairingFailed]; [pairingFailureOf] says why.
 library;
 
 import 'models.dart';
 
-/// The expiries an online invite offers (RFC 7.1); 24 hours is the default.
-const List<Duration> pairingInviteExpiries = [Duration(hours: 1), Duration(hours: 24), Duration(days: 7)];
-const Duration pairingInviteDefaultExpiry = Duration(hours: 24);
+/// How long a code (the standing one, or the one a request carries) is good for (RFC 7.1).
+const Duration pairingInviteExpiry = Duration(days: 7);
 
-/// How long pairing words are good for (RFC 7.7).
-const Duration pairingWordsExpiry = Duration(minutes: 10);
+/// A standing code with less than this left is replaced by a fresh one.
+const Duration pairingInviteRenewBefore = Duration(hours: 24);
 
 /// How long the answerer waits for the confirm (RFC 8.2).
 const Duration pairingReplyWait = Duration(hours: 1);
 
-/// This wallet's unanswered words invite for [contactId] (null: none) with 2 minutes or more
-/// left: opened again, the words page shows it instead of making a new one each visit.
-PairingRecord? openWordsInvite(Iterable<PairingRecord> all, {String? contactId, required DateTime now}) => all
-    .where(
-      (r) =>
-          r.state == PairingState.pendingInvite &&
-          r.inviteWords.isNotEmpty &&
-          r.contactId == contactId &&
-          r.expiresAt != null &&
-          r.expiresAt!.difference(now) >= const Duration(minutes: 2),
-    )
-    .firstOrNull;
+/// How long an inviter waits to hear the other wallet before the pairing ends as never
+/// finished. Counted in time spent collecting, not wall time.
+const Duration pairingHeardWait = Duration(days: 7);
 
 /// How long a private invite (a device link's QR) is good for.
 const Duration privateInviteExpiry = Duration(minutes: 15);
@@ -39,15 +34,15 @@ const Duration privateInviteExpiry = Duration(minutes: 15);
 /// The largest payload a private pairing posts.
 const int privatePayloadMaxBytes = 32 * 1024;
 
-/// How many words a pairing-words invite has, and the check.
-const int pairingWordCount = 5;
+/// How many words the check shows.
 const int sasWordCount = 4;
 
 abstract interface class PairingApi {
   /// True when this core pairs. Every other call throws when it is false.
   bool get supported;
 
-  /// Every pairing of this wallet, pending ones included, newest first.
+  /// Every pairing of this wallet, pending ones included, newest first. The standing code is
+  /// not among them: an unused code shows only on the Pair screen ([standingCode]).
   Future<List<PairingRecord>> pairings();
 
   /// The pairing [id], or null when there is none.
@@ -59,61 +54,83 @@ abstract interface class PairingApi {
   /// to say.
   Future<PairingRecord?> pairingForContact(String contactId);
 
-  /// Second answers to used invites, shown in Pending invites until removed (C-15).
+  /// Second answers to used codes, shown until removed (C-15).
   Future<List<PairingStray>> strays();
 
   /// Forgets the stray [id].
   Future<void> removeStray(String id);
 
-  /// Sets the Epicbox servers (`host[:port]`, up to three) where pairing words meet, from
-  /// Settings › Advanced › Connection servers: [makeInvite] with words leaves the invite on
-  /// them and [openWords] looks on them. Null is the core's built-in list (the defaults). It
-  /// applies to the next words call; a pairing that exists keeps its mailbox on the inviter's
-  /// own Epicbox server.
+  /// Sets the Epicbox servers (`host[:port]`, up to three) of Settings › Advanced › Connection
+  /// servers. Kept for the core's sake; the code carries the wallet's own relay.
   void setConnectionServers(List<String>? hosts);
 
-  // Inviting (RFC 7.1, 7.7): this wallet is A.
+  // Your code (RFC 7.1): this wallet is A.
 
-  /// Makes an invite that [name] (the name the other side will see, 1 to 48 bytes) answers
-  /// within [expiry]. With [words], it is also offered as five pairing words for 10 minutes
-  /// ([pairingWordsExpiry] replaces [expiry]); words need Epicbox and a built-in relay, and
-  /// [WalletErrorKind.pairingFailed] `relayUnreachable` says when they cannot be offered.
-  /// [label] is whom it is for (a contact's name), [contactId] the contact the pairing
-  /// attaches to once answered. Returns the pending record with its link (and words).
-  Future<PairingRecord> makeInvite({
-    required String name,
-    required Duration expiry,
-    bool words = false,
-    String? label,
-    String? contactId,
-  });
+  /// The wallet's standing code, carrying [name] (what the other side sees, 1 to 48 bytes). A
+  /// fresh one is made when there is none, when it was answered, when less than
+  /// [pairingInviteRenewBefore] is left, when the wallet's relay changed, or when [name]
+  /// differs from the one it carries (the old one is withdrawn then). Sends nothing. The link
+  /// is in [PairingRecord.inviteLink]; the record is never listed by [pairings].
+  Future<PairingRecord> standingCode({required String name});
 
-  /// Cancels the invite [id] (a later answer is told it was cancelled), or forgets the answer
-  /// [id] still waiting for its confirm; the other side is not told.
+  /// Gives every Contact-class pairing the new own [name]: each gets a fresh card at the next
+  /// collect. Returns how many. Called with [standingCode] when the user changes the name.
+  Future<int> setOwnName(String name);
+
+  /// Way 1: sends a request to pair to [toAddress], a contact's Epicbox address, as [name].
+  /// The request carries a code of its own (never the standing one) and expects the answer to
+  /// prove [toAddress]. [contactId] is the contact it attaches to once answered. Fails
+  /// `peerNotProven` (no Epic Cash payment with that key yet, or its wallet does not take
+  /// requests), `alreadyUsed` for a live pairing with that key, `inProgress` for one in
+  /// progress, `relayUnreachable` when Epicbox is off or Offline, and transport errors when
+  /// the post failed: nothing is stored then. Returns the pending record
+  /// ([PairingState.pendingInvite], [PairingRecord.expectAddress] set).
+  Future<PairingRecord> requestPairing({required String toAddress, required String name, String? contactId});
+
+  /// Cancels the code or request [id] (a later answer is told it was cancelled), or forgets
+  /// the answer [id] still waiting for its confirm. A cancelled code stays hidden until it
+  /// expires, so a late answer is refused, not left hanging.
   Future<void> cancelInvite(String id);
 
-  /// The inviter by hand (Epicbox off): opens a `epiccash://pair-reply/…` link pasted under
-  /// Enter link or words. Returns the paired record, whose words the user checks next.
+  /// The inviter by hand: opens a `epiccash://pair-reply/…` link pasted under Have their code?.
+  /// Returns the record (Waiting or Verified), whose finish code goes back the same way.
   Future<PairingRecord> openReply(String link);
 
-  /// The inviter by hand: the `epiccash://pair-confirm/…` link for the pairing [id], to send
-  /// back when the confirm cannot go through the relay.
+  /// The inviter by hand: the `epiccash://pair-confirm/…` finish code for the pairing [id].
+  /// After an answer taken by hand it always exists; after one the relay carried, only while
+  /// the confirm could not be posted.
   Future<String> confirmLink(String id);
 
   // Answering (RFC 7.2, 7.3): this wallet is B.
 
-  /// Opens an invite link (`epiccash://pair/1/…`, also pasted as text) without answering it.
+  /// Opens a code (`epiccash://pair/1/…`, also pasted as text) without answering it.
   Future<PairingInvitePreview> openInvite(String link);
 
-  /// Opens the invite five pairing [words] (names or emoji, in order) find on the built-in
-  /// relays. `notFound` when they open nothing.
-  Future<PairingInvitePreview> openWords(List<String> words);
+  /// The requests to pair that came to this wallet's address and are still live (not
+  /// answered, dismissed or expired), oldest first. The core knows no address book: the app
+  /// shows those from contacts and dismisses the rest on arrival.
+  Future<List<PairRequest>> requests();
 
-  /// Answers the invite of [preview] as [name]. [allowInvoices] is the user's choice on an
-  /// invite that asks for it; it takes effect once the words match. [contactId] attaches the
-  /// pairing to an address-book contact. The answer goes through the invite's relay; when
+  /// Opens the stored request [requestId] as a preview, as [openInvite] does a code: its
+  /// sender address is on the preview, and accepting it expects the confirm to prove it.
+  Future<PairingInvitePreview> openRequest(String requestId);
+
+  /// Hides the request [requestId]. Its code is remembered until it expires, so a replay is
+  /// dropped; a newer request from the same sender shows again.
+  Future<void> dismissRequest(String requestId);
+
+  /// The request [requestId] was answered on the linked device [device] (the first Pair
+  /// wins): hidden here, with a [PairingEventKind.pairedElsewhere] notice naming the device.
+  Future<void> requestHandledOn(String requestId, String device);
+
+  /// Answers the code of [preview] as [name]. [allowInvoices] is the user's choice on a code
+  /// that asks for it; it takes effect once the words match. [contactId] attaches the
+  /// pairing to an address-book contact. The answer goes through the code's relay; when
   /// [byHand] is set, or the relay is unreachable ([PairingRecord.relayDown] on the result),
-  /// it waits to be sent as a link ([replyLink]). Returns the record,
+  /// it waits to be sent as a link ([replyLink]). A preview of a request expects the confirm
+  /// to prove the sender's address. Fails `inviteDismissed`, `inProgress`, `alreadyUsed`, and
+  /// `crossed` when this wallet's own pairing with the same key wins the lower-key rule (its
+  /// own then survives; otherwise the own one is withdrawn). Returns the record,
   /// [PairingState.pendingReply].
   Future<PairingRecord> acceptInvite({
     required String token,
@@ -126,28 +143,20 @@ abstract interface class PairingApi {
   /// The answerer by hand: the `epiccash://pair-reply/…` link of the pairing [id].
   Future<String> replyLink(String id);
 
-  /// The answerer by hand: opens the inviter's `epiccash://pair-confirm/…` link. Returns the
-  /// paired record.
+  /// The answerer by hand: opens the inviter's `epiccash://pair-confirm/…` finish code.
+  /// Returns the record.
   Future<PairingRecord> openConfirm(String link);
-
-  // In person (RFC 7.4).
-
-  /// A fresh card of this wallet, shown as [name], for the other phone to scan.
-  Future<PairingCard> showCard({required String name});
-
-  /// Pairs with the card the camera read (`epiccash://contact/1/…`), against the card [cardId]
-  /// this phone showed. Both phones scanned, so the result is paired and its words show.
-  Future<PairingRecord> scanCard({required String cardId, required String text});
 
   // After pairing.
 
-  /// The user's answer on the four words of [id]. [PairingCheck.match] makes it verified (and
-  /// turns on the invoices the user chose when answering an invite that asked);
-  /// [PairingCheck.mismatch] deletes it on this side and returns null; [PairingCheck.skip]
-  /// leaves it paired.
+  /// The user's answer on the four words of [id], allowed from Waiting on.
+  /// [PairingCheck.match] makes it verified (and counts as heard; the other side learns of it
+  /// when its wallet takes status notices). [PairingCheck.mismatch] ends it on this side and
+  /// tells the other: the record stays, ended, with its sends in flight cancellable; returns
+  /// the ended record. [PairingCheck.skip] is not offered by the app.
   Future<PairingRecord?> checkWords(String id, PairingCheck check);
 
-  /// Collects the pairing and contact mailboxes once (an open invite, an answer waiting for
+  /// Collects the pairing and contact mailboxes once (an open code, an answer waiting for
   /// its confirm, a contact's invoices, payments and withdrawals): what it finds comes as
   /// [events]. [trigger] says why (RFC 8.4). Returns how many pairings it completed or ended.
   Future<int> collect({PairingCollectTrigger trigger = PairingCollectTrigger.foreground});
@@ -163,7 +172,11 @@ abstract interface class PairingApi {
   Future<int> setAllowInvoices(String id, bool on);
 
   /// Attaches the pairing [id] to the address-book contact [contactId] (null detaches it).
-  Future<PairingRecord> attach(String id, String? contactId);
+  /// [contactAddress] is the contact's Epicbox address, when it has one: refused
+  /// `otherAddress` when the pairing proves another key, `addressProofMissing` when the
+  /// pairing proves none yet (tried again when a proof arrives). Writing the proven address
+  /// into the book is the app's job, at Verified only.
+  Future<PairingRecord> attach(String id, String? contactId, {String? contactAddress});
 
   /// Decides on changed keys ([PairingState.keysChanged]): the old keys come back verified, or
   /// the new ones stay paired and need the words checked.
@@ -187,7 +200,8 @@ abstract interface class PairingApi {
   // Sealed payments (RFC 9).
 
   /// Seals the payment file [slateJson] for the paired contact [id]: the armored text to
-  /// save or share. The slate is the same payment; only the wrapping differs.
+  /// save or share. The slate is the same payment; only the wrapping differs. Refused
+  /// `waiting` while the other wallet is not heard, `ended` once the pairing ended.
   Future<String> sealSlate({required String id, required String slateJson});
 
   /// Opens a payment file or paste: a sealed one from a paired contact gives its slate and the
@@ -207,7 +221,8 @@ abstract interface class PairingApi {
   Future<PaidSealedRequest> paySealedRequest(String text, {required BigInt amount});
 
   /// Sends [amount] to the paired contact [id] through its mailbox on its relay, sealed (RFC
-  /// 9.1, "Send through Anna's mailbox"). The answer comes back the same way.
+  /// 9.1, "Send through Anna's mailbox"). The answer comes back the same way. Refused
+  /// `waiting` and `ended` as [sealSlate].
   Future<TxEntry> sendViaMailbox({
     required String id,
     required BigInt amount,
@@ -237,9 +252,9 @@ abstract interface class PairingApi {
   // Private pairings (LEPIC's pairing class `private`): the channel between this wallet's own
   // linked devices (`devices/`). Their keys are their own domain, mixed with fresh secrets from
   // the QR and the answer, so the phrase alone does not find them. They have no pairing words
-  // (QR or paste only), are never listed by [pairings], Pending invites or a backup, and carry
-  // only opaque payloads: no slates, invoices or notices. A contact pairing never takes a
-  // payload. [checkWords] and [removePairing] work on both classes.
+  // (QR or paste only), are never listed by [pairings] or a backup, and carry only opaque
+  // payloads: no slates, invoices or notices. A contact pairing never takes a payload.
+  // [checkWords] and [removePairing] work on both classes.
 
   /// True when this core makes private pairings. The other private calls throw when false.
   bool get privateSupported;
@@ -306,8 +321,14 @@ class NoPairing implements PairingApi {
   Future<void> removeStray(String id) async => throw pairingUnsupported('removeStray');
 
   @override
-  Future<PairingRecord> makeInvite({required String name, required Duration expiry, bool words = false, String? label, String? contactId}) async =>
-      throw pairingUnsupported('makeInvite');
+  Future<PairingRecord> standingCode({required String name}) async => throw pairingUnsupported('standingCode');
+
+  @override
+  Future<int> setOwnName(String name) async => throw pairingUnsupported('setOwnName');
+
+  @override
+  Future<PairingRecord> requestPairing({required String toAddress, required String name, String? contactId}) async =>
+      throw pairingUnsupported('requestPairing');
 
   @override
   Future<void> cancelInvite(String id) async => throw pairingUnsupported('cancelInvite');
@@ -322,7 +343,16 @@ class NoPairing implements PairingApi {
   Future<PairingInvitePreview> openInvite(String link) async => throw pairingUnsupported('openInvite');
 
   @override
-  Future<PairingInvitePreview> openWords(List<String> words) async => throw pairingUnsupported('openWords');
+  Future<List<PairRequest>> requests() async => const [];
+
+  @override
+  Future<PairingInvitePreview> openRequest(String requestId) async => throw pairingUnsupported('openRequest');
+
+  @override
+  Future<void> dismissRequest(String requestId) async => throw pairingUnsupported('dismissRequest');
+
+  @override
+  Future<void> requestHandledOn(String requestId, String device) async => throw pairingUnsupported('requestHandledOn');
 
   @override
   Future<PairingRecord> acceptInvite({required String token, required String name, bool allowInvoices = false, String? contactId, bool byHand = false}) async =>
@@ -333,12 +363,6 @@ class NoPairing implements PairingApi {
 
   @override
   Future<PairingRecord> openConfirm(String link) async => throw pairingUnsupported('openConfirm');
-
-  @override
-  Future<PairingCard> showCard({required String name}) async => throw pairingUnsupported('showCard');
-
-  @override
-  Future<PairingRecord> scanCard({required String cardId, required String text}) async => throw pairingUnsupported('scanCard');
 
   @override
   Future<PairingRecord?> checkWords(String id, PairingCheck check) async => throw pairingUnsupported('checkWords');
@@ -356,7 +380,7 @@ class NoPairing implements PairingApi {
   Future<int> setAllowInvoices(String id, bool on) async => throw pairingUnsupported('setAllowInvoices');
 
   @override
-  Future<PairingRecord> attach(String id, String? contactId) async => throw pairingUnsupported('attach');
+  Future<PairingRecord> attach(String id, String? contactId, {String? contactAddress}) async => throw pairingUnsupported('attach');
 
   @override
   Future<PairingRecord> resolveKeysChanged(String id, KeysChoice choice) async => throw pairingUnsupported('resolveKeysChanged');
@@ -434,7 +458,8 @@ class NoPairing implements PairingApi {
 }
 
 /// What kind of pairing link [text] holds, by its scheme and path, without opening it. The
-/// app also accepts the link pasted with surrounding text or whitespace.
+/// app also accepts the link pasted with surrounding text or whitespace. [card] is the older
+/// in-person card, which the app no longer pairs with ("Not a pairing code").
 enum PairingLinkKind { invite, reply, confirm, card }
 
 /// [text]'s pairing link kind, or null when it holds none. Reads `epiccash://pair/`,
@@ -457,20 +482,17 @@ String? pairingLinkIn(String text) {
   return m?.group(0);
 }
 
-/// After an in-person pairing [fresh]: removes the older in-person pairings with the same
-/// name that were never checked and sit in no contact, the leftovers of an abandoned scan or
-/// a card shown again, so Pending invites lists one row per person. A verified
-/// or saved pairing is never touched. Best effort: a failure leaves the old row.
-Future<void> dropOlderInPersonPairings(PairingApi api, PairingRecord fresh) async {
-  final name = (fresh.name ?? '').trim();
-  if (name.isEmpty) return;
-  try {
-    for (final r in await api.pairings()) {
-      if (r.id == fresh.id || r.way != PairingWay.inPerson || r.state != PairingState.paired) continue;
-      if (r.contactId != null || (r.name ?? '').trim() != name) continue;
-      await api.removePairing(r.id);
-    }
-  } on Object {
-    // The rows stay; each has Remove.
-  }
-}
+/// The requests of [all] the app shows: those whose sender is an address-book contact, by
+/// the key of its Epicbox address ([contactKeys]). The rest are dismissed on arrival.
+List<PairRequest> requestsFromContacts(Iterable<PairRequest> all, Set<String> contactKeys) => [
+  for (final r in all)
+    if (contactKeys.contains(epicboxKey(r.fromAddress))) r,
+];
+
+/// The pairing records of [all] that sit in Contacts: a request this wallet sent, an answer
+/// waiting for its confirm, and every stored record (waiting, paired, verified, keys changed,
+/// ended). A code nobody answered is not among them: it shows only on the Pair screen.
+List<PairingRecord> pairingsInContacts(Iterable<PairingRecord> all) => [
+  for (final r in all)
+    if (r.state.isRecord || r.state == PairingState.pendingReply || (r.state == PairingState.pendingInvite && r.expectAddress != null)) r,
+];

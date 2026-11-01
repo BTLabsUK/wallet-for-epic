@@ -13666,7 +13666,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get pairInPersonTitle => 'Persönlich koppeln';
 
   @override
-  String get pairShowMyCode => 'Meinen Code zeigen';
+  String get pairShowMyCode => 'Meine Einladung zeigen';
 
   @override
   String get pairScanTheirs => 'Code scannen';
@@ -13680,7 +13680,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Beide scannen. Die Wortprüfung öffnet sich, sobald beide Codes gelesen sind.';
 
   @override
-  String get pairScanPrompt => 'Richten Sie die Kamera auf den anderen Code';
+  String get pairScanPrompt => 'Scanne ihren QR';
 
   @override
   String get pairSeenAs => 'Die andere Seite sieht Sie als';
@@ -13693,7 +13693,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pairCameraDeniedBody =>
-      'Erlauben Sie die Kamera zum Scannen oder verwenden Sie stattdessen Wörter.';
+      'Erlaube die Kamera zum Scannen, oder füge die Einladung ein.';
 
   @override
   String get pairOpenSettings => 'Einstellungen öffnen';
@@ -14112,18 +14112,18 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String pairExpiredBody(String name) {
-    return 'Bitten Sie $name um eine neue.';
+    return 'Bitte um eine neue.';
   }
 
   @override
-  String get pairUsedTitle => 'Diese Einladung wurde schon verwendet';
+  String get pairUsedTitle => 'Diese Einladung wurde schon benutzt';
 
   @override
   String get pairUsedBody => 'Bitten Sie um eine neue.';
 
   @override
   String pairCancelledTitle(String name) {
-    return '$name hat diese Einladung zurückgezogen';
+    return '$name hat diese Kopplung abgebrochen';
   }
 
   @override
@@ -14191,19 +14191,19 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String pairSecondReplyTitle(String name) {
-    return 'Jemand anderes hat auf die Einladung von $name geantwortet.';
+    return 'Jemand anderes hat deine Einladung ebenfalls beantwortet';
   }
 
   @override
   String get pairAnsweredSameInvite =>
-      'Hat auf dieselbe Einladung geantwortet · nicht gespeichert';
+      'Hat dieselbe Einladung beantwortet · nicht gespeichert';
 
   @override
-  String get sasTitle => 'Prüfwörter vergleichen';
+  String get sasTitle => 'Wörter prüfen';
 
   @override
   String sasLead(String name) {
-    return 'Die Wallet von $name zeigt dieselben vier Prüfwörter. Vergleichen Sie sie am Telefon oder persönlich.';
+    return 'Die Wallet von $name zeigt dieselben vier. Vergleicht sie.';
   }
 
   @override
@@ -14243,7 +14243,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get sasNoMatchBody =>
-      'Möglicherweise hat jemand die Einladung unterwegs verändert. Es wird nichts behalten. Koppeln Sie erneut, persönlich oder mit einer neuen Einladung.';
+      'Die Kopplung endet auf beiden Seiten, und nichts, was hindurch gesendet wurde, wird abgeschlossen. Kopple erneut mit einer frischen Einladung.';
 
   @override
   String get sasStopPairing => 'Kopplung abbrechen';
@@ -14866,15 +14866,15 @@ class AppLocalizationsDe extends AppLocalizations {
   String get restoreUseHere => 'Hier verwenden';
 
   @override
-  String get pairInvalidLink => 'Das ist kein Kopplungslink';
+  String get pairInvalidLink => 'Keine Kopplungs-Einladung.';
 
   @override
   String get pairInvalidBody =>
-      'Prüfen Sie, ob der ganze Link kopiert wurde, oder bitten Sie um einen neuen.';
+      'Prüfe, ob die ganze Einladung kopiert wurde, oder bitte um eine neue.';
 
   @override
   String get pairWrongNetworkBody =>
-      'Er wurde von einer Wallet im anderen Netzwerk erstellt. Wallets koppeln sich nur im selben Netzwerk.';
+      'Diese Einladung ist für ein anderes Netzwerk.';
 
   @override
   String get pairOwnCode => 'Das ist Ihr eigener Code';
@@ -14936,7 +14936,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String sasDialogTitle(String name) {
-    return 'Wörter mit $name prüfen';
+    return 'Wörter prüfen mit $name';
   }
 
   @override
@@ -15100,7 +15100,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpPairWhatP1 =>
-      'Die Kopplung verbindet zwei Wallets einmalig: persönlich, indem beide den Code des anderen scannen, oder online mit einem Einladungslink oder fünf Kopplungswörtern. Jede Wallet behält einen Schlüssel nur für diesen einen Kontakt; nichts davon wird mit dem Epicbox-Server geteilt.';
+      'Koppeln verbindet zwei Wallets einmal: mit einer Anfrage an einen Kontakt, dem du über Epicbox gezahlt hast, oder mit deiner Einladung, als QR gescannt oder als Link geöffnet. Jede Wallet behält einen Schlüssel nur für diesen einen Kontakt; mit niemandem sonst wird etwas geteilt.';
 
   @override
   String get helpPairWhatP2 =>
@@ -15112,11 +15112,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get helpPairWhatStep2 =>
-      'Wählen Sie einen Weg: Gesprochen, Einladung per Nachricht oder Persönlich.';
+      'Kopple mit einem Kontakt, oder zeige deine Einladung und lass sie scannen.';
 
   @override
   String get helpPairWhatStep3 =>
-      'Verifizieren Sie gemeinsam und tippen Sie dann **Sie stimmen überein**.';
+      'Prüft die Wörter gemeinsam (nach einer Anfrage nicht nötig), dann **Sie stimmen überein**.';
 
   @override
   String get helpPairWhatP3 =>
@@ -18932,4 +18932,294 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get linkConfirmInvite =>
       'Dieses Gerät mit dem verknüpfen, das die Einladung gesendet hat?';
+
+  @override
+  String get pairYourCode => 'Deine Einladung';
+
+  @override
+  String get pairCodeCaption =>
+      'Lass sie den QR scannen, oder sende die Einladung.';
+
+  @override
+  String pairCodeCaptionFor(String name) {
+    return 'Lass $name den QR scannen, oder sende die Einladung.';
+  }
+
+  @override
+  String pairSeenAsLine(String name) {
+    return 'Sie sehen dich als $name';
+  }
+
+  @override
+  String get pairChange => 'Ändern';
+
+  @override
+  String get pairSeenAsField => 'Sie sehen dich als';
+
+  @override
+  String get pairCopyLink => 'Einladung kopieren';
+
+  @override
+  String get pairHaveTheirCode => 'Hast du ihre Einladung?';
+
+  @override
+  String pairHaveNamesCode(String name) {
+    return 'Hast du die Einladung von $name?';
+  }
+
+  @override
+  String get pairScan => 'QR scannen';
+
+  @override
+  String get pairPasteField => 'Einladung einfügen';
+
+  @override
+  String get pairNotACode => 'Keine Kopplungs-Einladung.';
+
+  @override
+  String get pairEpicboxOffLine =>
+      'Epicbox ist aus. Füge die Antwort unten ein, wenn sie zurückkommt.';
+
+  @override
+  String get pairWaitingAnswer => 'Warten auf die Antwort …';
+
+  @override
+  String pairAnsweredFinishing(String name) {
+    return '$name hat deine Einladung beantwortet. Warten, bis die Wallet von $name fertig ist.';
+  }
+
+  @override
+  String get pairFinishCodeTitle => 'Bestätigung';
+
+  @override
+  String pairFinishCodeBody(String name) {
+    return 'Sende das an $name. Die Wortprüfung öffnet sich, sobald diese Wallet es liest.';
+  }
+
+  @override
+  String get pairYourAnswerBody =>
+      'Sende sie auf dem Weg zurück, auf dem die Einladung kam. Füge dann ein, was zurückkommt.';
+
+  @override
+  String get pairPasteFinishField => 'Bestätigung einfügen';
+
+  @override
+  String pairPairingWith(String name) {
+    return 'Koppeln mit $name …';
+  }
+
+  @override
+  String get pairInContacts => 'In deinen Kontakten';
+
+  @override
+  String get pairRequestBody =>
+      'Eine Anfrage geht an die Epicbox-Adresse dieses Kontakts. Seine Wallet zeigt sie, wenn sie offen ist.';
+
+  @override
+  String get pairSendRequest => 'Anfrage senden';
+
+  @override
+  String get pairShowMyCodeInstead => 'Stattdessen meine Einladung zeigen';
+
+  @override
+  String pairRequestSent(String date) {
+    return 'Anfrage gesendet · $date';
+  }
+
+  @override
+  String pairWaitingFor(String name) {
+    return 'Warten auf die Wallet von $name';
+  }
+
+  @override
+  String get pairAnsweredNotHeard =>
+      'Hat deine Einladung beantwortet · noch nichts gehört';
+
+  @override
+  String pairNotChecked(String name) {
+    return '$name hat noch nicht geprüft';
+  }
+
+  @override
+  String pairConfirmedToo(String name) {
+    return '$name hat auch bestätigt.';
+  }
+
+  @override
+  String get pairEndedShort => 'Kopplung beendet';
+
+  @override
+  String get pairEndedMismatch =>
+      'Du hast gemeldet, dass die Wörter nicht übereinstimmen.';
+
+  @override
+  String pairEndedPeerMismatch(String name) {
+    return '$name hat gemeldet, dass die Wörter nicht übereinstimmen.';
+  }
+
+  @override
+  String pairEndedNeverFinished(String name) {
+    return 'Die Wallet von $name hat nie abgeschlossen.';
+  }
+
+  @override
+  String pairNoAnswerFrom(String name) {
+    return 'Keine Antwort von der Wallet von $name';
+  }
+
+  @override
+  String get pairAgain => 'Erneut koppeln';
+
+  @override
+  String get pairHeldSend => 'Wartet auf Empfänger';
+
+  @override
+  String pairProvesOther(String name) {
+    return 'Die Wallet von $name belegt eine andere Adresse';
+  }
+
+  @override
+  String get pairUpdateAddress => 'Adresse des Kontakts aktualisieren';
+
+  @override
+  String get pairDetach => 'Trennen';
+
+  @override
+  String get pairCheckWords => 'Wörter prüfen';
+
+  @override
+  String pairWantsToPair(String name) {
+    return '$name möchte koppeln.';
+  }
+
+  @override
+  String pairPairedWith(String name) {
+    return 'Gekoppelt mit $name.';
+  }
+
+  @override
+  String pairPairedOn(String device) {
+    return 'Gekoppelt auf $device.';
+  }
+
+  @override
+  String pairRequestsRow(int count) {
+    return 'Kopplungsanfragen · $count';
+  }
+
+  @override
+  String get pairRequestsTitle => 'Kopplungsanfragen';
+
+  @override
+  String get pairEndedNotice =>
+      'Die Kopplung ist beendet. Kopple erneut mit einer frischen Einladung.';
+
+  @override
+  String get pairOtherWalletTitle =>
+      'Diese Antwort kam von einer anderen Wallet.';
+
+  @override
+  String get pairOtherWalletBody => 'Nichts wurde gespeichert.';
+
+  @override
+  String pairNotProvenBody(String name) {
+    return 'Noch keine Epic-Cash-Zahlung mit $name, daher kann keine Anfrage gesendet werden.';
+  }
+
+  @override
+  String pairInProgressTitle(String name) {
+    return 'Eine Kopplung mit $name läuft bereits.';
+  }
+
+  @override
+  String pairCrossedTitle(String name) {
+    return 'Die Wallet von $name hat ebenfalls eine Kopplung gestartet. Warten auf ihre Antwort.';
+  }
+
+  @override
+  String pairDismissedTitle(String name) {
+    return 'Diese Anfrage wurde abgelehnt. Bitte $name um eine neue.';
+  }
+
+  @override
+  String get pairEndedBody =>
+      'Nichts Neues geht mehr hindurch. Entferne sie, oder kopple erneut mit einer frischen Einladung.';
+
+  @override
+  String get pairWaitingSendBody => 'Stattdessen per Epicbox senden.';
+
+  @override
+  String get pairNotFoundTitle => 'Keine Kopplung passt dazu.';
+
+  @override
+  String get trustWaiting => 'Wartet';
+
+  @override
+  String get trustEnded => 'Beendet';
+
+  @override
+  String get pairRequestPair => 'Koppeln';
+
+  @override
+  String get pairCancelPairingTitle => 'Diese Kopplung abbrechen?';
+
+  @override
+  String pairCancelPairingBody(String name) {
+    return 'Die Wallet von $name erfährt es, falls sie spät antwortet. Nichts wird behalten.';
+  }
+
+  @override
+  String get pairCancelPairing => 'Kopplung abbrechen';
+
+  @override
+  String get pairBackLater => 'Zurück';
+
+  @override
+  String get pairProofPending => 'Adresse noch nicht belegt';
+
+  @override
+  String get helpPairTwoWaysTitle => 'Zwei Wege zum Koppeln';
+
+  @override
+  String get helpPairTwoWaysShort =>
+      'Eine Anfrage an einen Kontakt, oder deine Einladung.';
+
+  @override
+  String get helpPairTwoWaysP1 =>
+      '**Mit einem Kontakt koppeln.** Bei einem Kontakt, dem du über Epicbox gezahlt hast oder von dem du Zahlungen erhalten hast, sendet Koppeln eine Anfrage an diese Adresse. Seine Wallet zeigt sie, wenn sie offen ist; ein Tipp antwortet. Beide Wallets enden Verifiziert ohne Wortprüfung: Anfrage und Antwort belegen jeweils die Adresse, die schon in den Kontakten der anderen Seite steht.';
+
+  @override
+  String get helpPairTwoWaysP2 =>
+      '**Per Einladung koppeln.** Kontakte › Koppeln zeigt deine Einladung, 7 Tage gültig. Die andere Wallet scannt sie oder öffnet den Link; beide schließen über Epicbox ab und vergleichen dann die vier Wörter. Ist Epicbox auf einer Seite aus, trägt derselbe Bildschirm Antwort und Bestätigung von Hand: Teilen und Einfügen.';
+
+  @override
+  String get helpPairTwoWaysP3 =>
+      'Eine Anfrage geht nur an eine Wallet, die gezeigt hat, dass sie Epic Cash ausführt: eine markierte Zahlung zwischen den beiden Adressen in den letzten 30 Tagen. Für alle anderen zeigt Koppeln deine Einladung.';
+
+  @override
+  String get helpPairWhyTitle2 => 'Warum die Wörter prüfen';
+
+  @override
+  String get helpPairWhyShort2 =>
+      'Vergleicht sie persönlich, per Sprache oder Video.';
+
+  @override
+  String get helpPairWhyP1b =>
+      'Nach dem Koppeln per Einladung zeigen beide Wallets dieselben vier Bilder und Namen. Vergleiche sie mit der anderen Person persönlich, per Sprache oder in einem Videoanruf, nie in dem Chat, durch den die Einladung kam: Wer die Einladung unterwegs ändern könnte, könnte auch ändern, was dieser Chat zeigt.';
+
+  @override
+  String get helpPairWhyP2b =>
+      '**Sie stimmen überein** markiert den Kontakt als Verifiziert; die andere Wallet erfährt es und zeigt „hat auch bestätigt“. **Sie stimmen nicht überein** beendet die Kopplung auf beiden Seiten, und nichts, was hindurch gesendet wurde, wird abgeschlossen. Ein versehentliches Nein beendet sie ebenfalls: kopple erneut mit einer frischen Einladung.';
+
+  @override
+  String get helpPairWhyP3b =>
+      'Verifiziert bedeutet: die Wallet hinter der Adresse in deinen Kontakten. Nach einer Anfrage zwischen zwei Kontakten wird es ohne Wörter gesetzt, weil Anfrage und Antwort diese Adresse jeweils belegt haben.';
+
+  @override
+  String get helpPairWhyP4b =>
+      '„Belegt“ heißt: Eine von beiden Wallets markierte Zahlung ist in den letzten 30 Tagen zwischen den beiden Epicbox-Adressen gelaufen. Ein Kontakt, der seitdem von einer anderen Wallet-App beantwortet wurde, gilt bis zur nächsten markierten Zahlung nicht als belegt.';
+
+  @override
+  String get pairStandingFootnote =>
+      'Gültig für 7 Tage. Eine neue Einladung erscheint, sobald diese benutzt wurde.';
 }

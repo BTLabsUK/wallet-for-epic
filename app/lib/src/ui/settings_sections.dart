@@ -1101,7 +1101,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         child: Row(children: [EBadge(l.advExperimental)]),
       ),
       value: switch (f) {
-        AdvancedFeature.pairing => adv.pairingOn,
         AdvancedFeature.invoices => adv.invoicesOn,
         _ => adv.has(f),
       },
@@ -1199,7 +1198,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       // Experimental, so last: Pairing and Invoices (off by default).
       const SizedBox(height: 8),
       SettingsHeader(l.advExperimental, key: _experimentalKey),
-      experimental(AdvancedFeature.pairing, Icons.handshake_outlined, l.expPairing, l.expPairingHint),
       experimental(AdvancedFeature.invoices, Icons.request_quote_outlined, l.expInvoices, l.expInvoicesHint),
       Padding(
         key: const ValueKey('adv-exp-rule'),

@@ -159,7 +159,6 @@ abstract final class HelpId {
   static const methods = 'methods';
   static const trouble = 'trouble';
   static const pairing = 'pairing';
-  static const pairingWords = 'pairing-words';
   static const pairingWays = 'pairing-ways';
   static const checkWords = 'check-words';
   static const invoices = 'invoices';
@@ -583,7 +582,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         ]),
         HelpBlock.p('**Node failover** is on by default. When your node has not answered for 30 seconds, the wallet moves to the next working node in your list, for this session only: your own node stays saved, and the wallet is back on it at the next start, or as soon as you pick a node yourself. It never moves in Node only or Kill switch${phone ? '' : ', or away from a node on this computer'}${tor ? ', and with Tor only it moves only to a node reachable over Tor' : ''}.'),
         const HelpBlock.p('**Confirmations** sets how many blocks a received payment waits before its outputs can be spent: 6 by default, any count from 1 to 30. Fewer confirmations are faster but less safe.'),
-        const HelpBlock.p('**Experimental** holds **Pairing** and **Invoices**, both off to begin with. Pairing adds Pair and paired contacts; Invoices adds requests and invoices between paired contacts and needs Pairing. Off, they are hidden and nothing is checked for them; pairings already made stay saved and come back when the switch is on again.'),
+        const HelpBlock.p('**Experimental** holds **Invoices**, off to begin with: requests and invoices between paired contacts. Off, they are hidden and nothing is checked for them. Pairing itself is always on.'),
         const HelpBlock.p('The same page sets the network mode: see "Network modes".'),
       ],
       id: HelpId.advanced,
@@ -707,7 +706,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
   ];
 }
 
-/// Help › Pairing's six topics. Localized, unlike the rest, as they were written
+/// Help › Pairing's five topics. Localized, unlike the rest, as they were written
 /// for all six languages with the screens. The strings name the desktop's places; on the phone
 /// [_phonePairingPlace] gives each the phone's own.
 List<HelpTopic> pairingHelpTopics(AppLocalizations l, {HelpPlatform platform = HelpPlatform.desktop}) {
@@ -723,24 +722,17 @@ List<HelpTopic> pairingHelpTopics(AppLocalizations l, {HelpPlatform platform = H
       HelpBlock.ol([t(l.helpPairWhatStep1), t(l.helpPairWhatStep2), t(l.helpPairWhatStep3)]),
       HelpBlock.p(t(l.helpPairWhatP3)),
     ], id: HelpId.pairing),
-    HelpTopic(s, l.helpPairWaysTitle, l.helpPairWaysShort, [
-      HelpBlock.p(t(l.helpPairWaysP1)),
-      HelpBlock.p(t(l.helpPairWaysP2)),
-      HelpBlock.p(t(l.helpPairWaysP3)),
-      HelpBlock.p(t(l.helpPairWaysP4)),
-      HelpBlock.p(t(l.helpPairClipP)),
+    HelpTopic(s, l.helpPairTwoWaysTitle, l.helpPairTwoWaysShort, [
+      HelpBlock.p(t(l.helpPairTwoWaysP1)),
+      HelpBlock.p(t(l.helpPairTwoWaysP2)),
+      HelpBlock.p(t(l.helpPairTwoWaysP3)),
     ], id: HelpId.pairingWays),
-    HelpTopic(s, l.helpPairWhyTitle, l.helpPairWhyShort, [
-      HelpBlock.p(t(l.helpPairWhyP1)),
-      HelpBlock.p(t(l.helpPairWhyP2)),
-      HelpBlock.p(t(l.helpPairWhyP3)),
-      HelpBlock.p(t(l.helpPairWhyP4)),
+    HelpTopic(s, l.helpPairWhyTitle2, l.helpPairWhyShort2, [
+      HelpBlock.p(t(l.helpPairWhyP1b)),
+      HelpBlock.p(t(l.helpPairWhyP2b)),
+      HelpBlock.p(t(l.helpPairWhyP3b)),
+      HelpBlock.p(t(l.helpPairWhyP4b)),
     ], id: HelpId.checkWords),
-    HelpTopic(s, l.helpPairWordsTitle, l.helpPairWordsShort, [
-      HelpBlock.p(t(l.helpPairWordsP1)),
-      HelpBlock.p(t(l.helpPairWordsP2)),
-      HelpBlock.p(t(l.helpPairWordsP3)),
-    ], id: HelpId.pairingWords),
     // The desktop pays with the wallet password, the phone with a PIN.
     HelpTopic(s, l.helpPairInvTitle, phone ? l.helpPairInvShort : l.helpPairInvShortDesktop, [
       HelpBlock.p(t(l.helpPairInvP1)),

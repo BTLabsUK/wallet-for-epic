@@ -772,12 +772,15 @@ void main() {
       final events = <PairingEvent>[];
       final sub = s.pairing.events().listen(events.add);
       await settle();
-      final invite = await s.pairing.makeInvite(name: 'Alex', expiry: const Duration(hours: 24), label: 'Anna');
+      final invite = await s.pairing.standingCode(name: 'Alex');
       expect(invite.state, PairingState.pendingInvite);
       expect(invite.inviteLink, isNotNull);
       session.pairing.answerInvite(invite.id, name: 'Anna');
       await settle();
       expect(events.map((e) => e.kind), contains(PairingEventKind.replied));
+      expect((await s.pairing.pairing(invite.id))!.state, PairingState.waiting);
+      session.pairing.hear(invite.id);
+      await settle();
       final paired = (await s.pairing.pairing(invite.id))!;
       expect(paired.state, PairingState.paired);
       expect(paired.sas, hasLength(sasWordCount));
@@ -785,10 +788,7 @@ void main() {
       expect(verified!.state, PairingState.verified);
       expect((await s.pairing.setSeal(invite.id, false)).seal, SealMode.off);
       expect(await s.pairing.setAllowInvoices(invite.id, true), 0);
-      await expectLater(
-        s.pairing.makeInvite(name: '', expiry: const Duration(hours: 1)),
-        throwsKind(WalletErrorKind.invalidArgument),
-      );
+      await expectLater(s.pairing.standingCode(name: ''), throwsKind(WalletErrorKind.invalidArgument));
       await s.pairing.removePairing(invite.id);
       expect(await s.pairing.pairings(), isEmpty);
       await sub.cancel();
@@ -807,18 +807,21 @@ void main() {
       final anna = session.pairing.seedPaired(name: 'Anna', paymentsAddress: serviceAddress, contactId: 'c1');
       await crossed(p.strays);
       await crossed(() => p.removeStray('none'));
-      final invite = await p.makeInvite(name: 'Alex', expiry: const Duration(hours: 1));
+      final invite = await p.standingCode(name: 'Alex');
+      await crossed(() => p.setOwnName('Alex'));
       await crossed(() => p.cancelInvite(invite.id));
       await crossed(() => p.openReply('epiccash://pair-reply/1/x'));
       await crossed(() => p.confirmLink(anna.id));
       final preview = await p.openInvite(session.pairing.inviteLinkFrom(name: 'Tom'));
       expect(preview.name, 'Tom');
-      await crossed(() => p.openWords(const ['a', 'b', 'c', 'd', 'e']));
+      expect(await p.requests(), isEmpty);
+      await crossed(() => p.openRequest('none'));
+      await crossed(() => p.dismissRequest('none'));
+      await crossed(() => p.requestHandledOn('none', 'Desk'));
+      await crossed(() => p.requestPairing(toAddress: serviceAddress, name: 'Alex'));
       final answered = await p.acceptInvite(token: preview.token, name: 'Alex');
       await crossed(() => p.replyLink(answered.id));
       await crossed(() => p.openConfirm('epiccash://pair-confirm/1/x'));
-      final card = await p.showCard(name: 'Alex');
-      await crossed(() => p.scanCard(cardId: card.id, text: session.pairing.cardLinkFrom('Ola')));
       expect(await p.collect(), 0);
       expect((await p.attach(anna.id, 'c2')).contactId, 'c2');
       final changed = session.pairing.changeKeys(anna.id);

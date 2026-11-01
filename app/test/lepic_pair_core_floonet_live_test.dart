@@ -147,7 +147,7 @@ void main() {
         final (c, _) = await _wallet('C', relay: 'epicbox.nowhere.invalid');
         final seen = <PairingEvent>[];
         final sub = c.pairing.events().listen(seen.add);
-        final invite = await c.pairing.makeInvite(name: 'Cara', expiry: const Duration(hours: 1));
+        final invite = await c.pairing.standingCode(name: 'Cara');
         _say('C invite on ${invite.homeRelay}, relayDown ${invite.relayDown}');
         await _collect(c);
         await Future<void>.delayed(const Duration(seconds: 1));
@@ -168,9 +168,9 @@ void main() {
         final aSeen = <PairingEvent>[];
         final bSeen = <PairingEvent>[];
         final subs = [a.pairing.events().listen(aSeen.add), b.pairing.events().listen(bSeen.add)];
-        final invite = await a.pairing.makeInvite(name: 'Alex', expiry: const Duration(hours: 1), words: true);
-        _say('A words invite on ${invite.homeRelay}, ${invite.inviteWords.length} words, expires ${invite.expiresAt?.toUtc()}');
-        final preview = await b.pairing.openWords([for (final w in invite.inviteWords) w.name]);
+        final invite = await a.pairing.standingCode(name: 'Alex');
+        _say('A invite on ${invite.homeRelay}, expires ${invite.expiresAt?.toUtc()}');
+        final preview = await b.pairing.openInvite(invite.inviteLink!);
         final answer = await b.pairing.acceptInvite(token: preview.token, name: 'Bob');
         _say('B answered: ${answer.state.name}, relayDown ${answer.relayDown}, waits until ${answer.expiresAt?.toUtc()}');
         // A does not collect, as an app in the background or a relay A cannot reach. Past the
@@ -217,7 +217,7 @@ void main() {
 
         Future<({String aSide, String bSide, LepicWalletSession b})> rePair(String name) async {
           final (b, _) = await _wallet(name, mnemonic: phrase);
-          final invite = await a.pairing.makeInvite(name: 'Alex', expiry: const Duration(hours: 1));
+          final invite = await a.pairing.standingCode(name: 'Alex');
           final preview = await b.pairing.openInvite(invite.inviteLink!);
           final answer = await b.pairing.acceptInvite(token: preview.token, name: 'Bob');
           await _collectUntil(a, () async => (await a.pairing.pairing(invite.id))?.state.isPaired ?? false);
@@ -279,7 +279,7 @@ void main() {
       case 'mailbox':
         final (a, aw) = await _wallet('A');
         final (b, _) = await _wallet('B');
-        final invite = await a.pairing.makeInvite(name: 'Alex', expiry: const Duration(hours: 1));
+        final invite = await a.pairing.standingCode(name: 'Alex');
         final preview = await b.pairing.openInvite(invite.inviteLink!);
         final answer = await b.pairing.acceptInvite(token: preview.token, name: 'Bob');
         await _collectUntil(a, () async => (await a.pairing.pairing(invite.id))?.state.isPaired ?? false);

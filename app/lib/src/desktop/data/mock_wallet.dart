@@ -18,10 +18,11 @@ import '../../devices/device_model.dart' show DeviceBook, HoldState;
 import '../../devices/device_service.dart' show DeviceHost, ForwardedNotice;
 import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus, fakeAddressSignature;
 import '../../network.dart' show EpicboxRelay;
-import '../../models.dart' show DeviceEnding, FinishedPayment, InvoiceEvent, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations;
+import '../../models.dart' show epicboxKey, DeviceEnding, FinishedPayment, InvoiceEvent, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations;
 import '../../ui/network_mode_text.dart' show networkModeName;
 import '../../network_gate.dart';
 import '../../pairing_fake.dart';
+import '../../trust/policy.dart' show PeerCompat;
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../seed_contacts.dart';
 import '../../slate_files.dart' show responseFileName, sendFileName;
@@ -1308,11 +1309,17 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   late final FakePairing pairing = _seedPairing(FakePairing());
 
-  /// What [peerCompat] answers, by address.
+  /// What [peerCompat] returns, by address key; the prototype's proven peers.
   final Map<String, PeerCompat> peerCompats = {};
 
   @override
-  Future<PeerCompat?> peerCompat(String address) async => peerCompats[address];
+  Future<PeerCompat?> peerCompat(String address) async {
+    final key = epicboxKey(address);
+    for (final e in peerCompats.entries) {
+      if (epicboxKey(e.key) == key) return e.value;
+    }
+    return null;
+  }
 
   /// Every [forgetPeers] call's age limit.
   final List<Duration> forgetPeersCalls = [];
@@ -1346,7 +1353,7 @@ class MockDeskWallet implements DeskWalletApi {
       relay: mockBoxAt(1),
       verifiedAt: DateTime(2026, 9, 2),
     );
-    p.seedPaired(id: mockTomPairing, name: 'Tom', contactId: 'c4', state: PairingState.paired, paymentsAddress: _tomAddr, seal: SealMode.degraded, checkSkipped: true);
+    p.seedPaired(id: mockTomPairing, name: 'Tom', contactId: 'c4', state: PairingState.paired, paymentsAddress: _tomAddr, seal: SealMode.degraded);
     p.seedPaired(id: mockMartaPairing, name: 'Marta', contactId: 'c9', state: PairingState.keysChanged, verifiedAt: DateTime(2026, 8, 30));
     return p;
   }

@@ -11,11 +11,11 @@ import '../../cancel_final.dart' show CancelResult;
 import '../../models.dart' show FinishedPayment, InvoiceEvent;
 import '../../devices/device_service.dart' show DeviceHost, ForwardedNotice;
 import '../../pairing_api.dart';
+import '../../trust/policy.dart' show PeerCompat;
 
 import 'backup_settings_desk.dart' show DeskBackupSettings;
 import 'http_address.dart';
 import 'invoices.dart';
-import '../../trust/policy.dart' show PeerCompat;
 import 'models.dart';
 
 abstract interface class DeskWalletApi {

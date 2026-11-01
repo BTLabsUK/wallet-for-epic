@@ -21,10 +21,11 @@ import 'contact_trust_line.dart';
 import 'contacts_screen.dart';
 import 'history_screen.dart' show HistoryScreen;
 import 'method_names.dart';
+import 'pairing/contact_pairing_block.dart';
 import 'pairing/pair_check.dart';
 import 'pairing/pair_screen.dart';
+import 'pairing/pair_way1.dart' show pairWithContact;
 import 'pairing/pairing_parts.dart';
-import 'pairing/pending_invites.dart' show PendingInvitesScreen;
 import 'pairing/pairing_notices.dart' show pairingContactNoticeTag, pairingNewsOnScreen;
 import 'scan_route.dart' show sendPayments;
 import 'status_icons.dart' show EpicGlyphs;
@@ -37,12 +38,7 @@ const Key contactPageSendKey = ValueKey('contact-page-send');
 const Key contactPageEditKey = ValueKey('contact-page-edit');
 const Key contactPageMoreKey = ValueKey('contact-page-more');
 const Key contactPageDeleteKey = ValueKey('contact-page-delete');
-const Key contactPagePairKey = ValueKey('contact-page-pair');
 const Key contactPageHeaderPairKey = ValueKey('contact-page-header-pair');
-const Key contactPageSealKey = ValueKey('contact-page-seal');
-const Key contactPageInvoicesKey = ValueKey('contact-page-invoices');
-const Key contactPageRemovePairingKey = ValueKey('contact-page-remove-pairing');
-const Key contactPageCheckKey = ValueKey('contact-page-check');
 const Key contactPageStarKey = ValueKey('contact-page-star');
 const Key contactPageSendReasonKey = ValueKey('contact-page-send-reason');
 const Key contactPageViaPairingKey = ValueKey('contact-page-via-pairing');
@@ -238,10 +234,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     }
     final pairs = ref.watch(pairingSupportedProvider);
     final pairing = pairs ? ref.watch(contactPairingProvider(contact.id)) : null;
-    // An invite or answer for this contact in flight.
-    final inFlight = pairs &&
-        (pairing == null || pairing.removedByPeer) &&
-        (ref.watch(pairingsProvider).value ?? const <PairingRecord>[]).any((r) => r.contactId == contact.id && r.state.isPending);
+    // A request sent to this contact, or its code answered, waiting for the confirm.
+    final pending = pairs && (pairing == null || pairing.ended) ? ref.watch(contactPendingPairingProvider(contact.id)) : null;
     final starred = ref.watch(favouriteContactsProvider).value?.contains(contact.id) ?? false;
     return SlotScaffold(
       appBar: AppBar(
@@ -253,7 +247,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
             tooltip: l.contactMore,
             onSelected: (v) => switch (v) {
               'star' => _run(() => ref.read(favouriteContactsProvider.notifier).set(contact.id, !starred)),
-              'check' when pairing != null => _openCheck(pairing.id),
+              'check' when pairing != null && !pairing.ended && pairing.sas.isNotEmpty => _openCheck(pairing),
               'delete' => _delete(contact, pairing),
               _ => null,
             },
@@ -266,8 +260,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
                   title: Text(starred ? l.contactUnstar : l.contactStar),
                 ),
               ),
-              if (pairing != null)
-                PopupMenuItem(value: 'check', child: ListTile(leading: const Icon(EpicGlyphs.verified), title: Text(l.contactCheckWordsAgain))),
+              if (pairing != null && !pairing.ended && pairing.sas.isNotEmpty)
+                PopupMenuItem(value: 'check', child: ListTile(leading: const Icon(EpicGlyphs.verified), title: Text(l.pairCheckWords))),
               PopupMenuItem(
                 key: contactPageDeleteKey,
                 value: 'delete',
@@ -289,28 +283,14 @@ class _ContactPageState extends ConsumerState<ContactPage> {
             starred: starred,
             onSend: () => _send(contact, pairing),
             onCode: () => _showCode(contact),
-            onPair: pairs && (pairing == null || pairing.removedByPeer) && !inFlight ? () => _pair(contact) : null,
-            onPending: pairs && (pairing == null || pairing.removedByPeer) && inFlight
-                ? () => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => const PendingInvitesScreen()))
-                : null,
+            onPair: pairs && (pairing == null || pairing.ended) && pending == null ? () => _pair(contact) : null,
+            onPending: pairs && (pairing == null || pairing.ended) && pending != null ? () => _showMyCode(contact) : null,
           ),
           PairSection(l.contactAddresses),
           _Addresses(contact: contact, pairing: pairing),
           if (pairs) ...[
             PairSection(l.contactPairing),
-            if (pairing == null)
-              _NotPaired(onPair: () => _pair(contact))
-            // The other side removed it: no switches on a dead pairing, Pair again instead.
-            else if (pairing.removedByPeer)
-              _NotPaired(onPair: () => _pair(contact), title: l.trustRemovedBy(contact.name), hint: l.noticeUnpaired(contact.name), removed: true)
-            else
-              _PairingBlock(
-                contact: contact,
-                pairing: pairing,
-                busy: _busy,
-                run: _run,
-                onCheck: () => _openCheck(pairing.id),
-              ),
+            ContactPairingBlock(contact: contact, pairing: pairing, pending: pending, busy: _busy, run: _run, onPair: () => _pair(contact)),
           ],
           // The compatibility line (trust policy): one sentence, never a badge; a plain
           // contact's key can answer as another wallet app with pairing off too.
@@ -326,10 +306,13 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     );
   }
 
-  void _pair(Contact contact) => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => PairScreen(contact: contact)));
+  /// Pair: the request sheet when a request can go, else the Pair screen for the contact.
+  void _pair(Contact contact) => pairWithContact(context, ref, contact);
 
-  void _openCheck(String id) =>
-      Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: id, recheck: true)));
+  void _showMyCode(Contact contact) => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => PairScreen(contact: contact)));
+
+  void _openCheck(PairingRecord p) =>
+      Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: p.id, recheck: p.state.isPaired)));
 }
 
 class _Header extends ConsumerWidget {
@@ -352,7 +335,7 @@ class _Header extends ConsumerWidget {
   /// Not paired: Pair opens the Pair screen for this contact.
   final VoidCallback? onPair;
 
-  /// An invite or answer for it in flight: Pairing… opens Pending invites.
+  /// A request sent or its code answered: Waiting opens the Pair screen for the contact.
   final VoidCallback? onPending;
 
   /// A header button: 36 dp, hugging its content; [soft] the primary's soft gold (accentSoft
@@ -473,7 +456,7 @@ class _Header extends ConsumerWidget {
                 key: contactPageHeaderPairKey,
                 style: _headerStyle(context),
                 icon: const SizedBox.square(dimension: 14, child: CircularProgressIndicator(strokeWidth: 2)),
-                label: Text(l.pairBadgePending),
+                label: Text(l.trustWaiting),
                 onPressed: onPending,
               ),
             ],
@@ -582,225 +565,6 @@ class AddressText extends StatelessWidget {
       ],
     );
     return selectable ? SelectableText.rich(span) : Text.rich(span, maxLines: short ? 1 : null, overflow: short ? TextOverflow.ellipsis : null);
-  }
-}
-
-class _NotPaired extends StatelessWidget {
-  const _NotPaired({required this.onPair, this.title, this.hint, this.removed = false});
-
-  final VoidCallback onPair;
-
-  /// Instead of Not paired: the pairing the other side removed, with its reason.
-  final String? title;
-  final String? hint;
-  final bool removed;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final theme = Theme.of(context);
-    return PairCard(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(14, 10, 10, 10),
-          child: Row(
-            children: [
-              Icon(removed ? EpicGlyphs.keysChanged : EpicGlyphs.paired, color: removed ? t.risk : t.dim),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title ?? l.pairNotPaired, style: theme.textTheme.bodyLarge),
-                    Text(hint ?? l.pairNotPairedHint, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              OutlinedButton(
-                key: contactPagePairKey,
-                style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
-                onPressed: onPair,
-                child: Text(l.pairTitle),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _PairingBlock extends ConsumerWidget {
-  const _PairingBlock({required this.contact, required this.pairing, required this.busy, required this.run, required this.onCheck});
-
-  final Contact contact;
-  final PairingRecord pairing;
-  final bool busy;
-  final Future<void> Function(Future<void> Function() call) run;
-  final VoidCallback onCheck;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final theme = Theme.of(context);
-    final p = pairing;
-    final name = contact.name;
-    final net = ref.watch(pairNetProvider);
-    final paused = net == PairNet.epicboxOff;
-    final changed = p.state == PairingState.keysChanged;
-    final verified = p.state == PairingState.verified;
-    final notices = ref.read(noticeProvider.notifier);
-    final back = ref.watch(keysBackProvider).contains(p.id);
-
-    Future<void> setSeal(bool on) => run(() async {
-      await pairingCall(ref, (api) => api.setSeal(p.id, on));
-    });
-    Future<void> setInvoices(bool on) => run(() async {
-      final declined = await pairingCall(ref, (api) => api.setAllowInvoices(p.id, on));
-      if (!on) {
-        notices.show(
-          declined > 0 ? '${l.invSetSwitchedOff(name)} ${l.invSetDeclinedCount(declined)}' : l.invSetSwitchedOff(name),
-          level: NoticeLevel.info,
-        );
-      }
-    });
-    Future<void> keys(KeysChoice choice) => run(() async {
-      await pairingCall(ref, (api) => api.resolveKeysChanged(p.id, choice));
-    });
-    Future<void> remove() async {
-      if (await confirmRemovePairing(context, name)) await run(() => pairingCall(ref, (api) => api.removePairing(p.id)));
-    }
-
-    final sealInfo = '${l.contactSealInfo(name)}\n\n${l.contactSealInfoMore(name)}';
-    final allowInfo = '${l.contactAllowInfo(name)}\n\n${l.contactAllowInfoMore}';
-    final status = Padding(
-      padding: const EdgeInsets.fromLTRB(14, 8, 10, 8),
-      child: Row(
-        children: [
-          Icon(
-            changed ? EpicGlyphs.keysChanged : (verified ? EpicGlyphs.verified : EpicGlyphs.paired),
-            color: changed ? t.risk : (verified ? t.ok : t.warn),
-            size: 22,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: changed ? l.trustKeysChanged : (verified ? l.trustVerified : l.trustPaired),
-                    style: const TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  if (changed) TextSpan(text: ' · ${l.contactKeysChangedStatus}', style: TextStyle(color: t.dim)),
-                  if (verified && p.verifiedAt != null)
-                    TextSpan(text: '  ${localDayMonth(l, p.verifiedAt!)}', style: TextStyle(color: t.dim, fontFamily: t.monoFamily, fontSize: 12)),
-                ],
-              ),
-              style: theme.textTheme.bodyLarge,
-            ),
-          ),
-          if (p.state == PairingState.paired)
-            OutlinedButton(
-              key: contactPageCheckKey,
-              style: OutlinedButton.styleFrom(minimumSize: const Size(0, 40)),
-              onPressed: onCheck,
-              child: Text(l.noticeCheckWords),
-            ),
-        ],
-      ),
-    );
-    final relayRow = Padding(
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-      child: Row(
-        children: [
-          Icon(paused ? Icons.pause_circle_outline : Icons.alt_route, size: 20, color: t.dim),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              paused ? l.contactPausedEpicboxOff : l.contactDeliveredVia(p.homeRelay),
-              style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
-            ),
-          ),
-        ],
-      ),
-    );
-    final switchesLocked = busy || paused || changed;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (changed) ...[
-          PairEdgeNotice(
-            tone: BadgeTone.warn,
-            title: l.contactKeysChangedTitle(name),
-            body: l.contactKeysChangedBody,
-            stretchActions: true,
-            actions: [
-              FilledButton(onPressed: busy ? null : onCheck, child: Text(l.noticeCheckWords)),
-              OutlinedButton(onPressed: busy ? null : () => keys(KeysChoice.keepOld), child: Text(l.contactKeepOldKeys)),
-              OutlinedButton(onPressed: busy ? null : () => keys(KeysChoice.useNew), child: Text(l.contactUseNewKeys)),
-            ],
-          ),
-          const SizedBox(height: 12),
-        ],
-        if (back && !changed) ...[
-          PairEdgeNotice(
-            tone: BadgeTone.ok,
-            title: l.contactKeysBack(name),
-            body: l.contactKeysBackBody,
-            actions: [TextButton(onPressed: () => ref.read(keysBackProvider.notifier).close(p.id), child: Text(l.commonOk))],
-          ),
-          const SizedBox(height: 12),
-        ],
-        if (p.relayDown && !paused) ...[
-          PairEdgeNotice(tone: BadgeTone.warn, title: l.contactRelayDownTitle(name), body: l.contactRelayDownBody),
-          const SizedBox(height: 12),
-        ],
-        // Attached before attaching checked the address: said, its address not marked verified.
-        if (!pairingVouchesFor(p, contact.epicbox)) ...[
-          PairEdgeNotice(tone: BadgeTone.warn, title: l.pairOtherAddressBody(name)),
-          const SizedBox(height: 12),
-        ],
-        if (p.seal == SealMode.degraded && !changed) ...[
-          PairEdgeNotice(tone: BadgeTone.info, title: l.contactSealDegradedTitle(name), body: l.contactSealDegradedBody(name)),
-          const SizedBox(height: 12),
-        ],
-        PairCard(
-          children: [
-            status,
-            PairSwitchRow(
-              switchKey: contactPageSealKey,
-              label: l.contactSealPayments,
-              info: sealInfo,
-              value: !changed && p.seal != SealMode.off,
-              hint: changed ? l.contactPausedUntilChecked : null,
-              onChanged: switchesLocked ? null : setSeal,
-            ),
-            // Invoices off (Settings › Advanced): the switch is not offered; what it holds stays.
-            if (ref.watch(invoicesOnProvider)) PairSwitchRow(
-              switchKey: contactPageInvoicesKey,
-              label: l.contactAllowInvoices,
-              info: allowInfo,
-              value: verified && p.allowInvoices,
-              hint: changed ? l.contactPausedUntilChecked : (verified ? null : l.contactCheckWordsFirst),
-              onChanged: switchesLocked || !verified ? null : setInvoices,
-            ),
-            relayRow,
-          ],
-        ),
-        Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: TextButton(
-            key: contactPageRemovePairingKey,
-            style: TextButton.styleFrom(foregroundColor: t.risk, minimumSize: const Size(0, 48)),
-            onPressed: busy ? null : remove,
-            child: Text(l.contactRemovePairing),
-          ),
-        ),
-      ],
-    );
   }
 }
 

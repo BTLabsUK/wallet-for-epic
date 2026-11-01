@@ -16,7 +16,6 @@ import '../levels/relay_switch_providers.dart' show relaySwitchProvider;
 import '../net/http_types.dart' show NetError;
 import '../network.dart';
 import '../pairing_fake.dart' show fakePairingLink;
-import '../pairing_providers.dart' show pairingOnProvider;
 import '../phone_tor.dart';
 import '../relay_directory.dart';
 import '../wallet_service.dart';
@@ -457,8 +456,6 @@ PreviewSession _previewSession() {
   // wallet sent.
   session.pairing
     ..autoAnswerAfter = const Duration(seconds: 6)
-    // Invite by message: the reply comes back as if pasted, so the finish link shows next.
-    ..autoAnswerByMessage = true
     // An invite to BT Labs still in flight: its row reads Pairing…
     ..seed(
       PairingRecord(
@@ -474,7 +471,7 @@ PreviewSession _previewSession() {
       ),
     )
     ..seedPaired(name: 'Anna', contactId: 'c1', paymentsAddress: anna, verifiedAt: now.subtract(const Duration(days: 4)))
-    ..seedPaired(name: 'Tom', contactId: 'c6', paymentsAddress: tom, state: PairingState.paired, checkSkipped: true)
+    ..seedPaired(name: 'Tom', contactId: 'c6', paymentsAddress: tom, state: PairingState.paired)
     ..seedPaired(
       name: 'Northwind Exchange',
       kind: PairingParty.exchange,
@@ -523,8 +520,6 @@ PreviewSession _previewSession() {
 /// The overrides of a `WFE_WEB_FAKE=true` build: Tor as a played-back controller, so the Tor
 /// row of the status card and Receive's Tor tab can be seen without a tor binary.
 List<Override> previewOverrides() => [
-  // Pairing shows without its Experimental switch.
-  pairingOnProvider.overrideWithValue(true),
   // The levels: the first-start step on every visit, the normal PIN pad (the fake wallet takes
   // any PIN), and the relay offer played in seconds.
   firstStartProvider.overrideWith(PreviewFirstStart.new),

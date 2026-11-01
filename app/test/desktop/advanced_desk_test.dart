@@ -511,7 +511,7 @@ void main() {
   group('experimental', () {
     testWidgets('off by default: no Invoices in the sidebar, an invoice place reads as Overview', (tester) async {
       await _open(tester, DeskRoute.invoices);
-      expect(_advanced.pairingOn, isFalse);
+      expect(_advanced.invoicesOn, isFalse);
       expect(find.byType(InvoicesScreen), findsNothing);
       expect(find.byType(OverviewScreen), findsOneWidget);
       expect(find.text('Invoices'), findsNothing);
@@ -522,23 +522,17 @@ void main() {
       expect(find.byType(InvoicesScreen), findsOneWidget);
     });
 
-    testWidgets('Invoices on turns Pairing on; Pairing off turns Invoices off', (tester) async {
+    testWidgets('Invoices has its switch; Pairing has none (always on)', (tester) async {
       await _open(tester, DeskRoute.settingsAdvanced);
-      expect(find.byKey(const ValueKey('adv-exp-rule')), findsOneWidget);
-      Future<void> flip(String key) async {
-        final row = find.byKey(ValueKey(key));
-        await tester.ensureVisible(row);
-        await tester.tap(find.descendant(of: row, matching: find.byType(ESwitch)));
-        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
-        await _settle(tester);
-      }
-
-      await flip('adv-invoices');
+      expect(find.byKey(const ValueKey('adv-exp-rule')), findsNothing);
+      expect(find.byKey(const ValueKey('adv-pairing')), findsNothing);
+      final row = find.byKey(const ValueKey('adv-invoices'));
+      await tester.ensureVisible(row);
+      await tester.tap(find.descendant(of: row, matching: find.byType(ESwitch)));
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await _settle(tester);
       expect(_advanced.invoicesOn, isTrue);
       expect(_advanced.pairingOn, isTrue);
-      await flip('adv-pairing');
-      expect(_advanced.pairingOn, isFalse);
-      expect(_advanced.invoicesOn, isFalse);
     });
   });
 }

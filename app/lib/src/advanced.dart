@@ -61,6 +61,10 @@ enum AdvancedFeature {
 /// leaves them and the count of features on does not include them.
 const experimentalFeatures = {AdvancedFeature.pairing, AdvancedFeature.invoices, AdvancedFeature.linkedDevices};
 
+/// Features a stored value may still name that no switch shows any more: pairing is on for
+/// everyone, so its old switch value is read and ignored, never migrated or reused.
+const retiredFeatures = {AdvancedFeature.pairing};
+
 /// How the wallet reaches the network (Settings › Advanced › Network). One choice, kept in the
 /// settings file's `[network] mode` (`network_mode_file.dart`); the Privacy page's Tor switch is
 /// the user's in [standard] and [nodeOnly], locked on in [torOnly] and off in [killSwitch].
@@ -120,10 +124,11 @@ class AdvancedPrefs {
 
   bool has(AdvancedFeature f) => features.contains(f);
 
-  /// Pairing is on (Settings › Advanced › Experimental). Invoices on implies it.
-  bool get pairingOn => has(AdvancedFeature.pairing) || has(AdvancedFeature.invoices);
+  /// Pairing is on for everyone: its Experimental switch is gone, and a stored value is
+  /// ignored.
+  bool get pairingOn => true;
 
-  /// Invoices are on; never without [pairingOn].
+  /// Invoices are on (Settings › Advanced › Experimental; off by default).
   bool get invoicesOn => has(AdvancedFeature.invoices);
 
   /// Linked devices are on (Settings › Advanced › Experimental), independent of [pairingOn].
@@ -140,8 +145,6 @@ class AdvancedPrefs {
   /// turns Invoices off.
   AdvancedPrefs withExperimental(AdvancedFeature f, bool on) {
     var next = withFeature(f, on);
-    if (f == AdvancedFeature.invoices && on) next = next.withFeature(AdvancedFeature.pairing, true);
-    if (f == AdvancedFeature.pairing && !on) next = next.withFeature(AdvancedFeature.invoices, false);
     return next;
   }
 

@@ -4,7 +4,6 @@
 // Skipped without the clone (tools/lepic.sh sync).
 import 'dart:io';
 
-import 'package:epic_wallet/src/pairing_text.dart';
 import 'package:epic_wallet/src/sas_table.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -31,9 +30,8 @@ void main() {
     final five = [sasTable[0], sasTable[1], sasTable[2], sasTable[0], sasTable[255]];
     final names = five.map((w) => w.name).toList();
 
-    test('a copy is the names alone, and reads back as them', () {
-      expect(pairingWordsText(five), names.join(' '));
-      expect(pairingWordParts(pairingWordsText(five)), names);
+    test('a copy of the names alone reads back as them', () {
+      expect(pairingWordParts(names.join(' ')), names);
     });
 
     test('words with their emoji, as the old copy put them: one word each', () {

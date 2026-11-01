@@ -1,18 +1,20 @@
 // SPDX-License-Identifier: Apache-2.0
 /// Words for pairing that the phone, the desktop and the data layers share: failures, names,
-/// time spans. Plain Dart over the app's strings, so a data layer can word an error too.
+/// time spans, the ended reasons. Plain Dart over the app's strings, so a data layer can word
+/// an error too.
 library;
 
 import 'l10n.dart';
 import 'models.dart';
 
-/// Invite by message, the answerer: the reply went to the relay too, so the pairing usually
-/// finishes by itself. Only when it has not after this long is the reply offered to send back
-/// in the chat, as the fallback (Epicbox off on the other side, its wallet closed).
+/// The answerer's wait: the answer went to the relay too, so the pairing usually finishes by
+/// itself. Only when it has not after this long is the answer offered to send back by hand,
+/// as the fallback (Epicbox off on the other side, its wallet closed). At once when Epicbox
+/// is off or the wallet is Offline.
 const Duration pairReplyFallbackAfter = Duration(seconds: 30);
 
-/// The one line a [failure] reads as: the outcome screen's title, a field error, a toast.
-/// [name] is the other side's name where the sentence names it.
+/// The one line a [failure] reads as: a notice, a field error, a dialog's title. [name] is
+/// the other side's name where the sentence names it.
 String pairingFailureText(AppLocalizations l, PairingFailure failure, {String name = ''}) => switch (failure) {
   PairingFailure.expired => l.pairExpiredTitle,
   PairingFailure.alreadyUsed => l.pairUsedTitle,
@@ -21,18 +23,24 @@ String pairingFailureText(AppLocalizations l, PairingFailure failure, {String na
   PairingFailure.notCompleted => l.pairNotCompletedTitle,
   PairingFailure.changedOnTheWay => l.pairChangedTitle,
   PairingFailure.newerVersion => l.pairNewerTitle,
-  PairingFailure.notFound => l.pairEnterNotFound,
+  PairingFailure.notFound => l.pairNotFoundTitle,
   PairingFailure.invalid => l.pairInvalidLink,
   PairingFailure.relayUnreachable => l.pairRelayUnreachableTitle,
-  PairingFailure.noRelay => l.pairNoRelay,
-  PairingFailure.relaysBlocked => l.pairRelaysBlocked,
+  PairingFailure.noRelay || PairingFailure.relaysBlocked => l.pairRelayUnreachableTitle,
   PairingFailure.ownCard => l.pairOwnCode,
   PairingFailure.sealedForOther => l.openSealedOtherTitle,
   PairingFailure.wrongNetwork => l.scanWrongNetworkTitle,
   PairingFailure.otherAddress => name.isEmpty ? l.pairOtherAddress : l.pairOtherAddressTitle(name),
+  PairingFailure.otherWallet || PairingFailure.addressProofMissing => l.pairOtherWalletTitle,
+  PairingFailure.peerNotProven => l.pairNotProvenBody(name),
+  PairingFailure.inProgress => l.pairInProgressTitle(name),
+  PairingFailure.crossed => l.pairCrossedTitle(name),
+  PairingFailure.inviteDismissed => l.pairDismissedTitle(name),
+  PairingFailure.ended => l.pairEndedShort,
+  PairingFailure.waiting => l.pairWaitingFor(name),
 };
 
-/// The second line of an outcome screen for [failure], or null where the title says it all.
+/// The second line of an outcome for [failure], or null where the title says it all.
 String? pairingFailureBody(AppLocalizations l, PairingFailure failure, {String name = '', bool file = false}) =>
     switch (failure) {
       PairingFailure.expired => l.pairExpiredBody(name),
@@ -44,13 +52,27 @@ String? pairingFailureBody(AppLocalizations l, PairingFailure failure, {String n
       PairingFailure.newerVersion => file ? l.pairNewerFileBody : l.pairNewerInviteBody,
       PairingFailure.notFound => null,
       PairingFailure.invalid => l.pairInvalidBody,
-      PairingFailure.relayUnreachable => l.pairRelayUnreachableBody,
-      PairingFailure.noRelay || PairingFailure.relaysBlocked => null,
+      PairingFailure.relayUnreachable || PairingFailure.noRelay || PairingFailure.relaysBlocked => l.pairRelayUnreachableBody,
       PairingFailure.ownCard => l.pairOwnCodeBody,
       PairingFailure.sealedForOther => l.openSealedOtherBody,
       PairingFailure.wrongNetwork => l.pairWrongNetworkBody,
       PairingFailure.otherAddress => name.isEmpty ? null : l.pairOtherAddressBody(name),
+      PairingFailure.otherWallet || PairingFailure.addressProofMissing => l.pairOtherWalletBody,
+      PairingFailure.peerNotProven => null,
+      PairingFailure.inProgress => null,
+      PairingFailure.crossed => null,
+      PairingFailure.inviteDismissed => null,
+      PairingFailure.ended => l.pairEndedBody,
+      PairingFailure.waiting => l.pairWaitingSendBody,
     };
+
+/// The reason line of an ended pairing ("Anna reported the words do not match").
+String pairingEndedText(AppLocalizations l, PairingEndReason reason, String name) => switch (reason) {
+  PairingEndReason.mismatch => l.pairEndedMismatch,
+  PairingEndReason.peerMismatch => l.pairEndedPeerMismatch(name),
+  PairingEndReason.unpaired => l.noticeUnpaired(name),
+  PairingEndReason.neverFinished => l.pairEndedNeverFinished(name),
+};
 
 /// A short time span for countdowns: `6 d 23 h`, `23 h 12 min`, `12 min`, `under a minute`.
 /// Whole minutes only, as a countdown counts: a fresh 24 h invite reads `23 h 59 min`, never
@@ -63,15 +85,11 @@ String pairingSpan(AppLocalizations l, Duration span) {
   return l.pairDurDays(minutes ~/ (24 * 60), (minutes % (24 * 60)) ~/ 60);
 }
 
-/// A countdown clock, `9:32`, for the pairing words' ten minutes.
+/// A countdown clock, `9:32`.
 String pairingClock(Duration left) {
   final s = left.isNegative ? 0 : left.inSeconds;
   return '${s ~/ 60}:${(s % 60).toString().padLeft(2, '0')}';
 }
-
-/// The five pairing [words] as one line to copy: their names, one space apart (the field on
-/// the other side takes emoji too, and a copy with both).
-String pairingWordsText(List<SasWord> words) => words.map((w) => w.name).join(' ');
 
 /// The address-book contact a new pairing [record] most likely belongs to: the one whose name
 /// is the name it chose, ignoring case and spaces. One with a pairing of its own comes first
@@ -93,11 +111,6 @@ T? sameNamedContact<T>(
   if (withPairing.length == 1) return withPairing.single;
   return withPairing.isEmpty && same.length == 1 ? same.single : null;
 }
-
-/// Words or a code that could not go out or be found because no relay answers: the message
-/// way, which needs none, is offered instead (Pairing UX plan 3).
-bool pairingNoRelay(PairingFailure failure) =>
-    failure == PairingFailure.noRelay || failure == PairingFailure.relaysBlocked || failure == PairingFailure.relayUnreachable;
 
 /// The name the app shows for [record]: the contact's when it is attached, else the name the
 /// other side chose, else the label of an invite.

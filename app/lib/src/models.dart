@@ -1648,6 +1648,56 @@ class TxEntry {
     unverified: unverified,
   );
 
+  /// This row as one sent through the pairing [pairing] (the fakes mark their mailbox sends so).
+  TxEntry withPairing(String pairing) => TxEntry(
+    key: key,
+    id: id,
+    slateId: slateId,
+    kind: kind,
+    status: status,
+    source: source,
+    createdAtUnix: createdAtUnix,
+    timeUnix: timeUnix,
+    confirmed: confirmed,
+    blockHeight: blockHeight,
+    blockTimeUnix: blockTimeUnix,
+    amountCredited: amountCredited,
+    amountDebited: amountDebited,
+    fee: fee,
+    numInputs: numInputs,
+    numOutputs: numOutputs,
+    kernelExcess: kernelExcess,
+    outputCommits: outputCommits,
+    counterparty: counterparty,
+    deviceName: deviceName,
+    deviceEnding: deviceEnding,
+    deviceWhy: deviceWhy,
+    transport: transport,
+    note: note,
+    label: label,
+    manualFields: manualFields,
+    manualEditedAtUnix: manualEditedAtUnix,
+    messages: messages,
+    ttlCutoffHeight: ttlCutoffHeight,
+    cancellable: cancellable,
+    repostable: repostable,
+    undelivered: undelivered,
+    posting: posting,
+    statusDetail: statusDetail,
+    releasable: releasable,
+    finalizedAtUnix: finalizedAtUnix,
+    cancelReason: cancelReason,
+    flow: flow,
+    foundDuring: foundDuring,
+    datedByBlock: datedByBlock,
+    senderReportedPostedAtUnix: senderReportedPostedAtUnix,
+    senderReportedCancelledAtUnix: senderReportedCancelledAtUnix,
+    pairingId: pairing,
+    origin: origin,
+    spentCommits: spentCommits,
+    unverified: unverified,
+  );
+
   /// A request this wallet sent: an invoice it issued, paid or not. LEPIC keeps it as an
   /// incoming transaction like a signed receive.
   bool get isRequest =>
@@ -2793,28 +2843,56 @@ const int maxMinimumConfirmations = 30;
 // them are sealed. The core keeps the records; these are the app's view of them. Event and
 // record fields carry ids and names, never keys or secrets (RFC 10.4).
 
-/// Where a pairing stands (RFC 7.6, 10.2).
+/// Where a pairing stands (RFC 7.6, 10.2). Waiting and Ended are views the core derives
+/// from stored facts (heard, ended reason), never stored states themselves.
 enum PairingState {
-  /// This wallet made an invite nobody has answered yet.
+  /// This wallet made a code or sent a request nobody has answered yet.
   pendingInvite,
 
-  /// This wallet answered an invite and waits for the inviter's confirm.
+  /// This wallet answered a code and waits for the inviter's confirm.
   pendingReply,
+
+  /// Stored, but the other wallet has not been heard from in this pairing yet ("Waiting for
+  /// Anna's wallet"): nothing is sealed to it until it is.
+  waiting,
 
   /// Paired; the four words are not checked yet ("Paired, not verified").
   paired,
 
-  /// Paired and the user confirmed the four words match.
+  /// Paired and the user confirmed the four words match (or a request between two contacts
+  /// finished, which proves both addresses).
   verified,
 
   /// A key check found other keys for a known contact: sealing and invoices pause until the
   /// user checks the words again or keeps the old or the new keys (RFC 7.8, cases C-12).
-  keysChanged;
+  keysChanged,
 
-  /// Paired in some form: a peer card is held.
+  /// Over: the words did not match on either side, the other side removed it, or its wallet
+  /// never finished. Kept with its history until the user removes it; sends in flight settle.
+  ended;
+
+  /// Paired in some form: a peer card is held and the peer was heard.
   bool get isPaired => this == PairingState.paired || this == PairingState.verified || this == PairingState.keysChanged;
 
+  /// A record the core keeps (not a pending code or answer): waiting, paired or ended.
+  bool get isRecord => isPaired || this == PairingState.waiting || this == PairingState.ended;
+
   bool get isPending => this == PairingState.pendingInvite || this == PairingState.pendingReply;
+}
+
+/// Why a pairing ended.
+enum PairingEndReason {
+  /// This side pressed They do not match.
+  mismatch,
+
+  /// The other side reported the words do not match.
+  peerMismatch,
+
+  /// The other side removed the pairing and said so.
+  unpaired,
+
+  /// The other wallet was never heard from within 7 days of collecting.
+  neverFinished,
 }
 
 /// What the other side's card says it is (card tag 03).
@@ -2835,17 +2913,15 @@ enum SealMode {
 
 /// How a pairing began.
 enum PairingWay {
-  /// Each phone scanned the other's code.
-  inPerson,
-
-  /// An invite link, shared or pasted.
+  /// A code: the QR scanned, or the link shared or pasted (Way 2).
   link,
 
-  /// Five pairing words, read out or typed.
-  words,
+  /// A request sent to a contact's Epicbox address (Way 1).
+  request,
 }
 
-/// What the user decided on the four words.
+/// What the user decided on the four words. [skip] stays for the core's sake; the app no
+/// longer offers it (Back is "later").
 enum PairingCheck { match, mismatch, skip }
 
 /// What the user chose for a contact whose keys changed (RFC 7.8).
@@ -2918,7 +2994,6 @@ class PairingRecord {
     this.caps = const PairingCaps(),
     this.sas = const [],
     this.verifiedAt,
-    this.checkSkipped = false,
     this.allowInvoices = false,
     this.asksInvoices = false,
     this.seal = SealMode.on,
@@ -2928,11 +3003,15 @@ class PairingRecord {
     this.lastSealedIn,
     this.expiresAt,
     this.inviteLink,
-    this.inviteWords = const [],
+    this.expectAddress,
+    this.peerHeardAt,
+    this.peerVerifiedAt,
+    this.peerFeatures = 0,
+    this.endedReason,
+    this.endedAt,
     this.relayDown = false,
     this.otherDevice = false,
     this.checksKeys = false,
-    this.removedByPeer = false,
   });
 
   /// The record's local id: never sent, never a key.
@@ -2958,9 +3037,6 @@ class PairingRecord {
   final List<SasWord> sas;
   final DateTime? verifiedAt;
 
-  /// The user chose Skip for now on the words.
-  final bool checkSkipped;
-
   /// The contact may send this wallet requests to pay. Only on for a [PairingState.verified]
   /// record (RFC 11.1).
   final bool allowInvoices;
@@ -2977,7 +3053,8 @@ class PairingRecord {
   /// The only link between the two: the shared address book knows nothing of pairings.
   final String? contactId;
 
-  /// The contact's ordinary Epicbox address from its card (tag 09), for plain sends.
+  /// The contact's Epicbox address, proven by its wallet (the card's tag 09 under a verified
+  /// address proof), for plain sends and the attach rules. Null for a peer that sent no proof.
   final String? paymentsAddress;
 
   /// When the last sealed message from the contact opened; since pairing when none has.
@@ -2986,11 +3063,28 @@ class PairingRecord {
   /// For a pending invite or answer: when it stops being answered.
   final DateTime? expiresAt;
 
-  /// For an invite this wallet made: the link, to share or copy again.
+  /// For a code this wallet made: the link, to share or copy again.
   final String? inviteLink;
 
-  /// For an invite offered as pairing words: the five words.
-  final List<SasWord> inviteWords;
+  /// For a pending pairing: the address a request went to (this wallet asked), or the address
+  /// the request came from (this wallet answered). The reply or confirm must prove that key.
+  final String? expectAddress;
+
+  /// When the other wallet was first heard from in this pairing (its finished notice, a card
+  /// update, a verdict, a sealed slate, or this side's They match). Null while Waiting.
+  final DateTime? peerHeardAt;
+
+  /// "Anna confirmed too": the other side pressed They match on these words. A line, never a
+  /// state.
+  final DateTime? peerVerifiedAt;
+
+  /// The other wallet's feature bits as this pairing holds them (0: none received). The app
+  /// reads them through the trust policy only.
+  final int peerFeatures;
+
+  /// Set once the pairing ended; the state is then [PairingState.ended].
+  final PairingEndReason? endedReason;
+  final DateTime? endedAt;
 
   /// The contact's relay is not answering (RFC 8.4 backoff, cases C-05).
   final bool relayDown;
@@ -3005,7 +3099,10 @@ class PairingRecord {
 
   /// The other side removed this pairing and said so (RFC 7.6): nothing sent through it
   /// arrives any more. Kept, with its history, until the user removes it here too.
-  final bool removedByPeer;
+  bool get removedByPeer => endedReason == PairingEndReason.unpaired;
+
+  /// Over, whatever the reason.
+  bool get ended => state == PairingState.ended;
 
   /// When the contact was last heard from through this pairing: its last sealed message, or
   /// the pairing itself when that is later.
@@ -3024,15 +3121,14 @@ class PairingRecord {
   bool get paused => state == PairingState.keysChanged;
 
   /// Payment files to the contact are sealed now.
-  bool get seals => state.isPaired && !paused && !removedByPeer && seal != SealMode.off && caps.opensSealed;
+  bool get seals => state.isPaired && !paused && seal != SealMode.off && caps.opensSealed;
 
-  /// A payment can go through the contact's mailbox (RFC 9.1): paired or verified, not removed
-  /// by the other side, and its wallet opens sealed messages. The seal switch plays no part.
-  bool get paysByMailbox =>
-      (state == PairingState.paired || state == PairingState.verified) && !removedByPeer && caps.opensSealed;
+  /// A payment can go through the contact's mailbox (RFC 9.1): paired or verified (heard, not
+  /// ended), and its wallet opens sealed messages. The seal switch plays no part.
+  bool get paysByMailbox => (state == PairingState.paired || state == PairingState.verified) && caps.opensSealed;
 
   /// Waiting for the user to check the words after pairing.
-  bool get awaitsCheck => state == PairingState.paired && !checkSkipped;
+  bool get awaitsCheck => state == PairingState.paired;
 
   bool expiredAt(DateTime now) => expiresAt != null && !now.isBefore(expiresAt!);
 
@@ -3043,7 +3139,6 @@ class PairingRecord {
     List<SasWord>? sas,
     DateTime? verifiedAt,
     bool clearVerified = false,
-    bool? checkSkipped,
     bool? allowInvoices,
     SealMode? seal,
     String? contactId,
@@ -3056,8 +3151,13 @@ class PairingRecord {
     PairingCaps? caps,
     PairingParty? kind,
     String? paymentsAddress,
-    List<SasWord>? inviteWords,
-    bool? removedByPeer,
+    String? expectAddress,
+    DateTime? peerHeardAt,
+    DateTime? peerVerifiedAt,
+    bool clearPeerVerified = false,
+    int? peerFeatures,
+    PairingEndReason? endedReason,
+    DateTime? endedAt,
   }) => PairingRecord(
     id: id,
     state: state ?? this.state,
@@ -3070,7 +3170,6 @@ class PairingRecord {
     caps: caps ?? this.caps,
     sas: sas ?? this.sas,
     verifiedAt: clearVerified ? null : verifiedAt ?? this.verifiedAt,
-    checkSkipped: checkSkipped ?? this.checkSkipped,
     allowInvoices: allowInvoices ?? this.allowInvoices,
     asksInvoices: asksInvoices,
     seal: seal ?? this.seal,
@@ -3080,16 +3179,58 @@ class PairingRecord {
     lastSealedIn: lastSealedIn ?? this.lastSealedIn,
     expiresAt: expiresAt ?? this.expiresAt,
     inviteLink: inviteLink,
-    inviteWords: inviteWords ?? this.inviteWords,
+    expectAddress: expectAddress ?? this.expectAddress,
+    peerHeardAt: peerHeardAt ?? this.peerHeardAt,
+    peerVerifiedAt: clearPeerVerified ? null : peerVerifiedAt ?? this.peerVerifiedAt,
+    peerFeatures: peerFeatures ?? this.peerFeatures,
+    endedReason: endedReason ?? this.endedReason,
+    endedAt: endedAt ?? this.endedAt,
     relayDown: relayDown ?? this.relayDown,
     otherDevice: otherDevice ?? this.otherDevice,
     checksKeys: checksKeys,
-    removedByPeer: removedByPeer ?? this.removedByPeer,
   );
 }
 
+/// A request to pair that came to this wallet's Epicbox address (Way 1), as the core keeps it
+/// until it is answered, dismissed or expired. The app shows only requests from contacts and
+/// dismisses the rest on arrival; a linked device may answer it instead ([PairingApi.requestHandledOn]).
+class PairRequest {
+  const PairRequest({
+    required this.id,
+    required this.fromAddress,
+    required this.claimedName,
+    required this.receivedAt,
+    required this.expiresAt,
+    required this.inviteLink,
+    this.kind = PairingParty.person,
+  });
+
+  /// The request's id (its invite id): names it to accept, dismiss or forward.
+  final String id;
+
+  /// `key@relay`, as the relay authenticated the sender.
+  final String fromAddress;
+
+  /// The name the sender chose: a claim, not checked.
+  final String claimedName;
+  final PairingParty kind;
+  final DateTime receivedAt;
+  final DateTime expiresAt;
+
+  /// `epiccash://pair/1/…`: what a linked device needs to answer it instead.
+  final String inviteLink;
+
+  bool expiredAt(DateTime now) => !now.isBefore(expiresAt);
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  bool operator ==(Object other) => other is PairRequest && other.id == id;
+}
+
 /// The pairing the address-book contact [contactId] uses, of [pairings] (newest first), or
-/// null when none attached to it is paired. A contact can carry several: a re-pair after the
+/// null when none attached to it is stored (waiting, paired, verified, keys changed or ended). A contact can carry several: a re-pair after the
 /// other side restored its wallet adds one, and when the key check is refused the old ones
 /// stay. Only one is still read by the other side, so a payment goes through the one heard
 /// from last ([PairingRecord.heardAt]), never simply the newest. One whose keys
@@ -3098,14 +3239,17 @@ class PairingRecord {
 PairingRecord? contactPairingOf(Iterable<PairingRecord> pairings, String contactId) {
   final attached = [
     for (final r in pairings)
-      if (r.contactId == contactId && r.state.isPaired) r,
+      if (r.contactId == contactId && r.state.isRecord) r,
   ];
-  final alive = [for (final r in attached) if (!r.removedByPeer) r];
+  final alive = [for (final r in attached) if (!r.ended) r];
   if (alive.isEmpty) return attached.firstOrNull;
-  final changed = alive.where((r) => r.state == PairingState.keysChanged).firstOrNull;
+  // One the other wallet has not been heard in yet stands only while nothing paired does.
+  final heard = [for (final r in alive) if (r.state != PairingState.waiting) r];
+  if (heard.isEmpty) return alive.first;
+  final changed = heard.where((r) => r.state == PairingState.keysChanged).firstOrNull;
   if (changed != null) return changed;
-  final settled = [for (final r in alive) if (!r.checksKeys) r];
-  final pool = settled.isEmpty ? alive : settled;
+  final settled = [for (final r in heard) if (!r.checksKeys) r];
+  final pool = settled.isEmpty ? heard : settled;
   PairingRecord? best;
   for (final r in pool) {
     if (best == null || r.heardAt.isAfter(best.heardAt)) best = r;
@@ -3147,6 +3291,8 @@ class PairingInvitePreview {
     this.asksInvoices = false,
     this.homeRelay = '',
     this.wordsAvailable = true,
+    this.fromAddress,
+    this.requestId,
   });
 
   /// Opaque: hands the opened invite back to [PairingApi.acceptInvite].
@@ -3163,17 +3309,14 @@ class PairingInvitePreview {
 
   /// The relay the answer goes to is reachable now; false sends the answer by hand.
   final bool wordsAvailable;
-}
 
-/// This wallet's code for in-person pairing (RFC 7.4): a fresh card per showing.
-class PairingCard {
-  const PairingCard({required this.id, required this.link});
+  /// A request that came to this wallet's address (Way 1): the sender's `key@relay` and the
+  /// stored request's id. Null for a code scanned or pasted.
+  final String? fromAddress;
+  final String? requestId;
 
-  /// Opaque: names the card to [PairingApi.scanCard], so both scans pair one slot.
-  final String id;
-
-  /// `epiccash://contact/1/…`, for the QR code.
-  final String link;
+  /// Came as a request to this wallet's address, so its sender is a known key.
+  bool get isRequest => fromAddress != null;
 }
 
 /// Why a pairing step did not go through. The core's `WalletError` carries it as
@@ -3229,6 +3372,35 @@ enum PairingFailure {
   /// The contact picked for a pairing has an Epicbox address the pairing does not vouch for
   /// ([contactForPairing]): not attached.
   otherAddress,
+
+  /// A request's answer proved another key than the address the request went to: "This
+  /// answer came from another wallet." Nothing was stored.
+  otherWallet,
+
+  /// A proof was required (a request's answer, or attaching to a contact with an address) and
+  /// none came. Nothing changed.
+  addressProofMissing,
+
+  /// A request cannot be sent: no Epic Cash payment with that address yet, or its wallet did
+  /// not claim pair requests.
+  peerNotProven,
+
+  /// That address already has a pairing in progress (a code waiting, a wallet not heard yet,
+  /// or its own request here): open that row instead.
+  inProgress,
+
+  /// Both wallets started a pairing with each other; this one lost to the other by the
+  /// lower-key rule, and the other survives. Nothing to do.
+  crossed,
+
+  /// The request was dismissed here (a copy from the linked device, for instance).
+  inviteDismissed,
+
+  /// The pairing ended: nothing new goes through it.
+  ended,
+
+  /// The other wallet has not been heard yet: a sealed send or invoice must wait.
+  waiting,
 }
 
 /// The [PairingFailure] behind [error], or null for any other error.
@@ -3302,8 +3474,29 @@ enum PairingEventKind {
   /// ([PairingEvent.slateId]); may come again for the same payment.
   paymentFinalized,
 
-  /// The other side removed the pairing [PairingEvent.pairingId] and said so (RFC 7.6).
+  /// The other side removed the pairing [PairingEvent.pairingId] and said so (RFC 7.6). The
+  /// record is now ended.
   unpaired,
+
+  /// A request to pair came to this wallet's address ([PairingEvent.requestId],
+  /// [PairingEvent.sender]). The app shows it only from a contact.
+  requested,
+
+  /// The other wallet was heard for the first time: the pairing left Waiting ("Paired with
+  /// Anna").
+  heard,
+
+  /// The other side's They match arrived ("Anna confirmed too").
+  peerVerified,
+
+  /// A proven address for the contact was set or changed.
+  addressUpdated,
+
+  /// The pairing ended on the other side's word or by time ([PairingEvent.endedReason]).
+  ended,
+
+  /// A request was answered on a linked device ([PairingEvent.name] is the device).
+  pairedElsewhere,
 }
 
 class PairingEvent {
@@ -3315,10 +3508,22 @@ class PairingEvent {
     this.slateId,
     this.amount,
     this.count = 0,
+    this.requestId,
+    this.sender,
+    this.endedReason,
   });
 
   final PairingEventKind kind;
   final String? pairingId;
+
+  /// For [PairingEventKind.requested] and [PairingEventKind.pairedElsewhere]: the request.
+  final String? requestId;
+
+  /// For [PairingEventKind.requested]: the sender's `key@relay`.
+  final String? sender;
+
+  /// For [PairingEventKind.ended].
+  final PairingEndReason? endedReason;
 
   /// The contact's name as the app shows it (its label, else its claimed name).
   final String name;
@@ -3328,7 +3533,7 @@ class PairingEvent {
   final int count;
 
   @override
-  int get hashCode => Object.hash(kind, pairingId, name, failure, slateId, amount, count);
+  int get hashCode => Object.hash(kind, pairingId, name, failure, slateId, amount, count, requestId, sender, endedReason);
 
   @override
   bool operator ==(Object other) =>
@@ -3339,7 +3544,10 @@ class PairingEvent {
       failure == other.failure &&
       slateId == other.slateId &&
       amount == other.amount &&
-      count == other.count;
+      count == other.count &&
+      requestId == other.requestId &&
+      sender == other.sender &&
+      endedReason == other.endedReason;
 }
 
 /// A second answer to an invite already used, kept only to show it (C-15): nothing is stored.

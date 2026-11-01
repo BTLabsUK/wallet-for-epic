@@ -225,9 +225,7 @@ class _ExperimentalGroup extends ConsumerWidget {
       key: const ValueKey('adv-experimental'),
       title: l.advExperimental,
       rows: [
-        row(AdvancedFeature.pairing, adv.pairingOn, l.expPairingHint),
         row(AdvancedFeature.invoices, adv.invoicesOn, l.expInvoicesHint),
-        ESetRow(key: const ValueKey('adv-exp-rule'), text: l.expNeedsPairing),
         // On unless turned off; independent of Pairing (its pairings are private).
         row(AdvancedFeature.linkedDevices, adv.linkedDevicesOn, l.expLinkedDevicesHint),
       ],

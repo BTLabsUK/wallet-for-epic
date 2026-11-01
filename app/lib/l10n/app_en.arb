@@ -17888,7 +17888,7 @@
   "@pairInPersonTitle": {
     "description": "App bar of the in-person screen."
   },
-  "pairShowMyCode": "Show my code",
+  "pairShowMyCode": "Show my invite",
   "@pairShowMyCode": {
     "description": "Segment 1 of the in-person screen."
   },
@@ -17904,7 +17904,7 @@
   "@pairScanCaption": {
     "description": "Under the camera view."
   },
-  "pairScanPrompt": "Point the camera at their code",
+  "pairScanPrompt": "Scan their QR",
   "@pairScanPrompt": {
     "description": "Inside the camera view."
   },
@@ -17920,7 +17920,7 @@
   "@pairCameraDeniedTitle": {
     "description": "Notice title when camera permission is denied."
   },
-  "pairCameraDeniedBody": "Allow the camera to scan, or use words instead.",
+  "pairCameraDeniedBody": "Allow the camera to scan, or paste the invite.",
   "@pairCameraDeniedBody": {
     "description": "Notice body when camera permission is denied (cases file C-28)."
   },
@@ -18502,7 +18502,7 @@
   "@pairExpiredTitle": {
     "description": "Outcome."
   },
-  "pairExpiredBody": "Ask {name} for a new one.",
+  "pairExpiredBody": "Ask for a new one.",
   "@pairExpiredBody": {
     "description": "Outcome body.",
     "placeholders": {
@@ -18520,7 +18520,7 @@
   "@pairUsedBody": {
     "description": "Outcome body."
   },
-  "pairCancelledTitle": "{name} cancelled this invite",
+  "pairCancelledTitle": "{name} cancelled this pairing",
   "@pairCancelledTitle": {
     "description": "Outcome.",
     "placeholders": {
@@ -18630,7 +18630,7 @@
   "@pairCheckForUpdates": {
     "description": "Button."
   },
-  "pairSecondReplyTitle": "Someone else answered {name}’s invite.",
+  "pairSecondReplyTitle": "Someone else also answered your invite",
   "@pairSecondReplyTitle": {
     "description": "Docked notice when a used invite gets a second answer; its action opens Pending invites.",
     "placeholders": {
@@ -18644,11 +18644,11 @@
   "@pairAnsweredSameInvite": {
     "description": "Pending row subtitle for the second replier."
   },
-  "sasTitle": "Compare the check words",
+  "sasTitle": "Check the words",
   "@sasTitle": {
     "description": "Screen and dialog title; also the Help topic and the contact-page action."
   },
-  "sasLead": "{name}’s wallet shows the same four check words. Compare them on a call or in person.",
+  "sasLead": "{name}’s wallet shows the same four. Compare them.",
   "@sasLead": {
     "description": "Lead of the check.",
     "placeholders": {
@@ -18718,7 +18718,7 @@
   "@sasNoMatchTitle": {
     "description": "Dialog title."
   },
-  "sasNoMatchBody": "Someone may have changed the invite on the way. Nothing is kept. Pair again, in person or with a fresh invite.",
+  "sasNoMatchBody": "The pairing ends on both sides and nothing sent through it is finished. Pair again with a fresh invite.",
   "@sasNoMatchBody": {
     "description": "Dialog body (cases file)."
   },
@@ -19693,15 +19693,15 @@
   "@restoreUseHere": {
     "description": "Dialog primary."
   },
-  "pairInvalidLink": "This is not a pairing link",
+  "pairInvalidLink": "Not a pairing invite.",
   "@pairInvalidLink": {
     "description": "Outcome title for text that holds no pairing invite, answer or code (also a partial scan, cases C-28)."
   },
-  "pairInvalidBody": "Check that the whole link was copied, or ask for a new one.",
+  "pairInvalidBody": "Check that the whole invite was copied, or ask for a new one.",
   "@pairInvalidBody": {
     "description": "Outcome body for an unreadable pairing link."
   },
-  "pairWrongNetworkBody": "It was made by a wallet on the other network. Wallets pair only on the same network.",
+  "pairWrongNetworkBody": "This invite is for another network.",
   "@pairWrongNetworkBody": {
     "description": "Outcome body for a pairing link or card made on the other network; the title is scanWrongNetworkTitle."
   },
@@ -20049,7 +20049,7 @@
   "@helpPairWhatShort": {
     "description": "Topic 1 lede."
   },
-  "helpPairWhatP1": "Pairing links two wallets once: in person by scanning each other’s code, or online with an invite link or five pairing words. Each wallet keeps a key made for that one contact; nothing about it is shared with the Epicbox server.",
+  "helpPairWhatP1": "Pairing links two wallets once: with a request to a contact you have paid over Epicbox, or with your invite, scanned as a QR or opened as a link. Each wallet keeps a key made for that one contact; nothing is shared with anyone else.",
   "@helpPairWhatP1": {
     "description": "Topic 1."
   },
@@ -20061,11 +20061,11 @@
   "@helpPairWhatStep1": {
     "description": "Topic 1 step."
   },
-  "helpPairWhatStep2": "Choose a way: Spoken, Invite by message or In person.",
+  "helpPairWhatStep2": "Pair with a contact, or show your invite and let them scan it.",
   "@helpPairWhatStep2": {
     "description": "Topic 1 step."
   },
-  "helpPairWhatStep3": "Verify together, then **They match**.",
+  "helpPairWhatStep3": "Check the words together (not needed after a request), then **They match**.",
   "@helpPairWhatStep3": {
     "description": "Topic 1 step."
   },
@@ -25355,5 +25355,420 @@
   "linkConfirmInvite": "Link this device with the one that sent the invite?",
   "@linkConfirmInvite": {
     "description": "Link a device, when a device invite came in as a link the system opened: the question before it is answered, with Link and Cancel. A link never links by itself."
+  },
+  "pairYourCode": "Your invite",
+  "@pairYourCode": {
+    "description": "Pair screen: heading over the standing QR code."
+  },
+  "pairCodeCaption": "Let them scan the QR, or send the invite.",
+  "@pairCodeCaption": {
+    "description": "Pair screen: caption under the code."
+  },
+  "pairCodeCaptionFor": "Let {name} scan the QR, or send the invite.",
+  "@pairCodeCaptionFor": {
+    "description": "Pair screen opened for a contact: caption under the code.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairSeenAsLine": "They see you as {name}",
+  "@pairSeenAsLine": {
+    "description": "Pair screen: the name the other side sees, with Change beside it.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairChange": "Change",
+  "@pairChange": {
+    "description": "Pair screen: button beside the name they see."
+  },
+  "pairSeenAsField": "They see you as",
+  "@pairSeenAsField": {
+    "description": "Field label of the name they see (one name per wallet)."
+  },
+  "pairCopyLink": "Copy invite",
+  "@pairCopyLink": {
+    "description": "Desktop Pair screen: copies the code as a link."
+  },
+  "pairHaveTheirCode": "Have their invite?",
+  "@pairHaveTheirCode": {
+    "description": "Pair screen: section over Scan and Paste."
+  },
+  "pairHaveNamesCode": "Have {name}’s invite?",
+  "@pairHaveNamesCode": {
+    "description": "Pair screen opened for a contact: section over Scan and Paste.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairScan": "Scan QR",
+  "@pairScan": {
+    "description": "Pair screen: opens the camera."
+  },
+  "pairPasteField": "Paste the invite",
+  "@pairPasteField": {
+    "description": "Pair screen: the paste field hint (desktop) and the Paste button sheet."
+  },
+  "pairNotACode": "Not a pairing invite.",
+  "@pairNotACode": {
+    "description": "Pair screen: what was pasted or scanned is no code, answer or finish code."
+  },
+  "pairEpicboxOffLine": "Epicbox is off. Paste the answer below when it comes back.",
+  "@pairEpicboxOffLine": {
+    "description": "Pair screen with Epicbox off: the one line under Share."
+  },
+  "pairWaitingAnswer": "Waiting for the answer…",
+  "@pairWaitingAnswer": {
+    "description": "Pair screen status under the code once someone may answer."
+  },
+  "pairAnsweredFinishing": "{name} answered your invite. Waiting for {name}’s wallet to finish.",
+  "@pairAnsweredFinishing": {
+    "description": "Pair screen status: the answer is in, the confirm is being posted.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairFinishCodeTitle": "Confirmation",
+  "@pairFinishCodeTitle": {
+    "description": "Pair screen: the box with the finish code to send back by hand."
+  },
+  "pairFinishCodeBody": "Send this to {name}. The words check opens when that wallet reads it.",
+  "@pairFinishCodeBody": {
+    "description": "Pair screen: caption of the finish code box.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairYourAnswerBody": "Send it back the way the invite came. Then paste what comes back.",
+  "@pairYourAnswerBody": {
+    "description": "Waiting screen: caption of the Your answer box."
+  },
+  "pairPasteFinishField": "Paste the confirmation",
+  "@pairPasteFinishField": {
+    "description": "Waiting screen: field for the finish code that comes back by hand."
+  },
+  "pairPairingWith": "Pairing with {name}…",
+  "@pairPairingWith": {
+    "description": "Waiting screen title while the confirm comes back.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairInContacts": "In your contacts",
+  "@pairInContacts": {
+    "description": "Incoming sheet from a contact: the line under the name."
+  },
+  "pairRequestBody": "A request goes to this contact’s Epicbox address. Their wallet shows it when it is open.",
+  "@pairRequestBody": {
+    "description": "Contact page › Pair dialog: the one sentence."
+  },
+  "pairSendRequest": "Send request",
+  "@pairSendRequest": {
+    "description": "Contact page › Pair dialog: sends the request."
+  },
+  "pairShowMyCodeInstead": "Show my invite instead",
+  "@pairShowMyCodeInstead": {
+    "description": "Contact page › Pair dialog: opens the Pair screen for the contact."
+  },
+  "pairRequestSent": "Request sent · {date}",
+  "@pairRequestSent": {
+    "description": "Pairing block, Waiting after a request: the date it went.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pairWaitingFor": "Waiting for {name}’s wallet",
+  "@pairWaitingFor": {
+    "description": "Pairing block and rows: the other wallet is not heard yet.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairAnsweredNotHeard": "Answered your invite · not heard yet",
+  "@pairAnsweredNotHeard": {
+    "description": "Contacts row: the code was answered, the other wallet not heard."
+  },
+  "pairNotChecked": "{name} has not checked yet",
+  "@pairNotChecked": {
+    "description": "Pairing block, Paired or Verified: the other side has not pressed They match.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairConfirmedToo": "{name} confirmed too.",
+  "@pairConfirmedToo": {
+    "description": "Pairing block, Verified: the other side pressed They match.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairEndedShort": "Pairing ended",
+  "@pairEndedShort": {
+    "description": "The Ended block title, and the failure line of a call on an ended pairing."
+  },
+  "pairEndedMismatch": "You reported the words do not match.",
+  "@pairEndedMismatch": {
+    "description": "Ended reason: this side pressed They do not match."
+  },
+  "pairEndedPeerMismatch": "{name} reported the words do not match.",
+  "@pairEndedPeerMismatch": {
+    "description": "Ended reason: the other side pressed They do not match.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairEndedNeverFinished": "{name}’s wallet never finished.",
+  "@pairEndedNeverFinished": {
+    "description": "Ended reason: the other wallet was never heard within 7 days.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairNoAnswerFrom": "No answer from {name}’s wallet",
+  "@pairNoAnswerFrom": {
+    "description": "A request that expired unanswered (7 days).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairAgain": "Pair again",
+  "@pairAgain": {
+    "description": "Ended block and expired request: opens the Pair screen (by code)."
+  },
+  "pairHeldSend": "Waiting for recipient",
+  "@pairHeldSend": {
+    "description": "Ended block: a sealed send held in that mailbox, with Cancel."
+  },
+  "pairProvesOther": "{name}’s wallet proves another address",
+  "@pairProvesOther": {
+    "description": "Pairing block: a later card proved another address than the contact’s.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairUpdateAddress": "Update the contact’s address",
+  "@pairUpdateAddress": {
+    "description": "Pairing block: writes the newly proven address into the contact."
+  },
+  "pairDetach": "Detach",
+  "@pairDetach": {
+    "description": "Pairing block: detaches the pairing from the contact."
+  },
+  "pairCheckWords": "Check the words",
+  "@pairCheckWords": {
+    "description": "Button and screen title of the words check."
+  },
+  "pairWantsToPair": "{name} wants to pair.",
+  "@pairWantsToPair": {
+    "description": "Notice: a request from a contact arrived.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairPairedWith": "Paired with {name}.",
+  "@pairPairedWith": {
+    "description": "Notice: the other wallet was heard, the pairing is on.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairPairedOn": "Paired on {device}.",
+  "@pairPairedOn": {
+    "description": "Notice: the request was answered on the linked device.",
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "pairRequestsRow": "Pair requests · {count}",
+  "@pairRequestsRow": {
+    "description": "Contacts row: requests from contacts waiting for an answer.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pairRequestsTitle": "Pair requests",
+  "@pairRequestsTitle": {
+    "description": "Title of the requests list."
+  },
+  "pairEndedNotice": "The pairing ended. Pair again with a fresh invite.",
+  "@pairEndedNotice": {
+    "description": "Notice after They do not match."
+  },
+  "pairOtherWalletTitle": "This answer came from another wallet.",
+  "@pairOtherWalletTitle": {
+    "description": "A request’s answer proved another key. Nothing was stored."
+  },
+  "pairOtherWalletBody": "Nothing was stored.",
+  "@pairOtherWalletBody": {
+    "description": "Second line of pairOtherWalletTitle."
+  },
+  "pairNotProvenBody": "No Epic Cash payment with {name} yet, so a request cannot be sent.",
+  "@pairNotProvenBody": {
+    "description": "A request refused: the key is not a proven peer.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairInProgressTitle": "A pairing with {name} is under way.",
+  "@pairInProgressTitle": {
+    "description": "A request or answer refused: one is in progress with that key.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairCrossedTitle": "{name}’s wallet also started a pairing. Waiting for its answer.",
+  "@pairCrossedTitle": {
+    "description": "Crossed codes: this side’s pairing survives, nothing to do.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairDismissedTitle": "This request was dismissed. Ask {name} to send a new one.",
+  "@pairDismissedTitle": {
+    "description": "Accepting a request that was dismissed here.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairEndedBody": "Nothing new goes through it. Remove it, or pair again with a fresh invite.",
+  "@pairEndedBody": {
+    "description": "Second line of pairEndedShort."
+  },
+  "pairWaitingSendBody": "Send by Epicbox instead.",
+  "@pairWaitingSendBody": {
+    "description": "A sealed send refused while the other wallet is not heard."
+  },
+  "pairNotFoundTitle": "No pairing matches this.",
+  "@pairNotFoundTitle": {
+    "description": "An answer or finish code that no code of this wallet opens."
+  },
+  "trustWaiting": "Waiting",
+  "@trustWaiting": {
+    "description": "Badge: the other wallet is not heard yet."
+  },
+  "trustEnded": "Ended",
+  "@trustEnded": {
+    "description": "Badge: the pairing ended."
+  },
+  "pairRequestPair": "Pair",
+  "@pairRequestPair": {
+    "description": "Requests list: answers the request."
+  },
+  "pairCancelPairingTitle": "Cancel this pairing?",
+  "@pairCancelPairingTitle": {
+    "description": "Asks before cancelling a request or code someone answered."
+  },
+  "pairCancelPairingBody": "{name}’s wallet is told if it answers late. Nothing is kept.",
+  "@pairCancelPairingBody": {
+    "description": "Body of pairCancelPairingTitle.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pairCancelPairing": "Cancel pairing",
+  "@pairCancelPairing": {
+    "description": "Confirms the cancel."
+  },
+  "pairBackLater": "Back",
+  "@pairBackLater": {
+    "description": "Words check: leaves it for later (the row stays Paired)."
+  },
+  "pairProofPending": "Address not proven yet",
+  "@pairProofPending": {
+    "description": "Attach refused: the pairing carries no proven address yet; tried again when one arrives."
+  },
+  "helpPairTwoWaysTitle": "Two ways to pair",
+  "@helpPairTwoWaysTitle": {
+    "description": "Help topic title."
+  },
+  "helpPairTwoWaysShort": "A request to a contact, or your code.",
+  "@helpPairTwoWaysShort": {
+    "description": "Help topic lede."
+  },
+  "helpPairTwoWaysP1": "**Pair with a contact.** On a contact you have paid or been paid by over Epicbox, Pair sends a request to that address. Their wallet shows it when it is open; one tap answers. Both wallets end Verified without a words check: the request and the answer each prove the address already in the other’s Contacts.",
+  "@helpPairTwoWaysP1": {
+    "description": "Help: Way 1."
+  },
+  "helpPairTwoWaysP2": "**Pair by code.** Contacts › Pair shows your code, good for 7 days. The other wallet scans it or opens the link; both finish over Epicbox and then compare the four words. With Epicbox off on either side, the same screen carries the answer and the finish code by hand: Share and Paste.",
+  "@helpPairTwoWaysP2": {
+    "description": "Help: Way 2."
+  },
+  "helpPairTwoWaysP3": "A request is sent only to a wallet that has shown it runs Epic Cash: a marked payment between the two addresses within the last 30 days. For anyone else, Pair shows your code.",
+  "@helpPairTwoWaysP3": {
+    "description": "Help: when a request can be sent."
+  },
+  "helpPairWhyTitle2": "Why check the words",
+  "@helpPairWhyTitle2": {
+    "description": "Help topic title (words check)."
+  },
+  "helpPairWhyShort2": "Compare them in person, by voice or video.",
+  "@helpPairWhyShort2": {
+    "description": "Help topic lede."
+  },
+  "helpPairWhyP1b": "After pairing by code both wallets show the same four pictures and names. Compare them with the other person in person, by voice or on a video call, never in the chat the code came through: whoever could change the code on the way could also change what that chat shows.",
+  "@helpPairWhyP1b": {
+    "description": "Help: how to compare."
+  },
+  "helpPairWhyP2b": "**They match** marks the contact Verified; the other wallet learns of it and shows “confirmed too”. **They do not match** ends the pairing on both sides and nothing sent through it is finished. A mistaken No ends it too: pair again with a fresh code.",
+  "@helpPairWhyP2b": {
+    "description": "Help: what the two answers do."
+  },
+  "helpPairWhyP3b": "Verified means the wallet behind the address in your Contacts. After a request between two contacts it is set without words, because the request and the answer each proved that address.",
+  "@helpPairWhyP3b": {
+    "description": "Help: what Verified means."
+  },
+  "helpPairWhyP4b": "“Proven” means a payment marked by both wallets has passed between the two Epicbox addresses within 30 days. A contact answered by another wallet app since then is not proven until the next marked payment.",
+  "@helpPairWhyP4b": {
+    "description": "Help: what proven means."
+  },
+  "pairStandingFootnote": "Good for 7 days. A new invite appears when this one is used.",
+  "@pairStandingFootnote": {
+    "description": "Pair screen footnote under the invite (desktop)."
   }
 }
