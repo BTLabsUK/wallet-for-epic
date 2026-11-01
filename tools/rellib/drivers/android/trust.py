@@ -534,6 +534,25 @@ def row_info(label):
     return {"host": host, "current": any(c in parts for c in facts.CURRENTS), "added": facts.ADDED_BY_YOU in parts}
 
 
+# The row a switch goes to says Connecting, then Connected for 4 s, in place of "In use"
+# (26.10.25 server sheet): the one in use is read once that is over.
+SWITCHING = (facts.label("netStatusConnecting", "Connecting"), facts.label("netStatusConnected", "Connected"))
+
+
+def switching(ns):
+    return any(p in SWITCHING for n in sheet_rows(ns) for p in (x.strip() for x in n["label"].split(",")))
+
+
+def settled(secs=20):
+    """The sheet's dump once no row says Connecting / Connected (a switch over)."""
+    end = time.time() + secs
+    ns = nodes(S)
+    while switching(ns) and time.time() < end:
+        time.sleep(1.5)
+        ns = nodes(S)
+    return ns
+
+
 def current_card(ns):
     """The host of the node sheet's card above the list, "<In use|Current>, host, state", or
     None."""
@@ -656,7 +675,7 @@ def use_typed_server(kind, target):
             time.sleep(2)
     _filter("")
     time.sleep(1)
-    ns = nodes(S)
+    ns = settled()
     cur = next((row_info(n["label"]) for n in sheet_rows(ns) if row_info(n["label"])["current"]), None)
     if not cur:  # the node sheet shows the one in use in a card above the list
         cur = {"host": current_card(ns), "added": True}
@@ -708,7 +727,7 @@ def use_server(kind, target):
         _confirm_switch()
     _filter("")
     time.sleep(1)
-    ns = nodes(S)
+    ns = settled()
     cur = next((row_info(n["label"]) for n in sheet_rows(ns) if row_info(n["label"])["current"]), None)
     if not cur:  # the node sheet shows the one in use in a card above the list
         cur = {"host": current_card(ns)}

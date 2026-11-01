@@ -57,6 +57,15 @@ class AnswerOffersTest(unittest.TestCase):
         self.assertEqual(trust.SEEN["biometric_prompt"], 1)
 
 
+class SwitchingTest(unittest.TestCase):
+    def test_connecting_and_connected_rows_are_a_switch_in_progress(self):
+        row = lambda facts: node("epicbox.stackwallet.com, " + facts, 900, clickable=True)
+        self.assertTrue(trust.switching([row("Connecting, Stack Wallet")]))
+        self.assertTrue(trust.switching([row("Connected, 120 ms")]))
+        self.assertFalse(trust.switching([row(trust.facts.CURRENT + ", 120 ms")]))
+        self.assertFalse(trust.switching([node("Connecting to Tor", 900)]))  # not a server row
+
+
 class ServersKeptTest(unittest.TestCase):
     def digest(self, node_in_use):
         nodes = {"rows": [{"host": "node.btlabs.uk", "current": node_in_use == "node.btlabs.uk", "added": False},
