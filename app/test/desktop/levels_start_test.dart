@@ -119,9 +119,9 @@ void main() {
     NetGate.holdFirstStart();
     container = make();
     await pumpApp(tester, DeskRoute.welcome);
-    expect(find.text('Pick your depth'), findsOneWidget);
+    expect(find.text('Pick your view'), findsOneWidget);
     expect(find.text('Pick a stop'), findsOneWidget);
-    expect(find.text('Pick a depth first. Nothing connects until you do.'), findsOneWidget);
+    expect(find.text('Pick a view first. Nothing connects until you do.'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('door-create')), warnIfMissed: false);
     await tester.pump();
     expect(container.read(deskNavProvider).route, DeskRoute.welcome, reason: 'a door does nothing before a stop is picked');
@@ -130,7 +130,7 @@ void main() {
     await tester.tap(find.byKey(deskLevelStopKey(WalletLevel.justSendReceive)));
     await tester.pump();
     expect(find.text('Send, receive, done. The wallet minds the rest.'), findsOneWidget);
-    expect(find.text('Pick a depth first. Nothing connects until you do.'), findsNothing);
+    expect(find.text('Pick a view first. Nothing connects until you do.'), findsNothing);
     await tester.tap(find.byKey(const ValueKey('door-create')));
     await wait(tester, 300);
     expect(container.read(deskNavProvider).route, DeskRoute.create);

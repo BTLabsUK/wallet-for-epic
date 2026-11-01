@@ -28079,19 +28079,19 @@ abstract class AppLocalizations {
   /// Row at the top of Settings › Advanced; its second line is the current level's title.
   ///
   /// In en, this message translates to:
-  /// **'Wallet level'**
+  /// **'Wallet view'**
   String get levelRowTitle;
 
   /// Title of the dialog opened by the Wallet level row.
   ///
   /// In en, this message translates to:
-  /// **'Change level'**
+  /// **'Change view'**
   String get levelChangeTitle;
 
   /// First-start level picker: the heading.
   ///
   /// In en, this message translates to:
-  /// **'Pick your depth'**
+  /// **'Pick your view'**
   String get lvPickTitle;
 
   /// First-start level picker: the line under the heading.
@@ -28151,7 +28151,7 @@ abstract class AppLocalizations {
   /// Screen reader name of the level picker's group of three stops.
   ///
   /// In en, this message translates to:
-  /// **'Depth'**
+  /// **'View'**
   String get lvPickDepth;
 
   /// Screen reader description of the small home-screen preview on the level picker.
@@ -28169,7 +28169,7 @@ abstract class AppLocalizations {
   /// Level picker ⓘ sheet: text.
   ///
   /// In en, this message translates to:
-  /// **'Only how much the app shows. Every level sends and receives the same way, with the same keys and the same coins.'**
+  /// **'Only how much the app shows. Every view sends and receives the same way, with the same keys and the same coins.'**
   String get lvPickHelpText;
 
   /// ⓘ sheet of 'Undercover from the start' on the first-start picker.
@@ -28199,7 +28199,7 @@ abstract class AppLocalizations {
   /// Notice after saving the level on the Change level screen.
   ///
   /// In en, this message translates to:
-  /// **'Level saved'**
+  /// **'View saved'**
   String get lvPickSaved;
 
   /// Waiting for Tor after the PIN, with Undercover on: heading.
@@ -28577,7 +28577,7 @@ abstract class AppLocalizations {
   /// Settings › Advanced at level 1, under the Wallet level row.
   ///
   /// In en, this message translates to:
-  /// **'More levels show more of the wallet. Nothing stored changes.'**
+  /// **'A deeper view shows more of the wallet. Nothing stored changes.'**
   String get lvShellLevelCaption;
 
   /// Levels 1–2 row word for a payment the network has taken but no block holds yet (0 confirmations): never 'Confirming 0 of 3'.
@@ -28607,13 +28607,13 @@ abstract class AppLocalizations {
   /// Caption under the Overview picture on Welcome (first start).
   ///
   /// In en, this message translates to:
-  /// **'Your Overview at this depth. Nothing stored changes between depths.'**
+  /// **'Your Overview in this view. Nothing stored changes between views.'**
   String get deskLvStartPreviewCaption;
 
   /// Caption under the Overview picture on the Change level page.
   ///
   /// In en, this message translates to:
-  /// **'Your Overview at this depth.'**
+  /// **'Your Overview in this view.'**
   String get deskLvStartPreviewCaptionShort;
 
   /// Over the faded Overview picture on Welcome before a stop of the depth dial is picked.
@@ -28655,7 +28655,7 @@ abstract class AppLocalizations {
   /// Welcome, under the three doors (Create, Import, Restore) while they are disabled until a depth is picked on a fresh install.
   ///
   /// In en, this message translates to:
-  /// **'Pick a depth first. Nothing connects until you do.'**
+  /// **'Pick a view first. Nothing connects until you do.'**
   String get deskLvStartPickFirst;
 
   /// The wallet name in the small Overview picture on the depth dial. A sample, not the user’s wallet.
@@ -28685,13 +28685,13 @@ abstract class AppLocalizations {
   /// Settings › Advanced at Shallow, under the Depth row.
   ///
   /// In en, this message translates to:
-  /// **'More levels show more of the wallet. Nothing stored changes.'**
+  /// **'A deeper view shows more of the wallet. Nothing stored changes.'**
   String get deskLvStartAdvNote;
 
   /// Screen-reader text of the Depth row in Settings › About. name is the depth: Shallow, Deeper or Deep end.
   ///
   /// In en, this message translates to:
-  /// **'Depth: {name}'**
+  /// **'View: {name}'**
   String deskLvStartAboutDepth(String name);
 
   /// Heading of the method card on Send at the Deeper level, above the Epicbox, Link and File Transfer choice.
@@ -28973,7 +28973,7 @@ abstract class AppLocalizations {
   /// Desktop Overview: title of the one-time notice an install that updated into wallet levels sees. 'Wallet depth' is the setting that picks how much the app shows (levels Shallow, Deeper, Deep end).
   ///
   /// In en, this message translates to:
-  /// **'New: wallet depth'**
+  /// **'New: wallet view'**
   String get deskLvShellNewsTitle;
 
   /// Desktop Overview: text of the one-time 'New: wallet depth' notice. Shallow and Deeper are the names of the two quieter levels; keep them as the level picker names them.

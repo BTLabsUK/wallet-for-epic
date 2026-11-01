@@ -16978,13 +16978,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get levelFooter => '随时可在 设置 › 高级 中更改。';
 
   @override
-  String get levelRowTitle => '钱包级别';
+  String get levelRowTitle => '钱包视图';
 
   @override
-  String get levelChangeTitle => '更改级别';
+  String get levelChangeTitle => '更改视图';
 
   @override
-  String get lvPickTitle => '选择深度';
+  String get lvPickTitle => '选择视图';
 
   @override
   String get lvPickLead => '你想看到钱包的多少内容？';
@@ -17014,7 +17014,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get lvPickNoneLine => '预览随档位变化。';
 
   @override
-  String get lvPickDepth => '深度';
+  String get lvPickDepth => '视图';
 
   @override
   String get lvPickPreview => '主屏幕预览。档位越深，显示越多。';
@@ -17023,7 +17023,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get lvPickHelpTitle => '这决定什么';
 
   @override
-  String get lvPickHelpText => '只决定应用显示多少。每个级别收付款的方式都一样，密钥和币也一样。';
+  String get lvPickHelpText => '只决定应用显示多少。每个视图收付款的方式都一样，密钥和币也一样。';
 
   @override
   String get lvPickUndercoverHelp =>
@@ -17040,7 +17040,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get lvPickTakesEffect => '立即生效。';
 
   @override
-  String get lvPickSaved => '级别已保存';
+  String get lvPickSaved => '视图已保存';
 
   @override
   String get lvPickTorTitle => '正在通过 Tor 连接';
@@ -17263,7 +17263,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get lvShellLevelCaption => '更高级别显示钱包的更多内容。已保存的内容不会改变。';
+  String get lvShellLevelCaption => '更深的视图显示钱包的更多内容。已保存的内容不会改变。';
 
   @override
   String get lvPolPosted => '已广播';
@@ -17280,10 +17280,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskLvStartPreviewLabel => '概览预览。档位越深，显示越多。';
 
   @override
-  String get deskLvStartPreviewCaption => '此深度下的概览。已保存的内容不会改变。';
+  String get deskLvStartPreviewCaption => '此视图下的概览。已保存的内容不会改变。';
 
   @override
-  String get deskLvStartPreviewCaptionShort => '此深度下的概览。';
+  String get deskLvStartPreviewCaptionShort => '此视图下的概览。';
 
   @override
   String get deskLvStartCover => '选择一个档位以查看预览';
@@ -17304,7 +17304,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskLvStartHelpDeep => '深水区 · 每个开关、每个数字：现在的应用。';
 
   @override
-  String get deskLvStartPickFirst => '请先选择深度。选择之前不会连接任何内容。';
+  String get deskLvStartPickFirst => '请先选择视图。选择之前不会连接任何内容。';
 
   @override
   String get deskLvStartMiniWallet => '主钱包';
@@ -17319,11 +17319,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskLvStartMiniWaiting => '等待对方';
 
   @override
-  String get deskLvStartAdvNote => '档位越深，显示的钱包内容越多。已保存的内容不会改变。';
+  String get deskLvStartAdvNote => '视图越深，显示的钱包内容越多。已保存的内容不会改变。';
 
   @override
   String deskLvStartAboutDepth(String name) {
-    return '深度：$name';
+    return '视图：$name';
   }
 
   @override
@@ -17503,7 +17503,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskLvPayKind => '付款';
 
   @override
-  String get deskLvShellNewsTitle => '新功能：钱包深度';
+  String get deskLvShellNewsTitle => '新功能：钱包视图';
 
   @override
   String get deskLvShellNewsText => '此安装显示全部内容，与以往相同。浅水和再深些显示得更少。';

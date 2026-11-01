@@ -18657,13 +18657,13 @@ class AppLocalizationsPl extends AppLocalizations {
       'Zmienisz to w każdej chwili w Ustawienia › Zaawansowane.';
 
   @override
-  String get levelRowTitle => 'Poziom portfela';
+  String get levelRowTitle => 'Widok portfela';
 
   @override
-  String get levelChangeTitle => 'Zmień poziom';
+  String get levelChangeTitle => 'Zmień widok';
 
   @override
-  String get lvPickTitle => 'Wybierz głębokość';
+  String get lvPickTitle => 'Wybierz swój widok';
 
   @override
   String get lvPickLead => 'Ile portfela chcesz widzieć?';
@@ -18695,7 +18695,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get lvPickNoneLine => 'Podgląd podąża za pokrętłem.';
 
   @override
-  String get lvPickDepth => 'Głębokość';
+  String get lvPickDepth => 'Widok';
 
   @override
   String get lvPickPreview =>
@@ -18706,7 +18706,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get lvPickHelpText =>
-      'Tylko to, ile pokazuje aplikacja. Każdy poziom wysyła i odbiera tak samo, tymi samymi kluczami i tymi samymi monetami.';
+      'Tylko to, ile pokazuje aplikacja. Każdy widok wysyła i odbiera tak samo, tymi samymi kluczami i tymi samymi monetami.';
 
   @override
   String get lvPickUndercoverHelp =>
@@ -18723,7 +18723,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get lvPickTakesEffect => 'Działa od razu.';
 
   @override
-  String get lvPickSaved => 'Poziom zapisany';
+  String get lvPickSaved => 'Widok zapisany';
 
   @override
   String get lvPickTorTitle => 'Łączenie przez Tor';
@@ -18952,7 +18952,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get lvShellLevelCaption =>
-      'Wyższe poziomy pokazują więcej portfela. Nic zapisanego się nie zmienia.';
+      'Głębszy widok pokazuje więcej portfela. Nic zapisanego się nie zmienia.';
 
   @override
   String get lvPolPosted => 'Wysłano';
@@ -18971,11 +18971,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskLvStartPreviewCaption =>
-      'Twój Przegląd na tej głębokości. Nic zapisanego się nie zmienia.';
+      'Twój Przegląd w tym widoku. Nic zapisanego się nie zmienia.';
 
   @override
-  String get deskLvStartPreviewCaptionShort =>
-      'Twój Przegląd na tej głębokości.';
+  String get deskLvStartPreviewCaptionShort => 'Twój Przegląd w tym widoku.';
 
   @override
   String get deskLvStartCover => 'Wybierz punkt, aby zobaczyć podgląd';
@@ -19001,7 +19000,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskLvStartPickFirst =>
-      'Najpierw wybierz głębokość. Nic się nie połączy, dopóki tego nie zrobisz.';
+      'Najpierw wybierz widok. Nic się nie połączy, dopóki tego nie zrobisz.';
 
   @override
   String get deskLvStartMiniWallet => 'Główny portfel';
@@ -19017,11 +19016,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskLvStartAdvNote =>
-      'Więcej poziomów pokazuje więcej portfela. Nic zapisanego się nie zmienia.';
+      'Głębszy widok pokazuje więcej portfela. Nic zapisanego się nie zmienia.';
 
   @override
   String deskLvStartAboutDepth(String name) {
-    return 'Głębokość: $name';
+    return 'Widok: $name';
   }
 
   @override
@@ -19206,7 +19205,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskLvPayKind => 'Płatność';
 
   @override
-  String get deskLvShellNewsTitle => 'Nowość: głębokość portfela';
+  String get deskLvShellNewsTitle => 'Nowość: widok portfela';
 
   @override
   String get deskLvShellNewsText =>

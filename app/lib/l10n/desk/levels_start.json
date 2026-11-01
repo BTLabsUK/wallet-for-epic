@@ -3,11 +3,11 @@
   "@deskLvStartPreviewLabel": {
     "description": "Screen-reader label of the small Overview picture next to the depth dial (Welcome and Settings › Advanced › Depth)."
   },
-  "deskLvStartPreviewCaption": "Your Overview at this depth. Nothing stored changes between depths.",
+  "deskLvStartPreviewCaption": "Your Overview in this view. Nothing stored changes between views.",
   "@deskLvStartPreviewCaption": {
     "description": "Caption under the Overview picture on Welcome (first start)."
   },
-  "deskLvStartPreviewCaptionShort": "Your Overview at this depth.",
+  "deskLvStartPreviewCaptionShort": "Your Overview in this view.",
   "@deskLvStartPreviewCaptionShort": {
     "description": "Caption under the Overview picture on the Change level page."
   },
@@ -35,7 +35,7 @@
   "@deskLvStartHelpDeep": {
     "description": "Dialog \"What this decides\": the line for the third stop. Deep end is the stop name."
   },
-  "deskLvStartPickFirst": "Pick a depth first. Nothing connects until you do.",
+  "deskLvStartPickFirst": "Pick a view first. Nothing connects until you do.",
   "@deskLvStartPickFirst": {
     "description": "Welcome, under the three doors (Create, Import, Restore) while they are disabled until a depth is picked on a fresh install."
   },
@@ -55,11 +55,11 @@
   "@deskLvStartMiniWaiting": {
     "description": "Balance tile in the small Overview picture at Deeper: coins waiting for the sender to sign."
   },
-  "deskLvStartAdvNote": "More levels show more of the wallet. Nothing stored changes.",
+  "deskLvStartAdvNote": "A deeper view shows more of the wallet. Nothing stored changes.",
   "@deskLvStartAdvNote": {
     "description": "Settings › Advanced at Shallow, under the Depth row."
   },
-  "deskLvStartAboutDepth": "Depth: {name}",
+  "deskLvStartAboutDepth": "View: {name}",
   "@deskLvStartAboutDepth": {
     "description": "Screen-reader text of the Depth row in Settings › About. name is the depth: Shallow, Deeper or Deep end.",
     "placeholders": {

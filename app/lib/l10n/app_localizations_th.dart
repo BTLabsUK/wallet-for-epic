@@ -17601,13 +17601,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get levelFooter => 'เปลี่ยนได้ทุกเมื่อที่ การตั้งค่า › ขั้นสูง';
 
   @override
-  String get levelRowTitle => 'ระดับกระเป๋าเงิน';
+  String get levelRowTitle => 'มุมมองกระเป๋าเงิน';
 
   @override
-  String get levelChangeTitle => 'เปลี่ยนระดับ';
+  String get levelChangeTitle => 'เปลี่ยนมุมมอง';
 
   @override
-  String get lvPickTitle => 'เลือกความลึก';
+  String get lvPickTitle => 'เลือกมุมมองของคุณ';
 
   @override
   String get lvPickLead => 'อยากเห็นกระเป๋าเงินมากแค่ไหน';
@@ -17637,7 +17637,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get lvPickNoneLine => 'ภาพตัวอย่างจะเปลี่ยนตามตัวเลือก';
 
   @override
-  String get lvPickDepth => 'ความลึก';
+  String get lvPickDepth => 'มุมมอง';
 
   @override
   String get lvPickPreview => 'ภาพตัวอย่างหน้าหลัก ยิ่งเลือกลึก ยิ่งแสดงมาก';
@@ -17647,7 +17647,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get lvPickHelpText =>
-      'กำหนดแค่ว่าแอปแสดงมากแค่ไหน ทุกระดับส่งและรับเหมือนกัน ด้วยคีย์เดียวกันและเหรียญเดียวกัน';
+      'กำหนดแค่ว่าแอปแสดงมากแค่ไหน ทุกมุมมองส่งและรับเหมือนกัน ด้วยคีย์เดียวกันและเหรียญเดียวกัน';
 
   @override
   String get lvPickUndercoverHelp =>
@@ -17664,7 +17664,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get lvPickTakesEffect => 'มีผลทันที';
 
   @override
-  String get lvPickSaved => 'บันทึกระดับแล้ว';
+  String get lvPickSaved => 'บันทึกมุมมองแล้ว';
 
   @override
   String get lvPickTorTitle => 'กำลังเชื่อมต่อผ่าน Tor';
@@ -17893,7 +17893,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get lvShellLevelCaption =>
-      'ระดับที่สูงขึ้นจะแสดงกระเป๋าเงินมากขึ้น ข้อมูลที่บันทึกไว้ไม่เปลี่ยน';
+      'มุมมองที่ลึกขึ้นจะแสดงกระเป๋าเงินมากขึ้น ข้อมูลที่บันทึกไว้ไม่เปลี่ยน';
 
   @override
   String get lvPolPosted => 'ส่งแล้ว';
@@ -17912,10 +17912,10 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskLvStartPreviewCaption =>
-      'ภาพรวมของคุณที่ความลึกนี้ ข้อมูลที่บันทึกไว้ไม่เปลี่ยน';
+      'ภาพรวมของคุณในมุมมองนี้ ข้อมูลที่บันทึกไว้ไม่เปลี่ยน';
 
   @override
-  String get deskLvStartPreviewCaptionShort => 'ภาพรวมของคุณที่ความลึกนี้';
+  String get deskLvStartPreviewCaptionShort => 'ภาพรวมของคุณในมุมมองนี้';
 
   @override
   String get deskLvStartCover => 'เลือกระดับเพื่อดูภาพตัวอย่าง';
@@ -17941,7 +17941,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskLvStartPickFirst =>
-      'เลือกความลึกก่อน จะยังไม่มีการเชื่อมต่อจนกว่าจะเลือก';
+      'เลือกมุมมองก่อน จะยังไม่มีการเชื่อมต่อจนกว่าจะเลือก';
 
   @override
   String get deskLvStartMiniWallet => 'กระเป๋าเงินหลัก';
@@ -17957,11 +17957,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskLvStartAdvNote =>
-      'ยิ่งระดับลึก ยิ่งแสดงกระเป๋าเงินมาก ข้อมูลที่บันทึกไว้ไม่เปลี่ยน';
+      'ยิ่งมุมมองลึก ยิ่งแสดงกระเป๋าเงินมาก ข้อมูลที่บันทึกไว้ไม่เปลี่ยน';
 
   @override
   String deskLvStartAboutDepth(String name) {
-    return 'ความลึก: $name';
+    return 'มุมมอง: $name';
   }
 
   @override
@@ -18145,7 +18145,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskLvPayKind => 'การชำระเงิน';
 
   @override
-  String get deskLvShellNewsTitle => 'ใหม่: ความลึกของกระเป๋าเงิน';
+  String get deskLvShellNewsTitle => 'ใหม่: มุมมองของกระเป๋าเงิน';
 
   @override
   String get deskLvShellNewsText =>

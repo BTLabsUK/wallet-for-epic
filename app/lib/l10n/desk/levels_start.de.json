@@ -1,18 +1,18 @@
 {
   "deskLvStartPreviewLabel": "Vorschau der Übersicht. Sie zeigt mehr, je tiefer der Regler steht.",
-  "deskLvStartPreviewCaption": "Ihre Übersicht in dieser Tiefe. Gespeichert wird nichts anders.",
-  "deskLvStartPreviewCaptionShort": "Ihre Übersicht in dieser Tiefe.",
+  "deskLvStartPreviewCaption": "Ihre Übersicht in dieser Ansicht. Gespeichert wird nichts anders.",
+  "deskLvStartPreviewCaptionShort": "Ihre Übersicht in dieser Ansicht.",
   "deskLvStartCover": "Stufe wählen, um die Vorschau zu sehen",
   "deskLvStartUndercoverAbout": "Über Inkognito",
   "deskLvStartChangeLater": "Jederzeit änderbar unter Einstellungen › Erweitert.",
   "deskLvStartHelpShallow": "Flach · eine Adresse, keine Servernamen, keine Schalter.",
   "deskLvStartHelpDeeper": "Tiefer · dieselbe Wallet, dazu, was sie gerade tut, in einfachen Worten.",
   "deskLvStartHelpDeep": "Ganz tief · jeder Schalter, jede Zahl: die App von heute.",
-  "deskLvStartPickFirst": "Zuerst eine Tiefe wählen. Bis dahin verbindet sich nichts.",
+  "deskLvStartPickFirst": "Zuerst eine Ansicht wählen. Bis dahin verbindet sich nichts.",
   "deskLvStartMiniWallet": "Hauptwallet",
   "deskLvStartMiniLine": "+12,5000 kommen an · 25,0000 gehalten",
   "deskLvStartMiniFresh": "Frisch vom Mining",
   "deskLvStartMiniWaiting": "Wartet auf die Gegenseite",
-  "deskLvStartAdvNote": "Mehr Stufen zeigen mehr von der Wallet. Gespeichert wird nichts anders.",
-  "deskLvStartAboutDepth": "Tiefe: {name}"
+  "deskLvStartAdvNote": "Eine tiefere Ansicht zeigt mehr von der Wallet. Gespeichert wird nichts anders.",
+  "deskLvStartAboutDepth": "Ansicht: {name}"
 }
