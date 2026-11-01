@@ -23,6 +23,7 @@ class LocalNodeState {
     required this.at,
     this.progress,
     this.eta,
+    this.etaTotal,
     this.stageRate,
     this.height,
     this.networkHeight,
@@ -50,6 +51,10 @@ class LocalNodeState {
 
   /// Time left in the current stage at the recent rate.
   final Duration? eta;
+
+  /// A rough time left for the whole sync (this stage measured, the later ones by fixed
+  /// allowances, smoothed); null while calculating. Show it through `roundSyncEta`.
+  final Duration? etaTotal;
 
   /// The recent rate in the stage's own units per second: bytes/s while the chain state
   /// downloads ("download rate"), headers/s, blocks/s, items/s.
@@ -119,6 +124,7 @@ class LocalNodeState {
       other.phase == phase &&
       other.progress == progress &&
       other.eta == eta &&
+      other.etaTotal == etaTotal &&
       other.stageRate == stageRate &&
       other.height == height &&
       other.networkHeight == networkHeight &&
@@ -146,6 +152,7 @@ class LocalNodeState {
     phase,
     progress,
     eta,
+    etaTotal,
     stageRate,
     height,
     networkHeight,
@@ -197,6 +204,7 @@ LocalNodeState deriveLocalNodeState(
   int? directoryTip,
   int? peersHeight,
   Duration? eta,
+  Duration? etaTotal,
   double? stageRate,
   int? chainDataBytes,
   int? chainDataBytesAtStart,
@@ -245,6 +253,7 @@ LocalNodeState deriveLocalNodeState(
             networkHeight: networkTipOf(peersHeight: peersHeight, directoryTip: directoryTip),
           ),
     eta: phase == LocalNodePhase.syncing ? eta : null,
+    etaTotal: phase == LocalNodePhase.syncing ? etaTotal : null,
     stageRate: phase == LocalNodePhase.syncing ? stageRate : null,
     height: height,
     networkHeight: networkHeight,

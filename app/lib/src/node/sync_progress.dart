@@ -243,3 +243,109 @@ class EtaEstimator {
     return Duration(milliseconds: (left / rate * 1000).round());
   }
 }
+
+/// What each stage is allowed to take when a node has not got to it yet, for [SyncEta]. ROUGH, as
+/// [syncStageWeights]: typical mainnet figures on a home connection and an ordinary machine, not
+/// measured per machine. The stage a node is in is measured, never taken from here.
+const Map<SyncStage, Duration> syncStageAllowances = {
+  // Long and mostly static: the node walks the whole header chain.
+  SyncStage.headers: Duration(minutes: 20),
+  // About 1 GB of chain state from a peer.
+  SyncStage.chainStateDownload: Duration(minutes: 15),
+  SyncStage.chainStateKernels: Duration(minutes: 5),
+  SyncStage.chainStateRangeProofs: Duration(minutes: 10),
+  SyncStage.chainStateProcessing: Duration(minutes: 3),
+  // The blocks after the chain state's checkpoint, validated one by one.
+  SyncStage.blocks: Duration(minutes: 10),
+};
+
+/// A rough whole-sync time left: the current stage's measured time plus [syncStageAllowances] for
+/// every stage after it, smoothed so the number does not jump. Null ("Calculating…") until the
+/// current stage has a measured rate, after a stage change and while the stage stalls.
+class SyncEta {
+  SyncEta({this.smoothing = const Duration(seconds: 60)});
+
+  /// Time constant of the smoothing: the weight of a new estimate grows with the time since the
+  /// last one, 1 - e^(-dt / smoothing).
+  final Duration smoothing;
+
+  SyncStage? _stage;
+  DateTime? _at;
+  double? _seconds;
+
+  /// The whole-sync time left. [stageEta] is [EtaEstimator.eta] of [stage] (null when it has no
+  /// rate). Call it on every sample, and whenever the state is read so a stall shows.
+  Duration? update(DateTime now, SyncStage stage, Duration? stageEta) {
+    final changed = stage != _stage;
+    _stage = stage;
+    final order = syncStageAllowances.keys.toList();
+    final i = order.indexOf(stage);
+    if (changed || stageEta == null || i < 0) {
+      _at = null;
+      _seconds = null;
+      return null;
+    }
+    var later = Duration.zero;
+    for (final s in order.skip(i + 1)) {
+      later += syncStageAllowances[s]!;
+    }
+    final raw = (stageEta + later).inMilliseconds / 1000;
+    final at = _at;
+    final prev = _seconds;
+    if (at == null || prev == null || now.isBefore(at)) {
+      _seconds = raw;
+    } else {
+      final dt = now.difference(at).inMilliseconds / 1000;
+      // The old estimate has moved on with the clock; blend the new one into that.
+      final moved = max(0.0, prev - dt);
+      final a = 1 - exp(-dt / (smoothing.inMilliseconds / 1000));
+      _seconds = moved + a * (raw - moved);
+    }
+    _at = now;
+    return Duration(milliseconds: (_seconds! * 1000).round());
+  }
+
+  /// Forgets everything (the node stopped).
+  void reset() {
+    _stage = null;
+    _at = null;
+    _seconds = null;
+  }
+}
+
+/// A whole-sync time ready to show; made by [roundSyncEta].
+///
+/// The UI says: "about a minute" when [isAboutAMinute]; otherwise "about N h M min" from [hours]
+/// and [minutes] (leaving out a zero part: "about 45 min", "about 2 h"). Never seconds.
+class SyncEtaDisplay {
+  const SyncEtaDisplay({this.hours = 0, this.minutes = 0, this.isAboutAMinute = false});
+
+  final int hours;
+  final int minutes;
+  final bool isAboutAMinute;
+
+  @override
+  bool operator ==(Object other) =>
+      other is SyncEtaDisplay &&
+      other.hours == hours &&
+      other.minutes == minutes &&
+      other.isAboutAMinute == isAboutAMinute;
+
+  @override
+  int get hashCode => Object.hash(hours, minutes, isAboutAMinute);
+
+  @override
+  String toString() => 'SyncEtaDisplay(${isAboutAMinute ? 'a minute' : '${hours}h ${minutes}m'})';
+}
+
+/// [d] rounded the way it is shown: under 2 minutes a minute; up to 1 hour to 5 minutes; up to
+/// 6 hours to 15 minutes; up to 24 hours to the half hour. Above 24 hours null: too rough to
+/// show, the UI keeps saying "Calculating…".
+SyncEtaDisplay? roundSyncEta(Duration d) {
+  if (d > const Duration(hours: 24)) return null;
+  final m = d.inMicroseconds / Duration.microsecondsPerMinute;
+  if (m < 2) return const SyncEtaDisplay(isAboutAMinute: true);
+  final step = m <= 60 ? 5 : (m <= 360 ? 15 : 30);
+  final rounded = max(step, (m / step).round() * step);
+  return SyncEtaDisplay(hours: rounded ~/ 60, minutes: rounded % 60);
+}
