@@ -1,7 +1,4 @@
 // SPDX-License-Identifier: Apache-2.0
-import 'address_view.dart' show ShortAddressText;
-import 'app_dialog.dart';
-import 'inline_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,10 +12,13 @@ import '../pairing_text.dart' show sameNamedContact;
 import '../providers.dart';
 import '../scan/scan_checks.dart' show addressOfScan;
 import '../wallet_service.dart';
+import 'address_view.dart' show ShortAddressText;
+import 'app_dialog.dart';
 import 'centered_body.dart';
 import 'common.dart';
 import 'contact_page.dart';
 import 'contacts_transfer.dart';
+import 'inline_button.dart';
 import 'method_names.dart';
 import 'pairing/pair_check.dart' show attachPairingTo, confirmRemovePairing, pickContactForPairing, savePairingAsNewContact;
 import 'pairing/pair_incoming.dart' show confirmCancelPairing;
@@ -426,7 +426,7 @@ class _OrphanRow extends ConsumerWidget {
           if (r.state.isPending) const PairPendingBadge() else TrustBadge(r, short: true),
         ],
       ),
-      subtitle: Text(subtitle, style: TextStyle(color: t.dim)),
+      subtitle: Text(subtitle),
       trailing: PopupMenuButton<String>(
         key: contactsOrphanMenuKey(r.id),
         tooltip: l.contactMore,
