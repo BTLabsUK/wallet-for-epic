@@ -9,6 +9,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../address_format.dart' hide shortAddress;
+import '../l10n.dart';
 import 'common.dart' show shortAddress;
 import 'theme/tokens.dart';
 
@@ -17,7 +18,8 @@ import 'theme/tokens.dart';
 /// text colour by default), the scheme, a path and `@server` dim. An Epicbox server is on its
 /// own line, shrunk rather than broken inside its name; a link breaks only before its path, its
 /// host:port shrunk rather than broken. [selectable] for a long press (the text is then exactly
-/// the address shown); [onTap] on a tap.
+/// the address shown); [onTap] on a tap, which a screen reader offers as "Copy" on the
+/// address's one node (every [onTap] copies; the Copy button beside it stays its own node).
 class MarkedAddress extends StatelessWidget {
   const MarkedAddress(
     this.address, {
@@ -97,9 +99,20 @@ class MarkedAddress extends StatelessWidget {
               return fits ? line([for (final p in parts) AddressPart(p.text, p.tone, whole: true)]) : column();
             },
           );
-    if (selectable) return body;
-    final shown = Semantics(label: address, excludeSemantics: true, child: body);
-    return onTap == null ? shown : GestureDetector(onTap: onTap, child: shown);
+    final tap = onTap;
+    if (tap == null) {
+      return selectable ? body : Semantics(label: address, excludeSemantics: true, child: body);
+    }
+    // One node: the address, and its tap read as Copy. The tap itself stays the text's own
+    // (a selectable line's, or the detector's), so a long press still selects.
+    return Semantics(
+      container: true,
+      label: address,
+      onTap: tap,
+      onTapHint: context.l10n.commonCopy,
+      excludeSemantics: true,
+      child: selectable ? body : GestureDetector(onTap: tap, excludeFromSemantics: true, child: body),
+    );
   }
 }
 
