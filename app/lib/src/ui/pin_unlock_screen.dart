@@ -346,18 +346,21 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
                 errorText: _pinError,
                 onCompleted: _unlockWithPin,
                 passphrase: passphrase,
+                // The error line's room is kept, so a wrong PIN moves nothing below.
+                reserveError: true,
               ),
             },
-          const SizedBox(height: 16),
+          const SizedBox(height: 8),
+          // One slot for the check's bar or the error: Forgot PIN stays where it is whether a
+          // check runs, failed or has not started.
           if (_busy && _copy != null)
             StoreCopyLine(progress: _copy!)
-          else if (_busy)
-            const PinCheckBar(),
+          else
+            PinStepFoot(child: _busy ? const PinCheckBar() : (_error == null ? null : ErrorText(_error!))),
           if (_busy && checkAt != null) ...[
             const SizedBox(height: 8),
             PinWaitNote(until: checkAt),
           ],
-          if (_error != null) ErrorText(_error!),
           if (_autoPin != false && _error != null)
             BusyButton(
               label: l.launchTryAgain,
