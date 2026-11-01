@@ -317,8 +317,8 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
               children: [
                 TextSpan(text: l.deskOnbNodeFound, style: ts.small.copyWith(color: c.ok, fontWeight: FontWeight.w600)),
                 TextSpan(
-                  text: metaLine([
-                    '',
+                  // The dot after "Found" leads the line (metaLine drops a blank part).
+                  text: metaSeparator + metaLine([
                     l.deskOnbNodeFoundAt(p.version ?? '?', hostPort(p.url)),
                     if (p.height != null) l.deskOnbNodeHeight(digits(context.l10n, p.height!)),
                     if (p.readyForTxs == true) l.deskOnbNodeSynced,
@@ -332,7 +332,7 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
             TextSpan(
               children: [
                 TextSpan(text: l.deskOnbNodeNoAnswer, style: ts.small.copyWith(color: c.risk, fontWeight: FontWeight.w600)),
-                TextSpan(text: ' · ${l.deskOnbNodeNoAnswerAt(hostPort(p.url))}', style: ts.small.copyWith(color: c.dim)),
+                TextSpan(text: '$metaSeparator${l.deskOnbNodeNoAnswerAt(hostPort(p.url))}', style: ts.small.copyWith(color: c.dim)),
               ],
             ),
           );

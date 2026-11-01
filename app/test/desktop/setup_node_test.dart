@@ -149,7 +149,7 @@ void main() {
     await tester.tap(find.text('Check'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Found', findRichText: true), findsOneWidget);
-    expect(find.textContaining('Epic 4.1.1 at 127.0.0.1:3413 · height 3,764,975 · synced', findRichText: true), findsOneWidget);
+    expect(find.textContaining('Found\u00A0· Epic 4.1.1 at 127.0.0.1:3413\u00A0· height 3,764,975\u00A0· synced', findRichText: true), findsOneWidget);
     expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Continue')).onPressed, isNotNull);
     expect(node.calls.where((c) => c == 'start'), isEmpty);
     expect(wallet.calls, isEmpty, reason: 'nothing moves before Save');
