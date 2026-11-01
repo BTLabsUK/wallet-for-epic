@@ -42,6 +42,9 @@ Future<void> _outputsOn(ProviderContainer c) async {
   await c.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: s.advanced.withFeature(AdvancedFeature.outputs, true)));
 }
 
+/// [_outputsOn] for the shots of other screens that open the Outputs page (the held-coin shot).
+const Future<void> Function(ProviderContainer) outputsOnForShots = _outputsOn;
+
 /// Clicks the title bar's button with [key] (a status icon, then a button inside its
 /// popover), as the pointer would: the popover opens under the icon.
 Future<void> _click(Key key) async {
