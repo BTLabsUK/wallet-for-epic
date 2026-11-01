@@ -158,20 +158,6 @@ bool mayPairRequest(PeerCompat? c, Relationship r, DateTime now) =>
 bool mayOfferPair(PeerCompat? c, Relationship r, DateTime now) =>
     r.kind == RelationshipKind.contact && mayPairRequest(c, r, now);
 
-/// May an incoming pair request be shown: only from someone in Contacts. Others are
-/// acknowledged and dropped.
-bool mayShowPairRequest(Relationship r) => r.inContacts;
-
-/// May pairing-outcome (status) notices go to the peer: the pairing's own copy of the peer's
-/// features has bit 3, and the pairing is paired, verified or waiting.
-bool mayStatusNotices(Relationship r) =>
-    r.peerFeatures & featureStatusNotices != 0 && (r.isPaired || r.waiting);
-
-/// May the inviter wait until heard (the reply is held for the first status notice): bit 3 and
-/// the pairing is waiting. Otherwise it is paired at the reply.
-bool mayWaitUntilHeard(Relationship r) =>
-    r.waiting && r.peerFeatures & featureStatusNotices != 0;
-
 /// May a directory payload go to the directory whose pairing claims [directoryClaimed].
 bool mayDirectoryPayload(int directoryClaimed, Relationship r) =>
     directoryClaimed & featureDirectory != 0 && r.isPaired;
