@@ -690,7 +690,7 @@ TextSpan _figureSpan(String text, WalletTokens t, double size, {bool unit = true
   children: [
     TextSpan(text: text),
     TextSpan(
-      text: ' EPIC',
+      text: '\u2002$epicUnit',
       style: TextStyle(
         fontSize: 11,
         letterSpacing: 0.12 * 11,
