@@ -4864,5 +4864,8 @@
   "deskNodeSwitchConnecting": "Подключение к {host}…",
   "deskNodeSwitchStarting": "Запуск локального узла…",
   "deskNodeSwitchStopping": "Остановка локального узла…",
-  "deskNodeSwitchStoppingWord": "Остановка"
+  "deskNodeSwitchStoppingWord": "Остановка",
+  "deskOnbImportFoundLead": "Далее — выбор кошельков для добавления.",
+  "deskOnbForgotFailedTitle": "Пароль не изменён",
+  "deskOnbForgotFailedLead": "Текущий пароль по-прежнему открывает кошелёк."
 }

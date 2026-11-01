@@ -19339,4 +19339,13 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Zatrzymywanie';
+
+  @override
+  String get deskOnbImportFoundLead => 'Dalej, aby wybrać portfele do dodania.';
+
+  @override
+  String get deskOnbForgotFailedTitle => 'Hasło nie zostało zmienione';
+
+  @override
+  String get deskOnbForgotFailedLead => 'Obecne hasło nadal otwiera portfel.';
 }

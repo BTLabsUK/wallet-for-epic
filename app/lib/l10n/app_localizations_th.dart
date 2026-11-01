@@ -18276,4 +18276,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'กำลังหยุด';
+
+  @override
+  String get deskOnbImportFoundLead =>
+      'ดำเนินการต่อเพื่อเลือกวอลเล็ตที่จะเพิ่ม';
+
+  @override
+  String get deskOnbForgotFailedTitle => 'ไม่ได้เปลี่ยนรหัสผ่าน';
+
+  @override
+  String get deskOnbForgotFailedLead => 'รหัสผ่านปัจจุบันยังคงเปิดวอลเล็ตได้';
 }

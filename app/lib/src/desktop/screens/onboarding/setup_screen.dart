@@ -359,7 +359,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         l.deskSetupLocalLead,
         LocalNodeStep(demo: _demo?.local ?? LocalNodeDemo.none, onChanged: (c) => setState(() => _localChoice = c)),
       ),
-      SetupStep.epicbox => (l.deskSetupEpicboxTitle, again, _epicbox(context)),
+      SetupStep.epicbox => (l.deskSetupEpicboxTitle, again ?? l.deskSetupEpicboxText, _epicbox(context)),
       SetupStep.review => (l.deskSetupReviewTitle, again ?? l.deskSetupReviewLead, _review(context)),
     };
     final first = _step == _steps.first;
@@ -504,8 +504,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l.deskSetupEpicboxText, style: ts.body),
-        SizedBox(height: Sp.x2),
         Text(l.deskSetupEpicboxPrivacy, style: ts.bodyDim),
         SizedBox(height: Sp.x6),
         ESwitch(

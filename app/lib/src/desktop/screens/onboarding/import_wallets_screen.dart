@@ -346,7 +346,7 @@ class _ImportWalletsScreenState extends ConsumerState<ImportWalletsScreen> {
 
   ({String title, String? lead}) _head(AppLocalizations l) => switch (_step) {
     ImportStep.find => (title: l.deskOnbImportFindingTitle, lead: l.deskOnbImportFindingLead),
-    ImportStep.found => (title: l.deskOnbImportFoundTitle(_found.length), lead: null),
+    ImportStep.found => (title: l.deskOnbImportFoundTitle(_found.length), lead: l.deskOnbImportFoundLead),
     ImportStep.none => (title: l.deskOnbImportNoneTitle, lead: l.deskOnbImportNoneLead),
     ImportStep.choose => (title: l.deskOnbImportChooseTitle, lead: l.deskOnbImportChooseLead),
     ImportStep.check => (title: l.deskOnbImportCheckTitle, lead: l.deskOnbImportCheckLead),

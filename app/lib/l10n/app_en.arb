@@ -25300,5 +25300,17 @@
   "deskNodeSwitchStoppingWord": "Stopping",
   "@deskNodeSwitchStoppingWord": {
     "description": "Sidebar Node status word, one word: the built-in local node is shutting down after a switch to a public node."
+  },
+  "deskOnbImportFoundLead": "Continue to choose the wallets to add.",
+  "@deskOnbImportFoundLead": {
+    "description": "Lead under the title of the import page once older wallets are found; the next step picks which ones to add."
+  },
+  "deskOnbForgotFailedTitle": "Password not changed",
+  "@deskOnbForgotFailedTitle": {
+    "description": "Title of the forgot-password page when the phrase could not be checked against the wallet."
+  },
+  "deskOnbForgotFailedLead": "The current password still opens the wallet.",
+  "@deskOnbForgotFailedLead": {
+    "description": "Lead under deskOnbForgotFailedTitle."
   }
 }

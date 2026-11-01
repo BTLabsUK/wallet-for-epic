@@ -19319,4 +19319,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Остановка';
+
+  @override
+  String get deskOnbImportFoundLead =>
+      'Далее — выбор кошельков для добавления.';
+
+  @override
+  String get deskOnbForgotFailedTitle => 'Пароль не изменён';
+
+  @override
+  String get deskOnbForgotFailedLead =>
+      'Текущий пароль по-прежнему открывает кошелёк.';
 }

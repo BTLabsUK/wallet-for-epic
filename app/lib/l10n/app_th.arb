@@ -4864,5 +4864,8 @@
   "deskNodeSwitchConnecting": "กำลังเชื่อมต่อ {host}…",
   "deskNodeSwitchStarting": "กำลังเริ่มโหนดในเครื่อง…",
   "deskNodeSwitchStopping": "กำลังหยุดโหนดในเครื่อง…",
-  "deskNodeSwitchStoppingWord": "กำลังหยุด"
+  "deskNodeSwitchStoppingWord": "กำลังหยุด",
+  "deskOnbImportFoundLead": "ดำเนินการต่อเพื่อเลือกวอลเล็ตที่จะเพิ่ม",
+  "deskOnbForgotFailedTitle": "ไม่ได้เปลี่ยนรหัสผ่าน",
+  "deskOnbForgotFailedLead": "รหัสผ่านปัจจุบันยังคงเปิดวอลเล็ตได้"
 }

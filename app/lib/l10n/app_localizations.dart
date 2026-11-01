@@ -29191,6 +29191,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stopping'**
   String get deskNodeSwitchStoppingWord;
+
+  /// Lead under the title of the import page once older wallets are found; the next step picks which ones to add.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue to choose the wallets to add.'**
+  String get deskOnbImportFoundLead;
+
+  /// Title of the forgot-password page when the phrase could not be checked against the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Password not changed'**
+  String get deskOnbForgotFailedTitle;
+
+  /// Lead under deskOnbForgotFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The current password still opens the wallet.'**
+  String get deskOnbForgotFailedLead;
 }
 
 class _AppLocalizationsDelegate

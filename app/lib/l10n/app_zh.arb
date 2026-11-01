@@ -4864,5 +4864,8 @@
   "deskNodeSwitchConnecting": "正在连接 {host}…",
   "deskNodeSwitchStarting": "正在启动本地节点…",
   "deskNodeSwitchStopping": "正在停止本地节点…",
-  "deskNodeSwitchStoppingWord": "正在停止"
+  "deskNodeSwitchStoppingWord": "正在停止",
+  "deskOnbImportFoundLead": "继续以选择要添加的钱包。",
+  "deskOnbForgotFailedTitle": "密码未更改",
+  "deskOnbForgotFailedLead": "当前密码仍可打开钱包。"
 }

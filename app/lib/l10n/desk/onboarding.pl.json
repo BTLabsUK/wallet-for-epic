@@ -126,6 +126,7 @@
   "deskOnbImportFindingTitle": "Szukanie portfeli",
   "deskOnbImportFindingLead": "Przeszukiwanie folderów starszych wersji Epic Wallet i programu epic.",
   "deskOnbImportFoundTitle": "{count, plural, one{Znaleziono {count} portfel} few{Znaleziono {count} portfele} many{Znaleziono {count} portfeli} other{Znaleziono {count} portfela}}",
+  "deskOnbImportFoundLead": "Dalej, aby wybrać portfele do dodania.",
   "deskOnbImportNoneTitle": "Nie znaleziono portfeli",
   "deskOnbImportNoneLead": "Wybierz folder portfela albo przywróć go z frazy odzyskiwania.",
   "deskOnbImportChooseTitle": "Wybierz portfele",

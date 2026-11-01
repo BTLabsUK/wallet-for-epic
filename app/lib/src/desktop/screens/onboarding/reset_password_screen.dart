@@ -220,12 +220,13 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
           child: EOnbFrame(
             sideTitle: l.deskOnbForgotTitle,
             steps: railOf([l.deskOnbStepPhrase, l.deskOnbStepPassword], 1),
-            title: l.deskErrPasswordNotChanged,
+            title: l.deskOnbForgotFailedTitle,
+            lead: l.deskOnbForgotFailedLead,
             back: backButton(() => setState(() => _step = _Step.words)),
             actions: [
               EButton.primary(key: const ValueKey('reset-restore-instead'), label: l.deskOnbForgotRestoreInstead, busy: _checking, onPressed: _checking ? null : _restoreInstead),
             ],
-            child: ENotice(tone: ETone.warn, title: l.deskOnbForgotTitle, text: _failure),
+            child: ENotice(tone: ETone.warn, title: _failure ?? l.deskErrPasswordNotChanged),
           ),
         );
       case _Step.working || _Step.failed:

@@ -126,6 +126,7 @@
   "deskOnbImportFindingTitle": "กำลังหากระเป๋าเงิน",
   "deskOnbImportFindingLead": "กำลังค้นหาโฟลเดอร์ของ Epic Wallet รุ่นเก่าและโปรแกรม epic",
   "deskOnbImportFoundTitle": "{count, plural, other{พบกระเป๋าเงิน {count} ใบ}}",
+  "deskOnbImportFoundLead": "ดำเนินการต่อเพื่อเลือกวอลเล็ตที่จะเพิ่ม",
   "deskOnbImportNoneTitle": "ไม่พบกระเป๋าเงิน",
   "deskOnbImportNoneLead": "เลือกโฟลเดอร์กระเป๋าเงิน หรือกู้คืนจากวลีกู้คืน",
   "deskOnbImportChooseTitle": "เลือกกระเป๋าเงิน",

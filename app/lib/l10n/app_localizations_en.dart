@@ -18692,4 +18692,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Stopping';
+
+  @override
+  String get deskOnbImportFoundLead => 'Continue to choose the wallets to add.';
+
+  @override
+  String get deskOnbForgotFailedTitle => 'Password not changed';
+
+  @override
+  String get deskOnbForgotFailedLead =>
+      'The current password still opens the wallet.';
 }

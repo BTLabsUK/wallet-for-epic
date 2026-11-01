@@ -17628,4 +17628,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => '正在停止';
+
+  @override
+  String get deskOnbImportFoundLead => '继续以选择要添加的钱包。';
+
+  @override
+  String get deskOnbForgotFailedTitle => '密码未更改';
+
+  @override
+  String get deskOnbForgotFailedLead => '当前密码仍可打开钱包。';
 }
