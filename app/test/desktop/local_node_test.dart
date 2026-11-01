@@ -119,10 +119,10 @@ void main() {
     expect(tester.widget<StageStrip>(find.byType(StageStrip)).step, isNull);
 
     final steps = <(LocalNodeState, String, int, String, String)>[
-      (mockLocalNode(LocalNodePhase.syncing, overall: 0.12, done: 1480200, total: 3764975, eta: const Duration(hours: 3)), 'Headers · 1,480,200 of 3,764,975', 0, '12%', 'epic.invalid · 12%'),
-      (mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.chainStateDownload, overall: 0.46, done: 1900000000, total: 4100000000, eta: const Duration(minutes: 40)), 'Chain state · 1.9 of 4.1 GB', 1, '46%', 'epic.invalid · 46%'),
-      (mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.chainStateKernels, overall: 0.7, done: 2100000, total: 3400000), 'Checking the chain · 2.1 of 3.4 million', 1, '70%', 'epic.invalid · 70%'),
-      (mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks, overall: 0.96, done: 3702100, total: 3764975, eta: const Duration(minutes: 12)), 'Blocks · 3,702,100 of 3,764,975', 2, '96%', 'epic.invalid · 96%'),
+      (mockLocalNode(LocalNodePhase.syncing, overall: 0.12, done: 1480200, total: 3764975, eta: const Duration(hours: 3)), 'Headers\u00A0· 1,480,200 of 3,764,975', 0, '12%', 'epic.invalid\u00A0· 12%'),
+      (mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.chainStateDownload, overall: 0.46, done: 1900000000, total: 4100000000, eta: const Duration(minutes: 40)), 'Chain state\u00A0· 1.9 of 4.1 GB', 1, '46%', 'epic.invalid\u00A0· 46%'),
+      (mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.chainStateKernels, overall: 0.7, done: 2100000, total: 3400000), 'Checking the chain\u00A0· 2.1 of 3.4 million', 1, '70%', 'epic.invalid\u00A0· 70%'),
+      (mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks, overall: 0.96, done: 3702100, total: 3764975, eta: const Duration(minutes: 12)), 'Blocks\u00A0· 3,702,100 of 3,764,975', 2, '96%', 'epic.invalid\u00A0· 96%'),
     ];
     for (final (s, line, strip, right, rail) in steps) {
       await step(tester, s);
@@ -137,7 +137,7 @@ void main() {
 
     await step(tester, mockLocalNode(LocalNodePhase.synced));
     expect(find.textContaining('Synced', findRichText: true), findsWidgets);
-    expect(find.textContaining('3,764,975 · at tip', findRichText: true), findsOneWidget);
+    expect(find.textContaining('3,764,975\u00A0· at tip', findRichText: true), findsOneWidget);
     expect(find.byType(StageStrip), findsNothing);
     expect(find.text('Peers'), findsWidgets, reason: 'the tiles');
     expect(localNodeView(englishStrings, mockLocalNode(LocalNodePhase.synced)).second, 'Local node');
@@ -220,7 +220,7 @@ void main() {
     await settle(tester);
     expect(find.text('Use node.lab.invalid until the local node is synced'), findsOneWidget);
     expect(find.textContaining('using node.lab.invalid meanwhile', findRichText: true), findsOneWidget);
-    expect(localNodeView(englishStrings, node.state, fallbackUrl: 'https://node.lab.invalid').second, 'lab.invalid · 12%');
+    expect(localNodeView(englishStrings, node.state, fallbackUrl: 'https://node.lab.invalid').second, 'lab.invalid\u00A0· 12%');
     await end(tester);
   });
 
@@ -292,7 +292,7 @@ void main() {
   });
 
   test('statusWords: the table of §19', () {
-    expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks), fallback: 'node.epic.invalid', accepted: true).detail, 'blocks · using node.epic.invalid meanwhile');
+    expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks), fallback: 'node.epic.invalid', accepted: true).detail, 'blocks\u00A0· using node.epic.invalid meanwhile');
     expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.stopped), fallback: 'node.epic.invalid', accepted: true).detail, 'the wallet uses node.epic.invalid meanwhile');
     expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.error, failure: NodeFailure.diskLow), fallback: 'x', accepted: true).notice?.action, isNull, reason: 'the folder row has Change');
     expect(statusWords(englishStrings, mockLocalNode(LocalNodePhase.error, failure: NodeFailure.binaryMissing), fallback: 'x', accepted: true).notice?.action, isNull);

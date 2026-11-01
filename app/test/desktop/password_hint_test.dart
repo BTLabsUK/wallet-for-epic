@@ -84,13 +84,13 @@ void main() {
     await tester.pump(const Duration(milliseconds: 149));
     expect(_line(tester), '2 characters');
     await tester.pump(const Duration(milliseconds: 2));
-    expect(_line(tester), '2 characters · under a minute to crack');
+    expect(_line(tester), '2 characters\u00A0· under a minute to crack');
     expect(find.byIcon(EIcons.info), findsOneWidget);
 
     await _type(tester, find.byType(TextField), 'x8F!q2Lm#9Rt');
-    expect(_line(tester), startsWith('12 characters · under a minute'), reason: 'the last time stays until the new one');
+    expect(_line(tester), startsWith('12 characters\u00A0· under a minute'), reason: 'the last time stays until the new one');
     await tester.pump(const Duration(milliseconds: 150));
-    expect(_line(tester), '12 characters · ${_estimator.crackTime('x8F!q2Lm#9Rt')}');
+    expect(_line(tester), '12 characters\u00A0· ${_estimator.crackTime('x8F!q2Lm#9Rt')}');
     expect(_line(tester), isNot(contains('under a minute')));
 
     await _type(tester, find.byType(TextField), '');
@@ -122,7 +122,7 @@ void main() {
       expect(_announced(tester), 'under a minute to crack');
     }
     final time = _estimator.crackTime(strong);
-    expect(_line(tester), '12 characters · $time');
+    expect(_line(tester), '12 characters\u00A0· $time');
     await tester.pump(const Duration(seconds: 1));
     expect(_announced(tester), time);
 
@@ -157,7 +157,7 @@ void main() {
       expect(_line(tester), '8 characters or more', reason: 'the rule at rest');
       await _type(tester, field, 'Password1!');
       await tester.pump(const Duration(milliseconds: 200));
-      expect(_line(tester), '10 characters · ${_estimator.crackTime('Password1!')}');
+      expect(_line(tester), '10 characters\u00A0· ${_estimator.crackTime('Password1!')}');
       // The hint sits under the field it rates.
       expect(tester.getTopLeft(find.byType(PasswordHint)).dy, greaterThan(tester.getBottomLeft(field).dy));
     }
