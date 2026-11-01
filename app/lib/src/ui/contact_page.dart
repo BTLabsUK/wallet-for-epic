@@ -5,6 +5,7 @@
 /// keys-changed and relay notices, and Remove pairing. Replaces the contact sheet.
 library;
 
+import 'address_view.dart' show MarkedAddress;
 import 'app_dialog.dart';
 import 'inline_button.dart';
 import 'phone_sheet.dart';

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'address_view.dart' show ShortAddressText;
 import 'app_dialog.dart';
 import 'inline_button.dart';
 import 'package:flutter/material.dart';
@@ -500,13 +501,6 @@ class _ContactRow extends ConsumerWidget {
     final inFlight = pairing == null && ref.watch(pairingSupportedProvider) && ref.watch(contactPendingPairingProvider(contact.id)) != null;
     final starred = ref.watch(favouriteContactsProvider).value?.contains(contact.id) ?? false;
     final several = contact.kinds.length > 1;
-    final address = shortAddress(contact.address);
-    final at = address.indexOf('@');
-    final mono = TextStyle(
-      fontFamily: t.monoFamily,
-      fontSize: 13,
-      color: t.dim,
-    );
     final Widget reach;
     if (pairing != null && pairing.allowInvoices && ref.watch(invoicesOnProvider)) {
       reach = Text(l.trustAllowsInvoices, style: theme.textTheme.bodySmall?.copyWith(color: t.dim));
@@ -515,20 +509,7 @@ class _ContactRow extends ConsumerWidget {
     } else if (contact.addresses.isEmpty) {
       reach = const SizedBox.shrink();
     } else {
-      reach = Text.rich(
-        TextSpan(
-          style: mono,
-          children: [
-            TextSpan(
-              text: at < 0 ? address : address.substring(0, at),
-              style: TextStyle(color: t.text),
-            ),
-            if (at >= 0) TextSpan(text: address.substring(at)),
-          ],
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      );
+      reach = ShortAddressText(contact.address, style: const TextStyle(fontSize: 13));
     }
     return InkWell(
       onTap: onTap,
