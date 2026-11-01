@@ -39,6 +39,7 @@ class LocalNodeState {
     this.failure,
     this.reason,
     this.stalled = false,
+    this.stopping = false,
     this.restartNeeded = false,
     this.userToml = false,
     this.chainDataOrigin = ChainDataOrigin.own,
@@ -99,6 +100,10 @@ class LocalNodeState {
   /// The node stopped making progress and the watchdog's one restart did not help.
   final bool stalled;
 
+  /// Asked to stop, not exited yet ([phase] is already [LocalNodePhase.stopped]): the node is
+  /// closing its files. It still holds its ports and chain data until then.
+  final bool stopping;
+
   /// Node settings changed that apply after a restart.
   final bool restartNeeded;
 
@@ -142,6 +147,7 @@ class LocalNodeState {
       other.failure == failure &&
       other.reason == reason &&
       other.stalled == stalled &&
+      other.stopping == stopping &&
       other.restartNeeded == restartNeeded &&
       other.userToml == userToml &&
       other.chainDataOrigin == chainDataOrigin &&
@@ -170,6 +176,7 @@ class LocalNodeState {
     failure,
     reason,
     stalled,
+    stopping,
     restartNeeded,
     userToml,
     chainDataOrigin,
@@ -229,7 +236,7 @@ LocalNodeState deriveLocalNodeState(
       s.readyForTxs == true ||
       (s.readyForTxs == null && status?.syncStatus == 'no_sync');
   final phase = switch (s.kind) {
-    NodeStatusKind.off || NodeStatusKind.stopped => LocalNodePhase.stopped,
+    NodeStatusKind.off || NodeStatusKind.stopping || NodeStatusKind.stopped => LocalNodePhase.stopped,
     NodeStatusKind.starting => LocalNodePhase.starting,
     NodeStatusKind.syncing => LocalNodePhase.syncing,
     // A node without peers says no_sync (and ready) at whatever height it had: not synced.
@@ -271,6 +278,7 @@ LocalNodeState deriveLocalNodeState(
     failure: s.failure,
     reason: s.reason,
     stalled: s.kind == NodeStatusKind.stalled,
+    stopping: s.kind == NodeStatusKind.stopping,
     restartNeeded: restartNeeded,
     userToml: userToml,
     chainDataOrigin: chainDataOrigin,

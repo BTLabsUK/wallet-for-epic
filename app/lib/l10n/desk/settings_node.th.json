@@ -15,5 +15,9 @@
   "deskSetNodeServerHint": "โหนดที่กระเป๋าเงินใช้อ่านบล็อกเชนและส่งธุรกรรม",
   "deskSetNodeChecking": "กำลังตรวจโหนด…",
   "deskSetNodeBackground": "ซิงก์เบื้องหลัง",
-  "deskSetNodeBackgroundHint": "ซิงก์ต่อขณะแอปปิดอยู่"
+  "deskSetNodeBackgroundHint": "ซิงก์ต่อขณะแอปปิดอยู่",
+  "deskNodeSwitchConnecting": "กำลังเชื่อมต่อ {host}…",
+  "deskNodeSwitchStarting": "กำลังเริ่มโหนดในเครื่อง…",
+  "deskNodeSwitchStopping": "กำลังหยุดโหนดในเครื่อง…",
+  "deskNodeSwitchStoppingWord": "กำลังหยุด"
 }

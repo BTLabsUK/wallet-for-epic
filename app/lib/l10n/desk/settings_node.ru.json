@@ -15,5 +15,9 @@
   "deskSetNodeServerHint": "Узел, через который кошелёк читает блокчейн и отправляет платежи.",
   "deskSetNodeChecking": "Проверка узла…",
   "deskSetNodeBackground": "Синхронизация в фоне",
-  "deskSetNodeBackgroundHint": "Продолжает синхронизацию, когда приложение закрыто."
+  "deskSetNodeBackgroundHint": "Продолжает синхронизацию, когда приложение закрыто.",
+  "deskNodeSwitchConnecting": "Подключение к {host}…",
+  "deskNodeSwitchStarting": "Запуск локального узла…",
+  "deskNodeSwitchStopping": "Остановка локального узла…",
+  "deskNodeSwitchStoppingWord": "Остановка"
 }

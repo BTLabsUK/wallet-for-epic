@@ -3580,14 +3580,28 @@ class LepicDeskWallet implements DeskWalletApi {
     await _useNode(url);
   }
 
-  Future<void> _useNode(String url) => _nodeLock(() async {
-    logInfo('desk', 'node ${Uri.tryParse(url)?.host ?? '?'}');
-    await _switchTo(nodeUrl: url, relay: await _relay());
-    if (await _builtInOn()) {
+  Future<void> _useNode(String url) async {
+    final stopping = await _nodeLock(() async {
+      logInfo('desk', 'node ${Uri.tryParse(url)?.host ?? '?'}');
+      final relay = await _relay();
+      if (_session != null && _config?.nodeUrl == url) {
+        // Already on it (the public node that stood in while the local node synced): only the
+        // choice is saved, the wallet is not reopened.
+        final values = useServerValues(hostSettings, node: url, relay: relay.label);
+        if (values.isNotEmpty) await writeHostSettings(values);
+      } else {
+        await _switchTo(nodeUrl: url, relay: relay);
+      }
+      if (!await _builtInOn()) return null;
       await _secrets.write(builtInNodeSettingKey(preset.chain), 'false');
-      await _node?.stop();
-    }
-  });
+      logInfo('desk', 'built-in node off');
+      return _node;
+    });
+    // The wallet runs on [url] now; the local node stops behind it (a few seconds, its chain
+    // data kept), its state says so. A start meanwhile waits for its exit, and closing the app
+    // waits for it too (stopAllBuiltInNodes).
+    if (stopping != null) unawaited(stopping.stop());
+  }
 
   @override
   Future<void> useNodeForSession(String url) => _nodeLock(() async {

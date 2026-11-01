@@ -17614,4 +17614,18 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskNodeEtaHoursMinutes(int hours, int minutes) {
     return '$hours 小时 $minutes 分钟';
   }
+
+  @override
+  String deskNodeSwitchConnecting(String host) {
+    return '正在连接 $host…';
+  }
+
+  @override
+  String get deskNodeSwitchStarting => '正在启动本地节点…';
+
+  @override
+  String get deskNodeSwitchStopping => '正在停止本地节点…';
+
+  @override
+  String get deskNodeSwitchStoppingWord => '正在停止';
 }

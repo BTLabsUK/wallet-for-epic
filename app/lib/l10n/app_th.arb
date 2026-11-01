@@ -4860,5 +4860,9 @@
   "deskNodeEtaMinute": "หนึ่งนาที",
   "deskNodeEtaMinutes": "{minutes} นาที",
   "deskNodeEtaHours": "{hours} ชั่วโมง",
-  "deskNodeEtaHoursMinutes": "{hours} ชั่วโมง {minutes} นาที"
+  "deskNodeEtaHoursMinutes": "{hours} ชั่วโมง {minutes} นาที",
+  "deskNodeSwitchConnecting": "กำลังเชื่อมต่อ {host}…",
+  "deskNodeSwitchStarting": "กำลังเริ่มโหนดในเครื่อง…",
+  "deskNodeSwitchStopping": "กำลังหยุดโหนดในเครื่อง…",
+  "deskNodeSwitchStoppingWord": "กำลังหยุด"
 }

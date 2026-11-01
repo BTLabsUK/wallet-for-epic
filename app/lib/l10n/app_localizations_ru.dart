@@ -19305,4 +19305,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskNodeEtaHoursMinutes(int hours, int minutes) {
     return '$hours ч $minutes мин';
   }
+
+  @override
+  String deskNodeSwitchConnecting(String host) {
+    return 'Подключение к $host…';
+  }
+
+  @override
+  String get deskNodeSwitchStarting => 'Запуск локального узла…';
+
+  @override
+  String get deskNodeSwitchStopping => 'Остановка локального узла…';
+
+  @override
+  String get deskNodeSwitchStoppingWord => 'Остановка';
 }

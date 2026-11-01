@@ -18262,4 +18262,18 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskNodeEtaHoursMinutes(int hours, int minutes) {
     return '$hours ชั่วโมง $minutes นาที';
   }
+
+  @override
+  String deskNodeSwitchConnecting(String host) {
+    return 'กำลังเชื่อมต่อ $host…';
+  }
+
+  @override
+  String get deskNodeSwitchStarting => 'กำลังเริ่มโหนดในเครื่อง…';
+
+  @override
+  String get deskNodeSwitchStopping => 'กำลังหยุดโหนดในเครื่อง…';
+
+  @override
+  String get deskNodeSwitchStoppingWord => 'กำลังหยุด';
 }

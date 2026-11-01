@@ -13,6 +13,7 @@ import 'api.dart';
 import 'devices_state.dart' show deskDeviceHandleProvider;
 import 'desk_store.dart';
 import 'mock_wallet.dart';
+import 'node_switch.dart' show NodeSwitchStep, deskNodeSwitchProvider;
 import 'models.dart';
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../relay_directory.dart' show statusSite;
@@ -438,12 +439,16 @@ class DeskController extends Notifier<DeskState> {
     return s;
   }
 
-  Future<void> useNode(String url) => _reopening(() => api.useNode(url));
+  /// The switch says what happens from the first moment ([deskNodeSwitchProvider]).
+  Future<void> useNode(String url) =>
+      ref.read(deskNodeSwitchProvider.notifier).run(NodeSwitchStep.connecting, url, () => _reopening(() => api.useNode(url)));
 
   /// Node failover's move: [url] for this session, the chosen node kept (`desk_failover.dart`).
   Future<void> useNodeForSession(String url) => _reopening(() => api.useNodeForSession(url));
 
-  Future<void> useBuiltInNode(bool on) => _reopening(() => api.useBuiltInNode(on));
+  Future<void> useBuiltInNode(bool on) => on
+      ? ref.read(deskNodeSwitchProvider.notifier).run(NodeSwitchStep.starting, null, () => _reopening(() => api.useBuiltInNode(on)))
+      : _reopening(() => api.useBuiltInNode(on));
 
   Future<void> followBuiltInNode() => _reopening(() => api.followBuiltInNode());
 

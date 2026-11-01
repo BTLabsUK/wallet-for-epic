@@ -4860,5 +4860,9 @@
   "deskNodeEtaMinute": "минуты",
   "deskNodeEtaMinutes": "{minutes} мин",
   "deskNodeEtaHours": "{hours} ч",
-  "deskNodeEtaHoursMinutes": "{hours} ч {minutes} мин"
+  "deskNodeEtaHoursMinutes": "{hours} ч {minutes} мин",
+  "deskNodeSwitchConnecting": "Подключение к {host}…",
+  "deskNodeSwitchStarting": "Запуск локального узла…",
+  "deskNodeSwitchStopping": "Остановка локального узла…",
+  "deskNodeSwitchStoppingWord": "Остановка"
 }
