@@ -1,4 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../../levels/first_start.dart' show firstStartProvider;
+import '../../../levels/wallet_level.dart';
+import '../../../network_gate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../app/shots.dart';
 import '../../data/mock_wallet.dart' show MockDeskWallet;
 import '../../widgets/kit.dart';
@@ -15,6 +20,12 @@ import 'unlock_screen.dart';
 /// Screenshot tour entries of this group (see app/shots.dart). Ids match the Electron
 /// reference shots.
 final List<DeskShot> onboardingShots = [
+  // The first start of a fresh install, as the user meets it: Pick your view with no stop
+  // picked (the doors wait), then each stop. The tour harness releases the hold after the shot.
+  DeskShot(id: '00a-first-start', title: 'First start: pick your view', route: DeskRoute.welcome, before: _firstStart),
+  DeskShot(id: '00b-first-start-shallow', title: 'First start: Shallow picked', route: DeskRoute.welcome, arg: WalletLevel.justSendReceive, before: _firstStart),
+  DeskShot(id: '00c-first-start-deeper', title: 'First start: Deeper picked', route: DeskRoute.welcome, arg: WalletLevel.casual, before: _firstStart),
+  DeskShot(id: '00d-first-start-deep-end', title: 'First start: Deep end picked', route: DeskRoute.welcome, arg: WalletLevel.everything, before: _firstStart),
   const DeskShot(id: '01-welcome', title: 'Welcome', route: DeskRoute.welcome),
   const DeskShot(id: '01b-welcome-advanced', title: 'Welcome: advanced', route: DeskRoute.welcome, arg: 'advanced'),
   const DeskShot(id: '01c-welcome-add', title: 'Add a wallet', route: DeskRoute.welcome, arg: 'add'),
@@ -107,3 +118,9 @@ final List<DeskShot> onboardingShots = [
   ),
   const DeskShot(id: '09j-import-none', title: 'Import: none found', route: DeskRoute.importWallets, arg: ImportStep.none),
 ];
+
+/// A fresh install still to answer the first-start step: the gate held, as at launch.
+Future<void> _firstStart(ProviderContainer c) async {
+  NetGate.holdFirstStart();
+  c.invalidate(firstStartProvider);
+}
