@@ -13,6 +13,7 @@ import '../providers.dart';
 import '../restore_scan.dart' show historyImportOfferProvider;
 import '../vault.dart';
 import '../wallet_service.dart';
+import 'app_dialog.dart';
 import 'centered_body.dart';
 import 'common.dart';
 import 'demo_pin.dart';
@@ -260,10 +261,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
     final l = context.l10n;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (_) => const _ResetDialog(),
-    );
+    final confirmed = await showAppDialog<bool>(context, builder: (_) => const _ResetDialog());
     if (confirmed != true || !mounted) return;
     setState(() => _busy = true);
     try {
@@ -417,32 +415,19 @@ class _ResetDialogState extends State<_ResetDialog> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final error = Theme.of(context).colorScheme.error;
-    return AlertDialog(
-      title: Text(l.pinResetTitle),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(l.pinResetBody),
-          CheckboxListTile(
-            contentPadding: EdgeInsets.zero,
-            value: _understood,
-            onChanged: (value) => setState(() => _understood = value ?? false),
-            title: Text(l.pinResetConfirm),
-          ),
-        ],
+    return AppDialog(
+      title: l.pinResetTitle,
+      icon: Icons.delete_forever_outlined,
+      tone: DialogTone.risk,
+      description: l.pinResetBody,
+      body: DialogCheckRow(
+        value: _understood,
+        onChanged: (value) => setState(() => _understood = value),
+        label: l.pinResetConfirm,
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: Text(l.pinResetKeep),
-        ),
-        FilledButton(
-          style: FilledButton.styleFrom(backgroundColor: error),
-          onPressed: _understood ? () => Navigator.pop(context, true) : null,
-          child: Text(l.pinResetDelete),
-        ),
+        DialogButton.secondary(label: l.pinResetKeep, onPressed: () => Navigator.pop(context, false)),
+        DialogButton.risk(label: l.pinResetDelete, onPressed: _understood ? () => Navigator.pop(context, true) : null),
       ],
     );
   }
