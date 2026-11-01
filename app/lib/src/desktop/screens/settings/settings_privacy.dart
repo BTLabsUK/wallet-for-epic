@@ -106,6 +106,15 @@ class _TorGroupState extends ConsumerState<TorGroup> {
     final mode = st.settings.advanced.networkMode;
     final torOnly = mode == NetworkMode.torOnly;
     final offline = mode == NetworkMode.killSwitch;
+    // Undercover is Tor only: the switch shows disabled, and a tap, its ⓘ and its line say why
+    // and lead to the Depth page, where Undercover is changed.
+    void changeUndercover() => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsLevel);
+    final control = ESwitch(
+      key: const ValueKey('privacy-tor-switch'),
+      value: (torOnly || st.settings.tor) && included && !offline,
+      semanticLabel: torNetworkLabel(context.l10n),
+      onChanged: included && !torOnly && !offline ? _set : null,
+    );
     return JumpSection(
       section: SettingsJump.tor,
       child: ESetGroup(
@@ -113,7 +122,7 @@ class _TorGroupState extends ConsumerState<TorGroup> {
         rows: [
           ESetRow(
             title: torNetworkLabel(context.l10n),
-            hint: torNetworkHint(context.l10n),
+            hint: torOnly ? '${torNetworkHint(l)}\n\n${l.deskSetPrivUndercoverLine}' : torNetworkHint(l),
             hintTitle: torNetworkLabel(context.l10n),
             hintIcon: EIcons.tor,
             control: SizedBox(
@@ -121,11 +130,18 @@ class _TorGroupState extends ConsumerState<TorGroup> {
               height: 24.u,
               child: _busy
                   ? Center(child: Semantics(label: l.deskSetPrivSwitching, child: ESpinner(size: 18.u)))
-                  : ESwitch(
-                      key: const ValueKey('privacy-tor-switch'),
-                      value: (torOnly || st.settings.tor) && included && !offline,
-                      semanticLabel: torNetworkLabel(context.l10n),
-                      onChanged: included && !torOnly && !offline ? _set : null,
+                  : !torOnly
+                  ? control
+                  : GestureDetector(
+                      key: const ValueKey('privacy-tor-undercover-tap'),
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => showEToast(
+                        context,
+                        l.deskSetPrivUndercoverLine,
+                        tone: ETone.info,
+                        action: (label: l.deskSetPrivUndercoverChange, run: changeUndercover),
+                      ),
+                      child: control,
                     ),
             ),
             below: Column(
@@ -139,11 +155,18 @@ class _TorGroupState extends ConsumerState<TorGroup> {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Text(
-                        torOnly ? l.deskNetTorOnlyLine : l.netBlockKillSwitch,
+                        torOnly ? l.deskSetPrivUndercoverLine : l.netBlockKillSwitch,
                         key: const ValueKey('privacy-mode-line'),
                         style: context.ts.small,
                       ),
-                      ELink(label: l.deskNetOpenAdvanced, onPressed: () => openAdvanced(ref)),
+                      if (torOnly)
+                        ELink(
+                          key: const ValueKey('privacy-undercover-change'),
+                          label: l.deskSetPrivUndercoverChange,
+                          onPressed: changeUndercover,
+                        )
+                      else
+                        ELink(label: l.deskNetOpenAdvanced, onPressed: () => openAdvanced(ref)),
                     ],
                   ),
                 ],

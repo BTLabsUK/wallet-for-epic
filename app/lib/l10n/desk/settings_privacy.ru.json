@@ -15,5 +15,7 @@
   "deskSetPrivProblemDetail": "{problem}. Повторите попытку или выключите Tor.",
   "deskSetPrivStatusSite": "Сайт статуса",
   "deskSetPrivUseStatus": "Использовать {site}",
-  "deskSetPrivUseStatusHint": "Показывает, какие узлы и серверы Epicbox в сети, по публичному списку на status.btlabs.uk."
+  "deskSetPrivUseStatusHint": "Показывает, какие узлы и серверы Epicbox в сети, по публичному списку на status.btlabs.uk.",
+  "deskSetPrivUndercoverLine": "Инкогнито держит Tor включённым.",
+  "deskSetPrivUndercoverChange": "Изменить «Инкогнито»"
 }

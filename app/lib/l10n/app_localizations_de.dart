@@ -13019,7 +13019,13 @@ class AppLocalizationsDe extends AppLocalizations {
       'Sperrt die Wallet nach dieser Zeit ohne Tastendruck oder Mausbewegung. Bei „Nie“ sperrt nur „Wallet sperren“.';
 
   @override
-  String get netBlockTorOnly => 'Nur Tor ist unter Erweitert eingeschaltet.';
+  String get torUndercoverKeepsOn => 'Inkognito lässt Tor eingeschaltet.';
+
+  @override
+  String get torUndercoverChange => 'Inkognito ändern';
+
+  @override
+  String get torUndercoverChangeShort => 'Ändern';
 
   @override
   String get txDetailsMore => 'Mehr';
@@ -13174,9 +13180,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskNetWaitingTorReason =>
       'Wartet auf Tor. Nur Tor ist unter Erweitert eingeschaltet.';
-
-  @override
-  String get deskNetTorOnlyLine => 'Nur Tor ist unter Erweitert eingeschaltet.';
 
   @override
   String get deskNetOpenAdvanced => 'Erweitert öffnen';
@@ -18840,4 +18843,10 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskLastSessionAttached =>
       'Mit dem Protokoll der letzten Sitzung.';
+
+  @override
+  String get deskSetPrivUndercoverLine => 'Inkognito lässt Tor eingeschaltet.';
+
+  @override
+  String get deskSetPrivUndercoverChange => 'Inkognito ändern';
 }

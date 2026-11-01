@@ -12538,7 +12538,13 @@ class AppLocalizationsTh extends AppLocalizations {
       'ล็อกกระเป๋าเมื่อไม่มีการกดแป้นหรือขยับเมาส์ตามเวลานี้ ถ้าเลือก “ไม่ล็อก” จะล็อกได้ด้วย “ล็อกกระเป๋า” เท่านั้น';
 
   @override
-  String get netBlockTorOnly => 'โหมด Tor เท่านั้นเปิดอยู่ใน ขั้นสูง';
+  String get torUndercoverKeepsOn => 'โหมดปกปิดตัวตนเปิด Tor ไว้ตลอด';
+
+  @override
+  String get torUndercoverChange => 'เปลี่ยนโหมดปกปิดตัวตน';
+
+  @override
+  String get torUndercoverChangeShort => 'เปลี่ยน';
 
   @override
   String get txDetailsMore => 'เพิ่มเติม';
@@ -12683,9 +12689,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskNetWaitingTorReason =>
       'รอ Tor โหมด Tor เท่านั้นเปิดอยู่ใน ขั้นสูง';
-
-  @override
-  String get deskNetTorOnlyLine => 'Tor เท่านั้นเปิดอยู่ใน ขั้นสูง';
 
   @override
   String get deskNetOpenAdvanced => 'เปิดขั้นสูง';
@@ -18203,4 +18206,10 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskLastSessionAttached => 'พร้อมบันทึกของการใช้งานครั้งล่าสุด';
+
+  @override
+  String get deskSetPrivUndercoverLine => 'โหมดปกปิดตัวตนเปิด Tor ไว้ตลอด';
+
+  @override
+  String get deskSetPrivUndercoverChange => 'เปลี่ยนโหมดปกปิดตัวตน';
 }

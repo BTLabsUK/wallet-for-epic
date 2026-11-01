@@ -3349,7 +3349,9 @@
   "deskSetAdvReset": "再次全部隐藏",
   "deskSetAdvOn": "{n, plural, other{已开启 {n} 个开关}}",
   "deskSetAcctAutoLockHint": "在这段时间内没有按键或移动鼠标时锁定钱包。选“从不”时，只能用“锁定钱包”锁定。",
-  "netBlockTorOnly": "“高级”中已开启“仅 Tor”。",
+  "torUndercoverKeepsOn": "隐身模式让 Tor 保持开启。",
+  "torUndercoverChange": "更改隐身设置",
+  "torUndercoverChangeShort": "更改",
   "txDetailsMore": "更多",
   "restoreStartFromLink": "从某个日期或高度开始",
   "settingsRescanBodyPlain": "钱包从第一个区块开始，重新查找它的资金。",
@@ -3389,7 +3391,6 @@
   "deskOnbRestoreFromHelp": "仅当钱包的第一笔付款发生在此区块之后才使用。留空则检查整条链。",
   "deskOnbRestoreFromInvalid": "只能输入数字，或留空。",
   "deskNetWaitingTorReason": "等待 Tor。“高级”中已开启“仅 Tor”。",
-  "deskNetTorOnlyLine": "“高级”中已开启“仅 Tor”。",
   "deskNetOpenAdvanced": "打开“高级”",
   "deskNetSendFileHint": "文件传输仍然可用。",
   "deskNetRecvWaitTorText": "Tor 连接后才开始接收。文件传输仍然可用。",
@@ -4846,5 +4847,7 @@
   "deskLastSessionNotNow": "以后再说",
   "deskLastSessionReportFroze": "应用停止了响应。",
   "deskLastSessionReportClosed": "应用意外关闭。",
-  "deskLastSessionAttached": "附带上次运行的日志。"
+  "deskLastSessionAttached": "附带上次运行的日志。",
+  "deskSetPrivUndercoverLine": "隐身模式让 Tor 保持开启。",
+  "deskSetPrivUndercoverChange": "更改隐身设置"
 }

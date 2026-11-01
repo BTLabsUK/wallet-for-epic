@@ -87,5 +87,13 @@
   "deskSetPrivUseStatusHint": "Shows which nodes and Epicbox servers are online, from a public list on status.btlabs.uk.",
   "@deskSetPrivUseStatusHint": {
     "description": "Settings > Privacy: hint under the status site switch."
+  },
+  "deskSetPrivUndercoverLine": "Undercover keeps Tor on.",
+  "@deskSetPrivUndercoverLine": {
+    "description": "Settings › Privacy: line under the Tor switch (and on a tap of it) while Undercover (Tor only) keeps the switch on and locked. Undercover is the name of the Tor only setting on the level page."
+  },
+  "deskSetPrivUndercoverChange": "Change Undercover",
+  "@deskSetPrivUndercoverChange": {
+    "description": "Small link next to the Undercover line under the Tor switch; opens the Depth page (Settings › Advanced › Change level) where Undercover is turned on or off."
   }
 }

@@ -3349,7 +3349,9 @@
   "deskSetAdvReset": "Alles wieder ausblenden",
   "deskSetAdvOn": "{n, plural, =1{1 Schalter an} other{{n} Schalter an}}",
   "deskSetAcctAutoLockHint": "Sperrt die Wallet nach dieser Zeit ohne Tastendruck oder Mausbewegung. Bei „Nie“ sperrt nur „Wallet sperren“.",
-  "netBlockTorOnly": "Nur Tor ist unter Erweitert eingeschaltet.",
+  "torUndercoverKeepsOn": "Inkognito lässt Tor eingeschaltet.",
+  "torUndercoverChange": "Inkognito ändern",
+  "torUndercoverChangeShort": "Ändern",
   "txDetailsMore": "Mehr",
   "restoreStartFromLink": "Ab einem Datum oder einer Höhe starten",
   "settingsRescanBodyPlain": "Die Wallet sucht ab dem ersten Block erneut nach ihrem Guthaben.",
@@ -3389,7 +3391,6 @@
   "deskOnbRestoreFromHelp": "Nur, wenn die erste Zahlung der Wallet nach diesem Block kam. Leer lassen, um die gesamte Blockchain zu prüfen.",
   "deskOnbRestoreFromInvalid": "Nur Ziffern verwenden oder leer lassen.",
   "deskNetWaitingTorReason": "Wartet auf Tor. Nur Tor ist unter Erweitert eingeschaltet.",
-  "deskNetTorOnlyLine": "Nur Tor ist unter Erweitert eingeschaltet.",
   "deskNetOpenAdvanced": "Erweitert öffnen",
   "deskNetSendFileHint": "Die Dateiübertragung funktioniert weiterhin.",
   "deskNetRecvWaitTorText": "Der Empfang startet, sobald Tor verbunden ist. Die Dateiübertragung funktioniert weiterhin.",
@@ -4846,5 +4847,7 @@
   "deskLastSessionNotNow": "Nicht jetzt",
   "deskLastSessionReportFroze": "Die App hat nicht mehr reagiert.",
   "deskLastSessionReportClosed": "Die App wurde unerwartet beendet.",
-  "deskLastSessionAttached": "Mit dem Protokoll der letzten Sitzung."
+  "deskLastSessionAttached": "Mit dem Protokoll der letzten Sitzung.",
+  "deskSetPrivUndercoverLine": "Inkognito lässt Tor eingeschaltet.",
+  "deskSetPrivUndercoverChange": "Inkognito ändern"
 }

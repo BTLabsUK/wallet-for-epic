@@ -14,6 +14,9 @@ import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/info_hint.dart';
 import 'package:epic_wallet/src/ui/tor_ui.dart';
+import 'package:epic_wallet/src/ui/levels/change_level_screen.dart';
+import 'package:epic_wallet/src/ui/notices.dart';
+import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:epic_wallet/src/tor_build.dart';
@@ -151,7 +154,7 @@ void main() {
       expect(find.byKey(torLockedLineKey), findsNothing);
     });
 
-    testWidgets('Tor only: the switch shows on and locked, its line opens Advanced', (
+    testWidgets('Undercover (Tor only): the switch shows on, disabled and faded; a tap and its line say why and lead to the level page', (
       tester,
     ) async {
       final h = _Harness(
@@ -161,16 +164,27 @@ void main() {
       await _reach(tester, find.byKey(torReceivingSwitchKey));
       expect(torSwitch(tester).value, isTrue, reason: 'shown on although Tor is off');
       expect(torSwitch(tester).onChanged, isNull, reason: 'locked');
-      expect(find.text('Tor only is on in Advanced.'), findsOneWidget);
-      // A tap on the switch changes nothing.
+      // The bug: the theme painted a disabled switch as a live one. Disabled now fades.
+      for (final tokens in [protocolDark, protocolLight]) {
+        final theme = buildWalletTheme(tokens, tokens == protocolDark ? Brightness.dark : Brightness.light).switchTheme;
+        const live = {WidgetState.selected};
+        const off = {WidgetState.selected, WidgetState.disabled};
+        expect(theme.trackColor!.resolve(off), theme.trackColor!.resolve(live)!.withValues(alpha: 0.4));
+        expect(theme.thumbColor!.resolve(off), theme.thumbColor!.resolve(live)!.withValues(alpha: 0.4));
+      }
+      expect(find.text('Undercover keeps Tor on.'), findsOneWidget);
+      // A tap on the switch changes nothing and says why, with the way to change it.
       await tester.tap(find.byKey(torReceivingSwitchKey));
       await tester.pumpAndSettle();
       expect(h.container.read(phoneTorProvider).receiving, isFalse);
       expect(h.session.torStarts, isEmpty);
-      // The line goes to the Advanced page.
-      await tester.tap(find.byKey(torLockedLineKey));
+      final notice = h.container.read(noticeProvider);
+      expect(notice?.text, 'Undercover keeps Tor on.');
+      expect(notice?.action?.label, 'Change');
+      // The line's link opens the level page, where Undercover is changed.
+      await tester.tap(find.byKey(torUndercoverChangeKey));
       await tester.pumpAndSettle();
-      expect(find.byKey(settingsSectionKey(SettingsSection.advanced)), findsOneWidget);
+      expect(find.byType(ChangeLevelScreen), findsOneWidget);
     });
 
     testWidgets('Kill switch: the switch is off and disabled, with its line', (

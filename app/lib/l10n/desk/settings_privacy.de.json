@@ -15,5 +15,7 @@
   "deskSetPrivProblemDetail": "{problem}. Erneut versuchen oder Tor ausschalten.",
   "deskSetPrivStatusSite": "Status-Website",
   "deskSetPrivUseStatus": "{site} nutzen",
-  "deskSetPrivUseStatusHint": "Zeigt, welche Nodes und Epicbox-Server online sind, aus einer öffentlichen Liste auf status.btlabs.uk."
+  "deskSetPrivUseStatusHint": "Zeigt, welche Nodes und Epicbox-Server online sind, aus einer öffentlichen Liste auf status.btlabs.uk.",
+  "deskSetPrivUndercoverLine": "Inkognito lässt Tor eingeschaltet.",
+  "deskSetPrivUndercoverChange": "Inkognito ändern"
 }

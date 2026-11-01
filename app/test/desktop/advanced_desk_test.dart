@@ -108,14 +108,23 @@ void main() {
       expect(find.byKey(const ValueKey('privacy-mode-line')), findsNothing);
     }, skip: !torBuilt);
 
-    testWidgets('Tor only: on and locked, with a link to Advanced', (tester) async {
+    testWidgets('Undercover (Tor only): on and disabled; a tap and its line say why and lead to the Depth page', (tester) async {
       await _open(tester, DeskRoute.settingsPrivacy, advanced: _torOnly);
       expect(torSwitch(tester).value, isTrue);
       expect(torSwitch(tester).onChanged, isNull);
-      expect(find.text('Tor only is on in Advanced.'), findsOneWidget);
-      await tester.tap(find.text('Open Advanced'));
+      expect(
+        tester.widget<Opacity>(find.descendant(of: find.byKey(const ValueKey('privacy-tor-switch')), matching: find.byType(Opacity))).opacity,
+        lessThan(1),
+        reason: 'looks disabled',
+      );
+      expect(find.text('Undercover keeps Tor on.'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('privacy-tor-switch')));
       await _settle(tester);
-      expect(_container.read(deskNavProvider).route, DeskRoute.settingsAdvanced);
+      expect(find.text('Undercover keeps Tor on.'), findsNWidgets(2), reason: 'the line and the toast');
+      expect(find.text('Change Undercover'), findsNWidgets(2));
+      await tester.tap(find.byKey(const ValueKey('privacy-undercover-change')));
+      await _settle(tester);
+      expect(_container.read(deskNavProvider).route, DeskRoute.settingsLevel);
     }, skip: !torBuilt);
 
     testWidgets('Kill switch: disabled, with the reason', (tester) async {

@@ -13372,7 +13372,13 @@ class AppLocalizationsPl extends AppLocalizations {
       'Blokuje portfel po tym czasie bez naciśnięcia klawisza lub ruchu myszy. Przy „Nigdy” portfel blokuje tylko „Zablokuj portfel”.';
 
   @override
-  String get netBlockTorOnly => 'Tylko Tor jest włączony w Zaawansowanych.';
+  String get torUndercoverKeepsOn => 'Incognito utrzymuje Tor włączony.';
+
+  @override
+  String get torUndercoverChange => 'Zmień Incognito';
+
+  @override
+  String get torUndercoverChangeShort => 'Zmień';
 
   @override
   String get txDetailsMore => 'Więcej';
@@ -13522,9 +13528,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskNetWaitingTorReason =>
       'Czeka na Tor. Tylko Tor jest włączony w Zaawansowanych.';
-
-  @override
-  String get deskNetTorOnlyLine => 'Tylko Tor jest włączony w Zaawansowanych.';
 
   @override
   String get deskNetOpenAdvanced => 'Otwórz Zaawansowane';
@@ -19266,4 +19269,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskLastSessionAttached => 'Z logiem z ostatniej sesji.';
+
+  @override
+  String get deskSetPrivUndercoverLine => 'Incognito utrzymuje Tor włączony.';
+
+  @override
+  String get deskSetPrivUndercoverChange => 'Zmień Incognito';
 }

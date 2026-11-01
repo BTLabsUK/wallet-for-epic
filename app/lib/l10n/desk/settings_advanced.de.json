@@ -23,7 +23,6 @@
   "deskSetAdvOn": "{n, plural, =1{1 Schalter an} other{{n} Schalter an}}",
   "deskNetOfflineNoPeers": "Ihr Node hat keine Peers: Die Zahlung wartet in seinem Pool, bis er sich wieder verbindet.",
   "deskNetWaitingTorReason": "Wartet auf Tor. Nur Tor ist unter Erweitert eingeschaltet.",
-  "deskNetTorOnlyLine": "Nur Tor ist unter Erweitert eingeschaltet.",
   "deskNetOpenAdvanced": "Erweitert öffnen",
   "deskNetSendFileHint": "Die Dateiübertragung funktioniert weiterhin.",
   "deskNetRecvWaitTorText": "Der Empfang startet, sobald Tor verbunden ist. Die Dateiübertragung funktioniert weiterhin.",

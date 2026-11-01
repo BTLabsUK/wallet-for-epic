@@ -3349,7 +3349,9 @@
   "deskSetAdvReset": "Ukryj wszystko ponownie",
   "deskSetAdvOn": "{n, plural, one{1 przełącznik włączony} few{{n} przełączniki włączone} many{{n} przełączników włączonych} other{{n} przełącznika włączonego}}",
   "deskSetAcctAutoLockHint": "Blokuje portfel po tym czasie bez naciśnięcia klawisza lub ruchu myszy. Przy „Nigdy” portfel blokuje tylko „Zablokuj portfel”.",
-  "netBlockTorOnly": "Tylko Tor jest włączony w Zaawansowanych.",
+  "torUndercoverKeepsOn": "Incognito utrzymuje Tor włączony.",
+  "torUndercoverChange": "Zmień Incognito",
+  "torUndercoverChangeShort": "Zmień",
   "txDetailsMore": "Więcej",
   "restoreStartFromLink": "Zacznij od daty lub wysokości",
   "settingsRescanBodyPlain": "Portfel ponownie szuka swoich środków, od pierwszego bloku.",
@@ -3389,7 +3391,6 @@
   "deskOnbRestoreFromHelp": "Tylko jeśli pierwsza płatność portfela przyszła po tym bloku. Zostaw puste, aby sprawdzić cały łańcuch.",
   "deskOnbRestoreFromInvalid": "Użyj samych cyfr albo zostaw puste.",
   "deskNetWaitingTorReason": "Czeka na Tor. Tylko Tor jest włączony w Zaawansowanych.",
-  "deskNetTorOnlyLine": "Tylko Tor jest włączony w Zaawansowanych.",
   "deskNetOpenAdvanced": "Otwórz Zaawansowane",
   "deskNetSendFileHint": "Przesyłanie pliku nadal działa.",
   "deskNetRecvWaitTorText": "Odbieranie zacznie się, gdy Tor się połączy. Przesyłanie pliku nadal działa.",
@@ -4846,5 +4847,7 @@
   "deskLastSessionNotNow": "Nie teraz",
   "deskLastSessionReportFroze": "Aplikacja nie odpowiadała.",
   "deskLastSessionReportClosed": "Aplikacja zamknęła się nieoczekiwanie.",
-  "deskLastSessionAttached": "Z logiem z ostatniej sesji."
+  "deskLastSessionAttached": "Z logiem z ostatniej sesji.",
+  "deskSetPrivUndercoverLine": "Incognito utrzymuje Tor włączony.",
+  "deskSetPrivUndercoverChange": "Zmień Incognito"
 }

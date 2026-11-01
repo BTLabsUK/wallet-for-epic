@@ -15,5 +15,7 @@
   "deskSetPrivProblemDetail": "{problem}。请重试，或关闭 Tor。",
   "deskSetPrivStatusSite": "状态网站",
   "deskSetPrivUseStatus": "使用 {site}",
-  "deskSetPrivUseStatusHint": "显示哪些节点和 Epicbox 服务器在线，数据来自 status.btlabs.uk 上的公开列表。"
+  "deskSetPrivUseStatusHint": "显示哪些节点和 Epicbox 服务器在线，数据来自 status.btlabs.uk 上的公开列表。",
+  "deskSetPrivUndercoverLine": "隐身模式让 Tor 保持开启。",
+  "deskSetPrivUndercoverChange": "更改隐身设置"
 }
