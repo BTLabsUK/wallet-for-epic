@@ -166,6 +166,38 @@ void main() {
       expect(h.store.values['pairing.seen_as'], 'Alexander');
     });
 
+    testWidgets('no name kept yet: asked once, then the invite carries it; asked no more', (tester) async {
+      final h = _Harness(seenAs: null);
+      await h.pump(tester, const PairScreen(), settle: false);
+      expect(find.text(_l.pairSeenAsAskTitle), findsOneWidget);
+      expect(h.api.standing, isNull, reason: 'no invite before a name');
+      // Empty is refused: the name is required.
+      await tester.tap(find.byKey(pairNameSaveKey));
+      await _frames(tester, 3);
+      expect(find.text(_l.pairSeenAsMissing), findsOneWidget);
+      await tester.enterText(find.byKey(pairNameFieldKey), 'Alex Brown');
+      await tester.tap(find.byKey(pairNameSaveKey));
+      await _frames(tester);
+      expect(find.text(_l.pairSeenAsAskTitle), findsNothing);
+      expect(find.text(_l.pairSeenAsLine('Alex Brown')), findsOneWidget);
+      expect(h.api.standingName, 'Alex Brown');
+      expect(h.store.values['pairing.seen_as'], 'Alex Brown');
+      expect(find.text(_l.appTitle), findsNothing, reason: 'never the app name in its place');
+    });
+
+    testWidgets('no name kept and the question closed: no invite, the screen goes', (tester) async {
+      final h = _Harness(seenAs: null);
+      await h.pump(tester, Builder(builder: (context) => TextButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const PairScreen())), child: const Text('open'))));
+      await tester.tap(find.text('open'));
+      await _frames(tester);
+      expect(find.text(_l.pairSeenAsAskTitle), findsOneWidget);
+      await tester.tap(find.text(_l.commonCancel));
+      await _frames(tester);
+      expect(find.byType(PairScreen), findsNothing);
+      expect(h.api.standing, isNull);
+      expect(h.store.values['pairing.seen_as'], isNull);
+    });
+
     testWidgets('framed for a contact: the title and captions name it', (tester) async {
       final h = _Harness();
       await h.pump(tester, PairScreen(contact: Contact(id: 'c1', name: 'Anna', address: _anna)), settle: false);

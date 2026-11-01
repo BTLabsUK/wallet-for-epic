@@ -73,8 +73,9 @@ Future<Contact?> pickContactForPairing(BuildContext context) => Navigator.of(con
 );
 
 /// Attaches the pairing [r] to [contact], the user's pick. Refused because the contact has an
-/// Epicbox address the pairing cannot confirm ([contactForPairing]): a dialog says so and offers
-/// Save as a new contact. The contact the pairing went to, or null.
+/// Epicbox address the pairing cannot confirm (it proves another key, or none, as a pairing made
+/// before 26.10.25): a dialog says so and offers Save as a new contact; pairing again brings the
+/// proof. The contact the pairing went to, or null.
 Future<Contact?> attachPairingTo(BuildContext context, WidgetRef ref, PairingRecord r, Contact contact) async {
   try {
     final attached = await pairingCall(ref, (api) => api.attach(r.id, contact.id, contactAddress: contact.epicbox));
@@ -83,12 +84,7 @@ Future<Contact?> attachPairingTo(BuildContext context, WidgetRef ref, PairingRec
     return contact;
   } on WalletError catch (error) {
     final failure = pairingFailureOf(error);
-    if (failure == PairingFailure.addressProofMissing) {
-      // No proof yet: tried again when a card with one arrives; said meanwhile.
-      if (context.mounted) ref.read(noticeProvider.notifier).show(context.l10n.pairProofPending, level: NoticeLevel.info);
-      return null;
-    }
-    if (failure != PairingFailure.otherAddress) rethrow;
+    if (failure != PairingFailure.otherAddress && failure != PairingFailure.addressProofMissing) rethrow;
   }
   if (!context.mounted) return null;
   final l = context.l10n;

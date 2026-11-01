@@ -29606,12 +29606,6 @@ abstract class AppLocalizations {
   /// **'Back'**
   String get pairBackLater;
 
-  /// Attach refused: the pairing carries no proven address yet; tried again when one arrives.
-  ///
-  /// In en, this message translates to:
-  /// **'Address not proven yet'**
-  String get pairProofPending;
-
   /// Help topic title.
   ///
   /// In en, this message translates to:
@@ -29713,6 +29707,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'It opens once a wallet that uses it is unlocked.'**
   String get contactsClosedText;
+
+  /// Phone: title of the one-field question asked the first time the Pair screen, a pair request or an answer to an invite needs the name the other side sees, and none is kept yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Name others see'**
+  String get pairSeenAsAskTitle;
+
+  /// Hint inside the empty field of 'Name others see'.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get pairSeenAsHint;
+
+  /// A device's name for linked devices until the user renames it: its kind (Phone, Desktop) and a short code from its id, so two devices of one kind are told apart, as in 'Received on Phone 3F2A'.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} {code}'**
+  String devicesNameWithCode(String name, String code);
 }
 
 class _AppLocalizationsDelegate

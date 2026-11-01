@@ -4934,7 +4934,6 @@
   "pairCancelPairingBody": "Portfel {name} dowie się, jeśli odpowie późno. Nic nie zostanie zachowane.",
   "pairCancelPairing": "Anuluj parowanie",
   "pairBackLater": "Wstecz",
-  "pairProofPending": "Adres jeszcze niepotwierdzony",
   "pairStandingFootnote": "Ważne 7 dni. Nowe zaproszenie pojawi się, gdy to zostanie użyte.",
   "helpPairTwoWaysTitle": "Dwa sposoby parowania",
   "helpPairTwoWaysShort": "Prośba do kontaktu albo twoje zaproszenie.",
@@ -4951,5 +4950,8 @@
   "storeRecordsPlain": "Dane portfela na razie pozostają niezaszyfrowane. Kolejna próba nastąpi przy następnym uruchomieniu.",
   "errorStoreWrongKey": "Danych tego portfela nie udało się otworzyć tą frazą. Nic nie zostało zmienione.",
   "contactsClosedTitle": "Książka adresowa zamknięta",
-  "contactsClosedText": "Otworzy się po odblokowaniu portfela, który z niej korzysta."
+  "contactsClosedText": "Otworzy się po odblokowaniu portfela, który z niej korzysta.",
+  "pairSeenAsAskTitle": "Nazwa widoczna dla innych",
+  "pairSeenAsHint": "Twoje imię",
+  "devicesNameWithCode": "{name} {code}"
 }

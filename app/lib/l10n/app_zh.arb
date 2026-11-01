@@ -4934,7 +4934,6 @@
   "pairCancelPairingBody": "如果 {name} 的钱包迟来回复，会被告知。不会保留任何内容。",
   "pairCancelPairing": "取消配对",
   "pairBackLater": "返回",
-  "pairProofPending": "地址尚未得到证明",
   "pairStandingFootnote": "有效期 7 天。此邀请被使用后会出现新的邀请。",
   "helpPairTwoWaysTitle": "两种配对方式",
   "helpPairTwoWaysShort": "向联系人发送请求，或使用你的邀请。",
@@ -4951,5 +4950,8 @@
   "storeRecordsPlain": "钱包记录暂时保持未加密。下次启动时会再次尝试。",
   "errorStoreWrongKey": "无法用此助记词打开该钱包的记录。未做任何更改。",
   "contactsClosedTitle": "通讯录已关闭",
-  "contactsClosedText": "解锁使用该通讯录的钱包后即可打开。"
+  "contactsClosedText": "解锁使用该通讯录的钱包后即可打开。",
+  "pairSeenAsAskTitle": "他人看到的名字",
+  "pairSeenAsHint": "你的名字",
+  "devicesNameWithCode": "{name} {code}"
 }

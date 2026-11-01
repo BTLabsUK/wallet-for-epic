@@ -4934,7 +4934,6 @@
   "pairCancelPairingBody": "กระเป๋าของ {name} จะได้รับแจ้งหากตอบช้า ไม่มีอะไรถูกเก็บไว้",
   "pairCancelPairing": "ยกเลิกการจับคู่",
   "pairBackLater": "ย้อนกลับ",
-  "pairProofPending": "ยังไม่ได้พิสูจน์ที่อยู่",
   "pairStandingFootnote": "ใช้ได้ 7 วัน คำเชิญใหม่จะปรากฏเมื่อคำเชิญนี้ถูกใช้แล้ว",
   "helpPairTwoWaysTitle": "สองวิธีในการจับคู่",
   "helpPairTwoWaysShort": "ส่งคำขอถึงผู้ติดต่อ หรือใช้คำเชิญของคุณ",
@@ -4951,5 +4950,8 @@
   "storeRecordsPlain": "ข้อมูลกระเป๋ายังไม่ได้เข้ารหัสในตอนนี้ จะลองอีกครั้งในครั้งถัดไป",
   "errorStoreWrongKey": "ไม่สามารถเปิดข้อมูลของกระเป๋านี้ด้วยวลีนี้ได้ ไม่มีสิ่งใดถูกเปลี่ยนแปลง",
   "contactsClosedTitle": "สมุดที่อยู่ปิดอยู่",
-  "contactsClosedText": "จะเปิดเมื่อปลดล็อกกระเป๋าที่ใช้สมุดนี้"
+  "contactsClosedText": "จะเปิดเมื่อปลดล็อกกระเป๋าที่ใช้สมุดนี้",
+  "pairSeenAsAskTitle": "ชื่อที่ผู้อื่นเห็น",
+  "pairSeenAsHint": "ชื่อของคุณ",
+  "devicesNameWithCode": "{name} {code}"
 }

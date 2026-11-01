@@ -92,6 +92,8 @@ final Set<String> _noAnswerSaid = {};
     PairingEventKind.addressUpdated ||
     PairingEventKind.sealedReceived ||
     PairingEventKind.outboxDelivered ||
+    // For the linked device only.
+    PairingEventKind.requestAnswered ||
     PairingEventKind.paymentFinalized => null,
   };
 }

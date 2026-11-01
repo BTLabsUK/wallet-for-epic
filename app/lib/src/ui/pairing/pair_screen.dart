@@ -126,9 +126,13 @@ class _PairScreenState extends ConsumerState<PairScreen> {
 
   Future<void> _makeCode({bool fresh = false}) async {
     final l = context.l10n;
-    var name = (await readSeenAs(ref)).trim();
+    final name = await seenAsOrAsk(context, ref);
     if (!mounted) return;
-    if (name.isEmpty) name = l.appTitle;
+    // No name given: no code to show.
+    if (name == null) {
+      unawaited(Navigator.of(context).maybePop());
+      return;
+    }
     try {
       final code = await ref.read(pairingApiProvider).standingCode(name: name);
       if (mounted) {
@@ -299,7 +303,7 @@ class _PairScreenState extends ConsumerState<PairScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        l.pairSeenAsLine(seenAs.isEmpty ? l.appTitle : seenAs),
+                        l.pairSeenAsLine(seenAs),
                         style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -451,9 +455,12 @@ class _FinishBox extends StatelessWidget {
 /// Change "They see you as": one field, one name per wallet; applies to every later code and
 /// request, and the paired contacts get the new name.
 class _NameDialog extends StatefulWidget {
-  const _NameDialog({required this.initial});
+  const _NameDialog({required this.initial, this.first = false});
 
   final String initial;
+
+  /// Asked the first time a name is needed and none is kept: "Name others see", empty.
+  final bool first;
 
   @override
   State<_NameDialog> createState() => _NameDialogState();
@@ -482,7 +489,7 @@ class _NameDialogState extends State<_NameDialog> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     return AlertDialog(
-      title: Text(l.pairSeenAsEdit),
+      title: Text(widget.first ? l.pairSeenAsAskTitle : l.pairSeenAsEdit),
       content: TextField(
         key: pairNameFieldKey,
         controller: _text,
@@ -492,14 +499,32 @@ class _NameDialogState extends State<_NameDialog> {
         buildCounter: (context, {required currentLength, required isFocused, required maxLength}) => null,
         onChanged: (_) => setState(() => _error = null),
         onSubmitted: (_) => _save(),
-        decoration: InputDecoration(labelText: l.pairSeenAsField, border: const OutlineInputBorder(), errorText: _error),
+        decoration: InputDecoration(
+          labelText: widget.first ? null : l.pairSeenAsField,
+          hintText: widget.first ? l.pairSeenAsHint : null,
+          border: const OutlineInputBorder(),
+          errorText: _error,
+        ),
       ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: Text(l.commonCancel)),
-        FilledButton(key: pairNameSaveKey, onPressed: _save, child: Text(l.commonSave)),
+        FilledButton(key: pairNameSaveKey, onPressed: _save, child: Text(widget.first ? l.commonContinue : l.commonSave)),
       ],
     );
   }
+}
+
+/// The name others see when pairing: the one kept, or, when none is kept yet, asked once with
+/// one field and kept (D11 on the phone: it has no wallet name to default to). Null when the
+/// user closed the question.
+Future<String?> seenAsOrAsk(BuildContext context, WidgetRef ref) async {
+  final kept = (await readSeenAs(ref)).trim();
+  if (kept.isNotEmpty) return kept;
+  if (!context.mounted) return null;
+  final asked = await showDialog<String>(context: context, builder: (_) => const _NameDialog(initial: '', first: true));
+  if (asked == null || !context.mounted) return null;
+  await ref.read(pairingSeenAsProvider.notifier).set(asked);
+  return asked;
 }
 
 /// The name check of the name they see: an error, or null.

@@ -25719,10 +25719,6 @@
   "@pairBackLater": {
     "description": "Words check: leaves it for later (the row stays Paired)."
   },
-  "pairProofPending": "Address not proven yet",
-  "@pairProofPending": {
-    "description": "Attach refused: the pairing carries no proven address yet; tried again when one arrives."
-  },
   "helpPairTwoWaysTitle": "Two ways to pair",
   "@helpPairTwoWaysTitle": {
     "description": "Help topic title."
@@ -25790,5 +25786,27 @@
   "contactsClosedText": "It opens once a wallet that uses it is unlocked.",
   "@contactsClosedText": {
     "description": "Under 'Address book closed'."
+  },
+  "pairSeenAsAskTitle": "Name others see",
+  "@pairSeenAsAskTitle": {
+    "description": "Phone: title of the one-field question asked the first time the Pair screen, a pair request or an answer to an invite needs the name the other side sees, and none is kept yet."
+  },
+  "pairSeenAsHint": "Your name",
+  "@pairSeenAsHint": {
+    "description": "Hint inside the empty field of 'Name others see'."
+  },
+  "devicesNameWithCode": "{name} {code}",
+  "@devicesNameWithCode": {
+    "description": "A device's name for linked devices until the user renames it: its kind (Phone, Desktop) and a short code from its id, so two devices of one kind are told apart, as in 'Received on Phone 3F2A'.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Phone"
+      },
+      "code": {
+        "type": "String",
+        "example": "3F2A"
+      }
+    }
   }
 }

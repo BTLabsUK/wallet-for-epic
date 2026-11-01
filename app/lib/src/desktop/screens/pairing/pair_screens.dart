@@ -1061,9 +1061,9 @@ Future<bool> _deskSaveAsNewContact(BuildContext context, WidgetRef ref, PairingR
 }
 
 /// Attaches the pairing [r] to [contact], the user's pick. Refused because the contact has an
-/// Epicbox address the pairing proves another key for: the dialog says so and offers Save as
-/// a new contact. A pairing with no proof yet is said, and tried again when one arrives. True
-/// once the pairing is in a contact.
+/// Epicbox address the pairing proves another key for, or proves none (a pairing made before
+/// 26.10.25 never does): the dialog says so and offers Save as a new contact; pairing again
+/// brings the proof. True once the pairing is in a contact.
 Future<bool> deskAttachPairingTo(BuildContext context, WidgetRef ref, PairingRecord r, Contact contact) async {
   final l = context.l10n;
   try {
@@ -1071,11 +1071,7 @@ Future<bool> deskAttachPairingTo(BuildContext context, WidgetRef ref, PairingRec
     await deskWriteProvenAddress(ref, attached);
   } on WalletError catch (error) {
     final failure = pairingFailureOf(error);
-    if (failure == PairingFailure.addressProofMissing) {
-      if (context.mounted) showEToast(context, l.pairProofPending, tone: ETone.info);
-      return false;
-    }
-    if (failure != PairingFailure.otherAddress || !context.mounted) rethrow;
+    if ((failure != PairingFailure.otherAddress && failure != PairingFailure.addressProofMissing) || !context.mounted) rethrow;
     final asNew = await showEDialog<bool>(
       context,
       builder: (ctx) => EDialog(

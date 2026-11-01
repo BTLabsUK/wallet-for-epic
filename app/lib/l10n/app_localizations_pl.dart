@@ -19599,9 +19599,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get pairBackLater => 'Wstecz';
 
   @override
-  String get pairProofPending => 'Adres jeszcze niepotwierdzony';
-
-  @override
   String get helpPairTwoWaysTitle => 'Dwa sposoby parowania';
 
   @override
@@ -19664,4 +19661,15 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get contactsClosedText =>
       'Otworzy się po odblokowaniu portfela, który z niej korzysta.';
+
+  @override
+  String get pairSeenAsAskTitle => 'Nazwa widoczna dla innych';
+
+  @override
+  String get pairSeenAsHint => 'Twoje imię';
+
+  @override
+  String devicesNameWithCode(String name, String code) {
+    return '$name $code';
+  }
 }

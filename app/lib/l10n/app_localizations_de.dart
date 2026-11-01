@@ -19175,9 +19175,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get pairBackLater => 'Zurück';
 
   @override
-  String get pairProofPending => 'Adresse noch nicht belegt';
-
-  @override
   String get helpPairTwoWaysTitle => 'Zwei Wege zum Koppeln';
 
   @override
@@ -19240,4 +19237,15 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get contactsClosedText =>
       'Es öffnet sich, sobald eine Wallet entsperrt wird, die es nutzt.';
+
+  @override
+  String get pairSeenAsAskTitle => 'Name, den andere sehen';
+
+  @override
+  String get pairSeenAsHint => 'Ihr Name';
+
+  @override
+  String devicesNameWithCode(String name, String code) {
+    return '$name $code';
+  }
 }

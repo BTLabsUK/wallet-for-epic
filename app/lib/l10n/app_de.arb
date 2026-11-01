@@ -4934,7 +4934,6 @@
   "pairCancelPairingBody": "Die Wallet von {name} erfährt es, falls sie spät antwortet. Nichts wird behalten.",
   "pairCancelPairing": "Kopplung abbrechen",
   "pairBackLater": "Zurück",
-  "pairProofPending": "Adresse noch nicht belegt",
   "pairStandingFootnote": "Gültig für 7 Tage. Eine neue Einladung erscheint, sobald diese benutzt wurde.",
   "helpPairTwoWaysTitle": "Zwei Wege zum Koppeln",
   "helpPairTwoWaysShort": "Eine Anfrage an einen Kontakt, oder deine Einladung.",
@@ -4951,5 +4950,8 @@
   "storeRecordsPlain": "Die Wallet-Daten bleiben vorerst unverschlüsselt. Beim nächsten Start wird es erneut versucht.",
   "errorStoreWrongKey": "Die Daten dieser Wallet ließen sich mit dieser Phrase nicht öffnen. Nichts wurde geändert.",
   "contactsClosedTitle": "Adressbuch geschlossen",
-  "contactsClosedText": "Es öffnet sich, sobald eine Wallet entsperrt wird, die es nutzt."
+  "contactsClosedText": "Es öffnet sich, sobald eine Wallet entsperrt wird, die es nutzt.",
+  "pairSeenAsAskTitle": "Name, den andere sehen",
+  "pairSeenAsHint": "Ihr Name",
+  "devicesNameWithCode": "{name} {code}"
 }

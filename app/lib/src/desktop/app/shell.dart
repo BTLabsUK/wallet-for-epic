@@ -94,6 +94,11 @@ class _DeskShellState extends ConsumerState<DeskShell> {
   /// pairing by itself.
   Future<void> _pairInvite(BuildContext _, InviteLink link) async {
     if (!mounted) return;
+    // A core without pairing: says so, never the pairing calls (as the phone's sheet).
+    if (!ref.read(deskPairingApiProvider).supported) {
+      showEToast(context, context.l10n.scanPairingUnavailable, tone: ETone.warn);
+      return;
+    }
     await deskOpenPairingText(context, ref, link.invite);
   }
 

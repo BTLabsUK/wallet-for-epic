@@ -19581,9 +19581,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pairBackLater => 'Назад';
 
   @override
-  String get pairProofPending => 'Адрес ещё не подтверждён';
-
-  @override
   String get helpPairTwoWaysTitle => 'Два способа сопряжения';
 
   @override
@@ -19644,4 +19641,15 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get contactsClosedText =>
       'Она откроется, когда будет разблокирован кошелёк, который её использует.';
+
+  @override
+  String get pairSeenAsAskTitle => 'Имя, которое видят другие';
+
+  @override
+  String get pairSeenAsHint => 'Ваше имя';
+
+  @override
+  String devicesNameWithCode(String name, String code) {
+    return '$name $code';
+  }
 }

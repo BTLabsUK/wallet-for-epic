@@ -18542,9 +18542,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairBackLater => 'ย้อนกลับ';
 
   @override
-  String get pairProofPending => 'ยังไม่ได้พิสูจน์ที่อยู่';
-
-  @override
   String get helpPairTwoWaysTitle => 'สองวิธีในการจับคู่';
 
   @override
@@ -18604,4 +18601,15 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get contactsClosedText => 'จะเปิดเมื่อปลดล็อกกระเป๋าที่ใช้สมุดนี้';
+
+  @override
+  String get pairSeenAsAskTitle => 'ชื่อที่ผู้อื่นเห็น';
+
+  @override
+  String get pairSeenAsHint => 'ชื่อของคุณ';
+
+  @override
+  String devicesNameWithCode(String name, String code) {
+    return '$name $code';
+  }
 }

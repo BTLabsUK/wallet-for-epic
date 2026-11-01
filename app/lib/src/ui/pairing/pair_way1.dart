@@ -68,9 +68,8 @@ Future<void> _showCode(BuildContext context, Contact contact) =>
 Future<void> sendPairRequest(BuildContext context, WidgetRef ref, Contact contact) async {
   final l = context.l10n;
   final notices = ref.read(noticeProvider.notifier);
-  var name = (await readSeenAs(ref)).trim();
-  if (!context.mounted) return;
-  if (name.isEmpty) name = l.appTitle;
+  final name = await seenAsOrAsk(context, ref);
+  if (name == null || !context.mounted) return;
   try {
     await pairingCall(ref, (api) => api.requestPairing(toAddress: contact.epicbox!, name: name, contactId: contact.id));
     notices.show(l.pairRequestSent(localDayMonth(l, ref.read(pairingClockProvider)())), level: NoticeLevel.success);

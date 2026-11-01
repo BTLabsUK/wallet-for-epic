@@ -17,6 +17,7 @@ import '../../contacts.dart';
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
+import 'pair_screen.dart' show seenAsOrAsk;
 import '../../pairing_text.dart';
 import '../../slate_files.dart';
 import '../../tor_build.dart';
@@ -167,9 +168,8 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
 
   Future<void> _pair() async {
     final l = context.l10n;
-    var name = (await readSeenAs(ref)).trim();
-    if (!mounted) return;
-    if (name.isEmpty) name = l.appTitle;
+    final name = await seenAsOrAsk(context, ref);
+    if (name == null || !mounted) return;
     setState(() => _busy = true);
     try {
       final record = await pairingCall(

@@ -17888,9 +17888,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairBackLater => '返回';
 
   @override
-  String get pairProofPending => '地址尚未得到证明';
-
-  @override
   String get helpPairTwoWaysTitle => '两种配对方式';
 
   @override
@@ -17947,4 +17944,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get contactsClosedText => '解锁使用该通讯录的钱包后即可打开。';
+
+  @override
+  String get pairSeenAsAskTitle => '他人看到的名字';
+
+  @override
+  String get pairSeenAsHint => '你的名字';
+
+  @override
+  String devicesNameWithCode(String name, String code) {
+    return '$name $code';
+  }
 }
