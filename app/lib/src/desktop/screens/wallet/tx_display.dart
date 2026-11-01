@@ -495,16 +495,8 @@ class _TxRowState extends ConsumerState<TxRow> {
     final replaced = (labelled || t.deviceName != null) && whoNamesSomeone(t) ? (t.contactName ?? file ?? shortAddress(t.counterparty!, compact: true)) : null;
     final parts = <String>[?method, ?restoredMethod, ?replaced, ?extra];
     if (shallow && parts.isEmpty && !t.isInvoice) parts.add(l.deskLvPayKind);
-    final meta = <InlineSpan>[
-      for (final (i, p) in parts.indexed) ...[
-        if (i > 0)
-          TextSpan(
-            text: '  ·  ',
-            style: TextStyle(color: c.lineField),
-          ),
-        TextSpan(text: p),
-      ],
-    ];
+    // One joiner on both apps ([metaSpans]): " · ", a quieter dot, a break only after it.
+    final meta = metaSpans([for (final p in parts) TextSpan(text: p)], dot: TextStyle(color: c.lineField));
     // The sender, method or note the user typed on a scan find carries the tag.
     final typed = t.manualFields.any((f) => f != ManualField.label);
     final TextStyle titleStyle = ts.strong;
@@ -557,14 +549,10 @@ class _TxRowState extends ConsumerState<TxRow> {
                 Flexible(
                   child: Text.rich(
                     TextSpan(
-                      text: word,
-                      children: [
-                        if (replaced != null)
-                          TextSpan(
-                            text: '  ·  $replaced',
-                            style: TextStyle(color: c.faint),
-                          ),
-                      ],
+                      children: metaSpans([
+                        TextSpan(text: word),
+                        if (replaced != null) TextSpan(text: replaced, style: TextStyle(color: c.faint)),
+                      ], dot: TextStyle(color: c.lineField)),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

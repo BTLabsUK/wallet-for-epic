@@ -7,6 +7,7 @@ import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
 
 import '../l10n.dart';
+import '../amount.dart' show epicFor;
 import '../wallet_service.dart';
 import 'common.dart';
 import 'theme/tokens.dart';
@@ -155,12 +156,10 @@ class _PaymentHeading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final amount = first.amount;
-    final sign = amount.isNegative ? '-' : '+';
     return Semantics(
       header: true,
       child: Text(
-        '${formatDateTime(l, localTime(first.timeUnix))} · $sign${epicText(l, amount.abs())}',
+        metaLine([formatDateTime(l, localTime(first.timeUnix)), epicFor(l, first.amount, signed: true)]),
         style: Theme.of(context).textTheme.titleSmall,
       ),
     );

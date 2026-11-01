@@ -109,7 +109,7 @@ List<TimelineStep>? paymentSteps(
         // A step reached (done, or the one under way) shows its time; one not reached has none.
         final known = s.state != TimelineState.todo && at != null && at > 0;
         final time = known ? shortDate(l, localTime(at), now ?? DateTime.now()) : null;
-        final detail = [?s.detail, ?time].join(' · ');
+        final detail = metaLine([s.detail, time]);
         return TimelineStep(label, s.state, detail: detail.isEmpty ? null : detail);
       }(),
   ];

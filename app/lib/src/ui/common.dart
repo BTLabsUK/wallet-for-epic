@@ -897,14 +897,16 @@ class TxStatusLine extends ConsumerWidget {
           child: Icon(icon, size: 14, color: color),
         ),
         const SizedBox(width: 5),
-        // One text, so the status, method and time share the line; when they do not fit it
-        // wraps to a second line (status first, then the time) rather than cutting the time
-        // off (UP-001).
+        // One text, so the time, status and method share the line; the time comes first, so
+        // a long status or method never cuts it off (A-04): it is how two like payments tell
+        // apart. When they do not fit the line wraps after a dot ([metaSpans]), never cutting
+        // the time (UP-001).
         Flexible(
           flex: 3,
           child: Text.rich(
             TextSpan(
-              children: [
+              children: metaSpans([
+                TextSpan(text: date, style: base),
                 TextSpan(
                   text: paymentStepWord(
                     context.l10n,

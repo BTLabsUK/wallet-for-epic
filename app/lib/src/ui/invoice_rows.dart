@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../l10n.dart';
+import '../text_join.dart' show metaSpans;
 import '../wallet_service.dart';
+import 'common.dart' show AmountText;
 import 'invoice_request_screen.dart';
 import 'invoice_review_screen.dart';
 import 'invoices_screen.dart';
@@ -97,13 +99,9 @@ class _InvoiceRowFrame extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Text(
+                    AmountText(
                       amount,
-                      style: TextStyle(
-                        fontFamily: t.monoFamily,
-                        fontSize: 15,
-                        color: t.text,
-                      ),
+                      style: TextStyle(fontSize: 15, color: t.text),
                     ),
                   ],
                 ),
@@ -140,10 +138,10 @@ class InvoiceRow extends StatelessWidget {
       icon: Icons.receipt_long_outlined,
       title: service,
       detail: TextSpan(
-        children: [
+        children: metaSpans([
           invoiceTimeLeftSpan(context, left),
-          if (message != null) TextSpan(text: ' · $message'),
-        ],
+          if (message != null) TextSpan(text: message),
+        ]),
       ),
       amount: amount,
       onTap: () => Navigator.of(context).push(
@@ -207,10 +205,10 @@ class _RequestRowState extends ConsumerState<RequestRow> {
     );
     final detail = switch (request.state) {
       IssuedInvoiceState.waiting => TextSpan(
-        children: [
-          TextSpan(text: '${l.invoicesWaitingPayment} · '),
+        children: metaSpans([
+          TextSpan(text: l.invoicesWaitingPayment),
           invoiceTimeLeftSpan(context, widget.left),
-        ],
+        ]),
       ),
       IssuedInvoiceState.paid => marked(Icons.check, t.txReceived, l.issuedPaid),
       IssuedInvoiceState.withdrawn => marked(
