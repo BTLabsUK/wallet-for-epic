@@ -3132,6 +3132,30 @@ PairingRecord? contactPairingOf(Iterable<PairingRecord> pairings, String contact
   return best;
 }
 
+/// Whether the pairing [r] vouches for a contact whose Epicbox address is [epicbox] (every
+/// contact alike, never one by name): a contact holds one Epicbox address, and "Verified" is
+/// only ever about it. True for a contact with none, or with the address the pairing delivered
+/// itself (its card's payments address, the same key at any relay). A pairing that delivered
+/// none, as LEPIC's cards leave it out, never vouches for an address it did not bring.
+bool pairingVouchesFor(PairingRecord r, String? epicbox) {
+  if (epicbox == null || epicbox.trim().isEmpty) return true;
+  final delivered = r.paymentsAddress;
+  return delivered != null && epicboxKey(delivered) == epicboxKey(epicbox);
+}
+
+/// The one rule of attaching the pairing [r] to the address-book [contact]: refused with
+/// [PairingFailure.otherAddress] when the contact has an Epicbox address the pairing does not
+/// vouch for ([pairingVouchesFor]), never overwritten. Else the contact to store when the
+/// pairing's address fills its empty Epicbox slot, or null when nothing changes. Its HTTP and
+/// Tor addresses stay as they are. A pairing the contact has already is no refusal: attaching
+/// runs the key check (RFC 7.8), whose mismatch is the user's choice (Keys changed).
+Contact? contactForPairing(Contact contact, PairingRecord r) {
+  if (!pairingVouchesFor(r, contact.epicbox)) throw pairingError(PairingFailure.otherAddress);
+  final delivered = r.paymentsAddress;
+  if (contact.epicbox != null || delivered == null || parseRecipient(delivered).kind != RecipientKind.epicbox) return null;
+  return contact.withAddress(RecipientKind.epicbox, delivered);
+}
+
 /// An invite opened from a link or pairing words, before the user answers it (RFC 7.2).
 class PairingInvitePreview {
   const PairingInvitePreview({
@@ -3220,6 +3244,10 @@ enum PairingFailure {
 
   /// Made by a wallet on the other network (mainnet or the test network).
   wrongNetwork,
+
+  /// The contact picked for a pairing has an Epicbox address the pairing does not vouch for
+  /// ([contactForPairing]): not attached.
+  otherAddress,
 }
 
 /// The [PairingFailure] behind [error], or null for any other error.

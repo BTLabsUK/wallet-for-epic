@@ -559,8 +559,8 @@ void main() {
   });
 
   group('check the words', () {
-    Future<PairingRecord> open(WidgetTester tester, _Harness h, {String? contactId}) async {
-      final r = h.api.seedPaired(id: 'p1', name: 'Anna', state: PairingState.paired, contactId: contactId);
+    Future<PairingRecord> open(WidgetTester tester, _Harness h, {String? contactId, String? paymentsAddress}) async {
+      final r = h.api.seedPaired(id: 'p1', name: 'Anna', state: PairingState.paired, contactId: contactId, paymentsAddress: paymentsAddress);
       await h.pump(tester, const CheckWordsScreen(pairingId: 'p1'));
       return r;
     }
@@ -595,8 +595,9 @@ void main() {
     testWidgets('a re-pair: a contact of its name with an old pairing is offered first, and Add to starts the key check', (tester) async {
       final h = _Harness();
       final anna = await h.session.saveContact(contact: Contact(id: '', name: ' anna  ', address: _anna));
-      h.api.seedPaired(id: 'old', name: 'Anna', state: PairingState.verified, contactId: anna.id);
-      await open(tester, h);
+      h.api.seedPaired(id: 'old', name: 'Anna', state: PairingState.verified, contactId: anna.id, paymentsAddress: _anna);
+      // The same wallet again: its card brings the contact's address.
+      await open(tester, h, paymentsAddress: _anna);
       await tester.tap(find.byKey(checkMatchKey));
       await tester.pumpAndSettle();
       expect(find.byKey(resultAddToNamedKey), findsOneWidget);
@@ -859,7 +860,7 @@ void main() {
         ..add(Contact(id: 'c1', name: 'Anna', address: _anna))
         ..add(Contact(id: 'c2', name: 'Bob', address: 'es${'b' * 50}@epicbox.epiccash.com'))
         ..add(Contact(id: 'c3', name: 'Dan', address: 'es${'d' * 50}@epicbox.epiccash.com'));
-      h.api.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1');
+      h.api.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', paymentsAddress: _anna);
       await h.api.makeInvite(name: 'Alex', expiry: const Duration(hours: 24), label: 'Bob', contactId: 'c2');
       await h.pump(tester, const ContactsScreen(), settle: false);
       expect(find.byKey(contactsPairHintKey), findsNothing);
@@ -972,7 +973,7 @@ void main() {
     testWidgets('a contact whose pairing the other side removed: Removed by, and Pair again', (tester) async {
       final h = _Harness();
       h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));
-      h.api.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1');
+      h.api.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', paymentsAddress: _anna);
       h.api.removedByPeer('p1');
       await h.pump(tester, const ContactPage(contactId: 'c1'));
       // The badge and the Pairing card both say so; the dead pairing has no switches.

@@ -3474,9 +3474,15 @@ class _LepicPairing implements PairingApi {
 
   @override
   Future<PairingRecord> attach(String id, String? contactId) => _call(() async {
+    // The one check of every way in (pickers, the same-name offer, an invite made from a
+    // contact): refused before anything is stored when the contact's Epicbox address is not
+    // the pairing's.
+    final contact = contactId == null ? null : (await _s.contacts()).where((c) => c.id == contactId).firstOrNull;
+    final filled = contact == null ? null : contactForPairing(contact, _record(await _w.contact(contactId: id)));
     // A contact that has a pairing already: the new one checks whether its keys are back.
     final before = contactId == null ? const <lepic.ContactView>[] : await _w.pairingsForAppContact(appContact: contactId);
     await _w.contactAttach(contactId: id, appContact: contactId);
+    if (filled != null) await _s.saveContact(contact: filled);
     final old = before
         .where((c) => c.contactId != id && c.state != lepic.PairingState.keysChanged && !c.removedByPeer)
         .firstOrNull;

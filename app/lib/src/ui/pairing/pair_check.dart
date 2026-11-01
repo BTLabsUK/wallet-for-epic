@@ -75,6 +75,41 @@ Future<Contact?> pickContactForPairing(BuildContext context) => Navigator.of(con
   MaterialPageRoute<Contact>(builder: (_) => const ContactsScreen(pick: true)),
 );
 
+/// Attaches the pairing [r] to [contact], the user's pick. Refused because the contact has an
+/// Epicbox address the pairing cannot confirm ([contactForPairing]): a dialog says so and offers
+/// Save as a new contact. The contact the pairing went to, or null.
+Future<Contact?> attachPairingTo(BuildContext context, WidgetRef ref, PairingRecord r, Contact contact) async {
+  try {
+    await pairingCall(ref, (api) => api.attach(r.id, contact.id));
+    // The pairing's address filled the contact's empty Epicbox slot: the list reads it again.
+    if (contact.epicbox == null && r.paymentsAddress != null) ref.invalidate(contactsProvider);
+    return contact;
+  } on WalletError catch (error) {
+    if (pairingFailureOf(error) != PairingFailure.otherAddress) rethrow;
+  }
+  if (!context.mounted) return null;
+  final l = context.l10n;
+  final asNew = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(l.pairOtherAddressTitle(contact.name)),
+      content: Text(l.pairOtherAddressBody(contact.name)),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.commonCancel)),
+        TextButton(key: pairOtherAddressNewKey, onPressed: () => Navigator.pop(context, true), child: Text(l.pairSaveNewContact)),
+      ],
+    ),
+  );
+  if (asNew != true || !context.mounted) return null;
+  final saved = await savePairingAsNewContact(context, r);
+  if (saved == null || !context.mounted) return null;
+  await pairingCall(ref, (api) => api.attach(r.id, saved.id));
+  return saved;
+}
+
+/// Save as a new contact in [attachPairingTo]'s refusal, for tests.
+const Key pairOtherAddressNewKey = ValueKey('pair-other-address-new');
+
 class CheckWordsScreen extends ConsumerStatefulWidget {
   const CheckWordsScreen({super.key, required this.pairingId, this.recheck = false, this.inPerson = false, this.byCamera = true});
 
@@ -302,8 +337,9 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
   Future<void> _attach(PairingRecord r, Contact contact) => _run(() async {
     final l = context.l10n;
     _attachedTo = contact.id;
-    await pairingCall(ref, (api) => api.attach(r.id, contact.id));
-    ref.read(noticeProvider.notifier).show(l.pairSavedAs(contact.name), level: NoticeLevel.success);
+    final to = await attachPairingTo(context, ref, r, contact);
+    _attachedTo = to?.id;
+    if (to != null) ref.read(noticeProvider.notifier).show(l.pairSavedAs(to.name), level: NoticeLevel.success);
   });
 
   /// The pairing is gone (folded into the old one, or removed): leave once.
@@ -346,6 +382,7 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
             contacts,
             (c) => c.name,
             paired: (c) => pairings.any((p) => p.id != record.id && p.contactId == c.id && p.state.isPaired),
+            epicboxOf: (c) => c.epicbox,
           );
     final done = FilledButton(
       key: checkDoneKey,

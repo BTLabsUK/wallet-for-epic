@@ -15368,6 +15368,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pairSaveNewContact => 'Сохранить как новый контакт';
 
   @override
+  String pairOtherAddressTitle(String name) {
+    return 'Не добавлено к контакту $name';
+  }
+
+  @override
+  String pairOtherAddressBody(String name) {
+    return 'У контакта $name есть адрес Epicbox, который это сопряжение не может подтвердить.';
+  }
+
+  @override
+  String get pairOtherAddress =>
+      'У этого контакта есть адрес Epicbox, который это сопряжение не может подтвердить.';
+
+  @override
   String pairAddToNamed(String name) {
     return 'Добавить к контакту $name';
   }

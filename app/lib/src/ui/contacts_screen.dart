@@ -19,7 +19,7 @@ import 'contact_page.dart';
 import 'contacts_transfer.dart';
 import 'help_screen.dart' show openHelp;
 import 'method_names.dart';
-import 'pairing/pair_check.dart' show confirmRemovePairing, pickContactForPairing, savePairingAsNewContact;
+import 'pairing/pair_check.dart' show attachPairingTo, confirmRemovePairing, pickContactForPairing, savePairingAsNewContact;
 import 'pairing/pair_screen.dart';
 import 'pairing/pairing_parts.dart';
 import 'pairing/pending_invites.dart';
@@ -357,8 +357,8 @@ class _OrphanRow extends ConsumerWidget {
   Future<void> _attach(BuildContext context, WidgetRef ref, Contact? contact) async {
     if (contact == null || !context.mounted) return;
     final l = context.l10n;
-    await pairingCall(ref, (api) => api.attach(record.id, contact.id));
-    ref.read(noticeProvider.notifier).show(l.pairSavedAs(contact.name), level: NoticeLevel.success);
+    final to = await attachPairingTo(context, ref, record, contact);
+    if (to != null) ref.read(noticeProvider.notifier).show(l.pairSavedAs(to.name), level: NoticeLevel.success);
   }
 
   Future<void> _choose(BuildContext context, WidgetRef ref, String choice, Contact? suggested) async {
@@ -387,6 +387,7 @@ class _OrphanRow extends ConsumerWidget {
       contacts,
       (c) => c.name,
       paired: (c) => all.any((p) => p.id != record.id && p.contactId == c.id && p.state.isPaired),
+      epicboxOf: (c) => c.epicbox,
     );
     return ListTile(
       minTileHeight: 64,
@@ -527,8 +528,9 @@ class _ContactRow extends ConsumerWidget {
                         ),
                         if (starred) ...[const SizedBox(width: 4), const ContactStar()],
                         const SizedBox(width: 8),
-                        // Paired: its trust badge; not paired: how it is reached.
-                        if (pairing != null)
+                        // Paired: its trust badge, never beside an Epicbox address the pairing did
+                        // not bring; not paired: how it is reached.
+                        if (pairing != null && pairingVouchesFor(pairing, contact.epicbox))
                           Flexible(child: TrustBadge(pairing, short: true))
                         else if (inFlight)
                           const Flexible(child: PairPendingBadge())

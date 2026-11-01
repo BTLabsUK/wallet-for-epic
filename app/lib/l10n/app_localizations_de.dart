@@ -15034,6 +15034,20 @@ class AppLocalizationsDe extends AppLocalizations {
   String get pairSaveNewContact => 'Als neuen Kontakt speichern';
 
   @override
+  String pairOtherAddressTitle(String name) {
+    return 'Nicht zu $name hinzugefügt';
+  }
+
+  @override
+  String pairOtherAddressBody(String name) {
+    return '$name hat eine Epicbox-Adresse, die diese Kopplung nicht bestätigen kann.';
+  }
+
+  @override
+  String get pairOtherAddress =>
+      'Dieser Kontakt hat eine Epicbox-Adresse, die diese Kopplung nicht bestätigen kann.';
+
+  @override
   String pairAddToNamed(String name) {
     return 'Zu $name hinzufügen';
   }

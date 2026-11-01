@@ -9,7 +9,7 @@ import '../../data/desk_errors.dart' show deskErrorText;
 import '../../app/tour.dart';
 import '../../../l10n.dart' show AppLocalizations, localDayMonth;
 import '../../widgets/kit.dart';
-import '../../../models.dart' show KeysChoice, PairingRecord, PairingState, SealMode, contactKinds;
+import '../../../models.dart' show KeysChoice, PairingRecord, PairingState, SealMode, contactKinds, pairingVouchesFor;
 import '../../../ui/method_names.dart' show recipientMethodWord;
 import '../../../help/help_content.dart' show HelpId;
 import '../../../ui/pairing/pairing_parts.dart' show PairPendingBadge, TrustBadge;
@@ -542,7 +542,8 @@ class _ContactRowState extends ConsumerState<_ContactRow> {
                             padding: EdgeInsets.only(left: Sp.x1),
                             child: Icon(EIcons.star, size: 14.u, color: c.accentText),
                           ),
-                        if (ref.watch(deskPairsProvider) ? ref.watch(deskContactPairingProvider(x.id)) : null case final p?)
+                        // Never Verified beside an Epicbox address the pairing did not bring.
+                        if (ref.watch(deskPairsProvider) ? ref.watch(deskContactPairingProvider(x.id)) : null case final p? when pairingVouchesFor(p, x.epicbox))
                           Padding(padding: EdgeInsets.only(left: Sp.x2), child: TrustBadge(p, short: true))
                         else if (ref.watch(deskPairsProvider) && deskPairingInFlight(ref.watch(deskPairingsProvider).value, x.id))
                           Padding(padding: EdgeInsets.only(left: Sp.x2), child: const PairPendingBadge()),
@@ -601,7 +602,7 @@ class _ContactDetail extends ConsumerWidget {
                     runSpacing: Sp.x1,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      if (pairing != null) TrustBadge(pairing),
+                      if (pairing != null && pairingVouchesFor(pairing, x.epicbox)) TrustBadge(pairing),
                       if (last != null) Text(l.deskConLastTx(whenText(l, last)), style: ts.small),
                     ],
                   ),
@@ -1231,6 +1232,11 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
         ],
         if (p.relayDown && !paused) ...[
           ENotice(title: l.contactRelayDownTitle(name), text: l.contactRelayDownBody, tone: ETone.warn),
+          SizedBox(height: Sp.x4),
+        ],
+        // Attached before attaching checked the address: said, its address not marked verified.
+        if (!pairingVouchesFor(p, x.epicbox)) ...[
+          ENotice(title: l.pairOtherAddressBody(name), tone: ETone.warn),
           SizedBox(height: Sp.x4),
         ],
         if (p.seal == SealMode.degraded && !changed) ...[

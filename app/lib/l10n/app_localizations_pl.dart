@@ -15395,6 +15395,20 @@ class AppLocalizationsPl extends AppLocalizations {
   String get pairSaveNewContact => 'Zapisz jako nowy kontakt';
 
   @override
+  String pairOtherAddressTitle(String name) {
+    return 'Nie dodano do kontaktu $name';
+  }
+
+  @override
+  String pairOtherAddressBody(String name) {
+    return 'Kontakt $name ma adres Epicbox, którego to parowanie nie może potwierdzić.';
+  }
+
+  @override
+  String get pairOtherAddress =>
+      'Ten kontakt ma adres Epicbox, którego to parowanie nie może potwierdzić.';
+
+  @override
   String pairAddToNamed(String name) {
     return 'Dodaj do kontaktu $name';
   }
