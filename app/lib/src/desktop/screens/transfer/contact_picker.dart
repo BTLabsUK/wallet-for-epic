@@ -156,12 +156,12 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
                 }
                 return KeyEventResult.ignored;
               },
-              child: EInput(
+              child: ESearch(
                 controller: _q,
                 hint: l.deskSendPickSearch,
-                leading: EIcons.search,
+                label: l.deskSendPickSearch,
+                clearLabel: l.deskActClearSearch,
                 autofocus: true,
-                semanticLabel: l.deskSendPickSearch,
                 onChanged: (_) => setState(() {}),
                 onSubmitted: (_) {
                   if (shown.isNotEmpty) Navigator.of(context).pop(shown.first);

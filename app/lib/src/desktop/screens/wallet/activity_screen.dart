@@ -126,17 +126,15 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     final l = context.l10n;
     // Wide enough for the long placeholder from Lay.wide (UD-002); the short one below that.
     final wide = _pageW >= Lay.wide;
-    final input = EInput(
+    return ESearch(
       controller: _query,
+      width: full ? null : (wide ? 320.u : 200.u),
       enabled: hasItems,
       hint: full || wide ? l.deskActSearchHintFull : l.deskActSearchHint,
-      leading: EIcons.search,
-      semanticLabel: l.deskActSearchLabel,
+      label: l.deskActSearchLabel,
+      clearLabel: l.deskActClearSearch,
       onChanged: (_) => setState(() => _page = 0),
-      trailing: _query.text.isEmpty ? null : EIconButton(icon: EIcons.close, label: l.deskActClearSearch, size: EBtnSize.inline, onPressed: () => setState(_query.clear)),
     );
-    if (full) return input;
-    return SizedBox(width: wide ? 320.u : 200.u, child: input);
   }
 
   /// The width the page itself gets; the split and the search placement decide on it.

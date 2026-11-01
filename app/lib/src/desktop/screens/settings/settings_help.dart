@@ -210,14 +210,14 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
                         help: context.l10n.deskSetHelpSearchKeys,
                         child: CallbackShortcuts(
                           bindings: {const SingleActivator(LogicalKeyboardKey.escape): _clear},
-                          child: EInput(
+                          child: ESearch(
                             controller: _query,
                             focusNode: _focus,
                             hint: context.l10n.deskSetHelpSearchHint,
-                            leading: EIcons.search,
-                            semanticLabel: context.l10n.deskSetHelpSearch,
+                            label: context.l10n.deskSetHelpSearch,
+                            clearLabel: context.l10n.deskSetHelpClear,
                             onChanged: (_) => setState(() {}),
-                            trailing: _query.text.isEmpty ? null : EIconButton(icon: EIcons.close, label: context.l10n.deskSetHelpClear, onPressed: _clear),
+                            onClear: _clear,
                           ),
                         ),
                       ),

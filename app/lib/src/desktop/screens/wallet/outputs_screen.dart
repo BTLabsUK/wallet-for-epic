@@ -286,7 +286,6 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
   }
 
   List<Widget> _list(AsyncValue<List<Output>> value, OutputCounts counts) {
-    final c = context.dc;
     final l = context.l10n;
     final all = value.value;
     if (all == null) {
@@ -325,38 +324,29 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
     final slice = shown.skip(page * _pageSize).take(_pageSize).toList();
     final txs = {for (final t in ref.watch(deskProvider).txs ?? const <Tx>[]) t.id: t};
     final tip = ref.watch(deskProvider.select((s) => s.status?.nodeHeight)) ?? 0;
-    final filters = Wrap(
-      spacing: Sp.x4,
-      runSpacing: Sp.x3,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        ESegmented<OutputsFilter>(
-          segments: [
-            ESegment(OutputsFilter.all, l.deskOutFilterAll, count: all.where((o) => (_showSpent || o.word != OutputWord.spent) && o.word != OutputWord.finalizing).length),
-            ESegment(OutputsFilter.spendable, l.deskOutFilterSpendable, count: counts.spendable),
-            ESegment(OutputsFilter.confirming, l.deskOutFilterConfirming, count: all.where((o) => o.word == OutputWord.confirming).length),
-            ESegment(OutputsFilter.locked, l.deskOutFilterLocked, count: counts.locked),
-            if (all.any((o) => o.word == OutputWord.finalizing))
-              ESegment(OutputsFilter.waiting, l.deskOutFilterWaiting, count: all.where((o) => o.word == OutputWord.finalizing).length),
-          ],
-          value: _filter,
-          onChanged: (v) => setState(() {
-            _filter = v;
-            _page = 0;
-          }),
-        ),
-        SizedBox(
-          width: 240.u,
-          child: EInput(
-            controller: _query,
-            hint: l.deskOutSearchHint,
-            leading: EIcons.search,
-            semanticLabel: l.deskOutSearchLabel,
-            onChanged: (_) => setState(() => _page = 0),
-            trailing: _query.text.isEmpty ? null : EIconButton(icon: EIcons.close, label: l.deskOutClearSearch, size: EBtnSize.inline, onPressed: () => setState(_query.clear)),
-          ),
-        ),
-        ECheckbox(
+    // One line of Ctl.sm controls on one centre line: the status tabs and Show spent on the
+    // left, the commitment search at the right end. Short of room (a narrow window) the
+    // search goes under the tabs, at its own width; the tabs shrink before they clip.
+    final tabs = ESegmented<OutputsFilter>(
+      shrink: true,
+      segments: [
+        ESegment(OutputsFilter.all, l.deskOutFilterAll, count: all.where((o) => (_showSpent || o.word != OutputWord.spent) && o.word != OutputWord.finalizing).length),
+        ESegment(OutputsFilter.spendable, l.deskOutFilterSpendable, count: counts.spendable),
+        ESegment(OutputsFilter.confirming, l.deskOutFilterConfirming, count: all.where((o) => o.word == OutputWord.confirming).length),
+        ESegment(OutputsFilter.locked, l.deskOutFilterLocked, count: counts.locked),
+        if (all.any((o) => o.word == OutputWord.finalizing))
+          ESegment(OutputsFilter.waiting, l.deskOutFilterWaiting, count: all.where((o) => o.word == OutputWord.finalizing).length),
+      ],
+      value: _filter,
+      onChanged: (v) => setState(() {
+        _filter = v;
+        _page = 0;
+      }),
+    );
+    final showSpent = SizedBox(
+      height: Ctl.sm,
+      child: Center(
+        child: ECheckbox(
           value: _showSpent,
           label: l.deskOutShowSpent,
           onChanged: (v) => setState(() {
@@ -364,7 +354,27 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
             _page = 0;
           }),
         ),
+      ),
+    );
+    final search = ESearch(
+      controller: _query,
+      width: double.nan,
+      hint: l.deskOutSearchHint,
+      label: l.deskOutSearchLabel,
+      clearLabel: l.deskOutClearSearch,
+      onChanged: (_) => setState(() => _page = 0),
+    );
+    final picks = Row(
+      children: [
+        Flexible(child: tabs),
+        SizedBox(width: Sp.x5),
+        showSpent,
       ],
+    );
+    final filters = LayoutBuilder(
+      builder: (context, box) => box.maxWidth >= Lay.xl
+          ? Row(children: [Expanded(child: picks), SizedBox(width: Sp.x5), search])
+          : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [picks, SizedBox(height: Sp.x3), search]),
     );
     return [
       filters,
@@ -391,12 +401,9 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
           Semantics(
             label: l.deskOutTitle,
             container: true,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const _OutputHead(),
-                for (final (i, o) in slice.indexed) ...[
-                  if (i > 0) Divider(height: 1, color: c.line),
+            child: _OutputTable(
+              rows: [
+                for (final o in slice)
                   _OutputRow(
                     output: o,
                     tip: tip,
@@ -404,7 +411,6 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
                     onTx: o.txId == null ? null : () => ref.read(deskNavProvider.notifier).go(DeskRoute.activity, o.txId),
                     onRelease: o.heldBy == null ? null : () => _releaseHeld(o),
                   ),
-                ],
               ],
             ),
           ),
@@ -594,36 +600,87 @@ class _DefaultsMoved extends ConsumerWidget {
   }
 }
 
-/// Column widths of the wide list.
+/// The outputs as a table: every column as wide as its content on the page (the widest
+/// value, the longest status), a gap apart, the commitment in the rest; numbers right-aligned,
+/// the words left. One grid holds the head and the rows, so nothing sits a few pixels off.
+/// Under [Lay.md] of width the rows stack their cells instead, without a head.
+class _OutputTable extends StatelessWidget {
+  const _OutputTable({required this.rows});
 
-class _OutputHead extends StatelessWidget {
-  const _OutputHead();
+  final List<_OutputRow> rows;
+
+  /// The panel's inset: the first column starts where the summary tiles do.
+  static double get inset => Sp.x6;
+
+  /// Half the gap between columns (each cell pads both sides).
+  static double get pad => Sp.x3;
+
+  /// The row's height for one line of a status and its note.
+  static double get rowHeight => 52.u;
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    final style = context.ts.caption.copyWith(fontWeight: FontWeight.w600);
     final l = context.l10n;
     return LayoutBuilder(
       builder: (context, box) {
-        final wide = box.maxWidth >= Lay.xl;
-        if (box.maxWidth < Lay.md) return const SizedBox.shrink();
-        Widget col(double w, String t, {bool right = false}) => SizedBox(
-          width: w,
-          child: Text(t, style: style, textAlign: right ? TextAlign.right : TextAlign.left),
-        );
-        return Container(
-          height: 36.u,
-          padding: EdgeInsets.symmetric(horizontal: Sp.x5),
-          decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.line))),
-          child: Row(
+        final width = box.maxWidth - 2 * inset;
+        if (width < Lay.md) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              col(150.u, l.deskOutColValue, right: true),
-              SizedBox(width: Sp.x5),
-              col(200.u, l.deskOutColStatus),
-              if (wide) ...[col(104.u, l.deskOutColConfirmations, right: true), SizedBox(width: Sp.x5), col(88.u, l.deskOutColHeight)],
-              col(140.u, l.deskOutColTransaction),
-              Expanded(child: Text(l.deskOutColCommitment, style: style)),
+              for (final (i, r) in rows.indexed) ...[
+                if (i > 0) Divider(height: 1, color: c.line),
+                r,
+              ],
+            ],
+          );
+        }
+        // Confirmations and Height have their own columns in a panel Lay.xl wide; below, the
+        // status shows the confirmations.
+        final wide = box.maxWidth >= Lay.xl;
+        final head = context.ts.caption.copyWith(fontWeight: FontWeight.w600);
+        Widget th(String t, {bool right = false}) => Container(
+          height: 36.u,
+          alignment: right ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
+          padding: EdgeInsets.symmetric(horizontal: pad),
+          child: Text(t, style: head, maxLines: 1, overflow: TextOverflow.ellipsis),
+        );
+        Widget td(Widget w, {bool right = false, bool dim = false}) => Container(
+          constraints: BoxConstraints(minHeight: rowHeight),
+          alignment: right ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
+          padding: EdgeInsets.symmetric(horizontal: pad, vertical: Sp.x2),
+          child: dim ? Opacity(opacity: 0.6, child: w) : w,
+        );
+        final cap = MinColumnWidth(const IntrinsicColumnWidth(), FixedColumnWidth(240.u + 2 * pad));
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: inset - pad),
+          child: Table(
+            columnWidths: {
+              0: const IntrinsicColumnWidth(),
+              1: cap,
+              if (wide) ...{2: const IntrinsicColumnWidth(), 3: const IntrinsicColumnWidth()},
+              (wide ? 4 : 2): cap,
+              (wide ? 5 : 3): const FlexColumnWidth(),
+            },
+            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+            border: TableBorder(horizontalInside: BorderSide(color: c.line)),
+            children: [
+              TableRow(
+                children: [
+                  th(l.deskOutColValue, right: true),
+                  th(l.deskOutColStatus),
+                  if (wide) ...[th(l.deskOutColConfirmations, right: true), th(l.deskOutColHeight, right: true)],
+                  th(l.deskOutColTransaction),
+                  th(l.deskOutColCommitment),
+                ],
+              ),
+              for (final r in rows)
+                TableRow(
+                  children: [
+                    for (final (i, cell) in r.cells(context, wide: wide).indexed) td(cell, right: i == 0 || (wide && (i == 2 || i == 3)), dim: r.output.word == OutputWord.spent),
+                  ],
+                ),
             ],
           ),
         );
@@ -662,8 +719,7 @@ class _OutputRow extends StatelessWidget {
     return t.incoming ? l.deskOutTxReceived(date) : l.deskOutTxSent(date);
   }
 
-  @override
-  Widget build(BuildContext context) {
+  _Cells _build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
@@ -682,6 +738,7 @@ class _OutputRow extends StatelessWidget {
     Widget status({String? extra}) {
       final detail = note ?? extra;
       return Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(width: 18.u, height: 18.u, child: Center(child: mark)),
           SizedBox(width: Sp.x2),
@@ -706,87 +763,80 @@ class _OutputRow extends StatelessWidget {
       );
     }
     final commitment = Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Flexible(child: EShortAddress(o.commitment, style: ts.mono(size: Fs.xs, color: spent ? c.faint : c.dim))),
+        SizedBox(width: Sp.x1),
         ECopyButton(text: o.commitment, label: l.deskOutCopyCommitment(shortCommitment(o.commitment))),
       ],
     );
-    final value = Align(
-      alignment: Alignment.centerRight,
-      child: EMoney(o.value, unit: false, color: spent ? c.faint : c.text),
-    );
+    final value = EMoney(o.value, unit: false, color: spent ? c.faint : c.text);
     final t = tx;
     final txCell = onRelease != null
-        ? Align(alignment: Alignment.centerLeft, child: ELink(key: ValueKey('out-release-${o.commitment}'), label: l.devicesRelease, onPressed: onRelease))
+        ? ELink(key: ValueKey('out-release-${o.commitment}'), label: l.devicesRelease, onPressed: onRelease)
         : t == null
         ? Text('–', style: ts.small.copyWith(color: c.faint)) // l10n-ok: no payment known
-        : Align(
-            alignment: Alignment.centerLeft,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // The direction, as in Activity: green in, red out.
-                Icon(iconOf(t), size: Ctl.iconSm, color: t.incoming ? c.txReceived : c.txSent),
-                SizedBox(width: Sp.x1),
-                Flexible(child: ELink(label: _txText(l, t), onPressed: onTx)),
-              ],
-            ),
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // The direction, as in Activity: green in, red out.
+              Icon(iconOf(t), size: Ctl.iconSm, color: t.incoming ? c.txReceived : c.txSent),
+              SizedBox(width: Sp.x1),
+              Flexible(child: ELink(label: _txText(l, t), onPressed: onTx)),
+            ],
           );
     final conf = o.word == OutputWord.spendable ? l.deskOutConfirmations(o.confirmations, _group(l, o.confirmations)) : null;
+    final number = ts.mono(size: Fs.xs, color: c.dim);
+    return _Cells(
+      value: value,
+      status: status,
+      conf: conf,
+      confirmations: Text(_group(l, o.confirmations), style: number),
+      height: Text((o.height ?? 0) == 0 ? '–' : _group(l, o.height!), style: number.copyWith(color: c.faint)),
+      tx: txCell,
+      commitment: commitment,
+    );
+  }
+
+  /// The row's cells in the table's column order: value, status, (confirmations, height
+  /// when [wide]), transaction, commitment.
+  List<Widget> cells(BuildContext context, {required bool wide}) {
+    final x = _build(context);
+    return [x.value, x.status(extra: wide ? null : x.conf), if (wide) ...[x.confirmations, x.height], x.tx, x.commitment];
+  }
+
+  /// Under [Lay.md]: the status and value on one line, the commitment and transaction under.
+  @override
+  Widget build(BuildContext context) {
+    final x = _build(context);
     return Opacity(
-      opacity: spent ? 0.6 : 1,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(minHeight: 48.u),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x2),
-          child: LayoutBuilder(
-            builder: (context, box) {
-              if (box.maxWidth >= Lay.md) {
-                final wide = box.maxWidth >= Lay.xl - 2 * Sp.x5;
-                return Row(
-                  children: [
-                    SizedBox(width: 150.u, child: value),
-                    SizedBox(width: Sp.x5),
-                    SizedBox(width: 200.u, child: status(extra: wide ? null : conf)),
-                    if (wide) ...[
-                      SizedBox(
-                        width: 104.u,
-                        child: Text(_group(l, o.confirmations), textAlign: TextAlign.right, style: ts.mono(size: Fs.xs, color: c.dim)),
-                      ),
-                      SizedBox(width: Sp.x5),
-                      SizedBox(
-                        width: 88.u,
-                        child: Text((o.height ?? 0) == 0 ? '–' : _group(l, o.height!), style: ts.mono(size: Fs.xs, color: c.faint)),
-                      ),
-                    ],
-                    SizedBox(width: 140.u, child: txCell),
-                    Expanded(child: commitment),
-                  ],
-                );
-              }
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(child: status(extra: conf)),
-                      SizedBox(width: Sp.x3),
-                      value,
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Expanded(child: commitment),
-                      SizedBox(width: Sp.x3),
-                      txCell,
-                    ],
-                  ),
-                ],
-              );
-            },
-          ),
+      opacity: output.word == OutputWord.spent ? 0.6 : 1,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: _OutputTable.inset, vertical: Sp.x3),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(children: [Expanded(child: x.status(extra: x.conf)), SizedBox(width: Sp.x3), x.value]),
+            SizedBox(height: Sp.x1),
+            Row(children: [Expanded(child: x.commitment), SizedBox(width: Sp.x3), x.tx]),
+          ],
         ),
       ),
     );
   }
+}
+
+/// One output's cells, built once for either layout.
+class _Cells {
+  const _Cells({required this.value, required this.status, required this.conf, required this.confirmations, required this.height, required this.tx, required this.commitment});
+
+  final Widget value;
+  final Widget Function({String? extra}) status;
+
+  /// "N confirmations" for a spendable output, the status's note where there is no column.
+  final String? conf;
+  final Widget confirmations;
+  final Widget height;
+  final Widget tx;
+  final Widget commitment;
 }

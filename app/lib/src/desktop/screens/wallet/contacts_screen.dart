@@ -119,7 +119,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
         padding: EdgeInsets.zero,
         head: Padding(
           padding: EdgeInsetsDirectional.only(end: Sp.x3),
-          child: EInput(size: EBtnSize.sm, enabled: false, hint: l.deskConSearchHint, leading: EIcons.search, semanticLabel: l.deskConSearchLabel),
+          child: ESearch(controller: _query, enabled: false, hint: l.deskConSearchHint, label: l.deskConSearchLabel, clearLabel: l.deskConClearSearch),
         ),
         child: Semantics(
           liveRegion: true,
@@ -209,16 +209,12 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
               if (_query.text.isNotEmpty) setState(_query.clear);
             },
           },
-          child: EInput(
-            size: EBtnSize.sm,
+          child: ESearch(
             controller: _query,
             hint: l.deskConSearchHint,
-            leading: EIcons.search,
-            semanticLabel: l.deskConSearchLabel,
+            label: l.deskConSearchLabel,
+            clearLabel: l.deskConClearSearch,
             onChanged: (_) => setState(() {}),
-            trailing: _query.text.isEmpty
-                ? null
-                : EIconButton(icon: EIcons.close, label: l.deskConClearSearch, size: EBtnSize.inline, onPressed: () => setState(_query.clear)),
           ),
         ),
       ),
