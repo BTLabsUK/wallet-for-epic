@@ -132,7 +132,9 @@ class ReceiveHttpCard extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Its own node: only the title is the heading, not the card's other text.
             Semantics(
+              container: true,
               header: true,
               child: Row(
                 children: [
