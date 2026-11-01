@@ -18232,13 +18232,13 @@ class AppLocalizationsDe extends AppLocalizations {
       'Jederzeit änderbar unter Einstellungen › Erweitert.';
 
   @override
-  String get levelRowTitle => 'Wallet-Stufe';
+  String get levelRowTitle => 'Wallet-Ansicht';
 
   @override
-  String get levelChangeTitle => 'Stufe ändern';
+  String get levelChangeTitle => 'Ansicht ändern';
 
   @override
-  String get lvPickTitle => 'Wähle deine Tiefe';
+  String get lvPickTitle => 'Wähle deine Ansicht';
 
   @override
   String get lvPickLead => 'Wie viel von der Wallet möchtest du sehen?';
@@ -18269,7 +18269,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get lvPickNoneLine => 'Die Vorschau folgt dem Regler.';
 
   @override
-  String get lvPickDepth => 'Tiefe';
+  String get lvPickDepth => 'Ansicht';
 
   @override
   String get lvPickPreview =>
@@ -18280,7 +18280,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get lvPickHelpText =>
-      'Nur, wie viel die App zeigt. Jede Stufe sendet und empfängt gleich, mit denselben Schlüsseln und denselben Coins.';
+      'Nur, wie viel die App zeigt. Jede Ansicht sendet und empfängt gleich, mit denselben Schlüsseln und denselben Coins.';
 
   @override
   String get lvPickUndercoverHelp =>
@@ -18297,7 +18297,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get lvPickTakesEffect => 'Gilt sofort.';
 
   @override
-  String get lvPickSaved => 'Stufe gespeichert';
+  String get lvPickSaved => 'Ansicht gespeichert';
 
   @override
   String get lvPickTorTitle => 'Verbindung über Tor';
@@ -18527,7 +18527,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get lvShellLevelCaption =>
-      'Höhere Stufen zeigen mehr von der Wallet. Gespeichertes ändert sich nicht.';
+      'Eine tiefere Ansicht zeigt mehr von der Wallet. Gespeichertes ändert sich nicht.';
 
   @override
   String get lvPolPosted => 'Gesendet';
@@ -18546,11 +18546,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskLvStartPreviewCaption =>
-      'Ihre Übersicht in dieser Tiefe. Gespeichert wird nichts anders.';
+      'Ihre Übersicht in dieser Ansicht. Gespeichert wird nichts anders.';
 
   @override
   String get deskLvStartPreviewCaptionShort =>
-      'Ihre Übersicht in dieser Tiefe.';
+      'Ihre Übersicht in dieser Ansicht.';
 
   @override
   String get deskLvStartCover => 'Stufe wählen, um die Vorschau zu sehen';
@@ -18576,7 +18576,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskLvStartPickFirst =>
-      'Zuerst eine Tiefe wählen. Bis dahin verbindet sich nichts.';
+      'Zuerst eine Ansicht wählen. Bis dahin verbindet sich nichts.';
 
   @override
   String get deskLvStartMiniWallet => 'Hauptwallet';
@@ -18592,11 +18592,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskLvStartAdvNote =>
-      'Mehr Stufen zeigen mehr von der Wallet. Gespeichert wird nichts anders.';
+      'Eine tiefere Ansicht zeigt mehr von der Wallet. Gespeichert wird nichts anders.';
 
   @override
   String deskLvStartAboutDepth(String name) {
-    return 'Tiefe: $name';
+    return 'Ansicht: $name';
   }
 
   @override
@@ -18783,7 +18783,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskLvPayKind => 'Zahlung';
 
   @override
-  String get deskLvShellNewsTitle => 'Neu: Wallet-Tiefe';
+  String get deskLvShellNewsTitle => 'Neu: Wallet-Ansicht';
 
   @override
   String get deskLvShellNewsText =>

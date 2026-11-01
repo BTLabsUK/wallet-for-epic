@@ -249,9 +249,10 @@ class LevelCaption extends StatelessWidget {
   }
 }
 
-/// A small, calm home screen that gains a layer per level: level 1 the balance and the latest
-/// payments, level 2 the status in words and the balance tiles, level 3 the status icons,
-/// method chips and Outputs. Before a pick it shows level 1, faded. A static picture: screen
+/// A small, calm home screen that gains a layer per level: level 1 the balance, its quiet line
+/// and the latest payments; level 2 the status icons, the balance tiles and a plain-words step
+/// under the arriving payment; level 3 the node's numbers, method chips, Outputs and the ids
+/// and kernel in mono. Before a pick it shows level 1, faded. A static picture: screen
 /// readers hear [LevelPreview]'s one label instead of its parts.
 class LevelPreview extends StatelessWidget {
   const LevelPreview({super.key, required this.level, required this.height});
@@ -332,13 +333,45 @@ class LevelPreview extends StatelessWidget {
         ),
       ),
     );
-    Widget row(String name, String amount, {Color? tick, Color? colour, String? count}) => Padding(
+    final mono = t.monoFamily;
+    // A payment row: level 3 adds the id in mono. [casual] and [technical] are the line under
+    // the arriving payment at level 2 (plain words) and level 3 (the kernel and the count).
+    Widget row(String name, String amount, {Color? tick, Color? colour, String? count, String? id, String? casual, String? technical}) => Padding(
       padding: const EdgeInsets.only(bottom: 6),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (tick != null) ...[dot(tick, 6), const SizedBox(width: 6)],
-          Expanded(child: Text(name, style: s(9.5))),
-          if (count != null) Text(count, style: s(9.5, color: t.dim)) else Text(amount, style: s(9.5, color: colour)),
+          Row(
+            children: [
+              if (tick != null) ...[dot(tick, 6), const SizedBox(width: 6)],
+              Expanded(
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(text: name, style: s(9.5)),
+                      if (depth == 3 && id != null) TextSpan(text: ' · $id', style: s(8, color: t.dim).copyWith(fontFamily: mono)),
+                    ],
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              if (count != null) Text(count, style: s(9.5, color: t.dim)) else Text(amount, style: s(9.5, color: colour)),
+            ],
+          ),
+          if (casual != null && technical != null)
+            layer(
+              depth >= 2,
+              Padding(
+                padding: EdgeInsets.only(top: 1, left: tick == null ? 0 : 12),
+                child: Text(
+                  depth == 3 ? technical : casual,
+                  style: depth == 3 ? s(8, color: t.dim).copyWith(fontFamily: mono) : s(8.5, color: t.dim),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -378,10 +411,11 @@ class LevelPreview extends StatelessWidget {
                               style: s(9.5, color: t.accentText, weight: FontWeight.w600),
                             ),
                           ),
-                          if (depth == 3) ...[
+                          if (depth >= 2) ...[
                             statusTile(Icons.lan_outlined, true),
                             statusTile(Icons.inbox_outlined, true),
                             statusTile(Icons.shield_outlined, false),
+                            statusTile(Icons.link, false),
                           ] else ...[
                             dot(t.ok),
                             const SizedBox(width: 4),
@@ -390,6 +424,19 @@ class LevelPreview extends StatelessWidget {
                           const SizedBox(width: 6),
                           Icon(Icons.settings_outlined, size: 11, color: t.dim),
                         ],
+                      ),
+                    ),
+                    // Level 3: the node's numbers, in mono.
+                    layer(
+                      depth == 3,
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          '${l.lvShellLatestBlock} 2,934,118 · ${l.serverFactPeers} 8', // l10n-ok: sample numbers
+                          style: s(8, color: t.dim).copyWith(fontFamily: mono),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -408,24 +455,25 @@ class LevelPreview extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text('≈ 518.52 USD', style: s(8, color: t.dim)),
+                    // Level 1: the one quiet line in place of the tiles.
+                    layer(
+                      depth <= 1,
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          '${l.lvShellQuietArriving('12.5000')} · ${l.lvShellQuietOnHold('25.0000')}', // l10n-ok: sample amounts
+                          style: s(8.5, color: t.dim),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
                     const SizedBox(height: 10),
                     layer(
                       depth >= 2,
                       Column(
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              dot(t.ok, 5),
-                              const SizedBox(width: 3),
-                              Text(l.lvPickNetworkOk, style: s(8.5, color: t.dim)),
-                              const SizedBox(width: 10),
-                              dot(t.ok, 5),
-                              const SizedBox(width: 3),
-                              Text(l.lvPickEpicboxOk, style: s(8.5, color: t.dim)),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
                           Row(
                             children: [
                               tile(l.homeBalanceConfirming, '12.5000', t.accentText),
@@ -447,9 +495,17 @@ class LevelPreview extends StatelessWidget {
                         ],
                       ),
                     ),
-                    row('Bob', '+12.5000', tick: t.txReceived, colour: t.txReceived),
-                    row('Alice', '−25.0000', tick: t.txSent, colour: t.txSent),
-                    row('Alice', '+150.0000', tick: t.txReceived, colour: t.txReceived),
+                    row(
+                      'Bob',
+                      '+12.5000',
+                      tick: t.txReceived,
+                      colour: t.txReceived,
+                      id: 'a1f9e8d7',
+                      casual: '${l.lvPayArriving} · ${l.lvPayConfirming(2, 6)}',
+                      technical: '${l.txDetailsKernel} 8f1c2e…9a3b · ${l.lvPayConfirmations} 2/6', // l10n-ok: sample numbers
+                    ),
+                    row('Alice', '−25.0000', tick: t.txSent, colour: t.txSent, id: '7c21b0e4'),
+                    row('Alice', '+150.0000', tick: t.txReceived, colour: t.txReceived, id: '02ab9c11'),
                   ],
                 ),
               ),

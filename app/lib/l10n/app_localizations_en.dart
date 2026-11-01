@@ -18017,13 +18017,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get levelFooter => 'Change it any time in Settings › Advanced.';
 
   @override
-  String get levelRowTitle => 'Wallet level';
+  String get levelRowTitle => 'Wallet view';
 
   @override
-  String get levelChangeTitle => 'Change level';
+  String get levelChangeTitle => 'Change view';
 
   @override
-  String get lvPickTitle => 'Pick your depth';
+  String get lvPickTitle => 'Pick your view';
 
   @override
   String get lvPickLead => 'How much of the wallet do you want to see?';
@@ -18053,7 +18053,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lvPickNoneLine => 'The preview follows the dial.';
 
   @override
-  String get lvPickDepth => 'Depth';
+  String get lvPickDepth => 'View';
 
   @override
   String get lvPickPreview =>
@@ -18064,7 +18064,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lvPickHelpText =>
-      'Only how much the app shows. Every level sends and receives the same way, with the same keys and the same coins.';
+      'Only how much the app shows. Every view sends and receives the same way, with the same keys and the same coins.';
 
   @override
   String get lvPickUndercoverHelp =>
@@ -18081,7 +18081,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lvPickTakesEffect => 'Takes effect right away.';
 
   @override
-  String get lvPickSaved => 'Level saved';
+  String get lvPickSaved => 'View saved';
 
   @override
   String get lvPickTorTitle => 'Connecting through Tor';
@@ -18311,7 +18311,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lvShellLevelCaption =>
-      'More levels show more of the wallet. Nothing stored changes.';
+      'A deeper view shows more of the wallet. Nothing stored changes.';
 
   @override
   String get lvPolPosted => 'Posted';
@@ -18330,10 +18330,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskLvStartPreviewCaption =>
-      'Your Overview at this depth. Nothing stored changes between depths.';
+      'Your Overview in this view. Nothing stored changes between views.';
 
   @override
-  String get deskLvStartPreviewCaptionShort => 'Your Overview at this depth.';
+  String get deskLvStartPreviewCaptionShort => 'Your Overview in this view.';
 
   @override
   String get deskLvStartCover => 'Pick a stop to see the preview';
@@ -18359,7 +18359,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskLvStartPickFirst =>
-      'Pick a depth first. Nothing connects until you do.';
+      'Pick a view first. Nothing connects until you do.';
 
   @override
   String get deskLvStartMiniWallet => 'Main wallet';
@@ -18375,11 +18375,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskLvStartAdvNote =>
-      'More levels show more of the wallet. Nothing stored changes.';
+      'A deeper view shows more of the wallet. Nothing stored changes.';
 
   @override
   String deskLvStartAboutDepth(String name) {
-    return 'Depth: $name';
+    return 'View: $name';
   }
 
   @override
@@ -18563,7 +18563,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskLvPayKind => 'Payment';
 
   @override
-  String get deskLvShellNewsTitle => 'New: wallet depth';
+  String get deskLvShellNewsTitle => 'New: wallet view';
 
   @override
   String get deskLvShellNewsText =>

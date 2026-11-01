@@ -24259,15 +24259,15 @@
   "@levelFooter": {
     "description": "Footer of the first-start step: where to change the level later."
   },
-  "levelRowTitle": "Wallet level",
+  "levelRowTitle": "Wallet view",
   "@levelRowTitle": {
     "description": "Row at the top of Settings › Advanced; its second line is the current level's title."
   },
-  "levelChangeTitle": "Change level",
+  "levelChangeTitle": "Change view",
   "@levelChangeTitle": {
     "description": "Title of the dialog opened by the Wallet level row."
   },
-  "lvPickTitle": "Pick your depth",
+  "lvPickTitle": "Pick your view",
   "@lvPickTitle": {
     "description": "First-start level picker: the heading."
   },
@@ -24307,7 +24307,7 @@
   "@lvPickNoneLine": {
     "description": "Level picker before a stop is picked: in place of the one-liner."
   },
-  "lvPickDepth": "Depth",
+  "lvPickDepth": "View",
   "@lvPickDepth": {
     "description": "Screen reader name of the level picker's group of three stops."
   },
@@ -24319,7 +24319,7 @@
   "@lvPickHelpTitle": {
     "description": "Level picker ⓘ sheet: title."
   },
-  "lvPickHelpText": "Only how much the app shows. Every level sends and receives the same way, with the same keys and the same coins.",
+  "lvPickHelpText": "Only how much the app shows. Every view sends and receives the same way, with the same keys and the same coins.",
   "@lvPickHelpText": {
     "description": "Level picker ⓘ sheet: text."
   },
@@ -24339,7 +24339,7 @@
   "@lvPickTakesEffect": {
     "description": "Change level screen: foot line; the level and Undercover apply on Save."
   },
-  "lvPickSaved": "Level saved",
+  "lvPickSaved": "View saved",
   "@lvPickSaved": {
     "description": "Notice after saving the level on the Change level screen."
   },
@@ -24688,7 +24688,7 @@
       }
     }
   },
-  "lvShellLevelCaption": "More levels show more of the wallet. Nothing stored changes.",
+  "lvShellLevelCaption": "A deeper view shows more of the wallet. Nothing stored changes.",
   "@lvShellLevelCaption": {
     "description": "Settings › Advanced at level 1, under the Wallet level row."
   },
@@ -24713,11 +24713,11 @@
   "@deskLvStartPreviewLabel": {
     "description": "Screen-reader label of the small Overview picture next to the depth dial (Welcome and Settings › Advanced › Depth)."
   },
-  "deskLvStartPreviewCaption": "Your Overview at this depth. Nothing stored changes between depths.",
+  "deskLvStartPreviewCaption": "Your Overview in this view. Nothing stored changes between views.",
   "@deskLvStartPreviewCaption": {
     "description": "Caption under the Overview picture on Welcome (first start)."
   },
-  "deskLvStartPreviewCaptionShort": "Your Overview at this depth.",
+  "deskLvStartPreviewCaptionShort": "Your Overview in this view.",
   "@deskLvStartPreviewCaptionShort": {
     "description": "Caption under the Overview picture on the Change level page."
   },
@@ -24745,7 +24745,7 @@
   "@deskLvStartHelpDeep": {
     "description": "Dialog \"What this decides\": the line for the third stop. Deep end is the stop name."
   },
-  "deskLvStartPickFirst": "Pick a depth first. Nothing connects until you do.",
+  "deskLvStartPickFirst": "Pick a view first. Nothing connects until you do.",
   "@deskLvStartPickFirst": {
     "description": "Welcome, under the three doors (Create, Import, Restore) while they are disabled until a depth is picked on a fresh install."
   },
@@ -24765,11 +24765,11 @@
   "@deskLvStartMiniWaiting": {
     "description": "Balance tile in the small Overview picture at Deeper: coins waiting for the sender to sign."
   },
-  "deskLvStartAdvNote": "More levels show more of the wallet. Nothing stored changes.",
+  "deskLvStartAdvNote": "A deeper view shows more of the wallet. Nothing stored changes.",
   "@deskLvStartAdvNote": {
     "description": "Settings › Advanced at Shallow, under the Depth row."
   },
-  "deskLvStartAboutDepth": "Depth: {name}",
+  "deskLvStartAboutDepth": "View: {name}",
   "@deskLvStartAboutDepth": {
     "description": "Screen-reader text of the Depth row in Settings › About. name is the depth: Shallow, Deeper or Deep end.",
     "placeholders": {
@@ -25105,7 +25105,7 @@
   "@deskLvPayKind": {
     "description": "Shallow Activity row: the line under a name when the payment has no note."
   },
-  "deskLvShellNewsTitle": "New: wallet depth",
+  "deskLvShellNewsTitle": "New: wallet view",
   "@deskLvShellNewsTitle": {
     "description": "Desktop Overview: title of the one-time notice an install that updated into wallet levels sees. 'Wallet depth' is the setting that picks how much the app shows (levels Shallow, Deeper, Deep end)."
   },

@@ -1,18 +1,18 @@
 {
   "deskLvStartPreviewLabel": "Podgląd Przeglądu. Pokazuje więcej, im głębiej ustawisz pokrętło.",
-  "deskLvStartPreviewCaption": "Twój Przegląd na tej głębokości. Nic zapisanego się nie zmienia.",
-  "deskLvStartPreviewCaptionShort": "Twój Przegląd na tej głębokości.",
+  "deskLvStartPreviewCaption": "Twój Przegląd w tym widoku. Nic zapisanego się nie zmienia.",
+  "deskLvStartPreviewCaptionShort": "Twój Przegląd w tym widoku.",
   "deskLvStartCover": "Wybierz punkt, aby zobaczyć podgląd",
   "deskLvStartUndercoverAbout": "O Incognito",
   "deskLvStartChangeLater": "Zmienisz to w każdej chwili w Ustawienia › Zaawansowane.",
   "deskLvStartHelpShallow": "Płytko · jeden adres, bez nazw serwerów, bez przełączników.",
   "deskLvStartHelpDeeper": "Głębiej · ten sam portfel, plus to, co robi, prostymi słowami.",
   "deskLvStartHelpDeep": "Na głęboką wodę · każdy przełącznik, każda liczba: dzisiejsza aplikacja.",
-  "deskLvStartPickFirst": "Najpierw wybierz głębokość. Nic się nie połączy, dopóki tego nie zrobisz.",
+  "deskLvStartPickFirst": "Najpierw wybierz widok. Nic się nie połączy, dopóki tego nie zrobisz.",
   "deskLvStartMiniWallet": "Główny portfel",
   "deskLvStartMiniLine": "+12,5000 nadchodzi · 25,0000 wstrzymane",
   "deskLvStartMiniFresh": "Świeże z kopania",
   "deskLvStartMiniWaiting": "Czeka na drugą stronę",
-  "deskLvStartAdvNote": "Więcej poziomów pokazuje więcej portfela. Nic zapisanego się nie zmienia.",
-  "deskLvStartAboutDepth": "Głębokość: {name}"
+  "deskLvStartAdvNote": "Głębszy widok pokazuje więcej portfela. Nic zapisanego się nie zmienia.",
+  "deskLvStartAboutDepth": "Widok: {name}"
 }

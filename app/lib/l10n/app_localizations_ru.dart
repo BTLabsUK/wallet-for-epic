@@ -18642,13 +18642,13 @@ class AppLocalizationsRu extends AppLocalizations {
       'Изменить можно в любой момент: Настройки › Дополнительно.';
 
   @override
-  String get levelRowTitle => 'Уровень кошелька';
+  String get levelRowTitle => 'Вид кошелька';
 
   @override
-  String get levelChangeTitle => 'Сменить уровень';
+  String get levelChangeTitle => 'Сменить вид';
 
   @override
-  String get lvPickTitle => 'Выберите глубину';
+  String get lvPickTitle => 'Выберите вид';
 
   @override
   String get lvPickLead => 'Сколько кошелька вы хотите видеть?';
@@ -18679,7 +18679,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get lvPickNoneLine => 'Превью следует за переключателем.';
 
   @override
-  String get lvPickDepth => 'Глубина';
+  String get lvPickDepth => 'Вид';
 
   @override
   String get lvPickPreview =>
@@ -18690,7 +18690,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get lvPickHelpText =>
-      'Только то, сколько показывает приложение. На любом уровне отправка и получение одинаковы: те же ключи и те же монеты.';
+      'Только то, сколько показывает приложение. В любом виде отправка и получение одинаковы: те же ключи и те же монеты.';
 
   @override
   String get lvPickUndercoverHelp =>
@@ -18707,7 +18707,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get lvPickTakesEffect => 'Действует сразу.';
 
   @override
-  String get lvPickSaved => 'Уровень сохранён';
+  String get lvPickSaved => 'Вид сохранён';
 
   @override
   String get lvPickTorTitle => 'Подключение через Tor';
@@ -18936,7 +18936,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get lvShellLevelCaption =>
-      'Более высокие уровни показывают больше. Сохранённые данные не меняются.';
+      'Более глубокий вид показывает больше. Сохранённые данные не меняются.';
 
   @override
   String get lvPolPosted => 'Отправлен';
@@ -18955,10 +18955,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskLvStartPreviewCaption =>
-      'Ваш обзор на этой глубине. Сохранённые данные не меняются.';
+      'Ваш обзор в этом виде. Сохранённые данные не меняются.';
 
   @override
-  String get deskLvStartPreviewCaptionShort => 'Ваш обзор на этой глубине.';
+  String get deskLvStartPreviewCaptionShort => 'Ваш обзор в этом виде.';
 
   @override
   String get deskLvStartCover => 'Выберите положение, чтобы увидеть превью';
@@ -18984,7 +18984,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskLvStartPickFirst =>
-      'Сначала выберите глубину. Пока не выберете, ничего не подключается.';
+      'Сначала выберите вид. Пока не выберете, ничего не подключается.';
 
   @override
   String get deskLvStartMiniWallet => 'Основной кошелёк';
@@ -19000,11 +19000,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskLvStartAdvNote =>
-      'Чем глубже уровень, тем больше видно в кошельке. Сохранённые данные не меняются.';
+      'Чем глубже вид, тем больше видно в кошельке. Сохранённые данные не меняются.';
 
   @override
   String deskLvStartAboutDepth(String name) {
-    return 'Глубина: $name';
+    return 'Вид: $name';
   }
 
   @override
@@ -19190,7 +19190,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskLvPayKind => 'Платёж';
 
   @override
-  String get deskLvShellNewsTitle => 'Новое: глубина кошелька';
+  String get deskLvShellNewsTitle => 'Новое: вид кошелька';
 
   @override
   String get deskLvShellNewsText =>

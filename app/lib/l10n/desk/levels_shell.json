@@ -1,5 +1,5 @@
 {
-  "deskLvShellNewsTitle": "New: wallet depth",
+  "deskLvShellNewsTitle": "New: wallet view",
   "@deskLvShellNewsTitle": {
     "description": "Desktop Overview: title of the one-time notice an install that updated into wallet levels sees. 'Wallet depth' is the setting that picks how much the app shows (levels Shallow, Deeper, Deep end)."
   },
