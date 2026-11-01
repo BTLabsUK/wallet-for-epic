@@ -4854,5 +4854,11 @@
   "deskLastSessionReportClosed": "Die App wurde unerwartet beendet.",
   "deskLastSessionAttached": "Mit dem Protokoll der letzten Sitzung.",
   "deskSetPrivUndercoverLine": "Inkognito lässt Tor eingeschaltet.",
-  "deskSetPrivUndercoverChange": "Inkognito ändern"
+  "deskSetPrivUndercoverChange": "Inkognito ändern",
+  "deskNodeEtaCalculating": "Restzeit wird berechnet…",
+  "deskNodeEtaLeft": "noch etwa {time}",
+  "deskNodeEtaMinute": "eine Minute",
+  "deskNodeEtaMinutes": "{minutes} Min.",
+  "deskNodeEtaHours": "{hours} Std.",
+  "deskNodeEtaHoursMinutes": "{hours} Std. {minutes} Min."
 }

@@ -78,5 +78,11 @@
   "deskNodeFailoverSwitched": "Węzeł nie odpowiada. Przełączono na {host}.",
   "deskNodeFailoverInsteadOf": "Zamiast {host}",
   "deskNodeDurationDh": "{days} d {hours} h",
-  "deskNodeDurationH": "{hours} h"
+  "deskNodeDurationH": "{hours} h",
+  "deskNodeEtaCalculating": "Obliczanie pozostałego czasu…",
+  "deskNodeEtaLeft": "zostało około {time}",
+  "deskNodeEtaMinute": "minuty",
+  "deskNodeEtaMinutes": "{minutes} min",
+  "deskNodeEtaHours": "{hours} godz.",
+  "deskNodeEtaHoursMinutes": "{hours} godz. {minutes} min"
 }

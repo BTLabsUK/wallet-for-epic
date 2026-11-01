@@ -25226,5 +25226,57 @@
   "deskSetPrivUndercoverChange": "Change Undercover",
   "@deskSetPrivUndercoverChange": {
     "description": "Small link next to the Undercover line under the Tor switch; opens the Depth page (Settings › Advanced › Change level) where Undercover is turned on or off."
+  },
+  "deskNodeEtaCalculating": "Calculating time left…",
+  "@deskNodeEtaCalculating": {
+    "description": "Local node sync: shown where the time left goes, until there is enough measured progress for a rough estimate. Short."
+  },
+  "deskNodeEtaLeft": "about {time} left",
+  "@deskNodeEtaLeft": {
+    "description": "Local node sync: a rough time left for the whole sync. {time} is deskNodeEtaMinute, deskNodeEtaMinutes, deskNodeEtaHours or deskNodeEtaHoursMinutes.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "example": "2 h 30 min"
+      }
+    }
+  },
+  "deskNodeEtaMinute": "a minute",
+  "@deskNodeEtaMinute": {
+    "description": "Local node sync time left under two minutes, in deskNodeEtaLeft: \"about a minute left\"."
+  },
+  "deskNodeEtaMinutes": "{minutes} min",
+  "@deskNodeEtaMinutes": {
+    "description": "Local node sync time left under an hour, in deskNodeEtaLeft. {minutes} is a number (a multiple of 5).",
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "example": "45"
+      }
+    }
+  },
+  "deskNodeEtaHours": "{hours} h",
+  "@deskNodeEtaHours": {
+    "description": "Local node sync time left in whole hours, in deskNodeEtaLeft. {hours} is a number.",
+    "placeholders": {
+      "hours": {
+        "type": "int",
+        "example": "2"
+      }
+    }
+  },
+  "deskNodeEtaHoursMinutes": "{hours} h {minutes} min",
+  "@deskNodeEtaHoursMinutes": {
+    "description": "Local node sync time left in hours and minutes, in deskNodeEtaLeft. Both are numbers.",
+    "placeholders": {
+      "hours": {
+        "type": "int",
+        "example": "2"
+      },
+      "minutes": {
+        "type": "int",
+        "example": "30"
+      }
+    }
   }
 }

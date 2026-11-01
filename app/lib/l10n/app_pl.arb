@@ -4854,5 +4854,11 @@
   "deskLastSessionReportClosed": "Aplikacja zamknęła się nieoczekiwanie.",
   "deskLastSessionAttached": "Z logiem z ostatniej sesji.",
   "deskSetPrivUndercoverLine": "Incognito utrzymuje Tor włączony.",
-  "deskSetPrivUndercoverChange": "Zmień Incognito"
+  "deskSetPrivUndercoverChange": "Zmień Incognito",
+  "deskNodeEtaCalculating": "Obliczanie pozostałego czasu…",
+  "deskNodeEtaLeft": "zostało około {time}",
+  "deskNodeEtaMinute": "minuty",
+  "deskNodeEtaMinutes": "{minutes} min",
+  "deskNodeEtaHours": "{hours} godz.",
+  "deskNodeEtaHoursMinutes": "{hours} godz. {minutes} min"
 }

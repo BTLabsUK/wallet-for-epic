@@ -181,7 +181,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
           icon: EIcons.node,
           tone: ETone.info,
           title: node.phase == LocalNodePhase.starting ? l.deskSlotNodeStarting : l.deskSlotNodeSyncing,
-          detail: node.phase == LocalNodePhase.starting ? null : v.marker,
+          detail: node.phase == LocalNodePhase.starting ? null : [?v.marker, ?v.eta].join(' · '),
           stacked: true,
           // The share its percent says, else a bar without a known end.
           progress: node.phase == LocalNodePhase.syncing ? node.progress?.overall ?? -1 : -1,

@@ -19299,4 +19299,30 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetPrivUndercoverChange => 'Zmień Incognito';
+
+  @override
+  String get deskNodeEtaCalculating => 'Obliczanie pozostałego czasu…';
+
+  @override
+  String deskNodeEtaLeft(String time) {
+    return 'zostało około $time';
+  }
+
+  @override
+  String get deskNodeEtaMinute => 'minuty';
+
+  @override
+  String deskNodeEtaMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String deskNodeEtaHours(int hours) {
+    return '$hours godz.';
+  }
+
+  @override
+  String deskNodeEtaHoursMinutes(int hours, int minutes) {
+    return '$hours godz. $minutes min';
+  }
 }

@@ -4854,5 +4854,11 @@
   "deskLastSessionReportClosed": "แอปปิดลงโดยไม่คาดคิด",
   "deskLastSessionAttached": "พร้อมบันทึกของการใช้งานครั้งล่าสุด",
   "deskSetPrivUndercoverLine": "โหมดปกปิดตัวตนเปิด Tor ไว้ตลอด",
-  "deskSetPrivUndercoverChange": "เปลี่ยนโหมดปกปิดตัวตน"
+  "deskSetPrivUndercoverChange": "เปลี่ยนโหมดปกปิดตัวตน",
+  "deskNodeEtaCalculating": "กำลังคำนวณเวลาที่เหลือ…",
+  "deskNodeEtaLeft": "เหลืออีกประมาณ {time}",
+  "deskNodeEtaMinute": "หนึ่งนาที",
+  "deskNodeEtaMinutes": "{minutes} นาที",
+  "deskNodeEtaHours": "{hours} ชั่วโมง",
+  "deskNodeEtaHoursMinutes": "{hours} ชั่วโมง {minutes} นาที"
 }

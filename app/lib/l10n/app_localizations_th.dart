@@ -18236,4 +18236,30 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetPrivUndercoverChange => 'เปลี่ยนโหมดปกปิดตัวตน';
+
+  @override
+  String get deskNodeEtaCalculating => 'กำลังคำนวณเวลาที่เหลือ…';
+
+  @override
+  String deskNodeEtaLeft(String time) {
+    return 'เหลืออีกประมาณ $time';
+  }
+
+  @override
+  String get deskNodeEtaMinute => 'หนึ่งนาที';
+
+  @override
+  String deskNodeEtaMinutes(int minutes) {
+    return '$minutes นาที';
+  }
+
+  @override
+  String deskNodeEtaHours(int hours) {
+    return '$hours ชั่วโมง';
+  }
+
+  @override
+  String deskNodeEtaHoursMinutes(int hours, int minutes) {
+    return '$hours ชั่วโมง $minutes นาที';
+  }
 }

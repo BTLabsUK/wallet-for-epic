@@ -29131,6 +29131,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change Undercover'**
   String get deskSetPrivUndercoverChange;
+
+  /// Local node sync: shown where the time left goes, until there is enough measured progress for a rough estimate. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculating time left…'**
+  String get deskNodeEtaCalculating;
+
+  /// Local node sync: a rough time left for the whole sync. {time} is deskNodeEtaMinute, deskNodeEtaMinutes, deskNodeEtaHours or deskNodeEtaHoursMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'about {time} left'**
+  String deskNodeEtaLeft(String time);
+
+  /// Local node sync time left under two minutes, in deskNodeEtaLeft: "about a minute left".
+  ///
+  /// In en, this message translates to:
+  /// **'a minute'**
+  String get deskNodeEtaMinute;
+
+  /// Local node sync time left under an hour, in deskNodeEtaLeft. {minutes} is a number (a multiple of 5).
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String deskNodeEtaMinutes(int minutes);
+
+  /// Local node sync time left in whole hours, in deskNodeEtaLeft. {hours} is a number.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h'**
+  String deskNodeEtaHours(int hours);
+
+  /// Local node sync time left in hours and minutes, in deskNodeEtaLeft. Both are numbers.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h {minutes} min'**
+  String deskNodeEtaHoursMinutes(int hours, int minutes);
 }
 
 class _AppLocalizationsDelegate
