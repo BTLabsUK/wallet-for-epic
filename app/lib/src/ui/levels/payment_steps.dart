@@ -49,7 +49,7 @@ String paymentStepWord(
     TxPhase.waitingSender when senderCancelled(tx) || pairedWith != null => today,
     TxPhase.waitingSender when now != null && senderReportsPosted(tx, now: now) => today,
     TxPhase.waitingSender => l.lvPayArriving,
-    TxPhase.confirming when isPostElsewhere(tx) || tx.repostable || NetGate.killSwitch => today,
+    TxPhase.confirming when isPostElsewhere(tx) || tx.repostable || tx.posting || NetGate.killSwitch => today,
     // Taken by the network but in no block yet: "Posted", never "Confirming 0 of 3".
     TxPhase.confirming => switch (txConfirmations(tx, tip) ?? 0) {
       0 => l.lvPolPosted,

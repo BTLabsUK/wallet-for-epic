@@ -125,10 +125,10 @@ WatchPace listPace(
 const Duration postingFor = Duration(seconds: 30);
 
 /// Whether [tx] is a send that changed (was finalized) under [postingFor] before [now] and still
-/// reads not posted: its post may be under way, and the list is read again rather than at the
-/// next block.
+/// reads posting or not posted: its post may be under way, and the list is read again rather
+/// than at the next block. A row still posting is read again until it settles.
 bool postingNow(TxEntry tx, DateTime now, BlockWatch? steps) =>
-    tx.repostable && _sinceLastStep(tx, now, steps) < postingFor.inSeconds;
+    tx.posting || (tx.repostable && _sinceLastStep(tx, now, steps) < postingFor.inSeconds);
 
 /// Whether [tx] is one the wait note can speak for at [now]: a payment that waits only for a
 /// block. That is a send this wallet finalized, or a payment we answered whose sender reports it

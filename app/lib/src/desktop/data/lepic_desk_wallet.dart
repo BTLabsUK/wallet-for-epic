@@ -5520,6 +5520,7 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     fromBackup: e.source == core.TxSource.imported,
     cancellable: e.cancellable && !e.isRequest,
     notPosted: e.repostable,
+    posting: e.posting,
     cancelFinal: cancelFinal,
     undelivered: e.undelivered,
     flow: e.flow == core.TxFlow.invoice ? TxFlow.invoice : TxFlow.payment,

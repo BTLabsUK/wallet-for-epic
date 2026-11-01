@@ -752,6 +752,8 @@ String txStatusLabel(
   TxPhase.confirming when isPostElsewhere(tx) => l.txPostElsewhere,
   // Finished, but the node refused it: not on the network until it is posted again.
   TxPhase.confirming when tx.repostable => l.txStatusNotPosted,
+  // Finished moments ago and its post may still be under way: no warning yet.
+  TxPhase.confirming when tx.posting => l.postFinishedPosting,
   TxPhase.confirming when NetGate.killSwitch => l.lastKnownConfirming(
     l.txStatusConfirming(txConfirmations(tx, tip) ?? 0, target ?? confirmationsTarget),
   ),
@@ -937,7 +939,7 @@ List<TimelineStep>? txTimeline(
     steps = _sendLabels(l, confirming);
     at = switch (phase) {
       TxPhase.waitingRecipient => 1,
-      TxPhase.confirming when tx.repostable => 2,
+      TxPhase.confirming when tx.repostable || tx.posting => 2,
       TxPhase.confirming => 3,
       TxPhase.completed => steps.length,
       _ => null,

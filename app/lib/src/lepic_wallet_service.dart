@@ -37,6 +37,7 @@ import 'redact.dart';
 import 'secret_store_api.dart';
 import 'settings_file/host_settings.dart';
 import 'wallet_service.dart';
+import 'watch_mode.dart' show postingFor;
 
 /// Loads the LEPIC library, which the package's build hook bundles on Android, iOS, Linux and
 /// Windows (`tools/lepic.sh build`); macOS gets it from the app's own hook (`hook/build.dart`,
@@ -662,7 +663,9 @@ Future<HttpSent> sendTorRetryingOnce({
 /// a restore finds again while the id changes. Notes, labels, contacts and imported rows are
 /// the app's (H-01), so `note` and `label` stay empty here; `messages` are the slate's, which
 /// LEPIC verified.
-TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false, String? pairingId}) {
+///
+/// [posting]: [d] is finalized and its post may still be under way ([TxEntry.posting]).
+TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false, bool posting = false, String? pairingId}) {
   final outgoing = d.direction == lepic.TxDirection.outgoing;
   final ended =
       d.status == lepic.TxStatus.cancelled ||
@@ -722,8 +725,10 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false, String? 
     ttlCutoffHeight: d.ttlCutoffHeight,
     cancellable:
         d.status == lepic.TxStatus.sent || d.status == lepic.TxStatus.received,
-    // Finalized but refused by the node: LEPIC stores it for a repost.
-    repostable: d.status == lepic.TxStatus.finalized,
+    // Finalized but refused by the node: LEPIC stores it for a repost. While its post may still
+    // be under way it is posting instead, never "Not on the network".
+    repostable: d.status == lepic.TxStatus.finalized && !posting,
+    posting: d.status == lepic.TxStatus.finalized && posting,
     // LEPIC also says undelivered during the first attempt of a send still running: not then.
     // A file send has no delivery to redo.
     undelivered:
@@ -1387,10 +1392,56 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
 
   /// LEPIC's rows, before the archive is merged in, each with the pairing it was exchanged
   /// with.
-  Future<List<TxEntry>> _live() async => [
-    for (final d in await _wallet.transactions())
-      lepicTxEntry(d, sending: _sending > 0, pairingId: await _pairingOfTx(d)),
-  ];
+  Future<List<TxEntry>> _live() async {
+    final rows = [
+      for (final d in await _wallet.transactions())
+        lepicTxEntry(d, sending: _sending > 0, posting: _posting(d), pairingId: await _pairingOfTx(d)),
+    ];
+    _listed = true;
+    return rows;
+  }
+
+  /// When each finalized row was first read finalized; [_settled] for one whose post is known
+  /// to have ended (it was already finalized at the first list read, or the app's own post of
+  /// it ended). LEPIC stores a finalize, and tells the app, before it posts, so a row read
+  /// meanwhile is finalized for as long as the node takes to answer (the listener's finalize
+  /// of an Epicbox reply, whose post the app never sees end).
+  final Map<int, DateTime> _finalizedSeen = {};
+  static final DateTime _settled = DateTime.fromMillisecondsSinceEpoch(0);
+
+  /// Whether the first full list read is done ([_finalizedSeen]).
+  bool _listed = false;
+
+  /// The clock [_posting] reads; tests move it.
+  @visibleForTesting
+  static DateTime Function() postingClock = DateTime.now;
+
+  /// Whether [d] is finalized and its post may still be under way: first read finalized under
+  /// [postingFor] ago, and no post of it known to have ended. After that a row still finalized
+  /// was refused or not reached, and reads "Not on the network".
+  bool _posting(lepic.TransactionDetails d) {
+    if (d.status != lepic.TxStatus.finalized) {
+      _finalizedSeen.remove(d.txId);
+      return false;
+    }
+    final now = postingClock();
+    final seen = _finalizedSeen.putIfAbsent(d.txId, () => _listed ? now : _settled);
+    return now.difference(seen) < postingFor;
+  }
+
+  /// Runs [post], one of the app's own posts, and then counts the rows it may have posted
+  /// ([txId], or every row being posted when unknown) as settled: a refusal it met shows at once.
+  Future<T> _posted<T>(Future<T> Function() post, {int? txId}) async {
+    try {
+      return await post();
+    } finally {
+      if (txId != null) {
+        _finalizedSeen[txId] = _settled;
+      } else {
+        _finalizedSeen.updateAll((_, _) => _settled);
+      }
+    }
+  }
 
   /// The pairing [d] was sealed to or from ([_contactOfTx]), asked only of the rows a pairing
   /// can make: a mailbox payment or a sealed file either way, which have no counterparty
@@ -1442,17 +1493,15 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   Future<TxEntry> _entry(int txId) async {
     final live = [
       for (final d in await _wallet.transactions())
-        lepicTxEntry(d, sending: _sending > 0, pairingId: d.txId == txId ? await _pairingOfTx(d) : null),
+        lepicTxEntry(d, sending: _sending > 0, posting: _posting(d), pairingId: d.txId == txId ? await _pairingOfTx(d) : null),
     ];
     final shown = _history
         .transactions(live)
         .where((t) => t.id == txId)
         .firstOrNull;
-    return shown ??
-        lepicTxEntry(
-          await _wallet.transaction(txId: txId),
-          sending: _sending > 0,
-        );
+    if (shown != null) return shown;
+    final d = await _wallet.transaction(txId: txId);
+    return lepicTxEntry(d, sending: _sending > 0, posting: _posting(d));
   }
 
   /// The LEPIC id behind a history key: `l:<id>`, a key ending `#l<id>` (one side of a
@@ -1464,7 +1513,7 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
     if (own != null) return int.parse(own.group(1)!);
     final id = _history
         .transactions([
-          for (final d in await _wallet.transactions()) lepicTxEntry(d, sending: _sending > 0),
+          for (final d in await _wallet.transactions()) lepicTxEntry(d, sending: _sending > 0, posting: _posting(d)),
         ])
         .where((t) => t.key == key)
         .firstOrNull
@@ -1528,7 +1577,10 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
 
   @override
   Future<void> repostTransaction({required String key}) =>
-      _nodeGuard('repost', () async => _wallet.repostTransaction(txId: await _txIdOf(key)));
+      _nodeGuard('repost', () async {
+        final txId = await _txIdOf(key);
+        return _posted(() => _wallet.repostTransaction(txId: txId), txId: txId);
+      });
 
   // The cold flow (Kill switch). The finished payment's text is LEPIC's (its finishedPayment
   // getter: the stored S3, or an issued invoice's I3); reading and posting one is
@@ -1753,7 +1805,7 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   @override
   Future<TxEntry> finalizeAndPost({required String slateJson}) =>
       _nodeGuard('finalize', () async {
-        final tx = await _wallet.finalizeAndPost(slateJson: slateJson);
+        final tx = await _posted(() => _wallet.finalizeAndPost(slateJson: slateJson));
         return _entry(tx.txId);
       });
 
@@ -2612,7 +2664,7 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
     for (final d in rows) {
       if (d.slateId != slateId) continue;
       final paid = paidInvoiceOf(
-        lepicTxEntry(d, sending: _sending > 0),
+        lepicTxEntry(d, sending: _sending > 0, posting: _posting(d)),
         status: record?.status,
         kernelExcess: record?.kernelExcess,
       );
@@ -2631,7 +2683,7 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
       );
     }
     // One a history backup brought back: shown as recorded, never resent.
-    final live = [for (final d in rows) lepicTxEntry(d, sending: _sending > 0)];
+    final live = [for (final d in rows) lepicTxEntry(d, sending: _sending > 0, posting: _posting(d))];
     for (final t in _history.transactions(live)) {
       if (t.source == TxSource.wallet || t.slateId != slateId) continue;
       final paid = paidInvoiceOf(t, status: record?.status, kernelExcess: record?.kernelExcess);
@@ -2664,7 +2716,7 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   Future<List<IssuedInvoice>> _requests() async {
     final live = [
       for (final d in await _wallet.transactions())
-        lepicTxEntry(d, sending: _sending > 0),
+        lepicTxEntry(d, sending: _sending > 0, posting: _posting(d)),
     ];
     // With the ended requests a history backup brought back, which LEPIC no longer holds as
     // requests (a paid one's output may be a row a scan found).

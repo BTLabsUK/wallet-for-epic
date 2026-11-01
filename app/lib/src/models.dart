@@ -1486,6 +1486,12 @@ class TxEntry {
   /// `repost_transaction(key)` can post it to the node again.
   final bool repostable;
 
+  /// True for a send LEPIC finalized moments ago and is still posting, as far as the app can
+  /// tell: LEPIC records the finalize before its post, so the row reads finalized while the
+  /// node is asked. Shown as "Posting…", not "Not on the network"; [repostable] stays false
+  /// until the post has really failed (refused, or still finalized after `postingFor`).
+  final bool posting;
+
   /// True for an Epicbox send no attempt has delivered to the relay yet (every attempt failed,
   /// or the app was killed before the first): [WalletService.resendEpicbox] sends it again.
   /// Never true for the send being made right now.
@@ -1576,6 +1582,7 @@ class TxEntry {
     required this.cancellable,
     required this.repostable,
     this.undelivered = false,
+    this.posting = false,
     this.statusDetail,
     required this.releasable,
     this.finalizedAtUnix,
@@ -1625,6 +1632,7 @@ class TxEntry {
     cancellable: cancellable,
     repostable: repostable,
     undelivered: undelivered,
+    posting: posting,
     statusDetail: statusDetail,
     releasable: releasable,
     finalizedAtUnix: finalizedAtUnix,
@@ -1688,6 +1696,7 @@ class TxEntry {
       cancellable.hashCode ^
       repostable.hashCode ^
       undelivered.hashCode ^
+      posting.hashCode ^
       statusDetail.hashCode ^
       releasable.hashCode ^
       finalizedAtUnix.hashCode ^
@@ -1740,6 +1749,7 @@ class TxEntry {
           cancellable == other.cancellable &&
           repostable == other.repostable &&
           undelivered == other.undelivered &&
+          posting == other.posting &&
           statusDetail == other.statusDetail &&
           releasable == other.releasable &&
           finalizedAtUnix == other.finalizedAtUnix &&
