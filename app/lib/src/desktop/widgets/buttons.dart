@@ -14,11 +14,34 @@ enum EBtnSize {
   /// 28 px: inside a line of text, a row or a notice.
   inline,
 
-  /// 36 px: a row's control, toolbars, dialog secondaries.
+  /// 36 px: a row's control, toolbars.
   sm,
 
-  /// 44 px: the page's main action.
+  /// 44 px: the page's main action, and every button of a dialog's footer.
   md,
+}
+
+/// Around a dialog's footer ([EDialog] puts it there): every [EButton] in it is [EBtnSize.md]
+/// tall, so the labels share one baseline, and takes one of the footer's three faces:
+/// outlined secondary, filled primary, outlined risk. A ghost or soft button becomes the
+/// outlined secondary; [kind], when set, overrides the button's own (a second primary is
+/// shown as a secondary: one filled button per dialog). Call sites cannot drift from it.
+class EDialogActions extends InheritedWidget {
+  const EDialogActions({super.key, required super.child, this.kind});
+
+  final EBtnKind? kind;
+
+  static EDialogActions? maybeOf(BuildContext context) => context.dependOnInheritedWidgetOfExactType<EDialogActions>();
+
+  /// The face [kind] takes in a footer.
+  static EBtnKind face(EBtnKind kind) => switch (kind) {
+    EBtnKind.primary => EBtnKind.primary,
+    EBtnKind.danger => EBtnKind.danger,
+    EBtnKind.secondary || EBtnKind.ghost || EBtnKind.primarySoft => EBtnKind.secondary,
+  };
+
+  @override
+  bool updateShouldNotify(EDialogActions oldWidget) => kind != oldWidget.kind;
 }
 
 /// The one button. Kind sets the colour, size the height; see [Ctl] for the rule.
@@ -102,35 +125,43 @@ class _EButtonState extends State<EButton> {
     final c = context.dc;
     final enabled = widget.onPressed != null && !widget.busy;
     final disabled = widget.onPressed == null;
-    final (height, padH, fs, iconSize) = switch (widget.size) {
+    final footer = EDialogActions.maybeOf(context);
+    final kind = footer == null ? widget.kind : EDialogActions.face(footer.kind ?? widget.kind);
+    final size = footer == null ? widget.size : EBtnSize.md;
+    final (height, padH, fs, iconSize) = switch (size) {
       EBtnSize.inline => (Ctl.inline, Sp.x2, Fs.sm, Ctl.iconSm),
       EBtnSize.sm => (Ctl.sm, Sp.x3, Fs.sm, 18.u),
       EBtnSize.md => (Ctl.md, Sp.x5, Fs.md, 18.u),
     };
     Color bg, fg, border;
-    switch (widget.kind) {
+    switch (kind) {
       case EBtnKind.primary:
-        bg = disabled ? c.s3 : (_down ? c.accentDeep : (_hover ? Color.lerp(c.accent, c.text, 0.12)! : c.accent));
-        fg = disabled ? c.faint : c.accentInk;
-        // Disabled keeps a 40 % gold edge: still the main action, so the hierarchy holds.
-        border = disabled ? c.accent.withValues(alpha: 0.4) : Colors.transparent;
+        bg = _down ? c.accentDeep : (_hover ? Color.lerp(c.accent, c.text, 0.12)! : c.accent);
+        fg = c.accentInk;
+        border = Colors.transparent;
       case EBtnKind.primarySoft:
-        bg = disabled ? Colors.transparent : (_down ? c.press : (_hover ? Color.lerp(c.accentSoft, c.accent, 0.12)! : c.accentSoft));
-        fg = disabled ? c.faint : c.accentText;
-        border = disabled ? c.line : c.accent.withValues(alpha: 0.35);
+        bg = _down ? c.press : (_hover ? Color.lerp(c.accentSoft, c.accent, 0.12)! : c.accentSoft);
+        fg = c.accentText;
+        border = c.accent.withValues(alpha: 0.35);
       case EBtnKind.secondary:
-        bg = disabled ? Colors.transparent : (_down ? c.press : (_hover ? c.s3 : c.s2));
-        fg = disabled ? c.faint : c.text;
-        border = disabled ? c.line : (_hover ? c.dim : c.lineField);
+        bg = _down ? c.press : (_hover ? c.s3 : c.s2);
+        fg = c.text;
+        border = _hover ? c.dim : c.lineField;
       case EBtnKind.ghost:
-        bg = _down ? c.press : (_hover && !disabled ? c.hover : Colors.transparent);
-        fg = disabled ? c.faint : (widget.size == EBtnSize.inline ? c.accentText : (_hover ? c.text : c.dim));
+        bg = _down ? c.press : (_hover ? c.hover : Colors.transparent);
+        fg = size == EBtnSize.inline ? c.accentText : (_hover ? c.text : c.dim);
         border = Colors.transparent;
       case EBtnKind.danger:
-        bg = _hover && !disabled ? c.riskSoft : Colors.transparent;
-        // Disabled stays red at 40 %: a destructive action that waits (typing "delete").
-        fg = disabled ? c.risk.withValues(alpha: 0.55) : c.risk;
-        border = disabled ? c.risk.withValues(alpha: 0.4) : c.risk;
+        bg = _hover ? c.riskSoft : Colors.transparent;
+        fg = c.risk;
+        border = c.risk;
+    }
+    // One disabled recipe for every kind (D-03): a flat fill, faint ink, no edge, so a
+    // disabled primary never reads as an enabled outlined secondary. A ghost stays bare.
+    if (disabled) {
+      bg = kind == EBtnKind.ghost ? Colors.transparent : c.press;
+      fg = c.faint;
+      border = Colors.transparent;
     }
     final lead = widget.busy
         ? SizedBox.square(
@@ -151,7 +182,7 @@ class _EButtonState extends State<EButton> {
         mainAxisSize: widget.expand ? MainAxisSize.max : MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (lead != null) ...[lead, SizedBox(width: widget.size == EBtnSize.inline ? Sp.x1 : Sp.x2)],
+          if (lead != null) ...[lead, SizedBox(width: size == EBtnSize.inline ? Sp.x1 : Sp.x2)],
           Flexible(
             child: Text(
               widget.label,

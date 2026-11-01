@@ -8,9 +8,12 @@ import '../desk_l10n.dart';
 import '../app/routes.dart' show deskNavProvider, DeskLocation;
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
+import '../../ui/theme/dialog_metrics.dart';
 import 'buttons.dart';
 import 'selectable.dart';
 import 'surfaces.dart';
+
+export '../../ui/theme/dialog_metrics.dart' show DialogWidth, DialogMetrics;
 
 /// Opens an [EDialog] over a scrim. Returns what the dialog pops.
 Future<T?> showEDialog<T>(BuildContext context, {required WidgetBuilder builder, bool dismissible = true}) =>
@@ -33,8 +36,17 @@ Future<T?> showEDrawer<T>(BuildContext context, {required WidgetBuilder builder}
   ),
 );
 
-/// A modal dialog: optional glyph, title and description, body, and buttons at the foot
-/// (right-aligned, primary last). 480 wide unless [width] says otherwise.
+/// The one desktop dialog (the anatomy in `ui/theme/dialog_metrics.dart`, the phone's
+/// `AppDialog` twin): a 40 px icon tile, the title and description beside it, the body
+/// indented to the title's column, and the footer. Every dialog has a tile: without [icon] it
+/// shows the [tone]'s glyph.
+///
+/// The footer is laid out here, so call sites cannot drift: the buttons are right-aligned,
+/// all [EBtnSize.md] tall on one baseline; ghost and soft buttons show as the outlined
+/// secondary; a destructive [EBtnKind.danger] keeps the outlined risk style and the filled
+/// primary comes last; only one primary is filled (an earlier one shows as a secondary).
+/// Pass plain `EButton`s (secondary), one `EButton.primary` or `EButton(kind: danger)`;
+/// their `size` is ignored here.
 class EDialog extends StatelessWidget {
   const EDialog({
     super.key,
@@ -44,6 +56,7 @@ class EDialog extends StatelessWidget {
     this.tone = ETone.neutral,
     this.body,
     this.actions = const [],
+    this.size = DialogWidth.standard,
     this._width,
     this.dismissible = true,
     this.foot,
@@ -59,22 +72,66 @@ class EDialog extends StatelessWidget {
   /// password), so its focus never scrolls the body's first lines out of a short window.
   final Widget? foot;
   final List<Widget> actions;
+
+  /// Standard or wide: the dialog widths are a fixed set.
+  final DialogWidth size;
+
+  /// Deprecated: pass [size]. A width still given snaps to the nearest size (up to the
+  /// standard width is standard, wider is wide); `double.infinity` is wide.
   final double? _width;
-  double get width => _width ?? 480.u;
+
+  /// The dialog's width at the current scale.
+  double get width => DialogMetrics.widthOf(_width == null ? size : DialogMetrics.snap(_width / deskScale)).u;
   final bool dismissible;
+
+  /// The tile's glyph when no [icon] is given.
+  static IconData toneIcon(ETone tone) => switch (tone) {
+    ETone.ok => EIcons.okCircle,
+    ETone.warn => EIcons.alert,
+    ETone.risk => EIcons.error,
+    ETone.info || ETone.neutral || ETone.gold => EIcons.info,
+  };
+
+  /// The footer in its order: secondaries as given, then a destructive action, then the
+  /// primary; every primary but the last shows as a secondary. Anything that is not an
+  /// [EButton] keeps its place among the secondaries.
+  static List<Widget> footer(List<Widget> actions) {
+    int rank(Widget w) => w is EButton
+        ? switch (w.kind) {
+            EBtnKind.primary => 2,
+            EBtnKind.danger => 1,
+            _ => 0,
+          }
+        : 0;
+    final ordered = [for (var i = 0; i < actions.length; i++) (i, actions[i])]
+      ..sort((a, b) {
+        final r = rank(a.$2).compareTo(rank(b.$2));
+        return r != 0 ? r : a.$1.compareTo(b.$1);
+      });
+    final lastPrimary = ordered.lastIndexWhere((e) => rank(e.$2) == 2);
+    return [
+      for (var i = 0; i < ordered.length; i++)
+        EDialogActions(
+          kind: rank(ordered[i].$2) == 2 && i != lastPrimary ? EBtnKind.secondary : null,
+          child: ordered[i].$2,
+        ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
-    final iconColor = switch (tone) {
-      ETone.ok => c.ok,
-      ETone.warn => c.warn,
-      ETone.risk => c.risk,
-      ETone.info => c.info,
-      ETone.gold => c.accentText,
-      ETone.neutral => c.dim,
+    final (iconColor, tileFill) = switch (tone) {
+      ETone.ok => (c.ok, c.okSoft),
+      ETone.warn => (c.warn, c.warnSoft),
+      ETone.risk => (c.risk, c.riskSoft),
+      ETone.info => (c.info, c.infoSoft),
+      ETone.gold => (c.accentText, c.accentSoft),
+      ETone.neutral => (c.dim, Colors.transparent),
     };
+    final pad = DialogMetrics.pad.u;
+    final indent = pad + DialogMetrics.bodyIndent.u;
     final dialog = Dialog(
       backgroundColor: c.s4,
       insetPadding: EdgeInsets.all(Sp.x6),
@@ -99,28 +156,35 @@ class EDialog extends StatelessWidget {
                 constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.4),
                 child: SingleChildScrollView(
                   child: Padding(
-                    padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x6, Sp.x4, 0),
+                    padding: EdgeInsets.fromLTRB(pad, pad, Sp.x4, 0),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (icon != null) ...[
-                          Container(
-                            width: 40.u,
-                            height: 40.u,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(Rad.sm),
-                              border: Border.all(color: c.lineStrong),
-                            ),
-                            child: Icon(icon, size: Ctl.icon, color: iconColor),
+                        Container(
+                          width: DialogMetrics.iconTile.u,
+                          height: DialogMetrics.iconTile.u,
+                          decoration: BoxDecoration(
+                            color: tileFill,
+                            borderRadius: BorderRadius.circular(Rad.sm),
+                            border: Border.all(color: c.lineStrong),
                           ),
-                          SizedBox(width: Sp.x3),
-                        ],
+                          child: Icon(icon ?? toneIcon(tone), size: DialogMetrics.icon.u, color: iconColor),
+                        ),
+                        SizedBox(width: DialogMetrics.titleGap.u),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Semantics(header: true, child: Text(title, style: ts.h3)),
-                              if (description != null) ...[SizedBox(height: 6.u), Text(description!, style: ts.bodyDim)],
+                              // Alone, the title is centred on the tile; with a description the
+                              // two start at the tile's top.
+                              ConstrainedBox(
+                                constraints: BoxConstraints(minHeight: description == null ? DialogMetrics.iconTile.u : 0),
+                                child: Align(
+                                  alignment: AlignmentDirectional.centerStart,
+                                  child: Semantics(header: true, child: Text(title, style: ts.h3)),
+                                ),
+                              ),
+                              if (description != null) ...[SizedBox(height: DialogMetrics.descriptionGap.u), Text(description!, style: ts.bodyDim)],
                             ],
                           ),
                         ),
@@ -133,13 +197,21 @@ class EDialog extends StatelessWidget {
               if (body != null)
                 Flexible(
                   child: SingleChildScrollView(
-                    child: Padding(padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x5, Sp.x6, 0), child: body),
+                    child: Padding(padding: EdgeInsetsDirectional.fromSTEB(indent, DialogMetrics.bodyGap.u, pad, 0), child: body),
                   ),
                 ),
-              if (foot != null) Padding(padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x4, Sp.x6, 0), child: foot),
+              if (foot != null) Padding(padding: EdgeInsetsDirectional.fromSTEB(indent, Sp.x4, pad, 0), child: foot),
               Padding(
-                padding: EdgeInsets.all(Sp.x6),
-                child: actions.isEmpty ? const SizedBox.shrink() : Wrap(alignment: WrapAlignment.end, spacing: Sp.x3, runSpacing: Sp.x2, children: actions),
+                padding: EdgeInsets.all(pad),
+                child: actions.isEmpty
+                    ? const SizedBox.shrink()
+                    : Wrap(
+                        alignment: WrapAlignment.end,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: DialogMetrics.actionGap.u,
+                        runSpacing: DialogMetrics.actionRunGap.u,
+                        children: footer(actions),
+                      ),
               ),
             ],
           ),
