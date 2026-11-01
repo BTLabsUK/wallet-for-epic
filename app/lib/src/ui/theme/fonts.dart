@@ -8,19 +8,12 @@ import 'package:flutter/services.dart';
 /// platform's own Thai font differs per system (or is missing on some Linux installs).
 const List<String> thaiFallback = ['NotoSansThai'];
 
-/// The pairing pictures' font: the sas_table emoji only, so a Linux install without an emoji
-/// font still draws pictures. Subset by tool/fonts_subset.py.
-const String sasEmojiFamily = 'NotoEmojiSas';
-
 /// The Chinese UI's characters (and the language names), for installs without a CJK font.
 const String cjkFamily = 'NotoSansSCSubset';
 
-/// Every bundled fallback, in order: Thai, Chinese, then the pictures.
-const List<String> bundledFallback = ['NotoSansThai', cjkFamily, sasEmojiFamily];
-
-/// The family list for the pairing pictures: the bundled emoji font on every system but Android,
-/// which draws them itself.
-List<String>? get sasEmojiFallback => !kIsWeb && Platform.isAndroid ? null : const [sasEmojiFamily];
+/// Every bundled fallback, in order: Thai, then Chinese. The pairing pictures are SVGs
+/// (ui/sas_picture.dart) and need no font.
+const List<String> bundledFallback = ['NotoSansThai', cjkFamily];
 
 /// [bundledFallback] where the phone theme needs it: never on Android, which has Thai in its own
 /// fonts, and where any fallback list moved body text off Roboto on Android 11 to a font that
@@ -35,7 +28,6 @@ const Map<String, String> fontLicenceAssets = {
   'JetBrains Mono': 'assets/fonts/OFL-JetBrainsMono.txt',
   'Noto Sans Thai': 'assets/fonts/OFL-NotoSansThai.txt',
   'Noto Sans SC (subset)': 'assets/fonts/OFL-NotoSansSC.txt',
-  'Noto Color Emoji (subset)': 'assets/fonts/OFL-NotoEmojiSas.txt',
   'flag-icons': 'assets/flags/LICENSE-flag-icons.txt',
   'Noto Emoji (pairing pictures)': 'assets/sas/LICENSE.txt',
   'Status icons (Bootstrap Icons, Carbon, Material Symbols)': 'assets/licenses/status-icons.txt',

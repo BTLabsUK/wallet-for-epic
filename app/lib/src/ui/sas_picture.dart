@@ -10,7 +10,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../models.dart' show SasWord;
 import '../sas_table.dart' show sasTable;
-import 'theme/fonts.dart' show sasEmojiFallback;
 
 final Set<SasWord> _tableWords = sasTable.toSet();
 
@@ -20,7 +19,8 @@ String? sasPictureAsset(SasWord word) =>
 
 /// [word]'s picture, [size] square. Its name is the semantics label unless [semanticLabel]
 /// says otherwise; [excludeFromSemantics] leaves it out where the name is read beside it. A word
-/// that is not in the table, or a file that fails to load, falls back to the emoji as text.
+/// that is not in the table, or a file that fails to load, falls back to the emoji as text, in
+/// the system's emoji font.
 class SasPicture extends StatelessWidget {
   const SasPicture(
     this.word, {
@@ -62,7 +62,7 @@ class SasPicture extends StatelessWidget {
       child: Text(
         word.emoji,
         textScaler: TextScaler.noScaling,
-        style: TextStyle(fontSize: size * 0.8, height: 1, fontFamilyFallback: sasEmojiFallback),
+        style: TextStyle(fontSize: size * 0.8, height: 1),
       ),
     ),
   );
