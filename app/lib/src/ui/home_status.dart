@@ -141,7 +141,7 @@ typedef StatusEntry = ({
 
 /// One line for a connections row out of a tooltip's [detail]: its first line, with [host]
 /// after a middle dot when that line does not name it. A sentence's end mark goes before the
-/// dot ("Up to date · node.epiccash.com"). The rest of the detail (block, version, the
+/// dot ("Up to date · node.example.org"). The rest of the detail (block, version, the
 /// server's port) stays in the tooltip and the service's own screen.
 String statusBrief(String detail, {String? host}) {
   var first = detail.split('\n').first.trim();
