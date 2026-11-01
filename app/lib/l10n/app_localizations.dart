@@ -29820,6 +29820,12 @@ abstract class AppLocalizations {
   /// **'Pair again'**
   String get pairAgain;
 
+  /// Contact page, pairing block: a pairing made before addresses were proven (Paired or Verified) does not confirm the contact's payments address. Offered with Pair again.
+  ///
+  /// In en, this message translates to:
+  /// **'Address not confirmed by pairing.'**
+  String get pairAddressNotConfirmed;
+
   /// Ended block: a sealed send held in that mailbox, with Cancel.
   ///
   /// In en, this message translates to:

@@ -19347,6 +19347,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get pairAgain => 'Erneut koppeln';
 
   @override
+  String get pairAddressNotConfirmed =>
+      'Adresse nicht durch die Kopplung bestätigt.';
+
+  @override
   String get pairHeldSend => 'Wartet auf Empfänger';
 
   @override

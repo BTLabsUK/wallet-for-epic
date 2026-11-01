@@ -15,11 +15,12 @@ import '../../devices/device_store.dart';
 import '../../log.dart' show logWarn;
 import '../../models.dart' show Chain, InvoiceEventKind;
 import '../../network_gate.dart';
+import '../../pairing_providers.dart' show requestPassOnProvider;
 import '../../providers.dart' show secretStoreProvider;
 import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../app/desk_window.dart' show deskWindowProvider;
 import '../desk_l10n.dart';
-import '../screens/devices/link_flow.dart' show registerDeskDeviceInviteHandler;
+import '../screens/devices/link_flow.dart' show registerDeskDeviceInviteHandler, unregisterDeskDeviceInviteHandler;
 import 'state.dart';
 
 /// Linked devices is on (Settings › Advanced › Experimental).
@@ -50,6 +51,8 @@ final deskDeviceServiceProvider = Provider<DeviceService?>((ref) {
   if (!ref.watch(deskLinkedDevicesOnProvider)) return null;
   // An incoming device invite (a link the system opened) goes to the link dialog's confirm step.
   registerDeskDeviceInviteHandler();
+  // Turned off (this provider then builds again and stops above), a device link opens nothing.
+  ref.onDispose(unregisterDeskDeviceInviteHandler);
   final account = ref.watch(deskProvider.select((s) => s.account == null ? null : (s.account!.id, s.account!.network)));
   if (account == null) return null;
   final api = ref.read(deskApiProvider);
@@ -67,9 +70,13 @@ final deskDeviceServiceProvider = Provider<DeviceService?>((ref) {
   // What the history, the balance and the outputs show of the other devices.
   api.useDevices(() => service.loaded ? service.book : null);
   final handle = ref.read(deskDeviceHandleProvider)..service = service;
+  // A request to pair from someone not in this computer's contacts goes to the linked device
+  // before it is dismissed here.
+  final passOn = ref.read(requestPassOnProvider)..run = service.passOnRequest;
   ref.onDispose(() {
     api.useDevices(null);
     if (identical(handle.service, service)) handle.service = null;
+    if (passOn.run == service.passOnRequest) passOn.run = null;
     service.dispose();
   });
   // A change of the book (a notice read, a coin released) shows in the lists at once.

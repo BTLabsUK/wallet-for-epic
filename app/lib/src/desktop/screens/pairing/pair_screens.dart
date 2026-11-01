@@ -1051,15 +1051,17 @@ Future<bool> deskPutPairingInContacts(BuildContext context, WidgetRef ref, Pairi
   return deskAttachPairingTo(context, ref, r, picked);
 }
 
-/// Save as a new contact: the form (the name it claims and its proven address filled in),
-/// then the pairing joins the contact it made.
+/// Save as a new contact: the form (the name it claims and its proven address shown), then
+/// the pairing joins the contact it made. The proven address is written into the contact at
+/// Verified only ([deskWriteProvenAddress]): now when the words were checked, else when they are.
 Future<bool> _deskSaveAsNewContact(BuildContext context, WidgetRef ref, PairingRecord r) async {
   final l = context.l10n;
   // The form owns its field: it is disposed with the dialog, after the close animation.
   final saved = await showEDialog<String>(context, builder: (_) => _SaveContactDialog(record: r));
   if (saved == null || saved.isEmpty || !context.mounted) return false;
-  final contactId = await ref.read(deskProvider.notifier).saveContact(Contact(id: '', name: saved, address: r.paymentsAddress));
-  await deskPairingCall(ref, (api) => api.attach(r.id, contactId, contactAddress: r.paymentsAddress));
+  final contactId = await ref.read(deskProvider.notifier).saveContact(Contact(id: '', name: saved));
+  final attached = await deskPairingCall(ref, (api) => api.attach(r.id, contactId));
+  await deskWriteProvenAddress(ref, attached);
   if (context.mounted) showEToast(context, l.pairSavedAs(saved), tone: ETone.ok);
   return true;
 }

@@ -380,6 +380,12 @@ class DeviceService {
   /// Requests the linked device passed on: never passed back.
   final Set<String> _requestsFromLinked = {};
 
+  /// Requests passed on to the linked device: each once.
+  final Set<String> _requestsPassedOn = {};
+
+  /// Done once the book is read ([load]) or the service is let go.
+  final Completer<void> _ready = Completer<void>();
+
   /// The desktop's interval with a device linked ([setPace]); null: [deviceSyncEvery].
   Duration? _pace;
 
@@ -411,6 +417,7 @@ class DeviceService {
     // start, a wallet switch) the timer starts only now. Without it nothing was read or told
     // until a window focus or Refresh, and a cancel reached the other device minutes late.
     _schedule();
+    if (!_ready.isCompleted) _ready.complete();
   }
 
   /// Lets the service go. A link still in the making is ended best-effort, so the other device
@@ -426,6 +433,7 @@ class DeviceService {
       }
     }
     _disposed = true;
+    if (!_ready.isCompleted) _ready.complete();
     _timer?.cancel();
     _pairingEvents?.cancel();
     _unmatched?.cancel();
@@ -1067,7 +1075,22 @@ class DeviceService {
     } on Object catch (e) {
       return logWarn('devices', 'a request to pair was not read: ${_kind(e)}');
     }
+    // Dismissed here already (a stranger's): it was passed on before ([passOnRequest]).
     if (request == null) return;
+    await _passOnRequest(request);
+  }
+
+  /// Passes [request] on to the linked device before this device dismisses it: its sender is
+  /// not in this device's address book, but may be in the other's. Waits for the book to be
+  /// read; each request goes once.
+  Future<void> passOnRequest(PairRequest request) async {
+    await _ready.future;
+    await _passOnRequest(request);
+  }
+
+  Future<void> _passOnRequest(PairRequest request) async {
+    if (_disposed || book.devices.isEmpty || _requestsFromLinked.contains(request.id)) return;
+    if (!_requestsPassedOn.add(request.id)) return;
     await _broadcastForward({
       'kind': 'pair',
       'requestId': request.id,
@@ -1353,18 +1376,20 @@ class DeviceService {
       if (kernel == null || !kernelWanted(h) || answers.containsKey(kernel) || _kernelSettled.contains(kernel)) continue;
       final last = _kernelAsked[kernel];
       if (last != null && last >= tip) continue;
-      _kernelAsked[kernel] = tip;
       final KernelLocation? found;
       try {
         found = await host.kernelOnChain(kernel, minHeight: kernelFloor(h, tip: tip, now: now));
       } on Object catch (e) {
+        // Unknown, not absent: asked again on the next sweep.
         if (!_kernelLookupWarned) logWarn('devices', 'kernel lookup failed: ${_kind(e)}');
         _kernelLookupWarned = true;
         continue;
       }
+      _kernelAsked[kernel] = tip;
       if (found == null && (_kernelAbsent[kernel] ??= tip) >= tip) continue;
       answers[kernel] = found;
-      if (h.state == HoldState.spent) _kernelSettled.add(kernel);
+      // Only a kernel found settles it: an absent one is the sweep's to judge.
+      if (found != null && h.state == HoldState.spent) _kernelSettled.add(kernel);
     }
     return answers;
   }

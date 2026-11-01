@@ -20,7 +20,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
-import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:meta/meta.dart' show visibleForTesting;
 
 import 'log.dart';
 import 'recipient.dart';

@@ -19122,6 +19122,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairAgain => 'Pair again';
 
   @override
+  String get pairAddressNotConfirmed => 'Address not confirmed by pairing.';
+
+  @override
   String get pairHeldSend => 'Waiting for recipient';
 
   @override

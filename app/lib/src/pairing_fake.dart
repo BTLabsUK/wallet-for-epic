@@ -215,8 +215,9 @@ class FakePairing implements PairingApi {
   void seed(PairingRecord record) => _put(record);
 
   /// A paired contact in one call, for tests and the preview. [state] waiting leaves the peer
-  /// unheard; ended needs [endedReason].
+  /// unheard; ended needs [endedReason]. [unproven]: made before 26.10.25, no proven address.
   PairingRecord seedPaired({
+    bool unproven = false,
     required String name,
     String? id,
     PairingState state = PairingState.verified,
@@ -255,7 +256,7 @@ class FakePairing implements PairingApi {
       seal: seal,
       homeRelay: relay ?? homeRelay,
       contactId: contactId,
-      paymentsAddress: paymentsAddress ?? fakePairedAddress(rid),
+      paymentsAddress: unproven ? null : (paymentsAddress ?? fakePairedAddress(rid)),
       lastSealedIn: lastSealedIn ?? now.subtract(const Duration(hours: 5)),
       peerHeardAt: state == PairingState.waiting ? null : now.subtract(const Duration(days: 3)),
       peerVerifiedAt: peerVerifiedAt,

@@ -4969,6 +4969,7 @@
   "pairEndedNeverFinished": "Кошелёк {name} так и не завершил.",
   "pairNoAnswerFrom": "Нет ответа от кошелька {name}",
   "pairAgain": "Сопрячь снова",
+  "pairAddressNotConfirmed": "Адрес не подтверждён сопряжением.",
   "pairHeldSend": "Ожидает получателя",
   "pairProvesOther": "Кошелёк {name} подтверждает другой адрес",
   "pairUpdateAddress": "Обновить адрес контакта",

@@ -22,4 +22,7 @@
 #            "A device is linked already." Replace <name>?; then link again as in 2
 #  5 listen  bg_listen.sh (ADDR_FILE=<file with the shared address>): CLI sends at 1/5/15/30/60 minutes with the
 #            phone in the background, screen off, unplugged
+#
+# Expected: a request to pair the linked device passed on is kept in memory only on the device that got
+# it that way: after that device restarts it is gone there until the sender sends a newer request.
 echo "see the header; run the helpers one by one" >&2

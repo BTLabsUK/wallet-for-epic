@@ -38,6 +38,8 @@ const Key contactPageEndedKey = ValueKey('contact-page-ended');
 const Key contactPageHeldSendKey = ValueKey('contact-page-held-send');
 const Key contactPageUpdateAddressKey = ValueKey('contact-page-update-address');
 const Key contactPageDetachKey = ValueKey('contact-page-detach');
+const Key contactPageUnprovenKey = ValueKey('contact-page-unproven');
+const Key contactPagePairAgainUnprovenKey = ValueKey('contact-page-pair-again-unproven');
 
 /// The Pairing section of [contact]: [pairing] is the record the contact uses (null for
 /// none), [pending] a request sent or an answer waiting for its confirm.
@@ -285,6 +287,8 @@ class ContactPairingBlock extends ConsumerWidget {
 
     // A later card proved another address than the contact's: the user decides.
     final provesOther = p.paymentsAddress != null && contact.epicbox != null && !pairingVouchesFor(p, contact.epicbox);
+    // A pairing made before addresses were proven: nothing confirms the contact's address.
+    final unproven = (verified || p.state == PairingState.paired) && p.paymentsAddress == null;
     Future<void> updateAddress() => run(() async {
       await ref.read(contactsProvider.notifier).save(contact.withAddress(RecipientKind.epicbox, p.paymentsAddress));
     });
@@ -433,9 +437,16 @@ class ContactPairingBlock extends ConsumerWidget {
             relayRow,
           ],
         ),
+        if (unproven)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 8, 14, 0),
+            child: Text(l.pairAddressNotConfirmed, key: contactPageUnprovenKey, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+          ),
         Wrap(
           spacing: 8,
           children: [
+            if (unproven)
+              OutlinedButton(key: contactPagePairAgainUnprovenKey, onPressed: busy ? null : onPair, child: Text(l.pairAgain)),
             if (waiting) OutlinedButton(key: contactPageShowCodeKey, onPressed: busy ? null : () => _showCode(context), child: Text(l.pairShowMyCode)),
             TextButton(
               key: waiting ? contactPageCancelPairingKey : contactPageRemovePairingKey,

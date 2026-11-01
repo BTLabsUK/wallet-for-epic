@@ -68,8 +68,12 @@ int heightAt(DateTime t, {required int tip, required DateTime now}) {
 
 /// The lowest height to look [h]'s kernel up from: below the block it was made in, with room
 /// for a clock that runs ahead and for blocks slower than a minute (a quarter of the time since,
-/// a day at least). A kernel below the floor would read as absent, so it errs low.
+/// a day at least). A kernel below the floor would read as absent, so it errs low. With neither
+/// when it was made nor the height it was posted at known (a notice read here long after, a
+/// hold an older version stored), only the time it reached this device is known, which may be
+/// days after the block: the lookup then starts at the first block.
 int kernelFloor(HeldPayment h, {required int tip, required DateTime now}) {
+  if (h.createdAt == null && h.postedHeight == null) return 1;
   final made = h.createdAt ?? h.lockedAt;
   final from = min(heightAt(made, tip: tip, now: now), h.postedHeight ?? tip);
   final lead = max(holdPostedBlocks, (now.difference(made).inSeconds ~/ blockTime.inSeconds) ~/ 4);

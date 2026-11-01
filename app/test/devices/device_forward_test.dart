@@ -97,6 +97,26 @@ void main() {
     expect(seenOnA.where((e) => e.kind == PairingEventKind.requested), hasLength(1));
   });
 
+  test("a request from someone only in B's contacts: A passes it on before it dismisses it, once", () async {
+    // A's list dismisses a stranger's request as it arrives, before A's own read of the event.
+    a.pairing.events().listen((e) async {
+      if (e.kind != PairingEventKind.requested) return;
+      final r = (await a.pairing.requests()).singleWhere((q) => q.id == e.requestId);
+      await a.service.passOnRequest(r);
+      await a.pairing.dismissRequest(r.id);
+    });
+    final request = a.pairing.receiveRequest(from: 'esAnnaKey@epicbox.epiccash.com', name: 'Anna')!;
+    await Future<void>.delayed(Duration.zero);
+    await settle(a, b);
+    expect(await a.pairing.requests(), isEmpty, reason: 'a stranger on A');
+    final onB = (await b.pairing.requests()).single;
+    expect((onB.id, onB.fromAddress, onB.inviteLink), (request.id, request.fromAddress, request.inviteLink));
+    // Passed on again (another read of the list): nothing new reaches B.
+    await a.service.passOnRequest(request);
+    await settle(a, b);
+    expect(await b.pairing.requests(), hasLength(1));
+  });
+
   test("a notice for a slate A holds nothing of goes to B as it came, and B's core applies it", () async {
     a.session.unmatchedController.add(
       const UnmatchedNotice(slateId: 'out-1', kind: 'posted', sender: 'esPayerKey@epicbox.epiccash.com', notice: '{"lepic":1,"type":"posted"}'),

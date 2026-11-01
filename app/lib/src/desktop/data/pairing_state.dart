@@ -13,6 +13,7 @@ import '../../advanced.dart' show NetworkModeRestricted;
 import '../../log.dart';
 import '../../models.dart' show PairRequest, PairingEndReason, PairingEvent, PairingEventKind, PairingRecord, PairingSlate, PairingState, contactPairingOf, epicboxKey;
 import '../../pairing_api.dart';
+import '../../pairing_providers.dart' show dismissStrangers, requestPassOnProvider;
 import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../../trust/policy.dart';
 import 'invoices.dart' show deskFailureKind;
@@ -73,9 +74,19 @@ class DeskPairings extends AsyncNotifier<List<PairingRecord>> {
   }
 }
 
+/// The Epicbox keys of the desktop's address book, or null while it is unknown: not loaded
+/// yet ([contacts] null) or [closed] (the shared book has no key for this wallet yet).
+Set<String>? deskContactKeysOf(List<Contact>? contacts, {bool closed = false}) => closed || contacts == null
+    ? null
+    : {
+        for (final c in contacts)
+          if (c.epicbox case final a? when a.trim().isNotEmpty) epicboxKey(a),
+      };
+
 /// The requests to pair that came to this wallet's address, from contacts only, newest
-/// first; reloads on every pairing event. Strangers' requests are dismissed on arrival by the
-/// shell's notices.
+/// first; reloads on every pairing event and when the address book loads. Strangers' requests
+/// are dismissed ([dismissStrangers]) once the book is known: while it loads or is closed,
+/// every request is kept and none is listed.
 final deskPairRequestsProvider = AsyncNotifierProvider<DeskPairRequests, List<PairRequest>>(DeskPairRequests.new);
 
 class DeskPairRequests extends AsyncNotifier<List<PairRequest>> {
@@ -85,9 +96,14 @@ class DeskPairRequests extends AsyncNotifier<List<PairRequest>> {
     if (!api.supported) return const [];
     final sub = api.events().listen((_) => ref.invalidateSelf());
     ref.onDispose(sub.cancel);
-    final contacts = ref.watch(deskProvider.select((s) => s.contacts)) ?? const <Contact>[];
-    final keys = {for (final c in contacts) if (c.epicbox case final a? when a.isNotEmpty) epicboxKey(a)};
-    return requestsFromContacts(await api.requests(), keys).reversed.toList();
+    final keys = deskContactKeysOf(
+      ref.watch(deskProvider.select((s) => s.contacts)),
+      closed: ref.watch(deskProvider.select((s) => s.status?.contactsClosed ?? false)),
+    );
+    final all = await api.requests();
+    if (keys == null) return const [];
+    unawaited(dismissStrangers(api, keys, all, passOn: ref.read(requestPassOnProvider).run));
+    return requestsFromContacts(all, keys).reversed.toList();
   }
 
   Future<void> reload() async {

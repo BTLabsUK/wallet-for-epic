@@ -17,13 +17,13 @@ import '../../ui/pairing/pairing_notices.dart' show pairingEventOnScreen, pairin
 import '../../models.dart' show PairingCollectTrigger, PairingEventKind;
 import '../data/devices_state.dart' show deskDeviceServiceProvider, deskLinkedDevicesOnProvider;
 import '../../devices/device_service.dart' show DeviceSyncTrigger;
-import '../data/pairing_state.dart' show deskInvoicesShownProvider, deskKeysBackProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider;
+import '../data/pairing_state.dart' show deskContactKeysOf, deskInvoicesShownProvider, deskKeysBackProvider, deskPairRequestsProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
 import '../screens/pairing/pair_screens.dart' show deskOpenPairingText, showDeskCheckWords, showDeskPairRequests;
 import '../../ui/invite_link_gate.dart';
 import '../../ui/pairing/invite_links.dart';
-import '../../pairing_providers.dart' show keepOrDismissRequest;
+import '../../pairing_providers.dart' show requestFromContact;
 import '../../models.dart' show PairingEvent, epicboxKey;
 import '../data/desk_errors.dart' show deskErrorText;
 import '../../levels/wallet_level.dart' show WalletLevel;
@@ -102,15 +102,32 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     await deskOpenPairingText(context, ref, link.invite);
   }
 
-  /// A request to pair: from a contact it is a toast that opens the requests; from anyone
-  /// else it is dismissed before it shows.
+  /// A request to pair: the list reads it again (and dismisses a stranger's once the address
+  /// book is known); from a contact it is a toast that opens the requests. One that came
+  /// before the book loaded waits for it.
   Future<void> _pairRequested(PairingEvent e) async {
-    final contacts = ref.read(deskProvider).contacts ?? const <Contact>[];
-    final keys = {for (final c in contacts) if (c.epicbox case final a? when a.isNotEmpty) epicboxKey(a)};
-    if (!await keepOrDismissRequest(ref.read(deskPairingApiProvider), keys, e) || !mounted) return;
+    final contacts = await _contactsLoaded();
+    if (!mounted) return;
+    unawaited(ref.read(deskPairRequestsProvider.notifier).reload());
+    final keys = deskContactKeysOf(contacts, closed: ref.read(deskProvider).status?.contactsClosed ?? false);
+    if (!requestFromContact(keys, e)) return;
     final key = epicboxKey(e.sender!);
-    final name = contacts.where((c) => c.epicbox != null && epicboxKey(c.epicbox!) == key).firstOrNull?.name ?? e.name;
+    final name = contacts!.where((c) => c.epicbox != null && epicboxKey(c.epicbox!) == key).firstOrNull?.name ?? e.name;
     showEToast(context, context.l10n.pairWantsToPair(name), tone: ETone.info, action: (label: context.l10n.noticeOpen, run: () => unawaited(showDeskPairRequests(context, ref))));
+  }
+
+  /// The address book once it is loaded (at once when it is).
+  Future<List<Contact>?> _contactsLoaded() {
+    final now = ref.read(deskProvider).contacts;
+    if (now != null) return Future.value(now);
+    final loaded = Completer<List<Contact>?>();
+    late final ProviderSubscription<List<Contact>?> sub;
+    sub = ref.listenManual(deskProvider.select((s) => s.contacts), (_, next) {
+      if (next == null || loaded.isCompleted) return;
+      loaded.complete(next);
+      sub.close();
+    });
+    return loaded.future;
   }
 
   @override

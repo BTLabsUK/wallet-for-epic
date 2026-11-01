@@ -4969,6 +4969,7 @@
   "pairEndedNeverFinished": "กระเป๋าของ {name} ไม่เคยทำเสร็จ",
   "pairNoAnswerFrom": "ไม่มีคำตอบจากกระเป๋าของ {name}",
   "pairAgain": "จับคู่อีกครั้ง",
+  "pairAddressNotConfirmed": "ที่อยู่ยังไม่ได้รับการยืนยันจากการจับคู่",
   "pairHeldSend": "กำลังรอผู้รับ",
   "pairProvesOther": "กระเป๋าของ {name} พิสูจน์ที่อยู่อื่น",
   "pairUpdateAddress": "อัปเดตที่อยู่ของผู้ติดต่อ",

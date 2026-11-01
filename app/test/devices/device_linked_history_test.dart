@@ -5,6 +5,8 @@
 // sending device included; holds a 26.10.24 install stored resolve on open.
 import 'dart:convert';
 
+import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart' show deskTx;
+import 'package:epic_wallet/src/desktop/data/models.dart' show TxState;
 import 'package:epic_wallet/src/devices/device_history.dart';
 import 'package:epic_wallet/src/devices/device_locks.dart';
 import 'package:epic_wallet/src/devices/device_model.dart';
@@ -172,6 +174,15 @@ void main() {
       expect(other.deviceName, isNull);
     });
 
+    test('found by its kernel: confirming until the wallet\'s confirmations, on the phone and the desktop', () {
+      final row = mergeDeviceHistory(const [], _book([HeldPayment.fromJson({..._hold(state: HoldState.spent, kernel: _k1).toJson(), 'mined': 1001})!])).single;
+      expect(row.blockHeight, BigInt.from(1001));
+      for (final (tip, done) in [(1000, false), (1001, false), (1009, false), (1010, true)]) {
+        expect(txPhase(row, BigInt.from(tip), target: 10), done ? TxPhase.completed : TxPhase.confirming, reason: 'phone at $tip');
+        expect(deskTx(row, tip: tip, minConf: 10, fallbackId: -1).state, done ? TxState.confirmed : TxState.confirming, reason: 'desktop at $tip');
+      }
+    });
+
     test('coins spent with no chain row of the spend: the row reads sent, not confirming forever', () {
       final rows = mergeDeviceHistory(const [], _book([_hold(state: HoldState.spent)]));
       expect(rows.single.status, TxStatus.confirmed);
@@ -319,13 +330,13 @@ void main() {
     final posted28 = DateTime.utc(2026, 10, 28, 13, 12);
 
     /// The book as 26.10.24-r2 wrote it: one posted hold, its kernel known, no height.
-    Future<void> stored({String state = 'posted', String? kernel}) async {
+    Future<void> stored({String state = 'posted', String? kernel, DateTime? locked, bool created = true}) async {
       final hold = {
         'dev': 'd' * 32,
         'slate': 'old-1',
         'commits': [cm(2)],
         'amount': '100000000',
-        'locked': posted28.millisecondsSinceEpoch,
+        'locked': (locked ?? posted28).millisecondsSinceEpoch,
         'state': state,
         'tx': 7,
         'fee': '800000',
@@ -335,7 +346,7 @@ void main() {
         'cutoff': null,
         'posted': null,
         'kernel': kernel ?? _k1,
-        'created': posted28.millisecondsSinceEpoch,
+        'created': created ? posted28.millisecondsSinceEpoch : null,
         'name': 'Desktop',
         'changed': posted28.millisecondsSinceEpoch,
         'reason': null,
@@ -395,6 +406,28 @@ void main() {
       final row = (await _history(b)).single;
       expect(row.status, TxStatus.confirmed);
       expect(row.blockHeight, BigInt.from(8990));
+    });
+
+    test('no date made and no height posted, its notice read here long after its block: confirmed, one row with the spend', () async {
+      // Read here a minute ago: the time it came says nothing of the block, days before.
+      b.session.kernelsOnChain = {_k1: const KernelLocation(height: 5000, mmrIndex: 3)};
+      _spentHere(b, [2]);
+      b.session.transactionsValue = [_spend(height: 5000)];
+      await stored(locked: clock.now.subtract(const Duration(minutes: 1)), created: false);
+      await b.service.load();
+      await b.sync();
+      _tip(b, 9001);
+      await b.sync();
+      final hold = b.service.book.holds.single;
+      expect(hold.replaced, isFalse);
+      expect(hold.state, HoldState.spent);
+      expect(hold.minedHeight, 5000);
+      expect(b.session.kernelLookups.map((l) => l.$2), everyElement(1), reason: 'looked up from the first block');
+      final rows = await _history(b);
+      expect(rows, hasLength(1), reason: _describe(rows));
+      expect(rows.single.origin, TxOrigin.linkedDevice);
+      expect(rows.single.status, TxStatus.confirmed);
+      expect(rows.single.blockHeight, BigInt.from(5000));
     });
 
     test('its coin spent by another kernel: it ends cancelled, the chain row stays the other payment', () async {

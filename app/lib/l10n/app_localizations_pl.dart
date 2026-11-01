@@ -19776,6 +19776,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get pairAgain => 'Paruj ponownie';
 
   @override
+  String get pairAddressNotConfirmed =>
+      'Adres niepotwierdzony przez parowanie.';
+
+  @override
   String get pairHeldSend => 'Czeka na odbiorcę';
 
   @override

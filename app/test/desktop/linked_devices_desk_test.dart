@@ -22,6 +22,7 @@ import 'package:epic_wallet/src/devices/device_ending.dart';
 import 'package:epic_wallet/src/devices/device_service.dart';
 import 'package:epic_wallet/src/devices/device_store.dart';
 import 'package:epic_wallet/src/devices/device_wire.dart';
+import 'package:epic_wallet/src/devices/invite_links_api.dart' show InviteKind, inviteHandler;
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/models.dart' show CancelReason, Chain, DeviceEnding;
 import 'package:epic_wallet/src/network_gate.dart' show NetGate;
@@ -446,12 +447,15 @@ void main() {
     await end(tester);
   });
 
-  testWidgets('Linked devices off: no service, no section', (tester) async {
+  testWidgets('Linked devices off: no service, no section, and a device link opens nothing', (tester) async {
     await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+    container.read(deskDeviceServiceProvider);
+    expect(inviteHandler(InviteKind.deviceLink), isNotNull, reason: 'on: a device link opens the link dialog');
     final s = container.read(deskProvider).settings;
     await tester.runAsync(() => container.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: s.advanced.withFeature(AdvancedFeature.linkedDevices, false))));
     expect(container.read(deskLinkedDevicesOnProvider), isFalse);
     expect(container.read(deskDeviceServiceProvider), isNull);
+    expect(inviteHandler(InviteKind.deviceLink), isNull);
     container.dispose();
   });
 }

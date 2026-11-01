@@ -1340,6 +1340,8 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
     final locked = _busy || paused || changed || waiting;
     final back = ref.watch(deskKeysBackProvider).contains(p.id);
     final provesOther = p.paymentsAddress != null && x.epicbox != null && !pairingVouchesFor(p, x.epicbox);
+    // A pairing made before addresses were proven: nothing confirms the contact's address.
+    final unproven = (verified || p.state == PairingState.paired) && p.paymentsAddress == null;
     final statusTitle = changed ? l.trustKeysChanged : waiting ? l.pairWaitingFor(name) : verified ? l.trustVerified : l.trustPaired;
     final statusLine = changed
         ? l.contactKeysChangedStatus
@@ -1450,6 +1452,18 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
                 ),
               ),
             ESetRow(title: paused ? l.contactPausedEpicboxOff : l.contactDeliveredVia(p.homeRelay)),
+            if (unproven)
+              ESetRow(
+                key: deskContactUnprovenKey,
+                title: l.pairAddressNotConfirmed,
+                control: EButton(
+                  key: deskContactPairAgainUnprovenKey,
+                  label: l.pairAgain,
+                  icon: EIcons.trusted,
+                  size: EBtnSize.sm,
+                  onPressed: _busy ? null : () => showDeskPairWithContact(context, ref, x),
+                ),
+              ),
           ],
         ),
         SizedBox(height: Sp.x3),
@@ -1488,6 +1502,8 @@ const Key deskContactCancelPairingKey = ValueKey('desk-contact-cancel-pairing');
 const Key deskContactRemovePairingKey = ValueKey('desk-contact-remove-pairing');
 const Key deskContactShowInviteKey = ValueKey('desk-contact-show-invite');
 const Key deskContactPairAgainKey = ValueKey('desk-contact-pair-again');
+const Key deskContactUnprovenKey = ValueKey('desk-contact-unproven');
+const Key deskContactPairAgainUnprovenKey = ValueKey('desk-contact-pair-again-unproven');
 const Key deskContactUpdateAddressKey = ValueKey('desk-contact-update-address');
 const Key deskContactDetachKey = ValueKey('desk-contact-detach');
 

@@ -423,6 +423,25 @@ void main() {
       expect(find.text(_l.pairEpicboxOffLine), findsOneWidget);
     });
 
+    testWidgets('a pairing made before addresses were proven: the line and Pair again, which starts a new pairing', (tester) async {
+      await page(tester, (h) => h.api.seedPaired(name: 'Anna', contactId: 'c1', unproven: true));
+      expect(find.textContaining(_l.trustVerified, findRichText: true), findsWidgets);
+      expect(find.byKey(contactPageUnprovenKey), findsOneWidget);
+      expect(find.text(_l.pairAddressNotConfirmed), findsOneWidget);
+      await tester.ensureVisible(find.byKey(contactPagePairAgainUnprovenKey));
+      await tester.tap(find.byKey(contactPagePairAgainUnprovenKey));
+      await tester.pumpAndSettle();
+      expect(find.byType(PairScreen), findsOneWidget, reason: 'not a proven peer: the Pair screen framed for the contact');
+      expect(find.text(_l.pairWithName('Anna')), findsOneWidget);
+    });
+
+    testWidgets('a pairing that proves the contact\'s address: no line, no Pair again', (tester) async {
+      await page(tester, (h) => h.api.seedPaired(name: 'Anna', contactId: 'c1', paymentsAddress: _anna));
+      expect(find.textContaining(_l.trustVerified, findRichText: true), findsWidgets);
+      expect(find.byKey(contactPageUnprovenKey), findsNothing);
+      expect(find.byKey(contactPagePairAgainUnprovenKey), findsNothing);
+    });
+
     testWidgets('a request expired unanswered: No answer, Pair again, Remove', (tester) async {
       final h = await page(tester, (h) {
         h.api.provenPeers.add(_anna);

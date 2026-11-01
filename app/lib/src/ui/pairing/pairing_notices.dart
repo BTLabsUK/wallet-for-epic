@@ -14,7 +14,7 @@ import '../../contacts.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../pairing_text.dart';
-import '../../providers.dart' show homeProvider, pendingInvoicesProvider;
+import '../../providers.dart' show homeProvider, pendingInvoicesProvider, sessionProvider;
 import '../../scan/scan_checks.dart' show CodeOrigin;
 import '../../wallet_service.dart';
 import '../common.dart';
@@ -180,16 +180,26 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     if (e.kind == PairingEventKind.invoiceFromContact || e.kind == PairingEventKind.requestWithdrawn) {
       ref.read(pendingInvoicesProvider.notifier).reload().ignore();
     }
-    // A request to pair from someone not in Contacts is dropped unseen (M6).
+    // A request to pair: the list reads it again (and dismisses a stranger's once the address
+    // book is known); only a contact's shows a notice. One that came before the book loaded
+    // waits for it.
     var event = e;
     if (e.kind == PairingEventKind.requested) {
-      final contacts = ref.read(contactsProvider).value ?? const <Contact>[];
-      if (!await keepOrDismissRequest(ref.read(pairingApiProvider), contactKeysOf(contacts), e)) return;
-      if (!mounted) return;
-      final key = epicboxKey(e.sender!);
-      final contact = contacts.where((c) => c.epicbox != null && epicboxKey(c.epicbox!) == key).firstOrNull;
-      if (contact != null) event = PairingEvent(e.kind, requestId: e.requestId, sender: e.sender, name: contact.name);
+      if (!ref.read(contactsProvider).hasValue) {
+        try {
+          await ref.read(contactsProvider.future);
+        } on Object {
+          // Not loaded: no notice; the list shows the request once the book is known.
+        }
+        if (!mounted) return;
+      }
       unawaited(ref.read(pairRequestsProvider.notifier).reload());
+      final loaded = ref.read(contactsProvider);
+      final keys = phoneContactKeys(loaded, closed: !(ref.read(sessionProvider)?.contactsAvailable ?? true));
+      if (!requestFromContact(keys, e)) return;
+      final key = epicboxKey(e.sender!);
+      final contact = loaded.value!.where((c) => c.epicbox != null && epicboxKey(c.epicbox!) == key).firstOrNull;
+      if (contact != null) event = PairingEvent(e.kind, requestId: e.requestId, sender: e.sender, name: contact.name);
     }
     final notice = pairingNoticeOf(l, event);
     if (notice == null || pairingEventOnScreen(event)) return;

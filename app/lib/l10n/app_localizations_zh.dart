@@ -18042,6 +18042,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairAgain => '重新配对';
 
   @override
+  String get pairAddressNotConfirmed => '地址未经配对确认。';
+
+  @override
   String get pairHeldSend => '等待收款方';
 
   @override

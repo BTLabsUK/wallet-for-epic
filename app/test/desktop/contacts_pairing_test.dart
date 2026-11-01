@@ -13,7 +13,7 @@ import 'package:epic_wallet/src/pairing_fake.dart' show FakePairing;
 import 'package:epic_wallet/src/wallet_service.dart' show PairingApi, PairingEndReason, PairingState;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskPairingsProvider;
-import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart' show deskConfirmRemovePairingKey;
+import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart' show deskConfirmRemovePairingKey, deskSaveContactNameKey, deskWay1SendKey;
 import 'package:epic_wallet/src/desktop/screens/settings/settings_advanced.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -140,6 +140,50 @@ void main() {
     expect(await tester.runAsync(() => _pairing.pairing('p-piotr')), isNull);
     expect(find.text(_l.pairNotPaired), findsOneWidget);
     expect(_c.read(deskProvider).contacts!.any((x) => x.id == 'c6'), isTrue);
+  });
+
+  testWidgets('a pairing made before addresses were proven: the line and Pair again; a proven one has neither', (tester) async {
+    await _contact(tester, 'c6');
+    _fake.seedPaired(id: 'p-piotr', name: 'Piotr', contactId: 'c6', unproven: true);
+    _c.invalidate(deskPairingsProvider);
+    await _real(tester);
+    expect(find.text(_l.trustVerified), findsWidgets);
+    expect(find.text(_l.pairAddressNotConfirmed), findsOneWidget);
+    await tester.ensureVisible(find.byKey(deskContactPairAgainUnprovenKey));
+    await tester.tap(find.byKey(deskContactPairAgainUnprovenKey));
+    await _real(tester);
+    expect(
+      find.byKey(deskWay1SendKey).evaluate().isNotEmpty || _c.read(deskNavProvider).route == DeskRoute.pair,
+      isTrue,
+      reason: 'a new pairing with the contact starts: the request, or the Pair screen for it',
+    );
+  });
+
+  for (final verified in [false, true]) {
+    testWidgets('Save as new contact: the proven address is written ${verified ? 'at once, Verified' : 'only once Verified'}', (tester) async {
+      await _open(tester, const ContactsScreen());
+      const address = 'esZoeProvenKey@epicbox.epiccash.com';
+      _fake.seedPaired(id: 'p-zoe', name: 'Zoe', state: verified ? PairingState.verified : PairingState.paired, paymentsAddress: address);
+      _c.invalidate(deskPairingsProvider);
+      await _real(tester);
+      final save = find.widgetWithText(EButton, _l.pairSaveNewContact);
+      await tester.ensureVisible(save.first);
+      await tester.tap(save.first);
+      await _real(tester);
+      await tester.enterText(find.byKey(deskSaveContactNameKey), 'Zoe');
+      await tester.tap(find.widgetWithText(EButton, _l.deskConSave));
+      await _real(tester);
+      final zoe = _c.read(deskProvider).contacts!.singleWhere((x) => x.name == 'Zoe');
+      expect(zoe.epicbox, verified ? address : isNull);
+      expect((await tester.runAsync(() => _pairing.pairing('p-zoe')))!.contactId, zoe.id);
+    });
+  }
+
+  testWidgets('a proven pairing shows no unconfirmed line', (tester) async {
+    await _contact(tester, 'c1');
+    expect(find.text(_l.trustVerified), findsWidgets);
+    expect(find.byKey(deskContactUnprovenKey), findsNothing);
+    expect(find.byKey(deskContactPairAgainUnprovenKey), findsNothing);
   });
 
   testWidgets('a contact not paired offers Pair', (tester) async {

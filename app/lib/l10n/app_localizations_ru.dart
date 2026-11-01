@@ -19762,6 +19762,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pairAgain => 'Сопрячь снова';
 
   @override
+  String get pairAddressNotConfirmed => 'Адрес не подтверждён сопряжением.';
+
+  @override
   String get pairHeldSend => 'Ожидает получателя';
 
   @override

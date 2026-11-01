@@ -154,10 +154,13 @@ Future<bool> confirmDeviceAction(
 /// Registers the handler of an incoming device invite (an `epiccash://device-link/…` or
 /// `https://…/link#…` link the system opened): Link a device with its confirm step. A link
 /// never links by itself.
-void registerPhoneDeviceInviteHandler() => registerInviteHandler(
-  InviteKind.deviceLink,
-  (context, link) => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => LinkDeviceScreen(code: link.invite, confirm: true))),
-);
+void registerPhoneDeviceInviteHandler() => registerInviteHandler(InviteKind.deviceLink, _openDeviceInvite);
+
+/// Takes the handler out again (Linked devices turned off): a device link then opens nothing.
+void unregisterPhoneDeviceInviteHandler() => unregisterInviteHandler(InviteKind.deviceLink, _openDeviceInvite);
+
+Future<void> _openDeviceInvite(BuildContext context, InviteLink link) =>
+    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => LinkDeviceScreen(code: link.invite, confirm: true)));
 
 /// Opens Link a device, with [code] answered at once when a scan or a paste brought one.
 Future<void> openLinkDevice(BuildContext context, WidgetRef ref, {String? code}) =>
