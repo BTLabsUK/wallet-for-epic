@@ -135,9 +135,13 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
         child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // One rhythm for the three fields (#82): each has one line under its input (the
+          // error line kept, or the New password's hint, Ctl.inline tall for its info icon),
+          // then the same gap to the next label.
           EField(
             label: l.deskSetDlgPwCurrent,
             error: _wrong ? l.deskSetDlgPwWrong : null,
+            reserveError: true,
             child: EPasswordInput(
               controller: _current,
               autofocus: true,
@@ -149,7 +153,8 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
               }),
             ),
           ),
-          SizedBox(height: Sp.x4),
+          // EField's kept line is 20 tall; the hint line below New is Ctl.inline.
+          SizedBox(height: Sp.x4 + Ctl.inline - 20.u),
           EField(
             label: l.deskSetDlgPwNew,
             error: nextError,
@@ -157,7 +162,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 EPasswordInput(controller: _next, invalid: nextError != null, semanticLabel: l.deskSetDlgPwNew, onChanged: (_) => _edited()),
-                SizedBox(height: Sp.x2),
+                SizedBox(height: 6.u),
                 // Informs only; its info icon is not a Tab stop.
                 ExcludeFocusTraversal(child: PasswordHint(controller: _next)),
               ],
@@ -167,6 +172,7 @@ class _ChangePasswordDialogState extends ConsumerState<ChangePasswordDialog> {
           EField(
             label: l.deskSetDlgPwRepeat,
             error: repeatError,
+            reserveError: true,
             child: EPasswordInput(controller: _repeat, invalid: repeatError != null, semanticLabel: l.deskSetDlgPwRepeat, onChanged: (_) => _edited()),
           ),
           if (_error != null) ...[
