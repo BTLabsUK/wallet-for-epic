@@ -121,4 +121,13 @@ void main() {
     expect(node.hint, _text);
     expect(node.flagsCollection.isButton, isTrue);
   });
+
+  testWidgets('a 48 dp target on its own, the row\'s size inside a row target; the icon 18 dp', (tester) async {
+    await _pump(tester, const Align(alignment: AlignmentDirectional.centerStart, child: InfoHint(_text, title: _title)));
+    expect(tester.getSize(find.byType(InfoHint)), const Size.square(48));
+    expect(tester.getSize(find.byIcon(Icons.info_outline)), const Size.square(18));
+    await _pump(tester, const TitleWithHint(_title, hint: _text));
+    expect(tester.getSize(find.byType(InfoHint)), const Size.square(InfoHint.inRow));
+    expect(tester.getSize(find.byIcon(Icons.info_outline)), const Size.square(18));
+  });
 }

@@ -302,10 +302,9 @@ class _StatusRow extends StatelessWidget {
                                   child: ExcludeSemantics(child: Text(title)),
                                 ),
                                 const SizedBox(width: 4),
-                                // 48 dp: the icon is a target of its own on this row.
+                                // The icon is a target of its own on this row (48 dp).
                                 InfoHint(
                                   hint!,
-                                  size: 48,
                                   title: title,
                                   icon: torIcon,
                                 ),

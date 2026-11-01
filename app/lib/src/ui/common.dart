@@ -1238,7 +1238,7 @@ class TxStatusChip extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         badge,
-        InfoHint(context.l10n.devicesStatusInfo(name), size: 32, title: context.l10n.txSentFromDevice(name)),
+        InfoHint(context.l10n.devicesStatusInfo(name), size: InfoHint.inRow, title: context.l10n.txSentFromDevice(name)),
       ],
     );
   }

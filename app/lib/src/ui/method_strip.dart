@@ -182,8 +182,7 @@ class MethodStrip extends StatelessWidget {
             style: theme.textTheme.bodyLarge?.copyWith(color: t.text),
           ),
         ),
-        // The strip is no row target, so the icon is the whole 48 dp target itself.
-        InfoHint(more, title: name(l, method), size: 48),
+        InfoHint(more, title: name(l, method)),
       ],
     );
     return Container(

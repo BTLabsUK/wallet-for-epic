@@ -125,7 +125,6 @@ class _ChoicesDialog extends StatelessWidget {
               InfoHint(
                 l.cancelChoicesWhy,
                 key: cancelFeeHintKey,
-                size: 32,
                 title: l.cancelChoicesTitle,
                 icon: Icons.info_outline,
               ),

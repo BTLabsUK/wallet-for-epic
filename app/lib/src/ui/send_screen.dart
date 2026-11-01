@@ -4219,7 +4219,6 @@ class _TorNotice extends ConsumerWidget {
                     InfoHint(
                       l.sendPlainHttpOffWithTorWhy,
                       key: sendPlainHttpOffInfoKey,
-                      size: 32,
                       title: l.sendPlainHttpOffWithTor,
                       icon: Icons.error_outline,
                     ),

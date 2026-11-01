@@ -101,7 +101,7 @@ class ReceiveHttpCard extends ConsumerWidget {
                   child: Text(l.receiveHttpNotTrustedTitle, style: theme.textTheme.bodyMedium),
                 ),
               ),
-              InfoHint(l.receiveHttpNotTrusted, key: receiveHttpNotTrustedInfoKey, size: 32, title: l.receiveHttpNotTrustedTitle, icon: Icons.pause_circle_outline),
+              InfoHint(l.receiveHttpNotTrusted, key: receiveHttpNotTrustedInfoKey, title: l.receiveHttpNotTrustedTitle, icon: Icons.pause_circle_outline),
             ],
           ),
           const SizedBox(height: 4),

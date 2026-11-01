@@ -367,7 +367,6 @@ class _PassphraseHintState extends ConsumerState<_PassphraseHint> {
               InfoHint(
                 l.deskKitPasswordNote,
                 key: const ValueKey('passphrase-hint-info'),
-                size: 48,
                 title: l.deskKitPasswordNoteLabel,
                 icon: Icons.info_outline,
               ),

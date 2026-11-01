@@ -142,7 +142,6 @@ class PayeeClaims extends StatelessWidget {
           ),
           InfoHint(
             l.payeeUnverifiedHint,
-            size: 32,
             title: l.payeeUnverifiedTitle,
             icon: Icons.help_outline,
           ),

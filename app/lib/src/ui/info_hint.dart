@@ -14,12 +14,17 @@ import 'package:flutter/material.dart';
 import '../l10n.dart';
 import 'theme/tokens.dart';
 
-/// The info icon with [text] as its explanation, [size] square (a 40 dp target inside a row
-/// that is itself the 48 dp target). A tap opens [InfoSheet] with [title] (the row's name,
+/// The info icon with [text] as its explanation. The drawn icon is 18 dp; [size] is its tap
+/// square, 48 dp by default, so an icon standing on its own is a full target. Inside a row
+/// that is itself the 48 dp target (a settings tile, a transaction row) it takes [inRow] so
+/// the row keeps its height. A tap opens [InfoSheet] with [title] (the row's name,
 /// required: a sheet with no title reads as a stray sentence) and [icon] beside it; [onHelp]
 /// adds "More in Help" under the text, as the desktop's popover does.
 class InfoHint extends StatelessWidget {
-  const InfoHint(this.text, {super.key, this.size = 40, required this.title, this.icon, this.labelled = true, this.label, this.onHelp});
+  const InfoHint(this.text, {super.key, this.size = 48, required this.title, this.icon, this.labelled = true, this.label, this.onHelp});
+
+  /// The tap square inside a row that is itself the 48 dp target.
+  static const double inRow = 32;
 
   final String text;
   final double size;
@@ -178,7 +183,7 @@ class TitleWithHint extends StatelessWidget {
     children: [
       Flexible(child: Text(title)),
       const SizedBox(width: 4),
-      InfoHint(hint, key: hintKey, size: 32, title: sheetTitle ?? title, icon: icon, labelled: labelled, onHelp: onHelp),
+      InfoHint(hint, key: hintKey, size: InfoHint.inRow, title: sheetTitle ?? title, icon: icon, labelled: labelled, onHelp: onHelp),
     ],
   );
 }
