@@ -22,6 +22,7 @@ import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
+import 'package:epic_wallet/src/ui/info_hint.dart';
 import 'package:epic_wallet/src/ui/method_strip.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
@@ -465,9 +466,7 @@ void main() {
       );
       expect(find.text('The recipient can be offline.'), findsOneWidget);
       expect(
-        find.text(
-          'The Epicbox server holds the payment until they open their wallet.',
-        ),
+        _info('The Epicbox server holds the payment until they open their wallet.'),
         findsOneWidget,
       );
       expect(find.text('esXXXX…XXXX@box.epic.invalid'), findsOneWidget);
@@ -478,7 +477,7 @@ void main() {
       expect(_method(tester), TransferMethod.direct);
       expect(find.text('Straight to their wallet.'), findsOneWidget);
       expect(
-        find.text('Their wallet must be open. An onion address goes over Tor.'),
+        _info('Their wallet must be open. An onion address goes over Tor.'),
         findsOneWidget,
       );
       expect(find.text('http://host:3415 or xxxx….onion'), findsOneWidget);
@@ -486,9 +485,7 @@ void main() {
       await _tap(tester, _segment('Direct · File'));
       expect(find.text('No connection needed.'), findsOneWidget);
       expect(
-        find.text(
-          'Hand the file over, get their response file back, then open it here.',
-        ),
+        _info('Hand the file over, get their response file back, then open it here.'),
         findsOneWidget,
       );
       expect(find.widgetWithText(TextField, 'To'), findsNothing);
@@ -1253,8 +1250,8 @@ void main() {
         height: 3600,
         payments: _directOn,
       );
-      expect(find.text('Share it to get paid.'), findsOneWidget);
       expect(find.text('Share the address to get paid.'), findsOneWidget);
+      expect(_info('The Epicbox server holds a payment until this wallet opens.'), findsOneWidget);
       // The caption under the address went for room.
       expect(
         find.text(
@@ -1278,7 +1275,7 @@ void main() {
 
       await _tap(tester, find.descendant(of: find.byKey(receiveTabsKey), matching: find.byTooltip('Link')));
       expect(find.text('Straight to this wallet.'), findsOneWidget);
-      expect(find.text('Works while the app is open.'), findsOneWidget);
+      expect(_info('Works while the app is open.'), findsOneWidget);
       expect(find.text('Link · Tor needs Tor.'), findsOneWidget);
       expect(
         find.text('Meanwhile, share the Epicbox address.'),
@@ -1303,7 +1300,7 @@ void main() {
       await _tap(tester, find.descendant(of: find.byKey(receiveTabsKey), matching: find.byTooltip('Direct · File')));
       expect(find.text('Hand a file back and forth.'), findsOneWidget);
       expect(
-        find.text('Works with no connection between the wallets.'),
+        _info('Works with no connection between the wallets.'),
         findsOneWidget,
       );
     }, skip: !torBuilt);
@@ -1312,7 +1309,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester, body: const ReceiveView(), height: 3600);
       await h.torOn(tester);
-      expect(find.text('Share the address to get paid. Over Tor.'), findsOneWidget);
+      expect(_info('The Epicbox server holds a payment until this wallet opens. Over Tor.'), findsOneWidget);
     }, skip: !torBuilt);
 
     testWidgets('receiving help opens the Receive topic', (
@@ -1411,3 +1408,6 @@ void main() {
     });
   });
 }
+
+/// A method strip's ⓘ holding [text]: everything past the strip's one line is behind it.
+Finder _info(String text) => find.byWidgetPredicate((w) => w is InfoHint && w.text == text);

@@ -5557,6 +5557,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Udostępnij adres, aby dostać płatność.';
 
   @override
+  String get methodReceiveEpicboxMore =>
+      'Serwer Epicbox przechowuje płatność, dopóki ten portfel nie zostanie otwarty.';
+
+  @override
   String get methodReceiveDirectTitle => 'Prosto do tego portfela.';
 
   @override

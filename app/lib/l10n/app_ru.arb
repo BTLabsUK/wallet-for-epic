@@ -1408,6 +1408,7 @@
   "methodDirectShape": "http://host:{port} или xxxx….onion",
   "methodSendDirectLine": "Кошелёк получателя должен быть открыт. Платёж на адрес .onion идёт через Tor.",
   "methodReceiveEpicboxShort": "Поделитесь адресом, чтобы получить оплату.",
+  "methodReceiveEpicboxMore": "Сервер Epicbox хранит платёж, пока этот кошелёк не откроется.",
   "methodReceiveDirectTitle": "Прямо в этот кошелёк.",
   "methodReceiveDirectLine": "Работает, пока приложение открыто.",
   "methodLineOverTor": "{line} Через Tor.",

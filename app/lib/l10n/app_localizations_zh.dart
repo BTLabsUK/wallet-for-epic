@@ -5109,6 +5109,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get methodReceiveEpicboxShort => '分享地址即可收款。';
 
   @override
+  String get methodReceiveEpicboxMore => 'Epicbox 服务器会保留付款，直到此钱包打开。';
+
+  @override
   String get methodReceiveDirectTitle => '直接发送到此钱包。';
 
   @override

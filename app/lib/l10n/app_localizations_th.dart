@@ -5296,6 +5296,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get methodReceiveEpicboxShort => 'แชร์ที่อยู่เพื่อรับเงิน';
 
   @override
+  String get methodReceiveEpicboxMore =>
+      'เซิร์ฟเวอร์ Epicbox จะเก็บการชำระเงินไว้จนกว่าจะเปิดวอลเล็ตนี้';
+
+  @override
   String get methodReceiveDirectTitle => 'ส่งตรงถึงกระเป๋านี้';
 
   @override

@@ -7022,6 +7022,10 @@
   "@methodReceiveEpicboxShort": {
     "description": "Receive's Epicbox strip line: share the address to get paid. No \"app\": the web demo shows it too."
   },
+  "methodReceiveEpicboxMore": "The Epicbox server holds a payment until this wallet opens.",
+  "@methodReceiveEpicboxMore": {
+    "description": "Behind the info icon of Receive's Epicbox strip: what Epicbox does for the receiver."
+  },
   "methodReceiveDirectTitle": "Straight to this wallet.",
   "@methodReceiveDirectTitle": {
     "description": "Receive's Link strip title."

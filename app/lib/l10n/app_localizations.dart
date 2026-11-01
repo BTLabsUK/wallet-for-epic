@@ -8638,6 +8638,12 @@ abstract class AppLocalizations {
   /// **'Share the address to get paid.'**
   String get methodReceiveEpicboxShort;
 
+  /// Behind the info icon of Receive's Epicbox strip: what Epicbox does for the receiver.
+  ///
+  /// In en, this message translates to:
+  /// **'The Epicbox server holds a payment until this wallet opens.'**
+  String get methodReceiveEpicboxMore;
+
   /// Receive's Link strip title.
   ///
   /// In en, this message translates to:

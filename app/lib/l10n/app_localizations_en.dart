@@ -5401,6 +5401,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get methodReceiveEpicboxShort => 'Share the address to get paid.';
 
   @override
+  String get methodReceiveEpicboxMore =>
+      'The Epicbox server holds a payment until this wallet opens.';
+
+  @override
   String get methodReceiveDirectTitle => 'Straight to this wallet.';
 
   @override

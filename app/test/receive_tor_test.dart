@@ -27,6 +27,7 @@ import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:epic_wallet/src/ui/info_hint.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const String _address =
@@ -514,7 +515,7 @@ void main() {
       final qr = tester.widget<MarkedQr>(find.byType(MarkedQr));
       expect(qr.data, h.session.onion);
       expect(find.bySemanticsLabel('QR code of your Tor address'), findsOne);
-      expect(find.text('Works while the app is open.'), findsOneWidget);
+      expect(find.byWidgetPredicate((w) => w is InfoHint && w.text == 'Works while the app is open.'), findsOneWidget);
       expect(
         find.text(
           'Some wallets show the address without .onion; both are the same '

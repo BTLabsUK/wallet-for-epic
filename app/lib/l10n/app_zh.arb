@@ -1408,6 +1408,7 @@
   "methodDirectShape": "http://host:{port} 或 xxxx….onion",
   "methodSendDirectLine": "对方钱包必须处于打开状态。onion 地址经由 Tor。",
   "methodReceiveEpicboxShort": "分享地址即可收款。",
+  "methodReceiveEpicboxMore": "Epicbox 服务器会保留付款，直到此钱包打开。",
   "methodReceiveDirectTitle": "直接发送到此钱包。",
   "methodReceiveDirectLine": "仅在应用打开时可用。",
   "methodLineOverTor": "{line} 经由 Tor。",

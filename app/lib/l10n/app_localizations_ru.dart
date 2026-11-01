@@ -5535,6 +5535,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Поделитесь адресом, чтобы получить оплату.';
 
   @override
+  String get methodReceiveEpicboxMore =>
+      'Сервер Epicbox хранит платёж, пока этот кошелёк не откроется.';
+
+  @override
   String get methodReceiveDirectTitle => 'Прямо в этот кошелёк.';
 
   @override

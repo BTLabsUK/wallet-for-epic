@@ -2182,16 +2182,17 @@ class _SendSummary extends StatelessWidget {
   }
 }
 
-/// Under the selector: the method's picture, what it does in bold (Epicbox has no bold line)
-/// and what it needs.
+/// Under the selector: the method's picture and one short line on what it does, the same shape
+/// for every method; the rest is behind its ⓘ (the phone's MethodStrip does the same).
 /// The art goes above the text in a narrow column; a method change crossfades.
 class _MethodStrip extends StatelessWidget {
   const _MethodStrip(this.method);
 
   final TxMethod method;
 
-  static (String?, String) words(AppLocalizations l, TxMethod m) => switch (m) {
-    TxMethod.epicbox => (null, l.deskSendEpicboxLine2),
+  /// The line, and what the ⓘ says.
+  static (String, String) words(AppLocalizations l, TxMethod m) => switch (m) {
+    TxMethod.epicbox => (l.methodSendEpicboxTitle, l.deskSendEpicboxLine2),
     TxMethod.http || TxMethod.tor => (l.deskSendDirectLine1, DeskFeatures.tor ? l.deskSendDirectLine2 : l.deskNoTorSendDirectLine2),
     TxMethod.file => (l.deskSendFileLine1, l.deskSendFileLine2),
   };
@@ -2200,7 +2201,8 @@ class _MethodStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     final ts = context.ts;
     final reduce = MediaQuery.disableAnimationsOf(context);
-    final (title, line) = words(context.l10n, method);
+    final l = context.l10n;
+    final (line, more) = words(l, method);
     // The first section of the form's panel: no frame of its own.
     return AnimatedSwitcher(
         duration: reduce ? Duration.zero : Motion.cross,
@@ -2210,12 +2212,11 @@ class _MethodStrip extends StatelessWidget {
         child: LayoutBuilder(
           key: ValueKey(method),
           builder: (context, box) {
-            final text = Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
+            final text = Row(
               children: [
-                if (title != null) ...[Text(title, style: ts.strong), SizedBox(height: 2.u)],
-                Text(line, style: ts.small),
+                Flexible(child: Text(line, style: ts.body)),
+                SizedBox(width: Sp.x1),
+                EInfoHint(more, title: MethodIcons.fullName(l, methodKindOf(method)), icon: methodIcon(method)),
               ],
             );
             if (box.maxWidth < Lay.sm) {

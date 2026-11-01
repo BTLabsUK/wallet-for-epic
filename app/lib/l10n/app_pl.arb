@@ -1408,6 +1408,7 @@
   "methodDirectShape": "http://host:{port} lub xxxx….onion",
   "methodSendDirectLine": "Portfel odbiorcy musi być otwarty. Adres onion działa przez Tor.",
   "methodReceiveEpicboxShort": "Udostępnij adres, aby dostać płatność.",
+  "methodReceiveEpicboxMore": "Serwer Epicbox przechowuje płatność, dopóki ten portfel nie zostanie otwarty.",
   "methodReceiveDirectTitle": "Prosto do tego portfela.",
   "methodReceiveDirectLine": "Działa, gdy aplikacja jest otwarta.",
   "methodLineOverTor": "{line} Przez Tor.",
