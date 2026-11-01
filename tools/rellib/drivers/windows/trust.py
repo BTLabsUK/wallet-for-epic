@@ -68,10 +68,22 @@ TAB, ENTER, SPACE, ESC = 0x09, 0x0D, 0x20, 0x1B
 # bottom-anchored -9 y.
 CLIENT = (803, 691)
 RAIL = {"overview": (36, 82), "activity": (36, 127), "send": (36, 217), "receive": (36, 262), "settings": (36, 326)}
-# Receive: copy the Epicbox address. Up to 26.10.25 the line under "Epicbox address" wrapped at this
-# width and put the button at y 285; from 26.10.26 (one short line) it is at y 260. Tried in turn.
-COPY_ADDRESS = ((487, 285), (487, 260))
+# Receive: copy the Epicbox address, by the release's layout. Up to 26.10.24 the copy button sat under
+# the address at x 487: y 285 while the line under "Epicbox address" wrapped, y 260 with one short line.
+# From 26.10.25 (the narrow-window layout) it is the ⧉ beside the address, right-aligned in the panel:
+# (721, 249), measured on the current code at 803x691; y 274 if a line above it wraps. A point that
+# misses lands on the address text (selects it, changes nothing); the clipboard says which one hit.
+COPY_ADDRESS_OLD = ((487, 285), (487, 260))
+COPY_ADDRESS_NARROW = ((721, 249), (721, 274))
+NARROW_FROM = (26, 10, 25)
 SEND_TO, SEND_MAX, SEND_REVIEW = (380, 433), (716, 557), (705, 655)
+
+# wfe.log lines of an install being taken for a new one: the first-start step (level picker) and its
+# server pick, which must never run on an existing install.
+FIRST_START = re.compile(r"levels: first start|network: first run")
+# The candidate found the previous session not closed cleanly (5f9933de6): its notice is a toast at the
+# bottom centre (380 px wide, gone after 10 s), off every point of the map, so nothing is pressed for it.
+LAST_SESSION = re.compile(r"session: last session did not end cleanly")
 
 # Why screens/ holds no pictures from the rig (screens.json lists every point as missing with this).
 NO_CAPTURE = ("no capture works on the rig: the app runs in epicrig's session-0 window station, whose desktop is never "
@@ -120,6 +132,7 @@ class Run:
         self.snap_n = 0
         self.log_mark = 0
         self.setup_address = None
+        self.first_start_lines = []
         self.screens = catalog.Screens(self.out, "windows", self.variant, self.prev_ver, self.cand_ver, self.log)
         self.update_method = (
             "the in-app update's own path: with the previous release open and unlocked, the candidate's published "
@@ -376,11 +389,11 @@ class Run:
         self.log("%s window up: %s" % (what, r.get("procs")))
         return r
 
-    def address(self):
-        """The Epicbox address the Receive page copies."""
+    def address(self, version):
+        """The Epicbox address the Receive page of [version] copies."""
         for i in range(4):  # a busy box can miss a click: open the page again before each copy
             self.click(RAIL["receive"], 2.5 + i)
-            for point in COPY_ADDRESS:
+            for point in copy_points(version):
                 self.call("clear_clipboard")
                 self.click(point, 1.5 + i)
                 t = (self.call("clipboard").get("text") or "").strip()
@@ -552,7 +565,7 @@ class Run:
         toml = self.toml_servers()
         lines = self.applog()[self.log_mark:]
         subs = [re.search(r"relay=(\S+)", l).group(1) for l in lines if "epicbox subscribed" in l and "relay=" in l]
-        dg = {"address": self.address(), "wallets": w, "db_path": d and d["path"],
+        dg = {"address": self.address(self.prev_ver if tag == "previous" else self.cand_ver), "wallets": w, "db_path": d and d["path"],
               "outputs": d and d["outputs"], "txs": d and d["txs"], "db_settings": d and d["settings"],
               "balance": self.balance(d, self.tip()), "settings": self.settings_now(),
               "store_servers": servers_23(s), "servers": servers_of(s, toml), "settings_toml": toml, "relay_subscribed": subs,
@@ -632,9 +645,16 @@ class Run:
             self.type_password()
             self.keys(ENTER)
             try:
-                hit = self.wait_log(r"slate sent in send", 120, "send")
-            except CannotRun as e:
-                return False, "no send started: %s" % e
+                hit = self.wait_log(r"slate sent in send", 45, "send")
+            except CannotRun:
+                # The review re-checks the send first: a fee that moved since Review shows the new one
+                # and keeps the password typed, waiting for a second Send. Nothing can send without it.
+                self.log("no send 45 s after Enter in the review; Enter once more (a re-check may have changed the fee)")
+                self.keys(ENTER)
+                try:
+                    hit = self.wait_log(r"slate sent in send", 90, "send")
+                except CannotRun as e:
+                    return False, "no send started: %s" % e
             self.log("send started: %s" % hit[-120:])
             end = time.time() + 900
             last = None
@@ -729,7 +749,7 @@ class Run:
         self.create_wallet()
         self.setup_servers()
         self.seed_settings()
-        addr = self.address()
+        addr = self.address(self.prev_ver)
         if not addr:
             raise CannotRun("no Epicbox address copied from the Receive page")
         self.setup_address = addr
@@ -782,14 +802,21 @@ class Run:
         except CannotRun as e:
             return False, str(e)
         time.sleep(6)
+        # An existing install is level 3 at once: no first-start step, so Unlock shows with its password
+        # field focused (as at 803x691, bec04caca). A first-start step here would take the keys.
         self.type_password()
         self.keys(ENTER)
         try:
             self.wait_log(r"wallet opened", 180, "candidate unlock")
         except CannotRun:
+            first = [l for l in self.applog()[self.log_mark:] if FIRST_START.search(l)]
+            if first:
+                return False, ("the candidate took the install for a new one: it showed the first-start step "
+                               "(level picker) instead of Unlock (wfe.log: %s)" % first[0].split(": ", 1)[-1][:100])
             return False, "no wallet opened in 3 min after typing the password (no unlock in wfe.log)"
         time.sleep(5)
         self.keys(ESC)
+        self.after_start_notes()
         w0, w1 = before["wallets"], self.wallets()
         e0 = next((x for x in w0["wallets"] if x["id"] == w0.get("lastUsedId")), w0["wallets"][0])
         e1 = next((x for x in (w1 or {}).get("wallets", []) if x.get("id") == e0["id"]), None)
@@ -800,7 +827,7 @@ class Run:
         key = "walletFingerprint" if e0.get("walletFingerprint") and e1.get("walletFingerprint") else "phraseFingerprint"
         if e1.get(key) != e0.get(key) or e1.get("dataDir") != e0.get("dataDir"):
             return False, "the wallet entry changed: %s or folder differ" % key
-        addr = self.address()
+        addr = self.address(self.cand_ver)
         # The address the digest read, else the one read when the wallet was made: never an empty one.
         same, why = facts.same_wallet(before["address"] or self.setup_address, addr)
         if not same:
@@ -808,6 +835,21 @@ class Run:
         a1 = why
         return True, ("unlocked with the same password (wfe.log: wallet opened); same wallet entry %s, same folder, "
                       "same Epicbox address %s (copied from the Receive page)" % (e0["id"], lt.short(a1)))
+
+    def after_start_notes(self):
+        """What the candidate's own start says about the install, from its wfe.log: the first-start step
+        or its server pick (an existing install must get neither; compare() fails on them), and a
+        previous session it judged not cleanly closed (its toast needs nothing pressed; kept as a fact,
+        because the previous app was closed with WM_CLOSE and should have ended cleanly)."""
+        lines = self.applog()[self.log_mark:]
+        self.first_start_lines = [l.split(": ", 1)[-1][:120] for l in lines if FIRST_START.search(l)]
+        last = [l for l in lines if LAST_SESSION.search(l)]
+        if last:
+            self.details["last_session"] = ("the candidate found the previous session not cleanly closed and offered "
+                                            "its log (toast, nothing pressed): %s" % last[0].split(": ", 1)[-1][:160])
+            self.log("NOTE %s" % self.details["last_session"])
+        else:
+            self.details["last_session"] = "no last-session notice: the previous app ended cleanly"
 
     def settle(self, b, a, wait_s=150):
         """The candidate may still be refreshing: the wallet's records are read again for up to [wait_s]."""
@@ -863,7 +905,11 @@ class Run:
             self.ok("settings_kept", "theme %s, label %r, %s confirmations, Technical details %s%s" % (
                 s0["theme"], s0["label"], s0["confirmations"], "on" if s0["technical_details"] else "off", src))
         lv, why = facts.level_after_update(a.get("level"))
-        self.details["level"] = why + " (desk store %s)" % facts.LEVEL_KEY
+        if lv is None and facts.LEVELS_BUILT:
+            lv, why = False, "no wallet level stored after the update, though the candidate has levels: an existing install must be stored as level 3"
+        if self.first_start_lines:
+            lv, why = False, "%s; the first-start step ran on the existing install (wfe.log: %s)" % (why, "; ".join(self.first_start_lines[:3]))
+        self.details["level"] = why + " (desk store %s, wfe.log)" % facts.LEVEL_KEY
         if lv is False:
             self.fail("settings_kept", "%s; %s" % (why, self.details.get("settings_kept", "")))
         gone = [f for f in b["files"] if f not in a["files"]]
@@ -900,6 +946,9 @@ class Run:
         lost = [x for x in own if x not in after_list and x != custom]
         if lost:
             problems.append("own entries gone: %s" % ", ".join(lost))
+        picks = [l for l in self.first_start_lines if "first run" in l]
+        if picks:
+            problems.append("first run's server pick ran on the existing install (wfe.log: %s)" % "; ".join(picks[:2]))
         extra = ""
         if kind == "relay":
             subs = a.get("relay_subscribed") or []
@@ -980,6 +1029,23 @@ class Run:
 # ---- helpers
 
 DEFAULT_CONF = 6  # the wallet's minimum confirmations while it has none stored
+
+
+def version_tuple(v):
+    """(26, 10, 24) for "26.10.24" or "26.10.24-r2"; () when unreadable."""
+    m = re.match(r"(\d+)\.(\d+)\.(\d+)", v or "")
+    return tuple(int(x) for x in m.groups()) if m else ()
+
+
+def copy_points(version):
+    """Receive's copy points for a release. A release before the narrow layout gets only its own points
+    (what else they would hit there was never mapped); from it, its own first, then the old ones,
+    which land on the address text there (measured: a miss changes nothing). An unreadable version
+    is taken as the current layout."""
+    v = version_tuple(version)
+    if v and v < NARROW_FROM:
+        return COPY_ADDRESS_OLD
+    return COPY_ADDRESS_NARROW + COPY_ADDRESS_OLD
 
 
 def conf_of(d):
