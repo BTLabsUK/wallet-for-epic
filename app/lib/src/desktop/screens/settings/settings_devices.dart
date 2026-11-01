@@ -193,7 +193,7 @@ class _DevicesGroup extends ConsumerWidget {
                 text: deviceSeen(l, d.lastSeen, now),
                 below: d.servers.isEmpty
                     ? null
-                    : Text(d.servers.join(' · '), style: ts.mono(size: Fs.xs).copyWith(color: context.dc.faint), overflow: TextOverflow.ellipsis),
+                    : Text(metaLine(d.servers), style: ts.mono(size: Fs.xs).copyWith(color: context.dc.faint), overflow: TextOverflow.ellipsis),
                 control: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

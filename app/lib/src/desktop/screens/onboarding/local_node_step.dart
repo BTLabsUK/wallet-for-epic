@@ -317,12 +317,12 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
               children: [
                 TextSpan(text: l.deskOnbNodeFound, style: ts.small.copyWith(color: c.ok, fontWeight: FontWeight.w600)),
                 TextSpan(
-                  text: [
+                  text: metaLine([
                     '',
                     l.deskOnbNodeFoundAt(p.version ?? '?', hostPort(p.url)),
                     if (p.height != null) l.deskOnbNodeHeight(digits(context.l10n, p.height!)),
                     if (p.readyForTxs == true) l.deskOnbNodeSynced,
-                  ].join(' · '),
+                  ]),
                   style: ts.small.copyWith(color: c.dim),
                 ),
               ],

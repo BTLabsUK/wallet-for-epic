@@ -12,6 +12,7 @@ import '../widgets/status.dart' show EState, ShownState;
 import 'desk_node.dart';
 import '../../settings_file/host_settings.dart' show hostSettings;
 import 'models.dart' show ServiceHealth;
+import '../../text_join.dart';
 
 /// One node as the rail and the panels show it.
 class NodeView {
@@ -128,7 +129,7 @@ NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {Service
       host: host,
       marker: behind != null && behind > 0 ? l.deskNodeMarkerBehind(digits(l, behind)) : null,
       lines: [
-        [full, if (h != null && info.networkHeight != null) l.deskNodeHeightOf(digits(l, h), digits(l, info.networkHeight!))].join(' · '),
+        metaLine([full, if (h != null && info.networkHeight != null) l.deskNodeHeightOf(digits(l, h), digits(l, info.networkHeight!))]),
         l.deskOwnSyncingLine,
       ],
     );
@@ -136,17 +137,17 @@ NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {Service
   final h = info.height;
   final old = info.updateAvailable == true;
   final latency = shownLatency(info, torOn: torOn);
-  final second = [
+  final second = metaLine([
     if (latency != null) info.latencyOverTor ? l.deskNodeLatencyOverTor(digits(l, latency)) : l.deskNodeLatency(digits(l, latency)),
     if (info.version != null) 'v${info.version}',
     if (old && info.releasedVersion != null) l.deskNodeNewerOut(info.releasedVersion!),
-  ].join(' · ');
+  ]);
   if ((behind != null && behind > syncedWithinBlocks) || (own && info.head == NodeHead.behind)) {
     return NodeView.of(l, ShownState.behind,
       host: host,
       marker: behind == null ? null : l.deskNodeMarkerBehind(digits(l, behind)),
       lines: [
-        [full, if (h != null && info.networkHeight != null) l.deskNodeHeightOf(digits(l, h), digits(l, info.networkHeight!))].join(' · '),
+        metaLine([full, if (h != null && info.networkHeight != null) l.deskNodeHeightOf(digits(l, h), digits(l, info.networkHeight!))]),
         l.deskNodeBehindLine,
       ],
     );
@@ -154,7 +155,7 @@ NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {Service
   return NodeView.of(l, ShownState.synced,
     host: host,
     lines: [
-      [full, if (h != null) digits(l, h), if (behind != null) l.deskNodeAtTip].join(' · '),
+      metaLine([full, if (h != null) digits(l, h), if (behind != null) l.deskNodeAtTip]),
       if (second.isNotEmpty) second,
     ],
   );
@@ -199,8 +200,8 @@ NodeView localNodeView(AppLocalizations l, LocalNodeState? s, {String? fallbackU
         marker: pct,
         eta: syncEtaText(l, s.etaTotal),
         lines: [
-          [name, ?pct, syncEtaText(l, s.etaTotal)].join(' · '),
-          [if (p != null) stageLine(l, p), if (s.peers != null) l.deskNodePeers(s.peers!)].join(' · '),
+          metaLine([name, ?pct, syncEtaText(l, s.etaTotal)]),
+          metaLine([if (p != null) stageLine(l, p), if (s.peers != null) l.deskNodePeers(s.peers!)]),
           fallback != null ? l.deskNodeUsingUntilSynced(fallback) : l.deskNodeNothingUntilSynced,
         ].where((line) => line.isNotEmpty).toList(),
       );
@@ -208,8 +209,8 @@ NodeView localNodeView(AppLocalizations l, LocalNodeState? s, {String? fallbackU
       return NodeView.of(l, ShownState.synced,
         host: host,
         lines: [
-          [name, if (s.height != null) digits(l, s.height!), l.deskNodeAtTip].join(' · '),
-          [if (s.peers != null) l.deskNodePeers(s.peers!), if (s.version != null) 'v${s.version}', if (s.uptime != null) l.deskNodeRunning(duration(l, s.uptime!))].join(' · '),
+          metaLine([name, if (s.height != null) digits(l, s.height!), l.deskNodeAtTip]),
+          metaLine([if (s.peers != null) l.deskNodePeers(s.peers!), if (s.version != null) 'v${s.version}', if (s.uptime != null) l.deskNodeRunning(duration(l, s.uptime!))]),
           if (fallback != null) l.deskNodeStillUsing(fallback),
         ],
       );
@@ -219,7 +220,7 @@ NodeView localNodeView(AppLocalizations l, LocalNodeState? s, {String? fallbackU
           host: host,
           marker: l.deskNodeMarkerStalled,
           lines: [
-            [name, if (s.height != null) digits(l, s.height!)].join(' · '),
+            metaLine([name, if (s.height != null) digits(l, s.height!)]),
             l.deskNodeNoProgress,
             if (fallback != null) l.deskNodeUsingMeanwhile(fallback),
           ],

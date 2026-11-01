@@ -40,7 +40,7 @@ String _unknownReadiness(AppLocalizations l, String? version) {
     if (n.epicboxHealthy != null && n.epicboxTotal != null) l.deskKitEpicboxUp(n.epicboxHealthy!, n.epicboxTotal!),
     if (n.tipAgeSeconds != null) l.deskKitLastBlock(ageText(l, Duration(seconds: n.tipAgeSeconds!))),
   ];
-  return (parts.isEmpty ? '–' : parts.join(' · '), forked);
+  return (parts.isEmpty ? '–' : metaLine(parts), forked);
 }
 
 String limitedNetworkLine(AppLocalizations l) => l.deskKitLimitedNetwork(statusSiteHost);
@@ -135,10 +135,10 @@ class NodeCard extends StatelessWidget {
     final (netLine, forked) = directory && i.network != null ? networkLine(l, i.network!) : (limited ? limitedNetworkLine(l) : '–', false);
     final String? sourceLine;
     if (directory) {
-      sourceLine = [
+      sourceLine = metaLine([
         l.deskKitSourceChecked(hhmm(i.at), statusSiteHost),
         if (where != null && !i.latencyFromMonitor) l.deskKitLatencyMeasured(where),
-      ].join(' · ');
+      ]);
     } else if (limited) {
       sourceLine = i.directoryReachedAt == null ? null : l.deskKitSiteLastReached(hhmm(i.directoryReachedAt!));
     } else {
@@ -164,7 +164,7 @@ class NodeCard extends StatelessWidget {
                       TextSpan(text: v.word, style: ts.body.copyWith(fontWeight: FontWeight.w600, color: stateColor(c, v.state))),
                       // The host is the selector's, right above.
                       if (detail != null) ...[
-                        TextSpan(text: ' · ', style: ts.body.copyWith(color: c.faint)),
+                        TextSpan(text: metaSeparator, style: ts.body.copyWith(color: c.faint)),
                         TextSpan(text: detail, style: ts.small.copyWith(color: c.dim)),
                       ],
                     ],

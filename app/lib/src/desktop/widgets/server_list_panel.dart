@@ -1255,7 +1255,7 @@ class _Row extends StatelessWidget {
                             TextSpan(
                               children: [
                                 for (var i = 0; i < facts.length; i++) ...[
-                                  if (i > 0) TextSpan(text: ' · ', style: TextStyle(color: c.faint)),
+                                  if (i > 0) TextSpan(text: metaSeparator, style: TextStyle(color: c.faint)),
                                   TextSpan(
                                     text: facts[i].$1,
                                     style: TextStyle(color: facts[i].$2, fontWeight: facts[i].$3 ? FontWeight.w600 : null),
@@ -1359,7 +1359,7 @@ class _LocalRow extends StatelessWidget {
                     children: [
                       Text(l.deskSetNodeLocalNode, style: ts.body.copyWith(color: c.text, height: 1.3)),
                       Text(
-                        [l.deskSetNodeGroupComputer, local.stateText].join(' · '),
+                        metaLine([l.deskSetNodeGroupComputer, local.stateText]),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: ts.caption.copyWith(color: c.dim),

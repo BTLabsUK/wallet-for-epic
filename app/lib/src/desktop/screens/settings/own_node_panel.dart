@@ -161,7 +161,7 @@ class _OwnNodePanelState extends ConsumerState<OwnNodePanel> {
     final answered = prefs.ownFallback[url];
 
     final String? detail = standIn != null && !standIn.syncing
-        ? [l.deskOwnUsingMeanwhile(fallback), if (standIn.at != null) l.deskKitSince(hhmm(standIn.at!))].join(' · ')
+        ? metaLine([l.deskOwnUsingMeanwhile(fallback), if (standIn.at != null) l.deskKitSince(hhmm(standIn.at!))])
         : standIn != null
         ? l.deskOwnUsingUntilSynced(fallback)
         : null;
@@ -175,10 +175,10 @@ class _OwnNodePanelState extends ConsumerState<OwnNodePanel> {
             TextSpan(
               children: [
                 TextSpan(text: v.word, style: ts.body.copyWith(fontWeight: FontWeight.w600, color: stateColor(c, v.state))),
-                TextSpan(text: ' · ', style: ts.body.copyWith(color: c.faint)),
+                TextSpan(text: metaSeparator, style: ts.body.copyWith(color: c.faint)),
                 TextSpan(text: ownLabel(l, cls, url), style: ts.body.copyWith(color: c.text)),
                 if (detail != null) ...[
-                  TextSpan(text: ' · ', style: ts.body.copyWith(color: c.faint)),
+                  TextSpan(text: metaSeparator, style: ts.body.copyWith(color: c.faint)),
                   TextSpan(text: detail, style: ts.small.copyWith(color: c.dim)),
                 ],
               ],

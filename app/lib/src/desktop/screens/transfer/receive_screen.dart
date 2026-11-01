@@ -390,7 +390,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       liveRegion: true,
       label: [for (final m in methods) l.deskRecvSemList(_name(l, m), word(m))].join(', '),
       child: ETip(
-        l.deskRecvHeaderTip([for (final m in methods) if (lines[m] != null && lines[m]!.state != EState.off) _name(l, m)].join(' · ')),
+        l.deskRecvHeaderTip(metaLine([for (final m in methods) if (lines[m] != null && lines[m]!.state != EState.off) _name(l, m)])),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

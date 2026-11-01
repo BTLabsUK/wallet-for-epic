@@ -341,7 +341,7 @@ class _PassphraseHintState extends ConsumerState<_PassphraseHint> {
     final small = theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant);
     final line = _count == 0
         ? l.passphraseRules(minPassphraseLength)
-        : [characterCount(_count), ?_time].join(' · ');
+        : metaLine([characterCount(_count), ?_time]);
     return Padding(
       padding: const EdgeInsetsDirectional.only(start: 12),
       // At least a touch target high, so the info icon fits; a long rule wraps.

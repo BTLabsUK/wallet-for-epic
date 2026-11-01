@@ -182,7 +182,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
           icon: EIcons.node,
           tone: ETone.info,
           title: node.phase == LocalNodePhase.starting ? l.deskSlotNodeStarting : l.deskSlotNodeSyncing,
-          detail: node.phase == LocalNodePhase.starting ? null : [?v.marker, ?v.eta].join(' · '),
+          detail: node.phase == LocalNodePhase.starting ? null : metaLine([?v.marker, ?v.eta]),
           stacked: true,
           // The share its percent says, else a bar without a known end.
           progress: node.phase == LocalNodePhase.syncing ? node.progress?.overall ?? -1 : -1,
@@ -487,7 +487,7 @@ class _Line extends StatelessWidget {
                   child: Text(i.title, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false, style: ts.small.copyWith(color: c.text, height: 20 / Fs.sm)),
                 ),
                 if (i.detail != null && !under) ...[
-                  Text(' · ', style: ts.small.copyWith(color: c.lineField)), // l10n-ok: separator
+                  Text(metaSeparator, style: ts.small.copyWith(color: c.lineField)), // l10n-ok: separator
                   // A number or an action word fits whole; a longer detail gives up at half the line.
                   ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: box.maxWidth / 2),
@@ -557,7 +557,7 @@ class _Resting extends ConsumerWidget {
       child: Row(
         children: [
           _TextLink(key: const ValueKey('now-help'), label: l.deskSlotHelp, onTap: help),
-          Text(' · ', style: context.ts.caption.copyWith(color: c.lineField)), // l10n-ok: separator
+          Text(metaSeparator, style: context.ts.caption.copyWith(color: c.lineField)), // l10n-ok: separator
           Expanded(
             child: Align(
               alignment: AlignmentDirectional.centerStart,

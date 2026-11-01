@@ -222,7 +222,7 @@ class _Row extends StatelessWidget {
                       ),
                       SizedBox(height: 2.u),
                       Text(
-                        [if (line.isNotEmpty) line, l.deskInvIssuerIssued(invWhen(context, r.issuedAt))].join(' · '),
+                        metaLine([if (line.isNotEmpty) line, l.deskInvIssuerIssued(invWhen(context, r.issuedAt))]),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: ts.small.copyWith(color: c.dim),
