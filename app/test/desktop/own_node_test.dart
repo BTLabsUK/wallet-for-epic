@@ -283,7 +283,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
       expect(find.text('Refused since 14:02'), findsOneWidget);
       expect(find.text('Update…'), findsOneWidget);
-      expect(find.text('Synced'), findsWidgets, reason: 'a refused secret is not a node down');
+      expect(find.textContaining('Synced', findRichText: true), findsWidgets, reason: 'a refused secret is not a node down');
       await end(tester);
     });
 

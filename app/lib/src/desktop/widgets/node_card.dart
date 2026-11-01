@@ -116,7 +116,7 @@ class NodeCard extends StatelessWidget {
         NodeFact(
           l.deskKitFactHeight,
           i?.height == null || down ? '–' : digitsText(l, i!.height!),
-          down ? l.deskKitNodeNoAnswer : (behind == null ? null : (behind <= 0 ? l.deskKitAtTip : l.deskKitBehind(behind, digitsText(l, behind)))),
+          down ? l.deskKitNodeNoAnswer : (behind == null || behind <= 0 ? null : l.deskKitBehind(behind, digitsText(l, behind))),
           tone: down ? EState.risk : (behind == null ? null : (behind <= 0 ? EState.ok : EState.warn)),
         ),
         NodeFact(
@@ -162,8 +162,7 @@ class NodeCard extends StatelessWidget {
                   TextSpan(
                     children: [
                       TextSpan(text: v.word, style: ts.body.copyWith(fontWeight: FontWeight.w600, color: stateColor(c, v.state))),
-                      TextSpan(text: ' · ', style: ts.body.copyWith(color: c.faint)),
-                      TextSpan(text: host, style: ts.mono(size: Fs.sm, color: c.dim)),
+                      // The host is the selector's, right above.
                       if (detail != null) ...[
                         TextSpan(text: ' · ', style: ts.body.copyWith(color: c.faint)),
                         TextSpan(text: detail, style: ts.small.copyWith(color: c.dim)),
