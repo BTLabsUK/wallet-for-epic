@@ -43,6 +43,8 @@ sys.path.insert(0, os.path.dirname(HERE))
 from p_funder import P  # noqa: E402
 from rig import Rig, RigDead, RigError, candidate_sessions, describe, health, pick_session, task_name, work_dir  # noqa: E402
 import facts  # noqa: E402
+import lepic_cli  # noqa: E402
+import migration  # noqa: E402
 import screens as catalog  # noqa: E402
 import seed  # noqa: E402
 
@@ -51,6 +53,7 @@ lt = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(lt)  # helpers only: node_up, relay_up, short, sha256, num
 
 CHECKS = lt.CHECKS
+MIGRATION_CHECKS = lt.MIGRATION_CHECKS
 NODE_PICK = facts.NODE_PICK
 RELAY_PICK = facts.RELAY_PICK
 FUND_IN = "0.03"
@@ -108,7 +111,9 @@ class Run:
         self.cand_dir = e.get("REL_CANDIDATE_DIR", "")
         self.cand_ver = e.get("REL_CANDIDATE_VERSION", "")
         self.funds = e.get("REL_FUNDS", "1") == "1"
-        default = CHECKS if self.funds else [c for c in CHECKS if c not in ("send_ok", "receive_ok")]
+        self.migrate = facts.encrypts_store(self.cand_ver)
+        default = [c for c in CHECKS if (self.funds or c not in ("send_ok", "receive_ok"))
+                   and (self.migrate or c not in MIGRATION_CHECKS)]
         self.required = [c.strip() for c in (e.get("REL_CHECKS") or ",".join(default)).split(",") if c.strip()]
         self.keep_funds = e.get("REL_KEEP_FUNDS") == "1"
         self.node = e.get("REL_NODE", "")
@@ -132,6 +137,11 @@ class Run:
         self.snap_n = 0
         self.log_mark = 0
         self.setup_address = None
+        self.after_update = False     # from the candidate's Setup on: the encrypted store is read through the LEPIC CLI
+        self.cli_exe = None           # lepic.exe on the rig box, at the candidate's LEPIC pin
+        self.before_files = ([], {})  # the data folder just before the update (listing, hashes)
+        self.lan_before = None        # lan_nodes.json as the previous release left it
+        self.conf_before = None
         self.first_start_lines = []
         self.screens = catalog.Screens(self.out, "windows", self.variant, self.prev_ver, self.cand_ver, self.log)
         self.update_method = (
@@ -223,6 +233,10 @@ class Run:
             "%d confirmation(s) seeded into its own files (seed.py) and read back after it reopens" % seed.SEED["confirmations"],
             "fund: P -> wallet %s EPIC via Epicbox (shared P service %s, no lock), wait until spendable" % (FUND_IN, self.p.lock_file),
             "digest: wallet DB (outputs, transactions), wallets.json, desk store settings keys, settings.toml, wfe.log, data folder files",
+            ("seed (previous app closed): a contact in contacts.json, a note in wfe_meta.json, the stand-in node in lan_nodes.json; "
+             "file set and hashes (the rig's files, read by the agent) taken just before the update") if self.migrate else
+            "seed of a contact, note and LAN-node agreement: not applicable (candidate %s keeps the plain database)" % self.cand_ver,
+            self.cli_plan(),
             "update: candidate Setup /SILENT /NORESTART /UPDATEFROMAPP=1 while the app runs, app closed, Setup reopens it; "
             "unlock, same digest",
             ("funds: P -> wallet %s, then everything back to P" % FUND_AFTER) if self.funds else
@@ -230,6 +244,17 @@ class Run:
             "end: app closed, uninstalled (HKCU entry gone), rig agent stopped; data folder kept in the run folder",
             "checks required: %s; proof: %s/proof.json" % (",".join(self.required), self.out),
         ]
+
+    def cli_plan(self):
+        if not self.migrate:
+            return "after the update: the wallet DB is read as before (candidate %s keeps the plain database)" % self.cand_ver
+        try:
+            exe = lepic_cli.ensure(None, self.work, lambda s: None, dry=True)
+        except lepic_cli.CliError as e:
+            exe = "<no LEPIC pin: %s>" % e
+        return ("after the update (%s): the wallet.sqlite3 reads become reads of the copied encrypted store through the Windows "
+                "LEPIC CLI (%s; `wallet info`, `tx list`, offline, the run's wallet password on stdin from the run's secret folder); "
+                "migration checks %s" % (self.cand_ver, exe, ",".join(MIGRATION_CHECKS)))
 
     # ---- the rig
 
@@ -319,6 +344,13 @@ class Run:
         wid = w.get("lastUsedId")
         entry = next((x for x in w["wallets"] if x.get("id") == wid), w["wallets"][0])
         path = entry["dataDir"].rstrip("\\/") + "\\lepic\\wallet.sqlite3"
+        if self.after_update and self.migrate:
+            lepic_dir = entry["dataDir"].rstrip("\\/") + "\\lepic"
+            enc = lepic_dir + "\\" + facts.STORE_ENC
+            there = self.rig.as_owner("Test-Path -LiteralPath '%s'" % enc)
+            if (there or "").strip() == "True":
+                return self.db_cli(lepic_dir, enc)
+            self.log("no %s after the update: reading the plain database (store_encrypted fails on it)" % facts.STORE_ENC)
         self.snap_n += 1
         local = self.rig.fetch_db(path, os.path.join(self.work, "db"), "%02d" % self.snap_n)
         if not os.path.exists(local):
@@ -336,6 +368,20 @@ class Run:
             c.close()
         return {"path": path, "outputs": outs, "txs": txs, "settings": st}
 
+    def db_cli(self, lepic_dir, enc):
+        """The candidate's encrypted store, read through the LEPIC CLI on a copy of its folder."""
+        if not self.cli_exe:
+            raise CannotRun("no lepic.exe at the candidate's LEPIC pin on the rig")
+        self.snap_n += 1
+        out = self.rig.as_owner(lepic_cli.read_script(self.cli_exe, lepic_dir, self.rig.run, "%02d" % self.snap_n, self.pw_remote),
+                                timeout=600)
+        if out is None:
+            raise CannotRun("the rig agent did not run the LEPIC CLI read")
+        try:
+            return lepic_cli.shape(lepic_cli.parse(out), enc)
+        except lepic_cli.CliError as e:
+            raise CannotRun("reading the encrypted store through the LEPIC CLI: %s" % e)
+
     # ---- balances from the wallet's own records
 
     def tip(self):
@@ -350,6 +396,11 @@ class Run:
     def balance(self, d, tip=None):
         if d is None:
             return None
+        if d.get("cli"):
+            cb = d["cli_balance"]
+            total, spendable = D(cb["total"] or 0), D(cb["spendable"] or 0)
+            return {"total": total, "unspent": spendable, "spendable": spendable,
+                    "unconfirmed": D(cb["awaiting_confirmation"] or 0), "locked": D(cb["locked"] or 0)}
         conf = conf_of(d) or DEFAULT_CONF
         unspent = [o for o in d["outputs"] if o["status"] == "unspent"]
         spendable = [o for o in unspent if tip and o["height"] and tip - o["height"] + 1 >= conf]
@@ -523,6 +574,8 @@ class Run:
         self.call("put_db", **{"from": self.rig.run + "\\seed-wallet.sqlite3", "to": db_remote})
         self.call("store_set", file=store_file, set=new_keys)
         self.call("write_file", file=self.data + "\\wallets.json", text=wallets_text)
+        if self.migrate:
+            self.seed_app_files(entry, seed.first_tx_id(db_local))
         self.log("seeded into the closed previous release: desk.settings (theme, Technical details), %s and "
                  "wallets.json (label), the wallet database (minimum confirmations)" % wallet_key)
         # reopened: the release must take the seeded values as its own
@@ -542,6 +595,54 @@ class Run:
             raise CannotRun("the previous release did not take the seeded settings: %s" % wrong)
         return got
 
+    def seed_app_files(self, entry, tx_id):
+        """While the previous release is closed: a contact, a note on the wallet's first transaction and the
+        stand-in node's plain-http agreement, in its own files and format (seed.py)."""
+        meta_path = entry["dataDir"].rstrip("\\/") + "\\" + facts.META_PLAIN
+        try:
+            meta = seed.meta_note(self.rig.text(meta_path), tx_id)
+            contacts = seed.contacts_json(self.rig.text(self.data + "\\" + facts.CONTACTS_PLAIN), self.p_addr)
+        except seed.SeedError as e:
+            raise CannotRun("seeding the previous release's contact and note: %s" % e)
+        lan = seed.lan_nodes_json(["http://%s" % self.custom_node])
+        self.call("write_file", file=meta_path, text=meta)
+        self.call("write_file", file=self.data + "\\" + facts.CONTACTS_PLAIN, text=contacts)
+        self.call("write_file", file=self.data + "\\" + facts.LAN_NODES_FILE, text=lan)
+        self.lan_before = self.rig.text(self.data + "\\" + facts.LAN_NODES_FILE)
+        self.log("seeded into the closed previous release: contact %r, note %r, plain-http agreement for %s" % (
+            seed.CONTACT["name"], seed.NOTE, self.custom_node))
+
+    def snapshot(self):
+        """(listing, hashes): the data folder's files and the sha256 of the plain app files in it."""
+        listing = self.rig.files(self.data)
+        hashes = {}
+        for p in migration.norm(listing):
+            if os.path.basename(p) in migration.WATCHED:
+                t = self.rig.text(self.data + "\\" + p.replace("/", "\\"))
+                hashes[p] = migration.sha256_bytes((t or "").encode("utf-8"))
+        return listing, hashes
+
+    def migration_checks(self):
+        if not self.migrate:
+            for c in MIGRATION_CHECKS:
+                self.ok(c, "not applicable: candidate %s keeps the plain database" % self.cand_ver)
+            return
+        b_list, b_hash = self.before_files
+        a_list, a_hash = self.snapshot()
+        for check, r in (("store_encrypted", migration.store_files(b_list, a_list)),):
+            (self.ok if r[0] else self.fail)(check, r[1])
+        ids = [w["id"] for w in ((self.wallets() or {}).get("wallets") or []) if isinstance(w, dict) and w.get("id")]
+        r = migration.app_files(b_list, b_hash, a_list, a_hash, ids)
+        (self.ok if r[0] else self.fail)("app_files_kept", r[1])
+        r = migration.lan_nodes(self.lan_before, b_hash.get(facts.LAN_NODES_FILE), a_hash.get(facts.LAN_NODES_FILE),
+                                self.rig.text(self.data + "\\" + facts.SETTINGS_TOML))
+        (self.ok if r[0] else self.fail)("lan_nodes_kept", r[1])
+        # the rig's screen cannot be read: the contact and the note are judged on the plain files (the
+        # address book and notes live in them) being byte-identical, beside their sealed copies
+        r = migration.contact_note(seed.CONTACT["name"], seed.NOTE, b_hash, a_hash, None, None,
+                                   "files only: the rig's screen cannot be read; the sealed copies' contents are not read")
+        (self.ok if r[0] else self.fail)("contact_note_kept", r[1])
+
     def settings_now(self):
         s = self.store()
         ds = s.get("desk.settings") or {}
@@ -551,10 +652,17 @@ class Run:
         wid = w.get("lastUsedId")
         label = next((x.get("label") for x in w.get("wallets", []) if x.get("id") == wid), None)
         d = self.db()
+        if d and d.get("cli"):
+            # the LEPIC CLI does not report the wallet's settings: the value read before the update stands
+            self.details["confirmations"] = "not read after the update (the LEPIC CLI does not report it): taken from the read before"
+            conf = self.conf_before
+        else:
+            conf = conf_of(d)
+            self.conf_before = conf
         return {"theme": ds.get("theme"),
                 "technical_details": "technicalDetails" in ((ds.get("advanced") or {}).get("features") or []),
                 "label": label,
-                "confirmations": conf_of(d)}
+                "confirmations": conf}
 
     # ---- the digest
 
@@ -782,6 +890,11 @@ class Run:
         self.custom_node = "127.0.0.1:%d" % r["node"]
         self.custom_relay = "127.0.0.1:%d" % r["relay"]
         self.log("stand-ins on the rig: node %s -> %s, relay %s -> %s" % (self.custom_node, self.node, self.custom_relay, self.relay))
+        if self.migrate:
+            try:
+                self.cli_exe = lepic_cli.ensure(self.rig, self.work, self.log)
+            except (lepic_cli.CliError, RigError) as e:
+                raise CannotRun("no LEPIC CLI for the encrypted store at the candidate's pin: %s" % e)
         e = self.call("entry").get("entry")
         if e:
             raise CannotRun("%s already has Epic Cash Desktop installed (%s at %s): left alone" % (self.rig.user, e.get("version"), e.get("location")))
@@ -811,6 +924,8 @@ class Run:
             raise CannotRun("no transaction in the wallet before the update")
 
         # the update, the way the in-app updater runs it
+        if self.migrate:
+            self.before_files = self.snapshot()
         cand_start = len(self.applog())
         r = self.call("setup", exe=self.rig.run + "\\cand-setup.exe", wait=False,
                       args=["/SILENT", "/NORESTART", "/UPDATEFROMAPP=1", "/LOG=%s\\setup-candidate.log" % self.rig.run])
@@ -820,13 +935,14 @@ class Run:
         w = self.call("wait_exit", pid=r["pid"], wait_s=300, timeout=360)
         self.log("candidate Setup exited: %s" % w)
         self.log_mark = cand_start
+        self.after_update = True
         e = self.call("entry").get("entry") or {}
         self.details["update"] = "Setup exit %s; uninstall entry now %s at %s" % (w.get("exit"), e.get("version"), e.get("location"))
         opened, why = self.open_after_update(before)
         self.details["wallet_opens"] = why
         if not opened:
             self.fail("wallet_opens", why)
-            for c in ("balance_kept", "history_kept", "custom_nodes_kept", "custom_relays_kept", "settings_kept"):
+            for c in ("balance_kept", "history_kept", "custom_nodes_kept", "custom_relays_kept", "settings_kept", *MIGRATION_CHECKS):
                 self.fail(c, "not checked: the wallet did not open")
             after = None
         else:
@@ -834,6 +950,7 @@ class Run:
             after = self.digest("candidate")
             self.settle(before, after)
             self.compare(before, after)
+            self.migration_checks()
         self.funds_legs(after)
         return 0
 
@@ -917,18 +1034,22 @@ class Run:
     def compare(self, b, a):
         self.ok("wallet_opens", self.details.get("wallet_opens"))
         how = " (from the wallet's own database, %s; the screen cannot be read on the rig)" % "\\".join(a["db_path"].split("\\")[-4:])
+        if a.get("cli"):
+            how = " (the encrypted store read through the LEPIC CLI at the candidate's pin; outputs by commitment and counterparties are not in its reports)"
         b0, b1 = b["balance"] or {}, a["balance"] or {}
         keep0 = sorted((o["commit"], o["amount"]) for o in b["outputs"] if o["status"] == "unspent")
         keep1 = sorted((o["commit"], o["amount"]) for o in (a["outputs"] or []) if o["status"] == "unspent")
-        if a["db_path"] != b["db_path"]:
+        if os.path.dirname(a["db_path"].replace("\\", "/")) != os.path.dirname(b["db_path"].replace("\\", "/")):
             self.fail("balance_kept", "the candidate keeps the wallet in another database: %s, was %s" % (a["db_path"], b["db_path"]))
+        elif a.get("cli") and b1.get("total") == b0.get("total"):
+            self.ok("balance_kept", "total %s EPIC before and after%s" % (num(b0["total"]), how))
         elif b1.get("total") == b0.get("total") and keep0 == keep1:
             self.ok("balance_kept", "total %s EPIC before and after, the same %d unspent outputs%s" % (num(b0["total"]), len(keep0), how))
         else:
             self.fail("balance_kept", "before %s, after %s (read for %d s); unspent outputs %d -> %d%s" % (
                 fmt(b0), fmt(b1), a.get("settled_after_s", 0), len(keep0), len(keep1), how))
         missing = [t for t in b["txs"] if not any(same_tx(t, x) for x in (a["txs"] or []))]
-        lost = [t for t in b["txs"] if t not in missing and t["counterparty"]
+        lost = [] if a.get("cli") else [t for t in b["txs"] if t not in missing and t["counterparty"]
                 and not any(same_tx(t, x) and x["counterparty"] == t["counterparty"] for x in a["txs"])]
         senders = sum(1 for t in b["txs"] if t["counterparty"])
         if missing:
@@ -960,7 +1081,8 @@ class Run:
         self.details["level"] = why + " (desk store %s, wfe.log)" % facts.LEVEL_KEY
         if lv is False:
             self.fail("settings_kept", "%s; %s" % (why, self.details.get("settings_kept", "")))
-        gone = [f for f in b["files"] if f not in a["files"]]
+        gone = [f for f in b["files"] if f not in a["files"]
+                and not (self.migrate and os.path.basename(f.replace("\\", "/")).startswith(facts.STORE_PLAIN))]  # set aside
         self.details["data_folder"] = ("all %d files of the previous data folder still there; %d new" % (
             len(b["files"]), len(set(a["files"]) - set(b["files"])))) if not gone else ("files gone after the update: %s" % ", ".join(gone[:10]))
         self.log("data folder: %s" % self.details["data_folder"])

@@ -42,7 +42,8 @@ class SeedTest(unittest.TestCase):
     def test_fresh_file_over_the_fixture(self):
         path, v = seed.fixture_for("26.10.23")
         self.assertEqual(v, "26.10.23")
-        self.assertEqual(seed.fixture_for("26.10.24-r2")[1], "26.10.23")
+        self.assertEqual(seed.fixture_for("26.10.24-r2")[1], "26.10.24")  # its own, from the release's deskSettingsToJson
+        self.assertEqual(seed.fixture_for("26.10.23.1")[1], "26.10.23")
         self.assertIsNone(seed.fixture_for("26.9.1"))
         template = open(path).read().strip()
         out = json.loads(seed.desk_settings('{"tourSeen":false,"advanced":{"nodeFailover":false}}', "dark", True, template))

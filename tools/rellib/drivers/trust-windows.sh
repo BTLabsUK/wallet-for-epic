@@ -11,7 +11,7 @@
 # Env (the runner's contract):
 #   REL_PREVIOUS_DIR, REL_PREVIOUS_VERSION   previous release folder (epic-cash-desktop-<v>[-notor]-windows-x64-setup.exe)
 #   REL_CANDIDATE_DIR, REL_CANDIDATE_VERSION the candidate's files
-#   REL_VARIANT tor|notor        REL_CHECKS comma list (default: all eight; without send_ok,receive_ok when REL_FUNDS=0)
+#   REL_VARIANT tor|notor        REL_CHECKS comma list (default: all eight, plus store_encrypted,app_files_kept,lan_nodes_kept,contact_note_kept for a candidate from 26.10.25; without send_ok,receive_ok when REL_FUNDS=0)
 #   REL_FUNDS 1|0                1: also receive from and send to P with the candidate
 #   REL_NODE, REL_EPICBOX        servers to use; picked here (BT Labs first) when unset
 #   REL_OUT                      proof.json, trust.log, digests, the app's and Setup's logs, P logs
