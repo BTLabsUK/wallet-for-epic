@@ -246,19 +246,19 @@ void main() {
         if (marker != null) expect(marker.length, lessThanOrEqualTo(9), reason: e.key);
       }
       expect(fixtures['remote at tip, version current']!.$1.host, 'epic.invalid');
-      expect(fixtures['remote at tip, version current']!.$1.lines, ['node.epic.invalid · 3,764,975 · synced', '722 ms · v4.1.1']);
-      expect(fixtures['remote older version']!.$1.lines.last, '24 ms · v4.1.0 · 4.1.1 is out');
-      expect(fixtures['remote behind']!.$1.lines.first, 'node.epic.invalid · 3,764,963 of 3,764,975');
+      expect(fixtures['remote at tip, version current']!.$1.lines, ['node.epic.invalid\u00A0· 3,764,975\u00A0· synced', '722 ms\u00A0· v4.1.1']);
+      expect(fixtures['remote older version']!.$1.lines.last, '24 ms\u00A0· v4.1.0\u00A0· 4.1.1 is out');
+      expect(fixtures['remote behind']!.$1.lines.first, 'node.epic.invalid\u00A0· 3,764,963 of 3,764,975');
       expect(fixtures['remote no answer']!.$1.lines, ['node.epic.invalid · since 14:02', 'The node is not answering.']);
       expect(fixtures['local syncing, fallback']!.$1.host, 'epic.invalid');
       expect(fixtures['local syncing, fallback']!.$1.lines, [
-        'Local node · 12% · about 3 h left',
-        'Headers · 1,480,200 of 3,764,975 · 14 peers',
+        'Local node\u00A0· 12%\u00A0· about 3 h left',
+        'Headers · 1,480,200 of 3,764,975\u00A0· 14 peers',
         'Using node.epic.invalid until it is synced.',
       ]);
       expect(fixtures['local syncing, no fallback']!.$1.host, 'Local node');
       expect(fixtures['local syncing, no fallback']!.$1.lines.last, 'Nothing can be sent until it is synced.');
-      expect(fixtures['local synced']!.$1.lines.first, 'Local node · 3,764,975 · synced');
+      expect(fixtures['local synced']!.$1.lines.first, 'Local node\u00A0· 3,764,975\u00A0· synced');
       expect(fixtures['local stopped']!.$1.lines.last, 'Start it under Settings › Node.');
     });
 

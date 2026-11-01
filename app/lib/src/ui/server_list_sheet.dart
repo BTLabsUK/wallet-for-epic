@@ -825,6 +825,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
             hintMaxLines: 1,
             helperText: helper,
             helperMaxLines: 2,
+            border: const OutlineInputBorder(),
             helperStyle: _fieldError != null ? TextStyle(color: t.risk) : null,
             prefixIcon: Icon(
               filtering ? Icons.search : (_node ? EpicGlyphs.node : EpicGlyphs.epicbox),

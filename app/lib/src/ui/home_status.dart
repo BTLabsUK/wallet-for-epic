@@ -146,6 +146,7 @@ typedef StatusEntry = ({
 String statusBrief(String detail, {String? host}) {
   var first = detail.split('\n').first.trim();
   if (host == null || host.isEmpty || first.contains(host)) return first;
+  if (first.endsWith('.') || first.endsWith('。')) first = first.substring(0, first.length - 1);
   return metaLine([first, host]);
 }
 
