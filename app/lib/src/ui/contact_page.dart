@@ -5,9 +5,6 @@
 /// keys-changed and relay notices, and Remove pairing. Replaces the contact sheet.
 library;
 
-import 'address_view.dart' show MarkedAddress;
-import 'app_dialog.dart';
-import 'inline_button.dart';
 import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,7 +16,10 @@ import '../l10n.dart';
 import '../pairing_providers.dart';
 import '../providers.dart';
 import '../wallet_service.dart';
+import 'address_view.dart' show MarkedAddress;
+import 'app_dialog.dart';
 import 'common.dart';
+import 'inline_button.dart';
 import 'contact_trust_line.dart';
 import 'contacts_screen.dart';
 import 'history_screen.dart' show HistoryScreen;
@@ -517,23 +517,29 @@ class _Addresses extends StatelessWidget {
     if (contact.addresses.isEmpty) return Text(l.contactNoAddresses, style: TextStyle(color: t.dim));
     return PairCard(
       children: [
+        // Each address in full, its method chip and Copy on the label row above it.
         for (final kind in contact.kinds)
-          ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 52),
-            child: Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(14, 4, 4, 4),
-              child: Row(
-                children: [
-                  EBadge.kind(kind, l: l),
-                  const SizedBox(width: 10),
-                  Expanded(child: AddressText(contact.addressOf(kind)!, short: true)),
-                  IconButton(
-                    tooltip: l.contactCopyAddress(recipientMethodWord(l, kind)),
-                    icon: Icon(Icons.copy, size: 20, color: t.accentText),
-                    onPressed: () => copyText(context, contact.addressOf(kind)!, l.contactsCopied),
-                  ),
-                ],
-              ),
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(14, 4, 4, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    EBadge.kind(kind, l: l),
+                    const Spacer(),
+                    IconButton(
+                      tooltip: l.contactCopyAddress(recipientMethodWord(l, kind)),
+                      icon: Icon(Icons.copy, size: 20, color: t.accentText),
+                      onPressed: () => copyText(context, contact.addressOf(kind)!, l.contactsCopied),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 10),
+                  child: MarkedAddress(contact.addressOf(kind)!, selectable: true),
+                ),
+              ],
             ),
           ),
       ],
@@ -618,15 +624,11 @@ class _CodeSheetState extends State<_CodeSheet> {
           ),
           const SizedBox(height: 16),
           Container(
-            decoration: BoxDecoration(
-              color: t.field,
-              border: Border.all(color: t.line),
-              borderRadius: BorderRadius.circular(t.radiusSmall),
-            ),
+            decoration: t.well,
             padding: const EdgeInsetsDirectional.fromSTEB(12, 4, 0, 4),
             child: Row(
               children: [
-                Expanded(child: AddressText(address, selectable: true)),
+                Expanded(child: MarkedAddress(address, selectable: true)),
                 IconButton(
                   tooltip: l.commonCopy,
                   color: t.accentText,
