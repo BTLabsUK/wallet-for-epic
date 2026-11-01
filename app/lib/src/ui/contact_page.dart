@@ -6,6 +6,7 @@
 library;
 
 import 'app_dialog.dart';
+import 'inline_button.dart';
 import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -82,8 +83,8 @@ class _Payments extends ConsumerWidget {
         for (final tx in mine.take(5)) TxTile(tx: tx),
         if (mine.length > 5)
           Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: TextButton(
+            alignment: AlignmentDirectional.centerStart,
+            child: InlineTextButton(
               onPressed: () => Navigator.of(context).push<void>(
                 MaterialPageRoute<void>(builder: (_) => HistoryScreen(query: contact.name)),
               ),

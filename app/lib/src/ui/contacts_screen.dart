@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'app_dialog.dart';
+import 'inline_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -854,12 +855,11 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
           if (lastFilled && free.isNotEmpty) ...[
             Align(
               alignment: AlignmentDirectional.centerStart,
-              child: TextButton.icon(
+              child: InlineTextButton(
                 key: contactAddAnotherKey,
-                style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
                 icon: const Icon(Icons.add),
-                label: Text(l.addrAddAnother),
                 onPressed: _addField,
+                child: Text(l.addrAddAnother),
               ),
             ),
             if (free.length == 1)
