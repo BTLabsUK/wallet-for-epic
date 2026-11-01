@@ -66,7 +66,7 @@ cache_restore() {
   [ -f "$src/liblepic_ffi.so" ] || return 1
   (cd "$src" && sha256sum --check --quiet SHA256SUMS) || return 1
   mkdir -p "$dst"
-  cp -f "$src/liblepic_ffi.so" "$src/SHA256SUMS" "$dst/"
+  cp -f "$src"/* "$dst/"   # the library, its SHA256SUMS, FEATURES and SOURCE (hook/build.dart reads them)
   (cd "$dst" && sha256sum --check --quiet SHA256SUMS)
 }
 
@@ -77,9 +77,13 @@ cache_store() {
   mkdir -p "$cache_root"
   tmp="$(mktemp -d "$cache_root/.tmp.XXXXXX")"
   mkdir "$tmp/$linux_triple"
-  cp "$src/liblepic_ffi.so" "$tmp/$linux_triple/"
-  (cd "$tmp/$linux_triple" && sha256sum liblepic_ffi.so > SHA256SUMS)
+  cp "$src"/* "$tmp/$linux_triple/"
+  (cd "$tmp/$linux_triple" && sha256sum --check --quiet SHA256SUMS) || { rm -r "$tmp"; return 0; }
   printf 'lepic %s\nbinding %s\nbuilt %s\n' "$rev" "$binding_rev" "$(date -u +%FT%TZ)" > "$tmp/META"
+  # An entry that failed its check (a miss that got here) is replaced; a good one is left.
+  if [ -d "$cache_root/$1" ] && ! (cd "$cache_root/$1/$linux_triple" && sha256sum --check --quiet SHA256SUMS) 2>/dev/null; then
+    rm -r "$cache_root/$1"
+  fi
   if mv -T "$tmp" "$cache_root/$1" 2>/dev/null; then :; else rm -r "$tmp"; fi
 }
 
