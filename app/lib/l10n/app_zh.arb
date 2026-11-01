@@ -1418,6 +1418,7 @@
   "torNeeds": "Link · Tor 需要 Tor。",
   "torTurnOn": "开启 Tor",
   "torTurnOff": "关闭 Tor",
+  "torTurnOffCaption": "适用于所有连接，不只是这笔付款。",
   "torNotConnectedNotice": "Tor 未连接。",
   "torWaiting": "正在等待 Tor",
   "torWordStarting": "正在启动…",

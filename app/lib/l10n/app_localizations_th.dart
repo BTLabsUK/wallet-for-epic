@@ -5330,6 +5330,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get torTurnOff => 'ปิด Tor';
 
   @override
+  String get torTurnOffCaption =>
+      'มีผลกับทุกการเชื่อมต่อ ไม่ใช่เฉพาะการชำระเงินนี้';
+
+  @override
   String get torNotConnectedNotice => 'Tor ยังไม่ได้เชื่อมต่อ';
 
   @override

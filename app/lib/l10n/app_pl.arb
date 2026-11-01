@@ -1418,6 +1418,7 @@
   "torNeeds": "Link · Tor wymaga Tora.",
   "torTurnOn": "Włącz Tor",
   "torTurnOff": "Wyłącz Tor",
+  "torTurnOffCaption": "Dotyczy każdego połączenia, nie tylko tej płatności.",
   "torNotConnectedNotice": "Tor nie jest połączony.",
   "torWaiting": "Oczekiwanie na Tor",
   "torWordStarting": "Uruchamianie…",

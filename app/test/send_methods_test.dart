@@ -1013,7 +1013,7 @@ void main() {
       }, skip: !torBuilt,
     );
 
-    testWidgets('Tor not connected: Retry and Turn Tor off; nothing goes', (
+    testWidgets('Tor not connected: Retry only, no Turn Tor off (D-05); nothing goes', (
       tester,
     ) async {
       final h = _Harness();
@@ -1027,9 +1027,8 @@ void main() {
       // Epicbox goes over Tor, which is down: it waits for Retry or Tor off.
       expect(find.text('Tor is not connected.'), findsOneWidget);
       expect(find.text('Retry'), findsOneWidget);
-      await _tap(tester, find.byKey(sendTurnOffTorKey));
-      expect(h.container.read(phoneTorProvider).receiving, isFalse);
-      expect(find.text('Tor is not connected.'), findsNothing);
+      expect(find.byKey(sendTurnOffTorKey), findsNothing);
+      expect(h.container.read(phoneTorProvider).receiving, isTrue);
     }, skip: !torBuilt);
 
     testWidgets('Tor on: Epicbox, https and onion Over Tor', (
@@ -1064,6 +1063,8 @@ void main() {
       expect(find.byKey(sendTorNoticeKey), findsOneWidget);
       expect(find.textContaining("Plain http:// does not work with Tor on"), findsOneWidget);
       expect(find.byKey(sendTurnOffTorKey), findsOneWidget);
+      // Its caption: the switch is for every connection (D-05).
+      expect(find.byKey(sendTurnOffTorCaptionKey), findsOneWidget);
       // Continue waits: nothing leads on to a send through a Tor exit.
       expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
       await _enter(tester, 'To', _https);

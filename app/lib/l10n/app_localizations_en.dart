@@ -5434,6 +5434,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get torTurnOff => 'Turn Tor off';
 
   @override
+  String get torTurnOffCaption =>
+      'Applies to every connection, not only this payment.';
+
+  @override
   String get torNotConnectedNotice => 'Tor is not connected.';
 
   @override

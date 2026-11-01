@@ -173,6 +173,9 @@ TorRoute sendRoute(Recipient to) => switch (to.kind) {
 const Key sendTorNoticeKey = ValueKey('send-tor-notice');
 const Key sendTurnOnTorKey = ValueKey('send-turn-on-tor');
 const Key sendTurnOffTorKey = ValueKey('send-turn-off-tor');
+
+/// The caption under Turn Tor off: it is the switch for every connection (D-05).
+const Key sendTurnOffTorCaptionKey = ValueKey('send-turn-off-tor-caption');
 const Key sendPlainHttpOffInfoKey = ValueKey('send-plain-http-off-info');
 
 /// The tag beside To that says whether the payment goes over Tor, for tests.
@@ -4291,26 +4294,32 @@ class _TorNotice extends ConsumerWidget {
                 ],
               ),
             ),
-            if (blocked) ...[
+            // Retry only (D-05): turning Tor off is never the fix an error offers.
+            if (blocked)
               TextButton(
                 style: quiet,
                 onPressed: tor.retry,
                 child: Text(l.commonRetry),
-              ),
-              TextButton(
-                key: sendTurnOffTorKey,
-                style: quiet,
-                onPressed: () => tor.setReceiving(false),
-                child: Text(l.torTurnOff),
-              ),
-            ] else if (plainOff)
-              TextButton(
-                key: sendTurnOffTorKey,
-                style: quiet,
-                onPressed: () => tor.setReceiving(false),
-                child: Text(l.torTurnOff),
               )
-            else
+            else if (plainOff) ...[
+              TextButton(
+                key: sendTurnOffTorKey,
+                style: quiet,
+                onPressed: () => tor.setReceiving(false),
+                child: Text(l.torTurnOff),
+              ),
+              // The switch is the app's, not this payment's: said where it is pressed, on a
+              // line of its own.
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsetsDirectional.only(start: 28, end: 4),
+                child: Text(
+                  l.torTurnOffCaption,
+                  key: sendTurnOffTorCaptionKey,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
+                ),
+              ),
+            ] else
               TextButton(
                 key: sendTurnOnTorKey,
                 style: quiet,

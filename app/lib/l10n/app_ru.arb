@@ -1418,6 +1418,7 @@
   "torNeeds": "Link · Tor требует Tor.",
   "torTurnOn": "Включить Tor",
   "torTurnOff": "Выключить Tor",
+  "torTurnOffCaption": "Действует на все соединения, а не только на этот платёж.",
   "torNotConnectedNotice": "Tor не подключён.",
   "torWaiting": "Ожидание Tor",
   "torWordStarting": "Запуск…",

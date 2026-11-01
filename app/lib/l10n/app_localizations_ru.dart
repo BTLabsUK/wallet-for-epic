@@ -5568,6 +5568,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get torTurnOff => 'Выключить Tor';
 
   @override
+  String get torTurnOffCaption =>
+      'Действует на все соединения, а не только на этот платёж.';
+
+  @override
   String get torNotConnectedNotice => 'Tor не подключён.';
 
   @override

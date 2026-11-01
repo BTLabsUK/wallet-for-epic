@@ -132,7 +132,7 @@ void main() {
       wallet.canSend = false;
     });
 
-    testWidgets('a notice with Retry, no Turn Tor off (that is in Settings); nothing sent', (tester) async {
+    testWidgets('a notice with Retry only, no Turn Tor off (D-05); nothing sent', (tester) async {
       await show(tester, const SendArgs(recipient: _epicbox, amount: '1'));
       expect(find.text('Tor is not connected'), findsOneWidget);
       expect(find.text('Nothing is sent until it is, or until Tor is turned off.'), findsOneWidget);
@@ -143,7 +143,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(wallet.torCalls, [true]);
       expect(wallet.sent, isEmpty);
-      // D-05: Tor is turned off in Settings › Privacy & network only.
+      // D-05: an error offers Retry only.
       expect(find.widgetWithText(EButton, 'Turn Tor off'), findsNothing);
     }, skip: !torBuilt);
 
@@ -171,10 +171,12 @@ void main() {
 
   testWidgets('Link plain http to another computer with Tor on: off, and why', (tester) async {
     await show(tester, const SendArgs(method: TxMethod.http, recipient: 'http://10.0.0.5:3415', amount: '5'));
-    // The line under To (with a link to Settings and the info icon) and the summary's hint.
+    // The line under To (with the info icon and Turn Tor off, captioned as the switch for
+    // every connection: D-05) and the summary's hint.
     expect(find.byKey(const ValueKey('send-plain-http-off')), findsOneWidget);
     expect(find.textContaining('Plain http:// does not work with Tor on'), findsNWidgets(2));
-    expect(find.text('Turn Tor off'), findsNothing);
+    expect(find.byKey(const ValueKey('send-turn-tor-off')), findsOneWidget);
+    expect(find.byKey(const ValueKey('send-turn-tor-off-caption')), findsOneWidget);
     expect(review(tester).onPressed, isNull);
     // Pressed anyway: no consent question, nothing sent.
     await tester.tap(find.text('Review'), warnIfMissed: false);

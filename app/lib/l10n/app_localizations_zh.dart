@@ -5142,6 +5142,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get torTurnOff => '关闭 Tor';
 
   @override
+  String get torTurnOffCaption => '适用于所有连接，不只是这笔付款。';
+
+  @override
   String get torNotConnectedNotice => 'Tor 未连接。';
 
   @override

@@ -7067,6 +7067,10 @@
   "@torTurnOff": {
     "description": "Button that turns the Tor switch off."
   },
+  "torTurnOffCaption": "Applies to every connection, not only this payment.",
+  "@torTurnOffCaption": {
+    "description": "Caption under the Turn Tor off button on Send (a plain http:// recipient while Tor is on): the button is the app's Tor switch, not a setting for this payment. Short, impersonal."
+  },
   "torNotConnectedNotice": "Tor is not connected.",
   "@torNotConnectedNotice": {
     "description": "Notice on Send while Tor is on but not connected: nothing that needs it goes."

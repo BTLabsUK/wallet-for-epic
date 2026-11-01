@@ -1418,6 +1418,7 @@
   "torNeeds": "Link · Tor ต้องใช้ Tor",
   "torTurnOn": "เปิด Tor",
   "torTurnOff": "ปิด Tor",
+  "torTurnOffCaption": "มีผลกับทุกการเชื่อมต่อ ไม่ใช่เฉพาะการชำระเงินนี้",
   "torNotConnectedNotice": "Tor ยังไม่ได้เชื่อมต่อ",
   "torWaiting": "รอ Tor",
   "torWordStarting": "กำลังเริ่ม…",

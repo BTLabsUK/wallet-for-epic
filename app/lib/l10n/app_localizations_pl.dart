@@ -5591,6 +5591,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get torTurnOff => 'Wyłącz Tor';
 
   @override
+  String get torTurnOffCaption =>
+      'Dotyczy każdego połączenia, nie tylko tej płatności.';
+
+  @override
   String get torNotConnectedNotice => 'Tor nie jest połączony.';
 
   @override

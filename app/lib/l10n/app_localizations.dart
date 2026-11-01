@@ -8698,6 +8698,12 @@ abstract class AppLocalizations {
   /// **'Turn Tor off'**
   String get torTurnOff;
 
+  /// Caption under the Turn Tor off button on Send (a plain http:// recipient while Tor is on): the button is the app's Tor switch, not a setting for this payment. Short, impersonal.
+  ///
+  /// In en, this message translates to:
+  /// **'Applies to every connection, not only this payment.'**
+  String get torTurnOffCaption;
+
   /// Notice on Send while Tor is on but not connected: nothing that needs it goes.
   ///
   /// In en, this message translates to:
