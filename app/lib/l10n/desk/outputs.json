@@ -345,6 +345,16 @@
       }
     }
   },
+  "deskOutNoteByPendingSend": "by a pending send · {date}",
+  "@deskOutNoteByPendingSend": {
+    "description": "Small grey note after the status 'Locked' on Outputs: a payment still on its way holds the coin; {date} is the day it started.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "21 Oct"
+      }
+    }
+  },
   "deskOutStatusSpent": "Spent",
   "@deskOutStatusSpent": {
     "description": "Status of an output that was spent. Narrow status column."

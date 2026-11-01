@@ -5378,6 +5378,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendSpendableUntilChange => 'Spendable until change confirms';
 
   @override
+  String get sendAvailableWhileConfirms => 'Available while this confirms';
+
+  @override
   String get sendSpendableUntilChangeHint =>
       'The change comes back once the send confirms.';
 
@@ -6450,6 +6453,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSendSpendableUntil => 'Spendable until change confirms';
 
   @override
+  String get deskSendSpendableWhile => 'Available while this confirms';
+
+  @override
   String deskSendSplitLine(int outputs, String fee) {
     String _temp0 = intl.Intl.pluralLogic(
       outputs,
@@ -6567,6 +6573,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String deskSendReviewSetAsideNone(String locked) {
+    return '$locked EPIC goes out as it is; nothing is set aside.';
+  }
+
+  @override
   String deskSendReviewLocksAll(int count, String locked, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
@@ -6592,6 +6603,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String deskSendReviewSetAsideAll(String locked, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks blocks)',
+      one: '(1 block)',
+    );
+    return 'Everything: $locked EPIC is set aside until this payment confirms $_temp0. Nothing stays spendable.';
+  }
+
+  @override
   String deskSendReviewLocksEverything(int count, String locked, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
@@ -6614,6 +6636,17 @@ class AppLocalizationsEn extends AppLocalizations {
           '$locked EPIC in 1 output until the change confirms $_temp1. Nothing else is spendable meanwhile.',
     );
     return '$_temp2';
+  }
+
+  @override
+  String deskSendReviewSetAsideEverything(String locked, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks blocks)',
+      one: '(1 block)',
+    );
+    return '$locked EPIC is set aside until this payment confirms $_temp0. Nothing else is spendable meanwhile.';
   }
 
   @override
@@ -6644,6 +6677,21 @@ class AppLocalizationsEn extends AppLocalizations {
           '$locked EPIC in 1 output until the change confirms $_temp1. $spendable EPIC stays spendable.',
     );
     return '$_temp2';
+  }
+
+  @override
+  String deskSendReviewSetAsideSome(
+    String locked,
+    int blocks,
+    String spendable,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks blocks)',
+      one: '(1 block)',
+    );
+    return '$locked EPIC is set aside until this payment confirms $_temp0. $spendable EPIC stays spendable.';
   }
 
   @override
@@ -7813,6 +7861,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String deskOutNoteBySend(int id) {
     return 'by send #$id';
+  }
+
+  @override
+  String deskOutNoteByPendingSend(String date) {
+    return 'by a pending send · $date';
   }
 
   @override
@@ -12439,9 +12492,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String deskSendMessageCount(int used, int max) {
+    return '$used / $max';
+  }
+
+  @override
   String deskSendMessageTooLong(int max) {
     return 'The message is longer than $max bytes. Shorten it.';
   }
+
+  @override
+  String get deskSendMessageTooLongPlain =>
+      'The message is too long. Shorten it.';
 
   @override
   String get deskSetPhraseCopyTitle => 'Copy the recovery phrase?';
@@ -17651,6 +17713,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get postFinishedIntro =>
       'Post a payment another device finished under Kill switch.';
+
+  @override
+  String get postFinishedIntroOffline =>
+      'Post a payment that another device finished offline.';
 
   @override
   String get postFinishedOpenFile => 'Open file';

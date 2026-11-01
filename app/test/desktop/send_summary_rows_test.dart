@@ -43,7 +43,7 @@ void main() {
     await host(tester, SendLockRows(summary: _summary(), strategy: SelectionStrategy.smallest, defaultStrategy: SelectionStrategy.smallest, blocks: 6));
     expect(find.text('Balance after'), findsOneWidget);
     expect(_rich('1,284.7241 EPIC'), findsOneWidget);
-    expect(find.text('Spendable until change confirms'), findsOneWidget);
+    expect(find.text('Available while this confirms'), findsOneWidget);
     expect(_rich('1,250.0000 EPIC'), findsOneWidget);
     expect(find.text('1 output locked, 34.7321 EPIC, about 6 blocks.'), findsOneWidget);
     expect(find.textContaining('Strategy for this send'), findsNothing);
@@ -124,12 +124,12 @@ void main() {
     final normal = reviewOutputLines(englishStrings, _summary(), strategy: SelectionStrategy.smallest, defaultStrategy: SelectionStrategy.smallest, blocks: 6);
     expect(normal.feeSecondLine, isNull);
     expect(normal.facts.map((f) => f.$1), ['Locks']);
-    expect(reviewLocks(englishStrings, _summary(), SelectionStrategy.smallest, 6), '34.7321 EPIC in 1 output until the change confirms (6 blocks). 1,250.0000 EPIC stays spendable.');
+    expect(reviewLocks(englishStrings, _summary(), SelectionStrategy.smallest, 6), '34.7321 EPIC is set aside until this payment confirms (6 blocks). 1,250.0000 EPIC stays spendable.');
 
     final all = _summary(inputs: 5, locked: 1284.73215, change: 1259.72415);
-    expect(reviewLocks(englishStrings, all, SelectionStrategy.all, 6), 'Everything: 1,284.7321 EPIC in 5 outputs until the change confirms (6 blocks). Nothing stays spendable.');
-    expect(reviewLocks(englishStrings, all, SelectionStrategy.smallest, 6), '1,284.7321 EPIC in 5 outputs until the change confirms (6 blocks). Nothing else is spendable meanwhile.');
-    expect(reviewLocks(englishStrings, _summary(inputs: 2, locked: 25.008, change: 0, changeOutputs: 0), SelectionStrategy.smallest, 6), '25.0080 EPIC in 2 outputs; no change comes back.');
+    expect(reviewLocks(englishStrings, all, SelectionStrategy.all, 6), 'Everything: 1,284.7321 EPIC is set aside until this payment confirms (6 blocks). Nothing stays spendable.');
+    expect(reviewLocks(englishStrings, all, SelectionStrategy.smallest, 6), '1,284.7321 EPIC is set aside until this payment confirms (6 blocks). Nothing else is spendable meanwhile.');
+    expect(reviewLocks(englishStrings, _summary(inputs: 2, locked: 25.008, change: 0, changeOutputs: 0), SelectionStrategy.smallest, 6), '25.0080 EPIC goes out as it is; nothing is set aside.');
 
     final split = reviewOutputLines(englishStrings, _summary(changeOutputs: 4), strategy: SelectionStrategy.all, defaultStrategy: SelectionStrategy.smallest, blocks: 6, extraFee: _nano(0.012));
     expect(split.feeSecondLine, 'Change split into 4 outputs (+0.0120 EPIC).');

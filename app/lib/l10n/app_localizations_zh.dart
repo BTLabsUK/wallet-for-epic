@@ -5087,6 +5087,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendSpendableUntilChange => '找零确认前可用';
 
   @override
+  String get sendAvailableWhileConfirms => '确认期间可用';
+
+  @override
   String get sendSpendableUntilChangeHint => '找零在发送确认后返回。';
 
   @override
@@ -6114,6 +6117,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSendSpendableUntil => '找零确认前可用';
 
   @override
+  String get deskSendSpendableWhile => '确认期间可用';
+
+  @override
   String deskSendSplitLine(int outputs, String fee) {
     String _temp0 = intl.Intl.pluralLogic(
       outputs,
@@ -6197,6 +6203,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String deskSendReviewSetAsideNone(String locked) {
+    return '$locked EPIC 原样发出，不预留任何金额。';
+  }
+
+  @override
   String deskSendReviewLocksAll(int count, String locked, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -6207,6 +6218,16 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String deskSendReviewSetAsideAll(String locked, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '（$blocks 个区块）',
+    );
+    return '全部：$locked EPIC 预留至此付款确认$_temp0。没有可用余额。';
+  }
+
+  @override
   String deskSendReviewLocksEverything(int count, String locked, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -6214,6 +6235,16 @@ class AppLocalizationsZh extends AppLocalizations {
       other: '$count 个输出中的 $locked EPIC 将锁定到找零确认（$blocks 个区块）。期间没有其他可用余额。',
     );
     return '$_temp0';
+  }
+
+  @override
+  String deskSendReviewSetAsideEverything(String locked, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '（$blocks 个区块）',
+    );
+    return '$locked EPIC 预留至此付款确认$_temp0。在此期间没有其他可用余额。';
   }
 
   @override
@@ -6230,6 +6261,20 @@ class AppLocalizationsZh extends AppLocalizations {
           '$count 个输出中的 $locked EPIC 将锁定到找零确认（$blocks 个区块）。$spendable EPIC 仍可使用。',
     );
     return '$_temp0';
+  }
+
+  @override
+  String deskSendReviewSetAsideSome(
+    String locked,
+    int blocks,
+    String spendable,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '（$blocks 个区块）',
+    );
+    return '$locked EPIC 预留至此付款确认$_temp0。$spendable EPIC 仍可用。';
   }
 
   @override
@@ -7338,6 +7383,11 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String deskOutNoteBySend(int id) {
     return '被发送 #$id 锁定';
+  }
+
+  @override
+  String deskOutNoteByPendingSend(String date) {
+    return '被进行中的付款占用 · $date';
   }
 
   @override
@@ -11705,9 +11755,17 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String deskSendMessageCount(int used, int max) {
+    return '$used / $max';
+  }
+
+  @override
   String deskSendMessageTooLong(int max) {
     return '消息超过 $max 字节，请缩短。';
   }
+
+  @override
+  String get deskSendMessageTooLongPlain => '消息太长，请缩短。';
 
   @override
   String get deskSetPhraseCopyTitle => '复制助记词？';
@@ -16633,6 +16691,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get postFinishedIntro => '广播另一台设备在“紧急断网”下完成的付款。';
+
+  @override
+  String get postFinishedIntroOffline => '发布另一台设备离线完成的付款。';
 
   @override
   String get postFinishedOpenFile => '打开文件';

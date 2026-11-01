@@ -5272,6 +5272,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendSpendableUntilChange => 'ใช้ได้ระหว่างรอเงินทอน';
 
   @override
+  String get sendAvailableWhileConfirms => 'ใช้ได้ระหว่างรอยืนยัน';
+
+  @override
   String get sendSpendableUntilChangeHint =>
       'เงินทอนจะกลับมาเมื่อการส่งได้รับการยืนยัน';
 
@@ -6331,6 +6334,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSendSpendableUntil => 'ใช้ได้ระหว่างรอเงินทอนยืนยัน';
 
   @override
+  String get deskSendSpendableWhile => 'ใช้ได้ระหว่างรอยืนยัน';
+
+  @override
   String deskSendSplitLine(int outputs, String fee) {
     String _temp0 = intl.Intl.pluralLogic(
       outputs,
@@ -6416,6 +6422,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String deskSendReviewSetAsideNone(String locked) {
+    return '$locked EPIC ส่งออกทั้งหมด ไม่มีส่วนที่กันไว้';
+  }
+
+  @override
   String deskSendReviewLocksAll(int count, String locked, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -6427,6 +6438,16 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String deskSendReviewSetAsideAll(String locked, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks บล็อก)',
+    );
+    return 'ทั้งหมด: $locked EPIC ถูกกันไว้จนกว่าการชำระนี้จะยืนยัน $_temp0 ไม่มียอดที่ใช้ได้';
+  }
+
+  @override
   String deskSendReviewLocksEverything(int count, String locked, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -6435,6 +6456,16 @@ class AppLocalizationsTh extends AppLocalizations {
           '$locked EPIC ใน $count เอาต์พุต จนกว่าเงินทอนจะยืนยัน ($blocks บล็อก) ไม่มีส่วนอื่นใช้ได้ระหว่างนั้น',
     );
     return '$_temp0';
+  }
+
+  @override
+  String deskSendReviewSetAsideEverything(String locked, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks บล็อก)',
+    );
+    return '$locked EPIC ถูกกันไว้จนกว่าการชำระนี้จะยืนยัน $_temp0 ระหว่างนี้ไม่มียอดอื่นที่ใช้ได้';
   }
 
   @override
@@ -6451,6 +6482,20 @@ class AppLocalizationsTh extends AppLocalizations {
           '$locked EPIC ใน $count เอาต์พุต จนกว่าเงินทอนจะยืนยัน ($blocks บล็อก) ยังใช้ได้ $spendable EPIC',
     );
     return '$_temp0';
+  }
+
+  @override
+  String deskSendReviewSetAsideSome(
+    String locked,
+    int blocks,
+    String spendable,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks บล็อก)',
+    );
+    return '$locked EPIC ถูกกันไว้จนกว่าการชำระนี้จะยืนยัน $_temp0 $spendable EPIC ยังใช้ได้';
   }
 
   @override
@@ -7598,6 +7643,11 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String deskOutNoteBySend(int id) {
     return 'โดยการส่ง #$id';
+  }
+
+  @override
+  String deskOutNoteByPendingSend(String date) {
+    return 'โดยการส่งที่ยังค้าง · $date';
   }
 
   @override
@@ -12109,9 +12159,17 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String deskSendMessageCount(int used, int max) {
+    return '$used / $max';
+  }
+
+  @override
   String deskSendMessageTooLong(int max) {
     return 'ข้อความยาวเกิน $max ไบต์ โปรดทำให้สั้นลง';
   }
+
+  @override
+  String get deskSendMessageTooLongPlain => 'ข้อความยาวเกินไป โปรดย่อให้สั้นลง';
 
   @override
   String get deskSetPhraseCopyTitle => 'คัดลอกวลีกู้คืน?';
@@ -17241,6 +17299,10 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get postFinishedIntro =>
       'ส่งรายการที่อุปกรณ์อื่นทำให้เสร็จในสวิตช์ฉุกเฉิน';
+
+  @override
+  String get postFinishedIntroOffline =>
+      'ส่งการชำระที่อุปกรณ์อื่นทำเสร็จแบบออฟไลน์';
 
   @override
   String get postFinishedOpenFile => 'เปิดไฟล์';

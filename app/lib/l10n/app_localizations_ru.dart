@@ -5513,6 +5513,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendSpendableUntilChange => 'Доступно до подтверждения сдачи';
 
   @override
+  String get sendAvailableWhileConfirms => 'Доступно до подтверждения';
+
+  @override
   String get sendSpendableUntilChangeHint =>
       'Сдача вернётся, когда отправка подтвердится.';
 
@@ -6603,6 +6606,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSendSpendableUntil => 'Доступно до подтверждения сдачи';
 
   @override
+  String get deskSendSpendableWhile => 'Доступно до подтверждения';
+
+  @override
   String deskSendSplitLine(int outputs, String fee) {
     String _temp0 = intl.Intl.pluralLogic(
       outputs,
@@ -6778,6 +6784,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String deskSendReviewSetAsideNone(String locked) {
+    return '$locked EPIC уходит целиком; ничего не откладывается.';
+  }
+
+  @override
   String deskSendReviewLocksAll(int count, String locked, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
@@ -6827,6 +6838,19 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String deskSendReviewSetAsideAll(String locked, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks блока)',
+      many: '($blocks блоков)',
+      few: '($blocks блока)',
+      one: '($blocks блок)',
+    );
+    return 'Всё: $locked EPIC отложено до подтверждения этого платежа $_temp0. Ничего не остаётся доступным.';
+  }
+
+  @override
   String deskSendReviewLocksEverything(int count, String locked, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
@@ -6873,6 +6897,19 @@ class AppLocalizationsRu extends AppLocalizations {
           '$locked EPIC в $count выходе до подтверждения сдачи $_temp3. Больше ничего пока не доступно.',
     );
     return '$_temp4';
+  }
+
+  @override
+  String deskSendReviewSetAsideEverything(String locked, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks блока)',
+      many: '($blocks блоков)',
+      few: '($blocks блока)',
+      one: '($blocks блок)',
+    );
+    return '$locked EPIC отложено до подтверждения этого платежа $_temp0. До тех пор больше ничего не доступно.';
   }
 
   @override
@@ -6927,6 +6964,23 @@ class AppLocalizationsRu extends AppLocalizations {
           '$locked EPIC в $count выходе до подтверждения сдачи $_temp3. Доступными остаются $spendable EPIC.',
     );
     return '$_temp4';
+  }
+
+  @override
+  String deskSendReviewSetAsideSome(
+    String locked,
+    int blocks,
+    String spendable,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks блока)',
+      many: '($blocks блоков)',
+      few: '($blocks блока)',
+      one: '($blocks блок)',
+    );
+    return '$locked EPIC отложено до подтверждения этого платежа $_temp0. $spendable EPIC остаётся доступным.';
   }
 
   @override
@@ -8128,6 +8182,11 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String deskOutNoteBySend(int id) {
     return 'отправкой #$id';
+  }
+
+  @override
+  String deskOutNoteByPendingSend(String date) {
+    return 'незавершённой отправкой · $date';
   }
 
   @override
@@ -12891,9 +12950,18 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String deskSendMessageCount(int used, int max) {
+    return '$used / $max';
+  }
+
+  @override
   String deskSendMessageTooLong(int max) {
     return 'Сообщение длиннее $max байт. Сократите его.';
   }
+
+  @override
+  String get deskSendMessageTooLongPlain =>
+      'Сообщение слишком длинное. Сократите его.';
 
   @override
   String get deskSetPhraseCopyTitle => 'Скопировать фразу восстановления?';
@@ -18265,6 +18333,10 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get postFinishedIntro =>
       'Отправьте платёж, который другое устройство завершило при «Аварийном отключении».';
+
+  @override
+  String get postFinishedIntroOffline =>
+      'Отправьте платёж, который другое устройство завершило без сети.';
 
   @override
   String get postFinishedOpenFile => 'Открыть файл';

@@ -809,7 +809,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           ESetRow(
             key: const ValueKey('rx-post-finished'),
             title: l.postFinishedDeskRow,
-            text: NetGate.killSwitch ? l.postFinishedOffKill : l.postFinishedDeskRowText,
+            text: NetGate.killSwitch ? l.postFinishedOffKill : l.postFinishedIntroOffline,
             control: EButton(
               key: const ValueKey('rx-post-finished-open'),
               label: l.postFinishedOpen,

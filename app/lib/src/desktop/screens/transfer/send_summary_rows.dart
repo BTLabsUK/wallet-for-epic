@@ -158,7 +158,7 @@ class SendLockRows extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         SummaryLine(label: l.deskSendBalanceAfter, value: s?.balanceAfter, dim: true, loading: loading && s == null),
-        SummaryLine(label: l.deskSendSpendableUntil, value: s?.spendableMeanwhile, warn: warn, top: true, loading: loading && s == null),
+        SummaryLine(label: l.deskSendSpendableWhile, value: s?.spendableMeanwhile, warn: warn, top: true, loading: loading && s == null),
         ExpandFade(
           open: caption != null,
           child: Semantics(
@@ -180,12 +180,12 @@ class SendLockRows extends StatelessWidget {
 
 /// The review dialog's Locks fact (§4.5); [blocks] is the wallet's minimum confirmations.
 String reviewLocks(AppLocalizations l, SendSummary s, SelectionStrategy strategy, int blocks) {
-  final n = s.lockedOutputs;
+  // In plain words (D-07): what is set aside and until when, no outputs or change.
   final locked = formatEpicL(l, s.locked);
-  if (s.noChange) return l.deskSendReviewLocksNone(n, locked);
-  if (strategy == SelectionStrategy.all && s.locksAll) return l.deskSendReviewLocksAll(n, locked, blocks);
-  if (s.locksAll) return l.deskSendReviewLocksEverything(n, locked, blocks);
-  return l.deskSendReviewLocksSome(n, locked, formatEpicL(l, s.spendableMeanwhile), blocks);
+  if (s.noChange) return l.deskSendReviewSetAsideNone(locked);
+  if (strategy == SelectionStrategy.all && s.locksAll) return l.deskSendReviewSetAsideAll(locked, blocks);
+  if (s.locksAll) return l.deskSendReviewSetAsideEverything(locked, blocks);
+  return l.deskSendReviewSetAsideSome(locked, blocks, formatEpicL(l, s.spendableMeanwhile));
 }
 
 /// The review dialog's lines for the outputs: the second line of Network fee when the change

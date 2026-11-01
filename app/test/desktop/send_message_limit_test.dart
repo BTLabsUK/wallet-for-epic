@@ -43,13 +43,13 @@ void main() {
     await tester.pump();
     // 64 emoji of 4 bytes each fill the 256.
     expect(tester.widget<TextField>(message).controller!.text, '😀' * 64);
-    expect(find.text('256 / 256 bytes'), findsOneWidget);
+    expect(find.text('256 / 256'), findsOneWidget);
   });
 
   testWidgets('a message over 256 bytes is marked and Review refuses it', (tester) async {
     await pump(tester, SendArgs(recipient: anna, amount: '25', message: '😀' * 92));
-    expect(find.text('368 / 256 bytes'), findsOneWidget);
-    expect(find.text('The message is longer than 256 bytes. Shorten it.'), findsOneWidget);
+    expect(find.text('368 / 256'), findsOneWidget);
+    expect(find.text('The message is too long. Shorten it.'), findsOneWidget);
     await tester.tap(find.widgetWithText(EButton, 'Review'));
     await tester.pumpAndSettle();
     expect(find.text('Check and send'), findsNothing);

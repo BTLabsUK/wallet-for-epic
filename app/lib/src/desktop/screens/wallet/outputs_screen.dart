@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../desk_l10n.dart';
-import '../../../l10n.dart' show localInt;
+import '../../../l10n.dart' show localDayMonth, localInt;
 import '../../widgets/kit.dart';
 import 'activity_screen.dart' show ListPager;
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
@@ -709,7 +709,7 @@ class _OutputRow extends StatelessWidget {
       OutputWord.unpaidInvoice => (l.deskOutStatusUnpaid, l.deskOutNoteNotInBalance, c.dim),
       OutputWord.immature => (l.deskOutStatusImmature, o.lockHeight != null && o.lockHeight! > tip ? l.deskOutNoteBlocksToGo(o.lockHeight! - tip, _group(l, o.lockHeight! - tip)) : null, c.info),
       OutputWord.mining => (l.deskOutStatusMining, null, c.info),
-      OutputWord.locked => (l.deskOutStatusLocked, o.heldBy != null ? l.devicesHeldBy(o.heldBy!) : (o.txId == null ? null : l.deskOutNoteBySend(o.txId!)), c.dim),
+      OutputWord.locked => (l.deskOutStatusLocked, o.heldBy != null ? l.devicesHeldBy(o.heldBy!) : (o.txId == null ? null : tx == null ? l.deskOutNoteBySend(o.txId!) : l.deskOutNoteByPendingSend(localDayMonth(l, tx!.created))), c.dim),
       OutputWord.spent => (l.deskOutStatusSpent, null, c.faint),
     };
   }

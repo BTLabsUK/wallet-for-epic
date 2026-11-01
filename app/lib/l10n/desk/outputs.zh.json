@@ -68,6 +68,7 @@
   "deskOutStatusMining": "挖矿",
   "deskOutStatusLocked": "已锁定",
   "deskOutNoteBySend": "被发送 #{id} 锁定",
+  "deskOutNoteByPendingSend": "被进行中的付款占用 · {date}",
   "deskOutStatusSpent": "已花费",
   "deskOutTxReceived": "收到 {date}",
   "deskOutTxSent": "发出 {date}",

@@ -8596,6 +8596,12 @@ abstract class AppLocalizations {
   /// **'Spendable until change confirms'**
   String get sendSpendableUntilChange;
 
+  /// Send review row: what stays spendable while this payment confirms. Plain words, one line.
+  ///
+  /// In en, this message translates to:
+  /// **'Available while this confirms'**
+  String get sendAvailableWhileConfirms;
+
   /// Caption under the Spendable until change confirms row.
   ///
   /// In en, this message translates to:
@@ -10354,6 +10360,12 @@ abstract class AppLocalizations {
   /// **'Spendable until change confirms'**
   String get deskSendSpendableUntil;
 
+  /// Summary line on Send: the amount still spendable while this payment confirms. Plain words, one line.
+  ///
+  /// In en, this message translates to:
+  /// **'Available while this confirms'**
+  String get deskSendSpendableWhile;
+
   /// Summary line on Send when the change comes back as several outputs. {outputs} is the number of change outputs; {fee} the extra network fee, in EPIC.
   ///
   /// In en, this message translates to:
@@ -10408,17 +10420,35 @@ abstract class AppLocalizations {
   /// **'{count, plural, one{{locked} EPIC in 1 output; no change comes back.} other{{locked} EPIC in {count} outputs; no change comes back.}}'**
   String deskSendReviewLocksNone(int count, String locked);
 
+  /// Review dialog, fact "Locks": the payment uses the exact amount, nothing is set aside to wait for. {locked} is in EPIC.
+  ///
+  /// In en, this message translates to:
+  /// **'{locked} EPIC goes out as it is; nothing is set aside.'**
+  String deskSendReviewSetAsideNone(String locked);
+
   /// Review dialog, fact "Locks": strategy All locks everything. {locked} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.
   ///
   /// In en, this message translates to:
   /// **'{count, plural, one{Everything: {locked} EPIC in 1 output until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing stays spendable.} other{Everything: {locked} EPIC in {count} outputs until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing stays spendable.}}'**
   String deskSendReviewLocksAll(int count, String locked, int blocks);
 
+  /// Review dialog, fact "Locks", Send all: everything is set aside until this payment confirms. {blocks} is the wallet's minimum confirmations.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything: {locked} EPIC is set aside until this payment confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing stays spendable.'**
+  String deskSendReviewSetAsideAll(String locked, int blocks);
+
   /// Review dialog, fact "Locks": all outputs are needed. {locked} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.
   ///
   /// In en, this message translates to:
   /// **'{count, plural, one{{locked} EPIC in 1 output until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing else is spendable meanwhile.} other{{locked} EPIC in {count} outputs until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing else is spendable meanwhile.}}'**
   String deskSendReviewLocksEverything(int count, String locked, int blocks);
+
+  /// Review dialog, fact "Locks": all spendable coins are set aside until this payment confirms. {blocks} is the wallet's minimum confirmations.
+  ///
+  /// In en, this message translates to:
+  /// **'{locked} EPIC is set aside until this payment confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing else is spendable meanwhile.'**
+  String deskSendReviewSetAsideEverything(String locked, int blocks);
 
   /// Review dialog, fact "Locks": some outputs are locked, the rest stays spendable. Amounts are in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.
   ///
@@ -10429,6 +10459,16 @@ abstract class AppLocalizations {
     String locked,
     String spendable,
     int blocks,
+  );
+
+  /// Review dialog, fact "Locks": part of the balance is set aside until this payment confirms, the rest stays spendable. Amounts in EPIC. {blocks} is the wallet's minimum confirmations.
+  ///
+  /// In en, this message translates to:
+  /// **'{locked} EPIC is set aside until this payment confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. {spendable} EPIC stays spendable.'**
+  String deskSendReviewSetAsideSome(
+    String locked,
+    int blocks,
+    String spendable,
   );
 
   /// Label of a fact in the review dialog: the outputs the payment locks until the change confirms. Short.
@@ -12410,6 +12450,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'by send #{id}'**
   String deskOutNoteBySend(int id);
+
+  /// Small grey note after the status 'Locked' on Outputs: a payment still on its way holds the coin; {date} is the day it started.
+  ///
+  /// In en, this message translates to:
+  /// **'by a pending send · {date}'**
+  String deskOutNoteByPendingSend(String date);
 
   /// Status of an output that was spent. Narrow status column.
   ///
@@ -19640,11 +19686,23 @@ abstract class AppLocalizations {
   /// **'{used} / {max} bytes'**
   String deskSendMessageBytes(int used, int max);
 
+  /// Counter beside the message field on Send and on a new invoice: how much of the limit the message uses (LEPIC counts bytes; no unit shown).
+  ///
+  /// In en, this message translates to:
+  /// **'{used} / {max}'**
+  String deskSendMessageCount(int used, int max);
+
   /// Error under the Message field on Send when the message is over the limit, in UTF-8 bytes.
   ///
   /// In en, this message translates to:
   /// **'The message is longer than {max} bytes. Shorten it.'**
   String deskSendMessageTooLong(int max);
+
+  /// Error under the message field on Send when the message is over the limit. No unit.
+  ///
+  /// In en, this message translates to:
+  /// **'The message is too long. Shorten it.'**
+  String get deskSendMessageTooLongPlain;
 
   /// Confirm dialog title before the recovery phrase is copied to the clipboard.
   ///
@@ -27487,6 +27545,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Post a payment another device finished under Kill switch.'**
   String get postFinishedIntro;
+
+  /// Lead of Post a finished payment (phone screen, desktop dialog and the desktop Receive row): put on the chain a payment another device finished without a connection. Plain words.
+  ///
+  /// In en, this message translates to:
+  /// **'Post a payment that another device finished offline.'**
+  String get postFinishedIntroOffline;
 
   /// Button: choose the finished payment file.
   ///

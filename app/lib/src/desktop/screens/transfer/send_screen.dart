@@ -1942,10 +1942,14 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         EField(
           label: l.deskSendMessage,
           optional: true,
-          // Bytes, as LEPIC counts them: an emoji takes 4.
-          aside: Text(l.deskSendMessageBytes(utf8Length(_message.text), slateMessageMaxBytes), style: ts.mono(size: Fs.xs, color: _messageTooLong ? c.risk : c.faint)),
+          // Bytes, as LEPIC counts them (an emoji takes 4), shown with no unit; amber from 90 %
+          // of the limit, red over it.
+          aside: Text(
+            l.deskSendMessageCount(utf8Length(_message.text), slateMessageMaxBytes),
+            style: ts.mono(size: Fs.xs, color: _messageTooLong ? c.risk : utf8Length(_message.text) * 10 >= slateMessageMaxBytes * 9 ? c.warn : c.faint),
+          ),
           help: code != null && code.noteFilled && _message.text == code.note ? l.sendNoteFromCodeHelper : l.deskSendMessageHelp,
-          error: _messageTooLong ? l.deskSendMessageTooLong(slateMessageMaxBytes) : null,
+          error: _messageTooLong ? l.deskSendMessageTooLongPlain : null,
           child: EInput(
             controller: _message,
             maxLines: 3,

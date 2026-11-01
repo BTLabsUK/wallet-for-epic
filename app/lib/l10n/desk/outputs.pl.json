@@ -68,6 +68,7 @@
   "deskOutStatusMining": "Kopanie",
   "deskOutStatusLocked": "Zablokowane",
   "deskOutNoteBySend": "przez wysyłkę #{id}",
+  "deskOutNoteByPendingSend": "przez trwającą wysyłkę · {date}",
   "deskOutStatusSpent": "Wydane",
   "deskOutTxReceived": "Odebrano {date}",
   "deskOutTxSent": "Wysłano {date}",

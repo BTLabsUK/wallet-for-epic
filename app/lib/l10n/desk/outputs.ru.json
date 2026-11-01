@@ -68,6 +68,7 @@
   "deskOutStatusMining": "Майнинг",
   "deskOutStatusLocked": "Заблокирован",
   "deskOutNoteBySend": "отправкой #{id}",
+  "deskOutNoteByPendingSend": "незавершённой отправкой · {date}",
   "deskOutStatusSpent": "Потрачен",
   "deskOutTxReceived": "Получено {date}",
   "deskOutTxSent": "Отправлено {date}",

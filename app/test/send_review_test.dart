@@ -671,7 +671,7 @@ void main() {
         // so no "until change confirms" line.
         expect(find.text('Balance after'), findsOneWidget);
         expect(find.text('38.4920 EPIC'), findsOneWidget);
-        expect(find.text('Spendable until change confirms'), findsNothing);
+        expect(find.text('Available while this confirms'), findsNothing);
         // The message is there as typed, with where it goes.
         final block = find.byKey(sendReviewMessageKey);
         expect(

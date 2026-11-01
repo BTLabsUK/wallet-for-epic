@@ -3276,7 +3276,7 @@ class _SendViewState extends ConsumerState<SendView> {
             estimate.locked > total &&
             estimate.locked <= spendable) ...[
           _Row(
-            label: l.sendSpendableUntilChange,
+            label: l.sendAvailableWhileConfirms,
             value: epicText(l, spendable - estimate.locked),
           ),
           Text(
