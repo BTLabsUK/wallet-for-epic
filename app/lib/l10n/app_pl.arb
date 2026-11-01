@@ -4881,6 +4881,7 @@
   "deskNodeSwitchStarting": "Uruchamianie węzła lokalnego…",
   "deskNodeSwitchStopping": "Zatrzymywanie węzła lokalnego…",
   "deskNodeSwitchStoppingWord": "Zatrzymywanie",
+  "deskSetupExistingNodeType": "Istniejący węzeł",
   "deskLvPayOnEpicbox": "Na Epicbox",
   "deskRailReceivingInternet": "Odbiera · internet",
   "deskRailReceivingLocal": "Odbiera · lokalnie",

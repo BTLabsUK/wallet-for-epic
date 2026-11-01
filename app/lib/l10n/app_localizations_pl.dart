@@ -19396,6 +19396,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskNodeSwitchStoppingWord => 'Zatrzymywanie';
 
   @override
+  String get deskSetupExistingNodeType => 'Istniejący węzeł';
+
+  @override
   String get deskLvPayOnEpicbox => 'Na Epicbox';
 
   @override

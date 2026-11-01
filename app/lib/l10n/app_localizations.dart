@@ -29288,6 +29288,12 @@ abstract class AppLocalizations {
   /// **'Stopping'**
   String get deskNodeSwitchStoppingWord;
 
+  /// Node type on the setup's summary: an Epic node already running on this computer. Its host:port is on the Address row below.
+  ///
+  /// In en, this message translates to:
+  /// **'Existing node'**
+  String get deskSetupExistingNodeType;
+
   /// Payment steps: sub-line under the current step 'Recipient signed' of a send over Epicbox: the payment waits on the Epicbox server for the recipient's wallet. The server's host is in the tooltip. Short.
   ///
   /// In en, this message translates to:

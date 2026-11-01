@@ -670,7 +670,7 @@ void main() {
         // A name keeps its address beside it.
         expect(find.text('bbbbbb…bbbbbb@epicbox.epiccash.com'), findsOneWidget);
         expect(find.text('aaaaaa…aaaaaa@epicbox.epiccash.com'), findsOneWidget);
-        expect(find.text('203.0.…5:3415'), findsOneWidget);
+        expect(find.text('203.0.113.5:3415'), findsOneWidget);
         final handle = tester.ensureSemantics();
         await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
         await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
@@ -1358,10 +1358,8 @@ void main() {
       await _tap(tester, _continue);
       expect(find.text('Carol'), findsOneWidget);
       // The whole address, its relay on its own line.
-      expect(
-        find.text('${'c' * 52}\n@epicbox.epicnet.us', findRichText: true),
-        findsOneWidget,
-      );
+      expect(find.text('c' * 52), findsOneWidget);
+      expect(find.text('@epicbox.epicnet.us'), findsOneWidget);
       await _tap(tester, find.text('Send 1.00000000\u00a0EPIC'));
       expect(h.session.epicboxSends.single.to, _carol);
       expect(find.text('To Carol'), findsOneWidget);

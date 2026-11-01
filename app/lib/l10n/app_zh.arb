@@ -4881,6 +4881,7 @@
   "deskNodeSwitchStarting": "正在启动本地节点…",
   "deskNodeSwitchStopping": "正在停止本地节点…",
   "deskNodeSwitchStoppingWord": "正在停止",
+  "deskSetupExistingNodeType": "现有节点",
   "deskLvPayOnEpicbox": "在 Epicbox 上",
   "deskRailReceivingInternet": "接收中 · 互联网",
   "deskRailReceivingLocal": "接收中 · 本地",

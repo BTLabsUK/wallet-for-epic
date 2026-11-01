@@ -41,6 +41,7 @@
   "deskSetupType": "Тип",
   "deskSetupAddress": "Адрес",
   "deskSetupExistingNode": "Уже запущенный узел на {host}",
+  "deskSetupExistingNodeType": "Уже запущенный узел",
   "deskSetupBundledNode": "Локальный узел",
   "deskSetupWhileSyncing": "Во время синхронизации",
   "deskSetupWait": "ждать",

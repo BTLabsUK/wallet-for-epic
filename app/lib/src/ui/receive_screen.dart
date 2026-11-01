@@ -25,6 +25,7 @@ import '../slate_files.dart';
 import '../tor_phone.dart';
 import '../tor_routes.dart';
 import '../wallet_service.dart';
+import 'address_view.dart';
 import 'common.dart';
 import 'demo_screens.dart' show TestCoinsButton;
 import 'file_exchange_help.dart';
@@ -662,33 +663,6 @@ const Key receiveEpicboxKey = ValueKey('receive-epicbox');
 /// The full address in a full-width card that copies on a tap anywhere on it, with the copy
 /// icon and, where the device shares, Share stacked on its right. [label] names the kind of
 /// address above it: the same card for the epicbox and the Tor address.
-/// [address] for the Receive card: an Epicbox address breaks only before its "@",
-/// so the server name is never split, and the key's first and last six characters (the ones
-/// read out) are in [mark]; the server part is [dim]. Other addresses come back as they are.
-/// With [keyOnly] the server part is left out (it is drawn on its own line, [addressServer]).
-TextSpan addressSpans(String address, {required TextStyle base, required Color mark, required Color dim, bool keyOnly = false}) {
-  final at = address.indexOf('@');
-  if (at < 14) return TextSpan(text: address, style: base);
-  final key = address.substring(0, at);
-  final server = address.substring(at);
-  final marked = base.copyWith(color: mark, fontWeight: FontWeight.w600);
-  return TextSpan(
-    style: base,
-    children: [
-      TextSpan(text: key.substring(0, 6), style: marked),
-      TextSpan(text: key.substring(6, key.length - 6)),
-      TextSpan(text: key.substring(key.length - 6), style: marked),
-      if (!keyOnly) TextSpan(text: '\n$server', style: base.copyWith(color: dim)),
-    ],
-  );
-}
-
-/// The "@server" part of an Epicbox [address], or null for any other address.
-String? addressServer(String address) {
-  final at = address.indexOf('@');
-  return at < 14 ? null : address.substring(at);
-}
-
 class _AddressRow extends ConsumerStatefulWidget {
   const _AddressRow({
     required this.address,
@@ -785,32 +759,9 @@ class _AddressRowState extends ConsumerState<_AddressRow> {
                               ),
                               const SizedBox(height: 4),
                               // Selectable for a long press; a tap copies, like the card.
-                              SelectableText.rich(
-                                addressSpans(
-                                  address,
-                                  base: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily) ?? const TextStyle(),
-                                  mark: t.accentText,
-                                  dim: t.dim,
-                                  keyOnly: true,
-                                ),
-                                onTap: _copy,
-                              ),
                               // The server on its own line, shrunk rather than broken inside
                               // its name on a narrow phone at a large text size (UP-033).
-                              if (addressServer(address) case final server?)
-                                Align(
-                                  alignment: AlignmentDirectional.centerStart,
-                                  child: FittedBox(
-                                    fit: BoxFit.scaleDown,
-                                    alignment: AlignmentDirectional.centerStart,
-                                    child: Text(
-                                      server,
-                                      maxLines: 1,
-                                      softWrap: false,
-                                      style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily, color: t.dim),
-                                    ),
-                                  ),
-                                ),
+                              MarkedAddress(address, selectable: true, onTap: _copy),
                             ],
                           ),
                         ),
@@ -1683,15 +1634,11 @@ class ShareCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Text(
+                // As on the card in the app: the ends marked, the server whole on its own line.
+                MarkedAddress(
                   address,
-                  textAlign: TextAlign.center,
-                  maxLines: 4,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontFamily: t.monoFamily,
-                    color: t.text,
-                    height: 1.35,
-                  ),
+                  center: true,
+                  style: theme.textTheme.bodyMedium?.copyWith(height: 1.35),
                 ),
                 if (network != null) ...[
                   const SizedBox(height: 14),

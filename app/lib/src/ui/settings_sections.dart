@@ -7,6 +7,7 @@ library;
 
 import 'phone_sheet.dart';
 import '../address_format.dart' show shownUrl;
+import 'address_view.dart' show HostText;
 import '../seed_contacts.dart' show projectRepoUrl;
 import 'package:flutter/material.dart';
 import 'status_icons.dart';
@@ -671,7 +672,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           leading: const Icon(EpicGlyphs.node),
           title: Text(l.serverNodeTitle),
           subtitle: withTorWay(
-            network == null ? null : Text(serverHost(network.nodeUrl)),
+            network == null ? null : HostText(serverHost(network.nodeUrl), style: TextStyle(color: context.tokens.dim)),
             nodeTorWay(network?.nodeUrl, torState),
           ),
           onTap: () => showNodePicker(context),
@@ -681,15 +682,11 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           leading: const Icon(EpicGlyphs.epicbox),
           title: Text(l.serverEpicboxTitle),
           subtitle: withTorWay(
-            Text(
-              network?.relay.label ??
-                  (config == null
-                      ? l.commonUnknown
-                      : EpicboxRelay(
-                          host: config.epicboxDomain,
-                          port: config.epicboxPort,
-                        ).label),
-            ),
+            switch (network?.relay.label ??
+                (config == null ? null : EpicboxRelay(host: config.epicboxDomain, port: config.epicboxPort).label)) {
+              final host? => HostText(host, style: TextStyle(color: context.tokens.dim)),
+              null => Text(l.commonUnknown),
+            },
             torWay(TorRoute.epicbox, torState),
           ),
           onTap: () => showEpicboxPicker(context),

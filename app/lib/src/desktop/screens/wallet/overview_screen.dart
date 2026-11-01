@@ -142,7 +142,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
         ENotice(
           icon: EIcons.info,
           title: l.deskOvNodeAddrTitle,
-          text: l.deskOvNodeAddrText(Uri.tryParse(hostSettings.nodeUse)?.host ?? hostSettings.nodeUse),
+          text: l.deskOvNodeAddrText(hostPort(hostSettings.nodeUse)),
           actionsBelow: true,
           actions: [EButton(label: l.commonOk, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _addressNoteHidden = true))],
         ),

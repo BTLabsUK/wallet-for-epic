@@ -18971,6 +18971,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskNodeSwitchStoppingWord => 'Stoppt';
 
   @override
+  String get deskSetupExistingNodeType => 'Vorhandener Node';
+
+  @override
   String get deskLvPayOnEpicbox => 'Auf Epicbox';
 
   @override

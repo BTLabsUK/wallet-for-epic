@@ -197,9 +197,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Review settings'), findsOneWidget);
     expect(find.text('Local node'), findsWidgets);
-    expect(find.text('node.epic.invalid'), findsOneWidget);
+    expect(find.text(hostPort(defaultFallbackNodeUrl)), findsOneWidget);
     expect(find.text(mockDataFolder), findsOneWidget);
-    expect(find.textContaining('Save starts the node; node.epic.invalid stands in'), findsOneWidget);
+    expect(find.textContaining('Save starts the node; ${hostPort(defaultFallbackNodeUrl)} stands in'), findsOneWidget);
     expect(wallet.calls, isEmpty);
     expect(node.calls.where((c) => c.startsWith('start')), isEmpty);
 
@@ -225,7 +225,7 @@ void main() {
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
     expect(find.text('Remote node'), findsOneWidget);
-    expect(find.text('https://node.net.invalid:3413'), findsOneWidget);
+    expect(find.text('node.net.invalid:3413'), findsOneWidget);
     await tester.tap(find.text('Save settings'));
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(milliseconds: 500));

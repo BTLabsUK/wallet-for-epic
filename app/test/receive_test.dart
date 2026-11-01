@@ -464,7 +464,9 @@ void main() {
       await pumpCard(tester);
       expect(tester.takeException(), isNull);
       expect(tester.getSize(find.byType(ShareCard)), shareCardSize);
-      expect(find.text(_address), findsOneWidget);
+      // The key, the server whole on its own line (never "epiccash. / com").
+      expect(find.text(_address.split('@').first), findsOneWidget);
+      expect(find.text('@${_address.split('@').last}'), findsOneWidget);
       expect(find.text('Pay me in Epic Cash'), findsOneWidget);
       expect(find.byType(EpicMark), findsNWidgets(2));
       expect(tester.widget<MarkedQr>(find.byType(MarkedQr)).data, _address);

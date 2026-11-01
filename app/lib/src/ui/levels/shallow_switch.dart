@@ -37,6 +37,7 @@ import '../../settings.dart' show networkModeProvider;
 import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../../tor_phone.dart';
 import '../../tor_routes.dart' show TorState;
+import '../address_view.dart' show HostText;
 import '../notices.dart';
 import '../server_picker.dart' show publicNodeStatusProvider;
 import '../../state_language.dart' show ShownState;
@@ -256,15 +257,10 @@ class _ShallowServerSwitchState extends ConsumerState<ShallowServerSwitch> {
       horizontalTitleGap: 12,
       enabled: !down && _moving == null,
       leading: StatusServerTile(host: r.host, operator: r.face.operator, icon: r.face.icon, size: 32, dimmed: down),
-      title: Text(
+      // A host is read whole: shrunk rather than cut.
+      title: HostText(
         r.host,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        softWrap: false,
-        style: theme.textTheme.bodyMedium?.copyWith(
-          fontFamily: t.monoFamily,
-          color: down ? t.faint : null,
-        ),
+        style: theme.textTheme.bodyMedium?.copyWith(color: down || _moving != null ? t.faint : t.text),
       ),
       subtitle: Row(
         children: [

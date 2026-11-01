@@ -19376,6 +19376,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskNodeSwitchStoppingWord => 'Остановка';
 
   @override
+  String get deskSetupExistingNodeType => 'Уже запущенный узел';
+
+  @override
   String get deskLvPayOnEpicbox => 'На Epicbox';
 
   @override

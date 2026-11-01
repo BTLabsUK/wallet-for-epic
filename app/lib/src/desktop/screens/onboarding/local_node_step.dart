@@ -318,7 +318,7 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
                 TextSpan(
                   text: [
                     '',
-                    l.deskOnbNodeFoundAt(p.version ?? '?', '${nodeHost(p.url)}:${Uri.parse(p.url).port}'),
+                    l.deskOnbNodeFoundAt(p.version ?? '?', hostPort(p.url)),
                     if (p.height != null) l.deskOnbNodeHeight(digits(context.l10n, p.height!)),
                     if (p.readyForTxs == true) l.deskOnbNodeSynced,
                   ].join(' · '),
@@ -331,7 +331,7 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
             TextSpan(
               children: [
                 TextSpan(text: l.deskOnbNodeNoAnswer, style: ts.small.copyWith(color: c.risk, fontWeight: FontWeight.w600)),
-                TextSpan(text: ' · ${l.deskOnbNodeNoAnswerAt('${nodeHost(p.url)}:${Uri.parse(p.url).port}')}', style: ts.small.copyWith(color: c.dim)),
+                TextSpan(text: ' · ${l.deskOnbNodeNoAnswerAt(hostPort(p.url))}', style: ts.small.copyWith(color: c.dim)),
               ],
             ),
           );

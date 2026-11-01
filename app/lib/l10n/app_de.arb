@@ -4881,6 +4881,7 @@
   "deskNodeSwitchStarting": "Lokaler Node startet…",
   "deskNodeSwitchStopping": "Lokaler Node wird gestoppt…",
   "deskNodeSwitchStoppingWord": "Stoppt",
+  "deskSetupExistingNodeType": "Vorhandener Node",
   "deskLvPayOnEpicbox": "Auf Epicbox",
   "deskRailReceivingInternet": "Empfängt · Internet",
   "deskRailReceivingLocal": "Empfängt · lokal",

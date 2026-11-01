@@ -17682,6 +17682,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskNodeSwitchStoppingWord => '正在停止';
 
   @override
+  String get deskSetupExistingNodeType => '现有节点';
+
+  @override
   String get deskLvPayOnEpicbox => '在 Epicbox 上';
 
   @override

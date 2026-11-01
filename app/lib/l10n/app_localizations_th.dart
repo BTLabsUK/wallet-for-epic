@@ -18333,6 +18333,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskNodeSwitchStoppingWord => 'กำลังหยุด';
 
   @override
+  String get deskSetupExistingNodeType => 'โหนดที่มีอยู่';
+
+  @override
   String get deskLvPayOnEpicbox => 'อยู่บน Epicbox';
 
   @override

@@ -43,6 +43,9 @@ import '../wallet/stored_send.dart';
 import '../devices/device_providers.dart' show heldValueByDevice;
 import '../devices/phone_devices.dart' show deviceServiceProvider, phoneDevices;
 import 'centered_body.dart';
+import '../address_field.dart';
+import '../address_format.dart' show addressSpan;
+import 'address_view.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
 import 'demo_screens.dart' show TestCoinsButton;
@@ -283,7 +286,7 @@ BigInt _pending(WalletSummary s) =>
     s.awaitingConfirmation + s.awaitingFinalization + s.immature + s.locked;
 
 class _SendViewState extends ConsumerState<SendView> {
-  final _recipient = TextEditingController();
+  final _recipient = AddressFieldController();
   final _amount = TextEditingController();
   final _note = TextEditingController();
   final _response = TextEditingController();
@@ -4047,13 +4050,7 @@ class RecipientCard extends StatelessWidget {
                           color: t.dim,
                         ),
                       ),
-                      Text(
-                        host,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontFamily: t.monoFamily,
-                          color: t.text,
-                        ),
-                      ),
+                      HostText(host, style: theme.textTheme.titleMedium),
                       const SizedBox(height: 4),
                     ],
                     AddressEnds(address: address),
@@ -4082,45 +4079,17 @@ class RecipientCard extends StatelessWidget {
 /// The address is an onion address, `<56 characters>.onion`, as [parseRecipient] gives it.
 bool isOnionAddress(String address) => address.toLowerCase().endsWith('.onion');
 
-/// An address in the mono face with the first and last 6 characters of its key strong and
-/// the rest dim, and the relay on its own line; an onion keeps `.onion` dim at its end.
+/// An address on the recipient card: [MarkedAddress] at the card's small size.
 class AddressEnds extends StatelessWidget {
   const AddressEnds({super.key, required this.address});
 
   final String address;
 
   @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final base = Theme.of(context).textTheme.bodySmall
-        ?.copyWith(fontFamily: t.monoFamily, color: t.dim, height: 1.45);
-    final strong = base?.copyWith(color: t.text, fontWeight: FontWeight.w700);
-    final onion = isOnionAddress(address);
-    final at = onion ? -1 : address.indexOf('@');
-    final key = onion
-        ? address.substring(0, address.length - '.onion'.length)
-        : at < 0
-        ? address
-        : address.substring(0, at);
-    final relay = at < 0 ? null : address.substring(at);
-    final spans = key.length <= 12
-        ? [TextSpan(text: key, style: strong)]
-        : [
-            TextSpan(text: key.substring(0, 6), style: strong),
-            TextSpan(text: key.substring(6, key.length - 6)),
-            TextSpan(text: key.substring(key.length - 6), style: strong),
-          ];
-    return Text.rich(
-      TextSpan(
-        style: base,
-        children: [
-          ...spans,
-          if (onion) const TextSpan(text: '.onion'),
-          if (relay != null) TextSpan(text: '\n$relay'),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => MarkedAddress(
+    address,
+    style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.45),
+  );
 }
 
 /// "Direct address" / "Via Epicbox" beside the To label for 3 s after the address moved the
@@ -4367,6 +4336,42 @@ class _ToChip extends StatelessWidget {
   final String address;
   final String? name;
 
+  /// "To Alice", or the sentence in the sans face with the short address in it as a mono span,
+  /// its ends marked (address_format.dart); shrunk rather than cut, so no host is cut short.
+  Widget _toChipText(BuildContext context, WalletTokens t) {
+    final l = context.l10n;
+    final style = Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.text);
+    final name = this.name;
+    if (name != null) return Text(l.sendTo(name), overflow: TextOverflow.ellipsis, style: style);
+    // The sentence around a marker, so the address sits where the language puts it.
+    const marker = '\u0000';
+    final sentence = l.sendTo(marker);
+    final at = sentence.indexOf(marker);
+    final shown = shortAddress(address);
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: AlignmentDirectional.centerStart,
+      child: Text.rich(
+        TextSpan(
+          style: style,
+          children: [
+            TextSpan(text: at < 0 ? '$sentence ' : sentence.substring(0, at)),
+            addressSpan(
+              shown,
+              style: TextStyle(fontFamily: t.monoFamily),
+              mark: TextStyle(color: t.accentText, fontWeight: FontWeight.w600),
+              quiet: TextStyle(color: t.dim),
+            ),
+            if (at >= 0) TextSpan(text: sentence.substring(at + marker.length)),
+          ],
+        ),
+        maxLines: 1,
+        softWrap: false,
+        semanticsLabel: l.sendTo(shown),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
@@ -4382,14 +4387,7 @@ class _ToChip extends StatelessWidget {
         children: [
           Transform.scale(scale: 0.8, child: _Initial(name: name)),
           const SizedBox(width: 6),
-          Flexible(
-            child: Text(
-              context.l10n.sendTo(name ?? shortAddress(address)),
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodyMedium
-                  ?.copyWith(color: t.text),
-            ),
-          ),
+          Flexible(child: _toChipText(context, t)),
         ],
       ),
     );
@@ -4418,25 +4416,20 @@ class _RecentRow extends StatelessWidget {
       contentPadding: EdgeInsets.zero,
       minTileHeight: 52,
       leading: _Initial(name: name),
-      title: Text(
-        name ?? shortAddress(address, relay: relay),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: theme.textTheme.bodyLarge?.copyWith(color: t.text),
-      ),
+      // No name: the short address is the title, in the mono face as every address.
+      title: name == null
+          ? ShortAddressText(address, relay: relay, style: theme.textTheme.bodyMedium)
+          : Text(
+              name!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodyLarge?.copyWith(color: t.text),
+            ),
       subtitle: name == null
           ? null
           : subtitle != null
           ? Text(subtitle!, maxLines: 1, overflow: TextOverflow.ellipsis, style: theme.textTheme.bodySmall?.copyWith(color: t.dim))
-          : Text(
-              shortAddress(address, relay: relay),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: t.dim,
-                fontFamily: t.monoFamily,
-              ),
-            ),
+          : ShortAddressText(address, relay: relay, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
       onTap: onTap,
     );
   }

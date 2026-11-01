@@ -41,6 +41,7 @@ import '../node/node_info_types.dart' show NodeInfo, NodeHead;
 import '../node/node_info_provider.dart' if (dart.library.js_interop) '../node/node_info_provider_web.dart' show nodeInfoProvider;
 import '../net/tor_net.dart' show isLoopbackUrl;
 import '../tor_routes.dart' show TorRoute, torSkipsLocalNode;
+import 'address_view.dart' show HostText;
 import 'badge.dart';
 import 'common.dart' show groupDigits;
 import 'help_screen.dart' show HelpButton, HelpId;
@@ -1100,17 +1101,9 @@ class _ServerRow extends StatelessWidget {
                             children: [
                               Row(
                                 children: [
+                                  // Shrunk rather than cut: a host is read whole.
                                   Flexible(
-                                    child: Text(
-                                      e.host,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontFamily: t.monoFamily,
-                                        fontSize: 13,
-                                        color: words,
-                                      ),
-                                    ),
+                                    child: HostText(e.host, style: TextStyle(fontSize: 13, color: words)),
                                   ),
                                   if (isDefault) ...[
                                     const SizedBox(width: 8),
@@ -1331,9 +1324,9 @@ class _Facts extends StatelessWidget {
       TextSpan(
         children: [
           for (var i = 0; i < facts.length; i++) ...[
-            if (i > 0) const TextSpan(text: ' · '),
+            if (i > 0) const TextSpan(text: _factSeparator),
             TextSpan(
-              text: facts[i],
+              text: _whole(facts[i]),
               style: tip != null && facts[i] == tip!.text
                   ? TextStyle(color: tip!.color, fontFamily: t.monoFamily)
                   : facts[i] == l.serverNotResponding || facts[i] == l.serverLocalNotReachablePhone
@@ -1347,12 +1340,20 @@ class _Facts extends StatelessWidget {
           ],
         ],
       ),
-      maxLines: 1,
+      // Two lines, broken only between facts: "4.1.1" and "40 s ago" stay whole.
+      maxLines: 2,
       overflow: TextOverflow.ellipsis,
       style: style,
     );
   }
 }
+
+// Facts on a line break only after a separator, never inside a fact. The same rule as
+// metaLine(parts, whole: true) on polish/numbers (text_join.dart), which replaces these.
+const String _factSeparator = '\u00A0· ';
+
+/// [fact] with its spaces no-break, so a line never breaks inside it.
+String _whole(String fact) => fact.trim().replaceAll(' ', '\u00A0');
 
 // The tile.
 
@@ -1737,7 +1738,7 @@ class _CurrentNodeFactsState extends ConsumerState<_CurrentNodeFacts> {
           ],
           if (network.isNotEmpty) ...[
             const SizedBox(height: 12),
-            Text(network.join(' · '), style: small),
+            Text(network.map(_whole).join(_factSeparator), style: small),
           ],
           if (checked != null)
             Text(l.serverCheckedAt(localClock(l, checked.toLocal()), statusSiteHost), style: small),

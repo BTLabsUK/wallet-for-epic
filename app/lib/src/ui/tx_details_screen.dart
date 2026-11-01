@@ -24,6 +24,7 @@ import '../wallet_service.dart';
 import '../stall_retry.dart' show invoicePaymentStalled;
 import '../watch_mode.dart' show BlockWait;
 import 'app_dialog.dart';
+import 'address_view.dart';
 import 'common.dart';
 import 'finished_not_posted.dart';
 import 'contacts_screen.dart' show ContactEditScreen;
@@ -1362,7 +1363,7 @@ class _CounterpartyRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (name != null) Text(name!, style: theme.textTheme.titleMedium),
-              SelectableText(address),
+              MarkedAddress(address, selectable: true),
             ],
           ),
           trailing: IconButton(

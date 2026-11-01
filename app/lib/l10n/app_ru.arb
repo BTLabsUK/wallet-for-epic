@@ -4881,6 +4881,7 @@
   "deskNodeSwitchStarting": "Запуск локального узла…",
   "deskNodeSwitchStopping": "Остановка локального узла…",
   "deskNodeSwitchStoppingWord": "Остановка",
+  "deskSetupExistingNodeType": "Уже запущенный узел",
   "deskLvPayOnEpicbox": "На Epicbox",
   "deskRailReceivingInternet": "Принимает · интернет",
   "deskRailReceivingLocal": "Принимает · локально",

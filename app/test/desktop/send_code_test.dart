@@ -454,7 +454,9 @@ void main() {
 
       await review(tester);
       expect(inDialog(selectable('pay.example.com:3415')), findsOneWidget);
-      expect(inDialog(selectable(direct)), findsOneWidget);
+      // The link in full: its host:port marked on the first line, the long path wrapping below.
+      expect(inDialog(selectable('https://pay.example.com:3415')), findsOneWidget);
+      expect(inDialog(selectable(direct.substring('https://pay.example.com:3415'.length))), findsOneWidget);
       expect(inDialog(find.byKey(const ValueKey('send-code-note'))), findsOneWidget);
       expect(tester.takeException(), isNull);
     });

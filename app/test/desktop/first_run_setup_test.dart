@@ -179,7 +179,8 @@ void main() {
     await tester.tap(find.text('Continue'));
     await wait(tester, 300);
     expect(find.text('Review settings'), findsOneWidget);
-    expect(find.text(node), findsOneWidget);
+    // host:port on the review; the full URL only in the field.
+    expect(find.text(hostPort(node)), findsOneWidget);
     expect(wallet.calls, isEmpty, reason: 'nothing happens before Save');
     await tester.tap(find.text('Save settings'));
     await wait(tester, 800);

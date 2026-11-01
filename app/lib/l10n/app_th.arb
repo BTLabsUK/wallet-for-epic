@@ -4881,6 +4881,7 @@
   "deskNodeSwitchStarting": "กำลังเริ่มโหนดในเครื่อง…",
   "deskNodeSwitchStopping": "กำลังหยุดโหนดในเครื่อง…",
   "deskNodeSwitchStoppingWord": "กำลังหยุด",
+  "deskSetupExistingNodeType": "โหนดที่มีอยู่",
   "deskLvPayOnEpicbox": "อยู่บน Epicbox",
   "deskRailReceivingInternet": "กำลังรับ · อินเทอร์เน็ต",
   "deskRailReceivingLocal": "กำลังรับ · ในเครื่อง",
