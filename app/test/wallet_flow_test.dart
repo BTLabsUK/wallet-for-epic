@@ -429,11 +429,11 @@ void main() {
       await _pumpApp(tester, service, device);
       await _tapText(tester, 'Restore from phrase');
 
-      // The error names the first word that is not a phrase word.
+      // The error names every word that is not a phrase word, with its place.
       await _enter(tester, 'Recovery phrase', 'not a valid phrase');
       await _tapText(tester, 'Continue');
       expect(
-        find.text('Word 1, “not”, is not in the word list.'),
+        find.text('Not in the word list: not (1), a (2).'),
         findsOneWidget,
       );
 
@@ -699,7 +699,7 @@ void main() {
       await tester.pump();
       // Offline shows once it lasts (walletStatusProvider).
       await tester.pump(statusSettle);
-      expect(find.bySemanticsLabel(RegExp('^Node, Offline')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('^Node, Not answering')), findsOneWidget);
       handle.dispose();
       // Total 16, spendable 12.5: the rest is in the tiles under the figure; the row scrolls.
       for (final (kind, label, value) in [
@@ -1085,7 +1085,7 @@ void main() {
       await tester.pump(statusSettle);
       expect(find.bySemanticsLabel(RegExp('^Epicbox, Connected')), findsOneWidget);
       // Balances the node did not check count as the node being offline, and say why.
-      expect(find.bySemanticsLabel(RegExp('^Node, Offline')), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp('^Node, Not answering')), findsOneWidget);
       expect(
         tester.getSemantics(find.byKey(nodeStatusKey).first).hint,
         startsWith('Not validated with node. Balances may be out of date.'),
