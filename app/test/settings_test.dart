@@ -10,6 +10,7 @@ import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
+import 'package:epic_wallet/src/ui/pairing/pair_screen.dart' show pairNameFieldKey, pairNameSaveKey;
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayProbeProvider;
@@ -1502,8 +1503,18 @@ void main() {
       await openInvoices(tester);
       expect(find.text(l.invSetEmpty), findsOneWidget);
       await tester.tap(find.byKey(invoiceSettingsPairKey));
-      await tester.pumpAndSettle();
+      // No name kept yet: the Pair screen asks once for the name others see; its code waits
+      // (a spinner) until then, so nothing settles before the answer.
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
       expect(find.text(l.pairTitle), findsWidgets);
+      expect(find.byKey(pairNameFieldKey), findsOneWidget);
+      await tester.enterText(find.byKey(pairNameFieldKey), 'Alex');
+      await tester.tap(find.byKey(pairNameSaveKey));
+      await tester.pumpAndSettle();
+      expect(find.byKey(pairNameFieldKey), findsNothing);
+      expect(find.byType(CircularProgressIndicator), findsNothing, reason: 'the code shows once the name is given');
     });
 
     testWidgets('a verified contact is switched on and off; off declines its requests', (tester) async {
