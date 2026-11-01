@@ -196,7 +196,7 @@ MethodLine methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, Desk
       // The network ends the handshake with the relay (relay_block.dart): one steady state, not
       // Connecting and Not answering in turn; Retry would only fail again.
       if (s.epicboxBlocked && s.epicboxHealth == ServiceHealth.down) {
-        return MethodLine(l.deskEpicboxBlockedWord, EState.risk, detail: l.deskEpicboxBlockedText(host));
+        return MethodLine(l.deskEpicboxBlockedWord, EState.risk, detail: l.deskEpicboxBlockedShort(host));
       }
       // With the Tor switch on, Epicbox goes through Tor or waits for it (tor_routes.dart).
       final way = torWay(TorRoute.epicbox, torStateOf(settings, s));

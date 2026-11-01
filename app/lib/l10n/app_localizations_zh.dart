@@ -14871,6 +14871,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String deskEpicboxBlockedShort(String host) {
+    return '此网络拦截了 $host。请换个服务器或使用专用 DNS。';
+  }
+
+  @override
   String deskEpicboxBlockedSwitch(String host) {
     return '切换到 $host';
   }

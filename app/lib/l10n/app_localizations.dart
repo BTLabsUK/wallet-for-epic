@@ -24716,6 +24716,12 @@ abstract class AppLocalizations {
   /// **'This network blocks {host}. Choose another Epicbox server or use a private DNS.'**
   String deskEpicboxBlockedText(String host);
 
+  /// Epicbox state line detail, rail tooltip line and notice text when the network blocks the relay. {host} is the relay's host name. Short, two lines at most; never names a provider.
+  ///
+  /// In en, this message translates to:
+  /// **'This network blocks {host}. Try another server or a private DNS.'**
+  String deskEpicboxBlockedShort(String host);
+
   /// Button of the blocked-relay notice: one tap moves the wallet to another Epicbox server, no confirmation. {host} is that server's host name.
   ///
   /// In en, this message translates to:

@@ -78,7 +78,7 @@ class _EpicboxDownNoticeState extends ConsumerState<EpicboxDownNotice> {
     return ENotice(
       key: const ValueKey('epicbox-blocked'),
       title: l.deskEpicboxBlockedWord,
-      text: l.deskEpicboxBlockedText(s.epicbox.domain),
+      text: l.deskEpicboxBlockedShort(s.epicbox.domain),
       tone: ETone.risk,
       icon: EIcons.antenna,
       below: button,

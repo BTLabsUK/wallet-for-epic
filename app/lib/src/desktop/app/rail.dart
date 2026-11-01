@@ -119,7 +119,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
         if (eb != ServiceHealth.off && ebHost != null) ebHost,
         if (eb != ServiceHealth.off && ebWay == TorWay.overTor) l.deskRailOverTor,
         if (ebWaits) l.deskRailWaitsForTor,
-        if (blocked) l.deskEpicboxBlockedText(ebHost ?? '') else if (eb == ServiceHealth.down && !ebWaits) l.deskRailPaymentsWait,
+        if (blocked) l.deskEpicboxBlockedShort(ebHost ?? '') else if (eb == ServiceHealth.down && !ebWaits) l.deskRailPaymentsWait,
       ],
       open: l.deskRailOpenEpicbox,
       jump: SettingsJump.epicbox,

@@ -16384,6 +16384,11 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String deskEpicboxBlockedShort(String host) {
+    return 'Ta sieć blokuje $host. Wybierz inny serwer lub prywatny DNS.';
+  }
+
+  @override
   String deskEpicboxBlockedSwitch(String host) {
     return 'Przełącz na $host';
   }

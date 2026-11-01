@@ -4119,6 +4119,7 @@
   "backupSettingsKeepMine": "เก็บของฉัน",
   "deskEpicboxBlockedWord": "ถูกบล็อก",
   "deskEpicboxBlockedText": "เครือข่ายนี้บล็อก {host} เลือกเซิร์ฟเวอร์ Epicbox อื่นหรือใช้ DNS ส่วนตัว",
+  "deskEpicboxBlockedShort": "เครือข่ายนี้บล็อก {host} ลองเซิร์ฟเวอร์อื่นหรือ DNS ส่วนตัว",
   "deskEpicboxBlockedSwitch": "สลับไปที่ {host}",
   "deskSlotNow": "ตอนนี้",
   "deskSlotHelp": "ช่วยเหลือ",

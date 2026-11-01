@@ -4119,6 +4119,7 @@
   "backupSettingsKeepMine": "Zachowaj moje",
   "deskEpicboxBlockedWord": "Zablokowany",
   "deskEpicboxBlockedText": "Ta sieć blokuje {host}. Wybierz inny serwer Epicbox lub użyj prywatnego DNS.",
+  "deskEpicboxBlockedShort": "Ta sieć blokuje {host}. Wybierz inny serwer lub prywatny DNS.",
   "deskEpicboxBlockedSwitch": "Przełącz na {host}",
   "deskSlotNow": "Teraz",
   "deskSlotHelp": "Pomoc",

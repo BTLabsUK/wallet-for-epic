@@ -16359,6 +16359,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String deskEpicboxBlockedShort(String host) {
+    return 'Эта сеть блокирует $host. Выберите другой сервер или частный DNS.';
+  }
+
+  @override
   String deskEpicboxBlockedSwitch(String host) {
     return 'Переключиться на $host';
   }

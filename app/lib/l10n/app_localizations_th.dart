@@ -15416,6 +15416,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String deskEpicboxBlockedShort(String host) {
+    return 'เครือข่ายนี้บล็อก $host ลองเซิร์ฟเวอร์อื่นหรือ DNS ส่วนตัว';
+  }
+
+  @override
   String deskEpicboxBlockedSwitch(String host) {
     return 'สลับไปที่ $host';
   }
