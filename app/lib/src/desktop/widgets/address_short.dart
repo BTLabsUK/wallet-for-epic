@@ -6,6 +6,7 @@ import '../../recipient.dart' show RecipientKind;
 import '../desk_l10n.dart';
 import '../../address_format.dart';
 import '../data/addresses.dart';
+import '../../text_join.dart' show metaSeparator;
 import '../theme/tokens.dart';
 import 'surfaces.dart';
 import 'tip.dart';
@@ -202,17 +203,16 @@ class EAddressLines extends StatelessWidget {
       children: [
         Row(
           children: [
-            // The full tag gives way with the name, each in proportion to its own width, so a
-            // narrow list cuts both instead of running over.
+            // The name gives way; the kind tag keeps its whole word (#14): a cut "Epicb…" beside
+            // empty room read as broken.
             Flexible(
-              flex: full ? _width(context, name, ts.strong).ceil().clamp(1, 1 << 16) : 1,
               child: Text(name, style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis),
             ),
             ?nameTrailing,
             // A contact with no address (paired only) has no kind to tag.
             if (address.trim().isNotEmpty && !several) ...[
               SizedBox(width: Sp.x2),
-              if (full) Flexible(flex: _fullTagFlex, child: EKindTag(addressKindOf(address))) else EKindTag(addressKindOf(address), compact: true),
+              EKindTag(addressKindOf(address), compact: !full),
             ],
           ],
         ),
@@ -243,12 +243,12 @@ class EAddressLines extends StatelessWidget {
                 children: [
                   if (withAddress) ...[Flexible(child: EShortAddress(address, style: aStyle)), SizedBox(width: Sp.x2)],
                   for (final a in addresses!) ...[EKindTag(addressKindOf(a), compact: true), SizedBox(width: Sp.x1)],
-                  if (n.isNotEmpty) Flexible(child: Text(' · $n', style: nStyle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+                  if (n.isNotEmpty) Flexible(child: Text('$metaSeparator$n', style: nStyle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
                 ],
               );
             }
             if (n.isEmpty) return EShortAddress(address, style: aStyle);
-            final noteMin = _width(context, ' · ${n.length > 12 ? n.substring(0, 12) : n}', nStyle);
+            final noteMin = _width(context, '$metaSeparator${n.length > 12 ? n.substring(0, 12) : n}', nStyle);
             final fullW = shortAddressWidth(context, address, aStyle);
             final compact = _width(context, shortAddress(address, compact: true), aStyle) + 1;
             final double? w = fullW + noteMin <= box.maxWidth ? fullW : (compact + noteMin <= box.maxWidth ? compact : null);
@@ -256,7 +256,7 @@ class EAddressLines extends StatelessWidget {
             return Row(
               children: [
                 SizedBox(width: w, child: EShortAddress(address, style: aStyle)),
-                Flexible(child: Text(' · $n', style: nStyle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
+                Flexible(child: Text('$metaSeparator$n', style: nStyle, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis)),
               ],
             );
           },
@@ -264,9 +264,6 @@ class EAddressLines extends StatelessWidget {
       ],
     );
   }
-
-  /// About the width of a full kind tag (glyph and short name), as its share of a narrow row.
-  static const int _fullTagFlex = 72;
 
   static double _width(BuildContext context, String text, TextStyle style) {
     final tp = TextPainter(
