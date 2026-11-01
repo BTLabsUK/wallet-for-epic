@@ -336,7 +336,11 @@ void main() {
       await settle();
       expect(s.drainPaymentCalls, 0, reason: 'nothing while locked');
       c.read(sessionProvider.notifier).unlocked(s);
-      await settle();
+      // The drain starts after the unlock's own async work: waited for, not a fixed 20 ms,
+      // which a loaded machine (the full suite, 12 files at once) can outlast.
+      for (var i = 0; i < 100 && s.drainPaymentCalls == 0; i++) {
+        await settle();
+      }
       expect(s.drainPaymentCalls, 1);
       expect(c.read(paymentsDrainProvider), const PaymentsDrainReport());
       await c.read(paymentsDrainProvider.notifier).drain();
