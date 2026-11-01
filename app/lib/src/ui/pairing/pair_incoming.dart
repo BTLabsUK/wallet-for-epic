@@ -23,6 +23,7 @@ import '../../slate_files.dart';
 import '../../tor_build.dart';
 import '../../updater.dart' show updateProvider;
 import '../../wallet_service.dart';
+import '../app_dialog.dart';
 import '../common.dart';
 import '../contact_page.dart' show AddressText;
 import '../phone_sheet.dart';
@@ -507,22 +508,16 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
 /// Asks before cancelling the pairing with [name]; true to cancel.
 Future<bool> confirmCancelPairing(BuildContext context, String name) async {
   final l = context.l10n;
-  final sure = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(l.pairCancelPairingTitle),
-      content: Text(l.pairCancelPairingBody(name)),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.contactKeep)),
-        TextButton(
-          style: TextButton.styleFrom(foregroundColor: context.tokens.risk),
-          onPressed: () => Navigator.pop(context, true),
-          child: Text(l.pairCancelPairing),
-        ),
-      ],
-    ),
+  return confirmAppDialog(
+    context,
+    title: l.pairCancelPairingTitle,
+    icon: Icons.link_off,
+    tone: DialogTone.risk,
+    description: l.pairCancelPairingBody(name),
+    cancelLabel: l.contactKeep,
+    confirmLabel: l.pairCancelPairing,
+    risk: true,
   );
-  return sure == true;
 }
 
 /// An answer opened outside the Pair screen (a scan, a tapped link): the finish code to send
