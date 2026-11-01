@@ -11,6 +11,7 @@ import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import '../../../devices/device_providers.dart' show holdOf;
 import '../../data/devices_state.dart' show deskDeviceBookProvider;
 import '../settings/settings_devices.dart' show deskReleaseHeld;
+import '../../../models.dart' show defaultMinimumConfirmations;
 import '../../../smart_outputs.dart' show OutputPart;
 import 'outputs_dialogs.dart';
 import 'tx_display.dart' show iconOf, shortDayMonth;
@@ -212,7 +213,8 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (balance != null) ...[_Tiles(balance: balance, counts: all == null ? null : counts), SizedBox(height: Sp.x4)],
+          _Tiles(balance: balance, counts: all == null ? null : counts),
+          SizedBox(height: Sp.x4),
           ..._list(value, counts),
           // The management part, after the table: what outputs are, Split and Consolidate,
           // a line to where the defaults for sends are.
@@ -452,69 +454,89 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
   }
 }
 
-/// The balance by part, each with its number of outputs; Total on the right.
+/// The balance by part, each with its number of outputs; Total on the right. Every tile is
+/// always there (a zero one dimmed), so the row never changes with the balance; until the
+/// balance and the outputs are read, each count and value is a [Skeleton] of the loaded text.
 class _Tiles extends StatelessWidget {
   const _Tiles({required this.balance, required this.counts});
 
-  final Balance balance;
+  final Balance? balance;
   final OutputCounts? counts;
+
+  /// What a loading tile lays out under its bars: a count and a value of a usual width.
+  static const int _placeholderCount = 88;
+  static const int _placeholderNano = 1000 * 100000000;
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
-    // Label, then "N outputs", then the value, as the phone's tiles. [hint] puts an
-    // explanation behind an info icon after the label (the Locked tile while outputs are locked).
-    Widget tile(String label, Widget? mark, int nano, int? n, {bool total = false, String? hint}) => Semantics(
-      container: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ?mark,
-              if (mark != null) SizedBox(width: Sp.x2),
-              Text(label, style: ts.small),
-              if (hint != null) ...[SizedBox(width: Sp.x1), EInfoHint(hint)],
-            ],
-          ),
-          SizedBox(height: Sp.x1),
-          SizedBox(
-            height: 24.u,
-            child: n == null
-                ? Padding(
-                    padding: EdgeInsets.symmetric(vertical: 5.u),
-                    child: Container(
-                      key: const ValueKey('outputs-count-loading'),
-                      width: 56.u,
-                      decoration: BoxDecoration(color: c.s3, borderRadius: BorderRadius.circular(Rad.xs)),
-                    ),
-                  )
-                : Text(l.deskOutCount(n), style: ts.body.copyWith(fontSize: Fs.lg, fontWeight: FontWeight.w600, color: n == 0 ? c.dim : c.text)),
-          ),
-          SizedBox(height: 2.u),
-          EMoney(nano, size: Fs.sm, unit: total, weight: total ? FontWeight.w600 : null, color: nano == 0 ? c.faint : c.dim),
-        ],
-      ),
-    );
-    final icon = Ctl.iconSm;
     final b = balance;
     final n = counts;
+    final loading = b == null || n == null;
+    // Label, then "N outputs", then the value, as the phone's tiles. [hint] puts an
+    // explanation behind an info icon after the label (the Locked tile while outputs are locked).
+    Widget tile(String label, Widget? mark, int? nano, int? count, {bool total = false, String? hint}) {
+      final shownCount = loading ? _placeholderCount : count!;
+      final shownNano = loading ? _placeholderNano : nano!;
+      return Semantics(
+        container: true,
+        child: ConstrainedBox(
+          // A tile's width does not follow its figures, so the next tile stays put as they load.
+          constraints: BoxConstraints(minWidth: 128.u),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ?mark,
+                  if (mark != null) SizedBox(width: Sp.x2),
+                  Text(label, style: ts.small),
+                  if (hint != null && !loading) ...[SizedBox(width: Sp.x1), EInfoHint(hint)],
+                ],
+              ),
+              SizedBox(height: Sp.x1),
+              Skeleton(
+                key: loading ? const ValueKey('outputs-count-loading') : null,
+                loading: loading,
+                color: c.s3,
+                radius: Rad.xs,
+                inset: EdgeInsets.symmetric(vertical: 5.u),
+                child: SizedBox(
+                  height: 24.u,
+                  child: Text(l.deskOutCount(shownCount), style: ts.body.copyWith(fontSize: Fs.lg, fontWeight: FontWeight.w600, color: shownCount == 0 ? c.dim : c.text)),
+                ),
+              ),
+              SizedBox(height: 2.u),
+              Skeleton(
+                loading: loading,
+                color: c.s3,
+                radius: Rad.xs,
+                inset: EdgeInsets.symmetric(vertical: 3.u),
+                child: EMoney(shownNano, size: Fs.sm, unit: total, weight: total ? FontWeight.w600 : null, color: shownNano == 0 ? c.faint : c.dim),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final icon = Ctl.iconSm;
     return EPanel(
       child: Wrap(
         spacing: 40.u,
         runSpacing: 24.u,
         children: [
-          tile(l.deskOutTileSpendable, Icon(EIcons.okCircle, size: icon, color: c.ok), b.spendable, n?.spendable),
+          tile(l.deskOutTileSpendable, Icon(EIcons.okCircle, size: icon, color: c.ok), b?.spendable, n?.spendable),
           // Its count takes the outputs awaiting finalization too, so its value does (linux-08),
           // as the phone's: they are in no other figure and not in Total.
-          tile(l.deskOutTileConfirming, ERing(confirmations: 1, needed: b.minConfirmations, size: icon), b.awaitingConfirmation + b.awaitingFinalization, n?.confirming),
-          if (b.immature > 0) tile(l.deskOutTileImmature, Icon(EIcons.sand, size: icon, color: c.info), b.immature, n?.immature),
-          tile(l.deskOutTileLocked, Icon(EIcons.lock, size: icon, color: c.dim), b.locked, n?.locked, hint: b.locked > 0 ? l.deskOutLockedNote : null),
-          tile(l.deskOutTileTotal, null, b.total, n?.total, total: true),
+          tile(l.deskOutTileConfirming, ERing(confirmations: 1, needed: b?.minConfirmations ?? defaultMinimumConfirmations, size: icon), b == null ? null : b.awaitingConfirmation + b.awaitingFinalization, n?.confirming),
+          tile(l.deskOutTileImmature, Icon(EIcons.sand, size: icon, color: c.info), b?.immature, n?.immature),
+          tile(l.deskOutTileLocked, Icon(EIcons.lock, size: icon, color: c.dim), b?.locked, n?.locked, hint: (b?.locked ?? 0) > 0 ? l.deskOutLockedNote : null),
+          tile(l.deskOutTileTotal, null, b?.total, n?.total, total: true),
         ],
       ),
     );
