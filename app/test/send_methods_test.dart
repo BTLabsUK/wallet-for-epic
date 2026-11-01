@@ -1286,7 +1286,7 @@ void main() {
       await _tap(tester, find.byKey(receiveTurnOnTorKey));
       expect(h.container.read(phoneTorProvider).receiving, isTrue);
       expect(find.byKey(receiveTorAddressKey), findsOneWidget);
-      expect(find.text('Tor\u00A0· Starting…'), findsOneWidget);
+      expect(find.text('Tor\u00A0· Starting'), findsOneWidget);
       expect(
         find.text(
           'Some wallets show the address without .onion; both are the same '
