@@ -226,7 +226,7 @@ void _listenDesktop(Ref ref, InviteInbox inbox) {
     if (text is String) inbox.deliver(text);
   }).catchError((Object error) {
     // No native side (tests, an older runner): nothing can have been opened.
-    if (error is! MissingPluginException) logWarn('links', 'no pending link: $error');
+    if (error is! MissingPluginException) logWarn('links', 'no pending link: ${error.runtimeType}');
   });
 }
 
