@@ -136,15 +136,15 @@ EPICBOX_METHOD = label("methodEpicbox", "Epicbox")
 CLEAR_RECIPIENT = label("sendClearRecipient", "Clear recipient")
 AMOUNT_STEP = label("sendStepAmount", "Amount")
 
-# Wallet levels (main after 26.10.24): a fresh install answers "Pick your depth" before Welcome;
+# Wallet levels (main after 26.10.24): a fresh install answers "Pick your view" (26.10.25 wording) before Welcome;
 # an existing install updated to a build with levels is settled to level 3 and never asked.
-LEVEL_PICK_TITLE = label("lvPickTitle", "Pick your depth")
+LEVEL_PICK_TITLE = label("lvPickTitle", "Pick your view")
 LEVEL_DEEP_END = label("lvPickStopThree", "Deep end")                # the dial's level-3 stop
 LEVEL_UNDERCOVER = label("levelUndercoverTitle", "Undercover from the start")
-LEVEL_ROW = label("levelRowTitle", "Wallet level")                   # Settings › Advanced, first row
+LEVEL_ROW = label("levelRowTitle", "Wallet view")                   # Settings › Advanced, first row
 LEVEL_THREE = label("levelThreeTitle", "Let me explore everything")  # that row's value at level 3
 LEVELS_BUILT = "levelRowTitle" in _ARB                               # the candidate has levels
-DESK_DEPTH = label("lvPickDepth", "Depth")  # desktop: the dial's group, Settings › Advanced and About
+DESK_DEPTH = label("lvPickDepth", "View")  # desktop: the dial's group, Settings › Advanced and About
 LEVEL_KEY = "app.level"  # the stored level (app/lib/src/levels/wallet_level.dart levelKey): 1, 2, 3 or ask
 
 

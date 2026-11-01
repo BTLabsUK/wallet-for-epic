@@ -267,7 +267,7 @@ def start_app(expect, secs=180):
 
 
 def level_picker_shown(ns=None):
-    """The first-start level picker ("Pick your depth") is on screen: a fresh install of a build
+    """The first-start level picker ("Pick your view") is on screen: a fresh install of a build
     with wallet levels."""
     return bool(find(S, facts.LEVEL_PICK_TITLE, ns=ns))
 
@@ -804,7 +804,7 @@ def confirmations_now():
 
 
 def wallet_level(ns=None):
-    """Settings › Advanced's "Wallet level" row value ("Let me explore everything" at level 3),
+    """Settings › Advanced's "Wallet view" row value ("Let me explore everything" at level 3),
     read off the page on screen; None on a build without levels (no such row)."""
     ns = nodes(S) if ns is None else ns
     n = next((x for x in ns if x["label"].startswith(facts.LEVEL_ROW + " | ")), None)

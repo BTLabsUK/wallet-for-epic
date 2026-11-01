@@ -318,7 +318,7 @@ class Run:
         self.log("depth dial: %s (level 3)" % facts.LEVEL_DEEP_END)
 
     def level_shown(self):
-        """The depth Settings › About names ("Depth: Deep end"); None on a build without levels."""
+        """The depth Settings › About names ("View: Deep end"; "Depth: …" before the 26.10.25 rename); None on a build without levels."""
         try:
             self.settings_page("About")
         except Exception as e:  # never sinks the run: the level then reads as not shown, and the log says why
