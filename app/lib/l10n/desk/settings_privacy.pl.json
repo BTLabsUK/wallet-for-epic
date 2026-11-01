@@ -15,5 +15,7 @@
   "deskSetPrivProblemDetail": "{problem}. Ponów albo wyłącz Tor.",
   "deskSetPrivStatusSite": "Strona stanu",
   "deskSetPrivUseStatus": "Używaj {site}",
-  "deskSetPrivUseStatusHint": "Pokazuje, które węzły i serwery Epicbox są online, z publicznej listy na status.btlabs.uk."
+  "deskSetPrivUseStatusHint": "Pokazuje, które węzły i serwery Epicbox są online, z publicznej listy na status.btlabs.uk.",
+  "deskSetPrivUndercoverLine": "Incognito utrzymuje Tor włączony.",
+  "deskSetPrivUndercoverChange": "Zmień Incognito"
 }

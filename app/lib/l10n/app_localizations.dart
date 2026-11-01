@@ -20348,11 +20348,23 @@ abstract class AppLocalizations {
   /// **'Locks the wallet after this long without a key press or mouse movement. With Never, only Lock wallet locks it.'**
   String get deskSetAcctAutoLockHint;
 
-  /// Line under the Tor switch while the Tor only network mode locks it on.
+  /// Line under the Tor switch (and on a tap of it) while Undercover (Tor only) keeps the switch on and locked. Undercover is the name of the Tor only setting on the level page.
   ///
   /// In en, this message translates to:
-  /// **'Tor only is on in Advanced.'**
-  String get netBlockTorOnly;
+  /// **'Undercover keeps Tor on.'**
+  String get torUndercoverKeepsOn;
+
+  /// Small link next to the Undercover line under the Tor switch; opens the level page where Undercover is turned on or off.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Undercover'**
+  String get torUndercoverChange;
+
+  /// Action of the short notice shown on a tap of the locked Tor switch in Undercover; opens the level page where Undercover is changed. Keep it one short word: the notice has little room.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get torUndercoverChangeShort;
 
   /// Small text link on a payment's details that shows the technical rows for this view only, when Technical details is off in Advanced.
   ///
@@ -20587,12 +20599,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Waiting for Tor. Tor only is on in Advanced.'**
   String get deskNetWaitingTorReason;
-
-  /// Line under the Tor switch in Settings › Privacy while the Tor only network mode keeps the switch on and locked.
-  ///
-  /// In en, this message translates to:
-  /// **'Tor only is on in Advanced.'**
-  String get deskNetTorOnlyLine;
 
   /// Link or small button that opens Settings › Advanced, next to a line that names the network mode.
   ///
@@ -29083,6 +29089,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'With the log of the last session.'**
   String get deskLastSessionAttached;
+
+  /// Settings › Privacy: line under the Tor switch (and on a tap of it) while Undercover (Tor only) keeps the switch on and locked. Undercover is the name of the Tor only setting on the level page.
+  ///
+  /// In en, this message translates to:
+  /// **'Undercover keeps Tor on.'**
+  String get deskSetPrivUndercoverLine;
+
+  /// Small link next to the Undercover line under the Tor switch; opens the Depth page (Settings › Advanced › Change level) where Undercover is turned on or off.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Undercover'**
+  String get deskSetPrivUndercoverChange;
 }
 
 class _AppLocalizationsDelegate

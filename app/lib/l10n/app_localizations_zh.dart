@@ -12125,7 +12125,13 @@ class AppLocalizationsZh extends AppLocalizations {
       '在这段时间内没有按键或移动鼠标时锁定钱包。选“从不”时，只能用“锁定钱包”锁定。';
 
   @override
-  String get netBlockTorOnly => '“高级”中已开启“仅 Tor”。';
+  String get torUndercoverKeepsOn => '隐身模式让 Tor 保持开启。';
+
+  @override
+  String get torUndercoverChange => '更改隐身设置';
+
+  @override
+  String get torUndercoverChangeShort => '更改';
 
   @override
   String get txDetailsMore => '更多';
@@ -12265,9 +12271,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskNetWaitingTorReason => '等待 Tor。“高级”中已开启“仅 Tor”。';
-
-  @override
-  String get deskNetTorOnlyLine => '“高级”中已开启“仅 Tor”。';
 
   @override
   String get deskNetOpenAdvanced => '打开“高级”';
@@ -17558,4 +17561,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskLastSessionAttached => '附带上次运行的日志。';
+
+  @override
+  String get deskSetPrivUndercoverLine => '隐身模式让 Tor 保持开启。';
+
+  @override
+  String get deskSetPrivUndercoverChange => '更改隐身设置';
 }

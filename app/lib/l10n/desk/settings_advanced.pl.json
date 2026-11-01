@@ -23,7 +23,6 @@
   "deskSetAdvOn": "{n, plural, one{1 przełącznik włączony} few{{n} przełączniki włączone} many{{n} przełączników włączonych} other{{n} przełącznika włączonego}}",
   "deskNetOfflineNoPeers": "Twój węzeł nie ma peerów: płatność czeka w jego puli, aż się ponownie połączy.",
   "deskNetWaitingTorReason": "Czeka na Tor. Tylko Tor jest włączony w Zaawansowanych.",
-  "deskNetTorOnlyLine": "Tylko Tor jest włączony w Zaawansowanych.",
   "deskNetOpenAdvanced": "Otwórz Zaawansowane",
   "deskNetSendFileHint": "Przesyłanie pliku nadal działa.",
   "deskNetRecvWaitTorText": "Odbieranie zacznie się, gdy Tor się połączy. Przesyłanie pliku nadal działa.",

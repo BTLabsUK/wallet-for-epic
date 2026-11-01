@@ -100,10 +100,6 @@
   "@deskNetWaitingTorReason": {
     "description": "Why a network action is disabled in Tor only mode while Tor is not connected yet. One short line."
   },
-  "deskNetTorOnlyLine": "Tor only is on in Advanced.",
-  "@deskNetTorOnlyLine": {
-    "description": "Line under the Tor switch in Settings › Privacy while the Tor only network mode keeps the switch on and locked."
-  },
   "deskNetOpenAdvanced": "Open Advanced",
   "@deskNetOpenAdvanced": {
     "description": "Link or small button that opens Settings › Advanced, next to a line that names the network mode."

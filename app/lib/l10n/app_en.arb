@@ -17077,9 +17077,17 @@
   "@deskSetAcctAutoLockHint": {
     "description": "Settings › Account › Security: the hint of the Auto-lock row (a minutes choice and an on/off switch)."
   },
-  "netBlockTorOnly": "Tor only is on in Advanced.",
-  "@netBlockTorOnly": {
-    "description": "Line under the Tor switch while the Tor only network mode locks it on."
+  "torUndercoverKeepsOn": "Undercover keeps Tor on.",
+  "@torUndercoverKeepsOn": {
+    "description": "Line under the Tor switch (and on a tap of it) while Undercover (Tor only) keeps the switch on and locked. Undercover is the name of the Tor only setting on the level page."
+  },
+  "torUndercoverChange": "Change Undercover",
+  "@torUndercoverChange": {
+    "description": "Small link next to the Undercover line under the Tor switch; opens the level page where Undercover is turned on or off."
+  },
+  "torUndercoverChangeShort": "Change",
+  "@torUndercoverChangeShort": {
+    "description": "Action of the short notice shown on a tap of the locked Tor switch in Undercover; opens the level page where Undercover is changed. Keep it one short word: the notice has little room."
   },
   "txDetailsMore": "More",
   "@txDetailsMore": {
@@ -17276,10 +17284,6 @@
   "deskNetWaitingTorReason": "Waiting for Tor. Tor only is on in Advanced.",
   "@deskNetWaitingTorReason": {
     "description": "Why a network action is disabled in Tor only mode while Tor is not connected yet. One short line."
-  },
-  "deskNetTorOnlyLine": "Tor only is on in Advanced.",
-  "@deskNetTorOnlyLine": {
-    "description": "Line under the Tor switch in Settings › Privacy while the Tor only network mode keeps the switch on and locked."
   },
   "deskNetOpenAdvanced": "Open Advanced",
   "@deskNetOpenAdvanced": {
@@ -25176,5 +25180,13 @@
   "deskLastSessionAttached": "With the log of the last session.",
   "@deskLastSessionAttached": {
     "description": "Problem report form: line under the log switch when the report carries the previous session's log instead of the current one."
+  },
+  "deskSetPrivUndercoverLine": "Undercover keeps Tor on.",
+  "@deskSetPrivUndercoverLine": {
+    "description": "Settings › Privacy: line under the Tor switch (and on a tap of it) while Undercover (Tor only) keeps the switch on and locked. Undercover is the name of the Tor only setting on the level page."
+  },
+  "deskSetPrivUndercoverChange": "Change Undercover",
+  "@deskSetPrivUndercoverChange": {
+    "description": "Small link next to the Undercover line under the Tor switch; opens the Depth page (Settings › Advanced › Change level) where Undercover is turned on or off."
   }
 }

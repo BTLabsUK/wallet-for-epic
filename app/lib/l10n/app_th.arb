@@ -3349,7 +3349,9 @@
   "deskSetAdvReset": "ซ่อนทั้งหมดอีกครั้ง",
   "deskSetAdvOn": "{n, plural, other{เปิดอยู่ {n} สวิตช์}}",
   "deskSetAcctAutoLockHint": "ล็อกกระเป๋าเมื่อไม่มีการกดแป้นหรือขยับเมาส์ตามเวลานี้ ถ้าเลือก “ไม่ล็อก” จะล็อกได้ด้วย “ล็อกกระเป๋า” เท่านั้น",
-  "netBlockTorOnly": "โหมด Tor เท่านั้นเปิดอยู่ใน ขั้นสูง",
+  "torUndercoverKeepsOn": "โหมดปกปิดตัวตนเปิด Tor ไว้ตลอด",
+  "torUndercoverChange": "เปลี่ยนโหมดปกปิดตัวตน",
+  "torUndercoverChangeShort": "เปลี่ยน",
   "txDetailsMore": "เพิ่มเติม",
   "restoreStartFromLink": "เริ่มจากวันที่หรือความสูงบล็อก",
   "settingsRescanBodyPlain": "กระเป๋าเงินจะค้นหาเงินของตัวเองอีกครั้ง ตั้งแต่บล็อกแรก",
@@ -3389,7 +3391,6 @@
   "deskOnbRestoreFromHelp": "ใช้เมื่อรายการแรกของกระเป๋าเงินเกิดหลังบล็อกนี้เท่านั้น เว้นว่างไว้เพื่อตรวจทั้งบล็อกเชน",
   "deskOnbRestoreFromInvalid": "ใช้ตัวเลขเท่านั้น หรือเว้นว่างไว้",
   "deskNetWaitingTorReason": "รอ Tor โหมด Tor เท่านั้นเปิดอยู่ใน ขั้นสูง",
-  "deskNetTorOnlyLine": "Tor เท่านั้นเปิดอยู่ใน ขั้นสูง",
   "deskNetOpenAdvanced": "เปิดขั้นสูง",
   "deskNetSendFileHint": "โอนไฟล์ยังใช้ได้",
   "deskNetRecvWaitTorText": "การรับจะเริ่มเมื่อ Tor เชื่อมต่อ โอนไฟล์ยังใช้ได้",
@@ -4846,5 +4847,7 @@
   "deskLastSessionNotNow": "ไว้ทีหลัง",
   "deskLastSessionReportFroze": "แอปไม่ตอบสนอง",
   "deskLastSessionReportClosed": "แอปปิดลงโดยไม่คาดคิด",
-  "deskLastSessionAttached": "พร้อมบันทึกของการใช้งานครั้งล่าสุด"
+  "deskLastSessionAttached": "พร้อมบันทึกของการใช้งานครั้งล่าสุด",
+  "deskSetPrivUndercoverLine": "โหมดปกปิดตัวตนเปิด Tor ไว้ตลอด",
+  "deskSetPrivUndercoverChange": "เปลี่ยนโหมดปกปิดตัวตน"
 }

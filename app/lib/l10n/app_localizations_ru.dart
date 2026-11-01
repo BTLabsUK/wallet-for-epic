@@ -13342,7 +13342,13 @@ class AppLocalizationsRu extends AppLocalizations {
       'Блокирует кошелёк, если столько времени не нажимали клавиши и не двигали мышь. При «Никогда» кошелёк блокируется только кнопкой «Заблокировать кошелёк».';
 
   @override
-  String get netBlockTorOnly => 'Режим «Только Tor» включён в «Дополнительно».';
+  String get torUndercoverKeepsOn => 'Инкогнито держит Tor включённым.';
+
+  @override
+  String get torUndercoverChange => 'Изменить «Инкогнито»';
+
+  @override
+  String get torUndercoverChangeShort => 'Изменить';
 
   @override
   String get txDetailsMore => 'Ещё';
@@ -13496,10 +13502,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskNetWaitingTorReason =>
       'Ждёт Tor. Режим «Только Tor» включён в «Дополнительно».';
-
-  @override
-  String get deskNetTorOnlyLine =>
-      'Режим «Только Tor» включён в «Дополнительно».';
 
   @override
   String get deskNetOpenAdvanced => 'Открыть «Дополнительно»';
@@ -19247,4 +19249,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskLastSessionAttached => 'С журналом последнего сеанса.';
+
+  @override
+  String get deskSetPrivUndercoverLine => 'Инкогнито держит Tor включённым.';
+
+  @override
+  String get deskSetPrivUndercoverChange => 'Изменить «Инкогнито»';
 }

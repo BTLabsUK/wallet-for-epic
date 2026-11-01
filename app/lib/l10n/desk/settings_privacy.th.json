@@ -15,5 +15,7 @@
   "deskSetPrivProblemDetail": "{problem} ลองอีกครั้ง หรือปิด Tor",
   "deskSetPrivStatusSite": "เว็บสถานะ",
   "deskSetPrivUseStatus": "ใช้ {site}",
-  "deskSetPrivUseStatusHint": "แสดงว่าโหนดและเซิร์ฟเวอร์ Epicbox ใดออนไลน์อยู่ จากรายการสาธารณะบน status.btlabs.uk"
+  "deskSetPrivUseStatusHint": "แสดงว่าโหนดและเซิร์ฟเวอร์ Epicbox ใดออนไลน์อยู่ จากรายการสาธารณะบน status.btlabs.uk",
+  "deskSetPrivUndercoverLine": "โหมดปกปิดตัวตนเปิด Tor ไว้ตลอด",
+  "deskSetPrivUndercoverChange": "เปลี่ยนโหมดปกปิดตัวตน"
 }

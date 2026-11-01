@@ -3349,7 +3349,9 @@
   "deskSetAdvReset": "Скрыть всё снова",
   "deskSetAdvOn": "{n, plural, one{{n} переключатель включён} few{{n} переключателя включены} many{{n} переключателей включено} other{{n} переключателя включено}}",
   "deskSetAcctAutoLockHint": "Блокирует кошелёк, если столько времени не нажимали клавиши и не двигали мышь. При «Никогда» кошелёк блокируется только кнопкой «Заблокировать кошелёк».",
-  "netBlockTorOnly": "Режим «Только Tor» включён в «Дополнительно».",
+  "torUndercoverKeepsOn": "Инкогнито держит Tor включённым.",
+  "torUndercoverChange": "Изменить «Инкогнито»",
+  "torUndercoverChangeShort": "Изменить",
   "txDetailsMore": "Ещё",
   "restoreStartFromLink": "Начать с даты или высоты",
   "settingsRescanBodyPlain": "Кошелёк заново ищет свои средства, с первого блока.",
@@ -3389,7 +3391,6 @@
   "deskOnbRestoreFromHelp": "Только если первый платёж кошелька пришёл после этого блока. Оставьте пустым, чтобы проверить весь блокчейн.",
   "deskOnbRestoreFromInvalid": "Введите только цифры или оставьте пустым.",
   "deskNetWaitingTorReason": "Ждёт Tor. Режим «Только Tor» включён в «Дополнительно».",
-  "deskNetTorOnlyLine": "Режим «Только Tor» включён в «Дополнительно».",
   "deskNetOpenAdvanced": "Открыть «Дополнительно»",
   "deskNetSendFileHint": "Передача файла по-прежнему работает.",
   "deskNetRecvWaitTorText": "Приём начнётся, когда Tor подключится. Передача файла по-прежнему работает.",
@@ -4846,5 +4847,7 @@
   "deskLastSessionNotNow": "Не сейчас",
   "deskLastSessionReportFroze": "Приложение перестало отвечать.",
   "deskLastSessionReportClosed": "Приложение неожиданно закрылось.",
-  "deskLastSessionAttached": "С журналом последнего сеанса."
+  "deskLastSessionAttached": "С журналом последнего сеанса.",
+  "deskSetPrivUndercoverLine": "Инкогнито держит Tor включённым.",
+  "deskSetPrivUndercoverChange": "Изменить «Инкогнито»"
 }

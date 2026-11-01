@@ -12876,7 +12876,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Locks the wallet after this long without a key press or mouse movement. With Never, only Lock wallet locks it.';
 
   @override
-  String get netBlockTorOnly => 'Tor only is on in Advanced.';
+  String get torUndercoverKeepsOn => 'Undercover keeps Tor on.';
+
+  @override
+  String get torUndercoverChange => 'Change Undercover';
+
+  @override
+  String get torUndercoverChangeShort => 'Change';
 
   @override
   String get txDetailsMore => 'More';
@@ -13022,9 +13028,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskNetWaitingTorReason =>
       'Waiting for Tor. Tor only is on in Advanced.';
-
-  @override
-  String get deskNetTorOnlyLine => 'Tor only is on in Advanced.';
 
   @override
   String get deskNetOpenAdvanced => 'Open Advanced';
@@ -18619,4 +18622,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskLastSessionAttached => 'With the log of the last session.';
+
+  @override
+  String get deskSetPrivUndercoverLine => 'Undercover keeps Tor on.';
+
+  @override
+  String get deskSetPrivUndercoverChange => 'Change Undercover';
 }

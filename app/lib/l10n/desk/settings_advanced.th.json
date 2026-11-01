@@ -23,7 +23,6 @@
   "deskSetAdvOn": "{n, plural, other{เปิดอยู่ {n} สวิตช์}}",
   "deskNetOfflineNoPeers": "โหนดของคุณไม่มีเพียร์ รายการจะรออยู่ในพูลของโหนดจนกว่าจะเชื่อมต่อใหม่",
   "deskNetWaitingTorReason": "รอ Tor โหมด Tor เท่านั้นเปิดอยู่ใน ขั้นสูง",
-  "deskNetTorOnlyLine": "Tor เท่านั้นเปิดอยู่ใน ขั้นสูง",
   "deskNetOpenAdvanced": "เปิดขั้นสูง",
   "deskNetSendFileHint": "โอนไฟล์ยังใช้ได้",
   "deskNetRecvWaitTorText": "การรับจะเริ่มเมื่อ Tor เชื่อมต่อ โอนไฟล์ยังใช้ได้",
