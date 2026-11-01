@@ -24,6 +24,7 @@ import '../../../network_gate.dart' show NetBlock;
 import '../../desk_l10n.dart';
 import '../../../ui/theme/brand.dart' show BrandVariant, BrandWordmark;
 import '../../widgets/kit.dart';
+import 'licence_texts_dialog.dart';
 import 'settings_frame.dart';
 
 /// The Epic Cash website, from `app-config.toml` (`links.website`); null when left out (the
@@ -134,7 +135,7 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                   child: EButton(
                     label: l.deskSetAboutView,
                     size: EBtnSize.sm,
-                    onPressed: () => showLicensePage(context: context, applicationName: appName, applicationVersion: deskAppVersion),
+                    onPressed: () => showLicenceTextsDialog(context),
                   ),
                 ),
               ),

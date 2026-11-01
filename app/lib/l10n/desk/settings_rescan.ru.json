@@ -12,7 +12,7 @@
   "deskSetRescanDeleteHint": "Также отменяет неподтверждённые транзакции и разблокирует их выходы. Платёж, который уже в пути, может после этого не пройти.",
   "deskSetRescanScanning": "Сканирование блокчейна. Кошельком можно пользоваться; баланс обновится по окончании.",
   "deskSetRescanStopping": "Остановка…",
-  "deskSetRescanChecking": "Проверка… {percent} %",
+  "deskSetRescanChecking": "Проверка… {percent} %",
   "deskSetRescanFailed": "Сканирование не удалось",
   "deskSetRescanNoneFound": "Неподтверждённых транзакций не найдено.",
   "deskSetRescanCancelled": "Неподтверждённые транзакции отменены, их выходы разблокированы.",

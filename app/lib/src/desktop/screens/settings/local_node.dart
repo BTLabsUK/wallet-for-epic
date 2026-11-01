@@ -532,7 +532,7 @@ class _StatusTab extends StatelessWidget {
     final syncing = s.phase == LocalNodePhase.syncing || s.phase == LocalNodePhase.starting;
     final live = s.phase != LocalNodePhase.stopped && s.phase != LocalNodePhase.error;
     final overall = p?.overall;
-    final pct = overall == null ? null : percent(overall);
+    final pct = overall == null ? null : syncPercent(l, overall);
     final startedAgo = s.startedAt == null ? null : now.difference(s.startedAt!);
 
     VoidCallback? actionOf(NodeAct? act) => switch (act) {
@@ -558,7 +558,7 @@ class _StatusTab extends StatelessWidget {
         series: [for (final h in peerHistory) (h.inbound + h.outbound).toDouble()],
         chart: nodeChartHeight(wide: wide),
       ),
-      NodeTile(label: l.deskSetLnodeTileSync, value: pct ?? (s.phase == LocalNodePhase.synced ? '100%' : '–'), series: [for (final x in sync) x.value], chart: nodeChartHeight(wide: wide)),
+      NodeTile(label: l.deskSetLnodeTileSync, value: pct ?? (s.phase == LocalNodePhase.synced ? percentText(l, 100) : '–'), series: [for (final x in sync) x.value], chart: nodeChartHeight(wide: wide)),
       if (p?.stage == SyncStage.chainStateDownload)
         NodeTile(
           label: l.deskSetLnodeTileDownload,
@@ -726,7 +726,7 @@ class NodeSyncBar extends StatelessWidget {
           backgroundColor: c.s3,
           color: c.info,
           semanticsLabel: context.l10n.deskSetLnodeSyncProgress,
-          semanticsValue: value == null ? null : '${(value! * 100).floor()}%',
+          semanticsValue: value == null ? null : percentText(context.l10n, (value! * 100).floor()),
         ),
       ),
     );

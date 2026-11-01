@@ -78,7 +78,7 @@ String localNodeRowText(AppLocalizations l, LocalNodeState? s) {
   return switch (s.phase) {
     LocalNodePhase.stopped => (s.chainDataBytes ?? 0) == 0 ? l.deskSetNodeRowNotSetUp : l.deskSetNodeRowStopped,
     LocalNodePhase.starting => l.deskSetNodeRowStarting,
-    LocalNodePhase.syncing => s.progress?.overall == null ? l.deskSetFrameNodeSyncing : l.deskSetNodeRowSyncingPct(percent(s.progress!.overall!)),
+    LocalNodePhase.syncing => s.progress?.overall == null ? l.deskSetFrameNodeSyncing : l.deskSetNodeRowSyncingPct(syncPercent(l, s.progress!.overall!)),
     LocalNodePhase.synced => l.deskSetFrameNodeSynced,
     LocalNodePhase.error => s.stalled ? l.deskSetNodeRowStalled : l.deskSetNodeRowFailed,
   };

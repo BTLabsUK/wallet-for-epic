@@ -105,7 +105,7 @@
   "deskTorLineReady": "Готов",
   "deskTorLineSendsWork": "{problem}. Отправка работает.",
   "deskTorLinePublishing": "Публикация адреса .onion…",
-  "deskTorLineConnecting": "Подключение к Tor… {percent}%",
+  "deskTorLineConnecting": "Подключение к Tor… {percent} %",
   "deskErrHistOtherWallet": "Данные другого кошелька",
   "deskErrHistOtherChain": "Не та сеть",
   "deskErrHistNotOurs": "Это не файл данных кошелька",

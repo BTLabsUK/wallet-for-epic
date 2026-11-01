@@ -618,7 +618,7 @@ class DeskOverviewPreview extends StatelessWidget {
                       children: [
                         tile(l.deskOvBreakConfirming, '50.00'),
                         tile(depth == 2 ? l.deskLvStartMiniFresh : l.deskOvBreakImmature, '2.00'),
-                        tile(depth == 2 ? l.deskLvStartMiniWaiting : l.deskOvBreakAwaiting, '12.50'),
+                        tile(depth == 2 ? l.deskLvPayTileAwaiting : l.deskOvBreakAwaiting, '12.50'),
                         tile(l.deskOvBreakLocked, '18.91'),
                         tile(l.deskOvBreakTotal, '1,352.44'),
                       ],

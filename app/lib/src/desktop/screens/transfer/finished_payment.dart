@@ -266,7 +266,7 @@ class _PostFinishedDialogState extends ConsumerState<PostFinishedDialog> {
     return EDialog(
       key: const ValueKey('post-finished-dialog'),
       title: _posted ? l.postFinishedDone : l.postFinishedTitle,
-      description: _posted ? l.postFinishedDoneBody : l.postFinishedIntro,
+      description: _posted ? l.postFinishedDoneBody : l.postFinishedIntroOffline,
       icon: _posted ? EIcons.check : EIcons.fileUp,
       tone: _posted ? ETone.ok : ETone.neutral,
       body: _posted

@@ -1174,6 +1174,10 @@
   "@importWarnRisk": {
     "description": "Import warning, sentence 4: at your own risk, no liability for losses."
   },
+  "importWarnRiskPlain": "Importing is at your own risk. No responsibility is taken for any loss.",
+  "@importWarnRiskPlain": {
+    "description": "Import warning, the risk line: importing is at the user's own risk, and no one is liable for a loss. Impersonal, no \"we\"."
+  },
   "importWarnAck": "I have a backup of every wallet",
   "@importWarnAck": {
     "description": "Label of the checkbox the user ticks before Continue is enabled in the import warning."
@@ -1647,6 +1651,16 @@
     "placeholders": {
       "percent": {
         "type": "int"
+      }
+    }
+  },
+  "percentValue": "{percent}%",
+  "@percentValue": {
+    "description": "A percentage on its own (a progress, an uptime), in the language's own form: no space in English, Chinese and Thai, a no-break space in German, Polish and Russian. {percent} is the number, already in local digits.",
+    "placeholders": {
+      "percent": {
+        "type": "String",
+        "example": "40"
       }
     }
   },
@@ -3456,7 +3470,7 @@
   "@advTransactionFiles": {
     "description": "Advanced page switch name: transaction files (the File payment method)."
   },
-  "advTransactionFilesHint": "Adds File Transfer under Settings › Transactions: pay or get paid with a file you pass on yourself.",
+  "advTransactionFilesHint": "Adds File Transfer under Settings › Transactions: pay or get paid with a file you pass on yourself.",
   "@advTransactionFilesHint": {
     "description": "Advanced page: what the Transaction files switch shows."
   },
@@ -3908,7 +3922,7 @@
   "@licencesLead": {
     "description": "Licences screen: the first paragraph."
   },
-  "licencesApp": "Epic Cash Mobile by BT Labs: Apache 2.0.",
+  "licencesApp": "Epic Cash Mobile by BT Labs: Apache-2.0.",
   "@licencesApp": {
     "description": "Licences screen: the wallet itself. Not \"app\" on its own: the web demo shows this screen too."
   },
@@ -3916,7 +3930,7 @@
   "@licencesFlutter": {
     "description": "Licences screen: one line for Flutter and the Dart packages."
   },
-  "licencesLepic": "LEPIC, the Epic Cash wallet library: Apache 2.0, with the Epic Cash secp256k1-zkp fork (CC0) and Rust crates under MIT or Apache 2.0, among them tokio, rustls, rusqlite and blake2.",
+  "licencesLepic": "LEPIC, the Epic Cash wallet library: Apache-2.0, with the Epic Cash secp256k1-zkp fork (CC0) and Rust crates under MIT or Apache-2.0, among them tokio, rustls, rusqlite and blake2.",
   "@licencesLepic": {
     "description": "Licences screen: one line for LEPIC and its key Rust crates. Keep the crate names as they are."
   },
@@ -3931,6 +3945,15 @@
   "licencesFull": "All licence texts",
   "@licencesFull": {
     "description": "Licences screen button that opens the full texts of every licence (Flutter’s licence page)."
+  },
+  "licencesPackageCount": "{count, plural, one{{count} licence} other{{count} licences}}",
+  "@licencesPackageCount": {
+    "description": "Full licence texts list: how many licence texts a package has, under the package name (British spelling, like the rest of the app).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "settingsCopyLink": "Copy link",
   "@settingsCopyLink": {
@@ -4949,7 +4972,7 @@
   "@tourPhoneSendTitle": {
     "description": "Title of the tour card for the Send tab (first-unlock tour). Short."
   },
-  "tourPhoneSendText": "Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a phone next to you. More ways: Settings › Transactions. A review comes first.",
+  "tourPhoneSendText": "Paste or scan an address, or pick a contact. Epicbox pays an address; QR shows a code to a phone next to you. More ways: Settings › Transactions. A review comes first.",
   "@tourPhoneSendText": {
     "description": "Text of the tour card for the Send tab; names the two payment methods shown by default."
   },
@@ -5674,7 +5697,7 @@
   "@netStatusSyncing": {
     "description": "Status card: the wallet is syncing with the node, no percent known."
   },
-  "netStatusSyncingPercent": "Syncing {percent} %",
+  "netStatusSyncingPercent": "Syncing {percent}%",
   "@netStatusSyncingPercent": {
     "description": "Status card: syncing with a percent.",
     "placeholders": {
@@ -6802,7 +6825,7 @@
   "@deskInvPayerNodeDownTitle": {
     "description": "Reason Approve is disabled: the wallet's node cannot be reached."
   },
-  "deskInvPayerNodeDownText": "The wallet cannot check the balance, so it cannot pay. Approve works again once the node answers; you can pick another node in Settings › Node.",
+  "deskInvPayerNodeDownText": "The wallet cannot check the balance, so it cannot pay. Approve works again once the node answers; you can pick another node in Settings › Node.",
   "@deskInvPayerNodeDownText": {
     "description": "Text under the node-down reason. The wallet never switches node by itself."
   },
@@ -6882,7 +6905,7 @@
   "@deskInvPayerNotDeliveredToast": {
     "description": "Toast after Approve when the relay did not take the payment."
   },
-  "deskInvPayerNotDeliveredToastText": "The Epicbox server is not answering. Retry it under Invoices › Pay; no second approval.",
+  "deskInvPayerNotDeliveredToastText": "The Epicbox server is not answering. Retry it under Invoices › Pay; no second approval.",
   "@deskInvPayerNotDeliveredToastText": {
     "description": "Toast text after Approve when the relay did not take the payment."
   },
@@ -7023,6 +7046,10 @@
   },
   "sendBalanceAfter": "Balance after",
   "sendSpendableUntilChange": "Spendable until change confirms",
+  "sendAvailableWhileConfirms": "Available while this confirms",
+  "@sendAvailableWhileConfirms": {
+    "description": "Send review row: what stays spendable while this payment confirms. Plain words, one line."
+  },
   "sendSpendableUntilChangeHint": "The change comes back once the send confirms.",
   "@sendBalanceAfter": {
     "description": "Send review row: the spendable balance once this send and its fee are out."
@@ -7171,7 +7198,7 @@
   "@torNetworkLabel": {
     "description": "The one Tor switch (Settings › Privacy) and the status card’s Tor row: the label, with no description in the row."
   },
-  "torNetworkHint": "Network activity goes through the Tor network. Tor hides the wallet’s IP address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. To get paid at a Tor address, turn on Link · Tor in Settings › Transactions.",
+  "torNetworkHint": "Network activity goes through the Tor network. Tor hides the wallet’s IP address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. To get paid at a Tor address, turn on Link · Tor in Settings › Transactions.",
   "@torNetworkHint": {
     "description": "Tooltip of the Tor Network switch and status row (its info icon): what the switch does and what Tor is, in plain words. Never list what does not go over Tor."
   },
@@ -8045,7 +8072,7 @@
       }
     }
   },
-  "deskNodeStartIt": "Start it under Settings › Node.",
+  "deskNodeStartIt": "Start it under Settings › Node.",
   "@deskNodeStartIt": {
     "description": "Local node tooltip line when the node is stopped."
   },
@@ -8487,7 +8514,7 @@
       }
     }
   },
-  "deskRecvHttpLocal": "Programs on this computer can pay this address. For other devices, see Settings › Transactions.",
+  "deskRecvHttpLocal": "Programs on this computer can pay this address. For other devices, see Settings › Transactions.",
   "@deskRecvHttpLocal": {
     "description": "Caption under the HTTP address when receiving is only for this computer."
   },
@@ -8495,7 +8522,7 @@
   "@deskRecvHttpIntro": {
     "description": "Intro text of the HTTP panel on Receive."
   },
-  "deskRecvHttpTorHint": "Turn on Tor in Settings › Privacy for a Tor address instead.",
+  "deskRecvHttpTorHint": "Turn on Tor in Settings › Privacy for a Tor address instead.",
   "@deskRecvHttpTorHint": {
     "description": "Caption at the bottom of the HTTP panel on Receive."
   },
@@ -8503,7 +8530,7 @@
   "@deskRecvDirectTor": {
     "description": "Title of the Tor panel on Receive."
   },
-  "deskRecvTorIntro": "Straight from another wallet over Tor while this one is open. Tor is set in Settings › Privacy.",
+  "deskRecvTorIntro": "Straight from another wallet over Tor while this one is open. Tor is set in Settings › Privacy.",
   "@deskRecvTorIntro": {
     "description": "Intro text of the Tor panel on Receive."
   },
@@ -8568,6 +8595,10 @@
   "deskSendSpendableUntil": "Spendable until change confirms",
   "@deskSendSpendableUntil": {
     "description": "Summary line on Send: the amount still spendable while the change confirms."
+  },
+  "deskSendSpendableWhile": "Available while this confirms",
+  "@deskSendSpendableWhile": {
+    "description": "Summary line on Send: the amount still spendable while this payment confirms. Plain words, one line."
   },
   "deskSendSplitLine": "{outputs, plural, one{Change split into {outputs} output (+{fee} EPIC fee)} other{Change split into {outputs} outputs (+{fee} EPIC fee)}}",
   "@deskSendSplitLine": {
@@ -8681,6 +8712,16 @@
       }
     }
   },
+  "deskSendReviewSetAsideNone": "{locked} EPIC goes out as it is; nothing is set aside.",
+  "@deskSendReviewSetAsideNone": {
+    "description": "Review dialog, fact \"Locks\": the payment uses the exact amount, nothing is set aside to wait for. {locked} is in EPIC.",
+    "placeholders": {
+      "locked": {
+        "type": "String",
+        "example": "34.7321"
+      }
+    }
+  },
   "deskSendReviewLocksAll": "{count, plural, one{Everything: {locked} EPIC in 1 output until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing stays spendable.} other{Everything: {locked} EPIC in {count} outputs until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing stays spendable.}}",
   "@deskSendReviewLocksAll": {
     "description": "Review dialog, fact \"Locks\": strategy All locks everything. {locked} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
@@ -8698,6 +8739,20 @@
       }
     }
   },
+  "deskSendReviewSetAsideAll": "Everything: {locked} EPIC is set aside until this payment confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing stays spendable.",
+  "@deskSendReviewSetAsideAll": {
+    "description": "Review dialog, fact \"Locks\", Send all: everything is set aside until this payment confirms. {blocks} is the wallet's minimum confirmations.",
+    "placeholders": {
+      "locked": {
+        "type": "String",
+        "example": "34.7321"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
   "deskSendReviewLocksEverything": "{count, plural, one{{locked} EPIC in 1 output until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing else is spendable meanwhile.} other{{locked} EPIC in {count} outputs until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing else is spendable meanwhile.}}",
   "@deskSendReviewLocksEverything": {
     "description": "Review dialog, fact \"Locks\": all outputs are needed. {locked} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
@@ -8708,6 +8763,20 @@
       "locked": {
         "type": "String",
         "example": "1,284.73215"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
+  "deskSendReviewSetAsideEverything": "{locked} EPIC is set aside until this payment confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing else is spendable meanwhile.",
+  "@deskSendReviewSetAsideEverything": {
+    "description": "Review dialog, fact \"Locks\": all spendable coins are set aside until this payment confirms. {blocks} is the wallet's minimum confirmations.",
+    "placeholders": {
+      "locked": {
+        "type": "String",
+        "example": "34.7321"
       },
       "blocks": {
         "type": "int",
@@ -8733,6 +8802,24 @@
       "blocks": {
         "type": "int",
         "example": "6"
+      }
+    }
+  },
+  "deskSendReviewSetAsideSome": "{locked} EPIC is set aside until this payment confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. {spendable} EPIC stays spendable.",
+  "@deskSendReviewSetAsideSome": {
+    "description": "Review dialog, fact \"Locks\": part of the balance is set aside until this payment confirms, the rest stays spendable. Amounts in EPIC. {blocks} is the wallet's minimum confirmations.",
+    "placeholders": {
+      "locked": {
+        "type": "String",
+        "example": "34.7321"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
+      },
+      "spendable": {
+        "type": "String",
+        "example": "1,250.0000"
       }
     }
   },
@@ -8972,6 +9059,16 @@
   "deskSendEpicboxOffText": "Turn on Epicbox receiving to send by Epicbox, or use Direct · File Transfer.",
   "@deskSendEpicboxOffText": {
     "description": "Text of that notice."
+  },
+  "deskSendEpicboxOffTab": "Turn on Epicbox receiving to send by Epicbox, or use {method}.",
+  "@deskSendEpicboxOffTab": {
+    "description": "Send page notice when Epicbox receiving is off. {method} is the Direct · File tab's own name, exactly as the tab shows it.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Direct · File"
+      }
+    }
   },
   "deskSendEpicboxTurnOn": "Turn on Epicbox receiving",
   "@deskSendEpicboxTurnOn": {
@@ -10236,6 +10333,16 @@
       }
     }
   },
+  "deskOutNoteByPendingSend": "by a pending send · {date}",
+  "@deskOutNoteByPendingSend": {
+    "description": "Small grey note after the status 'Locked' on Outputs: a payment still on its way holds the coin; {date} is the day it started.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "21 Oct"
+      }
+    }
+  },
   "deskOutStatusSpent": "Spent",
   "@deskOutStatusSpent": {
     "description": "Status of an output that was spent. Narrow status column."
@@ -11373,6 +11480,14 @@
   "deskOnbWelcomeImportSub": "From an older Epic Wallet or a folder",
   "@deskOnbWelcomeImportSub": {
     "description": "One-line description under 'Import wallets'."
+  },
+  "deskOnbWelcomeCreateSub": "With a new recovery phrase",
+  "@deskOnbWelcomeCreateSub": {
+    "description": "One-line description under 'Create a new wallet' on Welcome, like the other cards' lines. No trailing period."
+  },
+  "deskOnbWelcomeRestoreSub": "Also from Stack Wallet or Epic Pay",
+  "@deskOnbWelcomeRestoreSub": {
+    "description": "One-line description under 'Restore from phrase' on Welcome: wallets from the other apps come back by phrase too. No trailing period."
   },
   "deskOnbWelcomeRestore": "Restore from phrase",
   "@deskOnbWelcomeRestore": {
@@ -12538,7 +12653,7 @@
   "@deskTourContactsText": {
     "description": "Text of the Contacts step of the first-run tour."
   },
-  "deskTourNodeTitle": "Settings › Node",
+  "deskTourNodeTitle": "Settings › Node",
   "@deskTourNodeTitle": {
     "description": "Title of the tour card for this page (first-unlock tour). Short."
   },
@@ -13015,6 +13130,10 @@
   "deskKitNodeDownTitle": "Node not answering.",
   "@deskKitNodeDownTitle": {
     "description": "Title of the notice on the node card when the node does not answer."
+  },
+  "deskKitNodeDownHead": "Node not answering",
+  "@deskKitNodeDownHead": {
+    "description": "Node card notice title: the node does not answer. A title: no period."
   },
   "deskKitNodeDownText": "Switch to {host}, the healthiest other node?",
   "@deskKitNodeDownText": {
@@ -13849,6 +13968,10 @@
   "@deskSetDlgPwDesc": {
     "description": "Change password dialog: description under the title."
   },
+  "deskSetDlgPwDescPlain": "From now on the new password unlocks this wallet, and this computer no longer remembers it.",
+  "@deskSetDlgPwDescPlain": {
+    "description": "Description of the Change password dialog: the new password takes over, and the wallet is no longer remembered on this computer (the Remember switch turns off). Plain words, no switch name."
+  },
   "deskSetDlgPwCurrent": "Current password",
   "@deskSetDlgPwCurrent": {
     "description": "Change password dialog: label and screen reader name of the field."
@@ -13926,7 +14049,7 @@
       }
     }
   },
-  "deskSetDlgRemoveUnlockHint": "To delete its files as well, unlock this wallet and use Delete wallet under Settings › This wallet.",
+  "deskSetDlgRemoveUnlockHint": "To delete its files as well, unlock this wallet and use Delete wallet under Settings › This wallet.",
   "@deskSetDlgRemoveUnlockHint": {
     "description": "Remove wallet dialog: shown for a locked wallet. \"Settings › This wallet\" is a menu path."
   },
@@ -14521,7 +14644,7 @@
       }
     }
   },
-  "deskSetLndAskNote": "Asked once. The node and the choice can be changed under Settings › Node › While syncing.",
+  "deskSetLndAskNote": "Asked once. The node and the choice can be changed under Settings › Node › While syncing.",
   "@deskSetLndAskNote": {
     "description": "Fallback question dialog: small note. \"Settings › Node › While syncing\" is a menu path."
   },
@@ -16553,6 +16676,18 @@
       }
     }
   },
+  "deskSendMessageCount": "{used} / {max}",
+  "@deskSendMessageCount": {
+    "description": "Counter beside the message field on Send and on a new invoice: how much of the limit the message uses (LEPIC counts bytes; no unit shown).",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "deskSendMessageTooLong": "The message is longer than {max} bytes. Shorten it.",
   "@deskSendMessageTooLong": {
     "description": "Error under the Message field on Send when the message is over the limit, in UTF-8 bytes.",
@@ -16561,6 +16696,10 @@
         "type": "int"
       }
     }
+  },
+  "deskSendMessageTooLongPlain": "The message is too long. Shorten it.",
+  "@deskSendMessageTooLongPlain": {
+    "description": "Error under the message field on Send when the message is over the limit. No unit."
   },
   "deskSetPhraseCopyTitle": "Copy the recovery phrase?",
   "@deskSetPhraseCopyTitle": {
@@ -17016,7 +17155,7 @@
   "@advSendOptions": {
     "description": "Advanced switch: strategy and split change on Send."
   },
-  "advSendOptionsHint": "Shows Strategy for sends and Split change in Settings › Transactions: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.",
+  "advSendOptionsHint": "Shows Strategy for sends and Split change in Settings › Transactions: which outputs a send spends, and whether its change is split. Stays visible while either is not at its default.",
   "@advSendOptionsHint": {
     "description": "Info sheet of the Send options switch."
   },
@@ -17443,7 +17582,7 @@
   "@txDefaultsHeader": {
     "description": "Header on Settings › Transactions above Strategy and Split change; shown with Advanced › Send options."
   },
-  "outputsDefaultsMoved": "Send defaults are in Settings › Transactions",
+  "outputsDefaultsMoved": "Send defaults are in Settings › Transactions",
   "@outputsDefaultsMoved": {
     "description": "Row on the Outputs page that opens Settings › Transactions, where Strategy for sends and Split change now are."
   },
@@ -17577,11 +17716,11 @@
   "@netOfflineNodeLine": {
     "description": "Phone: the short line beside the info icon that opens netOfflineNodeHint, under a file or QR Payment action while Offline. 1-3 words."
   },
-  "netBlockEpicboxOff": "Epicbox is off in Settings › Transactions.",
+  "netBlockEpicboxOff": "Epicbox is off in Settings › Transactions.",
   "@netBlockEpicboxOff": {
     "description": "Reason line under a disabled Epicbox action (Send, Receive, the listener, invoices) while the Epicbox switch on Settings › Transactions is off. Phone and desktop."
   },
-  "netBlockMethodOff": "{method} is off in Settings › Transactions.",
+  "netBlockMethodOff": "{method} is off in Settings › Transactions.",
   "@netBlockMethodOff": {
     "description": "Reason line under a disabled action by a payment method whose switch on Settings › Transactions is off. {method} is the method's full name (Link · HTTP, Link · Tor, Direct · QR Payment, Direct · File Transfer). Phone and desktop.",
     "placeholders": {
@@ -17636,7 +17775,7 @@
   "@receiveNoMethods": {
     "description": "Receive, empty state title when every method is off in Settings › Transactions."
   },
-  "receiveNoMethodsBody": "Turn one on in Settings › Transactions.",
+  "receiveNoMethodsBody": "Turn one on in Settings › Transactions.",
   "@receiveNoMethodsBody": {
     "description": "Receive, empty state body under receiveNoMethods."
   },
@@ -17648,7 +17787,7 @@
   "@deskNetOfflineNoPeers": {
     "description": "Notice on Send in the Offline mode when the local node in use has no peers."
   },
-  "deskOutDefaultsMoved": "The strategy and Split change for sends are set in Settings › Transactions.",
+  "deskOutDefaultsMoved": "The strategy and Split change for sends are set in Settings › Transactions.",
   "deskOutDefaultsOpen": "Open Transactions",
   "@deskOutDefaultsMoved": {
     "description": "One line on Outputs, under the management cards, shown while Advanced › Send options is on: where the defaults for sends went."
@@ -17852,7 +17991,7 @@
   "@deskRecvTorOffTitle": {
     "description": "Notice on Receive while Link · Tor is on (Settings › Transactions) and Tor (Settings › Privacy) is off: no Tor address until Tor runs."
   },
-  "deskRecvTorOffText": "The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.",
+  "deskRecvTorOffText": "The Tor address works while Tor is on. Tor is Settings › Privacy’s switch; it routes the wallet’s connections through Tor.",
   "@deskRecvTorOffText": {
     "description": "Second line of the Link · Tor needs Tor notice on Receive. Buttons: Turn on Tor, Settings (opens Privacy)."
   },
@@ -18752,7 +18891,7 @@
       }
     }
   },
-  "sasLeadRecheck": "{name}’s wallet shows these under {name} › Check the words. Compare them on a call or in person.",
+  "sasLeadRecheck": "{name}’s wallet shows these under {name} › Check the words. Compare them on a call or in person.",
   "@sasLeadRecheck": {
     "description": "Lead when re-checking from the contact page.",
     "placeholders": {
@@ -20213,15 +20352,15 @@
   "@helpPairInvShort": {
     "description": "Topic 4 lede."
   },
-  "helpPairInvP1": "A shop, an exchange or a person you paired can send invoices, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.",
+  "helpPairInvP1": "A shop, an exchange or a person you paired can send invoices, if you allow it: **Allow invoices** on the contact page, or under [[Settings › Invoices]]. The switch works only for a Verified contact.",
   "@helpPairInvP1": {
     "description": "Topic 4."
   },
-  "helpPairInvP2Desktop": "An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with the wallet password. An invoice never adds money to your wallet.",
+  "helpPairInvP2Desktop": "An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with the wallet password. An invoice never adds money to your wallet.",
   "@helpPairInvP2Desktop": {
     "description": "helpPairInvP2 on the desktop, which pays with the wallet password, not a PIN."
   },
-  "helpPairInvP2": "An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. An invoice never adds money to your wallet.",
+  "helpPairInvP2": "An invoice shows under [[Invoices › Pay]] with the contact’s name, the amount and a reference. Nothing is paid until you approve it with your PIN. An invoice never adds money to your wallet.",
   "@helpPairInvP2": {
     "description": "Topic 4."
   },
@@ -20450,7 +20589,7 @@
   "@expPairingOffTitle": {
     "description": "Title of the sheet shown when a pairing link opens while Pairing is off"
   },
-  "expPairingOffBody": "Turn it on in Settings › Advanced.",
+  "expPairingOffBody": "Turn it on in Settings › Advanced.",
   "@expPairingOffBody": {
     "description": "Body of that sheet"
   },
@@ -20458,7 +20597,7 @@
   "@expInvoicesOffTitle": {
     "description": "Title of the sheet shown when an invoice opens while Invoices is off"
   },
-  "expInvoicesOffBody": "Turn them on in Settings › Advanced.",
+  "expInvoicesOffBody": "Turn them on in Settings › Advanced.",
   "@expInvoicesOffBody": {
     "description": "Body of that sheet"
   },
@@ -20864,7 +21003,7 @@
   "@deskOvRestoredImportButton": {
     "description": "Primary button; opens the Backup page's file chooser. Same text as the phone's restoreImportButton."
   },
-  "deskOvRestoredImportLater": "Later under Settings › This wallet › Wallet data.",
+  "deskOvRestoredImportLater": "Later under Settings › This wallet › Wallet data.",
   "@deskOvRestoredImportLater": {
     "description": "Small line under the buttons. Uses the page names deskSetFrameThisWallet and deskSetBackupGroup."
   },
@@ -21023,7 +21162,7 @@
   "@reqOtherChain": {
     "description": "Customer: the scanned request's time limit does not fit this network."
   },
-  "reqQrOpenNote": "Open in Invoices › Sent for 24 h, then it expires.",
+  "reqQrOpenNote": "Open in Invoices › Sent for 24 h, then it expires.",
   "@reqQrOpenNote": {
     "description": "Dim line on the request page: where the request stays and for how long."
   },
@@ -21168,6 +21307,16 @@
   "deskEpicboxBlockedText": "This network blocks {host}. Choose another Epicbox server or use a private DNS.",
   "@deskEpicboxBlockedText": {
     "description": "Epicbox state line detail and notice text when the network blocks the relay. {host} is the relay's host name. Never names a provider.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "epicbox.example.org"
+      }
+    }
+  },
+  "deskEpicboxBlockedShort": "This network blocks {host}. Try another server or a private DNS.",
+  "@deskEpicboxBlockedShort": {
+    "description": "Epicbox state line detail, rail tooltip line and notice text when the network blocks the relay. {host} is the relay's host name. Short, two lines at most; never names a provider.",
     "placeholders": {
       "host": {
         "type": "String",
@@ -23039,15 +23188,15 @@
       }
     }
   },
-  "netStatusTurnOnHint": "Off. Turn on in Settings › Transactions.",
+  "netStatusTurnOnHint": "Off. Turn on in Settings › Transactions.",
   "@netStatusTurnOnHint": {
     "description": "Status icons: tooltip and hint of a payment method that is off; a tap opens the switch."
   },
-  "netStatusTurnOnHintPrivacy": "Off. Turn on in Settings › Privacy & network.",
+  "netStatusTurnOnHintPrivacy": "Off. Turn on in Settings › Privacy & network.",
   "@netStatusTurnOnHintPrivacy": {
     "description": "Status icons: tooltip of the Tor icon while Tor is off; a tap opens the switch."
   },
-  "deskBarTurnOnHint": "Off. Turn on in Settings › Transactions.",
+  "deskBarTurnOnHint": "Off. Turn on in Settings › Transactions.",
   "@deskBarTurnOnHint": {
     "description": "Title bar status glyphs: appended to the tooltip and label of a service that is off; its row in the list opens the switch."
   },
@@ -23627,7 +23776,7 @@
       }
     }
   },
-  "statusOffByModeDetail": "Turned off by the network mode. Change it in Settings › Advanced › Network.",
+  "statusOffByModeDetail": "Turned off by the network mode. Change it in Settings › Advanced › Network.",
   "@statusOffByModeDetail": {
     "description": "Detail of a status icon that is off because of the network mode."
   },
@@ -23833,6 +23982,10 @@
   "@postFinishedIntro": {
     "description": "Intro line of that screen."
   },
+  "postFinishedIntroOffline": "Post a payment another device finished with no connection.",
+  "@postFinishedIntroOffline": {
+    "description": "Lead of Post a finished payment (phone screen, desktop dialog and the desktop Receive row): put on the chain a payment another device finished without a connection. Plain words."
+  },
   "postFinishedOpenFile": "Open file",
   "@postFinishedOpenFile": {
     "description": "Button: choose the finished payment file."
@@ -23913,7 +24066,7 @@
   "@deskSetAdvModeStandardHint": {
     "description": "Info text of the Normal row (desktop)."
   },
-  "deskFinNotPostedKillBody": "{amount} is finished. Kill switch is on, so this computer cannot post it. Save it or copy it, then post it on a device that is online: Receive › Transaction files › Post a finished payment.",
+  "deskFinNotPostedKillBody": "{amount} is finished. Kill switch is on, so this computer cannot post it. Save it or copy it, then post it on a device that is online: Receive › Transaction files › Post a finished payment.",
   "@deskFinNotPostedKillBody": {
     "description": "Body of that screen (desktop).",
     "placeholders": {
@@ -24333,13 +24486,43 @@
   "@deskSendEpicboxNodeOnly": {
     "description": "Send notice and hint while Node only is on and Epicbox is chosen: the desktop has no QR Payment, so only File Transfer works."
   },
+  "deskSendEpicboxNodeOnlyTab": "Node only is on: Epicbox is off. {method} works.",
+  "@deskSendEpicboxNodeOnlyTab": {
+    "description": "Send page notice on the Epicbox tab under Node only. {method} is the Direct · File tab's own name, exactly as the tab shows it.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Direct · File"
+      }
+    }
+  },
   "deskSendLinkNodeOnly": "Node only is on: Link is off. Direct · File Transfer works.",
   "@deskSendLinkNodeOnly": {
     "description": "Send notice while Node only is on and Link is chosen: only File Transfer works on the desktop."
   },
+  "deskSendLinkNodeOnlyTab": "Node only is on: Link is off. {method} works.",
+  "@deskSendLinkNodeOnlyTab": {
+    "description": "Send page notice on the Link tab under Node only. {method} is the Direct · File tab's own name, exactly as the tab shows it.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Direct · File"
+      }
+    }
+  },
   "deskSendKillSwitch": "Kill switch is on: nothing connects. Direct · File Transfer works.",
   "@deskSendKillSwitch": {
     "description": "Send notice while Kill switch is on and Epicbox or Link is chosen: only File Transfer works on the desktop."
+  },
+  "deskSendKillSwitchTab": "Kill switch is on: nothing connects. {method} works.",
+  "@deskSendKillSwitchTab": {
+    "description": "Send page notice under Kill switch. {method} is the Direct · File tab's own name, exactly as the tab shows it.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Direct · File"
+      }
+    }
   },
   "levelStepTitle": "How much wallet do you want?",
   "@levelStepTitle": {
@@ -24377,7 +24560,7 @@
   "@levelUndercoverLine": {
     "description": "Line under the Undercover from the start switch."
   },
-  "levelFooter": "Change it any time in Settings › Advanced.",
+  "levelFooter": "Change it any time in Settings › Advanced.",
   "@levelFooter": {
     "description": "Footer of the first-start step: where to change the level later."
   },
@@ -24445,7 +24628,7 @@
   "@lvPickHelpText": {
     "description": "Level picker ⓘ sheet: text."
   },
-  "lvPickUndercoverHelp": "Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Network mode › Tor only; it can be turned off later in Settings › Advanced.",
+  "lvPickUndercoverHelp": "Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Network mode › Tor only; it can be turned off later in Settings › Advanced.",
   "@lvPickUndercoverHelp": {
     "description": "ⓘ sheet of 'Undercover from the start' on the first-start picker."
   },
@@ -24863,7 +25046,7 @@
   "@deskLvStartUndercoverAbout": {
     "description": "Label of the info button next to the Undercover switch."
   },
-  "deskLvStartChangeLater": "Change it any time in Settings › Advanced.",
+  "deskLvStartChangeLater": "Change it any time in Settings › Advanced.",
   "@deskLvStartChangeLater": {
     "description": "Welcome, under the depth dial: where the depth can be changed later. A \"What this decides\" link follows it."
   },
@@ -25211,6 +25394,10 @@
   "@deskLvPayReadyTitle": {
     "description": "Overview notice at Shallow in a wallet with no payments: title."
   },
+  "deskLvPayReadyHead": "Wallet ready",
+  "@deskLvPayReadyHead": {
+    "description": "Overview notice title at Shallow when the new wallet is ready. A title: no period, no \"your\"."
+  },
   "deskLvPayReadyText": "Share the address to get the first EPIC.",
   "@deskLvPayReadyText": {
     "description": "Overview notice at Shallow in a wallet with no payments: text."
@@ -25226,6 +25413,10 @@
   "deskLvPayTileWaiting": "Waiting for the other side",
   "@deskLvPayTileWaiting": {
     "description": "Deeper Overview tile: payments waiting for the sender to finish."
+  },
+  "deskLvPayTileAwaiting": "Awaiting reply",
+  "@deskLvPayTileAwaiting": {
+    "description": "Deeper Overview tile and the small Overview picture at Deeper: payments waiting for the other wallet's reply. Short: fits one line in a narrow tile."
   },
   "deskLvPayTileLocked": "Set aside for sends",
   "@deskLvPayTileLocked": {

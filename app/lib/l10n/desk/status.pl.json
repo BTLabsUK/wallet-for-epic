@@ -31,7 +31,7 @@
   "deskNodeStillUsing": "Nadal używany jest {host}; węzeł lokalny wkrótce go zastąpi.",
   "deskNodeNoProgress": "Brak postępu od 5 min. Raz już uruchomiono ponownie.",
   "deskNodeUsingMeanwhile": "W międzyczasie używany jest {host}.",
-  "deskNodeStartIt": "Uruchom go w Ustawienia › Węzeł.",
+  "deskNodeStartIt": "Uruchom go w Ustawienia › Węzeł.",
   "deskNodeFailPort": "port {port} zajmuje inny program",
   "deskNodeFailDisk": "za mało miejsca na dysku",
   "deskNodeFailMissing": "brak programu węzła",

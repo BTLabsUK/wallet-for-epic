@@ -59,6 +59,10 @@
   "@deskSetDlgPwDesc": {
     "description": "Change password dialog: description under the title."
   },
+  "deskSetDlgPwDescPlain": "From now on the new password unlocks this wallet, and this computer no longer remembers it.",
+  "@deskSetDlgPwDescPlain": {
+    "description": "Description of the Change password dialog: the new password takes over, and the wallet is no longer remembered on this computer (the Remember switch turns off). Plain words, no switch name."
+  },
   "deskSetDlgPwCurrent": "Current password",
   "@deskSetDlgPwCurrent": {
     "description": "Change password dialog: label and screen reader name of the field."
@@ -136,7 +140,7 @@
       }
     }
   },
-  "deskSetDlgRemoveUnlockHint": "To delete its files as well, unlock this wallet and use Delete wallet under Settings › This wallet.",
+  "deskSetDlgRemoveUnlockHint": "To delete its files as well, unlock this wallet and use Delete wallet under Settings › This wallet.",
   "@deskSetDlgRemoveUnlockHint": {
     "description": "Remove wallet dialog: shown for a locked wallet. \"Settings › This wallet\" is a menu path."
   },

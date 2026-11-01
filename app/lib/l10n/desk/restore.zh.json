@@ -27,7 +27,7 @@
   "deskOvRestoredImportTitle": "钱包已恢复",
   "deskOvRestoredImportBody": "余额已找回。此钱包的钱包数据文件可找回记录、联系人、账单和设置。",
   "deskOvRestoredImportButton": "导入钱包数据",
-  "deskOvRestoredImportLater": "以后可在“设置 › 此钱包 › 钱包数据”中导入。",
+  "deskOvRestoredImportLater": "以后可在“设置 › 此钱包 › 钱包数据”中导入。",
   "deskOnbForgotNoCheck": "此钱包的文件无法确认该助记词，因此密码保持不变。",
   "deskOnbForgotRestoreHint": "请改为用助记词恢复：{name} 会从列表中移除，其文件仍保留在这台电脑上。",
   "deskOnbForgotRestoreInstead": "用助记词恢复"

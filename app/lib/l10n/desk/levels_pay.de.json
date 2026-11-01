@@ -19,10 +19,12 @@
   "deskLvPayHeroHoldMany": "{amount} gehalten, bis signiert wird",
   "deskLvPayHeroNothing": "Noch nichts unterwegs.",
   "deskLvPayReadyTitle": "Ihre Wallet ist bereit.",
+  "deskLvPayReadyHead": "Wallet bereit",
   "deskLvPayReadyText": "Adresse teilen, um die ersten EPIC zu erhalten.",
   "deskLvPayTileConfirming": "Wird noch bestätigt",
   "deskLvPayTileMining": "Frisch vom Mining",
   "deskLvPayTileWaiting": "Wartet auf die Gegenseite",
+  "deskLvPayTileAwaiting": "Wartet auf Antwort",
   "deskLvPayTileLocked": "Für Sendungen reserviert",
   "deskLvPayImmatureCasual": "Frisch vom Mining, noch nicht verfügbar",
   "deskLvPayKind": "Zahlung"

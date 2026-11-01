@@ -12,7 +12,7 @@
   "deskSetRescanDeleteHint": "ยกเลิกธุรกรรมที่ยังไม่ยืนยันและปลดล็อกเอาต์พุตด้วย รายการที่กำลังส่งอยู่อาจล้มเหลว",
   "deskSetRescanScanning": "กำลังสแกนบล็อกเชน ระหว่างนี้ยังใช้กระเป๋าเงินได้ ยอดคงเหลือจะอัปเดตเมื่อสแกนเสร็จ",
   "deskSetRescanStopping": "กำลังหยุด…",
-  "deskSetRescanChecking": "กำลังตรวจ… {percent} %",
+  "deskSetRescanChecking": "กำลังตรวจ… {percent}%",
   "deskSetRescanFailed": "สแกนไม่สำเร็จ",
   "deskSetRescanNoneFound": "ไม่พบธุรกรรมที่ยังไม่ยืนยัน",
   "deskSetRescanCancelled": "ยกเลิกธุรกรรมที่ยังไม่ยืนยันและปลดล็อกเอาต์พุตแล้ว",

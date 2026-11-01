@@ -433,6 +433,10 @@
   "@deskKitNodeDownTitle": {
     "description": "Title of the notice on the node card when the node does not answer."
   },
+  "deskKitNodeDownHead": "Node not answering",
+  "@deskKitNodeDownHead": {
+    "description": "Node card notice title: the node does not answer. A title: no period."
+  },
   "deskKitNodeDownText": "Switch to {host}, the healthiest other node?",
   "@deskKitNodeDownText": {
     "description": "Text of the notice on the node card offering to use another node. {host} is a host name.",

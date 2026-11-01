@@ -279,7 +279,7 @@ class _IssueInvoiceScreenState extends ConsumerState<IssueInvoiceScreen> {
         EField(
           label: l.deskInvIssuerMessage,
           optional: true,
-          help: l.deskInvIssuerMessageCount(bytes, requestMessageMaxBytes),
+          help: l.deskSendMessageCount(bytes, requestMessageMaxBytes),
           error: bytes > requestMessageMaxBytes ? l.deskInvIssuerMessageLong : null,
           child: EInput(controller: _message, maxLines: 3, semanticLabel: l.deskInvIssuerMessage, onChanged: (_) => setState(() {})),
         ),

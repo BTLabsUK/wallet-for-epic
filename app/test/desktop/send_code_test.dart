@@ -118,7 +118,7 @@ void main() {
   testWidgets('a pairing link with Pairing off says it is experimental; Open Advanced goes there', (tester) async {
     await show(tester, link: 'epiccash://pair/1/AbCdEfGh123');
     expect(inDialog(find.text('Pairing is experimental')), findsOneWidget);
-    expect(inDialog(find.text('Turn it on in Settings › Advanced.')), findsOneWidget);
+    expect(inDialog(find.text('Turn it on in Settings\u00a0›\u00a0Advanced.')), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('experimental-off-open')));
     await tester.pumpAndSettle();
     expect(find.byType(Dialog), findsNothing);

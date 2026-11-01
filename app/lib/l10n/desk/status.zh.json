@@ -31,7 +31,7 @@
   "deskNodeStillUsing": "仍在使用 {host}；本地节点很快会接替。",
   "deskNodeNoProgress": "5 分钟没有进展，已自动重启过一次。",
   "deskNodeUsingMeanwhile": "期间使用 {host}。",
-  "deskNodeStartIt": "可在“设置 › 节点”中启动。",
+  "deskNodeStartIt": "可在“设置 › 节点”中启动。",
   "deskNodeFailPort": "端口 {port} 被其他程序占用",
   "deskNodeFailDisk": "磁盘空间不足",
   "deskNodeFailMissing": "缺少节点程序",

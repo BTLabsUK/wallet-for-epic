@@ -1950,7 +1950,7 @@ void main() {
       await tester.pump(statusSettle);
       // Local figures while the refresh against the node runs, with its progress.
       expect(_figure(tester), '12.5000');
-      expect(_statusWord(tester, nodeStatusKey), 'Node, Syncing 40 %');
+      expect(_statusWord(tester, nodeStatusKey), 'Node, Syncing 40%');
       // The line along the app bar's foot is drawn as far as the sync has come, and no
       // other progress shows.
       expect(_syncLine(tester), 0.4);

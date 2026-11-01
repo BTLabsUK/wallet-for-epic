@@ -101,7 +101,9 @@ void main() {
   testWidgets('Stack Wallet and Epic Pay: a line on Welcome and on No wallets found', (tester) async {
     const line = 'From Stack Wallet or Epic Pay: restore with the recovery phrase.';
     await _pump(tester, const WelcomeScreen());
-    expect(find.text(line), findsOneWidget);
+    // On Welcome, the Restore card's own line, no period, like the other cards' (polish #42).
+    expect(find.text('Also from Stack Wallet or Epic Pay'), findsOneWidget);
+    expect(find.text('With a new recovery phrase'), findsOneWidget);
     await _pump(tester, const ImportWalletsScreen(arg: ImportStep.none));
     expect(find.text(line), findsOneWidget);
     await _end(tester);

@@ -8,7 +8,7 @@ import 'package:flutter/widgets.dart';
 
 import '../l10n.dart' show AppLocalizations, englishStrings;
 
-export '../l10n.dart' show AppLocalizations, englishStrings;
+export '../l10n.dart' show AppLocalizations, englishStrings, percentText;
 
 /// The strings of the language the window shows, for text the data layer keeps to show later
 /// (a notice, a failure reason, the Tor problem) where no BuildContext is at hand. DeskApp sets

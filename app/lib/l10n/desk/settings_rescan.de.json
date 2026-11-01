@@ -12,7 +12,7 @@
   "deskSetRescanDeleteHint": "Storniert auch unbestätigte Transaktionen und gibt ihre Outputs frei. Eine Zahlung, die schon unterwegs ist, kann dann fehlschlagen.",
   "deskSetRescanScanning": "Die Blockchain wird gescannt. Die Wallet bleibt nutzbar; das Guthaben wird aktualisiert, wenn der Scan endet.",
   "deskSetRescanStopping": "Wird gestoppt…",
-  "deskSetRescanChecking": "Wird geprüft… {percent} %",
+  "deskSetRescanChecking": "Wird geprüft… {percent} %",
   "deskSetRescanFailed": "Scan fehlgeschlagen",
   "deskSetRescanNoneFound": "Es wurde keine unbestätigte Transaktion gefunden.",
   "deskSetRescanCancelled": "Unbestätigte Transaktionen wurden storniert und ihre Outputs freigegeben.",

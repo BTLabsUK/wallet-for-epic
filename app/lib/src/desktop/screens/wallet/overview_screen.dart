@@ -126,7 +126,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
         ENotice(
           key: const ValueKey('overview-ready'),
           tone: ETone.ok,
-          title: l.deskLvPayReadyTitle,
+          title: l.deskLvPayReadyHead,
           text: l.deskLvPayReadyText,
           actionsBelow: true,
           actions: [
@@ -335,7 +335,7 @@ class _SyncNotice extends StatelessWidget {
         children: [
           Semantics(
             label: l.deskOvSyncProgress,
-            value: '${(part * 100).round()}%',
+            value: percentText(l, part * 100),
             child: EProgress(value: part),
           ),
           SizedBox(height: Sp.x1),
@@ -497,7 +497,7 @@ class _BalancePanel extends ConsumerWidget {
                 (casual ? l.deskLvPayTileConfirming : l.deskOvBreakConfirming, b?.awaitingConfirmation, ERing(confirmations: 1, needed: deskMinConfirmations(ref), size: Ctl.iconSm)),
                 // Loading draws the tiles most wallets have: no Immature (a miner's tile).
                 if (b != null && b.immature > 0) (casual ? l.deskLvPayTileMining : l.deskOvBreakImmature, b.immature, Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim)),
-                (casual ? l.deskLvPayTileWaiting : l.deskOvBreakAwaiting, b == null ? null : b.awaitingFinalization - own - posted, Icon(EIcons.pencil, size: Ctl.iconSm, color: c.dim)),
+                (casual ? l.deskLvPayTileAwaiting : l.deskOvBreakAwaiting, b == null ? null : b.awaitingFinalization - own - posted, Icon(EIcons.pencil, size: Ctl.iconSm, color: c.dim)),
                 if (posted > 0) (l.deskTxStatusSenderPosted, posted, Icon(EIcons.clock, size: Ctl.iconSm, color: c.dim)),
                 (casual ? l.deskLvPayTileLocked : l.deskOvBreakLocked, b?.locked, Icon(EIcons.lock, size: Ctl.iconSm, color: c.dim)),
                 (l.deskOvBreakTotal, b?.total, Icon(EIcons.wallet, size: Ctl.iconSm, color: c.dim)),

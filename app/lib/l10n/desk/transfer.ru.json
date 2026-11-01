@@ -52,5 +52,6 @@
   "deskImpOpenAnother": "Открыть другой файл",
   "deskEpicboxBlockedWord": "Заблокирован",
   "deskEpicboxBlockedText": "Эта сеть блокирует {host}. Выберите другой сервер Epicbox или используйте частный DNS.",
+  "deskEpicboxBlockedShort": "Эта сеть блокирует {host}. Выберите другой сервер или частный DNS.",
   "deskEpicboxBlockedSwitch": "Переключиться на {host}"
 }

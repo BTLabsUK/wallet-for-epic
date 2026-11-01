@@ -48,7 +48,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(_title, findsOneWidget);
     expect(find.text('This is an early version of a new app. Import only reads your old wallets and files and never deletes or changes them.'), findsOneWidget);
-    expect(find.text('You import at your own risk, and we take no responsibility for any loss.'), findsOneWidget);
+    expect(find.text('Importing is at your own risk. No responsibility is taken for any loss.'), findsOneWidget);
     expect(tester.widget<EButton>(_continue).onPressed, isNull);
     expect(c.read(deskNavProvider).route, start, reason: 'nothing opens before Continue');
 

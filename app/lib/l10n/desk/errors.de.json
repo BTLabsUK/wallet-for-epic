@@ -105,7 +105,7 @@
   "deskTorLineReady": "Bereit",
   "deskTorLineSendsWork": "{problem}. Senden funktioniert.",
   "deskTorLinePublishing": "Onion-Adresse wird veröffentlicht…",
-  "deskTorLineConnecting": "Verbindung mit Tor… {percent} %",
+  "deskTorLineConnecting": "Verbindung mit Tor… {percent} %",
   "deskErrHistOtherWallet": "Daten einer anderen Wallet",
   "deskErrHistOtherChain": "Falsches Netzwerk",
   "deskErrHistNotOurs": "Keine Wallet-Datendatei",

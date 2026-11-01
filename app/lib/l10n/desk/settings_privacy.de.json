@@ -6,7 +6,7 @@
   "deskSetPrivTurnOff": "Tor ausschalten",
   "deskSetPrivNotInBuild": "Nicht in dieser Version",
   "deskSetPrivStarting": "Startet…",
-  "deskSetPrivStartingDetail": "{progress} %. Jede Verbindung wartet auf Tor.",
+  "deskSetPrivStartingDetail": "{progress} %. Jede Verbindung wartet auf Tor.",
   "deskSetPrivNotPublished": "Tor-Adresse noch nicht veröffentlicht. Senden funktioniert.",
   "deskSetPrivProblemSendsWork": "{problem}. Senden funktioniert.",
   "deskSetPrivConnected": "Verbunden",

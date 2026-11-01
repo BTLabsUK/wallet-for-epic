@@ -27,7 +27,7 @@
   "deskOvRestoredImportTitle": "Portfel przywrócony",
   "deskOvRestoredImportBody": "Saldo wróciło. Plik danych tego portfela przywraca historię, kontakty, faktury i ustawienia.",
   "deskOvRestoredImportButton": "Importuj dane portfela",
-  "deskOvRestoredImportLater": "Później w Ustawienia › Ten portfel › Dane portfela.",
+  "deskOvRestoredImportLater": "Później w Ustawienia › Ten portfel › Dane portfela.",
   "deskOnbForgotNoCheck": "Nic w plikach tego portfela nie potwierdzi frazy, więc hasło zostaje.",
   "deskOnbForgotRestoreHint": "Zamiast tego przywróć go z frazy: {name} znika z listy, a jego pliki zostają na tym komputerze.",
   "deskOnbForgotRestoreInstead": "Przywróć z frazy"

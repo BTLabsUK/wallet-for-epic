@@ -18,7 +18,7 @@ import '../data/desk_node.dart' show deskLocalNodeProvider, deskNodeInfoProvider
 import '../data/desk_update.dart' show DeskUpdatePhase, deskUpdateProvider;
 import '../data/desk_update_apply.dart' show deskUpdateApplierProvider;
 import '../data/invoice_state.dart' show deskInvoiceBadgeProvider;
-import '../data/node_view.dart' show localNodeView, digits, percent;
+import '../data/node_view.dart' show localNodeView, digits, syncPercent;
 import 'desk_failover.dart' show deskFailoverProvider;
 import '../../l10n.dart' show localInt;
 import '../../tor_build.dart' show inAppUpdates;
@@ -88,7 +88,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
         icon: EIcons.scan,
         tone: ETone.info,
         title: l.deskSlotScanning,
-        detail: scan.percent == null ? null : '${localInt(l, scan.percent!)}%',
+        detail: scan.percent == null ? null : percentText(l, scan.percent!),
         progress: scan.percent == null ? -1 : scan.percent! / 100,
         hint: DeskRoute.settingsRescan == here ? null : l.deskSlotOpenRecheck, onTap: to(DeskRoute.settingsRescan),
       ),
@@ -207,7 +207,7 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
             icon: EIcons.node,
             tone: ETone.info,
             title: l.deskOwnSlotSyncing,
-            detail: owner?.progress?.overall != null ? percent(owner!.progress!.overall!) : (behind != null && behind > 0 ? l.deskNodeMarkerBehind(digits(l, behind)) : null),
+            detail: owner?.progress?.overall != null ? syncPercent(l, owner!.progress!.overall!) : (behind != null && behind > 0 ? l.deskNodeMarkerBehind(digits(l, behind)) : null),
             stacked: true,
             progress: owner?.progress?.overall ?? -1,
             hint: DeskRoute.settingsNode == here ? null : l.deskRailOpenNode, onTap: to(DeskRoute.settingsNode),

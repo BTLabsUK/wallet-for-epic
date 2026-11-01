@@ -467,7 +467,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String scanProgress(int percent) {
-    return 'Сканирование блокчейна ($percent%)';
+    return 'Сканирование блокчейна ($percent %)';
   }
 
   @override
@@ -1042,6 +1042,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Вы импортируете на свой риск; мы не несём ответственности за какие-либо потери.';
 
   @override
+  String get importWarnRiskPlain =>
+      'Импорт выполняется на ваш риск. Ответственность за потери не принимается.';
+
+  @override
   String get importWarnAck => 'У меня есть резервная копия каждого кошелька';
 
   @override
@@ -1362,7 +1366,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String homeSyncSyncingPercent(int percent) {
-    return 'Синхронизация… $percent%';
+    return 'Синхронизация… $percent %';
   }
 
   @override
@@ -1387,7 +1391,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String statusNodeSyncingPercent(int percent) {
-    return 'Синхронизация узла $percent%';
+    return 'Синхронизация узла $percent %';
+  }
+
+  @override
+  String percentValue(String percent) {
+    return '$percent %';
   }
 
   @override
@@ -1811,7 +1820,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String updateDownloading(String version, int percent) {
-    return 'Загрузка версии $version… $percent%';
+    return 'Загрузка версии $version… $percent %';
   }
 
   @override
@@ -2824,7 +2833,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get advTransactionFilesHint =>
-      'Добавляет «Передачу файла» в Настройки › Транзакции: платите или получайте платежи файлом, который вы передаёте сами.';
+      'Добавляет «Передачу файла» в Настройки › Транзакции: платите или получайте платежи файлом, который вы передаёте сами.';
 
   @override
   String get sendMakeQr => 'Создать QR платежа';
@@ -3157,7 +3166,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Открытое ПО в этом кошельке, каждое под своей лицензией.';
 
   @override
-  String get licencesApp => 'Epic Cash Mobile от BT Labs: Apache 2.0.';
+  String get licencesApp => 'Epic Cash Mobile от BT Labs: Apache-2.0.';
 
   @override
   String get licencesFlutter =>
@@ -3165,7 +3174,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get licencesLepic =>
-      'LEPIC, библиотека кошелька Epic Cash: Apache 2.0, с форком secp256k1-zkp от Epic Cash (CC0) и крейтами Rust под MIT или Apache 2.0, среди них tokio, rustls, rusqlite и blake2.';
+      'LEPIC, библиотека кошелька Epic Cash: Apache-2.0, с форком secp256k1-zkp от Epic Cash (CC0) и крейтами Rust под MIT или Apache-2.0, среди них tokio, rustls, rusqlite и blake2.';
 
   @override
   String get licencesTor =>
@@ -3177,6 +3186,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get licencesFull => 'Все тексты лицензий';
+
+  @override
+  String licencesPackageCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count лицензии',
+      many: '$count лицензий',
+      few: '$count лицензии',
+      one: '$count лицензия',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get settingsCopyLink => 'Копировать ссылку';
@@ -3801,7 +3823,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String torStateStarting(int percent) {
-    return 'Подключение к Tor… $percent%';
+    return 'Подключение к Tor… $percent %';
   }
 
   @override
@@ -3937,7 +3959,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get tourPhoneSendText =>
-      'Вставьте или отсканируйте адрес либо выберите контакт. Epicbox платит на адрес; QR показывает код телефону рядом с вами. Другие способы: Настройки › Транзакции. Сначала — проверка.';
+      'Вставьте или отсканируйте адрес либо выберите контакт. Epicbox платит на адрес; QR показывает код телефону рядом с вами. Другие способы: Настройки › Транзакции. Сначала — проверка.';
 
   @override
   String get tourPhoneReceiveTitle => 'Получить';
@@ -4501,7 +4523,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String netStatusSyncingPercent(int percent) {
-    return 'Синхронизация $percent %';
+    return 'Синхронизация $percent %';
   }
 
   @override
@@ -4637,7 +4659,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String serverUptime(String percent) {
-    return '$percent% в сети';
+    return '$percent % в сети';
   }
 
   @override
@@ -5371,7 +5393,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvPayerNodeDownText =>
-      'Кошелёк не может проверить средства, поэтому не может заплатить. Одобрение снова заработает, когда узел ответит; другой узел можно выбрать в разделе «Настройки › Узел».';
+      'Кошелёк не может проверить средства, поэтому не может заплатить. Одобрение снова заработает, когда узел ответит; другой узел можно выбрать в разделе «Настройки › Узел».';
 
   @override
   String get deskInvPayerPaid =>
@@ -5429,7 +5451,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskInvPayerNotDeliveredToastText =>
-      'Сервер Epicbox не отвечает. Повторите в разделе «Счета › Оплатить»; повторное одобрение не нужно.';
+      'Сервер Epicbox не отвечает. Повторите в разделе «Счета › Оплатить»; повторное одобрение не нужно.';
 
   @override
   String get deskInvPayerRetryFailed => 'Всё ещё не доставлено';
@@ -5546,6 +5568,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendSpendableUntilChange => 'Доступно до подтверждения сдачи';
 
   @override
+  String get sendAvailableWhileConfirms => 'Доступно до подтверждения';
+
+  @override
   String get sendSpendableUntilChangeHint =>
       'Сдача вернётся, когда отправка подтвердится.';
 
@@ -5646,7 +5671,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Сетевая активность идёт через сеть Tor. Tor скрывает IP-адрес кошелька: каждое соединение проходит через несколько добровольческих узлов, и ни один сервер не узнаёт, где находится кошелёк. Чтобы получать платежи на адрес Tor, включите «Ссылка · Tor» в Настройки › Транзакции.';
+      'Сетевая активность идёт через сеть Tor. Tor скрывает IP-адрес кошелька: каждое соединение проходит через несколько добровольческих узлов, и ни один сервер не узнаёт, где находится кошелёк. Чтобы получать платежи на адрес Tor, включите «Ссылка · Tor» в Настройки › Транзакции.';
 
   @override
   String get receiveTabDirect => 'Ссылка';
@@ -6105,7 +6130,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskTorLineConnecting(int percent) {
-    return 'Подключение к Tor… $percent%';
+    return 'Подключение к Tor… $percent %';
   }
 
   @override
@@ -6313,7 +6338,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get deskNodeStartIt => 'Запустите его в разделе «Настройки › Узел».';
+  String get deskNodeStartIt => 'Запустите его в разделе «Настройки › Узел».';
 
   @override
   String deskNodeFailPort(String port) {
@@ -6579,7 +6604,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskRecvHttpLocal =>
-      'На этот адрес могут платить программы на этом компьютере. Для других устройств см. «Настройки › Транзакции».';
+      'На этот адрес могут платить программы на этом компьютере. Для других устройств см. «Настройки › Транзакции».';
 
   @override
   String get deskRecvHttpIntro =>
@@ -6587,14 +6612,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskRecvHttpTorHint =>
-      'Чтобы получить адрес Tor, включите Tor в разделе «Настройки › Приватность».';
+      'Чтобы получить адрес Tor, включите Tor в разделе «Настройки › Приватность».';
 
   @override
   String get deskRecvDirectTor => 'Адрес Ссылка · Tor';
 
   @override
   String get deskRecvTorIntro =>
-      'Напрямую из другого кошелька через Tor, пока этот открыт. Tor настраивается в разделе «Настройки › Приватность».';
+      'Напрямую из другого кошелька через Tor, пока этот открыт. Tor настраивается в разделе «Настройки › Приватность».';
 
   @override
   String get deskRecvTorAddress => 'Адрес Ссылка · Tor';
@@ -6642,6 +6667,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSendSpendableUntil => 'Доступно до подтверждения сдачи';
+
+  @override
+  String get deskSendSpendableWhile => 'Доступно до подтверждения';
 
   @override
   String deskSendSplitLine(int outputs, String fee) {
@@ -6819,6 +6847,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String deskSendReviewSetAsideNone(String locked) {
+    return '$locked EPIC уходит целиком; ничего не откладывается.';
+  }
+
+  @override
   String deskSendReviewLocksAll(int count, String locked, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
@@ -6868,6 +6901,19 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String deskSendReviewSetAsideAll(String locked, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks блока)',
+      many: '($blocks блоков)',
+      few: '($blocks блока)',
+      one: '($blocks блок)',
+    );
+    return 'Всё: $locked EPIC отложено до подтверждения этого платежа $_temp0. Ничего не остаётся доступным.';
+  }
+
+  @override
   String deskSendReviewLocksEverything(int count, String locked, int blocks) {
     String _temp0 = intl.Intl.pluralLogic(
       blocks,
@@ -6914,6 +6960,19 @@ class AppLocalizationsRu extends AppLocalizations {
           '$locked EPIC в $count выходе до подтверждения сдачи $_temp3. Больше ничего пока не доступно.',
     );
     return '$_temp4';
+  }
+
+  @override
+  String deskSendReviewSetAsideEverything(String locked, int blocks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks блока)',
+      many: '($blocks блоков)',
+      few: '($blocks блока)',
+      one: '($blocks блок)',
+    );
+    return '$locked EPIC отложено до подтверждения этого платежа $_temp0. До тех пор больше ничего не доступно.';
   }
 
   @override
@@ -6968,6 +7027,23 @@ class AppLocalizationsRu extends AppLocalizations {
           '$locked EPIC в $count выходе до подтверждения сдачи $_temp3. Доступными остаются $spendable EPIC.',
     );
     return '$_temp4';
+  }
+
+  @override
+  String deskSendReviewSetAsideSome(
+    String locked,
+    int blocks,
+    String spendable,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      blocks,
+      locale: localeName,
+      other: '($blocks блока)',
+      many: '($blocks блоков)',
+      few: '($blocks блока)',
+      one: '($blocks блок)',
+    );
+    return '$locked EPIC отложено до подтверждения этого платежа $_temp0. $spendable EPIC остаётся доступным.';
   }
 
   @override
@@ -7124,7 +7200,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskSendNodeSyncingPct(int percent) {
-    return 'Отправка возобновится, когда узел синхронизируется ($percent%).';
+    return 'Отправка возобновится, когда узел синхронизируется ($percent %).';
   }
 
   @override
@@ -7153,6 +7229,11 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSendEpicboxOffText =>
       'Включите приём через Epicbox, чтобы отправлять через Epicbox, или используйте «Напрямую · Передача файла».';
+
+  @override
+  String deskSendEpicboxOffTab(String method) {
+    return 'Включите приём через Epicbox, чтобы отправлять через Epicbox, или используйте «$method».';
+  }
 
   @override
   String get deskSendEpicboxTurnOn => 'Включить приём через Epicbox';
@@ -8167,6 +8248,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String deskOutNoteByPendingSend(String date) {
+    return 'незавершённой отправкой · $date';
+  }
+
+  @override
   String get deskOutStatusSpent => 'Потрачен';
 
   @override
@@ -8530,7 +8616,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskOvSyncTitle(int percent) {
-    return 'Синхронизация узла: $percent%';
+    return 'Синхронизация узла: $percent %';
   }
 
   @override
@@ -8541,7 +8627,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskOvSyncOfChain(int percent) {
-    return '$percent% блокчейна';
+    return '$percent % блокчейна';
   }
 
   @override
@@ -9021,6 +9107,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbWelcomeImportSub => 'Из старого Epic Wallet или из папки';
+
+  @override
+  String get deskOnbWelcomeCreateSub => 'С новой фразой восстановления';
+
+  @override
+  String get deskOnbWelcomeRestoreSub => 'Также из Stack Wallet или Epic Pay';
 
   @override
   String get deskOnbWelcomeRestore => 'Восстановить по фразе';
@@ -9952,7 +10044,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Сохранённые адреса с именами. «Отправить» выбирает отсюда.';
 
   @override
-  String get deskTourNodeTitle => 'Настройки › Узел';
+  String get deskTourNodeTitle => 'Настройки › Узел';
 
   @override
   String get deskTourNodeText =>
@@ -10315,6 +10407,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskKitNodeDownTitle => 'Узел не отвечает.';
+
+  @override
+  String get deskKitNodeDownHead => 'Узел не отвечает';
 
   @override
   String deskKitNodeDownText(String host) {
@@ -10951,6 +11046,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Теперь этот кошелёк открывается новым паролем; «Запомнить на этом компьютере» выключается.';
 
   @override
+  String get deskSetDlgPwDescPlain =>
+      'Теперь кошелёк открывается новым паролем, и этот компьютер его больше не запоминает.';
+
+  @override
   String get deskSetDlgPwCurrent => 'Текущий пароль';
 
   @override
@@ -11001,7 +11100,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetDlgRemoveUnlockHint =>
-      'Чтобы удалить и его файлы, разблокируйте этот кошелёк и выберите «Удалить кошелёк» в разделе «Настройки › Этот кошелёк».';
+      'Чтобы удалить и его файлы, разблокируйте этот кошелёк и выберите «Удалить кошелёк» в разделе «Настройки › Этот кошелёк».';
 
   @override
   String get deskSetDlgRemoveUnlock => 'Разблокировать этот кошелёк';
@@ -11444,7 +11543,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetLndAskNote =>
-      'Спрашиваем один раз. Узел и выбор можно изменить в разделе «Настройки › Узел › Во время синхронизации».';
+      'Спрашиваем один раз. Узел и выбор можно изменить в разделе «Настройки › Узел › Во время синхронизации».';
 
   @override
   String get deskSetLndAskWait => 'Ждать локальный узел';
@@ -11980,7 +12079,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskSetPrivStartingDetail(int progress) {
-    return '$progress%. Все соединения ждут Tor.';
+    return '$progress %. Все соединения ждут Tor.';
   }
 
   @override
@@ -12285,7 +12384,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskSetRescanChecking(int percent) {
-    return 'Проверка… $percent %';
+    return 'Проверка… $percent %';
   }
 
   @override
@@ -12917,9 +13016,18 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String deskSendMessageCount(int used, int max) {
+    return '$used / $max';
+  }
+
+  @override
   String deskSendMessageTooLong(int max) {
     return 'Сообщение длиннее $max байт. Сократите его.';
   }
+
+  @override
+  String get deskSendMessageTooLongPlain =>
+      'Сообщение слишком длинное. Сократите его.';
 
   @override
   String get deskSetPhraseCopyTitle => 'Скопировать фразу восстановления?';
@@ -13199,7 +13307,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskUpdDownloading(String percent) {
-    return 'Загрузка: $percent %';
+    return 'Загрузка: $percent %';
   }
 
   @override
@@ -13276,7 +13384,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get advSendOptionsHint =>
-      'Показывает «Стратегию» отправки и «Делить сдачу» в «Настройки › Транзакции»: какие выходы тратит отправка и делится ли её сдача. Остаётся видимым, пока что-то из этого не по умолчанию.';
+      'Показывает «Стратегию» отправки и «Делить сдачу» в «Настройки › Транзакции»: какие выходы тратит отправка и делится ли её сдача. Остаётся видимым, пока что-то из этого не по умолчанию.';
 
   @override
   String get advServerDetails => 'Сведения о серверах';
@@ -13627,7 +13735,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get outputsDefaultsMoved =>
-      'Настройки отправки теперь в «Настройки › Транзакции»';
+      'Настройки отправки теперь в «Настройки › Транзакции»';
 
   @override
   String get advNodeFailover => 'Автопереключение узла';
@@ -13718,11 +13826,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get netBlockEpicboxOff =>
-      'Epicbox выключен в разделе Настройки › Транзакции.';
+      'Epicbox выключен в разделе Настройки › Транзакции.';
 
   @override
   String netBlockMethodOff(String method) {
-    return 'Способ «$method» выключен в Настройки › Транзакции.';
+    return 'Способ «$method» выключен в Настройки › Транзакции.';
   }
 
   @override
@@ -13767,7 +13875,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get receiveNoMethodsBody =>
-      'Включите один в разделе Настройки › Транзакции.';
+      'Включите один в разделе Настройки › Транзакции.';
 
   @override
   String get receiveNoMethodsButton => 'Открыть настройки';
@@ -13778,7 +13886,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOutDefaultsMoved =>
-      '«Стратегия» и «Делить сдачу» для отправок задаются в «Настройки › Транзакции».';
+      '«Стратегия» и «Делить сдачу» для отправок задаются в «Настройки › Транзакции».';
 
   @override
   String get deskOutDefaultsOpen => 'Открыть «Транзакции»';
@@ -13940,7 +14048,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskRecvTorOffText =>
-      'Адрес Tor работает, пока включён Tor. Tor — переключатель в Настройки › Приватность; он направляет соединения кошелька через Tor.';
+      'Адрес Tor работает, пока включён Tor. Tor — переключатель в Настройки › Приватность; он направляет соединения кошелька через Tor.';
 
   @override
   String get deskSetupSaveFailedTitle => 'Настройки не сохранены';
@@ -14602,7 +14710,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String sasLeadRecheck(String name) {
-    return 'Кошелёк $name показывает их в «$name › Проверить слова». Сравните их по телефону или лично.';
+    return 'Кошелёк $name показывает их в «$name › Проверить слова». Сравните их по телефону или лично.';
   }
 
   @override
@@ -15572,15 +15680,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairInvP1 =>
-      'Магазин, биржа или человек, с которым вы выполнили сопряжение, может присылать счета на оплату, если вы разрешите: **Разрешить счета** на странице контакта или в [[Настройки › Счета|Settings › Invoices]]. Переключатель работает только для проверенного контакта.';
+      'Магазин, биржа или человек, с которым вы выполнили сопряжение, может присылать счета на оплату, если вы разрешите: **Разрешить счета** на странице контакта или в [[Настройки › Счета|Settings › Invoices]]. Переключатель работает только для проверенного контакта.';
 
   @override
   String get helpPairInvP2Desktop =>
-      'Счёт появляется в [[Счета › Оплатить|Invoices › Pay]] с именем контакта, суммой и номером. Ничего не оплачивается, пока вы не одобрите счёт паролем кошелька. Счёт никогда не добавляет деньги в кошелёк.';
+      'Счёт появляется в [[Счета › Оплатить|Invoices › Pay]] с именем контакта, суммой и номером. Ничего не оплачивается, пока вы не одобрите счёт паролем кошелька. Счёт никогда не добавляет деньги в кошелёк.';
 
   @override
   String get helpPairInvP2 =>
-      'Счёт появляется в [[Счета › Оплатить|Invoices › Pay]] с именем контакта, суммой и номером. Ничего не оплачивается, пока вы не одобрите счёт своим PIN. Счёт никогда не добавляет деньги в кошелёк.';
+      'Счёт появляется в [[Счета › Оплатить|Invoices › Pay]] с именем контакта, суммой и номером. Ничего не оплачивается, пока вы не одобрите счёт своим PIN. Счёт никогда не добавляет деньги в кошелёк.';
 
   @override
   String get helpPairInvP3 =>
@@ -15832,13 +15940,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get expPairingOffTitle => 'Сопряжение — экспериментальная функция';
 
   @override
-  String get expPairingOffBody => 'Включается в Настройки › Дополнительно.';
+  String get expPairingOffBody => 'Включается в Настройки › Дополнительно.';
 
   @override
   String get expInvoicesOffTitle => 'Счета — экспериментальная функция';
 
   @override
-  String get expInvoicesOffBody => 'Включаются в Настройки › Дополнительно.';
+  String get expInvoicesOffBody => 'Включаются в Настройки › Дополнительно.';
 
   @override
   String get expOpenAdvanced => 'Открыть Дополнительно';
@@ -16122,7 +16230,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOvRestoredImportLater =>
-      'Позже: Настройки › Этот кошелёк › Данные кошелька.';
+      'Позже: Настройки › Этот кошелёк › Данные кошелька.';
 
   @override
   String get deskOnbForgotNoCheck =>
@@ -16238,7 +16346,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get reqQrOpenNote =>
-      'Открыт в Счета › Отправленные 24 ч, затем истекает.';
+      'Открыт в Счета › Отправленные 24 ч, затем истекает.';
 
   @override
   String get reqQrWrongReply =>
@@ -16405,6 +16513,11 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String deskEpicboxBlockedText(String host) {
     return 'Эта сеть блокирует $host. Выберите другой сервер Epicbox или используйте частный DNS.';
+  }
+
+  @override
+  String deskEpicboxBlockedShort(String host) {
+    return 'Эта сеть блокирует $host. Выберите другой сервер или частный DNS.';
   }
 
   @override
@@ -17624,7 +17737,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskAppFirstScanProgress(int percent) {
-    return 'Сканирование блокчейна · $percent%';
+    return 'Сканирование блокчейна · $percent %';
   }
 
   @override
@@ -17799,15 +17912,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get netStatusTurnOnHint =>
-      'Выключено. Включите в «Настройки › Транзакции».';
+      'Выключено. Включите в «Настройки › Транзакции».';
 
   @override
   String get netStatusTurnOnHintPrivacy =>
-      'Выключено. Включите в «Настройки › Приватность и сеть».';
+      'Выключено. Включите в «Настройки › Приватность и сеть».';
 
   @override
   String get deskBarTurnOnHint =>
-      'Выключено. Включите в «Настройки › Транзакции».';
+      'Выключено. Включите в «Настройки › Транзакции».';
 
   @override
   String get deskErrMacKeychain =>
@@ -18147,7 +18260,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get statusOffByModeDetail =>
-      'Выключено режимом сети. Изменить: «Настройки» › «Дополнительно» › «Сеть».';
+      'Выключено режимом сети. Изменить: «Настройки» › «Дополнительно» › «Сеть».';
 
   @override
   String get netBlockEpicboxNodeOnly =>
@@ -18291,6 +18404,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Отправьте платёж, который другое устройство завершило при «Аварийном отключении».';
 
   @override
+  String get postFinishedIntroOffline =>
+      'Отправьте платёж, который другое устройство завершило без сети.';
+
+  @override
   String get postFinishedOpenFile => 'Открыть файл';
 
   @override
@@ -18357,7 +18474,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskFinNotPostedKillBody(String amount) {
-    return '$amount: платёж готов. Включено «Аварийное отключение», поэтому этот компьютер не может его отправить. Сохраните его или скопируйте, затем отправьте с устройства, которое в сети: «Получить» › «Файлы транзакций» › «Отправить готовый платёж».';
+    return '$amount: платёж готов. Включено «Аварийное отключение», поэтому этот компьютер не может его отправить. Сохраните его или скопируйте, затем отправьте с устройства, которое в сети: «Получить» › «Файлы транзакций» › «Отправить готовый платёж».';
   }
 
   @override
@@ -18687,12 +18804,27 @@ class AppLocalizationsRu extends AppLocalizations {
       'Включён режим «Только узел»: Epicbox выключен. «Напрямую · Передача файла» работает.';
 
   @override
+  String deskSendEpicboxNodeOnlyTab(String method) {
+    return 'Включён режим «Только узел»: Epicbox выключен. «$method» работает.';
+  }
+
+  @override
   String get deskSendLinkNodeOnly =>
       'Включён режим «Только узел»: «Ссылка» выключена. «Напрямую · Передача файла» работает.';
 
   @override
+  String deskSendLinkNodeOnlyTab(String method) {
+    return 'Включён режим «Только узел»: «Ссылка» выключена. «$method» работает.';
+  }
+
+  @override
   String get deskSendKillSwitch =>
       'Включено «Аварийное отключение»: ничего не подключается. «Напрямую · Передача файла» работает.';
+
+  @override
+  String deskSendKillSwitchTab(String method) {
+    return 'Включено «Аварийное отключение»: ничего не подключается. «$method» работает.';
+  }
 
   @override
   String get levelStepTitle => 'Сколько кошелька вам нужно?';
@@ -18725,7 +18857,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get levelFooter =>
-      'Изменить можно в любой момент: Настройки › Дополнительно.';
+      'Изменить можно в любой момент: Настройки › Дополнительно.';
 
   @override
   String get levelRowTitle => 'Вид кошелька';
@@ -18780,7 +18912,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get lvPickUndercoverHelp =>
-      'Только Tor, с первого подключения. Каждое подключение идёт через Tor; запуск дольше.\n\nПока ничего не подключалось. То же, что Режим сети › Только Tor; позже можно выключить в Настройки › Дополнительно.';
+      'Только Tor, с первого подключения. Каждое подключение идёт через Tor; запуск дольше.\n\nПока ничего не подключалось. То же, что Режим сети › Только Tor; позже можно выключить в Настройки › Дополнительно.';
 
   @override
   String get lvPickUndercover => 'Инкогнито';
@@ -19059,7 +19191,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskLvStartChangeLater =>
-      'Изменить можно в любой момент: Настройки › Дополнительно.';
+      'Изменить можно в любой момент: Настройки › Дополнительно.';
 
   @override
   String get deskLvStartHelpShallow =>
@@ -19259,6 +19391,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskLvPayReadyTitle => 'Кошелёк готов.';
 
   @override
+  String get deskLvPayReadyHead => 'Кошелёк готов';
+
+  @override
   String get deskLvPayReadyText =>
       'Поделитесь адресом, чтобы получить первые EPIC.';
 
@@ -19270,6 +19405,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskLvPayTileWaiting => 'Ожидание другой стороны';
+
+  @override
+  String get deskLvPayTileAwaiting => 'Ждёт ответа';
 
   @override
   String get deskLvPayTileLocked => 'Отложено для отправок';

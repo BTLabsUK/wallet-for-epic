@@ -171,9 +171,9 @@ class SendLockRows extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         SummaryLine(label: l.deskSendBalanceAfter, value: s?.balanceAfter, dim: true, loading: loading && s == null),
-        // The label wraps beside an amount but not beside "—": two lines kept, so typing an
-        // amount never moves the rows under it (#28).
-        SummaryLine(label: l.deskSendSpendableUntil, value: s?.spendableMeanwhile, warn: warn, top: true, reserveLines: 2, loading: loading && s == null),
+        // Two lines kept whatever the label does, so typing an amount never moves the rows
+        // under it (#28).
+        SummaryLine(label: l.deskSendSpendableWhile, value: s?.spendableMeanwhile, warn: warn, top: true, reserveLines: 2, loading: loading && s == null),
         ExpandFade(
           open: caption != null,
           child: Semantics(
@@ -196,17 +196,17 @@ class SendLockRows extends StatelessWidget {
 /// The review dialog's Locks fact (§4.5); [blocks] is the wallet's minimum confirmations. The
 /// review is a commit surface: its amounts are exact ([AmountSurface.exact]).
 String reviewLocks(AppLocalizations l, SendSummary s, SelectionStrategy strategy, int blocks) {
-  final n = s.lockedOutputs;
+  // In plain words (D-07): what is set aside and until when, no outputs or change.
   final locked = formatEpicL(l, s.locked, decimals: exactDecimals);
   final String text;
   if (s.noChange) {
-    text = l.deskSendReviewLocksNone(n, locked);
+    text = l.deskSendReviewSetAsideNone(locked);
   } else if (strategy == SelectionStrategy.all && s.locksAll) {
-    text = l.deskSendReviewLocksAll(n, locked, blocks);
+    text = l.deskSendReviewSetAsideAll(locked, blocks);
   } else if (s.locksAll) {
-    text = l.deskSendReviewLocksEverything(n, locked, blocks);
+    text = l.deskSendReviewSetAsideEverything(locked, blocks);
   } else {
-    text = l.deskSendReviewLocksSome(n, locked, formatEpicL(l, s.spendableMeanwhile, decimals: exactDecimals), blocks);
+    text = l.deskSendReviewSetAsideSome(locked, blocks, formatEpicL(l, s.spendableMeanwhile, decimals: exactDecimals));
   }
   return keepNumbersWithUnits(text);
 }

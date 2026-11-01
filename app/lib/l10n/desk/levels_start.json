@@ -19,7 +19,7 @@
   "@deskLvStartUndercoverAbout": {
     "description": "Label of the info button next to the Undercover switch."
   },
-  "deskLvStartChangeLater": "Change it any time in Settings › Advanced.",
+  "deskLvStartChangeLater": "Change it any time in Settings › Advanced.",
   "@deskLvStartChangeLater": {
     "description": "Welcome, under the depth dial: where the depth can be changed later. A \"What this decides\" link follows it."
   },

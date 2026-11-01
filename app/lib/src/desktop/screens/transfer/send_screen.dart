@@ -1539,8 +1539,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// The mode's note for this send: Node only names the method that is off, Kill switch says
   /// nothing connects; both say what still works. Tor only waiting has its own line.
   String _blockTitle(AppLocalizations l, NetBlock net) => switch (net) {
-    NetBlock.killSwitch => l.deskSendKillSwitch,
-    NetBlock.nodeOnly => _method == TxMethod.epicbox ? l.deskSendEpicboxNodeOnly : l.deskSendLinkNodeOnly,
+    // The banner names the tab as the tab itself reads (Direct · File).
+    NetBlock.killSwitch => l.deskSendKillSwitchTab(MethodIcons.shortName(l, MethodKind.directFile)),
+    NetBlock.nodeOnly => _method == TxMethod.epicbox ? l.deskSendEpicboxNodeOnlyTab(MethodIcons.shortName(l, MethodKind.directFile)) : l.deskSendLinkNodeOnlyTab(MethodIcons.shortName(l, MethodKind.directFile)),
     _ => netBlockReason(l, net)!,
   };
 
@@ -1670,7 +1671,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     if (_epicboxBlocked(st)) {
       return ENotice(
         title: l.deskSendEpicboxOff,
-        text: l.deskSendEpicboxOffText,
+        text: l.deskSendEpicboxOffTab(MethodIcons.shortName(l, MethodKind.directFile)),
         tone: ETone.warn,
         icon: EIcons.antenna,
         actions: [
@@ -1948,10 +1949,14 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         EField(
           label: l.deskSendMessage,
           optional: true,
-          // Bytes, as LEPIC counts them: an emoji takes 4.
-          aside: Text(l.deskSendMessageBytes(utf8Length(_message.text), slateMessageMaxBytes), style: ts.mono(size: Fs.xs, color: _messageTooLong ? c.risk : c.faint)),
+          // Bytes, as LEPIC counts them (an emoji takes 4), shown with no unit; amber from 90 %
+          // of the limit, red over it.
+          aside: Text(
+            l.deskSendMessageCount(utf8Length(_message.text), slateMessageMaxBytes),
+            style: ts.mono(size: Fs.xs, color: _messageTooLong ? c.risk : utf8Length(_message.text) * 10 >= slateMessageMaxBytes * 9 ? c.warn : c.faint),
+          ),
           help: code != null && code.noteFilled && _message.text == code.note ? l.sendNoteFromCodeHelper : l.deskSendMessageHelp,
-          error: _messageTooLong ? l.deskSendMessageTooLong(slateMessageMaxBytes) : null,
+          error: _messageTooLong ? l.deskSendMessageTooLongPlain : null,
           child: EInput(
             controller: _message,
             maxLines: 3,

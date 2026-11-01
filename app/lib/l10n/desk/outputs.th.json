@@ -68,6 +68,7 @@
   "deskOutStatusMining": "การขุด",
   "deskOutStatusLocked": "ถูกล็อก",
   "deskOutNoteBySend": "โดยการส่ง #{id}",
+  "deskOutNoteByPendingSend": "โดยการส่งที่ยังค้าง · {date}",
   "deskOutStatusSpent": "ใช้ไปแล้ว",
   "deskOutTxReceived": "รับ {date}",
   "deskOutTxSent": "ส่ง {date}",
@@ -119,7 +120,7 @@
   "deskOutNothingText": "ไม่มีอะไรให้รวม: กระเป๋าเงินมี{what}",
   "deskOutWhatFewer": "เอาต์พุตที่ใช้ได้น้อยกว่าสองก้อน",
   "deskOutWhatOne": "เอาต์พุตที่ใช้ได้เพียงก้อนเดียว",
-  "deskOutDefaultsMoved": "วิธีเลือกและแยกเงินทอนของการส่งตั้งได้ที่ การตั้งค่า › ธุรกรรม",
+  "deskOutDefaultsMoved": "วิธีเลือกและแยกเงินทอนของการส่งตั้งได้ที่ การตั้งค่า › ธุรกรรม",
   "deskOutDefaultsOpen": "เปิดธุรกรรม",
   "deskOutNoteWaitingRecipient": "รอผู้รับ",
   "deskOutFilterWaiting": "รอ"

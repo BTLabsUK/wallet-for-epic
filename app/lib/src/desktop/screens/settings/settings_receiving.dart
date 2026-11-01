@@ -382,7 +382,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       );
     }
     return ESetGroup(
-      title: l.deskSetTxMethods,
+      title: l.deskSetFrameTransactions,
       rows: [
         for (final f in MethodFamily.values)
           for (final (i, m) in _familyMethods(f).indexed)

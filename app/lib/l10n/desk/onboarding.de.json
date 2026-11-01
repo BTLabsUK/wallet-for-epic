@@ -4,6 +4,8 @@
   "deskOnbWelcomeCreate": "Neue Wallet erstellen",
   "deskOnbWelcomeImport": "Wallets importieren",
   "deskOnbWelcomeImportSub": "Aus einer älteren Epic Wallet oder einem Ordner",
+  "deskOnbWelcomeCreateSub": "Mit einer neuen Wiederherstellungsphrase",
+  "deskOnbWelcomeRestoreSub": "Auch aus Stack Wallet oder Epic Pay",
   "deskOnbWelcomeRestore": "Mit Phrase wiederherstellen",
   "deskOnbWelcomeTestNote": "Neue Wallets werden in diesem Testnetzwerk erstellt.",
   "deskOnbWelcomeBack": "Zurück zum Entsperren",

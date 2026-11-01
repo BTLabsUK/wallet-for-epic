@@ -305,7 +305,7 @@ void main() {
       expect(_dot(tester, torIconKey), t.faint);
       expect(find.byKey(directIconKey), findsOneWidget);
       expect(_label(tester, directIconKey), 'Link, Off');
-      expect(_hint(tester, directIconKey), contains('Turn on in Settings › Transactions'));
+      expect(_hint(tester, directIconKey), contains('Turn on in Settings\u00a0›\u00a0Transactions'));
       expect(_label(tester, nodeStatusKey), isNot(contains('Tor')));
     });
 
@@ -319,7 +319,7 @@ void main() {
         ),
         percent: 40,
       );
-      expect(_label(tester, nodeStatusKey), 'Node, Syncing 40 %');
+      expect(_label(tester, nodeStatusKey), 'Node, Syncing 40%');
       expect(_icon(tester, nodeStatusKey), Icons.sync);
       expect(_dot(tester, nodeStatusKey), _tokens(tester).info);
       expect(_tip_(tester, nodeStatusKey), startsWith('Syncing… 40%'));
@@ -432,7 +432,7 @@ void main() {
       expect(_dot(tester, epicboxStatusKey), _tokens(tester).faint);
       expect(
         _tip_(tester, epicboxStatusKey),
-        'Off. Turn on in Settings › Transactions.',
+        'Off. Turn on in Settings\u00a0›\u00a0Transactions.',
       );
     });
 
@@ -635,7 +635,7 @@ void main() {
       expect(_label(tester, directIconKey), 'Link, Off (Node only)');
       // Calm: faint with a slash, no problem colour.
       expect(_dot(tester, epicboxStatusKey), _tokens(tester).faint);
-      expect(_tip_(tester, epicboxStatusKey), 'Turned off by the network mode. Change it in Settings › Advanced › Network.');
+      expect(_tip_(tester, epicboxStatusKey), 'Turned off by the network mode. Change it in Settings\u00a0›\u00a0Advanced\u00a0›\u00a0Network.');
     });
 
     testWidgets('Kill switch: every service reads Off (Kill switch); a tap opens the Network section', (

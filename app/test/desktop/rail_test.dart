@@ -259,7 +259,7 @@ void main() {
       expect(fixtures['local syncing, no fallback']!.$1.host, 'Local node');
       expect(fixtures['local syncing, no fallback']!.$1.lines.last, 'Nothing can be sent until it is synced.');
       expect(fixtures['local synced']!.$1.lines.first, 'Local node · 3,764,975 · synced');
-      expect(fixtures['local stopped']!.$1.lines.last, 'Start it under Settings › Node.');
+      expect(fixtures['local stopped']!.$1.lines.last, 'Start it under Settings\u00a0›\u00a0Node.');
     });
 
     testWidgets('every state keeps the row at 40 u and the marker whole', (tester) async {

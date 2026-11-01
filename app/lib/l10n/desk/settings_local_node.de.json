@@ -75,7 +75,7 @@
   "deskSetLnodeStepOf": "Synchronisierungsschritt {n} von 4: {name}",
   "deskSetLndAskTitle": "{host} nutzen, bis der lokale Node synchronisiert ist?",
   "deskSetLndAskDesc": "{host}, ein öffentlicher Node, kann einspringen, bis der lokale Node synchronisiert ist.",
-  "deskSetLndAskNote": "Wird einmal gefragt. Node und Auswahl lassen sich unter Einstellungen › Node › Während der Synchronisierung ändern.",
+  "deskSetLndAskNote": "Wird einmal gefragt. Node und Auswahl lassen sich unter Einstellungen › Node › Während der Synchronisierung ändern.",
   "deskSetLndAskWait": "Auf den lokalen Node warten",
   "deskSetLndAskUse": "{host} nutzen",
   "deskSetLndPickTitle": "Node während der Synchronisierung",

@@ -2,7 +2,7 @@
   "deskUpdAvailable": "Update verfügbar",
   "deskUpdDownload": "{version} herunterladen",
   "deskUpdOpensPage": "Öffnet die Download-Seite",
-  "deskUpdDownloading": "Wird heruntergeladen: {percent} %",
+  "deskUpdDownloading": "Wird heruntergeladen: {percent} %",
   "deskUpdRestart": "Neu starten und aktualisieren",
   "deskUpdReady": "{version} ist bereit",
   "deskUpdRestartHint": "Die App schließt sich, installiert das Update und öffnet sich wieder.",

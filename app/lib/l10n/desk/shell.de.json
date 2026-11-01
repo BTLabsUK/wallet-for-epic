@@ -66,7 +66,7 @@
   "deskTourActivityText": "Jede Transaktion mit Stand und Details. Eine Zahl an diesem Eintrag der Seitenleiste heißt: Etwas wartet auf Sie.",
   "deskTourContactsTitle": "Kontakte",
   "deskTourContactsText": "Gespeicherte Adressen mit Namen. Senden wählt von hier.",
-  "deskTourNodeTitle": "Einstellungen › Node",
+  "deskTourNodeTitle": "Einstellungen › Node",
   "deskTourNodeText": "Von welchem Node die Wallet die Blockchain liest. Die übrigen Einstellungsseiten stehen links.",
   "deskTourHelpTitle": "Hilfe",
   "deskTourHelpText": "Hilfethemen, Problem melden und Tour erneut zeigen.",
@@ -77,7 +77,7 @@
   "deskTourNext": "Weiter",
   "deskTourAdvancedTitle": "Erweitert",
   "deskTourAdvancedText": "Der Nur-Tor-Modus, Outputs und technische Details sind hier. Schalten Sie ein, was Sie brauchen.",
-  "deskAppFirstScanProgress": "Blockchain wird gescannt · {percent} %",
+  "deskAppFirstScanProgress": "Blockchain wird gescannt · {percent} %",
   "deskAppFirstScanFound": "{count, plural, one{{count} Output gefunden} other{{count} Outputs gefunden}}",
   "deskAppFirstScanShowLog": "Protokoll zeigen",
   "deskAppFirstScanHideLog": "Protokoll ausblenden"

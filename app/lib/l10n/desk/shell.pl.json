@@ -66,7 +66,7 @@
   "deskTourActivityText": "Każda transakcja z jej postępem i szczegółami. Liczba przy tej pozycji paska oznacza, że coś czeka na działanie.",
   "deskTourContactsTitle": "Kontakty",
   "deskTourContactsText": "Zapisane adresy z nazwami. Wyślij wybiera stąd.",
-  "deskTourNodeTitle": "Ustawienia › Węzeł",
+  "deskTourNodeTitle": "Ustawienia › Węzeł",
   "deskTourNodeText": "Z którego węzła portfel czyta łańcuch. Pozostałe strony ustawień są wymienione po lewej.",
   "deskTourHelpTitle": "Pomoc",
   "deskTourHelpText": "Tematy pomocy, Zgłoś problem i Pokaż przewodnik ponownie.",
@@ -77,7 +77,7 @@
   "deskTourNext": "Dalej",
   "deskTourAdvancedTitle": "Zaawansowane",
   "deskTourAdvancedText": "Tryb tylko Tor, wyjścia i szczegóły techniczne są tutaj. Włącz to, czego potrzebujesz.",
-  "deskAppFirstScanProgress": "Skanowanie łańcucha · {percent}%",
+  "deskAppFirstScanProgress": "Skanowanie łańcucha · {percent} %",
   "deskAppFirstScanFound": "{count, plural, one{Znaleziono {count} wyjście} few{Znaleziono {count} wyjścia} many{Znaleziono {count} wyjść} other{Znaleziono {count} wyjścia}}",
   "deskAppFirstScanShowLog": "Pokaż log",
   "deskAppFirstScanHideLog": "Ukryj log"

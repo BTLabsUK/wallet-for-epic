@@ -123,7 +123,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
         if (eb != ServiceHealth.off && ebHost != null) ebHost,
         if (eb != ServiceHealth.off && ebWay == TorWay.overTor) l.deskRailOverTor,
         if (ebWaits) l.deskRailWaitsForTor,
-        if (blocked) l.deskEpicboxBlockedText(ebHost ?? '') else if (eb == ServiceHealth.down && !ebWaits) l.deskRailPaymentsWait,
+        if (blocked) l.deskEpicboxBlockedShort(ebHost ?? '') else if (eb == ServiceHealth.down && !ebWaits) l.deskRailPaymentsWait,
       ],
       open: l.deskRailOpenEpicbox,
       jump: SettingsJump.epicbox,
@@ -177,7 +177,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
         // Tor's word and dot from its one state (torShownState), as everywhere (D-04).
         state: !included ? EState.off : EState.of(torShownState(tor)),
         second: tor == TorState.starting ? l.deskRailStartingDots : word,
-        marker: tor == TorState.starting ? '${st?.torProgress ?? 0}%' : null,
+        marker: tor == TorState.starting ? percentText(l, st?.torProgress ?? 0) : null,
         note: included ? torNetworkHint(l) : null,
         lines: [
           if (tor == TorState.failed && st?.torProblem != null) st!.torProblem!,

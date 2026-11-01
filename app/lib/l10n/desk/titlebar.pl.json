@@ -29,6 +29,6 @@
   "deskBarBuildTipRebuild": "Wersja {version}, przebudowa {rebuild}, commit {commit}. Kliknięcie kopiuje informacje o wersji.",
   "deskBarBuildTipDev": "Wersja {version}. Wersja deweloperska. Kliknięcie kopiuje informacje o wersji.",
   "deskBarKeyMenu": "Otwórz menu aplikacji",
-  "deskBarTurnOnHint": "Wyłączone. Włącz w Ustawienia › Transakcje.",
+  "deskBarTurnOnHint": "Wyłączone. Włącz w Ustawienia › Transakcje.",
   "deskDemoStripe": "Demo · przykładowe dane"
 }

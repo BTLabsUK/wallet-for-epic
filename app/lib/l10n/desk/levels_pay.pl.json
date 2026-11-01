@@ -19,10 +19,12 @@
   "deskLvPayHeroHoldMany": "{amount} wstrzymane do podpisania",
   "deskLvPayHeroNothing": "Nic jeszcze nie nadchodzi.",
   "deskLvPayReadyTitle": "Twój portfel jest gotowy.",
+  "deskLvPayReadyHead": "Portfel gotowy",
   "deskLvPayReadyText": "Udostępnij adres, aby dostać pierwsze EPIC.",
   "deskLvPayTileConfirming": "Wciąż potwierdzane",
   "deskLvPayTileMining": "Świeże z kopania",
   "deskLvPayTileWaiting": "Czeka na drugą stronę",
+  "deskLvPayTileAwaiting": "Czeka na odpowiedź",
   "deskLvPayTileLocked": "Odłożone na wysyłki",
   "deskLvPayImmatureCasual": "Świeże z kopania, jeszcze niedostępne",
   "deskLvPayKind": "Płatność"

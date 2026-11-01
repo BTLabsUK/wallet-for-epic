@@ -198,7 +198,7 @@ void main() {
 
     testWidgets('syncing with a percent', (tester) async {
       await _pump(tester, syncing: true, percent: 42);
-      expect(_in(netStatusNodeKey, 'Syncing 42 %'), findsOneWidget);
+      expect(_in(netStatusNodeKey, 'Syncing 42%'), findsOneWidget);
     });
 
     testWidgets('syncing without a percent, while the wallet is behind the tip', (tester) async {

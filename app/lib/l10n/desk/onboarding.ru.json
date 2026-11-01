@@ -4,6 +4,8 @@
   "deskOnbWelcomeCreate": "Создать новый кошелёк",
   "deskOnbWelcomeImport": "Импортировать кошельки",
   "deskOnbWelcomeImportSub": "Из старого Epic Wallet или из папки",
+  "deskOnbWelcomeCreateSub": "С новой фразой восстановления",
+  "deskOnbWelcomeRestoreSub": "Также из Stack Wallet или Epic Pay",
   "deskOnbWelcomeRestore": "Восстановить по фразе",
   "deskOnbWelcomeTestNote": "Новые кошельки создаются в этой тестовой сети.",
   "deskOnbWelcomeBack": "Назад к разблокировке",

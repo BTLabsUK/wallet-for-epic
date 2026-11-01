@@ -78,7 +78,7 @@ void main() {
   group('steps', () {
     test('without the Invoices page: eight, Overview to Help, Advanced before Help', () {
       final steps = tourStepsFor(invoices: false);
-      expect(steps.map((s) => s.title), ['Overview', 'Send', 'Receive', 'Activity', 'Contacts', 'Settings › Node', 'Advanced', 'Help']);
+      expect(steps.map((s) => s.title), ['Overview', 'Send', 'Receive', 'Activity', 'Contacts', 'Settings\u00a0›\u00a0Node', 'Advanced', 'Help']);
       expect(steps.map((s) => s.route), [
         DeskRoute.overview,
         DeskRoute.send,

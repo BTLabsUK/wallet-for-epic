@@ -181,7 +181,7 @@
   "@deskInvPayerNodeDownTitle": {
     "description": "Reason Approve is disabled: the wallet's node cannot be reached."
   },
-  "deskInvPayerNodeDownText": "The wallet cannot check the balance, so it cannot pay. Approve works again once the node answers; you can pick another node in Settings › Node.",
+  "deskInvPayerNodeDownText": "The wallet cannot check the balance, so it cannot pay. Approve works again once the node answers; you can pick another node in Settings › Node.",
   "@deskInvPayerNodeDownText": {
     "description": "Text under the node-down reason. The wallet never switches node by itself."
   },
@@ -261,7 +261,7 @@
   "@deskInvPayerNotDeliveredToast": {
     "description": "Toast after Approve when the relay did not take the payment."
   },
-  "deskInvPayerNotDeliveredToastText": "The Epicbox server is not answering. Retry it under Invoices › Pay; no second approval.",
+  "deskInvPayerNotDeliveredToastText": "The Epicbox server is not answering. Retry it under Invoices › Pay; no second approval.",
   "@deskInvPayerNotDeliveredToastText": {
     "description": "Toast text after Approve when the relay did not take the payment."
   },

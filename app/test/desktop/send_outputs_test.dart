@@ -75,7 +75,7 @@ void main() {
   testWidgets('the summary says what stays spendable and what is locked', (tester) async {
     await pump(tester, const SendArgs(recipient: anna, amount: '25'));
     expect(find.text('Balance after'), findsOneWidget);
-    expect(find.text('Spendable until change confirms'), findsOneWidget);
+    expect(find.text('Available while this confirms'), findsOneWidget);
     expect(find.textContaining('locked,'), findsOneWidget);
     expect(wallet.asked.first?.strategy, SelectionStrategy.smallest);
   });
@@ -116,7 +116,7 @@ void main() {
     await pump(tester, const SendArgs(recipient: anna, amount: '25', step: SendStep.review));
     expect(find.text('Check and send'), findsOneWidget);
     expect(find.text('Locks'), findsOneWidget);
-    expect(find.textContaining('until the change confirms (6 blocks)'), findsOneWidget);
+    expect(find.textContaining('until this payment confirms (6 blocks)'), findsOneWidget);
   });
 
   testWidgets('Review right after a new strategy sends with that strategy, not the last plan', (tester) async {

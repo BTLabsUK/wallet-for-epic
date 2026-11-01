@@ -75,7 +75,7 @@
   "deskSetLnodeStepOf": "Krok synchronizacji {n} z 4: {name}",
   "deskSetLndAskTitle": "Używać {host}, dopóki węzeł lokalny się nie zsynchronizuje?",
   "deskSetLndAskDesc": "{host}, węzeł publiczny, może go zastąpić do czasu synchronizacji węzła lokalnego.",
-  "deskSetLndAskNote": "Pytanie pada raz. Węzeł i wybór można zmienić w Ustawienia › Węzeł › Podczas synchronizacji.",
+  "deskSetLndAskNote": "Pytanie pada raz. Węzeł i wybór można zmienić w Ustawienia › Węzeł › Podczas synchronizacji.",
   "deskSetLndAskWait": "Czekaj na węzeł lokalny",
   "deskSetLndAskUse": "Używaj {host}",
   "deskSetLndPickTitle": "Węzeł podczas synchronizacji",

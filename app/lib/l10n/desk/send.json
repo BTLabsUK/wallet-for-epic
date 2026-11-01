@@ -15,6 +15,10 @@
   "@deskSendSpendableUntil": {
     "description": "Summary line on Send: the amount still spendable while the change confirms."
   },
+  "deskSendSpendableWhile": "Available while this confirms",
+  "@deskSendSpendableWhile": {
+    "description": "Summary line on Send: the amount still spendable while this payment confirms. Plain words, one line."
+  },
   "deskSendSplitLine": "{outputs, plural, one{Change split into {outputs} output (+{fee} EPIC fee)} other{Change split into {outputs} outputs (+{fee} EPIC fee)}}",
   "@deskSendSplitLine": {
     "description": "Summary line on Send when the change comes back as several outputs. {outputs} is the number of change outputs; {fee} the extra network fee, in EPIC.",
@@ -127,6 +131,16 @@
       }
     }
   },
+  "deskSendReviewSetAsideNone": "{locked} EPIC goes out as it is; nothing is set aside.",
+  "@deskSendReviewSetAsideNone": {
+    "description": "Review dialog, fact \"Locks\": the payment uses the exact amount, nothing is set aside to wait for. {locked} is in EPIC.",
+    "placeholders": {
+      "locked": {
+        "type": "String",
+        "example": "34.7321"
+      }
+    }
+  },
   "deskSendReviewLocksAll": "{count, plural, one{Everything: {locked} EPIC in 1 output until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing stays spendable.} other{Everything: {locked} EPIC in {count} outputs until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing stays spendable.}}",
   "@deskSendReviewLocksAll": {
     "description": "Review dialog, fact \"Locks\": strategy All locks everything. {locked} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
@@ -144,6 +158,20 @@
       }
     }
   },
+  "deskSendReviewSetAsideAll": "Everything: {locked} EPIC is set aside until this payment confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing stays spendable.",
+  "@deskSendReviewSetAsideAll": {
+    "description": "Review dialog, fact \"Locks\", Send all: everything is set aside until this payment confirms. {blocks} is the wallet's minimum confirmations.",
+    "placeholders": {
+      "locked": {
+        "type": "String",
+        "example": "34.7321"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
   "deskSendReviewLocksEverything": "{count, plural, one{{locked} EPIC in 1 output until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing else is spendable meanwhile.} other{{locked} EPIC in {count} outputs until the change confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing else is spendable meanwhile.}}",
   "@deskSendReviewLocksEverything": {
     "description": "Review dialog, fact \"Locks\": all outputs are needed. {locked} is in EPIC. {blocks} is the wallet's minimum confirmations (Settings > Advanced): blocks until the change confirms.",
@@ -154,6 +182,20 @@
       "locked": {
         "type": "String",
         "example": "1,284.73215"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
+      }
+    }
+  },
+  "deskSendReviewSetAsideEverything": "{locked} EPIC is set aside until this payment confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. Nothing else is spendable meanwhile.",
+  "@deskSendReviewSetAsideEverything": {
+    "description": "Review dialog, fact \"Locks\": all spendable coins are set aside until this payment confirms. {blocks} is the wallet's minimum confirmations.",
+    "placeholders": {
+      "locked": {
+        "type": "String",
+        "example": "34.7321"
       },
       "blocks": {
         "type": "int",
@@ -179,6 +221,24 @@
       "blocks": {
         "type": "int",
         "example": "6"
+      }
+    }
+  },
+  "deskSendReviewSetAsideSome": "{locked} EPIC is set aside until this payment confirms {blocks, plural, one{(1 block)} other{({blocks} blocks)}}. {spendable} EPIC stays spendable.",
+  "@deskSendReviewSetAsideSome": {
+    "description": "Review dialog, fact \"Locks\": part of the balance is set aside until this payment confirms, the rest stays spendable. Amounts in EPIC. {blocks} is the wallet's minimum confirmations.",
+    "placeholders": {
+      "locked": {
+        "type": "String",
+        "example": "34.7321"
+      },
+      "blocks": {
+        "type": "int",
+        "example": "6"
+      },
+      "spendable": {
+        "type": "String",
+        "example": "1,250.0000"
       }
     }
   },
@@ -418,6 +478,16 @@
   "deskSendEpicboxOffText": "Turn on Epicbox receiving to send by Epicbox, or use Direct · File Transfer.",
   "@deskSendEpicboxOffText": {
     "description": "Text of that notice."
+  },
+  "deskSendEpicboxOffTab": "Turn on Epicbox receiving to send by Epicbox, or use {method}.",
+  "@deskSendEpicboxOffTab": {
+    "description": "Send page notice when Epicbox receiving is off. {method} is the Direct · File tab's own name, exactly as the tab shows it.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Direct · File"
+      }
+    }
   },
   "deskSendEpicboxTurnOn": "Turn on Epicbox receiving",
   "@deskSendEpicboxTurnOn": {
@@ -805,6 +875,18 @@
       }
     }
   },
+  "deskSendMessageCount": "{used} / {max}",
+  "@deskSendMessageCount": {
+    "description": "Counter beside the message field on Send and on a new invoice: how much of the limit the message uses (LEPIC counts bytes; no unit shown).",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "deskSendMessageTooLong": "The message is longer than {max} bytes. Shorten it.",
   "@deskSendMessageTooLong": {
     "description": "Error under the Message field on Send when the message is over the limit, in UTF-8 bytes.",
@@ -813,6 +895,10 @@
         "type": "int"
       }
     }
+  },
+  "deskSendMessageTooLongPlain": "The message is too long. Shorten it.",
+  "@deskSendMessageTooLongPlain": {
+    "description": "Error under the message field on Send when the message is over the limit. No unit."
   },
   "deskSendRelayUnknownTitle": "Unknown Epicbox server",
   "@deskSendRelayUnknownTitle": {
@@ -850,12 +936,42 @@
   "@deskSendEpicboxNodeOnly": {
     "description": "Send notice and hint while Node only is on and Epicbox is chosen: the desktop has no QR Payment, so only File Transfer works."
   },
+  "deskSendEpicboxNodeOnlyTab": "Node only is on: Epicbox is off. {method} works.",
+  "@deskSendEpicboxNodeOnlyTab": {
+    "description": "Send page notice on the Epicbox tab under Node only. {method} is the Direct · File tab's own name, exactly as the tab shows it.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Direct · File"
+      }
+    }
+  },
   "deskSendLinkNodeOnly": "Node only is on: Link is off. Direct · File Transfer works.",
   "@deskSendLinkNodeOnly": {
     "description": "Send notice while Node only is on and Link is chosen: only File Transfer works on the desktop."
   },
+  "deskSendLinkNodeOnlyTab": "Node only is on: Link is off. {method} works.",
+  "@deskSendLinkNodeOnlyTab": {
+    "description": "Send page notice on the Link tab under Node only. {method} is the Direct · File tab's own name, exactly as the tab shows it.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Direct · File"
+      }
+    }
+  },
   "deskSendKillSwitch": "Kill switch is on: nothing connects. Direct · File Transfer works.",
   "@deskSendKillSwitch": {
     "description": "Send notice while Kill switch is on and Epicbox or Link is chosen: only File Transfer works on the desktop."
+  },
+  "deskSendKillSwitchTab": "Kill switch is on: nothing connects. {method} works.",
+  "@deskSendKillSwitchTab": {
+    "description": "Send page notice under Kill switch. {method} is the Direct · File tab's own name, exactly as the tab shows it.",
+    "placeholders": {
+      "method": {
+        "type": "String",
+        "example": "Direct · File"
+      }
+    }
   }
 }
