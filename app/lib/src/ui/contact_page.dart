@@ -16,7 +16,10 @@ import '../l10n.dart';
 import '../pairing_providers.dart';
 import '../providers.dart';
 import '../wallet_service.dart';
+import 'address_view.dart' show MarkedAddress;
+import 'app_dialog.dart';
 import 'common.dart';
+import 'inline_button.dart';
 import 'contact_trust_line.dart';
 import 'contacts_screen.dart';
 import 'history_screen.dart' show HistoryScreen;
@@ -81,8 +84,8 @@ class _Payments extends ConsumerWidget {
         for (final tx in mine.take(5)) TxTile(tx: tx),
         if (mine.length > 5)
           Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: TextButton(
+            alignment: AlignmentDirectional.centerStart,
+            child: InlineTextButton(
               onPressed: () => Navigator.of(context).push<void>(
                 MaterialPageRoute<void>(builder: (_) => HistoryScreen(query: contact.name)),
               ),
@@ -171,22 +174,17 @@ class _ContactPageState extends ConsumerState<ContactPage> {
 
   Future<void> _delete(Contact contact, PairingRecord? pairing) async {
     final l = context.l10n;
-    final sure = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.contactsDeleteTitle(contact.name)),
-        content: Text(pairing == null ? l.contactsDeleteConfirmBody : '${l.contactsDeleteConfirmBody}\n\n${l.contactDeletePaired(contact.name)}'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.commonCancel)),
-          TextButton(
-            style: TextButton.styleFrom(foregroundColor: context.tokens.risk),
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l.commonDelete),
-          ),
-        ],
-      ),
+    final sure = await confirmAppDialog(
+      context,
+      title: l.contactsDeleteTitle(contact.name),
+      icon: Icons.person_remove_outlined,
+      tone: DialogTone.risk,
+      description: pairing == null ? l.contactsDeleteConfirmBody : '${l.contactsDeleteConfirmBody}\n\n${l.contactDeletePaired(contact.name)}',
+      cancelLabel: l.commonCancel,
+      confirmLabel: l.commonDelete,
+      risk: true,
     );
-    if (sure != true || !mounted) return;
+    if (!sure || !mounted) return;
     final notices = ref.read(noticeProvider.notifier);
     try {
       // Deleting a paired contact removes its pairing (C-19).
@@ -519,23 +517,29 @@ class _Addresses extends StatelessWidget {
     if (contact.addresses.isEmpty) return Text(l.contactNoAddresses, style: TextStyle(color: t.dim));
     return PairCard(
       children: [
+        // Each address in full, its method chip and Copy on the label row above it.
         for (final kind in contact.kinds)
-          ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 52),
-            child: Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(14, 4, 4, 4),
-              child: Row(
-                children: [
-                  EBadge.kind(kind, l: l),
-                  const SizedBox(width: 10),
-                  Expanded(child: AddressText(contact.addressOf(kind)!, short: true)),
-                  IconButton(
-                    tooltip: l.contactCopyAddress(recipientMethodWord(l, kind)),
-                    icon: Icon(Icons.copy, size: 20, color: t.accentText),
-                    onPressed: () => copyText(context, contact.addressOf(kind)!, l.contactsCopied),
-                  ),
-                ],
-              ),
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(14, 4, 4, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    EBadge.kind(kind, l: l),
+                    const Spacer(),
+                    IconButton(
+                      tooltip: l.contactCopyAddress(recipientMethodWord(l, kind)),
+                      icon: Icon(Icons.copy, size: 20, color: t.accentText),
+                      onPressed: () => copyText(context, contact.addressOf(kind)!, l.contactsCopied),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 10),
+                  child: MarkedAddress(contact.addressOf(kind)!, selectable: true),
+                ),
+              ],
             ),
           ),
       ],
@@ -620,15 +624,11 @@ class _CodeSheetState extends State<_CodeSheet> {
           ),
           const SizedBox(height: 16),
           Container(
-            decoration: BoxDecoration(
-              color: t.field,
-              border: Border.all(color: t.line),
-              borderRadius: BorderRadius.circular(t.radiusSmall),
-            ),
+            decoration: t.well,
             padding: const EdgeInsetsDirectional.fromSTEB(12, 4, 0, 4),
             child: Row(
               children: [
-                Expanded(child: AddressText(address, selectable: true)),
+                Expanded(child: MarkedAddress(address, selectable: true)),
                 IconButton(
                   tooltip: l.commonCopy,
                   color: t.accentText,

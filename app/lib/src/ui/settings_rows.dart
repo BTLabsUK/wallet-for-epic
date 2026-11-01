@@ -106,9 +106,16 @@ class RadioRow<T> extends StatelessWidget {
 /// A section's header on a settings page: dim, in the title face's small size, 24 dp above it.
 /// [trailing] puts a small action at its end (Advanced's "Hide everything again").
 class SettingsHeader extends StatelessWidget {
-  const SettingsHeader(this.title, {super.key, this.trailing});
+  const SettingsHeader(this.title, {super.key, this.trailing}) : inBody = false;
+
+  /// The same header on a settings page laid out in a padded body of cards (Linked devices,
+  /// Invoices) rather than a list of rows: no inset of its own, room above and below.
+  const SettingsHeader.inBody(this.title, {super.key, this.trailing}) : inBody = true;
 
   final String title;
+
+  /// Laid out by [SettingsHeader.inBody].
+  final bool inBody;
 
   /// A small action at the header's end (the desktop's "Hide everything again").
   final Widget? trailing;
@@ -125,6 +132,12 @@ class SettingsHeader extends StatelessWidget {
         style: theme.textTheme.titleSmall?.copyWith(color: context.tokens.dim, fontWeight: FontWeight.w600),
       ),
     );
+    if (inBody) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 20, bottom: 8),
+        child: trailing == null ? text : Row(children: [Expanded(child: text), trailing!]),
+      );
+    }
     if (trailing == null) {
       return Padding(padding: const EdgeInsets.fromLTRB(16, 24, 16, 4), child: text);
     }

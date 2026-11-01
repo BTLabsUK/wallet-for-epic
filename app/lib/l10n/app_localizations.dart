@@ -21924,6 +21924,12 @@ abstract class AppLocalizations {
   /// **'Finish our Epic Cash pairing: {link}'**
   String pairFinishMessage(String link);
 
+  /// The shared/copied finish message, impersonal (replaces pairFinishMessage)
+  ///
+  /// In en, this message translates to:
+  /// **'Finish the Epic Cash pairing: {link}'**
+  String pairFinishLinkMessage(String link);
+
   /// Desktop primary button for all three messages (no share sheet on Linux/Windows)
   ///
   /// In en, this message translates to:

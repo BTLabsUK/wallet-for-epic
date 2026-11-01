@@ -3653,6 +3653,7 @@
   "pairInviteMessage": "Einladung zur Kopplung in Epic Cash: {link}",
   "pairReplyMessage": "Meine Antwort zur Epic-Cash-Kopplung: {link}",
   "pairFinishMessage": "Abschluss unserer Epic-Cash-Kopplung: {link}",
+  "pairFinishLinkMessage": "Epic-Cash-Kopplung abschließen: {link}",
   "pairCopyMessage": "Nachricht kopieren",
   "pairMessageCopied": "Kopiert. Fügen Sie es im Chat ein.",
   "pairAwaitReplyTitle": "Warten auf die Antwort",

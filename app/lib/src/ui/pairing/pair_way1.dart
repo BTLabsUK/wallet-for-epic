@@ -18,8 +18,9 @@ import '../../pairing_text.dart';
 import '../../trust/policy.dart';
 import '../../wallet_service.dart';
 import '../common.dart';
-import '../contact_page.dart' show AddressText;
+import '../address_view.dart' show ShortAddressText;
 import '../phone_sheet.dart';
+import '../settings_rows.dart' show NavChevron;
 import '../theme/brand.dart';
 import '../theme/tokens.dart';
 import 'pair_incoming.dart';
@@ -194,7 +195,7 @@ class _RequestRow extends ConsumerWidget {
               children: [
                 Text(l.pairWantsToPair(name), style: theme.textTheme.bodyLarge, maxLines: 2, overflow: TextOverflow.ellipsis),
                 const SizedBox(height: 2),
-                AddressText(request.fromAddress, short: true),
+                ShortAddressText(request.fromAddress, style: const TextStyle(fontSize: 13)),
               ],
             ),
           ),
@@ -231,7 +232,7 @@ class PairRequestsRow extends ConsumerWidget {
       minTileHeight: 64,
       leading: GlyphTile(size: 40, child: Icon(Icons.handshake_outlined, color: t.info)),
       title: Text(l.pairRequestsRow(count)),
-      trailing: Icon(Icons.chevron_right, color: t.dim),
+      trailing: const NavChevron(),
       onTap: () => openPairRequests(context),
     );
   }

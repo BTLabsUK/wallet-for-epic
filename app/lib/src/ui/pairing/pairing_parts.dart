@@ -16,9 +16,10 @@ import '../../wallet_service.dart';
 import '../badge.dart';
 import '../contact_page.dart' show contactInitials;
 import '../info_hint.dart';
+import '../notices.dart' show InlineNotice, NoticeLevel;
+import '../sas_picture.dart';
 import '../status_icons.dart';
 import '../theme/brand.dart';
-import '../theme/fonts.dart' show sasEmojiFallback;
 import '../theme/protocol.dart';
 import '../theme/tokens.dart';
 
@@ -34,7 +35,7 @@ enum WordTileSize {
   final double name;
 }
 
-/// A row of word tiles (the four of the check, the five pairing words): each emoji in a
+/// A row of word tiles (the four of the check, the five pairing words): each picture in a
 /// square tile with its name under it. A null entry is an empty slot (dashed, its number in
 /// it) while the words are typed; indexes in [bad] get a risk border. Tiles shrink to fit the
 /// width, never below two thirds of their size. Each name has its whole slot and shrinks to
@@ -163,8 +164,8 @@ class _WordTile extends StatelessWidget {
         child: CustomPaint(
           foregroundPainter: CornerTicksPainter(t.tick, length: 8, width: 2),
           child: Center(
-            // The emoji is drawn by the bundled picture font (the platform's own on Android).
-            child: Text(w.emoji, style: TextStyle(fontSize: side * 0.48, height: 1, fontFamilyFallback: sasEmojiFallback)),
+            // The bundled picture, the same on every system; the tile's label says its name.
+            child: SasPicture(w, size: side * 0.6, excludeFromSemantics: true),
           ),
         ),
       );
@@ -496,8 +497,8 @@ class PairSwitchRow extends StatelessWidget {
   }
 }
 
-/// A notice inside a screen: the tone's colour as the card's edge, a bold title, the body and
-/// optional buttons. [tone] is ok, info, warn or risk.
+/// A notice inside a screen: an [InlineNotice] of [tone]'s level (ok, info, warn or risk), a
+/// bold title, the body and optional buttons under the words; announced when it appears.
 class PairEdgeNotice extends StatelessWidget {
   const PairEdgeNotice({super.key, required this.tone, required this.title, this.body, this.actions = const [], this.stretchActions = false});
 
@@ -509,66 +510,33 @@ class PairEdgeNotice extends StatelessWidget {
   /// The actions one under the other, each the card's width: a choice of three reads as one.
   final bool stretchActions;
 
+  static NoticeLevel levelOf(BadgeTone tone) => switch (tone) {
+    BadgeTone.ok => NoticeLevel.success,
+    BadgeTone.warn => NoticeLevel.warning,
+    BadgeTone.risk => NoticeLevel.error,
+    BadgeTone.info || BadgeTone.gold || BadgeTone.neutral => NoticeLevel.info,
+  };
+
   @override
-  Widget build(BuildContext context) {
-    final t = context.tokens;
-    final theme = Theme.of(context);
-    final edge = switch (tone) {
-      BadgeTone.ok => t.ok,
-      BadgeTone.warn => t.warn,
-      BadgeTone.risk => t.risk,
-      BadgeTone.info => t.info,
-      BadgeTone.gold => t.accent,
-      BadgeTone.neutral => t.lineStrong,
-    };
-    final icon = switch (tone) {
-      BadgeTone.ok => Icons.check_circle_outline,
-      BadgeTone.warn => Icons.warning_amber_rounded,
-      BadgeTone.risk => Icons.error_outline,
-      _ => Icons.info_outline,
-    };
-    return Semantics(
-      container: true,
-      liveRegion: true,
-      child: EdgeCard(
-        edge: edge,
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(icon, size: 20, color: edge),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: theme.textTheme.titleSmall),
-                    if (body case final b?) ...[
-                      const SizedBox(height: 4),
-                      Text(b, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
-                    ],
-                    if (actions.isNotEmpty) ...[
-                      const SizedBox(height: 10),
-                      if (stretchActions)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            for (var i = 0; i < actions.length; i++) ...[if (i > 0) const SizedBox(height: 8), actions[i]],
-                          ],
-                        )
-                      else
-                        Wrap(spacing: 8, runSpacing: 8, children: actions),
-                    ],
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => InlineNotice(
+    level: levelOf(tone),
+    title: title,
+    text: body,
+    liveRegion: true,
+    actions: stretchActions ? const [] : actions,
+    actionsBelow: true,
+    below: stretchActions && actions.isNotEmpty
+        ? Padding(
+            padding: const EdgeInsetsDirectional.only(top: 10, end: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var i = 0; i < actions.length; i++) ...[if (i > 0) const SizedBox(height: 8), actions[i]],
+              ],
+            ),
+          )
+        : null,
+  );
 }
 
 /// Text to send in a box: mono where it is a link, selectable.
@@ -591,11 +559,7 @@ class ShareBox extends StatelessWidget {
         ],
         Container(
           padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: t.field,
-            border: Border.all(color: t.line),
-            borderRadius: BorderRadius.circular(t.radiusSmall),
-          ),
+          decoration: t.well,
           child: SelectableText(
             text,
             style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily, fontSize: 12.5, height: 1.45),

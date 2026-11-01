@@ -256,13 +256,13 @@ void main() {
       tester,
     ) async {
       await open(tester);
-      // Short on the page; in full under Show code.
+      // In full on the page, and again under Show code.
       expect(
         find.descendant(
           of: find.byType(ContactPage),
           matching: find.textContaining('a' * 50, findRichText: true),
         ),
-        findsNothing,
+        findsWidgets,
       );
       expect(find.text('Coffee club'), findsOneWidget);
       expect(find.text(_l.contactAddresses), findsOneWidget);

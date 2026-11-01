@@ -3653,6 +3653,7 @@
   "pairInviteMessage": "จับคู่กับฉันใน Epic Cash: {link}",
   "pairReplyMessage": "คำตอบของฉันสำหรับการจับคู่ Epic Cash: {link}",
   "pairFinishMessage": "จบการจับคู่ Epic Cash ของเรา: {link}",
+  "pairFinishLinkMessage": "จบการจับคู่ Epic Cash: {link}",
   "pairCopyMessage": "คัดลอกข้อความ",
   "pairMessageCopied": "คัดลอกแล้ว วางในแชตได้เลย",
   "pairAwaitReplyTitle": "กำลังรอคำตอบ",

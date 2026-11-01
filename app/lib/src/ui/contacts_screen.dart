@@ -12,10 +12,13 @@ import '../pairing_text.dart' show sameNamedContact;
 import '../providers.dart';
 import '../scan/scan_checks.dart' show addressOfScan;
 import '../wallet_service.dart';
+import 'address_view.dart' show ShortAddressText;
+import 'app_dialog.dart';
 import 'centered_body.dart';
 import 'common.dart';
 import 'contact_page.dart';
 import 'contacts_transfer.dart';
+import 'inline_button.dart';
 import 'method_names.dart';
 import 'pairing/pair_check.dart' show attachPairingTo, confirmRemovePairing, pickContactForPairing, savePairingAsNewContact;
 import 'pairing/pair_incoming.dart' show confirmCancelPairing;
@@ -423,7 +426,7 @@ class _OrphanRow extends ConsumerWidget {
           if (r.state.isPending) const PairPendingBadge() else TrustBadge(r, short: true),
         ],
       ),
-      subtitle: Text(subtitle, style: TextStyle(color: t.dim)),
+      subtitle: Text(subtitle),
       trailing: PopupMenuButton<String>(
         key: contactsOrphanMenuKey(r.id),
         tooltip: l.contactMore,
@@ -498,13 +501,6 @@ class _ContactRow extends ConsumerWidget {
     final inFlight = pairing == null && ref.watch(pairingSupportedProvider) && ref.watch(contactPendingPairingProvider(contact.id)) != null;
     final starred = ref.watch(favouriteContactsProvider).value?.contains(contact.id) ?? false;
     final several = contact.kinds.length > 1;
-    final address = shortAddress(contact.address);
-    final at = address.indexOf('@');
-    final mono = TextStyle(
-      fontFamily: t.monoFamily,
-      fontSize: 13,
-      color: t.dim,
-    );
     final Widget reach;
     if (pairing != null && pairing.allowInvoices && ref.watch(invoicesOnProvider)) {
       reach = Text(l.trustAllowsInvoices, style: theme.textTheme.bodySmall?.copyWith(color: t.dim));
@@ -513,20 +509,7 @@ class _ContactRow extends ConsumerWidget {
     } else if (contact.addresses.isEmpty) {
       reach = const SizedBox.shrink();
     } else {
-      reach = Text.rich(
-        TextSpan(
-          style: mono,
-          children: [
-            TextSpan(
-              text: at < 0 ? address : address.substring(0, at),
-              style: TextStyle(color: t.text),
-            ),
-            if (at >= 0) TextSpan(text: address.substring(at)),
-          ],
-        ),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      );
+      reach = ShortAddressText(contact.address, style: const TextStyle(fontSize: 13));
     }
     return InkWell(
       onTap: onTap,
@@ -785,27 +768,18 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
     final contact = widget.contact;
     if (contact == null) return;
     final pairing = ref.read(contactPairingProvider(contact.id));
-    final sure = await showDialog<bool>(
-      context: context,
-      builder: (context) {
-        final l = context.l10n;
-        return AlertDialog(
-          title: Text(l.contactsDeleteTitle(contact.name)),
-          content: Text(pairing == null ? l.contactsDeleteBody : '${l.contactsDeleteBody}\n\n${l.contactDeletePaired(contact.name)}'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(l.contactsKeep),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(l.commonDelete),
-            ),
-          ],
-        );
-      },
+    final l = context.l10n;
+    final sure = await confirmAppDialog(
+      context,
+      title: l.contactsDeleteTitle(contact.name),
+      icon: Icons.person_remove_outlined,
+      tone: DialogTone.risk,
+      description: pairing == null ? l.contactsDeleteBody : '${l.contactsDeleteBody}\n\n${l.contactDeletePaired(contact.name)}',
+      cancelLabel: l.contactsKeep,
+      confirmLabel: l.commonDelete,
+      risk: true,
     );
-    if (sure != true || !mounted) return;
+    if (!sure || !mounted) return;
     try {
       // Deleting a paired contact removes its pairing (C-19).
       if (pairing != null) await pairingCall(ref, (api) => api.removePairing(pairing.id));
@@ -862,12 +836,11 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
           if (lastFilled && free.isNotEmpty) ...[
             Align(
               alignment: AlignmentDirectional.centerStart,
-              child: TextButton.icon(
+              child: InlineTextButton(
                 key: contactAddAnotherKey,
-                style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
                 icon: const Icon(Icons.add),
-                label: Text(l.addrAddAnother),
                 onPressed: _addField,
+                child: Text(l.addrAddAnother),
               ),
             ),
             if (free.length == 1)

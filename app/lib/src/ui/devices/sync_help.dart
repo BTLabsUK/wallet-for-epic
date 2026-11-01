@@ -19,6 +19,8 @@ import '../../devices/device_providers.dart';
 import '../../desktop/theme/tokens.dart' show DeskColors, DeskText, DeskUnits, Fs;
 import '../../l10n.dart';
 import '../../network.dart' show EpicboxRelay;
+import '../../state_language.dart' show ShownState, StateTone;
+import '../state_mark.dart' show StateMarkDot;
 import '../status_icons.dart';
 import '../theme/tokens.dart';
 
@@ -798,16 +800,8 @@ class SyncStatusPanel extends StatelessWidget {
                       title: EpicboxRelay.parse(v)?.label ?? v,
                       titleStyle: s.mono.copyWith(color: s.text),
                       dot: _dot(s, states[v]!, allDown),
-                      trailing: switch (states[v]!) {
-                        SyncServerState.answering => l.syncHelpAnswering,
-                        SyncServerState.notAnswering => l.syncHelpNotAnswering,
-                        SyncServerState.unknown => l.syncHelpNotChecked,
-                      },
-                      trailingColor: switch (states[v]!) {
-                        SyncServerState.answering => s.ok,
-                        SyncServerState.notAnswering => allDown ? s.risk : s.warn,
-                        SyncServerState.unknown => s.faint,
-                      },
+                      trailing: _shown(states[v]!).word(l),
+                      trailingColor: _color(s, states[v]!, allDown),
                     ),
                 ],
               ],
@@ -828,20 +822,27 @@ class SyncStatusPanel extends StatelessWidget {
     return l.devicesSeenDays(d.inDays);
   }
 
-  /// A server's state as a shape and a colour, never colour alone: filled answering, a ring
-  /// not answering (risk when no server answers), a faint ring not checked.
-  Widget _dot(SyncHelpStyle s, SyncServerState st, bool allDown) {
-    final color = switch (st) {
-      SyncServerState.answering => s.ok,
-      SyncServerState.notAnswering => allDown ? s.risk : s.warn,
-      SyncServerState.unknown => s.faint,
-    };
-    return Container(
-      width: s.u(8),
-      height: s.u(8),
-      decoration: BoxDecoration(shape: BoxShape.circle, color: st == SyncServerState.answering ? color : Colors.transparent, border: Border.all(color: color, width: 1.5)),
-    );
-  }
+  /// A relay's state in the one state language (state_language.dart): Healthy, Not
+  /// answering, Not checked yet, with the shared word and dot shape.
+  static ShownState _shown(SyncServerState st) => switch (st) {
+    SyncServerState.answering => ShownState.healthy,
+    SyncServerState.notAnswering => ShownState.notAnswering,
+    SyncServerState.unknown => ShownState.unchecked,
+  };
+
+  /// The state's tone in this panel's colours; one relay down while another answers is a
+  /// warning, not yet a failure.
+  static Color _color(SyncHelpStyle s, SyncServerState st, bool allDown) => switch (_shown(st).tone) {
+    StateTone.ok => s.ok,
+    StateTone.info => s.info,
+    StateTone.warn => s.warn,
+    StateTone.risk => allDown ? s.risk : s.warn,
+    StateTone.faint => s.faint,
+  };
+
+  /// A server's state as a shape and a colour, never colour alone: the shared state dot.
+  Widget _dot(SyncHelpStyle s, SyncServerState st, bool allDown) =>
+      StateMarkDot(mark: _shown(st).mark, size: s.u(10), color: _color(s, st, allDown), ink: s.surface, ring: s.surface, ringWidth: 1.5);
 }
 
 class _Row extends StatelessWidget {

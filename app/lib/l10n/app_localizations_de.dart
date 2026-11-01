@@ -14063,6 +14063,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String pairFinishLinkMessage(String link) {
+    return 'Epic-Cash-Kopplung abschließen: $link';
+  }
+
+  @override
   String get pairCopyMessage => 'Nachricht kopieren';
 
   @override

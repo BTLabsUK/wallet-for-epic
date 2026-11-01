@@ -13072,6 +13072,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String pairFinishLinkMessage(String link) {
+    return '完成 Epic Cash 配对：$link';
+  }
+
+  @override
   String get pairCopyMessage => '复制消息';
 
   @override

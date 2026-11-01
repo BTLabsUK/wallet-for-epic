@@ -14,6 +14,7 @@ import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../pairing_text.dart' show sameNamedContact;
 import '../../wallet_service.dart';
+import '../app_dialog.dart';
 import '../common.dart';
 import '../contact_page.dart' show ContactPage;
 import '../contacts_screen.dart';
@@ -38,23 +39,17 @@ const Key resultAddToNamedKey = ValueKey('result-add-to-named');
 /// means pairing again.
 Future<bool> confirmRemovePairing(BuildContext context, String name) async {
   final l = context.l10n;
-  final sure = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(l.contactRemovePairingTitle(name)),
-      content: Text(l.contactRemovePairingBody(name)),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.contactKeep)),
-        TextButton(
-          key: confirmRemovePairingKey,
-          style: TextButton.styleFrom(foregroundColor: context.tokens.risk),
-          onPressed: () => Navigator.pop(context, true),
-          child: Text(l.contactRemove),
-        ),
-      ],
-    ),
+  return confirmAppDialog(
+    context,
+    title: l.contactRemovePairingTitle(name),
+    icon: Icons.link_off,
+    tone: DialogTone.risk,
+    description: l.contactRemovePairingBody(name),
+    cancelLabel: l.contactKeep,
+    confirmLabel: l.contactRemove,
+    risk: true,
+    confirmKey: confirmRemovePairingKey,
   );
-  return sure ?? false;
 }
 
 /// The Remove button of [confirmRemovePairing], for tests.
@@ -88,18 +83,17 @@ Future<Contact?> attachPairingTo(BuildContext context, WidgetRef ref, PairingRec
   }
   if (!context.mounted) return null;
   final l = context.l10n;
-  final asNew = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(l.pairOtherAddressTitle(contact.name)),
-      content: Text(l.pairOtherAddressBody(contact.name)),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.commonCancel)),
-        TextButton(key: pairOtherAddressNewKey, onPressed: () => Navigator.pop(context, true), child: Text(l.pairSaveNewContact)),
-      ],
-    ),
+  final asNew = await confirmAppDialog(
+    context,
+    title: l.pairOtherAddressTitle(contact.name),
+    icon: Icons.person_add_alt_1_outlined,
+    tone: DialogTone.warn,
+    description: l.pairOtherAddressBody(contact.name),
+    cancelLabel: l.commonCancel,
+    confirmLabel: l.pairSaveNewContact,
+    confirmKey: pairOtherAddressNewKey,
   );
-  if (asNew != true || !context.mounted) return null;
+  if (!asNew || !context.mounted) return null;
   final saved = await savePairingAsNewContact(context, r);
   if (saved == null || !context.mounted) return null;
   await pairingCall(ref, (api) => api.attach(r.id, saved.id));
@@ -167,23 +161,18 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
 
   Future<void> _noMatch() async {
     final l = context.l10n;
-    final stop = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l.sasNoMatchTitle),
-        content: Text(l.sasNoMatchBody),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.pairBack)),
-          TextButton(
-            key: checkStopKey,
-            style: TextButton.styleFrom(foregroundColor: context.tokens.risk),
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l.sasNoMatch),
-          ),
-        ],
-      ),
+    final stop = await confirmAppDialog(
+      context,
+      title: l.sasNoMatchTitle,
+      icon: Icons.gpp_bad_outlined,
+      tone: DialogTone.risk,
+      description: l.sasNoMatchBody,
+      cancelLabel: l.pairBack,
+      confirmLabel: l.sasNoMatch,
+      risk: true,
+      confirmKey: checkStopKey,
     );
-    if (stop == true) await _answer(PairingCheck.mismatch);
+    if (stop) await _answer(PairingCheck.mismatch);
   }
 
   @override

@@ -13533,6 +13533,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String pairFinishLinkMessage(String link) {
+    return 'จบการจับคู่ Epic Cash: $link';
+  }
+
+  @override
   String get pairCopyMessage => 'คัดลอกข้อความ';
 
   @override

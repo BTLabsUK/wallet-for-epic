@@ -976,6 +976,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                                   body: l.devicesReleaseBody(deviceName),
                                   action: l.devicesRelease,
                                   risky: true,
+                                  icon: Icons.lock_open_outlined,
                                 );
                                 if (!yes || !context.mounted) return;
                                 await ref.read(deviceServiceProvider)?.releaseByHandOf(hold.deviceId, hold.slateId);

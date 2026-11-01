@@ -3653,6 +3653,7 @@
   "pairInviteMessage": "Sparuj się ze mną w Epic Cash: {link}",
   "pairReplyMessage": "Moja odpowiedź na parowanie w Epic Cash: {link}",
   "pairFinishMessage": "Dokończ nasze parowanie w Epic Cash: {link}",
+  "pairFinishLinkMessage": "Dokończ parowanie w Epic Cash: {link}",
   "pairCopyMessage": "Kopiuj wiadomość",
   "pairMessageCopied": "Skopiowano. Wklej to w czacie.",
   "pairAwaitReplyTitle": "Czekam na odpowiedź",

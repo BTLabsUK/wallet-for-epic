@@ -4280,7 +4280,8 @@ class _TorPill extends StatelessWidget {
       EBadge.tor(context.l10n.sendOverTor, way: TorWay.overTor);
 }
 
-/// A round tile with the contact's initial, or a person for a new recipient.
+/// The contact's avatar ([PairAvatar], as in Contacts and on the contact page), or a person
+/// in the same tile for a new recipient.
 class _Initial extends StatelessWidget {
   const _Initial({this.name});
 
@@ -4288,27 +4289,13 @@ class _Initial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
-    // Its first letter: brackets, punctuation and emoji never show.
-    final letter = nameInitials(name ?? '', count: 1);
+    final name = this.name;
+    // Brackets, punctuation and emoji never show: a name without letters gets the person.
+    final named = name != null && nameInitials(name).isNotEmpty;
     return ExcludeSemantics(
-      child: Container(
-        width: 40,
-        height: 40,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: t.surfaceHi,
-          shape: BoxShape.circle,
-          border: Border.all(color: t.lineStrong),
-        ),
-        child: letter.isEmpty
-            ? Icon(Icons.person_outline, size: 20, color: t.dim)
-            : Text(
-                letter,
-                style: Theme.of(context).textTheme.titleSmall
-                    ?.copyWith(color: t.text),
-              ),
-      ),
+      child: named
+          ? PairAvatar(name: name, size: 40)
+          : GlyphTile(size: 40, child: Icon(Icons.person_outline, size: 20, color: context.tokens.dim)),
     );
   }
 }

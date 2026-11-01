@@ -19,6 +19,7 @@ import '../../pairing_providers.dart';
 import '../../pairing_text.dart';
 import '../../slate_files.dart';
 import '../../wallet_service.dart';
+import '../app_dialog.dart';
 import '../common.dart';
 import '../scan_screen.dart';
 import '../theme/brand.dart';
@@ -154,7 +155,7 @@ class _PairScreenState extends ConsumerState<PairScreen> {
 
   Future<void> _changeName() async {
     final current = ref.read(pairingSeenAsProvider).value ?? '';
-    final name = await showDialog<String>(context: context, builder: (_) => _NameDialog(initial: current));
+    final name = await showAppDialog<String>(context, builder: (_) => _NameDialog(initial: current));
     if (name == null || !mounted) return;
     await ref.read(pairingSeenAsProvider.notifier).set(name);
     await _makeCode();
@@ -217,7 +218,7 @@ class _PairScreenState extends ConsumerState<PairScreen> {
   Future<void> _shareFinish({required bool copy}) async {
     final link = _finishLink;
     if (link == null) return;
-    await sharePairingMessage(context, ref, context.l10n.pairFinishMessage(link), copy: copy);
+    await sharePairingMessage(context, ref, context.l10n.pairFinishLinkMessage(link), copy: copy);
   }
 
   void _checkWords(String id) => Navigator.of(context).push<void>(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: id)));
@@ -488,9 +489,10 @@ class _NameDialogState extends State<_NameDialog> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    return AlertDialog(
-      title: Text(widget.first ? l.pairSeenAsAskTitle : l.pairSeenAsEdit),
-      content: TextField(
+    return AppDialog(
+      title: widget.first ? l.pairSeenAsAskTitle : l.pairSeenAsEdit,
+      icon: Icons.badge_outlined,
+      body: TextField(
         key: pairNameFieldKey,
         controller: _text,
         autofocus: true,
@@ -507,8 +509,8 @@ class _NameDialogState extends State<_NameDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text(l.commonCancel)),
-        FilledButton(key: pairNameSaveKey, onPressed: _save, child: Text(widget.first ? l.commonContinue : l.commonSave)),
+        DialogButton.secondary(label: l.commonCancel, onPressed: () => Navigator.pop(context)),
+        DialogButton.primary(key: pairNameSaveKey, label: widget.first ? l.commonContinue : l.commonSave, onPressed: _save),
       ],
     );
   }
@@ -521,7 +523,7 @@ Future<String?> seenAsOrAsk(BuildContext context, WidgetRef ref) async {
   final kept = (await readSeenAs(ref)).trim();
   if (kept.isNotEmpty) return kept;
   if (!context.mounted) return null;
-  final asked = await showDialog<String>(context: context, builder: (_) => const _NameDialog(initial: '', first: true));
+  final asked = await showAppDialog<String>(context, builder: (_) => const _NameDialog(initial: '', first: true));
   if (asked == null || !context.mounted) return null;
   await ref.read(pairingSeenAsProvider.notifier).set(asked);
   return asked;

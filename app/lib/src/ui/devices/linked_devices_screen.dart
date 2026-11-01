@@ -16,6 +16,7 @@ import '../common.dart';
 import '../help_screen.dart' show HelpButton;
 import '../info_hint.dart';
 import '../pairing/pairing_parts.dart';
+import '../settings_rows.dart' show SettingsHeader;
 import '../theme/tokens.dart';
 import 'device_parts.dart';
 
@@ -48,7 +49,7 @@ class LinkedDevicesScreen extends ConsumerWidget {
               children: [
                 if (!view.supported) ...[PairEdgeNotice(tone: BadgeTone.warn, title: l.devicesUnsupported), const SizedBox(height: 12)],
                 if (view.book.removedBy case final by?) _removedBy(context, ref, by),
-                PairSection(l.devicesThisDevice),
+                SettingsHeader.inBody(l.devicesThisDevice),
                 PairCard(
                   children: [
                     ListTile(
@@ -63,7 +64,7 @@ class LinkedDevicesScreen extends ConsumerWidget {
                     ),
                   ],
                 ),
-                PairSection(l.devicesOthers),
+                SettingsHeader.inBody(l.devicesOthers),
                 // A device removed while this one was offline, until its notice goes.
                 if (view.book.removing.isNotEmpty) ...[
                   PairCard(children: [for (final d in view.book.removing) _RemovingRow(device: d)]),
@@ -113,7 +114,7 @@ class LinkedDevicesScreen extends ConsumerWidget {
                   ],
                 ),
                 if (view.held.isNotEmpty) ...[
-                  PairSection(l.devicesHeld),
+                  SettingsHeader.inBody(l.devicesHeld),
                   PairCard(children: [for (final h in view.held) _HeldRow(hold: h, name: view.nameOf(h.deviceId))]),
                 ],
               ],
@@ -144,7 +145,7 @@ class _DeviceRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final t = context.tokens;
-    final list = (device.servers.isEmpty ? servers : device.servers).join(' · ');
+    final list = metaLine(device.servers.isEmpty ? servers : device.servers, whole: true);
     return ListTile(
       key: deviceRowKey(device.deviceId),
       leading: Icon(deviceIcon(device.kind)),
@@ -222,6 +223,7 @@ class _DeviceActions extends ConsumerWidget {
                 body: l.devicesRemoveBody(device.name),
                 action: l.devicesRemove,
                 risky: true,
+                icon: Icons.link_off,
               );
               if (!yes || !context.mounted) return;
               await service?.removeDevice(device.deviceId);
@@ -276,7 +278,7 @@ class _HeldRow extends ConsumerWidget {
       subtitle: Text(l.devicesHeldBy(name)),
       trailing: TextButton(
         onPressed: () async {
-          final yes = await confirmDeviceAction(context, title: l.devicesReleaseTitle, body: l.devicesReleaseBody(name), action: l.devicesRelease, risky: true);
+          final yes = await confirmDeviceAction(context, title: l.devicesReleaseTitle, body: l.devicesReleaseBody(name), action: l.devicesRelease, risky: true, icon: Icons.lock_open_outlined);
           if (!yes || !context.mounted) return;
           await ref.read(deviceServiceProvider)?.releaseByHandOf(hold.deviceId, hold.slateId);
           ref.read(noticeProvider.notifier).show(l.devicesReleased, level: NoticeLevel.success);

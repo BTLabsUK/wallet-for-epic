@@ -23,8 +23,9 @@ import '../../slate_files.dart';
 import '../../tor_build.dart';
 import '../../updater.dart' show updateProvider;
 import '../../wallet_service.dart';
+import '../app_dialog.dart';
 import '../common.dart';
-import '../contact_page.dart' show AddressText;
+import '../address_view.dart' show ShortAddressText;
 import '../phone_sheet.dart';
 import '../theme/brand.dart';
 import '../theme/tokens.dart';
@@ -232,7 +233,7 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
           ),
           if (p.fromAddress case final from?) ...[
             const SizedBox(height: 12),
-            AddressText(from, short: true),
+            ShortAddressText(from, style: const TextStyle(fontSize: 13)),
           ],
           const SizedBox(height: 20),
           // The primary over the secondary, as every foot on the phone (UP-029).
@@ -507,22 +508,16 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
 /// Asks before cancelling the pairing with [name]; true to cancel.
 Future<bool> confirmCancelPairing(BuildContext context, String name) async {
   final l = context.l10n;
-  final sure = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(l.pairCancelPairingTitle),
-      content: Text(l.pairCancelPairingBody(name)),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.contactKeep)),
-        TextButton(
-          style: TextButton.styleFrom(foregroundColor: context.tokens.risk),
-          onPressed: () => Navigator.pop(context, true),
-          child: Text(l.pairCancelPairing),
-        ),
-      ],
-    ),
+  return confirmAppDialog(
+    context,
+    title: l.pairCancelPairingTitle,
+    icon: Icons.link_off,
+    tone: DialogTone.risk,
+    description: l.pairCancelPairingBody(name),
+    cancelLabel: l.contactKeep,
+    confirmLabel: l.pairCancelPairing,
+    risk: true,
   );
-  return sure == true;
 }
 
 /// An answer opened outside the Pair screen (a scan, a tapped link): the finish code to send
@@ -564,7 +559,7 @@ class _FinishCodeScreenState extends ConsumerState<FinishCodeScreen> {
   Future<void> _share({required bool copy}) async {
     final link = _link;
     if (link == null) return;
-    await sharePairingMessage(context, ref, context.l10n.pairFinishMessage(link), copy: copy);
+    await sharePairingMessage(context, ref, context.l10n.pairFinishLinkMessage(link), copy: copy);
   }
 
   void _check() => Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: widget.pairingId)));
@@ -605,7 +600,7 @@ class _FinishCodeScreenState extends ConsumerState<FinishCodeScreen> {
           PairLead(l.pairFinishCodeBody(name)),
           const SizedBox(height: 16),
           if (_error != null) ErrorText(_error!),
-          if (link != null) ShareBox(text: l.pairFinishMessage(link)),
+          if (link != null) ShareBox(text: l.pairFinishLinkMessage(link)),
         ],
       ),
     );

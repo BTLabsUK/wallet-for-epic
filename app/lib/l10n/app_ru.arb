@@ -3653,6 +3653,7 @@
   "pairInviteMessage": "Приглашение к сопряжению в Epic Cash: {link}",
   "pairReplyMessage": "Мой ответ на сопряжение в Epic Cash: {link}",
   "pairFinishMessage": "Завершение нашего сопряжения в Epic Cash: {link}",
+  "pairFinishLinkMessage": "Завершите сопряжение в Epic Cash: {link}",
   "pairCopyMessage": "Копировать сообщение",
   "pairMessageCopied": "Скопировано. Вставьте в чат.",
   "pairAwaitReplyTitle": "Ожидание ответа",

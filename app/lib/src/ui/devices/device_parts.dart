@@ -14,6 +14,7 @@ import '../../l10n.dart';
 import '../../providers.dart';
 import '../../advanced.dart' show NetworkModeRestricted;
 import '../../settings.dart' show appSettingsProvider, networkModeProvider;
+import '../app_dialog.dart';
 import '../badge.dart';
 import '../theme/tokens.dart';
 import 'link_device_screen.dart';
@@ -81,10 +82,8 @@ final phoneDevicesEpicboxOffProvider = Provider<bool>((ref) {
 });
 
 /// A name, typed in a dialog; null when cancelled.
-Future<String?> askDeviceName(BuildContext context, String initial) => showDialog<String>(
-  context: context,
-  builder: (_) => _NameDialog(initial: initial),
-);
+Future<String?> askDeviceName(BuildContext context, String initial) =>
+    showAppDialog<String>(context, builder: (_) => _NameDialog(initial: initial));
 
 class _NameDialog extends StatefulWidget {
   const _NameDialog({required this.initial});
@@ -112,9 +111,10 @@ class _NameDialogState extends State<_NameDialog> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    return AlertDialog(
-      title: Text(l.devicesRename),
-      content: TextField(
+    return AppDialog(
+      title: l.devicesRename,
+      icon: Icons.edit_outlined,
+      body: TextField(
         controller: _controller,
         autofocus: true,
         maxLength: 48,
@@ -123,15 +123,15 @@ class _NameDialogState extends State<_NameDialog> {
         decoration: InputDecoration(labelText: l.devicesNameLabel, border: const OutlineInputBorder()),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text(l.commonCancel)),
-        FilledButton(onPressed: _done, child: Text(l.commonSave)),
+        DialogButton.secondary(label: l.commonCancel, onPressed: () => Navigator.pop(context)),
+        DialogButton.primary(label: l.commonSave, onPressed: _done),
       ],
     );
   }
 }
 
 /// A yes/no question whose yes is [action] (and whose no is [cancel], Cancel by default), in
-/// the risk tone when [risky].
+/// the risk tone when [risky]; [icon] is the dialog's glyph (a device by default).
 Future<bool> confirmDeviceAction(
   BuildContext context, {
   required String title,
@@ -139,23 +139,17 @@ Future<bool> confirmDeviceAction(
   required String action,
   String? cancel,
   bool risky = false,
-}) async =>
-    await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(body),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(cancel ?? context.l10n.commonCancel)),
-          TextButton(
-            style: risky ? TextButton.styleFrom(foregroundColor: context.tokens.risk) : null,
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(action),
-          ),
-        ],
-      ),
-    ) ??
-    false;
+  IconData? icon,
+}) => confirmAppDialog(
+  context,
+  title: title,
+  icon: icon ?? Icons.devices_outlined,
+  tone: risky ? DialogTone.risk : DialogTone.neutral,
+  description: body,
+  cancelLabel: cancel ?? context.l10n.commonCancel,
+  confirmLabel: action,
+  risk: risky,
+);
 
 /// Registers the handler of an incoming device invite (an `epiccash://device-link/…` or
 /// `https://…/link#…` link the system opened): Link a device with its confirm step. A link
