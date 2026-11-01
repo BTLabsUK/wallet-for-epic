@@ -158,3 +158,9 @@ id = "linux-atspi-socket-long"
 steps = ["trust-linux"]
 pattern = "never showed 're:\\^Create a new wallet'|previous app shows \\?"
 hint = "Check sandbox/logs/app-*.log for 'atk-bridge: Couldn't listen on dbus server: Socket name too long': the sandbox's XDG_RUNTIME_DIR path was too long for a unix socket (fixed: sandbox.py keeps it at ~/.cache/rts/<tag>). Otherwise the app did not start: see the same log."
+
+[[failure]]
+id = "apksigner-no-java"
+steps = ["sign-android"]
+pattern = "(java: not found|the signer's file is not signed by|not signed by the release key)"
+hint = "apksigner could not run (no java on PATH), so every certificate read as wrong. tools/rel sources tools/env.sh for JAVA_HOME; check `apksigner verify --print-certs` on signer/out by hand. When the cert is right, `tools/rel run sign-android` takes the files again from the signer's receipt: no new code."

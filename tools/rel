@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
 # The release runner (docs/RELEASING.md): tools/rel --help.
-exec python3 -I "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/rellib/main.py" "$@"
+# The toolchain (java for apksigner and keytool, the Android SDK) comes from env.sh, so a run
+# started from a bare shell checks signatures the same as one started from a dev shell.
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "$here/env.sh"
+exec python3 -I "$here/rellib/main.py" "$@"
