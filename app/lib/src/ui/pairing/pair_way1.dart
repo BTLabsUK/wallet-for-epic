@@ -20,6 +20,7 @@ import '../../wallet_service.dart';
 import '../common.dart';
 import '../contact_page.dart' show AddressText;
 import '../phone_sheet.dart';
+import '../settings_rows.dart' show NavChevron;
 import '../theme/brand.dart';
 import '../theme/tokens.dart';
 import 'pair_incoming.dart';
@@ -231,7 +232,7 @@ class PairRequestsRow extends ConsumerWidget {
       minTileHeight: 64,
       leading: GlyphTile(size: 40, child: Icon(Icons.handshake_outlined, color: t.info)),
       title: Text(l.pairRequestsRow(count)),
-      trailing: Icon(Icons.chevron_right, color: t.dim),
+      trailing: const NavChevron(),
       onTap: () => openPairRequests(context),
     );
   }
