@@ -179,7 +179,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
                 TorState.failed => EState.risk,
               },
         second: tor == TorState.starting ? l.deskRailStartingDots : word,
-        marker: tor == TorState.starting ? '${st?.torProgress ?? 0}%' : null,
+        marker: tor == TorState.starting ? percentText(l, st?.torProgress ?? 0) : null,
         note: included ? torNetworkHint(l) : null,
         lines: [
           if (tor == TorState.failed && st?.torProblem != null) st!.torProblem!,

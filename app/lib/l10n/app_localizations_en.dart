@@ -1349,6 +1349,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String percentValue(String percent) {
+    return '$percent%';
+  }
+
+  @override
   String get statusNodeConnecting => 'Node connecting';
 
   @override
@@ -4360,7 +4365,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String netStatusSyncingPercent(int percent) {
-    return 'Syncing $percent %';
+    return 'Syncing $percent%';
   }
 
   @override

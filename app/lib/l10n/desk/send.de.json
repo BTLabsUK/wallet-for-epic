@@ -61,7 +61,7 @@
   "deskSendFinalize": "Abschließen",
   "deskSendNewSend": "Weitere Zahlung senden",
   "deskSendNodeNotSynced": "Node nicht synchronisiert",
-  "deskSendNodeSyncingPct": "Senden ist wieder möglich, sobald der Node synchronisiert ist ({percent} %).",
+  "deskSendNodeSyncingPct": "Senden ist wieder möglich, sobald der Node synchronisiert ist ({percent} %).",
   "deskSendNodeSyncing": "Senden ist möglich, sobald der Node synchronisiert ist.",
   "deskSendTorBlocked": "Tor ist nicht verbunden",
   "deskSendTorBlockedText": "Es wird nichts gesendet, bis Tor verbunden ist oder ausgeschaltet wird.",

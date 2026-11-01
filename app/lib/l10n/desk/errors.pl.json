@@ -105,7 +105,7 @@
   "deskTorLineReady": "Gotowy",
   "deskTorLineSendsWork": "{problem}. Wysyłanie działa.",
   "deskTorLinePublishing": "Publikowanie adresu onion…",
-  "deskTorLineConnecting": "Łączenie z Tor… {percent}%",
+  "deskTorLineConnecting": "Łączenie z Tor… {percent} %",
   "deskErrHistOtherWallet": "Dane innego portfela",
   "deskErrHistOtherChain": "Niewłaściwa sieć",
   "deskErrHistNotOurs": "To nie jest plik danych portfela",

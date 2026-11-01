@@ -1667,7 +1667,7 @@ class _CurrentNodeFactsState extends ConsumerState<_CurrentNodeFacts> {
       if (version != null && version.isNotEmpty) (l.serverFactVersion, version),
       if (dirNode?.peers != null) (l.serverFactPeers, groupDigits(l, dirNode!.peers!)),
       if (dirNode?.uptime24h != null)
-        (l.serverFactUptime, '${localDigits(l, (dirNode!.uptime24h! * 100).toStringAsFixed(1))} %'),
+        (l.serverFactUptime, percentText(l, dirNode!.uptime24h! * 100, decimals: 1)),
     ];
     final age = net?.tipAgeSeconds;
     final network = [

@@ -61,7 +61,7 @@
   "deskSendFinalize": "Завершить",
   "deskSendNewSend": "Отправить ещё",
   "deskSendNodeNotSynced": "Узел не синхронизирован",
-  "deskSendNodeSyncingPct": "Отправка возобновится, когда узел синхронизируется ({percent}%).",
+  "deskSendNodeSyncingPct": "Отправка возобновится, когда узел синхронизируется ({percent} %).",
   "deskSendNodeSyncing": "Отправка станет возможна, когда узел синхронизируется.",
   "deskSendTorBlocked": "Tor не подключён",
   "deskSendTorBlockedText": "Ничего не отправится, пока Tor не подключится или пока его не выключат.",

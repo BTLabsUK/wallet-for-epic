@@ -126,7 +126,7 @@ class NodeCard extends StatelessWidget {
           tone: old ? EState.warn : null,
         ),
         NodeFact(l.deskKitFactLatency, latency == null ? '–' : '${digitsText(l, latency)} ms', where),
-        NodeFact(l.deskKitFactUptime, i?.uptime24h == null ? '–' : '${(i!.uptime24h! * 100).toStringAsFixed(1)}%', l.deskKitUptimeWindow),
+        NodeFact(l.deskKitFactUptime, i?.uptime24h == null ? '–' : percentText(l, i!.uptime24h! * 100, decimals: 1), l.deskKitUptimeWindow),
         NodeFact(l.deskKitFactPeers, i?.peers == null ? '–' : '${i!.peers}', down && i?.at != null ? l.deskKitAtTime(hhmm(i!.at)) : null),
         NodeFact(l.deskKitFactOperator, i?.operator == null ? '–' : i!.operator!, i?.listing == 'official' ? l.deskKitListedOfficial : null),
       ]);

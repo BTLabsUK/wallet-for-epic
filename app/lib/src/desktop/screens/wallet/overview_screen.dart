@@ -335,7 +335,7 @@ class _SyncNotice extends StatelessWidget {
         children: [
           Semantics(
             label: l.deskOvSyncProgress,
-            value: '${(part * 100).round()}%',
+            value: percentText(l, part * 100),
             child: EProgress(value: part),
           ),
           SizedBox(height: Sp.x1),

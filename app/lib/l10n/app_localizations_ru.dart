@@ -467,7 +467,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String scanProgress(int percent) {
-    return 'Сканирование блокчейна ($percent%)';
+    return 'Сканирование блокчейна ($percent %)';
   }
 
   @override
@@ -1362,7 +1362,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String homeSyncSyncingPercent(int percent) {
-    return 'Синхронизация… $percent%';
+    return 'Синхронизация… $percent %';
   }
 
   @override
@@ -1387,7 +1387,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String statusNodeSyncingPercent(int percent) {
-    return 'Синхронизация узла $percent%';
+    return 'Синхронизация узла $percent %';
+  }
+
+  @override
+  String percentValue(String percent) {
+    return '$percent %';
   }
 
   @override
@@ -1811,7 +1816,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String updateDownloading(String version, int percent) {
-    return 'Загрузка версии $version… $percent%';
+    return 'Загрузка версии $version… $percent %';
   }
 
   @override
@@ -3769,7 +3774,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String torStateStarting(int percent) {
-    return 'Подключение к Tor… $percent%';
+    return 'Подключение к Tor… $percent %';
   }
 
   @override
@@ -4469,7 +4474,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String netStatusSyncingPercent(int percent) {
-    return 'Синхронизация $percent %';
+    return 'Синхронизация $percent %';
   }
 
   @override
@@ -4599,7 +4604,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String serverUptime(String percent) {
-    return '$percent% в сети';
+    return '$percent % в сети';
   }
 
   @override
@@ -6059,7 +6064,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskTorLineConnecting(int percent) {
-    return 'Подключение к Tor… $percent%';
+    return 'Подключение к Tor… $percent %';
   }
 
   @override
@@ -7078,7 +7083,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskSendNodeSyncingPct(int percent) {
-    return 'Отправка возобновится, когда узел синхронизируется ($percent%).';
+    return 'Отправка возобновится, когда узел синхронизируется ($percent %).';
   }
 
   @override
@@ -8484,7 +8489,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskOvSyncTitle(int percent) {
-    return 'Синхронизация узла: $percent%';
+    return 'Синхронизация узла: $percent %';
   }
 
   @override
@@ -8495,7 +8500,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskOvSyncOfChain(int percent) {
-    return '$percent% блокчейна';
+    return '$percent % блокчейна';
   }
 
   @override
@@ -11940,7 +11945,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskSetPrivStartingDetail(int progress) {
-    return '$progress%. Все соединения ждут Tor.';
+    return '$progress %. Все соединения ждут Tor.';
   }
 
   @override
@@ -12245,7 +12250,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskSetRescanChecking(int percent) {
-    return 'Проверка… $percent %';
+    return 'Проверка… $percent %';
   }
 
   @override
@@ -13159,7 +13164,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskUpdDownloading(String percent) {
-    return 'Загрузка: $percent %';
+    return 'Загрузка: $percent %';
   }
 
   @override
@@ -17586,7 +17591,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskAppFirstScanProgress(int percent) {
-    return 'Сканирование блокчейна · $percent%';
+    return 'Сканирование блокчейна · $percent %';
   }
 
   @override

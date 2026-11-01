@@ -6,7 +6,7 @@
   "deskSetPrivTurnOff": "Wyłącz Tor",
   "deskSetPrivNotInBuild": "Brak w tej wersji",
   "deskSetPrivStarting": "Uruchamianie…",
-  "deskSetPrivStartingDetail": "{progress}%. Każde połączenie czeka na Tor.",
+  "deskSetPrivStartingDetail": "{progress} %. Każde połączenie czeka na Tor.",
   "deskSetPrivNotPublished": "Adres Tor nie jest jeszcze opublikowany. Wysyłanie działa.",
   "deskSetPrivProblemSendsWork": "{problem}. Wysyłanie działa.",
   "deskSetPrivConnected": "Połączono",

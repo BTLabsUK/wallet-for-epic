@@ -234,7 +234,7 @@ class _OwnNodePanelState extends ConsumerState<OwnNodePanel> {
       final p = o.progress;
       final tiles = [
         NodeTile(label: l.deskSetLnodeTilePeers, value: '${o.peers}', series: [for (final h in ref.read(deskNodeProvider).ownPeerHistory(url)) (h.inbound + h.outbound).toDouble()], chart: nodeChartHeight(wide: wide)),
-        NodeTile(label: l.deskSetLnodeTileSync, value: o.synced ? '100 %' : (p?.overall == null ? '–' : percent(p!.overall!)), series: [for (final x in _sync) x.value], chart: nodeChartHeight(wide: wide)),
+        NodeTile(label: l.deskSetLnodeTileSync, value: o.synced ? percentText(l, 100) : (p?.overall == null ? '–' : syncPercent(l, p!.overall!)), series: [for (final x in _sync) x.value], chart: nodeChartHeight(wide: wide)),
         NodeTile(label: l.deskOwnFactMempool, value: info?.poolSize == null ? '–' : poolText(l, info!.poolSize!), series: [for (final x in _pool) x.value], chart: nodeChartHeight(wide: wide)),
       ];
       return Column(
@@ -246,7 +246,7 @@ class _OwnNodePanelState extends ConsumerState<OwnNodePanel> {
             Row(
               children: [
                 Expanded(child: Text(stageLine(l, p), style: ts.small)),
-                if (p.overall != null) Text(percent(p.overall!), style: ts.small.copyWith(color: c.dim)),
+                if (p.overall != null) Text(syncPercent(l, p.overall!), style: ts.small.copyWith(color: c.dim)),
               ],
             ),
             SizedBox(height: Sp.x3),

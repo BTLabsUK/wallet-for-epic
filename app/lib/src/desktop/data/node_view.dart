@@ -6,7 +6,7 @@ library;
 
 import '../../address_format.dart' show railHost;
 import '../../builtin_node.dart' show NodeStartException;
-import '../../l10n.dart' show AppLocalizations, localDigits, localInt;
+import '../../l10n.dart' show AppLocalizations, localDigits, localInt, percentText;
 import '../widgets/status.dart' show EState;
 import 'desk_node.dart';
 import '../../settings_file/host_settings.dart' show hostSettings;
@@ -48,7 +48,11 @@ String digits(AppLocalizations l, int n) => localInt(l, n);
 
 String hhmm(DateTime t) => '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
 
-/// "12 %" of an overall progress 0–1 (floored: never 100 % before Synced).
+/// "12%" of an overall progress 0–1 (floored: never 100% before Synced), in [l]'s language.
+String syncPercent(AppLocalizations l, double overall) => percentText(l, (overall * 100).floor().clamp(0, 99));
+
+/// "12%" of an overall progress 0–1, always the English form.
+@Deprecated("Use syncPercent, which writes the percent in the user's language")
 String percent(double overall) => '${(overall * 100).floor().clamp(0, 99)}%';
 
 /// The whole sync's rough time left as the sidebar status and the Node page say it: "about
@@ -189,7 +193,7 @@ NodeView localNodeView(AppLocalizations l, LocalNodeState? s, {String? fallbackU
         lines: [name, l.deskNodeConnectingPeers, if (fallback != null) l.deskNodeUsingUntilSynced(fallback)],
       );
     case LocalNodePhase.syncing:
-      final pct = p?.overall == null ? null : percent(p!.overall!);
+      final pct = p?.overall == null ? null : syncPercent(l, p!.overall!);
       return NodeView(
         word: l.deskNodeSyncing,
         state: EState.active,

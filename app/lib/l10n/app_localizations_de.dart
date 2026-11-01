@@ -1364,6 +1364,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String percentValue(String percent) {
+    return '$percent %';
+  }
+
+  @override
   String get statusNodeConnecting => 'Node: Verbindung…';
 
   @override
@@ -3737,7 +3742,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String torStateStarting(int percent) {
-    return 'Verbindung mit Tor… $percent %';
+    return 'Verbindung mit Tor… $percent %';
   }
 
   @override
@@ -4423,7 +4428,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String netStatusSyncingPercent(int percent) {
-    return 'Synchronisierung $percent %';
+    return 'Synchronisierung $percent %';
   }
 
   @override
@@ -4552,7 +4557,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String serverUptime(String percent) {
-    return '$percent% erreichbar';
+    return '$percent % erreichbar';
   }
 
   @override
@@ -5992,7 +5997,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskTorLineConnecting(int percent) {
-    return 'Verbindung mit Tor… $percent %';
+    return 'Verbindung mit Tor… $percent %';
   }
 
   @override
@@ -6885,7 +6890,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskSendNodeSyncingPct(int percent) {
-    return 'Senden ist wieder möglich, sobald der Node synchronisiert ist ($percent %).';
+    return 'Senden ist wieder möglich, sobald der Node synchronisiert ist ($percent %).';
   }
 
   @override
@@ -8242,7 +8247,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskOvSyncTitle(int percent) {
-    return 'Node wird synchronisiert: $percent %';
+    return 'Node wird synchronisiert: $percent %';
   }
 
   @override
@@ -8253,7 +8258,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskOvSyncOfChain(int percent) {
-    return '$percent % der Blockchain';
+    return '$percent % der Blockchain';
   }
 
   @override
@@ -11628,7 +11633,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskSetPrivStartingDetail(int progress) {
-    return '$progress %. Jede Verbindung wartet auf Tor.';
+    return '$progress %. Jede Verbindung wartet auf Tor.';
   }
 
   @override
@@ -11937,7 +11942,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskSetRescanChecking(int percent) {
-    return 'Wird geprüft… $percent %';
+    return 'Wird geprüft… $percent %';
   }
 
   @override
@@ -12837,7 +12842,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskUpdDownloading(String percent) {
-    return 'Wird heruntergeladen: $percent %';
+    return 'Wird heruntergeladen: $percent %';
   }
 
   @override
@@ -17194,7 +17199,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskAppFirstScanProgress(int percent) {
-    return 'Blockchain wird gescannt · $percent %';
+    return 'Blockchain wird gescannt · $percent %';
   }
 
   @override

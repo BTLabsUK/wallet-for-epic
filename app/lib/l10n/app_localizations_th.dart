@@ -1334,6 +1334,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String percentValue(String percent) {
+    return '$percent%';
+  }
+
+  @override
   String get statusNodeConnecting => 'กำลังเชื่อมต่อโหนด';
 
   @override
@@ -4283,7 +4288,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String netStatusSyncingPercent(int percent) {
-    return 'กำลังซิงก์ $percent %';
+    return 'กำลังซิงก์ $percent%';
   }
 
   @override
@@ -11483,7 +11488,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskSetRescanChecking(int percent) {
-    return 'กำลังตรวจ… $percent %';
+    return 'กำลังตรวจ… $percent%';
   }
 
   @override
@@ -12359,7 +12364,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskUpdDownloading(String percent) {
-    return 'กำลังดาวน์โหลด $percent %';
+    return 'กำลังดาวน์โหลด $percent%';
   }
 
   @override

@@ -124,7 +124,7 @@ class _TorWaitScreenState extends ConsumerState<TorWaitScreen> {
                   const SizedBox(width: 10),
                   Flexible(
                     child: Text(
-                      progress == null ? l.lvPickTorBusy : '${l.lvPickTorBusy} $progress %',
+                      progress == null ? l.lvPickTorBusy : '${l.lvPickTorBusy} ${percentText(l, progress)}',
                       style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
                     ),
                   ),

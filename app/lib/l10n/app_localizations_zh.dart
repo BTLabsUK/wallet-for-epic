@@ -1283,6 +1283,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String percentValue(String percent) {
+    return '$percent%';
+  }
+
+  @override
   String get statusNodeConnecting => '正在连接节点';
 
   @override
@@ -11950,7 +11955,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskUpdDownloading(String percent) {
-    return '正在下载 $percent %';
+    return '正在下载 $percent%';
   }
 
   @override

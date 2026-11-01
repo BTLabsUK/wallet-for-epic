@@ -237,7 +237,7 @@ MethodLine methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, Desk
         ServiceHealth.off => MethodLine(l.deskKitMethodOff, EState.off, detail: l.deskKitMethodTorOffDetail),
         ServiceHealth.checking => s.torCanSend
             ? MethodLine(l.deskKitMethodTorPublishing, EState.active)
-            : MethodLine(l.deskKitMethodTorConnecting, EState.active, detail: '${s.torProgress ?? 0}%', retry: s.torSlowStart),
+            : MethodLine(l.deskKitMethodTorConnecting, EState.active, detail: percentText(l, s.torProgress ?? 0), retry: s.torSlowStart),
         ServiceHealth.ok => MethodLine(l.deskKitMethodOn, EState.ok, detail: l.deskKitMethodTorOnDetail),
         ServiceHealth.slow => MethodLine(l.deskKitMethodTorNotPublished, EState.warn, detail: l.deskKitMethodTorSendsWork(s.torProblem ?? l.deskKitMethodTorNotReachableYet), retry: true),
         ServiceHealth.down => MethodLine(l.deskKitMethodTorStopped, EState.risk, detail: s.torProblem ?? l.deskKitMethodTorStoppedDetail, retry: true),

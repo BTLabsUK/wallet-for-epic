@@ -61,7 +61,7 @@
   "deskSendFinalize": "Sfinalizuj",
   "deskSendNewSend": "Wyślij kolejną",
   "deskSendNodeNotSynced": "Węzeł niezsynchronizowany",
-  "deskSendNodeSyncingPct": "Wysyłanie wróci po synchronizacji węzła ({percent}%).",
+  "deskSendNodeSyncingPct": "Wysyłanie wróci po synchronizacji węzła ({percent} %).",
   "deskSendNodeSyncing": "Wysyłanie będzie możliwe po synchronizacji węzła.",
   "deskSendTorBlocked": "Tor nie jest połączony",
   "deskSendTorBlockedText": "Nic nie zostanie wysłane, dopóki Tor się nie połączy albo nie zostanie wyłączony.",

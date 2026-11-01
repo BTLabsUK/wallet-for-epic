@@ -319,7 +319,7 @@ void main() {
         ),
         percent: 40,
       );
-      expect(_label(tester, nodeStatusKey), 'Node, Syncing 40 %');
+      expect(_label(tester, nodeStatusKey), 'Node, Syncing 40%');
       expect(_icon(tester, nodeStatusKey), Icons.sync);
       expect(_dot(tester, nodeStatusKey), _tokens(tester).info);
       expect(_tip_(tester, nodeStatusKey), startsWith('Syncing… 40%'));

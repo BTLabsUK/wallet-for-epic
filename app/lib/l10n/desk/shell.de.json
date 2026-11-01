@@ -75,7 +75,7 @@
   "deskTourNext": "Weiter",
   "deskTourAdvancedTitle": "Erweitert",
   "deskTourAdvancedText": "Der Nur-Tor-Modus, Outputs und technische Details sind hier. Schalten Sie ein, was Sie brauchen.",
-  "deskAppFirstScanProgress": "Blockchain wird gescannt · {percent} %",
+  "deskAppFirstScanProgress": "Blockchain wird gescannt · {percent} %",
   "deskAppFirstScanFound": "{count, plural, one{{count} Output gefunden} other{{count} Outputs gefunden}}",
   "deskAppFirstScanShowLog": "Protokoll zeigen",
   "deskAppFirstScanHideLog": "Protokoll ausblenden"

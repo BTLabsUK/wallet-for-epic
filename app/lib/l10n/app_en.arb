@@ -1650,6 +1650,16 @@
       }
     }
   },
+  "percentValue": "{percent}%",
+  "@percentValue": {
+    "description": "A percentage on its own (a progress, an uptime), in the language's own form: no space in English, Chinese and Thai, a no-break space in German, Polish and Russian. {percent} is the number, already in local digits.",
+    "placeholders": {
+      "percent": {
+        "type": "String",
+        "example": "40"
+      }
+    }
+  },
   "statusNodeConnecting": "Node connecting",
   "@statusNodeConnecting": {
     "description": "Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. No answer from the node yet."
@@ -5619,7 +5629,7 @@
   "@netStatusSyncing": {
     "description": "Status card: the wallet is syncing with the node, no percent known."
   },
-  "netStatusSyncingPercent": "Syncing {percent} %",
+  "netStatusSyncingPercent": "Syncing {percent}%",
   "@netStatusSyncingPercent": {
     "description": "Status card: syncing with a percent.",
     "placeholders": {

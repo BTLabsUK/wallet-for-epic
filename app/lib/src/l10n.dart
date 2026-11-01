@@ -83,6 +83,12 @@ String localInt(AppLocalizations l, Object number) =>
       number is BigInt ? number.toInt() : number as num,
     );
 
+/// A percentage as [l]'s language writes it (`40%` in English, `40 %` with a no-break space
+/// in German, Polish and Russian): the one way every percent on both platforms is shown.
+/// [value] is 0–100; a fraction is rounded unless [decimals] keeps some.
+String percentText(AppLocalizations l, num value, {int decimals = 0}) =>
+    l.percentValue(decimals == 0 ? localInt(l, value.round()) : localDigits(l, value.toStringAsFixed(decimals)));
+
 // Dates. English keeps the day-first style the app always had ("21 Sep 2026"); the other
 // languages use CLDR's patterns ("21. Sept. 2026", "2026年9月21日").
 

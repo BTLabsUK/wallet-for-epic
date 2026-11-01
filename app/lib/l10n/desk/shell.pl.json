@@ -75,7 +75,7 @@
   "deskTourNext": "Dalej",
   "deskTourAdvancedTitle": "Zaawansowane",
   "deskTourAdvancedText": "Tryb tylko Tor, wyjścia i szczegóły techniczne są tutaj. Włącz to, czego potrzebujesz.",
-  "deskAppFirstScanProgress": "Skanowanie łańcucha · {percent}%",
+  "deskAppFirstScanProgress": "Skanowanie łańcucha · {percent} %",
   "deskAppFirstScanFound": "{count, plural, one{Znaleziono {count} wyjście} few{Znaleziono {count} wyjścia} many{Znaleziono {count} wyjść} other{Znaleziono {count} wyjścia}}",
   "deskAppFirstScanShowLog": "Pokaż log",
   "deskAppFirstScanHideLog": "Ukryj log"

@@ -75,7 +75,7 @@
   "deskTourNext": "Далее",
   "deskTourAdvancedTitle": "Дополнительно",
   "deskTourAdvancedText": "Режим «Только Tor», выходы и технические сведения собраны здесь. Включайте то, что нужно.",
-  "deskAppFirstScanProgress": "Сканирование блокчейна · {percent}%",
+  "deskAppFirstScanProgress": "Сканирование блокчейна · {percent} %",
   "deskAppFirstScanFound": "{count, plural, one{Найден {count} выход} few{Найдено {count} выхода} many{Найдено {count} выходов} other{Найдено {count} выхода}}",
   "deskAppFirstScanShowLog": "Показать журнал",
   "deskAppFirstScanHideLog": "Скрыть журнал"

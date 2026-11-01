@@ -2227,6 +2227,12 @@ abstract class AppLocalizations {
   /// **'Node syncing {percent}%'**
   String statusNodeSyncingPercent(int percent);
 
+  /// A percentage on its own (a progress, an uptime), in the language's own form: no space in English, Chinese and Thai, a no-break space in German, Polish and Russian. {percent} is the number, already in local digits.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String percentValue(String percent);
+
   /// Status in the balance header beside an icon, also what a screen reader says: the service (node: the Epic Cash server the wallet reads the chain from; epicbox: the relay payments arrive through) and its state, about two words. No answer from the node yet.
   ///
   /// In en, this message translates to:
@@ -7011,7 +7017,7 @@ abstract class AppLocalizations {
   /// Status card: syncing with a percent.
   ///
   /// In en, this message translates to:
-  /// **'Syncing {percent} %'**
+  /// **'Syncing {percent}%'**
   String netStatusSyncingPercent(int percent);
 
   /// Status card: no answer yet.

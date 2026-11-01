@@ -6,7 +6,7 @@
   "deskSetPrivTurnOff": "Выключить Tor",
   "deskSetPrivNotInBuild": "Нет в этой сборке",
   "deskSetPrivStarting": "Запуск…",
-  "deskSetPrivStartingDetail": "{progress}%. Все соединения ждут Tor.",
+  "deskSetPrivStartingDetail": "{progress} %. Все соединения ждут Tor.",
   "deskSetPrivNotPublished": "Адрес Tor ещё не опубликован. Отправка работает.",
   "deskSetPrivProblemSendsWork": "{problem}. Отправка работает.",
   "deskSetPrivConnected": "Подключено",

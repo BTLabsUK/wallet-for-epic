@@ -466,7 +466,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String scanProgress(int percent) {
-    return 'Skanowanie łańcucha ($percent%)';
+    return 'Skanowanie łańcucha ($percent %)';
   }
 
   @override
@@ -1369,7 +1369,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String homeSyncSyncingPercent(int percent) {
-    return 'Synchronizacja… $percent%';
+    return 'Synchronizacja… $percent %';
   }
 
   @override
@@ -1394,7 +1394,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String statusNodeSyncingPercent(int percent) {
-    return 'Synchronizacja węzła $percent%';
+    return 'Synchronizacja węzła $percent %';
+  }
+
+  @override
+  String percentValue(String percent) {
+    return '$percent %';
   }
 
   @override
@@ -1820,7 +1825,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String updateDownloading(String version, int percent) {
-    return 'Pobieranie wersji $version… $percent%';
+    return 'Pobieranie wersji $version… $percent %';
   }
 
   @override
@@ -3789,7 +3794,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String torStateStarting(int percent) {
-    return 'Łączenie z Tor… $percent%';
+    return 'Łączenie z Tor… $percent %';
   }
 
   @override
@@ -4490,7 +4495,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String netStatusSyncingPercent(int percent) {
-    return 'Synchronizacja $percent %';
+    return 'Synchronizacja $percent %';
   }
 
   @override
@@ -4620,7 +4625,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String serverUptime(String percent) {
-    return '$percent% dostępności';
+    return '$percent % dostępności';
   }
 
   @override
@@ -6086,7 +6091,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskTorLineConnecting(int percent) {
-    return 'Łączenie z Tor… $percent%';
+    return 'Łączenie z Tor… $percent %';
   }
 
   @override
@@ -7107,7 +7112,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskSendNodeSyncingPct(int percent) {
-    return 'Wysyłanie wróci po synchronizacji węzła ($percent%).';
+    return 'Wysyłanie wróci po synchronizacji węzła ($percent %).';
   }
 
   @override
@@ -8511,7 +8516,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskOvSyncTitle(int percent) {
-    return 'Synchronizacja węzła: $percent%';
+    return 'Synchronizacja węzła: $percent %';
   }
 
   @override
@@ -8522,7 +8527,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskOvSyncOfChain(int percent) {
-    return '$percent% łańcucha';
+    return '$percent % łańcucha';
   }
 
   @override
@@ -11970,7 +11975,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskSetPrivStartingDetail(int progress) {
-    return '$progress%. Każde połączenie czeka na Tor.';
+    return '$progress %. Każde połączenie czeka na Tor.';
   }
 
   @override
@@ -12275,7 +12280,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskSetRescanChecking(int percent) {
-    return 'Sprawdzanie… $percent %';
+    return 'Sprawdzanie… $percent %';
   }
 
   @override
@@ -13189,7 +13194,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskUpdDownloading(String percent) {
-    return 'Pobieranie: $percent %';
+    return 'Pobieranie: $percent %';
   }
 
   @override
@@ -17605,7 +17610,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskAppFirstScanProgress(int percent) {
-    return 'Skanowanie łańcucha · $percent%';
+    return 'Skanowanie łańcucha · $percent %';
   }
 
   @override
