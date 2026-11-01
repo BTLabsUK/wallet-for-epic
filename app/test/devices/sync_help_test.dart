@@ -7,6 +7,7 @@ import 'package:epic_wallet/src/desktop/theme/theme.dart' show buildDeskTheme;
 import 'package:epic_wallet/src/devices/device_model.dart';
 import 'package:epic_wallet/src/devices/device_providers.dart';
 import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/state_language.dart' show ShownState;
 import 'package:epic_wallet/src/ui/devices/sync_help.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:flutter/material.dart';
@@ -136,7 +137,7 @@ void main() {
       expect(find.text(_l.syncHelpStatus), findsOneWidget);
       expect(find.text(_l.devicesEmpty), findsOneWidget);
       expect(find.descendant(of: find.byKey(syncHelpLinkKey), matching: find.text(_l.devicesLink)), findsOneWidget);
-      expect(find.text(_l.syncHelpAnswering), findsNothing);
+      expect(find.text(ShownState.healthy.word(_l)), findsNothing);
     });
 
     testWidgets('a linked device with its last notice, two servers of which one does not answer', (tester) async {
@@ -148,8 +149,8 @@ void main() {
       expect(find.text(_l.devicesSeenMinutes(2)), findsOneWidget);
       expect(find.text(_s1), findsOneWidget);
       expect(find.text(_s2), findsOneWidget);
-      expect(find.text(_l.syncHelpAnswering), findsOneWidget);
-      expect(find.text(_l.syncHelpNotAnswering), findsOneWidget);
+      expect(find.text(ShownState.healthy.word(_l)), findsOneWidget);
+      expect(find.text(ShownState.notAnswering.word(_l)), findsOneWidget);
       expect(find.text(_l.devicesEmpty), findsNothing);
       expect(find.byKey(syncHelpLinkKey), findsNothing);
       expect(find.text(_l.syncHelpPaused), findsNothing);
