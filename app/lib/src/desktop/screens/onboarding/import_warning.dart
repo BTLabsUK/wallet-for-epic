@@ -61,7 +61,7 @@ class _ImportWarningDialogState extends State<ImportWarningDialog> {
         children: [
           Text(l.importWarnBackup, style: ts.body),
           SizedBox(height: Sp.x3),
-          Text(l.importWarnRisk, style: ts.body),
+          Text(l.importWarnRiskPlain, style: ts.body),
           SizedBox(height: Sp.x5),
           ECheckbox(value: _ack, onChanged: (v) => setState(() => _ack = v), label: l.importWarnAck),
         ],

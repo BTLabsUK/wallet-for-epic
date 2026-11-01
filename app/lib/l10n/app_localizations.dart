@@ -1675,6 +1675,12 @@ abstract class AppLocalizations {
   /// **'You import at your own risk, and we take no responsibility for any loss.'**
   String get importWarnRisk;
 
+  /// Import warning, the risk line: importing is at the user's own risk, and no one is liable for a loss. Impersonal, no "we".
+  ///
+  /// In en, this message translates to:
+  /// **'Importing is at your own risk. No responsibility is taken for any loss.'**
+  String get importWarnRiskPlain;
+
   /// Label of the checkbox the user ticks before Continue is enabled in the import warning.
   ///
   /// In en, this message translates to:
@@ -15553,6 +15559,12 @@ abstract class AppLocalizations {
   /// **'Node not answering.'**
   String get deskKitNodeDownTitle;
 
+  /// Node card notice title: the node does not answer. A title: no period.
+  ///
+  /// In en, this message translates to:
+  /// **'Node not answering'**
+  String get deskKitNodeDownHead;
+
   /// Text of the notice on the node card offering to use another node. {host} is a host name.
   ///
   /// In en, this message translates to:
@@ -29087,6 +29099,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your wallet is ready.'**
   String get deskLvPayReadyTitle;
+
+  /// Overview notice title at Shallow when the new wallet is ready. A title: no period, no "your".
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet ready'**
+  String get deskLvPayReadyHead;
 
   /// Overview notice at Shallow in a wallet with no payments: text.
   ///

@@ -994,6 +994,10 @@ class AppLocalizationsTh extends AppLocalizations {
       'คุณนำเข้าด้วยความเสี่ยงของคุณเอง และเราไม่รับผิดชอบต่อความสูญเสียใด ๆ';
 
   @override
+  String get importWarnRiskPlain =>
+      'การนำเข้าเป็นความเสี่ยงของผู้ใช้เอง ไม่มีการรับผิดชอบต่อความสูญเสียใด ๆ';
+
+  @override
   String get importWarnAck => 'ฉันมีข้อมูลสำรองของกระเป๋าเงินทุกใบแล้ว';
 
   @override
@@ -9631,6 +9635,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskKitNodeDownTitle => 'โหนดไม่ตอบสนอง';
 
   @override
+  String get deskKitNodeDownHead => 'โหนดไม่ตอบสนอง';
+
+  @override
   String deskKitNodeDownText(String host) {
     return 'เปลี่ยนไปใช้ $host ซึ่งเป็นโหนดอื่นที่ทำงานดีที่สุดไหม?';
   }
@@ -18261,6 +18268,9 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskLvPayReadyTitle => 'กระเป๋าเงินของคุณพร้อมแล้ว';
+
+  @override
+  String get deskLvPayReadyHead => 'กระเป๋าเงินพร้อมแล้ว';
 
   @override
   String get deskLvPayReadyText => 'แชร์ที่อยู่เพื่อรับ EPIC แรก';

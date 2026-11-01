@@ -109,7 +109,7 @@ void main() {
 
   testWidgets('Shallow Overview of a wallet with no payments: ready notice with Show address, "Nothing arriving yet."', (tester) async {
     await _pump(tester, const OverviewScreen(), WalletLevel.justSendReceive, const []);
-    expect(find.text('Your wallet is ready.'), findsOneWidget);
+    expect(find.text('Wallet ready'), findsOneWidget);
     expect(find.text('Share the address to get the first EPIC.'), findsOneWidget);
     expect(find.widgetWithText(EButton, 'Show address'), findsOneWidget);
     expect(find.text('Nothing arriving yet.'), findsOneWidget);

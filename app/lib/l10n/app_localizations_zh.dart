@@ -959,6 +959,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get importWarnRisk => '导入的风险由你自行承担，我们对任何损失不负责任。';
 
   @override
+  String get importWarnRiskPlain => '导入风险自负，任何损失概不负责。';
+
+  @override
   String get importWarnAck => '每个钱包我都有备份';
 
   @override
@@ -9309,6 +9312,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskKitNodeDownTitle => '节点无响应。';
 
   @override
+  String get deskKitNodeDownHead => '节点无响应';
+
+  @override
   String deskKitNodeDownText(String host) {
     return '切换到 $host？这是状态最好的其他节点。';
   }
@@ -17614,6 +17620,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskLvPayReadyTitle => '你的钱包已就绪。';
+
+  @override
+  String get deskLvPayReadyHead => '钱包已就绪';
 
   @override
   String get deskLvPayReadyText => '分享地址即可收到第一笔 EPIC。';

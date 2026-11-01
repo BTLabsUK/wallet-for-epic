@@ -67,6 +67,7 @@
   "deskKitSince": "od {time}",
   "deskKitNodeSemantics": "Węzeł {status}: {host}",
   "deskKitNodeDownTitle": "Węzeł nie odpowiada.",
+  "deskKitNodeDownHead": "Węzeł nie odpowiada",
   "deskKitNodeDownText": "Przełączyć na {host}, najsprawniejszy z pozostałych węzłów?",
   "deskKitSwitch": "Przełącz",
   "deskKitLimitedInfo": "Niepełne dane",

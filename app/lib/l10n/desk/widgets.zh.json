@@ -67,6 +67,7 @@
   "deskKitSince": "自 {time} 起",
   "deskKitNodeSemantics": "节点{status}：{host}",
   "deskKitNodeDownTitle": "节点无响应。",
+  "deskKitNodeDownHead": "节点无响应",
   "deskKitNodeDownText": "切换到 {host}？这是状态最好的其他节点。",
   "deskKitSwitch": "切换",
   "deskKitLimitedInfo": "信息有限",

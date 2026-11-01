@@ -18,6 +18,7 @@
   "deskLvPayHeroHoldMany": "{amount} ถูกพักไว้จนกว่าจะลงนาม",
   "deskLvPayHeroNothing": "ยังไม่มีอะไรกำลังเข้ามา",
   "deskLvPayReadyTitle": "กระเป๋าเงินของคุณพร้อมแล้ว",
+  "deskLvPayReadyHead": "กระเป๋าเงินพร้อมแล้ว",
   "deskLvPayReadyText": "แชร์ที่อยู่เพื่อรับ EPIC แรก",
   "deskLvPayTileConfirming": "ยังกำลังยืนยัน",
   "deskLvPayTileMining": "ใหม่จากการขุด",

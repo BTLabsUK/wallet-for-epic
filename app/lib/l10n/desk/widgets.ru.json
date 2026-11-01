@@ -67,6 +67,7 @@
   "deskKitSince": "с {time}",
   "deskKitNodeSemantics": "Узел {status}: {host}",
   "deskKitNodeDownTitle": "Узел не отвечает.",
+  "deskKitNodeDownHead": "Узел не отвечает",
   "deskKitNodeDownText": "Переключиться на {host}, самый исправный из других узлов?",
   "deskKitSwitch": "Переключить",
   "deskKitLimitedInfo": "Неполные данные",

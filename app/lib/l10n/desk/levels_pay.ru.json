@@ -18,6 +18,7 @@
   "deskLvPayHeroHoldMany": "{amount} удерживается до подписи",
   "deskLvPayHeroNothing": "Пока ничего не поступает.",
   "deskLvPayReadyTitle": "Кошелёк готов.",
+  "deskLvPayReadyHead": "Кошелёк готов",
   "deskLvPayReadyText": "Поделитесь адресом, чтобы получить первые EPIC.",
   "deskLvPayTileConfirming": "Ещё подтверждается",
   "deskLvPayTileMining": "Свежие с майнинга",

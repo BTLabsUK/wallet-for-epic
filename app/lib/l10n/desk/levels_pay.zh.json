@@ -18,6 +18,7 @@
   "deskLvPayHeroHoldMany": "{amount} 已冻结，等待签署",
   "deskLvPayHeroNothing": "暂时没有即将到账的付款。",
   "deskLvPayReadyTitle": "你的钱包已就绪。",
+  "deskLvPayReadyHead": "钱包已就绪",
   "deskLvPayReadyText": "分享地址即可收到第一笔 EPIC。",
   "deskLvPayTileConfirming": "仍在确认",
   "deskLvPayTileMining": "刚挖出的币",

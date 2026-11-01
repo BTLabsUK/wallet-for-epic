@@ -1008,6 +1008,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'You import at your own risk, and we take no responsibility for any loss.';
 
   @override
+  String get importWarnRiskPlain =>
+      'Importing is at your own risk. No responsibility is taken for any loss.';
+
+  @override
   String get importWarnAck => 'I have a backup of every wallet';
 
   @override
@@ -9930,6 +9934,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskKitNodeDownTitle => 'Node not answering.';
 
   @override
+  String get deskKitNodeDownHead => 'Node not answering';
+
+  @override
   String deskKitNodeDownText(String host) {
     return 'Switch to $host, the healthiest other node?';
   }
@@ -18681,6 +18688,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskLvPayReadyTitle => 'Your wallet is ready.';
+
+  @override
+  String get deskLvPayReadyHead => 'Wallet ready';
 
   @override
   String get deskLvPayReadyText => 'Share the address to get the first EPIC.';

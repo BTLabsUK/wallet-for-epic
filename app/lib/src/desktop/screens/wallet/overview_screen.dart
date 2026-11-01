@@ -126,7 +126,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
         ENotice(
           key: const ValueKey('overview-ready'),
           tone: ETone.ok,
-          title: l.deskLvPayReadyTitle,
+          title: l.deskLvPayReadyHead,
           text: l.deskLvPayReadyText,
           actionsBelow: true,
           actions: [

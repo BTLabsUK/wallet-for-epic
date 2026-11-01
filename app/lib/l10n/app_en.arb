@@ -1174,6 +1174,10 @@
   "@importWarnRisk": {
     "description": "Import warning, sentence 4: at your own risk, no liability for losses."
   },
+  "importWarnRiskPlain": "Importing is at your own risk. No responsibility is taken for any loss.",
+  "@importWarnRiskPlain": {
+    "description": "Import warning, the risk line: importing is at the user's own risk, and no one is liable for a loss. Impersonal, no \"we\"."
+  },
   "importWarnAck": "I have a backup of every wallet",
   "@importWarnAck": {
     "description": "Label of the checkbox the user ticks before Continue is enabled in the import warning."
@@ -13046,6 +13050,10 @@
   "deskKitNodeDownTitle": "Node not answering.",
   "@deskKitNodeDownTitle": {
     "description": "Title of the notice on the node card when the node does not answer."
+  },
+  "deskKitNodeDownHead": "Node not answering",
+  "@deskKitNodeDownHead": {
+    "description": "Node card notice title: the node does not answer. A title: no period."
   },
   "deskKitNodeDownText": "Switch to {host}, the healthiest other node?",
   "@deskKitNodeDownText": {
@@ -25289,6 +25297,10 @@
   "deskLvPayReadyTitle": "Your wallet is ready.",
   "@deskLvPayReadyTitle": {
     "description": "Overview notice at Shallow in a wallet with no payments: title."
+  },
+  "deskLvPayReadyHead": "Wallet ready",
+  "@deskLvPayReadyHead": {
+    "description": "Overview notice title at Shallow when the new wallet is ready. A title: no period, no \"your\"."
   },
   "deskLvPayReadyText": "Share the address to get the first EPIC.",
   "@deskLvPayReadyText": {

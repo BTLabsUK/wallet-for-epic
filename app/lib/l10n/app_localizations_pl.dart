@@ -1045,6 +1045,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Importujesz na własne ryzyko; nie bierzemy odpowiedzialności za żadne straty.';
 
   @override
+  String get importWarnRiskPlain =>
+      'Import odbywa się na własne ryzyko. Za straty nie przyjmuje się odpowiedzialności.';
+
+  @override
   String get importWarnAck => 'Mam kopię zapasową każdego portfela';
 
   @override
@@ -10373,6 +10377,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskKitNodeDownTitle => 'Węzeł nie odpowiada.';
 
   @override
+  String get deskKitNodeDownHead => 'Węzeł nie odpowiada';
+
+  @override
   String deskKitNodeDownText(String host) {
     return 'Przełączyć na $host, najsprawniejszy z pozostałych węzłów?';
   }
@@ -19334,6 +19341,9 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskLvPayReadyTitle => 'Twój portfel jest gotowy.';
+
+  @override
+  String get deskLvPayReadyHead => 'Portfel gotowy';
 
   @override
   String get deskLvPayReadyText =>

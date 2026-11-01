@@ -67,6 +67,7 @@
   "deskKitSince": "seit {time}",
   "deskKitNodeSemantics": "Node {status}: {host}",
   "deskKitNodeDownTitle": "Node antwortet nicht.",
+  "deskKitNodeDownHead": "Node antwortet nicht",
   "deskKitNodeDownText": "Zu {host} wechseln, dem besten anderen Node?",
   "deskKitSwitch": "Wechseln",
   "deskKitLimitedInfo": "Wenige Angaben",

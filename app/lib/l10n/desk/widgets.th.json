@@ -67,6 +67,7 @@
   "deskKitSince": "ตั้งแต่ {time}",
   "deskKitNodeSemantics": "โหนด {status}: {host}",
   "deskKitNodeDownTitle": "โหนดไม่ตอบสนอง",
+  "deskKitNodeDownHead": "โหนดไม่ตอบสนอง",
   "deskKitNodeDownText": "เปลี่ยนไปใช้ {host} ซึ่งเป็นโหนดอื่นที่ทำงานดีที่สุดไหม?",
   "deskKitSwitch": "เปลี่ยน",
   "deskKitLimitedInfo": "ข้อมูลจำกัด",

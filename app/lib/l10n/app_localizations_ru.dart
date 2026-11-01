@@ -1042,6 +1042,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Вы импортируете на свой риск; мы не несём ответственности за какие-либо потери.';
 
   @override
+  String get importWarnRiskPlain =>
+      'Импорт выполняется на ваш риск. Ответственность за потери не принимается.';
+
+  @override
   String get importWarnAck => 'У меня есть резервная копия каждого кошелька';
 
   @override
@@ -10346,6 +10350,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskKitNodeDownTitle => 'Узел не отвечает.';
 
   @override
+  String get deskKitNodeDownHead => 'Узел не отвечает';
+
+  @override
   String deskKitNodeDownText(String host) {
     return 'Переключиться на $host, самый исправный из других узлов?';
   }
@@ -19315,6 +19322,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskLvPayReadyTitle => 'Кошелёк готов.';
+
+  @override
+  String get deskLvPayReadyHead => 'Кошелёк готов';
 
   @override
   String get deskLvPayReadyText =>

@@ -152,7 +152,7 @@ void main() {
         onSwitch: (t) => to = t,
       ),
     );
-    expect(find.text('Node not answering.'), findsOneWidget);
+    expect(find.text('Node not answering'), findsOneWidget);
     expect(find.text('Switch to node.lab.invalid, the healthiest other node?'), findsOneWidget);
     await tester.tap(find.text('Switch'));
     expect(to?.url, 'https://node.lab.invalid');
@@ -174,7 +174,7 @@ void main() {
     );
     await tester.pump(const Duration(seconds: 1));
     await tester.pump();
-    expect(find.text('Node not answering.'), findsOneWidget);
+    expect(find.text('Node not answering'), findsOneWidget);
     // The healthy node of the Node list (settings.toml) with the lowest latency: the mock's
     // home node is not in the test list, so it is not offered.
     expect(find.text('Switch to node.epic.invalid, the healthiest other node?'), findsOneWidget);

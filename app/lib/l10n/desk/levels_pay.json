@@ -173,6 +173,10 @@
   "@deskLvPayReadyTitle": {
     "description": "Overview notice at Shallow in a wallet with no payments: title."
   },
+  "deskLvPayReadyHead": "Wallet ready",
+  "@deskLvPayReadyHead": {
+    "description": "Overview notice title at Shallow when the new wallet is ready. A title: no period, no \"your\"."
+  },
   "deskLvPayReadyText": "Share the address to get the first EPIC.",
   "@deskLvPayReadyText": {
     "description": "Overview notice at Shallow in a wallet with no payments: text."

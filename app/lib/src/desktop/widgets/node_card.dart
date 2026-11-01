@@ -205,7 +205,7 @@ class NodeCard extends StatelessWidget {
             SizedBox(height: Sp.x4),
             ENotice(
               tone: ETone.risk,
-              title: l.deskKitNodeDownTitle,
+              title: l.deskKitNodeDownHead,
               text: l.deskKitNodeDownText(switchTo!.host),
               actions: [
                 EButton(label: l.deskKitSwitch, size: EBtnSize.inline, onPressed: onSwitch == null ? null : () => onSwitch!(switchTo!)),
