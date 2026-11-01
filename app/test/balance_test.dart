@@ -226,19 +226,19 @@ void main() {
       final session = FakeWalletSession(summary: _summary(spendable: 1234.56781234));
       await _pump(tester, session, width: 360);
       expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '1,234.5678');
-      expect(find.text('1,234.56781234 EPIC'), findsNothing);
+      expect(find.text('1,234.56781234\u00a0EPIC'), findsNothing);
       await tester.tap(find.byKey(balanceFigureKey));
       await tester.pumpAndSettle();
       expect(find.byKey(balanceSheetKey), findsOneWidget);
       // Total and Spendable are the same here: both rows say it in full.
-      expect(find.text('1,234.56781234 EPIC'), findsNWidgets(2));
+      expect(find.text('1,234.56781234\u00a0EPIC'), findsNWidgets(2));
       await tester.tapAt(const Offset(5, 5));
       await tester.pumpAndSettle();
       expect(find.byKey(balanceSheetKey), findsNothing);
       // The screen reader hears the exact amount without the tap.
       final handle = tester.ensureSemantics();
       expect(
-        find.bySemanticsLabel(RegExp(r'1,234\.56781234 EPIC')),
+        find.bySemanticsLabel(RegExp(r'1,234\.56781234\u00a0EPIC')),
         findsWidgets,
       );
       handle.dispose();
@@ -248,7 +248,7 @@ void main() {
       await tester.tap(find.byKey(titleFigureKey));
       await tester.pumpAndSettle();
       expect(find.byKey(balanceSheetKey), findsOneWidget);
-      expect(find.text('1,234.56781234 EPIC'), findsNWidgets(2));
+      expect(find.text('1,234.56781234\u00a0EPIC'), findsNWidgets(2));
     });
 
     testWidgets('hidden balances show dots and tell nothing on a tap', (tester) async {
@@ -271,7 +271,7 @@ void main() {
     testWidgets('a spendable 0 says what is on hold and coming in, plainly', (
       tester,
     ) async {
-      // The review's split: 2.5 of 10 EPIC sent, the 10 locked, its change confirming.
+      // The review's split: 2.5 of 10\u00a0EPIC sent, the 10 locked, its change confirming.
       final session = FakeWalletSession(
         summary: _summary(locked: 10, confirming: 7.492),
       );

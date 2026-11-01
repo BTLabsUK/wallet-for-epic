@@ -118,7 +118,7 @@ void main() {
     expect(find.text('Payment QR'), findsOneWidget);
     expect(find.text('Hidden until you show it'), findsOneWidget);
     expect(find.text('Show QR'), findsOneWidget);
-    expect(find.text('1.50000000 EPIC to a phone next to you'), findsOneWidget);
+    expect(find.text('1.50000000\u00a0EPIC to a phone next to you'), findsOneWidget);
     expect(find.textContaining('Part '), findsNothing);
 
     await tester.tap(show());
@@ -335,7 +335,7 @@ void main() {
     final h = _Harness();
     await h.pump(tester, reply: true);
     expect(find.text('Reply QR'), findsOneWidget);
-    expect(find.text('To the sender of 1.50000000 EPIC'), findsOneWidget);
+    expect(find.text('To the sender of 1.50000000\u00a0EPIC'), findsOneWidget);
     expect(
       find.text('Show it to the sender’s phone. Only their wallet can use it.'),
       findsOneWidget,

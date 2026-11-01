@@ -56,9 +56,9 @@ void main() {
     final paid = book.sent.firstWhere((r) => r.state == RequestState.confirming);
     await _open(tester, api);
     final labels = _labels(tester).toList();
-    expect(labels.where((l) => l.startsWith('Unpaid ${formatEpic(waiting.amount)} EPIC')), hasLength(1));
-    expect(labels.where((l) => l.startsWith('Unpaid ${formatEpic(paid.amount)} EPIC')), isEmpty, reason: labels.join('\n'));
-    expect(labels.where((l) => l.startsWith('Invoice ${formatEpic(paid.amount)} EPIC')), hasLength(1));
+    expect(labels.where((l) => l.startsWith('Unpaid ${formatEpic(waiting.amount)}\u00a0EPIC')), hasLength(1));
+    expect(labels.where((l) => l.startsWith('Unpaid ${formatEpic(paid.amount)}\u00a0EPIC')), isEmpty, reason: labels.join('\n'));
+    expect(labels.where((l) => l.startsWith('Invoice ${formatEpic(paid.amount)}\u00a0EPIC')), hasLength(1));
   });
 
   testWidgets('the details of a waiting issued invoice say Unpaid by the amount', (tester) async {
