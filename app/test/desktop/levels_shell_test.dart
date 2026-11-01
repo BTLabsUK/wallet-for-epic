@@ -108,7 +108,7 @@ void main() {
     testWidgets("Settings: today's side list", (tester) async {
       await _pump(tester, WalletLevel.everything, start: DeskRoute.settingsAccount);
       Finder side(String l) => find.descendant(of: find.byType(ESubnav), matching: find.text(l));
-      for (final l in ['Node', 'Transactions', 'Privacy', 'Appearance', 'This wallet', 'All wallets', 'Security', 'Recheck balance', 'Advanced', 'About', 'Help']) {
+      for (final l in ['Node', 'Transactions', 'Network & privacy', 'Appearance', 'This wallet', 'All wallets', 'Security', 'Recheck balance', 'Advanced', 'About', 'Help']) {
         expect(side(l), findsOneWidget, reason: l);
       }
       expect(find.byKey(const ValueKey('account-recheck')), findsNothing);
