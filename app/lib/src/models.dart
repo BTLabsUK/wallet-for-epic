@@ -3542,6 +3542,10 @@ enum PairingEventKind {
 
   /// A request was answered on a linked device ([PairingEvent.name] is the device).
   pairedElsewhere,
+
+  /// This device answered the request [PairingEvent.requestId] (the first Pair wins): the
+  /// linked device hides its copy. Shown nowhere.
+  requestAnswered,
 }
 
 class PairingEvent {
@@ -3593,6 +3597,23 @@ class PairingEvent {
       requestId == other.requestId &&
       sender == other.sender &&
       endedReason == other.endedReason;
+}
+
+/// A notice that came over Epicbox for a slate this wallet holds nothing of
+/// ([WalletSession.unmatchedNotices]): passed on to the linked device as it is, never shown.
+class UnmatchedNotice {
+  const UnmatchedNotice({required this.slateId, required this.kind, required this.sender, required this.notice});
+
+  final String slateId;
+
+  /// `posted`, `cancelled`, `declined` or `withdrawn`, as the notice says (unverified).
+  final String kind;
+
+  /// The Epicbox address it came from, as the relay authenticated it.
+  final String sender;
+
+  /// The notice itself, to pass on unchanged.
+  final String notice;
 }
 
 /// A second answer to an invite already used, kept only to show it (C-15): nothing is stored.

@@ -20,6 +20,11 @@ const int featureStatusNotices = 1 << 3;
 const int featureLinkedDevicesReserved = 1 << 4;
 const int featureDirectory = 1 << 5;
 
+/// The host bits (4 and 5) this build claims to other LEPIC wallets: one constant of the build,
+/// the same for every user, never a setting (LEPIC's `WalletConfig.host_features`). Bit 4 stays
+/// unclaimed (above) and the directory is not in this release, so none.
+const int appHostFeatures = 0;
+
 /// A key counts as LEPIC for payments-address traffic only while its last marked message is
 /// this young; an unasked send also needs no unmarked message this young.
 const Duration compatWindow = Duration(days: 30);

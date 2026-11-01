@@ -123,6 +123,12 @@ abstract interface class PairingApi {
   /// wins): hidden here, with a [PairingEventKind.pairedElsewhere] notice naming the device.
   Future<void> requestHandledOn(String requestId, String device);
 
+  /// A request the linked device received and passed on (the relay hands a message to one
+  /// device only): listed by [requests] and answered here as one that came here, until it is
+  /// answered, dismissed, handled on the other device or expired. Raises
+  /// [PairingEventKind.requested]. Not kept across a restart.
+  Future<void> takeForwardedRequest(PairRequest request);
+
   /// Answers the code of [preview] as [name]. [allowInvoices] is the user's choice on a code
   /// that asks for it; it takes effect once the words match. [contactId] attaches the
   /// pairing to an address-book contact. The answer goes through the code's relay; when
@@ -353,6 +359,9 @@ class NoPairing implements PairingApi {
 
   @override
   Future<void> requestHandledOn(String requestId, String device) async => throw pairingUnsupported('requestHandledOn');
+
+  @override
+  Future<void> takeForwardedRequest(PairRequest request) async => throw pairingUnsupported('takeForwardedRequest');
 
   @override
   Future<PairingRecord> acceptInvite({required String token, required String name, bool allowInvoices = false, String? contactId, bool byHand = false}) async =>

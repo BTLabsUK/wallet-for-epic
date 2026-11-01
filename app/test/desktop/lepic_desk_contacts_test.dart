@@ -90,7 +90,7 @@ class _Wallet implements lepic.EpicWallet {
     required lepic.CollectTrigger trigger,
     required lepic.ContactRelayMode relayMode,
     List<String>? only,
-  }) async => const lepic.ContactCollectReport(mailboxes: 0, messages: 0, paired: 0, unreachable: [], delivered: 0, failed: []);
+  }) async => const lepic.ContactCollectReport(mailboxes: 0, messages: 0, paired: 0, unreachable: [], delivered: 0, failed: [], ended: []);
 
   @override
   Future<lepic.OutboxReport> contactsOutboxDeliver({required lepic.ContactRelayMode relayMode}) async =>

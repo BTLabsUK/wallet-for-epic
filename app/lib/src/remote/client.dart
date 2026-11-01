@@ -837,10 +837,16 @@ class RemoteWalletSession implements WalletSession {
   );
 
   @override
-  Future<String> signWithAddressKey(List<int> message) async => throw _noDeviceLink;
+  Future<String> signDeviceLink(List<int> transcript) async => throw _noDeviceLink;
 
   @override
-  Future<bool> verifyAddressSignature({required String key, required List<int> message, required String signature}) async => false;
+  Future<bool> verifyDeviceLink({required List<int> transcript, required String signature}) async => false;
+
+  @override
+  Stream<UnmatchedNotice> unmatchedNotices() => const Stream.empty();
+
+  @override
+  Future<bool> applyForwardedNotice({required String sender, required String notice}) async => false;
 
   @override
   Future<String> onionAddress() async => throw _noTor;
@@ -1271,6 +1277,10 @@ class RemotePairing implements PairingApi {
   @override
   Future<void> requestHandledOn(String requestId, String device) =>
       _call(SessionMember.pairingRequestHandledOn, voidWire, {'requestId': requestId, 'device': device});
+
+  // Linked devices are not offered through the protocol: nothing is passed on to a remote wallet.
+  @override
+  Future<void> takeForwardedRequest(PairRequest request) async {}
 
   @override
   Future<PairingRecord> acceptInvite({

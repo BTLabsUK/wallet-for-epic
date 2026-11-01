@@ -391,7 +391,8 @@ class FakePairing implements PairingApi {
     final older = requestList.where((q) => _sameKey(q.fromAddress, from)).firstOrNull;
     if (older != null && !expires.isAfter(older.expiresAt)) return null;
     requestList.removeWhere((q) => _sameKey(q.fromAddress, from));
-    final id = _id('request');
+    // 16 hex characters, as LEPIC's request ids (the invite id).
+    final id = (++_seq).toRadixString(16).padLeft(16, '0');
     final request = PairRequest(
       id: id,
       fromAddress: from,
@@ -733,6 +734,15 @@ class FakePairing implements PairingApi {
   }
 
   @override
+  Future<void> takeForwardedRequest(PairRequest request) async {
+    _require('takeForwardedRequest');
+    if (request.expiredAt(clock()) || requestList.any((q) => q.id == request.id)) return;
+    calls.add('forwardedRequest');
+    requestList.add(request);
+    emit(PairingEvent(PairingEventKind.requested, requestId: request.id, sender: request.fromAddress, name: request.claimedName));
+  }
+
+  @override
   Future<PairingRecord> acceptInvite({
     required String token,
     required String name,
@@ -759,7 +769,10 @@ class FakePairing implements PairingApi {
     }
     calls.add('accept');
     _previews.remove(token);
-    if (preview.requestId != null) answeredRequests.add(preview.requestId!);
+    if (preview.requestId != null) {
+      answeredRequests.add(preview.requestId!);
+      emit(PairingEvent(PairingEventKind.requestAnswered, requestId: preview.requestId));
+    }
     final now = clock();
     final record = PairingRecord(
       id: _id('pairing'),
@@ -1449,6 +1462,10 @@ class FakePairing implements PairingApi {
     // A contact pairing never carries a payload.
     final r = _private(id);
     if (!r.state.isPaired) throw pairingError(PairingFailure.invalid);
+    // As LEPIC: only once this side confirmed the words.
+    if (r.state != PairingState.verified) {
+      throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'the words of this pairing are not confirmed');
+    }
     if (bytes.length > privatePayloadMaxBytes) {
       throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'payload too large');
     }

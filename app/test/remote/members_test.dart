@@ -56,7 +56,7 @@ void main() {
     final members = interfaceMembers(pairing, 'PairingApi')
       ..remove('supported')
       ..removeAll(localPairingMembers);
-    expect(members, containsAll(['makeInvite', 'checkWords', 'events']));
+    expect(members, containsAll(['standingCode', 'checkWords', 'events']));
     final served = [for (final m in SessionMember.values) if (m.name.startsWith('pairing')) m.name];
     expect(served, hasLength(members.length));
   });

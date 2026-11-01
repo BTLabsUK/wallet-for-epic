@@ -31,7 +31,7 @@ import 'net/lan_node_relay.dart';
 import 'network_gate.dart';
 import 'pin_wrap.dart';
 import 'tor_build.dart';
-import 'trust/policy.dart' show PeerCompat;
+import 'trust/policy.dart' show PeerCompat, appHostFeatures;
 import 'recipient.dart' show plainHttpToOtherDevice;
 import 'redact.dart';
 import 'sealed_file.dart';
@@ -151,7 +151,19 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.pairingWordsNotFound ||
     lepic.WalletErrorKind.invalidPairingWords ||
     // A device link scanned in the contact pairing flow, or a contact invite in Link a device.
-    lepic.WalletErrorKind.wrongPairingClass => WalletErrorKind.pairingFailed,
+    lepic.WalletErrorKind.wrongPairingClass ||
+    // Pairing v3: [lepicPairingFailure] words each one above; listed so the switch stays whole.
+    lepic.WalletErrorKind.otherAddress ||
+    lepic.WalletErrorKind.addressProofMissing ||
+    lepic.WalletErrorKind.peerNotProven ||
+    lepic.WalletErrorKind.pairingInProgress ||
+    lepic.WalletErrorKind.pairingCrossed ||
+    lepic.WalletErrorKind.inviteDismissed ||
+    lepic.WalletErrorKind.pairingEnded ||
+    lepic.WalletErrorKind.pairingWaiting => WalletErrorKind.pairingFailed,
+    // A payment that asked for a proof this wallet does not sign (another key's, or any for a
+    // listing address): refused, nothing signed or stored.
+    lepic.WalletErrorKind.foreignProofAddress => WalletErrorKind.invalidArgument,
     // A contact that is not in the state the call needs; the screens check it first.
     lepic.WalletErrorKind.invalidContactName ||
     lepic.WalletErrorKind.contactNotFound ||
@@ -224,8 +236,8 @@ WalletError mapLepicError(lepic.WalletError error) {
     // Decided on by kind, never by the core's English message.
     lepic.WalletErrorKind.unsupported => WalletErrorKind.unsupported,
     lepic.WalletErrorKind.cancelled => WalletErrorKind.cancelled,
-    // Store encryption (H2): after the pin moves to the encrypted store, LEPIC's WrongKey
-    // (code 90) maps here: `lepic.WalletErrorKind.wrongKey => WalletErrorKind.wrongKey,`.
+    // The encrypted records refuse the key this phrase gives: nothing changed or moved.
+    lepic.WalletErrorKind.wrongKey => WalletErrorKind.wrongKey,
     lepic.WalletErrorKind.changedDuringCancel ||
     lepic.WalletErrorKind.other ||
     lepic.WalletErrorKind.locked ||
@@ -251,6 +263,28 @@ Future<T> _guard<T>(Future<T> Function() call) async {
   } on lepic.WalletError catch (error) {
     throw mapLepicError(error);
   }
+}
+
+/// LEPIC's copy-step event as the app's: copying counts pages; checking holds the bar full
+/// while the copy is compared; finished ends it.
+StoreMigrationProgress lepicStoreMigrationProgress(lepic.StoreMigrationProgress p) => switch (p.stage) {
+  lepic.StoreMigrationStage.copying => StoreMigrationProgress(done: p.done, total: p.total),
+  lepic.StoreMigrationStage.checking => StoreMigrationProgress(done: p.total, total: p.total),
+  lepic.StoreMigrationStage.finished => StoreMigrationProgress(done: p.total, total: p.total, finished: true),
+};
+
+/// How LEPIC found the records at the unlock, as the app's. A fallback's reason (English, for
+/// the log only) and a rollback set aside (LEPIC requires the restore scan itself) are logged.
+StoreOpenOutcome lepicStoreOpen(lepic.StoreAtRest s) {
+  if (s.rollbackSetAside) logWarn('store', 'a plain database made after a downgrade was set aside; a scan from genesis follows');
+  if (s.state == lepic.StoreAtRestState.fellBackToPlain) {
+    logWarn('store', 'records not encrypted this session: ${redact(s.reason)}');
+  }
+  return switch (s.state) {
+    lepic.StoreAtRestState.encrypted => StoreOpenOutcome.encrypted,
+    lepic.StoreAtRestState.migratedNow => StoreOpenOutcome.migratedNow,
+    lepic.StoreAtRestState.fellBackToPlain => StoreOpenOutcome.plainFallback,
+  };
 }
 
 /// LEPIC's `PeerCompat` as the app's: the stored facts only; what follows from them (LEPIC's
@@ -895,7 +929,38 @@ class LepicWalletService implements WalletService {
     }
   }
 
-  lepic.LepicRuntime get _runtime => _runtimeValue ??= _makeRuntime();
+  lepic.LepicRuntime get _runtime => _runtimeValue ??= _withMigration(_makeRuntime());
+
+  /// The copy step of the first open after the update that encrypts the records, from LEPIC's
+  /// `storeMigrationProgress` ([_withMigration]). Most opens copy nothing and send nothing.
+  final StreamController<StoreMigrationProgress> _storeMigration = StreamController<StoreMigrationProgress>.broadcast();
+
+  @override
+  Stream<StoreMigrationProgress> get storeMigrationProgress {
+    // Subscribed before the open that copies: the screens listen, then open.
+    _runtime;
+    return _storeMigration.stream;
+  }
+
+  /// The copy-step events of every runtime, by runtime: LEPIC keeps one subscriber per runtime
+  /// (a new one replaces the old), and the demo server shares one runtime between services.
+  static final Expando<Stream<StoreMigrationProgress>> _migrationOf = Expando('store migration');
+
+  /// [runtime], with its copy-step events subscribed once, before any open, and passed on to
+  /// [storeMigrationProgress].
+  lepic.LepicRuntime _withMigration(lepic.LepicRuntime runtime) {
+    try {
+      final events = _migrationOf[runtime] ??= runtime.storeMigrationProgress().map(lepicStoreMigrationProgress).asBroadcastStream();
+      events.listen(
+        _storeMigration.add,
+        onError: (Object error) => logWarn('store', 'copy progress ended: ${error is lepic.WalletError ? error.kind.name : error.runtimeType}'),
+      );
+    } on Object catch (error) {
+      // A runtime with no copy events (a test double): the opens report none.
+      logWarn('store', 'no copy progress: ${error.runtimeType}');
+    }
+    return runtime;
+  }
 
   /// LEPIC keeps its database in a subdirectory, so it never meets epic-wallet's `wallet_data/`
   /// or the app's `wfe_meta.json` beside it.
@@ -936,6 +1001,7 @@ class LepicWalletService implements WalletService {
         offline: config.offline,
         // Kill switch runs no tor, and the build without Tor has none.
         torWanted: torBuilt && !config.offline && await (torWantedFor?.call(config) ?? Future.value(false)),
+        hostFeatures: appHostFeatures,
       );
 
   /// The wallet core's timeouts, retries and limits: `[node]`, `[epicbox]`, `[http]` and `[tor]`
@@ -1249,6 +1315,7 @@ class LepicWalletService implements WalletService {
       ))
         ..nodeUrl = config.nodeUrl
         ..nodeApiSecret = config.nodeApiSecret;
+      await session._readStoreOpen();
       // The open wallet, for [peerCompat]; forgotten when the session goes.
       _open = session;
       session.onDispose = () {
@@ -1324,16 +1391,6 @@ class LepicWalletService implements WalletService {
   /// The count is read before a PIN is tried (the unlock screen, the PIN prompt): with
   /// [keyWrap], the Keystore key that attempt rotates to is made meanwhile, while the user
   /// types ([HardwarePinStore.prepareNextKey]).
-  /// Store encryption (H2): fed from LEPIC's copy-step events once the binding has them, by one
-  /// subscription to `_runtime.storeMigrationProgress()` made with the runtime, before any
-  /// open: `copying` → `StoreMigrationProgress(done:, total:)`, `checking` → the same with
-  /// `done: total`, `finished` → `finished: true`. Until the pin moves, LEPIC opens the plain
-  /// store and nothing is copied, so no event comes.
-  final StreamController<StoreMigrationProgress> _storeMigration = StreamController<StoreMigrationProgress>.broadcast();
-
-  @override
-  Stream<StoreMigrationProgress> get storeMigrationProgress => _storeMigration.stream;
-
   @override
   Future<int> pinFailures({required WalletConfig config}) async {
     final text = await (await _storeKeys(config)).read('lepic.pin-failures');
@@ -1380,7 +1437,7 @@ class LepicWalletService implements WalletService {
 /// What a history file names as the program that wrote it. Informational only.
 const String historyAppVersion = 'wfe-lepic';
 
-/// Store encryption (H2): the files LEPIC keeps in a wallet's `lepic` folder once it encrypts
+/// The files LEPIC keeps in a wallet's `lepic` folder once it encrypts
 /// the records. The first open copies the plain database into the encrypted one, checks it and
 /// switches, then renames the plain one aside; a plain database an older build made after a
 /// rollback is set aside by its time. Never renamed: they are on disk (install contract).
@@ -1493,14 +1550,21 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   /// Ends this wallet's use of the sealed address book.
   Future<void> Function()? _detachBook;
 
-  /// Store encryption (H2): LEPIC's open outcome once the binding has it, read right after the
-  /// open in `LepicWalletService._session` with `await wallet.storeAtRest()` and kept here:
-  /// `StoreAtRestState.encrypted` / `migratedNow` / `fellBackToPlain` →
-  /// [StoreOpenOutcome.encrypted] / `migratedNow` / `plainFallback` (its `reason` to the log
-  /// only; `rollbackSetAside` needs nothing, LEPIC sets the restore scan). Until the pin moves,
-  /// every store LEPIC opens is the one it always opened: no fallback notice.
+  /// How LEPIC found the records at this unlock (`storeAtRest`), read once by
+  /// `LepicWalletService._session` right after the open.
   @override
-  StoreOpenOutcome get storeOpen => StoreOpenOutcome.encrypted;
+  StoreOpenOutcome get storeOpen => _storeOpen;
+  StoreOpenOutcome _storeOpen = StoreOpenOutcome.encrypted;
+
+  /// Reads [storeOpen] from LEPIC. A wallet that cannot say (a test double) counts as
+  /// encrypted, which shows no fallback notice.
+  Future<void> _readStoreOpen() async {
+    try {
+      _storeOpen = lepicStoreOpen(await _wallet.storeAtRest());
+    } on Object catch (error) {
+      logWarn('store', 'open state not read: ${error is lepic.WalletError ? error.kind.name : error.runtimeType}');
+    }
+  }
 
   @override
   bool get contactsAvailable => _history.contactsAvailable;
@@ -1520,6 +1584,7 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
     _pairing.close();
     _invoiceEvents.close();
     _issuerEvents.close();
+    _unmatched.close();
     _history.close();
     final detach = _detachBook;
     _detachBook = null;
@@ -2086,11 +2151,35 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   }
 
   @override
-  Future<String> signWithAddressKey(List<int> message) => _guard(() => _wallet.signWithAddressKey(message: message));
+  Future<String> signDeviceLink(List<int> transcript) =>
+      _guard(() async => _hexOf(await _wallet.deviceLinkSign(transcript: transcript)));
 
   @override
-  Future<bool> verifyAddressSignature({required String key, required List<int> message, required String signature}) async =>
-      _guardSync(() => lepic.verifyAddressSignature(publicKey: key, message: message, signature: signature));
+  Future<bool> verifyDeviceLink({required List<int> transcript, required String signature}) async {
+    final bytes = _bytesOfHex(signature);
+    if (bytes == null) return false;
+    return _guard(() => _wallet.deviceLinkVerify(transcript: transcript, signature: bytes));
+  }
+
+  final StreamController<UnmatchedNotice> _unmatched = StreamController<UnmatchedNotice>.broadcast();
+
+  @override
+  Stream<UnmatchedNotice> unmatchedNotices() {
+    _watchEvents();
+    return _unmatched.stream;
+  }
+
+  @override
+  Future<bool> applyForwardedNotice({required String sender, required String notice}) =>
+      _guard(() => _wallet.noticeApplyForwarded(sender: sender, notice: notice));
+
+  static String _hexOf(List<int> bytes) => [for (final b in bytes) b.toRadixString(16).padLeft(2, '0')].join();
+
+  /// [hex] as bytes, or null for anything but an even run of hex digits.
+  static Uint8List? _bytesOfHex(String hex) {
+    if (hex.isEmpty || hex.length.isOdd || !RegExp(r'^[0-9a-fA-F]+$').hasMatch(hex)) return null;
+    return Uint8List.fromList([for (var i = 0; i < hex.length; i += 2) int.parse(hex.substring(i, i + 2), radix: 16)]);
+  }
 
   @override
   Future<String> onionAddress() => _guard(_wallet.onionAddress);
@@ -2559,6 +2648,14 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   }
 
   Future<void> _onWalletEvent(lepic.WalletEvent e) async {
+    // For the linked device only: nothing here holds its slate, and nothing verified it.
+    if (e.kind == lepic.WalletEventKind.noticeUnmatched) {
+      final (slate, kind, sender, notice) = (e.slateId, e.noticeKind, e.sender, e.notice);
+      if (slate != null && kind != null && sender != null && notice != null && !_unmatched.isClosed) {
+        _unmatched.add(UnmatchedNotice(slateId: slate, kind: kind, sender: sender, notice: notice));
+      }
+      return;
+    }
     // LEPIC may have linked a row to its pairing meanwhile.
     _askNoContactAgain();
     try {
@@ -3143,6 +3240,23 @@ PairingState lepicPairingState(lepic.PairingState s) => switch (s) {
   lepic.PairingState.keysChanged => PairingState.keysChanged,
 };
 
+/// The app's state of a stored pairing, from LEPIC's derived status (ended, then keys changed,
+/// then waiting until the other wallet was heard, then paired or verified).
+PairingState lepicPairingStatus(lepic.PairingStatus s) => switch (s) {
+  lepic.PairingStatus.waiting => PairingState.waiting,
+  lepic.PairingStatus.paired => PairingState.paired,
+  lepic.PairingStatus.verified => PairingState.verified,
+  lepic.PairingStatus.keysChanged => PairingState.keysChanged,
+  lepic.PairingStatus.ended => PairingState.ended,
+};
+
+PairingEndReason lepicPairingEndReason(lepic.PairingEndReason r) => switch (r) {
+  lepic.PairingEndReason.mismatch => PairingEndReason.mismatch,
+  lepic.PairingEndReason.peerMismatch => PairingEndReason.peerMismatch,
+  lepic.PairingEndReason.unpaired => PairingEndReason.unpaired,
+  lepic.PairingEndReason.neverFinished => PairingEndReason.neverFinished,
+};
+
 PairingParty lepicPairingParty(lepic.ContactKind? k) => switch (k) {
   lepic.ContactKind.shop => PairingParty.shop,
   lepic.ContactKind.exchange => PairingParty.exchange,
@@ -3164,8 +3278,10 @@ SlateStage lepicSlateStage(lepic.SlateStage s) => switch (s) {
   lepic.SlateStage.i2 || lepic.SlateStage.i3 => SlateStage.requestAnswer,
 };
 
-/// The app's pairing failure for LEPIC's contact errors, or null for any other kind.
-PairingFailure? lepicPairingFailure(lepic.WalletErrorKind k, [String message = '']) => switch (k) {
+/// The app's pairing failure for LEPIC's contact errors, or null for any other kind. [attach]:
+/// the call was `contact_attach`, whose `OtherAddress` means the contact's address is not the
+/// pairing's, not that an answer came from another wallet.
+PairingFailure? lepicPairingFailure(lepic.WalletErrorKind k, [String message = '', bool attach = false]) => switch (k) {
   // LEPIC words why a text was refused; the kind alone says only "not readable".
   lepic.WalletErrorKind.invalidPairingText when message.contains('other network') => PairingFailure.wrongNetwork,
   lepic.WalletErrorKind.invalidPairingText when message.contains('newer wallet') => PairingFailure.newerVersion,
@@ -3179,31 +3295,15 @@ PairingFailure? lepicPairingFailure(lepic.WalletErrorKind k, [String message = '
   lepic.WalletErrorKind.epicboxOff => PairingFailure.relayUnreachable,
   lepic.WalletErrorKind.sealedForAnotherWallet => PairingFailure.sealedForOther,
   lepic.WalletErrorKind.sealedUnopenable => PairingFailure.changedOnTheWay,
-  // Pairing v3 (LEPIC schema v13). The binding does not carry these kinds yet: once it does,
-  // the arms below are the mapping, with [lepicPairingFailureByCode] for the error's code.
-  // lepic.WalletErrorKind.otherAddress => PairingFailure.otherWallet,
-  // lepic.WalletErrorKind.addressProofMissing => PairingFailure.addressProofMissing,
-  // lepic.WalletErrorKind.peerNotProven => PairingFailure.peerNotProven,
-  // lepic.WalletErrorKind.pairingInProgress => PairingFailure.inProgress,
-  // lepic.WalletErrorKind.pairingCrossed => PairingFailure.crossed,
-  // lepic.WalletErrorKind.inviteDismissed => PairingFailure.inviteDismissed,
-  // lepic.WalletErrorKind.pairingEnded => PairingFailure.ended,
-  // lepic.WalletErrorKind.pairingWaiting => PairingFailure.waiting,
-  _ => null,
-};
-
-/// The pairing v3 error kinds by their wire code (the FFI spec's 81 to 88), for the LEPIC
-/// adapter once the binding carries them: `otherAddress` 81 is the attach refusal when the
-/// call was `contact_attach`, else "This answer came from another wallet".
-PairingFailure? lepicPairingFailureByCode(int code, {bool attach = false}) => switch (code) {
-  81 => attach ? PairingFailure.otherAddress : PairingFailure.otherWallet,
-  82 => PairingFailure.addressProofMissing,
-  83 => PairingFailure.peerNotProven,
-  84 => PairingFailure.inProgress,
-  85 => PairingFailure.crossed,
-  86 => PairingFailure.inviteDismissed,
-  87 => PairingFailure.ended,
-  88 => PairingFailure.waiting,
+  // Pairing v3 (LEPIC schema v13).
+  lepic.WalletErrorKind.otherAddress => attach ? PairingFailure.otherAddress : PairingFailure.otherWallet,
+  lepic.WalletErrorKind.addressProofMissing => PairingFailure.addressProofMissing,
+  lepic.WalletErrorKind.peerNotProven => PairingFailure.peerNotProven,
+  lepic.WalletErrorKind.pairingInProgress => PairingFailure.inProgress,
+  lepic.WalletErrorKind.pairingCrossed => PairingFailure.crossed,
+  lepic.WalletErrorKind.inviteDismissed => PairingFailure.inviteDismissed,
+  lepic.WalletErrorKind.pairingEnded => PairingFailure.ended,
+  lepic.WalletErrorKind.pairingWaiting => PairingFailure.waiting,
   _ => null,
 };
 
@@ -3216,15 +3316,10 @@ class _LepicPairing implements PairingApi {
 
   final StreamController<PairingEvent> _events = StreamController<PairingEvent>.broadcast();
 
-  /// The Connection servers (`host[:port]`) words meet on: the app's, else the settings file's
-  /// `pairing.servers`. LEPIC has none of its own.
-  List<String>? _connectionServers;
-
-  List<String> get _meetingRelays =>
-      _connectionServers ?? (hostSettingsLoaded ? hostSettings.pairingServers : const <String>[]);
-
+  // No meeting relays any more: the standing code and requests use the wallet's own relay
+  // (pairing words are gone), so the Connection servers are not passed to LEPIC.
   @override
-  void setConnectionServers(List<String>? hosts) => _connectionServers = hosts == null ? null : List.unmodifiable(hosts);
+  void setConnectionServers(List<String>? hosts) {}
 
   /// What the engine does not list again: an invite's link and words, the answer to send by
   /// hand, the confirmation of a reply pasted by hand, how a pairing was made.
@@ -3236,11 +3331,13 @@ class _LepicPairing implements PairingApi {
   /// The address-book contact a pending pairing attaches to once it completes.
   final Map<String, String> _attachLater = {};
 
-  /// Where a request went, by its pending pairing, while this run made it (D6: from the view).
-  final Map<String, String> _expectAddresses = {};
+  /// Requests a linked device passed on, by id: answered here as LEPIC's own are, never stored
+  /// by LEPIC. They go when answered, dismissed, handled on the other device or expired.
+  final Map<String, PairRequest> _forwardedRequests = {};
 
-  /// The standing code of this run (D6: `pairing_standing_invite`, kept by LEPIC).
-  PairingRecord? _standing;
+  /// The sender of each request opened here, by its invite link: accepting it expects the
+  /// confirm to prove that address.
+  final Map<String, ({String requestId, String fromAddress})> _requestLinks = {};
 
   /// Allow invoices the user turned on before the words check; set on a match.
   final Set<String> _wantsInvoices = {};
@@ -3263,11 +3360,12 @@ class _LepicPairing implements PairingApi {
   final Set<String> _folded = {};
 
   /// A call to LEPIC: its pairing errors as the app's [PairingFailure], the rest mapped.
-  Future<T> _call<T>(Future<T> Function() call) async {
+  /// [attach]: the call attaches a pairing ([lepicPairingFailure]).
+  Future<T> _call<T>(Future<T> Function() call, {bool attach = false}) async {
     try {
       return await call();
     } on lepic.WalletError catch (error) {
-      final failure = lepicPairingFailure(error.kind, error.message);
+      final failure = lepicPairingFailure(error.kind, error.message, attach);
       if (failure != null) throw pairingError(failure);
       throw mapLepicError(error);
     }
@@ -3280,8 +3378,11 @@ class _LepicPairing implements PairingApi {
   /// [inviter], [inviteLink] and [way] are given for a private pairing (a device link).
   PairingRecord _record(lepic.ContactView c, {bool? inviter, String? inviteLink, PairingWay? way}) => PairingRecord(
     id: c.contactId,
-    // Pairing v3 (D6): the view's status once the binding carries it; removed by the peer is ended.
-    state: c.removedByPeer ? PairingState.ended : lepicPairingState(c.state),
+    // A private pairing in progress is listed with its pending state; a stored one by LEPIC's
+    // derived status.
+    state: c.state == lepic.PairingState.pendingInvite || c.state == lepic.PairingState.pendingReply
+        ? lepicPairingState(c.state)
+        : lepicPairingStatus(c.status),
     way: way ?? _ways[c.contactId] ?? PairingWay.link,
     // The inviter of a pairing whose answer came by hand: its confirm can be sent again.
     inviter: inviter ?? _confirmLinks.containsKey(c.contactId),
@@ -3306,11 +3407,14 @@ class _LepicPairing implements PairingApi {
     relayDown: c.homeRelay != null && _relaysDown.contains(c.homeRelay),
     otherDevice: c.importedFromBackup,
     checksKeys: _checking.containsKey(c.contactId),
-    // Pairing v3 (D6): `c.status`, `c.paymentsAddress`, `c.peerHeardAtMs`, `c.peerVerifiedAtMs`,
-    // `c.peerFeatures`, `c.endedReason` and `c.endedAtMs` once the binding carries them. Until
-    // then every stored record counts as heard, and only a peer's removal ends one.
-    peerHeardAt: _ms(c.createdAtMs.toInt()),
-    endedReason: c.removedByPeer ? PairingEndReason.unpaired : null,
+    // Only from a verified address proof of this pairing; a pairing made before 26.10.25 has
+    // none, and nothing here stands in for it.
+    paymentsAddress: c.paymentsAddress,
+    peerHeardAt: c.peerHeardAtMs == null ? null : _ms(c.peerHeardAtMs!.toInt()),
+    peerVerifiedAt: c.peerVerifiedAtMs == null ? null : _ms(c.peerVerifiedAtMs!.toInt()),
+    peerFeatures: c.peerFeatures,
+    endedReason: c.endedReason == null ? null : lepicPairingEndReason(c.endedReason!),
+    endedAt: c.endedAtMs == null ? null : _ms(c.endedAtMs!.toInt()),
   );
 
   PairingRecord _pending(lepic.PendingPairingView p) => PairingRecord(
@@ -3323,8 +3427,7 @@ class _LepicPairing implements PairingApi {
     label: p.label.isEmpty ? null : p.label,
     expiresAt: _ms(p.expiresAtMs.toInt()),
     inviteLink: _inviteLinks[p.contactId],
-    // Pairing v3 (D6): `p.expectAddress` once the binding carries it.
-    expectAddress: _expectAddresses[p.contactId],
+    expectAddress: p.expectAddress,
     homeRelay: p.homeRelay,
     // An answer the relay did not take, or a home relay that did not answer the last collect:
     // past its time such a pairing still waits for one drain (LEPIC LATE_DRAIN_WAIT).
@@ -3402,85 +3505,105 @@ class _LepicPairing implements PairingApi {
 
   @override
   Future<PairingRecord> standingCode({required String name}) => _call(() async {
-    // Pairing v3 (D6): `_w.pairingStandingInvite(name:)` returns the live standing code and
-    // rotates it (answered, under 24 h left, relay changed, name changed). Until the binding
-    // carries it, one 7-day code per run stands in, renewed by the same rules here.
-    final old = _standing;
-    final now = DateTime.now();
-    if (old != null && old.name == name.trim() && old.expiresAt != null && old.expiresAt!.difference(now) >= pairingInviteRenewBefore) {
-      final still = (await _w.pairingsPending()).any((p) => p.contactId == old.id);
-      if (still) return old;
-    }
-    final invite = await _w.pairingInvite(
-      name: name.trim(),
-      kind: lepic.ContactKind.person,
-      expiry: lepic.InviteExpiry.sevenDays,
-      offerWords: false,
-      relayMode: lepicRelayMode(),
-      meetingRelays: _meetingRelays,
-      pairingClass: lepic.PairingClass.contact,
-    );
+    // LEPIC keeps the standing code and makes it anew when it was answered, has under a day
+    // left, names another relay than the wallet's now or another name (withdrawing the old
+    // one then). Online on the wallet's own relay; it sends nothing.
+    final invite = await _w.pairingStandingInvite(name: name.trim());
     final id = invite.contactId;
     _inviteLinks[id] = invite.link;
     _ways[id] = PairingWay.link;
-    if (old != null && old.name != name.trim()) {
-      try {
-        await _w.pairingCancel(contactId: old.id);
-      } on lepic.WalletError {
-        // Answered or gone already.
-      }
-    }
-    final made = (await pairing(id))?.copyWith(name: name.trim()) ??
-        PairingRecord(
-          id: id,
-          state: PairingState.pendingInvite,
-          way: PairingWay.link,
-          inviter: true,
-          createdAt: now,
-          name: name.trim(),
-          expiresAt: _ms(invite.expiresAtMs.toInt()),
-          inviteLink: invite.link,
-        );
-    return _standing = made;
+    return PairingRecord(
+      id: id,
+      state: PairingState.pendingInvite,
+      way: PairingWay.link,
+      inviter: true,
+      createdAt: DateTime.now(),
+      name: name.trim(),
+      expiresAt: _ms(invite.expiresAtMs.toInt()),
+      inviteLink: invite.link,
+    );
   });
 
   @override
-  Future<int> setOwnName(String name) async {
-    // Pairing v3 (D6): `_w.contactsSetOwnName(name:)`. Nothing to tell the peers until then.
-    return 0;
-  }
+  Future<int> setOwnName(String name) => _call(() => _w.contactsSetOwnName(name: name.trim()));
 
   @override
   Future<PairingRecord> requestPairing({required String toAddress, required String name, String? contactId}) => _call(() async {
-    // Pairing v3 (D6): `_w.pairingRequestSend(toAddress:, name:, relayMode:)`, which posts the
-    // request and returns the pending view; keep `_expectAddresses[id] = toAddress` and
-    // `_attachLater[id] = contactId`. Not in the binding yet.
-    throw const WalletError(kind: WalletErrorKind.unsupported, message: 'pair requests need LEPIC with pairing v3');
+    final view = await _w.pairingRequestSend(
+      toAddress: lepicEpicboxAddress(toAddress),
+      name: name.trim(),
+      relayMode: lepicRelayMode(),
+    );
+    final id = view.contactId;
+    _ways[id] = PairingWay.request;
+    if (contactId != null) _attachLater[id] = contactId;
+    return _pending(view);
+  });
+
+  PairRequest _request(lepic.PairRequestView r) => PairRequest(
+    id: r.requestId,
+    fromAddress: r.fromAddress,
+    claimedName: r.claimedName,
+    kind: lepicPairingParty(r.kind),
+    receivedAt: _ms(r.receivedAtMs.toInt()),
+    expiresAt: _ms(r.expiresAtMs.toInt()),
+    inviteLink: r.inviteLink,
+  );
+
+  @override
+  Future<List<PairRequest>> requests() => _call(() async {
+    final now = DateTime.now();
+    _forwardedRequests.removeWhere((_, r) => r.expiredAt(now));
+    final own = [for (final r in await _w.pairingRequests()) _request(r)];
+    final ids = {for (final r in own) r.id};
+    // Oldest first, LEPIC's and the linked device's alike.
+    return [...own, for (final r in _forwardedRequests.values) if (!ids.contains(r.id)) r]
+      ..sort((a, b) => a.receivedAt.compareTo(b.receivedAt));
   });
 
   @override
-  Future<List<PairRequest>> requests() async {
-    // Pairing v3 (D6): `_w.pairingRequests()` mapped to [PairRequest]. None until then.
-    return const [];
+  Future<void> takeForwardedRequest(PairRequest request) async {
+    if (request.expiredAt(DateTime.now())) return;
+    _forwardedRequests[request.id] = request;
+    if (!_events.isClosed) {
+      _events.add(PairingEvent(PairingEventKind.requested, requestId: request.id, sender: request.fromAddress, name: request.claimedName));
+    }
   }
 
   @override
   Future<PairingInvitePreview> openRequest(String requestId) => _call(() async {
-    // Pairing v3 (D6): the stored request's `inviteLink` through `pairingPreview`, with
-    // `fromAddress` and `requestId` set on the preview.
-    throw const WalletError(kind: WalletErrorKind.unsupported, message: 'pair requests need LEPIC with pairing v3');
+    final request = (await requests()).where((r) => r.id == requestId).firstOrNull ?? (throw pairingError(PairingFailure.notFound));
+    final link = request.inviteLink.trim();
+    final preview = await _w.pairingPreview(link: link);
+    _requestLinks[link] = (requestId: request.id, fromAddress: request.fromAddress);
+    return _preview(link, preview, fromAddress: request.fromAddress, requestId: request.id);
   });
 
   @override
   Future<void> dismissRequest(String requestId) => _call(() async {
-    // Pairing v3 (D6): `_w.pairingRequestDismiss(requestId:)`.
-    throw const WalletError(kind: WalletErrorKind.unsupported, message: 'pair requests need LEPIC with pairing v3');
+    final forwarded = _forwardedRequests.remove(requestId) != null;
+    try {
+      await _w.pairingRequestDismiss(requestId: requestId);
+    } on lepic.WalletError catch (error) {
+      // One the linked device passed on is not LEPIC's here.
+      if (!(forwarded && error.kind == lepic.WalletErrorKind.pairingNotFound)) rethrow;
+    }
   });
 
   @override
   Future<void> requestHandledOn(String requestId, String device) => _call(() async {
-    // Pairing v3 (D6): dismiss it, then raise [PairingEventKind.pairedElsewhere] with [device].
-    throw const WalletError(kind: WalletErrorKind.unsupported, message: 'pair requests need LEPIC with pairing v3');
+    final known = _forwardedRequests.remove(requestId) != null;
+    var stored = false;
+    try {
+      await _w.pairingRequestDismiss(requestId: requestId);
+      stored = true;
+    } on lepic.WalletError catch (error) {
+      // Not stored here (it reached the other device only), or answered or gone already.
+      if (error.kind != lepic.WalletErrorKind.pairingNotFound) rethrow;
+    }
+    if ((known || stored) && !_events.isClosed) {
+      _events.add(PairingEvent(PairingEventKind.pairedElsewhere, requestId: requestId, name: device));
+    }
   });
 
   @override
@@ -3505,7 +3628,7 @@ class _LepicPairing implements PairingApi {
   @override
   Future<String> confirmLink(String id) async => _confirmLinks[id] ?? (throw pairingError(PairingFailure.notFound));
 
-  PairingInvitePreview _preview(String link, lepic.InvitePreview p) => PairingInvitePreview(
+  PairingInvitePreview _preview(String link, lepic.InvitePreview p, {String? fromAddress, String? requestId}) => PairingInvitePreview(
     token: link,
     name: p.claimedName,
     expiresAt: _ms(p.expiresAtMs.toInt()),
@@ -3513,6 +3636,8 @@ class _LepicPairing implements PairingApi {
     asksInvoices: p.service,
     homeRelay: p.homeRelay,
     wordsAvailable: lepicRelayMode() == lepic.ContactRelayMode.online,
+    fromAddress: fromAddress,
+    requestId: requestId,
   );
 
   @override
@@ -3543,16 +3668,26 @@ class _LepicPairing implements PairingApi {
     String? contactId,
     bool byHand = false,
   }) => _call(() async {
+    // A request's code: the confirm must prove the sender's address, and LEPIC marks the
+    // request answered.
+    final request = _requestLinks[token.trim()];
     final answer = await _w.pairingAccept(
       link: token,
       name: name.trim(),
       byHand: byHand,
       relayMode: lepicRelayMode(),
       pairingClass: lepic.PairingClass.contact,
+      expectAddress: request?.fromAddress,
     );
     final id = answer.contactId;
     _replyLinks[id] = answer.replyLink;
-    _ways[id] = PairingWay.link;
+    _ways[id] = request == null ? PairingWay.link : PairingWay.request;
+    if (request != null) {
+      _requestLinks.remove(token.trim());
+      _forwardedRequests.remove(request.requestId);
+      // The first Pair wins: a linked device hides its copy ([requestHandledOn]).
+      if (!_events.isClosed) _events.add(PairingEvent(PairingEventKind.requestAnswered, requestId: request.requestId, pairingId: id));
+    }
     if (allowInvoices) _wantsInvoices.add(id);
     if (contactId != null) _attachLater[id] = contactId;
     if (!answer.posted && !byHand) _unposted.add(id);
@@ -3582,9 +3717,16 @@ class _LepicPairing implements PairingApi {
       },
       relayMode: lepicRelayMode(),
     );
-    // Pairing v3 (D6): a mismatch ends the record (kept, `PairingEnded`), so the ended record
-    // comes back; today's engine deletes it.
-    if (check == PairingCheck.mismatch) return null;
+    // A mismatch ends the record and keeps it: the ended record comes back.
+    if (check == PairingCheck.mismatch) {
+      if (_privateLinks.containsKey(id) || (await _w.privatePairings()).any((c) => c.contactId == id)) return _privateOf(id);
+      try {
+        return _record(await _w.contact(contactId: id));
+      } on lepic.WalletError catch (error) {
+        if (error.kind == lepic.WalletErrorKind.contactNotFound) return null;
+        rethrow;
+      }
+    }
     // Allow invoices the user turned on while answering applies once the words match.
     if (check == PairingCheck.match && _wantsInvoices.remove(id)) {
       await _w.contactSetAllowInvoices(contactId: id, allow: true);
@@ -3634,10 +3776,12 @@ class _LepicPairing implements PairingApi {
     // The engine drops a folded pairing without an event: the lists read again.
     final now = {for (final c in await _w.contacts()) c.contactId};
     _folded.retainAll(now);
-    if (before.difference(now).isNotEmpty && !_events.isClosed) {
+    // Pairings that ended this cycle are kept, ended: their own events name them; the lists
+    // read again.
+    if ((before.difference(now).isNotEmpty || report.ended.isNotEmpty) && !_events.isClosed) {
       _events.add(const PairingEvent(PairingEventKind.contactUpdated));
     }
-    return report.paired;
+    return report.paired + report.ended.length;
   }
 
   @override
@@ -3673,21 +3817,20 @@ class _LepicPairing implements PairingApi {
   }
 
   @override
-  Future<PairingRecord> attach(String id, String? contactId, {String? contactAddress}) => _call(() async {
-    // Pairing v3 (D6): pass `appAddress: contactAddress` to `contactAttach`, and map its
-    // `OtherAddress` / `AddressProofMissing` refusals; [contactForPairing] below does the same
-    // check on the app's side until then.
+  Future<PairingRecord> attach(String id, String? contactId, {String? contactAddress}) => _call(attach: true, () async {
     // The one check of every way in (pickers, the same-name offer, an invite made from a
-    // contact): refused before anything is stored when the contact's Epicbox address is not
-    // the pairing's.
-    final contact = contactId == null ? null : (await _s.contacts()).where((c) => c.id == contactId).firstOrNull;
-    final filled = contact == null ? null : contactForPairing(contact, _record(await _w.contact(contactId: id)));
+    // contact) is LEPIC's: refused, nothing changed, when the contact's Epicbox address is not
+    // the one the pairing proves (`OtherAddress`) or the pairing proves none, as one made
+    // before 26.10.25 (`AddressProofMissing`). The proven address is written into the book by
+    // the app at Verified only ([writeProvenAddress]), never here.
+    // The contact's own address when the caller gave none (a pairing attached as it completes).
+    final given = contactAddress ?? (contactId == null ? null : (await _s.contacts()).where((c) => c.id == contactId).firstOrNull?.epicbox);
+    final address = given == null || given.trim().isEmpty ? null : lepicEpicboxAddress(given);
     // A contact that has a pairing already: the new one checks whether its keys are back.
     final before = contactId == null ? const <lepic.ContactView>[] : await _w.pairingsForAppContact(appContact: contactId);
-    await _w.contactAttach(contactId: id, appContact: contactId);
-    if (filled != null) await _s.saveContact(contact: filled);
+    await _w.contactAttach(contactId: id, appContact: contactId, appAddress: contactId == null ? null : address);
     final old = before
-        .where((c) => c.contactId != id && c.state != lepic.PairingState.keysChanged && !c.removedByPeer)
+        .where((c) => c.contactId != id && c.state != lepic.PairingState.keysChanged && c.status != lepic.PairingStatus.ended)
         .firstOrNull;
     if (old != null) {
       try {
@@ -3960,7 +4103,14 @@ class _LepicPairing implements PairingApi {
       lepic.WalletEventKind.pairingReplied => PairingEventKind.replied,
       lepic.WalletEventKind.pairingConfirmed => PairingEventKind.confirmed,
       lepic.WalletEventKind.pairingFailed => PairingEventKind.failed,
-      lepic.WalletEventKind.contactUpdated => PairingEventKind.contactUpdated,
+      lepic.WalletEventKind.contactUpdated => switch (e.contactChange) {
+        lepic.ContactChange.heard => PairingEventKind.heard,
+        lepic.ContactChange.peerVerified => PairingEventKind.peerVerified,
+        lepic.ContactChange.address => PairingEventKind.addressUpdated,
+        lepic.ContactChange.ended => PairingEventKind.ended,
+        lepic.ContactChange.card || null => PairingEventKind.contactUpdated,
+      },
+      lepic.WalletEventKind.pairingRequested => PairingEventKind.requested,
       lepic.WalletEventKind.homeRelayUnreachable => PairingEventKind.homeRelayUnreachable,
       lepic.WalletEventKind.contactKeysRestored => PairingEventKind.keysRestored,
       lepic.WalletEventKind.contactKeysChanged => PairingEventKind.keysChanged,
@@ -3972,10 +4122,6 @@ class _LepicPairing implements PairingApi {
       lepic.WalletEventKind.outboxStuck => PairingEventKind.outboxStuck,
       lepic.WalletEventKind.contactPaymentFinalized => PairingEventKind.paymentFinalized,
       lepic.WalletEventKind.contactUnpaired => PairingEventKind.unpaired,
-      // Pairing v3 (D6): `pairingRequested` → requested (requestId, sender); `contactUpdated`
-      // by `e.contactChange`: heard → heard, peerVerified → peerVerified, address →
-      // addressUpdated, ended → ended (with `e.endedReason`); `pairingFailed` gains
-      // otherAddress → otherWallet, addressProofMissing, crossed.
       _ => null,
     };
     if (kind == null || _events.isClosed) return;
@@ -3994,10 +4140,16 @@ class _LepicPairing implements PairingApi {
           lepic.PairingFailureReason.expired => PairingFailure.noAnswer,
           lepic.PairingFailureReason.notConfirmed => PairingFailure.notCompleted,
           lepic.PairingFailureReason.refused => PairingFailure.alreadyUsed,
+          lepic.PairingFailureReason.otherAddress => PairingFailure.otherWallet,
+          lepic.PairingFailureReason.addressProofMissing => PairingFailure.addressProofMissing,
+          lepic.PairingFailureReason.crossed => PairingFailure.crossed,
           null => null,
         },
         slateId: slateId,
         amount: e.amount,
+        requestId: e.requestId,
+        sender: kind == PairingEventKind.requested ? e.sender : null,
+        endedReason: e.endedReason == null ? null : lepicPairingEndReason(e.endedReason!),
       ),
     );
   }

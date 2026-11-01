@@ -178,6 +178,53 @@ void main() {
     });
   });
 
+  group('26.10.25 binding', () {
+    test('the pairing v3 kinds say which, and an attach refusal is about the contact', () {
+      lepic.WalletError e(lepic.WalletErrorKind k, int code) => lepic.WalletError(kind: k, code: code, message: 'm');
+      expect(pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.otherAddress, 81))), PairingFailure.otherWallet);
+      expect(lepicPairingFailure(lepic.WalletErrorKind.otherAddress, '', true), PairingFailure.otherAddress);
+      expect(pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.addressProofMissing, 82))), PairingFailure.addressProofMissing);
+      expect(pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.peerNotProven, 83))), PairingFailure.peerNotProven);
+      expect(pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.pairingInProgress, 84))), PairingFailure.inProgress);
+      expect(pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.pairingCrossed, 85))), PairingFailure.crossed);
+      expect(pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.inviteDismissed, 86))), PairingFailure.inviteDismissed);
+      expect(pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.pairingEnded, 87))), PairingFailure.ended);
+      expect(pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.pairingWaiting, 88))), PairingFailure.waiting);
+      expect(mapLepicError(e(lepic.WalletErrorKind.foreignProofAddress, 89)).kind, WalletErrorKind.invalidArgument);
+      expect(mapLepicError(e(lepic.WalletErrorKind.wrongKey, 90)).kind, WalletErrorKind.wrongKey);
+    });
+
+    test('the derived pairing status and the end reasons', () {
+      expect([for (final s in lepic.PairingStatus.values) lepicPairingStatus(s)], [
+        PairingState.waiting,
+        PairingState.paired,
+        PairingState.verified,
+        PairingState.keysChanged,
+        PairingState.ended,
+      ]);
+      expect([for (final r in lepic.PairingEndReason.values) lepicPairingEndReason(r)], PairingEndReason.values);
+    });
+
+    test("the store copy's progress: pages while copying, full while checking, then finished", () {
+      expect(lepicStoreMigrationProgress(const lepic.StoreMigrationProgress(stage: lepic.StoreMigrationStage.copying, done: 3, total: 10)),
+          const StoreMigrationProgress(done: 3, total: 10));
+      expect(lepicStoreMigrationProgress(const lepic.StoreMigrationProgress(stage: lepic.StoreMigrationStage.checking, done: 9, total: 10)),
+          const StoreMigrationProgress(done: 10, total: 10));
+      expect(lepicStoreMigrationProgress(const lepic.StoreMigrationProgress(stage: lepic.StoreMigrationStage.finished, done: 10, total: 10)),
+          const StoreMigrationProgress(done: 10, total: 10, finished: true));
+    });
+
+    test('how the records were found at the unlock', () {
+      expect(lepicStoreOpen(const lepic.StoreAtRest(state: lepic.StoreAtRestState.encrypted, reason: '', rollbackSetAside: false)), StoreOpenOutcome.encrypted);
+      expect(lepicStoreOpen(const lepic.StoreAtRest(state: lepic.StoreAtRestState.migratedNow, reason: '', rollbackSetAside: true)), StoreOpenOutcome.migratedNow);
+      expect(lepicStoreOpen(const lepic.StoreAtRest(state: lepic.StoreAtRestState.fellBackToPlain, reason: 'disk full', rollbackSetAside: false)), StoreOpenOutcome.plainFallback);
+    });
+
+    test('the build claims no host feature bits', () async {
+      expect(appHostFeatures, 0);
+    });
+  });
+
   group('error mapping', () {
     lepic.WalletError error(lepic.WalletErrorKind kind) =>
         lepic.WalletError(kind: kind, code: 0, message: 'm');

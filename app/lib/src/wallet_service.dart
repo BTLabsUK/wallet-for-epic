@@ -355,14 +355,26 @@ abstract interface class WalletSession {
   /// This wallet's onion, `<56 characters>.onion`, known before tor runs.
   Future<String> onionAddress();
 
-  /// Signs [message] with the wallet's Epicbox address key (DER hex). LEPIC signs a tagged hash
-  /// that no relay challenge or push text can ever equal. Every device holding this wallet makes
-  /// the same signature, which is how linked devices prove they hold one wallet.
-  Future<String> signWithAddressKey(List<int> message);
+  /// Signs a device-link [transcript] with the wallet's device-link key (LEPIC's
+  /// `device_link_sign`, under its own tag, a key of the phrase made for nothing else) and
+  /// returns the 64-byte signature in hex. Every device holding this wallet's phrase makes a
+  /// signature the other takes, which is how linked devices prove they hold one wallet.
+  Future<String> signDeviceLink(List<int> transcript);
 
-  /// Whether [signature] is [signWithAddressKey] of [message] by the wallet whose payments key
-  /// (its Epicbox address without the server) is [key]. False for anything malformed.
-  Future<bool> verifyAddressSignature({required String key, required List<int> message, required String signature});
+  /// Whether [signature] is [signDeviceLink] of [transcript] by a wallet of this wallet's
+  /// phrase. False for anything malformed.
+  Future<bool> verifyDeviceLink({required List<int> transcript, required String signature});
+
+  /// Notices over Epicbox for a slate this wallet holds nothing of (a payer's posted or
+  /// cancelled, an invoice declined or withdrawn): another device on this phrase may hold it,
+  /// so they go to the linked device as they are. Nothing verified them: never shown or acted
+  /// on here.
+  Stream<UnmatchedNotice> unmatchedNotices();
+
+  /// Applies a notice the linked device passed on ([unmatchedNotices] there) under the rules of
+  /// one received here: only from its slate's counterparty, once. Raises the same events.
+  /// Whether it was taken; one for a slate this wallet does not hold either is dropped.
+  Future<bool> applyForwardedNotice({required String sender, required String notice});
 
   /// Starts the wallet's own tor from [torBinary] (the bundled Tor Expert Bundle) and streams
   /// what it does until [stopTor], lock or [dispose]; [libDir] goes on the library path
@@ -1161,10 +1173,10 @@ class FakeWalletService implements WalletService {
 /// The sealed text [FakeWalletService] hands out for [pin]. Not encryption.
 String fakeSealedPassword(String pin) => 'fake-sealed|$pin';
 
-/// The fakes' stand-in for an address key signature of [message] by the wallet with payments key
-/// [key]: deterministic, and another key never makes it.
+/// The fakes' stand-in for the device-link signature of [message] by the wallet with payments key
+/// [key], 64 bytes in hex as LEPIC's: deterministic, and another key never makes it.
 String fakeAddressSignature(String key, List<int> message) =>
-    '${sha256.convert([...utf8.encode('fake-address-signature/$key/'), ...message])}';
+    '${sha512.convert([...utf8.encode('fake-address-signature/$key/'), ...message])}';
 
 /// Scripted open wallet for tests. Mutate the public fields to shape each scenario.
 class FakeWalletSession implements WalletSession {
@@ -1857,14 +1869,32 @@ class FakeWalletSession implements WalletSession {
   /// Holds [sendTor] until completed, as a send that takes a while over Tor.
   Completer<void>? torSendGate;
 
-  /// A deterministic stand-in for the address key's signature: a hash of the payments key of
-  /// [address] and the message, so only a session with the same address makes it.
+  /// A deterministic stand-in for the device-link signature: a hash of the payments key of
+  /// [address] and the transcript, so only a session with the same address makes it.
   @override
-  Future<String> signWithAddressKey(List<int> message) async => fakeAddressSignature(epicboxKey(address), message);
+  Future<String> signDeviceLink(List<int> transcript) async => fakeAddressSignature(epicboxKey(address), transcript);
 
   @override
-  Future<bool> verifyAddressSignature({required String key, required List<int> message, required String signature}) async =>
-      signature == fakeAddressSignature(key, message);
+  Future<bool> verifyDeviceLink({required List<int> transcript, required String signature}) async =>
+      signature == fakeAddressSignature(epicboxKey(address), transcript);
+
+  /// What [unmatchedNotices] streams; a test adds to it as LEPIC's event would.
+  final StreamController<UnmatchedNotice> unmatchedController = StreamController<UnmatchedNotice>.broadcast();
+
+  /// The notices [applyForwardedNotice] was given, in order.
+  final List<({String sender, String notice})> forwardedNotices = [];
+
+  /// What [applyForwardedNotice] answers.
+  bool forwardedNoticeTaken = true;
+
+  @override
+  Stream<UnmatchedNotice> unmatchedNotices() => unmatchedController.stream;
+
+  @override
+  Future<bool> applyForwardedNotice({required String sender, required String notice}) async {
+    forwardedNotices.add((sender: sender, notice: notice));
+    return forwardedNoticeTaken;
+  }
 
   @override
   Future<String> onionAddress() async => onion;

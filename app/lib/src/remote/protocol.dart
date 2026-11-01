@@ -136,6 +136,8 @@ const Set<String> localPairingMembers = {
   'payloads',
   'ackPayloads',
   'setConnectionServers',
+  // A request a linked device passed on: linked devices are not offered through the protocol.
+  'takeForwardedRequest',
 };
 
 /// Interface members the client answers without the server.
@@ -152,6 +154,10 @@ const Set<String> localServiceMembers = {
   // Synchronous, so no call can answer it; refused by the client (the open wallet's
   // fingerprint goes to the server).
   'walletFingerprint',
+  // The demo server's wallets are made encrypted: no copy step to report; answered by the client.
+  'storeMigrationProgress',
+  // What a peer's wallet showed it can do is the app's own store's; the client knows none.
+  'peerCompat',
 };
 const Set<String> localSessionMembers = {
   'supportsInvoices',
@@ -185,8 +191,15 @@ const Set<String> localSessionMembers = {
   // Answered by the client: it cancels the scan stream, and the server stops the scan.
   'cancelScan',
   // Linked devices are the app's own; refused by the client.
-  'signWithAddressKey',
-  'verifyAddressSignature',
+  'signDeviceLink',
+  'verifyDeviceLink',
+  // The server's wallets are made encrypted and keep their own book; answered by the client.
+  'storeOpen',
+  'contactsAvailable',
+  // The trust facts live with the server's wallet; nothing to forget here.
+  'forgetPeers',
+  'unmatchedNotices',
+  'applyForwardedNotice',
   // The cold flow (Kill switch) is the wallet's own device's; refused by the client.
   'finishedPaymentText',
   'inspectFinished',

@@ -11,11 +11,30 @@ import 'package:lepic/lepic.dart' as lepic;
 
 const _relay = 'epicbox.pool.example.org:443';
 
-lepic.ContactView _view(String id, {String? app, int created = 1792900000000, bool removed = false}) => lepic.ContactView(
+/// A stored pairing as LEPIC lists it. [proven] is the payments address its proof gave, null
+/// for a pairing made before 26.10.25 (v13 marks those heard at their creation, with no proof).
+lepic.ContactView _view(
+  String id, {
+  String? app,
+  int created = 1792900000000,
+  bool removed = false,
+  String? proven,
+  lepic.PairingState state = lepic.PairingState.paired,
+}) => lepic.ContactView(
   contactId: id,
   label: '',
   claimedName: 'Bob',
-  state: lepic.PairingState.paired,
+  state: state,
+  status: removed
+      ? lepic.PairingStatus.ended
+      : state == lepic.PairingState.verified
+      ? lepic.PairingStatus.verified
+      : lepic.PairingStatus.paired,
+  peerFeatures: 0,
+  paymentsAddress: proven,
+  peerHeardAtMs: created,
+  endedReason: removed ? lepic.PairingEndReason.unpaired : null,
+  endedAtMs: removed ? created + 1000 : null,
   sas: const [],
   allowInvoices: false,
   seal: lepic.SealState.on_,
@@ -67,11 +86,54 @@ class _PairingWallet implements lepic.EpicWallet {
       if (c.appContact == appContact) c,
   ];
 
+  final List<String?> attachAddresses = [];
+
+  /// As LEPIC's `check_attach_address`: with an address, the pairing must prove that key.
   @override
-  Future<void> contactAttach({required String contactId, String? appContact}) async {
+  Future<void> contactAttach({required String contactId, String? appContact, String? appAddress}) async {
+    attachAddresses.add(appAddress);
     final i = paired.indexWhere((c) => c.contactId == contactId);
     final c = paired[i];
-    paired[i] = _view(c.contactId, app: appContact, created: c.createdAtMs, removed: c.removedByPeer);
+    if (appContact != null && appAddress != null) {
+      final proven = c.paymentsAddress;
+      if (proven == null) throw const lepic.WalletError(kind: lepic.WalletErrorKind.addressProofMissing, code: 82, message: 'no proof');
+      if (proven.split('@').first != appAddress.split('@').first) {
+        throw const lepic.WalletError(kind: lepic.WalletErrorKind.otherAddress, code: 81, message: 'another key');
+      }
+    }
+    paired[i] = _view(c.contactId, app: appContact, created: c.createdAtMs, removed: c.removedByPeer, proven: c.paymentsAddress, state: c.state);
+  }
+
+  final List<lepic.PairRequestView> requests = [];
+  final List<String> dismissed = [];
+  final List<String?> acceptedExpecting = [];
+
+  @override
+  Future<List<lepic.PairRequestView>> pairingRequests() async => [for (final r in requests) if (!dismissed.contains(r.requestId)) r];
+
+  @override
+  Future<void> pairingRequestDismiss({required String requestId}) async {
+    if (!requests.any((r) => r.requestId == requestId) || dismissed.contains(requestId)) {
+      throw const lepic.WalletError(kind: lepic.WalletErrorKind.pairingNotFound, code: 0, message: 'no request');
+    }
+    dismissed.add(requestId);
+  }
+
+  @override
+  Future<lepic.InvitePreview> pairingPreview({required String link}) async =>
+      lepic.InvitePreview(claimedName: 'Anna', kind: lepic.ContactKind.person, expiresAtMs: 1792990000000, homeRelay: _relay, service: false, pairingClass: lepic.PairingClass.contact);
+
+  @override
+  Future<lepic.PairingAnswer> pairingAccept({
+    required String link,
+    required String name,
+    required bool byHand,
+    required lepic.ContactRelayMode relayMode,
+    required lepic.PairingClass pairingClass,
+    String? expectAddress,
+  }) async {
+    acceptedExpecting.add(expectAddress);
+    return const lepic.PairingAnswer(contactId: 'answer-1', replyLink: 'epiccash://pair-reply/1/x', posted: true);
   }
 
   @override
@@ -185,18 +247,93 @@ void main() {
     expect(seen.where((e) => e.kind == PairingEventKind.keyCheckRefused), isEmpty);
   });
 
-  // Attaching to a picked contact (26.10.25): LEPIC's cards bring no payments address, so a
-  // pairing cannot confirm an Epicbox address the contact has; it is refused, nothing stored.
-  test('a pairing is refused by a contact with an Epicbox address it cannot confirm', () async {
+  // Attaching to a picked contact: LEPIC checks the contact's Epicbox address against the one
+  // the pairing proves; the address book is written at Verified only, never by the attach.
+  test('a pairing that proves another key is refused by a contact with an Epicbox address', () async {
     final c = await session.saveContact(contact: Contact(id: '', name: 'BT Labs', epicbox: 'es${'B' * 50}@epicbox.example.org'));
-    wallet.paired.add(_view('new'));
+    wallet.paired.add(_view('new', proven: 'es${'C' * 50}@epicbox.example.org'));
 
     await expectLater(
       session.pairing.attach('new', c.id),
       throwsA(isA<WalletError>().having(pairingFailureOf, 'failure', PairingFailure.otherAddress)),
     );
+    expect(wallet.attachAddresses.single, c.epicbox, reason: "the contact's own address goes to LEPIC");
     expect(wallet.paired.single.appContact, isNull);
     expect((await session.contacts()).single.epicbox, c.epicbox);
+  });
+
+  test('a pairing made before 26.10.25 (no proof, heard) shows honestly and attaches by address as not proven', () async {
+    // As v13 migrated it: verified by the words then, heard at its creation, no proven address.
+    wallet.paired.add(_view('old-pairing', state: lepic.PairingState.verified));
+    final r = (await session.pairing.pairing('old-pairing'))!;
+    expect(r.state, PairingState.verified, reason: 'what the words check gave, nothing more');
+    expect(r.paymentsAddress, isNull);
+    expect(r.peerHeardAt, isNotNull);
+    expect(r.ended, isFalse);
+    const address = 'esAnnaKey@epicbox.example.org';
+    expect(pairingVouchesFor(r, address), isFalse, reason: 'no proven address is claimed for it');
+
+    final c = await session.saveContact(contact: Contact(id: '', name: 'Anna', epicbox: address));
+    await expectLater(
+      session.pairing.attach('old-pairing', c.id),
+      throwsA(isA<WalletError>().having(pairingFailureOf, 'failure', PairingFailure.addressProofMissing)),
+    );
+    expect(wallet.paired.single.appContact, isNull, reason: 'nothing changed');
+    // Save as a new contact (no address): it attaches, and the book gets no address from it.
+    final fresh = await session.saveContact(contact: Contact(id: '', name: 'Bob'));
+    final attached = await session.pairing.attach('old-pairing', fresh.id);
+    expect(attached.contactId, fresh.id);
+    expect((await session.contacts()).firstWhere((x) => x.id == fresh.id).epicbox, isNull);
+  });
+
+  test('a pairing that ended keeps its record with the reason', () async {
+    wallet.paired.add(_view('gone', removed: true));
+    final r = (await session.pairing.pairing('gone'))!;
+    expect((r.state, r.endedReason, r.removedByPeer), (PairingState.ended, PairingEndReason.unpaired, true));
+    expect(r.endedAt, isNotNull);
+  });
+
+  test("a request opened and answered expects its sender's address and goes to the linked device", () async {
+    wallet.requests.add(
+      lepic.PairRequestView(
+        requestId: '0123456789abcdef',
+        fromAddress: 'esAnnaKey@epicbox.example.org',
+        claimedName: 'Anna',
+        kind: lepic.ContactKind.person,
+        receivedAtMs: 1792900000000,
+        expiresAtMs: 4102444800000,
+        inviteLink: 'epiccash://pair/1/abc',
+      ),
+    );
+    final listed = (await session.pairing.requests()).single;
+    expect((listed.id, listed.fromAddress, listed.claimedName), ('0123456789abcdef', 'esAnnaKey@epicbox.example.org', 'Anna'));
+
+    final preview = await session.pairing.openRequest(listed.id);
+    expect((preview.fromAddress, preview.requestId), ('esAnnaKey@epicbox.example.org', listed.id));
+    await session.pairing.acceptInvite(token: preview.token, name: 'Alex');
+    expect(wallet.acceptedExpecting.single, 'esAnnaKey@epicbox.example.org');
+    await _settle();
+    expect(seen.where((e) => e.kind == PairingEventKind.requestAnswered).single.requestId, listed.id);
+  });
+
+  test('a request the linked device passed on is listed, and hidden once answered there', () async {
+    final forwarded = PairRequest(
+      id: 'fedcba9876543210',
+      fromAddress: 'esAnnaKey@epicbox.example.org',
+      claimedName: 'Anna',
+      receivedAt: DateTime(2026, 11, 1),
+      expiresAt: DateTime(2100),
+      inviteLink: 'epiccash://pair/1/def',
+    );
+    await session.pairing.takeForwardedRequest(forwarded);
+    expect((await session.pairing.requests()).single.id, forwarded.id);
+    await _settle();
+    expect(seen.last.kind, PairingEventKind.requested);
+
+    await session.pairing.requestHandledOn(forwarded.id, 'Desktop 3F2A');
+    expect(await session.pairing.requests(), isEmpty);
+    await _settle();
+    expect((seen.last.kind, seen.last.name), (PairingEventKind.pairedElsewhere, 'Desktop 3F2A'));
   });
 
   test('a contact with no Epicbox address takes the pairing; its HTTP and Tor stay', () async {

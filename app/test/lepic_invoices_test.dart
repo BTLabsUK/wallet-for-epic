@@ -85,6 +85,8 @@ class _InvoiceWallet implements lepic.EpicWallet {
     contactId: _shop,
     label: 'Shop',
     state: lepic.PairingState.verified,
+    status: lepic.PairingStatus.verified,
+    peerFeatures: 0,
     sas: [],
     allowInvoices: true,
     seal: lepic.SealState.on_,
@@ -121,6 +123,7 @@ class _InvoiceWallet implements lepic.EpicWallet {
       unreachable: [],
       delivered: 0,
       failed: [],
+      ended: [],
     );
   }
 

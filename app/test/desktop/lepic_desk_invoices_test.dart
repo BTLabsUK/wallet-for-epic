@@ -107,6 +107,8 @@ class _Wallet implements lepic.EpicWallet {
       contactId: _shopContact,
       label: 'Shop',
       state: lepic.PairingState.verified,
+      status: lepic.PairingStatus.verified,
+      peerFeatures: 0,
       sas: [],
       allowInvoices: true,
       seal: lepic.SealState.on_,
@@ -188,7 +190,7 @@ class _Wallet implements lepic.EpicWallet {
   }) async {
     invoiceDrains++;
     if (drainError != null) throw _lepicError(drainError!);
-    return const lepic.ContactCollectReport(mailboxes: 1, messages: 0, paired: 0, unreachable: [], delivered: 0, failed: []);
+    return const lepic.ContactCollectReport(mailboxes: 1, messages: 0, paired: 0, unreachable: [], delivered: 0, failed: [], ended: []);
   }
 
   @override
