@@ -10,13 +10,22 @@
 /// - One flow (the owner): held → released (by the user here, a fallback or the device) →
 ///   confirmed by the chain, reachable from held or released. Once released, notices only add
 ///   details: nothing holds the coins again. Only this device's own chain check confirms
-///   ([HoldState.spent]), and nothing moves a confirmed payment back.
+///   ([HoldState.spent]), and nothing moves a payment its kernel confirmed back.
+/// - The kernel decides when it is known and this device could look it up ([KernelAnswers]):
+///   on chain → confirmed, at its block; not on chain while the coins are spent → the coins
+///   went into another payment ([HoldState.released], [replacedReason]); not on chain
+///   [holdKernelAbsentBlocks] after it was posted, coins unspent → timed out.
 /// - With no word from the device: past its cutoff height + [holdCutoffMargin] blocks, still
 ///   unspent → expired; posted [holdPostedBlocks] blocks ago and unspent → timed out; held
-///   [holdMaxAge] → timed out; its device removed → unlinked (after the chain check).
+///   [holdMaxAge] → timed out; its device removed → unlinked (after the chain check). A hold
+///   stored without the height it was posted at counts from when it changed, a block a minute.
+/// - Still held while a newer payment spent its coins → replaced: its device cancelled it.
 /// - Release by hand: always, this device only.
 library;
 
+import 'dart:math' show max, min;
+
+import '../models.dart' show KernelLocation;
 import '../scan/scan_router.dart' show cleanUntrustedText;
 import 'device_model.dart';
 
@@ -32,6 +41,45 @@ const Duration holdMaxAge = Duration(days: 7);
 
 /// The most payments one linked device may hold coins for at once; a notice past it is dropped.
 const int maxOpenHoldsPerDevice = 16;
+
+/// Blocks after a payment was posted before a kernel the chain does not hold, its coins still
+/// unspent, ends it here: about an hour at a block a minute. A posted payment is mined in the
+/// next block or two; one an hour late is one its node never relayed or the pool dropped, and
+/// the device that made it has said nothing. Should it be mined later all the same, its coins
+/// show spent and the same row comes back confirmed.
+const int holdKernelAbsentBlocks = 60;
+
+/// Epic's block time, for the heights a clock stands in for.
+const Duration blockTime = Duration(minutes: 1);
+
+/// The most change commitments a `send` notice names.
+const int maxNoticeChange = 16;
+
+/// This device's kernel lookups of one sweep: kernel excess → where the chain holds it, or
+/// null when it does not. A kernel missing from the map was not asked about, or the node
+/// could not be asked: nothing follows from it.
+typedef KernelAnswers = Map<String, KernelLocation?>;
+
+/// The chain's likely height at [t], [tip] being the height at [now], a block per [blockTime].
+int heightAt(DateTime t, {required int tip, required DateTime now}) {
+  final blocks = now.difference(t).inSeconds ~/ blockTime.inSeconds;
+  return max(0, tip - max(0, blocks));
+}
+
+/// The lowest height to look [h]'s kernel up from: below the block it was made in, with room
+/// for a clock that runs ahead and for blocks slower than a minute (a quarter of the time since,
+/// a day at least). A kernel below the floor would read as absent, so it errs low.
+int kernelFloor(HeldPayment h, {required int tip, required DateTime now}) {
+  final made = h.createdAt ?? h.lockedAt;
+  final from = min(heightAt(made, tip: tip, now: now), h.postedHeight ?? tip);
+  final lead = max(holdPostedBlocks, (now.difference(made).inSeconds ~/ blockTime.inSeconds) ~/ 4);
+  return max(1, from - lead);
+}
+
+/// Whether this device should look [h]'s kernel up: it is known, and either the payment is
+/// open or the chain confirmed it by its coins only, without a block.
+bool kernelWanted(HeldPayment h) =>
+    h.kernel != null && h.minedHeight == null && (h.state.holds || h.state == HoldState.spent);
 
 /// The hold a `send` notice from [deviceId] makes, or null when this wallet holds none of its
 /// [inputs] (then nothing is held). [own] is this wallet's unspent and locked commitments.
@@ -49,6 +97,11 @@ HeldPayment? holdFromSend({
   }.toList();
   if (inputs.isEmpty) return null;
   final created = body['createdAt'] as int?;
+  // Its change, when the notice names it: only commitments, and a few.
+  final change = [
+    for (final c in (body['change'] is List ? body['change'] as List : const []))
+      if (c is String && _commitment.hasMatch(c)) c,
+  ].take(maxNoticeChange).toList();
   return HeldPayment(
     deviceId: deviceId,
     deviceName: deviceName,
@@ -64,8 +117,11 @@ HeldPayment? holdFromSend({
     message: _plain(body['message']),
     cutoffHeight: body['cutoffHeight'] as int?,
     createdAt: created == null ? null : DateTime.fromMillisecondsSinceEpoch(created * 1000),
+    change: change,
   );
 }
+
+final _commitment = RegExp(r'^0[89][0-9a-f]{64}$');
 
 String? _plain(Object? text) => text == null ? null : cleanUntrustedText(text as String);
 
@@ -83,7 +139,17 @@ Set<String> spentFor(HeldPayment h, List<HeldPayment> holds, Set<String> spent) 
 }
 
 /// [h] after a `status` notice [state] at [height]. [spent]: commitments the chain shows spent.
-HeldPayment applyStatus(HeldPayment h, String state, {int? height, String? kernel, String? why, required Set<String> spent, required DateTime now}) {
+/// A `posted` without its height is taken at [tip], this device's height when it came.
+HeldPayment applyStatus(
+  HeldPayment h,
+  String state, {
+  int? height,
+  String? kernel,
+  String? why,
+  int? tip,
+  required Set<String> spent,
+  required DateTime now,
+}) {
   if (h.state == HoldState.spent) return h;
   // Released here: details only, the coins stay free until the chain decides.
   if (!h.state.holds) return state == 'finalized' || state == 'posted' ? h.copyWith(kernel: kernel, postedHeight: height) : h;
@@ -91,7 +157,7 @@ HeldPayment applyStatus(HeldPayment h, String state, {int? height, String? kerne
     case 'finalized':
       return h.copyWith(kernel: kernel, changedAt: now);
     case 'posted':
-      return h.copyWith(state: HoldState.posted, postedHeight: height ?? h.postedHeight, kernel: kernel, changedAt: now);
+      return h.copyWith(state: HoldState.posted, postedHeight: height ?? h.postedHeight ?? tip, kernel: kernel, changedAt: now);
     default:
       if (holdSpent(h, spent)) return h.copyWith(state: HoldState.spent, changedAt: now);
       return h.copyWith(state: HoldState.released, reason: state, why: state == 'failed' ? why : null, changedAt: now);
@@ -99,29 +165,62 @@ HeldPayment applyStatus(HeldPayment h, String state, {int? height, String? kerne
 }
 
 /// [holds] after the chain and the clock: spent ones become history, the fallbacks free the
-/// rest. [tip] is the chain height (null: unknown, height rules wait). Coins spent that a newer
-/// payment holds too are that payment's ([spentFor]).
-List<HeldPayment> sweepHolds(List<HeldPayment> holds, {required Set<String> spent, required int? tip, required DateTime now}) => [
+/// rest. [tip] is the chain height (null: unknown, height rules wait); [kernels] this sweep's
+/// kernel lookups. Coins spent that a newer payment holds too are that payment's ([spentFor]).
+List<HeldPayment> sweepHolds(
+  List<HeldPayment> holds, {
+  required Set<String> spent,
+  required int? tip,
+  required DateTime now,
+  KernelAnswers kernels = const {},
+}) => [
   for (final h in holds)
-    // Still held while a newer payment spent its coins: its end never came here; it expired.
-    if (h.state.holds && holdSpent(h, spent) && !holdSpent(h, spentFor(h, holds, spent)))
-      h.copyWith(state: HoldState.expired, changedAt: now)
+    // Still held while a newer payment spent its coins, its own kernel not found: its device
+    // cancelled it and used them again.
+    if (h.state.holds && holdSpent(h, spent) && !holdSpent(h, spentFor(h, holds, spent)) && kernels[h.kernel] == null)
+      h.copyWith(state: HoldState.released, reason: replacedReason, changedAt: now)
     else
-      sweepHold(h, spent: spentFor(h, holds, spent), tip: tip, now: now),
+      sweepHold(h, spent: spentFor(h, holds, spent), tip: tip, now: now, kernels: kernels),
 ];
 
-HeldPayment sweepHold(HeldPayment h, {required Set<String> spent, required int? tip, required DateTime now}) {
-  if (h.state == HoldState.spent) return h;
+HeldPayment sweepHold(
+  HeldPayment h, {
+  required Set<String> spent,
+  required int? tip,
+  required DateTime now,
+  KernelAnswers kernels = const {},
+}) {
+  final kernel = h.kernel;
+  final asked = kernel != null && kernels.containsKey(kernel);
+  final mined = asked ? kernels[kernel] : null;
+  // Its kernel is on chain: the payment is, at that block, whatever was said or done here.
+  if (mined != null) {
+    if (h.state == HoldState.spent && h.minedHeight == mined.height) return h;
+    return h.copyWith(state: HoldState.spent, minedHeight: mined.height, changedAt: h.state == HoldState.spent ? null : now);
+  }
+  // Its coins are spent and its kernel is not on chain: another payment spent them.
+  if (asked && h.minedHeight == null && (h.state == HoldState.spent || holdSpent(h, spent))) {
+    return h.copyWith(state: HoldState.released, reason: replacedReason, changedAt: now);
+  }
+  if (h.state == HoldState.spent || h.replaced) return h;
   // The chain confirms from held or released alike: coins freed here and then spent are still
   // that device's payment.
   if (holdSpent(h, spent)) return h.copyWith(state: HoldState.spent, changedAt: now);
-  if (!h.state.holds) return h;
+  if (!h.state.holds || tip == null) {
+    return h.state.holds && now.difference(h.lockedAt) >= holdMaxAge ? h.copyWith(state: HoldState.timedOut, changedAt: now) : h;
+  }
+  // A height for the post: as it was told, or, for a hold stored without one, from when it
+  // last changed.
+  final posted = h.postedHeight ?? (h.state == HoldState.posted ? heightAt(h.changedAt ?? h.lockedAt, tip: tip, now: now) : null);
+  // Posted and not mined: finalized only, it may still be posted by a device that is online.
+  if (asked && h.state == HoldState.posted && posted != null && tip >= posted + holdKernelAbsentBlocks) {
+    return h.copyWith(state: HoldState.timedOut, changedAt: now);
+  }
   final cutoff = h.cutoffHeight;
-  if (tip != null && h.state == HoldState.held && cutoff != null && tip > cutoff + holdCutoffMargin) {
+  if (h.state == HoldState.held && cutoff != null && tip > cutoff + holdCutoffMargin) {
     return h.copyWith(state: HoldState.expired, changedAt: now);
   }
-  final posted = h.postedHeight;
-  if (tip != null && h.state == HoldState.posted && posted != null && tip >= posted + holdPostedBlocks) {
+  if (h.state == HoldState.posted && posted != null && tip >= posted + holdPostedBlocks) {
     return h.copyWith(state: HoldState.timedOut, changedAt: now);
   }
   if (now.difference(h.lockedAt) >= holdMaxAge) return h.copyWith(state: HoldState.timedOut, changedAt: now);

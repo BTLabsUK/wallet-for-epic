@@ -327,7 +327,8 @@ class Tx {
   final String? deviceWhy;
 
   /// For an [otherWallet] receive: the linked device that received these coins of this wallet
-  /// (a payment, or its send's change); the row reads "Received on `<device>`".
+  /// (a payment its `recv` notice named); the row reads "Received on `<device>`". The change of
+  /// its sends is part of their rows, never a receive.
   final String? receivedOn;
 
   /// The row's stable key as the core names it (`s:<slate>`, `k:<kernel>`, `c:<commitment>`,

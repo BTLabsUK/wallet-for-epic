@@ -1075,6 +1075,11 @@ class RemoteWalletSession implements WalletSession {
   @override
   Set<String> heldOutputs = const {};
 
+  // Nor do they look kernels up over it.
+  @override
+  Future<KernelLocation?> kernelOnChain(String excessHex, {int? minHeight}) =>
+      Future.error(UnsupportedError('kernelOnChain over the remote wallet'));
+
   @override
   Future<List<WalletOutput>> outputs() =>
       _call(SessionMember.outputs, listOf(walletOutputWire));

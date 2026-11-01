@@ -600,6 +600,10 @@ class GatedWalletSession implements WalletSession {
   set heldOutputs(Set<String> commitments) => _inner.heldOutputs = commitments;
 
   @override
+  Future<KernelLocation?> kernelOnChain(String excessHex, {int? minHeight}) =>
+      _inner.kernelOnChain(excessHex, minHeight: minHeight);
+
+  @override
   Future<List<WalletOutput>> outputs() => _inner.outputs();
 
   @override

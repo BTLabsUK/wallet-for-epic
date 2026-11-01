@@ -558,6 +558,13 @@ abstract interface class WalletSession {
   Set<String> get heldOutputs;
   set heldOutputs(Set<String> commitments);
 
+  /// Where the node's chain holds the kernel with excess [excessHex] (66 hex characters),
+  /// looked up from [minHeight] (the core keeps it between one and the tip) to the tip; null
+  /// when the chain does not hold it. Read only: for the payments a linked device makes with
+  /// this wallet's coins (`devices/`). Throws when the node cannot be asked (offline, Kill
+  /// switch, a core without the call): the answer is unknown, not "absent".
+  Future<KernelLocation?> kernelOnChain(String excessHex, {int? minHeight});
+
   // Outputs. A split and a consolidate are normal network transactions to the wallet
   // itself, never through its Epicbox address; each spends every output with
   // [minimumConfirmations], so the whole balance is locked until it confirms.
@@ -2523,6 +2530,23 @@ class FakeWalletSession implements WalletSession {
 
   @override
   Set<String> heldOutputs = const {};
+
+  /// The kernels the fake chain holds: excess → where ([kernelOnChain]).
+  Map<String, KernelLocation> kernelsOnChain = {};
+
+  /// False: [kernelOnChain] fails as a node that cannot be asked does.
+  bool kernelLookupWorks = true;
+
+  /// Every [kernelOnChain] call: the excess and the lowest height asked from.
+  final List<(String, int?)> kernelLookups = [];
+
+  @override
+  Future<KernelLocation?> kernelOnChain(String excessHex, {int? minHeight}) async {
+    kernelLookups.add((excessHex, minHeight));
+    if (!kernelLookupWorks) throw const WalletError(kind: WalletErrorKind.nodeUnreachable, message: 'node not reached');
+    final k = kernelsOnChain[excessHex];
+    return k == null || (minHeight != null && k.height < minHeight) ? null : k;
+  }
 
   /// What [heldOutputs] takes from the spendable balance: the held coins among [outputsValue].
   BigInt get _heldSpendable => outputsValue

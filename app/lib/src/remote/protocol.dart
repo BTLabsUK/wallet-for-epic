@@ -166,6 +166,7 @@ const Set<String> localSessionMembers = {
   // Linked devices are not offered through the remote protocol: no coins are held here;
   // answered by the client.
   'heldOutputs',
+  'kernelOnChain',
   'supportsRequestFiles',
   // Reach other computers or open a port on the server; refused by the client.
   'sendHttp',

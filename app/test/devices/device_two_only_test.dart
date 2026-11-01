@@ -242,7 +242,7 @@ void main() {
       fakeTx(id: 5, slateId: 'in-1', kind: TxKind.received, status: TxStatus.awaitingConfirmation, amountCredited: BigInt.from(2800000), outputCommits: [cm(30)]),
     ];
     await settle(a, b);
-    // The change of a payment it told about: its kernel is the hold's.
+    // The change of a payment it told about: its kernel is the hold's, so it is that payment's.
     _send(a, 'pay-1');
     await settle(a, b);
     a.session.transactionsValue = [
@@ -251,7 +251,8 @@ void main() {
     await settle(a, b);
     final rows = mergeDeviceHistory([credit(11, 30), credit(12, 31), credit(13, 32, kernel: '09${'ab' * 32}')], b.service.book);
     expect(rows.firstWhere((r) => r.id == 11).deviceName, 'Desktop', reason: 'an output its recv named');
-    expect(rows.firstWhere((r) => r.id == 13).deviceName, 'Desktop', reason: 'the change of a known hold');
+    expect(rows.where((r) => r.id == 13), isEmpty, reason: 'the change of a known hold is no receive');
+    expect(rows.singleWhere((r) => r.slateId == 'pay-1').outputCommits, [cm(32)], reason: 'it is part of the payment');
     expect(rows.firstWhere((r) => r.id == 12).deviceName, isNull, reason: 'anything else: received by another device');
   });
 }

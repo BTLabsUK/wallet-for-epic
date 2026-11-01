@@ -3,6 +3,7 @@
 // the chain deciding, and each fallback when no word comes.
 import 'package:epic_wallet/src/devices/device_locks.dart';
 import 'package:epic_wallet/src/devices/device_model.dart';
+import 'package:epic_wallet/src/models.dart' show DeviceEnding, KernelLocation;
 import 'package:flutter_test/flutter_test.dart';
 
 String _c(int i) => '08${i.toRadixString(16).padLeft(64, '0')}';
@@ -124,6 +125,65 @@ void main() {
     });
   });
 
+  group('the kernel, when this device could look it up', () {
+    final k = '09${'5' * 64}';
+    HeldPayment posted({int? at = 2000}) => HeldPayment(
+      deviceId: 'd' * 32,
+      slateId: 'slate-1',
+      commitments: [_c(1)],
+      amount: BigInt.one,
+      lockedAt: _t0,
+      changedAt: _t0,
+      state: HoldState.posted,
+      postedHeight: at,
+      kernel: k,
+    );
+
+    test('on chain: confirmed at its block, from any state but replaced', () {
+      final found = {k: const KernelLocation(height: 2001, mmrIndex: 9)};
+      for (final h in [posted(), posted().copyWith(state: HoldState.timedOut), posted().copyWith(state: HoldState.spent)]) {
+        final out = sweepHold(h, spent: const {}, tip: 2002, now: _t0, kernels: found);
+        expect(out.state, HoldState.spent);
+        expect(out.minedHeight, 2001);
+      }
+    });
+
+    test('off chain, coins unspent: ends only 60 blocks after the post', () {
+      final absent = <String, KernelLocation?>{k: null};
+      expect(sweepHold(posted(), spent: const {}, tip: 2000 + holdKernelAbsentBlocks - 1, now: _t0, kernels: absent).state, HoldState.posted);
+      expect(sweepHold(posted(), spent: const {}, tip: 2000 + holdKernelAbsentBlocks, now: _t0, kernels: absent).state, HoldState.timedOut);
+      // Not asked, or the node could not be asked: nothing follows.
+      expect(sweepHold(posted(), spent: const {}, tip: 2000 + holdKernelAbsentBlocks, now: _t0).state, HoldState.posted);
+      // Finalized and not posted: it may still be posted elsewhere.
+      final finalized = posted(at: null).copyWith(state: HoldState.held);
+      expect(sweepHold(finalized, spent: const {}, tip: 9000, now: _t0, kernels: absent).state, HoldState.held);
+    });
+
+    test('off chain while its coins are spent: another payment took them', () {
+      final out = sweepHold(posted(), spent: {_c(1)}, tip: 2002, now: _t0, kernels: {k: null});
+      expect(out.replaced, isTrue);
+      expect(sweepHold(out, spent: {_c(1)}, tip: 2003, now: _t0).state, HoldState.released, reason: 'the coins alone never make it its spend again');
+    });
+
+    test('posted with no height, as 26.10.24 stored it: counted from when it changed', () {
+      final old = posted(at: null);
+      expect(sweepHold(old, spent: const {}, tip: 5000, now: _t0.add(const Duration(minutes: 59)), kernels: {k: null}).state, HoldState.posted);
+      expect(sweepHold(old, spent: const {}, tip: 5000, now: _t0.add(const Duration(hours: 1)), kernels: {k: null}).state, HoldState.timedOut);
+      expect(sweepHold(old, spent: const {}, tip: 5000, now: _t0.add(const Duration(hours: 23, minutes: 59))).state, HoldState.posted);
+      expect(sweepHold(old, spent: const {}, tip: 5000, now: _t0.add(const Duration(days: 1))).state, HoldState.timedOut);
+    });
+
+    test('a posted notice without a height counts from this device height', () {
+      expect(applyStatus(_hold(), 'posted', tip: 1234, spent: const {}, now: _t0).postedHeight, 1234);
+      expect(applyStatus(_hold(), 'posted', height: 1200, tip: 1234, spent: const {}, now: _t0).postedHeight, 1200);
+    });
+
+    test('the lookup starts at least a day below the block it was made in', () {
+      expect(kernelFloor(posted(), tip: 5000, now: _t0.add(const Duration(minutes: 10))), 2000 - holdPostedBlocks);
+      expect(kernelFloor(posted(), tip: 100, now: _t0), 1);
+    });
+  });
+
   group('a coin freed by one payment and taken by the next', () {
     // Seen live on floonet: the device cancels a send, the next send takes the same coin and is
     // mined. The spend is the second payment's; the first stays as it ended.
@@ -142,10 +202,12 @@ void main() {
       expect(applyStatus(stillHeld, 'cancelled', spent: spent, now: _t0).state, HoldState.released);
     });
 
-    test('an older payment still held when the newer one spent the coin expired', () {
+    test('an older payment still held when the newer one spent the coin was replaced: cancelled on its device', () {
       final stillHeld = HeldPayment(deviceId: 'd' * 32, slateId: 'first', commitments: [_c(1)], amount: BigInt.one, lockedAt: _t0);
       final out = sweepHolds([stillHeld, second], spent: {_c(1)}, tip: 10, now: _t0);
-      expect(out.map((h) => h.state), [HoldState.expired, HoldState.spent]);
+      expect(out.map((h) => h.state), [HoldState.released, HoldState.spent]);
+      expect(out.first.replaced, isTrue);
+      expect(out.first.ending, DeviceEnding.cancelled);
     });
 
     test('with no newer payment, a late landing still confirms the older one', () {
