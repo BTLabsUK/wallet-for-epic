@@ -270,6 +270,15 @@ enum OutputCategory {
   unpaidInvoice,
 }
 
+/// Where the node's chain holds a transaction kernel ([WalletSession.kernelOnChain]).
+class KernelLocation {
+  const KernelLocation({required this.height, required this.mmrIndex});
+
+  /// The block the kernel was mined in.
+  final int height;
+  final int mmrIndex;
+}
+
 /// One output (coin) of the wallet, from [WalletSession.outputs].
 class WalletOutput {
   /// The Pedersen commitment, 66 lowercase hex characters.
