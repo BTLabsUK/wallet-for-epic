@@ -185,7 +185,8 @@ class _PeersTabState extends ConsumerState<PeersTab> {
           ? Text(text, textAlign: align, style: ts.caption.copyWith(color: c.faint, fontWeight: FontWeight.w600))
           : Row(
               children: [
-                Flexible(child: Text(text, overflow: TextOverflow.ellipsis, style: ts.caption.copyWith(color: c.faint, fontWeight: FontWeight.w600))),
+                // Wraps rather than cut: a column name is read whole ("First seen").
+                Flexible(child: Text(text, style: ts.caption.copyWith(color: c.faint, fontWeight: FontWeight.w600))),
                 SizedBox(width: Sp.x1),
                 EInfoHint(hint, onHelp: localNodeHelp(ref)),
               ],
@@ -216,7 +217,7 @@ class _PeersTabState extends ConsumerState<PeersTab> {
                 cell(peerVersion(p.peer.userAgent), 70.u, mono: true),
                 cell(digits(context.l10n, p.peer.height), 90.u, mono: true, align: TextAlign.right),
                 SizedBox(width: Sp.x3),
-                cell(p.firstSeen == null ? '–' : hhmm(p.firstSeen!), 80.u),
+                cell(p.firstSeen == null ? '–' : hhmm(p.firstSeen!), _firstSeenW),
                 SizedBox(
                   width: 70.u,
                   child: Align(
@@ -247,7 +248,7 @@ class _PeersTabState extends ConsumerState<PeersTab> {
               head(l.deskSetPeersColVersion, 70.u),
               head(l.deskSetPeersColHeight, 90.u, align: TextAlign.right),
               SizedBox(width: Sp.x3),
-              head(l.deskSetPeersColFirstSeen, 80.u, hint: l.deskSetPeersFirstSeenHint),
+              head(l.deskSetPeersColFirstSeen, _firstSeenW, hint: l.deskSetPeersFirstSeenHint),
               SizedBox(width: 70.u),
             ],
           ),
@@ -415,3 +416,6 @@ class _PeersTabState extends ConsumerState<PeersTab> {
     );
   }
 }
+
+/// The First seen column: its name and the ⓘ beside it whole at the reference widths.
+double get _firstSeenW => 104.u;

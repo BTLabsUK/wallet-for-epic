@@ -805,15 +805,15 @@ class NodeTile extends StatelessWidget {
           children: [
             Text(label, style: ts.caption.copyWith(color: c.faint)),
             SizedBox(height: 2.u),
-            Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(text: value, style: ts.body.copyWith(fontSize: 15.u, fontWeight: FontWeight.w500, fontFeatures: const [FontFeature.tabularFigures()])),
-                  if (suffix != null) TextSpan(text: '  $suffix', style: ts.caption.copyWith(color: c.dim)),
-                ],
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            // The suffix goes under the value when both do not fit: never cut ("+300 MB this
+            // session").
+            Wrap(
+              spacing: Sp.x2,
+              crossAxisAlignment: WrapCrossAlignment.end,
+              children: [
+                Text(value, style: ts.body.copyWith(fontSize: 15.u, fontWeight: FontWeight.w500, fontFeatures: const [FontFeature.tabularFigures()])),
+                if (suffix != null) Text(suffix!, style: ts.caption.copyWith(color: c.dim)),
+              ],
             ),
             SizedBox(height: Sp.x2),
             SizedBox(height: chart ?? 32.u, width: double.infinity, child: CustomPaint(painter: Sparkline(series, c.accent))),
