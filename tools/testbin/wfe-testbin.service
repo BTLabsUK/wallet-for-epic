@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: Apache-2.0
+# Keeps the shared test binaries of main built (tools/testbin/testbin.py refresh), started by
+# wfe-testbin.timer. Skips while a tools/rel run holds its lock or another build holds the store.
+# Installed by tools/testbin/install.sh; runs the installed copy, never a worktree's.
+[Unit]
+Description=Epic Wallet test binaries of main
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 %h/.local/lib/wfe-testbin/testbin.py refresh
+TimeoutStartSec=3h
+Nice=10
