@@ -22,6 +22,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../state_language.dart' show ShownState, serverHealthState;
 import '../connection_state.dart' show walletStatusProvider;
 import '../errors.dart';
+import '../text_join.dart';
 import '../l10n.dart';
 import '../network.dart';
 import '../node_failover_phone.dart';
@@ -1324,9 +1325,9 @@ class _Facts extends StatelessWidget {
       TextSpan(
         children: [
           for (var i = 0; i < facts.length; i++) ...[
-            if (i > 0) const TextSpan(text: _factSeparator),
+            if (i > 0) const TextSpan(text: metaSeparator),
             TextSpan(
-              text: _whole(facts[i]),
+              text: keepWhole(facts[i].trim()),
               style: tip != null && facts[i] == tip!.text
                   ? TextStyle(color: tip!.color, fontFamily: t.monoFamily)
                   : facts[i] == l.serverNotResponding || facts[i] == l.serverLocalNotReachablePhone
@@ -1347,13 +1348,6 @@ class _Facts extends StatelessWidget {
     );
   }
 }
-
-// Facts on a line break only after a separator, never inside a fact. The same rule as
-// metaLine(parts, whole: true) on polish/numbers (text_join.dart), which replaces these.
-const String _factSeparator = '\u00A0· ';
-
-/// [fact] with its spaces no-break, so a line never breaks inside it.
-String _whole(String fact) => fact.trim().replaceAll(' ', '\u00A0');
 
 // The tile.
 
@@ -1738,7 +1732,7 @@ class _CurrentNodeFactsState extends ConsumerState<_CurrentNodeFacts> {
           ],
           if (network.isNotEmpty) ...[
             const SizedBox(height: 12),
-            Text(network.map(_whole).join(_factSeparator), style: small),
+            Text(metaLine(network, whole: true), style: small),
           ],
           if (checked != null)
             Text(l.serverCheckedAt(localClock(l, checked.toLocal()), statusSiteHost), style: small),
