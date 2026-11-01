@@ -4306,6 +4306,12 @@ class AppLocalizationsTh extends AppLocalizations {
   String get netStatusNotConnected => 'ไม่ได้เชื่อมต่อ';
 
   @override
+  String get stateReceiving => 'กำลังรับ';
+
+  @override
+  String get stateUnchecked => 'ยังไม่ได้ตรวจ';
+
+  @override
   String get serverUpNotConnected => 'เซิร์ฟเวอร์ทำงาน · ไม่ได้เชื่อมต่อ';
 
   @override
@@ -17728,6 +17734,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String lvPayConfirmingOf(int count, int target) {
+    return 'กำลังยืนยัน $count จาก $target';
+  }
+
+  @override
   String lvPaySigned(String name) {
     return '$name เซ็นแล้ว';
   }
@@ -18276,4 +18287,13 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'กำลังหยุด';
+
+  @override
+  String get deskLvPayOnEpicbox => 'อยู่บน Epicbox';
+
+  @override
+  String get deskRailReceivingInternet => 'กำลังรับ · อินเทอร์เน็ต';
+
+  @override
+  String get deskRailReceivingLocal => 'กำลังรับ · ในเครื่อง';
 }

@@ -363,7 +363,7 @@ void main() {
         final dot = tester.getRect(
           find.descendant(
             of: find.byKey(key),
-            matching: find.byType(Container),
+            matching: find.byType(StateDot),
           ),
         );
         expect(dot.size, const Size(statusDotSize, statusDotSize));
@@ -410,7 +410,7 @@ void main() {
         listener: _lost,
       );
       final t = _tokens(tester);
-      expect(_label(tester, nodeStatusKey), 'Node, Offline');
+      expect(_label(tester, nodeStatusKey), 'Node, Not answering');
       expect(_icon(tester, nodeStatusKey), Icons.cloud_off);
       expect(_dot(tester, nodeStatusKey), t.risk);
       expect(_tip_(tester, nodeStatusKey), startsWith('Node unreachable.'));
@@ -507,7 +507,7 @@ void main() {
     ) async {
       await _pump(tester, tor: _torStarting);
       final t = _tokens(tester);
-      expect(_label(tester, torIconKey), 'Tor, Starting…');
+      expect(_label(tester, torIconKey), 'Tor, Starting');
       expect(_icon(tester, torIconKey), torIcon);
       expect(_dot(tester, torIconKey), t.info);
       expect(_tip_(tester, torIconKey), 'Connecting to Tor… 40%');
@@ -534,9 +534,9 @@ void main() {
     ) async {
       await _pump(tester, tor: _torReady);
       final t = _tokens(tester);
-      expect(_label(tester, torIconKey), 'Tor, On');
+      expect(_label(tester, torIconKey), 'Tor, Connected');
       expect(_dot(tester, torIconKey), t.ok);
-      expect(_tip_(tester, torIconKey), 'On');
+      expect(_tip_(tester, torIconKey), 'Connected');
       expect(_label(tester, directIconKey), 'Link, Reachable');
       expect(_icon(tester, directIconKey), EpicGlyphs.link);
       expect(_dot(tester, directIconKey), t.ok);
@@ -803,7 +803,7 @@ void main() {
         listener: _lost,
       );
       final t = tokens(tester);
-      expect(_label(tester, barNodeIconKey), 'Node, Offline');
+      expect(_label(tester, barNodeIconKey), 'Node, Not answering');
       expect(_dot(tester, barNodeIconKey), t.risk);
       expect(_label(tester, barEpicboxIconKey), 'Epicbox, Not connected');
       expect(_dot(tester, barEpicboxIconKey), t.risk);
@@ -811,7 +811,7 @@ void main() {
 
     testWidgets('Tor on: its icon lights up', (tester) async {
       await _pump(tester, child: header(), tor: _torReady);
-      expect(_label(tester, barTorIconKey), 'Tor, On');
+      expect(_label(tester, barTorIconKey), 'Tor, Connected');
       expect(_dot(tester, barTorIconKey), tokens(tester).ok);
     });
 

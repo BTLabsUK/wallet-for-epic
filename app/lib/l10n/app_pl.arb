@@ -1152,6 +1152,8 @@
   "netStatusOff": "Wyłączony",
   "netStatusConnected": "Połączono",
   "netStatusNotConnected": "Brak połączenia",
+  "stateReceiving": "Odbiera",
+  "stateUnchecked": "Nie sprawdzono",
   "serverUpNotConnected": "Serwer działa · brak połączenia",
   "netStatusOn": "Włączony",
   "netStatusTitle": "Stan sieci",
@@ -4716,6 +4718,7 @@
   "lvPickEpicboxOk": "Epicbox OK",
   "lvPayArriving": "W drodze",
   "lvPayConfirming": "Potwierdzanie {count} z {target}",
+  "lvPayConfirmingOf": "Potwierdzanie {count} z {target}",
   "lvPaySigned": "{name} podpisał(a)",
   "lvPaySendQrLink": "Oba telefony obok? Płatność QR",
   "lvPaySendAddressLink": "Wyślij raczej na adres",
@@ -4864,5 +4867,8 @@
   "deskNodeSwitchConnecting": "Łączenie z {host}…",
   "deskNodeSwitchStarting": "Uruchamianie węzła lokalnego…",
   "deskNodeSwitchStopping": "Zatrzymywanie węzła lokalnego…",
-  "deskNodeSwitchStoppingWord": "Zatrzymywanie"
+  "deskNodeSwitchStoppingWord": "Zatrzymywanie",
+  "deskLvPayOnEpicbox": "Na Epicbox",
+  "deskRailReceivingInternet": "Odbiera · internet",
+  "deskRailReceivingLocal": "Odbiera · lokalnie"
 }

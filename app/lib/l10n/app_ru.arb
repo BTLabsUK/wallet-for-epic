@@ -1152,6 +1152,8 @@
   "netStatusOff": "Выключен",
   "netStatusConnected": "Подключено",
   "netStatusNotConnected": "Нет подключения",
+  "stateReceiving": "Принимает",
+  "stateUnchecked": "Не проверен",
   "serverUpNotConnected": "Сервер работает · нет подключения",
   "netStatusOn": "Включён",
   "netStatusTitle": "Состояние сети",
@@ -4716,6 +4718,7 @@
   "lvPickEpicboxOk": "Epicbox OK",
   "lvPayArriving": "Поступает",
   "lvPayConfirming": "Подтверждение {count} из {target}",
+  "lvPayConfirmingOf": "Подтверждение {count} из {target}",
   "lvPaySigned": "{name} подписал(а)",
   "lvPaySendQrLink": "Оба телефона рядом? QR-платёж",
   "lvPaySendAddressLink": "Отправить на адрес",
@@ -4864,5 +4867,8 @@
   "deskNodeSwitchConnecting": "Подключение к {host}…",
   "deskNodeSwitchStarting": "Запуск локального узла…",
   "deskNodeSwitchStopping": "Остановка локального узла…",
-  "deskNodeSwitchStoppingWord": "Остановка"
+  "deskNodeSwitchStoppingWord": "Остановка",
+  "deskLvPayOnEpicbox": "На Epicbox",
+  "deskRailReceivingInternet": "Принимает · интернет",
+  "deskRailReceivingLocal": "Принимает · локально"
 }

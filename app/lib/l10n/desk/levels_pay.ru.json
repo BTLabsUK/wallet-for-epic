@@ -1,6 +1,7 @@
 {
   "deskLvPayS1Sent": "Слейт S1 отправлен через Epicbox · ожидается S2",
   "deskLvPayS1On": "S1 на {relay} · ожидается S2",
+  "deskLvPayOnEpicbox": "На Epicbox",
   "deskLvPayNotOpen": "Кошелёк {name} ещё не открыт",
   "deskLvPayWaitingOpen": "Ожидание, пока откроется кошелёк {name}",
   "deskLvPaySenderFinished": "Отправитель закончил",

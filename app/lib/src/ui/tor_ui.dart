@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'status_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../state_language.dart' show ShownState, torShownState;
+import 'status.dart' show toneColor;
 import '../l10n.dart';
 import '../phone_tor.dart';
 import '../tor_phone.dart';
@@ -120,27 +122,16 @@ torStatusOf(AppLocalizations l, WalletTokens t, PhoneTorState state) {
   };
 }
 
-/// The Tor switch's state in one word, the same everywhere: Off, Starting…, On, Not
-/// connected.
-String torWord(AppLocalizations l, TorState state) => switch (state) {
-  TorState.off => l.netStatusOff,
-  TorState.starting => l.torWordStarting,
-  TorState.on => l.netStatusOn,
-  TorState.failed => l.torWordNotConnected,
-};
+/// Tor's state in one word, the same everywhere and on both apps ([torShownState]): Off,
+/// Starting, Connected, Not connected.
+String torWord(AppLocalizations l, TorState state) => torShownState(state).word(l);
 
-/// The colour of [torWord]: faint when off, dim while starting, ok when on, risk when not
-/// connected.
-Color torWordColor(WalletTokens t, TorState state) => switch (state) {
-  TorState.off => t.faint,
-  TorState.starting => t.dim,
-  TorState.on => t.ok,
-  TorState.failed => t.risk,
-};
+/// The colour of [torWord]: its state's tone ([toneColor]).
+Color torWordColor(WalletTokens t, TorState state) => toneColor(t, torShownState(state).tone);
 
 /// Settings › Privacy's one Tor switch: the phone's per-wallet switch ([PhoneTor.setReceiving]).
 /// The row is the label "Tor network" with the explanation behind its info icon; its line
-/// shows only a state that needs saying: "Starting…", or "Not connected" with Retry.
+/// shows only a state that needs saying: "Starting", or "Not connected" with Retry.
 /// No confirmation and no other change: Tor on routes, nothing the user chose moves.
 class TorSwitchTile extends ConsumerWidget {
   const TorSwitchTile({super.key});
@@ -178,7 +169,7 @@ class TorSwitchTile extends ConsumerWidget {
           liveRegion: true,
           container: true,
           child: Text(
-            failed ? l.torWordNotConnected : l.torWordStarting,
+            failed ? l.torWordNotConnected : ShownState.starting.word(l),
             style: failed
                 ? theme.textTheme.bodyMedium?.copyWith(color: t.risk)
                 : null,

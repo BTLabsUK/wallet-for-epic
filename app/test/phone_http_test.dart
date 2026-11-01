@@ -230,7 +230,7 @@ void main() {
     await h.pump(tester);
     expect(h.session.httpListenerStarts, [(exposure: HttpExposure.internet, port: phoneHttpPort)]);
     expect(h.http.phase, PhoneHttpPhase.starting);
-    expect(find.text('Starting…'), findsOneWidget);
+    expect(find.text('Starting'), findsOneWidget);
 
     await h.emit(tester, HttpListenerEventKind.started, port: 3415);
     expect(h.http.phase, PhoneHttpPhase.listening);

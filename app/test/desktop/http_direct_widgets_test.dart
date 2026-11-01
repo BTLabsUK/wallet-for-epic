@@ -93,7 +93,7 @@ void main() {
     // `show` turns the Link methods on (advancedOn): Link · HTTP on means the listener runs.
     testWidgets('Link · HTTP on: the listener runs local only, its group shows the state with no second switch; off takes the group away', (tester) async {
       await show(tester, const SettingsReceivingScreen());
-      expect(httpState(tester), 'On · this computer only (127.0.0.1)');
+      expect(httpState(tester), 'Receiving · this computer only (127.0.0.1)');
       expect(find.byKey(const ValueKey('st-switch-http')), findsNothing, reason: 'no second HTTP switch');
       expect(find.byKey(const ValueKey('st-autostart-http')), findsNothing);
       expect(find.text('http://127.0.0.1:3415'), findsNothing, reason: 'the address lives on Receive');
@@ -118,7 +118,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(InternetGuide), findsNothing);
       expect(container.read(deskProvider).settings.publicMode, isTrue);
-      expect(httpState(tester), 'On · from the internet, port 3415');
+      expect(httpState(tester), 'Receiving · from the internet, port 3415');
       expect(find.textContaining('must forward TCP 3415'), findsOneWidget);
     });
 

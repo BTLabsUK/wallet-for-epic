@@ -6,10 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../demo.dart' show devNetworksOf;
 
 import '../connection_state.dart';
+import '../state_language.dart';
 import '../l10n.dart';
 import '../network.dart';
 import '../providers.dart';
 import '../wallet_service.dart';
+import 'state_mark.dart' show StateMarkDot;
 import 'tip.dart';
 import 'common.dart' show groupDigits;
 import 'theme/tokens.dart';
@@ -334,8 +336,10 @@ class _PulseState extends State<Pulse> with SingleTickerProviderStateMixin {
 }
 
 /// The colour of a status's state dot: the service works (green), is busy connecting, syncing
-/// or waiting (blue, in progress), does not work (red), needs the user's answer (amber: the
-/// level-1 relay offer), or is off (faint). Never the accent.
+/// or waiting, or nothing is known yet (blue, in progress), does not work (red), works but is
+/// degraded or needs the user's answer (amber: behind, the level-1 relay offer), or is off
+/// (faint, slashed). Never the accent. The phone's name for the shared [StateTone]
+/// (state_language.dart): a [ShownState] gives its word and its dot.
 enum StatusDot {
   ok,
   busy,
@@ -343,13 +347,77 @@ enum StatusDot {
   warn,
   off;
 
-  Color color(WalletTokens t) => switch (this) {
-    StatusDot.ok => t.ok,
-    StatusDot.busy => t.info,
-    StatusDot.bad => t.risk,
-    StatusDot.warn => t.warn,
-    StatusDot.off => t.faint,
+  Color color(WalletTokens t) => toneColor(t, tone);
+
+  /// The shared tone of this dot.
+  StateTone get tone => switch (this) {
+    StatusDot.ok => StateTone.ok,
+    StatusDot.busy => StateTone.info,
+    StatusDot.bad => StateTone.risk,
+    StatusDot.warn => StateTone.warn,
+    StatusDot.off => StateTone.faint,
   };
+
+  /// The dot's shape.
+  StateMark get mark => tone.mark;
+
+  /// The phone's dot of a shared [StateTone].
+  static StatusDot ofTone(StateTone t) => switch (t) {
+    StateTone.ok => StatusDot.ok,
+    StateTone.info => StatusDot.busy,
+    StateTone.warn => StatusDot.warn,
+    StateTone.risk => StatusDot.bad,
+    StateTone.faint => StatusDot.off,
+  };
+
+  /// The phone's dot of a [ShownState]: its word is [ShownState.word].
+  static StatusDot of(ShownState s) => ofTone(s.tone);
+}
+
+/// A [StateTone]'s colour in the phone's tokens: ok green, info blue, warn amber, risk red,
+/// faint grey. Never the accent.
+Color toneColor(WalletTokens t, StateTone tone) => switch (tone) {
+  StateTone.ok => t.ok,
+  StateTone.info => t.info,
+  StateTone.warn => t.warn,
+  StateTone.risk => t.risk,
+  StateTone.faint => t.faint,
+};
+
+/// A result's tile, as the desktop's result cards (`ResultGlyph`): one 52 dp rounded square
+/// per outcome, [icon] in its state [tone] on that tone's soft ground: done a green check,
+/// waiting a blue hourglass, a problem red. Never a bare glyph, never the accent.
+class ResultTile extends StatelessWidget {
+  const ResultTile({super.key, required this.icon, required this.tone});
+
+  /// The tile of an outcome still under way: the hourglass in blue.
+  const ResultTile.waiting({super.key}) : icon = Icons.hourglass_empty, tone = StateTone.info;
+
+  final IconData icon;
+  final StateTone tone;
+
+  /// The tile's side.
+  static const double size = 52;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = context.tokens;
+    final ground = switch (tone) {
+      StateTone.ok => t.okSoft,
+      StateTone.info => t.infoSoft,
+      StateTone.warn => t.warnSoft,
+      StateTone.risk => t.riskSoft,
+      StateTone.faint => t.surfaceHi,
+    };
+    return ExcludeSemantics(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(color: ground, borderRadius: BorderRadius.circular(t.radiusSmall)),
+        child: Icon(icon, size: 28, color: tone == StateTone.faint ? t.dim : toneColor(t, tone)),
+      ),
+    );
+  }
 }
 
 /// The diameter of the state mark at a status glyph's bottom right, ring included.
@@ -473,9 +541,11 @@ class StatusGlyph extends StatelessWidget {
 /// and the same for the slash over it.
 Color offGlyphColor(WalletTokens t) => t.faint.withValues(alpha: 0.55);
 
-/// The state mark at a status glyph's corner, [size] across with the page-colour [ring]: a
-/// solid green dot for ok, a blue ring for work in progress, red with "!" for a problem. Off
-/// is drawn by [StatusGlyph] as the faint glyph with an [OffSlash] instead.
+/// The state mark at a status glyph's corner, [size] across with the page-colour [ring]: the
+/// shared [StateMark] ([StateMarkDot]): a solid green dot for ok, a blue ring for work in
+/// progress or a state not known yet, a dot with "!" for a problem (red, amber while it still
+/// works), a slashed ring for off. Beside a glyph, [StatusGlyph] draws off as the faint glyph
+/// with an [OffSlash] instead.
 class StateDot extends StatelessWidget {
   const StateDot({super.key, required this.dot, required this.size, required this.ring});
 
@@ -486,23 +556,13 @@ class StateDot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final color = dot.color(t);
-    return Container(
-      width: size,
-      height: size,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: dot == StatusDot.busy ? ring : color,
-        border: Border.all(color: dot == StatusDot.busy ? color : ring, width: 1.5),
-      ),
-      child: dot == StatusDot.bad || dot == StatusDot.warn
-          ? Text(
-              '!',
-              textScaler: TextScaler.noScaling,
-              style: TextStyle(color: ring, fontSize: size * 0.8, fontWeight: FontWeight.w800, height: 1),
-            )
-          : null,
+    return StateMarkDot(
+      mark: dot.mark,
+      size: size,
+      color: dot == StatusDot.off ? offGlyphColor(t) : dot.color(t),
+      ink: ring,
+      ring: ring,
+      ringWidth: 1.5,
     );
   }
 }
@@ -560,7 +620,7 @@ class _SlashPainter extends CustomPainter {
   final net = nodeNetFace(context, node, behind: behind);
   final dot = switch (node.state) {
     NodeState.online when behind != null && behind >= behindAfter =>
-      StatusDot.bad,
+      StatusDot.of(ShownState.behind),
     NodeState.online => StatusDot.ok,
     NodeState.syncing || NodeState.connecting => StatusDot.busy,
     NodeState.offline => StatusDot.bad,
@@ -670,6 +730,7 @@ StatusDot netFaceDot(WalletTokens t, NetFace face) {
   if (face.level == SignalLevel.none) return StatusDot.off;
   if (face.color == t.ok) return StatusDot.ok;
   if (face.color == t.info) return StatusDot.busy;
+  if (face.color == t.warn) return StatusDot.warn;
   return StatusDot.bad;
 }
 
@@ -681,34 +742,20 @@ const int behindAfter = 3;
 NetFace nodeNetFace(BuildContext context, NodeStatus node, {int? behind}) {
   final l = context.l10n;
   final t = context.tokens;
+  NetFace face(SignalLevel level, ShownState s, [String? word]) =>
+      (level: level, color: toneColor(t, s.tone), word: word ?? s.word(l));
   return switch (node.state) {
-    NodeState.online when behind != null && behind >= behindAfter => (
-      level: SignalLevel.two,
-      color: t.risk,
-      word: l.netStatusBehind(behind),
+    // Behind still answers: the amber "!" (state_language.dart), as on the desktop.
+    NodeState.online when behind != null && behind >= behindAfter =>
+      face(SignalLevel.two, ShownState.behind, l.netStatusBehind(behind)),
+    NodeState.online => face(SignalLevel.three, ShownState.synced),
+    NodeState.syncing => face(
+      SignalLevel.two,
+      ShownState.syncing,
+      node.percent == null ? null : l.netStatusSyncingPercent(node.percent!),
     ),
-    NodeState.online => (
-      level: SignalLevel.three,
-      color: t.ok,
-      word: l.netStatusSynced,
-    ),
-    NodeState.syncing => (
-      level: SignalLevel.two,
-      color: t.info,
-      word: node.percent == null
-          ? l.netStatusSyncing
-          : l.netStatusSyncingPercent(node.percent!),
-    ),
-    NodeState.connecting => (
-      level: SignalLevel.one,
-      color: t.info,
-      word: l.netStatusConnecting,
-    ),
-    NodeState.offline => (
-      level: SignalLevel.one,
-      color: t.risk,
-      word: l.netStatusOffline,
-    ),
+    NodeState.connecting => face(SignalLevel.one, ShownState.connecting),
+    NodeState.offline => face(SignalLevel.one, ShownState.notAnswering),
   };
 }
 
@@ -716,28 +763,14 @@ NetFace nodeNetFace(BuildContext context, NodeStatus node, {int? behind}) {
 NetFace epicboxNetFace(BuildContext context, EpicboxState? state) {
   final l = context.l10n;
   final t = context.tokens;
+  NetFace face(SignalLevel level, ShownState s) =>
+      (level: level, color: toneColor(t, s.tone), word: s.word(l));
   return switch (state) {
     // This wallet's connection, not the server's health (the picker shows that).
-    EpicboxState.online => (
-      level: SignalLevel.three,
-      color: t.ok,
-      word: l.netStatusConnected,
-    ),
-    EpicboxState.connecting => (
-      level: SignalLevel.one,
-      color: t.info,
-      word: l.netStatusConnecting,
-    ),
-    EpicboxState.offline => (
-      level: SignalLevel.one,
-      color: t.risk,
-      word: l.netStatusNotConnected,
-    ),
-    EpicboxState.blocked => (
-      level: SignalLevel.one,
-      color: t.risk,
-      word: l.netStatusBlocked,
-    ),
+    EpicboxState.online => face(SignalLevel.three, ShownState.connected),
+    EpicboxState.connecting => face(SignalLevel.one, ShownState.connecting),
+    EpicboxState.offline => face(SignalLevel.one, ShownState.notConnected),
+    EpicboxState.blocked => face(SignalLevel.one, ShownState.blocked),
     null => (level: SignalLevel.none, color: t.dim, word: l.netStatusOff),
   };
 }

@@ -157,7 +157,7 @@ void main() {
   testWidgets('the header says each method in words for screen readers', (tester) async {
     final handle = tester.ensureSemantics();
     await _pump(tester, const ReceiveArgs(http: RxHttp.on));
-    expect(find.bySemanticsLabel(RegExp(r'^Epicbox on, Link · HTTP on')), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp(r'^Epicbox connected, Link · HTTP receiving')), findsOneWidget);
     handle.dispose();
   });
 

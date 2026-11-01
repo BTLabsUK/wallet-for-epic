@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 
+import '../../state_language.dart';
+import '../../ui/state_mark.dart' show StateMarkDot;
 import '../../ui/status.dart' show OffSlash, StatusGlyph;
 
 import '../desk_l10n.dart';
@@ -10,10 +12,43 @@ import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import 'surfaces.dart' show ETone;
 
+export '../../state_language.dart' show ShownState, StateMark, StateTone;
+
 /// One state mapping for the rail, the Receive header, panel dots and Settings heads:
 /// [active] is in progress (starting, connecting, syncing, waiting for Tor), drawn blue;
-/// [warn] amber is for real warnings only (behind, slow).
-enum EState { ok, active, warn, risk, off }
+/// [warn] amber is for real warnings only (behind, slow). The desktop's name for the shared
+/// [StateTone] (state_language.dart): a [ShownState] gives its word and its [EState].
+enum EState {
+  ok,
+  active,
+  warn,
+  risk,
+  off;
+
+  /// The shared tone of this state.
+  StateTone get tone => switch (this) {
+    EState.ok => StateTone.ok,
+    EState.active => StateTone.info,
+    EState.warn => StateTone.warn,
+    EState.risk => StateTone.risk,
+    EState.off => StateTone.faint,
+  };
+
+  /// The dot's shape.
+  StateMark get mark => tone.mark;
+
+  /// The desktop state of a shared [StateTone].
+  static EState ofTone(StateTone t) => switch (t) {
+    StateTone.ok => EState.ok,
+    StateTone.info => EState.active,
+    StateTone.warn => EState.warn,
+    StateTone.risk => EState.risk,
+    StateTone.faint => EState.off,
+  };
+
+  /// The desktop state of a [ShownState]: its word is [ShownState.word].
+  static EState of(ShownState s) => ofTone(s.tone);
+}
 
 EState stateOf(ServiceHealth h) => switch (h) {
   ServiceHealth.ok => EState.ok,
@@ -179,6 +214,9 @@ class EMethodIcon extends StatelessWidget {
 class MethodLine {
   const MethodLine(this.word, this.state, {this.detail, this.retry = false});
 
+  /// The line of a [ShownState]: its one word and its state.
+  MethodLine.of(AppLocalizations l, ShownState s, {this.detail, this.retry = false}) : word = s.word(l), state = EState.of(s);
+
   final String word;
   final String? detail;
   final EState state;
@@ -188,7 +226,9 @@ class MethodLine {
   String get text => detail == null ? word : '$word · $detail';
 }
 
-/// The state line of [m] for Receive, Settings › Transactions and the rail tooltip.
+/// The state line of [m] for Receive, Settings › Transactions and the rail tooltip. One word
+/// per state ([ShownState]): a connection is Connected, a listener Receiving, a Tor address
+/// Reachable; On and Off are only the switches' words (#29).
 MethodLine methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, DeskSettings settings) {
   switch (m) {
     case TxMethod.epicbox:
@@ -201,30 +241,30 @@ MethodLine methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, Desk
       // With the Tor switch on, Epicbox goes through Tor or waits for it (tor_routes.dart).
       final way = torWay(TorRoute.epicbox, torStateOf(settings, s));
       if (s.epicboxHealth != ServiceHealth.off) {
-        if (way == TorWay.wait) return MethodLine(l.deskKitMethodWaitingTor, EState.active, detail: host);
+        if (way == TorWay.wait) return MethodLine.of(l, ShownState.waitingTor, detail: host);
         if (way == TorWay.blocked) return MethodLine(l.deskKitMethodWaitingTor, EState.risk, detail: host);
-        if (way == TorWay.overTor && s.epicboxHealth == ServiceHealth.ok) return MethodLine(l.deskKitMethodOn, EState.ok, detail: l.deskKitMethodOverTor(host));
+        if (way == TorWay.overTor && s.epicboxHealth == ServiceHealth.ok) return MethodLine.of(l, ShownState.connected, detail: l.deskKitMethodOverTor(host));
       }
       return switch (s.epicboxHealth) {
-        ServiceHealth.off => MethodLine(l.deskKitMethodOff, EState.off, detail: l.deskKitMethodEpicboxOffDetail),
-        ServiceHealth.checking => MethodLine(l.deskKitMethodConnecting, EState.active, detail: host),
-        ServiceHealth.ok => MethodLine(l.deskKitMethodConnected, EState.ok, detail: host),
-        ServiceHealth.slow => MethodLine(l.deskKitMethodSlow, EState.warn, detail: host),
-        ServiceHealth.down => MethodLine(l.deskKitMethodNotAnswering, EState.risk, detail: l.deskKitMethodEpicboxDown(host)),
+        ServiceHealth.off => MethodLine.of(l, ShownState.off, detail: l.deskKitMethodEpicboxOffDetail),
+        ServiceHealth.checking => MethodLine.of(l, ShownState.connecting, detail: host),
+        ServiceHealth.ok => MethodLine.of(l, ShownState.connected, detail: host),
+        ServiceHealth.slow => MethodLine.of(l, ShownState.slow, detail: host),
+        ServiceHealth.down => MethodLine.of(l, ShownState.notAnswering, detail: l.deskKitMethodEpicboxDown(host)),
       };
     case TxMethod.http:
       final port = settings.httpPort;
       return switch (s.httpListener) {
-        ServiceHealth.off => MethodLine(l.deskKitMethodOff, EState.off, detail: l.deskKitMethodHttpOffDetail),
-        ServiceHealth.checking => MethodLine(l.deskKitMethodStarting, EState.active),
-        ServiceHealth.ok || ServiceHealth.slow => MethodLine(
-          l.deskKitMethodOn,
-          EState.ok,
+        ServiceHealth.off => MethodLine.of(l, ShownState.off, detail: l.deskKitMethodHttpOffDetail),
+        ServiceHealth.checking => MethodLine.of(l, ShownState.starting),
+        ServiceHealth.ok || ServiceHealth.slow => MethodLine.of(
+          l,
+          ShownState.receiving,
           detail: settings.publicMode ? l.deskKitMethodHttpInternet('$port') : l.deskKitMethodHttpLocal,
         ),
-        ServiceHealth.down => MethodLine(
-          l.deskKitMethodNotReceiving,
-          EState.risk,
+        ServiceHealth.down => MethodLine.of(
+          l,
+          ShownState.notReceiving,
           retry: true,
           detail: s.httpProblem == null || s.httpProblem == HttpProblem.portInUse
               ? l.deskKitMethodPortInUse('$port')
@@ -234,13 +274,13 @@ MethodLine methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, Desk
     case TxMethod.tor:
       if (!s.torIncluded) return MethodLine(l.deskKitMethodNotInBuild, EState.off);
       return switch (s.tor) {
-        ServiceHealth.off => MethodLine(l.deskKitMethodOff, EState.off, detail: l.deskKitMethodTorOffDetail),
+        ServiceHealth.off => MethodLine.of(l, ShownState.off, detail: l.deskKitMethodTorOffDetail),
         ServiceHealth.checking => s.torCanSend
-            ? MethodLine(l.deskKitMethodTorPublishing, EState.active)
-            : MethodLine(l.deskKitMethodTorConnecting, EState.active, detail: '${s.torProgress ?? 0}%', retry: s.torSlowStart),
-        ServiceHealth.ok => MethodLine(l.deskKitMethodOn, EState.ok, detail: l.deskKitMethodTorOnDetail),
-        ServiceHealth.slow => MethodLine(l.deskKitMethodTorNotPublished, EState.warn, detail: l.deskKitMethodTorSendsWork(s.torProblem ?? l.deskKitMethodTorNotReachableYet), retry: true),
-        ServiceHealth.down => MethodLine(l.deskKitMethodTorStopped, EState.risk, detail: s.torProblem ?? l.deskKitMethodTorStoppedDetail, retry: true),
+            ? MethodLine.of(l, ShownState.publishing)
+            : MethodLine.of(l, ShownState.connecting, detail: '${s.torProgress ?? 0}%', retry: s.torSlowStart),
+        ServiceHealth.ok => MethodLine.of(l, ShownState.reachable),
+        ServiceHealth.slow => MethodLine.of(l, ShownState.notPublished, detail: l.deskKitMethodTorSendsWork(s.torProblem ?? l.deskKitMethodTorNotReachableYet), retry: true),
+        ServiceHealth.down => MethodLine.of(l, ShownState.failed, detail: s.torProblem ?? l.deskKitMethodTorStoppedDetail, retry: true),
       };
     case TxMethod.file:
       return MethodLine(l.deskKitMethodFiles, EState.off);
@@ -294,11 +334,15 @@ class EStateLine extends StatelessWidget {
   }
 }
 
-/// A state dot with a second cue besides its colour (WCAG 1.4.1): ok a filled green dot,
-/// in progress a blue ring, warn and risk a filled dot with "!", off a grey ring. [ring]
-/// draws a 2 u ring of the background around it, so it reads over a glyph.
+/// A state dot with a second cue besides its colour (WCAG 1.4.1), the shared [StateMark]:
+/// ok a filled green dot, in progress or not known yet a blue ring, a problem a filled dot
+/// with "!" (red, amber while it still works), off a faint ring with a slash. [ring] draws a
+/// 2 u ring of the background around it, so it reads over a glyph.
 class EStateDot extends StatelessWidget {
   const EStateDot(this.state, {super.key, this.size, this.ring = false, this.dim = false});
+
+  /// The dot of a [ShownState].
+  EStateDot.of(ShownState s, {Key? key, double? size, bool ring = false, bool dim = false}) : this(EState.of(s), key: key, size: size, ring: ring, dim: dim);
 
   final EState state;
   final double? size;
@@ -313,50 +357,8 @@ class EStateDot extends StatelessWidget {
     final px = size ?? 8.u;
     final outer = ring ? px + 4 : px;
     final color = (state == EState.off ? c.lineField : stateColor(c, state)).withValues(alpha: dim ? 0.6 : 1);
-    return SizedBox.square(
-      dimension: outer,
-      child: CustomPaint(painter: _DotPainter(state: state, color: color, ink: c.bg, ring: ring ? c.bg : null)),
-    );
+    return StateMarkDot(mark: state.mark, size: outer, color: color, ink: c.bg, ring: ring ? c.bg : null);
   }
-}
-
-class _DotPainter extends CustomPainter {
-  _DotPainter({required this.state, required this.color, required this.ink, this.ring});
-
-  final EState state;
-  final Color color, ink;
-  final Color? ring;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final o = size.center(Offset.zero);
-    var r = size.width / 2;
-    if (ring != null) {
-      canvas.drawCircle(o, r, Paint()..color = ring!);
-      r -= 2;
-    }
-    switch (state) {
-      case EState.ok:
-        canvas.drawCircle(o, r, Paint()..color = color);
-      case EState.active || EState.off:
-        final w = (r * 0.45).clamp(1.2, 2.0);
-        canvas.drawCircle(o, r - w / 2, Paint()
-          ..color = color
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = w);
-      case EState.warn || EState.risk:
-        canvas.drawCircle(o, r, Paint()..color = color);
-        final mark = Paint()
-          ..color = ink
-          ..strokeWidth = (r * 0.36).clamp(1.0, 2.0)
-          ..strokeCap = StrokeCap.round;
-        canvas.drawLine(o.translate(0, -r * 0.5), o.translate(0, r * 0.12), mark);
-        canvas.drawCircle(o.translate(0, r * 0.52), mark.strokeWidth * 0.55, Paint()..color = ink);
-    }
-  }
-
-  @override
-  bool shouldRepaint(_DotPainter old) => old.state != state || old.color != color || old.ink != ink || old.ring != ring;
 }
 
 /// A service glyph in a status cluster (title bar, sidebar): the neutral glyph with its
@@ -410,20 +412,45 @@ class EStatusGlyph extends StatelessWidget {
               PositionedDirectional(
                 end: 1.u,
                 bottom: 1.u,
-                child: AnimatedSwitcher(
-                  duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : Dur.base,
-                  child: _MaybePulse(
-                    key: ValueKey(state),
-                    active: state == EState.active,
-                    child: EStateDot(state, ring: true, dim: dim),
-                  ),
-                ),
+                child: _DotSwitch(state: state, dim: dim),
               ),
           ],
         ),
       ),
     );
   }
+}
+
+/// The glyph's dot, cross-fading on a change of state. Each change gets its own key, so a
+/// state that comes back while its old dot still fades out never meets itself.
+class _DotSwitch extends StatefulWidget {
+  const _DotSwitch({required this.state, required this.dim});
+
+  final EState state;
+  final bool dim;
+
+  @override
+  State<_DotSwitch> createState() => _DotSwitchState();
+}
+
+class _DotSwitchState extends State<_DotSwitch> {
+  int _changes = 0;
+
+  @override
+  void didUpdateWidget(_DotSwitch old) {
+    super.didUpdateWidget(old);
+    if (old.state != widget.state) _changes++;
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedSwitcher(
+    duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : Dur.base,
+    child: _MaybePulse(
+      key: ValueKey((widget.state, _changes)),
+      active: widget.state == EState.active,
+      child: EStateDot(widget.state, ring: true, dim: widget.dim),
+    ),
+  );
 }
 
 /// [child] fading between 45 % and full opacity for a few beats once [active] begins, then

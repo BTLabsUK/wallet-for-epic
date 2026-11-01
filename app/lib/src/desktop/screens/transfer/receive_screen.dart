@@ -372,7 +372,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             ? MethodLine(statusOffByModeWord(l, deskNetMode(st)), EState.off)
             : methodStateLine(l, m, status, st.settings),
     };
-    String word(TxMethod m) => lines[m] == null ? l.deskRecvStateChecking : (lines[m]!.state == EState.off ? l.deskRecvStateOff : (lines[m]!.state == EState.ok ? l.deskRecvStateOn : lines[m]!.word.toLowerCase()));
+    // The line's own word (state_language.dart), spoken: "connected", "receiving", "off".
+    String word(TxMethod m) => lines[m]?.word.toLowerCase() ?? l.deskRecvStateChecking;
     final receiving = lines.values.any((m) => m != null && m.state != EState.off);
     // The glyphs alone; "Receiving" stays on the card switch and in this tooltip (UD-015). With
     // every method off the header shows nothing, as it would claim receiving.

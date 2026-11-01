@@ -1,6 +1,7 @@
 {
   "deskLvPayS1Sent": "Slate S1 über Epicbox gesendet · wartet auf S2",
   "deskLvPayS1On": "S1 auf {relay} · wartet auf S2",
+  "deskLvPayOnEpicbox": "Auf Epicbox",
   "deskLvPayNotOpen": "Die Wallet von {name} ist noch nicht geöffnet",
   "deskLvPayWaitingOpen": "Warten, bis die Wallet von {name} sich öffnet",
   "deskLvPaySenderFinished": "Absender fertig",

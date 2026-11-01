@@ -323,8 +323,8 @@ void main() {
     await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen));
     Finder says(String value, String text) => find.descendant(of: row(value), matching: find.textContaining(text, findRichText: true));
     expect(says('http://10.0.1.24:3413', 'Not reachable from this computer'), findsOneWidget);
-    expect(says('http://10.0.1.24:3413', 'Not responding'), findsNothing);
-    expect(says('https://node.stack.invalid:3413', 'Not responding'), findsOneWidget);
+    expect(says('http://10.0.1.24:3413', 'Not answering'), findsNothing);
+    expect(says('https://node.stack.invalid:3413', 'Not answering'), findsOneWidget);
     expect(says('https://node.stack.invalid:3413', 'Not reachable'), findsNothing);
     await end(tester);
   });

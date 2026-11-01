@@ -7,7 +7,7 @@ import 'kit.dart';
 
 /// The badge beside a page title that says how this connection goes now (Send, Receive):
 /// Over Tor, Tor starting, Tor not connected, or Not over Tor. Null shows nothing (File: no
-/// connection).
+/// connection), and so does a route Tor stops ([TorWay.off]): one source per page for Tor.
 class TorChip extends StatelessWidget {
   const TorChip(this.way, {super.key});
 
@@ -24,7 +24,10 @@ class TorChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final w = way;
-    if (w == null) return const SizedBox.shrink();
+    // The chip states the route this connection takes; one Tor stops (a plain http:// send
+    // while Tor is on) takes none, and the field says why: no "Without Tor" beside "does not
+    // work with Tor on" (D-04).
+    if (w == null || w == TorWay.off) return const SizedBox.shrink();
     return EBadge.tor(label(context.l10n, w), key: const ValueKey('tor-chip'), way: w, liveRegion: true);
   }
 }

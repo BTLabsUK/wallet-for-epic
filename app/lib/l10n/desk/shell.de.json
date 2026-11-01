@@ -14,6 +14,8 @@
   "deskRailNotReceiving": "Kein Empfang",
   "deskRailOnInternet": "An · Internet",
   "deskRailOnLocal": "An · lokal",
+  "deskRailReceivingInternet": "Empfängt · Internet",
+  "deskRailReceivingLocal": "Empfängt · lokal",
   "deskRailPortInUse": "Port belegt",
   "deskRailStopped": "Gestoppt",
   "deskRailPortInternet": "Port {port} · aus dem Internet",

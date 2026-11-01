@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../../state_language.dart' show torShownState;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -197,14 +198,15 @@ String _noStop(String problem) => problem.endsWith('.') || problem.endsWith('。
 MethodLine torStateLine(AppLocalizations l, TorState tor, ServiceStatus? status, {bool included = true}) {
   if (!included) return MethodLine(l.deskSetPrivNotInBuild, EState.off);
   return switch (tor) {
-    TorState.off => MethodLine(l.deskSetFrameOff, EState.off),
-    TorState.starting => MethodLine(l.deskSetPrivStarting, EState.active, detail: l.deskSetPrivStartingDetail(status?.torProgress ?? 0)),
+    // Tor's one word per state (torShownState), as the rail and the status bar (D-04).
+    TorState.off => MethodLine.of(l, torShownState(tor)),
+    TorState.starting => MethodLine.of(l, torShownState(tor), detail: l.deskSetPrivStartingDetail(status?.torProgress ?? 0)),
     TorState.on when status?.tor == ServiceHealth.slow =>
-      MethodLine(l.deskSetFrameHealthOn, EState.ok, detail: status?.torProblem == null ? l.deskSetPrivNotPublished : l.deskSetPrivProblemSendsWork(status!.torProblem!)),
-    TorState.on => MethodLine(l.deskSetFrameHealthOn, EState.ok, detail: l.deskSetPrivConnected),
-    TorState.failed => MethodLine(
-      l.deskSetPrivNotConnected,
-      EState.risk,
+      MethodLine.of(l, torShownState(tor), detail: status?.torProblem == null ? l.deskSetPrivNotPublished : l.deskSetPrivProblemSendsWork(status!.torProblem!)),
+    TorState.on => MethodLine.of(l, torShownState(tor)),
+    TorState.failed => MethodLine.of(
+      l,
+      torShownState(tor),
       detail: status?.torProblem == null ? l.deskSetPrivStoppedDetail : l.deskSetPrivProblemDetail(_noStop(status!.torProblem!)),
     ),
   };

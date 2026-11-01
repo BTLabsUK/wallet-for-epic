@@ -73,8 +73,8 @@ void main() {
     test('the status card shows the Tor row in every state and opens Privacy', () {
       RailItem torRow(DeskSettings s, ServiceStatus st) => receivingRailItems(englishStrings, st, s).singleWhere((i) => i.name == 'Tor');
       expect(torRow(const DeskSettings(), _status()).word, 'Off');
-      expect(torRow(const DeskSettings(tor: true), _status(tor: ServiceHealth.checking)).word, 'Starting…');
-      expect(torRow(const DeskSettings(tor: true), _status(tor: ServiceHealth.ok, canSend: true)).word, 'On');
+      expect(torRow(const DeskSettings(tor: true), _status(tor: ServiceHealth.checking)).word, 'Starting');
+      expect(torRow(const DeskSettings(tor: true), _status(tor: ServiceHealth.ok, canSend: true)).word, 'Connected');
       final failed = torRow(const DeskSettings(tor: true), _status(tor: ServiceHealth.down));
       expect(failed.word, 'Not connected');
       expect(failed.state, EState.risk);
@@ -137,7 +137,7 @@ void main() {
       final s = container.read(deskProvider).settings;
       expect(s.tor, isTrue);
       expect(s.torAutostart, isTrue, reason: 'one switch: remembered');
-      expect(torLine(tester), startsWith('On'));
+      expect(torLine(tester), startsWith('Connected'));
       await tester.tap(torSwitch());
       await tester.pumpAndSettle();
       expect(container.read(deskProvider).settings.torAutostart, isFalse);

@@ -13,6 +13,10 @@
       }
     }
   },
+  "deskLvPayOnEpicbox": "On Epicbox",
+  "@deskLvPayOnEpicbox": {
+    "description": "Payment steps: sub-line under the current step 'Recipient signed' of a send over Epicbox: the payment waits on the Epicbox server for the recipient's wallet. The server's host is in the tooltip. Short."
+  },
   "deskLvPayNotOpen": "{name}’s wallet is not open yet",
   "@deskLvPayNotOpen": {
     "description": "Shallow payment steps: sub-line under the current step of a send over Epicbox, the recipient has not signed because their wallet is not open; name is the contact.",

@@ -1115,6 +1115,7 @@ ServerTileColors deskTileColors(DeskColors c) => ServerTileColors(
   warn: c.warn,
   risk: c.risk,
   unknown: c.faint,
+  info: c.info,
   ring: c.s4,
 );
 
@@ -1168,9 +1169,10 @@ class _Row extends StatelessWidget {
       if (inUse) (l.deskSlInUse, c.text, true),
       if (kind == ServerKind.node && !down && s.behind != null)
         s.behind! <= 0 ? (l.deskKitAtTip, c.ok, false) : (l.deskKitBehind(s.behind!, digitsText(l, s.behind!)), c.warn, false),
-      if (s.state == NodeHealthState.degraded && (s.behind ?? 0) <= 0 && !s.versionOld) (l.deskSetFrameHealthSlow, c.warn, false),
-      if (down) (kind == ServerKind.node && s.local ? l.serverLocalNotReachable : l.deskSetFrameNotResponding, c.risk, false),
-      if (s.state == null) (s.checking ? l.deskSetFrameChecking : l.deskSlHealthUnknown, c.dim, false),
+      // One word per state (state_language.dart), as the tile's dot.
+      if (s.state == NodeHealthState.degraded && (s.behind ?? 0) <= 0 && !s.versionOld) (ShownState.slow.word(l), c.warn, false),
+      if (down) (kind == ServerKind.node && s.local ? l.serverLocalNotReachable : ShownState.notAnswering.word(l), c.risk, false),
+      if (s.state == null) ((s.checking ? ShownState.checking : ShownState.unchecked).word(l), c.dim, false),
       if (s.operator != null && s.operator!.isNotEmpty) (s.operator!, dim, false),
       if (s.latencyMs != null) (l.deskSlLatency(digitsText(l, s.latencyMs!)), dim, false),
       if (kind == ServerKind.node && !down && s.version != null) (s.version!, s.versionOld ? c.warn : dim, false),

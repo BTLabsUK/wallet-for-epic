@@ -14,6 +14,8 @@
   "deskRailNotReceiving": "无法接收",
   "deskRailOnInternet": "开启 · 互联网",
   "deskRailOnLocal": "开启 · 本地",
+  "deskRailReceivingInternet": "接收中 · 互联网",
+  "deskRailReceivingLocal": "接收中 · 本地",
   "deskRailPortInUse": "端口被占用",
   "deskRailStopped": "已停止",
   "deskRailPortInternet": "端口 {port} · 可从互联网访问",

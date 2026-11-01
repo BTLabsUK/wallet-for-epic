@@ -1,6 +1,7 @@
 {
   "deskLvPayS1Sent": "Slate S1 ส่งผ่าน Epicbox แล้ว · รอ S2",
   "deskLvPayS1On": "S1 บน {relay} · รอ S2",
+  "deskLvPayOnEpicbox": "อยู่บน Epicbox",
   "deskLvPayNotOpen": "กระเป๋าเงินของ {name} ยังไม่เปิด",
   "deskLvPayWaitingOpen": "รอให้กระเป๋าเงินของ {name} เปิด",
   "deskLvPaySenderFinished": "ผู้ส่งทำเสร็จแล้ว",
