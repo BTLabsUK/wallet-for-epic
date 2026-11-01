@@ -145,7 +145,11 @@ No Apple account is needed: the macOS app is signed ad hoc, and the iOS `.ipa` i
 cd app && flutter test         # unit and widget tests (need the Linux library from tools/lepic.sh build linux)
 tools/check.sh                 # from the root: LEPIC at the pin, the analyzer, and the tests your change touches
 tools/check.sh --full          # everything: the whole suite, the integration tests and the web build
+tools/testbin.sh get linux|apk # the shared debug bundle or APK of HEAD, built once per commit
 ```
+
+Test runs on this host take their Linux bundle and APK from `tools/testbin.sh`, never from a build
+of their own ([docs/dev-tooling.md](docs/dev-tooling.md)).
 
 Tests that need the network (`app/test/*_live_test.dart`) skip themselves unless their
 environment variables are set (`WFE_LEPIC_LIB`, `WFE_LIVE_DIR`, …); `app/integration_test/` runs
