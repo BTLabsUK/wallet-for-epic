@@ -5869,6 +5869,12 @@ abstract class AppLocalizations {
   /// **'Test coins'**
   String get demoTestCoinsPill;
 
+  /// First word of the web demo's stripe under the app bar: "Demo · Test coins · 5 h left". One short word.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo'**
+  String get demoStripeLabel;
+
   /// Web demo: tooltip and screen-reader text of the Test coins pill.
   ///
   /// In en, this message translates to:
@@ -29203,6 +29209,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not finished'**
   String get deskOnbFailedTitle;
+
+  /// The stripe under the title bar in the desktop web demo (sample data, no real wallet). Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo · sample data'**
+  String get deskDemoStripe;
 }
 
 class _AppLocalizationsDelegate

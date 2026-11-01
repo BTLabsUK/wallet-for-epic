@@ -27,6 +27,7 @@ import 'launch_screen.dart';
 import 'method_names.dart' show methodKindOfTransport;
 import 'notices.dart';
 import 'badge.dart';
+import 'demo_screens.dart' show DemoStripe;
 import 'finished_not_posted.dart' show isPostElsewhere;
 import 'theme/brand.dart';
 import 'theme/protocol.dart';
@@ -195,6 +196,8 @@ class _SlotScaffoldState extends State<SlotScaffold> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // The web demo's stripe (B-05); nothing outside a running demo.
+          const DemoStripe(),
           ProgressSlot(idle: widget.idle),
           MeasureDock(meter: _dock, child: const NoticeDock()),
           Expanded(

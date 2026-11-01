@@ -3549,6 +3549,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get demoTestCoinsPill => 'เหรียญทดสอบ';
 
   @override
+  String get demoStripeLabel => 'เดโม';
+
+  @override
   String get demoTestCoinsPillTip => 'เครือข่ายทดสอบของ Epic เหรียญไม่มีมูลค่า';
 
   @override
@@ -18283,4 +18286,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbFailedTitle => 'ไม่เสร็จสิ้น';
+
+  @override
+  String get deskDemoStripe => 'เดโม · ข้อมูลตัวอย่าง';
 }

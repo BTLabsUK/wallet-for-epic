@@ -3411,6 +3411,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get demoTestCoinsPill => '测试币';
 
   @override
+  String get demoStripeLabel => '演示';
+
+  @override
   String get demoTestCoinsPillTip => 'Epic 的测试网络。这些币没有价值。';
 
   @override
@@ -17634,4 +17637,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOnbFailedTitle => '未完成';
+
+  @override
+  String get deskDemoStripe => '演示 · 示例数据';
 }

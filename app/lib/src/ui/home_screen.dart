@@ -26,7 +26,7 @@ import 'common.dart';
 import 'last_session_offer.dart';
 import 'contacts_screen.dart';
 import 'demo_guide.dart';
-import 'demo_screens.dart' show DemoCountdown, TestCoinsButton;
+import 'demo_screens.dart' show TestCoinsButton;
 import 'help_screen.dart';
 import 'history_screen.dart';
 import 'home_parts.dart';
@@ -664,7 +664,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
     final tab = ref.watch(shellTabProvider);
     final l = context.l10n;
-    final demo = ref.watch(demoModeProvider);
     final features = ref.watch(levelFeaturesProvider);
     final scan = offersQrScan(ref) && features.scanInAppBar;
 
@@ -693,7 +692,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
           titleSpacing: 0,
           // The name on every tab; Send and Receive carry the balance in their header below.
-          title: ShellTitle(trailing: demo ? const DemoCountdown() : null),
+          title: const ShellTitle(),
           actions: [
             // Invoices moved to the destinations row; the entry keeps its event wiring.
             const InvoicesEntry(visible: false),

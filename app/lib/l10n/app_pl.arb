@@ -958,6 +958,7 @@
   "balanceLineOnHold": "{amount} zablokowane",
   "balanceLineComingIn": "+{amount} w drodze",
   "demoTestCoinsPill": "Monety testowe",
+  "demoStripeLabel": "Demo",
   "demoTestCoinsPillTip": "Sieć testowa Epic. Monety nie mają wartości.",
   "demoLeftHours": "zostało {hours} h",
   "demoLeftMinutes": "zostało {minutes} min",
@@ -4866,5 +4867,6 @@
   "deskNodeSwitchStarting": "Uruchamianie węzła lokalnego…",
   "deskNodeSwitchStopping": "Zatrzymywanie węzła lokalnego…",
   "deskNodeSwitchStoppingWord": "Zatrzymywanie",
-  "deskOnbFailedTitle": "Nie ukończono"
+  "deskOnbFailedTitle": "Nie ukończono",
+  "deskDemoStripe": "Demo · przykładowe dane"
 }

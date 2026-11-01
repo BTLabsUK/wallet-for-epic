@@ -958,6 +958,7 @@
   "balanceLineOnHold": "{amount} заблокировано",
   "balanceLineComingIn": "+{amount} поступает",
   "demoTestCoinsPill": "Тестовые монеты",
+  "demoStripeLabel": "Демо",
   "demoTestCoinsPillTip": "Тестовая сеть Epic. Монеты ничего не стоят.",
   "demoLeftHours": "осталось {hours} ч",
   "demoLeftMinutes": "осталось {minutes} мин",
@@ -4866,5 +4867,6 @@
   "deskNodeSwitchStarting": "Запуск локального узла…",
   "deskNodeSwitchStopping": "Остановка локального узла…",
   "deskNodeSwitchStoppingWord": "Остановка",
-  "deskOnbFailedTitle": "Не завершено"
+  "deskOnbFailedTitle": "Не завершено",
+  "deskDemoStripe": "Демо · пример данных"
 }

@@ -3713,6 +3713,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get demoTestCoinsPill => 'Monety testowe';
 
   @override
+  String get demoStripeLabel => 'Demo';
+
+  @override
   String get demoTestCoinsPillTip =>
       'Sieć testowa Epic. Monety nie mają wartości.';
 
@@ -19346,4 +19349,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOnbFailedTitle => 'Nie ukończono';
+
+  @override
+  String get deskDemoStripe => 'Demo · przykładowe dane';
 }

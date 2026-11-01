@@ -3692,6 +3692,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get demoTestCoinsPill => 'Тестовые монеты';
 
   @override
+  String get demoStripeLabel => 'Демо';
+
+  @override
   String get demoTestCoinsPillTip =>
       'Тестовая сеть Epic. Монеты ничего не стоят.';
 
@@ -19326,4 +19329,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbFailedTitle => 'Не завершено';
+
+  @override
+  String get deskDemoStripe => 'Демо · пример данных';
 }

@@ -4619,6 +4619,10 @@
   "@demoTestCoinsPill": {
     "description": "Web demo: a small pill in the app bar saying the wallet holds test coins. Keep it very short."
   },
+  "demoStripeLabel": "Demo",
+  "@demoStripeLabel": {
+    "description": "First word of the web demo's stripe under the app bar: \"Demo · Test coins · 5 h left\". One short word."
+  },
   "demoTestCoinsPillTip": "Epic’s test network. The coins have no value.",
   "@demoTestCoinsPillTip": {
     "description": "Web demo: tooltip and screen-reader text of the Test coins pill."
@@ -25308,5 +25312,9 @@
   "deskOnbFailedTitle": "Not finished",
   "@deskOnbFailedTitle": {
     "description": "Bold heading of the failure notice on a long setup action (create, restore, new password); the reason follows under it."
+  },
+  "deskDemoStripe": "Demo · sample data",
+  "@deskDemoStripe": {
+    "description": "The stripe under the title bar in the desktop web demo (sample data, no real wallet). Short."
   }
 }

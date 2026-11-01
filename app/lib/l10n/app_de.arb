@@ -958,6 +958,7 @@
   "balanceLineOnHold": "{amount} gesperrt",
   "balanceLineComingIn": "+{amount} unterwegs",
   "demoTestCoinsPill": "Test-Coins",
+  "demoStripeLabel": "Demo",
   "demoTestCoinsPillTip": "Das Testnetz von Epic. Die Coins haben keinen Wert.",
   "demoLeftHours": "noch {hours} h",
   "demoLeftMinutes": "noch {minutes} Min.",
@@ -4866,5 +4867,6 @@
   "deskNodeSwitchStarting": "Lokaler Node startet…",
   "deskNodeSwitchStopping": "Lokaler Node wird gestoppt…",
   "deskNodeSwitchStoppingWord": "Stoppt",
-  "deskOnbFailedTitle": "Nicht abgeschlossen"
+  "deskOnbFailedTitle": "Nicht abgeschlossen",
+  "deskDemoStripe": "Demo · Beispieldaten"
 }

@@ -958,6 +958,7 @@
   "balanceLineOnHold": "{amount} 已锁定",
   "balanceLineComingIn": "+{amount} 即将到账",
   "demoTestCoinsPill": "测试币",
+  "demoStripeLabel": "演示",
   "demoTestCoinsPillTip": "Epic 的测试网络。这些币没有价值。",
   "demoLeftHours": "剩 {hours} 小时",
   "demoLeftMinutes": "剩 {minutes} 分钟",
@@ -4866,5 +4867,6 @@
   "deskNodeSwitchStarting": "正在启动本地节点…",
   "deskNodeSwitchStopping": "正在停止本地节点…",
   "deskNodeSwitchStoppingWord": "正在停止",
-  "deskOnbFailedTitle": "未完成"
+  "deskOnbFailedTitle": "未完成",
+  "deskDemoStripe": "演示 · 示例数据"
 }
