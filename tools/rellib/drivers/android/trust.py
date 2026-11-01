@@ -902,6 +902,19 @@ def public_digest(d):
 
 # ---------------------------------------------------------------- payments
 
+# A finished send reads "Posting…" for up to 30 s while its post may still succeed, then
+# confirming or "Not on the network" (26.10.25): neither is a posted payment yet.
+NOT_POSTED_YET = (facts.label("postFinishedPosting", "Posting…"),
+                  facts.label("txStatusNotPosted", "Not on the network"))
+
+
+def not_posted_yet(label):
+    """A row whose payment is finished but not (yet) on the network; the row's spoken status
+    is lower-cased mid-sentence in English, so the words are matched without case."""
+    low = label.lower()
+    return any(w.lower() in low for w in NOT_POSTED_YET)
+
+
 def pending_rows():
     return [r for r in tx_rows(nodes(S)) if re.search(r"waiting for|Waiting for", r)]
 
@@ -1014,7 +1027,8 @@ def funds(p, my_addr):
         send_epicbox(p_addr, SEND_AMOUNT)
         row = wait_tx(lambda r: r.startswith(("Sent", "Sending")) and row_amount(r) == Decimal(SEND_AMOUNT)
                       and p_short in r and r not in before
-                      and not re.search(r"waiting for|Waiting for|cancel", r, re.I), 420, "send")
+                      and not re.search(r"waiting for|Waiting for|cancel", r, re.I)
+                      and not not_posted_yet(r), 420, "send")
         res["send_ok"] = bool(row)
         det["send_ok"] = (f"{SEND_AMOUNT} EPIC to P ({short(p_addr)}) by Epicbox: {row}" if row
                           else f"{SEND_AMOUNT} EPIC to P not posted in 7 min")
@@ -1046,7 +1060,7 @@ def receive_from_p(p, my_addr, amount, p_short=None, secs=900):
         raise RuntimeError("P's send failed: " + " ".join(re.findall(r"ERROR[^\n]*", out))[:200])
     ours = lambda r: r.startswith(("Received", "Receiving")) and row_amount(r) == Decimal(amount) \
         and (p_short is None or p_short in r)
-    posted = lambda r: ours(r) and not re.search(r"waiting for", r, re.I)
+    posted = lambda r: ours(r) and not re.search(r"waiting for", r, re.I) and not not_posted_yet(r)
     end, finalized_at, last = time.time() + secs, None, None
     while time.time() < end:
         home()

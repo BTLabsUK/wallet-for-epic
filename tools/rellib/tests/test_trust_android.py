@@ -71,6 +71,16 @@ class SwitchingTest(unittest.TestCase):
         self.assertFalse(trust.switching([node("Connecting to Tor", 900)]))  # not a server row
 
 
+class NotPostedYetTest(unittest.TestCase):
+    def test_posting_and_not_on_the_network_are_not_posted(self):
+        # Activity rows as txSpokenRow says them: what, the status lower-cased, the date.
+        for r in ("Sending 0.01 EPIC to esa57k…ZwzB4d, posting…, today, 12:01",
+                  "Sending 0.01 EPIC to esa57k…ZwzB4d, not on the network, today, 12:01"):
+            self.assertTrue(trust.not_posted_yet(r), r)
+        self.assertFalse(trust.not_posted_yet("Sending 0.01 EPIC to esa57k…ZwzB4d, confirming 0/1, today, 12:01"))
+        self.assertFalse(trust.not_posted_yet("Sent 0.01 EPIC to esa57k…ZwzB4d, sent, today, 12:01"))
+
+
 class ServersKeptTest(unittest.TestCase):
     def digest(self, node_in_use):
         nodes = {"rows": [{"host": "node.btlabs.uk", "current": node_in_use == "node.btlabs.uk", "added": False},
