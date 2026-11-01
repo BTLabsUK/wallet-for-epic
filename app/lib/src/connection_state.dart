@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The node and Epicbox statuses the phone shows, settled: a status that leaves online for
-/// offline, or for syncing, shows only once it has lasted [statusSettle]. Short drops that
-/// mend, and short refreshes, show nothing; a way back to online or connecting shows at once.
+/// offline, or for syncing, shows only once it has lasted [statusSettle]. Short node drops that
+/// mend, and short refreshes, show nothing; a lost Epicbox connection reads connecting while
+/// it is retried; a way back to online or connecting shows at once.
 /// The header icons, the network status card and Receive all read [walletStatusProvider], so
 /// they never disagree and nothing debounces twice.
 library;
@@ -93,10 +94,12 @@ class WalletStatusNotifier extends Notifier<WalletStatus> {
     );
     final raw = _heldForTor(ref.read(rawWalletStatusProvider));
     // Nothing shown yet: what waits for the settle time starts as connecting.
-    return _settle(raw, (
+    final first = _settle(raw, (
       node: NodeStatus(NodeState.connecting, height: raw.node.height),
       epicbox: raw.epicbox == null ? null : EpicboxState.connecting,
     ));
+    _loggedEpicbox = first.epicbox;
+    return first;
   }
 
   /// Shows [raw] where it may show now, keeps [shown] (the current state) where it must
@@ -106,8 +109,10 @@ class WalletStatusNotifier extends Notifier<WalletStatus> {
     final node = _waits(raw.node.state, before.node.state)
         ? before.node
         : raw.node;
+    // A lost connection is retried at once: until offline has lasted, it reads connecting,
+    // never the online it no longer is.
     final epicbox = _epicboxWaits(raw.epicbox, before.epicbox)
-        ? before.epicbox
+        ? EpicboxState.connecting
         : raw.epicbox;
 
     if (identical(node, raw.node)) {
@@ -192,8 +197,12 @@ class WalletStatusNotifier extends Notifier<WalletStatus> {
       shown != EpicboxState.offline &&
       shown != null;
 
+  /// The Epicbox status the log last named: a drop that mends reads connecting and online
+  /// again, which it does not name twice.
+  EpicboxState? _loggedEpicbox;
+
   /// One log line when a shown status turns offline or back, with what it rests on.
-  static void _logFlips(WalletStatus before, WalletStatus after) {
+  void _logFlips(WalletStatus before, WalletStatus after) {
     final node = after.node.state;
     if (node != before.node.state &&
         (node == NodeState.offline || before.node.state == NodeState.offline)) {
@@ -205,9 +214,11 @@ class WalletStatusNotifier extends Notifier<WalletStatus> {
     }
     final epicbox = after.epicbox;
     if (epicbox != before.epicbox &&
+        epicbox != _loggedEpicbox &&
         (epicbox == EpicboxState.offline ||
             epicbox == EpicboxState.online ||
             epicbox == null)) {
+      _loggedEpicbox = epicbox;
       logInfo(
         'status',
         'epicbox ${epicbox?.name ?? 'stopped'} (source: listener socket)',
