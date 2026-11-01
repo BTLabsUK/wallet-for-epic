@@ -6,3 +6,9 @@ library;
 
 /// The demo network's tip.
 const int demoTip = 3764975;
+
+/// The node software version every demo node reports (the released one).
+const String demoNodeVersion = '4.1.1';
+
+/// The 24-hour uptime every demo node reports, as the status site gives it (99.7 %).
+const double demoNodeUptime = 0.997;

@@ -194,7 +194,7 @@ class MockDeskWallet implements DeskWalletApi {
         icon: _operatorIcon(mockNodeOp(i)),
         listedAs: mockNodeOp(i),
       ),
-    NodeServer(url: 'http://10.0.1.24:3413', label: 'Home node', health: ServiceHealth.ok, latencyMs: 6, height: demoTip, version: '4.1.1', own: true),
+    NodeServer(url: 'http://10.0.1.24:3413', label: 'Home node', health: ServiceHealth.ok, latencyMs: 6, height: demoTip, version: demoNodeVersion, own: true),
   ];
 
   // As the status site lists them: the icons and operator names it serves.
@@ -1049,7 +1049,7 @@ class MockDeskWallet implements DeskWalletApi {
     final known = _nodes.where((n) => n.url == url);
     if (known.isNotEmpty) return known.first;
     if (url.contains('bad')) return NodeServer(url: url, label: url, health: ServiceHealth.down);
-    return NodeServer(url: url, label: Uri.tryParse(url)?.host ?? url, health: ServiceHealth.ok, latencyMs: 48, height: demoTip, version: '3.6.0', own: true);
+    return NodeServer(url: url, label: Uri.tryParse(url)?.host ?? url, health: ServiceHealth.ok, latencyMs: 48, height: demoTip, version: demoNodeVersion, own: true);
   }
 
   @override
