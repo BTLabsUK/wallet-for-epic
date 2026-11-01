@@ -20,10 +20,10 @@ import '../../widgets/kit.dart';
 import '../../widgets/pay_steps.dart' show DeskPaymentSteps, payInFlight;
 import '../invoices/overview_card.dart';
 import '../settings/backup.dart' show HistoryReminder, historyBackupProvider, showHistoryImportOffer;
-import '../settings/prefs.dart' show settingsPrefsProvider;
+import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
 import 'restore_scan_panel.dart';
 import 'tx_display.dart';
-import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, openAdvanced;
+import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import '../../../settings_file/host_settings.dart' show hostSettings;
 import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
 
@@ -195,8 +195,8 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
         ENotice(
           key: const ValueKey('overview-waiting-tor'),
           tone: ETone.info,
-          title: l.deskNetWaitingTorReason,
-          actions: [EButton(label: l.deskNetOpenAdvanced, size: EBtnSize.inline, onPressed: () => openAdvanced(ref))],
+          title: l.netBlockWaitingForTorLong,
+          actions: [EButton(label: l.netChangeLink, size: EBtnSize.inline, onPressed: () => ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.network))],
         ),
     ];
 

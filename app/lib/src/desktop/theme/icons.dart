@@ -57,6 +57,8 @@ abstract final class EIcons {
   static const plus = Icons.add;
   static const external = Icons.open_in_new;
   static const shield = Icons.shield_outlined;
+  // Network & privacy: the phone's hub glyph for the same page (settingsSectionIcon).
+  static const network = Icons.hub_outlined;
   static const key = Icons.key_outlined;
   static const cancel = Icons.block;
   static const clock = Icons.schedule;

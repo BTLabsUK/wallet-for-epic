@@ -62,7 +62,7 @@ void main() {
       final shot = shots.firstWhere((s) => s.id == '24-settings-appearance');
       await _pumpShot(tester, shot, lang, check: (l) {
         for (final name in [
-          l.deskSetFrameNode, l.deskSetFrameTransactions, l.deskSetFramePrivacy, l.deskSetFrameAppearance,
+          l.deskSetFrameNode, l.deskSetFrameTransactions, l.settingsSectionNetworkPrivacy, l.deskSetFrameAppearance,
           l.deskSetFrameThisWallet, l.deskSetFrameAllWallets, l.deskSetFramePhrase, l.deskSetFrameRescan,
           l.deskSetFrameAdvanced, l.deskSetFrameAbout, l.deskSetFrameHelp,
         ]) {

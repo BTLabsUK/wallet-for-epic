@@ -108,7 +108,7 @@ List<TourStep> tourStepsFor({required bool invoices}) => [
     targets: ['advanced-top'],
     sub: DeskRoute.settingsAdvanced,
     titleOf: (l) => l.deskTourAdvancedTitle,
-    textOf: (l) => DeskFeatures.tor ? l.deskTourAdvancedText : l.deskNoTorTourAdvancedText,
+    textOf: (l) => l.tourAdvancedShowsText,
   ),
   TourStep(
     route: DeskRoute.settingsHelp,

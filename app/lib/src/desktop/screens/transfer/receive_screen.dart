@@ -331,7 +331,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       key: const ValueKey('rx-tor-off-notice'),
       icon: MethodIcons.of(MethodKind.linkTor),
       title: l.deskRecvTorOffTitle,
-      text: l.deskRecvTorOffText,
+      text: l.deskRecvTorOffTextNet,
       actions: [
         EButton(label: l.deskSetHttpTurnOnTor, icon: EIcons.tor, size: EBtnSize.inline, busy: busy, onPressed: busy ? null : () => _toggle(TxMethod.tor, true)),
         EButton.ghost(label: l.deskRecvSettings, icon: EIcons.settings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsPrivacy)),
@@ -446,7 +446,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final line = status == null
         ? null
         : net.byMode
-        ? MethodLine(statusOffByModeWord(l, deskNetMode(st)), EState.off, detail: l.statusOffByModeDetail)
+        ? MethodLine(statusOffByModeWord(l, deskNetMode(st)), EState.off, detail: l.statusOffByModeDetailNet)
         : methodStateLine(context.l10n, m, status, st.settings);
     final health = net.byMode ? null : status?.epicboxHealth;
     final tag = !on
@@ -593,7 +593,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final line = status == null
         ? null
         : net.byMode
-        ? MethodLine(statusOffByModeWord(l, deskNetMode(st)), EState.off, detail: l.statusOffByModeDetail)
+        ? MethodLine(statusOffByModeWord(l, deskNetMode(st)), EState.off, detail: l.statusOffByModeDetailNet)
         : ready
         ? MethodLine(l.deskLvSendReady, EState.ok)
         : methodStateLine(l, TxMethod.epicbox, status, st.settings);
@@ -726,7 +726,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           if (line != null) EStateLine(line, key: const ValueKey('rx-state-http'), trailing: _retry(m, line)),
           if (DeskFeatures.tor) ...[
             SizedBox(height: Sp.x3),
-            Text(l.deskRecvHttpTorHint, style: ts.caption),
+            Text(l.deskRecvHttpTorHintNet, style: ts.caption),
           ],
         ],
       ),
@@ -759,7 +759,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(l.deskRecvTorIntro, style: ts.bodyDim),
+          Text(l.deskRecvTorIntroNet, style: ts.bodyDim),
           SizedBox(height: Sp.x4),
           if (addr == null)
             Align(alignment: Alignment.centerLeft, child: ESpinner(size: 20.u))

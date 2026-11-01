@@ -65,7 +65,7 @@ const experimentalFeatures = {AdvancedFeature.pairing, AdvancedFeature.invoices,
 /// everyone, so its old switch value is read and ignored, never migrated or reused.
 const retiredFeatures = {AdvancedFeature.pairing};
 
-/// How the wallet reaches the network (Settings › Advanced › Network). One choice, kept in the
+/// How the wallet reaches the network (Settings › Network & privacy). One choice, kept in the
 /// settings file's `[network] mode` (`network_mode_file.dart`); the Privacy page's Tor switch is
 /// the user's in [standard] and [nodeOnly], locked on in [torOnly] and off in [killSwitch].
 enum NetworkMode {
