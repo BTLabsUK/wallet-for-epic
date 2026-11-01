@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: Apache-2.0
+# Every 10 minutes: a run that finds main's entry already built does nothing.
+[Unit]
+Description=Epic Wallet test binaries of main
+
+[Timer]
+OnCalendar=*:0/10
+Persistent=false
+Unit=wfe-testbin.service
+
+[Install]
+WantedBy=timers.target
