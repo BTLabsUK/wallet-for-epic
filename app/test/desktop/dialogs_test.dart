@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // The one dialog footer (polish P1): EDialog lays its buttons out itself.
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
-import 'package:epic_wallet/src/desktop/theme/tokens.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -384,10 +384,7 @@ class _FooterParentData extends ContainerBoxParentData<RenderBox> {}
 
 class _RenderFooterBar extends RenderBox
     with ContainerRenderObjectMixin<RenderBox, _FooterParentData>, RenderBoxContainerDefaultsMixin<RenderBox, _FooterParentData> {
-  _RenderFooterBar({required double gap, required double runGap, required TextDirection direction})
-    : _gap = gap,
-      _runGap = runGap,
-      _direction = direction;
+  _RenderFooterBar({required this._gap, required this._runGap, required this._direction});
 
   double _gap;
   set gap(double v) {
