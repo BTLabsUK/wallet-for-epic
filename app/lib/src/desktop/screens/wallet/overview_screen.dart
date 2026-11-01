@@ -617,13 +617,18 @@ class _BigAmount extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: [
+                  // Past the least size the figure scales down rather than cut to an
+                  // ellipsis: a clipped balance reads as a different number (A-01).
                   Flexible(
-                    child: Text.rich(
-                      TextSpan(children: spans),
-                      style: style,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      softWrap: false,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text.rich(
+                        TextSpan(children: spans),
+                        style: style,
+                        maxLines: 1,
+                        softWrap: false,
+                      ),
                     ),
                   ),
                   SizedBox(width: 10.u),
