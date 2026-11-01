@@ -435,13 +435,13 @@ class _ConfirmationBox extends StatelessWidget {
           SizedBox(height: Sp.x1),
           Text(l.pairFinishCodeBody(name), style: ts.small),
           SizedBox(height: Sp.x2),
-          SelectableText(l.pairFinishMessage(link), style: ts.mono()),
+          SelectableText(l.pairFinishLinkMessage(link), style: ts.mono()),
           SizedBox(height: Sp.x2),
           Wrap(
             spacing: Sp.x2,
             runSpacing: Sp.x2,
             children: [
-              EButton.primary(key: deskConfirmCopyKey, label: l.commonCopy, icon: EIcons.copy, size: EBtnSize.sm, onPressed: () => copyToClipboard(context, l.pairFinishMessage(link), l.pairMessageCopied)),
+              EButton.primary(key: deskConfirmCopyKey, label: l.commonCopy, icon: EIcons.copy, size: EBtnSize.sm, onPressed: () => copyToClipboard(context, l.pairFinishLinkMessage(link), l.pairMessageCopied)),
               EButton(key: deskConfirmCheckKey, label: l.pairCheckWords, size: EBtnSize.sm, onPressed: onCheck),
             ],
           ),
@@ -601,13 +601,13 @@ class DeskConfirmationDialog extends ConsumerWidget {
           Container(
             padding: EdgeInsets.all(Sp.x3),
             decoration: c.well,
-            child: SelectableText(l.pairFinishMessage(link), style: ts.mono()),
+            child: SelectableText(l.pairFinishLinkMessage(link), style: ts.mono()),
           ),
         ],
       ),
       actions: [
         EButton(key: deskConfirmCheckKey, label: l.pairCheckWords, onPressed: () => Navigator.pop(context, true)),
-        EButton.primary(key: deskConfirmCopyKey, label: l.commonCopy, icon: EIcons.copy, autofocus: true, onPressed: () => copyToClipboard(context, l.pairFinishMessage(link), l.pairMessageCopied)),
+        EButton.primary(key: deskConfirmCopyKey, label: l.commonCopy, icon: EIcons.copy, autofocus: true, onPressed: () => copyToClipboard(context, l.pairFinishLinkMessage(link), l.pairMessageCopied)),
       ],
     );
   }
