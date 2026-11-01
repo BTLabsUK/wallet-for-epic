@@ -1937,6 +1937,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get restoreStartByDate => 'Data';
 
   @override
+  String get restoreStartByMonth => 'Miesiąc';
+
+  @override
   String get restoreStartByHeight => 'Wysokość bloku';
 
   @override
@@ -1975,6 +1978,34 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get restoreWholeChain => 'Skanuj cały łańcuch';
+
+  @override
+  String get restorePickMonth => 'Wybierz miesiąc utworzenia portfela';
+
+  @override
+  String get restorePickMonthShort => 'Wybierz miesiąc';
+
+  @override
+  String get restorePickMonthFirst => 'Najpierw wybierz miesiąc.';
+
+  @override
+  String get restoreMonthHint =>
+      'Opcjonalnie. W razie wątpliwości wybierz wcześniejszy miesiąc: późniejszy może pominąć część środków.';
+
+  @override
+  String restoreMonthStart(String height) {
+    return 'Skanowanie zacznie się od bloku $height.';
+  }
+
+  @override
+  String get restoreMonthRecent =>
+      'Niedawny miesiąc: środki sprzed niego mogą zostać pominięte.';
+
+  @override
+  String get restoreMonthEarlierYear => 'Wcześniejszy rok';
+
+  @override
+  String get restoreMonthLaterYear => 'Późniejszy rok';
 
   @override
   String get restoreScanIntro =>
@@ -3037,6 +3068,9 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get settingsRescanFromDate => 'Od daty';
+
+  @override
+  String get settingsRescanFromMonth => 'Od miesiąca';
 
   @override
   String get settingsRescanFromHeight => 'Od wysokości bloku';
@@ -13388,6 +13422,9 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get restoreStartFromLink => 'Zacznij od daty lub wysokości';
+
+  @override
+  String get restoreStartFromMonthLink => 'Zacznij od miesiąca lub wysokości';
 
   @override
   String get settingsRescanBodyPlain =>

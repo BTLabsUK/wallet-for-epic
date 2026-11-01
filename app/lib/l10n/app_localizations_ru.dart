@@ -1927,6 +1927,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get restoreStartByDate => 'Дата';
 
   @override
+  String get restoreStartByMonth => 'Месяц';
+
+  @override
   String get restoreStartByHeight => 'Высота блока';
 
   @override
@@ -1965,6 +1968,34 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get restoreWholeChain => 'Сканировать весь блокчейн';
+
+  @override
+  String get restorePickMonth => 'Выберите месяц создания кошелька';
+
+  @override
+  String get restorePickMonthShort => 'Выбрать месяц';
+
+  @override
+  String get restorePickMonthFirst => 'Сначала выберите месяц.';
+
+  @override
+  String get restoreMonthHint =>
+      'Необязательно. Если не уверены, выберите более ранний месяц: при более позднем часть средств может не найтись.';
+
+  @override
+  String restoreMonthStart(String height) {
+    return 'Сканирование начнётся с блока $height.';
+  }
+
+  @override
+  String get restoreMonthRecent =>
+      'Недавний месяц: средства, полученные раньше, могут не найтись.';
+
+  @override
+  String get restoreMonthEarlierYear => 'Предыдущий год';
+
+  @override
+  String get restoreMonthLaterYear => 'Следующий год';
 
   @override
   String get restoreScanIntro =>
@@ -3014,6 +3045,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsRescanFromDate => 'С даты';
+
+  @override
+  String get settingsRescanFromMonth => 'С месяца';
 
   @override
   String get settingsRescanFromHeight => 'С высоты блока';
@@ -13358,6 +13392,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get restoreStartFromLink => 'Начать с даты или высоты';
+
+  @override
+  String get restoreStartFromMonthLink => 'Начать с месяца или высоты';
 
   @override
   String get settingsRescanBodyPlain =>

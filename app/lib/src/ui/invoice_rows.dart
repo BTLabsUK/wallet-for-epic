@@ -14,6 +14,7 @@ import 'invoices_screen.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
+import 'inline_button.dart';
 
 /// Keys of the rows' Withdraw buttons, for tests.
 Key requestWithdrawKey(String slateId) => ValueKey('request-withdraw-$slateId');
@@ -249,9 +250,8 @@ class _RequestRowState extends ConsumerState<RequestRow> {
               padding: const EdgeInsetsDirectional.only(start: 60, bottom: 4),
               child: Align(
                 alignment: AlignmentDirectional.centerStart,
-                child: TextButton(
+                child: InlineTextButton(
                   key: requestWithdrawKey(request.slateId),
-                  style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
                   onPressed: _busy ? null : _withdraw,
                   child: Text(l.issuedWithdraw),
                 ),

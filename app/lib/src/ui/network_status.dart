@@ -393,9 +393,7 @@ class _StatusRow extends StatelessWidget {
                       ],
                     ),
                   ),
-                  ExcludeSemantics(
-                    child: Icon(Icons.chevron_right, size: 20, color: t.dim),
-                  ),
+                  const NavChevron(size: 20),
                 ],
               ),
             ),

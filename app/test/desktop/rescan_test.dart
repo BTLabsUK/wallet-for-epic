@@ -112,11 +112,11 @@ void main() {
     final api = _Starts();
     await pump(tester, api, false);
     expect(find.text('Where to start'), findsOneWidget);
-    expect(find.text('From a date'), findsOneWidget, reason: 'GP-030: the phone\u2019s choices');
-    // From a date is the first choice on mainnet; Recheck without a date says so.
+    expect(find.text('From a month'), findsOneWidget, reason: 'GP-030: the phone\u2019s choices');
+    // From a month is the first choice on mainnet; Recheck without a month says so.
     await tester.tap(find.widgetWithText(EButton, 'Recheck'));
     await tester.pump();
-    expect(find.text('Pick a date first.'), findsOneWidget);
+    expect(find.text('Pick a month first.'), findsOneWidget);
     expect(api.starts, isEmpty);
     await tester.tap(find.byKey(const ValueKey('rescan-from-height')));
     await tester.pump();

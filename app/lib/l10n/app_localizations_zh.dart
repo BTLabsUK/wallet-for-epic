@@ -1780,6 +1780,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get restoreStartByDate => '日期';
 
   @override
+  String get restoreStartByMonth => '月份';
+
+  @override
   String get restoreStartByHeight => '区块高度';
 
   @override
@@ -1815,6 +1818,32 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get restoreWholeChain => '改为扫描整条链';
+
+  @override
+  String get restorePickMonth => '选择你创建钱包的月份';
+
+  @override
+  String get restorePickMonthShort => '选择月份';
+
+  @override
+  String get restorePickMonthFirst => '请先选择月份。';
+
+  @override
+  String get restoreMonthHint => '可选。不确定时请选更早的月份：更晚的月份可能漏掉资金。';
+
+  @override
+  String restoreMonthStart(String height) {
+    return '扫描将从区块 $height 开始。';
+  }
+
+  @override
+  String get restoreMonthRecent => '月份很近：此前收到的资金可能被漏掉。';
+
+  @override
+  String get restoreMonthEarlierYear => '上一年';
+
+  @override
+  String get restoreMonthLaterYear => '下一年';
 
   @override
   String get restoreScanIntro => '正在区块链上查找你的资金。完成前请保持应用打开。';
@@ -2772,6 +2801,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsRescanFromDate => '从某个日期开始';
+
+  @override
+  String get settingsRescanFromMonth => '从某个月份开始';
 
   @override
   String get settingsRescanFromHeight => '从某个区块高度开始';
@@ -12141,6 +12173,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get restoreStartFromLink => '从某个日期或高度开始';
+
+  @override
+  String get restoreStartFromMonthLink => '从某个月份或高度开始';
 
   @override
   String get settingsRescanBodyPlain => '钱包从第一个区块开始，重新查找它的资金。';

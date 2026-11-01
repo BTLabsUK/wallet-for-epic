@@ -193,7 +193,7 @@ class HintSwitchTile extends StatelessWidget {
     super.key,
     required this.icon,
     required this.title,
-    required this.hint,
+    this.hint,
     required this.value,
     required this.onChanged,
     this.subtitle,
@@ -204,7 +204,10 @@ class HintSwitchTile extends StatelessWidget {
 
   final IconData icon;
   final String title;
-  final String hint;
+
+  /// The explanation behind the title's info icon; a plain title without one (the settings
+  /// switch row, `settings_rows.dart`).
+  final String? hint;
   final bool value;
   final ValueChanged<bool>? onChanged;
   final Widget? subtitle;
@@ -217,21 +220,25 @@ class HintSwitchTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final onChanged = this.onChanged;
-    return ListTile(
+    final tile = ListTile(
       leading: Icon(icon),
-      title: TitleWithHint(
-        title,
-        hint: hint,
-        sheetTitle: sheetTitle,
-        icon: sheetIcon ?? icon,
-        // Disabled, the row takes the icon into its own node, which has the title already.
-        labelled: onChanged != null,
-        onHelp: onHelp,
-      ),
+      title: hint == null
+          ? Text(title)
+          : TitleWithHint(
+              title,
+              hint: hint!,
+              sheetTitle: sheetTitle,
+              icon: sheetIcon ?? icon,
+              // Disabled, the row takes the icon into its own node, which has the title already.
+              labelled: onChanged != null,
+              onHelp: onHelp,
+            ),
       subtitle: subtitle,
       trailing: Switch(value: value, onChanged: onChanged),
       enabled: onChanged != null,
       onTap: onChanged == null ? null : () => onChanged(!value),
     );
+    // Without an info icon the row reads as one switch with its title, as SwitchListTile does.
+    return hint == null ? MergeSemantics(child: tile) : tile;
   }
 }

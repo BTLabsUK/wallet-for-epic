@@ -443,7 +443,7 @@ void main() {
         '  ${service.phrase.toUpperCase()} ',
       );
       // The start choice is offered to everyone behind a small link.
-      await _tapText(tester, 'Start from a date or height');
+      await _tapText(tester, 'Start from a month or height');
       await _tapText(tester, 'Block height');
       await _enter(tester, 'Start height (optional)', '1000');
       await _tapText(tester, 'Continue');

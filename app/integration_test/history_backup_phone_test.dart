@@ -287,7 +287,7 @@ Future<void> restoreWallet(WidgetTester tester, String phrase, {String? startHei
   }
   await typeInto(tester, fieldF('Recovery phrase'), phrase);
   if (startHeight != null) {
-    await tapText(tester, 'Start from a date or height');
+    await tapText(tester, 'Start from a month or height');
     if (hasText('Block height')) await tapText(tester, 'Block height');
     await typeInto(tester, fieldF('Start height (optional)'), startHeight);
   }

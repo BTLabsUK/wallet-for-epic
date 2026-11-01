@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,6 +14,7 @@ import '../l10n.dart';
 import '../phrase_problem.dart';
 import '../providers.dart';
 import '../restore_scan.dart';
+import '../start_month.dart';
 import '../secure_screen.dart' show hidePreview, keepScreenOn;
 import '../settings.dart' show autoLockHoldProvider;
 import '../wallet_service.dart';
@@ -22,6 +22,7 @@ import 'app_dialog.dart';
 import 'centered_body.dart';
 import 'common.dart';
 import 'launch_screen.dart';
+import 'month_picker.dart';
 import 'pin.dart';
 import 'scan_screen.dart' show offersQrScan, qrScannerProvider;
 import 'settings_history.dart';
@@ -30,31 +31,9 @@ import 'wallet_delete.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
 import 'devices/device_parts.dart' show LinkDeviceOffer;
+import 'inline_button.dart';
 
-/// Mainnet block 1 was mined at 2019-09-03T02:10:08Z (`get_header` at height 1 on
-/// the built-in node, checked 2026-09-30). The genesis block is dated 2019-08-09T17:04:38Z, 24 days
-/// earlier; counting from genesis at 60 s per block overshoots real heights by up to 20,000
-/// blocks, which would skip outputs, so the estimate counts from block 1.
-const int mainnetBlockOneUnix = 1567476608;
-
-/// Target block time. Real blocks averaged 58.6 to 59.8 s from block 1, so the estimate runs
-/// behind the chain, which is the safe side: the scan starts early rather than late.
-const int blockSeconds = 60;
-
-/// Two days of blocks subtracted on top, for clock skew and the day boundary.
-const int restoreMarginBlocks = 2 * 24 * 3600 ~/ blockSeconds;
-
-/// A mainnet height at or before the first block mined on [date]. Checked against real headers
-/// from height 100,000 to 3,700,000: the estimate was 13,600 to 65,100 blocks early.
-BigInt mainnetHeightForDate(DateTime date) {
-  final seconds =
-      date.toUtc().millisecondsSinceEpoch ~/ 1000 - mainnetBlockOneUnix;
-  final estimate = 1 + seconds ~/ blockSeconds - restoreMarginBlocks;
-  return BigInt.from(max(1, estimate));
-}
-
-/// The first day a mainnet wallet can hold funds.
-final DateTime mainnetFirstDay = DateTime(2019, 9, 3);
+export '../start_month.dart' show mainnetHeightForDate, mainnetFirstDay, mainnetBlockOneUnix, blockSeconds, restoreMarginBlocks;
 
 /// Lowercases the phrase and collapses whitespace, so pasted phrases validate.
 String normalizePhrase(String input) =>
@@ -496,11 +475,10 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       if (!advanced && ref.watch(levelFeaturesProvider.select((f) => f.restoreHeightField)))
         Align(
           alignment: AlignmentDirectional.centerStart,
-          child: TextButton(
+          child: InlineTextButton(
             key: restoreStartLinkKey,
-            style: TextButton.styleFrom(minimumSize: const Size(48, 44)),
             onPressed: () => setState(() => _startOpen = true),
-            child: Text(l.restoreStartFromLink),
+            child: Text(l.restoreStartFromMonthLink),
           ),
         ),
       const SizedBox(height: 12),
@@ -515,7 +493,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           segments: [
             ButtonSegment(
               value: _StartBy.date,
-              label: Text(l.restoreStartByDate),
+              label: Text(l.restoreStartByMonth),
             ),
             ButtonSegment(
               value: _StartBy.height,
@@ -531,8 +509,11 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       ],
       if (advanced) ...[
         if (_startBy == _StartBy.date && _datesSupported)
-          _DateChoice(
+          // A month, no day (the owner, 2026-11-01): the scan starts from its first.
+          StartMonthChoice(
             date: _startDate,
+            hint: l.restoreMonthHint,
+            clearLabel: l.restoreWholeChain,
             onChanged: (date) => setState(() => _startDate = date),
           )
         else
@@ -632,86 +613,6 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         ),
       ],
     ];
-  }
-}
-
-/// An optional start date with a date picker. Null means the whole chain.
-class _DateChoice extends StatelessWidget {
-  const _DateChoice({required this.date, required this.onChanged});
-
-  final DateTime? date;
-  final ValueChanged<DateTime?> onChanged;
-
-  Future<void> _pick(BuildContext context) async {
-    final now = DateTime.now();
-    final t = context.tokens;
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: date ?? now,
-      firstDate: mainnetFirstDay,
-      lastDate: now,
-      helpText: context.l10n.restoreDatePickerTitle,
-      // The app's faces and a neutral selection instead of Material's stock look.
-      builder: (context, child) => Theme(
-        data: Theme.of(context).copyWith(
-          datePickerTheme: DatePickerThemeData(
-            backgroundColor: t.surface,
-            headerHeadlineStyle: TextStyle(fontFamily: t.headFamily, fontWeight: FontWeight.w600, fontSize: 24, color: t.text),
-            headerHelpStyle: TextStyle(fontFamily: t.headFamily, fontWeight: FontWeight.w600, fontSize: 13, color: t.dim),
-            dayStyle: TextStyle(fontFamily: t.monoFamily, fontSize: 14),
-            yearStyle: TextStyle(fontFamily: t.monoFamily, fontSize: 14),
-            dayBackgroundColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? t.selected : null),
-            dayForegroundColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.disabled) ? t.faint : t.text),
-            todayBackgroundColor: const WidgetStatePropertyAll(Colors.transparent),
-            todayForegroundColor: WidgetStatePropertyAll(t.text),
-            todayBorder: BorderSide(color: t.selectedLine),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(t.radiusSmall)),
-          ),
-        ),
-        child: child!,
-      ),
-    );
-    if (picked != null) onChanged(picked);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final chosen = date;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        OutlinedButton.icon(
-          style: OutlinedButton.styleFrom(
-            minimumSize: const Size.fromHeight(48),
-          ),
-          icon: const Icon(Icons.calendar_today),
-          label: Text(
-            chosen == null
-                ? l.restorePickDate
-                : l.restoreFromDate(localDay(l, chosen)),
-          ),
-          onPressed: () => _pick(context),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          chosen == null
-              ? l.restoreDateHint
-              : l.restoreDateStart(
-                  groupDigits(l, mainnetHeightForDate(chosen)),
-                ),
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
-        if (chosen != null)
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton(
-              onPressed: () => onChanged(null),
-              child: Text(l.restoreWholeChain),
-            ),
-          ),
-      ],
-    );
   }
 }
 

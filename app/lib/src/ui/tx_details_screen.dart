@@ -43,6 +43,8 @@ import '../levels/level_providers.dart' show levelFeaturesProvider;
 import 'levels/pay_details.dart';
 import 'tx_edit_sheet.dart';
 import 'tx_label.dart';
+import 'settings_rows.dart' show NavChevron;
+import 'inline_button.dart';
 
 /// Minutes per Epic block, for rough "about N hours" estimates.
 const int _minutesPerBlock = 1;
@@ -811,7 +813,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                     if (tx.origin == TxOrigin.otherWallet && tx.deviceName == null)
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: TextButton(
+                        child: InlineTextButton(
                           key: const ValueKey('tx-other-wallet-help'),
                           onPressed: () => openHelp(context, HelpId.otherWallet),
                           child: Text(l.txOtherWalletMore),
@@ -996,7 +998,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                     : l.txEditAdd,
                 style: theme.textTheme.labelLarge,
               ),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const NavChevron(),
               onTap: _busy ? null : () => _editDetails(tx),
             ),
           if (!device) _LabelTile(tx: tx),
@@ -1116,12 +1118,8 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
               !_more)
             Align(
               alignment: AlignmentDirectional.centerStart,
-              child: TextButton(
+              child: InlineTextButton(
                 key: txDetailsMoreKey,
-                style: TextButton.styleFrom(
-                  minimumSize: const Size(48, 44),
-                  padding: EdgeInsets.zero,
-                ),
                 onPressed: () => setState(() => _more = true),
                 child: Text(l.txDetailsMore),
               ),

@@ -44,6 +44,7 @@ import '../badge.dart';
 import '../theme/tokens.dart';
 import 'relay_down.dart';
 import 'status_parts.dart';
+import '../settings_rows.dart' show NavChevron;
 
 /// The Switch server button of [kind]'s sheet, and a row of its list by the server's value (a
 /// node address, a relay's label), for tests.
@@ -268,7 +269,7 @@ class _ShallowServerSwitchState extends ConsumerState<ShallowServerSwitch> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 EBadge(word, tone: tone, dot: true),
-                if (!down) ...[const SizedBox(width: 4), Icon(Icons.chevron_right, size: 20, color: t.dim)],
+                if (!down) ...[const SizedBox(width: 4), const NavChevron(size: 20)],
               ],
             ),
       onTap: down || _moving != null ? null : () => _pick(r),

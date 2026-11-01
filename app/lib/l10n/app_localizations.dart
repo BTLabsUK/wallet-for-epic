@@ -3049,6 +3049,12 @@ abstract class AppLocalizations {
   /// **'Date'**
   String get restoreStartByDate;
 
+  /// Segment button: give the scan's start as a month and year. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get restoreStartByMonth;
+
   /// Segment button: give the scan's start as a block number. Short.
   ///
   /// In en, this message translates to:
@@ -3114,6 +3120,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Scan the whole chain instead'**
   String get restoreWholeChain;
+
+  /// Button that opens the month picker for the scan's start (restore).
+  ///
+  /// In en, this message translates to:
+  /// **'Pick the month you created the wallet'**
+  String get restorePickMonth;
+
+  /// Button that opens the month picker for a recheck's start. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a month'**
+  String get restorePickMonthShort;
+
+  /// Error under the month picker: Start was pressed before a month was chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a month first.'**
+  String get restorePickMonthFirst;
+
+  /// Under the month picker before a month is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. If unsure, pick an earlier month: a later one can miss coins.'**
+  String get restoreMonthHint;
+
+  /// Under the chosen start month: the block number the scan starts from (just before the 1st of the month).
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning starts from block {height}.'**
+  String restoreMonthStart(String height);
+
+  /// Warning under the chosen start month when it is this month or the previous one.
+  ///
+  /// In en, this message translates to:
+  /// **'A recent month: coins from before it may be missed.'**
+  String get restoreMonthRecent;
+
+  /// Icon button in the month picker: show the year before. Screen-reader label and tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier year'**
+  String get restoreMonthEarlierYear;
+
+  /// Icon button in the month picker: show the year after. Screen-reader label and tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Later year'**
+  String get restoreMonthLaterYear;
 
   /// No description provided for @restoreScanIntro.
   ///
@@ -4716,6 +4770,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'From a date'**
   String get settingsRescanFromDate;
+
+  /// Recheck balance choice: start the scan from a month and year.
+  ///
+  /// In en, this message translates to:
+  /// **'From a month'**
+  String get settingsRescanFromMonth;
 
   /// Choice in the rescan dialog: start at a block number.
   ///
@@ -20383,6 +20443,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Start from a date or height'**
   String get restoreStartFromLink;
+
+  /// Link on Restore that opens the choice of where the scan starts: a month or a block height.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from a month or height'**
+  String get restoreStartFromMonthLink;
 
   /// Recheck balance dialog text while Recheck from a height is off in Advanced: no start choice, the whole chain is scanned.
   ///

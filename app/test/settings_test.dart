@@ -22,6 +22,8 @@ import 'package:epic_wallet/src/ui/language_flag.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/first_run_screen.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart';
+import 'package:epic_wallet/src/ui/month_picker.dart';
+import 'package:epic_wallet/src/start_month.dart' show StartMonth;
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/server_list_sheet.dart'
     show
@@ -389,18 +391,21 @@ void main() {
       await h.pump(tester);
       await _tapText(tester, 'Restore from phrase');
       await _enter(tester, 'Recovery phrase', h.service.phrase);
-      await _tapText(tester, 'Start from a date or height');
-      await _tapText(tester, 'Pick the date you created the wallet');
-      // The picker opens on today (the real clock); pick the 1st of this month.
-      await tester.tap(find.text('1'));
-      await tester.tap(find.text('OK'));
+      await _tapText(tester, 'Start from a month or height');
+      await _tapText(tester, 'Pick the month you created the wallet');
+      // Year and month, no day: the picker opens on 2019 (never today); two years on, July.
+      expect(find.text('2019'), findsOneWidget);
+      await tester.tap(find.byKey(StartMonthPicker.laterKey));
+      await tester.pump();
+      await tester.tap(find.byKey(StartMonthPicker.laterKey));
+      await tester.pump();
+      await tester.tap(find.byKey(StartMonthPicker.monthKey(const StartMonth(2021, 7))));
       await tester.pumpAndSettle();
-      final today = DateTime.now();
-      final dayStart = DateTime(today.year, today.month);
-      expect(
-        find.text('From ${localDay(englishStrings, dayStart)}'),
-        findsOneWidget,
-      );
+      final dayStart = DateTime(2021, 7);
+      expect(find.text('July 2021'), findsOneWidget);
+      expect(find.text('Scanning starts from block ${localInt(englishStrings, mainnetHeightForDate(dayStart))}.'), findsOneWidget);
+      // An old month: no warning that coins may be missed.
+      expect(find.byKey(StartMonthChoice.recentKey), findsNothing);
       await _tapText(tester, 'Continue');
       await _enter(tester, 'PIN', _pin);
       await _enter(tester, 'Repeat PIN', _pin);
@@ -1088,7 +1093,7 @@ void main() {
       await _tapText(tester, 'Recheck balance');
       // No start choice: the from-height stays behind the Advanced switch.
       expect(find.text('From a block height'), findsNothing);
-      expect(find.text('From a date'), findsNothing);
+      expect(find.text('From a month'), findsNothing);
       expect(find.text('The whole chain'), findsNothing);
       // Block 0: only a scan from there finishes a restore.
       await _tapText(tester, 'Recheck');
@@ -1962,7 +1967,7 @@ void main() {
         expect(find.bySemanticsLabel('Node and Epicbox'), findsOneWidget);
         await _tapText(tester, 'Restore from phrase');
         expect(find.text('Where to start scanning'), findsNothing);
-        expect(find.text('Pick the date you created the wallet'), findsNothing);
+        expect(find.text('Pick the month you created the wallet'), findsNothing);
         expect(find.text('Block height'), findsNothing);
         expect(find.byKey(restoreStartLinkKey), findsOneWidget);
         await _enter(tester, 'Recovery phrase', h.service.phrase);
@@ -1984,12 +1989,12 @@ void main() {
       expect(find.bySemanticsLabel('Node and Epicbox'), findsOneWidget);
       await _tapText(tester, 'Restore from phrase');
       expect(find.byKey(restoreStartLinkKey), findsOneWidget);
-      expect(find.text('Start from a date or height'), findsOneWidget);
+      expect(find.text('Start from a month or height'), findsOneWidget);
       expect(find.text('Where to start scanning'), findsNothing);
-      await _tapText(tester, 'Start from a date or height');
+      await _tapText(tester, 'Start from a month or height');
       expect(find.byKey(restoreStartLinkKey), findsNothing);
       expect(find.text('Where to start scanning'), findsOneWidget);
-      expect(find.text('Pick the date you created the wallet'), findsOneWidget);
+      expect(find.text('Pick the month you created the wallet'), findsOneWidget);
       await _tapText(tester, 'Block height');
       expect(
         find.widgetWithText(TextField, 'Start height (optional)'),

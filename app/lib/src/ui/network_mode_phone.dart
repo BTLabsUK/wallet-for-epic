@@ -15,9 +15,9 @@ import '../models.dart';
 import '../phone_tor.dart';
 import '../providers.dart';
 import '../settings.dart';
-import 'info_hint.dart';
 import 'network_mode_text.dart';
-import 'settings_sections.dart' show SettingsHeader, SettingsSection, openSettingsSection;
+import 'settings_rows.dart' show RadioRow, SettingsHeader;
+import 'settings_sections.dart' show SettingsSection, openSettingsSection;
 import 'tor_ui.dart' show torShown;
 import 'theme/tokens.dart';
 
@@ -136,18 +136,15 @@ class NetworkModeSection extends ConsumerWidget {
     Widget row(NetworkMode m) {
       final enabled = m != NetworkMode.torOnly || torAvailable;
       final name = networkModeName(l, m);
-      return ListTile(
-        key: networkModeRowKey(m),
+      // The settings radio row: the mode's glyph leads, the radio ends the row.
+      return RadioRow<NetworkMode>(
+        tileKey: networkModeRowKey(m),
+        value: m,
         enabled: enabled,
-        leading: Radio<NetworkMode>(value: m, enabled: enabled),
-        title: TitleWithHint(
-          name,
-          hintKey: networkModeHintKey(m),
-          hint: networkModeHint(l, m),
-          icon: networkModeGlyph(m),
-          labelled: enabled,
-        ),
-        onTap: enabled ? () => chooseNetworkMode(context, ref, m) : null,
+        icon: networkModeGlyph(m),
+        title: name,
+        hint: networkModeHint(l, m),
+        hintKey: networkModeHintKey(m),
       );
     }
     final rows = RadioGroup<NetworkMode>(

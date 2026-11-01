@@ -24,6 +24,7 @@ import 'theme/protocol.dart';
 import 'theme/tokens.dart';
 import 'tx_details_screen.dart';
 import 'devices/device_tx_details.dart' show heldByLine;
+import 'settings_rows.dart' show NavChevron;
 
 /// Which outputs the list shows. [immature] has no segment of its own: Home's tile opens it.
 enum OutputsFilter { all, spendable, confirming, locked, immature }
@@ -437,7 +438,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.tune),
               title: Text(l.outputsDefaultsMoved),
-              trailing: const Icon(Icons.chevron_right),
+              trailing: const NavChevron(),
               onTap: () => openSettingsSection(context, SettingsSection.transactions),
             ),
           ],
