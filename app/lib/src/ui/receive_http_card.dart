@@ -253,7 +253,10 @@ class _AddressState extends ConsumerState<_Address> {
                             color: protocolLight.surface,
                             borderRadius: BorderRadius.circular(t.radiusSmall),
                           ),
+                          // Its own node: merged into the card, the label read as part of
+                          // the card's whole text.
                           child: Semantics(
+                            container: true,
                             label: l.receiveHttpQrLabel,
                             image: true,
                             child: MarkedQr(
