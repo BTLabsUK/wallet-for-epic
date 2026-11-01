@@ -19334,4 +19334,10 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskOnbForgotFailedLead =>
       'Текущий пароль по-прежнему открывает кошелёк.';
+
+  @override
+  String get deskSetHelpSupportHead => 'Поддержка';
+
+  @override
+  String get deskSetHelpTopicsHead => 'Темы';
 }

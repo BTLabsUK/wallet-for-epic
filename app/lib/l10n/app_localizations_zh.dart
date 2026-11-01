@@ -17640,4 +17640,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOnbForgotFailedLead => '当前密码仍可打开钱包。';
+
+  @override
+  String get deskSetHelpSupportHead => '支持';
+
+  @override
+  String get deskSetHelpTopicsHead => '主题';
 }

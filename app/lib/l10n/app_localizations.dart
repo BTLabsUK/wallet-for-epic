@@ -29215,6 +29215,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The current password still opens the wallet.'**
   String get deskOnbForgotFailedLead;
+
+  /// Section head at the top of Settings › Help, over the support and donation bars.
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get deskSetHelpSupportHead;
+
+  /// Section head of Settings › Help over the search and the help topics.
+  ///
+  /// In en, this message translates to:
+  /// **'Topics'**
+  String get deskSetHelpTopicsHead;
 }
 
 class _AppLocalizationsDelegate

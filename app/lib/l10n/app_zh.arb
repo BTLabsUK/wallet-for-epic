@@ -4868,5 +4868,7 @@
   "deskNodeSwitchStoppingWord": "正在停止",
   "deskOnbImportFoundLead": "继续以选择要添加的钱包。",
   "deskOnbForgotFailedTitle": "密码未更改",
-  "deskOnbForgotFailedLead": "当前密码仍可打开钱包。"
+  "deskOnbForgotFailedLead": "当前密码仍可打开钱包。",
+  "deskSetHelpSupportHead": "支持",
+  "deskSetHelpTopicsHead": "主题"
 }

@@ -4868,5 +4868,7 @@
   "deskNodeSwitchStoppingWord": "Stoppt",
   "deskOnbImportFoundLead": "Weiter, um die Wallets zum Hinzufügen auszuwählen.",
   "deskOnbForgotFailedTitle": "Passwort nicht geändert",
-  "deskOnbForgotFailedLead": "Das bisherige Passwort öffnet die Wallet weiterhin."
+  "deskOnbForgotFailedLead": "Das bisherige Passwort öffnet die Wallet weiterhin.",
+  "deskSetHelpSupportHead": "Support",
+  "deskSetHelpTopicsHead": "Themen"
 }

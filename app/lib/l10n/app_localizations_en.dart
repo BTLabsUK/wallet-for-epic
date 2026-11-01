@@ -18706,4 +18706,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskOnbForgotFailedLead =>
       'The current password still opens the wallet.';
+
+  @override
+  String get deskSetHelpSupportHead => 'Support';
+
+  @override
+  String get deskSetHelpTopicsHead => 'Topics';
 }

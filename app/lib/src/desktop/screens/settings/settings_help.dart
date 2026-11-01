@@ -197,10 +197,12 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // The same section heads as every Settings page: Support, then Topics.
+                ESectionHead(context.l10n.deskSetHelpSupportHead, top: 0),
                 const _SupportBar(),
                 SizedBox(height: Sp.x3),
                 const _DonateBar(),
-                SizedBox(height: Sp.x5),
+                ESectionHead(context.l10n.deskSetHelpTopicsHead),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [

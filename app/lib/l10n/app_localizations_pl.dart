@@ -19352,4 +19352,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOnbForgotFailedLead => 'Obecne hasło nadal otwiera portfel.';
+
+  @override
+  String get deskSetHelpSupportHead => 'Wsparcie';
+
+  @override
+  String get deskSetHelpTopicsHead => 'Tematy';
 }

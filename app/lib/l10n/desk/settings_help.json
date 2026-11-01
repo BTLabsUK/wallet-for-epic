@@ -123,6 +123,14 @@
   "@deskSetHelpSearch": {
     "description": "Label and screen reader label of the search field on the Help page."
   },
+  "deskSetHelpSupportHead": "Support",
+  "@deskSetHelpSupportHead": {
+    "description": "Section head at the top of Settings › Help, over the support and donation bars."
+  },
+  "deskSetHelpTopicsHead": "Topics",
+  "@deskSetHelpTopicsHead": {
+    "description": "Section head of Settings › Help over the search and the help topics."
+  },
   "deskSetHelpSearchKeys": "Press / to search. Esc clears the search.",
   "@deskSetHelpSearchKeys": {
     "description": "Help under the Help page's search field: the / key moves to the search, the Esc key clears it. Keep / and Esc as keys."

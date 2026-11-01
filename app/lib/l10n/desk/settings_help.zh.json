@@ -24,6 +24,8 @@
   "deskSetHelpWithFile": "使用文件",
   "deskSetHelpStep": "第 {number} 步，共 {total} 步",
   "deskSetHelpSearch": "搜索帮助",
+  "deskSetHelpSupportHead": "支持",
+  "deskSetHelpTopicsHead": "主题",
   "deskSetHelpSearchKeys": "按 / 搜索。按 Esc 清除搜索。",
   "deskSetHelpSearchHint": "例如：文件、确认、助记词",
   "deskSetHelpClear": "清除搜索",

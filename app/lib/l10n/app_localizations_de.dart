@@ -18928,4 +18928,10 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskOnbForgotFailedLead =>
       'Das bisherige Passwort öffnet die Wallet weiterhin.';
+
+  @override
+  String get deskSetHelpSupportHead => 'Support';
+
+  @override
+  String get deskSetHelpTopicsHead => 'Themen';
 }

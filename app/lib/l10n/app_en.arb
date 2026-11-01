@@ -25316,5 +25316,13 @@
   "deskOnbForgotFailedLead": "The current password still opens the wallet.",
   "@deskOnbForgotFailedLead": {
     "description": "Lead under deskOnbForgotFailedTitle."
+  },
+  "deskSetHelpSupportHead": "Support",
+  "@deskSetHelpSupportHead": {
+    "description": "Section head at the top of Settings › Help, over the support and donation bars."
+  },
+  "deskSetHelpTopicsHead": "Topics",
+  "@deskSetHelpTopicsHead": {
+    "description": "Section head of Settings › Help over the search and the help topics."
   }
 }

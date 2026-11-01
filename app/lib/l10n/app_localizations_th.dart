@@ -18290,4 +18290,10 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbForgotFailedLead => 'รหัสผ่านปัจจุบันยังคงเปิดวอลเล็ตได้';
+
+  @override
+  String get deskSetHelpSupportHead => 'การสนับสนุน';
+
+  @override
+  String get deskSetHelpTopicsHead => 'หัวข้อ';
 }
