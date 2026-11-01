@@ -1986,10 +1986,18 @@ class DangerButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
+    // The outlined risk style; disabled, the one disabled recipe (theme/tokens.dart).
     final style = OutlinedButton.styleFrom(
       foregroundColor: t.risk,
-      side: BorderSide(color: t.risk),
-      minimumSize: const Size(48, 44),
+      disabledForegroundColor: t.faint,
+      minimumSize: Size(48, t.controlHeight),
+    ).copyWith(
+      side: WidgetStateProperty.resolveWith(
+        (s) => s.contains(WidgetState.disabled) ? BorderSide.none : BorderSide(color: t.risk),
+      ),
+      backgroundColor: WidgetStateProperty.resolveWith(
+        (s) => s.contains(WidgetState.disabled) ? disabledButtonFill(t) : null,
+      ),
     );
     if (icon != null) return OutlinedButton.icon(style: style, icon: icon, label: label!, onPressed: onPressed);
     return OutlinedButton(style: style, onPressed: onPressed, child: child!);

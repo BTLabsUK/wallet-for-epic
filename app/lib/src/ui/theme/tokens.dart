@@ -416,20 +416,32 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
         tracking: -0.4,
       )?.copyWith(color: t.text, fontSize: 19),
     ),
+    // One disabled recipe for every button, as the desktop's EButton (D-03): a flat fill
+    // ([disabledButtonFill]), faint ink, no edge, so a disabled primary never reads as an
+    // enabled outlined secondary.
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         minimumSize: minSize,
         shape: shape,
         textStyle: buttonText,
+        disabledBackgroundColor: disabledButtonFill(t),
+        disabledForegroundColor: t.faint,
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: t.text,
-        side: BorderSide(color: t.lineStrong),
         minimumSize: minSize,
         shape: shape,
         textStyle: buttonText,
+        disabledForegroundColor: t.faint,
+      ).copyWith(
+        side: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.disabled) ? BorderSide.none : BorderSide(color: t.lineStrong),
+        ),
+        backgroundColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.disabled) ? disabledButtonFill(t) : null,
+        ),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
@@ -559,3 +571,7 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
 /// [color] at 40% while the switch is disabled.
 Color _switchFade(Set<WidgetState> states, Color color) =>
     states.contains(WidgetState.disabled) ? color.withValues(alpha: 0.4) : color;
+
+/// The fill of a disabled button (filled or outlined, both platforms' recipe): the text colour
+/// at a low alpha, visible on every surface without looking pressable.
+Color disabledButtonFill(WalletTokens t) => t.text.withValues(alpha: 0.08);
