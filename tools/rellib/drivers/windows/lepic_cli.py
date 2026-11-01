@@ -64,11 +64,6 @@ def exe_path(pin_):
     return "%s\\%s\\lepic.exe" % (CLI_ROOT, pin_[:12])
 
 
-def host_dir(hosts_file=None):
-    """The build host's workdir from the hosts file is not needed: the CLI lives under CLI_ROOT on the rig box."""
-    return CLI_ROOT
-
-
 def build_script(pin_):
     d = "%s\\%s" % (CLI_ROOT, pin_[:12])
     return r"""

@@ -75,7 +75,8 @@ title = "Epic Wallet"
 # waives it ([proof] waive), and the publish gate then shows it as not proven.
 [proof]
 status = "default pending the owner's call"
-checks = ["wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept", "custom_relays_kept", "settings_kept"]
+checks = ["wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept", "custom_relays_kept", "settings_kept",
+          "store_encrypted", "app_files_kept", "lan_nodes_kept", "contact_note_kept"]
 funds_checks = ["send_ok", "receive_ok"]
 funds_variant = "tor"
 variants = ["tor", "notor"]
