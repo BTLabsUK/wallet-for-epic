@@ -13,6 +13,10 @@ built once into a store on this host and reused by every agent and worktree.
                          its lock or another build holds the store's lock.
   testbin.sh list        the entries, newest first
   testbin.sh prune       keep `latest` and the most recently used entries (TESTBIN_KEEP, 4)
+  testbin.sh pause [why] / resume
+                         no builds while paused (a live emulator check, a release run): refresh
+                         skips; a `get` that would build waits, saying so once a minute; hits
+                         still print at once
 
 Store: /tmp/epic-build/testbins/ (TESTBIN_STORE)
   <app12>-<lepic12>/manifest.json         app commit, LEPIC and lepic-flutter commits, and per
@@ -130,6 +134,25 @@ def rel_busy():
         finally:
             os.close(fd)
     return held
+
+
+PAUSE = STORE / "PAUSE"
+
+
+def paused():
+    try:
+        return PAUSE.read_text().strip() or "paused"
+    except OSError:
+        return None
+
+
+def wait_unpaused():
+    n = 0
+    while (why := paused()):
+        if n % 12 == 0:
+            log(f"builds are paused ({why}); waiting for `testbin.sh resume`")
+        n += 1
+        time.sleep(5)
 
 
 def build_lock(wait=True):
@@ -364,8 +387,10 @@ def cmd_get(a):
     if not have(entry, a.variant, a.what):
         if a.no_build:
             raise SystemExit(f"testbin: no {a.what} ({a.variant}) for {sha[:12]} in {STORE}")
+        wait_unpaused()
         lock = build_lock(wait=True)
         try:
+            wait_unpaused()
             # the other caller may have built it while we waited
             build(sha, lepic, binding, a.variant, [a.what])
             if sha == main_sha() and have(entry, "tor", "linux") and have(entry, "tor", "apk"):
@@ -377,6 +402,9 @@ def cmd_get(a):
 
 
 def cmd_refresh(a):
+    if paused():
+        log(f"skipped: builds are paused ({paused()})")
+        return
     busy = rel_busy()
     if busy:
         log(f"skipped: a release run holds {busy[0]}")
@@ -409,7 +437,7 @@ def cmd_list(a):
         arts = ", ".join(sorted(m.get("artifacts", {})))
         mark = " (latest)" if e.resolve() == lt else ""
         print(f"{e.name}{mark}  {size_of(e) / 1e6:.0f} MB  [{arts}]  {m.get('app_subject', '')[:60]}")
-    print(f"free: {free_gb():.1f} GB")
+    print(f"free: {free_gb():.1f} GB" + (f"; builds paused: {paused()}" if paused() else ""))
 
 
 def cmd_prune(a):
@@ -418,6 +446,19 @@ def cmd_prune(a):
         prune()
     finally:
         lock.close()
+
+
+def cmd_pause(a):
+    STORE.mkdir(parents=True, exist_ok=True)
+    why = " ".join(a.why) or "paused"
+    PAUSE.write_text(f"{why} (since {dt.datetime.now():%Y-%m-%d %H:%M})\n")
+    log(f"paused: {why}; a build already running goes on to its end")
+
+
+def cmd_resume(a):
+    if PAUSE.exists():
+        PAUSE.unlink()
+    log("resumed")
 
 
 def main():
@@ -429,6 +470,9 @@ def main():
     g.add_argument("--variant", default="tor", choices=VARIANTS)
     g.add_argument("--no-build", action="store_true")
     g.set_defaults(fn=cmd_get)
+    sub.add_parser("pause").add_argument("why", nargs="*")
+    sub.choices["pause"].set_defaults(fn=cmd_pause)
+    sub.add_parser("resume").set_defaults(fn=cmd_resume)
     for name, fn in (("refresh", cmd_refresh), ("list", cmd_list), ("prune", cmd_prune)):
         sub.add_parser(name).set_defaults(fn=fn)
     a = p.parse_args()
