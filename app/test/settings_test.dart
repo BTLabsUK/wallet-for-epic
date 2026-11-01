@@ -1679,6 +1679,11 @@ void main() {
         await tester.pump();
       }
       expect(find.text('Tor'), findsOneWidget);
+      // Tor's licence as written (polish #10): one preformatted block, not centred paragraphs.
+      await tester.tap(find.text('Tor'));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.textContaining('This file contains the license for Tor'), findsOneWidget);
     }, skip: !torBuilt);
   });
 

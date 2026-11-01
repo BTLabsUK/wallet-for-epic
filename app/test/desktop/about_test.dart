@@ -2,6 +2,8 @@
 import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/dist_build.dart' show distStore;
 import 'package:epic_wallet/src/tor_build.dart';
+import 'package:epic_wallet/src/tor_licence.dart' show registerTorLicence;
+import 'package:epic_wallet/src/desktop/screens/settings/licence_texts_dialog.dart';
 import 'package:epic_wallet/src/desktop/data/desk_update.dart';
 import 'package:epic_wallet/src/desktop/data/files.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_about.dart';
@@ -151,6 +153,7 @@ void main() {
     await tester.pump();
     expect(find.textContaining('tor 0.4.9.14, unmodified'), findsOneWidget, reason: 'the GPL notice with the source');
     expect(find.text('Credits'), findsNothing);
+    registerTorLicence();
     await tester.ensureVisible(find.widgetWithText(EButton, 'View'));
     await tester.tap(find.widgetWithText(EButton, 'View'));
     // The licences are read from assets, in real time.
@@ -158,7 +161,18 @@ void main() {
       await tester.pump(const Duration(milliseconds: 50));
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
     }
-    expect(find.byType(LicensePage), findsOneWidget);
+    // The app's own dialog (polish #10), not Flutter's stock LicensePage.
+    expect(find.byType(LicenceTextsDialog), findsOneWidget);
+    expect(find.byType(LicensePage), findsNothing);
+    for (var i = 0; i < 50 && find.text('Tor').evaluate().isEmpty; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump();
+    }
+    await tester.ensureVisible(find.text('Tor'));
+    await tester.tap(find.text('Tor'));
+    await tester.pump();
+    // Tor's licence as written: one block, its first line where the file has it.
+    expect(find.textContaining('This file contains the license for Tor'), findsOneWidget);
   }, skip: !torBuilt);
 
   testWidgets('no manifest published: no update and no error; Check now asks again', (tester) async {
