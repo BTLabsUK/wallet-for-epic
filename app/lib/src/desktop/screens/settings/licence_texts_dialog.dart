@@ -83,7 +83,7 @@ class _LicenceTextsDialogState extends State<LicenceTextsDialog> {
         }
         return EDialog(
           title: open == null ? l.licencesFull : licencePackageName(open),
-          width: 720.u,
+          size: DialogWidth.wide,
           body: body,
           actions: [
             if (open != null) EButton(label: l.deskSendBack, onPressed: () => setState(() => _open = null)),

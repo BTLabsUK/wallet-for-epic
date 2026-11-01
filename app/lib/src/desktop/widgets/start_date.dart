@@ -118,7 +118,6 @@ class _EStartMonthPickerState extends State<EStartMonthPicker> {
     final years = startYears(widget.now);
     return EDialog(
       title: l.restoreDatePickerTitle,
-      width: 400.u,
       body: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,

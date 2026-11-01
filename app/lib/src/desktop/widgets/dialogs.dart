@@ -57,7 +57,7 @@ class EDialog extends StatelessWidget {
     this.body,
     this.actions = const [],
     this.size = DialogWidth.standard,
-    this._width,
+    @Deprecated('Pass size: a DialogWidth') this._width,
     this.dismissible = true,
     this.foot,
   });
