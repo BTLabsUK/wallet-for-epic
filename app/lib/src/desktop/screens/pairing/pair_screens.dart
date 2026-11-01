@@ -486,15 +486,15 @@ class _NameDialogState extends State<_NameDialog> {
     final l = context.l10n;
     return EDialog(
       title: l.pairSeenAsEdit,
-      width: 420.u,
+      icon: EIcons.pencil,
       body: EField(
         label: l.pairSeenAsField,
         error: _error,
         child: EInput(key: deskPairNameKey, controller: _text, autofocus: true, onChanged: (_) => setState(() => _error = null), onSubmitted: (_) => _save()),
       ),
       actions: [
-        EButton(label: l.commonCancel, size: EBtnSize.sm, onPressed: () => Navigator.pop(context)),
-        EButton.primary(key: deskPairNameSaveKey, label: l.commonSave, size: EBtnSize.sm, onPressed: _save),
+        EButton(label: l.commonCancel, onPressed: () => Navigator.pop(context)),
+        EButton.primary(key: deskPairNameSaveKey, label: l.commonSave, onPressed: _save),
       ],
     );
   }
@@ -591,7 +591,8 @@ class DeskConfirmationDialog extends ConsumerWidget {
     final name = ref.watch(deskPairingNameProvider(pairingId));
     return EDialog(
       title: l.pairFinishCodeTitle,
-      width: 560.u,
+      icon: EIcons.trusted,
+      size: DialogWidth.wide,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -605,8 +606,8 @@ class DeskConfirmationDialog extends ConsumerWidget {
         ],
       ),
       actions: [
-        EButton(key: deskConfirmCheckKey, label: l.pairCheckWords, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, true)),
-        EButton.primary(key: deskConfirmCopyKey, label: l.commonCopy, icon: EIcons.copy, size: EBtnSize.sm, autofocus: true, onPressed: () => copyToClipboard(context, l.pairFinishMessage(link), l.pairMessageCopied)),
+        EButton(key: deskConfirmCheckKey, label: l.pairCheckWords, onPressed: () => Navigator.pop(context, true)),
+        EButton.primary(key: deskConfirmCopyKey, label: l.commonCopy, icon: EIcons.copy, autofocus: true, onPressed: () => copyToClipboard(context, l.pairFinishMessage(link), l.pairMessageCopied)),
       ],
     );
   }
@@ -669,7 +670,6 @@ class _IncomingDialogState extends ConsumerState<_IncomingDialog> {
     final name = sender?.name ?? p.name;
     return EDialog(
       title: l.pairIncomingTitle(name),
-      width: 520.u,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -685,8 +685,8 @@ class _IncomingDialogState extends ConsumerState<_IncomingDialog> {
         ],
       ),
       actions: [
-        EButton(key: deskIncomingNotNowKey, label: l.pairNotNow, size: EBtnSize.sm, onPressed: _busy ? null : () => Navigator.pop(context)),
-        EButton.primary(key: deskIncomingPairKey, label: l.pairTitle, size: EBtnSize.sm, busy: _busy, onPressed: _pair),
+        EButton(key: deskIncomingNotNowKey, label: l.pairNotNow, onPressed: _busy ? null : () => Navigator.pop(context)),
+        EButton.primary(key: deskIncomingPairKey, label: l.pairTitle, busy: _busy, onPressed: _pair),
       ],
     );
   }
@@ -835,7 +835,8 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
     final link = _link;
     return EDialog(
       title: l.pairPairingWith(name),
-      width: 560.u,
+      icon: EIcons.trusted,
+      size: DialogWidth.wide,
       dismissible: false,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -881,7 +882,7 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
           ],
         ],
       ),
-      actions: [EButton(key: deskWaitingCancelKey, label: l.commonCancel, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: _cancel)],
+      actions: [EButton(key: deskWaitingCancelKey, label: l.commonCancel, kind: EBtnKind.danger, onPressed: _cancel)],
     );
   }
 }
@@ -897,8 +898,8 @@ Future<bool> deskConfirmCancelPairing(BuildContext context, String name) async {
       tone: ETone.warn,
       icon: EIcons.alert,
       actions: [
-        EButton(label: l.contactKeep, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, false)),
-        EButton(label: l.pairCancelPairing, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, true)),
+        EButton(label: l.contactKeep, onPressed: () => Navigator.pop(ctx, false)),
+        EButton(label: l.pairCancelPairing, kind: EBtnKind.danger, onPressed: () => Navigator.pop(ctx, true)),
       ],
     ),
   );
@@ -925,8 +926,8 @@ Future<void> showDeskPairWithContact(BuildContext context, WidgetRef ref, Contac
       description: l.pairRequestBody,
       icon: EIcons.trusted,
       actions: [
-        EButton(key: deskWay1ShowInviteKey, label: l.pairShowMyCodeInstead, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, false)),
-        EButton.primary(key: deskWay1SendKey, label: l.pairSendRequest, size: EBtnSize.sm, autofocus: true, onPressed: () => Navigator.pop(ctx, true)),
+        EButton(key: deskWay1ShowInviteKey, label: l.pairShowMyCodeInstead, onPressed: () => Navigator.pop(ctx, false)),
+        EButton.primary(key: deskWay1SendKey, label: l.pairSendRequest, autofocus: true, onPressed: () => Navigator.pop(ctx, true)),
       ],
     ),
   );
@@ -979,7 +980,8 @@ class _RequestsDialog extends ConsumerWidget {
     }
     return EDialog(
       title: l.pairRequestsTitle,
-      width: 560.u,
+      icon: EIcons.userPlus,
+      size: DialogWidth.wide,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -1010,7 +1012,7 @@ class _RequestsDialog extends ConsumerWidget {
           ],
         ],
       ),
-      actions: [EButton(label: l.commonClose, size: EBtnSize.sm, onPressed: () => Navigator.pop(context))],
+      actions: [EButton(label: l.commonClose, onPressed: () => Navigator.pop(context))],
     );
   }
 }
@@ -1025,8 +1027,8 @@ Future<bool> deskConfirmRemovePairing(BuildContext context, String name) async {
       tone: ETone.risk,
       icon: EIcons.trash,
       actions: [
-        EButton(label: l.contactKeep, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, false)),
-        EButton(key: deskConfirmRemovePairingKey, label: l.contactRemove, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, true)),
+        EButton(label: l.contactKeep, onPressed: () => Navigator.pop(ctx, false)),
+        EButton(key: deskConfirmRemovePairingKey, label: l.contactRemove, kind: EBtnKind.danger, onPressed: () => Navigator.pop(ctx, true)),
       ],
     ),
   );
@@ -1080,8 +1082,8 @@ Future<bool> deskAttachPairingTo(BuildContext context, WidgetRef ref, PairingRec
         tone: ETone.warn,
         icon: EIcons.alert,
         actions: [
-          EButton(label: l.commonCancel, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, false)),
-          EButton.primary(key: deskOtherAddressNewKey, label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, true)),
+          EButton(label: l.commonCancel, onPressed: () => Navigator.pop(ctx, false)),
+          EButton.primary(key: deskOtherAddressNewKey, label: l.pairSaveNewContact, onPressed: () => Navigator.pop(ctx, true)),
         ],
       ),
     );
@@ -1120,6 +1122,7 @@ class _SaveContactDialogState extends State<_SaveContactDialog> {
     final r = widget.record;
     return EDialog(
       title: l.pairSaveContactTitle(r.shownName),
+      icon: EIcons.userPlus,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -1132,8 +1135,8 @@ class _SaveContactDialogState extends State<_SaveContactDialog> {
         ],
       ),
       actions: [
-        EButton(label: l.commonCancel, size: EBtnSize.sm, onPressed: () => Navigator.pop(context)),
-        EButton.primary(label: l.deskConSave, size: EBtnSize.sm, onPressed: () => Navigator.pop(context, _text.text.trim())),
+        EButton(label: l.commonCancel, onPressed: () => Navigator.pop(context)),
+        EButton.primary(label: l.deskConSave, onPressed: () => Navigator.pop(context, _text.text.trim())),
       ],
     );
   }
@@ -1224,8 +1227,8 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
           tone: ETone.risk,
           icon: EIcons.alert,
           actions: [
-            EButton(label: l.pairBack, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, false)),
-            EButton(label: l.sasNoMatch, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, true)),
+            EButton(label: l.pairBack, onPressed: () => Navigator.pop(ctx, false)),
+            EButton(label: l.sasNoMatch, kind: EBtnKind.danger, onPressed: () => Navigator.pop(ctx, true)),
           ],
         ),
       );
@@ -1265,12 +1268,12 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
     final ts = context.ts;
     final r = ref.watch(deskPairingByIdProvider(widget.pairingId));
     final name = ref.watch(deskPairingNameProvider(widget.pairingId));
-    if (r == null) return EDialog(title: l.sasTitle);
+    if (r == null) return EDialog(title: l.sasTitle, icon: EIcons.trusted);
     final lead = r.kind != PairingParty.person ? l.sasLeadExchange(name) : l.sasLead(name);
     final offersInvoices = !widget.recheck && (r.asksInvoices || r.caps.issuesInvoices) && r.state == PairingState.paired;
     return EDialog(
       title: l.sasDialogTitle(name),
-      width: 520.u,
+      icon: EIcons.trusted,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -1295,9 +1298,9 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
         ],
       ),
       actions: [
-        EButton.ghost(key: deskCheckLaterKey, label: l.pairBack, onPressed: _busy ? null : () => Navigator.pop(context)),
-        EButton(key: deskCheckNoMatchKey, label: l.sasNoMatch, size: EBtnSize.sm, onPressed: _busy ? null : () => _answer(PairingCheck.mismatch)),
-        EButton.primary(key: deskCheckMatchKey, label: l.sasMatch, size: EBtnSize.sm, busy: _busy, onPressed: () => _answer(PairingCheck.match)),
+        EButton(key: deskCheckLaterKey, label: l.pairBack, onPressed: _busy ? null : () => Navigator.pop(context)),
+        EButton(key: deskCheckNoMatchKey, label: l.sasNoMatch, onPressed: _busy ? null : () => _answer(PairingCheck.mismatch)),
+        EButton.primary(key: deskCheckMatchKey, label: l.sasMatch, busy: _busy, onPressed: () => _answer(PairingCheck.match)),
       ],
     );
   }
@@ -1350,16 +1353,15 @@ class DeskPairedSaveDialog extends ConsumerWidget {
       ),
       actions: [
         // With a contact to offer, the × is Not now: the three choices keep one line.
-        if (suggested == null) EButton.ghost(key: deskSavedNotNowKey, label: l.pairNotNow, onPressed: () => Navigator.pop(context)),
-        EButton(key: deskSavedAddToKey, label: l.pairAddToAContact, size: EBtnSize.sm, onPressed: () => put(asNew: false)),
+        if (suggested == null) EButton(key: deskSavedNotNowKey, label: l.pairNotNow, onPressed: () => Navigator.pop(context)),
+        EButton(key: deskSavedAddToKey, label: l.pairAddToAContact, onPressed: () => put(asNew: false)),
         if (suggested == null)
-          EButton.primary(key: deskSavedNewKey, label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => put(asNew: true))
+          EButton.primary(key: deskSavedNewKey, label: l.pairSaveNewContact, onPressed: () => put(asNew: true))
         else ...[
-          EButton(key: deskSavedNewKey, label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => put(asNew: true)),
+          EButton(key: deskSavedNewKey, label: l.pairSaveNewContact, onPressed: () => put(asNew: true)),
           EButton.primary(
             key: deskSavedAddToNamedKey,
             label: l.pairAddToNamed(suggested.name),
-            size: EBtnSize.sm,
             onPressed: () async {
               await deskAttachPairing(context, ref, r!, suggested);
               if (context.mounted) Navigator.pop(context);
@@ -1386,7 +1388,7 @@ Future<void> showDeskOutcome(BuildContext context, PairingFailure failure, {Stri
       description: pairingFailureBody(l, failure, name: name),
       tone: tone,
       icon: tone == ETone.info ? EIcons.info : EIcons.alert,
-      actions: [EButton.primary(label: l.pairClosed, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx))],
+      actions: [EButton.primary(label: l.pairClosed, onPressed: () => Navigator.pop(ctx))],
     ),
   );
 }

@@ -197,8 +197,8 @@ class _DeskLinkDialogState extends ConsumerState<DeskLinkDialog> {
         tone: ETone.warn,
         description: l.linkReplaceBody(linked.name),
         actions: [
-          EButton(label: l.linkKeep(linked.name), size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, false)),
-          EButton(key: deskLinkReplaceConfirmKey, label: l.linkReplace, kind: EBtnKind.danger, size: EBtnSize.sm, onPressed: () => Navigator.pop(ctx, true)),
+          EButton(label: l.linkKeep(linked.name), onPressed: () => Navigator.pop(ctx, false)),
+          EButton(key: deskLinkReplaceConfirmKey, label: l.linkReplace, kind: EBtnKind.danger, onPressed: () => Navigator.pop(ctx, true)),
         ],
       ),
     );
@@ -222,7 +222,6 @@ class _DeskLinkDialogState extends ConsumerState<DeskLinkDialog> {
     return EDialog(
       title: l.devicesLink,
       icon: EIcons.devices,
-      width: 520.u,
       dismissible: false,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
