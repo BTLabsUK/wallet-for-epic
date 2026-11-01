@@ -26,7 +26,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'support/test_settings.dart';
+import 'support/settings_modes.dart';
 
 class _Home extends HomeNotifier {
   _Home(this.txs);

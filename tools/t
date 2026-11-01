@@ -395,6 +395,7 @@ def main(argv):
                       "failures": [{"file": "", "line": None, "name": "infrastructure", "message": str(e)[:2000]}]})
         return 2
     except KeyboardInterrupt:
+        print("tools/t: interrupted", file=sys.stderr)
         return 2
 
 

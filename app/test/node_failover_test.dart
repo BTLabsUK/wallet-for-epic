@@ -29,6 +29,7 @@ import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/settings_modes.dart';
 import 'support/test_settings.dart';
 
 const _a = 'https://a.example';

@@ -131,7 +131,7 @@ class RealRepoTest(unittest.TestCase):
         self.assertGreater(len(tests), 100)
         self.assertLess(time.time() - t0, 5)
         cfg = [f for f in gr.closure("app/test/flutter_test_config.dart") if f.startswith("app/lib/")]
-        self.assertLess(len(cfg), 80, "test/flutter_test_config.dart reaches too much of lib/: every "
+        self.assertLess(len(cfg), 20, "test/flutter_test_config.dart reaches too much of lib/: every "
                         "change to those files would select every test")
 
 
