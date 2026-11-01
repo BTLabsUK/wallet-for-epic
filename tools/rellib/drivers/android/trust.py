@@ -51,6 +51,15 @@ HOST_ROW = re.compile(r"^([a-z0-9-]+(?:\.[a-z0-9-]+)+(?::\d+)?), ")
 # keep "Added by you" in every release; NODE and EPICBOX (built in from 26.10.24) carry the payments.
 CUSTOM = {}
 STANDINS = []
+# Shown over the candidate's Home, answered the way a user would and written to the proof, never
+# hidden: the last-session report offer (26.10.25: a frozen or crashed previous session's log,
+# once, after unlock; Android's exit reason decides, so the update's own kill never counts) and a
+# system biometric prompt (only for a wallet that turned biometrics on, which the test's never does).
+LAST_SESSION = (facts.label("deskLastSessionFroze", "The app stopped responding last time. Send the log?"),
+                facts.label("deskLastSessionClosed", "The app closed unexpectedly last time. Send the log?"))
+LAST_SESSION_NOT_NOW = facts.label("deskLastSessionNotNow", "Not now")
+USE_PIN = facts.label("biometricPromptUsePin", "Use PIN")
+SEEN = {}  # what answer_offers() answered: {"last_session": text, "biometric_prompt": n}
 
 
 def log(*a):
@@ -145,11 +154,41 @@ def pin():
 
 # ---------------------------------------------------------------- basic screens
 
+def answer_offers(ns):
+    """Answers what can stand over Home after the update (LAST_SESSION, a biometric prompt):
+    "Not now" / "Use PIN", as a user would, and keeps what it saw in SEEN for the proof.
+    True when it tapped something."""
+    note = next((n for n in ns if any(t in n["label"] for t in LAST_SESSION)), None)
+    if note:
+        text = next(t for t in LAST_SESSION if t in note["label"])
+        # The notice's own "Not now": the clickable one nearest below its text.
+        nn = sorted((n for n in ns if n["label"] == LAST_SESSION_NOT_NOW and n["clickable"]),
+                    key=lambda n: abs(n["center"][1] - note["center"][1]))
+        if nn:
+            if "last_session" not in SEEN:
+                log(f"last-session offer shown: '{text}': Not now")
+                shot("last-session-offer")
+            SEEN["last_session"] = text
+            tap_xy(S, nn[0]["center"])
+            time.sleep(1.5)
+            return True
+    up = find(S, USE_PIN, exact=True, clickable=True, ns=ns)
+    if up and not any("EditText" in n["cls"] for n in ns):  # the system prompt, not a PIN screen
+        SEEN["biometric_prompt"] = SEEN.get("biometric_prompt", 0) + 1
+        log(f"biometric prompt shown: '{USE_PIN}'")
+        tap_xy(S, up["center"])
+        time.sleep(1.5)
+        return True
+    return False
+
+
 def home():
     """Back to the wallet's home (Lock wallet in the bar, Wallet tab)."""
     for _ in range(8):
         ph.hide_keyboard(S)
         ns = nodes(S)
+        if answer_offers(ns):
+            ns = nodes(S)
         w = find(S, "Tab 2 of 3", ns=ns)
         if w and find(S, facts.LOCK_WALLET, ns=ns):
             if find(S, (facts.RECENT_ACTIVITY, facts.NO_PAYMENTS), ns=ns):
@@ -189,6 +228,8 @@ def unlock(secs=120):
     end = time.time() + secs
     while time.time() < end:
         ns = nodes(S)
+        if answer_offers(ns):
+            continue
         if find(S, facts.LOCK_WALLET, ns=ns):
             return True
         if find(S, facts.SKIP_TOUR, ns=ns):
@@ -493,6 +534,25 @@ def row_info(label):
     return {"host": host, "current": any(c in parts for c in facts.CURRENTS), "added": facts.ADDED_BY_YOU in parts}
 
 
+# The row a switch goes to says Connecting, then Connected for 4 s, in place of "In use"
+# (26.10.25 server sheet): the one in use is read once that is over.
+SWITCHING = (facts.label("netStatusConnecting", "Connecting"), facts.label("netStatusConnected", "Connected"))
+
+
+def switching(ns):
+    return any(p in SWITCHING for n in sheet_rows(ns) for p in (x.strip() for x in n["label"].split(",")))
+
+
+def settled(secs=20):
+    """The sheet's dump once no row says Connecting / Connected (a switch over)."""
+    end = time.time() + secs
+    ns = nodes(S)
+    while switching(ns) and time.time() < end:
+        time.sleep(1.5)
+        ns = nodes(S)
+    return ns
+
+
 def current_card(ns):
     """The host of the node sheet's card above the list, "<In use|Current>, host, state", or
     None."""
@@ -615,7 +675,7 @@ def use_typed_server(kind, target):
             time.sleep(2)
     _filter("")
     time.sleep(1)
-    ns = nodes(S)
+    ns = settled()
     cur = next((row_info(n["label"]) for n in sheet_rows(ns) if row_info(n["label"])["current"]), None)
     if not cur:  # the node sheet shows the one in use in a card above the list
         cur = {"host": current_card(ns), "added": True}
@@ -667,7 +727,7 @@ def use_server(kind, target):
         _confirm_switch()
     _filter("")
     time.sleep(1)
-    ns = nodes(S)
+    ns = settled()
     cur = next((row_info(n["label"]) for n in sheet_rows(ns) if row_info(n["label"])["current"]), None)
     if not cur:  # the node sheet shows the one in use in a card above the list
         cur = {"host": current_card(ns)}
@@ -1054,7 +1114,10 @@ def compare(a, b):
             and set(hosts_a) <= set(hosts_b) and set(hosts_b) - set(hosts_a) <= set() \
             and la["removed"] == lb["removed"]
         res[k] = ok
-        det[k] = (f"typed-in {added_a} → {added_b}"
+        # First run's server pick (26.10.25) moves only a fresh install: another one in use
+        # after the update is that pick, or a failover, touching an existing install.
+        moved = "" if cur_a == cur_b else f"the update moved the {kind} in use ({cur_a} → {cur_b}); "
+        det[k] = moved + (f"typed-in {added_a} → {added_b}"
                   + (f" ({', '.join(built_in_now)} built in now)" if built_in_now else "")
                   + f"; in use {cur_a} → {cur_b}; removed '{la['removed']}' → '{lb['removed']}'"
                   + ("" if hosts_a == hosts_b else f"; list {hosts_a} → {hosts_b}"))
@@ -1210,6 +1273,10 @@ def run():
                                    f"'{facts.LEVEL_PICK_TITLE}') after the update: it took the install for a new one")
         return finish()
     opened = unlock(180)
+    if opened:  # the last-session offer comes a moment after Home, once
+        end = time.time() + 10
+        while time.time() < end and not answer_offers(nodes(S)):
+            time.sleep(2)
     shot("after-update-unlock")
     if not opened:
         dump_to_log("after update: no home")
@@ -1225,12 +1292,24 @@ def run():
         b["balance"], b["history"] = balance("after"), history("after")
     extra["after"] = public_digest(b)
     log("digest after:", json.dumps(public_digest(b), ensure_ascii=False))
+    # Answered on the way (answer_offers): in the proof, so a crash or freeze the previous
+    # session had, or a biometric prompt the wallet never asked for, is seen, not hidden.
+    extra["offers_after_update"] = {
+        "last_session": SEEN.get("last_session"),
+        "biometric_prompt": SEEN.get("biometric_prompt", 0),
+        "note": "answered Not now / Use PIN as a user would; the flow went on"}
+    if SEEN.get("biometric_prompt"):
+        extra["offers_after_update"]["problem"] = ("a biometric prompt showed after the update for a wallet "
+                                                   "that never turned biometrics on")
     lv_ok, lv_why = level_after(a["settings"], b["settings"])
     extra["levels"].update(level_before=a["settings"].get("level"), level_after=b["settings"].get("level"),
                            level_ok=lv_ok, note=lv_why)
     c, d = compare(a, b)
     checks.update(c)
     details.update(d)
+    for k in ("last_session", "problem"):
+        if extra["offers_after_update"].get(k):
+            details["wallet_opens"] += f"; after the update: {extra['offers_after_update'][k]}"
     for k, ok in (("custom_nodes_kept", ok_n), ("custom_relays_kept", ok_r)):
         if not ok:  # fail closed: the user's own server was never in use before the update
             checks[k] = False
