@@ -131,6 +131,10 @@ void phraseCopyOnboarding() {
     await tester.pumpWidget(UncontrolledProviderScope(container: container, child: const DeskApp()));
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
     await tester.pump(const Duration(seconds: 1));
+    // The words are hidden until Reveal; Copy shows with them.
+    expect(find.text('Copy'), findsNothing);
+    await tester.tap(find.text('Reveal phrase'));
+    await tester.pump(const Duration(milliseconds: 300));
     await tester.tap(find.text('Copy'));
     await tester.pump(const Duration(milliseconds: 300));
     // The warning comes first; nothing is copied until it is confirmed.

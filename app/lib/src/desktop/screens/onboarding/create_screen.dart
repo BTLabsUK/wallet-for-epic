@@ -50,8 +50,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
     super.initState();
     switch (_step) {
       case CreateStep.phrase:
-        _revealed = true;
-        _written = true;
+        // Opened on this step (the tour), it starts as the flow does: words hidden until Reveal.
         ref.read(deskApiProvider).newPhrase().then((p) => mounted ? setState(() => _phrase = p) : null);
       case CreateStep.failed:
         _stage = 'save';
