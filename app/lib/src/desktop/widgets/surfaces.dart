@@ -1188,7 +1188,7 @@ class ESpinner extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SizedBox.square(
     dimension: size,
-    child: CircularProgressIndicator(strokeWidth: 2, color: color ?? context.dc.info),
+    child: CircularProgressIndicator(strokeWidth: 2, color: color ?? context.dc.accent),
   );
 }
 

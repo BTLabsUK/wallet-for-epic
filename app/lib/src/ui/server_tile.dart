@@ -51,6 +51,7 @@ class ServerTileView extends ConsumerWidget {
     required this.state,
     required this.colors,
     this.dimmed = false,
+    this.dotColor,
     this.size = 36,
     this.radius = 6,
     this.fontFamily,
@@ -64,6 +65,9 @@ class ServerTileView extends ConsumerWidget {
   final NodeHealthState? state;
   final ServerTileColors colors;
   final bool dimmed;
+
+  /// A colour that fills the dot whatever the health says (a switch in progress).
+  final Color? dotColor;
   final double size;
   final double radius;
   final String? fontFamily;
@@ -74,8 +78,8 @@ class ServerTileView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = colors;
-    final known = state != null && state != NodeHealthState.unknown;
-    final dot = switch (state) {
+    final known = dotColor != null || (state != null && state != NodeHealthState.unknown);
+    final dot = dotColor ?? switch (state) {
       NodeHealthState.healthy => c.ok,
       NodeHealthState.degraded => c.warn,
       NodeHealthState.down => c.risk,
