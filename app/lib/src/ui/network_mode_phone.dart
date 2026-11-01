@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The phone's network-mode widgets: the Network section of Settings › Advanced (four radio rows,
+/// The phone's network-mode widgets: the Network section of Settings › Network & privacy (four radio rows,
 /// each with its ⓘ, the dim line for the chosen mode), the switch confirmation, and the mode
 /// mark at the start of Home's status strip. Text and glyphs: `network_mode_text.dart`; the
 /// rules: `network_gate.dart`.
@@ -16,6 +16,7 @@ import '../phone_tor.dart';
 import '../providers.dart';
 import '../settings.dart';
 import 'network_mode_text.dart';
+import '../levels/level_providers.dart' show levelFeaturesProvider;
 import 'settings_rows.dart' show RadioRow, SettingsHeader;
 import 'settings_sections.dart' show SettingsSection, openSettingsSection;
 import 'tor_ui.dart' show torShown;
@@ -118,7 +119,7 @@ class NetworkModeConfirmSheet extends StatelessWidget {
   }
 }
 
-/// The Network section of Settings › Advanced: its header and one radio row per offered mode,
+/// The Network section of Settings › Network & privacy: its header and one radio row per offered mode,
 /// just the name and its ⓘ (the explanation lives in the sheet, none in the list; the owner: "no
 /// explanations in main view"), as tall as the other rows. Tor only is left out of the build
 /// without Tor and disabled while Tor is unavailable on the phone.
@@ -164,9 +165,14 @@ class NetworkModeSection extends ConsumerWidget {
   }
 }
 
-/// Opens Settings › Advanced scrolled to the Network section.
-Future<void> openNetworkSection(BuildContext context) =>
-    openSettingsSection(context, SettingsSection.advanced, toNetwork: true);
+/// Opens Settings › Network & privacy at the Network section. Where the level has no such page
+/// (level 1, whose Advanced page holds only the level row), Advanced, as before.
+Future<void> openNetworkSection(BuildContext context) {
+  final shown = ProviderScope.containerOf(context, listen: false).read(levelFeaturesProvider).serverSettings;
+  return shown
+      ? openSettingsSection(context, SettingsSection.privacyNetwork, toNetwork: true)
+      : openSettingsSection(context, SettingsSection.advanced);
+}
 
 /// The mode mark: a small neutral pill (the mode's glyph and name, no state dot: a mode is a
 /// choice, not a service) at the start of Home's status strip, shown only off Normal. A tap

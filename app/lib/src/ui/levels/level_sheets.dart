@@ -36,7 +36,7 @@ class UndercoverHelpHint extends StatelessWidget {
     final l = context.l10n;
     final title = later ? l.lvPickUndercover : l.levelUndercoverTitle;
     return InfoHint(
-      later ? l.lvPickUndercoverLaterHelp : l.lvPickUndercoverHelp,
+      later ? l.lvPickUndercoverLaterHelp : l.lvPickUndercoverHelpNet,
       key: const ValueKey('level-undercover-help'),
       title: title,
       // The switch beside it is announced by the same name; the icon is "About …".

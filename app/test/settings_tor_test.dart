@@ -13,9 +13,8 @@ import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/info_hint.dart';
+import 'package:epic_wallet/src/ui/network_mode_phone.dart' show networkModeRowKey;
 import 'package:epic_wallet/src/ui/tor_ui.dart';
-import 'package:epic_wallet/src/ui/levels/change_level_screen.dart';
-import 'package:epic_wallet/src/ui/notices.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -154,7 +153,7 @@ void main() {
       expect(find.byKey(torLockedLineKey), findsNothing);
     });
 
-    testWidgets('Undercover (Tor only): the switch shows on, disabled and faded; a tap and its line say why and lead to the level page', (
+    testWidgets('Tor only: the switch shows on, disabled and faded, its line names the mode on the same page', (
       tester,
     ) async {
       final h = _Harness(
@@ -172,19 +171,15 @@ void main() {
         expect(theme.trackColor!.resolve(off), theme.trackColor!.resolve(live)!.withValues(alpha: 0.4));
         expect(theme.thumbColor!.resolve(off), theme.thumbColor!.resolve(live)!.withValues(alpha: 0.4));
       }
-      expect(find.text('Undercover keeps Tor on.'), findsOneWidget);
-      // A tap on the switch changes nothing and says why, with the way to change it.
+      expect(find.byKey(torLockedLineKey), findsOneWidget);
+      expect(find.text('On in Tor only.'), findsOneWidget);
+      // The mode is right above (B-03): no link to another page.
+      expect(find.byKey(torUndercoverChangeKey), findsNothing);
+      expect(find.byKey(networkModeRowKey(NetworkMode.torOnly)), findsOneWidget);
       await tester.tap(find.byKey(torReceivingSwitchKey));
       await tester.pumpAndSettle();
       expect(h.container.read(phoneTorProvider).receiving, isFalse);
       expect(h.session.torStarts, isEmpty);
-      final notice = h.container.read(noticeProvider);
-      expect(notice?.text, 'Undercover keeps Tor on.');
-      expect(notice?.action?.label, 'Change');
-      // The line's link opens the level page, where Undercover is changed.
-      await tester.tap(find.byKey(torUndercoverChangeKey));
-      await tester.pumpAndSettle();
-      expect(find.byType(ChangeLevelScreen), findsOneWidget);
     });
 
     testWidgets('Kill switch: the switch is off and disabled, with its line', (
@@ -211,10 +206,11 @@ void main() {
     await h.pump(tester, privacy: true);
     final privacy = find.byKey(settingsPrivacyKey);
     expect(privacy, findsOneWidget);
-    expect(find.text('Privacy'), findsOneWidget);
+    // Network & privacy: the switch sits under its own Tor header.
+    expect(find.descendant(of: privacy, matching: find.text('Tor')), findsOneWidget);
     expect(find.text('Receiving'), findsNothing);
     expect(find.text('Tor receiving'), findsNothing);
-    // The switch is the first row under Privacy.
+    // The switch is the first row under Tor.
     await _reach(tester, privacy);
     expect(
       tester.getTopLeft(find.byKey(torReceivingSwitchKey)).dy,

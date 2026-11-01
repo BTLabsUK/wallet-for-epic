@@ -77,15 +77,15 @@ List<PhoneTourStep> phoneTourSteps({required bool invoices}) => [
     ),
   PhoneTourStep(
     place: TourPlace.privacy,
-    targets: const ['tour-privacy-servers', 'tour-privacy-tor'],
-    titleOf: (l) => l.tourPhonePrivacyTitle,
-    textOf: (l) => torBuilt ? l.tourPhonePrivacyText : l.tourPhonePrivacyTextNoTor,
+    targets: const ['tour-privacy-modes', 'tour-privacy-tor', 'tour-privacy-servers'],
+    titleOf: (l) => l.settingsSectionNetworkPrivacy,
+    textOf: (l) => torBuilt ? l.tourPhoneNetworkText : l.tourPhoneNetworkTextNoTor,
   ),
   PhoneTourStep(
     place: TourPlace.advanced,
-    targets: const ['tour-advanced-top', 'tour-advanced-modes'],
+    targets: const ['tour-advanced-top'],
     titleOf: (l) => l.tourPhoneAdvancedTitle,
-    textOf: (l) => torBuilt ? l.tourPhoneAdvancedText : l.tourPhoneAdvancedTextNoTor,
+    textOf: (l) => l.tourAdvancedShowsText,
   ),
   PhoneTourStep(
     place: TourPlace.help,

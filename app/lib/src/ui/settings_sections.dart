@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The phone's Settings pages, one per group of the hub (`settings_screen.dart`): Security,
-/// Privacy & network, Wallet, Display and About. Each page is a short list of label-only rows
+/// Network & privacy, Wallet, Display and About. Each page is a short list of label-only rows
 /// (an explanation sits behind an info icon, a value or a state on the row's second line), so
 /// a page fits a 360 dp phone without a search. Help & feedback opens Help itself.
 library;
@@ -137,7 +137,7 @@ enum SettingsSection { security, privacyNetwork, wallet, transactions, display, 
 String settingsSectionTitle(AppLocalizations l, SettingsSection section) =>
     switch (section) {
       SettingsSection.security => l.settingsSectionSecurity,
-      SettingsSection.privacyNetwork => l.settingsSectionPrivacyNetwork,
+      SettingsSection.privacyNetwork => l.settingsSectionNetworkPrivacy,
       SettingsSection.wallet => l.settingsSectionWallet,
       SettingsSection.transactions => l.settingsSectionTransactions,
       SettingsSection.display => l.settingsSectionDisplay,
@@ -172,8 +172,11 @@ String advancedFeatureName(AppLocalizations l, AdvancedFeature f) => switch (f) 
   AdvancedFeature.linkedDevices => l.expLinkedDevices,
 };
 
-/// The key of the Privacy header on the Privacy & network page, for tests.
+/// The key of the Tor header on the Network & privacy page, for tests.
 const Key settingsPrivacyKey = ValueKey('settings-privacy');
+
+/// The key of the Servers header on the Network & privacy page, for tests.
+const Key settingsServersKey = ValueKey('settings-servers');
 
 /// The Node and Epicbox rows of Privacy & network, for tests: the status card's rows while a
 /// wallet is open, the plain rows otherwise.
@@ -183,7 +186,7 @@ const Key settingsEpicboxKey = netStatusEpicboxKey;
 /// The Tor caption under the Epicbox row, for tests.
 const Key torRelayCaptionKey = ValueKey('tor-relay-caption');
 
-/// The key of the Node failover switch on the Advanced page, for tests.
+/// The key of the Node failover switch on the Network & privacy page, for tests.
 const Key advNodeFailoverKey = ValueKey('adv-nodeFailover');
 
 /// The key of the Licences row in About, for tests.
@@ -211,8 +214,8 @@ class SettingsSectionScreen extends ConsumerStatefulWidget {
   /// switches, not its top (LNX3-1).
   final bool toExperimental;
 
-  /// Advanced opened from the mode mark or an Off (mode) status: scrolled to the Network
-  /// section.
+  /// Network & privacy opened from the mode mark or an Off (mode) status: scrolled to the
+  /// Network section (its first group, so the page opens on it).
   final bool toNetwork;
 
   @override
@@ -253,7 +256,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     Scrollable.ensureVisible(at, alignment: 0);
   }
 
-  /// The Network section sits in the middle of the list: the list is built that far first.
+  /// The Network section heads the page; the list is built that far first if it ever moves.
   void _showNetwork([int tries = 0]) {
     if (!mounted || !_scroll.hasClients) return;
     final at = _networkKey.currentContext;
@@ -638,8 +641,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     ];
   }
 
-  /// Privacy & network: the status card from Home first (its rows open the pickers), then the
-  /// one Tor switch, the status site, and the servers.
+  /// Network & privacy: the network mode, the one Tor switch, then the servers (the status
+  /// card from Home, its rows opening the pickers), the status site and Node failover.
   List<Widget> _privacyNetwork(AppLocalizations l) {
     final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     final walletOpen = ref.watch(sessionProvider) != null;
@@ -656,11 +659,26 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final devNetworks = ref.watch(devNetworksProvider);
     final advanced = AdvancedOptions.of(context);
     final chain = config == null ? l.commonUnknown : chainName(l, config.chain);
-    // One row per thing (26.10.11): Node and Epicbox with their host and health, each
-    // opening its picker (the status card's rows, the same pickers as the icons on Home), the
-    // Tor switch, then the other privacy settings. With no wallet open there is no health to
-    // show: plain rows open the same pickers.
+    // Level 2 and up (the levels that had Advanced's Network section): the mode and failover.
+    final networkShown = ref.watch(levelFeaturesProvider).serverSettings;
+    final adv = s.advanced;
+    // One page for how the wallet reaches the network (B-03), in the desktop's order: the
+    // mode, the one Tor switch, then the servers (Node and Epicbox with their host and
+    // health, each opening its picker; with no wallet open, plain rows open the same
+    // pickers), the status site and Node failover.
     return [
+      if (networkShown)
+        NetworkModeSection(
+          headerKey: _networkKey,
+          tourId: (rows) => PhoneTourTarget(id: 'tour-privacy-modes', child: rows),
+        ),
+      // The one Tor switch (phoneTorProvider): Send, Receive and the status card read its
+      // state; it moves nothing the user chose.
+      if (walletOpen && (torAvailable || torBlocking)) ...[
+        SettingsHeader(l.netStatusTor, key: settingsPrivacyKey),
+        const PhoneTourTarget(id: 'tour-privacy-tor', child: TorSwitchTile()),
+      ],
+      SettingsHeader(l.netPageServers, key: settingsServersKey),
       if (walletOpen)
         const PhoneTourTarget(
           id: 'tour-privacy-servers',
@@ -701,11 +719,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
           child: Text(l.torRelayCaption, key: torRelayCaptionKey, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.tokens.dim)),
         ),
-      // The one Tor switch (phoneTorProvider): Send, Receive and the status card read its
-      // state; it moves nothing the user chose.
-      SettingsHeader(l.settingsSectionPrivacy, key: settingsPrivacyKey),
-      if (walletOpen && (torAvailable || torBlocking))
-        const PhoneTourTarget(id: 'tour-privacy-tor', child: TorSwitchTile()),
       // No status site in app-config.toml: no switch.
       if (statusSiteConfigured)
       HintSwitchTile(
@@ -715,6 +728,16 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         value: s.useStatusSite,
         onChanged: _settings.setUseStatusSite,
       ),
+      // On by default: the one switch here that keeps the simple app working.
+      if (networkShown)
+        HintSwitchTile(
+          key: advNodeFailoverKey,
+          icon: Icons.alt_route,
+          title: l.advNodeFailover,
+          hint: l.advNodeFailoverHint,
+          value: adv.nodeFailover,
+          onChanged: _settings.setNodeFailover,
+        ),
       // Development builds only: the network itself, each with its own wallet.
       if (!demo && advanced.has(AdvancedFeature.serverDetails) && devNetworks)
         ListTile(
@@ -961,7 +984,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       final hint = switch (m) {
         MethodKind.epicbox => l.txEpicboxHint,
         MethodKind.linkHttp => torBuilt ? l.txLinkHttpHint('${appConfig.httpListenPort}') : l.txLinkHttpHintNoTor('${appConfig.httpListenPort}'),
-        MethodKind.linkTor => l.txLinkTorHint,
+        MethodKind.linkTor => l.txLinkTorHintNet,
         MethodKind.directQr => l.txQrHint,
         MethodKind.directFile => l.txFileHint,
       };
@@ -1181,20 +1204,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         l.advTransactionFiles,
         l.advTransactionFilesHint,
       ),
-      const SizedBox(height: 8),
-      NetworkModeSection(
-        headerKey: _networkKey,
-        tourId: (rows) => PhoneTourTarget(id: 'tour-advanced-modes', child: rows),
-      ),
-      // On by default: the one switch here that keeps the simple app working.
-      HintSwitchTile(
-        key: advNodeFailoverKey,
-        icon: Icons.alt_route,
-        title: l.advNodeFailover,
-        hint: l.advNodeFailoverHint,
-        value: adv.nodeFailover,
-        onChanged: _settings.setNodeFailover,
-      ),
+      // The network mode and Node failover live on Network & privacy (B-03).
       // The wallet's own count, stored in the core: how long received coins wait.
       const SizedBox(height: 8),
       SettingsHeader(l.advBalanceHeader),
@@ -1507,7 +1517,7 @@ class _TrustedNetworksSheet extends ConsumerWidget {
 }
 
 /// Under the Link · Tor switch while it is on and Tor is off: "Needs Tor. Turn it on under
-/// Privacy & network." A tap opens Privacy & network, where the one Tor switch is.
+/// Network & privacy." A tap opens Network & privacy, where the one Tor switch is.
 class _TorNeededLine extends StatelessWidget {
   const _TorNeededLine({required this.onTap});
 
@@ -1516,7 +1526,7 @@ class _TorNeededLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    final text = context.l10n.txLinkTorNeedsTor;
+    final text = context.l10n.txLinkTorNeedsTorNet;
     return Semantics(
       key: txTorNeededKey,
       button: true,
