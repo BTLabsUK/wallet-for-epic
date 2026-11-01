@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import '../l10n.dart';
 import '../wallet_service.dart';
 import 'common.dart';
+import 'motion_switches.dart';
 import 'theme/protocol.dart'
     show TimelineState, TimelineStep, currentMarkEdge, currentMarkHalo;
 import 'theme/tokens.dart';
@@ -58,12 +59,6 @@ int sendTrackerStep(SendTrack track) => switch (track) {
 /// can wait on its recipient for hours, and a ring that pulses all that time redraws the screen.
 @visibleForTesting
 const int sendPulseBreaths = 5;
-
-/// Whether the current marker's ring pulses. Widget tests turn it off in
-/// `test/flutter_test_config.dart`, since a loop never lets `pumpAndSettle` settle; reduced
-/// motion stops it too.
-@visibleForTesting
-bool sendPulseMoves = true;
 
 /// Steps with round markers joined by a rail: done filled, current a ring with a slow pulse
 /// (still under reduced motion), later hollow. The current step's label is a live region.

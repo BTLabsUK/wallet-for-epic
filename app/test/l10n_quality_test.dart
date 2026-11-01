@@ -4,6 +4,8 @@
 // without a single letter of that script. test/l10n_test.dart checks keys, placeholders and plurals.
 //
 // A message that really stays the same (a product name with a word, a format) goes in [_same].
+// `tools/l10n sync` fills a new key with the English and lists it in lib/l10n/untranslated.json;
+// the list must be empty (translated) before the change lands.
 
 import 'dart:convert';
 import 'dart:io';
@@ -57,6 +59,12 @@ bool _prose(String english) {
   return RegExp(r'[A-Za-z]{2,}\s+\S').hasMatch(w.trim()) && RegExp(r'\b[a-z]{3,}\b').hasMatch(w);
 }
 
+/// The keys `tools/l10n sync` filled with the English text, per language, until translated.
+final Map<String, List<String>> _untranslated = {
+  for (final e in (jsonDecode(File('lib/l10n/untranslated.json').readAsStringSync()) as Map<String, dynamic>).entries)
+    e.key: (e.value as List<dynamic>).cast<String>(),
+};
+
 void main() {
   final english = _messages(File('lib/l10n/app_en.arb'));
   final files = Directory('lib/l10n').listSync().whereType<File>().where((f) => RegExp(r'app_(\w+)\.arb$').hasMatch(f.path)).toList()
@@ -74,7 +82,19 @@ void main() {
           for (final MapEntry(:key, :value) in tr.entries)
             if (!same.contains(key) && english[key] != null && _prose(english[key]!) && value == english[key]) key,
         ];
-        expect(kept, isEmpty, reason: '${kept.length} messages equal their English');
+        expect(kept, isEmpty,
+            reason: '${kept.length} messages equal their English: translate them in the file '
+                '`tools/l10n check` names for each, or list a key that stays English on purpose in _same');
+      });
+
+      test('nothing listed in lib/l10n/untranslated.json', () {
+        final left = [
+          for (final key in _untranslated[locale] ?? const <String>[])
+            if (!same.contains(key) && english[key] != null && tr[key] == english[key]) key,
+        ];
+        expect(left, isEmpty,
+            reason: '${left.length} keys still in English: translate them in the file `tools/l10n check` '
+                'names for each, then run tools/l10n sync (it clears them from the list)');
       });
 
       if (_script[locale] case final script?) {

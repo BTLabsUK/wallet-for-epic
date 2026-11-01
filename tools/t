@@ -1,0 +1,408 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
+"""tools/t: the one command to run the app's Flutter tests (docs/TESTING.md).
+
+  tools/t [affected] [--base <ref>] [--list]   the tests the change reaches, plus the sentinels
+  tools/t file <path>[:<line>|:<name>] ...     one test file, or one test in it
+  tools/t full                                 every test/**/*_test.dart, slowest first
+  tools/t goldens --update <test or png> ...   rewrite goldens (Linux only), then show what moved
+
+Options: --no-cache runs files that passed before; --dart-define K=V (repeatable); -j N.
+A file that passed with the same inputs (tools/tlib/cache.py) is not run again: when nothing is
+left to run it prints `cached green (<key>)`. Results: a short summary on stdout (failures first,
+each `file:line` and the start of its message) and .test-results/latest.json with every failure.
+Exit status: 0 green, 1 red, 2 usage or infrastructure error.
+"""
+import argparse
+import contextlib
+import fcntl
+import json
+import os
+import shutil
+import signal
+import subprocess
+import sys
+import time
+
+TOOLS = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(TOOLS)
+sys.path.insert(0, TOOLS)
+
+import flutter_test_order as order  # noqa: E402
+from tlib import cache, graph as g, report, select  # noqa: E402
+
+APP = os.path.join(ROOT, "app")
+RESULTS = os.path.join(ROOT, ".test-results")
+TIMES = os.environ.get("WFE_TEST_TIMES", os.path.expanduser("~/.cache/wfe-test-times.json"))
+START_MARK = "@@tools-t-started@@"
+
+
+class Usage(Exception):
+    pass
+
+
+class Infra(Exception):
+    pass
+
+
+def toolchain_env():
+    """The environment tools/env.sh makes (flutter on PATH, FLUTTER_ROOT)."""
+    r = subprocess.run(["bash", "-c", '. "$1" && env -0', "_", os.path.join(TOOLS, "env.sh")],
+                       capture_output=True)
+    if r.returncode != 0:
+        raise Infra("tools/env.sh failed: " + r.stderr.decode(errors="replace").strip())
+    env = {}
+    for item in r.stdout.split(b"\0"):
+        k, _, v = item.decode(errors="replace").partition("=")
+        if k:
+            env[k] = v
+    return env
+
+
+def rel_app(path):
+    """'app/test/x_test.dart' -> 'test/x_test.dart'."""
+    return path[len("app/"):] if path.startswith("app/") else path
+
+
+def resolve_path(arg):
+    """A repository path (app/...) for a path given relative to the cwd, the repo or app/."""
+    for base in (os.getcwd(), ROOT, APP):
+        p = os.path.normpath(os.path.join(base, arg))
+        if os.path.exists(p):
+            rel = os.path.relpath(p, ROOT).replace(os.sep, "/")
+            if rel.startswith(".."):
+                continue
+            return rel
+    raise Usage(f"no such file: {arg}")
+
+
+def split_target(arg):
+    """('path', line or None, name or None) for path[:line|:name]."""
+    path, sep, rest = arg.partition(":")
+    if not sep:
+        return path, None, None
+    if rest.isdigit():
+        return path, int(rest), None
+    return path, None, rest
+
+
+def name_at_line(path, line):
+    """The name of the test or group declared at or above `line`: what --plain-name takes."""
+    import re
+    decl = re.compile(r"""\b(?:testWidgets|test|group)\(\s*r?(['"])(.*?)(?<!\\)\1""")
+    found = None
+    with open(os.path.join(ROOT, path), encoding="utf-8") as f:
+        for i, text in enumerate(f, 1):
+            if i > line:
+                break
+            m = decl.search(text)
+            if m:
+                found = m.group(2)
+    if not found:
+        raise Usage(f"{path}:{line}: no test or group starts at or above that line; give the name")
+    if "$" in found:
+        found = found.split("$")[0].rstrip()
+        if len(found) < 5:
+            raise Usage(f"{path}:{line}: the test's name is built at run time; give a part of it")
+    return found
+
+
+@contextlib.contextmanager
+def worktree_lock():
+    """One flutter run per worktree at a time: two share app/.dart_tool."""
+    os.makedirs(RESULTS, exist_ok=True)
+    f = open(os.path.join(RESULTS, ".lock"), "w")
+    try:
+        try:
+            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            print("tools/t: another tools/t runs in this worktree; waiting for it", file=sys.stderr)
+            fcntl.flock(f, fcntl.LOCK_EX)
+        yield
+    finally:
+        f.close()
+
+
+def prepare(env):
+    """The binding clone and `flutter pub get`, when missing or older than the pubspec."""
+    if not os.path.isdir(os.path.join(APP, "third_party", "lepic-flutter")):
+        print("tools/t: app/third_party is missing: tools/lepic.sh sync", file=sys.stderr)
+        r = subprocess.run([os.path.join(TOOLS, "lepic.sh"), "sync"], env=env,
+                           stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+        if r.returncode:
+            raise Infra("tools/lepic.sh sync failed:\n" + r.stderr[-2000:])
+    lib = os.path.join(APP, "third_party", "lepic-flutter", "native", "x86_64-unknown-linux-gnu",
+                       "liblepic_ffi.so")
+    if sys.platform.startswith("linux") and not os.path.exists(lib):
+        # The binding's build hook needs the library to compile any test. From the prebuilt cache
+        # this is a copy (docs/TESTING.md, "LEPIC builds are shared"); a miss builds it once.
+        print("tools/t: no LEPIC library in this worktree: LEPIC_SHARED=1 tools/lepic.sh build linux",
+              file=sys.stderr)
+        r = subprocess.run([*heavy(env), os.path.join(TOOLS, "lepic.sh"), "build", "linux"],
+                           env={**env, "LEPIC_SHARED": env.get("LEPIC_SHARED", "1")},
+                           stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        if r.returncode:
+            raise Infra("tools/lepic.sh build linux failed:\n" + r.stdout[-2000:])
+    cfg = os.path.join(APP, ".dart_tool", "package_config.json")
+    newest = max(os.path.getmtime(os.path.join(APP, p)) for p in ("pubspec.yaml", "pubspec.lock"))
+    if not os.path.exists(cfg) or os.path.getmtime(cfg) < newest:
+        r = subprocess.run(["flutter", "pub", "get"], cwd=APP, env=env, capture_output=True, text=True)
+        if r.returncode:
+            raise Infra("flutter pub get failed:\n" + (r.stdout + r.stderr)[-2000:])
+
+
+def heavy(env):
+    """build-slot, when this machine has it: a shared slot for heavy work (a nested call runs in
+    the caller's slot)."""
+    # ~/.local/bin, where it lives, is not on every PATH (systemd units, plain ssh)
+    path = env.get("PATH", "") + os.pathsep + os.path.expanduser("~/.local/bin")
+    found = shutil.which("build-slot", path=path)
+    return [found] if found else []
+
+
+def jobs(n_files, wanted):
+    if wanted:
+        return max(1, min(wanted, n_files))
+    j = os.environ.get("FLUTTER_TEST_JOBS")
+    if j and j.isdigit():
+        return max(1, int(j))
+    # Three quarters of the logical CPUs (measured on the build machine: 13 % faster than flutter's half).
+    return max(1, min(n_files, (os.cpu_count() or 4) * 3 // 4))
+
+
+def run_flutter(files, env, args, name_filter, update_goldens):
+    """Runs flutter test on app-relative `files`; returns (Run, rc, seconds, queue seconds)."""
+    events_path = os.path.join(RESULTS, "latest.events.jsonl")
+    cmd = ["flutter", "test", "--no-pub", "--reporter", "json",
+           f"--concurrency={jobs(len(files), args.jobs)}"]
+    if name_filter:
+        cmd.append(f"--plain-name={name_filter}")
+    if update_goldens:
+        cmd.append("--update-goldens")
+    for d in args.dart_define:
+        cmd.append(f"--dart-define={d}")
+    cmd += files
+    wrapped = [*([] if args.no_heavy else heavy(env)),
+               "sh", "-c", f'echo {START_MARK}; exec "$@"', "sh", *cmd]
+    run = report.Run(APP)
+    t0 = time.time()
+    started = None
+    proc = subprocess.Popen(wrapped, cwd=APP, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                            text=True, errors="replace", start_new_session=True)
+    try:
+        with open(events_path, "w", encoding="utf-8") as ev:
+            for line in proc.stdout:
+                if started is None and line.strip() == START_MARK:
+                    started = time.time()
+                    continue
+                if line.startswith("{"):
+                    ev.write(line)
+                run.feed_line(line)
+        rc = proc.wait()
+    except KeyboardInterrupt:
+        with contextlib.suppress(ProcessLookupError):
+            os.killpg(proc.pid, signal.SIGTERM)
+        proc.wait()
+        raise
+    end = time.time()
+    started = started or t0
+    try:
+        order.record(TIMES, events_path, APP)
+    except (OSError, ValueError):
+        print("tools/t: could not keep this run's file times", file=sys.stderr)
+    return run, rc, end - started, started - t0
+
+
+def write_latest(data):
+    os.makedirs(RESULTS, exist_ok=True)
+    tmp = os.path.join(RESULTS, ".latest.json.tmp")
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=1)
+    os.replace(tmp, os.path.join(RESULTS, "latest.json"))
+
+
+def execute(mode, tests, gr, args, extra=(), name_filter=None, update_goldens=False):
+    """Runs the repo-relative `tests` with the cache; prints the summary; returns the exit code."""
+    env = toolchain_env()
+    flutter_root = env.get("FLUTTER_ROOT", os.path.expanduser("~/flutter"))
+    files = select.repo_files(ROOT)
+    hasher = cache.Hasher(ROOT, files)
+    use_cache = not (args.no_cache or update_goldens)
+    ctx = cache.context_key(ROOT, env, flutter_root, args.dart_define, name_filter)
+    whole_ctx = cache.context_key(ROOT, env, flutter_root, args.dart_define) if name_filter else ctx
+    keys, whole_keys = {}, {}
+    for t in tests:
+        clo, dfiles, ddirs = gr.deps(t)
+        keys[t] = cache.file_key(ctx, hasher, clo, dfiles, ddirs)
+        whole_keys[t] = cache.file_key(whole_ctx, hasher, clo, dfiles, ddirs) if name_filter else keys[t]
+    cached = [t for t in tests if use_cache and (cache.lookup(keys[t]) or cache.lookup(whole_keys[t]))]
+    to_run = [t for t in tests if t not in cached]
+    all_key = cache.combined(keys[t] for t in tests)[:16]
+    latest = {"command": "tools/t " + " ".join(sys.argv[1:]), "mode": mode, "key": all_key,
+              "time": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "files_cached": [rel_app(t) for t in cached],
+              "files_run": [rel_app(t) for t in to_run], "notes": list(extra)}
+    if not to_run:
+        latest.update(status="cached", exit=0, counts={"passed": 0, "skipped": 0, "failed": 0},
+                      duration_s=0, queue_s=0, failures=[])
+        write_latest(latest)
+        print(f"cached green ({all_key}): {len(tests)} files passed before with these inputs; --no-cache runs them")
+        return 0
+
+    prepare(env)
+    ordered = order.order([rel_app(t) for t in to_run], order.read_times(TIMES))
+    run, rc, seconds, queue = run_flutter(ordered, env, args, name_filter, update_goldens)
+    counts = run.counts()
+    failures = run.failures()
+    if rc == 79 and not failures:
+        # flutter test's "No tests were found": a name that matches nothing, or browser-only files
+        status, code = "error", 2
+        run.other.append("no test ran: the name matches no test, or the file runs only in a browser "
+                         "(flutter test --platform chrome <file>)")
+    elif run.success is None and not failures:
+        status, code = "error", 2
+    elif rc == 0 and run.success and not failures:
+        status, code = "green", 0
+    else:
+        status, code = "red", 1
+    if status == "error" or (status == "red" and not failures):
+        failures.append({"file": "", "line": None, "name": f"flutter test exited {rc}",
+                         "message": "\n".join(run.other[-20:]), "fix": None})
+    if use_cache:
+        for f in run.files_green(ordered):
+            t = "app/" + f
+            cache.store_green(keys[t], {"file": f, "key": keys[t], "time": latest["time"],
+                                        "root": ROOT, "filter": name_filter})
+        cache.prune()
+    latest.update(status=status, exit=code, counts=counts, duration_s=round(seconds, 1),
+                  queue_s=round(queue, 1), failures=failures, events=".test-results/latest.events.jsonl")
+    write_latest(latest)
+    head = (f"tools/t {mode}: {status.upper()}  {counts['passed']} passed, {counts['skipped']} skipped, "
+            f"{counts['failed']} failed; {len(to_run)} files run, {len(cached)} cached; "
+            f"{report.clock(seconds)} (queue {round(queue)}s)")
+    if status == "error":
+        lines = [head, *extra, f"flutter test exited {rc} before any test ran; its last lines:"]
+        lines.extend("    " + x[:200] for x in run.other[-12:])
+    else:
+        lines = report.summary(head, status, counts, failures, seconds, extra, list_all=(mode == "full"))
+    print("\n".join(lines))
+    print("details: .test-results/latest.json")
+    return code
+
+
+def cmd_affected(args):
+    base = select.merge_base(ROOT, args.base)
+    changed = select.changed_files(ROOT, base)
+    gr = g.Graph(ROOT, select.repo_files(ROOT))
+    sel = select.select(ROOT, changed, base=base, graph=gr)
+    tests = sorted(sel.tests)
+    n_sent = sum(1 for r in sel.tests.values() if r == "sentinel")
+    line = (f"selection: {len(tests)} tests ({len(tests) - n_sent} reached by the change, {n_sent} sentinels) "
+            f"for {len(changed)} changed files vs {args.base} ({base[:10]})")
+    if args.list:
+        print(line)
+        for n in sel.notes:
+            print(f"note: {n}")
+        if len(tests) <= 30 or args.verbose:
+            for t in tests:
+                print(f"  {rel_app(t)}  <- {sel.tests[t]}")
+        else:
+            by = {}
+            for t in tests:
+                by.setdefault(sel.tests[t], []).append(t)
+            for reason, ts in sorted(by.items(), key=lambda x: -len(x[1]))[:10]:
+                print(f"  {len(ts):4d} tests <- {reason}")
+            if len(by) > 10:
+                print(f"  … {len(by) - 10} more reasons; --list -v lists every test")
+        return 0
+    return execute("affected", tests, gr, args, extra=[line, *(f"note: {n}" for n in sel.notes)])
+
+
+def cmd_file(args):
+    if not args.targets:
+        raise Usage("tools/t file <path>[:<line>|:<name>] ...")
+    gr = g.Graph(ROOT, select.repo_files(ROOT))
+    tests, names = [], set()
+    for target in args.targets:
+        path, line, name = split_target(target)
+        p = resolve_path(path)
+        if not (p.startswith("app/") and p.endswith(".dart")):
+            raise Usage(f"{target}: not a Dart test under app/")
+        if line is not None:
+            name = name_at_line(p, line)
+        if name:
+            names.add(name)
+        tests.append(p)
+    if len(names) > 1:
+        raise Usage("one test name per run")
+    return execute("file", sorted(set(tests)), gr, args, name_filter=next(iter(names), None))
+
+
+def cmd_full(args):
+    gr = g.Graph(ROOT, select.repo_files(ROOT))
+    return execute("full", gr.tests(), gr, args)
+
+
+def cmd_goldens(args):
+    if not args.update or not args.targets:
+        raise Usage("tools/t goldens --update <test file or golden png> ...")
+    if not sys.platform.startswith("linux"):
+        raise Usage("goldens are made on Linux only (the fonts they were drawn with)")
+    gr = g.Graph(ROOT, select.repo_files(ROOT))
+    tests = set()
+    for target in args.targets:
+        p = resolve_path(target)
+        if p.endswith(".png"):
+            users = [t for t in gr.tests() if p in gr.deps(t)[1] or
+                     any(p.startswith(d + "/") for d in gr.deps(t)[2])]
+            if not users:
+                raise Usage(f"{target}: no test names this golden")
+            tests.update(users)
+        else:
+            tests.add(p)
+    code = execute("goldens", sorted(tests), gr, args, update_goldens=True)
+    moved = select.git(ROOT, "status", "--short", "--", "app/test").splitlines()
+    moved = [m for m in moved if m.endswith(".png")]
+    print(f"goldens changed: {len(moved)}" + "".join(f"\n  {m}" for m in moved[:12]))
+    if moved:
+        print("look at each image before you commit it")
+    return code
+
+
+def main(argv):
+    p = argparse.ArgumentParser(prog="tools/t", add_help=True,
+                                description="Run the app's Flutter tests (docs/TESTING.md).")
+    p.add_argument("command", nargs="?", default="affected", choices=["affected", "file", "full", "goldens"])
+    p.add_argument("targets", nargs="*")
+    p.add_argument("--base", default=os.environ.get("CHECK_BASE", "main"))
+    p.add_argument("--list", action="store_true", help="affected: print the selection, run nothing")
+    p.add_argument("-v", "--verbose", action="store_true", help="--list: every test, not a count per cause")
+    p.add_argument("--no-cache", action="store_true")
+    p.add_argument("--update", action="store_true", help="goldens: rewrite them")
+    p.add_argument("--dart-define", action="append", default=[])
+    p.add_argument("-j", "--jobs", type=int, default=None)
+    p.add_argument("--no-heavy", action="store_true", help="do not take a build-slot slot")
+    try:
+        args = p.parse_args(argv)
+    except SystemExit as e:
+        return 0 if e.code == 0 else 2
+    try:
+        if args.command != "file" and args.command != "goldens" and args.targets:
+            raise Usage(f"tools/t {args.command} takes no paths")
+        with worktree_lock() if not args.list else contextlib.nullcontext():
+            return {"affected": cmd_affected, "file": cmd_file, "full": cmd_full,
+                    "goldens": cmd_goldens}[args.command](args)
+    except Usage as e:
+        print(f"tools/t: {e}", file=sys.stderr)
+        return 2
+    except (Infra, RuntimeError, OSError) as e:
+        print(f"tools/t: {e}", file=sys.stderr)
+        write_latest({"command": "tools/t " + " ".join(argv), "status": "error", "exit": 2,
+                      "failures": [{"file": "", "line": None, "name": "infrastructure", "message": str(e)[:2000]}]})
+        return 2
+    except KeyboardInterrupt:
+        print("tools/t: interrupted", file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

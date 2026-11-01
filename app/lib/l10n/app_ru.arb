@@ -3406,9 +3406,6 @@
   "@txMethodsHeader": {
     "description": "Header on Settings › Transactions above the three payment methods."
   },
-  "@txAlwaysOn": {
-    "description": "Second line of the Epicbox row on Settings › Transactions: it has no switch."
-  },
   "txEpicboxHint": "Epicbox платит через сервер, поэтому другому кошельку не нужно быть открытым. Выключен: кошелёк не подключается ни к одному серверу, то есть без платежей Epicbox и счетов. Остальные способы по-прежнему работают.",
   "@txEpicboxHint": {
     "description": "Info sheet text of the Epicbox row on Settings › Transactions."

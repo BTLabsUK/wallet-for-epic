@@ -156,7 +156,7 @@ reuse = ["app", "bot", "scripts/linux/flutter.version", "tools/check.sh", "tools
          "tools/check-no-hosts.sh", "tools/no_hosts.py", "tools/no-hosts.allow",
          "tools/rel", "tools/rellib", "release/pipeline.toml", "release/failures.toml", "release/hosts.example.toml",
          "tools/nightly", "tools/sbom.py", "tools/test_sbom.py",
-         "tools/flutter_test_order.py", "tools/test_flutter_test_order.py", "tools/publish-github.sh",
+         "tools/t", "tools/tlib", "tools/flutter_test_order.py", "tools/test_flutter_test_order.py", "tools/publish-github.sh",
          "tools/publish", "tools/screens-feedback", "tools/gitlab-release.py", "tools/signer"]
 reuse_nightly = true
 # Any green `tools/check.sh --full` on a clean tree with this content (the nightly's, a person's on

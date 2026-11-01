@@ -26,7 +26,7 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'support/test_settings.dart' show useNetworkModeFile;
+import 'support/settings_modes.dart' show useNetworkModeFile;
 
 const _pin = '123456';
 const _phrase =

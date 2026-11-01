@@ -9,7 +9,7 @@ import 'package:epic_wallet/src/node/node_api.dart';
 import 'package:epic_wallet/src/node/node_detect.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../support/test_settings.dart';
+import '../support/settings_modes.dart';
 
 NodeApiClient Function(String) _node({bool down = false, bool? ready = false, int height = 1200}) =>
     (url) => NodeApiClient(

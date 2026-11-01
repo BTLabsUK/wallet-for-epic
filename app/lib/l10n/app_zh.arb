@@ -3406,9 +3406,6 @@
   "@txMethodsHeader": {
     "description": "Header on Settings › Transactions above the three payment methods."
   },
-  "@txAlwaysOn": {
-    "description": "Second line of the Epicbox row on Settings › Transactions: it has no switch."
-  },
   "txEpicboxHint": "Epicbox 通过服务器付款，所以对方的钱包不必打开。关闭后，钱包不连接任何服务器：没有 Epicbox 付款或账单。其他方式仍可使用。",
   "@txEpicboxHint": {
     "description": "Info sheet text of the Epicbox row on Settings › Transactions."

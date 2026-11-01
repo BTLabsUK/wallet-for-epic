@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/demo_screens.dart' show testCoinsKey;
+import 'package:epic_wallet/src/ui/motion_switches.dart';
 import 'package:epic_wallet/src/ui/handshake.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/send_screen.dart';

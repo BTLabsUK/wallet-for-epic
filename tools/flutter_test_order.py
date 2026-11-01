@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Order of the test files for a whole `flutter test` run (tools/flutter-test-all.sh).
+"""Order of the test files for a whole `flutter test` run (tools/t full).
 
 `flutter test` runs its files a few at a time in the order given. A few files take minutes, and
 started last they run alone at the end, so the slowest go first: by how long each file took in

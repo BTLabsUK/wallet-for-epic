@@ -3406,9 +3406,6 @@
   "@txMethodsHeader": {
     "description": "Header on Settings › Transactions above the three payment methods."
   },
-  "@txAlwaysOn": {
-    "description": "Second line of the Epicbox row on Settings › Transactions: it has no switch."
-  },
   "txEpicboxHint": "Epicbox จ่ายผ่านเซิร์ฟเวอร์ กระเป๋าเงินอีกฝั่งจึงไม่ต้องเปิดอยู่ เมื่อปิด กระเป๋าเงินจะไม่เชื่อมต่อเซิร์ฟเวอร์ใด ไม่มีการจ่ายผ่าน Epicbox หรือใบแจ้งหนี้ วิธีอื่นยังใช้ได้",
   "@txEpicboxHint": {
     "description": "Info sheet text of the Epicbox row on Settings › Transactions."
