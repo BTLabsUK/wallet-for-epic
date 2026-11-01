@@ -63,7 +63,7 @@ final Set<String> _noAnswerSaid = {};
     final id = e.pairingId;
     if (id != null && !_noAnswerSaid.add(id)) return null;
   }
-  String epic(BigInt? a) => a == null ? '' : localDigits(l, displayEpic(a));
+  String epic(BigInt? a) => a == null ? '' : epicFor(l, a, unit: false);
   return switch (e.kind) {
     PairingEventKind.replied => (text: l.noticePairingReplied(name), level: NoticeLevel.success),
     PairingEventKind.confirmed => (text: l.noticePairingConfirmed(name), level: NoticeLevel.success),

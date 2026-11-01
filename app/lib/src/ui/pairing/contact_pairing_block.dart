@@ -224,7 +224,7 @@ class ContactPairingBlock extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('−${localDigits(l, displayEpic(tx.amountDebited))} EPIC', style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily)),
+                          Text(epicFor(l, -tx.amountDebited), style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily)),
                           Text(l.pairHeldSend, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
                         ],
                       ),
