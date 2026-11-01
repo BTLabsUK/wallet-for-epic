@@ -4550,6 +4550,12 @@ class AppLocalizationsPl extends AppLocalizations {
   String get netStatusNotConnected => 'Brak połączenia';
 
   @override
+  String get stateReceiving => 'Odbiera';
+
+  @override
+  String get stateUnchecked => 'Nie sprawdzono';
+
+  @override
   String get serverUpNotConnected => 'Serwer działa · brak połączenia';
 
   @override
@@ -18832,6 +18838,11 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String lvPayConfirmingOf(int count, int target) {
+    return 'Potwierdzanie $count z $target';
+  }
+
+  @override
   String lvPaySigned(String name) {
     return '$name podpisał(a)';
   }
@@ -19383,6 +19394,15 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Zatrzymywanie';
+
+  @override
+  String get deskLvPayOnEpicbox => 'Na Epicbox';
+
+  @override
+  String get deskRailReceivingInternet => 'Odbiera · internet';
+
+  @override
+  String get deskRailReceivingLocal => 'Odbiera · lokalnie';
 
   @override
   String get deskOnbImportFoundLead => 'Dalej, aby wybrać portfele do dodania.';

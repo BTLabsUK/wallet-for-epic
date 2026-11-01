@@ -196,6 +196,7 @@ class ServerListPanel extends ConsumerStatefulWidget {
     required this.onTest,
     this.fieldSub,
     this.tone = ETone.ok,
+    this.state,
     this.chooseOnly = false,
     this.local,
     this.listNote,
@@ -235,6 +236,10 @@ class ServerListPanel extends ConsumerStatefulWidget {
   final String fieldText;
   final String? fieldSub;
   final ETone tone;
+
+  /// The state of the server in use, drawn as the field's dot over [tone]: the same state the
+  /// page's status line shows, so the two never disagree (#76).
+  final EState? state;
 
   /// What the wallet knows of each server, in any order; the list's order is the store's.
   final List<PanelServer> servers;
@@ -772,7 +777,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
                 ),
                 child: Row(
                   children: [
-                    EStatusDot(widget.tone, size: 8.u),
+                    if (widget.state case final st?) EStateDot(st, size: 8.u) else EStatusDot(widget.tone, size: 8.u),
                     SizedBox(width: Sp.x3),
                     // The value takes the room up to the chevron, which stays at the end whatever the
                     // value is (a bare host, a host and its operator, a word while it switches).
@@ -1128,6 +1133,7 @@ ServerTileColors deskTileColors(DeskColors c) => ServerTileColors(
   warn: c.warn,
   risk: c.risk,
   unknown: c.faint,
+  info: c.info,
   ring: c.s4,
 );
 
@@ -1181,9 +1187,10 @@ class _Row extends StatelessWidget {
       if (inUse) (l.deskSlInUse, c.text, true),
       if (kind == ServerKind.node && !down && s.behind != null)
         s.behind! <= 0 ? (l.deskKitAtTip, c.ok, false) : (l.deskKitBehind(s.behind!, digitsText(l, s.behind!)), c.warn, false),
-      if (s.state == NodeHealthState.degraded && (s.behind ?? 0) <= 0 && !s.versionOld) (l.deskSetFrameHealthSlow, c.warn, false),
-      if (down) (kind == ServerKind.node && s.local ? l.serverLocalNotReachable : l.deskSetFrameNotResponding, c.risk, false),
-      if (s.state == null) (s.checking ? l.deskSetFrameChecking : l.deskSlHealthUnknown, c.dim, false),
+      // One word per state (state_language.dart), as the tile's dot.
+      if (s.state == NodeHealthState.degraded && (s.behind ?? 0) <= 0 && !s.versionOld) (ShownState.slow.word(l), c.warn, false),
+      if (down) (kind == ServerKind.node && s.local ? l.serverLocalNotReachable : ShownState.notAnswering.word(l), c.risk, false),
+      if (s.state == null) ((s.checking ? ShownState.checking : ShownState.unchecked).word(l), c.dim, false),
       if (s.operator != null && s.operator!.isNotEmpty) (s.operator!, dim, false),
       if (s.latencyMs != null) (l.deskSlLatency(digitsText(l, s.latencyMs!)), dim, false),
       if (kind == ServerKind.node && !down && s.version != null) (s.version!, s.versionOld ? c.warn : dim, false),

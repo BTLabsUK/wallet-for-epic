@@ -14,6 +14,7 @@ import '../../ui/badge.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
 import 'selectable.dart';
+import 'status.dart' show EState, EStateDot;
 import 'motion.dart';
 import 'popover.dart';
 import 'tip.dart';
@@ -185,7 +186,9 @@ extension on ETone {
   };
 }
 
-/// A status dot: shape and colour, never colour alone (filled ok, ring warn, cross risk).
+/// A status dot by notice tone: the shared state mark ([EStateDot]), never colour alone.
+/// Prefer [EStateDot] with the state itself; a neutral or gold tone is a state not known yet
+/// (a blue ring), never a healthy dot.
 class EStatusDot extends StatelessWidget {
   const EStatusDot(this.tone, {super.key, this.size = 8});
 
@@ -193,20 +196,15 @@ class EStatusDot extends StatelessWidget {
   final double size;
 
   @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    final (fg, _) = tone.colors(c);
-    final color = tone == ETone.neutral ? c.faint : fg;
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: tone == ETone.ok || tone == ETone.risk ? color : Colors.transparent,
-        border: Border.all(color: color, width: 1.5),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => EStateDot(
+    switch (tone) {
+      ETone.ok => EState.ok,
+      ETone.warn => EState.warn,
+      ETone.risk => EState.risk,
+      ETone.info || ETone.neutral || ETone.gold => EState.active,
+    },
+    size: size,
+  );
 }
 
 /// An inline message in the flow: tinted, with an icon, title, text and actions on the right.

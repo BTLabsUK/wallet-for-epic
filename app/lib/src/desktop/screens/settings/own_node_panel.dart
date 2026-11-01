@@ -153,7 +153,8 @@ class _OwnNodePanelState extends ConsumerState<OwnNodePanel> {
 
     final cls = shownClass(url, info, mine: prefs.mineNodes.contains(url));
     // Failover stands in: the wallet's health is the stand-in's, so the head is the node's own answer.
-    final v = remoteNodeView(l, url, info, health: standIn == null && widget.health == ServiceHealth.ok ? widget.health : null, mine: prefs.mineNodes.contains(url));
+    // The same state the Node field's dot shows ([ownNodeView], #76).
+    final v = ownNodeView(l, url, info, health: widget.health, standIn: failover, mine: prefs.mineNodes.contains(url));
     final head = info?.head;
     final syncing = head == NodeHead.syncing || (ownerOk != null && !ownerOk.synced && ownerOk.progress != null);
     final fallback = ownFallbackHost(standIn);

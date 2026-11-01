@@ -8,9 +8,18 @@ import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 
-/// A square outlined glyph with a status tone, as the original's `e-glyph-sq`.
+/// The side of a result card's tile ([ResultGlyph]), the phone's too.
+double get resultTileSize => 52.u;
+
+/// A result card's tile: one 52 u rounded square per outcome, its glyph in the outcome's
+/// state tone on that tone's soft ground (state_language.dart): done a green check, waiting
+/// (queued, on its way, finished and not posted) a blue hourglass or send glyph, a problem red.
+/// Never a bare glyph, never the accent for a state.
 class ResultGlyph extends StatelessWidget {
   const ResultGlyph({super.key, this.icon = EIcons.check, this.tone = ETone.ok});
+
+  /// The tile of an outcome still under way: the hourglass in blue.
+  const ResultGlyph.waiting({super.key, this.icon = EIcons.sand}) : tone = ETone.info;
 
   final IconData icon;
   final ETone tone;
@@ -23,12 +32,13 @@ class ResultGlyph extends StatelessWidget {
       ETone.warn => (c.warn, c.warnSoft),
       ETone.ok => (c.ok, c.okSoft),
       ETone.info => (c.info, c.infoSoft),
-      _ => (c.accentText, c.accentSoft),
+      ETone.gold => (c.accentText, c.accentSoft),
+      ETone.neutral => (c.dim, c.s3),
     };
     return ExcludeSemantics(
       child: Container(
-        width: 48.u,
-        height: 48.u,
+        width: resultTileSize,
+        height: resultTileSize,
         decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(Rad.sm)),
         child: Icon(icon, size: Ctl.iconLg, color: fg),
       ),

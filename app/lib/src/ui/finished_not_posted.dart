@@ -6,6 +6,7 @@
 /// a failure. The same buttons sit in the payment's details.
 library;
 
+import 'status.dart' show ResultTile;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -176,7 +177,6 @@ class FinishedNotPosted extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final t = context.tokens;
     final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -185,7 +185,7 @@ class FinishedNotPosted extends StatelessWidget {
           liveRegion: true,
           child: Row(
             children: [
-              Icon(Icons.hourglass_empty, color: t.info, size: 32),
+              const ResultTile.waiting(),
               const SizedBox(width: 12),
               Expanded(child: Text(l.finalizeNotPostedTitle, key: finishedTitleKey, style: theme.textTheme.titleLarge)),
             ],

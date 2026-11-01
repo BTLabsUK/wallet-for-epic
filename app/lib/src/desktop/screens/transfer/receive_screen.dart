@@ -237,7 +237,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       // How receiving connects while the Tor switch is on (tor_routes.dart). Nothing with it
       // off: the switch names only what goes over Tor.
       titleTrailing: !shallow && DeskFeatures.tor && torWay(TorRoute.epicbox, tor) != TorWay.clearnet
-          ? TorChip(torWay(TorRoute.epicbox, tor))
+          ? TorChip(torWay(TorRoute.epicbox, tor), quiet: _torBanner(st, status))
           : null,
       width: EPageWidth.full,
       actions: [if (!shallow) _indicator(st, status)],
@@ -339,6 +339,15 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     );
   }
 
+  /// Whether the page's banner says Tor is not connected ([_torNotice]): then it is the one
+  /// place that explains it and offers Retry; the Tor line keeps only its state, the chip its
+  /// neutral look (D-04).
+  bool _torBanner(DeskState st, ServiceStatus? status) {
+    final p = st.settings.payments;
+    final torPanel = ref.read(deskLevelFeaturesProvider).linkPayments && DeskFeatures.tor && p.linkTor && st.settings.tor;
+    return torPanel && deskNetBlock(st) == NetBlock.none && netTorState(st.settings, status) == TorState.failed;
+  }
+
   /// Tor starting or not connected: what it holds up, and Retry or Settings when it failed.
   Widget _torNotice(TorState tor) {
     final failed = tor == TorState.failed;
@@ -372,7 +381,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             ? MethodLine(statusOffByModeWord(l, deskNetMode(st)), EState.off)
             : methodStateLine(l, m, status, st.settings),
     };
-    String word(TxMethod m) => lines[m] == null ? l.deskRecvStateChecking : (lines[m]!.state == EState.off ? l.deskRecvStateOff : (lines[m]!.state == EState.ok ? l.deskRecvStateOn : lines[m]!.word.toLowerCase()));
+    // The line's own word (state_language.dart), spoken: "connected", "receiving", "off".
+    String word(TxMethod m) => lines[m]?.word.toLowerCase() ?? l.deskRecvStateChecking;
     final receiving = lines.values.any((m) => m != null && m.state != EState.off);
     // The glyphs alone; "Receiving" stays on the card switch and in this tooltip (UD-015). With
     // every method off the header shows nothing, as it would claim receiving.
@@ -729,7 +739,9 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final ts = context.ts;
     final l = context.l10n;
     final on = _switchOn(m, status, st.settings);
-    final line = status == null ? null : methodStateLine(context.l10n, m, status, st.settings);
+    final full = status == null ? null : methodStateLine(context.l10n, m, status, st.settings);
+    // The banner says why and offers Retry: the line keeps its state's dot and word.
+    final line = full != null && _torBanner(st, status) ? MethodLine(full.word, full.state) : full;
     final ready = status?.tor == ServiceHealth.ok;
     final failed = status?.tor == ServiceHealth.down || status?.tor == ServiceHealth.slow;
     final addr = _tor;

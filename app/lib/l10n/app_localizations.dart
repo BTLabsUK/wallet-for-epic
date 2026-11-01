@@ -7110,6 +7110,18 @@ abstract class AppLocalizations {
   /// **'Not connected'**
   String get netStatusNotConnected;
 
+  /// State word of a receive listener that runs (Link · HTTP): it takes payments. Pairs with 'Not receiving'. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Receiving'**
+  String get stateReceiving;
+
+  /// State word of a server or service nothing is known of yet: no check has answered, or the status site has nothing on it. Drawn with a blue ring. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'Not checked'**
+  String get stateUnchecked;
+
   /// On the Epicbox server in use in the server list: the monitor says the server is up, but this wallet is not connected to it. A Retry button follows.
   ///
   /// In en, this message translates to:
@@ -28376,6 +28388,12 @@ abstract class AppLocalizations {
   /// **'Confirming {count} of {target}'**
   String lvPayConfirming(int count, int target);
 
+  /// Payment steps, the step under way: confirmations so far of the wallet's setting. The number, 'of' and the target are joined by no-break spaces so '0 of 6' never splits across lines. Replaces lvPayConfirming in the steps.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirming {count} of {target}'**
+  String lvPayConfirmingOf(int count, int target);
+
   /// Payment steps, a send: the recipient's wallet signed; name is the contact.
   ///
   /// In en, this message translates to:
@@ -29269,6 +29287,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stopping'**
   String get deskNodeSwitchStoppingWord;
+
+  /// Payment steps: sub-line under the current step 'Recipient signed' of a send over Epicbox: the payment waits on the Epicbox server for the recipient's wallet. The server's host is in the tooltip. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'On Epicbox'**
+  String get deskLvPayOnEpicbox;
+
+  /// Sidebar status, second line of the Link · HTTP row: the listener runs and takes payments from the internet. 'Receiving' is the state word; short.
+  ///
+  /// In en, this message translates to:
+  /// **'Receiving · internet'**
+  String get deskRailReceivingInternet;
+
+  /// Sidebar status, second line of the Link · HTTP row: the listener runs and takes payments from this computer only. 'Receiving' is the state word; short.
+  ///
+  /// In en, this message translates to:
+  /// **'Receiving · local'**
+  String get deskRailReceivingLocal;
 
   /// Lead under the title of the import page once older wallets are found; the next step picks which ones to add.
   ///

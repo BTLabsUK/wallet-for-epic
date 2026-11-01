@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../state_language.dart' show ShownState;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -70,7 +71,7 @@ class ReceiveHttpCard extends ConsumerWidget {
           children: [
             const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2)),
             const SizedBox(width: 8),
-            Flexible(child: Text(l.torWordStarting, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim))),
+            Flexible(child: Text(ShownState.starting.word(l), style: theme.textTheme.bodyMedium?.copyWith(color: t.dim))),
           ],
         ),
       ),

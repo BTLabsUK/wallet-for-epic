@@ -14,6 +14,8 @@
   "deskRailNotReceiving": "ไม่ได้รับเงิน",
   "deskRailOnInternet": "เปิด · อินเทอร์เน็ต",
   "deskRailOnLocal": "เปิด · ในเครื่อง",
+  "deskRailReceivingInternet": "กำลังรับ · อินเทอร์เน็ต",
+  "deskRailReceivingLocal": "กำลังรับ · ในเครื่อง",
   "deskRailPortInUse": "พอร์ตถูกใช้อยู่",
   "deskRailStopped": "หยุดอยู่",
   "deskRailPortInternet": "พอร์ต {port} · จากอินเทอร์เน็ต",

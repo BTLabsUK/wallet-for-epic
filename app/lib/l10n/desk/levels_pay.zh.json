@@ -1,6 +1,7 @@
 {
   "deskLvPayS1Sent": "Slate S1 已通过 Epicbox 发出 · 等待 S2",
   "deskLvPayS1On": "S1 已发到 {relay} · 等待 S2",
+  "deskLvPayOnEpicbox": "在 Epicbox 上",
   "deskLvPayNotOpen": "{name} 的钱包尚未打开",
   "deskLvPayWaitingOpen": "等待 {name} 的钱包打开",
   "deskLvPaySenderFinished": "发送方已完成",

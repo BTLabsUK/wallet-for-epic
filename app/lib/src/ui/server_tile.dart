@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 /// A server's tile, shared by the phone's sheets and the desktop's panels: the operator's icon
 /// from the status site (initials on a muted tint while there is none, or it fails), and the
-/// health as a dot in the corner. Each app passes its own colours ([ServerTileColors]).
+/// health as a dot in the corner, in the shared state language ([serverHealthState]): healthy a
+/// solid green dot, behind an amber "!", not answering a red "!", not known yet a blue ring.
+/// Each app passes its own colours ([ServerTileColors]).
 library;
 
 import 'package:flutter/material.dart';
@@ -10,6 +12,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../relay_directory.dart' show NodeHealthState, ServerIcon;
 import '../server_icons.dart';
 import '../server_list.dart' show serverInitials;
+import '../state_language.dart';
+import 'state_mark.dart';
 
 /// The colours a tile is painted in, from the app's theme.
 @immutable
@@ -24,6 +28,7 @@ class ServerTileColors {
     required this.risk,
     required this.unknown,
     required this.ring,
+    this.info,
   });
 
   /// The tile's ground and its hairline.
@@ -35,8 +40,11 @@ class ServerTileColors {
   /// Muted tints for the initials' ground, one per operator by its name.
   final List<Color> tints;
 
-  /// The dot: healthy, degraded, down; [unknown] is the hollow dot's line.
+  /// The dot: healthy, degraded, down; [unknown] is the line of a hollow dot.
   final Color ok, warn, risk, unknown;
+
+  /// The ring of a server not known yet (in progress, blue); [unknown] when not given.
+  final Color? info;
 
   /// The ring around a filled dot: the colour behind the tile.
   final Color ring;
@@ -82,13 +90,15 @@ class ServerTileView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = colors;
-    final known = dotColor != null || (state != null && state != NodeHealthState.unknown);
-    final dot = dotColor ?? switch (state) {
-      NodeHealthState.healthy => c.ok,
-      NodeHealthState.degraded => c.warn,
-      NodeHealthState.down => c.risk,
-      _ => c.unknown,
+    final shown = serverHealthState(state);
+    final dot = dotColor ?? switch (shown.tone) {
+      StateTone.ok => c.ok,
+      StateTone.warn => c.warn,
+      StateTone.risk => c.risk,
+      StateTone.info || StateTone.faint => c.info ?? c.unknown,
     };
+    // A switch in progress fills the dot whatever the health says.
+    final mark = dotColor != null ? StateMark.ok : shown.mark;
     final dpr = MediaQuery.devicePixelRatioOf(context);
     final url = icon?.forPixels(size * dpr);
     final bytes = url == null ? null : ref.watch(serverIconProvider(url)).value;
@@ -149,17 +159,9 @@ class ServerTileView extends ConsumerWidget {
               ),
               if (showDot)
                 Positioned(
-                  right: -2,
-                  bottom: -2,
-                  child: Container(
-                    width: 11,
-                    height: 11,
-                    decoration: BoxDecoration(
-                      color: known ? dot : c.surface,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: known ? c.ring : c.unknown, width: known ? 2 : 1.5),
-                    ),
-                  ),
+                  right: -3,
+                  bottom: -3,
+                  child: StateMarkDot(mark: mark, size: 12, color: dot, ink: c.ring, ring: c.ring, ringWidth: 2),
                 ),
             ],
           ),

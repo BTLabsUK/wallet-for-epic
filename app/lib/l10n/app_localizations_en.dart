@@ -4420,6 +4420,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get netStatusNotConnected => 'Not connected';
 
   @override
+  String get stateReceiving => 'Receiving';
+
+  @override
+  String get stateUnchecked => 'Not checked';
+
+  @override
   String get serverUpNotConnected => 'Server up · not connected';
 
   @override
@@ -18186,6 +18192,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String lvPayConfirmingOf(int count, int target) {
+    return 'Confirming $count of $target';
+  }
+
+  @override
   String lvPaySigned(String name) {
     return '$name signed';
   }
@@ -18736,6 +18747,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Stopping';
+
+  @override
+  String get deskLvPayOnEpicbox => 'On Epicbox';
+
+  @override
+  String get deskRailReceivingInternet => 'Receiving · internet';
+
+  @override
+  String get deskRailReceivingLocal => 'Receiving · local';
 
   @override
   String get deskOnbImportFoundLead => 'Continue to choose the wallets to add.';

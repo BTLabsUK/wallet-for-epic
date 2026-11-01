@@ -119,7 +119,9 @@ void main() {
       expect(find.text('Node'), findsOneWidget);
       expect(find.text('Epicbox'), findsOneWidget);
       final bars = tester.widgetList<EStatusGlyph>(find.byType(EStatusGlyph)).map((b) => b.state);
-      expect(bars.every((s) => s == EState.off), isTrue);
+      // Not known yet is the blue ring (state_language.dart), never a healthy dot.
+      expect(bars, isNot(contains(EState.ok)));
+      expect(bars.where((s) => s == EState.active).length, greaterThanOrEqualTo(2));
     });
 
     testWidgets('compact: same rows, same height, icons with bars', (tester) async {
@@ -217,7 +219,7 @@ void main() {
       'remote older version': (remoteNodeView(englishStrings, url, mockNodeInfo(url, version: '4.1.0')), 'Synced', EState.ok, null),
       'remote behind': (remoteNodeView(englishStrings, url, mockNodeInfo(url, behind: 12)), 'Behind', EState.warn, '12 behind'),
       'remote no answer': (remoteNodeView(englishStrings, url, mockNodeInfo(url, state: NodeHealthState.down), downSince: since), 'Not answering', EState.risk, 'no answer'),
-      'nothing known': (remoteNodeView(englishStrings, url, null), 'Checking', EState.off, null),
+      'nothing known': (remoteNodeView(englishStrings, url, null), 'Checking', EState.active, null),
       'local starting': (localNodeView(englishStrings, mockLocalNode(LocalNodePhase.starting)), 'Starting', EState.active, 'starting'),
       'local syncing, fallback': (
         localNodeView(englishStrings, 

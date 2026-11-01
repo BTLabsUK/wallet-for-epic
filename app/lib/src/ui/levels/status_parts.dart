@@ -96,6 +96,7 @@ class StatusServerTile extends StatelessWidget {
         warn: t.warn,
         risk: t.risk,
         unknown: t.faint,
+        info: t.info,
         ring: Theme.of(context).colorScheme.surface,
       ),
     );

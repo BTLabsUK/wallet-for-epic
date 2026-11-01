@@ -4185,6 +4185,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get netStatusNotConnected => '未连接';
 
   @override
+  String get stateReceiving => '接收中';
+
+  @override
+  String get stateUnchecked => '未检查';
+
+  @override
   String get serverUpNotConnected => '服务器正常 · 未连接';
 
   @override
@@ -17140,6 +17146,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String lvPayConfirmingOf(int count, int target) {
+    return '确认中 $count/$target';
+  }
+
+  @override
   String lvPaySigned(String name) {
     return '$name 已签名';
   }
@@ -17669,6 +17680,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => '正在停止';
+
+  @override
+  String get deskLvPayOnEpicbox => '在 Epicbox 上';
+
+  @override
+  String get deskRailReceivingInternet => '接收中 · 互联网';
+
+  @override
+  String get deskRailReceivingLocal => '接收中 · 本地';
 
   @override
   String get deskOnbImportFoundLead => '继续以选择要添加的钱包。';

@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'status_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../state_language.dart' show ShownState, serverHealthState;
 import '../connection_state.dart' show walletStatusProvider;
 import '../errors.dart';
 import '../l10n.dart';
@@ -1010,12 +1011,8 @@ class _ServerRow extends StatelessWidget {
     final state = e.state;
     final down = state == NodeHealthState.down;
     final unknown = state == null && e.directoryAnswered;
-    final healthWord = switch (state) {
-      NodeHealthState.healthy => l.serverHealthy,
-      NodeHealthState.degraded => l.serverDegraded,
-      NodeHealthState.down => e.local ? l.serverLocalNotReachablePhone : l.serverNotResponding,
-      _ => l.serverHealthNone,
-    };
+    // One word per state (state_language.dart), as the tile's dot.
+    final healthWord = down && e.local ? l.serverLocalNotReachablePhone : serverHealthState(state).word(l);
     final n = e.node;
     final lag = n?.tipLag;
     final tip = down || lag == null
@@ -1037,7 +1034,7 @@ class _ServerRow extends StatelessWidget {
         l.serverCurrent,
       if (tip != null) tip.text,
       if (down) e.local ? l.serverLocalNotReachablePhone : l.serverNotResponding,
-      if (unknown) l.serverHealthNone,
+      if (unknown) ShownState.unchecked.word(l),
       if (e.operator != null && e.operator!.isNotEmpty) e.operator!,
       if (!down && latency != null) l.serverLatency(groupDigits(l, latency)),
       if (!down && n?.nodeVersion != null && n!.nodeVersion!.isNotEmpty) n.nodeVersion!,
@@ -1410,6 +1407,7 @@ class ServerTile extends StatelessWidget {
         warn: t.warn,
         risk: t.risk,
         unknown: t.faint,
+        info: t.info,
         ring: Theme.of(context).colorScheme.surface,
       ),
     );

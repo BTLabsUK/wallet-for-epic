@@ -73,23 +73,23 @@ void main() {
     test('the status card shows the Tor row in every state and opens Privacy', () {
       RailItem torRow(DeskSettings s, ServiceStatus st) => receivingRailItems(englishStrings, st, s).singleWhere((i) => i.name == 'Tor');
       expect(torRow(const DeskSettings(), _status()).word, 'Off');
-      expect(torRow(const DeskSettings(tor: true), _status(tor: ServiceHealth.checking)).word, 'Starting…');
-      expect(torRow(const DeskSettings(tor: true), _status(tor: ServiceHealth.ok, canSend: true)).word, 'On');
+      expect(torRow(const DeskSettings(tor: true), _status(tor: ServiceHealth.checking)).word, 'Starting');
+      expect(torRow(const DeskSettings(tor: true), _status(tor: ServiceHealth.ok, canSend: true)).word, 'Connected');
       final failed = torRow(const DeskSettings(tor: true), _status(tor: ServiceHealth.down));
       expect(failed.word, 'Not connected');
       expect(failed.state, EState.risk);
       expect(failed.jump, SettingsJump.tor);
     }, skip: _skip);
 
-    test('Epicbox waits for Tor while it starts or failed, and says over Tor once on', () {
+    test('Epicbox waits for Tor while it starts, is not connected when it failed, and says over Tor once on', () {
       RailItem ebRow(DeskSettings s, ServiceStatus st) => receivingRailItems(englishStrings, st, s).singleWhere((i) => i.name == 'Epicbox');
       const on = DeskSettings(tor: true);
       expect(ebRow(on, _status(tor: ServiceHealth.checking, epicbox: ServiceHealth.checking)).word, 'Waiting for Tor');
-      expect(ebRow(on, _status(tor: ServiceHealth.down, epicbox: ServiceHealth.down)).word, 'Waiting for Tor');
+      expect(ebRow(on, _status(tor: ServiceHealth.down, epicbox: ServiceHealth.down)).word, 'Not connected');
       expect(ebRow(on, _status(tor: ServiceHealth.ok, canSend: true)).lines, contains('Over Tor'));
       expect(ebRow(const DeskSettings(), _status()).lines, isNot(contains('Over Tor')));
       final line = methodStateLine(englishStrings, TxMethod.epicbox, _status(tor: ServiceHealth.down, epicbox: ServiceHealth.down), on);
-      expect(line.word, 'Waiting for Tor');
+      expect(line.word, 'Not connected');
     }, skip: _skip);
 
     test('the coverage text names only what goes over Tor', () {
@@ -137,7 +137,7 @@ void main() {
       final s = container.read(deskProvider).settings;
       expect(s.tor, isTrue);
       expect(s.torAutostart, isTrue, reason: 'one switch: remembered');
-      expect(torLine(tester), startsWith('On'));
+      expect(torLine(tester), startsWith('Connected'));
       await tester.tap(torSwitch());
       await tester.pumpAndSettle();
       expect(container.read(deskProvider).settings.torAutostart, isFalse);

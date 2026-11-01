@@ -4483,6 +4483,12 @@ class AppLocalizationsDe extends AppLocalizations {
   String get netStatusNotConnected => 'Nicht verbunden';
 
   @override
+  String get stateReceiving => 'Empfängt';
+
+  @override
+  String get stateUnchecked => 'Nicht geprüft';
+
+  @override
   String get serverUpNotConnected => 'Server erreichbar · nicht verbunden';
 
   @override
@@ -18403,6 +18409,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String lvPayConfirmingOf(int count, int target) {
+    return 'Bestätigung $count von $target';
+  }
+
+  @override
   String lvPaySigned(String name) {
     return '$name hat signiert';
   }
@@ -18958,6 +18969,15 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Stoppt';
+
+  @override
+  String get deskLvPayOnEpicbox => 'Auf Epicbox';
+
+  @override
+  String get deskRailReceivingInternet => 'Empfängt · Internet';
+
+  @override
+  String get deskRailReceivingLocal => 'Empfängt · lokal';
 
   @override
   String get deskOnbImportFoundLead =>

@@ -5,6 +5,7 @@
 /// changes height.
 library;
 
+import '../../state_language.dart' show torShownState;
 import '../../advanced.dart' show NetworkMode, NetworkModeRestricted;
 import 'dart:async';
 
@@ -90,22 +91,25 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
   final ebWay = torWay(TorRoute.epicbox, tor);
   final ebWaits = eb != ServiceHealth.off && (ebWay == TorWay.wait || ebWay == TorWay.blocked);
   final blocked = st != null && st.epicboxBlocked && eb == ServiceHealth.down && !ebWaits;
+  // One word per state (state_language.dart): a connection is Connected, never On (#29).
   final ebWord = switch (eb) {
-    _ when ebWaits => l.deskRailWaitingTor,
+    // Tor failed: Epicbox is not connected (as its Receive line), Tor's own row says why.
+    _ when ebWaits && ebWay == TorWay.blocked => ShownState.notConnected.word(l),
+    _ when ebWaits => ShownState.waitingTor.word(l),
     _ when blocked => l.deskEpicboxBlockedWord,
-    ServiceHealth.ok => l.deskRailOn,
-    ServiceHealth.checking => l.deskRailConnecting,
-    ServiceHealth.slow => l.deskRailSlow,
-    ServiceHealth.down => l.deskRailNotAnswering,
-    ServiceHealth.off => l.deskRailOff,
+    ServiceHealth.ok => ShownState.connected.word(l),
+    ServiceHealth.checking => ShownState.connecting.word(l),
+    ServiceHealth.slow => ShownState.slow.word(l),
+    ServiceHealth.down => ShownState.notAnswering.word(l),
+    ServiceHealth.off => ShownState.off.word(l),
   };
   final items = [
     RailItem(
       icon: EIcons.epicbox,
       name: 'Epicbox', // l10n-ok: product name
-      word: st == null ? l.deskRailChecking : ebWord,
+      word: st == null ? ShownState.checking.word(l) : ebWord,
       state: st == null
-          ? EState.off
+          ? EState.of(ShownState.checking)
           : ebWaits
           ? (ebWay == TorWay.blocked ? EState.risk : EState.active)
           : stateOf(eb),
@@ -134,10 +138,10 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
       icon: EIcons.http,
       name: l.methodDirectHttp,
       word: switch (run) {
-        HttpRun.on => l.deskRailOn,
-        HttpRun.busy => l.deskRailStarting,
-        HttpRun.failed => l.deskRailNotReceiving,
-        HttpRun.off => l.deskRailOff,
+        HttpRun.on => ShownState.receiving.word(l),
+        HttpRun.busy => ShownState.starting.word(l),
+        HttpRun.failed => ShownState.notReceiving.word(l),
+        HttpRun.off => ShownState.off.word(l),
       },
       state: switch (run) {
         // Listening, but the internet does not reach the port: not a green On.
@@ -147,7 +151,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
         HttpRun.off => EState.off,
       },
       second: switch (run) {
-        HttpRun.on => public ? l.deskRailOnInternet : l.deskRailOnLocal,
+        HttpRun.on => public ? l.deskRailReceivingInternet : l.deskRailReceivingLocal,
         HttpRun.busy => l.deskRailStarting,
         HttpRun.failed => st?.httpProblem == HttpProblem.portInUse || st?.httpProblem == HttpProblem.portUnavailable ? l.deskRailPortInUse : l.deskRailStopped,
         HttpRun.off => '–',
@@ -161,7 +165,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
     ),
   );
   if (DeskFeatures.tor) {
-    // The one Tor switch, always shown: Off, Starting…, On, Not connected. A click opens
+    // The one Tor switch, always shown: Off, Starting, Connected, Not connected. A click opens
     // Settings › Privacy, where the switch is.
     final included = st?.torIncluded ?? true;
     final word = included ? torWord(l, tor) : l.deskRailTorNotInBuild;
@@ -170,14 +174,8 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
         icon: EIcons.tor,
         name: 'Tor', // l10n-ok: product name
         word: word,
-        state: !included
-            ? EState.off
-            : switch (tor) {
-                TorState.off => EState.off,
-                TorState.starting => EState.active,
-                TorState.on => EState.ok,
-                TorState.failed => EState.risk,
-              },
+        // Tor's word and dot from its one state (torShownState), as everywhere (D-04).
+        state: !included ? EState.off : EState.of(torShownState(tor)),
         second: tor == TorState.starting ? l.deskRailStartingDots : word,
         marker: tor == TorState.starting ? '${st?.torProgress ?? 0}%' : null,
         note: included ? torNetworkHint(l) : null,
@@ -305,7 +303,7 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
       node = localNodeView(context.l10n, ref.watch(deskLocalNodeProvider).value, fallbackUrl: status?.node.url);
     } else if (status == null) {
       _url = null;
-      node = NodeView(word: l.deskRailChecking, state: EState.off, host: '–');
+      node = NodeView.of(l, ShownState.checking, host: '–');
     } else {
       final url = (prefs.typedNode ?? status.node).url;
       _url = url;

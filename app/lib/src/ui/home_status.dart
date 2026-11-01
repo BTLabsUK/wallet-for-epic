@@ -6,6 +6,7 @@
 /// through [watchWalletStatus] and [phoneTorProvider]; nothing here debounces or decides a route.
 library;
 
+import '../state_language.dart' show ShownState, torShownState;
 import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
 import 'status_icons.dart';
@@ -58,24 +59,19 @@ bool torIconShown(PhoneTorState s) => phoneTorState(s) != TorState.off;
 bool directIconShown(PhoneTorState s) =>
     torShown(s) && torIconShown(s) && s.canSend;
 
-/// Tor's dot: green on, blue starting, red not connected.
-StatusDot torDot(TorState state) => switch (state) {
-  TorState.on => StatusDot.ok,
-  TorState.starting => StatusDot.busy,
-  TorState.failed => StatusDot.bad,
-  TorState.off => StatusDot.off,
-};
+/// Tor's dot, from its one state ([torShownState]): green connected, blue starting, red not
+/// connected, slashed off.
+StatusDot torDot(TorState state) => StatusDot.of(torShownState(state));
 
 /// Direct receive's dot and word: reachable (green) once the onion is published, publishing
 /// (blue) meanwhile, not reachable (red) when it could not be.
 ({StatusDot dot, String word}) directFace(AppLocalizations l, PhoneTorState s) {
-  if (s.phase == PhoneTorPhase.ready) {
-    return (dot: StatusDot.ok, word: l.netStatusReachable);
-  }
-  if (s.failure != null) {
-    return (dot: StatusDot.bad, word: l.netStatusNotReachable);
-  }
-  return (dot: StatusDot.busy, word: l.netStatusPublishing);
+  final shown = s.phase == PhoneTorPhase.ready
+      ? ShownState.reachable
+      : s.failure != null
+      ? ShownState.notReachable
+      : ShownState.publishing;
+  return (dot: StatusDot.of(shown), word: shown.word(l));
 }
 
 /// Link's dot and words for the status icons: off while neither Link method is
@@ -87,12 +83,14 @@ StatusDot torDot(TorState state) => switch (state) {
     return (dot: d.dot, word: d.word, detail: torStatusOf(l, t, s).text);
   }
   if (p.linkTor && !p.linkHttp) return (dot: StatusDot.bad, word: l.torWordNotConnected, detail: l.torNeeds);
-  return switch (http) {
-    PhoneHttpPhase.listening => (dot: StatusDot.ok, word: l.netStatusOn, detail: l.netStatusOn),
-    PhoneHttpPhase.starting => (dot: StatusDot.busy, word: l.statusNodeConnecting, detail: l.statusNodeConnecting),
-    PhoneHttpPhase.off => (dot: StatusDot.off, word: l.netStatusOff, detail: l.netStatusOff),
-    _ => (dot: StatusDot.bad, word: l.netStatusNotConnected, detail: l.netStatusNotConnected),
+  // The listener's one word per state (state_language.dart), as on the desktop.
+  final shown = switch (http) {
+    PhoneHttpPhase.listening => ShownState.receiving,
+    PhoneHttpPhase.starting => ShownState.starting,
+    PhoneHttpPhase.off => ShownState.off,
+    _ => ShownState.notReceiving,
   };
+  return (dot: StatusDot.of(shown), word: shown.word(l), detail: shown.word(l));
 }
 
 /// A service's dot and words once its route under the Tor switch is known: waiting for Tor
@@ -266,8 +264,8 @@ String statusBrief(String detail, {String? host}) {
           enabled: torOn,
           dot: torDot(torState),
           label: torOn ? '${l.netStatusTor}, ${torWord(l, torState)}' : '${l.netStatusTor}, ${l.netStatusOff}',
-          detail: !torOn ? l.netStatusTurnOnHintPrivacy : torState == TorState.on ? l.netStatusOn : torFace.text,
-          brief: statusBrief(!torOn ? l.netStatusTurnOnHintPrivacy : torState == TorState.on ? l.netStatusOn : torFace.text),
+          detail: !torOn ? l.netStatusTurnOnHintPrivacy : torState == TorState.on ? torWord(l, torState) : torFace.text,
+          brief: statusBrief(!torOn ? l.netStatusTurnOnHintPrivacy : torState == TorState.on ? torWord(l, torState) : torFace.text),
           actionHint: l.netStatusTorOpenHint,
           pulse: torState == TorState.starting,
           onTap: () => openPrivacySettings(context),

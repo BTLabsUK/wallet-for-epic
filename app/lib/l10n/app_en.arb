@@ -5699,6 +5699,14 @@
   "@netStatusNotConnected": {
     "description": "State word on the Epicbox row and Home's Epicbox icon: this wallet is not connected to its Epicbox server (it keeps retrying). About the wallet's connection, not the server's health."
   },
+  "stateReceiving": "Receiving",
+  "@stateReceiving": {
+    "description": "State word of a receive listener that runs (Link · HTTP): it takes payments. Pairs with 'Not receiving'. Short."
+  },
+  "stateUnchecked": "Not checked",
+  "@stateUnchecked": {
+    "description": "State word of a server or service nothing is known of yet: no check has answered, or the status site has nothing on it. Drawn with a blue ring. Short."
+  },
   "serverUpNotConnected": "Server up · not connected",
   "@serverUpNotConnected": {
     "description": "On the Epicbox server in use in the server list: the monitor says the server is up, but this wallet is not connected to it. A Retry button follows."
@@ -24487,6 +24495,18 @@
       }
     }
   },
+  "lvPayConfirmingOf": "Confirming {count} of {target}",
+  "@lvPayConfirmingOf": {
+    "description": "Payment steps, the step under way: confirmations so far of the wallet's setting. The number, 'of' and the target are joined by no-break spaces so '0 of 6' never splits across lines. Replaces lvPayConfirming in the steps.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "target": {
+        "type": "int"
+      }
+    }
+  },
   "lvPaySigned": "{name} signed",
   "@lvPaySigned": {
     "description": "Payment steps, a send: the recipient's wallet signed; name is the contact.",
@@ -25358,6 +25378,18 @@
   "deskNodeSwitchStoppingWord": "Stopping",
   "@deskNodeSwitchStoppingWord": {
     "description": "Sidebar Node status word, one word: the built-in local node is shutting down after a switch to a public node."
+  },
+  "deskLvPayOnEpicbox": "On Epicbox",
+  "@deskLvPayOnEpicbox": {
+    "description": "Payment steps: sub-line under the current step 'Recipient signed' of a send over Epicbox: the payment waits on the Epicbox server for the recipient's wallet. The server's host is in the tooltip. Short."
+  },
+  "deskRailReceivingInternet": "Receiving · internet",
+  "@deskRailReceivingInternet": {
+    "description": "Sidebar status, second line of the Link · HTTP row: the listener runs and takes payments from the internet. 'Receiving' is the state word; short."
+  },
+  "deskRailReceivingLocal": "Receiving · local",
+  "@deskRailReceivingLocal": {
+    "description": "Sidebar status, second line of the Link · HTTP row: the listener runs and takes payments from this computer only. 'Receiving' is the state word; short."
   },
   "deskOnbImportFoundLead": "Continue to choose the wallets to add.",
   "@deskOnbImportFoundLead": {

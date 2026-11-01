@@ -4529,6 +4529,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get netStatusNotConnected => 'Нет подключения';
 
   @override
+  String get stateReceiving => 'Принимает';
+
+  @override
+  String get stateUnchecked => 'Не проверен';
+
+  @override
   String get serverUpNotConnected => 'Сервер работает · нет подключения';
 
   @override
@@ -18812,6 +18818,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String lvPayConfirmingOf(int count, int target) {
+    return 'Подтверждение $count из $target';
+  }
+
+  @override
   String lvPaySigned(String name) {
     return '$name подписал(а)';
   }
@@ -19363,6 +19374,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskNodeSwitchStoppingWord => 'Остановка';
+
+  @override
+  String get deskLvPayOnEpicbox => 'На Epicbox';
+
+  @override
+  String get deskRailReceivingInternet => 'Принимает · интернет';
+
+  @override
+  String get deskRailReceivingLocal => 'Принимает · локально';
 
   @override
   String get deskOnbImportFoundLead =>

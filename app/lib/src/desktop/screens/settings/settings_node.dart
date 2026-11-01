@@ -391,10 +391,12 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     // The word and state of the head: the same the rail shows. The down demo's mock wallet
     // still reaches its node, which would keep it Synced.
     final nodeHealth = widget.arg == NodeDemo.down ? ServiceHealth.down : status.nodeHealth;
+    // An own node: the one state its panel's line shows too ([ownNodeView]), whichever node
+    // stands in for it, so the field's dot never says Synced next to Not answering (#76).
     final NodeView view = prefs.builtin
         ? localNodeView(context.l10n, local, fallbackUrl: status.node.url)
         : own
-        ? remoteNodeView(context.l10n, chosenUrl, chosenInfo, health: failover == null && nodeHealth == ServiceHealth.ok ? nodeHealth : null, mine: mine)
+        ? ownNodeView(context.l10n, chosenUrl, chosenInfo, health: nodeHealth, standIn: ref.watch(deskFailoverProvider), mine: mine)
         : remoteNodeView(context.l10n, current.url, info, health: nodeHealth, torOn: torOn);
     final down = view.state == EState.risk && !prefs.builtin && !own;
     // The Switch action's target: the healthy listed node with the lowest latency.
@@ -454,6 +456,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                         ? l.deskNodeFailoverInsteadOf(nodeHost(failover.chosen))
                         : (prefs.nodeLabels[current.url] ?? current.operator),
                     tone: stateTone(view.state),
+                    state: switching != null ? EState.active : view.state,
                     servers: nodePanelRows(all, released: released, labels: prefs.nodeLabels, ownLabel: (url) {
                       final c = nodeClassOf(url, mine: prefs.mineNodes.contains(url));
                       return c.own ? ownLabel(l, c, url) : null;
