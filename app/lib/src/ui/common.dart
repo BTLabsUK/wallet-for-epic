@@ -24,6 +24,7 @@ import '../wallet_service.dart';
 import 'home_screen.dart';
 import 'launch_screen.dart';
 import 'method_names.dart' show methodKindOfTransport;
+import 'motion_switches.dart';
 import 'notices.dart';
 import 'badge.dart';
 import 'finished_not_posted.dart' show isPostElsewhere;
@@ -1254,12 +1255,6 @@ Duration txEdgeLap(TxPhase phase) => phase == TxPhase.waitingRecipient
 /// payment can wait for hours, and a run that never stops redraws the list all that time. A
 /// new phase or payment in the tile laps again.
 const int txEdgeRunLaps = 5;
-
-/// Whether a waiting tile's run travels. Widget tests turn it off in
-/// `test/flutter_test_config.dart`, since a loop never lets `pumpAndSettle` settle; the tile
-/// then shows the full current mark, as with reduced motion. The loader's own tests turn it on.
-@visibleForTesting
-bool txEdgeRunMoves = true;
 
 /// How long the fill takes to reach a new confirmation count.
 const Duration txEdgeFillDuration = Duration(milliseconds: 900);
