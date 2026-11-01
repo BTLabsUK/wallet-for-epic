@@ -3,6 +3,7 @@
 library;
 
 export '../../address_format.dart';
+export '../../text_join.dart';
 export '../app/routes.dart';
 export '../data/addresses.dart';
 export '../data/features.dart';

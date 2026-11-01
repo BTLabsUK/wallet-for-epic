@@ -248,7 +248,7 @@ double fitFontSize(BuildContext context, String text, TextStyle style, List<doub
 
 /// An [EMoney] that steps its size down through [sizes] to fit its width.
 class FitMoney extends ConsumerWidget {
-  const FitMoney(this.nano, {super.key, required this.sizes, this.color, this.sign = false, this.unit = false, this.weight, this.width, this.decimals});
+  const FitMoney(this.nano, {super.key, required this.sizes, this.color, this.sign = false, this.unit = false, this.weight, this.width, this.decimals, this.surface});
 
   final int nano;
   final List<double> sizes;
@@ -261,22 +261,26 @@ class FitMoney extends ConsumerWidget {
   final bool unit;
   final FontWeight? weight;
 
-  /// At least this many decimals (a row of tiles shows one precision).
+  /// Kept for callers: 8 means [AmountSurface.exact]. Prefer [surface].
   final int? decimals;
+
+  /// Where the amount is shown ([EMoney.surface]).
+  final AmountSurface? surface;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
-    final text = '${sign && nano > 0 ? '+' : ''}${hidden ? '••••••' : formatEpicL(context.l10n, nano, minDecimals: decimals ?? 4)}${unit ? ' EPIC' : ''}';
+    final figure = hidden ? '••••••' : EMoney.figure(context.l10n, nano, surface: EMoney.surfaceOf(surface, decimals), sign: sign);
+    final text = unit ? withUnit(figure, epicUnit) : figure;
     final style = context.ts.mono(weight: weight ?? FontWeight.w500);
     if (width != null) {
-      return EMoney(nano, size: fitFontSize(context, text, style, sizes, width!), color: color, sign: sign, unit: unit, weight: weight, decimals: decimals);
+      return EMoney(nano, size: fitFontSize(context, text, style, sizes, width!), color: color, sign: sign, unit: unit, weight: weight, decimals: decimals, surface: surface);
     }
     return LayoutBuilder(
       builder: (context, box) {
         final size = box.maxWidth.isFinite ? fitFontSize(context, text, style, sizes, box.maxWidth) : sizes.first;
         return ClipRect(
-          child: EMoney(nano, size: size, color: color, sign: sign, unit: unit, weight: weight, decimals: decimals),
+          child: EMoney(nano, size: size, color: color, sign: sign, unit: unit, weight: weight, decimals: decimals, surface: surface),
         );
       },
     );
@@ -661,7 +665,7 @@ class _TxRowState extends ConsumerState<TxRow> {
       // A request is never read out as money received;
       // it reads Unpaid only while it is, then its state word says what became of it. The pen
       // keeps its own node.
-      label: _semantics(l, t, hidden ? l.deskTxHiddenAmount : '${formatEpicL(l, t.amount)} EPIC', word),
+      label: _semantics(l, t, hidden ? l.deskTxHiddenAmount : epicTextL(l, t.amount), word),
       child: Focus(
         canRequestFocus: false,
         skipTraversal: true,
