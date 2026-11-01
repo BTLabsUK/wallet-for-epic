@@ -1,0 +1,14 @@
+# The Stack Wallet build the live check runs: Cypherstack's official GitHub release, x86_64 APK (the
+# emulator is x86_64). Fetched 2026-11-01.
+repo=cypherstack/stack_wallet
+tag=build_316
+version=2.7.1
+version_code=4316
+package=com.cypherstack.stackwallet
+asset=sw-v2.7.1-x86_64-release.apk
+size=228469240
+sha256=b77ca175f14e9bacfb8a138e0d43569b8bb754978aeb658b322f6e34393114a3
+# apksigner verify --print-certs: scheme v2 only, subject CN=Unknown (a self-made key); no earlier
+# release was compared. The project publishes no checksum file or signing fingerprint: the sha256
+# above is the digest GitHub shows for the asset, and the downloaded file matched it.
+signer_sha256=81532912d34b3b788320b9c83b550fd204c650f711c5eb2aa686bf6f8d877a51

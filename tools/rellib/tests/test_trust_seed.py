@@ -42,7 +42,8 @@ class SeedTest(unittest.TestCase):
     def test_fresh_file_over_the_fixture(self):
         path, v = seed.fixture_for("26.10.23")
         self.assertEqual(v, "26.10.23")
-        self.assertEqual(seed.fixture_for("26.10.24-r2")[1], "26.10.23")
+        self.assertEqual(seed.fixture_for("26.10.24-r2")[1], "26.10.24")  # its own, from the release's deskSettingsToJson
+        self.assertEqual(seed.fixture_for("26.10.23.1")[1], "26.10.23")
         self.assertIsNone(seed.fixture_for("26.9.1"))
         template = open(path).read().strip()
         out = json.loads(seed.desk_settings('{"tourSeen":false,"advanced":{"nodeFailover":false}}', "dark", True, template))
@@ -86,6 +87,28 @@ class SeedTest(unittest.TestCase):
         c.close()
         with self.assertRaises(seed.SeedError):
             seed.wallet_db(path, 0)
+
+
+class PreviousReleaseFilesTest(unittest.TestCase):
+    def test_contact_added_once_in_the_releases_format(self):
+        t = seed.contacts_json('{"version":1,"contacts":[{"id":"x","name":"X"}]}', "k@r")
+        t = seed.contacts_json(t, "k2@r")
+        d = json.loads(t)
+        self.assertEqual([c["id"] for c in d["contacts"]], ["x", seed.CONTACT["id"]])
+        self.assertEqual(d["contacts"][1]["epicbox"], "k2@r")
+        self.assertEqual(json.loads(seed.contacts_json(None, "k@r"))["version"], 1)
+        with self.assertRaises(seed.SeedError):
+            seed.contacts_json('{"nope":1}', "k@r")
+
+    def test_note_under_the_row_alias(self):
+        d = json.loads(seed.meta_note('{"version":1,"notes":{"a":"b"},"contacts":[]}', 7))
+        self.assertEqual(d["notes"], {"a": "b", "l:7": seed.NOTE})
+        self.assertEqual(d["contacts"], [])
+        with self.assertRaises(seed.SeedError):
+            seed.meta_note('{"version":1}', 7)
+
+    def test_lan_nodes_file(self):
+        self.assertEqual(seed.lan_nodes_json(["http://b:1", "http://a:1"]), '{"plainHttp":["http://a:1","http://b:1"]}')
 
 
 if __name__ == "__main__":

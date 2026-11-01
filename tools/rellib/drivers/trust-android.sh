@@ -9,7 +9,8 @@
 #   REL_CANDIDATE_DIR, REL_CANDIDATE_VERSION candidate's published files
 #   REL_CANDIDATE_EXTRA                      candidate's non-published folder (emulator/…x86_64.apk)
 #   REL_VARIANT        tor | notor
-#   REL_CHECKS         comma list of checks that must be true (default: all eight)
+#   REL_CHECKS         comma list of checks that must be true (default: all eight, and for a candidate from 26.10.25 the
+#                      four migration checks: store_encrypted, app_files_kept, lan_nodes_kept, contact_note_kept)
 #   REL_FUNDS          1 = also send_ok / receive_ok, 0 = data checks only
 #   REL_NODE           node to type in, e.g. https://node.btlabs.uk (unset: health pick below)
 #   REL_EPICBOX        Epicbox relay to type in, e.g. epicbox.stackwallet.com (unset: health pick)
@@ -32,6 +33,10 @@ drv="$here/android"
 sdk="${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}"
 export ADB="${ADB:-$sdk/platform-tools/adb}"
 CHECKS_ALL=wallet_opens,balance_kept,history_kept,custom_nodes_kept,custom_relays_kept,settings_kept,send_ok,receive_ok
+# A candidate that encrypts the wallet database (26.10.25 on) must also pass the migration checks.
+if [[ "$(printf '%s\n' 26.10.25 "${REL_CANDIDATE_VERSION:-0}" | sort -V | head -1)" == 26.10.25 ]]; then
+  CHECKS_ALL+=,store_encrypted,app_files_kept,lan_nodes_kept,contact_note_kept
+fi
 export REL_CHECKS="${REL_CHECKS:-$CHECKS_ALL}"
 export REL_FUNDS="${REL_FUNDS:-1}" REL_VARIANT="${REL_VARIANT:-tor}"
 dry="${REL_DRY_RUN:-0}"
@@ -111,9 +116,12 @@ trust-android plan ($REL_VARIANT, funds=$REL_FUNDS, required: $REL_CHECKS)
   3 user     node $REL_NODE typed in and in use; relay $REL_EPICBOX typed in and in use;
              Theme ${REL_TRUST_THEME:-Dark}, Technical details on, Confirmations ${REL_TRUST_CONFIRMATIONS:-1}
   4 digest   address, Total/Spendable, Activity rows, Node and Epicbox lists, settings
+  4b seed    (candidate 26.10.25 on) app stopped, adb root: a contact in contacts.json, a note in wfe_meta.json, the stand-in node in lan_nodes.json; file set read
   5 update   adb install -r $cand_apk  (same signature, as the in-app updater's PackageInstaller)
   6 open     launch, unlock with the PIN, digest again, compare; the level picker showing = wallet_opens false;
              a candidate with levels must read level 3 in Settings › Advanced (settings_kept; proof "levels")
+  6b files   (candidate 26.10.25 on) wallet.enc.sqlite3 + .check present, wallet.sqlite3 absent, .pre-encryption kept; sealed app files + contacts.keys wrap, plain files unchanged;
+             [node] plain_http holds lan_nodes.json's agreements; the contact and note read in the app
   7 funds    $( [[ "$REL_FUNDS" == 1 ]] && echo "through the shared P service (no lock): send ${REL_TRUST_SEND:-0.01} to P, receive ${REL_TRUST_RECEIVE:-0.02} from P, by Epicbox" || echo "skipped (REL_FUNDS=0)")
   out        $REL_OUT/proof.json, driver.log, screens.log, p.log, shots/
 EOF

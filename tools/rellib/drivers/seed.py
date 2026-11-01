@@ -123,3 +123,48 @@ def wallet_db(path, confirmations):
         c.close()
     if not got or got[0] != str(int(confirmations)):
         raise SeedError("wallet database did not keep %s = %s" % (CONF_KEY, confirmations))
+
+
+# ---- the address book, a note and the LAN-node agreements of the previous release -----------------
+# 26.10.24-r2 keeps them in plain files in the data folder, written while the app is closed, in its
+# own format; the checks after the update expect them kept (migration.py, contact_note / lan_nodes).
+CONTACT = {"id": "trust-seed-contact", "name": "Trust Contact"}
+NOTE = "Trust note"
+
+
+def contacts_json(text, epicbox):
+    """contacts.json ({"version":1,"contacts":[...]}, compact, as the release writes it) with the trust
+    contact added (replaced when it is there). [text] is the file as the release left it, None for none."""
+    d = {"version": 1, "contacts": []} if not (text or "").strip() else _obj(text, "contacts.json")
+    if not isinstance(d.get("version"), int) or not isinstance(d.get("contacts"), list):
+        raise SeedError("contacts.json has no version and contacts list: %s" % sorted(d))
+    d["contacts"] = [c for c in d["contacts"] if not (isinstance(c, dict) and c.get("id") == CONTACT["id"])]
+    d["contacts"].append(dict(CONTACT, epicbox=epicbox))
+    return json.dumps(d, separators=(",", ":"), ensure_ascii=False)
+
+
+def meta_note(text, tx_id, note=NOTE):
+    """wfe_meta.json with a note on the wallet's transaction [tx_id] (LEPIC's row id; the history finds
+    a note under the alias "l:<id>" of its row). Everything else in the file stays as the release wrote it."""
+    d = _obj(text, "wfe_meta.json")
+    if not isinstance(d.get("notes"), dict):
+        raise SeedError("wfe_meta.json has no notes object: %s" % sorted(d))
+    d["notes"]["l:%d" % int(tx_id)] = note
+    return json.dumps(d, separators=(",", ":"), ensure_ascii=False)
+
+
+def lan_nodes_json(urls):
+    """lan_nodes.json as 26.10.24-r2 writes it: {"plainHttp": [urls, sorted]}."""
+    return json.dumps({"plainHttp": sorted(urls)}, separators=(",", ":"))
+
+
+def first_tx_id(db_path):
+    """The id of the wallet's oldest transaction (the funding), read from a closed wallet database."""
+    c = sqlite3.connect(db_path)
+    try:
+        row = c.execute("select id from transactions order by id limit 1").fetchone()
+    finally:
+        c.close()
+    if not row:
+        raise SeedError("the wallet database has no transaction to put a note on")
+    return row[0]

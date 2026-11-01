@@ -15,6 +15,7 @@ candidate, #143). That release only opens the wallet and is read once (digest-vi
 candidate is compared with what the previous release showed.
 """
 import datetime
+import glob
 import decimal
 import json
 import os
@@ -33,11 +34,16 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.dirname(HERE))
 import sandbox  # noqa: E402
 import facts  # noqa: E402
+import migration  # noqa: E402
+import seed  # noqa: E402
 import screens as catalog  # noqa: E402
 from p_funder import P  # noqa: E402
 
+# What the update to a release that encrypts the wallet database must leave (migration.py); the four
+# apply to a candidate from facts.FIRST_ENCRYPTED_RELEASE and are "not applicable" before it.
+MIGRATION_CHECKS = ["store_encrypted", "app_files_kept", "lan_nodes_kept", "contact_note_kept"]
 CHECKS = ["wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept", "custom_relays_kept",
-          "settings_kept", "send_ok", "receive_ok"]
+          "settings_kept", "send_ok", "receive_ok"] + MIGRATION_CHECKS
 NODE_PICK = facts.NODE_PICK      # release/pipeline.toml [defaults], BT Labs first
 RELAY_PICK = facts.RELAY_PICK
 TEST_CONFIRMATIONS = facts.TEST_CONFIRMATIONS  # the setting the test moves to: test payments spend after one block
@@ -80,8 +86,13 @@ class Run:
         self.via_dir = e.get("REL_VIA_DIR", "")
         self.via_ver = e.get("REL_VIA_VERSION", "")
         self.funds = e.get("REL_FUNDS", "1") == "1"
-        # unset: all eight with funds, the six data checks without
-        default = CHECKS if self.funds else [c for c in CHECKS if c not in ("send_ok", "receive_ok")]
+        self.migrate = facts.encrypts_store(self.cand_ver)
+        # the seed and the three app-file checks need a previous release that still keeps the plain files
+        self.seed_files = self.migrate and not facts.encrypts_store(self.prev_ver)
+        # unset: every check with funds, without send_ok and receive_ok otherwise; the migration checks
+        # only for a candidate that encrypts the database
+        default = [c for c in CHECKS if (self.funds or c not in ("send_ok", "receive_ok"))
+                   and (self.migrate or c not in MIGRATION_CHECKS)]
         self.required = [c.strip() for c in (e.get("REL_CHECKS") or ",".join(default)).split(",") if c.strip()]
         self.keep_funds = e.get("REL_KEEP_FUNDS") == "1"
         self.node = e.get("REL_NODE", "")
@@ -100,6 +111,8 @@ class Run:
         self.p_addr = e.get("REL_P_ADDR") or "esa57kJmWkZyX8fSkKPW2Gu12ENhFF6MXfdsrsY4gqVK58ZwzB4d@epicbox.stackwallet.com"
         self.checks = {c: False for c in CHECKS}
         self.details = {}
+        self.before_files = ([], {})  # the data folder just before the candidate starts (listing, hashes)
+        self.lan_before = None        # lan_nodes.json as the previous release left it
         self.spent = D(0)
         self.ports = {}
         self.standins = []
@@ -208,8 +221,14 @@ class Run:
             "previous app: create wallet (the depth dial, where shown: Deep end), Settings: node + stand-in node, Epicbox + stand-in relay, Light theme, label, %d confirmation(s), Technical details" % TEST_CONFIRMATIONS,
             "fund: P -> wallet %s EPIC via Epicbox (shared P service %s, no lock), wait until spendable" % (FUND_IN, self.p.lock_file),
             "digest: address, balance, activity, node and Epicbox lists, settings, data folder files",
+            "seed (previous app stopped): a contact in contacts.json, a note in wfe_meta.json, the stand-in node in lan_nodes.json; "
+            "file set and hashes taken just before the candidate starts",
             "swap: stop the previous app, start the candidate on the same HOME, unlock, same digest; a candidate with levels must name Deep end (level 3) in Settings › About, "
             "ask no depth and run no first-run server pick (its log line moves servers); a last-session notice is noted and left to close",
+            ("migration checks (%s): %s present and %s absent in wallets/*/lepic/, %s kept, sealed app files and the address-book key present "
+             "with the plain files unchanged, [node] plain_http holds lan_nodes.json's agreements, the contact and note read through the UI" % (
+                 ",".join(MIGRATION_CHECKS), facts.STORE_ENC, facts.STORE_PLAIN, facts.STORE_PRE)) if self.migrate else
+            "migration checks: not applicable (candidate %s keeps the plain database)" % self.cand_ver,
             ("funds: P -> wallet %s, then everything back to P" % FUND_AFTER) if self.funds else
             ("funds: none checked; %s" % ("balance left in the sandbox (REL_KEEP_FUNDS=1)" if self.keep_funds else "balance sent back to P")),
             "checks required: %s; proof: %s/proof.json" % (",".join(self.required), self.out),
@@ -904,8 +923,11 @@ class Run:
         # the update: the AppImage changes, HOME and the data folder stay
         sandbox.app_stop(self.sb)
         self.log("previous app stopped")
+        if self.seed_files:
+            self.seed_previous_files()
         if self.via_root:
             self.via_hop(before)
+        self.before_files = self.snapshot()
         self.start_app(cand_root, "candidate")
         opened, why = self.open_after_update(before)
         self.details["wallet_opens"] = why
@@ -913,7 +935,7 @@ class Run:
             self.fail("wallet_opens", why)
             for p in catalog.POINTS[1:]:
                 self.screens.miss("after-" + p, "not reached: the candidate did not open the wallet")
-            for c in ("balance_kept", "history_kept", "custom_nodes_kept", "custom_relays_kept", "settings_kept"):
+            for c in ("balance_kept", "history_kept", "custom_nodes_kept", "custom_relays_kept", "settings_kept", *MIGRATION_CHECKS):
                 self.fail(c, "not checked: the wallet did not open")
             after = None
         else:
@@ -922,6 +944,7 @@ class Run:
             after = self.digest("candidate")
             self.settle(before, after)
             self.compare(before, after)
+            self.migration_checks()
         self.funds_legs(after)
         return 0
 
@@ -1035,10 +1058,112 @@ class Run:
         self.details["level"] = why
         if lv is False:
             self.fail("settings_kept", "%s; %s" % (why, self.details.get("settings_kept", "")))
-        gone = [f for f in b["files"] if f not in a["files"]]
+        gone = [f for f in b["files"] if f not in a["files"]
+                and not (self.migrate and os.path.basename(f).startswith(facts.STORE_PLAIN))]  # the plain database is set aside
         self.details["data_folder"] = ("all %d files of the previous data folder still there; %d new" % (
             len(b["files"]), len(set(a["files"]) - set(b["files"])))) if not gone else ("files gone after the update: %s" % ", ".join(gone[:10]))
         self.log("data folder: %s" % self.details["data_folder"])
+
+    # ---- the data an encrypting release must carry over (migration.py)
+
+    def data_root(self):
+        return os.path.join(self.sb, "home", ".epic_cash_desktop")
+
+    def read_root(self, rel):
+        try:
+            with open(os.path.join(self.data_root(), rel), encoding="utf-8") as f:
+                return f.read()
+        except OSError:
+            return None
+
+    def snapshot(self):
+        """(listing, hashes): the data folder's files and the sha256 of the plain app files in it."""
+        listing = self.files()
+        return listing, {p: sha256(os.path.join(self.data_root(), p)) for p in migration.norm(listing)
+                         if os.path.basename(p) in migration.WATCHED}
+
+    def seed_previous_files(self):
+        """While the previous release is closed: a contact, a note on the wallet's first transaction and the
+        stand-in node's plain-http agreement, in its own files and format (seed.py)."""
+        root = self.data_root()
+        metas = sorted(glob.glob(os.path.join(root, "wallets", "*", facts.META_PLAIN)))
+        dbs = sorted(glob.glob(os.path.join(root, "wallets", "*", facts.STORE_DIR, facts.STORE_PLAIN)))
+        if len(metas) != 1 or len(dbs) != 1:
+            raise CannotRun("the previous release left %d %s and %d %s under wallets/ (one each expected)" % (
+                len(metas), facts.META_PLAIN, len(dbs), facts.STORE_PLAIN))
+
+        def put(path, text):
+            tmp = path + ".seed"
+            with open(tmp, "w", encoding="utf-8") as f:
+                f.write(text)
+            os.chmod(tmp, 0o600)
+            os.replace(tmp, path)
+
+        try:
+            with open(metas[0], encoding="utf-8") as f:
+                meta = seed.meta_note(f.read(), seed.first_tx_id(dbs[0]))
+            contacts = seed.contacts_json(self.read_root(facts.CONTACTS_PLAIN), self.p_addr)
+        except (seed.SeedError, OSError) as e:
+            raise CannotRun("seeding the previous release's contact and note: %s" % e)
+        put(metas[0], meta)
+        put(os.path.join(root, facts.CONTACTS_PLAIN), contacts)
+        put(os.path.join(root, facts.LAN_NODES_FILE), seed.lan_nodes_json(["http://%s" % self.custom_node]))
+        self.lan_before = self.read_root(facts.LAN_NODES_FILE)
+        self.log("seeded into the closed previous release: contact %r, note %r, plain-http agreement for %s" % (
+            seed.CONTACT["name"], seed.NOTE, self.custom_node))
+
+    def shows(self, page, text):
+        """Whether [page] of the app shows [text]; None when the page cannot be reached."""
+        try:
+            self.nav(page)
+            time.sleep(1.5)
+            return any(text in t for t in self.ui.texts())
+        except LookupError:
+            return None
+
+    def note_shown(self):
+        shown = self.shows("Activity", seed.NOTE)
+        if shown is False:  # not on the row: on its detail page
+            try:
+                row = [n for n in self.ui.nodes() if re.match(r"^(Received|Sent|Confirming)\b", n.name.split("\n")[0]) and "EPIC" in n.name]
+                if row:
+                    self.ui.tap(row[0])
+                    time.sleep(1.5)
+                    shown = any(seed.NOTE in t for t in self.ui.texts())
+                    self.ui.key("Escape")
+            except LookupError:
+                pass
+        return shown
+
+    def migration_checks(self):
+        if not self.migrate:
+            for c in MIGRATION_CHECKS:
+                self.ok(c, "not applicable: candidate %s keeps the plain database" % self.cand_ver)
+            return
+        b_list, b_hash = self.before_files
+        a_list, a_hash = self.snapshot()
+        (self.ok if (r := migration.store_files(b_list, a_list))[0] else self.fail)("store_encrypted", r[1])
+        if not self.seed_files:
+            for c in MIGRATION_CHECKS[1:]:
+                self.ok(c, "not applicable: the previous release already encrypts (nothing plain to carry over)")
+            return
+        try:
+            with open(os.path.join(self.data_root(), "wallets.json"), encoding="utf-8") as f:
+                ids = [w["id"] for w in json.load(f).get("wallets") or [] if isinstance(w, dict) and w.get("id")]
+        except (OSError, ValueError):
+            ids = []
+        (self.ok if (r := migration.app_files(b_list, b_hash, a_list, a_hash, ids))[0] else self.fail)("app_files_kept", r[1])
+        r = migration.lan_nodes(self.lan_before, b_hash.get(facts.LAN_NODES_FILE), a_hash.get(facts.LAN_NODES_FILE),
+                                self.read_root(facts.SETTINGS_TOML))
+        (self.ok if r[0] else self.fail)("lan_nodes_kept", r[1])
+        contact = self.shows("Contacts", seed.CONTACT["name"])
+        note = self.note_shown()
+        if contact is None or note is None:
+            self.fail("contact_note_kept", "the app's %s page could not be reached to read the %s" % (
+                ("Contacts", "contact") if contact is None else ("Activity", "note")))
+        else:
+            r = migration.contact_note(seed.CONTACT["name"], seed.NOTE, b_hash, a_hash, contact, note, "plain files unchanged; read on the Contacts and Activity pages")
+            (self.ok if r[0] else self.fail)("contact_note_kept", r[1])
 
     def first_run_lines(self):
         """The app log's first-run server pick lines (07c430866). A fresh install's pick only: on an
