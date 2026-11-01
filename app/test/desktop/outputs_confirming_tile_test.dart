@@ -45,6 +45,10 @@ void main() {
     expect(find.descendant(of: tile, matching: find.text('1 output')), findsOneWidget);
     final value = tester.widget<EMoney>(find.descendant(of: tile, matching: find.byType(EMoney)));
     expect(value.nano, 10000000);
+    // Total's value is the sum of the tiles' values, as its count is the sum of theirs.
+    final totalTile = find.ancestor(of: find.text('Total').first, matching: find.byType(Column)).first;
+    expect(tester.widget<EMoney>(find.descendant(of: totalTile, matching: find.byType(EMoney))).nano, 131900000 + 10000000);
+    expect(find.descendant(of: totalTile, matching: find.text('2 outputs')), findsOneWidget);
     // Its tab counts and lists the same output.
     final tabs = tester.widget<ESegmented<OutputsFilter>>(find.byType(ESegmented<OutputsFilter>));
     expect(tabs.segments.firstWhere((s) => s.value == OutputsFilter.confirming).count, 1);
@@ -76,5 +80,9 @@ void main() {
     expect(listed(OutputsFilter.all), n.total);
     expect(n.total, n.spendable + n.confirming + n.immature + n.locked);
     expect(listed(OutputsFilter.all, showSpent: true), 8, reason: 'the spent row only on request');
+    // And the values: Total's is the sum of the tiles' (Confirming's takes awaiting finalization).
+    const b = Balance(spendable: 100, awaitingConfirmation: 20, awaitingFinalization: 3, immature: 40, locked: 5, reportedTotal: 165);
+    expect(outputsTotalValue(b), b.spendable + (b.awaitingConfirmation + b.awaitingFinalization) + b.immature + b.locked);
+    expect(outputsTotalValue(b), 168);
   });
 }

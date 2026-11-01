@@ -66,6 +66,11 @@ bool outputListed(OutputsFilter filter, OutputWord w, {bool showSpent = false}) 
 /// All = the sum of the tiles (UD-008).
 typedef OutputCounts = ({int spendable, int confirming, int immature, int locked, int total});
 
+/// The Outputs page's Total value: the sum of its tiles' values (Confirming's takes awaiting
+/// finalization), so it adds up as its count does. Only this page: elsewhere the balance's own
+/// [Balance.total] stays the headline.
+int outputsTotalValue(Balance b) => b.spendable + b.awaitingConfirmation + b.awaitingFinalization + b.immature + b.locked;
+
 OutputCounts outputCounts(List<Output> all) {
   var s = 0, c = 0, i = 0, l = 0, t = 0;
   for (final o in all) {
@@ -537,7 +542,7 @@ class _Tiles extends StatelessWidget {
           tile(l.deskOutTileConfirming, ERing(confirmations: 1, needed: b?.minConfirmations ?? defaultMinimumConfirmations, size: icon), b == null ? null : b.awaitingConfirmation + b.awaitingFinalization, n?.confirming),
           tile(l.deskOutTileImmature, Icon(EIcons.sand, size: icon, color: c.info), b?.immature, n?.immature),
           tile(l.deskOutTileLocked, Icon(EIcons.lock, size: icon, color: c.dim), b?.locked, n?.locked, hint: (b?.locked ?? 0) > 0 ? l.deskOutLockedNote : null),
-          tile(l.deskOutTileTotal, null, b?.total, n?.total, total: true),
+          tile(l.deskOutTileTotal, null, b == null ? null : outputsTotalValue(b), n?.total, total: true),
         ],
       ),
     );

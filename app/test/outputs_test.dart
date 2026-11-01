@@ -269,8 +269,9 @@ void main() {
     // Confirming: 0.5 + 0.6 + 0.4, three outputs; the unpaid invoice is in no tile.
     expect(find.text('1.5000 EPIC'), findsOneWidget);
     expect(find.text('3 outputs'), findsOneWidget);
-    // Total: LEPIC's figure, 2 + 0.5; its count, the four outputs with a tile, as All's.
-    expect(find.text('2.5000 EPIC'), findsOneWidget);
+    // Total: the sum of the tiles, 2 + 1.5 + 0; its count, the four outputs with a tile, as All's.
+    expect(find.text('3.5000 EPIC'), findsOneWidget);
+    expect(find.text('2.5000 EPIC'), findsNothing, reason: "not the wallet's own total here");
     expect(find.text('4 outputs'), findsOneWidget);
     expect(find.text(_l.outputsFilterAll(4)), findsOneWidget);
     // Spendable 1 + Confirming 3 + Locked 0 = 4.

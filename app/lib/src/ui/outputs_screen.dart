@@ -265,7 +265,15 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
               Expanded(
                 child: tile(
                   l.homeTileTotal,
-                  summary?.total,
+                  // The sum of the parts, as its count is (awaiting finalization and
+                  // immature included); the wallet's own total stays the headline elsewhere.
+                  summary == null
+                      ? null
+                      : summary.spendable +
+                            summary.awaitingConfirmation +
+                            summary.awaitingFinalization +
+                            summary.immature +
+                            summary.locked,
                   list == null ? null : nTotalTile,
                 ),
               ),
