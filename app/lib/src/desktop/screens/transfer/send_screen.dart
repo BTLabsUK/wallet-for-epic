@@ -1905,7 +1905,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           help: switch (code?.amount) {
             null => null,
             final asked when asked == _parsed => l.sendAmountFromCode,
-            final asked => l.sendAmountCodeAsked('${formatEpicL(l, asked)} EPIC'),
+            final asked => l.sendAmountCodeAsked(epicTextL(l, asked)),
           },
           aside: spendable == null
               ? Text(l.deskSendAvailableNone, style: ts.small)
@@ -1926,7 +1926,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('EPIC', style: ts.small.copyWith(color: c.dim)),
+                Text(epicUnit, style: ts.small.copyWith(color: c.dim)),
                 SizedBox(width: Sp.x2),
                 EButton(label: l.deskSendAllButton, size: EBtnSize.inline, busy: _allBusy, onPressed: spendable == null || _allBusy ? null : _sendAll),
               ],
@@ -2050,8 +2050,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         _ when !_reviewStep => n <= 0
             ? l.deskLvSendButton
             : switch (_viaPairing ? ref.watch(deskPairingNameProvider(_pairingTo!)) : _contactOf(st.contacts)?.name) {
-                final who? => l.deskLvSendButtonTo(formatEpicL(l, n), who),
-                null => l.deskLvSendButtonAmount(formatEpicL(l, n)),
+                final who? => keepNumbersWithUnits(l.deskLvSendButtonTo(formatEpicL(l, n), who)),
+                null => keepNumbersWithUnits(l.deskLvSendButtonAmount(formatEpicL(l, n))),
               },
         _ => l.deskSendReview,
       },
@@ -2629,7 +2629,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
           ],
           if (widget.compact) ...[
             Text(
-              d.contactName == null ? l.deskLvSendButtonAmount(formatEpicL(l, d.amount, decimals: exactDecimals)) : l.deskLvSendButtonTo(formatEpicL(l, d.amount, decimals: exactDecimals), d.contactName!),
+              keepNumbersWithUnits(d.contactName == null ? l.deskLvSendButtonAmount(formatEpicL(l, d.amount, decimals: exactDecimals)) : l.deskLvSendButtonTo(formatEpicL(l, d.amount, decimals: exactDecimals), d.contactName!)),
               key: const ValueKey('send-compact-line'),
               style: ts.strong,
             ),
@@ -2645,9 +2645,10 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Flexible(child: Text(formatEpicL(l, d.amount, decimals: exactDecimals), style: ts.h1.copyWith(fontFeatures: const [FontFeature.tabularFigures()]))),
+              // The exact amount in the data face, as every amount but the balance headline.
+              Flexible(child: Text(formatEpicL(l, d.amount, decimals: exactDecimals), style: ts.mono(size: Fs.h1, weight: FontWeight.w600).copyWith(height: 1.2))),
               SizedBox(width: Sp.x2),
-              Text('EPIC', style: ts.lead),
+              Text(epicUnit, style: ts.mono(size: Fs.lg, color: c.dim)),
             ],
           ),
           SizedBox(height: Sp.x4),
@@ -2688,12 +2689,12 @@ class _ReviewDialogState extends State<_ReviewDialog> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  EMoney(d.fee, decimals: exactDecimals),
+                  EMoney(d.fee, surface: AmountSurface.exact),
                   if (lines?.feeSecondLine != null) Text(lines!.feeSecondLine!, style: ts.small),
                 ],
               ),
             ),
-            (l.deskSendTotal, EMoney(d.total, decimals: exactDecimals, weight: FontWeight.w600)),
+            (l.deskSendTotal, EMoney(d.total, surface: AmountSurface.exact, weight: FontWeight.w600)),
             ...?lines?.facts,
             if (DeskFeatures.dandelion && d.method != TxMethod.file) (l.deskSendFactPrivacy, Text(d.dandelion ? l.deskSendDandelionOn : l.deskSendDandelionOff, style: ts.body)),
             if (d.message.isNotEmpty) (l.deskSendFactMessage, Text(d.message, style: ts.body)),
@@ -2720,7 +2721,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
             ENotice(
               tone: ETone.warn,
               title: l.deskSendFeeChangedTitle,
-              text: l.deskSendFeeChangedText(formatEpicL(l, d.fee), formatEpicL(l, _feeWas!)),
+              text: keepNumbersWithUnits(l.deskSendFeeChangedText(formatEpicL(l, d.fee, decimals: exactDecimals), formatEpicL(l, _feeWas!, decimals: exactDecimals))),
             ),
           ],
           // The Send button turns while it runs; the line beside it stays still (one spinner).
@@ -2765,7 +2766,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
           : null,
       actions: [
         EButton(label: l.deskSendBack, kind: EBtnKind.ghost, size: EBtnSize.sm, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-        EButton.primary(label: _busy ? l.deskSendSending : (d.queued ? l.sendQueue : (widget.compact ? l.deskLvSendConfirm : l.deskSendConfirm(formatEpicL(l, d.amount)))), icon: EIcons.send, busy: _busy, onPressed: _ready ? _go : null),
+        EButton.primary(label: _busy ? l.deskSendSending : (d.queued ? l.sendQueue : (widget.compact ? l.deskLvSendConfirm : keepNumbersWithUnits(l.deskSendConfirm(formatEpicL(l, d.amount, decimals: exactDecimals))))), icon: EIcons.send, busy: _busy, onPressed: _ready ? _go : null),
       ],
     );
   }

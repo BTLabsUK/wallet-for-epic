@@ -8,6 +8,7 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../desk_l10n.dart';
+import '../../../amount.dart' show exactDecimals;
 import '../../widgets/kit.dart';
 
 /// The strategy's name as a word, in Send's radio rows and inside sentences.
@@ -86,7 +87,7 @@ class SendSplitLine extends StatelessWidget {
   final int change;
 
   /// The help icon's text.
-  static String why(AppLocalizations l, int outputs, int change) => l.deskSendSplitWhy(outputs, formatEpicL(l, change ~/ outputs, decimals: 4));
+  static String why(AppLocalizations l, int outputs, int change) => keepNumbersWithUnits(l.deskSendSplitWhy(outputs, formatEpicL(l, change ~/ outputs)));
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +100,7 @@ class SendSplitLine extends StatelessWidget {
         children: [
           Icon(EIcons.split, size: 14.u, color: c.accentText),
           SizedBox(width: Sp.x2),
-          Expanded(child: Text(l.deskSendSplitLine(outputs, formatEpicL(l, extraFee, minDecimals: 3)), style: ts.small)),
+          Expanded(child: Text(keepNumbersWithUnits(l.deskSendSplitLine(outputs, formatEpicL(l, extraFee))), style: ts.small)),
           HelpTip(text: why(l, outputs, change), label: l.deskSendSplitWhyLabel),
         ],
       ),
@@ -124,9 +125,9 @@ class HelpTip extends StatelessWidget {
 /// spendable). [blocks] is the wallet's minimum confirmations.
 (String, bool) lockCaption(AppLocalizations l, SendSummary s, int blocks) {
   final n = s.lockedOutputs;
-  if (s.noChange) return (l.deskSendLockNoChange(n), false);
-  if (s.locksAll) return (l.deskSendLockAll(n, formatEpicL(l, s.locked), blocks), true);
-  return (l.deskSendLockSome(n, formatEpicL(l, s.locked), blocks), false);
+  if (s.noChange) return (keepNumbersWithUnits(l.deskSendLockNoChange(n)), false);
+  if (s.locksAll) return (keepNumbersWithUnits(l.deskSendLockAll(n, formatEpicL(l, s.locked), blocks)), true);
+  return (keepNumbersWithUnits(l.deskSendLockSome(n, formatEpicL(l, s.locked), blocks)), false);
 }
 
 /// Under Total: Balance after, Spendable until change confirms with the lock caption, and
@@ -178,14 +179,22 @@ class SendLockRows extends StatelessWidget {
   }
 }
 
-/// The review dialog's Locks fact (§4.5); [blocks] is the wallet's minimum confirmations.
+/// The review dialog's Locks fact (§4.5); [blocks] is the wallet's minimum confirmations. The
+/// review is a commit surface: its amounts are exact ([AmountSurface.exact]).
 String reviewLocks(AppLocalizations l, SendSummary s, SelectionStrategy strategy, int blocks) {
   final n = s.lockedOutputs;
-  final locked = formatEpicL(l, s.locked);
-  if (s.noChange) return l.deskSendReviewLocksNone(n, locked);
-  if (strategy == SelectionStrategy.all && s.locksAll) return l.deskSendReviewLocksAll(n, locked, blocks);
-  if (s.locksAll) return l.deskSendReviewLocksEverything(n, locked, blocks);
-  return l.deskSendReviewLocksSome(n, locked, formatEpicL(l, s.spendableMeanwhile), blocks);
+  final locked = formatEpicL(l, s.locked, decimals: exactDecimals);
+  final String text;
+  if (s.noChange) {
+    text = l.deskSendReviewLocksNone(n, locked);
+  } else if (strategy == SelectionStrategy.all && s.locksAll) {
+    text = l.deskSendReviewLocksAll(n, locked, blocks);
+  } else if (s.locksAll) {
+    text = l.deskSendReviewLocksEverything(n, locked, blocks);
+  } else {
+    text = l.deskSendReviewLocksSome(n, locked, formatEpicL(l, s.spendableMeanwhile, decimals: exactDecimals), blocks);
+  }
+  return keepNumbersWithUnits(text);
 }
 
 /// The review dialog's lines for the outputs: the second line of Network fee when the change
@@ -205,7 +214,7 @@ String reviewLocks(AppLocalizations l, SendSummary s, SelectionStrategy strategy
   feeSecondLine: strategy == SelectionStrategy.all && s.change > 0 && usesAll != null
       ? usesAll(s.lockedOutputs)
       : s.changeOutputs > 1
-      ? l.deskSendReviewSplit(s.changeOutputs, formatEpicL(l, extraFee, minDecimals: 3))
+      ? keepNumbersWithUnits(l.deskSendReviewSplit(s.changeOutputs, formatEpicL(l, extraFee, decimals: exactDecimals)))
       : null,
   facts: [
     (l.deskSendFactLocks, Text(reviewLocks(l, s, strategy, blocks))),
