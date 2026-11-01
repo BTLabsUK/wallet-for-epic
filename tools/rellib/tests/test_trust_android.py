@@ -11,7 +11,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ANDROID = os.path.join(os.path.dirname(HERE), "drivers", "android")
 sys.path.insert(0, ANDROID)
 
-import trust  # noqa: E402
+import importlib.util  # noqa: E402
+
+# Loaded under its own name: every platform's driver is a trust.py, and discover runs them in one process.
+_spec = importlib.util.spec_from_file_location("android_trust", os.path.join(ANDROID, "trust.py"))
+trust = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(trust)
 
 
 def node(label, y, clickable=False, cls="android.view.View"):

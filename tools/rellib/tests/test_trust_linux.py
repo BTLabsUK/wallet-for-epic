@@ -15,7 +15,12 @@ DRIVERS = os.path.join(os.path.dirname(HERE), "drivers")
 sys.path.insert(0, os.path.join(DRIVERS, "linux"))
 sys.path.insert(0, DRIVERS)
 
-import trust  # noqa: E402
+import importlib.util  # noqa: E402
+
+# Loaded under its own name: every platform's driver is a trust.py, and discover runs them in one process.
+_spec = importlib.util.spec_from_file_location("linux_trust", os.path.join(os.path.join(DRIVERS, "linux"), "trust.py"))
+trust = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(trust)
 
 
 class N:
