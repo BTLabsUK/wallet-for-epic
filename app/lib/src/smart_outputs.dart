@@ -249,8 +249,8 @@ OutputLabel outputWord(WalletOutput output) {
 /// The part of the balance an output is in, on both platforms' Outputs pages: the one tile
 /// that counts it and the one filter that lists it (besides All), so a tile and its filter
 /// never disagree. Confirming takes the outputs awaiting finalization too; spent outputs and
-/// an unpaid invoice's are in no part. Total counts every part but the outputs awaiting
-/// finalization: they are in no block yet, so not in its value.
+/// an unpaid invoice's are in no part. All and Total count every output with a part, so All =
+/// Total = the sum of the tiles (UD-008).
 enum OutputPart { spendable, confirming, immature, locked }
 
 /// [output]'s [OutputPart] (the phone's outputs), or null when it is in none.

@@ -31,10 +31,11 @@ enum OutputsFilter { all, spendable, confirming, locked, immature }
 /// Mining rewards and the like need more than this to unlock; the sheet words it plainly.
 const int _minSplitEach = nanoEpic ~/ 2;
 
-/// Whether the list shows [o] under [f]: All every output but the spent ones; each other
-/// filter its [OutputPart], the one its tile counts.
+/// Whether the list shows [o] under [f]: All every output with an [OutputPart] (what Total
+/// counts, UD-008: not the spent ones nor an unpaid invoice's); each other filter its part,
+/// the one its tile counts.
 bool _matches(OutputsFilter f, WalletOutput o) => switch (f) {
-  OutputsFilter.all => outputWord(o) != OutputLabel.spent,
+  OutputsFilter.all => walletOutputPart(o) != null,
   OutputsFilter.spendable => walletOutputPart(o) == OutputPart.spendable,
   OutputsFilter.confirming => walletOutputPart(o) == OutputPart.confirming,
   OutputsFilter.locked => walletOutputPart(o) == OutputPart.locked,
@@ -182,12 +183,8 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
     final nAll = listed(OutputsFilter.all);
     final nSpent =
         list?.where((o) => outputWord(o) == OutputLabel.spent).length ?? 0;
-    // Total counts the outputs its value adds up, as LEPIC's figures do: every part but the
-    // outputs awaiting finalization, which are in no block yet.
-    final nTotalTile = list
-            ?.where((o) => walletOutputPart(o) != null && outputWord(o) != OutputLabel.finalizing)
-            .length ??
-        0;
+    // Total counts what All lists: every output with a part, so the numbers add up.
+    final nTotalTile = nAll;
     final locked = summary?.locked ?? BigInt.zero;
     final spendable = summary?.spendable ?? BigInt.zero;
     final canSplit =

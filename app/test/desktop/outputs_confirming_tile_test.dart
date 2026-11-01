@@ -50,7 +50,7 @@ void main() {
     expect(tabs.segments.firstWhere((s) => s.value == OutputsFilter.confirming).count, 1);
   });
 
-  test('every tile and its tab count the same outputs; Total leaves out the finalizing', () {
+  test('every tile and its tab count the same outputs; All = Total = the sum of the tiles', () {
     const all = [
       Output(commitment: 'a', value: 1, status: OutputStatus.unspent),
       Output(commitment: 'b', value: 1, status: OutputStatus.confirming),
@@ -68,11 +68,13 @@ void main() {
     expect(n.confirming, 3, reason: 'confirming, unconfirmed and awaiting finalization');
     expect(n.immature, 2, reason: 'immature and mining');
     expect(n.locked, 1);
-    expect(n.total, 6, reason: 'every part but the one awaiting finalization');
+    expect(n.total, 7, reason: 'every output with a part: not the unpaid invoice, not the spent one');
     expect(listed(OutputsFilter.spendable), n.spendable);
     expect(listed(OutputsFilter.confirming), n.confirming);
     expect(listed(OutputsFilter.locked), n.locked);
-    expect(listed(OutputsFilter.all), 8, reason: 'every row but the spent one');
-    expect(listed(OutputsFilter.all, showSpent: true), 9);
+    // UD-008: every number reconciles.
+    expect(listed(OutputsFilter.all), n.total);
+    expect(n.total, n.spendable + n.confirming + n.immature + n.locked);
+    expect(listed(OutputsFilter.all, showSpent: true), 8, reason: 'the spent row only on request');
   });
 }

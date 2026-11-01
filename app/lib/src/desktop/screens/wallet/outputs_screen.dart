@@ -52,17 +52,18 @@ OutputPart? outputPart(OutputWord w) => switch (w) {
   OutputWord.unpaidInvoice || OutputWord.spent => null,
 };
 
-/// Whether the table lists an output of [w] under [filter]: All lists every output but the
-/// spent ones (unless [showSpent]); each other filter lists its [OutputPart].
+/// Whether the table lists an output of [w] under [filter]: All lists every output with an
+/// [OutputPart] (what Total counts, UD-008), and the spent ones with [showSpent]; each other
+/// filter lists its part. An unpaid invoice's output is in none.
 bool outputListed(OutputsFilter filter, OutputWord w, {bool showSpent = false}) => switch (filter) {
-  OutputsFilter.all => showSpent || w != OutputWord.spent,
+  OutputsFilter.all => outputPart(w) != null || (showSpent && w == OutputWord.spent),
   OutputsFilter.spendable => outputPart(w) == OutputPart.spendable,
   OutputsFilter.confirming => outputPart(w) == OutputPart.confirming,
   OutputsFilter.locked => outputPart(w) == OutputPart.locked,
 };
 
-/// How many outputs of each [OutputPart], and in Total: the outputs its value adds up, so not
-/// the ones awaiting finalization (in no block yet, LNX-13), which only Confirming counts.
+/// How many outputs of each [OutputPart], and in Total: every output with a part, so Total =
+/// All = the sum of the tiles (UD-008).
 typedef OutputCounts = ({int spendable, int confirming, int immature, int locked, int total});
 
 OutputCounts outputCounts(List<Output> all) {
@@ -81,7 +82,7 @@ OutputCounts outputCounts(List<Output> all) {
       case null:
         break;
     }
-    if (part != null && o.word != OutputWord.finalizing) t++;
+    if (part != null) t++;
   }
   return (spendable: s, confirming: c, immature: i, locked: l, total: t);
 }
