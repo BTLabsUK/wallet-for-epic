@@ -1841,12 +1841,16 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   @override
   Set<String> heldOutputs = const {};
 
-  // Kernel lookup (devhist): LEPIC's `EpicWallet.kernel_on_chain(excess, min_height)` once the
-  // pin carries it. Until then it fails, which the linked devices read as "unknown", never as
-  // "absent" (a null answer would end payments that are on their way).
+  // LEPIC's kernel lookup. A failure stays a failure: the linked devices read it as "unknown",
+  // never as "absent" (null), which would end payments that are still on their way.
   @override
-  Future<KernelLocation?> kernelOnChain(String excessHex, {int? minHeight}) =>
-      Future.error(const WalletError(kind: WalletErrorKind.nodeUnreachable, message: 'kernel lookup not in this core'));
+  Future<KernelLocation?> kernelOnChain(String excessHex, {int? minHeight}) => _guard(() async {
+    final found = await _wallet.kernelOnChain(
+      excess: excessHex,
+      minHeight: minHeight == null ? null : BigInt.from(minHeight),
+    );
+    return found == null ? null : KernelLocation(height: found.height.toInt(), mmrIndex: found.mmrIndex.toInt());
+  });
 
   /// LEPIC's default options, or the standard ones without the [heldOutputs].
   lepic.SendOptions? get _heldOnly =>
