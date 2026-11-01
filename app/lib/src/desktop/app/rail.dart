@@ -18,6 +18,7 @@ import 'desk_failover.dart';
 import '../data/node_view.dart';
 import '../data/tor_view.dart' as tor_view;
 import '../data/tor_view.dart' hide isLocalNodeUrl;
+import '../data/node_switch.dart' show deskNodeSwitchProvider, nodeSwitchView;
 import '../../ui/network_mode_text.dart' show statusOffByModeWord;
 import '../screens/settings/prefs.dart';
 import '../screens/settings/settings_http.dart' show httpRun;
@@ -327,7 +328,9 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
           ? v
           : NodeView(word: v.word, state: v.state, host: v.host, marker: v.marker, lines: [...instead, ...v.lines, ...tor]);
     }
-    var nodeItem = nodeRailItem(l, node);
+    // A node switch the user started says what happens at once, before the wallet has moved.
+    final moving = ref.watch(deskNodeSwitchProvider);
+    var nodeItem = nodeRailItem(l, moving == null ? node : nodeSwitchView(l, moving));
     final netMode = settings.advanced.networkMode;
     if (netMode == NetworkMode.killSwitch) {
       nodeItem = nodeItem.offByMode(l, netMode);

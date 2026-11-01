@@ -25278,5 +25278,27 @@
         "example": "30"
       }
     }
+  },
+  "deskNodeSwitchConnecting": "Connecting to {host}…",
+  "@deskNodeSwitchConnecting": {
+    "description": "Desktop node switch: shown in the selected node field and the sidebar's Node status the moment the user picks a public node, until the wallet runs on it. {host} is the node's host name, kept as it is.",
+    "placeholders": {
+      "host": {
+        "type": "String",
+        "example": "node.example.org"
+      }
+    }
+  },
+  "deskNodeSwitchStarting": "Starting the local node…",
+  "@deskNodeSwitchStarting": {
+    "description": "Desktop node switch: shown while the wallet switches to the built-in local node and the node starts."
+  },
+  "deskNodeSwitchStopping": "Stopping the local node…",
+  "@deskNodeSwitchStopping": {
+    "description": "Desktop node switch: shown after the wallet moved to a public node, while the built-in local node shuts down cleanly (its chain data is kept)."
+  },
+  "deskNodeSwitchStoppingWord": "Stopping",
+  "@deskNodeSwitchStoppingWord": {
+    "description": "Sidebar Node status word, one word: the built-in local node is shutting down after a switch to a public node."
   }
 }

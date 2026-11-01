@@ -4860,5 +4860,9 @@
   "deskNodeEtaMinute": "minuty",
   "deskNodeEtaMinutes": "{minutes} min",
   "deskNodeEtaHours": "{hours} godz.",
-  "deskNodeEtaHoursMinutes": "{hours} godz. {minutes} min"
+  "deskNodeEtaHoursMinutes": "{hours} godz. {minutes} min",
+  "deskNodeSwitchConnecting": "Łączenie z {host}…",
+  "deskNodeSwitchStarting": "Uruchamianie węzła lokalnego…",
+  "deskNodeSwitchStopping": "Zatrzymywanie węzła lokalnego…",
+  "deskNodeSwitchStoppingWord": "Zatrzymywanie"
 }

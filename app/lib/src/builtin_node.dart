@@ -39,6 +39,8 @@ enum NodeStatusKind {
   syncing,
   running,
   stalled,
+  /// Asked to stop; the process has not exited yet.
+  stopping,
   stopped,
   failed,
 }
@@ -478,9 +480,8 @@ class BuiltInNode {
   /// process, which is why it is not frequent.
   final Duration diskCheckEvery;
 
-  /// How long a polite stop is given before the process is killed. On Windows at most 10 s:
-  /// `taskkill /PID` without /F is sent once, then the process is terminated (LMDB, the node's
-  /// store, recovers from that).
+  /// How long a polite stop (SIGINT; Ctrl+Break on Windows, [windowsCtrlBreak]) is given before
+  /// the process is killed. A node shuts down in a few seconds, also while it syncs.
   final Duration killAfter;
 
   /// How long to wait for the exit after a kill.
@@ -513,6 +514,11 @@ class BuiltInNode {
 
   /// The launch (or watchdog restart) in flight, which [start] returns and [stop] awaits.
   Future<void>? _launching;
+
+  /// The exit of a process asked to stop, while it is under way: a [stop] meanwhile waits for
+  /// it too (closing the app during a switch), and a [start] begins only after it (the old
+  /// process holds the ports and the chain data's lock until it has exited).
+  Future<void>? _exiting;
 
   /// Cleared by [stop]; a launch that finds it cleared kills what it spawned.
   bool _wantRunning = false;
@@ -851,6 +857,11 @@ class BuiltInNode {
   }
 
   Future<void> _launchSteps(int gen) async {
+    final exiting = _exiting;
+    if (exiting != null) {
+      await exiting;
+      _check(gen);
+    }
     final exists = await File(binary).exists();
     _check(gen);
     if (!exists) {
@@ -961,7 +972,7 @@ class BuiltInNode {
     }
     _log('stopping a built-in node left by an earlier run (pid $orphan)');
     _inspector.terminate(orphan);
-    var gone = await _waitGone(orphan, _grace);
+    var gone = await _waitGone(orphan, killAfter);
     _check(gen);
     if (!gone) {
       if (!await _isOurs(orphan)) {
@@ -981,10 +992,6 @@ class BuiltInNode {
     }
     await _deleteQuietly(file);
   }
-
-  Duration get _grace => _windows && killAfter > const Duration(seconds: 10)
-      ? const Duration(seconds: 10)
-      : killAfter;
 
   Future<bool> _waitGone(int pid, Duration limit) async {
     final until = DateTime.now().add(limit);
@@ -1297,7 +1304,7 @@ class BuiltInNode {
 
   Future<void> _stop() async {
     _wantRunning = false;
-    _gen++;
+    final gen = ++_gen;
     _timer?.cancel();
     final pending = _launching;
     if (pending != null) {
@@ -1308,27 +1315,40 @@ class BuiltInNode {
       }
     }
     if (_process == null) {
-      if (_state.isActive) _set(const BuiltInNodeState(NodeStatusKind.stopped));
+      final exiting = _exiting;
+      if (exiting != null) await exiting;
+      // A start since then owns the state.
+      if (gen == _gen && (_state.isActive || _state.kind == NodeStatusKind.stopping)) {
+        _set(const BuiltInNodeState(NodeStatusKind.stopped));
+      }
       return;
     }
+    _set(BuiltInNodeState(NodeStatusKind.stopping, height: _state.height, highest: _state.highest));
     await _stopProcess();
-    _set(const BuiltInNodeState(NodeStatusKind.stopped));
+    if (gen == _gen) _set(const BuiltInNodeState(NodeStatusKind.stopped));
   }
 
   /// Stops [_process] and removes the pid file once the exit is confirmed.
-  Future<void> _stopProcess() async {
+  Future<void> _stopProcess() {
     final process = _process;
     _timer?.cancel();
-    if (process == null) return;
+    if (process == null) return Future.value();
     _stopping = true;
     _process = null;
-    final exited = await _terminate(process);
-    if (exited) {
-      await _deleteQuietly(File(_join(folder, _pidName)));
-    } else {
-      _log('the built-in node (pid ${process.pid}) did not exit after a kill');
-    }
-    _stopping = false;
+    late final Future<void> f;
+    f = () async {
+      final exited = await _terminate(process);
+      if (exited) {
+        await _deleteQuietly(File(_join(folder, _pidName)));
+      } else {
+        _log('the built-in node (pid ${process.pid}) did not exit after a kill');
+      }
+    }().whenComplete(() {
+      if (identical(_exiting, f)) _exiting = null;
+      // A start meanwhile has its own process.
+      if (_process == null) _stopping = false;
+    });
+    return _exiting = f;
   }
 
   /// Polite stop, then (after [killAfter], at most 10 s on Windows) a kill; waits [killWait] for
@@ -1337,7 +1357,7 @@ class BuiltInNode {
     var exited = false;
     try {
       process.terminate();
-      await process.exitCode.timeout(_grace);
+      await process.exitCode.timeout(killAfter);
       exited = true;
     } on TimeoutException {
       // fall through to the kill
@@ -1495,8 +1515,7 @@ class _RealInspector implements ProcessInspector {
   @override
   void terminate(int pid) {
     if (_windows) {
-      // Without /F: asks the process to close, as Ctrl+C would. Sent once.
-      Process.run('taskkill', ['/PID', '$pid']);
+      unawaited(windowsCtrlBreak(pid));
     } else {
       Process.killPid(pid, ProcessSignal.sigint);
     }
@@ -1537,8 +1556,7 @@ class _IoNodeProcess implements NodeProcess {
   @override
   void terminate() {
     if (_windows) {
-      // Without /F: asks the process to close, as Ctrl+C would.
-      Process.run('taskkill', ['/PID', '$pid']);
+      unawaited(windowsCtrlBreak(pid));
     } else {
       Process.killPid(pid, ProcessSignal.sigint);
     }
@@ -1548,6 +1566,38 @@ class _IoNodeProcess implements NodeProcess {
   void kill() {
     // TerminateProcess on Windows, SIGKILL elsewhere
     _process.kill(ProcessSignal.sigkill);
+  }
+}
+
+/// Asks the console program [pid] on Windows to stop as Ctrl+Break would; the node then shuts
+/// down cleanly (its "Shutdown complete." line). The node runs windowless, and `taskkill` without
+/// /F only closes windows ("can only be terminated forcefully"), and Ctrl+C is ignored by a
+/// process started this way. So a short-lived PowerShell leaves its own console, attaches to the
+/// node's and raises Ctrl+Break there; it ends itself with it. The app's console is never
+/// touched. Never throws; the kill after the grace follows when the node did not exit.
+Future<void> windowsCtrlBreak(int pid) async {
+  final script =
+      'Add-Type -TypeDefinition \'using System; using System.Runtime.InteropServices; public static class K { '
+      '[DllImport("kernel32.dll")] public static extern bool FreeConsole(); '
+      '[DllImport("kernel32.dll")] public static extern bool AttachConsole(uint p); '
+      '[DllImport("kernel32.dll")] public static extern bool SetConsoleCtrlHandler(IntPtr h, bool a); '
+      '[DllImport("kernel32.dll")] public static extern bool GenerateConsoleCtrlEvent(uint e, uint g); }\'\n'
+      '[void][K]::FreeConsole()\n'
+      'if ([K]::AttachConsole($pid)) { [void][K]::SetConsoleCtrlHandler([IntPtr]::Zero, \$true); [void][K]::GenerateConsoleCtrlEvent(1, 0) }\n';
+  // -EncodedCommand: UTF-16LE in base64, so no quoting survives the command line.
+  final units = script.codeUnits;
+  final bytes = [for (final u in units) ...[u & 0xff, u >> 8]];
+  try {
+    await Process.run('powershell', [
+      '-NoProfile',
+      '-NonInteractive',
+      '-WindowStyle',
+      'Hidden',
+      '-EncodedCommand',
+      base64.encode(bytes),
+    ]).timeout(const Duration(seconds: 10));
+  } on Object {
+    // no PowerShell, or it hung: the kill after the grace stops the node
   }
 }
 

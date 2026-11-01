@@ -4860,5 +4860,9 @@
   "deskNodeEtaMinute": "eine Minute",
   "deskNodeEtaMinutes": "{minutes} Min.",
   "deskNodeEtaHours": "{hours} Std.",
-  "deskNodeEtaHoursMinutes": "{hours} Std. {minutes} Min."
+  "deskNodeEtaHoursMinutes": "{hours} Std. {minutes} Min.",
+  "deskNodeSwitchConnecting": "Verbindung zu {host}…",
+  "deskNodeSwitchStarting": "Lokaler Node startet…",
+  "deskNodeSwitchStopping": "Lokaler Node wird gestoppt…",
+  "deskNodeSwitchStoppingWord": "Stoppt"
 }

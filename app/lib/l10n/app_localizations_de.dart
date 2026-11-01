@@ -18899,4 +18899,18 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskNodeEtaHoursMinutes(int hours, int minutes) {
     return '$hours Std. $minutes Min.';
   }
+
+  @override
+  String deskNodeSwitchConnecting(String host) {
+    return 'Verbindung zu $host…';
+  }
+
+  @override
+  String get deskNodeSwitchStarting => 'Lokaler Node startet…';
+
+  @override
+  String get deskNodeSwitchStopping => 'Lokaler Node wird gestoppt…';
+
+  @override
+  String get deskNodeSwitchStoppingWord => 'Stoppt';
 }

@@ -368,6 +368,7 @@ void main() {
         NodeStatusKind.starting,
         NodeStatusKind.syncing,
         NodeStatusKind.running,
+        NodeStatusKind.stopping,
         NodeStatusKind.stopped,
       ]);
     });
@@ -834,6 +835,44 @@ void main() {
       await disposed;
       expect(spawned.single.terminated, 1);
       expect(node.pid, isNull);
+    });
+
+    test('a stop while the node exits waits for its exit (closing the app mid-switch)', () async {
+      exitsOnTerminate = false;
+      final node = make(killAfter: const Duration(seconds: 5));
+      await node.start();
+      final first = node.stop();
+      await until(() => spawned.single.terminated == 1);
+      expect(node.state.kind, NodeStatusKind.stopping);
+      var second = false;
+      final again = node.stop().then((_) => second = true);
+      await Future<void>.delayed(const Duration(milliseconds: 30));
+      expect(second, isFalse, reason: 'the old process still runs');
+      spawned.single.exit(0);
+      await Future.wait([first, again]);
+      expect(spawned.single.killed, 0);
+      expect(node.state.kind, NodeStatusKind.stopped);
+    });
+
+    test('a start while the old node exits begins after its exit', () async {
+      exitsOnTerminate = false;
+      final node = make(killAfter: const Duration(seconds: 5));
+      await node.start();
+      final stopped = node.stop();
+      await until(() => spawned.single.terminated == 1);
+      final started = node.start();
+      await Future<void>.delayed(const Duration(milliseconds: 30));
+      expect(spawned, hasLength(1), reason: 'the old one holds the ports and the chain data');
+      spawned.single.exit(0);
+      await Future.wait([stopped, started]);
+      expect(spawned, hasLength(2));
+      expect(node.pid, spawned.last.pid);
+      // The old stop's end does not mark the new node stopped.
+      expect(node.state.kind, isNot(NodeStatusKind.stopped));
+      final last = node.stop();
+      await until(() => spawned.last.terminated == 1);
+      spawned.last.exit(0);
+      await last;
     });
 
     test('start works again after a stop', () async {

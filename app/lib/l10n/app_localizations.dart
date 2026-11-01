@@ -29167,6 +29167,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{hours} h {minutes} min'**
   String deskNodeEtaHoursMinutes(int hours, int minutes);
+
+  /// Desktop node switch: shown in the selected node field and the sidebar's Node status the moment the user picks a public node, until the wallet runs on it. {host} is the node's host name, kept as it is.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting to {host}…'**
+  String deskNodeSwitchConnecting(String host);
+
+  /// Desktop node switch: shown while the wallet switches to the built-in local node and the node starts.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting the local node…'**
+  String get deskNodeSwitchStarting;
+
+  /// Desktop node switch: shown after the wallet moved to a public node, while the built-in local node shuts down cleanly (its chain data is kept).
+  ///
+  /// In en, this message translates to:
+  /// **'Stopping the local node…'**
+  String get deskNodeSwitchStopping;
+
+  /// Sidebar Node status word, one word: the built-in local node is shutting down after a switch to a public node.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopping'**
+  String get deskNodeSwitchStoppingWord;
 }
 
 class _AppLocalizationsDelegate

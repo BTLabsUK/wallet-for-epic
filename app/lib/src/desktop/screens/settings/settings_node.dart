@@ -13,6 +13,7 @@ import '../../data/desk_levels.dart' show deskLevelUiProvider;
 import '../../data/desk_node.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/node_view.dart';
+import '../../data/node_switch.dart';
 import '../../data/tor_view.dart';
 import '../../app/desk_failover.dart';
 import '../../app/tour.dart';
@@ -132,6 +133,9 @@ class SettingsNodeScreen extends ConsumerStatefulWidget {
 class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
   final _panel = GlobalKey<ServerListPanelState>();
   bool _saving = false;
+  /// The node being switched to while [_saving] (its answer is checked first); null for the
+  /// local node.
+  String? _target;
   String? _error;
   // The page asks every listed node while it is on screen ([DeskController.showNodes]).
   late final DeskController _desk;
@@ -274,6 +278,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
       if (!mounted) return;
       setState(() {
         _saving = true;
+        _target = null;
         _error = null;
       });
       try {
@@ -309,11 +314,12 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
 
   Future<void> _useRemote(String value) async {
     final l = context.l10n;
+    final url = nodeUrlOf(value);
     setState(() {
       _saving = true;
+      _target = url;
       _error = null;
     });
-    final url = nodeUrlOf(value);
     final known = (ref.read(deskProvider).nodes ?? const <NodeServer>[]).any((n) => n.url == url);
     final r = await ref.read(deskApiProvider).checkNode(url);
     if (!mounted) return;
@@ -324,7 +330,16 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
       });
       return;
     }
-    await ref.read(deskProvider.notifier).useNode(url);
+    try {
+      await ref.read(deskProvider.notifier).useNode(url);
+    } on Object catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _error = deskErrorText(e, l);
+      });
+      return;
+    }
     if (!mounted) return;
     ref.read(settingsPrefsProvider.notifier).set(ref.read(settingsPrefsProvider).copyWith(builtin: false, typedNode: known ? null : r, clearTyped: known));
     setState(() => _saving = false);
@@ -351,6 +366,16 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     final chosenInfo = prefs.builtin ? null : ref.watch(deskNodeInfoProvider(chosenUrl)).value;
     final own = !prefs.builtin && shownClass(chosenUrl, chosenInfo, mine: mine).own;
     final local = ref.watch(deskLocalNodeProvider).value;
+    // A switch under way: the field names the node switched to and says what happens, from the
+    // pick on (its answer is checked first), until the wallet runs on it. The local node then
+    // stops behind it; the field says so while the node closes its files.
+    final moving = ref.watch(deskNodeSwitchProvider);
+    final switching = _saving
+        ? NodeSwitch(_target == null ? NodeSwitchStep.starting : NodeSwitchStep.connecting, url: _target)
+        : moving?.step == NodeSwitchStep.stopping
+        ? null
+        : moving;
+    final stopping = moving?.step == NodeSwitchStep.stopping && !prefs.builtin;
     final info = prefs.builtin ? null : ref.watch(deskNodeInfoProvider(current.url)).value;
     // A figure measured the other way is dropped at once (shownLatency); the node is asked
     // again the new way.
@@ -416,9 +441,15 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                     kind: ServerKind.node,
                     label: l.deskSetNodeServer,
                     value: value,
-                    fieldText: prefs.builtin ? l.deskSetNodeLocalNode : hostOf(current.url),
+                    fieldText: switching != null
+                        ? (switching.url == null ? l.deskSetNodeLocalNode : hostOf(switching.url!))
+                        : prefs.builtin
+                        ? l.deskSetNodeLocalNode
+                        : hostOf(current.url),
                     fieldSub: prefs.builtin
                         ? localNodeRowText(l, local)
+                        : stopping
+                        ? nodeSwitchText(l, moving!)
                         : failover != null
                         ? l.deskNodeFailoverInsteadOf(nodeHost(failover.chosen))
                         : (prefs.nodeLabels[current.url] ?? current.operator),
@@ -431,8 +462,8 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                     // Advanced › Built-in node; the node in use stays listed.
                     local: (ref.watch(deskLevelUiProvider).builtInNode && advancedHas(ref, AdvancedFeature.builtInNode)) || prefs.builtin ? PanelLocalRow(value: builtinNode, stateText: localNodeRowText(l, local)) : null,
                     listNote: nodeListNoteText(l),
-                    busy: _saving,
-                    busyLabel: l.deskSetNodeChecking,
+                    busy: switching != null,
+                    busyLabel: switching == null ? null : nodeSwitchText(l, switching),
                     error: _error,
                     openInitially: widget.arg == NodeDemo.comboOpen,
                     demo: _panelDemo,
@@ -450,7 +481,8 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                     initialTab: widget.arg == NodeDemo.ownPeers ? LocalTab.peers : LocalTab.status,
                     openAccess: widget.arg == NodeDemo.ownDialog,
                   ),
-                if (!prefs.builtin && !own)
+                // While switching, the old node's status would read as the new one's.
+                if (!prefs.builtin && !own && switching == null)
                   Padding(
                     padding: EdgeInsets.fromLTRB(Sp.x5, Sp.x4, Sp.x5, Sp.x5),
                     child: NodeCard(

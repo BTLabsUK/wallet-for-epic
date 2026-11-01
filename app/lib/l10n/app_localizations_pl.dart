@@ -19325,4 +19325,18 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskNodeEtaHoursMinutes(int hours, int minutes) {
     return '$hours godz. $minutes min';
   }
+
+  @override
+  String deskNodeSwitchConnecting(String host) {
+    return 'Łączenie z $host…';
+  }
+
+  @override
+  String get deskNodeSwitchStarting => 'Uruchamianie węzła lokalnego…';
+
+  @override
+  String get deskNodeSwitchStopping => 'Zatrzymywanie węzła lokalnego…';
+
+  @override
+  String get deskNodeSwitchStoppingWord => 'Zatrzymywanie';
 }
