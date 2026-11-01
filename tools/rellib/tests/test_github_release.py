@@ -315,6 +315,10 @@ class GitHubReleaseTest(unittest.TestCase):
         self.assertEqual([r for r in self.gh.releases.values() if r["tag_name"] == "v26.10.24"][0]["assets"], [])
 
     def publish_update_json(self, **env):
+        # publish-update-json.sh rewrites the site history with git-filter-repo; like
+        # tools/publish/test-incremental.sh, skip where it is not installed.
+        if subprocess.run(["git", "filter-repo", "--version"], capture_output=True).returncode != 0:
+            self.skipTest("git-filter-repo is not installed")
         """tools/publish-update-json.sh with the server (ssh, scp), GitLab (git push, curl) and the
         signature tool stubbed; GitHub is the fake one."""
         shim = os.path.join(self.tmp, "bin")
