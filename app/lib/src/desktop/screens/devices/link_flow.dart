@@ -222,6 +222,8 @@ class _DeskLinkDialogState extends ConsumerState<DeskLinkDialog> {
     return EDialog(
       title: l.devicesLink,
       icon: EIcons.devices,
+      // Wide, as its 520 u width rendered: the four pictures need the room.
+      size: DialogWidth.wide,
       dismissible: false,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

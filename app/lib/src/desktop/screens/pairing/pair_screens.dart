@@ -670,6 +670,8 @@ class _IncomingDialogState extends ConsumerState<_IncomingDialog> {
     final name = sender?.name ?? p.name;
     return EDialog(
       title: l.pairIncomingTitle(name),
+      // Wide, as its 520 u width rendered (it snapped up).
+      size: DialogWidth.wide,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -1274,6 +1276,8 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
     return EDialog(
       title: l.sasDialogTitle(name),
       icon: EIcons.trusted,
+      // Wide, as its 520 u width rendered (it snapped up).
+      size: DialogWidth.wide,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
