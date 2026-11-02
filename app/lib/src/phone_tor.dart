@@ -13,10 +13,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
 import 'btlabs_onions.dart';
-import 'advanced.dart' show NetworkMode;
+import 'advanced.dart' show NetworkMode, NetworkModeRestricted;
 import 'network_gate.dart';
 import 'providers.dart';
-import 'settings.dart' show networkModeProvider;
+import 'settings.dart' show appSettingsProvider, networkModeProvider;
+import 'tor_pay.dart';
+import 'tor_routes.dart' show TorState;
 import 'secret_store_api.dart';
 import 'tor_build.dart';
 import 'tor_location.dart';
@@ -411,6 +413,10 @@ class PhoneTor extends Notifier<PhoneTorState> {
     ref.listen(networkModeProvider, (_, mode) {
       if (_current(generation)) unawaited(_modeChanged(mode, generation));
     });
+    // Link · Tor (item 2): tor for payments alone starts and stops with the switch.
+    ref.listen(appSettingsProvider.select((s) => s.value?.payments.linkTor ?? false), (_, on) {
+      if (_current(generation)) unawaited(_payChanged());
+    });
     if (session == null) return PhoneTorState.unread;
     unawaited(_open(session, generation));
     return PhoneTorState.unread;
@@ -448,7 +454,57 @@ class PhoneTor extends Notifier<PhoneTorState> {
       onion: onion == null ? null : onionHost(onion),
       receiving: receiving,
     );
-    if (bundle != null && receiving && !NetGate.killSwitch) _start();
+    if (bundle != null && (receiving || _payWanted) && !NetGate.killSwitch) _start();
+  }
+
+  /// Link · Tor asks for tor for payments alone: on, outside Node only and Kill switch.
+  bool get _payWanted =>
+      torBuilt &&
+      !NetGate.restricted &&
+      !ref.read(networkModeProvider).restricted &&
+      (ref.read(appSettingsProvider).value?.payments.linkTor ?? false);
+
+  /// The session's routes through a running tor: the node, Epicbox and Direct http(s) sends
+  /// only while the Tor receiving switch (or Tor only) carries every connection. A tor for
+  /// payments or for a send carries the onion listener and onion sends alone.
+  Future<void> _route(WalletSession session) async {
+    final all = state.receiving || NetGate.torOnly;
+    final epicbox = all && ref.read(epicboxOverTorProvider);
+    final same = identical(session, _routed);
+    _routed = session;
+    try {
+      if (!same || _routedAll != all) {
+        _routedAll = all;
+        await session.setNodeAndHttpOverTor(all);
+      }
+      if (!same || _routedEpicbox != epicbox) {
+        _routedEpicbox = epicbox;
+        await session.setEpicboxOverTor(epicbox);
+      }
+    } on WalletError catch (e) {
+      logWarn('tor', 'routes: ${e.kind.name}');
+    }
+  }
+
+  /// The session [_route] last set, and what it set: each route is handed over once per change.
+  WalletSession? _routed;
+  bool? _routedAll;
+  bool? _routedEpicbox;
+
+  /// Link · Tor changed: tor for payments starts, or stops when nothing else wants it.
+  Future<void> _payChanged() async {
+    final session = _session;
+    if (session == null || !state.settled || state.phase == PhoneTorPhase.unavailable) return;
+    if (_wanted) {
+      if (!_running) {
+        await _route(session);
+        _start();
+      }
+    } else if (_sendsInFlight > 0) {
+      _stopAfterSends = true;
+    } else {
+      await _stop();
+    }
   }
 
   /// Applies a new network mode to the open wallet's tor.
@@ -491,8 +547,8 @@ class PhoneTor extends Notifier<PhoneTorState> {
     }
   }
 
-  /// Kill switch wants no tor at all; otherwise the switch or a send does.
-  bool get _wanted => !NetGate.killSwitch && (state.receiving || _forSends);
+  /// Kill switch wants no tor at all; otherwise the switch, a send or Link · Tor does.
+  bool get _wanted => !NetGate.killSwitch && (state.receiving || _forSends || _payWanted);
 
   bool get _running => _tor != null;
 
@@ -535,9 +591,16 @@ class PhoneTor extends Notifier<PhoneTorState> {
       }
       return;
     }
+    await _route(session);
+    if (!_current(generation)) return;
     if (on) {
       _stopAfterSends = false;
       _restarts = 0;
+      if (!_running && !NetGate.killSwitch) _start();
+      return;
+    }
+    // Link · Tor keeps tor for payments: only the routes went back to direct.
+    if (_payWanted) {
       if (!_running && !NetGate.killSwitch) _start();
       return;
     }
@@ -634,6 +697,7 @@ class PhoneTor extends Notifier<PhoneTorState> {
     final bundle = _bundle;
     if (session == null || bundle == null || _running || NetGate.killSwitch) return;
     NetGate.dial(NetDial.tor, 'tor');
+    unawaited(_route(session));
     _onion = torPublishesOnion;
     _restartTimer?.cancel();
     final generation = _generation;
@@ -922,3 +986,27 @@ class _LifecycleObserver with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) => onChange(state);
 }
+
+/// The phone's tor as onion sends and the Tor address see it, whoever started it.
+TorState phoneTorProcess(PhoneTorState s) => switch (s.phase) {
+  PhoneTorPhase.connected || PhoneTorPhase.ready => TorState.on,
+  PhoneTorPhase.failed || PhoneTorPhase.unavailable => TorState.failed,
+  PhoneTorPhase.off || PhoneTorPhase.starting => TorState.starting,
+};
+
+/// Tor for payments on the phone (item 2), for Link · Tor's state line; `tor_pay.dart` says
+/// what each state means.
+final phoneTorPayProvider = Provider<TorPay>((ref) {
+  final s = ref.watch(phoneTorProvider);
+  return torPayOf(
+    linkTor: ref.watch(appSettingsProvider.select((a) => a.value?.payments.linkTor ?? false)),
+    built: torBuilt && s.phase != PhoneTorPhase.unavailable,
+    mode: ref.watch(networkModeProvider),
+    torSwitch: s.receiving,
+    tor: phoneTorProcess(s),
+    published: s.phase == PhoneTorPhase.ready,
+    onion: s.onion,
+    // The phone words a failure itself; the line says it did not connect.
+    problem: s.failure == null ? null : '',
+  );
+});

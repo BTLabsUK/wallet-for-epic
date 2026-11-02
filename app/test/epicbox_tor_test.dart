@@ -10,6 +10,8 @@ import 'dart:async';
 import 'package:epic_wallet/src/btlabs_onions.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/network.dart';
+import 'package:epic_wallet/src/payment_prefs.dart' show PaymentPrefs;
+import 'package:epic_wallet/src/settings.dart' show appSettingsProvider;
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
@@ -145,6 +147,47 @@ void main() {
     expect(noBundle.container.read(phoneTorProvider).phase, PhoneTorPhase.unavailable);
   });
 
+  group('Tor for payments (Link · Tor, item 2)', () {
+    Future<_Harness> linkTorOn() async {
+      final h = _Harness();
+      addTearDown(h.dispose);
+      await h.store.write('app.payment_prefs', const PaymentPrefs(linkTor: true).encode());
+      await h.container.read(appSettingsProvider.future);
+      await h.open();
+      await pumpEventQueue();
+      return h;
+    }
+
+    test('Link · Tor alone starts tor; the node, Epicbox and http sends stay direct', () async {
+      final h = await linkTorOn();
+      expect(h.session.torStarts, hasLength(1));
+      expect(h.session.routeLog, isNot(contains('expectTor')), reason: 'nothing waits for it');
+      expect(h.session.nodeAndHttpOverTorValue, isFalse);
+      expect(h.session.epicboxOverTorValue, isFalse);
+      expect(h.container.read(phoneTorProvider).receiving, isFalse, reason: 'the Tor switch is untouched');
+    });
+
+    test('the Tor switch on routes everything over the same tor; off keeps tor for payments', () async {
+      final h = await linkTorOn();
+      await h.container.read(phoneTorProvider.notifier).setReceiving(true);
+      expect(h.session.torStarts, hasLength(1), reason: 'no second tor');
+      expect(h.session.nodeAndHttpOverTorValue, isTrue);
+      expect(h.session.epicboxOverTorValue, isTrue);
+      h.session.routeLog.clear();
+      await h.container.read(phoneTorProvider.notifier).setReceiving(false);
+      expect(h.session.routeLog, isNot(contains('stopTor')));
+      expect(h.session.nodeAndHttpOverTorValue, isFalse);
+    });
+
+    test('Link · Tor off stops it', () async {
+      final h = await linkTorOn();
+      h.session.routeLog.clear();
+      await h.container.read(appSettingsProvider.notifier).setPayments(const PaymentPrefs());
+      await pumpEventQueue();
+      expect(h.session.routeLog, contains('stopTor'));
+    });
+  });
+
   test('Retry announces the new tor before stopping the old one', () async {
     final h = _Harness();
     addTearDown(h.dispose);
@@ -166,7 +209,8 @@ void main() {
     expect(h.container.read(phoneTorProvider).phase, PhoneTorPhase.failed);
     h.session.routeLog.clear();
     await h.container.read(phoneTorProvider.notifier).setReceiving(false);
-    expect(h.session.routeLog, ['stopTor']);
+    // The routes go back to direct first (they follow the switch), then tor stops.
+    expect(h.session.routeLog, ['nodeAndHttpOverTor:false', 'epicboxOverTor:false', 'stopTor']);
   });
 
   test('waiting for tor while not connected through it; not once connected or off', () async {

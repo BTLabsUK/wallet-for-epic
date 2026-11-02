@@ -103,7 +103,7 @@ String torPayLine(AppLocalizations l, TorPay p) => switch (p.kind) {
   TorPayKind.blocked => p.mode == NetworkMode.killSwitch
       ? l.deskTorPayBlockedKill(networkModeName(l, p.mode))
       : l.deskTorPayBlockedNodeOnly(networkModeName(l, p.mode)),
-  TorPayKind.failed => p.problem == null ? l.deskTorPayFailed : l.deskTorPayFailedWhy(_noStop(p.problem!)),
+  TorPayKind.failed => p.problem == null || p.problem!.isEmpty ? l.deskTorPayFailed : l.deskTorPayFailedWhy(_noStop(p.problem!)),
 };
 
 /// The caption after the state: whether Tor also carries everything else (Network & privacy).
