@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/desktop/data/node_view.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/local_node.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/local_node_dialogs.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
+import 'package:epic_wallet/src/desktop/screens/settings/settings_frame.dart' show SettingsColumn;
 import 'package:epic_wallet/src/desktop/screens/settings/settings_node.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
@@ -32,7 +33,7 @@ void main() {
 
   /// Settings › Node with the local node in use.
   Future<void> show(WidgetTester tester, {FallbackChoice choice = const FallbackChoice.unasked(), LocalNodeState? state}) async {
-    tester.view.physicalSize = const Size(1280, 1100);
+    tester.view.physicalSize = const Size(1280, 1500);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     if (state != null) node.show(state);
@@ -42,7 +43,16 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: SettingsNodeScreen())),
+        // As the app lays it out: the Settings column, then the page.
+        child: MaterialApp(
+          theme: buildDeskTheme(Brightness.dark),
+          home: const Scaffold(
+            body: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [SettingsColumn(route: DeskRoute.settingsNode), Expanded(child: SettingsNodeScreen())],
+            ),
+          ),
+        ),
       ),
     );
     await tester.pump(const Duration(milliseconds: 100));
@@ -232,10 +242,10 @@ void main() {
     expect(find.textContaining('Removes 5.2 GB from'), findsOneWidget);
     final button = find.widgetWithText(EButton, 'Delete chain data');
     expect(tester.widget<EButton>(button).onPressed, isNull);
-    await tester.enterText(find.byType(EditableText), 'Delete');
+    await tester.enterText(find.descendant(of: find.byType(EDialog), matching: find.byType(EditableText)), 'Delete');
     await tester.pump();
     expect(tester.widget<EButton>(button).onPressed, isNull, reason: 'case-sensitive');
-    await tester.enterText(find.byType(EditableText), ' delete ');
+    await tester.enterText(find.descendant(of: find.byType(EDialog), matching: find.byType(EditableText)), ' delete ');
     await tester.pump();
     expect(tester.widget<EButton>(button).onPressed, isNotNull, reason: 'trimmed');
     await tester.tap(button);
@@ -287,7 +297,7 @@ void main() {
     await tester.tap(find.text('Restart'));
     await tester.pump();
     expect(node.calls.last, 'restart');
-    expect(find.bySemanticsLabel('Start with the app'), findsOneWidget);
+    expect(find.bySemanticsLabel('Start with the app'), findsWidgets, reason: 'the row and its search anchor');
     await end(tester);
   });
 
