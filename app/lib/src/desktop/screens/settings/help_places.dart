@@ -46,8 +46,8 @@ final Map<String, DeskHelpPlace> _places = {
   // Network & privacy (B-03): the mode, Tor and the status site on one page.
   'Settings › Network & privacy': _page(DeskRoute.settingsPrivacy, jump: SettingsJump.network),
   'Settings › Network & privacy › Tor': _page(DeskRoute.settingsPrivacy, jump: SettingsJump.tor),
-  'Settings › Advanced': _page(DeskRoute.settingsAdvanced),
   'Settings › Wallets': _page(DeskRoute.settingsWallets),
+  'Settings › Advanced': _page(DeskRoute.settingsAdvanced),
   'Settings › Files & logs': _page(DeskRoute.settingsFiles),
   'Settings › Files & logs › Wallet folder': _page(DeskRoute.settingsFiles),
   'Settings › Files & logs › App files': _page(DeskRoute.settingsFiles),

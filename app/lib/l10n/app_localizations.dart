@@ -30177,7 +30177,7 @@ abstract class AppLocalizations {
   /// Remove wallet dialog: shown for a locked wallet. "Settings › Security" is a menu path (the Security page, where Delete wallet is).
   ///
   /// In en, this message translates to:
-  /// **'To delete its files as well, unlock this wallet and use Delete wallet under Settings › Wallet.'**
+  /// **'To delete its files as well, unlock this wallet and use Delete wallet under Settings › Wallet.'**
   String get deskSetDlgRemoveUnlockHintSecurity;
 
   /// Receive, Link · HTTP: where Tor is turned on for a Tor address instead (Settings › Network & privacy).

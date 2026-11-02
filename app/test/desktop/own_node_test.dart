@@ -10,8 +10,10 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/own_node.dart';
 import 'package:epic_wallet/src/desktop/data/state.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
+import 'package:epic_wallet/src/desktop/screens/settings/local_node.dart' show LocalTab;
 import 'package:epic_wallet/src/desktop/screens/settings/settings_node.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
+import 'package:epic_wallet/src/desktop/widgets/kit.dart' show Ctl, ESegmented;
 import 'package:epic_wallet/src/desktop/widgets/server_list_panel.dart' show ServerListPanel;
 import 'package:epic_wallet/src/desktop/widgets/status.dart' show EState, EStateDot, EStatusGlyph;
 import 'package:epic_wallet/src/redact.dart';
@@ -56,6 +58,9 @@ NodeApiClient Function(String) _node(int Function() height, {bool ready = true, 
     return (status: 200, body: jsonEncode({'result': {'Ok': ok}}));
   },
 );
+
+/// The own node panel's Status / Peers tabs.
+final _tabs = find.byWidgetPredicate((w) => w is ESegmented<LocalTab>);
 
 void main() {
   group('address classes', () {
@@ -262,11 +267,12 @@ void main() {
     });
 
     testWidgets('1280 with access: Status and Peers as tabs', (tester) async {
-      await show(tester, const Size(1280, 1000), NodeDemo.ownAccess);
+      // A 1280 window less the Settings column beside the page.
+      await show(tester, Size(1280 - Ctl.settingsNav, 1000), NodeDemo.ownAccess);
       // A home-network node over plain http: the row says the secret goes unencrypted.
       expect(find.text('Added · goes to the node unencrypted (plain http), readable on that network'), findsOneWidget);
-      expect(find.text('Status'), findsOneWidget);
-      expect(find.text('Peers'), findsWidgets);
+      expect(find.descendant(of: _tabs, matching: find.text('Status')), findsOneWidget);
+      expect(find.descendant(of: _tabs, matching: find.text('Peers')), findsOneWidget);
       expect(find.text('Address'), findsNothing, reason: 'the peers table is behind its tab');
       await end(tester);
     });
@@ -274,7 +280,8 @@ void main() {
     testWidgets('2474: status beside the peers table, no tabs; a rotated secret is a warn row', (tester) async {
       await show(tester, const Size(2474, 1338), NodeDemo.ownAccess);
       expect(find.text('Address'), findsOneWidget);
-      expect(find.text('Status'), findsNothing);
+      // The group's heading says Status; no Status tab.
+      expect(_tabs, findsNothing);
       final facts = tester.getRect(find.text('Mempool').first);
       final table = tester.getRect(find.text('Address'));
       expect(table.left, greaterThan(facts.right), reason: 'side by side');

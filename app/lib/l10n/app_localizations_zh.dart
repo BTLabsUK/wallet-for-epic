@@ -18243,7 +18243,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetDlgRemoveUnlockHintSecurity =>
-      '如果还要删除它的文件，请解锁此钱包，然后使用“设置 › 钱包”中的“删除钱包”。';
+      '如果还要删除它的文件，请解锁此钱包，然后使用“设置 › 钱包”中的“删除钱包”。';
 
   @override
   String get deskRecvHttpTorHintNet => '如需 Tor 地址，请在“设置 › 网络与隐私”中开启 Tor。';

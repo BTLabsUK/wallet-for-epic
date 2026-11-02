@@ -5025,7 +5025,7 @@
   "pairSeenAsAskTitle": "Name, den andere sehen",
   "pairSeenAsHint": "Ihr Name",
   "devicesNameWithCode": "{name} {code}",
-  "deskSetDlgRemoveUnlockHintSecurity": "Um auch ihre Dateien zu löschen, entsperren Sie diese Wallet und nutzen Sie „Wallet löschen“ unter Einstellungen › Wallet.",
+  "deskSetDlgRemoveUnlockHintSecurity": "Um auch ihre Dateien zu löschen, entsperren Sie diese Wallet und nutzen Sie „Wallet löschen“ unter Einstellungen › Wallet.",
   "deskRecvHttpTorHintNet": "Schalten Sie Tor unter Einstellungen › Netzwerk & Datenschutz ein, um stattdessen eine Tor-Adresse zu erhalten.",
   "deskRecvTorIntroNet": "Direkt von einer anderen Wallet über Tor, solange diese geöffnet ist. Tor wird unter Einstellungen › Netzwerk & Datenschutz eingestellt.",
   "deskRecvTorOffTextNet": "Die Tor-Adresse funktioniert, solange Tor an ist. Tor ist der Schalter unter Einstellungen › Netzwerk & Datenschutz; er leitet die Verbindungen der Wallet über Tor.",

@@ -29,7 +29,7 @@
   "deskSetDlgDeleteWallet": "Wallet löschen",
   "deskSetDlgRemoveDeleteHint": "Löscht ihre Schlüssel und ihre Datenbank aus {folder}. Nur die Wiederherstellungsphrase stellt sie wieder her; ohne sie sind die Coins verloren.",
   "deskSetDlgRemoveUnlockHint": "Um auch ihre Dateien zu löschen, entsperren Sie diese Wallet und nutzen Sie „Wallet löschen“ unter Einstellungen › Diese Wallet.",
-  "deskSetDlgRemoveUnlockHintSecurity": "Um auch ihre Dateien zu löschen, entsperren Sie diese Wallet und nutzen Sie „Wallet löschen“ unter Einstellungen › Wallet.",
+  "deskSetDlgRemoveUnlockHintSecurity": "Um auch ihre Dateien zu löschen, entsperren Sie diese Wallet und nutzen Sie „Wallet löschen“ unter Einstellungen › Wallet.",
   "deskSetDlgRemoveUnlock": "Diese Wallet entsperren",
   "deskSetDlgRemoveIrreversible": "Lässt sich nicht rückgängig machen",
   "deskSetDlgRemoveIrreversibleBody": "Nur die Wiederherstellungsphrase stellt die Wallet wieder her; ohne sie sind die Coins endgültig verloren.",

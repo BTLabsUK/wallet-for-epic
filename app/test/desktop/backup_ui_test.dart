@@ -115,7 +115,8 @@ void main() {
 
   testWidgets('the Backup group: three rows and the state line', (tester) async {
     await _pump(tester, const BackupGroup());
-    expect(find.text('Wallet data'), findsOneWidget);
+    // The group sits on Settings › Wallet as Backup.
+    expect(find.text('Backup'), findsOneWidget);
     expect(find.text('Export wallet data'), findsOneWidget);
     expect(find.text('Import wallet data'), findsOneWidget);
     // GP-049: the CSV row reads as the wallet data rows do.

@@ -19991,7 +19991,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetDlgRemoveUnlockHintSecurity =>
-      'Aby usunąć także jego pliki, odblokuj ten portfel i użyj Usuń portfel w Ustawienia › Portfel.';
+      'Aby usunąć także jego pliki, odblokuj ten portfel i użyj Usuń portfel w Ustawienia › Portfel.';
 
   @override
   String get deskRecvHttpTorHintNet =>

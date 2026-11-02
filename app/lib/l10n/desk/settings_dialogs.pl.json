@@ -29,7 +29,7 @@
   "deskSetDlgDeleteWallet": "Usuń portfel",
   "deskSetDlgRemoveDeleteHint": "Usuwa jego klucze i bazę danych z {folder}. Przywróci go tylko fraza odzyskiwania; bez niej monety przepadną.",
   "deskSetDlgRemoveUnlockHint": "Aby usunąć także jego pliki, odblokuj ten portfel i użyj Usuń portfel w Ustawienia › Ten portfel.",
-  "deskSetDlgRemoveUnlockHintSecurity": "Aby usunąć także jego pliki, odblokuj ten portfel i użyj Usuń portfel w Ustawienia › Portfel.",
+  "deskSetDlgRemoveUnlockHintSecurity": "Aby usunąć także jego pliki, odblokuj ten portfel i użyj Usuń portfel w Ustawienia › Portfel.",
   "deskSetDlgRemoveUnlock": "Odblokuj ten portfel",
   "deskSetDlgRemoveIrreversible": "Tego nie można cofnąć",
   "deskSetDlgRemoveIrreversibleBody": "Portfel przywróci tylko fraza odzyskiwania; bez niej monety przepadną na zawsze.",

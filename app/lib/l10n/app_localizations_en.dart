@@ -19334,7 +19334,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetDlgRemoveUnlockHintSecurity =>
-      'To delete its files as well, unlock this wallet and use Delete wallet under Settings › Wallet.';
+      'To delete its files as well, unlock this wallet and use Delete wallet under Settings › Wallet.';
 
   @override
   String get deskRecvHttpTorHintNet =>

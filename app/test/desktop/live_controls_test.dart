@@ -8,6 +8,7 @@ import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskInvoicesShownProvider;
+import 'package:epic_wallet/src/desktop/screens/settings/settings_frame.dart' show settingsBackKey;
 import 'package:epic_wallet/src/desktop/widgets/server_list_panel.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/amount.dart' as amount show displayEpic, exactEpic;
@@ -124,9 +125,11 @@ void main() {
   testWidgets('Show the tour again (Help) opens the tour on Overview', (tester) async {
     final container = await _open(tester, _Wallet(), DeskRoute.settingsHelp);
     container.read(deskTourProvider.notifier).close();
-    await tester.ensureVisible(find.text('Show the tour again'));
+    // Help › Start again: the row "Show the tour again" with its Start tour button.
+    final start = find.widgetWithText(EButton, 'Start tour');
+    await tester.ensureVisible(start);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Show the tour again'));
+    await tester.tap(start);
     await _settle(tester);
     expect(container.read(deskNavProvider).route, DeskRoute.overview);
     expect(container.read(deskTourProvider).open, isTrue);
@@ -182,8 +185,9 @@ void main() {
     await tester.tap(field);
     await _settle(tester);
     expect(item, findsOneWidget);
-    // A click on the sidebar while it is open closes the list and does not go to Activity.
-    await tester.tap(find.byWidgetPredicate((w) => w is ENavItem && w.label == 'Activity'));
+    // A click on the Settings column (where the sidebar is) while it is open closes the list
+    // and does not press "← Wallet".
+    await tester.tap(find.byKey(settingsBackKey));
     await _settle(tester);
     expect(item, findsNothing);
     expect(container.read(deskNavProvider).route, DeskRoute.settingsAppearance);
@@ -197,7 +201,8 @@ void main() {
     await _settle(tester);
     expect(find.byType(ListView), findsWidgets);
     final lists = find.byType(ListView).evaluate().length;
-    await tester.tap(find.byWidgetPredicate((w) => w is ENavItem && w.label == 'Activity'));
+    // "← Wallet" in the Settings column, where the sidebar is.
+    await tester.tap(find.byKey(settingsBackKey));
     await _settle(tester);
     expect(find.byType(ListView).evaluate().length, lessThan(lists), reason: 'the list closed');
     expect(container.read(deskNavProvider).route, DeskRoute.settingsNode);

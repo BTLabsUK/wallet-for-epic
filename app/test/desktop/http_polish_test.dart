@@ -126,6 +126,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('st-offer-linkHttp')));
     await tester.pumpAndSettle();
     expect(find.text('http://127.0.0.1:3415'), findsNothing);
-    expect(find.byType(EAddress), findsNothing);
+    // The one address here is the onion under Link · Tor, with Tor for payments ready.
+    expect(find.byWidgetPredicate((w) => w is EAddress && !w.address.endsWith('.onion')), findsNothing);
   });
 }
