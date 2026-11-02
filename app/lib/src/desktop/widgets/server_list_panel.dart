@@ -761,7 +761,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
             hint: l.deskSetComboOpens,
             expanded: open,
             excludeSemantics: true,
-            child: InkWell(
+            child: EInkWell(
               onTap: open ? collapse : this.open,
               // The detector above holds the focus: one Tab stop.
               canRequestFocus: false,
@@ -1205,7 +1205,7 @@ class _Row extends StatelessWidget {
           const SingleActivator(LogicalKeyboardKey.delete): onRemove,
           const SingleActivator(LogicalKeyboardKey.backspace): onRemove,
         },
-        child: InkWell(
+        child: EInkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(Rad.sm),
           focusColor: c.s3,
@@ -1328,7 +1328,7 @@ class _LocalRow extends StatelessWidget {
       button: true,
       selected: selected,
       label: l.deskKitLocalNodeUse(local.stateText),
-      child: InkWell(
+      child: EInkWell(
         key: const ValueKey('server-row-local'),
         onTap: onTap,
         borderRadius: BorderRadius.circular(Rad.sm),
@@ -1397,7 +1397,7 @@ class _AddRow extends StatelessWidget {
       child: Semantics(
         button: true,
         label: l.slAddRow(host),
-        child: InkWell(
+        child: EInkWell(
           key: const ValueKey('server-list-add'),
           onTap: busy ? null : onTap,
           borderRadius: BorderRadius.circular(Rad.sm),

@@ -432,3 +432,62 @@ class FocusRing extends StatelessWidget {
     );
   }
 }
+
+/// The desktop's [InkWell]: the hand cursor while it is enabled, the arrow when it has no
+/// handler. Flutter's own [InkWell] shows the arrow on every desktop platform (its default
+/// cursor is only a hand on the web), so a tappable row, card or expander built on a plain
+/// InkWell reads as dead. Use this for every tap target that is not a kit button; a test
+/// (test/desktop/hand_cursor_test.dart) fails on a plain InkWell in the desktop UI.
+class EInkWell extends StatelessWidget {
+  const EInkWell({
+    super.key,
+    required this.child,
+    this.onTap,
+    this.onLongPress,
+    this.onSecondaryTap,
+    this.onHover,
+    this.borderRadius,
+    this.customBorder,
+    this.focusColor,
+    this.hoverColor,
+    this.overlayColor,
+    this.canRequestFocus = true,
+    this.autofocus = false,
+    this.focusNode,
+    this.excludeFromSemantics = false,
+  });
+
+  final Widget child;
+  final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
+  final VoidCallback? onSecondaryTap;
+  final ValueChanged<bool>? onHover;
+  final BorderRadius? borderRadius;
+  final ShapeBorder? customBorder;
+  final Color? focusColor;
+  final Color? hoverColor;
+  final WidgetStateProperty<Color?>? overlayColor;
+  final bool canRequestFocus;
+  final bool autofocus;
+  final FocusNode? focusNode;
+  final bool excludeFromSemantics;
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+    onTap: onTap,
+    onLongPress: onLongPress,
+    onSecondaryTap: onSecondaryTap,
+    onHover: onHover,
+    borderRadius: borderRadius,
+    customBorder: customBorder,
+    focusColor: focusColor,
+    hoverColor: hoverColor,
+    overlayColor: overlayColor,
+    canRequestFocus: canRequestFocus,
+    autofocus: autofocus,
+    focusNode: focusNode,
+    excludeFromSemantics: excludeFromSemantics,
+    mouseCursor: WidgetStateMouseCursor.clickable,
+    child: child,
+  );
+}

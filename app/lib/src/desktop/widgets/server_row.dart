@@ -195,7 +195,7 @@ class ServerRow extends StatelessWidget {
             (null, false) => l.deskKitNodeUse(i.host),
           },
           hint: semanticsHint,
-          child: InkWell(
+          child: EInkWell(
             onTap: onTap,
             borderRadius: BorderRadius.circular(Rad.sm),
             focusColor: c.s3,

@@ -260,7 +260,7 @@ class _PeersTabState extends ConsumerState<PeersTab> {
         // The rest expands in place.
         ExpandFade(open: _all, child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [for (final p in rest) row(p)])),
         if (more > 0)
-          InkWell(
+          EInkWell(
             onTap: () => setState(() => _all = true),
             borderRadius: BorderRadius.circular(Rad.xs),
             child: SizedBox(

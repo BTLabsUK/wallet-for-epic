@@ -50,7 +50,7 @@ class _LicenceTextsDialogState extends State<LicenceTextsDialog> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               for (final MapEntry(key: name, value: entries) in packages.entries)
-                InkWell(
+                EInkWell(
                   borderRadius: BorderRadius.circular(Rad.sm),
                   onTap: () => setState(() => _open = name),
                   child: Container(

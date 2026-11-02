@@ -531,7 +531,7 @@ class _Line extends StatelessWidget {
           ? content
           : Material(
               type: MaterialType.transparency,
-              child: InkWell(onTap: i.onTap, borderRadius: BorderRadius.circular(Rad.sm), hoverColor: c.hover, child: content),
+              child: EInkWell(onTap: i.onTap, borderRadius: BorderRadius.circular(Rad.sm), hoverColor: c.hover, child: content),
             ),
     );
     return ETip(tip, child: line);

@@ -395,7 +395,7 @@ class _Chip extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
-      child: InkWell(
+      child: EInkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(Rad.sm),
         child: NoSelect(

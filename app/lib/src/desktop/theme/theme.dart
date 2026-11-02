@@ -101,6 +101,8 @@ ThemeData buildDeskTheme(Brightness brightness) {
         ),
       ),
     ),
+    // A menu entry is a button: the hand while enabled (Material's default is the arrow on desktop).
+    menuButtonTheme: const MenuButtonThemeData(style: ButtonStyle(mouseCursor: WidgetStateMouseCursor.clickable)),
   );
 }
 

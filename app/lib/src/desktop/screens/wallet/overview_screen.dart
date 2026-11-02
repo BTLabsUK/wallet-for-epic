@@ -1003,7 +1003,7 @@ class _InFlight extends ConsumerWidget {
                       child: Row(
                         children: [
                           Expanded(
-                            child: InkWell(
+                            child: EInkWell(
                               onTap: () => onOpen(t),
                               child: Padding(
                                 padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4),

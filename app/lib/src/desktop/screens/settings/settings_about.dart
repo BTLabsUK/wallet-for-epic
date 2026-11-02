@@ -165,7 +165,7 @@ class _LicencesFoldState extends State<_LicencesFold> {
       label: l.deskSetAboutLicences,
       hint: l.deskSetAboutLicencesLead,
       excludeSemantics: true,
-      child: InkWell(
+      child: EInkWell(
         key: const ValueKey('about-licences-fold'),
         onTap: () => setState(() => _open = !_open),
         child: ConstrainedBox(

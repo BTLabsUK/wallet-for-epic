@@ -562,7 +562,7 @@ class _ContactRowState extends ConsumerState<_ContactRow> {
       label: x.name,
       child: GestureDetector(
         onDoubleTap: widget.onDouble,
-        child: InkWell(
+        child: EInkWell(
           onTap: widget.onTap,
           onHover: (v) => setState(() => _hover = v),
           borderRadius: BorderRadius.circular(Rad.sm),
