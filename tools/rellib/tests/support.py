@@ -53,16 +53,16 @@ host = "local"
 platform = "android"
 for_each = "variant"
 needs = ["scope"]
-run = "echo build {variant} >> {src}/calls; test ! -e {src}/fail-{variant}; mkdir -p {stage}/emulator; head -c 2000000 /dev/zero > {stage}/epic-cash-mobile-{version}{notor}-arm64-v8a.apk; touch {stage}/emulator/x{notor}.apk"
-outputs = ["epic-cash-mobile-{version}{notor}-arm64-v8a.apk"]
+run = "echo build {variant} >> {src}/calls; test ! -e {src}/fail-{variant}; mkdir -p {stage}/emulator; head -c 2000000 /dev/zero > {stage}/bt-wallet-{version}{notor}-android-arm64-v8a.apk; touch {stage}/emulator/x{notor}.apk"
+outputs = ["bt-wallet-{version}{notor}-android-arm64-v8a.apk"]
 extras = ["emulator/x{notor}.apk"]
 
 [step.build-linux]
 platform = "linux"
 for_each = "variant"
 needs = ["scope"]
-run = "echo linux {variant} >> {src}/calls; head -c 2000000 /dev/zero > {stage}/EpicCashDesktop-{version}{notor}-x86_64.AppImage"
-outputs = ["EpicCashDesktop-{version}{notor}-x86_64.AppImage"]
+run = "echo linux {variant} >> {src}/calls; head -c 2000000 /dev/zero > {stage}/bt-wallet-{version}{notor}-linux-x86_64.AppImage"
+outputs = ["bt-wallet-{version}{notor}-linux-x86_64.AppImage"]
 reuse = ["app", "!app/test", "tools/lepic.rev"]
 
 [step.trust-android]

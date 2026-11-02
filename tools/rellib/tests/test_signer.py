@@ -75,8 +75,8 @@ class SignerTest(Base):
         self.assertEqual(res["status"], "done", res)
         self.assertEqual(len(self.fake.requests), 1)
         jobs = self.fake.requests[0]["jobs"]
-        self.assertEqual(sorted(j["out"] for j in jobs), ["epic-cash-mobile-26.10.25-arm64-v8a.apk",
-                                                          "epic-cash-mobile-26.10.25-notor-arm64-v8a.apk",
+        self.assertEqual(sorted(j["out"] for j in jobs), ["bt-wallet-26.10.25-android-arm64-v8a.apk",
+                                                          "bt-wallet-26.10.25-notor-android-arm64-v8a.apk",
                                                           "x-notor.apk", "x.apk"])
         self.assertEqual({j["op"] for j in jobs}, {"apk"})
         signed = signer.read_signed(run)
@@ -89,8 +89,8 @@ class SignerTest(Base):
             self.assertFalse(signer.accepted_change(run, n, h, "0" * 64))  # other bytes: refused
         # The build step still holds the unsigned build it recorded.
         st = run.status("build-android-tor")
-        self.assertEqual(st["outputs"]["epic-cash-mobile-26.10.25-arm64-v8a.apk"]["sha256"],
-                         before["epic-cash-mobile-26.10.25-arm64-v8a.apk"])
+        self.assertEqual(st["outputs"]["bt-wallet-26.10.25-android-arm64-v8a.apk"]["sha256"],
+                         before["bt-wallet-26.10.25-android-arm64-v8a.apk"])
         # Again (a resumed run): nothing is asked twice.
         res = signer.sign_android(eng, step, self.say)
         self.assertEqual(res["status"], "done", res)
@@ -98,7 +98,7 @@ class SignerTest(Base):
 
     def test_a_file_changed_after_its_build_is_never_sent(self):
         run, eng, step = self.built()
-        with open(os.path.join(run.files, "epic-cash-mobile-26.10.25-arm64-v8a.apk"), "ab") as f:
+        with open(os.path.join(run.files, "bt-wallet-26.10.25-android-arm64-v8a.apk"), "ab") as f:
             f.write(b"x")
         res = signer.sign_android(eng, step, self.say)
         self.assertEqual(res["status"], "failed")
@@ -157,8 +157,8 @@ class SignerTest(Base):
         os.makedirs(files)
         os.makedirs(m)
         with open(os.path.join(files, "SHA256SUMS"), "w") as f:
-            f.write(f"{'b' * 64}  epic-cash-mobile-26.11.0-arm64-v8a.apk\n{'c' * 64}  provenance.json\n{'d' * 64}  sbom.cdx.json\n")
-        keep = {"desktop": {"windows": {"url": "https://x/downloads/epic-cash-desktop-26.10.30-windows-x64-setup.exe",
+            f.write(f"{'b' * 64}  bt-wallet-26.11.0-android-arm64-v8a.apk\n{'c' * 64}  provenance.json\n{'d' * 64}  sbom.cdx.json\n")
+        keep = {"desktop": {"windows": {"url": "https://x/downloads/bt-wallet-26.10.30-windows-x64-setup.exe",
                                         "sha256": "a" * 64, "size": 5}}}
         with open(os.path.join(m, "desktop-keep.json"), "w") as f:
             json.dump(keep, f)
@@ -168,7 +168,7 @@ class SignerTest(Base):
         with open(out) as f:
             lines = f.read().splitlines()
         self.assertEqual([x.split("  ")[1] for x in lines],
-                         ["epic-cash-desktop-26.10.30-windows-x64-setup.exe", "epic-cash-mobile-26.11.0-arm64-v8a.apk",
+                         ["bt-wallet-26.10.30-windows-x64-setup.exe", "bt-wallet-26.11.0-android-arm64-v8a.apk",
                           "provenance.json", "sbom.cdx.json"])
         self.assertTrue(lines[0].startswith("a" * 64 + "  "))
         keep["desktop"]["windows"]["url"] = "https://x/downloads/provenance.json"  # one name, two hashes

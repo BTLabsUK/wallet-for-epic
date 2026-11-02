@@ -114,7 +114,7 @@ section Apple. By hand it is:
    certificate and the notary login, builds, signs every binary with Developer ID (hardened
    runtime, Apple's timestamp, inside out), notarises and staples the app, makes the `.dmg`,
    signs, notarises and staples it, then runs Gatekeeper on it. In `build-apple/mac-release/`:
-   `EpicCashDesktop-<v>-macos.dmg`, `.dmg.sha256` and `.REPORT.txt` (`<v>` is `26.10.24` or
+   `bt-wallet-<v>-macos.dmg`, `.dmg.sha256` and `.REPORT.txt` (`<v>` is `26.10.24` or
    `26.10.24-notor`). Send all three to the owner, and the `.sha256` line also by chat.
 3. **Builder**, iOS:
 
@@ -129,7 +129,7 @@ section Apple. By hand it is:
    owner its build number. Each upload needs a higher build number (the `+N` of the version in
    `app/pubspec.yaml`).
 4. **Owner**, before the `.dmg` goes on the download page (the release gate):
-   - `sha256sum -c EpicCashDesktop-<v>-macos.dmg.sha256` passes, and the hash is the one the
+   - `sha256sum -c bt-wallet-<v>-macos.dmg.sha256` passes, and the hash is the one the
      builder sent by chat;
    - in the REPORT: `commit:` is the commit you asked for, and it is on GitLab;
    - `TeamIdentifier=` is the BT Labs Team ID, for the `.dmg` and for the app in it;
@@ -336,12 +336,12 @@ The output is not trusted by any Apple device.
 ```
 RELEASE_COMMIT=<commit> tools/apple-sign.sh check     <hand-off dir>
 RELEASE_COMMIT=<commit> tools/apple-sign.sh macos-app <hand-off dir>      # each variant
-#  -> apple-signed/<hand-off>/EpicCashDesktop-<v>-macos-signed.tar.gz + SHA256SUMS: to the Mac
+#  -> apple-signed/<hand-off>/bt-wallet-<v>-macos-signed.tar.gz + SHA256SUMS: to the Mac
 RELEASE_COMMIT=<commit> tools/apple-sign.sh macos-dmg <hand-off dir> <.dmg from the Mac>
-#  -> apple-signed/<hand-off>/EpicCashDesktop-<v>-macos.dmg (+ .sha256): to the Mac for the
+#  -> apple-signed/<hand-off>/bt-wallet-<v>-macos.dmg (+ .sha256): to the Mac for the
 #     gatekeeper step, then to the download page and update.json as on other platforms
 RELEASE_COMMIT=<commit> tools/apple-sign.sh ios <hand-off dir without Tor>
-tools/apple-sign.sh ios-upload apple-signed/<hand-off>/EpicCashMobile-<v>-ios.ipa   # <v> = <version>-notor
+tools/apple-sign.sh ios-upload apple-signed/<hand-off>/bt-wallet-<v>-ios.ipa   # <v> = <version>-notor
 ```
 
 What `macos-app` does: checks the hand-off (hashes, file lists, the bundle id), signs every Mach-O

@@ -172,15 +172,20 @@ RED = {
 
 
 def make_release(root, version, platforms=("linux", "android", "windows")):
+    """A release folder; 26.10.24 and older by the names before bt-wallet, as they shipped."""
     run = Path(root) / version / "run-1"
     (run / "files").mkdir(parents=True)
     (run / "extra" / "emulator").mkdir(parents=True)
+    old = nightly.version_key(version) <= nightly.version_key("26.10.24")
     if "linux" in platforms:
-        (run / "files" / f"EpicCashDesktop-{version}-x86_64.AppImage").write_text("x")
+        name = f"EpicCashDesktop-{version}-x86_64.AppImage" if old else f"bt-wallet-{version}-linux-x86_64.AppImage"
+        (run / "files" / name).write_text("x")
     if "windows" in platforms:
-        (run / "files" / f"epic-cash-desktop-{version}-windows-x64-setup.exe").write_text("x")
+        name = f"epic-cash-desktop-{version}-windows-x64-setup.exe" if old else f"bt-wallet-{version}-windows-x64-setup.exe"
+        (run / "files" / name).write_text("x")
     if "android" in platforms:
-        (run / "extra" / "emulator" / f"epic-cash-mobile-{version}-x86_64.apk").write_text("x")
+        name = f"epic-cash-mobile-{version}-x86_64.apk" if old else f"bt-wallet-{version}-android-x86_64.apk"
+        (run / "extra" / "emulator" / name).write_text("x")
     return {"version": version, "run_id": "run-1", "run": str(run), "kind": "release"}
 
 
@@ -271,7 +276,7 @@ class TrustTest(unittest.TestCase):
 
     def test_missing_binaries_skip_and_driver_exit_2_skips(self):
         self.publish(self.prev, self.cand)
-        (Path(self.cand["run"]) / "files" / "epic-cash-desktop-26.10.25-windows-x64-setup.exe").unlink()
+        (Path(self.cand["run"]) / "files" / "bt-wallet-26.10.25-windows-x64-setup.exe").unlink()
         steps = self.trust(self.runner(2))
         by = {s["platform"]: s for s in steps}
         self.assertEqual(by["windows"]["status"], "skipped")

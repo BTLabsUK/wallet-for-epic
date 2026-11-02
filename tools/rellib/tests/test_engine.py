@@ -20,11 +20,11 @@ class EngineTest(Base):
         self.assertEqual(code, EXIT_WAITING)  # stops at the publish gate
         self.assertEqual(run.status("publish-gate")["status"], "waiting")
         files = sorted(os.listdir(run.files))
-        self.assertEqual(files, ["EpicCashDesktop-26.10.25-notor-x86_64.AppImage", "EpicCashDesktop-26.10.25-x86_64.AppImage",
-                                 "epic-cash-mobile-26.10.25-arm64-v8a.apk", "epic-cash-mobile-26.10.25-notor-arm64-v8a.apk"])
+        self.assertEqual(files, ["bt-wallet-26.10.25-android-arm64-v8a.apk", "bt-wallet-26.10.25-linux-x86_64.AppImage",
+                                 "bt-wallet-26.10.25-notor-android-arm64-v8a.apk", "bt-wallet-26.10.25-notor-linux-x86_64.AppImage"])
         self.assertTrue(os.path.isfile(os.path.join(run.extra, "emulator/x-notor.apk")))
         st = run.status("build-android-tor")
-        self.assertEqual(st["outputs"]["epic-cash-mobile-26.10.25-arm64-v8a.apk"]["bytes"], 2000000)
+        self.assertEqual(st["outputs"]["bt-wallet-26.10.25-android-arm64-v8a.apk"]["bytes"], 2000000)
         self.assertNotIn("publish", self.calls())  # nothing outward in the build phase
         self.assertIn("driver tor checks=wallet_opens,history_kept,send_ok funds=1", self.calls())
         ev = [e["event"] for e in run.events()]
@@ -142,10 +142,10 @@ class EngineTest(Base):
         self.assertEqual(self.calls().count("linux tor"), 1, "not built again")
         self.assertEqual((st["status"], st["reuse_key"]), ("done", key))
         self.assertIn("reused from", st["note"])
-        self.assertTrue(os.path.isfile(os.path.join(b.files, "EpicCashDesktop-26.10.25-x86_64.AppImage")))
+        self.assertTrue(os.path.isfile(os.path.join(b.files, "bt-wallet-26.10.25-linux-x86_64.AppImage")))
         # Its files gone or changed: no reuse, it builds.
-        os.remove(os.path.join(a.files, "EpicCashDesktop-26.10.25-x86_64.AppImage"))
-        os.remove(os.path.join(b.files, "EpicCashDesktop-26.10.25-x86_64.AppImage"))
+        os.remove(os.path.join(a.files, "bt-wallet-26.10.25-linux-x86_64.AppImage"))
+        os.remove(os.path.join(b.files, "bt-wallet-26.10.25-linux-x86_64.AppImage"))
         c = self.make_run(only="linux", sets=["publish.manifests=false"])
         self.engine(c).drive(self.build_ids(c))
         self.assertEqual(self.calls().count("linux tor"), 2)

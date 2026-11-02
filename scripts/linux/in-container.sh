@@ -92,5 +92,5 @@ PNG
 fi
 out=/work/build-linux
 mkdir -p "$out"
-ARCH=x86_64 /opt/appimagetool/AppRun --runtime-file /opt/runtime-x86_64 "$appdir" "$out/EpicCashDesktop-$version$variant-x86_64.AppImage"
+ARCH=x86_64 /opt/appimagetool/AppRun --runtime-file /opt/runtime-x86_64 "$appdir" "$out/bt-wallet-$version$variant-linux-x86_64.AppImage"
 ls -l "$out"

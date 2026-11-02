@@ -35,10 +35,10 @@ checksums and a "Before you install" note per platform, and on the
 
 | Platform | File |
 |---|---|
-| Windows 10 and 11 (x64) | `epic-cash-desktop-<version>-windows-x64-setup.exe` |
-| Linux (x86_64) | `EpicCashDesktop-<version>-x86_64.AppImage` |
-| macOS (Apple silicon, preview) | `EpicCashDesktop-<version>-macos.dmg` |
-| Android 7.0 or newer (arm64) | `epic-cash-mobile-<version>-arm64-v8a.apk` |
+| Windows 10 and 11 (x64) | `bt-wallet-<version>-windows-x64-setup.exe` |
+| Linux (x86_64) | `bt-wallet-<version>-linux-x86_64.AppImage` |
+| macOS (Apple silicon, preview) | `bt-wallet-<version>-macos.dmg` |
+| Android 7.0 or newer (arm64) | `bt-wallet-<version>-android-arm64-v8a.apk` |
 
 Each also comes as a build without Tor (`notor` in the file name). Install steps for each platform
 are in the [wiki](https://github.com/BTLabsUK/wallet-for-epic/wiki).

@@ -441,7 +441,7 @@ void main() {
         notor: false,
         versionName: '1.0.1',
         notes: 'With Tor',
-        apks: [testApk(versionCode: 3002, url: testApkUrl('epic-cash-mobile-1.0.1-arm64-v8a.apk'))],
+        apks: [testApk(versionCode: 3002, url: testApkUrl('bt-wallet-1.0.1-android-arm64-v8a.apk'))],
       )..['notor'] = <String, Object?>{
           'apks': [testApk(versionCode: 4002, url: testApkUrl('epic-cash-mobile-1.0.1-notor-arm64-v8a.apk'))],
         };
@@ -451,7 +451,7 @@ void main() {
 
       final tor = (await as(env, tor: true)).update!;
       expect((tor.apk.versionCode, tor.versionName, tor.notes), (3002, '1.0.1', 'With Tor'));
-      expect(tor.apk.url.pathSegments.last, 'epic-cash-mobile-1.0.1-arm64-v8a.apk');
+      expect(tor.apk.url.pathSegments.last, 'bt-wallet-1.0.1-android-arm64-v8a.apk');
       // Without Tor: the section's files, its version and notes defaulting to the top level.
       final noTor = (await as(env, tor: false)).update!;
       expect((noTor.apk.versionCode, noTor.versionName, noTor.notes), (4002, '1.0.1', 'With Tor'));

@@ -85,8 +85,8 @@ void _update(ProviderContainer c, DeskUpdatePhase phase, {bool inApp = true}) {
     version: v,
     page: deskReleasesUrl,
     checkedAt: DateTime.now(),
-    file: inApp ? WalletDesktopFile(url: Uri.parse('${walletUpdateDownloads ?? ''}EpicCashDesktop-$v-x86_64.AppImage'), sha256: '0' * 64, size: 1) : null,
-    download: phase == DeskUpdatePhase.ready ? File('EpicCashDesktop-$v-x86_64.AppImage') : null,
+    file: inApp ? WalletDesktopFile(url: Uri.parse('${walletUpdateDownloads ?? ''}bt-wallet-$v-linux-x86_64.AppImage'), sha256: '0' * 64, size: 1) : null,
+    download: phase == DeskUpdatePhase.ready ? File('bt-wallet-$v-linux-x86_64.AppImage') : null,
   ));
 }
 

@@ -24,9 +24,9 @@
 #
 # WFE_DIST=play|fdroid builds a store build (https://docs.btlabs.uk/developers/build/variants/); unset or web is the build from
 # our own page, as before. Neither store build has the in-app updater or the install permission.
-#   play    an Android App Bundle for Google Play, epic-cash-mobile-<version>[-notor]-play.aab
+#   play    an Android App Bundle for Google Play, bt-wallet-<version>[-notor]-play-android.aab
 #           (arm64-v8a, signed with the same key as the APK).
-#   fdroid  epic-cash-mobile-<version>[-notor]-fdroid-arm64-v8a.apk, the APK for IzzyOnDroid and
+#   fdroid  bt-wallet-<version>[-notor]-fdroid-android-arm64-v8a.apk, the APK for IzzyOnDroid and
 #           the one F-Droid's own build must reproduce, with pubspec.lock enforced and tor built
 #           from source (tools/build-tor-android.sh) instead of the Tor Project's binary.
 # tools/dist-check.sh checks each output against its distribution.
@@ -67,8 +67,9 @@ readelf="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readel
 dist="${WFE_DIST:-web}"
 case "$dist" in web|play|fdroid) ;; *) echo "WFE_DIST=$dist: use web, play or fdroid" >&2; exit 2 ;; esac
 
-# The build without Tor names its files epic-cash-mobile-<version>-notor-<abi>.apk; a store
-# build adds -play or -fdroid.
+# Release files are bt-wallet-<version><variant>-android-<abi>.apk (bundle: ...-android.aab),
+# variant -notor for the build without Tor and -play or -fdroid for a store build. Earlier
+# builds were epic-cash-mobile-<version><variant>-<abi>.apk; the clean-up below removes both.
 tor=1 variant=
 if [[ "${WFE_TOR:-1}" == 0 ]]; then tor=0 variant=-notor; fi
 [[ $dist == web ]] || variant="$variant-$dist"
@@ -112,8 +113,8 @@ LEPIC_NO_CACHE=1 WFE_TOR=$tor "$app_dir/../tools/lepic.sh" build android
 
 apks="$app_dir/build/app/outputs/flutter-apk"
 mkdir -p "$out_dir"
-rm -f "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir"/epic-cash-mobile-$version-*.aab "$out_dir/SHA256SUMS" \
-  "$out_dir"/emulator/epic-cash-mobile-$version-*.apk
+rm -f "$out_dir"/{bt-wallet,epic-cash-mobile}-$version-*.apk "$out_dir"/{bt-wallet,epic-cash-mobile}-$version-*.aab "$out_dir/SHA256SUMS" \
+  "$out_dir"/emulator/{bt-wallet,epic-cash-mobile}-$version-*.apk
 
 defines=(
   --dart-define=WFE_BUILD_ID="$build_id" --dart-define=WFE_BUILD_TAG="$build_tag"
@@ -122,8 +123,8 @@ defines=(
 if [[ $dist == play ]]; then
   # Google Play takes a bundle; the emulator's x86_64 APK is a build of its own.
   flutter build appbundle --release --target-platform android-arm64 "${defines[@]}"
-  cp "$app_dir/build/app/outputs/bundle/release/app-release.aab" "$out_dir/epic-cash-mobile-$version$variant.aab"
-  (cd "$out_dir" && sha256sum epic-cash-mobile-$version-*.aab >SHA256SUMS)
+  cp "$app_dir/build/app/outputs/bundle/release/app-release.aab" "$out_dir/bt-wallet-$version$variant-android.aab"
+  (cd "$out_dir" && sha256sum bt-wallet-$version-*.aab >SHA256SUMS)
   if [[ ${#emulator[@]} -gt 0 ]]; then
     flutter build apk --release --target-platform android-x64 --split-per-abi "${defines[@]}"
   fi
@@ -131,12 +132,12 @@ else
   platforms=android-arm64
   [[ ${#emulator[@]} -gt 0 ]] && platforms=android-arm64,android-x64
   flutter build apk --release --target-platform "$platforms" --split-per-abi "${defines[@]}"
-  cp "$apks/app-arm64-v8a-release.apk" "$out_dir/epic-cash-mobile-$version$variant-arm64-v8a.apk"
-  (cd "$out_dir" && sha256sum epic-cash-mobile-$version-*.apk >SHA256SUMS)
+  cp "$apks/app-arm64-v8a-release.apk" "$out_dir/bt-wallet-$version$variant-android-arm64-v8a.apk"
+  (cd "$out_dir" && sha256sum bt-wallet-$version-*.apk >SHA256SUMS)
 fi
 if [[ ${#emulator[@]} -gt 0 ]]; then
   mkdir -p "$out_dir/emulator"
-  cp "$apks/app-x86_64-release.apk" "$out_dir/emulator/epic-cash-mobile-$version$variant-x86_64.apk"
+  cp "$apks/app-x86_64-release.apk" "$out_dir/emulator/bt-wallet-$version$variant-android-x86_64.apk"
 fi
 
 fail=0
@@ -144,9 +145,9 @@ check() { # description, condition result (0 = ok)
   if [[ "$2" == 0 ]]; then echo "  ok   $1"; else echo "  FAIL $1"; fail=1; fi
 }
 shopt -s nullglob
-for apk in "$out_dir"/epic-cash-mobile-$version-*.apk "$out_dir"/emulator/epic-cash-mobile-$version-*.apk; do
+for apk in "$out_dir"/bt-wallet-$version-*.apk "$out_dir"/emulator/bt-wallet-$version-*.apk; do
   name="$(basename "$apk")"
-  abi="${name#epic-cash-mobile-$version$variant-}"; abi="${abi%.apk}"
+  abi="${name#bt-wallet-$version$variant-android-}"; abi="${abi%.apk}"
   echo "$name"
   if [[ $unsigned == 1 ]]; then
     "$apksigner" verify "$apk" >/dev/null 2>&1 && r=1 || r=0
@@ -234,7 +235,7 @@ done
 if [[ $dist == play ]]; then
   # The bundle: signed with the release key (Play App Signing is given the same key), arm64-v8a
   # only, and the distribution's rules.
-  aab="$out_dir/epic-cash-mobile-$version$variant.aab"
+  aab="$out_dir/bt-wallet-$version$variant-android.aab"
   basename "$aab"
   cert="$({ keytool -printcert -jarfile "$aab" 2>/dev/null || true; } | sed -n 's/^[[:space:]]*SHA256: //p' | head -1 | tr -d ':' | tr 'A-F' 'a-f')"
   if [[ $unsigned == 1 ]]; then
@@ -253,13 +254,13 @@ if [[ $dist == play ]]; then
   unzip -p "$aab" base/manifest/AndroidManifest.xml | LC_ALL=C grep -aqF "$want_package" && r=0 || r=1
   check "package $want_package" $r
   "$app_dir/../tools/dist-check.sh" play "$aab" && r=0 || r=1; check "tools/dist-check.sh play" $r
-  published="$(cd "$out_dir" && ls epic-cash-mobile-$version-*.aab epic-cash-mobile-$version-*.apk 2>/dev/null | tr '\n' ' ')"
-  [[ "$published" == "epic-cash-mobile-$version$variant.aab " ]] && r=0 || r=1
+  published="$(cd "$out_dir" && ls bt-wallet-$version-*.aab bt-wallet-$version-*.apk 2>/dev/null | tr '\n' ' ')"
+  [[ "$published" == "bt-wallet-$version$variant-android.aab " ]] && r=0 || r=1
   check "only the bundle is published ($published)" $r
 else
   # The phone download is arm64-v8a only.
-  published="$(cd "$out_dir" && ls epic-cash-mobile-$version-*.apk)"
-  [[ "$published" == "epic-cash-mobile-$version$variant-arm64-v8a.apk" ]] && r=0 || r=1
+  published="$(cd "$out_dir" && ls bt-wallet-$version-*.apk)"
+  [[ "$published" == "bt-wallet-$version$variant-android-arm64-v8a.apk" ]] && r=0 || r=1
   check "only the arm64-v8a APK is published ($published)" $r
 fi
 echo "SHA256SUMS:"; cat "$out_dir/SHA256SUMS"

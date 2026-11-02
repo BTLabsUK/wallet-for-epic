@@ -22,14 +22,19 @@ import sys
 import tomllib
 import urllib.request
 
-FILES = {"windows": "epic-cash-desktop-{v}{n}-windows-x64-setup.exe",
-         "linux": "EpicCashDesktop-{v}{n}-x86_64.AppImage",
-         "macos": "EpicCashDesktop-{v}{n}-macos.dmg"}
+# Each system's release file: the bt-wallet name, then the name before it (a run folder of an
+# earlier build).
+FILES = {"windows": ("bt-wallet-{v}{n}-windows-x64-setup.exe", "epic-cash-desktop-{v}{n}-windows-x64-setup.exe"),
+         "linux": ("bt-wallet-{v}{n}-linux-x86_64.AppImage", "EpicCashDesktop-{v}{n}-x86_64.AppImage"),
+         "macos": ("bt-wallet-{v}{n}-macos.dmg", "EpicCashDesktop-{v}{n}-macos.dmg")}
+
+
+def has_file(files, system, version, n):
+    return any(os.path.isfile(os.path.join(files, pat.format(v=version, n=n))) for pat in FILES[system])
 
 
 def main(src, files, version, bp, out):
-    missing = {n: [s for s, pat in FILES.items()
-                   if not os.path.isfile(os.path.join(files, pat.format(v=version, n=n)))]
+    missing = {n: [s for s in FILES if not has_file(files, s, version, n)]
                for n in ("", "-notor")}
     if not any(missing.values()):
         print("every desktop system has a file in this run: nothing kept from the live manifest")

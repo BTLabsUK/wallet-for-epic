@@ -22,8 +22,8 @@ import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSetti
 
 /// Newer than any version this app will carry.
 const _next = '99.1.0';
-const _linuxName = 'EpicCashDesktop-$_next-x86_64.AppImage';
-const _winName = 'epic-cash-desktop-$_next-windows-x64-setup.exe';
+const _linuxName = 'bt-wallet-$_next-linux-x86_64.AppImage';
+const _winName = 'bt-wallet-$_next-windows-x64-setup.exe';
 
 /// A release file's bytes: big enough for several chunks.
 final _bytes = List<int>.generate(300000, (i) => (i * 31 + 7) & 0xff);
@@ -799,8 +799,10 @@ Future<void> main(List<String> a) async {
     // The helper writes the real download address, which is the shipped one.
     hostSettings = shippedSettings();
     final dir = await tmp.createTemp('release');
-    File('${dir.path}/epic-cash-desktop-$_next-windows-x64-setup.exe').writeAsBytesSync(_bytes);
-    File('${dir.path}/EpicCashDesktop-$_next-x86_64.AppImage').writeAsBytesSync(_bytes.sublist(1));
+    // With Tor by the bt-wallet names; without, by the names before them (a folder of an earlier
+    // build): the helper reads both.
+    File('${dir.path}/bt-wallet-$_next-windows-x64-setup.exe').writeAsBytesSync(_bytes);
+    File('${dir.path}/bt-wallet-$_next-linux-x86_64.AppImage').writeAsBytesSync(_bytes.sublist(1));
     File('${dir.path}/epic-cash-desktop-$_next-notor-windows-x64-setup.exe').writeAsBytesSync(_bytes.sublist(2));
     File('${dir.path}/EpicCashDesktop-$_next-notor-x86_64.AppImage').writeAsBytesSync(_bytes.sublist(3));
     File('${dir.path}/EpicCashDesktop-$_next-notor-macos.dmg').writeAsBytesSync(_bytes.sublist(4));
@@ -820,7 +822,8 @@ Future<void> main(List<String> a) async {
     final d = m.desktop!;
     expect(d.forSystem('windows')!.file!.sha256, _sha);
     expect(d.forSystem('linux')!.file!.size, _bytes.length - 1);
-    expect(d.forSystem('linux')!.file!.url.toString(), '${walletUpdateDownloads}EpicCashDesktop-$_next-x86_64.AppImage');
+    expect(d.forSystem('linux')!.file!.url.toString(), '${walletUpdateDownloads}bt-wallet-$_next-linux-x86_64.AppImage');
+    expect(d.forSystem('windows')!.file!.url.pathSegments.last, 'bt-wallet-$_next-windows-x64-setup.exe');
     expect(d.forSystem('macos'), isNull, reason: 'no dmg with Tor in this folder');
     final n = m.release(tor: false)!.desktop!;
     expect(n.forSystem('windows')!.file!.size, _bytes.length - 2);
@@ -830,7 +833,7 @@ Future<void> main(List<String> a) async {
     File('${dir.path}/EpicCashDesktop-$_next-notor-x86_64.AppImage').deleteSync();
     final missing = await Process.run('tool/desktop_update_entry.sh', [_next, dir.path]);
     expect(missing.exitCode, isNot(0));
-    expect('${missing.stderr}', contains('notor-x86_64.AppImage'));
+    expect('${missing.stderr}', contains('notor-linux-x86_64.AppImage'));
     // A release that leaves a system out keeps that system's live entry unchanged
     // (WFE_DESKTOP_KEEP, written by tools/rellib/steps/desktop_keep.py).
     final kept = _entry('EpicCashDesktop-26.10.1-notor-x86_64.AppImage', version: '26.10.1');

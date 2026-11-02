@@ -5,7 +5,8 @@
 # (tools/rellib/drivers/android/trust.py).
 #
 # Environment (the runner's contract):
-#   REL_PREVIOUS_DIR, REL_PREVIOUS_VERSION   previous release folder (emulator/epic-cash-mobile-<v>[-notor]-x86_64.apk)
+#   REL_PREVIOUS_DIR, REL_PREVIOUS_VERSION   previous release folder (emulator/bt-wallet-<v>[-notor]-android-x86_64.apk,
+#                                            or epic-cash-mobile-<v>[-notor]-x86_64.apk before the rename)
 #   REL_CANDIDATE_DIR, REL_CANDIDATE_VERSION candidate's published files
 #   REL_CANDIDATE_EXTRA                      candidate's non-published folder (emulator/…x86_64.apk)
 #   REL_VARIANT        tor | notor
@@ -59,14 +60,16 @@ else
   export REL_TRUST_STATE="${REL_TRUST_STATE:-$HOME/.config/btlabs/rel-trust-android}"; default_port=5580
 fi
 
-# The x86_64 emulator APK of a release folder for the variant.
+# The x86_64 emulator APK of a release folder for the variant: bt-wallet-<v>[-notor]-android-x86_64.apk,
+# or epic-cash-mobile-<v>[-notor]-x86_64.apk in a release made before the rename.
 apk_in() { # dir version
   local d=$1 v=$2 f
   [[ -d "$d/emulator" ]] || return 1
-  for f in "$d/emulator/epic-cash-mobile-$v"{,-notor}-x86_64.apk "$d"/emulator/epic-cash-mobile-*-x86_64.apk; do
+  for f in "$d/emulator/bt-wallet-$v"{,-notor}-android-x86_64.apk "$d/emulator/epic-cash-mobile-$v"{,-notor}-x86_64.apk \
+      "$d"/emulator/bt-wallet-*-android-x86_64.apk "$d"/emulator/epic-cash-mobile-*-x86_64.apk; do
     [[ -f "$f" ]] || continue
-    if [[ "$REL_VARIANT" == notor ]]; then [[ "$f" == *-notor-x86_64.apk ]] || continue
-    else [[ "$f" != *-notor-x86_64.apk ]] || continue; fi
+    if [[ "$REL_VARIANT" == notor ]]; then [[ "$(basename "$f")" == *-notor-* ]] || continue
+    else [[ "$(basename "$f")" != *-notor-* ]] || continue; fi
     echo "$f"; return 0
   done
   return 1

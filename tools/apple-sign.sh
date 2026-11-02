@@ -16,12 +16,12 @@
 #   check <handoff dir>       the hand-off from the release Mac: SHA256SUMS, PROVENANCE.txt, and
 #                             the files of both apps against the lists in PROVENANCE.txt
 #   macos-app <handoff dir>   sign the macOS app (hardened runtime, timestamp), notarise and staple
-#                             it; writes EpicCashDesktop-<v>-macos-signed.tar.gz for the Mac
+#                             it; writes bt-wallet-<v>-macos-signed.tar.gz for the Mac
 #   macos-dmg <handoff dir> <.dmg>   the .dmg the Mac made: its app must be exactly the signed one;
 #                             (<v> in file names is the version with the variant mark of the
 #                             build without Tor, e.g. 26.10.24 or 26.10.24-notor)
 #                             sign, notarise and staple the .dmg -> the file to publish
-#   ios <handoff dir>         sign Runner.app with the App Store profile -> EpicCashMobile-<v>-ios.ipa
+#   ios <handoff dir>         sign Runner.app with the App Store profile -> bt-wallet-<v>-ios.ipa
 #   ios-upload <.ipa>         upload the .ipa to App Store Connect (TestFlight), through the App
 #                             Store Connect API (tools/asc_upload.py)
 #   verify <.app|.dmg|file>   the signature of everything in it: team, hardened runtime, timestamp
@@ -111,9 +111,12 @@ check_handoff() {
   if [ ! -f "$dir/SHA256SUMS" ] || [ ! -f "$dir/PROVENANCE.txt" ]; then die "$dir has no SHA256SUMS or PROVENANCE.txt"; fi
   (cd "$dir" && sha256sum -c --strict SHA256SUMS) || die "$dir does not match its SHA256SUMS"
   name="$(basename "$(cd "$dir" && pwd)")"
-  mac_tar="$(cd "$dir" && ls EpicCashDesktop-*-macos-unsigned.tar.gz)"
-  ios_tar="$(cd "$dir" && ls EpicCashMobile-*-ios-unsigned.tar.gz)"
-  version="${mac_tar#EpicCashDesktop-}"
+  # bt-wallet-<v>-…; a hand-off made before the rename has EpicCashDesktop-<v>-… and EpicCashMobile-<v>-….
+  mac_tar="$(cd "$dir" && ls bt-wallet-*-macos-unsigned.tar.gz EpicCashDesktop-*-macos-unsigned.tar.gz 2>/dev/null | head -1 || true)"
+  ios_tar="$(cd "$dir" && ls bt-wallet-*-ios-unsigned.tar.gz EpicCashMobile-*-ios-unsigned.tar.gz 2>/dev/null | head -1 || true)"
+  [ -n "$mac_tar" ] && [ -n "$ios_tar" ] || die "$dir has no macos-unsigned and ios-unsigned tar.gz"
+  version="${mac_tar#bt-wallet-}"
+  version="${version#EpicCashDesktop-}"
   version="${version%-macos-unsigned.tar.gz}"
   sed -n '1,/^== files of/p' "$dir/PROVENANCE.txt" | sed '$d'
   head="$(sed -n 's/^commit: *//p' "$dir/PROVENANCE.txt")"
@@ -299,10 +302,10 @@ macos_app_cmd() {
   say "notarise and staple"
   notarise "$signed/$app_rel"
   say "pack for the release Mac"
-  signed_tar="EpicCashDesktop-$version-macos-signed.tar.gz"
+  signed_tar="bt-wallet-$version-macos-signed.tar.gz"
   tar --owner=0 --group=0 --numeric-owner --sort=name -czf "$out/$signed_tar" -C "$signed" "$app_rel"
-  manifest "$signed/$app_rel" > "$out/EpicCashDesktop-$version-macos-signed.files.txt"
-  (cd "$out" && sha256sum "$signed_tar" "EpicCashDesktop-$version-macos-signed.files.txt" > SHA256SUMS)
+  manifest "$signed/$app_rel" > "$out/bt-wallet-$version-macos-signed.files.txt"
+  (cd "$out" && sha256sum "$signed_tar" "bt-wallet-$version-macos-signed.files.txt" > SHA256SUMS)
   cat "$out/SHA256SUMS"
   echo "PASS macos-app: give $out/$signed_tar and $out/SHA256SUMS to the release Mac (build-apple.sh dmg-signed)"
 }
@@ -316,7 +319,7 @@ macos_dmg_cmd() {
   [ -f "$dmg_in" ] || die "usage: apple-sign.sh macos-dmg <handoff dir> <.dmg>"
   command -v "$SEVENZIP" > /dev/null || die "no $SEVENZIP (7-Zip 23 or newer reads APFS and HFS+ disk images)"
   out="$out_root/$name"
-  files_txt="$out/EpicCashDesktop-$version-macos-signed.files.txt"
+  files_txt="$out/bt-wallet-$version-macos-signed.files.txt"
   [ -f "$files_txt" ] || die "no $files_txt: run macos-app on this hand-off first"
   work="$out/work/dmg"
   rm -rf "$work"
@@ -336,7 +339,7 @@ macos_dmg_cmd() {
     || die "the app in the .dmg is not the app signed here (see $work.diff)"
   rm -f "$work.diff"
   echo "the app in the .dmg is file for file the signed, stapled app"
-  final="$out/EpicCashDesktop-$version-macos.dmg"
+  final="$out/bt-wallet-$version-macos.dmg"
   cp "$dmg_in" "$final"
   say "sign the .dmg"
   mapfile -t p12 < <(p12_args "$DEVID_P12" "${DEVID_P12_PASSWORD_FILE:-}")
@@ -435,7 +438,7 @@ ios_cmd() {
   "$RCODESIGN" sign "${p12[@]}" -e "$ent" "$work/stage/Payload/Runner.app"
   verify_tree "$work/stage/Payload/Runner.app" "$APPLE_TEAM_ID"
   seal_check "$work/stage/Payload/Runner.app"
-  ipa="$out/EpicCashMobile-$version-ios.ipa"
+  ipa="$out/bt-wallet-$version-ios.ipa"
   rm -f "$ipa"
   (cd "$work/stage" && zip -qrX -y "$ipa" Payload)
   (cd "$out" && sha256sum "$(basename "$ipa")" > "$(basename "$ipa").sha256")

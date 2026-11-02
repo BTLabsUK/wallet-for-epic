@@ -185,7 +185,7 @@ class GitHubReleaseTest(unittest.TestCase):
                         GITHUB_RELEASE_WEB=f"{self.gh.base}/web")
         self.files = os.path.join(self.tmp, "files")
         os.makedirs(self.files)
-        for n in ("epic-cash-mobile-26.10.25-arm64-v8a.apk", "EpicCashDesktop-26.10.25-x86_64.AppImage"):
+        for n in ("bt-wallet-26.10.25-android-arm64-v8a.apk", "bt-wallet-26.10.25-linux-x86_64.AppImage"):
             with open(os.path.join(self.files, n), "wb") as f:
                 f.write(n.encode() * 100)
         self.notes = os.path.join(self.tmp, "notes.txt")
@@ -228,7 +228,7 @@ class GitHubReleaseTest(unittest.TestCase):
         self.assertEqual(self.gh.latest, rel["id"])
         self.assertFalse(rel["draft"] or rel["prerelease"])
         self.assertEqual(sorted(a["name"] for a in rel["assets"]),
-                         ["EpicCashDesktop-x86_64.AppImage", "SHA256SUMS", "SHA256SUMS.sig", "epic-cash-mobile-arm64-v8a.apk"])
+                         ["SHA256SUMS", "SHA256SUMS.sig", "bt-wallet-android-arm64-v8a.apk", "bt-wallet-linux-x86_64.AppImage"])
         self.assertIn("signature ok", out)
         self.assertIn("anonymous", out)
         self.assertIn(": 200 (same bytes)", out)
@@ -266,7 +266,7 @@ class GitHubReleaseTest(unittest.TestCase):
         self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
         rel = next(iter(self.gh.releases.values()))
         self.assertEqual(sorted(a["name"] for a in rel["assets"]),
-                         ["EpicCashDesktop-x86_64.AppImage", "SHA256SUMS", "SHA256SUMS.sig", "epic-cash-mobile-arm64-v8a.apk"])
+                         ["SHA256SUMS", "SHA256SUMS.sig", "bt-wallet-android-arm64-v8a.apk", "bt-wallet-linux-x86_64.AppImage"])
         self.assertEqual(rel["body"].splitlines()[0], "Epic Cash 26.10.25.")
         with open(os.path.join(self.files, "SHA256SUMS")) as f:
             self.assertEqual(f.read(), sums)  # the run's SHA256SUMS is left as G6 reads it

@@ -32,10 +32,12 @@
 # tool/desktop_update_entry.sh prints that block from the published setup and AppImage.
 #
 # WFE_APK_DIR=<folder> takes the APKs tool/build_android_release.sh put there under their release
-# names instead of building one: epic-cash-mobile-<version>-arm64-v8a.apk for the top level and
-# epic-cash-mobile-<version>-notor-arm64-v8a.apk for the notor section, both required, as a
-# release builds and ships both variants (https://docs.btlabs.uk/developers/releases/). The manifest names them under
-# download-base-url by those names: https://examples.btlabs.uk/epic-cash-wallets/downloads, the
+# names instead of building one: bt-wallet-<version>-android-arm64-v8a.apk for the top level and
+# bt-wallet-<version>-notor-android-arm64-v8a.apk for the notor section, both required, as a
+# release builds and ships both variants (https://docs.btlabs.uk/developers/releases/); a folder of an earlier build, with
+# the names before bt-wallet (epic-cash-mobile-<version>[-notor]-arm64-v8a.apk), is read too. The
+# manifest names them under download-base-url by those names:
+# https://examples.btlabs.uk/epic-cash-wallets/downloads, the
 # release folder that https://epiccash.btlabs.uk/releases/downloads/ also serves. The manifest keeps
 # the examples.btlabs.uk address while installed apps need it: with Tor on, apps up to 26.10.23
 # reach only that name through the downloads onion (https://docs.btlabs.uk/developers/releases/, Release addresses).
@@ -109,7 +111,10 @@ for variant in "${variants[@]}"; do
 for abi in arm64-v8a; do
   apk="$out/app-$abi-release.apk" file="app-$abi-release.apk"
   if [[ -n "${WFE_APK_DIR:-}" ]]; then
-    file="epic-cash-mobile-$version$variant-$abi.apk" apk="${WFE_APK_DIR%/}/$file"
+    file="bt-wallet-$version$variant-android-$abi.apk" apk="${WFE_APK_DIR%/}/$file"
+    if [[ ! -f "$apk" && -f "${WFE_APK_DIR%/}/epic-cash-mobile-$version$variant-$abi.apk" ]]; then
+      file="epic-cash-mobile-$version$variant-$abi.apk" apk="${WFE_APK_DIR%/}/$file"
+    fi
   fi
   [[ -f "$apk" ]] || { echo "missing $apk" >&2; exit 1; }
   # Keep only the first line in bash: `| head -1` would SIGPIPE aapt2 under pipefail.

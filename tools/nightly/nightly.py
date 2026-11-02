@@ -529,26 +529,32 @@ def version_key(v):
     return tuple(int(x) if x.isdigit() else 0 for x in re.split(r"[.\-]", v))
 
 
+def release_names(platform, v):
+    """The file the G4 driver installs, new name first: (bt-wallet-…, the name before it)."""
+    return {"linux": (f"bt-wallet-{v}-linux-x86_64.AppImage", f"EpicCashDesktop-{v}-x86_64.AppImage"),
+            "windows": (f"bt-wallet-{v}-windows-x64-setup.exe", f"epic-cash-desktop-{v}-windows-x64-setup.exe"),
+            "android": (f"bt-wallet-{v}-android-x86_64.apk", f"epic-cash-mobile-{v}-x86_64.apk")}[platform]
+
+
 def trust_inputs(platform, prev, cand):
     """(env for the driver, None) or (None, why it is skipped): the pair's binaries must be on
     disk: `files` holds the desktop and Windows files, `extra`/emulator the x86_64 APKs."""
     pv, cv = prev["version"], cand["version"]
     pf, cf = Path(prev["files"]), Path(cand["files"])
     pe, ce = Path(prev["extra"]), Path(cand["extra"])
+    # Each binary by its bt-wallet name, or the name before it (releases made before the rename).
     if platform == "linux":
-        names = [(pf, f"EpicCashDesktop-{pv}-x86_64.AppImage"), (cf, f"EpicCashDesktop-{cv}-x86_64.AppImage")]
+        names = [(pf, release_names("linux", pv)), (cf, release_names("linux", cv))]
         env = {"REL_PREVIOUS_DIR": str(pf), "REL_CANDIDATE_DIR": str(cf)}
     elif platform == "windows":
-        names = [(pf, f"epic-cash-desktop-{pv}-windows-x64-setup.exe"),
-                 (cf, f"epic-cash-desktop-{cv}-windows-x64-setup.exe")]
+        names = [(pf, release_names("windows", pv)), (cf, release_names("windows", cv))]
         env = {"REL_PREVIOUS_DIR": str(pf), "REL_CANDIDATE_DIR": str(cf)}
     else:
-        names = [(pe / "emulator", f"epic-cash-mobile-{pv}-x86_64.apk"),
-                 (ce / "emulator", f"epic-cash-mobile-{cv}-x86_64.apk")]
+        names = [(pe / "emulator", release_names("android", pv)), (ce / "emulator", release_names("android", cv))]
         env = {"REL_PREVIOUS_DIR": str(pe), "REL_CANDIDATE_DIR": str(cf), "REL_CANDIDATE_EXTRA": str(ce)}
-    for d, n in names:
-        if not (d / n).is_file():
-            return None, f"binary missing: {d / n}"
+    for d, ns in names:
+        if not any((d / n).is_file() for n in ns):
+            return None, f"binary missing: {d / ns[0]}"
     env.update(REL_PREVIOUS_VERSION=pv, REL_CANDIDATE_VERSION=cv)
     return env, None
 
