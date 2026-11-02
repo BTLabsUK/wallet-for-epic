@@ -268,6 +268,7 @@ class DeskTitleBar extends ConsumerWidget {
       valueListenable: window.state,
       builder: (context, w, _) {
         final dim = !w.focused;
+        final chrome = c.tint.a != 0;
         final controls = window.frameless ? _WindowControls(window: window, state: w, style: style) : null;
         // In Settings the brand stands over its column, wider than the sidebar.
         final sideWidth = compact ? Ctl.rail : (route.section == DeskSection.settings ? Ctl.settingsNav : Ctl.sidebar);
@@ -328,12 +329,18 @@ class DeskTitleBar extends ConsumerWidget {
                       window: window,
                       child: Row(
                         children: [
+                          // Light: the bar is one white strip with the sidebar (the brand's
+                          // block runs into the column below it, no step beside it) and a
+                          // hairline over the page. Dark keeps the flat window colour.
                           if (wallet)
                             Container(
                               width: sideWidth,
-                              decoration: BoxDecoration(color: c.s1, border: Border(right: BorderSide(color: c.line))),
+                              decoration: BoxDecoration(color: c.s1, border: Border(right: BorderSide(color: chrome ? c.lineStrong : c.line))),
                             ),
-                          Expanded(child: ColoredBox(color: c.bg)),
+                          Expanded(
+                            // A Container, which fills the strip; a childless DecoratedBox sizes to nothing here.
+                            child: Container(decoration: chrome ? BoxDecoration(color: c.s1, border: Border(bottom: BorderSide(color: c.line))) : BoxDecoration(color: c.bg)),
+                          ),
                         ],
                       ),
                     ),

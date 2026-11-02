@@ -185,21 +185,6 @@ class DeskBackdrop extends StatelessWidget {
                       stops: const [0, 0.42, 1],
                     ),
                   ),
-                  // The wash comes in under the title bar's flat colour, so there is no
-                  // seam at its hairline.
-                  child: Align(
-                    alignment: Alignment.topCenter,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [c.bg, c.bg.withValues(alpha: 0)],
-                        ),
-                      ),
-                      child: SizedBox(height: 96.u, width: double.infinity),
-                    ),
-                  ),
                 ),
                 ),
               ),
