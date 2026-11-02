@@ -8,34 +8,141 @@ import '../../widgets/kit.dart';
 import '../../app/tour.dart';
 import '../../desk_l10n.dart';
 import '../../../l10n.dart' show localInt;
-import '../../../ui/network_mode_text.dart' show networkSummary;
 import 'prefs.dart';
 import '../../data/desk_levels.dart';
 import '../../data/pairing_state.dart' show deskInvoicesShownProvider;
+import '../../app/now_slot.dart' show NowSlot;
+import 'search/search_slot.dart';
+import 'search/settings_sections.dart';
+import '../../../advanced.dart' show AdvancedFeature;
 
-/// The sections; [invoices] adds Invoices below Transactions (wallets that take invoices), its label
-/// in the app's language. Linked devices has no entry of its own: it belongs to one wallet, so it
-/// opens from This wallet (as on the phone) and that entry stays raised on its page; Recovery
-/// phrase opens from Security the same way.
-/// Shallow lists six: Appearance, This wallet, Security, Advanced, About, Help
-/// (Recheck balance opens from This wallet there).
-List<(DeskRoute, String, IconData)?> _itemsFor(AppLocalizations l, {required bool invoices, required DeskLevelFeatures ui}) => [
-  if (!deskLevelHides(ui, DeskRoute.settingsNode)) (DeskRoute.settingsNode, l.deskSetFrameNode, EIcons.node),
-  if (!deskLevelHides(ui, DeskRoute.settingsReceiving)) (DeskRoute.settingsReceiving, l.deskSetFrameTransactions, EIcons.antenna),
-  if (!deskLevelHides(ui, DeskRoute.settingsPrivacy)) (DeskRoute.settingsPrivacy, l.settingsSectionNetworkPrivacy, EIcons.network),
-  if (invoices && ui.invoicesPage) (DeskRoute.settingsInvoices, l.deskInvSetTitle, EIcons.invoice),
-  (DeskRoute.settingsAppearance, l.deskSetFrameAppearance, EIcons.palette),
-  null,
-  (DeskRoute.settingsAccount, l.deskSetFrameThisWallet, EIcons.wallet),
-  if (!deskLevelHides(ui, DeskRoute.settingsWallets)) (DeskRoute.settingsWallets, l.deskSetFrameAllWallets, EIcons.coins),
-  (DeskRoute.settingsSecurity, l.settingsSectionSecurity, EIcons.shield),
-  if (ui.recheckInSideList) (DeskRoute.settingsRescan, l.deskSetFrameRescan, EIcons.scan),
-  null,
-  (DeskRoute.settingsAdvanced, l.deskSetFrameAdvanced, EIcons.tune),
-  null,
-  (DeskRoute.settingsAbout, l.deskSetFrameAbout, EIcons.info),
-  (DeskRoute.settingsHelp, l.deskSetFrameHelp, EIcons.help),
+/// The Settings navigation for the view: the sections of [settingsSections] in their four
+/// groups (the open wallet, under its name; App; This computer; Help), each entry its icon and
+/// name. A section the view hides ([deskLevelHides]) has no entry, Invoices needs a wallet that
+/// takes them, and an empty group has no heading. Sub-pages have no entry of their own.
+List<ESubnavGroup> settingsNavGroups(AppLocalizations l, {required String? walletName, required bool invoices, required DeskLevelFeatures ui}) => [
+  for (final nav in SetNav.values)
+    if ([
+      for (final s in settingsSections)
+        if (s.nav == nav && s.parent == null && !deskLevelHides(ui, s.route) && (s.route != DeskRoute.settingsInvoices || invoices))
+          (s.route as Object, settingsSectionLabel(l, s.route), s.icon),
+    ] case final items when items.isNotEmpty)
+      ESubnavGroup(heading: settingsNavLabel(l, nav, walletName: walletName == null || walletName.isEmpty ? null : walletName), items: items),
 ];
+
+/// The page a sub-page belongs to: its entry stays selected and the page shows "‹ Parent".
+DeskRoute? settingsParent(DeskRoute route) => setSectionOf(route)?.parent;
+
+/// The name of a Settings page, as its title and its entry say it.
+String settingsPageTitle(AppLocalizations l, DeskRoute route) =>
+    settingsSectionLabel(l, route == DeskRoute.settingsLevel ? DeskRoute.settingsAdvanced : route);
+
+/// Whether the window shows the Settings column in place of the sidebar (the sidebar's own
+/// desktop width); narrower, the page keeps the section strip.
+bool settingsTakeover(BuildContext context) => MediaQuery.sizeOf(context).width >= Bp.desktop;
+
+/// The entry a page raises: its own, or its parent's for a sub-page.
+DeskRoute settingsCurrent(DeskRoute route) => route == DeskRoute.settingsLevel ? DeskRoute.settingsAdvanced : setNavRouteOf(route);
+
+/// The Settings column (option 1, the takeover): "← Wallet" and "Settings", the search field,
+/// the grouped navigation, and at its foot what runs now and the Esc hint. It stands where the
+/// sidebar is while a Settings page is open.
+class SettingsColumn extends ConsumerWidget {
+  const SettingsColumn({super.key, required this.route});
+
+  final DeskRoute route;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.dc;
+    final ts = context.ts;
+    final l = context.l10n;
+    final nav = ref.read(deskNavProvider.notifier);
+    final ui = ref.watch(deskLevelUiProvider);
+    final name = ref.watch(deskProvider.select((s) => s.account?.name));
+    final groups = settingsNavGroups(l, walletName: name, invoices: ref.watch(deskInvoicesShownProvider), ui: ui);
+    final matches = ref.watch(settingsSearchRoutesProvider);
+    return Semantics(
+      container: true,
+      label: l.deskSetFrameSections,
+      child: Container(
+        width: Ctl.settingsNav,
+        decoration: BoxDecoration(color: c.s1, border: Border(right: BorderSide(color: c.line))),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(Sp.x3, Sp.x3, Sp.x3, 0),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: EButton.ghost(
+                  key: settingsBackKey,
+                  label: l.deskSetFrameBack,
+                  icon: EIcons.arrowLeft,
+                  tooltip: l.deskSetFrameBackTip,
+                  hit44: true,
+                  onPressed: nav.leaveSettings,
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(Sp.x4, Sp.x2, Sp.x4, Sp.x3),
+              child: Semantics(header: true, child: Text(l.deskSetFrameTitle, style: ts.h2, maxLines: 1, overflow: TextOverflow.ellipsis)),
+            ),
+            Padding(padding: EdgeInsets.symmetric(horizontal: Sp.x3), child: const SettingsSearchSlot()),
+            Expanded(
+              // Its own scroll: a short window holds more entries than fit.
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(Sp.x3, Sp.x3, Sp.x3, Sp.x3),
+                child: ESubnav(
+                  groups: groups,
+                  current: settingsCurrent(route),
+                  matches: matches,
+                  noMatchLabel: l.deskSetSearchNoResults,
+                  onTap: (r) => nav.go(r as DeskRoute),
+                  wrap: (r, w) => TourTarget(id: 'subnav-${(r as DeskRoute).name}', child: w),
+                ),
+              ),
+            ),
+            // What goes on now (a scan, a payment, an update), as the sidebar's slot says it.
+            const NowSlot(compact: false, resting: false),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
+              decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),
+              child: Row(
+                children: [
+                  _Kbd(l.deskSetFrameEscKey),
+                  SizedBox(width: Sp.x2),
+                  Flexible(child: Text(l.deskSetFrameEscHint, style: ts.caption.copyWith(color: c.dim), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The Settings column's "← Wallet", for tests.
+const settingsBackKey = ValueKey('settings-back');
+
+/// A key as the keyboard shows it.
+class _Kbd extends StatelessWidget {
+  const _Kbd(this.keys);
+
+  final String keys;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 6.u, vertical: 1.u),
+      decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.xs), border: Border.all(color: c.lineStrong)),
+      child: Text(keys, style: context.ts.mono(size: Fs.xs, color: c.text)),
+    );
+  }
+}
 
 /// How far a Settings page grows on a big screen. Every page grows with the window up to a
 /// measure for its content: [form] pages (rows of words and controls, text) up to [Ctl.mid], so
@@ -48,90 +155,112 @@ enum SettingsWidth { form, wide }
 /// The widest a [SettingsWidth.wide] page gets (a 4K window still reads as one panel).
 double get settingsWideMax => 1760.u;
 
-/// The Settings page: title, sub-navigation on the left (a scrolling strip while the page is narrower than Lay.xl)
-/// and the page on the right.
+/// A Settings page: its title (with "‹ Parent" above it on a sub-page) and the page, centred
+/// up to its measure. Beside the Settings column ([settingsTakeover]) the page has the room to
+/// itself; in a narrower window the title is "Settings" and the sections are a strip of chips
+/// over the page. While the Settings search has a query, its results stand in for the page.
 class SettingsFrame extends ConsumerWidget {
-  const SettingsFrame({super.key, required this.route, required this.child, this.width = SettingsWidth.form});
+  const SettingsFrame({super.key, required this.route, required this.child, this.width = SettingsWidth.form, this.fill = false});
 
   final DeskRoute route;
   final Widget child;
   final SettingsWidth width;
 
+  /// The page fills the room under the title instead of scrolling as a whole (a page with its
+  /// own scrolling part, Recovery phrase's words); under [fillMinHeight] it scrolls again.
+  final bool fill;
+
+  static double get fillMinHeight => 320.u;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final nav = ref.read(deskNavProvider.notifier);
     final l = context.l10n;
-    final ui = ref.watch(deskLevelUiProvider);
-    final items = _itemsFor(l, invoices: ref.watch(deskInvoicesShownProvider), ui: ui);
-    // Network & privacy says how the wallet connects under its entry, as the phone's hub row.
-    final net = ref.watch(deskProvider.select((s) => (s.settings.advanced.networkMode, s.settings.tor, s.status?.torIncluded ?? true)));
-    final details = <Object, String>{
-      DeskRoute.settingsPrivacy: networkSummary(l, net.$1, torOn: net.$2, tor: DeskFeatures.tor && net.$3),
-    };
-    // Linked devices is a page of This wallet, and so is Recheck balance at Shallow; Recovery
-    // phrase is Security's; Change level is Advanced's.
-    final current = route == DeskRoute.settingsDevices || (route == DeskRoute.settingsRescan && !ui.recheckInSideList)
-        ? DeskRoute.settingsAccount
-        : route == DeskRoute.settingsPhrase
-        ? DeskRoute.settingsSecurity
-        : route == DeskRoute.settingsLevel
-        ? DeskRoute.settingsAdvanced
-        : route;
+    final takeover = settingsTakeover(context);
+    final searching = ref.watch(settingsQueryProvider).trim().isNotEmpty;
+    final parent = settingsParent(route);
+    final back = parent == null || searching
+        ? null
+        : Padding(
+            padding: EdgeInsets.only(bottom: Sp.x3),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: EButton.ghost(
+                key: settingsParentKey,
+                label: settingsPageTitle(l, parent),
+                icon: EIcons.chevronLeft,
+                size: EBtnSize.inline,
+                hit44: true,
+                tooltip: l.deskSetFrameBackTo(settingsPageTitle(l, parent)),
+                onPressed: () => nav.go(parent),
+              ),
+            ),
+          );
+    final fills = fill && !searching;
+    Widget page() => fills
+        ? LayoutBuilder(
+            builder: (context, box) => box.maxHeight < fillMinHeight ? SingleChildScrollView(child: child) : child,
+          )
+        : (searching ? const SettingsSearchResults() : child);
     // A big window centres the capped column instead of leaving it at the left.
-    final content = Align(
+    Widget measure(Widget w) => Align(
       alignment: Alignment.topCenter,
-      child: ConstrainedBox(constraints: BoxConstraints(maxWidth: width == SettingsWidth.wide ? settingsWideMax : Ctl.mid), child: child),
+      child: ConstrainedBox(constraints: BoxConstraints(maxWidth: width == SettingsWidth.wide ? settingsWideMax : Ctl.mid), child: w),
     );
-    // The section list goes beside the page only when the page itself (the room EPage leaves
-    // inside its gutters) is Lay.xl wide; a 1000 px window with the sidebar gets the strip.
-    return LayoutBuilder(builder: (context, box) {
-    final wide = box.maxWidth - 2 * Sp.x8 >= Lay.xl;
+    final body = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: fills ? MainAxisSize.max : MainAxisSize.min,
+      children: [?back, if (fills) Expanded(child: page()) else page()],
+    );
+    final title = searching ? l.deskSetFrameTitle : settingsPageTitle(l, route);
+    // Linked devices is an experiment at every view (item 10): the tag and its ⓘ by the title.
+    final tag = route == DeskRoute.settingsDevices && !searching
+        ? Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              EBadge(l.deskSetFrameExperiment, key: const ValueKey('settings-experiment-tag')),
+              SizedBox(width: Sp.x1),
+              EInfoHint(l.expLinkedDevicesHint, title: l.expLinkedDevices, icon: EIcons.devices),
+            ],
+          )
+        : null;
+    if (takeover) {
+      return EPage(
+        title: title,
+        titleTrailing: tag,
+        width: EPageWidth.full,
+        scroll: !fills,
+        child: measure(body),
+      );
+    }
+    final ui = ref.watch(deskLevelUiProvider);
+    final name = ref.watch(deskProvider.select((s) => s.account?.name));
+    final groups = settingsNavGroups(l, walletName: name, invoices: ref.watch(deskInvoicesShownProvider), ui: ui);
     return EPage(
       title: l.deskSetFrameTitle,
       width: EPageWidth.full,
-      // Wide: the section list stays in view while the page scrolls (a Help topic far down
-      // keeps Help selected beside it).
-      scroll: !wide,
-      child: wide
-          ? Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: 232.u,
-                  // Its own scroll: a short window holds more sections than fit.
-                  child: SingleChildScrollView(
-                  child: Semantics(
-                    label: l.deskSetFrameSections,
-                    child: ESubnav(
-                      items: items,
-                      current: current,
-                      details: details,
-                      onTap: (r) => nav.go(r as DeskRoute),
-                      wrap: (r, w) => TourTarget(id: 'subnav-${(r as DeskRoute).name}', child: w),
-                    ),
-                  ),
-                  ),
-                ),
-                SizedBox(width: Sp.x8),
-                Expanded(child: SingleChildScrollView(child: content)),
-              ],
-            )
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                _SectionStrip(
-                  items: [for (final i in items.whereType<(DeskRoute, String, IconData)>()) i],
-                  current: current,
-                  onTap: nav.go,
-                ),
-                SizedBox(height: Sp.x6),
-                content,
-              ],
-            ),
+      scroll: !fills,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: fills ? MainAxisSize.max : MainAxisSize.min,
+        children: [
+          const SettingsSearchSlot(),
+          _SectionStrip(
+            items: [for (final g in groups) ...g.items.map((i) => (i.$1 as DeskRoute, i.$2, i.$3))],
+            current: settingsCurrent(route),
+            onTap: nav.go,
+          ),
+          SizedBox(height: Sp.x6),
+          if (tag != null) Padding(padding: EdgeInsets.only(bottom: Sp.x3), child: Align(alignment: AlignmentDirectional.centerStart, child: tag)),
+          if (fills) Expanded(child: measure(body)) else measure(body),
+        ],
+      ),
     );
-    });
   }
 }
+
+/// A sub-page's "‹ Parent", for tests.
+const settingsParentKey = ValueKey('settings-parent');
 
 /// 2914414 → "2,914,414".
 String groupDigits(AppLocalizations l, int n) => localInt(l, n);
@@ -335,3 +464,9 @@ class _SectionStrip extends StatelessWidget {
     });
   }
 }
+
+/// What shows a row hidden here, as its marker and the ⇕ control say it: "Advanced › Logs".
+String advancedByFeature(AppLocalizations l, AdvancedFeature f) => l.deskSetSearchFeatGate(setFeatureName(l, f));
+
+/// "Deep end view", "Deeper view" (1 Shallow, 2 Deeper, 3 Deep end).
+String advancedByView(AppLocalizations l, int level) => l.deskSetSearchViewGate(setViewName(l, level));

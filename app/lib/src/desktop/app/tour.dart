@@ -411,7 +411,8 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
         final gap = Sp.x3;
         final cardW = math.min(440.u, size.width - 2 * gap);
         // The content area: right of the sidebar (the rail under 1000 px, nothing under 600).
-        final left = size.width >= Bp.desktop ? Ctl.sidebar : (size.width >= Bp.phone ? Ctl.rail : 0.0);
+        // In Settings its column stands where the sidebar is (settings_frame.dart).
+        final left = size.width >= Bp.desktop ? (step.route.section == DeskSection.settings ? Ctl.settingsNav : Ctl.sidebar) : (size.width >= Bp.phone ? Ctl.rail : 0.0);
         final cardX = (left + (size.width - left - cardW) / 2).clamp(gap, math.max(gap, size.width - cardW - gap)).roundToDouble();
         final edge = 28.u;
         // Enter is Next (Done on the last step) unless a focused button takes it.
