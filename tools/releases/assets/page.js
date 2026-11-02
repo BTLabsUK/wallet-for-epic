@@ -1,38 +1,41 @@
-// Epic Cash releases page: the theme toggle, copy buttons for checksums and commands, and the
-// platform the browser reports (the hero's button and its card first; a tile or the section's switch
-// picks another in place, nothing scrolls). All of
-// it is a nicety: without this file every download is still a link and every fold a <details>.
-// Nothing is fetched, nothing is tracked. The changelog and restore pages share the toggle.
+// BT Wallet releases page: the Look picker, copy buttons for checksums and commands, and the
+// platform the browser reports: the hero's big button downloads its primary file, its row in the
+// list is marked. All of it is a nicety: without this file every download is still a link, every
+// fold a <details>, and the hero's button leads to the platform list.
+// Nothing is fetched, nothing is tracked. The changelog shares the picker.
 (function () {
   'use strict';
   var root = document.documentElement;
-  var KEY = 'epic-cash-theme';
+  var KEY = 'btw-look'; // the landing page's key (epiccash.btlabs.uk/look/pick.js)
 
-  // ---- theme -------------------------------------------------------------------------
-  function theme() { return root.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; }
-  function setTheme(t) {
-    if (t === 'light') root.setAttribute('data-theme', 'light'); else root.removeAttribute('data-theme');
-    try { localStorage.setItem(KEY, t); } catch (e) { /* private window: lasts the page view */ }
-    var tc = document.querySelector('meta[name=theme-color]');
-    if (tc) tc.setAttribute('content', t === 'light' ? '#f7f7f8' : '#08080a');
-    var b = document.getElementById('theme');
-    if (b) b.setAttribute('aria-label', t === 'light' ? 'Switch to the dark look' : 'Switch to the light look');
-    syncDiagrams();
-  }
-  function syncDiagrams() { // the restore page's dark/light SVGs
-    var dark = theme() === 'dark';
-    var links = document.querySelectorAll('figure.diagram a[data-light]');
-    for (var i = 0; i < links.length; i++) {
-      var a = links[i], src = a.getAttribute(dark ? 'data-dark' : 'data-light');
-      a.href = src;
-      var img = a.querySelector('img');
-      if (img && img.getAttribute('src') !== src) img.src = src;
-    }
-  }
-  var tb = document.getElementById('theme');
-  if (tb) {
-    tb.addEventListener('click', function () { setTheme(theme() === 'light' ? 'dark' : 'light'); });
-    setTheme(theme());
+  // ---- the Look picker ---------------------------------------------------------------
+  // The landing page's three quiet text buttons at the end of the footer. Here they switch the
+  // look in place (the page is one document in three looks) and save it for the landing page too.
+  var LOOKS = [['a', 'Night', '#08080a'], ['b', 'Grid', '#0a0b0d'], ['c', 'Day', '#fbf6ec']];
+  var foot = document.querySelector('footer');
+  if (foot) {
+    var nav = document.createElement('nav');
+    nav.className = 'look-pick';
+    nav.setAttribute('aria-label', 'Page look');
+    var label = document.createElement('span');
+    label.textContent = 'Look';
+    nav.appendChild(label);
+    var lookBtns = LOOKS.map(function (l) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = l[1];
+      b.setAttribute('aria-pressed', String(root.getAttribute('data-look') === l[0]));
+      b.addEventListener('click', function () {
+        root.setAttribute('data-look', l[0]);
+        try { localStorage.setItem(KEY, l[0]); } catch (e) { /* private window: lasts the page view */ }
+        var tc = document.querySelector('meta[name=theme-color]');
+        if (tc) tc.setAttribute('content', l[2]);
+        lookBtns.forEach(function (o, i) { o.setAttribute('aria-pressed', String(LOOKS[i][0] === l[0])); });
+      });
+      nav.appendChild(b);
+      return b;
+    });
+    foot.appendChild(nav);
   }
 
   // ---- copy buttons ------------------------------------------------------------------
@@ -86,96 +89,47 @@
   }
 
   var $ = function (id) { return document.getElementById(id); };
-  var heroDl = $('hero-dl'), heroText = $('hero-dl-text'), heroSub = $('hero-dl-sub'), heroIco = $('hero-dl-ico');
-  var heroBefore = $('hero-before');
-  var availMine = $('avail-mine'), availRest = $('avail-rest'), availBack = $('avail-back');
-  var cards = document.querySelectorAll('.card[data-plat]');
-  var tiles = document.querySelectorAll('.tile[data-pick]');
-  var picks = document.querySelectorAll('[data-pick]'); // the hero's tiles and the section's switch
-  var detected = platform(), detectedName = '', current = '';
+  var key = platform();
+  // a link to #dl-<key> or #before-<key> names the platform the visitor wants
+  var m = /^#(?:dl|before)-([a-z]+)$/.exec(location.hash || '');
+  if (m && $('dl-' + m[1])) key = m[1];
+  var row = key && $('dl-' + key);
+  var btn = row && row.querySelector('.r-get .btn.primary');
+  if (!btn) return;
 
-  function nameOf(card) { return card.querySelector('h3').firstChild.textContent.trim(); }
-  function join(a) { return a.length < 2 ? a.join('') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
-  // "Windows and Android; macOS and iOS preview": every platform but key
-  function rest(key) {
-    var norm = [], prev = [];
-    for (var i = 0; i < tiles.length; i++) {
-      var t = tiles[i];
-      if (t.getAttribute('data-pick') === key) continue;
-      (t.querySelector('.t-note') ? prev : norm).push(t.querySelector('.t-name').textContent);
-    }
-    var s = join(norm);
-    if (prev.length) s += (s ? '; ' : '') + join(prev) + ' preview';
-    return s;
-  }
+  var name = row.querySelector('h3').firstChild.textContent.trim();
+  var preview = row.hasAttribute('data-preview');
+  row.classList.add('is-mine');
+  var tag = document.createElement('span');
+  tag.className = 'mine-tag';
+  tag.textContent = 'This device';
+  row.querySelector('h3').appendChild(tag);
+  var chip = document.querySelector('.also a[data-pick="' + key + '"]');
+  if (chip) chip.setAttribute('aria-current', 'true');
 
-  // One state for the whole page: the hero's button downloads key's primary file, Before you
-  // install leads to key's fold (open), key's card goes first and wide, key is marked on the
-  // tiles and on the section's switch. Nothing scrolls: the page stays where the visitor is.
-  function pick(key) {
-    var card = key && document.getElementById('dl-' + key);
-    if (!card || key === current) return;
-    current = key;
-    for (var i = 0; i < cards.length; i++) cards[i].classList.toggle('is-mine', cards[i] === card);
-    var before = document.querySelectorAll('details[data-before]');
-    for (var j = 0; j < before.length; j++) before[j].open = before[j].getAttribute('data-before') === key;
-    for (var k = 0; k < picks.length; k++) {
-      var on = picks[k].getAttribute('data-pick') === key;
-      picks[k].classList.toggle('is-mine', on);
-      if (on) picks[k].setAttribute('aria-current', 'true'); else picks[k].removeAttribute('aria-current');
-    }
-    root.setAttribute('data-plat', key);
-    var name = nameOf(card), app = card.querySelector('.app').textContent;
-    var btn = card.querySelector('.btn.primary');
-    if (heroDl && btn) {
-      heroDl.href = btn.getAttribute('href');
-      heroDl.setAttribute('download', '');
-      heroText.textContent = 'Download for ' + name;
-      var parts = btn.querySelector('small').textContent.split(' · ');
-      heroSub.textContent = app + ' · ' + parts[0] + ' · ' + parts[1] + (card.querySelector('h3 .pill') ? ' · Preview' : '');
-      var ico = card.querySelector('.ico svg');
-      if (ico && heroIco) { heroIco.textContent = ''; heroIco.appendChild(ico.cloneNode(true)); }
-    }
-    if (heroBefore) heroBefore.href = '#before-' + key;
-    // the line under the buttons keeps its text and size: the Back link only hides, so the
-    // tiles below never move (no wrap change, with or without scroll anchoring)
-    if (availBack && detected) availBack.style.visibility = key === detected ? 'hidden' : '';
-  }
+  var dl = $('hero-dl');
+  dl.href = btn.getAttribute('href');
+  dl.setAttribute('download', '');
+  $('hero-dl-text').textContent = 'Download for ' + name;
+  $('hero-dl-sub').textContent = btn.getAttribute('data-label') + ' · ' + btn.getAttribute('data-size').replace(' ', ' ') + (preview ? ' · Preview' : '');
+  var ico = row.querySelector('.ico svg');
+  if (ico) { $('hero-dl-ico').textContent = ''; $('hero-dl-ico').appendChild(ico.cloneNode(true)); }
+  $('hero-req').textContent = row.querySelector('.req').textContent + ' · ';
 
-  // The hash names the platform (#dl-<key>, #before-<key>) and follows the pick, without a jump.
-  function keyOfHash() {
-    var m = /^#(?:dl|before)-([a-z]+)$/.exec(location.hash || '');
-    return m && document.getElementById('dl-' + m[1]) ? m[1] : '';
+  var alt = $('hero-alt');
+  alt.hidden = false;
+  var before = $('before-' + key);
+  if (before) {
+    $('hero-before').href = '#before-' + key;
+    $('hero-before').addEventListener('click', function () { before.open = true; });
+  } else {
+    $('hero-before').hidden = true;
   }
-  function remember(key) {
-    var h = '#dl-' + key;
-    if (location.hash === h) return;
-    try { history.replaceState(null, '', h); } catch (e) { /* file: or a sandbox: the URL stays */ }
+  var notor = row.querySelector('.r-get .alt');
+  if (notor) {
+    $('hero-notor').href = notor.getAttribute('href');
+    $('hero-notor').hidden = false;
   }
-
-  if (detected && !document.getElementById('dl-' + detected)) detected = '';
-  if (detected) detectedName = nameOf(document.getElementById('dl-' + detected));
-  if (availMine) availMine.textContent = detected ? 'This browser reports ' + detectedName + '.' : '';
-  if (availRest) availRest.textContent = (detected ? 'Also for ' : 'For ') + rest(detected) + '.';
-  if (availBack && detected) {
-    var back = document.createElement('button');
-    back.type = 'button'; back.className = 'link'; back.textContent = 'Back to ' + detectedName;
-    back.addEventListener('click', function () { pick(detected); remember(detected); });
-    availBack.appendChild(back);
-  }
-  pick(keyOfHash() || detected);
-  for (var t = 0; t < picks.length; t++) {
-    picks[t].addEventListener('click', function (e) {
-      var key = this.getAttribute('data-pick');
-      if (!document.getElementById('dl-' + key)) return; // let the anchor work
-      e.preventDefault();
-      pick(key);
-      remember(key);
-    });
-  }
-  window.addEventListener('hashchange', function () { var k = keyOfHash(); if (k) pick(k); });
-  if (heroBefore) heroBefore.addEventListener('click', function () {
-    var d = document.getElementById(heroBefore.getAttribute('href').slice(1));
-    if (d && d.tagName === 'DETAILS') d.open = true;
-  });
+  // a Before you install link (#before-<key>) opens its fold
+  if (m && location.hash.indexOf('#before-') === 0 && before) before.open = true;
 })();
