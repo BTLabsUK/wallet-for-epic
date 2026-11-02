@@ -80,6 +80,7 @@ class EPanel extends StatelessWidget {
         color: c.s1,
         border: Border.all(color: strong ? c.lineStrong : c.line),
         borderRadius: BorderRadius.circular(Rad.sm),
+        boxShadow: c.panelShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -136,12 +137,68 @@ class ETicked extends StatelessWidget {
         color: c.s1,
         border: Border.all(color: c.line),
         borderRadius: BorderRadius.circular(Rad.xs),
+        boxShadow: c.panelShadow,
       ),
       child: CustomPaint(
         painter: grid ? GridFieldPainter(c.grid.withValues(alpha: c.grid.a * 2.2)) : null,
         foregroundPainter: CornerTicksPainter(c.tick),
         child: child,
       ),
+    );
+  }
+}
+
+/// The page area's backdrop behind every desktop screen: the window colour with a warm
+/// brand wash ([DeskColors.wash]) rising behind the top of the content, where the title and
+/// the balance sit, gone before the page's foot and at the sidebar's edge. One gradient, no
+/// blur, drawn once; in dark the wash is transparent and the child is returned as it is.
+class DeskBackdrop extends StatelessWidget {
+  const DeskBackdrop({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    if (c.wash.a == 0) return child;
+    return Stack(
+      fit: StackFit.passthrough,
+      children: [
+        Positioned.fill(
+          child: IgnorePointer(
+            child: ExcludeSemantics(
+              child: RepaintBoundary(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      center: const Alignment(0.55, -0.35),
+                      radius: 1.1,
+                      colors: [c.wash, c.wash.withValues(alpha: c.wash.a * 0.45), c.wash.withValues(alpha: 0)],
+                      stops: const [0, 0.4, 1],
+                    ),
+                  ),
+                  // The wash comes in under the title bar's flat colour, so there is no
+                  // seam at its hairline.
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [c.bg, c.bg.withValues(alpha: 0)],
+                        ),
+                      ),
+                      child: SizedBox(height: 96.u, width: double.infinity),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        child,
+      ],
     );
   }
 }

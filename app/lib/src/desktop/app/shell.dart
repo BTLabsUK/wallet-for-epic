@@ -356,7 +356,8 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     }
     final page = KeyedSubtree(key: ValueKey(shown.route), child: deskScreen(shown));
     // The page's text is selectable and copyable (selectable.dart); the sidebar is not.
-    final main = Material(color: c.bg, child: DeskSelectable(child: page));
+    // The light backdrop sits under the page and stays put while the page scrolls.
+    final main = Material(color: c.bg, child: DeskBackdrop(child: DeskSelectable(child: page)));
     final tour = ref.watch(deskTourProvider.select((t) => t.open));
     final tourStart = ref.watch(deskTourProvider.select((t) => t.start));
     final Widget frame;

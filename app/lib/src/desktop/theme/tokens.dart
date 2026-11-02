@@ -226,6 +226,8 @@ class DeskColors extends ThemeExtension<DeskColors> {
     required this.scrim,
     required this.shadow,
     required this.glow,
+    required this.lift,
+    required this.wash,
   });
 
   /// Window, then four elevation steps: sidebar and panels, fields, hover and selection,
@@ -259,6 +261,15 @@ class DeskColors extends ThemeExtension<DeskColors> {
   /// drawn with [popShadow]. Never [scrim]: that is the dialog barrier, and as a shadow it
   /// draws a hard grey band in light.
   final Color shadow;
+
+  /// The one low shadow under a resting panel ([EPanel], [ETicked]) and the warm tint of
+  /// the page backdrop ([DeskBackdrop]). Both are transparent in dark, where a panel is its
+  /// fill and hairline and the window stays flat.
+  final Color lift, wash;
+
+  /// The resting panel's shadow, drawn with [lift]; nothing in dark.
+  List<BoxShadow>? get panelShadow =>
+      lift.a == 0 ? null : [BoxShadow(color: lift, blurRadius: 3.u, offset: Offset(0, 1.u))];
 
   /// The shadow under a floating surface: soft and low, the same for every popover and menu.
   List<BoxShadow> get popShadow => [BoxShadow(color: shadow, blurRadius: 24.u, offset: Offset(0, 8.u))];
@@ -329,6 +340,8 @@ const DeskColors deskDark = DeskColors(
   scrim: PaletteDark.scrim,
   shadow: PaletteDark.shadow,
   glow: PaletteDark.glow,
+  lift: PaletteDark.lift,
+  wash: PaletteDark.wash,
 );
 
 const DeskColors deskLight = DeskColors(
@@ -367,6 +380,8 @@ const DeskColors deskLight = DeskColors(
   scrim: PaletteLight.scrim,
   shadow: PaletteLight.shadow,
   glow: PaletteLight.glow,
+  lift: PaletteLight.lift,
+  wash: PaletteLight.wash,
 );
 
 /// The type scale, about 1.2 per step. Montserrat for display (balance, titles, section heads),
