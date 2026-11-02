@@ -297,7 +297,9 @@ void main() {
     await tester.tap(find.text('Restart'));
     await tester.pump();
     expect(node.calls.last, 'restart');
-    expect(find.bySemanticsLabel('Start with the app'), findsWidgets, reason: 'the row and its search anchor');
+    // The row's words and its switch; the row's search anchor adds no label of its own.
+    expect(find.bySemanticsLabel('Start with the app').evaluate().map((e) => e.widget is RichText), unorderedEquals([true, false]));
+    expect(tester.getSemantics(find.byWidgetPredicate((w) => w is ESwitch && w.semanticLabel == 'Start with the app')).label, 'Start with the app');
     await end(tester);
   });
 

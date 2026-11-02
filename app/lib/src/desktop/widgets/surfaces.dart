@@ -1105,8 +1105,11 @@ class _SetRowAnchorState extends State<SetAnchor> with SingleTickerProviderState
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
+    // A jump target only: no semantics node of its own, so a screen reader reads the row's
+    // words once, from the row (its focus node would gather them as a second label).
     return Focus(
       focusNode: _focus,
+      includeSemantics: false,
       child: AnimatedBuilder(
         animation: _fade,
         builder: (_, child) => DecoratedBox(
@@ -1160,7 +1163,7 @@ class _AnchorControlState extends State<_AnchorControl> {
   }
 
   @override
-  Widget build(BuildContext context) => Focus(focusNode: _node, child: widget.child);
+  Widget build(BuildContext context) => Focus(focusNode: _node, includeSemantics: false, child: widget.child);
 }
 
 /// Gives [child] (a small icon button) a hit area of at least 44 px without changing its
