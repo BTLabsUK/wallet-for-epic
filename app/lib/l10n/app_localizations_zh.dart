@@ -9468,7 +9468,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskKitMethodHttpNotReachable(String port) {
-    return '仅在本机，无法从互联网访问：请转发端口 $port';
+    return '仅在你的网络内，无法从互联网访问：请转发端口 $port';
   }
 
   @override

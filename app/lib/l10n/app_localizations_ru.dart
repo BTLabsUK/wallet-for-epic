@@ -10513,7 +10513,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskKitMethodHttpNotReachable(String port) {
-    return 'на этом компьютере, не из интернета: перенаправьте порт $port';
+    return 'в вашей сети, не из интернета: перенаправьте порт $port';
   }
 
   @override

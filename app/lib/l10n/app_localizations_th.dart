@@ -9797,7 +9797,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskKitMethodHttpNotReachable(String port) {
-    return 'บนคอมพิวเตอร์นี้ ไม่ใช่จากอินเทอร์เน็ต: Forward พอร์ต $port';
+    return 'ในเครือข่ายของคุณ ไม่ใช่จากอินเทอร์เน็ต: Forward พอร์ต $port';
   }
 
   @override

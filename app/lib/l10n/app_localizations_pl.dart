@@ -10539,7 +10539,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskKitMethodHttpNotReachable(String port) {
-    return 'na tym komputerze, nie z internetu: przekieruj port $port';
+    return 'w twojej sieci, nie z internetu: przekieruj port $port';
   }
 
   @override

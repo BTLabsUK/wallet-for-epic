@@ -10096,7 +10096,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskKitMethodHttpNotReachable(String port) {
-    return 'on this computer, not from the internet: forward port $port';
+    return 'on your network, not from the internet: forward port $port';
   }
 
   @override
