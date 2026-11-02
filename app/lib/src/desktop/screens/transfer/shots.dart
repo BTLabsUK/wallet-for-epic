@@ -63,7 +63,7 @@ final List<DeskShot> transferShots = [
     id: '13i-send-switched',
     title: 'Send, Direct set by a pasted onion',
     route: DeskRoute.send,
-    arg: SendArgs(recipient: 'http://${fakeWalletOnion.toUpperCase()}/', switched: true),
+    arg: SendArgs(recipient: 'http://${fakeWalletOnion.toUpperCase()}/'),
   ),
   const DeskShot(id: '15-send-file', title: 'Send, file', route: DeskRoute.send, arg: SendArgs(method: TxMethod.file, amount: '12.5')),
   // More than the balance: Review off on the keystroke, the field says why (next-fixes 12).

@@ -5342,5 +5342,7 @@
   "deskTfInvoice": "An invoice for {amount}. Review it to pay.",
   "deskTfReview": "Review",
   "deskTfCreate": "Create a payment file",
-  "deskTfDropHint": "You can also drop them here."
+  "deskTfDropHint": "You can also drop them here.",
+  "deskSaToAddress": "Send to an address",
+  "deskSaToContactSem": "To {name}"
 }

@@ -20433,4 +20433,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskTfDropHint => 'You can also drop them here.';
+
+  @override
+  String get deskSaToAddress => 'Send to an address';
+
+  @override
+  String deskSaToContactSem(String name) {
+    return 'To $name';
+  }
 }
