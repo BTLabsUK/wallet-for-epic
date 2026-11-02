@@ -3938,7 +3938,7 @@
   "@licencesTor": {
     "description": "Licences screen: one line for Tor; the English source note with the version and URLs follows it."
   },
-  "licencesFonts": "Fonts Montserrat, JetBrains Mono and Noto Sans Thai: SIL Open Font License 1.1.",
+  "licencesFonts": "Fonts Montserrat, JetBrains Mono, Geist, Geist Mono and Noto Sans Thai: SIL Open Font License 1.1.",
   "@licencesFonts": {
     "description": "Licences screen: one line for the bundled fonts. Keep the font names as they are."
   },
@@ -27621,5 +27621,130 @@
         "example": "Anna Kowalska"
       }
     }
+  },
+  "netModesTitle": "Connection modes",
+  "@netModesTitle": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): title of the sheet (phone) or dialog (desktop) that shows the picture."
+  },
+  "netModesAbout": "About connection modes",
+  "@netModesAbout": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): screen-reader name of the ⓘ beside the Connection mode heading."
+  },
+  "netModesGroup": "Connection mode",
+  "@netModesGroup": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): screen-reader name of the row of mode buttons above the picture. The buttons only show a mode; they never change the wallet's mode."
+  },
+  "netModesTag": "[NET]",
+  "@netModesTag": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): short tag before the picture's caption, monospace, shown in capitals."
+  },
+  "netModesTopology": "Topology",
+  "@netModesTopology": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): caption of the picture, shown in capitals."
+  },
+  "netModesDevice": "Device",
+  "@netModesDevice": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): box for this device (phone or computer) in the picture, shown in capitals; keep it short (about 8 letters)."
+  },
+  "netModesDeviceSub": "this wallet",
+  "@netModesDeviceSub": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): small line under Device in the picture; lower case, short."
+  },
+  "netModesTorSub": "built in",
+  "@netModesTorSub": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): small line under Tor in the picture: Tor ships inside the app; lower case, short."
+  },
+  "netModesEpicboxSub": "relay",
+  "@netModesEpicboxSub": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): small line under Epicbox in the picture: Epicbox relays payments between wallets; lower case, short."
+  },
+  "netModesNode": "Node",
+  "@netModesNode": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): box for the Epic Cash node in the picture, and a row name of the readout under it, shown in capitals."
+  },
+  "netModesNodeSub": "node in use",
+  "@netModesNodeSub": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): small line under Node in the picture: the node the wallet uses now (the first of the node list); lower case, short."
+  },
+  "netModesNetwork": "Network",
+  "@netModesNetwork": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): box for the Epic Cash network (the node's peers) in the picture, shown in capitals."
+  },
+  "netModesNetworkSub": "peers",
+  "@netModesNetworkSub": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): small line under Network: the other nodes the node talks to; lower case, short."
+  },
+  "netModesPostElsewhere": "Post elsewhere",
+  "@netModesPostElsewhere": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): small badge under Device in Kill switch, shown in capitals: a finished payment is posted from another device that is online. Short (about 14 letters)."
+  },
+  "netModesLeaves": "Leaves the device",
+  "@netModesLeaves": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): readout row name, shown in capitals: whether anything goes out of this device to the internet."
+  },
+  "netModesDirect": "Direct",
+  "@netModesDirect": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): readout value, shown in capitals: the wallet connects straight to it, not through Tor."
+  },
+  "netModesViaTor": "Via Tor",
+  "@netModesViaTor": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): readout value, shown in capitals: the connection goes through Tor."
+  },
+  "netModesOptional": "Optional",
+  "@netModesOptional": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): readout value of the Tor row, shown in capitals: Tor is the user's choice (the Tor switch)."
+  },
+  "netModesAllTraffic": "All traffic",
+  "@netModesAllTraffic": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): readout value of the Tor row in Tor only, shown in capitals: every connection goes through Tor."
+  },
+  "netModesOff": "Off",
+  "@netModesOff": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): readout value, shown in capitals: not connected in this mode."
+  },
+  "netModesYes": "Yes",
+  "@netModesYes": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): readout value of Leaves the device, shown in capitals."
+  },
+  "netModesNo": "No",
+  "@netModesNo": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): readout value of Leaves the device, shown in capitals."
+  },
+  "netModesDescStandard": "Connects directly to the node, Epicbox and the services you use. With Tor on, payments go through Tor.",
+  "@netModesDescStandard": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): the Normal mode in one or two sentences (builds with Tor)."
+  },
+  "netModesDescNodeOnly": "Only the node in use connects, over Tor while Tor is on. Epicbox, Link, linked devices, price and update checks are off.",
+  "@netModesDescNodeOnly": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): the Node only mode in one or two sentences."
+  },
+  "netModesDescKillSwitch": "Nothing connects, not even the node. Payments are made and finished offline, then posted from a device that is online.",
+  "@netModesDescKillSwitch": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): the Kill switch mode in one or two sentences."
+  },
+  "netModesLiveLinks": "{count, plural, one{1 live link} other{{count} live links}}",
+  "@netModesLiveLinks": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): right end of the caption, shown in capitals: how many connections are up in the mode shown.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "netModesDiagramLabel": "Network topology, {mode} mode: {description}",
+  "@netModesDiagramLabel": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): what a screen reader says for the picture. {mode} is the mode's name (Normal, Tor only, …), {description} its sentence.",
+    "placeholders": {
+      "mode": {
+        "type": "String"
+      },
+      "description": {
+        "type": "String"
+      }
+    }
+  },
+  "netModesModeTag": "[Mode]",
+  "@netModesModeTag": {
+    "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): short tag before the mode name in the readout, monospace, shown in capitals."
   }
 }

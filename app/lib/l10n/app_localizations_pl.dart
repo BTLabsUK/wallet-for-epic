@@ -3205,7 +3205,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get licencesFonts =>
-      'Czcionki Montserrat, JetBrains Mono i Noto Sans Thai: SIL Open Font License 1.1.';
+      'Czcionki Montserrat, JetBrains Mono, Geist, Geist Mono i Noto Sans Thai: SIL Open Font License 1.1.';
 
   @override
   String get licencesFull => 'Wszystkie teksty licencji';
@@ -21100,4 +21100,103 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskSaToContactSem(String name) {
     return 'Do: $name';
   }
+
+  @override
+  String get netModesTitle => 'Tryby połączenia';
+
+  @override
+  String get netModesAbout => 'O trybach połączenia';
+
+  @override
+  String get netModesGroup => 'Tryb połączenia';
+
+  @override
+  String get netModesTag => '[NET]';
+
+  @override
+  String get netModesTopology => 'Topologia';
+
+  @override
+  String get netModesDevice => 'Urządzenie';
+
+  @override
+  String get netModesDeviceSub => 'ten portfel';
+
+  @override
+  String get netModesTorSub => 'wbudowany';
+
+  @override
+  String get netModesEpicboxSub => 'przekaźnik';
+
+  @override
+  String get netModesNode => 'Węzeł';
+
+  @override
+  String get netModesNodeSub => 'używany węzeł';
+
+  @override
+  String get netModesNetwork => 'Sieć';
+
+  @override
+  String get netModesNetworkSub => 'węzły równorzędne';
+
+  @override
+  String get netModesPostElsewhere => 'Wyślij gdzie indziej';
+
+  @override
+  String get netModesLeaves => 'Opuszcza urządzenie';
+
+  @override
+  String get netModesDirect => 'Bezpośrednio';
+
+  @override
+  String get netModesViaTor => 'Przez Tor';
+
+  @override
+  String get netModesOptional => 'Opcjonalnie';
+
+  @override
+  String get netModesAllTraffic => 'Cały ruch';
+
+  @override
+  String get netModesOff => 'Wyłączone';
+
+  @override
+  String get netModesYes => 'Tak';
+
+  @override
+  String get netModesNo => 'Nie';
+
+  @override
+  String get netModesDescStandard =>
+      'Łączy się bezpośrednio z węzłem, Epicbox i usługami, z których korzystasz. Gdy Tor jest włączony, płatności idą przez Tor.';
+
+  @override
+  String get netModesDescNodeOnly =>
+      'Łączy się tylko używany węzeł, przez Tor, gdy Tor jest włączony. Epicbox, Link, połączone urządzenia oraz sprawdzanie kursu i aktualizacji są wyłączone.';
+
+  @override
+  String get netModesDescKillSwitch =>
+      'Nic się nie łączy, nawet węzeł. Płatności są tworzone i kończone offline, a potem wysyłane z urządzenia, które jest online.';
+
+  @override
+  String netModesLiveLinks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count aktywnego połączenia',
+      many: '$count aktywnych połączeń',
+      few: '$count aktywne połączenia',
+      one: '1 aktywne połączenie',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String netModesDiagramLabel(String mode, String description) {
+    return 'Topologia sieci, tryb $mode: $description';
+  }
+
+  @override
+  String get netModesModeTag => '[Tryb]';
 }

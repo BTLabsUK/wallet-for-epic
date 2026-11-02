@@ -5008,7 +5008,7 @@ abstract class AppLocalizations {
   /// Licences screen: one line for the bundled fonts. Keep the font names as they are.
   ///
   /// In en, this message translates to:
-  /// **'Fonts Montserrat, JetBrains Mono and Noto Sans Thai: SIL Open Font License 1.1.'**
+  /// **'Fonts Montserrat, JetBrains Mono, Geist, Geist Mono and Noto Sans Thai: SIL Open Font License 1.1.'**
   String get licencesFonts;
 
   /// Licences screen button that opens the full texts of every licence (Flutter’s licence page).
@@ -32057,6 +32057,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'To {name}'**
   String deskSaToContactSem(String name);
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): title of the sheet (phone) or dialog (desktop) that shows the picture.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection modes'**
+  String get netModesTitle;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): screen-reader name of the ⓘ beside the Connection mode heading.
+  ///
+  /// In en, this message translates to:
+  /// **'About connection modes'**
+  String get netModesAbout;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): screen-reader name of the row of mode buttons above the picture. The buttons only show a mode; they never change the wallet's mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection mode'**
+  String get netModesGroup;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): short tag before the picture's caption, monospace, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'[NET]'**
+  String get netModesTag;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): caption of the picture, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Topology'**
+  String get netModesTopology;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): box for this device (phone or computer) in the picture, shown in capitals; keep it short (about 8 letters).
+  ///
+  /// In en, this message translates to:
+  /// **'Device'**
+  String get netModesDevice;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): small line under Device in the picture; lower case, short.
+  ///
+  /// In en, this message translates to:
+  /// **'this wallet'**
+  String get netModesDeviceSub;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): small line under Tor in the picture: Tor ships inside the app; lower case, short.
+  ///
+  /// In en, this message translates to:
+  /// **'built in'**
+  String get netModesTorSub;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): small line under Epicbox in the picture: Epicbox relays payments between wallets; lower case, short.
+  ///
+  /// In en, this message translates to:
+  /// **'relay'**
+  String get netModesEpicboxSub;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): box for the Epic Cash node in the picture, and a row name of the readout under it, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Node'**
+  String get netModesNode;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): small line under Node in the picture: the node the wallet uses now (the first of the node list); lower case, short.
+  ///
+  /// In en, this message translates to:
+  /// **'node in use'**
+  String get netModesNodeSub;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): box for the Epic Cash network (the node's peers) in the picture, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Network'**
+  String get netModesNetwork;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): small line under Network: the other nodes the node talks to; lower case, short.
+  ///
+  /// In en, this message translates to:
+  /// **'peers'**
+  String get netModesNetworkSub;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): small badge under Device in Kill switch, shown in capitals: a finished payment is posted from another device that is online. Short (about 14 letters).
+  ///
+  /// In en, this message translates to:
+  /// **'Post elsewhere'**
+  String get netModesPostElsewhere;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): readout row name, shown in capitals: whether anything goes out of this device to the internet.
+  ///
+  /// In en, this message translates to:
+  /// **'Leaves the device'**
+  String get netModesLeaves;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): readout value, shown in capitals: the wallet connects straight to it, not through Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct'**
+  String get netModesDirect;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): readout value, shown in capitals: the connection goes through Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Via Tor'**
+  String get netModesViaTor;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): readout value of the Tor row, shown in capitals: Tor is the user's choice (the Tor switch).
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get netModesOptional;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): readout value of the Tor row in Tor only, shown in capitals: every connection goes through Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'All traffic'**
+  String get netModesAllTraffic;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): readout value, shown in capitals: not connected in this mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get netModesOff;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): readout value of Leaves the device, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get netModesYes;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): readout value of Leaves the device, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get netModesNo;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): the Normal mode in one or two sentences (builds with Tor).
+  ///
+  /// In en, this message translates to:
+  /// **'Connects directly to the node, Epicbox and the services you use. With Tor on, payments go through Tor.'**
+  String get netModesDescStandard;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): the Node only mode in one or two sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Only the node in use connects, over Tor while Tor is on. Epicbox, Link, linked devices, price and update checks are off.'**
+  String get netModesDescNodeOnly;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): the Kill switch mode in one or two sentences.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing connects, not even the node. Payments are made and finished offline, then posted from a device that is online.'**
+  String get netModesDescKillSwitch;
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): right end of the caption, shown in capitals: how many connections are up in the mode shown.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{1 live link} other{{count} live links}}'**
+  String netModesLiveLinks(int count);
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): what a screen reader says for the picture. {mode} is the mode's name (Normal, Tor only, …), {description} its sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Network topology, {mode} mode: {description}'**
+  String netModesDiagramLabel(String mode, String description);
+
+  /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): short tag before the mode name in the readout, monospace, shown in capitals.
+  ///
+  /// In en, this message translates to:
+  /// **'[Mode]'**
+  String get netModesModeTag;
 }
 
 class _AppLocalizationsDelegate

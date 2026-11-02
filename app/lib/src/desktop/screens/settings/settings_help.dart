@@ -14,6 +14,7 @@ import '../../data/pairing_state.dart' show deskPairsProvider;
 import 'help_pairing.dart';
 import 'help_places.dart';
 import 'help_sync.dart';
+import '../../../ui/help/network_modes_diagram.dart';
 import 'help_topics.dart';
 import 'report_problem.dart';
 import 'settings_frame.dart';
@@ -580,6 +581,16 @@ class _TopicState extends ConsumerState<_Topic> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       if (t.devices) ...[const DeskSyncDiagram(), SizedBox(height: Sp.x4)],
+                      // Network modes: the picture of what each mode lets out, at the wallet's own mode.
+                      if (t.id == HelpId.modes) ...[
+                        Consumer(
+                          builder: (context, ref, _) => NetworkModesDiagram(
+                            initial: ref.watch(deskProvider.select((s) => s.settings.advanced.networkMode)),
+                            tor: DeskFeatures.tor,
+                          ),
+                        ),
+                        SizedBox(height: Sp.x6),
+                      ],
                       for (final b in t.body) _Block(key: b.anchor.isNotEmpty && b.anchor == widget.anchor ? widget.anchorKey : null, block: b, words: widget.words, style: answer),
                       if (t.devices) ...[SizedBox(height: Sp.x2), const DeskSyncStatus()],
                       if (t.handshake) ...[SizedBox(height: Sp.x2), const HelpHandshake()],

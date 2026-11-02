@@ -21,7 +21,7 @@ import 'theme/tokens.dart';
 /// required: a sheet with no title reads as a stray sentence) and [icon] beside it; [onHelp]
 /// adds "More in Help" under the text, as the desktop's popover does.
 class InfoHint extends StatelessWidget {
-  const InfoHint(this.text, {super.key, this.size = target, required this.title, this.icon, this.labelled = true, this.label, this.onHelp});
+  const InfoHint(this.text, {super.key, this.size = target, required this.title, this.icon, this.labelled = true, this.label, this.onHelp, this.onOpen});
 
   /// The tap square of an icon standing on its own, the default [size].
   static const double target = 48;
@@ -41,6 +41,10 @@ class InfoHint extends StatelessWidget {
   /// Opens the Help topic that says more (an explanation longer than a few lines lives there).
   final VoidCallback? onHelp;
 
+  /// Opens a richer explanation in place of the info sheet (the network-modes picture); [text]
+  /// stays what a screen reader hears.
+  final VoidCallback? onOpen;
+
   /// False where the row's own title names it already: a disabled row merges the icon into
   /// itself, and its label would say the title twice.
   final bool labelled;
@@ -55,7 +59,7 @@ class InfoHint extends StatelessWidget {
     // The semantics node carries the tap itself: the row around it is a button too, and a
     // tap sent to this node (a screen reader, a browser with semantics on) must open the
     // hint, not the row.
-    void open() => showInfoSheet(context, title: title, text: text, icon: icon, onHelp: onHelp);
+    void open() => onOpen != null ? onOpen!() : showInfoSheet(context, title: title, text: text, icon: icon, onHelp: onHelp);
     return Semantics(
       button: true,
       label: labelled ? (label ?? title) : null,
@@ -164,7 +168,7 @@ class InfoSheet extends StatelessWidget {
 /// the row at its usual height. The sheet is titled [sheetTitle], or [title] itself, with
 /// [icon] beside it.
 class TitleWithHint extends StatelessWidget {
-  const TitleWithHint(this.title, {super.key, required this.hint, this.sheetTitle, this.icon, this.labelled = true, this.hintKey, this.onHelp});
+  const TitleWithHint(this.title, {super.key, required this.hint, this.sheetTitle, this.icon, this.labelled = true, this.hintKey, this.onHelp, this.onOpen});
 
   final String title;
   final String hint;
@@ -180,13 +184,16 @@ class TitleWithHint extends StatelessWidget {
   /// [InfoHint.onHelp].
   final VoidCallback? onHelp;
 
+  /// [InfoHint.onOpen].
+  final VoidCallback? onOpen;
+
   @override
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
       Flexible(child: Text(title)),
       const SizedBox(width: 4),
-      InfoHint(hint, key: hintKey, size: InfoHint.inRow, title: sheetTitle ?? title, icon: icon, labelled: labelled, onHelp: onHelp),
+      InfoHint(hint, key: hintKey, size: InfoHint.inRow, title: sheetTitle ?? title, icon: icon, labelled: labelled, onHelp: onHelp, onOpen: onOpen),
     ],
   );
 }

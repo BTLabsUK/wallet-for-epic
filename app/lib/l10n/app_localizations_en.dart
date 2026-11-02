@@ -3105,7 +3105,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get licencesFonts =>
-      'Fonts Montserrat, JetBrains Mono and Noto Sans Thai: SIL Open Font License 1.1.';
+      'Fonts Montserrat, JetBrains Mono, Geist, Geist Mono and Noto Sans Thai: SIL Open Font License 1.1.';
 
   @override
   String get licencesFull => 'All licence texts';
@@ -20420,4 +20420,101 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskSaToContactSem(String name) {
     return 'To $name';
   }
+
+  @override
+  String get netModesTitle => 'Connection modes';
+
+  @override
+  String get netModesAbout => 'About connection modes';
+
+  @override
+  String get netModesGroup => 'Connection mode';
+
+  @override
+  String get netModesTag => '[NET]';
+
+  @override
+  String get netModesTopology => 'Topology';
+
+  @override
+  String get netModesDevice => 'Device';
+
+  @override
+  String get netModesDeviceSub => 'this wallet';
+
+  @override
+  String get netModesTorSub => 'built in';
+
+  @override
+  String get netModesEpicboxSub => 'relay';
+
+  @override
+  String get netModesNode => 'Node';
+
+  @override
+  String get netModesNodeSub => 'node in use';
+
+  @override
+  String get netModesNetwork => 'Network';
+
+  @override
+  String get netModesNetworkSub => 'peers';
+
+  @override
+  String get netModesPostElsewhere => 'Post elsewhere';
+
+  @override
+  String get netModesLeaves => 'Leaves the device';
+
+  @override
+  String get netModesDirect => 'Direct';
+
+  @override
+  String get netModesViaTor => 'Via Tor';
+
+  @override
+  String get netModesOptional => 'Optional';
+
+  @override
+  String get netModesAllTraffic => 'All traffic';
+
+  @override
+  String get netModesOff => 'Off';
+
+  @override
+  String get netModesYes => 'Yes';
+
+  @override
+  String get netModesNo => 'No';
+
+  @override
+  String get netModesDescStandard =>
+      'Connects directly to the node, Epicbox and the services you use. With Tor on, payments go through Tor.';
+
+  @override
+  String get netModesDescNodeOnly =>
+      'Only the node in use connects, over Tor while Tor is on. Epicbox, Link, linked devices, price and update checks are off.';
+
+  @override
+  String get netModesDescKillSwitch =>
+      'Nothing connects, not even the node. Payments are made and finished offline, then posted from a device that is online.';
+
+  @override
+  String netModesLiveLinks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count live links',
+      one: '1 live link',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String netModesDiagramLabel(String mode, String description) {
+    return 'Network topology, $mode mode: $description';
+  }
+
+  @override
+  String get netModesModeTag => '[Mode]';
 }

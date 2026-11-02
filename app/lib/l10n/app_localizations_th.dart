@@ -3052,7 +3052,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get licencesFonts =>
-      'ฟอนต์ Montserrat และ JetBrains Mono: SIL Open Font License 1.1';
+      'ฟอนต์ Montserrat, JetBrains Mono, Geist และ Geist Mono: SIL Open Font License 1.1';
 
   @override
   String get licencesFull => 'ข้อความสัญญาอนุญาตทั้งหมด';
@@ -19999,4 +19999,100 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskSaToContactSem(String name) {
     return 'ถึง $name';
   }
+
+  @override
+  String get netModesTitle => 'โหมดการเชื่อมต่อ';
+
+  @override
+  String get netModesAbout => 'เกี่ยวกับโหมดการเชื่อมต่อ';
+
+  @override
+  String get netModesGroup => 'โหมดการเชื่อมต่อ';
+
+  @override
+  String get netModesTag => '[NET]';
+
+  @override
+  String get netModesTopology => 'โครงสร้าง';
+
+  @override
+  String get netModesDevice => 'อุปกรณ์';
+
+  @override
+  String get netModesDeviceSub => 'กระเป๋านี้';
+
+  @override
+  String get netModesTorSub => 'ในตัว';
+
+  @override
+  String get netModesEpicboxSub => 'รีเลย์';
+
+  @override
+  String get netModesNode => 'โหนด';
+
+  @override
+  String get netModesNodeSub => 'โหนดที่ใช้อยู่';
+
+  @override
+  String get netModesNetwork => 'เครือข่าย';
+
+  @override
+  String get netModesNetworkSub => 'เพียร์';
+
+  @override
+  String get netModesPostElsewhere => 'ส่งจากที่อื่น';
+
+  @override
+  String get netModesLeaves => 'ออกจากอุปกรณ์';
+
+  @override
+  String get netModesDirect => 'โดยตรง';
+
+  @override
+  String get netModesViaTor => 'ผ่าน Tor';
+
+  @override
+  String get netModesOptional => 'ไม่บังคับ';
+
+  @override
+  String get netModesAllTraffic => 'ทุกการรับส่ง';
+
+  @override
+  String get netModesOff => 'ปิด';
+
+  @override
+  String get netModesYes => 'ใช่';
+
+  @override
+  String get netModesNo => 'ไม่';
+
+  @override
+  String get netModesDescStandard =>
+      'เชื่อมต่อโดยตรงกับโหนด Epicbox และบริการที่คุณใช้ เมื่อเปิด Tor การชำระเงินจะผ่าน Tor';
+
+  @override
+  String get netModesDescNodeOnly =>
+      'เชื่อมต่อเฉพาะโหนดที่ใช้อยู่ ผ่าน Tor เมื่อเปิด Tor ไว้ Epicbox ลิงก์ อุปกรณ์ที่เชื่อมโยง และการตรวจสอบราคาและการอัปเดตปิดอยู่';
+
+  @override
+  String get netModesDescKillSwitch =>
+      'ไม่มีการเชื่อมต่อใด แม้แต่โหนด การชำระเงินสร้างและทำให้เสร็จแบบออฟไลน์ แล้วส่งจากอุปกรณ์ที่ออนไลน์';
+
+  @override
+  String netModesLiveLinks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count การเชื่อมต่อที่ใช้งานอยู่',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String netModesDiagramLabel(String mode, String description) {
+    return 'โครงสร้างเครือข่าย โหมด$mode: $description';
+  }
+
+  @override
+  String get netModesModeTag => '[โหมด]';
 }

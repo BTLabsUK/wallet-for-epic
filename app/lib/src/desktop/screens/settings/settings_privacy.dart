@@ -6,6 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../desk_l10n.dart';
 import '../../../advanced.dart' show NetworkMode;
 import '../../../ui/network_mode_text.dart';
+import '../../../ui/help/network_modes_diagram.dart';
+import '../../../help/help_content.dart' show HelpId;
+import 'help_pairing.dart' show HelpAt;
 import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
 import '../../widgets/kit.dart';
@@ -124,12 +127,21 @@ class NetworkModeGroup extends ConsumerWidget {
       title: networkModeName(l, m),
       hint: networkModeHint(l, m, tor: DeskFeatures.tor),
       hintIcon: networkModeGlyph(m),
+      // The ⓘ opens the picture of the modes at this row's mode.
+      onHint: () => showNetworkModesDialog(context, ref, m),
       tag: tor && !torIncluded ? l.deskSetAdvNotInBuild : null,
       onSelected: tor && !torIncluded ? null : () => choose(m),
     );
     return ESetGroup(
       key: const ValueKey('privacy-network'),
       title: l.deskSetPrivMode,
+      // The picture of the modes, at the wallet's own.
+      trailing: EInfoHint(
+        networkModeHint(l, adv.networkMode, tor: DeskFeatures.tor),
+        key: networkModesHintKey,
+        label: l.netModesAbout,
+        onOpen: () => showNetworkModesDialog(context, ref, adv.networkMode),
+      ),
       rows: [
         // One row per mode, as tall as a settings row (its padding less the radio row's own).
         SetAnchor(id: SetId.netMode, child: Column(
@@ -148,4 +160,38 @@ class NetworkModeGroup extends ConsumerWidget {
       ],
     );
   }
+}
+
+/// The ⓘ beside the Connection mode heading: the picture of the modes.
+const Key networkModesHintKey = ValueKey('adv-modes-hint');
+
+/// The key of the dialog that shows the picture of the modes.
+const Key networkModesDialogKey = ValueKey('net-modes-dialog');
+
+/// Opens the picture of the connection modes ([NetworkModesDiagram]) in a wide dialog, at
+/// [initial]: More in Help and Close. It explains only; nothing in it changes the wallet's mode.
+Future<void> showNetworkModesDialog(BuildContext context, WidgetRef ref, NetworkMode initial) {
+  final l = context.l10n;
+  return showEDialog<void>(
+    context,
+    builder: (dialog) => EDialog(
+      key: networkModesDialogKey,
+      title: l.netModesTitle,
+      // The info tile: the dialog is about every mode, not the one it opened at.
+      tone: ETone.info,
+      size: DialogWidth.wide,
+      body: NetworkModesDiagram(initial: initial, tor: DeskFeatures.tor),
+      actions: [
+        EButton(
+          key: const ValueKey('net-modes-dialog-help'),
+          label: l.deskKitMoreInHelp,
+          onPressed: () {
+            Navigator.pop(dialog);
+            ref.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp, HelpAt.topic(HelpId.modes));
+          },
+        ),
+        EButton.primary(label: l.commonClose, onPressed: () => Navigator.pop(dialog)),
+      ],
+    ),
+  );
 }

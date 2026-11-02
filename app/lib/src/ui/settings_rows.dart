@@ -53,6 +53,7 @@ class RadioRow<T> extends StatelessWidget {
     this.hint,
     this.hintKey,
     this.hintIcon,
+    this.onHint,
     this.enabled = true,
     this.tileKey,
   });
@@ -78,6 +79,9 @@ class RadioRow<T> extends StatelessWidget {
   /// The glyph beside the info sheet's title; [icon] when null.
   final IconData? hintIcon;
 
+  /// Opens a richer explanation than the info sheet ([InfoHint.onOpen]).
+  final VoidCallback? onHint;
+
   final bool enabled;
 
   /// The key of the [ListTile] itself, for tests that read the tile.
@@ -94,7 +98,7 @@ class RadioRow<T> extends StatelessWidget {
       leading: leading,
       title: hint == null
           ? Text(title)
-          : TitleWithHint(title, hint: hint, hintKey: hintKey, icon: hintIcon ?? icon, labelled: enabled),
+          : TitleWithHint(title, hint: hint, hintKey: hintKey, icon: hintIcon ?? icon, labelled: enabled, onOpen: onHint),
       subtitle: subtitle == null ? null : Text(subtitle!),
       trailing: Radio<T>(value: value, enabled: enabled),
       onTap: enabled && group != null ? () => group.onChanged(value) : null,

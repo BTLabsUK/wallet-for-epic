@@ -23,6 +23,7 @@ import 'feedback_screen.dart';
 import 'devices/linked_devices_screen.dart' show LinkedDevicesScreen;
 import 'devices/sync_help_phone.dart';
 import 'handshake.dart';
+import 'help/network_modes_diagram.dart';
 import 'help_language_switch.dart';
 import 'info_hint.dart';
 import 'contacts_screen.dart';
@@ -576,6 +577,11 @@ class _HelpTopicScreenState extends State<HelpTopicScreen> {
           Divider(height: 1, color: t.line),
           const SizedBox(height: 16),
           if (topic.devices) ...[const PhoneSyncDiagram(), const SizedBox(height: 20)],
+          // Network modes: the picture of what each mode lets out, at the wallet's own mode.
+          if (topic.id == HelpId.modes) ...[
+            Consumer(builder: (context, ref, _) => NetworkModesDiagram(initial: ref.watch(networkModeProvider))),
+            const SizedBox(height: 24),
+          ],
           // The topic's text is selectable with a long press, and copies from the handle menu.
           SelectionArea(
             child: Column(

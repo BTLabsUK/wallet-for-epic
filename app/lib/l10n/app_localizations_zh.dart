@@ -2932,7 +2932,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get licencesFonts =>
-      '字体 Montserrat、JetBrains Mono 和 Noto Sans Thai：SIL 开放字体许可证 1.1。';
+      '字体 Montserrat、JetBrains Mono、Geist、Geist Mono 和 Noto Sans Thai：SIL 开放字体许可证 1.1。';
 
   @override
   String get licencesFull => '全部许可证文本';
@@ -19253,4 +19253,100 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskSaToContactSem(String name) {
     return '发给 $name';
   }
+
+  @override
+  String get netModesTitle => '连接模式';
+
+  @override
+  String get netModesAbout => '关于连接模式';
+
+  @override
+  String get netModesGroup => '连接模式';
+
+  @override
+  String get netModesTag => '[NET]';
+
+  @override
+  String get netModesTopology => '拓扑';
+
+  @override
+  String get netModesDevice => '设备';
+
+  @override
+  String get netModesDeviceSub => '本钱包';
+
+  @override
+  String get netModesTorSub => '内置';
+
+  @override
+  String get netModesEpicboxSub => '中继';
+
+  @override
+  String get netModesNode => '节点';
+
+  @override
+  String get netModesNodeSub => '当前节点';
+
+  @override
+  String get netModesNetwork => '网络';
+
+  @override
+  String get netModesNetworkSub => '对等节点';
+
+  @override
+  String get netModesPostElsewhere => '在别处广播';
+
+  @override
+  String get netModesLeaves => '离开设备';
+
+  @override
+  String get netModesDirect => '直连';
+
+  @override
+  String get netModesViaTor => '经由 Tor';
+
+  @override
+  String get netModesOptional => '可选';
+
+  @override
+  String get netModesAllTraffic => '全部流量';
+
+  @override
+  String get netModesOff => '关';
+
+  @override
+  String get netModesYes => '是';
+
+  @override
+  String get netModesNo => '否';
+
+  @override
+  String get netModesDescStandard =>
+      '直接连接节点、Epicbox 和你使用的服务。开启 Tor 时，付款经过 Tor。';
+
+  @override
+  String get netModesDescNodeOnly =>
+      '只有当前使用的节点会连接，Tor 开启时经由 Tor。Epicbox、链接、已链接设备、价格和更新检查均已关闭。';
+
+  @override
+  String get netModesDescKillSwitch =>
+      '不建立任何连接，节点也不例外。付款在离线状态下创建并完成，然后由联网的设备广播。';
+
+  @override
+  String netModesLiveLinks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个活动连接',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String netModesDiagramLabel(String mode, String description) {
+    return '网络拓扑，$mode模式：$description';
+  }
+
+  @override
+  String get netModesModeTag => '[模式]';
 }

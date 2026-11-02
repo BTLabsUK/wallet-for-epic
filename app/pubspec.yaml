@@ -131,6 +131,7 @@ flutter:
     - assets/fonts/OFL-JetBrainsMono.txt
     - assets/fonts/OFL-NotoSansThai.txt
     - assets/fonts/OFL-NotoSansSC.txt
+    - assets/fonts/OFL-Geist.txt
     # Word lists for the password estimate, from zxcvbn-ts (MIT; NOTICE.txt has the notices).
     - assets/passwords/
     # Tor's licence; the tor binary itself ships beside the app (tools/fetch-tor.sh).
@@ -160,6 +161,17 @@ flutter:
     - family: JetBrainsMonoNL
       fonts:
         - asset: assets/fonts/JetBrainsMonoNL-Regular.ttf
+    # The network-modes picture only (ui/help/network_modes_diagram.dart): Geist Mono for its
+    # labels, Geist for its description line. Geist 1.9.0, OFL; Latin and Cyrillic subsets
+    # (tool/fonts_subset.py geist), Thai and Chinese fall back to the Noto fonts below.
+    - family: GeistMono
+      fonts:
+        - asset: assets/fonts/GeistMono-Regular.ttf
+        - asset: assets/fonts/GeistMono-Medium.ttf
+          weight: 500
+    - family: Geist
+      fonts:
+        - asset: assets/fonts/Geist-Regular.ttf
     # Tor, Epicbox, Direct · HTTP and Node glyphs (tools/status_icons_font.py; lib/src/ui/status_icons.dart).
     - family: EpicStatusIcons
       fonts:

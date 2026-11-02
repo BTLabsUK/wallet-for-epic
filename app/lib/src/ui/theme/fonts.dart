@@ -28,6 +28,7 @@ const Map<String, String> fontLicenceAssets = {
   'JetBrains Mono': 'assets/fonts/OFL-JetBrainsMono.txt',
   'Noto Sans Thai': 'assets/fonts/OFL-NotoSansThai.txt',
   'Noto Sans SC (subset)': 'assets/fonts/OFL-NotoSansSC.txt',
+  'Geist and Geist Mono (subset)': 'assets/fonts/OFL-Geist.txt',
   'flag-icons': 'assets/flags/LICENSE-flag-icons.txt',
   'Noto Emoji (pairing pictures)': 'assets/sas/LICENSE.txt',
   'Status icons (Bootstrap Icons, Carbon, Material Symbols)': 'assets/licenses/status-icons.txt',

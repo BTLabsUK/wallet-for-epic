@@ -3182,7 +3182,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get licencesFonts =>
-      'Шрифты Montserrat, JetBrains Mono и Noto Sans Thai: SIL Open Font License 1.1.';
+      'Шрифты Montserrat, JetBrains Mono, Geist, Geist Mono и Noto Sans Thai: SIL Open Font License 1.1.';
 
   @override
   String get licencesFull => 'Все тексты лицензий';
@@ -21084,4 +21084,103 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskSaToContactSem(String name) {
     return 'Кому: $name';
   }
+
+  @override
+  String get netModesTitle => 'Режимы соединения';
+
+  @override
+  String get netModesAbout => 'О режимах соединения';
+
+  @override
+  String get netModesGroup => 'Режим соединения';
+
+  @override
+  String get netModesTag => '[NET]';
+
+  @override
+  String get netModesTopology => 'Топология';
+
+  @override
+  String get netModesDevice => 'Устройство';
+
+  @override
+  String get netModesDeviceSub => 'этот кошелёк';
+
+  @override
+  String get netModesTorSub => 'встроен';
+
+  @override
+  String get netModesEpicboxSub => 'ретранслятор';
+
+  @override
+  String get netModesNode => 'Узел';
+
+  @override
+  String get netModesNodeSub => 'используемый узел';
+
+  @override
+  String get netModesNetwork => 'Сеть';
+
+  @override
+  String get netModesNetworkSub => 'пиры';
+
+  @override
+  String get netModesPostElsewhere => 'С другого устройства';
+
+  @override
+  String get netModesLeaves => 'Покидает устройство';
+
+  @override
+  String get netModesDirect => 'Напрямую';
+
+  @override
+  String get netModesViaTor => 'Через Tor';
+
+  @override
+  String get netModesOptional => 'По выбору';
+
+  @override
+  String get netModesAllTraffic => 'Весь трафик';
+
+  @override
+  String get netModesOff => 'Выкл.';
+
+  @override
+  String get netModesYes => 'Да';
+
+  @override
+  String get netModesNo => 'Нет';
+
+  @override
+  String get netModesDescStandard =>
+      'Подключается напрямую к узлу, Epicbox и сервисам, которыми вы пользуетесь. Если Tor включён, платежи идут через Tor.';
+
+  @override
+  String get netModesDescNodeOnly =>
+      'Подключается только используемый узел, через Tor, если Tor включён. Epicbox, Ссылка, связанные устройства, проверка курса и обновлений выключены.';
+
+  @override
+  String get netModesDescKillSwitch =>
+      'Ничего не подключается, даже узел. Платежи создаются и завершаются офлайн, а затем отправляются с устройства, которое в сети.';
+
+  @override
+  String netModesLiveLinks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count активного соединения',
+      many: '$count активных соединений',
+      few: '$count активных соединения',
+      one: '$count активное соединение',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String netModesDiagramLabel(String mode, String description) {
+    return 'Топология сети, режим «$mode»: $description';
+  }
+
+  @override
+  String get netModesModeTag => '[Режим]';
 }

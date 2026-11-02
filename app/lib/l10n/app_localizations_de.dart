@@ -3150,7 +3150,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get licencesFonts =>
-      'Schriften Montserrat, JetBrains Mono und Noto Sans Thai: SIL Open Font License 1.1.';
+      'Schriften Montserrat, JetBrains Mono, Geist, Geist Mono und Noto Sans Thai: SIL Open Font License 1.1.';
 
   @override
   String get licencesFull => 'Alle Lizenztexte';
@@ -20674,4 +20674,101 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskSaToContactSem(String name) {
     return 'An $name';
   }
+
+  @override
+  String get netModesTitle => 'Verbindungsmodi';
+
+  @override
+  String get netModesAbout => 'Über die Verbindungsmodi';
+
+  @override
+  String get netModesGroup => 'Verbindungsmodus';
+
+  @override
+  String get netModesTag => '[NET]';
+
+  @override
+  String get netModesTopology => 'Topologie';
+
+  @override
+  String get netModesDevice => 'Gerät';
+
+  @override
+  String get netModesDeviceSub => 'diese Wallet';
+
+  @override
+  String get netModesTorSub => 'integriert';
+
+  @override
+  String get netModesEpicboxSub => 'Relay';
+
+  @override
+  String get netModesNode => 'Node';
+
+  @override
+  String get netModesNodeSub => 'verwendeter Node';
+
+  @override
+  String get netModesNetwork => 'Netzwerk';
+
+  @override
+  String get netModesNetworkSub => 'Peers';
+
+  @override
+  String get netModesPostElsewhere => 'Anderswo senden';
+
+  @override
+  String get netModesLeaves => 'Verlässt das Gerät';
+
+  @override
+  String get netModesDirect => 'Direkt';
+
+  @override
+  String get netModesViaTor => 'Über Tor';
+
+  @override
+  String get netModesOptional => 'Optional';
+
+  @override
+  String get netModesAllTraffic => 'Gesamter Verkehr';
+
+  @override
+  String get netModesOff => 'Aus';
+
+  @override
+  String get netModesYes => 'Ja';
+
+  @override
+  String get netModesNo => 'Nein';
+
+  @override
+  String get netModesDescStandard =>
+      'Verbindet sich direkt mit dem Node, mit Epicbox und mit den Diensten, die Sie nutzen. Bei aktivem Tor laufen Zahlungen über Tor.';
+
+  @override
+  String get netModesDescNodeOnly =>
+      'Nur der verwendete Node verbindet sich, bei aktivem Tor über Tor. Epicbox, Link, verknüpfte Geräte sowie Preis- und Update-Prüfung sind aus.';
+
+  @override
+  String get netModesDescKillSwitch =>
+      'Nichts verbindet sich, auch nicht der Node. Zahlungen werden offline erstellt und abgeschlossen und dann von einem Gerät gesendet, das online ist.';
+
+  @override
+  String netModesLiveLinks(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count aktive Verbindungen',
+      one: '1 aktive Verbindung',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String netModesDiagramLabel(String mode, String description) {
+    return 'Netzwerktopologie, Modus $mode: $description';
+  }
+
+  @override
+  String get netModesModeTag => '[Modus]';
 }
