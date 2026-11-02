@@ -124,7 +124,7 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
             padding: EdgeInsets.symmetric(horizontal: Sp.panel, vertical: Sp.x4).add(methodDetailsIndent),
             child: HttpAddresses(
               local: listening ? 'http://127.0.0.1:${s.httpPort}' : null,
-              publicTrailing: EIconButton(icon: EIcons.help, label: l.deskSetHttpGuideHelp, size: EBtnSize.sm, tabStop: false, onPressed: _openGuide),
+              publicTrailing: EIconButton(icon: EIcons.help, label: l.deskSetHttpGuideHelp, size: EBtnSize.inline, tabStop: false, onPressed: _openGuide),
             ),
           ),
         ),

@@ -864,8 +864,9 @@ class MockDeskWallet implements DeskWalletApi {
   @override
   Future<String> epicboxAddress() async => '$_epicboxKey@$_epicbox';
 
+  /// This computer's address, as the real wallet's: the public one is [httpReach]'s.
   @override
-  Future<String> httpAddress() async => !_http ? '' : 'http://${_settings.publicMode ? '203.0.113.24' : '127.0.0.1'}:${_settings.httpPort}';
+  Future<String> httpAddress() async => !_http ? '' : 'http://127.0.0.1:${_settings.httpPort}';
 
   /// A router that does not forward the port yet: the warning shows.
   @override

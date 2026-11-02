@@ -44,7 +44,8 @@ class HttpAddresses extends ConsumerStatefulWidget {
 
   final bool localBusy;
 
-  /// Draws an address; [EAddress] when null.
+  /// Draws the internet address; [EAddress] when null. This computer's is always a plain
+  /// [EAddress]: no QR code, as no other device reaches 127.0.0.1.
   final HttpAddressView? view;
 
   /// After the internet row's title: Settings' guide button.
@@ -100,7 +101,8 @@ class _HttpAddressesState extends ConsumerState<HttpAddresses> {
               child: Row(
                 children: [
                   Flexible(child: Text(title, style: ts.strong)),
-                  if (trailingTitle != null) ...[SizedBox(width: Sp.x2), trailingTitle],
+                  // No gap: the inline button's own padding sets it, as ESetRow's info icon.
+                  if (trailingTitle != null) EHitSlop(child: trailingTitle),
                 ],
               ),
             ),
@@ -145,7 +147,7 @@ class _HttpAddressesState extends ConsumerState<HttpAddresses> {
               ? const SizedBox.shrink()
               : _switch(const ValueKey('http-local-switch'), localOn, widget.onLocal, l.deskHttpLocalSwitch, widget.localBusy),
           body: [
-            if (local != null) _address(context, local, l.deskHttpLocalTitle),
+            if (local != null) EAddress(local, copyLabel: l.deskRecvCopyHttp),
             Text(l.deskRecvHttpIntro, style: ts.caption),
           ],
         ),
