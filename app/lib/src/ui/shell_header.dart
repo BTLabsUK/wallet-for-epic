@@ -457,17 +457,19 @@ class _Figure extends StatelessWidget {
         builder: (context, constraints) {
           final unitWidth =
               8 + _textWidth(epicUnit, unitStyle, unitScaler, direction);
-          bool fits(double size, {bool unit = true}) =>
+          // [both] counts the unit's width twice: once beside the figure, once as the
+          // empty box that balances it on the other side.
+          bool fits(double size, {bool unit = true, bool both = false}) =>
               _textWidth(text, figure(size), TextScaler.noScaling, direction) +
-                  (unit ? unitWidth : 0) <=
+                  (unit ? unitWidth : 0) * (both ? 2 : 1) <=
               constraints.maxWidth;
           // The widths grow with the size, so a binary search over whole sizes finds it.
-          double best({required bool unit}) {
-            if (fits(figureSize, unit: unit)) return figureSize;
+          double best({required bool unit, bool both = false}) {
+            if (fits(figureSize, unit: unit, both: both)) return figureSize;
             var low = figureMinSize, high = figureSize;
             while (high - low > 1) {
               final mid = ((low + high) / 2).floorToDouble();
-              if (fits(mid, unit: unit)) {
+              if (fits(mid, unit: unit, both: both)) {
                 low = mid;
               } else {
                 high = mid;
@@ -483,10 +485,12 @@ class _Figure extends StatelessWidget {
           final showUnit = fits(figureMinSize) || figureMinSize * constraints.maxWidth / atMin >= figureFloorSize;
           if (!showUnit) size = best(unit: false);
           // The figure is centred on the screen, its unit beside it: an empty box of the
-          // unit's width on the other side keeps the figure off-centre by nothing. When the
-          // figure is too wide for both, the row centres the two as one.
-          final balanced = showUnit &&
-              _textWidth(text, figure(size), TextScaler.noScaling, direction) + 2 * unitWidth <= constraints.maxWidth;
+          // unit's width on the other side keeps the figure off-centre by nothing. A long
+          // figure takes a smaller size to stay centred; only when even the least size is too
+          // wide for both does the row centre the two as one.
+          final balancedSize = best(unit: true, both: true);
+          final balanced = showUnit && fits(balancedSize, both: true);
+          if (balanced) size = balancedSize;
           return BalanceTap(
             summary: summary,
             hidden: hidden,
