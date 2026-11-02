@@ -715,7 +715,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final tab = ref.watch(shellTabProvider);
     final l = context.l10n;
     final features = ref.watch(levelFeaturesProvider);
-    final scan = offersQrScan(ref) && features.scanInAppBar;
+    final scan = offersQrScan(ref);
 
     // The Android back: Send takes its own steps back first, then Send and Receive go to
     // Wallet; on Wallet the app leaves, as the system does. Screens over the shell pop first.
@@ -737,15 +737,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         idle: const ShellEdge(),
         appBar: AppBar(
           leadingWidth: shellLeadingWidth,
-          leading: const Align(
+          leading: Align(
             alignment: AlignmentDirectional.centerEnd,
             child: Padding(
-              padding: EdgeInsetsDirectional.only(end: 10),
-              child: EpicMark(size: 26),
+              padding: const EdgeInsetsDirectional.only(end: 10),
+              // The logo is the mark alone: it names the app to a screen reader.
+              child: Semantics(label: l.shellTitle, image: true, excludeSemantics: true, child: const EpicMark(size: 26)),
             ),
           ),
           titleSpacing: 0,
-          // The name on every tab; Send and Receive carry the balance in their header below.
+          // The mark on every tab; Send and Receive carry the balance in their header below.
           title: const ShellTitle(),
           actions: [
             // Invoices moved to the destinations row; the entry keeps its event wiring.
@@ -954,15 +955,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                     const SizedBox(height: 16),
 
-                    ProtocolSectionHead(
-                      l.homeRecentActivity,
-                      trailing: !showViewAll(transactions.length)
-                          ? null
-                          : TextButton(
-                              onPressed: () => _open(const HistoryScreen()),
-                              child: Text(l.homeViewAll(transactions.length)),
-                            ),
-                    ),
+                    // No title over the empty state: it comes back with the first payment.
+                    if (data == null || transactions.isNotEmpty)
+                      ProtocolSectionHead(
+                        l.homeRecentActivity,
+                        trailing: !showViewAll(transactions.length)
+                            ? null
+                            : TextButton(
+                                onPressed: () => _open(const HistoryScreen()),
+                                child: Text(l.homeViewAll(transactions.length)),
+                              ),
+                      ),
                     if (data != null && transactions.isEmpty)
                       EmptyState(
                         icon: const Icon(Icons.south_west),

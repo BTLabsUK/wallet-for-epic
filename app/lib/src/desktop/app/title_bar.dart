@@ -643,12 +643,12 @@ class _Brand extends ConsumerWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          mark(26.u),
-          SizedBox(width: 26.u * BrandLockup.kitGapRatio),
+          mark(30.u),
+          SizedBox(width: 30.u * BrandLockup.kitGapRatio),
           AnimatedOpacity(
             opacity: dim ? 0.7 : 1,
             duration: Dur.base,
-            child: BrandWordmark(variant: BrandVariant.desktop, size: 26.u * BrandLockup.kitTextRatio, label: appName),
+            child: BrandWordmark(variant: BrandVariant.desktop, size: 30.u * BrandLockup.kitTextRatio, label: appName),
           ),
         ],
       ),

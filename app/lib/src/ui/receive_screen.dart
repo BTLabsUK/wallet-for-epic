@@ -1041,11 +1041,9 @@ class _KeepTabOpenLine extends StatelessWidget {
 /// The key of the demo's "keep this tab open" line on Receive, for tests.
 const Key receiveKeepOpenKey = ValueKey('receive-keep-open');
 
-/// The address as a QR code of [size] with the mark, framed by corner ticks. Covered until
-/// Show QR is tapped (the QR rule: never shown on open, the box keeps its size so nothing
-/// moves); a tap on the shown code covers it again. Never remembered: a new visit starts
-/// covered.
-class _AddressQr extends StatefulWidget {
+/// The address as a QR code of [size] with the mark, framed by corner ticks. Always shown,
+/// like the desktop Receive: no cover, no tap to hide.
+class _AddressQr extends StatelessWidget {
   const _AddressQr({
     required this.address,
     required this.size,
@@ -1062,25 +1060,10 @@ class _AddressQr extends StatefulWidget {
   static const double frame = 2 * 12 + 2 * 16;
 
   @override
-  State<_AddressQr> createState() => _AddressQrState();
-}
-
-class _AddressQrState extends State<_AddressQr> {
-  bool _shown = false;
-
-  @override
-  void didUpdateWidget(_AddressQr old) {
-    super.didUpdateWidget(old);
-    if (old.address != widget.address) _shown = false;
-  }
-
-  @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final reduce = MediaQuery.disableAnimationsOf(context);
-    final code = MarkedQr(data: widget.address, size: widget.size);
     return Center(
       // As tall as the code, so the page stacks it with the rest.
       heightFactor: 1,
@@ -1102,57 +1085,10 @@ class _AddressQrState extends State<_AddressQr> {
                 ),
               ],
             ),
-            child: AnimatedSwitcher(
-              duration: reduce ? Duration.zero : const Duration(milliseconds: 220),
-              switchInCurve: Curves.easeOut,
-              switchOutCurve: Curves.easeIn,
-              child: _shown
-                  ? Semantics(
-                      key: const ValueKey('shown'),
-                      label: widget.semanticsLabel ?? l.receiveQrLabel,
-                      image: true,
-                      onTapHint: l.receiveHttpHideQr,
-                      child: GestureDetector(
-                        onTap: () => setState(() => _shown = false),
-                        child: code,
-                      ),
-                    )
-                  : Stack(
-                      key: receiveShowQrKey,
-                      alignment: Alignment.center,
-                      children: [
-                        Semantics(
-                          label: widget.semanticsLabel ?? l.receiveQrLabel,
-                          image: true,
-                          child: ExcludeSemantics(
-                            child: ImageFiltered(
-                              imageFilter: ui.ImageFilter.blur(sigmaX: 9, sigmaY: 9),
-                              child: Opacity(opacity: 0.35, child: code),
-                            ),
-                          ),
-                        ),
-                        // Over the code, never wider: the smallest code is narrower than the
-                        // button in some languages.
-                        Positioned.fill(
-                          child: Center(
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: FilledButton.tonalIcon(
-                                // The white box stays white in both themes: the button takes
-                                // the light theme's colours with it.
-                                style: FilledButton.styleFrom(
-                                  backgroundColor: protocolLight.surfaceHi,
-                                  foregroundColor: protocolLight.text,
-                                ),
-                                icon: const Icon(Icons.qr_code_2, size: 18),
-                                label: Text(l.receiveHttpShowQr),
-                                onPressed: () => setState(() => _shown = true),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+            child: Semantics(
+              label: semanticsLabel ?? l.receiveQrLabel,
+              image: true,
+              child: MarkedQr(data: address, size: size),
             ),
           ),
         ),
@@ -1160,9 +1096,6 @@ class _AddressQrState extends State<_AddressQr> {
     );
   }
 }
-
-/// The key of Show QR on the covered address code, for tests.
-const Key receiveShowQrKey = ValueKey('receive-show-qr');
 
 /// Receiving by QR: the sender's phone shows the payment, this one scans it, accepts and shows
 /// its reply. A title, one line and the camera button.

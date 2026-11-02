@@ -2087,6 +2087,7 @@ void main() {
       final h = _Harness(transactions: const []);
       await h.pump(tester);
       expect(find.text('No payments yet'), findsOneWidget);
+      expect(find.text('Recent activity'), findsNothing);
       expect(find.textContaining('while this app is open'), findsNothing);
       expect(find.text('See all'), findsNothing);
       expect(find.text('Show my address'), findsNothing);
@@ -3450,13 +3451,13 @@ void main() {
       (tester) async {
         final h = _Harness(price: 0.5);
         await h.pump(tester);
-        // On Wallet the title is the name and there is no balance header.
+        // On Wallet there is no balance header; the bar's logo is the mark alone.
         expect(find.byKey(balanceHeaderKey), findsNothing);
-        expect(find.byType(BrandWordmark), findsOneWidget);
+        expect(find.byType(BrandWordmark), findsNothing);
         for (final tab in ['Send', 'Receive']) {
           await _tab(tester, tab, settle: false);
           expect(find.byKey(balanceHeaderKey), findsOneWidget, reason: tab);
-          expect(find.byType(BrandWordmark), findsOneWidget, reason: tab);
+          expect(find.byType(BrandWordmark), findsNothing, reason: tab);
           expect(_titleText(tester), '12.5 EPIC', reason: tab);
           // 2\u00a0EPIC are locked: the line under the figure says so, as a token.
           final pending = find.byKey(titlePendingKey);
@@ -3596,11 +3597,8 @@ void main() {
         ),
         findsNothing,
       );
-      // Centred as a unit: the figure and its EPIC, in the area's middle.
-      expect(
-        figure.expandToInclude(unit).center.dx,
-        closeTo(area.center.dx, 1),
-      );
+      // The figure itself in the area's middle, its EPIC beside it.
+      expect(figure.center.dx, closeTo(area.center.dx, 1));
       expect(find.text('Spendable'), findsNothing);
       expect(find.textContaining('not spendable yet'), findsNothing);
       expect(find.byKey(walletStatusesKey), findsOneWidget);
@@ -3947,11 +3945,16 @@ void main() {
         ]) {
           h.session.summaryValue = summary;
           await _reload(tester);
-          // The figure and its EPIC as one unit.
-          final figure = tester
-              .getRect(find.byKey(balanceFigureKey))
-              .expandToInclude(tester.getRect(find.byKey(balanceUnitKey)));
-          expect(figure.center.dx, closeTo(centre, 1), reason: name);
+          // The figure itself, its EPIC beside it; a figure too wide to balance its unit on
+          // the other side (the test font's full-em glyphs, at 320 dp) centres with its EPIC
+          // as one. The wide test above holds the figure alone to the middle.
+          final figure = tester.getRect(find.byKey(balanceFigureKey));
+          final both = figure.expandToInclude(tester.getRect(find.byKey(balanceUnitKey)));
+          expect(
+            (figure.center.dx - centre).abs() <= 1 || (both.center.dx - centre).abs() <= 1,
+            isTrue,
+            reason: '$name: figure ${figure.center.dx}, with EPIC ${both.center.dx}',
+          );
           // The row: the status icons at the start, the fiat value and the eye at the end,
           // the eye's glyph on the 18 dp gutter (its 48 dp target reaches 15 dp past it).
           final fiat = tester.getRect(find.byKey(fiatValueKey));
@@ -4253,7 +4256,7 @@ void main() {
           );
         }
         await _tab(tester, 'Wallet', settle: false);
-        expect(find.byType(BrandWordmark), findsOneWidget);
+        expect(find.byType(BrandWordmark), findsNothing);
         expect(_statusTip(tester, nodeStatusKey), isNot(contains('Mainnet')));
         expect(
           _statusTip(tester, nodeStatusKey).split('\n').first,
@@ -4283,12 +4286,8 @@ void main() {
           );
         }
         await _tab(tester, 'Wallet', settle: false);
-        expect(find.byType(BrandWordmark), findsOneWidget);
-        // The title is not scaled down to fit.
-        expect(
-          tester.getRect(find.byType(BrandWordmark)).height,
-          moreOrLessEquals(17 * BrandWordmark.heightRatio, epsilon: 0.5),
-        );
+        // The bar's logo is the mark alone, no text.
+        expect(find.byType(BrandWordmark), findsNothing);
         final tip = _statusTip(tester, nodeStatusKey).split('\n');
         expect(tip.first, 'Floonet, test coins');
         expect(tip[1], 'Up to date.');

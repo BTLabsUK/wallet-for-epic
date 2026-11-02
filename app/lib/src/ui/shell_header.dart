@@ -17,7 +17,6 @@ import '../levels/level_features.dart' show BalancePresentation;
 import '../levels/level_providers.dart' show levelFeaturesProvider;
 import 'status.dart';
 import 'theme/protocol.dart';
-import 'theme/brand.dart' show BrandVariant, BrandWordmark;
 import 'theme/tokens.dart';
 
 /// The key of Wallet's balance area: the figure, the fiat row and the pending line, for tests.
@@ -458,17 +457,19 @@ class _Figure extends StatelessWidget {
         builder: (context, constraints) {
           final unitWidth =
               8 + _textWidth(epicUnit, unitStyle, unitScaler, direction);
-          bool fits(double size, {bool unit = true}) =>
+          // [both] counts the unit's width twice: once beside the figure, once as the
+          // empty box that balances it on the other side.
+          bool fits(double size, {bool unit = true, bool both = false}) =>
               _textWidth(text, figure(size), TextScaler.noScaling, direction) +
-                  (unit ? unitWidth : 0) <=
+                  (unit ? unitWidth : 0) * (both ? 2 : 1) <=
               constraints.maxWidth;
           // The widths grow with the size, so a binary search over whole sizes finds it.
-          double best({required bool unit}) {
-            if (fits(figureSize, unit: unit)) return figureSize;
+          double best({required bool unit, bool both = false}) {
+            if (fits(figureSize, unit: unit, both: both)) return figureSize;
             var low = figureMinSize, high = figureSize;
             while (high - low > 1) {
               final mid = ((low + high) / 2).floorToDouble();
-              if (fits(mid, unit: unit)) {
+              if (fits(mid, unit: unit, both: both)) {
                 low = mid;
               } else {
                 high = mid;
@@ -483,8 +484,13 @@ class _Figure extends StatelessWidget {
           final atMin = _textWidth(text, figure(figureMinSize), TextScaler.noScaling, direction) + unitWidth;
           final showUnit = fits(figureMinSize) || figureMinSize * constraints.maxWidth / atMin >= figureFloorSize;
           if (!showUnit) size = best(unit: false);
-          // The figure and its unit are centred as one; the figure's Flexible is loose, so
-          // the row's free space falls on both sides.
+          // The figure is centred on the screen, its unit beside it: an empty box of the
+          // unit's width on the other side keeps the figure off-centre by nothing. A long
+          // figure takes a smaller size to stay centred; only when even the least size is too
+          // wide for both does the row centre the two as one.
+          final balancedSize = best(unit: true, both: true);
+          final balanced = showUnit && fits(balancedSize, both: true);
+          if (balanced) size = balancedSize;
           return BalanceTap(
             summary: summary,
             hidden: hidden,
@@ -492,6 +498,7 @@ class _Figure extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (balanced) SizedBox(width: unitWidth),
               // Only an extreme width needs less than the least size: then it scales down
               // rather than wraps or clips.
               Flexible(
@@ -1086,34 +1093,14 @@ class _BalanceHelpState extends State<BalanceHelp> {
   }
 }
 
-/// Wallet's app bar title: the mark's name, or in the web demo its Test coins pill ([trailing]),
-/// which takes the name's place; the mark before the title still names the app. It names no
-/// network: a test network says so in the node status's tooltip.
+/// Wallet's app bar title: nothing but, in the web demo, its Test coins pill ([trailing]); the
+/// mark before it is the logo and names the app to a screen reader. It names no network: a test
+/// network says so in the node status's tooltip.
 class ShellTitle extends StatelessWidget {
   const ShellTitle({super.key, this.trailing});
 
   final Widget? trailing;
 
   @override
-  Widget build(BuildContext context) {
-    final trailing = this.trailing;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Flexible(
-          child:
-              trailing ??
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: AlignmentDirectional.centerStart,
-                child: BrandWordmark(
-                  variant: BrandVariant.mobile,
-                  size: 17,
-                  label: context.l10n.shellTitle,
-                ),
-              ),
-        ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => trailing ?? const SizedBox.shrink();
 }

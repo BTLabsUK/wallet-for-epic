@@ -52,8 +52,6 @@ final Map<RegExp, String> _allowed = {
       'A method choice in the details dialog: only the segment\'s own look changes; tx_labels_test saves it.',
   RegExp(r'^settingsReceiving\|Direct · (File Transfer|QR Payment)$'):
       'The one method left on cannot be turned off: pressed, it says so in a toast (transactions_settings tests check it).',
-  RegExp(r'^settingsHelp\|(Getting started|How Epic Cash works|Keeping the wallet safe|Nodes and Epicbox|Pairing|When something goes wrong|Maintenance)$'):
-      'A section chip scrolls to its section (help_test checks it); the sweep compares what is shown, not where.',
   RegExp('^21d-dlg-reuse-chain\\|Epic GUI[ \u00a0]· '): 'The mock lists a folder another program holds: its card is dimmed and says so, and cannot be picked.',
   RegExp(r'^25j-dlg-export-csv\|This year$'): 'Every mock payment is from this year, so the count stays; Last year changes it.',
   RegExp(r'^settingsNode\|Try now$'):
