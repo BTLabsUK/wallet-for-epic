@@ -39,7 +39,6 @@ import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/history/backup_summary.dart';
 import 'package:epic_wallet/src/ui/settings_pin.dart';
 import 'package:epic_wallet/src/ui/licences_screen.dart';
-import 'package:epic_wallet/src/ui/settings_sections.dart' show epicCashUrl;
 import 'package:epic_wallet/src/ui/network_mode_phone.dart' show networkModeRowKey, networkSectionKey;
 import 'package:epic_wallet/src/address_format.dart' show shownUrl;
 import 'package:epic_wallet/src/ui/settings_screen.dart';
