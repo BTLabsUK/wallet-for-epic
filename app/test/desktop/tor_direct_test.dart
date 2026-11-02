@@ -544,6 +544,8 @@ void main() {
   // WAL-05: plain http:// to another computer never goes through a Tor exit, in any mode.
   group('plain HTTP with the Tor switch on', () {
     const lan = 'http://10.0.1.30:3415';
+    // In Normal the local network goes direct (Tor cannot reach it); an internet host is refused.
+    const web = 'http://wallet.example.org:3415';
     final offText = englishStrings.sendPlainHttpOffWithTor;
 
     tearDown(() {
@@ -551,14 +553,22 @@ void main() {
       TorSwitch.on = false;
     });
 
-    test('Normal: a send with consent is refused before LEPIC', () async {
+    test('Normal: a send to an internet host with consent is refused before LEPIC', () async {
       await wallet.setTor(true);
       await connected();
       expect(TorSwitch.on, isTrue);
-      final r = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: lan, allowPlainHttp: true));
+      final r = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: web, allowPlainHttp: true));
       expect((r as SendFailed).message, offText);
       expect(r.inActivity, isFalse);
       expect(session().httpSends, isEmpty);
+    });
+
+    test('Normal: a send to the local network goes direct, with consent', () async {
+      await wallet.setTor(true);
+      await connected();
+      final r = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: lan, allowPlainHttp: true));
+      expect(r, isA<SendDone>(), reason: r is SendFailed ? r.message : '');
+      expect(session().httpSends.single.url, lan);
     });
 
     test('Tor only: refused the same way', () async {
@@ -587,7 +597,7 @@ void main() {
     });
 
     test('a resend of an earlier plain HTTP send is refused once Tor is on', () async {
-      session().transactionsValue.add(core.fakeTx(id: 77, slateId: 'plain-1', kind: core.TxKind.sent, amountDebited: BigInt.from(1000), counterparty: lan, transport: 'http', undelivered: true));
+      session().transactionsValue.add(core.fakeTx(id: 77, slateId: 'plain-1', kind: core.TxKind.sent, amountDebited: BigInt.from(1000), counterparty: web, transport: 'http', undelivered: true));
       await wallet.setTor(true);
       await connected();
       await expectLater(wallet.resendTx(77), throwsA(isA<Exception>().having((e) => deskErrorText(e), 'text', offText)));
