@@ -83,6 +83,16 @@ cand_apk="$(apk_in "${REL_CANDIDATE_EXTRA:-/nonexistent}" "${REL_CANDIDATE_VERSI
   if [[ "$dry" == 1 ]]; then cand_apk="<not built yet: ${REL_CANDIDATE_EXTRA:-REL_CANDIDATE_EXTRA}/emulator>"; else
   cannot "no candidate $REL_VARIANT x86_64 APK under REL_CANDIDATE_EXTRA/emulator or REL_CANDIDATE_DIR/emulator"; fi
 export REL_PREVIOUS_APK="$prev_apk" REL_CANDIDATE_APK="$cand_apk"
+# The package of each APK (aapt2 badging). They differ across the 26.10.25 app id change
+# (uk.btlabs.epiccash.mobile → uk.btlabs.btwallet, authorised 2026-11-02): trust.py then installs
+# the candidate beside the previous app instead of over it.
+apk_pkg() { # apk → package, or nothing
+  local a; a="$(ls -d "$sdk"/build-tools/*/aapt2 2>/dev/null | sort -V | tail -1)"
+  [[ -f "$1" && -n "$a" ]] && "$a" dump badging "$1" 2>/dev/null | sed -n "s/^package: name='\([^']*\)'.*/\1/p"
+}
+prev_pkg="$(apk_pkg "$prev_apk")" cand_pkg="$(apk_pkg "$cand_apk")"
+beside=0
+[[ -n "$prev_pkg" && -n "$cand_pkg" && "$prev_pkg" != "$cand_pkg" ]] && beside=1
 
 # Health pick, BT Labs first, when the runner gave none.
 node_ok() { curl -fsS -m 10 "$1/v1/status" 2>/dev/null | grep -q '"height"'; }
@@ -113,7 +123,8 @@ if [[ "$dry" == 1 ]]; then
   cat <<EOF
 trust-android plan ($REL_VARIANT, funds=$REL_FUNDS, required: $REL_CHECKS)
   emulator   ${REL_ANDROID_SERIAL:-start AVD $avd read-only, headless, emulator-$port; stopped at the end}
-  1 install  adb uninstall uk.btlabs.epiccash.mobile; adb install $prev_apk
+  packages   previous ${prev_pkg:-?}, candidate ${cand_pkg:-?}$([[ $beside == 1 ]] && echo ": different, the candidate goes in BESIDE the previous app (5 and 6 below)")
+  1 install  adb uninstall ${prev_pkg:-<previous package>} (and ${cand_pkg:-<candidate package>}); adb install $prev_apk
   2 wallet   restore the test wallet from $REL_TRUST_STATE/phrase (none: create one, keep its phrase, P funds it); holds $REL_TRUST_STATE/.lock
              a first-start level picker ("Pick your depth", builds with wallet levels): Deep end (level 3), Undercover off
   3 user     node $REL_NODE typed in and in use; relay $REL_EPICBOX typed in and in use;
@@ -125,6 +136,9 @@ trust-android plan ($REL_VARIANT, funds=$REL_FUNDS, required: $REL_CHECKS)
              a candidate with levels must read level 3 in Settings › Advanced (settings_kept; proof "levels")
   6b files   (candidate 26.10.25 on) wallet.enc.sqlite3 + .check present, wallet.sqlite3 absent, .pre-encryption kept; sealed app files + contacts.keys wrap, plain files unchanged;
              [node] plain_http holds lan_nodes.json's agreements; the contact and note read in the app
+  beside     (packages differ) previous app stopped; adb install $cand_apk beside it; the test wallet restored there
+             from its phrase; wallet_opens and balance_kept (same wallet key, same total); history, servers, settings
+             and the migration checks not applicable and not required
   7 funds    $( [[ "$REL_FUNDS" == 1 ]] && echo "through the shared P service (no lock): send ${REL_TRUST_SEND:-0.01} to P, receive ${REL_TRUST_RECEIVE:-0.02} from P, by Epicbox" || echo "skipped (REL_FUNDS=0)")
   out        $REL_OUT/proof.json, driver.log, screens.log, p.log, shots/
 EOF

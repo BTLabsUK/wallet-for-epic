@@ -2045,7 +2045,7 @@ void main() {
 class _NoInstaller implements UpdatePlatform {
   @override
   Future<InstalledApp> installedApp() async =>
-      const InstalledApp(packageName: 'uk.btlabs.epiccash.mobile', versionCode: 1, versionName: '1.0.0', abis: ['arm64-v8a']);
+      const InstalledApp(packageName: 'uk.btlabs.btwallet', versionCode: 1, versionName: '1.0.0', abis: ['arm64-v8a']);
 
   @override
   Future<String> install(File apk) => throw UnimplementedError();

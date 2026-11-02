@@ -24,7 +24,7 @@ AVD="${OFFLINE_AVD:-wfe_small}"
 PORT="${OFFLINE_PORT:-5560}"
 case "$PORT" in 5554|5556|5558) echo "port $PORT belongs to other work" >&2; exit 2 ;; esac
 SER="emulator-$PORT"
-PKG=uk.btlabs.epiccash.mobile
+PKG=uk.btlabs.btwallet
 EXT="files/rc-offline"   # run-as $PKG: relative to the app's data folder
 mkdir -p "$OUT/shots/phone"
 a() { timeout 60 adb -s "$SER" "$@"; }

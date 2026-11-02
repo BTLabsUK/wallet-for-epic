@@ -298,7 +298,7 @@ void main() {
 
   group('readUpdateManifest', () {
     const app = InstalledApp(
-      packageName: 'uk.btlabs.epiccash.mobile',
+      packageName: 'uk.btlabs.btwallet',
       versionCode: 2001,
       versionName: '1.0.0',
       abis: ['arm64-v8a', 'armeabi-v7a'],
@@ -1097,7 +1097,7 @@ void main() {
           status: 'failed',
           message:
               'INSTALL_FAILED_UPDATE_INCOMPATIBLE: Existing package '
-              'uk.btlabs.epiccash.mobile signatures do not match newer version; ignoring!',
+              'uk.btlabs.btwallet signatures do not match newer version; ignoring!',
         ));
         await pumpEventQueue();
         var state = container.read(updateProvider);
@@ -1135,6 +1135,25 @@ void main() {
         );
       },
     );
+
+    // The app id changed at 26.10.25 (uk.btlabs.epiccash.mobile → uk.btlabs.btwallet): an install
+    // under the old id reads the new app's manifest. Nothing is offered and nothing installed;
+    // only a check by hand says why.
+    test('an install under the old app id: quiet on opening, a check by hand names it', () async {
+      platform.packageName = 'uk.btlabs.epiccash.mobile';
+      final updates = container.read(updateProvider.notifier);
+      await updates.checkOnOpening();
+      var state = container.read(updateProvider);
+      expect(state.phase, UpdatePhase.idle);
+      expect(state.update, isNull);
+      await updates.check();
+      state = container.read(updateProvider);
+      expect(state.phase, UpdatePhase.failed);
+      expect(state.update, isNull);
+      expect(state.text?.call(englishStrings), englishStrings.updateManifestOtherApp);
+      expect(englishStrings.updateManifestOtherApp, 'The update information is for another app.');
+      expect(platform.installs, 0);
+    });
 
     test('a quiet failure with nothing known stays idle', () async {
       reply = 'error';
@@ -1342,6 +1361,7 @@ class _ThrowingStore implements SecretStore {
 }
 
 class _FakeUpdatePlatform implements UpdatePlatform {
+  String packageName = 'uk.btlabs.btwallet';
   String installStatus = 'started';
   int installs = 0;
   bool canInstall = true;
@@ -1350,7 +1370,7 @@ class _FakeUpdatePlatform implements UpdatePlatform {
 
   @override
   Future<InstalledApp> installedApp() async => InstalledApp(
-    packageName: 'uk.btlabs.epiccash.mobile',
+    packageName: packageName,
     versionCode: 2001,
     versionName: '1.0.0',
     abis: const ['arm64-v8a'],

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-package uk.btlabs.epiccash.mobile
+package uk.btlabs.btwallet
 
 import android.content.Context
 import android.net.ConnectivityManager

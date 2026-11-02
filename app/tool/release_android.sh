@@ -190,7 +190,7 @@ jq -r '(.apks[] | "  \(.abi) versionCode \(.versionCode) \(.size) bytes \(.url)"
 # app, and its APK entries are the new APK: tapping Install fetches it and ends with that
 # message naming the new app. WFE_LEGACY_NAME replaces the versionName text.
 legacy="$out/update-legacy.json"
-legacy_name="${WFE_LEGACY_NAME:-Epic Cash Mobile $version_name, a new app: install it beside this one}"
+legacy_name="${WFE_LEGACY_NAME:-BT Wallet $version_name, a new app: install it beside this one}"
 jq --arg name "$legacy_name" \
   '{packageName: "com.blacktyger.epicwallet", versionName: $name, apks: .apks}' "$payload" >"$legacy"
 echo "Wrote $legacy for 0.1.0 (\"Update to $legacy_name\")."

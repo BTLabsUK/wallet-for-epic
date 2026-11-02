@@ -204,7 +204,7 @@ class Client:
         cert = repo_cert(repo)
         if r["apk"]["cert_sha256"] != cert:
             raise SignerError(f"selftest APK certificate {r['apk']['cert_sha256']} is not G3's {cert}")
-        if r["apk"]["package"] == "uk.btlabs.epiccash.mobile":
+        if r["apk"]["package"] == "uk.btlabs.btwallet":
             raise SignerError("selftest signed our own package")
         return r
 

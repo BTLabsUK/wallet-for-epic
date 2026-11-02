@@ -600,11 +600,11 @@
         "android"
       ],
       "what": "Android package name: another one installs as a separate app with an empty data folder and store.",
-      "value": "uk.btlabs.epiccash.mobile",
+      "value": "uk.btlabs.btwallet",
       "probes": [
         {
           "file": "app/android/app/build.gradle.kts",
-          "contains": "applicationId = \"uk.btlabs.epiccash.mobile\""
+          "contains": "applicationId = \"uk.btlabs.btwallet\""
         }
       ]
     },
@@ -830,6 +830,14 @@
       "migration": "At the first unlock, under LEPIC's directory lock: the plain database is opened read-only (its schema never migrated before the switch), copied with its WAL into wallet.enc.sqlite3.tmp under the store key, checked (quick_check, user_version, row count of every table), the key check written, then tmp renamed to wallet.enc.sqlite3 (the switch), the plain file renamed wallet.sqlite3.pre-encryption and kept one release. Before the switch nothing outside tmp changes and a crash restarts the copy from scratch; after it a plain file beside a matching record only finishes the rename. A copy that fails (disk full) keeps the session on the plain file and tries again at the next open. Then the app seals wfe_meta.json into wfe_meta.sealed and contacts.json into contacts.sealed (each tmp, flushed, read back and opened, renamed), recording the plain file's size and hash; the plain files are left as they were, so a rollback to 26.10.24-r2 keeps notes and the address book, and a plain file an older build changed since is merged back in (adding only). After a rollback the older build's new plain database is set aside as wallet.sqlite3.after-rollback-<unix> and a restore scan runs. The shared book is used by one app process at a time (contacts.lock); a second one waits, then leaves it closed.",
       "migration_test": "app/test/store_encryption_upgrade_test.dart",
       "approved_by": "the owner, 2026-11-01 (explicit yes to this install-contract record: database renamed, app files kept)"
+    },
+    {
+      "date": "2026-11-02",
+      "items_sha256": "61164ef22282090f719779cda6a8acd89e377e7b8f32ed253b9154d0c1d524b8",
+      "change": "android.application_id: uk.btlabs.epiccash.mobile becomes uk.btlabs.btwallet from 26.10.25, so BT Wallet is a new Android app (namespace and Kotlin package follow). The signing certificate stays the same.",
+      "migration": "None, by decision: another package is another app with its own empty data folder and store, so nothing moves. The new app installs beside the old one; the user restores the wallet there from the recovery phrase or a .wfeh backup and then removes the old app. Installs under the old id get no update: update-v2.json names uk.btlabs.btwallet, so the automatic check stays quiet and a check by hand says \"The update information is for another app.\"; nothing is downloaded or installed. Update trust (G4) installs the candidate beside the previous app and restores the test wallet there.",
+      "migration_test": "app/test/vault_updater_test.dart",
+      "approved_by": "the owner, 2026-11-02 (\"update android, next build (25) will be as new app ... you have my yes for it\")"
     }
   ]
 }

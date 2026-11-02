@@ -30,7 +30,7 @@ class _Platform implements UpdatePlatform {
 
   @override
   Future<InstalledApp> installedApp() async => InstalledApp(
-    packageName: 'uk.btlabs.epiccash.mobile',
+    packageName: 'uk.btlabs.btwallet',
     versionCode: 26100000,
     versionName: '26.10.0',
     abis: const ['arm64-v8a'],

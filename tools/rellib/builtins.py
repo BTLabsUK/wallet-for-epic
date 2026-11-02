@@ -470,8 +470,8 @@ def artefacts(engine, step, say):
                 problems.append(f"{name}: versionName is not {version}")
             if want_code and f"versionCode='{want_code}'" not in head:
                 problems.append(f"{name}: versionCode is not {want_code}")
-            if "name='uk.btlabs.epiccash.mobile'" not in head:
-                problems.append(f"{name}: package is not uk.btlabs.epiccash.mobile")
+            if "name='uk.btlabs.btwallet'" not in head:
+                problems.append(f"{name}: package is not uk.btlabs.btwallet")
         meta[name] = {"bytes": size, "sha256": run.status(s.id)["outputs"].get(name, {}).get("sha256") if s else None,
                       "step": s.id if s else None, "host": s.host if s else None}
     if "android" in [p for p in PLATFORMS if info["scope"]["platforms"].get(p)]:

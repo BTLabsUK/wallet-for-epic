@@ -143,5 +143,62 @@ class ServersKeptTest(unittest.TestCase):
         self.assertIn("the update moved the Node in use", det["custom_nodes_kept"])
 
 
+class BesideTest(unittest.TestCase):
+    """Two APKs with different package names (the 26.10.25 app id change): the candidate goes in
+    beside the previous app, the wallet is restored there, and the carried-over checks are not
+    applicable and not required."""
+
+    def run_beside(self, total_after):
+        d = ServersKeptTest().digest("node.btlabs.uk")
+        after = dict(d, balance={"total": total_after, "spendable": total_after})
+        calls, pkgs = [], []
+
+        def adb(serial, *args, **kw):
+            calls.append(args)
+            return "Success" if args[0] == "install" else ""
+
+        out = tempfile.mkdtemp()
+        env = {"REL_PREVIOUS_APK": "/prev.apk", "REL_CANDIDATE_APK": "/cand.apk",
+               "REL_PREVIOUS_PKG": "uk.btlabs.epiccash.mobile", "REL_CANDIDATE_PKG": "uk.btlabs.btwallet",
+               "REL_CHECKS": ",".join(trust.CHECKS)}
+        digests = iter([d, after])
+        with mock.patch.dict(os.environ, env), mock.patch.dict(trust.CUSTOM, {"Node": "n", "Epicbox": "r"}), \
+                mock.patch.multiple(trust, OUT=out, FUNDS=False, MIGRATE=True, SEED_FILES=True, adb=adb,
+                                    read_secret=lambda n: "w " * 12, restore=lambda w: pkgs.append(trust.ph.PKG),
+                                    unlock=lambda s=0: True, start_standins=lambda: None,
+                                    add_custom=lambda k, h: True, use_server=lambda k, h: True,
+                                    change_settings=lambda: None, address=lambda: d["address"],
+                                    history=lambda *a: ["x"], has_sender=lambda r: True,
+                                    server_list=lambda k: {"rows": [{"current": True, "host": "h"}]},
+                                    same_host=lambda a, b: True, digest=lambda *a: dict(next(digests)),
+                                    balance=lambda *a: after["balance"], shot=lambda n: None), \
+                mock.patch.object(trust.ph, "version", lambda s: ("26.10.25", "261025000")), \
+                mock.patch.object(trust.ph, "PKG", trust.ph.PKG), mock.patch.object(trust, "BESIDE", False), \
+                mock.patch.object(trust.time, "sleep"):
+            code = trust.run()
+            with open(os.path.join(out, "proof.json")) as f:
+                proof = __import__("json").load(f)
+            return code, proof, calls, pkgs, trust.ph.PKG
+
+    def test_the_candidate_goes_in_beside_and_restores(self):
+        code, proof, calls, pkgs, pkg = self.run_beside("1")
+        self.assertEqual(code, 0)
+        self.assertEqual(pkgs, ["uk.btlabs.epiccash.mobile", "uk.btlabs.btwallet"])
+        self.assertEqual(pkg, "uk.btlabs.btwallet")
+        self.assertIn(("install", "/cand.apk"), calls)
+        self.assertNotIn(("install", "-r", "/cand.apk"), calls)
+        self.assertIn(("shell", "am", "force-stop", "uk.btlabs.epiccash.mobile"), calls)
+        self.assertEqual(proof["required"], ["wallet_opens", "balance_kept"])
+        self.assertTrue(proof["packages"]["beside"])
+        self.assertIn("beside", proof["update_method"])
+        for k in trust.NOT_CARRIED:
+            self.assertIn("not applicable", proof["details"][k])
+
+    def test_another_total_after_the_restore_is_not_proven(self):
+        code, proof, *_ = self.run_beside("0.5")
+        self.assertEqual(code, 1)
+        self.assertFalse(proof["checks"]["balance_kept"])
+
+
 if __name__ == "__main__":
     unittest.main()

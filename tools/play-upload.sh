@@ -25,5 +25,5 @@ else
 fi
 notes="$root/docs/play-notes/$version.txt"
 [[ " $* " == *" --notes-file "* || ! -f "$notes" ]] || args+=(--notes-file "$notes")
-exec python3 -I "$root/tools/play_upload.py" --key "$key" --package uk.btlabs.epiccash.mobile \
+exec python3 -I "$root/tools/play_upload.py" --key "$key" --package uk.btlabs.btwallet \
   --name "$version ($code)" "${args[@]}" "$@"
