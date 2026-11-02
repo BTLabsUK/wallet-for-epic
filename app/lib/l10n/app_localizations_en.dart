@@ -3929,18 +3929,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'Every payment with its progress and details. Tap one to open it.';
 
   @override
-  String get tourPhoneContactsTitle => 'Contacts';
-
-  @override
-  String get tourPhoneContactsText =>
-      'Saved addresses by name. Send picks from here.';
-
-  @override
   String get tourPhoneInvoicesTitle => 'Invoices';
 
   @override
   String get tourPhoneInvoicesText =>
       'Pay an invoice someone sent, or ask someone for a payment. The tabs switch between the two.';
+
+  @override
+  String get tourPhoneDevicesText =>
+      'This wallet on a second device: each shows the other’s payments. An experiment.';
 
   @override
   String get tourPhonePrivacyTitle => 'Privacy & network';

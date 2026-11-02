@@ -4020,18 +4020,15 @@ class AppLocalizationsRu extends AppLocalizations {
       'Каждый платёж с ходом выполнения и подробностями. Нажмите на платёж, чтобы открыть его.';
 
   @override
-  String get tourPhoneContactsTitle => 'Контакты';
-
-  @override
-  String get tourPhoneContactsText =>
-      'Сохранённые адреса с именами. «Отправить» выбирает отсюда.';
-
-  @override
   String get tourPhoneInvoicesTitle => 'Счета';
 
   @override
   String get tourPhoneInvoicesText =>
       'Оплатите присланный вам счёт или попросите кого-то о платеже. Вкладки переключают между этим и тем.';
+
+  @override
+  String get tourPhoneDevicesText =>
+      'Этот кошелёк на втором устройстве: каждое показывает платежи другого. Эксперимент.';
 
   @override
   String get tourPhonePrivacyTitle => 'Приватность и сеть';

@@ -3713,16 +3713,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get tourPhoneActivityText => '每笔付款的进度和详情。点一笔即可打开。';
 
   @override
-  String get tourPhoneContactsTitle => '联系人';
-
-  @override
-  String get tourPhoneContactsText => '按名称保存的地址。“发送”从这里选择。';
-
-  @override
   String get tourPhoneInvoicesTitle => '账单';
 
   @override
   String get tourPhoneInvoicesText => '支付别人发来的账单，或向别人请求付款。用标签页在两者之间切换。';
+
+  @override
+  String get tourPhoneDevicesText => '在第二台设备上使用此钱包：每台设备显示另一台的付款。实验功能。';
 
   @override
   String get tourPhonePrivacyTitle => '隐私与网络';

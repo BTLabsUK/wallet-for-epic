@@ -3864,18 +3864,15 @@ class AppLocalizationsTh extends AppLocalizations {
       'ทุกรายการพร้อมความคืบหน้าและรายละเอียด แตะรายการเพื่อเปิด';
 
   @override
-  String get tourPhoneContactsTitle => 'ผู้ติดต่อ';
-
-  @override
-  String get tourPhoneContactsText =>
-      'ที่อยู่ที่บันทึกไว้ตามชื่อ หน้าส่งเลือกจากที่นี่';
-
-  @override
   String get tourPhoneInvoicesTitle => 'ใบแจ้งหนี้';
 
   @override
   String get tourPhoneInvoicesText =>
       'ชำระใบแจ้งหนี้ที่มีคนส่งมา หรือขอให้ใครจ่ายเงิน แท็บใช้สลับระหว่างสองอย่างนี้';
+
+  @override
+  String get tourPhoneDevicesText =>
+      'กระเป๋านี้บนอุปกรณ์เครื่องที่สอง: แต่ละเครื่องแสดงการชำระเงินของอีกเครื่อง เป็นการทดลอง';
 
   @override
   String get tourPhonePrivacyTitle => 'ความเป็นส่วนตัวและเครือข่าย';

@@ -3986,18 +3986,15 @@ class AppLocalizationsDe extends AppLocalizations {
       'Jede Zahlung mit Stand und Details. Tippen Sie auf eine, um sie zu öffnen.';
 
   @override
-  String get tourPhoneContactsTitle => 'Kontakte';
-
-  @override
-  String get tourPhoneContactsText =>
-      'Gespeicherte Adressen mit Namen. Senden wählt von hier.';
-
-  @override
   String get tourPhoneInvoicesTitle => 'Rechnungen';
 
   @override
   String get tourPhoneInvoicesText =>
       'Bezahlen Sie eine Rechnung, die Ihnen jemand geschickt hat, oder bitten Sie jemanden um eine Zahlung. Die Tabs wechseln zwischen beiden.';
+
+  @override
+  String get tourPhoneDevicesText =>
+      'Diese Wallet auf einem zweiten Gerät: Jedes zeigt die Zahlungen des anderen. Ein Experiment.';
 
   @override
   String get tourPhonePrivacyTitle => 'Datenschutz & Netzwerk';
