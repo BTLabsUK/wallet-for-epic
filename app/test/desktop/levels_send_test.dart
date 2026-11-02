@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Wallet levels on Send and Receive (desktop): Shallow sends from the page by Epicbox alone and
-// shows Receive's address card without host, switch or files; Deeper words the method strip and
-// the files casually; Deep end is today's pages.
+// shows Receive's address card without host, switch or files; Deeper words the files card casually;
+// Deep end is today's pages. Send has no method strip at any level: the address decides.
 import 'package:epic_wallet/src/desktop/data/desk_levels.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/receive_screen.dart';
@@ -76,17 +76,19 @@ void main() {
     expect(find.text('Handed to Epicbox. Completes when the recipient answers.'), findsNothing);
   });
 
-  testWidgets('Deeper Send: the strip is headed "How to send it" and Review stays', (tester) async {
+  testWidgets('Deeper Send: no method strip, the method line follows the address and Review stays', (tester) async {
     await _pump(tester, WalletLevel.casual, SendScreen(arg: SendArgs(recipient: _to, amount: '1', epicboxHealth: ServiceHealth.ok)));
-    expect(find.text('How to send it'), findsOneWidget);
+    expect(find.text('How to send it'), findsNothing);
     expect(find.text('Payment method'), findsNothing);
-    expect(find.byType(ESegmented<TxMethod?>), findsOneWidget);
+    expect(find.byType(ESegmented<TxMethod?>), findsNothing);
+    expect(find.byKey(const ValueKey('send-route-epicbox')), findsOneWidget);
     expect(find.widgetWithText(EButton, 'Review'), findsOneWidget);
   });
 
-  testWidgets('Deep end Send is today\'s: "Payment method" and Review', (tester) async {
+  testWidgets('Deep end Send: the same method line and Review', (tester) async {
     await _pump(tester, WalletLevel.everything, SendScreen(arg: SendArgs(recipient: _to, amount: '1', epicboxHealth: ServiceHealth.ok)));
-    expect(find.text('Payment method'), findsOneWidget);
+    expect(find.text('Payment method'), findsNothing);
+    expect(find.byKey(const ValueKey('send-route-epicbox')), findsOneWidget);
     expect(find.widgetWithText(EButton, 'Review'), findsOneWidget);
   });
 
@@ -107,21 +109,21 @@ void main() {
     expect(find.descendant(of: card, matching: find.byType(ECopyButton)), findsOneWidget);
   });
 
-  testWidgets('Deeper Receive: the switch and the payment files in casual words', (tester) async {
+  testWidgets('Deeper Receive: the switch and the files card in casual words, one Open for every file', (tester) async {
     await _pump(tester, WalletLevel.casual, const ReceiveScreen());
     expect(find.byKey(const ValueKey('rx-switch-epicbox')), findsOneWidget);
     expect(find.text('Payment files'), findsOneWidget);
-    expect(find.text('Sign a payment file'), findsOneWidget);
-    expect(find.text('Finish a reply file'), findsOneWidget);
+    expect(find.text('Transaction files'), findsNothing);
+    expect(find.byKey(const ValueKey('rx-files-open')), findsOneWidget);
     expect(find.text('Post a finished payment'), findsNothing);
     expect(find.textContaining('closed'), findsNothing);
   });
 
-  testWidgets('Deep end Receive keeps the transaction files and Post a finished payment', (tester) async {
+  testWidgets('Deep end Receive keeps the Transaction files card with its one Open', (tester) async {
     await _pump(tester, WalletLevel.everything, const ReceiveScreen());
     expect(find.text('Transaction files'), findsOneWidget);
-    expect(find.text('Sign a transaction file'), findsOneWidget);
-    expect(find.text('Post a finished payment'), findsOneWidget);
+    expect(find.text('Payment files'), findsNothing);
+    expect(find.byKey(const ValueKey('rx-files-open')), findsOneWidget);
     expect(find.textContaining('closed'), findsNothing);
   });
 }
