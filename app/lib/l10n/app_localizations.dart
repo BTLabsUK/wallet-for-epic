@@ -31410,7 +31410,7 @@ abstract class AppLocalizations {
   /// **'Website'**
   String get deskSetRowWebsite;
 
-  /// Settings search: other words that find the “epiccash.com” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  /// Settings search: other words that find the “Website” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
   ///
   /// In en, this message translates to:
   /// **'website, site, web, epic cash'**

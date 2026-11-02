@@ -27156,7 +27156,7 @@
   },
   "deskSetSynWebsite": "website, site, web, epic cash",
   "@deskSetSynWebsite": {
-    "description": "Settings search: other words that find the “epiccash.com” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+    "description": "Settings search: other words that find the “Website” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
   },
   "deskSetSynSource": "github, code, open source, repository",
   "@deskSetSynSource": {
