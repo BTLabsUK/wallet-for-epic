@@ -27211,5 +27211,362 @@
         "type": "String"
       }
     }
+  },
+  "sendRouteLinkHttps": "Link · HTTPS",
+  "@sendRouteLinkHttps": {
+    "description": "Send: the method line under the To field for an https:// address."
+  },
+  "sendRouteThisPhone": "This phone",
+  "@sendRouteThisPhone": {
+    "description": "Send: tag on the method line, the address is on this phone (localhost)."
+  },
+  "sendRouteThisComputer": "This computer",
+  "@sendRouteThisComputer": {
+    "description": "Send (desktop): tag on the method line, the address is on this computer (localhost)."
+  },
+  "sendRouteYourNetwork": "Your network",
+  "@sendRouteYourNetwork": {
+    "description": "Send: tag on the method line, the address is on the local network (LAN)."
+  },
+  "sendRouteOverTor": "Over Tor",
+  "@sendRouteOverTor": {
+    "description": "Send: tag on the method line, the payment goes through Tor."
+  },
+  "sendRouteTorStarts": "Tor starts when you send.",
+  "@sendRouteTorStarts": {
+    "description": "Send: under the method line for an onion address while Tor is off."
+  },
+  "sendRouteChange": "Change",
+  "@sendRouteChange": {
+    "description": "Send: button on the method line that opens a contact's other addresses."
+  },
+  "sendRouteChangeSem": "Change address, {count} more",
+  "@sendRouteChangeSem": {
+    "description": "Send: screen reader label of the Change button.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sendRouteAddressesOf": "{name}’s addresses",
+  "@sendRouteAddressesOf": {
+    "description": "Send: heading of the menu of a contact's addresses.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sendRouteMore": "{count} more",
+  "@sendRouteMore": {
+    "description": "Send: after a contact's address in a list, how many other addresses the contact has.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "sendRouteSemantics": "Sends by {method} to {host}",
+  "@sendRouteSemantics": {
+    "description": "Send: screen reader text of the method line.",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      },
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "sendHeldKillSwitch": "Kill switch is on. Nothing connects.",
+  "@sendHeldKillSwitch": {
+    "description": "Send: notice under the To field in Kill switch mode."
+  },
+  "sendHeldNodeOnly": "Node only is on. Only the node connects.",
+  "@sendHeldNodeOnly": {
+    "description": "Send: notice under the To field in Node only mode."
+  },
+  "sendHeldTorOnly": "Tor only is on. Plain http:// cannot go over Tor.",
+  "@sendHeldTorOnly": {
+    "description": "Send: notice for a plain http address in Tor only mode."
+  },
+  "sendHeldTorOn": "Tor is on. Plain http:// cannot go over Tor.",
+  "@sendHeldTorOn": {
+    "description": "Send: notice for a plain http internet address while the Tor switch is on."
+  },
+  "sendHeldFixKillSwitch": "Turn off Kill switch",
+  "@sendHeldFixKillSwitch": {
+    "description": "Send: the one action in the Kill switch notice: network mode back to Normal."
+  },
+  "sendHeldFixNodeOnly": "Turn off Node only",
+  "@sendHeldFixNodeOnly": {
+    "description": "Send: the one action in the Node only notice: network mode back to Normal."
+  },
+  "sendHeldFixTorOnly": "Turn off Tor only",
+  "@sendHeldFixTorOnly": {
+    "description": "Send: the one action in the Tor only notice: network mode back to Normal."
+  },
+  "sendHeldByKillSwitch": "Held by Kill switch",
+  "@sendHeldByKillSwitch": {
+    "description": "Send: why an address in a contact's address menu cannot be used now."
+  },
+  "sendHeldByNodeOnly": "Held by Node only",
+  "@sendHeldByNodeOnly": {
+    "description": "Send: why an address in a contact's address menu cannot be used now."
+  },
+  "sendHeldByTorOnly": "Held by Tor only",
+  "@sendHeldByTorOnly": {
+    "description": "Send: why an address in a contact's address menu cannot be used now."
+  },
+  "sendHeldWhileTorOn": "Held while Tor is on",
+  "@sendHeldWhileTorOn": {
+    "description": "Send: why an address in a contact's address menu cannot be used now."
+  },
+  "sendHeldModeNormal": "Network mode: Normal.",
+  "@sendHeldModeNormal": {
+    "description": "Send: toast after a notice's action set the network mode back to Normal."
+  },
+  "sendHeldTorIsOff": "Tor is off.",
+  "@sendHeldTorIsOff": {
+    "description": "Send: toast after Turn Tor off in a notice."
+  },
+  "sendNoAddress": "No address?",
+  "@sendNoAddress": {
+    "description": "Send (phone): lead-in above Pay in person and Pay with a file under the empty To field."
+  },
+  "sendWithoutConnection": "Without a connection:",
+  "@sendWithoutConnection": {
+    "description": "Send: lead-in above Pay in person and Pay with a file under a connection notice."
+  },
+  "sendPayInPerson": "Pay in person",
+  "@sendPayInPerson": {
+    "description": "Send (phone): text button that starts Direct · QR Payment."
+  },
+  "sendPayByFile": "Pay with a file",
+  "@sendPayByFile": {
+    "description": "Send: text button that starts Direct · File Transfer."
+  },
+  "sendIsSlateText": "This is a transaction text, not an address.",
+  "@sendIsSlateText": {
+    "description": "Send: a slatepack or transaction text was pasted into the To field."
+  },
+  "sendOpenSlateText": "Open it",
+  "@sendOpenSlateText": {
+    "description": "Send: button that opens a pasted transaction text."
+  },
+  "sendCleanedUp": "Cleaned up: {what}.",
+  "@sendCleanedUp": {
+    "description": "Send: line under the To field after the address was cleaned up; {what} lists the changes, joined by ' · '.",
+    "placeholders": {
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "sendCleanUndo": "Undo",
+  "@sendCleanUndo": {
+    "description": "Send: button that puts back the text as it was pasted or typed."
+  },
+  "sendCleanUndoSem": "Undo the clean-up",
+  "@sendCleanUndoSem": {
+    "description": "Send: screen reader label of Undo."
+  },
+  "sendSendsTo": "Sends to",
+  "@sendSendsTo": {
+    "description": "Send: before the clean form of a typed address, while it is typed."
+  },
+  "sendCleanTextAround": "text around the address left out",
+  "@sendCleanTextAround": {
+    "description": "Send: one clean-up change, in the 'Cleaned up' line (lower case, no full stop)."
+  },
+  "sendCleanJoined": "spaces and line breaks removed",
+  "@sendCleanJoined": {
+    "description": "Send: one clean-up change."
+  },
+  "sendCleanSpaces": "spaces left out",
+  "@sendCleanSpaces": {
+    "description": "Send: one clean-up change."
+  },
+  "sendCleanQuotes": "quotes and brackets removed",
+  "@sendCleanQuotes": {
+    "description": "Send: one clean-up change."
+  },
+  "sendCleanOnionForm": "shown in its standard form",
+  "@sendCleanOnionForm": {
+    "description": "Send: one clean-up change (a Tor address)."
+  },
+  "sendCleanEpicboxScheme": "epicbox:// left out",
+  "@sendCleanEpicboxScheme": {
+    "description": "Send: one clean-up change."
+  },
+  "sendCleanDefaultRelay": "no server given: {host}, the default",
+  "@sendCleanDefaultRelay": {
+    "description": "Send: one clean-up change; {host} is the Epicbox server in use.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "sendCleanRelayLower": "server in lower case",
+  "@sendCleanRelayLower": {
+    "description": "Send: one clean-up change."
+  },
+  "sendCleanHttpsAdded": "no scheme: https:// added",
+  "@sendCleanHttpsAdded": {
+    "description": "Send: one clean-up change."
+  },
+  "sendCleanHttpAdded": "no scheme: http:// added",
+  "@sendCleanHttpAdded": {
+    "description": "Send: one clean-up change."
+  },
+  "sendCleanDefaultPort": "port {port}, the listener’s default",
+  "@sendCleanDefaultPort": {
+    "description": "Send: one clean-up change.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
+  "sendCleanBrackets": "IPv6 address put in brackets",
+  "@sendCleanBrackets": {
+    "description": "Send: one clean-up change."
+  },
+  "sendCleanSchemeLower": "scheme in lower case",
+  "@sendCleanSchemeLower": {
+    "description": "Send: one clean-up change."
+  },
+  "sendCleanHostLower": "host in lower case",
+  "@sendCleanHostLower": {
+    "description": "Send: one clean-up change."
+  },
+  "sendCleanIdn": "{name} written as it is contacted",
+  "@sendCleanIdn": {
+    "description": "Send: one clean-up change; {name} is the international host name as typed, which is sent in its ASCII (xn--) form.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sendCleanForeignPath": "/v2/foreign left out: the wallet adds it",
+  "@sendCleanForeignPath": {
+    "description": "Send: one clean-up change."
+  },
+  "sendCleanTrailingSlash": "trailing / left out",
+  "@sendCleanTrailingSlash": {
+    "description": "Send: one clean-up change."
+  },
+  "sendCleanQuery": "?… and #… left out",
+  "@sendCleanQuery": {
+    "description": "Send: one clean-up change."
+  },
+  "sendProblemNotAddress": "Not an address, and no contact has this name.",
+  "@sendProblemNotAddress": {
+    "description": "Send: To field error, shown once the field loses focus."
+  },
+  "sendProblemOtherScheme": "Not an address this wallet can pay.",
+  "@sendProblemOtherScheme": {
+    "description": "Send: To field error."
+  },
+  "sendProblemIncomplete": "This address looks incomplete.",
+  "@sendProblemIncomplete": {
+    "description": "Send: To field error."
+  },
+  "sendProblemOnion": "This is not a complete Tor address. Copy it again from the recipient.",
+  "@sendProblemOnion": {
+    "description": "Send: To field error."
+  },
+  "sendProblemPort": "The port must be 1 to 65535.",
+  "@sendProblemPort": {
+    "description": "Send: To field error."
+  },
+  "sendProblemCredentials": "An address with a user name in it cannot be paid.",
+  "@sendProblemCredentials": {
+    "description": "Send: To field error."
+  },
+  "sendProblemCharacters": "This address has characters an address cannot have.",
+  "@sendProblemCharacters": {
+    "description": "Send: To field error."
+  },
+  "sendProblemTooLong": "This address is too long.",
+  "@sendProblemTooLong": {
+    "description": "Send: To field error."
+  },
+  "sendProblemOwn": "This is this wallet’s own address.",
+  "@sendProblemOwn": {
+    "description": "Send: To field error."
+  },
+  "sendReachChecking": "Checking…",
+  "@sendReachChecking": {
+    "description": "Send: faint line while the recipient's wallet is asked, shown only for a slow answer."
+  },
+  "sendReachNone": "No wallet answers at {host}.",
+  "@sendReachNone": {
+    "description": "Send: the recipient's wallet did not answer the quiet check.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "sendReachNotWallet": "{host} answers, but not as an Epic wallet.",
+  "@sendReachNotWallet": {
+    "description": "Send: something answered the quiet check, but not a wallet.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "sendReachTheirOnion": "their Tor address",
+  "@sendReachTheirOnion": {
+    "description": "Send: {host} of sendReachNone/sendReachNotWallet for an onion."
+  },
+  "sendReachOpenFirst": "Their wallet has to be open to receive.",
+  "@sendReachOpenFirst": {
+    "description": "Send: under 'No wallet answers'."
+  },
+  "sendReachCheckAddress": "Check the address with the recipient.",
+  "@sendReachCheckAddress": {
+    "description": "Send: under 'answers, but not as an Epic wallet'."
+  },
+  "sendReachTryAgain": "Try again",
+  "@sendReachTryAgain": {
+    "description": "Send: asks the recipient's wallet again."
+  },
+  "sendFactVia": "Via",
+  "@sendFactVia": {
+    "description": "Send review: row label, the method."
+  },
+  "sendFactHost": "Host",
+  "@sendFactHost": {
+    "description": "Send review: row label, the host and port contacted."
+  },
+  "sendFactConnection": "Connection",
+  "@sendFactConnection": {
+    "description": "Send review: row label."
+  },
+  "sendFactNotEncrypted": "Not encrypted · http://",
+  "@sendFactNotEncrypted": {
+    "description": "Send review: plain http to another device, a neutral fact."
+  },
+  "sendFactTor": "Tor",
+  "@sendFactTor": {
+    "description": "Send review: row label."
+  },
+  "sendFactTorStarts": "Starts when you send",
+  "@sendFactTorStarts": {
+    "description": "Send review: Tor row for an onion while Tor is off."
+  },
+  "sendFactOffline": "Their wallet can be offline.",
+  "@sendFactOffline": {
+    "description": "Send review: under Via, Epicbox."
+  },
+  "sendFactOnline": "Their wallet has to be open.",
+  "@sendFactOnline": {
+    "description": "Send review: under Via, a Link method."
   }
 }

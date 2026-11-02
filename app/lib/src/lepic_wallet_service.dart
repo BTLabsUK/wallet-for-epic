@@ -32,7 +32,7 @@ import 'network_gate.dart';
 import 'pin_wrap.dart';
 import 'tor_build.dart';
 import 'trust/policy.dart' show PeerCompat, appHostFeatures;
-import 'recipient.dart' show plainHttpToOtherDevice;
+import 'send_route.dart' show plainHttpGoesDirect, plainHttpHeldNow;
 import 'redact.dart';
 import 'sealed_file.dart';
 import 'secret_store_api.dart';
@@ -349,14 +349,13 @@ Stream<T> _epicboxStream<T>(String what, Stream<T> Function() make) {
   return _guardStream(make());
 }
 
-/// A Direct send over plain `http` to another device is refused while the Tor switch is on, in
-/// every mode ([plainHttpOffNow]): it would go through a Tor exit, which could take the payment
-/// (tor_routes.dart, [torStops]). `https` and onions go through the wallet's Tor, which LEPIC
-/// waits for.
+/// A Direct send over plain `http` to an internet address is refused while the Tor switch is
+/// on ([plainHttpOffNow]): it would go through a Tor exit, which could take the payment
+/// (tor_routes.dart, [torStops]). To this device or the local network it goes direct in Normal
+/// ([plainHttpGoesDirect]: Tor cannot reach it); Tor only refuses it to anything but this
+/// device. `https` and onions go through the wallet's Tor, which LEPIC waits for.
 void _torRefusesPlainHttp(String url, String what) {
-  if (plainHttpOffNow && plainHttpToOtherDevice(url)) {
-    throw PlainHttpOffWithTor(what);
-  }
+  if (plainHttpHeldNow(url)) throw PlainHttpOffWithTor(what);
 }
 
 Stream<T> _guardStream<T>(Stream<T> stream) => stream.transform(
@@ -2112,14 +2111,14 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
     final to = await _directUrl(url, 'send over HTTP');
     final sendOptions = await _optionsFor(amount, minimumConfirmations, options);
     final tx = await _counted(
-      () => _wallet.sendHttp(
+      () => _directWhenLocal(to, () => _wallet.sendHttp(
         amount: amount,
         minimumConfirmations: minimumConfirmations,
         url: to,
         allowPlainHttp: allowPlainHttp,
         message: _message(message),
         options: sendOptions,
-      ),
+      )),
     );
     return HttpSent(txId: tx.txId, slateId: tx.slateId, posted: tx.posted);
   });
@@ -2132,11 +2131,11 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   }) => _nodeGuard('resend over HTTP', () async {
     final to = await _directUrl(url, 'resend over HTTP');
     final tx = await _counted(
-      () => _wallet.resendHttp(
+      () => _directWhenLocal(to, () => _wallet.resendHttp(
         txId: txId,
         url: to,
         allowPlainHttp: allowPlainHttp,
-      ),
+      )),
     );
     return HttpSent(txId: tx.txId, slateId: tx.slateId, posted: tx.posted);
   });
@@ -2220,10 +2219,32 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   @override
   Future<void> setNodeAndHttpOverTor(bool on) async {
     if (_wallet.isDisposed) return;
+    _httpOverTor = on;
     _guardSync(() {
       _wallet.setNodeOverTor(enabled: on);
-      _wallet.setHttpOverTor(enabled: on);
+      if (_directSends == 0) _wallet.setHttpOverTor(enabled: on);
     });
+  }
+
+  /// HTTP sends over Tor as [setNodeAndHttpOverTor] last set it (on when the wallet opens).
+  bool _httpOverTor = true;
+
+  /// Plain http sends to the local network running now with HTTP over Tor turned off for them.
+  int _directSends = 0;
+
+  /// [call] for a send to [url]: plain http to this device or the local network goes direct
+  /// while HTTP sends go over Tor (tor cannot reach the local network), then they go over Tor
+  /// again. One send runs at a time from Send; another http send meanwhile would go direct too.
+  Future<T> _directWhenLocal<T>(String url, Future<T> Function() call) async {
+    if (!_httpOverTor || NetGate.torOnly || !plainHttpGoesDirect(url)) return call();
+    _directSends++;
+    _guardSync(() => _wallet.setHttpOverTor(enabled: false));
+    try {
+      return await call();
+    } finally {
+      _directSends--;
+      if (_directSends == 0 && !_wallet.isDisposed) _guardSync(() => _wallet.setHttpOverTor(enabled: _httpOverTor));
+    }
   }
 
   @override

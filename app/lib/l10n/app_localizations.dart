@@ -31553,6 +31553,462 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Opens port {port} to the internet. Needs port forwarding on your router.'**
   String deskHttpPublicNote(String port);
+
+  /// Send: the method line under the To field for an https:// address.
+  ///
+  /// In en, this message translates to:
+  /// **'Link · HTTPS'**
+  String get sendRouteLinkHttps;
+
+  /// Send: tag on the method line, the address is on this phone (localhost).
+  ///
+  /// In en, this message translates to:
+  /// **'This phone'**
+  String get sendRouteThisPhone;
+
+  /// Send (desktop): tag on the method line, the address is on this computer (localhost).
+  ///
+  /// In en, this message translates to:
+  /// **'This computer'**
+  String get sendRouteThisComputer;
+
+  /// Send: tag on the method line, the address is on the local network (LAN).
+  ///
+  /// In en, this message translates to:
+  /// **'Your network'**
+  String get sendRouteYourNetwork;
+
+  /// Send: tag on the method line, the payment goes through Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Over Tor'**
+  String get sendRouteOverTor;
+
+  /// Send: under the method line for an onion address while Tor is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor starts when you send.'**
+  String get sendRouteTorStarts;
+
+  /// Send: button on the method line that opens a contact's other addresses.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get sendRouteChange;
+
+  /// Send: screen reader label of the Change button.
+  ///
+  /// In en, this message translates to:
+  /// **'Change address, {count} more'**
+  String sendRouteChangeSem(int count);
+
+  /// Send: heading of the menu of a contact's addresses.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s addresses'**
+  String sendRouteAddressesOf(String name);
+
+  /// Send: after a contact's address in a list, how many other addresses the contact has.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} more'**
+  String sendRouteMore(int count);
+
+  /// Send: screen reader text of the method line.
+  ///
+  /// In en, this message translates to:
+  /// **'Sends by {method} to {host}'**
+  String sendRouteSemantics(String method, String host);
+
+  /// Send: notice under the To field in Kill switch mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Kill switch is on. Nothing connects.'**
+  String get sendHeldKillSwitch;
+
+  /// Send: notice under the To field in Node only mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Node only is on. Only the node connects.'**
+  String get sendHeldNodeOnly;
+
+  /// Send: notice for a plain http address in Tor only mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor only is on. Plain http:// cannot go over Tor.'**
+  String get sendHeldTorOnly;
+
+  /// Send: notice for a plain http internet address while the Tor switch is on.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor is on. Plain http:// cannot go over Tor.'**
+  String get sendHeldTorOn;
+
+  /// Send: the one action in the Kill switch notice: network mode back to Normal.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off Kill switch'**
+  String get sendHeldFixKillSwitch;
+
+  /// Send: the one action in the Node only notice: network mode back to Normal.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off Node only'**
+  String get sendHeldFixNodeOnly;
+
+  /// Send: the one action in the Tor only notice: network mode back to Normal.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off Tor only'**
+  String get sendHeldFixTorOnly;
+
+  /// Send: why an address in a contact's address menu cannot be used now.
+  ///
+  /// In en, this message translates to:
+  /// **'Held by Kill switch'**
+  String get sendHeldByKillSwitch;
+
+  /// Send: why an address in a contact's address menu cannot be used now.
+  ///
+  /// In en, this message translates to:
+  /// **'Held by Node only'**
+  String get sendHeldByNodeOnly;
+
+  /// Send: why an address in a contact's address menu cannot be used now.
+  ///
+  /// In en, this message translates to:
+  /// **'Held by Tor only'**
+  String get sendHeldByTorOnly;
+
+  /// Send: why an address in a contact's address menu cannot be used now.
+  ///
+  /// In en, this message translates to:
+  /// **'Held while Tor is on'**
+  String get sendHeldWhileTorOn;
+
+  /// Send: toast after a notice's action set the network mode back to Normal.
+  ///
+  /// In en, this message translates to:
+  /// **'Network mode: Normal.'**
+  String get sendHeldModeNormal;
+
+  /// Send: toast after Turn Tor off in a notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor is off.'**
+  String get sendHeldTorIsOff;
+
+  /// Send (phone): lead-in above Pay in person and Pay with a file under the empty To field.
+  ///
+  /// In en, this message translates to:
+  /// **'No address?'**
+  String get sendNoAddress;
+
+  /// Send: lead-in above Pay in person and Pay with a file under a connection notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Without a connection:'**
+  String get sendWithoutConnection;
+
+  /// Send (phone): text button that starts Direct · QR Payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay in person'**
+  String get sendPayInPerson;
+
+  /// Send: text button that starts Direct · File Transfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay with a file'**
+  String get sendPayByFile;
+
+  /// Send: a slatepack or transaction text was pasted into the To field.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a transaction text, not an address.'**
+  String get sendIsSlateText;
+
+  /// Send: button that opens a pasted transaction text.
+  ///
+  /// In en, this message translates to:
+  /// **'Open it'**
+  String get sendOpenSlateText;
+
+  /// Send: line under the To field after the address was cleaned up; {what} lists the changes, joined by ' · '.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleaned up: {what}.'**
+  String sendCleanedUp(String what);
+
+  /// Send: button that puts back the text as it was pasted or typed.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get sendCleanUndo;
+
+  /// Send: screen reader label of Undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo the clean-up'**
+  String get sendCleanUndoSem;
+
+  /// Send: before the clean form of a typed address, while it is typed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sends to'**
+  String get sendSendsTo;
+
+  /// Send: one clean-up change, in the 'Cleaned up' line (lower case, no full stop).
+  ///
+  /// In en, this message translates to:
+  /// **'text around the address left out'**
+  String get sendCleanTextAround;
+
+  /// Send: one clean-up change.
+  ///
+  /// In en, this message translates to:
+  /// **'spaces and line breaks removed'**
+  String get sendCleanJoined;
+
+  /// Send: one clean-up change.
+  ///
+  /// In en, this message translates to:
+  /// **'spaces left out'**
+  String get sendCleanSpaces;
+
+  /// Send: one clean-up change.
+  ///
+  /// In en, this message translates to:
+  /// **'quotes and brackets removed'**
+  String get sendCleanQuotes;
+
+  /// Send: one clean-up change (a Tor address).
+  ///
+  /// In en, this message translates to:
+  /// **'shown in its standard form'**
+  String get sendCleanOnionForm;
+
+  /// Send: one clean-up change.
+  ///
+  /// In en, this message translates to:
+  /// **'epicbox:// left out'**
+  String get sendCleanEpicboxScheme;
+
+  /// Send: one clean-up change; {host} is the Epicbox server in use.
+  ///
+  /// In en, this message translates to:
+  /// **'no server given: {host}, the default'**
+  String sendCleanDefaultRelay(String host);
+
+  /// Send: one clean-up change.
+  ///
+  /// In en, this message translates to:
+  /// **'server in lower case'**
+  String get sendCleanRelayLower;
+
+  /// Send: one clean-up change.
+  ///
+  /// In en, this message translates to:
+  /// **'no scheme: https:// added'**
+  String get sendCleanHttpsAdded;
+
+  /// Send: one clean-up change.
+  ///
+  /// In en, this message translates to:
+  /// **'no scheme: http:// added'**
+  String get sendCleanHttpAdded;
+
+  /// Send: one clean-up change.
+  ///
+  /// In en, this message translates to:
+  /// **'port {port}, the listener’s default'**
+  String sendCleanDefaultPort(String port);
+
+  /// Send: one clean-up change.
+  ///
+  /// In en, this message translates to:
+  /// **'IPv6 address put in brackets'**
+  String get sendCleanBrackets;
+
+  /// Send: one clean-up change.
+  ///
+  /// In en, this message translates to:
+  /// **'scheme in lower case'**
+  String get sendCleanSchemeLower;
+
+  /// Send: one clean-up change.
+  ///
+  /// In en, this message translates to:
+  /// **'host in lower case'**
+  String get sendCleanHostLower;
+
+  /// Send: one clean-up change; {name} is the international host name as typed, which is sent in its ASCII (xn--) form.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} written as it is contacted'**
+  String sendCleanIdn(String name);
+
+  /// Send: one clean-up change.
+  ///
+  /// In en, this message translates to:
+  /// **'/v2/foreign left out: the wallet adds it'**
+  String get sendCleanForeignPath;
+
+  /// Send: one clean-up change.
+  ///
+  /// In en, this message translates to:
+  /// **'trailing / left out'**
+  String get sendCleanTrailingSlash;
+
+  /// Send: one clean-up change.
+  ///
+  /// In en, this message translates to:
+  /// **'?… and #… left out'**
+  String get sendCleanQuery;
+
+  /// Send: To field error, shown once the field loses focus.
+  ///
+  /// In en, this message translates to:
+  /// **'Not an address, and no contact has this name.'**
+  String get sendProblemNotAddress;
+
+  /// Send: To field error.
+  ///
+  /// In en, this message translates to:
+  /// **'Not an address this wallet can pay.'**
+  String get sendProblemOtherScheme;
+
+  /// Send: To field error.
+  ///
+  /// In en, this message translates to:
+  /// **'This address looks incomplete.'**
+  String get sendProblemIncomplete;
+
+  /// Send: To field error.
+  ///
+  /// In en, this message translates to:
+  /// **'This is not a complete Tor address. Copy it again from the recipient.'**
+  String get sendProblemOnion;
+
+  /// Send: To field error.
+  ///
+  /// In en, this message translates to:
+  /// **'The port must be 1 to 65535.'**
+  String get sendProblemPort;
+
+  /// Send: To field error.
+  ///
+  /// In en, this message translates to:
+  /// **'An address with a user name in it cannot be paid.'**
+  String get sendProblemCredentials;
+
+  /// Send: To field error.
+  ///
+  /// In en, this message translates to:
+  /// **'This address has characters an address cannot have.'**
+  String get sendProblemCharacters;
+
+  /// Send: To field error.
+  ///
+  /// In en, this message translates to:
+  /// **'This address is too long.'**
+  String get sendProblemTooLong;
+
+  /// Send: To field error.
+  ///
+  /// In en, this message translates to:
+  /// **'This is this wallet’s own address.'**
+  String get sendProblemOwn;
+
+  /// Send: faint line while the recipient's wallet is asked, shown only for a slow answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking…'**
+  String get sendReachChecking;
+
+  /// Send: the recipient's wallet did not answer the quiet check.
+  ///
+  /// In en, this message translates to:
+  /// **'No wallet answers at {host}.'**
+  String sendReachNone(String host);
+
+  /// Send: something answered the quiet check, but not a wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'{host} answers, but not as an Epic wallet.'**
+  String sendReachNotWallet(String host);
+
+  /// Send: {host} of sendReachNone/sendReachNotWallet for an onion.
+  ///
+  /// In en, this message translates to:
+  /// **'their Tor address'**
+  String get sendReachTheirOnion;
+
+  /// Send: under 'No wallet answers'.
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet has to be open to receive.'**
+  String get sendReachOpenFirst;
+
+  /// Send: under 'answers, but not as an Epic wallet'.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the address with the recipient.'**
+  String get sendReachCheckAddress;
+
+  /// Send: asks the recipient's wallet again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get sendReachTryAgain;
+
+  /// Send review: row label, the method.
+  ///
+  /// In en, this message translates to:
+  /// **'Via'**
+  String get sendFactVia;
+
+  /// Send review: row label, the host and port contacted.
+  ///
+  /// In en, this message translates to:
+  /// **'Host'**
+  String get sendFactHost;
+
+  /// Send review: row label.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection'**
+  String get sendFactConnection;
+
+  /// Send review: plain http to another device, a neutral fact.
+  ///
+  /// In en, this message translates to:
+  /// **'Not encrypted · http://'**
+  String get sendFactNotEncrypted;
+
+  /// Send review: row label.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor'**
+  String get sendFactTor;
+
+  /// Send review: Tor row for an onion while Tor is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts when you send'**
+  String get sendFactTorStarts;
+
+  /// Send review: under Via, Epicbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet can be offline.'**
+  String get sendFactOffline;
+
+  /// Send review: under Via, a Link method.
+  ///
+  /// In en, this message translates to:
+  /// **'Their wallet has to be open.'**
+  String get sendFactOnline;
 }
 
 class _AppLocalizationsDelegate

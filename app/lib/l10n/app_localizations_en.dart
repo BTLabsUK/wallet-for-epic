@@ -20137,4 +20137,257 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskHttpPublicNote(String port) {
     return 'Opens port $port to the internet. Needs port forwarding on your router.';
   }
+
+  @override
+  String get sendRouteLinkHttps => 'Link · HTTPS';
+
+  @override
+  String get sendRouteThisPhone => 'This phone';
+
+  @override
+  String get sendRouteThisComputer => 'This computer';
+
+  @override
+  String get sendRouteYourNetwork => 'Your network';
+
+  @override
+  String get sendRouteOverTor => 'Over Tor';
+
+  @override
+  String get sendRouteTorStarts => 'Tor starts when you send.';
+
+  @override
+  String get sendRouteChange => 'Change';
+
+  @override
+  String sendRouteChangeSem(int count) {
+    return 'Change address, $count more';
+  }
+
+  @override
+  String sendRouteAddressesOf(String name) {
+    return '$name’s addresses';
+  }
+
+  @override
+  String sendRouteMore(int count) {
+    return '$count more';
+  }
+
+  @override
+  String sendRouteSemantics(String method, String host) {
+    return 'Sends by $method to $host';
+  }
+
+  @override
+  String get sendHeldKillSwitch => 'Kill switch is on. Nothing connects.';
+
+  @override
+  String get sendHeldNodeOnly => 'Node only is on. Only the node connects.';
+
+  @override
+  String get sendHeldTorOnly =>
+      'Tor only is on. Plain http:// cannot go over Tor.';
+
+  @override
+  String get sendHeldTorOn => 'Tor is on. Plain http:// cannot go over Tor.';
+
+  @override
+  String get sendHeldFixKillSwitch => 'Turn off Kill switch';
+
+  @override
+  String get sendHeldFixNodeOnly => 'Turn off Node only';
+
+  @override
+  String get sendHeldFixTorOnly => 'Turn off Tor only';
+
+  @override
+  String get sendHeldByKillSwitch => 'Held by Kill switch';
+
+  @override
+  String get sendHeldByNodeOnly => 'Held by Node only';
+
+  @override
+  String get sendHeldByTorOnly => 'Held by Tor only';
+
+  @override
+  String get sendHeldWhileTorOn => 'Held while Tor is on';
+
+  @override
+  String get sendHeldModeNormal => 'Network mode: Normal.';
+
+  @override
+  String get sendHeldTorIsOff => 'Tor is off.';
+
+  @override
+  String get sendNoAddress => 'No address?';
+
+  @override
+  String get sendWithoutConnection => 'Without a connection:';
+
+  @override
+  String get sendPayInPerson => 'Pay in person';
+
+  @override
+  String get sendPayByFile => 'Pay with a file';
+
+  @override
+  String get sendIsSlateText => 'This is a transaction text, not an address.';
+
+  @override
+  String get sendOpenSlateText => 'Open it';
+
+  @override
+  String sendCleanedUp(String what) {
+    return 'Cleaned up: $what.';
+  }
+
+  @override
+  String get sendCleanUndo => 'Undo';
+
+  @override
+  String get sendCleanUndoSem => 'Undo the clean-up';
+
+  @override
+  String get sendSendsTo => 'Sends to';
+
+  @override
+  String get sendCleanTextAround => 'text around the address left out';
+
+  @override
+  String get sendCleanJoined => 'spaces and line breaks removed';
+
+  @override
+  String get sendCleanSpaces => 'spaces left out';
+
+  @override
+  String get sendCleanQuotes => 'quotes and brackets removed';
+
+  @override
+  String get sendCleanOnionForm => 'shown in its standard form';
+
+  @override
+  String get sendCleanEpicboxScheme => 'epicbox:// left out';
+
+  @override
+  String sendCleanDefaultRelay(String host) {
+    return 'no server given: $host, the default';
+  }
+
+  @override
+  String get sendCleanRelayLower => 'server in lower case';
+
+  @override
+  String get sendCleanHttpsAdded => 'no scheme: https:// added';
+
+  @override
+  String get sendCleanHttpAdded => 'no scheme: http:// added';
+
+  @override
+  String sendCleanDefaultPort(String port) {
+    return 'port $port, the listener’s default';
+  }
+
+  @override
+  String get sendCleanBrackets => 'IPv6 address put in brackets';
+
+  @override
+  String get sendCleanSchemeLower => 'scheme in lower case';
+
+  @override
+  String get sendCleanHostLower => 'host in lower case';
+
+  @override
+  String sendCleanIdn(String name) {
+    return '$name written as it is contacted';
+  }
+
+  @override
+  String get sendCleanForeignPath => '/v2/foreign left out: the wallet adds it';
+
+  @override
+  String get sendCleanTrailingSlash => 'trailing / left out';
+
+  @override
+  String get sendCleanQuery => '?… and #… left out';
+
+  @override
+  String get sendProblemNotAddress =>
+      'Not an address, and no contact has this name.';
+
+  @override
+  String get sendProblemOtherScheme => 'Not an address this wallet can pay.';
+
+  @override
+  String get sendProblemIncomplete => 'This address looks incomplete.';
+
+  @override
+  String get sendProblemOnion =>
+      'This is not a complete Tor address. Copy it again from the recipient.';
+
+  @override
+  String get sendProblemPort => 'The port must be 1 to 65535.';
+
+  @override
+  String get sendProblemCredentials =>
+      'An address with a user name in it cannot be paid.';
+
+  @override
+  String get sendProblemCharacters =>
+      'This address has characters an address cannot have.';
+
+  @override
+  String get sendProblemTooLong => 'This address is too long.';
+
+  @override
+  String get sendProblemOwn => 'This is this wallet’s own address.';
+
+  @override
+  String get sendReachChecking => 'Checking…';
+
+  @override
+  String sendReachNone(String host) {
+    return 'No wallet answers at $host.';
+  }
+
+  @override
+  String sendReachNotWallet(String host) {
+    return '$host answers, but not as an Epic wallet.';
+  }
+
+  @override
+  String get sendReachTheirOnion => 'their Tor address';
+
+  @override
+  String get sendReachOpenFirst => 'Their wallet has to be open to receive.';
+
+  @override
+  String get sendReachCheckAddress => 'Check the address with the recipient.';
+
+  @override
+  String get sendReachTryAgain => 'Try again';
+
+  @override
+  String get sendFactVia => 'Via';
+
+  @override
+  String get sendFactHost => 'Host';
+
+  @override
+  String get sendFactConnection => 'Connection';
+
+  @override
+  String get sendFactNotEncrypted => 'Not encrypted · http://';
+
+  @override
+  String get sendFactTor => 'Tor';
+
+  @override
+  String get sendFactTorStarts => 'Starts when you send';
+
+  @override
+  String get sendFactOffline => 'Their wallet can be offline.';
+
+  @override
+  String get sendFactOnline => 'Their wallet has to be open.';
 }

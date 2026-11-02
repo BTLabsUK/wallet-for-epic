@@ -57,6 +57,7 @@ import '../../public_servers.dart';
 import '../../net/http.dart' show NetError, httpGet;
 import '../../net/tor_net.dart';
 import '../../recipient.dart' show parseRecipient;
+import '../../send_route.dart' show plainHttpHeldNow;
 import '../../net/tor_switch.dart';
 import '../../tor_routes.dart';
 import '../../relay_block.dart';
@@ -2727,7 +2728,7 @@ class LepicDeskWallet implements DeskWalletApi {
       switch (e.transport) {
         case 'http':
           // Never through a Tor exit, whatever was allowed when it was sent.
-          if (plainHttpOffNow && plainHttpNeedsConsent(to)) throw DeskError.l10n((l) => l.sendPlainHttpOffWithTor);
+          if (plainHttpHeldNow(to)) throw DeskError.l10n((l) => l.sendPlainHttpOffWithTor);
           // The user allowed plain HTTP to this address when sending.
           final sent = await session.resendHttp(txId: id, url: to, allowPlainHttp: plainHttpNeedsConsent(to));
           if (!sent.posted && !await _repost(session, id)) throw DeskError.l10n((l) => l.deskErrNodeRefused);
@@ -2844,8 +2845,8 @@ class LepicDeskWallet implements DeskWalletApi {
           final to = (r.to ?? '').trim();
           if (httpAddressProblem(to) != null) return SendFailed.l10n((l) => httpAddressProblem(to, l)!);
           // Plain HTTP never goes through a Tor exit (tor_routes.dart, torStops).
-          if (plainHttpOffNow && plainHttpNeedsConsent(to)) return SendFailed.l10n((l) => l.sendPlainHttpOffWithTor);
-          // Send asks before plain HTTP leaves this computer; LEPIC refuses it otherwise.
+          if (plainHttpHeldNow(to)) return SendFailed.l10n((l) => l.sendPlainHttpOffWithTor);
+          // The review is the consent to plain HTTP (Send says "Not encrypted"); LEPIC refuses it otherwise.
           if (plainHttpNeedsConsent(to) && !r.allowPlainHttp) return SendFailed.l10n((l) => l.deskErrPlainHttp);
           before = await SendBefore.take(session);
           final sent = await session.sendHttp(

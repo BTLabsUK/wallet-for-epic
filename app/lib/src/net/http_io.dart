@@ -37,13 +37,16 @@ Future<HttpReply> httpPost(
   required String contentType,
   Map<String, String> headers = const {},
   Duration timeout = defaultHttpTimeout,
+  int? maxBytes,
+  bool direct = false,
 }) => _send(
   'POST',
   url,
   {...headers, HttpHeaders.contentTypeHeader: contentType},
   body,
   timeout,
-  null,
+  maxBytes,
+  direct: direct,
 );
 
 Future<HttpReply> _send(
@@ -52,9 +55,10 @@ Future<HttpReply> _send(
   Map<String, String> headers,
   List<int>? body,
   Duration timeout,
-  int? maxBytes,
-) async {
-  final reply = await _sendRaw(method, url, headers, body, timeout, maxBytes);
+  int? maxBytes, {
+  bool direct = false,
+}) async {
+  final reply = await _sendRaw(method, url, headers, body, timeout, maxBytes, direct: direct);
   return HttpReply(
     reply.status,
     const Utf8Decoder(allowMalformed: true).convert(reply.bytes),
@@ -67,12 +71,16 @@ Future<({int status, Uint8List bytes})> _sendRaw(
   Map<String, String> headers,
   List<int>? body,
   Duration timeout,
-  int? maxBytes,
-) async {
+  int? maxBytes, {
+  bool direct = false,
+}) async {
   // The network mode first (Node only: the node in use alone; Kill switch: nothing).
   dialOrFail(NetDial.http, url);
   // With Tor on and not connected yet, held until it is: never direct meanwhile.
-  if (!isLoopbackUrl(url)) await TorNet.untilConnected();
+  // [direct]: a wallet on the local network, which Tor cannot reach (Send's reach check of a
+  // plain http address there; the send itself goes direct too).
+  final local = direct || isLoopbackUrl(url);
+  if (!local) await TorNet.untilConnected();
   // No User-Agent (Dart's default names Dart and its version) and no cookie jar: a request
   // looks like any other client's.
   final client = HttpClient()
@@ -80,7 +88,7 @@ Future<({int status, Uint8List bytes})> _sendRaw(
     ..userAgent = null;
   // Through tor while the Tor switch covers these requests; none while it is not connected.
   try {
-    TorNet.configure(client, loopback: isLoopbackUrl(url));
+    TorNet.configure(client, loopback: local);
   } on NetError {
     client.close(force: true);
     rethrow;

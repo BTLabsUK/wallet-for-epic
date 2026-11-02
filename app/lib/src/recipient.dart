@@ -53,8 +53,8 @@ bool recipientShaped(Recipient to) => switch (to.kind) {
   RecipientKind.tor => true,
 };
 
-/// Whether [url] is a whole HTTP(S) address to send to: a host that is an IPv4 address,
-/// `localhost` or a name with a dot, no user part, and a port from 1 to 65535 when it has one.
+/// Whether [url] is a whole HTTP(S) address to send to: a host that is an IPv4 address, an
+/// IPv6 address in brackets, `localhost` or a name with a dot, no user part, and a port from 1 to 65535 when it has one.
 /// While `http://192.168.` is still being typed it is not.
 bool httpAddressComplete(String url) {
   final uri = Uri.tryParse(url.trim());
@@ -66,6 +66,15 @@ bool httpAddressComplete(String url) {
     return false;
   }
   if (uri.hasPort && (uri.port < 1 || uri.port > 65535)) return false;
+  // An IPv6 address (in brackets in the URL, without them in the host).
+  if (host.contains(':')) {
+    try {
+      Uri.parseIPv6Address(host);
+      return true;
+    } on FormatException {
+      return false;
+    }
+  }
   // Digits and dots are an IPv4 address only with all four parts; a name needs a dot with
   // something after it.
   if (RegExp(r'^[\d.]+$').hasMatch(host)) return _ipv4.hasMatch(host);

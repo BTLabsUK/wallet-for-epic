@@ -66,6 +66,8 @@ Future<HttpReply> httpPost(
   required String contentType,
   Map<String, String> headers = const {},
   Duration timeout = defaultHttpTimeout,
+  int? maxBytes,
+  bool direct = false,
 }) => _send(
   'POST',
   url,
