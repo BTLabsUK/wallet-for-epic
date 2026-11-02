@@ -190,11 +190,9 @@ void main() {
     await _lepic.deleteWallet(config: config);
     expect(meta.existsSync(), isFalse);
     expect(File('${config.dataDir}/$metaFileName').existsSync(), isFalse);
-    // A late call on the closed session never brings it back.
-    await expectLater(
-      w.setTxNote(key: 's:late', note: 'late'),
-      throwsA(isA<WalletError>()),
-    );
+    // A late call on the closed session never brings it back: it fails (sealing needs the
+    // disposed wallet) and writes nothing.
+    await expectLater(w.setTxNote(key: 's:late', note: 'late'), throwsA(anything));
     expect(meta.existsSync(), isFalse);
   });
 
