@@ -1,0 +1,12 @@
+{
+  "deskTorPayOff": "Выкл.",
+  "deskTorPayStarting": "Запуск Tor · только для платежей",
+  "deskTorPayReady": "Принимает",
+  "deskTorPayBlockedNodeOnly": "Выкл. в режиме {mode}: подключается только узел.",
+  "deskTorPayBlockedKill": "Выкл. в режиме {mode}: ничего не подключается.",
+  "deskTorPayFailed": "Tor не подключился.",
+  "deskTorPayFailedWhy": "Tor не подключился: {problem}.",
+  "deskTorPayRestOn": "Tor для всех подключений: вкл. (Сеть и конфиденциальность).",
+  "deskTorPayRestOff": "Tor для всех подключений: выкл. (Сеть и конфиденциальность).",
+  "deskRailTorForPayments": "Для платежей"
+}

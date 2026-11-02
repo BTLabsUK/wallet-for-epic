@@ -1,0 +1,12 @@
+{
+  "deskTorPayOff": "Wyłączone",
+  "deskTorPayStarting": "Uruchamianie Tor · tylko dla płatności",
+  "deskTorPayReady": "Odbiera",
+  "deskTorPayBlockedNodeOnly": "Wyłączone w trybie {mode}: łączy się tylko węzeł.",
+  "deskTorPayBlockedKill": "Wyłączone w trybie {mode}: nic się nie łączy.",
+  "deskTorPayFailed": "Tor nie połączył się.",
+  "deskTorPayFailedWhy": "Tor nie połączył się: {problem}.",
+  "deskTorPayRestOn": "Tor dla każdego połączenia: włączony (Sieć i prywatność).",
+  "deskTorPayRestOff": "Tor dla każdego połączenia: wyłączony (Sieć i prywatność).",
+  "deskRailTorForPayments": "Dla płatności"
+}

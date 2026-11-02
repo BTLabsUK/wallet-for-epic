@@ -335,6 +335,12 @@ abstract interface class DeskWalletApi {
   /// and Tor is on, the Epicbox connection goes through Tor and never directly, waiting while
   /// tor starts ([ServiceStatus.epicboxViaTor]). On until set. Applies at once.
   Future<void> setEpicboxOverTor(bool on);
+
+  /// Starts tor for payments again after it failed (Link · Tor's Retry). Tor for payments
+  /// itself follows [DeskSettings.payments]' Link · Tor, saved with [saveSettings]: it runs
+  /// while that switch is on outside Node only and Kill switch, for the onion listener and
+  /// sends to onions only; the Tor switch ([setTor]) still decides every other connection.
+  Future<void> retryTorPay();
   /// Refresh (Overview, Activity): brings the balance and history up to date with the node
   /// now and returns when that is done. Throws a [DeskError] when the node did not answer.
   Future<void> syncNow();

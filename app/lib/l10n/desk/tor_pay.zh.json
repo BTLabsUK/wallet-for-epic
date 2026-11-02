@@ -1,0 +1,12 @@
+{
+  "deskTorPayOff": "关闭",
+  "deskTorPayStarting": "正在启动 Tor · 仅用于付款",
+  "deskTorPayReady": "正在接收",
+  "deskTorPayBlockedNodeOnly": "在{mode}下关闭：只有节点会连接。",
+  "deskTorPayBlockedKill": "在{mode}下关闭：不会有任何连接。",
+  "deskTorPayFailed": "Tor 未能连接。",
+  "deskTorPayFailedWhy": "Tor 未能连接：{problem}。",
+  "deskTorPayRestOn": "所有连接都走 Tor：开启（网络与隐私）。",
+  "deskTorPayRestOff": "所有连接都走 Tor：关闭（网络与隐私）。",
+  "deskRailTorForPayments": "用于付款"
+}

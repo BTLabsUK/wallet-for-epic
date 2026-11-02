@@ -1,0 +1,12 @@
+{
+  "deskTorPayOff": "ปิด",
+  "deskTorPayStarting": "กำลังเริ่ม Tor · สำหรับการชำระเงินเท่านั้น",
+  "deskTorPayReady": "กำลังรับ",
+  "deskTorPayBlockedNodeOnly": "ปิดในโหมด {mode}: เชื่อมต่อเฉพาะโหนด",
+  "deskTorPayBlockedKill": "ปิดในโหมด {mode}: ไม่มีการเชื่อมต่อใด ๆ",
+  "deskTorPayFailed": "Tor เชื่อมต่อไม่สำเร็จ",
+  "deskTorPayFailedWhy": "Tor เชื่อมต่อไม่สำเร็จ: {problem}",
+  "deskTorPayRestOn": "Tor สำหรับทุกการเชื่อมต่อ: เปิด (เครือข่ายและความเป็นส่วนตัว)",
+  "deskTorPayRestOff": "Tor สำหรับทุกการเชื่อมต่อ: ปิด (เครือข่ายและความเป็นส่วนตัว)",
+  "deskRailTorForPayments": "สำหรับการชำระเงิน"
+}

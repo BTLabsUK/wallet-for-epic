@@ -11,6 +11,7 @@ import '../../../levels/relay_switch_providers.dart' show RelaySwitchResult;
 import '../../data/method_names.dart';
 import '../../../network.dart' show EpicboxRelay;
 import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;
+import '../../../connection_grace.dart' show connectionGraceProvider;
 import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
 import '../../app/tour.dart';
@@ -152,7 +153,14 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         case TxMethod.http:
           await n.setHttp(on);
         case TxMethod.tor:
-          await n.setTor(on);
+          // Tor for payments alone (Link · Tor, item 2): Retry starts that tor again and leaves
+          // the Tor switch of Network & privacy as it is.
+          final s = ref.read(deskProvider).settings;
+          if (on && !s.tor && torPayWantedIn(s)) {
+            await n.retryTorPay();
+          } else {
+            await n.setTor(on);
+          }
         case TxMethod.file:
           break;
       }
@@ -178,7 +186,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   bool _switchOn(TxMethod m, ServiceStatus? s, DeskSettings settings) => switch (m) {
     TxMethod.epicbox => s != null && s.epicboxHealth != ServiceHealth.off,
     TxMethod.http => s != null && s.httpListener != ServiceHealth.off,
-    TxMethod.tor => settings.tor,
+    TxMethod.tor => settings.tor || torPayWantedIn(settings),
     TxMethod.file => false,
   };
 
@@ -206,18 +214,19 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       id: 'receive-epicbox',
       child: st.settings.payments.epicbox ? (shallow ? _shallowPanel(st, status, moved) : _epicboxPanel(st, status)) : _epicboxOffNotice(nav),
     );
-    // Settings › Transactions: Link · Tor's panel while its switch is on and Tor runs (Tor off
-    // with the switch on: the notice below says what it needs); Link · HTTP's while its switch
-    // is on and Tor is not (Tor stops the clearnet listener), or while its listener still runs.
+    // Settings › Payments: Link · Tor's panel while its switch is on: it starts tor for payments
+    // by itself (item 2), or the Tor switch runs it; Link · HTTP's while its switch is on and
+    // the Tor switch is not (it stops the clearnet listener), or while its listener still runs.
     final p = st.settings.payments;
-    final torPanel = feat.linkPayments && DeskFeatures.tor && p.linkTor && st.settings.tor;
+    final torPanel = feat.linkPayments && DeskFeatures.tor && p.linkTor && (st.settings.tor || torPayWantedIn(st.settings));
     final httpPanel = feat.linkPayments && ((p.linkHttp && !st.settings.tor) || status?.httpListener == ServiceHealth.ok);
     final others = [
       if (torPanel) _torPanel(st, status),
       if (httpPanel) _httpPanel(st, status),
     ];
-    final torNeeded = feat.linkPayments && DeskFeatures.tor && p.linkTor && !st.settings.tor;
     final tor = netTorState(st.settings, status);
+    // The tor behind the Tor address, whoever started it.
+    final torRx = torProcessState(st.settings, status);
     final net = deskNetBlock(st);
     // Settings › Transactions › File; a file send waiting for its response keeps the panel (Finalize).
     final files = feat.fileTransfer && (st.settings.payments.directFile || st.pendingFiles > 0)
@@ -247,8 +256,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (net != NetBlock.none) ...[_netNotice(net), SizedBox(height: Sp.x4)]
-            else if (torPanel && (tor == TorState.starting || tor == TorState.failed)) ...[_torNotice(tor), SizedBox(height: Sp.x4)]
-            else if (torNeeded) ...[_torOffNotice(), SizedBox(height: Sp.x4)],
+            else if (torPanel && (torRx == TorState.starting || torRx == TorState.failed) && (torRx == TorState.starting || !ref.watch(connectionGraceProvider))) ...[_torNotice(torRx), SizedBox(height: Sp.x4)],
             if (arriving != null) ...[_arrivalCard(arriving, nav), SizedBox(height: Sp.x4)],
             LayoutBuilder(
           builder: (context, box) {
@@ -323,29 +331,13 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     );
   }
 
-  /// Link · Tor is on (Settings › Transactions) and Tor is off: the Tor address needs Tor.
-  Widget _torOffNotice() {
-    final l = context.l10n;
-    final busy = _busy.contains(TxMethod.tor);
-    return ENotice(
-      key: const ValueKey('rx-tor-off-notice'),
-      icon: MethodIcons.of(MethodKind.linkTor),
-      title: l.deskRecvTorOffTitle,
-      text: l.deskRecvTorOffTextNet,
-      actions: [
-        EButton(label: l.deskSetHttpTurnOnTor, icon: EIcons.tor, size: EBtnSize.inline, busy: busy, onPressed: busy ? null : () => _toggle(TxMethod.tor, true)),
-        EButton.ghost(label: l.deskRecvSettings, icon: EIcons.settings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsPrivacy)),
-      ],
-    );
-  }
-
   /// Whether the page's banner says Tor is not connected ([_torNotice]): then it is the one
   /// place that explains it and offers Retry; the Tor line keeps only its state, the chip its
   /// neutral look (D-04).
   bool _torBanner(DeskState st, ServiceStatus? status) {
     final p = st.settings.payments;
-    final torPanel = ref.read(deskLevelFeaturesProvider).linkPayments && DeskFeatures.tor && p.linkTor && st.settings.tor;
-    return torPanel && deskNetBlock(st) == NetBlock.none && netTorState(st.settings, status) == TorState.failed;
+    final torPanel = ref.read(deskLevelFeaturesProvider).linkPayments && DeskFeatures.tor && p.linkTor && (st.settings.tor || torPayWantedIn(st.settings));
+    return torPanel && deskNetBlock(st) == NetBlock.none && torProcessState(st.settings, status) == TorState.failed;
   }
 
   /// Tor starting or not connected: what it holds up, and Retry or Settings when it failed.

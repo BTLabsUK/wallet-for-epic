@@ -57,7 +57,11 @@ void main() {
   });
 
   test('on by default; handed to the open wallet at unlock and on change', () async {
-    expect(session().epicboxOverTorValue, isTrue, reason: 'given at unlock');
+    // The relay goes through tor only while the Tor switch carries every connection (Link · Tor
+    // may run tor for payments alone): off at unlock with the switch off, on with it.
+    expect(session().epicboxOverTorValue, isFalse, reason: 'the Tor switch is off');
+    await wallet.saveSettings((await wallet.settings()).copyWith(torAutostart: true));
+    expect(session().epicboxOverTorValue, isTrue, reason: 'given with the switch');
     await wallet.setEpicboxOverTor(false);
     expect(session().epicboxOverTorValue, isFalse, reason: 'applied at once');
     await wallet.lock();
@@ -109,7 +113,8 @@ void main() {
     await pumpEventQueue();
     session().routeLog.clear();
     await wallet.setTor(false);
-    expect(session().routeLog, ['stopTor']);
+    // Then the routes go back to direct (they follow the Tor switch).
+    expect(session().routeLog, ['stopTor', 'nodeAndHttpOverTor:false', 'epicboxOverTor:false']);
   });
 
   test('epicboxViaTor while Tor is on and Epicbox over Tor is on', () async {

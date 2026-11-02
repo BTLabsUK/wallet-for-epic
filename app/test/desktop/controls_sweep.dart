@@ -294,6 +294,8 @@ class _Recorder implements DeskWalletApi, MockBacked {
   @override
   Future<void> setEpicboxOverTor(bool on) => _r('setEpicboxOverTor', () => _m.setEpicboxOverTor(on));
   @override
+  Future<void> retryTorPay() => _r('retryTorPay', _m.retryTorPay);
+  @override
   Future<void> syncNow() => _r('syncNow', _m.syncNow);
   @override
   Stream<ScanStep> rescan({bool deleteUnconfirmed = false, BigInt? startHeight}) => _r('rescan', () => _m.rescan(deleteUnconfirmed: deleteUnconfirmed, startHeight: startHeight));

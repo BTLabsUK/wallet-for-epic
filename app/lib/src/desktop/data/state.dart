@@ -20,6 +20,9 @@ import '../../relay_directory.dart' show statusSite;
 import '../../settings_file/network_mode_file.dart' show networkModeIn, saveNetworkMode;
 import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../../phrase_clipboard.dart';
+import '../../tor_build.dart' show torBuilt;
+import '../../tor_pay.dart';
+import 'net_mode_view.dart' show torProcessState;
 
 /// The wallet behind the desktop UI. Override with a LEPIC adapter to go live.
 final deskApiProvider = Provider<DeskWalletApi>((ref) => MockDeskWallet());
@@ -539,6 +542,24 @@ class DeskController extends Notifier<DeskState> {
     state = state.copyWith(status: status);
   }
 
+  /// The Link · Tor switch (Settings › Payments): saved as `payments.linkTor`, and with it tor
+  /// for payments starts or stops (the adapter's rule, `torPayWantedIn`). The Tor switch of
+  /// Network & privacy is untouched.
+  Future<void> setLinkTor(bool on) async {
+    final s = state.settings;
+    if (s.payments.linkTor == on) return;
+    await saveSettings(s.copyWith(payments: s.payments.copyWith(linkTor: on)));
+    final status = await api.status();
+    state = state.copyWith(status: status);
+  }
+
+  /// Link · Tor's Retry after tor for payments failed.
+  Future<void> retryTorPay() async {
+    await api.retryTorPay();
+    final status = await api.status();
+    state = state.copyWith(status: status);
+  }
+
   Future<void> addNode(NodeServer node) async {
     await api.addNode(node);
     final nodes = await api.nodes();
@@ -730,3 +751,33 @@ final deskSendingProvider = NotifierProvider<DeskSending, int>(DeskSending.new);
 
 /// Ends the app (Ctrl+Q) after the wallet is locked; null in the mock, which only locks.
 final deskQuitProvider = Provider<Future<void> Function()?>((ref) => null);
+
+/// The wallet's onion while Link · Tor is on, `<56 characters>.onion` (known before tor runs);
+/// null while it is off or not read.
+final deskTorAddressProvider = FutureProvider<String?>((ref) async {
+  final on = ref.watch(deskProvider.select((s) => s.account != null && s.settings.payments.linkTor));
+  if (!on || !torBuilt) return null;
+  try {
+    final a = await ref.read(deskApiProvider).torAddress();
+    return a.replaceFirst(RegExp(r'^https?://'), '').replaceFirst(RegExp(r'/+$'), '');
+  } on Object {
+    return null;
+  }
+});
+
+/// Tor for payments now (item 2): the Link · Tor state line and the title-bar Tor icon read it;
+/// `tor_pay.dart` says what each state means.
+final deskTorPayProvider = Provider<TorPay>((ref) {
+  final st = ref.watch(deskProvider);
+  final status = st.status;
+  return torPayOf(
+    linkTor: st.settings.payments.linkTor,
+    built: torBuilt && (status?.torIncluded ?? true),
+    mode: st.settings.advanced.networkMode,
+    torSwitch: st.settings.tor || st.settings.torAutostart,
+    tor: torProcessState(st.settings, status),
+    published: status?.tor == ServiceHealth.ok,
+    onion: ref.watch(deskTorAddressProvider).value,
+    problem: status?.tor == ServiceHealth.down || status?.tor == ServiceHealth.slow ? status?.torProblem : null,
+  );
+});

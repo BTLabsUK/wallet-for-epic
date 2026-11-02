@@ -843,8 +843,9 @@ class MockDeskWallet implements DeskWalletApi {
       epicboxBlocked: _listening && epicboxBlocked,
       epicboxInstead: _listening && epicboxBlocked ? epicboxInstead : null,
       httpListener: _http ? ServiceHealth.ok : ServiceHealth.off,
-      tor: _settings.tor ? ServiceHealth.ok : ServiceHealth.off,
-      torCanSend: _settings.tor,
+      // As the adapter: Link · Tor runs tor for payments alone, outside Node only and Kill switch.
+      tor: _torRuns ? ServiceHealth.ok : ServiceHealth.off,
+      torCanSend: _torRuns,
       lastUpdate: _ago(minutes: 1),
       recordsPlain: recordsPlain,
       contactsClosed: contactsClosed,
@@ -1141,6 +1142,11 @@ class MockDeskWallet implements DeskWalletApi {
 
   @override
   Future<void> setEpicboxOverTor(bool on) async {}
+
+  bool get _torRuns => _settings.tor || (DeskFeatures.tor && _settings.payments.linkTor && !NetGate.restricted);
+
+  @override
+  Future<void> retryTorPay() async {}
 
   static const _scanLog = [
     'Starting UTXO scan',

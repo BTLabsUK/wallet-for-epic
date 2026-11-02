@@ -1125,6 +1125,8 @@ class LepicDeskWallet implements DeskWalletApi {
       _settings = _settings.copyWith(tor: true);
       _torStartRetries = 0;
       unawaited(_startTor());
+    } else {
+      await _syncTorPay();
     }
   }
 
@@ -1308,6 +1310,7 @@ class LepicDeskWallet implements DeskWalletApi {
     if (listening) await setListening(true);
     if (http) await setHttpListening(true);
     if (tor) unawaited(_startTor());
+    if (!tor) unawaited(_syncTorPay());
     unawaited(_checkTip());
     unawaited(sync());
   }
@@ -2731,7 +2734,7 @@ class LepicDeskWallet implements DeskWalletApi {
           if (!sent.posted && !await _repost(session, id)) throw DeskError.l10n((l) => l.deskErrNodeRefused);
         case 'tor':
           if (!_torFeature) throw DeskError.l10n((l) => l.sendTorNotInVersion);
-          if (!_settings.tor) throw DeskError.l10n((l) => l.deskErrTorOffSend);
+          if (!_torRuns) throw DeskError.l10n((l) => l.deskErrTorOffSend);
           final sent = await session.resendTor(txId: id, onion: to);
           if (!sent.posted && !await _repost(session, id)) throw DeskError.l10n((l) => l.deskErrNodeRefused);
         default:
@@ -2858,7 +2861,7 @@ class LepicDeskWallet implements DeskWalletApi {
         case TxMethod.tor:
           final to = (r.to ?? '').trim();
           if (!isOnionAddress(to)) return SendFailed.l10n((l) => l.deskErrNotOnion);
-          if (!_settings.tor) return SendFailed.l10n((l) => l.deskErrTorOffSend);
+          if (!_torRuns) return SendFailed.l10n((l) => l.deskErrTorOffSend);
           if (!_torCanSend) return SendFailed.l10n((l) => l.deskErrTorConnecting);
           before = await SendBefore.take(session);
           final sent = await session.sendTor(amount: BigInt.from(amount), minimumConfirmations: _minConf, onion: to, message: message, options: r.options);
@@ -3420,7 +3423,9 @@ class LepicDeskWallet implements DeskWalletApi {
     if (settings.payments.linkHttp != old.payments.linkHttp && !moved) await _applyLinkHttpSwitch(settings.payments.linkHttp);
     if (settings.payments.linkTor != old.payments.linkTor) {
       logInfo('desk', 'link tor switch ${settings.payments.linkTor ? 'on' : 'off'}');
-      _changed();
+      await _syncTorPay();
+    } else if (settings.torAutostart != old.torAutostart && _session != null) {
+      await _routeTor(_session!);
     }
   }
 
@@ -3507,11 +3512,13 @@ class LepicDeskWallet implements DeskWalletApi {
             _torStartRetries = 0;
             unawaited(_startTor());
           }
-        } else if (_tor != null) {
+        } else if (_tor != null && _settings.tor) {
           // Into Node only with tor running: it published the onion, so it starts again
           // without it (startTor(publishOnion:)), carrying the node only.
           await _restartTorForOnion();
         }
+        // Tor for payments stops: Node only and Kill switch block it.
+        if (!_settings.tor) await _syncTorPay();
       }
       // Kill switch: no connection at all, so the built-in node stops too (leaving it starts
       // it again when it was on). Node only keeps it: it is then the node in use.
@@ -3558,6 +3565,7 @@ class LepicDeskWallet implements DeskWalletApi {
     } else if (now == NetworkMode.torOnly && session != null && _torFeature && !_settings.tor) {
       await setTor(true);
     }
+    if (session != null) await _syncTorPay();
     _followTor();
     _changed();
   }
@@ -4024,14 +4032,85 @@ class LepicDeskWallet implements DeskWalletApi {
     if (!on && NetGate.torOnly) return;
     _epicboxOverTor = on;
     _clearBlocked();
-    await _session?.setEpicboxOverTor(on);
+    final session = _session;
+    if (session != null) await _routeTor(session);
     _changed();
   }
 
-  /// Hands [session] the Epicbox over Tor choice and the onion routes in use.
+  /// Hands [session] the Epicbox over Tor choice and the onion routes in use, and the node
+  /// and HTTP sends' route ([_routeTor]).
   Future<void> _routeEpicbox(core.WalletSession session) async {
-    await session.setEpicboxOverTor(_epicboxOverTor);
+    await _routeTor(session);
     await _applyOnions(session);
+  }
+
+  // ---- Tor for payments (item 2).
+
+  /// Link · Tor on starts tor for payments alone: the onion listener and sends to onions. The
+  /// Tor switch (Network & privacy) and Tor only still decide the node, Epicbox and Direct
+  /// http(s) sends; Node only and Kill switch start no tor for it.
+  bool get _torPayWanted => _torFeature && _settings.payments.linkTor && !NetGate.restricted;
+
+  /// The Tor switch carries every connection: on now, saved on (it comes on at unlock), or
+  /// Tor only.
+  bool get _torAll => _settings.tor || (_torFeature && _settings.torAutostart) || NetGate.torOnly;
+
+  /// Tor runs or should: for the switch or for payments.
+  bool get _torRuns => _settings.tor || _torPayWanted;
+
+  /// The session's routes through tor while it runs: the node, Epicbox (with its own setting)
+  /// and Direct http(s) sends only while the switch carries every connection.
+  Future<void> _routeTor(core.WalletSession session) async {
+    final all = _torAll;
+    final epicbox = _epicboxOverTor && all;
+    final same = identical(session, _routed);
+    _routed = session;
+    if (!same || _routedAll != all) {
+      _routedAll = all;
+      try {
+        await session.setNodeAndHttpOverTor(all);
+      } on core.WalletError catch (e) {
+        logWarn('desk', 'tor routes: ${e.kind.name}');
+      }
+    }
+    if (!same || _routedEpicbox != epicbox) {
+      _routedEpicbox = epicbox;
+      await session.setEpicboxOverTor(epicbox);
+    }
+  }
+
+  /// The session [_routeTor] last set, and what it set: a route is handed over once per change.
+  core.WalletSession? _routed;
+  bool? _routedAll;
+  bool? _routedEpicbox;
+
+  /// Starts or stops tor for payments as Link · Tor, the Tor switch and the mode say, with the
+  /// routes set first: a tor for payments never carries the node or Epicbox.
+  Future<void> _syncTorPay() async {
+    final session = _session;
+    if (session == null || !_torFeature) return;
+    await _routeTor(session);
+    // The switch owns a tor it started.
+    if (_settings.tor) return;
+    if (_torPayWanted) {
+      if (_tor == null && _torHealth == ServiceHealth.off) {
+        logInfo('desk', 'tor for payments');
+        _torStartRetries = 0;
+        unawaited(_startTor());
+      }
+    } else if (_tor != null || _torHealth != ServiceHealth.off) {
+      await _stopTor();
+    }
+    _followTor();
+    _changed();
+  }
+
+  /// Retry of Tor for payments after it failed (the state line's Retry).
+  @override
+  Future<void> retryTorPay() async {
+    if (_settings.tor || !_torPayWanted) return;
+    await _stopTor();
+    await _syncTorPay();
   }
 
   /// Gives LEPIC the TLS hosts of [onions] that have an onion, for connections through tor.
@@ -4060,14 +4139,25 @@ class LepicDeskWallet implements DeskWalletApi {
     _clearBlocked();
     await _store.saveTorOn(_openEntry?.walletId, on);
     logInfo('desk', 'tor ${on ? 'on' : 'off'}');
+    final session = _session;
     if (!on) {
-      // A stop the user asked for: Epicbox may go direct again.
-      await _stopTor();
+      if (_torPayWanted && session != null && _torHealth != ServiceHealth.down) {
+        // Link · Tor keeps tor for payments: only the routes go back to direct.
+        await _routeTor(session);
+        _followTor();
+        _changed();
+      } else {
+        // A stop the user asked for: Epicbox may go direct again.
+        await _stopTor();
+        await _syncTorPay();
+      }
       if (_settings.directHttp && _session != null) await setHttpListening(true);
       return;
     }
     // The clearnet HTTP listener stays off while Tor is on (tor_routes.dart, torStops).
     await _stopHttp();
+    // A tor running for payments now carries every connection too.
+    if (session != null) await _routeTor(session);
     // On again after a failure, or while a start hangs, is Retry; the Epicbox connection keeps
     // waiting for the new tor.
     if (_torHealth == ServiceHealth.down || (_torHealth == ServiceHealth.checking && !_torCanSend)) {
@@ -4088,7 +4178,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final generation = _generation;
     final bundle = await _findTor();
     // Locked, switched, turned off or started meanwhile.
-    if (generation != _generation || _session != session || _tor != null || !_settings.tor || NetGate.killSwitch) return;
+    if (generation != _generation || _session != session || _tor != null || !_torRuns || NetGate.killSwitch) return;
     _torCanSend = false;
     _torProgress = null;
     if (bundle == null) {
@@ -4190,7 +4280,7 @@ class LepicDeskWallet implements DeskWalletApi {
   /// Restarts the tor that [sub] watches after the next pause of [torStartBackoff], showing
   /// Connecting meanwhile; false once the pauses since it last connected are used up.
   bool _torRestartLater(core.WalletSession session, StreamSubscription<core.TorEvent> sub, String why) {
-    if (_torStartRetries >= torStartBackoff.length || !_settings.tor) return false;
+    if (_torStartRetries >= torStartBackoff.length || !_torRuns) return false;
     final wait = torStartBackoff[_torStartRetries++];
     logInfo('desk', '$why; starting it again in ${wait.inSeconds} s ($_torStartRetries/${torStartBackoff.length})');
     _torHealth = ServiceHealth.checking;
@@ -4222,7 +4312,7 @@ class LepicDeskWallet implements DeskWalletApi {
     await sub.cancel();
     if (after > Duration.zero) await Future<void>.delayed(after);
     // Locked, switched off, or started again by the user meanwhile.
-    if (_session != session || !_settings.tor || _tor != null) return;
+    if (_session != session || !_torRuns || _tor != null) return;
     await _startTor();
   }
 

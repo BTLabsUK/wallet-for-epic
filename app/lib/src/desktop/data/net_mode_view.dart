@@ -15,6 +15,7 @@ import '../../net/node_peers.dart';
 import 'models.dart';
 import 'state.dart';
 import 'tor_view.dart';
+import '../../tor_build.dart' show torBuilt;
 
 /// The stored network mode.
 NetworkMode deskNetMode(DeskState st) => st.settings.advanced.networkMode;
@@ -28,6 +29,28 @@ TorState netTorState(DeskSettings settings, ServiceStatus? status) {
   final tor = torStateOf(settings, status);
   return settings.advanced.networkMode == NetworkMode.torOnly && tor == TorState.off ? TorState.starting : tor;
 }
+
+/// The wallet's tor process as onion sends and the Tor address see it, whoever started it:
+/// the Tor switch (or Tor only), or Link · Tor for payments alone ([torPayWantedIn]).
+TorState deskTorProcess(DeskState st) => torProcessState(st.settings, st.status);
+
+/// [deskTorProcess] from the parts.
+TorState torProcessState(DeskSettings settings, ServiceStatus? status) {
+  final net = netTorState(settings, status);
+  if (net != TorState.off || !torPayWantedIn(settings)) return net;
+  if (status == null) return TorState.starting;
+  return switch (status.tor) {
+    ServiceHealth.down => TorState.failed,
+    ServiceHealth.off => TorState.starting,
+    ServiceHealth.checking when !status.torCanSend => TorState.starting,
+    _ => TorState.on,
+  };
+}
+
+/// Link · Tor asks for tor for payments: on, in a build with Tor, outside Node only and Kill
+/// switch (the adapters start it from the same rule).
+bool torPayWantedIn(DeskSettings settings) =>
+    torBuilt && settings.payments.linkTor && !settings.advanced.networkMode.restricted;
 
 /// The node in use is on this computer or the local network: Node only says nothing about a
 /// public node then.

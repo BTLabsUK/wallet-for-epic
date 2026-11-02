@@ -545,6 +545,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       TxMethod.http => _to.text.trim().isNotEmpty && plainHttpNeedsConsent(_to.text) ? TorRoute.plainHttpDirect : TorRoute.httpDirect,
       TxMethod.file => null,
     };
+    // An onion goes through the wallet's tor whoever started it: Link · Tor runs one for
+    // payments alone (item 2).
+    if (route == TorRoute.onionDirect) return torWay(TorRoute.onionDirect, _args.tor ?? deskTorProcess(st));
     return route == null ? null : torWay(route, _torState(st));
   }
 
