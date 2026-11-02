@@ -534,8 +534,8 @@ class LevelPreview extends StatelessWidget {
   }
 }
 
-/// Tor only as a quiet row: the name, the switch, and its ⓘ; Change level's ([later]) with the
-/// agent and a full-size switch.
+/// Tor only as a quiet row: at first start one centred line (a small switch, the name, its ⓘ);
+/// Change level's ([later]) with the agent and a full-size switch.
 class UndercoverRow extends StatelessWidget {
   const UndercoverRow({super.key, required this.value, required this.onChanged, this.later = false});
 
@@ -550,6 +550,55 @@ class UndercoverRow extends StatelessWidget {
     final t = context.tokens;
     final l = context.l10n;
     final onChanged = this.onChanged;
+    if (!later) {
+      // First start: one quiet line, centred: a small switch, "Tor only" and its ⓘ (the owner),
+      // as on the desktop's Welcome. The tap target stays 48 dp high.
+      return Center(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: MergeSemantics(
+                child: InkWell(
+                  key: levelUndercoverKey,
+                  borderRadius: BorderRadius.circular(t.radiusSmall),
+                  onTap: onChanged == null ? null : () => onChanged(!value),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 48),
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.only(start: 4, end: 8),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            height: 24,
+                            child: FittedBox(
+                              child: Switch(
+                                value: value,
+                                onChanged: onChanged,
+                                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Flexible(
+                            child: Text(
+                              l.levelUndercoverTitle,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.dim),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const UndercoverHelpHint(),
+          ],
+        ),
+      );
+    }
     return DecoratedBox(
       decoration: BoxDecoration(
         border: Border(top: BorderSide(color: t.line)),
@@ -569,38 +618,22 @@ class UndercoverRow extends StatelessWidget {
                     child: Row(
                       children: [
                         const SizedBox(width: 2),
-                        // First start: one quiet line, "Tor only" and its ⓘ, a small switch
-                        // (the owner). Change level keeps the agent and the full-size switch.
-                        if (later) ...[
-                          LevelArt(LevelArtKind.agent, size: 22, color: value ? t.accentText : t.faint),
-                          const SizedBox(width: 10),
-                        ],
+                        LevelArt(LevelArtKind.agent, size: 22, color: value ? t.accentText : t.faint),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            later ? l.lvPickUndercover : l.levelUndercoverTitle,
+                            l.lvPickUndercover,
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.text),
                           ),
                         ),
-                        if (later)
-                          Switch(value: value, onChanged: onChanged)
-                        else
-                          SizedBox(
-                            height: 24,
-                            child: FittedBox(
-                              child: Switch(
-                                value: value,
-                                onChanged: onChanged,
-                                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                            ),
-                          ),
+                        Switch(value: value, onChanged: onChanged),
                       ],
                     ),
                   ),
                 ),
               ),
             ),
-            UndercoverHelpHint(later: later),
+            const UndercoverHelpHint(later: true),
           ],
         ),
       ),

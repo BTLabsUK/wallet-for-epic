@@ -392,7 +392,7 @@ class DeskUndercoverRow extends StatelessWidget {
     final l = context.l10n;
     final title = later ? l.lvPickUndercover : l.levelUndercoverTitle;
     return DecoratedBox(
-      decoration: BoxDecoration(border: context.getInheritedWidgetOfExactType<_StackedScope>() == null ? Border(top: BorderSide(color: c.line)) : null),
+      decoration: BoxDecoration(border: later && context.getInheritedWidgetOfExactType<_StackedScope>() == null ? Border(top: BorderSide(color: c.line)) : null),
       child: Padding(
         padding: EdgeInsets.only(top: Sp.x3),
         child: Row(
