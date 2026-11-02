@@ -10,6 +10,7 @@ import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
+import 'package:epic_wallet/src/desktop/screens/settings/settings_receiving.dart' show ReceivingDemo, deskTorPayLineKey;
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/network_gate.dart' show NetGate;
@@ -138,9 +139,9 @@ void main() {
       expect(_payments.linkHttp, isFalse);
       expect(tester.widget<ESwitch>(_offer('linkHttp')).value, isFalse);
       expect(find.textContaining('Node only'), findsWidgets);
-      await tester.tap(_offer('linkTor'));
-      await _settle(tester);
-      // Item 2: no "Tor is off" card; Tor for payments is the switch's own business.
+      // Item 2: Node only blocks Tor for payments: the switch is locked, its line says why.
+      expect(tester.widget<ESwitch>(_offer('linkTor')).onChanged, isNull);
+      expect(find.text('Off in Node only: only the node connects.'), findsOneWidget);
       expect(find.byKey(const ValueKey('st-tor-needs-tor')), findsNothing);
       expect(find.text('Turn on Tor'), findsNothing);
       await tester.pump(const Duration(seconds: 5));
@@ -174,9 +175,48 @@ void main() {
       expect(_payments.linkTor, isTrue);
       expect(find.byKey(const ValueKey('st-tor-needs-tor')), findsNothing);
       expect(find.text('Tor is off. Turn it on under Network & privacy to be paid at the Tor address.'), findsNothing);
-      expect(find.byKey(const ValueKey('st-details-linkTor')), findsOneWidget);
+      expect(find.byKey(const ValueKey('st-details-linkTor')), findsNothing, reason: 'the state is under the switch, no second row');
       expect(find.widgetWithText(EButton, 'Turn on Tor'), findsNothing);
     });
+
+    testWidgets('Link · Tor runs Tor for payments alone: Receiving at the onion with Copy, the Tor switch untouched (item 2)', (tester) async {
+      await _open(tester, DeskRoute.settingsReceiving);
+      await tester.tap(_offer('linkTor'));
+      await _settle(tester);
+      final s = _container.read(deskProvider).settings;
+      expect((s.payments.linkTor, s.tor, s.torAutostart), (true, false, false), reason: 'Network & privacy\'s Tor switch stays off');
+      final line = find.byKey(deskTorPayLineKey);
+      expect(line, findsOneWidget);
+      expect(find.descendant(of: line, matching: find.text('Receiving', findRichText: true)), findsOneWidget);
+      expect(find.descendant(of: line, matching: find.byType(EAddress)), findsOneWidget);
+      expect(find.descendant(of: line, matching: find.bySemanticsLabel('Copy Tor address')), findsOneWidget);
+      expect(find.descendant(of: line, matching: find.text('Tor for every connection: off (Network & privacy).')), findsOneWidget);
+      expect(find.byKey(const ValueKey('st-torPay-retry')), findsNothing);
+      // Off again: tor for payments stops, the line goes.
+      await tester.tap(_offer('linkTor'));
+      await _settle(tester);
+      expect(_payments.linkTor, isFalse);
+      expect(_container.read(deskProvider).settings.tor, isFalse);
+      expect(find.byKey(deskTorPayLineKey), findsNothing);
+    }, skip: !torBuilt);
+
+    testWidgets('Kill switch locks Link · Tor on with the reason; Tor stopped offers Retry', (tester) async {
+      await _open(tester, DeskRoute.settingsReceiving, payments: const PaymentPrefs(linkTor: true), advanced: const AdvancedPrefs(networkMode: NetworkMode.killSwitch));
+      expect(tester.widget<ESwitch>(_offer('linkTor')).value, isTrue);
+      expect(tester.widget<ESwitch>(_offer('linkTor')).onChanged, isNull, reason: 'the mode decides, not the switch');
+      expect(find.text('Off in Kill switch: nothing connects.'), findsOneWidget);
+      expect(find.descendant(of: find.byKey(deskTorPayLineKey), matching: find.byType(EAddress)), findsNothing);
+      await tester.pump(const Duration(seconds: 5));
+    }, skip: !torBuilt);
+
+    testWidgets('Tor for payments that did not connect: the line says so, with Retry', (tester) async {
+      await _open(tester, DeskRoute.settingsReceiving, arg: ReceivingDemo.torStopped, payments: const PaymentPrefs(linkTor: true));
+      expect(find.text('Tor did not connect.'), findsOneWidget);
+      expect(find.byKey(const ValueKey('st-torPay-retry')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('st-torPay-retry')));
+      await _settle(tester);
+      expect(_container.read(deskProvider).settings.tor, isFalse, reason: 'Retry leaves the Tor switch alone');
+    }, skip: !torBuilt);
 
     testWidgets('Outputs holds one line to Payments with Send options on', (tester) async {
       await _open(tester, DeskRoute.outputs, advanced: AdvancedPrefs(features: {AdvancedFeature.outputs, AdvancedFeature.sendOptions}));

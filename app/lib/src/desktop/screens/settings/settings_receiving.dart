@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../levels/wallet_level.dart';
 import '../../../models.dart' show defaultMinimumConfirmations, maxMinimumConfirmations, minMinimumConfirmations;
 import '../../../payment_prefs.dart';
+import '../../../advanced.dart' show NetworkModeRestricted;
+import '../../../tor_pay.dart';
 import '../../data/method_names.dart';
 import '../../data/net_mode_view.dart' show netTorState;
 import '../../desk_l10n.dart';
@@ -27,7 +29,6 @@ import 'setting_ids.dart';
 import 'settings_frame.dart';
 import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 import 'settings_http.dart';
-import 'settings_privacy.dart' show torStateLine;
 import '../../../settings_file/status_site.dart' show statusSiteHost;
 
 /// Start states of Settings › Transactions (once Receiving), for the tour. [directOn] has the
@@ -49,9 +50,12 @@ ETone epicboxTone(ServiceHealth h) => switch (h) {
 /// only while it is on (no scrolling to the bottom to see them): Epicbox its
 /// listener switch, Start with the wallet and the server; Link · HTTP its state line and
 /// options (the method switch is the one HTTP switch, there is no second one) while it is on
-/// or its listener still runs; Link · Tor its state line (Tor itself is Settings › Privacy's).
+/// or its listener still runs; Link · Tor the state of Tor for payments under its switch (item 2).
 /// The Tor caption under the Epicbox rows, for tests.
 const Key deskTorRelayCaptionKey = ValueKey('tor-relay-caption');
+
+/// Link · Tor's state under its switch, for tests.
+const Key deskTorPayLineKey = ValueKey('st-torPay-line');
 
 class SettingsReceivingScreen extends ConsumerStatefulWidget {
   const SettingsReceivingScreen({super.key, this.arg});
@@ -74,9 +78,8 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       final n = ref.read(deskProvider.notifier);
       final s = ref.read(deskProvider).settings;
       if (arg == ReceivingDemo.torOn || arg == ReceivingDemo.torStopped) {
-        // Link · Tor on with Tor: its group shows with the Tor state.
-        if (!s.payments.linkTor) await n.saveSettings(s.copyWith(payments: s.payments.copyWith(linkTor: true)));
-        await n.setTor(true);
+        // Link · Tor on: Tor for payments starts, the Tor switch of Network & privacy stays off.
+        await n.setLinkTor(true);
       }
       if (arg == ReceivingDemo.httpOn || arg == ReceivingDemo.httpFailed || arg == ReceivingDemo.httpPublic) await n.setHttp(true);
       if (arg == ReceivingDemo.httpPublic && !s.publicMode) await n.saveSettings(ref.read(deskProvider).settings.copyWith(publicMode: true));
@@ -125,7 +128,13 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
         case TxMethod.http:
           await n.setHttp(on);
         case TxMethod.tor:
-          await n.setTor(on);
+          // Link · Tor (item 2): tor for payments alone; Retry starts it again. The Tor switch
+          // of Network & privacy is never touched here.
+          if (ref.read(deskProvider).settings.payments.linkTor == on) {
+            await n.retryTorPay();
+          } else {
+            await n.setLinkTor(on);
+          }
         case TxMethod.file:
           break;
       }
@@ -279,17 +288,17 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
         return _setEpicbox(on);
       case MethodKind.linkHttp:
         return _toggle(TxMethod.http, on);
-      // TODO(settings-items): Link · Tor runs Tor for payments by itself (item 2): switch it
-      // with `deskProvider.notifier.setLinkTor(on)`, enabled by `torPayCanSwitch(deskTorPayProvider)`,
-      // its line from `torPayLine(l, TorPay)`, Retry `retryTorPay()`.
-      case MethodKind.linkTor || MethodKind.directQr || MethodKind.directFile:
+      // Tor for payments alone (item 2): the Tor switch of Network & privacy stays as it is.
+      case MethodKind.linkTor:
+        return _toggle(TxMethod.tor, on);
+      case MethodKind.directQr || MethodKind.directFile:
         return _savePayments((x) => x.withMethod(m, on));
     }
   }
 
   /// A method's row in Payment methods: its icon, its name under the family's subhead, one
   /// hint, and its switch. Link · Tor starts Tor for its payments by itself (item 2).
-  Widget _methodRow(MethodKind m, PaymentPrefs p, DeskSettings s, {required String anchor}) {
+  Widget _methodRow(MethodKind m, PaymentPrefs p, DeskSettings s, {required String anchor, TorPay? torPay}) {
     final l = context.l10n;
     final name = MethodIcons.groupName(l, m);
     final full = MethodIcons.fullName(l, m);
@@ -300,7 +309,9 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       MethodKind.directQr => '',
       MethodKind.directFile => l.deskSetTxFileHint,
     };
-    final busy = m == MethodKind.linkHttp && _busy.contains(TxMethod.http);
+    final busy = (m == MethodKind.linkHttp && _busy.contains(TxMethod.http)) || (m == MethodKind.linkTor && _busy.contains(TxMethod.tor));
+    // Link · Tor is locked while Node only or Kill switch blocks it; its line says why.
+    final locked = m == MethodKind.linkTor && torPay != null && !torPayCanSwitch(torPay);
     return ESetRow(
       key: ValueKey('st-method-${m.name}'),
       anchor: anchor,
@@ -318,9 +329,54 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
                 key: ValueKey('st-offer-${m.name}'),
                 value: p.offers(m),
                 semanticLabel: full,
-                onChanged: (v) => _setMethod(m, v),
+                onChanged: locked ? null : (v) => _setMethod(m, v),
               ),
       ),
+      below: m == MethodKind.linkTor && torPay != null && torPay.kind != TorPayKind.off ? _torPayBelow(torPay) : null,
+    );
+  }
+
+  /// Under the Link · Tor switch: what Tor for payments does now (starting, receiving at the
+  /// onion with Copy, off in Node only or Kill switch and why, failed with Retry), then whether
+  /// Tor also carries every other connection (Network & privacy's switch).
+  Widget _torPayBelow(TorPay p) {
+    final l = context.l10n;
+    final c = context.dc;
+    final busy = _busy.contains(TxMethod.tor);
+    final text = torPayLine(l, p);
+    final cut = text.indexOf(' · ');
+    final state = switch (p.kind) {
+      TorPayKind.ready => EState.ok,
+      TorPayKind.starting => EState.active,
+      TorPayKind.failed => EState.risk,
+      TorPayKind.off || TorPayKind.blocked => EState.off,
+    };
+    final line = cut < 0 ? MethodLine(text, state) : MethodLine(text.substring(0, cut), state, detail: text.substring(cut + 3));
+    final onion = p.kind == TorPayKind.ready ? p.onion : null;
+    return Column(
+      key: deskTorPayLineKey,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        EStateLine(
+          line,
+          key: const ValueKey('st-state-torPay'),
+          trailing: torPayRetry(p)
+              ? EButton(
+                  key: const ValueKey('st-torPay-retry'),
+                  label: l.commonRetry,
+                  icon: EIcons.refresh,
+                  size: EBtnSize.inline,
+                  busy: busy,
+                  onPressed: busy ? null : () => _toggle(TxMethod.tor, true),
+                )
+              : null,
+        ),
+        if (onion != null) ...[SizedBox(height: Sp.x2), EAddress(onion, copyLabel: l.deskRecvCopyTor)],
+        if (p.kind != TorPayKind.blocked) ...[
+          SizedBox(height: Sp.x2),
+          Text(torPayRestLine(l, p), key: const ValueKey('st-torPay-rest'), style: context.ts.small.copyWith(color: c.dim)),
+        ],
+      ],
     );
   }
 
@@ -354,11 +410,11 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   /// its row stands alone; Link and Direct get a subhead on their first method's row. A method
   /// that is on carries its receiving [details] right under its row, so the feedback (the
   /// state line, the server, the options) is where the switch is.
-  Widget _methodsGroup(PaymentPrefs p, DeskSettings s, Map<MethodKind, (SettingsJump, List<Widget>)> details) {
+  Widget _methodsGroup(PaymentPrefs p, DeskSettings s, Map<MethodKind, (SettingsJump, List<Widget>)> details, TorPay torPay) {
     final l = context.l10n;
     Widget row(MethodKind m, {required String anchor}) {
       final d = details[m];
-      final body = _methodRow(m, p, s, anchor: anchor);
+      final body = _methodRow(m, p, s, anchor: anchor, torPay: m == MethodKind.linkTor ? torPay : null);
       if (d == null) return body;
       final (jump, rows) = d;
       return JumpSection(
@@ -464,6 +520,15 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     );
   }
 
+  /// Tor for payments as the line shows it: Node only and Kill switch say why the switch is
+  /// locked even while it is off; the tour's stopped state fails without a reason.
+  TorPay _torPay(DeskSettings s) {
+    final p = ref.watch(deskTorPayProvider);
+    if (p.kind == TorPayKind.off && s.advanced.networkMode.restricted) return TorPay(TorPayKind.blocked, mode: p.mode, torAll: p.torAll);
+    if (widget.arg == ReceivingDemo.torStopped && s.payments.linkTor) return TorPay(TorPayKind.failed, mode: p.mode, torAll: p.torAll);
+    return p;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
@@ -482,7 +547,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
         ? MethodLine(l.deskKitMethodOff, EState.off, detail: l.netBlockEpicboxOff)
         : methodStateLine(l, TxMethod.epicbox, status, s);
     final httpLine = methodStateLine(l, TxMethod.http, status, s);
-    final torLine = torStateLine(l, netTorState(s, status), status, included: status.torIncluded);
+    final torPay = _torPay(s);
 
     // Each method's receiving rows, under its switch while it is on.
     final details = <MethodKind, (SettingsJump, List<Widget>)>{
@@ -554,10 +619,8 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
           const HttpOptions(),
         ],
       ]),
-      // Link · Tor on: where its address stands (Tor itself is Settings › Privacy's switch).
-      MethodKind.linkTor: (SettingsJump.tor, [
-        if (DeskFeatures.tor && s.payments.linkTor) _receivingRow(TxMethod.tor, l.deskSetRecvTorText, s.tor, torLine, switchable: false),
-      ]),
+      // Link · Tor: its state line is under its own switch (_torPayBelow).
+      MethodKind.linkTor: (SettingsJump.tor, const []),
     };
 
     return SettingsFrame(
@@ -565,7 +628,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _methodsGroup(s.payments, s, details),
+          _methodsGroup(s.payments, s, details, torPay),
           _sendGroup(s.payments),
           const JumpSection(section: SettingsJump.confirmations, child: ReceivingGroup()),
         ],
