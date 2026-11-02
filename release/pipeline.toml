@@ -183,7 +183,7 @@ for_each = "variant"
 # Without a signer Android is signed inside the Gradle build, so it runs where the release key
 # is; with one it builds unsigned (tool/build_android_release.sh) and sign-android signs it.
 host = "signer"
-needs = ["source-check"]
+needs = ["source", "source-check"]
 run = "app/tool/build_android_release.sh {stage}"
 env = { WFE_TOR = "{tor}", WFE_EMULATOR_X86_64 = "1" }
 heavy = true
@@ -237,7 +237,7 @@ host = "build"
 # its own copy of the code. Each build still takes a build-slot slot (heavy = true); the two
 # Linux variants one after the other. metrics.jsonl has the pair's peak memory ("overlap" lines).
 lane = "build-linux"
-needs = ["source-check"]
+needs = ["source", "source-check"]
 run = "scripts/build-linux.sh && mv -f build-linux/bt-wallet-{version}{notor}-linux-x86_64.AppImage {stage}/"
 env = { WFE_TOR = "{tor}", WFE_NODE_BIN = "{path.node_bin_linux}" }
 heavy = true
@@ -255,7 +255,7 @@ host = "windows"
 # The variants build side by side, each in its own work dir (the owner 2026-10-31: the Windows
 # machine takes 4-6 jobs).
 lane = "build-windows-{variant}"
-needs = ["source-check"]
+needs = ["source", "source-check"]
 # A fresh work dir per run and variant on the Windows machine (never a stale LEPIC blob from an
 # older run); only this run's installer is taken back.
 run = "app/tool/build_windows_release_remote.sh {host.windows.ssh} {host.windows.workdir}/{run_id}-{variant} && mv -f build-windows/bt-wallet-{version}{notor}-windows-x64-setup.exe {stage}/"
@@ -279,7 +279,7 @@ platform = "macos"
 when = ["apple.signed"]
 for_each = "variant"
 host = "apple"
-needs = ["source-check"]
+needs = ["source", "source-check"]
 run = "git fetch job/wfe.bundle HEAD && git checkout --detach FETCH_HEAD && test \"$(git rev-parse HEAD)\" = {commit} && RELEASE_COMMIT={commit} WFE_TOR={tor} tools/build-apple.sh mac-release  # then build-apple/mac-release/bt-wallet-{version}{notor}-macos.{dmg,dmg.sha256,REPORT.txt} into results/"
 results = ["bt-wallet-{version}{notor}-macos.dmg", "bt-wallet-{version}{notor}-macos.dmg.sha256", "bt-wallet-{version}{notor}-macos.REPORT.txt"]
 timeout = "48h"
@@ -303,7 +303,7 @@ kind = "handoff"
 platform = "ios"
 when = ["apple.signed"]
 host = "apple"
-needs = ["source-check"]
+needs = ["source", "source-check"]
 run = "git fetch job/wfe.bundle HEAD && git checkout --detach FETCH_HEAD && test \"$(git rev-parse HEAD)\" = {commit} && RELEASE_COMMIT={commit} WFE_TOR=0 tools/build-apple.sh ios-prepare  # then Xcode Archive → Distribute → App Store Connect; results/REPORT.txt: build number + uploaded"
 results = ["REPORT.txt"]
 timeout = "48h"
@@ -320,7 +320,7 @@ platform = ["macos", "ios"]
 unless = ["apple.signed"]
 for_each = "variant"
 host = "apple"
-needs = ["source-check"]
+needs = ["source", "source-check"]
 run = "rm -rf src out && git clone -q job/wfe.bundle src && cd src && git checkout -q --detach {commit} && RELEASE_COMMIT={commit} WFE_TOR={tor} APPLE_OUT=$PWD/../out tools/build-apple.sh release-check doctor sources lepic macos dmg ipa  # in the folder holding job/: a fresh clone beside job/ (release-check refuses untracked files, and a build changes tracked ones); then out/{bt-wallet-{version}{notor}-macos.dmg,bt-wallet-{version}{notor}-ios-unsigned.ipa,results.txt} into results/ with their SHA256SUMS"
 results = ["bt-wallet-{version}{notor}-macos.dmg", "bt-wallet-{version}{notor}-ios-unsigned.ipa", "results.txt", "SHA256SUMS"]
 timeout = "48h"
@@ -361,7 +361,7 @@ lane = "screens"
 warn_only = true
 skippable = true
 capped = true
-needs = ["source-check"]
+needs = ["source", "source-check"]
 run = "{rel}/tools/rellib/steps/screens.sh {version} {stage}"
 timeout = "120m"
 
