@@ -76,8 +76,8 @@ void main() {
   // The switch itself (Settings › Privacy) is tested in tor_switch_desk_test.dart.
 
   group('Send to an onion', () {
-    testWidgets('Tor off: Turn on Tor, then the send goes over Tor', (tester) async {
-      // Link · Tor on in Settings › Transactions, so the one thing missing is Tor itself.
+    testWidgets('Tor switch off: the tor Link · Tor runs for payments carries the send', (tester) async {
+      // Item 2: Link · Tor on starts tor for payments; nothing asks to turn the Tor switch on.
       await tester.runAsync(() async {
         final n = container.read(deskProvider.notifier);
         await n.refresh();
@@ -85,12 +85,8 @@ void main() {
         await n.saveSettings(s.copyWith(payments: s.payments.copyWith(linkTor: true)));
       });
       await show(tester, const SendScreen(arg: SendArgs(method: TxMethod.http, recipient: _onion, amount: '1')));
-      // Under Link, an onion needs Tor.
-      expect(find.text('Link · Tor needs Tor'), findsOneWidget);
-      expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Review')).onPressed, isNull);
-      await tester.tap(find.widgetWithText(EButton, 'Turn on Tor'));
-      await tester.pumpAndSettle();
       expect(find.text('Link · Tor needs Tor'), findsNothing);
+      expect(find.widgetWithText(EButton, 'Turn on Tor'), findsNothing);
       await tester.tap(find.text('Review'));
       await tester.pumpAndSettle();
       expect(find.text('Link · Tor (their wallet must be open)'), findsOneWidget);

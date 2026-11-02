@@ -481,8 +481,9 @@ class PhoneTor extends Notifier<PhoneTorState> {
         _routedEpicbox = epicbox;
         await session.setEpicboxOverTor(epicbox);
       }
-    } on WalletError catch (e) {
-      logWarn('tor', 'routes: ${e.kind.name}');
+    } on Object catch (e) {
+      // A core without the call keeps tor carrying every route, as before.
+      logWarn('tor', 'routes: ${e is WalletError ? e.kind.name : e.runtimeType}');
     }
   }
 

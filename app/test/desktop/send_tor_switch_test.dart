@@ -203,18 +203,13 @@ void main() {
     expect(review(tester).onPressed, isNotNull);
   }, skip: !torBuilt);
 
-  testWidgets('an onion with Tor off: "Needs Tor" and Turn on Tor; the form is kept', (tester) async {
+  testWidgets('an onion with the Tor switch off goes over the tor Link · Tor runs for payments', (tester) async {
+    // Item 2: Link · Tor on starts tor for payments; no Turn on Tor, the switch stays off.
     await show(tester, const SendArgs(method: TxMethod.http, recipient: _onion, amount: '1'), tor: false);
-    expect(find.text('Link · Tor needs Tor'), findsOneWidget);
-    expect(chip('Without Tor'), findsOneWidget);
-    expect(review(tester).onPressed, isNull);
-    expect(find.text('Link · HTTP goes directly, without Tor.'), findsNothing);
-    await tester.tap(find.widgetWithText(EButton, 'Turn on Tor'));
-    await tester.pumpAndSettle();
-    expect(wallet.torCalls, [true]);
-    expect(find.text(_onion), findsOneWidget, reason: 'the form is kept');
     expect(find.text('Link · Tor needs Tor'), findsNothing);
+    expect(find.widgetWithText(EButton, 'Turn on Tor'), findsNothing);
     expect(review(tester).onPressed, isNotNull);
+    expect(wallet.torCalls, isEmpty);
     expect(wallet.sent, isEmpty);
   }, skip: !torBuilt);
 

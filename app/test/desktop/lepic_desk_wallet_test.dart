@@ -1421,10 +1421,10 @@ void main() {
       await done(tester);
     });
 
-    testWidgets('receive has the HTTP address with Tor off (Link over Tor shows only with it on)', (tester) async {
+    testWidgets('receive has the HTTP address with Tor off', (tester) async {
+      // The Tor address follows Link · Tor alone (item 2: it starts tor for payments).
       await pump(tester, DeskRoute.receive);
       expect(find.text('Link · HTTP address'), findsOneWidget);
-      expect(find.text('Link · Tor address'), findsNothing);
       await done(tester);
     });
 

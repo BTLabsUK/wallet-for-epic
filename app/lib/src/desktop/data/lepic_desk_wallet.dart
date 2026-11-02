@@ -4069,8 +4069,9 @@ class LepicDeskWallet implements DeskWalletApi {
       _routedAll = all;
       try {
         await session.setNodeAndHttpOverTor(all);
-      } on core.WalletError catch (e) {
-        logWarn('desk', 'tor routes: ${e.kind.name}');
+      } on Object catch (e) {
+        // A core without the call keeps tor carrying every route, as before.
+        logWarn('desk', 'tor routes: ${e is core.WalletError ? e.kind.name : e.runtimeType}');
       }
     }
     if (!same || _routedEpicbox != epicbox) {

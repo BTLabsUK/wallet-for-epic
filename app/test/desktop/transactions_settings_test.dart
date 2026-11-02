@@ -541,14 +541,12 @@ void main() {
       expect(find.byKey(const ValueKey('rx-switch-http')), findsNothing);
     });
 
-    testWidgets('Link · Tor on with Tor off: the notice that it needs Tor, no Tor address; Turn on Tor brings the address', (tester) async {
+    testWidgets('Link · Tor on with Tor off: tor for payments brings the Tor address, no Tor-off notice', (tester) async {
+      // Item 2: Link · Tor starts tor for payments by itself; the Tor switch stays off.
       await _open(tester, DeskRoute.receive, payments: const PaymentPrefs(linkTor: true));
-      expect(find.byKey(const ValueKey('rx-tor-off-notice')), findsOneWidget);
-      expect(find.text('Link · Tor address'), findsNothing);
-      await tester.tap(find.descendant(of: find.byKey(const ValueKey('rx-tor-off-notice')), matching: find.text('Turn on Tor')));
-      await _settle(tester);
       expect(find.byKey(const ValueKey('rx-tor-off-notice')), findsNothing);
       expect(find.text('Link · Tor address'), findsWidgets);
+      expect(_container.read(deskProvider).settings.tor, isFalse);
     }, skip: !torBuilt);
 
     testWidgets('Tor on with Link · Tor off: no Tor address on Receive', (tester) async {
