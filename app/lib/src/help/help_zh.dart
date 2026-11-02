@@ -23,7 +23,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
   final secret = phone ? '你的 PIN 码或密码短语' : '钱包密码';
   final nodePlace = phone ? '[[设置 › 网络与隐私 › 节点|Settings › Network & privacy › Node]]' : '[[设置 › 节点|Settings › Node]]';
   final epicboxPlace = phone ? '[[设置 › 网络与隐私 › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[设置 › 支付 › Epicbox|Settings › Payments › Epicbox]]';
-  final torPlace = phone ? '[[设置 › 网络与隐私 › Tor 网络|Settings › Network & privacy › Tor network]]' : '[[设置 › 网络与隐私 › Tor|Settings › Network & privacy › Tor]]';
+  final torPlace = phone ? '[[设置 › 网络与隐私 › 仅 Tor|Settings › Network & privacy › Tor only]]' : '[[设置 › 网络与隐私 › 仅 Tor|Settings › Network & privacy › Tor only]]';
   final netPlace = '[[设置 › 网络与隐私|Settings › Network & privacy]]';
   final cancelPlace = phone ? '[[活动|Activity]]（打开该付款，然后点“取消付款”）' : '[[活动 › 该交易 › 取消|Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone
@@ -313,15 +313,14 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       HelpTopic(
         'network',
         'Tor',
-        '一个开关即可让钱包的连接经由 Tor，并为其提供 .onion 地址。更慢，但更私密。默认关闭。',
+        '网络模式“仅 Tor”让钱包的连接经由 Tor，并为其提供 .onion 地址。更慢，但更私密。默认关闭。',
         [
-          HelpBlock.p('Tor 向钱包所连接的服务器隐藏其 IP 地址。打开$torPlace中的开关后，Epicbox 连接经由 Tor，发往 .onion 地址的付款经由 Tor，钱包还会拥有自己的 Tor 地址（以 .onion 结尾），其他钱包可以直接向它付款。'),
+          HelpBlock.p('Tor 向钱包所连接的服务器隐藏其 IP 地址。选择$torPlace后，Epicbox 连接经由 Tor，发往 .onion 地址的付款经由 Tor，钱包还会拥有自己的 Tor 地址（以 .onion 结尾），其他钱包可以直接向它付款。'),
           const HelpBlock.ul([
             '节点、Epicbox 服务器和地址都保持不变。',
             '发往 onion 地址的链接付款经由 Tor；“发送”会显示付款是否经由 Tor。',
             '比不使用 Tor 慢。某些国家封锁了 Tor；在那里它无法连接。',
             '应用打开时可以通过 .onion 地址接收；Epicbox 同时照常工作。',
-            '网络模式为“仅 Tor”时，开关保持开启，无法关闭。',
           ]),
           const HelpBlock.p('**正在启动…** 表示 Tor 正在连接；受其覆盖的连接会等待，绝不绕过它。**未连接** 表示连接失败：点“重试”，或关闭 Tor。有些钱包显示的 Tor 地址不带 .onion；两者是同一个地址。'),
         ],
@@ -331,16 +330,15 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       const HelpTopic(
         'network',
         'Tor',
-        '更慢，但更私密：一个开关即可让钱包的连接经由 Tor，无需开放端口。默认关闭。',
+        '更慢，但更私密：网络模式“仅 Tor”让钱包的连接经由 Tor，无需开放端口。默认关闭。',
         [
           HelpBlock.p('开启 Tor 后，与 Epicbox 服务器的连接经由 Tor，钱包还会拥有一个 Tor 地址（以 .onion 结尾），其他钱包可以从任何地方直接向它付款，无需在路由器上做端口转发。开启 Tor 不会改变你分享的地址。'),
           HelpBlock.ul([
-            '在[[设置 › 网络与隐私 › Tor|Settings › Network & privacy › Tor]]中开启。侧边栏中的 Tor 行显示其状态。',
+            '在[[设置 › 网络与隐私 › 仅 Tor|Settings › Network & privacy › Tor only]]中开启。侧边栏中的 Tor 行显示其状态。',
             'Tor 启动中或未连接时，经由 Tor 的内容会等待；不会绕过它。点“重试”，或关闭 Tor。',
             '链接 · HTTP 发往 http(s) 地址时不经由 Tor；“发送”会注明这一点。',
             'Tor 开启期间 链接 · HTTP 接收关闭：其他钱包直接发来的付款会到达 链接 · Tor 地址。',
             '某些国家封锁或不允许使用 Tor；在那里它无法连接。',
-            '网络模式为“仅 Tor”时，开关保持开启，无法关闭。',
           ]),
           HelpBlock.p('有些钱包显示的地址不带 .onion；两者是同一个地址。'),
         ],
@@ -356,7 +354,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         HelpBlock.p('钱包使用多少互联网，是 $netPlace 中的一个选择，钱包会记住它。离开**常规**模式后，${phone ? '主页' : '标题栏'}上的标记会写出当前模式；点它即可更改。'),
         HelpBlock.ul([
           tor
-              ? '**常规**：钱包设置的一切：节点、Epicbox、链接、状态站点、价格和更新检查。Tor 是 $torPlace 中的独立开关。'
+              ? '**常规**：钱包设置的一切：节点、Epicbox、链接、状态站点、价格和更新检查。'
               : '**常规**：钱包设置的一切：节点、Epicbox、链接、状态站点、价格和更新检查。',
           if (tor)
             '**仅 Tor**：所有连接都经过 Tor，包括节点和 Epicbox；任何内容都不会接触公开互联网。Tor 就绪之前什么都不会连接，状态图标会写**等待 Tor**。链接 · HTTP 收款保持关闭：明文地址会暴露这台设备。',

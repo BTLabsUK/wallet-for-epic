@@ -142,6 +142,7 @@ Future<SettingsFileController> openAppSettingsOn({
   if (devChain == null && shippedText == null) {
     await importLegacySettings(store, c, walletIds: walletIds);
     await importNetworkMode(store, c);
+    await foldTorSwitch(store, c);
     await importLanNodesFile(store, c);
   }
   NetGate.set(networkModeIn(c.settings));

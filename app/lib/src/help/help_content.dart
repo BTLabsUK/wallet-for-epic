@@ -208,7 +208,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
   final secret = phone ? 'your PIN or passphrase' : 'the wallet password';
   final nodePlace = phone ? '[[Settings › Network & privacy › Node]]' : '[[Settings › Node]]';
   final epicboxPlace = phone ? '[[Settings › Network & privacy › Epicbox]]' : '[[Settings › Payments › Epicbox]]';
-  final torPlace = phone ? '[[Settings › Network & privacy › Tor network]]' : '[[Settings › Network & privacy › Tor]]';
+  final torPlace = phone ? '[[Settings › Network & privacy › Tor only]]' : '[[Settings › Network & privacy › Tor only]]';
   final netPlace = '[[Settings › Network & privacy]]';
   final cancelPlace = phone ? '[[Activity]] (open the payment, then Cancel payment)' : '[[Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone ? '[[Settings › This wallet › Export wallet data]]' : '[[Settings › Wallet › Export wallet data]]';
@@ -498,15 +498,14 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       HelpTopic(
         'network',
         'Tor',
-        'One switch routes the wallet’s connections through Tor and gives it a .onion address. Slower, more private. Off by default.',
+        'The network mode Tor only routes the wallet’s connections through Tor and gives it a .onion address. Slower, more private. Off by default.',
         [
-          HelpBlock.p('Tor hides the wallet’s IP address from the servers it talks to. With the switch on, under $torPlace, the Epicbox connection goes through Tor, a payment to a .onion address goes through Tor, and the wallet has a Tor address of its own (it ends in .onion) that other wallets can pay straight to.'),
+          HelpBlock.p('Tor hides the wallet’s IP address from the servers it talks to. With $torPlace, the Epicbox connection goes through Tor, a payment to a .onion address goes through Tor, and the wallet has a Tor address of its own (it ends in .onion) that other wallets can pay straight to.'),
           const HelpBlock.ul([
             'The node, the Epicbox server and the addresses stay the same.',
             'A Link payment to an onion address goes through Tor; Send shows whether a payment goes over Tor.',
             'Slower than without Tor. Tor is blocked in some countries; there it does not connect.',
             'Receiving at the .onion address works while the app is open; Epicbox keeps working beside it.',
-            'With the network mode Tor only the switch stays on and cannot be turned off.',
           ]),
           const HelpBlock.p('**Starting…** means Tor is connecting; the covered connections wait and never fall back. **Not connected** means it failed: Retry, or turn Tor off. Some wallets show a Tor address without .onion; both are the same address.'),
         ],
@@ -516,16 +515,15 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       const HelpTopic(
         'network',
         'Tor',
-        'Slower and more private: one switch routes the wallet’s connections through Tor, with no ports to open. Off by default.',
+        'Slower and more private: the network mode Tor only routes the wallet’s connections through Tor, with no ports to open. Off by default.',
         [
           HelpBlock.p('With Tor on, the connection to the Epicbox server goes through Tor, and the wallet has a Tor address (it ends in .onion) that other wallets can pay straight to, from anywhere, with nothing to forward on the router. Turning Tor on does not change the addresses you share.'),
           HelpBlock.ul([
-            'Turn it on under [[Settings › Network & privacy › Tor]]. The Tor row in the sidebar shows its state.',
+            'Turn it on with [[Settings › Network & privacy › Tor only]]. The Tor row in the sidebar shows its state.',
             'While Tor starts or is not connected, what goes over Tor waits; nothing goes around it. Retry, or turn Tor off.',
             'Link sends to an http(s) address do not go over Tor; Send says so.',
             'Link · HTTP receiving is off while Tor is on: payments straight from another wallet arrive at the Link · Tor address.',
             'Tor is blocked or not allowed in some countries; there it does not connect.',
-            'With the network mode Tor only the switch stays on and cannot be turned off.',
           ]),
           HelpBlock.p('Some wallets show the address without .onion; both are the same address.'),
         ],
@@ -541,7 +539,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         HelpBlock.p('How much of the internet the wallet uses is one choice under $netPlace, and the wallet remembers it. Off **Normal**, a mark on ${phone ? 'Home' : 'the title bar'} names the mode; tap it to change it.'),
         HelpBlock.ul([
           tor
-              ? '**Normal**: everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks. Tor is its own switch under $torPlace.'
+              ? '**Normal**: everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks.'
               : '**Normal**: everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks.',
           if (tor)
             '**Tor only**: every connection goes through Tor, the node and Epicbox included; nothing touches the open internet. Until Tor is ready nothing connects, and the status icons say **Waiting for Tor**. Link · HTTP receiving stays off: a plain address would reveal $device.',

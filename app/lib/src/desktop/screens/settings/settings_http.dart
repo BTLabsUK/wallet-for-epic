@@ -99,7 +99,7 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
         await _setPublic(false);
       case InternetGuideChoice.tor:
         // Lands on the Tor group, connecting.
-        ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.tor);
+        ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.network);
         await _run(() => ref.read(deskProvider.notifier).setTor(true));
       case null:
         break;
