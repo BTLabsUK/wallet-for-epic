@@ -36,11 +36,14 @@ import 'package:flutter_test/flutter_test.dart';
 final Map<RegExp, String> _allowed = {
   RegExp(r'^shell\|Overview$|^(settingsNode\|Node|settingsReceiving\|Transactions|settingsPrivacy\|Network & privacy.*|settingsAppearance\|Appearance|settingsAccount\|This wallet|settingsWallets\|All wallets|settingsPhrase\|Recovery phrase|settingsSecurity\|Security|settingsRescan\|Recheck balance|settingsAdvanced\|Advanced|settingsAbout\|About|settingsHelp\|Help)$'):
       'The place already shown: going there again adds nothing to the history.',
+  // The Settings column (26.10.25) is the shell's while a Settings page is open.
+  RegExp(r'^(shell|settings\w+)\|(Wallet|Security|Payments|Invoices|Linked devices|Appearance|Node|Network & privacy|Advanced|Wallets|Files & logs|Help|Donate|About)$'):
+      'The Settings page already shown: going there again adds nothing to the history.',
   RegExp(r'^settingsAccount\|Name$'): 'The pencil beside the name field puts the caret in it (UD-032): only the focus moves.',
-  RegExp(r'^settingsAccount\|Open folder$'): 'The mock wallet folder is not on disk: says "Folder not found". A real one opens.',
+  RegExp(r'^settings(Account|Files)\|Open folder$'): 'The mock wallet folder is not on disk: says "Folder not found". A real one opens.',
   RegExp(r'^settingsWallets\|Show .* in its folder$'): 'The mock wallet folders are not on disk: says "Folder not opened". A real one opens.',
   RegExp(r'^settingsAbout\|Check$'): 'Asks the update server again; in tests it answers as before, so the line stays.',
-  RegExp(r'^settingsHelp\|Open log folder$'): 'In tests the log is in memory, with no folder: says so. The real log folder opens.',
+  RegExp(r'^settings(Help|Files)\|Open log folder$'): 'In tests the log is in memory, with no folder: says so. The real log folder opens.',
   RegExp(r'^31b-dlg-my-node-error\|Save$'): 'Refuses the bad address; its error is on screen already.',
   RegExp(r'^receive\|[\u{E000}-\u{10FFFF}]*$', unicode: true):
       'The header\'s method icons scroll to their panel; on these shots every panel is in view (receive_test checks the jump).',
@@ -51,7 +54,7 @@ final Map<RegExp, String> _allowed = {
       'The one method left on cannot be turned off: pressed, it says so in a toast (transactions_settings tests check it).',
   RegExp(r'^settingsHelp\|(Getting started|How Epic Cash works|Keeping the wallet safe|Nodes and Epicbox|Pairing|When something goes wrong|Maintenance)$'):
       'A section chip scrolls to its section (help_test checks it); the sweep compares what is shown, not where.',
-  RegExp(r'^21d-dlg-reuse-chain\|Epic GUI · '): 'The mock lists a folder another program holds: its card is dimmed and says so, and cannot be picked.',
+  RegExp('^21d-dlg-reuse-chain\\|Epic GUI[ \u00a0]· '): 'The mock lists a folder another program holds: its card is dimmed and says so, and cannot be picked.',
   RegExp(r'^25j-dlg-export-csv\|This year$'): 'Every mock payment is from this year, so the count stays; Last year changes it.',
   RegExp(r'^settingsNode\|Try now$'):
       'Asks the own node again; in this shot it stays down, so nothing changes (own_node_test checks the move back).',

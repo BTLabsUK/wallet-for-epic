@@ -129,13 +129,14 @@ void main() {
       child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: SettingsPrivacyScreen())),
     ));
     await tester.pump(const Duration(seconds: 1));
-    expect(find.text('Servers'), findsOneWidget);
+    // Server status (26.10.25): Switch node automatically is on the Node page now.
+    expect(find.text('Server status'), findsOneWidget);
     expect(find.text('Use ${Uri.parse(hostSettings.statusDirectory!).host}'), findsOneWidget);
     // Label only; the sentence is behind the info icon (its popover).
     expect(find.byWidgetPredicate((w) => w is EInfoHint && w.text == 'Shows which nodes and Epicbox servers are online, from a public list on status.btlabs.uk.'), findsOneWidget);
     expect(find.textContaining('Server health'), findsNothing);
 
-    // The group's first row is the status site (Node failover follows).
+    // The group's one row is the status site.
     final toggle = find.descendant(of: find.byType(PrivacyGroup), matching: find.byType(ESwitch)).first;
     await tester.ensureVisible(toggle);
     await tester.tap(toggle);

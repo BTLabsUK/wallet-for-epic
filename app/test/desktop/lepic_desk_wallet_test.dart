@@ -14,6 +14,7 @@ import 'package:epic_wallet/src/network.dart' show floonetPreset;
 import 'package:epic_wallet/src/desktop/data/phrase_check.dart' show phraseFingerprint;
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
+import 'package:epic_wallet/src/desktop/screens/settings/settings_frame.dart' show SettingsColumn;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/network.dart' show defaultEpicboxHost;
@@ -1365,7 +1366,7 @@ void main() {
   });
 
   group('hidden features', () {
-    Future<void> pump(WidgetTester tester, DeskRoute route) async {
+    Future<void> pump(WidgetTester tester, DeskRoute route, {bool column = false}) async {
       tester.view.physicalSize = const Size(1280, 900);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
@@ -1376,7 +1377,15 @@ void main() {
       await tester.runAsync(() => advancedOn(container));
       await tester.pumpWidget(UncontrolledProviderScope(
         container: container,
-        child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: Scaffold(body: deskScreen(DeskLocation(route)))),
+        child: MaterialApp(
+          theme: buildDeskTheme(Brightness.dark),
+          // [column]: the Settings column beside the page, as the app lays out a Settings page.
+          home: Scaffold(
+            body: column
+                ? Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [SettingsColumn(route: route), Expanded(child: deskScreen(DeskLocation(route)))])
+                : deskScreen(DeskLocation(route)),
+          ),
+        ),
       ));
       await tester.pump(const Duration(seconds: 1));
     }
@@ -1393,9 +1402,9 @@ void main() {
       await done(tester);
     });
 
-    testWidgets('settings list All wallets; node has no built-in node', (tester) async {
-      await pump(tester, DeskRoute.settingsNode);
-      expect(find.text('All wallets'), findsOneWidget);
+    testWidgets('settings list Wallets; node has no built-in node', (tester) async {
+      await pump(tester, DeskRoute.settingsNode, column: true);
+      expect(find.text('Wallets'), findsOneWidget);
       expect(find.text('Sync in background'), findsNothing);
       // "last block" is no longer hidden: the node card (W6 §17) prints it only from a real
       // answer (the status directory's tip age, or a node's header time).
@@ -1432,8 +1441,11 @@ void main() {
       await pump(tester, DeskRoute.activity);
       expect(find.text('Transactions'), findsNothing);
       await done(tester);
-      await pump(tester, DeskRoute.settingsAccount);
+      // Change password is Security's; Delete wallet is under Wallet › Remove (26.10.25).
+      await pump(tester, DeskRoute.settingsSecurity);
       expect(find.text('Change password…'), findsOneWidget);
+      await done(tester);
+      await pump(tester, DeskRoute.settingsAccount);
       expect(find.text('Delete…'), findsOneWidget);
       await done(tester);
     });
