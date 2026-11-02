@@ -182,19 +182,17 @@ void main() {
       mnemonic: _phrase,
       password: _password,
     );
-    await w.saveContact(
-      contact: Contact(id: '', name: 'Bob', address: 'bob@relay'),
-    );
-    final meta = File('${config.dataDir}/$metaFileName');
+    // The archive is sealed at rest: a note writes wfe_meta.sealed, never wfe_meta.json.
+    await w.setTxNote(key: 's:gone', note: 'kept by the wallet');
+    final meta = File('${config.dataDir}/$metaSealedFileName');
     expect(meta.existsSync(), isTrue);
     w.dispose();
     await _lepic.deleteWallet(config: config);
     expect(meta.existsSync(), isFalse);
+    expect(File('${config.dataDir}/$metaFileName').existsSync(), isFalse);
     // A late call on the closed session never brings it back.
     await expectLater(
-      w.saveContact(
-        contact: Contact(id: '', name: 'Late', address: 'late@relay'),
-      ),
+      w.setTxNote(key: 's:late', note: 'late'),
       throwsA(isA<WalletError>()),
     );
     expect(meta.existsSync(), isFalse);
