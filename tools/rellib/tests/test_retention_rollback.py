@@ -194,5 +194,27 @@ class RollbackTest(Base):
             rollback.choose(self.root)
 
 
+
+class PublishedByHandTest(unittest.TestCase):
+    """26.10.23 and 26.10.24-r2 went out by hand: G4 takes the newest of them as the previous release."""
+
+    def test_newest_by_version_with_its_folder(self):
+        import tempfile
+        root = tempfile.mkdtemp()
+        d23, d24 = os.path.join(root, "26.10.23"), os.path.join(root, "26.10.24-r2")
+        os.makedirs(d23)
+        os.makedirs(d24)
+        write_json(os.path.join(root, "published-by-hand.json"), [
+            {"version": "26.10.24", "dir": d24, "tag": "v26.10.24-r2"},
+            {"version": "26.10.9", "dir": d23, "tag": "v26.10.9"},
+        ])
+        got = retention.published_by_hand(root)
+        self.assertEqual([p["version"] for p in got], ["26.10.9", "26.10.24"])
+        self.assertEqual(got[-1]["tag"], "v26.10.24-r2")
+
+    def test_missing_file_is_empty(self):
+        import tempfile
+        self.assertEqual(retention.published_by_hand(tempfile.mkdtemp()), [])
+
 if __name__ == "__main__":
     unittest.main()

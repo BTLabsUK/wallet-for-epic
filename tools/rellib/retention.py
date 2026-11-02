@@ -24,6 +24,12 @@ def published(state_root):
     return read_json(os.path.join(state_root, "published.json"), [])
 
 
+def published_by_hand(state_root):
+    """Releases published outside tools/rel, oldest first: [{version, dir, tag}]."""
+    pubs = read_json(os.path.join(state_root, "published-by-hand.json"), [])
+    return sorted((p for p in pubs if p.get("version")), key=lambda p: _vkey(p["version"]))
+
+
 def mark_published(run):
     root = os.path.dirname(os.path.dirname(run.path))
     pubs = [p for p in published(root) if p["run_id"] != run.info["run_id"]]

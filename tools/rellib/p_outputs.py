@@ -8,6 +8,7 @@ self-send (`-m self`: no Epicbox, no listener, a few seconds) towards TARGET. It
 the split to confirm: P counts outputs with one confirmation, and the builds take longer than a
 block. P's one-shots go through the shared P service (p_service): no lock, no confirmation wait.
 """
+import time
 import os
 import re
 
@@ -73,7 +74,13 @@ def ensure(p, say):
     rc, out = p.run(["outputs"])
     have = spendable(out)
     if rc != 0 or have is None:
-        return False, "P's outputs could not be read (p.py outputs exit %d)" % rc
+        # One read in three failed on 2026-11-02 with the next one fine (P busy with another call);
+        # one more try before a whole release stops at G1.
+        time.sleep(10)
+        rc, out = p.run(["outputs"])
+        have = spendable(out)
+    if rc != 0 or have is None:
+        return False, "P's outputs could not be read twice (p.py outputs exit %d)" % rc
     if have >= LOW:
         return True, "P has %d spendable outputs (at least %d)" % (have, LOW)
     args = split_args(have)
