@@ -174,8 +174,10 @@ class _Harness {
   }
 }
 
-Finder _segment(String label) =>
-    find.descendant(of: find.byKey(sendMethodsKey), matching: find.text(label));
+/// The ways under an empty To field: Pay in person (QR) and Pay with a file.
+Finder _way(String label) => find.widgetWithText(TextButton, label);
+
+const _linkAddress = 'https://wallet.example.com:3415';
 
 Future<void> _tick(WidgetTester tester, int seconds) async {
   for (var i = 0; i < seconds; i++) {
@@ -198,7 +200,7 @@ void main() {
       (tester) async {
         final h = _Harness();
         await h.pump(tester, SendView(onDone: () {}));
-        await tester.tap(_segment('Direct · QR'));
+        await tester.tap(_way('Pay in person'));
         await tester.pumpAndSettle();
         await _openHow(tester);
         expect(find.byType(HandshakeSheet), findsOneWidget);
@@ -224,7 +226,7 @@ void main() {
       await tester.tap(find.text(_l.commonClose));
       await tester.pumpAndSettle();
 
-      await tester.tap(_segment('Link'));
+      await tester.enterText(find.widgetWithText(TextField, 'To'), _linkAddress);
       await tester.pumpAndSettle();
       await _openHow(tester);
       expect(_howCaption(tester), '1. ${_l.handshakeLink1}');
@@ -233,7 +235,9 @@ void main() {
       await tester.pumpAndSettle();
 
       // The file way has its own help in the header instead (one help icon per header).
-      await tester.tap(_segment('Direct · File'));
+      await tester.tap(find.byKey(sendRecipientClearKey));
+      await tester.pumpAndSettle();
+      await tester.tap(_way('Pay with a file'));
       await tester.pumpAndSettle();
       expect(find.byTooltip(_l.sendHowItWorks), findsNothing);
       await tester.tap(find.byTooltip(_l.sendFileHelpTooltip));
@@ -262,24 +266,23 @@ void main() {
   });
 
   group('where it is offered', () {
-    testWidgets('Send: Epicbox · Link · QR on a new phone (Link listed with its switches off), File not', (
+    testWidgets('Send: Pay in person on a new phone, Pay with a file not', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester, SendView(onDone: () {}));
-      expect(_segment('Epicbox'), findsOneWidget);
-      expect(_segment('Direct · QR'), findsOneWidget);
-      expect(_segment('Direct · File'), findsNothing);
-      expect(_segment('Link'), findsOneWidget);
+      expect(find.byKey(sendMethodsKey), findsNothing);
+      expect(_way('Pay in person'), findsOneWidget);
+      expect(_way('Pay with a file'), findsNothing);
     });
 
-    testWidgets('Send: the order is Epicbox · Link · QR · File', (
+    testWidgets('Send: the ways are Pay in person, then Pay with a file', (
       tester,
     ) async {
       final h = _Harness(prefs: 'v2,http,tor,file|epicbox');
       await h.pump(tester, SendView(onDone: () {}));
-      final names = ['Epicbox', 'Link', 'Direct · QR', 'Direct · File'];
-      final xs = [for (final n in names) tester.getTopLeft(_segment(n)).dx];
+      final names = ['Pay in person', 'Pay with a file'];
+      final xs = [for (final n in names) tester.getTopLeft(_way(n)).dx];
       expect(xs, [...xs]..sort());
     });
 
@@ -288,21 +291,13 @@ void main() {
       (tester) async {
         var h = _Harness(scanner: false);
         await h.pump(tester, SendView(onDone: () {}));
-        expect(_segment('Direct · QR'), findsNothing);
+        expect(_way('Pay in person'), findsNothing);
         h = _Harness(prefs: 'file,noqr|epicbox');
         await h.pump(tester, SendView(onDone: () {}));
-        expect(_segment('Direct · QR'), findsNothing);
-        expect(_segment('Direct · File'), findsOneWidget);
+        expect(_way('Pay in person'), findsNothing);
+        expect(_way('Pay with a file'), findsOneWidget);
       },
     );
-
-    testWidgets('Send starts on QR when Settings says so', (tester) async {
-      final h = _Harness(prefs: '|qr');
-      await h.pump(tester, SendView(onDone: () {}));
-      expect(find.text('Direct · QR'), findsOneWidget);
-      expect(find.text('Direct · QR Payment'), findsOneWidget);
-      expect(find.text('Make payment QR'), findsOneWidget);
-    });
 
     testWidgets('Receive: a QR tab with its card and the scan button', (
       tester,
@@ -522,9 +517,8 @@ void main() {
         stage: SlateStage.response,
       );
       await h.pump(tester, SendView(onDone: () {}));
-      await tester.tap(_segment('Direct · QR'));
+      await tester.tap(_way('Pay in person'));
       await tester.pumpAndSettle();
-      expect(find.text('Direct · QR'), findsOneWidget);
       expect(find.text('Direct · QR Payment'), findsOneWidget);
 
       await tester.enterText(find.byKey(sendFileAmountFieldKey), '1');
@@ -582,7 +576,7 @@ void main() {
           stage: SlateStage.response,
         );
         await h.pump(tester, SendView(onDone: () {}));
-        await tester.tap(_segment('Direct · QR'));
+        await tester.tap(_way('Pay in person'));
         await tester.pumpAndSettle();
         await tester.enterText(find.byKey(sendFileAmountFieldKey), '1');
         // Past the fee estimate's debounce: Make payment QR waits for it.
