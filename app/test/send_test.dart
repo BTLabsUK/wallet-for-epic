@@ -373,7 +373,7 @@ Future<void> _toReview(
 }
 
 /// The payment file route, from the first step.
-Future<void> _toFile(WidgetTester tester) => _tap(tester, find.text('Direct · File'));
+Future<void> _toFile(WidgetTester tester) => _tap(tester, find.text('Pay with a file'));
 
 String _fieldText(WidgetTester tester, String label) => tester
     .widget<TextField>(find.widgetWithText(TextField, label))
@@ -681,13 +681,13 @@ void main() {
         expect(find.text('2 of 3'), findsOneWidget);
         expect(find.textContaining('Bob'), findsWidgets);
         await _tap(tester, find.byTooltip('Back'));
-        expect(_fieldText(tester, _address), _bob);
-        // The card names him; no offer to save him again.
-        expect(find.text('New recipient'), findsNothing);
+        // The chip names him; no offer to save him again.
+        expect(find.text('Bob'), findsOneWidget);
+        expect(find.byKey(sendRecipientFieldKey), findsNothing);
         expect(find.text('Save as contact'), findsNothing);
         // Only while the field is empty.
         expect(find.text('Recent'), findsNothing);
-        await _enter(tester, _address, '');
+        await _tap(tester, find.byKey(sendRecipientClearKey));
         expect(find.text('Recent'), findsOneWidget);
       },
     );
@@ -740,17 +740,18 @@ void main() {
       (tester) async {
         final h = _Harness();
         await h.pump(tester, _sendTab());
-        expect(find.text('Payment method'), findsOneWidget);
+        expect(find.text('Send'), findsOneWidget);
         expect(find.text('1 of 3'), findsOneWidget);
         // Continue waits for an address.
         expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
         await _enter(tester, _address, 'esBare');
-        await _tap(tester, _continue);
-        expect(find.text('This address looks incomplete.'), findsOneWidget);
+        FocusManager.instance.primaryFocus?.unfocus();
+        await tester.pumpAndSettle();
+        expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
         expect(find.text('2 of 3'), findsNothing);
 
         await _enter(tester, _address, _bob);
-        expect(find.text('New recipient'), findsOneWidget);
+        expect(find.text('Epicbox'), findsOneWidget);
         expect(find.text('Save as contact'), findsOneWidget);
         await _tap(tester, _continue);
         expect(find.text('Amount'), findsOneWidget);
@@ -822,11 +823,10 @@ void main() {
       final h = _Harness(direct: true);
       await h.pump(tester, _sendTab());
       await _enter(tester, _address, 'https://');
-      await _tap(tester, _continue);
-      expect(
-        find.text('Enter the full wallet URL, such as http://host:3415'),
-        findsOneWidget,
-      );
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
+      expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
+      expect(find.byType(LiveFieldError), findsOneWidget);
       expect(find.text('2 of 3'), findsNothing);
 
       // A whole one goes on, over HTTP.
@@ -836,6 +836,8 @@ void main() {
       expect(find.text('2 of 3'), findsOneWidget);
       expect(h.session.epicboxSends, isEmpty);
       expect(h.session.sentAmounts, isEmpty);
+      // The reach check's slow-answer timer runs out.
+      await tester.pump(const Duration(seconds: 2));
     });
 
     testWidgets('a paste is checked at once, typing when the field is left', (
@@ -858,20 +860,17 @@ void main() {
 
       clipboard = 'https://';
       await _tap(tester, find.text('Paste'));
-      expect(
-        find.text('Enter the full wallet URL, such as http://host:3415'),
-        findsOneWidget,
-      );
-      clipboard = 'b' * 30;
+      expect(find.byType(LiveFieldError), findsOneWidget);
+      clipboard = 'es${'b' * 40}';
       await _tap(tester, find.text('Paste'));
       expect(find.text('This address looks incomplete.'), findsOneWidget);
       clipboard = 'not an address!';
       await _tap(tester, find.text('Paste'));
-      expect(find.text('This is not an Epicbox address.'), findsOneWidget);
+      expect(find.text('Not an address, and no contact has this name.'), findsOneWidget);
       clipboard = ' $_bob ';
       await _tap(tester, find.text('Paste'));
       expect(find.byType(LiveFieldError), findsNothing);
-      expect(find.text('New recipient'), findsOneWidget);
+      expect(find.text('Save as contact'), findsOneWidget);
 
       // Typed: no message while typing, one when the field is left.
       await tester.tap(find.widgetWithText(TextField, _address));
@@ -880,7 +879,7 @@ void main() {
       expect(find.byType(LiveFieldError), findsNothing);
       FocusManager.instance.primaryFocus?.unfocus();
       await tester.pumpAndSettle();
-      expect(find.text('This address looks incomplete.'), findsOneWidget);
+      expect(find.text('Not an address, and no contact has this name.'), findsOneWidget);
     });
 
     testWidgets(
@@ -1327,9 +1326,10 @@ void main() {
       await h.pump(tester, _sendTab());
       h.scanner.codes.add(' epicbox://$_bob ');
       await _tap(tester, find.text('Scan'));
-      expect(_fieldText(tester, _address), _bob);
-      expect(find.text('Bob'), findsOneWidget);
-      expect(find.text('New recipient'), findsNothing);
+      expect(_fieldText(tester, _address), contains(_bob));
+      expect(find.text('Save as contact'), findsNothing);
+      await _tap(tester, _continue);
+      expect(find.textContaining('Bob'), findsWidgets);
     });
 
     testWidgets('scan is hidden where unsupported', (tester) async {
@@ -2054,8 +2054,9 @@ void main() {
           .evaluate()
           .isNotEmpty;
       await _enter(tester, _address, 'not an address!');
-      await _tap(tester, _continue);
-      expect(live('This is not an Epicbox address.'), isTrue);
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
+      expect(live('Not an address, and no contact has this name.'), isTrue);
       await _enter(tester, _address, _bob);
       await _tap(tester, _continue);
       await _enter(tester, 'Amount (EPIC)', '-1');
@@ -2270,25 +2271,24 @@ void main() {
   });
 
   group('advanced options', () {
-    testWidgets('send offers the file by default, Link listed with its switch off or on', (
+    testWidgets('send offers the file by default; an http address goes on with Link on', (
       tester,
     ) async {
       final off = _Harness();
       await off.pump(tester, _sendTab());
-      expect(find.text('Direct · File'), findsOneWidget);
-      expect(find.text('Link'), findsOneWidget);
+      expect(find.text('Pay with a file'), findsOneWidget);
       expect(find.text('Other ways to send'), findsNothing);
 
       // A fresh tree, so the screen's state starts over.
       await tester.pumpWidget(const SizedBox());
       final on = _Harness(direct: true);
       await on.pump(tester, _sendTab());
-      expect(find.text('Direct · File'), findsOneWidget);
-      expect(find.text('Link'), findsOneWidget);
+      expect(find.text('Pay with a file'), findsOneWidget);
       await _enter(tester, _address, 'http://203.0.113.5:3415');
       await _tap(tester, _continue);
       expect(find.text('2 of 3'), findsOneWidget);
       expect(on.session.epicboxSends, isEmpty);
+      await tester.pump(const Duration(seconds: 2));
     });
 
     testWidgets('Smallest / All for one payment shows only with Send options', (
