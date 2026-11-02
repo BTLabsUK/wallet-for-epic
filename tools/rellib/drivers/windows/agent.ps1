@@ -165,7 +165,8 @@ public static class Standin {
 '@
 [Standin]::LogFile = Join-Path $Run 'standins.log'
 
-function AppProcs { @(Get-Process epic_wallet -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "$Run\*" }) }
+# The app's exe: btwallet.exe from 26.10.25, epic_wallet.exe before (an update test runs both).
+function AppProcs { @(Get-Process btwallet, epic_wallet -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "$Run\*" }) }
 function Top {
   $ps = AppProcs
   if (-not $ps) { return $null }
@@ -179,10 +180,10 @@ function View { $t = Top; if (-not $t) { return $null }; $v = [TR]::Child($t, 'F
 function NeedView { $v = View; if (-not $v) { throw 'no app window' }; $v }
 function Mine([string]$p) { $full = [IO.Path]::GetFullPath($p); if (-not $full.StartsWith("$Run\", [StringComparison]::OrdinalIgnoreCase)) { throw "$p is not under the run folder" }; $full }
 function StopMine {
-  Get-Process epic_wallet, epic, tor, unins000 -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "$Run\*" } |
+  Get-Process btwallet, epic_wallet, epic, tor, unins000 -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "$Run\*" } |
     ForEach-Object { Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue; "$($_.Name) $($_.Id)" }
 }
-function Entry { $k = Get-ItemProperty -Path $uk -ErrorAction SilentlyContinue; if ($k) { @{ version = $k.DisplayVersion; location = $k.InstallLocation; uninstall = $k.UninstallString } } else { $null } }
+function Entry { $k = Get-ItemProperty -Path $uk -ErrorAction SilentlyContinue; if ($k) { @{ version = $k.DisplayVersion; location = $k.InstallLocation; uninstall = $k.UninstallString; name = $k.DisplayName; exe = $k.DisplayIcon } } else { $null } }
 
 # The desk store (DPAPI, entropy epic-cash-desktop/secret-store/v1, in the data folder): only keys
 # that hold settings, never the wallet's secrets (seed, vault, password, keys).
@@ -262,7 +263,7 @@ function Do-Cmd($c) {
       $sz = [TR]::Client($v)
       return @{ ok = $true; w = $sz[0]; h = $sz[1]; procs = $procs; windows = @($wins) }
     }
-    'procs' { return @{ ok = $true; procs = @(Get-Process epic_wallet, epic, tor, unins000 -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "$Run\*" } | ForEach-Object { "$($_.Name) $($_.Id) $($_.Path)" }) } }
+    'procs' { return @{ ok = $true; procs = @(Get-Process btwallet, epic_wallet, epic, tor, unins000 -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "$Run\*" } | ForEach-Object { "$($_.Name) $($_.Id) $($_.Path)" }) } }
     'click' { $v = NeedView; [TR]::Click($v, [int]$c.x, [int]$c.y); return @{ ok = $true } }
     'type' {
       $v = NeedView

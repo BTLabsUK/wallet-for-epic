@@ -15,7 +15,7 @@
 # Steps: LEPIC and lepic-flutter at the pins -> lepic_ffi.dll with a static CRT (RUSTFLAGS
 # crt-static), built from LEPIC into lepic-flutter\native ->
 # flutter build windows --release (version from pubspec.yaml) -> checks (VersionInfo, storage
-# prefix) -> VC runtime DLLs next to epic_wallet.exe -> Authenticode signature on epic_wallet.exe
+# prefix) -> VC runtime DLLs next to btwallet.exe -> Authenticode signature on btwallet.exe
 # -> Inno Setup -> signature on the installer -> .exe and .exe.sha256 in -OutDir.
 #
 # Signing: the code-signing certificate stays in the signing machine's certificate store, never in
@@ -30,10 +30,10 @@ param(
     [string]$OutDir,
     [string]$Flutter = "$env:USERPROFILE\flutter\bin",
     [string]$Iscc = "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe",
-    # The built-in node's epic.exe (optional), bundled as bin\epic.exe next to epic_wallet.exe.
+    # The built-in node's epic.exe (optional), bundled as bin\epic.exe next to btwallet.exe.
     [string]$NodeBin,
     # The Tor bundle from tools/fetch-tor.sh win (tor.exe, LICENSE.tor.txt, VERSION), bundled as
-    # bin\tor-bundle next to epic_wallet.exe. Without it the app shows Tor as not included.
+    # bin\tor-bundle next to btwallet.exe. Without it the app shows Tor as not included.
     [string]$TorBundle,
     # The build without Tor (https://docs.btlabs.uk/developers/build/variants/): --dart-define=WFE_TOR=false, LEPIC without
     # its tor feature, no Tor bundle (-TorBundle is refused), -notor in the installer's name.
@@ -188,18 +188,18 @@ flutter build windows --release --target lib/main_desktop.dart --build-name $nam
 if ($LASTEXITCODE) { throw 'flutter build windows failed' }
 $rel = Join-Path $app 'build\windows\x64\runner\Release'
 # A failed configure leaves only the exe here (install prefix pointed elsewhere): refuse that.
-foreach ($f in 'epic_wallet.exe', 'flutter_windows.dll', 'lepic_ffi.dll', 'data\icudtl.dat', 'flutter_secure_storage_windows_plugin.dll') {
+foreach ($f in 'btwallet.exe', 'flutter_windows.dll', 'lepic_ffi.dll', 'data\icudtl.dat', 'flutter_secure_storage_windows_plugin.dll') {
     if (-not (Test-Path "$rel\$f")) { throw "$rel\$f is missing. Delete build\windows and build again." }
 }
 
 Step 'checks'
-$info = (Get-Item "$rel\epic_wallet.exe").VersionInfo
+$info = (Get-Item "$rel\btwallet.exe").VersionInfo
 Write-Output "ProductName=$($info.ProductName) CompanyName=$($info.CompanyName) ProductVersion=$($info.ProductVersion) FileVersion=$($info.FileVersion)"
-if ($info.ProductName -ne 'Epic Cash Desktop' -or $info.CompanyName -ne 'BT Labs' -or $info.ProductVersion -ne $name) {
-    throw 'epic_wallet.exe VersionInfo is not Epic Cash Desktop / BT Labs / version'
+if ($info.ProductName -ne 'BT Wallet' -or $info.CompanyName -ne 'BT Labs' -or $info.ProductVersion -ne $name) {
+    throw 'btwallet.exe VersionInfo is not BT Wallet / BT Labs / version'
 }
 $numbers = "$($info.FileMajorPart).$($info.FileMinorPart).$($info.FileBuildPart).$($info.FilePrivatePart)"
-if ($numbers -ne $fileVersion) { throw "epic_wallet.exe file version is $numbers, not $fileVersion" }
+if ($numbers -ne $fileVersion) { throw "btwallet.exe file version is $numbers, not $fileVersion" }
 $text = [Text.Encoding]::ASCII.GetString([IO.File]::ReadAllBytes("$rel\flutter_secure_storage_windows_plugin.dll"))
 if (-not $text.Contains('EpicWallet_VGhp')) { throw 'secure-storage prefix EpicWallet_ missing' }
 if ($text.Contains('epic_wallet_VGhp') -or $text.Contains('epic_wallet_lepic_VGhp') -or $text.Contains('epic_wallet_desktop_ui_VGhp')) {
@@ -235,7 +235,7 @@ if ($TorBundle) {
 
 # --- signature on the app, then the installer that carries it
 Step 'Authenticode'
-Sign-File "$rel\epic_wallet.exe"
+Sign-File "$rel\btwallet.exe"
 
 # --- the Microsoft Store package: the Release folder as it is, with the manifest and the logos
 if ($Dist -eq 'msstore') {
@@ -263,7 +263,7 @@ if ($Dist -eq 'msstore') {
     if ($LASTEXITCODE) { throw 'makepri createconfig failed' }
     & "$kit\makepri.exe" new /pr "$stage\pri" /cf "$stage\priconfig.xml" /mn "$stage\pri\AppxManifest.xml" /of "$layout\resources.pri" /o | Out-Null
     if ($LASTEXITCODE) { throw 'makepri new failed' }
-    foreach ($f in 'epic_wallet.exe', 'lepic_ffi.dll', 'bin\epic.exe', 'bin\tor-bundle\tor.exe', 'resources.pri') {
+    foreach ($f in 'btwallet.exe', 'lepic_ffi.dll', 'bin\epic.exe', 'bin\tor-bundle\tor.exe', 'resources.pri') {
         if (-not (Test-Path "$layout\$f")) { throw "the package would miss $f (pass -NodeBin and -TorBundle)" }
     }
     $msix = Join-Path $OutDir "bt-wallet-$name-msstore-windows-x64.msix"

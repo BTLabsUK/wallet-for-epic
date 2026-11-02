@@ -627,8 +627,8 @@
       "platforms": [
         "windows"
       ],
-      "what": "Inno Setup identity: AppId (a new GUID installs beside the old version), the per-user install folder, the exe name the uninstaller and updater find, and the single-instance mutexes Setup waits on.",
-      "value": "AppId {8810835E-6EE5-4989-AE20-C0D60E23800E}; %USERPROFILE%\\Apps\\EpicWallet\\epic_wallet.exe; mutex Local\\uk.btlabs.epiccash.desktop.single (+ Local\\com.blacktyger.EpicWallet.single)",
+      "what": "Inno Setup identity: AppId (a new GUID installs beside the old version), the per-user install folder, the exe name the uninstaller, the shortcuts and the updater find, and the single-instance mutexes Setup waits on.",
+      "value": "AppId {8810835E-6EE5-4989-AE20-C0D60E23800E}; %USERPROFILE%\\Apps\\EpicWallet\\btwallet.exe (epic_wallet.exe up to 26.10.24, taken out by Setup on update); shortcuts BT Wallet (Epic Cash Desktop up to 26.10.24); mutex Local\\uk.btlabs.epiccash.desktop.single (+ Local\\com.blacktyger.EpicWallet.single)",
       "probes": [
         {
           "file": "app/windows/installer/epic_wallet.iss",
@@ -640,7 +640,19 @@
         },
         {
           "file": "app/windows/installer/epic_wallet.iss",
-          "contains": "UninstallDisplayIcon={app}\\epic_wallet.exe"
+          "contains": "UninstallDisplayIcon={app}\\{#AppExe}"
+        },
+        {
+          "file": "app/windows/installer/epic_wallet.iss",
+          "contains": "#define AppExe \"btwallet.exe\""
+        },
+        {
+          "file": "app/windows/installer/epic_wallet.iss",
+          "contains": "#define OldAppExe \"epic_wallet.exe\""
+        },
+        {
+          "file": "app/windows/CMakeLists.txt",
+          "contains": "set(BINARY_NAME \"btwallet\")"
         },
         {
           "file": "app/windows/installer/epic_wallet.iss",
@@ -830,6 +842,14 @@
       "migration": "At the first unlock, under LEPIC's directory lock: the plain database is opened read-only (its schema never migrated before the switch), copied with its WAL into wallet.enc.sqlite3.tmp under the store key, checked (quick_check, user_version, row count of every table), the key check written, then tmp renamed to wallet.enc.sqlite3 (the switch), the plain file renamed wallet.sqlite3.pre-encryption and kept one release. Before the switch nothing outside tmp changes and a crash restarts the copy from scratch; after it a plain file beside a matching record only finishes the rename. A copy that fails (disk full) keeps the session on the plain file and tries again at the next open. Then the app seals wfe_meta.json into wfe_meta.sealed and contacts.json into contacts.sealed (each tmp, flushed, read back and opened, renamed), recording the plain file's size and hash; the plain files are left as they were, so a rollback to 26.10.24-r2 keeps notes and the address book, and a plain file an older build changed since is merged back in (adding only). After a rollback the older build's new plain database is set aside as wallet.sqlite3.after-rollback-<unix> and a restore scan runs. The shared book is used by one app process at a time (contacts.lock); a second one waits, then leaves it closed.",
       "migration_test": "app/test/store_encryption_upgrade_test.dart",
       "approved_by": "the owner, 2026-11-01 (explicit yes to this install-contract record: database renamed, app files kept)"
+    },
+    {
+      "date": "2026-11-02",
+      "items_sha256": "54a7db4216af602e6174d8b4a6cf5d060dbbb84ef833bd54336643463fffb4a7",
+      "change": "windows.installer_identity: the Windows exe becomes btwallet.exe (was epic_wallet.exe) and the installer, its shortcuts, the Apps & features entry and the version resource say BT Wallet (were Epic Cash Desktop). The AppId, the install folder %USERPROFILE%\\Apps\\EpicWallet, the mutexes, the secure-storage prefix and the data folder stay.",
+      "migration": "No data moves: the data folder, the secret store and settings do not depend on the exe name or ProductName. Setup installs over the same AppId and folder; 26.10.24's app starts it with /SILENT /NORESTART /UPDATEFROMAPP=1 and quits, Setup waits for the same mutex, copies every file with btwallet.exe last, then (ssPostInstall, after the files and the new BT Wallet shortcuts are in) repoints taskbar pins from epic_wallet.exe to btwallet.exe and deletes {app}\\epic_wallet.exe and the Epic Cash Desktop shortcuts, and opens btwallet.exe. A Setup stopped part way leaves the old exe and shortcuts, and when started by the app reopens whichever exe is there. The uninstall entry keeps its key; DisplayName and DisplayIcon are rewritten. A rollback by installing 26.10.24 again brings epic_wallet.exe back beside btwallet.exe in the same folder.",
+      "migration_test": "app/test/desktop/desk_update_test.dart",
+      "approved_by": "the owner, 2026-11-02 (\"i dont mind path but epic_wallet.exe is bad, we need btwallet.exe\")"
     }
   ]
 }

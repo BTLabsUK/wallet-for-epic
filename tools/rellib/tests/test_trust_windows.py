@@ -48,6 +48,12 @@ class ClickMapTest(unittest.TestCase):
                 self.assertEqual(pts[0], (721, 249))
                 self.assertIn((487, 285), pts)  # lands on the address text there: harmless
 
+    def test_installed_exe_from_the_uninstall_entry(self):
+        loc = "C:\\Users\\epicrig\\Apps\\EpicWallet"
+        self.assertEqual(wt.installed_exe({"location": loc, "exe": loc + "\\btwallet.exe"}), loc + "\\btwallet.exe")
+        self.assertEqual(wt.installed_exe({"location": loc, "exe": '"%s\\btwallet.exe",0' % loc}), loc + "\\btwallet.exe")
+        self.assertEqual(wt.installed_exe({"location": loc + "\\", "exe": None}), loc + "\\epic_wallet.exe")
+
     def test_points_inside_the_client(self):
         w, h = wt.CLIENT
         for p in [*wt.RAIL.values(), *wt.COPY_ADDRESS_NARROW, *wt.COPY_ADDRESS_OLD, wt.SEND_TO, wt.SEND_MAX, wt.SEND_REVIEW]:

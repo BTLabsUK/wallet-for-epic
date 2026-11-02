@@ -971,7 +971,7 @@ class Run:
                       args=["/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/LOG=%s\\setup-previous.log" % self.rig.run])
         self.installed = r["entry"]
         self.log("previous installed: %s at %s" % (self.installed.get("version"), self.installed.get("location")))
-        self.exe = self.installed["location"].rstrip("\\") + "\\epic_wallet.exe"
+        self.exe = installed_exe(self.installed)
         self.mark()
         self.call("start", exe=self.exe)
         self.create_wallet()
@@ -1279,6 +1279,16 @@ def version_tuple(v):
     """(26, 10, 24) for "26.10.24" or "26.10.24-r2"; () when unreadable."""
     m = re.match(r"(\d+)\.(\d+)\.(\d+)", v or "")
     return tuple(int(x) for x in m.groups()) if m else ()
+
+
+def installed_exe(entry):
+    """The installed app's exe, from Setup's uninstall entry: its DisplayIcon names it (btwallet.exe from
+    26.10.25, epic_wallet.exe before); an entry without one is taken as the old name."""
+    icon = (entry.get("exe") or "").strip().strip('"')
+    icon = re.sub(r",\s*-?\d+$", "", icon).strip('"')
+    if icon.lower().endswith(".exe"):
+        return icon
+    return entry["location"].rstrip("\\") + "\\epic_wallet.exe"
 
 
 def copy_points(version):
