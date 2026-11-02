@@ -8,6 +8,9 @@
 # The Epic node's own API paths (its protocol, like https's port): every node answers them.
 app/lib/src/node/node_api.dart	'/v1/(version|status)'|'/v2/\$api'
 app/lib/src/contacts.dart	'/v2/foreign'
+# Send's clean-up line names the wallet API path it leaves out of a pasted address (the wallet
+# adds it): the same protocol path, as words.
+app/lib/l10n/app_*	/v2/foreign
 
 # The web demo's own routes: its server and its page are both in this repository.
 app/lib/src/demo_server/server.dart	'/api/[a-z]*/?'
