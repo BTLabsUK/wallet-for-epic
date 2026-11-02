@@ -29,8 +29,6 @@
   "deskRecvCheckSix": "Beim Vorlesen die ersten sechs und letzten sechs Zeichen prüfen.",
   "deskRecvHttpAddress": "Link · HTTP-Adresse",
   "deskRecvCopyHttp": "Link · HTTP-Adresse kopieren",
-  "deskRecvHttpPublic": "Die öffentliche Adresse Ihres Routers. Absender im Internet nutzen sie, sobald der Router Port {port} weiterleitet.",
-  "deskRecvHttpLocal": "Programme auf diesem Computer können an diese Adresse zahlen. Für andere Geräte siehe Einstellungen › Zahlungen.",
   "deskRecvHttpIntro": "Für Wallets auf diesem Computer, solange diese Wallet geöffnet ist.",
   "deskRecvHttpTorHint": "Schalten Sie Tor unter Einstellungen › Datenschutz ein, um stattdessen eine Tor-Adresse zu erhalten.",
   "deskRecvHttpTorHintNet": "Schalten Sie Tor unter Einstellungen › Netzwerk & Datenschutz ein, um stattdessen eine Tor-Adresse zu erhalten.",
@@ -50,6 +48,5 @@
   "deskRecvTorOffTitle": "Link · Tor braucht Tor.",
   "deskRecvTorOffText": "Die Tor-Adresse funktioniert, solange Tor an ist. Tor ist der Schalter unter Einstellungen › Datenschutz; er leitet die Verbindungen der Wallet über Tor.",
   "deskRecvTorOffTextNet": "Die Tor-Adresse funktioniert, solange Tor an ist. Tor ist der Schalter unter Einstellungen › Netzwerk & Datenschutz; er leitet die Verbindungen der Wallet über Tor.",
-  "deskRecvHttpIntroInternet": "Für Wallets im Internet, solange diese Wallet geöffnet ist.",
   "deskRecvHeaderTip": "Empfang: {methods}"
 }

@@ -61,7 +61,7 @@ void main() {
     for (final f in Directory('lib/src/desktop').listSync(recursive: true).whereType<File>().where((f) => f.path.endsWith('.dart'))) {
       final lines = f.readAsLinesSync();
       for (var i = 0; i < lines.length; i++) {
-        if (RegExp(r'(^|[^A-Za-z])(InkWell|InkResponse)\(').hasMatch(lines[i]) && !f.path.endsWith('widgets/buttons.dart') && !f.path.endsWith('transfer/receive_screen.dart') /* TODO: EInkWell once that file is free */) bad.add('${f.path}:${i + 1}');
+        if (RegExp(r'(^|[^A-Za-z])(InkWell|InkResponse)\(').hasMatch(lines[i]) && !f.path.endsWith('widgets/buttons.dart')) bad.add('${f.path}:${i + 1}');
       }
     }
     expect(bad, isEmpty, reason: 'use EInkWell (hand cursor on desktop)');

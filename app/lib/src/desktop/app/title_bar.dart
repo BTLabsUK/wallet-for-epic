@@ -22,7 +22,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:window_manager/window_manager.dart' show ResizeEdge;
 
 import '../../app_info.dart';
-import '../../app_version.dart' show coreVersion;
 import '../data/desk_update.dart' show deskAppVersion;
 import '../../ui/theme/brand.dart' show EpicMark, BrandWordmark;
 import '../../advanced.dart' show NetworkMode;
@@ -719,7 +718,7 @@ String deskBuildLabel() =>
 
 /// What Copy build info puts on the clipboard: the build, the core and the system.
 String deskBuildInfo() =>
-    '$appName $deskAppVersion${appBuildTag.isEmpty ? '' : ' $appBuildTag'}${appBuildId.isEmpty ? '' : ' ($appBuildId)'} · core $coreVersion · ${deskSystemName()}';
+    '$appName ${versionLine(deskAppVersion)}${appBuildTag.isEmpty ? '' : ' $appBuildTag'} · ${deskSystemName()}';
 
 /// The system in a few words: "Windows 11", "Ubuntu 25.10", "macOS 15.1".
 String deskSystemName() {

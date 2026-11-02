@@ -584,10 +584,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
           _autostart(TxMethod.epicbox, s.epicboxAutostart, (v) => _saveAutostart(s.copyWith(epicboxAutostart: v)), anchor: SetId.epicboxStart),
           // While Tor is off: where the relay would not see this computer's address.
           if (status.torIncluded && netTorState(s, status) == TorState.off)
-            Padding(
-              padding: EdgeInsets.fromLTRB(Sp.x3, Sp.x2, Sp.x3, 0),
-              child: Text(l.torRelayCaption, key: deskTorRelayCaptionKey, style: context.ts.small),
-            ),
+            _DetailsNote(key: deskTorRelayCaptionKey, text: l.torRelayCaption),
         ],
       ]),
       // Link · HTTP on; a listener that is on keeps its rows. The switch is the method's: these
@@ -638,7 +635,9 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
 }
 
 /// A method's receiving rows under its switch: set in from the icon column, on the next
-/// surface step, so they read as the method's own and not as more methods.
+/// surface step, so they read as the method's own and not as more methods. One divider style:
+/// full-width hairlines between rows, none before a [_DetailsNote]; the rows are indented to
+/// the method's title (ESetRow's leading, 18 px and a gap), with no rail.
 class _MethodDetails extends StatelessWidget {
   const _MethodDetails({required this.method, required this.rows});
 
@@ -651,23 +650,32 @@ class _MethodDetails extends StatelessWidget {
     return Container(
       key: ValueKey('st-details-${method.name}'),
       decoration: BoxDecoration(color: c.s2, border: Border(top: BorderSide(color: c.line))),
-      // The icon column (ESetRow's leading, 18 px and a gap) is the indent; a hairline in it
-      // ties the rows to the switch above.
-      padding: EdgeInsets.only(left: 18.u + Sp.x3),
-      child: Container(
-        decoration: BoxDecoration(border: Border(left: BorderSide(color: c.lineStrong, width: 2))),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (var i = 0; i < rows.length; i++) ...[
-              if (i > 0) Divider(height: 1, thickness: 1, color: c.line),
-              rows[i],
-            ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < rows.length; i++) ...[
+            if (i > 0 && rows[i] is! _DetailsNote) Divider(height: 1, thickness: 1, color: c.line),
+            // HttpOptions indents its own rows, so its divider spans the card too.
+            if (rows[i] is HttpOptions) rows[i] else Padding(padding: methodDetailsIndent, child: rows[i]),
           ],
-        ),
+        ],
       ),
     );
   }
+}
+
+/// A quiet line at the end of a method's details: inside the group, under the row before it
+/// with no line of its own, and the rows' own bottom padding.
+class _DetailsNote extends StatelessWidget {
+  const _DetailsNote({super.key, required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.fromLTRB(Sp.panel, 0, Sp.panel, Sp.x4),
+    child: Text(text, style: context.ts.small),
+  );
 }
 
 /// Payments › Receiving: the wallet's minimum confirmations (the core keeps it per wallet): a

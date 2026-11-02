@@ -16,7 +16,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_info.dart';
 import '../app_log.dart';
-import '../app_version.dart';
 import '../settings_file/host_settings.dart' show appConfig, hostSettings;
 import '../demo.dart';
 import '../dist_build.dart';
@@ -113,7 +112,7 @@ final appVersionProvider = FutureProvider<String?>((ref) async {
   return _withCore(name);
 });
 
-String _withCore(String name) => withBuildId(withCoreVersion(name));
+String _withCore(String name) => versionLine(name);
 
 /// Whether this device offers biometric unlock, and whether the open wallet uses it.
 final biometricsProvider =

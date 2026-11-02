@@ -2,7 +2,6 @@
 import '../../../ui/network_mode_text.dart' show blockMode, browserOffNote, networkModeName;
 import '../../../network_gate.dart' show NetDial, NetGate;
 import '../../../app_info.dart';
-import '../../../app_version.dart';
 import '../../../dist_build.dart' show distStore;
 import '../../../l10n.dart' show localInt;
 import '../../../tor_build.dart' show inAppUpdates;
@@ -95,7 +94,7 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                           // The version and the node; no network line (a release runs on one).
                           // Two columns, as the other Settings pages lay out label and value (LD-004).
                           _Facts(rows: [
-                            (l.deskSetAboutVersionLabel, withBuildId(withCoreVersion(deskAppVersion)), l.deskSetAboutVersion(withBuildId(withCoreVersion(deskAppVersion)))),
+                            (l.deskSetAboutVersionLabel, versionLine(deskAppVersion), l.deskSetAboutVersion(versionLine(deskAppVersion))),
                             (l.deskSetAboutNodeLabel, node ?? '-', l.deskSetAboutNode(node ?? '-')),
                           ]),
                           // A store build: the store updates it, there is no Updates group.
