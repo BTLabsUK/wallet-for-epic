@@ -168,7 +168,7 @@ reuse = ["app", "bot", "scripts/linux/flutter.version", "tools/check.sh", "tools
          "tools/rel", "tools/rellib", "release/pipeline.toml", "release/failures.toml", "release/hosts.example.toml",
          "tools/nightly", "tools/sbom.py", "tools/test_sbom.py",
          "tools/t", "tools/tlib", "tools/flutter_test_order.py", "tools/test_flutter_test_order.py", "tools/publish-github.sh",
-         "tools/publish", "tools/screens-feedback", "tools/gitlab-release.py", "tools/signer"]
+         "tools/publish", "tools/screens-feedback", "tools/release-files.py", "tools/signer"]
 reuse_nightly = true
 # Any green `tools/check.sh --full` on a clean tree with this content (the nightly's, a person's on
 # the candidate): tools/rel start refuses a candidate without one unless --run-source-check.
@@ -519,14 +519,13 @@ env = { REL_GITHUB = "{github}" }
 scratch = "scratch_page"
 
 [step.publish-source]
-title = "Publish source (GitLab)"
+title = "Publish source"
 kind = "publish"
 host = "build"
 needs = ["publish-page"]
 skippable = true
 run = "cd {path.main_checkout} && tools/publish-github.sh --push"
-# publish.github on: then mirrored to GitHub (tools/mirror-github.sh), so the tag is there.
-env = { GITHUB_MIRROR = "{github}" }
+# To github.com/BTLabsUK, tag included, where publish-github-release needs it.
 scratch = "scratch_source"
 
 # The GitHub Release of tag v{version}: every published file as an asset, marked latest, so

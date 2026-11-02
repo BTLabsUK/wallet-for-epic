@@ -7,7 +7,7 @@
 #   tools/rel start 26.10.25                          this file as it is
 #   tools/rel start 26.10.25 --only android           only Android (both variants)
 #   tools/rel start 26.10.25 --skip-platform macos,ios --no-variant notor
-#   tools/rel start 26.10.25 --set stores.play=true --set publish.github=false --skip publish-source="GitLab token renewal"
+#   tools/rel start 26.10.25 --set stores.play=true --set publish.github=false --skip publish-source="source pushed by hand"
 #   tools/rel start 26.10.25 --test                   a TEST run: nothing leaves this machine
 
 # The version being released. Must equal app/pubspec.yaml (tools/version.sh name) at the commit.
@@ -40,7 +40,7 @@ play = false
 play_promote = ""
 
 [publish]
-# "live" = the real download server, page, GitLab and manifests; "scratch" = a folder in the run
+# "live" = the real download server, page, GitHub and manifests; "scratch" = a folder in the run
 # (nothing leaves this machine). A TEST run is always scratch.
 target = "live"
 # Write the two update manifests (the switch). They need both Android variants
@@ -67,7 +67,7 @@ signed = true
 # (publish-page, publish-source, prune-downloads, store uploads, screens, announce,
 # cleanup); builds and gates never: to drop a platform or a variant, switch it off above.
 [skip]
-# publish-source = "GitLab token renewal pending; owner ok"
+# publish-source = "source pushed by hand; owner ok"
 
 # G4 update trust (release/pipeline.toml [proof]).
 [proof]

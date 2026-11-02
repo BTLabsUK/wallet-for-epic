@@ -4,7 +4,7 @@
 # after the release files are on the server (https://docs.btlabs.uk/developers/releases/, Release addresses):
 #   update.json     the old format, for installed apps up to 26.10.23 (file URLs under the old
 #                   download address): BT Labs' download server, and update.json in the Pages
-#                   repository (its GitLab copy, read as the raw file on main);
+#                   repository (its GitHub copy, read as the raw file on main);
 #   update-v2.json  the new format, the only one the current app reads ([updates] manifests of
 #                   app/assets/config/app-config.toml): the server's API file, update-v2.json
 #                   in the same Pages repository, and with GITHUB_UPDATE_JSON=1 the asset
@@ -24,20 +24,17 @@
 #   UPDATE_SITE       checkout of the Pages repository (default ~/code/btlabs-epic.github.io)
 #   UPDATE_KEYRING    keyring to verify against (default ~/code/btlabs-public/keys/btlabs-keyring.json)
 #   UPDATE_SIGN_TOOL  btlabs_sign.py (default ~/code/btlabs-public/tool/btlabs_sign.py)
-#   UPDATE_GITLAB     GitLab project of the copy (default epic-cash-bt/btlabs-epic.github.io)
-#   GITLAB_TOKEN_FILE its write token (default ~/.config/btlabs/gitlab-token; never printed)
+#   PUSH_GITHUB       the push tool (default tools/push-github.sh; tests replace it)
 #   GITHUB_UPDATE_JSON 1: also put update-v2.json on the latest GitHub Release (release.toml
-#                     publish.github sets it; default 0). Through tools/gitlab-release.py
+#                     publish.github sets it; default 0). Through tools/release-files.py
 #                     github-update-json, gh logged in as btlabs-uk in GH_CONFIG_DIR
 #                     (default ~/.config/gh-btlabs). A GitHub failure is a warning only.
 #   GITHUB_RELEASE_REPO its repository (default BTLabsUK/wallet-for-epic)
-#   GITHUB_MIRROR_SITE 1: also copy the Pages repository's GitLab main to its GitHub mirror
-#                     (tools/mirror-github.sh btlabs-epic.github.io; default GITHUB_UPDATE_JSON).
-#                     A failure is a warning only.
 #   GITHUB_UPDATE_URL  where GitHub serves it (default .../releases/latest/download/update-v2.json)
-# The GitLab copy is the Pages repository's main, cleaned the same way every time (commit
+# The GitHub copy is the Pages repository's main, cleaned the same way every time (commit
 # addresses to the noreply address by tools/publish/mailmap, co-author and generated-with trailers dropped), so each run
-# reproduces the published commits and pushes the new one as a fast-forward. Needs git-filter-repo.
+# reproduces the published commits and pushes the new one as a fast-forward (tools/push-github.sh,
+# git over SSH as BTLabsUK). Needs git-filter-repo.
 set -euo pipefail
 file="${1:?usage: $0 <signed update.json> <signed update-v2.json>}"
 file2="${2:?usage: $0 <signed update.json> <signed update-v2.json>}"
@@ -55,12 +52,11 @@ url2="${UPDATE_URL_V2:-$(python3 -I -c 'import sys, tomllib; print(tomllib.load(
 site="${UPDATE_SITE:-$HOME/code/btlabs-epic.github.io}"
 keyring="${UPDATE_KEYRING:-$HOME/code/btlabs-public/keys/btlabs-keyring.json}"
 tool="${UPDATE_SIGN_TOOL:-$HOME/code/btlabs-public/tool/btlabs_sign.py}"
-gitlab="${UPDATE_GITLAB:-epic-cash-bt/btlabs-epic.github.io}"
-token_file="${GITLAB_TOKEN_FILE:-$HOME/.config/btlabs/gitlab-token}"
+site_repo=BTLabsUK/btlabs-epic.github.io
+push_tool="${PUSH_GITHUB:-$root/tools/push-github.sh}"
 kit="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/publish"
 gh_repo="${GITHUB_RELEASE_REPO:-BTLabsUK/wallet-for-epic}"
 gh_url="${GITHUB_UPDATE_URL:-https://github.com/$gh_repo/releases/latest/download/update-v2.json}"
-[[ -r "$token_file" ]] || { echo "no GitLab token at $token_file" >&2; exit 1; }
 
 # update-v2.json's file URLs are checked against [updates] of the app's app-config.toml, as the
 # app checks them; update.json's against the tool's old download folder.
@@ -84,7 +80,7 @@ if [[ -n "$(git -C "$site" status --porcelain update.json update-v2.json)" ]]; t
   git -C "$site" commit -q -m "Epic Cash $version update.json and update-v2.json"
 fi
 
-# 2. GitLab: the same repository, cleaned, pushed to the copy's main.
+# 2. GitHub: the same repository, cleaned, pushed to the copy's main (fast-forward only).
 export GIT_TERMINAL_PROMPT=0
 work="$(mktemp -d)"; trap 'rm -rf "$work"' EXIT
 git clone -q --bare --no-local "$site" "$work/pub.git"
@@ -92,9 +88,7 @@ git -C "$work/pub.git" filter-repo --force --quiet --mailmap "$kit/mailmap" --me
 import re
 keep = [l for l in message.split(b"\n") if not re.match(rb"(?i)(co-authored-by:|.*generated with )", l.strip())]
 return b"\n".join(keep).rstrip(b"\n") + b"\n"'
-git -C "$work/pub.git" -c credential.helper= \
-  -c "credential.helper=!f() { echo username=oauth2; echo \"password=\$(cat '$token_file')\"; }; f" \
-  push -q "https://gitlab.com/$gitlab.git" main:main
+"$push_tool" "${site_repo##*/}" "$work/pub.git"
 
 # 3. The download server: the old format beside the download page, the new one at its API file.
 scp -q "$file" "$host:update.json.new"
@@ -108,34 +102,30 @@ ssh "$host" "sudo install -m 0644 -o root -g root update.json.new '$dest' && rm 
 github=off
 if [[ "${GITHUB_UPDATE_JSON:-0}" == 1 ]]; then
   github=ok
-  python3 "$root/tools/gitlab-release.py" github-update-json "$file2" --github-repo "$gh_repo" \
+  python3 "$root/tools/release-files.py" github-update-json "$file2" --github-repo "$gh_repo" \
     || { github=failed; echo "warning: update-v2.json not on the GitHub release: the apps use the other sources" >&2; }
 fi
-if [[ "${GITHUB_MIRROR_SITE:-${GITHUB_UPDATE_JSON:-0}}" == 1 ]]; then
-  GITLAB_TOKEN_FILE="$token_file" "$root/tools/mirror-github.sh" "${gitlab##*/}" \
-    || echo "warning: the GitHub mirror of ${gitlab##*/} is behind GitLab (re-run tools/mirror-github.sh)" >&2
-fi
 
-# 5. Read every copy back. The GitLab copy is read through the API while the project is private
-# (its raw URL then answers a sign-in page). GitHub's latest/download link redirects to the file.
+# 5. Read every copy back. GitHub's latest/download link redirects to the file.
 check() { # <url> <sha256>
   local got
   got="$(curl -fsSL --max-time 30 "$1" | sha256sum | cut -d' ' -f1)" || { echo "  $1: not reachable"; return 1; }
   if [[ "$got" == "$2" ]]; then echo "  $1: ok"; else echo "  $1: differs (not served yet?)"; return 1; fi
 }
-check_gitlab() { # <file name> <sha256>
-  local out got
-  if out="$(check "https://gitlab.com/$gitlab/-/raw/main/$1" "$2")"; then echo "$out"; return; fi
-  got="$(curl -fsS --max-time 30 -H @- "https://gitlab.com/api/v4/projects/${gitlab//\//%2F}/repository/files/$1/raw?ref=main" \
-    <<<"PRIVATE-TOKEN: $(cat "$token_file")" | sha256sum | cut -d' ' -f1)" || got=""
-  [[ "$got" == "$2" ]] && echo "  GitLab copy of $1 (private, read through the API): ok" \
-    || { echo "  GitLab copy of $1: differs or missing"; exit 1; }
+# raw.githubusercontent.com caches main for a few minutes: when main still reads the old file,
+# the pushed commit's own URL shows whether the push landed.
+site_commit="$(git -C "$work/pub.git" rev-parse main)"
+check_site() { # <file name> <sha256>
+  local out
+  if out="$(check "https://raw.githubusercontent.com/$site_repo/main/$1" "$2")"; then echo "$out"; return; fi
+  echo "$out"
+  check "https://raw.githubusercontent.com/$site_repo/$site_commit/$1" "$2" || exit 1
 }
 echo "update.json $version ($sum):"
 check "$url" "$sum"
-check_gitlab update.json "$sum"
+check_site update.json "$sum"
 echo "update-v2.json $version ($sum2):"
 check "$url2" "$sum2"
-check_gitlab update-v2.json "$sum2"
+check_site update-v2.json "$sum2"
 if [[ "$github" == ok ]]; then check "$gh_url" "$sum2" || echo "  warning: GitHub does not serve it yet (a mirror, not a gate)"; fi
 if [[ "$github" == failed ]]; then echo "  warning: GitHub copy not published (see above)"; fi

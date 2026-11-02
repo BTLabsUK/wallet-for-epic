@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 """TOTP against RFC 6238's vectors, the bundle, and byte-for-byte parity with the tools the
-signer replaces: btlabs_sign.py (update manifests) and tools/gitlab-release.py (minisign)."""
+signer replaces: btlabs_sign.py (update manifests) and tools/release-files.py (minisign)."""
 import base64
 import importlib.util
 import json
@@ -110,13 +110,13 @@ class VendoredBtlabsSign(unittest.TestCase):
 
 
 class Minisign(unittest.TestCase):
-    def test_bytes_identical_to_gitlab_release(self):
+    def test_bytes_identical_to_release_files(self):
         try:
-            spec = importlib.util.spec_from_file_location("gitlab_release", os.path.join(REPO, "tools/gitlab-release.py"))
+            spec = importlib.util.spec_from_file_location("release_files", os.path.join(REPO, "tools/release-files.py"))
             gl = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(gl)
         except ImportError as e:
-            self.skipTest(f"tools/gitlab-release.py needs {e.name}")
+            self.skipTest(f"tools/release-files.py needs {e.name}")
         key = crypto.load_ed25519_pem(open(TEST_KEY).read())
         data = b"0" * 64 + b"  epic-cash-mobile-26.11.0-arm64-v8a.apk\n"
         kid = crypto.keyid_of(crypto.raw_public(key))

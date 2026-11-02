@@ -50,9 +50,9 @@ else
     python3 "$here/server_sums.py" sign "$work/SHA256SUMS" "$sj" "$v" "$keyring"
   else
     key="${REL_SIGNER_SIGNING_KEY:-$HOME/.config/btlabs/signing/btlabs-2026-a.key}"
-    python3 "$here/server_sums.py" sign-key "$work/SHA256SUMS" "${key/#\~/$HOME}" "$v" "$keyring" "${REL_SRC:?}/tools/gitlab-release.py"
+    python3 "$here/server_sums.py" sign-key "$work/SHA256SUMS" "${key/#\~/$HOME}" "$v" "$keyring" "${REL_SRC:?}/tools/release-files.py"
   fi
-  python3 "$here/server_sums.py" verify "$work/SHA256SUMS" "$work/SHA256SUMS.sig" "$keyring" "${REL_SRC:?}/tools/gitlab-release.py"
+  python3 "$here/server_sums.py" verify "$work/SHA256SUMS" "$work/SHA256SUMS.sig" "$keyring" "${REL_SRC:?}/tools/release-files.py"
   ssh "$host" "mkdir -p ~/$stage"
   rsync -t "$work/SHA256SUMS" "$work/SHA256SUMS.sig" "$host:$stage/"
   # shellcheck disable=SC2029

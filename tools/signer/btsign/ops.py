@@ -6,7 +6,7 @@ signer) and its output; `describe` says what the owner is asked to approve, `run
                    hash-pinned btlabs_sign.py: the same checks (payload schema, links held to
                    their folders, --prev serial, self-verify) and the same bytes.
   minisign         a minisign signature (SHA256SUMS, provenance.json, an SBOM): the bytes
-                   tools/gitlab-release.py writes.
+                   tools/release-files.py writes.
   apk              apksigner with exactly the schemes the release APKs carry (config apk_schemes,
                    today v2 only), existing alignment kept, then verified.
   aab              jarsigner (SHA-256 digests, SHA256withRSA), as Gradle signs the Play bundle.

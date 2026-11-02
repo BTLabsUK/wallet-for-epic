@@ -1,38 +1,27 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-"""Hosts a release's files on GitLab and/or GitHub: a signed SHA256SUMS, then on GitLab the
-Generic Packages registry and the Release of tag v<version> with one link per file, on GitHub the
-Release of tag v<version> with every file as an asset. Runs on our own machines (no CI on either
-host). Re-running changes only what differs; --dry-run changes nothing.
+"""Hosts a release's files on GitHub: a signed SHA256SUMS, then the GitHub Release of tag
+v<version> with every file as an asset. Runs on our own machines (no CI on GitHub). Re-running
+changes only what differs; --dry-run changes nothing.
 
-  tools/gitlab-release.py publish <version> <folder> [--target gitlab|github|both] [--dry-run]
-                          [--project P] [--github-repo O/R] [--notes FILE]
-  tools/gitlab-release.py github-update-json <update-v2.json> [--github-repo O/R] [--dry-run]
-  tools/gitlab-release.py verify <SHA256SUMS> [<SHA256SUMS.sig>] [--keyring K]
-  tools/gitlab-release.py pubkey [--keyring K]
+  tools/release-files.py publish <version> <folder> [--dry-run] [--github-repo O/R] [--notes FILE]
+  tools/release-files.py github-update-json <update-v2.json> [--github-repo O/R] [--dry-run]
+  tools/release-files.py verify <SHA256SUMS> [<SHA256SUMS.sig>] [--keyring K]
+  tools/release-files.py pubkey [--keyring K]
 
 publish:
   1. writes <folder>/SHA256SUMS over every top-level file (not dotfiles, update*.json,
      *.payload.json or the SHA256SUMS files themselves) and signs it into SHA256SUMS.sig;
-  2. uploads each file to the project's Generic Packages registry as package <package>/<version>
-     (a file already there with the same SHA-256 is skipped; a different one is refused unless
-     --replace);
-  3. creates or updates the Release of tag v<version> (the tag must already be on GitLab:
-     tools/publish-github.sh puts it there; --ref creates it from a commit, for tests only):
-     name "Epic Cash <version>", the changelog as its description, and one link per file whose
-     direct path is the file name without "-<version>", so
-     /-/releases/permalink/latest/downloads/<name> always serves the newest one;
-  4. checks the uploads against the registry's SHA-256 and the signature against the keyring,
-     and prints the permalinks.
-
-With --target github (or both) instead of (or after) 2–4: creates or updates the GitHub Release
-of tag v<version> (the tag must already be on GitHub: tools/mirror-github.sh puts it there) with
-the changelog as its notes, and uploads each file as an asset named without "-<version>" and
-labelled with its full name, so github.com/<owner>/<repo>/releases/latest/download/<name> always
-serves the newest one. The release is made the latest one (not a draft; a prerelease only for
--rcN). An asset already there with the same SHA-256 is skipped; other bytes, or an asset that is
-not in the folder, are refused unless --replace. Then it reads SHA256SUMS and its signature back
-from the release and checks them.
+  2. creates or updates the GitHub Release of tag v<version> (the tag must already be on GitHub:
+     tools/publish-github.sh puts it there; --ref creates it from a commit, for tests only) with
+     name "Epic Cash <version>" and the changelog as its notes, and uploads each file as an asset
+     named without "-<version>" and labelled with its full name, so
+     github.com/<owner>/<repo>/releases/latest/download/<name> always serves the newest one. The
+     release is made the latest one (not a draft; a prerelease only for -rcN). An asset already
+     there with the same SHA-256 is skipped; other bytes, or an asset that is not in the folder,
+     are refused unless --replace;
+  3. reads SHA256SUMS and its signature back from the release, checks them against the keyring,
+     and prints the links.
 
 github-update-json: puts the signed update-v2.json (tools/publish-update-json.sh checks it first)
 on the latest GitHub Release as the asset update-v2.json, so
@@ -50,10 +39,9 @@ The signature is minisign's format (ED, prehashed), made with the same Ed25519 k
 update.json (btlabs-public, FORMAT.md): `minisign -Vm SHA256SUMS -x SHA256SUMS.sig -P <key>`
 checks it with the key `pubkey` prints, and `verify` checks it against the keyring.
 
-Settings: the GitLab token is read from --token-file (default ~/.config/btlabs/gitlab-token), the
-GitHub token from `gh auth token` with gh's own config GH_CONFIG_DIR (default ~/.config/gh-btlabs),
-which must be logged in as GITHUB_USER (default btlabs-uk; any other login is refused, as in
-tools/mirror-github.sh); neither token is printed. GITHUB_RELEASE_API and GITHUB_RELEASE_WEB
+Settings: the GitHub token comes from `gh auth token` with gh's own config GH_CONFIG_DIR (default
+~/.config/gh-btlabs), which must be logged in as GITHUB_USER (default btlabs-uk; any other login is
+refused); the token is never printed. GITHUB_RELEASE_API and GITHUB_RELEASE_WEB
 replace https://api.github.com and https://github.com (local tests only). The signing key is --key (default ~/.config/btlabs/signing/btlabs-2026-a.key), the
 keyring --keyring (default ~/code/btlabs-public/keys/btlabs-keyring.json).
 """
@@ -79,13 +67,9 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey,
 
 HOME = Path.home()
 DEFAULTS = {
-    "host": "https://gitlab.com",
-    "project": "epic-cash-bt/wallet-for-epic",
     "github_repo": "BTLabsUK/wallet-for-epic",
     "github_user": "btlabs-uk",
     "gh_config": HOME / ".config/gh-btlabs",
-    "package": "epic-cash",
-    "token_file": HOME / ".config/btlabs/gitlab-token",
     "key": HOME / ".config/btlabs/signing/btlabs-2026-a.key",
     "keyring": HOME / "code/btlabs-public/keys/btlabs-keyring.json",
 }
@@ -233,7 +217,7 @@ def release_files(folder: Path, excludes: list[str]) -> list[Path]:
         if any(fnmatch.fnmatchcase(p.name, g) for g in (*SKIP, *excludes)):
             continue
         if not NAME_RE.match(p.name):
-            raise Fail(f"{p.name}: GitLab package file names take letters, digits, . _ + - only")
+            raise Fail(f"{p.name}: release file names take letters, digits, . _ + - only")
         out.append(p)
     if not out:
         raise Fail(f"no release files in {folder}")
@@ -269,139 +253,8 @@ def notes_for(version: str, notes_file: str | None, pubkey: str) -> str:
         "The key in minisign's format:\n\n"
         f"{key_lines}\n\n"
         "The keyring it comes from: "
-        "https://gitlab.com/epic-cash-bt/btlabs-epic.github.io/-/raw/main/btlabs-keyring.json\n"
+        "https://raw.githubusercontent.com/BTLabsUK/btlabs-epic.github.io/main/btlabs-keyring.json\n"
     )
-
-
-# --------------------------------------------------------------------------- GitLab API
-
-
-class GitLab:
-    def __init__(self, host: str, project: str, token_file: Path, dry: bool):
-        try:
-            token = token_file.read_text(encoding="utf-8").strip()
-        except OSError:
-            raise Fail(f"no GitLab token at {token_file}") from None
-        self.s = requests.Session()
-        self.s.headers["PRIVATE-TOKEN"] = token
-        self.host = host.rstrip("/")
-        self.project = project
-        self.api = f"{self.host}/api/v4/projects/{urllib.parse.quote(project, safe='')}"
-        self.dry = dry
-
-    def call(self, method: str, url: str, write: bool = False, ok404: bool = False, **kw):
-        if write and self.dry:
-            say(f"  [dry-run] {method} {url.replace(self.api, '<project>')}")
-            return None
-        timeout = kw.pop("timeout", 60)
-        for attempt in range(6):
-            r = self.s.request(method, url if url.startswith("http") else self.api + url,
-                               timeout=timeout, **kw)
-            if r.status_code == 429 or r.status_code >= 502:
-                wait = int(r.headers.get("Retry-After", 2 ** attempt * 5))
-                say(f"  GitLab answered {r.status_code}; retrying in {wait} s")
-                time.sleep(min(wait, 300))
-                if "data" in kw and hasattr(kw["data"], "seek"):
-                    kw["data"].seek(0)
-                continue
-            if r.status_code == 404 and ok404:
-                return None
-            if r.status_code >= 400:
-                # The body is GitLab's error text; it never contains the token.
-                raise Fail(f"{method} {url.replace(self.api, '<project>')}: {r.status_code} "
-                           f"{r.text[:300]}")
-            return r.json() if r.content and "json" in r.headers.get("Content-Type", "") else r
-        raise Fail(f"{method} {url}: still rate limited")
-
-    def pages(self, url: str) -> list:
-        out, page = [], 1
-        while True:
-            sep = "&" if "?" in url else "?"
-            got = self.call("GET", f"{url}{sep}per_page=100&page={page}", ok404=True) or []
-            out += got
-            if len(got) < 100:
-                return out
-            page += 1
-
-
-def package_url(gl: GitLab, package: str, version: str, name: str) -> str:
-    return f"{gl.api}/packages/generic/{package}/{version}/{name}"
-
-
-def existing_package_files(gl: GitLab, package: str, version: str) -> dict[str, list[dict]]:
-    pkgs = gl.pages(f"/packages?package_type=generic&package_name={package}")
-    files: dict[str, list[dict]] = {}
-    for p in pkgs:
-        if p["name"] == package and p["version"] == version:
-            for f in gl.pages(f"/packages/{p['id']}/package_files"):
-                files.setdefault(f["file_name"], []).append({**f, "package_id": p["id"]})
-    return files
-
-
-def upload(gl: GitLab, package: str, version: str, files: list[Path], sums: dict[str, str],
-           replace: bool) -> None:
-    have = existing_package_files(gl, package, version)
-    for p in files:
-        want = sums[p.name]
-        old = have.get(p.name, [])
-        if any(f.get("file_sha256") == want for f in old):
-            say(f"  = {p.name} (already uploaded)")
-            continue
-        if old and not replace:
-            raise Fail(f"{p.name} is already in package {package}/{version} with other bytes; "
-                       "a published file never changes silently (--replace to swap it)")
-        size = p.stat().st_size if p.exists() else 0  # a dry run writes no SHA256SUMS
-        say(f"  ↑ {p.name} ({size / 1e6:.1f} MB)")
-        if not gl.dry:
-            with p.open("rb") as f:
-                got = gl.call("PUT", package_url(gl, package, version, p.name) + "?select=package_file",
-                              write=True, data=f, timeout=3600,
-                              headers={"Content-Type": "application/octet-stream"})
-            if isinstance(got, dict) and got.get("file_sha256") not in (None, want):
-                raise Fail(f"{p.name}: GitLab stored SHA-256 {got.get('file_sha256')}, not {want}")
-        else:
-            gl.call("PUT", package_url(gl, package, version, p.name), write=True)
-        for f in old:  # only with --replace: drop the file it replaced
-            gl.call("DELETE", f"/packages/{f['package_id']}/package_files/{f['id']}", write=True)
-
-
-def ensure_release(gl: GitLab, tag: str, ref: str | None, name: str, notes: str,
-                   links: list[dict]) -> None:
-    rel = gl.call("GET", f"/releases/{urllib.parse.quote(tag, safe='')}", ok404=True)
-    if rel is None:
-        if gl.call("GET", f"/repository/tags/{urllib.parse.quote(tag, safe='')}", ok404=True) is None \
-                and not ref:
-            raise Fail(f"tag {tag} is not on GitLab; publish it first (tools/publish-github.sh)")
-        body = {"tag_name": tag, "name": name, "description": notes,
-                "assets": {"links": links}}
-        if ref:
-            body["ref"] = ref
-        say(f"  + release {tag} with {len(links)} links")
-        gl.call("POST", "/releases", write=True, json=body)
-        return
-    if rel.get("name") != name or rel.get("description") != notes:
-        say(f"  ~ release {tag}: name/description")
-        gl.call("PUT", f"/releases/{tag}", write=True, json={"name": name, "description": notes})
-    else:
-        say(f"  = release {tag}")
-    have = {l["name"]: l for l in rel.get("assets", {}).get("links", [])}
-    base = f"/releases/{urllib.parse.quote(tag, safe='')}/assets/links"
-    wanted = {l["name"] for l in links}
-    for old in have.values():  # first, so a renamed link can take a freed URL or path
-        if old["name"] not in wanted:
-            say(f"  - link {old['name']}")
-            gl.call("DELETE", f"{base}/{old['id']}", write=True)
-    for l in links:
-        old = have.get(l["name"])
-        if old is None:
-            say(f"  + link {l['name']}")
-            gl.call("POST", base, write=True, json=l)
-        elif (old["url"], old.get("link_type"), old.get("direct_asset_url", "").split("/downloads", 1)[-1]) \
-                != (l["url"], l["link_type"], l["direct_asset_path"]):
-            say(f"  ~ link {l['name']}")
-            gl.call("PUT", f"{base}/{old['id']}", write=True, json=l)
-        else:
-            say(f"  = link {l['name']}")
 
 
 # --------------------------------------------------------------------------- GitHub API
@@ -490,7 +343,7 @@ def github_plan(gh: GitHub, tag: str, ref: str | None, files: list[Path], sums: 
     rel = gh.call("GET", f"/releases/tags/{urllib.parse.quote(tag, safe='')}", ok404=True)
     if rel is None and gh.call("GET", f"/git/ref/tags/{urllib.parse.quote(tag, safe='')}",
                                ok404=True) is None and not ref:
-        raise Fail(f"tag {tag} is not on GitHub; mirror it first (tools/mirror-github.sh)")
+        raise Fail(f"tag {tag} is not on GitHub; publish it first (tools/publish-github.sh)")
     want = {stable_name(p.name, version): p for p in files}
     have = {a["name"]: a for a in (rel or {}).get("assets", [])}
     plan = []
@@ -622,11 +475,7 @@ def cmd_publish(a) -> int:
         raise Fail(f"signing key {keyid} is not in the keyring {a.keyring}")
     label = keys[keyid].get("label", keyid)
     notes = notes_for(a.version, a.notes, minisign_pubkey(keys[keyid]["raw"], keyid, label))
-    to_gitlab, to_github = a.target in ("gitlab", "both"), a.target in ("github", "both")
-
-    dest = " and ".join(([f"{a.host}/{a.project}"] if to_gitlab else []) +
-                        ([f"github.com/{a.github_repo}"] if to_github else []))
-    say(f"Epic Cash {a.version}: {folder} → {dest} ({tag})")
+    say(f"Epic Cash {a.version}: {folder} → github.com/{a.github_repo} ({tag})")
     files = release_files(folder, a.exclude)
     sums = {p.name: sha256_file(p) for p in files}
     stables = {stable_name(n, a.version): n for n in sums}
@@ -641,20 +490,13 @@ def cmd_publish(a) -> int:
         sig_text = minisign_sign(key, keyid, sums_text.encode(), trusted)
     if not (a.signer and a.dry_run):
         minisign_verify(sig_text, sums_text.encode(), keys)
-    gl = GitLab(a.host, a.project, Path(a.token_file), a.dry_run) if to_gitlab else None
-    gh = GitHub(a.github_repo, a.dry_run) if to_github else None
+    gh = GitHub(a.github_repo, a.dry_run)
     all_files = files + [folder / "SHA256SUMS", folder / "SHA256SUMS.sig"]
     sums_all = {**sums,
                 "SHA256SUMS": hashlib.sha256(sums_text.encode()).hexdigest(),
                 "SHA256SUMS.sig": hashlib.sha256(sig_text.encode()).hexdigest()}
-    if gh:  # before anything is written, as for GitLab below
-        gh_rel, gh_steps = github_plan(gh, tag, a.ref, all_files, sums_all, a.version, a.replace)
-    if gl:
-        have = existing_package_files(gl, a.package, a.version)
-        for n, want in sums.items():  # before anything is written: a refused run leaves no trace
-            if have.get(n) and not a.replace and not any(f.get("file_sha256") == want for f in have[n]):
-                raise Fail(f"{n} is already in package {a.package}/{a.version} with other bytes; "
-                           "a published file never changes silently (--replace to swap it)")
+    # before anything is written: a refused run leaves no trace
+    gh_rel, gh_steps = github_plan(gh, tag, a.ref, all_files, sums_all, a.version, a.replace)
     for name, text in (("SHA256SUMS", sums_text), ("SHA256SUMS.sig", sig_text)):
         path = folder / name
         same = path.exists() and path.read_text(encoding="utf-8") == text
@@ -665,74 +507,21 @@ def cmd_publish(a) -> int:
             say(f"  wrote {name}")
     say(sums_text.rstrip())
 
-    if gl:
-        gitlab_publish(a, gl, tag, notes, all_files, sums_all, sums_text, sig_text, keys)
-    if gh:
-        say("GitHub release:")
-        github_release(gh, tag, a.ref, f"Epic Cash {a.version}", notes, gh_rel, gh_steps,
-                       sums_all)
-        if not a.dry_run:
-            say("Check (GitHub):")
-            check_github(gh, tag, all_files, sums_all, a.version, sums_text, sig_text, keys)
-        base = f"https://github.com/{a.github_repo}/releases"
-        say("Links (GitHub):")
-        say(f"  release page   {base}/tag/{tag}")
-        say(f"  latest release {base}/latest")
-        for p in all_files:
-            say(f"  {base}/download/{tag}/{stable_name(p.name, a.version)}")
-        say("  newest of each file:")
-        for p in all_files:
-            say(f"  {base}/latest/download/{stable_name(p.name, a.version)}")
-    return 0
-
-
-def gitlab_publish(a, gl: GitLab, tag: str, notes: str, all_files: list[Path],
-                   sums_all: dict[str, str], sums_text: str, sig_text: str, keys: dict) -> None:
-    say("Packages:")
-    upload(gl, a.package, a.version, all_files, sums_all, a.replace)
-
-    links = []
-    for p in all_files:
-        stable = stable_name(p.name, a.version)
-        links.append({
-            "name": p.name,
-            "url": package_url(gl, a.package, a.version, p.name),
-            "direct_asset_path": f"/{stable}",
-            "link_type": "other" if p.name.startswith("SHA256SUMS") else "package",
-        })
-    say("Release:")
-    ensure_release(gl, tag, a.ref, f"Epic Cash {a.version}", notes, links)
+    say("GitHub release:")
+    github_release(gh, tag, a.ref, f"Epic Cash {a.version}", notes, gh_rel, gh_steps, sums_all)
     if not a.dry_run:
         say("Check:")
-        have = existing_package_files(gl, a.package, a.version)
-        for n, want in sums_all.items():
-            if not any(f.get("file_sha256") == want for f in have.get(n, [])):
-                raise Fail(f"{n}: the registry has no file with SHA-256 {want}")
-        say(f"  registry SHA-256 of {len(sums_all)} files: ok")
-        # Through the release permalink, as a download would. On a private project the web path
-        # can answer a sign-in redirect or a Cloudflare challenge even with the token: then the
-        # package URL behind it.
-        via = "the release permalink"
-        dl = f"{gl.host}/{a.project}/-/releases/{tag}/downloads"
-        got = [gl.s.get(f"{dl}/{n}", timeout=60) for n in ("SHA256SUMS", "SHA256SUMS.sig")]
-        if any(r.status_code != 200 for r in got):
-            via = f"the package URL (the permalink answered {got[0].status_code})"
-            got = [gl.s.get(package_url(gl, a.package, a.version, n), timeout=60)
-                   for n in ("SHA256SUMS", "SHA256SUMS.sig")]
-        if got[0].content != sums_text.encode() or got[1].content != sig_text.encode():
-            raise Fail("the release's SHA256SUMS or its signature differs from ours")
-        entry = minisign_verify(got[1].text, got[0].content, keys)
-        say(f"  SHA256SUMS via {via}: signature ok (key {entry['label']})")
-
-    proj = f"{gl.host}/{a.project}"
-    say("Permalinks:")
-    say(f"  release page   {proj}/-/releases/{tag}")
-    say(f"  latest release {proj}/-/releases/permalink/latest")
-    for l in links:
-        say(f"  {proj}/-/releases/{tag}/downloads{l['direct_asset_path']}")
+        check_github(gh, tag, all_files, sums_all, a.version, sums_text, sig_text, keys)
+    base = f"https://github.com/{a.github_repo}/releases"
+    say("Links:")
+    say(f"  release page   {base}/tag/{tag}")
+    say(f"  latest release {base}/latest")
+    for p in all_files:
+        say(f"  {base}/download/{tag}/{stable_name(p.name, a.version)}")
     say("  newest of each file:")
-    for l in links:
-        say(f"  {proj}/-/releases/permalink/latest/downloads{l['direct_asset_path']}")
+    for p in all_files:
+        say(f"  {base}/latest/download/{stable_name(p.name, a.version)}")
+    return 0
 
 
 def cmd_github_update_json(a) -> int:
@@ -750,7 +539,7 @@ def cmd_github_update_json(a) -> int:
     rel = gh.call("GET", "/releases/latest", ok404=True)
     if rel is None:
         raise Fail(f"github.com/{a.github_repo} has no latest release: publish one first "
-                   "(publish --target github)")
+                   "(publish)")
     tag = rel["tag_name"]
     say(f"{name} ({want}) → github.com/{a.github_repo} latest release {tag}")
     old = next((x for x in rel.get("assets", []) if x["name"] == name), None)
@@ -794,22 +583,16 @@ def cmd_pubkey(a) -> int:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     sub = ap.add_subparsers(dest="cmd", required=True)
-    p = sub.add_parser("publish", help="sums, signature, packages, release")
+    p = sub.add_parser("publish", help="sums, signature, GitHub Release")
     p.add_argument("version")
     p.add_argument("folder")
     p.add_argument("--dry-run", action="store_true", help="change nothing, say what would change")
-    p.add_argument("--host", default=DEFAULTS["host"])
-    p.add_argument("--target", choices=("gitlab", "github", "both"), default="gitlab",
-                   help="where the release goes (default gitlab)")
-    p.add_argument("--project", default=DEFAULTS["project"])
     p.add_argument("--github-repo", default=DEFAULTS["github_repo"], help="owner/repo on GitHub")
-    p.add_argument("--package", default=DEFAULTS["package"])
     p.add_argument("--tag", help="default v<version>")
     p.add_argument("--ref", help="create the tag from this commit (sandbox tests only)")
     p.add_argument("--notes", help="release description (default: the fastlane changelog)")
     p.add_argument("--exclude", action="append", default=[], help="file name glob to leave out")
     p.add_argument("--replace", action="store_true", help="swap a file uploaded with other bytes")
-    p.add_argument("--token-file", default=str(DEFAULTS["token_file"]))
     p.add_argument("--key", default=str(DEFAULTS["key"]))
     p.add_argument("--signer", action="store_true",
                    help="sign SHA256SUMS with the release signer ([host.signer] endpoint) instead of --key")

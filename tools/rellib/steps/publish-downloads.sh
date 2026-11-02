@@ -30,7 +30,7 @@ mapfile -t files < <(cut -d' ' -f3- "$dir/SHA256SUMS")
 (cd "$dir" && sha256sum -c --quiet SHA256SUMS)
 signed=()
 if [[ -f "$sj" && -f "$m/SHA256SUMS.sig" ]]; then
-  python3 "$here/server_sums.py" verify "$m/SHA256SUMS" "$m/SHA256SUMS.sig" "$keyring" "$src/tools/gitlab-release.py"
+  python3 "$here/server_sums.py" verify "$m/SHA256SUMS" "$m/SHA256SUMS.sig" "$keyring" "$src/tools/release-files.py"
   signed=("$m/SHA256SUMS" "$m/SHA256SUMS.sig")
 fi
 ssh "$host" "mkdir -p ~/$stage"
@@ -61,9 +61,9 @@ else
   if [[ -f "$sj" ]]; then
     python3 "$here/server_sums.py" sign "$work/SHA256SUMS" "$sj" "${REL_VERSION:?}" "$keyring"
   else
-    python3 "$here/server_sums.py" sign-key "$work/SHA256SUMS" "$key" "${REL_VERSION:?}" "$keyring" "$src/tools/gitlab-release.py"
+    python3 "$here/server_sums.py" sign-key "$work/SHA256SUMS" "$key" "${REL_VERSION:?}" "$keyring" "$src/tools/release-files.py"
   fi
-  python3 "$here/server_sums.py" verify "$work/SHA256SUMS" "$work/SHA256SUMS.sig" "$keyring" "$src/tools/gitlab-release.py"
+  python3 "$here/server_sums.py" verify "$work/SHA256SUMS" "$work/SHA256SUMS.sig" "$keyring" "$src/tools/release-files.py"
   rsync -t "$work/SHA256SUMS" "$work/SHA256SUMS.sig" "$host:$stage/"
   # shellcheck disable=SC2029
   ssh "$host" "set -e; cd $dest

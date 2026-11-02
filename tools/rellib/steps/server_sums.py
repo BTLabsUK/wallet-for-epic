@@ -13,13 +13,13 @@ signer can sign it before anything is published (docs/RELEASING.md, "Signer").
       exit 0 when the files dir holds exactly what its SHA256SUMS lists, with those hashes, and
       `write` would give this SHA256SUMS byte for byte (the manifests step's retry: the listing
       the signer already signed still stands); exit 1 otherwise.
-  server_sums.py verify <SHA256SUMS> <SHA256SUMS.sig> <keyring> <gitlab-release.py>
-      the minisign signature against the keyring (gitlab-release.py's own check).
+  server_sums.py verify <SHA256SUMS> <SHA256SUMS.sig> <keyring> <release-files.py>
+      the minisign signature against the keyring (release-files.py's own check).
   server_sums.py sign <SHA256SUMS> <run>/signer.json <version> <keyring>
       has the release signer sign it into SHA256SUMS.sig beside it (one approval by the owner), for a
       folder that changed after the manifests step signed it (a run without manifests, a prune
       that left another listing); the label of the keyring's rank-1 key goes in the comment.
-  server_sums.py sign-key <SHA256SUMS> <key file> <version> <keyring> <gitlab-release.py>
+  server_sums.py sign-key <SHA256SUMS> <key file> <version> <keyring> <release-files.py>
       the same signature from the update key's file on this machine (release-hosts.toml
       host.signer signing_key), for a run without a signer: the keyless path that wrote the
       listing unsigned, so SHA256SUMS.sig is on the server either way (docs/rebuild-and-compare.md).
@@ -100,15 +100,15 @@ def same(files, mdir, sums):
         return 1
 
 
-def gitlab_release(tool):
-    spec = importlib.util.spec_from_file_location("gitlab_release", tool)
+def release_files(tool):
+    spec = importlib.util.spec_from_file_location("release_files", tool)
     gr = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(gr)
     return gr
 
 
 def verify(sums, sig, keyring, tool):
-    gr = gitlab_release(tool)
+    gr = release_files(tool)
     from pathlib import Path
     with open(sig, encoding="utf-8") as f, open(sums, "rb") as g:
         entry = gr.minisign_verify(f.read(), g.read(), gr.load_keyring(Path(keyring)))
@@ -134,9 +134,9 @@ def sign(sums, signer_json, version, keyring):
 
 
 def sign_key(sums, key_file, version, keyring, tool):
-    """gitlab-release.py's own minisign signing (the GitHub Release's SHA256SUMS.sig), the trusted
+    """release-files.py's own minisign signing (the GitHub Release's SHA256SUMS.sig), the trusted
     comment as sign() gives it, the key's label from the keyring."""
-    gr = gitlab_release(tool)
+    gr = release_files(tool)
     from pathlib import Path
     key = gr.load_private_key(Path(key_file).expanduser())
     keyid = gr.keyid_of(gr.raw_public(key))
@@ -168,12 +168,12 @@ def main(argv):
             sign_key(*argv[1:])
         except SystemExit:
             raise
-        except Exception as e:  # gitlab-release.Fail (no key file, wrong mode, not Ed25519)
+        except Exception as e:  # release-files.Fail (no key file, wrong mode, not Ed25519)
             raise SystemExit(f"{argv[1]}: not signed: {e}") from None
     elif len(argv) == 5 and argv[0] == "verify":
         try:
             verify(*argv[1:])
-        except Exception as e:  # gitlab-release.Fail and friends
+        except Exception as e:  # release-files.Fail and friends
             raise SystemExit(f"{argv[2]}: {e}") from None
     else:
         raise SystemExit(__doc__)

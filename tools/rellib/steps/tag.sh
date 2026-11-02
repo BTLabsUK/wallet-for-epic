@@ -3,7 +3,7 @@
 # Step `tag` of tools/rel, right after the publish gate and before anything leaves this machine:
 # the release tag on the release commit, "git tag -a v<version> -m 'Epic Cash <version>'" as every
 # release before had it by hand (https://docs.btlabs.uk/developers/releases/, Cutting a release). publish-source
-# pushes it to GitLab (and GitHub), where publish-github-release needs it; G4 of the next release
+# pushes it to GitHub, where publish-github-release needs it; G4 of the next release
 # reads it as the previous release's ref (published.json).
 # - The commit must be on main (the old process merged the release into main first): a release
 #   from anywhere else stops here, before the downloads.

@@ -89,10 +89,10 @@ pattern = "(scan|check).*(FAIL|private detail|agent path)"
 hint = "The publish scanner found a private detail: add the rule in tools/publish/ (or fix the file on main), then `tools/rel retry publish-source --again`."
 
 [[failure]]
-id = "gitlab-token"
-steps = ["publish-source", "publish-manifests"]
-pattern = "(401 Unauthorized|HTTP Basic: Access denied|token.*expired)"
-hint = "The GitLab token expired or is wrong (GITLAB_TOKEN_FILE, default ~/.config/btlabs/gitlab-token): renew it (owner), update host.signer.gitlab_token_expires, retry."
+id = "github-login"
+steps = ["publish-source", "publish-github-release", "publish-manifests"]
+pattern = "(Permission denied \\(publickey\\)|gh is not logged in|gh is logged in as|401 Unauthorized|Bad credentials)"
+hint = "GitHub refused BT Labs' login: git needs the SSH key for git@github.com (~/.ssh/config), gh needs GH_CONFIG_DIR=~/.config/gh-btlabs logged in as btlabs-uk (owner renews it), then retry."
 
 [[failure]]
 id = "play-notes"

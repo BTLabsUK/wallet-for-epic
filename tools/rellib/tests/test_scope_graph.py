@@ -249,7 +249,6 @@ class GraphTest(unittest.TestCase):
         by = {x.id: x for x in steps}
         self.assertFalse(s["publish"]["github"])
         self.assertNotIn("publish-github-release", by)
-        self.assertEqual(by["publish-source"].env["GITHUB_MIRROR"], "0")
         self.assertEqual(by["publish-manifests"].env["GITHUB_UPDATE_JSON"], "0")
         self.assertEqual(by["publish-page"].env["REL_GITHUB"], "0")
         self.assertNotIn("publish-github-release", by["publish-manifests"].needs)
@@ -263,7 +262,6 @@ class GraphTest(unittest.TestCase):
         self.assertLess(ids.index("publish-source"), ids.index("publish-github-release"))
         self.assertLess(ids.index("publish-github-release"), ids.index("publish-manifests"))
         self.assertIn("publish-github-release", by["publish-manifests"].needs)
-        self.assertEqual(by["publish-source"].env["GITHUB_MIRROR"], "1")
         self.assertEqual(by["publish-manifests"].env["GITHUB_UPDATE_JSON"], "1")
         self.assertEqual(by["publish-page"].env["REL_GITHUB"], "1")
         self.assertIn("GitHub release mirror", scope_summary(s))
