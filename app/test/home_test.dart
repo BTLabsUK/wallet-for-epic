@@ -20,7 +20,6 @@ import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/history_screen.dart';
 import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/home_status.dart' show barNodeIconKey;
-import 'package:epic_wallet/src/ui/method_art.dart' show TransferMethod;
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/network_status.dart' show NetworkStatusCard;
 import 'package:epic_wallet/src/ui/receive_screen.dart';
