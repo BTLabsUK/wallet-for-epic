@@ -248,7 +248,7 @@ List<(String, String, _Tone)> _readout(AppLocalizations l, NetworkMode m, {requi
 String networkModesDescription(AppLocalizations l, NetworkMode m, {bool? tor}) => switch (m) {
   NetworkMode.standard => (tor ?? torBuilt) ? l.netModesDescStandard : l.advModeStandardHintNoTor,
   NetworkMode.torOnly => l.advModeTorOnlyHint,
-  NetworkMode.nodeOnly => l.netModesDescNodeOnly,
+  NetworkMode.nodeOnly => (tor ?? torBuilt) ? l.netModesDescNodeOnly : l.netModesDescNodeOnlyNoTor,
   NetworkMode.killSwitch => l.netModesDescKillSwitch,
 };
 

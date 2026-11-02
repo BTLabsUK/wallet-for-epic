@@ -2,5 +2,7 @@
   "deskNoTorSendDirectLine2": "Adres http(s). Portfel odbiorcy musi być otwarty.",
   "deskNoTorSetTxDirectHint": "Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem internetowym (http://host:{port}), bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte. Dodaje Link · HTTP do Wyślij, a jego adres do Odbierz. Wszystkie portfele.",
   "deskNoTorTxDetailsFromBad": "Użyj adresu Epicbox lub http(s).",
-  "deskNoTorTourAdvancedText": "Wyjścia i szczegóły techniczne są tutaj. Włącz to, czego potrzebujesz."
+  "deskNoTorTourAdvancedText": "Wyjścia i szczegóły techniczne są tutaj. Włącz to, czego potrzebujesz.",
+  "deskNoTorSetSynNetMode": "offline, kill switch, tylko węzeł, vpn, ip, prywatność, tryb samolotowy",
+  "deskNoTorSetSearchTryWords": "hasło,prywatność,fraza,kopia,opłata,węzeł,blokada"
 }

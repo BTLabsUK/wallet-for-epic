@@ -26610,6 +26610,12 @@ abstract class AppLocalizations {
   /// **'Not chosen: an onion server works only with Tor on.'**
   String get slRefusedOnion;
 
+  /// Foot line of the Epicbox list in selection mode when the user ticks a .onion server in the build without Tor: it is not chosen. Names neither Tor nor onion.
+  ///
+  /// In en, this message translates to:
+  /// **'Not chosen: this version cannot reach this server.'**
+  String get slRefusedOnionNoTor;
+
   /// Text of the Owner access row when the secret is added and the node is reached over plain http on the home network or a tailnet: the secret travels unencrypted on each owner call. Starts with deskOwnAccessOn's word.
   ///
   /// In en, this message translates to:
@@ -27102,16 +27108,10 @@ abstract class AppLocalizations {
   /// **'Kill switch'**
   String get advModeKillSwitch;
 
-  /// Info text of the Normal row (phone).
-  ///
-  /// In en, this message translates to:
-  /// **'Connects directly. Turn on Tor in Privacy & network to hide the IP address.'**
-  String get advModeStandardHint;
-
   /// Settings › Network & privacy: info text of the Normal network mode. The Tor switch is right below the modes on the same page.
   ///
   /// In en, this message translates to:
-  /// **'Connects directly. Turn on Tor below to hide the IP address.'**
+  /// **'Connects directly. Turn on Tor below to connect through Tor.'**
   String get advModeStandardHintHere;
 
   /// Info text of the Normal row in the build without Tor.
@@ -27557,12 +27557,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open'**
   String get postFinishedOpen;
-
-  /// Info text of the Normal row (desktop).
-  ///
-  /// In en, this message translates to:
-  /// **'Connects directly. Turn on Tor under Privacy to hide the IP address.'**
-  String get deskSetAdvModeStandardHint;
 
   /// Body of that screen (desktop).
   ///
@@ -29286,10 +29280,10 @@ abstract class AppLocalizations {
   /// **'Cancelled and sent by Epicbox.'**
   String get mailboxResent;
 
-  /// Caption under the Epicbox row in Settings while Tor is off, and a Help › Privacy line.
+  /// Caption under the Epicbox row in Settings while Tor is off: what Tor does for Epicbox.
   ///
   /// In en, this message translates to:
-  /// **'Over Tor the relay does not see this device’s address.'**
+  /// **'With Tor on, the connection to the Epicbox server goes through Tor.'**
   String get torRelayCaption;
 
   /// Short notice: a pairing or device-link invite link the system opened could not be read, so it was ignored.
@@ -30555,7 +30549,7 @@ abstract class AppLocalizations {
   /// Settings search: other words that find the “Link · Tor” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
   ///
   /// In en, this message translates to:
-  /// **'tor, onion, anonymous, hidden service, privacy, method'**
+  /// **'tor, onion, hidden service, privacy, method'**
   String get deskSetSynTorPay;
 
   /// Settings row “Direct · File Transfer”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
@@ -30815,30 +30809,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'tor only, undercover, offline, kill switch, node only, vpn, ip, privacy, airplane'**
   String get deskSetSynNetMode;
-
-  /// Settings row title: Tor for all connections (section network).
-  ///
-  /// In en, this message translates to:
-  /// **'Tor for all connections'**
-  String get deskSetRowTorAll;
-
-  /// Settings row “Tor for all connections”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
-  ///
-  /// In en, this message translates to:
-  /// **'Node, Epicbox, prices and updates go through Tor.'**
-  String get deskSetRowTorAllHint;
-
-  /// Settings row “Tor for all connections”: the longer explanation behind its ⓘ (searched too).
-  ///
-  /// In en, this message translates to:
-  /// **'Tor hides the wallet’s IP address. For payments at the Tor address only, see Payments › Link · Tor.'**
-  String get deskSetRowTorAllInfo;
-
-  /// Settings search: other words that find the “Tor for all connections” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
-  ///
-  /// In en, this message translates to:
-  /// **'tor, onion, anonymous, ip, hide ip, proxy, privacy'**
-  String get deskSetSynTorAll;
 
   /// Settings row “Use status.btlabs.uk”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
   ///
@@ -32016,6 +31986,12 @@ abstract class AppLocalizations {
   /// **'Only the node in use connects, over Tor while Tor is on. Epicbox, Link, linked devices, price and update checks are off.'**
   String get netModesDescNodeOnly;
 
+  /// The network-modes picture and the ⓘ of Connection mode in the build without Tor: the Node only mode (no Tor).
+  ///
+  /// In en, this message translates to:
+  /// **'Only the node in use connects. Epicbox, Link, linked devices, price and update checks are off.'**
+  String get netModesDescNodeOnlyNoTor;
+
   /// The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): the Kill switch mode in one or two sentences.
   ///
   /// In en, this message translates to:
@@ -32087,6 +32063,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View'**
   String get deskOvInflightView;
+
+  /// Settings search in the build without Tor: other words that find the “Connection mode” row, comma-separated, lower case (no Tor only).
+  ///
+  /// In en, this message translates to:
+  /// **'offline, kill switch, node only, vpn, ip, privacy, airplane'**
+  String get deskNoTorSetSynNetMode;
+
+  /// Settings search in the build without Tor, nothing found: example words to search for, comma-separated, lower case, in this language (each must find a setting; no Tor).
+  ///
+  /// In en, this message translates to:
+  /// **'password,privacy,seed,backup,fee,node,lock'**
+  String get deskNoTorSetSearchTryWords;
 
   /// Button on the "Not reachable from the internet" notice: the user knows and hides it for this address and port; the status icon turns green.
   ///

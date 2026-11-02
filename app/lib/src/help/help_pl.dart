@@ -157,8 +157,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('W wielu łańcuchach bloków każdy może wyszukać adres i zobaczyć jego saldo i historię. Epic Cash działa inaczej:'),
         HelpBlock.ul(['**Brak adresów w łańcuchu bloków.** Adres Epicbox mówi tylko serwerowi Epicbox, dokąd dostarczać wiadomości. Nigdy nie jest zapisywany w łańcuchu bloków.', '**Brak kwot w łańcuchu bloków.** Kwoty są ukryte kryptograficznie, a sieć i tak może sprawdzić, że żadne monety nie powstały z niczego.', '**Notatki poza łańcuchem bloków.** Wiadomość dodana do płatności trafia tylko do drugiego portfela. Kontakty i nazwy portfeli zostają na $device.']),
-        HelpBlock.p('Czego nie ukrywa: węzeł i serwer Epicbox widzą adres IP portfela, a węzeł publiczny może zobaczyć, o które wyjścia portfel pyta. ${tor ? 'Tor lub VPN ukrywa' : 'VPN ukrywa'} adres IP.'),
-        if (tor) const HelpBlock.p('**Epicbox.** Przez Tor serwer Epicbox nie widzi adresu tego urządzenia.'),
+        HelpBlock.p('Czego nie ukrywa: węzeł i serwer Epicbox widzą adres IP portfela, a węzeł publiczny może zobaczyć, o które wyjścia portfel pyta. ${tor ? 'W trybie **Tylko Tor** portfel łączy się z węzłem i serwerem Epicbox przez Tor. ' : ''}VPN ukrywa adres IP.'),
       ],
       id: HelpId.privacy,
     ),
@@ -270,7 +269,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('Portfel potrzebuje węzła, aby czytać łańcuch bloków (saldo i potwierdzenia) i wysyłać transakcje do sieci.'),
         if (phone)
-          HelpBlock.p('**Węzeł publiczny** to jeden z węzłów prowadzonych przez innych. Działa od razu. Jego operator widzi adres IP portfela i o które wyjścia portfel pyta${tor ? '; Tor ukrywa ten adres' : ''}.')
+          HelpBlock.p('**Węzeł publiczny** to jeden z węzłów prowadzonych przez innych. Działa od razu. Jego operator widzi adres IP portfela i o które wyjścia portfel pyta${tor ? '; w trybie **Tylko Tor** portfel łączy się z nim przez Tor' : ''}.')
         else
           const HelpBlock.ul(['**Węzeł publiczny** (domyślnie): jeden z publicznych węzłów prowadzonych przez innych. Działa od razu. Jego operator widzi adres IP portfela i o które wyjścia portfel pyta.', '**Węzeł lokalny**: działa na tym komputerze jako osobny program, który uruchamia się i zatrzymuje razem z aplikacją. Najpierw pobiera cały łańcuch (za pierwszym razem około 4 GB, potem codziennie trochę), co trwa; na dysku zajmuje około 5 GB i powoli rośnie. Gdy się synchronizuje, portfel pokazuje jego postęp i używa węzła publicznego. Zobacz „Uruchamianie węzła lokalnego”.']),
         if (phone)
@@ -315,9 +314,9 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       HelpTopic(
         'network',
         'Tor',
-        'Tryb sieci Tylko Tor kieruje połączenia portfela przez Tor i daje mu adres .onion. Wolniej, bardziej prywatnie. Domyślnie wyłączony.',
+        'Tryb sieci Tylko Tor kieruje połączenia portfela przez Tor i daje mu adres .onion. Wolniej. Domyślnie wyłączony.',
         [
-          HelpBlock.p('Tor ukrywa adres IP portfela przed serwerami, z którymi się łączy. W trybie $torPlace połączenie z Epicbox idzie przez Tor, płatność na adres .onion idzie przez Tor, a portfel ma własny adres Tor (kończy się na .onion), na który inne portfele mogą płacić bezpośrednio.'),
+          HelpBlock.p('W trybie $torPlace połączenie z Epicbox idzie przez Tor, płatność na adres .onion idzie przez Tor, a portfel ma własny adres Tor (kończy się na .onion), na który inne portfele mogą płacić bezpośrednio.'),
           const HelpBlock.ul([
             'Węzeł, serwer Epicbox i adresy pozostają te same.',
             'Płatność Link na adres onion idzie przez Tor; Wyślij pokazuje, czy płatność idzie przez Tor.',
@@ -332,7 +331,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       const HelpTopic(
         'network',
         'Tor',
-        'Wolniej i bardziej prywatnie: tryb sieci Tylko Tor kieruje połączenia portfela przez Tor, bez otwierania portów. Domyślnie wyłączony.',
+        'Tryb sieci Tylko Tor kieruje połączenia portfela przez Tor, bez otwierania portów. Wolniej. Domyślnie wyłączony.',
         [
           HelpBlock.p('Z włączonym Torem połączenie z serwerem Epicbox idzie przez Tor, a portfel ma adres Tor (kończy się na .onion), na który inne portfele mogą płacić bezpośrednio, z dowolnego miejsca, bez przekierowywania czegokolwiek na routerze. Włączenie Tora nie zmienia adresów, które udostępniasz.'),
           HelpBlock.ul([
@@ -359,7 +358,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
               ? '**Normalny**: wszystko, do czego portfel jest skonfigurowany: węzeł, Epicbox, Link, strona statusu, kurs i sprawdzanie aktualizacji.'
               : '**Normalny**: wszystko, do czego portfel jest skonfigurowany: węzeł, Epicbox, Link, strona statusu, kurs i sprawdzanie aktualizacji.',
           if (tor)
-            '**Tylko Tor**: każde połączenie idzie przez Tor, także z węzłem i Epicbox; nic nie dotyka otwartego internetu. Dopóki Tor nie jest gotowy, nic się nie łączy, a ikony statusu mówią **Oczekiwanie na Tor**. Odbieranie przez Link · HTTP zostaje wyłączone: zwykły adres ujawniłby to urządzenie.',
+            '**Tylko Tor**: każde połączenie idzie przez Tor, także z węzłem i Epicbox. Dopóki Tor nie jest gotowy, nic się nie łączy, a ikony statusu mówią **Oczekiwanie na Tor**. Odbieranie przez Link · HTTP zostaje wyłączone.',
           '**Tylko węzeł**: portfel rozmawia tylko z używanym węzłem, pierwszym na twojej liście węzłów. Wyłączone są Epicbox, Link, strona statusu, kurs, sprawdzanie aktualizacji, linki do eksploratora, zgłoszenia problemów, parowanie i połączone urządzenia. ${phone ? '**Bezpośrednio · Płatność QR** i **Bezpośrednio · Przesyłanie pliku**' : '**Bezpośrednio · Przesyłanie pliku**'} działają.${tor ? ' Gdy Tor jest włączony, z węzłem łączy się przez Tor.' : ''}',
           '**Wyłącznik awaryjny**: nic się nie łączy, także węzeł. Portfel otwiera się z ostatnio znanym saldem i historią. Możesz tworzyć, podpisywać i kończyć płatności przez ${phone ? '**Bezpośrednio · Przesyłanie pliku** i **Bezpośrednio · Płatność QR**' : '**Bezpośrednio · Przesyłanie pliku**'}, pokazywać swój adres, robić kopię zapasową i eksportować. Płatności czekające na odbiorcę są wstrzymane i wznawiają się po wyjściu z trybu.',
         ]),

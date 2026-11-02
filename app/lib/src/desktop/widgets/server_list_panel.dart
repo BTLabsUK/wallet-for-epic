@@ -33,6 +33,7 @@ import '../../net/lan_node_relay.dart' show allowPlainHttpNode, needsPlainHttpCo
 import '../../net/local_address.dart' show isLocalNodeUrl;
 import '../../node/node_info.dart' show compareVersions;
 import '../../relay_directory.dart' show NodeHealthState;
+import '../../tor_build.dart';
 import '../../ui/server_tile.dart';
 import '../data/desk_node.dart' show nodeHost;
 import '../data/server_lists.dart';
@@ -679,7 +680,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
         _say(l.slRefusedLocal);
         return;
       case SelectionRefusal.onionWithoutTor:
-        _say(l.slRefusedOnion);
+        _say(torBuilt ? l.slRefusedOnion : l.slRefusedOnionNoTor);
         return;
       case null:
         break;

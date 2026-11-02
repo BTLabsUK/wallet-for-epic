@@ -17649,6 +17649,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Не выбран: onion-сервер работает только при включённом Tor.';
 
   @override
+  String get slRefusedOnionNoTor =>
+      'Не выбран: эта версия не может подключиться к этому серверу.';
+
+  @override
   String get deskOwnAccessOnPlain =>
       'Добавлен · передаётся узлу без шифрования (http), виден в этой сети';
 
@@ -18012,12 +18016,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get advModeKillSwitch => 'Аварийное отключение';
 
   @override
-  String get advModeStandardHint =>
-      'Подключается напрямую. Включите Tor в разделе «Приватность и сеть», чтобы скрыть IP-адрес.';
-
-  @override
   String get advModeStandardHintHere =>
-      'Подключается напрямую. Включите Tor ниже, чтобы скрыть IP-адрес.';
+      'Подключается напрямую. Включите Tor ниже, чтобы подключаться через Tor.';
 
   @override
   String get advModeStandardHintNoTor =>
@@ -18306,10 +18306,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get postFinishedOpen => 'Открыть';
-
-  @override
-  String get deskSetAdvModeStandardHint =>
-      'Подключается напрямую. Включите Tor в разделе «Приватность», чтобы скрыть IP-адрес.';
 
   @override
   String deskFinNotPostedKillBody(String amount) {
@@ -19402,7 +19398,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get torRelayCaption =>
-      'Через Tor сервер Epicbox не видит адрес этого устройства.';
+      'Когда Tor включён, подключение к серверу Epicbox идёт через Tor.';
 
   @override
   String get inviteLinkUnreadable => 'Эту ссылку нельзя открыть.';
@@ -20210,7 +20206,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetSynTorPay =>
-      'tor, onion, анонимно, скрытый сервис, приватность, способ';
+      'tor, onion, скрытый сервис, приватность, способ';
 
   @override
   String get deskSetRowFileHint =>
@@ -20369,21 +20365,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSetSynNetMode =>
       'только tor, undercover, офлайн, kill switch, только узел, vpn, ip, приватность, авиарежим';
-
-  @override
-  String get deskSetRowTorAll => 'Tor для всех подключений';
-
-  @override
-  String get deskSetRowTorAllHint =>
-      'Узел, Epicbox, цены и обновления идут через Tor.';
-
-  @override
-  String get deskSetRowTorAllInfo =>
-      'Tor скрывает IP-адрес кошелька. Только для платежей по Tor-адресу: см. Платежи › Ссылка · Tor.';
-
-  @override
-  String get deskSetSynTorAll =>
-      'tor, onion, анонимно, ip, скрыть ip, прокси, приватность';
 
   @override
   String get deskSetRowStatusSiteHint =>
@@ -21051,6 +21032,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Подключается только используемый узел, через Tor, если Tor включён. Epicbox, Ссылка, связанные устройства, проверка курса и обновлений выключены.';
 
   @override
+  String get netModesDescNodeOnlyNoTor =>
+      'Подключается только используемый узел. Epicbox, Ссылка, связанные устройства, проверка курса и обновлений выключены.';
+
+  @override
   String get netModesDescKillSwitch =>
       'Ничего не подключается, даже узел. Платежи создаются и завершаются офлайн, а затем отправляются с устройства, которое в сети.';
 
@@ -21114,6 +21099,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOvInflightView => 'Показать';
+
+  @override
+  String get deskNoTorSetSynNetMode =>
+      'офлайн, kill switch, только узел, vpn, ip, приватность, авиарежим';
+
+  @override
+  String get deskNoTorSetSearchTryWords =>
+      'пароль,приватность,сид,резервная,комиссия,узел,блокировка';
 
   @override
   String get deskKitReachDismiss => 'Скрыть';

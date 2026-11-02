@@ -1,8 +1,4 @@
 {
-  "deskSetAdvModeStandardHint": "Connects directly. Turn on Tor under Privacy to hide the IP address.",
-  "@deskSetAdvModeStandardHint": {
-    "description": "Info text of the Normal row (desktop)."
-  },
   "deskFinNotPostedKillBody": "{amount} is finished. Kill switch is on, so this computer cannot post it. Save it or copy it, then post it on a device that is online: Receive › Transaction files › Post a finished payment.",
   "@deskFinNotPostedKillBody": {
     "description": "Body of that screen (desktop).",

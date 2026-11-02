@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Settings search's engine: Help's word-start rule, synonyms, ranking (name over synonym over
 // explanation), the split into shown here and hidden by the view or an Advanced switch, Help
-// topics, and the other languages.
+// topics, and the other languages. Run both ways; the build without Tor finds no Tor:
+//   flutter test [--dart-define=WFE_TOR=false] test/desktop/settings_search_test.dart
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/data/settings_registry.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/help_topics.dart';
@@ -9,8 +10,15 @@ import 'package:epic_wallet/src/desktop/screens/settings/search/settings_search.
 import 'package:epic_wallet/src/desktop/screens/settings/search/settings_sections.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart' show DeskRoute;
 import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_test/flutter_test.dart';
+
+/// Skips a check that needs Link · Tor and Tor only.
+const _withTor = torBuilt ? null : 'Tor is not in this build';
+
+/// Tor or onion as a word, in any of the six languages (Polish declines Tor).
+final _torWord = RegExp(r'(?<!\p{L})tor(?:a|em|u|ze)?(?!\p{L})|onion', unicode: true);
 
 void main() {
   final en = lookupAppLocalizations(const Locale('en'));
@@ -28,12 +36,12 @@ void main() {
     expect(ids(r.shown), isNot(contains(SetId.restoreWallet)));
     expect(ids(r.shown), isNot(contains(SetId.importData)));
     expect(find('estore').shown, isEmpty);
-  });
+  }, skip: _withTor);
 
   test('under two letters searches nothing; every word must match', () {
     expect(find('t').words, isEmpty);
     expect(find('t').isEmpty, isTrue);
-    expect(ids(find('tor only').shown), contains(SetId.netMode));
+    if (torBuilt) expect(ids(find('tor only').shown), contains(SetId.netMode));
     expect(find('tor zebra').shown, isEmpty);
   });
 
@@ -65,7 +73,7 @@ void main() {
     expect(seen, orderedEquals([...seen]..sort()));
     // Payments (this wallet) before Network & privacy (app).
     expect(ids(r.shown).indexOf(SetId.torPay), lessThan(ids(r.shown).indexOf(SetId.netMode)));
-  });
+  }, skip: _withTor);
 
   test('hidden by the view or a switch: listed apart, with what shows them', () {
     // Shallow: Payments and Network & privacy are Deeper's.
@@ -88,7 +96,7 @@ void main() {
     // The count counts everything listed (review 12), never 0 above results.
     expect(r.count, r.shown.length + r.hidden.length + r.help.length);
     expect(r.count, greaterThan(0));
-  });
+  }, skip: _withTor);
 
   test('the navigation entries with results include a sub-page’s parent', () {
     final r = find('unconfirmed');
@@ -103,7 +111,24 @@ void main() {
     expect(r.help, isNotEmpty);
     expect(r.help.length, lessThanOrEqualTo(settingsSearchHelpMax));
     expect(find('fee', topics: topics).help.length, lessThanOrEqualTo(4));
-  });
+  }, skip: _withTor);
+
+  test('without Tor: no row, synonym, suggested word or Help topic names Tor or onion', () {
+    for (final code in ['en', 'de', 'pl', 'ru', 'th', 'zh']) {
+      final l = lookupAppLocalizations(Locale(code));
+      for (final e in settingsRegistry) {
+        final text = [e.label(l), e.synonyms(l), e.hint?.call(l) ?? '', e.info?.call(l) ?? '', e.group?.call(l) ?? ''].join('\n').toLowerCase();
+        expect(_torWord.hasMatch(text), isFalse, reason: '${e.id} $code: $text');
+      }
+      expect(_torWord.hasMatch(l.deskNoTorSetSearchTryWords), isFalse, reason: code);
+      for (final w in l.deskNoTorSetSearchTryWords.split(',')) {
+        expect(find(w, l: l).shown, isNotEmpty, reason: '$code: $w finds a setting');
+      }
+    }
+    final r = find('tor', topics: helpTopicsFor(3));
+    expect(r.isEmpty, isTrue);
+    expect(find('onion').isEmpty, isTrue);
+  }, skip: torBuilt ? 'Tor is in this build' : null);
 
   test('the noisy synonym is gone: "backup" does not find node failover', () {
     expect(ids(find('backup').shown), isNot(contains(SetId.failover)));

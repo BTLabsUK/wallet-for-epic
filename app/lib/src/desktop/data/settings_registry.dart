@@ -11,6 +11,7 @@ import '../desk_l10n.dart';
 import '../screens/settings/search/settings_sections.dart';
 import '../screens/settings/setting_ids.dart';
 import '../widgets/kit.dart' show DeskRoute;
+import 'features.dart' show DeskFeatures;
 
 export '../screens/settings/setting_ids.dart';
 
@@ -64,7 +65,10 @@ class SetEntry {
   ];
 }
 
-/// Every row, in navigation order.
+/// The rows of a part this build leaves out (Link · Tor without Tor): on no page, not searched.
+const Set<String> settingsNotBuilt = {if (!DeskFeatures.tor) SetId.torPay};
+
+/// Every row of this build, in navigation order.
 final List<SetEntry> settingsRegistry = [
   SetEntry(SetId.name, DeskRoute.settingsAccount, label: (l) => l.deskSetAcctLabel, hint: (l) => l.deskSetRowNameHint, synonyms: (l) => l.deskSetSynName),
   SetEntry(SetId.exportData, DeskRoute.settingsAccount, label: (l) => l.deskSetBackupExportTitle, group: (l) => l.deskSetGrpBackup, hint: (l) => l.deskSetRowExportDataHint, info: (l) => l.deskSetRowExportDataInfo, synonyms: (l) => l.deskSetSynExportData),
@@ -87,7 +91,7 @@ final List<SetEntry> settingsRegistry = [
   SetEntry(SetId.http, DeskRoute.settingsReceiving, label: (l) => l.methodDirectHttp, group: (l) => l.deskSetGrpMethods, hint: (l) => l.deskSetRowHttpHint, synonyms: (l) => l.deskSetSynHttp),
   SetEntry(SetId.httpReach, DeskRoute.settingsReceiving, label: (l) => l.deskSetHttpGuideTitle, group: (l) => l.deskSetGrpMethods, synonyms: (l) => l.deskSetSynHttpReach, parent: SetId.http),
   SetEntry(SetId.httpPort, DeskRoute.settingsReceiving, label: (l) => l.deskSetHttpPort, group: (l) => l.deskSetGrpMethods, synonyms: (l) => l.deskSetSynHttpPort, parent: SetId.http),
-  SetEntry(SetId.torPay, DeskRoute.settingsReceiving, label: (l) => l.methodDirectTor, group: (l) => l.deskSetGrpMethods, hint: (l) => l.deskSetRowTorPayHint, info: (l) => l.deskSetRowTorPayInfo, synonyms: (l) => l.deskSetSynTorPay),
+  if (DeskFeatures.tor) SetEntry(SetId.torPay, DeskRoute.settingsReceiving, label: (l) => l.methodDirectTor, group: (l) => l.deskSetGrpMethods, hint: (l) => l.deskSetRowTorPayHint, info: (l) => l.deskSetRowTorPayInfo, synonyms: (l) => l.deskSetSynTorPay),
   SetEntry(SetId.file, DeskRoute.settingsReceiving, label: (l) => l.deskKitMethodFiles, group: (l) => l.deskSetGrpMethods, hint: (l) => l.deskSetRowFileHint, synonyms: (l) => l.deskSetSynFile),
   SetEntry(SetId.defaultMethod, DeskRoute.settingsReceiving, label: (l) => l.deskSetTxStart, group: (l) => l.deskSetGrpSending, hint: (l) => l.deskSetRowDefaultMethodHint, synonyms: (l) => l.deskSetSynDefaultMethod),
   SetEntry(SetId.strategy, DeskRoute.settingsReceiving, label: (l) => l.deskSetRowStrategy, group: (l) => l.deskSetGrpSending, hint: (l) => l.deskSetRowStrategyHint, info: (l) => l.deskSetRowStrategyInfo, synonyms: (l) => l.deskSetSynStrategy, gate: SetGate(minLevel: 3, features: [AdvancedFeature.sendOptions])),
@@ -107,7 +111,7 @@ final List<SetEntry> settingsRegistry = [
   SetEntry(SetId.myNode, DeskRoute.settingsNode, label: (l) => l.deskOwnMine, group: (l) => l.deskSetGrpConnection, hint: (l) => l.deskSetRowMyNodeHint, synonyms: (l) => l.deskSetSynMyNode),
   SetEntry(SetId.localNode, DeskRoute.settingsNode, label: (l) => l.deskSetRowLocalNode, group: (l) => l.deskSetGrpLocalNode, hint: (l) => l.deskSetRowLocalNodeHint, synonyms: (l) => l.deskSetSynLocalNode, gate: SetGate(minLevel: 3, features: [AdvancedFeature.builtInNode])),
   SetEntry(SetId.localStart, DeskRoute.settingsNode, label: (l) => l.deskSetLnodeAutostart, group: (l) => l.deskSetGrpLocalNode, hint: (l) => l.deskSetRowLocalStartHint, synonyms: (l) => l.deskSetSynLocalStart, gate: SetGate(minLevel: 3, features: [AdvancedFeature.builtInNode]), parent: SetId.localNode),
-  SetEntry(SetId.netMode, DeskRoute.settingsPrivacy, label: (l) => l.deskSetRowNetMode, group: (l) => l.deskSetGrpConnections, synonyms: (l) => l.deskSetSynNetMode),
+  SetEntry(SetId.netMode, DeskRoute.settingsPrivacy, label: (l) => l.deskSetRowNetMode, group: (l) => l.deskSetGrpConnections, synonyms: (l) => DeskFeatures.tor ? l.deskSetSynNetMode : l.deskNoTorSetSynNetMode),
   SetEntry(SetId.statusSite, DeskRoute.settingsPrivacy, label: (l) => l.deskSetPrivUseStatus(statusSiteHost), group: (l) => l.deskSetGrpServerStatus, hint: (l) => l.deskSetRowStatusSiteHint, synonyms: (l) => l.deskSetSynStatusSite),
   SetEntry(SetId.view, DeskRoute.settingsAdvanced, label: (l) => l.deskSetRowView, group: (l) => l.deskSetGrpView, hint: (l) => l.deskSetRowViewHint, synonyms: (l) => l.deskSetSynView),
   SetEntry(SetId.advOutputs, DeskRoute.settingsAdvanced, label: (l) => l.deskSetAdvOutputs, group: (l) => l.deskSetGrpShowsMore, hint: (l) => l.deskSetRowAdvOutputsHint, synonyms: (l) => l.deskSetSynAdvOutputs, gate: SetGate(minLevel: 2)),

@@ -17049,6 +17049,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Not chosen: an onion server works only with Tor on.';
 
   @override
+  String get slRefusedOnionNoTor =>
+      'Not chosen: this version cannot reach this server.';
+
+  @override
   String get deskOwnAccessOnPlain =>
       'Added · goes to the node unencrypted (plain http), readable on that network';
 
@@ -17399,12 +17403,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get advModeKillSwitch => 'Kill switch';
 
   @override
-  String get advModeStandardHint =>
-      'Connects directly. Turn on Tor in Privacy & network to hide the IP address.';
-
-  @override
   String get advModeStandardHintHere =>
-      'Connects directly. Turn on Tor below to hide the IP address.';
+      'Connects directly. Turn on Tor below to connect through Tor.';
 
   @override
   String get advModeStandardHintNoTor =>
@@ -17687,10 +17687,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get postFinishedOpen => 'Open';
-
-  @override
-  String get deskSetAdvModeStandardHint =>
-      'Connects directly. Turn on Tor under Privacy to hide the IP address.';
 
   @override
   String deskFinNotPostedKillBody(String amount) {
@@ -18766,7 +18762,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get torRelayCaption =>
-      'Over Tor the relay does not see this device’s address.';
+      'With Tor on, the connection to the Epicbox server goes through Tor.';
 
   @override
   String get inviteLinkUnreadable => 'This link can\'t be opened.';
@@ -19559,8 +19555,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tor runs only to send and receive payments at the Tor address. The node, prices and updates keep the setting under Network & privacy.';
 
   @override
-  String get deskSetSynTorPay =>
-      'tor, onion, anonymous, hidden service, privacy, method';
+  String get deskSetSynTorPay => 'tor, onion, hidden service, privacy, method';
 
   @override
   String get deskSetRowFileHint =>
@@ -19717,21 +19712,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskSetSynNetMode =>
       'tor only, undercover, offline, kill switch, node only, vpn, ip, privacy, airplane';
-
-  @override
-  String get deskSetRowTorAll => 'Tor for all connections';
-
-  @override
-  String get deskSetRowTorAllHint =>
-      'Node, Epicbox, prices and updates go through Tor.';
-
-  @override
-  String get deskSetRowTorAllInfo =>
-      'Tor hides the wallet’s IP address. For payments at the Tor address only, see Payments › Link · Tor.';
-
-  @override
-  String get deskSetSynTorAll =>
-      'tor, onion, anonymous, ip, hide ip, proxy, privacy';
 
   @override
   String get deskSetRowStatusSiteHint =>
@@ -20388,6 +20368,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Only the node in use connects, over Tor while Tor is on. Epicbox, Link, linked devices, price and update checks are off.';
 
   @override
+  String get netModesDescNodeOnlyNoTor =>
+      'Only the node in use connects. Epicbox, Link, linked devices, price and update checks are off.';
+
+  @override
   String get netModesDescKillSwitch =>
       'Nothing connects, not even the node. Payments are made and finished offline, then posted from a device that is online.';
 
@@ -20447,6 +20431,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOvInflightView => 'View';
+
+  @override
+  String get deskNoTorSetSynNetMode =>
+      'offline, kill switch, node only, vpn, ip, privacy, airplane';
+
+  @override
+  String get deskNoTorSetSearchTryWords =>
+      'password,privacy,seed,backup,fee,node,lock';
 
   @override
   String get deskKitReachDismiss => 'Dismiss';

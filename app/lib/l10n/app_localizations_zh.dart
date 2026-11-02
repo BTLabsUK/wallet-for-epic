@@ -16064,6 +16064,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get slRefusedOnion => '未选择：onion 服务器只有在开启 Tor 时才能使用。';
 
   @override
+  String get slRefusedOnionNoTor => '未选择：此版本无法连接这台服务器。';
+
+  @override
   String get deskOwnAccessOnPlain => '已添加 · 以未加密方式（http）发送到节点，该网络上可被读取';
 
   @override
@@ -16402,10 +16405,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get advModeKillSwitch => '紧急断网';
 
   @override
-  String get advModeStandardHint => '直接连接。在“隐私与网络”中开启 Tor 可隐藏 IP 地址。';
-
-  @override
-  String get advModeStandardHintHere => '直接连接。在下方开启 Tor 可隐藏 IP 地址。';
+  String get advModeStandardHintHere => '直接连接。在下方开启 Tor 可经由 Tor 连接。';
 
   @override
   String get advModeStandardHintNoTor => '直接连接到节点和你使用的服务。';
@@ -16664,9 +16664,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get postFinishedOpen => '打开';
-
-  @override
-  String get deskSetAdvModeStandardHint => '直接连接。在“隐私”中开启 Tor 可隐藏 IP 地址。';
 
   @override
   String deskFinNotPostedKillBody(String amount) {
@@ -17698,7 +17695,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mailboxResent => '已取消并经 Epicbox 发送。';
 
   @override
-  String get torRelayCaption => '经 Tor 时，Epicbox 服务器看不到此设备的地址。';
+  String get torRelayCaption => '开启 Tor 后，与 Epicbox 服务器的连接经由 Tor。';
 
   @override
   String get inviteLinkUnreadable => '无法打开此链接。';
@@ -18456,7 +18453,7 @@ class AppLocalizationsZh extends AppLocalizations {
       'Tor 只用于在 Tor 地址上收发付款。节点、价格和更新沿用“网络与隐私”中的设置。';
 
   @override
-  String get deskSetSynTorPay => 'tor, 洋葱, 匿名, 隐藏服务, 隐私, 方式';
+  String get deskSetSynTorPay => 'tor, 洋葱, 隐藏服务, 隐私, 方式';
 
   @override
   String get deskSetRowFileHint => '通过交换交易文件。无需网络。所有钱包。';
@@ -18588,19 +18585,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get deskSetSynNetMode =>
       '仅 tor, undercover, 离线, 断网开关, 仅节点, vpn, ip, 隐私, 飞行模式';
-
-  @override
-  String get deskSetRowTorAll => '所有连接使用 Tor';
-
-  @override
-  String get deskSetRowTorAllHint => '节点、Epicbox、价格和更新都经过 Tor。';
-
-  @override
-  String get deskSetRowTorAllInfo =>
-      'Tor 隐藏钱包的 IP 地址。仅在 Tor 地址上收付款，请见 支付 › 链接 · Tor。';
-
-  @override
-  String get deskSetSynTorAll => 'tor, 洋葱, 匿名, ip, 隐藏 ip, 代理, 隐私';
 
   @override
   String get deskSetRowStatusSiteHint => '显示哪些节点和 Epicbox 服务器在线。';
@@ -19224,6 +19208,10 @@ class AppLocalizationsZh extends AppLocalizations {
       '只有当前使用的节点会连接，Tor 开启时经由 Tor。Epicbox、链接、已链接设备、价格和更新检查均已关闭。';
 
   @override
+  String get netModesDescNodeOnlyNoTor =>
+      '只有当前使用的节点会连接。Epicbox、链接、已链接设备、价格和更新检查均已关闭。';
+
+  @override
   String get netModesDescKillSwitch =>
       '不建立任何连接，节点也不例外。付款在离线状态下创建并完成，然后由联网的设备广播。';
 
@@ -19281,6 +19269,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOvInflightView => '查看';
+
+  @override
+  String get deskNoTorSetSynNetMode => '离线, 断网开关, 仅节点, vpn, ip, 隐私, 飞行模式';
+
+  @override
+  String get deskNoTorSetSearchTryWords => '密码,隐私,助记词,备份,手续费,节点,锁定';
 
   @override
   String get deskKitReachDismiss => '不再提示';

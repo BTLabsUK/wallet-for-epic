@@ -22832,6 +22832,10 @@
   "@slRefusedOnion": {
     "description": "Foot line of the Epicbox list in selection mode (Connection servers) when the user ticks a .onion server while Tor is off: it is not chosen."
   },
+  "slRefusedOnionNoTor": "Not chosen: this version cannot reach this server.",
+  "@slRefusedOnionNoTor": {
+    "description": "Foot line of the Epicbox list in selection mode when the user ticks a .onion server in the build without Tor: it is not chosen. Names neither Tor nor onion."
+  },
   "deskOwnAccessOnPlain": "Added · goes to the node unencrypted (plain http), readable on that network",
   "@deskOwnAccessOnPlain": {
     "description": "Text of the Owner access row when the secret is added and the node is reached over plain http on the home network or a tailnet: the secret travels unencrypted on each owner call. Starts with deskOwnAccessOn's word."
@@ -23425,11 +23429,7 @@
   "@advModeKillSwitch": {
     "description": "Network mode name: nothing connects, cold storage."
   },
-  "advModeStandardHint": "Connects directly. Turn on Tor in Privacy & network to hide the IP address.",
-  "@advModeStandardHint": {
-    "description": "Info text of the Normal row (phone)."
-  },
-  "advModeStandardHintHere": "Connects directly. Turn on Tor below to hide the IP address.",
+  "advModeStandardHintHere": "Connects directly. Turn on Tor below to connect through Tor.",
   "@advModeStandardHintHere": {
     "description": "Settings › Network & privacy: info text of the Normal network mode. The Tor switch is right below the modes on the same page."
   },
@@ -23816,10 +23816,6 @@
   "postFinishedOpen": "Open",
   "@postFinishedOpen": {
     "description": "Desktop row button."
-  },
-  "deskSetAdvModeStandardHint": "Connects directly. Turn on Tor under Privacy to hide the IP address.",
-  "@deskSetAdvModeStandardHint": {
-    "description": "Info text of the Normal row (desktop)."
   },
   "deskFinNotPostedKillBody": "{amount} is finished. Kill switch is on, so this computer cannot post it. Save it or copy it, then post it on a device that is online: Receive › Transaction files › Post a finished payment.",
   "@deskFinNotPostedKillBody": {
@@ -25388,9 +25384,9 @@
   "@mailboxResent": {
     "description": "Notice after Cancel and send by Epicbox finished: the old send is cancelled and the new one is on its way."
   },
-  "torRelayCaption": "Over Tor the relay does not see this device’s address.",
+  "torRelayCaption": "With Tor on, the connection to the Epicbox server goes through Tor.",
   "@torRelayCaption": {
-    "description": "Caption under the Epicbox row in Settings while Tor is off, and a Help › Privacy line."
+    "description": "Caption under the Epicbox row in Settings while Tor is off: what Tor does for Epicbox."
   },
   "inviteLinkUnreadable": "This link can't be opened.",
   "@inviteLinkUnreadable": {
@@ -26510,7 +26506,7 @@
   "@deskSetRowTorPayInfo": {
     "description": "Settings row “Link · Tor”: the longer explanation behind its ⓘ (searched too)."
   },
-  "deskSetSynTorPay": "tor, onion, anonymous, hidden service, privacy, method",
+  "deskSetSynTorPay": "tor, onion, hidden service, privacy, method",
   "@deskSetSynTorPay": {
     "description": "Settings search: other words that find the “Link · Tor” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
   },
@@ -26685,22 +26681,6 @@
   "deskSetSynNetMode": "tor only, undercover, offline, kill switch, node only, vpn, ip, privacy, airplane",
   "@deskSetSynNetMode": {
     "description": "Settings search: other words that find the “Connection mode” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
-  },
-  "deskSetRowTorAll": "Tor for all connections",
-  "@deskSetRowTorAll": {
-    "description": "Settings row title: Tor for all connections (section network)."
-  },
-  "deskSetRowTorAllHint": "Node, Epicbox, prices and updates go through Tor.",
-  "@deskSetRowTorAllHint": {
-    "description": "Settings row “Tor for all connections”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
-  },
-  "deskSetRowTorAllInfo": "Tor hides the wallet’s IP address. For payments at the Tor address only, see Payments › Link · Tor.",
-  "@deskSetRowTorAllInfo": {
-    "description": "Settings row “Tor for all connections”: the longer explanation behind its ⓘ (searched too)."
-  },
-  "deskSetSynTorAll": "tor, onion, anonymous, ip, hide ip, proxy, privacy",
-  "@deskSetSynTorAll": {
-    "description": "Settings search: other words that find the “Tor for all connections” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
   },
   "deskSetRowStatusSiteHint": "Shows which nodes and Epicbox servers are online.",
   "@deskSetRowStatusSiteHint": {
@@ -27565,6 +27545,10 @@
   "@netModesDescNodeOnly": {
     "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): the Node only mode in one or two sentences."
   },
+  "netModesDescNodeOnlyNoTor": "Only the node in use connects. Epicbox, Link, linked devices, price and update checks are off.",
+  "@netModesDescNodeOnlyNoTor": {
+    "description": "The network-modes picture and the ⓘ of Connection mode in the build without Tor: the Node only mode (no Tor)."
+  },
   "netModesDescKillSwitch": "Nothing connects, not even the node. Payments are made and finished offline, then posted from a device that is online.",
   "@netModesDescKillSwitch": {
     "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): the Kill switch mode in one or two sentences."
@@ -27653,6 +27637,14 @@
   "deskOvInflightView": "View",
   "@deskOvInflightView": {
     "description": "Link beside the line about more payments under way on Overview: opens Activity on its Pending filter."
+  },
+  "deskNoTorSetSynNetMode": "offline, kill switch, node only, vpn, ip, privacy, airplane",
+  "@deskNoTorSetSynNetMode": {
+    "description": "Settings search in the build without Tor: other words that find the “Connection mode” row, comma-separated, lower case (no Tor only)."
+  },
+  "deskNoTorSetSearchTryWords": "password,privacy,seed,backup,fee,node,lock",
+  "@deskNoTorSetSearchTryWords": {
+    "description": "Settings search in the build without Tor, nothing found: example words to search for, comma-separated, lower case, in this language (each must find a setting; no Tor)."
   },
   "deskKitReachDismiss": "Dismiss",
   "@deskKitReachDismiss": {

@@ -155,8 +155,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('在许多区块链上，任何人都能查到一个地址，看到它的余额和历史。Epic Cash 不同：'),
         HelpBlock.ul(['**区块链上没有地址。** Epicbox 地址只告诉 Epicbox 把消息送到哪里，从不写入区块链。', '**区块链上没有金额。** 金额通过密码学隐藏，网络仍能验证没有凭空造出币。', '**备注不上链。** 发送时附加的消息只发给对方钱包。联系人和钱包名称保存在$device上。']),
-        HelpBlock.p('没有隐藏的是：节点和 Epicbox 服务器能看到钱包的 IP 地址，公共节点能看到钱包查询了哪些输出。${tor ? 'Tor 或 VPN' : 'VPN'} 可以隐藏 IP 地址。'),
-        if (tor) const HelpBlock.p('**Epicbox。** 经 Tor 时，Epicbox 服务器看不到此设备的地址。'),
+        HelpBlock.p('没有隐藏的是：节点和 Epicbox 服务器能看到钱包的 IP 地址，公共节点能看到钱包查询了哪些输出。${tor ? '选择 **仅 Tor** 时，钱包经由 Tor 连接节点和 Epicbox 服务器。' : ''}VPN 可以隐藏 IP 地址。'),
       ],
       id: HelpId.privacy,
     ),
@@ -268,7 +267,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('钱包需要节点来读取区块链（余额和确认），并把交易广播到网络。'),
         if (phone)
-          HelpBlock.p('**公共节点** 是由他人运行的节点之一，可以立即使用。其运营者能看到钱包的 IP 地址以及它查询了哪些输出${tor ? '；Tor 可以隐藏该地址' : ''}。')
+          HelpBlock.p('**公共节点** 是由他人运行的节点之一，可以立即使用。其运营者能看到钱包的 IP 地址以及它查询了哪些输出${tor ? '；选择 **仅 Tor** 时，钱包经由 Tor 连接它' : ''}。')
         else
           const HelpBlock.ul(['**公共节点**（默认）：由他人运行的公共节点之一，可以立即使用。其运营者能看到钱包的 IP 地址以及它查询了哪些输出。', '**本地节点**：在这台电脑上作为独立程序运行，随应用启动和停止。它首先要下载整条链（第一次约 4 GB，之后每天一点点），需要一些时间；在磁盘上约占 5 GB，并缓慢增长。同步期间，钱包会显示进度并使用公共节点。见“运行本地节点”。']),
         if (phone)
@@ -313,9 +312,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       HelpTopic(
         'network',
         'Tor',
-        '网络模式“仅 Tor”让钱包的连接经由 Tor，并为其提供 .onion 地址。更慢，但更私密。默认关闭。',
+        '网络模式“仅 Tor”让钱包的连接经由 Tor，并为其提供 .onion 地址。更慢。默认关闭。',
         [
-          HelpBlock.p('Tor 向钱包所连接的服务器隐藏其 IP 地址。选择$torPlace后，Epicbox 连接经由 Tor，发往 .onion 地址的付款经由 Tor，钱包还会拥有自己的 Tor 地址（以 .onion 结尾），其他钱包可以直接向它付款。'),
+          HelpBlock.p('选择$torPlace后，Epicbox 连接经由 Tor，发往 .onion 地址的付款经由 Tor，钱包还会拥有自己的 Tor 地址（以 .onion 结尾），其他钱包可以直接向它付款。'),
           const HelpBlock.ul([
             '节点、Epicbox 服务器和地址都保持不变。',
             '发往 onion 地址的链接付款经由 Tor；“发送”会显示付款是否经由 Tor。',
@@ -330,7 +329,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       const HelpTopic(
         'network',
         'Tor',
-        '更慢，但更私密：网络模式“仅 Tor”让钱包的连接经由 Tor，无需开放端口。默认关闭。',
+        '网络模式“仅 Tor”让钱包的连接经由 Tor，无需开放端口。更慢。默认关闭。',
         [
           HelpBlock.p('开启 Tor 后，与 Epicbox 服务器的连接经由 Tor，钱包还会拥有一个 Tor 地址（以 .onion 结尾），其他钱包可以从任何地方直接向它付款，无需在路由器上做端口转发。开启 Tor 不会改变你分享的地址。'),
           HelpBlock.ul([
@@ -357,7 +356,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
               ? '**常规**：钱包设置的一切：节点、Epicbox、链接、状态站点、价格和更新检查。'
               : '**常规**：钱包设置的一切：节点、Epicbox、链接、状态站点、价格和更新检查。',
           if (tor)
-            '**仅 Tor**：所有连接都经过 Tor，包括节点和 Epicbox；任何内容都不会接触公开互联网。Tor 就绪之前什么都不会连接，状态图标会写**等待 Tor**。链接 · HTTP 收款保持关闭：明文地址会暴露这台设备。',
+            '**仅 Tor**：所有连接都经过 Tor，包括节点和 Epicbox。Tor 就绪之前什么都不会连接，状态图标会写**等待 Tor**。链接 · HTTP 收款保持关闭。',
           '**仅节点**：钱包只与正在使用的节点通信，即节点列表中的第一个。Epicbox、链接、状态站点、价格、更新检查、浏览器链接、问题报告、配对和已关联设备都已关闭。${phone ? '**直接 · 二维码付款**和**直接 · 文件传输**' : '**直接 · 文件传输**'}可用。${tor ? '开启 Tor 时，节点通过 Tor 连接。' : ''}',
           '**紧急断网**：什么都不连接，节点也不例外。钱包会以上次已知的余额和历史记录打开。你可以通过${phone ? '**直接 · 文件传输**和**直接 · 二维码付款**' : '**直接 · 文件传输**'}创建、签署并完成付款，显示你的地址，备份和导出。等待接收方的付款会暂停，离开该模式后继续。',
         ]),

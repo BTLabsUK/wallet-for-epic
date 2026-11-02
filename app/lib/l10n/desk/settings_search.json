@@ -503,7 +503,7 @@
   "@deskSetRowTorPayInfo": {
     "description": "Settings row “Link · Tor”: the longer explanation behind its ⓘ (searched too)."
   },
-  "deskSetSynTorPay": "tor, onion, anonymous, hidden service, privacy, method",
+  "deskSetSynTorPay": "tor, onion, hidden service, privacy, method",
   "@deskSetSynTorPay": {
     "description": "Settings search: other words that find the “Link · Tor” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
   },
@@ -678,22 +678,6 @@
   "deskSetSynNetMode": "tor only, undercover, offline, kill switch, node only, vpn, ip, privacy, airplane",
   "@deskSetSynNetMode": {
     "description": "Settings search: other words that find the “Connection mode” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
-  },
-  "deskSetRowTorAll": "Tor for all connections",
-  "@deskSetRowTorAll": {
-    "description": "Settings row title: Tor for all connections (section network)."
-  },
-  "deskSetRowTorAllHint": "Node, Epicbox, prices and updates go through Tor.",
-  "@deskSetRowTorAllHint": {
-    "description": "Settings row “Tor for all connections”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
-  },
-  "deskSetRowTorAllInfo": "Tor hides the wallet’s IP address. For payments at the Tor address only, see Payments › Link · Tor.",
-  "@deskSetRowTorAllInfo": {
-    "description": "Settings row “Tor for all connections”: the longer explanation behind its ⓘ (searched too)."
-  },
-  "deskSetSynTorAll": "tor, onion, anonymous, ip, hide ip, proxy, privacy",
-  "@deskSetSynTorAll": {
-    "description": "Settings search: other words that find the “Tor for all connections” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
   },
   "deskSetRowStatusSiteHint": "Shows which nodes and Epicbox servers are online.",
   "@deskSetRowStatusSiteHint": {

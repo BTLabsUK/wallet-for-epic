@@ -2,6 +2,8 @@
 // The settings registry and the pages keep in step: every row a page marks with
 // `anchor: SetId.x` is in the registry (so search finds it), and every registry row has its
 // anchor on a page (so a search result can jump to it). A new row without either fails here.
+// The rows a build leaves out (settingsNotBuilt: Link · Tor without Tor) are in neither. Run
+// both ways: flutter test [--dart-define=WFE_TOR=false] test/desktop/settings_registry_test.dart
 import 'dart:io';
 
 import 'package:epic_wallet/src/desktop/data/settings_registry.dart';
@@ -17,7 +19,8 @@ Map<String, String> _idNames() {
   return {for (final m in RegExp(r"static const (\w+) = '(\w+)';").allMatches(src)) if (m[1] != 'torAll') m[1]!: m[2]!};
 }
 
-/// The ids the desktop's pages anchor, with the files that do.
+/// The ids the desktop's pages anchor, with the files that do; a row this build leaves out
+/// (its anchor sits behind the build's flag) does not count.
 Map<String, List<String>> _anchors(Map<String, String> names) {
   final out = <String, List<String>>{};
   final dir = Directory('lib/src/desktop');
@@ -26,6 +29,7 @@ Map<String, List<String>> _anchors(Map<String, String> names) {
     final code = f.readAsLinesSync().where((line) => !line.trimLeft().startsWith('//')).join('\n');
     for (final m in RegExp(r'(?:anchor|SetAnchor\(\s*id):\s*SetId\.(\w+)').allMatches(code)) {
       final id = names[m[1]!] ?? '?${m[1]}';
+      if (settingsNotBuilt.contains(id)) continue;
       (out[id] ??= []).add(f.path.split('/').last);
     }
   }
@@ -38,8 +42,8 @@ void main() {
   test('the registry lists every SetId once, in navigation order', () {
     final ids = [for (final e in settingsRegistry) e.id];
     expect(ids.toSet(), hasLength(ids.length), reason: 'an id is listed twice');
-    expect(ids, SetId.all);
-    expect(names.values.toSet(), ids.toSet());
+    expect(ids, [for (final id in SetId.all) if (!settingsNotBuilt.contains(id)) id]);
+    expect(names.values.where((id) => !settingsNotBuilt.contains(id)).toSet(), ids.toSet());
     final order = [for (final s in settingsSections) s.route];
     final seen = [for (final e in settingsRegistry) order.indexOf(e.route)];
     expect(seen.every((i) => i >= 0), isTrue, reason: 'a row on a route that is no section');

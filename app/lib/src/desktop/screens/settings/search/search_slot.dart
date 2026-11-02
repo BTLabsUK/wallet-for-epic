@@ -457,7 +457,7 @@ class _Empty extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final words = [for (final w in l.deskSetSearchTryWords.split(',')) if (w.trim().isNotEmpty) w.trim()];
+    final words = [for (final w in (DeskFeatures.tor ? l.deskSetSearchTryWords : l.deskNoTorSetSearchTryWords).split(',')) if (w.trim().isNotEmpty) w.trim()];
     return Semantics(
       liveRegion: true,
       child: EEmpty(

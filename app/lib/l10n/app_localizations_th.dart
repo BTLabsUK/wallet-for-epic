@@ -16650,6 +16650,10 @@ class AppLocalizationsTh extends AppLocalizations {
       'ไม่ได้เลือก: เซิร์ฟเวอร์ onion ใช้ได้เฉพาะเมื่อเปิด Tor';
 
   @override
+  String get slRefusedOnionNoTor =>
+      'ไม่ได้เลือก: เวอร์ชันนี้เชื่อมต่อเซิร์ฟเวอร์นี้ไม่ได้';
+
+  @override
   String get deskOwnAccessOnPlain =>
       'เพิ่มแล้ว · ส่งไปยังโหนดโดยไม่เข้ารหัส (http) อ่านได้ในเครือข่ายนั้น';
 
@@ -16995,12 +16999,8 @@ class AppLocalizationsTh extends AppLocalizations {
   String get advModeKillSwitch => 'สวิตช์ฉุกเฉิน';
 
   @override
-  String get advModeStandardHint =>
-      'เชื่อมต่อโดยตรง เปิด Tor ในความเป็นส่วนตัวและเครือข่ายเพื่อซ่อนที่อยู่ IP';
-
-  @override
   String get advModeStandardHintHere =>
-      'เชื่อมต่อโดยตรง เปิด Tor ด้านล่างเพื่อซ่อนที่อยู่ IP';
+      'เชื่อมต่อโดยตรง เปิด Tor ด้านล่างเพื่อเชื่อมต่อผ่าน Tor';
 
   @override
   String get advModeStandardHintNoTor =>
@@ -17280,10 +17280,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get postFinishedOpen => 'เปิด';
-
-  @override
-  String get deskSetAdvModeStandardHint =>
-      'เชื่อมต่อโดยตรง เปิด Tor ในความเป็นส่วนตัวเพื่อซ่อนที่อยู่ IP';
 
   @override
   String deskFinNotPostedKillBody(String amount) {
@@ -18351,7 +18347,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get torRelayCaption =>
-      'ผ่าน Tor เซิร์ฟเวอร์ Epicbox จะไม่เห็นที่อยู่ของอุปกรณ์นี้';
+      'เมื่อเปิด Tor การเชื่อมต่อกับเซิร์ฟเวอร์ Epicbox จะผ่าน Tor';
 
   @override
   String get inviteLinkUnreadable => 'เปิดลิงก์นี้ไม่ได้';
@@ -19144,7 +19140,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetSynTorPay =>
-      'tor, onion, ไม่ระบุตัวตน, hidden service, ความเป็นส่วนตัว, วิธีการ';
+      'tor, onion, hidden service, ความเป็นส่วนตัว, วิธีการ';
 
   @override
   String get deskSetRowFileHint =>
@@ -19299,20 +19295,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSetSynNetMode =>
       'tor เท่านั้น, undercover, ออฟไลน์, kill switch, โหนดเท่านั้น, vpn, ip, ความเป็นส่วนตัว, โหมดเครื่องบิน';
-
-  @override
-  String get deskSetRowTorAll => 'Tor สำหรับทุกการเชื่อมต่อ';
-
-  @override
-  String get deskSetRowTorAllHint => 'โหนด Epicbox ราคา และการอัปเดต ผ่าน Tor';
-
-  @override
-  String get deskSetRowTorAllInfo =>
-      'Tor ซ่อนที่อยู่ IP ของวอลเล็ต สำหรับการชำระเงินที่ที่อยู่ Tor เท่านั้น ดู การชำระเงิน › ลิงก์ · Tor';
-
-  @override
-  String get deskSetSynTorAll =>
-      'tor, onion, ไม่ระบุตัวตน, ip, ซ่อน ip, พร็อกซี, ความเป็นส่วนตัว';
 
   @override
   String get deskSetRowStatusSiteHint =>
@@ -19970,6 +19952,10 @@ class AppLocalizationsTh extends AppLocalizations {
       'เชื่อมต่อเฉพาะโหนดที่ใช้อยู่ ผ่าน Tor เมื่อเปิด Tor ไว้ Epicbox ลิงก์ อุปกรณ์ที่เชื่อมโยง และการตรวจสอบราคาและการอัปเดตปิดอยู่';
 
   @override
+  String get netModesDescNodeOnlyNoTor =>
+      'เชื่อมต่อเฉพาะโหนดที่ใช้อยู่ Epicbox ลิงก์ อุปกรณ์ที่เชื่อมโยง และการตรวจสอบราคาและการอัปเดตปิดอยู่';
+
+  @override
   String get netModesDescKillSwitch =>
       'ไม่มีการเชื่อมต่อใด แม้แต่โหนด การชำระเงินสร้างและทำให้เสร็จแบบออฟไลน์ แล้วส่งจากอุปกรณ์ที่ออนไลน์';
 
@@ -20027,6 +20013,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOvInflightView => 'ดู';
+
+  @override
+  String get deskNoTorSetSynNetMode =>
+      'ออฟไลน์, kill switch, โหนดเท่านั้น, vpn, ip, ความเป็นส่วนตัว, โหมดเครื่องบิน';
+
+  @override
+  String get deskNoTorSetSearchTryWords =>
+      'รหัสผ่าน,ความเป็นส่วนตัว,วลีกู้คืน,สำรอง,ค่าธรรมเนียม,โหนด,ล็อก';
 
   @override
   String get deskKitReachDismiss => 'ปิด';

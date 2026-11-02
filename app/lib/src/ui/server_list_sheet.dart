@@ -41,6 +41,7 @@ import '../net/local_address.dart' show isLocalNodeUrl, NodeClass, nodeClassOf;
 import '../node/node_info_types.dart' show NodeInfo, NodeHead;
 import '../node/node_info_provider.dart' if (dart.library.js_interop) '../node/node_info_provider_web.dart' show nodeInfoProvider;
 import '../net/tor_net.dart' show isLoopbackUrl;
+import '../tor_build.dart';
 import '../tor_routes.dart' show TorRoute, torSkipsLocalNode;
 import 'address_view.dart' show HostText;
 import 'badge.dart';
@@ -498,7 +499,7 @@ class _ServerListSheetState extends ConsumerState<ServerListSheet> {
         _say(l.slRefusedLocal, note: true);
         return;
       case SelectionRefusal.onionWithoutTor:
-        _say(l.slRefusedOnion, note: true);
+        _say(torBuilt ? l.slRefusedOnion : l.slRefusedOnionNoTor, note: true);
         return;
       case null:
         break;

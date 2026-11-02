@@ -69,12 +69,13 @@ List<HelpTopic> phoneHelpTopics(BuildContext context, WidgetRef ref, String lang
 }
 
 /// The sections in [lang], in the order the index shows them: Pairing before "When something
-/// goes wrong", and only when a topic uses it.
+/// goes wrong", and only when a topic uses it. The network lede names Tor only beside its topic.
 List<HelpSection> _sectionsFor(List<HelpTopic> topics, String lang) {
   final l = helpStrings(lang);
   final used = topics.map((t) => t.section).toSet();
+  final tor = topics.any((t) => t.id == HelpId.tor);
   final out = <HelpSection>[];
-  for (final s in localizedHelpSections(lang, tor: torBuilt)) {
+  for (final s in localizedHelpSections(lang, tor: tor)) {
     if (s.id == 'trouble' && used.contains(pairingHelpSection)) {
       out.add((id: pairingHelpSection, title: l.helpPairingSection, lede: l.helpPairingLede, art: ''));
     }

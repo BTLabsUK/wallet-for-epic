@@ -340,8 +340,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       [
         const HelpBlock.p('On many blockchains anyone can look up an address and see its balance and history. Epic Cash is different:'),
         HelpBlock.ul(['**No addresses on the blockchain.** The Epicbox address only tells Epicbox where to deliver messages. It is never written on the blockchain.', '**No amounts on the blockchain.** Amounts are hidden with cryptography, and the network can still check that no coins were created out of nothing.', '**Notes stay off the blockchain.** A message added to a send goes only to the other wallet. Contacts and wallet names stay on $device.']),
-        HelpBlock.p('What is not hidden: the node and the Epicbox server see the wallet’s IP address, and a public node can see which outputs the wallet asks about. ${tor ? 'Tor or a VPN' : 'A VPN'} hides the IP address.'),
-        if (tor) const HelpBlock.p('**Epicbox.** Over Tor the relay does not see this device’s address.'),
+        HelpBlock.p('What is not hidden: the node and the Epicbox server see the wallet’s IP address, and a public node can see which outputs the wallet asks about. ${tor ? 'With **Tor only**, the wallet connects to the node and the Epicbox server through Tor. ' : ''}A VPN hides the IP address.'),
       ],
       id: HelpId.privacy,
     ),
@@ -453,7 +452,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       [
         const HelpBlock.p('The wallet needs a node to read the chain (the balance and confirmations) and to post transactions to the network.'),
         if (phone)
-          HelpBlock.p('A **public node** is one of the nodes others run. It works right away. Whoever runs it can see the wallet’s IP address and which outputs it asks about${tor ? '; Tor hides the address' : ''}.')
+          HelpBlock.p('A **public node** is one of the nodes others run. It works right away. Whoever runs it can see the wallet’s IP address and which outputs it asks about${tor ? '; with **Tor only**, the wallet reaches it through Tor' : ''}.')
         else
           const HelpBlock.ul(['**Public node** (the default): one of the public nodes others run. It works right away. Whoever runs it can see the wallet’s IP address and which outputs it asks about.', '**Local node**: runs on this computer as a separate program that starts and stops with the app. It first downloads the whole chain (about 4 GB the first time, then a little every day), which takes a while; on disk it takes about 5 GB and grows slowly. While it syncs, the wallet shows its progress and uses a public node. See "Running the local node".']),
         if (phone)
@@ -498,9 +497,9 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       HelpTopic(
         'network',
         'Tor',
-        'The network mode Tor only routes the wallet’s connections through Tor and gives it a .onion address. Slower, more private. Off by default.',
+        'The network mode Tor only routes the wallet’s connections through Tor and gives it a .onion address. Slower. Off by default.',
         [
-          HelpBlock.p('Tor hides the wallet’s IP address from the servers it talks to. With $torPlace, the Epicbox connection goes through Tor, a payment to a .onion address goes through Tor, and the wallet has a Tor address of its own (it ends in .onion) that other wallets can pay straight to.'),
+          HelpBlock.p('With $torPlace, the Epicbox connection goes through Tor, a payment to a .onion address goes through Tor, and the wallet has a Tor address of its own (it ends in .onion) that other wallets can pay straight to.'),
           const HelpBlock.ul([
             'The node, the Epicbox server and the addresses stay the same.',
             'A Link payment to an onion address goes through Tor; Send shows whether a payment goes over Tor.',
@@ -515,7 +514,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       const HelpTopic(
         'network',
         'Tor',
-        'Slower and more private: the network mode Tor only routes the wallet’s connections through Tor, with no ports to open. Off by default.',
+        'The network mode Tor only routes the wallet’s connections through Tor, with no ports to open. Slower. Off by default.',
         [
           HelpBlock.p('With Tor on, the connection to the Epicbox server goes through Tor, and the wallet has a Tor address (it ends in .onion) that other wallets can pay straight to, from anywhere, with nothing to forward on the router. Turning Tor on does not change the addresses you share.'),
           HelpBlock.ul([
@@ -542,7 +541,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
               ? '**Normal**: everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks.'
               : '**Normal**: everything the wallet is set up for: the node, Epicbox, Link, the status site, price and update checks.',
           if (tor)
-            '**Tor only**: every connection goes through Tor, the node and Epicbox included; nothing touches the open internet. Until Tor is ready nothing connects, and the status icons say **Waiting for Tor**. Link · HTTP receiving stays off: a plain address would reveal $device.',
+            '**Tor only**: every connection goes through Tor, the node and Epicbox included. Until Tor is ready nothing connects, and the status icons say **Waiting for Tor**. Link · HTTP receiving stays off.',
           '**Node only**: the wallet talks only to the node in use, the first in your node list. Epicbox, Link, the status site, price, update checks, explorer links, problem reports, pairing and linked devices are off. ${phone ? '**Direct · QR Payment** and **Direct · File Transfer**' : '**Direct · File Transfer**'} work.${tor ? ' With Tor on, the node is reached over Tor.' : ''}',
           '**Kill switch**: nothing connects, the node included. The wallet opens with the last known balance and history. You can make, sign and finish payments by ${phone ? '**Direct · File Transfer** and **Direct · QR Payment**' : '**Direct · File Transfer**'}, show your address, back up and export. Sends waiting for a recipient pause and continue when you leave.',
         ]),

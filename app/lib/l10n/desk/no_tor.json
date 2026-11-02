@@ -20,5 +20,13 @@
   "deskNoTorTourAdvancedText": "Outputs and technical details live here. Switch on what you need.",
   "@deskNoTorTourAdvancedText": {
     "description": "Tour step on Settings › Advanced in the build without Tor (no Tor-only mode)."
+  },
+  "deskNoTorSetSynNetMode": "offline, kill switch, node only, vpn, ip, privacy, airplane",
+  "@deskNoTorSetSynNetMode": {
+    "description": "Settings search in the build without Tor: other words that find the “Connection mode” row, comma-separated, lower case (no Tor only)."
+  },
+  "deskNoTorSetSearchTryWords": "password,privacy,seed,backup,fee,node,lock",
+  "@deskNoTorSetSearchTryWords": {
+    "description": "Settings search in the build without Tor, nothing found: example words to search for, comma-separated, lower case, in this language (each must find a setting; no Tor)."
   }
 }

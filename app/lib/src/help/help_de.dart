@@ -157,8 +157,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('Bei vielen Blockchains kann jeder eine Adresse nachschlagen und ihr Guthaben und ihren Verlauf sehen. Epic Cash ist anders:'),
         HelpBlock.ul(['**Keine Adressen auf der Blockchain.** Die Epicbox-Adresse sagt Epicbox nur, wohin Nachrichten zugestellt werden. Sie wird nie in die Blockchain geschrieben.', '**Keine Beträge auf der Blockchain.** Beträge sind kryptografisch verborgen, und das Netzwerk kann trotzdem prüfen, dass keine Münzen aus dem Nichts entstanden sind.', '**Notizen bleiben außerhalb der Blockchain.** Eine Nachricht zu einer Zahlung geht nur an die andere Wallet. Kontakte und Wallet-Namen bleiben auf $device.']),
-        HelpBlock.p('Was nicht verborgen ist: Der Node und der Epicbox-Server sehen die IP-Adresse der Wallet, und ein öffentlicher Node kann sehen, nach welchen Outputs die Wallet fragt. ${tor ? 'Tor oder ein VPN verbirgt' : 'Ein VPN verbirgt'} die IP-Adresse.'),
-        if (tor) const HelpBlock.p('**Epicbox.** Über Tor sieht der Epicbox-Server die Adresse dieses Geräts nicht.'),
+        HelpBlock.p('Was nicht verborgen ist: Der Node und der Epicbox-Server sehen die IP-Adresse der Wallet, und ein öffentlicher Node kann sehen, nach welchen Outputs die Wallet fragt. ${tor ? 'Mit **Nur Tor** verbindet sich die Wallet über Tor mit dem Node und dem Epicbox-Server. ' : ''}Ein VPN verbirgt die IP-Adresse.'),
       ],
       id: HelpId.privacy,
     ),
@@ -270,7 +269,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('Die Wallet braucht einen Node, um die Chain zu lesen (Guthaben und Bestätigungen) und Transaktionen ins Netzwerk zu senden.'),
         if (phone)
-          HelpBlock.p('Ein **öffentlicher Node** ist einer der Nodes, die andere betreiben. Er funktioniert sofort. Wer ihn betreibt, kann die IP-Adresse der Wallet sehen und nach welchen Outputs sie fragt${tor ? '; Tor verbirgt die Adresse' : ''}.')
+          HelpBlock.p('Ein **öffentlicher Node** ist einer der Nodes, die andere betreiben. Er funktioniert sofort. Wer ihn betreibt, kann die IP-Adresse der Wallet sehen und nach welchen Outputs sie fragt${tor ? '; mit **Nur Tor** erreicht die Wallet ihn über Tor' : ''}.')
         else
           const HelpBlock.ul(['**Öffentlicher Node** (Standard): einer der öffentlichen Nodes, die andere betreiben. Er funktioniert sofort. Wer ihn betreibt, kann die IP-Adresse der Wallet sehen und nach welchen Outputs sie fragt.', '**Lokaler Node**: läuft auf diesem Computer als eigenes Programm, das mit der App startet und stoppt. Er lädt zuerst die ganze Chain herunter (beim ersten Mal etwa 4 GB, danach täglich ein wenig), was eine Weile dauert; auf der Festplatte belegt er etwa 5 GB und wächst langsam. Während er synchronisiert, zeigt die Wallet seinen Fortschritt und nutzt einen öffentlichen Node. Siehe „Den lokalen Node betreiben“.']),
         if (phone)
@@ -315,9 +314,9 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       HelpTopic(
         'network',
         'Tor',
-        'Der Netzwerkmodus „Nur Tor“ leitet die Verbindungen der Wallet über Tor und gibt ihr eine .onion-Adresse. Langsamer, privater. Standardmäßig aus.',
+        'Der Netzwerkmodus „Nur Tor“ leitet die Verbindungen der Wallet über Tor und gibt ihr eine .onion-Adresse. Langsamer. Standardmäßig aus.',
         [
-          HelpBlock.p('Tor verbirgt die IP-Adresse der Wallet vor den Servern, mit denen sie spricht. Mit $torPlace läuft die Epicbox-Verbindung über Tor, eine Zahlung an eine .onion-Adresse läuft über Tor, und die Wallet hat eine eigene Tor-Adresse (sie endet auf .onion), an die andere Wallets direkt zahlen können.'),
+          HelpBlock.p('Mit $torPlace läuft die Epicbox-Verbindung über Tor, eine Zahlung an eine .onion-Adresse läuft über Tor, und die Wallet hat eine eigene Tor-Adresse (sie endet auf .onion), an die andere Wallets direkt zahlen können.'),
           const HelpBlock.ul([
             'Node, Epicbox-Server und Adressen bleiben dieselben.',
             'Eine Link-Zahlung an eine Onion-Adresse läuft über Tor; Senden zeigt, ob eine Zahlung über Tor läuft.',
@@ -332,7 +331,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       const HelpTopic(
         'network',
         'Tor',
-        'Langsamer und privater: Der Netzwerkmodus „Nur Tor“ leitet die Verbindungen der Wallet über Tor, ohne Ports zu öffnen. Standardmäßig aus.',
+        'Der Netzwerkmodus „Nur Tor“ leitet die Verbindungen der Wallet über Tor, ohne Ports zu öffnen. Langsamer. Standardmäßig aus.',
         [
           HelpBlock.p('Mit Tor läuft die Verbindung zum Epicbox-Server über Tor, und die Wallet hat eine Tor-Adresse (sie endet auf .onion), an die andere Wallets direkt zahlen können, von überall, ohne Weiterleitung am Router. Tor ändert die Adressen nicht, die Sie weitergeben.'),
           HelpBlock.ul([
@@ -359,7 +358,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
               ? '**Normal**: alles, wofür die Wallet eingerichtet ist: der Node, Epicbox, Link, die Statusseite, der Kurs und die Update-Prüfung.'
               : '**Normal**: alles, wofür die Wallet eingerichtet ist: der Node, Epicbox, Link, die Statusseite, der Kurs und die Update-Prüfung.',
           if (tor)
-            '**Nur Tor**: Jede Verbindung läuft über Tor, auch die zum Node und zu Epicbox; nichts berührt das offene Internet. Bis Tor bereit ist, verbindet sich nichts, und die Statussymbole sagen **Warten auf Tor**. Der Link-·-HTTP-Empfang bleibt aus: Eine einfache Adresse würde dieses Gerät verraten.',
+            '**Nur Tor**: Jede Verbindung läuft über Tor, auch die zum Node und zu Epicbox. Bis Tor bereit ist, verbindet sich nichts, und die Statussymbole sagen **Warten auf Tor**. Der Link-·-HTTP-Empfang bleibt aus.',
           '**Nur Node**: Die Wallet spricht nur mit dem verwendeten Node, dem ersten in Ihrer Node-Liste. Aus sind Epicbox, Link, die Statusseite, der Kurs, die Update-Prüfung, Explorer-Links, Problemberichte, Kopplung und verknüpfte Geräte. ${phone ? '**Direkt · QR-Zahlung** und **Direkt · Dateiübertragung**' : '**Direkt · Dateiübertragung**'} funktionieren.${tor ? ' Ist Tor an, wird der Node über Tor erreicht.' : ''}',
           '**Notaus**: Nichts verbindet sich, auch nicht der Node. Die Wallet öffnet sich mit dem zuletzt bekannten Guthaben und Verlauf. Sie können Zahlungen per ${phone ? '**Direkt · Dateiübertragung** und **Direkt · QR-Zahlung**' : '**Direkt · Dateiübertragung**'} erstellen, signieren und abschließen, Ihre Adresse zeigen, sichern und exportieren. Zahlungen, die auf einen Empfänger warten, pausieren und laufen weiter, wenn Sie den Modus verlassen.',
         ]),

@@ -15,6 +15,7 @@ import 'package:epic_wallet/src/desktop/widgets/more_options.dart';
 import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/desktop/desk_l10n.dart';
 import 'package:epic_wallet/src/l10n.dart' show lookupAppLocalizations;
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -115,7 +116,8 @@ void main() {
     expect(c.read(settingsQueryProvider), isEmpty);
     expect(_focusIn(tester, SetId.netMode), isTrue);
     expect(tester.getRect(find.byKey(const ValueKey('row-${SetId.netMode}'))).bottom, lessThanOrEqualTo(800));
-  });
+    // "tor" finds Link · Tor and Tor only, which the build without Tor leaves out.
+  }, skip: !torBuilt);
 
   testWidgets('Esc clears the search, a second Esc leaves Settings', (tester) async {
     var left = 0;
