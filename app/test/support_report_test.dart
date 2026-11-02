@@ -123,9 +123,10 @@ void main() {
 
   test('the preview text holds everything that is sealed', () {
     final text = _report(files: [const SupportFile(name: 'app/wfe.log', text: 'WARN x: y')]).text;
-    for (final part in ['2026-10-22T10:00:00.000Z', '@tester', 'version: wfe-0.1.0', 'Zażółć gęślą jaźń', '== app/wfe.log ==', 'WARN x: y']) {
+    for (final part in ['2026-10-22T10:00:00.000Z', 'version: wfe-0.1.0', 'Zażółć gęślą jaźń', '== app/wfe.log ==', 'WARN x: y']) {
       expect(text, contains(part));
     }
+    expect(text, isNot(contains('Contact')));
     expect(_report().text, contains('Logs: none attached'));
   });
 }
