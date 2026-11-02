@@ -1429,7 +1429,7 @@ class _SendViewState extends ConsumerState<SendView> {
           Padding(
             padding: const EdgeInsets.only(top: 4),
             child: Text(
-              l.sendHeldByDevice(localDecimal(l, formatEpic(e.value)), view.nameOf(e.key)),
+              l.sendHeldByDevice(epicFor(l, e.value, unit: false), view.nameOf(e.key)),
               style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.tokens.dim),
             ),
           ),
