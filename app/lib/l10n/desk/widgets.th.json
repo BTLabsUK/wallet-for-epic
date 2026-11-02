@@ -92,6 +92,7 @@
   "deskKitMethodStarting": "กำลังเริ่ม…",
   "deskKitMethodHttpInternet": "จากอินเทอร์เน็ต พอร์ต {port}",
   "deskKitMethodHttpLocal": "คอมพิวเตอร์นี้เท่านั้น (127.0.0.1)",
+  "deskKitMethodHttpNotReachable": "ในเครือข่ายของคุณ ไม่ใช่จากอินเทอร์เน็ต: Forward พอร์ต {port}",
   "deskKitMethodNotReceiving": "ไม่ได้รับเงิน",
   "deskKitMethodPortInUse": "พอร์ต {port} ถูกโปรแกรมอื่นใช้อยู่ ปิดโปรแกรมนั้น หรือเปลี่ยนพอร์ตด้านล่าง",
   "deskKitMethodNotInBuild": "ไม่มีในรุ่นนี้",
@@ -125,7 +126,7 @@
   "deskKitReachTorOff": "การตรวจนี้ต้องปิด Tor",
   "deskKitNoAnswerSince": "ไม่ตอบตั้งแต่ {time}",
   "deskKitMoreInHelp": "ดูเพิ่มเติมในความช่วยเหลือ",
-  "deskHttpLocalTitle": "คอมพิวเตอร์เครื่องนี้",
+  "deskHttpLocalTitle": "เครือข่ายในบ้าน",
   "deskHttpLocalSwitch": "รับบนคอมพิวเตอร์เครื่องนี้",
   "deskHttpPublicTitle": "อินเทอร์เน็ต",
   "deskHttpPublicNote": "สำหรับวอลเล็ตบนอินเทอร์เน็ต เราเตอร์ต้องส่งต่อพอร์ต {port} มาที่คอมพิวเตอร์เครื่องนี้"

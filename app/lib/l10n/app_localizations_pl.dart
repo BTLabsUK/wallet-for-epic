@@ -6641,7 +6641,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskRecvHttpIntro =>
-      'Dla portfeli na tym komputerze, gdy ten portfel jest otwarty.';
+      'Dla portfeli w sieci lokalnej, gdy ten portfel jest otwarty.';
 
   @override
   String get deskRecvHttpTorHint =>
@@ -10536,11 +10536,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskKitMethodHttpLocal => 'tylko ten komputer (127.0.0.1)';
-
-  @override
-  String deskKitMethodHttpNotReachable(String port) {
-    return 'w twojej sieci, nie z internetu: przekieruj port $port';
-  }
 
   @override
   String get deskKitMethodNotReceiving => 'Nie odbiera';
@@ -20804,7 +20799,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskDonateInContacts => 'W kontaktach';
 
   @override
-  String get deskHttpLocalTitle => 'Ten komputer';
+  String get deskHttpLocalTitle => 'Sieć lokalna';
 
   @override
   String get deskHttpLocalSwitch => 'Odbieraj na tym komputerze';
@@ -20815,5 +20810,10 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String deskHttpPublicNote(String port) {
     return 'Dla portfeli w internecie. Router musi przekierować port $port na ten komputer.';
+  }
+
+  @override
+  String deskKitMethodHttpNotReachable(String port) {
+    return 'w twojej sieci, nie z internetu: przekieruj port $port';
   }
 }

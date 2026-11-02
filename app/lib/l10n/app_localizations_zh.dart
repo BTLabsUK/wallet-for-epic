@@ -9467,11 +9467,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskKitMethodHttpLocal => '仅限本机（127.0.0.1）';
 
   @override
-  String deskKitMethodHttpNotReachable(String port) {
-    return '仅在你的网络内，无法从互联网访问：请转发端口 $port';
-  }
-
-  @override
   String get deskKitMethodNotReceiving => '无法接收';
 
   @override
@@ -18966,7 +18961,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskDonateInContacts => '在联系人中';
 
   @override
-  String get deskHttpLocalTitle => '本机';
+  String get deskHttpLocalTitle => '本地网络';
 
   @override
   String get deskHttpLocalSwitch => '在本机接收';
@@ -18977,5 +18972,10 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String deskHttpPublicNote(String port) {
     return '供互联网上的钱包使用。路由器需将端口 $port 转发到这台电脑。';
+  }
+
+  @override
+  String deskKitMethodHttpNotReachable(String port) {
+    return '仅在你的网络内，无法从互联网访问：请转发端口 $port';
   }
 }

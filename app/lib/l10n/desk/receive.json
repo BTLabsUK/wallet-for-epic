@@ -181,7 +181,7 @@
   "@deskRecvCopyHttp": {
     "description": "Label of the copy button next to the HTTP address."
   },
-  "deskRecvHttpIntro": "For wallets on this computer, while this wallet is open.",
+  "deskRecvHttpIntro": "For wallets on your local network, while this wallet is open.",
   "@deskRecvHttpIntro": {
     "description": "Intro text of the HTTP panel on Receive."
   },

@@ -10381,7 +10381,7 @@ abstract class AppLocalizations {
   /// Intro text of the HTTP panel on Receive.
   ///
   /// In en, this message translates to:
-  /// **'For wallets on this computer, while this wallet is open.'**
+  /// **'For wallets on your local network, while this wallet is open.'**
   String get deskRecvHttpIntro;
 
   /// Caption at the bottom of the HTTP panel on Receive.
@@ -15828,12 +15828,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'this computer only (127.0.0.1)'**
   String get deskKitMethodHttpLocal;
-
-  /// Detail of the HTTP status line after the bold word Receiving, while Internet is on but the reach check found the port closed: the listener runs on this computer, the internet does not reach it until the router forwards the port.
-  ///
-  /// In en, this message translates to:
-  /// **'on your network, not from the internet: forward port {port}'**
-  String deskKitMethodHttpNotReachable(String port);
 
   /// Bold status word of the HTTP status line: the listener failed.
   ///
@@ -31539,13 +31533,13 @@ abstract class AppLocalizations {
   /// Title of the Link · HTTP address for wallets on this computer (http://127.0.0.1:port), on Receive and in Settings. Short.
   ///
   /// In en, this message translates to:
-  /// **'This computer'**
+  /// **'Local network'**
   String get deskHttpLocalTitle;
 
   /// Screen-reader label of the switch next to the local Link · HTTP address.
   ///
   /// In en, this message translates to:
-  /// **'Receive on this computer'**
+  /// **'Receive on the local network'**
   String get deskHttpLocalSwitch;
 
   /// Title of the Link · HTTP address for wallets on the internet (http://<public IP>:port), on Receive and in Settings. One word.
@@ -31559,6 +31553,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'For wallets on the internet. Your router must forward port {port} to this computer.'**
   String deskHttpPublicNote(String port);
+
+  /// Detail of the HTTP status line after the bold word Receiving, while Internet is on but the reach check found the port closed: the listener answers on the local network, the internet does not reach it until the router forwards the port.
+  ///
+  /// In en, this message translates to:
+  /// **'on your network, not from the internet: forward port {port}'**
+  String deskKitMethodHttpNotReachable(String port);
 }
 
 class _AppLocalizationsDelegate

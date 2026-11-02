@@ -9796,11 +9796,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskKitMethodHttpLocal => 'คอมพิวเตอร์นี้เท่านั้น (127.0.0.1)';
 
   @override
-  String deskKitMethodHttpNotReachable(String port) {
-    return 'ในเครือข่ายของคุณ ไม่ใช่จากอินเทอร์เน็ต: Forward พอร์ต $port';
-  }
-
-  @override
   String get deskKitMethodNotReceiving => 'ไม่ได้รับเงิน';
 
   @override
@@ -19709,7 +19704,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskDonateInContacts => 'อยู่ในผู้ติดต่อ';
 
   @override
-  String get deskHttpLocalTitle => 'คอมพิวเตอร์เครื่องนี้';
+  String get deskHttpLocalTitle => 'เครือข่ายในบ้าน';
 
   @override
   String get deskHttpLocalSwitch => 'รับบนคอมพิวเตอร์เครื่องนี้';
@@ -19720,5 +19715,10 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String deskHttpPublicNote(String port) {
     return 'สำหรับวอลเล็ตบนอินเทอร์เน็ต เราเตอร์ต้องส่งต่อพอร์ต $port มาที่คอมพิวเตอร์เครื่องนี้';
+  }
+
+  @override
+  String deskKitMethodHttpNotReachable(String port) {
+    return 'ในเครือข่ายของคุณ ไม่ใช่จากอินเทอร์เน็ต: Forward พอร์ต $port';
   }
 }

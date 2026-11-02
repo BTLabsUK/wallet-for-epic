@@ -2052,7 +2052,7 @@
   "deskRecvCheckSix": "Czytając go na głos, sprawdź pierwsze sześć i ostatnie sześć znaków.",
   "deskRecvHttpAddress": "Adres Link · HTTP",
   "deskRecvCopyHttp": "Kopiuj adres Link · HTTP",
-  "deskRecvHttpIntro": "Dla portfeli na tym komputerze, gdy ten portfel jest otwarty.",
+  "deskRecvHttpIntro": "Dla portfeli w sieci lokalnej, gdy ten portfel jest otwarty.",
   "deskRecvHttpTorHint": "Aby zamiast tego mieć adres Tor, włącz Tor w Ustawienia › Prywatność.",
   "deskRecvDirectTor": "Adres Link · Tor",
   "deskRecvTorIntro": "Prosto z innego portfela przez Tor, gdy ten jest otwarty. Tor ustawisz w Ustawienia › Prywatność.",
@@ -2603,7 +2603,6 @@
   "deskKitMethodStarting": "Uruchamianie…",
   "deskKitMethodHttpInternet": "z internetu, port {port}",
   "deskKitMethodHttpLocal": "tylko ten komputer (127.0.0.1)",
-  "deskKitMethodHttpNotReachable": "w twojej sieci, nie z internetu: przekieruj port {port}",
   "deskKitMethodNotReceiving": "Nie odbiera",
   "deskKitMethodPortInUse": "Port {port} zajmuje inny program. Zamknij go albo zmień port poniżej.",
   "deskKitMethodNotInBuild": "Brak w tej wersji",
@@ -5252,8 +5251,9 @@
   "deskBarKeySearch": "Szukaj w ustawieniach",
   "deskBarKeySearchHere": "Szukaj, gdy otwarte są Ustawienia",
   "deskDonateInContacts": "W kontaktach",
-  "deskHttpLocalTitle": "Ten komputer",
+  "deskHttpLocalTitle": "Sieć lokalna",
   "deskHttpLocalSwitch": "Odbieraj na tym komputerze",
   "deskHttpPublicTitle": "Internet",
-  "deskHttpPublicNote": "Dla portfeli w internecie. Router musi przekierować port {port} na ten komputer."
+  "deskHttpPublicNote": "Dla portfeli w internecie. Router musi przekierować port {port} na ten komputer.",
+  "deskKitMethodHttpNotReachable": "w twojej sieci, nie z internetu: przekieruj port {port}"
 }

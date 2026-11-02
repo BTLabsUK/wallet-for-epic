@@ -2052,7 +2052,7 @@
   "deskRecvCheckSix": "Читая его вслух, сверьте первые шесть и последние шесть символов.",
   "deskRecvHttpAddress": "Адрес Ссылка · HTTP",
   "deskRecvCopyHttp": "Копировать адрес Ссылка · HTTP",
-  "deskRecvHttpIntro": "Для кошельков на этом компьютере, пока этот кошелёк открыт.",
+  "deskRecvHttpIntro": "Для кошельков в локальной сети, пока этот кошелёк открыт.",
   "deskRecvHttpTorHint": "Чтобы получить адрес Tor, включите Tor в разделе «Настройки › Приватность».",
   "deskRecvDirectTor": "Адрес Ссылка · Tor",
   "deskRecvTorIntro": "Напрямую из другого кошелька через Tor, пока этот открыт. Tor настраивается в разделе «Настройки › Приватность».",
@@ -3091,7 +3091,6 @@
   "deskKitMethodStarting": "Запуск…",
   "deskKitMethodHttpInternet": "из интернета, порт {port}",
   "deskKitMethodHttpLocal": "только этот компьютер (127.0.0.1)",
-  "deskKitMethodHttpNotReachable": "в вашей сети, не из интернета: перенаправьте порт {port}",
   "deskKitMethodNotReceiving": "Приём не работает",
   "deskKitMethodPortInUse": "Порт {port} занят другой программой. Закройте её или измените порт ниже.",
   "deskKitMethodNotInBuild": "Нет в этой сборке",
@@ -5252,8 +5251,9 @@
   "deskBarKeySearch": "Поиск по настройкам",
   "deskBarKeySearchHere": "Поиск, когда открыты Настройки",
   "deskDonateInContacts": "В контактах",
-  "deskHttpLocalTitle": "Этот компьютер",
+  "deskHttpLocalTitle": "Локальная сеть",
   "deskHttpLocalSwitch": "Получать на этом компьютере",
   "deskHttpPublicTitle": "Интернет",
-  "deskHttpPublicNote": "Для кошельков в интернете. Роутер должен перенаправлять порт {port} на этот компьютер."
+  "deskHttpPublicNote": "Для кошельков в интернете. Роутер должен перенаправлять порт {port} на этот компьютер.",
+  "deskKitMethodHttpNotReachable": "в вашей сети, не из интернета: перенаправьте порт {port}"
 }

@@ -92,6 +92,7 @@
   "deskKitMethodStarting": "Startet…",
   "deskKitMethodHttpInternet": "aus dem Internet, Port {port}",
   "deskKitMethodHttpLocal": "nur dieser Computer (127.0.0.1)",
+  "deskKitMethodHttpNotReachable": "im eigenen Netzwerk, nicht aus dem Internet: Port {port} weiterleiten",
   "deskKitMethodNotReceiving": "Kein Empfang",
   "deskKitMethodPortInUse": "Port {port} wird von einem anderen Programm genutzt. Schließen Sie es oder ändern Sie unten den Port.",
   "deskKitMethodNotInBuild": "Nicht in dieser Version",
@@ -125,7 +126,7 @@
   "deskKitReachTorOff": "Die Prüfung geht nur ohne Tor.",
   "deskKitNoAnswerSince": "Keine Antwort seit {time}",
   "deskKitMoreInHelp": "Mehr in der Hilfe",
-  "deskHttpLocalTitle": "Dieser Computer",
+  "deskHttpLocalTitle": "Lokales Netzwerk",
   "deskHttpLocalSwitch": "Auf diesem Computer empfangen",
   "deskHttpPublicTitle": "Internet",
   "deskHttpPublicNote": "Für Wallets im Internet. Der Router muss Port {port} an diesen Computer weiterleiten."

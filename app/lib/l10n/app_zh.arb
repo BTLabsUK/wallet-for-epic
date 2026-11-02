@@ -3197,7 +3197,6 @@
   "deskKitMethodStarting": "正在启动…",
   "deskKitMethodHttpInternet": "可从互联网访问，端口 {port}",
   "deskKitMethodHttpLocal": "仅限本机（127.0.0.1）",
-  "deskKitMethodHttpNotReachable": "仅在你的网络内，无法从互联网访问：请转发端口 {port}",
   "deskKitMethodNotReceiving": "无法接收",
   "deskKitMethodPortInUse": "端口 {port} 被其他程序占用。请关闭该程序，或在下方更改端口。",
   "deskKitMethodNotInBuild": "此版本不含 Tor",
@@ -5252,8 +5251,9 @@
   "deskBarKeySearch": "搜索设置",
   "deskBarKeySearchHere": "在设置中搜索",
   "deskDonateInContacts": "在联系人中",
-  "deskHttpLocalTitle": "本机",
+  "deskHttpLocalTitle": "本地网络",
   "deskHttpLocalSwitch": "在本机接收",
   "deskHttpPublicTitle": "互联网",
-  "deskHttpPublicNote": "供互联网上的钱包使用。路由器需将端口 {port} 转发到这台电脑。"
+  "deskHttpPublicNote": "供互联网上的钱包使用。路由器需将端口 {port} 转发到这台电脑。",
+  "deskKitMethodHttpNotReachable": "仅在你的网络内，无法从互联网访问：请转发端口 {port}"
 }

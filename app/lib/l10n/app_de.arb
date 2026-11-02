@@ -1872,7 +1872,7 @@
   "deskRecvCheckSix": "Beim Vorlesen die ersten sechs und letzten sechs Zeichen prüfen.",
   "deskRecvHttpAddress": "Link · HTTP-Adresse",
   "deskRecvCopyHttp": "Link · HTTP-Adresse kopieren",
-  "deskRecvHttpIntro": "Für Wallets auf diesem Computer, solange diese Wallet geöffnet ist.",
+  "deskRecvHttpIntro": "Für Wallets im lokalen Netzwerk, solange diese Wallet geöffnet ist.",
   "deskRecvHttpTorHint": "Schalten Sie Tor unter Einstellungen › Datenschutz ein, um stattdessen eine Tor-Adresse zu erhalten.",
   "deskRecvDirectTor": "Link · Tor-Adresse",
   "deskRecvTorIntro": "Direkt von einer anderen Wallet über Tor, solange diese geöffnet ist. Tor wird unter Einstellungen › Datenschutz eingestellt.",
@@ -2603,7 +2603,6 @@
   "deskKitMethodStarting": "Startet…",
   "deskKitMethodHttpInternet": "aus dem Internet, Port {port}",
   "deskKitMethodHttpLocal": "nur dieser Computer (127.0.0.1)",
-  "deskKitMethodHttpNotReachable": "im eigenen Netzwerk, nicht aus dem Internet: Port {port} weiterleiten",
   "deskKitMethodNotReceiving": "Kein Empfang",
   "deskKitMethodPortInUse": "Port {port} wird von einem anderen Programm genutzt. Schließen Sie es oder ändern Sie unten den Port.",
   "deskKitMethodNotInBuild": "Nicht in dieser Version",
@@ -5252,8 +5251,9 @@
   "deskBarKeySearch": "Einstellungen durchsuchen",
   "deskBarKeySearchHere": "Suchen, in den Einstellungen",
   "deskDonateInContacts": "In Ihren Kontakten",
-  "deskHttpLocalTitle": "Dieser Computer",
+  "deskHttpLocalTitle": "Lokales Netzwerk",
   "deskHttpLocalSwitch": "Auf diesem Computer empfangen",
   "deskHttpPublicTitle": "Internet",
-  "deskHttpPublicNote": "Für Wallets im Internet. Der Router muss Port {port} an diesen Computer weiterleiten."
+  "deskHttpPublicNote": "Für Wallets im Internet. Der Router muss Port {port} an diesen Computer weiterleiten.",
+  "deskKitMethodHttpNotReachable": "im eigenen Netzwerk, nicht aus dem Internet: Port {port} weiterleiten"
 }

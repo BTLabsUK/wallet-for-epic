@@ -6460,7 +6460,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskRecvHttpIntro =>
-      'For wallets on this computer, while this wallet is open.';
+      'For wallets on your local network, while this wallet is open.';
 
   @override
   String get deskRecvHttpTorHint =>
@@ -10093,11 +10093,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskKitMethodHttpLocal => 'this computer only (127.0.0.1)';
-
-  @override
-  String deskKitMethodHttpNotReachable(String port) {
-    return 'on your network, not from the internet: forward port $port';
-  }
 
   @override
   String get deskKitMethodNotReceiving => 'Not receiving';
@@ -20130,10 +20125,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskDonateInContacts => 'In your contacts';
 
   @override
-  String get deskHttpLocalTitle => 'This computer';
+  String get deskHttpLocalTitle => 'Local network';
 
   @override
-  String get deskHttpLocalSwitch => 'Receive on this computer';
+  String get deskHttpLocalSwitch => 'Receive on the local network';
 
   @override
   String get deskHttpPublicTitle => 'Internet';
@@ -20141,5 +20136,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String deskHttpPublicNote(String port) {
     return 'For wallets on the internet. Your router must forward port $port to this computer.';
+  }
+
+  @override
+  String deskKitMethodHttpNotReachable(String port) {
+    return 'on your network, not from the internet: forward port $port';
   }
 }
