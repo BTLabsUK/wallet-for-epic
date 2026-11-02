@@ -232,7 +232,11 @@ class GraphTest(unittest.TestCase):
         # The catalogue renders before the gate, beside the builds: from G2 on, in its own lane; a
         # failed render holds nothing by itself, screens-check (after G4) judges it before the gate.
         sc = by["screens"]
-        self.assertEqual((sc.needs, sc.lane, sc.publish, sc.warn_only, sc.skippable), (["source-check"], "screens", False, True, True))
+        self.assertEqual((sc.lane, sc.publish, sc.warn_only, sc.skippable), ("screens", False, True, True))
+        # It renders in the release checkout, so it waits for the builds made there (a tour's
+        # flutter test rewrites the plugin registrants under an Android build).
+        for need in ("source", "source-check", "build-android-tor", "build-linux-tor"):
+            self.assertIn(need, sc.needs)
         self.assertIn("screens.sh 26.10.25 /r/26.10.25/run-1/steps/screens/out", sc.run)
         self.assertFalse(sc.heavy)  # tools/screens.sh takes its own build-slot slots
         ck = by["screens-check"]
