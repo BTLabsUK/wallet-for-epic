@@ -150,6 +150,7 @@ both.
 | Frozen | Why |
 | --- | --- |
 | Bundle ids `uk.btlabs.btwallet.macos`, `uk.btlabs.btwallet.ios`; the app name `BT Wallet.app` | The App Store record, the keychain items and the macOS data are tied to them |
+| The macOS executable `Contents/MacOS/btwallet` (`EXECUTABLE_NAME` in AppInfo.xcconfig; build-apple.sh and apple-sign.sh name it) | Signing and the process checks look for this file |
 | The Team ID | macOS keychain items trust "signed by this team with this id"; iOS keychain items live in `<Team ID>.uk.btlabs.btwallet.ios`. A new team = every user's stored secrets unreachable |
 | The certificate **type**: Developer ID Application (macOS), Apple Distribution (iOS) | A new certificate of the same type and team (renewal, a second builder) keeps everything working; another type does not |
 | The data folder `~/.epic_cash_desktop`, the login keychain on macOS, no `keychain-access-groups` on iOS | Changing them moves where data and secrets are looked up |

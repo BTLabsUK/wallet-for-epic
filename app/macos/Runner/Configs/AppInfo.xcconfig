@@ -4,9 +4,13 @@
 // future. If not, the values below would default to using the project name when this becomes a
 // 'flutter create' template.
 
-// The application's name: the .app, its executable and the menu bar. Linux and Windows keep the
-// binary name epic_wallet.
+// The application's name: the .app and the menu bar. Linux and Windows keep the binary name
+// epic_wallet.
 PRODUCT_NAME = BT Wallet
+
+// The executable inside the bundle (Info.plist's CFBundleExecutable); tools/build-apple.sh and
+// tools/apple-sign.sh name it.
+EXECUTABLE_NAME = btwallet
 
 // The application's bundle identifier
 PRODUCT_BUNDLE_IDENTIFIER = uk.btlabs.btwallet.macos

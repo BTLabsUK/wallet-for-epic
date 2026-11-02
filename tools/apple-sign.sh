@@ -40,6 +40,7 @@ set -euo pipefail
 root="$(cd "$(dirname "$0")/.." && pwd)"
 settings="${APPLE_SIGNING_ENV:-$HOME/.config/epic-apple-signing/signing.env}"
 desktop_name="BT Wallet"
+desktop_exe="btwallet"   # CFBundleExecutable: the file in Contents/MacOS
 # The bundle ids are fixed: they must never change after the first signed release
 # (tools/apple-release.md, "What freezes").
 desktop_id=uk.btlabs.btwallet.macos
@@ -277,7 +278,7 @@ macos_app_cmd() {
   # bundles and leave their new seals outside the app's own, which codesign --strict reports.
   flags+=(--exclude 'Contents/Resources/*.bundle')
   while IFS= read -r f; do
-    if [ "$f" != "Contents/MacOS/$desktop_name" ]; then flags+=(--code-signature-flags "$f:runtime"); fi
+    if [ "$f" != "Contents/MacOS/$desktop_exe" ]; then flags+=(--code-signature-flags "$f:runtime"); fi
   done < <(macho_files "$unsigned/$app_rel")
   entitlements="$root/app/macos/Runner/Release.entitlements"
   say "sign $app_rel"
