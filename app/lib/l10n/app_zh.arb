@@ -5350,5 +5350,7 @@
   "deskOldAppTrash": "移到废纸篓",
   "deskOldAppKeep": "保留",
   "deskOldAppTrashed": "已将 {app} 移到废纸篓",
-  "deskOldAppNotTrashed": "无法将 {app} 移到废纸篓"
+  "deskOldAppNotTrashed": "无法将 {app} 移到废纸篓",
+  "deskOvInflightMore": "{count, plural, other{另有 {count} 笔付款进行中}}",
+  "deskOvInflightView": "查看"
 }

@@ -53,6 +53,8 @@
   "deskOvReceiveFile": "Datei empfangen",
   "deskOvRecent": "Letzte Aktivitäten",
   "deskOvViewAll": "Alle {count} anzeigen",
+  "deskOvInflightMore": "{count, plural, one{{count} weitere Zahlung unterwegs} other{{count} weitere Zahlungen unterwegs}}",
+  "deskOvInflightView": "Anzeigen",
   "deskOvPendingFiles": "{count, plural, one{{count} Zahlung per Datei abzuschließen} other{{count} Zahlungen per Datei abzuschließen}}",
   "deskOvPendingText": "Schließen Sie sie mit der Antwortdatei des Empfängers ab.",
   "deskOvFinalize": "Abschließen"

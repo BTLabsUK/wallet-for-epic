@@ -20042,4 +20042,17 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskOldAppNotTrashed(String app) {
     return 'ย้าย $app ไปที่ถังขยะไม่ได้';
   }
+
+  @override
+  String deskOvInflightMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'อีก $count รายการที่กำลังดำเนินการ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOvInflightView => 'ดู';
 }

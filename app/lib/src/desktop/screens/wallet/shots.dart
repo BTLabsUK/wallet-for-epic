@@ -139,6 +139,17 @@ final List<DeskShot> walletShots = [
   // A short history: the BT Labs lattice under Recent activity, at 75 % and 40 %.
   DeskShot(id: '10b-overview-one', title: 'Overview, one payment', route: DeskRoute.overview, before: _newest(1)),
   DeskShot(id: '10b-overview-three', title: 'Overview, three payments', route: DeskRoute.overview, before: _newest(3)),
+  DeskShot(
+    id: '10b-overview-inflight-many',
+    title: 'Overview, five payments under way',
+    width: 1280,
+    height: 1100,
+    route: DeskRoute.overview,
+    before: (c) async {
+      mockBehind(c.read(deskApiProvider))?.addInflightMany();
+      await c.read(deskProvider.notifier).refresh();
+    },
+  ),
   const DeskShot(id: '10c-overview-node-down', title: 'Overview, node down', route: DeskRoute.overview, arg: OverviewDemo.nodeDown),
   const DeskShot(id: '10d-overview-loading', title: 'Overview, loading', route: DeskRoute.overview, arg: OverviewDemo.loading),
   const DeskShot(id: '10e-overview-starting', title: 'Overview, just unlocked', route: DeskRoute.overview, arg: OverviewDemo.starting),

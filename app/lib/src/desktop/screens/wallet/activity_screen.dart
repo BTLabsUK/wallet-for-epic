@@ -21,7 +21,7 @@ enum _Filter { all, sent, received, pending, cancelled, requests }
 
 /// Starts Activity on a selected transaction, a search, or the empty state.
 class ActivityArgs {
-  const ActivityArgs({this.txId, this.empty = false, this.waitingNode = false, this.query, this.page = 0});
+  const ActivityArgs({this.txId, this.empty = false, this.waitingNode = false, this.query, this.page = 0, this.pending = false});
 
   final int? txId;
 
@@ -32,6 +32,9 @@ class ActivityArgs {
   /// Empty and the node not synced yet: a waiting line instead of the learn panel.
   final bool waitingNode;
   final String? query;
+
+  /// Open on the Pending filter (All when the level hides it).
+  final bool pending;
 }
 
 const int _pageSize = 12;
@@ -59,7 +62,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
   };
   late int? _selected = _args.txId;
   late final _query = TextEditingController(text: _args.query);
-  _Filter _filter = _Filter.all;
+  late _Filter _filter = _args.pending ? _Filter.pending : _Filter.all;
   late int _page = _args.page;
   bool _refreshing = false;
 

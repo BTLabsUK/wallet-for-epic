@@ -53,6 +53,8 @@
   "deskOvReceiveFile": "接收文件",
   "deskOvRecent": "最近活动",
   "deskOvViewAll": "查看全部 {count} 笔",
+  "deskOvInflightMore": "{count, plural, other{另有 {count} 笔付款进行中}}",
+  "deskOvInflightView": "查看",
   "deskOvPendingFiles": "{count, plural, other{{count} 笔文件付款待完成}}",
   "deskOvPendingText": "使用接收方发回的回复文件完成交易。",
   "deskOvFinalize": "完成交易"

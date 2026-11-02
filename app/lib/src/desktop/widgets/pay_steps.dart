@@ -249,6 +249,50 @@ class _Dot extends StatelessWidget {
   }
 }
 
+/// The step the payment is at, for a one-line reading: the sub-line when the data says what it
+/// waits on ("Waiting for the recipient"), else the step's own words ("Confirmations 2 / 6").
+String payStepNowText(List<PayStep> steps) {
+  final s = steps.firstWhere((s) => s.state == PayStepState.now, orElse: () => steps.last);
+  return s.sub ?? s.title;
+}
+
+/// The five steps as a small mark, a dot each with a short line between: done green, the one under
+/// way blue, to come a ring. Decoration beside words that say the same; it carries no semantics.
+class PayStepDots extends StatelessWidget {
+  const PayStepDots(this.steps, {super.key});
+
+  final List<PayStep> steps;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final dot = 9.u;
+    return ExcludeSemantics(
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final (i, s) in steps.indexed) ...[
+            if (i > 0) Container(width: 6.u, height: 2, color: steps[i - 1].state == PayStepState.done ? c.ok : c.lineStrong),
+            Container(
+              width: dot,
+              height: dot,
+              decoration: BoxDecoration(
+                color: switch (s.state) {
+                  PayStepState.done => c.ok,
+                  PayStepState.now => c.info,
+                  PayStepState.todo => c.s1,
+                },
+                shape: BoxShape.circle,
+                border: s.state == PayStepState.todo ? Border.all(color: c.lineStrong, width: 1.5) : null,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 /// The steps across: a dot and a line to the next one, the words under each, the current one
 /// bold with its sub-line.
 class _Across extends StatelessWidget {

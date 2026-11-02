@@ -21130,4 +21130,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskOldAppNotTrashed(String app) {
     return 'Не удалось переместить $app в Корзину';
   }
+
+  @override
+  String deskOvInflightMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ещё $count платежа в пути',
+      many: 'Ещё $count платежей в пути',
+      few: 'Ещё $count платежа в пути',
+      one: 'Ещё $count платёж в пути',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOvInflightView => 'Показать';
 }

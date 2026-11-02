@@ -5350,5 +5350,7 @@
   "deskOldAppTrash": "In den Papierkorb legen",
   "deskOldAppKeep": "Behalten",
   "deskOldAppTrashed": "{app} in den Papierkorb gelegt",
-  "deskOldAppNotTrashed": "{app} konnte nicht in den Papierkorb gelegt werden"
+  "deskOldAppNotTrashed": "{app} konnte nicht in den Papierkorb gelegt werden",
+  "deskOvInflightMore": "{count, plural, one{{count} weitere Zahlung unterwegs} other{{count} weitere Zahlungen unterwegs}}",
+  "deskOvInflightView": "Anzeigen"
 }
