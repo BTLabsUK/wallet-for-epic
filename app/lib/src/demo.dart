@@ -11,9 +11,11 @@ import 'package:flutter/widgets.dart' show BuildContext;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
+import 'dist_build.dart';
 
-/// Set by `--dart-define=WFE_DEMO=true`, which only the web build passes.
-const bool demoBuild = bool.fromEnvironment('WFE_DEMO');
+/// Set by `--dart-define=WFE_DEMO=true`, which only the web build passes. Never in the App Store
+/// build ([Dist.appstore]), whatever it was built with: no demo entry, wallet or wording there.
+const bool demoBuild = bool.fromEnvironment('WFE_DEMO') && dist != Dist.appstore;
 
 /// Whether the app runs as the web demo. Tests override it.
 final demoModeProvider = Provider<bool>((ref) => demoBuild);
