@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import '../../desk_l10n.dart';
 import '../../../app_info.dart';
+import '../../../data_folder_io.dart' show desktopDataFolderName;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,7 +15,8 @@ import 'depth_dial.dart';
 import 'import_warning.dart';
 import 'onboarding_parts.dart';
 
-const _defaultFolder = '~/.config/Epic Cash Desktop'; // l10n-ok: a path
+/// Where the app keeps its data (`appDataDirectory`), as the home-relative path the screens show.
+const _defaultFolder = '~/$desktopDataFolderName'; // l10n-ok: a path
 
 /// Why the mock folder picker refuses a folder.
 enum _FolderIssue { notEmpty, walletFolder }

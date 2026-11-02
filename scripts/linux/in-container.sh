@@ -68,7 +68,7 @@ chmod +x "$appdir/AppRun"
 cat > "$appdir/uk.btlabs.epiccash.desktop.desktop" <<'DESK'
 [Desktop Entry]
 Type=Application
-Name=Epic Cash Desktop
+Name=BT Wallet
 Exec=btwallet %u
 Icon=epic-cash-desktop
 StartupWMClass=uk.btlabs.epiccash.desktop

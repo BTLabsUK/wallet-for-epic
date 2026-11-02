@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-"""Read and drive the Epic Cash Desktop app in a sandbox (sandbox.py) over AT-SPI, xdotool as a
+"""Read and drive the BT Wallet desktop app in a sandbox (sandbox.py) over AT-SPI, xdotool as a
 fallback. A module for trust.py and a small CLI for looking at a screen by hand:
 
     TRUST_SB=<sandbox> python3 -I ui.py tree | text | fields

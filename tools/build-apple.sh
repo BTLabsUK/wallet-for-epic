@@ -794,7 +794,7 @@ mac_release_sign() {
 # Gatekeeper's verdict, Apple's notarisation answers.
 mac_report() {
   local dmg_file="$1" team="$2" mnt
-  echo "Epic Cash Desktop release .dmg: what was built and how it is signed"
+  echo "BT Wallet release .dmg: what was built and how it is signed"
   echo "file:             $(basename "$dmg_file")"
   echo "sha256:           $(sha256 "$dmg_file")"
   echo "app version:      $(sed -n 's/^version: *//p' "$app/pubspec.yaml")"

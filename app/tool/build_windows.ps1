@@ -11,7 +11,7 @@
 # `cargo xtask mobile --package --target x86_64-pc-windows-msvc --out <binding>\native`;
 # package:lepic's build hook then bundles the DLL next to btwallet.exe.
 #
-# Output: build\epic_wallet-windows-x64-<version>.zip, a portable folder with btwallet.exe.
+# Output: build\bt-wallet-<version>-windows-x64-portable.zip, a portable folder with btwallet.exe.
 param(
     [string]$Flutter = "$env:USERPROFILE\flutter\bin",
     [string]$Lepic = (Join-Path $PSScriptRoot '..\..\..\lepic'),
@@ -78,7 +78,7 @@ if ($LASTEXITCODE) { throw 'pub get failed' }
 flutter build windows --release
 if ($LASTEXITCODE) { throw 'flutter build windows failed' }
 
-$version = (Select-String -Path pubspec.yaml -Pattern '^version:\s*(\S+)').Matches[0].Groups[1].Value -replace '\+', '-'
+$version = (Select-String -Path pubspec.yaml -Pattern '^version:\s*([^+\s]+)').Matches[0].Groups[1].Value
 $bundle = 'build\windows\x64\runner\Release'
 # A configure that failed once (for example on NuGet) caches C:\Program Files\epic_wallet as the
 # install prefix, and later builds install there, leaving only the exe here. Refuse that bundle.
@@ -87,7 +87,7 @@ foreach ($file in 'btwallet.exe', 'flutter_windows.dll', 'lepic_ffi.dll', 'data\
         throw "$bundle\$file is missing. Delete build\windows and build again."
     }
 }
-$zip = "build\epic_wallet-windows-x64-$version.zip"
+$zip = "build\bt-wallet-$version-windows-x64-portable.zip"
 Remove-Item $zip -ErrorAction SilentlyContinue
 Compress-Archive -Path "$bundle\*" -DestinationPath $zip
 Write-Output "Wrote $((Resolve-Path $zip).Path)"

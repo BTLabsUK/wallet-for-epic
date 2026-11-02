@@ -10,7 +10,7 @@ import 'log.dart' show logInfo;
 import 'settings_file/plain_http_nodes.dart' show readLanNodesFile;
 import 'owner_only_windows.dart';
 
-/// The folder Epic Cash Desktop keeps in the user's home folder on every desktop system, as
+/// The folder BT Wallet keeps in the user's home folder on every desktop system, as
 /// the old GUI wallet keeps `.epic-gui`.
 const String desktopDataFolderName = '.epic_cash_desktop';
 

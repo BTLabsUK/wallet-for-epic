@@ -1,5 +1,5 @@
 name: epic_wallet
-description: Epic Cash Desktop and Epic Cash Mobile, wallets for Epic Cash.
+description: BT Wallet, the Epic Cash wallet for desktop and phone.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev

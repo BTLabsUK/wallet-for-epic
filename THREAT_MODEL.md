@@ -1,6 +1,6 @@
 # Threat model
 
-What Epic Cash Desktop and Epic Cash Mobile protect, against whom, and where the limits are. The wallet
+What BT Wallet protects, against whom, and where the limits are. The wallet
 engine is [LEPIC](https://gitlab.com/epic-cash-bt/lepic). Statements about it refer to the version this app
 pins (`tools/lepic.rev`). Report anything that breaks a promise below as SECURITY.md describes.
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  The MSIX package of Epic Cash Desktop for the Microsoft Store (https://docs.btlabs.uk/developers/build/variants/).
+  The MSIX package of BT Wallet for the Microsoft Store (https://docs.btlabs.uk/developers/build/variants/).
   tool/build_windows_release.ps1 -Dist msstore fills the $...$ fields: the identity from
   Partner Center (Product management > Product identity) or, for a test build, a test
   publisher that matches the test certificate; the version is pubspec.yaml's YY.MM.patch.0.
@@ -16,7 +16,7 @@
   <Identity Name="$IdentityName$" Publisher="$Publisher$" Version="$Version$" ProcessorArchitecture="x64" />
 
   <Properties>
-    <DisplayName>Epic Cash Desktop</DisplayName>
+    <DisplayName>BT Wallet</DisplayName>
     <PublisherDisplayName>$PublisherDisplayName$</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -36,19 +36,19 @@
   </Resources>
 
   <Applications>
-    <Application Id="EpicCashDesktop" Executable="btwallet.exe" EntryPoint="Windows.FullTrustApplication">
+    <Application Id="BTWallet" Executable="btwallet.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
-        DisplayName="Epic Cash Desktop"
+        DisplayName="BT Wallet"
         Description="Epic Cash wallet for the desktop"
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png" />
       <Extensions>
-        <!-- epic-cash-desktop.exe on PATH (%LOCALAPPDATA%\Microsoft\WindowsApps): starts the app with its
+        <!-- btwallet.exe on PATH (%LOCALAPPDATA%\Microsoft\WindowsApps): starts the app with its
              package identity, from a terminal or a script. -->
         <uap3:Extension Category="windows.appExecutionAlias" Executable="btwallet.exe" EntryPoint="Windows.FullTrustApplication">
           <uap3:AppExecutionAlias>
-            <desktop:ExecutionAlias Alias="epic-cash-desktop.exe" />
+            <desktop:ExecutionAlias Alias="btwallet.exe" />
           </uap3:AppExecutionAlias>
         </uap3:Extension>
       </Extensions>

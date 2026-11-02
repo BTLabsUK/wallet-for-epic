@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-/// What the desktop says and does about a newer Epic Cash Desktop (`data/desk_update.dart`), in
+/// What the desktop says and does about a newer BT Wallet (`data/desk_update.dart`), in
 /// the sidebar's slot (`now_slot.dart`) and in Settings › About › Updates, the same steps in
 /// both: Update available → Downloading 42 % → Restart to update, with a dialog that offers the
 /// restart once the download is checked. A step that fails says so and offers the next way: try

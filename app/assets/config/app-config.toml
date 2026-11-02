@@ -1,4 +1,4 @@
-# Built-in configuration of Epic Cash Desktop and Epic Cash Mobile (wallet-for-epic).
+# Built-in configuration of BT Wallet (wallet-for-epic).
 # Shipped read-only with the app; not user settings. See docs/settings-file.md, ADR 0030 in LEPIC.
 
 # Who runs a server, by its domain, for the server lists (the status site may name others).

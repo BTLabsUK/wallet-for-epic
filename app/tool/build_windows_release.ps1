@@ -53,7 +53,7 @@ param(
     # The MSIX identity, as Partner Center shows it under Product management > Product identity.
     # The defaults are placeholders: the Store refuses a package whose identity is not the one it
     # gave the app. A test build signed with a test certificate names that certificate's subject.
-    [string]$MsixName = 'BTLabs.EpicCashDesktop',
+    [string]$MsixName = 'BTLabs.BTWallet',
     [string]$MsixPublisher = 'CN=00000000-0000-0000-0000-000000000000',
     [string]$MsixPublisherDisplayName = 'BT Labs'
 )

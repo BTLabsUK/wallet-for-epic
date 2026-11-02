@@ -1,5 +1,5 @@
 {
-  "about": "What an existing install of Epic Cash Desktop / Epic Cash Mobile depends on. tools/check-install-contract.sh (in tools/check.sh) fails when the code drops a probe's text or when the items change without a change record. How to change an item: docs/install-contract.md.",
+  "about": "What an existing install of BT Wallet (Epic Cash Desktop / Epic Cash Mobile up to 26.10.24) depends on. tools/check-install-contract.sh (in tools/check.sh) fails when the code drops a probe's text or when the items change without a change record. How to change an item: docs/install-contract.md.",
   "items": [
     {
       "id": "desktop.data_folder",

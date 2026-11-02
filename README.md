@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="app/web/icons/icon.svg" alt="Epic Cash" width="96" height="96">
+<img src="app/web/icons/icon.svg" alt="BT Wallet" width="96" height="96">
 
-# Epic Cash Desktop and Epic Cash Mobile
+# BT Wallet
 
 **Wallets for Epic Cash on Android, Linux, Windows and macOS, built on the LEPIC wallet core.**
 
@@ -17,7 +17,7 @@
 
 </div>
 
-Epic Cash Mobile (Android) and Epic Cash Desktop (Linux, Windows and macOS) are one Flutter app with
+BT Wallet (Android, Linux, Windows and macOS) is one Flutter app with
 two front ends. The wallet itself is [LEPIC](https://gitlab.com/epic-cash-bt/lepic), a Rust wallet
 engine that runs inside the app's process; the app calls it through its Flutter binding,
 [lepic-flutter](https://gitlab.com/epic-cash-bt/lepic-flutter). The app creates and restores

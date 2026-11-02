@@ -39,5 +39,5 @@ also tied to one signing certificate: an update signed with any other is refused
 
 ## Supported versions
 
-Only the latest release of Epic Cash Desktop and Epic Cash Mobile receives fixes. The app tells
+Only the latest release of BT Wallet receives fixes. The app tells
 you when a newer version is available.
