@@ -39,7 +39,7 @@
 #             .dmg.sha256 and .REPORT.txt, which go to the owner
 #   ios-prepare  release-check, doctor, sources, lepic (iOS), flutter build ios --config-only;
 #             then Xcode archives and uploads (Product > Archive). Needs WFE_TOR=0 (the App Store
-#             build is the one without Tor)
+#             build is the one without Tor) and WFE_DIST=appstore (no in-app updater)
 # Backup route steps (signing on Linux, tools/apple-release.md appendix):
 #   release   the build to sign, from a clean checkout: checks (release-check), then sources,
 #             lepic, macos, ipa and handoff
@@ -65,6 +65,10 @@
 #   CARGO_TARGET_DIR           LEPIC's cargo output (default app/third_party/lepic/target)
 #   WFE_TOR=0                  the build without Tor (https://docs.btlabs.uk/developers/build/variants/): LEPIC without its
 #                              tor feature, no tor in the .app, --dart-define=WFE_TOR=false
+#   WFE_DIST=appstore          the App Store build (https://docs.btlabs.uk/developers/build/variants/): --dart-define=
+#                              WFE_DIST=appstore, so no update check or Check for updates button
+#                              and About says the App Store updates the app. iOS steps only
+#                              (ios-sim, ipa, ios-prepare); unset or web, the builds are as before
 #   SIM_DEVICE=<name or udid>  the Simulator (default: the first available iPhone)
 #   RELEASE_COMMIT=<sha>       release-check: the commit the owner asked for (full or short)
 #   APPLE_TEAM_ID=<id>         the team for mac-release (default: DEVELOPMENT_TEAM in
@@ -108,6 +112,11 @@ tor_def=""
 if [ "${WFE_TOR:-1}" = 0 ]; then tor_def=--dart-define=WFE_TOR=false; fi
 # The file name mark of the build without Tor, as the other platforms' packages have it.
 variant() { if [ "${WFE_TOR:-1}" = 0 ]; then echo -notor; fi; }
+# The dart-define of the App Store build (WFE_DIST=appstore), else empty: pass it as ${dist_def:+"$dist_def"}.
+dist="${WFE_DIST:-web}"
+case "$dist" in web|appstore) ;; *) echo "WFE_DIST=$dist: use web or appstore on Apple" >&2; exit 2 ;; esac
+dist_def=""
+if [ "$dist" = appstore ]; then dist_def=--dart-define=WFE_DIST=appstore; fi
 app_version() { sed -n 's/^version: *\([0-9.]*\(-rc[0-9]*\)\{0,1\}\).*/\1/p' "$app/pubspec.yaml"; }
 
 doctor() {
@@ -263,6 +272,7 @@ stage_bin() {
 
 macos() {
   say "flutter build macos"
+  [ "$dist" = web ] || die "WFE_DIST=$dist is for the iOS steps; the macOS app is the web build"
   local bundle="$app/build/macos/Build/Products/Release/$desktop_name.app"
   local res="$bundle/Contents/Resources/bin"
   stage_bin
@@ -319,7 +329,7 @@ ios_sim() {
   say "flutter build ios --simulator"
   [ "$(uname -m)" = arm64 ] || die "the Simulator build needs an Apple silicon Mac (LEPIC has no x86_64 Simulator library)"
   (cd "$app" && flutter pub get && flutter build ios --simulator --debug -t lib/main.dart \
-    --dart-define=WFE_BUILD_ID="$(build_id)" ${tor_def:+"$tor_def"})
+    --dart-define=WFE_BUILD_ID="$(build_id)" ${tor_def:+"$tor_def"} ${dist_def:+"$dist_def"})
   local bundle="$app/build/ios/iphonesimulator/Runner.app" udid
   [ -d "$bundle" ] || die "no $bundle"
   udid="$(simulator)"
@@ -340,7 +350,7 @@ ios_sim() {
 ipa() {
   say "flutter build ios --no-codesign"
   (cd "$app" && flutter pub get && flutter build ios --release --no-codesign -t lib/main.dart \
-    --dart-define=WFE_BUILD_ID="$(build_id)" ${tor_def:+"$tor_def"})
+    --dart-define=WFE_BUILD_ID="$(build_id)" ${tor_def:+"$tor_def"} ${dist_def:+"$dist_def"})
   local bundle="$app/build/ios/iphoneos/Runner.app" stage="$out/ipa-stage"
   local ipa_file
   ipa_file="$out/bt-wallet-$(app_version)$(variant)-ios-unsigned.ipa"
@@ -824,14 +834,15 @@ mac_report() {
 }
 
 # The iOS build for Xcode's Archive: LEPIC for iOS and Flutter's generated settings for the App
-# Store build (without Tor, this commit's build id). Then Xcode: Product > Archive > Distribute
-# App > App Store Connect, which signs with the team and uploads to TestFlight.
+# Store build (without Tor, WFE_DIST=appstore, this commit's build id). Then Xcode: Product >
+# Archive > Distribute App > App Store Connect, which signs with the team and uploads to
+# TestFlight.
 ios_prepare() {
   say "ios-prepare"
   local team
   team="$(team_id)"
   (cd "$app" && flutter pub get && flutter build ios --release --config-only -t lib/main.dart \
-    --dart-define=WFE_BUILD_ID="$(build_id)" ${tor_def:+"$tor_def"})
+    --dart-define=WFE_BUILD_ID="$(build_id)" ${tor_def:+"$tor_def"} ${dist_def:+"$dist_def"})
   result PASS ios-prepare "team $team; now open app/ios/Runner.xcworkspace in Xcode, scheme Runner, Product > Archive"
 }
 
@@ -858,7 +869,8 @@ while [ $# -gt 0 ]; do
     release-check) release_check ;;
     mac-release) release_check; mac_release_ready; doctor; sources; lepic_libs "$darwin_targets"; macos; mac_release_sign ;;
     ios-prepare)
-      [ "${WFE_TOR:-1}" = 0 ] || die "the App Store build is the one without Tor: WFE_TOR=0 tools/build-apple.sh ios-prepare"
+      [ "${WFE_TOR:-1}" = 0 ] && [ "$dist" = appstore ] \
+        || die "the App Store build is the one without Tor and updater: WFE_TOR=0 WFE_DIST=appstore tools/build-apple.sh ios-prepare"
       release_check; doctor; sources; lepic_libs "$ios_targets"; ios_prepare ;;
     release) release_check; doctor; sources; lepic_libs; macos; ipa; handoff ;;
     handoff) handoff ;;

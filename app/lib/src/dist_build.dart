@@ -3,11 +3,12 @@
 /// (https://docs.btlabs.uk/developers/build/variants/). `--dart-define=WFE_DIST=web` (or unset) is the build from our own
 /// download page, as every build before the switch; `play` is the Google Play build, `fdroid` the
 /// F-Droid and IzzyOnDroid build, `msstore` the Windows build for the Microsoft Store (an MSIX
-/// package, https://docs.btlabs.uk/developers/build/variants/). The build scripts set it from their `WFE_DIST` env, and
+/// package, https://docs.btlabs.uk/developers/build/variants/), `appstore` the iOS build for the App Store (tools/build-apple.sh
+/// ios-prepare). The build scripts set it from their `WFE_DIST` env, and
 /// android/app/build.gradle.kts reads the same dart-define (and refuses msstore).
 ///
 /// - web: the in-app updater and its install permission.
-/// - play, fdroid, msstore: no in-app updater (no install permission on Android); the store
+/// - play, fdroid, msstore, appstore: no in-app updater (no install permission on Android); the store
 ///   updates the app.
 /// No build has Firebase or any other Google push code (removed in 26.10.20), and none has
 /// Google ML Kit or Play services: every build reads QR codes with the free scanner
@@ -15,7 +16,7 @@
 library;
 
 /// The distribution channel of this build.
-enum Dist { web, play, fdroid, msstore }
+enum Dist { web, play, fdroid, msstore, appstore }
 
 const String _distDefine = String.fromEnvironment('WFE_DIST', defaultValue: 'web');
 
@@ -27,11 +28,13 @@ const Dist dist = _distDefine == 'play'
     ? Dist.fdroid
     : _distDefine == 'msstore'
     ? Dist.msstore
+    : _distDefine == 'appstore'
+    ? Dist.appstore
     : Dist.web;
 
 /// The app updates itself from our update feed: only the build from our own page. A store
-/// updates its own builds (Google Play and the Microsoft Store allow no other way, F-Droid only an
-/// opt-in one).
+/// updates its own builds (Google Play, the Microsoft Store and the App Store allow no other way,
+/// F-Droid only an opt-in one).
 const bool distUpdates = dist == Dist.web;
 
 /// The store that updates this build, by its own name (never translated); null for the build
@@ -42,4 +45,6 @@ const String? distStore = dist == Dist.play
     ? 'F-Droid'
     : dist == Dist.msstore
     ? 'Microsoft Store'
+    : dist == Dist.appstore
+    ? 'App Store'
     : null;

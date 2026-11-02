@@ -12,7 +12,8 @@ Mac builds and signs with Xcode.
 Distribution: Desktop is a notarised `.dmg` from our own download page, with Tor and the
 built-in node inside (no Mac App Store: the app is not sandboxed, and the bundled node and tor
 would make the sandbox a project of its own). Mobile goes to TestFlight, then the App Store, as
-the build without Tor (`WFE_TOR=0`; iOS cannot start a bundled tor). The macOS app is Apple
+the build without Tor (`WFE_TOR=0`; iOS cannot start a bundled tor) and without the in-app
+updater (`WFE_DIST=appstore`, [dist-builds.md](../https://docs.btlabs.uk/developers/build/variants/)). The macOS app is Apple
 silicon only (the built-in node has no Intel build); the iPhone app is iPhone only.
 
 Final ids, register exactly these: **`uk.btlabs.btwallet.macos`** (BT Wallet, macOS) and
@@ -119,7 +120,7 @@ section Apple. By hand it is:
 3. **Builder**, iOS:
 
    ```
-   RELEASE_COMMIT=<commit> WFE_TOR=0 tools/build-apple.sh ios-prepare
+   RELEASE_COMMIT=<commit> WFE_TOR=0 WFE_DIST=appstore tools/build-apple.sh ios-prepare
    open app/ios/Runner.xcworkspace
    ```
 
