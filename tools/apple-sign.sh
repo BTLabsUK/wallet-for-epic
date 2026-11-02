@@ -43,7 +43,7 @@ desktop_name="Epic Cash Desktop"
 # The bundle ids are fixed: they must never change after the first signed release
 # (tools/apple-release.md, "What freezes").
 desktop_id=uk.btlabs.epiccashwallet.macos
-phone_id=uk.btlabs.epiccashwallet.ios
+phone_id=uk.btlabs.btwallet.ios
 rcodesign_min=0.29.0
 
 die() { echo "apple-sign.sh: $*" >&2; exit 1; }
@@ -579,7 +579,7 @@ out, team, bundle, crt = sys.argv[1:5]
 der = base64.b64decode("".join(re.search(r"-----BEGIN CERTIFICATE-----(.*?)-----END", open(crt).read(), re.S).group(1).split()))
 now = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None, microsecond=0)
 plistlib.dump({
-    "Name": "Epic Cash Mobile App Store (dry run)", "TeamIdentifier": [team], "AppIDName": "Epic Cash Mobile",
+    "Name": "BT Wallet App Store (dry run)", "TeamIdentifier": [team], "AppIDName": "BT Wallet",
     "ApplicationIdentifierPrefix": [team], "CreationDate": now, "ExpirationDate": now + datetime.timedelta(days=365),
     "DeveloperCertificates": [der], "Platform": ["iOS"], "Version": 1,
     "Entitlements": {"application-identifier": f"{team}.{bundle}", "com.apple.developer.team-identifier": team,

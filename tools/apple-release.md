@@ -16,7 +16,7 @@ the build without Tor (`WFE_TOR=0`; iOS cannot start a bundled tor). The macOS a
 silicon only (the built-in node has no Intel build); the iPhone app is iPhone only.
 
 Final ids, register exactly these: **`uk.btlabs.epiccashwallet.macos`** (Epic Cash Desktop) and
-**`uk.btlabs.epiccashwallet.ios`** (Epic Cash Mobile).
+**`uk.btlabs.btwallet.ios`** (BT Wallet).
 
 The repository side: the team is never in the Xcode projects. The builder puts it in
 `app/Signing.xcconfig` (git-ignored, from `app/Signing.xcconfig.example`), which both projects
@@ -70,10 +70,10 @@ Steps marked ⏳ wait for Apple to approve the membership.
 
    Do not pick the team in Xcode's Signing & Capabilities tab: that writes it into
    `project.pbxproj`, and release builds refuse a checkout with local changes.
-9. **Builder**: developer.apple.com, Identifiers, +, App IDs, App: `uk.btlabs.epiccashwallet.ios`
-   (iOS, "Epic Cash Mobile") and `uk.btlabs.epiccashwallet.macos` (macOS, "Epic Cash Desktop"),
-   no capabilities. Then App Store Connect, Apps, +, New App: iOS, "Epic Cash Mobile", bundle id
-   `uk.btlabs.epiccashwallet.ios`, SKU `epiccashmobile`.
+9. **Builder**: developer.apple.com, Identifiers, +, App IDs, App: `uk.btlabs.btwallet.ios`
+   (iOS, "BT Wallet") and `uk.btlabs.epiccashwallet.macos` (macOS, "Epic Cash Desktop"),
+   no capabilities. Then App Store Connect, Apps, +, New App: iOS, "BT Wallet", bundle id
+   `uk.btlabs.btwallet.ios`, SKU `epiccashmobile`.
 10. **Owner**: decide export compliance and the privacy label (the App Store Connect drafts,
     `docs/apple-app-store.md` in the development repository). If the answer sets
     `ITSAppUsesNonExemptEncryption`, the dev team commits it to `app/ios/Runner/Info.plist`
@@ -149,8 +149,8 @@ both.
 
 | Frozen | Why |
 | --- | --- |
-| Bundle ids `uk.btlabs.epiccashwallet.macos`, `uk.btlabs.epiccashwallet.ios` | The App Store record, the keychain items and the macOS data are tied to them |
-| The Team ID | macOS keychain items trust "signed by this team with this id"; iOS keychain items live in `<Team ID>.uk.btlabs.epiccashwallet.ios`. A new team = every user's stored secrets unreachable |
+| Bundle ids `uk.btlabs.epiccashwallet.macos`, `uk.btlabs.btwallet.ios` | The App Store record, the keychain items and the macOS data are tied to them |
+| The Team ID | macOS keychain items trust "signed by this team with this id"; iOS keychain items live in `<Team ID>.uk.btlabs.btwallet.ios`. A new team = every user's stored secrets unreachable |
 | The certificate **type**: Developer ID Application (macOS), Apple Distribution (iOS) | A new certificate of the same type and team (renewal, a second builder) keeps everything working; another type does not |
 | The data folder `~/.epic_cash_desktop`, the login keychain on macOS, no `keychain-access-groups` on iOS | Changing them moves where data and secrets are looked up |
 | The update manifest and the macOS `.dmg` name pattern | The in-app updater reads them |
@@ -267,14 +267,14 @@ Then `tools/apple-sign.sh doctor`.
    `tools/apple-sign.sh p12 devid <downloaded .cer>`.
 3. **Apple Distribution** certificate: `tools/apple-sign.sh csr dist`, Certificates, +, Apple
    Distribution, upload `keys/dist.csr`, download, `tools/apple-sign.sh p12 dist <.cer>`.
-4. Identifiers, +, App IDs, App: explicit bundle id `uk.btlabs.epiccashwallet.ios`, description
-   "Epic Cash Mobile", no capabilities (no push yet). Also register `uk.btlabs.epiccashwallet.macos`
+4. Identifiers, +, App IDs, App: explicit bundle id `uk.btlabs.btwallet.ios`, description
+   "BT Wallet", no capabilities (no push yet). Also register `uk.btlabs.epiccashwallet.macos`
    (macOS) to hold the id.
 5. Profiles, +, Distribution, **App Store Connect**, the App ID above, the Apple Distribution
    certificate; download the `.mobileprovision` into `keys/`, set `IOS_PROFILE`. It lasts a year;
    renewing it changes nothing for users.
 6. App Store Connect, Apps, +, New App: iOS, name, primary language English (U.K.) or English
-   (U.S.), bundle id `uk.btlabs.epiccashwallet.ios`, SKU (see `docs/apple-app-store.md`).
+   (U.S.), bundle id `uk.btlabs.btwallet.ios`, SKU (see `docs/apple-app-store.md`).
 7. App Store Connect, Users and Access, Integrations, App Store Connect API: request access (only
    the owner can), then a **Team** key (an individual key cannot notarise) with the
    **Developer** role (enough to notarise and upload; App Manager if an upload is refused). Note
