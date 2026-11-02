@@ -27,9 +27,14 @@ class EPage extends StatelessWidget {
     this.scroll = true,
     this.titleTrailing,
     this.footer,
+    this.fill,
   });
 
   final String title;
+
+  /// Fills the room the scrolling content leaves under it, inside the gutters (a quiet
+  /// graphic). Scrolling pages only; nothing when the content is taller than the page.
+  final Widget? fill;
 
   /// Pinned under the scrolling content, full width (a narrow form's main action).
   final Widget? footer;
@@ -90,7 +95,20 @@ class EPage extends StatelessWidget {
         ),
         // A breath between the title row and the content (its first row of tabs or tiles).
         Expanded(
-          child: scroll
+          child: scroll && fill != null
+              ? CustomScrollView(
+                  slivers: [
+                    SliverPadding(
+                      padding: EdgeInsets.fromLTRB(pad, Sp.x2, pad, 0),
+                      sliver: SliverToBoxAdapter(child: body),
+                    ),
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Padding(padding: EdgeInsets.fromLTRB(pad, 0, pad, pad), child: fill),
+                    ),
+                  ],
+                )
+              : scroll
               ? SingleChildScrollView(padding: EdgeInsets.fromLTRB(pad, Sp.x2, pad, pad), child: body)
               : Padding(padding: EdgeInsets.fromLTRB(pad, Sp.x2, pad, pad), child: body),
         ),

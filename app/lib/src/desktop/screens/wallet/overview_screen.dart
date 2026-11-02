@@ -22,6 +22,7 @@ import '../invoices/overview_card.dart';
 import '../settings/backup.dart' show HistoryReminder, historyBackupProvider, showHistoryImportOffer;
 import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
 import '../../../recent_activity.dart' show recentActivityCount, showViewAll;
+import '../../../ui/theme/lattice.dart' show BrandLattice, latticeCellDesktop, latticeStrength;
 import 'restore_scan_panel.dart';
 import 'tx_display.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
@@ -204,6 +205,15 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     return EPage(
       title: l.deskOvTitle,
       width: EPageWidth.full,
+      // The BT Labs lattice in the room a short Recent activity leaves, fading as rows come.
+      fill: restore == null || (s.txs?.isNotEmpty ?? false)
+          ? BrandLattice(
+              color: context.dc.text,
+              strength: latticeStrength(txs?.length),
+              cell: latticeCellDesktop.u,
+              vignette: true,
+            )
+          : null,
       actions: [
         // Shallow moves the eye to Settings › Appearance.
         if (lv.hideAmountsInHeader)
