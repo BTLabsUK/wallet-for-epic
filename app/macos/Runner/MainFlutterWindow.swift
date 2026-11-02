@@ -11,6 +11,7 @@ class MainFlutterWindow: NSWindow {
 
     RegisterGeneratedPlugins(registry: flutterViewController)
     IncomingLink.shared.attach(flutterViewController.engine.binaryMessenger)
+    OldApp.attach(flutterViewController.engine.binaryMessenger)
 
     super.awakeFromNib()
   }

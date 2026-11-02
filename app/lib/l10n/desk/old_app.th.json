@@ -1,0 +1,8 @@
+{
+  "deskOldAppTitle": "พบแอปเก่า",
+  "deskOldAppBody": "{app} ยังอยู่ใน {folder}",
+  "deskOldAppTrash": "ย้ายไปที่ถังขยะ",
+  "deskOldAppKeep": "เก็บไว้",
+  "deskOldAppTrashed": "ย้าย {app} ไปที่ถังขยะแล้ว",
+  "deskOldAppNotTrashed": "ย้าย {app} ไปที่ถังขยะไม่ได้"
+}

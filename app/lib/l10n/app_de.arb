@@ -5344,5 +5344,11 @@
   "netModesDescKillSwitch": "Nichts verbindet sich, auch nicht der Node. Zahlungen werden offline erstellt und abgeschlossen und dann von einem Gerät gesendet, das online ist.",
   "netModesLiveLinks": "{count, plural, one{1 aktive Verbindung} other{{count} aktive Verbindungen}}",
   "netModesDiagramLabel": "Netzwerktopologie, Modus {mode}: {description}",
-  "netModesModeTag": "[Modus]"
+  "netModesModeTag": "[Modus]",
+  "deskOldAppTitle": "Alte App gefunden",
+  "deskOldAppBody": "{app} ist noch in {folder}.",
+  "deskOldAppTrash": "In den Papierkorb legen",
+  "deskOldAppKeep": "Behalten",
+  "deskOldAppTrashed": "{app} in den Papierkorb gelegt",
+  "deskOldAppNotTrashed": "{app} konnte nicht in den Papierkorb gelegt werden"
 }

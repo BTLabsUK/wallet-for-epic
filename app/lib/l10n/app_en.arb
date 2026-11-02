@@ -27638,5 +27638,51 @@
   "netModesModeTag": "[Mode]",
   "@netModesModeTag": {
     "description": "The network-modes picture (Help › Network modes, and the ⓘ of Settings › Network & privacy › Connection mode): short tag before the mode name in the readout, monospace, shown in capitals."
+  },
+  "deskOldAppTitle": "Old app found",
+  "@deskOldAppTitle": {
+    "description": "Dialog title on macOS, once after unlock: the app from before the rename (another app bundle) is still in an Applications folder next to this one. Both use the same wallet data."
+  },
+  "deskOldAppBody": "{app} is still in {folder}.",
+  "@deskOldAppBody": {
+    "description": "Line in the old-app dialog on macOS. {app} is the old app's name as Finder shows it (keep it as is), {folder} the folder it is in (/Applications or the user's Applications folder).",
+    "placeholders": {
+      "app": {
+        "type": "String",
+        "example": "Epic Cash Desktop"
+      },
+      "folder": {
+        "type": "String",
+        "example": "/Applications"
+      }
+    }
+  },
+  "deskOldAppTrash": "Move to Bin",
+  "@deskOldAppTrash": {
+    "description": "Button in the old-app dialog on macOS: moves the old app to the Bin (macOS Trash), the way Finder does. Use the macOS name of the Trash in each language. Nothing is deleted and the wallet data stays."
+  },
+  "deskOldAppKeep": "Keep",
+  "@deskOldAppKeep": {
+    "description": "Button in the old-app dialog on macOS: leaves the old app where it is; the dialog does not come back."
+  },
+  "deskOldAppTrashed": "{app} moved to Bin",
+  "@deskOldAppTrashed": {
+    "description": "Notice after the old app was moved to the Bin (macOS Trash) from the old-app dialog. {app} is the old app's name, kept as is.",
+    "placeholders": {
+      "app": {
+        "type": "String",
+        "example": "Epic Cash Desktop"
+      }
+    }
+  },
+  "deskOldAppNotTrashed": "{app} could not be moved to Bin",
+  "@deskOldAppNotTrashed": {
+    "description": "Notice when the old app could not be moved to the Bin (macOS Trash): it stays where it is. {app} is the old app's name, kept as is.",
+    "placeholders": {
+      "app": {
+        "type": "String",
+        "example": "Epic Cash Desktop"
+      }
+    }
   }
 }

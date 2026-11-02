@@ -5344,5 +5344,11 @@
   "netModesDescKillSwitch": "ไม่มีการเชื่อมต่อใด แม้แต่โหนด การชำระเงินสร้างและทำให้เสร็จแบบออฟไลน์ แล้วส่งจากอุปกรณ์ที่ออนไลน์",
   "netModesLiveLinks": "{count, plural, other{{count} การเชื่อมต่อที่ใช้งานอยู่}}",
   "netModesDiagramLabel": "โครงสร้างเครือข่าย โหมด{mode}: {description}",
-  "netModesModeTag": "[โหมด]"
+  "netModesModeTag": "[โหมด]",
+  "deskOldAppTitle": "พบแอปเก่า",
+  "deskOldAppBody": "{app} ยังอยู่ใน {folder}",
+  "deskOldAppTrash": "ย้ายไปที่ถังขยะ",
+  "deskOldAppKeep": "เก็บไว้",
+  "deskOldAppTrashed": "ย้าย {app} ไปที่ถังขยะแล้ว",
+  "deskOldAppNotTrashed": "ย้าย {app} ไปที่ถังขยะไม่ได้"
 }

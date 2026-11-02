@@ -20441,4 +20441,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get netModesModeTag => '[Mode]';
+
+  @override
+  String get deskOldAppTitle => 'Old app found';
+
+  @override
+  String deskOldAppBody(String app, String folder) {
+    return '$app is still in $folder.';
+  }
+
+  @override
+  String get deskOldAppTrash => 'Move to Bin';
+
+  @override
+  String get deskOldAppKeep => 'Keep';
+
+  @override
+  String deskOldAppTrashed(String app) {
+    return '$app moved to Bin';
+  }
+
+  @override
+  String deskOldAppNotTrashed(String app) {
+    return '$app could not be moved to Bin';
+  }
 }

@@ -21106,4 +21106,28 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get netModesModeTag => '[Режим]';
+
+  @override
+  String get deskOldAppTitle => 'Найдено старое приложение';
+
+  @override
+  String deskOldAppBody(String app, String folder) {
+    return '$app всё ещё в папке $folder.';
+  }
+
+  @override
+  String get deskOldAppTrash => 'Переместить в Корзину';
+
+  @override
+  String get deskOldAppKeep => 'Оставить';
+
+  @override
+  String deskOldAppTrashed(String app) {
+    return '$app перемещено в Корзину';
+  }
+
+  @override
+  String deskOldAppNotTrashed(String app) {
+    return 'Не удалось переместить $app в Корзину';
+  }
 }

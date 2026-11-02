@@ -1,0 +1,8 @@
+{
+  "deskOldAppTitle": "Найдено старое приложение",
+  "deskOldAppBody": "{app} всё ещё в папке {folder}.",
+  "deskOldAppTrash": "Переместить в Корзину",
+  "deskOldAppKeep": "Оставить",
+  "deskOldAppTrashed": "{app} перемещено в Корзину",
+  "deskOldAppNotTrashed": "Не удалось переместить {app} в Корзину"
+}

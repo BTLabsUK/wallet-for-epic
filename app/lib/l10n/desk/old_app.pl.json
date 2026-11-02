@@ -1,0 +1,8 @@
+{
+  "deskOldAppTitle": "Znaleziono starą aplikację",
+  "deskOldAppBody": "{app} nadal jest w folderze {folder}.",
+  "deskOldAppTrash": "Przenieś do Kosza",
+  "deskOldAppKeep": "Zachowaj",
+  "deskOldAppTrashed": "Przeniesiono {app} do Kosza",
+  "deskOldAppNotTrashed": "Nie można przenieść {app} do Kosza"
+}
