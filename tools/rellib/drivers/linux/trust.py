@@ -838,6 +838,10 @@ class Run:
                 ui.tap(eb[0])
                 time.sleep(0.8)
             ui.fill(0, self.p_addr)
+            time.sleep(1)
+            # an address a contact holds turns To into the contact's chip: the amount is then the first field
+            f = [x for x in ui.fields() if "password" not in x.role]
+            at = 1 if f and (f[0].value or "").strip() == self.p_addr else 0
             if amount is None:
                 # "Max" before "All": the advanced panel's coin choice is also named All
                 mx = [n for n in ui.find("re:^Max$", role="button") if n.actions] or \
@@ -847,11 +851,11 @@ class Run:
                 ui.tap(mx[0])
                 time.sleep(2)
                 f = [x for x in ui.fields() if "password" not in x.role]
-                amount = (f[1].value or "").strip() if len(f) > 1 else ""
+                amount = (f[at].value or "").strip() if len(f) > at else ""
                 if epic(amount + " EPIC") is None:
                     return False, "Max filled %r" % amount
             else:
-                ui.fill(1, amount)
+                ui.fill(at, amount)
             self.budget(amount)
             self.sent_amount = amount
             time.sleep(2)
@@ -1089,7 +1093,7 @@ class Run:
             self.fail("balance_kept", "before %s, after %s (read for %d s)" % (fmt_bal(b0), fmt_bal(b1), a.get("settled_after_s", 0)))
         missing = [r for r in b["activity"] if not any(same_row(r, x) for x in a["activity"])]
         changed = ["%s → %s" % (r[:70], next(x for x in a["activity"] if same_row(r, x))[:70]) for r in b["activity"]
-                   if r not in missing and not any(same_row(r, x) and counterparty(r) == counterparty(x) for x in a["activity"])]
+                   if r not in missing and not any(same_row(r, x) and same_party(counterparty(r), counterparty(x), self.p_addr) for x in a["activity"])]
         if changed and not missing:
             self.fail("history_kept", "rows kept but their details lost (who paid or was paid): %s" % "; ".join(changed))
         elif not missing and len(a["activity"]) >= len(b["activity"]):
@@ -1381,6 +1385,17 @@ def same_row(r0, r1):
         m = re.match(r"^(\w+)\D*?([\d.,]+)\sEPIC", r)
         return (m.group(1), D(m.group(2).replace(",", ""))) if m else r
     return key(r0) == key(r1)
+
+
+def same_party(c0, c1, addr):
+    """The same other side: the same text, or [addr] (shortened as head…tail) now named by the
+    seeded contact that holds it."""
+    if c0 == c1:
+        return True
+    if c1 != seed.CONTACT["name"] or "…" not in c0:
+        return False
+    head, tail = c0.split("…", 1)
+    return addr.startswith(head) and addr.split("@")[0].endswith(tail.split("@")[0])
 
 
 def counterparty(r):
