@@ -874,6 +874,14 @@
       "migration": "None needed: nothing on disk is named after the executable. The data folder is fixed by name (data_folder_io.dart), the keyring label and account come from APPLICATION_ID, and the single-instance lock is the GApplication id. A 26.10.24 AppImage updating itself replaces the whole AppImage file at $APPIMAGE and starts that file again (AppImageApplier), so the inner name never comes into it; the new AppRun starts usr/bin/btwallet. Desktop integrators (appimaged, AppImageLauncher, Gear Lever) rewrite Exec to the AppImage path when they install the .desktop entry. Release proof: G4 Linux update-trust from the published 26.10.24 AppImage to a build of this commit.",
       "migration_test": "tools/rellib/drivers/trust-linux.sh",
       "approved_by": "the owner, 2026-11-02 (explicit yes to renaming the Linux binary to btwallet: \"yes, Linux too\")"
+    },
+    {
+      "date": "2026-11-02",
+      "items_sha256": "ee061973bb49673d083be4fbd2e28bcfbb60a66094a7bb4d1cdcdb87c3677695",
+      "change": "updates.manifest_urls: the second source, the GitLab raw copy of the Pages repository, becomes https://raw.githubusercontent.com/BTLabsUK/btlabs-epic.github.io/main/update-v2.json, the same repository on GitHub BTLabsUK (0cd2ace92). The first source (BT Labs' server) and the third (the GitHub Release mirror) are unchanged. updates.legacy_manifest names the GitHub raw copy instead of the GitLab one in its text; its probes are unchanged.",
+      "migration": "None needed: app-config.toml ships read-only with each build, so installed apps (26.10.24, 26.10.25) keep their own list and still read BT Labs' server first; only builds from this commit read the GitHub raw copy. Its answer is checked with the same keys and anti-rollback serial as every source; a source that is stale or gone counts as no information.",
+      "migration_test": "app/test/settings_file/host_settings_test.dart",
+      "approved_by": "the owner, 2026-11-02 (GitHub BTLabsUK is the only code home, no other host named; the URL swap itself to be confirmed at the 26.10.26 release)"
     }
   ]
 }
