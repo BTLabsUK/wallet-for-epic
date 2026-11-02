@@ -12,15 +12,15 @@
 
 [Download](https://epiccash.btlabs.uk/releases/) · [Wiki](https://github.com/BTLabsUK/wallet-for-epic/wiki) ·
 [Build](#build-from-source) · [Documentation](https://docs.btlabs.uk) ·
-[LEPIC](https://gitlab.com/epic-cash-bt/lepic) · [Security](SECURITY.md) ·
-[GitHub mirror](https://github.com/BTLabsUK/wallet-for-epic)
+[LEPIC](https://github.com/BTLabsUK/lepic) · [Security](SECURITY.md) ·
+[GitHub](https://github.com/BTLabsUK/wallet-for-epic)
 
 </div>
 
 BT Wallet (Android, Linux, Windows and macOS) is one Flutter app with
-two front ends. The wallet itself is [LEPIC](https://gitlab.com/epic-cash-bt/lepic), a Rust wallet
+two front ends. The wallet itself is [LEPIC](https://github.com/BTLabsUK/lepic), a Rust wallet
 engine that runs inside the app's process; the app calls it through its Flutter binding,
-[lepic-flutter](https://gitlab.com/epic-cash-bt/lepic-flutter). The app creates and restores
+[lepic-flutter](https://github.com/BTLabsUK/lepic-flutter). The app creates and restores
 wallets, scans the chain through an Epic node, and sends and receives with the standard
 `epic-wallet`.
 
@@ -86,7 +86,7 @@ default; set the variable to use your own.
 ### Linux
 
 ```bash
-git clone https://gitlab.com/epic-cash-bt/wallet-for-epic && cd wallet-for-epic
+git clone https://github.com/BTLabsUK/wallet-for-epic && cd wallet-for-epic
 . tools/env.sh
 tools/lepic.sh sync            # lepic-flutter and LEPIC at the pinned commits, into app/third_party/
 tools/lepic.sh build linux     # the native library for this host
@@ -97,7 +97,7 @@ flutter run -d linux -t lib/main_desktop.dart
 ```
 
 The `tools/lepic.rev` and `tools/lepic-flutter.rev` files pin LEPIC and the binding. By default
-`tools/lepic.sh sync` clones both from GitLab (or from `~/lepic` and `~/lepic-flutter`, when
+`tools/lepic.sh sync` clones both from GitHub (or from `~/lepic` and `~/lepic-flutter`, when
 those checkouts hold the pinned commits); set `LEPIC_REPO` and `LEPIC_FLUTTER_REPO` to a local
 checkout or another URL to use them instead. The release AppImage is built in an Ubuntu 22.04
 container: `scripts/build-linux.sh` (needs Docker or Podman).
@@ -175,13 +175,13 @@ on a device or desktop. Builds and tests run on our own machines, not on hosted 
 
 Do not open public issues for vulnerabilities. [SECURITY.md](SECURITY.md) explains how to report
 one privately: email support@btlabs.uk or open a confidential issue. The wallet
-engine's security model is described in [LEPIC](https://gitlab.com/epic-cash-bt/lepic) and on
+engine's security model is described in [LEPIC](https://github.com/BTLabsUK/lepic) and on
 [docs.btlabs.uk](https://docs.btlabs.uk/developers/security-model/).
 
 ## Contributing
 
 Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first. Changes to the wallet
-engine belong in [LEPIC](https://gitlab.com/epic-cash-bt/lepic).
+engine belong in [LEPIC](https://github.com/BTLabsUK/lepic).
 
 ## Documentation
 
@@ -193,9 +193,7 @@ engine belong in [LEPIC](https://gitlab.com/epic-cash-bt/lepic).
 
 ## Source
 
-GitLab is the home of the source, the issues and the merge requests:
-[gitlab.com/epic-cash-bt/wallet-for-epic](https://gitlab.com/epic-cash-bt/wallet-for-epic).
-GitHub holds an exact read-only copy (the same commits and tags):
+GitHub is the home of the source, the issues and the pull requests:
 [github.com/BTLabsUK/wallet-for-epic](https://github.com/BTLabsUK/wallet-for-epic), with the
 release files on its Releases page as a second download place.
 

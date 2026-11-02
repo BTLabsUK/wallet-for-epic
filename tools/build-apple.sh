@@ -14,7 +14,7 @@
 #   doctor    print and check the toolchain (Xcode, SDKs, Simulator runtime, Flutter, Rust)
 #   sources   the LEPIC and lepic-flutter clones in app/third_party at tools/lepic.rev and
 #             tools/lepic-flutter.rev (cloned when missing from LEPIC_REPO / LEPIC_FLUTTER_REPO,
-#             default the public GitLab copies, as tools/lepic.sh does)
+#             default the public GitHub copies, as tools/lepic.sh does)
 #   lepic     liblepic_ffi.dylib for aarch64-apple-darwin and aarch64-apple-ios(-sim)
 #             into app/third_party/lepic-flutter/native/<target>/ beside a SHA256SUMS
 #   macos     flutter build macos --release (arm64); the node and tor go into the bundle, then it
@@ -168,10 +168,10 @@ sources() {
   rev="$(tr -d '[:space:]' < "$root/tools/lepic.rev")"
   binding_rev="$(tr -d '[:space:]' < "$root/tools/lepic-flutter.rev")"
   mkdir -p "$app/third_party"
-  clone_at "$binding" "${LEPIC_FLUTTER_REPO:-https://gitlab.com/epic-cash-bt/lepic-flutter.git}" "$binding_rev" LEPIC_FLUTTER_REPO
+  clone_at "$binding" "${LEPIC_FLUTTER_REPO:-https://github.com/BTLabsUK/lepic-flutter.git}" "$binding_rev" LEPIC_FLUTTER_REPO
   [ "$(tr -d '[:space:]' < "$binding/lepic.rev")" = "$rev" ] \
     || die "tools/lepic.rev differs from lepic-flutter's own lepic.rev"
-  clone_at "$lepic" "${LEPIC_REPO:-https://gitlab.com/epic-cash-bt/lepic.git}" "$rev" LEPIC_REPO
+  clone_at "$lepic" "${LEPIC_REPO:-https://github.com/BTLabsUK/lepic.git}" "$rev" LEPIC_REPO
   result PASS sources "lepic $(git -C "$lepic" rev-parse --short=8 HEAD)"
 }
 
