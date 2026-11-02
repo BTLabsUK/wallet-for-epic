@@ -51,7 +51,8 @@ FUND_IN = "0.03"     # P -> wallet before the update
 FUND_AFTER = "0.01"  # P -> wallet with the candidate
 CAP_SEND = decimal.Decimal("0.05")
 CAP_JOB = decimal.Decimal("1")
-AMOUNT = re.compile(r"^(-?[\d,]+(?:\.\d+)?) EPIC$")
+# From 26.10.25 a no-break space joins the unit, and a minus sign (U+2212) may lead.
+AMOUNT = re.compile(r"^([-\u2212]?[\d,]+(?:\.\d+)?)[ \u00a0\u202f]EPIC$")
 # Settings' sections the driver opens or may see beside them: a narrow page lists them as chips, and
 # where two rows of chips are not enough as a dropdown that names only the section shown (87d01a220).
 # Both layouts: up to 26.10.24 (This wallet, Transactions, Receiving, ...) and from 26.10.25 (Wallet,
@@ -447,8 +448,22 @@ class Run:
             self.unlock()
             self.after_unlock()
         self.last_session_toast()
-        self.ui.click("re:^%s$" % re.escape(name), role="button")
+        want = "re:^%s$" % re.escape(name)
+        # From 26.10.25 Settings takes the whole window: no rail there, Esc goes back to the wallet.
+        for _ in range(3):
+            if self.ui.find(want, role="button") or not self.in_settings():
+                break
+            if name == "Settings":
+                return
+            self.ui.key("Escape")
+            time.sleep(1)
+        self.ui.click(want, role="button")
         time.sleep(1.2)
+
+    def in_settings(self):
+        """On the whole-window Settings (26.10.25 on): no rail entry Settings, its sections listed."""
+        names = {n.name.strip() for n in self.ui.nodes() if n.role == "button"}
+        return "Settings" not in names and len(names & set(SECTIONS)) >= 2
 
     def settings_page(self, section):
         """Settings › [section]: from the section list beside the page, the chips above it, or (a page
@@ -458,7 +473,7 @@ class Run:
         want = "re:^%s$" % re.escape(section)
         shown = {n.name.strip() for n in ui.nodes() if n.role == "button" and n.name.strip() in SECTIONS}
         if len(shown) != 1:
-            ui.click(want, role="button")
+            ui.click(want, role="button", nth=99)  # the list's own entry, not "← Wallet" above it
         elif section not in shown:
             current = shown.pop()
             ui.click("re:^%s$" % re.escape(current), role="button")
@@ -823,6 +838,10 @@ class Run:
                 ui.tap(eb[0])
                 time.sleep(0.8)
             ui.fill(0, self.p_addr)
+            time.sleep(1)
+            # an address a contact holds turns To into the contact's chip: the amount is then the first field
+            f = [x for x in ui.fields() if "password" not in x.role]
+            at = 1 if f and (f[0].value or "").strip() == self.p_addr else 0
             if amount is None:
                 # "Max" before "All": the advanced panel's coin choice is also named All
                 mx = [n for n in ui.find("re:^Max$", role="button") if n.actions] or \
@@ -832,11 +851,11 @@ class Run:
                 ui.tap(mx[0])
                 time.sleep(2)
                 f = [x for x in ui.fields() if "password" not in x.role]
-                amount = (f[1].value or "").strip() if len(f) > 1 else ""
+                amount = (f[at].value or "").strip() if len(f) > at else ""
                 if epic(amount + " EPIC") is None:
                     return False, "Max filled %r" % amount
             else:
-                ui.fill(1, amount)
+                ui.fill(at, amount)
             self.budget(amount)
             self.sent_amount = amount
             time.sleep(2)
@@ -848,7 +867,7 @@ class Run:
             if pw_fields:
                 ui.fill(pw_fields[0], open(os.path.join(self.sb, "wallet.pw")).read())
                 time.sleep(0.5)
-            ui.click(re.compile(r"^Send [\d.,]+ EPIC$"), role="button", timeout=20)
+            ui.click(re.compile(r"^Send [\d.,]+\sEPIC$"), role="button", timeout=20)
             ui.wait("re:Check and send", 300, gone=True)
             time.sleep(3)
             self.shot("send-after")
@@ -1074,7 +1093,7 @@ class Run:
             self.fail("balance_kept", "before %s, after %s (read for %d s)" % (fmt_bal(b0), fmt_bal(b1), a.get("settled_after_s", 0)))
         missing = [r for r in b["activity"] if not any(same_row(r, x) for x in a["activity"])]
         changed = ["%s → %s" % (r[:70], next(x for x in a["activity"] if same_row(r, x))[:70]) for r in b["activity"]
-                   if r not in missing and not any(same_row(r, x) and counterparty(r) == counterparty(x) for x in a["activity"])]
+                   if r not in missing and not any(same_row(r, x) and same_party(counterparty(r), counterparty(x), self.p_addr) for x in a["activity"])]
         if changed and not missing:
             self.fail("history_kept", "rows kept but their details lost (who paid or was paid): %s" % "; ".join(changed))
         elif not missing and len(a["activity"]) >= len(b["activity"]):
@@ -1338,7 +1357,7 @@ class Run:
 
 def epic(s):
     m = AMOUNT.match(s.strip())
-    return D(m.group(1).replace(",", "")) if m else None
+    return D(m.group(1).replace(",", "").replace("\u2212", "-")) if m else None
 
 
 def fmt_bal(b):
@@ -1363,9 +1382,20 @@ def short(a):
 def same_row(r0, r1):
     """Same payment: direction and amount (states move on with confirmations)."""
     def key(r):
-        m = re.match(r"^(\w+)\D*?([\d.,]+) EPIC", r)
+        m = re.match(r"^(\w+)\D*?([\d.,]+)\sEPIC", r)
         return (m.group(1), D(m.group(2).replace(",", ""))) if m else r
     return key(r0) == key(r1)
+
+
+def same_party(c0, c1, addr):
+    """The same other side: the same text, or [addr] (shortened as head…tail) now named by the
+    seeded contact that holds it."""
+    if c0 == c1:
+        return True
+    if c1 != seed.CONTACT["name"] or "…" not in c0:
+        return False
+    head, tail = c0.split("…", 1)
+    return addr.startswith(head) and addr.split("@")[0].endswith(tail.split("@")[0])
 
 
 def counterparty(r):
