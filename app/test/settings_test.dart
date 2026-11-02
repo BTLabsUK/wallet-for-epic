@@ -1652,13 +1652,14 @@ void main() {
       await tester.tap(find.byKey(settingsLicencesKey));
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
-      expect(find.byType(LicencesScreen), findsOneWidget);
+      // Folded in About (item 5): the tap opens it in place.
+      expect(find.byType(LicencesFold), findsOneWidget);
       expect(find.text('Epic Cash Mobile by BT Labs: Apache-2.0.'), findsOneWidget);
       expect(find.textContaining('wallet-for-epic'), findsNothing);
       expect(find.textContaining('GitHub'), findsNothing);
     });
 
-    testWidgets('Licences opens the licence page with the bundled tor in it', (
+    testWidgets('Licences is folded in About and opens in place with the bundled tor in it', (
       tester,
     ) async {
       registerTorLicence();
@@ -1668,14 +1669,22 @@ void main() {
       await h.openSettings(tester, SettingsSection.about);
       await _reveal(tester, find.byKey(settingsLicencesKey));
       expect(find.text('Licences'), findsOneWidget);
+      // Folded: the heading and one line, nothing of the list yet (item 5).
       final row = tester.widget<ListTile>(find.byKey(settingsLicencesKey));
-      expect(row.subtitle, isNull, reason: 'label only');
+      expect((row.subtitle! as Text).data, lookupAppLocalizations(const Locale('en')).licencesLead);
+      expect(find.textContaining('LEPIC, the Epic Cash wallet library: Apache-2.0'), findsNothing);
+      expect(find.byKey(licencesFullKey), findsNothing);
+      bool? expanded() => tester
+          .widget<Semantics>(find.ancestor(of: find.byKey(settingsLicencesKey), matching: find.byType(Semantics)).first)
+          .properties
+          .expanded;
+      expect(expanded(), isFalse);
       await tester.tap(find.byKey(settingsLicencesKey));
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
-      // The short screen: one line per component, the tor source note, the full texts behind
-      // one button.
-      expect(find.byType(LicencesScreen), findsOneWidget);
+      // Open: one line per component, the tor source note, the full texts behind one button.
+      expect(find.byType(LicencesFold), findsOneWidget);
+      expect(expanded(), isTrue);
       expect(find.textContaining('Tor: GNU General Public License, version 3.'), findsOneWidget);
       expect(find.textContaining('LEPIC, the Epic Cash wallet library: Apache-2.0'), findsOneWidget);
       // The source note is an asset, read in real time.

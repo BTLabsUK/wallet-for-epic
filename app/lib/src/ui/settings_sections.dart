@@ -1308,15 +1308,9 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
                   _say(l.updateChecking, level: NoticeLevel.info);
                 },
         ),
-      // The short Licences screen; the full texts (the packages', the fonts', the word
-      // lists' and the bundled tor's) are one tap further.
-      ListTile(
-        key: settingsLicencesKey,
-        leading: const Icon(Icons.article_outlined),
-        title: Text(l.settingsLicences),
-        trailing: const NavChevron(),
-        onTap: () => _push(LicencesScreen(version: version.value)),
-      ),
+      // Licences, folded until tapped (item 5); the full texts (the packages', the fonts',
+      // the word lists' and the bundled tor's) are one tap further.
+      const LicencesFold(rowKey: settingsLicencesKey),
       // The site's address as its name, the same in every language and on the desktop.
       if (epicCashUrl case final site?) LinkTile(title: shownUrl(site), url: site),
       if (projectRepoUrl != null) LinkTile(title: l.settingsSourceCode, url: projectRepoUrl!),

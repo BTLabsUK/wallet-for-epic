@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Settings › About › Licences: a few sentences, not a catalogue. The wallet, Flutter, LEPIC
-/// with its key crates, Tor and the fonts, one line each with its licence, the bundled tor's
-/// source note (its GPL asks for it), and the way to every full text.
+/// Settings › About › Licences: a few sentences, not a catalogue, folded in About until tapped.
+/// The wallet, Flutter, LEPIC with its key crates, Tor and the fonts, one line each with its
+/// licence, the bundled tor's source note (its GPL asks for it), and the way to every full text.
 library;
 
 import 'package:flutter/foundation.dart' show LicenseEntry;
@@ -20,11 +20,21 @@ import 'settings_rows.dart' show NavChevron;
 /// The key of the button that opens the full texts, for tests.
 const Key licencesFullKey = ValueKey('licences-full');
 
-class LicencesScreen extends StatelessWidget {
-  const LicencesScreen({super.key, this.version});
+/// Settings › About › Licences, folded (item 5): a heading and one line until tapped; open,
+/// one line per component with its licence, the bundled tor's source note (its GPL asks for
+/// it, so it stays one tap away) and the way to every full text. [rowKey] is the heading's.
+class LicencesFold extends StatefulWidget {
+  const LicencesFold({super.key, this.rowKey});
 
-  /// The app version Flutter's licence page shows under the app's name.
-  final String? version;
+  /// The key of the heading row, for tests.
+  final Key? rowKey;
+
+  @override
+  State<LicencesFold> createState() => _LicencesFoldState();
+}
+
+class _LicencesFoldState extends State<LicencesFold> {
+  bool _open = false;
 
   @override
   Widget build(BuildContext context) {
@@ -32,53 +42,71 @@ class LicencesScreen extends StatelessWidget {
     final t = context.tokens;
     final theme = Theme.of(context);
     final body = theme.textTheme.bodyMedium;
-    final dim = body?.copyWith(color: t.dim);
-    return SlotScaffold(
-      appBar: AppBar(title: Text(l.settingsLicences)),
-      body: ScreenBody(
-        children: [
-          Text(l.licencesLead, style: dim),
-          const SizedBox(height: 16),
-          for (final line in [
-            l.licencesApp,
-            l.licencesFlutter,
-            l.licencesLepic,
-            if (torBuilt) l.licencesTor,
-            l.licencesFonts,
-            flagsLicenceNote,
-            sasPicturesLicenceNote,
-          ])
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: Text(line, style: body),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(
+          expanded: _open,
+          child: ListTile(
+            key: widget.rowKey,
+            leading: const Icon(Icons.article_outlined),
+            title: Text(l.settingsLicences),
+            subtitle: Text(l.licencesLead, maxLines: 1, overflow: TextOverflow.ellipsis),
+            trailing: ExcludeSemantics(
+              child: Icon(_open ? Icons.unfold_less : Icons.unfold_more, color: t.dim),
             ),
-          const SizedBox(height: 6),
-          // The legal minimum for the bundled tor: which build, which licence, where its
-          // source is. English, as the licence texts themselves.
-          // No tor in the build without Tor ([torBuilt]): nothing to name.
-          if (torBuilt)
-            TorSourceNote(
-              style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-            ),
-          if (projectRepoUrl != null) ...[
-            const SizedBox(height: 8),
-            SelectableText(
-              projectRepoUrl!,
-              style: TextStyle(fontFamily: t.monoFamily, fontSize: 12, color: t.dim),
-            ),
-          ],
-          const SizedBox(height: 16),
-          OutlinedButton.icon(
-            key: licencesFullKey,
-            style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-            icon: const Icon(Icons.article_outlined),
-            label: Text(l.licencesFull),
-            onPressed: () => Navigator.of(context).push<void>(
-              MaterialPageRoute<void>(builder: (_) => const LicenceTextsScreen()),
+            onTap: () => setState(() => _open = !_open),
+          ),
+        ),
+        if (_open)
+          Padding(
+            // Under the title, past the leading icon (the settings rows' 56 dp line).
+            padding: const EdgeInsets.fromLTRB(72, 4, 24, 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final line in [
+                  l.licencesApp,
+                  l.licencesFlutter,
+                  l.licencesLepic,
+                  if (torBuilt) l.licencesTor,
+                  l.licencesFonts,
+                  flagsLicenceNote,
+                  sasPicturesLicenceNote,
+                ])
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Text(line, style: body),
+                  ),
+                const SizedBox(height: 6),
+                // The legal minimum for the bundled tor: which build, which licence, where its
+                // source is. English, as the licence texts themselves.
+                // No tor in the build without Tor ([torBuilt]): nothing to name.
+                if (torBuilt) TorSourceNote(style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                if (projectRepoUrl != null) ...[
+                  const SizedBox(height: 8),
+                  SelectableText(
+                    projectRepoUrl!,
+                    style: TextStyle(fontFamily: t.monoFamily, fontSize: 12, color: t.dim),
+                  ),
+                ],
+                const SizedBox(height: 16),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: OutlinedButton.icon(
+                    key: licencesFullKey,
+                    style: OutlinedButton.styleFrom(minimumSize: const Size(0, 48)),
+                    icon: const Icon(Icons.article_outlined),
+                    label: Text(l.licencesFull),
+                    onPressed: () => Navigator.of(context).push<void>(
+                      MaterialPageRoute<void>(builder: (_) => const LicenceTextsScreen()),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+      ],
     );
   }
 }
