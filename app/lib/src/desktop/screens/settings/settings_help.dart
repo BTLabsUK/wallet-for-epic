@@ -191,6 +191,9 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Support first, as on the phone.
+          const _SupportGroup(),
+          SizedBox(height: Sp.x4),
           // The tour's last step lights the search.
           TourTarget(
             id: 'help-top',
@@ -272,8 +275,7 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
                 ),
           ],
           SizedBox(height: Sp.x4),
-          KeyedSubtree(key: _endKey, child: const _SupportGroup()),
-          const _StartAgainGroup(),
+          KeyedSubtree(key: _endKey, child: const _StartAgainGroup()),
         ],
       ),
     );

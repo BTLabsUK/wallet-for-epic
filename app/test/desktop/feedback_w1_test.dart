@@ -114,11 +114,11 @@ void main() {
     });
   });
 
-  testWidgets('Help › Support holds Report a problem, under the topics', (tester) async {
+  testWidgets('Help › Support holds Report a problem, above the search', (tester) async {
     await _pump(tester, const SettingsHelpScreen());
     final report = tester.getTopLeft(find.text('Report a problem').first);
     final search = tester.getTopLeft(find.text('Search help').first);
-    expect(report.dy, greaterThan(search.dy));
+    expect(report.dy, lessThan(search.dy));
     expect(find.text('Support'), findsOneWidget);
   });
 

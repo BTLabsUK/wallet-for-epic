@@ -92,10 +92,10 @@ void main() {
     expect(parts.where((p) => p.term).single.text, 'Save');
   });
 
-  testWidgets('search and the six sections with their art, then Support and Start again', (tester) async {
+  testWidgets('search and the six sections with their art, with Support above and Start again below', (tester) async {
     await _pump(tester);
     final report = tester.getTopLeft(find.text('Report a problem').first);
-    expect(report.dy, greaterThan(tester.getTopLeft(find.text('Search help')).dy));
+    expect(report.dy, lessThan(tester.getTopLeft(find.text('Search help')).dy));
     expect(find.widgetWithText(EButton, 'Report…'), findsOneWidget);
     expect(find.widgetWithText(EButton, 'Start tour'), findsOneWidget);
     expect(find.text('Help and FAQ'), findsNothing);
