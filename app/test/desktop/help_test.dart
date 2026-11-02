@@ -92,7 +92,7 @@ void main() {
     expect(parts.where((p) => p.term).single.text, 'Save');
   });
 
-  testWidgets('search, chips and the six sections with their art, then Support and Start again', (tester) async {
+  testWidgets('search and the six sections with their art, then Support and Start again', (tester) async {
     await _pump(tester);
     final report = tester.getTopLeft(find.text('Report a problem').first);
     expect(report.dy, greaterThan(tester.getTopLeft(find.text('Search help')).dy));
@@ -101,7 +101,7 @@ void main() {
     expect(find.text('Help and FAQ'), findsNothing);
     for (final s in helpSections) {
       expect(find.text(s.lede), findsOneWidget);
-      expect(find.text(s.title), findsNWidgets(2), reason: 'chip and head');
+      expect(find.text(s.title), findsOneWidget, reason: 'head');
     }
     expect(find.text('5 topics'), findsWidgets, reason: 'Pairing');
     expect(find.text('2 topics'), findsWidgets, reason: 'Maintenance');
@@ -134,18 +134,9 @@ void main() {
     await _pump(tester, arg: 'mimblewimble');
     expect(find.text('1 topic found'), findsOneWidget);
     expect(find.text('Show less'), findsOneWidget);
-    expect(find.text('Getting started'), findsNothing, reason: 'no chips or section heads while searching');
+    expect(find.text('Getting started'), findsNothing, reason: 'no section heads while searching');
     await _pump(tester, arg: 'zebra');
     expect(find.text('No topic matches “zebra”. Try another word.'), findsOneWidget);
-  });
-
-  testWidgets('a section chip scrolls to its section', (tester) async {
-    await _pump(tester);
-    final head = find.text('Troubleshooting');
-    expect(tester.getTopLeft(head).dy, greaterThan(1000));
-    await tester.tap(find.text('When something goes wrong').first);
-    await tester.pumpAndSettle();
-    expect(tester.getTopLeft(head).dy, lessThan(1000));
   });
 
   testWidgets('a place in a topic is a link to its page', (tester) async {

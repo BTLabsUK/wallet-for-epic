@@ -737,15 +737,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         idle: const ShellEdge(),
         appBar: AppBar(
           leadingWidth: shellLeadingWidth,
-          leading: const Align(
+          leading: Align(
             alignment: AlignmentDirectional.centerEnd,
             child: Padding(
-              padding: EdgeInsetsDirectional.only(end: 10),
-              child: EpicMark(size: 26),
+              padding: const EdgeInsetsDirectional.only(end: 10),
+              // The logo is the mark alone: it names the app to a screen reader.
+              child: Semantics(label: l.shellTitle, image: true, excludeSemantics: true, child: const EpicMark(size: 26)),
             ),
           ),
           titleSpacing: 0,
-          // The name on every tab; Send and Receive carry the balance in their header below.
+          // The mark on every tab; Send and Receive carry the balance in their header below.
           title: const ShellTitle(),
           actions: [
             // Invoices moved to the destinations row; the entry keeps its event wiring.

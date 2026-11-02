@@ -191,7 +191,7 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // The tour's last step lights the search and the section chips.
+          // The tour's last step lights the search.
           TourTarget(
             id: 'help-top',
             child: Column(
@@ -227,18 +227,6 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
                     ),
                   ],
                 ),
-                if (!searching) ...[
-                  SizedBox(height: Sp.x4),
-                  // The section chips: each scrolls to its section.
-                  Wrap(
-                    spacing: Sp.x2,
-                    runSpacing: Sp.x2,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      for (final (s, _) in sections) _Chip(s.title, onTap: () => _show(_sectionKeys[s.id]!)),
-                    ],
-                  ),
-                ],
               ],
             ),
           ),
@@ -415,36 +403,6 @@ class _StartAgainGroup extends ConsumerWidget {
       ],
       hidden: [if (!setup) setupRow],
       revealKey: 'help-again',
-    );
-  }
-}
-
-/// A section chip: scrolls to its section; not a filter.
-class _Chip extends StatelessWidget {
-  const _Chip(this.label, {required this.onTap});
-
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    final radius = BorderRadius.circular(14.u);
-    return Semantics(
-      button: true,
-      child: Material(
-        color: c.s1,
-        shape: RoundedRectangleBorder(borderRadius: radius, side: BorderSide(color: c.lineStrong)),
-        child: EInkWell(
-          onTap: onTap,
-          borderRadius: radius,
-          child: Container(
-            height: 28.u,
-            padding: EdgeInsets.symmetric(horizontal: 10.u),
-            child: Center(widthFactor: 1, child: Text(label, style: TextStyle(fontSize: 12.5.u, fontWeight: FontWeight.w500, color: c.dim))),
-          ),
-        ),
-      ),
     );
   }
 }

@@ -17,7 +17,6 @@ import '../levels/level_features.dart' show BalancePresentation;
 import '../levels/level_providers.dart' show levelFeaturesProvider;
 import 'status.dart';
 import 'theme/protocol.dart';
-import 'theme/brand.dart' show BrandVariant, BrandWordmark;
 import 'theme/tokens.dart';
 
 /// The key of Wallet's balance area: the figure, the fiat row and the pending line, for tests.
@@ -1086,34 +1085,14 @@ class _BalanceHelpState extends State<BalanceHelp> {
   }
 }
 
-/// Wallet's app bar title: the mark's name, or in the web demo its Test coins pill ([trailing]),
-/// which takes the name's place; the mark before the title still names the app. It names no
-/// network: a test network says so in the node status's tooltip.
+/// Wallet's app bar title: nothing but, in the web demo, its Test coins pill ([trailing]); the
+/// mark before it is the logo and names the app to a screen reader. It names no network: a test
+/// network says so in the node status's tooltip.
 class ShellTitle extends StatelessWidget {
   const ShellTitle({super.key, this.trailing});
 
   final Widget? trailing;
 
   @override
-  Widget build(BuildContext context) {
-    final trailing = this.trailing;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Flexible(
-          child:
-              trailing ??
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: AlignmentDirectional.centerStart,
-                child: BrandWordmark(
-                  variant: BrandVariant.mobile,
-                  size: 17,
-                  label: context.l10n.shellTitle,
-                ),
-              ),
-        ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => trailing ?? const SizedBox.shrink();
 }

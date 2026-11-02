@@ -3450,13 +3450,13 @@ void main() {
       (tester) async {
         final h = _Harness(price: 0.5);
         await h.pump(tester);
-        // On Wallet the title is the name and there is no balance header.
+        // On Wallet there is no balance header; the bar's logo is the mark alone.
         expect(find.byKey(balanceHeaderKey), findsNothing);
-        expect(find.byType(BrandWordmark), findsOneWidget);
+        expect(find.byType(BrandWordmark), findsNothing);
         for (final tab in ['Send', 'Receive']) {
           await _tab(tester, tab, settle: false);
           expect(find.byKey(balanceHeaderKey), findsOneWidget, reason: tab);
-          expect(find.byType(BrandWordmark), findsOneWidget, reason: tab);
+          expect(find.byType(BrandWordmark), findsNothing, reason: tab);
           expect(_titleText(tester), '12.5 EPIC', reason: tab);
           // 2\u00a0EPIC are locked: the line under the figure says so, as a token.
           final pending = find.byKey(titlePendingKey);
@@ -4253,7 +4253,7 @@ void main() {
           );
         }
         await _tab(tester, 'Wallet', settle: false);
-        expect(find.byType(BrandWordmark), findsOneWidget);
+        expect(find.byType(BrandWordmark), findsNothing);
         expect(_statusTip(tester, nodeStatusKey), isNot(contains('Mainnet')));
         expect(
           _statusTip(tester, nodeStatusKey).split('\n').first,
@@ -4283,12 +4283,8 @@ void main() {
           );
         }
         await _tab(tester, 'Wallet', settle: false);
-        expect(find.byType(BrandWordmark), findsOneWidget);
-        // The title is not scaled down to fit.
-        expect(
-          tester.getRect(find.byType(BrandWordmark)).height,
-          moreOrLessEquals(17 * BrandWordmark.heightRatio, epsilon: 0.5),
-        );
+        // The bar's logo is the mark alone, no text.
+        expect(find.byType(BrandWordmark), findsNothing);
         final tip = _statusTip(tester, nodeStatusKey).split('\n');
         expect(tip.first, 'Floonet, test coins');
         expect(tip[1], 'Up to date.');

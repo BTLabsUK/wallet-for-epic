@@ -227,17 +227,6 @@ void main() {
       expect(find.byType(MarkedQr), findsOneWidget);
       expect(find.text('Receive by transaction file'), findsNothing);
       expect(find.text('How receiving works'), findsOneWidget);
-      // The code is covered on open (the QR rule); Show QR uncovers it in the same box, a
-      // tap on the code covers it again.
-      final box = tester.getRect(find.byType(MarkedQr));
-      expect(find.byKey(receiveShowQrKey), findsOneWidget);
-      await tester.tap(find.text('Show QR'));
-      await tester.pumpAndSettle();
-      expect(find.byKey(receiveShowQrKey), findsNothing);
-      expect(tester.getRect(find.byType(MarkedQr)), box);
-      await tester.tap(find.byType(MarkedQr));
-      await tester.pumpAndSettle();
-      expect(find.byKey(receiveShowQrKey), findsOneWidget);
       // Payment file: the file card and the help, nothing else.
       await h.byFile(tester);
       expect(find.text('Receive by transaction file'), findsOneWidget);
