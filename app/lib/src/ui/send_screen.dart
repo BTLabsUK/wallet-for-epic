@@ -2605,7 +2605,8 @@ class _SendViewState extends ConsumerState<SendView> {
         (epicboxState == null || epicboxState == EpicboxState.offline);
     // Level 1 does not name Epicbox: no method line for it, unless Change is needed.
     final several = contact != null && contact.addresses.length > 1;
-    final routeShown = read.isAddress && (epicboxNamed || read.kind != RecipientInputKind.epicbox || several);
+    // An http(s) address names its method from the scheme on, while the host is still typed.
+    final routeShown = (read.isAddress && (epicboxNamed || read.kind != RecipientInputKind.epicbox || several)) || read.typing != null;
     // Without a method line (level 1's Epicbox), the address as it will be contacted.
     final preview = contact == null && !routeShown && read.isAddress && read.address != text;
     final saveable = valid && contact == null && _contactName(read.address) == null;
@@ -2876,10 +2877,10 @@ class _SendViewState extends ConsumerState<SendView> {
     final torStarts = torBuilt && to.kind == RecipientInputKind.onion && !torOn && mode != NetworkMode.torOnly && hold == null && _watchedPayments.linkTor;
     final dim = TextStyle(color: t.dim);
     final strong = TextStyle(color: t.text, fontWeight: FontWeight.w600);
-    final where = switch (to.kind) {
+    final where = switch (to.urlKind ?? to.kind) {
       RecipientInputKind.https || RecipientInputKind.http => TextSpan(
         children: [
-          TextSpan(text: '${to.kind == RecipientInputKind.https ? 'https' : 'http'}://', style: dim),
+          TextSpan(text: '${to.urlKind == RecipientInputKind.https ? 'https' : 'http'}://', style: dim),
           TextSpan(text: to.hostShown, style: strong),
           TextSpan(text: ':${to.port}${to.path}', style: dim),
         ],

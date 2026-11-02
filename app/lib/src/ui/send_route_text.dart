@@ -10,8 +10,8 @@ import '../send_reach.dart';
 import '../send_route.dart';
 
 /// The method's name on the method line and in the review: Epicbox, Link · HTTPS, Link · HTTP,
-/// Link · Tor.
-String sendMethodName(AppLocalizations l, RecipientInput to) => switch (to.kind) {
+/// Link · Tor. An http(s) address still being typed is named by its scheme.
+String sendMethodName(AppLocalizations l, RecipientInput to) => switch (to.typing ?? to.kind) {
   RecipientInputKind.epicbox => l.methodEpicbox,
   RecipientInputKind.https => l.sendRouteLinkHttps,
   RecipientInputKind.http => l.methodDirectHttp,
@@ -21,7 +21,7 @@ String sendMethodName(AppLocalizations l, RecipientInput to) => switch (to.kind)
 
 /// The method switch (Settings › Transactions) the address needs, for the existing method-off
 /// notes; null for none.
-MethodKind? sendMethodKind(RecipientInput to) => switch (to.kind) {
+MethodKind? sendMethodKind(RecipientInput to) => switch (to.typing ?? to.kind) {
   RecipientInputKind.epicbox => MethodKind.epicbox,
   RecipientInputKind.https || RecipientInputKind.http => MethodKind.linkHttp,
   RecipientInputKind.onion => MethodKind.linkTor,
@@ -30,7 +30,7 @@ MethodKind? sendMethodKind(RecipientInput to) => switch (to.kind) {
 
 /// The host exactly as it will be contacted, as plain text: the Epicbox relay, the onion, or
 /// `scheme://host:port/path` (the port always written).
-String sendContactedText(RecipientInput to) => switch (to.kind) {
+String sendContactedText(RecipientInput to) => switch (to.typing ?? to.kind) {
   RecipientInputKind.epicbox => to.host,
   RecipientInputKind.onion => to.host,
   RecipientInputKind.https => 'https://${to.hostShown}:${to.port}${to.path}',

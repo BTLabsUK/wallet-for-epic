@@ -564,15 +564,22 @@ void main() {
       skip: !torBuilt,
     );
 
-    testWidgets('http://10.0.1.24 typed gets its line once the host is '
-        'whole', (tester) async {
+    testWidgets('http://10.0.1.24 typed gets its line from http:// on', (tester) async {
       final h = _Harness();
       await h.pump(tester);
       const url = 'http://10.0.1.24';
       final seen = await _type(tester, url);
-      expect(seen.last, ['Link · HTTP']);
-      // Not while the host is half typed.
-      expect(seen[url.indexOf('192.168.') + '192.168.'.length - 1], isEmpty);
+      expect(seen[url.indexOf('//')], isEmpty, reason: 'http:/ is no scheme yet');
+      expect(seen.sublist(url.indexOf('//') + 1), everyElement(['Link · HTTP']));
+    });
+
+    testWidgets('https:// typed names Link · HTTPS at once, with port 3415', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, payments: _directOn);
+      final seen = await _type(tester, 'https://203.0');
+      expect(seen['https://'.length - 1], ['Link · HTTPS']);
+      expect(seen.last, ['Link · HTTPS']);
+      expect(find.textContaining(':3415', findRichText: true), findsWidgets);
     });
 
     testWidgets('picks by method: a contact fills its address whose method is on (qa-next)', (tester) async {

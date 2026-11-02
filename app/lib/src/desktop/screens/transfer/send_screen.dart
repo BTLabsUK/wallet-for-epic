@@ -2066,6 +2066,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       ));
       return out;
     }
+    // An http(s) address still being typed: its method from the scheme on, nothing more yet.
+    if (r.typing != null && _strip) {
+      add(_RouteLine(key: ValueKey('send-route-${r.typing!.name}'), to: r));
+      return out;
+    }
     if (_methodOf(r) == null || _onionNoTor || (!_strip && r.kind != RecipientInputKind.epicbox)) return out;
     final hold = _hold(st);
     final mode = deskNetMode(st);
@@ -2446,9 +2451,9 @@ class _RouteLine extends StatelessWidget {
     final name = sendMethodName(l, to);
     final mono = ts.mono(size: Fs.xs, color: c.dim);
     final bold = mono.copyWith(color: c.text, fontWeight: FontWeight.w600);
-    final where = switch (to.kind) {
+    final where = switch (to.urlKind ?? to.kind) {
       RecipientInputKind.https || RecipientInputKind.http => [
-        TextSpan(text: '${to.kind == RecipientInputKind.https ? 'https' : 'http'}://'), // l10n-ok: scheme
+        TextSpan(text: '${to.urlKind == RecipientInputKind.https ? 'https' : 'http'}://'), // l10n-ok: scheme
         TextSpan(text: to.hostShown, style: bold),
         TextSpan(text: ':${to.port}${to.path}'),
       ],
