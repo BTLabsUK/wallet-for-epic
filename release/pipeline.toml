@@ -154,6 +154,9 @@ needs = ["source"]
 run = "{rel}/tools/rellib/steps/source-check.sh {stage}"
 heavy = true
 timeout = "120m"
+# Skippable only with the owner's reason (`--skip source-check="…"`); the report and the gate message
+# then say SKIPPED with it.
+skippable = true
 # Reused (not run) when an earlier run or the nightly passed it on the same content of these:
 # the app, the bot, the pins and tools/check.sh with what it runs (tools/rellib/reuse.py), the
 # release tools' own tests and what they test included (not release/release.toml: the scope,
