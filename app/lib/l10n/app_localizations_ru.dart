@@ -20802,293 +20802,299 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get sendRouteLinkHttps => 'Link · HTTPS';
+  String get sendRouteLinkHttps => 'Ссылка · HTTPS';
 
   @override
-  String get sendRouteThisPhone => 'This phone';
+  String get sendRouteThisPhone => 'Этот телефон';
 
   @override
-  String get sendRouteThisComputer => 'This computer';
+  String get sendRouteThisComputer => 'Этот компьютер';
 
   @override
-  String get sendRouteYourNetwork => 'Your network';
+  String get sendRouteYourNetwork => 'Ваша сеть';
 
   @override
-  String get sendRouteOverTor => 'Over Tor';
+  String get sendRouteOverTor => 'Через Tor';
 
   @override
-  String get sendRouteTorStarts => 'Tor starts when you send.';
+  String get sendRouteTorStarts => 'Tor запустится при отправке.';
 
   @override
-  String get sendRouteChange => 'Change';
+  String get sendRouteChange => 'Изменить';
 
   @override
   String sendRouteChangeSem(int count) {
-    return 'Change address, $count more';
+    return 'Изменить адрес, ещё $count';
   }
 
   @override
   String sendRouteAddressesOf(String name) {
-    return '$name’s addresses';
+    return 'Адреса контакта $name';
   }
 
   @override
   String sendRouteMore(int count) {
-    return '$count more';
+    return 'ещё $count';
   }
 
   @override
   String sendRouteSemantics(String method, String host) {
-    return 'Sends by $method to $host';
+    return 'Отправка через $method на $host';
   }
 
   @override
-  String get sendHeldKillSwitch => 'Kill switch is on. Nothing connects.';
+  String get sendHeldKillSwitch =>
+      'Включено «Аварийное отключение». Ничего не подключается.';
 
   @override
-  String get sendHeldNodeOnly => 'Node only is on. Only the node connects.';
+  String get sendHeldNodeOnly =>
+      'Включён режим «Только узел». Подключается только узел.';
 
   @override
   String get sendHeldTorOnly =>
-      'Tor only is on. Plain http:// cannot go over Tor.';
+      'Включён режим «Только Tor». Обычный http:// не может идти через Tor.';
 
   @override
-  String get sendHeldTorOn => 'Tor is on. Plain http:// cannot go over Tor.';
+  String get sendHeldTorOn =>
+      'Tor включён. Обычный http:// не может идти через Tor.';
 
   @override
-  String get sendHeldFixKillSwitch => 'Turn off Kill switch';
+  String get sendHeldFixKillSwitch => 'Выключить «Аварийное отключение»';
 
   @override
-  String get sendHeldFixNodeOnly => 'Turn off Node only';
+  String get sendHeldFixNodeOnly => 'Выключить «Только узел»';
 
   @override
-  String get sendHeldFixTorOnly => 'Turn off Tor only';
+  String get sendHeldFixTorOnly => 'Выключить «Только Tor»';
 
   @override
-  String get sendHeldByKillSwitch => 'Held by Kill switch';
+  String get sendHeldByKillSwitch => 'Недоступно: «Аварийное отключение»';
 
   @override
-  String get sendHeldByNodeOnly => 'Held by Node only';
+  String get sendHeldByNodeOnly => 'Недоступно: «Только узел»';
 
   @override
-  String get sendHeldByTorOnly => 'Held by Tor only';
+  String get sendHeldByTorOnly => 'Недоступно: «Только Tor»';
 
   @override
-  String get sendHeldWhileTorOn => 'Held while Tor is on';
+  String get sendHeldWhileTorOn => 'Недоступно, пока включён Tor';
 
   @override
-  String get sendHeldModeNormal => 'Network mode: Normal.';
+  String get sendHeldModeNormal => 'Режим сети: Обычный.';
 
   @override
-  String get sendHeldTorIsOff => 'Tor is off.';
+  String get sendHeldTorIsOff => 'Tor выключен.';
 
   @override
-  String get sendNoAddress => 'No address?';
+  String get sendNoAddress => 'Нет адреса?';
 
   @override
-  String get sendWithoutConnection => 'Without a connection:';
+  String get sendWithoutConnection => 'Без подключения:';
 
   @override
-  String get sendPayInPerson => 'Pay in person';
+  String get sendPayInPerson => 'Оплатить лично';
 
   @override
-  String get sendPayByFile => 'Pay with a file';
+  String get sendPayByFile => 'Оплатить файлом';
 
   @override
-  String get sendIsSlateText => 'This is a transaction text, not an address.';
+  String get sendIsSlateText => 'Это текст транзакции, а не адрес.';
 
   @override
-  String get sendOpenSlateText => 'Open it';
+  String get sendOpenSlateText => 'Открыть';
 
   @override
   String sendCleanedUp(String what) {
-    return 'Cleaned up: $what.';
+    return 'Исправлено: $what.';
   }
 
   @override
-  String get sendCleanUndo => 'Undo';
+  String get sendCleanUndo => 'Отменить';
 
   @override
-  String get sendCleanUndoSem => 'Undo the clean-up';
+  String get sendCleanUndoSem => 'Отменить исправление';
 
   @override
-  String get sendSendsTo => 'Sends to';
+  String get sendSendsTo => 'Отправка на';
 
   @override
-  String get sendCleanTextAround => 'text around the address left out';
+  String get sendCleanTextAround => 'убран текст вокруг адреса';
 
   @override
-  String get sendCleanJoined => 'spaces and line breaks removed';
+  String get sendCleanJoined => 'удалены пробелы и переносы строк';
 
   @override
-  String get sendCleanSpaces => 'spaces left out';
+  String get sendCleanSpaces => 'убраны пробелы';
 
   @override
-  String get sendCleanQuotes => 'quotes and brackets removed';
+  String get sendCleanQuotes => 'удалены кавычки и скобки';
 
   @override
-  String get sendCleanOnionForm => 'shown in its standard form';
+  String get sendCleanOnionForm => 'показан в стандартном виде';
 
   @override
-  String get sendCleanEpicboxScheme => 'epicbox:// left out';
+  String get sendCleanEpicboxScheme => 'убрано epicbox://';
 
   @override
   String sendCleanDefaultRelay(String host) {
-    return 'no server given: $host, the default';
+    return 'сервер не указан: $host, по умолчанию';
   }
 
   @override
-  String get sendCleanRelayLower => 'server in lower case';
+  String get sendCleanRelayLower => 'сервер в нижнем регистре';
 
   @override
-  String get sendCleanHttpsAdded => 'no scheme: https:// added';
+  String get sendCleanHttpsAdded => 'протокол не указан: добавлено https://';
 
   @override
-  String get sendCleanHttpAdded => 'no scheme: http:// added';
+  String get sendCleanHttpAdded => 'протокол не указан: добавлено http://';
 
   @override
   String sendCleanDefaultPort(String port) {
-    return 'port $port, the listener’s default';
+    return 'порт $port, по умолчанию для слушателя';
   }
 
   @override
-  String get sendCleanBrackets => 'IPv6 address put in brackets';
+  String get sendCleanBrackets => 'адрес IPv6 взят в квадратные скобки';
 
   @override
-  String get sendCleanSchemeLower => 'scheme in lower case';
+  String get sendCleanSchemeLower => 'протокол в нижнем регистре';
 
   @override
-  String get sendCleanHostLower => 'host in lower case';
+  String get sendCleanHostLower => 'хост в нижнем регистре';
 
   @override
   String sendCleanIdn(String name) {
-    return '$name written as it is contacted';
+    return '$name записано в том виде, в каком к нему подключаются';
   }
 
   @override
-  String get sendCleanForeignPath => '/v2/foreign left out: the wallet adds it';
+  String get sendCleanForeignPath =>
+      'убрано /v2/foreign: кошелёк добавляет его сам';
 
   @override
-  String get sendCleanTrailingSlash => 'trailing / left out';
+  String get sendCleanTrailingSlash => 'убран / в конце';
 
   @override
-  String get sendCleanQuery => '?… and #… left out';
+  String get sendCleanQuery => 'убраны ?… и #…';
 
   @override
   String get sendProblemNotAddress =>
-      'Not an address, and no contact has this name.';
+      'Это не адрес, и нет контакта с таким именем.';
 
   @override
-  String get sendProblemOtherScheme => 'Not an address this wallet can pay.';
+  String get sendProblemOtherScheme =>
+      'Этот кошелёк не может платить на такой адрес.';
 
   @override
-  String get sendProblemIncomplete => 'This address looks incomplete.';
+  String get sendProblemIncomplete => 'Этот адрес выглядит неполным.';
 
   @override
   String get sendProblemOnion =>
-      'This is not a complete Tor address. Copy it again from the recipient.';
+      'Это неполный адрес Tor. Скопируйте его у получателя ещё раз.';
 
   @override
-  String get sendProblemPort => 'The port must be 1 to 65535.';
+  String get sendProblemPort => 'Порт должен быть от 1 до 65535.';
 
   @override
   String get sendProblemCredentials =>
-      'An address with a user name in it cannot be paid.';
+      'Нельзя заплатить на адрес, в котором есть имя пользователя.';
 
   @override
   String get sendProblemCharacters =>
-      'This address has characters an address cannot have.';
+      'В этом адресе есть символы, которых не может быть в адресе.';
 
   @override
-  String get sendProblemTooLong => 'This address is too long.';
+  String get sendProblemTooLong => 'Этот адрес слишком длинный.';
 
   @override
-  String get sendProblemOwn => 'This is this wallet’s own address.';
+  String get sendProblemOwn => 'Это собственный адрес этого кошелька.';
 
   @override
-  String get sendReachChecking => 'Checking…';
+  String get sendReachChecking => 'Проверка…';
 
   @override
   String sendReachNone(String host) {
-    return 'No wallet answers at $host.';
+    return 'По адресу $host не отвечает ни один кошелёк.';
   }
 
   @override
   String sendReachNotWallet(String host) {
-    return '$host answers, but not as an Epic wallet.';
+    return 'По адресу $host что-то отвечает, но это не кошелёк Epic.';
   }
 
   @override
-  String get sendReachTheirOnion => 'their Tor address';
+  String get sendReachTheirOnion => 'Tor получателя';
 
   @override
-  String get sendReachOpenFirst => 'Their wallet has to be open to receive.';
+  String get sendReachOpenFirst =>
+      'Кошелёк получателя должен быть открыт, чтобы принять платёж.';
 
   @override
-  String get sendReachCheckAddress => 'Check the address with the recipient.';
+  String get sendReachCheckAddress => 'Уточните адрес у получателя.';
 
   @override
-  String get sendReachTryAgain => 'Try again';
+  String get sendReachTryAgain => 'Повторить';
 
   @override
-  String get sendFactVia => 'Via';
+  String get sendFactVia => 'Через';
 
   @override
-  String get sendFactHost => 'Host';
+  String get sendFactHost => 'Хост';
 
   @override
-  String get sendFactConnection => 'Connection';
+  String get sendFactConnection => 'Подключение';
 
   @override
-  String get sendFactNotEncrypted => 'Not encrypted · http://';
+  String get sendFactNotEncrypted => 'Без шифрования · http://';
 
   @override
   String get sendFactTor => 'Tor';
 
   @override
-  String get sendFactTorStarts => 'Starts when you send';
+  String get sendFactTorStarts => 'Запустится при отправке';
 
   @override
-  String get sendFactOffline => 'Their wallet can be offline.';
+  String get sendFactOffline => 'Кошелёк получателя может быть не в сети.';
 
   @override
-  String get sendFactOnline => 'Their wallet has to be open.';
+  String get sendFactOnline => 'Кошелёк получателя должен быть открыт.';
 
   @override
-  String get deskTfOpenTitle => 'Open transaction files';
+  String get deskTfOpenTitle => 'Открыть файлы транзакций';
 
   @override
   String get deskTfOpenText =>
-      'Choose one file or several. The wallet reads each one and signs, finishes or posts it.';
+      'Выберите один файл или несколько. Кошелёк прочитает каждый и подпишет, завершит или отправит его в сеть.';
 
   @override
-  String get deskTfPickTitle => 'Transaction files';
+  String get deskTfPickTitle => 'Файлы транзакций';
 
   @override
-  String get deskTfResults => 'Files opened';
+  String get deskTfResults => 'Открытые файлы';
 
   @override
-  String get deskTfWorking => 'Working on it…';
+  String get deskTfWorking => 'Обработка…';
 
   @override
   String deskTfSigned(String path) {
-    return 'Signed. Response saved to $path';
+    return 'Подписано. Ответ сохранён в $path';
   }
 
   @override
-  String get deskTfAlreadyPosted => 'Already posted';
+  String get deskTfAlreadyPosted => 'Уже отправлено в сеть';
 
   @override
   String deskTfInvoice(String amount) {
-    return 'An invoice for $amount. Review it to pay.';
+    return 'Счёт на $amount. Проверьте его, чтобы оплатить.';
   }
 
   @override
-  String get deskTfReview => 'Review';
+  String get deskTfReview => 'Проверить';
 
   @override
-  String get deskTfCreate => 'Create a payment file';
+  String get deskTfCreate => 'Создать файл платежа';
 
   @override
-  String get deskTfDropHint => 'You can also drop them here.';
+  String get deskTfDropHint => 'Их также можно перетащить сюда.';
 }

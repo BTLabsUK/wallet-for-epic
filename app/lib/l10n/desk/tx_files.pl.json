@@ -1,13 +1,13 @@
 {
-  "deskTfOpenTitle": "Open transaction files",
-  "deskTfOpenText": "Choose one file or several. The wallet reads each one and signs, finishes or posts it.",
-  "deskTfPickTitle": "Transaction files",
-  "deskTfResults": "Files opened",
-  "deskTfWorking": "Working on it…",
-  "deskTfSigned": "Signed. Response saved to {path}",
-  "deskTfAlreadyPosted": "Already posted",
-  "deskTfInvoice": "An invoice for {amount}. Review it to pay.",
-  "deskTfReview": "Review",
-  "deskTfCreate": "Create a payment file",
-  "deskTfDropHint": "You can also drop them here."
+  "deskTfOpenTitle": "Otwórz pliki transakcji",
+  "deskTfOpenText": "Wybierz jeden plik lub kilka. Portfel odczyta każdy z nich i podpisze go, sfinalizuje lub wyśle do sieci.",
+  "deskTfPickTitle": "Pliki transakcji",
+  "deskTfResults": "Otwarte pliki",
+  "deskTfWorking": "Przetwarzanie…",
+  "deskTfSigned": "Podpisano. Odpowiedź zapisano w {path}",
+  "deskTfAlreadyPosted": "Już wysłana do sieci",
+  "deskTfInvoice": "Faktura na {amount}. Sprawdź ją, aby zapłacić.",
+  "deskTfReview": "Sprawdź",
+  "deskTfCreate": "Utwórz plik płatności",
+  "deskTfDropHint": "Możesz też upuścić je tutaj."
 }
