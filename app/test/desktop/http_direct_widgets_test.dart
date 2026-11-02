@@ -78,9 +78,15 @@ void main() {
       expect(find.text('Check and send'), findsOneWidget);
     });
 
-    testWidgets('host:port without a scheme is refused with a reason', (tester) async {
+    testWidgets('host:port without a scheme is read as http:// and goes to the review', (tester) async {
       await sendTo(tester, '203.0.113.5:3415');
-      expect(find.text('Start with https:// or http://.'), findsOneWidget);
+      expect(find.text('Check and send'), findsOneWidget);
+      expect(find.byKey(const ValueKey('send-review-plain')), findsOneWidget, reason: 'an IP address gets http://, said as not encrypted');
+    });
+
+    testWidgets('another scheme is refused with a reason', (tester) async {
+      await sendTo(tester, 'ftp://203.0.113.5:3415');
+      expect(find.text('Not an address this wallet can pay.'), findsOneWidget);
       expect(find.text('Check and send'), findsNothing);
     });
   });
