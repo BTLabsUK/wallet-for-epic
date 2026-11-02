@@ -289,9 +289,13 @@ const Key testCoinsKey = ValueKey('demo-test-coins');
 /// a notice. Disabled while any claim runs. [primary] makes it the screen's main button, as
 /// in the demo's checklist.
 class TestCoinsButton extends ConsumerWidget {
-  const TestCoinsButton({super.key, this.primary = false});
+  const TestCoinsButton({super.key, this.primary = false, this.padding});
 
   final bool primary;
+
+  /// The button's side padding where its row is short of room (Receive on a narrow phone);
+  /// the theme's when null.
+  final EdgeInsetsGeometry? padding;
 
   Future<void> _claim(BuildContext context, WidgetRef ref) async {
     final l = context.l10n;
@@ -322,7 +326,7 @@ class TestCoinsButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final running = ref.watch(testCoinsProvider);
-    final style = FilledButton.styleFrom(minimumSize: const Size(48, 48));
+    final style = FilledButton.styleFrom(minimumSize: const Size(48, 48), padding: padding);
     final icon = running
         ? const SizedBox.square(
             dimension: 18,

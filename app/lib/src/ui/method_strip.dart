@@ -174,16 +174,23 @@ class MethodStrip extends StatelessWidget {
     final (line, words) = MethodStrip.words(l, method, receiving: receiving);
     final more = overTor ? l.methodLineOverTor(words) : words;
     final still = MediaQuery.disableAnimationsOf(context);
-    final text = Row(
-      children: [
-        Flexible(
-          child: Text(
-            line,
-            style: theme.textTheme.bodyLarge?.copyWith(color: t.text),
-          ),
-        ),
-        InfoHint(more, title: name(l, method)),
-      ],
+    final large = theme.textTheme.bodyLarge?.copyWith(color: t.text);
+    final text = LayoutBuilder(
+      builder: (context, box) {
+        // Two lines at most at the body's large size; where it would take a third (a 360 dp
+        // phone, beside the picture, the ⓘ and the X), the line takes the medium size, so the
+        // strip stays as tall as its picture.
+        final room = box.maxWidth - InfoHint.target;
+        final style = room > 0 && room.isFinite && _lines(context, line, large, room) > 2
+            ? theme.textTheme.bodyMedium?.copyWith(color: t.text)
+            : large;
+        return Row(
+          children: [
+            Flexible(child: Text(line, style: style)),
+            InfoHint(more, title: name(l, method)),
+          ],
+        );
+      },
     );
     return Container(
       key: methodStripKey,
@@ -218,4 +225,16 @@ class MethodStrip extends StatelessWidget {
       ),
     );
   }
+}
+
+/// How many lines [text] in [style] takes at [width], at the reader's text size.
+int _lines(BuildContext context, String text, TextStyle? style, double width) {
+  final painter = TextPainter(
+    text: TextSpan(text: text, style: DefaultTextStyle.of(context).style.merge(style)),
+    textDirection: Directionality.of(context),
+    textScaler: MediaQuery.textScalerOf(context),
+  )..layout(maxWidth: width);
+  final lines = painter.computeLineMetrics().length;
+  painter.dispose();
+  return lines;
 }

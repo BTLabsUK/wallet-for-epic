@@ -117,16 +117,23 @@ class _TxDetailsDialogState extends ConsumerState<TxDetailsDialog> {
               child: EInfoHint(l.deskTxDetailsFromTip),
             ),
             error: _badFrom ? (DeskFeatures.tor ? l.deskTxDetailsFromBad : l.deskNoTorTxDetailsFromBad) : null,
-            child: EInput(
-              controller: _from,
-              mono: true,
-              hint: l.deskTxDetailsFromHint,
-              invalid: _badFrom,
-              enabled: !_busy,
-              semanticLabel: l.deskTxDetailsFrom,
-              onChanged: (_) => setState(() => _badFrom = false),
-              trailing: EButton(label: l.deskSendPickTitle, icon: EIcons.contacts, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: _busy ? null : _pick),
-              trailingTabStop: true,
+            // In a narrow field (a small window at a large scale, the body indented to the
+            // title) the picker is its icon alone, named by its tooltip, so the address keeps
+            // room and the row never overflows.
+            child: LayoutBuilder(
+              builder: (context, box) => EInput(
+                controller: _from,
+                mono: true,
+                hint: l.deskTxDetailsFromHint,
+                invalid: _badFrom,
+                enabled: !_busy,
+                semanticLabel: l.deskTxDetailsFrom,
+                onChanged: (_) => setState(() => _badFrom = false),
+                trailing: box.maxWidth < Lay.xs
+                    ? EIconButton(icon: EIcons.contacts, label: l.deskSendPickTitle, size: EBtnSize.inline, color: context.dc.accentText, onPressed: _busy ? null : _pick)
+                    : EButton(label: l.deskSendPickTitle, icon: EIcons.contacts, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: _busy ? null : _pick),
+                trailingTabStop: true,
+              ),
             ),
           ),
           SizedBox(height: Sp.x4),

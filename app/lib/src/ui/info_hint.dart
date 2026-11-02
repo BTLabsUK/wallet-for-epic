@@ -21,7 +21,10 @@ import 'theme/tokens.dart';
 /// required: a sheet with no title reads as a stray sentence) and [icon] beside it; [onHelp]
 /// adds "More in Help" under the text, as the desktop's popover does.
 class InfoHint extends StatelessWidget {
-  const InfoHint(this.text, {super.key, this.size = 48, required this.title, this.icon, this.labelled = true, this.label, this.onHelp});
+  const InfoHint(this.text, {super.key, this.size = target, required this.title, this.icon, this.labelled = true, this.label, this.onHelp});
+
+  /// The tap square of an icon standing on its own, the default [size].
+  static const double target = 48;
 
   /// The tap square inside a row that is itself the 48 dp target.
   static const double inRow = 32;
