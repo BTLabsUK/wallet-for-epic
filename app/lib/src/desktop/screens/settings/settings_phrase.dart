@@ -62,16 +62,17 @@ class _SettingsPhraseScreenState extends ConsumerState<SettingsPhraseScreen> {
   bool _busy = false;
   String? _error;
   int _left = _hideAfter;
-  bool _qr = false;
+  /// The open QR dialog's context: hiding the words closes it too.
+  BuildContext? _qrDialog;
   Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     if (widget.arg == PhraseDemo.shown || widget.arg == PhraseDemo.qr) {
-      _qr = widget.arg == PhraseDemo.qr;
       _words = _demoWords;
       _left = 48;
+      if (widget.arg == PhraseDemo.qr) WidgetsBinding.instance.addPostFrameCallback((_) => _openQr());
     }
   }
 
@@ -91,11 +92,18 @@ class _SettingsPhraseScreenState extends ConsumerState<SettingsPhraseScreen> {
     });
   }
 
+  void _openQr() {
+    final words = _words;
+    if (!mounted || words == null) return;
+    showPhraseQrDialog(context, words.join(' '), onOpen: (dialog) => _qrDialog = dialog).whenComplete(() => _qrDialog = null);
+  }
+
   void _hide() {
     _timer?.cancel();
+    final dialog = _qrDialog;
+    if (dialog != null && dialog.mounted) Navigator.of(dialog).pop();
     setState(() {
       _words = null;
-      _qr = false;
       _password.clear();
       _left = _hideAfter;
     });
@@ -182,28 +190,11 @@ class _SettingsPhraseScreenState extends ConsumerState<SettingsPhraseScreen> {
         actions: [
           Text(l.deskSetPhraseHidesIn(_left), style: context.ts.small.copyWith(color: c.faint)),
           EButton(label: l.commonCopy, icon: EIcons.copy, size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: _copy),
-          Semantics(
-            expanded: _qr,
-            child: EButton(
-              label: _qr ? l.deskSetPhraseHideQr : l.deskSetPhraseShowQr,
-              icon: _qr ? EIcons.eyeOff : EIcons.qr,
-              size: EBtnSize.sm,
-              kind: EBtnKind.ghost,
-              onPressed: () => setState(() => _qr = !_qr),
-            ),
-          ),
+          // A centred dialog, never under the scrolling words (item 18).
+          EButton(label: l.deskSetPhraseShowQr, icon: EIcons.qr, size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: _openQr),
           EButton(label: l.deskSetPhraseHideWords, icon: EIcons.eyeOff, size: EBtnSize.sm, onPressed: _hide),
         ],
         grid: Semantics(label: l.deskSetPhraseWordsLabel(words.length), child: ESeedGrid(words: words)),
-        below: [
-          if (_qr) ...[
-            SizedBox(height: Sp.x4),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Semantics(label: l.deskSetPhraseQrLabel, image: true, child: EQr(words.join(' '), size: 216.u)),
-            ),
-          ],
-        ],
         footer: ENotice(
           title: l.deskSetPhraseBackUp,
           text: l.deskSetPhraseBackUpText,

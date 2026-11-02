@@ -58,11 +58,12 @@ Future<void> _internet(WidgetTester tester, ProviderContainer container) async {
   }
 }
 
-const _images = ['rx-qr-image-epicbox', 'rx-qr-image-http', 'rx-qr-image-tor'];
+// The Epicbox code shows from the start (item 17); the others open on demand.
+const _images = ['rx-qr-image-http', 'rx-qr-image-tor'];
 
 void main() {
   for (final width in [1200.0, 1340.0, 1440.0, 1600.0]) {
-    testWidgets('no QR code on open in any state at $width px, nothing overflows', (tester) async {
+    testWidgets('only the Epicbox QR code on open in any state at $width px, nothing overflows', (tester) async {
       for (final a in _args) {
         await _pump(tester, a, width: width);
         for (final k in _images) {
@@ -73,22 +74,13 @@ void main() {
     });
   }
 
-  testWidgets('Show QR reveals the Epicbox code without moving anything; Hide QR covers it', (tester) async {
+  testWidgets('the Epicbox code shows on open: no blur, no Show QR or Hide QR', (tester) async {
     await _pump(tester, const ReceiveArgs());
-    final panel = find.byKey(const ValueKey('rx-panel-epicbox'));
-    final before = tester.getRect(panel);
-    final show = find.byKey(const ValueKey('rx-qr-epicbox'));
-    final boxBefore = tester.getRect(show);
-    await tester.tap(find.text('Show QR'));
-    await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('rx-qr-image-epicbox')), findsOneWidget);
-    expect(tester.getRect(panel), before);
-    expect(tester.getRect(show).center, boxBefore.center);
-    await tester.tap(find.text('Hide QR'));
-    await tester.pumpAndSettle();
-    expect(find.byKey(const ValueKey('rx-qr-image-epicbox')), findsNothing);
+    expect(find.byKey(const ValueKey('rx-qr-epicbox')), findsNothing);
+    expect(find.text('Show QR'), findsNothing);
+    expect(find.text('Hide QR'), findsNothing);
     expect(find.text('QR code of the Epicbox address'), findsOneWidget);
-    expect(tester.getRect(panel), before);
   });
 
   testWidgets('the HTTP reveal opens and closes in the same number of frames', (tester) async {

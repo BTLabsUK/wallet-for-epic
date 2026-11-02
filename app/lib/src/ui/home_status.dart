@@ -263,6 +263,9 @@ String statusBrief(String detail, {String? host}) {
           pulse: torState == TorState.starting,
           onTap: () => openPrivacySettings(context),
         ),
+      // No Tor in this build: Link has nothing to receive on the phone (Link · HTTP only sends),
+      // so it shows nothing rather than an icon that reads as off.
+      if (tor.phase != PhoneTorPhase.unavailable)
       if (killSwitch || nodeOnly)
         off(bar ? barLinkIconKey : directIconKey, EpicGlyphs.link, l.receiveTabDirect)
       else

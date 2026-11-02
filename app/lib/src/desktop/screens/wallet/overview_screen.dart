@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../connection_grace.dart' show connectionGraceProvider;
 import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;
 import '../../../price.dart' show fiatChoiceProvider, fiatText, priceProvider;
+import '../../app/relay_offer.dart' show DeskRelayNotice;
 import '../../app/shell_notices.dart' show DeskShellNotices, deskShellNoticesShownProvider;
 import '../../app/tour.dart';
 import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
@@ -126,7 +127,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
       });
     }
     final notices = <Widget>[
-      // The one notice about levels and the Epicbox server offer (the shell's).
+      // The one notice about levels (the shell's); the Epicbox server offer is a toast.
       if (ref.watch(deskShellNoticesShownProvider)) const DeskShellNotices(),
       if (shallow && empty && !_readyHidden)
         ENotice(
@@ -206,7 +207,9 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
         ),
     ];
 
-    return EPage(
+    // The Epicbox server offer and the move as toasts (item 16), not cards in the layout.
+    return DeskRelayNotice(
+      child: EPage(
       title: l.deskOvTitle,
       width: EPageWidth.full,
       // The BT Labs lattice in the room a short Recent activity leaves, fading as rows come.
@@ -269,6 +272,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
           const OverviewInvoicesCard(),
         ],
       ),
+    ),
     );
   }
 }

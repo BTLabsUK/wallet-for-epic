@@ -540,10 +540,13 @@ bool inWalletsFolder(String folder) =>
 
 /// [folder] with the home folder as `~`, the way the list shows it.
 String shortFolder(String folder, {String? home}) {
-  final h = home ?? Platform.environment[Platform.isWindows ? 'USERPROFILE' : 'HOME'];
+  // A browser has no home folder (and no Platform: reading it threw before the first frame).
+  if (kIsWeb && home == null) return folder;
+  final windows = !kIsWeb && Platform.isWindows;
+  final h = home ?? Platform.environment[windows ? 'USERPROFILE' : 'HOME'];
   if (h == null || h.isEmpty) return folder;
   final base = h.endsWith('/') || h.endsWith(r'\') ? h.substring(0, h.length - 1) : h;
-  final same = Platform.isWindows ? folder.toLowerCase().startsWith(base.toLowerCase()) : folder.startsWith(base);
+  final same = windows ? folder.toLowerCase().startsWith(base.toLowerCase()) : folder.startsWith(base);
   if (!same || (folder.length > base.length && !r'/\'.contains(folder[base.length]))) return folder;
   return '~${folder.substring(base.length)}';
 }

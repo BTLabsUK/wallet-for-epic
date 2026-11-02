@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The Epicbox server offer on the desktop (wallet levels, Shallow): the rules are the phone's
 /// (`levels/relay_switch.dart`), the wiring `data/desk_relay_switch.dart`. The server in use has
-/// not answered for a while and another of the list is seen healthy: a notice names it by its
-/// address ("Switch to" and the domain), the Epicbox popover carries the same offer, nothing
-/// moves until the user confirms. After the move "Now on" with the domain offers Show new
-/// address, and Receive shows the new address for the open wallet.
+/// not answered for a while and another of the list is seen healthy: a toast on Overview names it
+/// (Switch), the Epicbox popover carries the same offer, nothing moves until the user confirms
+/// in a dialog. After the move a toast "Now on" with the domain offers Show new address, and
+/// Receive shows the new address for the open wallet.
 ///
 /// No text promises that payments to the old address arrive: the pinned core cannot read the old
 /// server yet (LEPIC E-15), so anyone with the old address needs the new one.
@@ -13,6 +13,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../levels/relay_switch.dart' show RelaySwitchOffer;
 import '../data/desk_errors.dart' show deskErrorText;
 import '../data/desk_levels.dart';
 import '../data/desk_relay_switch.dart';
@@ -61,82 +62,76 @@ Future<bool> confirmDeskRelaySwitch(BuildContext context, WidgetRef ref) async {
   }
 }
 
-/// The offer's and the move's notice, docked with the shell's notices; nothing otherwise.
+/// The offer the toast already showed for, across visits to Overview: one toast per offer.
+final _deskRelayToastedProvider = NotifierProvider<_DeskRelayToasted, RelaySwitchOffer?>(_DeskRelayToasted.new);
+
+class _DeskRelayToasted extends Notifier<RelaySwitchOffer?> {
+  @override
+  RelaySwitchOffer? build() => null;
+
+  void set(RelaySwitchOffer? offer) => state = offer;
+}
+
+/// The offer's and the move's toast on Overview (item 16): a short line and one action, hiding
+/// by itself, never a card in the layout. The offer's toast shows once per offer; the Epicbox
+/// status popover keeps the offer ([DeskRelayOfferPanel]). Draws [child].
 class DeskRelayNotice extends ConsumerStatefulWidget {
-  const DeskRelayNotice({super.key});
+  const DeskRelayNotice({super.key, this.child = const SizedBox.shrink()});
+
+  final Widget child;
 
   @override
   ConsumerState<DeskRelayNotice> createState() => _DeskRelayNoticeState();
 }
 
 class _DeskRelayNoticeState extends ConsumerState<DeskRelayNotice> {
-  bool _busy = false;
+  @override
+  void initState() {
+    super.initState();
+    ref.listenManual<bool>(deskRelayNoticeShownProvider, (_, _) => _follow());
+    ref.listenManual<RelaySwitchOffer?>(deskRelayOfferProvider, (_, _) => _follow());
+    ref.listenManual<bool>(deskRelayMovedNoticeProvider, (_, _) => _follow());
+    // An offer or a move already standing: after the first frame, as the toast needs the context.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _follow());
+  }
 
-  Future<void> _switch() async {
-    setState(() => _busy = true);
-    await confirmDeskRelaySwitch(context, ref);
-    if (mounted) setState(() => _busy = false);
+  void _follow() {
+    if (!mounted) return;
+    final offer = ref.read(deskRelayOfferProvider);
+    final toasted = ref.read(_deskRelayToastedProvider.notifier);
+    if (offer == null) toasted.set(null);
+    if (!ref.read(deskRelayNoticeShownProvider)) return;
+    final l = context.l10n;
+    if (offer != null) {
+      if (offer == ref.read(_deskRelayToastedProvider)) return;
+      toasted.set(offer);
+      showEToast(
+        context,
+        l.deskErrEpicboxUnreachable,
+        text: l.lvShellRelayDownShort(offer.name),
+        tone: ETone.warn,
+        action: (label: l.lvShellSwitch, run: () {
+          if (mounted) confirmDeskRelaySwitch(context, ref);
+        }),
+      );
+      return;
+    }
+    final moved = ref.read(deskRelayMovedProvider);
+    if (moved != null && ref.read(deskRelayMovedNoticeProvider)) {
+      ref.read(deskRelayMovedNoticeProvider.notifier).close();
+      showEToast(
+        context,
+        l.lvShellSwitchedNotice(moved.name),
+        tone: ETone.ok,
+        action: (label: l.lvShellShowNewAddress, run: () {
+          if (mounted) ref.read(deskNavProvider.notifier).go(DeskRoute.receive);
+        }),
+      );
+    }
   }
 
   @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final prompt = ref.watch(deskLevelFeaturesProvider.select((f) => f.relaySwitchPrompt));
-    final offer = ref.watch(deskRelayOfferProvider);
-    final moved = ref.watch(deskRelayMovedProvider);
-    final movedOpen = ref.watch(deskRelayMovedNoticeProvider);
-    if (!prompt) return const SizedBox.shrink();
-    if (offer != null) {
-      return ENotice(
-        key: const ValueKey('relay-offer'),
-        tone: ETone.warn,
-        icon: EIcons.epicbox,
-        title: l.deskErrEpicboxUnreachable,
-        text: l.lvShellOfferBody(offer.name),
-        actionsBelow: true,
-        actions: [
-          EButton(
-            key: const ValueKey('relay-offer-switch'),
-            label: l.lvShellSwitchTo(offer.name),
-            kind: EBtnKind.primary,
-            size: EBtnSize.inline,
-            busy: _busy,
-            onPressed: _busy ? null : _switch,
-          ),
-          EButton(
-            key: const ValueKey('relay-offer-later'),
-            label: l.pairNotNow,
-            kind: EBtnKind.ghost,
-            size: EBtnSize.inline,
-            onPressed: _busy ? null : () => ref.read(deskRelayOfferProvider.notifier).keepWaiting(),
-          ),
-        ],
-      );
-    }
-    if (moved != null && movedOpen) {
-      void close() => ref.read(deskRelayMovedNoticeProvider.notifier).close();
-      return ENotice(
-        key: const ValueKey('relay-switched'),
-        tone: ETone.ok,
-        title: l.lvShellNowOn(moved.name),
-        text: l.lvShellSwitchedBody,
-        actionsBelow: true,
-        actions: [
-          EButton(
-            key: const ValueKey('relay-switched-show'),
-            label: l.lvShellShowNewAddress,
-            size: EBtnSize.inline,
-            onPressed: () {
-              close();
-              ref.read(deskNavProvider.notifier).go(DeskRoute.receive);
-            },
-          ),
-          EButton(key: const ValueKey('relay-switched-ok'), label: l.commonOk, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: close),
-        ],
-      );
-    }
-    return const SizedBox.shrink();
-  }
+  Widget build(BuildContext context) => widget.child;
 }
 
 /// The offer inside the Epicbox status popover: an amber notice with Switch, which asks in the

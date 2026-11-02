@@ -12,6 +12,8 @@
 /// address arrive: anyone with the old address needs the new one.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -79,6 +81,18 @@ class _RelayDownNoticesState extends ConsumerState<RelayDownNotices> {
   /// The shell's route is the one on top (no screen pushed over it).
   bool _onTop = true;
 
+  /// The offer whose notice ran its course: it shows once per offer and hides by itself; the
+  /// Epicbox status sheet keeps the offer (item 16). One taken away early (a screen pushed over
+  /// the shell, the grace) shows again.
+  RelaySwitchOffer? _seen;
+  Timer? _seenTimer;
+
+  @override
+  void dispose() {
+    _seenTimer?.cancel();
+    super.dispose();
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -107,20 +121,30 @@ class _RelayDownNoticesState extends ConsumerState<RelayDownNotices> {
   void _follow(RelaySwitchOffer? offer) {
     if (!mounted) return;
     final notices = ref.read(noticeProvider.notifier);
+    if (offer == null) _seen = null;
     if (offer == null ||
         !ref.read(levelFeaturesProvider).relaySwitchPrompt ||
         ref.read(connectionGraceProvider) ||
         !_onTop) {
+      _seenTimer?.cancel();
+      _seenTimer = null;
       notices.dismissTag(relayOfferNoticeTag);
       return;
     }
+    if (offer == _seen) return;
+    _seenTimer ??= Timer(
+      noticeDuration(NoticeLevel.warning, action: true, accessible: MediaQuery.accessibleNavigationOf(context)),
+      () {
+        _seenTimer = null;
+        _seen = offer;
+      },
+    );
     final l = context.l10n;
-    // Compact: a title, one line and Switch; the close button is Not now.
+    // Compact: a title, one line and Switch; it hides by itself, the close button is Not now.
     notices.show(
       l.lvShellRelayDownShort(offer.name),
       title: l.lvShellRelayDownTitle,
       level: NoticeLevel.warning,
-      persistent: true,
       tag: relayOfferNoticeTag,
       action: NoticeAction(l.lvShellSwitch, () {
         if (mounted) acceptRelaySwitch(context, ref);

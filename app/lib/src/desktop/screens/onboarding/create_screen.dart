@@ -48,7 +48,6 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
   bool _diskFull = false;
   late bool _revealed = widget.arg == CreateDemo.phraseShown;
   late bool _written = widget.arg == CreateDemo.phraseShown;
-  bool _qr = false;
   bool _busy = false;
   Set<String> _before = {};
 
@@ -239,7 +238,6 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
                     onPressed: () => setState(() {
                       _revealed = false;
                       _written = false;
-                      _qr = false;
                     }),
                   ),
                   EButton.ghost(
@@ -247,13 +245,11 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
                     icon: EIcons.copy,
                     onPressed: () => copyPhrase(context, phrase.join(' ')),
                   ),
-                  Semantics(
-                    expanded: _qr,
-                    child: EButton.ghost(
-                      label: _qr ? l.deskOnbCreateHideQr : l.deskOnbCreateShowQr,
-                      icon: EIcons.qr,
-                      onPressed: () => setState(() => _qr = !_qr),
-                    ),
+                  // A centred dialog, never under the scrolling words (item 18).
+                  EButton.ghost(
+                    label: l.deskOnbCreateShowQr,
+                    icon: EIcons.qr,
+                    onPressed: () => showPhraseQrDialog(context, phrase.join(' ')),
                   ),
                 ],
               ],
@@ -277,25 +273,6 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
                         ],
                       ),
                     ),
-              below: [
-                if (_revealed && _qr) ...[
-                  SizedBox(height: Sp.x4),
-                  ENotice(
-                    title: l.deskOnbCreateQrWarn,
-                    text: l.deskOnbCreateQrWarnText,
-                    tone: ETone.risk,
-                    icon: EIcons.alert,
-                  ),
-                  SizedBox(height: Sp.x4),
-                  Center(
-                    child: Semantics(
-                      label: l.deskOnbCreateQrLabel,
-                      image: true,
-                      child: EQr(phrase.join(' '), size: 216.u),
-                    ),
-                  ),
-                ],
-              ],
               footer: _revealed
                   ? ECheckbox(
                       value: _written,

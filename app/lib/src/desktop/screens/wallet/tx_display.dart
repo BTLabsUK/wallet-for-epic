@@ -411,7 +411,7 @@ class TxAmount extends StatelessWidget {
       children: [
         DefaultTextStyle.merge(
           style: TextStyle(decoration: off ? TextDecoration.lineThrough : null, decorationColor: c.faint),
-          child: EMoney(tx.incoming ? tx.amount : -tx.amount, sign: !asked, unit: false, color: color, size: Fs.md),
+          child: EMoney(tx.incoming ? tx.amount : -tx.amount, sign: !asked, unit: false, color: color, size: Fs.md, alignDecimals: true),
         ),
         if (line != null) ...[const SizedBox(height: 2), Text(line, style: context.ts.caption)],
       ],

@@ -388,7 +388,8 @@ class WalletVault {
       'demoPin',
       'pinPassphrase',
       'pinPassphraseEver',
-      'backupCardDismissed', // home's recovery phrase card (home_screen.dart)
+      'backupCardDismissed', // home's former recovery phrase card, still on older installs
+      'backupNoticeAt', // home's recovery phrase reminder (home_screen.dart)
     ]) {
       await store.delete(_key(chain, name));
     }

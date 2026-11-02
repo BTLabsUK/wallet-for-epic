@@ -90,10 +90,11 @@ void main() {
     expect(find.widgetWithText(EButton, 'Review'), findsOneWidget);
   });
 
-  testWidgets('Shallow Receive: Your address, Show QR, no switch, no files, no closed-wallet line', (tester) async {
+  testWidgets('Shallow Receive: Your address, its QR code shown, no switch, no files, no closed-wallet line', (tester) async {
     await _pump(tester, WalletLevel.justSendReceive, const ReceiveScreen());
     expect(find.text('Your address'), findsOneWidget);
-    expect(find.text('Show QR'), findsOneWidget);
+    expect(find.byKey(const ValueKey('rx-qr-image-epicbox')), findsOneWidget);
+    expect(find.text('Show QR'), findsNothing);
     expect(find.text('Ready to receive'), findsOneWidget);
     expect(find.byKey(const ValueKey('rx-switch-epicbox')), findsNothing);
     expect(find.text('Receiving'), findsNothing);

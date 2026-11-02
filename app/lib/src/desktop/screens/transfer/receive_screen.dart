@@ -513,7 +513,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             title: l.deskRecvEpicboxAddress,
             tag: tag,
             method: 'epicbox',
-            initiallyShown: _args?.qr == RxQr.epicbox,
+            // Shown from the start: no blur, no Show QR (item 17).
+            fixed: true,
           );
     return _MethodPanel(
       key: _panels[m],
@@ -660,7 +661,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             form: QrRevealForm.covered,
             title: l.deskLvSendYourAddress,
             method: 'epicbox',
-            initiallyShown: _args?.qr == RxQr.epicbox,
+            // Shown from the start: no blur, no Show QR (item 17).
+            fixed: true,
           );
     return EPanel(
       key: ValueKey('rx-panel-${TxMethod.epicbox.name}'),

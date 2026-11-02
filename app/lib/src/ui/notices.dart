@@ -327,9 +327,18 @@ class _NoticeDockState extends ConsumerState<NoticeDock>
         MediaQuery.accessibleNavigationOf(context);
     final shown = _shown;
     if (shown == null) return const SizedBox.shrink();
-    final duration = MediaQuery.disableAnimationsOf(context)
-        ? Duration.zero
-        : noticeDockDuration;
+    final still = MediaQuery.disableAnimationsOf(context);
+    final duration = still ? Duration.zero : noticeDockDuration;
+    final card = AnimatedSwitcher(
+      duration: duration,
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      layoutBuilder: (current, previous) => Stack(
+        alignment: Alignment.topCenter,
+        children: [...previous, ?current],
+      ),
+      child: NoticeCard(key: ValueKey(shown.id), notice: shown),
+    );
     return ClipRect(
       child: SizeTransition(
         sizeFactor: _curve,
@@ -345,21 +354,16 @@ class _NoticeDockState extends ConsumerState<NoticeDock>
                 constraints: const BoxConstraints(maxWidth: 600),
                 child: Padding(
                   padding: NoticeDock.padding,
-                  child: AnimatedSize(
-                    duration: duration,
-                    curve: Curves.easeOutCubic,
-                    alignment: Alignment.topCenter,
-                    child: AnimatedSwitcher(
-                      duration: duration,
-                      switchInCurve: Curves.easeOutCubic,
-                      switchOutCurve: Curves.easeInCubic,
-                      layoutBuilder: (current, previous) => Stack(
-                        alignment: Alignment.topCenter,
-                        children: [...previous, ?current],
-                      ),
-                      child: NoticeCard(key: ValueKey(shown.id), notice: shown),
-                    ),
-                  ),
+                  // Reduced motion: no AnimatedSize, whose zero-length animation ends inside
+                  // its own layout and asserts when one notice replaces another.
+                  child: still
+                      ? card
+                      : AnimatedSize(
+                          duration: duration,
+                          curve: Curves.easeOutCubic,
+                          alignment: Alignment.topCenter,
+                          child: card,
+                        ),
                 ),
               ),
             ),

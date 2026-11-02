@@ -579,12 +579,12 @@ void main() {
       }
     });
 
-    testWidgets('no Tor on this phone: nothing of it', (tester) async {
+    testWidgets('no Tor on this phone: nothing of it, and no Link', (tester) async {
       // As PhoneTor.build gives it in the build without Tor: unavailable, the switch never on.
       // (Unavailable with the switch on is a missing tor bundle: blocked, Waiting for Tor.)
       await _pump(tester, tor: const PhoneTorState(phase: PhoneTorPhase.unavailable));
       expect(find.byKey(torIconKey), findsNothing, reason: 'no Tor on this phone: nothing to switch on');
-      expect(find.byKey(directIconKey), findsOneWidget);
+      expect(find.byKey(directIconKey), findsNothing, reason: 'Link · HTTP only sends: nothing to receive, not shown as off');
       expect(_label(tester, nodeStatusKey), 'Node, Synced');
     });
 
