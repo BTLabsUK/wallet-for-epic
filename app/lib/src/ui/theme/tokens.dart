@@ -566,15 +566,17 @@ ThemeData buildWalletTheme(WalletTokens t, Brightness brightness) {
     ),
     dividerTheme: DividerThemeData(color: t.line, thickness: 1, space: 1),
     // A disabled switch fades to 40%, as the desktop's ESwitch: a locked one never looks live.
+    // On is neutral (text-colour track, background-colour knob), as the desktop's: gold is the
+    // brand and the primary action only.
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith(
-        (s) => _switchFade(s, s.contains(WidgetState.selected) ? t.accentInk : t.dim),
+        (s) => _switchFade(s, s.contains(WidgetState.selected) ? t.bg : t.dim),
       ),
       trackColor: WidgetStateProperty.resolveWith(
-        (s) => _switchFade(s, s.contains(WidgetState.selected) ? t.accent : t.field),
+        (s) => _switchFade(s, s.contains(WidgetState.selected) ? t.text : t.field),
       ),
       trackOutlineColor: WidgetStateProperty.resolveWith(
-        (s) => _switchFade(s, s.contains(WidgetState.selected) ? t.accent : t.lineStrong),
+        (s) => _switchFade(s, s.contains(WidgetState.selected) ? t.text : t.lineStrong),
       ),
     ),
     // A selected radio is neutral: gold is the brand and the primary action only.

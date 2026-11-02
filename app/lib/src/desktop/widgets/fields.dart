@@ -504,9 +504,11 @@ class ESwitch extends StatelessWidget {
       height: 24.u,
       padding: EdgeInsets.all(3.u),
       decoration: BoxDecoration(
-        color: value ? c.accent : c.s3,
+        // On is neutral (text colour, knob in the background colour): gold is the brand and
+        // the primary action only.
+        color: value ? c.text : c.s3,
         borderRadius: BorderRadius.circular(12.u),
-        border: Border.all(color: value ? c.accent : c.lineField),
+        border: Border.all(color: value ? c.text : c.lineField),
       ),
       child: AnimatedAlign(
         duration: Dur.base,
@@ -515,7 +517,7 @@ class ESwitch extends StatelessWidget {
         child: Container(
           width: 16.u,
           height: 16.u,
-          decoration: BoxDecoration(color: value ? c.accentInk : c.dim, shape: BoxShape.circle),
+          decoration: BoxDecoration(color: value ? c.bg : c.dim, shape: BoxShape.circle),
         ),
       ),
     );
