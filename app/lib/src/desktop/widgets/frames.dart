@@ -7,6 +7,7 @@ import '../../ui/theme/protocol.dart' show CornerTicksPainter, GridFieldPainter;
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import 'keyboard.dart';
+import 'phrase_layout.dart' show EPhraseLayout;
 import 'tip.dart';
 
 /// Content widths for [EPage].
@@ -359,7 +360,17 @@ class EOnbFrame extends StatelessWidget {
     this.back,
     this.status,
     this.sideFoot,
+    this.fill = false,
   });
+
+  /// [child] gets the height left under the title instead of scrolling with it, so it can keep
+  /// parts of its own in view ([EPhraseLayout]: only the words scroll). With less room than
+  /// [fillMinHeight] the whole step scrolls as usual.
+  final bool fill;
+
+  /// The room [fill] needs: the title, the phrase step's warning, actions and checkbox, and two
+  /// rows of words.
+  static double get fillMinHeight => 450.u;
 
   /// Under the brand: "New wallet", "Restore", …
   final String sideTitle;
@@ -393,37 +404,41 @@ class EOnbFrame extends StatelessWidget {
     // The step rail beside the form from a window of Lay.xl; below, "Step 2 of 4" above it.
     final narrow = MediaQuery.sizeOf(context).width < Lay.xl;
     final current = steps.indexWhere((s) => s.current);
+    final pad = EdgeInsets.fromLTRB(narrow ? Sp.x5 : Sp.x12, narrow ? Sp.x6 : Sp.x12, narrow ? Sp.x5 : Sp.x12, Sp.x8);
+    Widget body(Widget content) => Align(
+      alignment: Alignment.topLeft,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: 600.u),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (narrow && current >= 0) ...[
+              Text(context.l10n.deskKitStepOf(current + 1, steps.length), style: ts.caption),
+              SizedBox(height: Sp.x2),
+            ],
+            heading ?? Semantics(header: true, child: Text(title, style: ts.h1)),
+            if (lead != null) ...[
+              SizedBox(height: Sp.x2),
+              Text(lead!, style: ts.lead),
+            ],
+            SizedBox(height: Sp.x8),
+            content,
+          ],
+        ),
+      ),
+    );
+    final scrolled = SingleChildScrollView(padding: pad, child: body(child));
     final main = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
           child: Stack(
             children: [
-              SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(narrow ? Sp.x5 : Sp.x12, narrow ? Sp.x6 : Sp.x12, narrow ? Sp.x5 : Sp.x12, Sp.x8),
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: 600.u),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (narrow && current >= 0) ...[
-                          Text(context.l10n.deskKitStepOf(current + 1, steps.length), style: ts.caption),
-                          SizedBox(height: Sp.x2),
-                        ],
-                        heading ?? Semantics(header: true, child: Text(title, style: ts.h1)),
-                        if (lead != null) ...[
-                          SizedBox(height: Sp.x2),
-                          Text(lead!, style: ts.lead),
-                        ],
-                        SizedBox(height: Sp.x8),
-                        child,
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              if (fill)
+                LayoutBuilder(builder: (context, box) => box.maxHeight < fillMinHeight ? scrolled : Padding(padding: pad, child: body(Flexible(child: child))))
+              else
+                scrolled,
               // Content cut by the footer line fades out over 24 u first, so it reads as
               // scrollable rather than chopped (UD-024).
               if (_hasBar)

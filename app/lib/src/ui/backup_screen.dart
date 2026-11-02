@@ -104,14 +104,12 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
   Widget build(BuildContext context) {
     return SlotScaffold(
       appBar: AppBar(title: Text(context.l10n.backupTitle)),
-      body: ScreenBody(
-        children: !_asked
-            ? _consent(context)
-            // The PIN dialog is the whole state: no progress line behind it (UP-031).
-            : _words.isEmpty
-            ? const []
-            : _phrase(context),
-      ),
+      body: _asked && _words.isNotEmpty
+          ? _phrase(context)
+          : ScreenBody(
+              // The PIN dialog is the whole state: no progress line behind it (UP-031).
+              children: _asked ? const [] : _consent(context),
+            ),
     );
   }
 
@@ -141,63 +139,79 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
     ];
   }
 
-  List<Widget> _phrase(BuildContext context) {
+  /// The words as on the desktop: the warning and Copy above them, Done pinned under them, and
+  /// only the words scroll when the screen is short ([ScreenBody.scrolling]).
+  Widget _phrase(BuildContext context) {
+    final l = context.l10n;
+    final top = [
+      InlineNotice(level: NoticeLevel.warning, text: l.backupWriteDown(_words.length)),
+      const SizedBox(height: 8),
+      Align(
+        alignment: AlignmentDirectional.centerEnd,
+        // Moved out by its end padding: the label, not the button's box, ends at the words' edge.
+        child: Transform.translate(
+          offset: Offset(Directionality.of(context) == TextDirection.rtl ? -_copyPad : _copyPad, 0),
+          child: TextButton.icon(
+            style: TextButton.styleFrom(
+              minimumSize: const Size(48, 48),
+              padding: const EdgeInsets.symmetric(horizontal: _copyPad),
+            ),
+            onPressed: _copy,
+            icon: const Icon(Icons.copy),
+            label: Text(l.commonCopy),
+          ),
+        ),
+      ),
+      const SizedBox(height: 8),
+    ];
+    return ScreenBody(
+      bottom: BusyButton(label: l.commonDone, onPressed: _done),
+      scrolling: _grid(context),
+      children: top,
+    );
+  }
+
+  Widget _grid(BuildContext context) {
     final theme = Theme.of(context);
     final l = context.l10n;
-    return [
-      InlineNotice(level: NoticeLevel.warning, text: l.backupWriteDown(_words.length)),
-      const SizedBox(height: 16),
-      LayoutBuilder(
-        builder: (context, constraints) {
-          // Three columns on a phone, two on narrow screens; the words fill the width.
-          final columns = constraints.maxWidth >= 330 ? 3 : 2;
-          final width = (constraints.maxWidth - 8 * (columns - 1)) / columns;
-          return Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              // The words are BIP39 English in every language: never translated.
-              for (var i = 0; i < _words.length; i++)
-                Semantics(
-                  label: l.backupWordSpoken(i + 1, _words[i]),
-                  excludeSemantics: true,
-                  child: Container(
-                    width: width,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    // Long words shrink instead of being cut off.
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        '${i + 1}. ${_words[i]}',
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                    ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Three columns on a phone, two on narrow screens; the words fill the width.
+        final columns = constraints.maxWidth >= 330 ? 3 : 2;
+        final width = (constraints.maxWidth - 8 * (columns - 1)) / columns;
+        return Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            // The words are BIP39 English in every language: never translated.
+            for (var i = 0; i < _words.length; i++)
+              Semantics(
+                label: l.backupWordSpoken(i + 1, _words[i]),
+                excludeSemantics: true,
+                child: Container(
+                  width: width,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  // Long words shrink instead of being cut off.
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text('${i + 1}. ${_words[i]}', style: theme.textTheme.bodyLarge),
                   ),
                 ),
-            ],
-          );
-        },
-      ),
-      const SizedBox(height: 16),
-      OutlinedButton.icon(
-        style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-        onPressed: _copy,
-        icon: const Icon(Icons.copy),
-        label: Text(l.commonCopy),
-      ),
-      const SizedBox(height: 16),
-      BusyButton(label: l.commonDone, onPressed: _done),
-    ];
+              ),
+          ],
+        );
+      },
+    );
   }
 }
+
+/// The Copy button's side padding.
+const double _copyPad = 12;
 
 /// Copies the recovery phrase, cleared after [phraseClipboardLifetime] and on lock, as on the
 /// desktop. False when the clipboard refused the text.

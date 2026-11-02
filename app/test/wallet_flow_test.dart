@@ -873,6 +873,25 @@ void main() {
         }
       });
 
+      testWidgets('at 360 px: Copy above the words, Done pinned under them, only the words scroll', (tester) async {
+        final phrase = await openPhrase(tester);
+        // A small phone, 360 × 640 (openPhrase pumps at 3×).
+        tester.view.physicalSize = const Size(1080, 1920);
+        await tester.pumpAndSettle();
+        final first = find.text('1. ${phrase.split(' ').first}');
+        final copy = find.widgetWithText(TextButton, 'Copy');
+        final done = find.text('Done');
+        expect(tester.getRect(copy).bottom, lessThan(tester.getRect(first).top));
+        expect(tester.getRect(done).bottom, lessThanOrEqualTo(640));
+        final word = tester.getTopLeft(first);
+        final at = (tester.getTopLeft(copy), tester.getTopLeft(done));
+        await tester.drag(first, const Offset(0, -200));
+        await tester.pump();
+        expect(tester.getTopLeft(first).dy, lessThan(word.dy), reason: 'the words scrolled');
+        expect((tester.getTopLeft(copy), tester.getTopLeft(done)), at, reason: 'Copy and Done stay');
+        expect(tester.takeException(), isNull);
+      });
+
       testWidgets('Copy warns first; Cancel copies nothing', (tester) async {
         final phrase = await openPhrase(tester);
         var set = 0;

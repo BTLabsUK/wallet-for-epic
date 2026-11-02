@@ -75,6 +75,17 @@ class EButton extends StatefulWidget {
     this.autofocus = false,
   }) : kind = EBtnKind.primary;
 
+  /// The side padding of a button of [size].
+  static double padFor(EBtnSize size) => switch (size) {
+    EBtnSize.inline => Sp.x2,
+    EBtnSize.sm => Sp.x3,
+    EBtnSize.md => Sp.x5,
+  };
+
+  /// How far the label sits inside the box of a button of [size] (padding and its 1 px edge):
+  /// a row of bare buttons moves out by it, so the last label lines up with the content's edge.
+  static double labelInset(EBtnSize size) => padFor(size) + 1;
+
   const EButton.ghost({
     super.key,
     required this.label,
@@ -128,10 +139,11 @@ class _EButtonState extends State<EButton> {
     final footer = EDialogActions.maybeOf(context);
     final kind = footer == null ? widget.kind : EDialogActions.face(footer.kind ?? widget.kind);
     final size = footer == null ? widget.size : EBtnSize.md;
-    final (height, padH, fs, iconSize) = switch (size) {
-      EBtnSize.inline => (Ctl.inline, Sp.x2, Fs.sm, Ctl.iconSm),
-      EBtnSize.sm => (Ctl.sm, Sp.x3, Fs.sm, 18.u),
-      EBtnSize.md => (Ctl.md, Sp.x5, Fs.md, 18.u),
+    final padH = EButton.padFor(size);
+    final (height, fs, iconSize) = switch (size) {
+      EBtnSize.inline => (Ctl.inline, Fs.sm, Ctl.iconSm),
+      EBtnSize.sm => (Ctl.sm, Fs.sm, 18.u),
+      EBtnSize.md => (Ctl.md, Fs.md, 18.u),
     };
     Color bg, fg, border;
     switch (kind) {
