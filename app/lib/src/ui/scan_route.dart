@@ -33,10 +33,11 @@ import 'pairing/experimental_off.dart';
 /// The methods on in Settings › Transactions, which pick the address a code or a contact
 /// fills in.
 PaymentPrefs sendPayments(WidgetRef ref) =>
-    ref.read(appSettingsProvider).value?.payments ??
-    (ref.read(phonePaymentsProvider)
-        ? PaymentPrefs.phoneDefaults
-        : PaymentPrefs.defaults);
+    (ref.read(appSettingsProvider).value?.payments ??
+            (ref.read(phonePaymentsProvider) ? PaymentPrefs.phoneDefaults : PaymentPrefs.defaults))
+        // The phone sends to an http(s) address at every level, with no switch: only the
+        // network mode holds it.
+        .copyWith(linkHttp: true);
 
 /// Whether [request] carries more than its address: an amount, a note, a name, or a part that
 /// was dropped. A bare `epic:<address>` is handled as the address alone.

@@ -5481,35 +5481,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get receiveDirectMeanwhile => 'ระหว่างนี้ให้แชร์ที่อยู่ Epicbox';
 
   @override
-  String get receiveHttpTitle => 'ที่อยู่ ลิงก์ · HTTP';
-
-  @override
-  String get receiveHttpLanLine =>
-      'สำหรับกระเป๋าเงินในเครือข่าย Wi-Fi นี้ ขณะที่กระเป๋าเงินนี้เปิดอยู่';
-
-  @override
-  String get receiveHttpNoNetwork =>
-      'ไม่ได้เชื่อมต่อ Wi-Fi ไม่มีที่อยู่ให้ส่งต่อ';
-
-  @override
-  String get receiveHttpOffWhileTor => 'ปิดอยู่ขณะเปิด Tor';
-
-  @override
-  String receiveHttpPortInUse(String port) {
-    return 'พอร์ต $port ถูกใช้โดยโปรแกรมอื่น';
-  }
-
-  @override
-  String get receiveHttpFailed => 'เริ่มไม่ได้';
-
-  @override
   String get receiveHttpShowQr => 'แสดง QR';
 
   @override
   String get receiveHttpHideQr => 'ซ่อน QR';
-
-  @override
-  String get receiveHttpQrLabel => 'QR Code ของที่อยู่ ลิงก์ · HTTP';
 
   @override
   String get netStatusOverTor => 'ผ่าน Tor';
@@ -17541,57 +17516,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get passphraseSetTitle => 'ตั้งวลีรหัสผ่าน';
 
   @override
-  String get receiveHttpNotTrustedTitle => 'ปิดอยู่ในเครือข่ายนี้';
-
-  @override
-  String get receiveHttpNotTrusted =>
-      'Link · HTTP รับฟังเฉพาะในเครือข่ายที่คุณไว้วางใจ';
-
-  @override
-  String get receiveHttpTrust => 'ไว้วางใจเครือข่ายนี้';
-
-  @override
   String get deskSetReportFullDetails => 'แนบรายละเอียดทั้งหมด';
 
   @override
   String get deskSetReportPartFullDetails => 'รายละเอียดเต็ม';
-
-  @override
-  String get txTrustedNetworks => 'เครือข่ายที่ไว้วางใจ';
-
-  @override
-  String txTrustedNetworksCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'ไว้วางใจแล้ว $count เครือข่าย',
-      zero: 'ยังไม่มี',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get txTrustedNetworksBody =>
-      'Link · HTTP รับเฉพาะในเครือข่ายที่เชื่อถือ เครือข่ายที่ลืมไปจะถูกถามอีกครั้งเมื่อโทรศัพท์เข้าร่วมครั้งถัดไป';
-
-  @override
-  String get txTrustedNetworksNone => 'ยังไม่มีเครือข่ายที่ไว้วางใจ';
-
-  @override
-  String get txTrustedNetworkCurrent => 'เครือข่ายนี้';
-
-  @override
-  String get txTrustedNetworkForget => 'ลืม';
-
-  @override
-  String txTrustedNetworkForgetLabel(String range) {
-    return 'ลืม $range';
-  }
-
-  @override
-  String txTrustedNetworkRange(String range) {
-    return '$range.x';
-  }
 
   @override
   String get deskSetReportFullDetailsInfo =>

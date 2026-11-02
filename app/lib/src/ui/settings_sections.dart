@@ -24,7 +24,6 @@ import '../l10n.dart';
 import '../network.dart';
 import '../network_gate.dart';
 import '../payment_prefs.dart';
-import '../phone_http.dart' show lanNetworkKey, phoneHttpProvider;
 import '../phone_tor.dart';
 import '../tor_pay.dart';
 import '../tor_build.dart';
@@ -44,7 +43,6 @@ import 'common.dart';
 import 'confirmations_row.dart';
 import 'contacts_screen.dart';
 import 'demo_screens.dart' show endDemo;
-import 'info_hint.dart';
 import 'language_flag.dart';
 import 'launch_screen.dart';
 import 'level_step_screen.dart';
@@ -901,8 +899,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         s.advanced.has(AdvancedFeature.sendOptions) ||
         s.sendStrategy != SelectionStrategy.smallest ||
         !s.splitChange;
-    // Link · HTTP works on any phone (this Wi-Fi network); Link · Tor needs Tor, so where the
-    // app has none (and the switch is off) there is nothing to turn on.
+    // Link · Tor needs Tor, so where the app has none (and the switch is off) there is nothing
+    // to turn on. The phone's Link · HTTP only sends, always: no switch there.
     final showTor = _txTorShown |= torBuilt && (torAvailable || payments.linkTor);
     // The phone's Direct methods: QR Payment for everyone, File Transfer behind Advanced ›
     // Transaction files (a phone that has it on keeps the row, so it can still be turned off).
@@ -913,7 +911,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
             (payments.directFile ||
                 s.advanced.has(AdvancedFeature.transactionFiles)));
     bool shown(MethodKind m) => switch (m) {
-      MethodKind.epicbox || MethodKind.linkHttp => true,
+      MethodKind.epicbox => true,
+      MethodKind.linkHttp => !phone,
       MethodKind.linkTor => showTor,
       MethodKind.directQr => phone,
       MethodKind.directFile => showFile,
@@ -938,7 +937,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     // The last method on stays on: Send and Receive always keep a way. The switch does not
     // move; the notice says why.
     Future<void> set(MethodKind m, bool on) async {
-      if (!on && !payments.canTurnOff(m)) {
+      // On the phone a stored Link · HTTP switch receives nothing: it keeps no way open.
+      if (!on && !(phone ? payments.copyWith(linkHttp: false) : payments).canTurnOff(m)) {
         _say(l.txLastMethodNotice, level: NoticeLevel.warning);
         return;
       }
@@ -983,8 +983,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         for (final m in MethodKind.values)
           if (m.family == f && shown(m)) ...[
             methodTile(m),
-            // Where the phone's listener may run: the trusted networks, and Forget.
-            if (m == MethodKind.linkHttp && payments.linkHttp && phone) const _TrustedNetworksRow(),
             // Tor for payments (item 2): its state, never a "turn Tor on" card.
             if (m == MethodKind.linkTor && payments.linkTor) const _TorPayLine(),
           ],
@@ -1345,139 +1343,6 @@ String _txKeyName(MethodKind m) => switch (m) {
 
 /// The key of the line under Link · Tor that Tor is off, for tests.
 const Key txTorPayLineKey = ValueKey('tx-tor-pay-line');
-
-/// The key of the Trusted networks row under Link · HTTP, for tests.
-const Key txTrustedNetworksKey = ValueKey('tx-trusted-networks');
-
-/// The key of the info icon in the Trusted networks sheet, for tests.
-const Key txTrustedNetworksInfoKey = ValueKey('tx-trusted-networks-info');
-
-/// The key of a Forget button in the Trusted networks sheet, for tests.
-Key txForgetNetworkKey(String network) => ValueKey('tx-forget-network-$network');
-
-/// Under the Link · HTTP switch while it is on: "Trusted networks · 2 trusted". A tap opens the
-/// sheet that lists them ([_TrustedNetworksSheet]), each with Forget. The phone's listener runs
-/// only on a trusted network (phone_http.dart); the card on Receive › Link trusts the one in use.
-class _TrustedNetworksRow extends ConsumerWidget {
-  const _TrustedNetworksRow();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final count = ref.watch(phoneHttpProvider.select((s) => s.trustedNetworks.length));
-    final text = '${l.txTrustedNetworks} \u00B7 ${l.txTrustedNetworksCount(count)}';
-    return Semantics(
-      key: txTrustedNetworksKey,
-      button: true,
-      label: text,
-      excludeSemantics: true,
-      onTap: () => _TrustedNetworksSheet.show(context),
-      child: InkWell(
-        onTap: () => _TrustedNetworksSheet.show(context),
-        child: Padding(
-          // Lined up with the switch's title, past its icon; 48 dp tall for the finger.
-          padding: const EdgeInsets.fromLTRB(56, 0, 16, 6),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 40),
-            child: Row(
-              children: [
-                Icon(Icons.home_outlined, size: 16, color: t.dim),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(text, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim)),
-                ),
-                const NavChevron(size: 18),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The trusted networks, one row each ("192.168.1.x", "This network" on the one in
-/// use), with Forget. Live: a Forget removes its row and, on the network in use, stops the
-/// listener until the card on Receive › Link trusts it again.
-class _TrustedNetworksSheet extends ConsumerWidget {
-  const _TrustedNetworksSheet();
-
-  static Future<void> show(BuildContext context) => showPhoneSheet<void>(
-    context: context,
-    showDragHandle: true,
-    isScrollControlled: true,
-    builder: (_) => const _TrustedNetworksSheet(),
-  );
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final theme = Theme.of(context);
-    final http = ref.watch(phoneHttpProvider);
-    final current = lanNetworkKey(http.address);
-    // Newest first: the one trusted last is the one the user has in mind.
-    final networks = http.trustedNetworks.reversed.toList();
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              children: [
-                Icon(MethodIcons.of(MethodKind.linkHttp), size: 20, color: t.accentText),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Semantics(header: true, child: Text(l.txTrustedNetworks, style: theme.textTheme.titleMedium)),
-                ),
-                // What the list is, behind the info icon: the sheet itself stays a list.
-                InfoHint(l.txTrustedNetworksBody, key: txTrustedNetworksInfoKey, title: l.txTrustedNetworks, icon: MethodIcons.of(MethodKind.linkHttp)),
-              ],
-            ),
-            const SizedBox(height: 4),
-            if (networks.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Text(l.txTrustedNetworksNone, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
-              )
-            else
-              Flexible(
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: networks.length,
-                  separatorBuilder: (_, _) => Divider(height: 1, color: t.line),
-                  itemBuilder: (context, i) {
-                    final network = networks[i];
-                    final range = l.txTrustedNetworkRange(network);
-                    return ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      minVerticalPadding: 8,
-                      title: Text(range, style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily)),
-                      subtitle: network == current ? Text(l.txTrustedNetworkCurrent, style: theme.textTheme.bodySmall?.copyWith(color: t.ok)) : null,
-                      trailing: Semantics(
-                        label: l.txTrustedNetworkForgetLabel(range),
-                        excludeSemantics: true,
-                        button: true,
-                        child: TextButton(
-                          key: txForgetNetworkKey(network),
-                          style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-                          onPressed: () => ref.read(phoneHttpProvider.notifier).forgetTrusted(network),
-                          child: Text(l.txTrustedNetworkForget),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 /// Under the Link · Tor switch while it is on: what Tor for payments does now (starting,
 /// receiving, off in Node only or Kill switch) and whether Tor also carries the rest.

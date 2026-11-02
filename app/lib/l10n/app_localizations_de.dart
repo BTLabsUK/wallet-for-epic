@@ -5663,35 +5663,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Teilen Sie bis dahin die Epicbox-Adresse.';
 
   @override
-  String get receiveHttpTitle => 'Link · HTTP-Adresse';
-
-  @override
-  String get receiveHttpLanLine =>
-      'Für Wallets in diesem WLAN, solange diese Wallet geöffnet ist.';
-
-  @override
-  String get receiveHttpNoNetwork =>
-      'Nicht in einem WLAN. Keine Adresse zum Weitergeben.';
-
-  @override
-  String get receiveHttpOffWhileTor => 'Aus, solange Tor an ist.';
-
-  @override
-  String receiveHttpPortInUse(String port) {
-    return 'Port $port wird von einem anderen Programm benutzt.';
-  }
-
-  @override
-  String get receiveHttpFailed => 'Konnte nicht gestartet werden.';
-
-  @override
   String get receiveHttpShowQr => 'QR anzeigen';
 
   @override
   String get receiveHttpHideQr => 'QR ausblenden';
-
-  @override
-  String get receiveHttpQrLabel => 'QR-Code der Link · HTTP-Adresse';
 
   @override
   String get netStatusOverTor => 'über Tor';
@@ -18167,58 +18142,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get passphraseSetTitle => 'Passphrase festlegen';
 
   @override
-  String get receiveHttpNotTrustedTitle => 'In diesem Netz aus';
-
-  @override
-  String get receiveHttpNotTrusted =>
-      'Link · HTTP hört nur in Netzen zu, denen Sie vertrauen.';
-
-  @override
-  String get receiveHttpTrust => 'Diesem Netz vertrauen';
-
-  @override
   String get deskSetReportFullDetails => 'Alle Details mitsenden';
 
   @override
   String get deskSetReportPartFullDetails => 'Alle Details';
-
-  @override
-  String get txTrustedNetworks => 'Vertraute Netze';
-
-  @override
-  String txTrustedNetworksCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count vertraut',
-      one: '$count vertraut',
-      zero: 'Noch keines',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get txTrustedNetworksBody =>
-      'Link · HTTP empfängt nur in vertrauten Netzen. Nach einem vergessenen Netz fragt das Telefon beim nächsten Beitritt erneut.';
-
-  @override
-  String get txTrustedNetworksNone => 'Noch kein vertrautes Netz.';
-
-  @override
-  String get txTrustedNetworkCurrent => 'Dieses Netz';
-
-  @override
-  String get txTrustedNetworkForget => 'Vergessen';
-
-  @override
-  String txTrustedNetworkForgetLabel(String range) {
-    return '$range vergessen';
-  }
-
-  @override
-  String txTrustedNetworkRange(String range) {
-    return '$range.x';
-  }
 
   @override
   String get deskSetReportFullDetailsInfo =>

@@ -5746,35 +5746,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Do tego czasu udostępnij adres Epicbox.';
 
   @override
-  String get receiveHttpTitle => 'Adres Link · HTTP';
-
-  @override
-  String get receiveHttpLanLine =>
-      'Dla portfeli w tej sieci Wi-Fi, gdy ten portfel jest otwarty.';
-
-  @override
-  String get receiveHttpNoNetwork =>
-      'Brak sieci Wi-Fi. Nie ma adresu do podania.';
-
-  @override
-  String get receiveHttpOffWhileTor => 'Wyłączone, gdy Tor jest włączony.';
-
-  @override
-  String receiveHttpPortInUse(String port) {
-    return 'Port $port jest używany przez inny program.';
-  }
-
-  @override
-  String get receiveHttpFailed => 'Nie udało się uruchomić.';
-
-  @override
   String get receiveHttpShowQr => 'Pokaż QR';
 
   @override
   String get receiveHttpHideQr => 'Ukryj QR';
-
-  @override
-  String get receiveHttpQrLabel => 'Kod QR adresu Link · HTTP';
 
   @override
   String get netStatusOverTor => 'przez Tor';
@@ -18595,60 +18570,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get passphraseSetTitle => 'Ustaw hasło';
 
   @override
-  String get receiveHttpNotTrustedTitle => 'Wyłączone w tej sieci';
-
-  @override
-  String get receiveHttpNotTrusted =>
-      'Link · HTTP nasłuchuje tylko w sieciach, którym ufasz.';
-
-  @override
-  String get receiveHttpTrust => 'Ufaj tej sieci';
-
-  @override
   String get deskSetReportFullDetails => 'Dołącz pełne szczegóły';
 
   @override
   String get deskSetReportPartFullDetails => 'Pełne szczegóły';
-
-  @override
-  String get txTrustedNetworks => 'Zaufane sieci';
-
-  @override
-  String txTrustedNetworksCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count zaufanej',
-      many: '$count zaufanych',
-      few: '$count zaufane',
-      one: '$count zaufana',
-      zero: 'Jeszcze żadnej',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get txTrustedNetworksBody =>
-      'Link · HTTP odbiera tylko w zaufanych sieciach. O zapomnianą sieć telefon zapyta ponownie przy następnym połączeniu z nią.';
-
-  @override
-  String get txTrustedNetworksNone => 'Nie ma jeszcze zaufanej sieci.';
-
-  @override
-  String get txTrustedNetworkCurrent => 'Ta sieć';
-
-  @override
-  String get txTrustedNetworkForget => 'Zapomnij';
-
-  @override
-  String txTrustedNetworkForgetLabel(String range) {
-    return 'Zapomnij $range';
-  }
-
-  @override
-  String txTrustedNetworkRange(String range) {
-    return '$range.x';
-  }
 
   @override
   String get deskSetReportFullDetailsInfo =>

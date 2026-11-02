@@ -78,7 +78,8 @@ class SendPairingLine extends ConsumerWidget {
     final pairing = sendPairingFor(ref, address);
     final kinds = contact.kinds;
     final current = parseRecipient(address).kind;
-    final prefs = ref.watch(appSettingsProvider).value?.payments ?? PaymentPrefs.defaults;
+    // The phone sends to an http(s) address whatever its stored Link · HTTP switch says.
+    final prefs = (ref.watch(appSettingsProvider).value?.payments ?? PaymentPrefs.defaults).copyWith(linkHttp: true);
     // Hidden while the contact's key answers as another wallet app (trust policy): the plain
     // route is used then.
     final mailbox = pairing != null && epicbox && pairing.seals && ref.watch(pairNetProvider) == PairNet.online && mailboxRouteOffered(ref, contact, pairing);

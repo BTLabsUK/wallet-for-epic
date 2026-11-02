@@ -13,7 +13,6 @@ import 'demo_web_connection.dart';
 import 'l10n.dart';
 import 'node_failover.dart' show NodeFailover;
 import 'node_failover_phone.dart';
-import 'phone_http.dart';
 import 'price.dart' show priceProvider;
 import 'levels/level_providers.dart' show effectiveAdvancedProvider;
 import 'levels/relay_switch_providers.dart' show relayDrainWatchProvider, relaySwitchProvider;
@@ -102,9 +101,6 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     // A wallet rebuilt from its phrase finishes its scan from block 0 by itself, after every
     // unlock (restore_scan.dart); Home shows where it stands.
     ref.listenManual(restoreScanProvider, (_, _) {});
-    // Alive for the app's life: the Link · HTTP listener runs while a wallet is open and its
-    // switch is on, stops on lock and while Tor is on, and starts again on resume.
-    ref.listenManual(phoneHttpProvider, (_, _) {});
     // Alive for the app's life: at every level an Epicbox relay down for a while is offered a
     // one-tap move (never made by itself), and an address left behind is read for 30 days.
     ref.listenManual(relaySwitchProvider, (_, _) {});

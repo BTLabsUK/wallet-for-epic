@@ -11,12 +11,11 @@ import 'dart:async';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
-import 'package:epic_wallet/src/settings.dart' show appSettingsProvider, networkModeProvider;
+import 'package:epic_wallet/src/settings.dart' show networkModeProvider;
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/ui/common.dart';
-import 'package:epic_wallet/src/ui/receive_http_card.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
@@ -208,9 +207,6 @@ Finder _status(String text) => find.descendant(
 /// Settings › Transactions › Link · Tor on, as the Link tab's onion needs it.
 const _directOn = PaymentPrefs(linkTor: true);
 
-/// Link · HTTP on as well: the Link tab stacks its card under the Tor part.
-const _bothOn = PaymentPrefs(linkTor: true, linkHttp: true);
-
 void main() {
   // Tor's own behaviour: nothing of it is in the build without Tor.
   if (!torBuilt) {
@@ -234,7 +230,6 @@ void main() {
         [ReceiveTab.epicbox, ReceiveTab.direct, ReceiveTab.file],
       );
       await plain.torTab(tester);
-      expect(find.byKey(receiveTurnOnHttpKey), findsOneWidget);
       expect(find.byKey(receiveTurnOnLinkTorKey), findsOneWidget);
       expect(find.byKey(receiveTorAddressKey), findsNothing);
       await tester.pumpWidget(const SizedBox());
@@ -261,48 +256,6 @@ void main() {
       expect(find.byKey(receiveTorAddressKey), findsNothing);
     });
 
-    testWidgets('Link · HTTP alone: the Link tab with its card, no Tor part', (tester) async {
-      final h = _Harness(payments: const PaymentPrefs(linkHttp: true));
-      await h.pump(tester);
-      await h.torTab(tester);
-      expect(find.byType(ReceiveHttpCard), findsOneWidget);
-      expect(find.byKey(receiveTorAddressKey), findsNothing);
-      expect(find.byKey(receiveTurnOnTorKey), findsNothing);
-    });
-
-    testWidgets('Link · HTTP keeps the Link tab where the app has no Tor', (tester) async {
-      final h = _Harness(bundle: null, payments: _bothOn);
-      await h.pump(tester);
-      expect(h.tor.phase, PhoneTorPhase.unavailable);
-      await h.torTab(tester);
-      expect(find.byType(ReceiveHttpCard), findsOneWidget);
-      expect(find.byKey(receiveTorAddressKey), findsNothing);
-      expect(find.byKey(receiveTurnOnTorKey), findsNothing);
-    });
-
-    testWidgets('both Link methods on: the Tor part, then the HTTP card', (tester) async {
-      final h = _Harness(payments: _bothOn);
-      await h.pump(tester);
-      await h.torTab(tester);
-      // Tor off: Turn on Tor, and the HTTP card under it.
-      expect(find.byKey(receiveTurnOnTorKey), findsOneWidget);
-      expect(find.byType(ReceiveHttpCard), findsOneWidget);
-      expect(
-        tester.getTopLeft(find.byKey(receiveTurnOnTorKey)).dy,
-        lessThan(tester.getTopLeft(find.byType(ReceiveHttpCard)).dy),
-      );
-      await h.switchOn(tester);
-      await h.emit(tester, TorEventKind.ready);
-      // Tor on: the onion and its code, then the HTTP card.
-      expect(find.byKey(receiveTorAddressKey), findsOneWidget);
-      expect(find.byKey(receiveTorQrKey), findsOneWidget);
-      expect(find.byType(ReceiveHttpCard), findsOneWidget);
-      expect(
-        tester.getTopLeft(find.byKey(receiveTorQrKey)).dy,
-        lessThan(tester.getTopLeft(find.byType(ReceiveHttpCard)).dy),
-      );
-    });
-
     testWidgets('Epicbox off: Link · Tor needing Tor does not point to the Epicbox address', (tester) async {
       final h = _Harness(payments: const PaymentPrefs(epicbox: false, linkTor: true));
       await h.pump(tester);
@@ -321,10 +274,9 @@ void main() {
         [for (final s in tabs.segments) s.value],
         [ReceiveTab.epicbox, ReceiveTab.direct, ReceiveTab.file],
       );
-      // Its page offers Link · HTTP only: no Tor to turn on.
+      // No Tor to turn on.
       h.container.read(receiveTabProvider.notifier).choose(ReceiveTab.direct);
       await tester.pumpAndSettle();
-      expect(find.byKey(receiveTurnOnHttpKey), findsOneWidget);
       expect(find.byKey(receiveTurnOnLinkTorKey), findsNothing);
     });
   });
@@ -460,10 +412,6 @@ void main() {
       // One tab is no choice: the strip is gone, the Link page shows the switches.
       expect(find.byKey(receiveTabsKey), findsNothing);
       expect(find.byKey(receiveAddressKey), findsNothing);
-      expect(find.byKey(receiveTurnOnHttpKey), findsOneWidget);
-      await tester.tap(find.byKey(receiveTurnOnHttpKey));
-      await tester.pumpAndSettle();
-      expect(h.container.read(appSettingsProvider).value?.payments.linkHttp, isTrue);
     });
 
     testWidgets('Standard: no offline line', (tester) async {

@@ -8956,42 +8956,6 @@ abstract class AppLocalizations {
   /// **'Meanwhile, share the Epicbox address.'**
   String get receiveDirectMeanwhile;
 
-  /// Title of the HTTP address card on the phone’s Receive › Link tab.
-  ///
-  /// In en, this message translates to:
-  /// **'Link · HTTP address'**
-  String get receiveHttpTitle;
-
-  /// Line under the HTTP address on the phone’s Receive › Link tab: who can reach it.
-  ///
-  /// In en, this message translates to:
-  /// **'For wallets on this Wi-Fi network, while this wallet is open.'**
-  String get receiveHttpLanLine;
-
-  /// The HTTP address card on the phone’s Receive › Link tab when the phone has no Wi-Fi (or other local network) address.
-  ///
-  /// In en, this message translates to:
-  /// **'Not on a Wi-Fi network. No address to hand out.'**
-  String get receiveHttpNoNetwork;
-
-  /// The HTTP address card on the phone’s Receive › Link tab while Tor runs: the listener does not start (it would show the phone’s own address).
-  ///
-  /// In en, this message translates to:
-  /// **'Off while Tor is on.'**
-  String get receiveHttpOffWhileTor;
-
-  /// The HTTP address card when the listener could not start because the port is taken. {port} is the port number.
-  ///
-  /// In en, this message translates to:
-  /// **'Port {port} is in use by another program.'**
-  String receiveHttpPortInUse(String port);
-
-  /// The HTTP address card when the listener could not start for another reason; Retry is next to it.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not start.'**
-  String get receiveHttpFailed;
-
   /// Button on the phone's Link · HTTP address card that shows the address as a QR code (hidden until asked).
   ///
   /// In en, this message translates to:
@@ -9003,12 +8967,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hide QR'**
   String get receiveHttpHideQr;
-
-  /// Screen reader label of the QR code on the phone's Link · HTTP address card.
-  ///
-  /// In en, this message translates to:
-  /// **'QR code of the Link · HTTP address'**
-  String get receiveHttpQrLabel;
 
   /// Status card: read out after a service whose connection goes through Tor.
   ///
@@ -27972,24 +27930,6 @@ abstract class AppLocalizations {
   /// **'Set a passphrase'**
   String get passphraseSetTitle;
 
-  /// Receive › Link · HTTP card, first line while the phone's listener does not run because the Wi-Fi network is not one the user trusts. Calm: a state, not an alarm.
-  ///
-  /// In en, this message translates to:
-  /// **'Off on this network'**
-  String get receiveHttpNotTrustedTitle;
-
-  /// Receive › Link · HTTP card: the info sheet behind the Off on this network line: the listener runs only on Wi-Fi networks the user trusts.
-  ///
-  /// In en, this message translates to:
-  /// **'Link · HTTP listens only on networks you trust.'**
-  String get receiveHttpNotTrusted;
-
-  /// Receive › Link · HTTP card: button that marks the current Wi-Fi network as trusted so the listener may run on it.
-  ///
-  /// In en, this message translates to:
-  /// **'Trust this network'**
-  String get receiveHttpTrust;
-
   /// Report a problem dialog: checkbox under Attach logs. When ticked, wallet addresses and amounts the log holds are sent as they are instead of shortened.
   ///
   /// In en, this message translates to:
@@ -28001,54 +27941,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Full details'**
   String get deskSetReportPartFullDetails;
-
-  /// Settings › Transactions, row under the Link › HTTP switch: opens the list of trusted Wi-Fi networks (where the phone's HTTP listener runs).
-  ///
-  /// In en, this message translates to:
-  /// **'Trusted networks'**
-  String get txTrustedNetworks;
-
-  /// Settings › Transactions, line under the Trusted networks row: how many networks are trusted.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =0{None yet} one{{count} trusted} other{{count} trusted}}'**
-  String txTrustedNetworksCount(int count);
-
-  /// Trusted networks sheet: the info sheet behind the info icon beside the title: what the list is, in two short sentences.
-  ///
-  /// In en, this message translates to:
-  /// **'Link · HTTP receives only on trusted networks. A forgotten network is asked about again the next time the phone joins it.'**
-  String get txTrustedNetworksBody;
-
-  /// Trusted networks sheet: the empty list, one short line.
-  ///
-  /// In en, this message translates to:
-  /// **'No trusted network yet.'**
-  String get txTrustedNetworksNone;
-
-  /// Trusted networks sheet: tag beside the entry of the network the phone is on now.
-  ///
-  /// In en, this message translates to:
-  /// **'This network'**
-  String get txTrustedNetworkCurrent;
-
-  /// Trusted networks sheet: button beside each entry that removes it; the listener then stops on that network until it is trusted again.
-  ///
-  /// In en, this message translates to:
-  /// **'Forget'**
-  String get txTrustedNetworkForget;
-
-  /// Trusted networks sheet: screen reader label of the Forget button, with the entry's address range (txTrustedNetworkRange).
-  ///
-  /// In en, this message translates to:
-  /// **'Forget {range}'**
-  String txTrustedNetworkForgetLabel(String range);
-
-  /// Trusted networks sheet: an entry, the network's address range as its first three numbers and an x for the last (192.168.1.x). Keep the x.
-  ///
-  /// In en, this message translates to:
-  /// **'{range}.x'**
-  String txTrustedNetworkRange(String range);
 
   /// Report a problem dialog: the info popover beside the Include full details checkbox: what the tick changes (addresses and amounts the log holds go whole instead of shortened) and that seeds, keys and passwords are never in the report.
   ///

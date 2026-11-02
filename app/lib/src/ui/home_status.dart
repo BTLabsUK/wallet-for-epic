@@ -29,7 +29,6 @@ import 'network_mode_text.dart';
 import 'receive_screen.dart' show ReceiveTab, receiveTabProvider;
 import 'server_picker.dart';
 import '../payment_prefs.dart' show PaymentPrefs;
-import '../phone_http.dart' show PhoneHttpPhase, phoneHttpProvider;
 import '../settings.dart' show appSettingsProvider, networkModeProvider;
 import 'settings_screen.dart' show openPrivacySettings;
 import 'settings_sections.dart' show SettingsSection, openSettingsSection;
@@ -76,23 +75,15 @@ StatusDot torDot(TorState state) => StatusDot.of(torShownState(state));
   return (dot: StatusDot.of(shown), word: shown.word(l));
 }
 
-/// Link's dot and words for the status icons: off while neither Link method is
-/// on; with Link · Tor on, the onion's state ([directFace]); else the HTTP listener's.
-({StatusDot dot, String word, String detail}) linkFace(AppLocalizations l, WalletTokens t, PhoneTorState s, PaymentPrefs p, PhoneHttpPhase http, {required bool linkOn}) {
+/// Link's dot and words for the status icons: off while Link · Tor is off; else the
+/// onion's state ([directFace]). The phone receives nothing over Link · HTTP.
+({StatusDot dot, String word, String detail}) linkFace(AppLocalizations l, WalletTokens t, PhoneTorState s, PaymentPrefs p, {required bool linkOn}) {
   if (!linkOn) return (dot: StatusDot.off, word: l.netStatusOff, detail: l.netStatusTurnOnHint);
   if (directIconShown(s) || (p.linkTor && torIconShown(s))) {
     final d = directFace(l, s);
     return (dot: d.dot, word: d.word, detail: torStatusOf(l, t, s).text);
   }
-  if (p.linkTor && !p.linkHttp) return (dot: StatusDot.bad, word: l.torWordNotConnected, detail: l.torNeeds);
-  // The listener's one word per state (state_language.dart), as on the desktop.
-  final shown = switch (http) {
-    PhoneHttpPhase.listening => ShownState.receiving,
-    PhoneHttpPhase.starting => ShownState.starting,
-    PhoneHttpPhase.off => ShownState.off,
-    _ => ShownState.notReceiving,
-  };
-  return (dot: StatusDot.of(shown), word: shown.word(l), detail: shown.word(l));
+  return (dot: StatusDot.bad, word: l.torWordNotConnected, detail: l.torNeeds);
 }
 
 /// A service's dot and words once its route under the Tor switch is known: waiting for Tor
@@ -197,9 +188,9 @@ String statusBrief(String detail, {String? host}) {
   );
   final torFace = torStatusOf(l, t, tor);
   final payments = ref.watch(appSettingsProvider).value?.payments ?? const PaymentPrefs();
-  // On by either Link switch, or while the onion is published anyway (a running Link · Tor).
-  final linkOn = payments.linkHttp || payments.linkTor || directIconShown(tor);
-  final link = linkFace(l, t, tor, payments, ref.watch(phoneHttpProvider).listener, linkOn: linkOn);
+  // On by the Link · Tor switch, or while the onion is published anyway (a running Link · Tor).
+  final linkOn = payments.linkTor || directIconShown(tor);
+  final link = linkFace(l, t, tor, payments, linkOn: linkOn);
   final mode = ref.watch(networkModeProvider);
   final torOn = torIconShown(tor);
   final killSwitch = mode == NetworkMode.killSwitch;

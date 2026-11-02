@@ -2132,9 +2132,11 @@ class _SendViewState extends ConsumerState<SendView> {
   MethodKind? get _sendMethod {
     if (_method == TransferMethod.epicbox) return MethodKind.epicbox;
     if (_method != TransferMethod.direct) return null;
-    // Link chosen with both its switches off: Link · HTTP is the one to turn on (Tor's needs Tor).
-    if (_recipient.text.trim().isEmpty) return _linkOff ? MethodKind.linkHttp : null;
+    // Link with no address yet: nothing to hold, Link · HTTP has no switch on the phone.
+    if (_recipient.text.trim().isEmpty) return null;
     final kind = parseRecipient(_recipient.text).kind;
+    // An http(s) address sends with no switch: only the network mode holds it.
+    if (kind == RecipientKind.http) return null;
     // No Tor in this build: an onion has no method to turn on, its own error says so.
     if (kind == RecipientKind.tor && !torBuilt) return null;
     // An Epicbox address goes over Epicbox whatever the selector says (Send may have moved off
@@ -2143,12 +2145,11 @@ class _SendViewState extends ConsumerState<SendView> {
   }
 
   /// Settings › Transactions, watched: the build follows a switch (the defaults until it loads).
+  /// Link · HTTP counts as on: the phone sends to an http(s) address with no switch.
   PaymentPrefs get _watchedPayments =>
-      ref.watch(appSettingsProvider.select((s) => s.value?.payments)) ??
-      (ref.watch(phonePaymentsProvider) ? PaymentPrefs.phoneDefaults : PaymentPrefs.defaults);
-
-  /// Both Link switches are off: Send still lists Link, and says how to turn it on.
-  bool get _linkOff => !_watchedPayments.offersFamily(MethodFamily.link);
+      (ref.watch(appSettingsProvider.select((s) => s.value?.payments)) ??
+              (ref.watch(phonePaymentsProvider) ? PaymentPrefs.phoneDefaults : PaymentPrefs.defaults))
+          .copyWith(linkHttp: true);
 
   /// One tap on the off-note's button: [m]'s switch on, as Settings › Transactions would.
   Future<void> _turnOn(MethodKind m) async {
@@ -2555,8 +2556,8 @@ class _SendViewState extends ConsumerState<SendView> {
       // back for this send, where the note says it is off.
       if (selected == TransferMethod.epicbox || payments.epicbox || _pairingTo != null)
         segment(TransferMethod.epicbox, MethodIcons.of(MethodKind.epicbox), MethodIcons.shortName(l, MethodKind.epicbox)),
-      // Link is listed from the start: sending by it needs no listener. With Link · HTTP
-      // and Link · Tor both off the note names the method and Turn on is one tap.
+      // Link is listed from the start: an http(s) address needs no switch; an onion with
+      // Link · Tor off gets the note and a one-tap Turn on.
       // A pairing recipient has no Link address.
       if (selected == TransferMethod.direct || _pairingTo == null)
         segment(TransferMethod.direct, MethodIcons.family(MethodFamily.link), MethodIcons.familyName(l, MethodFamily.link)),

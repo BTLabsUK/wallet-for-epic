@@ -7,7 +7,6 @@
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network_gate.dart' show NetGate;
 import 'package:epic_wallet/src/payment_prefs.dart';
-import 'package:epic_wallet/src/phone_http.dart' show lanAddressReaderProvider, trustedNetworksKey;
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
@@ -79,7 +78,6 @@ Future<ProviderContainer> _pump(
   bool phone = false,
   List<TxEntry> transactions = const [],
   PhoneTorState tor = _torOff,
-  String? lanAddress,
 }) async {
   tester.view.physicalSize = const Size(1080, 4800);
   tester.view.devicePixelRatio = 3;
@@ -96,7 +94,6 @@ Future<ProviderContainer> _pump(
         sessionProvider.overrideWith(() => _OpenSession(transactions)),
         phoneTorProvider.overrideWith(() => _Tor(tor)),
         backedUpProvider.overrideWith((ref) async => true),
-        if (lanAddress != null) lanAddressReaderProvider.overrideWithValue(() async => lanAddress),
       ],
       child: Consumer(
         builder: (context, ref, _) {
@@ -191,42 +188,6 @@ void main() {
     expect(_payments(c).linkTor, isFalse);
     expect(_row('tx-tor'), findsOneWidget, reason: 'a row shown stays while the page is open');
   }, skip: !torBuilt);
-
-  testWidgets('Link · HTTP on: the Trusted networks row lists the trusted networks, Forget drops one', (tester) async {
-    final store = _store({
-      'app.payment_prefs': const PaymentPrefs(linkHttp: true).encode(),
-      trustedNetworksKey: '10.0.0,192.168.1',
-    });
-    await _pump(tester, store, phone: true, lanAddress: '10.100.10.20');
-    await tester.pump(const Duration(milliseconds: 50));
-    await tester.pumpAndSettle();
-    expect(find.text('Trusted networks · 2 trusted'), findsOneWidget);
-    await tester.tap(_row('tx-trusted-networks'));
-    await tester.pumpAndSettle();
-    // Newest first, the one in use tagged.
-    expect(find.text('192.168.1.x'), findsOneWidget);
-    expect(find.text('10.0.0.x'), findsOneWidget);
-    expect(find.text('This network'), findsOneWidget);
-
-    await tester.tap(_row('tx-forget-network-10.0.0'));
-    await tester.pump(const Duration(milliseconds: 50));
-    await tester.pumpAndSettle();
-    expect(find.text('10.0.0.x'), findsNothing);
-    expect(store.values[trustedNetworksKey], '192.168.1');
-    expect(find.text('Trusted networks · 1 trusted'), findsOneWidget);
-
-    // The last one: the sheet says none is trusted.
-    await tester.tap(_row('tx-forget-network-192.168.1'));
-    await tester.pump(const Duration(milliseconds: 50));
-    await tester.pumpAndSettle();
-    expect(find.textContaining('No trusted network yet'), findsOneWidget);
-    expect(find.text('Trusted networks · None yet'), findsOneWidget);
-  });
-
-  testWidgets('Link · HTTP off: no Trusted networks row', (tester) async {
-    await _pump(tester, _store({trustedNetworksKey: '192.168.1'}), phone: true);
-    expect(_row('tx-trusted-networks'), findsNothing);
-  });
 
   testWidgets('Link · Tor on with Tor off: a state line, no "turn Tor on" card (item 2)', (tester) async {
     final c = await _pump(tester, _store());

@@ -5285,33 +5285,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get receiveDirectMeanwhile => '在此期间，请分享 Epicbox 地址。';
 
   @override
-  String get receiveHttpTitle => '链接 · HTTP 地址';
-
-  @override
-  String get receiveHttpLanLine => '供此 Wi-Fi 网络中的钱包使用，本钱包保持打开时有效。';
-
-  @override
-  String get receiveHttpNoNetwork => '未连接 Wi-Fi 网络，没有可提供的地址。';
-
-  @override
-  String get receiveHttpOffWhileTor => 'Tor 开启时关闭。';
-
-  @override
-  String receiveHttpPortInUse(String port) {
-    return '端口 $port 已被其他程序占用。';
-  }
-
-  @override
-  String get receiveHttpFailed => '无法启动。';
-
-  @override
   String get receiveHttpShowQr => '显示二维码';
 
   @override
   String get receiveHttpHideQr => '隐藏二维码';
-
-  @override
-  String get receiveHttpQrLabel => '链接 · HTTP 地址二维码';
 
   @override
   String get netStatusOverTor => '经由 Tor';
@@ -16912,56 +16889,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get passphraseSetTitle => '设置密码短语';
 
   @override
-  String get receiveHttpNotTrustedTitle => '在此网络上已关闭';
-
-  @override
-  String get receiveHttpNotTrusted => 'Link · HTTP 只在你信任的网络上监听。';
-
-  @override
-  String get receiveHttpTrust => '信任此网络';
-
-  @override
   String get deskSetReportFullDetails => '包含完整详情';
 
   @override
   String get deskSetReportPartFullDetails => '完整详情';
-
-  @override
-  String get txTrustedNetworks => '信任的网络';
-
-  @override
-  String txTrustedNetworksCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '已信任 $count 个',
-      zero: '尚无',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get txTrustedNetworksBody =>
-      'Link · HTTP 仅在受信任的网络上接收。已忘记的网络会在手机下次加入时再次询问。';
-
-  @override
-  String get txTrustedNetworksNone => '尚未信任任何网络。';
-
-  @override
-  String get txTrustedNetworkCurrent => '当前网络';
-
-  @override
-  String get txTrustedNetworkForget => '忘记';
-
-  @override
-  String txTrustedNetworkForgetLabel(String range) {
-    return '忘记 $range';
-  }
-
-  @override
-  String txTrustedNetworkRange(String range) {
-    return '$range.x';
-  }
 
   @override
   String get deskSetReportFullDetailsInfo => '地址和金额将完整发送而不是缩短。助记词、密钥和密码绝不会发送。';

@@ -37,7 +37,6 @@ import '../levels/level_providers.dart' show levelFeaturesProvider;
 import '../levels/relay_switch_providers.dart' show relaySwitchResultProvider;
 import 'method_strip.dart';
 import 'payment_gate.dart';
-import 'receive_http_card.dart';
 import 'settings_screen.dart';
 import 'network_mode_phone.dart' show openNetworkSection;
 import 'network_mode_text.dart';
@@ -93,8 +92,8 @@ const double receiveQrMaxSize = 240, receiveQrMinSize = 110;
 /// address (tap to copy, Share inside), the epicbox line, the QR code, and the demo's test
 /// coins and requesting a payment when the wallet handles invoices; on Link, stacked, the
 /// onion address in the same card, Tor's state and the QR code (or with Tor off a Turn on
-/// Tor) while Link · Tor is on, and the Link · HTTP card ([ReceiveHttpCard]) while
-/// Link · HTTP is on; on File the file card. Help ends them all. The QR code takes the room
+/// Tor) while Link · Tor is on (the phone receives nothing over Link · HTTP); on File the
+/// file card. Help ends them all. The QR code takes the room
 /// left, so the Epicbox tab fits a phone without scrolling.
 /// Room on each side of a method tab's label.
 const double _tabPad = 4;
@@ -161,10 +160,7 @@ class ReceiveView extends ConsumerWidget {
     final quiet = !ref.watch(levelFeaturesProvider.select((f) => f.methodStrip));
     final relayMove = quiet ? ref.watch(relaySwitchResultProvider) : null;
     final arriving = quiet ? arrivingPayment(ref.watch(homeProvider.select((h) => h.value?.transactions)) ?? const []) : null;
-    // Link: the Tor part where the app has Tor and Link · Tor is on (the tab in use keeps it,
-    // as Tor's own state did before the split); the HTTP card while Link · HTTP is on.
-    final linkTor = torAvailable && (payments.linkTor || (tab == ReceiveTab.direct && !payments.linkHttp));
-    final linkHttp = payments.linkHttp;
+    // Link: the Tor part where the app has Tor and Link · Tor is on. Link · HTTP only sends.
     // The Link tab keeps its page with both Link methods off: it offers to turn one on.
     // Offline: the addresses stay to hand out, with a line that nothing arrives meanwhile.
     final offlineBlock = watchNetBlock(context, ref);
@@ -345,8 +341,8 @@ class ReceiveView extends ConsumerWidget {
       ]);
       code = null;
       below = const SizedBox.shrink();
-    } else if (tab == ReceiveTab.direct && !payments.linkHttp && !(payments.linkTor && torAvailable)) {
-      // Both Link methods off: say so and offer the switches (GP-024).
+    } else if (tab == ReceiveTab.direct && !(payments.linkTor && torAvailable)) {
+      // Link · Tor off: say so and offer its switch (GP-024).
       above = column([
         strip,
         _LinkOff(payments: payments, tor: torAvailable),
@@ -355,19 +351,9 @@ class ReceiveView extends ConsumerWidget {
       ]);
       code = null;
       below = const SizedBox.shrink();
-    } else if (tab == ReceiveTab.direct && !linkTor) {
-      // Link · HTTP alone: its card.
-      above = column([
-        strip,
-        const ReceiveHttpCard(),
-        const SizedBox(height: 8),
-        help,
-      ]);
-      code = null;
-      below = const SizedBox.shrink();
     } else if (tab == ReceiveTab.direct && torState == TorState.off) {
       // No Link · Tor receiving without Tor, and no onion to hand out: Tor never runs in
-      // Offline either. Link · HTTP's card under it while that is on.
+      // Offline either.
       above = column([
         strip,
         _DirectNeedsTor(epicbox: payments.epicbox, offline: offline),
@@ -376,7 +362,6 @@ class ReceiveView extends ConsumerWidget {
       ]);
       code = null;
       below = column([
-        if (linkHttp) ...[const SizedBox(height: 8), const ReceiveHttpCard()],
         const SizedBox(height: 8),
         help,
       ]);
@@ -431,7 +416,6 @@ class ReceiveView extends ConsumerWidget {
               ),
             );
       below = column([
-        if (linkHttp) ...[const SizedBox(height: 8), const ReceiveHttpCard()],
         const SizedBox(height: 8),
         help,
       ]);
@@ -949,8 +933,7 @@ class _EpicboxLine extends ConsumerWidget {
 }
 
 /// The key of Turn on Tor on Receive's Link tab, for tests.
-/// The Turn on buttons of Receive › Link while both Link methods are off, for tests.
-const Key receiveTurnOnHttpKey = ValueKey('receive-turn-on-http');
+/// The Turn on button of Receive › Link while Link · Tor is off, for tests.
 const Key receiveTurnOnLinkTorKey = ValueKey('receive-turn-on-link-tor');
 
 const Key receiveTurnOnTorKey = ValueKey('receive-turn-on-tor');
@@ -958,7 +941,7 @@ const Key receiveTurnOnTorKey = ValueKey('receive-turn-on-tor');
 /// Receive's Link tab with Link · Tor on and Tor off: Link · Tor receiving needs Tor, the
 /// Epicbox address works meanwhile (while [epicbox] is on), and Turn on Tor (the one switch,
 /// as in Settings › Privacy).
-/// Receive › Link with both Link methods off: the reason and a Turn on for each.
+/// Receive › Link with Link · Tor off: the reason and its Turn on.
 class _LinkOff extends ConsumerWidget {
   const _LinkOff({required this.payments, required this.tor});
 
@@ -981,16 +964,8 @@ class _LinkOff extends ConsumerWidget {
           textAlign: TextAlign.center,
           style: theme.textTheme.bodyMedium?.copyWith(color: context.tokens.dim),
         ),
-        const SizedBox(height: 12),
-        FilledButton.tonalIcon(
-          key: receiveTurnOnHttpKey,
-          style: FilledButton.styleFrom(minimumSize: const Size(48, 44)),
-          icon: Icon(MethodIcons.of(MethodKind.linkHttp)),
-          label: Text(l.sendTurnOnMethod(MethodIcons.fullName(l, MethodKind.linkHttp))),
-          onPressed: () => turnOn(MethodKind.linkHttp),
-        ),
         if (tor) ...[
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           FilledButton.tonalIcon(
             key: receiveTurnOnLinkTorKey,
             style: FilledButton.styleFrom(minimumSize: const Size(48, 44)),

@@ -5723,35 +5723,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get receiveDirectMeanwhile => 'Пока поделитесь адресом Epicbox.';
 
   @override
-  String get receiveHttpTitle => 'Адрес Ссылка · HTTP';
-
-  @override
-  String get receiveHttpLanLine =>
-      'Для кошельков в этой сети Wi-Fi, пока этот кошелёк открыт.';
-
-  @override
-  String get receiveHttpNoNetwork =>
-      'Нет подключения к Wi-Fi. Адреса, который можно передать, нет.';
-
-  @override
-  String get receiveHttpOffWhileTor => 'Выключено, пока включён Tor.';
-
-  @override
-  String receiveHttpPortInUse(String port) {
-    return 'Порт $port занят другой программой.';
-  }
-
-  @override
-  String get receiveHttpFailed => 'Не удалось запустить.';
-
-  @override
   String get receiveHttpShowQr => 'Показать QR';
 
   @override
   String get receiveHttpHideQr => 'Скрыть QR';
-
-  @override
-  String get receiveHttpQrLabel => 'QR-код адреса Ссылка · HTTP';
 
   @override
   String get netStatusOverTor => 'через Tor';
@@ -18581,60 +18556,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get passphraseSetTitle => 'Задать пароль';
 
   @override
-  String get receiveHttpNotTrustedTitle => 'Выключено в этой сети';
-
-  @override
-  String get receiveHttpNotTrusted =>
-      'Link · HTTP принимает только в сетях, которым вы доверяете.';
-
-  @override
-  String get receiveHttpTrust => 'Доверять этой сети';
-
-  @override
   String get deskSetReportFullDetails => 'Приложить все подробности';
 
   @override
   String get deskSetReportPartFullDetails => 'Полные детали';
-
-  @override
-  String get txTrustedNetworks => 'Доверенные сети';
-
-  @override
-  String txTrustedNetworksCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count доверенных',
-      many: '$count доверенных',
-      few: '$count доверенные',
-      one: '$count доверенная',
-      zero: 'Пока ни одной',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get txTrustedNetworksBody =>
-      'Link · HTTP принимает только в доверенных сетях. О забытой сети телефон спросит снова при следующем подключении к ней.';
-
-  @override
-  String get txTrustedNetworksNone => 'Пока нет доверенных сетей.';
-
-  @override
-  String get txTrustedNetworkCurrent => 'Эта сеть';
-
-  @override
-  String get txTrustedNetworkForget => 'Забыть';
-
-  @override
-  String txTrustedNetworkForgetLabel(String range) {
-    return 'Забыть $range';
-  }
-
-  @override
-  String txTrustedNetworkRange(String range) {
-    return '$range.x';
-  }
 
   @override
   String get deskSetReportFullDetailsInfo =>
