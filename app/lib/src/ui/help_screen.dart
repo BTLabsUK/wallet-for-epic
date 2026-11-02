@@ -25,7 +25,6 @@ import 'handshake.dart';
 import 'help_language_switch.dart';
 import 'info_hint.dart';
 import 'contacts_screen.dart';
-import 'donate_note.dart';
 import 'history_screen.dart';
 import 'invoices_screen.dart';
 import 'outputs_screen.dart';
@@ -228,7 +227,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                 PhoneTourTarget(
                   id: 'tour-help-search',
                   child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
                   child: TextField(
                     key: helpSearchKey,
                     controller: _query,
@@ -252,7 +251,7 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                 ),
                 Expanded(
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
                     children: [
                       if (english)
                         Padding(
@@ -272,12 +271,12 @@ class _HelpScreenState extends ConsumerState<HelpScreen> {
                         for (final s in sections) ...[
                           _SectionHead(section: s),
                           for (final x in topics.where((x) => x.section == s.id)) row(x),
-                          const SizedBox(height: 16),
+                          // Room between the topic groups (item 4: Help was crowded).
+                          const SizedBox(height: 24),
                         ],
                       if (!searching) const _ShowTipsAgain(),
                       if (!searching) const _ShowTourAgain(),
                       const _StillStuck(),
-                      if (!searching) const DonateNote(),
                     ],
                   ),
                 ),
@@ -375,14 +374,14 @@ class _SectionHead extends StatelessWidget {
     final t = context.tokens;
     final text = Theme.of(context).textTheme;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(0, 12, 0, 4),
+      padding: const EdgeInsets.fromLTRB(0, 12, 0, 8),
       child: Semantics(
         header: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(section.title, style: text.titleMedium),
-            const SizedBox(height: 2),
+            const SizedBox(height: 4),
             Text(section.lede, style: text.bodySmall?.copyWith(color: t.dim)),
           ],
         ),
@@ -411,8 +410,8 @@ class _TopicRow extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(t.radiusSmall),
         child: Container(
-          constraints: const BoxConstraints(minHeight: 56),
-          padding: const EdgeInsets.symmetric(vertical: 10),
+          constraints: const BoxConstraints(minHeight: 60),
+          padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(border: Border(bottom: BorderSide(color: t.line))),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -484,7 +483,7 @@ class _StillStuck extends ConsumerWidget {
     final l = context.l10n;
     final text = Theme.of(context).textTheme;
     return Padding(
-      padding: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.only(top: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
