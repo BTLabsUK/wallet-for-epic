@@ -209,5 +209,6 @@
   "deskOnbNodePortsSame": "Порты должны различаться.",
   "deskOnbNodePortTaken": "Порт {port} занят другой программой. {next} свободен.",
   "deskOnbNodePortUse": "Использовать {port}",
-  "deskOnbFailedTitle": "Не завершено"
+  "deskOnbFailedTitle": "Не завершено",
+  "deskOnbUnlockUsePhrase": "Ввести фразу восстановления"
 }

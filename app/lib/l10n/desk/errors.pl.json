@@ -139,5 +139,6 @@
   "deskErrNotDeliveredRelay": "Nie dostarczono: {relay} nie odpowiedział. Płatność czeka w Aktywności; anuluj ją tam, aby odblokować środki.",
   "deskErrRelayNoAnswer": "{relay} nie odpowiedział.",
   "deskErrInputsSpentElsewhere": "Węzeł pokazuje te monety jako już wydane, a ten portfel ich nie wydał. Najpewniej zrobił to inny portfel z Twoją frazą odzyskiwania.",
-  "deskErrMacKeychain": "macOS nie pozwolił aplikacji odczytać jej zapisanych danych z pęku kluczy. Zamknij BT Wallet i otwórz go ponownie; gdy macOS zapyta, wpisz hasło, którym odblokowujesz Maca, i wybierz „Zawsze pozwalaj”."
+  "deskErrMacKeychain": "macOS nie pozwolił aplikacji odczytać jej zapisanych danych z pęku kluczy. Zamknij BT Wallet i otwórz go ponownie; gdy macOS zapyta, wpisz hasło, którym odblokowujesz Maca, i wybierz „Zawsze pozwalaj”.",
+  "deskErrKeyMissing": "Pliki portfela {name} są na tym komputerze, ale klucza, który je otwiera, nie ma już w jego bezpiecznym magazynie (na Macu w pęku kluczy). Wpisz frazę odzyskiwania portfela, aby otworzyć go ponownie; historia zostaje."
 }

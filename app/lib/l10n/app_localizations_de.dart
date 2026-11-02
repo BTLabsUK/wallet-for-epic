@@ -20494,4 +20494,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskKitReachDismiss => 'Ausblenden';
+
+  @override
+  String deskErrKeyMissing(String name) {
+    return 'Die Dateien von $name sind auf diesem Computer, aber der Schlüssel, der sie öffnet, ist nicht mehr in seinem sicheren Speicher (auf einem Mac im Schlüsselbund). Geben Sie die Wiederherstellungsphrase der Wallet ein, um sie wieder zu öffnen; der Verlauf bleibt erhalten.';
+  }
+
+  @override
+  String get deskOnbUnlockUsePhrase => 'Wiederherstellungsphrase eingeben';
 }

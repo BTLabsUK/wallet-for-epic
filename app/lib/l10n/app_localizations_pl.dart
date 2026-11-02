@@ -20925,4 +20925,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskKitReachDismiss => 'Ukryj';
+
+  @override
+  String deskErrKeyMissing(String name) {
+    return 'Pliki portfela $name są na tym komputerze, ale klucza, który je otwiera, nie ma już w jego bezpiecznym magazynie (na Macu w pęku kluczy). Wpisz frazę odzyskiwania portfela, aby otworzyć go ponownie; historia zostaje.';
+  }
+
+  @override
+  String get deskOnbUnlockUsePhrase => 'Wpisz frazę odzyskiwania';
 }

@@ -20907,4 +20907,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskKitReachDismiss => 'Скрыть';
+
+  @override
+  String deskErrKeyMissing(String name) {
+    return 'Файлы кошелька $name на этом компьютере, но ключа, который их открывает, больше нет в его защищённом хранилище (на Mac — в связке ключей). Введите фразу восстановления кошелька, чтобы открыть его снова; история сохранится.';
+  }
+
+  @override
+  String get deskOnbUnlockUsePhrase => 'Ввести фразу восстановления';
 }

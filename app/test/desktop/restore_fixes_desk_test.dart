@@ -75,6 +75,15 @@ class _Unverifiable extends MockDeskWallet {
   }
 }
 
+/// A wallet whose key the secret store no longer holds: Unlock fails as LepicDeskWallet does.
+class _KeyMissing extends MockDeskWallet {
+  _KeyMissing() : super(delay: Duration.zero);
+
+  @override
+  Future<bool> unlock(String password, {bool remember = false}) async =>
+      throw DeskError.l10n((l) => l.deskErrKeyMissing('Main'), keyMissing: true);
+}
+
 /// A store whose writes of the wallet meta fail once [failMeta] is set.
 class _Store extends MemorySecretStore {
   bool failMeta = false;
@@ -198,6 +207,26 @@ void main() {
       expect((await wallet.historyBackupState()).importOffer, isFalse);
     });
 
+    test('keychain entries removed: the wallet stays listed, Unlock says its key is gone, and its phrase opens it again', () async {
+      await wallet.createWallet(name: 'Main', password: _password);
+      final id = (await wallet.wallets()).single.id;
+      expect(await wallet.unlock(_password, remember: true), isTrue);
+      await wallet.dispose();
+      // The secret store wiped (macOS: the login keychain's items removed); the data folder stays.
+      secrets.values.clear();
+      service.lostVaults.add('${support.path}/wallets/mainnet');
+      wallet = make();
+      expect((await wallet.wallets()).single.id, id, reason: 'the folder still lists it');
+      expect(await wallet.unlockRemembered(), isFalse, reason: 'the remembered password went with the store');
+      await expectLater(
+        wallet.unlock(_password),
+        throwsA(isA<DeskError>().having((e) => e.keyMissing, 'keyMissing', isTrue).having((e) => e.message, 'message', contains('recovery phrase'))),
+      );
+      expect(service.deletedWallets, isEmpty, reason: 'nothing on disk is touched');
+      await wallet.resetPassword(id, phrase: service.phrase.split(' '), newPassword: 'brand-new-pass');
+      expect(await wallet.unlock('brand-new-pass'), isTrue);
+    });
+
     group('Forgot password', () {
       test('the wallet\'s own phrase sets a new password; an open wallet locks first; the remembered one is forgotten', () async {
         await wallet.createWallet(name: 'Main', password: _password);
@@ -299,6 +328,30 @@ void main() {
       expect(find.text('Delete this wallet?'), findsOneWidget, reason: 'the dialog stays');
       expect(find.text('Wrong password'), findsOneWidget, reason: 'the error is under the field');
       expect(container.read(deskNavProvider).route, DeskRoute.settingsAccount);
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 10));
+    });
+
+    testWidgets('Unlock of a wallet whose key is gone: the failure says so and its button opens Set a new password', (tester) async {
+      final api = _KeyMissing();
+      final id = (await tester.runAsync(api.wallets))!.first.id;
+      final container = await pump(tester, api, DeskRoute.unlock);
+      await tester.enterText(find.byType(EditableText).first, 'any-password');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      // Through the two shown stages before the unlock.
+      for (var i = 0; i < 3; i++) {
+        await tester.pump(const Duration(milliseconds: 400));
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      }
+      await settle(tester);
+      expect(find.text('Unlock failed'), findsOneWidget);
+      expect(find.textContaining('recovery phrase to open it again'), findsOneWidget);
+      expect(find.text('No wallet found'), findsNothing);
+      expect(find.text('Try again'), findsNothing, reason: 'trying again cannot open it');
+      await tester.tap(find.widgetWithText(EButton, 'Enter recovery phrase'));
+      await settle(tester);
+      expect(container.read(deskNavProvider).route, DeskRoute.resetPassword);
+      expect((container.read(deskNavProvider).arg as ResetPasswordArg).walletId, id);
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(seconds: 10));
     });

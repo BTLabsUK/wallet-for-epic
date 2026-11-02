@@ -687,5 +687,14 @@
   "deskErrMacKeychain": "macOS did not let the app read its saved data in the keychain. Quit BT Wallet and open it again; when macOS asks, enter the password you unlock your Mac with and choose Always Allow.",
   "@deskErrMacKeychain": {
     "description": "Error when macOS refused the app access to its keychain items (wrong or locked login keychain, access denied, or a new unsigned build not yet allowed). macOS, BT Wallet and the button name 'Always Allow' (as macOS shows it in each language) are names."
+  },
+  "deskErrKeyMissing": "The files of {name} are on this computer, but the key that opens them is no longer in its secure storage (the keychain on a Mac). Enter the wallet’s recovery phrase to open it again; its history stays.",
+  "@deskErrKeyMissing": {
+    "description": "Unlock failure when the wallet's folder is there but the sealed key (the vault that holds the seed, kept in the system keychain or key store) is gone, for example after keychain entries were removed. The way out is the recovery phrase, which seals a new key and keeps the wallet's files.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

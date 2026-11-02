@@ -209,5 +209,6 @@
   "deskOnbNodePortsSame": "两个端口必须不同。",
   "deskOnbNodePortTaken": "端口 {port} 被其他程序占用。{next} 可用。",
   "deskOnbNodePortUse": "使用 {port}",
-  "deskOnbFailedTitle": "未完成"
+  "deskOnbFailedTitle": "未完成",
+  "deskOnbUnlockUsePhrase": "输入助记词"
 }

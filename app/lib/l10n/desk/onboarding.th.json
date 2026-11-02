@@ -209,5 +209,6 @@
   "deskOnbNodePortsSame": "พอร์ตทั้งสองต้องต่างกัน",
   "deskOnbNodePortTaken": "พอร์ต {port} ถูกโปรแกรมอื่นใช้อยู่ {next} ว่าง",
   "deskOnbNodePortUse": "ใช้ {port}",
-  "deskOnbFailedTitle": "ไม่เสร็จสิ้น"
+  "deskOnbFailedTitle": "ไม่เสร็จสิ้น",
+  "deskOnbUnlockUsePhrase": "ใส่วลีกู้คืน"
 }

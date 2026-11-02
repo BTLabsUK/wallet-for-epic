@@ -79,6 +79,10 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
   String? _failure;
   String _failedStage = '';
 
+  /// The failure is a wallet whose key the secret store no longer holds: its way out is the
+  /// recovery phrase (Set a new password), not Try again.
+  bool _keyMissing = false;
+
   @override
   void initState() {
     super.initState();
@@ -275,6 +279,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     setState(() {
       _error = null;
       _failure = null;
+      _keyMissing = false;
     });
     if (!await _run('check')) return;
     final mock = ref.read(deskApiProvider) is MockDeskWallet;
@@ -311,6 +316,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
       }
       setState(() {
         _failure = deskErrorText(e, context.l10n);
+        _keyMissing = e is DeskError && e.keyMissing;
         _failedStage = 'unlock';
         _stage = null;
       });
@@ -353,13 +359,15 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
     final l = context.l10n;
     final name = _selected?.name ?? l.deskOnbUnlockThisWallet;
     if (_failure != null) {
+      final keyMissing = _keyMissing ? _selected : null;
       return ProgressView(
         title: l.deskOnbUnlockFailed,
         stages: _stages(l),
         failed: _failedStage,
         failure: _failure,
         onBack: _backToForm,
-        onRetry: _unlock,
+        onRetry: keyMissing != null ? () => ref.read(deskNavProvider.notifier).go(DeskRoute.resetPassword, ResetPasswordArg(keyMissing.id)) : _unlock,
+        retryLabel: keyMissing != null ? l.deskOnbUnlockUsePhrase : null,
         topAnchored: true,
       );
     }
