@@ -482,8 +482,11 @@ class _Figure extends StatelessWidget {
           final atMin = _textWidth(text, figure(figureMinSize), TextScaler.noScaling, direction) + unitWidth;
           final showUnit = fits(figureMinSize) || figureMinSize * constraints.maxWidth / atMin >= figureFloorSize;
           if (!showUnit) size = best(unit: false);
-          // The figure and its unit are centred as one; the figure's Flexible is loose, so
-          // the row's free space falls on both sides.
+          // The figure is centred on the screen, its unit beside it: an empty box of the
+          // unit's width on the other side keeps the figure off-centre by nothing. When the
+          // figure is too wide for both, the row centres the two as one.
+          final balanced = showUnit &&
+              _textWidth(text, figure(size), TextScaler.noScaling, direction) + 2 * unitWidth <= constraints.maxWidth;
           return BalanceTap(
             summary: summary,
             hidden: hidden,
@@ -491,6 +494,7 @@ class _Figure extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (balanced) SizedBox(width: unitWidth),
               // Only an extreme width needs less than the least size: then it scales down
               // rather than wraps or clips.
               Flexible(

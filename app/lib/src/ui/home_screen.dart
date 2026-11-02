@@ -955,15 +955,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       ),
                     const SizedBox(height: 16),
 
-                    ProtocolSectionHead(
-                      l.homeRecentActivity,
-                      trailing: !showViewAll(transactions.length)
-                          ? null
-                          : TextButton(
-                              onPressed: () => _open(const HistoryScreen()),
-                              child: Text(l.homeViewAll(transactions.length)),
-                            ),
-                    ),
+                    // No title over the empty state: it comes back with the first payment.
+                    if (data == null || transactions.isNotEmpty)
+                      ProtocolSectionHead(
+                        l.homeRecentActivity,
+                        trailing: !showViewAll(transactions.length)
+                            ? null
+                            : TextButton(
+                                onPressed: () => _open(const HistoryScreen()),
+                                child: Text(l.homeViewAll(transactions.length)),
+                              ),
+                      ),
                     if (data != null && transactions.isEmpty)
                       EmptyState(
                         icon: const Icon(Icons.south_west),

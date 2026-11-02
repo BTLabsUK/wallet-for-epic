@@ -886,11 +886,15 @@ class _Recent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ESectionHead(
-          l.deskOvRecent,
-          top: Sp.x6,
-          trailing: list == null || !showViewAll(list.length) ? null : ELink(label: l.deskOvViewAll(list.length), onPressed: onAll),
-        ),
+        // No title over the empty state: it comes back with the first payment.
+        if (list != null && list.isEmpty)
+          SizedBox(height: Sp.x6)
+        else
+          ESectionHead(
+            l.deskOvRecent,
+            top: Sp.x6,
+            trailing: list == null || !showViewAll(list.length) ? null : ELink(label: l.deskOvViewAll(list.length), onPressed: onAll),
+          ),
         Container(
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(

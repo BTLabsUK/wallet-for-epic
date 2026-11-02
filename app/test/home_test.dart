@@ -2087,6 +2087,7 @@ void main() {
       final h = _Harness(transactions: const []);
       await h.pump(tester);
       expect(find.text('No payments yet'), findsOneWidget);
+      expect(find.text('Recent activity'), findsNothing);
       expect(find.textContaining('while this app is open'), findsNothing);
       expect(find.text('See all'), findsNothing);
       expect(find.text('Show my address'), findsNothing);
