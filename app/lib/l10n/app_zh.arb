@@ -5344,5 +5344,11 @@
   "netModesDescKillSwitch": "不建立任何连接，节点也不例外。付款在离线状态下创建并完成，然后由联网的设备广播。",
   "netModesLiveLinks": "{count, plural, other{{count} 个活动连接}}",
   "netModesDiagramLabel": "网络拓扑，{mode}模式：{description}",
-  "netModesModeTag": "[模式]"
+  "netModesModeTag": "[模式]",
+  "deskOldAppTitle": "发现旧应用",
+  "deskOldAppBody": "{app} 仍在 {folder} 中。",
+  "deskOldAppTrash": "移到废纸篓",
+  "deskOldAppKeep": "保留",
+  "deskOldAppTrashed": "已将 {app} 移到废纸篓",
+  "deskOldAppNotTrashed": "无法将 {app} 移到废纸篓"
 }

@@ -32093,6 +32093,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'[Mode]'**
   String get netModesModeTag;
+
+  /// Dialog title on macOS, once after unlock: the app from before the rename (another app bundle) is still in an Applications folder next to this one. Both use the same wallet data.
+  ///
+  /// In en, this message translates to:
+  /// **'Old app found'**
+  String get deskOldAppTitle;
+
+  /// Line in the old-app dialog on macOS. {app} is the old app's name as Finder shows it (keep it as is), {folder} the folder it is in (/Applications or the user's Applications folder).
+  ///
+  /// In en, this message translates to:
+  /// **'{app} is still in {folder}.'**
+  String deskOldAppBody(String app, String folder);
+
+  /// Button in the old-app dialog on macOS: moves the old app to the Bin (macOS Trash), the way Finder does. Use the macOS name of the Trash in each language. Nothing is deleted and the wallet data stays.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to Bin'**
+  String get deskOldAppTrash;
+
+  /// Button in the old-app dialog on macOS: leaves the old app where it is; the dialog does not come back.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep'**
+  String get deskOldAppKeep;
+
+  /// Notice after the old app was moved to the Bin (macOS Trash) from the old-app dialog. {app} is the old app's name, kept as is.
+  ///
+  /// In en, this message translates to:
+  /// **'{app} moved to Bin'**
+  String deskOldAppTrashed(String app);
+
+  /// Notice when the old app could not be moved to the Bin (macOS Trash): it stays where it is. {app} is the old app's name, kept as is.
+  ///
+  /// In en, this message translates to:
+  /// **'{app} could not be moved to Bin'**
+  String deskOldAppNotTrashed(String app);
 }
 
 class _AppLocalizationsDelegate

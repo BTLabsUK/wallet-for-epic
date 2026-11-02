@@ -20018,4 +20018,28 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get netModesModeTag => '[โหมด]';
+
+  @override
+  String get deskOldAppTitle => 'พบแอปเก่า';
+
+  @override
+  String deskOldAppBody(String app, String folder) {
+    return '$app ยังอยู่ใน $folder';
+  }
+
+  @override
+  String get deskOldAppTrash => 'ย้ายไปที่ถังขยะ';
+
+  @override
+  String get deskOldAppKeep => 'เก็บไว้';
+
+  @override
+  String deskOldAppTrashed(String app) {
+    return 'ย้าย $app ไปที่ถังขยะแล้ว';
+  }
+
+  @override
+  String deskOldAppNotTrashed(String app) {
+    return 'ย้าย $app ไปที่ถังขยะไม่ได้';
+  }
 }

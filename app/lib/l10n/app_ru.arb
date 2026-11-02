@@ -5344,5 +5344,11 @@
   "netModesDescKillSwitch": "Ничего не подключается, даже узел. Платежи создаются и завершаются офлайн, а затем отправляются с устройства, которое в сети.",
   "netModesLiveLinks": "{count, plural, one{{count} активное соединение} few{{count} активных соединения} many{{count} активных соединений} other{{count} активного соединения}}",
   "netModesDiagramLabel": "Топология сети, режим «{mode}»: {description}",
-  "netModesModeTag": "[Режим]"
+  "netModesModeTag": "[Режим]",
+  "deskOldAppTitle": "Найдено старое приложение",
+  "deskOldAppBody": "{app} всё ещё в папке {folder}.",
+  "deskOldAppTrash": "Переместить в Корзину",
+  "deskOldAppKeep": "Оставить",
+  "deskOldAppTrashed": "{app} перемещено в Корзину",
+  "deskOldAppNotTrashed": "Не удалось переместить {app} в Корзину"
 }

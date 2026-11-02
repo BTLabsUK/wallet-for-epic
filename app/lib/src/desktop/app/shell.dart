@@ -40,6 +40,7 @@ import 'screens.dart';
 import 'close_guard.dart';
 import 'last_session_offer.dart';
 import 'now_slot.dart';
+import 'old_app_offer.dart';
 import 'title_bar.dart' show showDeskShortcuts;
 import 'tour.dart';
 
@@ -151,6 +152,8 @@ class _DeskShellState extends ConsumerState<DeskShell> {
       if (mounted) _collect(PairingCollectTrigger.open);
       // After unlock, once: the last session froze or crashed, its log can be sent.
       if (mounted) unawaited(offerDeskLastSessionReport(context, ref));
+      // macOS: the app from before the rename is still installed; offer to move it to the Bin.
+      if (mounted) unawaited(offerDeskOldAppRemoval(context, ref));
     });
     _collectTimer = Timer.periodic(const Duration(seconds: 45), (_) => _collect(PairingCollectTrigger.foreground));
     _maybeTour();

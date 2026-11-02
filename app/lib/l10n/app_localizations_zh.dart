@@ -19273,4 +19273,28 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get netModesModeTag => '[模式]';
+
+  @override
+  String get deskOldAppTitle => '发现旧应用';
+
+  @override
+  String deskOldAppBody(String app, String folder) {
+    return '$app 仍在 $folder 中。';
+  }
+
+  @override
+  String get deskOldAppTrash => '移到废纸篓';
+
+  @override
+  String get deskOldAppKeep => '保留';
+
+  @override
+  String deskOldAppTrashed(String app) {
+    return '已将 $app 移到废纸篓';
+  }
+
+  @override
+  String deskOldAppNotTrashed(String app) {
+    return '无法将 $app 移到废纸篓';
+  }
 }

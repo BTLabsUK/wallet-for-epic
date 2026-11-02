@@ -20695,4 +20695,28 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get netModesModeTag => '[Modus]';
+
+  @override
+  String get deskOldAppTitle => 'Alte App gefunden';
+
+  @override
+  String deskOldAppBody(String app, String folder) {
+    return '$app ist noch in $folder.';
+  }
+
+  @override
+  String get deskOldAppTrash => 'In den Papierkorb legen';
+
+  @override
+  String get deskOldAppKeep => 'Behalten';
+
+  @override
+  String deskOldAppTrashed(String app) {
+    return '$app in den Papierkorb gelegt';
+  }
+
+  @override
+  String deskOldAppNotTrashed(String app) {
+    return '$app konnte nicht in den Papierkorb gelegt werden';
+  }
 }

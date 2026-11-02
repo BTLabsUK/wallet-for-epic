@@ -21122,4 +21122,28 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get netModesModeTag => '[Tryb]';
+
+  @override
+  String get deskOldAppTitle => 'Znaleziono starą aplikację';
+
+  @override
+  String deskOldAppBody(String app, String folder) {
+    return '$app nadal jest w folderze $folder.';
+  }
+
+  @override
+  String get deskOldAppTrash => 'Przenieś do Kosza';
+
+  @override
+  String get deskOldAppKeep => 'Zachowaj';
+
+  @override
+  String deskOldAppTrashed(String app) {
+    return 'Przeniesiono $app do Kosza';
+  }
+
+  @override
+  String deskOldAppNotTrashed(String app) {
+    return 'Nie można przenieść $app do Kosza';
+  }
 }
