@@ -178,7 +178,8 @@ class DeskRelaySwitch extends Notifier<RelaySwitchOffer?> {
         return;
       }
       final listed = await _health(st);
-      if (gen != _build || !ref.mounted) return;
+      // The server answered while the site was asked (the outage ended): no offer.
+      if (gen != _build || !ref.mounted || _since == null) return;
       final now = ref.read(deskProvider);
       final inUse = EpicboxRelay(host: status.epicbox.domain, port: status.epicbox.port);
       final offer = relaySwitchOffer(

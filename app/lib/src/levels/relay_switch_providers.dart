@@ -150,9 +150,11 @@ class RelaySwitchNotifier extends Notifier<RelaySwitchOffer?> {
       return;
     }
     if (epicbox == EpicboxState.online) {
-      // Answering again: no new check while it does, and the outage ends once it has held.
+      // Answering again: no offer and no new check while it does, and the outage ends once it
+      // has held. A drop before it has held offers again at once.
       _timer?.cancel();
       _timer = null;
+      if (state != null) state = null;
       if (_since != null) {
         _stable ??= Timer(relayStableFor, () {
           _stable = null;
@@ -195,16 +197,18 @@ class RelaySwitchNotifier extends Notifier<RelaySwitchOffer?> {
     }));
   }
 
-  /// The app left the screen: no relay health is asked until it is back. The outage keeps its
-  /// start, so the offer can come at once on return.
+  /// The app left the screen: no relay health is asked until it is back.
   void paused() {
     _onScreen = false;
     _timer?.cancel();
     _timer = null;
   }
 
+  /// Back on the screen: the relay reconnects now, so a drop from the background counts from
+  /// here, not from the drop (item 11).
   void resumed() {
     _onScreen = true;
+    if (_since != null) _since = _now();
     if (ref.mounted) _arm();
   }
 
@@ -242,6 +246,8 @@ class RelaySwitchNotifier extends Notifier<RelaySwitchOffer?> {
         address = null;
       }
       if (gen != _build || !ref.mounted || ref.read(sessionProvider) != session) return;
+      // The relay answered while the site was asked: no offer.
+      if (_since == null || ref.read(walletStatusProvider).epicbox == EpicboxState.online) return;
       final onions = onionLookupOf(ref.read(onionDirectoryProvider));
       final offer = relaySwitchOffer(
         inUse: inUse,
