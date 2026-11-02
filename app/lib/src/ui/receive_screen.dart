@@ -485,14 +485,22 @@ class ReceiveView extends ConsumerWidget {
         if (quiet) quietLink(),
         if (demo || invoices) ...[
           const SizedBox(height: 8),
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              if (demo && value != null) const TestCoinsButton(),
-              if (invoices) const _RequestButton(),
-            ],
+          LayoutBuilder(
+            builder: (context, box) {
+              // Both buttons on a narrow phone: the framework's tighter icon-button padding,
+              // so they share one row instead of stacking (the tab then fits 360 x 800 dp).
+              final tight = demo && value != null && invoices && box.maxWidth < 360;
+              const padding = EdgeInsetsDirectional.fromSTEB(8, 0, 12, 0);
+              return Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (demo && value != null) TestCoinsButton(padding: tight ? padding : null),
+                  if (invoices) _RequestButton(padding: tight ? padding : null),
+                ],
+              );
+            },
           ),
         ],
         const SizedBox(height: 8),
@@ -1370,12 +1378,15 @@ const Key receiveRequestKey = ValueKey('receive-request');
 /// Asking someone to pay this wallet, when the wallet handles invoices: the button to the
 /// request form.
 class _RequestButton extends StatelessWidget {
-  const _RequestButton();
+  const _RequestButton({this.padding});
+
+  /// The side padding where its row is short of room; the theme's when null.
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) => OutlinedButton.icon(
     key: receiveRequestKey,
-    style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+    style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48), padding: padding),
     icon: const Icon(Icons.request_quote_outlined),
     label: Text(context.l10n.receiveRequestTitle),
     onPressed: () => Navigator.of(context).push(
