@@ -99,14 +99,14 @@ void main() {
     await tester.pump(const Duration(seconds: 4));
   }, skip: !torBuilt);
 
-  testWidgets('http://10.0.1.24 typed switches to HTTP once the host is complete', (tester) async {
+  testWidgets('http://10.0.1.24 typed switches to HTTP once the scheme is typed', (tester) async {
     await show(tester, const SendArgs());
     final seen = await type(tester, 'http://10.0.1.24');
     expect(seen.first, isNull, reason: 'a lone h is no address yet');
     expect(seen.last, TxMethod.http);
     final first = seen.indexOf(TxMethod.http);
     expect(seen.skip(first), everyElement(TxMethod.http));
-    expect(first, greaterThanOrEqualTo('http://1'.length), reason: 'not while only the scheme is there');
+    expect(first, 'http://'.length - 1, reason: 'the method line names Link · HTTP from the scheme on');
     await tester.pump(const Duration(seconds: 4));
   });
 
