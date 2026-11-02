@@ -698,7 +698,7 @@
         "android"
       ],
       "what": "Where 26.10.24+ apps look for the signed update manifest (update-v2.json). Each installed version keeps reading its own list for good, so these must keep serving; a new source is added, never swapped.",
-      "value": "https://epiccash.btlabs.uk/api/v1/update.json, https://gitlab.com/epic-cash-bt/btlabs-epic.github.io/-/raw/main/update-v2.json, https://github.com/BTLabsUK/wallet-for-epic/releases/latest/download/update-v2.json",
+      "value": "https://epiccash.btlabs.uk/api/v1/update.json, https://raw.githubusercontent.com/BTLabsUK/btlabs-epic.github.io/main/update-v2.json, https://github.com/BTLabsUK/wallet-for-epic/releases/latest/download/update-v2.json",
       "probes": [
         {
           "file": "app/assets/config/app-config.toml",
@@ -706,7 +706,7 @@
         },
         {
           "file": "app/assets/config/app-config.toml",
-          "contains": "\"https://gitlab.com/epic-cash-bt/btlabs-epic.github.io/-/raw/main/update-v2.json\","
+          "contains": "\"https://raw.githubusercontent.com/BTLabsUK/btlabs-epic.github.io/main/update-v2.json\","
         },
         {
           "file": "app/assets/config/app-config.toml",
@@ -738,7 +738,7 @@
         "android"
       ],
       "what": "Installs up to 26.10.23 read the old-format update.json at the old addresses compiled into them, and accept downloads only under the old download folder. The publish tool keeps writing it; dropping it strands every such install on its version.",
-      "value": "https://examples.btlabs.uk/epic-cash-wallets/update.json, update.json in the Pages repository (GitLab raw, GitHub Pages); downloads under https://examples.btlabs.uk/epic-cash-wallets/",
+      "value": "https://examples.btlabs.uk/epic-cash-wallets/update.json, update.json in the Pages repository (GitHub raw, GitHub Pages); downloads under https://examples.btlabs.uk/epic-cash-wallets/",
       "probes": [
         {
           "file": "tools/publish-update-json.sh",
@@ -831,7 +831,7 @@
       "date": "2026-10-30",
       "items_sha256": "86c97972dab3fe9306f68221fdd0dc0a9fe343857d026f348d2d3cf63356289d",
       "change": "updates.manifest_urls: the third source, https://btlabs-epic.github.io/update-v2.json (GitHub Pages of the BTLabs-EPIC organisation, dead since GitHub flagged that account), becomes https://github.com/BTLabsUK/wallet-for-epic/releases/latest/download/update-v2.json, the GitHub Release mirror of the new BTLabsUK organisation. The other two sources are unchanged.",
-      "migration": "None needed: app-config.toml ships read-only with each build, so installed apps keep their own list (BT Labs' server first, then the GitLab copy) and update exactly as before; only builds from this commit read the new source. Its answer is checked with the same keys and anti-rollback serial as every source, and a 404 (no GitHub Release yet) counts as no information, like the dead address did.",
+      "migration": "None needed: app-config.toml ships read-only with each build, so installed apps keep their own list (BT Labs' server first, then the GitHub raw copy) and update exactly as before; only builds from this commit read the new source. Its answer is checked with the same keys and anti-rollback serial as every source, and a 404 (no GitHub Release yet) counts as no information, like the dead address did.",
       "migration_test": "app/test/settings_file/host_settings_test.dart",
       "approved_by": "the owner, 2026-10-30 (this URL change, in the GitHub mirror job)"
     },

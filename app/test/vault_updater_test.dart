@@ -645,7 +645,7 @@ void main() {
         }
         // Sources of the manifest: /gone/ has none, /down/ fails, /old/ has the lower serial,
         // /bad/ one whose payload was changed after signing, /signin/ answers a sign-in page
-        // (a private GitLab project).
+        // (a private repository).
         switch (request.uri.path.split('/')[1]) {
           case 'gone':
             response.statusCode = HttpStatus.notFound;
@@ -836,7 +836,7 @@ void main() {
     );
 
     // Three sources on the local server, in the order of updateManifestSources: BT Labs' own
-    // server, the GitLab copy, the GitHub release.
+    // server, the GitHub raw copy, the GitHub release.
     ProviderContainer sources(String first, String second, [String third = 'gone']) {
       final c = ProviderContainer(
         overrides: [
@@ -856,7 +856,7 @@ void main() {
     }
 
     test('one source down, without the file or private: another source is used', () async {
-      // 'signin' is a private GitLab project: a 200 page that is not a manifest.
+      // 'signin' is a private repository: a 200 page that is not a manifest.
       for (final down in ['gone', 'down', 'signin']) {
         for (final (a, b, c3) in [(down, 'new', 'gone'), ('new', down, 'gone'), (down, down, 'new')]) {
           final c = sources(a, b, c3);

@@ -2,8 +2,8 @@
 
 ## Reporting a vulnerability
 
-Do not open a public issue. Email **support@btlabs.uk**, or open a *confidential* issue on GitLab
-(New issue, then tick "Turn on confidentiality"); only the maintainers can see it.
+Do not open a public issue. Email **support@btlabs.uk**, or open a private security advisory on GitHub
+(Security tab of the repository, "Report a vulnerability"); only the maintainers can see it.
 
 Include the app and version (Settings › About shows it), the platform, what an attacker controls,
 what happens, and the smallest reproduction you have. We answer within a few days and agree a
@@ -16,8 +16,8 @@ PIN or wallet data, make the app accept or show a wrong payment, or crash it fro
 (QR codes and payment links, slate files, backups, node and relay responses), and the update and
 install paths (signed update manifests, downloaded installers).
 
-The wallet engine is [LEPIC](https://gitlab.com/epic-cash-bt/lepic) and the Flutter binding is
-[lepic-flutter](https://gitlab.com/epic-cash-bt/lepic-flutter); report engine issues there the same
+The wallet engine is [LEPIC](https://github.com/BTLabsUK/lepic) and the Flutter binding is
+[lepic-flutter](https://github.com/BTLabsUK/lepic-flutter); report engine issues there the same
 way. Issues in the Epic Cash node, the reference wallet or the Epicbox relay belong to those
 projects: report them to them privately and tell us only what we need to protect our users.
 

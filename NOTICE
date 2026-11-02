@@ -20,7 +20,7 @@ Carbon Icons (Copyright IBM Corp., Apache License 2.0) and Material Symbols
 (Copyright Google LLC, Apache License 2.0); app/assets/licenses/status-icons.txt
 names the icon each glyph comes from.
 
-The wallet engine is LEPIC (https://gitlab.com/epic-cash-bt/lepic), licensed
+The wallet engine is LEPIC (https://github.com/BTLabsUK/lepic), licensed
 under the Apache License, Version 2.0, with its own NOTICE.
 
 Bundled fonts, flag icons, password lists and Tor carry their own licences in

@@ -71,7 +71,7 @@ Steps marked ⏳ wait for Apple to approve the membership.
 8. **Builder**: the tools (table below), then the source and the team:
 
    ```
-   git clone https://gitlab.com/epic-cash-bt/wallet-for-epic.git && cd wallet-for-epic
+   git clone https://github.com/BTLabsUK/wallet-for-epic.git && cd wallet-for-epic
    cp app/Signing.xcconfig.example app/Signing.xcconfig    # set DEVELOPMENT_TEAM = <Team ID>
    tools/build-apple.sh doctor
    ```
@@ -108,7 +108,7 @@ When the release runner (`tools/rel`) drives the release, steps 2 to 4 are its h
 and the results folders, and where the Team ID for the check is set, are in `docs/RELEASING.md`,
 section Apple. By hand it is:
 
-1. **Owner**: send the builder the commit (or tag) on GitLab to build.
+1. **Owner**: send the builder the commit (or tag) on GitHub to build.
 2. **Builder**, macOS: on a clean checkout of that commit, build the variant with Tor and the one
    without (both are published, as on the other platforms):
 
@@ -139,7 +139,7 @@ section Apple. By hand it is:
 4. **Owner**, before the `.dmg` goes on the download page (the release gate):
    - `sha256sum -c bt-wallet-<v>-macos.dmg.sha256` passes, and the hash is the one the
      builder sent by chat;
-   - in the REPORT: `commit:` is the commit you asked for, and it is on GitLab;
+   - in the REPORT: `commit:` is the commit you asked for, and it is on GitHub;
    - `TeamIdentifier=` is the BT Labs Team ID, for the `.dmg` and for the app in it;
    - the Gatekeeper part says `accepted` and `source=Notarized Developer ID`, for the `.dmg` and
      for the app.

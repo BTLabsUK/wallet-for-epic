@@ -116,7 +116,7 @@ timeout_s = 30
 download_stall_s = 60
 manifests = [
   "https://epiccash.btlabs.uk/api/v1/update.json",
-  "https://gitlab.com/epic-cash-bt/btlabs-epic.github.io/-/raw/main/update-v2.json",
+  "https://raw.githubusercontent.com/BTLabsUK/btlabs-epic.github.io/main/update-v2.json",
   "https://github.com/BTLabsUK/wallet-for-epic/releases/latest/download/update-v2.json",
 ]
 downloads = "https://epiccash.btlabs.uk/releases/downloads/"
@@ -128,12 +128,12 @@ timeout_s = 20
 report = "https://support.btlabs.uk/v1/report"
 # The Epicbox address of the BT Labs contact. Comment this line out to leave the contact out everywhere.
 donation = "esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.btlabs.uk"
-signed_file = "https://gitlab.com/epic-cash-bt/btlabs-epic.github.io/-/raw/main/btlabs.json"
+signed_file = "https://raw.githubusercontent.com/BTLabsUK/btlabs-epic.github.io/main/btlabs.json"
 
 [links]
 website = "https://epiccash.com"
 community = "https://t.me/EpicCash"
-source = "https://gitlab.com/epic-cash-bt/wallet-for-epic"
+source = "https://github.com/BTLabsUK/wallet-for-epic"
 privacy = "https://btlabs.uk/privacy/"   # the privacy policy; comment out to hide its link
 
 

@@ -346,8 +346,8 @@ Future<void> main(List<String> a) async {
       return c;
     }
 
-    // The three sources (updateManifestSources): BT Labs' own server, the GitLab copy, the GitHub release.
-    final ours = updateManifestSources[0], gitlab = updateManifestSources[1], github = updateManifestSources[2];
+    // The three sources (updateManifestSources): BT Labs' own server, the GitHub raw copy, the GitHub release.
+    final ours = updateManifestSources[0], githubRaw = updateManifestSources[1], github = updateManifestSources[2];
     Future<String> Function() offering(String version, int serial) =>
         () => signedUpdate(testUpdatePayload(serial: serial, desktop: _desktop(version: version)));
     // A manifest whose payload was changed after signing: the signature no longer matches.
@@ -383,18 +383,18 @@ Future<void> main(List<String> a) async {
         final c = make(statusAt: {ours: down, github: 404}, asked: asked);
         await c.read(deskUpdateProvider.notifier).check();
         expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.available, reason: '$down');
-        expect(asked.map((u) => '$u'), unorderedEquals([ours, gitlab, github]));
+        expect(asked.map((u) => '$u'), unorderedEquals([ours, githubRaw, github]));
       }
     });
 
-    test('GitLab private (a sign-in page) and no GitHub release yet: our server\'s manifest is used', () async {
-      final c = make(statusAt: {github: 404}, bodyAt: {gitlab: () async => '<!DOCTYPE html><html>Sign in</html>'});
+    test('Raw copy private (a sign-in page) and no GitHub release yet: our server\'s manifest is used', () async {
+      final c = make(statusAt: {github: 404}, bodyAt: {githubRaw: () async => '<!DOCTYPE html><html>Sign in</html>'});
       await c.read(deskUpdateProvider.notifier).check();
       expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.available);
     });
 
     test('only the GitHub release answers: its manifest is used; every source down: the check failed', () async {
-      final c = make(statusAt: {ours: 503, gitlab: 503});
+      final c = make(statusAt: {ours: 503, githubRaw: 503});
       await c.read(deskUpdateProvider.notifier).check();
       expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.available);
       final none = make(status: 503);
@@ -403,9 +403,9 @@ Future<void> main(List<String> a) async {
     });
 
     test('several answer: the manifest with the higher serial is used, whichever source has it', () async {
-      for (final newerAt in [ours, gitlab, github]) {
+      for (final newerAt in [ours, githubRaw, github]) {
         final c = make(bodyAt: {
-          for (final u in [ours, gitlab, github])
+          for (final u in [ours, githubRaw, github])
             u: u == newerAt ? offering('99.3.0', 1790000300) : offering('99.2.0', 1790000200),
         });
         await c.read(deskUpdateProvider.notifier).check();
@@ -414,15 +414,15 @@ Future<void> main(List<String> a) async {
     });
 
     test('a tampered manifest is refused from any source, even with the higher serial', () async {
-      for (final bad in [ours, gitlab, github]) {
+      for (final bad in [ours, githubRaw, github]) {
         final c = make(bodyAt: {
-          for (final u in [ours, gitlab, github])
+          for (final u in [ours, githubRaw, github])
             u: u == bad ? tampered('99.9.0', 1790000900) : offering('99.2.0', 1790000200),
         });
         await c.read(deskUpdateProvider.notifier).check();
         expect(c.read(deskUpdateProvider).version, '99.2.0', reason: 'tampered at $bad');
       }
-      final all = make(bodyAt: {for (final u in [ours, gitlab, github]) u: tampered('99.9.0', 1790000900)});
+      final all = make(bodyAt: {for (final u in [ours, githubRaw, github]) u: tampered('99.9.0', 1790000900)});
       await all.read(deskUpdateProvider.notifier).check();
       expect(all.read(deskUpdateProvider).phase, DeskUpdatePhase.latest);
     });
