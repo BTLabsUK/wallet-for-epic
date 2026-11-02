@@ -9,7 +9,8 @@
 #   tools/push-github.sh [--dry-run] [--replace] <repo> [<local repository>]
 #
 # The local repository defaults to ~/<repo>, else ~/code/<repo>. Per run:
-#   1. refuses when any commit on the local main carries an agent path or a CI workflow file;
+#   1. refuses when any commit on the local main carries an agent path or a CI workflow file, or
+#      a tag is not on main;
 #   2. creates a missing GitHub repository (private: making it public is the owner's click), and
 #      turns Actions and Pages off on every run if someone switched them on;
 #   3. compares GitHub with the local main and tags and pushes what differs over SSH: main as a
@@ -30,7 +31,7 @@ for arg in "$@"; do
   case $arg in
     --dry-run|-n) dry=1 ;;
     --replace) replace=1 ;;
-    -h|--help) sed -n '3,25p' "$0"; exit 0 ;;
+    -h|--help) sed -n '3,26p' "$0"; exit 0 ;;
     -*) echo "unknown option: $arg" >&2; exit 2 ;;
     *) args+=("$arg") ;;
   esac
@@ -65,6 +66,12 @@ bad=$(git -C "$local_repo" log --format= --name-only main | sort -u | grep -E "$
 if [ -n "$bad" ]; then echo "   the local main holds paths that must not be published:"; sed 's/^/     /' <<<"$bad"; exit 1; fi
 declare -A want=() have=()
 while read -r sha ref; do want[$ref]=$sha; done < <(git -C "$local_repo" for-each-ref --format='%(objectname) %(refname)' refs/heads/main refs/tags)
+# Only tags on main: a tag elsewhere may name history that was never published.
+for ref in "${!want[@]}"; do
+  [[ $ref == refs/tags/* ]] || continue
+  git -C "$local_repo" merge-base --is-ancestor "$ref^{commit}" main ||
+    { echo "   refusing: tag ${ref#refs/tags/} is not on main" >&2; exit 1; }
+done
 
 exists=1
 gh api "repos/$owner/$repo" --silent 2>/dev/null || exists=0
