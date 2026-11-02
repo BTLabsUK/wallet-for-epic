@@ -92,10 +92,10 @@ void main() {
           tester.getRect(find.byKey(levelUndercoverKey)).top,
           greaterThan(tester.getRect(find.byKey(levelRestoreKey)).bottom),
         );
-        expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
+        expect(tester.widget<UndercoverRow>(find.byType(UndercoverRow)).value, isFalse);
         await tester.tap(find.byKey(levelUndercoverKey));
         await tester.pumpAndSettle();
-        expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
+        expect(tester.widget<UndercoverRow>(find.byType(UndercoverRow)).value, isTrue);
       }
 
       await tester.tap(find.byKey(levelCreateKey));
@@ -114,7 +114,7 @@ void main() {
       await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
       expect(find.byType(LevelStepScreen), findsOneWidget);
-      if (torBuilt) expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
+      if (torBuilt) expect(tester.widget<UndercoverRow>(find.byType(UndercoverRow)).value, isTrue);
     });
   }
 

@@ -15,6 +15,7 @@ import '../theme/tokens.dart';
 import 'level_art.dart';
 import 'level_sheets.dart';
 import '../../text_join.dart';
+import '../status_icons.dart' show EpicGlyphs;
 
 /// Expand and collapse alike (the motion rule): a layer of the preview, the dial's fill.
 const Duration _motion = Duration(milliseconds: 220);
@@ -534,8 +535,9 @@ class LevelPreview extends StatelessWidget {
   }
 }
 
-/// Tor only as a quiet row: at first start one centred line (a small switch, the name, its ⓘ);
-/// Change level's ([later]) with the agent and a full-size switch.
+/// Tor only as a quiet row: at first start one centred line under a hairline (the Tor mark,
+/// lit when on, the name, its ⓘ; the line is the toggle); Change level's ([later]) with the
+/// agent and a full-size switch.
 class UndercoverRow extends StatelessWidget {
   const UndercoverRow({super.key, required this.value, required this.onChanged, this.later = false});
 
@@ -551,52 +553,65 @@ class UndercoverRow extends StatelessWidget {
     final l = context.l10n;
     final onChanged = this.onChanged;
     if (!later) {
-      // First start: one quiet line, centred: a small switch, "Tor only" and its ⓘ (the owner),
-      // as on the desktop's Welcome. The tap target stays 48 dp high.
-      return Center(
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(
-              child: MergeSemantics(
-                child: InkWell(
-                  key: levelUndercoverKey,
-                  borderRadius: BorderRadius.circular(t.radiusSmall),
-                  onTap: onChanged == null ? null : () => onChanged(!value),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(minHeight: 48),
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.only(start: 4, end: 8),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            height: 24,
-                            child: FittedBox(
-                              child: Switch(
-                                value: value,
-                                onChanged: onChanged,
-                                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      // First start: one quiet line under a hairline, centred: the Tor mark, dim while off and
+      // lit when on, "Tor only" and its ⓘ (the owner). The whole line is the toggle, 48 dp high.
+      final title = l.levelUndercoverTitle;
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Divider(height: 1, thickness: 1, color: t.line),
+          const SizedBox(height: 4),
+          Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Semantics(
+                    container: true,
+                    toggled: value,
+                    label: title,
+                    excludeSemantics: true,
+                    onTap: onChanged == null ? null : () => onChanged(!value),
+                    child: InkWell(
+                      key: levelUndercoverKey,
+                      borderRadius: BorderRadius.circular(t.radiusSmall),
+                      onTap: onChanged == null ? null : () => onChanged(!value),
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(minHeight: 48),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              AnimatedSwitcher(
+                                duration: _motion,
+                                child: Icon(
+                                  EpicGlyphs.tor,
+                                  key: ValueKey(value),
+                                  size: 20,
+                                  color: value ? t.accentText : t.faint,
+                                ),
                               ),
-                            ),
+                              const SizedBox(width: 10),
+                              Flexible(
+                                child: Text(
+                                  title,
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: value ? t.text : t.dim),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          Flexible(
-                            child: Text(
-                              l.levelUndercoverTitle,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.dim),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
+                const UndercoverHelpHint(),
+              ],
             ),
-            const UndercoverHelpHint(),
-          ],
-        ),
+          ),
+        ],
       );
     }
     return DecoratedBox(

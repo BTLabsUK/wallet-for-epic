@@ -13,6 +13,7 @@ import '../../../app_info.dart' show appName;
 import '../../../levels/wallet_level.dart';
 import '../../../ui/levels/level_art.dart';
 import '../../../ui/levels/level_picker.dart' show levelLine, levelStopName;
+import '../../../ui/status_icons.dart' show EpicGlyphs;
 import '../../../ui/theme/brand.dart' show EpicMark;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
@@ -377,8 +378,8 @@ class DeskLevelCaption extends StatelessWidget {
   }
 }
 
-/// Tor only: a quiet row with the switch, the name and its ⓘ (small, one line, at first start);
-/// [later] is the Change level wording, with the agent.
+/// Tor only: at first start a hairline and one quiet line (the Tor mark, lit when on, the name,
+/// its ⓘ; the line is the toggle); [later] is the Change level wording, with a switch.
 class DeskUndercoverRow extends StatelessWidget {
   const DeskUndercoverRow({super.key, required this.value, required this.onChanged, this.later = false});
 
@@ -391,31 +392,85 @@ class DeskUndercoverRow extends StatelessWidget {
     final c = context.dc;
     final l = context.l10n;
     final title = later ? l.lvPickUndercover : l.levelUndercoverTitle;
+    final onChanged = this.onChanged;
+    if (!later) {
+      // First start: a hairline, then one quiet centred line: the Tor mark, dim while off and
+      // lit when on, "Tor only" and its ⓘ (the owner). The line is the toggle: a click, or Enter
+      // or Space once focused.
+      void toggle() => onChanged?.call(!value);
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Divider(height: 1, thickness: 1, color: c.line),
+          SizedBox(height: Sp.x2),
+          Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Semantics(
+                    container: true,
+                    toggled: value,
+                    label: title,
+                    excludeSemantics: true,
+                    onTap: onChanged == null ? null : toggle,
+                    child: FocusableActionDetector(
+                      enabled: onChanged != null,
+                      mouseCursor: onChanged == null ? SystemMouseCursors.basic : SystemMouseCursors.click,
+                      actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => toggle())},
+                      child: Builder(
+                        builder: (context) => GestureDetector(
+                          key: deskUndercoverKey,
+                          behavior: HitTestBehavior.opaque,
+                          onTap: onChanged == null ? null : toggle,
+                          child: FocusRing(
+                            focused: Focus.of(context).hasFocus,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(minHeight: 40.u),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: Sp.x3),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    AnimatedSwitcher(
+                                      duration: Dur.base,
+                                      child: Icon(EpicGlyphs.tor, key: ValueKey(value), size: 18.u, color: value ? c.accentText : c.faint),
+                                    ),
+                                    SizedBox(width: Sp.x2),
+                                    Flexible(child: Text(title, style: context.ts.small.copyWith(color: value ? c.text : c.dim))),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                EIconButton(icon: EIcons.info, label: l.deskLvStartUndercoverAbout, size: EBtnSize.inline, onPressed: () => showUndercoverHelp(context, later: false)),
+              ],
+            ),
+          ),
+        ],
+      );
+    }
     return DecoratedBox(
-      decoration: BoxDecoration(border: later && context.getInheritedWidgetOfExactType<_StackedScope>() == null ? Border(top: BorderSide(color: c.line)) : null),
+      decoration: BoxDecoration(border: context.getInheritedWidgetOfExactType<_StackedScope>() == null ? Border(top: BorderSide(color: c.line)) : null),
       child: Padding(
         padding: EdgeInsets.only(top: Sp.x3),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            // First start: a small switch, "Tor only" and its ⓘ, one line (the owner).
-            if (later)
-              ESwitch(key: deskUndercoverKey, value: value, onChanged: onChanged, semanticLabel: title)
-            else
-              SizedBox(
-                height: 18.u,
-                child: FittedBox(child: ESwitch(key: deskUndercoverKey, value: value, onChanged: onChanged, semanticLabel: title)),
-              ),
+            ESwitch(key: deskUndercoverKey, value: value, onChanged: onChanged, semanticLabel: title),
             SizedBox(width: Sp.x3),
-            if (later) ...[
-              LevelArt(LevelArtKind.agent, size: 22.u, color: value ? c.accentText : c.faint),
-              SizedBox(width: Sp.x2),
-            ],
+            LevelArt(LevelArtKind.agent, size: 22.u, color: value ? c.accentText : c.faint),
+            SizedBox(width: Sp.x2),
             Flexible(
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: onChanged == null ? null : () => onChanged!(!value),
-                child: ExcludeSemantics(child: Text(title, style: later ? context.ts.body : context.ts.small)),
+                onTap: onChanged == null ? null : () => onChanged(!value),
+                child: ExcludeSemantics(child: Text(title, style: context.ts.body)),
               ),
             ),
             SizedBox(width: Sp.x1),

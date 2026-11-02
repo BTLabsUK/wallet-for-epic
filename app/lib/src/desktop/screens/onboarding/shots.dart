@@ -22,6 +22,7 @@ final List<DeskShot> onboardingShots = [
   // The first start of a fresh install, as the user meets it: the doors and, in Tor builds,
   // the Tor only switch (no view picker). The tour harness releases the hold after the shot.
   DeskShot(id: '00a-first-start', title: 'First start', route: DeskRoute.welcome, before: _firstStart),
+  DeskShot(id: '00b-first-start-tor-only', title: 'First start: Tor only on', route: DeskRoute.welcome, arg: 'tor-only', before: _firstStart),
   const DeskShot(id: '01-welcome', title: 'Welcome', route: DeskRoute.welcome),
   const DeskShot(id: '01b-welcome-advanced', title: 'Welcome: advanced', route: DeskRoute.welcome, arg: 'advanced'),
   const DeskShot(id: '01c-welcome-add', title: 'Add a wallet', route: DeskRoute.welcome, arg: 'add'),

@@ -27,7 +27,8 @@ const _folders = {
 };
 
 /// First run, and "add a wallet" later: create, add an existing one, or restore. [arg] `'add'`
-/// is the later visit (wallets exist), `'advanced'` starts with Advanced open. A fresh install
+/// is the later visit (wallets exist), `'advanced'` starts with Advanced open, `'tor-only'` with
+/// Tor only on (the screenshot tour's first start). A fresh install
 /// starts in the basic view ([firstStartLevel]); Settings › Advanced › View changes it.
 class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key, this.arg});
@@ -41,7 +42,7 @@ class WelcomeScreen extends ConsumerStatefulWidget {
 class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   bool _tip = false;
   _FolderIssue? _folderError;
-  bool _undercover = false;
+  late bool _undercover = widget.arg == 'tor-only';
   bool _busy = false;
 
   /// The first-start step is still to answer: the gate is held, nothing connects.
