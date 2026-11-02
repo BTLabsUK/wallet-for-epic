@@ -243,7 +243,8 @@ class _SettingsSearchSlotState extends ConsumerState<SettingsSearchSlot> {
 }
 
 /// Around the whole Settings takeover (column and page): / and Ctrl+K focus and select the
-/// search; Esc clears it, and with nothing to clear calls [onLeave] (back to the wallet). On
+/// search; Esc clears it, and with nothing to clear in the search field calls [onLeave] (back
+/// to the wallet; elsewhere the shell's own Esc does that). On
 /// Help, / stays Help's own search (review 11). Nothing happens while a dialog or popover is
 /// open over Settings.
 class SettingsSearchKeys extends ConsumerStatefulWidget {
@@ -281,20 +282,39 @@ class _SettingsSearchKeysState extends ConsumerState<SettingsSearchKeys> {
       ref.read(settingsSearchFocusProvider.notifier).request();
       return true;
     }
-    if (e.logicalKey == LogicalKeyboardKey.escape && !hw.isShiftPressed && !ctrl) {
-      if (ref.read(settingsQueryProvider).isNotEmpty) {
-        ref.read(settingsQueryProvider.notifier).clear();
-        ref.read(settingsSearchFocusProvider.notifier).request();
-      } else {
-        widget.onLeave();
-      }
-      return true;
-    }
     return false;
   }
 
+  /// Esc anywhere in Settings while searching clears the search (the field takes the focus
+  /// back). With nothing to clear it passes on, to the shell's own Esc, except in the search
+  /// field itself (the shell leaves text fields alone): there it calls [onLeave].
+  KeyEventResult _onEsc(FocusNode _, KeyEvent e) {
+    if (e is! KeyDownEvent || e.logicalKey != LogicalKeyboardKey.escape) return KeyEventResult.ignored;
+    final hw = HardwareKeyboard.instance;
+    if (hw.isShiftPressed || hw.isControlPressed || hw.isMetaPressed || hw.isAltPressed) return KeyEventResult.ignored;
+    if (ref.read(settingsQueryProvider).isNotEmpty) {
+      ref.read(settingsQueryProvider.notifier).clear();
+      ref.read(settingsSearchFocusProvider.notifier).request();
+      return KeyEventResult.handled;
+    }
+    if (_inField()) {
+      widget.onLeave();
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
+  }
+
+  bool _inField() {
+    var inside = false;
+    FocusManager.instance.primaryFocus?.context?.visitAncestorElements((e) {
+      if (e.widget is SettingsSearchSlot) inside = true;
+      return !inside;
+    });
+    return inside;
+  }
+
   @override
-  Widget build(BuildContext context) => widget.child;
+  Widget build(BuildContext context) => Focus(canRequestFocus: false, skipTraversal: true, onKeyEvent: _onEsc, child: widget.child);
 }
 
 /// The results, in place of the page while the query is not empty: a count, the settings in
