@@ -661,7 +661,10 @@ class Run:
         try:
             db = self.rig.fetch_db(entry["dataDir"].rstrip("\\/") + "\\lepic\\wallet.sqlite3", os.path.join(self.work, "db"), "seed-files")
             meta = seed.meta_note(self.rig.text(meta_path), seed.first_tx_id(db))
-            contacts = seed.contacts_json(self.rig.text(self.data + "\\" + facts.CONTACTS_PLAIN), self.p_addr)
+            # not P's address: send_to_p types P's address into To, and in the candidate an address a
+            # contact holds turns To into a chip (the click map was measured without one)
+            contacts = seed.contacts_json(self.rig.text(self.data + "\\" + facts.CONTACTS_PLAIN),
+                                          seed.decoy_epicbox(self.p_addr))
         except seed.SeedError as e:
             raise CannotRun("seeding the previous release's contact and note: %s" % e)
         lan = seed.lan_nodes_json(["http://%s" % self.custom_node])

@@ -143,6 +143,22 @@ def contacts_json(text, epicbox):
     return json.dumps(d, separators=(",", ":"), ensure_ascii=False)
 
 
+_BASE58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+
+
+def decoy_epicbox(addr):
+    """An Epicbox address of the same shape as [addr] that is not it: the first character of the key
+    changed (the @host kept). The candidate's desktop Send turns a To field that holds a contact's
+    address into a contact chip and moves everything under it, which the click map of a blind driver
+    (windows/trust.py) was not measured with; a contact on a different address leaves To a plain field,
+    while the contact itself is still seeded and kept."""
+    key, at, host = addr.partition("@")
+    if not key or key[0] not in _BASE58:
+        raise SeedError("not an Epicbox address: %r" % addr[:4])
+    other = _BASE58[(_BASE58.index(key[0]) + 1) % len(_BASE58)]
+    return other + key[1:] + at + host
+
+
 def meta_note(text, tx_id, note=NOTE):
     """wfe_meta.json with a note on the wallet's transaction [tx_id] (LEPIC's row id; the history finds
     a note under the alias "l:<id>" of its row). Everything else in the file stays as the release wrote it."""

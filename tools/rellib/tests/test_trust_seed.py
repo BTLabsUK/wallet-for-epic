@@ -3,6 +3,7 @@
 import glob
 import json
 import os
+import re
 import shutil
 import sqlite3
 import sys
@@ -99,6 +100,17 @@ class PreviousReleaseFilesTest(unittest.TestCase):
         self.assertEqual(json.loads(seed.contacts_json(None, "k@r"))["version"], 1)
         with self.assertRaises(seed.SeedError):
             seed.contacts_json('{"nope":1}', "k@r")
+
+    def test_decoy_epicbox_keeps_the_shape_and_differs(self):
+        shape = re.compile(r"^[1-9A-HJ-NP-Za-km-z]{40,}(?:@[^@\s]+)?$")
+        for addr in ("x" * 52 + "@epicbox.example.com", "z" * 45, "1" + "a" * 50 + "@h"):
+            d = seed.decoy_epicbox(addr)
+            self.assertNotEqual(d, addr)
+            self.assertEqual(len(d), len(addr))
+            self.assertEqual(d.partition("@")[1:], addr.partition("@")[1:])
+            self.assertTrue(shape.match(d), d)
+        with self.assertRaises(seed.SeedError):
+            seed.decoy_epicbox("")
 
     def test_note_under_the_row_alias(self):
         d = json.loads(seed.meta_note('{"version":1,"notes":{"a":"b"},"contacts":[]}', 7))
