@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../connection_grace.dart' show connectionGraceProvider;
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
@@ -87,6 +88,10 @@ class _EpicboxDownNoticeState extends ConsumerState<EpicboxDownNotice> {
 
   @override
   Widget build(BuildContext context) {
+    // Right after the start or a return to the front the connection is only coming back: the
+    // status icon alone says so (item 11, connection_grace.dart). The tour's laid-over state
+    // shows at once.
+    if (widget.status == null && ref.watch(connectionGraceProvider)) return const SizedBox.shrink();
     final st = ref.watch(deskProvider);
     final l = context.l10n;
     final s = widget.status ?? st.status;
@@ -94,14 +99,23 @@ class _EpicboxDownNoticeState extends ConsumerState<EpicboxDownNotice> {
     final other = healthiestOtherEpicbox(st);
     // Under a state line that says "Not answering" already: only an offer to switch adds to it.
     if (!widget.sentence && other == null) return const SizedBox.shrink();
+    // One line: what is wrong, and the switch named by its server.
     return ENotice(
+      key: const ValueKey('epicbox-down'),
       title: l.deskSendEpicboxDownTitle,
-      text: other == null ? l.deskSendEpicboxDownWait : l.deskSendEpicboxSwitchTo(other.domain),
+      text: other == null ? l.deskSendEpicboxDownWait : null,
       tone: ETone.warn,
       icon: EIcons.antenna,
       actions: [
         if (other != null)
-          EButton(label: l.deskSendEpicboxSwitch, icon: EIcons.swap, size: EBtnSize.inline, busy: _busy, onPressed: _busy ? null : () => _switch(other.domain)),
+          EButton(
+            key: const ValueKey('epicbox-down-switch'),
+            label: l.deskEpicboxBlockedSwitch(other.domain),
+            icon: EIcons.swap,
+            size: EBtnSize.inline,
+            busy: _busy,
+            onPressed: _busy ? null : () => _switch(other.domain),
+          ),
       ],
     );
   }

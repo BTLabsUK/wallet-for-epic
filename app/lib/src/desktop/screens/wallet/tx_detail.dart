@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import '../../../cancel_choice.dart';
 import '../../../cancel_final.dart' show CancelResult;
+import '../../../connection_grace.dart' show connectionGraceProvider;
 import '../../../network_gate.dart' show NetGate;
 import '../transfer/finished_payment.dart' show FinishedPaymentActions;
 import 'dart:async';
@@ -841,7 +842,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     if (p.state == PairingState.keysChanged) ...[
       SizedBox(height: Sp.x3),
       ENotice(key: const ValueKey('tx-mailbox-keys'), title: l.contactKeysChangedTitle(name), text: l.contactKeysChangedBody, tone: ETone.warn),
-    ] else if (p.relayDown) ...[
+    ] else if (p.relayDown && !ref.watch(connectionGraceProvider)) ...[
       SizedBox(height: Sp.x3),
       ENotice(key: const ValueKey('tx-mailbox-relay'), title: l.contactRelayDownTitle(name), text: l.contactRelayDownBody, tone: ETone.warn),
     ],

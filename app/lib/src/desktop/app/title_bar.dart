@@ -415,7 +415,11 @@ class _Held extends ConsumerWidget {
 
 /// Hover and pressed backgrounds for the bar's own buttons (brand, wallet chip, status).
 class _BarButton extends StatefulWidget {
-  const _BarButton({super.key, required this.label, required this.onPressed, required this.child, this.open = false, this.tooltip, this.padding, this.height = 30});
+  const _BarButton({super.key, required this.label, required this.onPressed, required this.child, this.open = false, this.tooltip, this.padding, this.height = 30, this.hit44 = false});
+
+  /// The click and tap area is at least 44 × 44 u around the drawn button (the status icons,
+  /// review finding 8); what is drawn keeps [height].
+  final bool hit44;
 
   final String label;
   final String? tooltip;
@@ -451,12 +455,8 @@ class _BarButtonState extends State<_BarButton> {
         onShowHoverHighlight: (v) => setState(() => _hover = v),
         actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onPressed?.call())},
         child: Builder(
-          builder: (context) => GestureDetector(
-            onTap: widget.onPressed,
-            onTapDown: enabled ? (_) => setState(() => _down = true) : null,
-            onTapUp: enabled ? (_) => setState(() => _down = false) : null,
-            onTapCancel: enabled ? () => setState(() => _down = false) : null,
-            child: FocusRing(
+          builder: (context) {
+            Widget face = FocusRing(
               focused: Focus.of(context).hasFocus,
               child: AnimatedContainer(
                 duration: Dur.fast,
@@ -474,8 +474,22 @@ class _BarButtonState extends State<_BarButton> {
                 ),
                 child: widget.child,
               ),
-            ),
-          ),
+            );
+            if (widget.hit44) {
+              face = ConstrainedBox(
+                constraints: BoxConstraints(minWidth: Ctl.md, minHeight: Ctl.md),
+                child: Center(widthFactor: 1, heightFactor: 1, child: face),
+              );
+            }
+            return GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: widget.onPressed,
+              onTapDown: enabled ? (_) => setState(() => _down = true) : null,
+              onTapUp: enabled ? (_) => setState(() => _down = false) : null,
+              onTapCancel: enabled ? () => setState(() => _down = false) : null,
+              child: face,
+            );
+          },
         ),
       ),
     );
@@ -1035,6 +1049,7 @@ class _StatusIcons extends ConsumerWidget {
                       tooltip: tip,
                       open: open,
                       padding: EdgeInsets.symmetric(horizontal: 3.u),
+                      hit44: true,
                       onPressed: () => _toggle(m),
                       child: EStatusGlyph(icon: i.icon, state: i.state, label: tip, dim: dim),
                     );

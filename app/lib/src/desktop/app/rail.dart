@@ -16,6 +16,8 @@ import '../desk_l10n.dart';
 import '../data/desk_node.dart';
 import '../data/net_mode_view.dart';
 import 'desk_failover.dart';
+import 'status_popover.dart' show graceRailItems;
+import '../../connection_grace.dart' show connectionGraceProvider;
 import '../data/node_view.dart';
 import '../data/tor_view.dart' as tor_view;
 import '../data/tor_view.dart' hide isLocalNodeUrl;
@@ -87,7 +89,7 @@ class RailItem {
 List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSettings settings, {bool reachClosed = false}) {
   final eb = st?.epicboxHealth ?? ServiceHealth.checking;
   final ebHost = st?.epicbox.domain;
-  final tor = netTorState(settings, st);
+  var tor = netTorState(settings, st);
   final ebWay = torWay(TorRoute.epicbox, tor);
   final ebWaits = eb != ServiceHealth.off && (ebWay == TorWay.wait || ebWay == TorWay.blocked);
   final blocked = st != null && st.epicboxBlocked && eb == ServiceHealth.down && !ebWaits;
@@ -166,8 +168,11 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
   );
   if (DeskFeatures.tor) {
     // The one Tor switch, always shown: Off, Starting, Connected, Not connected. A click opens
-    // Settings › Privacy, where the switch is.
+    // Settings › Privacy, where the switch is. With it off, Link · Tor may run tor for
+    // payments alone (item 2): the row then shows that tor, "For payments".
     final included = st?.torIncluded ?? true;
+    final forPay = included && tor == TorState.off && torPayWantedIn(settings);
+    if (forPay) tor = torProcessState(settings, st);
     final word = included ? torWord(l, tor) : l.deskRailTorNotInBuild;
     items.add(
       RailItem(
@@ -176,7 +181,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
         word: word,
         // Tor's word and dot from its one state (torShownState), as everywhere (D-04).
         state: !included ? EState.off : EState.of(torShownState(tor)),
-        second: tor == TorState.starting ? l.deskRailStartingDots : word,
+        second: tor == TorState.starting ? l.deskRailStartingDots : (forPay ? l.deskRailTorForPayments : word),
         marker: tor == TorState.starting ? percentText(l, st?.torProgress ?? 0) : null,
         note: included ? torNetworkHint(l) : null,
         lines: [
@@ -346,7 +351,9 @@ class _ServiceRowsState extends ConsumerState<ServiceRows> {
       );
     }
     final reach = settings.publicMode && httpRun(status) == HttpRun.on ? ref.watch(deskLastHttpReachProvider) : null;
-    final items = [nodeItem, ...receivingRailItems(l, status, settings, reachClosed: reach?.reachable == false)];
+    // Right after the start and a return to the front, servers that do not answer yet read
+    // Connecting (item 11, connection_grace.dart).
+    final items = graceRailItems(l, [nodeItem, ...receivingRailItems(l, status, settings, reachClosed: reach?.reachable == false)], grace: ref.watch(connectionGraceProvider));
     if (widget.builder != null) return widget.builder!(context, items);
     Widget row(RailItem i) => RailRow(item: i, compact: widget.compact, onTap: () => p.jumpTo(i.opens));
     if (widget.horizontal) {

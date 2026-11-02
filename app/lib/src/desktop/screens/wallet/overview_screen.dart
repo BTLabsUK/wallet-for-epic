@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../connection_grace.dart' show connectionGraceProvider;
 import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;
 import '../../../price.dart' show fiatChoiceProvider, fiatText, priceProvider;
 import '../../app/shell_notices.dart' show DeskShellNotices, deskShellNoticesShownProvider;
@@ -101,6 +102,9 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     final netBlock = demo == null ? deskNetBlock(s, nodeOnly: true) : NetBlock.none;
     final offline = netBlock.byMode;
     final nodeDown = demo == OverviewDemo.nodeDown || (demo == null && netBlock == NetBlock.none && s.status?.nodeHealth == ServiceHealth.down);
+    // Its notice waits out the connection grace after the start or a return (item 11): the
+    // status icon alone says Connecting meanwhile.
+    final nodeDownSaid = nodeDown && (demo != null || !ref.watch(connectionGraceProvider));
     // The wallet's own sync (a refresh or a scan), not the node's.
     final walletSync = demo == null && s.status?.syncProgress != null;
     final balance = empty ? const Balance(spendable: 0, awaitingConfirmation: 0, locked: 0, awaitingFinalization: 0) : s.balance;
@@ -163,7 +167,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
           ],
         ),
       // The Node list is empty: nothing to reach, so no "Cannot reach the node at …".
-      if (nodeDown && ref.watch(hostSettingsProvider.select((h) => h.nodeUrls.isEmpty)))
+      if (nodeDownSaid && ref.watch(hostSettingsProvider.select((h) => h.nodeUrls.isEmpty)))
         ENotice(
           key: const ValueKey('overview-no-node'),
           tone: ETone.warn,
@@ -173,7 +177,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
           actionsBelow: true,
           actions: [EButton(label: l.deskOvNodeSettings, size: EBtnSize.inline, onPressed: () => nav.go(DeskRoute.settingsNode))],
         )
-      else if (nodeDown)
+      else if (nodeDownSaid)
         ENotice(
           tone: ETone.risk,
           title: l.deskOvCantReachNode(nodeUrl),

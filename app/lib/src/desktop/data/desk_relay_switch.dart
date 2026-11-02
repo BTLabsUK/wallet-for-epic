@@ -21,6 +21,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../connection_grace.dart' show connectionGraceProvider;
 import '../../levels/relay_switch.dart';
 import '../../levels/relay_switch_providers.dart' show RelaySwitchResult;
 import '../../log.dart';
@@ -58,6 +59,8 @@ final deskRelayMovedNoticeProvider = NotifierProvider<DeskRelayMovedNotice, bool
 final deskRelayNoticeShownProvider = Provider<bool>(
   (ref) =>
       ref.watch(deskLevelFeaturesProvider.select((f) => f.relaySwitchPrompt)) &&
+      // No server offer during the connection grace (item 11); a move just made still says so.
+      (!ref.watch(connectionGraceProvider) || (ref.watch(deskRelayMovedNoticeProvider) && ref.watch(deskRelayMovedProvider) != null)) &&
       (ref.watch(deskRelayOfferProvider) != null || (ref.watch(deskRelayMovedNoticeProvider) && ref.watch(deskRelayMovedProvider) != null)),
 );
 

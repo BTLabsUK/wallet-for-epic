@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../connection_grace.dart' show connectionGraceProvider;
 import '../../../recent_activity.dart' show recentActivityCount, showViewAll;
 import '../../../recipient.dart' show RecipientKind, parseRecipient;
 import '../../desk_l10n.dart';
@@ -1377,7 +1378,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
           ),
           SizedBox(height: Sp.x4),
         ],
-        if (p.relayDown && !paused) ...[
+        if (p.relayDown && !paused && !ref.watch(connectionGraceProvider)) ...[
           ENotice(title: l.contactRelayDownTitle(name), text: l.contactRelayDownBody, tone: ETone.warn),
           SizedBox(height: Sp.x4),
         ],

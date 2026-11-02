@@ -52,6 +52,30 @@ List<RailItem> deskStatusShown(WidgetRef ref, List<RailItem> items) {
   ];
 }
 
+/// [items] during the connection grace ([grace], `connection_grace.dart`): a server that does
+/// not answer yet (the node, Epicbox, Tor) reads Connecting, in progress, with its host and
+/// none of its warning lines: the connection is only coming back. Off, off by the mode, and
+/// Link · HTTP (a listener on this computer) stay as they are.
+List<RailItem> graceRailItems(AppLocalizations l, List<RailItem> items, {required bool grace}) => !grace
+    ? items
+    : [
+        for (final i in items)
+          if (i.byMode || i.jump == SettingsJump.http || !(i.state == EState.risk || i.state == EState.warn))
+            i
+          else
+            RailItem(
+              icon: i.icon,
+              name: i.name,
+              word: ShownState.connecting.word(l),
+              state: EState.active,
+              second: i.second,
+              lines: const [],
+              note: i.note,
+              open: i.open,
+              jump: i.jump,
+            ),
+      ];
+
 /// The name a status shows at the level: Shallow's node is "Network".
 String deskStatusName(AppLocalizations l, WalletLevel level, RailItem i) =>
     level == WalletLevel.justSendReceive && i.jump == SettingsJump.node ? l.settingsAboutNetwork : i.name;
