@@ -434,7 +434,7 @@ class _Chip extends StatelessWidget {
       child: Material(
         color: c.s1,
         shape: RoundedRectangleBorder(borderRadius: radius, side: BorderSide(color: c.lineStrong)),
-        child: InkWell(
+        child: EInkWell(
           onTap: onTap,
           borderRadius: radius,
           child: Container(
@@ -545,7 +545,7 @@ class _TopicState extends ConsumerState<_Topic> {
               Semantics(
                 button: true,
                 expanded: _open,
-                child: InkWell(
+                child: EInkWell(
                   onTap: () => setState(() => _open = !_open),
                   borderRadius: BorderRadius.circular(Rad.xs),
                   child: Container(

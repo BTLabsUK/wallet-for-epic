@@ -10444,18 +10444,6 @@ abstract class AppLocalizations {
   /// **'Copy Link · HTTP address'**
   String get deskRecvCopyHttp;
 
-  /// Caption under the HTTP address when receiving from the internet is on. {port} is the port number.
-  ///
-  /// In en, this message translates to:
-  /// **'Your router’s public address. Senders on the internet use it once the router forwards port {port}.'**
-  String deskRecvHttpPublic(int port);
-
-  /// Caption under the HTTP address when receiving is only for this computer.
-  ///
-  /// In en, this message translates to:
-  /// **'Programs on this computer can pay this address. For other devices, see Settings › Payments.'**
-  String get deskRecvHttpLocal;
-
   /// Intro text of the HTTP panel on Receive.
   ///
   /// In en, this message translates to:
@@ -18516,41 +18504,11 @@ abstract class AppLocalizations {
   /// **'Port must be 1 to 65535'**
   String get deskSetHttpPortError;
 
-  /// Settings > Receiving > HTTP: row title for who can send payments to the HTTP address.
-  ///
-  /// In en, this message translates to:
-  /// **'Reachable'**
-  String get deskSetHttpReachable;
-
-  /// Settings > Receiving > HTTP: hint under the Reachable row.
-  ///
-  /// In en, this message translates to:
-  /// **'Who can pay the HTTP address.'**
-  String get deskSetHttpReachableHint;
-
-  /// Settings > Receiving > HTTP: segment, only programs on this computer reach the address. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Local only'**
-  String get deskSetHttpLocalOnly;
-
-  /// Settings > Receiving > HTTP: segment, the address answers on the internet. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'From the internet'**
-  String get deskSetHttpFromInternet;
-
   /// Tooltip and screen reader label of the help button that opens the internet guide.
   ///
   /// In en, this message translates to:
   /// **'Receive from the internet: how it works'**
   String get deskSetHttpGuideHelp;
-
-  /// Settings > Receiving > HTTP: note under the Reachable row when From the internet is chosen. {port} is a port number; http://<public IP>:{port} is an address template and stays in this form.
-  ///
-  /// In en, this message translates to:
-  /// **'Answers on all interfaces; the router must forward TCP {port} to this computer.'**
-  String deskSetHttpPublicNote(String port);
 
   /// Settings > Receiving > HTTP: row title for the port number.
   ///
@@ -26844,12 +26802,6 @@ abstract class AppLocalizations {
   /// **'Nothing under this filter'**
   String get deskActNoneUnderFilter;
 
-  /// Receive › Link · HTTP: line under the address when the HTTP listener is reachable from the internet (Settings › Transactions › From the internet).
-  ///
-  /// In en, this message translates to:
-  /// **'For wallets on the internet, while this wallet is open.'**
-  String get deskRecvHttpIntroInternet;
-
   /// State word of the Epicbox method line on Receive and in Settings when the server answers: "Connected · host".
   ///
   /// In en, this message translates to:
@@ -31733,6 +31685,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search, while in Settings'**
   String get deskBarKeySearchHere;
+
+  /// Title of the Link · HTTP address for wallets on this computer (http://127.0.0.1:port), on Receive and in Settings. Short.
+  ///
+  /// In en, this message translates to:
+  /// **'This computer'**
+  String get deskHttpLocalTitle;
+
+  /// Screen-reader label of the switch next to the local Link · HTTP address.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive on this computer'**
+  String get deskHttpLocalSwitch;
+
+  /// Title of the Link · HTTP address for wallets on the internet (http://<public IP>:port), on Receive and in Settings. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Internet'**
+  String get deskHttpPublicTitle;
+
+  /// Caption under the internet switch of Link · HTTP: turning it on makes the wallet listen on all interfaces (0.0.0.0). Short and factual.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens port {port} to the internet. Needs port forwarding on your router.'**
+  String deskHttpPublicNote(String port);
 }
 
 class _AppLocalizationsDelegate

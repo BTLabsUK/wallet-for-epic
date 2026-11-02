@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'app_version.dart' show coreVersion, withCoreVersion;
+
 /// The desktop app's product name, in every desktop title, header and footer (the phone's is
 /// `appTitle` in l10n: "Epic Cash Mobile"). "Epic Cash" alone is the coin and its network. The
 /// runners and the installer spell it too: `windows/runner/main.cpp`, `windows/runner/Runner.rc`
@@ -20,3 +22,10 @@ const String appBuildTag = String.fromEnvironment('WFE_BUILD_TAG');
 /// [version] with the build: `0.1.0 (ba10dec)`, or [version] alone without one.
 String withBuildId(String version) =>
     appBuildId.isEmpty ? version : '$version ($appBuildId)';
+
+/// About's version line: the app's version, the app commit it was built from and the core's,
+/// `26.10.25 · app 98949ac · core 0.1.0`; without a build id `26.10.25 · core 0.1.0`.
+String versionLine(String version) =>
+    appBuildId.isEmpty ? withCoreVersion(version) : '$version · app ${_short(appBuildId)} · core $coreVersion';
+
+String _short(String id) => id.length > 7 ? id.substring(0, 7) : id;

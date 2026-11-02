@@ -16,7 +16,7 @@ import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
 import '../../app/tour.dart';
 import '../../desk_l10n.dart';
-import '../../widgets/http_reach.dart';
+import '../../widgets/http_addresses.dart';
 import '../../data/pairing_state.dart' show deskInvoicesShownProvider, deskPairsProvider;
 import '../../widgets/kit.dart';
 import '../../widgets/pay_steps.dart' show DeskPaymentSteps;
@@ -61,6 +61,7 @@ class ReceiveScreen extends ConsumerStatefulWidget {
 class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   ReceiveArgs? _args;
   String? _http;
+  bool _httpSeen = false;
   String? _tor;
   final Set<TxMethod> _busy = {};
   final Map<TxMethod, GlobalKey> _panels = {for (final m in TxMethod.values) m: GlobalKey()};
@@ -219,7 +220,10 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     // the Tor switch is not (it stops the clearnet listener), or while its listener still runs.
     final p = st.settings.payments;
     final torPanel = feat.linkPayments && DeskFeatures.tor && p.linkTor && (st.settings.tor || torPayWantedIn(st.settings));
-    final httpPanel = feat.linkPayments && ((p.linkHttp && !st.settings.tor) || status?.httpListener == ServiceHealth.ok);
+    final httpPanel = feat.linkPayments && ((p.linkHttp && !st.settings.tor) || status?.httpListener == ServiceHealth.ok || (_httpSeen && !st.settings.tor));
+    // Its local switch turns Link · HTTP off: the panel stays while this page is open, so the
+    // switch can turn it on again.
+    if (httpPanel) _httpSeen = true;
     final others = [
       if (torPanel) _torPanel(st, status),
       if (httpPanel) _httpPanel(st, status),
@@ -399,7 +403,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
                 label: l.deskRecvSemMethod(_name(l, m), word(m)),
                 excludeSemantics: true,
                 onTap: () => _jump(m),
-                child: InkWell(
+                child: EInkWell(
                   borderRadius: BorderRadius.circular(Rad.sm),
                   onTap: () => _jump(m),
                   child: Padding(
@@ -673,13 +677,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final line = status == null ? null : methodStateLine(context.l10n, m, status, st.settings);
     final ok = status?.httpListener == ServiceHealth.ok;
     final failed = status?.httpListener == ServiceHealth.down;
-    final addr = _http != null && _http!.isNotEmpty ? _http : null;
-    final caption = Text(
-      st.settings.publicMode
-          ? l.deskRecvHttpPublic(st.settings.httpPort)
-          : l.deskRecvHttpLocal,
-      style: ts.caption,
-    );
+    final addr = on && _http != null && _http!.isNotEmpty ? _http : null;
     return _MethodPanel(
       key: _panels[m],
       method: m,
@@ -687,7 +685,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       state: line?.state ?? EState.off,
       switchOn: on,
       busy: _busy.contains(m) || status == null,
-      // The Link · HTTP switch is Settings › Transactions' (one switch); Try again is below.
+      // The switches are the two addresses' (HttpAddresses): this computer and the internet.
       onSwitch: null,
       showSwitch: false,
       grown: on,
@@ -695,26 +693,22 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(st.settings.publicMode ? l.deskRecvHttpIntroInternet : l.deskRecvHttpIntro, style: ts.bodyDim),
-          SizedBox(height: Sp.x4),
-          if (addr != null) ...[
-            EQrReveal(
-              address: addr,
+          HttpAddresses(
+            local: addr,
+            localBusy: _busy.contains(m) || status == null,
+            onLocal: (v) => unawaited(_toggle(m, v)),
+            view: (context, address, title) => EQrReveal(
+              address: address,
               form: QrRevealForm.compact,
-              title: l.deskRecvHttpAddress,
+              title: title,
               copyLabel: l.deskRecvCopyHttp,
               addressOpacity: ok ? 1 : 0.6,
               tag: failed ? l.deskRecvTagNotReachable : (ok ? null : l.deskRecvTagStarting),
-              caption: caption,
               method: 'http',
-              initiallyShown: _args?.qr == RxQr.http,
+              initiallyShown: _args?.qr == RxQr.http && address == addr,
             ),
-            SizedBox(height: Sp.x4),
-          ],
-          if (ok && st.settings.publicMode) ...[
-            HttpReachNotice(onChanged: (_) => unawaited(_readHttp())),
-            SizedBox(height: Sp.x4),
-          ],
+          ),
+          SizedBox(height: Sp.x4),
           if (line != null) EStateLine(line, key: const ValueKey('rx-state-http'), trailing: _retry(m, line)),
           if (DeskFeatures.tor) ...[
             SizedBox(height: Sp.x3),

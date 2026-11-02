@@ -467,7 +467,7 @@ class _RailRowState extends State<RailRow> {
         // One line each: '. ' would add full stops in Thai and Chinese.
         hint: [...i.lines, ?i.note].join('\n'),
         excludeSemantics: true,
-        child: InkWell(
+        child: EInkWell(
           onTap: widget.onTap,
           onHover: (v) => setState(() => _hover = v),
           borderRadius: BorderRadius.circular(Rad.sm),

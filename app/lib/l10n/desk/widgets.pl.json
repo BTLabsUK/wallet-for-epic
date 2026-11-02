@@ -124,5 +124,9 @@
   "deskKitMethodConnected": "Połączono",
   "deskKitReachTorOff": "Sprawdzenie wymaga wyłączenia Tora.",
   "deskKitNoAnswerSince": "Brak odpowiedzi od {time}",
-  "deskKitMoreInHelp": "Więcej w Pomocy"
+  "deskKitMoreInHelp": "Więcej w Pomocy",
+  "deskHttpLocalTitle": "Ten komputer",
+  "deskHttpLocalSwitch": "Odbieraj na tym komputerze",
+  "deskHttpPublicTitle": "Internet",
+  "deskHttpPublicNote": "Otwiera port {port} na internet. Wymaga przekierowania portu na routerze."
 }

@@ -676,7 +676,7 @@ class _TxRowState extends ConsumerState<TxRow> {
         canRequestFocus: false,
         skipTraversal: true,
         onFocusChange: (v) => setState(() => _within = v),
-        child: InkWell(
+        child: EInkWell(
           onTap: widget.onTap,
           onHover: (v) => setState(() => _hover = v),
           child: Container(

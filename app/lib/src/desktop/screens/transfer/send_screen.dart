@@ -2455,7 +2455,7 @@ class _Suggestions extends StatelessWidget {
                 button: true,
                 label: '${x.name}, ${addressOf(x)}',
                 excludeSemantics: true,
-                child: InkWell(
+                child: EInkWell(
                   onTap: () => onPick(x),
                   child: Container(
                     height: 44.u,

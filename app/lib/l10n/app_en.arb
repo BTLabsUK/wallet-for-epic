@@ -8569,19 +8569,6 @@
   "@deskRecvCopyHttp": {
     "description": "Label of the copy button next to the HTTP address."
   },
-  "deskRecvHttpPublic": "Your router’s public address. Senders on the internet use it once the router forwards port {port}.",
-  "@deskRecvHttpPublic": {
-    "description": "Caption under the HTTP address when receiving from the internet is on. {port} is the port number.",
-    "placeholders": {
-      "port": {
-        "type": "int"
-      }
-    }
-  },
-  "deskRecvHttpLocal": "Programs on this computer can pay this address. For other devices, see Settings › Payments.",
-  "@deskRecvHttpLocal": {
-    "description": "Caption under the HTTP address when receiving is only for this computer."
-  },
   "deskRecvHttpIntro": "For wallets on this computer, while this wallet is open.",
   "@deskRecvHttpIntro": {
     "description": "Intro text of the HTTP panel on Receive."
@@ -15627,34 +15614,9 @@
   "@deskSetHttpPortError": {
     "description": "Settings > Receiving > HTTP: error under the port field."
   },
-  "deskSetHttpReachable": "Reachable",
-  "@deskSetHttpReachable": {
-    "description": "Settings > Receiving > HTTP: row title for who can send payments to the HTTP address."
-  },
-  "deskSetHttpReachableHint": "Who can pay the HTTP address.",
-  "@deskSetHttpReachableHint": {
-    "description": "Settings > Receiving > HTTP: hint under the Reachable row."
-  },
-  "deskSetHttpLocalOnly": "Local only",
-  "@deskSetHttpLocalOnly": {
-    "description": "Settings > Receiving > HTTP: segment, only programs on this computer reach the address. Short."
-  },
-  "deskSetHttpFromInternet": "From the internet",
-  "@deskSetHttpFromInternet": {
-    "description": "Settings > Receiving > HTTP: segment, the address answers on the internet. Short."
-  },
   "deskSetHttpGuideHelp": "Receive from the internet: how it works",
   "@deskSetHttpGuideHelp": {
     "description": "Tooltip and screen reader label of the help button that opens the internet guide."
-  },
-  "deskSetHttpPublicNote": "Answers on all interfaces; the router must forward TCP {port} to this computer.",
-  "@deskSetHttpPublicNote": {
-    "description": "Settings > Receiving > HTTP: note under the Reachable row when From the internet is chosen. {port} is a port number; http://<public IP>:{port} is an address template and stays in this form.",
-    "placeholders": {
-      "port": {
-        "type": "String"
-      }
-    }
   },
   "deskSetHttpPort": "Port",
   "@deskSetHttpPort": {
@@ -23042,10 +23004,6 @@
   "@deskActNoneUnderFilter": {
     "description": "Activity: title of the empty state when the chosen filter (Sent, Pending…) has no payment and nothing was typed in the search."
   },
-  "deskRecvHttpIntroInternet": "For wallets on the internet, while this wallet is open.",
-  "@deskRecvHttpIntroInternet": {
-    "description": "Receive › Link · HTTP: line under the address when the HTTP listener is reachable from the internet (Settings › Transactions › From the internet)."
-  },
   "deskKitMethodConnected": "Connected",
   "@deskKitMethodConnected": {
     "description": "State word of the Epicbox method line on Receive and in Settings when the server answers: \"Connected · host\"."
@@ -27364,5 +27322,26 @@
   "deskBarKeySearchHere": "Search, while in Settings",
   "@deskBarKeySearchHere": {
     "description": "Keyboard-shortcuts row: the / key focuses the search field while a Settings page is open (on Help, Help's own search). Settings is the name of the Settings area."
+  },
+  "deskHttpLocalTitle": "This computer",
+  "@deskHttpLocalTitle": {
+    "description": "Title of the Link · HTTP address for wallets on this computer (http://127.0.0.1:port), on Receive and in Settings. Short."
+  },
+  "deskHttpLocalSwitch": "Receive on this computer",
+  "@deskHttpLocalSwitch": {
+    "description": "Screen-reader label of the switch next to the local Link · HTTP address."
+  },
+  "deskHttpPublicTitle": "Internet",
+  "@deskHttpPublicTitle": {
+    "description": "Title of the Link · HTTP address for wallets on the internet (http://<public IP>:port), on Receive and in Settings. One word."
+  },
+  "deskHttpPublicNote": "Opens port {port} to the internet. Needs port forwarding on your router.",
+  "@deskHttpPublicNote": {
+    "description": "Caption under the internet switch of Link · HTTP: turning it on makes the wallet listen on all interfaces (0.0.0.0). Short and factual.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
   }
 }

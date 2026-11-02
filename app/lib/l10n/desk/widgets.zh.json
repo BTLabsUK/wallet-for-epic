@@ -124,5 +124,9 @@
   "deskKitMethodConnected": "已连接",
   "deskKitReachTorOff": "此检查需要关闭 Tor。",
   "deskKitNoAnswerSince": "自 {time} 起无响应",
-  "deskKitMoreInHelp": "更多见帮助"
+  "deskKitMoreInHelp": "更多见帮助",
+  "deskHttpLocalTitle": "本机",
+  "deskHttpLocalSwitch": "在本机接收",
+  "deskHttpPublicTitle": "互联网",
+  "deskHttpPublicNote": "向互联网开放端口 {port}。需要在路由器上设置端口转发。"
 }

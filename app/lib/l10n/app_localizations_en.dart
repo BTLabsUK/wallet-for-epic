@@ -6497,15 +6497,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskRecvCopyHttp => 'Copy Link · HTTP address';
 
   @override
-  String deskRecvHttpPublic(int port) {
-    return 'Your router’s public address. Senders on the internet use it once the router forwards port $port.';
-  }
-
-  @override
-  String get deskRecvHttpLocal =>
-      'Programs on this computer can pay this address. For other devices, see Settings › Payments.';
-
-  @override
   String get deskRecvHttpIntro =>
       'For wallets on this computer, while this wallet is open.';
 
@@ -11788,24 +11779,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetHttpPortError => 'Port must be 1 to 65535';
 
   @override
-  String get deskSetHttpReachable => 'Reachable';
-
-  @override
-  String get deskSetHttpReachableHint => 'Who can pay the HTTP address.';
-
-  @override
-  String get deskSetHttpLocalOnly => 'Local only';
-
-  @override
-  String get deskSetHttpFromInternet => 'From the internet';
-
-  @override
   String get deskSetHttpGuideHelp => 'Receive from the internet: how it works';
-
-  @override
-  String deskSetHttpPublicNote(String port) {
-    return 'Answers on all interfaces; the router must forward TCP $port to this computer.';
-  }
 
   @override
   String get deskSetHttpPort => 'Port';
@@ -17214,10 +17188,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskActNoneUnderFilter => 'Nothing under this filter';
 
   @override
-  String get deskRecvHttpIntroInternet =>
-      'For wallets on the internet, while this wallet is open.';
-
-  @override
   String get deskKitMethodConnected => 'Connected';
 
   @override
@@ -20254,4 +20224,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskBarKeySearchHere => 'Search, while in Settings';
+
+  @override
+  String get deskHttpLocalTitle => 'This computer';
+
+  @override
+  String get deskHttpLocalSwitch => 'Receive on this computer';
+
+  @override
+  String get deskHttpPublicTitle => 'Internet';
+
+  @override
+  String deskHttpPublicNote(String port) {
+    return 'Opens port $port to the internet. Needs port forwarding on your router.';
+  }
 }

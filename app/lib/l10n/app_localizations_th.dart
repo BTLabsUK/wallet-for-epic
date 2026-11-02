@@ -6378,15 +6378,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskRecvCopyHttp => 'คัดลอกที่อยู่ ลิงก์ · HTTP';
 
   @override
-  String deskRecvHttpPublic(int port) {
-    return 'ที่อยู่สาธารณะของเราเตอร์ ผู้ส่งบนอินเทอร์เน็ตใช้ได้เมื่อเราเตอร์ forward พอร์ต $port แล้ว';
-  }
-
-  @override
-  String get deskRecvHttpLocal =>
-      'โปรแกรมบนคอมพิวเตอร์นี้จ่ายมาที่ที่อยู่นี้ได้ สำหรับอุปกรณ์อื่น ดูที่ การตั้งค่า › การชำระเงิน';
-
-  @override
   String get deskRecvHttpIntro =>
       'สำหรับกระเป๋าเงินบนคอมพิวเตอร์เครื่องนี้ ขณะที่กระเป๋าเงินนี้เปิดอยู่';
 
@@ -11467,24 +11458,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetHttpPortError => 'พอร์ตต้องอยู่ระหว่าง 1 ถึง 65535';
 
   @override
-  String get deskSetHttpReachable => 'ใครเข้าถึงได้';
-
-  @override
-  String get deskSetHttpReachableHint => 'ใครจ่ายมาที่ที่อยู่ HTTP ได้';
-
-  @override
-  String get deskSetHttpLocalOnly => 'ในเครื่องเท่านั้น';
-
-  @override
-  String get deskSetHttpFromInternet => 'จากอินเทอร์เน็ต';
-
-  @override
   String get deskSetHttpGuideHelp => 'รับจากอินเทอร์เน็ต: ทำงานอย่างไร';
-
-  @override
-  String deskSetHttpPublicNote(String port) {
-    return 'ตอบทุก interface เราเตอร์ต้อง forward TCP $port มายังคอมพิวเตอร์นี้';
-  }
 
   @override
   String get deskSetHttpPort => 'พอร์ต';
@@ -16809,10 +16783,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskActNoneUnderFilter => 'ไม่มีรายการในตัวกรองนี้';
 
   @override
-  String get deskRecvHttpIntroInternet =>
-      'สำหรับกระเป๋าเงินบนอินเทอร์เน็ต ขณะที่กระเป๋าเงินนี้เปิดอยู่';
-
-  @override
   String get deskKitMethodConnected => 'เชื่อมต่อแล้ว';
 
   @override
@@ -19832,4 +19802,18 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskBarKeySearchHere => 'ค้นหา ขณะอยู่ในการตั้งค่า';
+
+  @override
+  String get deskHttpLocalTitle => 'คอมพิวเตอร์เครื่องนี้';
+
+  @override
+  String get deskHttpLocalSwitch => 'รับบนคอมพิวเตอร์เครื่องนี้';
+
+  @override
+  String get deskHttpPublicTitle => 'อินเทอร์เน็ต';
+
+  @override
+  String deskHttpPublicNote(String port) {
+    return 'เปิดพอร์ต $port สู่อินเทอร์เน็ต ต้องตั้งค่า port forwarding บนเราเตอร์';
+  }
 }

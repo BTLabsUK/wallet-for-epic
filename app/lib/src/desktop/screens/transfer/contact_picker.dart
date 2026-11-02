@@ -210,7 +210,7 @@ class _PickRowState extends State<_PickRow> {
         onEnter: (_) => setState(() => _hover = true),
         onExit: (_) => setState(() => _hover = false),
         cursor: SystemMouseCursors.click,
-        child: InkWell(
+        child: EInkWell(
           onTap: widget.onTap,
           child: Container(
             color: _hover ? c.hover : Colors.transparent,

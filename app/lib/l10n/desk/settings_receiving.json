@@ -118,34 +118,9 @@
   "@deskSetHttpPortError": {
     "description": "Settings > Receiving > HTTP: error under the port field."
   },
-  "deskSetHttpReachable": "Reachable",
-  "@deskSetHttpReachable": {
-    "description": "Settings > Receiving > HTTP: row title for who can send payments to the HTTP address."
-  },
-  "deskSetHttpReachableHint": "Who can pay the HTTP address.",
-  "@deskSetHttpReachableHint": {
-    "description": "Settings > Receiving > HTTP: hint under the Reachable row."
-  },
-  "deskSetHttpLocalOnly": "Local only",
-  "@deskSetHttpLocalOnly": {
-    "description": "Settings > Receiving > HTTP: segment, only programs on this computer reach the address. Short."
-  },
-  "deskSetHttpFromInternet": "From the internet",
-  "@deskSetHttpFromInternet": {
-    "description": "Settings > Receiving > HTTP: segment, the address answers on the internet. Short."
-  },
   "deskSetHttpGuideHelp": "Receive from the internet: how it works",
   "@deskSetHttpGuideHelp": {
     "description": "Tooltip and screen reader label of the help button that opens the internet guide."
-  },
-  "deskSetHttpPublicNote": "Answers on all interfaces; the router must forward TCP {port} to this computer.",
-  "@deskSetHttpPublicNote": {
-    "description": "Settings > Receiving > HTTP: note under the Reachable row when From the internet is chosen. {port} is a port number; http://<public IP>:{port} is an address template and stays in this form.",
-    "placeholders": {
-      "port": {
-        "type": "String"
-      }
-    }
   },
   "deskSetHttpPort": "Port",
   "@deskSetHttpPort": {

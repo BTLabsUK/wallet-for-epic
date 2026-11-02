@@ -185,7 +185,7 @@ class _DeskServerSwitchState extends ConsumerState<DeskServerSwitch> {
         enabled: !down,
         label: '${s.name}, $word',
         excludeSemantics: true,
-        child: InkWell(
+        child: EInkWell(
           key: ValueKey('status-switch-$_id-${s.value}'),
           borderRadius: BorderRadius.circular(Rad.sm),
           hoverColor: c.hover,

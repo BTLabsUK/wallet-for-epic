@@ -2540,12 +2540,11 @@ class LepicDeskWallet implements DeskWalletApi {
   @override
   Future<String> httpAddress() async {
     final port = _httpPort;
-    if (_httpHealth != ServiceHealth.ok || port == null) return '';
-    if (_httpExposure != core.HttpExposure.internet) return 'http://127.0.0.1:$port';
-    final reach = await httpReach();
     // Node only and Kill switch: no Link listener, so no address.
-    if (NetGate.restricted) return '';
-    return reach?.publicAddress ?? reach?.lanAddress ?? '';
+    if (_httpHealth != ServiceHealth.ok || port == null || NetGate.restricted) return '';
+    // Local only binds 127.0.0.1, From the internet 0.0.0.0: this computer reaches both here.
+    // The public address is httpReach's; the LAN address is never handed out as it.
+    return 'http://127.0.0.1:$port';
   }
 
   @override

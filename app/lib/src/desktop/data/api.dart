@@ -171,9 +171,9 @@ abstract interface class DeskWalletApi {
   Future<List<EpicboxServer>> epicboxes();
   Future<DeskSettings> settings();
   Future<String> epicboxAddress();
-  /// The address senders use for the running HTTP listener: `http://127.0.0.1:<port>` when
-  /// Local only, `http://<the router's public IP>:<port>` when From the internet ([httpReach];
-  /// the LAN address when the public IP cannot be found); empty while it is off.
+  /// The running HTTP listener's local address, `http://127.0.0.1:<port>`, Local only and
+  /// From the internet alike (0.0.0.0 answers on this computer too); empty while it is off.
+  /// The public address is [httpReach]'s [HttpReach.publicAddress], never the LAN address.
   Future<String> httpAddress();
   /// From the internet with the listener on: the public IP, the LAN address and whether the
   /// internet reaches the port, asked over HTTPS and kept 2 minutes, or asked again on

@@ -6159,14 +6159,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskRecvCopyHttp => '复制 链接 · HTTP 地址';
 
   @override
-  String deskRecvHttpPublic(int port) {
-    return '你的路由器的公网地址。路由器转发端口 $port 后，互联网上的发送方即可使用。';
-  }
-
-  @override
-  String get deskRecvHttpLocal => '本机上的程序可以向此地址付款。其他设备请见“设置 › 支付”。';
-
-  @override
   String get deskRecvHttpIntro => '供此电脑上的钱包使用，仅在此钱包打开时。';
 
   @override
@@ -11091,24 +11083,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetHttpPortError => '端口必须在 1 到 65535 之间';
 
   @override
-  String get deskSetHttpReachable => '访问范围';
-
-  @override
-  String get deskSetHttpReachableHint => '谁可以向 HTTP 地址付款。';
-
-  @override
-  String get deskSetHttpLocalOnly => '仅限本机';
-
-  @override
-  String get deskSetHttpFromInternet => '来自互联网';
-
-  @override
   String get deskSetHttpGuideHelp => '从互联网接收：如何操作';
-
-  @override
-  String deskSetHttpPublicNote(String port) {
-    return '在所有网络接口上响应；路由器必须把 TCP $port 转发到这台电脑。';
-  }
 
   @override
   String get deskSetHttpPort => '端口';
@@ -16219,9 +16194,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskActNoneUnderFilter => '此筛选下没有内容';
 
   @override
-  String get deskRecvHttpIntroInternet => '供互联网上的钱包使用，仅在此钱包打开时。';
-
-  @override
   String get deskKitMethodConnected => '已连接';
 
   @override
@@ -19082,4 +19054,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskBarKeySearchHere => '在设置中搜索';
+
+  @override
+  String get deskHttpLocalTitle => '本机';
+
+  @override
+  String get deskHttpLocalSwitch => '在本机接收';
+
+  @override
+  String get deskHttpPublicTitle => '互联网';
+
+  @override
+  String deskHttpPublicNote(String port) {
+    return '向互联网开放端口 $port。需要在路由器上设置端口转发。';
+  }
 }

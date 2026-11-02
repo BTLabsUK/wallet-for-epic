@@ -124,5 +124,9 @@
   "deskKitMethodConnected": "Подключено",
   "deskKitReachTorOff": "Проверка работает только с выключенным Tor.",
   "deskKitNoAnswerSince": "Нет ответа с {time}",
-  "deskKitMoreInHelp": "Подробнее в справке"
+  "deskKitMoreInHelp": "Подробнее в справке",
+  "deskHttpLocalTitle": "Этот компьютер",
+  "deskHttpLocalSwitch": "Получать на этом компьютере",
+  "deskHttpPublicTitle": "Интернет",
+  "deskHttpPublicNote": "Открывает порт {port} в интернет. Нужна переадресация порта на роутере."
 }

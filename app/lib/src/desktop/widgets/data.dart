@@ -503,7 +503,7 @@ class _ESelectState<T> extends State<ESelect<T>> {
                 button: true,
                 label: semanticLabel,
                 value: current?.title,
-                child: InkWell(
+                child: EInkWell(
                   onTap: () {
                     if (controller.isOpen) return controller.close();
                     Focus.of(context).requestFocus();

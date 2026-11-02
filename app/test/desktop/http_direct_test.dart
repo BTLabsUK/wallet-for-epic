@@ -170,7 +170,7 @@ void main() {
       expect(session().httpListenerStarts.last, (exposure: core.HttpExposure.internet, port: 3420));
       session().httpListenerEvents.add(const core.HttpListenerEvent(kind: core.HttpListenerEventKind.started, port: 3420));
       await pumpEventQueue();
-      expect(await wallet.httpAddress(), 'http://203.0.113.24:3420', reason: 'the router’s public IP, never the LAN address');
+      expect(await wallet.httpAddress(), 'http://127.0.0.1:3420', reason: 'the local address; the public one is httpReach');
       final reach = await wallet.httpReach();
       expect((reach!.publicAddress, reach.lanAddress, reach.reachable), ('http://203.0.113.24:3420', 'http://10.0.1.24:3420', false));
 

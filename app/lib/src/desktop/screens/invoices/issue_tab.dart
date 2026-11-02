@@ -188,7 +188,7 @@ class _Row extends StatelessWidget {
       selected: selected,
       child: Material(
         color: selected ? c.s2 : Colors.transparent,
-        child: InkWell(
+        child: EInkWell(
           onTap: onTap,
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x3),

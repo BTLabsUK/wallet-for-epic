@@ -29,8 +29,6 @@
   "deskRecvCheckSix": "念给别人核对时，请检查前六位和后六位字符。",
   "deskRecvHttpAddress": "链接 · HTTP 地址",
   "deskRecvCopyHttp": "复制 链接 · HTTP 地址",
-  "deskRecvHttpPublic": "你的路由器的公网地址。路由器转发端口 {port} 后，互联网上的发送方即可使用。",
-  "deskRecvHttpLocal": "本机上的程序可以向此地址付款。其他设备请见“设置 › 支付”。",
   "deskRecvHttpIntro": "供此电脑上的钱包使用，仅在此钱包打开时。",
   "deskRecvHttpTorHint": "如需 Tor 地址，请在“设置 › 隐私”中开启 Tor。",
   "deskRecvHttpTorHintNet": "如需 Tor 地址，请在“设置 › 网络与隐私”中开启 Tor。",
@@ -50,6 +48,5 @@
   "deskRecvTorOffTitle": "Link · Tor 需要 Tor。",
   "deskRecvTorOffText": "Tor 开启时，Tor 地址才可用。Tor 是设置 › 隐私中的开关，它让钱包的连接走 Tor。",
   "deskRecvTorOffTextNet": "Tor 开启时，Tor 地址才可用。Tor 是设置 › 网络与隐私中的开关，它让钱包的连接走 Tor。",
-  "deskRecvHttpIntroInternet": "供互联网上的钱包使用，仅在此钱包打开时。",
   "deskRecvHeaderTip": "接收：{methods}"
 }

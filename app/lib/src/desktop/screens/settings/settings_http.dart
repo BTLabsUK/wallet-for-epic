@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Settings › Transactions › Direct (HTTP receiving): Reachable (Local only / From the
-/// internet, with the guide) and the port. HTTP answers from the internet only after the
-/// guide's "Receive from the internet".
+/// Settings › Payments › Link · HTTP (HTTP receiving): the two addresses with their switches
+/// (this computer; the internet, which binds 0.0.0.0) and the port. The guide is behind the
+/// internet address's (?).
 library;
 
 import 'dart:async';
@@ -13,7 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../log.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../desk_l10n.dart';
-import '../../widgets/http_reach.dart';
+import '../../widgets/http_addresses.dart';
 import '../../widgets/kit.dart';
 import 'setting_ids.dart';
 import 'prefs.dart';
@@ -32,8 +32,13 @@ int? parsePort(String text) {
   return n != null && n >= 1 && n <= 65535 ? n : null;
 }
 
-/// The HTTP group's options: Reachable (Local only / From the internet, which opens
-/// the guide) and the port. The switch and Start with the wallet are the group's own rows.
+/// The indent of a method's detail rows in Settings › Payments: to the method's title
+/// (ESetRow's leading, 18 px and a gap). Their dividers span the card.
+EdgeInsetsDirectional get methodDetailsIndent => EdgeInsetsDirectional.only(start: 18.u + Sp.x3);
+
+/// The HTTP group's options: the two addresses with their switches, and the port. The
+/// method's switch and its state line are the group's own rows. It indents its own rows
+/// ([methodDetailsIndent]) so its divider spans the card.
 class HttpOptions extends ConsumerStatefulWidget {
   const HttpOptions({super.key});
 
@@ -80,13 +85,8 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
     if (s.httpPort != port) await _run(() => n.saveSettings(s.copyWith(httpPort: port)));
   }
 
-  /// From the internet: the guide the first time, then straight to it.
-  Future<void> _pickPublic() async {
-    if (ref.read(deskProvider).settings.internetGuideSeen) return _setPublic(true);
-    return _openGuide();
-  }
-
-  /// The guide; opening it changes nothing, only its buttons do. Shown once is seen.
+  /// The guide, behind the (?) of the internet address; opening it changes nothing, only its
+  /// buttons do.
   Future<void> _openGuide() async {
     final n = ref.read(deskProvider.notifier);
     final s = ref.read(deskProvider).settings;
@@ -116,43 +116,22 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ESetRow(
-          anchor: SetId.httpReach,
-          title: l.deskSetHttpReachable,
-          hint: l.deskSetHttpReachableHint,
-          control: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ERowControl(
-                wide: true,
-                child: ESegmented<bool>(
-                  stretch: true,
-                  segments: [ESegment(false, l.deskSetHttpLocalOnly), ESegment(true, l.deskSetHttpFromInternet)],
-                  value: s.publicMode,
-                  // The first From the internet opens the guide; only its button makes the
-                  // address public. Once seen, the guide is behind the (?).
-                  onChanged: (v) => v ? unawaited(_pickPublic()) : unawaited(_setPublic(false)),
-                ),
-              ),
-              SizedBox(width: Sp.x2),
-              EIconButton(icon: EIcons.help, label: l.deskSetHttpGuideHelp, size: EBtnSize.sm, tabStop: false, onPressed: _openGuide),
-            ],
+        // The two addresses, each with its switch: this computer's is the method's own switch
+        // above; the internet's makes the listener answer on 0.0.0.0.
+        SetAnchor(
+          id: SetId.httpReach,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: Sp.panel, vertical: Sp.x4).add(methodDetailsIndent),
+            child: HttpAddresses(
+              local: listening ? 'http://127.0.0.1:${s.httpPort}' : null,
+              publicTrailing: EIconButton(icon: EIcons.help, label: l.deskSetHttpGuideHelp, size: EBtnSize.sm, tabStop: false, onPressed: _openGuide),
+            ),
           ),
-          below: s.publicMode
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      l.deskSetHttpPublicNote('${s.httpPort}'),
-                      style: ts.caption,
-                    ),
-                    if (listening) ...[SizedBox(height: Sp.x3), const HttpReachNotice()],
-                  ],
-                )
-              : null,
         ),
         Divider(height: 1, thickness: 1, color: c.line),
-        ESetRow(
+        Padding(
+          padding: methodDetailsIndent,
+          child: ESetRow(
           anchor: SetId.httpPort,
           title: l.deskSetHttpPort,
           hint: l.deskSetHttpPortHint,
@@ -172,6 +151,7 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
             ),
           ),
           below: _portError == null ? null : Text(_portError!, style: ts.small.copyWith(color: c.risk)),
+          ),
         ),
       ],
     );

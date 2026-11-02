@@ -85,7 +85,7 @@ final List<SetEntry> settingsRegistry = [
   SetEntry(SetId.epicboxServer, DeskRoute.settingsReceiving, label: (l) => l.deskSetRecvEpicboxServer, group: (l) => l.deskSetGrpMethods, hint: (l) => l.deskSetRowEpicboxServerHint, synonyms: (l) => l.deskSetSynEpicboxServer, parent: SetId.epicbox),
   SetEntry(SetId.epicboxStart, DeskRoute.settingsReceiving, label: (l) => l.deskSetRecvAutostart, group: (l) => l.deskSetGrpMethods, synonyms: (l) => l.deskSetSynEpicboxStart, parent: SetId.epicbox),
   SetEntry(SetId.http, DeskRoute.settingsReceiving, label: (l) => l.methodDirectHttp, group: (l) => l.deskSetGrpMethods, hint: (l) => l.deskSetRowHttpHint, synonyms: (l) => l.deskSetSynHttp),
-  SetEntry(SetId.httpReach, DeskRoute.settingsReceiving, label: (l) => l.deskSetHttpReachable, group: (l) => l.deskSetGrpMethods, synonyms: (l) => l.deskSetSynHttpReach, parent: SetId.http),
+  SetEntry(SetId.httpReach, DeskRoute.settingsReceiving, label: (l) => l.deskSetHttpGuideTitle, group: (l) => l.deskSetGrpMethods, synonyms: (l) => l.deskSetSynHttpReach, parent: SetId.http),
   SetEntry(SetId.httpPort, DeskRoute.settingsReceiving, label: (l) => l.deskSetHttpPort, group: (l) => l.deskSetGrpMethods, synonyms: (l) => l.deskSetSynHttpPort, parent: SetId.http),
   SetEntry(SetId.torPay, DeskRoute.settingsReceiving, label: (l) => l.methodDirectTor, group: (l) => l.deskSetGrpMethods, hint: (l) => l.deskSetRowTorPayHint, info: (l) => l.deskSetRowTorPayInfo, synonyms: (l) => l.deskSetSynTorPay),
   SetEntry(SetId.file, DeskRoute.settingsReceiving, label: (l) => l.deskKitMethodFiles, group: (l) => l.deskSetGrpMethods, hint: (l) => l.deskSetRowFileHint, synonyms: (l) => l.deskSetSynFile),

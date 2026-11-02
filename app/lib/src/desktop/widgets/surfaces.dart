@@ -1565,7 +1565,7 @@ class _EDetailsState extends State<EDetails> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          InkWell(
+          EInkWell(
             borderRadius: BorderRadius.circular(Rad.sm),
             onTap: () => setState(() => _open = !_open),
             child: Container(

@@ -6651,15 +6651,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskRecvCopyHttp => 'Копировать адрес Ссылка · HTTP';
 
   @override
-  String deskRecvHttpPublic(int port) {
-    return 'Публичный адрес вашего роутера. Отправители из интернета смогут им пользоваться, когда роутер перенаправит порт $port.';
-  }
-
-  @override
-  String get deskRecvHttpLocal =>
-      'На этот адрес могут платить программы на этом компьютере. Для других устройств см. «Настройки › Платежи».';
-
-  @override
   String get deskRecvHttpIntro =>
       'Для кошельков на этом компьютере, пока этот кошелёк открыт.';
 
@@ -12238,24 +12229,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetHttpPortError => 'Порт должен быть от 1 до 65535';
 
   @override
-  String get deskSetHttpReachable => 'Доступность';
-
-  @override
-  String get deskSetHttpReachableHint => 'Кто может платить на адрес HTTP.';
-
-  @override
-  String get deskSetHttpLocalOnly => 'Только локально';
-
-  @override
-  String get deskSetHttpFromInternet => 'Из интернета';
-
-  @override
   String get deskSetHttpGuideHelp => 'Приём из интернета: как это работает';
-
-  @override
-  String deskSetHttpPublicNote(String port) {
-    return 'Отвечает на всех интерфейсах; роутер должен перенаправлять TCP $port на этот компьютер.';
-  }
 
   @override
   String get deskSetHttpPort => 'Порт';
@@ -17821,10 +17795,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskActNoneUnderFilter => 'Под этим фильтром ничего нет';
 
   @override
-  String get deskRecvHttpIntroInternet =>
-      'Для кошельков в интернете, пока этот кошелёк открыт.';
-
-  @override
   String get deskKitMethodConnected => 'Подключено';
 
   @override
@@ -20914,4 +20884,18 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskBarKeySearchHere => 'Поиск, когда открыты Настройки';
+
+  @override
+  String get deskHttpLocalTitle => 'Этот компьютер';
+
+  @override
+  String get deskHttpLocalSwitch => 'Получать на этом компьютере';
+
+  @override
+  String get deskHttpPublicTitle => 'Интернет';
+
+  @override
+  String deskHttpPublicNote(String port) {
+    return 'Открывает порт $port в интернет. Нужна переадресация порта на роутере.';
+  }
 }

@@ -84,7 +84,7 @@ Future<void> _open(WidgetTester tester, String id) async {
   await tester.pump(const Duration(milliseconds: 400));
 }
 
-InkWell _row(WidgetTester tester, String id, String value) => tester.widget<InkWell>(find.byKey(ValueKey('status-switch-$id-$value')));
+EInkWell _row(WidgetTester tester, String id, String value) => tester.widget<EInkWell>(find.byKey(ValueKey('status-switch-$id-$value')));
 
 Future<void> _end(WidgetTester tester) async {
   await tester.pumpWidget(const SizedBox());
