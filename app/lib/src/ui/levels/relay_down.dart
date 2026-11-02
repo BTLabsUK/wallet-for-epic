@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 /// Flow D, every level ([LevelFeatures.relaySwitchPrompt]): the Epicbox relay in use is down
-/// and another is ready ([relaySwitchProvider]). A docked warning offers the move; Switch moves
-/// the wallet ([RelaySwitchNotifier.accept]), Not now waits ([RelaySwitchNotifier.keepWaiting]).
+/// and another is ready ([relaySwitchProvider]). A compact docked warning offers the move;
+/// Switch moves the wallet ([RelaySwitchNotifier.accept]), its close button waits
+/// ([RelaySwitchNotifier.keepWaiting]). Item 11: nothing during the connection grace after
+/// start and resume ([connectionGraceProvider]; the status icon alone shows the state), and
+/// only while the shell is the screen on top: a transaction's details or Settings never get it.
 /// After the move a success notice offers the new address on Receive, where
 /// [relaySwitchResultProvider] marks it new. Nothing moves by itself: the address changes.
 ///
@@ -12,6 +15,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../connection_grace.dart';
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../levels/level_providers.dart';
@@ -72,10 +76,25 @@ class RelayDownNotices extends ConsumerStatefulWidget {
 }
 
 class _RelayDownNoticesState extends ConsumerState<RelayDownNotices> {
+  /// The shell's route is the one on top (no screen pushed over it).
+  bool _onTop = true;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Rebuilt when a screen is pushed over the shell or popped off it.
+    final onTop = ModalRoute.isCurrentOf(context) ?? true;
+    if (onTop == _onTop) return;
+    _onTop = onTop;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _follow(ref.read(relaySwitchProvider)));
+  }
+
   @override
   void initState() {
     super.initState();
     ref.listenManual<RelaySwitchOffer?>(relaySwitchProvider, (_, offer) => _follow(offer));
+    // The grace over: an offer still standing shows now.
+    ref.listenManual<bool>(connectionGraceProvider, (_, _) => _follow(ref.read(relaySwitchProvider)));
     // An offer already standing: after the first frame, as the notice's words need the context.
     WidgetsBinding.instance.addPostFrameCallback((_) => _follow(ref.read(relaySwitchProvider)));
     // The level loads after the first frame: an offer already there shows once it is level 1.
@@ -88,20 +107,24 @@ class _RelayDownNoticesState extends ConsumerState<RelayDownNotices> {
   void _follow(RelaySwitchOffer? offer) {
     if (!mounted) return;
     final notices = ref.read(noticeProvider.notifier);
-    if (offer == null || !ref.read(levelFeaturesProvider).relaySwitchPrompt) {
+    if (offer == null ||
+        !ref.read(levelFeaturesProvider).relaySwitchPrompt ||
+        ref.read(connectionGraceProvider) ||
+        !_onTop) {
       notices.dismissTag(relayOfferNoticeTag);
       return;
     }
     final l = context.l10n;
+    // Compact: a title, one line and Switch; the close button is Not now.
     notices.show(
-      l.lvShellRelayDownNotice(offer.name),
+      l.lvShellRelayDownShort(offer.name),
+      title: l.lvShellRelayDownTitle,
       level: NoticeLevel.warning,
       persistent: true,
       tag: relayOfferNoticeTag,
-      action: NoticeAction(l.lvShellSwitchTo(offer.name), () {
+      action: NoticeAction(l.lvShellSwitch, () {
         if (mounted) acceptRelaySwitch(context, ref);
       }),
-      secondary: NoticeAction(l.pairNotNow, () => ref.read(relaySwitchProvider.notifier).keepWaiting()),
       onClose: () => ref.read(relaySwitchProvider.notifier).keepWaiting(),
     );
   }

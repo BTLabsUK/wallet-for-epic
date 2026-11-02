@@ -6,10 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
+import 'connection_grace.dart';
 import 'connection_state.dart';
 import 'demo.dart';
 import 'demo_web_connection.dart';
 import 'l10n.dart';
+import 'node_failover.dart' show NodeFailover;
 import 'node_failover_phone.dart';
 import 'phone_http.dart';
 import 'price.dart' show priceProvider;
@@ -67,15 +69,35 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     // Alive for the app's life: a node that stops answering is left for the next working one
     // of the list for this session, and the notice says so wherever the user is.
     ref.listenManual(nodeFailoverWatchProvider, (_, _) {});
-    ref.listenManual(nodeFailoverProvider, (before, now) {
+    // Item 11: during the connection grace after start and resume the notice waits, and shows
+    // once the grace is over if that node is still the one in use.
+    void sayFailover(NodeFailover now) {
       final context = _navigator.currentContext;
-      if (now == null || now == before || context == null) return;
+      if (context == null) return;
       ref
           .read(noticeProvider.notifier)
           .show(
             context.l10n.nodeFailoverSwitched(serverHost(now.inUse)),
             level: NoticeLevel.info,
           );
+    }
+    NodeFailover? heldFailover;
+    ref.listenManual(nodeFailoverProvider, (before, now) {
+      if (now == null || now == before) {
+        if (now == null) heldFailover = null;
+        return;
+      }
+      if (ref.read(connectionGraceProvider)) {
+        heldFailover = now;
+        return;
+      }
+      sayFailover(now);
+    });
+    ref.listenManual<bool>(connectionGraceProvider, (_, grace) {
+      final held = heldFailover;
+      if (grace || held == null) return;
+      heldFailover = null;
+      if (ref.read(nodeFailoverProvider) == held) sayFailover(held);
     });
     // A wallet rebuilt from its phrase finishes its scan from block 0 by itself, after every
     // unlock (restore_scan.dart); Home shows where it stands.

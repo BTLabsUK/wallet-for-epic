@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../amount.dart';
+import '../../connection_grace.dart';
 import '../../contacts.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
@@ -203,6 +204,9 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     }
     final notice = pairingNoticeOf(l, event);
     if (notice == null || pairingEventOnScreen(event)) return;
+    // Item 11: no server warning during the connection grace after start and resume; the
+    // contact's page still says it.
+    if (event.kind == PairingEventKind.homeRelayUnreachable && ref.read(connectionGraceProvider)) return;
     final id = event.pairingId;
     final contactId = id == null ? null : ref.read(pairingByIdProvider(id))?.contactId;
     final contact = contactId == null
