@@ -20140,7 +20140,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskKitMethodHttpNotReachable(String port) {
-    return 'on your network, not from the internet: forward port $port';
+    return 'local network only. To be paid from the internet, your router must pass port $port on to this computer.';
   }
 
   @override

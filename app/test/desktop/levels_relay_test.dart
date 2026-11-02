@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // The Epicbox server offer on the desktop, every level: once the server in use
-// has not answered for two minutes and another of the list is listed healthy, a docked notice
-// names it by its address; Not now hides it; Switch asks once, moves the wallet through
-// useEpicbox and holds the new address for Receive. Nothing moves by itself.
+// has not answered for two minutes and another of the list is listed healthy, a toast names it
+// and hides by itself (item 16); Switch asks once, moves the wallet through useEpicbox and holds
+// the new address for Receive. Nothing moves by itself.
 import 'package:epic_wallet/src/desktop/app/relay_offer.dart';
 import 'package:epic_wallet/src/desktop/data/clock.dart';
 import 'package:epic_wallet/src/desktop/data/desk_levels.dart';
@@ -73,22 +73,27 @@ Future<void> _end(WidgetTester tester, _Rig rig) async {
 
 void main() {
   for (final level in [WalletLevel.justSendReceive, WalletLevel.everything]) {
-    testWidgets('${level.name}: after 2 min the notice names the healthy server by its address; Not now hides it', (tester) async {
+    testWidgets('${level.name}: after 2 min a toast names the healthy server and hides by itself; Not now holds', (tester) async {
       final rig = await _pump(tester, level);
-      expect(find.byKey(const ValueKey('relay-offer')), findsNothing, reason: 'not before two minutes');
+      expect(find.text('Epicbox server not reachable'), findsNothing, reason: 'not before two minutes');
       await _twoMinutes(tester, rig);
       final offer = rig.container.read(deskRelayOfferProvider);
       expect(offer, isNotNull);
       expect(offer!.name, mockBoxAt(1));
       expect(offer.name, isNot(mockBox));
       expect(find.text('Epicbox server not reachable'), findsOneWidget);
-      expect(find.widgetWithText(EButton, 'Switch to ${mockBoxAt(1)}'), findsOneWidget);
+      expect(find.text('${mockBoxAt(1)} can take over; your address changes with it.'), findsOneWidget);
+      expect(find.widgetWithText(EButton, 'Switch'), findsOneWidget);
       expect(find.textContaining(mockBoxOp(1)), findsNothing, reason: 'never the operator name');
-      await tester.tap(find.byKey(const ValueKey('relay-offer-later')));
+      // A toast, gone by itself; the offer stays for the Epicbox popover.
+      for (var i = 0; i < 14; i++) {
+        await tester.pump(const Duration(seconds: 1));
+      }
+      expect(find.text('Epicbox server not reachable'), findsNothing);
+      expect(rig.container.read(deskRelayOfferProvider), isNotNull);
+      // Not now (the popover's dialog) holds while the server stays down.
+      rig.container.read(deskRelayOfferProvider.notifier).keepWaiting();
       await tester.pump();
-      expect(rig.container.read(deskRelayOfferProvider), isNull);
-      expect(find.byKey(const ValueKey('relay-offer')), findsNothing);
-      // Not now holds while the server stays down.
       await _twoMinutes(tester, rig);
       expect(rig.container.read(deskRelayOfferProvider), isNull);
       await _end(tester, rig);
@@ -98,8 +103,9 @@ void main() {
       final rig = await _pump(tester, level);
       await _twoMinutes(tester, rig);
       final name = rig.container.read(deskRelayOfferProvider)!.name;
-      await tester.tap(find.byKey(const ValueKey('relay-offer-switch')));
-      // The notice's button spins while the dialog asks: fixed pumps, not settle.
+      // The toast in place first.
+      await tester.pump(const Duration(seconds: 1));
+      await tester.tap(find.widgetWithText(EButton, 'Switch'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.text('Switch to $name?'), findsOneWidget);
@@ -116,12 +122,9 @@ void main() {
       expect(moved.from.host, mockBox);
       expect(moved.address, endsWith('@$name'));
       expect(rig.container.read(deskRelayOfferProvider), isNull);
-      expect(find.text('Now on $name'), findsOneWidget);
+      expect(find.text('Now on $name. Your new address is ready.'), findsOneWidget);
       expect(find.widgetWithText(EButton, 'Show new address'), findsOneWidget);
-      // OK closes the notice; the move stays for Receive.
-      await tester.tap(find.byKey(const ValueKey('relay-switched-ok')));
-      await tester.pump();
-      expect(find.byKey(const ValueKey('relay-switched')), findsNothing);
+      // Shown once: the move stays for Receive, the toast does not come back.
       expect(rig.container.read(deskRelayMovedProvider), isNotNull);
       expect(rig.container.read(deskRelayNoticeShownProvider), isFalse);
       await _end(tester, rig);

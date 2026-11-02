@@ -124,7 +124,7 @@ void main() {
       expect(find.byKey(const ValueKey('http-public-note')), findsOneWidget);
       // The mock's reach check: the port is not forwarded, so no green internet claim.
       expect(find.text('Not reachable from the internet'), findsOneWidget);
-      expect(httpState(tester), 'Receiving\u00A0· on your network, not from the internet: forward port 3415');
+      expect(httpState(tester), 'Receiving\u00A0· local network only. To be paid from the internet, your router must pass port 3415 on to this computer.');
     });
 
     testWidgets('a port outside 1 to 65535 is refused', (tester) async {

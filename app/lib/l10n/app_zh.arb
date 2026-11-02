@@ -5255,7 +5255,7 @@
   "deskHttpLocalSwitch": "在本机接收",
   "deskHttpPublicTitle": "互联网",
   "deskHttpPublicNote": "供互联网上的钱包使用。路由器需将端口 {port} 转发到这台电脑。",
-  "deskKitMethodHttpNotReachable": "仅在你的网络内，无法从互联网访问：请转发端口 {port}",
+  "deskKitMethodHttpNotReachable": "仅限本地网络。要从互联网收款，路由器需要把端口 {port} 转到这台电脑。",
   "sendRouteLinkHttps": "链接 · HTTPS",
   "sendRouteThisPhone": "这部手机",
   "sendRouteThisComputer": "这台电脑",

@@ -14,7 +14,8 @@ import 'surfaces.dart';
 import 'tip.dart';
 
 /// The two forms of [EQrReveal]: [covered] keeps the 184 u box laid out under a blur (the
-/// Epicbox hero); [compact] is a QR button in the address box and an expand under it.
+/// Epicbox hero; with [EQrReveal.fixed] always shown); [compact] is a QR button in the address
+/// box and an expand under it.
 enum QrRevealForm { covered, compact }
 
 /// A QR code shown only on demand: hidden whenever it is built, never remembered,
@@ -32,6 +33,7 @@ class EQrReveal extends StatefulWidget {
     this.caption,
     this.method,
     this.initiallyShown = false,
+    this.fixed = false,
   });
 
   final String address;
@@ -55,6 +57,10 @@ class EQrReveal extends StatefulWidget {
 
   /// The tour's revealed state; the app never sets it.
   final bool initiallyShown;
+
+  /// Covered form: the code always shows, with no blur and no Show or Hide (Receive's Epicbox
+  /// address, item 17).
+  final bool fixed;
 
   @override
   State<EQrReveal> createState() => _EQrRevealState();
@@ -126,6 +132,24 @@ class _EQrRevealState extends State<EQrReveal> with SingleTickerProviderStateMix
     final c = context.dc;
     final ts = context.ts;
     final size = 184.u;
+    if (widget.fixed) {
+      return SizedBox(
+        width: size,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _code(size),
+            SizedBox(height: Sp.x2),
+            SizedBox(
+              height: 18.u,
+              child: Center(
+                child: Text(context.l10n.deskKitQrOf(widget.title), style: ts.caption, maxLines: 1, softWrap: false, overflow: TextOverflow.visible),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return SizedBox(
       width: size,
       child: Column(

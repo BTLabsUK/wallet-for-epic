@@ -2040,7 +2040,7 @@ void main() {
       expect(find.textContaining('receive payments'), findsNothing);
     });
 
-    testWidgets('the phrase card closes for good on this wallet', (
+    testWidgets('the phrase reminder is a notice, on an opening of home at most once a day', (
       tester,
     ) async {
       final h = _Harness(transactions: _backlog());
@@ -2048,31 +2048,36 @@ void main() {
       h.store.values.remove('wallet.mainnet.backedUp');
       await h.pump(tester);
       expect(find.text('Back up your recovery phrase.'), findsOneWidget);
-      expect(find.text('Back up'), findsOneWidget);
+      expect(find.descendant(of: find.byKey(noticeKey), matching: find.text('Back up')), findsOneWidget);
+      expect(h.store.values['wallet.mainnet.backupNoticeAt'], '${_now.millisecondsSinceEpoch}');
+      // The history reminder waits until the phrase is written down.
+      expect(find.textContaining('not in your exported wallet data'), findsNothing);
 
-      await _tap(tester, find.byTooltip('Dismiss'));
-      expect(find.text('Back up your recovery phrase.'), findsNothing);
-      expect(h.store.values['wallet.mainnet.backupCardDismissed'], '1');
-      // The history reminder may show now that the phrase card is gone.
-      expect(find.textContaining('not in your exported wallet data'), findsOneWidget);
-
-      // Still closed the next time home opens.
+      // Not on the next opening the same day.
       await tester.pumpWidget(const SizedBox());
       await h.pump(tester);
       expect(find.text('Back up your recovery phrase.'), findsNothing);
+
+      // A day later it comes back.
+      h.store.values['wallet.mainnet.backupNoticeAt'] = '${_now.subtract(const Duration(days: 1)).millisecondsSinceEpoch}';
+      await tester.pumpWidget(const SizedBox());
+      await h.pump(tester);
+      expect(find.text('Back up your recovery phrase.'), findsOneWidget);
     });
 
-    testWidgets('deleting the wallet forgets the closed phrase card', (
+    testWidgets('deleting the wallet forgets the phrase reminder', (
       tester,
     ) async {
       final store = MemorySecretStore()
-        ..values['wallet.mainnet.backupCardDismissed'] = '1';
+        ..values['wallet.mainnet.backupCardDismissed'] = '1'
+        ..values['wallet.mainnet.backupNoticeAt'] = '1';
       await WalletVault(
         store: store,
         biometrics: MemoryBiometricStore(),
         service: FakeWalletService(),
       ).forget(Chain.mainnet);
       expect(store.values['wallet.mainnet.backupCardDismissed'], isNull);
+      expect(store.values['wallet.mainnet.backupNoticeAt'], isNull);
     });
   });
 

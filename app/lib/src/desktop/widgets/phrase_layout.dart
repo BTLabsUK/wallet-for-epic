@@ -1,11 +1,49 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'package:flutter/material.dart';
 
+import '../desk_l10n.dart';
+import '../theme/icons.dart';
 import '../theme/tokens.dart';
+import 'buttons.dart';
+import 'data.dart';
+import 'dialogs.dart';
+import 'surfaces.dart';
+
+/// The recovery phrase as a QR code, in a centred dialog over the screen (item 18), never under
+/// the words where it scrolled out of view: the warning first, then the code. Esc, Close or a
+/// click outside closes it. [onOpen] gets the dialog's context, so a screen that hides the words
+/// (Settings' timer) closes the code with them.
+Future<void> showPhraseQrDialog(BuildContext context, String phrase, {void Function(BuildContext dialog)? onOpen}) {
+  final l = context.l10n;
+  return showEDialog<void>(
+    context,
+    builder: (dialog) {
+      onOpen?.call(dialog);
+      return EDialog(
+        key: const ValueKey('phrase-qr-dialog'),
+        title: l.deskOnbCreateQrLabel,
+        icon: EIcons.qr,
+        tone: ETone.risk,
+        body: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ENotice(title: l.deskOnbCreateQrWarn, text: l.deskOnbCreateQrWarnText, tone: ETone.risk, icon: EIcons.alert),
+            SizedBox(height: Sp.x5),
+            Center(
+              child: Semantics(label: l.deskOnbCreateQrLabel, image: true, child: EQr(phrase, size: 216.u)),
+            ),
+          ],
+        ),
+        actions: [EButton.primary(label: l.commonClose, autofocus: true, onPressed: () => Navigator.pop(dialog))],
+      );
+    },
+  );
+}
 
 /// A recovery phrase on screen, laid out the same wherever it is shown (new wallet, Settings ›
 /// Recovery phrase): [header] (a warning), then the [actions] (Hide, Copy, Show QR) on one row
-/// whose right edge is the grid's, then the [grid] and whatever goes with it ([below]: the QR),
+/// whose right edge is the grid's, then the [grid] and whatever goes with it ([below]),
 /// then the [footer] (the "written down" checkbox). [cover] sits in the middle of the part of the
 /// grid in view (Reveal over hidden words), never scrolled away with it. With a bounded height only the grid part
 /// scrolls: the header, the actions and the footer stay in view (a frame too short for that

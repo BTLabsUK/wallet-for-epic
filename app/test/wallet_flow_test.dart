@@ -300,7 +300,8 @@ void main() {
         expect(service.createdMnemonic, isNull);
         expect(service.createdPin, _pin);
         // Only the sealed text is stored; the biometric copy is the PIN.
-        expect({...device.store.values}..remove('app.level'), {
+        // The phrase reminder's time aside (home_screen.dart).
+        expect({...device.store.values}..remove('app.level')..remove('wallet.mainnet.backupNoticeAt'), {
           'wallet.mainnet.pinSealed': fakeSealedPassword(_pin),
           'wallet.mainnet.pinBiometrics': '1',
         });

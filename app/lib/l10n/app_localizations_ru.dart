@@ -20798,7 +20798,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskKitMethodHttpNotReachable(String port) {
-    return 'в вашей сети, не из интернета: перенаправьте порт $port';
+    return 'только в локальной сети. Чтобы получать платежи из интернета, роутер должен передавать порт $port на этот компьютер.';
   }
 
   @override

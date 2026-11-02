@@ -290,7 +290,56 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _openLink();
       // After unlock, once: the last session froze or crashed, its log can be sent.
       unawaited(offerLastSessionReport(context, ref));
+      unawaited(_offerBackup());
     });
+    // The welcome tour goes first: the reminder waits until it closes.
+    ref.listenManual<bool>(phoneTourProvider.select((s) => s.open), (was, open) {
+      if (was == true && !open) unawaited(_offerBackup());
+    });
+  }
+
+  /// This opening's recovery phrase reminder was handled (shown, or not due).
+  bool _backupAsked = false;
+
+  /// Item 16: the recovery phrase reminder is a notice, not a card. It comes on an opening of
+  /// home while the phrase is not written down, at most once per [backupNoticeEvery]; Settings ›
+  /// Security keeps its warning mark meanwhile.
+  Future<void> _offerBackup() async {
+    if (_backupAsked || !mounted || ref.read(demoModeProvider)) return;
+    if (ref.read(phoneTourProvider).open) return;
+    final config = ref.read(walletConfigProvider);
+    if (config == null) return;
+    _backupAsked = true;
+    final bool backedUp;
+    try {
+      backedUp = await ref.read(backedUpProvider.future);
+    } on Object {
+      return;
+    }
+    if (backedUp || !mounted) return;
+    final store = ref.read(secretStoreProvider);
+    final now = ref.read(clockProvider)();
+    final last = DateTime.fromMillisecondsSinceEpoch(
+      int.tryParse(await store.read(backupNoticeKey(config.chain)) ?? '') ?? 0,
+    );
+    if (!mounted || now.difference(last) < backupNoticeEvery) return;
+    // Never over another notice (a payment, the records' copy): this opening goes without it.
+    if (ref.read(noticeProvider) != null) return;
+    await store.write(backupNoticeKey(config.chain), '${now.millisecondsSinceEpoch}');
+    if (!mounted || ref.read(noticeProvider) != null) return;
+    final l = context.l10n;
+    ref
+        .read(noticeProvider.notifier)
+        .show(
+          l.homeBackupCardText,
+          // Info, so a payment's notice that comes next takes its place at once.
+          level: NoticeLevel.info,
+          tag: backupNoticeTag,
+          action: NoticeAction(l.homeBackupCardButton, () {
+            // The notice outlives home: a lock replaces it with the unlock screen.
+            if (mounted) unawaited(_backup());
+          }),
+        );
   }
 
   @override
@@ -416,6 +465,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Future<void> _backup() async {
+    ref.read(noticeProvider.notifier).dismissTag(backupNoticeTag);
     final done = await Navigator.of(context)
         .push<bool>(MaterialPageRoute(builder: (_) => const BackupScreen()));
     if (done == true && mounted) {
@@ -814,8 +864,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final guide = demoGuideShown(ref);
     // The web demo shows no phrase and keeps no history files, so it has no backup cards.
     final backedUp = demo || (ref.watch(backedUpProvider).value ?? true);
-    final backupDismissed =
-        ref.watch(backupCardDismissedProvider).value ?? false;
     final transactions = watchHistory(ref, data?.transactions ?? const <TxEntry>[]);
     // Level 1: the quiet line under the figure stands for the tiles, and View all for the
     // destinations (Contacts is in Settings › This wallet).
@@ -884,15 +932,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           ),
                         ),
                       ),
-                    // The recovery phrase guards the funds, so its card stays on top.
-                    if (!backedUp && !backupDismissed && config != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: homeCardGap),
-                        child: _BackupCard(
-                          onBackup: _backup,
-                          onDismiss: () => dismissBackupCard(ref, config.chain),
-                        ),
-                      ),
+                    // The recovery phrase reminder is a notice (_offerBackup), not a card.
                     if (home.hasError && !home.isLoading)
                       Padding(
                         padding: const EdgeInsets.only(top: homeCardGap),
@@ -906,10 +946,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         padding: EdgeInsets.only(top: homeCardGap),
                         child: DemoGuide(),
                       ),
-                    // It waits until the phrase card is gone, so the two backup cards never stack.
-                    if ((backedUp || backupDismissed) &&
-                        config != null &&
-                        !demo)
+                    // It waits until the phrase is written down: that backup comes first.
+                    if (backedUp && config != null && !demo)
                       _HistoryBackupCard(
                         chain: config.chain,
                         transactions: transactions,
@@ -1178,53 +1216,16 @@ class _HistoryBackupCard extends ConsumerWidget {
   }
 }
 
-/// Whether the recovery phrase card was closed on the open wallet. Stored beside the vault's
-/// entries for the chain (`wallet.<chain>.*`), so deleting the wallet forgets it too.
-final backupCardDismissedProvider = FutureProvider.autoDispose<bool>((
-  ref,
-) async {
-  final config = ref.watch(walletConfigProvider);
-  if (config == null) return false;
-  return await ref
-          .watch(secretStoreProvider)
-          .read(_backupCardKey(config.chain)) ==
-      '1';
-});
+/// The recovery phrase reminder comes back on a later opening of home, at most this often.
+const Duration backupNoticeEvery = Duration(days: 1);
 
-String _backupCardKey(Chain chain) =>
-    'wallet.${chain.name}.backupCardDismissed';
+/// The tag of the recovery phrase reminder's notice.
+const String backupNoticeTag = 'backup-phrase';
 
-/// Hides the recovery phrase card on [chain]'s wallet for good.
-Future<void> dismissBackupCard(WidgetRef ref, Chain chain) async {
-  await ref.read(secretStoreProvider).write(_backupCardKey(chain), '1');
-  ref.invalidate(backupCardDismissedProvider);
-}
-
-/// Asks the user to write the recovery phrase down, until they have or close it.
-class _BackupCard extends StatelessWidget {
-  const _BackupCard({required this.onBackup, required this.onDismiss});
-
-  final VoidCallback onBackup;
-  final VoidCallback onDismiss;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    return InlineNotice(
-      level: NoticeLevel.warning,
-      icon: Icons.key_outlined,
-      text: l.homeBackupCardText,
-      actions: [
-        TextButton(
-          onPressed: onBackup,
-          child: Text(l.homeBackupCardButton),
-        ),
-      ],
-      onClose: onDismiss,
-      closeLabel: l.homeBackupCardDismiss,
-    );
-  }
-}
+/// When the recovery phrase reminder last showed on [chain]'s wallet (milliseconds since the
+/// epoch). Stored beside the vault's entries for the chain (`wallet.<chain>.*`), so deleting the
+/// wallet forgets it too.
+String backupNoticeKey(Chain chain) => 'wallet.${chain.name}.backupNoticeAt';
 
 /// Sends the recipient has not answered yet, with what that means.
 class _PendingSendsCard extends ConsumerWidget {

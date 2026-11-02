@@ -107,7 +107,7 @@ class _RingPainter extends CustomPainter {
 /// hidden. The desktop's one amount widget (the phone's is `AmountText`): [surface] picks the
 /// precision ([AmountSurface.row], four decimals, unless the place is a commit surface).
 class EMoney extends ConsumerWidget {
-  const EMoney(this.nano, {super.key, this.size = Fs.md, this.color, this.sign = false, this.unit = true, this.weight, this.decimals, this.surface});
+  const EMoney(this.nano, {super.key, this.size = Fs.md, this.color, this.sign = false, this.unit = true, this.weight, this.decimals, this.surface, this.alignDecimals = false});
 
   final int nano;
   final double size;
@@ -124,6 +124,11 @@ class EMoney extends ConsumerWidget {
   /// Where the amount is shown, so how many decimals it has; [AmountSurface.row] by default.
   final AmountSurface? surface;
 
+  /// Holds the room of the decimals the amount does not have, as unseen digits, so a column of
+  /// right-aligned amounts lines up digit by digit (the monospaced figures are tabular). No
+  /// zero is shown: the amount still reads as it is. For an amount without its [unit].
+  final bool alignDecimals;
+
   /// The surface [surface] or [decimals] asks for.
   static AmountSurface surfaceOf(AmountSurface? surface, int? decimals) =>
       surface ?? (decimals != null && decimals >= exactDecimals ? AmountSurface.exact : AmountSurface.row);
@@ -136,8 +141,10 @@ class EMoney extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
     final c = context.dc;
-    final text = figure(context.l10n, nano, surface: surfaceOf(surface, decimals), sign: sign);
+    final kind = surfaceOf(surface, decimals);
+    final text = figure(context.l10n, nano, surface: kind, sign: sign);
     final style = context.ts.mono(size: size, color: color, weight: weight ?? FontWeight.w500);
+    final pad = alignDecimals && !hidden ? _decimalsPad(context.l10n, text, kind.decimals) : '';
     final row = Text.rich(
       TextSpan(
         children: [
@@ -149,8 +156,32 @@ class EMoney extends ConsumerWidget {
       maxLines: 1,
       softWrap: false,
     );
-    return Semantics(label: hidden ? context.l10n.deskKitHiddenAmount : withUnit(text, epicUnit), excludeSemantics: true, child: row);
+    return Semantics(
+      label: hidden ? context.l10n.deskKitHiddenAmount : withUnit(text, epicUnit),
+      excludeSemantics: true,
+      child: pad.isEmpty
+          ? row
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                row,
+                // Unseen, and never struck through with a cancelled amount.
+                Text(pad, style: style.copyWith(color: const Color(0x00000000), decoration: TextDecoration.none), maxLines: 1, softWrap: false),
+              ],
+            ),
+    );
   }
+}
+
+/// The unseen digits [EMoney.alignDecimals] adds to [text] for [decimals] places: a separator
+/// and zeros when it has no fraction, else the zeros its fraction lacks.
+String _decimalsPad(AppLocalizations l, String text, int decimals) {
+  // The locale's decimal separator, from a figure that has one.
+  final separator = EMoney.figure(l, 15000000)[1];
+  final at = text.lastIndexOf(separator);
+  if (at < 0) return '$separator${'0' * decimals}';
+  final missing = decimals - (text.length - at - 1);
+  return missing > 0 ? '0' * missing : '';
 }
 
 /// A QR code with the Epic mark, on white, with the accent glow.
