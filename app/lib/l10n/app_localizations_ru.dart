@@ -10512,6 +10512,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskKitMethodHttpLocal => 'только этот компьютер (127.0.0.1)';
 
   @override
+  String deskKitMethodHttpNotReachable(String port) {
+    return 'на этом компьютере, не из интернета: перенаправьте порт $port';
+  }
+
+  @override
   String get deskKitMethodNotReceiving => 'Приём не работает';
 
   @override

@@ -161,7 +161,7 @@ class ReceiveView extends ConsumerWidget {
     final relayMove = quiet ? ref.watch(relaySwitchResultProvider) : null;
     final arriving = quiet ? arrivingPayment(ref.watch(homeProvider.select((h) => h.value?.transactions)) ?? const []) : null;
     // Link: the Tor part where the app has Tor and Link · Tor is on. Link · HTTP only sends.
-    // The Link tab keeps its page with both Link methods off: it offers to turn one on.
+    // The Link tab keeps its page with Link · Tor off: it offers to turn it on.
     // Offline: the addresses stay to hand out, with a line that nothing arrives meanwhile.
     final offlineBlock = watchNetBlock(context, ref);
     final offline = offlineBlock.byMode;
@@ -187,9 +187,10 @@ class ReceiveView extends ConsumerWidget {
         // Epicbox off (Settings › Transactions): no address to hand out, no tab.
         if (payments.epicbox)
           segment(ReceiveTab.epicbox, MethodIcons.of(MethodKind.epicbox), MethodIcons.shortName(l, MethodKind.epicbox)),
-        // Link stays whatever Settings › Transactions says, so the strip never jumps:
-        // with both Link methods off its page offers to turn one on.
-        if (!quiet)
+        // Link is Link · Tor on the phone (Link · HTTP only sends): no tab without Tor. With
+        // Tor, Link stays whatever Settings › Transactions says, so the strip never jumps:
+        // with Link · Tor off its page offers to turn it on.
+        if (!quiet && torAvailable)
           segment(ReceiveTab.direct, MethodIcons.family(MethodFamily.link), MethodIcons.familyName(l, MethodFamily.link)),
         // QR is the phone next to this one: offered where the camera works.
         if (tab == ReceiveTab.qr || ((payments.directQr || quiet) && offersQrPayment(ref)))
@@ -341,11 +342,11 @@ class ReceiveView extends ConsumerWidget {
       ]);
       code = null;
       below = const SizedBox.shrink();
-    } else if (tab == ReceiveTab.direct && !(payments.linkTor && torAvailable)) {
-      // Link · Tor off: say so and offer its switch (GP-024).
+    } else if (tab == ReceiveTab.direct && !payments.linkTor) {
+      // Link · Tor off: say so and offer its switch (GP-024). The tab is there only with Tor.
       above = column([
         strip,
-        _LinkOff(payments: payments, tor: torAvailable),
+        _LinkOff(payments: payments),
         const SizedBox(height: 8),
         help,
       ]);
@@ -943,37 +944,30 @@ const Key receiveTurnOnTorKey = ValueKey('receive-turn-on-tor');
 /// as in Settings › Privacy).
 /// Receive › Link with Link · Tor off: the reason and its Turn on.
 class _LinkOff extends ConsumerWidget {
-  const _LinkOff({required this.payments, required this.tor});
+  const _LinkOff({required this.payments});
 
   final PaymentPrefs payments;
-
-  /// Whether this build and phone run Tor: without it there is no Link · Tor to turn on.
-  final bool tor;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final theme = Theme.of(context);
-    Future<void> turnOn(MethodKind m) =>
-        ref.read(appSettingsProvider.notifier).setPayments(payments.withMethod(m, true));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          l.netBlockMethodOff(MethodIcons.familyName(l, MethodFamily.link)),
+          l.netBlockMethodOff(MethodIcons.fullName(l, MethodKind.linkTor)),
           textAlign: TextAlign.center,
           style: theme.textTheme.bodyMedium?.copyWith(color: context.tokens.dim),
         ),
-        if (tor) ...[
-          const SizedBox(height: 12),
-          FilledButton.tonalIcon(
-            key: receiveTurnOnLinkTorKey,
-            style: FilledButton.styleFrom(minimumSize: const Size(48, 44)),
-            icon: Icon(MethodIcons.of(MethodKind.linkTor)),
-            label: Text(l.sendTurnOnMethod(MethodIcons.fullName(l, MethodKind.linkTor))),
-            onPressed: () => turnOn(MethodKind.linkTor),
-          ),
-        ],
+        const SizedBox(height: 12),
+        FilledButton.tonalIcon(
+          key: receiveTurnOnLinkTorKey,
+          style: FilledButton.styleFrom(minimumSize: const Size(48, 44)),
+          icon: Icon(MethodIcons.of(MethodKind.linkTor)),
+          label: Text(l.sendTurnOnMethod(MethodIcons.fullName(l, MethodKind.linkTor))),
+          onPressed: () => ref.read(appSettingsProvider.notifier).setPayments(payments.withMethod(MethodKind.linkTor, true)),
+        ),
       ],
     );
   }

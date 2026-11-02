@@ -118,6 +118,25 @@ class _HttpReachNoticeState extends ConsumerState<HttpReachNotice> {
         lan == null ? l.deskKitReachOpenText('${r.port}') : l.deskKitReachOpenTextLan('${r.port}', lan),
       ),
     };
-    return ENotice(key: const ValueKey('http-reach'), tone: tone, title: title, text: text, actions: [check]);
+    return ENotice(key: const ValueKey('http-reach'), tone: tone, title: title, text: text, textSpan: _unbrokenAddress(text, lan), actions: [check]);
   }
+}
+
+/// [text] with [address] in it kept on one line (an ellipsis when even a line is too short):
+/// never "http://" at a line's end and the rest on the next. Copied as it reads. Null when
+/// [text] does not hold [address].
+InlineSpan? _unbrokenAddress(String text, String? address) {
+  final at = address == null ? -1 : text.indexOf(address);
+  if (at < 0) return null;
+  return TextSpan(
+    children: [
+      TextSpan(text: text.substring(0, at)),
+      WidgetSpan(
+        alignment: PlaceholderAlignment.baseline,
+        baseline: TextBaseline.alphabetic,
+        child: Text(address!, maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis),
+      ),
+      TextSpan(text: text.substring(at + address.length)),
+    ],
+  );
 }

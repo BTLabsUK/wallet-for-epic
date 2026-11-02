@@ -9467,6 +9467,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskKitMethodHttpLocal => '仅限本机（127.0.0.1）';
 
   @override
+  String deskKitMethodHttpNotReachable(String port) {
+    return '仅在本机，无法从互联网访问：请转发端口 $port';
+  }
+
+  @override
   String get deskKitMethodNotReceiving => '无法接收';
 
   @override

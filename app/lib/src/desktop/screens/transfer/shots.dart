@@ -124,7 +124,16 @@ final List<DeskShot> transferShots = [
   const DeskShot(id: '17z-receive-epicbox-blocked', title: 'Receive, the network blocks the Epicbox server', route: DeskRoute.receive, arg: ReceiveArgs(epicbox: RxEpicbox.blocked)),
   const DeskShot(id: '17f-receive-wide', title: 'Receive at 1440x900', route: DeskRoute.receive, arg: ReceiveArgs(http: RxHttp.on, tor: RxTor.on), width: 1440, height: 900),
   const DeskShot(id: '17g-receive-qr-epicbox', title: 'Receive, Epicbox QR shown', route: DeskRoute.receive, arg: ReceiveArgs(qr: RxQr.epicbox), width: 1440, height: 900),
-  const DeskShot(id: '17h-receive-qr-http', title: 'Receive, HTTP QR shown', route: DeskRoute.receive, arg: ReceiveArgs(http: RxHttp.on, qr: RxQr.http), width: 1280, height: 900),
+  // The QR code is the Internet address's (127.0.0.1 has none): Internet on.
+  DeskShot(
+    id: '17h-receive-qr-http',
+    title: 'Receive, Internet on, its HTTP QR shown',
+    route: DeskRoute.receive,
+    arg: const ReceiveArgs(http: RxHttp.on, qr: RxQr.http),
+    width: 1280,
+    height: 1100,
+    before: (c) => c.read(deskProvider.notifier).saveSettings(c.read(deskProvider).settings.copyWith(publicMode: true)),
+  ),
   DeskShot(
     id: '19-import',
     title: 'Sign a transaction file',

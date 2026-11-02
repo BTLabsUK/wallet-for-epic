@@ -91,21 +91,22 @@ void main() {
     String httpState(WidgetTester tester) => tester.widget<EStateLine>(find.byKey(const ValueKey('st-state-http'))).line.text;
 
     // `show` turns the Link methods on (advancedOn): Link · HTTP on means the listener runs.
-    testWidgets('Link · HTTP on: the listener runs local only, its group shows the state with no second switch; off takes the group away', (tester) async {
+    testWidgets("Link · HTTP on: the listener runs local only, its group shows the state and this computer's address with no second switch; off takes the group away", (tester) async {
       await show(tester, const SettingsReceivingScreen());
       expect(httpState(tester), 'Receiving\u00A0· this computer only (127.0.0.1)');
       expect(find.byKey(const ValueKey('st-switch-http')), findsNothing, reason: 'no second HTTP switch');
       expect(find.byKey(const ValueKey('st-autostart-http')), findsNothing);
-      expect(find.text('http://127.0.0.1:3415'), findsNothing, reason: 'the address lives on Receive');
+      // This computer's address with Internet's under it (HttpAddresses), as on Receive.
+      expect(find.descendant(of: find.byKey(const ValueKey('http-local')), matching: find.byType(EAddress)), findsOneWidget);
       await tester.tap(httpSwitch());
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('st-state-http')), findsNothing);
       expect(container.read(deskProvider).status?.httpListener, ServiceHealth.off);
     });
 
-    testWidgets('From the internet: the guide the first time, then straight', (tester) async {
+    testWidgets('Internet: the guide behind its (?) changes nothing; its switch turns it on, the line says the port is not forwarded', (tester) async {
       await show(tester, const SettingsReceivingScreen());
-      await tester.tap(find.text('From the internet'));
+      await tester.tap(find.byWidgetPredicate((w) => w is EIconButton && w.icon == EIcons.help));
       await tester.pumpAndSettle();
       expect(find.byType(InternetGuide), findsOneWidget);
       // Close leaves it local only.
@@ -113,18 +114,23 @@ void main() {
       await tester.pumpAndSettle();
       expect(container.read(deskProvider).settings.publicMode, isFalse);
 
-      // Seen once: the next pick switches straight (the guide stays behind the (?)).
-      await tester.tap(find.text('From the internet'));
-      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('http-public-switch')));
+      for (var i = 0; i < 4; i++) {
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+        await tester.pumpAndSettle();
+      }
       expect(find.byType(InternetGuide), findsNothing);
       expect(container.read(deskProvider).settings.publicMode, isTrue);
-      expect(httpState(tester), 'Receiving\u00A0· from the internet, port 3415');
-      expect(find.textContaining('must forward TCP 3415'), findsOneWidget);
+      expect(find.byKey(const ValueKey('http-public-note')), findsOneWidget);
+      // The mock's reach check: the port is not forwarded, so no green internet claim.
+      expect(find.text('Not reachable from the internet'), findsOneWidget);
+      expect(httpState(tester), 'Receiving\u00A0· on this computer, not from the internet: forward port 3415');
     });
 
     testWidgets('a port outside 1 to 65535 is refused', (tester) async {
       await show(tester, const SettingsReceivingScreen());
-      final field = find.descendant(of: find.byType(HttpOptions), matching: find.byType(EditableText));
+      // The port's field: this computer's address above it is selectable text, not an input.
+      final field = find.descendant(of: find.byType(HttpOptions), matching: find.descendant(of: find.byType(EInput), matching: find.byType(EditableText)));
       await tester.enterText(field, '70000');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();

@@ -15829,6 +15829,12 @@ abstract class AppLocalizations {
   /// **'this computer only (127.0.0.1)'**
   String get deskKitMethodHttpLocal;
 
+  /// Detail of the HTTP status line after the bold word Receiving, while Internet is on but the reach check found the port closed: the listener runs on this computer, the internet does not reach it until the router forwards the port.
+  ///
+  /// In en, this message translates to:
+  /// **'on this computer, not from the internet: forward port {port}'**
+  String deskKitMethodHttpNotReachable(String port);
+
   /// Bold status word of the HTTP status line: the listener failed.
   ///
   /// In en, this message translates to:
