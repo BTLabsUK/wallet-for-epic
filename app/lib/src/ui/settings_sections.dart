@@ -27,6 +27,7 @@ import '../network_gate.dart';
 import '../payment_prefs.dart';
 import '../phone_http.dart' show lanNetworkKey, phoneHttpProvider;
 import '../phone_tor.dart';
+import '../tor_pay.dart';
 import '../tor_build.dart';
 import '../price.dart';
 import '../pairing_providers.dart' show invoicesShownProvider;
@@ -69,7 +70,6 @@ import 'settings_history.dart';
 import 'settings_invoices.dart';
 import 'settings_pin.dart';
 import 'settings_rows.dart';
-import 'settings_screen.dart' show openPrivacySettings;
 import 'status.dart' show serverHost;
 import 'theme/advanced.dart';
 import 'theme/brand.dart' show BrandLockup, BrandVariant;
@@ -906,7 +906,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     final payments = s.payments;
     final torAvailable = ref.watch(phoneTorProvider.select(torShown));
-    final torOff = ref.watch(phoneTorProvider.select((t) => t.settled && !t.receiving));
     // Send options on shows the defaults; one that is not at its default stays (never hide a
     // choice in use), as Outputs did before they moved here.
     final showDefaults = _txDefaultsShown |=
@@ -967,7 +966,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       final hint = switch (m) {
         MethodKind.epicbox => l.txEpicboxHint,
         MethodKind.linkHttp => torBuilt ? l.txLinkHttpHint('${appConfig.httpListenPort}') : l.txLinkHttpHintNoTor('${appConfig.httpListenPort}'),
-        MethodKind.linkTor => l.txLinkTorHintNet,
+        MethodKind.linkTor => l.deskSetRowTorPayInfo,
         MethodKind.directQr => l.txQrHint,
         MethodKind.directFile => l.txFileHint,
       };
@@ -978,7 +977,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         sheetTitle: MethodIcons.fullName(l, m),
         hint: hint,
         value: payments.offers(m),
-        onChanged: (on) => set(m, on),
+        onChanged: m == MethodKind.linkTor && !torPayCanSwitch(ref.watch(phoneTorPayProvider)) ? null : (on) => set(m, on),
       );
     }
 
@@ -997,8 +996,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
             methodTile(m),
             // Where the phone's listener may run: the trusted networks, and Forget.
             if (m == MethodKind.linkHttp && payments.linkHttp && phone) const _TrustedNetworksRow(),
-            if (m == MethodKind.linkTor && payments.linkTor && torOff)
-              _TorNeededLine(onTap: () => openPrivacySettings(context)),
+            // Tor for payments (item 2): its state, never a "turn Tor on" card.
+            if (m == MethodKind.linkTor && payments.linkTor) const _TorPayLine(),
           ],
       ],
       // Only a choice when there is one: a single method is what Send opens on.
@@ -1356,7 +1355,7 @@ String _txKeyName(MethodKind m) => switch (m) {
 };
 
 /// The key of the line under Link · Tor that Tor is off, for tests.
-const Key txTorNeededKey = ValueKey('tx-tor-needs-tor');
+const Key txTorPayLineKey = ValueKey('tx-tor-pay-line');
 
 /// The key of the Trusted networks row under Link · HTTP, for tests.
 const Key txTrustedNetworksKey = ValueKey('tx-trusted-networks');
@@ -1491,43 +1490,22 @@ class _TrustedNetworksSheet extends ConsumerWidget {
   }
 }
 
-/// Under the Link · Tor switch while it is on and Tor is off: "Needs Tor. Turn it on under
-/// Network & privacy." A tap opens Network & privacy, where the one Tor switch is.
-class _TorNeededLine extends StatelessWidget {
-  const _TorNeededLine({required this.onTap});
-
-  final VoidCallback onTap;
+/// Under the Link · Tor switch while it is on: what Tor for payments does now (starting,
+/// receiving, off in Node only or Kill switch) and whether Tor also carries the rest.
+class _TorPayLine extends ConsumerWidget {
+  const _TorPayLine();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
-    final text = context.l10n.txLinkTorNeedsTorNet;
-    return Semantics(
-      key: txTorNeededKey,
-      button: true,
-      label: text,
-      excludeSemantics: true,
-      onTap: onTap,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          // Lined up with the switch's title, past its icon.
-          padding: const EdgeInsets.fromLTRB(56, 0, 16, 10),
-          child: Row(
-            children: [
-              Icon(Icons.info_outline, size: 16, color: t.info),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  text,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.info),
-                ),
-              ),
-              NavChevron(size: 18, color: t.info),
-            ],
-          ),
-        ),
-      ),
+    final l = context.l10n;
+    final p = ref.watch(phoneTorPayProvider);
+    final text = p.kind == TorPayKind.ready ? '${torPayLine(l, p)} · ${torPayRestLine(l, p)}' : torPayLine(l, p);
+    return Padding(
+      key: txTorPayLineKey,
+      // Lined up with the switch's title, past its icon.
+      padding: const EdgeInsets.fromLTRB(56, 0, 16, 10),
+      child: Text(text, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim)),
     );
   }
 }

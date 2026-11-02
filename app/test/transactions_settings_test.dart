@@ -174,7 +174,7 @@ void main() {
     expect(tester.widget<Switch>(_switchOf('tx-tor')).value, isFalse);
     expect(tester.widget<Switch>(_switchOf('tx-file')).value, isTrue);
     // Off, Link · Tor says nothing about Tor.
-    expect(find.byKey(txTorNeededKey), findsNothing);
+    expect(find.byKey(txTorPayLineKey), findsNothing);
   }, skip: !torBuilt);
 
   testWidgets('where the app has no Tor, HTTP stays and Tor goes', (tester) async {
@@ -228,24 +228,20 @@ void main() {
     expect(_row('tx-trusted-networks'), findsNothing);
   });
 
-  testWidgets('Link · Tor on with Tor off: the line under it opens Privacy & network', (tester) async {
+  testWidgets('Link · Tor on with Tor off: a state line, no "turn Tor on" card (item 2)', (tester) async {
     final c = await _pump(tester, _store());
     await tester.tap(_switchOf('tx-tor'));
     await tester.pumpAndSettle();
     expect(_payments(c).linkTor, isTrue);
-    expect(find.byKey(txTorNeededKey), findsOneWidget);
-    expect(find.text(_l.txLinkTorNeedsTorNet), findsOneWidget);
-    await tester.tap(find.byKey(txTorNeededKey));
-    await tester.pumpAndSettle();
-    // Settings opens over the page, at Privacy & network (the hub stays under it).
-    expect(find.byType(SettingsScreen, skipOffstage: false), findsOneWidget);
-    expect(find.byWidgetPredicate((w) => w is SettingsSectionScreen && w.section == SettingsSection.privacyNetwork), findsOneWidget);
+    expect(find.byKey(txTorPayLineKey), findsOneWidget);
+    expect(find.text(_l.txLinkTorNeedsTorNet), findsNothing);
   }, skip: !torBuilt);
 
-  testWidgets('Link · Tor on with Tor on: no line', (tester) async {
+  testWidgets('Link · Tor on with Tor on: the state line, no "turn Tor on" card', (tester) async {
     await _pump(tester, _store({'app.payment_prefs': 'v2,tor,file|epicbox'}), tor: _torOn);
     expect(tester.widget<Switch>(_switchOf('tx-tor')).value, isTrue);
-    expect(find.byKey(txTorNeededKey), findsNothing);
+    expect(find.byKey(txTorPayLineKey), findsOneWidget);
+    expect(find.text(_l.txLinkTorNeedsTorNet), findsNothing);
   }, skip: !torBuilt);
 
   testWidgets('the last method on stays on: the switch holds and a notice says why', (tester) async {
@@ -282,7 +278,7 @@ void main() {
     for (final (title, text) in [
       (_l.methodEpicbox, _l.txEpicboxHint),
       (_l.methodDirectHttp, _l.txLinkHttpHint('${appConfig.httpListenPort}')),
-      (_l.methodDirectTor, _l.txLinkTorHintNet),
+      (_l.methodDirectTor, _l.deskSetRowTorPayInfo),
       (_l.methodDirectFile, _l.txFileHint),
     ]) {
       await tester.tap(
