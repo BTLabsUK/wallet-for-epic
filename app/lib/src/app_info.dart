@@ -8,10 +8,11 @@ import 'app_version.dart' show coreVersion, withCoreVersion;
 /// (`windows/runner/Runner.rc`) and the installer (`windows/installer/epic_wallet.iss`) say BT
 /// Wallet too, and the exe is `btwallet.exe` (the owner, 2026-11-02); the MSIX manifest keeps "Epic
 /// Cash Desktop", the Store listing's name. On macOS the app is "BT Wallet.app"
-/// (`uk.btlabs.btwallet.macos`); 26.10.24 shipped "Epic Cash Desktop.app". The ids are
-/// `uk.btlabs.epiccash.desktop` and `uk.btlabs.epiccash.mobile`; the Inno AppId and install
-/// folder, the secure-storage prefix and the Linux binary name keep the old name on purpose
-/// (`README.md`, "App ids and data folders").
+/// (`uk.btlabs.btwallet.macos`); 26.10.24 shipped "Epic Cash Desktop.app". From 26.10.25 the
+/// executables are `btwallet.exe` and `btwallet` (Linux), and Android is a new app,
+/// `uk.btlabs.btwallet` (was `uk.btlabs.epiccash.mobile`). The desktop id
+/// `uk.btlabs.epiccash.desktop`, the Inno AppId and install folder and the secure-storage prefix
+/// keep the old name on purpose (`README.md`, "App ids and data folders").
 const String appName = 'BT Wallet';
 
 /// The short git commit a release build was made from (`--dart-define=WFE_BUILD_ID=...`, set by

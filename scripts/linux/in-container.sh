@@ -59,7 +59,7 @@ fi
 cat > "$appdir/AppRun" <<'RUN'
 #!/bin/sh
 HERE="$(dirname "$(readlink -f "$0")")"
-exec "$HERE/usr/bin/epic_wallet" "$@"
+exec "$HERE/usr/bin/btwallet" "$@"
 RUN
 chmod +x "$appdir/AppRun"
 # %u and the MimeType: a browser hands epiccash:// invite links to the app once a desktop
@@ -69,7 +69,7 @@ cat > "$appdir/uk.btlabs.epiccash.desktop.desktop" <<'DESK'
 [Desktop Entry]
 Type=Application
 Name=Epic Cash Desktop
-Exec=epic_wallet %u
+Exec=btwallet %u
 Icon=epic-cash-desktop
 StartupWMClass=uk.btlabs.epiccash.desktop
 Categories=Finance;Utility;
