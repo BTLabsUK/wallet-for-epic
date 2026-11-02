@@ -83,7 +83,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 600));
 
     // The rail's part of the title bar: the mark, the build in its tooltip.
-    expect(find.byTooltip('Epic Cash Desktop $deskAppVersion'), findsOneWidget);
+    expect(find.byTooltip('BT Wallet $deskAppVersion'), findsOneWidget);
     expect(tester.takeException(), isNull);
     semantics.dispose();
   });

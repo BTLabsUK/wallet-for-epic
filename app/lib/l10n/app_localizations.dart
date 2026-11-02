@@ -109,7 +109,7 @@ abstract class AppLocalizations {
   /// The phone app's product name, in the task switcher and window title. A brand name; do not translate.
   ///
   /// In en, this message translates to:
-  /// **'Epic Cash Mobile'**
+  /// **'BT Wallet'**
   String get appTitle;
 
   /// No description provided for @commonCancel.
@@ -1780,13 +1780,13 @@ abstract class AppLocalizations {
   /// App-bar title of the wallet's main page: the app's name. A product name; do not translate.
   ///
   /// In en, this message translates to:
-  /// **'Epic Cash Mobile'**
+  /// **'BT Wallet'**
   String get shellTitle;
 
   /// Heading of the web demo's welcome screen, under the mark.
   ///
   /// In en, this message translates to:
-  /// **'Try Epic Cash'**
+  /// **'Try BT Wallet'**
   String get demoWelcomeTitle;
 
   /// The welcome screen's one line under its heading.
@@ -2911,10 +2911,10 @@ abstract class AppLocalizations {
   /// **'Download progress'**
   String get updateDownloadProgressLabel;
 
-  /// Settings' update row while Android's screen for allowing installs from this app is open or was just opened; the update carries on by itself once the user allows and comes back. 'Epic Cash Mobile' is the app's name, never translated.
+  /// Settings' update row while Android's screen for allowing installs from this app is open or was just opened; the update carries on by itself once the user allows and comes back. 'BT Wallet' is the app's name, never translated.
   ///
   /// In en, this message translates to:
-  /// **'Allow installs from Epic Cash Mobile, then return.'**
+  /// **'Allow installs from BT Wallet, then return.'**
   String get updateAllowInstalls;
 
   /// Update banner and Settings row after Android's install dialog was closed without installing (Cancel or Back); the banner's and the row's buttons start it again.
@@ -4984,7 +4984,7 @@ abstract class AppLocalizations {
   /// Licences screen: the wallet itself. Not "app" on its own: the web demo shows this screen too.
   ///
   /// In en, this message translates to:
-  /// **'Epic Cash Mobile by BT Labs: Apache-2.0.'**
+  /// **'BT Wallet by BT Labs: Apache-2.0.'**
   String get licencesApp;
 
   /// Licences screen: one line for Flutter and the Dart packages.
@@ -9685,7 +9685,7 @@ abstract class AppLocalizations {
   /// Why a history backup was refused: it is not a backup file of this app.
   ///
   /// In en, this message translates to:
-  /// **'The file was not made by Epic Cash Desktop or Epic Cash Mobile.'**
+  /// **'The file was not made by BT Wallet.'**
   String get deskErrHistNotOursText;
 
   /// Hint under the Send address field when it is empty and the Link method is chosen.
@@ -19230,10 +19230,10 @@ abstract class AppLocalizations {
   /// **'Open-source software in this wallet, each under its own licence.'**
   String get deskSetAboutLicencesLead;
 
-  /// Settings › About › Licences: the app's own licence. Epic Cash Desktop, BT Labs, Apache-2.0 and GitHub are names: keep them.
+  /// Settings › About › Licences: the app's own licence. BT Wallet, BT Labs, Apache-2.0 and GitHub are names: keep them.
   ///
   /// In en, this message translates to:
-  /// **'Epic Cash Desktop by BT Labs: Apache-2.0.'**
+  /// **'BT Wallet by BT Labs: Apache-2.0.'**
   String get deskSetAboutLicenceApp;
 
   /// Toast title when a link could not be opened in the web browser; the link follows.
@@ -19611,7 +19611,7 @@ abstract class AppLocalizations {
   /// Desktop, Linux: what is missing and what to do. Names the keyring programs; Retry is the commonRetry button.
   ///
   /// In en, this message translates to:
-  /// **'Epic Cash keeps its settings and your wallet’s sealed password in the system keyring, and none answered. Install or start a keyring (GNOME Keyring or KWallet), sign in to a desktop session that runs one, then choose Retry.'**
+  /// **'BT Wallet keeps its settings and your wallet’s sealed password in the system keyring, and none answered. Install or start a keyring (GNOME Keyring or KWallet), sign in to a desktop session that runs one, then choose Retry.'**
   String get deskKeyringMissingText;
 
   /// Desktop, Linux, first screen: the system keyring exists but is locked.
@@ -19623,7 +19623,7 @@ abstract class AppLocalizations {
   /// Desktop, Linux: the keyring is locked. Retry is commonRetry; 'Unlock now' is deskKeyringUnlockNow.
   ///
   /// In en, this message translates to:
-  /// **'Epic Cash keeps its settings and your wallet’s sealed password in the system keyring, which is locked. Unlock it (it opens with your login password), then choose Retry, or choose Unlock now to have the system ask for it.'**
+  /// **'BT Wallet keeps its settings and your wallet’s sealed password in the system keyring, which is locked. Unlock it (it opens with your login password), then choose Retry, or choose Unlock now to have the system ask for it.'**
   String get deskKeyringLockedText;
 
   /// Desktop, Linux, locked keyring: go on, and the system asks for the keyring's password.
@@ -20166,7 +20166,7 @@ abstract class AppLocalizations {
   /// **'Apply'**
   String get deskHistConflictApply;
 
-  /// Sidebar notice, first line: a newer Epic Cash Desktop is out (the version is on the line under it).
+  /// Sidebar notice, first line: a newer BT Wallet is out (the version is on the line under it).
   ///
   /// In en, this message translates to:
   /// **'Update available'**
@@ -21336,10 +21336,10 @@ abstract class AppLocalizations {
   /// **'Finish the current payment first.'**
   String get linkFinishCurrentFirst;
 
-  /// Error under To on desktop Send when the pasted text is a part of an animated QR Payment code (ur:epic-slate/…), which only the phone app (Epic Cash Mobile) reads. 'QR Payment' is the method's name.
+  /// Error under To on desktop Send when the pasted text is a part of an animated QR Payment code (ur:epic-slate/…), which only the phone app (BT Wallet on a phone) reads. 'QR Payment' is the method's name.
   ///
   /// In en, this message translates to:
-  /// **'A QR Payment code. Scan it with Epic Cash Mobile.'**
+  /// **'A QR Payment code. Scan it with BT Wallet on a phone.'**
   String get deskSendToQrPayment;
 
   /// Description row of the Link · Tor group on Settings › Transactions.
@@ -21879,25 +21879,25 @@ abstract class AppLocalizations {
   /// The shared/copied invite message (replaces pairShareText). Plain text, no web address
   ///
   /// In en, this message translates to:
-  /// **'Pair with me in Epic Cash: {link}'**
+  /// **'Pair with me in BT Wallet: {link}'**
   String pairInviteMessage(String link);
 
   /// The shared/copied reply message
   ///
   /// In en, this message translates to:
-  /// **'My reply to your Epic Cash pairing: {link}'**
+  /// **'My reply to your BT Wallet pairing: {link}'**
   String pairReplyMessage(String link);
 
   /// The shared/copied finish message
   ///
   /// In en, this message translates to:
-  /// **'Finish our Epic Cash pairing: {link}'**
+  /// **'Finish our BT Wallet pairing: {link}'**
   String pairFinishMessage(String link);
 
   /// The shared/copied finish message, impersonal (replaces pairFinishMessage)
   ///
   /// In en, this message translates to:
-  /// **'Finish the Epic Cash pairing: {link}'**
+  /// **'Finish the BT Wallet pairing: {link}'**
   String pairFinishLinkMessage(String link);
 
   /// Desktop primary button for all three messages (no share sheet on Linux/Windows)
@@ -22335,7 +22335,7 @@ abstract class AppLocalizations {
   /// Outcome for a newer invite, envelope or file.
   ///
   /// In en, this message translates to:
-  /// **'Update Epic Cash to open this'**
+  /// **'Update BT Wallet to open this'**
   String get pairNewerTitle;
 
   /// Outcome body.
@@ -23751,7 +23751,7 @@ abstract class AppLocalizations {
   /// Topic 1.
   ///
   /// In en, this message translates to:
-  /// **'Pairing needs Epic Cash on both sides. A contact that is not paired still gets ordinary transaction files and Epicbox payments.'**
+  /// **'Pairing needs BT Wallet on both sides. A contact that is not paired still gets ordinary transaction files and Epicbox payments.'**
   String get helpPairWhatP3;
 
   /// Topic 2 title.
@@ -24057,7 +24057,7 @@ abstract class AppLocalizations {
   /// Import error: the contacts file was made by a newer version of the app.
   ///
   /// In en, this message translates to:
-  /// **'This file was made by a newer Epic Cash. Update to import it.'**
+  /// **'This file was made by a newer BT Wallet. Update to import it.'**
   String get contactsImportNewer;
 
   /// Import error: the contacts file holds no contacts.
@@ -25032,7 +25032,7 @@ abstract class AppLocalizations {
   /// **'Open Invoices'**
   String get deskSlotOpenInvoices;
 
-  /// Screen-reader label of the brand button at the left of the window's title bar, which opens the app menu. {app} is the product name, Epic Cash Desktop.
+  /// Screen-reader label of the brand button at the left of the window's title bar, which opens the app menu. {app} is the product name, BT Wallet.
   ///
   /// In en, this message translates to:
   /// **'{app} menu'**
@@ -25050,7 +25050,7 @@ abstract class AppLocalizations {
   /// **'Keyboard shortcuts'**
   String get deskBarShortcuts;
 
-  /// App menu item: opens Settings › About. {app} is the product name, Epic Cash Desktop.
+  /// App menu item: opens Settings › About. {app} is the product name, BT Wallet.
   ///
   /// In en, this message translates to:
   /// **'About {app}'**
@@ -29865,7 +29865,7 @@ abstract class AppLocalizations {
   /// Help: when a request can be sent.
   ///
   /// In en, this message translates to:
-  /// **'A request is sent only to a wallet that has shown it runs Epic Cash: a marked payment between the two addresses within the last 30 days. For anyone else, Pair shows your code.'**
+  /// **'A request is sent only to a wallet that has shown it runs BT Wallet: a marked payment between the two addresses within the last 30 days. For anyone else, Pair shows your code.'**
   String get helpPairTwoWaysP3;
 
   /// Help topic title (words check).

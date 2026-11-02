@@ -999,7 +999,7 @@ void main() {
         await Future.wait([updates.resumed(), updates.checkOnOpening()]);
         final state = c.read(updateProvider);
         expect(state.phase, UpdatePhase.needsPermission);
-        expect(state.text!(englishStrings), 'Allow installs from Epic Cash Mobile, then return.');
+        expect(state.text!(englishStrings), 'Allow installs from BT Wallet, then return.');
       });
 
       test('back from the home screen while the install dialog was up: offered again, not stuck', () async {

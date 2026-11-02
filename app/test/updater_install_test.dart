@@ -167,7 +167,7 @@ void main() {
     expect(hits, 0, reason: 'no download before the permission');
     expect(platform.installs, isEmpty);
     expect(state().phase, UpdatePhase.needsPermission);
-    expect(state().text!(l), 'Allow installs from Epic Cash Mobile, then return.');
+    expect(state().text!(l), 'Allow installs from BT Wallet, then return.');
     expect(state().update, update);
   });
 

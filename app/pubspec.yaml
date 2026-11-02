@@ -138,6 +138,9 @@ flutter:
     - assets/licenses/tor.txt
     - assets/licenses/tor-source.txt
     - assets/licenses/status-icons.txt
+    # The BT Wallet wordmark ("BT WALLET for Epic Cash", outlined), cut from the brand kit's row
+    # lockups; BrandWordmark (lib/src/ui/theme/brand.dart) picks the dark or light one.
+    - assets/brand/
     # Help illustrations (settings design); drawn in the theme colours by HelpArt.
     - assets/help/
     # Language flags (lipis/flag-icons, MIT; the licence is registered with the fonts', see

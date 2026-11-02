@@ -1,37 +1,44 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The wallet's identity: the Epic Cash mark, the framed tile that carries it (or an icon) on
+/// The wallet's identity: the BT Wallet mark, the framed tile that carries it (or an icon) on
 /// hero screens, the lit backdrop behind those screens, and the empty state built from them.
 /// They reuse the Protocol devices in `protocol.dart` (grid, corner ticks), so every hero screen
-/// reads as the same instrument.
+/// reads as the same instrument. The mark and the wordmark come from the BT Wallet brand kit
+/// (the BT LABS mask; `assets/brand/`).
 library;
 
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 import '../../balanced_text.dart';
 import 'protocol.dart';
 import 'tokens.dart';
 
-/// The Epic Cash mark, from `docs/themes/epic-mark.svg` (a 281 x 324 view box). Drawn as a
-/// path, so it needs no image asset or SVG package, and stays sharp at any size.
+/// The product name the brand widgets give screen readers. A name: never translated.
+const String brandName = 'BT Wallet';
+
+/// The BT Wallet mark, the brand kit's eight polygons (`bt-wallet-mark-gold.svg`, a 641 x 554.7
+/// box). Drawn as paths, so it stays sharp at any size and takes the theme's colours. The
+/// class keeps its old name so call sites stay as they are.
 class EpicMark extends StatelessWidget {
   const EpicMark({super.key, this.size = 32, this.color});
 
   /// Height in logical pixels; the width follows the mark's proportions.
   final double size;
 
-  /// Defaults to the accent: gold in dark mode, the AA brown in light mode.
+  /// Defaults to the gold gradient in dark mode and the ink (the text colour) in light mode,
+  /// as the kit has it.
   final Color? color;
 
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final top = color ?? t.accent;
+    final top = color ?? (dark ? t.accent : t.text);
     // Dark mode shades the gold down to the ticks' deeper gold, like a lit metal edge.
-    final bottom = color ?? (dark ? t.tick : t.accent);
+    final bottom = color ?? (dark ? t.tick : t.text);
     return ExcludeSemantics(
       child: CustomPaint(
         size: Size(size * _EpicMarkPainter.aspect, size),
@@ -47,67 +54,31 @@ class _EpicMarkPainter extends CustomPainter {
   final Color top;
   final Color bottom;
 
-  static const double _w = 281, _h = 324;
+  // The polygons' bounds in the kit's units.
+  static const double _x0 = 2, _y0 = 33, _w = 641, _h = 554.7;
   static const double aspect = _w / _h;
 
+  static const List<List<double>> _polygons = [
+    [197, 105.46, 322.5, 33, 448, 105.46, 448, 165.46, 322.5, 93, 197, 165.46],
+    [58, 97, 187, 171.48, 214.27, 247.22, 85.27, 172.74],
+    [587, 97, 458, 171.48, 430.73, 247.22, 559.73, 172.74],
+    [222, 256, 322.5, 314.02, 423, 256, 395.73, 331.74, 322.5, 374.02, 249.27, 331.74],
+    [2, 209, 143, 290.41, 170.27, 366.15, 29.27, 284.74],
+    [643, 209, 502, 290.41, 474.73, 366.15, 615.73, 284.74],
+    [171, 374, 249, 419.03, 322.5, 376.6, 396, 419.03, 474, 374, 446.73, 449.74, 396, 479.03, 322.5, 436.6, 249, 479.03, 198.27, 449.74],
+    [252, 487, 322.5, 527.7, 393, 487, 365.73, 562.74, 322.5, 587.7, 279.27, 562.74],
+  ];
+
   static final List<Path> _parts = [
-    Path()
-      ..moveTo(253.678, 72.443)
-      ..cubicTo(256.503, 70.801, 256.503, 66.729, 253.678, 65.152)
-      ..lineTo(225.895, 49.126)
-      ..cubicTo(224.581, 48.404, 223.005, 48.404, 221.691, 49.126)
-      ..lineTo(202.644, 60.095)
-      ..lineTo(238.966, 81.047)
-      ..close(),
-    Path()
-      ..moveTo(83.759, 131.031)
-      ..lineTo(83.759, 163.806)
-      ..cubicTo(83.759, 167.09, 87.306, 169.126, 90.13, 167.484)
-      ..lineTo(232.528, 84.725)
-      ..lineTo(196.206, 63.773)
-      ..lineTo(85.861, 127.419)
-      ..cubicTo(84.547, 128.141, 83.759, 129.52, 83.759, 131.031)
-      ..close(),
-    Path()
-      ..moveTo(111.084, 211.36)
-      ..lineTo(140.115, 228.108)
-      ..cubicTo(141.429, 228.831, 143.005, 228.831, 144.319, 228.108)
-      ..lineTo(253.482, 165.12)
-      ..lineTo(253.482, 121.244)
-      ..lineTo(111.084, 204.003)
-      ..cubicTo(108.26, 205.645, 108.325, 209.717, 111.084, 211.36)
-      ..close(),
-    Path()
-      ..moveTo(278.899, 150.473)
-      ..cubicTo(280.213, 149.75, 281.001, 148.305, 281.001, 146.795)
-      ..lineTo(281.001, 112.64)
-      ..cubicTo(281.001, 109.356, 277.454, 107.32, 274.63, 108.962)
-      ..lineTo(259.917, 117.501)
-      ..lineTo(259.917, 161.376)
-      ..close(),
-    Path()
-      ..moveTo(140.705, 323.544)
-      ..lineTo(181.034, 300.293)
-      ..lineTo(280.673, 242.756)
-      ..lineTo(280.673, 196.187)
-      ..lineTo(253.546, 211.82)
-      ..lineTo(176.961, 256.023)
-      ..lineTo(140.705, 276.976)
-      ..lineTo(41.131, 219.504)
-      ..lineTo(41.131, 104.561)
-      ..lineTo(153.973, 39.405)
-      ..lineTo(181.034, 23.773)
-      ..lineTo(140.705, 0.456)
-      ..lineTo(0.803, 81.244)
-      ..lineTo(0.803, 242.756)
-      ..close(),
+    for (final p in _polygons)
+      Path()..addPolygon([for (var i = 0; i < p.length; i += 2) Offset(p[i] - _x0, p[i + 1] - _y0)], true),
   ];
 
   @override
   void paint(Canvas canvas, Size size) {
     canvas.save();
     canvas.scale(size.width / _w, size.height / _h);
-    // In view-box units, since the shader is set up after the scale.
+    // In box units, since the shader is set up after the scale.
     final paint = Paint()
       ..shader = ui.Gradient.linear(Offset.zero, const Offset(0, _h), [
         top,
@@ -124,127 +95,74 @@ class _EpicMarkPainter extends CustomPainter {
       old.top != top || old.bottom != bottom;
 }
 
-/// Which app a [BrandWordmark] names.
+/// Which app a [BrandWordmark] stands for. Desktop and phone share one name, BT Wallet, and
+/// one wordmark; the variant is kept so call sites say where they are.
 enum BrandVariant {
-  desktop('Desktop'),
-  mobile('Mobile');
-
-  const BrandVariant(this.word);
-
-  /// The platform word under "Epic Cash". A brand name: never translated.
-  final String word;
+  desktop,
+  mobile,
 }
 
-/// The product wordmark: "Epic Cash" in the mark's gold, and under it the platform word in
-/// grey, smaller, uppercase and tracked, aligned to the right edge of "Epic Cash" (at half
-/// the size it would need a letter-spacing of a third of an em to match the width, which
-/// falls apart below 24 px; the right edge keeps one relation at every size). [size] is the
-/// font size of "Epic Cash"; the platform word is [secondRatio] of it, never under 9 px.
-/// One semantics node with the full product name, so a reader hears "Epic Cash Desktop",
-/// not two lines. Colours: the gold gradient of [EpicMark] in dark mode, the AA brown in
-/// light mode, or [color] for both; the second line takes [secondColor] or the dim text.
+/// The product wordmark: "BT WALLET" over "for Epic Cash" with the Epic Cash E, the brand kit's
+/// outlined lettering (`assets/brand/bt-wallet-wordmark-{dark,light}.svg`, cut from the row
+/// lockups), so it needs no font. [size] sets the scale: the wordmark is [heightRatio] times it
+/// tall, and "BT WALLET" has the cap height of a [size] font. Dark mode takes the dark-ground
+/// artwork, light mode the light one; [color] paints it all in one flat colour instead. One
+/// semantics node with the product name.
 class BrandWordmark extends StatelessWidget {
   const BrandWordmark({
     super.key,
     required this.variant,
     this.size = 24,
     this.color,
-    this.secondColor,
     this.label,
   });
 
   final BrandVariant variant;
 
-  /// The font size of "Epic Cash", in logical pixels.
+  /// The scale, as a font size in logical pixels.
   final double size;
 
-  /// A flat colour for "Epic Cash" instead of the gold gradient.
+  /// A flat colour instead of the kit's colours.
   final Color? color;
 
-  /// The platform word's colour; dim text by default.
-  final Color? secondColor;
-
-  /// What screen readers get; the full product name by default.
+  /// What screen readers get; the product name by default.
   final String? label;
 
-  /// The first line, the brand. Never translated.
-  static const String brand = 'Epic Cash';
+  /// The product name. Never translated.
+  static const String brand = brandName;
 
-  /// The platform word's size as a share of [size].
-  static const double secondRatio = 0.5;
+  /// The artwork's height as a share of [size].
+  static const double heightRatio = 1.5;
 
-  /// Space between the lines, as a share of [size].
-  static const double gapRatio = 0.12;
+  /// The artwork's width over its height.
+  static const double aspect = 722.13 / 148.46;
 
   @override
   Widget build(BuildContext context) {
-    final t = context.tokens;
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final top = color ?? t.accent;
-    final bottom = color ?? (dark ? t.tick : t.accent);
-    final second = (size * secondRatio).clamp(9.0, double.infinity);
-    final first = Text(
-      brand,
-      maxLines: 1,
-      softWrap: false,
-      style: TextStyle(
-        fontFamily: t.headFamily,
-        fontWeight: FontWeight.w600,
-        fontSize: size,
-        height: 1.1,
-        letterSpacing: size * -0.02,
-        color: top,
-      ),
-    );
+    final color = this.color;
+    final height = size * heightRatio;
     return Semantics(
-      label: label ?? '$brand ${variant.word}',
+      label: label ?? brandName,
       excludeSemantics: true,
-      child: IntrinsicWidth(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            if (color != null)
-              first
-            else
-              ShaderMask(
-                blendMode: BlendMode.srcIn,
-                shaderCallback: (bounds) => ui.Gradient.linear(
-                  bounds.topLeft,
-                  bounds.bottomLeft,
-                  [top, bottom],
-                ),
-                child: first,
-              ),
-            SizedBox(height: size * gapRatio),
-            Text(
-              variant.word.toUpperCase(),
-              maxLines: 1,
-              softWrap: false,
-              style: TextStyle(
-                fontFamily: t.headFamily,
-                fontWeight: FontWeight.w600,
-                fontSize: second,
-                height: 1.1,
-                letterSpacing: second * 0.14,
-                color: secondColor ?? t.dim,
-              ),
-            ),
-          ],
-        ),
+      child: SvgPicture.asset(
+        'assets/brand/bt-wallet-wordmark-${dark ? 'dark' : 'light'}.svg',
+        height: height,
+        width: height * aspect,
+        colorFilter: color == null ? null : ColorFilter.mode(color, BlendMode.srcIn),
       ),
     );
   }
 }
 
-/// The mark beside the wordmark, as the sidebar and the phone's app bar show them. [size]
-/// is the mark's height; the wordmark's "Epic Cash" takes [textRatio] of it.
+/// The mark beside the wordmark, in the brand kit's row lockup proportions. [size] is the
+/// mark's height; the wordmark is [textRatio] of [size] in [BrandWordmark.size] terms.
 class BrandLockup extends StatelessWidget {
   const BrandLockup({
     super.key,
     required this.variant,
     this.size = 32,
-    this.textRatio = 0.6,
+    this.textRatio = kitTextRatio,
     this.color,
     this.label,
   });
@@ -253,20 +171,26 @@ class BrandLockup extends StatelessWidget {
   final double size;
   final double textRatio;
 
-  /// A flat colour for the mark and "Epic Cash" instead of the gradient.
+  /// A flat colour for the mark and the wordmark instead of the kit's colours.
   final Color? color;
   final String? label;
+
+  /// The kit's row lockup: the lettering is 0.836 of the mark's height.
+  static const double kitTextRatio = 0.836 / BrandWordmark.heightRatio;
+
+  /// The kit's row lockup: the gap between mark and lettering, as a share of the mark's height.
+  static const double kitGapRatio = 0.288;
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: label ?? '${BrandWordmark.brand} ${variant.word}',
+      label: label ?? brandName,
       excludeSemantics: true,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           EpicMark(size: size, color: color),
-          SizedBox(width: size * 0.34),
+          SizedBox(width: size * kitGapRatio),
           BrandWordmark(variant: variant, size: size * textRatio, color: color),
         ],
       ),
@@ -274,7 +198,7 @@ class BrandLockup extends StatelessWidget {
   }
 }
 
-/// A QR code of [data] at error correction level H, with the [EpicMark] on a small white tile
+/// A QR code of [data] at error correction level H, with the [EpicMark] in ink on a small white tile
 /// in its centre. The tile is [markFraction] of the code's width, so it hides about 4 % of the
 /// modules, well inside the 30 % level H restores. Dark modules for white paper: the caller
 /// puts it on white with a quiet zone, so it scans in either theme. Decorative to screen
@@ -341,7 +265,7 @@ class _MarkedQrState extends State<MarkedQr> {
                 color: paper.surface,
                 borderRadius: BorderRadius.circular(tile * 0.18),
               ),
-              child: EpicMark(size: tile * 0.68, color: paper.accent),
+              child: EpicMark(size: tile * 0.58, color: paper.text),
             ),
           ],
         ),

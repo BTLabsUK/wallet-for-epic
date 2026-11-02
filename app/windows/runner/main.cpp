@@ -11,7 +11,7 @@
 namespace {
 // The window's title, also how a second start finds the first window. The app keeps it:
 // MaterialApp's title (lib/src/app_info.dart appName) is the same text.
-constexpr const wchar_t kWindowTitle[] = L"Epic Cash Desktop";
+constexpr const wchar_t kWindowTitle[] = L"BT Wallet";
 // The app's ID (uk.btlabs.epiccash.desktop); Setup waits on the same name (AppMutex).
 constexpr const wchar_t kSingleInstanceMutex[] = L"Local\\uk.btlabs.epiccash.desktop.single";
 

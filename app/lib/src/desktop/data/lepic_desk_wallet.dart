@@ -5787,7 +5787,7 @@ Future<void> writeWalletTxt(String dir, {required String label, required String 
   String two(int v) => v.toString().padLeft(2, '0');
   final day = '${created.year}-${two(created.month)}-${two(created.day)}';
   final text = [
-    'Epic Cash Desktop (BT Labs) wallet folder', // l10n-ok: WALLET.txt is a file in the wallet folder, English
+    'BT Wallet (BT Labs) wallet folder', // l10n-ok: WALLET.txt is a file in the wallet folder, English
     'Label:     $label', // l10n-ok
     if (network != 'mainnet') 'Network:   $network', // l10n-ok: mainnet, the only network a user sees, is never named
     'Created:   $day', // l10n-ok

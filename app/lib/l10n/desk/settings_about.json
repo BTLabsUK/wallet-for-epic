@@ -3,9 +3,9 @@
   "@deskSetAboutLicencesLead": {
     "description": "Settings › About › Licences: the paragraph before the list of components. The phone's version says 'tap' (licencesLead)."
   },
-  "deskSetAboutLicenceApp": "Epic Cash Desktop by BT Labs: Apache-2.0.",
+  "deskSetAboutLicenceApp": "BT Wallet by BT Labs: Apache-2.0.",
   "@deskSetAboutLicenceApp": {
-    "description": "Settings › About › Licences: the app's own licence. Epic Cash Desktop, BT Labs, Apache-2.0 and GitHub are names: keep them."
+    "description": "Settings › About › Licences: the app's own licence. BT Wallet, BT Labs, Apache-2.0 and GitHub are names: keep them."
   },
   "deskSetAboutBrowserNotOpened": "Browser not opened",
   "@deskSetAboutBrowserNotOpened": {

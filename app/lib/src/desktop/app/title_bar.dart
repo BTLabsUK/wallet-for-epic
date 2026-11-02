@@ -23,7 +23,7 @@ import 'package:window_manager/window_manager.dart' show ResizeEdge;
 
 import '../../app_info.dart';
 import '../data/desk_update.dart' show deskAppVersion;
-import '../../ui/theme/brand.dart' show EpicMark, BrandWordmark;
+import '../../ui/theme/brand.dart' show BrandLockup, BrandVariant, BrandWordmark, EpicMark;
 import '../../advanced.dart' show NetworkMode;
 import '../../ui/network_mode_text.dart';
 import '../data/desk_levels.dart';
@@ -619,7 +619,7 @@ class _BarMenuState extends State<_BarMenu> {
 
 void _toggle(MenuController m) => m.isOpen ? m.close() : m.open();
 
-/// Mark, then "Epic Cash" over "DESKTOP" as [BrandWordmark] sets them; in an open wallet it
+/// The mark, then the BT Wallet wordmark, as [BrandLockup] sets them; in an open wallet it
 /// opens the app menu (hover and pressed fills say so); its tooltip names the build.
 class _Brand extends ConsumerWidget {
   const _Brand({required this.menu, required this.compact, required this.dim});
@@ -636,9 +636,7 @@ class _Brand extends ConsumerWidget {
       duration: Dur.base,
       child: EpicMark(size: size, color: dim ? c.accentDeep : null),
     );
-    // The platform word a little over half the brand's size, letter-spaced and set flush with
-    // the brand's end, as the wordmark has it. Scaled down rather than cut in a narrow window.
-    const second = 10.0;
+    // The kit's row lockup proportions. Scaled down rather than cut in a narrow window.
     final lockup = FittedBox(
       fit: BoxFit.scaleDown,
       alignment: AlignmentDirectional.centerStart,
@@ -646,27 +644,11 @@ class _Brand extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           mark(26.u),
-          SizedBox(width: Sp.x3),
-          IntrinsicWidth(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  BrandWordmark.brand,
-                  maxLines: 1,
-                  softWrap: false,
-                  style: context.ts.h3.copyWith(fontSize: Fs.lg, fontWeight: FontWeight.w600, height: 1.1, letterSpacing: Fs.lg * -0.02 * deskScale, color: dim ? c.dim : c.text),
-                ),
-                SizedBox(height: 2.u),
-                Text(
-                  BrandVariantWord.desktop,
-                  maxLines: 1,
-                  softWrap: false,
-                  style: context.ts.h3.copyWith(fontSize: second, fontWeight: FontWeight.w600, height: 1.1, letterSpacing: second * 0.14 * deskScale, color: c.faint),
-                ),
-              ],
-            ),
+          SizedBox(width: 26.u * BrandLockup.kitGapRatio),
+          AnimatedOpacity(
+            opacity: dim ? 0.7 : 1,
+            duration: Dur.base,
+            child: BrandWordmark(variant: BrandVariant.desktop, size: 26.u * BrandLockup.kitTextRatio, label: appName),
           ),
         ],
       ),
@@ -748,11 +730,6 @@ Future<void> copyBuildInfo() async {
   await Clipboard.setData(ClipboardData(text: info));
   final shown = deskNavigatorKey.currentContext;
   if (shown != null && shown.mounted) showEToast(shown, shown.l10n.deskBarBuildCopied, text: info, tone: ETone.ok);
-}
-
-/// The platform word of the lockup, as [BrandWordmark] spells it.
-abstract final class BrandVariantWord {
-  static const desktop = 'DESKTOP'; // l10n-ok: part of the product name
 }
 
 /// A place in the app; an open dialog is closed first (the bar is above it).

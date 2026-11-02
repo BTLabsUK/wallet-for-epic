@@ -1,7 +1,7 @@
 {
   "deskUpdAvailable": "Update available",
   "@deskUpdAvailable": {
-    "description": "Sidebar notice, first line: a newer Epic Cash Desktop is out (the version is on the line under it)."
+    "description": "Sidebar notice, first line: a newer BT Wallet is out (the version is on the line under it)."
   },
   "deskUpdDownload": "Download {version}",
   "@deskUpdDownload": {

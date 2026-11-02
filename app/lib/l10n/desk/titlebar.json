@@ -1,7 +1,7 @@
 {
   "deskBarMenu": "{app} menu",
   "@deskBarMenu": {
-    "description": "Screen-reader label of the brand button at the left of the window's title bar, which opens the app menu. {app} is the product name, Epic Cash Desktop.",
+    "description": "Screen-reader label of the brand button at the left of the window's title bar, which opens the app menu. {app} is the product name, BT Wallet.",
     "placeholders": {
       "app": {
         "type": "String"
@@ -18,7 +18,7 @@
   },
   "deskBarAbout": "About {app}",
   "@deskBarAbout": {
-    "description": "App menu item: opens Settings › About. {app} is the product name, Epic Cash Desktop.",
+    "description": "App menu item: opens Settings › About. {app} is the product name, BT Wallet.",
     "placeholders": {
       "app": {
         "type": "String"

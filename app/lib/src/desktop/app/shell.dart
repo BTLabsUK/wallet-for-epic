@@ -53,7 +53,7 @@ final String deskVersion = withBuildId(deskAppVersion);
 /// "Ctrl+L", or "⌘L" on macOS.
 String deskKeys(String key) => defaultTargetPlatform == TargetPlatform.macOS ? '⌘$key' : 'Ctrl+$key';
 
-/// The window title of each in-app place: `<page> · Epic Cash Desktop`.
+/// The window title of each in-app place: `<page> · BT Wallet`.
 String deskPageTitle(AppLocalizations l, DeskRoute r) {
   final page = switch (r.section) {
     DeskSection.receive => switch (r) {

@@ -40,7 +40,6 @@ import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:epic_wallet/src/watch_mode.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart' show RenderParagraph;
 import 'package:flutter/services.dart';
 import 'package:flutter/semantics.dart' show SemanticsData;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -3453,11 +3452,11 @@ void main() {
         await h.pump(tester);
         // On Wallet the title is the name and there is no balance header.
         expect(find.byKey(balanceHeaderKey), findsNothing);
-        expect(find.text('Epic Cash'), findsOneWidget);
+        expect(find.byType(BrandWordmark), findsOneWidget);
         for (final tab in ['Send', 'Receive']) {
           await _tab(tester, tab, settle: false);
           expect(find.byKey(balanceHeaderKey), findsOneWidget, reason: tab);
-          expect(find.text('Epic Cash'), findsOneWidget, reason: tab);
+          expect(find.byType(BrandWordmark), findsOneWidget, reason: tab);
           expect(_titleText(tester), '12.5 EPIC', reason: tab);
           // 2\u00a0EPIC are locked: the line under the figure says so, as a token.
           final pending = find.byKey(titlePendingKey);
@@ -4254,7 +4253,7 @@ void main() {
           );
         }
         await _tab(tester, 'Wallet', settle: false);
-        expect(find.text('Epic Cash'), findsOneWidget);
+        expect(find.byType(BrandWordmark), findsOneWidget);
         expect(_statusTip(tester, nodeStatusKey), isNot(contains('Mainnet')));
         expect(
           _statusTip(tester, nodeStatusKey).split('\n').first,
@@ -4284,18 +4283,11 @@ void main() {
           );
         }
         await _tab(tester, 'Wallet', settle: false);
-        expect(find.text('Epic Cash'), findsOneWidget);
-        // The title is not cut.
+        expect(find.byType(BrandWordmark), findsOneWidget);
+        // The title is not scaled down to fit.
         expect(
-          tester
-              .renderObject<RenderParagraph>(
-                find.descendant(
-                  of: find.text('Epic Cash'),
-                  matching: find.byType(RichText),
-                ),
-              )
-              .didExceedMaxLines,
-          isFalse,
+          tester.getRect(find.byType(BrandWordmark)).height,
+          moreOrLessEquals(17 * BrandWordmark.heightRatio, epsilon: 0.5),
         );
         final tip = _statusTip(tester, nodeStatusKey).split('\n');
         expect(tip.first, 'Floonet, test coins');

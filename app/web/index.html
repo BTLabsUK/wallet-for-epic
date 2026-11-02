@@ -6,28 +6,28 @@
 
   <meta charset="UTF-8">
   <!-- No viewport meta: the Flutter engine sets its own. -->
-  <title>Epic Cash Wallet: try it in your browser</title>
-  <meta name="description" content="A free Epic Cash wallet to try in your browser. Each visitor gets a test wallet for 24 hours, with test coins, sending and receiving.">
+  <title>BT Wallet: try it in your browser</title>
+  <meta name="description" content="BT Wallet, a free Epic Cash wallet to try in your browser. Each visitor gets a test wallet for 24 hours, with test coins, sending and receiving.">
   <meta name="theme-color" content="#08080A">
   <meta name="color-scheme" content="dark light">
 
   <!-- Flutter output cannot be crawled, so links straight to /app/ get their card from here. -->
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Epic Cash Wallet">
-  <meta property="og:title" content="Epic Cash Wallet: try it in your browser">
+  <meta property="og:site_name" content="BT Wallet">
+  <meta property="og:title" content="BT Wallet: try it in your browser">
   <meta property="og:description" content="A test wallet for 24 hours. Get test coins, send, receive and pay invoices before you download anything.">
   <meta property="og:image" content="icons/Icon-512.png">
   <meta property="og:image:width" content="512">
   <meta property="og:image:height" content="512">
-  <meta property="og:image:alt" content="The Epic Cash mark in gold on black">
+  <meta property="og:image:alt" content="The BT Wallet icon: the gold BT mark on black">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Epic Cash Wallet: try it in your browser">
+  <meta name="twitter:title" content="BT Wallet: try it in your browser">
   <meta name="twitter:description" content="A test wallet for 24 hours. Get test coins, send, receive and pay invoices before you download anything.">
   <meta name="twitter:image" content="icons/Icon-512.png">
 
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Epic Cash Mobile">
+  <meta name="apple-mobile-web-app-title" content="BT Wallet">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
   <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
   <link rel="icon" type="image/png" href="favicon.png">
@@ -42,7 +42,7 @@
       display: flex; align-items: center; justify-content: center;
       background: radial-gradient(circle at 50% 50%, #29251A 0, #08080A 60%);
     }
-    #splash svg { width: 72px; height: auto; }
+    #splash svg { width: 84px; height: auto; }
     @media (prefers-reduced-motion: no-preference) {
       #splash svg { animation: wfe-glow 1.6s ease-in-out infinite alternate; }
       @keyframes wfe-glow { from { opacity: .55; } to { opacity: 1; } }
@@ -50,23 +50,27 @@
   </style>
 </head>
 <body>
-  <div id="splash" role="img" aria-label="Epic Cash Wallet is loading">
-    <svg viewBox="0 0 281 324" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <div id="splash" role="img" aria-label="BT Wallet is loading">
+    <!-- The BT Wallet mark from the brand kit (bt-wallet-mark-gold.svg). -->
+    <svg viewBox="2 33 641 554.7" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <defs>
-        <linearGradient id="splash-gold" x1="0" y1="0" x2="0" y2="324" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stop-color="#F6D471"/><stop offset="1" stop-color="#C98A3E"/>
+        <linearGradient id="splash-gold" x1="0" y1="33" x2="0" y2="587.7" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#F9E09A"/><stop offset=".45" stop-color="#F6D471"/><stop offset="1" stop-color="#C98A3E"/>
         </linearGradient>
       </defs>
       <g fill="url(#splash-gold)">
-      <path d="M253.678 72.4431C256.503 70.801 256.503 66.7288 253.678 65.1524L225.895 49.126C224.581 48.4035 223.005 48.4035 221.691 49.126L202.644 60.0949L238.966 81.0474L253.678 72.4431Z"/>
-      <path d="M83.7588 131.031V163.806C83.7588 167.09 87.3056 169.126 90.1299 167.484L232.528 84.7253L196.206 63.7729L85.8606 127.419C84.547 128.141 83.7588 129.52 83.7588 131.031Z"/>
-      <path d="M111.084 211.36L140.115 228.108C141.429 228.831 143.005 228.831 144.319 228.108L253.482 165.12V121.244L111.084 204.003C108.26 205.645 108.325 209.717 111.084 211.36Z"/>
-      <path d="M278.899 150.473C280.213 149.75 281.001 148.305 281.001 146.795V112.64C281.001 109.356 277.454 107.32 274.63 108.962L259.917 117.501V161.376L278.899 150.473Z"/>
-      <path d="M140.705 323.544H140.771L181.034 300.293V300.227L280.673 242.756V196.187L259.983 208.141L253.546 211.82L176.961 256.023L140.705 276.976L41.1313 219.504V104.561L153.973 39.405L160.344 35.7268L181.034 23.7727L140.705 0.455658L0.802734 81.2442V242.756L140.705 323.544Z"/>
+      <polygon points="197,105.46 322.5,33 448,105.46 448,165.46 322.5,93 197,165.46"/>
+      <polygon points="58,97 187,171.48 214.27,247.22 85.27,172.74"/>
+      <polygon points="587,97 458,171.48 430.73,247.22 559.73,172.74"/>
+      <polygon points="222,256 322.5,314.02 423,256 395.73,331.74 322.5,374.02 249.27,331.74"/>
+      <polygon points="2,209 143,290.41 170.27,366.15 29.27,284.74"/>
+      <polygon points="643,209 502,290.41 474.73,366.15 615.73,284.74"/>
+      <polygon points="171,374 249,419.03 322.5,376.6 396,419.03 474,374 446.73,449.74 396,479.03 322.5,436.6 249,479.03 198.27,449.74"/>
+      <polygon points="252,487 322.5,527.7 393,487 365.73,562.74 322.5,587.7 279.27,562.74"/>
       </g>
     </svg>
   </div>
-  <noscript>Epic Cash Wallet needs JavaScript.</noscript>
+  <noscript>BT Wallet needs JavaScript.</noscript>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

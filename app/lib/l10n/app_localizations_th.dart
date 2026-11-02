@@ -10,7 +10,7 @@ class AppLocalizationsTh extends AppLocalizations {
   AppLocalizationsTh([String locale = 'th']) : super(locale);
 
   @override
-  String get appTitle => 'Epic Cash Mobile';
+  String get appTitle => 'BT Wallet';
 
   @override
   String get commonCancel => 'ยกเลิก';
@@ -1054,10 +1054,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get homeLockTooltip => 'ล็อกกระเป๋าเงิน';
 
   @override
-  String get shellTitle => 'Epic Cash Mobile';
+  String get shellTitle => 'BT Wallet';
 
   @override
-  String get demoWelcomeTitle => 'ลองใช้ Epic Cash';
+  String get demoWelcomeTitle => 'ลองใช้ BT Wallet';
 
   @override
   String get demoWelcomeLine =>
@@ -1771,7 +1771,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get updateAllowInstalls =>
-      'อนุญาตการติดตั้งจาก Epic Cash Mobile แล้วกลับมาที่นี่';
+      'อนุญาตการติดตั้งจาก BT Wallet แล้วกลับมาที่นี่';
 
   @override
   String get updateInstallCancelled => 'ไม่ได้ติดตั้งอัปเดต ลองอีกครั้งได้';
@@ -3036,7 +3036,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ซอฟต์แวร์โอเพนซอร์สในกระเป๋านี้ แต่ละส่วนมีสัญญาอนุญาตของตนเอง';
 
   @override
-  String get licencesApp => 'Epic Cash Mobile โดย BT Labs: Apache-2.0';
+  String get licencesApp => 'BT Wallet โดย BT Labs: Apache-2.0';
 
   @override
   String get licencesFlutter =>
@@ -5923,8 +5923,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskErrHistDamagedText => 'ไฟล์ไม่ครบหรือถูกแก้ไข';
 
   @override
-  String get deskErrHistNotOursText =>
-      'ไฟล์นี้ไม่ได้สร้างจาก Epic Cash Desktop หรือ Epic Cash Mobile';
+  String get deskErrHistNotOursText => 'ไฟล์นี้ไม่ได้สร้างจาก BT Wallet';
 
   @override
   String get deskDataHttpEnter => 'ใส่ที่อยู่ของผู้รับ';
@@ -11862,8 +11861,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'ซอฟต์แวร์โอเพนซอร์สในกระเป๋าเงินนี้ แต่ละรายการมีสัญญาอนุญาตของตัวเอง';
 
   @override
-  String get deskSetAboutLicenceApp =>
-      'Epic Cash Desktop โดย BT Labs: Apache-2.0';
+  String get deskSetAboutLicenceApp => 'BT Wallet โดย BT Labs: Apache-2.0';
 
   @override
   String get deskSetAboutBrowserNotOpened => 'เปิดเบราว์เซอร์ไม่ได้';
@@ -12104,14 +12102,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskKeyringMissingText =>
-      'Epic Cash เก็บการตั้งค่าและรหัสผ่านที่ปิดผนึกของกระเป๋าเงินไว้ในพวงกุญแจของระบบ แต่ไม่มีพวงกุญแจใดตอบกลับ ติดตั้งหรือเริ่มพวงกุญแจ (GNOME Keyring หรือ KWallet) เข้าสู่ระบบเดสก์ท็อปที่ใช้งานพวงกุญแจ แล้วเลือกลองอีกครั้ง';
+      'BT Wallet เก็บการตั้งค่าและรหัสผ่านที่ปิดผนึกของกระเป๋าเงินไว้ในพวงกุญแจของระบบ แต่ไม่มีพวงกุญแจใดตอบกลับ ติดตั้งหรือเริ่มพวงกุญแจ (GNOME Keyring หรือ KWallet) เข้าสู่ระบบเดสก์ท็อปที่ใช้งานพวงกุญแจ แล้วเลือกลองอีกครั้ง';
 
   @override
   String get deskKeyringLockedTitle => 'พวงกุญแจถูกล็อก';
 
   @override
   String get deskKeyringLockedText =>
-      'Epic Cash เก็บการตั้งค่าและรหัสผ่านที่ปิดผนึกของกระเป๋าเงินไว้ในพวงกุญแจของระบบ ซึ่งถูกล็อกอยู่ ปลดล็อกพวงกุญแจ (ใช้รหัสผ่านเข้าสู่ระบบ) แล้วเลือกลองอีกครั้ง หรือเลือกปลดล็อกตอนนี้เพื่อให้ระบบถามรหัสผ่าน';
+      'BT Wallet เก็บการตั้งค่าและรหัสผ่านที่ปิดผนึกของกระเป๋าเงินไว้ในพวงกุญแจของระบบ ซึ่งถูกล็อกอยู่ ปลดล็อกพวงกุญแจ (ใช้รหัสผ่านเข้าสู่ระบบ) แล้วเลือกลองอีกครั้ง หรือเลือกปลดล็อกตอนนี้เพื่อให้ระบบถามรหัสผ่าน';
 
   @override
   String get deskKeyringUnlockNow => 'ปลดล็อกตอนนี้';
@@ -13163,7 +13161,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSendToQrPayment =>
-      'โค้ดชำระด้วย QR ให้สแกนด้วย Epic Cash Mobile';
+      'โค้ดชำระด้วย QR ให้สแกนด้วย BT Wallet บนโทรศัพท์';
 
   @override
   String get deskSetRecvTorText =>
@@ -13498,22 +13496,22 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String pairInviteMessage(String link) {
-    return 'จับคู่กับฉันใน Epic Cash: $link';
+    return 'จับคู่กับฉันใน BT Wallet: $link';
   }
 
   @override
   String pairReplyMessage(String link) {
-    return 'คำตอบของฉันสำหรับการจับคู่ Epic Cash: $link';
+    return 'คำตอบของฉันสำหรับการจับคู่ BT Wallet: $link';
   }
 
   @override
   String pairFinishMessage(String link) {
-    return 'จบการจับคู่ Epic Cash ของเรา: $link';
+    return 'จบการจับคู่ BT Wallet ของเรา: $link';
   }
 
   @override
   String pairFinishLinkMessage(String link) {
-    return 'จบการจับคู่ Epic Cash: $link';
+    return 'จบการจับคู่ BT Wallet: $link';
   }
 
   @override
@@ -13793,7 +13791,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get pairNewerTitle => 'อัปเดต Epic Cash เพื่อเปิดสิ่งนี้';
+  String get pairNewerTitle => 'อัปเดต BT Wallet เพื่อเปิดสิ่งนี้';
 
   @override
   String get pairNewerInviteBody =>
@@ -14722,7 +14720,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairWhatP3 =>
-      'การจับคู่ต้องใช้ Epic Cash ทั้งสองฝั่ง ผู้ติดต่อที่ไม่ได้จับคู่ยังได้รับไฟล์ธุรกรรมปกติและการชำระเงินผ่าน Epicbox';
+      'การจับคู่ต้องใช้ BT Wallet ทั้งสองฝั่ง ผู้ติดต่อที่ไม่ได้จับคู่ยังได้รับไฟล์ธุรกรรมปกติและการชำระเงินผ่าน Epicbox';
 
   @override
   String get helpPairWhyTitle => 'ทำไมต้องยืนยัน';
@@ -14970,7 +14968,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get contactsImportNewer =>
-      'ไฟล์นี้สร้างจาก Epic Cash เวอร์ชันใหม่กว่า อัปเดตก่อนจึงจะนำเข้าได้';
+      'ไฟล์นี้สร้างจาก BT Wallet เวอร์ชันใหม่กว่า อัปเดตก่อนจึงจะนำเข้าได้';
 
   @override
   String get contactsImportEmpty => 'ไฟล์นี้ไม่มีผู้ติดต่อ';
@@ -18722,7 +18720,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairTwoWaysP3 =>
-      'คำขอจะส่งไปยังกระเป๋าที่แสดงแล้วว่าใช้ Epic Cash เท่านั้น นั่นคือมีการชำระที่ทำเครื่องหมายระหว่างสองที่อยู่ภายใน 30 วันที่ผ่านมา สำหรับคนอื่น ปุ่มจับคู่จะแสดงคำเชิญของคุณ';
+      'คำขอจะส่งไปยังกระเป๋าที่แสดงแล้วว่าใช้ BT Wallet เท่านั้น นั่นคือมีการชำระที่ทำเครื่องหมายระหว่างสองที่อยู่ภายใน 30 วันที่ผ่านมา สำหรับคนอื่น ปุ่มจับคู่จะแสดงคำเชิญของคุณ';
 
   @override
   String get helpPairWhyTitle2 => 'ทำไมต้องตรวจคำ';

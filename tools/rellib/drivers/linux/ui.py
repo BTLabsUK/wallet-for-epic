@@ -304,7 +304,7 @@ def fill(idx, text):
 
 def window():
     """(x, y, w, h) of the app's window on the sandbox display."""
-    r = xdo("search", "--onlyvisible", "--name", "Epic Cash")
+    r = xdo("search", "--onlyvisible", "--name", "Epic Cash|BT Wallet")
     for wid in r.stdout.split():
         g = xdo("getwindowgeometry", "--shell", wid).stdout
         d = dict(l.split("=", 1) for l in g.split() if "=" in l)

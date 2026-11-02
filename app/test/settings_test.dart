@@ -1656,7 +1656,7 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
       // Folded in About (item 5): the tap opens it in place.
       expect(find.byType(LicencesFold), findsOneWidget);
-      expect(find.text('Epic Cash Mobile by BT Labs: Apache-2.0.'), findsOneWidget);
+      expect(find.text('BT Wallet by BT Labs: Apache-2.0.'), findsOneWidget);
       expect(find.textContaining('wallet-for-epic'), findsNothing);
       expect(find.textContaining('GitHub'), findsNothing);
     });

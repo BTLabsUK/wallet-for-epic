@@ -485,7 +485,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           HelpBlock.ul([
             '**Aus der Liste entfernen** unter [[Einstellungen › Wallets|Settings › Wallets]] nimmt eine Wallet aus der Liste. Ihr Ordner bleibt auf der Festplatte, und die Seite bietet sie unter **Aus der Liste entfernt** wieder an.',
             '**Wer einen Wallet-Ordner ohne seine Wiederherstellungsphrase löscht, verliert die EPIC darin.** Nur eine Wallet löschen, deren Phrase notiert ist, oder eine, die leer ist und nicht mehr gebraucht wird.',
-            'Die Ordner liegen unter **wallets** im Datenordner (**Ordner öffnen** neben [[Einstellungen › Dateien & Protokolle › App-Dateien|Settings › Files & logs › App files]]), einer je Wallet, benannt nach ihrer Kennung; **WALLET.txt** darin nennt den Namen der Wallet. Bei geschlossenem Epic Cash Desktop nur diesen einen Kennungsordner löschen und alles andere lassen, wie es ist.',
+            'Die Ordner liegen unter **wallets** im Datenordner (**Ordner öffnen** neben [[Einstellungen › Dateien & Protokolle › App-Dateien|Settings › Files & logs › App files]]), einer je Wallet, benannt nach ihrer Kennung; **WALLET.txt** darin nennt den Namen der Wallet. Wenn BT Wallet geschlossen ist, nur diesen einen Kennungsordner löschen und alles andere lassen, wie es ist.',
           ]),
         ],
         id: HelpId.cleanup,

@@ -589,7 +589,7 @@
   "@deskErrHistDamagedText": {
     "description": "Why a history backup was refused: the file is damaged."
   },
-  "deskErrHistNotOursText": "The file was not made by Epic Cash Desktop or Epic Cash Mobile.",
+  "deskErrHistNotOursText": "The file was not made by BT Wallet.",
   "@deskErrHistNotOursText": {
     "description": "Why a history backup was refused: it is not a backup file of this app."
   },

@@ -1,11 +1,11 @@
 {
-    "name": "Epic Cash Mobile",
-    "short_name": "Epic Cash",
+    "name": "BT Wallet",
+    "short_name": "BT Wallet",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#08080A",
     "theme_color": "#08080A",
-    "description": "Try the Epic Cash wallet in your browser, on test coins.",
+    "description": "Try BT Wallet, a wallet for Epic Cash, in your browser on test coins.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

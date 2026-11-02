@@ -668,7 +668,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           HelpBlock.ul([
             '**Remove from list** in [[Settings › Wallets]] takes a wallet off the list. Its folder stays on disk, and the page offers it again under **Removed from list**.',
             '**Deleting a wallet folder without its recovery phrase loses the EPIC in it.** Delete only a wallet whose phrase is written down, or one that is empty and no longer needed.',
-            'The folders sit under **wallets** in the data folder (**Open folder** next to [[Settings › Files & logs › App files]]), one per wallet, named by its ID; **WALLET.txt** inside gives the wallet’s name. With Epic Cash Desktop closed, delete that one ID folder and leave the rest as it is.',
+            'The folders sit under **wallets** in the data folder (**Open folder** next to [[Settings › Files & logs › App files]]), one per wallet, named by its ID; **WALLET.txt** inside gives the wallet’s name. With BT Wallet closed, delete that one ID folder and leave the rest as it is.',
           ]),
         ],
         id: HelpId.cleanup,

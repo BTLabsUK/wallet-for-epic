@@ -224,7 +224,7 @@ void main() {
 
     testWidgets('Paste an invite: Pair with …? (by invite: name chosen by them); Pair opens the wait', (tester) async {
       final h = _Harness();
-      _clipboard(tester, 'Pair with me in Epic Cash: ${h.api.inviteLinkFrom(name: 'Northwind')}');
+      _clipboard(tester, 'Pair with me in BT Wallet: ${h.api.inviteLinkFrom(name: 'Northwind')}');
       await h.pump(tester, const PairScreen(), settle: false);
       await tester.tap(find.byKey(pairPasteKey));
       await _frames(tester);
