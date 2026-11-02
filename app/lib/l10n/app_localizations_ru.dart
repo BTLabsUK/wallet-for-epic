@@ -10,7 +10,7 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
-  String get appTitle => 'Epic Cash Mobile';
+  String get appTitle => 'BT Wallet';
 
   @override
   String get commonCancel => 'Отмена';
@@ -1102,10 +1102,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeLockTooltip => 'Заблокировать кошелёк';
 
   @override
-  String get shellTitle => 'Epic Cash Mobile';
+  String get shellTitle => 'BT Wallet';
 
   @override
-  String get demoWelcomeTitle => 'Попробуйте Epic Cash';
+  String get demoWelcomeTitle => 'Попробуйте BT Wallet';
 
   @override
   String get demoWelcomeLine =>
@@ -1842,7 +1842,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get updateAllowInstalls =>
-      'Разрешите установку из Epic Cash Mobile, затем вернитесь.';
+      'Разрешите установку из BT Wallet, затем вернитесь.';
 
   @override
   String get updateInstallCancelled =>
@@ -3166,7 +3166,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Открытое ПО в этом кошельке, каждое под своей лицензией.';
 
   @override
-  String get licencesApp => 'Epic Cash Mobile от BT Labs: Apache-2.0.';
+  String get licencesApp => 'BT Wallet от BT Labs: Apache-2.0.';
 
   @override
   String get licencesFlutter =>
@@ -6190,8 +6190,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskErrHistDamagedText => 'Файл неполный или был изменён.';
 
   @override
-  String get deskErrHistNotOursText =>
-      'Файл создан не в Epic Cash Desktop и не в Epic Cash Mobile.';
+  String get deskErrHistNotOursText => 'Файл создан не в BT Wallet.';
 
   @override
   String get deskDataHttpEnter => 'Введите адрес получателя';
@@ -12636,8 +12635,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Открытое программное обеспечение в этом кошельке, каждое под своей лицензией.';
 
   @override
-  String get deskSetAboutLicenceApp =>
-      'Epic Cash Desktop от BT Labs: Apache-2.0.';
+  String get deskSetAboutLicenceApp => 'BT Wallet от BT Labs: Apache-2.0.';
 
   @override
   String get deskSetAboutBrowserNotOpened => 'Браузер не открылся';
@@ -12894,14 +12892,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskKeyringMissingText =>
-      'Epic Cash хранит свои настройки и запечатанный пароль кошелька в системной связке ключей, но ни одна не ответила. Установите или запустите связку ключей (GNOME Keyring или KWallet), войдите в сеанс рабочего стола, где она работает, затем нажмите «Повторить».';
+      'BT Wallet хранит свои настройки и запечатанный пароль кошелька в системной связке ключей, но ни одна не ответила. Установите или запустите связку ключей (GNOME Keyring или KWallet), войдите в сеанс рабочего стола, где она работает, затем нажмите «Повторить».';
 
   @override
   String get deskKeyringLockedTitle => 'Связка ключей заблокирована';
 
   @override
   String get deskKeyringLockedText =>
-      'Epic Cash хранит свои настройки и запечатанный пароль кошелька в системной связке ключей, а она заблокирована. Разблокируйте её (она открывается паролем входа), затем нажмите «Повторить», или нажмите «Разблокировать сейчас», чтобы система запросила пароль.';
+      'BT Wallet хранит свои настройки и запечатанный пароль кошелька в системной связке ключей, а она заблокирована. Разблокируйте её (она открывается паролем входа), затем нажмите «Повторить», или нажмите «Разблокировать сейчас», чтобы система запросила пароль.';
 
   @override
   String get deskKeyringUnlockNow => 'Разблокировать сейчас';
@@ -14005,7 +14003,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSendToQrPayment =>
-      'Код «Оплата по QR». Отсканируйте его в Epic Cash Mobile.';
+      'Код «Оплата по QR». Отсканируйте его в BT Wallet на телефоне.';
 
   @override
   String get deskSetRecvTorText =>
@@ -14363,22 +14361,22 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String pairInviteMessage(String link) {
-    return 'Приглашение к сопряжению в Epic Cash: $link';
+    return 'Приглашение к сопряжению в BT Wallet: $link';
   }
 
   @override
   String pairReplyMessage(String link) {
-    return 'Мой ответ на сопряжение в Epic Cash: $link';
+    return 'Мой ответ на сопряжение в BT Wallet: $link';
   }
 
   @override
   String pairFinishMessage(String link) {
-    return 'Завершение нашего сопряжения в Epic Cash: $link';
+    return 'Завершение нашего сопряжения в BT Wallet: $link';
   }
 
   @override
   String pairFinishLinkMessage(String link) {
-    return 'Завершите сопряжение в Epic Cash: $link';
+    return 'Завершите сопряжение в BT Wallet: $link';
   }
 
   @override
@@ -14659,7 +14657,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get pairNewerTitle => 'Обновите Epic Cash, чтобы открыть это';
+  String get pairNewerTitle => 'Обновите BT Wallet, чтобы открыть это';
 
   @override
   String get pairNewerInviteBody =>
@@ -15608,7 +15606,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairWhatP3 =>
-      'Для сопряжения нужен Epic Cash с обеих сторон. Несопряжённый контакт по-прежнему получает обычные файлы транзакций и платежи Epicbox.';
+      'Для сопряжения нужен BT Wallet с обеих сторон. Несопряжённый контакт по-прежнему получает обычные файлы транзакций и платежи Epicbox.';
 
   @override
   String get helpPairWhyTitle => 'Зачем проверять';
@@ -15895,7 +15893,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get contactsImportNewer =>
-      'Этот файл создан более новой версией Epic Cash. Обновите приложение, чтобы импортировать его.';
+      'Этот файл создан более новой версией BT Wallet. Обновите приложение, чтобы импортировать его.';
 
   @override
   String get contactsImportEmpty => 'В файле нет контактов.';
@@ -19781,7 +19779,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairTwoWaysP3 =>
-      'Запрос уходит только кошельку, который показал, что работает на Epic Cash: отмеченный платёж между двумя адресами за последние 30 дней. Для всех остальных Сопрячь показывает ваше приглашение.';
+      'Запрос уходит только кошельку, который показал, что работает на BT Wallet: отмеченный платёж между двумя адресами за последние 30 дней. Для всех остальных Сопрячь показывает ваше приглашение.';
 
   @override
   String get helpPairWhyTitle2 => 'Зачем проверять слова';

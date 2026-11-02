@@ -483,7 +483,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
           HelpBlock.ul([
             '[[设置 › 钱包列表|Settings › Wallets]] 中的 **从列表中移除** 会把钱包从列表中去掉。其文件夹仍留在磁盘上，页面会在 **已从列表中移除** 下再次列出它。',
             '**删除没有助记词的钱包文件夹，会失去其中的 EPIC。** 只删除已抄写助记词的钱包，或已空且不再需要的钱包。',
-            '文件夹位于数据文件夹的 **wallets** 下（[[设置 › 文件与日志 › 应用文件|Settings › Files & logs › App files]] 旁的 **打开文件夹**），每个钱包一个，以其 ID 命名；里面的 **WALLET.txt** 写有钱包名称。关闭 Epic Cash Desktop 后，只删除这一个 ID 文件夹，其余保持原样。',
+            '文件夹位于数据文件夹的 **wallets** 下（[[设置 › 文件与日志 › 应用文件|Settings › Files & logs › App files]] 旁的 **打开文件夹**），每个钱包一个，以其 ID 命名；里面的 **WALLET.txt** 写有钱包名称。关闭 BT Wallet 后，只删除这一个 ID 文件夹，其余保持原样。',
           ]),
         ],
         id: HelpId.cleanup,

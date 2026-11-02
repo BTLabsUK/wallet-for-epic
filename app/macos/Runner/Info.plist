@@ -48,7 +48,7 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>$(PRODUCT_COPYRIGHT)</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Epic Cash Desktop connects to a node, a relay or another wallet on your local network when you choose one.</string>
+	<string>BT Wallet connects to a node, a relay or another wallet on your local network when you choose one.</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>

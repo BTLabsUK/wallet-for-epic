@@ -284,7 +284,7 @@ class Run:
 
     def app_version(self):
         for t in self.ui.texts():
-            m = re.search(r"Epic Cash Desktop (\d+\.\d+\.\d+)\b.*\(([0-9a-f]{7,})\)", t)
+            m = re.search(r"(?:Epic Cash Desktop|BT Wallet) (\d+\.\d+\.\d+)\b.*\(([0-9a-f]{7,})\)", t)
             if m:
                 return "%s (%s)" % (m.group(1), m.group(2))
         return "?"

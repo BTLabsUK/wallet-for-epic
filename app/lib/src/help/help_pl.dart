@@ -485,7 +485,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
           HelpBlock.ul([
             '**Usuń z listy** w [[Ustawienia › Portfele|Settings › Wallets]] zdejmuje portfel z listy. Jego folder zostaje na dysku, a strona proponuje go ponownie w grupie **Usunięte z listy**.',
             '**Usunięcie folderu portfela bez jego frazy odzyskiwania oznacza utratę EPIC, które zawiera.** Usuwać tylko portfel z zapisaną frazą albo pusty i już niepotrzebny.',
-            'Foldery leżą w **wallets** w folderze danych (**Otwórz folder** obok [[Ustawienia › Pliki i logi › Pliki aplikacji|Settings › Files & logs › App files]]), po jednym na portfel, nazwane jego identyfikatorem; **WALLET.txt** w środku podaje nazwę portfela. Przy zamkniętym Epic Cash Desktop usunąć tylko ten jeden folder identyfikatora, a resztę zostawić bez zmian.',
+            'Foldery leżą w **wallets** w folderze danych (**Otwórz folder** obok [[Ustawienia › Pliki i logi › Pliki aplikacji|Settings › Files & logs › App files]]), po jednym na portfel, nazwane jego identyfikatorem; **WALLET.txt** w środku podaje nazwę portfela. Przy zamkniętym BT Wallet usunąć tylko ten jeden folder identyfikatora, a resztę zostawić bez zmian.',
           ]),
         ],
         id: HelpId.cleanup,

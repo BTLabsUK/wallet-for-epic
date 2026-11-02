@@ -17,7 +17,7 @@
 		<string>th</string>
 	</array>
 	<key>CFBundleDisplayName</key>
-	<string>Epic Cash Mobile</string>
+	<string>BT Wallet</string>
 	<!-- Payment links (epic:, epiccash:) and invite links (epiccash://pair/..., epiccash://device-link/...),
 	     handed to Dart by IncomingLink in AppDelegate.swift. -->
 	<key>CFBundleURLTypes</key>
@@ -37,7 +37,7 @@
 	<!-- The file and image pickers link Photos (PHPhotoLibrary): App Store Connect wants a purpose
 	     string for it even though the system picker asks for no permission. -->
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Epic Cash Mobile reads only a picture you choose, such as one with a QR code to scan.</string>
+	<string>BT Wallet reads only a picture you choose, such as one with a QR code to scan.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Face ID unlocks your wallet instead of the PIN.</string>
 	<key>CFBundleExecutable</key>

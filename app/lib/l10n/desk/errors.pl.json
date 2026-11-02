@@ -119,7 +119,7 @@
   "deskErrHistOtherWalletText": "Plik wyeksportowano z portfela o innej frazie odzyskiwania.",
   "deskErrHistNewerText": "Ten plik utworzyła nowsza wersja aplikacji. Zaktualizuj aplikację, a potem go zaimportuj.",
   "deskErrHistDamagedText": "Plik jest niekompletny albo został zmieniony.",
-  "deskErrHistNotOursText": "Tego pliku nie utworzył Epic Cash Desktop ani Epic Cash Mobile.",
+  "deskErrHistNotOursText": "Tego pliku nie utworzył BT Wallet.",
   "deskDataHttpEnter": "Wpisz adres odbiorcy",
   "deskDataHttpScheme": "Zacznij od https:// lub http://",
   "deskDataHttpOnion": "Adresy onion wymagają Tora",

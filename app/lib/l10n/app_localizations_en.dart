@@ -10,7 +10,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Epic Cash Mobile';
+  String get appTitle => 'BT Wallet';
 
   @override
   String get commonCancel => 'Cancel';
@@ -1067,10 +1067,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeLockTooltip => 'Lock wallet';
 
   @override
-  String get shellTitle => 'Epic Cash Mobile';
+  String get shellTitle => 'BT Wallet';
 
   @override
-  String get demoWelcomeTitle => 'Try Epic Cash';
+  String get demoWelcomeTitle => 'Try BT Wallet';
 
   @override
   String get demoWelcomeLine =>
@@ -1795,7 +1795,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updateAllowInstalls =>
-      'Allow installs from Epic Cash Mobile, then return.';
+      'Allow installs from BT Wallet, then return.';
 
   @override
   String get updateInstallCancelled =>
@@ -3089,7 +3089,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Open-source software in this wallet, each under its own licence.';
 
   @override
-  String get licencesApp => 'Epic Cash Mobile by BT Labs: Apache-2.0.';
+  String get licencesApp => 'BT Wallet by BT Labs: Apache-2.0.';
 
   @override
   String get licencesFlutter =>
@@ -6038,8 +6038,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskErrHistDamagedText => 'The file is incomplete or was changed.';
 
   @override
-  String get deskErrHistNotOursText =>
-      'The file was not made by Epic Cash Desktop or Epic Cash Mobile.';
+  String get deskErrHistNotOursText => 'The file was not made by BT Wallet.';
 
   @override
   String get deskDataHttpEnter => 'Enter the recipient’s address';
@@ -12186,8 +12185,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Open-source software in this wallet, each under its own licence.';
 
   @override
-  String get deskSetAboutLicenceApp =>
-      'Epic Cash Desktop by BT Labs: Apache-2.0.';
+  String get deskSetAboutLicenceApp => 'BT Wallet by BT Labs: Apache-2.0.';
 
   @override
   String get deskSetAboutBrowserNotOpened => 'Browser not opened';
@@ -12435,14 +12433,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskKeyringMissingText =>
-      'Epic Cash keeps its settings and your wallet’s sealed password in the system keyring, and none answered. Install or start a keyring (GNOME Keyring or KWallet), sign in to a desktop session that runs one, then choose Retry.';
+      'BT Wallet keeps its settings and your wallet’s sealed password in the system keyring, and none answered. Install or start a keyring (GNOME Keyring or KWallet), sign in to a desktop session that runs one, then choose Retry.';
 
   @override
   String get deskKeyringLockedTitle => 'The keyring is locked';
 
   @override
   String get deskKeyringLockedText =>
-      'Epic Cash keeps its settings and your wallet’s sealed password in the system keyring, which is locked. Unlock it (it opens with your login password), then choose Retry, or choose Unlock now to have the system ask for it.';
+      'BT Wallet keeps its settings and your wallet’s sealed password in the system keyring, which is locked. Unlock it (it opens with your login password), then choose Retry, or choose Unlock now to have the system ask for it.';
 
   @override
   String get deskKeyringUnlockNow => 'Unlock now';
@@ -13514,7 +13512,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSendToQrPayment =>
-      'A QR Payment code. Scan it with Epic Cash Mobile.';
+      'A QR Payment code. Scan it with BT Wallet on a phone.';
 
   @override
   String get deskSetRecvTorText =>
@@ -13859,22 +13857,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String pairInviteMessage(String link) {
-    return 'Pair with me in Epic Cash: $link';
+    return 'Pair with me in BT Wallet: $link';
   }
 
   @override
   String pairReplyMessage(String link) {
-    return 'My reply to your Epic Cash pairing: $link';
+    return 'My reply to your BT Wallet pairing: $link';
   }
 
   @override
   String pairFinishMessage(String link) {
-    return 'Finish our Epic Cash pairing: $link';
+    return 'Finish our BT Wallet pairing: $link';
   }
 
   @override
   String pairFinishLinkMessage(String link) {
-    return 'Finish the Epic Cash pairing: $link';
+    return 'Finish the BT Wallet pairing: $link';
   }
 
   @override
@@ -14155,7 +14153,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get pairNewerTitle => 'Update Epic Cash to open this';
+  String get pairNewerTitle => 'Update BT Wallet to open this';
 
   @override
   String get pairNewerInviteBody => 'This invite was made by a newer wallet.';
@@ -15086,7 +15084,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairWhatP3 =>
-      'Pairing needs Epic Cash on both sides. A contact that is not paired still gets ordinary transaction files and Epicbox payments.';
+      'Pairing needs BT Wallet on both sides. A contact that is not paired still gets ordinary transaction files and Epicbox payments.';
 
   @override
   String get helpPairWhyTitle => 'Why verify';
@@ -15346,7 +15344,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get contactsImportNewer =>
-      'This file was made by a newer Epic Cash. Update to import it.';
+      'This file was made by a newer BT Wallet. Update to import it.';
 
   @override
   String get contactsImportEmpty => 'The file holds no contacts.';
@@ -19142,7 +19140,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairTwoWaysP3 =>
-      'A request is sent only to a wallet that has shown it runs Epic Cash: a marked payment between the two addresses within the last 30 days. For anyone else, Pair shows your code.';
+      'A request is sent only to a wallet that has shown it runs BT Wallet: a marked payment between the two addresses within the last 30 days. For anyone else, Pair shows your code.';
 
   @override
   String get helpPairWhyTitle2 => 'Why check the words';

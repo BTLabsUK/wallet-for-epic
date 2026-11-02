@@ -10,7 +10,7 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get appTitle => 'Epic Cash Mobile';
+  String get appTitle => 'BT Wallet';
 
   @override
   String get commonCancel => '取消';
@@ -1015,10 +1015,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeLockTooltip => '锁定钱包';
 
   @override
-  String get shellTitle => 'Epic Cash Mobile';
+  String get shellTitle => 'BT Wallet';
 
   @override
-  String get demoWelcomeTitle => '试用 Epic Cash';
+  String get demoWelcomeTitle => '试用 BT Wallet';
 
   @override
   String get demoWelcomeLine => '一个真正的钱包，附带免费的测试币，测试币没有价值。24 小时后删除。';
@@ -1704,7 +1704,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get updateDownloadProgressLabel => '下载进度';
 
   @override
-  String get updateAllowInstalls => '允许来自 Epic Cash Mobile 的安装，然后返回。';
+  String get updateAllowInstalls => '允许来自 BT Wallet 的安装，然后返回。';
 
   @override
   String get updateInstallCancelled => '更新未安装。可以再试一次。';
@@ -2918,7 +2918,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get licencesLead => '本钱包包含的开源软件，各自适用其许可证。';
 
   @override
-  String get licencesApp => 'Epic Cash Mobile，BT Labs 出品：Apache-2.0。';
+  String get licencesApp => 'BT Wallet，BT Labs 出品：Apache-2.0。';
 
   @override
   String get licencesFlutter => 'Flutter 及其 Dart 软件包：BSD 3-Clause 及类似的宽松许可证。';
@@ -5713,8 +5713,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskErrHistDamagedText => '该文件不完整或已被改动。';
 
   @override
-  String get deskErrHistNotOursText =>
-      '该文件不是由 Epic Cash Desktop 或 Epic Cash Mobile 生成的。';
+  String get deskErrHistNotOursText => '该文件不是由 BT Wallet 生成的。';
 
   @override
   String get deskDataHttpEnter => '请输入接收方的地址';
@@ -11468,8 +11467,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetAboutLicencesLead => '此钱包中的开源软件，各自遵循其许可证。';
 
   @override
-  String get deskSetAboutLicenceApp =>
-      'Epic Cash Desktop，BT Labs 出品：Apache-2.0。';
+  String get deskSetAboutLicenceApp => 'BT Wallet，BT Labs 出品：Apache-2.0。';
 
   @override
   String get deskSetAboutBrowserNotOpened => '未能打开浏览器';
@@ -11701,14 +11699,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskKeyringMissingText =>
-      'Epic Cash 将其设置和钱包的密封密码保存在系统密钥环中，但没有密钥环响应。请安装或启动密钥环（GNOME Keyring 或 KWallet），登录运行密钥环的桌面会话，然后选择重试。';
+      'BT Wallet 将其设置和钱包的密封密码保存在系统密钥环中，但没有密钥环响应。请安装或启动密钥环（GNOME Keyring 或 KWallet），登录运行密钥环的桌面会话，然后选择重试。';
 
   @override
   String get deskKeyringLockedTitle => '密钥环已锁定';
 
   @override
   String get deskKeyringLockedText =>
-      'Epic Cash 将其设置和钱包的密封密码保存在系统密钥环中，而它已锁定。请解锁它（使用您的登录密码），然后选择重试，或选择立即解锁让系统询问密码。';
+      'BT Wallet 将其设置和钱包的密封密码保存在系统密钥环中，而它已锁定。请解锁它（使用您的登录密码），然后选择重试，或选择立即解锁让系统询问密码。';
 
   @override
   String get deskKeyringUnlockNow => '立即解锁';
@@ -12723,7 +12721,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get linkFinishCurrentFirst => '请先完成当前付款。';
 
   @override
-  String get deskSendToQrPayment => '这是二维码付款码，请用 Epic Cash Mobile 扫描。';
+  String get deskSendToQrPayment => '这是二维码付款码，请用手机上的 BT Wallet 扫描。';
 
   @override
   String get deskSetRecvTorText => '钱包打开时，直接从另一个钱包经本钱包的 Tor 地址接收。';
@@ -13038,22 +13036,22 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String pairInviteMessage(String link) {
-    return '在 Epic Cash 中与我配对：$link';
+    return '在 BT Wallet 中与我配对：$link';
   }
 
   @override
   String pairReplyMessage(String link) {
-    return '我对 Epic Cash 配对的回复：$link';
+    return '我对 BT Wallet 配对的回复：$link';
   }
 
   @override
   String pairFinishMessage(String link) {
-    return '完成我们的 Epic Cash 配对：$link';
+    return '完成我们的 BT Wallet 配对：$link';
   }
 
   @override
   String pairFinishLinkMessage(String link) {
-    return '完成 Epic Cash 配对：$link';
+    return '完成 BT Wallet 配对：$link';
   }
 
   @override
@@ -13320,7 +13318,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get pairNewerTitle => '更新 Epic Cash 以打开此内容';
+  String get pairNewerTitle => '更新 BT Wallet 以打开此内容';
 
   @override
   String get pairNewerInviteBody => '此邀请由更新版本的钱包生成。';
@@ -14217,7 +14215,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpPairWhatP3 =>
-      '配对需要双方都使用 Epic Cash。未配对的联系人仍会收到普通交易文件和 Epicbox 付款。';
+      '配对需要双方都使用 BT Wallet。未配对的联系人仍会收到普通交易文件和 Epicbox 付款。';
 
   @override
   String get helpPairWhyTitle => '为什么要验证';
@@ -14450,7 +14448,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get contactsImportDamaged => '无法读取该文件，文件可能已损坏。';
 
   @override
-  String get contactsImportNewer => '该文件由更新版本的 Epic Cash 创建。请更新后再导入。';
+  String get contactsImportNewer => '该文件由更新版本的 BT Wallet 创建。请更新后再导入。';
 
   @override
   String get contactsImportEmpty => '该文件中没有联系人。';
@@ -18064,7 +18062,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpPairTwoWaysP3 =>
-      '请求只会发给已证明运行 Epic Cash 的钱包：最近 30 天内两个地址之间有一笔带标记的付款。对其他人，“配对”会显示你的邀请。';
+      '请求只会发给已证明运行 BT Wallet 的钱包：最近 30 天内两个地址之间有一笔带标记的付款。对其他人，“配对”会显示你的邀请。';
 
   @override
   String get helpPairWhyTitle2 => '为什么要核对词语';

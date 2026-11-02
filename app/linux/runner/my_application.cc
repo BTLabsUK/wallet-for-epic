@@ -205,7 +205,7 @@ static void my_application_activate(GApplication* application) {
   // No header bar: the app draws its own title bar (lib/src/desktop/app/title_bar.dart) and
   // window_manager turns the decorations off before the first frame; the title still names
   // the window in the task switcher.
-  gtk_window_set_title(window, "Epic Cash Desktop");
+  gtk_window_set_title(window, "BT Wallet");
 
   // The taskbar icon. Taskbars look for a desktop file whose StartupWMClass is the app id; an
   // AppImage started without being installed has none, so they showed a generic gear (#114).

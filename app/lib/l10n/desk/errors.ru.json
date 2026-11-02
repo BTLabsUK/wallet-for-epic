@@ -119,7 +119,7 @@
   "deskErrHistOtherWalletText": "Файл экспортирован из кошелька с другой фразой восстановления.",
   "deskErrHistNewerText": "Этот файл создан более новой версией приложения. Обновите приложение, затем импортируйте его.",
   "deskErrHistDamagedText": "Файл неполный или был изменён.",
-  "deskErrHistNotOursText": "Файл создан не в Epic Cash Desktop и не в Epic Cash Mobile.",
+  "deskErrHistNotOursText": "Файл создан не в BT Wallet.",
   "deskDataHttpEnter": "Введите адрес получателя",
   "deskDataHttpScheme": "Начните с https:// или http://",
   "deskDataHttpOnion": "Для адресов .onion нужен Tor",

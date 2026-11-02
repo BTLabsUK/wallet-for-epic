@@ -263,7 +263,7 @@ void main() {
     final cases = {
       'epic:$_floonet?amount=1': 'This address is for a different Epic network. This wallet cannot pay it.',
       'epic:notanaddress?amount=1': 'The address in this code is not valid.',
-      'ur:epic-slate/1-3/lpadaxcsencylobemohsgmoyadtaadehoeadaeaoaeamtdaebs': 'A QR Payment code. Scan it with Epic Cash Mobile.',
+      'ur:epic-slate/1-3/lpadaxcsencylobemohsgmoyadtaadehoeadaeaoaeamtdaebs': 'A QR Payment code. Scan it with BT Wallet on a phone.',
       'epiccash://pair/1/AbCdEfGh123': 'Pairing is not available in this version.',
       // LNX-2: a code refused as a whole says so at once.
       'epic:$_annaAddress?amount=1&amount=2': 'This is not an Epic address or payment code.',

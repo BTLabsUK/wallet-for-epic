@@ -119,7 +119,7 @@
   "deskErrHistOtherWalletText": "ไฟล์ส่งออกจากกระเป๋าเงินที่มีวลีกู้คืนต่างกัน",
   "deskErrHistNewerText": "แอปเวอร์ชันใหม่กว่าเป็นผู้สร้างไฟล์นี้ อัปเดตแอปแล้วนำเข้า",
   "deskErrHistDamagedText": "ไฟล์ไม่ครบหรือถูกแก้ไข",
-  "deskErrHistNotOursText": "ไฟล์นี้ไม่ได้สร้างจาก Epic Cash Desktop หรือ Epic Cash Mobile",
+  "deskErrHistNotOursText": "ไฟล์นี้ไม่ได้สร้างจาก BT Wallet",
   "deskDataHttpEnter": "ใส่ที่อยู่ของผู้รับ",
   "deskDataHttpScheme": "ขึ้นต้นด้วย https:// หรือ http://",
   "deskDataHttpOnion": "ที่อยู่ onion ต้องใช้ Tor",

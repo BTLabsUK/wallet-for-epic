@@ -4,10 +4,14 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Themed icons (Android 13+) tint this; only its shape counts. -->
-    <path android:fillColor="#FFFFFFFF" android:pathData="M71.466,40.179C71.902,39.926 71.902,39.298 71.466,39.054L67.178,36.581C66.975,36.47 66.732,36.47 66.529,36.581L63.59,38.274L69.195,41.507L71.466,40.179Z" />
-    <path android:fillColor="#FFFFFFFF" android:pathData="M45.244,49.221L45.244,54.279C45.244,54.785 45.791,55.1 46.227,54.846L68.202,42.075L62.597,38.841L45.568,48.663C45.365,48.775 45.244,48.988 45.244,49.221Z" />
-    <path android:fillColor="#FFFFFFFF" android:pathData="M49.46,61.617L53.941,64.202C54.143,64.313 54.387,64.313 54.589,64.202L71.435,54.481L71.435,47.71L49.46,60.482C49.025,60.735 49.035,61.364 49.46,61.617Z" />
-    <path android:fillColor="#FFFFFFFF" android:pathData="M75.358,52.221C75.561,52.11 75.682,51.887 75.682,51.654L75.682,46.383C75.682,45.876 75.135,45.562 74.699,45.815L72.429,47.133L72.429,53.904L75.358,52.221Z" />
-    <path android:fillColor="#FFFFFFFF" android:pathData="M54.032,78.93L54.042,78.93L60.255,75.342L60.255,75.331L75.632,66.462L75.632,59.276L72.439,61.121L71.445,61.688L59.627,68.51L54.032,71.743L38.665,62.874L38.665,45.136L56.079,35.081L57.062,34.513L60.255,32.669L54.032,29.07L32.442,41.538L32.442,66.462L54.032,78.93Z" />
+    <!-- BT Wallet stitched icon from the brand kit: themed icons (Android 13+) tint this; only the mark
+         shape counts, placed as in the foreground. -->
+    <path android:fillColor="#FFFFFFFF" android:pathData="M46.833,42.907L54.001,38.768L61.17,42.907L61.17,46.334L54.001,42.195L46.833,46.334z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M38.893,42.424L46.261,46.678L47.819,51.004L40.451,46.75z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M69.109,42.424L61.741,46.678L60.183,51.004L67.552,46.75z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M48.261,51.506L54.001,54.82L59.742,51.506L58.184,55.832L54.001,58.247L49.818,55.832z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M35.694,48.821L43.748,53.471L45.306,57.798L37.252,53.147z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M72.308,48.821L64.254,53.471L62.697,57.798L70.75,53.147z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M45.348,58.246L49.803,60.818L54.001,58.394L58.2,60.818L62.655,58.246L61.097,62.572L58.2,64.245L54.001,61.822L49.803,64.245L46.905,62.572z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M49.974,64.7L54.001,67.025L58.028,64.7L56.47,69.027L54.001,70.452L51.532,69.027z" />
 </vector>

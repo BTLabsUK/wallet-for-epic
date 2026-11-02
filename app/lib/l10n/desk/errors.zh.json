@@ -119,7 +119,7 @@
   "deskErrHistOtherWalletText": "该文件是从一个助记词不同的钱包导出的。",
   "deskErrHistNewerText": "该文件由更新版本的应用生成。请先更新应用，然后再导入。",
   "deskErrHistDamagedText": "该文件不完整或已被改动。",
-  "deskErrHistNotOursText": "该文件不是由 Epic Cash Desktop 或 Epic Cash Mobile 生成的。",
+  "deskErrHistNotOursText": "该文件不是由 BT Wallet 生成的。",
   "deskDataHttpEnter": "请输入接收方的地址",
   "deskDataHttpScheme": "以 https:// 或 http:// 开头",
   "deskDataHttpOnion": "onion 地址需要 Tor",

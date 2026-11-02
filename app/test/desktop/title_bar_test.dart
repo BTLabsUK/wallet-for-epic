@@ -243,7 +243,7 @@ void main() {
     await openMenu(tester);
     await tester.tap(find.byKey(const ValueKey('bar-menu-build')));
     await tester.pumpAndSettle();
-    expect(copied, startsWith('Epic Cash Desktop '));
+    expect(copied, startsWith('BT Wallet '));
     expect(copied, contains('core '));
     expect(find.text('Build info copied'), findsOneWidget);
   });
