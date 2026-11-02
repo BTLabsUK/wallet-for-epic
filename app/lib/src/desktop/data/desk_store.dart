@@ -143,6 +143,7 @@ class DeskStore {
         'publicMode': p.publicMode,
         'httpPort': ?p.portChosen,
         'autostart': p.autostart,
+        if (p.reachAck.isNotEmpty) 'reachAck': p.reachAck,
       });
     }
     final settings = await readJson(settingsKey);
@@ -240,7 +241,7 @@ class AutostartPrefs {
 /// A wallet's HTTP listener settings.
 @immutable
 class HttpPrefs {
-  const HttpPrefs({this.publicMode = false, int? port, this.autostart = false}) : portChosen = port;
+  const HttpPrefs({this.publicMode = false, int? port, this.autostart = false, this.reachAck = ''}) : portChosen = port;
 
   final bool publicMode;
 
@@ -251,21 +252,27 @@ class HttpPrefs {
   final int? portChosen;
   final bool autostart;
 
-  @override
-  bool operator ==(Object other) => other is HttpPrefs && other.publicMode == publicMode && other.port == port && other.autostart == autostart;
+  /// [DeskSettings.httpReachAck]: the dismissed "not reachable" warning's address.
+  final String reachAck;
 
   @override
-  int get hashCode => Object.hash(publicMode, port, autostart);
+  bool operator ==(Object other) =>
+      other is HttpPrefs && other.publicMode == publicMode && other.port == port && other.autostart == autostart && other.reachAck == reachAck;
+
+  @override
+  int get hashCode => Object.hash(publicMode, port, autostart, reachAck);
 }
 
 HttpPrefs _httpPrefsFromJson(Map<String, dynamic> j, HttpPrefs d) {
   final port = j['httpPort'];
   final public = j['publicMode'];
   final auto = j['autostart'];
+  final ack = j['reachAck'];
   return HttpPrefs(
     publicMode: public is bool ? public : d.publicMode,
     port: port is int && port > 0 && port < 65536 ? port : d.portChosen,
     autostart: auto is bool ? auto : d.autostart,
+    reachAck: ack is String ? ack : d.reachAck,
   );
 }
 

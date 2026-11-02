@@ -5343,5 +5343,6 @@
   "deskOldAppTrashed": "{app} перемещено в Корзину",
   "deskOldAppNotTrashed": "Не удалось переместить {app} в Корзину",
   "deskOvInflightMore": "{count, plural, one{Ещё {count} платёж в пути} few{Ещё {count} платежа в пути} many{Ещё {count} платежей в пути} other{Ещё {count} платежа в пути}}",
-  "deskOvInflightView": "Показать"
+  "deskOvInflightView": "Показать",
+  "deskKitReachDismiss": "Скрыть"
 }

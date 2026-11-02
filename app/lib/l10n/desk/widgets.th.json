@@ -26,6 +26,7 @@
   "deskKitReachClosedTitle": "เข้าถึงจากอินเทอร์เน็ตไม่ได้",
   "deskKitReachClosedText": "Forward พอร์ต TCP {port} บนเราเตอร์มายังคอมพิวเตอร์นี้ แล้วตรวจอีกครั้ง",
   "deskKitReachClosedTextLan": "Forward พอร์ต TCP {port} บนเราเตอร์มายังคอมพิวเตอร์นี้ ({address}) แล้วตรวจอีกครั้ง",
+  "deskKitReachDismiss": "ปิด",
   "deskKitReachUnknownTitle": "ไม่ทราบว่าเข้าถึงได้ไหม",
   "deskKitReachUnknownText": "บริการตรวจพอร์ตไม่ตอบ ลองอีกครั้งภายหลัง",
   "deskKitReachUnknownTextLan": "บริการตรวจพอร์ตไม่ตอบ ลองอีกครั้งภายหลัง ในเครือข่ายของคุณ: {address}",

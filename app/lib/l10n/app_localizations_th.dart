@@ -20027,4 +20027,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOvInflightView => 'ดู';
+
+  @override
+  String get deskKitReachDismiss => 'ปิด';
 }

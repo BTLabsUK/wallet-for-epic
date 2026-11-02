@@ -23,6 +23,18 @@ class DeskLastHttpReach extends Notifier<HttpReach?> {
 
 final deskLastHttpReachProvider = NotifierProvider<DeskLastHttpReach, HttpReach?>(DeskLastHttpReach.new);
 
+/// [DeskSettings.httpReachAck] for [r]: its public address and port.
+String httpReachAckOf(HttpReach r) => '${r.publicIp}:${r.port}';
+
+/// The internet does not reach Link · HTTP's public address and the user has not dismissed
+/// that warning for this address and port: its glyph and line are amber. Dismissed, they are
+/// green again, reachable or not.
+final deskHttpReachClosedProvider = Provider<bool>((ref) {
+  final r = ref.watch(deskLastHttpReachProvider);
+  if (r?.reachable != false) return false;
+  return ref.watch(deskProvider.select((s) => s.settings.httpReachAck)) != httpReachAckOf(r!);
+});
+
 /// The check's notice: checking, reachable, not reachable (forward the port), or could not
 /// tell. Asked on open, every minute (a network change shows within one; the answer is kept 2
 /// minutes) and on Check. [onChanged] gets each answer, for the address above it.
@@ -96,6 +108,9 @@ class _HttpReachNoticeState extends ConsumerState<HttpReachNotice> {
       return ENotice(key: const ValueKey('http-reach'), title: l.deskKitReachTorOff, actions: [check]);
     }
     final lan = r.lanAddress;
+    // Not reachable, and the user dismissed that for this address and port: nothing more to say.
+    final acked = ref.watch(deskProvider.select((s) => s.settings.httpReachAck)) == httpReachAckOf(r);
+    if (r.publicIp != null && r.reachable == false && acked) return const SizedBox.shrink();
     final (tone, title, text) = switch ((r.publicIp, r.reachable)) {
       (null, _) => (
         ETone.warn,
@@ -118,7 +133,21 @@ class _HttpReachNoticeState extends ConsumerState<HttpReachNotice> {
         lan == null ? l.deskKitReachOpenText('${r.port}') : l.deskKitReachOpenTextLan('${r.port}', lan),
       ),
     };
-    return ENotice(key: const ValueKey('http-reach'), tone: tone, title: title, text: text, textSpan: _unbrokenAddress(text, lan), actions: [check]);
+    // Not reachable: the user may know (no port forward wanted, a LAN-only setup) and dismiss it
+    // for this address and port; a new address or port, or From the internet off and on again,
+    // shows it again.
+    final dismiss = r.publicIp != null && r.reachable == false
+        ? EButton.ghost(
+            key: const ValueKey('http-reach-dismiss'),
+            label: l.deskKitReachDismiss,
+            size: EBtnSize.inline,
+            onPressed: () {
+              final n = ref.read(deskProvider.notifier);
+              unawaited(n.saveSettings(ref.read(deskProvider).settings.copyWith(httpReachAck: httpReachAckOf(r))));
+            },
+          )
+        : null;
+    return ENotice(key: const ValueKey('http-reach'), tone: tone, title: title, text: text, textSpan: _unbrokenAddress(text, lan), actions: [check, ?dismiss]);
   }
 }
 

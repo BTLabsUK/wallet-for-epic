@@ -102,6 +102,8 @@ void main() {
   });
 
   group('HttpReachNotice', () {
+    late ProviderContainer box;
+
     Future<_Wallet> pump(WidgetTester tester, List<HttpReach?> answers) async {
       final wallet = _Wallet()..answers.addAll(answers);
       final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(wallet)], retry: (_, _) => null);
@@ -113,6 +115,7 @@ void main() {
         ),
       );
       await tester.pump();
+      box = container;
       return wallet;
     }
 
@@ -135,6 +138,32 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       await pump(tester, [_reach()]);
       expect(find.text('Reachability unknown'), findsOneWidget);
+      await tester.pumpWidget(const SizedBox());
+    });
+    testWidgets('not reachable, dismissed: gone and green for that address and port, back after From the internet off and on', (tester) async {
+      await pump(tester, [_reach(reachable: false)]);
+      await tester.runAsync(() => box.read(deskProvider.notifier).refresh());
+      final s = box.read(deskProvider).settings;
+      await tester.runAsync(() => box.read(deskProvider.notifier).saveSettings(s.copyWith(publicMode: true)));
+      await tester.pump();
+      expect(box.read(deskHttpReachClosedProvider), isTrue);
+      await tester.tap(find.byKey(const ValueKey('http-reach-dismiss')));
+      await tester.runAsync(() => pumpEventQueue());
+      await tester.pump();
+      expect(find.text('Not reachable from the internet'), findsNothing);
+      expect(box.read(deskProvider).settings.httpReachAck, '203.0.113.24:3415');
+      expect(box.read(deskHttpReachClosedProvider), isFalse);
+      // A new port: the warning is back.
+      box.read(deskLastHttpReachProvider.notifier).set(HttpReach(port: 3420, publicIp: '203.0.113.24', lan: null, reachable: false, checkedAt: DateTime(2026)));
+      expect(box.read(deskHttpReachClosedProvider), isTrue);
+      box.read(deskLastHttpReachProvider.notifier).set(_reach(reachable: false));
+      expect(box.read(deskHttpReachClosedProvider), isFalse);
+      // From the internet off and on again: shown again.
+      final n = box.read(deskProvider.notifier);
+      await tester.runAsync(() => n.saveSettings(box.read(deskProvider).settings.copyWith(publicMode: false)));
+      await tester.runAsync(() => n.saveSettings(box.read(deskProvider).settings.copyWith(publicMode: true)));
+      expect(box.read(deskProvider).settings.httpReachAck, '');
+      expect(box.read(deskHttpReachClosedProvider), isTrue);
       await tester.pumpWidget(const SizedBox());
     });
   });

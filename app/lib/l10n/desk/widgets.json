@@ -149,6 +149,10 @@
       }
     }
   },
+  "deskKitReachDismiss": "Dismiss",
+  "@deskKitReachDismiss": {
+    "description": "Button on the \"Not reachable from the internet\" notice: the user knows and hides it for this address and port; the status icon turns green."
+  },
   "deskKitReachUnknownTitle": "Reachability unknown",
   "@deskKitReachUnknownTitle": {
     "description": "Notice title when the port check service did not answer."

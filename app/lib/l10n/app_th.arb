@@ -5343,5 +5343,6 @@
   "deskOldAppTrashed": "ย้าย {app} ไปที่ถังขยะแล้ว",
   "deskOldAppNotTrashed": "ย้าย {app} ไปที่ถังขยะไม่ได้",
   "deskOvInflightMore": "{count, plural, other{อีก {count} รายการที่กำลังดำเนินการ}}",
-  "deskOvInflightView": "ดู"
+  "deskOvInflightView": "ดู",
+  "deskKitReachDismiss": "ปิด"
 }

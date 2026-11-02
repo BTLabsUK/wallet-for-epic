@@ -21114,4 +21114,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOvInflightView => 'Показать';
+
+  @override
+  String get deskKitReachDismiss => 'Скрыть';
 }

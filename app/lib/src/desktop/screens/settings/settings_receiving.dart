@@ -17,7 +17,7 @@ import '../../../network.dart' show EpicboxRelay;
 import '../../../settings_file/host_settings.dart' show appConfig, shippedHostSettings;
 import '../../../send_preflight.dart' show relayProbeProvider;
 import '../../data/desk_errors.dart' show deskErrorText;
-import '../../widgets/http_reach.dart' show deskLastHttpReachProvider;
+import '../../widgets/http_reach.dart' show deskHttpReachClosedProvider;
 import '../../widgets/kit.dart';
 import '../../widgets/server_list_panel.dart';
 import '../../data/server_lists.dart';
@@ -547,7 +547,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final ebLine = ebOff
         ? MethodLine(l.deskKitMethodOff, EState.off, detail: l.netBlockEpicboxOff)
         : methodStateLine(l, TxMethod.epicbox, status, s);
-    final httpLine = methodStateLine(l, TxMethod.http, status, s, reachClosed: ref.watch(deskLastHttpReachProvider)?.reachable == false);
+    final httpLine = methodStateLine(l, TxMethod.http, status, s, reachClosed: ref.watch(deskHttpReachClosedProvider));
     final torPay = _torPay(s);
 
     // Each method's receiving rows, under its switch while it is on.

@@ -21131,4 +21131,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOvInflightView => 'Zobacz';
+
+  @override
+  String get deskKitReachDismiss => 'Ukryj';
 }

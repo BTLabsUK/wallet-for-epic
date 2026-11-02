@@ -20702,4 +20702,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOvInflightView => 'Anzeigen';
+
+  @override
+  String get deskKitReachDismiss => 'Ausblenden';
 }

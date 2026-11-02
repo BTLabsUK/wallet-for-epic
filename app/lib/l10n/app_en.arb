@@ -27653,5 +27653,9 @@
   "deskOvInflightView": "View",
   "@deskOvInflightView": {
     "description": "Link beside the line about more payments under way on Overview: opens Activity on its Pending filter."
+  },
+  "deskKitReachDismiss": "Dismiss",
+  "@deskKitReachDismiss": {
+    "description": "Button on the \"Not reachable from the internet\" notice: the user knows and hides it for this address and port; the status icon turns green."
   }
 }

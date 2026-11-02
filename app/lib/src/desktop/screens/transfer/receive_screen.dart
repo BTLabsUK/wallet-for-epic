@@ -17,7 +17,7 @@ import '../../data/tor_view.dart';
 import '../../app/tour.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/http_addresses.dart';
-import '../../widgets/http_reach.dart' show deskLastHttpReachProvider;
+import '../../widgets/http_reach.dart' show deskHttpReachClosedProvider;
 import '../../data/pairing_state.dart' show deskInvoicesShownProvider, deskPairsProvider;
 import '../../widgets/kit.dart';
 import '../../widgets/pay_steps.dart' show DeskPaymentSteps;
@@ -192,7 +192,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   };
 
   /// The reach check said the internet does not reach Link · HTTP's port.
-  bool get _reachClosed => ref.watch(deskLastHttpReachProvider)?.reachable == false;
+  bool get _reachClosed => ref.watch(deskHttpReachClosedProvider);
 
   void _jump(TxMethod m) {
     final at = _panels[m]?.currentContext;

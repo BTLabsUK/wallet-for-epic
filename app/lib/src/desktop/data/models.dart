@@ -1304,6 +1304,7 @@ class DeskSettings {
     this.publicMode = false,
     int? httpPort,
     this.httpAutostart = false,
+    this.httpReachAck = '',
     this.epicboxAutostart = true,
     this.torAutostart = false,
     this.autoLockMinutes = autoLockDefault,
@@ -1361,6 +1362,11 @@ class DeskSettings {
   /// wallet's own, not app-wide.
   final bool httpAutostart;
 
+  /// The "not reachable from the internet" warning the user dismissed, as
+  /// `<public IP>:<port>`; empty when none. The open wallet's own, like [httpAutostart]. A new
+  /// address or port no longer matches it; turning [publicMode] off or on clears it.
+  final String httpReachAck;
+
   /// Epicbox receiving starts at unlock. The open wallet's own, like [httpAutostart].
   final bool epicboxAutostart;
 
@@ -1404,6 +1410,7 @@ class DeskSettings {
     bool? publicMode,
     int? httpPort,
     bool? httpAutostart,
+    String? httpReachAck,
     bool? epicboxAutostart,
     bool? torAutostart,
     int? autoLockMinutes,
@@ -1427,6 +1434,7 @@ class DeskSettings {
     publicMode: publicMode ?? this.publicMode,
     httpPort: httpPort ?? httpPortChosen,
     httpAutostart: httpAutostart ?? this.httpAutostart,
+    httpReachAck: httpReachAck ?? this.httpReachAck,
     epicboxAutostart: epicboxAutostart ?? this.epicboxAutostart,
     torAutostart: torAutostart ?? this.torAutostart,
     autoLockMinutes: autoLockMinutes ?? this.autoLockMinutes,

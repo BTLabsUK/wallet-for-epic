@@ -5343,5 +5343,6 @@
   "deskOldAppTrashed": "{app} in den Papierkorb gelegt",
   "deskOldAppNotTrashed": "{app} konnte nicht in den Papierkorb gelegt werden",
   "deskOvInflightMore": "{count, plural, one{{count} weitere Zahlung unterwegs} other{{count} weitere Zahlungen unterwegs}}",
-  "deskOvInflightView": "Anzeigen"
+  "deskOvInflightView": "Anzeigen",
+  "deskKitReachDismiss": "Ausblenden"
 }

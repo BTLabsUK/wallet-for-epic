@@ -20447,4 +20447,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOvInflightView => 'View';
+
+  @override
+  String get deskKitReachDismiss => 'Dismiss';
 }

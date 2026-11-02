@@ -19281,4 +19281,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOvInflightView => '查看';
+
+  @override
+  String get deskKitReachDismiss => '不再提示';
 }

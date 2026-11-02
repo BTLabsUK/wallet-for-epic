@@ -26,6 +26,7 @@
   "deskKitReachClosedTitle": "Aus dem Internet nicht erreichbar",
   "deskKitReachClosedText": "Leiten Sie am Router den TCP-Port {port} an diesen Computer weiter und prüfen Sie dann erneut.",
   "deskKitReachClosedTextLan": "Leiten Sie am Router den TCP-Port {port} an diesen Computer ({address}) weiter und prüfen Sie dann erneut.",
+  "deskKitReachDismiss": "Ausblenden",
   "deskKitReachUnknownTitle": "Erreichbarkeit unbekannt",
   "deskKitReachUnknownText": "Die Portprüfung hat nicht geantwortet. Versuchen Sie es später erneut.",
   "deskKitReachUnknownTextLan": "Die Portprüfung hat nicht geantwortet. Versuchen Sie es später erneut. In Ihrem Netzwerk: {address}.",

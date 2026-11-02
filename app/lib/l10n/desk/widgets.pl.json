@@ -26,6 +26,7 @@
   "deskKitReachClosedTitle": "Nieosiągalny z internetu",
   "deskKitReachClosedText": "Przekieruj port TCP {port} na routerze do tego komputera, a potem sprawdź ponownie.",
   "deskKitReachClosedTextLan": "Przekieruj port TCP {port} na routerze do tego komputera ({address}), a potem sprawdź ponownie.",
+  "deskKitReachDismiss": "Ukryj",
   "deskKitReachUnknownTitle": "Osiągalność nieznana",
   "deskKitReachUnknownText": "Usługa sprawdzania portu nie odpowiedziała. Spróbuj później.",
   "deskKitReachUnknownTextLan": "Usługa sprawdzania portu nie odpowiedziała. Spróbuj później. W twojej sieci: {address}.",

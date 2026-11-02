@@ -26,6 +26,7 @@
   "deskKitReachClosedTitle": "无法从互联网访问",
   "deskKitReachClosedText": "在路由器上把 TCP 端口 {port} 转发到这台电脑，然后再检查一次。",
   "deskKitReachClosedTextLan": "在路由器上把 TCP 端口 {port} 转发到这台电脑（{address}），然后再检查一次。",
+  "deskKitReachDismiss": "不再提示",
   "deskKitReachUnknownTitle": "无法确定是否可访问",
   "deskKitReachUnknownText": "端口检查服务没有响应。请稍后重试。",
   "deskKitReachUnknownTextLan": "端口检查服务没有响应。请稍后重试。在你的局域网中：{address}。",

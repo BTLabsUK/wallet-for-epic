@@ -1050,6 +1050,7 @@ class LepicDeskWallet implements DeskWalletApi {
       publicMode: http.publicMode,
       httpPort: http.port,
       httpAutostart: http.autostart,
+      httpReachAck: http.reachAck,
       tor: false,
       epicboxAutostart: autostart.epicbox,
       torAutostart: _torFeature && torSwitch,
@@ -3403,8 +3404,11 @@ class LepicDeskWallet implements DeskWalletApi {
     // Tor is the open wallet's, changed only through setTor.
     _settings = settings.copyWith(tor: old.tor);
     final moved = settings.httpPort != old.httpPort || settings.publicMode != old.publicMode;
-    if (_session != null && (moved || settings.httpAutostart != old.httpAutostart)) {
-      await _store.saveHttpPrefs(_openEntry?.walletId, HttpPrefs(publicMode: settings.publicMode, port: settings.httpPortChosen, autostart: settings.httpAutostart));
+    if (_session != null && (moved || settings.httpAutostart != old.httpAutostart || settings.httpReachAck != old.httpReachAck)) {
+      await _store.saveHttpPrefs(
+        _openEntry?.walletId,
+        HttpPrefs(publicMode: settings.publicMode, port: settings.httpPortChosen, autostart: settings.httpAutostart, reachAck: settings.httpReachAck),
+      );
     }
     if (_session != null && (settings.epicboxAutostart != old.epicboxAutostart || settings.torAutostart != old.torAutostart)) {
       await _store.saveAutostart(_openEntry?.walletId, AutostartPrefs(epicbox: settings.epicboxAutostart, tor: settings.torAutostart));

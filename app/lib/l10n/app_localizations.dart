@@ -32087,6 +32087,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View'**
   String get deskOvInflightView;
+
+  /// Button on the "Not reachable from the internet" notice: the user knows and hides it for this address and port; the status icon turns green.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get deskKitReachDismiss;
 }
 
 class _AppLocalizationsDelegate

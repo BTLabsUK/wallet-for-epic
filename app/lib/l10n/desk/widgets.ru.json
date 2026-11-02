@@ -26,6 +26,7 @@
   "deskKitReachClosedTitle": "Недоступен из интернета",
   "deskKitReachClosedText": "Перенаправьте TCP-порт {port} на роутере на этот компьютер и проверьте снова.",
   "deskKitReachClosedTextLan": "Перенаправьте TCP-порт {port} на роутере на этот компьютер ({address}) и проверьте снова.",
+  "deskKitReachDismiss": "Скрыть",
   "deskKitReachUnknownTitle": "Доступность неизвестна",
   "deskKitReachUnknownText": "Проверка порта не ответила. Попробуйте позже.",
   "deskKitReachUnknownTextLan": "Проверка порта не ответила. Попробуйте позже. В вашей сети: {address}.",

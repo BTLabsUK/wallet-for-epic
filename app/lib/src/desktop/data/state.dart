@@ -157,6 +157,7 @@ class DeskController extends Notifier<DeskState> {
       publicMode: own.publicMode,
       httpPort: own.httpPort,
       httpAutostart: http,
+      httpReachAck: own.httpReachAck,
       epicboxAutostart: own.epicboxAutostart,
       torAutostart: own.torAutostart,
       directHttp: http,
@@ -387,6 +388,8 @@ class DeskController extends Notifier<DeskState> {
 
   Future<void> saveSettings(DeskSettings s) async {
     s = _keepTourSeen(s);
+    // From the internet turned off or on: a dismissed "not reachable" warning shows again.
+    if (s.publicMode != state.settings.publicMode) s = s.copyWith(httpReachAck: '');
     state = state.copyWith(settings: s);
     statusSite.on = s.useStatusSite;
     // Each write takes the settings as they are when its turn comes, never the copy it was
