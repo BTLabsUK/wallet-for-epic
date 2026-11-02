@@ -4,7 +4,7 @@ import 'status_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../address_format.dart' show hostPort;
-import '../demo.dart' show devNetworksOf;
+import '../dev_networks.dart' show devNetworksOf;
 
 import '../connection_state.dart';
 import '../state_language.dart';

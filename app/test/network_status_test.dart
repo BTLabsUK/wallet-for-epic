@@ -2,7 +2,7 @@
 import 'dart:async';
 
 import 'package:epic_wallet/src/connection_state.dart';
-import 'package:epic_wallet/src/demo.dart' show devNetworksProvider;
+import 'package:epic_wallet/src/dev_networks.dart' show devNetworksProvider;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/net/http.dart';
 import 'package:epic_wallet/src/network.dart';

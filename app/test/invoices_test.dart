@@ -517,12 +517,6 @@ void main() {
     const allowed = {
       'lib/src/wallet_service.dart',
       'lib/src/lepic_wallet_service.dart',
-      // The web client sends the review screen's call to the server, whose dispatcher hands
-      // it to the wallet there. Neither starts a payment itself.
-      'lib/src/remote/client.dart',
-      'lib/src/remote/dispatcher.dart',
-      // A pass-through that gates PIN calls on the demo server; it pays nothing itself.
-      'lib/src/demo_server/gated_service.dart',
       // Approve, after askPin; test/invoice_screens_test.dart proves the gate comes first.
       'lib/src/ui/invoice_review_screen.dart',
     };

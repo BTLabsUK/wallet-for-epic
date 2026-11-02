@@ -1070,80 +1070,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellTitle => 'BT Wallet';
 
   @override
-  String get demoWelcomeTitle => 'Try BT Wallet';
-
-  @override
-  String get demoWelcomeLine =>
-      'A real wallet with free test coins, which have no value. It is deleted after 24 hours.';
-
-  @override
-  String get demoStart => 'Start the demo';
-
-  @override
-  String get demoEndedTitle => 'Your demo ended';
-
-  @override
-  String get demoEndedBody => 'Its wallet and test coins were deleted.';
-
-  @override
-  String get demoStartAgain => 'Start again';
-
-  @override
-  String demoEndsAt(String time) {
-    return 'Your demo ends at $time. Its wallet and test coins are deleted then.';
-  }
-
-  @override
-  String get demoEndingSoon =>
-      'Your demo ends in 30 minutes. Its wallet and test coins are deleted then.';
-
-  @override
-  String get demoTestCoins => 'Get test coins';
-
-  @override
-  String get demoTestCoinsPaid =>
-      'Test coins are on their way. They arrive in a minute or two.';
-
-  @override
-  String demoTestCoinsCooldown(int seconds) {
-    return 'The faucet needs a pause. Try again in $seconds s.';
-  }
-
-  @override
-  String get demoTestCoinsFailed =>
-      'The faucet sent nothing this time. Try again in a minute.';
-
-  @override
-  String get demoEnd => 'End demo';
-
-  @override
-  String get demoEndTitle => 'End the demo?';
-
-  @override
-  String get demoEndBody =>
-      'Your demo wallet and its test coins are deleted now. You can start a new demo afterwards.';
-
-  @override
-  String get demoServerUnreachable =>
-      'Cannot reach the demo server. Check your connection and try again.';
-
-  @override
-  String demoStartFull(int minutes) {
-    return 'The demo is full right now. Try again in $minutes min.';
-  }
-
-  @override
-  String demoStartTooMany(int minutes) {
-    return 'Too many demos were started from your network. Try again in $minutes min.';
-  }
-
-  @override
-  String get demoConnectionLost => 'Connection lost, reconnecting.';
-
-  @override
-  String get demoConnectionBack => 'Connected again.';
-
-  @override
   String get homeSettingsTooltip => 'Settings';
 
   @override
@@ -2154,9 +2080,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unlockTitle => 'Unlock wallet';
-
-  @override
-  String get pinlessUnlock => 'Unlock';
 
   @override
   String get pinLabel => 'PIN';
@@ -3380,18 +3303,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fileHelpPlay => 'Play the animation';
 
   @override
-  String get demoPinFilled => 'Demo PIN, filled in for you';
-
-  @override
-  String get demoPinSkip => 'Skip';
-
-  @override
-  String get demoPinSetUpTitle => 'Setting up your demo wallet';
-
-  @override
-  String get demoPinUnlockTitle => 'Opening your demo wallet';
-
-  @override
   String get sendStepMethod => 'Payment method';
 
   @override
@@ -3679,66 +3590,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String balanceLineComingIn(String amount) {
     return '+$amount coming in';
-  }
-
-  @override
-  String get demoTestCoinsPill => 'Test coins';
-
-  @override
-  String get demoStripeLabel => 'Demo';
-
-  @override
-  String get demoTestCoinsPillTip =>
-      'Epic’s test network. The coins have no value.';
-
-  @override
-  String demoLeftHours(int hours) {
-    return '$hours h left';
-  }
-
-  @override
-  String demoLeftMinutes(int minutes) {
-    return '$minutes min left';
-  }
-
-  @override
-  String get demoReceiveKeepOpen => 'Keep this tab open to receive.';
-
-  @override
-  String get demoGuideTitle => 'Try a payment';
-
-  @override
-  String get demoGuideSend => 'Send some to someone';
-
-  @override
-  String get demoGuideSendHint =>
-      'Pay a friend’s demo, or open the demo in another browser or a private window.';
-
-  @override
-  String get demoGuideOpenSend => 'Go to Send';
-
-  @override
-  String get demoGuideAsking =>
-      'Asking the test faucet. This can take a minute.';
-
-  @override
-  String get demoGuideDone =>
-      'Both done. Look around as long as the demo lasts.';
-
-  @override
-  String get demoGuideHide => 'Hide';
-
-  @override
-  String get demoGuideHideLabel => 'Hide the demo steps';
-
-  @override
-  String demoGuideStepDone(String step) {
-    return '$step, done';
-  }
-
-  @override
-  String demoGuideStepToDo(String step) {
-    return '$step, not done yet';
   }
 
   @override
@@ -18677,9 +18528,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbFailedTitle => 'Not finished';
-
-  @override
-  String get deskDemoStripe => 'Demo · sample data';
 
   @override
   String deskOnbRestoreBadWords(String words) {

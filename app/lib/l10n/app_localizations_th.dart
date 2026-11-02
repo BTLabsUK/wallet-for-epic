@@ -1057,79 +1057,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get shellTitle => 'BT Wallet';
 
   @override
-  String get demoWelcomeTitle => 'ลองใช้ BT Wallet';
-
-  @override
-  String get demoWelcomeLine =>
-      'กระเป๋าเงินจริงพร้อมเหรียญทดสอบฟรีที่ไม่มีมูลค่า จะถูกลบหลัง 24 ชั่วโมง';
-
-  @override
-  String get demoStart => 'เริ่มเดโม';
-
-  @override
-  String get demoEndedTitle => 'เดโมสิ้นสุดแล้ว';
-
-  @override
-  String get demoEndedBody => 'กระเป๋าเงินและเหรียญทดสอบของเดโมถูกลบแล้ว';
-
-  @override
-  String get demoStartAgain => 'เริ่มใหม่';
-
-  @override
-  String demoEndsAt(String time) {
-    return 'เดโมสิ้นสุดเวลา $time กระเป๋าเงินและเหรียญทดสอบจะถูกลบตอนนั้น';
-  }
-
-  @override
-  String get demoEndingSoon =>
-      'เดโมจะสิ้นสุดในอีก 30 นาที กระเป๋าเงินและเหรียญทดสอบจะถูกลบตอนนั้น';
-
-  @override
-  String get demoTestCoins => 'รับเหรียญทดสอบ';
-
-  @override
-  String get demoTestCoinsPaid => 'เหรียญทดสอบกำลังมา จะเข้าในอีก 1–2 นาที';
-
-  @override
-  String demoTestCoinsCooldown(int seconds) {
-    return 'Faucet ต้องพักก่อน ลองอีกครั้งใน $seconds วินาที';
-  }
-
-  @override
-  String get demoTestCoinsFailed =>
-      'Faucet ไม่ได้ส่งอะไรมาในครั้งนี้ ลองอีกครั้งในอีก 1 นาที';
-
-  @override
-  String get demoEnd => 'จบเดโม';
-
-  @override
-  String get demoEndTitle => 'จบเดโมไหม?';
-
-  @override
-  String get demoEndBody =>
-      'กระเป๋าเงินเดโมและเหรียญทดสอบจะถูกลบตอนนี้ เริ่มเดโมใหม่ได้ภายหลัง';
-
-  @override
-  String get demoServerUnreachable =>
-      'เชื่อมต่อเซิร์ฟเวอร์เดโมไม่ได้ ตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง';
-
-  @override
-  String demoStartFull(int minutes) {
-    return 'เดโมเต็มอยู่ตอนนี้ ลองอีกครั้งใน $minutes นาที';
-  }
-
-  @override
-  String demoStartTooMany(int minutes) {
-    return 'มีการเริ่มเดโมจากเครือข่ายของคุณมากเกินไป ลองอีกครั้งใน $minutes นาที';
-  }
-
-  @override
-  String get demoConnectionLost => 'การเชื่อมต่อขาดหาย กำลังเชื่อมต่อใหม่';
-
-  @override
-  String get demoConnectionBack => 'เชื่อมต่อแล้ว';
-
-  @override
   String get homeSettingsTooltip => 'การตั้งค่า';
 
   @override
@@ -2122,9 +2049,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get unlockTitle => 'ปลดล็อกกระเป๋า';
-
-  @override
-  String get pinlessUnlock => 'ปลดล็อก';
 
   @override
   String get pinLabel => 'PIN';
@@ -3322,18 +3246,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get fileHelpPlay => 'เล่นภาพเคลื่อนไหว';
 
   @override
-  String get demoPinFilled => 'PIN ทดลอง กรอกให้แล้ว';
-
-  @override
-  String get demoPinSkip => 'ข้าม';
-
-  @override
-  String get demoPinSetUpTitle => 'กำลังตั้งค่ากระเป๋าทดลอง';
-
-  @override
-  String get demoPinUnlockTitle => 'กำลังเปิดกระเป๋าทดลอง';
-
-  @override
   String get sendStepMethod => 'วิธีชำระเงิน';
 
   @override
@@ -3619,64 +3531,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String balanceLineComingIn(String amount) {
     return '+$amount กำลังเข้า';
-  }
-
-  @override
-  String get demoTestCoinsPill => 'เหรียญทดสอบ';
-
-  @override
-  String get demoStripeLabel => 'เดโม';
-
-  @override
-  String get demoTestCoinsPillTip => 'เครือข่ายทดสอบของ Epic เหรียญไม่มีมูลค่า';
-
-  @override
-  String demoLeftHours(int hours) {
-    return 'เหลือ $hours ชั่วโมง';
-  }
-
-  @override
-  String demoLeftMinutes(int minutes) {
-    return 'เหลือ $minutes นาที';
-  }
-
-  @override
-  String get demoReceiveKeepOpen => 'เปิดแท็บนี้ไว้เพื่อรับเงิน';
-
-  @override
-  String get demoGuideTitle => 'ลองทำรายการ';
-
-  @override
-  String get demoGuideSend => 'ส่งให้ใครสักคน';
-
-  @override
-  String get demoGuideSendHint =>
-      'ส่งให้เดโมของเพื่อน หรือเปิดเดโมในเบราว์เซอร์อื่นหรือหน้าต่างส่วนตัว';
-
-  @override
-  String get demoGuideOpenSend => 'ไปที่ ส่ง';
-
-  @override
-  String get demoGuideAsking => 'กำลังขอจาก faucet ทดสอบ อาจใช้เวลาสักครู่';
-
-  @override
-  String get demoGuideDone =>
-      'เสร็จทั้งสองขั้นตอนแล้ว สำรวจต่อได้ตลอดอายุของเดโม';
-
-  @override
-  String get demoGuideHide => 'ซ่อน';
-
-  @override
-  String get demoGuideHideLabel => 'ซ่อนขั้นตอนเดโม';
-
-  @override
-  String demoGuideStepDone(String step) {
-    return '$step เสร็จแล้ว';
-  }
-
-  @override
-  String demoGuideStepToDo(String step) {
-    return '$step ยังไม่เสร็จ';
   }
 
   @override
@@ -18263,9 +18117,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbFailedTitle => 'ไม่เสร็จสิ้น';
-
-  @override
-  String get deskDemoStripe => 'เดโม · ข้อมูลตัวอย่าง';
 
   @override
   String deskOnbRestoreBadWords(String words) {

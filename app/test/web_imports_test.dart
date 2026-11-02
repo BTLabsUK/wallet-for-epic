@@ -57,7 +57,8 @@ void main() {
   test('dart:io on the web only where it is never called there', () {
     // These compile on the web and are never called there: the legacy file cleanup is
     // replaced by wallet_backend_web.dart, the history file store runs only inside
-    // LepicWalletService, and the updater and the feedback screen are hidden in demo mode.
+    // LepicWalletService, the updater has no platform in a browser, and the feedback screen asks
+    // kIsWeb before each dart:io call.
     // the web build's claim, asks whether to split them.
     const allowed = {
       'lib/src/vault.dart',

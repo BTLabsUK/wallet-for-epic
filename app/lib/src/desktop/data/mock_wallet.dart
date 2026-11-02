@@ -68,7 +68,7 @@ ServerIcon mockServerIcon(String hash) => ServerIcon(
   urls: {for (final px in const [128, 256]) px: Uri.parse(mockIconUrl(hash, px))},
 );
 
-/// What the demo shows for the first servers of the node list: health, latency, height, version
+/// What the mock shows for the first servers of the node list: health, latency, height, version
 /// (the fourth does not answer).
 const _mockNodeLook = [
   (ServiceHealth.ok, 18, demoTip, '4.1.1'),
@@ -181,7 +181,7 @@ class MockDeskWallet implements DeskWalletApi {
       ),
   ];
 
-  // The list in the settings' order, each with the health the demo shows; the icons follow the operator.
+  // The list in the settings' order, each with the health the mock shows; the icons follow the operator.
   final List<NodeServer> _nodes = [
     for (var i = 0; i < _mockNodeLook.length; i++)
       NodeServer(

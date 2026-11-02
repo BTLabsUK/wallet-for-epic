@@ -7,7 +7,7 @@ import 'app_log.dart';
 import 'trust/contact_trust.dart' show peerCompatRetention;
 import 'wallet/held_coins.dart' show heldSpendable;
 import 'wallet/upkeep.dart' show releaseSenderCancelled, resendUndelivered, retrySpendBack, retryStalled;
-import 'demo.dart';
+import 'dev_networks.dart';
 import 'server_list_file.dart' show useServerValues;
 import 'settings_file/settings_providers.dart';
 import 'errors.dart';
@@ -41,11 +41,8 @@ import 'devices/phone_devices.dart' show deviceServiceProvider;
 
 final BigInt minimumConfirmations = BigInt.from(defaultMinimumConfirmations);
 
-/// The fallback the app counts with before the first balance: [minimumConfirmations], and 1 in
-/// the web demo, so test coins can be spent about a block after they land.
-final minimumConfirmationsProvider = Provider<BigInt>(
-  (ref) => ref.watch(demoModeProvider) ? BigInt.one : minimumConfirmations,
-);
+/// The fallback the app counts with before the first balance: [minimumConfirmations].
+final minimumConfirmationsProvider = Provider<BigInt>((ref) => minimumConfirmations);
 
 /// The confirmations a coin needs to be spent and a payment to count as completed: the count
 /// the balance was worked out with ([WalletSummary.minimumConfirmations], LEPIC's), so Send
@@ -131,10 +128,6 @@ class NetworkChoiceNotifier extends AsyncNotifier<NetworkChoice> {
   Future<NetworkChoice> build() async {
     // Only the two picks: a list edited elsewhere in the file changes no choice.
     final (node, relay) = ref.watch(hostSettingsProvider.select((s) => (s.nodeUse, s.epicboxUse)));
-    // The web demo runs on floonet, whatever was saved; its settings are its server's.
-    if (ref.watch(demoModeProvider)) {
-      return NetworkChoice(preset: floonetPreset, nodeUrl: node, relay: _relayOf(relay));
-    }
     final chain = await savedChain(ref.watch(secretStoreProvider), anyBuild: true);
     return NetworkChoice(preset: presetOf(chain), nodeUrl: node, relay: _relayOf(relay));
   }
@@ -147,7 +140,6 @@ class NetworkChoiceNotifier extends AsyncNotifier<NetworkChoice> {
   /// Opens [chain]'s settings (a dev chain's own file) and saves it as the network of the next
   /// start. Throws [DevSettingsMissing] when a dev chain has no file; nothing changes then.
   Future<void> switchChain(Chain chain) async {
-    if (ref.read(demoModeProvider)) return;
     final store = ref.read(secretStoreProvider);
     // Without a settings file open (tests), the settings in use stay.
     if (installedSettingsFile != null) await openAppSettings(store: store, devChain: devChainOf(chain));
@@ -162,8 +154,6 @@ class NetworkChoiceNotifier extends AsyncNotifier<NetworkChoice> {
     String nodeUrl, {
     EpicboxRelay? relay,
   }) async {
-    // The demo's network cannot change.
-    if (ref.read(demoModeProvider)) return;
     final r = relay ?? await relayFor(preset);
     final values = useServerValues(ref.read(hostSettingsProvider), node: nodeUrl, relay: r.label);
     if (values.isNotEmpty) await ref.read(hostSettingsProvider.notifier).setAll(values);

@@ -82,12 +82,8 @@ class DeskWindowFrame extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final window = ref.watch(deskWindowProvider);
     final width = MediaQuery.sizeOf(context).width;
-    // The phone layout (the web build in a narrow tab) has its own top bar; the web demo's
-    // stripe still goes on top.
-    if (!window.frameless && width < Bp.phone) {
-      if (!kIsWeb) return child;
-      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [const DeskDemoStripe(), Expanded(child: child)]);
-    }
+    // The phone layout (the web build in a narrow tab) has its own top bar.
+    if (!window.frameless && width < Bp.phone) return child;
     return ValueListenableBuilder(
       valueListenable: window.state,
       builder: (context, w, _) {
@@ -97,8 +93,6 @@ class DeskWindowFrame extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const DeskTitleBar(),
-            // The web demo on sample data says so on every screen (B-05).
-            if (kIsWeb) const DeskDemoStripe(),
             Expanded(
               child: Stack(
                 children: [
@@ -145,41 +139,6 @@ class DeskWindowFrame extends ConsumerWidget {
         // Above the navigator there is no Material: the bar's text takes the app's style here.
         return Overlay.wrap(child: Material(color: c.bg, child: body));
       },
-    );
-  }
-}
-
-/// The web demo's mark (B-05): a thin full-width stripe under the title bar, "Demo · sample
-/// data", in the in-progress blue, never the brand's gold, as the phone's demo stripe. Only the
-/// web build (`main_desktop_web.dart`, canned data) shows it.
-class DeskDemoStripe extends StatelessWidget {
-  const DeskDemoStripe({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    return Container(
-      key: const ValueKey('desk-demo-stripe'),
-      constraints: BoxConstraints(minHeight: 26.u),
-      padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x1),
-      decoration: BoxDecoration(
-        color: c.infoSoft,
-        border: Border(bottom: BorderSide(color: c.info.withValues(alpha: 0.4))),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.science_outlined, size: Ctl.iconSm, color: c.info),
-          SizedBox(width: Sp.x2),
-          Flexible(
-            child: Text(
-              context.l10n.deskDemoStripe,
-              textAlign: TextAlign.center,
-              style: context.ts.small.copyWith(color: c.text, fontWeight: FontWeight.w500),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

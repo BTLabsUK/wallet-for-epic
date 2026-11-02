@@ -4,14 +4,12 @@
 // loads them for itself, so the other tests keep the test font.
 import 'dart:io';
 
-import 'package:epic_wallet/src/demo.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/slate_files.dart';
-import 'package:epic_wallet/src/ui/demo_screens.dart' show testCoinsKey;
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/receive_screen.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
@@ -79,11 +77,10 @@ Future<void> _loadFonts() async {
   }
 }
 
-/// Opens the shell on Receive at [size] dp, in demo mode or not, with invoices on.
+/// Opens the shell on Receive at [size] dp, with invoices on.
 Future<void> _pump(
   WidgetTester tester, {
   required Size size,
-  required bool demo,
   bool insets = false,
   double textScale = 1,
 }) async {
@@ -100,7 +97,7 @@ Future<void> _pump(
   addTearDown(tester.view.reset);
   final session = FakeWalletSession()..address = _address;
   expect(session.supportsInvoices, isTrue);
-  final config = (demo ? floonetPreset : mainnetPreset).config(
+  final config = mainnetPreset.config(
     dataDir: '/fake/wallets',
     nodeUrl: 'https://node',
   );
@@ -111,12 +108,6 @@ Future<void> _pump(
     ProviderScope(
       retry: (_, _) => null,
       overrides: [
-        demoModeProvider.overrideWithValue(demo),
-        demoApiProvider.overrideWithValue(
-          FakeDemoApi(
-            status: DemoActive(DateTime.now().add(const Duration(hours: 5))),
-          ),
-        ),
         walletServiceProvider.overrideWithValue(
           FakeWalletService(session: session),
         ),
@@ -172,31 +163,27 @@ double _qrSide(WidgetTester tester) =>
 void main() {
   setUpAll(_loadFonts);
 
-  // A phone with its status bar (24 dp) and gesture bar (48 dp), wallet with invoices; and
-  // the web demo, which runs in a browser window without them.
-  for (final (size, demo, insets) in [
-    (const Size(412, 915), false, false),
-    (const Size(360, 800), false, false),
-    (const Size(412, 915), false, true),
-    (const Size(360, 800), false, true),
-    (const Size(412, 915), true, false),
-    (const Size(360, 800), true, false),
+  // A phone without and with its status bar (24 dp) and gesture bar (48 dp), wallet with
+  // invoices.
+  for (final (size, insets) in [
+    (const Size(412, 915), false),
+    (const Size(360, 800), false),
+    (const Size(412, 915), true),
+    (const Size(360, 800), true),
   ]) {
     final name =
-        '${size.width.toInt()} x ${size.height.toInt()} dp'
-        '${demo ? ', demo' : ', invoices'}'
+        '${size.width.toInt()} x ${size.height.toInt()} dp, invoices'
         '${insets ? ', status and gesture bars' : ''}';
     testWidgets('the Epicbox tab fits without scrolling at $name', (
       tester,
     ) async {
-      await _pump(tester, size: size, demo: demo, insets: insets);
+      await _pump(tester, size: size, insets: insets);
       expect(tester.takeException(), isNull);
       // Everything the tab holds is there.
       expect(find.byKey(receiveAddressKey), findsOneWidget);
       expect(find.byKey(receiveEpicboxKey), findsOneWidget);
       expect(find.byType(MarkedQr), findsOneWidget);
       expect(find.byKey(receiveRequestKey), findsOneWidget);
-      expect(find.byKey(testCoinsKey), demo ? findsOneWidget : findsNothing);
       final help = find.text('How receiving works');
       expect(help, findsOneWidget);
       final scroll = _receiveScroll(tester).maxScrollExtent;
@@ -230,13 +217,10 @@ void main() {
           tester.getRect(find.byKey(receiveEpicboxKey)).bottom,
         ),
       );
-      for (final below in [receiveRequestKey, if (demo) testCoinsKey]) {
-        expect(
-          code.bottom,
-          lessThanOrEqualTo(tester.getRect(find.byKey(below)).top),
-          reason: '$below',
-        );
-      }
+      expect(
+        code.bottom,
+        lessThanOrEqualTo(tester.getRect(find.byKey(receiveRequestKey)).top),
+      );
       final side = _qrSide(tester);
       // The frame holds the whole code: its ticks' 12 dp and the white 16 dp on each side.
       expect(code.height, closeTo(side + 56, 0.5));
@@ -265,7 +249,7 @@ void main() {
   testWidgets('with no room for the least code, the page scrolls', (
     tester,
   ) async {
-    await _pump(tester, size: const Size(360, 800), demo: true, textScale: 2);
+    await _pump(tester, size: const Size(360, 800), textScale: 2);
     expect(tester.takeException(), isNull);
     expect(_qrSide(tester), receiveQrMinSize);
     expect(_receiveScroll(tester).maxScrollExtent, greaterThan(0));

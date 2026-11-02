@@ -12,18 +12,43 @@
 // Each side writes `<role>.log`: one line per change of the payment as the app shows it (ms,
 // state, confirmations). WFE_PACE_WATCH=off asks the node at the normal pace only, as before
 // watch mode. Without the library it is skipped.
+import 'dart:convert';
 import 'dart:io';
 
-import 'package:epic_wallet/src/demo_server/file_secret_store.dart';
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/models.dart';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/network.dart';
+import 'package:epic_wallet/src/secret_store_api.dart' show SecretStore;
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:flutter_test/flutter_test.dart';
 
 final _env = Platform.environment;
 final String? _lib = _env['WFE_DEMO_LEPIC_LIB'];
+
+/// The wallet's secret store as a JSON file, so a second run finds its LEPIC vault.
+class _FileSecretStore implements SecretStore {
+  _FileSecretStore(this.path);
+
+  final String path;
+
+  Map<String, String> _load() {
+    final file = File(path);
+    if (!file.existsSync()) return {};
+    return (jsonDecode(file.readAsStringSync()) as Map<String, Object?>).cast<String, String>();
+  }
+
+  void _save(Map<String, String> values) => File(path).writeAsStringSync(jsonEncode(values));
+
+  @override
+  Future<String?> read(String key) async => _load()[key];
+
+  @override
+  Future<void> write(String key, String value) async => _save(_load()..[key] = value);
+
+  @override
+  Future<void> delete(String key) async => _save(_load()..remove(key));
+}
 
 void main() {
   setUpAll(() async {
@@ -45,7 +70,7 @@ void main() {
     }
 
     // The wallet's secrets (its LEPIC vault), kept in a file between runs.
-    final secrets = FileSecretStore(_env['WFE_PACE_SECRETS'] ?? '${dir.path}/$role-secrets.json');
+    final secrets = _FileSecretStore(_env['WFE_PACE_SECRETS'] ?? '${dir.path}/$role-secrets.json');
     await secrets.write('app.node.floonet', _env['WFE_PACE_NODE']!);
     await secrets.delete('desk.serverList.node.floonet');
     final files = Directory('${dir.path}/$role-files')..createSync(recursive: true);

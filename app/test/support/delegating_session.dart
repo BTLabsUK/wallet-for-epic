@@ -1,238 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
-/// A [WalletService] whose PIN and password calls wait for a [WorkGate] slot.
-///
-/// LEPIC runs Argon2id at 64 MiB for each of them, so the server caps how many run at once
-/// across all demos. Everything else passes straight through, except the calls that open a
-/// wallet, which also follow the demo's lifetime (`beforeOpen`, `ended`, `afterLateOpen`).
+/// A [WalletSession] that passes every call to another: a test overrides the calls it hooks.
 library;
 
 import 'dart:typed_data';
 
-import '../trust/policy.dart' show PeerCompat;
-import '../wallet_service.dart';
-import 'limits.dart';
+import 'package:epic_wallet/src/wallet_service.dart';
 
-/// What an open gets once its demo has ended.
-const WalletError demoEndedError = WalletError(
-  kind: WalletErrorKind.other,
-  message: 'this demo has ended',
-);
-
-class GatedWalletService implements WalletService {
-  GatedWalletService(
-    this._inner,
-    this._gate, {
-    this.beforeOpen,
-    this.ended,
-    this.afterLateOpen,
-    this.afterCreate,
-  });
-
-  final WalletService _inner;
-  final WorkGate _gate;
-
-  /// Runs before `create`, `open`, `createWithPin` and `openWithPin`, once their turn at the
-  /// gate comes. The demo server closes the demo's open sessions there: LEPIC refuses a second
-  /// open of one directory (`walletBusy`), and a reloaded page that lost its handle must be
-  /// able to unlock again.
-  final void Function()? beforeOpen;
-
-  /// True once the demo has ended. An open then never starts, and one that was queued or
-  /// running when it ended has its session disposed and fails with [demoEndedError], so no
-  /// wallet stays open past its demo.
-  final bool Function()? ended;
-
-  /// Runs after an open that finished, or failed, after the demo ended: the open may have
-  /// re-created files the end already removed.
-  final Future<void> Function()? afterLateOpen;
-
-  /// Runs on a newly created wallet's session before the visitor gets it: the demo sets its
-  /// wallet's minimum confirmations to 1 there.
-  final Future<void> Function(WalletSession session)? afterCreate;
-
-  bool get _ended => ended?.call() ?? false;
-
-  Future<WalletSession> _created(WalletSession s) async {
-    await afterCreate?.call(s);
-    return s;
-  }
-
-  Future<T> _opening<T>(
-    Future<T> Function() open,
-    WalletSession Function(T) sessionOf,
-  ) => _gate.run(() async {
-    if (_ended) throw demoEndedError;
-    beforeOpen?.call();
-    final T result;
-    try {
-      result = await open();
-    } catch (_) {
-      if (_ended) {
-        await afterLateOpen?.call();
-        throw demoEndedError;
-      }
-      rethrow;
-    }
-    if (_ended) {
-      sessionOf(result).dispose();
-      await afterLateOpen?.call();
-      throw demoEndedError;
-    }
-    return result;
-  });
-
-  static WalletSession _itself(WalletSession s) => s;
-
-  WalletSession _wrap(WalletSession s) => GatedWalletSession(s, _gate);
-
-  @override
-  bool validateMnemonic({required String phrase}) =>
-      _inner.validateMnemonic(phrase: phrase);
-
-  @override
-  String walletFingerprint({required String mnemonic, required Chain chain}) =>
-      _inner.walletFingerprint(mnemonic: mnemonic, chain: chain);
-
-  @override
-  Future<PeerCompat?> peerCompat(String address) =>
-      _inner.peerCompat(address);
-
-  @override
-  Future<SlateInfo> inspectSlate({required String json}) =>
-      _inner.inspectSlate(json: json);
-
-  @override
-  Future<List<String>> encodeQrSlate({
-    required String json,
-    required int maxFragmentLen,
-  }) => _inner.encodeQrSlate(json: json, maxFragmentLen: maxFragmentLen);
-
-  @override
-  Future<QrSlateProgress> decodeQrSlate({required List<String> parts}) =>
-      _inner.decodeQrSlate(parts: parts);
-
-  @override
-  bool validateEpicboxAddress({required String address}) =>
-      _inner.validateEpicboxAddress(address: address);
-
-  @override
-  bool epicboxAddressOtherChain({required String address}) =>
-      _inner.epicboxAddressOtherChain(address: address);
-
-  @override
-  bool validateOnionAddress({required String address}) =>
-      _inner.validateOnionAddress(address: address);
-
-  @override
-  Future<bool> walletExists({required WalletConfig config}) =>
-      _inner.walletExists(config: config);
-
-  @override
-  Future<NodeTip> nodeTip({required WalletConfig config}) =>
-      _inner.nodeTip(config: config);
-
-  @override
-  Future<WalletSession> create({
-    required WalletConfig config,
-    String? mnemonic,
-    required String password,
-  }) async => _wrap(
-    await _created(
-      await _opening(
-        () => _inner.create(config: config, mnemonic: mnemonic, password: password),
-        _itself,
-      ),
-    ),
-  );
-
-  @override
-  Future<WalletSession> importWalletSeed({
-    required WalletConfig config,
-    required String seedFile,
-    required String seedPassword,
-    required String password,
-  }) async => _wrap(
-    await _opening(
-      () => _inner.importWalletSeed(
-        config: config,
-        seedFile: seedFile,
-        seedPassword: seedPassword,
-        password: password,
-      ),
-      _itself,
-    ),
-  );
-
-  @override
-  Future<WalletSession> open({
-    required WalletConfig config,
-    required String password,
-  }) async => _wrap(
-    await _opening(
-      () => _inner.open(config: config, password: password),
-      _itself,
-    ),
-  );
-
-  @override
-  Future<PinWallet> createWithPin({
-    required WalletConfig config,
-    String? mnemonic,
-    required String pin,
-  }) async {
-    final w = await _opening(
-      () => _inner.createWithPin(config: config, mnemonic: mnemonic, pin: pin),
-      (w) => w.session,
-    );
-    await _created(w.session);
-    return (session: _wrap(w.session), sealedPassword: w.sealedPassword);
-  }
-
-  @override
-  Future<WalletSession> openWithPin({
-    required WalletConfig config,
-    required String pin,
-    required String sealedPassword,
-  }) async => _wrap(
-    await _opening(
-      () => _inner.openWithPin(
-        config: config,
-        pin: pin,
-        sealedPassword: sealedPassword,
-      ),
-      _itself,
-    ),
-  );
-
-  @override
-  Future<int> pinFailures({required WalletConfig config}) =>
-      _inner.pinFailures(config: config);
-
-  @override
-  Stream<StoreMigrationProgress> get storeMigrationProgress => _inner.storeMigrationProgress;
-
-  @override
-  Future<void> deleteWallet({required WalletConfig config}) =>
-      _inner.deleteWallet(config: config);
-
-  @override
-  Future<void> resetPassword({
-    required WalletConfig config,
-    required String mnemonic,
-    required String newPassword,
-  }) => _inner.resetPassword(
-    config: config,
-    mnemonic: mnemonic,
-    newPassword: newPassword,
-  );
-}
-
-/// A session whose PIN calls wait for a [WorkGate] slot.
-class GatedWalletSession implements WalletSession {
-  GatedWalletSession(this._inner, this._gate);
+/// Passes every call to the session it wraps.
+class DelegatingWalletSession implements WalletSession {
+  DelegatingWalletSession(this._inner);
 
   final WalletSession _inner;
-  final WorkGate _gate;
 
   @override
   void dispose() => _inner.dispose();
@@ -245,50 +23,42 @@ class GatedWalletSession implements WalletSession {
 
   @override
   Future<String> mnemonic({required String password}) =>
-      _gate.run(() => _inner.mnemonic(password: password));
+      _inner.mnemonic(password: password);
 
   @override
   Future<bool> checkPassword({required String password}) =>
-      _gate.run(() => _inner.checkPassword(password: password));
+      _inner.checkPassword(password: password);
 
   @override
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,
-  }) => _gate.run(
-    () => _inner.changePassword(
-      currentPassword: currentPassword,
-      newPassword: newPassword,
-    ),
+  }) => _inner.changePassword(
+    currentPassword: currentPassword,
+    newPassword: newPassword,
   );
 
   @override
   Future<String> mnemonicWithPin({
     required String pin,
     required String sealedPassword,
-  }) => _gate.run(
-    () => _inner.mnemonicWithPin(pin: pin, sealedPassword: sealedPassword),
-  );
+  }) => _inner.mnemonicWithPin(pin: pin, sealedPassword: sealedPassword);
 
   @override
   Future<void> checkPin({
     required String pin,
     required String sealedPassword,
-  }) => _gate.run(
-    () => _inner.checkPin(pin: pin, sealedPassword: sealedPassword),
-  );
+  }) => _inner.checkPin(pin: pin, sealedPassword: sealedPassword);
 
   @override
   Future<String> changePin({
     required String sealedPassword,
     required String oldPin,
     required String newPin,
-  }) => _gate.run(
-    () => _inner.changePin(
-      sealedPassword: sealedPassword,
-      oldPin: oldPin,
-      newPin: newPin,
-    ),
+  }) => _inner.changePin(
+    sealedPassword: sealedPassword,
+    oldPin: oldPin,
+    newPin: newPin,
   );
 
   @override

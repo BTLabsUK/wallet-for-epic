@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# Builds the phone app as a clickable web preview on the fake wallet (no server, no demo mode)
+# Builds the phone app as a clickable web preview on the fake wallet (no server)
 # and stages it for publishing under any path. Every visit is a fresh install: the wallet level
 # step, then the normal PIN pad (any PIN opens the fake wallet), then Home with a live payment
 # timeline (a send walks through its steps, a payment from Bob arrives ~20 s after Home) and

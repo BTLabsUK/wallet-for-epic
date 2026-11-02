@@ -5,6 +5,8 @@ library;
 
 import 'dart:io';
 
+import 'package:flutter_riverpod/misc.dart' show Override;
+
 import 'data_folder_io.dart' show appDataDirectory;
 
 import 'lepic_wallet_service.dart';
@@ -14,6 +16,9 @@ import 'wallet_registry.dart' show WalletRegistry;
 import 'wallet_service.dart';
 import 'windows_dpapi.dart';
 import 'windows_secret_store.dart';
+
+/// Nothing to change at start: only the web preview has overrides.
+List<Override> backendOverrides() => const [];
 
 /// Loads LEPIC's native library. Before any [createWalletService] call.
 Future<void> initWalletBackend() => initLepic();

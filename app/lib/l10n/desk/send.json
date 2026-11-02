@@ -376,7 +376,7 @@
   },
   "deskSendNoAnswer": "The recipient did not answer. Nothing was sent.",
   "@deskSendNoAnswer": {
-    "description": "Demo failure text on Send (used by the guided tour)."
+    "description": "Sample failure text on Send (used by the guided tour)."
   },
   "deskSendTorOnFailed": "Tor not turned on",
   "@deskSendTorOnFailed": {

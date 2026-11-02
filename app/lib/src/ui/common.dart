@@ -33,7 +33,6 @@ import 'method_names.dart' show methodKindOfTransport;
 import 'motion_switches.dart';
 import 'notices.dart';
 import 'badge.dart';
-import 'demo_screens.dart' show DemoStripe;
 import 'finished_not_posted.dart' show isPostElsewhere;
 import 'theme/brand.dart';
 import 'theme/protocol.dart';
@@ -203,8 +202,6 @@ class _SlotScaffoldState extends State<SlotScaffold> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // The web demo's stripe (B-05); nothing outside a running demo.
-          const DemoStripe(),
           ProgressSlot(idle: widget.idle),
           MeasureDock(meter: _dock, child: const NoticeDock()),
           Expanded(
@@ -759,7 +756,7 @@ int? txConfirmations(TxEntry tx, BigInt? tip) {
 
 /// Confirmations after which the list calls a transaction completed, when no balance says
 /// otherwise. Screens pass [confirmationsTargetOf] as `target`: the balance's own count, as
-/// LEPIC counts, in the web demo too.
+/// LEPIC counts.
 final int confirmationsTarget = minimumConfirmations.toInt();
 
 /// The confirmations a payment needs before its row says Completed: the count the balance

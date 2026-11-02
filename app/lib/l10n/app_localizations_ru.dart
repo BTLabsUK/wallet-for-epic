@@ -1105,80 +1105,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get shellTitle => 'BT Wallet';
 
   @override
-  String get demoWelcomeTitle => 'Попробуйте BT Wallet';
-
-  @override
-  String get demoWelcomeLine =>
-      'Настоящий кошелёк с бесплатными тестовыми монетами, которые ничего не стоят. Он удаляется через 24 часа.';
-
-  @override
-  String get demoStart => 'Начать демо';
-
-  @override
-  String get demoEndedTitle => 'Ваше демо закончилось';
-
-  @override
-  String get demoEndedBody => 'Его кошелёк и тестовые монеты удалены.';
-
-  @override
-  String get demoStartAgain => 'Начать заново';
-
-  @override
-  String demoEndsAt(String time) {
-    return 'Ваше демо закончится $time. Тогда его кошелёк и тестовые монеты будут удалены.';
-  }
-
-  @override
-  String get demoEndingSoon =>
-      'Ваше демо закончится через 30 минут. Тогда его кошелёк и тестовые монеты будут удалены.';
-
-  @override
-  String get demoTestCoins => 'Получить тестовые монеты';
-
-  @override
-  String get demoTestCoinsPaid =>
-      'Тестовые монеты в пути. Они придут через минуту-две.';
-
-  @override
-  String demoTestCoinsCooldown(int seconds) {
-    return 'Крану нужна пауза. Попробуйте снова через $seconds с.';
-  }
-
-  @override
-  String get demoTestCoinsFailed =>
-      'На этот раз кран ничего не отправил. Попробуйте снова через минуту.';
-
-  @override
-  String get demoEnd => 'Завершить демо';
-
-  @override
-  String get demoEndTitle => 'Завершить демо?';
-
-  @override
-  String get demoEndBody =>
-      'Демо-кошелёк и его тестовые монеты будут удалены сейчас. Потом можно начать новое демо.';
-
-  @override
-  String get demoServerUnreachable =>
-      'Не удаётся связаться с демо-сервером. Проверьте подключение и попробуйте снова.';
-
-  @override
-  String demoStartFull(int minutes) {
-    return 'Сейчас демо заполнено. Попробуйте снова через $minutes мин.';
-  }
-
-  @override
-  String demoStartTooMany(int minutes) {
-    return 'Из вашей сети запущено слишком много демо. Попробуйте снова через $minutes мин.';
-  }
-
-  @override
-  String get demoConnectionLost => 'Соединение потеряно, переподключение.';
-
-  @override
-  String get demoConnectionBack => 'Соединение восстановлено.';
-
-  @override
   String get homeSettingsTooltip => 'Настройки';
 
   @override
@@ -2215,9 +2141,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get unlockTitle => 'Разблокировать кошелёк';
-
-  @override
-  String get pinlessUnlock => 'Разблокировать';
 
   @override
   String get pinLabel => 'PIN-код';
@@ -3462,18 +3385,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get fileHelpPlay => 'Воспроизвести анимацию';
 
   @override
-  String get demoPinFilled => 'Демо-PIN введён за вас';
-
-  @override
-  String get demoPinSkip => 'Пропустить';
-
-  @override
-  String get demoPinSetUpTitle => 'Настраиваем ваш демо-кошелёк';
-
-  @override
-  String get demoPinUnlockTitle => 'Открываем ваш демо-кошелёк';
-
-  @override
   String get sendStepMethod => 'Способ оплаты';
 
   @override
@@ -3765,66 +3676,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String balanceLineComingIn(String amount) {
     return '+$amount поступает';
-  }
-
-  @override
-  String get demoTestCoinsPill => 'Тестовые монеты';
-
-  @override
-  String get demoStripeLabel => 'Демо';
-
-  @override
-  String get demoTestCoinsPillTip =>
-      'Тестовая сеть Epic. Монеты ничего не стоят.';
-
-  @override
-  String demoLeftHours(int hours) {
-    return 'осталось $hours ч';
-  }
-
-  @override
-  String demoLeftMinutes(int minutes) {
-    return 'осталось $minutes мин';
-  }
-
-  @override
-  String get demoReceiveKeepOpen =>
-      'Не закрывайте эту вкладку, чтобы получать платежи.';
-
-  @override
-  String get demoGuideTitle => 'Попробуйте платёж';
-
-  @override
-  String get demoGuideSend => 'Отправьте немного кому-нибудь';
-
-  @override
-  String get demoGuideSendHint =>
-      'Заплатите в демо друга или откройте демо в другом браузере или приватном окне.';
-
-  @override
-  String get demoGuideOpenSend => 'К отправке';
-
-  @override
-  String get demoGuideAsking =>
-      'Запрашиваем тестовый кран. Это может занять минуту.';
-
-  @override
-  String get demoGuideDone => 'Готово. Осматривайтесь, пока идёт демо.';
-
-  @override
-  String get demoGuideHide => 'Скрыть';
-
-  @override
-  String get demoGuideHideLabel => 'Скрыть шаги демо';
-
-  @override
-  String demoGuideStepDone(String step) {
-    return '$step, готово';
-  }
-
-  @override
-  String demoGuideStepToDo(String step) {
-    return '$step, ещё не сделано';
   }
 
   @override
@@ -19310,9 +19161,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbFailedTitle => 'Не завершено';
-
-  @override
-  String get deskDemoStripe => 'Демо · пример данных';
 
   @override
   String deskOnbRestoreBadWords(String words) {

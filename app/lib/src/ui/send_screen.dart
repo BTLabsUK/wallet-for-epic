@@ -14,7 +14,6 @@ import '../amount.dart';
 import '../contacts.dart';
 import '../pairing_providers.dart'
     show PairNet, contactPairingProvider, pairNetProvider, pairingApiProvider, pairingByIdProvider, pairingName, pairingNameProvider, pairingSupportedProvider, pairingsProvider;
-import '../demo.dart' show demoModeProvider;
 import '../errors.dart';
 import '../initials.dart';
 import '../l10n.dart';
@@ -54,7 +53,6 @@ import '../address_format.dart' show addressSpan;
 import 'address_view.dart';
 import 'common.dart';
 import 'contacts_screen.dart';
-import 'demo_screens.dart' show TestCoinsButton;
 import 'file_exchange_help.dart';
 import 'handshake.dart';
 import 'home_parts.dart' show outputsShown;
@@ -2361,7 +2359,6 @@ class _SendViewState extends ConsumerState<SendView> {
   }
 
   Widget _emptyState(BuildContext context) {
-    final demo = ref.watch(demoModeProvider);
     final request = _activeRequest;
     return CenteredScroll(
       child: CenteredBody(
@@ -2380,14 +2377,12 @@ class _SendViewState extends ConsumerState<SendView> {
             icon: const Icon(Icons.north_east),
             message: context.l10n.sendNoCoins,
             // Never a dead end: the next step is the Receive tab.
-            action: demo
-                ? const TestCoinsButton()
-                : TextButton(
-                    onPressed: () => ref
-                        .read(shellTabProvider.notifier)
-                        .go(ShellTab.receive),
-                    child: Text(context.l10n.homeReceiveButton),
-                  ),
+            action: TextButton(
+              onPressed: () => ref
+                  .read(shellTabProvider.notifier)
+                  .go(ShellTab.receive),
+              child: Text(context.l10n.homeReceiveButton),
+            ),
           ),
           ),
         ],

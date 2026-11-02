@@ -1075,7 +1075,7 @@ def simulated_red(sha):
                   ok("flutter analyze", 90),
                   {"name": "flutter test (all)", "status": "failed", "duration_s": 1100},
                   not_run("integration tests on LEPIC (Linux, offline)"), not_run("bot"),
-                  not_run("web build (the demo's flags, tool/build_web.sh)")],
+                  not_run("web build (the preview, tool/build_web.sh)")],
         "failing_step": "flutter test (all)",
         "tests": {"flutter test (all)": {"passed": 6307, "skipped": 45, "failed": 2}},
         "failing_tests": [

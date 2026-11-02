@@ -121,7 +121,7 @@ if [[ $mode == full || $tools_changed == 1 ]]; then
 fi
 
 if [[ $mode == full ]]; then
-  step "web build (the demo's flags, tool/build_web.sh)"
+  step "web build (the preview, tool/build_web.sh)"
   (cd "$root/app" && tool/build_web.sh >/dev/null)
 fi
 

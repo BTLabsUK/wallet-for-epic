@@ -2,8 +2,8 @@
 # configuration)"), one per line: `<glob><TAB><regex>`. The glob matches `<tree>/<path>` (tree:
 # app, lepic, lepic-flutter); text the regex matches on a line of such a file is ignored. Every
 # exception has a comment above it saying why. Every address, port, timeout and limit lives in
-# the settings files (docs/settings-file.md); these are protocol, other programs' facts, our own
-# demo server, or example data in screenshots.
+# the settings files (docs/settings-file.md); these are protocol, other programs' facts, or
+# example data in screenshots.
 
 # The Epic node's own API paths (its protocol, like https's port): every node answers them.
 app/lib/src/node/node_api.dart	'/v1/(version|status)'|'/v2/\$api'
@@ -11,14 +11,6 @@ app/lib/src/contacts.dart	'/v2/foreign'
 # Send's clean-up line names the wallet API path it leaves out of a pasted address (the wallet
 # adds it): the same protocol path, as words.
 app/lib/l10n/app_*	/v2/foreign
-
-# The web demo's own routes: its server and its page are both in this repository.
-app/lib/src/demo_server/server.dart	'/api/[a-z]*/?'
-app/lib/src/demo_web.dart	'/api/demo'
-app/lib/src/remote/web_channel.dart	'/api/ws'
-
-# The demo server's own default listen port; its settings are its own (--port, WFE_DEMO_PORT).
-app/lib/src/demo_server/config.dart	this\.port = 8771
 
 # The old Epic Cash GUI's own defaults (its local node on each network), read to import its
 # wallets: facts about another program, not ours to configure.

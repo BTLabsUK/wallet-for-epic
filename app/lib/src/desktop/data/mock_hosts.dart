@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The servers the mock wallet, the web preview and the screenshot fixtures show: read from the
 /// settings in use, so no host name is written in their code. The lists are the shipped ones
-/// ([shippedHostSettings]), so the demo's servers do not depend on what a user's file lists; the
+/// ([shippedHostSettings]), so the mock's servers do not depend on what a user's file lists; the
 /// nth entry of a list wraps round when the settings have fewer.
 library;
 

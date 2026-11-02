@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# Builds the web app the way the demo serves it, then
-# precompresses it and prints what a first load transfers.
+# Builds the web preview (--dart-define=WFE_WEB_FAKE=true: the fake wallet, no server), then
+# precompresses it and prints what a first load transfers. tools/check.sh runs it as the web
+# compile check; tool/build_preview.sh stages a preview for publishing.
 #
-# Usage: tool/build_web.sh [--base-href /app/] [--fake]
+# Usage: tool/build_web.sh [--base-href /app/]
 #   --base-href  the path the app is served under, with both slashes (default /app/)
-#   --fake       --dart-define=WFE_WEB_FAKE=true: the tour's fake wallet, no server. For QA
-#                previews only; no release uses it.
 #
 # Output: build/web, with a .gz (and a .br where `brotli` is installed) beside every file the
 # server may send compressed.
@@ -17,12 +16,10 @@ app_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 . "$app_dir/../tools/env.sh"
 
 base_href=/app/
-fake=false
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --base-href) base_href="${2:?--base-href needs a path}"; shift 2 ;;
-    --fake) fake=true; shift ;;
-    *) sed -n '5,8p' "${BASH_SOURCE[0]}" >&2; exit 64 ;;
+    *) sed -n '6,7p' "${BASH_SOURCE[0]}" >&2; exit 64 ;;
   esac
 done
 [[ "$base_href" == /*/ || "$base_href" == / ]] || {
@@ -35,8 +32,7 @@ out="$app_dir/build/web"
 log="$(mktemp -t wfe-build-web.XXXXXX)"
 trap 'rm -f "$log"' EXIT
 
-defines=(--dart-define=WFE_DEMO=true)
-$fake && defines+=(--dart-define=WFE_WEB_FAKE=true)
+defines=(--dart-define=WFE_WEB_FAKE=true)
 
 # --wasm writes dart2wasm+skwasm and dart2js+CanvasKit side by side; the loader picks one per
 # browser. --no-web-resources-cdn keeps the engine on our origin.
@@ -91,7 +87,7 @@ skwasm=$(total "${common[@]}" main.dart.wasm main.dart.mjs canvaskit/skwasm.js c
 canvaskit=$(total "${common[@]}" main.dart.js canvaskit/canvaskit.js canvaskit/canvaskit.wasm)
 
 echo
-echo "build_web: $out (base href $base_href$($fake && echo ', fake wallet'))"
+echo "build_web: $out (base href $base_href, fake wallet)"
 echo "  compressed with gzip$($have_brotli && echo ' and brotli' || echo '; brotli not installed')"
 echo "  first load, skwasm (Chromium):                  $(kib "$skwasm")"
 echo "  first load, CanvasKit (Safari, Firefox, iOS):   $(kib "$canvaskit")"

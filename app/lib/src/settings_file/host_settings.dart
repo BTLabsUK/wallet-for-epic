@@ -129,7 +129,7 @@ class AppConfig {
   static const String fileName = 'app-config.toml';
 
   /// A complete file: every required key present and good, or [StateError] naming what is
-  /// wrong. A table the layout does not know (a dev chain's `[demo]`) is ignored.
+  /// wrong. A table the layout does not know is ignored.
   factory AppConfig.fromText(String text) =>
       AppConfig._(_complete(configKeys, parseSettingsToml(text, file: fileName), text, fileName));
 

@@ -1079,82 +1079,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get shellTitle => 'BT Wallet';
 
   @override
-  String get demoWelcomeTitle => 'BT Wallet ausprobieren';
-
-  @override
-  String get demoWelcomeLine =>
-      'Eine echte Wallet mit kostenlosen Test-Coins ohne Wert. Sie wird nach 24 Stunden gelöscht.';
-
-  @override
-  String get demoStart => 'Demo starten';
-
-  @override
-  String get demoEndedTitle => 'Ihre Demo ist beendet';
-
-  @override
-  String get demoEndedBody =>
-      'Die Demo-Wallet und die Test-Coins wurden gelöscht.';
-
-  @override
-  String get demoStartAgain => 'Neu starten';
-
-  @override
-  String demoEndsAt(String time) {
-    return 'Ihre Demo endet um $time. Dann werden die Demo-Wallet und die Test-Coins gelöscht.';
-  }
-
-  @override
-  String get demoEndingSoon =>
-      'Ihre Demo endet in 30 Minuten. Dann werden die Demo-Wallet und die Test-Coins gelöscht.';
-
-  @override
-  String get demoTestCoins => 'Test-Coins holen';
-
-  @override
-  String get demoTestCoinsPaid =>
-      'Die Test-Coins sind unterwegs. Sie kommen in ein bis zwei Minuten an.';
-
-  @override
-  String demoTestCoinsCooldown(int seconds) {
-    return 'Der Faucet braucht eine Pause. Versuchen Sie es in $seconds s erneut.';
-  }
-
-  @override
-  String get demoTestCoinsFailed =>
-      'Der Faucet hat diesmal nichts gesendet. Versuchen Sie es in einer Minute erneut.';
-
-  @override
-  String get demoEnd => 'Demo beenden';
-
-  @override
-  String get demoEndTitle => 'Demo beenden?';
-
-  @override
-  String get demoEndBody =>
-      'Ihre Demo-Wallet und ihre Test-Coins werden jetzt gelöscht. Danach können Sie eine neue Demo starten.';
-
-  @override
-  String get demoServerUnreachable =>
-      'Der Demo-Server ist nicht erreichbar. Prüfen Sie Ihre Verbindung und versuchen Sie es erneut.';
-
-  @override
-  String demoStartFull(int minutes) {
-    return 'Die Demo ist gerade voll. Versuchen Sie es in $minutes Min. erneut.';
-  }
-
-  @override
-  String demoStartTooMany(int minutes) {
-    return 'Aus Ihrem Netzwerk wurden zu viele Demos gestartet. Versuchen Sie es in $minutes Min. erneut.';
-  }
-
-  @override
-  String get demoConnectionLost =>
-      'Verbindung unterbrochen, wird wiederhergestellt.';
-
-  @override
-  String get demoConnectionBack => 'Wieder verbunden.';
-
-  @override
   String get homeSettingsTooltip => 'Einstellungen';
 
   @override
@@ -2183,9 +2107,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get unlockTitle => 'Wallet entsperren';
-
-  @override
-  String get pinlessUnlock => 'Entsperren';
 
   @override
   String get pinLabel => 'PIN';
@@ -3428,18 +3349,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get fileHelpPlay => 'Animation abspielen';
 
   @override
-  String get demoPinFilled => 'Demo-PIN, für Sie ausgefüllt';
-
-  @override
-  String get demoPinSkip => 'Überspringen';
-
-  @override
-  String get demoPinSetUpTitle => 'Ihre Demo-Wallet wird eingerichtet';
-
-  @override
-  String get demoPinUnlockTitle => 'Ihre Demo-Wallet wird geöffnet';
-
-  @override
   String get sendStepMethod => 'Zahlungsart';
 
   @override
@@ -3731,67 +3640,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String balanceLineComingIn(String amount) {
     return '+$amount unterwegs';
-  }
-
-  @override
-  String get demoTestCoinsPill => 'Test-Coins';
-
-  @override
-  String get demoStripeLabel => 'Demo';
-
-  @override
-  String get demoTestCoinsPillTip =>
-      'Das Testnetz von Epic. Die Coins haben keinen Wert.';
-
-  @override
-  String demoLeftHours(int hours) {
-    return 'noch $hours h';
-  }
-
-  @override
-  String demoLeftMinutes(int minutes) {
-    return 'noch $minutes Min.';
-  }
-
-  @override
-  String get demoReceiveKeepOpen =>
-      'Lassen Sie diesen Tab offen, um zu empfangen.';
-
-  @override
-  String get demoGuideTitle => 'Eine Zahlung ausprobieren';
-
-  @override
-  String get demoGuideSend => 'Jemandem etwas senden';
-
-  @override
-  String get demoGuideSendHint =>
-      'Bezahlen Sie die Demo eines Freundes, oder öffnen Sie die Demo in einem anderen Browser oder einem privaten Fenster.';
-
-  @override
-  String get demoGuideOpenSend => 'Zu Senden';
-
-  @override
-  String get demoGuideAsking =>
-      'Der Test-Faucet wird gefragt. Das kann eine Minute dauern.';
-
-  @override
-  String get demoGuideDone =>
-      'Beides erledigt. Sehen Sie sich um, solange die Demo läuft.';
-
-  @override
-  String get demoGuideHide => 'Ausblenden';
-
-  @override
-  String get demoGuideHideLabel => 'Demo-Schritte ausblenden';
-
-  @override
-  String demoGuideStepDone(String step) {
-    return '$step, erledigt';
-  }
-
-  @override
-  String demoGuideStepToDo(String step) {
-    return '$step, noch offen';
   }
 
   @override
@@ -18899,9 +18747,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOnbFailedTitle => 'Nicht abgeschlossen';
-
-  @override
-  String get deskDemoStripe => 'Demo · Beispieldaten';
 
   @override
   String deskOnbRestoreBadWords(String words) {

@@ -8,8 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app_log.dart';
 import 'connection_grace.dart';
 import 'connection_state.dart';
-import 'demo.dart';
-import 'demo_web_connection.dart';
 import 'l10n.dart';
 import 'node_failover.dart' show NodeFailover;
 import 'node_failover_phone.dart';
@@ -23,7 +21,6 @@ import 'settings.dart';
 import 'ui/settings_file_notices.dart';
 import 'ui/common.dart';
 import 'ui/more_below.dart';
-import 'ui/demo_screens.dart';
 import 'ui/launch_screen.dart';
 import 'ui/phone_frame.dart';
 import 'ui/status.dart' show serverHost;
@@ -195,7 +192,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
   /// Opening the app again without an unlock looks for an update, as start and unlock do
   /// (home). Coming back from a picker or the scanner (the auto-lock hold) is not an opening.
   void _checkForUpdate() {
-    if (ref.read(sessionProvider) == null || ref.read(demoModeProvider)) return;
+    if (ref.read(sessionProvider) == null) return;
     unawaited(ref.read(updateProvider.notifier).checkOnOpening());
   }
 
@@ -233,9 +230,6 @@ class _WalletAppState extends ConsumerState<WalletApp> {
         _lockAfterScan = false;
       }
     });
-    final demo = ref.watch(demoModeProvider);
-    if (demo) listenForDemoEnd(ref, _navigator);
-    if (demo) listenForDemoConnection(ref, _navigator);
     final settings = ref.watch(appSettingsProvider).value;
     final themeMode = settings?.themeMode ?? ThemeMode.system;
     return MaterialApp(
@@ -271,8 +265,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
       themeMode: themeMode,
       theme: buildWalletTheme(protocolLight, Brightness.light),
       darkTheme: buildWalletTheme(protocolDark, Brightness.dark),
-      // The web demo starts at its welcome screen, or its ended screen, before the usual start.
-      home: demo ? const DemoGate() : const LaunchScreen(),
+      home: const LaunchScreen(),
     );
   }
 }

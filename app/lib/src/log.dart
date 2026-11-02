@@ -2,7 +2,7 @@
 /// The log calls, without Flutter or `dart:io`: levels, the [LogSink] interface, the memory
 /// sink, the process-wide [AppLog] with redaction at the call, and [logInfo], [logWarn] and
 /// [logError]. The wallet core (`lepic_wallet_service.dart`) logs through this file alone, so it
-/// also runs in a plain `dart run` and in the demo server.
+/// also runs in a plain `dart run`.
 ///
 /// The file sink, logcat and `path_provider` are in `app_log.dart`, which re-exports this file.
 ///
@@ -167,7 +167,7 @@ abstract final class AppLog {
   static LogSink get sink => _sink;
 
   /// LEPIC's log ring folder, `<application support>/logs/ring`, once `startLogging` has named
-  /// it; null on the web, in the demo server and in tests. LEPIC's runtime opens the ring there
+  /// it; null on the web, in a plain `dart run` and in tests. LEPIC's runtime opens the ring there
   /// when it starts (`lepic_wallet_service.dart`), and a report attaches its files.
   static String? ringDir;
 

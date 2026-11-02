@@ -1258,106 +1258,6 @@
   "@shellTitle": {
     "description": "App-bar title of the wallet's main page: the app's name. A product name; do not translate."
   },
-  "demoWelcomeTitle": "Try BT Wallet",
-  "@demoWelcomeTitle": {
-    "description": "Heading of the web demo's welcome screen, under the mark."
-  },
-  "demoWelcomeLine": "A real wallet with free test coins, which have no value. It is deleted after 24 hours.",
-  "@demoWelcomeLine": {
-    "description": "The welcome screen's one line under its heading."
-  },
-  "demoStart": "Start the demo",
-  "@demoStart": {
-    "description": "Main button of the demo's welcome screen. It creates a demo wallet, then asks for a PIN."
-  },
-  "demoEndedTitle": "Your demo ended",
-  "@demoEndedTitle": {
-    "description": "Heading of the screen shown when the 24 hours of a web demo ran out."
-  },
-  "demoEndedBody": "Its wallet and test coins were deleted.",
-  "@demoEndedBody": {
-    "description": "Body of the screen shown when a web demo ran out. 'Start again' is the button below (demoStartAgain); use the same words."
-  },
-  "demoStartAgain": "Start again",
-  "@demoStartAgain": {
-    "description": "Button on the ended screen of the web demo: starts a new demo."
-  },
-  "demoEndsAt": "Your demo ends at {time}. Its wallet and test coins are deleted then.",
-  "@demoEndsAt": {
-    "description": "Tooltip of the demo countdown. {time} is a date and time, such as '21 Sep 2026, 14:05'.",
-    "placeholders": {
-      "time": {
-        "type": "String"
-      }
-    }
-  },
-  "demoEndingSoon": "Your demo ends in 30 minutes. Its wallet and test coins are deleted then.",
-  "@demoEndingSoon": {
-    "description": "Warning notice shown once, 30 minutes before a web demo ends."
-  },
-  "demoTestCoins": "Get test coins",
-  "@demoTestCoins": {
-    "description": "Button in the web demo that asks the faucet to send free test coins to this wallet."
-  },
-  "demoTestCoinsPaid": "Test coins are on their way. They arrive in a minute or two.",
-  "@demoTestCoinsPaid": {
-    "description": "Notice after the faucet accepted a claim for test coins."
-  },
-  "demoTestCoinsCooldown": "The faucet needs a pause. Try again in {seconds} s.",
-  "@demoTestCoinsCooldown": {
-    "description": "Notice when the faucet refused a claim because the last one was too recent. {seconds} is a number, with the seconds abbreviation.",
-    "placeholders": {
-      "seconds": {
-        "type": "int"
-      }
-    }
-  },
-  "demoTestCoinsFailed": "The faucet sent nothing this time. Try again in a minute.",
-  "@demoTestCoinsFailed": {
-    "description": "Notice when the faucet failed or did not answer."
-  },
-  "demoEnd": "End demo",
-  "@demoEnd": {
-    "description": "Settings row in the web demo, instead of Delete this wallet, and the confirm button of its dialog."
-  },
-  "demoEndTitle": "End the demo?",
-  "@demoEndTitle": {
-    "description": "Title of the dialog before a web demo is ended."
-  },
-  "demoEndBody": "Your demo wallet and its test coins are deleted now. You can start a new demo afterwards.",
-  "@demoEndBody": {
-    "description": "Body of the dialog before a web demo is ended."
-  },
-  "demoServerUnreachable": "Cannot reach the demo server. Check your connection and try again.",
-  "@demoServerUnreachable": {
-    "description": "Error on the web demo's welcome screen when the demo server did not answer."
-  },
-  "demoStartFull": "The demo is full right now. Try again in {minutes} min.",
-  "@demoStartFull": {
-    "description": "Error when the demo server already runs as many demos as it allows. {minutes} is a number, with the minute abbreviation.",
-    "placeholders": {
-      "minutes": {
-        "type": "int"
-      }
-    }
-  },
-  "demoStartTooMany": "Too many demos were started from your network. Try again in {minutes} min.",
-  "@demoStartTooMany": {
-    "description": "Error when the visitor's network started too many demos in the last hour. {minutes} is a number, with the minute abbreviation.",
-    "placeholders": {
-      "minutes": {
-        "type": "int"
-      }
-    }
-  },
-  "demoConnectionLost": "Connection lost, reconnecting.",
-  "@demoConnectionLost": {
-    "description": "Warning notice in the web demo while the connection to its wallet server is down and the app retries."
-  },
-  "demoConnectionBack": "Connected again.",
-  "@demoConnectionBack": {
-    "description": "Success notice in the web demo once the connection to its wallet server is back."
-  },
   "homeSettingsTooltip": "Settings",
   "@homeSettingsTooltip": {
     "description": "Tooltip of the app-bar button that opens settings."
@@ -2002,7 +1902,7 @@
   },
   "receiveRequestTitle": "Request a payment",
   "@receiveRequestTitle": {
-    "description": "Button on Receive's Epicbox address tab that opens the request form: the user asks someone to pay them over epicbox (an invoice they send). Shown beside Get test coins in the web demo, so keep it short."
+    "description": "Button on Receive's Epicbox address tab that opens the request form: the user asks someone to pay them over epicbox (an invoice they send). Keep it short."
   },
   "requestMessageLabel": "Message to the payer (optional)",
   "@requestMessageLabel": {
@@ -2701,10 +2601,6 @@
   "unlockTitle": "Unlock wallet",
   "@unlockTitle": {
     "description": "Title of the screen that opens the wallet with the PIN or biometrics."
-  },
-  "pinlessUnlock": "Unlock",
-  "@pinlessUnlock": {
-    "description": "Web demo and preview only: the unlock screen's one button, which opens the wallet without a PIN."
   },
   "pinLabel": "PIN",
   "@pinLabel": {
@@ -3920,7 +3816,7 @@
   },
   "licencesApp": "BT Wallet by BT Labs: Apache-2.0.",
   "@licencesApp": {
-    "description": "Licences screen: the wallet itself. Not \"app\" on its own: the web demo shows this screen too."
+    "description": "Licences screen: the wallet itself. Not \"app\" on its own: the web preview shows this screen too."
   },
   "licencesFlutter": "Flutter and its Dart packages: BSD 3-Clause and similar permissive licences.",
   "@licencesFlutter": {
@@ -4298,22 +4194,6 @@
   "fileHelpPlay": "Play the animation",
   "@fileHelpPlay": {
     "description": "Screen-reader label of the payment file animation while it is paused; a tap plays it."
-  },
-  "demoPinFilled": "Demo PIN, filled in for you",
-  "@demoPinFilled": {
-    "description": "Web demo: under the six dots that fill in the demo wallet's fixed PIN on first run, unlock and PIN prompts. Also the screen-reader announcement."
-  },
-  "demoPinSkip": "Skip",
-  "@demoPinSkip": {
-    "description": "Web demo: button that stops the PIN fill animation and goes on at once."
-  },
-  "demoPinSetUpTitle": "Setting up your demo wallet",
-  "@demoPinSetUpTitle": {
-    "description": "Web demo: heading of the first run while the demo PIN fills in and the wallet is created. Replaces the usual title with its network name."
-  },
-  "demoPinUnlockTitle": "Opening your demo wallet",
-  "@demoPinUnlockTitle": {
-    "description": "Web demo: heading of the unlock screen while the demo PIN fills in. The usual title returns with the PIN field."
   },
   "sendStepMethod": "Payment method",
   "@sendStepMethod": {
@@ -4715,92 +4595,6 @@
       "amount": {
         "type": "String",
         "example": "7.49"
-      }
-    }
-  },
-  "demoTestCoinsPill": "Test coins",
-  "@demoTestCoinsPill": {
-    "description": "Web demo: a small pill in the app bar saying the wallet holds test coins. Keep it very short."
-  },
-  "demoStripeLabel": "Demo",
-  "@demoStripeLabel": {
-    "description": "First word of the web demo's stripe under the app bar: \"Demo · Test coins · 5 h left\". One short word."
-  },
-  "demoTestCoinsPillTip": "Epic’s test network. The coins have no value.",
-  "@demoTestCoinsPillTip": {
-    "description": "Web demo: tooltip and screen-reader text of the Test coins pill."
-  },
-  "demoLeftHours": "{hours} h left",
-  "@demoLeftHours": {
-    "description": "Web demo: in the Test coins pill, hours until the demo wallet is deleted, with the hour abbreviation.",
-    "placeholders": {
-      "hours": {
-        "type": "int"
-      }
-    }
-  },
-  "demoLeftMinutes": "{minutes} min left",
-  "@demoLeftMinutes": {
-    "description": "Web demo: in the Test coins pill, minutes until the demo wallet is deleted, with the minute abbreviation.",
-    "placeholders": {
-      "minutes": {
-        "type": "int"
-      }
-    }
-  },
-  "demoReceiveKeepOpen": "Keep this tab open to receive.",
-  "@demoReceiveKeepOpen": {
-    "description": "Web demo, Receive: under the address. Payments arrive only while the browser tab with the demo is open."
-  },
-  "demoGuideTitle": "Try a payment",
-  "@demoGuideTitle": {
-    "description": "Web demo, Wallet tab: heading of the short checklist that guides a visitor through a first payment."
-  },
-  "demoGuideSend": "Send some to someone",
-  "@demoGuideSend": {
-    "description": "Web demo checklist, step 2: send some test coins to someone."
-  },
-  "demoGuideSendHint": "Pay a friend’s demo, or open the demo in another browser or a private window.",
-  "@demoGuideSendHint": {
-    "description": "Web demo checklist, under step 2. A demo is tied to the browser's cookies: another browser, or a private window opened from a normal one, starts a second, separate demo; a second tab or a second private window opens the same one, so do not say 'new tab'."
-  },
-  "demoGuideOpenSend": "Go to Send",
-  "@demoGuideOpenSend": {
-    "description": "Web demo checklist, step 2's button: switches to the Send tab."
-  },
-  "demoGuideAsking": "Asking the test faucet. This can take a minute.",
-  "@demoGuideAsking": {
-    "description": "Web demo checklist: while the faucet claim runs, which takes up to about a minute."
-  },
-  "demoGuideDone": "Both done. Look around as long as the demo lasts.",
-  "@demoGuideDone": {
-    "description": "Web demo checklist: the one line left once both steps are done."
-  },
-  "demoGuideHide": "Hide",
-  "@demoGuideHide": {
-    "description": "Web demo checklist: small button that hides the checklist."
-  },
-  "demoGuideHideLabel": "Hide the demo steps",
-  "@demoGuideHideLabel": {
-    "description": "Web demo checklist: screen-reader label of the Hide button."
-  },
-  "demoGuideStepDone": "{step}, done",
-  "@demoGuideStepDone": {
-    "description": "Web demo checklist: what a screen reader says for a finished step; step is the step's text.",
-    "placeholders": {
-      "step": {
-        "type": "String",
-        "example": "Get test coins"
-      }
-    }
-  },
-  "demoGuideStepToDo": "{step}, not done yet",
-  "@demoGuideStepToDo": {
-    "description": "Web demo checklist: what a screen reader says for a step not done yet; step is the step's text.",
-    "placeholders": {
-      "step": {
-        "type": "String",
-        "example": "Send some to someone"
       }
     }
   },
@@ -7147,7 +6941,7 @@
   },
   "methodReceiveEpicboxShort": "Share the address to get paid.",
   "@methodReceiveEpicboxShort": {
-    "description": "Receive's Epicbox strip line: share the address to get paid. No \"app\": the web demo shows it too."
+    "description": "Receive's Epicbox strip line: share the address to get paid. No \"app\": the web preview shows it too."
   },
   "methodReceiveEpicboxMore": "The Epicbox server holds a payment until this wallet opens.",
   "@methodReceiveEpicboxMore": {
@@ -8939,7 +8733,7 @@
   },
   "deskSendNoAnswer": "The recipient did not answer. Nothing was sent.",
   "@deskSendNoAnswer": {
-    "description": "Demo failure text on Send (used by the guided tour)."
+    "description": "Sample failure text on Send (used by the guided tour)."
   },
   "deskSendTorOnFailed": "Tor not turned on",
   "@deskSendTorOnFailed": {
@@ -12555,11 +12349,11 @@
   },
   "deskShellLockedTitle": "Wallet locked",
   "@deskShellLockedTitle": {
-    "description": "Toast title after Quit in a build that cannot close the app (demo): the wallet was only locked."
+    "description": "Toast title after Quit in a build that cannot close the app (the desktop web mock): the wallet was only locked."
   },
   "deskShellLockedBody": "Quit closes the app once the wallet core is connected.",
   "@deskShellLockedBody": {
-    "description": "Toast body after Quit in a build that cannot close the app (demo)."
+    "description": "Toast body after Quit in a build that cannot close the app (the desktop web mock)."
   },
   "deskShellLockWallet": "Lock wallet ({keys})",
   "@deskShellLockWallet": {
@@ -25275,10 +25069,6 @@
   "deskOnbFailedTitle": "Not finished",
   "@deskOnbFailedTitle": {
     "description": "Bold heading of the failure notice on a long setup action (create, restore, new password); the reason follows under it."
-  },
-  "deskDemoStripe": "Demo · sample data",
-  "@deskDemoStripe": {
-    "description": "The stripe under the title bar in the desktop web demo (sample data, no real wallet). Short."
   },
   "deskOnbRestoreBadWords": "Not in the word list: {words}.",
   "@deskOnbRestoreBadWords": {

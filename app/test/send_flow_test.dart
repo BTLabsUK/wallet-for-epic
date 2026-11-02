@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: Apache-2.0
-import 'package:epic_wallet/src/demo.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
@@ -8,7 +7,6 @@ import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
-import 'package:epic_wallet/src/ui/demo_screens.dart' show testCoinsKey;
 import 'package:epic_wallet/src/ui/motion_switches.dart';
 import 'package:epic_wallet/src/ui/handshake.dart';
 import 'package:epic_wallet/src/ui/scan_screen.dart';
@@ -78,7 +76,6 @@ class _Harness {
 
   Future<void> pump(
     WidgetTester tester, {
-    bool demo = false,
     bool reducedMotion = false,
     double textScale = 1,
     Size size = const Size(1080, 2340),
@@ -100,7 +97,6 @@ class _Harness {
           sessionProvider.overrideWith(() => _Open(session)),
           walletConfigProvider.overrideWith(_Mainnet.new),
           relayDirectoryProvider.overrideWithValue(_NoRelays()),
-          demoModeProvider.overrideWithValue(demo),
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -521,14 +517,6 @@ void main() {
       await h.pump(tester);
       expect(find.text('No coins to send yet.'), findsOneWidget);
       expect(find.widgetWithText(TextField, 'To'), findsNothing);
-      expect(find.byKey(testCoinsKey), findsNothing);
-    });
-
-    testWidgets('in the demo, with the test coins button', (tester) async {
-      final h = _Harness(summary: FakeWalletSession.emptySummary);
-      await h.pump(tester, demo: true);
-      expect(find.text('No coins to send yet.'), findsOneWidget);
-      expect(find.byKey(testCoinsKey), findsOneWidget);
     });
 
     testWidgets('coins only on hold: the form, and a line about them', (

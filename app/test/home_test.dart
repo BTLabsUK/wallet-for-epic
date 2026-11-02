@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show AppConfig, hostSettings;
-import 'package:epic_wallet/src/demo.dart' show devNetworksProvider;
+import 'package:epic_wallet/src/dev_networks.dart' show devNetworksProvider;
 import 'package:epic_wallet/src/connection_state.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/amount.dart';

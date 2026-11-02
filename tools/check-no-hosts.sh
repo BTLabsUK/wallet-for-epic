@@ -17,7 +17,7 @@
 # Allowed: loopback and every-interface (127.x, localhost, ::1, 0.0.0.0), the Android
 # emulator's host 10.0.2.2, RFC 2606 names (example.com/.org/.net, *.example, *.invalid,
 # *.test, *.localhost) and RFC 5737 documentation ranges. Other exceptions (the node's own API
-# paths, the demo server's routes, the old GUI's defaults, screenshot fixtures), each with its
+# paths, the old GUI's defaults, screenshot fixtures), each with its
 # reason: tools/no-hosts.allow.
 set -euo pipefail
 root="$(git rev-parse --show-toplevel)"

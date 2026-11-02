@@ -4,7 +4,6 @@
 // still counts it as confirming (one of the F-06 disagreements; Send's re-estimate is another,
 // in send_test.dart).
 
-import 'package:epic_wallet/src/demo.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
@@ -78,26 +77,23 @@ WalletSummary _summary({
   validatedWithNode: true,
 );
 
-/// Pumps home on [session], in the web demo when [demo], at [width] dp.
+/// Pumps home on [session] at [width] dp.
 Future<ProviderContainer> _pump(
   WidgetTester tester,
   FakeWalletSession session, {
-  bool demo = false,
   double width = 412,
   double textScale = 1,
 }) async {
-  // Demo adds its guide above Recent activity; a taller view builds every row.
-  tester.view.physicalSize = Size(width * 3, (demo ? 1800 : 915) * 3);
+  tester.view.physicalSize = Size(width * 3, 915 * 3);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
-  final chain = demo ? Chain.floonet : Chain.mainnet;
+  const chain = Chain.mainnet;
   final store = MemorySecretStore()
     ..values['wallet.${chain.name}.backedUp'] = '1';
   await tester.pumpWidget(
     ProviderScope(
       retry: (_, _) => null,
       overrides: [
-        demoModeProvider.overrideWithValue(demo),
         walletServiceProvider.overrideWithValue(
           FakeWalletService(session: session),
         ),
@@ -111,7 +107,7 @@ Future<ProviderContainer> _pump(
         sessionProvider.overrideWith(() => _OpenSession(session)),
         walletConfigProvider.overrideWith(
           () => _Config(
-            (demo ? floonetPreset : mainnetPreset).config(
+            mainnetPreset.config(
               dataDir: '/fake/wallets/${chain.name}',
               nodeUrl: 'https://node',
             ),
@@ -419,37 +415,34 @@ void main() {
       counterparty: 'esAlice123@epicbox.epiccash.com',
     );
 
-    for (final demo in [true, false]) {
-      testWidgets('a confirming balance never sits under a Received row '
-          '(demo ${demo ? 'on' : 'off'})', (tester) async {
-        final session = FakeWalletSession(
-          summary: _summary(
-            spendable: 10,
-            confirming: 2.5,
-            height: _tip - BigInt.one,
-          ),
-          transactions: [received(height: _tip)],
-        );
-        await _pump(tester, session, demo: demo);
-        expect(_rowLabel(tester), isNot(contains('received,')));
-        expect(find.textContaining(l.txStatusReceived), findsNothing);
-        expect(find.textContaining(l.txStatusConfirming(0, 3)), findsOneWidget);
-        expect(_inTile(BalanceKind.confirming, '2.5'), findsOneWidget);
+    testWidgets('a confirming balance never sits under a Received row', (tester) async {
+      final session = FakeWalletSession(
+        summary: _summary(
+          spendable: 10,
+          confirming: 2.5,
+          height: _tip - BigInt.one,
+        ),
+        transactions: [received(height: _tip)],
+      );
+      await _pump(tester, session);
+      expect(_rowLabel(tester), isNot(contains('received,')));
+      expect(find.textContaining(l.txStatusReceived), findsNothing);
+      expect(find.textContaining(l.txStatusConfirming(0, 3)), findsOneWidget);
+      expect(_inTile(BalanceKind.confirming, '2.5'), findsOneWidget);
 
-        // The next refresh reaches block 228: three confirmations, both say so.
-        session.summaryValue = _summary(
-          spendable: 12.5,
-          height: _tip + BigInt.from(2),
-        );
-        await tester.pump(autoRefreshInterval);
-        await tester.pumpAndSettle();
-        expect(
-          find.byKey(balanceTileKey(BalanceKind.confirming)),
-          findsNothing,
-        );
-        expect(find.textContaining(l.txStatusReceived), findsOneWidget);
-      });
-    }
+      // The next refresh reaches block 228: three confirmations, both say so.
+      session.summaryValue = _summary(
+        spendable: 12.5,
+        height: _tip + BigInt.from(2),
+      );
+      await tester.pump(autoRefreshInterval);
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(balanceTileKey(BalanceKind.confirming)),
+        findsNothing,
+      );
+      expect(find.textContaining(l.txStatusReceived), findsOneWidget);
+    });
 
     testWidgets('a tip ahead of the summary does not complete a row early', (
       tester,

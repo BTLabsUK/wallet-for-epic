@@ -8,7 +8,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../demo.dart' show devNetworksOf;
+import '../dev_networks.dart' show devNetworksOf;
 
 import '../l10n.dart';
 import '../models.dart' show Chain;

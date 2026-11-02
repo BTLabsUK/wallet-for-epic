@@ -32,8 +32,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:epic_wallet/src/cancel_final.dart';
-import 'package:epic_wallet/src/demo_server/gated_service.dart';
-import 'package:epic_wallet/src/demo_server/limits.dart';
 import 'package:epic_wallet/src/errors.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
@@ -44,6 +42,7 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/delegating_session.dart';
 
 final String? _lib = Platform.environment['WFE_DEMO_LEPIC_LIB'];
 final String? _fund = Platform.environment['WFE_FLOO_FUND'];
@@ -114,8 +113,8 @@ String tail(ProcessResult r) {
 
 /// A's session with hooks into Cancel: [afterCancel] runs once, after LEPIC's cancel and before
 /// CancelFinal's spend back, and [failSpendBack] is thrown once by the next spend back.
-class _Race extends GatedWalletSession {
-  _Race(WalletSession inner) : super(inner, WorkGate(1));
+class _Race extends DelegatingWalletSession {
+  _Race(super.inner);
 
   Future<void> Function()? afterCancel;
   WalletError? failSpendBack;

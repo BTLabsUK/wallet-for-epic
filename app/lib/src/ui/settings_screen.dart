@@ -10,7 +10,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../demo.dart';
 import '../donate.dart' show donateLinkProvider;
 import '../l10n.dart';
 import '../errors.dart';
@@ -84,7 +83,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final l = context.l10n;
     final scan = ref.watch(scanProvider);
     final walletOpen = ref.watch(sessionProvider) != null;
-    final demo = ref.watch(demoModeProvider);
     final backedUp = ref.watch(backedUpProvider).value ?? true;
     // Level 1 hides Network & privacy and Transactions.
     final features = ref.watch(levelFeaturesProvider);
@@ -110,7 +108,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     key: settingsGroupKey(SettingsSection.security),
                     section: SettingsSection.security,
                     // A warning mark, not a line, while the recovery phrase is not backed up.
-                    warning: !demo && !backedUp ? l.settingsStateBackUp : null,
+                    warning: !backedUp ? l.settingsStateBackUp : null,
                   ),
                 // The shared sections in the desktop's order (GP2-021): Transactions ·
                 // Privacy · Appearance · This wallet; Security keeps its place first.

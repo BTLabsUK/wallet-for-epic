@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
-import '../demo.dart';
+import '../dev_networks.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../pin_wrap.dart' show PinKeyLost;
@@ -16,8 +16,6 @@ import '../wallet_service.dart';
 import 'app_dialog.dart';
 import 'centered_body.dart';
 import 'common.dart';
-import 'demo_pin.dart';
-import 'demo_screens.dart' show endDemo;
 import 'first_run_screen.dart' show NetworkSettingsButton;
 import 'launch_screen.dart';
 import 'pin.dart';
@@ -58,19 +56,10 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   /// sealed text and the recorded mode, the field would otherwise not fit the secret.
   bool? _passphraseChosen;
 
-  /// Web demo only: true while the demo PIN is filled in for the visitor, false for the PIN
-  /// field, null until [_prepare] has looked. Outside the demo always false.
-  bool? _autoPin;
-
-  /// Web demo and preview ([pinlessProvider]): the wallet opens with one tap, no PIN. On a
-  /// cold start it opens by itself.
-  bool _noPin = false;
-
   @override
   void initState() {
     super.initState();
-    _autoPin = ref.read(demoModeProvider) || ref.read(pinlessProvider) ? null : false;
-    WidgetsBinding.instance.addPostFrameCallback((_) => _prepare());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _prepareUnlock());
   }
 
   @override
@@ -80,31 +69,9 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     super.dispose();
   }
 
-  Future<void> _prepare() async {
-    if (!ref.read(demoModeProvider) && !ref.read(pinlessProvider)) {
-      return _prepareUnlock();
-    }
-    // In the demo the lookup goes to the server; a failure says so and offers Try again.
-    try {
-      await _prepareUnlock();
-    } catch (error) {
-      logWarn('unlock', 'demo lookup failed: ${describeError(englishStrings, error)}');
-      if (mounted) setState(() => _error = describeError(context.l10n, error));
-      return;
-    }
-    // Without a wallet config nothing was looked up; the PIN field shows.
-    if (mounted && _autoPin == null) setState(() => _autoPin = false);
-  }
-
-  Future<void> _retryPrepare() async {
-    setState(() => _error = null);
-    await _prepare();
-  }
-
   Future<void> _prepareUnlock() async {
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
-    final coldStart = ref.read(lockReasonProvider) == LockReason.coldStart;
     // Only a cold start or the auto-lock starts biometrics; after Lock wallet the user taps.
     final autoPrompt = ref.read(lockReasonProvider.notifier).takeAutoPrompt();
     final vault = ref.read(vaultProvider);
@@ -118,35 +85,14 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       return;
     }
     final biometrics = await vault.biometricsEnabled(config.chain);
-    // A demo wallet made with the demo PIN gets it filled in, unless a try already failed; in a
-    // build without PINs it opens with a tap instead.
-    final demoPinWallet = failures == 0 && await vault.usesDemoPin(config.chain);
-    final noPin = ref.read(pinlessProvider) && demoPinWallet;
-    final autoPin = !noPin && ref.read(demoModeProvider) && demoPinWallet;
     if (!mounted) return;
     setState(() {
-      _biometrics = biometrics && !noPin;
-      _autoPin = autoPin;
-      _noPin = noPin;
+      _biometrics = biometrics;
       if (failures > 0) {
         _pinError = describePinRejection(context.l10n, PinRejected(failures));
       }
     });
-    // Starting the app goes straight into the wallet; after a lock the Unlock button opens it.
-    if (noPin && coldStart) return _unlockWithDemoPin();
-    if (biometrics && !autoPin && autoPrompt) await _unlockWithBiometrics();
-  }
-
-  /// Opens the demo wallet with [demoPin] once the dots are filled. A rejected PIN leaves the
-  /// field; any other error stays here with Try again.
-  Future<void> _unlockWithDemoPin() async {
-    await _unlockWithPin(demoPin);
-    if (mounted && _pinError != null) {
-      setState(() {
-        _autoPin = false;
-        _noPin = false;
-      });
-    }
+    if (biometrics && autoPrompt) await _unlockWithBiometrics();
   }
 
   Future<void> _unlockWithBiometrics() async {
@@ -256,8 +202,6 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   }
 
   Future<void> _forgotPin() async {
-    // A demo wallet has no phrase to restore from: forgetting its PIN ends the demo.
-    if (ref.read(demoModeProvider)) return endDemo(context, ref);
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
     final l = context.l10n;
@@ -303,19 +247,13 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       // The title is the hero's heading; the bar only holds the network action.
       appBar: AppBar(
         actions: [
-          // The web demo is on floonet for good.
-          if (!ref.watch(demoModeProvider))
-            NetworkSettingsButton(enabled: !_busy),
+          NetworkSettingsButton(enabled: !_busy),
         ],
       ),
       body: CenteredBody(
         children: [
           BrandHero(
-            // The demo PIN needs no network jargon: the visitor only watches it open.
-            title: _autoPin != false
-                ? l.demoPinUnlockTitle
-                // The header's Test coins pill names the network in the demo.
-                : config == null || ref.watch(demoModeProvider)
+            title: config == null
                 ? l.unlockTitle
                 : ref.watch(devNetworksProvider)
                 ? '${l.unlockTitle}${networkSuffix(l, config.chain)}'
@@ -326,30 +264,18 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
             ErrorText(l.unlockStranded),
             const SizedBox(height: 16),
           ],
-          if (_noPin)
-            BusyButton(
-              label: l.pinlessUnlock,
-              busy: _busy,
-              onPressed: _unlockWithDemoPin,
-            )
-          else
-            switch (_autoPin) {
-              // A frame or two while the demo looks up how its wallet opens.
-              null => const SizedBox(height: 56),
-              true => DemoPinFill(onDone: _unlockWithDemoPin),
-              false => PinField(
-                // The field changes with the mode, so its state (the eye, focus) starts over.
-                key: ValueKey(passphrase ? 'unlock-passphrase' : 'unlock-pin'),
-                controller: _pin,
-                label: passphrase ? l.passphraseLabel : l.pinLabel,
-                enabled: !_busy,
-                errorText: _pinError,
-                onCompleted: _unlockWithPin,
-                passphrase: passphrase,
-                // The error line's room is kept, so a wrong PIN moves nothing below.
-                reserveError: true,
-              ),
-            },
+          PinField(
+            // The field changes with the mode, so its state (the eye, focus) starts over.
+            key: ValueKey(passphrase ? 'unlock-passphrase' : 'unlock-pin'),
+            controller: _pin,
+            label: passphrase ? l.passphraseLabel : l.pinLabel,
+            enabled: !_busy,
+            errorText: _pinError,
+            onCompleted: _unlockWithPin,
+            passphrase: passphrase,
+            // The error line's room is kept, so a wrong PIN moves nothing below.
+            reserveError: true,
+          ),
           const SizedBox(height: 8),
           // One slot for the check's bar or the error: Forgot PIN stays where it is whether a
           // check runs, failed or has not started.
@@ -361,12 +287,6 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
             const SizedBox(height: 8),
             PinWaitNote(until: checkAt),
           ],
-          if (_autoPin != false && _error != null)
-            BusyButton(
-              label: l.launchTryAgain,
-              busy: _busy,
-              onPressed: _autoPin == null ? _retryPrepare : _unlockWithDemoPin,
-            ),
           if (_biometrics) ...[
             const SizedBox(height: 8),
             OutlinedButton.icon(
@@ -378,27 +298,23 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
               onPressed: _busy || _reading ? null : _unlockWithBiometrics,
             ),
           ],
-          // Forgot PIN ends a demo; it stays away while the demo PIN fills in, and comes back
-          // with an error or the PIN field.
-          if (!_noPin && (_autoPin == false || _error != null)) ...[
-            const SizedBox(height: 24),
+          const SizedBox(height: 24),
+          TextButton(
+            onPressed: _busy ? null : _forgotPin,
+            child: Text(passphrase ? l.passphraseForgot : l.pinForgot),
+          ),
+          // Quiet, under Forgot: the way out when the stored mode and the secret disagree.
+          if (canSwitch)
             TextButton(
-              onPressed: _busy ? null : _forgotPin,
-              child: Text(passphrase ? l.passphraseForgot : l.pinForgot),
-            ),
-            // Quiet, under Forgot: the way out when the stored mode and the secret disagree.
-            if (canSwitch && _autoPin == false)
-              TextButton(
-                style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
-                onPressed: _busy ? null : () => _switchMode(!passphrase),
-                child: Text(
-                  passphrase ? l.passphraseUsePinInstead : l.passphraseUsePassphraseInstead,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+              style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+              onPressed: _busy ? null : () => _switchMode(!passphrase),
+              child: Text(
+                passphrase ? l.passphraseUsePinInstead : l.passphraseUsePassphraseInstead,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
-          ],
+            ),
         ],
       ),
     );

@@ -8,7 +8,6 @@
 
 import 'dart:async';
 
-import 'package:epic_wallet/src/demo.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
@@ -195,7 +194,6 @@ class _Harness {
           walletConfigProvider.overrideWith(() => _Mainnet(node)),
           offlineNodePeersProvider.overrideWith((ref) async => peers),
           relayDirectoryProvider.overrideWithValue(_NoRelays()),
-          demoModeProvider.overrideWithValue(false),
           torBundleFinderProvider.overrideWithValue(() async => _bundle),
           networkChangesProvider.overrideWithValue(network.stream),
           phoneTorTimingProvider.overrideWithValue(

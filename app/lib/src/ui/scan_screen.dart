@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../demo.dart';
 import '../l10n.dart';
 import '../settings.dart';
 import '../wallet_backend.dart' show hostIsPhone;
@@ -74,9 +73,8 @@ final qrScannerProvider = Provider<QrScanner>(
   (ref) => const PlatformQrScanner(),
 );
 
-/// Whether screens offer a QR scan: the scanner works here, and this is not the web demo.
-bool offersQrScan(WidgetRef ref) =>
-    ref.watch(qrScannerProvider).supported && !ref.watch(demoModeProvider);
+/// Whether screens offer a QR scan: the scanner works here.
+bool offersQrScan(WidgetRef ref) => ref.watch(qrScannerProvider).supported;
 
 /// Whether Send and Receive offer QR as a payment method (the payment's animated code, not
 /// the address scan of [offersQrScan]).

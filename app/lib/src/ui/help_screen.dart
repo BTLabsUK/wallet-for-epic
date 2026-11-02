@@ -9,7 +9,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../demo.dart';
 import '../help/help_content.dart';
 import '../help/help_i18n.dart';
 import '../l10n.dart';
@@ -299,13 +298,12 @@ const Key helpFeedbackKey = ValueKey('help-feedback');
 const Key helpShowTipsKey = ValueKey('help-show-tips');
 
 /// Send feedback at the top of Help: a row with the explanation behind its info icon and a
-/// hairline under it. Not in the web demo, which has no feedback report.
+/// hairline under it.
 class _FeedbackRow extends ConsumerWidget {
   const _FeedbackRow();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (ref.watch(demoModeProvider)) return const SizedBox.shrink();
     final l = context.l10n;
     final t = context.tokens;
     return Container(
@@ -481,8 +479,6 @@ class _StillStuck extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // The web demo has no feedback report until a feedback proxy exists.
-    if (ref.watch(demoModeProvider)) return const SizedBox.shrink();
     final l = context.l10n;
     final text = Theme.of(context).textTheme;
     return Padding(

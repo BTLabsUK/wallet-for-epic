@@ -13,7 +13,7 @@ FAIL (the step fails, the gate is not asked until it is fixed, or skipped with a
   raw-key   an l10n key name on screen instead of its text
   icu       an unfilled {placeholder} on screen
   debug     debug or placeholder text (TODO, FIXME, lorem ipsum, "Instance of '", NaN, null, ...)
-            (on dev, demo and experimental screens these are warnings)
+            (on dev and experimental screens these are warnings)
 WARN (shown in the gate message, never holds anything):
   gone      a screen the published release had and this one has not (renamed or removed)
   host      a domain, IP, onion or URL on a screen that did not show it in the published release
@@ -49,7 +49,7 @@ DIFF_PIXELS = 0.001        # a screen whose pixels differ by more than this shar
 MAX_DIFF_IMAGES = 400      # before | after | diff composites in the report
 LIST_MAX = 12              # findings listed per kind in summary.txt
 
-SOFT_AREAS = {"dev", "demo", "experimental"}
+SOFT_AREAS = {"dev", "experimental"}
 HOST = re.compile(r"(?:https?|wss?)://\S+|\b[a-z2-7]{16,56}\.onion\b|\b\d{1,3}(?:\.\d{1,3}){3}(?::\d+)?\b"
                   r"|\b(?:[a-z0-9-]+\.)+(?:com|net|org|io|uk|us|id|dev|app|cash|xyz|info|me|co)\b", re.I)
 NETWORK = re.compile(r"\b(mainnet|floonet|floo)\b", re.I)

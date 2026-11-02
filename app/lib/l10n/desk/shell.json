@@ -216,11 +216,11 @@
   },
   "deskShellLockedTitle": "Wallet locked",
   "@deskShellLockedTitle": {
-    "description": "Toast title after Quit in a build that cannot close the app (demo): the wallet was only locked."
+    "description": "Toast title after Quit in a build that cannot close the app (the desktop web mock): the wallet was only locked."
   },
   "deskShellLockedBody": "Quit closes the app once the wallet core is connected.",
   "@deskShellLockedBody": {
-    "description": "Toast body after Quit in a build that cannot close the app (demo)."
+    "description": "Toast body after Quit in a build that cannot close the app (the desktop web mock)."
   },
   "deskShellLockWallet": "Lock wallet ({keys})",
   "@deskShellLockWallet": {

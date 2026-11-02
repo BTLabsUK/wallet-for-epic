@@ -1783,126 +1783,6 @@ abstract class AppLocalizations {
   /// **'BT Wallet'**
   String get shellTitle;
 
-  /// Heading of the web demo's welcome screen, under the mark.
-  ///
-  /// In en, this message translates to:
-  /// **'Try BT Wallet'**
-  String get demoWelcomeTitle;
-
-  /// The welcome screen's one line under its heading.
-  ///
-  /// In en, this message translates to:
-  /// **'A real wallet with free test coins, which have no value. It is deleted after 24 hours.'**
-  String get demoWelcomeLine;
-
-  /// Main button of the demo's welcome screen. It creates a demo wallet, then asks for a PIN.
-  ///
-  /// In en, this message translates to:
-  /// **'Start the demo'**
-  String get demoStart;
-
-  /// Heading of the screen shown when the 24 hours of a web demo ran out.
-  ///
-  /// In en, this message translates to:
-  /// **'Your demo ended'**
-  String get demoEndedTitle;
-
-  /// Body of the screen shown when a web demo ran out. 'Start again' is the button below (demoStartAgain); use the same words.
-  ///
-  /// In en, this message translates to:
-  /// **'Its wallet and test coins were deleted.'**
-  String get demoEndedBody;
-
-  /// Button on the ended screen of the web demo: starts a new demo.
-  ///
-  /// In en, this message translates to:
-  /// **'Start again'**
-  String get demoStartAgain;
-
-  /// Tooltip of the demo countdown. {time} is a date and time, such as '21 Sep 2026, 14:05'.
-  ///
-  /// In en, this message translates to:
-  /// **'Your demo ends at {time}. Its wallet and test coins are deleted then.'**
-  String demoEndsAt(String time);
-
-  /// Warning notice shown once, 30 minutes before a web demo ends.
-  ///
-  /// In en, this message translates to:
-  /// **'Your demo ends in 30 minutes. Its wallet and test coins are deleted then.'**
-  String get demoEndingSoon;
-
-  /// Button in the web demo that asks the faucet to send free test coins to this wallet.
-  ///
-  /// In en, this message translates to:
-  /// **'Get test coins'**
-  String get demoTestCoins;
-
-  /// Notice after the faucet accepted a claim for test coins.
-  ///
-  /// In en, this message translates to:
-  /// **'Test coins are on their way. They arrive in a minute or two.'**
-  String get demoTestCoinsPaid;
-
-  /// Notice when the faucet refused a claim because the last one was too recent. {seconds} is a number, with the seconds abbreviation.
-  ///
-  /// In en, this message translates to:
-  /// **'The faucet needs a pause. Try again in {seconds} s.'**
-  String demoTestCoinsCooldown(int seconds);
-
-  /// Notice when the faucet failed or did not answer.
-  ///
-  /// In en, this message translates to:
-  /// **'The faucet sent nothing this time. Try again in a minute.'**
-  String get demoTestCoinsFailed;
-
-  /// Settings row in the web demo, instead of Delete this wallet, and the confirm button of its dialog.
-  ///
-  /// In en, this message translates to:
-  /// **'End demo'**
-  String get demoEnd;
-
-  /// Title of the dialog before a web demo is ended.
-  ///
-  /// In en, this message translates to:
-  /// **'End the demo?'**
-  String get demoEndTitle;
-
-  /// Body of the dialog before a web demo is ended.
-  ///
-  /// In en, this message translates to:
-  /// **'Your demo wallet and its test coins are deleted now. You can start a new demo afterwards.'**
-  String get demoEndBody;
-
-  /// Error on the web demo's welcome screen when the demo server did not answer.
-  ///
-  /// In en, this message translates to:
-  /// **'Cannot reach the demo server. Check your connection and try again.'**
-  String get demoServerUnreachable;
-
-  /// Error when the demo server already runs as many demos as it allows. {minutes} is a number, with the minute abbreviation.
-  ///
-  /// In en, this message translates to:
-  /// **'The demo is full right now. Try again in {minutes} min.'**
-  String demoStartFull(int minutes);
-
-  /// Error when the visitor's network started too many demos in the last hour. {minutes} is a number, with the minute abbreviation.
-  ///
-  /// In en, this message translates to:
-  /// **'Too many demos were started from your network. Try again in {minutes} min.'**
-  String demoStartTooMany(int minutes);
-
-  /// Warning notice in the web demo while the connection to its wallet server is down and the app retries.
-  ///
-  /// In en, this message translates to:
-  /// **'Connection lost, reconnecting.'**
-  String get demoConnectionLost;
-
-  /// Success notice in the web demo once the connection to its wallet server is back.
-  ///
-  /// In en, this message translates to:
-  /// **'Connected again.'**
-  String get demoConnectionBack;
-
   /// Tooltip of the app-bar button that opens settings.
   ///
   /// In en, this message translates to:
@@ -2575,7 +2455,7 @@ abstract class AppLocalizations {
   /// **'An invoice expired before you answered it.'**
   String get invoiceNoticeExpired;
 
-  /// Button on Receive's Epicbox address tab that opens the request form: the user asks someone to pay them over epicbox (an invoice they send). Shown beside Get test coins in the web demo, so keep it short.
+  /// Button on Receive's Epicbox address tab that opens the request form: the user asks someone to pay them over epicbox (an invoice they send). Keep it short.
   ///
   /// In en, this message translates to:
   /// **'Request a payment'**
@@ -3486,12 +3366,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Unlock wallet'**
   String get unlockTitle;
-
-  /// Web demo and preview only: the unlock screen's one button, which opens the wallet without a PIN.
-  ///
-  /// In en, this message translates to:
-  /// **'Unlock'**
-  String get pinlessUnlock;
 
   /// Label of the 6-digit PIN field.
   ///
@@ -4975,7 +4849,7 @@ abstract class AppLocalizations {
   /// **'Open-source software in this wallet, each under its own licence.'**
   String get licencesLead;
 
-  /// Licences screen: the wallet itself. Not "app" on its own: the web demo shows this screen too.
+  /// Licences screen: the wallet itself. Not "app" on its own: the web preview shows this screen too.
   ///
   /// In en, this message translates to:
   /// **'BT Wallet by BT Labs: Apache-2.0.'**
@@ -5479,30 +5353,6 @@ abstract class AppLocalizations {
   /// **'Play the animation'**
   String get fileHelpPlay;
 
-  /// Web demo: under the six dots that fill in the demo wallet's fixed PIN on first run, unlock and PIN prompts. Also the screen-reader announcement.
-  ///
-  /// In en, this message translates to:
-  /// **'Demo PIN, filled in for you'**
-  String get demoPinFilled;
-
-  /// Web demo: button that stops the PIN fill animation and goes on at once.
-  ///
-  /// In en, this message translates to:
-  /// **'Skip'**
-  String get demoPinSkip;
-
-  /// Web demo: heading of the first run while the demo PIN fills in and the wallet is created. Replaces the usual title with its network name.
-  ///
-  /// In en, this message translates to:
-  /// **'Setting up your demo wallet'**
-  String get demoPinSetUpTitle;
-
-  /// Web demo: heading of the unlock screen while the demo PIN fills in. The usual title returns with the PIN field.
-  ///
-  /// In en, this message translates to:
-  /// **'Opening your demo wallet'**
-  String get demoPinUnlockTitle;
-
   /// Send, step 1: heading of the step that starts with the payment method selector, then the recipient field.
   ///
   /// In en, this message translates to:
@@ -5982,102 +5832,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'+{amount} coming in'**
   String balanceLineComingIn(String amount);
-
-  /// Web demo: a small pill in the app bar saying the wallet holds test coins. Keep it very short.
-  ///
-  /// In en, this message translates to:
-  /// **'Test coins'**
-  String get demoTestCoinsPill;
-
-  /// First word of the web demo's stripe under the app bar: "Demo · Test coins · 5 h left". One short word.
-  ///
-  /// In en, this message translates to:
-  /// **'Demo'**
-  String get demoStripeLabel;
-
-  /// Web demo: tooltip and screen-reader text of the Test coins pill.
-  ///
-  /// In en, this message translates to:
-  /// **'Epic’s test network. The coins have no value.'**
-  String get demoTestCoinsPillTip;
-
-  /// Web demo: in the Test coins pill, hours until the demo wallet is deleted, with the hour abbreviation.
-  ///
-  /// In en, this message translates to:
-  /// **'{hours} h left'**
-  String demoLeftHours(int hours);
-
-  /// Web demo: in the Test coins pill, minutes until the demo wallet is deleted, with the minute abbreviation.
-  ///
-  /// In en, this message translates to:
-  /// **'{minutes} min left'**
-  String demoLeftMinutes(int minutes);
-
-  /// Web demo, Receive: under the address. Payments arrive only while the browser tab with the demo is open.
-  ///
-  /// In en, this message translates to:
-  /// **'Keep this tab open to receive.'**
-  String get demoReceiveKeepOpen;
-
-  /// Web demo, Wallet tab: heading of the short checklist that guides a visitor through a first payment.
-  ///
-  /// In en, this message translates to:
-  /// **'Try a payment'**
-  String get demoGuideTitle;
-
-  /// Web demo checklist, step 2: send some test coins to someone.
-  ///
-  /// In en, this message translates to:
-  /// **'Send some to someone'**
-  String get demoGuideSend;
-
-  /// Web demo checklist, under step 2. A demo is tied to the browser's cookies: another browser, or a private window opened from a normal one, starts a second, separate demo; a second tab or a second private window opens the same one, so do not say 'new tab'.
-  ///
-  /// In en, this message translates to:
-  /// **'Pay a friend’s demo, or open the demo in another browser or a private window.'**
-  String get demoGuideSendHint;
-
-  /// Web demo checklist, step 2's button: switches to the Send tab.
-  ///
-  /// In en, this message translates to:
-  /// **'Go to Send'**
-  String get demoGuideOpenSend;
-
-  /// Web demo checklist: while the faucet claim runs, which takes up to about a minute.
-  ///
-  /// In en, this message translates to:
-  /// **'Asking the test faucet. This can take a minute.'**
-  String get demoGuideAsking;
-
-  /// Web demo checklist: the one line left once both steps are done.
-  ///
-  /// In en, this message translates to:
-  /// **'Both done. Look around as long as the demo lasts.'**
-  String get demoGuideDone;
-
-  /// Web demo checklist: small button that hides the checklist.
-  ///
-  /// In en, this message translates to:
-  /// **'Hide'**
-  String get demoGuideHide;
-
-  /// Web demo checklist: screen-reader label of the Hide button.
-  ///
-  /// In en, this message translates to:
-  /// **'Hide the demo steps'**
-  String get demoGuideHideLabel;
-
-  /// Web demo checklist: what a screen reader says for a finished step; step is the step's text.
-  ///
-  /// In en, this message translates to:
-  /// **'{step}, done'**
-  String demoGuideStepDone(String step);
-
-  /// Web demo checklist: what a screen reader says for a step not done yet; step is the step's text.
-  ///
-  /// In en, this message translates to:
-  /// **'{step}, not done yet'**
-  String demoGuideStepToDo(String step);
 
   /// Caption above the wallet's full Tor address (the onion address) on the Receive tab, named like the Link · HTTP card (receiveHttpTitle); a tap on the card copies it.
   ///
@@ -8788,7 +8542,7 @@ abstract class AppLocalizations {
   /// **'{method}: a transaction file is handed over, a response file comes back, then the sender finalizes'**
   String methodArtSpokenFile(String method);
 
-  /// Receive's Epicbox strip line: share the address to get paid. No "app": the web demo shows it too.
+  /// Receive's Epicbox strip line: share the address to get paid. No "app": the web preview shows it too.
   ///
   /// In en, this message translates to:
   /// **'Share the address to get paid.'**
@@ -10747,7 +10501,7 @@ abstract class AppLocalizations {
   /// **'This is the wallet’s own address.'**
   String get deskSendErrOwn;
 
-  /// Demo failure text on Send (used by the guided tour).
+  /// Sample failure text on Send (used by the guided tour).
   ///
   /// In en, this message translates to:
   /// **'The recipient did not answer. Nothing was sent.'**
@@ -15079,13 +14833,13 @@ abstract class AppLocalizations {
   /// **'A send is in progress. Quit again once it finishes.'**
   String get deskShellNotQuitBody;
 
-  /// Toast title after Quit in a build that cannot close the app (demo): the wallet was only locked.
+  /// Toast title after Quit in a build that cannot close the app (the desktop web mock): the wallet was only locked.
   ///
   /// In en, this message translates to:
   /// **'Wallet locked'**
   String get deskShellLockedTitle;
 
-  /// Toast body after Quit in a build that cannot close the app (demo).
+  /// Toast body after Quit in a build that cannot close the app (the desktop web mock).
   ///
   /// In en, this message translates to:
   /// **'Quit closes the app once the wallet core is connected.'**
@@ -29153,12 +28907,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not finished'**
   String get deskOnbFailedTitle;
-
-  /// The stripe under the title bar in the desktop web demo (sample data, no real wallet). Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Demo · sample data'**
-  String get deskDemoStripe;
 
   /// Status line under the phrase grid when more than one word is not a valid recovery word. {words} lists them as "word (place)", comma-separated.
   ///

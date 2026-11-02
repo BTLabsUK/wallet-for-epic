@@ -25,7 +25,7 @@
 library;
 
 import '../../tor_build.dart';
-import '../../demo.dart' show devNetworksBuild;
+import '../../dev_networks.dart' show devNetworksBuild;
 
 abstract final class DeskFeatures {
   static const bool dataFolder = false;

@@ -7,7 +7,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:epic_wallet/l10n/app_localizations.dart';
-import 'package:epic_wallet/src/demo.dart';
+import 'package:epic_wallet/src/dev_networks.dart';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/providers.dart';

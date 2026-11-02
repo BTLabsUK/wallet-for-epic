@@ -85,8 +85,7 @@ Future<HostSettings> loadShippedSettings({AssetBundle? bundle}) async {
 /// [devChain] picks a hidden dev chain (a `WFE_DEV_NETWORKS` build): its own folder
 /// `<data>/dev/<chain>/` holds its `settings.default.toml`, `app-config.toml` and
 /// `settings.toml` (`app/tool/dev_settings.sh` copies the first two there); without them this
-/// throws [DevSettingsMissing]. [shippedText] and [configText] replace the two (the web demo's,
-/// from its server).
+/// throws [DevSettingsMissing]. [shippedText] and [configText] replace the two.
 ///
 /// The network mode (`[network] mode`, `network_mode_file.dart`) reaches [NetGate] here, before
 /// this returns and so before any connection of the app (Tor, the status site, the price, the

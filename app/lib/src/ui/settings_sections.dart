@@ -17,7 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../app_info.dart';
 import '../app_log.dart';
 import '../settings_file/host_settings.dart' show appConfig, hostSettings;
-import '../demo.dart';
+import '../dev_networks.dart';
 import '../dist_build.dart';
 import '../errors.dart';
 import '../l10n.dart';
@@ -42,7 +42,6 @@ import 'backup_screen.dart';
 import 'common.dart';
 import 'confirmations_row.dart';
 import 'contacts_screen.dart';
-import 'demo_screens.dart' show endDemo;
 import 'language_flag.dart';
 import 'launch_screen.dart';
 import 'level_step_screen.dart';
@@ -571,52 +570,46 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
   List<Widget> _security(AppLocalizations l) {
     final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     final biometrics = ref.watch(biometricsProvider).value;
-    final demo = ref.watch(demoModeProvider);
     final backedUp = ref.watch(backedUpProvider).value ?? true;
     final t = context.tokens;
     return [
-      if (!demo)
-        ListTile(
-          leading: const Icon(Icons.key),
-          title: Text(l.settingsBackupPhrase),
-          // The one state that matters here: not done yet, in the warning colour.
-          subtitle: backedUp
-              ? null
-              : Text(
-                  l.settingsStateNotBackedUp,
-                  style: TextStyle(color: t.warn),
-                ),
-          trailing: const NavChevron(),
-          onTap: _showPhrase,
-        ),
+      ListTile(
+        leading: const Icon(Icons.key),
+        title: Text(l.settingsBackupPhrase),
+        // The one state that matters here: not done yet, in the warning colour.
+        subtitle: backedUp
+            ? null
+            : Text(
+                l.settingsStateNotBackedUp,
+                style: TextStyle(color: t.warn),
+              ),
+        trailing: const NavChevron(),
+        onTap: _showPhrase,
+      ),
       ListTile(
         leading: const Icon(Icons.lock_clock),
         title: Text(l.settingsAutoLock),
         subtitle: Text(autoLockLabel(l, s.autoLockMinutes)),
         onTap: () => _pickAutoLock(s),
       ),
-      // The demo wallet opens with the demo PIN, filled in; another would lock the visitor
-      // out.
-      if (!demo)
-        ListTile(
-          leading: const Icon(Icons.pin),
-          title: Text(l.settingsChangePin),
-          trailing: const NavChevron(),
-          onTap: () => _push(const ChangePinScreen()),
-        ),
+      ListTile(
+        leading: const Icon(Icons.pin),
+        title: Text(l.settingsChangePin),
+        trailing: const NavChevron(),
+        onTap: () => _push(const ChangePinScreen()),
+      ),
       // Optional: a passphrase in place of the 6-digit PIN (WAL-03). Change PIN goes back to a PIN.
-      if (!demo)
-        ListTile(
-          leading: const Icon(Icons.password),
-          title: Text(
-            ref.watch(usesPassphraseProvider).value ?? false
-                ? l.settingsChangePassphrase
-                : l.settingsUsePassphrase,
-          ),
-          trailing: const NavChevron(),
-          onTap: () => _push(const ChangePinScreen(passphrase: true)),
+      ListTile(
+        leading: const Icon(Icons.password),
+        title: Text(
+          ref.watch(usesPassphraseProvider).value ?? false
+              ? l.settingsChangePassphrase
+              : l.settingsUsePassphrase,
         ),
-      if (!demo && (biometrics?.available ?? false))
+        trailing: const NavChevron(),
+        onTap: () => _push(const ChangePinScreen(passphrase: true)),
+      ),
+      if (biometrics?.available ?? false)
         HintSwitchTile(
           icon: Icons.fingerprint,
           title: l.settingsBiometrics,
@@ -642,7 +635,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final torState = phoneTorState(ref.watch(phoneTorProvider));
     final config = ref.watch(walletConfigProvider);
     final network = ref.watch(networkChoiceProvider).value;
-    final demo = ref.watch(demoModeProvider);
     final devNetworks = ref.watch(devNetworksProvider);
     final advanced = AdvancedOptions.of(context);
     final chain = config == null ? l.commonUnknown : chainName(l, config.chain);
@@ -668,7 +660,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
             child: NetworkStatusCard(showTor: false),
           ),
         )
-      else if (!demo) ...[
+      else ...[
         ListTile(
           key: settingsNodeKey,
           leading: const Icon(EpicGlyphs.node),
@@ -695,7 +687,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
         ),
       ],
       // While Tor is off: where the relay would not see this phone's address.
-      if (!demo && torAvailable && torState == TorState.off && (walletOpen || config != null))
+      if (torAvailable && torState == TorState.off && (walletOpen || config != null))
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
           child: Text(l.torRelayCaption, key: torRelayCaptionKey, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.tokens.dim)),
@@ -720,7 +712,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           onChanged: _settings.setNodeFailover,
         ),
       // Development builds only: the network itself, each with its own wallet.
-      if (!demo && advanced.has(AdvancedFeature.serverDetails) && devNetworks)
+      if (advanced.has(AdvancedFeature.serverDetails) && devNetworks)
         ListTile(
           leading: const Icon(Icons.hub),
           title: Text(l.settingsAboutNetwork),
@@ -736,7 +728,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     final walletOpen = ref.watch(sessionProvider) != null;
     final scan = ref.watch(scanProvider);
-    final demo = ref.watch(demoModeProvider);
     // Invoices only on a core that has them (UP-14); until then no entry at all.
     final invoices = ref.watch(invoicesShownProvider);
     final outputs = walletOpen ? ref.watch(walletOutputsProvider).value : null;
@@ -783,68 +774,61 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           onTap: () => _push(const InvoiceSettingsScreen()),
         ),
       // Linked devices is a hub row of its own (item 10).
-      if (!demo) ...[
-        SettingsHeader(l.settingsSectionHistory),
-        ListTile(
-          leading: const Icon(Icons.upload_file),
-          title: TitleWithHint(
-            l.settingsExportHistory,
-            hint: '${l.backupFileHolds} ${l.backupFileRestoreOrder}',
-            icon: Icons.upload_file,
-          ),
-          onTap: _busy
-              ? null
-              : () => _run(() => exportHistoryBackup(context, ref)),
+      SettingsHeader(l.settingsSectionHistory),
+      ListTile(
+        leading: const Icon(Icons.upload_file),
+        title: TitleWithHint(
+          l.settingsExportHistory,
+          hint: '${l.backupFileHolds} ${l.backupFileRestoreOrder}',
+          icon: Icons.upload_file,
         ),
-        ListTile(
-          leading: const Icon(Icons.table_view),
-          title: Text(l.settingsExportCsv),
-          onTap: _busy ? null : () => _run(() => exportHistoryCsv(context, ref)),
+        onTap: _busy
+            ? null
+            : () => _run(() => exportHistoryBackup(context, ref)),
+      ),
+      ListTile(
+        leading: const Icon(Icons.table_view),
+        title: Text(l.settingsExportCsv),
+        onTap: _busy ? null : () => _run(() => exportHistoryCsv(context, ref)),
+      ),
+      ListTile(
+        leading: const Icon(Icons.download),
+        title: TitleWithHint(
+          l.settingsImportHistory,
+          hint: l.backupImportLead,
+          icon: Icons.download,
         ),
-        ListTile(
-          leading: const Icon(Icons.download),
-          title: TitleWithHint(
-            l.settingsImportHistory,
-            hint: l.backupImportLead,
-            icon: Icons.download,
-          ),
-          onTap: _busy
-              ? null
-              : () => _run(() => importHistoryBackup(context, ref)),
-        ),
-      ],
+        onTap: _busy
+            ? null
+            : () => _run(() => importHistoryBackup(context, ref)),
+      ),
       // Recheck balance is the fix for a wrong balance: for everyone. From a height is Advanced.
       // It reads the chain, so it waits for the network.
-      if (!demo)
-        ListTile(
-          leading: const Icon(Icons.sync),
-          title: Text(l.settingsRescan),
-          subtitle: block == NetBlock.none
-              ? null
-              : Text(block == NetBlock.killSwitch ? l.recheckOffKill : netBlockReason(l, block)!),
-          enabled: !scan.running && block == NetBlock.none,
-          onTap: block == NetBlock.none ? _rescan : null,
-        ),
+      ListTile(
+        leading: const Icon(Icons.sync),
+        title: Text(l.settingsRescan),
+        subtitle: block == NetBlock.none
+            ? null
+            : Text(block == NetBlock.killSwitch ? l.recheckOffKill : netBlockReason(l, block)!),
+        enabled: !scan.running && block == NetBlock.none,
+        onTap: block == NetBlock.none ? _rescan : null,
+      ),
       const Divider(height: 24),
       // Restore from a phrase replaces this wallet (one per network), so it sits with Delete
       // and goes through its warning and PIN once the phrase checks out. Help names this place.
-      if (!demo)
-        ListTile(
-          key: settingsRestoreKey,
-          leading: const Icon(Icons.restore),
-          title: Text(l.firstRunRestore),
-          enabled: !_busy,
-          trailing: const NavChevron(),
-          onTap: _restoreFromPhrase,
-        ),
+      ListTile(
+        key: settingsRestoreKey,
+        leading: const Icon(Icons.restore),
+        title: Text(l.firstRunRestore),
+        enabled: !_busy,
+        trailing: const NavChevron(),
+        onTap: _restoreFromPhrase,
+      ),
       ListTile(
         leading: Icon(Icons.delete_forever, color: error),
-        title: Text(
-          demo ? l.demoEnd : l.settingsDeleteWallet,
-          style: TextStyle(color: error),
-        ),
+        title: Text(l.settingsDeleteWallet, style: TextStyle(color: error)),
         enabled: !_busy,
-        onTap: demo ? () => _run(() => endDemo(context, ref)) : _deleteWallet,
+        onTap: _deleteWallet,
       ),
     ];
   }
@@ -1235,8 +1219,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
   /// Advanced is a hub row of its own.
   List<Widget> _about(AppLocalizations l) {
     final version = ref.watch(appVersionProvider);
-    final demo = ref.watch(demoModeProvider);
-    final updates = !demo && ref.read(updateProvider.notifier).supported;
+    final updates = ref.read(updateProvider.notifier).supported;
     final block = watchNetBlock(context, ref);
     return [
       const Padding(

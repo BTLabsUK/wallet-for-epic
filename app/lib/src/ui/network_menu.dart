@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'status_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../demo.dart' show devNetworksProvider;
+import '../dev_networks.dart' show devNetworksProvider;
 import '../l10n.dart';
 import '../network.dart';
 import '../providers.dart';
@@ -83,7 +83,7 @@ class _NetworkMenu extends ConsumerWidget {
 Key networkChoiceKey(NetworkPreset preset) =>
     ValueKey('network-${preset.chain.name}');
 
-/// Development builds and the web demo only (devNetworksProvider): pick the network. Each
+/// Development builds only (devNetworksProvider): pick the network. Each
 /// network has its own wallet and settings file (node and relay), so another network opens its
 /// own file and the app starts again on it (an open wallet is locked by that start).
 Future<void> showNetworkChooser(BuildContext context) =>

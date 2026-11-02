@@ -9,7 +9,6 @@
 import 'dart:async';
 
 import 'package:epic_wallet/src/payment_prefs.dart';
-import 'package:epic_wallet/src/demo.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
@@ -116,7 +115,6 @@ class _Harness {
           sessionProvider.overrideWith(() => _Open(session)),
           walletConfigProvider.overrideWith(_Mainnet.new),
           relayDirectoryProvider.overrideWithValue(_NoRelays()),
-          demoModeProvider.overrideWithValue(false),
           torBundleFinderProvider.overrideWithValue(() async => bundle),
           networkChangesProvider.overrideWithValue(network.stream),
           // pumpAndSettle moves the fake clock by minutes while a spinner turns: the

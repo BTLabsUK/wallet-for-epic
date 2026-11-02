@@ -10,7 +10,6 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/misc.dart' show Override;
 
-import '../demo.dart' show pinlessProvider;
 import '../demo_fixtures.dart';
 import '../levels/first_start.dart' show firstStartProvider;
 import '../levels/relay_switch_providers.dart' show relaySwitchProvider;
@@ -521,10 +520,9 @@ PreviewSession _previewSession() {
 /// The overrides of a `WFE_WEB_FAKE=true` build: Tor as a played-back controller, so the Tor
 /// row of the status card and Receive's Tor tab can be seen without a tor binary.
 List<Override> previewOverrides() => [
-  // The levels: the first-start step on every visit, the normal PIN pad (the fake wallet takes
-  // any PIN), and the relay offer played in seconds.
+  // The levels: the first-start step on every visit (the fake wallet takes any PIN), and the
+  // relay offer played in seconds.
   firstStartProvider.overrideWith(PreviewFirstStart.new),
-  pinlessProvider.overrideWithValue(false),
   relaySwitchProvider.overrideWith(PreviewRelaySwitch.new),
   phoneTorProvider.overrideWith(PreviewPhoneTor.new),
   relayDirectoryProvider.overrideWithValue(const PreviewDirectory()),

@@ -4,7 +4,6 @@
 // receipt; the payer scans it with no switch on, approves behind the PIN and shows the answer
 // back at once. A request that expired or does not fit this network pays nothing.
 
-import 'package:epic_wallet/src/demo.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
@@ -106,7 +105,6 @@ class _Harness {
           priceSourceProvider.overrideWithValue(_NoPrice()),
           sessionProvider.overrideWith(() => _Open(session)),
           walletConfigProvider.overrideWith(_Mainnet.new),
-          demoModeProvider.overrideWithValue(false),
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,

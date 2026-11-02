@@ -8,7 +8,7 @@ import 'package:epic_wallet/src/ui/restore_screen.dart' show restoreRetryKey, re
 import 'package:epic_wallet/src/ui/scan_screen.dart' show FakeQrScanner, qrScannerProvider;
 import 'package:epic_wallet/l10n/app_localizations.dart';
 import 'package:epic_wallet/src/connection_state.dart';
-import 'package:epic_wallet/src/demo.dart';
+import 'package:epic_wallet/src/dev_networks.dart';
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';

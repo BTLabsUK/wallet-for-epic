@@ -35,14 +35,6 @@ const _gated = {
   'lib/src/desktop/data/files.dart': 'NetGate.allows(NetDial.browser) before the browser opens',
 };
 
-/// Not connections of the wallet: the web build's link to its own backend, and the demo
-/// server's tooling.
-const _exempt = {
-  'lib/src/remote/web_channel.dart': "the web build's socket to its own wallet backend (the remote link)",
-  'lib/src/demo_web_platform_browser.dart': "the web demo's calls to its own server",
-  'lib/src/demo_server/ws_channel.dart': "the demo server's test client",
-};
-
 void main() {
   final files = Directory('lib').listSync(recursive: true).whereType<File>().where((f) => f.path.endsWith('.dart'));
 
@@ -52,7 +44,7 @@ void main() {
     final found = <String>[];
     for (final f in files) {
       final path = rel(f);
-      if (_gated.containsKey(path) || _exempt.containsKey(path)) continue;
+      if (_gated.containsKey(path)) continue;
       final lines = f.readAsLinesSync();
       for (var i = 0; i < lines.length; i++) {
         final line = lines[i].trimLeft();
@@ -73,7 +65,7 @@ void main() {
   });
 
   test('the lists name files that exist', () {
-    for (final path in [..._gated.keys, ..._exempt.keys]) {
+    for (final path in _gated.keys) {
       expect(File(path).existsSync(), isTrue, reason: path);
     }
   });

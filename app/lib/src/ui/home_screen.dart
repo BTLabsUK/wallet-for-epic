@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../contacts.dart' show contactNameFor, contactsProvider;
-import '../demo.dart';
 import '../recent_activity.dart';
 import '../errors.dart';
 import '../l10n.dart';
@@ -26,8 +25,6 @@ import 'backup_screen.dart';
 import 'common.dart';
 import 'last_session_offer.dart';
 import 'contacts_screen.dart';
-import 'demo_guide.dart';
-import 'demo_screens.dart' show TestCoinsButton;
 import 'help_screen.dart';
 import 'history_screen.dart';
 import 'home_parts.dart';
@@ -282,10 +279,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Home opens at start and on every unlock: each is an opening. A resume that needs no
       // unlock checks from `WalletApp`.
-      // The web demo has no in-app updates.
-      if (!ref.read(demoModeProvider)) {
-        ref.read(updateProvider.notifier).checkOnOpening();
-      }
+      ref.read(updateProvider.notifier).checkOnOpening();
       _openIncoming();
       _openLink();
       // After unlock, once: the last session froze or crashed, its log can be sent.
@@ -305,7 +299,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   /// home while the phrase is not written down, at most once per [backupNoticeEvery]; Settings ›
   /// Security keeps its warning mark meanwhile.
   Future<void> _offerBackup() async {
-    if (_backupAsked || !mounted || ref.read(demoModeProvider)) return;
+    if (_backupAsked || !mounted) return;
     if (ref.read(phoneTourProvider).open) return;
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
@@ -861,10 +855,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final importOffer = ref.watch(historyImportOfferProvider);
     final l = context.l10n;
     final data = home.value;
-    final demo = ref.watch(demoModeProvider);
-    final guide = demoGuideShown(ref);
-    // The web demo shows no phrase and keeps no history files, so it has no backup cards.
-    final backedUp = demo || (ref.watch(backedUpProvider).value ?? true);
+    final backedUp = ref.watch(backedUpProvider).value ?? true;
     final transactions = watchHistory(ref, data?.transactions ?? const <TxEntry>[]);
     // Level 1: the quiet line under the figure stands for the tiles, and View all for the
     // destinations (Contacts is in Settings › This wallet).
@@ -942,13 +933,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     // Level 1: the rows already say "Waiting for <name>"; no card about it.
                     if (!plain)
                       _PendingSendsCard(transactions: transactions, open: _open),
-                    if (guide)
-                      const Padding(
-                        padding: EdgeInsets.only(top: homeCardGap),
-                        child: DemoGuide(),
-                      ),
                     // It waits until the phrase is written down: that backup comes first.
-                    if (backedUp && config != null && !demo)
+                    if (backedUp && config != null)
                       _HistoryBackupCard(
                         chain: config.chain,
                         transactions: transactions,
@@ -970,17 +956,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       EmptyState(
                         icon: const Icon(Icons.south_west),
                         message: l.homeNoPayments,
-                        // The checklist carries Get test coins while it shows; otherwise
-                        // the next step is the Receive tab.
-                        action: demo && !guide
-                            ? const TestCoinsButton()
-                            : demo
-                            ? null
-                            // The one primary on an empty Home, as the desktop's (UP-034).
-                            : FilledButton(
-                                onPressed: () => _goTab(ShellTab.receive),
-                                child: Text(l.homeReceiveEpicButton),
-                              ),
+                        // The one primary on an empty Home, as the desktop's (UP-034).
+                        action: FilledButton(
+                          onPressed: () => _goTab(ShellTab.receive),
+                          child: Text(l.homeReceiveEpicButton),
+                        ),
                       ),
                     // Level 1: an invoice waiting is a row here, not a notice.
                     const QuietInvoiceRows(),

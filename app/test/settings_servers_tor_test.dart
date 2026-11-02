@@ -5,7 +5,7 @@
 import 'dart:io';
 
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
-import 'package:epic_wallet/src/demo.dart';
+import 'package:epic_wallet/src/dev_networks.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/phone_tor.dart';

@@ -83,8 +83,8 @@ Future<HttpReply> _send(
   List<int>? body,
   Duration timeout,
 ) async {
-  // The network mode's gate (network_gate.dart): Kill switch lets nothing leave the page (the
-  // demo server's own calls included), Node only the node in use.
+  // The network mode's gate (network_gate.dart): Kill switch lets nothing leave the page,
+  // Node only the node in use.
   try {
     NetGate.dial(NetDial.http, url.host);
   } on NetBlocked {

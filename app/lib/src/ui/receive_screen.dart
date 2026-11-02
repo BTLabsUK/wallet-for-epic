@@ -11,7 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
 import '../connection_state.dart';
-import '../demo.dart';
+import '../dev_networks.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../network_gate.dart';
@@ -27,7 +27,6 @@ import '../tor_routes.dart';
 import '../wallet_service.dart';
 import 'address_view.dart';
 import 'common.dart';
-import 'demo_screens.dart' show TestCoinsButton;
 import 'file_exchange_help.dart';
 import 'handshake.dart';
 import 'help_screen.dart';
@@ -89,8 +88,8 @@ const double receiveQrMaxSize = 240, receiveQrMinSize = 110;
 /// or its text can still be accepted by hand.
 ///
 /// The Receive tab's content: a choice at the top with Send's look, then on Epicbox the
-/// address (tap to copy, Share inside), the epicbox line, the QR code, and the demo's test
-/// coins and requesting a payment when the wallet handles invoices; on Link, stacked, the
+/// address (tap to copy, Share inside), the epicbox line, the QR code, and requesting a
+/// payment when the wallet handles invoices; on Link, stacked, the
 /// onion address in the same card, Tor's state and the QR code (or with Tor off a Turn on
 /// Tor) while Link · Tor is on (the phone receives nothing over Link · HTTP); on File the
 /// file card. Help ends them all. The QR code takes the room
@@ -170,7 +169,6 @@ class ReceiveView extends ConsumerWidget {
     // The Epicbox list of the settings file is empty: no server, so no address to hand out
     // (LEPIC's is on a placeholder server, lepic_wallet_service.dart's noEpicboxDomain).
     final noServer = ref.watch(hostSettingsProvider.select((h) => h.epicboxServers.isEmpty));
-    final demo = ref.watch(demoModeProvider);
     // Requests go to paired contacts or into a file, both through pairing (RFC 0002).
     final invoices = ref.watch(invoicesShownProvider) && ref.watch(pairingSupportedProvider);
     final help = Center(
@@ -443,7 +441,6 @@ class ReceiveView extends ConsumerWidget {
           const SizedBox(height: 8),
           if (relayMove != null) ...[NewAddressLines(result: relayMove), const SizedBox(height: 8)],
           if (offline) _EpicboxOffByMode(mode: ref.watch(networkModeProvider)) else const _EpicboxLine(),
-          if (demo) const _KeepTabOpenLine(),
           const SizedBox(height: 8),
         ] else if (address.hasError)
           ErrorText(describeError(l, address.error!))
@@ -468,25 +465,9 @@ class ReceiveView extends ConsumerWidget {
       below = column([
         if (arriving != null) ...[const SizedBox(height: 8), ArrivalCard(tx: arriving)],
         if (quiet) quietLink(),
-        if (demo || invoices) ...[
+        if (invoices) ...[
           const SizedBox(height: 8),
-          LayoutBuilder(
-            builder: (context, box) {
-              // Both buttons on a narrow phone: the framework's tighter icon-button padding,
-              // so they share one row instead of stacking (the tab then fits 360 x 800 dp).
-              final tight = demo && value != null && invoices && box.maxWidth < 360;
-              const padding = EdgeInsetsDirectional.fromSTEB(8, 0, 12, 0);
-              return Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  if (demo && value != null) TestCoinsButton(padding: tight ? padding : null),
-                  if (invoices) _RequestButton(padding: tight ? padding : null),
-                ],
-              );
-            },
-          ),
+          const Center(child: _RequestButton()),
         ],
         const SizedBox(height: 8),
         help,
@@ -701,9 +682,7 @@ class _AddressRowState extends ConsumerState<_AddressRow> {
     final theme = Theme.of(context);
     final files = ref.watch(slateFilesProvider);
     final address = widget.address;
-    // The web demo has no share card.
-    final canShare =
-        !ref.watch(demoModeProvider) && (files.canShare || files.canShareText);
+    final canShare = files.canShare || files.canShareText;
     // A 48 dp box for each icon, stacked on the card's right: copy above share.
     const icon = 48.0;
     const inset = 4.0;
@@ -1020,27 +999,6 @@ class _DirectNeedsTor extends ConsumerWidget {
   }
 }
 
-/// The web demo's one rule for receiving, under the epicbox line: payments arrive only while
-/// this browser tab is open.
-class _KeepTabOpenLine extends StatelessWidget {
-  const _KeepTabOpenLine();
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(top: 2),
-    child: Text(
-      context.l10n.demoReceiveKeepOpen,
-      key: receiveKeepOpenKey,
-      textAlign: TextAlign.center,
-      style: Theme.of(context).textTheme.bodySmall
-          ?.copyWith(color: context.tokens.dim),
-    ),
-  );
-}
-
-/// The key of the demo's "keep this tab open" line on Receive, for tests.
-const Key receiveKeepOpenKey = ValueKey('receive-keep-open');
-
 /// The address as a QR code of [size] with the mark, framed by corner ticks. Always shown,
 /// like the desktop Receive: no cover, no tap to hide.
 class _AddressQr extends StatelessWidget {
@@ -1280,15 +1238,12 @@ const Key receiveRequestKey = ValueKey('receive-request');
 /// Asking someone to pay this wallet, when the wallet handles invoices: the button to the
 /// request form.
 class _RequestButton extends StatelessWidget {
-  const _RequestButton({this.padding});
-
-  /// The side padding where its row is short of room; the theme's when null.
-  final EdgeInsetsGeometry? padding;
+  const _RequestButton();
 
   @override
   Widget build(BuildContext context) => OutlinedButton.icon(
     key: receiveRequestKey,
-    style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48), padding: padding),
+    style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
     icon: const Icon(Icons.request_quote_outlined),
     label: Text(context.l10n.receiveRequestTitle),
     onPressed: () => Navigator.of(context).push(

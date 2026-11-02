@@ -1018,74 +1018,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get shellTitle => 'BT Wallet';
 
   @override
-  String get demoWelcomeTitle => '试用 BT Wallet';
-
-  @override
-  String get demoWelcomeLine => '一个真正的钱包，附带免费的测试币，测试币没有价值。24 小时后删除。';
-
-  @override
-  String get demoStart => '开始演示';
-
-  @override
-  String get demoEndedTitle => '你的演示已结束';
-
-  @override
-  String get demoEndedBody => '它的钱包和测试币已删除。';
-
-  @override
-  String get demoStartAgain => '重新开始';
-
-  @override
-  String demoEndsAt(String time) {
-    return '你的演示将于 $time 结束，届时它的钱包和测试币会被删除。';
-  }
-
-  @override
-  String get demoEndingSoon => '你的演示将在 30 分钟后结束，届时它的钱包和测试币会被删除。';
-
-  @override
-  String get demoTestCoins => '获取测试币';
-
-  @override
-  String get demoTestCoinsPaid => '测试币已在路上，一两分钟内到账。';
-
-  @override
-  String demoTestCoinsCooldown(int seconds) {
-    return '水龙头需要休息一下。请在 $seconds 秒后重试。';
-  }
-
-  @override
-  String get demoTestCoinsFailed => '水龙头这次没有发送。请一分钟后重试。';
-
-  @override
-  String get demoEnd => '结束演示';
-
-  @override
-  String get demoEndTitle => '结束演示？';
-
-  @override
-  String get demoEndBody => '你的演示钱包及其测试币现在会被删除。之后可以开始新的演示。';
-
-  @override
-  String get demoServerUnreachable => '无法连接演示服务器。请检查网络连接后重试。';
-
-  @override
-  String demoStartFull(int minutes) {
-    return '演示名额已满。请在 $minutes 分钟后重试。';
-  }
-
-  @override
-  String demoStartTooMany(int minutes) {
-    return '从你的网络启动的演示过多。请在 $minutes 分钟后重试。';
-  }
-
-  @override
-  String get demoConnectionLost => '连接已断开，正在重新连接。';
-
-  @override
-  String get demoConnectionBack => '已重新连接。';
-
-  @override
   String get homeSettingsTooltip => '设置';
 
   @override
@@ -2032,9 +1964,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get unlockTitle => '解锁钱包';
-
-  @override
-  String get pinlessUnlock => '解锁';
 
   @override
   String get pinLabel => 'PIN 码';
@@ -3194,18 +3123,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get fileHelpPlay => '播放动画';
 
   @override
-  String get demoPinFilled => '演示 PIN 码已为你填好';
-
-  @override
-  String get demoPinSkip => '跳过';
-
-  @override
-  String get demoPinSetUpTitle => '正在设置你的演示钱包';
-
-  @override
-  String get demoPinUnlockTitle => '正在打开你的演示钱包';
-
-  @override
   String get sendStepMethod => '付款方式';
 
   @override
@@ -3478,62 +3395,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String balanceLineComingIn(String amount) {
     return '+$amount 即将到账';
-  }
-
-  @override
-  String get demoTestCoinsPill => '测试币';
-
-  @override
-  String get demoStripeLabel => '演示';
-
-  @override
-  String get demoTestCoinsPillTip => 'Epic 的测试网络。这些币没有价值。';
-
-  @override
-  String demoLeftHours(int hours) {
-    return '剩 $hours 小时';
-  }
-
-  @override
-  String demoLeftMinutes(int minutes) {
-    return '剩 $minutes 分钟';
-  }
-
-  @override
-  String get demoReceiveKeepOpen => '保持此标签页打开才能收款。';
-
-  @override
-  String get demoGuideTitle => '试一次付款';
-
-  @override
-  String get demoGuideSend => '发一些给别人';
-
-  @override
-  String get demoGuideSendHint => '付款给朋友的演示，或在另一个浏览器或无痕窗口中打开演示。';
-
-  @override
-  String get demoGuideOpenSend => '前往发送';
-
-  @override
-  String get demoGuideAsking => '正在向测试水龙头申请，可能需要一分钟。';
-
-  @override
-  String get demoGuideDone => '都完成了。演示结束前可以随意看看。';
-
-  @override
-  String get demoGuideHide => '隐藏';
-
-  @override
-  String get demoGuideHideLabel => '隐藏演示步骤';
-
-  @override
-  String demoGuideStepDone(String step) {
-    return '$step，已完成';
-  }
-
-  @override
-  String demoGuideStepToDo(String step) {
-    return '$step，尚未完成';
   }
 
   @override
@@ -17613,9 +17474,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOnbFailedTitle => '未完成';
-
-  @override
-  String get deskDemoStripe => '演示 · 示例数据';
 
   @override
   String deskOnbRestoreBadWords(String words) {

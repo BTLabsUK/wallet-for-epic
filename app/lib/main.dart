@@ -9,7 +9,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'src/app.dart';
 import 'src/app_log.dart';
 import 'src/data_folder.dart';
-import 'src/demo_web_platform.dart';
 import 'src/password_lists.dart';
 import 'src/phone_tor.dart';
 import 'src/relay_directory.dart' show statusSite;
@@ -54,7 +53,7 @@ Future<void> main() async {
     // The web builds have no first-start step.
     if (!kIsWeb) await holdUntilFirstStart(store);
     // Before anything reads an address: the settings file (docs/settings-file.md). A dev build
-    // on a test network reads that network's own file; the web demo its server's.
+    // on a test network reads that network's own file.
     await _openSettings(store);
     // Before any request: with the Tor switch saved on, the app's own requests (update check,
     // price, status) wait for tor from launch, also before the PIN, and never go direct.
@@ -85,12 +84,12 @@ Future<void> main() async {
     const build = String.fromEnvironment('FLUTTER_BUILD_NAME');
     logInfo('app', 'start ${build.isEmpty ? 'dev' : build}, $platformLabel');
     // Wallet errors are final answers (wrong password, node down); do not retry them silently.
-    // On the web demo, its server: the reconnecting wallet socket and the demo API.
+    // The web preview plays Tor and the levels back (web/preview.dart).
     runApp(
       ProviderScope(
         retry: (_, _) => null,
         overrides: [
-          ...webDemoOverrides(),
+          ...backendOverrides(),
           // The phone's Tor controller restarts tor when the network returns.
           networkChangesProvider.overrideWithValue(androidNetworkChanges()),
         ],
@@ -105,11 +104,6 @@ Future<void> main() async {
 /// Opens this run's settings. A dev chain without its file (`app/tool/dev_settings.sh`) falls
 /// back to mainnet's, saved as the network, with the reason in the log.
 Future<void> _openSettings(SecretStore store) async {
-  final demo = await demoSettingsText();
-  if (demo != null) {
-    await openAppSettings(store: store, devChain: Chain.floonet.name, shippedText: demo, configText: await demoConfigText());
-    return;
-  }
   final chain = await NetworkChoiceNotifier.savedChain(store);
   try {
     await openAppSettings(store: store, devChain: devChainOf(chain));

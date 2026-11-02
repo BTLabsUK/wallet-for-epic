@@ -202,7 +202,7 @@ class ContactStore {
       _contacts = [],
       _readOnly = false;
 
-  /// A store that keeps nothing on disk (tests, the demo).
+  /// A store that keeps nothing on disk (tests, the web preview).
   ContactStore.memory() : path = null, _contacts = [], _readOnly = false, _dir = null;
 
   static final Map<String, Future<ContactStore>> _open = {};

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The synchronous checks [RemoteWalletService] answers without the server.
+/// The recovery phrase check the desktop runs before it asks the wallet core (`desktop/data/phrase_check.dart`).
 library;
 
 import 'package:crypto/crypto.dart';
@@ -33,22 +33,4 @@ bool validMnemonic(String phrase) {
   final expected = sha256.convert(entropy).bytes.first >> (8 - checksumBits);
   final given = (bits & BigInt.from((1 << checksumBits) - 1)).toInt();
   return expected == given;
-}
-
-/// `[epicbox://]<52 base58 characters>@<host>[:<port>]`, LEPIC's address syntax with the relay
-/// required. The key's checksum and chain are not checked here: the server's send refuses an
-/// address LEPIC does not take.
-final RegExp _epicboxAddress = RegExp(
-  r'^(?:epicbox://)?[1-9A-HJ-NP-Za-km-z]{52}@[a-zA-Z0-9.]{1,253}(?::(\d{1,5}))?$',
-);
-
-/// LEPIC refuses longer address text before parsing it.
-const int _maxAddressLength = 512;
-
-bool epicboxAddressFormat(String address) {
-  if (address.length > _maxAddressLength) return false;
-  final m = _epicboxAddress.firstMatch(address);
-  if (m == null) return false;
-  final port = m.group(1);
-  return port == null || int.parse(port) <= 65535;
 }

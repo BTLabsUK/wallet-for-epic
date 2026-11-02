@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../demo.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../providers.dart';
@@ -13,7 +12,6 @@ import '../reserved_slot.dart';
 import '../vault.dart';
 import 'app_dialog.dart';
 import 'common.dart';
-import 'demo_pin.dart';
 import 'theme/tokens.dart';
 
 /// A masked [pinLength]-digit field that calls [onCompleted] once all digits are in. With
@@ -543,50 +541,14 @@ class _PinPromptDialogState<T extends Object>
     extends ConsumerState<_PinPromptDialog<T>> {
   final _pin = TextEditingController();
   String? _error;
-
-  /// Whether the last try ended in [PinRejected].
-  bool _rejected = false;
   bool _busy = false;
   bool _biometrics = false;
   DateTime? _checkAt;
 
-  /// Web demo only: true while the demo PIN is filled in, false for the PIN field, null until
-  /// [_checkDemoPin] has looked. Outside the demo always false.
-  bool? _autoPin;
-
   @override
   void initState() {
     super.initState();
-    // The web demo and preview fill in the demo PIN: no PIN is asked.
-    if (ref.read(demoModeProvider) || ref.read(pinlessProvider)) {
-      unawaited(_checkDemoPin());
-    } else {
-      _autoPin = false;
-    }
     unawaited(_checkBiometrics());
-  }
-
-  Future<void> _checkDemoPin() async {
-    final config = ref.read(walletConfigProvider);
-    var auto = false;
-    try {
-      // As on unlock: once a PIN was refused, the visitor types it.
-      auto =
-          config != null &&
-          await ref.read(walletServiceProvider).pinFailures(config: config) ==
-              0 &&
-          await ref.read(vaultProvider).usesDemoPin(config.chain);
-    } catch (_) {
-      // Unreadable: the PIN field shows.
-    }
-    if (mounted) setState(() => _autoPin = auto);
-  }
-
-  /// Runs the action with [demoPin]. A refused PIN brings the field; any other error stays
-  /// here, under the filled dots, with Try again.
-  Future<void> _runDemoPin() async {
-    await _run(demoPin);
-    if (mounted && _rejected) setState(() => _autoPin = false);
   }
 
   @override
@@ -626,7 +588,6 @@ class _PinPromptDialogState<T extends Object>
     setState(() {
       _busy = true;
       _error = null;
-      _rejected = false;
     });
     final checkAt = await pinCheckTime(ref);
     if (mounted) setState(() => _checkAt = checkAt);
@@ -634,7 +595,6 @@ class _PinPromptDialogState<T extends Object>
       final result = await widget.action(pin);
       if (mounted) Navigator.pop(context, result);
     } on PinRejected catch (rejection) {
-      _rejected = true;
       _pin.clear();
       final config = ref.read(walletConfigProvider);
       // A biometric copy that no longer opens is of no use.
@@ -677,18 +637,14 @@ class _PinPromptDialogState<T extends Object>
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            switch (_autoPin) {
-              null => const SizedBox(height: 56),
-              true => DemoPinFill(compact: true, onDone: _runDemoPin),
-              false => PinField(
-                controller: _pin,
-                label: passphrase ? l.passphraseLabel : l.pinLabel,
-                enabled: !_busy,
-                errorText: _error,
-                onCompleted: _run,
-                passphrase: passphrase,
-              ),
-            },
+            PinField(
+              controller: _pin,
+              label: passphrase ? l.passphraseLabel : l.pinLabel,
+              enabled: !_busy,
+              errorText: _error,
+              onCompleted: _run,
+              passphrase: passphrase,
+            ),
             if (_busy) ...[
               const SizedBox(height: 8),
               const PinCheckBar(),
@@ -696,10 +652,6 @@ class _PinPromptDialogState<T extends Object>
                 const SizedBox(height: 8),
                 PinWaitNote(until: checkAt),
               ],
-            ],
-            if (_autoPin == true && _error != null && !_busy) ...[
-              ErrorText(_error!),
-              BusyButton(label: l.launchTryAgain, onPressed: _runDemoPin),
             ],
             if (_biometrics)
               TextButton.icon(

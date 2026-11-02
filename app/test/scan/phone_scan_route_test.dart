@@ -7,7 +7,6 @@
 import 'dart:async';
 
 import 'package:epic_wallet/src/invite_links.dart' show InviteKind, clearInviteHandlers, registerInviteHandler;
-import 'package:epic_wallet/src/demo.dart' show demoModeProvider;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/payment_prefs.dart';
@@ -195,7 +194,6 @@ class _Harness {
             FakeHistoryFiles()..canShare = false,
           ),
           clockProvider.overrideWithValue(() => _now),
-          demoModeProvider.overrideWithValue(false),
           phonePaymentsProvider.overrideWithValue(true),
           sessionProvider.overrideWith(() => _OpenSession(session)),
           walletConfigProvider.overrideWith(

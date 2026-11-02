@@ -50,7 +50,7 @@ dependencies:
   # gzipped assets instead (assets/passwords, tool/password_lists.sh).
   zxcvbnm: 1.1.1
   # The wallet core (lepic_wallet_service.dart and what it imports) runs without Flutter, in
-  # the demo server and bin/core_check.dart, so it takes these from their packages rather than
+  # bin/core_check.dart and live tests, so it takes these from their packages rather than
   # through Flutter. web is for the browser build. All three at the versions Flutter locks.
   characters: 1.4.1
   meta: 1.18.3

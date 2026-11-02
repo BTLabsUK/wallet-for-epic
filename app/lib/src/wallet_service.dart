@@ -701,8 +701,7 @@ abstract interface class WalletSession {
 
 /// A session that can read this wallet's address on a relay other than its own: after the
 /// user moved the wallet to another relay, payments sent to the old address wait there
-/// (`levels/relay_switch.dart`). Optional, so the fakes, the demo and the remote session need
-/// nothing: [DrainEpicboxAt.drainEpicboxAt] answers null for a session without it.
+/// (`levels/relay_switch.dart`). Optional, so the fakes need nothing: [DrainEpicboxAt.drainEpicboxAt] answers null for a session without it.
 abstract interface class EpicboxDrainAt {
   /// Reads the messages stored for this wallet's address on [domain]:[port] once, answering
   /// each through that relay (signs payments to it, finalizes and posts its own sends' answers),

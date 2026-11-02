@@ -51,7 +51,7 @@ import 'watch_mode.dart' show postingFor;
 /// runs keep that search, except on iOS and macOS, whose loader finds the framework only by its
 /// full path in the bundle.
 ///
-/// Outside a Flutter bundle (a plain `dart run`, the demo server) the load by name fails, so
+/// Outside a Flutter bundle (a plain `dart run`, live tests) the load by name fails, so
 /// those pass [libraryPath], the library file itself, for example
 /// `third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so`.
 Future<void> initLepic({String? libraryPath}) async {
@@ -857,8 +857,8 @@ class LepicWalletService implements WalletService {
   /// [runtime] is called once, on first use; tests pass a `MockChain` runtime.
   ///
   /// With [oneWalletPerChain] (the app on a device), a chain's store keys stay the same when
-  /// its data directory moves ([_storePrefix]). The demo server and tests keep several wallets
-  /// of one chain in one store, so theirs follow the directory.
+  /// its data directory moves ([_storePrefix]). Tests keep several wallets of one chain in one
+  /// store, so theirs follow the directory.
   LepicWalletService({
     required this._secrets,
     lepic.LepicRuntime Function()? runtime,
@@ -871,7 +871,7 @@ class LepicWalletService implements WalletService {
   final bool oneWalletPerChain;
 
   /// Seals each wallet's PIN key and failure count with the phone's secure hardware
-  /// ([HardwarePinStore]); null keeps them plain in [_secrets] (desktop, tests, the demo).
+  /// ([HardwarePinStore]); null keeps them plain in [_secrets] (desktop, tests).
   final KeyWrap? keyWrap;
 
   /// The folder of the address book every wallet shares (`contact_store.dart`); null keeps
@@ -887,8 +887,8 @@ class LepicWalletService implements WalletService {
   /// which the interface asks without one.
   Chain _chain = Chain.mainnet;
 
-  /// One runtime for every service built without `runtime:`: the demo server makes a service
-  /// per demo, and they share LEPIC's pool and log stream. The phone builds one service.
+  /// One runtime for every service built without `runtime:`: tests that make several services
+  /// share LEPIC's pool and log stream. The phone builds one service.
   static lepic.LepicRuntime? _shared;
 
   static lepic.LepicRuntime _defaultRuntime() => _shared ??= _newRuntime();
@@ -909,7 +909,7 @@ class LepicWalletService implements WalletService {
 
   /// Opens LEPIC's log ring in [dir], the folder `startLogging` named, and from then on sends
   /// the app's own lines there too ([AppLog.ring]), so the ring a report attaches holds both,
-  /// redacted at the source. The demo server and tests name none.
+  /// redacted at the source. Tests name none.
   static Future<void> _openLogRing(lepic.LepicRuntime runtime, String dir) async {
     try {
       await runtime.openLogRing(dir: dir, maxBytes: BigInt.from(logRingBytes));
@@ -942,7 +942,7 @@ class LepicWalletService implements WalletService {
   }
 
   /// The copy-step events of every runtime, by runtime: LEPIC keeps one subscriber per runtime
-  /// (a new one replaces the old), and the demo server shares one runtime between services.
+  /// (a new one replaces the old), and services built without `runtime:` share one.
   static final Expando<Stream<StoreMigrationProgress>> _migrationOf = Expando('store migration');
 
   /// [runtime], with its copy-step events subscribed once, before any open, and passed on to

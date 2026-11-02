@@ -1093,14 +1093,11 @@ class _BalanceHelpState extends State<BalanceHelp> {
   }
 }
 
-/// Wallet's app bar title: nothing but, in the web demo, its Test coins pill ([trailing]); the
-/// mark before it is the logo and names the app to a screen reader. It names no network: a test
-/// network says so in the node status's tooltip.
+/// Wallet's app bar title: nothing. It names no network: a test network says so in the node
+/// status's tooltip.
 class ShellTitle extends StatelessWidget {
-  const ShellTitle({super.key, this.trailing});
-
-  final Widget? trailing;
+  const ShellTitle({super.key});
 
   @override
-  Widget build(BuildContext context) => trailing ?? const SizedBox.shrink();
+  Widget build(BuildContext context) => const SizedBox.shrink();
 }

@@ -5,18 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
-import '../demo.dart';
+import '../dev_networks.dart';
 import '../errors.dart';
 import '../levels/first_run_servers_phone.dart';
 import '../levels/level_providers.dart';
 import '../l10n.dart';
 import '../providers.dart';
-import '../wallet_service.dart' show Chain;
 import 'centered_body.dart';
 import 'launch_screen.dart';
 import 'levels/tor_wait_screen.dart';
 import 'common.dart';
-import 'demo_pin.dart';
 import 'network_menu.dart';
 import 'pin.dart';
 import 'restore_screen.dart';
@@ -48,20 +46,13 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
   ({String pin, bool biometrics})? _answer;
   String? _error;
 
-  /// "Create a new wallet" was chosen: the PIN step shows. The demo and the preview skip the
-  /// choice, as they have no phrase to restore.
+  /// "Create a new wallet" was chosen: the PIN step shows.
   bool _creating = false;
 
   @override
   void initState() {
     super.initState();
     _creating = widget.startCreating;
-    // The web demo and preview ask for no PIN: the wallet is set up with the demo PIN at once.
-    if (ref.read(pinlessProvider)) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _finish(demoPin, false);
-      });
-    }
   }
 
   @override
@@ -87,9 +78,6 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
         pin: pin,
         useBiometrics: useBiometrics,
       );
-      if (ref.read(demoModeProvider) || ref.read(pinlessProvider)) {
-        await _markDemoPin(config.chain);
-      }
       await ref.read(sessionProvider.notifier).open(result.session);
       _answer = null;
       if (!mounted) return;
@@ -122,16 +110,6 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
     }
   }
 
-  /// Notes that the demo wallet opens with [demoPin], so unlock fills it in again. The wallet
-  /// exists already; without the note unlock asks for the PIN, and Forgot PIN ends the demo.
-  Future<void> _markDemoPin(Chain chain) async {
-    try {
-      await ref.read(vaultProvider).markDemoPin(chain);
-    } catch (error) {
-      logWarn('setup', 'storing the demo PIN note failed: $error');
-    }
-  }
-
   void _retry() {
     final answer = _answer;
     if (answer != null) _finish(answer.pin, answer.biometrics);
@@ -158,10 +136,7 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
         ? ''
         : networkSuffix(l, config.chain);
     final waiting = _answer != null && _error == null;
-    // The web demo is on floonet for good, and never takes a phrase or biometrics.
-    final demo = ref.watch(demoModeProvider);
-    final pinless = ref.watch(pinlessProvider);
-    final choosing = !demo && !pinless && !_creating;
+    final choosing = !_creating;
 
     final onPinStep = _creating && _answer == null;
     // The system's Back on the PIN step returns to the choice, as the bar's arrow does.
@@ -183,11 +158,11 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
           // Mainnet on the built-in node works without a choice, but a new install must be able
           // to reach floonet or another node before it has a wallet, so this is not Advanced.
           actions: [
-            if (!demo && !pinless && ref.watch(levelFeaturesProvider.select((f) => f.welcomeServerLink)))
+            if (ref.watch(levelFeaturesProvider.select((f) => f.welcomeServerLink)))
               NetworkSettingsButton(enabled: !waiting),
           ],
         ),
-        body: onPinStep && !demo
+        body: onPinStep
             ? SafeArea(
                 child: Center(
                   child: ConstrainedBox(
@@ -254,26 +229,16 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
               )
             : CenteredBody(
                 children: [
-                  // The demo has no PIN to choose and no network to name: it only sets itself up.
-                  BrandHero(
-                    title: demo || pinless
-                        ? l.demoPinSetUpTitle
-                        : '${l.firstRunTitle}$network',
-                  ),
+                  BrandHero(title: '${l.firstRunTitle}$network'),
                   const SizedBox(height: 28),
-                  if (_answer == null && pinless)
-                    const Center(child: CircularProgressIndicator())
-                  else if (_answer == null && choosing)
+                  if (_answer == null && choosing)
                     // Two plain choices and no text field, so no keyboard can cover either. A new
                     // wallet is the primary one; Restore stands beside it at the same size. They
                     // sit at the foot of the screen, as every primary action.
                     const SizedBox.shrink()
-                  else if (_answer == null) ...[
-                    if (demo)
-                      DemoPinFill(onDone: () => _finish(demoPin, false))
-                    else
-                      PinSetupView(onDone: _finish),
-                  ] else if (waiting) ...[
+                  else if (_answer == null)
+                    PinSetupView(onDone: _finish)
+                  else if (waiting) ...[
                     const Center(child: CircularProgressIndicator()),
                     const SizedBox(height: 16),
                     Text(l.firstRunSecuring, textAlign: TextAlign.center),

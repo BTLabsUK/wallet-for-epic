@@ -20,7 +20,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../demo.dart';
 import '../../devices/phone_devices.dart' show linkedDevicesOnProvider;
 import '../../levels/level_features.dart' show LevelWording;
 import '../../levels/level_providers.dart' show levelFeaturesProvider;
@@ -139,7 +138,7 @@ class _PhoneTourAnchorState extends ConsumerState<PhoneTourAnchor> {
   void initState() {
     super.initState();
     _tour;
-    if (ref.read(phoneTourAutoProvider) && !ref.read(demoModeProvider)) {
+    if (ref.read(phoneTourAutoProvider)) {
       _timer = Timer(phoneTourStartDelay, _tryStart);
     }
   }
