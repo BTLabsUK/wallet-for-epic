@@ -276,7 +276,7 @@ class EGlyphTile extends StatelessWidget {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: c.s1,
+          color: risk || c.tint.a == 0 ? c.s1 : Color.alphaBlend(c.tint, c.s1),
           border: Border.all(color: c.lineStrong),
           borderRadius: BorderRadius.circular(Rad.sm),
           boxShadow: risk ? null : [BoxShadow(color: c.glow.withValues(alpha: c.glow.a * 0.7), blurRadius: 36.u, spreadRadius: -8.u)],

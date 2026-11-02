@@ -574,7 +574,8 @@ class _Sidebar extends ConsumerWidget {
       label: l.deskShellMainNav,
       child: Container(
         width: compact ? Ctl.rail : Ctl.sidebar,
-        decoration: BoxDecoration(color: c.s1, border: Border(right: BorderSide(color: c.line))),
+        // Light: the white column stands off the warm page with a visible divider.
+        decoration: BoxDecoration(color: c.s1, border: Border(right: BorderSide(color: c.tint.a == 0 ? c.line : c.lineStrong))),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

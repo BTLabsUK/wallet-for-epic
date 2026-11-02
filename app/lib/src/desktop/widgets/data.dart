@@ -707,7 +707,8 @@ class _ENavItemState extends State<ENavItem> {
       margin: const EdgeInsets.only(bottom: 2),
       padding: EdgeInsets.symmetric(horizontal: widget.compact ? 0 : Sp.x3, vertical: wrapped ? math.max(0.0, (40.u - line) / 2) : 0),
       decoration: BoxDecoration(
-        color: sel ? c.s3 : (_hover ? c.hover : Colors.transparent),
+        // Light: the selected item is a brand-tinted pill; dark keeps the neutral step.
+        color: sel ? (c.tint.a == 0 ? c.s3 : c.tint) : (_hover ? c.hover : Colors.transparent),
         borderRadius: BorderRadius.circular(Rad.sm),
       ),
       child: Row(

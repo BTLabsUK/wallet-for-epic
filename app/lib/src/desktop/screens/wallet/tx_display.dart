@@ -346,6 +346,8 @@ class TxIcon extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
+        // Light: a brand-tinted tile; dark keeps the outline alone.
+        color: off || c.tint.a == 0 ? null : c.tint,
         borderRadius: BorderRadius.circular(Rad.sm),
         border: Border.all(color: off ? c.line : c.lineStrong),
       ),
