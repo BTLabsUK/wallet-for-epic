@@ -129,6 +129,8 @@ void main() {
   Finder selectable(String s) => find.byWidgetPredicate((w) => w is SelectableText && (w.data ?? w.textSpan?.toPlainText()) == s);
 
   Future<void> review(WidgetTester tester) async {
+    await tester.ensureVisible(find.text('Review'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Review'));
     await tester.pumpAndSettle();
     expect(find.text('Check and send'), findsOneWidget);
@@ -180,7 +182,8 @@ void main() {
     // Pasted over the first one, To still holding its address.
     await tester.enterText(field('To'), 'epic:$_annaAddress?label=Bob');
     await tester.pumpAndSettle();
-    expect(text(tester, 'To'), _annaAddress);
+    // Anna's address is a saved contact's: To shows her chip.
+    expect(find.descendant(of: find.byKey(const ValueKey('send-picked')), matching: find.text(_anna)), findsOneWidget);
     expect(text(tester, 'Amount'), isEmpty);
     expect(text(tester, 'Message'), isEmpty);
     expect(find.text('Bob'), findsOneWidget);
@@ -439,7 +442,8 @@ void main() {
       expect(tester.takeException(), isNull);
 
       await review(tester);
-      expect(inDialog(selectable('pay.example.com:3415')), findsOneWidget);
+      expect(inDialog(find.byKey(const ValueKey('send-review-host'))), findsOneWidget);
+      expect(inDialog(find.byKey(const ValueKey('send-review-contacted'))), findsOneWidget);
       // The link in full: its host:port marked on the first line, the long path wrapping below.
       expect(inDialog(selectable('https://pay.example.com:3415')), findsOneWidget);
       expect(inDialog(selectable(direct.substring('https://pay.example.com:3415'.length))), findsOneWidget);

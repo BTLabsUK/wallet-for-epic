@@ -130,7 +130,8 @@ void main() {
     testWidgets('no IP and no answer from the port check say so', (tester) async {
       await pump(tester, [_reach(ip: null)]);
       expect(find.text('Public IP not found'), findsOneWidget);
-      expect(find.textContaining('On your network: http://10.0.1.24:3415'), findsOneWidget);
+      // The address sits in the sentence as its own unbroken span, so the notice's text is read.
+      expect(tester.widget<ENotice>(find.byKey(const ValueKey('http-reach'))).text, contains('On your network: http://10.0.1.24:3415'));
       await tester.pumpWidget(const SizedBox());
       await pump(tester, [_reach()]);
       expect(find.text('Reachability unknown'), findsOneWidget);

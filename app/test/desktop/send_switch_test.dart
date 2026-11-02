@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Send's method follows the address: a complete address of another kind, or a
-// pasted one, switches; text still being typed never does, and nothing switches back.
+// pasted one, switches; text still being typed never does. The method line follows the address.
 import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
@@ -43,11 +43,20 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  TxMethod? method(WidgetTester tester) => tester.widget<ESegmented<TxMethod?>>(find.byType(ESegmented<TxMethod?>)).value;
+  // There is no method selector: the method line under To names what the address chose.
+  TxMethod? method(WidgetTester tester) {
+    bool shown(String kind) => find.byKey(ValueKey('send-route-$kind')).evaluate().isNotEmpty;
+    if (shown('epicbox')) return TxMethod.epicbox;
+    if (shown('onion') || shown('http') || shown('https')) return TxMethod.http;
+    return null;
+  }
   Finder to() => find.byType(EditableText).first;
-  // The tag names the method the address chose (Link · HTTP or Link · Tor, never the family alone).
+  // The method line names the method the address chose (Link · HTTP or Link · Tor, never the family alone).
   Finder tag([String family = 'Link']) =>
-      find.descendant(of: find.byKey(const ValueKey('send-switch-tag')), matching: find.textContaining(family));
+      find.descendant(
+        of: find.byWidgetPredicate((w) => const ['epicbox', 'onion', 'http', 'https'].any((k) => w.key == ValueKey('send-route-$k'))),
+        matching: find.textContaining(family),
+      );
 
   /// Types [text] one character at a time; the method after each.
   Future<List<TxMethod?>> type(WidgetTester tester, String text) async {
@@ -63,7 +72,7 @@ void main() {
   testWidgets('typing "es" under Link stays on Link', (tester) async {
     await show(tester, const SendArgs(method: TxMethod.http));
     await type(tester, 'es');
-    expect(method(tester), TxMethod.http);
+    expect(method(tester), isNull, reason: 'text that is no address yet names no method');
     await tester.pump(const Duration(seconds: 4));
   });
 
@@ -74,29 +83,26 @@ void main() {
     expect(method(tester), TxMethod.epicbox);
     expect(tag('Epicbox'), findsOneWidget);
     expect(find.text(_epicbox), findsOneWidget, reason: 'the field keeps its text');
-    await tester.pump(const Duration(seconds: 4));
-    await tester.pumpAndSettle();
-    expect(tester.widget<AnimatedOpacity>(find.byKey(const ValueKey('send-switch-tag'))).opacity, 0, reason: 'the tag goes after 3 s');
   });
 
-  testWidgets('an onion typed char by char switches to Link once, at the last char, never back', (tester) async {
+  testWidgets('an onion typed char by char shows Link only once complete, at the last char', (tester) async {
     await show(tester, const SendArgs());
     final seen = await type(tester, _onion);
     final first = seen.indexOf(TxMethod.http);
     expect(first, _onion.length - 1, reason: 'only when the address is complete');
     expect(seen.skip(first), everyElement(TxMethod.http));
     expect(tag(), findsOneWidget);
-    // Deleting a character makes it incomplete: the method stays.
+    // Deleting a character makes it incomplete: the address decides, so the line goes (no Epicbox in its place).
     await tester.enterText(to(), _onion.substring(0, 50));
     await tester.pump();
-    expect(method(tester), TxMethod.http);
+    expect(method(tester), isNull);
     await tester.pump(const Duration(seconds: 4));
   }, skip: !torBuilt);
 
   testWidgets('http://10.0.1.24 typed switches to HTTP once the host is complete', (tester) async {
     await show(tester, const SendArgs());
     final seen = await type(tester, 'http://10.0.1.24');
-    expect(seen.first, TxMethod.epicbox);
+    expect(seen.first, isNull, reason: 'a lone h is no address yet');
     expect(seen.last, TxMethod.http);
     final first = seen.indexOf(TxMethod.http);
     expect(seen.skip(first), everyElement(TxMethod.http));

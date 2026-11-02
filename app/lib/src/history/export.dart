@@ -16,7 +16,7 @@ library;
 
 import 'dart:convert';
 
-import '../amount.dart' show formatEpic, shownMinDecimals;
+import '../amount_format.dart' show formatEpic, shownMinDecimals;
 import '../wallet_service.dart';
 import 'merge.dart' show userFieldName;
 import 'meta_store.dart';

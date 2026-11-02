@@ -40,7 +40,10 @@ Future<void> _settle(WidgetTester tester) async {
   }
 }
 
-TxMethod? _selected(WidgetTester tester) => tester.widget<ESegmented<TxMethod?>>(find.byType(ESegmented<TxMethod?>).first).value;
+/// The kind the method line under To names (there is no method selector), null while it shows none.
+String? _selected(WidgetTester tester) => const ['epicbox', 'onion', 'http', 'https']
+    .where((k) => find.byKey(ValueKey('send-route-$k')).evaluate().isNotEmpty)
+    .firstOrNull;
 
 String _to(WidgetTester tester) => tester.widget<EditableText>(find.byType(EditableText).first).controller.text;
 
@@ -48,39 +51,32 @@ void main() {
   testWidgets('a contact with only an Epicbox address opens Send on Epicbox, no notice', (tester) async {
     await _open(tester, arg: SendArgs(contact: _btlabs));
     expect(_to(tester), _box);
-    expect(_selected(tester), TxMethod.epicbox);
+    expect(_selected(tester), 'epicbox');
     expect(find.byKey(const ValueKey('send-method-off')), findsNothing);
   });
 
-  testWidgets('Link picked, then the contact: Send moves to Epicbox, no Link notice', (tester) async {
+  testWidgets('an http address, then the contact: the method line moves to Epicbox, no Link notice', (tester) async {
     await _open(tester, arg: const SendArgs());
-    await tester.tap(find.descendant(of: find.byType(ESegmented<TxMethod?>), matching: find.text('Link')));
+    await tester.enterText(find.byType(EditableText).first, 'http://10.0.1.77:3415');
     await _settle(tester);
-    expect(_selected(tester), TxMethod.http);
+    expect(_selected(tester), 'http');
     await tester.enterText(find.byType(EditableText).first, 'BT La');
     await _settle(tester);
     await tester.tap(find.text('BT Labs').last);
     await _settle(tester);
-    expect(_to(tester), _box);
-    expect(_selected(tester), TxMethod.epicbox);
+    expect(find.descendant(of: find.byKey(const ValueKey('send-picked')), matching: find.text('BT Labs')), findsOneWidget);
+    expect(_selected(tester), 'epicbox');
     expect(find.byKey(const ValueKey('send-method-off')), findsNothing);
   });
 
-  testWidgets('Epicbox off moves Send to Link; Epicbox back on: the Epicbox address in To goes by Epicbox again', (tester) async {
+  testWidgets('Epicbox off, then back on: the Epicbox address in To goes by Epicbox again', (tester) async {
     await _open(tester, arg: SendArgs(contact: _btlabs), payments: const PaymentPrefs(epicbox: false));
     expect(_to(tester), _box);
     final n = _container.read(deskProvider.notifier);
     await tester.runAsync(() => n.saveSettings(_container.read(deskProvider).settings.copyWith(payments: PaymentPrefs.defaults)));
     await _settle(tester);
-    expect(_selected(tester), TxMethod.epicbox);
+    expect(_selected(tester), 'epicbox');
     expect(find.byKey(const ValueKey('send-method-off')), findsNothing);
-    expect(find.textContaining('has only a Link'), findsNothing);
-  });
-
-  testWidgets('Link chosen by hand with an Epicbox address in To: the notice never says the contact has only a Link address', (tester) async {
-    await _open(tester, arg: SendArgs(contact: _btlabs));
-    await tester.tap(find.descendant(of: find.byType(ESegmented<TxMethod?>), matching: find.text('Link')));
-    await _settle(tester);
     expect(find.textContaining('has only a Link'), findsNothing);
   });
 }

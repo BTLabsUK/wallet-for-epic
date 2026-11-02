@@ -16,6 +16,9 @@ import 'review_password.dart';
 const _onion = 'http://pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion';
 const _epicbox = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com';
 const _https = 'https://pay.example.org:3415';
+// Plain http to the internet: held while the Tor switch is on. The local network goes direct.
+const _httpInternet = 'http://pay.example.org:3415';
+const _httpLan = 'http://10.0.0.5:3415';
 
 /// The mock wallet with tor's health set by the test, recording each send and switch change.
 class _Wallet extends MockDeskWallet {
@@ -23,6 +26,7 @@ class _Wallet extends MockDeskWallet {
 
   final List<SendRequest> sent = [];
   final List<bool> torCalls = [];
+  int torRetries = 0;
 
   /// While the switch is on: tor's health and whether sends work.
   ServiceHealth torHealth = ServiceHealth.ok;
@@ -39,6 +43,9 @@ class _Wallet extends MockDeskWallet {
     torCalls.add(on);
     return super.setTor(on);
   }
+
+  @override
+  Future<void> retryTorPay() async => torRetries++;
 
   @override
   Future<ServiceStatus> status() async {
@@ -90,6 +97,7 @@ void main() {
       await n.saveSettings(s.copyWith(payments: s.payments.copyWith(linkHttp: true, linkTor: true)));
     });
     wallet.torCalls.clear();
+    wallet.torRetries = 0;
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
@@ -144,7 +152,7 @@ void main() {
       expect(review(tester).onPressed, isNull);
       await tester.tap(find.widgetWithText(EButton, 'Retry'));
       await tester.pumpAndSettle();
-      expect(wallet.torCalls, [true]);
+      expect(wallet.torRetries, 1, reason: 'Retry restarts the tor payments go through');
       expect(wallet.sent, isEmpty);
       // D-05: an error offers Retry only.
       expect(find.widgetWithText(EButton, 'Turn Tor off'), findsNothing);
@@ -164,7 +172,7 @@ void main() {
     expect(review(tester).label, 'Review');
     await tester.tap(find.text('Review'));
     await tester.pumpAndSettle();
-    expect(find.text('Link · HTTP (their wallet must be open)'), findsOneWidget);
+    expect(find.descendant(of: find.byType(Dialog), matching: find.text('Link · HTTPS')), findsOneWidget);
     await enterReviewPassword(tester);
     await tester.tap(find.textContaining('Send 5'));
     await tester.pumpAndSettle();
@@ -172,14 +180,13 @@ void main() {
     expect(wallet.sent.single.to, _https);
   }, skip: !torBuilt);
 
-  testWidgets('Link plain http to another computer with Tor on: off, and why', (tester) async {
-    await show(tester, const SendArgs(method: TxMethod.http, recipient: 'http://10.0.0.5:3415', amount: '5'));
-    // The line under To (with the info icon and Turn Tor off, captioned as the switch for
-    // every connection: D-05) and the summary's hint.
-    expect(find.byKey(const ValueKey('send-plain-http-off')), findsOneWidget);
-    expect(find.textContaining('Plain http:// does not work with Tor on'), findsNWidgets(2));
-    expect(find.byKey(const ValueKey('send-turn-tor-off')), findsOneWidget);
-    expect(find.byKey(const ValueKey('send-turn-tor-off-caption')), findsOneWidget);
+  testWidgets('Link plain http to the internet with Tor on: held, and why', (tester) async {
+    await show(tester, const SendArgs(method: TxMethod.http, recipient: _httpInternet, amount: '5'));
+    // The notice under To (Turn Tor off, captioned as the switch for every connection: D-05).
+    expect(find.byKey(const ValueKey('send-hold-torOnPlainHttp')), findsOneWidget);
+    expect(find.text('Tor is on. Plain http:// cannot go over Tor.'), findsWidgets);
+    expect(find.text('Applies to every connection, not only this payment.'), findsOneWidget);
+    expect(find.byKey(const ValueKey('send-hold-fix')), findsOneWidget);
     expect(review(tester).onPressed, isNull);
     // Pressed anyway: no consent question, nothing sent.
     await tester.tap(find.text('Review'), warnIfMissed: false);
@@ -188,11 +195,18 @@ void main() {
     expect(wallet.sent, isEmpty);
   }, skip: !torBuilt);
 
+  testWidgets('Link plain http to the local network with Tor on: goes direct, not held', (tester) async {
+    await show(tester, const SendArgs(method: TxMethod.http, recipient: _httpLan, amount: '5'));
+    expect(find.byKey(const ValueKey('send-hold-torOnPlainHttp')), findsNothing);
+    expect(chip('Over Tor'), findsNothing);
+    expect(review(tester).onPressed, isNotNull);
+  }, skip: !torBuilt);
+
   testWidgets('Link plain http opened at the review with Tor on: refused, never asked', (tester) async {
-    await show(tester, const SendArgs(method: TxMethod.http, recipient: 'http://10.0.0.5:3415', amount: '5', step: SendStep.review));
+    await show(tester, const SendArgs(method: TxMethod.http, recipient: _httpInternet, amount: '5', step: SendStep.review));
     expect(find.text('Not encrypted. Send anyway?'), findsNothing);
     expect(find.text('Check and send'), findsNothing);
-    expect(find.textContaining('Plain http:// does not work with Tor on'), findsWidgets);
+    expect(find.text('Tor is on. Plain http:// cannot go over Tor.'), findsWidgets);
     expect(wallet.sent, isEmpty);
   }, skip: !torBuilt);
 

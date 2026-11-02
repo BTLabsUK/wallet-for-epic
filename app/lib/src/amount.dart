@@ -4,35 +4,11 @@
 /// Amounts stay [BigInt] end to end. Doubles would lose precision above 2^53 atomic units.
 library;
 
+import 'amount_format.dart';
 import 'l10n.dart' show AppLocalizations, LocalizedFormatException, localDecimal, localDigits;
 import 'text_join.dart' show withUnit;
 
-/// Number of decimal places in one EPIC.
-const int epicDecimals = 8;
-
-/// Atomic units in one EPIC.
-final BigInt atomicPerEpic = BigInt.from(100000000);
-
-/// Formats [atomic] as a decimal EPIC string, e.g. `150000000` -> `1.5`.
-///
-/// Trailing fractional zeros are dropped, but at least [minDecimals] digits are kept. With
-/// [grouped], the whole part gets thousands separators (`1,234.5`). That is for display only:
-/// [parseEpic] reads a comma as the decimal separator, so never put grouped text in a field.
-String formatEpic(BigInt atomic, {int minDecimals = 0, bool grouped = false}) {
-  assert(minDecimals >= 0 && minDecimals <= epicDecimals);
-  final negative = atomic.isNegative;
-  final abs = atomic.abs();
-  final whole = abs ~/ atomicPerEpic;
-  var fraction = (abs % atomicPerEpic).toString().padLeft(epicDecimals, '0');
-  var end = fraction.length;
-  while (end > minDecimals && fraction[end - 1] == '0') {
-    end--;
-  }
-  fraction = fraction.substring(0, end);
-  final wholeText = grouped ? _group(whole.toString()) : whole.toString();
-  final text = fraction.isEmpty ? wholeText : '$wholeText.$fraction';
-  return negative ? '-$text' : text;
-}
+export 'amount_format.dart';
 
 /// Most decimals a compact amount shows: the rule of rows, tiles, lists, summaries, notices and
 /// the balance headline, phone and desktop. Cut to four, then written up to the last
@@ -43,9 +19,6 @@ const int displayDecimals = 4;
 /// digit, at least one (`1.69154322`, `12.5`, `2.0`). Where exactness is the point: a payment's
 /// review, its details, its QR code and payment request, fees.
 const int exactDecimals = 8;
-
-/// The decimals every shown amount writes out at least: `2.0`, never `2` or `2.00000000`.
-const int shownMinDecimals = 1;
 
 /// [atomic] cut to [decimals] decimals (towards zero, never rounded, so a balance never reads
 /// more than it is), then up to its last significant digit with at least [shownMinDecimals],
@@ -120,15 +93,6 @@ String epicFor(
   final sign = shown.isNegative ? minusSign : (signed && shown > BigInt.zero ? '+' : '');
   final number = '$sign$digits';
   return unit ? withUnit(number, epicUnit) : number;
-}
-
-String _group(String digits) {
-  final out = StringBuffer();
-  for (var i = 0; i < digits.length; i++) {
-    if (i > 0 && (digits.length - i) % 3 == 0) out.write(',');
-    out.write(digits[i]);
-  }
-  return out.toString();
 }
 
 final RegExp _amountPattern = RegExp(r'^(\d*)(?:[.,](\d*))?$');
