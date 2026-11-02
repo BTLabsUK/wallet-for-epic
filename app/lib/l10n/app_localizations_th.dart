@@ -6384,7 +6384,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskRecvHttpLocal =>
-      'โปรแกรมบนคอมพิวเตอร์นี้จ่ายมาที่ที่อยู่นี้ได้ สำหรับอุปกรณ์อื่น ดูที่ การตั้งค่า › ธุรกรรม';
+      'โปรแกรมบนคอมพิวเตอร์นี้จ่ายมาที่ที่อยู่นี้ได้ สำหรับอุปกรณ์อื่น ดูที่ การตั้งค่า › การชำระเงิน';
 
   @override
   String get deskRecvHttpIntro =>
@@ -12697,7 +12697,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAdvLogsHint =>
-      'แสดงกลุ่มบันทึกใต้ ช่วยเหลือ ได้แก่เปิดโฟลเดอร์บันทึกและล้างบันทึก รายงานปัญหาจะแนบบันทึกไม่ว่าจะเปิดไว้หรือไม่';
+      'แสดงกลุ่มบันทึกใต้ ไฟล์และบันทึก ได้แก่เปิดโฟลเดอร์บันทึกและล้างบันทึก รายงานปัญหาจะแนบบันทึกไม่ว่าจะเปิดไว้หรือไม่';
 
   @override
   String get deskSetAdvNetwork => 'เครือข่าย';
@@ -13094,10 +13094,10 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOutDefaultsMoved =>
-      'วิธีเลือกและแยกเงินทอนของการส่งตั้งได้ที่ การตั้งค่า › ธุรกรรม';
+      'วิธีเลือกและแยกเงินทอนของการส่งตั้งได้ที่ การตั้งค่า › การชำระเงิน';
 
   @override
-  String get deskOutDefaultsOpen => 'เปิดธุรกรรม';
+  String get deskOutDefaultsOpen => 'เปิดการชำระเงิน';
 
   @override
   String get deskSetFrameTransactions => 'ธุรกรรม';
@@ -15354,7 +15354,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOvRestoredImportLater =>
-      'ทำทีหลังได้ที่ การตั้งค่า › กระเป๋าเงินนี้ › ข้อมูลกระเป๋าเงิน';
+      'ทำทีหลังได้ที่ การตั้งค่า › วอลเล็ต › สำรองข้อมูล';
 
   @override
   String get deskOnbForgotNoCheck =>
@@ -18916,7 +18916,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetDlgRemoveUnlockHintSecurity =>
-      'ถ้าจะลบไฟล์ด้วย ให้ปลดล็อกกระเป๋าเงินนี้ แล้วใช้ ลบกระเป๋าเงิน ที่ การตั้งค่า › ความปลอดภัย';
+      'ถ้าจะลบไฟล์ด้วย ให้ปลดล็อกกระเป๋าเงินนี้ แล้วใช้ ลบกระเป๋าเงิน ที่ การตั้งค่า › วอลเล็ต';
 
   @override
   String get deskRecvHttpTorHintNet =>

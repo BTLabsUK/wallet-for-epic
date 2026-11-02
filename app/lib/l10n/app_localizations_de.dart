@@ -6591,7 +6591,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskRecvHttpLocal =>
-      'Programme auf diesem Computer können an diese Adresse zahlen. Für andere Geräte siehe Einstellungen › Transaktionen.';
+      'Programme auf diesem Computer können an diese Adresse zahlen. Für andere Geräte siehe Einstellungen › Zahlungen.';
 
   @override
   String get deskRecvHttpIntro =>
@@ -13185,7 +13185,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAdvLogsHint =>
-      'Zeigt die Gruppe Protokolle unter Hilfe: Protokollordner öffnen, Protokolle löschen. „Problem melden“ hängt das Protokoll in jedem Fall an.';
+      'Zeigt die Gruppe Protokolle unter Dateien & Protokolle: Protokollordner öffnen, Protokolle löschen. „Problem melden“ hängt das Protokoll in jedem Fall an.';
 
   @override
   String get deskSetAdvNetwork => 'Netzwerk';
@@ -13600,10 +13600,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOutDefaultsMoved =>
-      'Strategie und Wechselgeld aufteilen für Zahlungen stellen Sie unter Einstellungen › Transaktionen ein.';
+      'Strategie und Wechselgeld aufteilen für Zahlungen stellen Sie unter Einstellungen › Zahlungen ein.';
 
   @override
-  String get deskOutDefaultsOpen => 'Transaktionen öffnen';
+  String get deskOutDefaultsOpen => 'Zahlungen öffnen';
 
   @override
   String get deskSetFrameTransactions => 'Transaktionen';
@@ -15920,7 +15920,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOvRestoredImportLater =>
-      'Später unter Einstellungen › Diese Wallet › Wallet-Daten.';
+      'Später unter Einstellungen › Wallet › Sicherung.';
 
   @override
   String get deskOnbForgotNoCheck =>
@@ -19564,7 +19564,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetDlgRemoveUnlockHintSecurity =>
-      'Um auch ihre Dateien zu löschen, entsperren Sie diese Wallet und nutzen Sie „Wallet löschen“ unter Einstellungen › Sicherheit.';
+      'Um auch ihre Dateien zu löschen, entsperren Sie diese Wallet und nutzen Sie „Wallet löschen“ unter Einstellungen › Wallet.';
 
   @override
   String get deskRecvHttpTorHintNet =>

@@ -10453,7 +10453,7 @@ abstract class AppLocalizations {
   /// Caption under the HTTP address when receiving is only for this computer.
   ///
   /// In en, this message translates to:
-  /// **'Programs on this computer can pay this address. For other devices, see Settings › Transactions.'**
+  /// **'Programs on this computer can pay this address. For other devices, see Settings › Payments.'**
   String get deskRecvHttpLocal;
 
   /// Intro text of the HTTP panel on Receive.
@@ -20583,7 +20583,7 @@ abstract class AppLocalizations {
   /// Hover card of the Logs switch.
   ///
   /// In en, this message translates to:
-  /// **'Shows the Logs group under Help: open the log folder, clear the logs. Report a problem attaches the log either way.'**
+  /// **'Shows the Logs group under Files & logs: open the log folder, clear the logs. Report a problem attaches the log either way.'**
   String get deskSetAdvLogsHint;
 
   /// Title of the network mode group on Settings › Advanced.
@@ -21201,13 +21201,13 @@ abstract class AppLocalizations {
   /// One line on Outputs, under the management cards, shown while Advanced › Send options is on: where the defaults for sends went.
   ///
   /// In en, this message translates to:
-  /// **'The strategy and Split change for sends are set in Settings › Transactions.'**
+  /// **'The strategy and Split change for sends are set in Settings › Payments.'**
   String get deskOutDefaultsMoved;
 
   /// Inline button after deskOutDefaultsMoved: opens Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Open Transactions'**
+  /// **'Open Payments'**
   String get deskOutDefaultsOpen;
 
   /// Settings sidebar entry and page name for how payments are made: the methods, what Send starts on, receiving. Narrow (about 200 px).
@@ -24681,7 +24681,7 @@ abstract class AppLocalizations {
   /// Small line under the buttons. Uses the page names deskSetFrameThisWallet and deskSetBackupGroup.
   ///
   /// In en, this message translates to:
-  /// **'Later under Settings › This wallet › Wallet data.'**
+  /// **'Later under Settings › Wallet › Backup.'**
   String get deskOvRestoredImportLater;
 
   /// Forgot password: the wallet's folder holds nothing the phrase can be checked against; nothing changed.
@@ -30177,7 +30177,7 @@ abstract class AppLocalizations {
   /// Remove wallet dialog: shown for a locked wallet. "Settings › Security" is a menu path (the Security page, where Delete wallet is).
   ///
   /// In en, this message translates to:
-  /// **'To delete its files as well, unlock this wallet and use Delete wallet under Settings › Security.'**
+  /// **'To delete its files as well, unlock this wallet and use Delete wallet under Settings › Wallet.'**
   String get deskSetDlgRemoveUnlockHintSecurity;
 
   /// Receive, Link · HTTP: where Tor is turned on for a Tor address instead (Settings › Network & privacy).

@@ -190,7 +190,7 @@
       }
     }
   },
-  "deskRecvHttpLocal": "Programs on this computer can pay this address. For other devices, see Settings › Transactions.",
+  "deskRecvHttpLocal": "Programs on this computer can pay this address. For other devices, see Settings › Payments.",
   "@deskRecvHttpLocal": {
     "description": "Caption under the HTTP address when receiving is only for this computer."
   },

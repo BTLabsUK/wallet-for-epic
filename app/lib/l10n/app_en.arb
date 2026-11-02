@@ -8578,7 +8578,7 @@
       }
     }
   },
-  "deskRecvHttpLocal": "Programs on this computer can pay this address. For other devices, see Settings › Transactions.",
+  "deskRecvHttpLocal": "Programs on this computer can pay this address. For other devices, see Settings › Payments.",
   "@deskRecvHttpLocal": {
     "description": "Caption under the HTTP address when receiving is only for this computer."
   },
@@ -17307,7 +17307,7 @@
   "@deskSetAdvLogs": {
     "description": "Advanced switch: logs and diagnostics."
   },
-  "deskSetAdvLogsHint": "Shows the Logs group under Help: open the log folder, clear the logs. Report a problem attaches the log either way.",
+  "deskSetAdvLogsHint": "Shows the Logs group under Files & logs: open the log folder, clear the logs. Report a problem attaches the log either way.",
   "@deskSetAdvLogsHint": {
     "description": "Hover card of the Logs switch."
   },
@@ -17843,8 +17843,8 @@
   "@deskNetOfflineNoPeers": {
     "description": "Notice on Send in the Offline mode when the local node in use has no peers."
   },
-  "deskOutDefaultsMoved": "The strategy and Split change for sends are set in Settings › Transactions.",
-  "deskOutDefaultsOpen": "Open Transactions",
+  "deskOutDefaultsMoved": "The strategy and Split change for sends are set in Settings › Payments.",
+  "deskOutDefaultsOpen": "Open Payments",
   "@deskOutDefaultsMoved": {
     "description": "One line on Outputs, under the management cards, shown while Advanced › Send options is on: where the defaults for sends went."
   },
@@ -21065,7 +21065,7 @@
   "@deskOvRestoredImportButton": {
     "description": "Primary button; opens the Backup page's file chooser. Same text as the phone's restoreImportButton."
   },
-  "deskOvRestoredImportLater": "Later under Settings › This wallet › Wallet data.",
+  "deskOvRestoredImportLater": "Later under Settings › Wallet › Backup.",
   "@deskOvRestoredImportLater": {
     "description": "Small line under the buttons. Uses the page names deskSetFrameThisWallet and deskSetBackupGroup."
   },
@@ -26212,7 +26212,7 @@
       }
     }
   },
-  "deskSetDlgRemoveUnlockHintSecurity": "To delete its files as well, unlock this wallet and use Delete wallet under Settings › Security.",
+  "deskSetDlgRemoveUnlockHintSecurity": "To delete its files as well, unlock this wallet and use Delete wallet under Settings › Wallet.",
   "@deskSetDlgRemoveUnlockHintSecurity": {
     "description": "Remove wallet dialog: shown for a locked wallet. \"Settings › Security\" is a menu path (the Security page, where Delete wallet is)."
   },

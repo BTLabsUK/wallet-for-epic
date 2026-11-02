@@ -6503,7 +6503,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskRecvHttpLocal =>
-      'Programs on this computer can pay this address. For other devices, see Settings › Transactions.';
+      'Programs on this computer can pay this address. For other devices, see Settings › Payments.';
 
   @override
   String get deskRecvHttpIntro =>
@@ -13039,7 +13039,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAdvLogsHint =>
-      'Shows the Logs group under Help: open the log folder, clear the logs. Report a problem attaches the log either way.';
+      'Shows the Logs group under Files & logs: open the log folder, clear the logs. Report a problem attaches the log either way.';
 
   @override
   String get deskSetAdvNetwork => 'Network';
@@ -13440,10 +13440,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOutDefaultsMoved =>
-      'The strategy and Split change for sends are set in Settings › Transactions.';
+      'The strategy and Split change for sends are set in Settings › Payments.';
 
   @override
-  String get deskOutDefaultsOpen => 'Open Transactions';
+  String get deskOutDefaultsOpen => 'Open Payments';
 
   @override
   String get deskSetFrameTransactions => 'Transactions';
@@ -15730,7 +15730,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOvRestoredImportLater =>
-      'Later under Settings › This wallet › Wallet data.';
+      'Later under Settings › Wallet › Backup.';
 
   @override
   String get deskOnbForgotNoCheck =>
@@ -19334,7 +19334,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetDlgRemoveUnlockHintSecurity =>
-      'To delete its files as well, unlock this wallet and use Delete wallet under Settings › Security.';
+      'To delete its files as well, unlock this wallet and use Delete wallet under Settings › Wallet.';
 
   @override
   String get deskRecvHttpTorHintNet =>

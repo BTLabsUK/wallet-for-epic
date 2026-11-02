@@ -29,7 +29,7 @@
   "deskSetDlgDeleteWallet": "ลบกระเป๋าเงิน",
   "deskSetDlgRemoveDeleteHint": "ลบคีย์และฐานข้อมูลออกจาก {folder} มีเพียงวลีกู้คืนที่กู้คืนได้ หากไม่มีวลี เหรียญจะหายไป",
   "deskSetDlgRemoveUnlockHint": "ถ้าจะลบไฟล์ด้วย ให้ปลดล็อกกระเป๋าเงินนี้ แล้วใช้ ลบกระเป๋าเงิน ที่ การตั้งค่า › กระเป๋าเงินนี้",
-  "deskSetDlgRemoveUnlockHintSecurity": "ถ้าจะลบไฟล์ด้วย ให้ปลดล็อกกระเป๋าเงินนี้ แล้วใช้ ลบกระเป๋าเงิน ที่ การตั้งค่า › ความปลอดภัย",
+  "deskSetDlgRemoveUnlockHintSecurity": "ถ้าจะลบไฟล์ด้วย ให้ปลดล็อกกระเป๋าเงินนี้ แล้วใช้ ลบกระเป๋าเงิน ที่ การตั้งค่า › วอลเล็ต",
   "deskSetDlgRemoveUnlock": "ปลดล็อกกระเป๋าเงินนี้",
   "deskSetDlgRemoveIrreversible": "ย้อนกลับไม่ได้",
   "deskSetDlgRemoveIrreversibleBody": "มีเพียงวลีกู้คืนที่กู้กระเป๋าเงินคืนได้ หากไม่มีวลี เหรียญจะหายไปถาวร",

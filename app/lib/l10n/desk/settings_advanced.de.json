@@ -14,7 +14,7 @@
   "deskSetAdvBuiltInNode": "Lokaler Node",
   "deskSetAdvBuiltInNodeHint": "Lässt diesen Computer einen eigenen Node betreiben: die Option Dieser Computer unter Node, deren Synchronisierungsbereich und Node starten auf der Übersicht. Die Synchronisierung dauert Stunden und braucht mehrere Gigabyte Speicher. Ein laufender Node behält seine Zeilen.",
   "deskSetAdvLogs": "Protokolle",
-  "deskSetAdvLogsHint": "Zeigt die Gruppe Protokolle unter Hilfe: Protokollordner öffnen, Protokolle löschen. „Problem melden“ hängt das Protokoll in jedem Fall an.",
+  "deskSetAdvLogsHint": "Zeigt die Gruppe Protokolle unter Dateien & Protokolle: Protokollordner öffnen, Protokolle löschen. „Problem melden“ hängt das Protokoll in jedem Fall an.",
   "deskSetAdvNetwork": "Netzwerk",
   "deskSetAdvModeTorOnlyText": "Jede Verbindung läuft über Tor. Bis Tor bereit ist, verbindet sich nichts.",
   "deskSetAdvNotInBuild": "Nicht in dieser Version",

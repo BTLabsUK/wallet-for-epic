@@ -22,17 +22,19 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
   final device = phone ? '这部手机' : '这台电脑';
   final secret = phone ? '你的 PIN 码或密码短语' : '钱包密码';
   final nodePlace = phone ? '[[设置 › 网络与隐私 › 节点|Settings › Network & privacy › Node]]' : '[[设置 › 节点|Settings › Node]]';
-  final epicboxPlace = phone ? '[[设置 › 网络与隐私 › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[设置 › 交易 › Epicbox|Settings › Transactions › Epicbox]]';
+  final epicboxPlace = phone ? '[[设置 › 网络与隐私 › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[设置 › 支付 › Epicbox|Settings › Payments › Epicbox]]';
   final torPlace = phone ? '[[设置 › 网络与隐私 › Tor 网络|Settings › Network & privacy › Tor network]]' : '[[设置 › 网络与隐私 › Tor|Settings › Network & privacy › Tor]]';
   final netPlace = '[[设置 › 网络与隐私|Settings › Network & privacy]]';
   final cancelPlace = phone ? '[[活动|Activity]]（打开该付款，然后点“取消付款”）' : '[[活动 › 该交易 › 取消|Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone
       ? '[[设置 › 此钱包 › 导出钱包数据|Settings › This wallet › Export wallet data]]'
-      : '[[设置 › 此钱包 › 导出钱包数据|Settings › This wallet › Export wallet data]]';
+      : '[[设置 › 钱包 › 导出钱包数据|Settings › Wallet › Export wallet data]]';
   final restorePlace = phone
       ? '**用助记词恢复**（在首屏或[[设置 › 此钱包|Settings › This wallet]]中）'
-      : '**用助记词恢复**（在首屏、“解锁 › 添加钱包”或[[设置 › 所有钱包|Settings › All wallets]]中）';
-  final recheckPlace = phone ? '[[设置 › 此钱包 › 重新核对余额|Settings › This wallet › Recheck balance]]' : '[[设置 › 重新核对余额|Settings › Recheck balance]]';
+      : '**用助记词恢复**（在首屏、“解锁 › 添加钱包”或[[设置 › 钱包列表|Settings › Wallets]]中）';
+  final recheckPlace = phone ? '[[设置 › 此钱包 › 重新核对余额|Settings › This wallet › Recheck balance]]' : '[[设置 › 钱包 › 重新核对余额|Settings › Wallet › Recheck balance]]';
+  final payPlace = phone ? '[[设置 › 交易|Settings › Transactions]]' : '[[设置 › 支付|Settings › Payments]]';
+  final filesPlace = '[[设置 › 文件与日志|Settings › Files & logs]]';
   final phrasePlace = phone ? '[[设置 › 安全 › 备份助记词|Settings › Security › Back up recovery phrase]]' : '[[设置 › 安全 › 助记词|Settings › Security › Recovery phrase]]';
   return <HelpTopic>[
     HelpTopic(
@@ -97,9 +99,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       '付款方式与发送默认设置',
       '每种方式都是一个开关；Epicbox 默认开启。“发送”从默认方式打开。',
       [
-        const HelpBlock.p('[[设置 › 交易|Settings › Transactions]]页面包含三项内容。'),
+        HelpBlock.p('$payPlace页面包含三项内容。'),
         HelpBlock.ul([
-          '**付款方式。** 每种一个开关。**Epicbox** 默认开启；关闭后，钱包不连接任何服务器，因此没有 Epicbox 付款或账单，“接收”也不显示 Epicbox 地址（发到该地址的付款会在服务器上等待）。${tor ? "**链接 · HTTP**（向网址付款）、**链接 · Tor**（向 .onion 地址付款${phone ? '，以及用这部手机的 Tor 地址收款' : ''}）和${phone ? '**直接 · 二维码付款**、' : ''}**直接 · 文件传输**" : "**链接 · HTTP**（向网址付款）${phone ? '、**直接 · 二维码付款**' : ''}和**直接 · 文件传输**"}不需要 Epicbox 服务器。关闭的方式不会出现在“发送”和“接收”中。${phone ? '在手机上，**链接 · HTTP** 只在你信任的 Wi-Fi 网络上接收：在“接收”中点**信任此网络**即可添加；[[设置 › 交易|Settings › Transactions]] › **信任的网络**中可以查看并忘记它们。' : ''}',
+          '**付款方式。** 每种一个开关。**Epicbox** 默认开启；关闭后，钱包不连接任何服务器，因此没有 Epicbox 付款或账单，“接收”也不显示 Epicbox 地址（发到该地址的付款会在服务器上等待）。${tor ? "**链接 · HTTP**（向网址付款）、**链接 · Tor**（向 .onion 地址付款${phone ? '，以及用这部手机的 Tor 地址收款' : ''}）和${phone ? '**直接 · 二维码付款**、' : ''}**直接 · 文件传输**" : "**链接 · HTTP**（向网址付款）${phone ? '、**直接 · 二维码付款**' : ''}和**直接 · 文件传输**"}不需要 Epicbox 服务器。关闭的方式不会出现在“发送”和“接收”中。${phone ? '在手机上，**链接 · HTTP** 只在你信任的 Wi-Fi 网络上接收：在“接收”中点**信任此网络**即可添加；$payPlace › **信任的网络**中可以查看并忘记它们。' : ''}',
           '**发送从哪种方式开始。** “发送”页面打开时使用的方式。在“发送”中仍可选择其他方式。',
           '**发送默认设置。** 一笔发送花掉哪些输出（“最小”或“全部”），以及找零是否拆分。只有在“高级”中开启**发送选项**时才会显示。',
         ]),
@@ -177,10 +179,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('**最小** 按金额对可用输出排序，从最小的开始取，直到覆盖金额和手续费。发送确认期间只锁定这些输出；其余可以立即发送。'),
         HelpBlock.p('**全部** 花掉每一个可用输出，并退回一个找零输出。所有资金锁定 $confirmations 个区块，钱包最终的输出更少、更大，手续费也略高，因为每个输入都有成本。发送全部余额时总是使用“全部”。'),
-        if (phone)
-          const HelpBlock.p('默认方式在[[设置 › 交易|Settings › Transactions]]中设置，需要在“高级”中开启“发送选项”。')
-        else
-          const HelpBlock.p('默认方式在[[输出 › 管理输出|Outputs › Manage outputs]]中设置；“发送”可在**发送选项**中为单次发送更改。'),
+        HelpBlock.p('默认方式在$payPlace中设置，需要在“高级”中开启“发送选项”。'),
       ],
       id: HelpId.strategy,
     ),
@@ -244,7 +243,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         if (!phone)
           const HelpBlock.p('**导出 CSV** 会把付款列表保存为表格文件，文件名为 **epic-payments-<钱包>-<日期>.csv**，列包括日期、类型、状态、金额、手续费、对方、备注、slate ID、kernel 和区块高度。文件没有加密：任何拿到它的人都能读到金额、日期、地址和备注。它不能再导入；导入请用**导出钱包数据**。'),
         if (!phone)
-          const HelpBlock.p('**钱包文件** 位于[[设置 › 此钱包 › 钱包文件夹|Settings › This wallet › Wallet folder]]。即使有这些文件的副本，也请保留助记词：文件丢失时它仍然有效。'),
+          const HelpBlock.p('**钱包文件** 位于[[设置 › 文件与日志 › 钱包文件夹|Settings › Files & logs › Wallet folder]]。即使有这些文件的副本，也请保留助记词：文件丢失时它仍然有效。'),
       ],
       id: HelpId.backup,
     ),
@@ -389,7 +388,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
           '**输出**：“输出”页面，列出组成余额的币，以及你可以对它们做的操作。',
           '**技术详情**：${phone ? '付款详情' : '交易'}中的 slate ID、内核、承诺和区块高度。不开启时，交易上的**更多**链接可以一次性显示它们。',
           if (phone)
-            '**发送选项**：“策略”和“拆分找零”，在[[设置 › 交易|Settings › Transactions]]中：一笔发送花掉哪些输出，以及找零是否拆分。'
+            '**发送选项**：“策略”和“拆分找零”，在$payPlace中：一笔发送花掉哪些输出，以及找零是否拆分。'
           else
             '**发送选项**：“发送”中的一个折叠区，单笔发送可在其中选择“最小”或“全部”，以及是否拆分找零。',
           '**服务器详情**：节点和 Epicbox 列表以及状态卡片中的主机、延迟、版本和区块高度。',
@@ -398,11 +397,11 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
           else
             '**从某个高度重新核对**：让“重新核对余额”同时丢弃未确认的交易。恢复钱包时会向所有人提供起始区块。',
           if (!phone) '**本地节点**：让这台电脑运行自己的节点，在$nodePlace中。',
-          if (!phone) '**日志**：“帮助”中的“日志”分组，用于打开日志文件夹或清除日志。无论是否开启，“报告问题”都会附上日志。',
+          if (!phone) '**日志**：$filesPlace中的“日志”分组，用于打开日志文件夹或清除日志。无论是否开启，“报告问题”都会附上日志。',
         ]),
-        const HelpBlock.p('**确认数** 决定收到的付款要等待多少个区块，其输出才能花费：默认 6，可设为 1 到 30。确认数越少越快，但越不安全。'),
+        HelpBlock.p('**确认数** 决定收到的付款要等待多少个区块，其输出才能花费：默认 6，可设为 1 到 30。确认数越少越快，但越不安全。${phone ? '' : '它们在$payPlace中设置。'}'),
         const HelpBlock.p('**实验性** 包含 **账单**，一开始是关闭的：已配对联系人之间的付款请求和账单。关闭时它们被隐藏，也不会为其检查任何内容。配对本身始终开启。'),
-        HelpBlock.p('网络模式和**节点故障切换**都在 $netPlace 中：见“网络模式”。'),
+        HelpBlock.p(phone ? '网络模式和**节点故障切换**都在 $netPlace 中：见“网络模式”。' : '网络模式在 $netPlace 中：见“网络模式”。**自动切换节点**在 $nodePlace 中。'),
       ],
       id: HelpId.advanced,
     ),
@@ -420,7 +419,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('**“Epicbox 无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或点“钱包”标签页上的 Epicbox 图标，选择另一个服务器。在此期间可以使用 直接 · 文件传输。')
         else
-          const HelpBlock.p('**“Epicbox 无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或在[[设置 › 交易|Settings › Transactions]]中选择另一个服务器。在此期间可以使用 直接 · 文件传输。'),
+          HelpBlock.p('**“Epicbox 无响应”。** 钱包无法连接到它的 Epicbox 服务器。请稍等；如果一直如此，请检查网络连接，或在$payPlace中选择另一个服务器。在此期间可以使用 直接 · 文件传输。'),
         const HelpBlock.p('**发送显示“等待接收方”。** 对方钱包尚未回复。请对方打开钱包。如果对方一直不会打开，请在“活动”中取消付款以解锁币。'),
         if (phone)
           const HelpBlock.p('**付款没有到账。** 查看“钱包”标签页上的状态图标：节点已同步、Epicbox 已连接。更换 Epicbox 服务器后，发送方需要新地址。发送方钱包还必须完成交易；之后还需几分钟进行确认。')
@@ -484,9 +483,9 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         '“从列表中移除”会把钱包的文件夹留在磁盘上。文件夹需手动删除，前提是已抄写助记词或钱包已空。',
         [
           HelpBlock.ul([
-            '[[设置 › 所有钱包|Settings › All wallets]] 中的 **从列表中移除** 会把钱包从列表中去掉。其文件夹仍留在磁盘上，页面会在 **已从列表中移除** 下再次列出它。',
+            '[[设置 › 钱包列表|Settings › Wallets]] 中的 **从列表中移除** 会把钱包从列表中去掉。其文件夹仍留在磁盘上，页面会在 **已从列表中移除** 下再次列出它。',
             '**删除没有助记词的钱包文件夹，会失去其中的 EPIC。** 只删除已抄写助记词的钱包，或已空且不再需要的钱包。',
-            '文件夹位于数据文件夹的 **wallets** 下（[[设置 › 此钱包 › 应用文件|Settings › This wallet › App files]] 旁的 **打开文件夹**），每个钱包一个，以其 ID 命名；里面的 **WALLET.txt** 写有钱包名称。关闭 Epic Cash Desktop 后，只删除这一个 ID 文件夹，其余保持原样。',
+            '文件夹位于数据文件夹的 **wallets** 下（[[设置 › 文件与日志 › 应用文件|Settings › Files & logs › App files]] 旁的 **打开文件夹**），每个钱包一个，以其 ID 命名；里面的 **WALLET.txt** 写有钱包名称。关闭 Epic Cash Desktop 后，只删除这一个 ID 文件夹，其余保持原样。',
           ]),
         ],
         id: HelpId.cleanup,
@@ -504,7 +503,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
         ]),
       ] else ...[
         HelpBlock.p(
-          '文件 **settings.toml** 保存你的节点和 Epicbox 服务器列表，以及三个开关：状态网站、更新检查和价格。其余设置随应用提供。它位于数据文件夹：Linux 和 macOS 上是 **~/.epic_cash_desktop/settings.toml**，Windows 上是 **%USERPROFILE%\\.epic_cash_desktop\\settings.toml**（**打开文件夹**，在 [[设置 › 此钱包 › 应用文件|Settings › This wallet › App files]] 旁）。',
+          '文件 **settings.toml** 保存你的节点和 Epicbox 服务器列表，以及三个开关：状态网站、更新检查和价格。其余设置随应用提供。它位于数据文件夹：Linux 和 macOS 上是 **~/.epic_cash_desktop/settings.toml**，Windows 上是 **%USERPROFILE%\\.epic_cash_desktop\\settings.toml**（**打开文件夹**，在 [[设置 › 文件与日志 › 应用文件|Settings › Files & logs › App files]] 旁）。',
         ),
         HelpBlock.ul([
           '在应用中所做的更改会立即写入文件。在文件中保存的更改，会在应用运行时片刻后生效。',

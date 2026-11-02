@@ -14,7 +14,7 @@
   "deskSetAdvBuiltInNode": "本地节点",
   "deskSetAdvBuiltInNodeHint": "让这台电脑运行自己的节点：“节点”下的“这台电脑”选项、它的同步面板，以及概览中的“启动节点”。同步整条链需要数小时和数 GB 磁盘空间。已在运行的节点会保留它的各行。",
   "deskSetAdvLogs": "日志",
-  "deskSetAdvLogsHint": "在“帮助”下显示“日志”分组：打开日志文件夹、清除日志。无论是否开启，“报告问题”都会附上日志。",
+  "deskSetAdvLogsHint": "在“文件与日志”下显示“日志”分组：打开日志文件夹、清除日志。无论是否开启，“报告问题”都会附上日志。",
   "deskSetAdvNetwork": "网络",
   "deskSetAdvModeTorOnlyText": "所有连接都经过 Tor。Tor 就绪之前，什么都不会连接。",
   "deskSetAdvNotInBuild": "此版本不含",

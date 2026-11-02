@@ -22,7 +22,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
   final device = phone ? 'diesem Smartphone' : 'diesem Computer';
   final secret = phone ? 'Ihre PIN oder Passphrase' : 'das Wallet-Passwort';
   final nodePlace = phone ? '[[Einstellungen › Netzwerk & Datenschutz › Node|Settings › Network & privacy › Node]]' : '[[Einstellungen › Node|Settings › Node]]';
-  final epicboxPlace = phone ? '[[Einstellungen › Netzwerk & Datenschutz › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[Einstellungen › Transaktionen › Epicbox|Settings › Transactions › Epicbox]]';
+  final epicboxPlace = phone ? '[[Einstellungen › Netzwerk & Datenschutz › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[Einstellungen › Zahlungen › Epicbox|Settings › Payments › Epicbox]]';
   final torPlace = phone ? '[[Einstellungen › Netzwerk & Datenschutz › Tor-Netzwerk|Settings › Network & privacy › Tor network]]' : '[[Einstellungen › Netzwerk & Datenschutz › Tor|Settings › Network & privacy › Tor]]';
   final netPlace = '[[Einstellungen › Netzwerk & Datenschutz|Settings › Network & privacy]]';
   final cancelPlace = phone
@@ -30,11 +30,13 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       : '[[Aktivität › die Transaktion › Zahlung stornieren|Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone
       ? '[[Einstellungen › Diese Wallet › Wallet-Daten exportieren|Settings › This wallet › Export wallet data]]'
-      : '[[Einstellungen › Diese Wallet › Wallet-Daten exportieren|Settings › This wallet › Export wallet data]]';
+      : '[[Einstellungen › Wallet › Wallet-Daten exportieren|Settings › Wallet › Export wallet data]]';
   final restorePlace = phone
       ? '**Mit Phrase wiederherstellen** (auf dem ersten Bildschirm oder unter [[Einstellungen › Diese Wallet|Settings › This wallet]])'
-      : '**Mit Phrase wiederherstellen** (auf dem ersten Bildschirm, unter Entsperren › Wallet hinzufügen oder unter [[Einstellungen › Alle Wallets|Settings › All wallets]])';
-  final recheckPlace = phone ? '[[Einstellungen › Diese Wallet › Guthaben neu prüfen|Settings › This wallet › Recheck balance]]' : '[[Einstellungen › Guthaben neu prüfen|Settings › Recheck balance]]';
+      : '**Mit Phrase wiederherstellen** (auf dem ersten Bildschirm, unter Entsperren › Wallet hinzufügen oder unter [[Einstellungen › Wallets|Settings › Wallets]])';
+  final recheckPlace = phone ? '[[Einstellungen › Diese Wallet › Guthaben neu prüfen|Settings › This wallet › Recheck balance]]' : '[[Einstellungen › Wallet › Guthaben neu prüfen|Settings › Wallet › Recheck balance]]';
+  final payPlace = phone ? '[[Einstellungen › Transaktionen|Settings › Transactions]]' : '[[Einstellungen › Zahlungen|Settings › Payments]]';
+  final filesPlace = '[[Einstellungen › Dateien & Protokolle|Settings › Files & logs]]';
   final phrasePlace = phone ? '[[Einstellungen › Sicherheit › Wiederherstellungsphrase sichern|Settings › Security › Back up recovery phrase]]' : '[[Einstellungen › Sicherheit › Seed-Phrase|Settings › Security › Recovery phrase]]';
   return <HelpTopic>[
     HelpTopic(
@@ -99,9 +101,9 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       'Zahlungsmethoden und Vorgaben fürs Senden',
       'Jede Methode ist ein Schalter; Epicbox ist standardmäßig an. Senden öffnet sich mit der Standardmethode.',
       [
-        const HelpBlock.p('Die Seite Transaktionen unter [[Einstellungen › Transaktionen|Settings › Transactions]] enthält drei Dinge.'),
+        HelpBlock.p('Die Seite ${phone ? 'Transaktionen' : 'Zahlungen'} unter $payPlace enthält drei Dinge.'),
         HelpBlock.ul([
-          '**Zahlungsmethoden.** Je ein Schalter. **Epicbox** ist standardmäßig an; ist es aus, verbindet sich die Wallet mit keinem Server, also gibt es keine Epicbox-Zahlungen oder Rechnungen, und Empfangen zeigt keine Epicbox-Adresse (Zahlungen an sie warten auf dem Server). ${tor ? "**Link · HTTP** (an Web-Adressen), **Link · Tor** (an .onion-Adressen${phone ? ' und mit einer Tor-Adresse dieses Smartphones, unter der Sie bezahlt werden' : ''}) und ${phone ? '**Direkt · QR-Zahlung** und ' : ''}**Direkt · Dateiübertragung**" : "**Link · HTTP** (an Web-Adressen)${phone ? ', **Direkt · QR-Zahlung**' : ''} und **Direkt · Dateiübertragung**"} brauchen keinen Epicbox-Server. Eine Methode, die aus ist, erscheint nicht bei Senden und Empfangen.${phone ? ' Auf einem Smartphone empfängt **Link · HTTP** nur in einem WLAN, dem Sie vertrauen: **Diesem Netz vertrauen** unter Empfangen fügt es hinzu; unter [[Einstellungen › Transaktionen|Settings › Transactions]] › **Vertraute Netze** werden sie aufgelistet und vergessen.' : ''}',
+          '**Zahlungsmethoden.** Je ein Schalter. **Epicbox** ist standardmäßig an; ist es aus, verbindet sich die Wallet mit keinem Server, also gibt es keine Epicbox-Zahlungen oder Rechnungen, und Empfangen zeigt keine Epicbox-Adresse (Zahlungen an sie warten auf dem Server). ${tor ? "**Link · HTTP** (an Web-Adressen), **Link · Tor** (an .onion-Adressen${phone ? ' und mit einer Tor-Adresse dieses Smartphones, unter der Sie bezahlt werden' : ''}) und ${phone ? '**Direkt · QR-Zahlung** und ' : ''}**Direkt · Dateiübertragung**" : "**Link · HTTP** (an Web-Adressen)${phone ? ', **Direkt · QR-Zahlung**' : ''} und **Direkt · Dateiübertragung**"} brauchen keinen Epicbox-Server. Eine Methode, die aus ist, erscheint nicht bei Senden und Empfangen.${phone ? ' Auf einem Smartphone empfängt **Link · HTTP** nur in einem WLAN, dem Sie vertrauen: **Diesem Netz vertrauen** unter Empfangen fügt es hinzu; unter $payPlace › **Vertraute Netze** werden sie aufgelistet und vergessen.' : ''}',
           '**Standardmethode.** Die Methode, mit der sich der Bildschirm Senden öffnet; auf Senden lässt sich eine andere wählen.',
           '**Vorgaben fürs Senden.** Welche Outputs eine Zahlung ausgibt, Kleinste oder Alle, und ob ihr Wechselgeld aufgeteilt wird. Sie erscheinen nur, solange **Zahlungsoptionen** unter Erweitert an ist.',
         ]),
@@ -179,10 +181,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('**Kleinste** sortiert die verfügbaren Outputs nach Wert und nimmt die kleinsten, bis Betrag und Gebühr gedeckt sind. Nur diese sind gesperrt, solange die Zahlung bestätigt wird; der Rest kann sofort gesendet werden.'),
         HelpBlock.p('**Alle** gibt jeden verfügbaren Output aus und gibt einen einzigen Wechselgeld-Output zurück. Alles ist bis zur $confirmations. Bestätigung gesperrt, die Wallet hat danach weniger, größere Outputs, und die Gebühr ist etwas höher, weil jeder Input kostet. Wird das ganze Guthaben gesendet, gilt immer Alle.'),
-        if (phone)
-          const HelpBlock.p('Die Standardeinstellung legen Sie unter [[Einstellungen › Transaktionen|Settings › Transactions]] fest, mit eingeschalteten Zahlungsoptionen unter Erweitert.')
-        else
-          const HelpBlock.p('Die Standardeinstellung legen Sie unter [[Outputs › Outputs verwalten|Outputs › Manage outputs]] fest; Senden kann sie für eine einzelne Zahlung unter **Zahlungsoptionen** ändern.'),
+        HelpBlock.p('Die Standardeinstellung legen Sie unter $payPlace fest, mit eingeschalteten Zahlungsoptionen unter Erweitert.'),
       ],
       id: HelpId.strategy,
     ),
@@ -246,7 +245,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         if (!phone)
           const HelpBlock.p('**CSV exportieren** speichert die Zahlungsliste als Tabellendatei mit dem Namen **epic-payments-<Wallet>-<Datum>.csv**, mit den Spalten Datum, Typ, Status, Betrag, Gebühr, Gegenpartei, Notiz, Slate-ID, Kernel und Blockhöhe. Sie ist nicht verschlüsselt: Jeder, der die Datei hat, kann Beträge, Daten, Adressen und Notizen lesen. Sie lässt sich nicht wieder importieren; dafür gibt es **Wallet-Daten exportieren**.'),
         if (!phone)
-          const HelpBlock.p('**Die Dateien der Wallet** liegen unter [[Einstellungen › Diese Wallet › Wallet-Ordner|Settings › This wallet › Wallet folder]]. Bewahren Sie die Wiederherstellungsphrase auch mit einer Kopie davon auf: Sie hilft, wenn die Dateien verloren gehen.'),
+          const HelpBlock.p('**Die Dateien der Wallet** liegen unter [[Einstellungen › Dateien & Protokolle › Wallet-Ordner|Settings › Files & logs › Wallet folder]]. Bewahren Sie die Wiederherstellungsphrase auch mit einer Kopie davon auf: Sie hilft, wenn die Dateien verloren gehen.'),
       ],
       id: HelpId.backup,
     ),
@@ -391,7 +390,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           '**Outputs**: die Seite Outputs mit den Coins, aus denen das Guthaben besteht, und was Sie damit tun können.',
           '**Technische Details**: Slate-ID, Kernel, Commitments und Blockhöhe bei ${phone ? 'den Details einer Zahlung' : 'einer Transaktion'}. Ohne den Schalter zeigt der Link **Mehr** an einer Transaktion sie einmalig.',
           if (phone)
-            '**Zahlungsoptionen**: Strategie und Wechselgeld aufteilen, unter [[Einstellungen › Transaktionen|Settings › Transactions]]: welche Outputs eine Zahlung ausgibt und ob ihr Wechselgeld aufgeteilt wird.'
+            '**Zahlungsoptionen**: Strategie und Wechselgeld aufteilen, unter $payPlace: welche Outputs eine Zahlung ausgibt und ob ihr Wechselgeld aufgeteilt wird.'
           else
             '**Zahlungsoptionen**: ein Bereich auf Senden, in dem eine einzelne Zahlung Kleinste oder Alle wählt und ob das Wechselgeld aufgeteilt wird.',
           '**Server-Details**: Hosts, Latenz, Version und Blockhöhe in den Listen für Node und Epicbox und auf der Statuskarte.',
@@ -400,11 +399,11 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           else
             '**Ab einer Höhe neu prüfen**: lässt „Guthaben neu prüfen“ auch unbestätigte Transaktionen verwerfen. Beim Wiederherstellen steht allen ein Startblock zur Wahl.',
           if (!phone) '**Lokaler Node**: lässt diesen Computer einen eigenen Node betreiben, unter $nodePlace.',
-          if (!phone) '**Protokolle**: die Gruppe Protokolle unter Hilfe, um den Protokollordner zu öffnen oder die Protokolle zu löschen. „Problem melden“ hängt das Protokoll in jedem Fall an.',
+          if (!phone) '**Protokolle**: die Gruppe Protokolle unter $filesPlace, um den Protokollordner zu öffnen oder die Protokolle zu löschen. „Problem melden“ hängt das Protokoll in jedem Fall an.',
         ]),
-        const HelpBlock.p('**Bestätigungen** legt fest, wie viele Blöcke eine empfangene Zahlung wartet, bevor ihre Outputs verfügbar sind: standardmäßig 6, jeder Wert von 1 bis 30. Weniger Bestätigungen sind schneller, sind aber weniger sicher.'),
+        HelpBlock.p('**Bestätigungen** legt fest, wie viele Blöcke eine empfangene Zahlung wartet, bevor ihre Outputs verfügbar sind: standardmäßig 6, jeder Wert von 1 bis 30. Weniger Bestätigungen sind schneller, sind aber weniger sicher.${phone ? '' : ' Sie werden unter $payPlace eingestellt.'}'),
         const HelpBlock.p('**Experimentell** enthält **Rechnungen**, zu Beginn aus: Zahlungsanforderungen und Rechnungen zwischen gekoppelten Kontakten. Aus sind sie verborgen, und nichts wird für sie geprüft. Kopplung selbst ist immer an.'),
-        HelpBlock.p('Netzwerkmodus und **automatischer Node-Wechsel** stehen unter $netPlace: siehe „Netzwerkmodi“.'),
+        HelpBlock.p(phone ? 'Netzwerkmodus und **automatischer Node-Wechsel** stehen unter $netPlace: siehe „Netzwerkmodi“.' : 'Der Netzwerkmodus steht unter $netPlace: siehe „Netzwerkmodi“. **Node automatisch wechseln** steht unter $nodePlace.'),
       ],
       id: HelpId.advanced,
     ),
@@ -422,7 +421,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('**„Epicbox antwortet nicht“.** Die Wallet erreicht ihren Epicbox-Server nicht. Warten Sie einen Moment; bleibt es so, prüfen Sie die Verbindung oder tippen Sie im Tab Wallet auf das Epicbox-Symbol und wählen Sie einen anderen Server. In der Zwischenzeit funktioniert Direkt · Dateiübertragung.')
         else
-          const HelpBlock.p('**„Epicbox antwortet nicht“.** Die Wallet erreicht ihren Epicbox-Server nicht. Warten Sie einen Moment; bleibt es so, prüfen Sie die Verbindung oder wählen Sie unter [[Einstellungen › Transaktionen|Settings › Transactions]] einen anderen Server. In der Zwischenzeit funktioniert Direkt · Dateiübertragung.'),
+          HelpBlock.p('**„Epicbox antwortet nicht“.** Die Wallet erreicht ihren Epicbox-Server nicht. Warten Sie einen Moment; bleibt es so, prüfen Sie die Verbindung oder wählen Sie unter $payPlace einen anderen Server. In der Zwischenzeit funktioniert Direkt · Dateiübertragung.'),
         const HelpBlock.p('**Eine Zahlung zeigt „Wartet auf Empfänger“.** Die Wallet des Empfängers hat noch nicht geantwortet. Bitten Sie ihn, sie zu öffnen. Wird er das nie tun, stornieren Sie die Zahlung unter Aktivität, um die Coins freizugeben.'),
         if (phone)
           const HelpBlock.p('**Eine Zahlung ist nicht angekommen.** Prüfen Sie die Statussymbole im Tab Wallet: Node synchronisiert, Epicbox verbunden. Nach einem Wechsel des Epicbox-Servers braucht der Absender die neue Adresse. Außerdem muss die Wallet des Absenders die Transaktion abschließen; danach dauern die Bestätigungen einige Minuten.')
@@ -486,9 +485,9 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         '„Aus der Liste entfernen“ lässt den Ordner der Wallet auf der Festplatte. Gelöscht wird er von Hand, mit notierter Wiederherstellungsphrase oder bei leerer Wallet.',
         [
           HelpBlock.ul([
-            '**Aus der Liste entfernen** unter [[Einstellungen › Alle Wallets|Settings › All wallets]] nimmt eine Wallet aus der Liste. Ihr Ordner bleibt auf der Festplatte, und die Seite bietet sie unter **Aus der Liste entfernt** wieder an.',
+            '**Aus der Liste entfernen** unter [[Einstellungen › Wallets|Settings › Wallets]] nimmt eine Wallet aus der Liste. Ihr Ordner bleibt auf der Festplatte, und die Seite bietet sie unter **Aus der Liste entfernt** wieder an.',
             '**Wer einen Wallet-Ordner ohne seine Wiederherstellungsphrase löscht, verliert die EPIC darin.** Nur eine Wallet löschen, deren Phrase notiert ist, oder eine, die leer ist und nicht mehr gebraucht wird.',
-            'Die Ordner liegen unter **wallets** im Datenordner (**Ordner öffnen** neben [[Einstellungen › Diese Wallet › App-Dateien|Settings › This wallet › App files]]), einer je Wallet, benannt nach ihrer Kennung; **WALLET.txt** darin nennt den Namen der Wallet. Bei geschlossenem Epic Cash Desktop nur diesen einen Kennungsordner löschen und alles andere lassen, wie es ist.',
+            'Die Ordner liegen unter **wallets** im Datenordner (**Ordner öffnen** neben [[Einstellungen › Dateien & Protokolle › App-Dateien|Settings › Files & logs › App files]]), einer je Wallet, benannt nach ihrer Kennung; **WALLET.txt** darin nennt den Namen der Wallet. Bei geschlossenem Epic Cash Desktop nur diesen einen Kennungsordner löschen und alles andere lassen, wie es ist.',
           ]),
         ],
         id: HelpId.cleanup,
@@ -510,7 +509,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
           ]),
         ] else ...[
           HelpBlock.p(
-            'Die Datei **settings.toml** enthält Ihre Node- und Epicbox-Listen und drei Schalter: Statusseite, Update-Prüfung und Preise. Alles andere kommt mit der App. Sie liegt im Datenordner: **~/.epic_cash_desktop/settings.toml** unter Linux und macOS, **%USERPROFILE%\\.epic_cash_desktop\\settings.toml** unter Windows (**Ordner öffnen** neben [[Einstellungen › Diese Wallet › App-Dateien|Settings › This wallet › App files]]).',
+            'Die Datei **settings.toml** enthält Ihre Node- und Epicbox-Listen und drei Schalter: Statusseite, Update-Prüfung und Preise. Alles andere kommt mit der App. Sie liegt im Datenordner: **~/.epic_cash_desktop/settings.toml** unter Linux und macOS, **%USERPROFILE%\\.epic_cash_desktop\\settings.toml** unter Windows (**Ordner öffnen** neben [[Einstellungen › Dateien & Protokolle › App-Dateien|Settings › Files & logs › App files]]).',
           ),
           HelpBlock.ul([
             'Eine Änderung in der App wird sofort in die Datei geschrieben. Eine Änderung, die Sie in der Datei speichern, gilt bei laufender App nach einem Moment.',

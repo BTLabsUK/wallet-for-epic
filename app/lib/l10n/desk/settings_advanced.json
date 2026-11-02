@@ -59,7 +59,7 @@
   "@deskSetAdvLogs": {
     "description": "Advanced switch: logs and diagnostics."
   },
-  "deskSetAdvLogsHint": "Shows the Logs group under Help: open the log folder, clear the logs. Report a problem attaches the log either way.",
+  "deskSetAdvLogsHint": "Shows the Logs group under Files & logs: open the log folder, clear the logs. Report a problem attaches the log either way.",
   "@deskSetAdvLogsHint": {
     "description": "Hover card of the Logs switch."
   },

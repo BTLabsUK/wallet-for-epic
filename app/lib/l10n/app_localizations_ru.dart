@@ -6657,7 +6657,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskRecvHttpLocal =>
-      'На этот адрес могут платить программы на этом компьютере. Для других устройств см. «Настройки › Транзакции».';
+      'На этот адрес могут платить программы на этом компьютере. Для других устройств см. «Настройки › Платежи».';
 
   @override
   String get deskRecvHttpIntro =>
@@ -13512,7 +13512,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAdvLogsHint =>
-      'Показывает группу «Журналы» в разделе «Справка»: открыть папку журналов, очистить журналы. «Сообщить о проблеме» прикладывает журнал в любом случае.';
+      'Показывает группу «Журналы» в разделе «Файлы и журналы»: открыть папку журналов, очистить журналы. «Сообщить о проблеме» прикладывает журнал в любом случае.';
 
   @override
   String get deskSetAdvNetwork => 'Сеть';
@@ -13933,10 +13933,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOutDefaultsMoved =>
-      '«Стратегия» и «Делить сдачу» для отправок задаются в «Настройки › Транзакции».';
+      '«Стратегия» и «Делить сдачу» для отправок задаются в «Настройки › Платежи».';
 
   @override
-  String get deskOutDefaultsOpen => 'Открыть «Транзакции»';
+  String get deskOutDefaultsOpen => 'Открыть «Платежи»';
 
   @override
   String get deskSetFrameTransactions => 'Транзакции';
@@ -16279,7 +16279,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOvRestoredImportLater =>
-      'Позже: Настройки › Этот кошелёк › Данные кошелька.';
+      'Позже: Настройки › Кошелёк › Резервная копия.';
 
   @override
   String get deskOnbForgotNoCheck =>
@@ -19975,7 +19975,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetDlgRemoveUnlockHintSecurity =>
-      'Чтобы удалить и его файлы, разблокируйте этот кошелёк и выберите «Удалить кошелёк» в разделе «Настройки › Безопасность».';
+      'Чтобы удалить и его файлы, разблокируйте этот кошелёк и выберите «Удалить кошелёк» в разделе «Настройки › Кошелёк».';
 
   @override
   String get deskRecvHttpTorHintNet =>

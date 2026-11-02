@@ -14,7 +14,7 @@
   "deskSetAdvBuiltInNode": "Węzeł lokalny",
   "deskSetAdvBuiltInNodeHint": "Pozwala temu komputerowi uruchomić własny węzeł: opcja Ten komputer w Węźle, jej panel synchronizacji i Uruchom węzeł na Przeglądzie. Synchronizacja łańcucha trwa godziny i zajmuje kilka gigabajtów dysku. Działający węzeł zachowuje swoje wiersze.",
   "deskSetAdvLogs": "Logi",
-  "deskSetAdvLogsHint": "Pokazuje grupę Logi w Pomocy: otwórz folder logów, wyczyść logi. Zgłoszenie problemu i tak dołącza log.",
+  "deskSetAdvLogsHint": "Pokazuje grupę Logi w Pliki i logi: otwórz folder logów, wyczyść logi. Zgłoszenie problemu i tak dołącza log.",
   "deskSetAdvNetwork": "Sieć",
   "deskSetAdvModeTorOnlyText": "Każde połączenie idzie przez Tor. Dopóki Tor nie jest gotowy, nic się nie łączy.",
   "deskSetAdvNotInBuild": "Brak w tej wersji",

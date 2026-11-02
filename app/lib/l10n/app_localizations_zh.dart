@@ -6164,7 +6164,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskRecvHttpLocal => '本机上的程序可以向此地址付款。其他设备请见“设置 › 交易”。';
+  String get deskRecvHttpLocal => '本机上的程序可以向此地址付款。其他设备请见“设置 › 支付”。';
 
   @override
   String get deskRecvHttpIntro => '供此电脑上的钱包使用，仅在此钱包打开时。';
@@ -12277,7 +12277,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAdvLogsHint =>
-      '在“帮助”下显示“日志”分组：打开日志文件夹、清除日志。无论是否开启，“报告问题”都会附上日志。';
+      '在“文件与日志”下显示“日志”分组：打开日志文件夹、清除日志。无论是否开启，“报告问题”都会附上日志。';
 
   @override
   String get deskSetAdvNetwork => '网络';
@@ -12654,10 +12654,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskNetOfflineNoPeers => '你的节点没有对等节点：付款会留在它的交易池里，直到它重新连接。';
 
   @override
-  String get deskOutDefaultsMoved => '发送的“策略”和“拆分找零”在“设置 › 交易”中设置。';
+  String get deskOutDefaultsMoved => '发送的“策略”和“拆分找零”在“设置 › 支付”中设置。';
 
   @override
-  String get deskOutDefaultsOpen => '打开“交易”';
+  String get deskOutDefaultsOpen => '打开“支付”';
 
   @override
   String get deskSetFrameTransactions => '交易';
@@ -14811,7 +14811,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOvRestoredImportButton => '导入钱包数据';
 
   @override
-  String get deskOvRestoredImportLater => '以后可在“设置 › 此钱包 › 钱包数据”中导入。';
+  String get deskOvRestoredImportLater => '以后可在“设置 › 钱包 › 备份”中导入。';
 
   @override
   String get deskOnbForgotNoCheck => '此钱包的文件无法确认该助记词，因此密码保持不变。';
@@ -18243,7 +18243,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetDlgRemoveUnlockHintSecurity =>
-      '如果还要删除它的文件，请解锁此钱包，然后使用“设置 › 安全”中的“删除钱包”。';
+      '如果还要删除它的文件，请解锁此钱包，然后使用“设置 › 钱包”中的“删除钱包”。';
 
   @override
   String get deskRecvHttpTorHintNet => '如需 Tor 地址，请在“设置 › 网络与隐私”中开启 Tor。';

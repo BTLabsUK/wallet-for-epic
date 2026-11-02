@@ -10,16 +10,17 @@ import 'help_content.dart';
 
 /// The linked devices topics in [lang] (`en`, `de`, `pl`, `ru`, `zh`, `th`).
 List<HelpTopic> deviceHelpTopics(String lang, {required bool phone}) => switch (lang) {
-  'de' => _de(),
-  'pl' => _pl(),
-  'ru' => _ru(),
-  'zh' => _zh(),
-  'th' => _th(),
-  _ => _en(),
+  'de' => _de(phone),
+  'pl' => _pl(phone),
+  'ru' => _ru(phone),
+  'zh' => _zh(phone),
+  'th' => _th(phone),
+  _ => _en(phone),
 };
 
-List<HelpTopic> _en() {
-  final place = '[[Settings › This wallet › Linked devices]]';
+List<HelpTopic> _en(bool phone) {
+  // The desktop's Linked devices is a Settings page of its own.
+  final place = phone ? '[[Settings › This wallet › Linked devices]]' : '[[Settings › Linked devices]]';
   return [
     HelpTopic(
       'how',
@@ -84,8 +85,9 @@ List<HelpTopic> _en() {
   ];
 }
 
-List<HelpTopic> _de() {
-  final place = '[[Einstellungen › Diese Wallet › Verknüpfte Geräte|Settings › This wallet › Linked devices]]';
+List<HelpTopic> _de(bool phone) {
+  // The desktop's Linked devices is a Settings page of its own.
+  final place = phone ? '[[Einstellungen › Diese Wallet › Verknüpfte Geräte|Settings › This wallet › Linked devices]]' : '[[Einstellungen › Verknüpfte Geräte|Settings › Linked devices]]';
   return [
     HelpTopic(
       'how',
@@ -150,8 +152,9 @@ List<HelpTopic> _de() {
   ];
 }
 
-List<HelpTopic> _pl() {
-  final place = '[[Ustawienia › Ten portfel › Połączone urządzenia|Settings › This wallet › Linked devices]]';
+List<HelpTopic> _pl(bool phone) {
+  // The desktop's Linked devices is a Settings page of its own.
+  final place = phone ? '[[Ustawienia › Ten portfel › Połączone urządzenia|Settings › This wallet › Linked devices]]' : '[[Ustawienia › Połączone urządzenia|Settings › Linked devices]]';
   return [
     HelpTopic(
       'how',
@@ -216,8 +219,9 @@ List<HelpTopic> _pl() {
   ];
 }
 
-List<HelpTopic> _ru() {
-  final place = '[[Настройки › Этот кошелёк › Связанные устройства|Settings › This wallet › Linked devices]]';
+List<HelpTopic> _ru(bool phone) {
+  // The desktop's Linked devices is a Settings page of its own.
+  final place = phone ? '[[Настройки › Этот кошелёк › Связанные устройства|Settings › This wallet › Linked devices]]' : '[[Настройки › Связанные устройства|Settings › Linked devices]]';
   return [
     HelpTopic(
       'how',
@@ -282,8 +286,9 @@ List<HelpTopic> _ru() {
   ];
 }
 
-List<HelpTopic> _zh() {
-  final place = '[[设置 › 此钱包 › 关联设备|Settings › This wallet › Linked devices]]';
+List<HelpTopic> _zh(bool phone) {
+  // The desktop's Linked devices is a Settings page of its own.
+  final place = phone ? '[[设置 › 此钱包 › 关联设备|Settings › This wallet › Linked devices]]' : '[[设置 › 关联设备|Settings › Linked devices]]';
   return [
     HelpTopic(
       'how',
@@ -348,8 +353,9 @@ List<HelpTopic> _zh() {
   ];
 }
 
-List<HelpTopic> _th() {
-  final place = '[[การตั้งค่า › กระเป๋าเงินนี้ › อุปกรณ์ที่เชื่อมโยง|Settings › This wallet › Linked devices]]';
+List<HelpTopic> _th(bool phone) {
+  // The desktop's Linked devices is a Settings page of its own.
+  final place = phone ? '[[การตั้งค่า › กระเป๋าเงินนี้ › อุปกรณ์ที่เชื่อมโยง|Settings › This wallet › Linked devices]]' : '[[การตั้งค่า › อุปกรณ์ที่เชื่อมโยง|Settings › Linked devices]]';
   return [
     HelpTopic(
       'how',

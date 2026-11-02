@@ -22,7 +22,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
   final device = phone ? 'tym telefonie' : 'tym komputerze';
   final secret = phone ? 'swój PIN lub hasło' : 'hasło portfela';
   final nodePlace = phone ? '[[Ustawienia › Sieć i prywatność › Węzeł|Settings › Network & privacy › Node]]' : '[[Ustawienia › Węzeł|Settings › Node]]';
-  final epicboxPlace = phone ? '[[Ustawienia › Sieć i prywatność › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[Ustawienia › Transakcje › Epicbox|Settings › Transactions › Epicbox]]';
+  final epicboxPlace = phone ? '[[Ustawienia › Sieć i prywatność › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[Ustawienia › Płatności › Epicbox|Settings › Payments › Epicbox]]';
   final torPlace = phone ? '[[Ustawienia › Sieć i prywatność › Sieć Tor|Settings › Network & privacy › Tor network]]' : '[[Ustawienia › Sieć i prywatność › Tor|Settings › Network & privacy › Tor]]';
   final netPlace = '[[Ustawienia › Sieć i prywatność|Settings › Network & privacy]]';
   final cancelPlace = phone
@@ -30,11 +30,13 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       : '[[Aktywność › transakcja › Anuluj|Activity › the transaction › Cancel]]';
   final historyBackupPlace = phone
       ? '[[Ustawienia › Ten portfel › Eksportuj dane portfela|Settings › This wallet › Export wallet data]]'
-      : '[[Ustawienia › Ten portfel › Eksportuj dane portfela|Settings › This wallet › Export wallet data]]';
+      : '[[Ustawienia › Portfel › Eksportuj dane portfela|Settings › Wallet › Export wallet data]]';
   final restorePlace = phone
       ? '**Przywróć z frazy** (na pierwszym ekranie lub w [[Ustawienia › Ten portfel|Settings › This wallet]])'
-      : '**Przywróć z frazy** (na pierwszym ekranie, w Odblokuj › Dodaj portfel lub w [[Ustawienia › Wszystkie portfele|Settings › All wallets]])';
-  final recheckPlace = phone ? '[[Ustawienia › Ten portfel › Sprawdź saldo|Settings › This wallet › Recheck balance]]' : '[[Ustawienia › Sprawdź saldo|Settings › Recheck balance]]';
+      : '**Przywróć z frazy** (na pierwszym ekranie, w Odblokuj › Dodaj portfel lub w [[Ustawienia › Portfele|Settings › Wallets]])';
+  final recheckPlace = phone ? '[[Ustawienia › Ten portfel › Sprawdź saldo|Settings › This wallet › Recheck balance]]' : '[[Ustawienia › Portfel › Sprawdź saldo|Settings › Wallet › Recheck balance]]';
+  final payPlace = phone ? '[[Ustawienia › Transakcje|Settings › Transactions]]' : '[[Ustawienia › Płatności|Settings › Payments]]';
+  final filesPlace = '[[Ustawienia › Pliki i logi|Settings › Files & logs]]';
   final phrasePlace = phone ? '[[Ustawienia › Bezpieczeństwo › Zabezpiecz frazę odzyskiwania|Settings › Security › Back up recovery phrase]]' : '[[Ustawienia › Bezpieczeństwo › Fraza odzyskiwania|Settings › Security › Recovery phrase]]';
   return <HelpTopic>[
     HelpTopic(
@@ -99,9 +101,9 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       'Metody płatności i zasady wysyłki',
       'Każda metoda to przełącznik; Epicbox jest domyślnie włączony. Wysyłanie otwiera się na metodzie domyślnej.',
       [
-        const HelpBlock.p('Strona Transakcje w [[Ustawienia › Transakcje|Settings › Transactions]] zawiera trzy rzeczy.'),
+        HelpBlock.p('Strona ${phone ? 'Transakcje' : 'Płatności'} w $payPlace zawiera trzy rzeczy.'),
         HelpBlock.ul([
-          '**Metody płatności.** Po jednym przełączniku. **Epicbox** jest domyślnie włączony; wyłączony, portfel nie łączy się z żadnym serwerem, więc nie ma płatności Epicbox ani faktur, a Odbierz nie pokazuje adresu Epicbox (płatności wysłane na niego czekają na serwerze). ${tor ? "**Link · HTTP** (na adresy internetowe), **Link · Tor** (na adresy .onion${phone ? ' oraz z adresem Tor tego telefonu, na który można ci płacić' : ''}) i ${phone ? '**Bezpośrednio · Płatność QR** oraz ' : ''}**Bezpośrednio · Przesyłanie pliku**" : "**Link · HTTP** (na adresy internetowe)${phone ? ', **Bezpośrednio · Płatność QR**' : ''} i **Bezpośrednio · Przesyłanie pliku**"} nie potrzebują serwera Epicbox. Wyłączona metoda nie pojawia się w Wyślij i Odbierz.${phone ? ' Na telefonie **Link · HTTP** odbiera tylko w sieci Wi-Fi, której ufasz: **Ufaj tej sieci** w Odbierz dodaje ją; w [[Ustawienia › Transakcje|Settings › Transactions]] › **Zaufane sieci** można je wyświetlić i usunąć.' : ''}',
+          '**Metody płatności.** Po jednym przełączniku. **Epicbox** jest domyślnie włączony; wyłączony, portfel nie łączy się z żadnym serwerem, więc nie ma płatności Epicbox ani faktur, a Odbierz nie pokazuje adresu Epicbox (płatności wysłane na niego czekają na serwerze). ${tor ? "**Link · HTTP** (na adresy internetowe), **Link · Tor** (na adresy .onion${phone ? ' oraz z adresem Tor tego telefonu, na który można ci płacić' : ''}) i ${phone ? '**Bezpośrednio · Płatność QR** oraz ' : ''}**Bezpośrednio · Przesyłanie pliku**" : "**Link · HTTP** (na adresy internetowe)${phone ? ', **Bezpośrednio · Płatność QR**' : ''} i **Bezpośrednio · Przesyłanie pliku**"} nie potrzebują serwera Epicbox. Wyłączona metoda nie pojawia się w Wyślij i Odbierz.${phone ? ' Na telefonie **Link · HTTP** odbiera tylko w sieci Wi-Fi, której ufasz: **Ufaj tej sieci** w Odbierz dodaje ją; w $payPlace › **Zaufane sieci** można je wyświetlić i usunąć.' : ''}',
           '**Domyślna metoda.** Metoda, z którą otwiera się ekran Wyślij; na ekranie Wyślij można wybrać inną.',
           '**Zasady wysyłki.** Które wyjścia wydaje wysyłka, Najmniejsze czy Wszystkie, i czy jej reszta jest dzielona. Widać je tylko wtedy, gdy w Zaawansowanych włączone są **Opcje wysyłki**.',
         ]),
@@ -179,10 +181,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('**Najmniejsze** sortuje wyjścia do wydania według wartości i bierze najmniejsze, aż pokryją kwotę i opłatę. Tylko one są zablokowane, dopóki płatność się potwierdza; resztę można od razu wysłać.'),
         HelpBlock.p('**Wszystkie** wydaje każde wyjście do wydania i zwraca jedno wyjście reszty. Wszystko jest zablokowane do osiągnięcia wymaganej liczby potwierdzeń ($confirmations), portfel ma potem mniej, ale większych wyjść, a opłata jest nieco wyższa, bo każde wejście kosztuje. Wysłanie całego salda zawsze używa Wszystkie.'),
-        if (phone)
-          const HelpBlock.p('Domyślny sposób ustawisz w [[Ustawienia › Transakcje|Settings › Transactions]], gdy w Zaawansowanych włączone są Opcje wysyłki.')
-        else
-          const HelpBlock.p('Domyślny sposób ustawisz w [[Wyjścia › Zarządzaj wyjściami|Outputs › Manage outputs]]; w Wyślij możesz go zmienić dla jednej płatności w sekcji **Opcje wysyłki**.'),
+        HelpBlock.p('Domyślny sposób ustawisz w $payPlace, gdy w Zaawansowanych włączone są Opcje wysyłki.'),
       ],
       id: HelpId.strategy,
     ),
@@ -246,7 +245,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         if (!phone)
           const HelpBlock.p('**Eksportuj CSV** zapisuje listę płatności jako plik arkusza o nazwie **epic-payments-<portfel>-<data>.csv**, z kolumnami: data, typ, stan, kwota, opłata, druga strona, notatka, ID slate, kernel i wysokość bloku. Plik nie jest szyfrowany: każdy, kto go ma, odczyta kwoty, daty, adresy i notatki. Nie można go ponownie zaimportować; do tego służy **Eksportuj dane portfela**.'),
         if (!phone)
-          const HelpBlock.p('**Pliki portfela** są w [[Ustawienia › Ten portfel › Folder portfela|Settings › This wallet › Wallet folder]]. Zachowaj frazę odzyskiwania nawet przy ich kopii: zadziała, gdy pliki zginą.'),
+          const HelpBlock.p('**Pliki portfela** są w [[Ustawienia › Pliki i logi › Folder portfela|Settings › Files & logs › Wallet folder]]. Zachowaj frazę odzyskiwania nawet przy ich kopii: zadziała, gdy pliki zginą.'),
       ],
       id: HelpId.backup,
     ),
@@ -391,7 +390,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
           '**Wyjścia**: strona Wyjścia z monetami, z których składa się saldo, i to, co można z nimi zrobić.',
           '**Szczegóły techniczne**: ID slate, kernel, commitmenty i wysokość bloku w ${phone ? 'szczegółach płatności' : 'transakcji'}. Bez tego link **Więcej** przy transakcji pokazuje je jednorazowo.',
           if (phone)
-            '**Opcje wysyłki**: Strategia i Podziel resztę, w [[Ustawienia › Transakcje|Settings › Transactions]]: które wyjścia wydaje wysyłka i czy jej reszta jest dzielona.'
+            '**Opcje wysyłki**: Strategia i Podziel resztę, w $payPlace: które wyjścia wydaje wysyłka i czy jej reszta jest dzielona.'
           else
             '**Opcje wysyłki**: sekcja w Wyślij, w której jedna wysyłka wybiera Najmniejsze lub Wszystkie i czy dzielić resztę.',
           '**Szczegóły serwerów**: hosty, opóźnienie, wersja i wysokość bloku na listach węzłów i Epicbox oraz na karcie stanu.',
@@ -400,11 +399,11 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
           else
             '**Sprawdź od wysokości**: pozwala Sprawdź saldo odrzucić także niepotwierdzone transakcje. Przywracanie każdemu daje wybór bloku początkowego.',
           if (!phone) '**Węzeł lokalny**: pozwala temu komputerowi uruchomić własny węzeł, w $nodePlace.',
-          if (!phone) '**Logi**: grupa Logi w Pomocy, by otworzyć folder logów lub wyczyścić logi. Zgłoszenie problemu i tak dołącza log.',
+          if (!phone) '**Logi**: grupa Logi w $filesPlace, by otworzyć folder logów lub wyczyścić logi. Zgłoszenie problemu i tak dołącza log.',
         ]),
-        const HelpBlock.p('**Potwierdzenia** określają, ile bloków odebrana płatność czeka, zanim jej wyjścia będzie można wydać: domyślnie 6, od 1 do 30. Mniej potwierdzeń to szybciej, ale mniej bezpiecznie.'),
+        HelpBlock.p('**Potwierdzenia** określają, ile bloków odebrana płatność czeka, zanim jej wyjścia będzie można wydać: domyślnie 6, od 1 do 30. Mniej potwierdzeń to szybciej, ale mniej bezpiecznie.${phone ? '' : ' Ustawia się je w $payPlace.'}'),
         const HelpBlock.p('**Eksperymentalne** zawiera **Faktury**, na początku wyłączone: prośby o płatność i faktury między sparowanymi kontaktami. Wyłączone są ukryte i nic nie jest dla nich sprawdzane. Samo parowanie jest zawsze włączone.'),
-        HelpBlock.p('Tryb sieci i **automatyczna zmiana węzła** są w $netPlace: zobacz „Tryby sieci”.'),
+        HelpBlock.p(phone ? 'Tryb sieci i **automatyczna zmiana węzła** są w $netPlace: zobacz „Tryby sieci”.' : 'Tryb sieci jest w $netPlace: zobacz „Tryby sieci”. **Zmieniaj węzeł automatycznie** jest w $nodePlace.'),
       ],
       id: HelpId.advanced,
     ),
@@ -422,7 +421,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         if (phone)
           const HelpBlock.p('**„Epicbox nie odpowiada”.** Portfel nie może połączyć się ze swoim serwerem Epicbox. Poczekaj chwilę; jeśli to nie minie, sprawdź połączenie albo dotknij ikony Epicbox na karcie Portfel i wybierz inny serwer. W tym czasie działa Bezpośrednio · Przesyłanie pliku.')
         else
-          const HelpBlock.p('**„Epicbox nie odpowiada”.** Portfel nie może połączyć się ze swoim serwerem Epicbox. Poczekaj chwilę; jeśli to nie minie, sprawdź połączenie albo wybierz inny serwer w [[Ustawienia › Transakcje|Settings › Transactions]]. W tym czasie działa Bezpośrednio · Przesyłanie pliku.'),
+          HelpBlock.p('**„Epicbox nie odpowiada”.** Portfel nie może połączyć się ze swoim serwerem Epicbox. Poczekaj chwilę; jeśli to nie minie, sprawdź połączenie albo wybierz inny serwer w $payPlace. W tym czasie działa Bezpośrednio · Przesyłanie pliku.'),
         const HelpBlock.p('**Płatność ma stan „Czeka na odbiorcę”.** Portfel odbiorcy jeszcze nie odpowiedział. Poproś odbiorcę, by go otworzył. Jeśli nigdy tego nie zrobi, anuluj płatność w Aktywności, aby odblokować monety.'),
         if (phone)
           const HelpBlock.p('**Płatność nie dotarła.** Sprawdź ikony stanu na karcie Portfel: węzeł zsynchronizowany, Epicbox połączony. Po zmianie serwera Epicbox nadawca potrzebuje nowego adresu. Portfel nadawcy musi też zakończyć transakcję; potem kilka minut na potwierdzenia.')
@@ -486,9 +485,9 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         '„Usuń z listy” zostawia folder portfela na dysku. Folder usuwa się ręcznie, mając zapisaną frazę odzyskiwania lub gdy portfel jest pusty.',
         [
           HelpBlock.ul([
-            '**Usuń z listy** w [[Ustawienia › Wszystkie portfele|Settings › All wallets]] zdejmuje portfel z listy. Jego folder zostaje na dysku, a strona proponuje go ponownie w grupie **Usunięte z listy**.',
+            '**Usuń z listy** w [[Ustawienia › Portfele|Settings › Wallets]] zdejmuje portfel z listy. Jego folder zostaje na dysku, a strona proponuje go ponownie w grupie **Usunięte z listy**.',
             '**Usunięcie folderu portfela bez jego frazy odzyskiwania oznacza utratę EPIC, które zawiera.** Usuwać tylko portfel z zapisaną frazą albo pusty i już niepotrzebny.',
-            'Foldery leżą w **wallets** w folderze danych (**Otwórz folder** obok [[Ustawienia › Ten portfel › Pliki aplikacji|Settings › This wallet › App files]]), po jednym na portfel, nazwane jego identyfikatorem; **WALLET.txt** w środku podaje nazwę portfela. Przy zamkniętym Epic Cash Desktop usunąć tylko ten jeden folder identyfikatora, a resztę zostawić bez zmian.',
+            'Foldery leżą w **wallets** w folderze danych (**Otwórz folder** obok [[Ustawienia › Pliki i logi › Pliki aplikacji|Settings › Files & logs › App files]]), po jednym na portfel, nazwane jego identyfikatorem; **WALLET.txt** w środku podaje nazwę portfela. Przy zamkniętym Epic Cash Desktop usunąć tylko ten jeden folder identyfikatora, a resztę zostawić bez zmian.',
           ]),
         ],
         id: HelpId.cleanup,
@@ -510,7 +509,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
           ]),
         ] else ...[
           HelpBlock.p(
-            'Plik **settings.toml** zawiera Twoje listy węzłów i serwerów Epicbox oraz trzy przełączniki: strona stanu, sprawdzanie aktualizacji i ceny. Wszystko inne przychodzi z aplikacją. Leży w folderze danych: **~/.epic_cash_desktop/settings.toml** w Linuksie i macOS, **%USERPROFILE%\\.epic_cash_desktop\\settings.toml** w Windows (**Otwórz folder** obok [[Ustawienia › Ten portfel › Pliki aplikacji|Settings › This wallet › App files]]).',
+            'Plik **settings.toml** zawiera Twoje listy węzłów i serwerów Epicbox oraz trzy przełączniki: strona stanu, sprawdzanie aktualizacji i ceny. Wszystko inne przychodzi z aplikacją. Leży w folderze danych: **~/.epic_cash_desktop/settings.toml** w Linuksie i macOS, **%USERPROFILE%\\.epic_cash_desktop\\settings.toml** w Windows (**Otwórz folder** obok [[Ustawienia › Pliki i logi › Pliki aplikacji|Settings › Files & logs › App files]]).',
           ),
           HelpBlock.ul([
             'Zmiana w aplikacji jest od razu zapisywana do pliku. Zmiana zapisana w pliku działa, gdy aplikacja pracuje, po chwili.',

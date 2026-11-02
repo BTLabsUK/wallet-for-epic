@@ -131,7 +131,7 @@
   "@deskOvRestoredImportButton": {
     "description": "Primary button; opens the Backup page's file chooser. Same text as the phone's restoreImportButton."
   },
-  "deskOvRestoredImportLater": "Later under Settings › This wallet › Wallet data.",
+  "deskOvRestoredImportLater": "Later under Settings › Wallet › Backup.",
   "@deskOvRestoredImportLater": {
     "description": "Small line under the buttons. Uses the page names deskSetFrameThisWallet and deskSetBackupGroup."
   },

@@ -223,7 +223,7 @@ void main() {
       await tester.ensureVisible(find.byKey(const ValueKey('out-defaults-moved')));
       expect(find.byKey(const ValueKey('out-defaults-moved')), findsOneWidget);
       expect(find.text('Strategy for sends'), findsNothing);
-      await tester.tap(find.text('Open Transactions'));
+      await tester.tap(find.text('Open Payments'));
       await _settle(tester);
       expect(find.text('Payments'), findsWidgets);
       expect(find.byKey(const ValueKey('st-strategy')), findsOneWidget);

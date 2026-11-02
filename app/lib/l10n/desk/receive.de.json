@@ -30,7 +30,7 @@
   "deskRecvHttpAddress": "Link · HTTP-Adresse",
   "deskRecvCopyHttp": "Link · HTTP-Adresse kopieren",
   "deskRecvHttpPublic": "Die öffentliche Adresse Ihres Routers. Absender im Internet nutzen sie, sobald der Router Port {port} weiterleitet.",
-  "deskRecvHttpLocal": "Programme auf diesem Computer können an diese Adresse zahlen. Für andere Geräte siehe Einstellungen › Transaktionen.",
+  "deskRecvHttpLocal": "Programme auf diesem Computer können an diese Adresse zahlen. Für andere Geräte siehe Einstellungen › Zahlungen.",
   "deskRecvHttpIntro": "Für Wallets auf diesem Computer, solange diese Wallet geöffnet ist.",
   "deskRecvHttpTorHint": "Schalten Sie Tor unter Einstellungen › Datenschutz ein, um stattdessen eine Tor-Adresse zu erhalten.",
   "deskRecvHttpTorHintNet": "Schalten Sie Tor unter Einstellungen › Netzwerk & Datenschutz ein, um stattdessen eine Tor-Adresse zu erhalten.",

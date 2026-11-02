@@ -207,15 +207,17 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
   final device = phone ? 'this phone' : 'this computer';
   final secret = phone ? 'your PIN or passphrase' : 'the wallet password';
   final nodePlace = phone ? '[[Settings › Network & privacy › Node]]' : '[[Settings › Node]]';
-  final epicboxPlace = phone ? '[[Settings › Network & privacy › Epicbox]]' : '[[Settings › Transactions › Epicbox]]';
+  final epicboxPlace = phone ? '[[Settings › Network & privacy › Epicbox]]' : '[[Settings › Payments › Epicbox]]';
   final torPlace = phone ? '[[Settings › Network & privacy › Tor network]]' : '[[Settings › Network & privacy › Tor]]';
   final netPlace = '[[Settings › Network & privacy]]';
   final cancelPlace = phone ? '[[Activity]] (open the payment, then Cancel payment)' : '[[Activity › the transaction › Cancel]]';
-  final historyBackupPlace = phone ? '[[Settings › This wallet › Export wallet data]]' : '[[Settings › This wallet › Export wallet data]]';
+  final historyBackupPlace = phone ? '[[Settings › This wallet › Export wallet data]]' : '[[Settings › Wallet › Export wallet data]]';
   final restorePlace = phone
       ? '**Restore from phrase** (on the first screen, or under [[Settings › This wallet]])'
-      : '**Restore from phrase** (on the first screen, Unlock › Add a wallet, or [[Settings › All wallets]])';
-  final recheckPlace = phone ? '[[Settings › This wallet › Recheck balance]]' : '[[Settings › Recheck balance]]';
+      : '**Restore from phrase** (on the first screen, Unlock › Add a wallet, or [[Settings › Wallets]])';
+  final recheckPlace = phone ? '[[Settings › This wallet › Recheck balance]]' : '[[Settings › Wallet › Recheck balance]]';
+  final payPlace = phone ? '[[Settings › Transactions]]' : '[[Settings › Payments]]';
+  final filesPlace = '[[Settings › Files & logs]]';
   final phrasePlace = phone ? '[[Settings › Security › Back up recovery phrase]]' : '[[Settings › Security › Recovery phrase]]';
   return <HelpTopic>[
     HelpTopic(
@@ -280,9 +282,9 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       'Payment methods and send defaults',
       'Every method is a switch; Epicbox is on by default. Send opens on the default method.',
       [
-        const HelpBlock.p('The Transactions page in [[Settings › Transactions]] holds three things.'),
+        HelpBlock.p('The ${phone ? 'Transactions' : 'Payments'} page in $payPlace holds three things.'),
         HelpBlock.ul([
-          '**Payment methods.** One switch each. **Epicbox** is on by default; off, the wallet connects to no server, so no Epicbox payments or invoices, and Receive shows no Epicbox address (payments sent to it wait on the server). ${tor ? "**Link · HTTP** (to web addresses), **Link · Tor** (to .onion addresses${phone ? ', and a Tor address of this phone to be paid at' : ''}) and ${phone ? '**Direct · QR Payment** and ' : ''}**Direct · File Transfer**" : "**Link · HTTP** (to web addresses)${phone ? ', **Direct · QR Payment**' : ''} and **Direct · File Transfer**"} need no Epicbox server. A method that is off does not appear on Send and Receive.${phone ? ' On a phone, **Link · HTTP** receives only on a Wi-Fi network you trust: **Trust this network** on Receive adds it; [[Settings › Transactions]] › **Trusted networks** lists and forgets them.' : ''}',
+          '**Payment methods.** One switch each. **Epicbox** is on by default; off, the wallet connects to no server, so no Epicbox payments or invoices, and Receive shows no Epicbox address (payments sent to it wait on the server). ${tor ? "**Link · HTTP** (to web addresses), **Link · Tor** (to .onion addresses${phone ? ', and a Tor address of this phone to be paid at' : ''}) and ${phone ? '**Direct · QR Payment** and ' : ''}**Direct · File Transfer**" : "**Link · HTTP** (to web addresses)${phone ? ', **Direct · QR Payment**' : ''} and **Direct · File Transfer**"} need no Epicbox server. A method that is off does not appear on Send and Receive.${phone ? ' On a phone, **Link · HTTP** receives only on a Wi-Fi network you trust: **Trust this network** on Receive adds it; $payPlace › **Trusted networks** lists and forgets them.' : ''}',
           '**Default method.** The method the Send screen opens with; another can be picked on Send.',
           '**Send defaults.** Which outputs a send spends, Smallest or All, and whether its change is split. They show only while **Send options** is on in Advanced.',
         ]),
@@ -362,10 +364,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       [
         const HelpBlock.p('**Smallest** sorts the spendable outputs by value and takes the smallest ones until the amount and fee are covered. Only those are locked while the send confirms; the rest can be sent right away.'),
         HelpBlock.p('**All** spends every spendable output and returns one change output. Everything is locked for $confirmations blocks, the wallet ends up with fewer, larger outputs, and the fee is a little higher because each input costs. Sending the whole balance always uses All.'),
-        if (phone)
-          const HelpBlock.p('The default is set under [[Settings › Transactions]], with Send options switched on in Advanced.')
-        else
-          const HelpBlock.p('The default is set under [[Outputs › Manage outputs]]; Send can change it for one send under **Send options**.'),
+        HelpBlock.p('The default is set under $payPlace, with Send options switched on in Advanced.'),
       ],
       id: HelpId.strategy,
     ),
@@ -429,7 +428,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         if (!phone)
           const HelpBlock.p('**Export CSV** saves the payment list as a spreadsheet file named **epic-payments-<wallet>-<date>.csv**, with the columns date, type, status, amount, fee, counterparty, note, slate ID, kernel and block height. It is not encrypted: anyone with the file can read amounts, dates, addresses and notes. It cannot be imported again; **Export wallet data** is for that.'),
         if (!phone)
-          const HelpBlock.p('**The wallet’s files** are in [[Settings › This wallet › Wallet folder]]. Keep the recovery phrase even with a copy of them: it works when the files are lost.'),
+          const HelpBlock.p('**The wallet’s files** are in [[Settings › Files & logs › Wallet folder]]. Keep the recovery phrase even with a copy of them: it works when the files are lost.'),
       ],
       id: HelpId.backup,
     ),
@@ -574,7 +573,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           '**Outputs**: the Outputs page, with the coins the balance is made of and what you can do with them.',
           '**Technical details**: slate ID, kernel, commitments and block height on a ${phone ? 'payment’s details' : 'transaction'}. Without it, the **More** link on a transaction shows them once.',
           if (phone)
-            '**Send options**: Strategy and Split change, in [[Settings › Transactions]]: which outputs a send spends, and whether its change is split.'
+            '**Send options**: Strategy and Split change, in $payPlace: which outputs a send spends, and whether its change is split.'
           else
             '**Send options**: a fold on Send where one send chooses Smallest or All, and whether to split the change.',
           '**Server details**: hosts, latency, version and block height in the node and Epicbox lists and on the status card.',
@@ -583,11 +582,11 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           else
             '**Recheck from a height**: lets Recheck balance also drop unconfirmed transactions. Restore offers a start block to everyone.',
           if (!phone) '**Local node**: lets this computer run its own node, under $nodePlace.',
-          if (!phone) '**Logs**: the Logs group in Help, to open the log folder or clear the logs. Report a problem attaches the log either way.',
+          if (!phone) '**Logs**: the Logs group under $filesPlace, to open the log folder or clear the logs. Report a problem attaches the log either way.',
         ]),
-        const HelpBlock.p('**Confirmations** sets how many blocks a received payment waits before its outputs can be spent: 6 by default, any count from 1 to 30. Fewer confirmations are faster but less safe.'),
+        HelpBlock.p('**Confirmations** sets how many blocks a received payment waits before its outputs can be spent: 6 by default, any count from 1 to 30. Fewer confirmations are faster but less safe.${phone ? '' : ' It is set under $payPlace.'}'),
         const HelpBlock.p('**Experimental** holds **Invoices**, off to begin with: requests and invoices between paired contacts. Off, they are hidden and nothing is checked for them. Pairing itself is always on.'),
-        HelpBlock.p('The network mode and **Node failover** are under $netPlace: see "Network modes".'),
+        HelpBlock.p(phone ? 'The network mode and **Node failover** are under $netPlace: see "Network modes".' : 'The network mode is under $netPlace: see "Network modes". **Switch node automatically** is under $nodePlace.'),
       ],
       id: HelpId.advanced,
     ),
@@ -605,7 +604,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         if (phone)
           const HelpBlock.p('**"Epicbox not answering".** The wallet cannot reach its Epicbox server. Wait a moment; if it stays like this, check the connection or tap the Epicbox icon on the Wallet tab and pick another server. Meanwhile Direct · File Transfer works.')
         else
-          const HelpBlock.p('**"Epicbox not answering".** The wallet cannot reach its Epicbox server. Wait a moment; if it stays like this, check the connection or pick another server under [[Settings › Transactions]]. Meanwhile Direct · File Transfer works.'),
+          HelpBlock.p('**"Epicbox not answering".** The wallet cannot reach its Epicbox server. Wait a moment; if it stays like this, check the connection or pick another server under $payPlace. Meanwhile Direct · File Transfer works.'),
         const HelpBlock.p('**A send says "Waiting for recipient".** Their wallet has not answered yet. Ask them to open it. If they never will, cancel the payment in Activity to unlock the coins.'),
         if (phone)
           const HelpBlock.p('**A payment has not arrived.** Check the status icons on the Wallet tab: the node synced, Epicbox connected. After a change of Epicbox server, the sender needs the new address. The sender’s wallet also has to finish the transaction; then a few minutes for the confirmations.')
@@ -669,9 +668,9 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
         'Remove from list keeps a wallet’s folder on disk. Deleting the folder is done by hand, with the recovery phrase written down or the wallet empty.',
         [
           HelpBlock.ul([
-            '**Remove from list** in [[Settings › All wallets]] takes a wallet off the list. Its folder stays on disk, and the page offers it again under **Removed from list**.',
+            '**Remove from list** in [[Settings › Wallets]] takes a wallet off the list. Its folder stays on disk, and the page offers it again under **Removed from list**.',
             '**Deleting a wallet folder without its recovery phrase loses the EPIC in it.** Delete only a wallet whose phrase is written down, or one that is empty and no longer needed.',
-            'The folders sit under **wallets** in the data folder (**Open folder** next to [[Settings › This wallet › App files]]), one per wallet, named by its ID; **WALLET.txt** inside gives the wallet’s name. With Epic Cash Desktop closed, delete that one ID folder and leave the rest as it is.',
+            'The folders sit under **wallets** in the data folder (**Open folder** next to [[Settings › Files & logs › App files]]), one per wallet, named by its ID; **WALLET.txt** inside gives the wallet’s name. With Epic Cash Desktop closed, delete that one ID folder and leave the rest as it is.',
           ]),
         ],
         id: HelpId.cleanup,
@@ -693,7 +692,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
           ]),
         ] else ...[
           HelpBlock.p(
-            'The file **settings.toml** holds your Node and Epicbox lists and three switches: the status site, the update check and prices. Everything else comes with the app. It sits in the data folder: **~/.epic_cash_desktop/settings.toml** on Linux and macOS, **%USERPROFILE%\\.epic_cash_desktop\\settings.toml** on Windows (**Open folder** next to [[Settings › This wallet › App files]]).',
+            'The file **settings.toml** holds your Node and Epicbox lists and three switches: the status site, the update check and prices. Everything else comes with the app. It sits in the data folder: **~/.epic_cash_desktop/settings.toml** on Linux and macOS, **%USERPROFILE%\\.epic_cash_desktop\\settings.toml** on Windows (**Open folder** next to [[Settings › Files & logs › App files]]).',
           ),
           HelpBlock.ul([
             'A change in the app is written to the file at once. A change you save in the file applies while the app runs, within a moment.',

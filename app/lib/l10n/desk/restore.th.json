@@ -27,7 +27,7 @@
   "deskOvRestoredImportTitle": "กู้คืนกระเป๋าเงินแล้ว",
   "deskOvRestoredImportBody": "ยอดคงเหลือกลับมาแล้ว ไฟล์ข้อมูลกระเป๋าเงินของกระเป๋านี้จะนำประวัติ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่ากลับมา",
   "deskOvRestoredImportButton": "นำเข้าข้อมูลกระเป๋าเงิน",
-  "deskOvRestoredImportLater": "ทำทีหลังได้ที่ การตั้งค่า › กระเป๋าเงินนี้ › ข้อมูลกระเป๋าเงิน",
+  "deskOvRestoredImportLater": "ทำทีหลังได้ที่ การตั้งค่า › วอลเล็ต › สำรองข้อมูล",
   "deskOnbForgotNoCheck": "ไฟล์ของกระเป๋าเงินนี้ยืนยันวลีไม่ได้ รหัสผ่านจึงยังเหมือนเดิม",
   "deskOnbForgotRestoreHint": "ให้กู้คืนจากวลีแทน: {name} จะออกจากรายการ และไฟล์ยังอยู่บนคอมพิวเตอร์นี้",
   "deskOnbForgotRestoreInstead": "กู้คืนจากวลี",

@@ -39,7 +39,11 @@ void main() {
     'Back up recovery phrase': {l.settingsBackupPhrase},
     'Network & privacy': {l.settingsSectionNetworkPrivacy},
     'Tor network': {l.torNetworkLabel},
-    'Wallet': {l.settingsSectionWallet},
+    'Wallet': {l.settingsSectionWallet, l.deskSetSecWallet},
+    'Wallets': {l.deskSetSecWallets},
+    'Payments': {l.deskSetSecPayments},
+    'Files & logs': {l.deskSetSecFiles},
+    'Confirmations': {l.deskSetAdvConfirmations},
     'Transactions': {l.settingsSectionTransactions, l.deskSetFrameTransactions},
     'Export wallet data': {l.settingsExportHistory, l.deskSetBackupExportTitle},
     'Recheck balance': {l.settingsRescan, l.deskSetFrameRescan},
@@ -64,7 +68,7 @@ void main() {
     'Finalize a response file': {l.deskRecvFinalizeTitle},
     'Contacts': {l.settingsContacts, l.deskShellNavContacts},
     'Invoices': {l.invoicesTitle, l.deskInvNav, l.deskInvSetTitle},
-    'Linked devices': {l.expLinkedDevices},
+    'Linked devices': {l.expLinkedDevices, l.deskSetSecDevices},
     'To pay': {l.invoicesToPaySection},
     'Pay': {l.deskInvTabPay},
     'Issue': {l.deskInvTabIssue},
@@ -106,12 +110,20 @@ void main() {
     test('desktop: each place has its page, and a jump where it names a section', () {
       expect(deskHelpPlace('Settings › Security › Recovery phrase')!.route, DeskRoute.settingsPhrase);
       expect(deskHelpPlace('Settings › Security')!.route, DeskRoute.settingsSecurity);
-      expect(deskHelpPlace('Settings › Recheck balance')!.route, DeskRoute.settingsRescan);
+      expect(deskHelpPlace('Settings › Wallet › Recheck balance')!.route, DeskRoute.settingsRescan);
+      expect(deskHelpPlace('Settings › Wallets')!.route, DeskRoute.settingsWallets);
+      expect(deskHelpPlace('Settings › Payments')!.route, DeskRoute.settingsReceiving);
+      expect(deskHelpPlace('Settings › Files & logs › App files')!.route, DeskRoute.settingsFiles);
+      expect(deskHelpPlace('Settings › Linked devices')!.route, DeskRoute.settingsDevices);
       expect(deskHelpPlace('Settings › Network & privacy › Tor')!.route, DeskRoute.settingsPrivacy);
       expect(deskHelpPlace('Settings › Network & privacy › Tor')!.jump, SettingsJump.tor);
       expect(deskHelpPlace('Settings › Network & privacy')!.jump, SettingsJump.network);
       expect(deskHelpPlace('Settings › Privacy › Tor'), isNull, reason: 'one page now (B-03)');
-      expect(deskHelpPlace('Settings › Transactions › Epicbox')!.jump, SettingsJump.epicbox);
+      expect(deskHelpPlace('Settings › Payments › Epicbox')!.jump, SettingsJump.epicbox);
+      // The places of the Settings before 26.10.25 are gone: Help names the new ones.
+      for (final old in ['Settings › Transactions', 'Settings › This wallet', 'Settings › All wallets', 'Settings › Recheck balance', 'Settings › This wallet › App files', 'Settings › Advanced › Confirmations']) {
+        expect(deskHelpPlace(old), isNull, reason: old);
+      }
       expect(deskHelpPlace('Receive › Transaction files › Finalize a response file')!.route, DeskRoute.finalize);
       expect(deskHelpPlace('Invoices › Issue')!.arg, InvoicesTab.issue);
       expect(deskHelpPlace('Settings › Security › Back up recovery phrase'), isNull);

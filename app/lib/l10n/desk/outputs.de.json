@@ -120,8 +120,8 @@
   "deskOutNothingText": "Nichts zum Zusammenführen: Die Wallet hat {what}.",
   "deskOutWhatFewer": "weniger als zwei verfügbare Outputs",
   "deskOutWhatOne": "einen verfügbaren Output",
-  "deskOutDefaultsMoved": "Strategie und Wechselgeld aufteilen für Zahlungen stellen Sie unter Einstellungen › Transaktionen ein.",
-  "deskOutDefaultsOpen": "Transaktionen öffnen",
+  "deskOutDefaultsMoved": "Strategie und Wechselgeld aufteilen für Zahlungen stellen Sie unter Einstellungen › Zahlungen ein.",
+  "deskOutDefaultsOpen": "Zahlungen öffnen",
   "deskOutNoteWaitingRecipient": "wartet auf den Empfänger",
   "deskOutFilterWaiting": "Wartend"
 }

@@ -6684,7 +6684,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskRecvHttpLocal =>
-      'Na ten adres mogą płacić programy na tym komputerze. Inne urządzenia: zobacz Ustawienia › Transakcje.';
+      'Na ten adres mogą płacić programy na tym komputerze. Inne urządzenia: zobacz Ustawienia › Płatności.';
 
   @override
   String get deskRecvHttpIntro =>
@@ -13541,7 +13541,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAdvLogsHint =>
-      'Pokazuje grupę Logi w Pomocy: otwórz folder logów, wyczyść logi. Zgłoszenie problemu i tak dołącza log.';
+      'Pokazuje grupę Logi w Pliki i logi: otwórz folder logów, wyczyść logi. Zgłoszenie problemu i tak dołącza log.';
 
   @override
   String get deskSetAdvNetwork => 'Sieć';
@@ -13955,10 +13955,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOutDefaultsMoved =>
-      'Strategię i Podziel resztę dla wysyłek ustawisz w Ustawienia › Transakcje.';
+      'Strategię i Podziel resztę dla wysyłek ustawisz w Ustawienia › Płatności.';
 
   @override
-  String get deskOutDefaultsOpen => 'Otwórz Transakcje';
+  String get deskOutDefaultsOpen => 'Otwórz Płatności';
 
   @override
   String get deskSetFrameTransactions => 'Transakcje';
@@ -16303,7 +16303,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOvRestoredImportLater =>
-      'Później w Ustawienia › Ten portfel › Dane portfela.';
+      'Później w Ustawienia › Portfel › Kopia zapasowa.';
 
   @override
   String get deskOnbForgotNoCheck =>
@@ -19991,7 +19991,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetDlgRemoveUnlockHintSecurity =>
-      'Aby usunąć także jego pliki, odblokuj ten portfel i użyj Usuń portfel w Ustawienia › Bezpieczeństwo.';
+      'Aby usunąć także jego pliki, odblokuj ten portfel i użyj Usuń portfel w Ustawienia › Portfel.';
 
   @override
   String get deskRecvHttpTorHintNet =>
