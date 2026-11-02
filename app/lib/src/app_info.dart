@@ -10,8 +10,8 @@ import 'app_version.dart' show coreVersion, withCoreVersion;
 /// listing and the update checks read them. On macOS the app is "BT Wallet.app"
 /// (`uk.btlabs.btwallet.macos`); 26.10.24 shipped "Epic Cash Desktop.app". The ids are
 /// `uk.btlabs.epiccash.desktop` and `uk.btlabs.epiccash.mobile`; the Inno AppId and install
-/// folder, the secure-storage prefix and the binary names keep the old name on purpose
-/// (`README.md`, "App ids and data folders").
+/// folder, the secure-storage prefix and the Windows binary name keep the old name on purpose
+/// (`README.md`, "App ids and data folders"). The Linux binary is `btwallet` from 26.10.25.
 const String appName = 'BT Wallet';
 
 /// The short git commit a release build was made from (`--dart-define=WFE_BUILD_ID=...`, set by
