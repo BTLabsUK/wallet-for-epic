@@ -447,15 +447,15 @@ void main() {
     await end(tester);
   });
 
-  testWidgets('Linked devices off: no service, no section, and a device link opens nothing', (tester) async {
+  testWidgets('Linked devices cannot be turned off: a stored off is ignored (item 10)', (tester) async {
     await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
     container.read(deskDeviceServiceProvider);
     expect(inviteHandler(InviteKind.deviceLink), isNotNull, reason: 'on: a device link opens the link dialog');
     final s = container.read(deskProvider).settings;
     await tester.runAsync(() => container.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: s.advanced.withFeature(AdvancedFeature.linkedDevices, false))));
-    expect(container.read(deskLinkedDevicesOnProvider), isFalse);
-    expect(container.read(deskDeviceServiceProvider), isNull);
-    expect(inviteHandler(InviteKind.deviceLink), isNull);
+    expect(container.read(deskLinkedDevicesOnProvider), isTrue);
+    expect(container.read(deskDeviceServiceProvider), isNotNull);
+    expect(inviteHandler(InviteKind.deviceLink), isNotNull);
     container.dispose();
   });
 }
