@@ -23,9 +23,9 @@ The repository side: the team is never in the Xcode projects. The builder puts i
 `app/Signing.xcconfig` (git-ignored, from `app/Signing.xcconfig.example`), which the iOS project
 includes (Automatic signing) and `build-apple.sh mac-release` reads. The macOS project does not
 include it: its Xcode build is signed ad hoc, and mac-release signs it again with Developer ID, so
-macOS needs no Apple Development certificate. The macOS Release build has the hardened runtime on. A build phase
-of the macOS project, "Bundle node and tor" (`app/macos/Runner/bundle-bin.sh`), copies the node
-and tor that `tools/build-apple.sh` staged into `Contents/Resources/bin` and signs them before
+macOS needs no Apple Development certificate. The macOS Release build has the hardened runtime
+on. A build phase of the macOS project, "Bundle node and tor" (`app/macos/Runner/bundle-bin.sh`),
+copies the node and tor that `tools/build-apple.sh` staged into `Contents/Resources/bin` and signs them before
 Xcode signs the app. One in the iOS project, "lepic_ffi privacy manifest"
 (`app/ios/Runner/lepic-privacy.sh`), adds the wallet library's privacy manifest and signs it
 again.
@@ -53,13 +53,13 @@ Steps marked ⏳ wait for Apple to approve the membership.
    check it shows up: `security find-identity -v -p codesigning` lists
    `Developer ID Application: <BT Labs name> (<Team ID>)`. Back it up once: Keychain Access, My
    Certificates, the Developer ID entry, Export as `.p12` with a strong password, kept offline.
-6. **Builder**: Xcode, Settings, Accounts, + your Apple ID; the BT Labs team appears. Before the
-   first build: Xcode, Settings, Accounts, the BT Labs team, **Manage Certificates**, +, **Apple
-   Development**. `mac-release` never archives, so Xcode does not make this one itself
-   (`app/Signing.xcconfig` signs macOS builds as Apple Development). Xcode makes the Apple
-   Distribution certificate on the first iOS Archive.
-   If a build fails with an error that mentions "Mac Development", the Apple Development
-   certificate is missing: make it as above.
+6. **Builder**: Xcode, Settings, Accounts, + your Apple ID; the BT Labs team appears. Only for
+   iOS: Xcode makes the Apple Development and Apple Distribution certificates itself on the
+   first Archive (or make them by hand: the BT Labs team, **Manage Certificates**, +). macOS
+   needs neither: its Xcode build is signed ad hoc and `mac-release` signs it with Developer ID.
+   If `macos` or `mac-release` fails with "No signing certificate "Mac Development" found", the
+   checkout predates the ad-hoc macOS build: `git pull` (no edit of `app/Signing.xcconfig`
+   needed; its old `CODE_SIGN_IDENTITY[sdk=macosx*]` line no longer applies to macOS).
 7. **Builder**: the notarisation login, stored in the keychain. Make an app-specific password
    at account.apple.com (Sign-In and Security), then:
 
