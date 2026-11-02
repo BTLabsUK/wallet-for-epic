@@ -92,7 +92,7 @@
   "deskKitMethodStarting": "Запуск…",
   "deskKitMethodHttpInternet": "из интернета, порт {port}",
   "deskKitMethodHttpLocal": "только этот компьютер (127.0.0.1)",
-  "deskKitMethodHttpNotReachable": "в вашей сети, не из интернета: перенаправьте порт {port}",
+  "deskKitMethodHttpNotReachable": "только в локальной сети. Чтобы получать платежи из интернета, роутер должен передавать порт {port} на этот компьютер.",
   "deskKitMethodNotReceiving": "Приём не работает",
   "deskKitMethodPortInUse": "Порт {port} занят другой программой. Закройте её или измените порт ниже.",
   "deskKitMethodNotInBuild": "Нет в этой сборке",

@@ -5255,5 +5255,5 @@
   "deskHttpLocalSwitch": "Odbieraj na tym komputerze",
   "deskHttpPublicTitle": "Internet",
   "deskHttpPublicNote": "Dla portfeli w internecie. Router musi przekierować port {port} na ten komputer.",
-  "deskKitMethodHttpNotReachable": "w twojej sieci, nie z internetu: przekieruj port {port}"
+  "deskKitMethodHttpNotReachable": "tylko w sieci lokalnej. Aby dostawać płatności z internetu, router musi przekazywać port {port} do tego komputera."
 }

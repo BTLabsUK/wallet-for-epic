@@ -20388,6 +20388,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskKitMethodHttpNotReachable(String port) {
-    return 'im eigenen Netzwerk, nicht aus dem Internet: Port $port weiterleiten';
+    return 'nur im lokalen Netzwerk. Für Zahlungen aus dem Internet muss der Router Port $port an diesen Computer weitergeben.';
   }
 }

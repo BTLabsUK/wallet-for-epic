@@ -5255,5 +5255,5 @@
   "deskHttpLocalSwitch": "Auf diesem Computer empfangen",
   "deskHttpPublicTitle": "Internet",
   "deskHttpPublicNote": "Für Wallets im Internet. Der Router muss Port {port} an diesen Computer weiterleiten.",
-  "deskKitMethodHttpNotReachable": "im eigenen Netzwerk, nicht aus dem Internet: Port {port} weiterleiten"
+  "deskKitMethodHttpNotReachable": "nur im lokalen Netzwerk. Für Zahlungen aus dem Internet muss der Router Port {port} an diesen Computer weitergeben."
 }

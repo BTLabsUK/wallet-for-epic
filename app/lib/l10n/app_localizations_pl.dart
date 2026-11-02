@@ -20814,6 +20814,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskKitMethodHttpNotReachable(String port) {
-    return 'w twojej sieci, nie z internetu: przekieruj port $port';
+    return 'tylko w sieci lokalnej. Aby dostawać płatności z internetu, router musi przekazywać port $port do tego komputera.';
   }
 }

@@ -92,7 +92,7 @@
   "deskKitMethodStarting": "Startet…",
   "deskKitMethodHttpInternet": "aus dem Internet, Port {port}",
   "deskKitMethodHttpLocal": "nur dieser Computer (127.0.0.1)",
-  "deskKitMethodHttpNotReachable": "im eigenen Netzwerk, nicht aus dem Internet: Port {port} weiterleiten",
+  "deskKitMethodHttpNotReachable": "nur im lokalen Netzwerk. Für Zahlungen aus dem Internet muss der Router Port {port} an diesen Computer weitergeben.",
   "deskKitMethodNotReceiving": "Kein Empfang",
   "deskKitMethodPortInUse": "Port {port} wird von einem anderen Programm genutzt. Schließen Sie es oder ändern Sie unten den Port.",
   "deskKitMethodNotInBuild": "Nicht in dieser Version",
