@@ -126,7 +126,7 @@ trust-android plan ($REL_VARIANT, funds=$REL_FUNDS, required: $REL_CHECKS)
   packages   previous ${prev_pkg:-?}, candidate ${cand_pkg:-?}$([[ $beside == 1 ]] && echo ": different, the candidate goes in BESIDE the previous app (5 and 6 below)")
   1 install  adb uninstall ${prev_pkg:-<previous package>} (and ${cand_pkg:-<candidate package>}); adb install $prev_apk
   2 wallet   restore the test wallet from $REL_TRUST_STATE/phrase (none: create one, keep its phrase, P funds it); holds $REL_TRUST_STATE/.lock
-             a first-start level picker ("Pick your depth", builds with wallet levels): Deep end (level 3), Undercover off
+             a first-start level picker ("Pick your view", builds that have one): Deep end (level 3), Undercover off
   3 user     node $REL_NODE typed in and in use; relay $REL_EPICBOX typed in and in use;
              Theme ${REL_TRUST_THEME:-Dark}, Technical details on, Confirmations ${REL_TRUST_CONFIRMATIONS:-1}
   4 digest   address, Total/Spendable, Activity rows, Node and Epicbox lists, settings
@@ -137,7 +137,8 @@ trust-android plan ($REL_VARIANT, funds=$REL_FUNDS, required: $REL_CHECKS)
   6b files   (candidate 26.10.25 on) wallet.enc.sqlite3 + .check present, wallet.sqlite3 absent, .pre-encryption kept; sealed app files + contacts.keys wrap, plain files unchanged;
              [node] plain_http holds lan_nodes.json's agreements; the contact and note read in the app
   beside     (packages differ) previous app stopped; adb install $cand_apk beside it; the test wallet restored there
-             from its phrase; wallet_opens and balance_kept (same wallet key, same total); history, servers, settings
+             from its phrase and set to Settings › Advanced › Wallet view › Deep end (a fresh install opens at
+             level 1); wallet_opens and balance_kept (same wallet key, same total); history, servers, settings
              and the migration checks not applicable and not required
   7 funds    $( [[ "$REL_FUNDS" == 1 ]] && echo "through the shared P service (no lock): send ${REL_TRUST_SEND:-0.01} to P, receive ${REL_TRUST_RECEIVE:-0.02} from P, by Epicbox" || echo "skipped (REL_FUNDS=0)")
   out        $REL_OUT/proof.json, driver.log, screens.log, p.log, shots/

@@ -38,6 +38,8 @@ bin = "relmsg"
 [proof]
 checks = ["wallet_opens", "history_kept"]
 funds_checks = ["send_ok"]
+beside_pairs = [["old.app", "new.app"]]
+beside_not_applicable = ["history_kept"]
 funds_variant = "tor"
 variants = ["tor"]
 
@@ -139,6 +141,8 @@ echo "driver $REL_VARIANT checks=$REL_CHECKS funds=$REL_FUNDS" >> "$REL_SRC/call
 case "$mode" in
   good) printf '{"platform":"x","previous":"a","candidate":"b","checks":{"wallet_opens":true,"history_kept":true,"send_ok":true}}' > "$REL_OUT/proof.json" ;;
   bad) printf '{"checks":{"wallet_opens":true,"history_kept":false,"send_ok":true},"details":{"history_kept":"0 of 3 txs"}}' > "$REL_OUT/proof.json"; exit 1 ;;
+  beside) printf '{"previous":"a","candidate":"b","packages":{"previous":"old.app","candidate":"new.app","beside":true},"checks":{"wallet_opens":true,"history_kept":false,"send_ok":true}}' > "$REL_OUT/proof.json" ;;
+  beside-other) printf '{"previous":"a","candidate":"b","packages":{"previous":"other.app","candidate":"new.app","beside":true},"checks":{"wallet_opens":true,"history_kept":false,"send_ok":true}}' > "$REL_OUT/proof.json" ;;
   liar) printf '{"checks":{"wallet_opens":true}}' > "$REL_OUT/proof.json" ;;
   none) exit 0 ;;
 esac
