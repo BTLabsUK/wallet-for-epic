@@ -5340,5 +5340,6 @@
   "deskTfAlreadyPosted": "Already posted",
   "deskTfInvoice": "An invoice for {amount}. Review it to pay.",
   "deskTfReview": "Review",
-  "deskTfCreate": "Create a payment file"
+  "deskTfCreate": "Create a payment file",
+  "deskTfDropHint": "You can also drop them here."
 }

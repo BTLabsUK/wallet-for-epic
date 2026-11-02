@@ -7,6 +7,10 @@
   "@deskTfOpenText": {
     "description": "Row text under Open transaction files: the wallet works out what each file is and does that step."
   },
+  "deskTfDropHint": "You can also drop them here.",
+  "@deskTfDropHint": {
+    "description": "Added after the Open transaction files row text in the desktop apps: files can be dragged onto the card."
+  },
   "deskTfPickTitle": "Transaction files",
   "@deskTfPickTitle": {
     "description": "Title of the system file dialog opened by Open transaction files (several files can be chosen)."

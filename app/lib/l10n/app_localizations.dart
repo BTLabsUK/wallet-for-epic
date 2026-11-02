@@ -32069,6 +32069,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Create a payment file'**
   String get deskTfCreate;
+
+  /// Added after the Open transaction files row text in the desktop apps: files can be dragged onto the card.
+  ///
+  /// In en, this message translates to:
+  /// **'You can also drop them here.'**
+  String get deskTfDropHint;
 }
 
 class _AppLocalizationsDelegate

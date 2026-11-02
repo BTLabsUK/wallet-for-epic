@@ -10,13 +10,14 @@ library;
 import 'dart:convert' show utf8;
 import 'dart:io' show File;
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:desktop_drop/desktop_drop.dart' show DropDoneDetails, DropItemFile, DropTarget;
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../models.dart' show FinishedPayment;
 import '../../../network_gate.dart' show NetGate;
-import '../../../slate_files.dart' show decodeSlateFile;
+import '../../../slate_files.dart' show decodeSlateFile, maxSlateFileBytes;
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/files.dart';
 import '../../data/invoice_state.dart' show RequestFile;
@@ -24,6 +25,13 @@ import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import 'import_tx_screen.dart' show ImportArgs;
 import 'send_screen.dart' show SendArgs;
+
+/// Files can be dropped on the card in the desktop apps (Linux, Windows, macOS); the browser
+/// build has Open only.
+final bool _dropsHere = !kIsWeb &&
+    (defaultTargetPlatform == TargetPlatform.linux ||
+        defaultTargetPlatform == TargetPlatform.windows ||
+        defaultTargetPlatform == TargetPlatform.macOS);
 
 /// The Transaction files card. [offlineNode]: Offline on a node that is not local; the files
 /// still run, through it. [casual]: the level's plainer heading.
@@ -56,6 +64,9 @@ class _TxFilesCardState extends ConsumerState<TxFilesCard> {
   final List<_Line> _lines = [];
   bool _busy = false;
 
+  /// Files are dragged over the card.
+  bool _over = false;
+
   Future<void> _open() async {
     final l = context.l10n;
     // The browser build has no file dialog of its own: the system picker reads the files there.
@@ -70,6 +81,21 @@ class _TxFilesCardState extends ConsumerState<TxFilesCard> {
       if (mounted) showEToast(context, l.deskErrFileNotReadable, tone: ETone.warn);
       return;
     }
+    await _handle(picked);
+  }
+
+  /// Files dropped on the card: the same steps as Open. Folders are left out.
+  Future<void> _dropped(DropDoneDetails d) async {
+    setState(() => _over = false);
+    if (_busy) return;
+    await _handle([
+      for (final f in d.files)
+        if (f is DropItemFile) (name: f.name, path: f.path, bytes: null),
+    ]);
+  }
+
+  /// Works through [picked] one file at a time, a line each.
+  Future<void> _handle(List<PickedSlate> picked) async {
     if (picked.isEmpty || !mounted) return;
     setState(() {
       _busy = true;
@@ -96,7 +122,9 @@ class _TxFilesCardState extends ConsumerState<TxFilesCard> {
 
     final String text;
     try {
-      final bytes = f.bytes ?? (kIsWeb ? null : await File(f.path).readAsBytes());
+      final file = File(f.path);
+      if (f.bytes == null && !kIsWeb && await file.length() > maxSlateFileBytes) return say(_bare(l.slateFileTooLarge), _Tone.risk);
+      final bytes = f.bytes ?? (kIsWeb ? null : await file.readAsBytes());
       if (bytes == null) return say(l.deskErrFileNotReadable, _Tone.risk);
       text = decodeSlateFile(bytes);
     } on FormatException {
@@ -173,7 +201,7 @@ class _TxFilesCardState extends ConsumerState<TxFilesCard> {
     final l = context.l10n;
     final nav = ref.read(deskNavProvider.notifier);
     final canCreate = ref.watch(deskProvider.select((s) => s.settings.payments.directFile));
-    return EPanel(
+    final card = EPanel(
       padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -208,7 +236,7 @@ class _TxFilesCardState extends ConsumerState<TxFilesCard> {
           ESetRow(
             key: const ValueKey('rx-files-open-row'),
             title: l.deskTfOpenTitle,
-            text: l.deskTfOpenText,
+            text: _dropsHere ? '${l.deskTfOpenText} ${l.deskTfDropHint}' : l.deskTfOpenText,
             control: EButton(
               key: const ValueKey('rx-files-open'),
               label: l.deskRecvOpen,
@@ -235,6 +263,26 @@ class _TxFilesCardState extends ConsumerState<TxFilesCard> {
             ),
           ],
         ],
+      ),
+    );
+    if (!_dropsHere) return card;
+    // While files are dragged over it, the card takes the drop zone's accent edge and tint.
+    return DropTarget(
+      enable: !_busy,
+      onDragEntered: (_) => setState(() => _over = true),
+      onDragExited: (_) => setState(() => _over = false),
+      onDragDone: _dropped,
+      child: AnimatedContainer(
+        key: const ValueKey('rx-files-drop'),
+        duration: Dur.fast,
+        foregroundDecoration: _over
+            ? BoxDecoration(
+                color: c.accentFaint,
+                border: Border.all(color: c.accent, width: 1.5),
+                borderRadius: BorderRadius.circular(Rad.sm),
+              )
+            : null,
+        child: card,
       ),
     );
   }

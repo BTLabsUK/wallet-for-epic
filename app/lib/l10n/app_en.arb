@@ -27618,5 +27618,9 @@
   "deskTfCreate": "Create a payment file",
   "@deskTfCreate": {
     "description": "Quiet button in the Transaction files card's heading: opens Send to pay with a file."
+  },
+  "deskTfDropHint": "You can also drop them here.",
+  "@deskTfDropHint": {
+    "description": "Added after the Open transaction files row text in the desktop apps: files can be dragged onto the card."
   }
 }

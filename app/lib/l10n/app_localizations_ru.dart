@@ -21083,4 +21083,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskTfCreate => 'Create a payment file';
+
+  @override
+  String get deskTfDropHint => 'You can also drop them here.';
 }

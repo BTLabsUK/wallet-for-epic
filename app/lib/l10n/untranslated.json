@@ -2,6 +2,7 @@
   "de": [
     "deskTfAlreadyPosted",
     "deskTfCreate",
+    "deskTfDropHint",
     "deskTfInvoice",
     "deskTfOpenText",
     "deskTfOpenTitle",
@@ -90,6 +91,7 @@
   "pl": [
     "deskTfAlreadyPosted",
     "deskTfCreate",
+    "deskTfDropHint",
     "deskTfInvoice",
     "deskTfOpenText",
     "deskTfOpenTitle",
@@ -178,6 +180,7 @@
   "ru": [
     "deskTfAlreadyPosted",
     "deskTfCreate",
+    "deskTfDropHint",
     "deskTfInvoice",
     "deskTfOpenText",
     "deskTfOpenTitle",
@@ -266,6 +269,7 @@
   "th": [
     "deskTfAlreadyPosted",
     "deskTfCreate",
+    "deskTfDropHint",
     "deskTfInvoice",
     "deskTfOpenText",
     "deskTfOpenTitle",
@@ -354,6 +358,7 @@
   "zh": [
     "deskTfAlreadyPosted",
     "deskTfCreate",
+    "deskTfDropHint",
     "deskTfInvoice",
     "deskTfOpenText",
     "deskTfOpenTitle",
