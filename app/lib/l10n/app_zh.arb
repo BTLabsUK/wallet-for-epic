@@ -5331,5 +5331,16 @@
   "sendFactTor": "Tor",
   "sendFactTorStarts": "Starts when you send",
   "sendFactOffline": "Their wallet can be offline.",
-  "sendFactOnline": "Their wallet has to be open."
+  "sendFactOnline": "Their wallet has to be open.",
+  "deskTfOpenTitle": "Open transaction files",
+  "deskTfOpenText": "Choose one file or several. The wallet reads each one and signs, finishes or posts it.",
+  "deskTfPickTitle": "Transaction files",
+  "deskTfResults": "Files opened",
+  "deskTfWorking": "Working on it…",
+  "deskTfSigned": "Signed. Response saved to {path}",
+  "deskTfAlreadyPosted": "Already posted",
+  "deskTfInvoice": "An invoice for {amount}. Review it to pay.",
+  "deskTfReview": "Review",
+  "deskTfCreate": "Create a payment file",
+  "deskTfDropHint": "You can also drop them here."
 }

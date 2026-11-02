@@ -27577,5 +27577,59 @@
   "sendFactOnline": "Their wallet has to be open.",
   "@sendFactOnline": {
     "description": "Send review: under Via, a Link method."
+  },
+  "deskTfOpenTitle": "Open transaction files",
+  "@deskTfOpenTitle": {
+    "description": "Row title in the Transaction files card on Receive: one Open button for every kind of transaction file."
+  },
+  "deskTfOpenText": "Choose one file or several. The wallet reads each one and signs, finishes or posts it.",
+  "@deskTfOpenText": {
+    "description": "Row text under Open transaction files: the wallet works out what each file is and does that step."
+  },
+  "deskTfPickTitle": "Transaction files",
+  "@deskTfPickTitle": {
+    "description": "Title of the system file dialog opened by Open transaction files (several files can be chosen)."
+  },
+  "deskTfResults": "Files opened",
+  "@deskTfResults": {
+    "description": "Screen-reader label of the list of results, one line per file opened."
+  },
+  "deskTfWorking": "Working on it…",
+  "@deskTfWorking": {
+    "description": "Result line of a file the wallet is still reading, signing or posting."
+  },
+  "deskTfSigned": "Signed. Response saved to {path}",
+  "@deskTfSigned": {
+    "description": "Result line of a sender's file: signed, and the response file written. {path} is where it was saved.",
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "deskTfAlreadyPosted": "Already posted",
+  "@deskTfAlreadyPosted": {
+    "description": "Result line of a finished payment this wallet already shows as posted: nothing was sent again."
+  },
+  "deskTfInvoice": "An invoice for {amount}. Review it to pay.",
+  "@deskTfInvoice": {
+    "description": "Result line of a payment request (invoice) file: it is not paid until the user reviews it. {amount} is the amount with its unit.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "deskTfReview": "Review",
+  "@deskTfReview": {
+    "description": "Button on an invoice's result line: opens its review."
+  },
+  "deskTfCreate": "Create a payment file",
+  "@deskTfCreate": {
+    "description": "Quiet button in the Transaction files card's heading: opens Send to pay with a file."
+  },
+  "deskTfDropHint": "You can also drop them here.",
+  "@deskTfDropHint": {
+    "description": "Added after the Open transaction files row text in the desktop apps: files can be dragged onto the card."
   }
 }

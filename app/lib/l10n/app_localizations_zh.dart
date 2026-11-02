@@ -19231,4 +19231,42 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get sendFactOnline => 'Their wallet has to be open.';
+
+  @override
+  String get deskTfOpenTitle => 'Open transaction files';
+
+  @override
+  String get deskTfOpenText =>
+      'Choose one file or several. The wallet reads each one and signs, finishes or posts it.';
+
+  @override
+  String get deskTfPickTitle => 'Transaction files';
+
+  @override
+  String get deskTfResults => 'Files opened';
+
+  @override
+  String get deskTfWorking => 'Working on it…';
+
+  @override
+  String deskTfSigned(String path) {
+    return 'Signed. Response saved to $path';
+  }
+
+  @override
+  String get deskTfAlreadyPosted => 'Already posted';
+
+  @override
+  String deskTfInvoice(String amount) {
+    return 'An invoice for $amount. Review it to pay.';
+  }
+
+  @override
+  String get deskTfReview => 'Review';
+
+  @override
+  String get deskTfCreate => 'Create a payment file';
+
+  @override
+  String get deskTfDropHint => 'You can also drop them here.';
 }

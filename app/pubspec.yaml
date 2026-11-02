@@ -59,6 +59,10 @@ dependencies:
   # default load by name fails outside a Flutter bundle. The version lepic pins.
   flutter_rust_bridge: 2.13.0
   file_picker: 13.1.0
+  # Dropping transaction files on Receive's Transaction files card (desktop only; the card does
+  # not listen for drops on Android or the web). 0.7.1: the last that fits Flutter 3.47.5 and
+  # cross_file 0.3 without new packages beyond universal_platform.
+  desktop_drop: 0.7.1
   share_plus: 13.3.0
   # QR scanning on the phones (Android, iOS; scanner_backend.dart): the camera's frames, read
   # by zxing-cpp. Free code only, no Google ML Kit or Play services. Hidden where unsupported.

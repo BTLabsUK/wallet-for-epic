@@ -10,7 +10,7 @@ import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUi
 import '../../../levels/relay_switch_providers.dart' show RelaySwitchResult;
 import '../../data/method_names.dart';
 import '../../../network.dart' show EpicboxRelay;
-import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;
+import '../../../network_gate.dart' show NetBlock, NetBlockByMode;
 import '../../../connection_grace.dart' show connectionGraceProvider;
 import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
@@ -24,7 +24,7 @@ import '../../widgets/pay_steps.dart' show DeskPaymentSteps;
 import '../../widgets/tor_chip.dart';
 import '../invoices/invoice_parts.dart' show InvButton, InvW;
 import 'epicbox_notice.dart';
-import 'finished_payment.dart' show showPostFinished;
+import 'tx_files_card.dart' show TxFilesCard;
 import '../../../ui/network_mode_text.dart' show networkModeName, statusOffByModeWord;
 import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
 import '../../../settings_file/host_settings.dart' show appConfig, hostSettings;
@@ -774,70 +774,8 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   }
 
   /// [offlineNode]: Offline on a node that is not local; the files still run, through it.
-  Widget _filesPanel(DeskNav nav, {required bool offlineNode, bool casual = false}) {
-    final c = context.dc;
-    final ts = context.ts;
-    final l = context.l10n;
-    return EPanel(
-      padding: EdgeInsets.zero,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(Sp.panel, Sp.panel, Sp.panel, Sp.x2),
-            child: Row(
-              children: [
-                Icon(EIcons.file, size: 20.u, color: c.dim),
-                SizedBox(width: 10.u),
-                Semantics(header: true, child: Text(casual ? l.deskLvSendPayFiles : l.deskRecvFiles, style: ts.h3)),
-              ],
-            ),
-          ),
-          ESetRow(
-            title: casual ? l.deskLvSendSignFile : l.deskRecvSignTitle,
-            text: casual ? l.deskLvSendSignFileText : l.deskRecvSignText,
-            control: EButton(label: l.deskRecvOpen, icon: EIcons.fileUp, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.importTx)),
-          ),
-          Divider(height: 1, thickness: 1, color: c.line),
-          ESetRow(
-            title: casual ? l.deskLvSendFinishFile : l.deskRecvFinalizeTitle,
-            text: casual ? l.deskLvSendFinishFileText : l.deskRecvFinalizeText,
-            control: EButton(label: l.deskRecvOpen, icon: EIcons.fileUp, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.finalize)),
-          ),
-          if (!casual) ...[
-          Divider(height: 1, thickness: 1, color: c.line),
-          ESetRow(
-            key: const ValueKey('rx-post-finished'),
-            title: l.postFinishedDeskRow,
-            text: NetGate.killSwitch ? l.postFinishedOffKill : l.postFinishedIntroOffline,
-            control: EButton(
-              key: const ValueKey('rx-post-finished-open'),
-              label: l.postFinishedOpen,
-              icon: EIcons.fileUp,
-              size: EBtnSize.sm,
-              onPressed: NetGate.killSwitch ? null : () => showPostFinished(context),
-            ),
-          ),
-          ],
-          if (offlineNode) ...[
-            Divider(height: 1, thickness: 1, color: c.line),
-            Padding(
-              padding: EdgeInsets.fromLTRB(Sp.panel, Sp.x3, Sp.panel, Sp.x4),
-              child: Row(
-                key: const ValueKey('rx-files-offline-node'),
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(EIcons.info, size: 16.u, color: c.info),
-                  SizedBox(width: 8.u),
-                  Expanded(child: Text(l.netOfflineNodeHint, style: ts.small)),
-                ],
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
+  Widget _filesPanel(DeskNav nav, {required bool offlineNode, bool casual = false}) =>
+      TxFilesCard(offlineNode: offlineNode, casual: casual);
 }
 
 /// One receiving method: the title row with its switch, then the state line alone
