@@ -294,6 +294,36 @@ if __name__ == "__main__":
 
 
 class ScriptsTest(unittest.TestCase):
+    def test_apple_signed_by_default_ad_hoc_on_request(self):
+        s, steps = graph()
+        ids = [x.id for x in steps]
+        self.assertIn("apple-mac-tor", ids)
+        self.assertIn("ios-testflight", ids)
+        self.assertFalse([i for i in ids if i.startswith("apple-adhoc")])
+        # A test release: the Mac builds what 26.10.24 shipped (ad-hoc dmg, unsigned ipa), per variant.
+        s, steps = graph(sets=["apple.signed=false"])
+        by = {x.id: x for x in steps}
+        for gone in ("apple-mac-tor", "apple-mac-check-tor", "ios-testflight"):
+            self.assertNotIn(gone, by)
+        self.assertEqual(by["apple-adhoc-notor"].kind, "handoff")
+        self.assertIn("WFE_TOR=0", by["apple-adhoc-notor"].run)
+        self.assertIn("macos dmg ipa", by["apple-adhoc-notor"].run)
+        self.assertIn("bt-wallet-26.10.25-notor-ios-unsigned.ipa", by["apple-adhoc-notor"].results)
+        self.assertEqual(by["apple-adhoc-mac-notor"].needs, ["apple-adhoc-notor"])
+        self.assertEqual(by["apple-adhoc-mac-tor"].outputs, ["bt-wallet-26.10.25-macos.dmg"])
+        self.assertEqual(by["apple-adhoc-ios-tor"].outputs, ["bt-wallet-26.10.25-ios-unsigned.ipa"])
+        for gate in ("artefacts", "sign-android"):
+            self.assertIn("apple-adhoc-mac-tor", by[gate].needs)
+            self.assertIn("apple-adhoc-ios-notor", by[gate].needs)
+        self.assertIn("apple-adhoc-mac-tor", by["trust-macos-tor"].needs)
+        self.assertIn("apple-adhoc-ios-notor", by["trust-ios-notor"].needs)
+        self.assertIn("Apple ad hoc", scope_summary(s))
+        # iOS out: the Mac still builds per variant for macOS, and no ipa check is in the graph.
+        s, steps = graph(sets=["apple.signed=false"], skip_platform="ios")
+        ids = [x.id for x in steps]
+        self.assertIn("apple-adhoc-tor", ids)
+        self.assertNotIn("apple-adhoc-ios-tor", ids)
+
     def test_every_script_the_pipeline_runs_is_executable(self):
         # A step whose script lost its exec bit fails with exit 126 mid-release (26.10.24 run 2).
         raw = tomllib.load(open(os.path.join(REPO, "release/pipeline.toml"), "rb"))

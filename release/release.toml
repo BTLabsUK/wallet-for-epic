@@ -56,6 +56,13 @@ notes = ""
 # btlabs-uk in ~/.config/gh-btlabs (docs/RELEASING.md).
 github = true
 
+# How the Mac builds Apple's files (release/pipeline.toml, tools/apple-release.md).
+[apple]
+# true: the macOS dmg signed with Developer ID, notarised and stapled, and iOS to TestFlight
+# (needs the team's signing set-up and [host.apple] team_id). false: what 26.10.24 shipped, for
+# test releases: the dmg signed ad hoc (not notarised) and the unsigned ipa, both variants.
+signed = true
+
 # Steps to skip, with the reason. Only steps marked skippable in release/pipeline.toml
 # (publish-page, publish-source, prune-downloads, store uploads, screens, announce,
 # cleanup); builds and gates never: to drop a platform or a variant, switch it off above.

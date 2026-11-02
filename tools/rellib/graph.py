@@ -53,12 +53,19 @@ def _in_scope(spec, scope):
         if not any(scope["platforms"].get(p) for p in pls):
             return False
     for w in spec.get("when", []):
-        cur = scope
-        for part in w.split("."):
-            cur = cur.get(part) if isinstance(cur, dict) else None
-        if not cur:
+        if not _switch(scope, w):
+            return False
+    for w in spec.get("unless", []):
+        if _switch(scope, w):
             return False
     return True
+
+
+def _switch(scope, path):
+    cur = scope
+    for part in path.split("."):
+        cur = cur.get(part) if isinstance(cur, dict) else None
+    return bool(cur)
 
 
 def variants_for(spec, scope, pipeline):
