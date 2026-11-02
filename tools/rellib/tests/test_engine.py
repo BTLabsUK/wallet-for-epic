@@ -131,6 +131,16 @@ class EngineTest(Base):
                 self.assertEqual(run.status("update-trust")["status"], "pending")
                 self.assertEqual(run.status("publish-gate")["status"], "pending")
 
+    def test_proof_beside_drops_only_carried_checks_for_a_listed_pair(self):
+        run = self.proof("beside")
+        self.assertEqual(run.status("trust-android-tor")["status"], "done")
+        self.assertTrue(run.status("trust-android-tor")["proven"])
+
+    def test_proof_beside_refused_for_another_pair(self):
+        run = self.proof("beside-other")
+        self.assertEqual(run.status("trust-android-tor")["status"], "failed")
+        self.assertIn("history_kept", run.status("trust-android-tor")["note"])
+
     def test_same_inputs_reuse_an_earlier_passing_build(self):
         a = self.make_run(only="linux", sets=["publish.manifests=false"])
         self.engine(a).drive(self.build_ids(a))

@@ -448,6 +448,13 @@ class Engine:
             return {"status": "failed", "rc": rc, "note": f"no proof.json (driver exit {rc})", "proven": False,
                     "proof_missing": True}
         checks = proof.get("checks", {})
+        # A new app installed beside the previous one (another package, authorised in pipeline.toml
+        # [proof] beside_pairs) carries no data over: the checks on carried data do not apply.
+        pkgs = proof.get("packages") or {}
+        pairs = [list(p) for p in self.pipeline.proof.get("beside_pairs", [])]
+        if pkgs.get("beside") is True and [pkgs.get("previous"), pkgs.get("candidate")] in pairs:
+            skip = set(self.pipeline.proof.get("beside_not_applicable", []))
+            required = [c for c in required if c not in skip]
         bad = [c for c in required if checks.get(c) is not True]
         res = {"rc": rc, "proof": proof, "proven": not bad and rc == 0}
         if bad or rc != 0:

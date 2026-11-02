@@ -148,10 +148,10 @@ class BesideTest(unittest.TestCase):
     beside the previous app, the wallet is restored there, and the carried-over checks are not
     applicable and not required."""
 
-    def run_beside(self, total_after):
+    def run_beside(self, total_after, level_three=True):
         d = ServersKeptTest().digest("node.btlabs.uk")
         after = dict(d, balance={"total": total_after, "spendable": total_after})
-        calls, pkgs = [], []
+        calls, pkgs, order = [], [], []
 
         def adb(serial, *args, **kw):
             calls.append(args)
@@ -170,7 +170,9 @@ class BesideTest(unittest.TestCase):
                                     change_settings=lambda: None, address=lambda: d["address"],
                                     history=lambda *a: ["x"], has_sender=lambda r: True,
                                     server_list=lambda k: {"rows": [{"current": True, "host": "h"}]},
-                                    same_host=lambda a, b: True, digest=lambda *a: dict(next(digests)),
+                                    same_host=lambda a, b: True,
+                                    digest=lambda *a: order.append(a[0]) or dict(next(digests)),
+                                    set_level_three=lambda: order.append("level3") or level_three,
                                     balance=lambda *a: after["balance"], shot=lambda n: None), \
                 mock.patch.object(trust.ph, "version", lambda s: ("26.10.25", "261025000")), \
                 mock.patch.object(trust.ph, "PKG", trust.ph.PKG), mock.patch.object(trust, "BESIDE", False), \
@@ -178,13 +180,15 @@ class BesideTest(unittest.TestCase):
             code = trust.run()
             with open(os.path.join(out, "proof.json")) as f:
                 proof = __import__("json").load(f)
-            return code, proof, calls, pkgs, trust.ph.PKG
+            return code, proof, calls, pkgs, trust.ph.PKG, order
 
     def test_the_candidate_goes_in_beside_and_restores(self):
-        code, proof, calls, pkgs, pkg = self.run_beside("1")
+        code, proof, calls, pkgs, pkg, order = self.run_beside("1")
         self.assertEqual(code, 0)
         self.assertEqual(pkgs, ["uk.btlabs.epiccash.mobile", "uk.btlabs.btwallet"])
         self.assertEqual(pkg, "uk.btlabs.btwallet")
+        # A fresh install opens at level 1: Deep end is set before the candidate's digest.
+        self.assertEqual(order[-2:], ["level3", "after"])
         self.assertIn(("install", "/cand.apk"), calls)
         self.assertNotIn(("install", "-r", "/cand.apk"), calls)
         self.assertIn(("shell", "am", "force-stop", "uk.btlabs.epiccash.mobile"), calls)
@@ -198,6 +202,13 @@ class BesideTest(unittest.TestCase):
         code, proof, *_ = self.run_beside("0.5")
         self.assertEqual(code, 1)
         self.assertFalse(proof["checks"]["balance_kept"])
+
+
+    def test_no_level_three_after_the_restore_is_not_proven(self):
+        code, proof, *_ = self.run_beside("1", level_three=False)
+        self.assertEqual(code, 1)
+        self.assertFalse(proof["checks"]["wallet_opens"])
+        self.assertIn("level 3", proof["details"]["wallet_opens"])
 
 
 if __name__ == "__main__":

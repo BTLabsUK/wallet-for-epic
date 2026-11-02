@@ -814,6 +814,36 @@ def advanced_page():
     time.sleep(1)
 
 
+def set_level_three():
+    """Settings › Advanced › Wallet view › Deep end › Save: a fresh install opens at level 1, where
+    home shows no node status or total; the digest reads level 3. Nothing on a build without
+    levels. Returns whether level 3 is set."""
+    if not facts.LEVELS_BUILT:
+        return True
+    advanced_page()
+    if wallet_level() == facts.LEVEL_THREE:
+        return True
+    tap(S, facts.LEVEL_ROW)
+    if not wait(S, facts.LEVEL_DEEP_END, 10, exact=True):
+        dump_to_log("wallet view: no Deep end stop")
+        return False
+    for _ in range(5):
+        tap(S, facts.LEVEL_DEEP_END, exact=True)
+        time.sleep(1.5)
+        if find(S, facts.LEVEL_THREE):  # the caption under the dial names the level
+            break
+    else:
+        dump_to_log("wallet view: Deep end did not take")
+        return False
+    tap(S, facts.SAVE, exact=True)
+    time.sleep(2)
+    advanced_page()
+    ok = wallet_level() == facts.LEVEL_THREE
+    log(f"wallet view: Deep end (level 3) {'set' if ok else 'NOT set'}")
+    home()
+    return ok
+
+
 def _scroll_to(text, tries=6):
     """The node labelled `text` (or the one `text()` finds), scrolled into view."""
     look = text if callable(text) else (lambda: find(S, text))
@@ -1612,7 +1642,12 @@ def beside(cand_apk, cand_pkg, words, a, vn0, vc0, finish):
     shot("beside-restored")
     if not opened:
         dump_to_log("beside: no home")
+        checks["wallet_opens"] = False
         details["wallet_opens"] = "the candidate did not open the restored wallet"
+        return finish()
+    if not set_level_three():  # a fresh install opens at level 1
+        checks["wallet_opens"] = False
+        details["wallet_opens"] = "the restored wallet could not be set to level 3 (Deep end) for the checks"
         return finish()
     b = {"opened": True}
     b.update(digest("after"))
