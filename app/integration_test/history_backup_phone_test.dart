@@ -3,7 +3,7 @@
 // real LEPIC core, the floonet node and relay, the floonet faucet and a second LEPIC wallet in
 // this process. Nothing is mocked but the system file dialogs (the file stays in memory).
 //
-//   adb -s emulator-5556 uninstall uk.btlabs.epiccash.mobile   # a fresh app, no state
+//   adb -s emulator-5556 uninstall uk.btlabs.btwallet   # a fresh app, no state
 //   flutter test -d emulator-5556 integration_test/history_backup_phone_test.dart \
 //     [--dart-define-from-file=<v1.json>]
 //

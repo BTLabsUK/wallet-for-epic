@@ -6,7 +6,7 @@
 # the phone went to the background and reports whether the phone received the slate and when.
 set -u
 # SPDX-License-Identifier: Apache-2.0
-H=$(cd "$(dirname "$0")" && pwd); S=emulator-5556; P=uk.btlabs.epiccash.mobile
+H=$(cd "$(dirname "$0")" && pwd); S=emulator-5556; P=uk.btlabs.btwallet
 . "$(cd "$H/../../.." && pwd)/tools/env.sh"
 OFFSETS=${OFFSETS:-"1 5 15 30 60"}
 say() { echo "LIVE $(date -u +%T) $*"; }

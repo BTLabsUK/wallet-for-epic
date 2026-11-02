@@ -102,7 +102,7 @@ class RollbackTest(Base):
         sha = hashlib.sha256(open(apk, "rb").read()).hexdigest()
         payload = {"schema": 1, "serial": serial, "issued_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(serial)),
                    "expires_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(serial + 182 * 86400)),
-                   "packageName": "uk.btlabs.epiccash.mobile", "versionName": version,
+                   "packageName": "uk.btlabs.btwallet", "versionName": version,
                    "apks": [{"abi": "arm64-v8a", "versionCode": 1, "url": url + os.path.basename(apk), "sha256": sha,
                              "size": os.path.getsize(apk)}]}
         import copy

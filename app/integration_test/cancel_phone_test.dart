@@ -5,7 +5,7 @@
 // hold line ("Accepted N minutes ago. Cancel becomes possible in …") with its Help link, and the
 // link opens Help › Cancelling a payment at Receiving.
 //
-//   adb -s emulator-5556 uninstall uk.btlabs.epiccash.mobile   # a fresh app, no state
+//   adb -s emulator-5556 uninstall uk.btlabs.btwallet   # a fresh app, no state
 //   flutter test -d emulator-5556 integration_test/cancel_phone_test.dart
 //
 // Every check prints one `RC PASS|FAIL | step | evidence` line; screenshots go to the app's

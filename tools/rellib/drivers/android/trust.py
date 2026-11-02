@@ -13,6 +13,12 @@ use → change stored, visible settings → history shows a payment → digest �
 candidate → launch, unlock → digest again and compare → with REL_FUNDS=1 a send to P and a
 receive from P through Epicbox on the candidate.
 
+Beside (the two APKs carry different package names: the app id changed at 26.10.25, authorised
+2026-11-02): no update path exists, so the candidate is installed beside the previous app, which is
+stopped; the test wallet is restored there from its phrase, and the wallet opening, its restored
+balance, a send and a receive are checked. Nothing carries over between two apps, so the
+carried-over checks (NOT_CARRIED) are not applicable and not required.
+
 Secrets (the phrase, the PIN) live in mode-600 files in REL_TRUST_STATE (default
 ~/.config/btlabs/rel-trust-android); they are never printed, logged or screenshotted.
 """
@@ -27,7 +33,7 @@ import facts  # noqa: E402
 import migration  # noqa: E402
 import screens as catalog  # noqa: E402
 import seed  # noqa: E402
-from ph import PKG, adb, find, key, launch, mask, nodes, secret_words, tap, tap_xy, type_text, wait  # noqa: E402
+from ph import adb, find, key, launch, mask, nodes, secret_words, tap, tap_xy, type_text, wait  # noqa: E402
 
 E = os.environ.get
 S = E("REL_ANDROID_SERIAL", "")
@@ -46,6 +52,9 @@ PREP_AMOUNT = E("REL_TRUST_PREP", "0.01")         # P → the restored wallet, f
 MIGRATION_CHECKS = ("store_encrypted", "app_files_kept", "lan_nodes_kept", "contact_note_kept")
 CHECKS = ("wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept",
           "custom_relays_kept", "settings_kept", "send_ok", "receive_ok") + MIGRATION_CHECKS
+# Not applicable when the candidate is a new app beside the previous one (run() sets BESIDE).
+NOT_CARRIED = ("history_kept", "custom_nodes_kept", "custom_relays_kept", "settings_kept") + MIGRATION_CHECKS
+BESIDE = False
 MIGRATE = facts.encrypts_store(E("REL_CANDIDATE_VERSION", ""))
 # The seed and the three app-file checks need a previous release that still keeps the plain files
 # and database; from the first encrypting release on, only the file-set check applies.
@@ -1224,10 +1233,10 @@ class AppFiles:
             time.sleep(2)
         if "uid=0" not in self.sh("id"):
             raise RuntimeError("adb root is not available on this emulator image (the app's files cannot be read)")
-        out = self.sh("find /data/data/%s -name settings.toml -o -name wallets.json 2>/dev/null" % PKG)
+        out = self.sh("find /data/data/%s -name settings.toml -o -name wallets.json 2>/dev/null" % ph.PKG)
         dirs = {os.path.dirname(l.strip()) for l in out.splitlines() if l.strip()}
         if len(dirs) != 1:
-            raise RuntimeError("the app's data folder (settings.toml, wallets.json) not found under /data/data/%s: %s" % (PKG, sorted(dirs)))
+            raise RuntimeError("the app's data folder (settings.toml, wallets.json) not found under /data/data/%s: %s" % (ph.PKG, sorted(dirs)))
         self.root = dirs.pop()
 
     def listing(self):
@@ -1283,7 +1292,7 @@ LAN_BEFORE = [None]
 def seed_previous_files():
     """With the previous release stopped: a contact, a note on the wallet's first transaction and the
     stand-in node's plain-http agreement, in its own files and format (seed.py)."""
-    adb(S, "shell", "am", "force-stop", PKG)
+    adb(S, "shell", "am", "force-stop", ph.PKG)
     time.sleep(2)
     FILES.prepare()
     metas = [p for p in FILES.listing() if p.endswith("/" + facts.META_PLAIN) and p.count("/") == 2]
@@ -1366,7 +1375,9 @@ def write_proof(checks, details, extra):
         "candidate": E("REL_CANDIDATE_VERSION", ""),
         "node": NODE,
         "epicbox": EPICBOX,
-        "update_method": "adb install -r (same signature, as the in-app updater's PackageInstaller)",
+        "update_method": ("new app beside the previous one (app id changed, authorised 2026-11-02): "
+                          "wallet restored from its phrase" if BESIDE else
+                          "adb install -r (same signature, as the in-app updater's PackageInstaller)"),
         "checks": {k: bool(checks.get(k, False)) for k in CHECKS},
         "details": {k: details.get(k, "not performed") for k in CHECKS},
     }
@@ -1385,13 +1396,22 @@ RESULT = ({}, {}, {})  # checks, details, extra: kept when the run stops on an e
 
 
 def run():
+    global BESIDE, MIGRATE, SEED_FILES
     prev_apk, cand_apk = E("REL_PREVIOUS_APK"), E("REL_CANDIDATE_APK")
+    prev_pkg = E("REL_PREVIOUS_PKG") or ph.apk_package(prev_apk) or ph.PKG
+    cand_pkg = E("REL_CANDIDATE_PKG") or ph.apk_package(cand_apk) or ph.PKG
+    BESIDE = prev_pkg != cand_pkg
+    if BESIDE:  # two apps: no files carry over, so none are seeded or compared
+        MIGRATE = SEED_FILES = False
     default = [c for c in CHECKS if MIGRATE or c not in MIGRATION_CHECKS]
     required = [c for c in E("REL_CHECKS", ",".join(default)).split(",") if c]
     if not FUNDS:  # data checks only: the payment checks are not asked for
         required = [c for c in required if c not in ("send_ok", "receive_ok")]
+    if BESIDE:
+        required = [c for c in required if c not in NOT_CARRIED]
     checks, details, extra = RESULT
     extra["required"] = required
+    extra["packages"] = {"previous": prev_pkg, "candidate": cand_pkg, "beside": BESIDE}
     from pfund import PSession
 
     def finish(code_if_ok=0):
@@ -1408,7 +1428,9 @@ def run():
 
     # 1. previous release, fresh
     log("previous APK", os.path.basename(prev_apk))
-    adb(S, "uninstall", PKG)
+    for p in {prev_pkg, cand_pkg}:
+        adb(S, "uninstall", p)
+    ph.PKG = prev_pkg
     r = adb(S, "install", prev_apk, timeout=300)
     if "Success" not in r:
         details["wallet_opens"] = f"could not install the previous APK: {r.strip()[-200:]}"
@@ -1469,6 +1491,8 @@ def run():
     if MIGRATE:
         BEFORE_FILES = FILES.snapshot()
     log("candidate APK", os.path.basename(cand_apk))
+    if BESIDE:
+        return beside(cand_apk, cand_pkg, words, a, vn0, vc0, finish)
     r = adb(S, "install", "-r", cand_apk, timeout=300)
     vn1, vc1 = ph.version(S)
     log(f"adb install -r: {r.strip()[-80:]} → {vn1} ({vc1})")
@@ -1534,12 +1558,20 @@ def run():
             details[k] = ("not set up on the previous version (stand-in not added, or the payments' server "
                           "not in use); " + details[k])
     # 5. payments on the candidate
+    candidate_funds(b)
+    return finish()
+
+
+def candidate_funds(b):
+    from pfund import PSession
+    checks, details, _ = RESULT
+    p_log = os.path.join(OUT, "p.log")
     if FUNDS:
         if not checks.get("wallet_opens"):
             details["send_ok"] = details["receive_ok"] = "not run: the wallet did not open"
         else:
-            # The payments go through REL_NODE / REL_EPICBOX: if the update dropped them, put
-            # them back first (the lost lists are already reported above).
+            # The payments go through REL_NODE / REL_EPICBOX: if the update dropped them (or the
+            # new app beside never had them), put them back first.
             note = []
             for kind, target, name in (("Node", NODE, "nodes"), ("Epicbox", EPICBOX, "relays")):
                 cur = next((r["host"] for r in b[name]["rows"] if r["current"]), None)
@@ -1555,6 +1587,47 @@ def run():
                 fd = {k: v + " (" + "; ".join(note) + ")" for k, v in fd.items()}
             checks.update(fr)
             details.update(fd)
+
+
+def beside(cand_apk, cand_pkg, words, a, vn0, vc0, finish):
+    """The candidate is another app (its own package): installed beside the previous one, which is
+    stopped so two apps never listen on the wallet's Epicbox address; the test wallet restored
+    there from its phrase; it must open as the same wallet, with the same total, and pay."""
+    checks, details, extra = RESULT
+    adb(S, "shell", "am", "force-stop", ph.PKG)
+    r = adb(S, "install", cand_apk, timeout=300)
+    ph.PKG = cand_pkg
+    vn1, vc1 = ph.version(S)
+    log(f"adb install (beside): {r.strip()[-80:]} → {cand_pkg} {vn1} ({vc1})")
+    extra["installed"] = {"previous": f"{vn0} ({vc0})", "candidate": f"{cand_pkg} {vn1} ({vc1})"}
+    na = (f"not applicable: the candidate is a new app ({cand_pkg}) beside the previous one; "
+          "nothing carries over between two apps (app id change authorised 2026-11-02)")
+    for k in NOT_CARRIED:
+        details[k] = na
+    if "Success" not in r or not vc1:
+        details["wallet_opens"] = f"the candidate did not install beside the previous one: {r.strip()[-200:]}"
+        return finish() or 1
+    restore(words)
+    opened = unlock(60)
+    shot("beside-restored")
+    if not opened:
+        dump_to_log("beside: no home")
+        details["wallet_opens"] = "the candidate did not open the restored wallet"
+        return finish()
+    b = {"opened": True}
+    b.update(digest("after"))
+    for _ in range(6):  # a restore's last outputs can still be landing
+        if b["balance"]["total"] == a["balance"]["total"]:
+            break
+        time.sleep(20)
+        b["balance"] = balance("after")
+    extra["after"] = public_digest(b)
+    log("digest after:", json.dumps(public_digest(b), ensure_ascii=False))
+    c, d = compare(a, b)
+    for k in ("wallet_opens", "balance_kept"):
+        checks[k] = c[k]
+        details[k] = "restored from the phrase in the new app: " + d[k]
+    candidate_funds(b)
     return finish()
 
 

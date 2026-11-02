@@ -3,7 +3,7 @@
 # Fresh app data on wfe_qa, floonet dev settings, restore from PHRASE_FILE, PIN 123456.
 set -e
 ROOT=$(cd "$(dirname "$0")/../../.." && pwd); . "$ROOT/tools/env.sh"
-S=emulator-5556; P=uk.btlabs.epiccash.mobile; H=$(dirname "$0"); APP=$ROOT/app
+S=emulator-5556; P=uk.btlabs.btwallet; H=$(dirname "$0"); APP=$ROOT/app
 PH() { if [ "$1" = tap ]; then "$H/ph.sh" wait "$2" 60 >/dev/null; fi; "$H/ph.sh" "$@"; }
 adb -s $S shell pm clear $P >/dev/null
 adb -s $S shell "run-as $P sh -c 'mkdir -p files/dev/floonet'"

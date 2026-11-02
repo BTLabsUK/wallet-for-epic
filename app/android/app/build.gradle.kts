@@ -74,7 +74,7 @@ if (rootProject.findProject(":mobile_scanner") != null) { // dist-prep: names on
 }
 
 android {
-    namespace = "uk.btlabs.epiccash.mobile"
+    namespace = "uk.btlabs.btwallet"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -84,10 +84,12 @@ android {
     }
 
     defaultConfig {
-        // Epic Cash Mobile; the namespace and the Kotlin package are the same. Its own app beside
-        // the builds before it, which carried the developer's old ids: installing it never
-        // replaces them, and its data starts empty (app/README.md, "App ids and data folders").
-        applicationId = "uk.btlabs.epiccash.mobile"
+        // BT Wallet from 26.10.25; the namespace and the Kotlin package are the same. Its own app
+        // beside the builds before it (uk.btlabs.epiccash.mobile up to 26.10.24, the developer's
+        // com.blacktyger.epicwallet before that; the change authorised by the owner on 2026-11-02):
+        // installing it never replaces them, and its data starts empty (app/README.md, "App ids
+        // and data folders"; docs/install-contract.md).
+        applicationId = "uk.btlabs.btwallet"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

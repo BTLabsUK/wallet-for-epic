@@ -47,7 +47,7 @@ Map<String, Object?> testApk({
 /// section without ([notor], by default the build's), beside a top-level release the build
 /// does not read.
 Map<String, Object?> testUpdatePayload({
-  String packageName = 'uk.btlabs.epiccash.mobile',
+  String packageName = 'uk.btlabs.btwallet',
   String versionName = '1.0.1',
   String? notes = 'Fixes',
   List<Map<String, Object?>>? apks,

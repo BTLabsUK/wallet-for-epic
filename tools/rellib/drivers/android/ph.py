@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Small uiautomator driver for Epic Cash Mobile on an emulator (Flutter puts labels in
+"""Small uiautomator driver for BT Wallet on an emulator (Flutter puts labels in
 content-desc, so uiautomator sees them).
 
 ph.py <serial> dump                 masked list of labelled / clickable nodes
@@ -14,7 +14,9 @@ cells, numbered word lists and labels of 12+ lowercase words (a phrase) print as
 """
 import html, os, re, subprocess, sys, time
 
-PKG = "uk.btlabs.epiccash.mobile"
+# The app driven: BT Wallet's id from 26.10.25 (uk.btlabs.epiccash.mobile before it). A driver
+# that installs another APK points this at that APK's package (apk_package).
+PKG = "uk.btlabs.btwallet"
 ADB = os.environ.get("ADB", os.path.expanduser("~/Android/Sdk/platform-tools/adb"))
 _SECRET_WORDS = set()
 
@@ -149,6 +151,21 @@ def version(serial):
     vn = re.search(r"versionName=(\S+)", d)
     vc = re.search(r"versionCode=(\d+)", d)
     return (vn.group(1) if vn else None, vc.group(1) if vc else None)
+
+
+def apk_package(path):
+    """The package name in an APK's badging (newest aapt2 of the SDK), or None."""
+    sdk = os.environ.get("ANDROID_SDK_ROOT", os.path.expanduser("~/Android/Sdk"))
+    bt = os.path.join(sdk, "build-tools")
+    vers = sorted((v for v in (os.listdir(bt) if os.path.isdir(bt) else ()) if
+                   os.path.exists(os.path.join(bt, v, "aapt2"))),
+                  key=lambda v: [int(x) if x.isdigit() else 0 for x in re.split(r"[.-]", v)])
+    if not vers or not os.path.isfile(path):
+        return None
+    r = subprocess.run([os.path.join(bt, vers[-1], "aapt2"), "dump", "badging", path],
+                       capture_output=True, text=True, timeout=60, errors="replace")
+    m = re.search(r"^package: name='([^']+)'", r.stdout, re.M)
+    return m.group(1) if m else None
 
 
 def launch(serial):

@@ -106,7 +106,7 @@ class ResignTest(Base):
         apk = lambda v: {"abi": "arm64-v8a", "versionCode": 2610240, "url": OLD + f"epic-cash-mobile-{version}{v}-arm64-v8a.apk",
                          "sha256": hashlib.sha256(v.encode()).hexdigest(), "size": 123456789}
         pl = {"schema": 1, "serial": serial, "issued_at": resign.iso(serial), "expires_at": resign.iso(serial + 182 * 86400),
-              "packageName": "uk.btlabs.epiccash.mobile", "versionName": version, "apks": [apk("")],
+              "packageName": "uk.btlabs.btwallet", "versionName": version, "apks": [apk("")],
               "notes": "Faster sync.\nCafé fixes.", "notor": {"apks": [apk("-notor")]}}
         v2 = json.loads(json.dumps(pl).replace(OLD, NEW))
         for pname, ename, p, v in (("update.payload.json", "update.json", pl, False),
