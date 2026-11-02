@@ -82,8 +82,18 @@ if [[ $mode == full ]]; then
 
   step "integration tests on LEPIC (Linux, offline)"
   # One run per file: a second app start in one `flutter test` run fails on Linux now and then.
+  # The app keeps its PIN vault in the platform keyring. Run by hand (ssh, an agent's shell) there
+  # is no unlocked one and the test waits on it forever, so each file gets its own session bus
+  # and an unlocked throwaway keyring, as the nightly does, and a hard time limit.
   for t in simple_test history_test; do
-    (cd "$root/app" && xvfb-run -a flutter test --no-pub -d linux "integration_test/$t.dart")
+    kr="$(mktemp -d)"
+    rc=0
+    (cd "$root/app" && timeout --kill-after=30 "${WFE_INTEGRATION_TIMEOUT:-600}" \
+      dbus-run-session -- bash -c 'export XDG_DATA_HOME="$1"
+        printf "throwaway\n" | gnome-keyring-daemon --unlock --components=secrets >/dev/null
+        exec xvfb-run -a flutter test --no-pub -d linux "integration_test/$2.dart"' _ "$kr" "$t") || rc=$?
+    rm -rf "$kr"
+    [[ $rc == 0 ]] || { [[ $rc == 124 ]] && echo "integration_test/$t.dart: timed out" >&2; exit "$rc"; }
   done
 else
   step "flutter test (affected vs $base_ref)"
