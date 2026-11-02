@@ -151,7 +151,7 @@ void main() {
   });
 
   group('the Network section', () {
-    testWidgets('a row per mode: just its name and its info sheet, no explanation in the list', (tester) async {
+    testWidgets('a row per mode: just its name and its ⓘ, which opens the picture of the modes at that mode', (tester) async {
       await _pump(tester, const NetworkModeSection());
       final modes = offeredNetworkModes();
       expect(modes.length, torBuilt ? 4 : 3);
@@ -162,16 +162,17 @@ void main() {
         expect(find.byKey(networkModeHintKey(m)), findsOneWidget);
       }
       await _tapKey(tester, networkModeHintKey(NetworkMode.killSwitch));
-      expect(find.byType(InfoSheet), findsOneWidget);
-      expect(find.text(l.advModeKillSwitchHint), findsOneWidget);
+      expect(find.byKey(networkModesSheetKey), findsOneWidget);
+      expect(find.text(l.netModesDescKillSwitch), findsOneWidget);
       await tester.tap(find.text('Close'));
       await tester.pumpAndSettle();
       expect(tester.widget<Radio<NetworkMode>>(find.descendant(of: find.byKey(networkModeRowKey(NetworkMode.standard)), matching: find.byType(Radio<NetworkMode>))).value, NetworkMode.standard);
-      // No explanation in the list: the rows carry no subtitle, the section no ⓘ of its own.
+      // No explanation in the list: the rows carry no subtitle; the heading's ⓘ opens the picture.
       for (final m in modes) {
         expect(tester.widget<ListTile>(find.byKey(networkModeRowKey(m))).subtitle, isNull, reason: m.name);
       }
-      expect(find.byType(InfoHint), findsNWidgets(modes.length));
+      expect(find.byType(InfoHint), findsNWidgets(modes.length + 1));
+      expect(find.byKey(networkModesHintKey), findsOneWidget);
     });
 
     testWidgets('Node only switches at once with no question', (tester) async {

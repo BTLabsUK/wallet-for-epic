@@ -308,17 +308,18 @@ void main() {
         if (find.byKey(ValueKey('adv-mode-${m.name}')).evaluate().isNotEmpty) m.name,
     ];
 
-    testWidgets('Network & privacy › Network: a row per mode, just its name and its info popover; choosing one saves it', (tester) async {
+    testWidgets('Network & privacy › Network: a row per mode, just its name and its ⓘ; choosing one saves it', (tester) async {
       await _open(tester, DeskRoute.settingsPrivacy);
       expect(rowKeys(), torBuilt ? ['standard', 'torOnly', 'nodeOnly', 'killSwitch'] : ['standard', 'nodeOnly', 'killSwitch']);
-      // No explanation in the list: no line under a mode, no section ⓘ of its own.
+      // No explanation in the list: no line under a mode.
       expect(find.textContaining('Only the node in use.'), findsNothing);
-      // The Kill switch row's ⓘ opens a popover with its text.
+      // The Kill switch row's ⓘ opens the picture of the modes at Kill switch.
       await tester.ensureVisible(find.byKey(const ValueKey('adv-mode-killSwitch')));
       await _settle(tester);
       await tester.tap(find.descendant(of: find.byKey(const ValueKey('adv-mode-killSwitch')), matching: find.byType(EInfoHint)));
       await _settle(tester);
-      expect(find.textContaining('The wallet works offline'), findsOneWidget);
+      expect(find.byKey(const ValueKey('net-modes-dialog')), findsOneWidget);
+      expect(find.textContaining('Nothing connects, not even the node.'), findsOneWidget);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await _settle(tester);
       await tester.ensureVisible(find.byKey(const ValueKey('adv-mode-nodeOnly')));
