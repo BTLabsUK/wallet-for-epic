@@ -195,6 +195,14 @@ class AppConfig {
   Duration get nodeFailoverAfter => _s('node.failover_after_s');
   Duration get nodeFailoverProbe => _s('node.failover_probe_s');
   Duration get ownNodeAsk => _s('node.own_node_ask_s');
+
+  // [notices]
+
+  /// After start and resume, how long server warnings wait (`connection_grace.dart`).
+  Duration get serverGrace => _s('notices.server_grace_s');
+
+  /// How long Settings › Donate waits for the donation page.
+  Duration get pageCheck => _s('notices.page_check_s');
   int get localNodeApiPort => _int('node.local.api_port');
   int get localNodeP2pPort => _int('node.local.p2p_port');
 
@@ -427,6 +435,14 @@ class HostSettings {
 
   /// `invite.page`: the page an invite's https link opens; empty shares the bare invite.
   String get invitePage => value('invite.page') as String;
+
+  // [donate]
+
+  /// `donate.page`: the page Settings › Donate opens; empty for none.
+  String get donatePage => value('donate.page') as String;
+
+  /// `donate.contact`: the contact page offered when the donation page does not answer.
+  String get donateContact => value('donate.contact') as String;
 
   // [online]
   bool get statusEnabled => value('online.status_site') as bool;

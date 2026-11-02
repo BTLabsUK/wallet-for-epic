@@ -140,6 +140,13 @@ keep_hosts = ["api.hub.example.invalid", "objects.hubcontent.example.invalid"]
 keep_domains = ["epic.invalid", "old.example.invalid", "net.invalid", "stack.invalid", "lab.invalid", "hub.example.invalid", "hubcontent.example.invalid", "price.example.invalid"]
 [network]
 vpn_suffixes = [".vpn.invalid"]
+[notices]
+# After the app starts or comes back to the front, warnings about the node, Epicbox and Tor wait
+# this long: meanwhile only the title-bar icons show the state ("Connecting").
+server_grace_s = 0   # tests: warnings at once; the grace tests set their own
+# How long Settings › Donate waits for the donation page before it shows the address instead.
+page_check_s = 8
+
 [payments]
 # After a payment is posted: how often the tip is read, then how long, then how often after.
 watch_fast_every_s = 4
