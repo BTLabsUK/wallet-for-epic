@@ -3526,6 +3526,17 @@ class LepicDeskWallet implements DeskWalletApi {
       _changed();
       return;
     }
+    // Out of Tor only into Normal: Tor for every connection was the mode's, and no other
+    // control turns it on any more (the Tor switch is gone), so it goes with the mode.
+    // Link · Tor keeps its own tor.
+    if (was == NetworkMode.torOnly && now == NetworkMode.standard) {
+      _torSaved = false;
+      if (_settings.torAutostart) {
+        _settings = _settings.copyWith(torAutostart: false);
+        await _store.saveTorSwitch(false);
+      }
+      if (_settings.tor && session != null) await setTor(false);
+    }
     if (now == NetworkMode.torOnly) {
       _torSaved = true;
       if (!_settings.torAutostart) {

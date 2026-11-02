@@ -401,6 +401,12 @@ class DeskController extends Notifier<DeskState> {
         await saveNetworkMode(mode, ref.read(hostSettingsProvider.notifier).setAll);
       }
       await api.saveSettings(state.settings);
+      // The wallet may have moved Tor with the mode (out of Tor only: Tor for every
+      // connection goes): take its Tor fields, so a later save does not turn it back on.
+      final saved = await api.settings();
+      if (saved.tor != state.settings.tor || saved.torAutostart != state.settings.torAutostart) {
+        state = state.copyWith(settings: state.settings.copyWith(tor: saved.tor, torAutostart: saved.torAutostart));
+      }
       await ref.read(deskStoreProvider)?.saveSettings(state.settings);
     });
     if (state.account != null) {

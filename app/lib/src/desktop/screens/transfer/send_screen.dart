@@ -769,8 +769,15 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// recipient only, its caption saying it applies to every connection: D-05).
   Future<void> _setTor(bool on) async {
     setState(() => _torBusy = true);
+    final n = ref.read(deskProvider.notifier);
     try {
-      await ref.read(deskProvider.notifier).setTor(on);
+      // A send to an onion needs Tor for payments (Link · Tor), not every connection over
+      // Tor: that is Connection mode › Tor only alone. Tor only keeps its own Tor.
+      if (on && !NetGate.torOnly) {
+        ref.read(deskProvider).settings.payments.linkTor ? await n.retryTorPay() : await n.setLinkTor(true);
+      } else {
+        await n.setTor(on);
+      }
     } on Object catch (e) {
       if (mounted) showEToast(context, on ? context.l10n.deskSendTorOnFailed : context.l10n.deskSendTorOffFailed, text: deskErrorText(e, context.l10n), tone: ETone.risk);
     } finally {
