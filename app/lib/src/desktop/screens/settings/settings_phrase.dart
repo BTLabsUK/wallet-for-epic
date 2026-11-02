@@ -137,15 +137,18 @@ class _SettingsPhraseScreenState extends ConsumerState<SettingsPhraseScreen> {
     final words = _words;
     final c = context.dc;
     final l = context.l10n;
-    return SettingsFrame(
-      route: DeskRoute.settingsPhrase,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ESectionHead(l.deskSetFramePhrase, top: 0),
-          Text(l.deskSetPhraseIntro, style: context.ts.bodyDim),
-          SizedBox(height: Sp.x5),
-          if (words == null)
+    final head = [
+      ESectionHead(l.deskSetFramePhrase, top: 0),
+      Text(l.deskSetPhraseIntro, style: context.ts.bodyDim),
+      SizedBox(height: Sp.x5),
+    ];
+    if (words == null) {
+      return SettingsFrame(
+        route: DeskRoute.settingsPhrase,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ...head,
             EPanel(
               title: l.deskSetPhrasePanel,
               child: Column(
@@ -165,46 +168,48 @@ class _SettingsPhraseScreenState extends ConsumerState<SettingsPhraseScreen> {
                   ),
                 ],
               ),
-            )
-          else ...[
-            Semantics(label: l.deskSetPhraseWordsLabel(words.length), child: ESeedGrid(words: words)),
-            SizedBox(height: Sp.x4),
-            Wrap(
-              spacing: Sp.x2,
-              runSpacing: Sp.x2,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                EButton(label: l.commonCopy, icon: EIcons.copy, size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: _copy),
-                Semantics(
-                  expanded: _qr,
-                  child: EButton(
-                    label: _qr ? l.deskSetPhraseHideQr : l.deskSetPhraseShowQr,
-                    icon: _qr ? EIcons.eyeOff : EIcons.qr,
-                    size: EBtnSize.sm,
-                    kind: EBtnKind.ghost,
-                    onPressed: () => setState(() => _qr = !_qr),
-                  ),
-                ),
-                EButton(label: l.deskSetPhraseHideWords, icon: EIcons.eyeOff, size: EBtnSize.sm, onPressed: _hide),
-                Text(l.deskSetPhraseHidesIn(_left), style: context.ts.small.copyWith(color: c.faint)),
-              ],
             ),
-            if (_qr) ...[
-              SizedBox(height: Sp.x4),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Semantics(label: l.deskSetPhraseQrLabel, image: true, child: EQr(words.join(' '), size: 216.u)),
-              ),
-            ],
-            SizedBox(height: Sp.x5),
-            ENotice(
-              title: l.deskSetPhraseBackUp,
-              text: l.deskSetPhraseBackUpText,
-              tone: ETone.warn,
-              icon: EIcons.shield,
+          ],
+        ),
+      );
+    }
+    // The words scroll on their own: the actions above them and the warning under them stay in view.
+    return SettingsFrame(
+      route: DeskRoute.settingsPhrase,
+      fill: true,
+      child: EPhraseLayout(
+        header: head,
+        actions: [
+          Text(l.deskSetPhraseHidesIn(_left), style: context.ts.small.copyWith(color: c.faint)),
+          EButton(label: l.commonCopy, icon: EIcons.copy, size: EBtnSize.sm, kind: EBtnKind.ghost, onPressed: _copy),
+          Semantics(
+            expanded: _qr,
+            child: EButton(
+              label: _qr ? l.deskSetPhraseHideQr : l.deskSetPhraseShowQr,
+              icon: _qr ? EIcons.eyeOff : EIcons.qr,
+              size: EBtnSize.sm,
+              kind: EBtnKind.ghost,
+              onPressed: () => setState(() => _qr = !_qr),
+            ),
+          ),
+          EButton(label: l.deskSetPhraseHideWords, icon: EIcons.eyeOff, size: EBtnSize.sm, onPressed: _hide),
+        ],
+        grid: Semantics(label: l.deskSetPhraseWordsLabel(words.length), child: ESeedGrid(words: words)),
+        below: [
+          if (_qr) ...[
+            SizedBox(height: Sp.x4),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Semantics(label: l.deskSetPhraseQrLabel, image: true, child: EQr(words.join(' '), size: 216.u)),
             ),
           ],
         ],
+        footer: ENotice(
+          title: l.deskSetPhraseBackUp,
+          text: l.deskSetPhraseBackUpText,
+          tone: ETone.warn,
+          icon: EIcons.shield,
+        ),
       ),
     );
   }
