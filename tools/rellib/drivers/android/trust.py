@@ -60,8 +60,8 @@ MIGRATE = facts.encrypts_store(E("REL_CANDIDATE_VERSION", ""))
 # and database; from the first encrypting release on, only the file-set check applies.
 SEED_FILES = MIGRATE and not facts.encrypts_store(E("REL_PREVIOUS_VERSION", ""))
 # Activity rows: "Received 0.05 EPIC from esa57k…ZwzB4d, …", and after a restore
-# "Found on the chain: 0.02 EPIC, received, …".
-TX_RE = re.compile(r"^(Received|Receiving|Sent|Sending|Cancelled|Canceled|Failed|Paid|Payment|Found on the chain)\b.*?\b([0-9]+(?:\.[0-9]+)?) EPIC\b")
+# "Found on the chain: 0.02 EPIC, received, …". From 26.10.25 the unit follows a no-break space.
+TX_RE = re.compile(r"^(Received|Receiving|Sent|Sending|Cancelled|Canceled|Failed|Paid|Payment|Found on the chain)\b.*?\b([0-9]+(?:\.[0-9]+)?)\sEPIC\b")
 HOST_ROW = re.compile(r"^([a-z0-9-]+(?:\.[a-z0-9-]+)+(?::\d+)?), ")
 # The user's own node and Epicbox server: loopback stand-ins (../linux/standin.py) on this machine,
 # reached from the emulator's 127.0.0.1 through `adb reverse`. They are in no built-in list, so they
@@ -1057,7 +1057,7 @@ def send_epicbox(to_addr, amount):
     dump_to_log("send: review")
     shot("send-review")
     b = next((n for n in nodes(S) if n["clickable"] and n["center"][1] > 1000
-              and re.fullmatch(r"Send [0-9.]+ EPIC|Send|Send now|Confirm", n["label"])), None)
+              and re.fullmatch(r"Send [0-9.]+\sEPIC|Send|Send now|Confirm", n["label"])), None)
     if not b:
         raise RuntimeError("send: no Send button on the review")
     tap_xy(S, b["center"])
