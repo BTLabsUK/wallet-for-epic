@@ -159,6 +159,9 @@ abstract final class Max {
   /// A dialog (EDialog's default width).
   static double get dialog => _px(560);
 
+  /// The card of Unlock and the other single-question screens ([EAuthCard]).
+  static double get auth => _px(520);
+
   /// One tile in a tile row (a balance breakdown, node facts).
   static double get tile => _px(320);
 }

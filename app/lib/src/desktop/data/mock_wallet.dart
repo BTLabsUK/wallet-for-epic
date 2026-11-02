@@ -1400,6 +1400,15 @@ class MockDeskWallet implements DeskWalletApi {
   /// The id of [addSenderPostedDemo]'s payment.
   static const senderPostedDemoId = 140;
 
+  /// For the tour: only the [n] newest settled payments (no invoices, nothing in flight), a
+  /// wallet with a short history.
+  void keepNewest(int n) {
+    final keep = (_txs.where((t) => t.flow != TxFlow.invoice && t.state == TxState.confirmed).toList()..sort((a, b) => b.created.compareTo(a.created))).take(n).toList();
+    _txs
+      ..clear()
+      ..addAll(keep);
+  }
+
   /// For the tour: Anna's Epicbox payment, answered here, whose sender reports it posted
   ///. Only its own shots add it, so the other shots keep their rows.
   void addSenderPostedDemo() {

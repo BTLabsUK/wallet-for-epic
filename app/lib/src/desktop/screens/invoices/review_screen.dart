@@ -89,7 +89,8 @@ class _Review extends ConsumerWidget {
     );
     final spendable = balance?.spendable;
     final open = i.state == PayState.waiting && i.expiresAt.isAfter(book.now);
-    final short = open && spendable != null && spendable < i.total;
+    final gate = deskPayGate(spendable, amount: i.amount, fee: i.feeKnown ? i.fee : null);
+    final short = open && spendable != null && gate.notEnough;
     final same = open ? book.samePaidBefore(i) : null;
     final pairing = i.pairingId == null ? null : ref.watch(deskPairingByIdProvider(i.pairingId!));
     final message = cleanInvoiceText(i.message);
@@ -224,7 +225,7 @@ class _Review extends ConsumerWidget {
       ]),
     );
 
-    final blocked = short || nodeDown;
+    final blocked = !gate.ready || nodeDown;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -299,7 +300,7 @@ class _Review extends ConsumerWidget {
                     width: InvW.md,
                     size: EBtnSize.md,
                     kind: EBtnKind.primary,
-                    tooltip: blocked ? (nodeDown ? l.deskInvPayerNodeDownTitle : l.deskInvPayerShort) : null,
+                    tooltip: nodeDown ? l.deskInvPayerNodeDownTitle : (gate.notEnough ? l.deskInvPayerShort : null),
                     onPressed: blocked ? null : () => showApproveInvoice(context, i),
                   ),
                 ]
@@ -346,7 +347,8 @@ class RequestFileReview extends ConsumerWidget {
     );
     final spendable = balance?.spendable;
     final open = !f.alreadyPaid;
-    final short = open && spendable != null && spendable < f.total;
+    final gate = deskPayGate(spendable, amount: f.amount, fee: f.feeKnown ? f.fee : null);
+    final short = open && spendable != null && gate.notEnough;
     final message = cleanInvoiceText(f.message);
 
     final amountPanel = EPanel(
@@ -400,7 +402,7 @@ class RequestFileReview extends ConsumerWidget {
       ],
     );
 
-    final blocked = short || nodeDown;
+    final blocked = !gate.ready || nodeDown;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -458,7 +460,7 @@ class RequestFileReview extends ConsumerWidget {
                 width: InvW.lg,
                 size: EBtnSize.md,
                 kind: EBtnKind.primary,
-                tooltip: blocked ? (nodeDown ? l.deskInvPayerNodeDownTitle : l.deskInvPayerShort) : null,
+                tooltip: nodeDown ? l.deskInvPayerNodeDownTitle : (gate.notEnough ? l.deskInvPayerShort : null),
                 onPressed: blocked
                     ? null
                     : () async {

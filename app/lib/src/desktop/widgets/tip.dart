@@ -50,6 +50,9 @@ class ETip extends StatelessWidget {
     if (card != null) {
       return Tooltip(
         richMessage: WidgetSpan(child: card),
+        // A rich tip takes clicks unless told not to: over the control under it, the first
+        // click would only close it.
+        ignorePointer: true,
         preferBelow: false,
         verticalOffset: 18.u,
         excludeFromSemantics: excludeFromSemantics,
@@ -61,6 +64,8 @@ class ETip extends StatelessWidget {
     return Tooltip(
       message: mono ? null : message,
       richMessage: mono ? TextSpan(text: message, style: context.ts.mono(size: Fs.xs, color: context.dc.text)) : null,
+      // Never in the way of a click (a mono tip is a rich one, which takes clicks by default).
+      ignorePointer: true,
       preferBelow: !above,
       excludeFromSemantics: excludeFromSemantics,
       child: child,

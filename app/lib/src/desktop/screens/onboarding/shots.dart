@@ -31,6 +31,7 @@ final List<DeskShot> onboardingShots = [
   const DeskShot(id: '01c-welcome-add', title: 'Add a wallet', route: DeskRoute.welcome, arg: 'add'),
   const DeskShot(id: '02a-create', title: 'Create: password', route: DeskRoute.create, arg: CreateStep.account),
   const DeskShot(id: '02b-create-phrase', title: 'Create: recovery phrase', route: DeskRoute.create, arg: CreateStep.phrase),
+  const DeskShot(id: '02c-create-phrase-shown', title: 'Create: recovery phrase, shown', route: DeskRoute.create, arg: CreateDemo.phraseShown),
   const DeskShot(id: '02d-create-creating', title: 'Create: creating', route: DeskRoute.create, arg: CreateStep.creating),
   const DeskShot(id: '02e-create-failed', title: 'Create: failed', route: DeskRoute.create, arg: CreateStep.failed),
   const DeskShot(id: '02f-create-locking', title: 'Create: locking the open wallet', route: DeskRoute.create, arg: CreateStep.locking),

@@ -528,6 +528,8 @@ void main() {
       expect(find.text('Direct · QR Payment'), findsOneWidget);
 
       await tester.enterText(find.byKey(sendFileAmountFieldKey), '1');
+      // Past the fee estimate's debounce: Make payment QR waits for it.
+      await tester.pump(const Duration(milliseconds: 500));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Make payment QR'));
       await tester.pumpAndSettle();
@@ -583,6 +585,8 @@ void main() {
         await tester.tap(_segment('Direct · QR'));
         await tester.pumpAndSettle();
         await tester.enterText(find.byKey(sendFileAmountFieldKey), '1');
+        // Past the fee estimate's debounce: Make payment QR waits for it.
+        await tester.pump(const Duration(milliseconds: 500));
         await tester.pumpAndSettle();
         await tester.tap(find.text('Make payment QR'));
         await tester.pumpAndSettle();
@@ -759,6 +763,60 @@ void main() {
         findsNothing,
       );
       expect(h.session.receivedSlates, [json]);
+    });
+  });
+
+  // next-fixes 12: 5 EPIC with 0.8920 available, and "Make payment QR" took the tap before the
+  // fee estimate came back.
+  group('Make payment QR waits for the amount check', () {
+    Finder make() => find.widgetWithText(FilledButton, 'Make payment QR');
+    Finder amount() => find.widgetWithText(TextField, 'Amount (EPIC)');
+
+    testWidgets('more than spendable: off on the keystroke, with the reason', (tester) async {
+      final h = _Harness(prefs: '|qr');
+      h.session.summaryValue = WalletSummary(
+        lastConfirmedHeight: BigInt.from(2499990),
+        minimumConfirmations: BigInt.from(3),
+        total: _epic(0.892),
+        spendable: _epic(0.892),
+        awaitingConfirmation: BigInt.zero,
+        awaitingFinalization: BigInt.zero,
+        immature: BigInt.zero,
+        locked: BigInt.zero,
+        validatedWithNode: true,
+      );
+      await h.pump(tester, SendView(onDone: () {}));
+      await tester.enterText(amount(), '5');
+      // One frame: inside the estimate's debounce, nothing asked of the wallet yet.
+      await tester.pump();
+      expect(find.byKey(sendNotEnoughKey), findsOneWidget);
+      expect(find.text(_l.errorNotEnoughFunds), findsOneWidget);
+      expect(tester.widget<FilledButton>(make()).onPressed, isNull);
+      await tester.tap(make(), warnIfMissed: false);
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(TextField, 'PIN'), findsNothing);
+      expect(h.session.sentAmounts, isEmpty);
+      expect(tester.widget<FilledButton>(make()).onPressed, isNull);
+    });
+
+    testWidgets('within the balance: off until the estimate for it has come', (tester) async {
+      final h = _Harness(prefs: '|qr');
+      await h.pump(tester, SendView(onDone: () {}));
+      await tester.enterText(amount(), '0.5');
+      await tester.pump();
+      expect(find.byKey(sendNotEnoughKey), findsNothing);
+      expect(tester.widget<FilledButton>(make()).onPressed, isNull);
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpAndSettle();
+      expect(tester.widget<FilledButton>(make()).onPressed, isNotNull);
+      // A new amount waits again.
+      await tester.enterText(amount(), '0.6');
+      await tester.pump();
+      expect(tester.widget<FilledButton>(make()).onPressed, isNull);
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpAndSettle();
+      expect(tester.widget<FilledButton>(make()).onPressed, isNotNull);
     });
   });
 }

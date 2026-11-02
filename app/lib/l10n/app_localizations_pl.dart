@@ -4009,18 +4009,15 @@ class AppLocalizationsPl extends AppLocalizations {
       'Każda płatność z postępem i szczegółami. Dotknij jednej, aby ją otworzyć.';
 
   @override
-  String get tourPhoneContactsTitle => 'Kontakty';
-
-  @override
-  String get tourPhoneContactsText =>
-      'Zapisane adresy z nazwami. Wyślij wybiera stąd.';
-
-  @override
   String get tourPhoneInvoicesTitle => 'Faktury';
 
   @override
   String get tourPhoneInvoicesText =>
       'Zapłać fakturę, którą ktoś przysłał, albo poproś kogoś o płatność. Karty przełączają między jednym a drugim.';
+
+  @override
+  String get tourPhoneDevicesText =>
+      'Ten portfel na drugim urządzeniu: każde pokazuje płatności drugiego. Eksperyment.';
 
   @override
   String get tourPhonePrivacyTitle => 'Prywatność i sieć';

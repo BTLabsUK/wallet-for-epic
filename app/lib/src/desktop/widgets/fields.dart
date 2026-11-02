@@ -539,6 +539,8 @@ class ESwitch extends StatelessWidget {
         actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => onChanged?.call(!value))},
         child: Builder(
           builder: (context) => GestureDetector(
+            // The whole row takes the click, the gap between the track and the label too.
+            behavior: HitTestBehavior.opaque,
             onTap: enabled ? () => onChanged!(!value) : null,
             child: Opacity(
               opacity: enabled ? 1 : 0.4,
@@ -915,6 +917,8 @@ class ECheckbox extends StatelessWidget {
         actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => onChanged(!value))},
         child: Builder(
           builder: (context) => GestureDetector(
+            // The whole row takes the click, the gap between the box and the label too.
+            behavior: HitTestBehavior.opaque,
             onTap: () => onChanged(!value),
             child: Row(
               mainAxisSize: MainAxisSize.min,

@@ -26,6 +26,7 @@ import '../../data/tor_view.dart';
 import '../../../models.dart' show PairingRecord, PairingState, slateMessageMaxBytes;
 import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;
+import '../../../send_amount_gate.dart';
 import '../../../smart_outputs.dart';
 import '../../../utf8_limit.dart';
 import '../../app/shell.dart' show outputsShown;
@@ -457,6 +458,21 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   int? get _parsed => _parseAmount(context.l10n, _amount.text);
   int get _amountNano => (_parsed ?? 0) > 0 ? _parsed! : 0;
+
+  /// The amount against the spendable balance and the estimate made for it
+  /// ([SendAmountGate]): Review send is off while it [SendAmountGate.holds], and the review
+  /// opens only when it is ready. The estimate starts on the keystroke ([_loadFee]); one that
+  /// failed leaves Review on, whose tap estimates again and says why.
+  SendAmountGate _gate(DeskState st) {
+    final n = _amountNano;
+    final plan = _plan?.estimate.amount == n ? _plan : null;
+    return SendAmountGate.check(
+      amount: n > 0 ? n : null,
+      spendable: st.balance?.spendable,
+      estimate: plan == null ? null : (amount: plan.estimate.amount, fee: plan.estimate.fee),
+      estimateFailed: n > 0 && plan == null && !_feeBusy,
+    );
+  }
 
   ServiceHealth? _epicboxHealth(DeskState st) => _args.epicboxHealth ?? st.status?.epicboxHealth;
 
@@ -1134,6 +1150,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   Future<void> _review() async {
     final st = ref.read(deskProvider);
     if (!_canSend(st) || _reviewing) return;
+    // Enter in Amount takes this way too: nothing while the amount is too much or its estimate
+    // is on its way.
+    if (_gate(st).holds) return;
     setState(() {
       _submitted = true;
       _toEdited = false;
@@ -1172,6 +1191,15 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       });
     }
     final st = ref.read(deskProvider);
+    // Asked again before the review opens: the estimate for exactly this amount, and amount
+    // and fee within what can be spent now; else the field says why.
+    if (!_gate(st).ready) {
+      setState(() {
+        _submitted = true;
+        _amountEdited = false;
+      });
+      return;
+    }
     final contacts = st.contacts;
     final n = _amountNano;
     final code = _method == TxMethod.file ? null : _codeNow;
@@ -1720,7 +1748,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final file = _method == TxMethod.file;
     final code = file ? null : _codeNow;
     final toErr = _codeError?.call(l) ?? ((_submitted && !_toEdited) || _onionNoTor ? _toError(st) : null);
-    final amErr = _allError ?? (_submitted && !_amountEdited ? _amountError(spendable) : null);
+    // More than can be spent is said on the keystroke; the other amount errors after Review.
+    final amErr = _allError ?? ((_submitted && !_amountEdited) || _gate(st).notEnough ? _amountError(spendable) : null);
     final matches = file ? const <Contact>[] : _matches(st);
     // Epicbox and Direct wait for the network mode; File runs in every mode, and in Offline
     // on a node that is not local its tooltip says the node is used.
@@ -2012,6 +2041,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final n = _amountNano;
     final fee = n > 0 ? _fee : null;
     final nodeBlocked = _nodeBlock(st) != null;
+    final gate = _gate(st);
     // The line under Review, and whether it names a block: then Review is off until it clears.
     final (hint, blocker) = switch (null) {
       _ when res is SendDone => (_queuedFor == null ? l.deskSendHintSent : l.deskSendHintQueued, true),
@@ -2033,8 +2063,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _ when _method == TxMethod.http && _torWay(st) == TorWay.off => (l.sendPlainHttpOffWithTor, true),
       _ when _submitted && !_toEdited && _toError(st) != null => (l.deskSendHintFix, true),
       _ when _submitted && !_amountEdited && _amountError(spendable) != null => (l.deskSendHintFix, true),
+      _ when gate.notEnough => (l.deskSendHintFix, true),
       _ when _messageTooLong => (l.deskSendHintFix, true),
-      _ when _reviewing => (l.deskSendHintChecking, false),
+      _ when _reviewing || gate.checking => (l.deskSendHintChecking, false),
       _ when !_reviewStep => (l.deskLvSendNothingLeaves, false),
       _ => (l.deskSendHintDefault, false),
     };
@@ -2067,7 +2098,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         _ => l.deskSendReview,
       },
       reviewing: _reviewing,
-      onReview: _canSend(st) && !_reviewing && !blocker ? _review : null,
+      onReview: _canSend(st) && !_reviewing && !blocker && !gate.holds ? _review : null,
       review: review,
       lockRows: _reviewStep,
     );
