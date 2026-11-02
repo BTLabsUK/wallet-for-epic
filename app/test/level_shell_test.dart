@@ -193,10 +193,13 @@ void main() {
       final offer = _Offer();
       await _pump(tester, level: level, offer: offer);
       expect(find.byKey(noticeKey), findsOneWidget);
-      expect(find.textContaining('Relay B is ready to take over'), findsOneWidget);
-      expect(find.text('Not now'), findsOneWidget);
+      // Compact (item 11): a title, one line naming the server, Switch; the close button is
+      // Not now.
+      expect(find.text('Your Epicbox server is not reachable.'), findsOneWidget);
+      expect(find.text('Relay B can take over; your address changes with it.'), findsOneWidget);
+      expect(find.text('Not now'), findsNothing);
       expect(offer.accepts, 0, reason: 'nothing moves without a tap');
-      await tester.tap(find.text('Switch to Relay B'));
+      await tester.tap(find.widgetWithText(TextButton, 'Switch'));
       for (var i = 0; i < 5; i++) {
         await tester.pump(const Duration(milliseconds: 100));
       }

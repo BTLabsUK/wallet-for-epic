@@ -3106,6 +3106,36 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsSectionHelpFeedback => '帮助';
 
   @override
+  String get settingsDonate => '捐款';
+
+  @override
+  String get settingsExperimentTag => '实验';
+
+  @override
+  String get donateLead => '捐款用于开发这个钱包。';
+
+  @override
+  String get donatePage => '捐款页面';
+
+  @override
+  String get donatePageDown => '捐款页面没有响应。';
+
+  @override
+  String get donatePageDownText => '把 EPIC 发送到下面的地址，或使用联系页面。';
+
+  @override
+  String get donateAddress => 'Epic Cash 地址';
+
+  @override
+  String get donateQrLabel => '捐款地址二维码';
+
+  @override
+  String get donateContact => '联系页面';
+
+  @override
+  String get donateNothing => '未设置捐款页面或地址。';
+
+  @override
   String get settingsStateBackUp => '备份助记词';
 
   @override
@@ -17387,9 +17417,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get lvShellKeepWaiting => '继续等待';
 
   @override
-  String lvShellRelayDownNotice(String name) {
-    return '你的 Epicbox 服务器无法连接。发给你的付款正在等待。$name 可以接替；你的地址会随之改变。';
+  String get lvShellRelayDownTitle => '你的 Epicbox 服务器无法连接。';
+
+  @override
+  String lvShellRelayDownShort(String name) {
+    return '$name 可以接替；你的地址会随之改变。';
   }
+
+  @override
+  String get lvShellSwitch => '切换';
 
   @override
   String lvShellSwitchedNotice(String name) {
@@ -18279,4 +18315,661 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskRailOpenNetworkPrivacy => '打开网络与隐私';
+
+  @override
+  String get deskSetSearchHint => '搜索设置';
+
+  @override
+  String get deskSetSearchKeyHint => 'Ctrl K';
+
+  @override
+  String get deskSetSearchClear => '清除搜索';
+
+  @override
+  String deskSetSearchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count 个结果',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSetSearchFor(String query) {
+    return '搜索“$query”';
+  }
+
+  @override
+  String get deskSetSearchKeysMove => '移动';
+
+  @override
+  String get deskSetSearchKeysGo => '前往设置';
+
+  @override
+  String get deskSetSearchKeysClear => '清除';
+
+  @override
+  String deskSetSearchMatches(String word) {
+    return '匹配“$word”';
+  }
+
+  @override
+  String get deskSetSearchHelpTopics => '帮助主题';
+
+  @override
+  String get deskSetSearchHidden => '此处隐藏';
+
+  @override
+  String get deskSetSearchHiddenLine => '其他视图或“高级”中的开关会显示它们';
+
+  @override
+  String deskSetSearchShowIn(String view) {
+    return '在$view中显示';
+  }
+
+  @override
+  String get deskSetSearchTurnOn => '开启';
+
+  @override
+  String get deskSetSearchOpen => '打开';
+
+  @override
+  String get deskSetSearchRead => '阅读';
+
+  @override
+  String deskSetSearchNone(String query) {
+    return '没有与“$query”匹配的设置。';
+  }
+
+  @override
+  String get deskSetSearchTry => '试试';
+
+  @override
+  String get deskSetSearchTryWords => '密码,tor,助记词,备份,手续费,节点,锁定';
+
+  @override
+  String get deskSetSearchNoResults => '无结果';
+
+  @override
+  String get deskSetSearchResults => '搜索结果';
+
+  @override
+  String deskSetSearchViewGate(String view) {
+    return '$view视图';
+  }
+
+  @override
+  String deskSetSearchFeatGate(String feature) {
+    return '高级 › $feature';
+  }
+
+  @override
+  String deskSetSearchGateJoin(String first, String last) {
+    return '$first和$last';
+  }
+
+  @override
+  String deskSetSearchMore(int count, String gates) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '还有 $count 个选项 · 由$gates显示',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSetSearchLess(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '隐藏 $count 个额外选项',
+      one: '隐藏额外选项',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSetSearchViewApplied(String view) {
+    return '视图：$view';
+  }
+
+  @override
+  String deskSetSearchFeatApplied(String feature) {
+    return '高级 › $feature：已开启';
+  }
+
+  @override
+  String deskSetSearchFallbackView(String page, String view) {
+    return '$page在$view视图中显示。';
+  }
+
+  @override
+  String deskSetSearchFallbackFeat(String page, String feature) {
+    return '开启高级 › $feature 后显示$page。';
+  }
+
+  @override
+  String get deskSetSecWallet => '钱包';
+
+  @override
+  String get deskSetSecPayments => '支付';
+
+  @override
+  String get deskSetSecDevices => '关联设备';
+
+  @override
+  String get deskSetSecWallets => '钱包列表';
+
+  @override
+  String get deskSetSecFiles => '文件与日志';
+
+  @override
+  String get deskSetSecDonate => '捐赠';
+
+  @override
+  String get deskSetNavApp => '应用';
+
+  @override
+  String get deskSetNavComputer => '这台电脑';
+
+  @override
+  String get deskSetGrpBackup => '备份';
+
+  @override
+  String get deskSetGrpBalance => '余额';
+
+  @override
+  String get deskSetGrpRemove => '移除';
+
+  @override
+  String get deskSetGrpMethods => '方式';
+
+  @override
+  String get deskSetGrpSending => '发送';
+
+  @override
+  String get deskSetGrpReceiving => '接收';
+
+  @override
+  String get deskSetGrpThisDevice => '此设备';
+
+  @override
+  String get deskSetGrpLinkedDevice => '关联设备';
+
+  @override
+  String get deskSetGrpSync => '同步';
+
+  @override
+  String get deskSetGrpConnection => '连接';
+
+  @override
+  String get deskSetGrpLocalNode => '这台电脑上的节点';
+
+  @override
+  String get deskSetGrpConnections => '连接方式';
+
+  @override
+  String get deskSetGrpTor => 'Tor';
+
+  @override
+  String get deskSetGrpServerStatus => '服务器状态';
+
+  @override
+  String get deskSetGrpView => '视图';
+
+  @override
+  String get deskSetGrpShowsMore => '显示更多';
+
+  @override
+  String get deskSetGrpExperiments => '实验功能';
+
+  @override
+  String get deskSetGrpOnComputer => '这台电脑上';
+
+  @override
+  String get deskSetGrpAddWallet => '添加钱包';
+
+  @override
+  String get deskSetGrpFolders => '文件夹';
+
+  @override
+  String get deskSetGrpLogs => '日志';
+
+  @override
+  String get deskSetGrpSupport => '支持';
+
+  @override
+  String get deskSetGrpStartAgain => '重新开始';
+
+  @override
+  String get deskSetGrpLinks => '链接';
+
+  @override
+  String get deskSetRowNameHint => '只在此应用中显示。';
+
+  @override
+  String get deskSetSynName => '重命名, 钱包名称, 标签, 名称';
+
+  @override
+  String get deskSetRowExportDataHint => '历史、联系人、发票和设置，存于一个加密文件。';
+
+  @override
+  String get deskSetRowExportDataInfo => '只有使用此助记词的钱包能打开该文件。币本身由助记词恢复。';
+
+  @override
+  String get deskSetSynExportData => '备份, 保存, 历史, 联系人, 文件';
+
+  @override
+  String get deskSetRowImportDataHint => '从导出文件恢复历史、联系人、发票和设置。';
+
+  @override
+  String get deskSetSynImportData => '恢复, 备份, 历史, 载入';
+
+  @override
+  String get deskSetRowExportCsvHint => '用于电子表格的普通表格。未加密。';
+
+  @override
+  String get deskSetSynExportCsv => 'csv, excel, 表格, 税, 历史, 报表';
+
+  @override
+  String get deskSetRowRecheckGoHint => '重新读取区块链，查找此钱包的币。';
+
+  @override
+  String get deskSetSynRecheckGo => '重新扫描, 扫描, 余额不对, 丢失, 重新同步, 刷新, 修复';
+
+  @override
+  String get deskSetRowDeleteWalletHint => '从这台电脑删除它的密钥和数据库。';
+
+  @override
+  String get deskSetSynDeleteWallet => '移除, 删除, 清除';
+
+  @override
+  String get deskSetSynRecheckFrom => '开始, 日期, 高度, 区块';
+
+  @override
+  String get deskSetRowRecheckMonth => '月份';
+
+  @override
+  String get deskSetSynRecheckMonth => '月份, 日期, 日历, 创建, 何时';
+
+  @override
+  String get deskSetRowRecheckHeight => '起始区块';
+
+  @override
+  String get deskSetSynRecheckHeight => '高度, 区块';
+
+  @override
+  String get deskSetRowRecheckDropHint => '同时取消未确认的交易。正在途中的付款可能因此失败。';
+
+  @override
+  String get deskSetSynRecheckDrop => '未确认, 卡住, 取消, 解锁';
+
+  @override
+  String get deskSetRowPhraseGoHint => '恢复此钱包的 24 个单词。';
+
+  @override
+  String get deskSetSynPhraseGo => '种子, seed, 助记词, 单词, 备份, 秘密, 恢复, 24 个单词, 私钥';
+
+  @override
+  String get deskSetRowPasswordHint => '解锁此钱包。';
+
+  @override
+  String get deskSetSynPassword => '密码, 口令, 修改密码, 解锁, pin';
+
+  @override
+  String get deskSetRowRememberedHint => '启动时无需密码即可打开。发送时仍需输入。';
+
+  @override
+  String get deskSetSynRemembered => '记住我, 密码, 解锁, 自动解锁, 忘记';
+
+  @override
+  String get deskSetRowAutolockHint => '无按键或鼠标移动时锁定。所有钱包。';
+
+  @override
+  String get deskSetSynAutolock => '锁定, 超时, 空闲, 无操作, 锁屏';
+
+  @override
+  String get deskSetRowEpicboxHint => '通过 Epicbox 服务器付款和收款。大多数付款走这里。所有钱包。';
+
+  @override
+  String get deskSetSynEpicbox => '中继, 服务器, 地址, 接收, 发送, 方式';
+
+  @override
+  String get deskSetSynEpicboxRecv => '监听, 传入, 接收';
+
+  @override
+  String get deskSetRowEpicboxServerHint => '此钱包地址的一部分。';
+
+  @override
+  String get deskSetSynEpicboxServer => '中继, 服务器, 主机, 地址';
+
+  @override
+  String get deskSetSynEpicboxStart => '启动, 自动启动';
+
+  @override
+  String get deskSetRowHttpHint => '在网址上钱包对钱包，双方都需打开。所有钱包。';
+
+  @override
+  String get deskSetSynHttp => 'http, ip, 端口, 直连, 监听, 方式';
+
+  @override
+  String get deskSetSynHttpReach => '互联网, 路由器, 端口转发, 公网';
+
+  @override
+  String get deskSetSynHttpPort => '端口, tcp';
+
+  @override
+  String get deskSetRowTorPayHint => '在此钱包的 Tor 地址上钱包对钱包，双方都需打开。所有钱包。';
+
+  @override
+  String get deskSetRowTorPayInfo =>
+      'Tor 只用于在 Tor 地址上收发付款。节点、价格和更新沿用“网络与隐私”中的设置。';
+
+  @override
+  String get deskSetSynTorPay => 'tor, 洋葱, 匿名, 隐藏服务, 隐私, 方式';
+
+  @override
+  String get deskSetRowFileHint => '通过交换交易文件。无需网络。所有钱包。';
+
+  @override
+  String get deskSetSynFile => '文件, 离线, slate, 交易文件, usb, 邮件, 方式, 手动';
+
+  @override
+  String get deskSetRowDefaultMethodHint => '“发送”打开时使用的方式。所有钱包。';
+
+  @override
+  String get deskSetSynDefaultMethod => '发送, 方式, 默认';
+
+  @override
+  String get deskSetRowStrategy => '发送使用的输出';
+
+  @override
+  String get deskSetRowStrategyHint => '最小：刚好够金额；全部：花掉每个输出。';
+
+  @override
+  String get deskSetRowStrategyInfo => '花掉的输出越多，手续费越高。';
+
+  @override
+  String get deskSetSynStrategy => '手续费, 费用, 策略, 选币, 输入, utxo, 输出';
+
+  @override
+  String get deskSetRowSplitChangeHint => '剩余不多时，找零最多分成 4 个输出返回。';
+
+  @override
+  String get deskSetRowSplitChangeInfo =>
+      '仅当发送后可花费的输出少于 3 个且找零至少 1 EPIC 时。每多一个输出花费 0.004 EPIC。';
+
+  @override
+  String get deskSetSynSplitChange => '手续费, 找零, 输出, utxo, 拆分';
+
+  @override
+  String get deskSetRowConfirmationsHint => '收到的付款可花费前需等待的区块数。';
+
+  @override
+  String get deskSetSynConfirmations => '确认, 区块, 可花费, 锁定, 待处理, 等待';
+
+  @override
+  String get deskSetRowPairShopHint => '你允许的已配对联系人可以向此钱包发送发票。';
+
+  @override
+  String get deskSetSynPairShop => '配对, 发票, 商店, 交易所, 商家';
+
+  @override
+  String get deskSetRowTimeToPayHint => '发票可支付的时长。';
+
+  @override
+  String get deskSetSynTimeToPay => '发票, 过期, 到期, 期限';
+
+  @override
+  String get deskSetSynDeviceName => '设备名称, 重命名';
+
+  @override
+  String get deskSetRowLinkDeviceHint => '此钱包在两台设备上：每台显示另一台的付款。';
+
+  @override
+  String get deskSetRowLinkDeviceInfo => '可以关联一台设备。每台持有对方正在花费的币，所以两台不会花同一个币。';
+
+  @override
+  String get deskSetSynLinkDevice => '关联设备, 配对手机, 第二台设备, 手机, 同步, 移动端, 多设备';
+
+  @override
+  String get deskSetRowPauseSyncHint => '暂停期间，通知在服务器上等待。';
+
+  @override
+  String get deskSetSynPauseSync => '同步, 暂停, 关联';
+
+  @override
+  String get deskSetSynTheme => '深色模式, 浅色模式, 颜色, 夜间, dark mode';
+
+  @override
+  String get deskSetSynLanguage => '语言, 翻译, 中文, english, polski';
+
+  @override
+  String get deskSetRowScaleHint => '文字和控件，放大或缩小。';
+
+  @override
+  String get deskSetSynScale => '缩放, 大小, 字号, 放大, 缩小, 文字大小, dpi';
+
+  @override
+  String get deskSetRowHideAmountsHint => '用圆点代替余额和金额。';
+
+  @override
+  String get deskSetSynHideAmounts => '隐私, 隐藏余额, 遮盖, 屏幕共享, 直播';
+
+  @override
+  String get deskSetRowNodeServerHint => '读取区块链并发送此钱包的交易。';
+
+  @override
+  String get deskSetSynNodeServer => '节点, 服务器, 主机, rpc, api, url';
+
+  @override
+  String get deskSetRowFailover => '自动切换节点';
+
+  @override
+  String get deskSetRowFailoverHint => '节点不再响应时，改用下一个可用的。';
+
+  @override
+  String get deskSetSynFailover => '故障转移, 备用, 自动';
+
+  @override
+  String get deskSetRowMyNodeHint => '直接向节点询问其状态，并提供所有者访问。';
+
+  @override
+  String get deskSetSynMyNode => '自己的节点, 我的节点, 自建, 所有者, api secret';
+
+  @override
+  String get deskSetRowLocalNode => '这台电脑上的节点';
+
+  @override
+  String get deskSetRowLocalNodeHint => '在这里运行自己的节点。需要几 GB 磁盘空间。';
+
+  @override
+  String get deskSetSynLocalNode => '本地节点, 内置节点, 全节点, 运行节点, 同步区块链';
+
+  @override
+  String get deskSetRowLocalStartHint => '应用打开时保持节点同步。';
+
+  @override
+  String get deskSetSynLocalStart => '启动, 本地节点';
+
+  @override
+  String get deskSetRowNetMode => '连接模式';
+
+  @override
+  String get deskSetSynNetMode =>
+      '仅 tor, undercover, 离线, 断网开关, 仅节点, vpn, ip, 隐私, 飞行模式';
+
+  @override
+  String get deskSetRowTorAll => '所有连接使用 Tor';
+
+  @override
+  String get deskSetRowTorAllHint => '节点、Epicbox、价格和更新都经过 Tor。';
+
+  @override
+  String get deskSetRowTorAllInfo =>
+      'Tor 隐藏钱包的 IP 地址。仅在 Tor 地址上收付款，请见 支付 › 链接 · Tor。';
+
+  @override
+  String get deskSetSynTorAll => 'tor, 洋葱, 匿名, ip, 隐藏 ip, 代理, 隐私';
+
+  @override
+  String get deskSetRowStatusSiteHint => '显示哪些节点和 Epicbox 服务器在线。';
+
+  @override
+  String get deskSetSynStatusSite => '状态, 健康, 在线时间, 监控';
+
+  @override
+  String get deskSetRowView => '视图';
+
+  @override
+  String get deskSetRowViewHint => '浅水、再深些或深水区：钱包显示多少内容。';
+
+  @override
+  String get deskSetSynView => '级别, 深度, 浅水, 再深些, 深水区, 简单, 专家, 新手, 高级模式';
+
+  @override
+  String get deskSetRowAdvOutputsHint => '“输出”页：组成余额的币。';
+
+  @override
+  String get deskSetSynAdvOutputs => 'utxo, 币, 输出, 拆分, 合并';
+
+  @override
+  String get deskSetRowAdvTechHint => '每笔交易的 kernel、slate ID 和承诺。';
+
+  @override
+  String get deskSetSynAdvTech => 'kernel, slate, 承诺, 交易 id, 详情';
+
+  @override
+  String get deskSetRowAdvSendoptsHint => '发送时和“支付”下的输出与找零选项。';
+
+  @override
+  String get deskSetSynAdvSendopts => '手续费, 选币, 输出, 找零';
+
+  @override
+  String get deskSetRowAdvServersHint => '服务器列表中的主机、延迟、版本和高度。';
+
+  @override
+  String get deskSetSynAdvServers => '延迟, ping, 高度, 版本, 主机';
+
+  @override
+  String get deskSetRowAdvHeightHint => '“重新核对余额”中的起点和删除未确认。';
+
+  @override
+  String get deskSetSynAdvHeight => '重新扫描, 高度, 区块';
+
+  @override
+  String get deskSetRowAdvLocalHint => '在这台电脑上运行节点，位于“节点”下。';
+
+  @override
+  String get deskSetSynAdvLocal => '全节点, 本地节点';
+
+  @override
+  String get deskSetRowAdvLogsHint => '“文件与日志”中的日志级别和日志文件。';
+
+  @override
+  String get deskSetSynAdvLogs => '日志, 调试, 诊断';
+
+  @override
+  String get deskSetRowXInvoicesHint => '向已配对联系人请求付款；批准他们的请求。';
+
+  @override
+  String get deskSetSynXInvoices => '发票, 请求付款, 配对, 账单';
+
+  @override
+  String get deskSetRowWalletRows => '钱包列表';
+
+  @override
+  String get deskSetRowWalletRowsHint => '这台电脑上的钱包；打开或移除一个。';
+
+  @override
+  String get deskSetSynWalletRows => '钱包, 切换钱包, 其他钱包, 列表';
+
+  @override
+  String get deskSetRowCreateWalletHint => '新钱包，配新的助记词。';
+
+  @override
+  String get deskSetSynCreateWallet => '新钱包, 添加钱包';
+
+  @override
+  String get deskSetRowImportWalletsHint => '从旧版 Epic Wallet 或文件夹导入。';
+
+  @override
+  String get deskSetSynImportWallets => '迁移, 旧钱包, electron, gui 钱包, 文件夹';
+
+  @override
+  String get deskSetRowRestoreWalletHint => '用 24 个单词的助记词恢复。';
+
+  @override
+  String get deskSetSynRestoreWallet => '种子, seed, 恢复, 助记词';
+
+  @override
+  String get deskSetRowWalletFolderHint => '此钱包的密钥和数据库。';
+
+  @override
+  String get deskSetSynWalletFolder => '数据文件夹, 目录, 路径, 文件, 位置';
+
+  @override
+  String get deskSetRowAppFilesHint => 'settings.toml 和日志。';
+
+  @override
+  String get deskSetSynAppFiles => '设置文件, settings.toml, 配置, toml, 目录';
+
+  @override
+  String get deskSetRowLogLevelHint => '详细会保留更多行；报告不含地址。';
+
+  @override
+  String get deskSetSynLogLevel => '日志, 调试, 详细';
+
+  @override
+  String get deskSetRowLogFilesHint => '清除日志文件或打开其文件夹。';
+
+  @override
+  String get deskSetSynLogFiles => '日志, 清除日志, 删除日志';
+
+  @override
+  String get deskSetRowReportHint => '描述出了什么问题；可附上清理后的应用日志。';
+
+  @override
+  String get deskSetSynReport => '错误, bug, 问题, 支持, 联系, 崩溃, 错误报告';
+
+  @override
+  String get deskSetSynTour => '导览, 教程, 介绍, 引导';
+
+  @override
+  String get deskSetRowSetup => '重新运行设置';
+
+  @override
+  String get deskSetRowSetupHint => '节点和接收，逐步设置。';
+
+  @override
+  String get deskSetSynSetup => '设置, 向导, 助手, 重新配置';
+
+  @override
+  String get deskSetRowUpdatesHint => '检查新版本。';
+
+  @override
+  String get deskSetSynUpdates => '更新, 升级, 新版本, 下载, 发布';
+
+  @override
+  String get deskSetRowWebsite => '网站';
+
+  @override
+  String get deskSetSynWebsite => '网站, 网页, 官网, epic cash';
+
+  @override
+  String get deskSetSynSource => 'github, 代码, 源代码, 开源, 仓库';
+
+  @override
+  String get deskSetSynPrivacyPolicy => '隐私, 政策, gdpr, 数据';
+
+  @override
+  String get deskSetSynContact => '邮件, email, 支持, 联系';
+
+  @override
+  String get deskSetSearchKeyEnter => 'Enter';
+
+  @override
+  String get deskSetSearchKeyEsc => 'Esc';
 }

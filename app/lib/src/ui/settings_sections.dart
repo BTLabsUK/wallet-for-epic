@@ -29,7 +29,6 @@ import '../phone_http.dart' show lanNetworkKey, phoneHttpProvider;
 import '../phone_tor.dart';
 import '../tor_build.dart';
 import '../price.dart';
-import '../devices/phone_devices.dart';
 import '../pairing_providers.dart' show invoicesShownProvider;
 import '../providers.dart';
 import '../restore_scan.dart' show restoreScanProvider;
@@ -44,8 +43,6 @@ import 'backup_screen.dart';
 import 'common.dart';
 import 'confirmations_row.dart';
 import 'contacts_screen.dart';
-import 'devices/device_parts.dart' show devicesStateLine;
-import 'devices/linked_devices_screen.dart';
 import 'demo_screens.dart' show endDemo;
 import 'info_hint.dart';
 import 'language_flag.dart';
@@ -801,21 +798,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           trailing: const NavChevron(),
           onTap: () => _push(const InvoiceSettingsScreen()),
         ),
-      // Linked devices (Experimental, on unless turned off): the state line names the device
-      // seen last.
-      if (walletOpen && ref.watch(linkedDevicesOnProvider))
-        ListTile(
-          key: settingsLinkedDevicesKey,
-          leading: const Icon(Icons.devices_outlined),
-          title: Wrap(
-            spacing: 8,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [Text(l.expLinkedDevices), EBadge(l.advExperimental)],
-          ),
-          subtitle: Text(devicesStateLine(l, ref.watch(phoneDevices.devices), ref.watch(clockProvider)())),
-          trailing: const NavChevron(),
-          onTap: () => _push(const LinkedDevicesScreen()),
-        ),
+      // Linked devices is a hub row of its own (item 10).
       if (!demo) ...[
         SettingsHeader(l.settingsSectionHistory),
         ListTile(
@@ -1221,8 +1204,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
         ),
       ),
-      // Linked devices stands on its own: it runs the pairing engine for the devices only.
-      experimental(AdvancedFeature.linkedDevices, Icons.devices_outlined, l.expLinkedDevices, l.expLinkedDevicesHint),
       ],
     ];
   }
@@ -1308,15 +1289,9 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
                   _say(l.updateChecking, level: NoticeLevel.info);
                 },
         ),
-      // The short Licences screen; the full texts (the packages', the fonts', the word
-      // lists' and the bundled tor's) are one tap further.
-      ListTile(
-        key: settingsLicencesKey,
-        leading: const Icon(Icons.article_outlined),
-        title: Text(l.settingsLicences),
-        trailing: const NavChevron(),
-        onTap: () => _push(LicencesScreen(version: version.value)),
-      ),
+      // Licences, folded until tapped (item 5); the full texts (the packages', the fonts',
+      // the word lists' and the bundled tor's) are one tap further.
+      const LicencesFold(rowKey: settingsLicencesKey),
       // The site's address as its name, the same in every language and on the desktop.
       if (epicCashUrl case final site?) LinkTile(title: shownUrl(site), url: site),
       if (projectRepoUrl != null) LinkTile(title: l.settingsSourceCode, url: projectRepoUrl!),

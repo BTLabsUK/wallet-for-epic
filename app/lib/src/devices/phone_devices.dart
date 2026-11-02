@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The phone's linked devices: the open wallet's [DeviceService] while Linked devices is on
-/// (Settings › Advanced › Experimental), and the runs on start, resume and unlock.
+/// The phone's linked devices: the open wallet's [DeviceService] (Linked devices is on for
+/// everyone), and the runs on start, resume and unlock.
 library;
 
 import 'dart:async';
@@ -21,9 +21,10 @@ import 'device_providers.dart';
 import 'device_service.dart';
 import 'device_store.dart';
 
-/// Linked devices is on (off by default).
+/// Linked devices is on: always, for everyone at every level (item 10); kept as a provider so
+/// its readers stay one place to change.
 final linkedDevicesOnProvider = Provider<bool>(
-  (ref) => ref.watch(appSettingsProvider.select((s) => s.value?.advanced.linkedDevicesOn)) ?? false,
+  (ref) => ref.watch(appSettingsProvider.select((s) => s.value?.advanced.linkedDevicesOn)) ?? true,
 );
 
 /// The phone's strings, outside a widget.

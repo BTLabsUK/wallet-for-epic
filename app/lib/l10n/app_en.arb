@@ -4167,6 +4167,46 @@
   "@settingsSectionHelpFeedback": {
     "description": "Settings group on the phone's Settings hub: opens Help, which starts with Send feedback."
   },
+  "settingsDonate": "Donate",
+  "@settingsDonate": {
+    "description": "Phone Settings hub row directly under Help, and the Donate screen's title: BT Labs' donation page and address."
+  },
+  "settingsExperimentTag": "Experiment",
+  "@settingsExperimentTag": {
+    "description": "Small tag after 'Linked devices' on the phone's Settings hub: the feature is an experiment. One word."
+  },
+  "donateLead": "Donations fund development of this wallet.",
+  "@donateLead": {
+    "description": "Donate screen, first line."
+  },
+  "donatePage": "Donation page",
+  "@donatePage": {
+    "description": "Donate screen: row with the donation page's address; a tap copies the link."
+  },
+  "donatePageDown": "The donation page does not answer.",
+  "@donatePageDown": {
+    "description": "Donate screen, notice title: the donation page from settings.toml did not answer."
+  },
+  "donatePageDownText": "Send EPIC to the address below, or use the contact page.",
+  "@donatePageDownText": {
+    "description": "Donate screen, notice text after donatePageDown."
+  },
+  "donateAddress": "Epic Cash address",
+  "@donateAddress": {
+    "description": "Donate screen: header over BT Labs' Epic Cash donation address (Copy and QR beside it)."
+  },
+  "donateQrLabel": "QR code of the donation address",
+  "@donateQrLabel": {
+    "description": "Screen reader label of the donation address's QR code."
+  },
+  "donateContact": "Contact page",
+  "@donateContact": {
+    "description": "Donate screen: row with BT Labs' contact page; a tap copies the link."
+  },
+  "donateNothing": "No donation page or address is set.",
+  "@donateNothing": {
+    "description": "Donate screen when settings.toml names no donation page, address or contact page."
+  },
   "settingsStateBackUp": "Back up your recovery phrase",
   "@settingsStateBackUp": {
     "description": "State line under the Security group while the recovery phrase has not been backed up."
@@ -24871,14 +24911,22 @@
   "@lvShellKeepWaiting": {
     "description": "Button: stay on the current Epicbox server for now."
   },
-  "lvShellRelayDownNotice": "Your Epicbox server is not reachable. Payments to you wait. {name} is ready to take over; your address changes with it.",
-  "@lvShellRelayDownNotice": {
-    "description": "Level 1 warning notice when the Epicbox server is down and another can take over.",
+  "lvShellRelayDownTitle": "Your Epicbox server is not reachable.",
+  "@lvShellRelayDownTitle": {
+    "description": "Compact warning notice title: the wallet's Epicbox server does not answer (after the connection grace). lvShellRelayDownShort follows."
+  },
+  "lvShellRelayDownShort": "{name} can take over; your address changes with it.",
+  "@lvShellRelayDownShort": {
+    "description": "Line under lvShellRelayDownTitle: {name} is another Epicbox server ready to take over; moving to it changes the wallet's address. A Switch button follows.",
     "placeholders": {
       "name": {
         "type": "String"
       }
     }
+  },
+  "lvShellSwitch": "Switch",
+  "@lvShellSwitch": {
+    "description": "Button on the Epicbox notice: move the wallet to the server the notice names."
   },
   "lvShellSwitchedNotice": "Now on {name}. Your new address is ready.",
   "@lvShellSwitchedNotice": {
@@ -26277,5 +26325,905 @@
   "deskRailOpenNetworkPrivacy": "Open Network & privacy",
   "@deskRailOpenNetworkPrivacy": {
     "description": "Status rail, Tor row: the link that opens Settings › Network & privacy."
+  },
+  "deskSetSearchHint": "Search settings",
+  "@deskSetSearchHint": {
+    "description": "Settings search field: placeholder and its name for screen readers."
+  },
+  "deskSetSearchKeyHint": "Ctrl K",
+  "@deskSetSearchKeyHint": {
+    "description": "Settings search field: the keyboard shortcut shown at its right end. Keep the key names as on the keyboard."
+  },
+  "deskSetSearchClear": "Clear search",
+  "@deskSetSearchClear": {
+    "description": "Settings search: the button that empties the search field."
+  },
+  "deskSetSearchCount": "{count, plural, =1{1 result} other{{count} results}}",
+  "@deskSetSearchCount": {
+    "description": "Settings search: heading over the results; counts every result listed (settings, Help topics, hidden ones). Read out by screen readers.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetSearchFor": "for “{query}”",
+  "@deskSetSearchFor": {
+    "description": "Settings search: beside the result count, what was searched. Use the language's own quotation marks.",
+    "placeholders": {
+      "query": {
+        "type": "String",
+        "example": "tor"
+      }
+    }
+  },
+  "deskSetSearchKeysMove": "move",
+  "@deskSetSearchKeysMove": {
+    "description": "Settings search: key hint after the up and down arrow keys."
+  },
+  "deskSetSearchKeysGo": "go to setting",
+  "@deskSetSearchKeysGo": {
+    "description": "Settings search: key hint after the Enter key."
+  },
+  "deskSetSearchKeysClear": "clear",
+  "@deskSetSearchKeysClear": {
+    "description": "Settings search: key hint after the Esc key."
+  },
+  "deskSetSearchMatches": "Matches “{word}”",
+  "@deskSetSearchMatches": {
+    "description": "Settings search result: the result was found through this other word (a synonym), not its name. Use the language's own quotation marks.",
+    "placeholders": {
+      "word": {
+        "type": "String",
+        "example": "seed"
+      }
+    }
+  },
+  "deskSetSearchHelpTopics": "Help topics",
+  "@deskSetSearchHelpTopics": {
+    "description": "Settings search: heading of the Help topics that match."
+  },
+  "deskSetSearchHidden": "Hidden here",
+  "@deskSetSearchHidden": {
+    "description": "Settings search: heading of matching settings that the current view or an Advanced switch hides."
+  },
+  "deskSetSearchHiddenLine": "Another view or an Advanced switch shows them",
+  "@deskSetSearchHiddenLine": {
+    "description": "Settings search: line beside the Hidden here heading."
+  },
+  "deskSetSearchShowIn": "Show in {view}",
+  "@deskSetSearchShowIn": {
+    "description": "Settings search, hidden result: button that changes to the view that shows the setting, then goes to it. view is Shallow, Deeper or Deep end.",
+    "placeholders": {
+      "view": {
+        "type": "String",
+        "example": "Deep end"
+      }
+    }
+  },
+  "deskSetSearchTurnOn": "Turn on",
+  "@deskSetSearchTurnOn": {
+    "description": "Settings search, hidden result: button that turns on the Advanced switch that shows the setting, then goes to it."
+  },
+  "deskSetSearchOpen": "Open",
+  "@deskSetSearchOpen": {
+    "description": "Settings search result: button that goes to the setting on its page."
+  },
+  "deskSetSearchRead": "Read",
+  "@deskSetSearchRead": {
+    "description": "Settings search, Help topic result: button that opens the topic in Help."
+  },
+  "deskSetSearchNone": "No setting matches “{query}”.",
+  "@deskSetSearchNone": {
+    "description": "Settings search: nothing matches. Use the language's own quotation marks.",
+    "placeholders": {
+      "query": {
+        "type": "String",
+        "example": "xyz"
+      }
+    }
+  },
+  "deskSetSearchTry": "Try",
+  "@deskSetSearchTry": {
+    "description": "Settings search, nothing found: before a few example words to search for."
+  },
+  "deskSetSearchTryWords": "password,tor,seed,backup,fee,node,lock",
+  "@deskSetSearchTryWords": {
+    "description": "Settings search, nothing found: example words to search for, comma-separated, lower case, in this language (each must find a setting)."
+  },
+  "deskSetSearchNoResults": "No results",
+  "@deskSetSearchNoResults": {
+    "description": "Settings navigation while searching: read by screen readers for a section without matching settings."
+  },
+  "deskSetSearchResults": "Search results",
+  "@deskSetSearchResults": {
+    "description": "Settings search: the results list's name for screen readers."
+  },
+  "deskSetSearchViewGate": "{view} view",
+  "@deskSetSearchViewGate": {
+    "description": "What shows a hidden setting: a view. view is Shallow, Deeper or Deep end, e.g. \"Deep end view\".",
+    "placeholders": {
+      "view": {
+        "type": "String",
+        "example": "Deep end"
+      }
+    }
+  },
+  "deskSetSearchFeatGate": "Advanced › {feature}",
+  "@deskSetSearchFeatGate": {
+    "description": "What shows a hidden setting: a switch on Settings › Advanced, e.g. \"Advanced › Invoices\".",
+    "placeholders": {
+      "feature": {
+        "type": "String",
+        "example": "Invoices"
+      }
+    }
+  },
+  "deskSetSearchGateJoin": "{first} and {last}",
+  "@deskSetSearchGateJoin": {
+    "description": "Joins the reasons that show hidden options: \"Deep end view and Advanced › Invoices\". first may itself be a comma-separated list.",
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "last": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetSearchMore": "{count, plural, =1{1 more option · shown with {gates}} other{{count} more options · shown with {gates}}}",
+  "@deskSetSearchMore": {
+    "description": "More options control (⇕): its tooltip and name while folded. gates names what shows them, e.g. \"Deep end view and Advanced › Invoices\".",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "gates": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetSearchLess": "{count, plural, =1{Hide the extra option} other{Hide the {count} extra options}}",
+  "@deskSetSearchLess": {
+    "description": "More options control (⇕): its tooltip and name while the hidden options show.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetSearchViewApplied": "View: {view}",
+  "@deskSetSearchViewApplied": {
+    "description": "Notice after a search result changed the view. view is Shallow, Deeper or Deep end.",
+    "placeholders": {
+      "view": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetSearchFeatApplied": "Advanced › {feature}: on",
+  "@deskSetSearchFeatApplied": {
+    "description": "Notice after a search result turned on an Advanced switch.",
+    "placeholders": {
+      "feature": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetSearchFallbackView": "{page} shows in the {view} view.",
+  "@deskSetSearchFallbackView": {
+    "description": "Notice when a link opens a Settings page the current view hides; the first page of its group opens instead. view is Shallow, Deeper or Deep end.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      },
+      "view": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetSearchFallbackFeat": "{page} shows with Advanced › {feature}.",
+  "@deskSetSearchFallbackFeat": {
+    "description": "Notice when a link opens a Settings page an Advanced switch hides; the first page of its group opens instead.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      },
+      "feature": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetSecWallet": "Wallet",
+  "@deskSetSecWallet": {
+    "description": "Settings navigation: the open wallet's page (name, backup, balance, remove)."
+  },
+  "deskSetSecPayments": "Payments",
+  "@deskSetSecPayments": {
+    "description": "Settings navigation: payment methods, sending and receiving."
+  },
+  "deskSetSecDevices": "Linked devices",
+  "@deskSetSecDevices": {
+    "description": "Settings navigation: this wallet on other devices."
+  },
+  "deskSetSecWallets": "Wallets",
+  "@deskSetSecWallets": {
+    "description": "Settings navigation: the wallets on this computer."
+  },
+  "deskSetSecFiles": "Files & logs",
+  "@deskSetSecFiles": {
+    "description": "Settings navigation: folders and logs on this computer."
+  },
+  "deskSetSecDonate": "Donate",
+  "@deskSetSecDonate": {
+    "description": "Settings navigation: the donation page."
+  },
+  "deskSetNavApp": "App",
+  "@deskSetNavApp": {
+    "description": "Settings navigation: heading of the app-wide sections."
+  },
+  "deskSetNavComputer": "This computer",
+  "@deskSetNavComputer": {
+    "description": "Settings navigation: heading of the sections about this computer."
+  },
+  "deskSetGrpBackup": "Backup",
+  "@deskSetGrpBackup": {
+    "description": "Settings: heading of the “Backup” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpBalance": "Balance",
+  "@deskSetGrpBalance": {
+    "description": "Settings: heading of the “Balance” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpRemove": "Remove",
+  "@deskSetGrpRemove": {
+    "description": "Settings: heading of the “Remove” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpMethods": "Methods",
+  "@deskSetGrpMethods": {
+    "description": "Settings: heading of the “Methods” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpSending": "Sending",
+  "@deskSetGrpSending": {
+    "description": "Settings: heading of the “Sending” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpReceiving": "Receiving",
+  "@deskSetGrpReceiving": {
+    "description": "Settings: heading of the “Receiving” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpThisDevice": "This device",
+  "@deskSetGrpThisDevice": {
+    "description": "Settings: heading of the “This device” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpLinkedDevice": "Linked device",
+  "@deskSetGrpLinkedDevice": {
+    "description": "Settings: heading of the “Linked device” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpSync": "Sync",
+  "@deskSetGrpSync": {
+    "description": "Settings: heading of the “Sync” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpConnection": "Connection",
+  "@deskSetGrpConnection": {
+    "description": "Settings: heading of the “Connection” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpLocalNode": "Node on this computer",
+  "@deskSetGrpLocalNode": {
+    "description": "Settings: heading of the “Node on this computer” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpConnections": "Connections",
+  "@deskSetGrpConnections": {
+    "description": "Settings: heading of the “Connections” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpTor": "Tor",
+  "@deskSetGrpTor": {
+    "description": "Settings: heading of the “Tor” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpServerStatus": "Server status",
+  "@deskSetGrpServerStatus": {
+    "description": "Settings: heading of the “Server status” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpView": "View",
+  "@deskSetGrpView": {
+    "description": "Settings: heading of the “View” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpShowsMore": "Shows more",
+  "@deskSetGrpShowsMore": {
+    "description": "Settings: heading of the “Shows more” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpExperiments": "Experiments",
+  "@deskSetGrpExperiments": {
+    "description": "Settings: heading of the “Experiments” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpOnComputer": "On this computer",
+  "@deskSetGrpOnComputer": {
+    "description": "Settings: heading of the “On this computer” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpAddWallet": "Add a wallet",
+  "@deskSetGrpAddWallet": {
+    "description": "Settings: heading of the “Add a wallet” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpFolders": "Folders",
+  "@deskSetGrpFolders": {
+    "description": "Settings: heading of the “Folders” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpLogs": "Logs",
+  "@deskSetGrpLogs": {
+    "description": "Settings: heading of the “Logs” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpSupport": "Support",
+  "@deskSetGrpSupport": {
+    "description": "Settings: heading of the “Support” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpStartAgain": "Start again",
+  "@deskSetGrpStartAgain": {
+    "description": "Settings: heading of the “Start again” group of rows (on its page and over search results)."
+  },
+  "deskSetGrpLinks": "Links",
+  "@deskSetGrpLinks": {
+    "description": "Settings: heading of the “Links” group of rows (on its page and over search results)."
+  },
+  "deskSetRowNameHint": "Only shown in this app.",
+  "@deskSetRowNameHint": {
+    "description": "Settings row “Name”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynName": "rename, wallet name, label",
+  "@deskSetSynName": {
+    "description": "Settings search: other words that find the “Name” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowExportDataHint": "History, contacts, invoices and settings in one encrypted file.",
+  "@deskSetRowExportDataHint": {
+    "description": "Settings row “Export wallet data”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetRowExportDataInfo": "Only a wallet with this recovery phrase can open the file. The coins themselves are restored from the recovery phrase.",
+  "@deskSetRowExportDataInfo": {
+    "description": "Settings row “Export wallet data”: the longer explanation behind its ⓘ (searched too)."
+  },
+  "deskSetSynExportData": "backup, save, history, contacts, file",
+  "@deskSetSynExportData": {
+    "description": "Settings search: other words that find the “Export wallet data” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowImportDataHint": "Brings back history, contacts, invoices and settings from an export.",
+  "@deskSetRowImportDataHint": {
+    "description": "Settings row “Import wallet data”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynImportData": "restore, backup, history, load",
+  "@deskSetSynImportData": {
+    "description": "Settings search: other words that find the “Import wallet data” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowExportCsvHint": "A plain table for spreadsheets. Not encrypted.",
+  "@deskSetRowExportCsvHint": {
+    "description": "Settings row “Export CSV”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynExportCsv": "csv, excel, spreadsheet, tax, history, report",
+  "@deskSetSynExportCsv": {
+    "description": "Settings search: other words that find the “Export CSV” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowRecheckGoHint": "Reads the chain again for this wallet’s coins.",
+  "@deskSetRowRecheckGoHint": {
+    "description": "Settings row “Recheck balance”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynRecheckGo": "rescan, scan, balance wrong, missing, resync, refresh, repair",
+  "@deskSetSynRecheckGo": {
+    "description": "Settings search: other words that find the “Recheck balance” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowDeleteWalletHint": "Deletes its keys and database from this computer.",
+  "@deskSetRowDeleteWalletHint": {
+    "description": "Settings row “Delete wallet”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynDeleteWallet": "remove, erase, wipe",
+  "@deskSetSynDeleteWallet": {
+    "description": "Settings search: other words that find the “Delete wallet” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetSynRecheckFrom": "start, date, height, block",
+  "@deskSetSynRecheckFrom": {
+    "description": "Settings search: other words that find the “Where to start” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowRecheckMonth": "Month",
+  "@deskSetRowRecheckMonth": {
+    "description": "Settings row title: Month (section recheck)."
+  },
+  "deskSetSynRecheckMonth": "month, date, calendar, created, when",
+  "@deskSetSynRecheckMonth": {
+    "description": "Settings search: other words that find the “Month” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowRecheckHeight": "Start block",
+  "@deskSetRowRecheckHeight": {
+    "description": "Settings row title: Start block (section recheck)."
+  },
+  "deskSetSynRecheckHeight": "height, block",
+  "@deskSetSynRecheckHeight": {
+    "description": "Settings search: other words that find the “Start block” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowRecheckDropHint": "Also cancels unconfirmed transactions. A payment on its way may then fail.",
+  "@deskSetRowRecheckDropHint": {
+    "description": "Settings row “Delete unconfirmed”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynRecheckDrop": "unconfirmed, stuck, cancel, unlock",
+  "@deskSetSynRecheckDrop": {
+    "description": "Settings search: other words that find the “Delete unconfirmed” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowPhraseGoHint": "The 24 words that restore this wallet.",
+  "@deskSetRowPhraseGoHint": {
+    "description": "Settings row “Recovery phrase”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynPhraseGo": "seed, mnemonic, words, backup, secret, restore, 24 words, private key",
+  "@deskSetSynPhraseGo": {
+    "description": "Settings search: other words that find the “Recovery phrase” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowPasswordHint": "Unlocks this wallet.",
+  "@deskSetRowPasswordHint": {
+    "description": "Settings row “Password”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynPassword": "password, passphrase, change password, unlock, pin",
+  "@deskSetSynPassword": {
+    "description": "Settings search: other words that find the “Password” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowRememberedHint": "Opens without the password at start. Sends still ask for it.",
+  "@deskSetRowRememberedHint": {
+    "description": "Settings row “Remembered on this computer”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynRemembered": "remember me, password, unlock, auto unlock, forget",
+  "@deskSetSynRemembered": {
+    "description": "Settings search: other words that find the “Remembered on this computer” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowAutolockHint": "Locks after no key press or mouse movement. All wallets.",
+  "@deskSetRowAutolockHint": {
+    "description": "Settings row “Auto-lock”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynAutolock": "lock, timeout, idle, inactivity, screen lock",
+  "@deskSetSynAutolock": {
+    "description": "Settings search: other words that find the “Auto-lock” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowEpicboxHint": "Pay and get paid through an Epicbox server. Most payments go this way. All wallets.",
+  "@deskSetRowEpicboxHint": {
+    "description": "Settings row “Epicbox”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynEpicbox": "relay, server, address, receive, send, method",
+  "@deskSetSynEpicbox": {
+    "description": "Settings search: other words that find the “Epicbox” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetSynEpicboxRecv": "listen, incoming, receive",
+  "@deskSetSynEpicboxRecv": {
+    "description": "Settings search: other words that find the “Receiving” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowEpicboxServerHint": "Part of this wallet’s address.",
+  "@deskSetRowEpicboxServerHint": {
+    "description": "Settings row “Epicbox server”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynEpicboxServer": "relay, server, host, address",
+  "@deskSetSynEpicboxServer": {
+    "description": "Settings search: other words that find the “Epicbox server” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetSynEpicboxStart": "startup, auto start",
+  "@deskSetSynEpicboxStart": {
+    "description": "Settings search: other words that find the “Start with the wallet” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowHttpHint": "Wallet to wallet at a web address, while both are open. All wallets.",
+  "@deskSetRowHttpHint": {
+    "description": "Settings row “Link · HTTP”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynHttp": "http, ip, port, direct, listener, method",
+  "@deskSetSynHttp": {
+    "description": "Settings search: other words that find the “Link · HTTP” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetSynHttpReach": "internet, router, port forward, public",
+  "@deskSetSynHttpReach": {
+    "description": "Settings search: other words that find the “Reachable” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetSynHttpPort": "port, tcp",
+  "@deskSetSynHttpPort": {
+    "description": "Settings search: other words that find the “Port” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowTorPayHint": "Wallet to wallet at this wallet’s Tor address, while both are open. All wallets.",
+  "@deskSetRowTorPayHint": {
+    "description": "Settings row “Link · Tor”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetRowTorPayInfo": "Tor runs only to send and receive payments at the Tor address. The node, prices and updates keep the setting under Network & privacy.",
+  "@deskSetRowTorPayInfo": {
+    "description": "Settings row “Link · Tor”: the longer explanation behind its ⓘ (searched too)."
+  },
+  "deskSetSynTorPay": "tor, onion, anonymous, hidden service, privacy, method",
+  "@deskSetSynTorPay": {
+    "description": "Settings search: other words that find the “Link · Tor” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowFileHint": "By handing over a transaction file. No network needed. All wallets.",
+  "@deskSetRowFileHint": {
+    "description": "Settings row “Direct · File Transfer”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynFile": "file, offline, slate, tx file, usb, email, method, manual",
+  "@deskSetSynFile": {
+    "description": "Settings search: other words that find the “Direct · File Transfer” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowDefaultMethodHint": "What Send opens with. All wallets.",
+  "@deskSetRowDefaultMethodHint": {
+    "description": "Settings row “Default method”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynDefaultMethod": "send, method, default",
+  "@deskSetSynDefaultMethod": {
+    "description": "Settings search: other words that find the “Default method” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowStrategy": "Outputs a send spends",
+  "@deskSetRowStrategy": {
+    "description": "Settings row title: Outputs a send spends (section payments)."
+  },
+  "deskSetRowStrategyHint": "Smallest covers the amount; All spends every output.",
+  "@deskSetRowStrategyHint": {
+    "description": "Settings row “Outputs a send spends”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetRowStrategyInfo": "More outputs spent means a larger fee.",
+  "@deskSetRowStrategyInfo": {
+    "description": "Settings row “Outputs a send spends”: the longer explanation behind its ⓘ (searched too)."
+  },
+  "deskSetSynStrategy": "fee, fees, strategy, coin selection, inputs, utxo, outputs",
+  "@deskSetSynStrategy": {
+    "description": "Settings search: other words that find the “Outputs a send spends” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowSplitChangeHint": "Change comes back as up to 4 outputs when few are left.",
+  "@deskSetRowSplitChangeHint": {
+    "description": "Settings row “Split change”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetRowSplitChangeInfo": "Only when a send would leave fewer than 3 spendable outputs and its change is at least 1 EPIC. Each extra output costs 0.004 EPIC.",
+  "@deskSetRowSplitChangeInfo": {
+    "description": "Settings row “Split change”: the longer explanation behind its ⓘ (searched too)."
+  },
+  "deskSetSynSplitChange": "fee, change, outputs, utxo, split",
+  "@deskSetSynSplitChange": {
+    "description": "Settings search: other words that find the “Split change” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowConfirmationsHint": "Blocks a received payment waits before it can be spent.",
+  "@deskSetRowConfirmationsHint": {
+    "description": "Settings row “Confirmations”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynConfirmations": "confirm, blocks, spendable, locked, pending, wait",
+  "@deskSetSynConfirmations": {
+    "description": "Settings search: other words that find the “Confirmations” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowPairShopHint": "A paired contact you allow can send this wallet invoices.",
+  "@deskSetRowPairShopHint": {
+    "description": "Settings row “Pair with a shop or exchange”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynPairShop": "pair, pairing, invoice, shop, exchange, merchant",
+  "@deskSetSynPairShop": {
+    "description": "Settings search: other words that find the “Pair with a shop or exchange” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowTimeToPayHint": "How long an invoice stays payable.",
+  "@deskSetRowTimeToPayHint": {
+    "description": "Settings row “Time to pay”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynTimeToPay": "invoice, expiry, expire, deadline",
+  "@deskSetSynTimeToPay": {
+    "description": "Settings search: other words that find the “Time to pay” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetSynDeviceName": "device name, rename",
+  "@deskSetSynDeviceName": {
+    "description": "Settings search: other words that find the “This device” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowLinkDeviceHint": "This wallet on two devices: each shows the other’s payments.",
+  "@deskSetRowLinkDeviceHint": {
+    "description": "Settings row “Link a device”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetRowLinkDeviceInfo": "One device can be linked. Each holds the coins the other is spending, so both never spend the same coin.",
+  "@deskSetRowLinkDeviceInfo": {
+    "description": "Settings row “Link a device”: the longer explanation behind its ⓘ (searched too)."
+  },
+  "deskSetSynLinkDevice": "link device, pair phone, second device, phone, sync, mobile, multi device",
+  "@deskSetSynLinkDevice": {
+    "description": "Settings search: other words that find the “Link a device” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowPauseSyncHint": "Notices wait on the servers while paused.",
+  "@deskSetRowPauseSyncHint": {
+    "description": "Settings row “Pause sync”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynPauseSync": "sync, pause, linked",
+  "@deskSetSynPauseSync": {
+    "description": "Settings search: other words that find the “Pause sync” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetSynTheme": "dark mode, light mode, colour, color, night",
+  "@deskSetSynTheme": {
+    "description": "Settings search: other words that find the “Theme” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetSynLanguage": "language, translation, locale, english, polski, deutsch",
+  "@deskSetSynLanguage": {
+    "description": "Settings search: other words that find the “Language” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowScaleHint": "Text and controls, larger or smaller.",
+  "@deskSetRowScaleHint": {
+    "description": "Settings row “Interface scale”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynScale": "zoom, size, font size, bigger, smaller, text size, dpi",
+  "@deskSetSynScale": {
+    "description": "Settings search: other words that find the “Interface scale” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowHideAmountsHint": "Dots in place of balances and amounts.",
+  "@deskSetRowHideAmountsHint": {
+    "description": "Settings row “Hide amounts”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynHideAmounts": "privacy, hide balance, mask, screen share, stream",
+  "@deskSetSynHideAmounts": {
+    "description": "Settings search: other words that find the “Hide amounts” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowNodeServerHint": "Reads the chain and sends this wallet’s transactions.",
+  "@deskSetRowNodeServerHint": {
+    "description": "Settings row “Node server”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynNodeServer": "node, server, host, rpc, api, url",
+  "@deskSetSynNodeServer": {
+    "description": "Settings search: other words that find the “Node server” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowFailover": "Switch node automatically",
+  "@deskSetRowFailover": {
+    "description": "Settings row title: Switch node automatically (section node)."
+  },
+  "deskSetRowFailoverHint": "When the node stops answering, use the next working one.",
+  "@deskSetRowFailoverHint": {
+    "description": "Settings row “Switch node automatically”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynFailover": "failover, fallback, auto",
+  "@deskSetSynFailover": {
+    "description": "Settings search: other words that find the “Switch node automatically” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowMyNodeHint": "Asks the node itself for its state and offers owner access.",
+  "@deskSetRowMyNodeHint": {
+    "description": "Settings row “This is my node”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynMyNode": "own node, my node, self hosted, owner, api secret",
+  "@deskSetSynMyNode": {
+    "description": "Settings search: other words that find the “This is my node” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowLocalNode": "Node on this computer",
+  "@deskSetRowLocalNode": {
+    "description": "Settings row title: Node on this computer (section node)."
+  },
+  "deskSetRowLocalNodeHint": "Runs its own node here. Several gigabytes of disk.",
+  "@deskSetRowLocalNodeHint": {
+    "description": "Settings row “Node on this computer”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynLocalNode": "local node, built-in node, full node, run a node, sync chain",
+  "@deskSetSynLocalNode": {
+    "description": "Settings search: other words that find the “Node on this computer” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowLocalStartHint": "Keeps the node syncing while the app is open.",
+  "@deskSetRowLocalStartHint": {
+    "description": "Settings row “Start with the app”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynLocalStart": "startup, local node",
+  "@deskSetSynLocalStart": {
+    "description": "Settings search: other words that find the “Start with the app” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowNetMode": "Connection mode",
+  "@deskSetRowNetMode": {
+    "description": "Settings row title: Connection mode (section network)."
+  },
+  "deskSetSynNetMode": "tor only, undercover, offline, kill switch, node only, vpn, ip, privacy, airplane",
+  "@deskSetSynNetMode": {
+    "description": "Settings search: other words that find the “Connection mode” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowTorAll": "Tor for all connections",
+  "@deskSetRowTorAll": {
+    "description": "Settings row title: Tor for all connections (section network)."
+  },
+  "deskSetRowTorAllHint": "Node, Epicbox, prices and updates go through Tor.",
+  "@deskSetRowTorAllHint": {
+    "description": "Settings row “Tor for all connections”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetRowTorAllInfo": "Tor hides the wallet’s IP address. For payments at the Tor address only, see Payments › Link · Tor.",
+  "@deskSetRowTorAllInfo": {
+    "description": "Settings row “Tor for all connections”: the longer explanation behind its ⓘ (searched too)."
+  },
+  "deskSetSynTorAll": "tor, onion, anonymous, ip, hide ip, proxy, privacy",
+  "@deskSetSynTorAll": {
+    "description": "Settings search: other words that find the “Tor for all connections” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowStatusSiteHint": "Shows which nodes and Epicbox servers are online.",
+  "@deskSetRowStatusSiteHint": {
+    "description": "Settings row “Use status.btlabs.uk”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynStatusSite": "status, health, uptime, monitor",
+  "@deskSetSynStatusSite": {
+    "description": "Settings search: other words that find the “Use status.btlabs.uk” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowView": "View",
+  "@deskSetRowView": {
+    "description": "Settings row title: View (section advanced)."
+  },
+  "deskSetRowViewHint": "Shallow, Deeper or Deep end: how much of the wallet shows.",
+  "@deskSetRowViewHint": {
+    "description": "Settings row “View”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynView": "level, depth, shallow, deeper, deep end, simple, expert, beginner, advanced mode",
+  "@deskSetSynView": {
+    "description": "Settings search: other words that find the “View” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowAdvOutputsHint": "The Outputs page: the coins the balance is made of.",
+  "@deskSetRowAdvOutputsHint": {
+    "description": "Settings row “Outputs”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynAdvOutputs": "utxo, coins, outputs, split, consolidate",
+  "@deskSetSynAdvOutputs": {
+    "description": "Settings search: other words that find the “Outputs” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowAdvTechHint": "Kernel, slate ID and commitments on every transaction.",
+  "@deskSetRowAdvTechHint": {
+    "description": "Settings row “Technical details”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynAdvTech": "kernel, slate, commitment, tx id, details",
+  "@deskSetSynAdvTech": {
+    "description": "Settings search: other words that find the “Technical details” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowAdvSendoptsHint": "Outputs and change choices on Send and under Payments.",
+  "@deskSetRowAdvSendoptsHint": {
+    "description": "Settings row “Send options”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynAdvSendopts": "fee, coin control, outputs, change",
+  "@deskSetSynAdvSendopts": {
+    "description": "Settings search: other words that find the “Send options” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowAdvServersHint": "Hosts, latency, version and height in server lists.",
+  "@deskSetRowAdvServersHint": {
+    "description": "Settings row “Server details”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynAdvServers": "latency, ping, height, version, host",
+  "@deskSetSynAdvServers": {
+    "description": "Settings search: other words that find the “Server details” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowAdvHeightHint": "Where to start and Delete unconfirmed on Recheck balance.",
+  "@deskSetRowAdvHeightHint": {
+    "description": "Settings row “Recheck from a height”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynAdvHeight": "rescan, height, block",
+  "@deskSetSynAdvHeight": {
+    "description": "Settings search: other words that find the “Recheck from a height” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowAdvLocalHint": "Running a node on this computer, under Node.",
+  "@deskSetRowAdvLocalHint": {
+    "description": "Settings row “Local node”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynAdvLocal": "full node, local node",
+  "@deskSetSynAdvLocal": {
+    "description": "Settings search: other words that find the “Local node” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowAdvLogsHint": "Log level and log files under Files & logs.",
+  "@deskSetRowAdvLogsHint": {
+    "description": "Settings row “Logs”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynAdvLogs": "log, debug, diagnostics",
+  "@deskSetSynAdvLogs": {
+    "description": "Settings search: other words that find the “Logs” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowXInvoicesHint": "Ask paired contacts for payments; approve theirs.",
+  "@deskSetRowXInvoicesHint": {
+    "description": "Settings row “Invoices”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynXInvoices": "invoice, request payment, pairing, bill",
+  "@deskSetSynXInvoices": {
+    "description": "Settings search: other words that find the “Invoices” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowWalletRows": "Wallet list",
+  "@deskSetRowWalletRows": {
+    "description": "Settings row title: Wallet list (section wallets)."
+  },
+  "deskSetRowWalletRowsHint": "The wallets on this computer; open or remove one.",
+  "@deskSetRowWalletRowsHint": {
+    "description": "Settings row “Main wallet”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynWalletRows": "wallets, switch wallet, other wallet, list",
+  "@deskSetSynWalletRows": {
+    "description": "Settings search: other words that find the “Main wallet” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowCreateWalletHint": "A new wallet with a new recovery phrase.",
+  "@deskSetRowCreateWalletHint": {
+    "description": "Settings row “Create a wallet”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynCreateWallet": "new wallet, add wallet",
+  "@deskSetSynCreateWallet": {
+    "description": "Settings search: other words that find the “Create a wallet” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowImportWalletsHint": "From an older Epic Wallet or a folder.",
+  "@deskSetRowImportWalletsHint": {
+    "description": "Settings row “Import wallets”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynImportWallets": "migrate, old wallet, electron, gui wallet, folder",
+  "@deskSetSynImportWallets": {
+    "description": "Settings search: other words that find the “Import wallets” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowRestoreWalletHint": "From the 24-word recovery phrase.",
+  "@deskSetRowRestoreWalletHint": {
+    "description": "Settings row “Restore from phrase”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynRestoreWallet": "seed, recover, restore, mnemonic",
+  "@deskSetSynRestoreWallet": {
+    "description": "Settings search: other words that find the “Restore from phrase” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowWalletFolderHint": "This wallet’s keys and database.",
+  "@deskSetRowWalletFolderHint": {
+    "description": "Settings row “Wallet folder”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynWalletFolder": "data folder, directory, path, files, location",
+  "@deskSetSynWalletFolder": {
+    "description": "Settings search: other words that find the “Wallet folder” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowAppFilesHint": "settings.toml and the log.",
+  "@deskSetRowAppFilesHint": {
+    "description": "Settings row “App files”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynAppFiles": "settings file, settings.toml, config, toml, directory",
+  "@deskSetSynAppFiles": {
+    "description": "Settings search: other words that find the “App files” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowLogLevelHint": "Detailed keeps more lines; reports leave addresses out.",
+  "@deskSetRowLogLevelHint": {
+    "description": "Settings row “Log level”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynLogLevel": "log, debug, verbose",
+  "@deskSetSynLogLevel": {
+    "description": "Settings search: other words that find the “Log level” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowLogFilesHint": "Clear the log files or open their folder.",
+  "@deskSetRowLogFilesHint": {
+    "description": "Settings row “Log files”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynLogFiles": "log, clear logs, delete logs",
+  "@deskSetSynLogFiles": {
+    "description": "Settings search: other words that find the “Log files” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowReportHint": "Describe what went wrong; the cleaned app log can go with it.",
+  "@deskSetRowReportHint": {
+    "description": "Settings row “Report a problem”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynReport": "bug, issue, support, contact, crash, error report",
+  "@deskSetSynReport": {
+    "description": "Settings search: other words that find the “Report a problem” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetSynTour": "tour, tutorial, intro, onboarding, guide",
+  "@deskSetSynTour": {
+    "description": "Settings search: other words that find the “Show the tour again” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowSetup": "Run setup again",
+  "@deskSetRowSetup": {
+    "description": "Settings row title: Run setup again (section help)."
+  },
+  "deskSetRowSetupHint": "Node and receiving, step by step.",
+  "@deskSetRowSetupHint": {
+    "description": "Settings row “Run setup again”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynSetup": "setup, wizard, assistant, reconfigure",
+  "@deskSetSynSetup": {
+    "description": "Settings search: other words that find the “Run setup again” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowUpdatesHint": "Checks for a new version.",
+  "@deskSetRowUpdatesHint": {
+    "description": "Settings row “Updates”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
+  },
+  "deskSetSynUpdates": "update, upgrade, new version, download, release",
+  "@deskSetSynUpdates": {
+    "description": "Settings search: other words that find the “Updates” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetRowWebsite": "Website",
+  "@deskSetRowWebsite": {
+    "description": "Settings row title: Website (section about)."
+  },
+  "deskSetSynWebsite": "website, site, web, epic cash",
+  "@deskSetSynWebsite": {
+    "description": "Settings search: other words that find the “Website” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetSynSource": "github, code, open source, repository",
+  "@deskSetSynSource": {
+    "description": "Settings search: other words that find the “Source code” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetSynPrivacyPolicy": "privacy, policy, gdpr, data",
+  "@deskSetSynPrivacyPolicy": {
+    "description": "Settings search: other words that find the “Privacy policy” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetSynContact": "email, support, contact, mail",
+  "@deskSetSynContact": {
+    "description": "Settings search: other words that find the “Contact” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetSearchKeyEnter": "Enter",
+  "@deskSetSearchKeyEnter": {
+    "description": "Settings search: the Enter key as its key cap names it, in the key hints over the results."
+  },
+  "deskSetSearchKeyEsc": "Esc",
+  "@deskSetSearchKeyEsc": {
+    "description": "Settings search: the Esc key as its key cap names it, in the key hints over the results."
   }
 }

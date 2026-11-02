@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-// The Settings hub's second lines name the main things on each page, never live values
-// (26.10.11): Security "Backup · PIN · Biometrics" (the backup warning instead while
-// the phrase is not backed up), Privacy & network "Node · Epicbox · Tor", Wallet "Contacts ·
-// Outputs · Payment history", Display "Theme · Language · Currency", About none. Every item
-// named is on its page.
+// The Settings hub's rows are a glyph and a name, never a second line (item 3): no state, no
+// list of what is inside. Security's backup warning is a mark beside the chevron; Linked
+// devices carries its Experiment tag on the same line.
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
@@ -14,8 +12,6 @@ import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
-import 'package:epic_wallet/src/text_join.dart' show metaLine;
-import 'package:epic_wallet/src/tor_build.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -84,32 +80,47 @@ Future<void> _pump(
   await tester.pumpAndSettle();
 }
 
-Finder _line(SettingsSection section, String text) => find.descendant(
-  of: find.byKey(settingsGroupKey(section)),
-  matching: find.text(text),
-);
+/// Every Text under a hub row.
+Finder _texts(Finder row) => find.descendant(of: row, matching: find.byType(Text));
 
 void main() {
-  testWidgets('section rows show the title only, no list of what is inside', (tester) async {
+  testWidgets('every hub row is its name alone: one line, no subtitle (item 3)', (tester) async {
     await _pump(tester);
-    for (final section in [
-      SettingsSection.wallet,
-      SettingsSection.transactions,
-      SettingsSection.display,
-    ]) {
-      expect(
-        find.descendant(of: find.byKey(settingsGroupKey(section)), matching: find.byType(Text)),
-        findsOneWidget,
-        reason: '${section.name}: the title only',
-      );
+    final rows = [
+      for (final section in SettingsSection.values) find.byKey(settingsGroupKey(section)),
+      find.byKey(settingsHelpKey),
+      find.byKey(settingsDonateKey),
+    ];
+    for (final row in rows) {
+      if (row.evaluate().isEmpty) continue;
+      expect(_texts(row), findsOneWidget, reason: '$row: the title only');
+      expect(tester.widget<ListTile>(find.descendant(of: row, matching: find.byType(ListTile))).subtitle, isNull, reason: '$row');
     }
     expect(find.text(_l.settingsContacts), findsNothing);
+    expect(find.textContaining('Tor off'), findsNothing);
+    expect(find.textContaining('epicnet.us'), findsNothing);
+    expect(find.textContaining('stackwallet.com'), findsNothing);
+    expect(find.text(_l.settingsSectionNetworkPrivacy), findsOneWidget);
   });
 
-  testWidgets('Network & privacy says the mode and the Tor switch on its line (B-03)', (tester) async {
+  testWidgets('Linked devices: a hub row at every level, its Experiment tag on the title line', (tester) async {
     await _pump(tester);
-    expect(_line(SettingsSection.privacyNetwork, torBuilt ? metaLine([_l.advModeStandard, _l.netSummaryTorOff]) : _l.advModeStandard), findsOneWidget);
-    expect(find.text(_l.settingsSectionNetworkPrivacy), findsOneWidget);
+    final row = find.byKey(settingsLinkedDevicesKey);
+    expect(row, findsOneWidget);
+    expect(tester.widget<ListTile>(find.descendant(of: row, matching: find.byType(ListTile))).subtitle, isNull);
+    expect(find.descendant(of: row, matching: find.text(_l.expLinkedDevices)), findsOneWidget);
+    expect(find.descendant(of: row, matching: find.text(_l.settingsExperimentTag)), findsOneWidget);
+  });
+
+  testWidgets('Donate sits directly under Help', (tester) async {
+    await _pump(tester);
+    final help = find.byKey(settingsHelpKey);
+    final donate = find.byKey(settingsDonateKey);
+    expect(donate, findsOneWidget);
+    expect(
+      tester.getTopLeft(donate).dy - tester.getTopLeft(help).dy,
+      moreOrLessEquals(tester.getSize(help).height, epsilon: 1),
+    );
   });
 
   testWidgets('the Transactions row comes right after Security (the desktop\'s order)', (tester) async {
@@ -123,7 +134,7 @@ void main() {
     );
   });
 
-  testWidgets('the Advanced row is last but one: below Help, directly above About', (
+  testWidgets('the Advanced row is last but one: below Help and Donate, directly above About', (
     tester,
   ) async {
     await _pump(tester);
@@ -138,31 +149,15 @@ void main() {
       tester.getTopLeft(about).dy - tester.getTopLeft(advanced).dy,
       moreOrLessEquals(tester.getSize(advanced).height, epsilon: 1),
     );
-    // Its line is the current level, one choice.
-    expect(
-      find.descendant(
-        of: find.byKey(settingsGroupKey(SettingsSection.advanced)),
-        matching: find.byType(Text),
-      ),
-      findsNWidgets(2),
-    );
   });
 
-  testWidgets('no live values: no host, no version, and About has no line', (tester) async {
-    await _pump(tester);
-    expect(find.textContaining('epicnet.us'), findsNothing);
-    expect(find.textContaining('stackwallet.com'), findsNothing);
-    // Network & privacy's line is the choice (mode and Tor switch), not a live state.
-    expect(find.textContaining('Tor off'), torBuilt ? findsOneWidget : findsNothing);
-    final about = find.descendant(
-      of: find.byKey(settingsGroupKey(SettingsSection.about)),
-      matching: find.byType(Text),
-    );
-    expect(about, findsOneWidget, reason: 'the title only');
-  });
-
-  testWidgets('not backed up: Security warns instead', (tester) async {
+  testWidgets('not backed up: Security shows a warning mark, not a line', (tester) async {
     await _pump(tester, backedUp: false);
-    expect(_line(SettingsSection.security, _l.settingsStateBackUp), findsOneWidget);
+    final security = find.byKey(settingsGroupKey(SettingsSection.security));
+    expect(_texts(security), findsOneWidget);
+    expect(
+      find.descendant(of: security, matching: find.byWidgetPredicate((w) => w is Tooltip && w.message == _l.settingsStateBackUp)),
+      findsOneWidget,
+    );
   });
 }

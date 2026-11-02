@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart' show SchedulerBinding;
+import 'package:flutter_riverpod/flutter_riverpod.dart' show Consumer;
 
 export '../../ui/badge.dart';
 
@@ -18,6 +20,7 @@ import 'buttons.dart';
 import 'selectable.dart';
 import 'status.dart' show EState, EStateDot;
 import 'motion.dart';
+import 'more_options.dart';
 import 'popover.dart';
 import 'tip.dart';
 
@@ -766,7 +769,9 @@ class EEmpty extends StatelessWidget {
   }
 }
 
-/// A settings group: section head, then rows in one enclosure.
+/// A settings group: section head, then rows in one enclosure. Rows the view or an Advanced
+/// switch hides ([hidden]) stay out behind the one "more options" control in the heading
+/// ([EMoreOptions]); revealed, they follow [rows] in place, each with its marker.
 class ESetGroup extends StatelessWidget {
   const ESetGroup({super.key, this.title, required this.rows, this.trailing, this.gap = true, this.hidden = const [], this.revealKey});
 
@@ -783,31 +788,57 @@ class ESetGroup extends StatelessWidget {
   /// The space below the group; off when the caller sets it (a tour target ends at the box).
   final bool gap;
 
+  /// The reveal key: [revealKey], else one made from the title.
+  String get _key => revealKey ?? 'g:${title ?? ''}';
+
   @override
   Widget build(BuildContext context) {
+    if (hidden.isEmpty) return _group(context, false);
+    return Consumer(builder: (context, ref, _) => _group(context, moreOptionsOpen(ref, _key)));
+  }
+
+  Widget _group(BuildContext context, bool open) {
     final c = context.dc;
+    final more = hidden.isEmpty
+        ? null
+        : EMoreOptions(
+            revealKey: _key,
+            count: hidden.length,
+            reasons: [for (final w in hidden) if (w is ESetRow && w.advancedBy != null) w.advancedBy!],
+          );
+    final end = more == null
+        ? trailing
+        : trailing == null
+        ? more
+        : Row(mainAxisSize: MainAxisSize.min, children: [trailing!, SizedBox(width: Sp.x1), more]);
+    final list = open ? [...rows, ...hidden] : rows;
     return Padding(
       padding: EdgeInsets.only(bottom: gap ? Sp.x8 : 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (title != null) ESectionHead(title!, top: 0, trailing: trailing),
-          Container(
-            decoration: BoxDecoration(
-              color: c.s1,
-              border: Border.all(color: c.line),
-              borderRadius: BorderRadius.circular(Rad.sm),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (var i = 0; i < rows.length; i++) ...[
-                  if (i > 0) Divider(height: 1, thickness: 1, color: c.line),
-                  rows[i],
+          if (title != null) ESectionHead(title!, top: 0, trailing: end)
+          // No heading: the control sits at the box's top right.
+          else if (more != null) Align(alignment: AlignmentDirectional.centerEnd, child: end),
+          if (list.isNotEmpty)
+            Container(
+              decoration: BoxDecoration(
+                color: c.s1,
+                border: Border.all(color: c.line),
+                borderRadius: BorderRadius.circular(Rad.sm),
+              ),
+              // The marked rows' tint stays inside the rounded box.
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var i = 0; i < list.length; i++) ...[
+                    if (i > 0) Divider(height: 1, thickness: 1, color: c.line),
+                    list[i],
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -873,14 +904,18 @@ class ESetRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (title != null && hint == null) Text(title!, style: ts.strong),
-        if (title != null && hint != null)
+        if (title != null && hint == null && advancedBy == null) Text(title!, style: ts.strong),
+        if (title != null && (hint != null || advancedBy != null))
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Flexible(child: Text(title!, style: ts.strong)),
-              SizedBox(width: Sp.x1),
-              EInfoHint(hint!, title: hintTitle, icon: hintIcon, onHelp: hintHelp),
+              if (hint != null) ...[
+                SizedBox(width: Sp.x1),
+                // 20 u to see, 44 px to hit (review 8).
+                EHitSlop(child: EInfoHint(hint!, title: hintTitle, icon: hintIcon, onHelp: hintHelp)),
+              ],
+              if (advancedBy != null) ...[SizedBox(width: Sp.x2), EReasonTag(advancedBy!)],
             ],
           ),
         if (this.text != null) ...[
@@ -911,21 +946,288 @@ class ESetRow extends StatelessWidget {
               Expanded(child: text),
             ],
           );
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: Sp.panel, vertical: Sp.x4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (stacked || control == null) ...[
-            words,
-            if (control != null) ...[SizedBox(height: Sp.x3), control!],
-          ] else
-            // The control beside the words while they keep their room, else under them.
-            _WrapRow(gap: Sp.x6, runGap: Sp.x3, minWords: wrap ? 160.u : setRowMinWords, children: [words, control!]),
-          if (below != null) ...[SizedBox(height: Sp.x3), below!],
-        ],
+    final ctl = control == null || anchor == null ? control : _AnchorControl(child: control!);
+    Widget row = _SlopHost(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: Sp.panel, vertical: Sp.x4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (stacked || ctl == null) ...[
+              words,
+              if (ctl != null) ...[SizedBox(height: Sp.x3), ctl],
+            ] else
+              // The control beside the words while they keep their room, else under them.
+              _WrapRow(gap: Sp.x6, runGap: Sp.x3, minWords: wrap ? 160.u : setRowMinWords, children: [words, ctl]),
+            if (below != null) ...[SizedBox(height: Sp.x3), below!],
+          ],
+        ),
       ),
     );
+    // Shown only because its hidden options are revealed: a faint tint and a 2 px mark at the
+    // left edge, neutral (gold is for the brand and the main action).
+    if (advancedBy != null) {
+      row = DecoratedBox(
+        decoration: BoxDecoration(
+          color: c.hover,
+          border: BorderDirectional(start: BorderSide(color: c.faint, width: 2)),
+        ),
+        child: row,
+      );
+    }
+    return anchor == null ? row : SetAnchor(id: anchor!, child: row);
+  }
+}
+
+/// A small tag with a dashed edge: what normally shows a revealed row ("Deep end view").
+class EReasonTag extends StatelessWidget {
+  const EReasonTag(this.text, {super.key});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    return CustomPaint(
+      painter: _DashedEdge(c.faint, Rad.xs),
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 6.u, vertical: 1.u),
+        child: Text(text, style: context.ts.small.copyWith(color: c.dim), maxLines: 1, overflow: TextOverflow.ellipsis),
+      ),
+    );
+  }
+}
+
+class _DashedEdge extends CustomPainter {
+  const _DashedEdge(this.color, this.radius);
+
+  final Color color;
+  final double radius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+    final path = Path()..addRRect(RRect.fromRectAndRadius((Offset.zero & size).deflate(0.5), Radius.circular(radius)));
+    for (final m in path.computeMetrics()) {
+      for (var d = 0.0; d < m.length; d += 6) {
+        canvas.drawPath(m.extractPath(d, d + 3 < m.length ? d + 3 : m.length), paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedEdge old) => old.color != color || old.radius != radius;
+}
+
+/// The rows on screen that carry an anchor ([ESetRow.anchor]), and the jump to one: once its
+/// page is built, the row scrolls into view, its control takes the focus and a thin gold
+/// outline fades out over a second (none with reduced motion), as a jump to a section does.
+abstract final class ESetAnchors {
+  static final Map<String, _SetRowAnchorState> _live = {};
+  static int _jump = 0;
+
+  /// Whether a row with [id] is on screen.
+  static bool shown(String id) => _live[id]?.mounted ?? false;
+
+  /// Shows row [id] (else [fallback], the row it sits under) once the page that holds it is
+  /// built; false when neither appears within a few frames.
+  static Future<bool> jump(String id, {String? fallback}) async {
+    final n = ++_jump;
+    for (var i = 0; i < 4; i++) {
+      await SchedulerBinding.instance.endOfFrame;
+      if (n != _jump) return false;
+      final s = _live[id] ?? (fallback == null ? null : _live[fallback]);
+      if (s != null && s.mounted) {
+        s.show();
+        return true;
+      }
+    }
+    return false;
+  }
+}
+
+/// The anchor of a Settings row that is no [ESetRow] (a custom block, a group's trailing
+/// button, a list): search jumps to [child] as to an anchored row, focusing its first stop.
+class SetAnchor extends StatefulWidget {
+  const SetAnchor({super.key, required this.id, required this.child});
+
+  /// The row's id in the settings registry ([SetId]).
+  final String id;
+  final Widget child;
+
+  @override
+  State<SetAnchor> createState() => _SetRowAnchorState();
+}
+
+class _SetRowAnchorState extends State<SetAnchor> with SingleTickerProviderStateMixin {
+  final _focus = FocusNode(debugLabel: 'row anchor', skipTraversal: true);
+  late final _cue = AnimationController(vsync: this, duration: const Duration(milliseconds: 1000), value: 0);
+  late final _fade = CurvedAnimation(parent: _cue, curve: const Interval(0, 0.75, curve: Curves.easeInCubic));
+
+  @override
+  void initState() {
+    super.initState();
+    ESetAnchors._live[widget.id] = this;
+  }
+
+  @override
+  void didUpdateWidget(SetAnchor old) {
+    super.didUpdateWidget(old);
+    if (old.id != widget.id) {
+      if (ESetAnchors._live[old.id] == this) ESetAnchors._live.remove(old.id);
+      ESetAnchors._live[widget.id] = this;
+    }
+  }
+
+  @override
+  void dispose() {
+    if (ESetAnchors._live[widget.id] == this) ESetAnchors._live.remove(widget.id);
+    _fade.dispose();
+    _cue.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
+
+  void show() {
+    final reduce = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    Scrollable.ensureVisible(context, duration: reduce ? Duration.zero : Dur.base, alignment: 0.3);
+    // The control first (the row's switch, select or button), else anything in the row.
+    bool usable(FocusNode n) => n.canRequestFocus && !n.skipTraversal && n.context != null;
+    final ctl = _AnchorControl.nodeIn(context);
+    final target = ctl?.descendants.where(usable).firstOrNull ?? _focus.descendants.where(usable).firstOrNull;
+    (target ?? _focus).requestFocus();
+    if (!reduce) _cue.reverse(from: 1);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    return Focus(
+      focusNode: _focus,
+      child: AnimatedBuilder(
+        animation: _fade,
+        builder: (_, child) => DecoratedBox(
+          position: DecorationPosition.foreground,
+          decoration: _fade.value == 0
+              ? const BoxDecoration()
+              : BoxDecoration(
+                  borderRadius: BorderRadius.circular(Rad.sm),
+                  border: Border.all(color: c.accent.withValues(alpha: c.accent.a * 0.8 * _fade.value), width: 1.5),
+                ),
+          child: child,
+        ),
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+/// Marks an anchored row's control, so a jump focuses it before the row's other stops.
+class _AnchorControl extends StatefulWidget {
+  const _AnchorControl({required this.child});
+
+  final Widget child;
+
+  /// The control's focus node in the anchored row around [context].
+  static FocusNode? nodeIn(BuildContext context) {
+    FocusNode? found;
+    void visit(Element e) {
+      if (found != null) return;
+      if (e is StatefulElement && e.state is _AnchorControlState) {
+        found = (e.state as _AnchorControlState)._node;
+        return;
+      }
+      e.visitChildren(visit);
+    }
+    context.visitChildElements(visit);
+    return found;
+  }
+
+  @override
+  State<_AnchorControl> createState() => _AnchorControlState();
+}
+
+class _AnchorControlState extends State<_AnchorControl> {
+  final _node = FocusNode(debugLabel: 'row control', skipTraversal: true, canRequestFocus: false);
+
+  @override
+  void dispose() {
+    _node.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Focus(focusNode: _node, child: widget.child);
+}
+
+/// Gives [child] (a small icon button) a hit area of at least 44 px without changing its
+/// layout: a press up to 22 px from its centre, inside the settings row around it, lands on it.
+/// Only inside an [ESetRow]; elsewhere it is the child alone.
+class EHitSlop extends SingleChildRenderObjectWidget {
+  const EHitSlop({super.key, super.child});
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderSlop(Ctl.md);
+
+  @override
+  void updateRenderObject(BuildContext context, RenderObject renderObject) => (renderObject as _RenderSlop).target = Ctl.md;
+}
+
+class _RenderSlop extends RenderProxyBox {
+  _RenderSlop(this.target);
+
+  double target;
+  _RenderSlopHost? _host;
+
+  @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+    RenderObject? p = parent;
+    while (p != null && p is! _RenderSlopHost) {
+      p = p.parent;
+    }
+    _host = p as _RenderSlopHost?;
+    _host?._slops.add(this);
+  }
+
+  @override
+  void detach() {
+    _host?._slops.remove(this);
+    _host = null;
+    super.detach();
+  }
+}
+
+class _SlopHost extends SingleChildRenderObjectWidget {
+  const _SlopHost({super.child});
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderSlopHost();
+}
+
+class _RenderSlopHost extends RenderProxyBox {
+  final List<_RenderSlop> _slops = [];
+
+  @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    for (final s in _slops) {
+      if (!s.attached || !s.hasSize) continue;
+      final m = s.getTransformTo(this);
+      final own = MatrixUtils.transformRect(m, Offset.zero & s.size);
+      if (own.contains(position)) break;
+      final wide = Rect.fromCenter(center: own.center, width: own.width < s.target ? s.target : own.width, height: own.height < s.target ? s.target : own.height);
+      if (wide.contains(position)) {
+        return result.addWithPaintTransform(
+          transform: m,
+          position: own.center,
+          hitTest: (r, p) => s.hitTest(r, position: p),
+        );
+      }
+    }
+    return super.hitTestChildren(result, position: position);
   }
 }
 

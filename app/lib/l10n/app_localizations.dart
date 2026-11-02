@@ -5317,6 +5317,66 @@ abstract class AppLocalizations {
   /// **'Help'**
   String get settingsSectionHelpFeedback;
 
+  /// Phone Settings hub row directly under Help, and the Donate screen's title: BT Labs' donation page and address.
+  ///
+  /// In en, this message translates to:
+  /// **'Donate'**
+  String get settingsDonate;
+
+  /// Small tag after 'Linked devices' on the phone's Settings hub: the feature is an experiment. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Experiment'**
+  String get settingsExperimentTag;
+
+  /// Donate screen, first line.
+  ///
+  /// In en, this message translates to:
+  /// **'Donations fund development of this wallet.'**
+  String get donateLead;
+
+  /// Donate screen: row with the donation page's address; a tap copies the link.
+  ///
+  /// In en, this message translates to:
+  /// **'Donation page'**
+  String get donatePage;
+
+  /// Donate screen, notice title: the donation page from settings.toml did not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'The donation page does not answer.'**
+  String get donatePageDown;
+
+  /// Donate screen, notice text after donatePageDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Send EPIC to the address below, or use the contact page.'**
+  String get donatePageDownText;
+
+  /// Donate screen: header over BT Labs' Epic Cash donation address (Copy and QR beside it).
+  ///
+  /// In en, this message translates to:
+  /// **'Epic Cash address'**
+  String get donateAddress;
+
+  /// Screen reader label of the donation address's QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'QR code of the donation address'**
+  String get donateQrLabel;
+
+  /// Donate screen: row with BT Labs' contact page; a tap copies the link.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact page'**
+  String get donateContact;
+
+  /// Donate screen when settings.toml names no donation page, address or contact page.
+  ///
+  /// In en, this message translates to:
+  /// **'No donation page or address is set.'**
+  String get donateNothing;
+
   /// State line under the Security group while the recovery phrase has not been backed up.
   ///
   /// In en, this message translates to:
@@ -28764,11 +28824,23 @@ abstract class AppLocalizations {
   /// **'Keep waiting'**
   String get lvShellKeepWaiting;
 
-  /// Level 1 warning notice when the Epicbox server is down and another can take over.
+  /// Compact warning notice title: the wallet's Epicbox server does not answer (after the connection grace). lvShellRelayDownShort follows.
   ///
   /// In en, this message translates to:
-  /// **'Your Epicbox server is not reachable. Payments to you wait. {name} is ready to take over; your address changes with it.'**
-  String lvShellRelayDownNotice(String name);
+  /// **'Your Epicbox server is not reachable.'**
+  String get lvShellRelayDownTitle;
+
+  /// Line under lvShellRelayDownTitle: {name} is another Epicbox server ready to take over; moving to it changes the wallet's address. A Switch button follows.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} can take over; your address changes with it.'**
+  String lvShellRelayDownShort(String name);
+
+  /// Button on the Epicbox notice: move the wallet to the server the notice names.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch'**
+  String get lvShellSwitch;
 
   /// Success notice after the Epicbox server switch.
   ///
@@ -30227,6 +30299,1224 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open Network & privacy'**
   String get deskRailOpenNetworkPrivacy;
+
+  /// Settings search field: placeholder and its name for screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Search settings'**
+  String get deskSetSearchHint;
+
+  /// Settings search field: the keyboard shortcut shown at its right end. Keep the key names as on the keyboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Ctrl K'**
+  String get deskSetSearchKeyHint;
+
+  /// Settings search: the button that empties the search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get deskSetSearchClear;
+
+  /// Settings search: heading over the results; counts every result listed (settings, Help topics, hidden ones). Read out by screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 result} other{{count} results}}'**
+  String deskSetSearchCount(int count);
+
+  /// Settings search: beside the result count, what was searched. Use the language's own quotation marks.
+  ///
+  /// In en, this message translates to:
+  /// **'for “{query}”'**
+  String deskSetSearchFor(String query);
+
+  /// Settings search: key hint after the up and down arrow keys.
+  ///
+  /// In en, this message translates to:
+  /// **'move'**
+  String get deskSetSearchKeysMove;
+
+  /// Settings search: key hint after the Enter key.
+  ///
+  /// In en, this message translates to:
+  /// **'go to setting'**
+  String get deskSetSearchKeysGo;
+
+  /// Settings search: key hint after the Esc key.
+  ///
+  /// In en, this message translates to:
+  /// **'clear'**
+  String get deskSetSearchKeysClear;
+
+  /// Settings search result: the result was found through this other word (a synonym), not its name. Use the language's own quotation marks.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches “{word}”'**
+  String deskSetSearchMatches(String word);
+
+  /// Settings search: heading of the Help topics that match.
+  ///
+  /// In en, this message translates to:
+  /// **'Help topics'**
+  String get deskSetSearchHelpTopics;
+
+  /// Settings search: heading of matching settings that the current view or an Advanced switch hides.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden here'**
+  String get deskSetSearchHidden;
+
+  /// Settings search: line beside the Hidden here heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Another view or an Advanced switch shows them'**
+  String get deskSetSearchHiddenLine;
+
+  /// Settings search, hidden result: button that changes to the view that shows the setting, then goes to it. view is Shallow, Deeper or Deep end.
+  ///
+  /// In en, this message translates to:
+  /// **'Show in {view}'**
+  String deskSetSearchShowIn(String view);
+
+  /// Settings search, hidden result: button that turns on the Advanced switch that shows the setting, then goes to it.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on'**
+  String get deskSetSearchTurnOn;
+
+  /// Settings search result: button that goes to the setting on its page.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get deskSetSearchOpen;
+
+  /// Settings search, Help topic result: button that opens the topic in Help.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get deskSetSearchRead;
+
+  /// Settings search: nothing matches. Use the language's own quotation marks.
+  ///
+  /// In en, this message translates to:
+  /// **'No setting matches “{query}”.'**
+  String deskSetSearchNone(String query);
+
+  /// Settings search, nothing found: before a few example words to search for.
+  ///
+  /// In en, this message translates to:
+  /// **'Try'**
+  String get deskSetSearchTry;
+
+  /// Settings search, nothing found: example words to search for, comma-separated, lower case, in this language (each must find a setting).
+  ///
+  /// In en, this message translates to:
+  /// **'password,tor,seed,backup,fee,node,lock'**
+  String get deskSetSearchTryWords;
+
+  /// Settings navigation while searching: read by screen readers for a section without matching settings.
+  ///
+  /// In en, this message translates to:
+  /// **'No results'**
+  String get deskSetSearchNoResults;
+
+  /// Settings search: the results list's name for screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Search results'**
+  String get deskSetSearchResults;
+
+  /// What shows a hidden setting: a view. view is Shallow, Deeper or Deep end, e.g. "Deep end view".
+  ///
+  /// In en, this message translates to:
+  /// **'{view} view'**
+  String deskSetSearchViewGate(String view);
+
+  /// What shows a hidden setting: a switch on Settings › Advanced, e.g. "Advanced › Invoices".
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced › {feature}'**
+  String deskSetSearchFeatGate(String feature);
+
+  /// Joins the reasons that show hidden options: "Deep end view and Advanced › Invoices". first may itself be a comma-separated list.
+  ///
+  /// In en, this message translates to:
+  /// **'{first} and {last}'**
+  String deskSetSearchGateJoin(String first, String last);
+
+  /// More options control (⇕): its tooltip and name while folded. gates names what shows them, e.g. "Deep end view and Advanced › Invoices".
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more option · shown with {gates}} other{{count} more options · shown with {gates}}}'**
+  String deskSetSearchMore(int count, String gates);
+
+  /// More options control (⇕): its tooltip and name while the hidden options show.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Hide the extra option} other{Hide the {count} extra options}}'**
+  String deskSetSearchLess(int count);
+
+  /// Notice after a search result changed the view. view is Shallow, Deeper or Deep end.
+  ///
+  /// In en, this message translates to:
+  /// **'View: {view}'**
+  String deskSetSearchViewApplied(String view);
+
+  /// Notice after a search result turned on an Advanced switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced › {feature}: on'**
+  String deskSetSearchFeatApplied(String feature);
+
+  /// Notice when a link opens a Settings page the current view hides; the first page of its group opens instead. view is Shallow, Deeper or Deep end.
+  ///
+  /// In en, this message translates to:
+  /// **'{page} shows in the {view} view.'**
+  String deskSetSearchFallbackView(String page, String view);
+
+  /// Notice when a link opens a Settings page an Advanced switch hides; the first page of its group opens instead.
+  ///
+  /// In en, this message translates to:
+  /// **'{page} shows with Advanced › {feature}.'**
+  String deskSetSearchFallbackFeat(String page, String feature);
+
+  /// Settings navigation: the open wallet's page (name, backup, balance, remove).
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get deskSetSecWallet;
+
+  /// Settings navigation: payment methods, sending and receiving.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get deskSetSecPayments;
+
+  /// Settings navigation: this wallet on other devices.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked devices'**
+  String get deskSetSecDevices;
+
+  /// Settings navigation: the wallets on this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets'**
+  String get deskSetSecWallets;
+
+  /// Settings navigation: folders and logs on this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Files & logs'**
+  String get deskSetSecFiles;
+
+  /// Settings navigation: the donation page.
+  ///
+  /// In en, this message translates to:
+  /// **'Donate'**
+  String get deskSetSecDonate;
+
+  /// Settings navigation: heading of the app-wide sections.
+  ///
+  /// In en, this message translates to:
+  /// **'App'**
+  String get deskSetNavApp;
+
+  /// Settings navigation: heading of the sections about this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'This computer'**
+  String get deskSetNavComputer;
+
+  /// Settings: heading of the “Backup” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Backup'**
+  String get deskSetGrpBackup;
+
+  /// Settings: heading of the “Balance” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get deskSetGrpBalance;
+
+  /// Settings: heading of the “Remove” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get deskSetGrpRemove;
+
+  /// Settings: heading of the “Methods” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Methods'**
+  String get deskSetGrpMethods;
+
+  /// Settings: heading of the “Sending” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Sending'**
+  String get deskSetGrpSending;
+
+  /// Settings: heading of the “Receiving” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Receiving'**
+  String get deskSetGrpReceiving;
+
+  /// Settings: heading of the “This device” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'This device'**
+  String get deskSetGrpThisDevice;
+
+  /// Settings: heading of the “Linked device” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Linked device'**
+  String get deskSetGrpLinkedDevice;
+
+  /// Settings: heading of the “Sync” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Sync'**
+  String get deskSetGrpSync;
+
+  /// Settings: heading of the “Connection” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Connection'**
+  String get deskSetGrpConnection;
+
+  /// Settings: heading of the “Node on this computer” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Node on this computer'**
+  String get deskSetGrpLocalNode;
+
+  /// Settings: heading of the “Connections” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Connections'**
+  String get deskSetGrpConnections;
+
+  /// Settings: heading of the “Tor” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Tor'**
+  String get deskSetGrpTor;
+
+  /// Settings: heading of the “Server status” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Server status'**
+  String get deskSetGrpServerStatus;
+
+  /// Settings: heading of the “View” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get deskSetGrpView;
+
+  /// Settings: heading of the “Shows more” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Shows more'**
+  String get deskSetGrpShowsMore;
+
+  /// Settings: heading of the “Experiments” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Experiments'**
+  String get deskSetGrpExperiments;
+
+  /// Settings: heading of the “On this computer” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'On this computer'**
+  String get deskSetGrpOnComputer;
+
+  /// Settings: heading of the “Add a wallet” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Add a wallet'**
+  String get deskSetGrpAddWallet;
+
+  /// Settings: heading of the “Folders” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Folders'**
+  String get deskSetGrpFolders;
+
+  /// Settings: heading of the “Logs” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Logs'**
+  String get deskSetGrpLogs;
+
+  /// Settings: heading of the “Support” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Support'**
+  String get deskSetGrpSupport;
+
+  /// Settings: heading of the “Start again” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Start again'**
+  String get deskSetGrpStartAgain;
+
+  /// Settings: heading of the “Links” group of rows (on its page and over search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Links'**
+  String get deskSetGrpLinks;
+
+  /// Settings row “Name”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Only shown in this app.'**
+  String get deskSetRowNameHint;
+
+  /// Settings search: other words that find the “Name” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'rename, wallet name, label'**
+  String get deskSetSynName;
+
+  /// Settings row “Export wallet data”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'History, contacts, invoices and settings in one encrypted file.'**
+  String get deskSetRowExportDataHint;
+
+  /// Settings row “Export wallet data”: the longer explanation behind its ⓘ (searched too).
+  ///
+  /// In en, this message translates to:
+  /// **'Only a wallet with this recovery phrase can open the file. The coins themselves are restored from the recovery phrase.'**
+  String get deskSetRowExportDataInfo;
+
+  /// Settings search: other words that find the “Export wallet data” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'backup, save, history, contacts, file'**
+  String get deskSetSynExportData;
+
+  /// Settings row “Import wallet data”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Brings back history, contacts, invoices and settings from an export.'**
+  String get deskSetRowImportDataHint;
+
+  /// Settings search: other words that find the “Import wallet data” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'restore, backup, history, load'**
+  String get deskSetSynImportData;
+
+  /// Settings row “Export CSV”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'A plain table for spreadsheets. Not encrypted.'**
+  String get deskSetRowExportCsvHint;
+
+  /// Settings search: other words that find the “Export CSV” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'csv, excel, spreadsheet, tax, history, report'**
+  String get deskSetSynExportCsv;
+
+  /// Settings row “Recheck balance”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Reads the chain again for this wallet’s coins.'**
+  String get deskSetRowRecheckGoHint;
+
+  /// Settings search: other words that find the “Recheck balance” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'rescan, scan, balance wrong, missing, resync, refresh, repair'**
+  String get deskSetSynRecheckGo;
+
+  /// Settings row “Delete wallet”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Deletes its keys and database from this computer.'**
+  String get deskSetRowDeleteWalletHint;
+
+  /// Settings search: other words that find the “Delete wallet” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'remove, erase, wipe'**
+  String get deskSetSynDeleteWallet;
+
+  /// Settings search: other words that find the “Where to start” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'start, date, height, block'**
+  String get deskSetSynRecheckFrom;
+
+  /// Settings row title: Month (section recheck).
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get deskSetRowRecheckMonth;
+
+  /// Settings search: other words that find the “Month” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'month, date, calendar, created, when'**
+  String get deskSetSynRecheckMonth;
+
+  /// Settings row title: Start block (section recheck).
+  ///
+  /// In en, this message translates to:
+  /// **'Start block'**
+  String get deskSetRowRecheckHeight;
+
+  /// Settings search: other words that find the “Start block” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'height, block'**
+  String get deskSetSynRecheckHeight;
+
+  /// Settings row “Delete unconfirmed”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Also cancels unconfirmed transactions. A payment on its way may then fail.'**
+  String get deskSetRowRecheckDropHint;
+
+  /// Settings search: other words that find the “Delete unconfirmed” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'unconfirmed, stuck, cancel, unlock'**
+  String get deskSetSynRecheckDrop;
+
+  /// Settings row “Recovery phrase”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'The 24 words that restore this wallet.'**
+  String get deskSetRowPhraseGoHint;
+
+  /// Settings search: other words that find the “Recovery phrase” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'seed, mnemonic, words, backup, secret, restore, 24 words, private key'**
+  String get deskSetSynPhraseGo;
+
+  /// Settings row “Password”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Unlocks this wallet.'**
+  String get deskSetRowPasswordHint;
+
+  /// Settings search: other words that find the “Password” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'password, passphrase, change password, unlock, pin'**
+  String get deskSetSynPassword;
+
+  /// Settings row “Remembered on this computer”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Opens without the password at start. Sends still ask for it.'**
+  String get deskSetRowRememberedHint;
+
+  /// Settings search: other words that find the “Remembered on this computer” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'remember me, password, unlock, auto unlock, forget'**
+  String get deskSetSynRemembered;
+
+  /// Settings row “Auto-lock”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Locks after no key press or mouse movement. All wallets.'**
+  String get deskSetRowAutolockHint;
+
+  /// Settings search: other words that find the “Auto-lock” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'lock, timeout, idle, inactivity, screen lock'**
+  String get deskSetSynAutolock;
+
+  /// Settings row “Epicbox”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Pay and get paid through an Epicbox server. Most payments go this way. All wallets.'**
+  String get deskSetRowEpicboxHint;
+
+  /// Settings search: other words that find the “Epicbox” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'relay, server, address, receive, send, method'**
+  String get deskSetSynEpicbox;
+
+  /// Settings search: other words that find the “Receiving” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'listen, incoming, receive'**
+  String get deskSetSynEpicboxRecv;
+
+  /// Settings row “Epicbox server”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Part of this wallet’s address.'**
+  String get deskSetRowEpicboxServerHint;
+
+  /// Settings search: other words that find the “Epicbox server” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'relay, server, host, address'**
+  String get deskSetSynEpicboxServer;
+
+  /// Settings search: other words that find the “Start with the wallet” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'startup, auto start'**
+  String get deskSetSynEpicboxStart;
+
+  /// Settings row “Link · HTTP”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet to wallet at a web address, while both are open. All wallets.'**
+  String get deskSetRowHttpHint;
+
+  /// Settings search: other words that find the “Link · HTTP” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'http, ip, port, direct, listener, method'**
+  String get deskSetSynHttp;
+
+  /// Settings search: other words that find the “Reachable” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'internet, router, port forward, public'**
+  String get deskSetSynHttpReach;
+
+  /// Settings search: other words that find the “Port” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'port, tcp'**
+  String get deskSetSynHttpPort;
+
+  /// Settings row “Link · Tor”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet to wallet at this wallet’s Tor address, while both are open. All wallets.'**
+  String get deskSetRowTorPayHint;
+
+  /// Settings row “Link · Tor”: the longer explanation behind its ⓘ (searched too).
+  ///
+  /// In en, this message translates to:
+  /// **'Tor runs only to send and receive payments at the Tor address. The node, prices and updates keep the setting under Network & privacy.'**
+  String get deskSetRowTorPayInfo;
+
+  /// Settings search: other words that find the “Link · Tor” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'tor, onion, anonymous, hidden service, privacy, method'**
+  String get deskSetSynTorPay;
+
+  /// Settings row “Direct · File Transfer”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'By handing over a transaction file. No network needed. All wallets.'**
+  String get deskSetRowFileHint;
+
+  /// Settings search: other words that find the “Direct · File Transfer” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'file, offline, slate, tx file, usb, email, method, manual'**
+  String get deskSetSynFile;
+
+  /// Settings row “Default method”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'What Send opens with. All wallets.'**
+  String get deskSetRowDefaultMethodHint;
+
+  /// Settings search: other words that find the “Default method” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'send, method, default'**
+  String get deskSetSynDefaultMethod;
+
+  /// Settings row title: Outputs a send spends (section payments).
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs a send spends'**
+  String get deskSetRowStrategy;
+
+  /// Settings row “Outputs a send spends”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Smallest covers the amount; All spends every output.'**
+  String get deskSetRowStrategyHint;
+
+  /// Settings row “Outputs a send spends”: the longer explanation behind its ⓘ (searched too).
+  ///
+  /// In en, this message translates to:
+  /// **'More outputs spent means a larger fee.'**
+  String get deskSetRowStrategyInfo;
+
+  /// Settings search: other words that find the “Outputs a send spends” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'fee, fees, strategy, coin selection, inputs, utxo, outputs'**
+  String get deskSetSynStrategy;
+
+  /// Settings row “Split change”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Change comes back as up to 4 outputs when few are left.'**
+  String get deskSetRowSplitChangeHint;
+
+  /// Settings row “Split change”: the longer explanation behind its ⓘ (searched too).
+  ///
+  /// In en, this message translates to:
+  /// **'Only when a send would leave fewer than 3 spendable outputs and its change is at least 1 EPIC. Each extra output costs 0.004 EPIC.'**
+  String get deskSetRowSplitChangeInfo;
+
+  /// Settings search: other words that find the “Split change” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'fee, change, outputs, utxo, split'**
+  String get deskSetSynSplitChange;
+
+  /// Settings row “Confirmations”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Blocks a received payment waits before it can be spent.'**
+  String get deskSetRowConfirmationsHint;
+
+  /// Settings search: other words that find the “Confirmations” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'confirm, blocks, spendable, locked, pending, wait'**
+  String get deskSetSynConfirmations;
+
+  /// Settings row “Pair with a shop or exchange”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'A paired contact you allow can send this wallet invoices.'**
+  String get deskSetRowPairShopHint;
+
+  /// Settings search: other words that find the “Pair with a shop or exchange” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'pair, pairing, invoice, shop, exchange, merchant'**
+  String get deskSetSynPairShop;
+
+  /// Settings row “Time to pay”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'How long an invoice stays payable.'**
+  String get deskSetRowTimeToPayHint;
+
+  /// Settings search: other words that find the “Time to pay” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'invoice, expiry, expire, deadline'**
+  String get deskSetSynTimeToPay;
+
+  /// Settings search: other words that find the “This device” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'device name, rename'**
+  String get deskSetSynDeviceName;
+
+  /// Settings row “Link a device”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet on two devices: each shows the other’s payments.'**
+  String get deskSetRowLinkDeviceHint;
+
+  /// Settings row “Link a device”: the longer explanation behind its ⓘ (searched too).
+  ///
+  /// In en, this message translates to:
+  /// **'One device can be linked. Each holds the coins the other is spending, so both never spend the same coin.'**
+  String get deskSetRowLinkDeviceInfo;
+
+  /// Settings search: other words that find the “Link a device” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'link device, pair phone, second device, phone, sync, mobile, multi device'**
+  String get deskSetSynLinkDevice;
+
+  /// Settings row “Pause sync”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Notices wait on the servers while paused.'**
+  String get deskSetRowPauseSyncHint;
+
+  /// Settings search: other words that find the “Pause sync” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'sync, pause, linked'**
+  String get deskSetSynPauseSync;
+
+  /// Settings search: other words that find the “Theme” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'dark mode, light mode, colour, color, night'**
+  String get deskSetSynTheme;
+
+  /// Settings search: other words that find the “Language” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'language, translation, locale, english, polski, deutsch'**
+  String get deskSetSynLanguage;
+
+  /// Settings row “Interface scale”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Text and controls, larger or smaller.'**
+  String get deskSetRowScaleHint;
+
+  /// Settings search: other words that find the “Interface scale” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'zoom, size, font size, bigger, smaller, text size, dpi'**
+  String get deskSetSynScale;
+
+  /// Settings row “Hide amounts”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Dots in place of balances and amounts.'**
+  String get deskSetRowHideAmountsHint;
+
+  /// Settings search: other words that find the “Hide amounts” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'privacy, hide balance, mask, screen share, stream'**
+  String get deskSetSynHideAmounts;
+
+  /// Settings row “Node server”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Reads the chain and sends this wallet’s transactions.'**
+  String get deskSetRowNodeServerHint;
+
+  /// Settings search: other words that find the “Node server” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'node, server, host, rpc, api, url'**
+  String get deskSetSynNodeServer;
+
+  /// Settings row title: Switch node automatically (section node).
+  ///
+  /// In en, this message translates to:
+  /// **'Switch node automatically'**
+  String get deskSetRowFailover;
+
+  /// Settings row “Switch node automatically”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'When the node stops answering, use the next working one.'**
+  String get deskSetRowFailoverHint;
+
+  /// Settings search: other words that find the “Switch node automatically” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'failover, fallback, auto'**
+  String get deskSetSynFailover;
+
+  /// Settings row “This is my node”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Asks the node itself for its state and offers owner access.'**
+  String get deskSetRowMyNodeHint;
+
+  /// Settings search: other words that find the “This is my node” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'own node, my node, self hosted, owner, api secret'**
+  String get deskSetSynMyNode;
+
+  /// Settings row title: Node on this computer (section node).
+  ///
+  /// In en, this message translates to:
+  /// **'Node on this computer'**
+  String get deskSetRowLocalNode;
+
+  /// Settings row “Node on this computer”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Runs its own node here. Several gigabytes of disk.'**
+  String get deskSetRowLocalNodeHint;
+
+  /// Settings search: other words that find the “Node on this computer” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'local node, built-in node, full node, run a node, sync chain'**
+  String get deskSetSynLocalNode;
+
+  /// Settings row “Start with the app”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Keeps the node syncing while the app is open.'**
+  String get deskSetRowLocalStartHint;
+
+  /// Settings search: other words that find the “Start with the app” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'startup, local node'**
+  String get deskSetSynLocalStart;
+
+  /// Settings row title: Connection mode (section network).
+  ///
+  /// In en, this message translates to:
+  /// **'Connection mode'**
+  String get deskSetRowNetMode;
+
+  /// Settings search: other words that find the “Connection mode” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'tor only, undercover, offline, kill switch, node only, vpn, ip, privacy, airplane'**
+  String get deskSetSynNetMode;
+
+  /// Settings row title: Tor for all connections (section network).
+  ///
+  /// In en, this message translates to:
+  /// **'Tor for all connections'**
+  String get deskSetRowTorAll;
+
+  /// Settings row “Tor for all connections”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Node, Epicbox, prices and updates go through Tor.'**
+  String get deskSetRowTorAllHint;
+
+  /// Settings row “Tor for all connections”: the longer explanation behind its ⓘ (searched too).
+  ///
+  /// In en, this message translates to:
+  /// **'Tor hides the wallet’s IP address. For payments at the Tor address only, see Payments › Link · Tor.'**
+  String get deskSetRowTorAllInfo;
+
+  /// Settings search: other words that find the “Tor for all connections” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'tor, onion, anonymous, ip, hide ip, proxy, privacy'**
+  String get deskSetSynTorAll;
+
+  /// Settings row “Use status.btlabs.uk”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Shows which nodes and Epicbox servers are online.'**
+  String get deskSetRowStatusSiteHint;
+
+  /// Settings search: other words that find the “Use status.btlabs.uk” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'status, health, uptime, monitor'**
+  String get deskSetSynStatusSite;
+
+  /// Settings row title: View (section advanced).
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get deskSetRowView;
+
+  /// Settings row “View”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Shallow, Deeper or Deep end: how much of the wallet shows.'**
+  String get deskSetRowViewHint;
+
+  /// Settings search: other words that find the “View” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'level, depth, shallow, deeper, deep end, simple, expert, beginner, advanced mode'**
+  String get deskSetSynView;
+
+  /// Settings row “Outputs”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'The Outputs page: the coins the balance is made of.'**
+  String get deskSetRowAdvOutputsHint;
+
+  /// Settings search: other words that find the “Outputs” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'utxo, coins, outputs, split, consolidate'**
+  String get deskSetSynAdvOutputs;
+
+  /// Settings row “Technical details”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Kernel, slate ID and commitments on every transaction.'**
+  String get deskSetRowAdvTechHint;
+
+  /// Settings search: other words that find the “Technical details” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'kernel, slate, commitment, tx id, details'**
+  String get deskSetSynAdvTech;
+
+  /// Settings row “Send options”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Outputs and change choices on Send and under Payments.'**
+  String get deskSetRowAdvSendoptsHint;
+
+  /// Settings search: other words that find the “Send options” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'fee, coin control, outputs, change'**
+  String get deskSetSynAdvSendopts;
+
+  /// Settings row “Server details”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Hosts, latency, version and height in server lists.'**
+  String get deskSetRowAdvServersHint;
+
+  /// Settings search: other words that find the “Server details” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'latency, ping, height, version, host'**
+  String get deskSetSynAdvServers;
+
+  /// Settings row “Recheck from a height”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Where to start and Delete unconfirmed on Recheck balance.'**
+  String get deskSetRowAdvHeightHint;
+
+  /// Settings search: other words that find the “Recheck from a height” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'rescan, height, block'**
+  String get deskSetSynAdvHeight;
+
+  /// Settings row “Local node”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Running a node on this computer, under Node.'**
+  String get deskSetRowAdvLocalHint;
+
+  /// Settings search: other words that find the “Local node” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'full node, local node'**
+  String get deskSetSynAdvLocal;
+
+  /// Settings row “Logs”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Log level and log files under Files & logs.'**
+  String get deskSetRowAdvLogsHint;
+
+  /// Settings search: other words that find the “Logs” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'log, debug, diagnostics'**
+  String get deskSetSynAdvLogs;
+
+  /// Settings row “Invoices”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Ask paired contacts for payments; approve theirs.'**
+  String get deskSetRowXInvoicesHint;
+
+  /// Settings search: other words that find the “Invoices” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'invoice, request payment, pairing, bill'**
+  String get deskSetSynXInvoices;
+
+  /// Settings row title: Wallet list (section wallets).
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet list'**
+  String get deskSetRowWalletRows;
+
+  /// Settings row “Main wallet”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'The wallets on this computer; open or remove one.'**
+  String get deskSetRowWalletRowsHint;
+
+  /// Settings search: other words that find the “Main wallet” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'wallets, switch wallet, other wallet, list'**
+  String get deskSetSynWalletRows;
+
+  /// Settings row “Create a wallet”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'A new wallet with a new recovery phrase.'**
+  String get deskSetRowCreateWalletHint;
+
+  /// Settings search: other words that find the “Create a wallet” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'new wallet, add wallet'**
+  String get deskSetSynCreateWallet;
+
+  /// Settings row “Import wallets”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'From an older Epic Wallet or a folder.'**
+  String get deskSetRowImportWalletsHint;
+
+  /// Settings search: other words that find the “Import wallets” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'migrate, old wallet, electron, gui wallet, folder'**
+  String get deskSetSynImportWallets;
+
+  /// Settings row “Restore from phrase”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'From the 24-word recovery phrase.'**
+  String get deskSetRowRestoreWalletHint;
+
+  /// Settings search: other words that find the “Restore from phrase” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'seed, recover, restore, mnemonic'**
+  String get deskSetSynRestoreWallet;
+
+  /// Settings row “Wallet folder”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet’s keys and database.'**
+  String get deskSetRowWalletFolderHint;
+
+  /// Settings search: other words that find the “Wallet folder” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'data folder, directory, path, files, location'**
+  String get deskSetSynWalletFolder;
+
+  /// Settings row “App files”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'settings.toml and the log.'**
+  String get deskSetRowAppFilesHint;
+
+  /// Settings search: other words that find the “App files” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'settings file, settings.toml, config, toml, directory'**
+  String get deskSetSynAppFiles;
+
+  /// Settings row “Log level”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Detailed keeps more lines; reports leave addresses out.'**
+  String get deskSetRowLogLevelHint;
+
+  /// Settings search: other words that find the “Log level” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'log, debug, verbose'**
+  String get deskSetSynLogLevel;
+
+  /// Settings row “Log files”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Clear the log files or open their folder.'**
+  String get deskSetRowLogFilesHint;
+
+  /// Settings search: other words that find the “Log files” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'log, clear logs, delete logs'**
+  String get deskSetSynLogFiles;
+
+  /// Settings row “Report a problem”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Describe what went wrong; the cleaned app log can go with it.'**
+  String get deskSetRowReportHint;
+
+  /// Settings search: other words that find the “Report a problem” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'bug, issue, support, contact, crash, error report'**
+  String get deskSetSynReport;
+
+  /// Settings search: other words that find the “Show the tour again” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'tour, tutorial, intro, onboarding, guide'**
+  String get deskSetSynTour;
+
+  /// Settings row title: Run setup again (section help).
+  ///
+  /// In en, this message translates to:
+  /// **'Run setup again'**
+  String get deskSetRowSetup;
+
+  /// Settings row “Run setup again”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Node and receiving, step by step.'**
+  String get deskSetRowSetupHint;
+
+  /// Settings search: other words that find the “Run setup again” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'setup, wizard, assistant, reconfigure'**
+  String get deskSetSynSetup;
+
+  /// Settings row “Updates”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
+  ///
+  /// In en, this message translates to:
+  /// **'Checks for a new version.'**
+  String get deskSetRowUpdatesHint;
+
+  /// Settings search: other words that find the “Updates” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'update, upgrade, new version, download, release'**
+  String get deskSetSynUpdates;
+
+  /// Settings row title: Website (section about).
+  ///
+  /// In en, this message translates to:
+  /// **'Website'**
+  String get deskSetRowWebsite;
+
+  /// Settings search: other words that find the “Website” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'website, site, web, epic cash'**
+  String get deskSetSynWebsite;
+
+  /// Settings search: other words that find the “Source code” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'github, code, open source, repository'**
+  String get deskSetSynSource;
+
+  /// Settings search: other words that find the “Privacy policy” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'privacy, policy, gdpr, data'**
+  String get deskSetSynPrivacyPolicy;
+
+  /// Settings search: other words that find the “Contact” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'email, support, contact, mail'**
+  String get deskSetSynContact;
+
+  /// Settings search: the Enter key as its key cap names it, in the key hints over the results.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter'**
+  String get deskSetSearchKeyEnter;
+
+  /// Settings search: the Esc key as its key cap names it, in the key hints over the results.
+  ///
+  /// In en, this message translates to:
+  /// **'Esc'**
+  String get deskSetSearchKeyEsc;
 }
 
 class _AppLocalizationsDelegate

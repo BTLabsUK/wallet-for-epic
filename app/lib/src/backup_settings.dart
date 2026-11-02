@@ -367,9 +367,9 @@ BackupSettingsPlan _plan(
           final own = platformOnlyFeatures[here]!;
           features = {...features.difference(own).difference(platformOnlyFeatures[from]!), ...m.features.intersection(own)};
         }
-        // Linked devices is this install's own choice: a file neither sets nor clears it.
-        features = {...features.where((f) => f != AdvancedFeature.linkedDevices), if (m.linkedDevicesOn) AdvancedFeature.linkedDevices};
-        decide(BackupItem.features, _names(m.features), _names(d.features), _names(features));
+        // Linked devices is always on (item 10): no choice, so never in the file's list.
+        Set<AdvancedFeature> shown(Set<AdvancedFeature> f) => f.where((x) => x != AdvancedFeature.linkedDevices).toSet();
+        decide(BackupItem.features, _names(shown(m.features)), _names(shown(d.features)), _names(shown(features)));
       }
       // An older file's `offline` is Node only (networkModeNamed).
       if (networkModeNamed(raw['networkMode'] is String ? raw['networkMode'] as String : null) != null) {
@@ -594,8 +594,8 @@ AdvancedPrefs advancedFromBackup(AdvancedPrefs current, Map<String, Object?> val
         for (final n in features)
           for (final f in AdvancedFeature.values)
             if (f.name == n && f != AdvancedFeature.linkedDevices) f,
-        // This install's own choice, never from a file.
-        if (current.linkedDevicesOn) AdvancedFeature.linkedDevices,
+        // Always on, never from a file.
+        AdvancedFeature.linkedDevices,
       },
       networkMode: next.networkMode,
       nodeFailover: next.nodeFailover,

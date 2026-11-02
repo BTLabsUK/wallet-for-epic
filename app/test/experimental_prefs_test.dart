@@ -43,19 +43,20 @@ void main() {
     expect(NetGate.invoices, isTrue);
   });
 
-  test('Linked devices is on by default, and a user who turned it off stays off', () {
+  test('Linked devices is always on: a stored off from an older build is ignored (item 10)', () {
     expect(AdvancedPrefs.none.linkedDevicesOn, isTrue);
     expect(AdvancedPrefs.none.any, isFalse);
     expect(AdvancedPrefs.decode('outputs|standard').linkedDevicesOn, isTrue);
-    expect(AdvancedPrefs.fromJson({'features': ['logs'], 'networkMode': 'standard'}).linkedDevicesOn, isTrue);
+    expect(AdvancedPrefs.decode('outputs|standard|noLinkedDevices').linkedDevicesOn, isTrue);
+    expect(AdvancedPrefs.fromJson({'features': ['logs'], 'networkMode': 'standard', 'linkedDevices': false}).linkedDevicesOn, isTrue);
     final off = AdvancedPrefs.none.withExperimental(AdvancedFeature.linkedDevices, false);
-    expect(off.linkedDevicesOn, isFalse);
-    expect(off.any, isTrue);
-    expect(AdvancedPrefs.decode(off.encode()).linkedDevicesOn, isFalse);
-    expect(AdvancedPrefs.fromJson(off.toJson()).linkedDevicesOn, isFalse);
+    expect(off.linkedDevicesOn, isTrue);
+    expect(off.has(AdvancedFeature.linkedDevices), isTrue);
+    expect(off.any, isFalse);
+    expect(off.encode(), isNot(contains('noLinkedDevices')));
+    expect(AdvancedPrefs.fromJson(off.toJson()).linkedDevicesOn, isTrue);
     expect(AdvancedPrefs.decode(AdvancedPrefs.none.encode()), AdvancedPrefs.none);
-    // Hide all keeps it; it runs the engine without Invoices.
-    expect(off.withoutShown().linkedDevicesOn, isFalse);
+    expect(retiredFeatures, contains(AdvancedFeature.linkedDevices));
     expect(AdvancedPrefs.none.withoutShown().linkedDevicesOn, isTrue);
     expect(AdvancedPrefs.none.pairingEngineOn, isTrue);
   });
