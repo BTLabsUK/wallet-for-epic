@@ -247,8 +247,15 @@ class _EInputState extends State<EInput> {
         constraints: sm ? null : BoxConstraints(minHeight: multi ? 80.u : Ctl.md),
         decoration: line
             // The line look: no fill, no box; the hairline under the text takes the
-            // field's states (dim on hover, the accent with focus).
-            ? BoxDecoration(border: Border(bottom: BorderSide(color: border, width: focused ? 1.5 : 1)))
+            // field's states (dim on hover). With focus it gets the accent outline all round,
+            // so the focus shows by more than a line's colour (review 9).
+            ? (focused
+                  ? BoxDecoration(
+                      borderRadius: BorderRadius.circular(Rad.sm),
+                      border: Border.all(color: border, width: 1.5),
+                      boxShadow: [BoxShadow(color: widget.invalid ? c.riskSoft : c.accentSoft, spreadRadius: 2.u)],
+                    )
+                  : BoxDecoration(border: Border(bottom: BorderSide(color: border))))
             : BoxDecoration(
                 color: c.s2,
                 borderRadius: BorderRadius.circular(Rad.sm),
