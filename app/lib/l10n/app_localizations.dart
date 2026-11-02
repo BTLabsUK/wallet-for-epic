@@ -31721,6 +31721,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'For payments'**
   String get deskRailTorForPayments;
+
+  /// Keyboard-shortcuts row: Ctrl+K (Cmd+K on macOS) opens Settings with its search field focused, from any page.
+  ///
+  /// In en, this message translates to:
+  /// **'Search settings'**
+  String get deskBarKeySearch;
+
+  /// Keyboard-shortcuts row: the / key focuses the search field while a Settings page is open (on Help, Help's own search). Settings is the name of the Settings area.
+  ///
+  /// In en, this message translates to:
+  /// **'Search, while in Settings'**
+  String get deskBarKeySearchHere;
 }
 
 class _AppLocalizationsDelegate

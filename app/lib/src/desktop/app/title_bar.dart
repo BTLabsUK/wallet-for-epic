@@ -1340,6 +1340,9 @@ class _ShortcutsDialog extends StatelessWidget {
     final rows = [
       (l.deskBarLock, deskKeys('L')),
       (l.deskBarQuit, deskKeys('Q')),
+      // From any page; / only inside Settings, out of a text field (on Help, Help's search).
+      (l.deskBarKeySearch, deskKeys('K')),
+      (l.deskBarKeySearchHere, '/'), // l10n-ok: the key
       (l.deskBarKeyBack, '$alt←'),
       (l.deskBarKeyForward, '$alt→'),
       (l.deskBarKeyClose, 'Esc'), // l10n-ok: key name

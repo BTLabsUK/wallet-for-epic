@@ -5285,5 +5285,7 @@
   "deskSetPrivMode": "Режим соединения",
   "deskSetTxSending": "Отправка",
   "deskSetTxTorPayHint": "Tor работает только для отправки и получения платежей по адресу Tor. Узел, курсы и обновления следуют настройке в разделе «Сеть и приватность». Все кошельки.",
-  "deskSetWalletsOnComputer": "На этом компьютере"
+  "deskSetWalletsOnComputer": "На этом компьютере",
+  "deskBarKeySearch": "Поиск по настройкам",
+  "deskBarKeySearchHere": "Поиск, когда открыты Настройки"
 }

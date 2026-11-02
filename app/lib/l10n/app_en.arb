@@ -27356,5 +27356,13 @@
   "deskRailTorForPayments": "For payments",
   "@deskRailTorForPayments": {
     "description": "Title-bar Tor icon and side list: tor runs only for Link · Tor payments, not for every connection."
+  },
+  "deskBarKeySearch": "Search settings",
+  "@deskBarKeySearch": {
+    "description": "Keyboard-shortcuts row: Ctrl+K (Cmd+K on macOS) opens Settings with its search field focused, from any page."
+  },
+  "deskBarKeySearchHere": "Search, while in Settings",
+  "@deskBarKeySearchHere": {
+    "description": "Keyboard-shortcuts row: the / key focuses the search field while a Settings page is open (on Help, Help's own search). Settings is the name of the Settings area."
   }
 }

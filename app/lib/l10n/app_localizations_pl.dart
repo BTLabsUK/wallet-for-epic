@@ -20924,4 +20924,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskRailTorForPayments => 'Dla płatności';
+
+  @override
+  String get deskBarKeySearch => 'Szukaj w ustawieniach';
+
+  @override
+  String get deskBarKeySearchHere => 'Szukaj, gdy otwarte są Ustawienia';
 }

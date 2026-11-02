@@ -5285,5 +5285,7 @@
   "deskSetPrivMode": "连接模式",
   "deskSetTxSending": "发送",
   "deskSetTxTorPayHint": "Tor 只用于在 Tor 地址收发付款。节点、价格和更新沿用“网络与隐私”中的设置。所有钱包。",
-  "deskSetWalletsOnComputer": "此电脑上"
+  "deskSetWalletsOnComputer": "此电脑上",
+  "deskBarKeySearch": "搜索设置",
+  "deskBarKeySearchHere": "在设置中搜索"
 }

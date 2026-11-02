@@ -20497,4 +20497,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskRailTorForPayments => 'Für Zahlungen';
+
+  @override
+  String get deskBarKeySearch => 'Einstellungen durchsuchen';
+
+  @override
+  String get deskBarKeySearchHere => 'Suchen, in den Einstellungen';
 }

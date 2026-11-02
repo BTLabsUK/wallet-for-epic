@@ -23,6 +23,8 @@
   "deskBarKeyClose": "关闭菜单或对话框",
   "deskBarKeySubmit": "执行表单的主要操作",
   "deskBarKeyList": "此列表",
+  "deskBarKeySearch": "搜索设置",
+  "deskBarKeySearchHere": "在设置中搜索",
   "deskBarCopyBuild": "复制构建信息",
   "deskBarBuildCopied": "已复制构建信息",
   "deskBarKeyMenu": "打开应用菜单",

@@ -5285,5 +5285,7 @@
   "deskSetPrivMode": "Tryb połączenia",
   "deskSetTxSending": "Wysyłanie",
   "deskSetTxTorPayHint": "Tor działa tylko do wysyłania i odbierania płatności pod adresem Tor. Węzeł, kursy i aktualizacje zachowują ustawienie z sekcji Sieć i prywatność. Wszystkie portfele.",
-  "deskSetWalletsOnComputer": "Na tym komputerze"
+  "deskSetWalletsOnComputer": "Na tym komputerze",
+  "deskBarKeySearch": "Szukaj w ustawieniach",
+  "deskBarKeySearchHere": "Szukaj, gdy otwarte są Ustawienia"
 }

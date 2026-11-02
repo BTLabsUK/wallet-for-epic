@@ -19826,4 +19826,10 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskRailTorForPayments => 'สำหรับการชำระเงิน';
+
+  @override
+  String get deskBarKeySearch => 'ค้นหาการตั้งค่า';
+
+  @override
+  String get deskBarKeySearchHere => 'ค้นหา ขณะอยู่ในการตั้งค่า';
 }

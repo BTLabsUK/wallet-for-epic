@@ -23,6 +23,8 @@
   "deskBarKeyClose": "Zamknij menu lub okno",
   "deskBarKeySubmit": "Wykonaj główną akcję formularza",
   "deskBarKeyList": "Ta lista",
+  "deskBarKeySearch": "Szukaj w ustawieniach",
+  "deskBarKeySearchHere": "Szukaj, gdy otwarte są Ustawienia",
   "deskBarCopyBuild": "Kopiuj informacje o wersji",
   "deskBarBuildCopied": "Skopiowano informacje o wersji",
   "deskBarKeyMenu": "Otwórz menu aplikacji",

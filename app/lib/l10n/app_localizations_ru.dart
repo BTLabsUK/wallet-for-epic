@@ -20908,4 +20908,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskRailTorForPayments => 'Для платежей';
+
+  @override
+  String get deskBarKeySearch => 'Поиск по настройкам';
+
+  @override
+  String get deskBarKeySearchHere => 'Поиск, когда открыты Настройки';
 }

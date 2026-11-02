@@ -109,6 +109,20 @@ void main() {
     expect(find.byKey(const ValueKey('bar-menu-lock')), findsNothing);
   });
 
+  testWidgets('Keyboard shortcuts lists the settings search: Ctrl+K anywhere, / in Settings', (tester) async {
+    await pump(tester);
+    await openMenu(tester);
+    await tester.tap(find.text('Keyboard shortcuts'));
+    await tester.pumpAndSettle();
+    final dialog = find.byType(EDialog);
+    expect(find.descendant(of: dialog, matching: find.text('Search settings')), findsOneWidget);
+    expect(find.descendant(of: dialog, matching: find.text('Ctrl+K')), findsOneWidget);
+    expect(find.descendant(of: dialog, matching: find.text('Search, while in Settings')), findsOneWidget);
+    expect(find.descendant(of: dialog, matching: find.text('/')), findsOneWidget);
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+  });
+
   testWidgets('Unlock keeps only the brand and the window controls', (tester) async {
     await pump(tester, start: DeskRoute.unlock);
     expect(bar('brand'), findsNothing, reason: 'no menu on Unlock');

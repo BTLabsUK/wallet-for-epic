@@ -23,6 +23,8 @@
   "deskBarKeyClose": "Закрыть меню или окно",
   "deskBarKeySubmit": "Выполнить основное действие формы",
   "deskBarKeyList": "Этот список",
+  "deskBarKeySearch": "Поиск по настройкам",
+  "deskBarKeySearchHere": "Поиск, когда открыты Настройки",
   "deskBarCopyBuild": "Скопировать сведения о сборке",
   "deskBarBuildCopied": "Сведения о сборке скопированы",
   "deskBarKeyMenu": "Открыть меню приложения",
