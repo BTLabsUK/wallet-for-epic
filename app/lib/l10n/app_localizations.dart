@@ -32009,6 +32009,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Their wallet has to be open.'**
   String get sendFactOnline;
+
+  /// Row title in the Transaction files card on Receive: one Open button for every kind of transaction file.
+  ///
+  /// In en, this message translates to:
+  /// **'Open transaction files'**
+  String get deskTfOpenTitle;
+
+  /// Row text under Open transaction files: the wallet works out what each file is and does that step.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose one file or several. The wallet reads each one and signs, finishes or posts it.'**
+  String get deskTfOpenText;
+
+  /// Title of the system file dialog opened by Open transaction files (several files can be chosen).
+  ///
+  /// In en, this message translates to:
+  /// **'Transaction files'**
+  String get deskTfPickTitle;
+
+  /// Screen-reader label of the list of results, one line per file opened.
+  ///
+  /// In en, this message translates to:
+  /// **'Files opened'**
+  String get deskTfResults;
+
+  /// Result line of a file the wallet is still reading, signing or posting.
+  ///
+  /// In en, this message translates to:
+  /// **'Working on it…'**
+  String get deskTfWorking;
+
+  /// Result line of a sender's file: signed, and the response file written. {path} is where it was saved.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed. Response saved to {path}'**
+  String deskTfSigned(String path);
+
+  /// Result line of a finished payment this wallet already shows as posted: nothing was sent again.
+  ///
+  /// In en, this message translates to:
+  /// **'Already posted'**
+  String get deskTfAlreadyPosted;
+
+  /// Result line of a payment request (invoice) file: it is not paid until the user reviews it. {amount} is the amount with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'An invoice for {amount}. Review it to pay.'**
+  String deskTfInvoice(String amount);
+
+  /// Button on an invoice's result line: opens its review.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get deskTfReview;
+
+  /// Quiet button in the Transaction files card's heading: opens Send to pay with a file.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a payment file'**
+  String get deskTfCreate;
 }
 
 class _AppLocalizationsDelegate

@@ -27,6 +27,9 @@ late MockDeskHistoryFiles _saves;
 class _PickRequest implements DeskFiles {
   @override
   Future<String?> pickSlate({required String title}) async => '/home/alex/mail/request-12.5.slate';
+
+  @override
+  Future<List<PickedSlate>> pickSlates({required String title}) async => const [];
 }
 
 Future<void> _real(WidgetTester tester, [int ms = 400]) async {
