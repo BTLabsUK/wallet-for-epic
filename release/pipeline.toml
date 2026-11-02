@@ -259,7 +259,9 @@ needs = ["source", "source-check"]
 # A fresh work dir per run and variant on the Windows machine (never a stale LEPIC blob from an
 # older run); only this run's installer is taken back.
 run = "app/tool/build_windows_release_remote.sh {host.windows.ssh} {host.windows.workdir}/{run_id}-{variant} && mv -f build-windows/bt-wallet-{version}{notor}-windows-x64-setup.exe {stage}/"
-env = { WFE_TOR = "{tor}", WFE_NODE_BIN_WIN = "{path.node_bin_windows}" }
+# LEPIC's cargo target per variant, outside the run's work dir and kept between releases (the owner
+# 2026-11-02): the two variants never wait on one target's lock, and a new release starts warm.
+env = { WFE_TOR = "{tor}", WFE_NODE_BIN_WIN = "{path.node_bin_windows}", WFE_CARGO_TARGET = "{host.windows.workdir}/cargo-target/{variant}" }
 outputs = ["bt-wallet-{version}{notor}-windows-x64-setup.exe"]
 timeout = "150m"
 # The app without its tests and side tools, the two build scripts, the tools and pins they read

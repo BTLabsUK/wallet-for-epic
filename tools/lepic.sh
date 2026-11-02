@@ -26,7 +26,7 @@
 # WFE_TOR=0 builds the libraries without LEPIC's tor feature (https://docs.btlabs.uk/developers/build/variants/): the
 # binding's tool/lepic.sh reads the same switch.
 #
-# LEPIC_SHARED=1 (tools/check.sh sets it; release builds leave it unset) builds from a shared
+# LEPIC_SHARED=1 (tools/check.sh and the Android release build set it) builds from a shared
 # clone of the pin instead of app/third_party/lepic, so every worktree at the same pin reuses one
 # cargo build: ~/.cache/wfe-lepic/<pin>-<tor|notor>/ (LEPIC_SHARED_DIR), cloned once from this
 # worktree's clone and never moved off its commit. One clone per pin and variant keeps the

@@ -105,11 +105,16 @@ fi
 # The F-Droid build must come out the same on F-Droid's build server: without this, LEPIC's
 # library names every crate's source path under this host's cargo home (panic locations).
 # The recipe sets the same (https://docs.btlabs.uk/developers/build/variants/).
+shared=1
 if [[ $dist == fdroid ]]; then
   export RUSTFLAGS="--remap-path-prefix=${CARGO_HOME:-$HOME/.cargo}=/cargo"
+  shared=0
 fi
-# The binding's tool/lepic.sh builds LEPIC without Tor for WFE_TOR=0.
-LEPIC_NO_CACHE=1 WFE_TOR=$tor "$app_dir/../tools/lepic.sh" build android
+# The binding's tool/lepic.sh builds LEPIC without Tor for WFE_TOR=0. From the shared clone of the
+# pin for this variant (tools/lepic.sh, LEPIC_SHARED): its cargo target is kept between releases
+# and the two variants never share one (the owner 2026-11-02). F-Droid builds in this checkout, as on
+# its build server.
+LEPIC_SHARED=$shared LEPIC_NO_CACHE=1 WFE_TOR=$tor "$app_dir/../tools/lepic.sh" build android
 
 apks="$app_dir/build/app/outputs/flutter-apk"
 mkdir -p "$out_dir"

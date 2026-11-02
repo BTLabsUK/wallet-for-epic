@@ -16,7 +16,8 @@
 #        LEPIC_FLUTTER_REPO=<url or path>   the same for lepic-flutter (package:lepic): ~/lepic-flutter
 #                                           or https://github.com/BTLabsUK/lepic-flutter.git
 # Output: build-linux/bt-wallet-<version>[-notor]-linux-x86_64.AppImage
-# Caches: docker volumes wfe-linux-{pub,cargo,home,lepic-target} keep rebuilds fast.
+# Caches: docker volumes wfe-linux-{pub,cargo,home} and LEPIC's target, one per variant
+#         (wfe-linux-lepic-target, wfe-linux-lepic-target-notor), keep rebuilds fast.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 image=wfe-linux-build:22.04
@@ -106,8 +107,12 @@ mkdir -p "$work/tor-bundle"
 if [[ "${WFE_TOR:-1}" = 1 ]]; then
   "$root/tools/fetch-tor.sh" linux "$work/tor-bundle"
 fi
+# LEPIC's cargo target per variant: in one target each variant's build replaced the other's
+# libraries, so the second rebuilt them (2m41s in 26.10.25 run-15).
+target_volume=wfe-linux-lepic-target
+[[ "${WFE_TOR:-1}" = 0 ]] && target_volume=wfe-linux-lepic-target-notor
 # Fresh named volumes are root-owned; hand the build-cache ones to the host user once.
-docker run --rm -v wfe-linux-lepic-target:/t -v wfe-linux-build:/b -v wfe-linux-pub:/p -v wfe-linux-home:/h "$image" \
+docker run --rm -v "$target_volume:/t" -v wfe-linux-build:/b -v wfe-linux-pub:/p -v wfe-linux-home:/h "$image" \
   chown "$(id -u):$(id -g)" /t /b /p /h
 docker run --rm --user "$(id -u):$(id -g)" \
   -e WFE_TARGET="${WFE_TARGET:-lib/main_desktop.dart}" -e WFE_BUILD_LEPIC="${WFE_BUILD_LEPIC:-1}" \
@@ -116,7 +121,7 @@ docker run --rm --user "$(id -u):$(id -g)" \
   -v wfe-linux-build:/work/app/build \
   -v "$src:/work/app/third_party/lepic" \
   -v "$binding_src:/work/app/third_party/lepic-flutter" \
-  -v wfe-linux-lepic-target:/work/app/third_party/lepic/target \
+  -v "$target_volume:/work/app/third_party/lepic/target" \
   -v wfe-linux-cargo:/opt/cargo \
   -v wfe-linux-pub:/cache/pub \
   -v wfe-linux-home:/cache/home \

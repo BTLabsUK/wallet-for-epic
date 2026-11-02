@@ -10,7 +10,9 @@
 # repository holding the commit in tools\lepic.rev, -LepicFlutter the lepic-flutter repository
 # (package:lepic) holding the commit in tools\lepic-flutter.rev, whose own lepic.rev must equal
 # tools\lepic.rev. -LepicCache optionally names an earlier <checkout>\app\third_party\lepic to
-# copy first, so unchanged Rust crates are not rebuilt.
+# copy first, so unchanged Rust crates are not rebuilt. -CargoTarget names LEPIC's cargo target
+# directory, outside the checkout and kept between builds (one per variant: two builds never share
+# one), so a warm LEPIC build survives a new checkout.
 #
 # Steps: LEPIC and lepic-flutter at the pins -> lepic_ffi.dll with a static CRT (RUSTFLAGS
 # crt-static), built from LEPIC into lepic-flutter\native ->
@@ -27,6 +29,7 @@ param(
     [Parameter(Mandatory)][string]$Lepic,
     [Parameter(Mandatory)][string]$LepicFlutter,
     [string]$LepicCache,
+    [string]$CargoTarget,
     [string]$OutDir,
     [string]$Flutter = "$env:USERPROFILE\flutter\bin",
     [string]$Iscc = "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe",
@@ -104,18 +107,23 @@ Step 'LEPIC'
 $rev = (Get-Content (Join-Path $Source 'tools\lepic.rev') -Raw).Trim()
 $clone = Join-Path $app 'third_party\lepic'
 # No -LepicCache: reuse the newest earlier build folder beside this one (…\wfe-rel\*\src) whose
-# LEPIC is at the same pin and has a cargo target, so an unchanged LEPIC is not compiled again.
+# LEPIC is at the same pin and was built (a cargo target inside, or lepic.built beside it once the
+# target is -CargoTarget), so an unchanged LEPIC is not compiled again: the copy keeps the sources'
+# times, which cargo compares with its last build.
+function Built($dir) { @("$dir\target", "$dir.built") | Where-Object { Test-Path $_ } | Select-Object -First 1 }
 if (-not $LepicCache -and -not (Test-Path $clone)) {
     $builds = Split-Path (Split-Path (Resolve-Path $Source))
     $LepicCache = Get-ChildItem $builds -Directory -ErrorAction SilentlyContinue |
         ForEach-Object { Join-Path $_.FullName 'src\app\third_party\lepic' } |
-        Where-Object { (Test-Path "$_\target") -and ((git -C $_ rev-parse HEAD 2>$null) -eq $rev) } |
-        Sort-Object { (Get-Item "$_\target").LastWriteTime } -Descending | Select-Object -First 1
+        Where-Object { (Built $_) -and ((git -C $_ rev-parse HEAD 2>$null) -eq $rev) } |
+        Sort-Object { (Get-Item (Built $_)).LastWriteTime } -Descending | Select-Object -First 1
     if ($LepicCache) { Write-Output "LEPIC cache: $LepicCache" }
 }
 if ($LepicCache -and -not (Test-Path $clone)) {
     New-Item -ItemType Directory -Force (Split-Path $clone) | Out-Null
-    robocopy $LepicCache $clone /E /NFL /NDL /NJH /NJS /NP | Out-Null
+    # With -CargoTarget the sources only: the build goes to that target, not one copied along.
+    $skip = @(if ($CargoTarget) { '/XD'; "$LepicCache\target" })
+    robocopy $LepicCache $clone /E /NFL /NDL /NJH /NJS /NP @skip | Out-Null
     if ($LASTEXITCODE -ge 8) { throw "copying $LepicCache failed" }
 }
 if (-not (Test-Path "$clone\.git")) {
@@ -149,15 +157,25 @@ Write-Output "lepic-flutter at $(git -C $binding log --oneline -1)"
 
 # --- lepic_ffi.dll, static CRT: the target needs no VC runtime or UCRT DLLs of its own
 Step 'lepic_ffi.dll (static CRT)'
-Remove-Item Env:CARGO_TARGET_DIR -ErrorAction SilentlyContinue
+if ($CargoTarget) {
+    New-Item -ItemType Directory -Force $CargoTarget | Out-Null
+    $env:CARGO_TARGET_DIR = $CargoTarget
+    Write-Output "cargo target: $CargoTarget"
+} else { Remove-Item Env:CARGO_TARGET_DIR -ErrorAction SilentlyContinue }
 $env:RUSTFLAGS = '-C target-feature=+crt-static'
 Push-Location $clone
 try {
+    # xtask has the clone's path built in (CARGO_MANIFEST_DIR) and builds LEPIC there. A target
+    # copied or kept from another clone would run the xtask built for that one, against that
+    # clone's sources: build it again for this clone (seconds).
+    cargo clean --quiet --package xtask
+    if ($LASTEXITCODE) { throw 'cargo clean --package xtask failed' }
     # -NoTor: LEPIC without its tor feature, so lepic_ffi.dll carries no Tor code either.
     $lepicNoTor = @(if ($NoTor) { '--no-tor' })
     cargo xtask mobile --package --target x86_64-pc-windows-msvc @lepicNoTor --out (Join-Path $binding 'native')
     if ($LASTEXITCODE) { throw 'LEPIC build failed' }
-} finally { Pop-Location; Remove-Item Env:RUSTFLAGS }
+    Set-Content -Path "$clone.built" -Value $rev
+} finally { Pop-Location; Remove-Item Env:RUSTFLAGS; Remove-Item Env:CARGO_TARGET_DIR -ErrorAction SilentlyContinue }
 $ffi = Get-ChildItem (Join-Path $binding 'native') -Recurse -Filter lepic_ffi.dll | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 $dumpbin = Get-ChildItem "${env:ProgramFiles(x86)}\Microsoft Visual Studio" -Recurse -Filter dumpbin.exe -ErrorAction SilentlyContinue |
     Where-Object FullName -like '*Hostx64\x64*' | Select-Object -First 1
