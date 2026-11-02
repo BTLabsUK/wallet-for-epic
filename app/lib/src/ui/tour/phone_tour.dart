@@ -126,6 +126,13 @@ class _PhoneTourAnchorState extends ConsumerState<PhoneTourAnchor> {
   OverlayEntry? _entry;
   Timer? _timer;
   int _waits = 0;
+
+  /// The user touched Home before the tour opened.
+  bool _touched = false;
+
+  /// The user went elsewhere (Send, Receive, a screen) before the tour opened: it does not open
+  /// by itself in this run, and stays unseen for Help › Start tour.
+  bool _gaveUp = false;
   late final PhoneTourController _tour = ref.read(phoneTourProvider.notifier);
 
   @override
@@ -139,12 +146,17 @@ class _PhoneTourAnchorState extends ConsumerState<PhoneTourAnchor> {
 
   /// Home idle: its route is the current one (no PIN screen, dialog or sheet over it) on the
   /// Wallet tab. A payment link opened at unlock moved to Send: the link wins, and the tour
-  /// waits until Wallet shows again.
+  /// waits until Wallet shows again. Once the user has tapped their way off Wallet, it does
+  /// not start later.
   void _tryStart() {
-    if (!mounted) return;
+    if (!mounted || _gaveUp) return;
     final route = ModalRoute.of(context);
     if (route == null || !route.isCurrent || ref.read(shellTabProvider) != ShellTab.wallet) {
-      if (++_waits < 30) _timer = Timer(const Duration(seconds: 1), _tryStart);
+      if (_touched) {
+        _gaveUp = true;
+      } else if (++_waits < 30) {
+        _timer = Timer(const Duration(seconds: 1), _tryStart);
+      }
       return;
     }
     // Level 1 is the quiet shell: its Home has none of the tour's tiles, icons or servers, so
@@ -197,13 +209,20 @@ class _PhoneTourAnchorState extends ConsumerState<PhoneTourAnchor> {
         _hide();
       }
     });
+    // A tab the user picked before the tour opened (a payment link moves to Send untouched).
+    ref.listen(shellTabProvider, (_, tab) {
+      if (_touched && tab != ShellTab.wallet) _gaveUp = true;
+    });
     final open = ref.watch(phoneTourProvider.select((s) => s.open));
     return PopScope(
       canPop: !open,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) (_tour.back ?? _tour.close)();
       },
-      child: widget.child,
+      child: Listener(
+        onPointerDown: (_) => _touched = true,
+        child: widget.child,
+      ),
     );
   }
 }

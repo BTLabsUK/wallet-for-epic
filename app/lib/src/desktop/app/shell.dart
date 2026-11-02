@@ -83,6 +83,9 @@ class DeskShell extends ConsumerStatefulWidget {
 
 class _DeskShellState extends ConsumerState<DeskShell> {
   Timer? _tourTimer;
+
+  /// Overview was left before the tour opened by itself.
+  bool _tourMissed = false;
   Timer? _ownAsk;
 
   /// The foreground tick of RFC 8.4: the mailboxes of contacts with something pending.
@@ -256,9 +259,15 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     super.dispose();
   }
 
-  /// The tour, once, shortly after the first unlock lands on Overview.
+  /// The tour, once, shortly after the first unlock lands on Overview. Left before it opened
+  /// (the user went to another page), it does not open later in this run; Help still has it.
   void _maybeTour() {
-    if (!deskTourAuto || widget.at.route != DeskRoute.overview || ref.read(deskTourProvider).seen) return;
+    if (!deskTourAuto || _tourMissed || ref.read(deskTourProvider).seen) return;
+    if (widget.at.route != DeskRoute.overview) {
+      if (_tourTimer != null) _tourMissed = true;
+      _tourTimer?.cancel();
+      return;
+    }
     _tourTimer?.cancel();
     _tourTimer = Timer(const Duration(milliseconds: 900), () {
       if (mounted && ref.read(deskNavProvider).route == DeskRoute.overview) {
