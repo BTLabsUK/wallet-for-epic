@@ -520,6 +520,3 @@ void main() {
     });
   });
 }
-
-/// The method Send's selector holds now.
-TxMethod? _selected(WidgetTester tester) => tester.widget<ESegmented<TxMethod?>>(find.byType(ESegmented<TxMethod?>).first).value;

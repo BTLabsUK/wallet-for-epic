@@ -23,7 +23,6 @@ import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
-import 'package:epic_wallet/src/ui/method_art.dart';
 import 'package:epic_wallet/src/ui/payment_code_ui.dart';
 import 'package:epic_wallet/src/ui/qr_camera.dart';
 import 'package:epic_wallet/src/ui/qr_scan_screen.dart';

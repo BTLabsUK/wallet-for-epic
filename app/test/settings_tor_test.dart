@@ -12,10 +12,8 @@ import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
-import 'package:epic_wallet/src/ui/info_hint.dart';
 import 'package:epic_wallet/src/ui/network_mode_phone.dart' show networkModeRowKey;
 import 'package:epic_wallet/src/ui/tor_ui.dart';
-import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:epic_wallet/src/tor_build.dart';
@@ -35,7 +33,7 @@ class _OpenSession extends SessionNotifier {
 }
 
 class _Harness {
-  _Harness({this.bundle = _bundle, this.advanced = AdvancedPrefs.none});
+  _Harness({this.bundle = _bundle}) : advanced = AdvancedPrefs.none;
 
   final TorBundle? bundle;
 
