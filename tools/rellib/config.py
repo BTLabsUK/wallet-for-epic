@@ -192,6 +192,7 @@ DEFAULT_SCOPE = {
     "variants": {v: True for v in VARIANTS},
     "stores": {"play": False, "play_promote": ""},
     "publish": {"target": "live", "manifests": True, "notes": "", "github": True},
+    "apple": {"signed": True},
     "skip": {},
     "proof": {"previous_dir": "", "previous_version": "", "previous_ref": "", "waive": {}},
 }
@@ -398,6 +399,8 @@ def scope_summary(scope):
         parts.append(f"stores: {', '.join(stores)}")
     if not scope["publish"]["manifests"]:
         parts.append("no update manifests")
+    if not scope.get("apple", {}).get("signed", True) and (scope["platforms"].get("macos") or scope["platforms"].get("ios")):
+        parts.append("Apple ad hoc (dmg not notarised, iOS unsigned ipa)")
     if scope["publish"].get("github"):
         parts.append("GitHub release mirror")
     if scope["skip"]:
@@ -417,9 +420,9 @@ def scope_toml(scope):
 
     lines = ["# The resolved scope of this run (release.toml + command line).",
              f"version = {val(scope['version'])}", f"test = {val(scope['test'])}"]
-    for table in ("platforms", "variants", "stores", "publish", "skip"):
+    for table in ("platforms", "variants", "stores", "publish", "apple", "skip"):
         lines.append(f"\n[{table}]")
-        for k, v in scope[table].items():
+        for k, v in scope.get(table, {}).items():  # runs from before a table was added lack it
             lines.append(f"{k if re.fullmatch(r'[A-Za-z0-9_-]+', k) else val(k)} = {val(v)}")
     lines.append("\n[proof]")
     for k in ("previous_dir", "previous_version", "previous_ref"):

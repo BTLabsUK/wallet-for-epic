@@ -10,6 +10,7 @@
 #   platform   android | linux | windows | macos | ios, or a list: the step is in the graph only
 #              when one of them is in the release's scope (release.toml [platforms])
 #   when       scope switches that must all be on, e.g. ["stores.play"] or ["publish.manifests"]
+#   unless     scope switches that must all be off, e.g. ["apple.signed"]
 #   for_each   "variant" (one step per variant in scope: -tor, -notor) or "proof_variant"
 #              (the variants [proof] update-tests)
 #   needs      step names; a name with for_each means all its instances, name@variant the
@@ -221,7 +222,8 @@ kind = "builtin"
 host = "local"
 platform = "android"
 lane = "sign"
-needs = ["build-android", "build-play", "build-linux", "build-windows", "apple-mac-check", "ios-testflight"]
+needs = ["build-android", "build-play", "build-linux", "build-windows", "apple-mac-check", "ios-testflight",
+         "apple-adhoc-mac", "apple-adhoc-ios"]
 
 [step.build-linux]
 title = "Linux AppImage ({variant})"
@@ -271,6 +273,7 @@ reuse = ["app", "!app/test", "!app/integration_test", "!app/tool", "app/tool/bui
 title = "macOS signed + notarised dmg ({variant})"
 kind = "handoff"
 platform = "macos"
+when = ["apple.signed"]
 for_each = "variant"
 host = "apple"
 needs = ["source-check"]
@@ -281,6 +284,7 @@ timeout = "48h"
 [step.apple-mac-check]
 title = "macOS dmg check: sha256, commit, Team ID, Gatekeeper ({variant})"
 platform = "macos"
+when = ["apple.signed"]
 for_each = "variant"
 host = "local"
 needs = ["apple-mac@variant"]
@@ -294,11 +298,49 @@ outputs = ["bt-wallet-{version}{notor}-macos.dmg"]
 title = "iOS to TestFlight"
 kind = "handoff"
 platform = "ios"
+when = ["apple.signed"]
 host = "apple"
 needs = ["source-check"]
 run = "git fetch job/wfe.bundle HEAD && git checkout --detach FETCH_HEAD && test \"$(git rev-parse HEAD)\" = {commit} && RELEASE_COMMIT={commit} WFE_TOR=0 tools/build-apple.sh ios-prepare  # then Xcode Archive → Distribute → App Store Connect; results/REPORT.txt: build number + uploaded"
 results = ["REPORT.txt"]
 timeout = "48h"
+
+# Apple ad hoc (release.toml [apple] signed = false, --set apple.signed=false): what 26.10.24
+# shipped, for test releases without the team's signing set-up. One Mac build per variant gives
+# the ad-hoc-signed .dmg (not notarised: Gatekeeper asks the user to open it by hand) and the
+# unsigned .ipa (a device install needs it signed first). Linux checks the Mac's results.txt
+# (release-check at the commit, every step PASS) and the SHA256SUMS before either file can ship.
+[step.apple-adhoc]
+title = "Apple ad-hoc dmg + unsigned ipa ({variant})"
+kind = "handoff"
+platform = ["macos", "ios"]
+unless = ["apple.signed"]
+for_each = "variant"
+host = "apple"
+needs = ["source-check"]
+run = "rm -rf src out && git clone -q job/wfe.bundle src && cd src && git checkout -q --detach {commit} && RELEASE_COMMIT={commit} WFE_TOR={tor} APPLE_OUT=$PWD/../out tools/build-apple.sh release-check doctor sources lepic macos dmg ipa  # in the folder holding job/: a fresh clone beside job/ (release-check refuses untracked files, and a build changes tracked ones); then out/{bt-wallet-{version}{notor}-macos.dmg,bt-wallet-{version}{notor}-ios-unsigned.ipa,results.txt} into results/ with their SHA256SUMS"
+results = ["bt-wallet-{version}{notor}-macos.dmg", "bt-wallet-{version}{notor}-ios-unsigned.ipa", "results.txt", "SHA256SUMS"]
+timeout = "48h"
+
+[step.apple-adhoc-mac]
+title = "macOS ad-hoc dmg check: sums, commit, steps ({variant})"
+platform = "macos"
+unless = ["apple.signed"]
+for_each = "variant"
+host = "local"
+needs = ["apple-adhoc@variant"]
+run = "{rel}/tools/rellib/steps/apple-adhoc-check.sh {run}/handoff/apple-adhoc-{variant}/results bt-wallet-{version}{notor}-macos.dmg {commit} {version} {stage}"
+outputs = ["bt-wallet-{version}{notor}-macos.dmg"]
+
+[step.apple-adhoc-ios]
+title = "iOS unsigned ipa check: sums, commit, steps ({variant})"
+platform = "ios"
+unless = ["apple.signed"]
+for_each = "variant"
+host = "local"
+needs = ["apple-adhoc@variant"]
+run = "{rel}/tools/rellib/steps/apple-adhoc-check.sh {run}/handoff/apple-adhoc-{variant}/results bt-wallet-{version}{notor}-ios-unsigned.ipa {commit} {version} {stage}"
+outputs = ["bt-wallet-{version}{notor}-ios-unsigned.ipa"]
 
 # ---- screens, beside the builds (docs/RELEASING.md, "Screens") --------------------------------
 
@@ -326,7 +368,8 @@ timeout = "120m"
 title = "G3 artefacts"
 kind = "builtin"
 host = "local"
-needs = ["build-android", "sign-android", "build-linux", "build-windows", "apple-mac-check", "ios-testflight"]
+needs = ["build-android", "sign-android", "build-linux", "build-windows", "apple-mac-check", "ios-testflight",
+         "apple-adhoc-mac", "apple-adhoc-ios"]
 
 [step.manifests]
 title = "Update manifests (signed)"
@@ -399,7 +442,7 @@ platform = "macos"
 for_each = "proof_variant"
 host = "build"
 lane = "trust-macos"
-needs = ["build-android", "build-play", "sign-android", "build-linux", "apple-mac-check@variant"]
+needs = ["build-android", "build-play", "sign-android", "build-linux", "apple-mac-check@variant", "apple-adhoc-mac@variant"]
 proof = true
 
 [step.trust-ios]
@@ -408,7 +451,7 @@ platform = "ios"
 for_each = "proof_variant"
 host = "build"
 lane = "trust-ios"
-needs = ["build-android", "build-play", "sign-android", "build-linux", "ios-testflight"]
+needs = ["build-android", "build-play", "sign-android", "build-linux", "ios-testflight", "apple-adhoc-ios@variant"]
 proof = true
 
 [step.update-trust]

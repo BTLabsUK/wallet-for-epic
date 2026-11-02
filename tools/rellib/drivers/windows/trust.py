@@ -79,7 +79,16 @@ RAIL = {"overview": (36, 82), "activity": (36, 127), "send": (36, 217), "receive
 COPY_ADDRESS_OLD = ((487, 285), (487, 260))
 COPY_ADDRESS_NARROW = ((721, 249), (721, 274))
 NARROW_FROM = (26, 10, 25)
-SEND_TO, SEND_MAX, SEND_REVIEW = (380, 433), (716, 557), (705, 655)
+# Send: the To field, Max and Review, by the release's layout. Up to 26.10.24 the old points. From 26.10.25
+# (the redesigned Send page, 08897d39a) measured on the 26.10.25 AppImage on Linux at 800x700: the To field
+# is a bar (y 176-224) across the card, Max (the "All" control) a small button at the right of Amount,
+# 28 px tall, which moves up 9 px once an address is typed (an "Epicbox" line replaces the hint), and
+# Review the button at the bottom right (y 641-687), unchanged. The rail maps -9 y from the top too (Linux
+# 91 -> rig 82), though the rule above says top-left points stay as they are: To and Max sit at the
+# middle of both readings (as is, -9 y) and land either way: To (380, 195), Max (726, 348) after the
+# address, Review (705, 655) as before. Not yet run on the rig.
+SEND_OLD = ((380, 433), (716, 557), (705, 655))
+SEND_NARROW = ((380, 195), (726, 348), (705, 655))
 
 # wfe.log lines of an install being taken for a new one: the first-start step (level picker) and its
 # server pick, which must never run on an existing install.
@@ -812,10 +821,11 @@ class Run:
             self.mark()
             self.click(RAIL["overview"], 1.5)
             self.click(RAIL["send"], 2.5)
-            self.click(SEND_TO, 0.8)
+            send_to, send_max, send_review = send_points(self.cand_ver)
+            self.click(send_to, 0.8)
             self.type(self.p_addr, 1.5)
-            self.click(SEND_MAX, 2)
-            self.click(SEND_REVIEW, 4)
+            self.click(send_max, 2)
+            self.click(send_review, 4)
             # the review: the password, then Enter sends
             self.type_password()
             self.keys(ENTER)
@@ -964,7 +974,9 @@ class Run:
                 raise CannotRun("no LEPIC CLI for the encrypted store at the candidate's pin: %s" % e)
         e = self.call("entry").get("entry")
         if e:
-            raise CannotRun("%s already has Epic Cash Desktop installed (%s at %s): left alone" % (self.rig.user, e.get("version"), e.get("location")))
+            raise CannotRun("%s already has %s installed (%s at %s, exe %s): left alone" % (
+                self.rig.user, e.get("name") or "BT Wallet (Epic Cash Desktop before 26.10.25)", e.get("version"), e.get("location"),
+                e.get("exe") or "epic_wallet.exe or btwallet.exe"))
 
         # previous release: installed silently, the user's wallet and choices
         r = self.call("setup", exe=self.rig.run + "\\prev-setup.exe", timeout=400, wait_s=300,
@@ -1006,7 +1018,10 @@ class Run:
         self.log_mark = cand_start
         self.after_update = True
         e = self.call("entry").get("entry") or {}
-        self.details["update"] = "Setup exit %s; uninstall entry now %s at %s" % (w.get("exit"), e.get("version"), e.get("location"))
+        self.details["update"] = "Setup exit %s; uninstall entry now %s %s at %s, icon %s" % (
+            w.get("exit"), e.get("name"), e.get("version"), e.get("location"), e.get("exe"))
+        if e.get("exe"):
+            self.exe = installed_exe(e)  # btwallet.exe from 26.10.25, whatever the previous release ran
         opened, why = self.open_after_update(before)
         self.details["wallet_opens"] = why
         if not opened:
@@ -1300,6 +1315,15 @@ def copy_points(version):
     if v and v < NARROW_FROM:
         return COPY_ADDRESS_OLD
     return COPY_ADDRESS_NARROW + COPY_ADDRESS_OLD
+
+
+def send_points(version):
+    """Send's (To, Max, Review) click points for a release: the old ones before 26.10.25, the redesigned
+    page's from it. An unreadable version is taken as the current layout."""
+    v = version_tuple(version)
+    if v and v < NARROW_FROM:
+        return SEND_OLD
+    return SEND_NARROW
 
 
 def conf_of(d):

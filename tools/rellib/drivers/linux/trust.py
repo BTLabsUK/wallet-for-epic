@@ -53,9 +53,17 @@ CAP_SEND = decimal.Decimal("0.05")
 CAP_JOB = decimal.Decimal("1")
 AMOUNT = re.compile(r"^(-?[\d,]+(?:\.\d+)?) EPIC$")
 # Settings' sections the driver opens or may see beside them: a narrow page lists them as chips, and
-# where two rows of chips are not enough as a dropdown that names only the section shown (87d01a220)
+# where two rows of chips are not enough as a dropdown that names only the section shown (87d01a220).
+# Both layouts: up to 26.10.24 (This wallet, Transactions, Receiving, ...) and from 26.10.25 (Wallet,
+# Payments, Network & privacy, ...: settings_sections.dart settingsSectionLabel).
 SECTIONS = ("Node", "Transactions", "Receiving", "Privacy", "Appearance", "This wallet", "All wallets",
-            "Recovery phrase", "Recheck balance", "Advanced", "About")
+            "Recovery phrase", "Recheck balance", "Advanced", "About",
+            "Wallet", "Security", "Payments", "Invoices", "Linked devices", "Network & privacy", "Wallets",
+            "Files & logs", "Help", "Donate")
+# where a setting lives, first match wins: the 26.10.25 page, then the older one
+LABEL_PAGES = ("Wallet", "This wallet")
+RELAY_PAGES = ("Payments", "Transactions", "Receiving")
+CONFIRMATIONS_PAGES = ("Payments", "Advanced")
 THEMES = ("System", "Dark", "Light")
 # the toast a build with the last-session report shows once after unlock (5f9933de6)
 LAST_SESSION = facts.label("deskLastSessionClosed", "The app closed unexpectedly last time. Send the log?")
@@ -561,34 +569,56 @@ class Run:
         self.log("Epicbox in use: %s" % self.relay)
         self.shot("prev-relay")
 
-    def relay_page(self):
-        for section in ("Transactions", "Receiving"):
+    def page_with(self, sections, pattern, what):
+        """The first of [sections] that shows [pattern]: one setting's page in either layout. Where the
+        page lists its sections, the ones this build has not are not tried."""
+        self.nav("Settings")
+        shown = {n.name.strip() for n in self.ui.nodes() if n.role == "button" and n.name.strip() in SECTIONS}
+        if len(shown) > 1:
+            sections = [x for x in sections if x in shown] or sections
+        for section in sections:
             try:
                 self.settings_page(section)
             except LookupError:
                 continue
-            if self.ui.find("re:^Epicbox server: "):
-                return
-        raise LookupError("no Epicbox server picker under Settings")
+            if self.ui.find(pattern):
+                return section
+        raise LookupError("no %s under Settings (%s)" % (what, ", ".join(sections)))
+
+    def relay_page(self):
+        self.page_with(RELAY_PAGES, "re:^Epicbox server: ", "Epicbox server picker")
+
+    def label_page(self):
+        self.page_with(LABEL_PAGES, "re:^(Save label|Name)$", "wallet label")
+
+    def confirmations_page(self):
+        self.page_with(CONFIRMATIONS_PAGES, "re:^Fewer confirmations$", "confirmations stepper")
+
+    def label_field(self):
+        """The wallet label's field: named Name from 26.10.25, else the page's first text field."""
+        f = [x for x in self.ui.fields() if x.role != "password text"]
+        named = [i for i, x in enumerate(f) if x.name.strip() == "Name"]
+        return (named[0] if named else 0), f
 
     def change_settings(self):
         ui = self.ui
         self.settings_page("Appearance")
         ui.click("re:^Light$", role="button")
-        self.settings_page("This wallet")
-        label_fields = [f for f in ui.fields() if f.role != "password text"]
+        self.label_page()
+        i, label_fields = self.label_field()
         if not label_fields:
             raise CannotRun("no wallet label field")
-        ui.fill(0, self.label)
+        ui.fill(i, self.label)
         ui.click("re:^Save label$")
         time.sleep(1)
-        self.settings_page("Advanced")
+        self.confirmations_page()
         for _ in range(30):
             v = self.confirmations()
             if v is None or v <= TEST_CONFIRMATIONS:
                 break
             ui.click("re:^Fewer confirmations$")
             time.sleep(0.5)
+        self.settings_page("Advanced")
         t = ui.find("re:^Technical details$", role="toggle button")
         if t and "checked" not in t[0].states:
             ui.tap(t[0])
@@ -596,7 +626,10 @@ class Run:
         self.shot("prev-settings")
 
     def confirmations(self):
-        for f in self.ui.fields():
+        """The confirmations count: the field named Confirmations (26.10.25: Payments, beside the
+        Epicbox port), else the page's first number field (Advanced up to 26.10.24)."""
+        fl = self.ui.fields()
+        for f in [x for x in fl if x.name.strip() == "Confirmations"] + fl:
             if f.value and f.value.isdigit():
                 return int(f.value)
         return None
@@ -678,11 +711,12 @@ class Run:
         if not sel and len({n.name for n in themes}) == 1:
             sel = [themes[0].name]  # a narrow page's dropdown names only the theme chosen
         out["theme"] = sel[0] if sel else None
-        self.settings_page("This wallet")
-        f = [x for x in ui.fields() if x.role != "password text"]
-        out["label"] = f[0].value if f else None
-        self.settings_page("Advanced")
+        self.label_page()
+        i, f = self.label_field()
+        out["label"] = f[i].value if f else None
+        self.confirmations_page()
         out["confirmations"] = self.confirmations()
+        self.settings_page("Advanced")
         t = ui.find("re:^Technical details$", role="toggle button")
         out["technical_details"] = ("checked" in t[0].states) if t else None
         return out

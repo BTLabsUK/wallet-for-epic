@@ -514,7 +514,7 @@ class Engine:
                             f'# In a clean clone of wallet-for-epic (tools/apple-release.md), run:\ncommand = {json.dumps(step.run)}\n'
                             f'# Put these in results/ (beside job/), with a SHA256SUMS of them:\n'
                             f'results = {json.dumps(step.results)}\n')
-                if step.base == "apple-build" and not self.dry and self.info.get("src"):
+                if not self.dry and self.info.get("src"):
                     subprocess.run(["git", "-C", self.info["src"], "bundle", "create", os.path.join(job, "wfe.bundle"),
                                     "HEAD"], stdout=f, stderr=subprocess.STDOUT)
                 for d in step.send:
