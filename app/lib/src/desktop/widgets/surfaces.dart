@@ -1393,8 +1393,9 @@ class _RenderWrapRow extends RenderBox
 }
 
 /// The info (or help) icon that opens the row's explanation in a popover
-/// (`popover.dart`): a click, Enter or Space opens it at once beside the icon; a click outside,
-/// Esc or its ✕ closes it and the focus comes back here. The icon is a Tab stop with the
+/// (`popover.dart`): a hover shows the text as a tip ([ETip]); a click, Enter or Space opens the
+/// popover at once beside the icon; a click outside, Esc or its ✕ closes it and the focus comes
+/// back here. The icon is a Tab stop with the
 /// desktop's focus ring and a button for screen readers, named by [title] (or [label]). With a
 /// [title] the popover shows [icon] and the title on its first line, as the phone's info sheet
 /// does; without one, the text alone.
@@ -1467,7 +1468,12 @@ class EInfoHintState extends State<EInfoHint> {
     final c = context.dc;
     final size = widget.size ?? 20.u;
     final lit = _hover || _open;
-    return Semantics(
+    // Its text on hover; a click opens the popover, which says it in full.
+    return ETip(
+      widget.text,
+      onClick: false,
+      excludeFromSemantics: true,
+      child: Semantics(
       button: true,
       label: widget.title ?? widget.label ?? context.l10n.deskKitInfoLabel,
       hint: widget.text,
@@ -1497,6 +1503,7 @@ class EInfoHintState extends State<EInfoHint> {
             ),
           ),
         ),
+      ),
       ),
     );
   }
