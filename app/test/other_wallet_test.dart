@@ -98,16 +98,16 @@ Future<void> _pump(WidgetTester tester, Widget home) async {
 void main() {
   testWidgets('the history rows name the other wallet, with no address and the direction\'s amount', (tester) async {
     await _pump(tester, const HistoryScreen());
-    expect(find.text('Sent from another wallet'), findsOneWidget);
-    expect(find.text('Received by another wallet'), findsOneWidget);
+    expect(find.text('Sent from another device'), findsOneWidget);
+    expect(find.text('Received by another device'), findsOneWidget);
     expect(find.textContaining('35.4'), findsWidgets);
     expect(find.textContaining('6.2'), findsWidgets);
   });
 
   testWidgets('a sent row\'s details: what it is, no recipient, no known fee, the offer spot at the end', (tester) async {
     await _pump(tester, const TxDetailsScreen(txKey: 'l:1'));
-    expect(find.text('Sent from another wallet'), findsWidgets);
-    expect(find.text('Spent by another wallet with the same recovery phrase. Only the amount is known.'), findsOneWidget);
+    expect(find.text('Sent from another device'), findsWidgets);
+    expect(find.text('Sent from another device with this wallet’s recovery phrase. Only the amount is known.'), findsOneWidget);
     expect(find.text('Sent to'), findsNothing);
     expect(find.text('Fee'), findsOneWidget);
     expect(find.text('Not known'), findsOneWidget);
@@ -116,8 +116,8 @@ void main() {
 
   testWidgets('a received row\'s details: what it is, no sender, no fee row', (tester) async {
     await _pump(tester, const TxDetailsScreen(txKey: 'l:2'));
-    expect(find.text('Received by another wallet'), findsWidgets);
-    expect(find.text('Received by another wallet with the same recovery phrase. Only the amount is known.'), findsOneWidget);
+    expect(find.text('Received by another device'), findsWidgets);
+    expect(find.text('Received by another device with this wallet’s recovery phrase. Only the amount is known.'), findsOneWidget);
     expect(find.text('Received from'), findsNothing);
     expect(find.text('Fee'), findsNothing);
     expect(find.byType(SentFromOtherWalletOffer), findsOneWidget);
@@ -126,11 +126,11 @@ void main() {
   test('the spoken rows and the error text', () {
     final l = lookupAppLocalizations(const Locale('en'));
     final sent = _rows()[0], received = _rows()[1];
-    expect(txTitle(l, sent), 'Sent from another wallet');
-    expect(txTitle(l, received), 'Received by another wallet');
+    expect(txTitle(l, sent), 'Sent from another device');
+    expect(txTitle(l, received), 'Received by another device');
     String say(TxEntry tx) => txSpokenLabel(l, tx, who: null, date: 'Today', status: 'Completed', hidden: false);
-    expect(say(sent), startsWith('Sent from another wallet'));
-    expect(say(received), startsWith('Received by another wallet'));
+    expect(say(sent), startsWith('Sent from another device'));
+    expect(say(received), startsWith('Received by another device'));
     expect(
       describeError(l, const WalletError(kind: WalletErrorKind.inputsSpentElsewhere, message: 'spent')),
       'The node shows these coins already spent, and this wallet did not spend them. Most likely another wallet using your recovery phrase did.',
@@ -150,9 +150,9 @@ void main() {
       blockHeight: _tip - BigInt.from(5),
       unverified: unverified,
     );
-    expect(txTitle(l, row(sent: true)), 'Sent from another wallet · unverified');
+    expect(txTitle(l, row(sent: true)), 'Sent from another device · unverified');
     expect(txExplanation(l, row(sent: true), _tip), endsWith('Recheck balance to confirm it.'));
-    expect(txTitle(l, row(sent: true, unverified: false)), 'Sent from another wallet');
+    expect(txTitle(l, row(sent: true, unverified: false)), 'Sent from another device');
     expect(txExplanation(l, row(sent: true, unverified: false), _tip), isNot(contains('Unverified')));
     expect(txTitle(l, row(sent: false)), isNot(contains('unverified')));
   });

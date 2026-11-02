@@ -22,8 +22,8 @@ void main() {
 
   test('the row names an unverified send, and only a send', () {
     final l = englishStrings;
-    expect(whoOf(l, row(direction: TxDirection.sent, unverified: true)), 'Sent from another wallet · unverified');
-    expect(whoOf(l, row(direction: TxDirection.sent)), 'Sent from another wallet');
-    expect(whoOf(l, row(direction: TxDirection.received)), 'Received by another wallet');
+    expect(whoOf(l, row(direction: TxDirection.sent, unverified: true)), 'Sent from another device · unverified');
+    expect(whoOf(l, row(direction: TxDirection.sent)), 'Sent from another device');
+    expect(whoOf(l, row(direction: TxDirection.received)), 'Received by another device');
   });
 }

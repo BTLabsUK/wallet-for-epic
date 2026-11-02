@@ -33,13 +33,13 @@ Future<void> _open(WidgetTester tester, {Object? arg}) async {
 void main() {
   testWidgets('Activity lists both rows by name', (tester) async {
     await _open(tester);
-    expect(find.text('Sent from another wallet'), findsWidgets);
-    expect(find.text('Received by another wallet'), findsWidgets);
+    expect(find.text('Sent from another device'), findsWidgets);
+    expect(find.text('Received by another device'), findsWidgets);
   });
 
   testWidgets('the details of a send: what it is, the fee not known, no method, the offer spot', (tester) async {
     await _open(tester, arg: 107);
-    expect(find.text('Spent by another wallet with the same recovery phrase. Only the amount is known.'), findsOneWidget);
+    expect(find.text('Sent from another device with this wallet’s recovery phrase. Only the amount is known.'), findsOneWidget);
     expect(find.text('Not known'), findsOneWidget);
     expect(find.text('Method'), findsNothing);
     expect(find.byType(DeskSentFromOtherWalletOffer), findsOneWidget);
@@ -47,7 +47,7 @@ void main() {
 
   testWidgets('the details of a receive: what it is, no fee', (tester) async {
     await _open(tester, arg: 108);
-    expect(find.text('Received by another wallet with the same recovery phrase. Only the amount is known.'), findsOneWidget);
+    expect(find.text('Received by another device with this wallet’s recovery phrase. Only the amount is known.'), findsOneWidget);
     expect(find.text('Not known'), findsNothing);
     expect(find.byType(DeskSentFromOtherWalletOffer), findsOneWidget);
   });
