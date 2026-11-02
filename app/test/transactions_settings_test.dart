@@ -444,10 +444,10 @@ void main() {
 
     testWidgets('a new phone: QR is on, there is no File row', (tester) async {
       await _pump(tester, _store(), phone: true);
+      // The phone only sends over Link · HTTP: no switch for it.
       expect(_methodRows(tester), [
         'tx-epicbox',
         'tx-family-link',
-        'tx-http',
         'tx-tor',
         'tx-family-direct',
         'tx-qr',
