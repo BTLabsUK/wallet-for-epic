@@ -1,65 +1,62 @@
 {
  "releases": [
   {
-   "version": "26.10.24",
-   "date": "2026-10-29",
+   "version": "26.10.25",
+   "date": "2026-11-02",
    "files": [
     {
-     "name": "EpicCashDesktop-26.10.24-macos.dmg",
-     "size": 70889220,
-     "sha256": "8ea0bcc3d30cd3280881f605cba639dd6737fe25e6c351eba20ca372421b6725"
+     "name": "bt-wallet-26.10.25-android-arm64-v8a.apk",
+     "size": 28970084,
+     "sha256": "58fd1c04ab6f905dfbaaf835621f5c0a0a29897ef710261cb0a566dc84208338"
     },
     {
-     "name": "EpicCashDesktop-26.10.24-notor-macos.dmg",
-     "size": 62014058,
-     "sha256": "e213bf00b612667b9fcd0351e2b382130a977edb056c1905cb98a3aa1673a8bc"
+     "name": "bt-wallet-26.10.25-ios-unsigned.ipa",
+     "size": 23247433,
+     "sha256": "d842a0371dda4449d314667d0767e5b364bb46f9c6c937ac8a5e35882d2749ea"
     },
     {
-     "name": "EpicCashDesktop-26.10.24-notor-x86_64.AppImage",
-     "size": 34253304,
-     "sha256": "7e94b9f0e76c10987b69758884e5b38bd7865e9d44dff8b3a8876fb10915077a"
+     "name": "bt-wallet-26.10.25-linux-x86_64.AppImage",
+     "size": 40593912,
+     "sha256": "47cc9b19953f10b88b89e37b31c85f3fa8ec154db246065dd0a747ecd4cb5b17"
     },
     {
-     "name": "EpicCashDesktop-26.10.24-x86_64.AppImage",
-     "size": 38414840,
-     "sha256": "a4371b69da005c5c96ce01727042549896b1a4cc123126520bb395dae95ea5dc"
+     "name": "bt-wallet-26.10.25-macos.dmg",
+     "size": 45383499,
+     "sha256": "4cdc9d14407d0feb4361775a3ee3ccea6db8b909d0f3c4f90a965f921d548ac5"
     },
     {
-     "name": "EpicCashMobile-26.10.24-ios-simulator.zip",
-     "size": 66243225,
-     "sha256": "d6179c6ec913717ea8e68ab0fcb07ddfb1c43e1df3ab72e7ae173168cfde297b"
+     "name": "bt-wallet-26.10.25-notor-android-arm64-v8a.apk",
+     "size": 24734751,
+     "sha256": "025f8b88d9cf4cb65b617d031890e2c394e3bb1bf175320f90eb452e58e8e1b1"
     },
     {
-     "name": "EpicCashMobile-26.10.24-ios-unsigned.ipa",
-     "size": 21481311,
-     "sha256": "12255f57686fcdf55334b2ec00e4610f6240830e62aeb225fb9711f18c5c508d"
+     "name": "bt-wallet-26.10.25-notor-ios-unsigned.ipa",
+     "size": 22993070,
+     "sha256": "3654fefea6c4ba550b56fa571379bc6d39dee26a75b9ae363d087b71b2f1ab31"
     },
     {
-     "name": "EpicCashMobile-26.10.24-notor-ios-unsigned.ipa",
-     "size": 21235931,
-     "sha256": "8155a584c831578f46e352a199f330940685b45b82ee526bce039eef1aea242c"
+     "name": "bt-wallet-26.10.25-notor-linux-x86_64.AppImage",
+     "size": 36407800,
+     "sha256": "d19f0ddb75faef0c240cd4aeef6cafaa35e9816e9d3a916bb45e121f88a915ba"
     },
     {
-     "name": "epic-cash-desktop-26.10.24-notor-windows-x64-setup.exe",
-     "size": 33709422,
-     "sha256": "06e4b85331591b52514f4b64ca660d9a6af3507eb8a937e59a808d5caca1eafe"
+     "name": "bt-wallet-26.10.25-notor-macos.dmg",
+     "size": 40899478,
+     "sha256": "d4551e94660413a948bbaf3656bb6ec5f284c8b31c7db2f15fc4cf8b681f5e9d"
     },
     {
-     "name": "epic-cash-desktop-26.10.24-windows-x64-setup.exe",
-     "size": 36422554,
-     "sha256": "63acc425a9369a3db47c46f892f0ae8c949ae525640dfead93825a42ee5bdb21"
+     "name": "bt-wallet-26.10.25-notor-windows-x64-setup.exe",
+     "size": 35193579,
+     "sha256": "59e99c8f6d888c0ce882a3f34ceb721e00853aafed8d502d2453fab7cdfb1e85"
     },
     {
-     "name": "epic-cash-mobile-26.10.24-arm64-v8a.apk",
-     "size": 27289028,
-     "sha256": "d6b5d3a92bc56edcdb520fba5de190e41a1fd7edc8c1ac1453d4c7312c10855e"
-    },
-    {
-     "name": "epic-cash-mobile-26.10.24-notor-arm64-v8a.apk",
-     "size": 23063643,
-     "sha256": "ba7150cdbbfc60030d92b086844cbc30e53aa0731806c0904436baebfd5b5aba"
+     "name": "bt-wallet-26.10.25-windows-x64-setup.exe",
+     "size": 37908084,
+     "sha256": "58f202bd5ffdd8e055bfe7d367de37f7113f76a6c94b224da498669175dc0615"
     }
-   ]
+   ],
+   "github": true,
+   "sig": true
   }
  ]
 }
