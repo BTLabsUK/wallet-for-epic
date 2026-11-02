@@ -20814,6 +20814,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskHttpPublicNote(String port) {
-    return 'Otwiera port $port na internet. Wymaga przekierowania portu na routerze.';
+    return 'Dla portfeli w internecie. Router musi przekierować port $port na ten komputer.';
   }
 }

@@ -5255,5 +5255,5 @@
   "deskHttpLocalTitle": "Dieser Computer",
   "deskHttpLocalSwitch": "Auf diesem Computer empfangen",
   "deskHttpPublicTitle": "Internet",
-  "deskHttpPublicNote": "Öffnet Port {port} zum Internet. Braucht eine Portweiterleitung am Router."
+  "deskHttpPublicNote": "Für Wallets im Internet. Der Router muss Port {port} an diesen Computer weiterleiten."
 }

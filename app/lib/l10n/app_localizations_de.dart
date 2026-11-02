@@ -20388,6 +20388,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskHttpPublicNote(String port) {
-    return 'Öffnet Port $port zum Internet. Braucht eine Portweiterleitung am Router.';
+    return 'Für Wallets im Internet. Der Router muss Port $port an diesen Computer weiterleiten.';
   }
 }

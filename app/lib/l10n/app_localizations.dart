@@ -31557,7 +31557,7 @@ abstract class AppLocalizations {
   /// Caption under the internet switch of Link · HTTP: turning it on makes the wallet listen on all interfaces (0.0.0.0). Short and factual.
   ///
   /// In en, this message translates to:
-  /// **'Opens port {port} to the internet. Needs port forwarding on your router.'**
+  /// **'For wallets on the internet. Your router must forward port {port} to this computer.'**
   String deskHttpPublicNote(String port);
 }
 

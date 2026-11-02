@@ -128,5 +128,5 @@
   "deskHttpLocalTitle": "Этот компьютер",
   "deskHttpLocalSwitch": "Получать на этом компьютере",
   "deskHttpPublicTitle": "Интернет",
-  "deskHttpPublicNote": "Открывает порт {port} в интернет. Нужна переадресация порта на роутере."
+  "deskHttpPublicNote": "Для кошельков в интернете. Роутер должен перенаправлять порт {port} на этот компьютер."
 }

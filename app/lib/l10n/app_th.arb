@@ -5255,5 +5255,5 @@
   "deskHttpLocalTitle": "คอมพิวเตอร์เครื่องนี้",
   "deskHttpLocalSwitch": "รับบนคอมพิวเตอร์เครื่องนี้",
   "deskHttpPublicTitle": "อินเทอร์เน็ต",
-  "deskHttpPublicNote": "เปิดพอร์ต {port} สู่อินเทอร์เน็ต ต้องตั้งค่า port forwarding บนเราเตอร์"
+  "deskHttpPublicNote": "สำหรับวอลเล็ตบนอินเทอร์เน็ต เราเตอร์ต้องส่งต่อพอร์ต {port} มาที่คอมพิวเตอร์เครื่องนี้"
 }

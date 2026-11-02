@@ -20140,6 +20140,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskHttpPublicNote(String port) {
-    return 'Opens port $port to the internet. Needs port forwarding on your router.';
+    return 'For wallets on the internet. Your router must forward port $port to this computer.';
   }
 }

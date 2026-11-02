@@ -20798,6 +20798,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskHttpPublicNote(String port) {
-    return 'Открывает порт $port в интернет. Нужна переадресация порта на роутере.';
+    return 'Для кошельков в интернете. Роутер должен перенаправлять порт $port на этот компьютер.';
   }
 }

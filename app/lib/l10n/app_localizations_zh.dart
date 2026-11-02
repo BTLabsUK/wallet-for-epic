@@ -18976,6 +18976,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskHttpPublicNote(String port) {
-    return '向互联网开放端口 $port。需要在路由器上设置端口转发。';
+    return '供互联网上的钱包使用。路由器需将端口 $port 转发到这台电脑。';
   }
 }

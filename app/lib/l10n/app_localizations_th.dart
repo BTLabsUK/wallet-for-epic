@@ -19719,6 +19719,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskHttpPublicNote(String port) {
-    return 'เปิดพอร์ต $port สู่อินเทอร์เน็ต ต้องตั้งค่า port forwarding บนเราเตอร์';
+    return 'สำหรับวอลเล็ตบนอินเทอร์เน็ต เราเตอร์ต้องส่งต่อพอร์ต $port มาที่คอมพิวเตอร์เครื่องนี้';
   }
 }

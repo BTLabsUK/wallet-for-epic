@@ -128,5 +128,5 @@
   "deskHttpLocalTitle": "Ten komputer",
   "deskHttpLocalSwitch": "Odbieraj na tym komputerze",
   "deskHttpPublicTitle": "Internet",
-  "deskHttpPublicNote": "Otwiera port {port} na internet. Wymaga przekierowania portu na routerze."
+  "deskHttpPublicNote": "Dla portfeli w internecie. Router musi przekierować port {port} na ten komputer."
 }
