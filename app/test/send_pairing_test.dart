@@ -144,7 +144,7 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await answerPin(tester);
 }
 
-/// From the recipient step with a pairing: Continue, 1.5000\u00a0EPIC, Continue to the review.
+/// From the recipient step with a pairing: Continue, 1.5\u00a0EPIC, Continue to the review.
 Future<void> _toReview(WidgetTester tester) async {
   await _tap(tester, find.widgetWithText(FilledButton, _l.commonContinue));
   final amount = find.widgetWithText(TextField, 'Amount (EPIC)');
@@ -211,7 +211,7 @@ void main() {
       expect(find.text(_l.sendRecipientPairing('Anna')), findsOneWidget);
       expect(find.textContaining('@'), findsNothing);
       expect(find.byKey(sendQueuedCardKey), findsNothing);
-      await _tap(tester, find.widgetWithText(FilledButton, 'Send 1.50000000\u00a0EPIC'));
+      await _tap(tester, find.widgetWithText(FilledButton, 'Send 1.5\u00a0EPIC'));
       expect(h.session.pairing.calls, contains('sendViaMailbox'));
       expect(h.session.epicboxSends.single.amount, _epic(1.5));
       expect(find.text(_l.txStepSentMailbox('Anna')), findsOneWidget);

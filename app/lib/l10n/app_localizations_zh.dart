@@ -17367,7 +17367,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskLvStartMiniWallet => '主钱包';
 
   @override
-  String get deskLvStartMiniLine => '+12.5000 即将到账 · 25.0000 已冻结';
+  String get deskLvStartMiniLine => '+12.5 即将到账 · 25.0 已冻结';
 
   @override
   String get deskLvStartMiniFresh => '刚挖出的币';
@@ -18961,7 +18961,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskDonateInContacts => '在联系人中';
 
   @override
-  String get deskHttpLocalTitle => '本机';
+  String get deskHttpLocalTitle => '本地网络';
 
   @override
   String get deskHttpLocalSwitch => '在本机接收';
@@ -18971,7 +18971,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskHttpPublicNote(String port) {
-    return '向互联网开放端口 $port。需要在路由器上设置端口转发。';
+    return '供互联网上的钱包使用。路由器需将端口 $port 转发到这台电脑。';
+  }
+
+  @override
+  String deskKitMethodHttpNotReachable(String port) {
+    return '仅在你的网络内，无法从互联网访问：请转发端口 $port';
   }
 
   @override

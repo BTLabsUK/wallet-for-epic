@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// The one rule every send path asks before its confirm (next-fixes 12: 5 EPIC with 0.8920
+// The one rule every send path asks before its confirm (next-fixes 12: 5 EPIC with 0.892
 // available could be confirmed before the estimate came).
 
 import 'package:epic_wallet/src/send_amount_gate.dart';

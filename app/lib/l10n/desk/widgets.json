@@ -590,6 +590,15 @@
   "@deskKitMethodHttpLocal": {
     "description": "Detail of the HTTP status line: reachable from this computer only. Keep the address 127.0.0.1."
   },
+  "deskKitMethodHttpNotReachable": "on your network, not from the internet: forward port {port}",
+  "@deskKitMethodHttpNotReachable": {
+    "description": "Detail of the HTTP status line after the bold word Receiving, while Internet is on but the reach check found the port closed: the listener answers on the local network, the internet does not reach it until the router forwards the port.",
+    "placeholders": {
+      "port": {
+        "type": "String"
+      }
+    }
+  },
   "deskKitMethodNotReceiving": "Not receiving",
   "@deskKitMethodNotReceiving": {
     "description": "Bold status word of the HTTP status line: the listener failed."
@@ -760,11 +769,11 @@
   "@deskKitMoreInHelp": {
     "description": "Link at the end of an info popover that opens the Help topic saying more (WD2-063)."
   },
-  "deskHttpLocalTitle": "This computer",
+  "deskHttpLocalTitle": "Local network",
   "@deskHttpLocalTitle": {
     "description": "Title of the Link · HTTP address for wallets on this computer (http://127.0.0.1:port), on Receive and in Settings. Short."
   },
-  "deskHttpLocalSwitch": "Receive on this computer",
+  "deskHttpLocalSwitch": "Receive on the local network",
   "@deskHttpLocalSwitch": {
     "description": "Screen-reader label of the switch next to the local Link · HTTP address."
   },
@@ -772,7 +781,7 @@
   "@deskHttpPublicTitle": {
     "description": "Title of the Link · HTTP address for wallets on the internet (http://<public IP>:port), on Receive and in Settings. One word."
   },
-  "deskHttpPublicNote": "Opens port {port} to the internet. Needs port forwarding on your router.",
+  "deskHttpPublicNote": "For wallets on the internet. Your router must forward port {port} to this computer.",
   "@deskHttpPublicNote": {
     "description": "Caption under the internet switch of Link · HTTP: turning it on makes the wallet listen on all interfaces (0.0.0.0). Short and factual.",
     "placeholders": {

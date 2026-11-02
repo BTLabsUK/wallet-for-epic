@@ -45,7 +45,7 @@ void main() {
       expect(out.substring(0, firstBreak), csvHeader);
       expect(
         out.substring(firstBreak + 1),
-        '2026-09-21T14:13:20Z,Sent,Completed,-1.49200000,0.00800000,'
+        '2026-09-21T14:13:20Z,Sent,Completed,-1.492,0.008,'
         '"\'=HYPERLINK(""x"")","rent, ""march""\nsecond line",1,08ab,12,,,\n',
       );
       expect(epicDecimal(BigInt.from(5)), '0.00000005');

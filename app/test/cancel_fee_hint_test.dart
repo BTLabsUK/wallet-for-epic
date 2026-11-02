@@ -134,7 +134,7 @@ void _expectThreeChoices(WidgetTester tester, {required String keep}) {
   expect(find.byKey(cancelStopWaitingKey), findsOneWidget);
   expect(find.byKey(cancelKeepKey), findsOneWidget);
   // The fee of the one locked coin spent back into one output: 0.004 EPIC, on its button.
-  expect(find.descendant(of: find.byKey(cancelForSureKey), matching: find.textContaining('0.0040')), findsOneWidget);
+  expect(find.descendant(of: find.byKey(cancelForSureKey), matching: find.textContaining('0.004')), findsOneWidget);
   expect(find.descendant(of: find.byKey(cancelForSureKey), matching: find.textContaining(_l.cancelMoveBack)), findsOneWidget);
   expect(find.text(_l.cancelUnlockOpen), findsOneWidget);
   expect(find.text(keep), findsOneWidget);
@@ -267,7 +267,7 @@ void main() {
     // The buttons are named by outcome (B-04): what happens to the coins and the payment.
     expect(_l.cancelMoveBack, contains('coins'));
     expect(_l.cancelUnlockOpen, contains('coins'));
-    expect(_l.cancelMoveBackFee('0.0040 EPIC'), startsWith(_l.cancelMoveBack));
+    expect(_l.cancelMoveBackFee('0.004 EPIC'), startsWith(_l.cancelMoveBack));
     for (final s in [_l.cancelCompareMoveBack, _l.cancelCompareUnlock]) {
       expect(s.split('. ').length, 1, reason: 'one line each: $s');
     }

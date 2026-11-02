@@ -229,10 +229,14 @@ class ENotice extends StatelessWidget {
     this.actionsBelow = false,
     this.textColor,
     this.below,
+    this.textSpan,
   });
 
   final String title;
   final String? text;
+
+  /// [text] as a span, when part of it must not wrap (an address in a [WidgetSpan]).
+  final InlineSpan? textSpan;
 
   /// Full-width content under the text, inside the panel (a progress bar).
   final Widget? below;
@@ -278,9 +282,16 @@ class ENotice extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(title, style: strong),
-            if (text != null) ...[
+            if (textSpan != null || text != null) ...[
               const SizedBox(height: 2),
-              Text(text!, style: textColor == null ? ts.small : ts.small.copyWith(color: textColor)),
+              if (textSpan != null)
+                // The style reaches the span's widgets too (a WidgetSpan's Text).
+                DefaultTextStyle.merge(
+                  style: textColor == null ? ts.small : ts.small.copyWith(color: textColor),
+                  child: Text.rich(textSpan!),
+                )
+              else
+                Text(text!, style: textColor == null ? ts.small : ts.small.copyWith(color: textColor)),
             ],
             if (below != null) ...[
               SizedBox(height: Sp.x2),

@@ -6614,7 +6614,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskRecvHttpIntro =>
-      'Для кошельков на этом компьютере, пока этот кошелёк открыт.';
+      'Для кошельков в локальной сети, пока этот кошелёк открыт.';
 
   @override
   String get deskRecvHttpTorHint =>
@@ -19060,7 +19060,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskLvStartMiniWallet => 'Основной кошелёк';
 
   @override
-  String get deskLvStartMiniLine => '+12,5000 поступает · 25,0000 удерживается';
+  String get deskLvStartMiniLine => '+12,5 поступает · 25,0 удерживается';
 
   @override
   String get deskLvStartMiniFresh => 'Свежие с майнинга';
@@ -20783,7 +20783,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskDonateInContacts => 'В контактах';
 
   @override
-  String get deskHttpLocalTitle => 'Этот компьютер';
+  String get deskHttpLocalTitle => 'Локальная сеть';
 
   @override
   String get deskHttpLocalSwitch => 'Получать на этом компьютере';
@@ -20793,7 +20793,12 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskHttpPublicNote(String port) {
-    return 'Открывает порт $port в интернет. Нужна переадресация порта на роутере.';
+    return 'Для кошельков в интернете. Роутер должен перенаправлять порт $port на этот компьютер.';
+  }
+
+  @override
+  String deskKitMethodHttpNotReachable(String port) {
+    return 'в вашей сети, не из интернета: перенаправьте порт $port';
   }
 
   @override

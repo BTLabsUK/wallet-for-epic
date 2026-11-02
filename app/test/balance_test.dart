@@ -276,18 +276,18 @@ void main() {
         summary: _summary(locked: 10, confirming: 7.492),
       );
       await _pump(tester, session, width: 360);
-      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '0.0000');
+      expect(tester.widget<Text>(find.byKey(balanceFigureKey)).data, '0.0');
       // Wallet says it in tiles: the 10 locked in sends and the 7.492 confirming.
       for (final (kind, text) in [
-        (BalanceKind.locked, '10.0000'),
-        (BalanceKind.confirming, '7.4920'),
+        (BalanceKind.locked, '10.0'),
+        (BalanceKind.confirming, '7.492'),
       ]) {
         expect(_inTile(kind, text).hitTestable(), findsOneWidget, reason: text);
       }
       // They stand still, and nothing runs to move them.
-      final at = tester.getRect(_inTile(BalanceKind.locked, '10.0000'));
+      final at = tester.getRect(_inTile(BalanceKind.locked, '10.0'));
       await tester.pump(const Duration(seconds: 3));
-      expect(tester.getRect(_inTile(BalanceKind.locked, '10.0000')), at);
+      expect(tester.getRect(_inTile(BalanceKind.locked, '10.0')), at);
       expect(tester.binding.hasScheduledFrame, isFalse);
 
       // The header on Send and Receive agrees: the same 0, and the same amounts as tokens
@@ -296,7 +296,7 @@ void main() {
       for (final tab in [l.homeSendButton, l.homeReceiveButton]) {
         await _tab(tester, tab);
         expect(_titleText(tester), startsWith('0'), reason: tab);
-        for (final text in ['10.0000 locked', '+7.4920 coming in']) {
+        for (final text in ['10.0 locked', '+7.492 coming in']) {
           expect(
             find.bySemanticsLabel(RegExp(RegExp.escape(text))),
             findsOneWidget,
@@ -330,12 +330,12 @@ void main() {
           (BalanceKind.locked, l.homeTileLocked, _epic(5)),
           (BalanceKind.total, l.homeTileTotal, _epic(26.25)),
         ]);
-        expect(_inTile(BalanceKind.confirming, '2.0000'), findsOneWidget);
+        expect(_inTile(BalanceKind.confirming, '2.0'), findsOneWidget);
         // Send and Receive keep three tokens: 5 locked, 2 confirming and 16 maturing coming
         // in, and the 0.5 not on chain yet apart (never counted as coming in).
         await _tab(tester, l.homeSendButton);
         final handle = tester.ensureSemantics();
-        for (final text in ['5.0000 locked', '+18.0000 coming in', 'Not on chain yet: 0.5000']) {
+        for (final text in ['5.0 locked', '+18.0 coming in', 'Not on chain yet: 0.5']) {
           expect(
             find.bySemanticsLabel(RegExp(RegExp.escape(text))),
             findsOneWidget,
@@ -367,14 +367,14 @@ void main() {
       expect(find.textContaining('coming in'), findsNothing);
       // Not a Confirming tile either: it waits for the sender, and says so.
       expect(find.byKey(balanceTileKey(BalanceKind.confirming)), findsNothing);
-      expect(_inTile(BalanceKind.waitingSender, '1,000,000.0000'), findsOneWidget);
+      expect(_inTile(BalanceKind.waitingSender, '1,000,000.0'), findsOneWidget);
       await _tab(tester, l.homeSendButton);
       expect(find.textContaining('coming in'), findsNothing);
       // The header names it for what it is, not on chain yet, never as coming in.
       final handle = tester.ensureSemantics();
       expect(find.bySemanticsLabel(RegExp('coming in')), findsNothing);
       expect(
-        find.bySemanticsLabel(RegExp(RegExp.escape('Not on chain yet: 1,000,000.0000'))),
+        find.bySemanticsLabel(RegExp(RegExp.escape('Not on chain yet: 1,000,000.0'))),
         findsOneWidget,
       );
       handle.dispose();
@@ -434,7 +434,7 @@ void main() {
         expect(_rowLabel(tester), isNot(contains('received,')));
         expect(find.textContaining(l.txStatusReceived), findsNothing);
         expect(find.textContaining(l.txStatusConfirming(0, 3)), findsOneWidget);
-        expect(_inTile(BalanceKind.confirming, '2.5000'), findsOneWidget);
+        expect(_inTile(BalanceKind.confirming, '2.5'), findsOneWidget);
 
         // The next refresh reaches block 228: three confirmations, both say so.
         session.summaryValue = _summary(

@@ -6547,7 +6547,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskRecvHttpIntro =>
-      'Für Wallets auf diesem Computer, solange diese Wallet geöffnet ist.';
+      'Für Wallets im lokalen Netzwerk, solange diese Wallet geöffnet ist.';
 
   @override
   String get deskRecvHttpTorHint =>
@@ -18645,7 +18645,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskLvStartMiniWallet => 'Hauptwallet';
 
   @override
-  String get deskLvStartMiniLine => '+12,5000 kommen an · 25,0000 gehalten';
+  String get deskLvStartMiniLine => '+12,5 kommen an · 25,0 gehalten';
 
   @override
   String get deskLvStartMiniFresh => 'Frisch vom Mining';
@@ -20373,7 +20373,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskDonateInContacts => 'In Ihren Kontakten';
 
   @override
-  String get deskHttpLocalTitle => 'Dieser Computer';
+  String get deskHttpLocalTitle => 'Lokales Netzwerk';
 
   @override
   String get deskHttpLocalSwitch => 'Auf diesem Computer empfangen';
@@ -20383,7 +20383,12 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskHttpPublicNote(String port) {
-    return 'Öffnet Port $port zum Internet. Braucht eine Portweiterleitung am Router.';
+    return 'Für Wallets im Internet. Der Router muss Port $port an diesen Computer weiterleiten.';
+  }
+
+  @override
+  String deskKitMethodHttpNotReachable(String port) {
+    return 'im eigenen Netzwerk, nicht aus dem Internet: Port $port weiterleiten';
   }
 
   @override

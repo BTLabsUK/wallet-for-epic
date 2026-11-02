@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('a number and its unit never part', () {
-    expect(withUnit('12.5000', 'EPIC'), '12.5000\u00a0EPIC');
+    expect(withUnit('12.5', 'EPIC'), '12.5\u00a0EPIC');
   });
 
   test('one metadata joiner: a no-break space before the dot, none doubled', () {

@@ -92,6 +92,7 @@
   "deskKitMethodStarting": "Запуск…",
   "deskKitMethodHttpInternet": "из интернета, порт {port}",
   "deskKitMethodHttpLocal": "только этот компьютер (127.0.0.1)",
+  "deskKitMethodHttpNotReachable": "в вашей сети, не из интернета: перенаправьте порт {port}",
   "deskKitMethodNotReceiving": "Приём не работает",
   "deskKitMethodPortInUse": "Порт {port} занят другой программой. Закройте её или измените порт ниже.",
   "deskKitMethodNotInBuild": "Нет в этой сборке",
@@ -125,8 +126,8 @@
   "deskKitReachTorOff": "Проверка работает только с выключенным Tor.",
   "deskKitNoAnswerSince": "Нет ответа с {time}",
   "deskKitMoreInHelp": "Подробнее в справке",
-  "deskHttpLocalTitle": "Этот компьютер",
+  "deskHttpLocalTitle": "Локальная сеть",
   "deskHttpLocalSwitch": "Получать на этом компьютере",
   "deskHttpPublicTitle": "Интернет",
-  "deskHttpPublicNote": "Открывает порт {port} в интернет. Нужна переадресация порта на роутере."
+  "deskHttpPublicNote": "Для кошельков в интернете. Роутер должен перенаправлять порт {port} на этот компьютер."
 }

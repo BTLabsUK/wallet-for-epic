@@ -183,7 +183,7 @@ Future<void> _send(WidgetTester tester) async {
   await _tap(tester, _continue);
   await _enter(tester, 'Amount (EPIC)', '1');
   await _tap(tester, _continue);
-  await _tap(tester, find.text('Send 1.00000000\u00a0EPIC'));
+  await _tap(tester, find.text('Send 1.0\u00a0EPIC'));
 }
 
 /// The labels of the tracker's steps in [state].
@@ -278,7 +278,7 @@ void main() {
       await _tap(tester, find.byTooltip('Back'));
       expect(find.text('2 of 3'), findsOneWidget);
       await _tap(tester, _continue);
-      await _tap(tester, find.text('Send 1.00000000\u00a0EPIC'));
+      await _tap(tester, find.text('Send 1.0\u00a0EPIC'));
 
       // The tracker: no step count, no way back to a form that could send twice.
       expect(find.text('3 of 3'), findsNothing);
@@ -317,7 +317,7 @@ void main() {
       await _enter(tester, 'Amount (EPIC)', '1');
       await _tap(tester, _continue);
       expect(info, findsOneWidget);
-      await _tap(tester, find.text('Send 1.00000000\u00a0EPIC'));
+      await _tap(tester, find.text('Send 1.0\u00a0EPIC'));
       expect(info, findsOneWidget);
     });
   });
@@ -373,7 +373,7 @@ void main() {
       expect(
         find.text(
           'Their wallet signs it when it opens. '
-          '1.0080\u00a0EPIC stays locked until then.',
+          '1.008\u00a0EPIC stays locked until then.',
         ),
         findsOneWidget,
       );
@@ -454,7 +454,7 @@ void main() {
       await _tap(tester, _continue);
       await _enter(tester, 'Amount (EPIC)', '1');
       await _tap(tester, _continue);
-      await tester.tap(find.text('Send 1.00000000\u00a0EPIC'));
+      await tester.tap(find.text('Send 1.0\u00a0EPIC'));
       await tester.pumpAndSettle();
       await answerPin(tester, settle: false);
       for (var i = 0; i < 10; i++) {
@@ -539,7 +539,7 @@ void main() {
       expect(find.text('No coins to send yet.'), findsNothing);
       await _enter(tester, 'To', _bob);
       await _tap(tester, _continue);
-      expect(find.text('+10.0000\u00a0EPIC coming in'), findsOneWidget);
+      expect(find.text('+10.0\u00a0EPIC coming in'), findsOneWidget);
     });
   });
 }

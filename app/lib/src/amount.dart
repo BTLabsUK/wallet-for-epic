@@ -34,56 +34,62 @@ String formatEpic(BigInt atomic, {int minDecimals = 0, bool grouped = false}) {
   return negative ? '-$text' : text;
 }
 
-/// Decimals every shown amount has: the one display rule of both apps, phone and desktop
-/// (headers, tiles, detail rows, activity lists, summaries, notices). Four, always written out
-/// (`0.0000`, `12.5000`), so figures line up and a balance never reads as fiat.
+/// Most decimals a compact amount shows: the rule of rows, tiles, lists, summaries, notices and
+/// the balance headline, phone and desktop. Cut to four, then written up to the last
+/// significant digit with at least one decimal (`0.892`, `12.5`, `2.0`), as every shown amount.
 const int displayDecimals = 4;
 
-/// Decimals an exact amount has: all eight, always written out (`1.69154322`, `12.50000000`).
-/// Only where exactness is the point: the balance sheet, a payment's exact amount, fees.
+/// Most decimals an exact amount shows: all eight a value has, up to its last significant
+/// digit, at least one (`1.69154322`, `12.5`, `2.0`). Where exactness is the point: a payment's
+/// review, its details, its QR code and payment request, fees.
 const int exactDecimals = 8;
 
+/// The decimals every shown amount writes out at least: `2.0`, never `2` or `2.00000000`.
+const int shownMinDecimals = 1;
+
 /// [atomic] cut to [decimals] decimals (towards zero, never rounded, so a balance never reads
-/// more than it is), shown with exactly that many, grouped (`1,234.5600`).
+/// more than it is), then up to its last significant digit with at least [shownMinDecimals],
+/// grouped: `1,234.56`, `0.892`, `2.0`.
 String cutEpic(BigInt atomic, int decimals) {
   assert(decimals >= 0 && decimals <= epicDecimals);
   final cut = BigInt.from(10).pow(epicDecimals - decimals);
   // `remainder` keeps the sign, so a negative amount is cut towards zero too.
   return formatEpic(
     atomic - atomic.remainder(cut),
-    minDecimals: decimals,
+    minDecimals: decimals < shownMinDecimals ? decimals : shownMinDecimals,
     grouped: true,
   );
 }
 
-/// [atomic] as the app shows an amount anywhere: [displayDecimals] decimals, cut off, grouped:
-/// `1,234.56781234` shows as `1,234.5678`, `0` as `0.0000`, `20,999,999.99999999` as
-/// `20,999,999.9999`. Display only; where the exact value matters use [exactEpic] (text) or
-/// [formatEpic] (fields, the clipboard, files).
+/// [atomic] as the app shows an amount anywhere: at most [displayDecimals] decimals, cut off,
+/// grouped: `1,234.56781234` shows as `1,234.5678`, `0.89200000` as `0.892`, `0` as `0.0`,
+/// `20,999,999.99999999` as `20,999,999.9999`. Display only; where the exact value matters use
+/// [exactEpic] (text) or [formatEpic] (fields, the clipboard, files).
 String displayEpic(BigInt atomic) => cutEpic(atomic, displayDecimals);
 
-/// [atomic] with every decimal, grouped: `1,234.56781234`, `12.50000000`.
+/// [atomic] with every significant decimal, at least one, grouped: `1,234.56781234`, `12.5`,
+/// `2.0`.
 String exactEpic(BigInt atomic) =>
-    formatEpic(atomic, minDecimals: exactDecimals, grouped: true);
+    formatEpic(atomic, minDecimals: shownMinDecimals, grouped: true);
 
 /// Where an amount is shown. Each surface has one precision, the same on the phone and the
 /// desktop, so a figure reads alike wherever it appears. Display only: fields, the clipboard
 /// and files take [formatEpic].
 enum AmountSurface {
-  /// Rows, tiles, lists, summaries, notices and buttons: [displayDecimals], cut off.
+  /// Rows, tiles, lists, summaries, notices and buttons: at most [displayDecimals], cut off.
   row(displayDecimals),
 
   /// Where money is committed or inspected: a payment's review (its Send button too), its
-  /// details, its QR code and payment request. All [exactDecimals].
+  /// details, its QR code and payment request. Up to [exactDecimals], as many as it has.
   exact(exactDecimals),
 
-  /// The balance headline (phone Wallet, desktop Overview): [displayDecimals], the exact
+  /// The balance headline (phone Wallet, desktop Overview): at most [displayDecimals], the exact
   /// amount a tap or hover away.
   hero(displayDecimals);
 
   const AmountSurface(this.decimals);
 
-  /// Decimals always written out on this surface.
+  /// Most decimals shown on this surface; trailing zeros are dropped down to one decimal.
   final int decimals;
 }
 
@@ -91,14 +97,14 @@ enum AmountSurface {
 const String epicUnit = 'EPIC';
 
 /// [atomic] as [surface] shows it, canonical (`,` groups, `.` decimals) and without the unit:
-/// `1,234.5678` for a row, `1,234.56781234` exact.
+/// `1,234.5678` for a row, `1,234.56781234` exact, `2.0` on both.
 String surfaceEpic(BigInt atomic, AmountSurface surface) => cutEpic(atomic, surface.decimals);
 
 /// The minus a shown amount carries: U+2212, as wide as the plus, never a hyphen.
 const String minusSign = '\u2212';
 
 /// [atomic] as [surface] shows it in [l]'s separators (`1.234,5678` in German), with the unit
-/// after a no-break space unless [unit] is false: the one amount text of both apps. With
+/// after a no-break space unless [unit] is false: the one amount text of both apps (`2.0 EPIC`). With
 /// [signed], `+` before a positive amount and [minusSign] before a negative one.
 String epicFor(
   AppLocalizations l,

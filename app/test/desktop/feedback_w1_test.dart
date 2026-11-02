@@ -75,12 +75,12 @@ Finder _input(String label) => find.descendant(of: find.widgetWithText(EField, l
 void main() {
   group('amounts always carry decimals', () {
     test('exactly four decimals, cut not rounded, thousands grouped', () {
-      expect(formatEpic(0), '0.0000');
-      expect(formatEpic(150000000), '1.5000');
+      expect(formatEpic(0), '0.0');
+      expect(formatEpic(150000000), '1.5');
       expect(formatEpic(123456789), '1.2345');
-      expect(formatEpic(1234500000000), '12,345.0000');
-      expect(formatEpic(-50000000), '-0.5000');
-      expect(formatEpic(100000000, minDecimals: 0), '1.0000');
+      expect(formatEpic(1234500000000), '12,345.0');
+      expect(formatEpic(-50000000), '-0.5');
+      expect(formatEpic(100000000, minDecimals: 0), '1.0');
       expect(formatEpic(123456789, decimals: 8), '1.23456789');
     });
   });
@@ -200,7 +200,7 @@ void main() {
     await tester.tap(find.text('Review'));
     await tester.pump(const Duration(milliseconds: 600));
     expect(find.text('This is the wallet’s own address.'), findsOneWidget);
-    expect(find.text('Send 1.00000000\u00a0EPIC'), findsNothing, reason: 'no review dialog');
+    expect(find.text('Send 1.0\u00a0EPIC'), findsNothing, reason: 'no review dialog');
   });
 
   // The own-address check: the key exactly, the server this one, missing or with :443.

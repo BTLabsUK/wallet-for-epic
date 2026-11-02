@@ -18013,7 +18013,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskLvStartMiniWallet => 'กระเป๋าเงินหลัก';
 
   @override
-  String get deskLvStartMiniLine => '+12.5000 กำลังเข้า · 25.0000 ถูกพักไว้';
+  String get deskLvStartMiniLine => '+12.5 กำลังเข้า · 25.0 ถูกพักไว้';
 
   @override
   String get deskLvStartMiniFresh => 'ใหม่จากการขุด';
@@ -19704,7 +19704,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskDonateInContacts => 'อยู่ในผู้ติดต่อ';
 
   @override
-  String get deskHttpLocalTitle => 'คอมพิวเตอร์เครื่องนี้';
+  String get deskHttpLocalTitle => 'เครือข่ายในบ้าน';
 
   @override
   String get deskHttpLocalSwitch => 'รับบนคอมพิวเตอร์เครื่องนี้';
@@ -19714,7 +19714,12 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskHttpPublicNote(String port) {
-    return 'เปิดพอร์ต $port สู่อินเทอร์เน็ต ต้องตั้งค่า port forwarding บนเราเตอร์';
+    return 'สำหรับวอลเล็ตบนอินเทอร์เน็ต เราเตอร์ต้องส่งต่อพอร์ต $port มาที่คอมพิวเตอร์เครื่องนี้';
+  }
+
+  @override
+  String deskKitMethodHttpNotReachable(String port) {
+    return 'ในเครือข่ายของคุณ ไม่ใช่จากอินเทอร์เน็ต: Forward พอร์ต $port';
   }
 
   @override

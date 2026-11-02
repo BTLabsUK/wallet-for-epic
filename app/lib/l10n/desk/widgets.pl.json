@@ -92,6 +92,7 @@
   "deskKitMethodStarting": "Uruchamianie…",
   "deskKitMethodHttpInternet": "z internetu, port {port}",
   "deskKitMethodHttpLocal": "tylko ten komputer (127.0.0.1)",
+  "deskKitMethodHttpNotReachable": "w twojej sieci, nie z internetu: przekieruj port {port}",
   "deskKitMethodNotReceiving": "Nie odbiera",
   "deskKitMethodPortInUse": "Port {port} zajmuje inny program. Zamknij go albo zmień port poniżej.",
   "deskKitMethodNotInBuild": "Brak w tej wersji",
@@ -125,8 +126,8 @@
   "deskKitReachTorOff": "Sprawdzenie wymaga wyłączenia Tora.",
   "deskKitNoAnswerSince": "Brak odpowiedzi od {time}",
   "deskKitMoreInHelp": "Więcej w Pomocy",
-  "deskHttpLocalTitle": "Ten komputer",
+  "deskHttpLocalTitle": "Sieć lokalna",
   "deskHttpLocalSwitch": "Odbieraj na tym komputerze",
   "deskHttpPublicTitle": "Internet",
-  "deskHttpPublicNote": "Otwiera port {port} na internet. Wymaga przekierowania portu na routerze."
+  "deskHttpPublicNote": "Dla portfeli w internecie. Router musi przekierować port {port} na ten komputer."
 }

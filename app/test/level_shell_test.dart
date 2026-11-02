@@ -133,7 +133,7 @@ void main() {
     expect(find.byType(BalanceTiles), findsNothing);
     expect(find.byType(HomeDestinations), findsNothing);
     expect(find.byKey(balanceCaptionKey), findsNothing);
-    expect(find.text('+12.5000 arriving · 7.5000 on hold'), findsOneWidget);
+    expect(find.text('+12.5 arriving · 7.5 on hold'), findsOneWidget);
     // The hide-amounts eye moved to Settings › Appearance.
     expect(find.byIcon(Icons.visibility_off_outlined), findsNothing);
     expect(find.byIcon(Icons.qr_code_scanner), findsNothing);

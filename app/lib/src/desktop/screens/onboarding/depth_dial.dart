@@ -616,9 +616,9 @@ class DeskOverviewPreview extends StatelessWidget {
                     decoration: BoxDecoration(border: Border(top: BorderSide(color: c.line))),
                     child: Row(
                       children: [
-                        tile(l.deskOvBreakConfirming, '50.00'),
-                        tile(depth == 2 ? l.deskLvStartMiniFresh : l.deskOvBreakImmature, '2.00'),
-                        tile(depth == 2 ? l.deskLvPayTileAwaiting : l.deskOvBreakAwaiting, '12.50'),
+                        tile(l.deskOvBreakConfirming, '50.0'),
+                        tile(depth == 2 ? l.deskLvStartMiniFresh : l.deskOvBreakImmature, '2.0'),
+                        tile(depth == 2 ? l.deskLvPayTileAwaiting : l.deskOvBreakAwaiting, '12.5'),
                         tile(l.deskOvBreakLocked, '18.91'),
                         tile(l.deskOvBreakTotal, '1,352.44'),
                       ],
@@ -668,14 +668,14 @@ class DeskOverviewPreview extends StatelessWidget {
                     children: [
                       payment(
                         'Bob', // l10n-ok: sample payment
-                        '+12.5000', // l10n-ok: sample payment
+                        '+12.5', // l10n-ok: sample payment
                         tone: c.txReceived,
                         how: l.methodEpicbox,
                         id: 'a1f9e8d7', // l10n-ok: sample payment
                         casual: metaLine([l.lvPayArriving, l.lvPayConfirming(2, 6)]),
                         technical: '${l.txDetailsKernel} 8f1c2e…9a3b · ${l.lvPayConfirmations} 2/6', // l10n-ok: sample numbers
                       ),
-                      payment('Alice', '−25.0000', tone: c.txSent, how: l.methodEpicbox, id: '7c21b0e4'), // l10n-ok: sample payment
+                      payment('Alice', '−25.0', tone: c.txSent, how: l.methodEpicbox, id: '7c21b0e4'), // l10n-ok: sample payment
                       payment('Alice', '+148.7321', tone: c.txReceived, how: l.methodEpicbox, id: '02ab9c11'), // l10n-ok: sample payment
                     ],
                   ),

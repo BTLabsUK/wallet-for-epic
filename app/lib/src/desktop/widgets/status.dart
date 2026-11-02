@@ -229,8 +229,9 @@ class MethodLine {
 
 /// The state line of [m] for Receive, Settings › Transactions and the rail tooltip. One word
 /// per state ([ShownState]): a connection is Connected, a listener Receiving, a Tor address
-/// Reachable; On and Off are only the switches' words (#29).
-MethodLine methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, DeskSettings settings) {
+/// Reachable; On and Off are only the switches' words (#29). [reachClosed]: the reach check
+/// said the internet does not reach Link · HTTP's port, so the line does not claim it does.
+MethodLine methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, DeskSettings settings, {bool reachClosed = false}) {
   switch (m) {
     case TxMethod.epicbox:
       final host = s.epicbox.domain;
@@ -259,6 +260,12 @@ MethodLine methodStateLine(AppLocalizations l, TxMethod m, ServiceStatus s, Desk
       return switch (s.httpListener) {
         ServiceHealth.off => MethodLine.of(l, ShownState.off, detail: l.deskKitMethodHttpOffDetail),
         ServiceHealth.checking => MethodLine.of(l, ShownState.starting),
+        // From the internet, but its port is not forwarded: receiving here, not a green line.
+        ServiceHealth.ok || ServiceHealth.slow when settings.publicMode && reachClosed => MethodLine(
+          ShownState.receiving.word(l),
+          EState.warn,
+          detail: l.deskKitMethodHttpNotReachable('$port'),
+        ),
         ServiceHealth.ok || ServiceHealth.slow => MethodLine.of(
           l,
           ShownState.receiving,
