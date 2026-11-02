@@ -2,11 +2,12 @@
 import 'package:flutter/material.dart';
 
 import '../desk_l10n.dart';
-import '../../ui/theme/brand.dart' show BrandLockup, BrandVariant, EpicMark;
+import '../../ui/theme/brand.dart' show EpicMark;
 import '../../ui/theme/protocol.dart' show CornerTicksPainter, GridFieldPainter;
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import 'keyboard.dart';
+import 'phrase_layout.dart' show EPhraseLayout;
 import 'tip.dart';
 
 /// Content widths for [EPage].
@@ -27,9 +28,14 @@ class EPage extends StatelessWidget {
     this.scroll = true,
     this.titleTrailing,
     this.footer,
+    this.fill,
   });
 
   final String title;
+
+  /// Fills the room the scrolling content leaves under it, inside the gutters (a quiet
+  /// graphic). Scrolling pages only; nothing when the content is taller than the page.
+  final Widget? fill;
 
   /// Pinned under the scrolling content, full width (a narrow form's main action).
   final Widget? footer;
@@ -90,7 +96,20 @@ class EPage extends StatelessWidget {
         ),
         // A breath between the title row and the content (its first row of tabs or tiles).
         Expanded(
-          child: scroll
+          child: scroll && fill != null
+              ? CustomScrollView(
+                  slivers: [
+                    SliverPadding(
+                      padding: EdgeInsets.fromLTRB(pad, Sp.x2, pad, 0),
+                      sliver: SliverToBoxAdapter(child: body),
+                    ),
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Padding(padding: EdgeInsets.fromLTRB(pad, 0, pad, pad), child: fill),
+                    ),
+                  ],
+                )
+              : scroll
               ? SingleChildScrollView(padding: EdgeInsets.fromLTRB(pad, Sp.x2, pad, pad), child: body)
               : Padding(padding: EdgeInsets.fromLTRB(pad, Sp.x2, pad, pad), child: body),
         ),
@@ -285,7 +304,7 @@ class EAuthCard extends StatelessWidget {
     this.lead,
     required this.child,
     this.alternatives = const [],
-    this.width = 400,
+    this.width,
     this.icon,
   });
 
@@ -293,7 +312,9 @@ class EAuthCard extends StatelessWidget {
   final String? lead;
   final Widget child;
   final List<Widget> alternatives;
-  final double width;
+
+  /// The card's width; [Max.auth] when null.
+  final double? width;
   final IconData? icon;
 
   @override
@@ -303,7 +324,7 @@ class EAuthCard extends StatelessWidget {
     // A short window keeps the form and its button in view: a smaller tile, tighter gaps.
     final short = isShortWindow(context);
     return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: width),
+      constraints: BoxConstraints(maxWidth: width ?? Max.auth),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -317,7 +338,7 @@ class EAuthCard extends StatelessWidget {
           ],
           SizedBox(height: short ? Sp.x4 : Sp.x6),
           Container(
-            padding: EdgeInsets.all(short ? Sp.x6 : Sp.x8),
+            padding: short ? EdgeInsets.all(Sp.x6) : EdgeInsets.symmetric(horizontal: Sp.x10, vertical: Sp.x8),
             decoration: BoxDecoration(
               color: c.s1,
               border: Border.all(color: c.line),
@@ -359,7 +380,17 @@ class EOnbFrame extends StatelessWidget {
     this.back,
     this.status,
     this.sideFoot,
+    this.fill = false,
   });
+
+  /// [child] gets the height left under the title instead of scrolling with it, so it can keep
+  /// parts of its own in view ([EPhraseLayout]: only the words scroll). With less room than
+  /// [fillMinHeight] the whole step scrolls as usual.
+  final bool fill;
+
+  /// The room [fill] needs: the title, the phrase step's warning, actions and checkbox, and two
+  /// rows of words.
+  static double get fillMinHeight => 450.u;
 
   /// Under the brand: "New wallet", "Restore", …
   final String sideTitle;
@@ -393,37 +424,41 @@ class EOnbFrame extends StatelessWidget {
     // The step rail beside the form from a window of Lay.xl; below, "Step 2 of 4" above it.
     final narrow = MediaQuery.sizeOf(context).width < Lay.xl;
     final current = steps.indexWhere((s) => s.current);
+    final pad = EdgeInsets.fromLTRB(narrow ? Sp.x5 : Sp.x12, narrow ? Sp.x6 : Sp.x12, narrow ? Sp.x5 : Sp.x12, Sp.x8);
+    Widget body(Widget content) => Align(
+      alignment: Alignment.topLeft,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: 600.u),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (narrow && current >= 0) ...[
+              Text(context.l10n.deskKitStepOf(current + 1, steps.length), style: ts.caption),
+              SizedBox(height: Sp.x2),
+            ],
+            heading ?? Semantics(header: true, child: Text(title, style: ts.h1)),
+            if (lead != null) ...[
+              SizedBox(height: Sp.x2),
+              Text(lead!, style: ts.lead),
+            ],
+            SizedBox(height: Sp.x8),
+            content,
+          ],
+        ),
+      ),
+    );
+    final scrolled = SingleChildScrollView(padding: pad, child: body(child));
     final main = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
           child: Stack(
             children: [
-              SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(narrow ? Sp.x5 : Sp.x12, narrow ? Sp.x6 : Sp.x12, narrow ? Sp.x5 : Sp.x12, Sp.x8),
-                child: Align(
-                  alignment: Alignment.topLeft,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: 600.u),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (narrow && current >= 0) ...[
-                          Text(context.l10n.deskKitStepOf(current + 1, steps.length), style: ts.caption),
-                          SizedBox(height: Sp.x2),
-                        ],
-                        heading ?? Semantics(header: true, child: Text(title, style: ts.h1)),
-                        if (lead != null) ...[
-                          SizedBox(height: Sp.x2),
-                          Text(lead!, style: ts.lead),
-                        ],
-                        SizedBox(height: Sp.x8),
-                        child,
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              if (fill)
+                LayoutBuilder(builder: (context, box) => box.maxHeight < fillMinHeight ? scrolled : Padding(padding: pad, child: body(Flexible(child: child))))
+              else
+                scrolled,
               // Content cut by the footer line fades out over 24 u first, so it reads as
               // scrollable rather than chopped (UD-024).
               if (_hasBar)
@@ -486,22 +521,13 @@ class EOnbFrame extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // The title bar carries the brand: the panel only names the job (New wallet,
+                // Restore, Set a new password), so the logo never shows twice.
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: Sp.x2),
-                  child: Row(
-                    children: [
-                      Flexible(
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          alignment: AlignmentDirectional.centerStart,
-                          child: BrandLockup(variant: BrandVariant.desktop, size: 28.u, textRatio: 0.56),
-                        ),
-                      ),
-                      SizedBox(width: Sp.x3),
-                      // A long title (Set a new password, in German say) ends in an ellipsis
-                      // instead of pushing past the panel.
-                      Flexible(child: Text(sideTitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.caption, textAlign: TextAlign.end)),
-                    ],
+                  child: Semantics(
+                    header: true,
+                    child: Text(sideTitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: ts.strong),
                   ),
                 ),
                 SizedBox(height: Sp.x6),

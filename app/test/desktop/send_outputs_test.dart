@@ -122,14 +122,19 @@ void main() {
   testWidgets('Review right after a new strategy sends with that strategy, not the last plan', (tester) async {
     await pump(tester, const SendArgs(recipient: anna, amount: '25', advancedOpen: true));
     expect(wallet.asked.last?.strategy, SelectionStrategy.smallest);
-    // The new strategy's estimate has not come back when Review is pressed.
+    // The new strategy's estimate has not come back when Review is pressed: Review is off
+    // until it has (next-fixes 12), so the review can only show the new plan.
     wallet.hold = Completer<void>();
     await tester.tap(find.descendant(of: find.byType(ERadioRow), matching: find.text('All')));
     await tester.pump();
-    await tester.tap(find.widgetWithText(EButton, 'Review'));
+    expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Review')).onPressed, isNull);
+    await tester.tap(find.widgetWithText(EButton, 'Review'), warnIfMissed: false);
     await tester.pump();
+    expect(find.text('Check and send'), findsNothing);
     wallet.hold!.complete();
     wallet.hold = null;
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(EButton, 'Review'));
     await tester.pumpAndSettle();
     expect(find.text('Check and send'), findsOneWidget);
     await enterReviewPassword(tester);

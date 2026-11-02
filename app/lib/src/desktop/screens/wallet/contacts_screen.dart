@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../recent_activity.dart' show recentActivityCount, showViewAll;
 import '../../../recipient.dart' show RecipientKind, parseRecipient;
 import '../../desk_l10n.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
@@ -816,7 +817,7 @@ class _ContactDetail extends ConsumerWidget {
                 child: Text(l.deskConTxWith(x.name), style: ts.label, overflow: TextOverflow.ellipsis),
               ),
             ),
-            if (mine.isNotEmpty) ELink(label: l.deskConAllTx, onPressed: () => nav.go(DeskRoute.activity)),
+            if (showViewAll(mine.length)) ELink(label: l.deskConAllTx, onPressed: () => nav.go(DeskRoute.activity)),
           ],
         ),
         SizedBox(height: Sp.x2),
@@ -831,7 +832,7 @@ class _ContactDetail extends ConsumerWidget {
             ),
             child: Column(
               children: [
-                for (final (i, t) in mine.take(5).indexed) ...[
+                for (final (i, t) in mine.take(recentActivityCount).indexed) ...[
                   if (i > 0) Divider(height: 1, color: c.line),
                   TxRow(tx: t, compact: true, title: t.incoming ? l.deskConTxReceived : l.deskConTxSent, onTap: () => nav.go(DeskRoute.activity, t.id)),
                 ],

@@ -19,6 +19,7 @@ import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayP
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/common.dart';
+import 'package:epic_wallet/src/ui/app_dialog.dart' show DialogButton;
 import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/network_menu.dart' show networkMenuEpicboxKey, networkMenuNetworkKey;
 import 'package:epic_wallet/src/ui/server_list_sheet.dart'
@@ -157,10 +158,11 @@ Future<void> _reveal(WidgetTester tester, Finder finder) async {
       200,
       scrollable: find
           .descendant(
-            // The balance tiles are a ListView too, but they run sideways.
+            // The balance tiles are a ListView too, but they run sideways; Home's list is a
+            // CustomScrollView (room for the lattice under a short list).
             of: find
                 .byWidgetPredicate(
-                  (w) => w is ListView && w.scrollDirection == Axis.vertical,
+                  (w) => w is ScrollView && w.scrollDirection == Axis.vertical,
                 )
                 .last,
             matching: find.byType(Scrollable),
@@ -336,7 +338,7 @@ void main() {
         // Removing it is the user's step.
         await _tapText(tester, 'Forgot PIN?');
         await _tapText(tester, 'I have my recovery phrase');
-        await _tap(tester, find.widgetWithText(FilledButton, 'Delete wallet'));
+        await _tap(tester, find.widgetWithText(DialogButton, 'Delete wallet'));
         expect(service.deletedWallets, [_mainnetDir]);
         expect(find.text('Welcome'), findsOneWidget);
         await _tapText(tester, 'Create a new wallet');
@@ -668,8 +670,8 @@ void main() {
       final device = _Device(sealedMainnet: true);
       await _pumpApp(tester, service, device);
       await _tapText(tester, 'Forgot PIN?');
-      final delete = find.widgetWithText(FilledButton, 'Delete wallet');
-      expect(tester.widget<FilledButton>(delete).onPressed, isNull);
+      final delete = find.widgetWithText(DialogButton, 'Delete wallet');
+      expect(tester.widget<DialogButton>(delete).onPressed, isNull);
       await _tapText(tester, 'Keep wallet');
       expect(service.deletedWallets, isEmpty);
 
@@ -871,6 +873,25 @@ void main() {
         } finally {
           debugDefaultTargetPlatformOverride = null;
         }
+      });
+
+      testWidgets('at 360 px: Copy above the words, Done pinned under them, only the words scroll', (tester) async {
+        final phrase = await openPhrase(tester);
+        // A small phone, 360 × 640 (openPhrase pumps at 3×).
+        tester.view.physicalSize = const Size(1080, 1920);
+        await tester.pumpAndSettle();
+        final first = find.text('1. ${phrase.split(' ').first}');
+        final copy = find.widgetWithText(TextButton, 'Copy');
+        final done = find.text('Done');
+        expect(tester.getRect(copy).bottom, lessThan(tester.getRect(first).top));
+        expect(tester.getRect(done).bottom, lessThanOrEqualTo(640));
+        final word = tester.getTopLeft(first);
+        final at = (tester.getTopLeft(copy), tester.getTopLeft(done));
+        await tester.drag(first, const Offset(0, -200));
+        await tester.pump();
+        expect(tester.getTopLeft(first).dy, lessThan(word.dy), reason: 'the words scrolled');
+        expect((tester.getTopLeft(copy), tester.getTopLeft(done)), at, reason: 'Copy and Done stay');
+        expect(tester.takeException(), isNull);
       });
 
       testWidgets('Copy warns first; Cancel copies nothing', (tester) async {
