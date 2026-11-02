@@ -70,7 +70,13 @@ enum DeskRoute {
   settingsAdvanced(section: DeskSection.settings),
   settingsLevel(section: DeskSection.settings),
   settingsAbout(section: DeskSection.settings),
-  settingsHelp(section: DeskSection.settings);
+  settingsHelp(section: DeskSection.settings),
+
+  /// This computer › Files & logs (`settings_files.dart`): wallet folder, app files, logs.
+  settingsFiles(section: DeskSection.settings),
+
+  /// Help › Donate (`settings_donate.dart`): the donation page from settings.toml, with fallback.
+  settingsDonate(section: DeskSection.settings);
 
   const DeskRoute({this.bare = false, this.section});
 

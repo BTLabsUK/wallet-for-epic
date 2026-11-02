@@ -768,11 +768,17 @@ class EEmpty extends StatelessWidget {
 
 /// A settings group: section head, then rows in one enclosure.
 class ESetGroup extends StatelessWidget {
-  const ESetGroup({super.key, this.title, required this.rows, this.trailing, this.gap = true});
+  const ESetGroup({super.key, this.title, required this.rows, this.trailing, this.gap = true, this.hidden = const [], this.revealKey});
 
   final String? title;
   final List<Widget> rows;
   final Widget? trailing;
+
+  /// Rows the view or an Advanced switch hides here, each an [ESetRow] with [ESetRow.advancedBy]
+  /// set. The group shows the one "more options" control (EMoreOptions) for them; revealed, they
+  /// follow [rows] in place, marked. [revealKey] keys the reveal state (unique per page group).
+  final List<Widget> hidden;
+  final String? revealKey;
 
   /// The space below the group; off when the caller sets it (a tour target ends at the box).
   final bool gap;
@@ -817,7 +823,14 @@ double get setRowMinWords => 240.u;
 /// or a large interface scale); [stacked] always puts the control under the text (wide
 /// controls such as a combobox).
 class ESetRow extends StatelessWidget {
-  const ESetRow({super.key, this.title, this.text, this.hint, this.hintTitle, this.hintIcon, this.hintHelp, this.control, this.stacked = false, this.wrap = false, this.below, this.leading, this.badge});
+  const ESetRow({super.key, this.title, this.text, this.hint, this.hintTitle, this.hintIcon, this.hintHelp, this.control, this.stacked = false, this.wrap = false, this.below, this.leading, this.badge, this.anchor, this.advancedBy});
+
+  /// The row's id in the settings registry (`settings_registry.dart`): search jumps here.
+  final String? anchor;
+
+  /// Set on a row shown only because the user revealed hidden options: what normally shows it
+  /// ("Deep end view", "Advanced › Send options"). The row gets the quiet advanced marker.
+  final String? advancedBy;
 
   /// Null when the group's title already names the row: the text is then the row's head.
   final String? title;
