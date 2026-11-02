@@ -268,7 +268,7 @@ class AppConfig {
   /// Where a report is sent; null: no Send report.
   String? get supportReport => _orNull(_text('support.report'));
 
-  /// BT Labs' donation contact, or null when the file leaves it out: no donation entry anywhere.
+  /// The BT Labs contact's address, or null when the file leaves it out: no such contact anywhere.
   String? get supportDonation => _orNull(_text('support.donation'));
 
   /// BT Labs' signed public file; null: not read.
@@ -463,7 +463,7 @@ class HostSettings {
   List<String> get reportKeepDomains => config.reportKeepDomains;
   List<String> get vpnSuffixes => config.vpnSuffixes;
 
-  /// Every host the two files name (servers, sites, onions, the e-mail and donation hosts, the
+  /// Every host the two files name (servers, sites, onions, the e-mail and contact hosts, the
   /// kept hosts, the operators' domains), lower case: on the default copy, what a report keeps
   /// besides [reportKeepDomains]. Domain and suffix lists (`onion_only_domains`, `keep_domains`,
   /// `vpn_suffixes`) are not hosts.

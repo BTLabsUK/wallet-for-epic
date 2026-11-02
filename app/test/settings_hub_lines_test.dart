@@ -89,7 +89,6 @@ void main() {
     final rows = [
       for (final section in SettingsSection.values) find.byKey(settingsGroupKey(section)),
       find.byKey(settingsHelpKey),
-      find.byKey(settingsDonateKey),
     ];
     for (final row in rows) {
       if (row.evaluate().isEmpty) continue;
@@ -112,17 +111,6 @@ void main() {
     expect(find.descendant(of: row, matching: find.text(_l.settingsExperimentTag)), findsOneWidget);
   });
 
-  testWidgets('Donate sits directly under Help', (tester) async {
-    await _pump(tester);
-    final help = find.byKey(settingsHelpKey);
-    final donate = find.byKey(settingsDonateKey);
-    expect(donate, findsOneWidget);
-    expect(
-      tester.getTopLeft(donate).dy - tester.getTopLeft(help).dy,
-      moreOrLessEquals(tester.getSize(help).height, epsilon: 1),
-    );
-  });
-
   testWidgets('the Transactions row comes right after Security (the desktop\'s order)', (tester) async {
     await _pump(tester);
     final wallet = find.byKey(settingsGroupKey(SettingsSection.security));
@@ -134,7 +122,7 @@ void main() {
     );
   });
 
-  testWidgets('the Advanced row is last but one: below Help and Donate, directly above About', (
+  testWidgets('the Advanced row is last but one: below Help, directly above About', (
     tester,
   ) async {
     await _pump(tester);

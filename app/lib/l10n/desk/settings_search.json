@@ -235,10 +235,6 @@
   "@deskSetSecFiles": {
     "description": "Settings navigation: folders and logs on this computer."
   },
-  "deskSetSecDonate": "Donate",
-  "@deskSetSecDonate": {
-    "description": "Settings navigation: the donation page."
-  },
   "deskSetNavApp": "App",
   "@deskSetNavApp": {
     "description": "Settings navigation: heading of the app-wide sections."

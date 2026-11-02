@@ -3130,18 +3130,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Beschreiben Sie, was passiert ist oder was unklar ist.';
 
   @override
-  String get helpDonateTitle => 'Entwicklung unterstützen';
-
-  @override
-  String get helpDonateText => 'Spenden finanzieren neue Funktionen.';
-
-  @override
-  String get helpDonateCopy => 'Adresse kopieren';
-
-  @override
-  String get helpDonateCopied => 'Adresse kopiert';
-
-  @override
   String get helpSendFeedback => 'Problem melden';
 
   @override
@@ -3239,22 +3227,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsSectionHelpFeedback => 'Hilfe';
 
   @override
-  String get settingsDonate => 'Spenden';
-
-  @override
   String get settingsExperimentTag => 'Experiment';
-
-  @override
-  String get donateLead => 'Spenden finanzieren die Entwicklung dieser Wallet.';
-
-  @override
-  String get donateAddress => 'Epic-Cash-Adresse';
-
-  @override
-  String get donateQrLabel => 'QR-Code der Spendenadresse';
-
-  @override
-  String get donateInContacts => 'In Ihren Kontakten';
 
   @override
   String get settingsStateBackUp => 'Wiederherstellungsphrase sichern';
@@ -19410,9 +19383,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetSecFiles => 'Dateien & Protokolle';
 
   @override
-  String get deskSetSecDonate => 'Spenden';
-
-  @override
   String get deskSetNavApp => 'App';
 
   @override
@@ -20077,22 +20047,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetSearchKeyEsc => 'Esc';
 
   @override
-  String get deskDonateLead =>
-      'Spenden finanzieren die Entwicklung dieser Wallet.';
-
-  @override
-  String get deskDonateOpen => 'Öffnen';
-
-  @override
-  String get deskDonateAddress => 'Epic-Cash-Adresse';
-
-  @override
-  String get deskDonateAddressQr => 'Spendenadresse';
-
-  @override
-  String get deskDonateCopy => 'Spendenadresse kopieren';
-
-  @override
   String get deskSetRescanByWholeChain => 'Ganze Kette';
 
   @override
@@ -20138,9 +20092,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskBarKeySearchHere => 'Suchen, in den Einstellungen';
-
-  @override
-  String get deskDonateInContacts => 'In Ihren Kontakten';
 
   @override
   String get deskHttpLocalTitle => 'Lokales Netzwerk';

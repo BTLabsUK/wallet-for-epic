@@ -323,7 +323,6 @@ final List<DeskShot> settingsShots = [
   ),
   const DeskShot(id: '29g-settings-about-licences', title: 'About, Licences unfolded', route: DeskRoute.settingsAbout, arg: AboutDemo.licencesOpen, height: 1000),
   const DeskShot(id: '26b-settings-files', title: 'Settings › Files & logs', route: DeskRoute.settingsFiles),
-  const DeskShot(id: '26c-settings-donate', title: 'Settings › Donate', route: DeskRoute.settingsDonate),
   DeskShot(id: '29b-settings-about-update', title: 'About: an update to download and install', route: DeskRoute.settingsAbout, prepare: (c, _) async => _update(c, DeskUpdatePhase.available)),
   DeskShot(
     id: '29c-settings-about-update-manual',
@@ -470,7 +469,7 @@ final List<DeskShot> settingsShots = [
   // The help popover (widgets/popover.dart) open on the Network group's info icon.
   DeskShot(id: '43r-network-help', title: 'Settings › Network & privacy › Network, the help popover open', route: DeskRoute.settingsPrivacy, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.deskSetAdvNetwork)),
   // The Settings redesign (26.10.25): search, the hidden rows behind ⇕, the views' nav, the
-  // month picker, Donate without an answer.
+  // month picker.
   DeskShot(id: '45a-settings-search-tor', title: 'Settings search: "tor"', route: DeskRoute.settingsAccount, prepare: (c, _) async => c.read(settingsQueryProvider.notifier).set('tor')),
   DeskShot(id: '45b-settings-search-seed', title: 'Settings search: "seed"', route: DeskRoute.settingsAccount, prepare: (c, _) async => c.read(settingsQueryProvider.notifier).set('seed')),
   DeskShot(

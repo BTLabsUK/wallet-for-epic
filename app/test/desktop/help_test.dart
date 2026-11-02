@@ -109,7 +109,7 @@ void main() {
     expect(find.byType(HelpArt), findsNWidgets(6));
   }, skip: !torBuilt);
 
-  testWidgets('no donation card in Help: Donate has its own page (item 4)', (tester) async {
+  testWidgets('no Support development card in Help', (tester) async {
     await _pump(tester);
     expect(find.text('Support development'), findsNothing);
     expect(find.text('Copy address'), findsNothing);

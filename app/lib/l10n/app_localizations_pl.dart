@@ -3188,18 +3188,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get helpTellUs => 'Opisz, co się stało lub co jest niejasne.';
 
   @override
-  String get helpDonateTitle => 'Wspieraj rozwój';
-
-  @override
-  String get helpDonateText => 'Darowizny finansują nowe funkcje.';
-
-  @override
-  String get helpDonateCopy => 'Kopiuj adres';
-
-  @override
-  String get helpDonateCopied => 'Adres skopiowany';
-
-  @override
   String get helpSendFeedback => 'Zgłoś problem';
 
   @override
@@ -3294,22 +3282,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsSectionHelpFeedback => 'Pomoc';
 
   @override
-  String get settingsDonate => 'Wesprzyj';
-
-  @override
   String get settingsExperimentTag => 'Eksperyment';
-
-  @override
-  String get donateLead => 'Darowizny finansują rozwój tego portfela.';
-
-  @override
-  String get donateAddress => 'Adres Epic Cash';
-
-  @override
-  String get donateQrLabel => 'Kod QR adresu do darowizn';
-
-  @override
-  String get donateInContacts => 'W kontaktach';
 
   @override
   String get settingsStateBackUp => 'Zapisz frazę odzyskiwania';
@@ -19843,9 +19816,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetSecFiles => 'Pliki i logi';
 
   @override
-  String get deskSetSecDonate => 'Wesprzyj';
-
-  @override
   String get deskSetNavApp => 'Aplikacja';
 
   @override
@@ -20505,21 +20475,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetSearchKeyEsc => 'Esc';
 
   @override
-  String get deskDonateLead => 'Darowizny finansują rozwój tego portfela.';
-
-  @override
-  String get deskDonateOpen => 'Otwórz';
-
-  @override
-  String get deskDonateAddress => 'Adres Epic Cash';
-
-  @override
-  String get deskDonateAddressQr => 'adresu do darowizn';
-
-  @override
-  String get deskDonateCopy => 'Kopiuj adres do darowizn';
-
-  @override
   String get deskSetRescanByWholeChain => 'Cały łańcuch';
 
   @override
@@ -20565,9 +20520,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskBarKeySearchHere => 'Szukaj, gdy otwarte są Ustawienia';
-
-  @override
-  String get deskDonateInContacts => 'W kontaktach';
 
   @override
   String get deskHttpLocalTitle => 'Sieć lokalna';

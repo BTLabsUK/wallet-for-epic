@@ -75,10 +75,7 @@ enum DeskRoute {
   settingsHelp(section: DeskSection.settings),
 
   /// This computer › Files & logs (`settings_files.dart`): wallet folder, app files, logs.
-  settingsFiles(section: DeskSection.settings),
-
-  /// Help › Donate (`settings_donate.dart`): the donation address and BT Labs' contact.
-  settingsDonate(section: DeskSection.settings);
+  settingsFiles(section: DeskSection.settings);
 
   const DeskRoute({this.bare = false, this.section});
 

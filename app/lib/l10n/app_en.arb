@@ -3900,22 +3900,6 @@
   "@helpTellUs": {
     "description": "Under the Still stuck? heading."
   },
-  "helpDonateTitle": "Support development",
-  "@helpDonateTitle": {
-    "description": "Heading of the donation note in Help."
-  },
-  "helpDonateText": "Donations fund new features.",
-  "@helpDonateText": {
-    "description": "Body of the donation note in Help."
-  },
-  "helpDonateCopy": "Copy address",
-  "@helpDonateCopy": {
-    "description": "Button that copies the donation address."
-  },
-  "helpDonateCopied": "Address copied",
-  "@helpDonateCopied": {
-    "description": "Notice after the donation address was copied."
-  },
   "helpSendFeedback": "Report a problem",
   "@helpSendFeedback": {
     "description": "Button at the end of the help page that opens the feedback form."
@@ -4043,29 +4027,9 @@
   "@settingsSectionHelpFeedback": {
     "description": "Settings group on the phone's Settings hub: opens Help, which starts with Send feedback."
   },
-  "settingsDonate": "Donate",
-  "@settingsDonate": {
-    "description": "Phone Settings hub row directly under Help, and the Donate screen's title: BT Labs' donation address."
-  },
   "settingsExperimentTag": "Experiment",
   "@settingsExperimentTag": {
     "description": "Small tag after 'Linked devices' on the phone's Settings hub: the feature is an experiment. One word."
-  },
-  "donateLead": "Donations fund development of this wallet.",
-  "@donateLead": {
-    "description": "Donate screen, first line."
-  },
-  "donateAddress": "Epic Cash address",
-  "@donateAddress": {
-    "description": "Donate screen: header over BT Labs' Epic Cash donation address (Copy and QR beside it)."
-  },
-  "donateQrLabel": "QR code of the donation address",
-  "@donateQrLabel": {
-    "description": "Screen reader label of the donation address's QR code."
-  },
-  "donateInContacts": "In your contacts",
-  "@donateInContacts": {
-    "description": "Donate screen: under the BT Labs contact's name; a tap opens the contact. Shown only while Contacts hold it."
   },
   "settingsStateBackUp": "Back up your recovery phrase",
   "@settingsStateBackUp": {
@@ -25110,7 +25074,7 @@
   },
   "deskSetHelpSupportHead": "Support",
   "@deskSetHelpSupportHead": {
-    "description": "Section head at the top of Settings › Help, over the support and donation bars."
+    "description": "Section head at the top of Settings › Help, over the support bars."
   },
   "deskKitPasswordRule": "{count, plural, one{{count} character or more} other{{count} characters or more}}",
   "@deskKitPasswordRule": {
@@ -26028,10 +25992,6 @@
   "@deskSetSecFiles": {
     "description": "Settings navigation: folders and logs on this computer."
   },
-  "deskSetSecDonate": "Donate",
-  "@deskSetSecDonate": {
-    "description": "Settings navigation: the donation page."
-  },
   "deskSetNavApp": "App",
   "@deskSetNavApp": {
     "description": "Settings navigation: heading of the app-wide sections."
@@ -26797,26 +26757,6 @@
   "@deskSetSearchKeyEsc": {
     "description": "Settings search: the Esc key as its key cap names it, in the key hints over the results."
   },
-  "deskDonateLead": "Donations fund development of this wallet.",
-  "@deskDonateLead": {
-    "description": "Settings › Donate: the line at the top of the page."
-  },
-  "deskDonateOpen": "Open",
-  "@deskDonateOpen": {
-    "description": "Settings › Donate: the button that opens BT Labs' contact in Contacts."
-  },
-  "deskDonateAddress": "Epic Cash address",
-  "@deskDonateAddress": {
-    "description": "Settings › Donate: the row with the donation address, Copy and QR."
-  },
-  "deskDonateAddressQr": "donation address",
-  "@deskDonateAddressQr": {
-    "description": "What the QR code is of, lower case after 'the' (as in 'Show the QR code of the donation address')."
-  },
-  "deskDonateCopy": "Copy donation address",
-  "@deskDonateCopy": {
-    "description": "Settings › Donate: name of the copy button of the donation address."
-  },
   "deskSetRescanByWholeChain": "Whole chain",
   "@deskSetRescanByWholeChain": {
     "description": "Recheck balance › Where to start: the segment that scans from block 0 (short, a segmented control)."
@@ -26883,10 +26823,6 @@
   "deskBarKeySearchHere": "Search, while in Settings",
   "@deskBarKeySearchHere": {
     "description": "Keyboard-shortcuts row: the / key focuses the search field while a Settings page is open (on Help, Help's own search). Settings is the name of the Settings area."
-  },
-  "deskDonateInContacts": "In your contacts",
-  "@deskDonateInContacts": {
-    "description": "Settings › Donate: under the BT Labs contact's name, beside Open; shown only while Contacts hold it."
   },
   "deskHttpLocalTitle": "Local network",
   "@deskHttpLocalTitle": {

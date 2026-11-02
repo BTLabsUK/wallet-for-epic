@@ -23,7 +23,7 @@ Map<String, Object?> donation(
   String network = 'mainnet',
   String method = 'epicbox',
   String name = 'BT Labs',
-  String note = 'Donations support development of this wallet.',
+  String note = 'BT Labs, the makers of this wallet.',
 }) => {'id': id, 'coin': coin, 'network': network, 'method': method, 'address': address, 'name': name, 'note': note};
 
 /// A payload with [donations], serial and dates as given.

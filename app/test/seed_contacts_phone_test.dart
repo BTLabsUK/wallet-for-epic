@@ -44,11 +44,11 @@ void main() {
     final h1 = await open('w1', book);
     await h1.seedContacts(bundledSeedContacts);
     final c = book.list().single;
-    await book.save(ContactFields(id: c.id, name: 'Donate', epicbox: c.epicbox, note: 'mine'));
+    await book.save(ContactFields(id: c.id, name: 'Edited', epicbox: c.epicbox, note: 'mine'));
     await h1.seedContacts(bundledSeedContacts);
     final h2 = await open('w2', book);
     await h2.seedContacts(bundledSeedContacts);
-    expect(book.list().map((c) => c.name), ['Donate']);
+    expect(book.list().map((c) => c.name), ['Edited']);
     h1.close();
     h2.close();
   });
@@ -62,7 +62,7 @@ void main() {
     h.close();
   });
 
-  // 26.10.25: the donation address moved to epicbox.btlabs.uk (signed btlabs.json serial 6);
+  // 26.10.25: the BT Labs address moved to epicbox.btlabs.uk (signed btlabs.json serial 6);
   // the entry seeded at the old server kept it, and Send named a method it could not use.
   group('the seeded entry follows a new address', () {
     SeedContact at(String address) => SeedContact(id: 'btlabs', name: 'BT Labs', address: address, note: btLabsContact!.note);

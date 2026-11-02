@@ -2,7 +2,7 @@
 /// The phone's copy of BT Labs' signed public file (`[support] signed_file`, btlabs-public
 /// FORMAT.md), read as the desktop reads it: once per app run, in the background, verified with
 /// the keys the app ships ([btlabsKeyring]), never older than the copy kept, which stays in use
-/// when the read is skipped or fails. Only the donation address and the source code link are
+/// when the read is skipped or fails. Only the BT Labs contact's address and the source code link are
 /// taken from it ([useSignedDonation], [useSignedLinks]); the bundled ones stay the fallback.
 library;
 
@@ -22,7 +22,7 @@ import 'updater.dart' show storedUpdateState, updateStateKey;
 /// The last accepted file in the secret store: `{"envelope": …, "state": …}` as JSON text.
 const String btlabsPublicKey = 'app.btlabs_public';
 
-/// Takes the kept copy's donation address, then reads the file once. Node only and Kill switch
+/// Takes the kept copy's contact address, then reads the file once. Node only and Kill switch
 /// read nothing; with Tor on the read goes through tor or not at all (`httpGet`, which also
 /// holds it while tor connects). Never throws, never shows anything: called unawaited at launch.
 Future<void> refreshBtlabsPublicAtStart(

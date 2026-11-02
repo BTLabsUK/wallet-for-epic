@@ -76,7 +76,7 @@ void main() {
         expiresAt: expiresAt,
       );
 
-  const moved = SeedContact(id: 'btlabs', name: 'BT Labs', address: _moved, note: 'Donations support development of this wallet.');
+  const moved = SeedContact(id: 'btlabs', name: 'BT Labs', address: _moved, note: 'BT Labs, the makers of this wallet.');
 
   /// Opens a wallet on a fresh app whose website answers [body]; lets the refresh finish.
   Future<LepicDeskWallet> openWith(Future<String?> Function(Uri) web) async {
@@ -123,7 +123,7 @@ void main() {
   });
 
   test("the website's copy updates an untouched contact and leaves an edited one", () async {
-    const moved = SeedContact(id: 'btlabs', name: 'BT Labs', address: _moved, note: 'Donations support development of this wallet.');
+    const moved = SeedContact(id: 'btlabs', name: 'BT Labs', address: _moved, note: 'BT Labs, the makers of this wallet.');
     final w = app();
     await w.createWallet(name: 'Main', password: _password);
     expect(await w.unlock(_password), isTrue);
@@ -161,18 +161,18 @@ void main() {
   });
 
   test("an edit of the name alone keeps the website's update away", () async {
-    const moved = SeedContact(id: 'btlabs', name: 'BT Labs', address: _moved, note: 'Donations support development of this wallet.');
+    const moved = SeedContact(id: 'btlabs', name: 'BT Labs', address: _moved, note: 'BT Labs, the makers of this wallet.');
     final w = app();
     await w.createWallet(name: 'Main', password: _password);
     expect(await w.unlock(_password), isTrue);
     final c = (await bt(w)).single;
-    await w.saveContact(Contact(id: c.id, name: 'BT Labs donations', address: c.address, note: c.note));
+    await w.saveContact(Contact(id: c.id, name: 'BT Labs edited', address: c.address, note: c.note));
     await w.lock();
     final web = app(web: (_) => webFile(moved));
     expect(await web.unlock(_password), isTrue);
     await pumpEventQueue(times: 50);
     final after = (await bt(web)).single;
-    expect(after.name, 'BT Labs donations');
+    expect(after.name, 'BT Labs edited');
     expect(after.address, c.address, reason: 'an edited contact is left alone');
   });
 
@@ -216,7 +216,7 @@ void main() {
   });
 
   test('a website answer that arrives after the wallet locked writes nothing into it', () async {
-    const moved = SeedContact(id: 'btlabs', name: 'BT Labs', address: _moved, note: 'Donations support development of this wallet.');
+    const moved = SeedContact(id: 'btlabs', name: 'BT Labs', address: _moved, note: 'BT Labs, the makers of this wallet.');
     final w = app();
     await w.createWallet(name: 'Main', password: _password);
     expect(await w.unlock(_password), isTrue);

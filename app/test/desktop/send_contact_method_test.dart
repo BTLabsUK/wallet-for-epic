@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// Send to a contact with only an Epicbox address (BT Labs' donation entry, 26.10.25): Send goes
+// Send to a contact with only an Epicbox address (the BT Labs contact, 26.10.25): Send goes
 // by Epicbox, and the method-off notice never says the contact has only a Link address.
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';

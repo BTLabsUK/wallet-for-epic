@@ -3086,18 +3086,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get helpTellUs => 'Describe what happened or what is unclear.';
 
   @override
-  String get helpDonateTitle => 'Support development';
-
-  @override
-  String get helpDonateText => 'Donations fund new features.';
-
-  @override
-  String get helpDonateCopy => 'Copy address';
-
-  @override
-  String get helpDonateCopied => 'Address copied';
-
-  @override
   String get helpSendFeedback => 'Report a problem';
 
   @override
@@ -3193,22 +3181,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSectionHelpFeedback => 'Help';
 
   @override
-  String get settingsDonate => 'Donate';
-
-  @override
   String get settingsExperimentTag => 'Experiment';
-
-  @override
-  String get donateLead => 'Donations fund development of this wallet.';
-
-  @override
-  String get donateAddress => 'Epic Cash address';
-
-  @override
-  String get donateQrLabel => 'QR code of the donation address';
-
-  @override
-  String get donateInContacts => 'In your contacts';
 
   @override
   String get settingsStateBackUp => 'Back up your recovery phrase';
@@ -19182,9 +19155,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetSecFiles => 'Files & logs';
 
   @override
-  String get deskSetSecDonate => 'Donate';
-
-  @override
   String get deskSetNavApp => 'App';
 
   @override
@@ -19830,21 +19800,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetSearchKeyEsc => 'Esc';
 
   @override
-  String get deskDonateLead => 'Donations fund development of this wallet.';
-
-  @override
-  String get deskDonateOpen => 'Open';
-
-  @override
-  String get deskDonateAddress => 'Epic Cash address';
-
-  @override
-  String get deskDonateAddressQr => 'donation address';
-
-  @override
-  String get deskDonateCopy => 'Copy donation address';
-
-  @override
   String get deskSetRescanByWholeChain => 'Whole chain';
 
   @override
@@ -19890,9 +19845,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskBarKeySearchHere => 'Search, while in Settings';
-
-  @override
-  String get deskDonateInContacts => 'In your contacts';
 
   @override
   String get deskHttpLocalTitle => 'Local network';

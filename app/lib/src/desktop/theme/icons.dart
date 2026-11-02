@@ -38,7 +38,6 @@ abstract final class EIcons {
   static const chevronLeft = Icons.chevron_left;
   static const unfoldMore = Icons.unfold_more;
   static const unfoldLess = Icons.unfold_less;
-  static const donate = Icons.volunteer_activism_outlined;
   static const arrowLeft = Icons.arrow_back;
   static const arrowUp = Icons.arrow_upward;
   static const arrowDown = Icons.arrow_downward;

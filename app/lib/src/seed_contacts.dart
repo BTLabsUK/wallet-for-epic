@@ -29,20 +29,20 @@ class SeedContact {
   String toString() => 'SeedContact($id, $name, $address)';
 }
 
-/// BT Labs' donation address: the signed btlabs.json's when one was verified this run
+/// BT Labs' contact: its address is the signed btlabs.json's when one was verified this run
 /// ([useSignedDonation]), else `[support] donation` of `app-config.toml`. Null when that line
-/// is left out: then no donation entry shows anywhere, and the signed file cannot add one.
+/// is left out: then the contact shows nowhere, and the signed file cannot add one.
 SeedContact? get btLabsContact {
   final bundled = hostSettings.supportDonation;
   if (bundled == null) return null;
-  return SeedContact(id: 'btlabs', name: 'BT Labs', address: _signedDonation ?? bundled, note: 'Donations support development of this wallet.');
+  return SeedContact(id: 'btlabs', name: 'BT Labs', address: _signedDonation ?? bundled, note: 'BT Labs, the makers of this wallet.');
 }
 
-/// The donation address of the signed file in use (the copy read at start, or the last good
+/// The BT Labs address of the signed file in use (the copy read at start, or the last good
 /// one kept); null until one verified.
 String? _signedDonation;
 
-/// Takes BT Labs' donation address from the seed contacts of a verified file
+/// Takes BT Labs' address from the seed contacts of a verified file
 /// ([seedContactsFrom]) for [btLabsContact]; a file without one changes nothing. A screen
 /// that shows the address reads it once when it opens, so what it copies is what it showed.
 void useSignedDonation(List<SeedContact> fromFile) {
@@ -88,13 +88,13 @@ void resetSignedLinks() => _signedSource = null;
 /// What the app ships with; used whenever the website cannot be read.
 List<SeedContact> get bundledSeedContacts => [?btLabsContact];
 
-/// BT Labs' signed public file (btlabs-public FORMAT.md): the donation address may change
+/// BT Labs' signed public file (btlabs-public FORMAT.md): the contact's address may change
 /// there. The desktop also takes its onions; the phone reads only the address. The keys that may sign it are in `btlabs_keys.dart`.
 /// Null when `app-config.toml` names none: it is not read.
 String? get btlabsPublicUrl => hostSettings.supportDirectory;
 
 /// The seed contacts in a verified file: for each bundled seed id, the address of its Epic
-/// mainnet Epicbox donation when [validAddress] accepts it (the wallet core's checksum). Only
+/// mainnet Epicbox entry (`donations` in the file) when [validAddress] accepts it (the wallet core's checksum). Only
 /// the address comes from the file; name and note stay the bundled ones, so even a stolen
 /// signing key cannot put text of its choosing into users' contact lists.
 List<SeedContact> seedContactsFrom(BtlabsPublic file, {required bool Function(String address) validAddress}) {

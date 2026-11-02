@@ -17,7 +17,6 @@ import '../screens/settings/settings_account.dart';
 import '../screens/settings/settings_advanced.dart';
 import '../screens/settings/settings_appearance.dart';
 import '../screens/settings/settings_devices.dart';
-import '../screens/settings/settings_donate.dart';
 import '../screens/settings/settings_files.dart';
 import '../screens/settings/settings_help.dart';
 import '../screens/settings/settings_invoices.dart';
@@ -78,6 +77,5 @@ Widget deskScreen(DeskLocation at) {
     DeskRoute.settingsAbout => SettingsAboutScreen(arg: a),
     DeskRoute.settingsHelp => SettingsHelpScreen(arg: a),
     DeskRoute.settingsFiles => SettingsFilesScreen(arg: a),
-    DeskRoute.settingsDonate => SettingsDonateScreen(arg: a),
   };
 }

@@ -135,7 +135,6 @@ const List<SetSection> settingsSections = [
   SetSection(DeskRoute.settingsWallets, SetNav.computer, EIcons.coins, gate: SetGate(minLevel: 2)),
   SetSection(DeskRoute.settingsFiles, SetNav.computer, EIcons.folderOpen, gate: SetGate(minLevel: 2)),
   SetSection(DeskRoute.settingsHelp, SetNav.help, EIcons.help),
-  SetSection(DeskRoute.settingsDonate, SetNav.help, EIcons.donate),
   SetSection(DeskRoute.settingsAbout, SetNav.help, EIcons.info),
 ];
 
@@ -166,7 +165,6 @@ String settingsSectionLabel(AppLocalizations l, DeskRoute route) => switch (rout
   DeskRoute.settingsWallets => l.deskSetSecWallets,
   DeskRoute.settingsFiles => l.deskSetSecFiles,
   DeskRoute.settingsHelp => l.deskSetFrameHelp,
-  DeskRoute.settingsDonate => l.deskSetSecDonate,
   DeskRoute.settingsAbout => l.deskSetFrameAbout,
   _ => l.deskSetFrameTitle,
 };

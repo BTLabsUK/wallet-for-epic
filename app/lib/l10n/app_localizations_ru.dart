@@ -3167,18 +3167,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get helpTellUs => 'Расскажите, что произошло или что непонятно.';
 
   @override
-  String get helpDonateTitle => 'Поддержать разработку';
-
-  @override
-  String get helpDonateText => 'Пожертвования финансируют новые функции.';
-
-  @override
-  String get helpDonateCopy => 'Копировать адрес';
-
-  @override
-  String get helpDonateCopied => 'Адрес скопирован';
-
-  @override
   String get helpSendFeedback => 'Сообщить о проблеме';
 
   @override
@@ -3275,23 +3263,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsSectionHelpFeedback => 'Справка';
 
   @override
-  String get settingsDonate => 'Пожертвовать';
-
-  @override
   String get settingsExperimentTag => 'Эксперимент';
-
-  @override
-  String get donateLead =>
-      'Пожертвования финансируют разработку этого кошелька.';
-
-  @override
-  String get donateAddress => 'Адрес Epic Cash';
-
-  @override
-  String get donateQrLabel => 'QR-код адреса для пожертвований';
-
-  @override
-  String get donateInContacts => 'В контактах';
 
   @override
   String get settingsStateBackUp => 'Сохраните фразу восстановления';
@@ -19827,9 +19799,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetSecFiles => 'Файлы и журналы';
 
   @override
-  String get deskSetSecDonate => 'Поддержать';
-
-  @override
   String get deskSetNavApp => 'Приложение';
 
   @override
@@ -20488,22 +20457,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetSearchKeyEsc => 'Esc';
 
   @override
-  String get deskDonateLead =>
-      'Пожертвования финансируют разработку этого кошелька.';
-
-  @override
-  String get deskDonateOpen => 'Открыть';
-
-  @override
-  String get deskDonateAddress => 'Адрес Epic Cash';
-
-  @override
-  String get deskDonateAddressQr => 'адреса для пожертвований';
-
-  @override
-  String get deskDonateCopy => 'Копировать адрес для пожертвований';
-
-  @override
   String get deskSetRescanByWholeChain => 'Вся цепочка';
 
   @override
@@ -20549,9 +20502,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskBarKeySearchHere => 'Поиск, когда открыты Настройки';
-
-  @override
-  String get deskDonateInContacts => 'В контактах';
 
   @override
   String get deskHttpLocalTitle => 'Локальная сеть';

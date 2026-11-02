@@ -2,7 +2,7 @@
 /// Settings on the phone: a hub of groups that fits one screen, in the order people reach for
 /// them. Security, Network & privacy, Wallet, Transactions, Display, Advanced and About open a
 /// page each (`settings_sections.dart`); Help & feedback opens Help, which starts with Send
-/// feedback, and Donate the donation page. A hub row is its glyph and its name, never a second
+/// feedback. A hub row is its glyph and its name, never a second
 /// line (item 3): a state belongs on the page. No search: the hub is scanned at a glance, and
 /// Help has its own search for questions.
 library;
@@ -10,7 +10,6 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../donate.dart' show donateLinkProvider;
 import '../l10n.dart';
 import '../errors.dart';
 import '../providers.dart';
@@ -18,7 +17,6 @@ import '../devices/phone_devices.dart' show linkedDevicesOnProvider;
 import 'backup_screen.dart';
 import 'common.dart';
 import 'devices/linked_devices_screen.dart' show LinkedDevicesScreen;
-import 'donate_screen.dart';
 import 'help_screen.dart';
 import 'restore_screen.dart' show ScanSlotLine;
 import 'settings_sections.dart';
@@ -45,9 +43,6 @@ Key settingsGroupKey(SettingsSection section) =>
 
 /// The key of the hub's Help & feedback row, for tests.
 const Key settingsHelpKey = ValueKey('settings-group-help');
-
-/// The key of the hub's Donate row, for tests.
-const Key settingsDonateKey = ValueKey('settings-group-donate');
 
 /// The Settings hub. With [section] (or [privacy], the Network & privacy page), that page
 /// opens over the hub on arrival.
@@ -148,17 +143,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   icon: Icons.help_outline,
                   title: l.settingsSectionHelpFeedback,
                   onTap: () => openHelp(context),
-                ),
-                // Directly under Help (item 4): the donation page, its fallback the address;
-                // none without either in the settings files.
-                if (ref.watch(donateLinkProvider).any)
-                _GroupRow(
-                  key: settingsDonateKey,
-                  icon: Icons.volunteer_activism_outlined,
-                  title: l.settingsDonate,
-                  onTap: () => Navigator.of(context).push<void>(
-                    MaterialPageRoute<void>(builder: (_) => const DonateScreen()),
-                  ),
                 ),
                 _GroupRow(
                   key: settingsGroupKey(SettingsSection.advanced),

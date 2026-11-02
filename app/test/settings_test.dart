@@ -530,7 +530,6 @@ void main() {
         settingsGroupKey(SettingsSection.wallet),
         settingsLinkedDevicesKey,
         settingsHelpKey,
-        settingsDonateKey,
         settingsGroupKey(SettingsSection.about),
       ];
       var last = -1.0;

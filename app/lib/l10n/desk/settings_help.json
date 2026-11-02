@@ -125,7 +125,7 @@
   },
   "deskSetHelpSupportHead": "Support",
   "@deskSetHelpSupportHead": {
-    "description": "Section head at the top of Settings › Help, over the support and donation bars."
+    "description": "Section head at the top of Settings › Help, over the support bars."
   },
   "deskSetHelpSearchKeys": "Press / to search. Esc clears the search.",
   "@deskSetHelpSearchKeys": {

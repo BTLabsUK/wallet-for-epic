@@ -45,17 +45,17 @@ void main() {
   });
 
   testWidgets('a contact row keeps name, tag and address; the note gives way first', (tester) async {
-    const lines = EAddressLines(name: 'BT Labs', address: _epicbox, note: 'Donations support development of this wallet.');
+    const lines = EAddressLines(name: 'BT Labs', address: _epicbox, note: 'BT Labs, the makers of this wallet.');
     await _pump(tester, lines, 1000);
     // The row shows the method glyph alone; the name is its tooltip.
     expect(find.text('Epicbox'), findsNothing);
     expect(find.byIcon(EIcons.epicbox), findsOneWidget);
     expect(find.byTooltip('Epicbox'), findsOneWidget);
     expect(_shown(tester), 'esWxbo…3jUcNK@epicbox.epiccash.com');
-    expect(find.textContaining('Donations'), findsOneWidget);
+    expect(find.textContaining('makers'), findsOneWidget);
     await _pump(tester, lines, 240);
     expect(_shown(tester), 'esWxbo…3jUcNK');
-    expect(find.textContaining('Donations'), findsNothing);
+    expect(find.textContaining('makers'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }

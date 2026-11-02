@@ -2917,18 +2917,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get helpTellUs => '描述发生了什么，或哪里不清楚。';
 
   @override
-  String get helpDonateTitle => '支持开发';
-
-  @override
-  String get helpDonateText => '捐款将用于开发新功能。';
-
-  @override
-  String get helpDonateCopy => '复制地址';
-
-  @override
-  String get helpDonateCopied => '地址已复制';
-
-  @override
   String get helpSendFeedback => '报告问题';
 
   @override
@@ -3020,22 +3008,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsSectionHelpFeedback => '帮助';
 
   @override
-  String get settingsDonate => '捐款';
-
-  @override
   String get settingsExperimentTag => '实验';
-
-  @override
-  String get donateLead => '捐款用于开发这个钱包。';
-
-  @override
-  String get donateAddress => 'Epic Cash 地址';
-
-  @override
-  String get donateQrLabel => '捐款地址二维码';
-
-  @override
-  String get donateInContacts => '在联系人中';
 
   @override
   String get settingsStateBackUp => '备份助记词';
@@ -18109,9 +18082,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetSecFiles => '文件与日志';
 
   @override
-  String get deskSetSecDonate => '捐赠';
-
-  @override
   String get deskSetNavApp => '应用';
 
   @override
@@ -18688,21 +18658,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetSearchKeyEsc => 'Esc';
 
   @override
-  String get deskDonateLead => '捐款用于资助本钱包的开发。';
-
-  @override
-  String get deskDonateOpen => '打开';
-
-  @override
-  String get deskDonateAddress => 'Epic Cash 地址';
-
-  @override
-  String get deskDonateAddressQr => '捐款地址';
-
-  @override
-  String get deskDonateCopy => '复制捐款地址';
-
-  @override
   String get deskSetRescanByWholeChain => '整条链';
 
   @override
@@ -18746,9 +18701,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskBarKeySearchHere => '在设置中搜索';
-
-  @override
-  String get deskDonateInContacts => '在联系人中';
 
   @override
   String get deskHttpLocalTitle => '本地网络';

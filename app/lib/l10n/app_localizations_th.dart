@@ -3033,18 +3033,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get helpTellUs => 'อธิบายสิ่งที่เกิดขึ้นหรือสิ่งที่ไม่ชัดเจน';
 
   @override
-  String get helpDonateTitle => 'สนับสนุนการพัฒนา';
-
-  @override
-  String get helpDonateText => 'เงินบริจาคใช้พัฒนาฟีเจอร์ใหม่';
-
-  @override
-  String get helpDonateCopy => 'คัดลอกที่อยู่';
-
-  @override
-  String get helpDonateCopied => 'คัดลอกที่อยู่แล้ว';
-
-  @override
   String get helpSendFeedback => 'รายงานปัญหา';
 
   @override
@@ -3139,22 +3127,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsSectionHelpFeedback => 'ช่วยเหลือ';
 
   @override
-  String get settingsDonate => 'บริจาค';
-
-  @override
   String get settingsExperimentTag => 'ทดลอง';
-
-  @override
-  String get donateLead => 'เงินบริจาคใช้พัฒนากระเป๋าเงินนี้';
-
-  @override
-  String get donateAddress => 'ที่อยู่ Epic Cash';
-
-  @override
-  String get donateQrLabel => 'QR Code ของที่อยู่สำหรับบริจาค';
-
-  @override
-  String get donateInContacts => 'อยู่ในผู้ติดต่อ';
 
   @override
   String get settingsStateBackUp => 'สำรองวลีกู้คืน';
@@ -18769,9 +18742,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetSecFiles => 'ไฟล์และบันทึก';
 
   @override
-  String get deskSetSecDonate => 'บริจาค';
-
-  @override
   String get deskSetNavApp => 'แอป';
 
   @override
@@ -19417,21 +19387,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetSearchKeyEsc => 'Esc';
 
   @override
-  String get deskDonateLead => 'เงินบริจาคช่วยสนับสนุนการพัฒนากระเป๋าเงินนี้';
-
-  @override
-  String get deskDonateOpen => 'เปิด';
-
-  @override
-  String get deskDonateAddress => 'ที่อยู่ Epic Cash';
-
-  @override
-  String get deskDonateAddressQr => 'ที่อยู่สำหรับบริจาค';
-
-  @override
-  String get deskDonateCopy => 'คัดลอกที่อยู่สำหรับบริจาค';
-
-  @override
   String get deskSetRescanByWholeChain => 'ทั้งเชน';
 
   @override
@@ -19477,9 +19432,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskBarKeySearchHere => 'ค้นหา ขณะอยู่ในการตั้งค่า';
-
-  @override
-  String get deskDonateInContacts => 'อยู่ในผู้ติดต่อ';
 
   @override
   String get deskHttpLocalTitle => 'เครือข่ายในบ้าน';

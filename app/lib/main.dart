@@ -73,7 +73,7 @@ Future<void> main() async {
     // through it.
     if (torBuilt) TorNet.hold = appConfig.torSendWait;
     // BT Labs' signed btlabs.json, in the background after the network mode and Tor are set:
-    // the donation address from the kept copy at once, then from a fresh read if one verifies.
+    // the BT Labs contact's address from the kept copy at once, then from a fresh read if one verifies.
     // Held for the first-start step: once it is answered.
     afterFirstStart(() => unawaited(refreshBtlabsPublicAtStart(store)));
     // Before anything asks the status site: off (`status.enabled`), nothing is asked.

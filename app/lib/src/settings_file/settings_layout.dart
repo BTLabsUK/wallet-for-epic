@@ -404,7 +404,7 @@ ValueProblem? _reachTemplate(String v) => checkTemplate('port', optional: true)(
 /// The status site's addresses: its timing keys are needed only with one of them.
 const _statusSite = ['status.directory', 'status.icons', 'status.price'];
 
-/// An Epicbox address, or empty: no donation entry.
+/// An Epicbox address, or empty: no BT Labs contact.
 ValueProblem? _donation(String v) => v.isEmpty ? null : checkEpicboxAddress(v);
 
 final Map<String, SettingsKey> settingsKeysByPath = {for (final k in settingsKeys) k.path: k};

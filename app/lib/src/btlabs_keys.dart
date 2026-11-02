@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The keys that may sign BT Labs' public files: `btlabs.json` (the donation contact) and the
+/// The keys that may sign BT Labs' public files: `btlabs.json` (the BT Labs contact) and the
 /// wallet's release manifest, `update.json` (btlabs-public FORMAT.md §2 and §6).
 ///
 /// Rank 1 signs; rank 2 is the offline next key, used only to retire key 1 (ADR 0001 §4). A

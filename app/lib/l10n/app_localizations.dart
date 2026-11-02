@@ -4963,30 +4963,6 @@ abstract class AppLocalizations {
   /// **'Describe what happened or what is unclear.'**
   String get helpTellUs;
 
-  /// Heading of the donation note in Help.
-  ///
-  /// In en, this message translates to:
-  /// **'Support development'**
-  String get helpDonateTitle;
-
-  /// Body of the donation note in Help.
-  ///
-  /// In en, this message translates to:
-  /// **'Donations fund new features.'**
-  String get helpDonateText;
-
-  /// Button that copies the donation address.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy address'**
-  String get helpDonateCopy;
-
-  /// Notice after the donation address was copied.
-  ///
-  /// In en, this message translates to:
-  /// **'Address copied'**
-  String get helpDonateCopied;
-
   /// Button at the end of the help page that opens the feedback form.
   ///
   /// In en, this message translates to:
@@ -5161,41 +5137,11 @@ abstract class AppLocalizations {
   /// **'Help'**
   String get settingsSectionHelpFeedback;
 
-  /// Phone Settings hub row directly under Help, and the Donate screen's title: BT Labs' donation address.
-  ///
-  /// In en, this message translates to:
-  /// **'Donate'**
-  String get settingsDonate;
-
   /// Small tag after 'Linked devices' on the phone's Settings hub: the feature is an experiment. One word.
   ///
   /// In en, this message translates to:
   /// **'Experiment'**
   String get settingsExperimentTag;
-
-  /// Donate screen, first line.
-  ///
-  /// In en, this message translates to:
-  /// **'Donations fund development of this wallet.'**
-  String get donateLead;
-
-  /// Donate screen: header over BT Labs' Epic Cash donation address (Copy and QR beside it).
-  ///
-  /// In en, this message translates to:
-  /// **'Epic Cash address'**
-  String get donateAddress;
-
-  /// Screen reader label of the donation address's QR code.
-  ///
-  /// In en, this message translates to:
-  /// **'QR code of the donation address'**
-  String get donateQrLabel;
-
-  /// Donate screen: under the BT Labs contact's name; a tap opens the contact. Shown only while Contacts hold it.
-  ///
-  /// In en, this message translates to:
-  /// **'In your contacts'**
-  String get donateInContacts;
 
   /// State line under the Security group while the recovery phrase has not been backed up.
   ///
@@ -28956,7 +28902,7 @@ abstract class AppLocalizations {
   /// **'The current password still opens the wallet.'**
   String get deskOnbForgotFailedLead;
 
-  /// Section head at the top of Settings › Help, over the support and donation bars.
+  /// Section head at the top of Settings › Help, over the support bars.
   ///
   /// In en, this message translates to:
   /// **'Support'**
@@ -29891,12 +29837,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Files & logs'**
   String get deskSetSecFiles;
-
-  /// Settings navigation: the donation page.
-  ///
-  /// In en, this message translates to:
-  /// **'Donate'**
-  String get deskSetSecDonate;
 
   /// Settings navigation: heading of the app-wide sections.
   ///
@@ -31038,36 +30978,6 @@ abstract class AppLocalizations {
   /// **'Esc'**
   String get deskSetSearchKeyEsc;
 
-  /// Settings › Donate: the line at the top of the page.
-  ///
-  /// In en, this message translates to:
-  /// **'Donations fund development of this wallet.'**
-  String get deskDonateLead;
-
-  /// Settings › Donate: the button that opens BT Labs' contact in Contacts.
-  ///
-  /// In en, this message translates to:
-  /// **'Open'**
-  String get deskDonateOpen;
-
-  /// Settings › Donate: the row with the donation address, Copy and QR.
-  ///
-  /// In en, this message translates to:
-  /// **'Epic Cash address'**
-  String get deskDonateAddress;
-
-  /// What the QR code is of, lower case after 'the' (as in 'Show the QR code of the donation address').
-  ///
-  /// In en, this message translates to:
-  /// **'donation address'**
-  String get deskDonateAddressQr;
-
-  /// Settings › Donate: name of the copy button of the donation address.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy donation address'**
-  String get deskDonateCopy;
-
   /// Recheck balance › Where to start: the segment that scans from block 0 (short, a segmented control).
   ///
   /// In en, this message translates to:
@@ -31145,12 +31055,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search, while in Settings'**
   String get deskBarKeySearchHere;
-
-  /// Settings › Donate: under the BT Labs contact's name, beside Open; shown only while Contacts hold it.
-  ///
-  /// In en, this message translates to:
-  /// **'In your contacts'**
-  String get deskDonateInContacts;
 
   /// Title of the Link · HTTP address for wallets on this computer (http://127.0.0.1:port), on Receive and in Settings. Short.
   ///
