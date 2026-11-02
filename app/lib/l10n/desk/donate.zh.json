@@ -1,0 +1,12 @@
+{
+  "deskDonateLead": "捐款用于资助本钱包的开发。",
+  "deskDonatePage": "捐款页面",
+  "deskDonateOpen": "打开",
+  "deskDonateNoAnswer": "捐款页面没有响应。",
+  "deskDonateNoAnswerText": "请将 EPIC 发送到下方地址，或使用联系页面。",
+  "deskDonateOffInMode": "{mode}：不会打开捐款页面。",
+  "deskDonateContact": "联系页面",
+  "deskDonateAddress": "Epic Cash 地址",
+  "deskDonateAddressQr": "捐款地址",
+  "deskDonateCopy": "复制捐款地址"
+}

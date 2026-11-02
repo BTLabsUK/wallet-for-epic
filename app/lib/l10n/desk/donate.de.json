@@ -1,0 +1,12 @@
+{
+  "deskDonateLead": "Spenden finanzieren die Entwicklung dieser Wallet.",
+  "deskDonatePage": "Spendenseite",
+  "deskDonateOpen": "Öffnen",
+  "deskDonateNoAnswer": "Die Spendenseite antwortet nicht.",
+  "deskDonateNoAnswerText": "Senden Sie EPIC an die Adresse unten oder nutzen Sie die Kontaktseite.",
+  "deskDonateOffInMode": "{mode}: Die Spendenseite wird nicht geöffnet.",
+  "deskDonateContact": "Kontaktseite",
+  "deskDonateAddress": "Epic-Cash-Adresse",
+  "deskDonateAddressQr": "Spendenadresse",
+  "deskDonateCopy": "Spendenadresse kopieren"
+}

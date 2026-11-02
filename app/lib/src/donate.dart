@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'net/http.dart' show httpGet;
 import 'net/http_types.dart' show NetError, NetTooLarge;
 import 'network_gate.dart' show NetGate;
+import 'seed_contacts.dart' show btLabsContact;
 import 'settings_file/host_settings.dart';
 import 'settings_file/settings_providers.dart' show hostSettingsProvider;
 
@@ -22,7 +23,8 @@ class DonateLink {
   factory DonateLink.of(HostSettings settings) => DonateLink(
     page: _https(settings.donatePage),
     contact: _https(settings.donateContact),
-    address: settings.supportDonation,
+    // The signed btlabs.json's address when one verified, as the BT Labs contact shows it.
+    address: (hostSettingsLoaded ? btLabsContact?.address : null) ?? settings.supportDonation,
   );
 
   /// The donation page; null: none, Donate shows the address and the contact page.
@@ -87,3 +89,6 @@ Future<DonateCheck> checkDonatePage(
 }
 
 Future<int> _status(Uri page, Duration timeout) async => (await httpGet(page, timeout: timeout, maxBytes: 64 * 1024)).status;
+
+/// [checkDonatePage] as the screens call it; tests replace it.
+final donateCheckProvider = Provider<Future<DonateCheck> Function(DonateLink link)>((ref) => checkDonatePage);
