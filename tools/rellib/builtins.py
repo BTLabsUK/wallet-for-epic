@@ -112,7 +112,9 @@ def pick(candidates, ok, override=None):
 
 
 def resolve_previous(engine):
-    """The release G4 updates from: the scope's previous_dir, else the newest published run."""
+    """The release G4 updates from: the scope's previous_dir, else the newest published run, else
+    the newest release published by hand (published-by-hand.json: 26.10.23 and 26.10.24-r2 went
+    out that way, so without it every run failed G1 until someone passed --previous)."""
     s = engine.info["scope"]["proof"]
     if s.get("previous_dir"):
         d = os.path.expanduser(s["previous_dir"])
@@ -125,6 +127,11 @@ def resolve_previous(engine):
         p = pubs[-1]
         return {"dir": os.path.join(p["run"], "files"), "version": p["version"], "ref": p.get("tag", f"v{p['version']}"),
                 "extra": os.path.join(p["run"], "extra")}
+    by_hand = [p for p in retention.published_by_hand(os.path.dirname(os.path.dirname(engine.run.path)))
+               if p.get("version") != engine.info["version"] and os.path.isdir(os.path.expanduser(p.get("dir", "")))]
+    if by_hand:
+        p = by_hand[-1]
+        return {"dir": os.path.expanduser(p["dir"]), "version": p["version"], "ref": p.get("tag", f"v{p['version']}")}
     return {}
 
 
@@ -199,6 +206,11 @@ def preflight(engine, step, say):
         tools.append(engine.relmsg.bin)
     for t in tools:
         (ok if shutil.which(t) else bad)(f"tool {t}")
+    if s["publish"]["target"] == "live" and not info.get("test"):
+        # publish-source (tools/publish-github.sh) and publish-manifests (tools/publish-update-json.sh)
+        # rewrite history with it, after the gate; a broken install there strands a half-published release.
+        rc, _ = sh(["git", "filter-repo", "--version"], lambda *a: None, timeout=30)
+        (ok if rc == 0 else bad)("tool git-filter-repo (publish-source, publish-manifests)")
     if "android" in plats and shutil.which("flutter"):
         want = open(os.path.join(engine.repo, "scripts/linux/flutter.version")).read().strip()
         rc, out = sh(["flutter", "--version", "--machine"], lambda *a: None, timeout=120)
@@ -267,6 +279,15 @@ def preflight(engine, step, say):
         else:
             ok(f"live update manifests valid for more than {pipe.manifest_warn_days()} days")
     ids = {x.base for x in engine.run.steps}
+    if live:
+        # tag, publish-page and publish-source run in it after the gate: a missing one would strand
+        # a half-published release (on 2026-11-02 a worktree cleanup had removed it). Doctor's run
+        # has no steps, so this does not wait for "tag" to be in the plan.
+        main = os.path.expanduser(hosts["path"].get("main_checkout") or engine.repo)
+        rc, head = sh(["git", "-C", main, "branch", "--show-current"], lambda *a: None)
+        (ok if rc == 0 and head.strip() == "main" else bad)(
+            f"paths.main_checkout {main}: " + ("on main" if rc == 0 and head.strip() == "main" else
+                                               "missing or not on main (git worktree add <it> main)"))
     if live and "tag" in ids:
         # The tag step refuses a commit that is not on main: say so now, not after the gate.
         main = os.path.expanduser(hosts["path"].get("main_checkout") or engine.repo)

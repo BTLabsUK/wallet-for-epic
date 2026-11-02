@@ -156,6 +156,16 @@ class App:
         elif pubs:
             p = pubs[-1]
             prev = {"dir": os.path.join(p["run"], "files"), "version": p["version"], "ref": p.get("tag", "")}
+        else:
+            # Releases published by hand (26.10.23, 26.10.24-r2) are the previous release too. Set it in
+            # the scope so G1 and G4 find it from any run folder (doctor's lives in a temp dir).
+            by_hand = [p for p in retention.published_by_hand(self.state_root)
+                       if p["version"] != scope["version"] and os.path.isdir(os.path.expanduser(p.get("dir", "")))]
+            if by_hand:
+                p = by_hand[-1]
+                d = os.path.expanduser(p["dir"])
+                prev = {"dir": d, "version": p["version"], "ref": p.get("tag", f"v{p['version']}")}
+                scope["proof"].update(previous_dir=d, previous_version=prev["version"], previous_ref=prev["ref"])
         warns = validate_scope(scope, self.pipeline, vac, prev.get("version"))
         return commit, scope, prev, warns
 
