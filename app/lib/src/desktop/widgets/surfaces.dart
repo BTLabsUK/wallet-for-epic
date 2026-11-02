@@ -975,7 +975,7 @@ class ESetRow extends StatelessWidget {
         child: row,
       );
     }
-    return anchor == null ? row : _SetRowAnchor(id: anchor!, child: row);
+    return anchor == null ? row : SetAnchor(id: anchor!, child: row);
   }
 }
 
@@ -1049,17 +1049,20 @@ abstract final class ESetAnchors {
   }
 }
 
-class _SetRowAnchor extends StatefulWidget {
-  const _SetRowAnchor({required this.id, required this.child});
+/// The anchor of a Settings row that is no [ESetRow] (a custom block, a group's trailing
+/// button, a list): search jumps to [child] as to an anchored row, focusing its first stop.
+class SetAnchor extends StatefulWidget {
+  const SetAnchor({super.key, required this.id, required this.child});
 
+  /// The row's id in the settings registry ([SetId]).
   final String id;
   final Widget child;
 
   @override
-  State<_SetRowAnchor> createState() => _SetRowAnchorState();
+  State<SetAnchor> createState() => _SetRowAnchorState();
 }
 
-class _SetRowAnchorState extends State<_SetRowAnchor> with SingleTickerProviderStateMixin {
+class _SetRowAnchorState extends State<SetAnchor> with SingleTickerProviderStateMixin {
   final _focus = FocusNode(debugLabel: 'row anchor', skipTraversal: true);
   late final _cue = AnimationController(vsync: this, duration: const Duration(milliseconds: 1000), value: 0);
   late final _fade = CurvedAnimation(parent: _cue, curve: const Interval(0, 0.75, curve: Curves.easeInCubic));
@@ -1071,7 +1074,7 @@ class _SetRowAnchorState extends State<_SetRowAnchor> with SingleTickerProviderS
   }
 
   @override
-  void didUpdateWidget(_SetRowAnchor old) {
+  void didUpdateWidget(SetAnchor old) {
     super.didUpdateWidget(old);
     if (old.id != widget.id) {
       if (ESetAnchors._live[old.id] == this) ESetAnchors._live.remove(old.id);
