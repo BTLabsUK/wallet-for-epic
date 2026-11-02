@@ -19543,98 +19543,99 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskRailOpenNetworkPrivacy => 'Netzwerk & Datenschutz öffnen';
 
   @override
-  String get deskSetSearchHint => 'Search settings';
+  String get deskSetSearchHint => 'Einstellungen durchsuchen';
 
   @override
-  String get deskSetSearchKeyHint => 'Ctrl K';
+  String get deskSetSearchKeyHint => 'Strg K';
 
   @override
-  String get deskSetSearchClear => 'Clear search';
+  String get deskSetSearchClear => 'Suche leeren';
 
   @override
   String deskSetSearchCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count results',
-      one: '1 result',
+      other: '$count Treffer',
+      one: '1 Treffer',
     );
     return '$_temp0';
   }
 
   @override
   String deskSetSearchFor(String query) {
-    return 'for “$query”';
+    return 'für „$query“';
   }
 
   @override
-  String get deskSetSearchKeysMove => 'move';
+  String get deskSetSearchKeysMove => 'wählen';
 
   @override
-  String get deskSetSearchKeysGo => 'go to setting';
+  String get deskSetSearchKeysGo => 'zur Einstellung';
 
   @override
-  String get deskSetSearchKeysClear => 'clear';
+  String get deskSetSearchKeysClear => 'leeren';
 
   @override
   String deskSetSearchMatches(String word) {
-    return 'Matches “$word”';
+    return 'Passt zu „$word“';
   }
 
   @override
-  String get deskSetSearchHelpTopics => 'Help topics';
+  String get deskSetSearchHelpTopics => 'Hilfethemen';
 
   @override
-  String get deskSetSearchHidden => 'Hidden here';
+  String get deskSetSearchHidden => 'Hier ausgeblendet';
 
   @override
   String get deskSetSearchHiddenLine =>
-      'Another view or an Advanced switch shows them';
+      'Eine andere Ansicht oder ein Schalter unter Erweitert zeigt sie';
 
   @override
   String deskSetSearchShowIn(String view) {
-    return 'Show in $view';
+    return 'In $view zeigen';
   }
 
   @override
-  String get deskSetSearchTurnOn => 'Turn on';
+  String get deskSetSearchTurnOn => 'Einschalten';
 
   @override
-  String get deskSetSearchOpen => 'Open';
+  String get deskSetSearchOpen => 'Öffnen';
 
   @override
-  String get deskSetSearchRead => 'Read';
+  String get deskSetSearchRead => 'Lesen';
 
   @override
   String deskSetSearchNone(String query) {
-    return 'No setting matches “$query”.';
+    return 'Keine Einstellung passt zu „$query“.';
   }
 
   @override
-  String get deskSetSearchTry => 'Try';
+  String get deskSetSearchTry => 'Versuchen Sie';
 
   @override
-  String get deskSetSearchTryWords => 'password,tor,seed,backup,fee,node,lock';
+  String get deskSetSearchTryWords =>
+      'passwort,tor,seed,sicherung,gebühr,node,sperre';
 
   @override
-  String get deskSetSearchNoResults => 'No results';
+  String get deskSetSearchNoResults => 'Keine Treffer';
 
   @override
-  String get deskSetSearchResults => 'Search results';
+  String get deskSetSearchResults => 'Suchergebnisse';
 
   @override
   String deskSetSearchViewGate(String view) {
-    return '$view view';
+    return 'Ansicht $view';
   }
 
   @override
   String deskSetSearchFeatGate(String feature) {
-    return 'Advanced › $feature';
+    return 'Erweitert › $feature';
   }
 
   @override
   String deskSetSearchGateJoin(String first, String last) {
-    return '$first and $last';
+    return '$first und $last';
   }
 
   @override
@@ -19642,8 +19643,8 @@ class AppLocalizationsDe extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count more options · shown with $gates',
-      one: '1 more option · shown with $gates',
+      other: '$count weitere Optionen · gezeigt mit $gates',
+      one: '1 weitere Option · gezeigt mit $gates',
     );
     return '$_temp0';
   }
@@ -19653,618 +19654,635 @@ class AppLocalizationsDe extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Hide the $count extra options',
-      one: 'Hide the extra option',
+      other: 'Die $count zusätzlichen Optionen ausblenden',
+      one: 'Die zusätzliche Option ausblenden',
     );
     return '$_temp0';
   }
 
   @override
   String deskSetSearchViewApplied(String view) {
-    return 'View: $view';
+    return 'Ansicht: $view';
   }
 
   @override
   String deskSetSearchFeatApplied(String feature) {
-    return 'Advanced › $feature: on';
+    return 'Erweitert › $feature: an';
   }
 
   @override
   String deskSetSearchFallbackView(String page, String view) {
-    return '$page shows in the $view view.';
+    return '$page gibt es in der Ansicht $view.';
   }
 
   @override
   String deskSetSearchFallbackFeat(String page, String feature) {
-    return '$page shows with Advanced › $feature.';
+    return '$page erscheint mit Erweitert › $feature.';
   }
 
   @override
   String get deskSetSecWallet => 'Wallet';
 
   @override
-  String get deskSetSecPayments => 'Payments';
+  String get deskSetSecPayments => 'Zahlungen';
 
   @override
-  String get deskSetSecDevices => 'Linked devices';
+  String get deskSetSecDevices => 'Verknüpfte Geräte';
 
   @override
   String get deskSetSecWallets => 'Wallets';
 
   @override
-  String get deskSetSecFiles => 'Files & logs';
+  String get deskSetSecFiles => 'Dateien & Protokolle';
 
   @override
-  String get deskSetSecDonate => 'Donate';
+  String get deskSetSecDonate => 'Spenden';
 
   @override
   String get deskSetNavApp => 'App';
 
   @override
-  String get deskSetNavComputer => 'This computer';
+  String get deskSetNavComputer => 'Dieser Computer';
 
   @override
-  String get deskSetGrpBackup => 'Backup';
+  String get deskSetGrpBackup => 'Sicherung';
 
   @override
-  String get deskSetGrpBalance => 'Balance';
+  String get deskSetGrpBalance => 'Guthaben';
 
   @override
-  String get deskSetGrpRemove => 'Remove';
+  String get deskSetGrpRemove => 'Entfernen';
 
   @override
-  String get deskSetGrpMethods => 'Methods';
+  String get deskSetGrpMethods => 'Methoden';
 
   @override
-  String get deskSetGrpSending => 'Sending';
+  String get deskSetGrpSending => 'Senden';
 
   @override
-  String get deskSetGrpReceiving => 'Receiving';
+  String get deskSetGrpReceiving => 'Empfangen';
 
   @override
-  String get deskSetGrpThisDevice => 'This device';
+  String get deskSetGrpThisDevice => 'Dieses Gerät';
 
   @override
-  String get deskSetGrpLinkedDevice => 'Linked device';
+  String get deskSetGrpLinkedDevice => 'Verknüpftes Gerät';
 
   @override
-  String get deskSetGrpSync => 'Sync';
+  String get deskSetGrpSync => 'Abgleich';
 
   @override
-  String get deskSetGrpConnection => 'Connection';
+  String get deskSetGrpConnection => 'Verbindung';
 
   @override
-  String get deskSetGrpLocalNode => 'Node on this computer';
+  String get deskSetGrpLocalNode => 'Node auf diesem Computer';
 
   @override
-  String get deskSetGrpConnections => 'Connections';
+  String get deskSetGrpConnections => 'Verbindungen';
 
   @override
   String get deskSetGrpTor => 'Tor';
 
   @override
-  String get deskSetGrpServerStatus => 'Server status';
+  String get deskSetGrpServerStatus => 'Serverstatus';
 
   @override
-  String get deskSetGrpView => 'View';
+  String get deskSetGrpView => 'Ansicht';
 
   @override
-  String get deskSetGrpShowsMore => 'Shows more';
+  String get deskSetGrpShowsMore => 'Zeigt mehr';
 
   @override
-  String get deskSetGrpExperiments => 'Experiments';
+  String get deskSetGrpExperiments => 'Experimente';
 
   @override
-  String get deskSetGrpOnComputer => 'On this computer';
+  String get deskSetGrpOnComputer => 'Auf diesem Computer';
 
   @override
-  String get deskSetGrpAddWallet => 'Add a wallet';
+  String get deskSetGrpAddWallet => 'Wallet hinzufügen';
 
   @override
-  String get deskSetGrpFolders => 'Folders';
+  String get deskSetGrpFolders => 'Ordner';
 
   @override
-  String get deskSetGrpLogs => 'Logs';
+  String get deskSetGrpLogs => 'Protokolle';
 
   @override
   String get deskSetGrpSupport => 'Support';
 
   @override
-  String get deskSetGrpStartAgain => 'Start again';
+  String get deskSetGrpStartAgain => 'Neu beginnen';
 
   @override
   String get deskSetGrpLinks => 'Links';
 
   @override
-  String get deskSetRowNameHint => 'Only shown in this app.';
+  String get deskSetRowNameHint => 'Nur in dieser App zu sehen.';
 
   @override
-  String get deskSetSynName => 'rename, wallet name, label';
+  String get deskSetSynName => 'umbenennen, wallet-name, bezeichnung, name';
 
   @override
   String get deskSetRowExportDataHint =>
-      'History, contacts, invoices and settings in one encrypted file.';
+      'Verlauf, Kontakte, Rechnungen und Einstellungen in einer verschlüsselten Datei.';
 
   @override
   String get deskSetRowExportDataInfo =>
-      'Only a wallet with this recovery phrase can open the file. The coins themselves are restored from the recovery phrase.';
+      'Nur eine Wallet mit dieser Seed-Phrase kann die Datei öffnen. Die Coins selbst stellt die Seed-Phrase wieder her.';
 
   @override
-  String get deskSetSynExportData => 'backup, save, history, contacts, file';
+  String get deskSetSynExportData =>
+      'sicherung, backup, speichern, verlauf, kontakte, datei';
 
   @override
   String get deskSetRowImportDataHint =>
-      'Brings back history, contacts, invoices and settings from an export.';
+      'Holt Verlauf, Kontakte, Rechnungen und Einstellungen aus einem Export zurück.';
 
   @override
-  String get deskSetSynImportData => 'restore, backup, history, load';
+  String get deskSetSynImportData =>
+      'wiederherstellen, sicherung, backup, verlauf, laden';
 
   @override
   String get deskSetRowExportCsvHint =>
-      'A plain table for spreadsheets. Not encrypted.';
+      'Eine einfache Tabelle für Tabellenkalkulationen. Nicht verschlüsselt.';
 
   @override
   String get deskSetSynExportCsv =>
-      'csv, excel, spreadsheet, tax, history, report';
+      'csv, excel, tabelle, steuer, verlauf, bericht';
 
   @override
   String get deskSetRowRecheckGoHint =>
-      'Reads the chain again for this wallet’s coins.';
+      'Liest die Chain erneut nach den Coins dieser Wallet.';
 
   @override
   String get deskSetSynRecheckGo =>
-      'rescan, scan, balance wrong, missing, resync, refresh, repair';
+      'neu scannen, scan, guthaben falsch, fehlt, resync, aktualisieren, reparieren';
 
   @override
   String get deskSetRowDeleteWalletHint =>
-      'Deletes its keys and database from this computer.';
+      'Löscht ihre Schlüssel und Datenbank von diesem Computer.';
 
   @override
-  String get deskSetSynDeleteWallet => 'remove, erase, wipe';
+  String get deskSetSynDeleteWallet => 'entfernen, löschen, tilgen';
 
   @override
-  String get deskSetSynRecheckFrom => 'start, date, height, block';
+  String get deskSetSynRecheckFrom => 'start, datum, höhe, block';
 
   @override
-  String get deskSetRowRecheckMonth => 'Month';
+  String get deskSetRowRecheckMonth => 'Monat';
 
   @override
-  String get deskSetSynRecheckMonth => 'month, date, calendar, created, when';
+  String get deskSetSynRecheckMonth => 'monat, datum, kalender, erstellt, wann';
 
   @override
-  String get deskSetRowRecheckHeight => 'Start block';
+  String get deskSetRowRecheckHeight => 'Startblock';
 
   @override
-  String get deskSetSynRecheckHeight => 'height, block';
+  String get deskSetSynRecheckHeight => 'höhe, block';
 
   @override
   String get deskSetRowRecheckDropHint =>
-      'Also cancels unconfirmed transactions. A payment on its way may then fail.';
+      'Bricht auch unbestätigte Transaktionen ab. Eine Zahlung unterwegs kann dann scheitern.';
 
   @override
-  String get deskSetSynRecheckDrop => 'unconfirmed, stuck, cancel, unlock';
+  String get deskSetSynRecheckDrop =>
+      'unbestätigt, hängt, abbrechen, freigeben';
 
   @override
-  String get deskSetRowPhraseGoHint => 'The 24 words that restore this wallet.';
+  String get deskSetRowPhraseGoHint =>
+      'Die 24 Wörter, die diese Wallet wiederherstellen.';
 
   @override
   String get deskSetSynPhraseGo =>
-      'seed, mnemonic, words, backup, secret, restore, 24 words, private key';
+      'seed, mnemonic, wörter, sicherung, geheim, wiederherstellen, 24 wörter, privater schlüssel';
 
   @override
-  String get deskSetRowPasswordHint => 'Unlocks this wallet.';
+  String get deskSetRowPasswordHint => 'Entsperrt diese Wallet.';
 
   @override
   String get deskSetSynPassword =>
-      'password, passphrase, change password, unlock, pin';
+      'passwort, kennwort, passwort ändern, entsperren, pin';
 
   @override
   String get deskSetRowRememberedHint =>
-      'Opens without the password at start. Sends still ask for it.';
+      'Öffnet beim Start ohne Passwort. Beim Senden wird es weiter abgefragt.';
 
   @override
   String get deskSetSynRemembered =>
-      'remember me, password, unlock, auto unlock, forget';
+      'angemeldet bleiben, passwort, entsperren, automatisch entsperren, vergessen';
 
   @override
   String get deskSetRowAutolockHint =>
-      'Locks after no key press or mouse movement. All wallets.';
+      'Sperrt, wenn keine Taste gedrückt und die Maus nicht bewegt wird. Alle Wallets.';
 
   @override
   String get deskSetSynAutolock =>
-      'lock, timeout, idle, inactivity, screen lock';
+      'sperre, zeitlimit, leerlauf, inaktivität, bildschirmsperre';
 
   @override
   String get deskSetRowEpicboxHint =>
-      'Pay and get paid through an Epicbox server. Most payments go this way. All wallets.';
+      'Bezahlen und bezahlt werden über einen Epicbox-Server. Die meisten Zahlungen laufen so. Alle Wallets.';
 
   @override
   String get deskSetSynEpicbox =>
-      'relay, server, address, receive, send, method';
+      'relay, server, adresse, empfangen, senden, methode';
 
   @override
-  String get deskSetSynEpicboxRecv => 'listen, incoming, receive';
+  String get deskSetSynEpicboxRecv => 'lauschen, eingehend, empfangen';
 
   @override
-  String get deskSetRowEpicboxServerHint => 'Part of this wallet’s address.';
+  String get deskSetRowEpicboxServerHint => 'Teil der Adresse dieser Wallet.';
 
   @override
-  String get deskSetSynEpicboxServer => 'relay, server, host, address';
+  String get deskSetSynEpicboxServer => 'relay, server, host, adresse';
 
   @override
-  String get deskSetSynEpicboxStart => 'startup, auto start';
+  String get deskSetSynEpicboxStart => 'autostart, beim start';
 
   @override
   String get deskSetRowHttpHint =>
-      'Wallet to wallet at a web address, while both are open. All wallets.';
+      'Wallet zu Wallet an einer Webadresse, solange beide offen sind. Alle Wallets.';
 
   @override
-  String get deskSetSynHttp => 'http, ip, port, direct, listener, method';
+  String get deskSetSynHttp => 'http, ip, port, direkt, listener, methode';
 
   @override
-  String get deskSetSynHttpReach => 'internet, router, port forward, public';
+  String get deskSetSynHttpReach =>
+      'internet, router, portweiterleitung, öffentlich';
 
   @override
   String get deskSetSynHttpPort => 'port, tcp';
 
   @override
   String get deskSetRowTorPayHint =>
-      'Wallet to wallet at this wallet’s Tor address, while both are open. All wallets.';
+      'Wallet zu Wallet an der Tor-Adresse dieser Wallet, solange beide offen sind. Alle Wallets.';
 
   @override
   String get deskSetRowTorPayInfo =>
-      'Tor runs only to send and receive payments at the Tor address. The node, prices and updates keep the setting under Network & privacy.';
+      'Tor läuft nur, um Zahlungen an der Tor-Adresse zu senden und zu empfangen. Node, Preise und Updates folgen der Einstellung unter Netzwerk & Datenschutz.';
 
   @override
   String get deskSetSynTorPay =>
-      'tor, onion, anonymous, hidden service, privacy, method';
+      'tor, onion, anonym, hidden service, datenschutz, methode';
 
   @override
   String get deskSetRowFileHint =>
-      'By handing over a transaction file. No network needed. All wallets.';
+      'Durch Übergabe einer Transaktionsdatei. Kein Netzwerk nötig. Alle Wallets.';
 
   @override
   String get deskSetSynFile =>
-      'file, offline, slate, tx file, usb, email, method, manual';
+      'datei, offline, slate, tx-datei, usb, e-mail, methode, manuell';
 
   @override
   String get deskSetRowDefaultMethodHint =>
-      'What Send opens with. All wallets.';
+      'Womit Senden öffnet. Alle Wallets.';
 
   @override
-  String get deskSetSynDefaultMethod => 'send, method, default';
+  String get deskSetSynDefaultMethod => 'senden, methode, standard';
 
   @override
-  String get deskSetRowStrategy => 'Outputs a send spends';
+  String get deskSetRowStrategy => 'Outputs, die ein Senden ausgibt';
 
   @override
   String get deskSetRowStrategyHint =>
-      'Smallest covers the amount; All spends every output.';
+      'Kleinste deckt den Betrag; Alle gibt jeden Output aus.';
 
   @override
-  String get deskSetRowStrategyInfo => 'More outputs spent means a larger fee.';
+  String get deskSetRowStrategyInfo =>
+      'Mehr ausgegebene Outputs bedeuten eine höhere Gebühr.';
 
   @override
   String get deskSetSynStrategy =>
-      'fee, fees, strategy, coin selection, inputs, utxo, outputs';
+      'gebühr, gebühren, strategie, coin-auswahl, inputs, utxo, outputs';
 
   @override
   String get deskSetRowSplitChangeHint =>
-      'Change comes back as up to 4 outputs when few are left.';
+      'Wechselgeld kommt als bis zu 4 Outputs zurück, wenn nur wenige übrig sind.';
 
   @override
   String get deskSetRowSplitChangeInfo =>
-      'Only when a send would leave fewer than 3 spendable outputs and its change is at least 1 EPIC. Each extra output costs 0.004 EPIC.';
+      'Nur wenn ein Senden weniger als 3 verfügbare Outputs übrig ließe und das Wechselgeld mindestens 1 EPIC beträgt. Jeder zusätzliche Output kostet 0,004 EPIC.';
 
   @override
-  String get deskSetSynSplitChange => 'fee, change, outputs, utxo, split';
+  String get deskSetSynSplitChange =>
+      'gebühr, wechselgeld, outputs, utxo, teilen';
 
   @override
   String get deskSetRowConfirmationsHint =>
-      'Blocks a received payment waits before it can be spent.';
+      'Blöcke, die eine empfangene Zahlung wartet, bevor sie ausgegeben werden kann.';
 
   @override
   String get deskSetSynConfirmations =>
-      'confirm, blocks, spendable, locked, pending, wait';
+      'bestätigen, blöcke, verfügbar, gesperrt, ausstehend, warten';
 
   @override
   String get deskSetRowPairShopHint =>
-      'A paired contact you allow can send this wallet invoices.';
+      'Ein gekoppelter Kontakt, dem Sie es erlauben, kann dieser Wallet Rechnungen senden.';
 
   @override
   String get deskSetSynPairShop =>
-      'pair, pairing, invoice, shop, exchange, merchant';
+      'koppeln, kopplung, rechnung, shop, börse, händler';
 
   @override
-  String get deskSetRowTimeToPayHint => 'How long an invoice stays payable.';
+  String get deskSetRowTimeToPayHint =>
+      'Wie lange eine Rechnung bezahlbar bleibt.';
 
   @override
-  String get deskSetSynTimeToPay => 'invoice, expiry, expire, deadline';
+  String get deskSetSynTimeToPay => 'rechnung, ablauf, verfällt, frist';
 
   @override
-  String get deskSetSynDeviceName => 'device name, rename';
+  String get deskSetSynDeviceName => 'gerätename, umbenennen';
 
   @override
   String get deskSetRowLinkDeviceHint =>
-      'This wallet on two devices: each shows the other’s payments.';
+      'Diese Wallet auf zwei Geräten: jedes zeigt die Zahlungen des anderen.';
 
   @override
   String get deskSetRowLinkDeviceInfo =>
-      'One device can be linked. Each holds the coins the other is spending, so both never spend the same coin.';
+      'Ein Gerät kann verknüpft werden. Jedes hält die Coins, die das andere ausgibt, sodass nie beide dieselbe Coin ausgeben.';
 
   @override
   String get deskSetSynLinkDevice =>
-      'link device, pair phone, second device, phone, sync, mobile, multi device';
+      'gerät verknüpfen, handy koppeln, zweites gerät, telefon, abgleich, mobil, mehrere geräte';
 
   @override
   String get deskSetRowPauseSyncHint =>
-      'Notices wait on the servers while paused.';
+      'Mitteilungen warten auf den Servern, solange pausiert ist.';
 
   @override
-  String get deskSetSynPauseSync => 'sync, pause, linked';
+  String get deskSetSynPauseSync => 'abgleich, sync, pause, verknüpft';
 
   @override
-  String get deskSetSynTheme => 'dark mode, light mode, colour, color, night';
+  String get deskSetSynTheme =>
+      'dunkelmodus, hellmodus, farbe, nacht, dark mode';
 
   @override
   String get deskSetSynLanguage =>
-      'language, translation, locale, english, polski, deutsch';
+      'sprache, übersetzung, deutsch, english, polski';
 
   @override
-  String get deskSetRowScaleHint => 'Text and controls, larger or smaller.';
+  String get deskSetRowScaleHint =>
+      'Text und Bedienelemente, größer oder kleiner.';
 
   @override
   String get deskSetSynScale =>
-      'zoom, size, font size, bigger, smaller, text size, dpi';
+      'zoom, größe, schriftgröße, größer, kleiner, textgröße, dpi';
 
   @override
-  String get deskSetRowHideAmountsHint =>
-      'Dots in place of balances and amounts.';
+  String get deskSetRowHideAmountsHint => 'Punkte statt Guthaben und Beträgen.';
 
   @override
   String get deskSetSynHideAmounts =>
-      'privacy, hide balance, mask, screen share, stream';
+      'datenschutz, guthaben verbergen, maskieren, bildschirmfreigabe, stream';
 
   @override
   String get deskSetRowNodeServerHint =>
-      'Reads the chain and sends this wallet’s transactions.';
+      'Liest die Chain und sendet die Transaktionen dieser Wallet.';
 
   @override
-  String get deskSetSynNodeServer => 'node, server, host, rpc, api, url';
+  String get deskSetSynNodeServer =>
+      'node, knoten, server, host, rpc, api, url';
 
   @override
-  String get deskSetRowFailover => 'Switch node automatically';
+  String get deskSetRowFailover => 'Node automatisch wechseln';
 
   @override
   String get deskSetRowFailoverHint =>
-      'When the node stops answering, use the next working one.';
+      'Antwortet der Node nicht mehr, den nächsten funktionierenden nehmen.';
 
   @override
-  String get deskSetSynFailover => 'failover, fallback, auto';
+  String get deskSetSynFailover => 'failover, ausweich, automatisch';
 
   @override
   String get deskSetRowMyNodeHint =>
-      'Asks the node itself for its state and offers owner access.';
+      'Fragt den Node selbst nach seinem Zustand und bietet Besitzerzugriff.';
 
   @override
   String get deskSetSynMyNode =>
-      'own node, my node, self hosted, owner, api secret';
+      'eigener node, mein node, selbst gehostet, besitzer, api-secret';
 
   @override
-  String get deskSetRowLocalNode => 'Node on this computer';
+  String get deskSetRowLocalNode => 'Node auf diesem Computer';
 
   @override
   String get deskSetRowLocalNodeHint =>
-      'Runs its own node here. Several gigabytes of disk.';
+      'Betreibt hier einen eigenen Node. Mehrere Gigabyte Speicher.';
 
   @override
   String get deskSetSynLocalNode =>
-      'local node, built-in node, full node, run a node, sync chain';
+      'lokaler node, eingebauter node, full node, node betreiben, chain synchronisieren';
 
   @override
   String get deskSetRowLocalStartHint =>
-      'Keeps the node syncing while the app is open.';
+      'Hält den Node synchron, solange die App offen ist.';
 
   @override
-  String get deskSetSynLocalStart => 'startup, local node';
+  String get deskSetSynLocalStart => 'autostart, lokaler node';
 
   @override
-  String get deskSetRowNetMode => 'Connection mode';
+  String get deskSetRowNetMode => 'Verbindungsmodus';
 
   @override
   String get deskSetSynNetMode =>
-      'tor only, undercover, offline, kill switch, node only, vpn, ip, privacy, airplane';
+      'nur tor, undercover, offline, kill switch, nur node, vpn, ip, datenschutz, flugmodus';
 
   @override
-  String get deskSetRowTorAll => 'Tor for all connections';
+  String get deskSetRowTorAll => 'Tor für alle Verbindungen';
 
   @override
   String get deskSetRowTorAllHint =>
-      'Node, Epicbox, prices and updates go through Tor.';
+      'Node, Epicbox, Preise und Updates laufen über Tor.';
 
   @override
   String get deskSetRowTorAllInfo =>
-      'Tor hides the wallet’s IP address. For payments at the Tor address only, see Payments › Link · Tor.';
+      'Tor verbirgt die IP-Adresse der Wallet. Nur für Zahlungen an der Tor-Adresse: siehe Zahlungen › Link · Tor.';
 
   @override
   String get deskSetSynTorAll =>
-      'tor, onion, anonymous, ip, hide ip, proxy, privacy';
+      'tor, onion, anonym, ip, ip verbergen, proxy, datenschutz';
 
   @override
   String get deskSetRowStatusSiteHint =>
-      'Shows which nodes and Epicbox servers are online.';
+      'Zeigt, welche Nodes und Epicbox-Server online sind.';
 
   @override
-  String get deskSetSynStatusSite => 'status, health, uptime, monitor';
+  String get deskSetSynStatusSite =>
+      'status, zustand, verfügbarkeit, überwachung';
 
   @override
-  String get deskSetRowView => 'View';
+  String get deskSetRowView => 'Ansicht';
 
   @override
   String get deskSetRowViewHint =>
-      'Shallow, Deeper or Deep end: how much of the wallet shows.';
+      'Flach, Tiefer oder Ganz tief: wie viel der Wallet zu sehen ist.';
 
   @override
   String get deskSetSynView =>
-      'level, depth, shallow, deeper, deep end, simple, expert, beginner, advanced mode';
+      'stufe, tiefe, flach, tiefer, ganz tief, einfach, experte, anfänger, erweiterter modus';
 
   @override
   String get deskSetRowAdvOutputsHint =>
-      'The Outputs page: the coins the balance is made of.';
+      'Die Seite Outputs: die Coins, aus denen das Guthaben besteht.';
 
   @override
-  String get deskSetSynAdvOutputs => 'utxo, coins, outputs, split, consolidate';
+  String get deskSetSynAdvOutputs =>
+      'utxo, coins, outputs, teilen, zusammenführen';
 
   @override
   String get deskSetRowAdvTechHint =>
-      'Kernel, slate ID and commitments on every transaction.';
+      'Kernel, Slate-ID und Commitments bei jeder Transaktion.';
 
   @override
-  String get deskSetSynAdvTech => 'kernel, slate, commitment, tx id, details';
+  String get deskSetSynAdvTech => 'kernel, slate, commitment, tx-id, details';
 
   @override
   String get deskSetRowAdvSendoptsHint =>
-      'Outputs and change choices on Send and under Payments.';
+      'Output- und Wechselgeld-Optionen beim Senden und unter Zahlungen.';
 
   @override
-  String get deskSetSynAdvSendopts => 'fee, coin control, outputs, change';
+  String get deskSetSynAdvSendopts =>
+      'gebühr, coin control, outputs, wechselgeld';
 
   @override
   String get deskSetRowAdvServersHint =>
-      'Hosts, latency, version and height in server lists.';
+      'Hosts, Latenz, Version und Höhe in Serverlisten.';
 
   @override
-  String get deskSetSynAdvServers => 'latency, ping, height, version, host';
+  String get deskSetSynAdvServers => 'latenz, ping, höhe, version, host';
 
   @override
   String get deskSetRowAdvHeightHint =>
-      'Where to start and Delete unconfirmed on Recheck balance.';
+      'Wo beginnen und Unbestätigte löschen beim Guthaben neu prüfen.';
 
   @override
-  String get deskSetSynAdvHeight => 'rescan, height, block';
+  String get deskSetSynAdvHeight => 'neu scannen, höhe, block';
 
   @override
   String get deskSetRowAdvLocalHint =>
-      'Running a node on this computer, under Node.';
+      'Einen Node auf diesem Computer betreiben, unter Node.';
 
   @override
-  String get deskSetSynAdvLocal => 'full node, local node';
+  String get deskSetSynAdvLocal => 'full node, lokaler node';
 
   @override
   String get deskSetRowAdvLogsHint =>
-      'Log level and log files under Files & logs.';
+      'Protokollstufe und Protokolldateien unter Dateien & Protokolle.';
 
   @override
-  String get deskSetSynAdvLogs => 'log, debug, diagnostics';
+  String get deskSetSynAdvLogs => 'protokoll, log, debug, diagnose';
 
   @override
   String get deskSetRowXInvoicesHint =>
-      'Ask paired contacts for payments; approve theirs.';
+      'Gekoppelte Kontakte um Zahlungen bitten; ihre genehmigen.';
 
   @override
-  String get deskSetSynXInvoices => 'invoice, request payment, pairing, bill';
+  String get deskSetSynXInvoices =>
+      'rechnung, zahlung anfordern, kopplung, abrechnung';
 
   @override
-  String get deskSetRowWalletRows => 'Wallet list';
+  String get deskSetRowWalletRows => 'Wallet-Liste';
 
   @override
   String get deskSetRowWalletRowsHint =>
-      'The wallets on this computer; open or remove one.';
+      'Die Wallets auf diesem Computer; eine öffnen oder entfernen.';
 
   @override
   String get deskSetSynWalletRows =>
-      'wallets, switch wallet, other wallet, list';
+      'wallets, wallet wechseln, andere wallet, liste';
 
   @override
   String get deskSetRowCreateWalletHint =>
-      'A new wallet with a new recovery phrase.';
+      'Eine neue Wallet mit neuer Seed-Phrase.';
 
   @override
-  String get deskSetSynCreateWallet => 'new wallet, add wallet';
+  String get deskSetSynCreateWallet => 'neue wallet, wallet hinzufügen';
 
   @override
   String get deskSetRowImportWalletsHint =>
-      'From an older Epic Wallet or a folder.';
+      'Aus einer älteren Epic Wallet oder einem Ordner.';
 
   @override
   String get deskSetSynImportWallets =>
-      'migrate, old wallet, electron, gui wallet, folder';
+      'migrieren, alte wallet, electron, gui-wallet, ordner';
 
   @override
-  String get deskSetRowRestoreWalletHint => 'From the 24-word recovery phrase.';
+  String get deskSetRowRestoreWalletHint => 'Aus der 24-Wörter-Seed-Phrase.';
 
   @override
-  String get deskSetSynRestoreWallet => 'seed, recover, restore, mnemonic';
+  String get deskSetSynRestoreWallet => 'seed, wiederherstellen, mnemonic';
 
   @override
-  String get deskSetRowWalletFolderHint => 'This wallet’s keys and database.';
+  String get deskSetRowWalletFolderHint =>
+      'Schlüssel und Datenbank dieser Wallet.';
 
   @override
   String get deskSetSynWalletFolder =>
-      'data folder, directory, path, files, location';
+      'datenordner, verzeichnis, pfad, dateien, speicherort';
 
   @override
-  String get deskSetRowAppFilesHint => 'settings.toml and the log.';
+  String get deskSetRowAppFilesHint => 'settings.toml und das Protokoll.';
 
   @override
   String get deskSetSynAppFiles =>
-      'settings file, settings.toml, config, toml, directory';
+      'einstellungsdatei, settings.toml, konfiguration, toml, verzeichnis';
 
   @override
   String get deskSetRowLogLevelHint =>
-      'Detailed keeps more lines; reports leave addresses out.';
+      'Ausführlich behält mehr Zeilen; Berichte lassen Adressen weg.';
 
   @override
-  String get deskSetSynLogLevel => 'log, debug, verbose';
+  String get deskSetSynLogLevel => 'protokoll, log, debug, ausführlich';
 
   @override
   String get deskSetRowLogFilesHint =>
-      'Clear the log files or open their folder.';
+      'Die Protokolldateien leeren oder ihren Ordner öffnen.';
 
   @override
-  String get deskSetSynLogFiles => 'log, clear logs, delete logs';
+  String get deskSetSynLogFiles =>
+      'protokoll, log, protokolle leeren, protokolle löschen';
 
   @override
   String get deskSetRowReportHint =>
-      'Describe what went wrong; the cleaned app log can go with it.';
+      'Beschreiben Sie, was schiefging; das bereinigte App-Protokoll kann mitgehen.';
 
   @override
   String get deskSetSynReport =>
-      'bug, issue, support, contact, crash, error report';
+      'fehler, bug, problem, support, kontakt, absturz, fehlerbericht';
 
   @override
-  String get deskSetSynTour => 'tour, tutorial, intro, onboarding, guide';
+  String get deskSetSynTour => 'tour, anleitung, einführung, rundgang';
 
   @override
-  String get deskSetRowSetup => 'Run setup again';
+  String get deskSetRowSetup => 'Einrichtung erneut ausführen';
 
   @override
-  String get deskSetRowSetupHint => 'Node and receiving, step by step.';
+  String get deskSetRowSetupHint => 'Node und Empfang, Schritt für Schritt.';
 
   @override
-  String get deskSetSynSetup => 'setup, wizard, assistant, reconfigure';
+  String get deskSetSynSetup => 'einrichtung, assistent, neu einrichten, setup';
 
   @override
-  String get deskSetRowUpdatesHint => 'Checks for a new version.';
+  String get deskSetRowUpdatesHint => 'Sucht nach einer neuen Version.';
 
   @override
   String get deskSetSynUpdates =>
-      'update, upgrade, new version, download, release';
+      'update, aktualisierung, neue version, download, release';
 
   @override
   String get deskSetRowWebsite => 'Website';
 
   @override
-  String get deskSetSynWebsite => 'website, site, web, epic cash';
+  String get deskSetSynWebsite => 'website, webseite, internet, epic cash';
 
   @override
-  String get deskSetSynSource => 'github, code, open source, repository';
+  String get deskSetSynSource =>
+      'github, quellcode, code, open source, repository';
 
   @override
-  String get deskSetSynPrivacyPolicy => 'privacy, policy, gdpr, data';
+  String get deskSetSynPrivacyPolicy => 'datenschutz, richtlinie, dsgvo, daten';
 
   @override
-  String get deskSetSynContact => 'email, support, contact, mail';
+  String get deskSetSynContact => 'e-mail, support, kontakt, mail';
 
   @override
   String get deskSetAcctBackup => 'Sicherung';
@@ -20359,4 +20377,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetWalletsOnComputer => 'Auf diesem Computer';
+
+  @override
+  String get deskSetSearchKeyEnter => 'Eingabe';
+
+  @override
+  String get deskSetSearchKeyEsc => 'Esc';
 }

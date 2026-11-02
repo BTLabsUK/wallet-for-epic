@@ -31314,7 +31314,7 @@ abstract class AppLocalizations {
   /// **'Website'**
   String get deskSetRowWebsite;
 
-  /// Settings search: other words that find the “epiccash.com” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
+  /// Settings search: other words that find the “Website” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
   ///
   /// In en, this message translates to:
   /// **'website, site, web, epic cash'**
@@ -31511,6 +31511,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'On this computer'**
   String get deskSetWalletsOnComputer;
+
+  /// Settings search: the Enter key as its key cap names it, in the key hints over the results.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter'**
+  String get deskSetSearchKeyEnter;
+
+  /// Settings search: the Esc key as its key cap names it, in the key hints over the results.
+  ///
+  /// In en, this message translates to:
+  /// **'Esc'**
+  String get deskSetSearchKeyEsc;
 }
 
 class _AppLocalizationsDelegate

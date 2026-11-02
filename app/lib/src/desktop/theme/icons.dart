@@ -40,6 +40,8 @@ abstract final class EIcons {
   static const unfoldLess = Icons.unfold_less;
   static const donate = Icons.volunteer_activism_outlined;
   static const arrowLeft = Icons.arrow_back;
+  static const arrowUp = Icons.arrow_upward;
+  static const arrowDown = Icons.arrow_downward;
   static const search = Icons.search;
   static const file = MethodIcons.file;
   static const fileUp = Icons.upload_file_outlined;

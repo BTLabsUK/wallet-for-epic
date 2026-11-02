@@ -241,21 +241,24 @@ class _EInputState extends State<EInput> {
     return MouseRegion(
       onEnter: (_) => setState(() => _hover = true),
       onExit: (_) => setState(() => _hover = false),
-      child: AnimatedContainer(
+      // The line look with focus: the accent outline all round as well, so the focus shows by
+      // more than a line's colour (review 9).
+      child: DecoratedBox(
+        position: DecorationPosition.foreground,
+        decoration: line && focused
+            ? BoxDecoration(
+                borderRadius: BorderRadius.circular(Rad.sm),
+                border: Border.all(color: border, width: 1.5, strokeAlign: BorderSide.strokeAlignOutside),
+              )
+            : const BoxDecoration(),
+        child: AnimatedContainer(
         duration: Dur.fast,
         height: sm ? Ctl.sm : null,
         constraints: sm ? null : BoxConstraints(minHeight: multi ? 80.u : Ctl.md),
         decoration: line
             // The line look: no fill, no box; the hairline under the text takes the
-            // field's states (dim on hover). With focus it gets the accent outline all round,
-            // so the focus shows by more than a line's colour (review 9).
-            ? (focused
-                  ? BoxDecoration(
-                      borderRadius: BorderRadius.circular(Rad.sm),
-                      border: Border.all(color: border, width: 1.5),
-                      boxShadow: [BoxShadow(color: widget.invalid ? c.riskSoft : c.accentSoft, spreadRadius: 2.u)],
-                    )
-                  : BoxDecoration(border: Border(bottom: BorderSide(color: border))))
+            // field's states (dim on hover, the accent with focus).
+            ? BoxDecoration(border: Border(bottom: BorderSide(color: border, width: focused ? 1.5 : 1)))
             : BoxDecoration(
                 color: c.s2,
                 borderRadius: BorderRadius.circular(Rad.sm),
@@ -324,6 +327,7 @@ class _EInputState extends State<EInput> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

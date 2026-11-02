@@ -20131,4 +20131,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetWalletsOnComputer => 'On this computer';
+
+  @override
+  String get deskSetSearchKeyEnter => 'Enter';
+
+  @override
+  String get deskSetSearchKeyEsc => 'Esc';
 }
