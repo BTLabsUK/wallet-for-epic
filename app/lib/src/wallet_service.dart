@@ -399,6 +399,12 @@ abstract interface class WalletSession {
   /// Whether Epicbox over Tor is on ([setEpicboxOverTor]).
   Future<bool> epicboxOverTor();
 
+  /// Node requests and HTTP sends through the wallet's tor while it runs ([on], as the wallet
+  /// opens) or directly ([on] false): Tor for payments only, where tor runs for the onion
+  /// (receiving there, sends to onions) and the rest keeps the user's network choice. Sends
+  /// to onions always go through tor.
+  Future<void> setNodeAndHttpOverTor(bool on);
+
   /// The TLS hosts reached at an onion through tor, replacing LEPIC's built-in list from the
   /// next connection. Throws `invalidArgument`, changing nothing, for an invalid entry.
   Future<void> setOnionRoutes(List<TorOnionRoute> routes);
@@ -1942,6 +1948,15 @@ class FakeWalletSession implements WalletSession {
 
   @override
   Future<bool> epicboxOverTor() async => epicboxOverTorValue ?? true;
+
+  /// The last [setNodeAndHttpOverTor], or null before any.
+  bool? nodeAndHttpOverTorValue;
+
+  @override
+  Future<void> setNodeAndHttpOverTor(bool on) async {
+    nodeAndHttpOverTorValue = on;
+    routeLog.add('nodeAndHttpOverTor:$on');
+  }
 
   /// The last [setOnionRoutes], or null before any.
   List<TorOnionRoute>? onionRoutes;

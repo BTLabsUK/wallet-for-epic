@@ -862,6 +862,9 @@ class RemoteWalletSession implements WalletSession {
   Future<void> setEpicboxOverTor(bool on) async {}
 
   @override
+  Future<void> setNodeAndHttpOverTor(bool on) async {}
+
+  @override
   Future<void> expectTor() async {}
 
   @override

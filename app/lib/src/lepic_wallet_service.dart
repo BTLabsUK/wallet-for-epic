@@ -2218,6 +2218,15 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   }
 
   @override
+  Future<void> setNodeAndHttpOverTor(bool on) async {
+    if (_wallet.isDisposed) return;
+    _guardSync(() {
+      _wallet.setNodeOverTor(enabled: on);
+      _wallet.setHttpOverTor(enabled: on);
+    });
+  }
+
+  @override
   Future<void> expectTor() async {
     if (!_wallet.isDisposed) _guardSync(_wallet.expectTor);
   }
