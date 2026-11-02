@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/amount.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
+import 'package:epic_wallet/src/recent_activity.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/settings.dart';
@@ -877,8 +878,8 @@ void main() {
       await tester.pageBack();
       await tester.pumpAndSettle();
 
-      await _tap(tester, find.text('View all 4'));
-      expect(find.byType(HistoryScreen), findsOneWidget);
+      // Four payments are all on Home: no "View all" to the same rows.
+      expect(find.textContaining('View all'), findsNothing);
     });
 
     testWidgets('only the five newest, pending first', (tester) async {
@@ -897,6 +898,8 @@ void main() {
       expect(find.byType(TxTile), findsNWidgets(recentActivityCount));
       expect(find.text('+7.0000\u00a0EPIC'), findsOneWidget);
       expect(find.text('+2.0000\u00a0EPIC'), findsNothing);
+      await _tap(tester, find.text('View all 7'));
+      expect(find.byType(HistoryScreen), findsOneWidget);
     });
 
     testWidgets('the eye hides every amount and remembers it', (tester) async {

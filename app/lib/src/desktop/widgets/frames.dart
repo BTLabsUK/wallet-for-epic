@@ -285,7 +285,7 @@ class EAuthCard extends StatelessWidget {
     this.lead,
     required this.child,
     this.alternatives = const [],
-    this.width = 400,
+    this.width,
     this.icon,
   });
 
@@ -293,7 +293,9 @@ class EAuthCard extends StatelessWidget {
   final String? lead;
   final Widget child;
   final List<Widget> alternatives;
-  final double width;
+
+  /// The card's width; [Max.auth] when null.
+  final double? width;
   final IconData? icon;
 
   @override
@@ -303,7 +305,7 @@ class EAuthCard extends StatelessWidget {
     // A short window keeps the form and its button in view: a smaller tile, tighter gaps.
     final short = isShortWindow(context);
     return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: width),
+      constraints: BoxConstraints(maxWidth: width ?? Max.auth),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -317,7 +319,7 @@ class EAuthCard extends StatelessWidget {
           ],
           SizedBox(height: short ? Sp.x4 : Sp.x6),
           Container(
-            padding: EdgeInsets.all(short ? Sp.x6 : Sp.x8),
+            padding: short ? EdgeInsets.all(Sp.x6) : EdgeInsets.symmetric(horizontal: Sp.x10, vertical: Sp.x8),
             decoration: BoxDecoration(
               color: c.s1,
               border: Border.all(color: c.line),

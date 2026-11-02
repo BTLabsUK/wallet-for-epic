@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../contacts.dart' show contactNameFor, contactsProvider;
 import '../demo.dart';
+import '../recent_activity.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../btlabs_onions.dart';
@@ -67,9 +68,6 @@ Duration get autoRefreshInterval => appConfig.nodeRefresh;
 /// While a payment can move with the next block it asks more often (watch mode,
 /// watch_mode.dart).
 Duration get tipCheckInterval => appConfig.nodeTipCheck;
-
-/// Transactions shown under "Recent activity".
-const int recentActivityCount = 5;
 
 /// The space between the cards of the Wallet tab (tiles, status, destinations, reminders).
 const double homeCardGap = 12;
@@ -915,7 +913,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                     ProtocolSectionHead(
                       l.homeRecentActivity,
-                      trailing: transactions.isEmpty
+                      trailing: !showViewAll(transactions.length)
                           ? null
                           : TextButton(
                               onPressed: () => _open(const HistoryScreen()),

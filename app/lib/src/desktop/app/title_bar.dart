@@ -43,7 +43,7 @@ import 'shell.dart' show deskKeys, lockWallet, deskLockingProvider;
 import 'status_popover.dart';
 
 /// The bar's height before the interface scale.
-const double deskBarHeight = 40;
+const double deskBarHeight = 48;
 
 /// Dialogs open on the app's navigator: the bar dims under their scrim.
 class DeskModalWatch extends NavigatorObserver {
