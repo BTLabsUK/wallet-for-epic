@@ -24283,10 +24283,6 @@
       }
     }
   },
-  "levelStepTitle": "How much wallet do you want?",
-  "@levelStepTitle": {
-    "description": "First-start screen (before Welcome and the PIN): heading above the three wallet levels."
-  },
   "levelOneTitle": "Just send and receive",
   "@levelOneTitle": {
     "description": "First-start step and Change level dialog: level 1, how much of the wallet to show."
@@ -24311,17 +24307,17 @@
   "@levelThreeLine": {
     "description": "One line under the level 3 choice."
   },
-  "levelUndercoverTitle": "Undercover from the start",
+  "levelUndercoverTitle": "Tor only",
   "@levelUndercoverTitle": {
-    "description": "Switch on the first-start step and in Change level (Tor builds only): the Tor only network mode from the first connection."
+    "description": "Switch on the first onboarding screen (Tor builds only): Connection mode › Tor only from the first connection. Off by default."
   },
-  "levelUndercoverLine": "Tor only, from the first connection.",
+  "levelUndercoverLine": "Every connection goes through Tor.",
   "@levelUndercoverLine": {
-    "description": "Line under the Undercover from the start switch."
+    "description": "Line under the Tor only switch on the first onboarding screen."
   },
   "levelFooter": "Change it any time in Settings › Advanced.",
   "@levelFooter": {
-    "description": "Footer of the first-start step: where to change the level later."
+    "description": "In the ⓘ sheet of Change view: where to change the view later."
   },
   "levelRowTitle": "Wallet view",
   "@levelRowTitle": {
@@ -24330,14 +24326,6 @@
   "levelChangeTitle": "Change view",
   "@levelChangeTitle": {
     "description": "Title of the dialog opened by the Wallet level row."
-  },
-  "lvPickTitle": "Pick your view",
-  "@lvPickTitle": {
-    "description": "First-start level picker: the heading."
-  },
-  "lvPickLead": "How much of the wallet do you want to see?",
-  "@lvPickLead": {
-    "description": "First-start level picker: the line under the heading."
   },
   "lvPickStopOne": "Shallow",
   "@lvPickStopOne": {
@@ -24391,7 +24379,7 @@
   "@lvPickUndercoverHelp": {
     "description": "ⓘ sheet of 'Undercover from the start' on the first-start picker."
   },
-  "lvPickUndercoverHelpNet": "Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Network mode › Tor only; it can be turned off later in Settings › Network & privacy.",
+  "lvPickUndercoverHelpNet": "Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Connection mode › Tor only; it can be turned off later in Settings › Network & privacy.",
   "@lvPickUndercoverHelpNet": {
     "description": "Info text of Undercover on the level picker. Names where Tor only is turned off later (Settings › Network & privacy)."
   },
@@ -24803,19 +24791,15 @@
   },
   "deskLvStartPreviewCaption": "Your Overview in this view. Nothing stored changes between views.",
   "@deskLvStartPreviewCaption": {
-    "description": "Caption under the Overview picture on Welcome (first start)."
+    "description": "Caption under the Overview picture in Settings › Advanced › View."
   },
   "deskLvStartCover": "Pick a stop to see the preview",
   "@deskLvStartCover": {
     "description": "Over the faded Overview picture on Welcome before a stop of the depth dial is picked."
   },
-  "deskLvStartUndercoverAbout": "About Undercover",
+  "deskLvStartUndercoverAbout": "About Tor only",
   "@deskLvStartUndercoverAbout": {
-    "description": "Label of the info button next to the Undercover switch."
-  },
-  "deskLvStartChangeLater": "Change it any time in Settings › Advanced.",
-  "@deskLvStartChangeLater": {
-    "description": "Welcome, under the depth dial: where the depth can be changed later. A \"What this decides\" link follows it."
+    "description": "Label of the info button next to the Tor only switch on Welcome."
   },
   "deskLvStartHelpShallow": "Shallow · one address, no server names, no switches.",
   "@deskLvStartHelpShallow": {
@@ -24828,10 +24812,6 @@
   "deskLvStartHelpDeep": "Deep end · every switch, every number: today’s app.",
   "@deskLvStartHelpDeep": {
     "description": "Dialog \"What this decides\": the line for the third stop. Deep end is the stop name."
-  },
-  "deskLvStartPickFirst": "Pick a view first. Nothing connects until you do.",
-  "@deskLvStartPickFirst": {
-    "description": "Welcome, under the three doors (Create, Import, Restore) while they are disabled until a depth is picked on a fresh install."
   },
   "deskLvStartMiniWallet": "Main wallet",
   "@deskLvStartMiniWallet": {
@@ -26994,10 +26974,6 @@
   "deskSetAdvViewLineThree": "Adds outputs, invoices, the local node and every Advanced switch.",
   "@deskSetAdvViewLineThree": {
     "description": "Advanced › View: the Deep end view’s one line. Facts only."
-  },
-  "deskSetAdvViewNote": "A view changes only which pages and switches show.",
-  "@deskSetAdvViewNote": {
-    "description": "Advanced › View: the line under the three views."
   },
   "deskSetAdvExperiments": "Experiments",
   "@deskSetAdvExperiments": {

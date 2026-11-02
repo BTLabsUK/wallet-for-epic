@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The depth dial on the desktop: three stops (Shallow · Deeper · Deep end) as a radio group, the
-/// picked stop's name and line, a small Overview picture that gains a layer per stop, and the
-/// Undercover switch. Shared by Welcome (the first-start answer) and Settings › Advanced ›
-/// Depth (Change level). The words are the phone's (`lvPick*`); the picture is drawn with
-/// desktop colours and carries no real data.
+/// picked stop's name and line, and a small Overview picture that gains a layer per stop, on
+/// Settings › Advanced › View; and the Tor only switch of Welcome (the first-start answer).
+/// The words are the phone's (`lvPick*`); the picture is drawn with desktop colours and
+/// carries no real data.
 library;
 
 import 'package:flutter/material.dart';
@@ -81,7 +81,11 @@ class DeskDepthPicker extends StatelessWidget {
     this.covered = false,
     this.title,
     this.lead,
+    this.framed = true,
   });
+
+  /// Its own panel (s1, border, rounded); false inside a Settings group, which draws one.
+  final bool framed;
 
   /// A heading and a line above the dial (Welcome); Change level has its page title instead.
   final String? title;
@@ -121,11 +125,13 @@ class DeskDepthPicker extends StatelessWidget {
     );
     return Container(
       padding: EdgeInsets.symmetric(horizontal: compact ? Sp.x6 : Sp.x8, vertical: compact ? Sp.x5 : Sp.x6),
-      decoration: BoxDecoration(
-        color: c.s1,
-        border: Border.all(color: c.line),
-        borderRadius: BorderRadius.circular(Rad.lg),
-      ),
+      decoration: framed
+          ? BoxDecoration(
+              color: c.s1,
+              border: Border.all(color: c.line),
+              borderRadius: BorderRadius.circular(Rad.lg),
+            )
+          : null,
       child: LayoutBuilder(
         builder: (context, box) {
           // Beside while the picture keeps 340 u next to the capped dial (a 1280 px window's
@@ -371,8 +377,8 @@ class DeskLevelCaption extends StatelessWidget {
   }
 }
 
-/// Undercover (Tor only): a quiet row with the agent, the name, the switch and its ⓘ. [later] is
-/// the Change level wording.
+/// Tor only: a quiet row with the agent, the name (and at first start its line), the switch
+/// and its ⓘ. [later] is the Change level wording.
 class DeskUndercoverRow extends StatelessWidget {
   const DeskUndercoverRow({super.key, required this.value, required this.onChanged, this.later = false});
 
@@ -390,6 +396,7 @@ class DeskUndercoverRow extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.only(top: Sp.x3),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             ESwitch(key: deskUndercoverKey, value: value, onChanged: onChanged, semanticLabel: title),
             SizedBox(width: Sp.x3),
@@ -399,7 +406,17 @@ class DeskUndercoverRow extends StatelessWidget {
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: onChanged == null ? null : () => onChanged!(!value),
-                child: ExcludeSemantics(child: Text(title, style: context.ts.body)),
+                child: ExcludeSemantics(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(title, style: context.ts.body),
+                      // First start: what Tor only does, in one line (the owner).
+                      if (!later) Text(l.levelUndercoverLine, style: context.ts.small),
+                    ],
+                  ),
+                ),
               ),
             ),
             SizedBox(width: Sp.x1),

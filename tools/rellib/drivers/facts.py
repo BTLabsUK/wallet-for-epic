@@ -140,9 +140,13 @@ AMOUNT_STEP = label("sendStepAmount", "Amount")
 
 # Wallet levels (main after 26.10.24): a fresh install answers "Pick your view" (26.10.25 wording) before Welcome;
 # an existing install updated to a build with levels is settled to level 3 and never asked.
+# Since first-run-basic (Nov 2026) a fresh install shows no picker: it starts at level 1, with Create, Restore and a
+# Tor only switch on its first screen; the picker is in Settings › Advanced. The picker words below are the previous
+# releases' (the keys left the candidate's ARB). A previous release without the picker creates its wallet at level 1:
+# the driver must then pick Deep end in Settings › Advanced before its settings steps.
 LEVEL_PICK_TITLE = label("lvPickTitle", "Pick your view")
 LEVEL_DEEP_END = label("lvPickStopThree", "Deep end")                # the dial's level-3 stop
-LEVEL_UNDERCOVER = label("levelUndercoverTitle", "Undercover from the start")
+LEVEL_UNDERCOVER = "Undercover from the start"                       # the previous releases' first-start switch
 LEVEL_ROW = label("levelRowTitle", "Wallet view")                   # Settings › Advanced, first row
 LEVEL_THREE = label("levelThreeTitle", "Let me explore everything")  # that row's value at level 3
 LEVELS_BUILT = "levelRowTitle" in _ARB                               # the candidate has levels

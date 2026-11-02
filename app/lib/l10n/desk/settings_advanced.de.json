@@ -39,6 +39,5 @@
   "deskSetAdvViewLineOne": "Senden, Empfangen und Sicherungen. Node und Epicbox-Server werden automatisch gewählt.",
   "deskSetAdvViewLineTwo": "Dazu Zahlungsmethoden, der Node, Netzwerkmodi und weitere Wallets.",
   "deskSetAdvViewLineThree": "Dazu Outputs, Rechnungen, der lokale Node und jeder Schalter unter Erweitert.",
-  "deskSetAdvViewNote": "Eine Ansicht ändert nur, welche Seiten und Schalter erscheinen.",
   "deskSetAdvExperiments": "Experimente"
 }

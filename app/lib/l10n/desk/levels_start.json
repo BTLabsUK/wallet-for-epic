@@ -5,19 +5,15 @@
   },
   "deskLvStartPreviewCaption": "Your Overview in this view. Nothing stored changes between views.",
   "@deskLvStartPreviewCaption": {
-    "description": "Caption under the Overview picture on Welcome (first start)."
+    "description": "Caption under the Overview picture in Settings › Advanced › View."
   },
   "deskLvStartCover": "Pick a stop to see the preview",
   "@deskLvStartCover": {
     "description": "Over the faded Overview picture on Welcome before a stop of the depth dial is picked."
   },
-  "deskLvStartUndercoverAbout": "About Undercover",
+  "deskLvStartUndercoverAbout": "About Tor only",
   "@deskLvStartUndercoverAbout": {
-    "description": "Label of the info button next to the Undercover switch."
-  },
-  "deskLvStartChangeLater": "Change it any time in Settings › Advanced.",
-  "@deskLvStartChangeLater": {
-    "description": "Welcome, under the depth dial: where the depth can be changed later. A \"What this decides\" link follows it."
+    "description": "Label of the info button next to the Tor only switch on Welcome."
   },
   "deskLvStartHelpShallow": "Shallow · one address, no server names, no switches.",
   "@deskLvStartHelpShallow": {
@@ -30,10 +26,6 @@
   "deskLvStartHelpDeep": "Deep end · every switch, every number: today’s app.",
   "@deskLvStartHelpDeep": {
     "description": "Dialog \"What this decides\": the line for the third stop. Deep end is the stop name."
-  },
-  "deskLvStartPickFirst": "Pick a view first. Nothing connects until you do.",
-  "@deskLvStartPickFirst": {
-    "description": "Welcome, under the three doors (Create, Import, Restore) while they are disabled until a depth is picked on a fresh install."
   },
   "deskLvStartMiniWallet": "Main wallet",
   "@deskLvStartMiniWallet": {

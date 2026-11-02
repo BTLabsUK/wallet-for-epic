@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The wallet level: how much of the app a user sees. Picked on the first screen of a fresh
-/// install (before Welcome and the PIN), changeable any time under Settings › Advanced.
+/// The wallet level (the view): how much of the app a user sees. A fresh install starts in the
+/// basic view ([WalletLevel.justSendReceive]) when its first step is answered; Settings ›
+/// Advanced changes it any time.
 ///
 /// Presentation only: a level never changes wallet data, keys, addresses or funds, and never
 /// rewrites another setting by itself (`level_features.dart` turns a level into what is drawn).
@@ -9,7 +10,7 @@
 ///
 /// Existing installs keep today's app: an install updating to a build with levels is read as
 /// [WalletLevel.everything] (today's screens, today's words) and is never sent through the
-/// first-start step. Only a fresh install waits for the choice ([LevelChoice.pending]).
+/// first-start step. Only a fresh install waits for its first step ([LevelChoice.pending]).
 library;
 
 /// The three levels, shallow to deep.
@@ -41,6 +42,10 @@ enum WalletLevel {
 /// The level an install that ran before levels existed is stored as: today's screens and
 /// words. Settled once ([settleLevelChoice]) and never asked.
 const WalletLevel existingInstallLevel = WalletLevel.everything;
+
+/// The level a fresh install starts in when its first step is answered: the basic view. The
+/// view picker is not a first step (the owner); Settings › Advanced changes it.
+const WalletLevel firstStartLevel = WalletLevel.justSendReceive;
 
 /// The preference key, new and additive: no existing key, file or folder changes.
 const String levelKey = 'app.level';

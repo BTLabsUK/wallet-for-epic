@@ -18038,9 +18038,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get levelStepTitle => 'How much wallet do you want?';
-
-  @override
   String get levelOneTitle => 'Just send and receive';
 
   @override
@@ -18059,10 +18056,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get levelThreeLine => 'Every switch, every number. Mind the knobs.';
 
   @override
-  String get levelUndercoverTitle => 'Undercover from the start';
+  String get levelUndercoverTitle => 'Tor only';
 
   @override
-  String get levelUndercoverLine => 'Tor only, from the first connection.';
+  String get levelUndercoverLine => 'Every connection goes through Tor.';
 
   @override
   String get levelFooter => 'Change it any time in Settings › Advanced.';
@@ -18072,12 +18069,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get levelChangeTitle => 'Change view';
-
-  @override
-  String get lvPickTitle => 'Pick your view';
-
-  @override
-  String get lvPickLead => 'How much of the wallet do you want to see?';
 
   @override
   String get lvPickStopOne => 'Shallow';
@@ -18123,7 +18114,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lvPickUndercoverHelpNet =>
-      'Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Network mode › Tor only; it can be turned off later in Settings › Network & privacy.';
+      'Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Connection mode › Tor only; it can be turned off later in Settings › Network & privacy.';
 
   @override
   String get lvPickUndercover => 'Undercover';
@@ -18402,11 +18393,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskLvStartCover => 'Pick a stop to see the preview';
 
   @override
-  String get deskLvStartUndercoverAbout => 'About Undercover';
-
-  @override
-  String get deskLvStartChangeLater =>
-      'Change it any time in Settings › Advanced.';
+  String get deskLvStartUndercoverAbout => 'About Tor only';
 
   @override
   String get deskLvStartHelpShallow =>
@@ -18419,10 +18406,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskLvStartHelpDeep =>
       'Deep end · every switch, every number: today’s app.';
-
-  @override
-  String get deskLvStartPickFirst =>
-      'Pick a view first. Nothing connects until you do.';
 
   @override
   String get deskLvStartMiniWallet => 'Main wallet';
@@ -19979,10 +19962,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskSetAdvViewLineThree =>
       'Adds outputs, invoices, the local node and every Advanced switch.';
-
-  @override
-  String get deskSetAdvViewNote =>
-      'A view changes only which pages and switches show.';
 
   @override
   String get deskSetAdvExperiments => 'Experiments';

@@ -36,7 +36,8 @@ class UndercoverHelpHint extends StatelessWidget {
     final l = context.l10n;
     final title = later ? l.lvPickUndercover : l.levelUndercoverTitle;
     return InfoHint(
-      later ? l.lvPickUndercoverLaterHelp : l.lvPickUndercoverHelpNet,
+      // First start: the phone's basic view keeps Tor only in Settings › Advanced.
+      later ? l.lvPickUndercoverLaterHelp : l.lvPickUndercoverHelp,
       key: const ValueKey('level-undercover-help'),
       title: title,
       // The switch beside it is announced by the same name; the icon is "About …".

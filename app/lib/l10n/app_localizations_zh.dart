@@ -16993,9 +16993,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get levelStepTitle => '你想要多少钱包功能？';
-
-  @override
   String get levelOneTitle => '只管收付款';
 
   @override
@@ -17014,10 +17011,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get levelThreeLine => '每个开关，每个数字。小心调节。';
 
   @override
-  String get levelUndercoverTitle => '一开始就隐身';
+  String get levelUndercoverTitle => '仅 Tor';
 
   @override
-  String get levelUndercoverLine => '仅 Tor，从第一次连接起。';
+  String get levelUndercoverLine => '所有连接都经过 Tor。';
 
   @override
   String get levelFooter => '随时可在 设置 › 高级 中更改。';
@@ -17027,12 +17024,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get levelChangeTitle => '更改视图';
-
-  @override
-  String get lvPickTitle => '选择视图';
-
-  @override
-  String get lvPickLead => '你想看到钱包的多少内容？';
 
   @override
   String get lvPickStopOne => '浅水';
@@ -17076,7 +17067,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get lvPickUndercoverHelpNet =>
-      '仅 Tor，从第一次连接开始。所有连接都经过 Tor；启动会慢一些。\n\n目前还没有任何连接。与 网络模式 › 仅 Tor 相同；之后可在 设置 › 网络与隐私 中关闭。';
+      '仅 Tor，从第一次连接开始。所有连接都经过 Tor；启动会慢一些。\n\n目前还没有任何连接。与 连接模式 › 仅 Tor 相同；之后可在 设置 › 网络与隐私 中关闭。';
 
   @override
   String get lvPickUndercover => '隐身';
@@ -17346,10 +17337,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskLvStartCover => '选择一个档位以查看预览';
 
   @override
-  String get deskLvStartUndercoverAbout => '关于隐身';
-
-  @override
-  String get deskLvStartChangeLater => '随时可在 设置 › 高级 中更改。';
+  String get deskLvStartUndercoverAbout => '关于仅 Tor';
 
   @override
   String get deskLvStartHelpShallow => '浅水 · 一个地址，不显示服务器名称，没有开关。';
@@ -17359,9 +17347,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskLvStartHelpDeep => '深水区 · 每个开关、每个数字：现在的应用。';
-
-  @override
-  String get deskLvStartPickFirst => '请先选择视图。选择之前不会连接任何内容。';
 
   @override
   String get deskLvStartMiniWallet => '主钱包';
@@ -18818,9 +18803,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAdvViewLineThree => '增加输出、发票、本地节点和所有高级开关。';
-
-  @override
-  String get deskSetAdvViewNote => '视图只改变显示哪些页面和开关。';
 
   @override
   String get deskSetAdvExperiments => '实验功能';

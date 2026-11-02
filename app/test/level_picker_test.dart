@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-// The first-start level picker (ui/level_step_screen.dart): it fits the smallest and a common
-// phone without scrolling or overflow, Create and Restore wait for a stop, the Undercover row
-// sits under them, and Create stores the answer and goes straight to the PIN.
+// The first onboarding step of a fresh install (ui/level_step_screen.dart): no view picker, it
+// fits the smallest and a common phone without scrolling or overflow, the Tor only row sits
+// under Create and Restore, and Create stores the basic view and goes straight to the PIN.
+// Change level (Settings › Advanced › Wallet view) keeps the picker.
 import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/levels/level_providers.dart';
@@ -61,11 +62,13 @@ Future<ProviderContainer> _pump(WidgetTester tester, Size size) async {
 
 void main() {
   for (final size in const [Size(320, 568), Size(390, 844)]) {
-    testWidgets('fits ${size.width.toInt()}×${size.height.toInt()} unscrolled; Create leads to the PIN', (
+    testWidgets('fits ${size.width.toInt()}×${size.height.toInt()} unscrolled; Create leads to the PIN in the basic view', (
       tester,
     ) async {
       final container = await _pump(tester, size);
       expect(find.byType(LevelStepScreen), findsOneWidget);
+      // No view picker as a first step.
+      expect(find.byKey(levelStopKey(WalletLevel.casual)), findsNothing);
 
       // Everything in view, nothing to scroll (an overflow would have failed the pump).
       final scrollable = tester.state<ScrollableState>(
@@ -76,29 +79,20 @@ void main() {
         final rect = tester.getRect(find.byKey(key));
         expect(rect.bottom, lessThanOrEqualTo(size.height), reason: '$key below the screen');
       }
-      // The ⓘ sits where an app bar's actions do: its box at the screen's edge.
-      expect(tester.getRect(find.byKey(const ValueKey('level-help'))).right, size.width);
       if (torBuilt) {
         // Its ⓘ is not announced as the switch beside it.
-        expect(find.bySemanticsLabel('About Undercover from the start'), findsOneWidget);
+        expect(find.bySemanticsLabel('About Tor only'), findsOneWidget);
       }
 
-      // Create and Restore wait for a stop; the Undercover row sits under them.
+      // Create and Restore work at once; the Tor only row sits under them, off.
       ButtonStyleButton create() => tester.widget<ButtonStyleButton>(find.byKey(levelCreateKey));
-      expect(find.text('Pick a stop'), findsOneWidget);
-      expect(create().onPressed, isNull);
+      expect(create().onPressed, isNotNull);
       if (torBuilt) {
         expect(
           tester.getRect(find.byKey(levelUndercoverKey)).top,
           greaterThan(tester.getRect(find.byKey(levelRestoreKey)).bottom),
         );
-      }
-
-      await tester.tap(find.byKey(levelStopKey(WalletLevel.casual)));
-      await tester.pumpAndSettle();
-      expect(find.text('See what it’s doing, in plain words.'), findsOneWidget);
-      expect(create().onPressed, isNotNull);
-      if (torBuilt) {
+        expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
         await tester.tap(find.byKey(levelUndercoverKey));
         await tester.pumpAndSettle();
         expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
@@ -110,17 +104,17 @@ void main() {
       expect(find.byType(FirstRunScreen), findsOneWidget);
       expect(find.byType(PinSetupView), findsOneWidget);
       expect(find.byKey(firstRunCreateKey), findsNothing);
-      expect(container.read(currentLevelProvider), WalletLevel.casual);
+      expect(container.read(currentLevelProvider), WalletLevel.justSendReceive);
       expect(NetGate.firstStartHold, isFalse);
       if (torBuilt) {
         expect(container.read(appSettingsProvider).value?.advanced.networkMode, NetworkMode.torOnly);
       }
 
-      // Back returns to the picker with the answer kept.
+      // Back returns to the first step with the answer kept.
       await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
       expect(find.byType(LevelStepScreen), findsOneWidget);
-      expect(find.text('See what it’s doing, in plain words.'), findsOneWidget);
+      if (torBuilt) expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
     });
   }
 

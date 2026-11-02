@@ -13,11 +13,11 @@ import '../../../ui/network_mode_text.dart';
 import '../../app/tour.dart' show TourTarget;
 import '../../../levels/wallet_level.dart';
 import '../../../log.dart';
-import '../../../ui/levels/level_picker.dart' show levelStopName;
 import '../../data/desk_levels.dart' show deskLevelControlProvider, deskLevelProvider;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../../widgets/more_options.dart' show moreOptionsRevealProvider;
+import '../onboarding/depth_dial.dart' show DeskDepthPicker, showDepthHelp;
 import 'prefs.dart' show SettingsJump;
 import 'setting_ids.dart';
 import 'settings_frame.dart';
@@ -90,12 +90,9 @@ String viewLine(AppLocalizations l, WalletLevel level) => switch (level) {
   WalletLevel.everything => l.deskSetAdvViewLineThree,
 };
 
-/// The key of a view's card, for tests.
-Key advViewKey(WalletLevel level) => ValueKey('adv-view-${level.number}');
-
-/// Advanced › View: the three views as cards, side by side while they fit; a pick applies at
-/// once (the level's preset with it, as Welcome's dial), and the line under them says what a
-/// view changes.
+/// Advanced › View: the depth dial with the Overview picture (Welcome's old first step, now
+/// here only); a pick applies at once (the level's preset with it), and the line under the dial
+/// says what the view shows, in facts.
 class _ViewGroup extends ConsumerStatefulWidget {
   const _ViewGroup();
 
@@ -128,128 +125,24 @@ class _ViewGroupState extends ConsumerState<_ViewGroup> {
       key: const ValueKey('adv-depth'),
       title: l.lvPickDepth,
       rows: [
-        Padding(
-          padding: EdgeInsets.all(Sp.x4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SetAnchor(id: SetId.view, child: Semantics(
-                container: true,
-                label: l.lvPickDepth,
-                child: LayoutBuilder(
-                  builder: (context, box) {
-                    final cards = [
-                      for (final lv in WalletLevel.values)
-                        _ViewCard(
-                          key: advViewKey(lv),
-                          name: levelStopName(l, lv),
-                          line: viewLine(l, lv),
-                          selected: lv == level,
-                          onTap: _busy ? null : () => _pick(lv),
-                        ),
-                    ];
-                    if (box.maxWidth < 560.u) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [for (final (i, c) in cards.indexed) ...[if (i > 0) SizedBox(height: Sp.x2), c]],
-                      );
-                    }
-                    return IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [for (final (i, c) in cards.indexed) ...[if (i > 0) SizedBox(width: Sp.x2), Expanded(child: c)]],
-                      ),
-                    );
-                  },
-                ),
-              ),
-              ),
-              SizedBox(height: Sp.x3),
-              Text(l.deskSetAdvViewNote, key: const ValueKey('adv-view-note'), style: context.ts.small),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// One view: a radio mark, the name and its line; the picked one raised with an accent edge.
-class _ViewCard extends StatefulWidget {
-  const _ViewCard({super.key, required this.name, required this.line, required this.selected, required this.onTap});
-
-  final String name;
-  final String line;
-  final bool selected;
-  final VoidCallback? onTap;
-
-  @override
-  State<_ViewCard> createState() => _ViewCardState();
-}
-
-class _ViewCardState extends State<_ViewCard> {
-  bool _hover = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    final ts = context.ts;
-    final sel = widget.selected;
-    return Semantics(
-      inMutuallyExclusiveGroup: true,
-      checked: sel,
-      button: true,
-      label: widget.name,
-      hint: widget.line,
-      excludeSemantics: true,
-      child: FocusableActionDetector(
-        enabled: widget.onTap != null,
-        mouseCursor: widget.onTap == null ? SystemMouseCursors.basic : SystemMouseCursors.click,
-        onShowHoverHighlight: (v) => setState(() => _hover = v),
-        actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onTap?.call())},
-        child: Builder(
-          builder: (context) => GestureDetector(
-            onTap: widget.onTap,
-            child: FocusRing(
-              focused: Focus.of(context).hasFocus,
-              child: AnimatedContainer(
-                duration: Dur.fast,
-                padding: EdgeInsets.all(Sp.x3),
-                decoration: BoxDecoration(
-                  color: sel ? c.s3 : (_hover ? c.hover : c.s2),
-                  borderRadius: BorderRadius.circular(Rad.sm),
-                  border: Border.all(color: sel ? c.accent : c.line),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // The radio mark of ERadioRow: a ring, the accent dot when picked.
-                    Container(
-                      width: 16.u,
-                      height: 16.u,
-                      margin: EdgeInsets.only(top: 2.u),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: sel ? c.accent : c.lineStrong, width: 1.5)),
-                      child: sel ? Container(width: 8.u, height: 8.u, decoration: BoxDecoration(shape: BoxShape.circle, color: c.accent)) : null,
-                    ),
-                    SizedBox(width: Sp.x2),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(widget.name, style: ts.strong),
-                          const SizedBox(height: 2),
-                          Text(widget.line, style: ts.small),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+        SetAnchor(
+          id: SetId.view,
+          child: DeskDepthPicker(
+            framed: false,
+            level: level,
+            onLevel: _pick,
+            caption: l.deskLvStartPreviewCaption,
+            foot: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(viewLine(l, level), key: const ValueKey('adv-view-note'), style: context.ts.small),
+                SizedBox(height: Sp.x2),
+                ELink(label: l.lvPickHelpTitle, onPressed: () => showDepthHelp(context)),
+              ],
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 }

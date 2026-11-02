@@ -18681,9 +18681,6 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get levelStepTitle => 'Ile portfela chcesz widzieć?';
-
-  @override
   String get levelOneTitle => 'Tylko wysyłanie i odbieranie';
 
   @override
@@ -18704,10 +18701,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Każdy przełącznik, każda liczba. Uważaj na pokrętła.';
 
   @override
-  String get levelUndercoverTitle => 'Incognito od początku';
+  String get levelUndercoverTitle => 'Tylko Tor';
 
   @override
-  String get levelUndercoverLine => 'Tylko Tor, od pierwszego połączenia.';
+  String get levelUndercoverLine => 'Każde połączenie idzie przez Tor.';
 
   @override
   String get levelFooter =>
@@ -18718,12 +18715,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get levelChangeTitle => 'Zmień widok';
-
-  @override
-  String get lvPickTitle => 'Wybierz swój widok';
-
-  @override
-  String get lvPickLead => 'Ile portfela chcesz widzieć?';
 
   @override
   String get lvPickStopOne => 'Płytko';
@@ -18771,7 +18762,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get lvPickUndercoverHelpNet =>
-      'Tylko Tor, od pierwszego połączenia. Każde połączenie idzie przez Tor; start trwa dłużej.\n\nNic jeszcze się nie połączyło. To samo co Tryb sieci › Tylko Tor; można to później wyłączyć w Ustawienia › Sieć i prywatność.';
+      'Tylko Tor, od pierwszego połączenia. Każde połączenie idzie przez Tor; start trwa dłużej.\n\nNic jeszcze się nie połączyło. To samo co Tryb połączenia › Tylko Tor; można to później wyłączyć w Ustawienia › Sieć i prywatność.';
 
   @override
   String get lvPickUndercover => 'Incognito';
@@ -19049,11 +19040,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskLvStartCover => 'Wybierz punkt, aby zobaczyć podgląd';
 
   @override
-  String get deskLvStartUndercoverAbout => 'O Incognito';
-
-  @override
-  String get deskLvStartChangeLater =>
-      'Zmienisz to w każdej chwili w Ustawienia › Zaawansowane.';
+  String get deskLvStartUndercoverAbout => 'O trybie Tylko Tor';
 
   @override
   String get deskLvStartHelpShallow =>
@@ -19066,10 +19053,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskLvStartHelpDeep =>
       'Na głęboką wodę · każdy przełącznik, każda liczba: dzisiejsza aplikacja.';
-
-  @override
-  String get deskLvStartPickFirst =>
-      'Najpierw wybierz widok. Nic się nie połączy, dopóki tego nie zrobisz.';
 
   @override
   String get deskLvStartMiniWallet => 'Główny portfel';
@@ -20653,10 +20636,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskSetAdvViewLineThree =>
       'Dodaje wyjścia, faktury, lokalny węzeł i każdy przełącznik Zaawansowanych.';
-
-  @override
-  String get deskSetAdvViewNote =>
-      'Widok zmienia tylko, które strony i przełączniki są widoczne.';
 
   @override
   String get deskSetAdvExperiments => 'Eksperymenty';

@@ -27,8 +27,8 @@ const _folders = {
 };
 
 /// First run, and "add a wallet" later: create, add an existing one, or restore. [arg] `'add'`
-/// is the later visit (wallets exist), `'advanced'` starts with Advanced open, a [WalletLevel]
-/// starts with that stop picked (the screenshot tour's first start).
+/// is the later visit (wallets exist), `'advanced'` starts with Advanced open. A fresh install
+/// starts in the basic view ([firstStartLevel]); Settings › Advanced › View changes it.
 class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key, this.arg});
 
@@ -41,31 +41,23 @@ class WelcomeScreen extends ConsumerStatefulWidget {
 class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   bool _tip = false;
   _FolderIssue? _folderError;
-
-  /// The stop picked on the dial; null until a pick (a fresh install) or the current level.
-  late WalletLevel? _pick = widget.arg is WalletLevel ? widget.arg! as WalletLevel : null;
   bool _undercover = false;
   bool _busy = false;
 
   /// The first-start step is still to answer: the gate is held, nothing connects.
   bool get _held => ref.read(firstStartProvider);
 
-  /// A door was pressed: answer the first-start step (the level, Undercover) or store a changed
-  /// stop, then [go]. Nothing connects before this on a fresh install.
+  /// A door was pressed: on a fresh install, answer the first-start step (the basic view, Tor
+  /// only) and only then [go]. Nothing connects before this on a fresh install.
   Future<void> _enter(VoidCallback go) async {
     if (_busy) return;
-    final level = _pick ?? (_held ? null : ref.read(deskLevelProvider));
-    if (level == null) return;
-    setState(() => _busy = true);
-    try {
-      final control = ref.read(deskLevelControlProvider);
-      if (_held) {
-        await control.completeFirstStart(level, undercover: _undercover);
-      } else if (level != ref.read(deskLevelProvider)) {
-        await control.setLevel(level);
+    if (_held) {
+      setState(() => _busy = true);
+      try {
+        await ref.read(deskLevelControlProvider).completeFirstStart(firstStartLevel, undercover: _undercover);
+      } finally {
+        if (mounted) setState(() => _busy = false);
       }
-    } finally {
-      if (mounted) setState(() => _busy = false);
     }
     if (mounted) go();
   }
@@ -86,18 +78,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
     final l = context.l10n;
     final hasWallets = widget.arg == 'add' || nav.canBack;
     final held = ref.watch(firstStartProvider);
-    // Watched even while held, so the stored level is loaded before a pick is stored over it.
-    final current = ref.watch(deskLevelProvider);
-    // The stop the dial shows: the pick, else the level in force (none on a fresh install).
-    final shown = _pick ?? (held ? null : current);
-    // The doors stay above the fold: a smaller picker below 940 px, no glyph tile below 860 and
-    // no tagline below 740 (a 1280 x 720 window).
-    final windowHeight = MediaQuery.sizeOf(context).height;
-    final tight = windowHeight < 940;
-    final noGlyph = windowHeight < 860;
-    final noTagline = windowHeight < 740;
-    // The doors wait for a stop on a fresh install; elsewhere they work as they always did.
-    final locked = !hasWallets && held && _pick == null;
+    // Watched even while held, so the stored level is loaded before a door stores one over it.
+    ref.watch(deskLevelProvider);
     void toCreate() => nav.go(DeskRoute.create);
     // The warning comes first: cancelling it answers nothing.
     void toImport() => importAfterWarning(context, ref, () {
@@ -105,51 +87,34 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
       hasWallets ? go() : _enter(go);
     });
     void toRestore() => nav.go(DeskRoute.restore);
-    Widget door(Widget card) => hasWallets
-        ? card
-        : Semantics(
-            enabled: !locked,
-            child: ExcludeFocus(
-              excluding: locked,
-              child: IgnorePointer(
-                ignoring: locked,
-                child: AnimatedOpacity(duration: Dur.base, opacity: locked ? 0.45 : 1, child: card),
-              ),
-            ),
-          );
-    final create = door(
-      EChoiceCard(
-        key: const ValueKey('door-create'),
-        title: l.deskOnbWelcomeCreate,
-        description: l.deskOnbWelcomeCreateSub,
-        icon: EIcons.plus,
-        selected: false,
-        onTap: hasWallets ? toCreate : () => _enter(toCreate),
-      ),
+    final create = EChoiceCard(
+      key: const ValueKey('door-create'),
+      title: l.deskOnbWelcomeCreate,
+      description: l.deskOnbWelcomeCreateSub,
+      icon: EIcons.plus,
+      selected: false,
+      onTap: hasWallets ? toCreate : () => _enter(toCreate),
     );
-    final import = door(
-      EChoiceCard(
-        key: const ValueKey('door-import'),
-        title: l.deskOnbWelcomeImport,
-        description: l.deskOnbWelcomeImportSub,
-        icon: EIcons.folderOpen,
-        selected: false,
-        onTap: toImport,
-      ),
+    final import = EChoiceCard(
+      key: const ValueKey('door-import'),
+      title: l.deskOnbWelcomeImport,
+      description: l.deskOnbWelcomeImportSub,
+      icon: EIcons.folderOpen,
+      selected: false,
+      onTap: toImport,
     );
     // The other apps' line belongs to Restore (their wallets come back by phrase): its card's
     // line, like the others', so the cards keep one rhythm.
-    final restore = door(
-      EChoiceCard(
-        key: const ValueKey('door-restore'),
-        title: l.deskOnbWelcomeRestore,
-        description: l.deskOnbWelcomeRestoreSub,
-        icon: EIcons.key,
-        selected: false,
-        onTap: hasWallets ? toRestore : () => _enter(toRestore),
-      ),
+    final restore = EChoiceCard(
+      key: const ValueKey('door-restore'),
+      title: l.deskOnbWelcomeRestore,
+      description: l.deskOnbWelcomeRestoreSub,
+      icon: EIcons.key,
+      selected: false,
+      onTap: hasWallets ? toRestore : () => _enter(toRestore),
     );
-    final offered = torBuilt && held;
+    // Tor only from the first connection: a fresh install, Tor builds.
+    final offered = torBuilt && held && !hasWallets;
     return EHeroScreen(
       footer: const AuthFoot(),
       child: ConstrainedBox(
@@ -158,10 +123,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (!(noGlyph && !hasWallets)) ...[
-              const Center(child: EGlyphTile()),
-              SizedBox(height: Sp.x5),
-            ],
+            const Center(child: EGlyphTile()),
+            SizedBox(height: Sp.x5),
             if (hasWallets)
               Semantics(
                 header: true,
@@ -172,11 +135,11 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                 header: true,
                 child: Center(child: BrandWordmark(variant: BrandVariant.desktop, size: Fs.h1.u, label: appName)),
               ),
-            if (!hasWallets && !noTagline) ...[
+            if (!hasWallets) ...[
               SizedBox(height: Sp.x2),
               Text(l.deskOnbWelcomeTagline, style: ts.bodyDim, textAlign: TextAlign.center),
             ],
-            SizedBox(height: hasWallets ? Sp.x8 : (tight ? Sp.x4 : Sp.x6)),
+            SizedBox(height: Sp.x8),
             if (hasWallets) ...[
               create,
               SizedBox(height: Sp.x3),
@@ -184,31 +147,6 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
               SizedBox(height: Sp.x3),
               restore,
             ] else ...[
-              DeskDepthPicker(
-                title: l.lvPickTitle,
-                lead: l.lvPickLead,
-                level: shown,
-                onLevel: (v) => setState(() => _pick = v),
-                compact: tight,
-                covered: true,
-                caption: l.deskLvStartPreviewCaption,
-                foot: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    if (offered) DeskUndercoverRow(value: _undercover, onChanged: (v) => setState(() => _undercover = v)),
-                    SizedBox(height: Sp.x2),
-                    Wrap(
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: Sp.x2,
-                      children: [
-                        Text(l.deskLvStartChangeLater, style: ts.small),
-                        ELink(label: l.lvPickHelpTitle, onPressed: () => showDepthHelp(context)),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: tight ? Sp.x3 : Sp.x4),
               LayoutBuilder(
                 builder: (context, box) => box.maxWidth >= Lay.lg
                     ? IntrinsicHeight(
@@ -219,11 +157,16 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                       )
                     : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [create, SizedBox(height: Sp.x3), import, SizedBox(height: Sp.x3), restore]),
               ),
-              SizedBox(height: Sp.x2),
-              // The line's room stays, so the doors do not move when it goes.
-              locked
-                  ? Text(l.deskLvStartPickFirst, style: ts.small, textAlign: TextAlign.center)
-                  : SizedBox(height: Fs.sm * 1.45),
+              // Niche, so under the doors and quiet (the owner).
+              if (offered) ...[
+                SizedBox(height: Sp.x5),
+                Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: 480.u),
+                    child: DeskUndercoverRow(value: _undercover, onChanged: _busy ? null : (v) => setState(() => _undercover = v)),
+                  ),
+                ),
+              ],
             ],
             if (flow.testNet) ...[
               SizedBox(height: Sp.x4),

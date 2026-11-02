@@ -28080,12 +28080,6 @@ abstract class AppLocalizations {
   /// **'Kill switch is on: nothing connects. {method} works.'**
   String deskSendKillSwitchTab(String method);
 
-  /// First-start screen (before Welcome and the PIN): heading above the three wallet levels.
-  ///
-  /// In en, this message translates to:
-  /// **'How much wallet do you want?'**
-  String get levelStepTitle;
-
   /// First-start step and Change level dialog: level 1, how much of the wallet to show.
   ///
   /// In en, this message translates to:
@@ -28122,19 +28116,19 @@ abstract class AppLocalizations {
   /// **'Every switch, every number. Mind the knobs.'**
   String get levelThreeLine;
 
-  /// Switch on the first-start step and in Change level (Tor builds only): the Tor only network mode from the first connection.
+  /// Switch on the first onboarding screen (Tor builds only): Connection mode › Tor only from the first connection. Off by default.
   ///
   /// In en, this message translates to:
-  /// **'Undercover from the start'**
+  /// **'Tor only'**
   String get levelUndercoverTitle;
 
-  /// Line under the Undercover from the start switch.
+  /// Line under the Tor only switch on the first onboarding screen.
   ///
   /// In en, this message translates to:
-  /// **'Tor only, from the first connection.'**
+  /// **'Every connection goes through Tor.'**
   String get levelUndercoverLine;
 
-  /// Footer of the first-start step: where to change the level later.
+  /// In the ⓘ sheet of Change view: where to change the view later.
   ///
   /// In en, this message translates to:
   /// **'Change it any time in Settings › Advanced.'**
@@ -28151,18 +28145,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change view'**
   String get levelChangeTitle;
-
-  /// First-start level picker: the heading.
-  ///
-  /// In en, this message translates to:
-  /// **'Pick your view'**
-  String get lvPickTitle;
-
-  /// First-start level picker: the line under the heading.
-  ///
-  /// In en, this message translates to:
-  /// **'How much of the wallet do you want to see?'**
-  String get lvPickLead;
 
   /// Level picker dial: the first stop (level 1).
   ///
@@ -28245,7 +28227,7 @@ abstract class AppLocalizations {
   /// Info text of Undercover on the level picker. Names where Tor only is turned off later (Settings › Network & privacy).
   ///
   /// In en, this message translates to:
-  /// **'Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Network mode › Tor only; it can be turned off later in Settings › Network & privacy.'**
+  /// **'Tor only, from the first connection. Every connection goes through Tor; starting takes longer.\n\nNothing has connected yet. Same as Connection mode › Tor only; it can be turned off later in Settings › Network & privacy.'**
   String get lvPickUndercoverHelpNet;
 
   /// Change level screen: the Undercover (Tor only) switch.
@@ -28692,7 +28674,7 @@ abstract class AppLocalizations {
   /// **'Preview of the Overview. It shows more as the dial goes deeper.'**
   String get deskLvStartPreviewLabel;
 
-  /// Caption under the Overview picture on Welcome (first start).
+  /// Caption under the Overview picture in Settings › Advanced › View.
   ///
   /// In en, this message translates to:
   /// **'Your Overview in this view. Nothing stored changes between views.'**
@@ -28704,17 +28686,11 @@ abstract class AppLocalizations {
   /// **'Pick a stop to see the preview'**
   String get deskLvStartCover;
 
-  /// Label of the info button next to the Undercover switch.
+  /// Label of the info button next to the Tor only switch on Welcome.
   ///
   /// In en, this message translates to:
-  /// **'About Undercover'**
+  /// **'About Tor only'**
   String get deskLvStartUndercoverAbout;
-
-  /// Welcome, under the depth dial: where the depth can be changed later. A "What this decides" link follows it.
-  ///
-  /// In en, this message translates to:
-  /// **'Change it any time in Settings › Advanced.'**
-  String get deskLvStartChangeLater;
 
   /// Dialog "What this decides": the line for the first stop. Shallow is the stop name.
   ///
@@ -28733,12 +28709,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Deep end · every switch, every number: today’s app.'**
   String get deskLvStartHelpDeep;
-
-  /// Welcome, under the three doors (Create, Import, Restore) while they are disabled until a depth is picked on a fresh install.
-  ///
-  /// In en, this message translates to:
-  /// **'Pick a view first. Nothing connects until you do.'**
-  String get deskLvStartPickFirst;
 
   /// The wallet name in the small Overview picture on the depth dial. A sample, not the user’s wallet.
   ///
@@ -31265,12 +31235,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Adds outputs, invoices, the local node and every Advanced switch.'**
   String get deskSetAdvViewLineThree;
-
-  /// Advanced › View: the line under the three views.
-  ///
-  /// In en, this message translates to:
-  /// **'A view changes only which pages and switches show.'**
-  String get deskSetAdvViewNote;
 
   /// Advanced: heading of the experimental features (Invoices).
   ///

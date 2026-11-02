@@ -18251,9 +18251,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get levelStepTitle => 'Wie viel Wallet möchtest du?';
-
-  @override
   String get levelOneTitle => 'Nur senden und empfangen';
 
   @override
@@ -18273,10 +18270,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Jeder Schalter, jede Zahl. Vorsicht bei den Reglern.';
 
   @override
-  String get levelUndercoverTitle => 'Von Anfang an inkognito';
+  String get levelUndercoverTitle => 'Nur Tor';
 
   @override
-  String get levelUndercoverLine => 'Nur Tor, ab der ersten Verbindung.';
+  String get levelUndercoverLine => 'Jede Verbindung läuft über Tor.';
 
   @override
   String get levelFooter =>
@@ -18287,12 +18284,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get levelChangeTitle => 'Ansicht ändern';
-
-  @override
-  String get lvPickTitle => 'Wähle deine Ansicht';
-
-  @override
-  String get lvPickLead => 'Wie viel von der Wallet möchtest du sehen?';
 
   @override
   String get lvPickStopOne => 'Flach';
@@ -18339,7 +18330,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get lvPickUndercoverHelpNet =>
-      'Nur Tor, ab der ersten Verbindung. Jede Verbindung läuft über Tor; der Start dauert länger.\n\nBisher wurde nichts verbunden. Wie Netzwerkmodus › Nur Tor; lässt sich später unter Einstellungen › Netzwerk & Datenschutz ausschalten.';
+      'Nur Tor, ab der ersten Verbindung. Jede Verbindung läuft über Tor; der Start dauert länger.\n\nBisher wurde nichts verbunden. Wie Verbindungsmodus › Nur Tor; lässt sich später unter Einstellungen › Netzwerk & Datenschutz ausschalten.';
 
   @override
   String get lvPickUndercover => 'Inkognito';
@@ -18619,11 +18610,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskLvStartCover => 'Stufe wählen, um die Vorschau zu sehen';
 
   @override
-  String get deskLvStartUndercoverAbout => 'Über Inkognito';
-
-  @override
-  String get deskLvStartChangeLater =>
-      'Jederzeit änderbar unter Einstellungen › Erweitert.';
+  String get deskLvStartUndercoverAbout => 'Über Nur Tor';
 
   @override
   String get deskLvStartHelpShallow =>
@@ -18636,10 +18623,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskLvStartHelpDeep =>
       'Ganz tief · jeder Schalter, jede Zahl: die App von heute.';
-
-  @override
-  String get deskLvStartPickFirst =>
-      'Zuerst eine Ansicht wählen. Bis dahin verbindet sich nichts.';
 
   @override
   String get deskLvStartMiniWallet => 'Hauptwallet';
@@ -20226,10 +20209,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskSetAdvViewLineThree =>
       'Dazu Outputs, Rechnungen, der lokale Node und jeder Schalter unter Erweitert.';
-
-  @override
-  String get deskSetAdvViewNote =>
-      'Eine Ansicht ändert nur, welche Seiten und Schalter erscheinen.';
 
   @override
   String get deskSetAdvExperiments => 'Experimente';

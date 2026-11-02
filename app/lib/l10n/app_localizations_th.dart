@@ -17624,9 +17624,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get levelStepTitle => 'คุณต้องการกระเป๋าเงินแค่ไหน?';
-
-  @override
   String get levelOneTitle => 'ส่งและรับเท่านั้น';
 
   @override
@@ -17645,11 +17642,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get levelThreeLine => 'ทุกสวิตช์ ทุกตัวเลข ระวังตัวปรับค่าด้วย';
 
   @override
-  String get levelUndercoverTitle => 'ปกปิดตัวตนตั้งแต่เริ่มต้น';
+  String get levelUndercoverTitle => 'Tor เท่านั้น';
 
   @override
-  String get levelUndercoverLine =>
-      'ใช้ Tor เท่านั้น ตั้งแต่การเชื่อมต่อครั้งแรก';
+  String get levelUndercoverLine => 'ทุกการเชื่อมต่อผ่าน Tor';
 
   @override
   String get levelFooter => 'เปลี่ยนได้ทุกเมื่อที่ การตั้งค่า › ขั้นสูง';
@@ -17659,12 +17655,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get levelChangeTitle => 'เปลี่ยนมุมมอง';
-
-  @override
-  String get lvPickTitle => 'เลือกมุมมองของคุณ';
-
-  @override
-  String get lvPickLead => 'อยากเห็นกระเป๋าเงินมากแค่ไหน';
 
   @override
   String get lvPickStopOne => 'น้ำตื้น';
@@ -17709,7 +17699,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get lvPickUndercoverHelpNet =>
-      'Tor เท่านั้น ตั้งแต่การเชื่อมต่อแรก ทุกการเชื่อมต่อผ่าน Tor การเริ่มต้นจึงนานขึ้น\n\nยังไม่มีการเชื่อมต่อใด ๆ เหมือนกับ โหมดเครือข่าย › Tor เท่านั้น ปิดได้ภายหลังที่ การตั้งค่า › เครือข่ายและความเป็นส่วนตัว';
+      'Tor เท่านั้น ตั้งแต่การเชื่อมต่อแรก ทุกการเชื่อมต่อผ่าน Tor การเริ่มต้นจึงนานขึ้น\n\nยังไม่มีการเชื่อมต่อใด ๆ เหมือนกับ โหมดการเชื่อมต่อ › Tor เท่านั้น ปิดได้ภายหลังที่ การตั้งค่า › เครือข่ายและความเป็นส่วนตัว';
 
   @override
   String get lvPickUndercover => 'ปกปิดตัวตน';
@@ -17987,11 +17977,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskLvStartCover => 'เลือกระดับเพื่อดูภาพตัวอย่าง';
 
   @override
-  String get deskLvStartUndercoverAbout => 'เกี่ยวกับการปกปิดตัวตน';
-
-  @override
-  String get deskLvStartChangeLater =>
-      'เปลี่ยนได้ทุกเมื่อที่ การตั้งค่า › ขั้นสูง';
+  String get deskLvStartUndercoverAbout => 'เกี่ยวกับ Tor เท่านั้น';
 
   @override
   String get deskLvStartHelpShallow =>
@@ -18004,10 +17990,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskLvStartHelpDeep =>
       'น้ำลึก · ทุกสวิตช์ ทุกตัวเลข: แอปอย่างที่เป็นอยู่ตอนนี้';
-
-  @override
-  String get deskLvStartPickFirst =>
-      'เลือกมุมมองก่อน จะยังไม่มีการเชื่อมต่อจนกว่าจะเลือก';
 
   @override
   String get deskLvStartMiniWallet => 'กระเป๋าเงินหลัก';
@@ -19558,10 +19540,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSetAdvViewLineThree =>
       'เพิ่มเอาต์พุต ใบแจ้งหนี้ โหนดในเครื่อง และทุกสวิตช์ขั้นสูง';
-
-  @override
-  String get deskSetAdvViewNote =>
-      'มุมมองเปลี่ยนเพียงว่าจะแสดงหน้าและสวิตช์ใดบ้าง';
 
   @override
   String get deskSetAdvExperiments => 'การทดลอง';

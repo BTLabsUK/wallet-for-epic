@@ -53,7 +53,7 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
   }
 
   Future<Widget> _destination() async {
-    // A fresh install answers the level step before anything else.
+    // A fresh install answers the first step (Create, Restore, Tor only) before anything else.
     if (ref.read(firstStartProvider)) return const LevelStepScreen();
     // A wallet left open would pin its chain for the one about to open.
     ref.read(sessionProvider.notifier).lock();
@@ -68,7 +68,7 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
       VaultStage.empty => switch (widget.start) {
         FirstRunStart.create => const FirstRunScreen(startCreating: true),
         FirstRunStart.restore => const RestoreScreen(),
-        // Back from those steps in the run that answered the picker: the picker again.
+        // Back from those steps in the run that answered the first step: the first step again.
         null when ref.read(levelStepAnswerProvider) != null => const LevelStepScreen(),
         null => const FirstRunScreen(),
       },

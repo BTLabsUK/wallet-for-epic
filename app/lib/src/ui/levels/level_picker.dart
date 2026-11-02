@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The parts of the level picker shared by the first-start step and Change level: the depth
+/// The level picker's parts, used by Change level (Settings › Advanced › Wallet view): the depth
 /// dial (three stops as a radio group), the small home preview that shows more as the dial
-/// goes deeper, the level's name and one-liner, and the Undercover row.
+/// goes deeper, the level's name and one-liner, and the Tor only row (also on the first step).
 library;
 
 import 'package:flutter/material.dart';
@@ -534,7 +534,8 @@ class LevelPreview extends StatelessWidget {
   }
 }
 
-/// Undercover (Tor only) as a quiet row: the agent, the name, the switch, and its ⓘ.
+/// Tor only as a quiet row: the agent, the name (and at first start its line), the switch,
+/// and its ⓘ.
 class UndercoverRow extends StatelessWidget {
   const UndercoverRow({super.key, required this.value, required this.onChanged, this.later = false});
 
@@ -571,9 +572,21 @@ class UndercoverRow extends StatelessWidget {
                         LevelArt(LevelArtKind.agent, size: 22, color: value ? t.accentText : t.faint),
                         const SizedBox(width: 10),
                         Expanded(
-                          child: Text(
-                            later ? l.lvPickUndercover : l.levelUndercoverTitle,
-                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.text),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                later ? l.lvPickUndercover : l.levelUndercoverTitle,
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.text),
+                              ),
+                              // First start: what Tor only does, in one line (the owner).
+                              if (!later)
+                                Text(
+                                  l.levelUndercoverLine,
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
+                                ),
+                            ],
                           ),
                         ),
                         Switch(value: value, onChanged: onChanged),

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-// Wallet levels, first start on the desktop: Welcome's dial holds the doors until a stop is
-// picked, Shallow skips Set up, Settings › Advanced at Shallow is the Depth row alone, Change
+// Wallet levels, first start on the desktop: Welcome has no view picker and a door answers in
+// the basic view (Shallow), Shallow skips Set up, Settings › Advanced at Shallow is the Depth row alone, Change
 // level saves a pick, About names the depth.
 import 'package:epic_wallet/src/desktop/data/desk_levels.dart';
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
@@ -113,22 +113,13 @@ void main() {
     await tester.pump(const Duration(seconds: 2));
   }
 
-  testWidgets('Welcome on a fresh install: no stop picked, the doors wait for one, the pick opens the gate', (tester) async {
+  testWidgets('Welcome on a fresh install: no view picker, a door answers in the basic view and opens the gate', (tester) async {
     NetGate.holdFirstStart();
     container = make();
     await pumpApp(tester, DeskRoute.welcome);
-    expect(find.text('Pick your view'), findsOneWidget);
-    expect(find.text('Pick a stop'), findsOneWidget);
-    expect(find.text('Pick a view first. Nothing connects until you do.'), findsOneWidget);
-    await tester.tap(find.byKey(const ValueKey('door-create')), warnIfMissed: false);
-    await tester.pump();
-    expect(container.read(deskNavProvider).route, DeskRoute.welcome, reason: 'a door does nothing before a stop is picked');
+    expect(find.text('Pick a stop'), findsNothing);
+    expect(find.byKey(deskLevelStopKey(WalletLevel.casual)), findsNothing);
     expect(NetGate.firstStartHold, isTrue);
-
-    await tester.tap(find.byKey(deskLevelStopKey(WalletLevel.justSendReceive)));
-    await tester.pump();
-    expect(find.text('Send, receive, done. The wallet minds the rest.'), findsOneWidget);
-    expect(find.text('Pick a view first. Nothing connects until you do.'), findsNothing);
     await tester.tap(find.byKey(const ValueKey('door-create')));
     await wait(tester, 300);
     expect(container.read(deskNavProvider).route, DeskRoute.create);
@@ -138,28 +129,15 @@ void main() {
     await end(tester);
   });
 
-  testWidgets('Welcome with nothing held: the current depth is on the dial and the doors work without a pick', (tester) async {
+  testWidgets('Welcome with nothing held: the doors work and no view is stored', (tester) async {
     container = make();
     await pumpApp(tester, DeskRoute.welcome);
     expect(container.read(firstStartProvider), isFalse);
-    expect(find.text('Deep end'), findsWidgets);
-    expect(find.text('Pick a stop'), findsNothing);
+    expect(find.byKey(deskUndercoverKey), findsNothing, reason: 'Tor only from the start is for a fresh install');
     await tester.tap(find.byKey(const ValueKey('door-restore')));
     await wait(tester, 200);
     expect(container.read(deskNavProvider).route, DeskRoute.restore);
     expect(await store.read(levelKey), isNot(anyOf('1', '2', '3')), reason: 'no depth stored without a change');
-    await end(tester);
-  });
-
-  testWidgets('Welcome with nothing held: another stop is stored when a door is pressed', (tester) async {
-    container = make();
-    await pumpApp(tester, DeskRoute.welcome);
-    await tester.tap(find.byKey(deskLevelStopKey(WalletLevel.casual)));
-    await tester.pump();
-    await tester.tap(find.byKey(const ValueKey('door-create')));
-    await wait(tester, 300);
-    expect(container.read(deskLevelProvider), WalletLevel.casual);
-    expect(container.read(deskNavProvider).route, DeskRoute.create);
     await end(tester);
   });
 
@@ -196,11 +174,11 @@ void main() {
     await end(tester);
   });
 
-  testWidgets('Settings › Advanced at Shallow: the View cards; the switches wait behind ⇕', (tester) async {
+  testWidgets('Settings › Advanced at Shallow: the View dial; the switches wait behind ⇕', (tester) async {
     container = make(level: WalletLevel.justSendReceive);
     await pumpApp(tester, DeskRoute.settingsAdvanced, height: 900);
     expect(find.byKey(const ValueKey('adv-depth')), findsOneWidget);
-    expect(find.text('Shallow'), findsOneWidget);
+    expect(find.text('Shallow'), findsWidgets);
     expect(find.byKey(const ValueKey('adv-outputs')), findsNothing);
     expect(find.byKey(const ValueKey('adv-invoices')), findsNothing);
     expect(find.byKey(const ValueKey('adv-mode-standard')), findsNothing);
@@ -208,11 +186,11 @@ void main() {
     await end(tester);
   });
 
-  testWidgets('Settings › Advanced at Deeper: the View cards on top of the switches', (tester) async {
+  testWidgets('Settings › Advanced at Deeper: the View dial on top of the switches', (tester) async {
     container = make(level: WalletLevel.casual);
     await pumpApp(tester, DeskRoute.settingsAdvanced, height: 900);
     expect(find.byKey(const ValueKey('adv-depth')), findsOneWidget);
-    expect(find.text('Deeper'), findsOneWidget);
+    expect(find.text('Deeper'), findsWidgets);
     expect(find.byKey(const ValueKey('adv-outputs')), findsOneWidget);
     expect(find.byKey(const ValueKey('adv-experimental')), findsOneWidget);
     await end(tester);
@@ -225,7 +203,7 @@ void main() {
     await tester.pump();
     expect(container.read(deskNavProvider).route, DeskRoute.settingsAdvanced, reason: 'Change view is Advanced now');
     expect(find.text('Save'), findsNothing);
-    await tester.tap(find.byKey(advViewKey(WalletLevel.casual)));
+    await tester.tap(find.byKey(deskLevelStopKey(WalletLevel.casual)));
     await wait(tester, 300);
     expect(container.read(deskLevelProvider), WalletLevel.casual);
     expect(await store.read(levelKey), '2');

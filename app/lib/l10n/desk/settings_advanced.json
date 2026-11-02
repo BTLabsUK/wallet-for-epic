@@ -190,10 +190,6 @@
   "@deskSetAdvViewLineThree": {
     "description": "Advanced › View: the Deep end view’s one line. Facts only."
   },
-  "deskSetAdvViewNote": "A view changes only which pages and switches show.",
-  "@deskSetAdvViewNote": {
-    "description": "Advanced › View: the line under the three views."
-  },
   "deskSetAdvExperiments": "Experiments",
   "@deskSetAdvExperiments": {
     "description": "Advanced: heading of the experimental features (Invoices)."

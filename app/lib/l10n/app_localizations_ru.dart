@@ -18667,9 +18667,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get levelStepTitle => 'Сколько кошелька вам нужно?';
-
-  @override
   String get levelOneTitle => 'Только отправка и получение';
 
   @override
@@ -18690,10 +18687,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Каждый переключатель, каждое число. Осторожно с настройками.';
 
   @override
-  String get levelUndercoverTitle => 'Инкогнито с самого начала';
+  String get levelUndercoverTitle => 'Только Tor';
 
   @override
-  String get levelUndercoverLine => 'Только Tor, с первого соединения.';
+  String get levelUndercoverLine => 'Каждое соединение идёт через Tor.';
 
   @override
   String get levelFooter =>
@@ -18704,12 +18701,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get levelChangeTitle => 'Сменить вид';
-
-  @override
-  String get lvPickTitle => 'Выберите вид';
-
-  @override
-  String get lvPickLead => 'Сколько кошелька вы хотите видеть?';
 
   @override
   String get lvPickStopOne => 'Мелко';
@@ -18756,7 +18747,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get lvPickUndercoverHelpNet =>
-      'Только Tor, с первого подключения. Каждое подключение идёт через Tor; запуск дольше.\n\nПока ничего не подключалось. То же, что Режим сети › Только Tor; позже можно выключить в Настройки › Сеть и приватность.';
+      'Только Tor, с первого подключения. Каждое подключение идёт через Tor; запуск дольше.\n\nПока ничего не подключалось. То же, что Режим соединения › Только Tor; позже можно выключить в Настройки › Сеть и приватность.';
 
   @override
   String get lvPickUndercover => 'Инкогнито';
@@ -19034,11 +19025,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskLvStartCover => 'Выберите положение, чтобы увидеть превью';
 
   @override
-  String get deskLvStartUndercoverAbout => 'Об Инкогнито';
-
-  @override
-  String get deskLvStartChangeLater =>
-      'Изменить можно в любой момент: Настройки › Дополнительно.';
+  String get deskLvStartUndercoverAbout => 'О режиме «Только Tor»';
 
   @override
   String get deskLvStartHelpShallow =>
@@ -19051,10 +19038,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskLvStartHelpDeep =>
       'В самую глубь · каждый переключатель, каждая цифра: приложение как сейчас.';
-
-  @override
-  String get deskLvStartPickFirst =>
-      'Сначала выберите вид. Пока не выберете, ничего не подключается.';
 
   @override
   String get deskLvStartMiniWallet => 'Основной кошелёк';
@@ -20636,10 +20619,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSetAdvViewLineThree =>
       'Добавляет выходы, счета, локальный узел и все переключатели раздела «Дополнительно».';
-
-  @override
-  String get deskSetAdvViewNote =>
-      'Вид меняет только то, какие страницы и переключатели показаны.';
 
   @override
   String get deskSetAdvExperiments => 'Эксперименты';
