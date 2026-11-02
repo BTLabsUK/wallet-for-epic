@@ -1,13 +1,13 @@
 {
-  "deskTfOpenTitle": "Open transaction files",
-  "deskTfOpenText": "Choose one file or several. The wallet reads each one and signs, finishes or posts it.",
-  "deskTfPickTitle": "Transaction files",
-  "deskTfResults": "Files opened",
-  "deskTfWorking": "Working on it…",
-  "deskTfSigned": "Signed. Response saved to {path}",
-  "deskTfAlreadyPosted": "Already posted",
-  "deskTfInvoice": "An invoice for {amount}. Review it to pay.",
-  "deskTfReview": "Review",
-  "deskTfCreate": "Create a payment file",
-  "deskTfDropHint": "You can also drop them here."
+  "deskTfOpenTitle": "打开交易文件",
+  "deskTfOpenText": "选择一个或多个文件。钱包会逐个读取，并对其签名、完成或广播。",
+  "deskTfPickTitle": "交易文件",
+  "deskTfResults": "已打开的文件",
+  "deskTfWorking": "正在处理…",
+  "deskTfSigned": "已签名。回复已保存到 {path}",
+  "deskTfAlreadyPosted": "已广播",
+  "deskTfInvoice": "一张 {amount} 的账单。确认后即可付款。",
+  "deskTfReview": "确认",
+  "deskTfCreate": "创建付款文件",
+  "deskTfDropHint": "也可以把文件拖到这里。"
 }

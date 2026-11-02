@@ -18980,301 +18980,295 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get sendRouteLinkHttps => 'Link · HTTPS';
+  String get sendRouteLinkHttps => '链接 · HTTPS';
 
   @override
-  String get sendRouteThisPhone => 'This phone';
+  String get sendRouteThisPhone => '这部手机';
 
   @override
-  String get sendRouteThisComputer => 'This computer';
+  String get sendRouteThisComputer => '这台电脑';
 
   @override
-  String get sendRouteYourNetwork => 'Your network';
+  String get sendRouteYourNetwork => '你的网络';
 
   @override
-  String get sendRouteOverTor => 'Over Tor';
+  String get sendRouteOverTor => '经由 Tor';
 
   @override
-  String get sendRouteTorStarts => 'Tor starts when you send.';
+  String get sendRouteTorStarts => '发送时会启动 Tor。';
 
   @override
-  String get sendRouteChange => 'Change';
+  String get sendRouteChange => '更改';
 
   @override
   String sendRouteChangeSem(int count) {
-    return 'Change address, $count more';
+    return '更改地址，另有 $count 个';
   }
 
   @override
   String sendRouteAddressesOf(String name) {
-    return '$name’s addresses';
+    return '$name 的地址';
   }
 
   @override
   String sendRouteMore(int count) {
-    return '$count more';
+    return '另有 $count 个';
   }
 
   @override
   String sendRouteSemantics(String method, String host) {
-    return 'Sends by $method to $host';
+    return '通过 $method 发送到 $host';
   }
 
   @override
-  String get sendHeldKillSwitch => 'Kill switch is on. Nothing connects.';
+  String get sendHeldKillSwitch => '“紧急断网”已开启。什么都不连接。';
 
   @override
-  String get sendHeldNodeOnly => 'Node only is on. Only the node connects.';
+  String get sendHeldNodeOnly => '“仅节点”已开启。只有节点会连接。';
 
   @override
-  String get sendHeldTorOnly =>
-      'Tor only is on. Plain http:// cannot go over Tor.';
+  String get sendHeldTorOnly => '“仅 Tor”已开启。普通 http:// 无法经由 Tor。';
 
   @override
-  String get sendHeldTorOn => 'Tor is on. Plain http:// cannot go over Tor.';
+  String get sendHeldTorOn => 'Tor 已开启。普通 http:// 无法经由 Tor。';
 
   @override
-  String get sendHeldFixKillSwitch => 'Turn off Kill switch';
+  String get sendHeldFixKillSwitch => '关闭“紧急断网”';
 
   @override
-  String get sendHeldFixNodeOnly => 'Turn off Node only';
+  String get sendHeldFixNodeOnly => '关闭“仅节点”';
 
   @override
-  String get sendHeldFixTorOnly => 'Turn off Tor only';
+  String get sendHeldFixTorOnly => '关闭“仅 Tor”';
 
   @override
-  String get sendHeldByKillSwitch => 'Held by Kill switch';
+  String get sendHeldByKillSwitch => '因“紧急断网”暂不可用';
 
   @override
-  String get sendHeldByNodeOnly => 'Held by Node only';
+  String get sendHeldByNodeOnly => '因“仅节点”暂不可用';
 
   @override
-  String get sendHeldByTorOnly => 'Held by Tor only';
+  String get sendHeldByTorOnly => '因“仅 Tor”暂不可用';
 
   @override
-  String get sendHeldWhileTorOn => 'Held while Tor is on';
+  String get sendHeldWhileTorOn => 'Tor 开启时不可用';
 
   @override
-  String get sendHeldModeNormal => 'Network mode: Normal.';
+  String get sendHeldModeNormal => '网络模式：常规。';
 
   @override
-  String get sendHeldTorIsOff => 'Tor is off.';
+  String get sendHeldTorIsOff => 'Tor 已关闭。';
 
   @override
-  String get sendNoAddress => 'No address?';
+  String get sendNoAddress => '没有地址？';
 
   @override
-  String get sendWithoutConnection => 'Without a connection:';
+  String get sendWithoutConnection => '无需网络连接：';
 
   @override
-  String get sendPayInPerson => 'Pay in person';
+  String get sendPayInPerson => '当面付款';
 
   @override
-  String get sendPayByFile => 'Pay with a file';
+  String get sendPayByFile => '用文件付款';
 
   @override
-  String get sendIsSlateText => 'This is a transaction text, not an address.';
+  String get sendIsSlateText => '这是交易文本，不是地址。';
 
   @override
-  String get sendOpenSlateText => 'Open it';
+  String get sendOpenSlateText => '打开';
 
   @override
   String sendCleanedUp(String what) {
-    return 'Cleaned up: $what.';
+    return '已整理：$what。';
   }
 
   @override
-  String get sendCleanUndo => 'Undo';
+  String get sendCleanUndo => '撤销';
 
   @override
-  String get sendCleanUndoSem => 'Undo the clean-up';
+  String get sendCleanUndoSem => '撤销整理';
 
   @override
-  String get sendSendsTo => 'Sends to';
+  String get sendSendsTo => '发送到';
 
   @override
-  String get sendCleanTextAround => 'text around the address left out';
+  String get sendCleanTextAround => '去掉地址前后的文字';
 
   @override
-  String get sendCleanJoined => 'spaces and line breaks removed';
+  String get sendCleanJoined => '删除空格和换行';
 
   @override
-  String get sendCleanSpaces => 'spaces left out';
+  String get sendCleanSpaces => '去掉空格';
 
   @override
-  String get sendCleanQuotes => 'quotes and brackets removed';
+  String get sendCleanQuotes => '删除引号和括号';
 
   @override
-  String get sendCleanOnionForm => 'shown in its standard form';
+  String get sendCleanOnionForm => '按标准格式显示';
 
   @override
-  String get sendCleanEpicboxScheme => 'epicbox:// left out';
+  String get sendCleanEpicboxScheme => '去掉 epicbox://';
 
   @override
   String sendCleanDefaultRelay(String host) {
-    return 'no server given: $host, the default';
+    return '未指定服务器：使用默认的 $host';
   }
 
   @override
-  String get sendCleanRelayLower => 'server in lower case';
+  String get sendCleanRelayLower => '服务器名改为小写';
 
   @override
-  String get sendCleanHttpsAdded => 'no scheme: https:// added';
+  String get sendCleanHttpsAdded => '未写协议：添加 https://';
 
   @override
-  String get sendCleanHttpAdded => 'no scheme: http:// added';
+  String get sendCleanHttpAdded => '未写协议：添加 http://';
 
   @override
   String sendCleanDefaultPort(String port) {
-    return 'port $port, the listener’s default';
+    return '端口 $port，监听程序的默认端口';
   }
 
   @override
-  String get sendCleanBrackets => 'IPv6 address put in brackets';
+  String get sendCleanBrackets => 'IPv6 地址加上方括号';
 
   @override
-  String get sendCleanSchemeLower => 'scheme in lower case';
+  String get sendCleanSchemeLower => '协议改为小写';
 
   @override
-  String get sendCleanHostLower => 'host in lower case';
+  String get sendCleanHostLower => '主机名改为小写';
 
   @override
   String sendCleanIdn(String name) {
-    return '$name written as it is contacted';
+    return '$name 改写为实际连接时的形式';
   }
 
   @override
-  String get sendCleanForeignPath => '/v2/foreign left out: the wallet adds it';
+  String get sendCleanForeignPath => '去掉 /v2/foreign：钱包会自动添加';
 
   @override
-  String get sendCleanTrailingSlash => 'trailing / left out';
+  String get sendCleanTrailingSlash => '去掉末尾的 /';
 
   @override
-  String get sendCleanQuery => '?… and #… left out';
+  String get sendCleanQuery => '去掉 ?… 和 #…';
 
   @override
-  String get sendProblemNotAddress =>
-      'Not an address, and no contact has this name.';
+  String get sendProblemNotAddress => '这不是地址，也没有叫这个名字的联系人。';
 
   @override
-  String get sendProblemOtherScheme => 'Not an address this wallet can pay.';
+  String get sendProblemOtherScheme => '此钱包无法向这种地址付款。';
 
   @override
-  String get sendProblemIncomplete => 'This address looks incomplete.';
+  String get sendProblemIncomplete => '此地址似乎不完整。';
 
   @override
-  String get sendProblemOnion =>
-      'This is not a complete Tor address. Copy it again from the recipient.';
+  String get sendProblemOnion => '这不是完整的 Tor 地址。请从接收方处重新复制。';
 
   @override
-  String get sendProblemPort => 'The port must be 1 to 65535.';
+  String get sendProblemPort => '端口必须在 1 到 65535 之间。';
 
   @override
-  String get sendProblemCredentials =>
-      'An address with a user name in it cannot be paid.';
+  String get sendProblemCredentials => '无法向包含用户名的地址付款。';
 
   @override
-  String get sendProblemCharacters =>
-      'This address has characters an address cannot have.';
+  String get sendProblemCharacters => '此地址包含地址中不能有的字符。';
 
   @override
-  String get sendProblemTooLong => 'This address is too long.';
+  String get sendProblemTooLong => '此地址太长。';
 
   @override
-  String get sendProblemOwn => 'This is this wallet’s own address.';
+  String get sendProblemOwn => '这是此钱包自己的地址。';
 
   @override
-  String get sendReachChecking => 'Checking…';
+  String get sendReachChecking => '正在检查…';
 
   @override
   String sendReachNone(String host) {
-    return 'No wallet answers at $host.';
+    return '$host 没有钱包应答。';
   }
 
   @override
   String sendReachNotWallet(String host) {
-    return '$host answers, but not as an Epic wallet.';
+    return '$host 有应答，但不是 Epic 钱包。';
   }
 
   @override
-  String get sendReachTheirOnion => 'their Tor address';
+  String get sendReachTheirOnion => '对方的 Tor 地址';
 
   @override
-  String get sendReachOpenFirst => 'Their wallet has to be open to receive.';
+  String get sendReachOpenFirst => '对方钱包必须处于打开状态才能收款。';
 
   @override
-  String get sendReachCheckAddress => 'Check the address with the recipient.';
+  String get sendReachCheckAddress => '请与接收方核对地址。';
 
   @override
-  String get sendReachTryAgain => 'Try again';
+  String get sendReachTryAgain => '重试';
 
   @override
-  String get sendFactVia => 'Via';
+  String get sendFactVia => '通过';
 
   @override
-  String get sendFactHost => 'Host';
+  String get sendFactHost => '主机';
 
   @override
-  String get sendFactConnection => 'Connection';
+  String get sendFactConnection => '连接';
 
   @override
-  String get sendFactNotEncrypted => 'Not encrypted · http://';
+  String get sendFactNotEncrypted => '未加密 · http://';
 
   @override
   String get sendFactTor => 'Tor';
 
   @override
-  String get sendFactTorStarts => 'Starts when you send';
+  String get sendFactTorStarts => '发送时启动';
 
   @override
-  String get sendFactOffline => 'Their wallet can be offline.';
+  String get sendFactOffline => '对方钱包可以离线。';
 
   @override
-  String get sendFactOnline => 'Their wallet has to be open.';
+  String get sendFactOnline => '对方钱包必须处于打开状态。';
 
   @override
-  String get deskTfOpenTitle => 'Open transaction files';
+  String get deskTfOpenTitle => '打开交易文件';
 
   @override
-  String get deskTfOpenText =>
-      'Choose one file or several. The wallet reads each one and signs, finishes or posts it.';
+  String get deskTfOpenText => '选择一个或多个文件。钱包会逐个读取，并对其签名、完成或广播。';
 
   @override
-  String get deskTfPickTitle => 'Transaction files';
+  String get deskTfPickTitle => '交易文件';
 
   @override
-  String get deskTfResults => 'Files opened';
+  String get deskTfResults => '已打开的文件';
 
   @override
-  String get deskTfWorking => 'Working on it…';
+  String get deskTfWorking => '正在处理…';
 
   @override
   String deskTfSigned(String path) {
-    return 'Signed. Response saved to $path';
+    return '已签名。回复已保存到 $path';
   }
 
   @override
-  String get deskTfAlreadyPosted => 'Already posted';
+  String get deskTfAlreadyPosted => '已广播';
 
   @override
   String deskTfInvoice(String amount) {
-    return 'An invoice for $amount. Review it to pay.';
+    return '一张 $amount 的账单。确认后即可付款。';
   }
 
   @override
-  String get deskTfReview => 'Review';
+  String get deskTfReview => '确认';
 
   @override
-  String get deskTfCreate => 'Create a payment file';
+  String get deskTfCreate => '创建付款文件';
 
   @override
-  String get deskTfDropHint => 'You can also drop them here.';
+  String get deskTfDropHint => '也可以把文件拖到这里。';
 
   @override
-  String get deskSaToAddress => 'Send to an address';
+  String get deskSaToAddress => '发送到地址';
 
   @override
   String deskSaToContactSem(String name) {
-    return 'To $name';
+    return '发给 $name';
   }
 }

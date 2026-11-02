@@ -1,13 +1,13 @@
 {
-  "deskTfOpenTitle": "Open transaction files",
-  "deskTfOpenText": "Choose one file or several. The wallet reads each one and signs, finishes or posts it.",
-  "deskTfPickTitle": "Transaction files",
-  "deskTfResults": "Files opened",
-  "deskTfWorking": "Working on it…",
-  "deskTfSigned": "Signed. Response saved to {path}",
-  "deskTfAlreadyPosted": "Already posted",
-  "deskTfInvoice": "An invoice for {amount}. Review it to pay.",
-  "deskTfReview": "Review",
-  "deskTfCreate": "Create a payment file",
-  "deskTfDropHint": "You can also drop them here."
+  "deskTfOpenTitle": "เปิดไฟล์ธุรกรรม",
+  "deskTfOpenText": "เลือกไฟล์เดียวหรือหลายไฟล์ กระเป๋าเงินจะอ่านแต่ละไฟล์ แล้วลงนาม ทำให้เสร็จ หรือส่งเข้าเครือข่าย",
+  "deskTfPickTitle": "ไฟล์ธุรกรรม",
+  "deskTfResults": "ไฟล์ที่เปิดแล้ว",
+  "deskTfWorking": "กำลังดำเนินการ…",
+  "deskTfSigned": "ลงนามแล้ว บันทึกไฟล์ตอบกลับไว้ที่ {path}",
+  "deskTfAlreadyPosted": "ส่งเข้าเครือข่ายแล้ว",
+  "deskTfInvoice": "ใบแจ้งหนี้ {amount} ตรวจสอบเพื่อชำระ",
+  "deskTfReview": "ตรวจสอบ",
+  "deskTfCreate": "สร้างไฟล์การชำระเงิน",
+  "deskTfDropHint": "ลากไฟล์มาวางที่นี่ได้ด้วย"
 }
