@@ -135,11 +135,12 @@ Future<void> _go(BuildContext context, WidgetRef ref, _Item item) async {
   }
 }
 
-/// A key cap: "Ctrl K", "Esc", "↑".
+/// A key cap: "Ctrl K", "Esc", or an arrow key's glyph.
 class _Kbd extends StatelessWidget {
-  const _Kbd(this.text);
+  const _Kbd(this.text, {this.icon});
 
   final String text;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -150,7 +151,7 @@ class _Kbd extends StatelessWidget {
         borderRadius: BorderRadius.circular(Rad.xs),
         border: Border.all(color: c.lineStrong),
       ),
-      child: Text(text, style: context.ts.caption.copyWith(color: c.dim)),
+      child: icon != null ? Icon(icon, size: 12.u, color: c.dim) : Text(text, style: context.ts.caption.copyWith(color: c.dim)),
     );
   }
 }
@@ -424,7 +425,7 @@ class SettingsSearchResults extends ConsumerWidget {
               spacing: Sp.x4,
               runSpacing: Sp.x1,
               children: [
-                _keys(context, const ['↑', '↓'], l.deskSetSearchKeysMove),
+                _keys(context, const ['↑', '↓'], l.deskSetSearchKeysMove, icons: const [EIcons.arrowUp, EIcons.arrowDown]),
                 _keys(context, const ['Enter'], l.deskSetSearchKeysGo),
                 _keys(context, const ['Esc'], l.deskSetSearchKeysClear),
               ],
@@ -438,10 +439,10 @@ class SettingsSearchResults extends ConsumerWidget {
     );
   }
 
-  Widget _keys(BuildContext context, List<String> caps, String what) => Row(
+  Widget _keys(BuildContext context, List<String> caps, String what, {List<IconData>? icons}) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      for (final k in caps) ...[_Kbd(k), SizedBox(width: Sp.x1)],
+      for (final (i, k) in caps.indexed) ...[_Kbd(k, icon: icons?[i]), SizedBox(width: Sp.x1)],
       Text(what, style: context.ts.caption.copyWith(color: context.dc.dim)),
     ],
   );
@@ -506,7 +507,8 @@ class _Block extends StatelessWidget {
                 Icon(icon, size: Ctl.iconSm, color: c.dim),
                 SizedBox(width: Sp.x2),
                 Flexible(child: Semantics(header: true, child: Text(title, style: ts.label))),
-                if (aside != null) ...[
+                // The navigation group, unless it says the same (Help › Help).
+                if (aside != null && aside != title) ...[
                   SizedBox(width: Sp.x3),
                   Flexible(child: Text(aside!, style: ts.caption, maxLines: 1, overflow: TextOverflow.ellipsis)),
                 ],
