@@ -30,5 +30,6 @@
   "deskOvRestoredImportLater": "Позже: Настройки › Этот кошелёк › Данные кошелька.",
   "deskOnbForgotNoCheck": "Ничто в файлах этого кошелька не может подтвердить фразу, поэтому пароль остаётся прежним.",
   "deskOnbForgotRestoreHint": "Вместо этого восстановите его по фразе: {name} уйдёт из списка, а его файлы останутся на этом компьютере.",
-  "deskOnbForgotRestoreInstead": "Восстановить по фразе"
+  "deskOnbForgotRestoreInstead": "Восстановить по фразе",
+  "deskSetRescanByWholeChain": "Вся цепочка"
 }

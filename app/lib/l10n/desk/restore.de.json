@@ -30,5 +30,6 @@
   "deskOvRestoredImportLater": "Später unter Einstellungen › Diese Wallet › Wallet-Daten.",
   "deskOnbForgotNoCheck": "Nichts in den Dateien dieser Wallet kann die Phrase bestätigen, daher bleibt das Passwort.",
   "deskOnbForgotRestoreHint": "Stellen Sie sie stattdessen aus der Phrase wieder her: {name} verlässt die Liste, ihre Dateien bleiben auf diesem Computer.",
-  "deskOnbForgotRestoreInstead": "Aus der Phrase wiederherstellen"
+  "deskOnbForgotRestoreInstead": "Aus der Phrase wiederherstellen",
+  "deskSetRescanByWholeChain": "Ganze Kette"
 }

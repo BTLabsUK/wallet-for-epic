@@ -30,5 +30,6 @@
   "deskOvRestoredImportLater": "以后可在“设置 › 此钱包 › 钱包数据”中导入。",
   "deskOnbForgotNoCheck": "此钱包的文件无法确认该助记词，因此密码保持不变。",
   "deskOnbForgotRestoreHint": "请改为用助记词恢复：{name} 会从列表中移除，其文件仍保留在这台电脑上。",
-  "deskOnbForgotRestoreInstead": "用助记词恢复"
+  "deskOnbForgotRestoreInstead": "用助记词恢复",
+  "deskSetRescanByWholeChain": "整条链"
 }

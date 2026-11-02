@@ -30,5 +30,6 @@
   "deskOvRestoredImportLater": "Później w Ustawienia › Ten portfel › Dane portfela.",
   "deskOnbForgotNoCheck": "Nic w plikach tego portfela nie potwierdzi frazy, więc hasło zostaje.",
   "deskOnbForgotRestoreHint": "Zamiast tego przywróć go z frazy: {name} znika z listy, a jego pliki zostają na tym komputerze.",
-  "deskOnbForgotRestoreInstead": "Przywróć z frazy"
+  "deskOnbForgotRestoreInstead": "Przywróć z frazy",
+  "deskSetRescanByWholeChain": "Cały łańcuch"
 }

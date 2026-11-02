@@ -96,7 +96,7 @@ void main() {
     ));
     await tester.pumpAndSettle();
     if (whole) {
-      await tester.tap(find.byKey(const ValueKey('rescan-from-wholeChain')));
+      await tester.tap(find.text('Whole chain'));
       await tester.pumpAndSettle();
     }
   }
@@ -112,13 +112,13 @@ void main() {
     final api = _Starts();
     await pump(tester, api, false);
     expect(find.text('Where to start'), findsOneWidget);
-    expect(find.text('From a month'), findsOneWidget, reason: 'GP-030: the phone\u2019s choices');
+    expect(find.text('Month'), findsWidgets, reason: 'GP-030: the phone\u2019s choices');
     // From a month is the first choice on mainnet; Recheck without a month says so.
     await tester.tap(find.widgetWithText(EButton, 'Recheck'));
     await tester.pump();
     expect(find.text('Pick a month first.'), findsOneWidget);
     expect(api.starts, isEmpty);
-    await tester.tap(find.byKey(const ValueKey('rescan-from-height')));
+    await tester.tap(find.text('Block height'));
     await tester.pump();
     await tester.tap(find.widgetWithText(EButton, 'Recheck'));
     await tester.pump();
@@ -128,7 +128,7 @@ void main() {
     await tester.tap(find.widgetWithText(EButton, 'Recheck'));
     await run(tester, const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const ValueKey('rescan-from-wholeChain')));
+    await tester.tap(find.text('Whole chain'));
     await tester.pump();
     await tester.tap(find.widgetWithText(EButton, 'Recheck again'));
     await run(tester, const Duration(milliseconds: 400));
@@ -142,7 +142,7 @@ void main() {
     // One name (Recheck balance), and the row does not repeat the group's title.
     expect(find.text('Recheck balance'), findsNWidgets(2)); // the section chip and the group head
     expect(find.textContaining('Rescan'), findsNothing);
-    await tester.tap(find.text('Delete unconfirmed'));
+    await tester.tap(find.byKey(const ValueKey('rescan-delete-unconfirmed')));
     await tester.pump();
     await tester.tap(find.widgetWithText(EButton, 'Recheck'));
     await run(tester, const Duration(milliseconds: 400));
@@ -173,7 +173,7 @@ void main() {
 
   testWidgets('Stop ends the scan; with Delete unconfirmed it says nothing was deleted', (tester) async {
     await pump(tester);
-    await tester.tap(find.text('Delete unconfirmed'));
+    await tester.tap(find.byKey(const ValueKey('rescan-delete-unconfirmed')));
     await tester.pump();
     await tester.tap(find.widgetWithText(EButton, 'Recheck'));
     await run(tester, const Duration(milliseconds: 40));

@@ -10,6 +10,8 @@ import '../../data/api.dart' show DeskWalletApi;
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
 import '../../../network_gate.dart' show NetBlock;
+import '../../../l10n.dart' show localInt;
+import '../../../start_month.dart' show startMonthRecent;
 import '../../widgets/kit.dart';
 import '../wallet/restore_scan_panel.dart' show RestoreScanProgress;
 import 'settings_frame.dart';
@@ -226,7 +228,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                 ESetRow(
                   text: l.deskSetRescanText,
                   control: ERowControl(child: EButton.primary(label: _end != null || _failure != null ? l.deskSetRescanRecheckAgain : l.deskSetRescanRecheck, icon: EIcons.scan, size: EBtnSize.sm, onPressed: block == NetBlock.none && !restoreRuns ? _start : null)),
-                  below: reason != null || restoreRuns || choice
+                  below: reason != null || restoreRuns
                       ? Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -236,88 +238,13 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                               SizedBox(height: Sp.x2),
                               RestoreScanProgress(percent: restore!.percent),
                             ],
-                            if (choice) ...[
-                              SizedBox(height: Sp.x3),
-                              Semantics(header: true, child: Text(l.deskSetRescanStartHeading, style: ts.label)),
-                              SizedBox(height: Sp.x2),
-                              // One choice, as radio buttons are (EChoiceCard is a mutually exclusive group).
-                              for (final (from, title, hint) in [
-                                if (_datesOk) (_From.date, l.settingsRescanFromMonth, null),
-                                (_From.height, l.deskSetRescanFromHeight, null),
-                                (_From.wholeChain, l.deskSetRescanWholeChain, l.deskSetRescanWholeChainHint),
-                              ]) ...[
-                                EChoiceCard(
-                                  key: ValueKey('rescan-from-${from.name}'),
-                                  title: title,
-                                  description: hint,
-                                  selected: _from == from,
-                                  onTap: () => setState(() {
-                                    _from = from;
-                                    _heightError = null;
-                                  }),
-                                ),
-                                if (from == _From.date && _from == _From.date)
-                                  Padding(
-                                    padding: EdgeInsets.only(top: Sp.x2, left: Sp.x4),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        EStartDate(
-                                          date: _fromDate,
-                                          label: l.restorePickMonthShort,
-                                          onChanged: (d) => setState(() {
-                                            _fromDate = d;
-                                            _heightError = null;
-                                          }),
-                                        ),
-                                        SizedBox(height: Sp.x1),
-                                        ReservedSlot.lines(style: ts.small, child: _heightError == null ? null : Text(_heightError!, style: ts.small.copyWith(color: c.risk))),
-                                      ],
-                                    ),
-                                  ),
-                                if (from == _From.height && _from == _From.height)
-                                  Padding(
-                                    padding: EdgeInsets.only(top: Sp.x2, left: Sp.x4),
-                                    child: ConstrainedBox(
-                                      constraints: BoxConstraints(maxWidth: 240.u),
-                                      child: EField(
-                                        label: l.deskOnbRestoreFromLabel,
-                                        error: _heightError,
-                                        reserveError: true,
-                                        child: EInput(
-                                          key: const ValueKey('rescan-height'),
-                                          controller: _height,
-                                          mono: true,
-                                          autofocus: true,
-                                          semanticLabel: l.deskOnbRestoreFromLabel,
-                                          keyboardType: TextInputType.number,
-                                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                          invalid: _heightError != null,
-                                          onChanged: (_) => setState(() => _heightError = null),
-                                          onSubmitted: (_) => _start(),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                SizedBox(height: Sp.x2),
-                              ],
-                              SizedBox(height: Sp.x2),
-                            ],
-                            if (choice) ...[
-                            ECheckbox(value: _deleteUnconfirmed, onChanged: (v) => setState(() => _deleteUnconfirmed = v), label: l.deskSetRescanDeleteUnconfirmed),
-                            Padding(
-                              padding: EdgeInsets.only(left: Sp.x8),
-                              child: Text(
-                                l.deskSetRescanDeleteHint,
-                                style: ts.caption,
-                              ),
-                            ),
-                            ],
                           ],
                         )
                       : null,
-                )
-              else
+                ),
+              // Where to start, then its month or block, aligned with the other rows (item 6).
+              if (!_running && choice) ..._startRows(context),
+              if (_running)
                 ESetRow(
                   text: l.deskSetRescanScanning,
                   stacked: true,
@@ -358,6 +285,93 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
         ],
       ),
     );
+  }
+
+  /// The rows of Advanced › Recheck from a height: Where to start, the month or block it
+  /// needs, and Delete unconfirmed, each a Settings row with its control in the control column.
+  List<Widget> _startRows(BuildContext context) {
+    final l = context.l10n;
+    final c = context.dc;
+    final ts = context.ts;
+    final month = _fromDate == null ? null : StartMonth.of(_fromDate!);
+    final error = _heightError == null ? null : Text(_heightError!, key: const ValueKey('rescan-start-error'), style: ts.small.copyWith(color: c.risk));
+    return [
+      ESetRow(
+        anchor: 'recheckFrom',
+        title: l.deskSetRescanStartHeading,
+        text: _from == _From.wholeChain ? l.deskSetRescanWholeChainHint : null,
+        control: ERowControl(
+          wide: true,
+          child: ESegmented<_From>(
+            key: const ValueKey('rescan-from'),
+            stretch: true,
+            shrink: true,
+            segments: [
+              if (_datesOk) ESegment(_From.date, l.restoreStartByMonth),
+              ESegment(_From.height, l.restoreStartByHeight),
+              ESegment(_From.wholeChain, l.deskSetRescanByWholeChain),
+            ],
+            value: _from,
+            onChanged: (from) => setState(() {
+              _from = from;
+              _heightError = null;
+            }),
+          ),
+        ),
+      ),
+      if (_from == _From.date)
+        ESetRow(
+          anchor: 'recheckMonth',
+          title: l.restoreStartByMonth,
+          text: month == null ? null : l.restoreMonthStart(localInt(l, month.height)),
+          control: ERowControl(
+            child: EStartMonthField(
+              month: month,
+              invalid: _heightError != null,
+              semanticLabel: l.restoreStartByMonth,
+              onChanged: (m) => setState(() {
+                _fromDate = m.firstDay;
+                _heightError = null;
+              }),
+            ),
+          ),
+          below: error != null || (month != null && startMonthRecent(month, DateTime.now()))
+              ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [?error, if (error == null) const EStartMonthRecent(key: EStartDate.recentKey)])
+              : null,
+        ),
+      if (_from == _From.height)
+        ESetRow(
+          anchor: 'recheckHeight',
+          title: l.deskOnbRestoreFromLabel,
+          control: ERowControl(
+            child: EInput(
+              key: const ValueKey('rescan-height'),
+              controller: _height,
+              mono: true,
+              autofocus: true,
+              size: EBtnSize.sm,
+              semanticLabel: l.deskOnbRestoreFromLabel,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              invalid: _heightError != null,
+              onChanged: (_) => setState(() => _heightError = null),
+              onSubmitted: (_) => _start(),
+            ),
+          ),
+          below: error,
+        ),
+      ESetRow(
+        anchor: 'recheckDrop',
+        title: l.deskSetRescanDeleteUnconfirmed,
+        hint: l.deskSetRescanDeleteHint,
+        control: ESwitch(
+          key: const ValueKey('rescan-delete-unconfirmed'),
+          value: _deleteUnconfirmed,
+          semanticLabel: l.deskSetRescanDeleteUnconfirmed,
+          onChanged: (v) => setState(() => _deleteUnconfirmed = v),
+        ),
+      ),
+    ];
   }
 
   /// The Delete unconfirmed outcome. The core counts outputs, not transactions (a send has

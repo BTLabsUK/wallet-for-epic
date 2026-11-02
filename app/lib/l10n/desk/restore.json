@@ -151,5 +151,9 @@
   "deskOnbForgotRestoreInstead": "Restore from the phrase",
   "@deskOnbForgotRestoreInstead": {
     "description": "Forgot password: button when the phrase cannot be checked; removes the wallet from the list (files kept) and opens Restore with the phrase."
+  },
+  "deskSetRescanByWholeChain": "Whole chain",
+  "@deskSetRescanByWholeChain": {
+    "description": "Recheck balance › Where to start: the segment that scans from block 0 (short, a segmented control)."
   }
 }
