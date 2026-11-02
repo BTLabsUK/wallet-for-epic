@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 import '../desk_l10n.dart';
-import '../../ui/theme/brand.dart' show BrandLockup, BrandVariant, EpicMark;
+import '../../ui/theme/brand.dart' show EpicMark;
 import '../../ui/theme/protocol.dart' show CornerTicksPainter, GridFieldPainter;
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
@@ -503,22 +503,13 @@ class EOnbFrame extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // The title bar carries the brand: the panel only names the job (New wallet,
+                // Restore, Set a new password), so the logo never shows twice.
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: Sp.x2),
-                  child: Row(
-                    children: [
-                      Flexible(
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          alignment: AlignmentDirectional.centerStart,
-                          child: BrandLockup(variant: BrandVariant.desktop, size: 28.u, textRatio: 0.56),
-                        ),
-                      ),
-                      SizedBox(width: Sp.x3),
-                      // A long title (Set a new password, in German say) ends in an ellipsis
-                      // instead of pushing past the panel.
-                      Flexible(child: Text(sideTitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.caption, textAlign: TextAlign.end)),
-                    ],
+                  child: Semantics(
+                    header: true,
+                    child: Text(sideTitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: ts.strong),
                   ),
                 ),
                 SizedBox(height: Sp.x6),
