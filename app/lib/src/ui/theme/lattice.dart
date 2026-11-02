@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The BT Labs lattice: the pointy-top hex lattice of the btlabs.uk hero (lines and nodes,
+/// The BT Labs lattice: the pointy-top hex lattice of the BT Labs website's hero (lines and nodes,
 /// brightest at the centre, fading to the edges), drawn still in the app's text colour at low
 /// strength. A quiet graphic for the empty room under a short Recent activity list, on the
 /// phone's Home and the desktop's Overview. Decorative: no text, no focus, no semantics.
