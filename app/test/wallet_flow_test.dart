@@ -19,6 +19,7 @@ import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayP
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/common.dart';
+import 'package:epic_wallet/src/ui/app_dialog.dart' show DialogButton;
 import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/network_menu.dart' show networkMenuEpicboxKey, networkMenuNetworkKey;
 import 'package:epic_wallet/src/ui/server_list_sheet.dart'
@@ -336,7 +337,7 @@ void main() {
         // Removing it is the user's step.
         await _tapText(tester, 'Forgot PIN?');
         await _tapText(tester, 'I have my recovery phrase');
-        await _tap(tester, find.widgetWithText(FilledButton, 'Delete wallet'));
+        await _tap(tester, find.widgetWithText(DialogButton, 'Delete wallet'));
         expect(service.deletedWallets, [_mainnetDir]);
         expect(find.text('Welcome'), findsOneWidget);
         await _tapText(tester, 'Create a new wallet');
@@ -668,8 +669,8 @@ void main() {
       final device = _Device(sealedMainnet: true);
       await _pumpApp(tester, service, device);
       await _tapText(tester, 'Forgot PIN?');
-      final delete = find.widgetWithText(FilledButton, 'Delete wallet');
-      expect(tester.widget<FilledButton>(delete).onPressed, isNull);
+      final delete = find.widgetWithText(DialogButton, 'Delete wallet');
+      expect(tester.widget<DialogButton>(delete).onPressed, isNull);
       await _tapText(tester, 'Keep wallet');
       expect(service.deletedWallets, isEmpty);
 
