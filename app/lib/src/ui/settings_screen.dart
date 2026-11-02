@@ -24,6 +24,7 @@ import 'help_screen.dart';
 import 'restore_screen.dart' show ScanSlotLine;
 import 'settings_sections.dart';
 import 'theme/tokens.dart';
+import 'tip.dart';
 import '../levels/level_providers.dart';
 
 export 'settings_sections.dart';
@@ -250,8 +251,10 @@ class _GroupRow extends StatelessWidget {
           : Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Tooltip(
-                  message: warning,
+                // The glyph carries the same words as its label.
+                Tip(
+                  warning,
+                  excludeFromSemantics: true,
                   child: Semantics(
                     label: warning,
                     child: Icon(Icons.error_outline, size: 20, color: context.tokens.warn),
