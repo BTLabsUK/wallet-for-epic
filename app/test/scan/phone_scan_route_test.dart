@@ -257,11 +257,6 @@ ShellTab _tab(WidgetTester tester) =>
         .widget<NavigationBar>(find.byType(NavigationBar))
         .selectedIndex];
 
-TransferMethod _method(WidgetTester tester) => tester
-    .widget<SegmentedButton<TransferMethod>>(find.byKey(sendMethodsKey))
-    .selected
-    .single;
-
 Finder _inBanner(String text) => find.descendant(
   of: find.byKey(sendRequestBannerKey),
   matching: find.text(text),
@@ -469,15 +464,9 @@ void main() {
       );
       await h.pump(tester);
       await h.scan(tester, 'epic:$_e?amount=1&message=Hi&label=%20ANNA%20');
+      // The contact's own name above the amount; the code's name line hidden, its note kept.
+      expect(find.text('To anna'), findsOneWidget);
       await _back(tester);
-      // The contact's own name on the card; the code's name line hidden, its note kept.
-      expect(
-        find.descendant(
-          of: find.byType(RecipientCard),
-          matching: find.text('anna'),
-        ),
-        findsOneWidget,
-      );
       expect(_inPayee('Name from the recipient (not verified)'), findsNothing);
       expect(_inPayee('Hi'), findsOneWidget);
       expect(_field(tester, sendRecipientFieldKey), _e);
@@ -494,13 +483,8 @@ void main() {
       await h.scan(tester, _lunch);
       await _back(tester);
       expect(_field(tester, sendRecipientFieldKey), _e);
-      expect(
-        find.descendant(
-          of: find.byType(RecipientCard),
-          matching: find.text('New recipient'),
-        ),
-        findsOneWidget,
-      );
+      // Not a saved contact at this address: it can be saved.
+      expect(find.text('Save as contact'), findsOneWidget);
       expect(_inPayee('Anna'), findsOneWidget);
     });
 
@@ -513,14 +497,9 @@ void main() {
       );
       await h.pump(tester);
       await h.scan(tester, _lunch);
+      // The saved name above the amount; the code's name stays with the payee's words.
+      expect(find.text('To Bob'), findsOneWidget);
       await _back(tester);
-      expect(
-        find.descendant(
-          of: find.byType(RecipientCard),
-          matching: find.text('Bob'),
-        ),
-        findsOneWidget,
-      );
       expect(_inPayee('Anna'), findsOneWidget);
     });
   });
@@ -550,7 +529,8 @@ void main() {
       await h.pump(tester);
       await h.scan(tester, _d);
       expect(_field(tester, sendRecipientFieldKey), _d);
-      expect(_method(tester), TransferMethod.direct);
+      // The method line names the way the address picks.
+      expect(find.text('Link · HTTP'), findsOneWidget);
     });
 
     testWidgets('a QR Payment part opens the payment reader with it', (
@@ -844,8 +824,8 @@ void main() {
     final h = _Harness();
     await h.pump(tester);
     await h.scan(tester, 'epic:$onion?amount=1');
-    // Tor is on: the way to an onion is open.
-    await _tap(tester, find.byKey(sendTurnOnTorKey));
+    // Tor starts with the send: nothing to turn on first.
+    expect(find.byKey(sendTurnOnTorKey), findsNothing);
     h.session.torStatusValue = TorStatus(
       kind: TorStatusKind.ready,
       onion: h.session.onion,
@@ -880,6 +860,8 @@ void main() {
     await _continue(tester);
     expect(find.text('Host'), findsOneWidget);
     expect(find.text('1.2.3.4:3415'), findsOneWidget);
+    // The reach check's slow-answer timer runs out.
+    await tester.pump(const Duration(seconds: 2));
   });
 
   test('scheme and host alone are already the host', () {
@@ -916,7 +898,12 @@ void main() {
       );
       expect(_origin('From a QR code'), findsOneWidget);
       final host = find.text('1.2.3.4:3415');
-      await tester.ensureVisible(host);
+      // The list is lazy: the host row is built once scrolled to.
+      await tester.dragUntilVisible(
+        host,
+        find.byType(Scrollable).first,
+        const Offset(0, -200),
+      );
       await tester.pumpAndSettle();
       expect(host.hitTestable(), findsOneWidget);
       expect(tester.takeException(), isNull);
