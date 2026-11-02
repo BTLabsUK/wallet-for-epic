@@ -344,7 +344,7 @@ void main() {
     expect(after.bottom, lessThanOrEqualTo(700));
   });
 
-  testWidgets('the card buttons and the restart link have a 44 px hit target', (tester) async {
+  testWidgets('the card buttons have a 44 px hit target; Help starts the tour again', (tester) async {
     final container = await _open(tester, DeskRoute.overview);
     container.read(deskTourProvider.notifier).open();
     await _settle(tester);
@@ -355,10 +355,10 @@ void main() {
 
     container.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp);
     await _settle(tester);
-    // 36 px drawn: 20 px under the centre is outside it, inside 44.
+    // Help › Start again: a row button (Ctl.sm, as every row control), it starts the tour.
     await tester.ensureVisible(find.text('Start tour'));
     await _settle(tester);
-    await tester.tapAt(tester.getCenter(find.widgetWithText(EButton, 'Start tour')) + const Offset(0, 20));
+    await tester.tap(find.widgetWithText(EButton, 'Start tour'));
     await _settle(tester);
     expect(container.read(deskTourProvider).open, isTrue);
   });

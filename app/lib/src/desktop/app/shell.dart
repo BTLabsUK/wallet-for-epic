@@ -30,7 +30,7 @@ import '../data/desk_levels.dart';
 import '../screens/settings/history_conflicts.dart' show showHistoryConflicts;
 import '../screens/settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
 import '../screens/settings/settings_frame.dart' show SettingsColumn, settingsTakeover;
-import '../screens/settings/search/search_slot.dart' show SettingsSearchKeys, settingsQueryProvider;
+import '../screens/settings/search/search_slot.dart' show SettingsSearchKeys, openSettingsSearch, settingsQueryProvider;
 import '../screens/settings/search/settings_sections.dart' show settingsFallback, setViewProvider;
 import '../widgets/kit.dart';
 import 'desk_app.dart' show deskNavigatorKey;
@@ -202,6 +202,12 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     }
     if (e.logicalKey == LogicalKeyboardKey.keyQ) {
       unawaited(deskClose(ref));
+      return true;
+    }
+    // Ctrl+K from a wallet page: Settings with its search focused (inside Settings the
+    // search's own keys take it).
+    if (e.logicalKey == LogicalKeyboardKey.keyK && ref.read(deskNavProvider).route.section != DeskSection.settings && !_navHeld(ref)) {
+      openSettingsSearch(ref);
       return true;
     }
     return false;

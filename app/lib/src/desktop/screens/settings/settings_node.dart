@@ -539,7 +539,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                       onSwitch: (t) => _useRemote(t.url),
                     ),
                   ),
-                if (prefs.builtin) LocalNodePanel(initialTab: widget.arg == NodeDemo.peers ? LocalTab.peers : LocalTab.status),
+                if (prefs.builtin) SetAnchor(id: SetId.localNode, child: LocalNodePanel(initialTab: widget.arg == NodeDemo.peers ? LocalTab.peers : LocalTab.status)),
                 if (prefs.builtin && DeskFeatures.nodeBackground)
                   ESetRow(
                     title: l.deskSetNodeBackground,

@@ -268,9 +268,9 @@ class _ShowsGroup extends ConsumerWidget {
     final n = ref.read(deskProvider.notifier);
     void set(AdvancedFeature f, bool on) =>
         n.saveSettings(s.copyWith(advanced: adv.withFeature(f, on)));
-    ESetRow row(AdvancedFeature f, String id, String hint, {int minLevel = 2}) => ESetRow(
+    ESetRow row(AdvancedFeature f, String hint, {required String anchor, int minLevel = 2}) => ESetRow(
       key: ValueKey('adv-${f.name}'),
-      anchor: id,
+      anchor: anchor,
       advancedBy: level >= minLevel ? null : advancedByView(l, minLevel),
       title: advancedFeatureName(l, f),
       hint: hint,
@@ -282,13 +282,13 @@ class _ShowsGroup extends ConsumerWidget {
       ),
     );
     final all = [
-      (row(AdvancedFeature.outputs, SetId.advOutputs, l.deskSetAdvOutputsHint), 2),
-      (row(AdvancedFeature.technicalDetails, SetId.advTech, l.deskSetAdvTechnicalHint), 2),
-      (row(AdvancedFeature.sendOptions, SetId.advSendopts, l.deskSetAdvSendOptionsHint), 2),
-      (row(AdvancedFeature.serverDetails, SetId.advServers, l.deskSetAdvServerDetailsHint), 2),
-      (row(AdvancedFeature.recheckFromHeight, SetId.advHeight, l.deskSetAdvRecheckHint), 2),
-      (row(AdvancedFeature.builtInNode, SetId.advLocal, l.deskSetAdvBuiltInNodeHint, minLevel: 3), 3),
-      (row(AdvancedFeature.logs, SetId.advLogs, l.deskSetAdvLogsHint), 2),
+      (row(AdvancedFeature.outputs, l.deskSetAdvOutputsHint, anchor: SetId.advOutputs), 2),
+      (row(AdvancedFeature.technicalDetails, l.deskSetAdvTechnicalHint, anchor: SetId.advTech), 2),
+      (row(AdvancedFeature.sendOptions, l.deskSetAdvSendOptionsHint, anchor: SetId.advSendopts), 2),
+      (row(AdvancedFeature.serverDetails, l.deskSetAdvServerDetailsHint, anchor: SetId.advServers), 2),
+      (row(AdvancedFeature.recheckFromHeight, l.deskSetAdvRecheckHint, anchor: SetId.advHeight), 2),
+      (row(AdvancedFeature.builtInNode, l.deskSetAdvBuiltInNodeHint, anchor: SetId.advLocal, minLevel: 3), 3),
+      (row(AdvancedFeature.logs, l.deskSetAdvLogsHint, anchor: SetId.advLogs), 2),
     ];
     final on = adv.shownFeatures.length;
     final trailing = level < 2

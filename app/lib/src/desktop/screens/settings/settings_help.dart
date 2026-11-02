@@ -408,7 +408,7 @@ class _StartAgainGroup extends ConsumerWidget {
         ESetRow(
           anchor: SetId.tour,
           title: l.deskSetHelpTourAgain,
-          control: ERowControl(child: EButton(label: l.deskSetHelpTourStart, icon: EIcons.restart, size: EBtnSize.sm, hit44: true, onPressed: () => startDeskTour(ref))),
+          control: ERowControl(child: EButton(label: l.deskSetHelpTourStart, icon: EIcons.restart, size: EBtnSize.sm, onPressed: () => startDeskTour(ref))),
         ),
         if (setup) setupRow,
       ],

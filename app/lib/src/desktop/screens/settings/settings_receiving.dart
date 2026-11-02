@@ -218,10 +218,10 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     }
   }
 
-  Widget _autostart(TxMethod m, bool value, ValueChanged<bool>? onChanged) {
+  Widget _autostart(TxMethod m, bool value, ValueChanged<bool>? onChanged, {String? anchor}) {
     final l = context.l10n;
     return ESetRow(
-      anchor: m == TxMethod.epicbox ? SetId.epicboxStart : null,
+      anchor: anchor,
       title: l.deskSetRecvAutostart,
       hint: l.deskSetRecvAutostartHint,
       control: ESwitch(key: ValueKey('st-autostart-${m.name}'), value: value, semanticLabel: l.deskSetRecvMethodAutostart(methodLabel(l, m)), onChanged: onChanged),
@@ -289,7 +289,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
 
   /// A method's row in Payment methods: its icon, its name under the family's subhead, one
   /// hint, and its switch. Link · Tor starts Tor for its payments by itself (item 2).
-  Widget _methodRow(MethodKind m, PaymentPrefs p, DeskSettings s) {
+  Widget _methodRow(MethodKind m, PaymentPrefs p, DeskSettings s, {required String anchor}) {
     final l = context.l10n;
     final name = MethodIcons.groupName(l, m);
     final full = MethodIcons.fullName(l, m);
@@ -303,12 +303,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final busy = m == MethodKind.linkHttp && _busy.contains(TxMethod.http);
     return ESetRow(
       key: ValueKey('st-method-${m.name}'),
-      anchor: switch (m) {
-        MethodKind.epicbox => SetId.epicbox,
-        MethodKind.linkHttp => SetId.http,
-        MethodKind.linkTor => SetId.torPay,
-        MethodKind.directQr || MethodKind.directFile => SetId.file,
-      },
+      anchor: anchor,
       leading: MethodIcons.of(m),
       title: name,
       hint: hint,
@@ -347,13 +342,6 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     );
   }
 
-  /// The methods this build has, by family: Epicbox; Link › HTTP, Tor; Direct › File Transfer
-  /// (QR Payment is the phone's).
-  static List<MethodKind> _familyMethods(MethodFamily f) => [
-    for (final m in MethodKind.values)
-      if (m.family == f && m != MethodKind.directQr && (m != MethodKind.linkTor || DeskFeatures.tor)) m,
-  ];
-
   /// Send starts on names Link once for the family (the address picks HTTP or Tor), the
   /// others by their short name (a segment is a tight place).
   String _startName(AppLocalizations l, MethodKind m) => switch (m) {
@@ -368,9 +356,9 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   /// state line, the server, the options) is where the switch is.
   Widget _methodsGroup(PaymentPrefs p, DeskSettings s, Map<MethodKind, (SettingsJump, List<Widget>)> details) {
     final l = context.l10n;
-    Widget row(MethodKind m) {
+    Widget row(MethodKind m, {required String anchor}) {
       final d = details[m];
-      final body = _methodRow(m, p, s);
+      final body = _methodRow(m, p, s, anchor: anchor);
       if (d == null) return body;
       final (jump, rows) = d;
       return JumpSection(
@@ -387,12 +375,11 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     return ESetGroup(
       title: l.deskSetTxMethods,
       rows: [
-        for (final f in MethodFamily.values)
-          for (final (i, m) in _familyMethods(f).indexed)
-            if (i == 0 && f != MethodFamily.epicbox)
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [_familyRow(f), row(m)])
-            else
-              row(m),
+        // Epicbox stands alone; Link (HTTP, Tor in a Tor build) and Direct get their subhead.
+        row(MethodKind.epicbox, anchor: SetId.epicbox),
+        Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [_familyRow(MethodFamily.link), row(MethodKind.linkHttp, anchor: SetId.http)]),
+        if (DeskFeatures.tor) row(MethodKind.linkTor, anchor: SetId.torPay),
+        Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [_familyRow(MethodFamily.direct), row(MethodKind.directFile, anchor: SetId.file)]),
       ],
     );
   }
@@ -529,7 +516,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
             ),
             ),
           ),
-          _autostart(TxMethod.epicbox, s.epicboxAutostart, (v) => _saveAutostart(s.copyWith(epicboxAutostart: v))),
+          _autostart(TxMethod.epicbox, s.epicboxAutostart, (v) => _saveAutostart(s.copyWith(epicboxAutostart: v)), anchor: SetId.epicboxStart),
           // While Tor is off: where the relay would not see this computer's address.
           if (status.torIncluded && netTorState(s, status) == TorState.off)
             Padding(

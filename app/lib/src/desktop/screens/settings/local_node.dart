@@ -20,6 +20,7 @@ import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/net_mode_view.dart';
 import '../../data/node_view.dart';
 import '../../widgets/kit.dart';
+import 'setting_ids.dart';
 import '../../../help/help_content.dart' show HelpId;
 import 'help_pairing.dart' show HelpAt;
 import 'local_node_dialogs.dart';
@@ -377,6 +378,7 @@ class _AutostartRow extends ConsumerWidget {
     final on = ref.watch(localAutostartProvider).value ?? false;
     final l = context.l10n;
     return ESetRow(
+      anchor: SetId.localStart,
       title: l.deskSetLnodeAutostart,
       hint: l.deskSetLnodeAutostartHint,
       hintHelp: localNodeHelp(ref),
