@@ -18972,4 +18972,75 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetSearchKeyEsc => 'Esc';
+
+  @override
+  String get deskDonateLead => '捐款用于资助本钱包的开发。';
+
+  @override
+  String get deskDonatePage => '捐款页面';
+
+  @override
+  String get deskDonateOpen => '打开';
+
+  @override
+  String get deskDonateNoAnswer => '捐款页面没有响应。';
+
+  @override
+  String get deskDonateNoAnswerText => '请将 EPIC 发送到下方地址，或使用联系页面。';
+
+  @override
+  String deskDonateOffInMode(String mode) {
+    return '$mode：不会打开捐款页面。';
+  }
+
+  @override
+  String get deskDonateContact => '联系页面';
+
+  @override
+  String get deskDonateAddress => 'Epic Cash 地址';
+
+  @override
+  String get deskDonateAddressQr => '捐款地址';
+
+  @override
+  String get deskDonateCopy => '复制捐款地址';
+
+  @override
+  String get deskSetRescanByWholeChain => '整条链';
+
+  @override
+  String get deskTorPayOff => '关闭';
+
+  @override
+  String get deskTorPayStarting => '正在启动 Tor · 仅用于付款';
+
+  @override
+  String get deskTorPayReady => '正在接收';
+
+  @override
+  String deskTorPayBlockedNodeOnly(String mode) {
+    return '在$mode下关闭：只有节点会连接。';
+  }
+
+  @override
+  String deskTorPayBlockedKill(String mode) {
+    return '在$mode下关闭：不会有任何连接。';
+  }
+
+  @override
+  String get deskTorPayFailed => 'Tor 未能连接。';
+
+  @override
+  String deskTorPayFailedWhy(String problem) {
+    return 'Tor 未能连接：$problem。';
+  }
+
+  @override
+  String get deskTorPayRestOn => '所有连接都走 Tor：开启（网络与隐私）。';
+
+  @override
+  String get deskTorPayRestOff => '所有连接都走 Tor：关闭（网络与隐私）。';
+
+  @override
+  String get deskRailTorForPayments => '用于付款';
 }

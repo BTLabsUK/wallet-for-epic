@@ -19719,4 +19719,78 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetSearchKeyEsc => 'Esc';
+
+  @override
+  String get deskDonateLead => 'เงินบริจาคช่วยสนับสนุนการพัฒนากระเป๋าเงินนี้';
+
+  @override
+  String get deskDonatePage => 'หน้าบริจาค';
+
+  @override
+  String get deskDonateOpen => 'เปิด';
+
+  @override
+  String get deskDonateNoAnswer => 'หน้าบริจาคไม่ตอบสนอง';
+
+  @override
+  String get deskDonateNoAnswerText =>
+      'ส่ง EPIC ไปยังที่อยู่ด้านล่าง หรือใช้หน้าติดต่อ';
+
+  @override
+  String deskDonateOffInMode(String mode) {
+    return '$mode: ไม่เปิดหน้าบริจาค';
+  }
+
+  @override
+  String get deskDonateContact => 'หน้าติดต่อ';
+
+  @override
+  String get deskDonateAddress => 'ที่อยู่ Epic Cash';
+
+  @override
+  String get deskDonateAddressQr => 'ที่อยู่สำหรับบริจาค';
+
+  @override
+  String get deskDonateCopy => 'คัดลอกที่อยู่สำหรับบริจาค';
+
+  @override
+  String get deskSetRescanByWholeChain => 'ทั้งเชน';
+
+  @override
+  String get deskTorPayOff => 'ปิด';
+
+  @override
+  String get deskTorPayStarting => 'กำลังเริ่ม Tor · สำหรับการชำระเงินเท่านั้น';
+
+  @override
+  String get deskTorPayReady => 'กำลังรับ';
+
+  @override
+  String deskTorPayBlockedNodeOnly(String mode) {
+    return 'ปิดในโหมด $mode: เชื่อมต่อเฉพาะโหนด';
+  }
+
+  @override
+  String deskTorPayBlockedKill(String mode) {
+    return 'ปิดในโหมด $mode: ไม่มีการเชื่อมต่อใด ๆ';
+  }
+
+  @override
+  String get deskTorPayFailed => 'Tor เชื่อมต่อไม่สำเร็จ';
+
+  @override
+  String deskTorPayFailedWhy(String problem) {
+    return 'Tor เชื่อมต่อไม่สำเร็จ: $problem';
+  }
+
+  @override
+  String get deskTorPayRestOn =>
+      'Tor สำหรับทุกการเชื่อมต่อ: เปิด (เครือข่ายและความเป็นส่วนตัว)';
+
+  @override
+  String get deskTorPayRestOff =>
+      'Tor สำหรับทุกการเชื่อมต่อ: ปิด (เครือข่ายและความเป็นส่วนตัว)';
+
+  @override
+  String get deskRailTorForPayments => 'สำหรับการชำระเงิน';
 }

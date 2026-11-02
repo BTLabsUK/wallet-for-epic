@@ -31517,6 +31517,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Esc'**
   String get deskSetSearchKeyEsc;
+
+  /// Settings › Donate: the line at the top of the page.
+  ///
+  /// In en, this message translates to:
+  /// **'Donations fund development of this wallet.'**
+  String get deskDonateLead;
+
+  /// Settings › Donate: the row that opens BT Labs' donation page in the browser; the host is under it.
+  ///
+  /// In en, this message translates to:
+  /// **'Donation page'**
+  String get deskDonatePage;
+
+  /// Settings › Donate: the button that opens the page in the browser.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get deskDonateOpen;
+
+  /// Settings › Donate: notice when the donation page could not be reached or is not set.
+  ///
+  /// In en, this message translates to:
+  /// **'The donation page does not answer.'**
+  String get deskDonateNoAnswer;
+
+  /// Settings › Donate: text of the notice when the donation page does not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Send EPIC to the address below, or use the contact page.'**
+  String get deskDonateNoAnswerText;
+
+  /// Settings › Donate: notice title in Node only or Kill switch; {mode} is the network mode's name.
+  ///
+  /// In en, this message translates to:
+  /// **'{mode}: the donation page is not opened.'**
+  String deskDonateOffInMode(String mode);
+
+  /// Settings › Donate: opens BT Labs' contact page in the browser.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact page'**
+  String get deskDonateContact;
+
+  /// Settings › Donate: the row with the donation address, Copy and QR.
+  ///
+  /// In en, this message translates to:
+  /// **'Epic Cash address'**
+  String get deskDonateAddress;
+
+  /// What the QR code is of, lower case after 'the' (as in 'Show the QR code of the donation address').
+  ///
+  /// In en, this message translates to:
+  /// **'donation address'**
+  String get deskDonateAddressQr;
+
+  /// Settings › Donate: name of the copy button of the donation address.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy donation address'**
+  String get deskDonateCopy;
+
+  /// Recheck balance › Where to start: the segment that scans from block 0 (short, a segmented control).
+  ///
+  /// In en, this message translates to:
+  /// **'Whole chain'**
+  String get deskSetRescanByWholeChain;
+
+  /// Payments › Link · Tor state line: the switch is off.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get deskTorPayOff;
+
+  /// Payments › Link · Tor state line while tor starts just for payments.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting Tor · for payments only'**
+  String get deskTorPayStarting;
+
+  /// Payments › Link · Tor state line: payments arrive at the Tor address (shown after it).
+  ///
+  /// In en, this message translates to:
+  /// **'Receiving'**
+  String get deskTorPayReady;
+
+  /// Link · Tor state line in Node only; {mode} is the mode's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Off in {mode}: only the node connects.'**
+  String deskTorPayBlockedNodeOnly(String mode);
+
+  /// Link · Tor state line in Kill switch; {mode} is the mode's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Off in {mode}: nothing connects.'**
+  String deskTorPayBlockedKill(String mode);
+
+  /// Link · Tor state line when tor for payments failed; Retry follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor did not connect.'**
+  String get deskTorPayFailed;
+
+  /// Link · Tor state line when tor for payments failed, with why; Retry follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor did not connect: {problem}.'**
+  String deskTorPayFailedWhy(String problem);
+
+  /// Caption after the Link · Tor state: the Tor switch of Network & privacy carries everything else too.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor for every connection: on (Network & privacy).'**
+  String get deskTorPayRestOn;
+
+  /// Caption after the Link · Tor state: only payments at the Tor address use Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor for every connection: off (Network & privacy).'**
+  String get deskTorPayRestOff;
+
+  /// Title-bar Tor icon and side list: tor runs only for Link · Tor payments, not for every connection.
+  ///
+  /// In en, this message translates to:
+  /// **'For payments'**
+  String get deskRailTorForPayments;
 }
 
 class _AppLocalizationsDelegate

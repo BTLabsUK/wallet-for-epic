@@ -20141,4 +20141,78 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetSearchKeyEsc => 'Esc';
+
+  @override
+  String get deskDonateLead => 'Donations fund development of this wallet.';
+
+  @override
+  String get deskDonatePage => 'Donation page';
+
+  @override
+  String get deskDonateOpen => 'Open';
+
+  @override
+  String get deskDonateNoAnswer => 'The donation page does not answer.';
+
+  @override
+  String get deskDonateNoAnswerText =>
+      'Send EPIC to the address below, or use the contact page.';
+
+  @override
+  String deskDonateOffInMode(String mode) {
+    return '$mode: the donation page is not opened.';
+  }
+
+  @override
+  String get deskDonateContact => 'Contact page';
+
+  @override
+  String get deskDonateAddress => 'Epic Cash address';
+
+  @override
+  String get deskDonateAddressQr => 'donation address';
+
+  @override
+  String get deskDonateCopy => 'Copy donation address';
+
+  @override
+  String get deskSetRescanByWholeChain => 'Whole chain';
+
+  @override
+  String get deskTorPayOff => 'Off';
+
+  @override
+  String get deskTorPayStarting => 'Starting Tor · for payments only';
+
+  @override
+  String get deskTorPayReady => 'Receiving';
+
+  @override
+  String deskTorPayBlockedNodeOnly(String mode) {
+    return 'Off in $mode: only the node connects.';
+  }
+
+  @override
+  String deskTorPayBlockedKill(String mode) {
+    return 'Off in $mode: nothing connects.';
+  }
+
+  @override
+  String get deskTorPayFailed => 'Tor did not connect.';
+
+  @override
+  String deskTorPayFailedWhy(String problem) {
+    return 'Tor did not connect: $problem.';
+  }
+
+  @override
+  String get deskTorPayRestOn =>
+      'Tor for every connection: on (Network & privacy).';
+
+  @override
+  String get deskTorPayRestOff =>
+      'Tor for every connection: off (Network & privacy).';
+
+  @override
+  String get deskRailTorForPayments => 'For payments';
 }

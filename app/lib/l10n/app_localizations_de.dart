@@ -20390,4 +20390,79 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetSearchKeyEsc => 'Esc';
+
+  @override
+  String get deskDonateLead =>
+      'Spenden finanzieren die Entwicklung dieser Wallet.';
+
+  @override
+  String get deskDonatePage => 'Spendenseite';
+
+  @override
+  String get deskDonateOpen => 'Öffnen';
+
+  @override
+  String get deskDonateNoAnswer => 'Die Spendenseite antwortet nicht.';
+
+  @override
+  String get deskDonateNoAnswerText =>
+      'Senden Sie EPIC an die Adresse unten oder nutzen Sie die Kontaktseite.';
+
+  @override
+  String deskDonateOffInMode(String mode) {
+    return '$mode: Die Spendenseite wird nicht geöffnet.';
+  }
+
+  @override
+  String get deskDonateContact => 'Kontaktseite';
+
+  @override
+  String get deskDonateAddress => 'Epic-Cash-Adresse';
+
+  @override
+  String get deskDonateAddressQr => 'Spendenadresse';
+
+  @override
+  String get deskDonateCopy => 'Spendenadresse kopieren';
+
+  @override
+  String get deskSetRescanByWholeChain => 'Ganze Kette';
+
+  @override
+  String get deskTorPayOff => 'Aus';
+
+  @override
+  String get deskTorPayStarting => 'Tor startet · nur für Zahlungen';
+
+  @override
+  String get deskTorPayReady => 'Empfängt';
+
+  @override
+  String deskTorPayBlockedNodeOnly(String mode) {
+    return 'Aus in $mode: Nur der Node verbindet sich.';
+  }
+
+  @override
+  String deskTorPayBlockedKill(String mode) {
+    return 'Aus in $mode: Nichts verbindet sich.';
+  }
+
+  @override
+  String get deskTorPayFailed => 'Tor hat keine Verbindung hergestellt.';
+
+  @override
+  String deskTorPayFailedWhy(String problem) {
+    return 'Tor hat keine Verbindung hergestellt: $problem.';
+  }
+
+  @override
+  String get deskTorPayRestOn =>
+      'Tor für jede Verbindung: an (Netzwerk & Datenschutz).';
+
+  @override
+  String get deskTorPayRestOff =>
+      'Tor für jede Verbindung: aus (Netzwerk & Datenschutz).';
+
+  @override
+  String get deskRailTorForPayments => 'Für Zahlungen';
 }

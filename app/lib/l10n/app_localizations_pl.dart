@@ -20817,4 +20817,78 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetSearchKeyEsc => 'Esc';
+
+  @override
+  String get deskDonateLead => 'Darowizny finansują rozwój tego portfela.';
+
+  @override
+  String get deskDonatePage => 'Strona darowizn';
+
+  @override
+  String get deskDonateOpen => 'Otwórz';
+
+  @override
+  String get deskDonateNoAnswer => 'Strona darowizn nie odpowiada.';
+
+  @override
+  String get deskDonateNoAnswerText =>
+      'Wyślij EPIC na adres poniżej lub skorzystaj ze strony kontaktowej.';
+
+  @override
+  String deskDonateOffInMode(String mode) {
+    return '$mode: strona darowizn nie jest otwierana.';
+  }
+
+  @override
+  String get deskDonateContact => 'Strona kontaktowa';
+
+  @override
+  String get deskDonateAddress => 'Adres Epic Cash';
+
+  @override
+  String get deskDonateAddressQr => 'adresu do darowizn';
+
+  @override
+  String get deskDonateCopy => 'Kopiuj adres do darowizn';
+
+  @override
+  String get deskSetRescanByWholeChain => 'Cały łańcuch';
+
+  @override
+  String get deskTorPayOff => 'Wyłączone';
+
+  @override
+  String get deskTorPayStarting => 'Uruchamianie Tor · tylko dla płatności';
+
+  @override
+  String get deskTorPayReady => 'Odbiera';
+
+  @override
+  String deskTorPayBlockedNodeOnly(String mode) {
+    return 'Wyłączone w trybie $mode: łączy się tylko węzeł.';
+  }
+
+  @override
+  String deskTorPayBlockedKill(String mode) {
+    return 'Wyłączone w trybie $mode: nic się nie łączy.';
+  }
+
+  @override
+  String get deskTorPayFailed => 'Tor nie połączył się.';
+
+  @override
+  String deskTorPayFailedWhy(String problem) {
+    return 'Tor nie połączył się: $problem.';
+  }
+
+  @override
+  String get deskTorPayRestOn =>
+      'Tor dla każdego połączenia: włączony (Sieć i prywatność).';
+
+  @override
+  String get deskTorPayRestOff =>
+      'Tor dla każdego połączenia: wyłączony (Sieć i prywatność).';
+
+  @override
+  String get deskRailTorForPayments => 'Dla płatności';
 }

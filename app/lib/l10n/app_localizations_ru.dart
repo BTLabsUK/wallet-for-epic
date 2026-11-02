@@ -20800,4 +20800,79 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetSearchKeyEsc => 'Esc';
+
+  @override
+  String get deskDonateLead =>
+      'Пожертвования финансируют разработку этого кошелька.';
+
+  @override
+  String get deskDonatePage => 'Страница пожертвований';
+
+  @override
+  String get deskDonateOpen => 'Открыть';
+
+  @override
+  String get deskDonateNoAnswer => 'Страница пожертвований не отвечает.';
+
+  @override
+  String get deskDonateNoAnswerText =>
+      'Отправьте EPIC на адрес ниже или воспользуйтесь страницей контактов.';
+
+  @override
+  String deskDonateOffInMode(String mode) {
+    return '$mode: страница пожертвований не открывается.';
+  }
+
+  @override
+  String get deskDonateContact => 'Страница контактов';
+
+  @override
+  String get deskDonateAddress => 'Адрес Epic Cash';
+
+  @override
+  String get deskDonateAddressQr => 'адреса для пожертвований';
+
+  @override
+  String get deskDonateCopy => 'Копировать адрес для пожертвований';
+
+  @override
+  String get deskSetRescanByWholeChain => 'Вся цепочка';
+
+  @override
+  String get deskTorPayOff => 'Выкл.';
+
+  @override
+  String get deskTorPayStarting => 'Запуск Tor · только для платежей';
+
+  @override
+  String get deskTorPayReady => 'Принимает';
+
+  @override
+  String deskTorPayBlockedNodeOnly(String mode) {
+    return 'Выкл. в режиме $mode: подключается только узел.';
+  }
+
+  @override
+  String deskTorPayBlockedKill(String mode) {
+    return 'Выкл. в режиме $mode: ничего не подключается.';
+  }
+
+  @override
+  String get deskTorPayFailed => 'Tor не подключился.';
+
+  @override
+  String deskTorPayFailedWhy(String problem) {
+    return 'Tor не подключился: $problem.';
+  }
+
+  @override
+  String get deskTorPayRestOn =>
+      'Tor для всех подключений: вкл. (Сеть и конфиденциальность).';
+
+  @override
+  String get deskTorPayRestOff =>
+      'Tor для всех подключений: выкл. (Сеть и конфиденциальность).';
+
+  @override
+  String get deskRailTorForPayments => 'Для платежей';
 }
