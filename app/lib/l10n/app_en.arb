@@ -27684,5 +27684,19 @@
         "example": "Epic Cash Desktop"
       }
     }
+  },
+  "deskOvInflightMore": "{count, plural, one{{count} more payment under way} other{{count} more payments under way}}",
+  "@deskOvInflightMore": {
+    "description": "Last line under Overview's payments under way when there are more than the card and three rows: how many are not shown. Dim text, a View link beside it.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "deskOvInflightView": "View",
+  "@deskOvInflightView": {
+    "description": "Link beside the line about more payments under way on Overview: opens Activity on its Pending filter."
   }
 }

@@ -20465,4 +20465,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskOldAppNotTrashed(String app) {
     return '$app could not be moved to Bin';
   }
+
+  @override
+  String deskOvInflightMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more payments under way',
+      one: '$count more payment under way',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOvInflightView => 'View';
 }

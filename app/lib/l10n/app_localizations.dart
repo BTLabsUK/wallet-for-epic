@@ -32129,6 +32129,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{app} could not be moved to Bin'**
   String deskOldAppNotTrashed(String app);
+
+  /// Last line under Overview's payments under way when there are more than the card and three rows: how many are not shown. Dim text, a View link beside it.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} more payment under way} other{{count} more payments under way}}'**
+  String deskOvInflightMore(int count);
+
+  /// Link beside the line about more payments under way on Overview: opens Activity on its Pending filter.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get deskOvInflightView;
 }
 
 class _AppLocalizationsDelegate

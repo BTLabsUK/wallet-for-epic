@@ -20719,4 +20719,18 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskOldAppNotTrashed(String app) {
     return '$app konnte nicht in den Papierkorb gelegt werden';
   }
+
+  @override
+  String deskOvInflightMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count weitere Zahlungen unterwegs',
+      one: '$count weitere Zahlung unterwegs',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOvInflightView => 'Anzeigen';
 }

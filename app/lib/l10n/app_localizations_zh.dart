@@ -19297,4 +19297,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskOldAppNotTrashed(String app) {
     return '无法将 $app 移到废纸篓';
   }
+
+  @override
+  String deskOvInflightMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '另有 $count 笔付款进行中',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOvInflightView => '查看';
 }

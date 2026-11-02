@@ -19,12 +19,13 @@ import '../../../amount.dart' show AmountSurface, surfaceEpic;
 import '../../../l10n.dart' show localDigits, localInt;
 import '../../../ui/common.dart' show epicExact, exactAmountTip;
 import '../../widgets/kit.dart';
-import '../../widgets/pay_steps.dart' show DeskPaymentSteps, payInFlight;
+import '../../widgets/pay_steps.dart' show DeskPaymentSteps, PayStepDots, payInFlight, payStepList, payStepNowText;
 import '../invoices/overview_card.dart';
 import '../settings/backup.dart' show HistoryReminder, historyBackupProvider, showHistoryImportOffer;
 import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
 import '../../../recent_activity.dart' show recentActivityCount, showViewAll;
 import '../../../ui/theme/lattice.dart' show BrandLattice, latticeCellDesktop, latticeStrength;
+import 'activity_screen.dart' show ActivityArgs;
 import 'restore_scan_panel.dart';
 import 'tx_display.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
@@ -263,7 +264,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
             ),
           ),
           // A payment in progress, at every level: its steps live (D11).
-          if (txs != null) _InFlight(txs: txs, onOpen: (t) => nav.go(DeskRoute.activity, t.id)),
+          if (txs != null) _InFlight(txs: txs, onOpen: (t) => nav.go(DeskRoute.activity, t.id), onMore: () => nav.go(DeskRoute.activity, const ActivityArgs(pending: true))),
           SizedBox(height: Sp.x2),
           // While the restore scan runs, Recent activity shows what it finds, never "No
           // transactions yet" (copy D1).
@@ -962,111 +963,205 @@ class _HeroSentence extends StatelessWidget {
   }
 }
 
-/// The payments under way, each a card with its live steps ("On its way to Alice"): above
-/// Recent activity at every level (D11). The newest three.
+/// The payments under way, above Recent activity at every level (D11): the newest as a card with
+/// its live steps ("On its way to Alice"), the next three as one line each in a box under it,
+/// then "N more · View" (Activity, Pending) for the rest.
 class _InFlight extends ConsumerWidget {
-  const _InFlight({required this.txs, required this.onOpen});
+  const _InFlight({required this.txs, required this.onOpen, required this.onMore});
 
   final List<Tx> txs;
   final ValueChanged<Tx> onOpen;
+  final VoidCallback onMore;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final live = txs.where(payInFlight).take(3).toList();
+    final live = txs.where(payInFlight).toList();
     if (live.isEmpty) return const SizedBox.shrink();
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
     final technical = ref.watch(deskLevelFeaturesProvider.select((f) => f.wording)) == LevelWording.technical;
     final hidden = ref.watch(deskProvider.select((s) => s.settings.hideAmounts));
+    final t = live.first;
+    final rows = live.skip(1).take(3).toList();
+    final more = live.length - 1 - rows.length;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final t in live)
-          Padding(
-            padding: EdgeInsets.only(top: Sp.x4),
+        Padding(
+          padding: EdgeInsets.only(top: Sp.x4),
+          child: _AccentBox(
+            key: ValueKey('overview-inflight-${t.id}'),
             child: Semantics(
               button: true,
               onTap: () => onOpen(t),
-              child: Container(
-                key: ValueKey('overview-inflight-${t.id}'),
-                clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(
-                  color: c.s1,
-                  border: Border.all(color: c.line),
-                  borderRadius: BorderRadius.circular(Rad.sm),
-                ),
-                // The accent bar is drawn under the card, not laid out beside it: the steps
-                // measure their own width (no intrinsic sizes here).
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: SizedBox(width: 3, child: ColoredBox(color: c.info, child: const SizedBox.expand())),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsetsDirectional.only(start: 3),
-                      child: Row(
+              child: EInkWell(
+                onTap: () => onOpen(t),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
                         children: [
+                          ExcludeSemantics(child: TxIcon(t)),
+                          SizedBox(width: Sp.x4),
                           Expanded(
-                            child: EInkWell(
-                              onTap: () => onOpen(t),
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4),
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
-                                  children: [
-                                    ExcludeSemantics(child: TxIcon(t)),
-                                    SizedBox(width: Sp.x4),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(_title(l, t, technical), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.strong),
-                                          Text(
-                                            l.deskLvPayStartedAt(hidden ? '••••••' : formatEpicL(l, t.amount), timeOf(t)),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: ts.small,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(width: Sp.x4),
-                                    ExcludeSemantics(child: TxAmount(t, showFee: false)),
-                                  ],
+                                Text(_inFlightTitle(l, t, technical), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.strong),
+                                Text(
+                                  l.deskLvPayStartedAt(hidden ? '••••••' : formatEpicL(l, t.amount), timeOf(t)),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: ts.small,
                                 ),
-                                SizedBox(height: Sp.x4),
-                                DeskPaymentSteps(tx: t, dense: true),
                               ],
                             ),
                           ),
-                        ),
+                          SizedBox(width: Sp.x4),
+                          ExcludeSemantics(child: TxAmount(t, showFee: false)),
+                        ],
                       ),
+                      SizedBox(height: Sp.x4),
+                      DeskPaymentSteps(tx: t, dense: true),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (rows.isNotEmpty || more > 0)
+          Padding(
+            padding: EdgeInsets.only(top: Sp.x3),
+            child: _AccentBox(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final (i, r) in rows.indexed) ...[
+                    if (i > 0) Divider(height: 1, color: c.line),
+                    _InFlightRow(key: ValueKey('overview-inflight-row-${r.id}'), tx: r, technical: technical, onOpen: onOpen),
+                  ],
+                  if (more > 0) ...[
+                    if (rows.isNotEmpty) Divider(height: 1, color: c.line),
+                    Padding(
+                      key: const ValueKey('overview-inflight-more'),
+                      padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x2),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(l.deskOvInflightMore(more), maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.small.copyWith(color: c.dim)),
+                          ),
+                          SizedBox(width: Sp.x3),
+                          ELink(label: l.deskOvInflightView, onPressed: onMore),
                         ],
                       ),
                     ),
                   ],
-                ),
+                ],
               ),
             ),
           ),
       ],
     );
   }
+}
 
-  /// "On its way to Alice" (Deep end: "Sending to Alice"); a payment coming in reads "Arriving
-  /// from Bob". The Deep end names an address when no contact does.
-  String _title(AppLocalizations l, Tx t, bool technical) {
-    final name = t.contactName ?? (technical ? whoOf(l, t) : null);
-    if (t.incoming) return name == null ? l.lvPayArriving : l.deskLvPayArrivingFrom(name);
-    if (name == null) return l.lvPayOnItsWay;
-    return technical ? l.deskLvPaySendingTo(name) : l.deskLvPayOnItsWayTo(name);
+/// The box of a payment under way: s1 fill, line border and the info bar at the start. The bar is
+/// drawn under the content, not laid out beside it: the steps measure their own width (no
+/// intrinsic sizes here).
+class _AccentBox extends StatelessWidget {
+  const _AccentBox({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    return Container(
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: c.s1,
+        border: Border.all(color: c.line),
+        borderRadius: BorderRadius.circular(Rad.sm),
+      ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: SizedBox(width: 3, child: ColoredBox(color: c.info, child: const SizedBox.expand())),
+            ),
+          ),
+          Padding(padding: const EdgeInsetsDirectional.only(start: 3), child: child),
+        ],
+      ),
+    );
   }
+}
+
+/// A payment under way on one line: who, the step it is at in words, the five steps as dots
+/// (dropped when the row is narrow), the amount.
+class _InFlightRow extends ConsumerWidget {
+  const _InFlightRow({super.key, required this.tx, required this.technical, required this.onOpen});
+
+  final Tx tx;
+  final bool technical;
+  final ValueChanged<Tx> onOpen;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.dc;
+    final ts = context.ts;
+    final l = context.l10n;
+    final style = ref.watch(deskLevelFeaturesProvider.select((f) => f.timeline));
+    final steps = payStepList(l, tx, style, name: deskTxMailboxName(ref, tx, any: true) ?? tx.contactName);
+    final title = _inFlightTitle(l, tx, technical);
+    final step = payStepNowText(steps);
+    return Semantics(
+      button: true,
+      label: '$title, $step',
+      excludeSemantics: true,
+      onTap: () => onOpen(tx),
+      child: EInkWell(
+        onTap: () => onOpen(tx),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x2),
+          child: LayoutBuilder(
+            builder: (context, box) => Row(
+              children: [
+                TxIcon(tx, size: 28.u),
+                SizedBox(width: Sp.x3),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.strong),
+                      Text(step, maxLines: 1, overflow: TextOverflow.ellipsis, style: ts.small.copyWith(color: c.info)),
+                    ],
+                  ),
+                ),
+                if (box.maxWidth >= Lay.sm) ...[SizedBox(width: Sp.x4), PayStepDots(steps)],
+                SizedBox(width: Sp.x4),
+                TxAmount(tx, showFee: false),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// "On its way to Alice" (Deep end: "Sending to Alice"); a payment coming in reads "Arriving
+/// from Bob". The Deep end names an address when no contact does.
+String _inFlightTitle(AppLocalizations l, Tx t, bool technical) {
+  final name = t.contactName ?? (technical ? whoOf(l, t) : null);
+  if (t.incoming) return name == null ? l.lvPayArriving : l.deskLvPayArrivingFrom(name);
+  if (name == null) return l.lvPayOnItsWay;
+  return technical ? l.deskLvPaySendingTo(name) : l.deskLvPayOnItsWayTo(name);
 }
 
 class _PendingFiles extends ConsumerWidget {

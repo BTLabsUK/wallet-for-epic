@@ -53,6 +53,8 @@
   "deskOvReceiveFile": "รับไฟล์",
   "deskOvRecent": "รายการล่าสุด",
   "deskOvViewAll": "ดูทั้งหมด {count}",
+  "deskOvInflightMore": "{count, plural, other{อีก {count} รายการที่กำลังดำเนินการ}}",
+  "deskOvInflightView": "ดู",
   "deskOvPendingFiles": "{count, plural, other{การชำระด้วยไฟล์รอทำให้เสร็จ {count} รายการ}}",
   "deskOvPendingText": "ทำรายการให้เสร็จด้วยไฟล์ตอบกลับจากผู้รับ",
   "deskOvFinalize": "ทำให้เสร็จ"

@@ -53,6 +53,8 @@
   "deskOvReceiveFile": "Odbierz plik",
   "deskOvRecent": "Ostatnia aktywność",
   "deskOvViewAll": "Zobacz wszystkie: {count}",
+  "deskOvInflightMore": "{count, plural, one{{count} kolejna płatność w toku} few{{count} kolejne płatności w toku} many{{count} kolejnych płatności w toku} other{{count} kolejnej płatności w toku}}",
+  "deskOvInflightView": "Zobacz",
   "deskOvPendingFiles": "{count, plural, one{{count} płatność plikiem do sfinalizowania} few{{count} płatności plikiem do sfinalizowania} many{{count} płatności plikiem do sfinalizowania} other{{count} płatności plikiem do sfinalizowania}}",
   "deskOvPendingText": "Sfinalizuj plikiem odpowiedzi od odbiorcy.",
   "deskOvFinalize": "Sfinalizuj"

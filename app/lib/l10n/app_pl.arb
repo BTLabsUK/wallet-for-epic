@@ -5350,5 +5350,7 @@
   "deskOldAppTrash": "Przenieś do Kosza",
   "deskOldAppKeep": "Zachowaj",
   "deskOldAppTrashed": "Przeniesiono {app} do Kosza",
-  "deskOldAppNotTrashed": "Nie można przenieść {app} do Kosza"
+  "deskOldAppNotTrashed": "Nie można przenieść {app} do Kosza",
+  "deskOvInflightMore": "{count, plural, one{{count} kolejna płatność w toku} few{{count} kolejne płatności w toku} many{{count} kolejnych płatności w toku} other{{count} kolejnej płatności w toku}}",
+  "deskOvInflightView": "Zobacz"
 }

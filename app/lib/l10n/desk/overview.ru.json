@@ -53,6 +53,8 @@
   "deskOvReceiveFile": "Получить файл",
   "deskOvRecent": "Последние операции",
   "deskOvViewAll": "Все ({count})",
+  "deskOvInflightMore": "{count, plural, one{Ещё {count} платёж в пути} few{Ещё {count} платежа в пути} many{Ещё {count} платежей в пути} other{Ещё {count} платежа в пути}}",
+  "deskOvInflightView": "Показать",
   "deskOvPendingFiles": "{count, plural, one{{count} платёж файлом ждёт завершения} few{{count} платежа файлом ждут завершения} many{{count} платежей файлом ждут завершения} other{{count} платежа файлом ждут завершения}}",
   "deskOvPendingText": "Завершите их файлом ответа от получателя.",
   "deskOvFinalize": "Завершить"

@@ -21146,4 +21146,20 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskOldAppNotTrashed(String app) {
     return 'Nie można przenieść $app do Kosza';
   }
+
+  @override
+  String deskOvInflightMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count kolejnej płatności w toku',
+      many: '$count kolejnych płatności w toku',
+      few: '$count kolejne płatności w toku',
+      one: '$count kolejna płatność w toku',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get deskOvInflightView => 'Zobacz';
 }

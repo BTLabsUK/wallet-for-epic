@@ -1426,6 +1426,18 @@ class MockDeskWallet implements DeskWalletApi {
     );
   }
 
+  /// For the tour: four more payments under way, newer than the mock's, so Overview shows
+  /// a card, three rows and a "more" line. Only its own shot adds them.
+  void addInflightMany() {
+    if (_txs.any((t) => t.id == 9151)) return;
+    _txs.insertAll(0, [
+      Tx(id: 9154, slateId: 'f1a2b3c4-d5e6-4f70-8192-a3b4c5d6e7f8', direction: TxDirection.sent, state: TxState.waitingRecipient, method: TxMethod.epicbox, amount: _epic(0.1), fee: _epic(0.006), cancellable: true, created: _ago(minutes: 1), counterparty: _contacts[0].address, contactName: _contacts[0].name),
+      Tx(id: 9153, slateId: 'e2b3c4d5-e6f7-4081-93a4-b4c5d6e7f809', direction: TxDirection.sent, state: TxState.waitingRecipient, method: TxMethod.epicbox, amount: _epic(1), fee: _epic(0.006), cancellable: true, created: _ago(minutes: 4), counterparty: _contacts[1].address, contactName: _contacts[1].name),
+      Tx(id: 9152, slateId: 'd3c4d5e6-f708-4192-a4b5-c5d6e7f8091a', direction: TxDirection.received, state: TxState.waitingRecipient, method: TxMethod.epicbox, amount: _epic(2.5), fee: 0, cancellable: true, created: _ago(minutes: 7), counterparty: _contacts[2].address, contactName: _contacts[2].name, senderPosted: true),
+      Tx(id: 9151, slateId: 'c4d5e6f7-0819-42a3-b5c6-d6e7f8091a2b', direction: TxDirection.sent, state: TxState.waitingRecipient, method: TxMethod.file, amount: _epic(3.25), fee: _epic(0.007), cancellable: true, created: _ago(minutes: 11), counterparty: 'c4d5e6f7.tx'),
+    ]);
+  }
+
   static const receiveHoldDemoId = 9141;
   static const receiveOfferedDemoId = 9142;
   static const signedCancelDemoId = 9143;
