@@ -177,7 +177,7 @@ void main() {
   }, skip: !inAppUpdates);
 
   testWidgets('macOS: the checked disk image opens and the app closes; the user replaces the app', (tester) async {
-    const hint = 'The app closes and the disk image opens: drag Epic Cash Desktop into Applications, replace the old one, then open it.';
+    const hint = 'The app closes and the disk image opens: drag BT Wallet into Applications and replace the old one. Move Epic Cash Desktop, if it is there, to the Bin.';
     await pump(tester, _state(DeskUpdatePhase.available), downloadEnds: _state(DeskUpdatePhase.ready), restartOk: true, applier: const DmgApplier());
     await tester.tap(line());
     await tester.pumpAndSettle();

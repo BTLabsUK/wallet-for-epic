@@ -39,10 +39,10 @@ set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
 settings="${APPLE_SIGNING_ENV:-$HOME/.config/epic-apple-signing/signing.env}"
-desktop_name="Epic Cash Desktop"
+desktop_name="BT Wallet"
 # The bundle ids are fixed: they must never change after the first signed release
 # (tools/apple-release.md, "What freezes").
-desktop_id=uk.btlabs.epiccashwallet.macos
+desktop_id=uk.btlabs.btwallet.macos
 phone_id=uk.btlabs.btwallet.ios
 rcodesign_min=0.29.0
 

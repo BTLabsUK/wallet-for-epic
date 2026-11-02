@@ -17393,14 +17393,14 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskErrMacKeychain =>
-      'macOS hat der App nicht erlaubt, ihre gespeicherten Daten im Schlüsselbund zu lesen. Beenden Sie Epic Cash Desktop und öffnen Sie es erneut; wenn macOS fragt, geben Sie Ihr Mac-Anmeldepasswort ein und wählen Sie „Immer erlauben“.';
+      'macOS hat der App nicht erlaubt, ihre gespeicherten Daten im Schlüsselbund zu lesen. Beenden Sie BT Wallet und öffnen Sie es erneut; wenn macOS fragt, geben Sie Ihr Mac-Anmeldepasswort ein und wählen Sie „Immer erlauben“.';
 
   @override
   String get deskUpdOpenDmg => 'Disk-Image öffnen';
 
   @override
   String get deskUpdDmgHint =>
-      'Die App schließt sich und das Disk-Image öffnet sich: Ziehen Sie Epic Cash Desktop in „Programme“, ersetzen Sie die alte App und öffnen Sie sie dann.';
+      'Die App schließt sich und das Disk-Image öffnet sich: Ziehen Sie BT Wallet in „Programme“ und ersetzen Sie die alte App. Legen Sie Epic Cash Desktop, falls vorhanden, in den Papierkorb.';
 
   @override
   String get balanceSheetTitle => 'Guthaben';

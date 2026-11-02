@@ -26808,10 +26808,10 @@ abstract class AppLocalizations {
   /// **'Off. Turn on in Settings › Transactions.'**
   String get deskBarTurnOnHint;
 
-  /// Error when macOS refused the app access to its keychain items (wrong or locked login keychain, access denied, or a new unsigned build not yet allowed). macOS, Epic Cash Desktop and the button name 'Always Allow' (as macOS shows it in each language) are names.
+  /// Error when macOS refused the app access to its keychain items (wrong or locked login keychain, access denied, or a new unsigned build not yet allowed). macOS, BT Wallet and the button name 'Always Allow' (as macOS shows it in each language) are names.
   ///
   /// In en, this message translates to:
-  /// **'macOS did not let the app read its saved data in the keychain. Quit Epic Cash Desktop and open it again; when macOS asks, enter your Mac login password and choose Always Allow.'**
+  /// **'macOS did not let the app read its saved data in the keychain. Quit BT Wallet and open it again; when macOS asks, enter your Mac login password and choose Always Allow.'**
   String get deskErrMacKeychain;
 
   /// macOS: button and sidebar line once the update's disk image is downloaded and checked: the app closes and the disk image opens in Finder (the app cannot install itself there).
@@ -26820,10 +26820,10 @@ abstract class AppLocalizations {
   /// **'Open the disk image'**
   String get deskUpdOpenDmg;
 
-  /// macOS: what happens and what to do, one line under the downloaded update and in its dialog. Epic Cash Desktop is the app's name; Applications is the macOS folder (use its name in this language's macOS).
+  /// macOS: what happens and what to do, one line under the downloaded update and in its dialog. BT Wallet is the app's name and Epic Cash Desktop its name before (installs of 26.10.24 have that app); Applications and the Bin are the macOS folder and Trash (use their names in this language's macOS).
   ///
   /// In en, this message translates to:
-  /// **'The app closes and the disk image opens: drag Epic Cash Desktop into Applications, replace the old one, then open it.'**
+  /// **'The app closes and the disk image opens: drag BT Wallet into Applications and replace the old one. Move Epic Cash Desktop, if it is there, to the Bin.'**
   String get deskUpdDmgHint;
 
   /// Title of the sheet a tap on the balance opens: every balance of the wallet with its exact amount and a short explanation.

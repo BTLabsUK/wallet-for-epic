@@ -16196,14 +16196,14 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskErrMacKeychain =>
-      'macOS 不允许应用读取其保存在钥匙串中的数据。请退出 Epic Cash Desktop 并重新打开；当 macOS 询问时，输入你的 Mac 登录密码并选择“始终允许”。';
+      'macOS 不允许应用读取其保存在钥匙串中的数据。请退出 BT Wallet 并重新打开；当 macOS 询问时，输入你的 Mac 登录密码并选择“始终允许”。';
 
   @override
   String get deskUpdOpenDmg => '打开磁盘映像';
 
   @override
   String get deskUpdDmgHint =>
-      '应用会关闭并打开磁盘映像：将 Epic Cash Desktop 拖到“应用程序”中替换旧版本，然后打开它。';
+      '应用会关闭并打开磁盘映像：将 BT Wallet 拖到“应用程序”中替换旧版本。如果那里有 Epic Cash Desktop，请将其移到废纸篓。';
 
   @override
   String get balanceSheetTitle => '余额';

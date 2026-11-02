@@ -6,8 +6,9 @@ import 'app_version.dart' show coreVersion, withCoreVersion;
 /// window title the runners set before the first frame spells it too:
 /// `windows/runner/main.cpp`, `linux/runner/my_application.cc`. The Windows version resource
 /// (`windows/runner/Runner.rc`), the installer (`windows/installer/epic_wallet.iss`), the MSIX
-/// manifest and the macOS bundle name keep "Epic Cash Desktop" until the owner decides on them:
-/// the installer, the Store listing and the update checks read them. The ids are
+/// manifest keep "Epic Cash Desktop" until the owner decides on them: the installer, the Store
+/// listing and the update checks read them. On macOS the app is "BT Wallet.app"
+/// (`uk.btlabs.btwallet.macos`); 26.10.24 shipped "Epic Cash Desktop.app". The ids are
 /// `uk.btlabs.epiccash.desktop` and `uk.btlabs.epiccash.mobile`; the Inno AppId and install
 /// folder, the secure-storage prefix and the binary names keep the old name on purpose
 /// (`README.md`, "App ids and data folders").

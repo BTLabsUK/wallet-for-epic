@@ -17189,14 +17189,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskErrMacKeychain =>
-      'macOS did not let the app read its saved data in the keychain. Quit Epic Cash Desktop and open it again; when macOS asks, enter your Mac login password and choose Always Allow.';
+      'macOS did not let the app read its saved data in the keychain. Quit BT Wallet and open it again; when macOS asks, enter your Mac login password and choose Always Allow.';
 
   @override
   String get deskUpdOpenDmg => 'Open the disk image';
 
   @override
   String get deskUpdDmgHint =>
-      'The app closes and the disk image opens: drag Epic Cash Desktop into Applications, replace the old one, then open it.';
+      'The app closes and the disk image opens: drag BT Wallet into Applications and replace the old one. Move Epic Cash Desktop, if it is there, to the Bin.';
 
   @override
   String get balanceSheetTitle => 'Balances';

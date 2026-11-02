@@ -778,7 +778,7 @@
         "macos"
       ],
       "value": "see app/macos/Runner/Configs/AppInfo.xcconfig",
-      "note": "Not frozen until the first signed Apple release (bundle ids are now uk.btlabs.epiccashwallet.macos / uk.btlabs.btwallet.ios, set 2026-10-30; the iOS id became uk.btlabs.btwallet.ios on 2026-11-02, before any App ID was registered). Freeze it then: bundle id, keychain service, data folder (<home>/.epic_cash_desktop, shared with the desktop item), Team ID."
+      "note": "Not frozen until the first signed Apple release (bundle ids are now uk.btlabs.btwallet.macos / uk.btlabs.btwallet.ios and the macOS app is BT Wallet.app, set 2026-11-02 before any App ID was registered; 26.10.24 shipped an ad-hoc Epic Cash Desktop.app, uk.btlabs.epiccash.desktop, which the next macOS release must prove it updates: tools/apple-release.md, Moving from Epic Cash Desktop.app). Freeze it then: bundle id, keychain service, data folder (<home>/.epic_cash_desktop, shared with the desktop item), Team ID."
     },
     {
       "id": "ios.bundle_id",

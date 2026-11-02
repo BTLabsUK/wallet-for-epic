@@ -6,10 +6,10 @@
 
 // The application's name: the .app, its executable and the menu bar. Linux and Windows keep the
 // binary name epic_wallet.
-PRODUCT_NAME = Epic Cash Desktop
+PRODUCT_NAME = BT Wallet
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = uk.btlabs.epiccashwallet.macos
+PRODUCT_BUNDLE_IDENTIFIER = uk.btlabs.btwallet.macos
 
 // Apple silicon only: the built-in node has no Intel build (tools/build-apple.sh also sets
 // FLUTTER_MACOS_ARM64_ONLY for release builds).

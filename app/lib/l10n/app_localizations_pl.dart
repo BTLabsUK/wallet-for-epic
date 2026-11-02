@@ -17813,14 +17813,14 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskErrMacKeychain =>
-      'macOS nie pozwolił aplikacji odczytać jej zapisanych danych z pęku kluczy. Zamknij Epic Cash Desktop i otwórz go ponownie; gdy macOS zapyta, wpisz hasło logowania do Maca i wybierz „Zawsze pozwalaj”.';
+      'macOS nie pozwolił aplikacji odczytać jej zapisanych danych z pęku kluczy. Zamknij BT Wallet i otwórz go ponownie; gdy macOS zapyta, wpisz hasło logowania do Maca i wybierz „Zawsze pozwalaj”.';
 
   @override
   String get deskUpdOpenDmg => 'Otwórz obraz dysku';
 
   @override
   String get deskUpdDmgHint =>
-      'Aplikacja zamknie się i otworzy się obraz dysku: przeciągnij Epic Cash Desktop do folderu Aplikacje, zastąp starą wersję, a potem ją otwórz.';
+      'Aplikacja zamknie się i otworzy się obraz dysku: przeciągnij BT Wallet do folderu Aplikacje i zastąp starą wersję. Epic Cash Desktop, jeśli tam jest, przenieś do Kosza.';
 
   @override
   String get balanceSheetTitle => 'Salda';

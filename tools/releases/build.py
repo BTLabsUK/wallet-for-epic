@@ -108,10 +108,10 @@ BEFORE = {
         'certutil -hashfile {file} SHA256'),
     'macos': (
         '<p>The disk image is not signed or notarised by Apple, so Gatekeeper blocks the first start. Open the '
-        'disk image, drag <b>Epic Cash Desktop</b> to Applications and open it once. When macOS refuses, go to '
+        'disk image, drag <b>BT Wallet</b> to Applications and open it once. An older <b>Epic Cash Desktop</b> in Applications goes to the Bin. When macOS refuses, go to '
         '<b>System Settings › Privacy &amp; Security</b>, scroll to the Security section and click '
         '<b>Open Anyway</b>, then confirm with the Mac login password.</p>'
-        '<p>Or in Terminal: <code>xattr -dr com.apple.quarantine "/Applications/Epic Cash Desktop.app"</code></p>'
+        '<p>Or in Terminal: <code>xattr -dr com.apple.quarantine "/Applications/BT Wallet.app"</code></p>'
         '<p>The keychain asks once per version to let the app use its saved data: <b>Always Allow</b>. '
         'The built-in node runs on Apple silicon only.</p>',
         'shasum -a 256 {file}'),

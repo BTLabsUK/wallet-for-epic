@@ -1,6 +1,6 @@
 # Apple releases: Xcode on the release Mac
 
-How Epic Cash Desktop (macOS) and Epic Cash Mobile (iOS) are built, signed, notarised and
+How BT Wallet for macOS and for iOS is built, signed, notarised and
 shipped. This is Apple's standard team flow: one person owns the account, a team member with a
 Mac builds and signs with Xcode.
 
@@ -15,7 +15,7 @@ would make the sandbox a project of its own). Mobile goes to TestFlight, then th
 the build without Tor (`WFE_TOR=0`; iOS cannot start a bundled tor). The macOS app is Apple
 silicon only (the built-in node has no Intel build); the iPhone app is iPhone only.
 
-Final ids, register exactly these: **`uk.btlabs.epiccashwallet.macos`** (Epic Cash Desktop) and
+Final ids, register exactly these: **`uk.btlabs.btwallet.macos`** (BT Wallet, macOS) and
 **`uk.btlabs.btwallet.ios`** (BT Wallet).
 
 The repository side: the team is never in the Xcode projects. The builder puts it in
@@ -71,7 +71,7 @@ Steps marked ⏳ wait for Apple to approve the membership.
    Do not pick the team in Xcode's Signing & Capabilities tab: that writes it into
    `project.pbxproj`, and release builds refuse a checkout with local changes.
 9. **Builder**: developer.apple.com, Identifiers, +, App IDs, App: `uk.btlabs.btwallet.ios`
-   (iOS, "BT Wallet") and `uk.btlabs.epiccashwallet.macos` (macOS, "Epic Cash Desktop"),
+   (iOS, "BT Wallet") and `uk.btlabs.btwallet.macos` (macOS, "BT Wallet"),
    no capabilities. Then App Store Connect, Apps, +, New App: iOS, "BT Wallet", bundle id
    `uk.btlabs.btwallet.ios`, SKU `epiccashmobile`.
 10. **Owner**: decide export compliance and the privacy label (the App Store Connect drafts,
@@ -149,7 +149,7 @@ both.
 
 | Frozen | Why |
 | --- | --- |
-| Bundle ids `uk.btlabs.epiccashwallet.macos`, `uk.btlabs.btwallet.ios` | The App Store record, the keychain items and the macOS data are tied to them |
+| Bundle ids `uk.btlabs.btwallet.macos`, `uk.btlabs.btwallet.ios`; the app name `BT Wallet.app` | The App Store record, the keychain items and the macOS data are tied to them |
 | The Team ID | macOS keychain items trust "signed by this team with this id"; iOS keychain items live in `<Team ID>.uk.btlabs.btwallet.ios`. A new team = every user's stored secrets unreachable |
 | The certificate **type**: Developer ID Application (macOS), Apple Distribution (iOS) | A new certificate of the same type and team (renewal, a second builder) keeps everything working; another type does not |
 | The data folder `~/.epic_cash_desktop`, the login keychain on macOS, no `keychain-access-groups` on iOS | Changing them moves where data and secrets are looked up |
@@ -161,7 +161,7 @@ Checks, on the builder's Mac, before the first `.dmg` is published:
    `.dmg` on our download page), open a wallet that holds coins, note the balance, quit. Install
    the signed `.dmg` over it (the in-app update if the preview offers it, else drag to
    Applications). Expected: the wallets in `~/.epic_cash_desktop` are all there. The first unlock
-   shows **one** keychain prompt ("Epic Cash Desktop wants to use … in your keychain"), because
+   shows **one** keychain prompt ("BT Wallet wants to use … in your keychain"), because
    the preview's items trust only the old ad-hoc build. Enter the login password and choose
    **Always Allow**. Balance and history match; a small send and a receive work. Quit and start
    again: **no** prompt. Build and sign the same commit a second time and install it over: still
@@ -174,6 +174,44 @@ Checks, on the builder's Mac, before the first `.dmg` is published:
 5. The dev team freezes the Apple items in `tools/install-contract.json` (`macos.bundle_id`,
    `ios.bundle_id`, `ios.macos.keychain` from not frozen to frozen, with the Team ID); from then
    on `tools/check.sh` guards them like the other platforms' ids.
+
+### Moving from Epic Cash Desktop.app (blocks the next macOS release)
+
+26.10.24 shipped an ad-hoc `Epic Cash Desktop.app` (`uk.btlabs.epiccash.desktop`) on the
+download page and in the update manifest. The next build is `BT Wallet.app`
+(`uk.btlabs.btwallet.macos`). Both use `~/.epic_cash_desktop`. The 26.10.24 app opens the new
+`.dmg` and quits with its own old hint ("drag Epic Cash Desktop into Applications"), so the
+manifest notes carry the instruction, and BT Wallet offers on its first start to move an old
+`Epic Cash Desktop.app` to the Bin (never a delete). None of this has run on a Mac yet. The
+macOS release does not publish until all of these pass on a real Mac, with the candidate's
+signed `.dmg`:
+
+1. Set-up: 26.10.24 from our download page (`EpicCashDesktop-26.10.24-macos.dmg`) in
+   `/Applications`, opened through Gatekeeper, a wallet restored and funded (floonet, QA funder),
+   one send and one receive in history, a custom node and a custom relay, a changed setting. Note
+   the balance, history and settings; quit.
+2. Update through the app: 26.10.24's update notice downloads the candidate `.dmg`, opens it and
+   quits. The disk image shows `BT Wallet.app` and Applications. Drag BT Wallet in.
+   `/Applications` now holds both apps.
+3. First start of BT Wallet: one keychain prompt at most ("BT Wallet wants to use … in your
+   keychain"); Always Allow. The wallet, balance, history, custom node and relay and the
+   setting are all there; a small send and a receive work.
+4. The offer: BT Wallet asks once to move `Epic Cash Desktop.app` to the Bin. Move to Bin: the
+   app is in the Bin (not deleted), `~/.epic_cash_desktop` is untouched, BT Wallet keeps
+   running. Repeat from a fresh set-up and choose Keep: no offer on the next start.
+5. Edge cases: no offer while Epic Cash Desktop is running (start it first, then BT Wallet); an
+   old app only in `~/Applications` is found there; no offer for another app renamed
+   `Epic Cash Desktop.app` (a different bundle id).
+6. Quit and start BT Wallet again: no keychain prompt, no offer.
+7. The same, steps 1–6, with the notor `.dmg`.
+
+Release notes draft for that release (the manifest's `notes`, plain text):
+
+> Epic Cash Desktop is now BT Wallet. The disk image holds BT Wallet: drag it into Applications,
+> then move Epic Cash Desktop to the Bin (BT Wallet offers to do it on its first start). Your
+> wallets, history and settings stay where they are. On the first start macOS may ask once to
+> let BT Wallet use its saved data in the keychain: enter your Mac login password and choose
+> Always Allow.
 
 ## What only the Mac and Apple can prove
 
@@ -268,7 +306,7 @@ Then `tools/apple-sign.sh doctor`.
 3. **Apple Distribution** certificate: `tools/apple-sign.sh csr dist`, Certificates, +, Apple
    Distribution, upload `keys/dist.csr`, download, `tools/apple-sign.sh p12 dist <.cer>`.
 4. Identifiers, +, App IDs, App: explicit bundle id `uk.btlabs.btwallet.ios`, description
-   "BT Wallet", no capabilities (no push yet). Also register `uk.btlabs.epiccashwallet.macos`
+   "BT Wallet", no capabilities (no push yet). Also register `uk.btlabs.btwallet.macos`
    (macOS) to hold the id.
 5. Profiles, +, Distribution, **App Store Connect**, the App ID above, the Apple Distribution
    certificate; download the `.mobileprovision` into `keys/`, set `IOS_PROFILE`. It lasts a year;

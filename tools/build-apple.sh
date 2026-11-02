@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0
-# Builds Epic Cash Desktop for macOS and Epic Cash Mobile for iOS on a Mac, from a clean checkout
+# Builds BT Wallet for macOS and for iOS on a Mac, from a clean checkout
 # of this repository: LEPIC for the Apple targets, an ad-hoc-signed .app and .dmg, a Simulator
 # .app, the smoke run, and the releases (tools/apple-release.md): `mac-release` makes the
 # notarised .dmg for the download page with the team's Developer ID certificate on this Mac, and
@@ -87,7 +87,7 @@ macos_min=12.0
 ios_min=15.0
 darwin_targets=aarch64-apple-darwin
 ios_targets="aarch64-apple-ios aarch64-apple-ios-sim"
-desktop_name="Epic Cash Desktop"
+desktop_name="BT Wallet"
 phone_id=uk.btlabs.btwallet.ios
 # The built-in node for WFE_NODE_FETCH: the Epic Cash node release the Linux and Windows builds
 # bundle (epic 4.1.1), its macOS zip. arm64 only: there is no x86_64 macOS release of 4.1, which
