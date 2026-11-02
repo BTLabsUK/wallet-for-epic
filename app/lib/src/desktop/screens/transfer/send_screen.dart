@@ -608,7 +608,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// An onion while the Tor switch is off: the wallet's own Tor for payments carries it, which
   /// the method line and the review say ("Tor starts when you send.").
   bool _torStarts(DeskState st) =>
-      _hasMethod && _method == TxMethod.tor && !_torOn(st) && deskNetMode(st) == NetworkMode.standard && switch (_torWay(st)) {
+      _hasMethod && _method == TxMethod.tor && !_torOn(st) && deskNetMode(st) == NetworkMode.standard && st.settings.payments.linkTor && switch (_torWay(st)) {
         TorWay.overTor || TorWay.wait => true,
         _ => false,
       };
@@ -2571,9 +2571,17 @@ class _AddressMenu extends StatelessWidget {
     final c = context.dc;
     final ts = context.ts;
     final l = context.l10n;
+    // The menu's right edge on Change's, so it stays inside the form's column (never over the
+    // Summary): a fixed width, placed from the button's bottom end.
+    final width = 340.u;
     return MenuAnchor(
       consumeOutsideTap: true,
-      alignmentOffset: Offset(0, Sp.x1),
+      style: MenuStyle(
+        alignment: AlignmentDirectional.bottomEnd,
+        minimumSize: WidgetStatePropertyAll(Size(width, 0)),
+        maximumSize: WidgetStatePropertyAll(Size(width, double.infinity)),
+      ),
+      alignmentOffset: Offset(-width, Sp.x1),
       menuChildren: [
         Padding(
           padding: EdgeInsets.fromLTRB(Sp.x3, Sp.x2, Sp.x3, Sp.x1),

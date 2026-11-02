@@ -2752,6 +2752,18 @@ class _SendViewState extends ConsumerState<SendView> {
             ),
           ),
         ),
+      // The payee's words and a paired contact's trust sit with the address, above any notice.
+      ..._payeeClaims(gapBefore: 8),
+      // A saved contact, paired: its trust and the seal, and the mailbox switch.
+      if (valid)
+        SendPairingLine(
+          address: read.address,
+          epicbox: _method == TransferMethod.epicbox,
+          viaMailbox: _viaMailbox,
+          onViaMailbox: (on) => setState(() => _viaMailbox = on),
+          showVia: false,
+          onAddress: _pickAddress,
+        ),
       if (hold != null) ...[
         const SizedBox(height: 8),
         _holdNotice(context, hold),
@@ -2794,17 +2806,6 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
       ],
       _TorNotice(way: _wayOf(_toRoute)),
-      ..._payeeClaims(gapBefore: 8),
-      // A saved contact, paired: its trust and the seal, and the mailbox switch.
-      if (valid)
-        SendPairingLine(
-          address: read.address,
-          epicbox: _method == TransferMethod.epicbox,
-          viaMailbox: _viaMailbox,
-          onViaMailbox: (on) => setState(() => _viaMailbox = on),
-          showVia: false,
-          onAddress: _pickAddress,
-        ),
       const SizedBox(height: 4),
       _recipientButtons(scan),
       if (matches.isNotEmpty) ...[
@@ -2931,7 +2932,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final tag = sendRouteTag(l, to, phone: true, overTor: overTor);
     final name = sendMethodName(l, to);
     final kind = sendMethodKind(to)!;
-    final torStarts = torBuilt && to.kind == RecipientInputKind.onion && !torOn && mode != NetworkMode.torOnly && hold == null;
+    final torStarts = torBuilt && to.kind == RecipientInputKind.onion && !torOn && mode != NetworkMode.torOnly && hold == null && _watchedPayments.linkTor;
     final dim = TextStyle(color: t.dim);
     final strong = TextStyle(color: t.text, fontWeight: FontWeight.w600);
     final where = switch (to.kind) {

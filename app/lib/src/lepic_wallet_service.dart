@@ -32,7 +32,7 @@ import 'network_gate.dart';
 import 'pin_wrap.dart';
 import 'tor_build.dart';
 import 'trust/policy.dart' show PeerCompat, appHostFeatures;
-import 'send_route.dart' show plainHttpGoesDirect, plainHttpHeldNow;
+import 'send_route.dart' show HostScope, plainHttpGoesDirect, plainHttpHeldNow, urlHostScope;
 import 'redact.dart';
 import 'sealed_file.dart';
 import 'secret_store_api.dart';
@@ -2236,7 +2236,8 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   /// while HTTP sends go over Tor (tor cannot reach the local network), then they go over Tor
   /// again. One send runs at a time from Send; another http send meanwhile would go direct too.
   Future<T> _directWhenLocal<T>(String url, Future<T> Function() call) async {
-    if (!_httpOverTor || NetGate.torOnly || !plainHttpGoesDirect(url)) return call();
+    // This device stays direct in LEPIC itself; only the local network needs HTTP over Tor off.
+    if (!_httpOverTor || !plainHttpOffNow || NetGate.torOnly || urlHostScope(url) != HostScope.network || !plainHttpGoesDirect(url)) return call();
     _directSends++;
     _guardSync(() => _wallet.setHttpOverTor(enabled: false));
     try {
