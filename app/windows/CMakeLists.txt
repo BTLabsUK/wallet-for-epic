@@ -3,8 +3,9 @@ cmake_minimum_required(VERSION 3.14)
 project(epic_wallet LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
-# the on-disk name of your application.
-set(BINARY_NAME "epic_wallet")
+# the on-disk name of your application. 26.10.24 and older shipped epic_wallet.exe; Setup takes it
+# out on an update (installer\epic_wallet.iss, RemoveOldName).
+set(BINARY_NAME "btwallet")
 # flutter_secure_storage_windows names its Credential Manager entries after this prefix (default
 # BINARY_NAME). The old core's builds used epic_wallet, the first LEPIC test build epic_wallet_lepic
 # and the desktop UI preview epic_wallet_desktop_ui; 0.1.0 keeps to its own, as Runner.rc's

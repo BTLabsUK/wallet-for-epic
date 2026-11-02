@@ -671,11 +671,11 @@ Future<void> main(List<String> a) async {
       const installed = r'C:\Users\tester\Apps\EpicWallet';
       WindowsSetupApplier at(String exe, {String? registry}) =>
           WindowsSetupApplier(exe: exe, home: r'C:\Users\tester', installedAt: () async => registry);
-      expect(await at('$installed\\epic_wallet.exe').canApply(), isTrue, reason: 'the default folder');
-      expect(await at(r'c:\users\tester\apps\epicwallet\epic_wallet.exe').canApply(), isTrue, reason: 'case does not matter');
-      expect(await at(r'C:\Users\tester\code\build\runner\Release\epic_wallet.exe').canApply(), isFalse, reason: 'a build elsewhere');
-      expect(await at(r'D:\Wallet\epic_wallet.exe', registry: r'D:\Wallet\').canApply(), isTrue, reason: 'the folder Setup was told');
-      expect(await at('$installed\\epic_wallet.exe', registry: r'D:\Wallet').canApply(), isFalse);
+      expect(await at('$installed\\btwallet.exe').canApply(), isTrue, reason: 'the default folder');
+      expect(await at(r'c:\users\tester\apps\epicwallet\btwallet.exe').canApply(), isTrue, reason: 'case does not matter');
+      expect(await at(r'C:\Users\tester\code\build\runner\Release\btwallet.exe').canApply(), isFalse, reason: 'a build elsewhere');
+      expect(await at(r'D:\Wallet\btwallet.exe', registry: r'D:\Wallet\').canApply(), isTrue, reason: 'the folder Setup was told');
+      expect(await at('$installed\\btwallet.exe', registry: r'D:\Wallet').canApply(), isFalse);
     });
 
     test('the installer script waits for the app and opens it again for that run only', () {
@@ -707,8 +707,35 @@ Future<void> main(List<String> a) async {
       expect(iss, contains('Type: files; Name: "{app}\\$deskSetupMarkName"'), reason: 'the uninstaller removes a mark left behind');
       final files = iss.split('\n').where((l) => l.startsWith('Source: "{#SourceDir}')).toList();
       expect(files, hasLength(4));
-      expect(files[0], contains(r'Excludes: "*.lib,*.exp,*.pdb,*.ilk,\lepic_ffi.dll,\data\app.so,\epic_wallet.exe"'));
-      expect(files.skip(1).map((l) => l.split('"')[1]), [r'{#SourceDir}\lepic_ffi.dll', r'{#SourceDir}\data\app.so', r'{#SourceDir}\epic_wallet.exe']);
+      expect(files[0], contains(r'Excludes: "*.lib,*.exp,*.pdb,*.ilk,\lepic_ffi.dll,\data\app.so,\{#AppExe}"'));
+      expect(files.skip(1).map((l) => l.split('"')[1]), [r'{#SourceDir}\lepic_ffi.dll', r'{#SourceDir}\data\app.so', r'{#SourceDir}\{#AppExe}']);
+    });
+
+    test('an update over 26.10.24 opens btwallet.exe and takes epic_wallet.exe out once the files are in', () {
+      final iss = File('windows/installer/epic_wallet.iss').readAsStringSync();
+      expect(File('windows/CMakeLists.txt').readAsStringSync(), contains('set(BINARY_NAME "btwallet")'));
+      expect(iss, contains('#define AppExe "btwallet.exe"'));
+      expect(iss, contains('#define OldAppExe "epic_wallet.exe"'));
+      expect(iss, contains('#define AppTitle "BT Wallet"'));
+      expect(iss, contains('AppName={#AppTitle}'));
+      expect(iss, contains('UninstallDisplayName={#AppTitle}'));
+      expect(iss, contains('AppId={{8810835E-6EE5-4989-AE20-C0D60E23800E}'), reason: 'the same install, not one beside it');
+      expect(iss, contains(r'DefaultDirName={%USERPROFILE}\Apps\EpicWallet'));
+      expect(iss, contains(r'Filename: "{app}\{#AppExe}"; WorkingDir: "{app}"; Flags: nowait; Check: FromApp'));
+      expect(iss, contains(r'Name: "{userprograms}\{#AppTitle}"; Filename: "{app}\{#AppExe}"'));
+      // Not in [InstallDelete]: a Setup stopped part way must leave the old app openable.
+      final install = iss.substring(iss.indexOf('\n[InstallDelete]'), iss.indexOf('\n[UninstallDelete]'));
+      expect(install, isNot(contains('{#OldAppExe}')));
+      final steps = iss.substring(iss.indexOf('procedure CurStepChanged'));
+      expect(steps.indexOf('RemoveOldName;'), greaterThan(steps.indexOf('CurStep = ssPostInstall')));
+      final remove = iss.substring(iss.indexOf('procedure RemoveOldName;'));
+      expect(remove, contains(r"ExpandConstant('{app}\{#OldAppExe}')"));
+      expect(remove, contains(r"ExpandConstant('{userprograms}\' + OldLinkName)"));
+      expect(remove.indexOf('RepointPins;'), lessThan(remove.indexOf('DeleteFile(F)')));
+      expect(iss, contains("OldLinkName = 'Epic Cash Desktop.lnk';"));
+      // A failed update started by 26.10.24's app opens whichever exe is there.
+      final deinit = iss.substring(iss.indexOf('procedure DeinitializeSetup'));
+      expect(deinit, contains(r"Exe := ExpandConstant('{app}\{#OldAppExe}');"));
     });
   });
 

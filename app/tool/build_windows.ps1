@@ -9,9 +9,9 @@
 # into app\third_party\lepic and app\third_party\lepic-flutter at those commits and builds
 # lepic_ffi.dll from the first into the second's native\ with
 # `cargo xtask mobile --package --target x86_64-pc-windows-msvc --out <binding>\native`;
-# package:lepic's build hook then bundles the DLL next to epic_wallet.exe.
+# package:lepic's build hook then bundles the DLL next to btwallet.exe.
 #
-# Output: build\epic_wallet-windows-x64-<version>.zip, a portable folder with epic_wallet.exe.
+# Output: build\epic_wallet-windows-x64-<version>.zip, a portable folder with btwallet.exe.
 param(
     [string]$Flutter = "$env:USERPROFILE\flutter\bin",
     [string]$Lepic = (Join-Path $PSScriptRoot '..\..\..\lepic'),
@@ -82,7 +82,7 @@ $version = (Select-String -Path pubspec.yaml -Pattern '^version:\s*(\S+)').Match
 $bundle = 'build\windows\x64\runner\Release'
 # A configure that failed once (for example on NuGet) caches C:\Program Files\epic_wallet as the
 # install prefix, and later builds install there, leaving only the exe here. Refuse that bundle.
-foreach ($file in 'epic_wallet.exe', 'flutter_windows.dll', 'lepic_ffi.dll', 'data\icudtl.dat') {
+foreach ($file in 'btwallet.exe', 'flutter_windows.dll', 'lepic_ffi.dll', 'data\icudtl.dat') {
     if (-not (Test-Path "$bundle\$file")) {
         throw "$bundle\$file is missing. Delete build\windows and build again."
     }

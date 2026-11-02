@@ -5,19 +5,23 @@
 ;
 ; The wallet's data (%USERPROFILE%\.epic_cash_desktop) is never touched: [UninstallDelete]
 ; names only Setup's own mark next to the app and the app's folder once empty, [InstallDelete]
-; only old shortcut files, and Inno removes only the files it installed.
+; only old shortcut files and the old exe, and Inno removes only the files it installed.
+;
+; The name (the owner, 2026-11-02): BT Wallet, btwallet.exe. 26.10.24 and older were "Epic Cash
+; Desktop", epic_wallet.exe; an update over one takes out the old exe and the old shortcuts,
+; repoints taskbar pins to the new exe, and keeps the AppId, the folder and the mutexes.
 ;
 ; Setup copies file by file and cannot undo a file it replaced: stopped part way (killed, or a
 ; file it could not replace), it leaves old and new files side by side. So the files that must
 ; match each other (the Dart code, data\app.so, and the wallet core, lepic_ffi.dll) are copied
-; last, one after the other, then epic_wallet.exe, after every DLL it loads; and Setup keeps a
+; last, one after the other, then btwallet.exe, after every DLL it loads; and Setup keeps a
 ; mark, {app}\update-in-progress (the version it installs), from the first file until the last
 ; is in. The app finds the mark at its next start and offers the update again
 ; (lib\src\desktop\data\desk_update.dart).
 ;
 ; Look (agreed 2026-10-22): one dark wizard page with
 ; the landing-page hero behind it, one Install button, folder and shortcuts behind an "Options"
-; link, a gold progress bar, "Open Epic Cash Desktop" at the end. Everything is stock Inno 6.7: the
+; link, a gold progress bar, "Open BT Wallet" at the end. Everything is stock Inno 6.7: the
 ; built-in dark style, WizardSetBackImage for the hero (dimmed while files copy), TNewStaticText
 ; and TBitmapImage controls on the stock pages, Montserrat loaded privately for the headings
 ; (OFL; the licence text is installed next to the app). Images come from make_images.sh.
@@ -42,6 +46,11 @@
   #define FileVersion AppVersion + ".0"
 #endif
 
+#define AppTitle "BT Wallet"
+#define AppExe "btwallet.exe"
+; 26.10.24 and older: Setup takes it out of {app} and repoints pins to AppExe.
+#define OldAppExe "epic_wallet.exe"
+
 #define AppMutexName "Local\uk.btlabs.epiccash.desktop.single"
 ; The same mutex under the app's old id (26.10.15 and before): an update from one of those must
 ; wait for it too, or Setup finds its files in use.
@@ -50,7 +59,7 @@
 [Setup]
 ; Fixed for good: a new GUID would make an upgrade install beside the old version.
 AppId={{8810835E-6EE5-4989-AE20-C0D60E23800E}
-AppName=Epic Cash Desktop
+AppName={#AppTitle}
 AppVersion={#AppVersion}
 VersionInfoVersion={#FileVersion}
 AppPublisher=BT Labs
@@ -65,8 +74,8 @@ DisableWelcomePage=no
 PrivilegesRequired=lowest
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
-UninstallDisplayIcon={app}\epic_wallet.exe
-UninstallDisplayName=Epic Cash Desktop
+UninstallDisplayIcon={app}\{#AppExe}
+UninstallDisplayName={#AppTitle}
 OutputDir={#OutputDir}
 OutputBaseFilename=bt-wallet-{#AppVersion}{#Variant}-windows-x64-setup
 Compression=lzma2
@@ -105,26 +114,28 @@ Source: "images\sheet-update.png"; Flags: dontcopy
 Source: "..\..\assets\fonts\Montserrat-SemiBold.ttf"; Flags: dontcopy
 ; Montserrat is OFL: its licence goes next to the app (the app itself carries a copy in its assets).
 Source: "..\..\assets\fonts\OFL-Montserrat.txt"; DestDir: "{app}"; DestName: "LICENSE.Montserrat.txt"; Flags: ignoreversion
-Source: "{#SourceDir}\*"; DestDir: "{app}"; Excludes: "*.lib,*.exp,*.pdb,*.ilk,\lepic_ffi.dll,\data\app.so,\epic_wallet.exe"; Flags: recursesubdirs createallsubdirs ignoreversion
+Source: "{#SourceDir}\*"; DestDir: "{app}"; Excludes: "*.lib,*.exp,*.pdb,*.ilk,\lepic_ffi.dll,\data\app.so,\{#AppExe}"; Flags: recursesubdirs createallsubdirs ignoreversion
 ; Last, in this order (see the top): the wallet core and the Dart code together, then the exe.
 Source: "{#SourceDir}\lepic_ffi.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceDir}\data\app.so"; DestDir: "{app}\data"; Flags: ignoreversion
-Source: "{#SourceDir}\epic_wallet.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourceDir}\{#AppExe}"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 ; One shortcut per place; the runner's --impeller and --skia flags stay for a hand-made one.
 ; Both on by default, each behind a box on the welcome page's Options sheet (no [Tasks]: Inno fills
 ; its tasks list only when the Tasks page shows, and that page is not part of this wizard).
-Name: "{userprograms}\Epic Cash Desktop"; Filename: "{app}\epic_wallet.exe"; IconFilename: "{app}\epic_wallet.exe"; WorkingDir: "{app}"; Check: WantStartMenu
-Name: "{userdesktop}\Epic Cash Desktop"; Filename: "{app}\epic_wallet.exe"; IconFilename: "{app}\epic_wallet.exe"; WorkingDir: "{app}"; Check: WantDesktop
+Name: "{userprograms}\{#AppTitle}"; Filename: "{app}\{#AppExe}"; IconFilename: "{app}\{#AppExe}"; WorkingDir: "{app}"; Check: WantStartMenu
+Name: "{userdesktop}\{#AppTitle}"; Filename: "{app}\{#AppExe}"; IconFilename: "{app}\{#AppExe}"; WorkingDir: "{app}"; Check: WantDesktop
 
 [InstallDelete]
+; The old exe and the "Epic Cash Desktop" shortcuts of 26.10.24 and older go only once every new
+; file is in (CurStepChanged, ssPostInstall): a Setup stopped part way leaves the old app openable.
 ; The 0.1.0 shortcuts, named by version and renderer. Only these exact files.
 Type: files; Name: "{userprograms}\Epic Wallet 0.1.lnk"
 Type: files; Name: "{userprograms}\Epic Wallet 0.1 (Skia).lnk"
 Type: files; Name: "{userprograms}\Epic Wallet 0.1 (Impeller).lnk"
 Type: files; Name: "{userdesktop}\Epic Wallet 0.1.lnk"
-; An upgrade from 0.1.0 drops the old-named shortcuts; the new ones are "Epic Cash Desktop".
+; An upgrade from 0.1.0 drops the old-named shortcuts; the new ones are "BT Wallet".
 Type: files; Name: "{userprograms}\Epic Wallet.lnk"
 Type: files; Name: "{userdesktop}\Epic Wallet.lnk"
 
@@ -145,22 +156,25 @@ Root: HKCU; Subkey: "Software\BT Labs\Epic Cash Desktop"; Flags: uninsdeletekey
 ; uninstall removes the whole key.
 Root: HKCU; Subkey: "Software\Classes\epiccash"; ValueType: string; ValueName: ""; ValueData: "URL:Epic Cash link"; Flags: uninsdeletekey
 Root: HKCU; Subkey: "Software\Classes\epiccash"; ValueType: string; ValueName: "URL Protocol"; ValueData: ""
-Root: HKCU; Subkey: "Software\Classes\epiccash\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: """{app}\epic_wallet.exe"",0"
-Root: HKCU; Subkey: "Software\Classes\epiccash\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\epic_wallet.exe"" ""%1"""
+Root: HKCU; Subkey: "Software\Classes\epiccash\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: """{app}\{#AppExe}"",0"
+Root: HKCU; Subkey: "Software\Classes\epiccash\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#AppExe}"" ""%1"""
 
 [Run]
-; "Open Epic Cash Desktop" on the finish page (the stock Finish button, renamed). The "Close" link
+; "Open BT Wallet" on the finish page (the stock Finish button, renamed). The "Close" link
 ; unchecks this entry first. Never in a silent install.
-Filename: "{app}\epic_wallet.exe"; WorkingDir: "{app}"; Description: "Open Epic Cash Desktop"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#AppExe}"; WorkingDir: "{app}"; Description: "Open {#AppTitle}"; Flags: nowait postinstall skipifsilent
 ; The app's "Restart to update" (lib\src\desktop\data\desk_update.dart) runs Setup with
-; /SILENT /UPDATEFROMAPP=1 and quits: the app opens again once the files are in.
-Filename: "{app}\epic_wallet.exe"; WorkingDir: "{app}"; Flags: nowait; Check: FromApp
+; /SILENT /UPDATEFROMAPP=1 and quits: the app opens again once the files are in. 26.10.24's app
+; starts Setup the same way, so it opens as btwallet.exe.
+Filename: "{app}\{#AppExe}"; WorkingDir: "{app}"; Flags: nowait; Check: FromApp
 
 [Code]
 const
   UninstKey = 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{8810835E-6EE5-4989-AE20-C0D60E23800E}_is1';
   { The app reads it (deskSetupMarkName in lib\src\desktop\data\desk_update_apply.dart). }
   MarkFile = 'update-in-progress';
+  { The shortcuts' name in 26.10.24 and older. }
+  OldLinkName = 'Epic Cash Desktop.lnk';
   FontFile = 'Montserrat-SemiBold.ttf';
   FR_PRIVATE = $10;
   BM_CLICK = $F5;
@@ -217,7 +231,9 @@ begin
   Result := (DeskChk = nil) or DeskChk.Checked;
 end;
 
-{ The 0.1.0 installer had a "desktopicon" task; Inno recorded the choice in the uninstall key. }
+{ The 0.1.0 installer had a "desktopicon" task; Inno recorded the choice in the uninstall key.
+  Later ones record nothing: an update keeps a desktop shortcut when there is one, under the old
+  name or this one. }
 function PreviousDesktopChoice: Boolean;
 var
   S: String;
@@ -226,7 +242,71 @@ begin
   if IsUpdate and RegQueryStringValue(HKCU, UninstKey, 'Inno Setup: Selected Tasks', S) then
     Result := Pos('desktopicon', S) > 0
   else if IsUpdate and RegQueryStringValue(HKCU, UninstKey, 'Inno Setup: Deselected Tasks', S) then
-    Result := Pos('desktopicon', S) = 0;
+    Result := Pos('desktopicon', S) = 0
+  else if IsUpdate then
+    Result := FileExists(ExpandConstant('{userdesktop}\' + OldLinkName)) or
+      FileExists(ExpandConstant('{userdesktop}\{#AppTitle}.lnk'));
+end;
+
+{ Taskbar pins of the old exe (copies of a shortcut, in the user's pinned folders) point to
+  btwallet.exe after the update, so a pin keeps opening the app. }
+procedure RepointPins;
+var
+  Dirs: array of String;
+  Shell, Lnk: Variant;
+  Rec: TFindRec;
+  OldExe, NewExe: String;
+  I: Integer;
+begin
+  OldExe := ExpandConstant('{app}\{#OldAppExe}');
+  NewExe := ExpandConstant('{app}\{#AppExe}');
+  Dirs := [ExpandConstant('{userappdata}\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar'),
+           ExpandConstant('{userappdata}\Microsoft\Internet Explorer\Quick Launch\User Pinned\StartMenu')];
+  for I := 0 to GetArrayLength(Dirs) - 1 do begin
+    if FindFirst(Dirs[I] + '\*.lnk', Rec) then begin
+      try
+        repeat
+          try
+            if VarIsEmpty(Shell) then
+              Shell := CreateOleObject('WScript.Shell');
+            Lnk := Shell.CreateShortcut(Dirs[I] + '\' + Rec.Name);
+            if CompareText(Lnk.TargetPath, OldExe) = 0 then begin
+              Lnk.TargetPath := NewExe;
+              Lnk.IconLocation := NewExe + ',0';
+              Lnk.WorkingDirectory := ExpandConstant('{app}');
+              Lnk.Save;
+              Log('Pin now opens ' + NewExe + ': ' + Rec.Name);
+            end;
+          except
+            Log('Pin not checked: ' + Rec.Name + ': ' + GetExceptionMessage);
+          end;
+        until not FindNext(Rec);
+      finally
+        FindClose(Rec);
+      end;
+    end;
+  end;
+end;
+
+{ After every new file is in: the old exe and the old-named shortcuts go (see [InstallDelete]). }
+procedure RemoveOldName;
+var
+  F: String;
+  I: Integer;
+  Old: array of String;
+begin
+  RepointPins;
+  Old := [ExpandConstant('{app}\{#OldAppExe}'), ExpandConstant('{userprograms}\' + OldLinkName),
+          ExpandConstant('{userdesktop}\' + OldLinkName)];
+  for I := 0 to GetArrayLength(Old) - 1 do begin
+    F := Old[I];
+    if FileExists(F) then begin
+      if DeleteFile(F) then
+        Log('Removed the old name: ' + F)
+      else
+        Log('The old name could not be removed: ' + F);
+    end;
+  end;
 end;
 
 { /TASKS="startmenu,desktopicon" (the 0.1.0 task names) still picks the shortcuts, so a silent
@@ -368,7 +448,7 @@ var
   D: String;
 begin
   D := FolderEdit.Text;
-  if BrowseForFolder('Folder for Epic Cash Desktop', D, True) then
+  if BrowseForFolder('Folder for {#AppTitle}', D, True) then
     FolderEdit.Text := D;
 end;
 
@@ -439,7 +519,7 @@ begin
   Dir := WizardForm.DirEdit.Text;
 
   WelIcon := Png(P, 'icon.png', 40, 44, 56, 56);
-  WelHead := Lbl(P, 40, 110, 'Epic Cash Desktop', HeadFont, 21, ColText);
+  WelHead := Lbl(P, 40, 110, '{#AppTitle}', HeadFont, 21, ColText);
   if IsUpdate then begin
     WelSubGold := Lbl(P, 40, 152, 'Update to {#AppVersion}', '', 10, ColGold);
     WelSubGold.Font.Style := [fsBold];
@@ -551,7 +631,7 @@ begin
     FinHead := Lbl(P, 40, 110, 'Updated', HeadFont, 21, ColText)
   else
     FinHead := Lbl(P, 40, 110, 'Installed', HeadFont, 21, ColText);
-  FinSub := Lbl(P, 40, 152, 'Epic Cash Desktop {#AppVersion} is ready.', '', 10, ColDim);
+  FinSub := Lbl(P, 40, 152, '{#AppTitle} {#AppVersion} is ready.', '', 10, ColDim);
   FinBody := Lbl(P, 40, 186, '', '', 10, ColDim);
 end;
 
@@ -588,6 +668,7 @@ end;
 procedure DeinitializeSetup;
 var
   Code: Integer;
+  Exe: String;
 begin
   { Started by the app, which quit for it: if the files did not go in (Setup failed, or the
     progress was cancelled), open the app that is still there rather than leave nothing. If
@@ -595,7 +676,11 @@ begin
   if FromApp and not InstallDone then begin
     Log('Started by the app and not installed; opening the app again');
     try
-      if not Exec(ExpandConstant('{app}\epic_wallet.exe'), '', ExpandConstant('{app}'), SW_SHOWNORMAL, ewNoWait, Code) then
+      { 26.10.24 and older left only the old exe; the new one is in once its file is. }
+      Exe := ExpandConstant('{app}\{#AppExe}');
+      if not FileExists(Exe) then
+        Exe := ExpandConstant('{app}\{#OldAppExe}');
+      if not Exec(Exe, '', ExpandConstant('{app}'), SW_SHOWNORMAL, ewNoWait, Code) then
         Log('The app did not open: code ' + IntToStr(Code));
     except
       Log('The app did not open: ' + GetExceptionMessage);
@@ -688,8 +773,8 @@ begin
         FinBody.Caption := 'Shortcuts: ' + S + '.';
       WizardForm.RunList.Visible := False;
       WizardForm.CancelButton.Visible := False;
-      WizardForm.NextButton.Caption := 'Open Epic Cash Desktop';
-      W := WizardForm.CalculateButtonWidth(['Open Epic Cash Desktop']) + ScaleX(24);
+      WizardForm.NextButton.Caption := 'Open {#AppTitle}';
+      W := WizardForm.CalculateButtonWidth(['Open {#AppTitle}']) + ScaleX(24);
       WizardForm.NextButton.Left := WizardForm.NextButton.Left + WizardForm.NextButton.Width - W;
       WizardForm.NextButton.Width := W;
     end;
@@ -720,6 +805,7 @@ begin
   { The files are in: the mark goes, and the [Run] entry opens the app. }
   if CurStep = ssPostInstall then begin
     InstallDone := True;
+    RemoveOldName;
     if DeleteFile(Mark) then
       Log('Install complete; the in-progress mark is removed')
     else if FileExists(Mark) then

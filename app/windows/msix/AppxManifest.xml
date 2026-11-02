@@ -36,7 +36,7 @@
   </Resources>
 
   <Applications>
-    <Application Id="EpicCashDesktop" Executable="epic_wallet.exe" EntryPoint="Windows.FullTrustApplication">
+    <Application Id="EpicCashDesktop" Executable="btwallet.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
         DisplayName="Epic Cash Desktop"
         Description="Epic Cash wallet for the desktop"
@@ -46,7 +46,7 @@
       <Extensions>
         <!-- epic-cash-desktop.exe on PATH (%LOCALAPPDATA%\Microsoft\WindowsApps): starts the app with its
              package identity, from a terminal or a script. -->
-        <uap3:Extension Category="windows.appExecutionAlias" Executable="epic_wallet.exe" EntryPoint="Windows.FullTrustApplication">
+        <uap3:Extension Category="windows.appExecutionAlias" Executable="btwallet.exe" EntryPoint="Windows.FullTrustApplication">
           <uap3:AppExecutionAlias>
             <desktop:ExecutionAlias Alias="epic-cash-desktop.exe" />
           </uap3:AppExecutionAlias>

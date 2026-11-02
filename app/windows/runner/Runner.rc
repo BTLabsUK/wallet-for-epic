@@ -90,14 +90,14 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "BT Labs" "\0"
-            VALUE "FileDescription", "Epic Cash Desktop" "\0"
+            VALUE "FileDescription", "BT Wallet" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "epic_wallet" "\0"
+            VALUE "InternalName", "btwallet" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 BT Labs. All rights reserved." "\0"
-            VALUE "OriginalFilename", "epic_wallet.exe" "\0"
+            VALUE "OriginalFilename", "btwallet.exe" "\0"
             // The data folder is %USERPROFILE%\.epic_cash_desktop (lib/src/data_folder_io.dart),
             // whatever CompanyName and ProductName say.
-            VALUE "ProductName", "Epic Cash Desktop" "\0"
+            VALUE "ProductName", "BT Wallet" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

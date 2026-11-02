@@ -5,12 +5,12 @@ import 'app_version.dart' show coreVersion, withCoreVersion;
 /// `appTitle` in l10n, the same name). "Epic Cash" alone is the coin and its network. The
 /// window title the runners set before the first frame spells it too:
 /// `windows/runner/main.cpp`, `linux/runner/my_application.cc`. The Windows version resource
-/// (`windows/runner/Runner.rc`), the installer (`windows/installer/epic_wallet.iss`), the MSIX
-/// manifest keep "Epic Cash Desktop" until the owner decides on them: the installer, the Store
-/// listing and the update checks read them. On macOS the app is "BT Wallet.app"
+/// (`windows/runner/Runner.rc`) and the installer (`windows/installer/epic_wallet.iss`) say BT
+/// Wallet too, and the exe is `btwallet.exe` (the owner, 2026-11-02); the MSIX manifest keeps "Epic
+/// Cash Desktop", the Store listing's name. On macOS the app is "BT Wallet.app"
 /// (`uk.btlabs.btwallet.macos`); 26.10.24 shipped "Epic Cash Desktop.app". The ids are
 /// `uk.btlabs.epiccash.desktop` and `uk.btlabs.epiccash.mobile`; the Inno AppId and install
-/// folder, the secure-storage prefix and the binary names keep the old name on purpose
+/// folder, the secure-storage prefix and the Linux binary name keep the old name on purpose
 /// (`README.md`, "App ids and data folders").
 const String appName = 'BT Wallet';
 
