@@ -638,18 +638,14 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     ];
   }
 
-  /// Network & privacy: the network mode, the one Tor switch, then the servers (the status
-  /// card from Home, its rows opening the pickers), the status site and Node failover.
+  /// Network & privacy: the network mode (Tor only is the one whole-wallet Tor control), then
+  /// the servers (the status card from Home, its rows opening the pickers), the status site
+  /// and Node failover.
   List<Widget> _privacyNetwork(AppLocalizations l) {
     final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     final walletOpen = ref.watch(sessionProvider) != null;
     final torAvailable = ref.watch(phoneTorProvider.select(torShown));
     final torState = phoneTorState(ref.watch(phoneTorProvider));
-    // The switch left on without a tor bundle blocks the wallet (fail closed): it stays in
-    // view so it can be turned off.
-    final torBlocking = ref.watch(
-      phoneTorProvider.select((t) => t.phase == PhoneTorPhase.unavailable && phoneTorState(t) == TorState.failed),
-    );
     final config = ref.watch(walletConfigProvider);
     final network = ref.watch(networkChoiceProvider).value;
     final demo = ref.watch(demoModeProvider);
@@ -660,7 +656,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     final networkShown = ref.watch(levelFeaturesProvider).serverSettings;
     final adv = s.advanced;
     // One page for how the wallet reaches the network (B-03), in the desktop's order: the
-    // mode, the one Tor switch, then the servers (Node and Epicbox with their host and
+    // mode, then the servers (Node and Epicbox with their host and
     // health, each opening its picker; with no wallet open, plain rows open the same
     // pickers), the status site and Node failover.
     return [
@@ -669,12 +665,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           headerKey: _networkKey,
           tourId: (rows) => PhoneTourTarget(id: 'tour-privacy-modes', child: rows),
         ),
-      // The one Tor switch (phoneTorProvider): Send, Receive and the status card read its
-      // state; it moves nothing the user chose.
-      if (walletOpen && (torAvailable || torBlocking)) ...[
-        SettingsHeader(l.netStatusTor, key: settingsPrivacyKey),
-        const PhoneTourTarget(id: 'tour-privacy-tor', child: TorSwitchTile()),
-      ],
       SettingsHeader(l.netPageServers, key: settingsServersKey),
       if (walletOpen)
         const PhoneTourTarget(

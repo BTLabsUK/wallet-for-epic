@@ -610,7 +610,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
                       EButton(
                         label: l.settingsSectionNetworkPrivacy,
                         size: EBtnSize.inline,
-                        onPressed: () => ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.tor),
+                        onPressed: () => ref.read(settingsPrefsProvider.notifier).jumpTo(SettingsJump.network),
                       ),
                     ],
                   )

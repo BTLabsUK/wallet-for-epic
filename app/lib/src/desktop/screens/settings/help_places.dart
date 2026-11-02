@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Where a place in Help goes on the desktop: `Settings › Network & privacy › Tor` is that page with
-/// the Tor switch flashed. [deskHelpPlace] is pure, so a test can hold every link in Help to a
+/// Where a place in Help goes on the desktop: `Settings › Network & privacy › Tor only` is that
+/// page with Connection mode flashed. [deskHelpPlace] is pure, so a test can hold every link in Help to a
 /// page that exists.
 library;
 
@@ -43,9 +43,9 @@ final Map<String, DeskHelpPlace> _places = {
   'Settings › Payments › Confirmations': _page(DeskRoute.settingsReceiving, jump: SettingsJump.confirmations),
   'Settings › Invoices': _page(DeskRoute.settingsInvoices),
   'Settings › Linked devices': _page(DeskRoute.settingsDevices),
-  // Network & privacy (B-03): the mode, Tor and the status site on one page.
+  // Network & privacy (B-03): the mode and the status site on one page.
   'Settings › Network & privacy': _page(DeskRoute.settingsPrivacy, jump: SettingsJump.network),
-  'Settings › Network & privacy › Tor': _page(DeskRoute.settingsPrivacy, jump: SettingsJump.tor),
+  'Settings › Network & privacy › Tor only': _page(DeskRoute.settingsPrivacy, jump: SettingsJump.network),
   'Settings › Wallets': _page(DeskRoute.settingsWallets),
   'Settings › Advanced': _page(DeskRoute.settingsAdvanced),
   'Settings › Files & logs': _page(DeskRoute.settingsFiles),

@@ -23,7 +23,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
   final secret = phone ? 'swój PIN lub hasło' : 'hasło portfela';
   final nodePlace = phone ? '[[Ustawienia › Sieć i prywatność › Węzeł|Settings › Network & privacy › Node]]' : '[[Ustawienia › Węzeł|Settings › Node]]';
   final epicboxPlace = phone ? '[[Ustawienia › Sieć i prywatność › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[Ustawienia › Płatności › Epicbox|Settings › Payments › Epicbox]]';
-  final torPlace = phone ? '[[Ustawienia › Sieć i prywatność › Sieć Tor|Settings › Network & privacy › Tor network]]' : '[[Ustawienia › Sieć i prywatność › Tor|Settings › Network & privacy › Tor]]';
+  final torPlace = phone ? '[[Ustawienia › Sieć i prywatność › Tylko Tor|Settings › Network & privacy › Tor only]]' : '[[Ustawienia › Sieć i prywatność › Tylko Tor|Settings › Network & privacy › Tor only]]';
   final netPlace = '[[Ustawienia › Sieć i prywatność|Settings › Network & privacy]]';
   final cancelPlace = phone
       ? '[[Aktywność|Activity]] (otwórz płatność, potem „Anuluj płatność”)'
@@ -315,15 +315,14 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       HelpTopic(
         'network',
         'Tor',
-        'Jeden przełącznik kieruje połączenia portfela przez Tor i daje mu adres .onion. Wolniej, bardziej prywatnie. Domyślnie wyłączony.',
+        'Tryb sieci Tylko Tor kieruje połączenia portfela przez Tor i daje mu adres .onion. Wolniej, bardziej prywatnie. Domyślnie wyłączony.',
         [
-          HelpBlock.p('Tor ukrywa adres IP portfela przed serwerami, z którymi się łączy. Gdy przełącznik w $torPlace jest włączony, połączenie z Epicbox idzie przez Tor, płatność na adres .onion idzie przez Tor, a portfel ma własny adres Tor (kończy się na .onion), na który inne portfele mogą płacić bezpośrednio.'),
+          HelpBlock.p('Tor ukrywa adres IP portfela przed serwerami, z którymi się łączy. W trybie $torPlace połączenie z Epicbox idzie przez Tor, płatność na adres .onion idzie przez Tor, a portfel ma własny adres Tor (kończy się na .onion), na który inne portfele mogą płacić bezpośrednio.'),
           const HelpBlock.ul([
             'Węzeł, serwer Epicbox i adresy pozostają te same.',
             'Płatność Link na adres onion idzie przez Tor; Wyślij pokazuje, czy płatność idzie przez Tor.',
             'Wolniej niż bez Tora. W niektórych krajach Tor jest blokowany; tam się nie połączy.',
             'Odbieranie na adres .onion działa, gdy aplikacja jest otwarta; Epicbox działa obok.',
-            'W trybie sieci Tylko Tor przełącznik zostaje włączony i nie da się go wyłączyć.',
           ]),
           const HelpBlock.p('**Uruchamianie…** oznacza, że Tor się łączy; objęte nim połączenia czekają i nigdy nie idą inną drogą. **Brak połączenia** oznacza niepowodzenie: Ponów lub wyłącz Tor. Niektóre portfele pokazują adres Tor bez .onion; to ten sam adres.'),
         ],
@@ -333,16 +332,15 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       const HelpTopic(
         'network',
         'Tor',
-        'Wolniej i bardziej prywatnie: jeden przełącznik kieruje połączenia portfela przez Tor, bez otwierania portów. Domyślnie wyłączony.',
+        'Wolniej i bardziej prywatnie: tryb sieci Tylko Tor kieruje połączenia portfela przez Tor, bez otwierania portów. Domyślnie wyłączony.',
         [
           HelpBlock.p('Z włączonym Torem połączenie z serwerem Epicbox idzie przez Tor, a portfel ma adres Tor (kończy się na .onion), na który inne portfele mogą płacić bezpośrednio, z dowolnego miejsca, bez przekierowywania czegokolwiek na routerze. Włączenie Tora nie zmienia adresów, które udostępniasz.'),
           HelpBlock.ul([
-            'Włącz go w [[Ustawienia › Sieć i prywatność › Tor|Settings › Network & privacy › Tor]]. Wiersz Tor na pasku bocznym pokazuje jego stan.',
+            'Włącz go w [[Ustawienia › Sieć i prywatność › Tylko Tor|Settings › Network & privacy › Tor only]]. Wiersz Tor na pasku bocznym pokazuje jego stan.',
             'Gdy Tor się uruchamia lub nie jest połączony, to, co idzie przez Tor, czeka; nic nie idzie obok. Ponów lub wyłącz Tor.',
             'Link · HTTP na adres http(s) nie idzie przez Tor; Wyślij o tym informuje.',
             'Odbieranie przez Link · HTTP jest wyłączone, gdy Tor jest włączony: płatności prosto z innego portfela docierają na adres Link · Tor.',
             'W niektórych krajach Tor jest blokowany lub niedozwolony; tam się nie połączy.',
-            'W trybie sieci Tylko Tor przełącznik zostaje włączony i nie da się go wyłączyć.',
           ]),
           HelpBlock.p('Niektóre portfele pokazują adres bez .onion; to ten sam adres.'),
         ],
@@ -358,7 +356,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
         HelpBlock.p('To, ile internetu używa portfel, to jeden wybór w $netPlace, a portfel go zapamiętuje. Poza trybem **Normalny** oznaczenie ${phone ? 'na ekranie głównym' : 'na pasku tytułu'} podaje tryb; dotknij go, by go zmienić.'),
         HelpBlock.ul([
           tor
-              ? '**Normalny**: wszystko, do czego portfel jest skonfigurowany: węzeł, Epicbox, Link, strona statusu, kurs i sprawdzanie aktualizacji. Tor to osobny przełącznik w $torPlace.'
+              ? '**Normalny**: wszystko, do czego portfel jest skonfigurowany: węzeł, Epicbox, Link, strona statusu, kurs i sprawdzanie aktualizacji.'
               : '**Normalny**: wszystko, do czego portfel jest skonfigurowany: węzeł, Epicbox, Link, strona statusu, kurs i sprawdzanie aktualizacji.',
           if (tor)
             '**Tylko Tor**: każde połączenie idzie przez Tor, także z węzłem i Epicbox; nic nie dotyka otwartego internetu. Dopóki Tor nie jest gotowy, nic się nie łączy, a ikony statusu mówią **Oczekiwanie na Tor**. Odbieranie przez Link · HTTP zostaje wyłączone: zwykły adres ujawniłby to urządzenie.',

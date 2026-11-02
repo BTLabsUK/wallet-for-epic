@@ -189,7 +189,7 @@ List<RailItem> receivingRailItems(AppLocalizations l, ServiceStatus? st, DeskSet
           if (tor == TorState.on && st?.tor == ServiceHealth.slow) l.deskRailTorSlow(st?.torProblem ?? l.deskRailTorNoAddress),
         ],
         open: l.deskRailOpenNetworkPrivacy,
-        jump: SettingsJump.tor,
+        jump: SettingsJump.network,
       ),
     );
   }

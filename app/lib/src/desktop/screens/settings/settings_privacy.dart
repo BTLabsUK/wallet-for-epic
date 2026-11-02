@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../desk_l10n.dart';
-import '../../data/desk_errors.dart' show deskErrorText;
 import '../../../advanced.dart' show NetworkMode;
 import '../../../ui/network_mode_text.dart';
 import '../../data/net_mode_view.dart';
@@ -21,9 +20,9 @@ import '../../../settings_file/status_site.dart' show statusSiteConfigured, stat
 enum PrivacyDemo { torOn, torStarting, torFailed }
 
 /// Settings › Network & privacy (B-03): how the wallet reaches the network, on one page in the
-/// phone's order (Deeper and up). Connection mode, Tor for all connections (what it covers is
-/// `tor_routes.dart`'s; locked on in Tor only, off in Kill switch, with the line that says
-/// why), then Server status. Node failover is on the Node page.
+/// phone's order (Deeper and up). Connection mode (Tor only is the one whole-wallet Tor
+/// control; Link · Tor in Payments is Tor for payments alone), then Server status. Node
+/// failover is on the Node page.
 class SettingsPrivacyScreen extends ConsumerWidget {
   const SettingsPrivacyScreen({super.key, this.arg});
 
@@ -38,133 +37,7 @@ class SettingsPrivacyScreen extends ConsumerWidget {
         children: [
           // ESetGroup owns the gap between groups.
           const JumpSection(section: SettingsJump.network, child: NetworkModeGroup()),
-          if (DeskFeatures.tor) TorGroup(demo: arg is PrivacyDemo ? arg as PrivacyDemo : null),
           const PrivacyGroup(),
-        ],
-      ),
-    );
-  }
-}
-
-/// The Tor switch with its state line; Retry and Turn Tor off when it is not connected.
-class TorGroup extends ConsumerStatefulWidget {
-  const TorGroup({super.key, this.demo});
-
-  final PrivacyDemo? demo;
-
-  @override
-  ConsumerState<TorGroup> createState() => _TorGroupState();
-}
-
-class _TorGroupState extends ConsumerState<TorGroup> {
-  bool _busy = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // The tour turns Tor on for the shot; the next shot's prepare turns it off (resetSettingsDemo).
-    if (widget.demo != null) {
-      final n = ref.read(deskProvider.notifier);
-      Future.microtask(() => n.setTor(true));
-    }
-  }
-
-  /// The real status with the tour's starting and failed states laid over it.
-  ServiceStatus? _status(ServiceStatus? s) {
-    final d = widget.demo;
-    if (s == null || d == null || d == PrivacyDemo.torOn) return s;
-    final failed = d == PrivacyDemo.torFailed;
-    return ServiceStatus(
-      node: s.node,
-      nodeHealth: s.nodeHealth,
-      nodeHeight: s.nodeHeight,
-      epicbox: s.epicbox,
-      epicboxHealth: s.epicboxHealth,
-      httpListener: s.httpListener,
-      tor: failed ? ServiceHealth.down : ServiceHealth.checking,
-      torProgress: failed ? null : 45,
-      torProblem: failed ? 'Tor could not connect to the network' : null, // l10n-ok: demo status text
-      torIncluded: s.torIncluded,
-      syncProgress: s.syncProgress,
-      lastUpdate: s.lastUpdate,
-      notice: s.notice,
-    );
-  }
-
-  Future<void> _set(bool on) async {
-    final l = context.l10n;
-    setState(() => _busy = true);
-    try {
-      await ref.read(deskProvider.notifier).setTor(on);
-    } on Object catch (e) {
-      if (mounted) showEToast(context, on ? l.deskSetPrivTorOnFailed : l.deskSetPrivTorOffFailed, text: deskErrorText(e, l), tone: ETone.risk);
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final st = ref.watch(deskProvider);
-    final status = _status(st.status);
-    final included = status?.torIncluded ?? true;
-    final tor = netTorState(st.settings, status);
-    final line = torStateLine(l, tor, status, included: included);
-    // The mode above it on this page: Tor only keeps the switch on, Kill switch leaves it off;
-    // in Node only it is the user's and carries the node.
-    final mode = st.settings.advanced.networkMode;
-    final torOnly = mode == NetworkMode.torOnly;
-    final offline = mode == NetworkMode.killSwitch;
-    return JumpSection(
-      section: SettingsJump.tor,
-      child: ESetGroup(
-        title: l.deskSetPrivTor,
-        rows: [
-          ESetRow(
-            anchor: SetId.torAll,
-            title: l.deskSetPrivTorAll,
-            hint: torOnly ? '${torNetworkHint(l)}\n\n${l.torLockedTorOnly}' : torNetworkHint(l),
-            hintTitle: l.deskSetPrivTorAll,
-            hintIcon: EIcons.tor,
-            control: SizedBox(
-              width: 40.u,
-              height: 24.u,
-              child: _busy
-                  ? Center(child: Semantics(label: l.deskSetPrivSwitching, child: ESpinner(size: 18.u)))
-                  : ESwitch(
-                      key: const ValueKey('privacy-tor-switch'),
-                      value: (torOnly || st.settings.tor) && included && !offline,
-                      semanticLabel: l.deskSetPrivTorAll,
-                      onChanged: included && !torOnly && !offline ? _set : null,
-                    ),
-            ),
-            below: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (!offline) EStateLine(line, key: const ValueKey('privacy-tor-state')),
-                if (torOnly || offline) ...[
-                  SizedBox(height: Sp.x2),
-                  Text(
-                    torOnly ? l.torLockedTorOnly : l.netBlockKillSwitch,
-                    key: const ValueKey('privacy-mode-line'),
-                    style: context.ts.small,
-                  ),
-                ],
-                if (tor == TorState.failed && !offline) ...[
-                  SizedBox(height: Sp.x3),
-                  Wrap(
-                    spacing: Sp.x2,
-                    runSpacing: Sp.x2,
-                    children: [
-                      EButton(label: l.commonRetry, icon: EIcons.refresh, size: EBtnSize.inline, busy: _busy, onPressed: _busy ? null : () => _set(true)),
-                      if (!torOnly) EButton.ghost(label: l.deskSetPrivTurnOff, size: EBtnSize.inline, onPressed: _busy ? null : () => _set(false)),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
         ],
       ),
     );

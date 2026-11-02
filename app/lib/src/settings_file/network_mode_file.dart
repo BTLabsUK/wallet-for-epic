@@ -93,3 +93,37 @@ Future<void> importNetworkMode(SecretStore store, SettingsFileController file) a
     logWarn('settings', 'network mode not moved: ${e.runtimeType}');
   }
 }
+
+/// Set once the old "Tor for all connections" switch was mapped onto the mode ([foldTorSwitch]).
+const String torSwitchFoldedKey = 'app.torSwitchFolded';
+
+/// The old Tor switch (Network & privacy, gone in 26.10.26) on in Normal becomes Tor only, once,
+/// before anything connects: Tor only is the one whole-wallet Tor control. Desktop: the app-wide
+/// `desk.tor_switch`, else Wallet 1's `desk.autostart`; phone: Wallet 1's
+/// `phone.tor_receiving.<chain>.legacy`. Never throws; the marker follows the write.
+Future<void> foldTorSwitch(SecretStore store, SettingsFileController file) async {
+  try {
+    if (await store.read(torSwitchFoldedKey) != null) return;
+    Object? json(String? t) {
+      try {
+        return t == null ? null : jsonDecode(t);
+      } on FormatException {
+        return null;
+      }
+    }
+
+    final desk = json(await store.read('desk.tor_switch')) ?? json(await store.read('desk.autostart'));
+    var on = desk is Map && (desk['on'] == true || (desk['on'] == null && desk['tor'] == true));
+    for (final chain in const ['mainnet', 'floonet', 'usernet']) {
+      on = on || await store.read('phone.tor_receiving.$chain.legacy') == 'true';
+    }
+    if (torBuilt && on && networkModeIn(file.settings) == NetworkMode.standard) {
+      await saveNetworkMode(NetworkMode.torOnly, file.setAll);
+      if (networkModeIn(file.settings) != NetworkMode.torOnly) return;
+      logInfo('settings', 'tor switch was on: tor_only');
+    }
+    await store.write(torSwitchFoldedKey, jsonEncode({'at': DateTime.now().toUtc().toIso8601String()}));
+  } on Object catch (e) {
+    logWarn('settings', 'tor switch not mapped: ${e.runtimeType}');
+  }
+}

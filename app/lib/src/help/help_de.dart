@@ -23,7 +23,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
   final secret = phone ? 'Ihre PIN oder Passphrase' : 'das Wallet-Passwort';
   final nodePlace = phone ? '[[Einstellungen › Netzwerk & Datenschutz › Node|Settings › Network & privacy › Node]]' : '[[Einstellungen › Node|Settings › Node]]';
   final epicboxPlace = phone ? '[[Einstellungen › Netzwerk & Datenschutz › Epicbox|Settings › Network & privacy › Epicbox]]' : '[[Einstellungen › Zahlungen › Epicbox|Settings › Payments › Epicbox]]';
-  final torPlace = phone ? '[[Einstellungen › Netzwerk & Datenschutz › Tor-Netzwerk|Settings › Network & privacy › Tor network]]' : '[[Einstellungen › Netzwerk & Datenschutz › Tor|Settings › Network & privacy › Tor]]';
+  final torPlace = phone ? '[[Einstellungen › Netzwerk & Datenschutz › Nur Tor|Settings › Network & privacy › Tor only]]' : '[[Einstellungen › Netzwerk & Datenschutz › Nur Tor|Settings › Network & privacy › Tor only]]';
   final netPlace = '[[Einstellungen › Netzwerk & Datenschutz|Settings › Network & privacy]]';
   final cancelPlace = phone
       ? '[[Aktivität|Activity]] (die Zahlung öffnen, dann „Zahlung stornieren“)'
@@ -315,15 +315,14 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       HelpTopic(
         'network',
         'Tor',
-        'Ein Schalter leitet die Verbindungen der Wallet über Tor und gibt ihr eine .onion-Adresse. Langsamer, privater. Standardmäßig aus.',
+        'Der Netzwerkmodus „Nur Tor“ leitet die Verbindungen der Wallet über Tor und gibt ihr eine .onion-Adresse. Langsamer, privater. Standardmäßig aus.',
         [
-          HelpBlock.p('Tor verbirgt die IP-Adresse der Wallet vor den Servern, mit denen sie spricht. Ist der Schalter unter $torPlace an, läuft die Epicbox-Verbindung über Tor, eine Zahlung an eine .onion-Adresse läuft über Tor, und die Wallet hat eine eigene Tor-Adresse (sie endet auf .onion), an die andere Wallets direkt zahlen können.'),
+          HelpBlock.p('Tor verbirgt die IP-Adresse der Wallet vor den Servern, mit denen sie spricht. Mit $torPlace läuft die Epicbox-Verbindung über Tor, eine Zahlung an eine .onion-Adresse läuft über Tor, und die Wallet hat eine eigene Tor-Adresse (sie endet auf .onion), an die andere Wallets direkt zahlen können.'),
           const HelpBlock.ul([
             'Node, Epicbox-Server und Adressen bleiben dieselben.',
             'Eine Link-Zahlung an eine Onion-Adresse läuft über Tor; Senden zeigt, ob eine Zahlung über Tor läuft.',
             'Langsamer als ohne Tor. In manchen Ländern ist Tor blockiert; dort verbindet es sich nicht.',
             'Empfangen an der .onion-Adresse funktioniert, solange die App geöffnet ist; Epicbox arbeitet daneben weiter.',
-            'Mit dem Netzwerkmodus „Nur Tor“ bleibt der Schalter an und lässt sich nicht ausschalten.',
           ]),
           const HelpBlock.p('**Startet…** heißt, Tor verbindet sich; die abgedeckten Verbindungen warten und weichen nie aus. **Nicht verbunden** heißt, es ist fehlgeschlagen: Wiederholen oder Tor ausschalten. Manche Wallets zeigen eine Tor-Adresse ohne .onion; beides ist dieselbe Adresse.'),
         ],
@@ -333,16 +332,15 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       const HelpTopic(
         'network',
         'Tor',
-        'Langsamer und privater: Ein Schalter leitet die Verbindungen der Wallet über Tor, ohne Ports zu öffnen. Standardmäßig aus.',
+        'Langsamer und privater: Der Netzwerkmodus „Nur Tor“ leitet die Verbindungen der Wallet über Tor, ohne Ports zu öffnen. Standardmäßig aus.',
         [
           HelpBlock.p('Mit Tor läuft die Verbindung zum Epicbox-Server über Tor, und die Wallet hat eine Tor-Adresse (sie endet auf .onion), an die andere Wallets direkt zahlen können, von überall, ohne Weiterleitung am Router. Tor ändert die Adressen nicht, die Sie weitergeben.'),
           HelpBlock.ul([
-            'Schalten Sie es unter [[Einstellungen › Netzwerk & Datenschutz › Tor|Settings › Network & privacy › Tor]] ein. Die Tor-Zeile in der Seitenleiste zeigt den Zustand.',
+            'Schalten Sie es mit [[Einstellungen › Netzwerk & Datenschutz › Nur Tor|Settings › Network & privacy › Tor only]] ein. Die Tor-Zeile in der Seitenleiste zeigt den Zustand.',
             'Solange Tor startet oder nicht verbunden ist, wartet, was über Tor läuft; nichts geht daran vorbei. Wiederholen oder Tor ausschalten.',
             'Link · HTTP an eine http(s)-Adresse läuft nicht über Tor; Senden weist darauf hin.',
             'Link · HTTP-Empfang ist aus, solange Tor an ist: Zahlungen direkt von einer anderen Wallet kommen an der Link · Tor-Adresse an.',
             'In manchen Ländern ist Tor blockiert oder nicht erlaubt; dort verbindet es sich nicht.',
-            'Mit dem Netzwerkmodus „Nur Tor“ bleibt der Schalter an und lässt sich nicht ausschalten.',
           ]),
           HelpBlock.p('Manche Wallets zeigen die Adresse ohne .onion; beides ist dieselbe Adresse.'),
         ],
@@ -358,7 +356,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
         HelpBlock.p('Wie viel vom Internet die Wallet nutzt, ist eine einzige Wahl unter $netPlace, und die Wallet merkt sie sich. Außerhalb von **Normal** nennt eine Markierung ${phone ? 'auf dem Startbildschirm' : 'in der Titelleiste'} den Modus; tippen Sie darauf, um ihn zu ändern.'),
         HelpBlock.ul([
           tor
-              ? '**Normal**: alles, wofür die Wallet eingerichtet ist: der Node, Epicbox, Link, die Statusseite, der Kurs und die Update-Prüfung. Tor ist ein eigener Schalter unter $torPlace.'
+              ? '**Normal**: alles, wofür die Wallet eingerichtet ist: der Node, Epicbox, Link, die Statusseite, der Kurs und die Update-Prüfung.'
               : '**Normal**: alles, wofür die Wallet eingerichtet ist: der Node, Epicbox, Link, die Statusseite, der Kurs und die Update-Prüfung.',
           if (tor)
             '**Nur Tor**: Jede Verbindung läuft über Tor, auch die zum Node und zu Epicbox; nichts berührt das offene Internet. Bis Tor bereit ist, verbindet sich nichts, und die Statussymbole sagen **Warten auf Tor**. Der Link-·-HTTP-Empfang bleibt aus: Eine einfache Adresse würde dieses Gerät verraten.',

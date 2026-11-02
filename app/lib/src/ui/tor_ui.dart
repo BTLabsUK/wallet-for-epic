@@ -8,15 +8,13 @@ import 'package:flutter/material.dart';
 import 'status_icons.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../state_language.dart' show ShownState, torShownState;
+import '../state_language.dart' show torShownState;
 import 'status.dart' show StateDot, StatusDot, toneColor;
 import '../l10n.dart';
 import '../phone_tor.dart';
 import '../tor_phone.dart';
 import '../tor_routes.dart';
 import '../wallet_service.dart';
-import 'info_hint.dart';
-import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 import '../text_join.dart';
 
@@ -126,94 +124,6 @@ String torWord(AppLocalizations l, TorState state) => torShownState(state).word(
 
 /// The colour of [torWord]: its state's tone ([toneColor]).
 Color torWordColor(WalletTokens t, TorState state) => toneColor(t, torShownState(state).tone);
-
-/// Settings › Network & privacy's one Tor switch: the phone's per-wallet switch ([PhoneTor.setReceiving]).
-/// The row is the label "Tor network" with the explanation behind its info icon; its line
-/// shows only a state that needs saying: "Starting", or "Not connected" with Retry.
-/// No confirmation and no other change: Tor on routes, nothing the user chose moves.
-class TorSwitchTile extends ConsumerWidget {
-  const TorSwitchTile({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final t = context.tokens;
-    final theme = Theme.of(context);
-    final tor = ref.watch(phoneTorProvider);
-    final state = phoneTorState(tor);
-    final failed = state == TorState.failed;
-    final busy = tor.phase == PhoneTorPhase.unavailable;
-    // The network mode above it on the same page: Tor only locks the switch on, Kill switch
-    // (and Node only) leave it as it is, disabled; the line under it names the mode.
-    final mode = AdvancedOptions.of(context).networkMode;
-    final locked = mode != NetworkMode.standard;
-    final tile = HintSwitchTile(
-      key: torReceivingSwitchKey,
-      icon: torIcon,
-      title: l.torNetworkLabel,
-      hint: mode == NetworkMode.torOnly
-          ? '${l.torNetworkHint}\n\n${l.torLockedTorOnly}'
-          : l.torNetworkHint,
-      sheetTitle: l.torNetworkLabel,
-      sheetIcon: torIcon,
-      subtitle: switch (state) {
-        TorState.failed || TorState.starting => Semantics(
-          key: torStatusKey,
-          liveRegion: true,
-          container: true,
-          child: Text(
-            failed ? l.torWordNotConnected : ShownState.starting.word(l),
-            style: failed
-                ? theme.textTheme.bodyMedium?.copyWith(color: t.risk)
-                : null,
-          ),
-        ),
-        _ => null,
-      },
-      value: switch (mode) {
-        NetworkMode.torOnly => true,
-        NetworkMode.killSwitch => false,
-        NetworkMode.standard || NetworkMode.nodeOnly => tor.receiving,
-      },
-      // No tor bundle: the switch can still go off, which ends the blocked wait; never on.
-      onChanged: locked || (busy && !tor.receiving)
-          ? null
-          : (on) => ref.read(phoneTorProvider.notifier).setReceiving(on),
-    );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        tile,
-        if (locked)
-          Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(60, 0, 16, 8),
-            child: Text(
-              switch (mode) {
-                NetworkMode.torOnly => l.torLockedTorOnly,
-                NetworkMode.killSwitch => l.netBlockKillSwitch,
-                _ => l.netBlockNodeOnly,
-              },
-              key: torLockedLineKey,
-              style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
-            ),
-          ),
-        if (failed && !mode.restricted)
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: Padding(
-              padding: const EdgeInsetsDirectional.only(start: 60),
-              child: TextButton(
-                key: torRetryKey,
-                style: TextButton.styleFrom(minimumSize: const Size(48, 44)),
-                onPressed: () => ref.read(phoneTorProvider.notifier).retry(),
-                child: Text(l.commonRetry),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
 
 /// Receive's Link tab under the onion address: "Tor · Starting…" (or On, Not connected),
 /// why the address is not reachable yet when that is known, Retry after a failure, and a link
