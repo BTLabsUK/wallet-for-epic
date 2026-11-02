@@ -1,6 +1,6 @@
 # The releases page
 
-`build.py` renders the public releases page for Epic Cash Desktop and Epic Cash Mobile:
+`build.py` renders the public releases page for BT Wallet:
 a hero with the download for the browser's platform and the app itself (the desktop Overview
 and the phone's Home, dark and light, from the release screen catalog), one tile per platform,
 then the current release only, with one primary download per platform and the rest folded,
@@ -58,7 +58,7 @@ platform's primary download. A file no pattern knows still appears, under Other 
   same way.
 - The Android certificate fingerprint in `ANDROID_CERT_SHA256` is the release key's
   (`apksigner verify --print-certs`); change it only if the key changes.
-- App names are Epic Cash Desktop and Epic Cash Mobile. No store names, no tester group.
+- The app is called BT Wallet on every platform. No store names, no tester group.
 - The hero shows real screens, never a mock-up: after a release that changes the Overview or
   the phone's Home, refresh the four hero images from `/tmp/epic-build/screens/latest`
   (Pillow: WEBP quality 86 desktop as is, 84 phone resized to 640 wide).
