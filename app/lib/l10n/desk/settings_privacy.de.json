@@ -17,5 +17,8 @@
   "deskSetPrivUseStatus": "{site} nutzen",
   "deskSetPrivUseStatusHint": "Zeigt, welche Nodes und Epicbox-Server online sind, aus einer öffentlichen Liste auf status.btlabs.uk.",
   "deskSetPrivUndercoverLine": "Inkognito lässt Tor eingeschaltet.",
-  "deskSetPrivUndercoverChange": "Inkognito ändern"
+  "deskSetPrivUndercoverChange": "Inkognito ändern",
+  "deskSetPrivTorAll": "Tor für alle Verbindungen",
+  "deskSetPrivServerStatus": "Serverstatus",
+  "deskSetPrivMode": "Verbindungsmodus"
 }

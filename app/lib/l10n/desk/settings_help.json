@@ -127,10 +127,6 @@
   "@deskSetHelpSupportHead": {
     "description": "Section head at the top of Settings › Help, over the support and donation bars."
   },
-  "deskSetHelpTopicsHead": "Topics",
-  "@deskSetHelpTopicsHead": {
-    "description": "Section head of Settings › Help over the search and the help topics."
-  },
   "deskSetHelpSearchKeys": "Press / to search. Esc clears the search.",
   "@deskSetHelpSearchKeys": {
     "description": "Help under the Help page's search field: the / key moves to the search, the Esc key clears it. Keep / and Esc as keys."
@@ -155,5 +151,25 @@
         "type": "int"
       }
     }
+  },
+  "deskSetHelpReportButton": "Report…",
+  "@deskSetHelpReportButton": {
+    "description": "Help › Support: button that opens Report a problem."
+  },
+  "deskSetHelpSetupAgain": "Run setup again",
+  "@deskSetHelpSetupAgain": {
+    "description": "Help › Start again: row that opens Set up (node and receiving) again."
+  },
+  "deskSetHelpSetupHint": "Node and receiving, step by step.",
+  "@deskSetHelpSetupHint": {
+    "description": "Info text of Run setup again."
+  },
+  "deskSetHelpStartAgain": "Start again",
+  "@deskSetHelpStartAgain": {
+    "description": "Help: heading of the tour and setup rows."
+  },
+  "deskSetHelpTourStart": "Start tour",
+  "@deskSetHelpTourStart": {
+    "description": "Help › Start again: button that starts the tour."
   }
 }

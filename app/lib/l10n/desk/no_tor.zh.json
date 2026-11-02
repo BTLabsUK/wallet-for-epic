@@ -1,6 +1,6 @@
 {
   "deskNoTorSendDirectLine2": "http(s) 地址。对方钱包必须处于打开状态。",
-  "deskNoTorSetTxDirectHint": "通过网址（http://host:{port}）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效。会在“发送”中加入 链接 · HTTP，并在“接收”中加入它的地址。",
+  "deskNoTorSetTxDirectHint": "通过网址（http://host:{port}）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效。会在“发送”中加入 链接 · HTTP，并在“接收”中加入它的地址。所有钱包。",
   "deskNoTorTxDetailsFromBad": "请使用 Epicbox 或 http(s) 地址。",
   "deskNoTorTourAdvancedText": "输出和技术详情都在这里。需要什么就开启什么。"
 }

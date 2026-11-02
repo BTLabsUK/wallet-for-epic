@@ -16,5 +16,6 @@
   "deskSetLogsDetailed": "Ausführlich",
   "deskSetLogsFiles": "Protokolldateien",
   "deskSetLogsSize": "Aktuelle Größe {size} von {max}. Eine ältere Datei wird behalten.",
-  "deskSetLogsOpenFolder": "Protokollordner öffnen"
+  "deskSetLogsOpenFolder": "Protokollordner öffnen",
+  "deskSetFilesFolders": "Ordner"
 }

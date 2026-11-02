@@ -13,5 +13,6 @@
   "deskSetWalletsImport": "Импорт кошельков",
   "deskSetWalletsImportText": "Из старого Epic Wallet или из папки",
   "deskSetWalletsRestore": "Восстановить по фразе",
-  "deskSetWalletsRestoreText": "По фразе восстановления"
+  "deskSetWalletsRestoreText": "По фразе восстановления",
+  "deskSetWalletsOnComputer": "На этом компьютере"
 }

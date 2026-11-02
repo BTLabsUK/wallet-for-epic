@@ -1,7 +1,6 @@
 {
   "deskLvStartPreviewLabel": "Podgląd Przeglądu. Pokazuje więcej, im głębiej ustawisz pokrętło.",
   "deskLvStartPreviewCaption": "Twój Przegląd w tym widoku. Nic zapisanego się nie zmienia.",
-  "deskLvStartPreviewCaptionShort": "Twój Przegląd w tym widoku.",
   "deskLvStartCover": "Wybierz punkt, aby zobaczyć podgląd",
   "deskLvStartUndercoverAbout": "O Incognito",
   "deskLvStartChangeLater": "Zmienisz to w każdej chwili w Ustawienia › Zaawansowane.",
@@ -12,7 +11,5 @@
   "deskLvStartMiniWallet": "Główny portfel",
   "deskLvStartMiniLine": "+12,5000 nadchodzi · 25,0000 wstrzymane",
   "deskLvStartMiniFresh": "Świeże z kopania",
-  "deskLvStartMiniWaiting": "Czeka na drugą stronę",
-  "deskLvStartAdvNote": "Głębszy widok pokazuje więcej portfela. Nic zapisanego się nie zmienia.",
-  "deskLvStartAboutDepth": "Widok: {name}"
+  "deskLvStartMiniWaiting": "Czeka na drugą stronę"
 }

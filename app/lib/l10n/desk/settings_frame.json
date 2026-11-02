@@ -122,5 +122,34 @@
         "type": "String"
       }
     }
+  },
+  "deskSetFrameBack": "Wallet",
+  "@deskSetFrameBack": {
+    "description": "Settings column: the button at its top that goes back to the wallet pages. Narrow."
+  },
+  "deskSetFrameBackTip": "Back to the wallet (Esc)",
+  "@deskSetFrameBackTip": {
+    "description": "Tooltip of the Settings column’s back button. Esc is the key."
+  },
+  "deskSetFrameBackTo": "Back to {page}",
+  "@deskSetFrameBackTo": {
+    "description": "Tooltip of a sub-page’s back link, e.g. \"Back to Security\".",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetFrameEscKey": "Esc",
+  "@deskSetFrameEscKey": {
+    "description": "The Esc key as the keyboard shows it, in the Settings column’s foot."
+  },
+  "deskSetFrameEscHint": "back to the wallet",
+  "@deskSetFrameEscHint": {
+    "description": "After the Esc key in the Settings column’s foot: what Esc does. Lowercase."
+  },
+  "deskSetFrameExperiment": "Experiment",
+  "@deskSetFrameExperiment": {
+    "description": "Tag beside an experimental feature’s title (Linked devices, Invoices)."
   }
 }

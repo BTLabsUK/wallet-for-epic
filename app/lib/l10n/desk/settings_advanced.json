@@ -3,10 +3,6 @@
   "@deskSetFrameAdvanced": {
     "description": "Settings sidebar entry and page name of the Advanced section. Narrow (about 200 px)."
   },
-  "deskSetAdvIntro": "Each switch shows one more part of the wallet, where it belongs.",
-  "@deskSetAdvIntro": {
-    "description": "First line of Settings › Advanced."
-  },
   "deskSetAdvShows": "Shows more",
   "@deskSetAdvShows": {
     "description": "Title of the group of visibility switches on Settings › Advanced."
@@ -120,10 +116,6 @@
   "@deskSetAdvNodeFailoverHint": {
     "description": "Hover card of the Node failover switch on Settings › Advanced."
   },
-  "deskSetAdvBalance": "Balance",
-  "@deskSetAdvBalance": {
-    "description": "Title of the group on Settings › Advanced that holds the Confirmations row. One word."
-  },
   "deskSetAdvConfirmations": "Confirmations",
   "@deskSetAdvConfirmations": {
     "description": "Settings › Advanced row: how many confirmations a received output needs before it can be spent. 1 to 3 words."
@@ -185,5 +177,25 @@
   "deskSetAdvConfirmationsNotSaved": "Confirmations not changed",
   "@deskSetAdvConfirmationsNotSaved": {
     "description": "Title of the toast when the wallet refused the new Confirmations count; the reason follows. The row goes back to the previous count."
+  },
+  "deskSetAdvViewLineOne": "Sending, receiving and backups. The node and the Epicbox server are chosen automatically.",
+  "@deskSetAdvViewLineOne": {
+    "description": "Advanced › View: the Shallow view’s one line. Facts only."
+  },
+  "deskSetAdvViewLineTwo": "Adds payment methods, the node, network modes and more wallets.",
+  "@deskSetAdvViewLineTwo": {
+    "description": "Advanced › View: the Deeper view’s one line. Facts only."
+  },
+  "deskSetAdvViewLineThree": "Adds outputs, invoices, the local node and every Advanced switch.",
+  "@deskSetAdvViewLineThree": {
+    "description": "Advanced › View: the Deep end view’s one line. Facts only."
+  },
+  "deskSetAdvViewNote": "A view changes only which pages and switches show.",
+  "@deskSetAdvViewNote": {
+    "description": "Advanced › View: the line under the three views."
+  },
+  "deskSetAdvExperiments": "Experiments",
+  "@deskSetAdvExperiments": {
+    "description": "Advanced: heading of the experimental features (Invoices)."
   }
 }

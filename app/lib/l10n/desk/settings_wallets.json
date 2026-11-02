@@ -73,5 +73,9 @@
   "deskSetWalletsRestoreText": "From the recovery phrase",
   "@deskSetWalletsRestoreText": {
     "description": "Settings > All wallets: text of the Restore card."
+  },
+  "deskSetWalletsOnComputer": "On this computer",
+  "@deskSetWalletsOnComputer": {
+    "description": "Wallets page: heading of the list of wallets on this computer."
   }
 }

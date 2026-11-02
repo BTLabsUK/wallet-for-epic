@@ -19,5 +19,8 @@
   "deskNodeSwitchConnecting": "กำลังเชื่อมต่อ {host}…",
   "deskNodeSwitchStarting": "กำลังเริ่มโหนดในเครื่อง…",
   "deskNodeSwitchStopping": "กำลังหยุดโหนดในเครื่อง…",
-  "deskNodeSwitchStoppingWord": "กำลังหยุด"
+  "deskNodeSwitchStoppingWord": "กำลังหยุด",
+  "deskSetNodeConnection": "การเชื่อมต่อ",
+  "deskSetNodeFailover": "สลับโหนดอัตโนมัติ",
+  "deskSetNodeStatus": "สถานะ"
 }

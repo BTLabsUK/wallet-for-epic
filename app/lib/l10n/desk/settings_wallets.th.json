@@ -13,5 +13,6 @@
   "deskSetWalletsImport": "นำเข้ากระเป๋าเงิน",
   "deskSetWalletsImportText": "จาก Epic Wallet รุ่นเก่าหรือโฟลเดอร์",
   "deskSetWalletsRestore": "กู้คืนจากวลีกู้คืน",
-  "deskSetWalletsRestoreText": "จากวลีกู้คืน"
+  "deskSetWalletsRestoreText": "จากวลีกู้คืน",
+  "deskSetWalletsOnComputer": "ในคอมพิวเตอร์นี้"
 }

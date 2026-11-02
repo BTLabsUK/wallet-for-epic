@@ -98,5 +98,9 @@
   "deskSetLogsOpenFolder": "Open log folder",
   "@deskSetLogsOpenFolder": {
     "description": "Settings > Help > Logs: button that opens the log folder."
+  },
+  "deskSetFilesFolders": "Folders",
+  "@deskSetFilesFolders": {
+    "description": "Files & logs: heading of the wallet folder and app files rows."
   }
 }

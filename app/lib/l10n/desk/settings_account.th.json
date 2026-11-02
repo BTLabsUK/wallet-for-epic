@@ -8,14 +8,11 @@
   "deskSetAcctLabel": "ชื่อ",
   "deskSetAcctLabelHint": "แสดงในแอปนี้เท่านั้น",
   "deskSetAcctSaveLabel": "บันทึกชื่อ",
-  "deskSetAcctFiles": "ไฟล์",
   "deskSetAcctWalletFolder": "โฟลเดอร์กระเป๋าเงิน",
   "deskSetAcctAppFiles": "ไฟล์ของแอป",
   "deskSetAcctAppFilesHint": "การตั้งค่าและบันทึก",
   "deskSetAcctNetwork": "เครือข่าย",
   "deskSetAcctNetworkHint": "กำหนดตอนสร้างกระเป๋าเงิน",
-  "deskSetAcctSetup": "ผู้ช่วยตั้งค่า",
-  "deskSetAcctSetupHint": "ตั้งค่าโหนดและการรับเงินอีกครั้ง ไม่มีอะไรหาย",
   "deskSetAcctRunSetup": "เริ่มตั้งค่า…",
   "deskSetAcctSecurity": "ความปลอดภัย",
   "deskSetAcctRemembered": "จำไว้บนคอมพิวเตอร์นี้",
@@ -26,5 +23,8 @@
   "deskSetAcctDeleteHint": "ลบคีย์และฐานข้อมูล",
   "deskSetAcctFolderNotFound": "ไม่พบโฟลเดอร์",
   "deskSetAcctCopyPath": "คัดลอกพาธ: {title}",
-  "deskSetAcctAutoLockHint": "ล็อกกระเป๋าเมื่อไม่มีการกดแป้นหรือขยับเมาส์ตามเวลานี้ ถ้าเลือก “ไม่ล็อก” จะล็อกได้ด้วย “ล็อกกระเป๋า” เท่านั้น"
+  "deskSetAcctAutoLockHint": "ล็อกกระเป๋าเมื่อไม่มีการกดแป้นหรือขยับเมาส์ตามเวลานี้ ถ้าเลือก “ไม่ล็อก” จะล็อกได้ด้วย “ล็อกกระเป๋า” เท่านั้น ทุกกระเป๋า",
+  "deskSetAcctBackup": "สำรองข้อมูล",
+  "deskSetAcctBalance": "ยอดคงเหลือ",
+  "deskSetAcctRemove": "ลบ"
 }

@@ -113,42 +113,6 @@
   "@deskBarBuildCopied": {
     "description": "Toast after the build info was copied; the copied line shows under it."
   },
-  "deskBarBuildTip": "Version {version}, commit {commit}. Click copies the build info.",
-  "@deskBarBuildTip": {
-    "description": "Tooltip of the small build label under the brand in the title bar. {version} e.g. 26.10.16, {commit} a short git commit like 810de1e.",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      },
-      "commit": {
-        "type": "String"
-      }
-    }
-  },
-  "deskBarBuildTipRebuild": "Version {version}, rebuild {rebuild}, commit {commit}. Click copies the build info.",
-  "@deskBarBuildTipRebuild": {
-    "description": "As deskBarBuildTip, for a rebuild of the same version. {rebuild} is e.g. r2.",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      },
-      "rebuild": {
-        "type": "String"
-      },
-      "commit": {
-        "type": "String"
-      }
-    }
-  },
-  "deskBarBuildTipDev": "Version {version}. A development build. Click copies the build info.",
-  "@deskBarBuildTipDev": {
-    "description": "As deskBarBuildTip, for a development build without a commit.",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
   "deskBarKeyMenu": "Open the app menu",
   "@deskBarKeyMenu": {
     "description": "Keyboard-shortcuts row: F10 opens the app menu in the title bar."

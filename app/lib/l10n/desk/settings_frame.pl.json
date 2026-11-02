@@ -24,5 +24,11 @@
   "deskSetFrameDaysAgo": "{count, plural, one{{count} d temu} few{{count} d temu} many{{count} d temu} other{{count} d temu}}",
   "deskSetComboOpens": "Otwiera listę",
   "deskSetComboNoAnswer": "Jeszcze bez odpowiedzi",
-  "deskSetComboUse": "Użyj {host}"
+  "deskSetComboUse": "Użyj {host}",
+  "deskSetFrameBack": "Portfel",
+  "deskSetFrameBackTip": "Wróć do portfela (Esc)",
+  "deskSetFrameBackTo": "Wróć do: {page}",
+  "deskSetFrameEscKey": "Esc",
+  "deskSetFrameEscHint": "powrót do portfela",
+  "deskSetFrameExperiment": "Eksperyment"
 }

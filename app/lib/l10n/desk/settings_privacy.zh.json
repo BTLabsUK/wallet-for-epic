@@ -17,5 +17,8 @@
   "deskSetPrivUseStatus": "使用 {site}",
   "deskSetPrivUseStatusHint": "显示哪些节点和 Epicbox 服务器在线，数据来自 status.btlabs.uk 上的公开列表。",
   "deskSetPrivUndercoverLine": "隐身模式让 Tor 保持开启。",
-  "deskSetPrivUndercoverChange": "更改隐身设置"
+  "deskSetPrivUndercoverChange": "更改隐身设置",
+  "deskSetPrivTorAll": "所有连接都走 Tor",
+  "deskSetPrivServerStatus": "服务器状态",
+  "deskSetPrivMode": "连接模式"
 }

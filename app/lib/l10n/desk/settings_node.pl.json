@@ -19,5 +19,8 @@
   "deskNodeSwitchConnecting": "Łączenie z {host}…",
   "deskNodeSwitchStarting": "Uruchamianie węzła lokalnego…",
   "deskNodeSwitchStopping": "Zatrzymywanie węzła lokalnego…",
-  "deskNodeSwitchStoppingWord": "Zatrzymywanie"
+  "deskNodeSwitchStoppingWord": "Zatrzymywanie",
+  "deskSetNodeConnection": "Połączenie",
+  "deskSetNodeFailover": "Zmieniaj węzeł automatycznie",
+  "deskSetNodeStatus": "Stan"
 }

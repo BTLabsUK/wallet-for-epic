@@ -1,6 +1,5 @@
 {
   "deskSetFrameAdvanced": "Дополнительно",
-  "deskSetAdvIntro": "Каждый переключатель показывает ещё одну часть кошелька там, где ей место.",
   "deskSetAdvShows": "Показывает больше",
   "deskSetAdvOutputs": "Выходы",
   "deskSetAdvOutputsHint": "Показывает страницу «Выходы» в боковой панели. Она перечисляет монеты, из которых состоит баланс, позволяет разделять и объединять их и задаёт настройки по умолчанию для отправки. Пока идёт разделение или объединение, страница остаётся видимой.",
@@ -28,7 +27,6 @@
   "deskNetRecvWaitTorText": "Приём начнётся, когда Tor подключится. Передача файла по-прежнему работает.",
   "deskSetAdvNodeFailover": "Автопереключение узла",
   "deskSetAdvNodeFailoverHint": "Когда ваш узел перестаёт отвечать, кошелёк на время этого сеанса берёт следующий работающий узел из вашего списка.",
-  "deskSetAdvBalance": "Баланс",
   "deskSetAdvConfirmations": "Подтверждения",
   "deskSetAdvConfirmationsHint": "Сколько блоков полученный платёж ждёт, прежде чем его выходы можно тратить. По умолчанию {byDefault}; от {min} до {max}.",
   "deskSetAdvConfirmationsDefault": "По умолчанию",
@@ -37,5 +35,10 @@
   "deskSetAdvConfirmationsMore": "Больше подтверждений",
   "deskSetAdvConfirmationsCount": "{count, plural, one{{count} подтверждение} few{{count} подтверждения} many{{count} подтверждений} other{{count} подтверждения}}",
   "deskSetAdvConfirmationsLowNote": "Меньше подтверждений — быстрее, но менее надёжно.",
-  "deskSetAdvConfirmationsNotSaved": "Подтверждения не изменены"
+  "deskSetAdvConfirmationsNotSaved": "Подтверждения не изменены",
+  "deskSetAdvViewLineOne": "Отправка, получение и резервные копии. Узел и сервер Epicbox выбираются автоматически.",
+  "deskSetAdvViewLineTwo": "Добавляет способы оплаты, узел, режимы сети и другие кошельки.",
+  "deskSetAdvViewLineThree": "Добавляет выходы, счета, локальный узел и все переключатели раздела «Дополнительно».",
+  "deskSetAdvViewNote": "Вид меняет только то, какие страницы и переключатели показаны.",
+  "deskSetAdvExperiments": "Эксперименты"
 }

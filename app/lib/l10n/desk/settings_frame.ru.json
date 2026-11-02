@@ -24,5 +24,11 @@
   "deskSetFrameDaysAgo": "{count, plural, one{{count} дн. назад} few{{count} дн. назад} many{{count} дн. назад} other{{count} дн. назад}}",
   "deskSetComboOpens": "Открывает список",
   "deskSetComboNoAnswer": "Ответа пока нет",
-  "deskSetComboUse": "Использовать {host}"
+  "deskSetComboUse": "Использовать {host}",
+  "deskSetFrameBack": "Кошелёк",
+  "deskSetFrameBackTip": "Назад к кошельку (Esc)",
+  "deskSetFrameBackTo": "Назад: {page}",
+  "deskSetFrameEscKey": "Esc",
+  "deskSetFrameEscHint": "назад к кошельку",
+  "deskSetFrameExperiment": "Эксперимент"
 }

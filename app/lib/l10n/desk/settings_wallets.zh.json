@@ -13,5 +13,6 @@
   "deskSetWalletsImport": "导入钱包",
   "deskSetWalletsImportText": "从旧版 Epic Wallet 或文件夹导入",
   "deskSetWalletsRestore": "用助记词恢复",
-  "deskSetWalletsRestoreText": "使用助记词"
+  "deskSetWalletsRestoreText": "使用助记词",
+  "deskSetWalletsOnComputer": "此电脑上"
 }

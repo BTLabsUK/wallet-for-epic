@@ -25,10 +25,14 @@
   "deskSetHelpStep": "Krok {number} z {total}",
   "deskSetHelpSearch": "Szukaj w pomocy",
   "deskSetHelpSupportHead": "Wsparcie",
-  "deskSetHelpTopicsHead": "Tematy",
   "deskSetHelpSearchKeys": "Naciśnij /, aby szukać. Esc czyści wyszukiwanie.",
   "deskSetHelpSearchHint": "Na przykład: plik, potwierdzenia, fraza",
   "deskSetHelpClear": "Wyczyść wyszukiwanie",
   "deskSetHelpTourAgain": "Pokaż przewodnik ponownie",
-  "deskSetHelpTopics": "{count, plural, one{{count} temat} few{{count} tematy} many{{count} tematów} other{{count} tematu}}"
+  "deskSetHelpTopics": "{count, plural, one{{count} temat} few{{count} tematy} many{{count} tematów} other{{count} tematu}}",
+  "deskSetHelpReportButton": "Zgłoś…",
+  "deskSetHelpSetupAgain": "Uruchom konfigurację ponownie",
+  "deskSetHelpSetupHint": "Węzeł i odbieranie, krok po kroku.",
+  "deskSetHelpStartAgain": "Od nowa",
+  "deskSetHelpTourStart": "Rozpocznij przewodnik"
 }

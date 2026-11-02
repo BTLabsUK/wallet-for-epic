@@ -10651,9 +10651,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetAcctSaveLabel => 'Сохранить название';
 
   @override
-  String get deskSetAcctFiles => 'Файлы';
-
-  @override
   String get deskSetAcctWalletFolder => 'Папка кошелька';
 
   @override
@@ -10667,13 +10664,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAcctNetworkHint => 'Задаётся при создании кошелька.';
-
-  @override
-  String get deskSetAcctSetup => 'Мастер настройки';
-
-  @override
-  String get deskSetAcctSetupHint =>
-      'Пройти настройку узла и приёма заново. Ничего не потеряется.';
 
   @override
   String get deskSetAcctRunSetup => 'Запустить…';
@@ -10758,9 +10748,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSetBackupWriteFailed =>
       'Не удалось записать файл. Выберите другую папку.';
-
-  @override
-  String get deskSetBackupGroup => 'Данные кошелька';
 
   @override
   String get deskSetBackupExportTitle => 'Экспорт данных кошелька';
@@ -13447,10 +13434,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetFrameAdvanced => 'Дополнительно';
 
   @override
-  String get deskSetAdvIntro =>
-      'Каждый переключатель показывает ещё одну часть кошелька там, где ей место.';
-
-  @override
   String get deskSetAdvShows => 'Показывает больше';
 
   @override
@@ -13530,7 +13513,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetAcctAutoLockHint =>
-      'Блокирует кошелёк, если столько времени не нажимали клавиши и не двигали мышь. При «Никогда» кошелёк блокируется только кнопкой «Заблокировать кошелёк».';
+      'Блокирует кошелёк, если столько времени не нажимали клавиши и не двигали мышь. При «Никогда» кошелёк блокируется только кнопкой «Заблокировать кошелёк». Все кошельки.';
 
   @override
   String get torUndercoverKeepsOn => 'Инкогнито держит Tor включённым.';
@@ -13930,30 +13913,27 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetFrameTransactions => 'Транзакции';
 
   @override
-  String get deskSetTxMethods => 'Способы оплаты';
+  String get deskSetTxMethods => 'Способы';
 
   @override
   String get deskSetTxEpicboxHint =>
-      'Платите и получайте платежи через сервер Epicbox. Так идёт большинство платежей. Выключен: кошелёк не подключается ни к одному серверу Epicbox, то есть без платежей Epicbox и счетов. Остальные способы по-прежнему работают.';
+      'Платите и получайте платежи через сервер Epicbox. Так идёт большинство платежей. Выключен: кошелёк не подключается ни к одному серверу Epicbox, то есть без платежей Epicbox и счетов. Остальные способы по-прежнему работают. Все кошельки.';
 
   @override
   String deskSetTxDirectHint(String port) {
-    return 'Платите и получайте платежи напрямую от кошелька к кошельку по веб-адресу (http://host:$port), без сервера посередине. Работает, только пока оба кошелька открыты; выключен, пока включён Tor. Добавляет Ссылка · HTTP в «Отправить», а его адрес — в «Получить».';
+    return 'Платите и получайте платежи напрямую от кошелька к кошельку по веб-адресу (http://host:$port), без сервера посередине. Работает, только пока оба кошелька открыты; выключен, пока включён Tor. Добавляет Ссылка · HTTP в «Отправить», а его адрес — в «Получить». Все кошельки.';
   }
 
   @override
   String get deskSetTxFileHint =>
-      'Платите и получайте платежи, передавая файл транзакции, сеть не нужна. Добавляет «Передачу файла» в «Отправить», а шаги с файлами — в «Получить».';
-
-  @override
-  String get deskSetTxSend => 'Отправка';
+      'Платите и получайте платежи, передавая файл транзакции, сеть не нужна. Добавляет «Передачу файла» в «Отправить», а шаги с файлами — в «Получить». Все кошельки.';
 
   @override
   String get deskSetTxStart => 'Способ по умолчанию';
 
   @override
   String get deskSetTxStartHint =>
-      'Способ, с которого открывается страница «Отправить». Для одного платежа его всё равно можно изменить на странице «Отправить».';
+      'Способ, с которого открывается страница «Отправить». Для одного платежа его всё равно можно изменить на странице «Отправить». Все кошельки.';
 
   @override
   String get deskSendMethodHeader => 'Способ оплаты';
@@ -16711,21 +16691,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskBarBuildCopied => 'Сведения о сборке скопированы';
 
   @override
-  String deskBarBuildTip(String version, String commit) {
-    return 'Версия $version, коммит $commit. Щелчок копирует сведения о сборке.';
-  }
-
-  @override
-  String deskBarBuildTipRebuild(String version, String rebuild, String commit) {
-    return 'Версия $version, пересборка $rebuild, коммит $commit. Щелчок копирует сведения о сборке.';
-  }
-
-  @override
-  String deskBarBuildTipDev(String version) {
-    return 'Версия $version. Сборка для разработки. Щелчок копирует сведения о сборке.';
-  }
-
-  @override
   String get deskBarKeyMenu => 'Открыть меню приложения';
 
   @override
@@ -17111,7 +17076,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskNoTorSetTxDirectHint(String port) {
-    return 'Платите и получайте платежи напрямую от кошелька к кошельку по веб-адресу (http://host:$port), без сервера посередине. Работает, только пока оба кошелька открыты. Добавляет Ссылка · HTTP в «Отправить», а его адрес — в «Получить».';
+    return 'Платите и получайте платежи напрямую от кошелька к кошельку по веб-адресу (http://host:$port), без сервера посередине. Работает, только пока оба кошелька открыты. Добавляет Ссылка · HTTP в «Отправить», а его адрес — в «Получить». Все кошельки.';
   }
 
   @override
@@ -17635,9 +17600,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get syncHelpNotChecked => 'Не проверен';
-
-  @override
-  String get deskSetAdvBalance => 'Баланс';
 
   @override
   String get deskSetAdvConfirmations => 'Подтверждения';
@@ -19152,9 +19114,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Ваш обзор в этом виде. Сохранённые данные не меняются.';
 
   @override
-  String get deskLvStartPreviewCaptionShort => 'Ваш обзор в этом виде.';
-
-  @override
   String get deskLvStartCover => 'Выберите положение, чтобы увидеть превью';
 
   @override
@@ -19191,15 +19150,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskLvStartMiniWaiting => 'Ожидание другой стороны';
-
-  @override
-  String get deskLvStartAdvNote =>
-      'Чем глубже вид, тем больше видно в кошельке. Сохранённые данные не меняются.';
-
-  @override
-  String deskLvStartAboutDepth(String name) {
-    return 'Вид: $name';
-  }
 
   @override
   String get deskLvSendHowTo => 'Как отправить';
@@ -19532,9 +19482,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetHelpSupportHead => 'Поддержка';
-
-  @override
-  String get deskSetHelpTopicsHead => 'Темы';
 
   @override
   String deskKitPasswordRule(int count) {
@@ -20006,14 +19953,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskRecvTorOffTextNet =>
       'Адрес Tor работает, пока включён Tor. Tor — переключатель в Настройки › Сеть и приватность; он направляет соединения кошелька через Tor.';
-
-  @override
-  String get deskSetTxTorHintNet =>
-      'Платите и получайте платежи напрямую от кошелька к кошельку по адресу onion, через Tor, без сервера посередине. Работает, только пока оба кошелька открыты. Нужен Tor: переключатель Tor в разделе «Сеть и приватность» направляет соединения кошелька через Tor; этот переключатель только включает адрес. Добавляет Ссылка · Tor в «Отправить», а его адрес — в «Получить».';
-
-  @override
-  String get deskSetTxTorNeedsTorNet =>
-      'Tor выключен. Включите его в разделе «Сеть и приватность», чтобы получать платежи на адрес Tor.';
 
   @override
   String get deskRailOpenNetworkPrivacy => 'Открыть «Сеть и приватность»';
@@ -20741,4 +20680,98 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetSynContact => 'email, support, contact, mail';
+
+  @override
+  String get deskSetAcctBackup => 'Резервная копия';
+
+  @override
+  String get deskSetAcctBalance => 'Баланс';
+
+  @override
+  String get deskSetAcctRemove => 'Удаление';
+
+  @override
+  String get deskSetAdvViewLineOne =>
+      'Отправка, получение и резервные копии. Узел и сервер Epicbox выбираются автоматически.';
+
+  @override
+  String get deskSetAdvViewLineTwo =>
+      'Добавляет способы оплаты, узел, режимы сети и другие кошельки.';
+
+  @override
+  String get deskSetAdvViewLineThree =>
+      'Добавляет выходы, счета, локальный узел и все переключатели раздела «Дополнительно».';
+
+  @override
+  String get deskSetAdvViewNote =>
+      'Вид меняет только то, какие страницы и переключатели показаны.';
+
+  @override
+  String get deskSetAdvExperiments => 'Эксперименты';
+
+  @override
+  String get deskSetFrameBack => 'Кошелёк';
+
+  @override
+  String get deskSetFrameBackTip => 'Назад к кошельку (Esc)';
+
+  @override
+  String deskSetFrameBackTo(String page) {
+    return 'Назад: $page';
+  }
+
+  @override
+  String get deskSetFrameEscKey => 'Esc';
+
+  @override
+  String get deskSetFrameEscHint => 'назад к кошельку';
+
+  @override
+  String get deskSetFrameExperiment => 'Эксперимент';
+
+  @override
+  String get deskSetHelpReportButton => 'Сообщить…';
+
+  @override
+  String get deskSetHelpSetupAgain => 'Запустить настройку снова';
+
+  @override
+  String get deskSetHelpSetupHint => 'Узел и получение, шаг за шагом.';
+
+  @override
+  String get deskSetHelpStartAgain => 'Начать заново';
+
+  @override
+  String get deskSetHelpTourStart => 'Начать тур';
+
+  @override
+  String get deskSetFilesFolders => 'Папки';
+
+  @override
+  String get deskSetNodeConnection => 'Подключение';
+
+  @override
+  String get deskSetNodeFailover => 'Менять узел автоматически';
+
+  @override
+  String get deskSetNodeStatus => 'Состояние';
+
+  @override
+  String get deskSetPrivTorAll => 'Tor для всех соединений';
+
+  @override
+  String get deskSetPrivServerStatus => 'Состояние серверов';
+
+  @override
+  String get deskSetPrivMode => 'Режим соединения';
+
+  @override
+  String get deskSetTxSending => 'Отправка';
+
+  @override
+  String get deskSetTxTorPayHint =>
+      'Tor работает только для отправки и получения платежей по адресу Tor. Узел, курсы и обновления следуют настройке в разделе «Сеть и приватность». Все кошельки.';
+
+  @override
+  String get deskSetWalletsOnComputer => 'На этом компьютере';
 }

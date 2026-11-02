@@ -8,7 +8,6 @@
   "deskSetBackupWriteFailedHere": "เขียนลงโฟลเดอร์ไม่ได้: {reason} เลือกโฟลเดอร์อื่น",
   "deskSetBackupWriteFailedIn": "เขียนลง {folder} ไม่ได้: {reason} เลือกโฟลเดอร์อื่น",
   "deskSetBackupWriteFailed": "เขียนไฟล์ไม่ได้ เลือกโฟลเดอร์อื่น",
-  "deskSetBackupGroup": "ข้อมูลกระเป๋าเงิน",
   "deskSetBackupExportTitle": "ส่งออกข้อมูลกระเป๋าเงิน",
   "deskSetBackupExportHint": "ประวัติรายการ ผู้ติดต่อ ใบแจ้งหนี้ และการตั้งค่า ในไฟล์ที่เปิดได้เฉพาะกระเป๋าเงินที่มีวลีกู้คืนนี้ วลีอย่างเดียวนำยอดคงเหลือกลับมา แต่ไม่รวมสิ่งเหล่านี้",
   "deskSetBackupExporting": "กำลังส่งออก…",

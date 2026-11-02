@@ -79,10 +79,6 @@
   "@deskSetBackupWriteFailed": {
     "description": "Error in the Export dialogs when the file could not be saved, reason unknown."
   },
-  "deskSetBackupGroup": "Wallet data",
-  "@deskSetBackupGroup": {
-    "description": "Settings > This wallet: title of the Backup group of rows."
-  },
   "deskSetBackupExportTitle": "Export wallet data",
   "@deskSetBackupExportTitle": {
     "description": "Settings > Backup: row title, dialog title and the reminder button for exporting the history backup file."

@@ -9602,9 +9602,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetAcctSaveLabel => '保存名称';
 
   @override
-  String get deskSetAcctFiles => '文件';
-
-  @override
   String get deskSetAcctWalletFolder => '钱包文件夹';
 
   @override
@@ -9618,12 +9615,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAcctNetworkHint => '在创建钱包时设定。';
-
-  @override
-  String get deskSetAcctSetup => '设置向导';
-
-  @override
-  String get deskSetAcctSetupHint => '重新设置节点和接收方式。不会丢失任何内容。';
 
   @override
   String get deskSetAcctRunSetup => '运行设置向导…';
@@ -9704,9 +9695,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetBackupWriteFailed => '无法写入文件。请选择其他文件夹。';
-
-  @override
-  String get deskSetBackupGroup => '钱包数据';
 
   @override
   String get deskSetBackupExportTitle => '导出钱包数据';
@@ -12213,9 +12201,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetFrameAdvanced => '高级';
 
   @override
-  String get deskSetAdvIntro => '每个开关会在相应位置显示钱包的另一部分。';
-
-  @override
   String get deskSetAdvShows => '显示更多';
 
   @override
@@ -12291,7 +12276,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetAcctAutoLockHint =>
-      '在这段时间内没有按键或移动鼠标时锁定钱包。选“从不”时，只能用“锁定钱包”锁定。';
+      '在这段时间内没有按键或移动鼠标时锁定钱包。选“从不”时，只能用“锁定钱包”锁定。所有钱包。';
 
   @override
   String get torUndercoverKeepsOn => '隐身模式让 Tor 保持开启。';
@@ -12651,29 +12636,26 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetFrameTransactions => '交易';
 
   @override
-  String get deskSetTxMethods => '付款方式';
+  String get deskSetTxMethods => '方式';
 
   @override
   String get deskSetTxEpicboxHint =>
-      '通过 Epicbox 服务器付款和收款。大多数付款都走这条路。关闭后，钱包不连接任何 Epicbox 服务器：没有 Epicbox 付款或账单。其他方式仍可使用。';
+      '通过 Epicbox 服务器付款和收款。大多数付款都走这条路。关闭后，钱包不连接任何 Epicbox 服务器：没有 Epicbox 付款或账单。其他方式仍可使用。所有钱包。';
 
   @override
   String deskSetTxDirectHint(String port) {
-    return '通过网址（http://host:$port）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效；Tor 开启时关闭。会在“发送”中加入 链接 · HTTP，并在“接收”中加入它的地址。';
+    return '通过网址（http://host:$port）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效；Tor 开启时关闭。会在“发送”中加入 链接 · HTTP，并在“接收”中加入它的地址。所有钱包。';
   }
 
   @override
   String get deskSetTxFileHint =>
-      '通过传递交易文件付款和收款，无需网络。会在“发送”中加入“文件传输”，并在“接收”中加入文件步骤。';
-
-  @override
-  String get deskSetTxSend => '发送';
+      '通过传递交易文件付款和收款，无需网络。会在“发送”中加入“文件传输”，并在“接收”中加入文件步骤。所有钱包。';
 
   @override
   String get deskSetTxStart => '默认方式';
 
   @override
-  String get deskSetTxStartHint => '“发送”页面打开时使用的方式。单笔付款时，仍可在“发送”页面更改。';
+  String get deskSetTxStartHint => '“发送”页面打开时使用的方式。单笔付款时，仍可在“发送”页面更改。所有钱包。';
 
   @override
   String get deskSendMethodHeader => '付款方式';
@@ -15202,21 +15184,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskBarBuildCopied => '已复制构建信息';
 
   @override
-  String deskBarBuildTip(String version, String commit) {
-    return '版本 $version，提交 $commit。点击可复制构建信息。';
-  }
-
-  @override
-  String deskBarBuildTipRebuild(String version, String rebuild, String commit) {
-    return '版本 $version，重建 $rebuild，提交 $commit。点击可复制构建信息。';
-  }
-
-  @override
-  String deskBarBuildTipDev(String version) {
-    return '版本 $version。开发版本。点击可复制构建信息。';
-  }
-
-  @override
   String get deskBarKeyMenu => '打开应用菜单';
 
   @override
@@ -15570,7 +15537,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskNoTorSetTxDirectHint(String port) {
-    return '通过网址（http://host:$port）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效。会在“发送”中加入 链接 · HTTP，并在“接收”中加入它的地址。';
+    return '通过网址（http://host:$port）在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效。会在“发送”中加入 链接 · HTTP，并在“接收”中加入它的地址。所有钱包。';
   }
 
   @override
@@ -16053,9 +16020,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get syncHelpNotChecked => '未检查';
-
-  @override
-  String get deskSetAdvBalance => '余额';
 
   @override
   String get deskSetAdvConfirmations => '确认数';
@@ -17455,9 +17419,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskLvStartPreviewCaption => '此视图下的概览。已保存的内容不会改变。';
 
   @override
-  String get deskLvStartPreviewCaptionShort => '此视图下的概览。';
-
-  @override
   String get deskLvStartCover => '选择一个档位以查看预览';
 
   @override
@@ -17489,14 +17450,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskLvStartMiniWaiting => '等待对方';
-
-  @override
-  String get deskLvStartAdvNote => '视图越深，显示的钱包内容越多。已保存的内容不会改变。';
-
-  @override
-  String deskLvStartAboutDepth(String name) {
-    return '视图：$name';
-  }
 
   @override
   String get deskLvSendHowTo => '发送方式';
@@ -17817,9 +17770,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetHelpSupportHead => '支持';
-
-  @override
-  String get deskSetHelpTopicsHead => '主题';
 
   @override
   String deskKitPasswordRule(int count) {
@@ -18272,13 +18222,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get deskRecvTorOffTextNet =>
       'Tor 开启时，Tor 地址才可用。Tor 是设置 › 网络与隐私中的开关，它让钱包的连接走 Tor。';
-
-  @override
-  String get deskSetTxTorHintNet =>
-      '通过 onion 地址、经由 Tor 在钱包之间直接付款和收款，中间没有服务器。仅在双方钱包都打开时有效。需要 Tor：“网络与隐私”中的 Tor 开关让钱包的连接走 Tor；这个开关只负责开启地址。会在“发送”中加入 链接 · Tor，并在“接收”中加入它的地址。';
-
-  @override
-  String get deskSetTxTorNeedsTorNet => 'Tor 已关闭。请在“网络与隐私”中开启，才能通过 Tor 地址收款。';
 
   @override
   String get deskRailOpenNetworkPrivacy => '打开网络与隐私';
@@ -19006,4 +18949,94 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetSynContact => 'email, support, contact, mail';
+
+  @override
+  String get deskSetAcctBackup => '备份';
+
+  @override
+  String get deskSetAcctBalance => '余额';
+
+  @override
+  String get deskSetAcctRemove => '删除';
+
+  @override
+  String get deskSetAdvViewLineOne => '发送、收款和备份。节点和 Epicbox 服务器自动选择。';
+
+  @override
+  String get deskSetAdvViewLineTwo => '增加付款方式、节点、网络模式和更多钱包。';
+
+  @override
+  String get deskSetAdvViewLineThree => '增加输出、发票、本地节点和所有高级开关。';
+
+  @override
+  String get deskSetAdvViewNote => '视图只改变显示哪些页面和开关。';
+
+  @override
+  String get deskSetAdvExperiments => '实验功能';
+
+  @override
+  String get deskSetFrameBack => '钱包';
+
+  @override
+  String get deskSetFrameBackTip => '返回钱包（Esc）';
+
+  @override
+  String deskSetFrameBackTo(String page) {
+    return '返回$page';
+  }
+
+  @override
+  String get deskSetFrameEscKey => 'Esc';
+
+  @override
+  String get deskSetFrameEscHint => '返回钱包';
+
+  @override
+  String get deskSetFrameExperiment => '实验';
+
+  @override
+  String get deskSetHelpReportButton => '报告…';
+
+  @override
+  String get deskSetHelpSetupAgain => '重新运行设置';
+
+  @override
+  String get deskSetHelpSetupHint => '节点和收款，逐步设置。';
+
+  @override
+  String get deskSetHelpStartAgain => '重新开始';
+
+  @override
+  String get deskSetHelpTourStart => '开始导览';
+
+  @override
+  String get deskSetFilesFolders => '文件夹';
+
+  @override
+  String get deskSetNodeConnection => '连接';
+
+  @override
+  String get deskSetNodeFailover => '自动切换节点';
+
+  @override
+  String get deskSetNodeStatus => '状态';
+
+  @override
+  String get deskSetPrivTorAll => '所有连接都走 Tor';
+
+  @override
+  String get deskSetPrivServerStatus => '服务器状态';
+
+  @override
+  String get deskSetPrivMode => '连接模式';
+
+  @override
+  String get deskSetTxSending => '发送';
+
+  @override
+  String get deskSetTxTorPayHint =>
+      'Tor 只用于在 Tor 地址收发付款。节点、价格和更新沿用“网络与隐私”中的设置。所有钱包。';
+
+  @override
+  String get deskSetWalletsOnComputer => '此电脑上';
 }

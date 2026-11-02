@@ -16069,12 +16069,6 @@ abstract class AppLocalizations {
   /// **'Save label'**
   String get deskSetAcctSaveLabel;
 
-  /// Settings > This wallet: title of the group of folder rows.
-  ///
-  /// In en, this message translates to:
-  /// **'Files'**
-  String get deskSetAcctFiles;
-
   /// Settings > This wallet: row title for the folder holding this wallet’s files.
   ///
   /// In en, this message translates to:
@@ -16104,18 +16098,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Set when the wallet was created.'**
   String get deskSetAcctNetworkHint;
-
-  /// Settings > This wallet: row title for the first-run setup assistant.
-  ///
-  /// In en, this message translates to:
-  /// **'Setup assistant'**
-  String get deskSetAcctSetup;
-
-  /// Settings > This wallet: hint under the Setup assistant row.
-  ///
-  /// In en, this message translates to:
-  /// **'Walk through node and receiving again. Nothing is lost.'**
-  String get deskSetAcctSetupHint;
 
   /// Settings > This wallet: button that opens the setup assistant.
   ///
@@ -16230,12 +16212,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The file could not be written. Choose another folder.'**
   String get deskSetBackupWriteFailed;
-
-  /// Settings > This wallet: title of the Backup group of rows.
-  ///
-  /// In en, this message translates to:
-  /// **'Wallet data'**
-  String get deskSetBackupGroup;
 
   /// Settings > Backup: row title, dialog title and the reminder button for exporting the history backup file.
   ///
@@ -20466,12 +20442,6 @@ abstract class AppLocalizations {
   /// **'Advanced'**
   String get deskSetFrameAdvanced;
 
-  /// First line of Settings › Advanced.
-  ///
-  /// In en, this message translates to:
-  /// **'Each switch shows one more part of the wallet, where it belongs.'**
-  String get deskSetAdvIntro;
-
   /// Title of the group of visibility switches on Settings › Advanced.
   ///
   /// In en, this message translates to:
@@ -20595,7 +20565,7 @@ abstract class AppLocalizations {
   /// Settings › Account › Security: the hint of the Auto-lock row (a minutes choice and an on/off switch).
   ///
   /// In en, this message translates to:
-  /// **'Locks the wallet after this long without a key press or mouse movement. With Never, only Lock wallet locks it.'**
+  /// **'Locks the wallet after this long without a key press or mouse movement. With Never, only Lock wallet locks it. All wallets.'**
   String get deskSetAcctAutoLockHint;
 
   /// Line under the Tor switch (and on a tap of it) while Undercover (Tor only) keeps the switch on and locked. Undercover is the name of the Tor only setting on the level page.
@@ -21192,35 +21162,29 @@ abstract class AppLocalizations {
   /// **'Transactions'**
   String get deskSetFrameTransactions;
 
-  /// Title of the page’s first part on Settings › Transactions: one group per family (Epicbox, Link, Direct) with a switch per method.
+  /// Payments: heading of the payment method switches.
   ///
   /// In en, this message translates to:
-  /// **'Payment methods'**
+  /// **'Methods'**
   String get deskSetTxMethods;
 
   /// Hover card behind the info icon of the Epicbox row on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Pay and get paid through an Epicbox server. Most payments go this way. Off, the wallet connects to no Epicbox server: no Epicbox payments or invoices. The other methods still work.'**
+  /// **'Pay and get paid through an Epicbox server. Most payments go this way. Off, the wallet connects to no Epicbox server: no Epicbox payments or invoices. The other methods still work. All wallets.'**
   String get deskSetTxEpicboxHint;
 
   /// Hover card behind the info icon of the Link › HTTP row (switch) on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Pay and get paid straight from wallet to wallet at a web address (http://host:{port}), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive.'**
+  /// **'Pay and get paid straight from wallet to wallet at a web address (http://host:{port}), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive. All wallets.'**
   String deskSetTxDirectHint(String port);
 
   /// Hover card behind the info icon of the File row (switch) on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'Pay and get paid by handing over a transaction file, with no network needed. Adds File Transfer to Send and the file steps to Receive.'**
+  /// **'Pay and get paid by handing over a transaction file, with no network needed. Adds File Transfer to Send and the file steps to Receive. All wallets.'**
   String get deskSetTxFileHint;
-
-  /// Title of the group on Settings › Transactions with what the Send page starts on and, with Advanced › Send options on, its defaults.
-  ///
-  /// In en, this message translates to:
-  /// **'Send'**
-  String get deskSetTxSend;
 
   /// Row title on Settings › Transactions: the payment method the Send page opens with. The control lists the methods that are on.
   ///
@@ -21231,7 +21195,7 @@ abstract class AppLocalizations {
   /// Hover card behind the info icon of the Send starts on row.
   ///
   /// In en, this message translates to:
-  /// **'The method the Send page opens with. You can still change it for one payment on Send.'**
+  /// **'The method the Send page opens with. You can still change it for one payment on Send. All wallets.'**
   String get deskSetTxStartHint;
 
   /// Title of the first panel on Send: the method selector comes first, then the recipient field.
@@ -25278,24 +25242,6 @@ abstract class AppLocalizations {
   /// **'Build info copied'**
   String get deskBarBuildCopied;
 
-  /// Tooltip of the small build label under the brand in the title bar. {version} e.g. 26.10.16, {commit} a short git commit like 810de1e.
-  ///
-  /// In en, this message translates to:
-  /// **'Version {version}, commit {commit}. Click copies the build info.'**
-  String deskBarBuildTip(String version, String commit);
-
-  /// As deskBarBuildTip, for a rebuild of the same version. {rebuild} is e.g. r2.
-  ///
-  /// In en, this message translates to:
-  /// **'Version {version}, rebuild {rebuild}, commit {commit}. Click copies the build info.'**
-  String deskBarBuildTipRebuild(String version, String rebuild, String commit);
-
-  /// As deskBarBuildTip, for a development build without a commit.
-  ///
-  /// In en, this message translates to:
-  /// **'Version {version}. A development build. Click copies the build info.'**
-  String deskBarBuildTipDev(String version);
-
   /// Keyboard-shortcuts row: F10 opens the app menu in the title bar.
   ///
   /// In en, this message translates to:
@@ -25881,7 +25827,7 @@ abstract class AppLocalizations {
   /// Settings › Transactions › Link · HTTP info hint in the build without Tor (no 'off while Tor is on').
   ///
   /// In en, this message translates to:
-  /// **'Pay and get paid straight from wallet to wallet at a web address (http://host:{port}), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive.'**
+  /// **'Pay and get paid straight from wallet to wallet at a web address (http://host:{port}), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive. All wallets.'**
   String deskNoTorSetTxDirectHint(String port);
 
   /// Payment details dialog, the From field's error in the build without Tor.
@@ -26627,12 +26573,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not checked'**
   String get syncHelpNotChecked;
-
-  /// Title of the group on Settings › Advanced that holds the Confirmations row. One word.
-  ///
-  /// In en, this message translates to:
-  /// **'Balance'**
-  String get deskSetAdvBalance;
 
   /// Settings › Advanced row: how many confirmations a received output needs before it can be spent. 1 to 3 words.
   ///
@@ -28872,12 +28812,6 @@ abstract class AppLocalizations {
   /// **'Your Overview in this view. Nothing stored changes between views.'**
   String get deskLvStartPreviewCaption;
 
-  /// Caption under the Overview picture on the Change level page.
-  ///
-  /// In en, this message translates to:
-  /// **'Your Overview in this view.'**
-  String get deskLvStartPreviewCaptionShort;
-
   /// Over the faded Overview picture on Welcome before a stop of the depth dial is picked.
   ///
   /// In en, this message translates to:
@@ -28943,18 +28877,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Waiting for the other side'**
   String get deskLvStartMiniWaiting;
-
-  /// Settings › Advanced at Shallow, under the Depth row.
-  ///
-  /// In en, this message translates to:
-  /// **'A deeper view shows more of the wallet. Nothing stored changes.'**
-  String get deskLvStartAdvNote;
-
-  /// Screen-reader text of the Depth row in Settings › About. name is the depth: Shallow, Deeper or Deep end.
-  ///
-  /// In en, this message translates to:
-  /// **'View: {name}'**
-  String deskLvStartAboutDepth(String name);
 
   /// Heading of the method card on Send at the Deeper level, above the Epicbox, Link and File Transfer choice.
   ///
@@ -29495,12 +29417,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Support'**
   String get deskSetHelpSupportHead;
-
-  /// Section head of Settings › Help over the search and the help topics.
-  ///
-  /// In en, this message translates to:
-  /// **'Topics'**
-  String get deskSetHelpTopicsHead;
 
   /// Small print under a new-password field before anything is typed: the least length. Replaced by the character count and the time to crack while typing.
   ///
@@ -30215,18 +30131,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The Tor address works while Tor is on. Tor is the switch in Settings › Network & privacy; it routes the wallet’s connections through Tor.'**
   String get deskRecvTorOffTextNet;
-
-  /// Info text of the Link · Tor switch on Settings › Transactions. Names the page with the Tor switch (Network & privacy).
-  ///
-  /// In en, this message translates to:
-  /// **'Pay and get paid straight from wallet to wallet at an onion address, over Tor, with no server between. Works only while both wallets are open. Needs Tor: the Tor switch under Network & privacy routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and its address to Receive.'**
-  String get deskSetTxTorHintNet;
-
-  /// Notice under the Link › Tor switch on Settings › Transactions while it is on and Tor is off; the button beside it opens Settings › Network & privacy.
-  ///
-  /// In en, this message translates to:
-  /// **'Tor is off. Turn it on under Network & privacy to be paid at the Tor address.'**
-  String get deskSetTxTorNeedsTorNet;
 
   /// Status rail, Tor row: the link that opens Settings › Network & privacy.
   ///
@@ -31439,6 +31343,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'email, support, contact, mail'**
   String get deskSetSynContact;
+
+  /// Wallet settings: heading of the export and import rows.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup'**
+  String get deskSetAcctBackup;
+
+  /// Wallet settings: heading of the Recheck balance row.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get deskSetAcctBalance;
+
+  /// Wallet settings: heading of the Delete wallet row.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get deskSetAcctRemove;
+
+  /// Advanced › View: the Shallow view’s one line. Facts only.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending, receiving and backups. The node and the Epicbox server are chosen automatically.'**
+  String get deskSetAdvViewLineOne;
+
+  /// Advanced › View: the Deeper view’s one line. Facts only.
+  ///
+  /// In en, this message translates to:
+  /// **'Adds payment methods, the node, network modes and more wallets.'**
+  String get deskSetAdvViewLineTwo;
+
+  /// Advanced › View: the Deep end view’s one line. Facts only.
+  ///
+  /// In en, this message translates to:
+  /// **'Adds outputs, invoices, the local node and every Advanced switch.'**
+  String get deskSetAdvViewLineThree;
+
+  /// Advanced › View: the line under the three views.
+  ///
+  /// In en, this message translates to:
+  /// **'A view changes only which pages and switches show.'**
+  String get deskSetAdvViewNote;
+
+  /// Advanced: heading of the experimental features (Invoices).
+  ///
+  /// In en, this message translates to:
+  /// **'Experiments'**
+  String get deskSetAdvExperiments;
+
+  /// Settings column: the button at its top that goes back to the wallet pages. Narrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get deskSetFrameBack;
+
+  /// Tooltip of the Settings column’s back button. Esc is the key.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the wallet (Esc)'**
+  String get deskSetFrameBackTip;
+
+  /// Tooltip of a sub-page’s back link, e.g. "Back to Security".
+  ///
+  /// In en, this message translates to:
+  /// **'Back to {page}'**
+  String deskSetFrameBackTo(String page);
+
+  /// The Esc key as the keyboard shows it, in the Settings column’s foot.
+  ///
+  /// In en, this message translates to:
+  /// **'Esc'**
+  String get deskSetFrameEscKey;
+
+  /// After the Esc key in the Settings column’s foot: what Esc does. Lowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'back to the wallet'**
+  String get deskSetFrameEscHint;
+
+  /// Tag beside an experimental feature’s title (Linked devices, Invoices).
+  ///
+  /// In en, this message translates to:
+  /// **'Experiment'**
+  String get deskSetFrameExperiment;
+
+  /// Help › Support: button that opens Report a problem.
+  ///
+  /// In en, this message translates to:
+  /// **'Report…'**
+  String get deskSetHelpReportButton;
+
+  /// Help › Start again: row that opens Set up (node and receiving) again.
+  ///
+  /// In en, this message translates to:
+  /// **'Run setup again'**
+  String get deskSetHelpSetupAgain;
+
+  /// Info text of Run setup again.
+  ///
+  /// In en, this message translates to:
+  /// **'Node and receiving, step by step.'**
+  String get deskSetHelpSetupHint;
+
+  /// Help: heading of the tour and setup rows.
+  ///
+  /// In en, this message translates to:
+  /// **'Start again'**
+  String get deskSetHelpStartAgain;
+
+  /// Help › Start again: button that starts the tour.
+  ///
+  /// In en, this message translates to:
+  /// **'Start tour'**
+  String get deskSetHelpTourStart;
+
+  /// Files & logs: heading of the wallet folder and app files rows.
+  ///
+  /// In en, this message translates to:
+  /// **'Folders'**
+  String get deskSetFilesFolders;
+
+  /// Node page: heading of the node picker and its switches.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection'**
+  String get deskSetNodeConnection;
+
+  /// Node › Connection: switch that moves to the next working node when this one stops answering.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch node automatically'**
+  String get deskSetNodeFailover;
+
+  /// Node page: heading of what the node says of itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get deskSetNodeStatus;
+
+  /// Network & privacy: the switch that sends every connection through Tor.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor for all connections'**
+  String get deskSetPrivTorAll;
+
+  /// Network & privacy: heading of the status site row.
+  ///
+  /// In en, this message translates to:
+  /// **'Server status'**
+  String get deskSetPrivServerStatus;
+
+  /// Network & privacy: heading of Normal, Tor only, Node only, Kill switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection mode'**
+  String get deskSetPrivMode;
+
+  /// Payments: heading of the Default method and send option rows.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending'**
+  String get deskSetTxSending;
+
+  /// Info text of Payments › Link · Tor. "All wallets": the switch is app-wide.
+  ///
+  /// In en, this message translates to:
+  /// **'Tor runs only to send and receive payments at the Tor address. The node, prices and updates keep the setting under Network & privacy. All wallets.'**
+  String get deskSetTxTorPayHint;
+
+  /// Wallets page: heading of the list of wallets on this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'On this computer'**
+  String get deskSetWalletsOnComputer;
 }
 
 class _AppLocalizationsDelegate

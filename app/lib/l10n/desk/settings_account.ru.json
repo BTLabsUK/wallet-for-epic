@@ -8,14 +8,11 @@
   "deskSetAcctLabel": "Название",
   "deskSetAcctLabelHint": "Видно только в этом приложении.",
   "deskSetAcctSaveLabel": "Сохранить название",
-  "deskSetAcctFiles": "Файлы",
   "deskSetAcctWalletFolder": "Папка кошелька",
   "deskSetAcctAppFiles": "Файлы приложения",
   "deskSetAcctAppFilesHint": "Настройки и журнал.",
   "deskSetAcctNetwork": "Сеть",
   "deskSetAcctNetworkHint": "Задаётся при создании кошелька.",
-  "deskSetAcctSetup": "Мастер настройки",
-  "deskSetAcctSetupHint": "Пройти настройку узла и приёма заново. Ничего не потеряется.",
   "deskSetAcctRunSetup": "Запустить…",
   "deskSetAcctSecurity": "Безопасность",
   "deskSetAcctRemembered": "Запомнен на этом компьютере",
@@ -26,5 +23,8 @@
   "deskSetAcctDeleteHint": "Удаляет его ключи и базу данных.",
   "deskSetAcctFolderNotFound": "Папка не найдена",
   "deskSetAcctCopyPath": "Копировать путь: {title}",
-  "deskSetAcctAutoLockHint": "Блокирует кошелёк, если столько времени не нажимали клавиши и не двигали мышь. При «Никогда» кошелёк блокируется только кнопкой «Заблокировать кошелёк»."
+  "deskSetAcctAutoLockHint": "Блокирует кошелёк, если столько времени не нажимали клавиши и не двигали мышь. При «Никогда» кошелёк блокируется только кнопкой «Заблокировать кошелёк». Все кошельки.",
+  "deskSetAcctBackup": "Резервная копия",
+  "deskSetAcctBalance": "Баланс",
+  "deskSetAcctRemove": "Удаление"
 }

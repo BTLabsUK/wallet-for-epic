@@ -95,5 +95,17 @@
   "deskSetPrivUndercoverChange": "Change Undercover",
   "@deskSetPrivUndercoverChange": {
     "description": "Small link next to the Undercover line under the Tor switch; opens the Depth page (Settings › Advanced › Change level) where Undercover is turned on or off."
+  },
+  "deskSetPrivTorAll": "Tor for all connections",
+  "@deskSetPrivTorAll": {
+    "description": "Network & privacy: the switch that sends every connection through Tor."
+  },
+  "deskSetPrivServerStatus": "Server status",
+  "@deskSetPrivServerStatus": {
+    "description": "Network & privacy: heading of the status site row."
+  },
+  "deskSetPrivMode": "Connection mode",
+  "@deskSetPrivMode": {
+    "description": "Network & privacy: heading of Normal, Tor only, Node only, Kill switch."
   }
 }

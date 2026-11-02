@@ -25,10 +25,14 @@
   "deskSetHelpStep": "Schritt {number} von {total}",
   "deskSetHelpSearch": "Hilfe durchsuchen",
   "deskSetHelpSupportHead": "Support",
-  "deskSetHelpTopicsHead": "Themen",
   "deskSetHelpSearchKeys": "Mit / suchen. Esc leert die Suche.",
   "deskSetHelpSearchHint": "Zum Beispiel: Datei, Bestätigungen, Phrase",
   "deskSetHelpClear": "Suche leeren",
   "deskSetHelpTourAgain": "Tour erneut zeigen",
-  "deskSetHelpTopics": "{count, plural, one{{count} Thema} other{{count} Themen}}"
+  "deskSetHelpTopics": "{count, plural, one{{count} Thema} other{{count} Themen}}",
+  "deskSetHelpReportButton": "Melden…",
+  "deskSetHelpSetupAgain": "Einrichtung erneut ausführen",
+  "deskSetHelpSetupHint": "Node und Empfang, Schritt für Schritt.",
+  "deskSetHelpStartAgain": "Neu beginnen",
+  "deskSetHelpTourStart": "Tour starten"
 }

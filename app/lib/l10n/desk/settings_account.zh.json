@@ -8,14 +8,11 @@
   "deskSetAcctLabel": "名称",
   "deskSetAcctLabelHint": "只在本应用中显示。",
   "deskSetAcctSaveLabel": "保存名称",
-  "deskSetAcctFiles": "文件",
   "deskSetAcctWalletFolder": "钱包文件夹",
   "deskSetAcctAppFiles": "应用文件",
   "deskSetAcctAppFilesHint": "设置和日志。",
   "deskSetAcctNetwork": "网络",
   "deskSetAcctNetworkHint": "在创建钱包时设定。",
-  "deskSetAcctSetup": "设置向导",
-  "deskSetAcctSetupHint": "重新设置节点和接收方式。不会丢失任何内容。",
   "deskSetAcctRunSetup": "运行设置向导…",
   "deskSetAcctSecurity": "安全",
   "deskSetAcctRemembered": "已在这台电脑上记住",
@@ -26,5 +23,8 @@
   "deskSetAcctDeleteHint": "删除它的密钥和数据库。",
   "deskSetAcctFolderNotFound": "未找到文件夹",
   "deskSetAcctCopyPath": "复制路径：{title}",
-  "deskSetAcctAutoLockHint": "在这段时间内没有按键或移动鼠标时锁定钱包。选“从不”时，只能用“锁定钱包”锁定。"
+  "deskSetAcctAutoLockHint": "在这段时间内没有按键或移动鼠标时锁定钱包。选“从不”时，只能用“锁定钱包”锁定。所有钱包。",
+  "deskSetAcctBackup": "备份",
+  "deskSetAcctBalance": "余额",
+  "deskSetAcctRemove": "删除"
 }
