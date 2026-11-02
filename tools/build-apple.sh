@@ -288,8 +288,9 @@ macos() {
   [ -d "$res" ] || die "no $res (build phase \"Bundle node and tor\", app/macos/Runner/bundle-bin.sh)"
   [ "$(cd "$app/build/apple-bin" && find . -type f | LC_ALL=C sort)" = "$(cd "$res" && find . -type f | LC_ALL=C sort)" ] \
     || die "Contents/Resources/bin is not what app/build/apple-bin staged"
-  # Ad hoc for this Mac (mac-release signs everything again with Developer ID); the build phase
-  # signed the node and tor the same way when no team is set. No hardened runtime: an ad-hoc
+  # Ad hoc for this Mac (mac-release signs everything again with Developer ID); Xcode and the
+  # build phase signed the same way, as the macOS project has no team (AppInfo.xcconfig), so no
+  # Apple Development certificate is needed. No hardened runtime: an ad-hoc
   # framework would fail library validation under it.
   codesign --force --sign - --entitlements "$app/macos/Runner/Release.entitlements" "$bundle"
   codesign --verify --deep --strict --verbose=2 "$bundle"

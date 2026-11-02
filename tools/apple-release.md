@@ -20,8 +20,10 @@ Final ids, register exactly these: **`uk.btlabs.btwallet.macos`** (BT Wallet, ma
 **`uk.btlabs.btwallet.ios`** (BT Wallet).
 
 The repository side: the team is never in the Xcode projects. The builder puts it in
-`app/Signing.xcconfig` (git-ignored, from `app/Signing.xcconfig.example`), which both projects
-include. Signing is Automatic; the macOS Release build has the hardened runtime on. A build phase
+`app/Signing.xcconfig` (git-ignored, from `app/Signing.xcconfig.example`), which the iOS project
+includes (Automatic signing) and `build-apple.sh mac-release` reads. The macOS project does not
+include it: its Xcode build is signed ad hoc, and mac-release signs it again with Developer ID, so
+macOS needs no Apple Development certificate. The macOS Release build has the hardened runtime on. A build phase
 of the macOS project, "Bundle node and tor" (`app/macos/Runner/bundle-bin.sh`), copies the node
 and tor that `tools/build-apple.sh` staged into `Contents/Resources/bin` and signs them before
 Xcode signs the app. One in the iOS project, "lepic_ffi privacy manifest"

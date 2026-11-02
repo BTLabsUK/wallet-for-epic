@@ -21,6 +21,11 @@ EXCLUDED_ARCHS = x86_64
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2026 BT Labs. All rights reserved.
 
-// The signing team, set locally on the release Mac (app/Signing.xcconfig, git-ignored; copy
-// app/Signing.xcconfig.example). Without it the app is signed to run locally only.
-#include? "../../../Signing.xcconfig"
+// Signed to run locally (ad hoc), with no team and no Apple Development certificate. The macOS
+// project does not read app/Signing.xcconfig (only the iOS one does): tools/build-apple.sh
+// mac-release signs the app again with the team's Developer ID afterwards. The target keeps
+// CODE_SIGN_STYLE = Automatic in project.pbxproj; with identity "-" and no team that is "Sign to
+// Run Locally".
+CODE_SIGN_IDENTITY = -
+DEVELOPMENT_TEAM =
+PROVISIONING_PROFILE_SPECIFIER =
