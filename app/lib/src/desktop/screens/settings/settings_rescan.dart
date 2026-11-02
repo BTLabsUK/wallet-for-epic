@@ -234,8 +234,8 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // The page title says Recheck balance; the group needs no second heading.
           ESetGroup(
-            title: l.deskSetFrameRescan,
             revealKey: _revealKey,
             hidden: !_running && !shown ? _startRows(context, advancedBy: by) : const [],
             rows: [
@@ -316,12 +316,15 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
         advancedBy: advancedBy,
         title: l.deskSetRescanStartHeading,
         text: _from == _From.wholeChain ? l.deskSetRescanWholeChainHint : null,
-        control: ERowControl(
-          wide: true,
+        // Every choice whole (no truncated words): at least the wide control, wider when the
+        // language needs it, under the title when the row has no room (as Appearance › Theme).
+        wrap: true,
+        control: ConstrainedBox(
+          constraints: BoxConstraints(minWidth: Ctl.rowWide),
+          child: IntrinsicWidth(
           child: ESegmented<_From>(
             key: const ValueKey('rescan-from'),
             stretch: true,
-            shrink: true,
             segments: [
               if (_datesOk) ESegment(_From.date, l.restoreStartByMonth),
               ESegment(_From.height, l.restoreStartByHeight),
@@ -332,6 +335,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
               _from = from;
               _heightError = null;
             }),
+          ),
           ),
         ),
       ),

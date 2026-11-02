@@ -139,8 +139,8 @@ void main() {
   testWidgets('a full scan shows the balance before and after and the counts', (tester) async {
     await pump(tester);
     expect(find.textContaining('Checks the chain again for this wallet’s coins'), findsOneWidget);
-    // One name (Recheck balance), and the row does not repeat the group's title.
-    expect(find.text('Recheck balance'), findsNWidgets(2)); // the section chip and the group head
+    // One name (Recheck balance): the page title only; the group has no second heading.
+    expect(find.text('Recheck balance'), findsOneWidget);
     expect(find.textContaining('Rescan'), findsNothing);
     await tester.tap(find.byKey(const ValueKey('rescan-delete-unconfirmed')));
     await tester.pump();
