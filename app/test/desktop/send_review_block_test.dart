@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Review is off whenever the line under it names a block (#24), and keeps its name then (#31):
-// pressed with a field wrong, it waits for that field to change.
+// pressed with a field wrong, it waits for that field to change. An amount above the balance
+// turns it off on the keystroke.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -29,10 +30,9 @@ void main() {
     EButton review() => tester.widget<EButton>(find.byWidgetPredicate((w) => w is EButton && w.kind == EBtnKind.primary));
 
     await tester.enterText(find.byType(EditableText).first, _epicbox);
-    await tester.enterText(find.byType(EditableText).at(1), '99999999');
+    // Pressed with the amount missing: the field is marked, and Review waits for it.
     await tester.pumpAndSettle();
     expect(review().onPressed, isNotNull);
-
     await tester.tap(find.byWidgetPredicate((w) => w is EButton && w.kind == EBtnKind.primary));
     await tester.pumpAndSettle();
     expect(find.text('Fix the marked fields.'), findsOneWidget);
@@ -42,6 +42,21 @@ void main() {
     await tester.enterText(find.byType(EditableText).at(1), '1');
     await tester.pumpAndSettle();
     expect(find.text('Fix the marked fields.'), findsNothing);
+    expect(review().onPressed, isNotNull);
+
+    // More than the balance (next-fixes 12): off on the keystroke, before any press or estimate.
+    await tester.enterText(find.byType(EditableText).at(1), '50000');
+    await tester.pump();
+    expect(review().onPressed, isNull);
+    expect(review().label, 'Review');
+    expect(find.text('Fix the marked fields.'), findsOneWidget);
+    expect(find.text('More than the available balance.'), findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(review().onPressed, isNull);
+
+    await tester.enterText(find.byType(EditableText).at(1), '1');
+    await tester.pumpAndSettle();
+    expect(find.text('More than the available balance.'), findsNothing);
     expect(review().onPressed, isNotNull);
   });
 }

@@ -66,6 +66,8 @@ final List<DeskShot> transferShots = [
     arg: SendArgs(recipient: 'http://${fakeWalletOnion.toUpperCase()}/', switched: true),
   ),
   const DeskShot(id: '15-send-file', title: 'Send, file', route: DeskRoute.send, arg: SendArgs(method: TxMethod.file, amount: '12.5')),
+  // More than the balance: Review off on the keystroke, the field says why (next-fixes 12).
+  DeskShot(id: '15c-send-over-balance', title: 'Send, amount above the balance', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '5000')),
   const DeskShot(id: '15b-send-errors', title: 'Send, validation errors', route: DeskRoute.send, arg: SendArgs(step: SendStep.errors, recipient: 'not an address', amount: '0.123456789')),
   DeskShot(id: '16-send-review', title: 'Send, review', route: DeskRoute.send, arg: SendArgs(step: SendStep.review, recipient: _anna, amount: '12.5', message: 'Invoice 0042'), opensDialog: true),
   DeskShot(id: '16-send-review-narrow', title: 'Send, review at 800x700', route: DeskRoute.send, arg: SendArgs(step: SendStep.review, recipient: _anna, amount: '12.5', message: 'Invoice 0042'), width: 800, height: 700, opensDialog: true),

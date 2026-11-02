@@ -18,6 +18,7 @@ import '../info_hint.dart';
 import '../pairing/pairing_parts.dart';
 import '../settings_rows.dart' show SettingsHeader;
 import '../theme/tokens.dart';
+import '../tour/tour_target.dart';
 import 'device_parts.dart';
 
 const Key devicesLinkKey = ValueKey('devices-link');
@@ -73,33 +74,42 @@ class LinkedDevicesScreen extends ConsumerWidget {
                 // One device can be linked: Link a device until it is, then that device with
                 // its lines (Epicbox off, an app to update), Rename and Remove, and the money
                 // note once, under it.
-                if (linked != null) ...[
-                  PairCard(
+                // What the tour's Linked devices step lights: the device, or Link a device.
+                PhoneTourTarget(
+                  id: 'tour-devices-link',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      _DeviceRow(device: linked, now: now, servers: view.book.servers),
-                      // Nothing goes over Epicbox: the devices do not sync.
-                      if (epicboxOff) _Line(key: devicesEpicboxOffKey, text: l.devicesEpicboxOff(linked.name)),
-                      // The other device writes another wire version: nothing from it is read
-                      // until it is updated.
-                      if (linked.otherVersion != null) _Line(key: devicesUpdateOtherKey, text: l.devicesUpdateOther(linked.name)),
-                      _DeviceActions(device: linked),
+                      if (linked != null) ...[
+                        PairCard(
+                          children: [
+                            _DeviceRow(device: linked, now: now, servers: view.book.servers),
+                            // Nothing goes over Epicbox: the devices do not sync.
+                            if (epicboxOff) _Line(key: devicesEpicboxOffKey, text: l.devicesEpicboxOff(linked.name)),
+                            // The other device writes another wire version: nothing from it is read
+                            // until it is updated.
+                            if (linked.otherVersion != null) _Line(key: devicesUpdateOtherKey, text: l.devicesUpdateOther(linked.name)),
+                            _DeviceActions(device: linked),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        PairSmallPrint(l.devicesMoneyNote),
+                      ] else ...[
+                        Padding(padding: const EdgeInsets.only(bottom: 8), child: PairSmallPrint(l.devicesEmpty)),
+                        const SizedBox(height: 4),
+                        FilledButton.icon(
+                          key: devicesLinkKey,
+                          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                          icon: const Icon(Icons.add_link),
+                          label: Text(l.devicesLink),
+                          onPressed: view.supported && !epicboxOff ? () => openLinkDevice(context, ref) : null,
+                        ),
+                        // Nothing goes over Epicbox: none can be linked.
+                        if (epicboxOff) ...[const SizedBox(height: 4), PairSmallPrint(l.devicesEpicboxOffNone, key: devicesEpicboxOffKey)],
+                      ],
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  PairSmallPrint(l.devicesMoneyNote),
-                ] else ...[
-                  Padding(padding: const EdgeInsets.only(bottom: 8), child: PairSmallPrint(l.devicesEmpty)),
-                  const SizedBox(height: 4),
-                  FilledButton.icon(
-                    key: devicesLinkKey,
-                    style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                    icon: const Icon(Icons.add_link),
-                    label: Text(l.devicesLink),
-                    onPressed: view.supported && !epicboxOff ? () => openLinkDevice(context, ref) : null,
-                  ),
-                  // Nothing goes over Epicbox: none can be linked.
-                  if (epicboxOff) ...[const SizedBox(height: 4), PairSmallPrint(l.devicesEpicboxOffNone, key: devicesEpicboxOffKey)],
-                ],
+                ),
                 const SizedBox(height: 12),
                 PairCard(
                   children: [
@@ -115,7 +125,9 @@ class LinkedDevicesScreen extends ConsumerWidget {
                 ),
                 if (view.held.isNotEmpty) ...[
                   SettingsHeader.inBody(l.devicesHeld),
-                  PairCard(children: [for (final h in view.held) _HeldRow(hold: h, name: view.nameOf(h.deviceId))]),
+                  PairCard(
+                    children: [for (final h in view.held) _HeldRow(hold: h, name: view.nameOf(h.deviceId))],
+                  ),
                 ],
               ],
             ),
@@ -184,7 +196,9 @@ class _Line extends StatelessWidget {
         children: [
           Icon(Icons.warning_amber_outlined, size: 16, color: t.warn),
           const SizedBox(width: 8),
-          Expanded(child: Text(text, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.warn))),
+          Expanded(
+            child: Text(text, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.warn)),
+          ),
         ],
       ),
     );
@@ -278,7 +292,14 @@ class _HeldRow extends ConsumerWidget {
       subtitle: Text(l.devicesHeldBy(name)),
       trailing: TextButton(
         onPressed: () async {
-          final yes = await confirmDeviceAction(context, title: l.devicesReleaseTitle, body: l.devicesReleaseBody(name), action: l.devicesRelease, risky: true, icon: Icons.lock_open_outlined);
+          final yes = await confirmDeviceAction(
+            context,
+            title: l.devicesReleaseTitle,
+            body: l.devicesReleaseBody(name),
+            action: l.devicesRelease,
+            risky: true,
+            icon: Icons.lock_open_outlined,
+          );
           if (!yes || !context.mounted) return;
           await ref.read(deviceServiceProvider)?.releaseByHandOf(hold.deviceId, hold.slateId);
           ref.read(noticeProvider.notifier).show(l.devicesReleased, level: NoticeLevel.success);

@@ -180,6 +180,13 @@ Future<void> _openPaymentWithNote(WidgetTester tester) async {
   expect(find.text('Completed'), findsWidgets);
 }
 
+/// Opens Activity from Home's "View all", which shows from five payments on; with fewer,
+/// every payment is already on Home.
+Future<void> _openActivity(WidgetTester tester) async {
+  final all = find.textContaining(RegExp(r'^View all \d+$'));
+  if (all.evaluate().isNotEmpty) await _tapText(tester, RegExp(r'^View all \d+$'));
+}
+
 /// Back to home: pops every route above it.
 Future<void> _backHome(WidgetTester tester) async {
   tester
@@ -293,7 +300,7 @@ void main() {
         timeout: const Duration(minutes: 6),
         poke: () => _refreshHome(tester),
       );
-      await _tapText(tester, RegExp(r'^View all \d+$'));
+      await _openActivity(tester);
       await _pumpUntil(tester, find.text('Completed'));
       await _backHome(tester);
       final received = await _waitFor(
@@ -353,7 +360,7 @@ void main() {
       expect(sent.counterparty, _cliAddress);
       expect(sent.fee, isNotNull);
       await _untilCompleted(tester, 2);
-      await _tapText(tester, RegExp(r'^View all \d+$'));
+      await _openActivity(tester);
       await _openPaymentWithNote(tester);
       await _backHome(tester);
       debugPrint(
@@ -432,7 +439,7 @@ void main() {
         back.amountDebited - back.amountCredited,
         sent.amountDebited - sent.amountCredited,
       );
-      await _tapText(tester, RegExp(r'^View all \d+$'));
+      await _openActivity(tester);
       await _openPaymentWithNote(tester);
       debugPrint(
         'WFE_E2E step=done after ${DateTime.now().difference(started)}',

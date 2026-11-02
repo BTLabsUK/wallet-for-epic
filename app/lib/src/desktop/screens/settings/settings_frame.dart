@@ -166,10 +166,13 @@ class SettingsFrame extends ConsumerWidget {
   final Widget child;
   final SettingsWidth width;
 
-  /// The page fills the room under the title instead of scrolling as a whole (a page with its
-  /// own scrolling part, Recovery phrase's words); under [fillMinHeight] it scrolls again.
+  /// [child] gets the page's height instead of scrolling in it, so it can keep parts of its own
+  /// in view ([EPhraseLayout]: only the words scroll). With less room than [fillMinHeight] it
+  /// scrolls.
   final bool fill;
 
+  /// The room [fill] needs: the Recovery phrase heading, actions and warning, and two rows of
+  /// words.
   static double get fillMinHeight => 320.u;
 
   @override

@@ -12,7 +12,6 @@ import 'package:epic_wallet/src/desktop/data/devices_state.dart';
 import 'package:epic_wallet/src/desktop/data/mock_devices.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/devices/link_flow.dart';
-import 'package:epic_wallet/src/desktop/screens/settings/settings_account.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_devices.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';

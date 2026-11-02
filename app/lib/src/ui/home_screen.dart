@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../contacts.dart' show contactNameFor, contactsProvider;
 import '../demo.dart';
+import '../recent_activity.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../btlabs_onions.dart';
@@ -46,6 +47,8 @@ import 'settings_screen.dart';
 import 'slate_file_screen.dart';
 import 'status.dart';
 import 'theme/brand.dart';
+import 'theme/lattice.dart';
+import 'theme/tokens.dart' show WalletTokensOf;
 import 'theme/protocol.dart';
 import 'tour/phone_tour.dart';
 import 'levels/relay_down.dart' show RelayDownNotices;
@@ -67,9 +70,6 @@ Duration get autoRefreshInterval => appConfig.nodeRefresh;
 /// While a payment can move with the next block it asks more often (watch mode,
 /// watch_mode.dart).
 Duration get tipCheckInterval => appConfig.nodeTipCheck;
-
-/// Transactions shown under "Recent activity".
-const int recentActivityCount = 5;
 
 /// The space between the cards of the Wallet tab (tiles, status, destinations, reminders).
 const double homeCardGap = 12;
@@ -851,10 +851,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: RefreshIndicator(
               onRefresh: _refresh,
               child: column(
-                ListView(
+                CustomScrollView(
                   // Pull to refresh works on a short list too.
                   physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                      sliver: SliverList.list(
                   children: [
                     // The desktop Overview's tiles, then its sidebar's destinations. The
                     // statuses are the icons in the balance area above; the full card is in
@@ -915,7 +918,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
                     ProtocolSectionHead(
                       l.homeRecentActivity,
-                      trailing: transactions.isEmpty
+                      trailing: !showViewAll(transactions.length)
                           ? null
                           : TextButton(
                               onPressed: () => _open(const HistoryScreen()),
@@ -944,6 +947,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       transactions,
                     ).take(recentActivityCount))
                       TxTile(tx: tx),
+                  ],
+                      ),
+                    ),
+                    // The BT Labs lattice in the room a short list leaves, fading as rows come.
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: BrandLattice(
+                        color: context.tokens.text,
+                        strength: latticeStrength(data == null ? null : transactions.length),
+                      ),
+                    ),
                   ],
                 ),
               ),

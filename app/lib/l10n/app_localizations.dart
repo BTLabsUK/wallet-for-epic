@@ -6331,18 +6331,6 @@ abstract class AppLocalizations {
   /// **'Every payment with its progress and details. Tap one to open it.'**
   String get tourPhoneActivityText;
 
-  /// Title of the tour card for the Contacts screen (first-unlock tour). Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Contacts'**
-  String get tourPhoneContactsTitle;
-
-  /// Text of the tour card for the Contacts screen; one or two short sentences.
-  ///
-  /// In en, this message translates to:
-  /// **'Saved addresses by name. Send picks from here.'**
-  String get tourPhoneContactsText;
-
   /// Title of the tour card for the Invoices screen (first-unlock tour). Short.
   ///
   /// In en, this message translates to:
@@ -6354,6 +6342,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pay an invoice someone sent, or ask someone for a payment. The tabs switch between the two.'**
   String get tourPhoneInvoicesText;
+
+  /// Text of the tour card for the Linked devices screen; one or two short sentences. Linked devices is an experiment.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet on a second device: each shows the other’s payments. An experiment.'**
+  String get tourPhoneDevicesText;
 
   /// Title of the tour card for Settings › Privacy & network (first-unlock tour). Short.
   ///

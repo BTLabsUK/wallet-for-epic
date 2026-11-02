@@ -16,7 +16,7 @@ import 'package:epic_wallet/src/send_preflight.dart';
 import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart' show goHome;
-import 'package:epic_wallet/src/ui/contacts_screen.dart';
+import 'package:epic_wallet/src/ui/devices/linked_devices_screen.dart';
 import 'package:epic_wallet/src/ui/help_screen.dart';
 import 'package:epic_wallet/src/ui/history_screen.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
@@ -191,7 +191,7 @@ void main() {
   tearDown(() => debugPhoneTourSteps = null);
 
   group('steps', () {
-    test('nine with invoices, eight without; Invoices sits after Contacts and before Privacy', () {
+    test('nine with invoices and linked devices; no Contacts step; each optional step drops out on its own', () {
       final all = phoneTourSteps(invoices: true);
       final none = phoneTourSteps(invoices: false);
       expect(all.map((s) => s.titleOf(_en)), [
@@ -199,14 +199,17 @@ void main() {
         'Send',
         'Receive',
         'Activity',
-        'Contacts',
         'Invoices',
+        'Linked devices',
         'Network & privacy',
         'Advanced',
         'Help',
       ]);
       expect(none.length, 8);
       expect(none.any((s) => s.place == TourPlace.invoices), isFalse);
+      final noDevices = phoneTourSteps(invoices: true, devices: false);
+      expect(noDevices.length, 8);
+      expect(noDevices.any((s) => s.place == TourPlace.devices), isFalse);
     });
 
     test('copy: short, no "we", the Advanced step says it switches nothing on by asking to switch on what you need', () {
@@ -310,7 +313,7 @@ void main() {
         expect(_ring(tester), isNotNull, reason: 'step ${i + 1} lights something');
         final screen = switch (steps[i].place) {
           TourPlace.activity => find.byType(HistoryScreen),
-          TourPlace.contacts => find.byType(ContactsScreen),
+          TourPlace.devices => find.byType(LinkedDevicesScreen),
           TourPlace.invoices => find.byType(InvoicesScreen),
           TourPlace.privacy || TourPlace.advanced => find.byType(SettingsSectionScreen),
           TourPlace.help => find.byType(HelpScreen),
@@ -374,12 +377,12 @@ void main() {
       for (var i = 0; i < 4; i++) {
         await _tap(tester, 'Next');
       }
-      expect(find.byType(ContactsScreen), findsOneWidget);
+      expect(find.byType(InvoicesScreen), findsOneWidget);
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       expect(_counter(tester), '4 of 9');
       expect(find.byType(HistoryScreen), findsOneWidget);
-      expect(find.byType(ContactsScreen), findsNothing);
+      expect(find.byType(InvoicesScreen), findsNothing);
       for (var i = 0; i < 3; i++) {
         await tester.binding.handlePopRoute();
         await tester.pumpAndSettle();
@@ -486,14 +489,18 @@ void main() {
       (const Size(360, 800), true),
       (const Size(412, 915), true),
     ]) {
-      testWidgets('every step fits at ${size.width.toInt()}×${size.height.toInt()}${insets ? ' with bars' : ''}; the card never covers the lit area', (tester) async {
+      testWidgets('every step fits at ${size.width.toInt()}×${size.height.toInt()}${insets ? ' with bars' : ''}; the card never covers the lit area and stays at the bottom', (tester) async {
         await _pump(tester, size: size, insets: insets);
         await _startAuto(tester);
         final steps = phoneTourSteps(invoices: true);
         final screen = Offset.zero & size;
         final safe = Rect.fromLTRB(0, insets ? 24 : 0, size.width, size.height - (insets ? 48 : 0));
+        double? bottom;
         for (var i = 0; i < steps.length; i++) {
           final card = tester.getRect(_card);
+          // One place on every step: the card does not jump to the top for a tall lit area.
+          bottom ??= card.bottom;
+          expect(card.bottom, bottom, reason: 'step ${i + 1} card $card');
           expect(safe.contains(card.topLeft) && safe.contains(card.bottomRight), isTrue, reason: 'step ${i + 1} card $card in $safe');
           expect(screen.contains(card.bottomRight), isTrue);
           final ring = _ring(tester);

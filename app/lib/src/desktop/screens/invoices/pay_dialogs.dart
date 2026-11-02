@@ -8,12 +8,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../cancel_final.dart' show CancelResult;
+import '../../../send_amount_gate.dart';
 import '../../desk_l10n.dart';
 import '../../data/invoice_state.dart';
 import '../../widgets/kit.dart';
 import '../../../help/help_content.dart' show HelpAnchor;
 import '../wallet/cancel_note.dart';
 import 'invoice_parts.dart';
+
+/// An invoice or request file of [amount] against the [spendable] balance ([SendAmountGate]):
+/// the amount is fixed and the fee was estimated with it ([fee], null when it could not be), so
+/// the balance decides. Approve is off until it is ready, and the dialog asks again on Pay.
+SendAmountGate deskPayGate(int? spendable, {required int amount, int? fee}) => SendAmountGate.check(
+  amount: amount,
+  spendable: spendable,
+  estimate: fee == null ? null : (amount: amount, fee: fee),
+  needsEstimate: false,
+);
 
 /// Approve → password → pay. The only path to [DeskInvoices.pay]. On success the
 /// app goes back to To pay with a toast. [demoPassword] fills and submits the field at once
@@ -80,6 +91,12 @@ class _ApproveDialogState extends ConsumerState<_ApproveDialog> {
     final l = context.l10n;
     if (_password.text.isEmpty) {
       setState(() => _fieldError = l.deskInvPayerEnterPassword);
+      return;
+    }
+    // Asked again on Pay: the balance may have moved since Approve.
+    final i = widget.invoice;
+    if (deskPayGate(ref.read(deskProvider).balance?.spendable, amount: i.amount, fee: i.feeKnown ? i.fee : null).notEnough) {
+      setState(() => _problem = l.deskInvPayerShort);
       return;
     }
     setState(() {
@@ -395,6 +412,12 @@ class _ApproveFileDialogState extends ConsumerState<_ApproveFileDialog> {
     final l = context.l10n;
     if (_password.text.isEmpty) {
       setState(() => _fieldError = l.deskInvPayerEnterPassword);
+      return;
+    }
+    // Asked again on Approve: the balance may have moved since the review.
+    final f = widget.file;
+    if (deskPayGate(ref.read(deskProvider).balance?.spendable, amount: f.amount, fee: f.feeKnown ? f.fee : null).notEnough) {
+      setState(() => _problem = l.deskInvPayerShort);
       return;
     }
     setState(() {

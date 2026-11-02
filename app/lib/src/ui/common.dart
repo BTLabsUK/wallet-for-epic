@@ -2238,20 +2238,45 @@ class SlateInput extends StatelessWidget {
 
 /// Body padding and a width cap, so screens stay readable on tablets and desktop. [bottom] is
 /// the screen's main action, held at the foot of the screen (above the keyboard when it is
-/// open) instead of wherever the form happens to end.
+/// open) instead of wherever the form happens to end. With [scrolling], [children] stay at the
+/// top and only [scrolling] scrolls under them (the recovery phrase's words); a screen shorter
+/// than [pinnedMinHeight] scrolls as one list.
 class ScreenBody extends StatelessWidget {
-  const ScreenBody({super.key, required this.children, this.bottom});
+  const ScreenBody({super.key, required this.children, this.bottom, this.scrolling});
 
   final List<Widget> children;
   final Widget? bottom;
+  final Widget? scrolling;
+
+  /// The least height of the body (above [bottom]) that keeps [children] in view over [scrolling].
+  static const double pinnedMinHeight = 360;
 
   @override
   Widget build(BuildContext context) {
     final bottom = this.bottom;
-    final list = ListView(
-      padding: DockSlack.pad(context, const EdgeInsets.all(16)),
-      children: children,
-    );
+    final scrolling = this.scrolling;
+    final padding = DockSlack.pad(context, const EdgeInsets.all(16));
+    final Widget list = scrolling == null
+        ? ListView(padding: padding, children: children)
+        : LayoutBuilder(
+            builder: (context, box) => box.maxHeight < pinnedMinHeight
+                ? ListView(padding: padding, children: [...children, scrolling])
+                : Padding(
+                    padding: padding.copyWith(bottom: 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ...children,
+                        Flexible(
+                          child: SingleChildScrollView(
+                            padding: EdgeInsets.only(bottom: padding.bottom),
+                            child: scrolling,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+          );
     return SafeArea(
       child: Center(
         child: ConstrainedBox(

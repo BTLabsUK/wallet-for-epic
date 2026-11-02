@@ -15,6 +15,7 @@ import '../initials.dart';
 import '../l10n.dart';
 import '../pairing_providers.dart';
 import '../providers.dart';
+import '../recent_activity.dart';
 import '../wallet_service.dart';
 import 'address_view.dart' show MarkedAddress;
 import 'app_dialog.dart';
@@ -81,8 +82,8 @@ class _Payments extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final tx in mine.take(5)) TxTile(tx: tx),
-        if (mine.length > 5)
+        for (final tx in mine.take(recentActivityCount)) TxTile(tx: tx),
+        if (showViewAll(mine.length))
           Align(
             alignment: AlignmentDirectional.centerStart,
             child: InlineTextButton(
