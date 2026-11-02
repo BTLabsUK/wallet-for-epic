@@ -2,30 +2,29 @@
 /// Settings on the phone: a hub of groups that fits one screen, in the order people reach for
 /// them. Security, Network & privacy, Wallet, Transactions, Display, Advanced and About open a
 /// page each (`settings_sections.dart`); Help & feedback opens Help, which starts with Send
-/// feedback. A group's row shows its state on a
-/// second line ("example.org · example.net · Tor off"), so the state is visible without opening
-/// the page. No search: the hub is scanned at a glance, and Help has its own search for
-/// questions.
+/// feedback, and Donate the donation page. A hub row is its glyph and its name, never a second
+/// line (item 3): a state belongs on the page. No search: the hub is scanned at a glance, and
+/// Help has its own search for questions.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../demo.dart';
+import '../donate.dart' show donateLinkProvider;
 import '../l10n.dart';
 import '../errors.dart';
-import '../phone_tor.dart' show phoneTorProvider;
 import '../providers.dart';
-import '../settings.dart' show networkModeProvider;
+import '../devices/phone_devices.dart' show linkedDevicesOnProvider;
 import 'backup_screen.dart';
 import 'common.dart';
+import 'devices/linked_devices_screen.dart' show LinkedDevicesScreen;
+import 'donate_screen.dart';
 import 'help_screen.dart';
-import 'network_mode_text.dart' show networkSummary;
 import 'restore_screen.dart' show ScanSlotLine;
 import 'settings_sections.dart';
 import 'theme/tokens.dart';
 import '../levels/level_providers.dart';
-import 'level_step_screen.dart' show levelTitle;
 
 export 'settings_sections.dart';
 
@@ -46,6 +45,9 @@ Key settingsGroupKey(SettingsSection section) =>
 
 /// The key of the hub's Help & feedback row, for tests.
 const Key settingsHelpKey = ValueKey('settings-group-help');
+
+/// The key of the hub's Donate row, for tests.
+const Key settingsDonateKey = ValueKey('settings-group-donate');
 
 /// The Settings hub. With [section] (or [privacy], the Network & privacy page), that page
 /// opens over the hub on arrival.
@@ -83,7 +85,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final walletOpen = ref.watch(sessionProvider) != null;
     final demo = ref.watch(demoModeProvider);
     final backedUp = ref.watch(backedUpProvider).value ?? true;
-    final t = context.tokens;
     // Level 1 hides Network & privacy and Transactions.
     final features = ref.watch(levelFeaturesProvider);
 
@@ -107,9 +108,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   _GroupRow(
                     key: settingsGroupKey(SettingsSection.security),
                     section: SettingsSection.security,
-                    // Only the warning while the recovery phrase is not backed up.
-                    state: !demo && !backedUp ? l.settingsStateBackUp : null,
-                    stateColor: t.warn,
+                    // A warning mark, not a line, while the recovery phrase is not backed up.
+                    warning: !demo && !backedUp ? l.settingsStateBackUp : null,
                   ),
                 // The shared sections in the desktop's order (GP2-021): Transactions ·
                 // Privacy · Appearance · This wallet; Security keeps its place first.
@@ -122,12 +122,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 _GroupRow(
                   key: settingsGroupKey(SettingsSection.privacyNetwork),
                   section: SettingsSection.privacyNetwork,
-                  // The mode and the Tor switch: how the wallet connects, at a glance.
-                  state: networkSummary(
-                    l,
-                    ref.watch(networkModeProvider),
-                    torOn: ref.watch(phoneTorProvider.select((t) => t.receiving)),
-                  ),
                 ),
                 _GroupRow(
                   key: settingsGroupKey(SettingsSection.display),
@@ -138,16 +132,38 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     key: settingsGroupKey(SettingsSection.wallet),
                     section: SettingsSection.wallet,
                   ),
+                // Every level, marked as an experiment (item 10), right after the wallet it
+                // links.
+                if (walletOpen && ref.watch(linkedDevicesOnProvider))
+                  _GroupRow(
+                    key: settingsLinkedDevicesKey,
+                    icon: Icons.devices_outlined,
+                    title: l.expLinkedDevices,
+                    tag: l.settingsExperimentTag,
+                    onTap: () => Navigator.of(context).push<void>(
+                      MaterialPageRoute<void>(builder: (_) => const LinkedDevicesScreen()),
+                    ),
+                  ),
                 _GroupRow(
                   key: settingsHelpKey,
                   icon: Icons.help_outline,
                   title: l.settingsSectionHelpFeedback,
                   onTap: () => openHelp(context),
                 ),
+                // Directly under Help (item 4): the donation page, its fallback the address;
+                // none without either in the settings files.
+                if (ref.watch(donateLinkProvider).any)
+                _GroupRow(
+                  key: settingsDonateKey,
+                  icon: Icons.volunteer_activism_outlined,
+                  title: l.settingsDonate,
+                  onTap: () => Navigator.of(context).push<void>(
+                    MaterialPageRoute<void>(builder: (_) => const DonateScreen()),
+                  ),
+                ),
                 _GroupRow(
                   key: settingsGroupKey(SettingsSection.advanced),
                   section: SettingsSection.advanced,
-                  state: levelTitle(l, features.level),
                 ),
                 _GroupRow(
                   key: settingsGroupKey(SettingsSection.about),
@@ -186,8 +202,11 @@ class _GroupGlyph extends StatelessWidget {
   }
 }
 
-/// A hub row: the group's glyph, its title, its state on a second line, a chevron. With
-/// [section] it opens that page; else [icon], [title] and [onTap] describe it.
+/// A hub row: the group's glyph, its title and a chevron; one line, always (item 3: the
+/// settings navigation never gets a second row, so the row has no place for one). With
+/// [section] it opens that page; else [icon], [title] and [onTap] describe it. [warning] puts a
+/// warning mark before the chevron, its text the mark's tooltip and spoken label; [tag] a
+/// small badge after the title, on the same line (Linked devices' "Experiment").
 class _GroupRow extends StatelessWidget {
   const _GroupRow({
     super.key,
@@ -195,34 +214,53 @@ class _GroupRow extends StatelessWidget {
     this.icon,
     this.title,
     this.onTap,
-    this.state,
-    this.stateColor,
+    this.warning,
+    this.tag,
   }) : assert(section != null || (icon != null && title != null && onTap != null));
 
   final SettingsSection? section;
   final IconData? icon;
   final String? title;
   final VoidCallback? onTap;
-  final String? state;
-  final Color? stateColor;
+  final String? warning;
+  final String? tag;
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final section = this.section;
-    final state = this.state;
+    final warning = this.warning;
     return ListTile(
       minVerticalPadding: 12,
       leading: _GroupGlyph(section == null ? icon! : settingsSectionIcon(section)),
-      title: Text(section == null ? title! : settingsSectionTitle(l, section)),
-      subtitle: state == null
-          ? null
-          // Wraps rather than cuts: every part counts (node · Epicbox · Tor ends on Tor).
-          : Text(
-              state,
-              style: stateColor == null ? null : TextStyle(color: stateColor),
+      title: Row(
+        children: [
+          Flexible(
+            child: Text(
+              section == null ? title! : settingsSectionTitle(l, section),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-      trailing: const NavChevron(),
+          ),
+          if (tag case final tag?) ...[const SizedBox(width: 8), EBadge(tag)],
+        ],
+      ),
+      trailing: warning == null
+          ? const NavChevron()
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Tooltip(
+                  message: warning,
+                  child: Semantics(
+                    label: warning,
+                    child: Icon(Icons.error_outline, size: 20, color: context.tokens.warn),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const NavChevron(),
+              ],
+            ),
       onTap: section == null
           ? onTap
           : () => openSettingsSection(context, section),

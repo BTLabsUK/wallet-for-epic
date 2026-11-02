@@ -3230,6 +3230,37 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsSectionHelpFeedback => 'ช่วยเหลือ';
 
   @override
+  String get settingsDonate => 'บริจาค';
+
+  @override
+  String get settingsExperimentTag => 'ทดลอง';
+
+  @override
+  String get donateLead => 'เงินบริจาคใช้พัฒนากระเป๋าเงินนี้';
+
+  @override
+  String get donatePage => 'หน้าบริจาค';
+
+  @override
+  String get donatePageDown => 'หน้าบริจาคไม่ตอบสนอง';
+
+  @override
+  String get donatePageDownText =>
+      'ส่ง EPIC ไปยังที่อยู่ด้านล่าง หรือใช้หน้าติดต่อ';
+
+  @override
+  String get donateAddress => 'ที่อยู่ Epic Cash';
+
+  @override
+  String get donateQrLabel => 'QR Code ของที่อยู่สำหรับบริจาค';
+
+  @override
+  String get donateContact => 'หน้าติดต่อ';
+
+  @override
+  String get donateNothing => 'ยังไม่ได้ตั้งหน้าหรือที่อยู่สำหรับบริจาค';
+
+  @override
   String get settingsStateBackUp => 'สำรองวลีกู้คืน';
 
   @override
@@ -18034,9 +18065,15 @@ class AppLocalizationsTh extends AppLocalizations {
   String get lvShellKeepWaiting => 'รอต่อ';
 
   @override
-  String lvShellRelayDownNotice(String name) {
-    return 'เข้าถึงเซิร์ฟเวอร์ Epicbox ของคุณไม่ได้ การชำระเงินถึงคุณกำลังรอ $name พร้อมรับช่วงต่อ โดยที่อยู่ของคุณจะเปลี่ยนไปด้วย';
+  String get lvShellRelayDownTitle => 'เข้าถึงเซิร์ฟเวอร์ Epicbox ของคุณไม่ได้';
+
+  @override
+  String lvShellRelayDownShort(String name) {
+    return '$name รับช่วงต่อได้ โดยที่อยู่ของคุณจะเปลี่ยนไปด้วย';
   }
+
+  @override
+  String get lvShellSwitch => 'สลับ';
 
   @override
   String lvShellSwitchedNotice(String name) {

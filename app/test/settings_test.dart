@@ -524,7 +524,9 @@ void main() {
         settingsGroupKey(SettingsSection.privacyNetwork),
         settingsGroupKey(SettingsSection.display),
         settingsGroupKey(SettingsSection.wallet),
+        settingsLinkedDevicesKey,
         settingsHelpKey,
+        settingsDonateKey,
         settingsGroupKey(SettingsSection.about),
       ];
       var last = -1.0;
@@ -1966,9 +1968,9 @@ void main() {
               if (section == SettingsSection.advanced) {
                 // No Connection servers row: they are the first of the Epicbox list.
                 expect(pages[section], isNot(contains('key:adv-connection-servers')), reason: '$size');
-                for (final row in ['adv-invoices', 'adv-linkedDevices']) {
-                  expect(pages[section], contains('key:$row'), reason: '$row at $size');
-                }
+                expect(pages[section], contains('key:adv-invoices'), reason: 'adv-invoices at $size');
+                // Linked devices has no switch any more (item 10).
+                expect(pages[section], isNot(contains('key:adv-linkedDevices')), reason: '$size');
                 // The network mode and failover moved to Network & privacy (B-03).
                 for (final row in ['adv-mode-standard', 'adv-nodeFailover']) {
                   expect(pages[section], isNot(contains('key:$row')), reason: '$row at $size');

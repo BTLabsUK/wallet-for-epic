@@ -12,7 +12,6 @@ import '../licence_texts.dart';
 import '../tor_build.dart';
 import '../tor_licence.dart';
 import 'common.dart';
-import 'settings_screen.dart' show projectRepoUrl;
 import 'theme/fonts.dart' show flagsLicenceNote, sasPicturesLicenceNote;
 import 'theme/tokens.dart';
 import 'settings_rows.dart' show NavChevron;
@@ -83,13 +82,7 @@ class _LicencesFoldState extends State<LicencesFold> {
                 // source is. English, as the licence texts themselves.
                 // No tor in the build without Tor ([torBuilt]): nothing to name.
                 if (torBuilt) TorSourceNote(style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
-                if (projectRepoUrl != null) ...[
-                  const SizedBox(height: 8),
-                  SelectableText(
-                    projectRepoUrl!,
-                    style: TextStyle(fontFamily: t.monoFamily, fontSize: 12, color: t.dim),
-                  ),
-                ],
+                // The source code's address is About's Source code row, right under the fold.
                 const SizedBox(height: 16),
                 Align(
                   alignment: AlignmentDirectional.centerStart,

@@ -4167,6 +4167,46 @@
   "@settingsSectionHelpFeedback": {
     "description": "Settings group on the phone's Settings hub: opens Help, which starts with Send feedback."
   },
+  "settingsDonate": "Donate",
+  "@settingsDonate": {
+    "description": "Phone Settings hub row directly under Help, and the Donate screen's title: BT Labs' donation page and address."
+  },
+  "settingsExperimentTag": "Experiment",
+  "@settingsExperimentTag": {
+    "description": "Small tag after 'Linked devices' on the phone's Settings hub: the feature is an experiment. One word."
+  },
+  "donateLead": "Donations fund development of this wallet.",
+  "@donateLead": {
+    "description": "Donate screen, first line."
+  },
+  "donatePage": "Donation page",
+  "@donatePage": {
+    "description": "Donate screen: row with the donation page's address; a tap copies the link."
+  },
+  "donatePageDown": "The donation page does not answer.",
+  "@donatePageDown": {
+    "description": "Donate screen, notice title: the donation page from settings.toml did not answer."
+  },
+  "donatePageDownText": "Send EPIC to the address below, or use the contact page.",
+  "@donatePageDownText": {
+    "description": "Donate screen, notice text after donatePageDown."
+  },
+  "donateAddress": "Epic Cash address",
+  "@donateAddress": {
+    "description": "Donate screen: header over BT Labs' Epic Cash donation address (Copy and QR beside it)."
+  },
+  "donateQrLabel": "QR code of the donation address",
+  "@donateQrLabel": {
+    "description": "Screen reader label of the donation address's QR code."
+  },
+  "donateContact": "Contact page",
+  "@donateContact": {
+    "description": "Donate screen: row with BT Labs' contact page; a tap copies the link."
+  },
+  "donateNothing": "No donation page or address is set.",
+  "@donateNothing": {
+    "description": "Donate screen when settings.toml names no donation page, address or contact page."
+  },
   "settingsStateBackUp": "Back up your recovery phrase",
   "@settingsStateBackUp": {
     "description": "State line under the Security group while the recovery phrase has not been backed up."
@@ -24875,14 +24915,22 @@
   "@lvShellKeepWaiting": {
     "description": "Button: stay on the current Epicbox server for now."
   },
-  "lvShellRelayDownNotice": "Your Epicbox server is not reachable. Payments to you wait. {name} is ready to take over; your address changes with it.",
-  "@lvShellRelayDownNotice": {
-    "description": "Level 1 warning notice when the Epicbox server is down and another can take over.",
+  "lvShellRelayDownTitle": "Your Epicbox server is not reachable.",
+  "@lvShellRelayDownTitle": {
+    "description": "Compact warning notice title: the wallet's Epicbox server does not answer (after the connection grace). lvShellRelayDownShort follows."
+  },
+  "lvShellRelayDownShort": "{name} can take over; your address changes with it.",
+  "@lvShellRelayDownShort": {
+    "description": "Line under lvShellRelayDownTitle: {name} is another Epicbox server ready to take over; moving to it changes the wallet's address. A Switch button follows.",
     "placeholders": {
       "name": {
         "type": "String"
       }
     }
+  },
+  "lvShellSwitch": "Switch",
+  "@lvShellSwitch": {
+    "description": "Button on the Epicbox notice: move the wallet to the server the notice names."
   },
   "lvShellSwitchedNotice": "Now on {name}. Your new address is ready.",
   "@lvShellSwitchedNotice": {

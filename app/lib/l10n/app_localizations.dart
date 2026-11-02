@@ -5317,6 +5317,66 @@ abstract class AppLocalizations {
   /// **'Help'**
   String get settingsSectionHelpFeedback;
 
+  /// Phone Settings hub row directly under Help, and the Donate screen's title: BT Labs' donation page and address.
+  ///
+  /// In en, this message translates to:
+  /// **'Donate'**
+  String get settingsDonate;
+
+  /// Small tag after 'Linked devices' on the phone's Settings hub: the feature is an experiment. One word.
+  ///
+  /// In en, this message translates to:
+  /// **'Experiment'**
+  String get settingsExperimentTag;
+
+  /// Donate screen, first line.
+  ///
+  /// In en, this message translates to:
+  /// **'Donations fund development of this wallet.'**
+  String get donateLead;
+
+  /// Donate screen: row with the donation page's address; a tap copies the link.
+  ///
+  /// In en, this message translates to:
+  /// **'Donation page'**
+  String get donatePage;
+
+  /// Donate screen, notice title: the donation page from settings.toml did not answer.
+  ///
+  /// In en, this message translates to:
+  /// **'The donation page does not answer.'**
+  String get donatePageDown;
+
+  /// Donate screen, notice text after donatePageDown.
+  ///
+  /// In en, this message translates to:
+  /// **'Send EPIC to the address below, or use the contact page.'**
+  String get donatePageDownText;
+
+  /// Donate screen: header over BT Labs' Epic Cash donation address (Copy and QR beside it).
+  ///
+  /// In en, this message translates to:
+  /// **'Epic Cash address'**
+  String get donateAddress;
+
+  /// Screen reader label of the donation address's QR code.
+  ///
+  /// In en, this message translates to:
+  /// **'QR code of the donation address'**
+  String get donateQrLabel;
+
+  /// Donate screen: row with BT Labs' contact page; a tap copies the link.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact page'**
+  String get donateContact;
+
+  /// Donate screen when settings.toml names no donation page, address or contact page.
+  ///
+  /// In en, this message translates to:
+  /// **'No donation page or address is set.'**
+  String get donateNothing;
+
   /// State line under the Security group while the recovery phrase has not been backed up.
   ///
   /// In en, this message translates to:
@@ -28770,11 +28830,23 @@ abstract class AppLocalizations {
   /// **'Keep waiting'**
   String get lvShellKeepWaiting;
 
-  /// Level 1 warning notice when the Epicbox server is down and another can take over.
+  /// Compact warning notice title: the wallet's Epicbox server does not answer (after the connection grace). lvShellRelayDownShort follows.
   ///
   /// In en, this message translates to:
-  /// **'Your Epicbox server is not reachable. Payments to you wait. {name} is ready to take over; your address changes with it.'**
-  String lvShellRelayDownNotice(String name);
+  /// **'Your Epicbox server is not reachable.'**
+  String get lvShellRelayDownTitle;
+
+  /// Line under lvShellRelayDownTitle: {name} is another Epicbox server ready to take over; moving to it changes the wallet's address. A Switch button follows.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} can take over; your address changes with it.'**
+  String lvShellRelayDownShort(String name);
+
+  /// Button on the Epicbox notice: move the wallet to the server the notice names.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch'**
+  String get lvShellSwitch;
 
   /// Success notice after the Epicbox server switch.
   ///

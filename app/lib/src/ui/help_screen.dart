@@ -20,6 +20,7 @@ import '../settings.dart';
 import '../tor_build.dart';
 import 'common.dart';
 import 'feedback_screen.dart';
+import 'devices/linked_devices_screen.dart' show LinkedDevicesScreen;
 import 'devices/sync_help_phone.dart';
 import 'handshake.dart';
 import 'help_language_switch.dart';
@@ -725,7 +726,7 @@ class _PlaceLink extends StatelessWidget {
 }
 
 /// Where a place in Help goes on the phone.
-enum HelpPhonePlace { receive, send, activity, outputs, contacts, invoices, settings, security, privacyNetwork, wallet, transactions, display, about }
+enum HelpPhonePlace { receive, send, activity, outputs, contacts, invoices, settings, security, privacyNetwork, wallet, linkedDevices, transactions, display, about }
 
 /// The rows of each Settings page that Help names: `Settings › This wallet › Recheck balance`.
 const _settingsPlaces = <String, (HelpPhonePlace, Set<String>)>{
@@ -757,6 +758,8 @@ HelpPhonePlace? helpPlaceDestination(String place) {
     final page = _settingsPlaces[parts[1]];
     if (page == null || parts.length > 3) return null;
     if (parts.length == 3 && !page.$2.contains(parts[2])) return null;
+    // Linked devices is a hub row of its own on the phone (item 10), not a row of This wallet.
+    if (parts.length == 3 && parts[2] == 'Linked devices') return HelpPhonePlace.linkedDevices;
     return page.$1;
   }
   final screen = _screenPlaces[root];
@@ -806,6 +809,8 @@ void openHelpPlace(BuildContext context, String place) {
       openSettingsSection(context, SettingsSection.privacyNetwork);
     case HelpPhonePlace.wallet:
       openSettingsSection(context, SettingsSection.wallet);
+    case HelpPhonePlace.linkedDevices:
+      navigator.push<void>(MaterialPageRoute<void>(builder: (_) => const LinkedDevicesScreen()));
     case HelpPhonePlace.transactions:
       openSettingsSection(context, SettingsSection.transactions);
     case HelpPhonePlace.display:

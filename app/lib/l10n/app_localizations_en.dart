@@ -3286,6 +3286,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSectionHelpFeedback => 'Help';
 
   @override
+  String get settingsDonate => 'Donate';
+
+  @override
+  String get settingsExperimentTag => 'Experiment';
+
+  @override
+  String get donateLead => 'Donations fund development of this wallet.';
+
+  @override
+  String get donatePage => 'Donation page';
+
+  @override
+  String get donatePageDown => 'The donation page does not answer.';
+
+  @override
+  String get donatePageDownText =>
+      'Send EPIC to the address below, or use the contact page.';
+
+  @override
+  String get donateAddress => 'Epic Cash address';
+
+  @override
+  String get donateQrLabel => 'QR code of the donation address';
+
+  @override
+  String get donateContact => 'Contact page';
+
+  @override
+  String get donateNothing => 'No donation page or address is set.';
+
+  @override
   String get settingsStateBackUp => 'Back up your recovery phrase';
 
   @override
@@ -18450,9 +18481,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lvShellKeepWaiting => 'Keep waiting';
 
   @override
-  String lvShellRelayDownNotice(String name) {
-    return 'Your Epicbox server is not reachable. Payments to you wait. $name is ready to take over; your address changes with it.';
+  String get lvShellRelayDownTitle => 'Your Epicbox server is not reachable.';
+
+  @override
+  String lvShellRelayDownShort(String name) {
+    return '$name can take over; your address changes with it.';
   }
+
+  @override
+  String get lvShellSwitch => 'Switch';
 
   @override
   String lvShellSwitchedNotice(String name) {

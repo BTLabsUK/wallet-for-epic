@@ -3388,6 +3388,37 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsSectionHelpFeedback => 'Pomoc';
 
   @override
+  String get settingsDonate => 'Wesprzyj';
+
+  @override
+  String get settingsExperimentTag => 'Eksperyment';
+
+  @override
+  String get donateLead => 'Darowizny finansują rozwój tego portfela.';
+
+  @override
+  String get donatePage => 'Strona darowizn';
+
+  @override
+  String get donatePageDown => 'Strona darowizn nie odpowiada.';
+
+  @override
+  String get donatePageDownText =>
+      'Wyślij EPIC na adres poniżej lub skorzystaj ze strony kontaktowej.';
+
+  @override
+  String get donateAddress => 'Adres Epic Cash';
+
+  @override
+  String get donateQrLabel => 'Kod QR adresu do darowizn';
+
+  @override
+  String get donateContact => 'Strona kontaktowa';
+
+  @override
+  String get donateNothing => 'Nie ustawiono strony ani adresu do darowizn.';
+
+  @override
   String get settingsStateBackUp => 'Zapisz frazę odzyskiwania';
 
   @override
@@ -19099,9 +19130,15 @@ class AppLocalizationsPl extends AppLocalizations {
   String get lvShellKeepWaiting => 'Czekaj dalej';
 
   @override
-  String lvShellRelayDownNotice(String name) {
-    return 'Twój serwer Epicbox jest nieosiągalny. Płatności do Ciebie czekają. $name może przejąć; Twój adres zmieni się razem z nim.';
+  String get lvShellRelayDownTitle => 'Twój serwer Epicbox jest nieosiągalny.';
+
+  @override
+  String lvShellRelayDownShort(String name) {
+    return '$name może przejąć; Twój adres zmieni się razem z nim.';
   }
+
+  @override
+  String get lvShellSwitch => 'Przełącz';
 
   @override
   String lvShellSwitchedNotice(String name) {

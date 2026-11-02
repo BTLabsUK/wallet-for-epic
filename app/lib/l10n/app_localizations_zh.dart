@@ -3106,6 +3106,36 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsSectionHelpFeedback => '帮助';
 
   @override
+  String get settingsDonate => '捐款';
+
+  @override
+  String get settingsExperimentTag => '实验';
+
+  @override
+  String get donateLead => '捐款用于开发这个钱包。';
+
+  @override
+  String get donatePage => '捐款页面';
+
+  @override
+  String get donatePageDown => '捐款页面没有响应。';
+
+  @override
+  String get donatePageDownText => '把 EPIC 发送到下面的地址，或使用联系页面。';
+
+  @override
+  String get donateAddress => 'Epic Cash 地址';
+
+  @override
+  String get donateQrLabel => '捐款地址二维码';
+
+  @override
+  String get donateContact => '联系页面';
+
+  @override
+  String get donateNothing => '未设置捐款页面或地址。';
+
+  @override
   String get settingsStateBackUp => '备份助记词';
 
   @override
@@ -17390,9 +17420,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get lvShellKeepWaiting => '继续等待';
 
   @override
-  String lvShellRelayDownNotice(String name) {
-    return '你的 Epicbox 服务器无法连接。发给你的付款正在等待。$name 可以接替；你的地址会随之改变。';
+  String get lvShellRelayDownTitle => '你的 Epicbox 服务器无法连接。';
+
+  @override
+  String lvShellRelayDownShort(String name) {
+    return '$name 可以接替；你的地址会随之改变。';
   }
+
+  @override
+  String get lvShellSwitch => '切换';
 
   @override
   String lvShellSwitchedNotice(String name) {

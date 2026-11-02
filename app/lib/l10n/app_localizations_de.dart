@@ -3334,6 +3334,38 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsSectionHelpFeedback => 'Hilfe';
 
   @override
+  String get settingsDonate => 'Spenden';
+
+  @override
+  String get settingsExperimentTag => 'Experiment';
+
+  @override
+  String get donateLead => 'Spenden finanzieren die Entwicklung dieser Wallet.';
+
+  @override
+  String get donatePage => 'Spendenseite';
+
+  @override
+  String get donatePageDown => 'Die Spendenseite antwortet nicht.';
+
+  @override
+  String get donatePageDownText =>
+      'Senden Sie EPIC an die Adresse unten oder nutzen Sie die Kontaktseite.';
+
+  @override
+  String get donateAddress => 'Epic-Cash-Adresse';
+
+  @override
+  String get donateQrLabel => 'QR-Code der Spendenadresse';
+
+  @override
+  String get donateContact => 'Kontaktseite';
+
+  @override
+  String get donateNothing =>
+      'Keine Spendenseite und keine Adresse eingerichtet.';
+
+  @override
   String get settingsStateBackUp => 'Wiederherstellungsphrase sichern';
 
   @override
@@ -18666,9 +18698,16 @@ class AppLocalizationsDe extends AppLocalizations {
   String get lvShellKeepWaiting => 'Weiter warten';
 
   @override
-  String lvShellRelayDownNotice(String name) {
-    return 'Ihr Epicbox-Server ist nicht erreichbar. Zahlungen an Sie warten. $name kann übernehmen; Ihre Adresse ändert sich damit.';
+  String get lvShellRelayDownTitle =>
+      'Ihr Epicbox-Server ist nicht erreichbar.';
+
+  @override
+  String lvShellRelayDownShort(String name) {
+    return '$name kann übernehmen; Ihre Adresse ändert sich damit.';
   }
+
+  @override
+  String get lvShellSwitch => 'Wechseln';
 
   @override
   String lvShellSwitchedNotice(String name) {
