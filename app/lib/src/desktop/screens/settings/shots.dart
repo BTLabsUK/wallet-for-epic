@@ -7,6 +7,7 @@ import '../../data/mock_hosts.dart';
 import 'dart:async' show unawaited;
 import 'dart:io' show File;
 
+import 'package:flutter/gestures.dart' show GestureBinding, PointerDownEvent, PointerUpEvent;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -44,6 +45,9 @@ import 'settings_about.dart' show AboutDemo;
 import 'settings_help.dart' show HelpDemo;
 import 'settings_security.dart' show SecurityDemo;
 import 'settings_rescan.dart';
+import 'settings_donate.dart' show DonateDemo;
+import 'search/search_slot.dart' show settingsQueryProvider;
+import '../../widgets/more_options.dart' show moreOptionsRevealProvider;
 import '../wallet/tx_detail.dart' show txMoreDemoProvider;
 import '../../../advanced.dart';
 import '../../../payment_prefs.dart';
@@ -466,7 +470,51 @@ final List<DeskShot> settingsShots = [
   ),
   // The help popover (widgets/popover.dart) open on the Network group's info icon.
   DeskShot(id: '43r-network-help', title: 'Settings › Network & privacy › Network, the help popover open', route: DeskRoute.settingsPrivacy, dialog: (ctx) => openInfoHint(ctx, title: (l) => l.deskSetAdvNetwork)),
+  // The Settings redesign (26.10.25): search, the hidden rows behind ⇕, the views' nav, the
+  // month picker, Donate without an answer.
+  DeskShot(id: '45a-settings-search-tor', title: 'Settings search: "tor"', route: DeskRoute.settingsAccount, prepare: (c, _) async => c.read(settingsQueryProvider.notifier).set('tor')),
+  DeskShot(id: '45b-settings-search-seed', title: 'Settings search: "seed"', route: DeskRoute.settingsAccount, prepare: (c, _) async => c.read(settingsQueryProvider.notifier).set('seed')),
+  DeskShot(
+    id: '45c-payments-sending-revealed',
+    title: 'Payments in the Deeper view, Sending with its hidden rows shown (⇕)',
+    route: DeskRoute.settingsReceiving,
+    before: _level(WalletLevel.casual),
+    prepare: (c, _) async => c.read(moreOptionsRevealProvider.notifier).open('pay-sending'),
+  ),
+  DeskShot(id: '45d-settings-shallow', title: 'Settings in the Shallow view: the nav', route: DeskRoute.settingsAccount, before: _level(WalletLevel.justSendReceive)),
+  DeskShot(
+    id: '45e-rescan-month-open',
+    title: 'Recheck balance from a month: the month picker open',
+    route: DeskRoute.settingsRescan,
+    prepare: (c, _) async {
+      final s = c.read(deskProvider).settings;
+      await c.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: s.advanced.withFeature(AdvancedFeature.recheckFromHeight, true)));
+    },
+    after: (_, ctx) async => _tap(ctx, EStartMonthField.fieldKey),
+  ),
+  const DeskShot(id: '26d-settings-donate-no-answer', title: 'Settings › Donate, the address could not be checked', route: DeskRoute.settingsDonate, arg: DonateDemo.noAnswer),
 ];
+
+/// A tap at the middle of the widget with [key] under [context], as a pointer would make it.
+void _tap(BuildContext context, Key key) {
+  Element? found;
+  void visit(Element e) {
+    if (found != null) return;
+    if (e.widget.key == key) {
+      found = e;
+      return;
+    }
+    e.visitChildren(visit);
+  }
+
+  context.visitChildElements(visit);
+  final box = found?.renderObject as RenderBox?;
+  if (box == null || !box.hasSize) return;
+  final at = box.localToGlobal(box.size.center(Offset.zero));
+  GestureBinding.instance
+    ..handlePointerEvent(PointerDownEvent(position: at))
+    ..handlePointerEvent(PointerUpEvent(position: at));
+}
 
 /// Opens the popover of the [EInfoHint] titled [title] under [root] (the tour's dialog hook).
 Future<void> openInfoHint(BuildContext root, {required String Function(AppLocalizations) title, Element? under}) async {
