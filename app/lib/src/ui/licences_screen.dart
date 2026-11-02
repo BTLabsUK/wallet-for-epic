@@ -50,7 +50,7 @@ class _LicencesFoldState extends State<LicencesFold> {
             key: widget.rowKey,
             leading: const Icon(Icons.article_outlined),
             title: Text(l.settingsLicences),
-            subtitle: Text(l.licencesLead, maxLines: 1, overflow: TextOverflow.ellipsis),
+            subtitle: Text(l.licencesLead),
             trailing: ExcludeSemantics(
               child: Icon(_open ? Icons.unfold_less : Icons.unfold_more, color: t.dim),
             ),
@@ -60,7 +60,7 @@ class _LicencesFoldState extends State<LicencesFold> {
         if (_open)
           Padding(
             // Under the title, past the leading icon (the settings rows' 56 dp line).
-            padding: const EdgeInsets.fromLTRB(72, 4, 24, 8),
+            padding: const EdgeInsetsDirectional.fromSTEB(56, 4, 24, 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
