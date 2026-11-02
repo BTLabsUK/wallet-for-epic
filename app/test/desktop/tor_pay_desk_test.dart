@@ -105,7 +105,7 @@ void main() {
       validatedWithNode: true,
     );
     final r = await wallet.send(const SendRequest(method: TxMethod.tor, amount: 10000000, to: _onion));
-    expect(r, isNot(isA<SendFailed>()), reason: r is SendFailed ? '${r.message}' : null);
+    expect(r, isNot(isA<SendFailed>()), reason: r is SendFailed ? r.message : null);
     expect(session().torSends, isNotEmpty);
   });
 
