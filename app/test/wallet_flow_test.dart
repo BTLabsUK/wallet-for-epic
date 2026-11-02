@@ -158,10 +158,11 @@ Future<void> _reveal(WidgetTester tester, Finder finder) async {
       200,
       scrollable: find
           .descendant(
-            // The balance tiles are a ListView too, but they run sideways.
+            // The balance tiles are a ListView too, but they run sideways; Home's list is a
+            // CustomScrollView (room for the lattice under a short list).
             of: find
                 .byWidgetPredicate(
-                  (w) => w is ListView && w.scrollDirection == Axis.vertical,
+                  (w) => w is ScrollView && w.scrollDirection == Axis.vertical,
                 )
                 .last,
             matching: find.byType(Scrollable),
