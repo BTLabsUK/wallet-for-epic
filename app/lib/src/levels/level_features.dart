@@ -80,7 +80,7 @@ AdvancedPrefs effectiveAdvanced(WalletLevel level, AdvancedPrefs prefs) {
     features: {
       AdvancedFeature.pairing,
       AdvancedFeature.invoices,
-      if (prefs.linkedDevicesOn) AdvancedFeature.linkedDevices,
+      AdvancedFeature.linkedDevices,
     },
     networkMode: prefs.networkMode,
     nodeFailover: true,
@@ -167,7 +167,8 @@ class LevelFeatures {
           : prefs.invoicesOn
               ? InvoicePresence.shown
               : InvoicePresence.off,
-      linkedDevices: prefs.linkedDevicesOn,
+      // Every level (item 10): an experiment, shown to all.
+      linkedDevices: true,
       timeline: switch (level) {
         WalletLevel.justSendReceive => TimelineStyle.liveSentence,
         WalletLevel.casual => TimelineStyle.casualSteps,
@@ -244,7 +245,7 @@ class LevelFeatures {
   /// How invoices are present.
   final InvoicePresence invoices;
 
-  /// Linked devices follow the stored switch.
+  /// Linked devices show at every level (item 10).
   final bool linkedDevices;
 
   /// How a payment's progress is drawn.

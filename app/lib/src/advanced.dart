@@ -49,8 +49,8 @@ enum AdvancedFeature {
   invoices,
 
   /// Experimental: linked devices (`devices/`): this wallet on two or more devices that tell
-  /// each other about their payments. On by default (opt-out): a stored value without it reads
-  /// as on, a user who turned it off stays off. Linking itself needs the QR and the check on
+  /// each other about their payments. On for everyone at every level since 26.10.25 (item 10):
+  /// its switch is gone and a stored "off" is read and ignored. Linking itself needs the QR and the check on
   /// both devices, and nothing connects while no device is linked or being linked. Runs the
   /// pairing engine for the devices' private pairings even while [pairing] is off; nothing of
   /// it shows in Contacts or Pairing.
@@ -61,9 +61,10 @@ enum AdvancedFeature {
 /// leaves them and the count of features on does not include them.
 const experimentalFeatures = {AdvancedFeature.pairing, AdvancedFeature.invoices, AdvancedFeature.linkedDevices};
 
-/// Features a stored value may still name that no switch shows any more: pairing is on for
-/// everyone, so its old switch value is read and ignored, never migrated or reused.
-const retiredFeatures = {AdvancedFeature.pairing};
+/// Features a stored value may still name that no switch shows any more: pairing and linked
+/// devices are on for everyone, so their old switch values are read and ignored, never
+/// migrated or reused.
+const retiredFeatures = {AdvancedFeature.pairing, AdvancedFeature.linkedDevices};
 
 /// How the wallet reaches the network (Settings › Network & privacy). One choice, kept in the
 /// settings file's `[network] mode` (`network_mode_file.dart`); the Privacy page's Tor switch is
@@ -122,7 +123,8 @@ class AdvancedPrefs {
   /// Every feature on (tests and the screenshot tour), standard network.
   static final AdvancedPrefs all = AdvancedPrefs(features: AdvancedFeature.values.toSet());
 
-  bool has(AdvancedFeature f) => features.contains(f);
+  /// Linked devices is always on ([linkedDevicesOn]), whatever the stored set says.
+  bool has(AdvancedFeature f) => f == AdvancedFeature.linkedDevices || features.contains(f);
 
   /// Pairing is on for everyone: its Experimental switch is gone, and a stored value is
   /// ignored.
@@ -131,8 +133,9 @@ class AdvancedPrefs {
   /// Invoices are on (Settings › Advanced › Experimental; off by default).
   bool get invoicesOn => has(AdvancedFeature.invoices);
 
-  /// Linked devices are on (Settings › Advanced › Experimental), independent of [pairingOn].
-  bool get linkedDevicesOn => has(AdvancedFeature.linkedDevices);
+  /// Linked devices are on for everyone, at every level (item 10): no switch any more, a stored
+  /// "off" from an older build is ignored. Independent of [pairingOn].
+  bool get linkedDevicesOn => true;
 
   /// The pairing engine runs: for contacts ([pairingOn]) or for linked devices.
   bool get pairingEngineOn => pairingOn || linkedDevicesOn;
@@ -157,9 +160,8 @@ class AdvancedPrefs {
 
   /// Whether anything is on beyond the simple app: the hub's state line and the About row
   /// read it. Node failover is on by default, so only its being off counts.
-  /// Linked devices is on by default, so only its being off counts.
   bool get any =>
-      features.any((f) => f != AdvancedFeature.linkedDevices) || !linkedDevicesOn || networkMode != NetworkMode.standard || !nodeFailover;
+      features.any((f) => f != AdvancedFeature.linkedDevices) || networkMode != NetworkMode.standard || !nodeFailover;
 
   /// Tor is wanted at launch ([NetworkMode.torOnly]).
   bool get startsWithTor => networkMode == NetworkMode.torOnly;
@@ -176,13 +178,13 @@ class AdvancedPrefs {
   AdvancedPrefs withNodeFailover(bool on) =>
       AdvancedPrefs(features: features, networkMode: networkMode, nodeFailover: on);
 
-  /// `outputs,sendOptions|torOnly`, with `|noFailover` when node failover is off and
-  /// `|noLinkedDevices` when Linked devices is off (on by default, so never listed): one string
+  /// `outputs,sendOptions|torOnly`, with `|noFailover` when node failover is off (Linked
+  /// devices is always on, so never listed; an older build's `|noLinkedDevices` is ignored): one string
   /// for a key-value store. Without [mode] the mode is written as Normal: the store keeps no
   /// mode since 26.10.25 (settings.toml does, `network_mode_file.dart`).
   String encode({bool mode = true}) =>
       '${(features.where((f) => f != AdvancedFeature.linkedDevices).map((f) => f.name).toList()..sort()).join(',')}|${(mode ? networkMode : NetworkMode.standard).name}'
-      '${nodeFailover ? '' : '|noFailover'}${linkedDevicesOn ? '' : '|noLinkedDevices'}';
+      '${nodeFailover ? '' : '|noFailover'}';
 
   /// Unknown names are dropped, so a build without a feature still opens its settings.
   static AdvancedPrefs decode(String? raw) {
@@ -195,7 +197,7 @@ class AdvancedPrefs {
     };
     final mode = parts.length > 1 ? networkModeNamed(parts[1]) ?? NetworkMode.standard : NetworkMode.standard;
     return AdvancedPrefs(
-      features: {...features, if (!parts.skip(2).contains('noLinkedDevices')) AdvancedFeature.linkedDevices},
+      features: {...features, AdvancedFeature.linkedDevices},
       networkMode: mode,
       nodeFailover: !parts.skip(2).contains('noFailover'),
     );
@@ -219,8 +221,8 @@ class AdvancedPrefs {
           for (final n in list)
             for (final f in AdvancedFeature.values)
               if (f.name == n && f != AdvancedFeature.linkedDevices) f,
-        // On unless the user turned it off.
-        if (j['linkedDevices'] != false) AdvancedFeature.linkedDevices,
+        // Always on: a stored `false` from an older build is ignored.
+        AdvancedFeature.linkedDevices,
       },
       networkMode: networkModeNamed(mode is String ? mode : null) ?? NetworkMode.standard,
       nodeFailover: j['nodeFailover'] != false,
