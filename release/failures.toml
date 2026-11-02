@@ -170,3 +170,9 @@ id = "android-dev-plugin-registrant"
 steps = ["build-android", "build-play"]
 pattern = "package dev\\.flutter\\.plugins\\.integration_test does not exist"
 hint = "A flutter test in the release checkout (the screens tours) rewrote GeneratedPluginRegistrant.java with the dev plugins while the APK compiled. Let nothing run flutter test in that checkout, then `tools/rel retry <step>`; screens waits for the builds made in the checkout from now on."
+
+[[failure]]
+id = "android-driver-label-mismatch"
+steps = ["trust-android"]
+pattern = "send: no Send button on the review"
+hint = "The driver did not recognise the review's button label. Compare the `send: review` dump in steps/<step>/out/screens.log (and shots/*-send-review.png) with the regex in tools/rellib/drivers/android/trust.py send_epicbox: 26.10.25 puts a no-break space before the unit (\"Send 0.01\\u00a0EPIC\"). Fix the driver on main, then `tools/rel retry <step>`."
