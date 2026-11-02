@@ -136,11 +136,14 @@ void main() {
     expect(find.byType(DeskTourOverlay), findsOneWidget);
   });
 
-  testWidgets("Receive's HTTP QR button expands that QR under the address and hides it again", (tester) async {
+  testWidgets("Receive's HTTP QR button expands that QR under the internet address and hides it again", (tester) async {
     final container = await _open(tester, _Wallet(), DeskRoute.overview);
     await tester.runAsync(() async {
       await container.read(deskProvider.notifier).setListening(true);
       await container.read(deskProvider.notifier).setHttp(true);
+      // Only the internet address has a QR (127.0.0.1 is no use to another device).
+      final n = container.read(deskProvider.notifier);
+      await n.saveSettings(container.read(deskProvider).settings.copyWith(publicMode: true));
     });
     container.read(deskNavProvider.notifier).go(DeskRoute.receive);
     await _settle(tester);
