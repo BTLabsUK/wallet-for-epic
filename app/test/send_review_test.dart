@@ -307,7 +307,7 @@ Future<void> _review(WidgetTester tester, String to, {String? note}) async {
   await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
 }
 
-Finder get _sendButton => find.widgetWithText(FilledButton, 'Send 1.50000000\u00a0EPIC');
+Finder get _sendButton => find.widgetWithText(FilledButton, 'Send 1.5\u00a0EPIC');
 
 Finder get _fileButton =>
     find.widgetWithText(FilledButton, 'Pay with a file instead');
@@ -565,7 +565,7 @@ void main() {
       expect(h.service.tipCalls, tipsBefore);
       // The tracker: made, waiting for the reply, then the network.
       expect(find.text('Direct · File Transfer'), findsOneWidget);
-      expect(find.text('1.5000\u00a0EPIC locked'), findsOneWidget);
+      expect(find.text('1.5\u00a0EPIC locked'), findsOneWidget);
       expect(find.text('Waiting for the response file'), findsOneWidget);
       expect(find.text('Posted to the network'), findsOneWidget);
       expect(find.text('Open response file'), findsOneWidget);
@@ -662,15 +662,15 @@ void main() {
         expect(find.text('Review'), findsOneWidget);
         expect(find.text('3 of 3'), findsOneWidget);
         expect(find.text('New recipient'), findsOneWidget);
-        expect(find.text('1.50000000\u00a0EPIC'), findsOneWidget);
+        expect(find.text('1.5\u00a0EPIC'), findsOneWidget);
         expect(find.text('Network fee'), findsOneWidget);
-        expect(find.text('0.00800000\u00a0EPIC'), findsOneWidget);
+        expect(find.text('0.008\u00a0EPIC'), findsOneWidget);
         expect(find.text('Total'), findsOneWidget);
-        expect(find.text('1.50800000\u00a0EPIC'), findsOneWidget);
+        expect(find.text('1.508\u00a0EPIC'), findsOneWidget);
         // What stays: 40 spendable minus the total. The fake locks nothing beyond the total,
         // so no "until change confirms" line.
         expect(find.text('Balance after'), findsOneWidget);
-        expect(find.text('38.49200000\u00a0EPIC'), findsOneWidget);
+        expect(find.text('38.492\u00a0EPIC'), findsOneWidget);
         expect(find.text('Available while this confirms'), findsNothing);
         // The message is there as typed, with where it goes.
         final block = find.byKey(sendReviewMessageKey);
@@ -974,7 +974,7 @@ void main() {
         await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
         await _tap(
           tester,
-          find.widgetWithText(FilledButton, 'Send 39.99200000\u00a0EPIC'),
+          find.widgetWithText(FilledButton, 'Send 39.992\u00a0EPIC'),
         );
         await _tap(tester, find.text('Cancel and pay with a file'));
         expect(
@@ -1300,7 +1300,7 @@ void main() {
       confirmations: BigInt.from(10),
     );
 
-    /// Sends 1.5000\u00a0EPIC to Bob from a wallet of two outputs (30 and 10.0000\u00a0EPIC) with the strategy
+    /// Sends 1.5\u00a0EPIC to Bob from a wallet of two outputs (30 and 10.0\u00a0EPIC) with the strategy
     /// and Split change set on Outputs; returns the harness after the send.
     Future<_Harness> send(
       WidgetTester tester, {
@@ -1350,7 +1350,7 @@ void main() {
         splitChange: true,
         atReview: (_) => expect(find.byKey(sendUsesAllOutputsKey), findsNothing),
       );
-      // The 10.0000\u00a0EPIC output pays; one output stays, so 8.4900\u00a0EPIC of change comes back in 3.
+      // The 10.0\u00a0EPIC output pays; one output stays, so 8.49\u00a0EPIC of change comes back in 3.
       expect(
         h.session.sentOptions.single,
         const SendOptions(strategy: SelectionStrategy.smallest, changeOutputs: 3),

@@ -32,12 +32,12 @@ void main() {
   group('displayEpic: the one display rule', () {
     BigInt epic(String text) => parseEpic(text);
 
-    test('four decimals always, grouped, cut off and never rounded up', () {
+    test('at most four decimals, no trailing zeros, grouped, cut off and never rounded up', () {
       for (final (exact, shown) in [
-        ('0', '0.0000'),
-        ('0.00000001', '0.0000'),
-        ('0.5', '0.5000'),
-        ('12.5', '12.5000'),
+        ('0', '0.0'),
+        ('0.00000001', '0.0'),
+        ('0.5', '0.5'),
+        ('12.5', '12.5'),
         ('1234.5678', '1,234.5678'),
         ('1234.56781234', '1,234.5678'),
         ('999.99999999', '999.9999'),
@@ -49,7 +49,7 @@ void main() {
       // A negative amount is cut towards zero too.
       expect(displayEpic(-epic('2.56789')), '-2.5678');
       // A negative amount that cuts to nothing is nothing: no sign on a zero.
-      expect(displayEpic(-epic('0.00000001')), '0.0000');
+      expect(displayEpic(-epic('0.00000001')), '0.0');
     });
 
     test('never shows more than the wallet holds', () {
@@ -74,10 +74,10 @@ void main() {
       expect(formatEpic(big), '90071992.54740993');
     });
 
-    test('exactEpic writes every decimal out; cutEpic any count', () {
-      expect(exactEpic(epic('12.5')), '12.50000000');
+    test('exactEpic writes every significant decimal; cutEpic any count', () {
+      expect(exactEpic(epic('12.5')), '12.5');
       expect(exactEpic(epic('1234.56781234')), '1,234.56781234');
-      expect(exactEpic(BigInt.zero), '0.00000000');
+      expect(exactEpic(BigInt.zero), '0.0');
       expect(cutEpic(epic('1.23456789'), 2), '1.23');
       expect(cutEpic(epic('1.23456789'), 0), '1');
       expect(cutEpic(epic('1.23456789'), 8), '1.23456789');
@@ -89,7 +89,7 @@ void main() {
     AppLocalizations l(String code) => lookupAppLocalizations(Locale(code));
 
     test(
-      'epicText follows the display rule, epicExact writes every decimal out',
+      'epicText follows the display rule, epicExact writes every significant decimal',
       () {
         expect(epicText(englishStrings, big), '1,234,567.1234\u00a0EPIC');
         expect(epicExact(englishStrings, big), '1,234,567.12345678\u00a0EPIC');
@@ -119,25 +119,25 @@ void main() {
       expect(surfaceEpic(big, AmountSurface.row), '1,234,567.1234');
       expect(surfaceEpic(big, AmountSurface.exact), '1,234,567.12345678');
       expect(surfaceEpic(big, AmountSurface.hero), '1,234,567.1234');
-      expect(epicFor(englishStrings, amount), '12.5080\u00a0EPIC');
+      expect(epicFor(englishStrings, amount), '12.508\u00a0EPIC');
       expect(
         epicFor(englishStrings, amount, surface: AmountSurface.exact),
-        '12.50800000\u00a0EPIC',
+        '12.508\u00a0EPIC',
       );
-      expect(epicFor(englishStrings, amount, unit: false), '12.5080');
-      expect(epicFor(l('de'), amount, surface: AmountSurface.exact), '12,50800000\u00a0EPIC');
+      expect(epicFor(englishStrings, amount, unit: false), '12.508');
+      expect(epicFor(l('de'), amount, surface: AmountSurface.exact), '12,508\u00a0EPIC');
     });
 
     test('signs: plus on request, a true minus always', () {
       final amount = parseEpic('25');
-      expect(epicFor(englishStrings, amount, signed: true), '+25.0000\u00a0EPIC');
-      expect(epicFor(englishStrings, -amount), '\u221225.0000\u00a0EPIC');
-      expect(epicFor(englishStrings, -amount, signed: true, unit: false), '\u221225.0000');
-      expect(epicFor(englishStrings, BigInt.zero, signed: true), '0.0000\u00a0EPIC');
+      expect(epicFor(englishStrings, amount, signed: true), '+25.0\u00a0EPIC');
+      expect(epicFor(englishStrings, -amount), '\u221225.0\u00a0EPIC');
+      expect(epicFor(englishStrings, -amount, signed: true, unit: false), '\u221225.0');
+      expect(epicFor(englishStrings, BigInt.zero, signed: true), '0.0\u00a0EPIC');
       // Cut towards zero, never rounded away from it; what cuts to zero has no sign.
-      expect(epicFor(englishStrings, -parseEpic('1.00009999'), unit: false), '\u22121.0000');
-      expect(epicFor(englishStrings, -parseEpic('0.00009999'), unit: false), '0.0000');
-      expect(epicFor(englishStrings, parseEpic('0.00009999'), signed: true, unit: false), '0.0000');
+      expect(epicFor(englishStrings, -parseEpic('1.00009999'), unit: false), '\u22121.0');
+      expect(epicFor(englishStrings, -parseEpic('0.00009999'), unit: false), '0.0');
+      expect(epicFor(englishStrings, parseEpic('0.00009999'), signed: true, unit: false), '0.0');
     });
 
     test('a short fiat value drops its cents from 1,000, cut off', () {

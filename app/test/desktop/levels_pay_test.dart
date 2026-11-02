@@ -94,8 +94,8 @@ void main() {
   testWidgets('Shallow Overview: one number, one sentence, no tiles, no eye; the payment card has live steps', (tester) async {
     await _pump(tester, const OverviewScreen(), WalletLevel.justSendReceive, [_sendToAlice, _fromBob]);
     expect(find.text('Available to spend'), findsOneWidget);
-    expect(find.text('+12.5000 arriving from Bob'), findsOneWidget);
-    expect(find.text('25.0000 on hold until Alice signs'), findsOneWidget);
+    expect(find.text('+12.5 arriving from Bob'), findsOneWidget);
+    expect(find.text('25.0 on hold until Alice signs'), findsOneWidget);
     for (final tile in ['Total', 'Locked in sends', 'Set aside for sends']) {
       expect(find.text(tile), findsNothing, reason: tile);
     }

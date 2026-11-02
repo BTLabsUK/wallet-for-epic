@@ -4807,7 +4807,7 @@
   "deskLvStartHelpDeep": "深水区 · 每个开关、每个数字：现在的应用。",
   "deskLvStartPickFirst": "请先选择视图。选择之前不会连接任何内容。",
   "deskLvStartMiniWallet": "主钱包",
-  "deskLvStartMiniLine": "+12.5000 即将到账 · 25.0000 已冻结",
+  "deskLvStartMiniLine": "+12.5 即将到账 · 25.0 已冻结",
   "deskLvStartMiniFresh": "刚挖出的币",
   "deskLvStartMiniWaiting": "等待对方",
   "deskLvPayS1Sent": "Slate S1 已通过 Epicbox 发出 · 等待 S2",

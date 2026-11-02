@@ -766,7 +766,7 @@ void main() {
     });
   });
 
-  // next-fixes 12: 5 EPIC with 0.8920 available, and "Make payment QR" took the tap before the
+  // next-fixes 12: 5 EPIC with 0.892 available, and "Make payment QR" took the tap before the
   // fee estimate came back.
   group('Make payment QR waits for the amount check', () {
     Finder make() => find.widgetWithText(FilledButton, 'Make payment QR');

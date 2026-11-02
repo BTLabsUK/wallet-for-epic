@@ -17367,7 +17367,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskLvStartMiniWallet => '主钱包';
 
   @override
-  String get deskLvStartMiniLine => '+12.5000 即将到账 · 25.0000 已冻结';
+  String get deskLvStartMiniLine => '+12.5 即将到账 · 25.0 已冻结';
 
   @override
   String get deskLvStartMiniFresh => '刚挖出的币';

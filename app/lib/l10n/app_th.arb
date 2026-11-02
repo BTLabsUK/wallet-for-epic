@@ -4807,7 +4807,7 @@
   "deskLvStartHelpDeep": "น้ำลึก · ทุกสวิตช์ ทุกตัวเลข: แอปอย่างที่เป็นอยู่ตอนนี้",
   "deskLvStartPickFirst": "เลือกมุมมองก่อน จะยังไม่มีการเชื่อมต่อจนกว่าจะเลือก",
   "deskLvStartMiniWallet": "กระเป๋าเงินหลัก",
-  "deskLvStartMiniLine": "+12.5000 กำลังเข้า · 25.0000 ถูกพักไว้",
+  "deskLvStartMiniLine": "+12.5 กำลังเข้า · 25.0 ถูกพักไว้",
   "deskLvStartMiniFresh": "ใหม่จากการขุด",
   "deskLvStartMiniWaiting": "รออีกฝ่าย",
   "deskLvPayS1Sent": "Slate S1 ส่งผ่าน Epicbox แล้ว · รอ S2",

@@ -462,7 +462,7 @@ class LevelPreview extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(
-                          metaLine([l.lvShellQuietArriving('12.5000'), l.lvShellQuietOnHold('25.0000')]), // l10n-ok: sample amounts
+                          metaLine([l.lvShellQuietArriving('12.5'), l.lvShellQuietOnHold('25.0')]), // l10n-ok: sample amounts
                           style: s(8.5, color: t.dim),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -477,9 +477,9 @@ class LevelPreview extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              tile(l.homeBalanceConfirming, '12.5000', t.accentText),
+                              tile(l.homeBalanceConfirming, '12.5', t.accentText),
                               const SizedBox(width: 6),
-                              tile(l.homeTileLocked, '26.0000', t.text),
+                              tile(l.homeTileLocked, '26.0', t.text),
                             ],
                           ),
                           const SizedBox(height: 8),
@@ -498,15 +498,15 @@ class LevelPreview extends StatelessWidget {
                     ),
                     row(
                       'Bob',
-                      '+12.5000',
+                      '+12.5',
                       tick: t.txReceived,
                       colour: t.txReceived,
                       id: 'a1f9e8d7',
                       casual: metaLine([l.lvPayArriving, l.lvPayConfirming(2, 6)]),
                       technical: '${l.txDetailsKernel} 8f1c2e…9a3b · ${l.lvPayConfirmations} 2/6', // l10n-ok: sample numbers
                     ),
-                    row('Alice', '−25.0000', tick: t.txSent, colour: t.txSent, id: '7c21b0e4'),
-                    row('Alice', '+150.0000', tick: t.txReceived, colour: t.txReceived, id: '02ab9c11'),
+                    row('Alice', '−25.0', tick: t.txSent, colour: t.txSent, id: '7c21b0e4'),
+                    row('Alice', '+150.0', tick: t.txReceived, colour: t.txReceived, id: '02ab9c11'),
                   ],
                 ),
               ),

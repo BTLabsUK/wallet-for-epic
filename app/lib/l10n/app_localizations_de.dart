@@ -18645,7 +18645,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskLvStartMiniWallet => 'Hauptwallet';
 
   @override
-  String get deskLvStartMiniLine => '+12,5000 kommen an · 25,0000 gehalten';
+  String get deskLvStartMiniLine => '+12,5 kommen an · 25,0 gehalten';
 
   @override
   String get deskLvStartMiniFresh => 'Frisch vom Mining';

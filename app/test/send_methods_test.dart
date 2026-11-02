@@ -873,7 +873,7 @@ void main() {
         find.text('Cannot be cancelled once their wallet accepts it.'),
         findsOneWidget,
       );
-      await _tap(tester, find.text('Send 1.00000000\u00a0EPIC'));
+      await _tap(tester, find.text('Send 1.0\u00a0EPIC'));
       expect(h.session.httpSends, hasLength(1));
       expect(h.session.httpSends.single.url, _https);
       expect(h.session.httpSends.single.allowPlainHttp, isFalse);
@@ -892,7 +892,7 @@ void main() {
         kind: WalletErrorKind.transportFailed,
         message: 'their wallet did not answer',
       );
-      await _tap(tester, find.text('Send 1.00000000\u00a0EPIC'));
+      await _tap(tester, find.text('Send 1.0\u00a0EPIC'));
       expect(
         find.text(
           'Their wallet was not reached. The amount stays locked until you cancel '
@@ -902,7 +902,7 @@ void main() {
       );
       expect(find.byKey(sendTryAgainKey), findsOneWidget);
       expect(find.byKey(sendCancelPaymentKey), findsOneWidget);
-      expect(find.text('Send 1.00000000\u00a0EPIC'), findsNothing);
+      expect(find.text('Send 1.0\u00a0EPIC'), findsNothing);
 
       h.session.sendError = null;
       await _tap(tester, find.byKey(sendTryAgainKey));
@@ -921,7 +921,7 @@ void main() {
         kind: WalletErrorKind.transportFailed,
         message: 'their wallet did not answer',
       );
-      await _tap(tester, find.text('Send 1.00000000\u00a0EPIC'));
+      await _tap(tester, find.text('Send 1.0\u00a0EPIC'));
       await _tap(tester, find.byKey(sendCancelPaymentKey));
       expect(h.session.cancelledTxIds, hasLength(1));
       expect(find.text('2 of 3'), findsOneWidget);
@@ -931,7 +931,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester, payments: _directOn);
       await h.toReview(tester, _lan);
-      await _tap(tester, find.text('Send 1.00000000\u00a0EPIC'));
+      await _tap(tester, find.text('Send 1.0\u00a0EPIC'));
       expect(find.text('Not encrypted. Send anyway?'), findsNothing);
       expect(h.session.httpSends.single.allowPlainHttp, isTrue);
     });

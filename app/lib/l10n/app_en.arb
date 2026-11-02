@@ -24837,7 +24837,7 @@
   "@deskLvStartMiniWallet": {
     "description": "The wallet name in the small Overview picture on the depth dial. A sample, not the user’s wallet."
   },
-  "deskLvStartMiniLine": "+12.5000 arriving · 25.0000 on hold",
+  "deskLvStartMiniLine": "+12.5 arriving · 25.0 on hold",
   "@deskLvStartMiniLine": {
     "description": "The one sentence under the balance in the small Overview picture at Shallow. A sample."
   },

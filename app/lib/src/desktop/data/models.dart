@@ -32,10 +32,11 @@ export '../../amount.dart' show AmountFormatException, AmountProblem, AmountSurf
 /// Amounts are kept in nanoepic (1 EPIC = 10^8), as the wallet does.
 const int nanoPerEpic = 100000000;
 
-/// The one display rule of both apps ([displayEpic] in amount.dart): four decimals, cut off,
-/// grouped, `1,234.5000`. [decimals] 8 gives the exact amount ([exactEpic]), for the places
-/// where exactness is the point; other values cut to that many. [trim] and [minDecimals] are
-/// kept for callers and ignored: every shown amount writes its decimals out.
+/// The one display rule of both apps ([displayEpic] in amount.dart): at most four decimals,
+/// cut off, up to the last significant one with at least one, grouped: `1,234.5`, `0.892`,
+/// `2.0`. [decimals] 8 gives the exact amount ([exactEpic]), for the places where exactness is
+/// the point; other values cut to that many. [trim] and [minDecimals] are kept for callers and
+/// ignored: every shown amount follows the one rule.
 String formatEpic(int nano, {int decimals = displayDecimals, bool trim = true, int minDecimals = displayDecimals}) {
   final atomic = BigInt.from(nano);
   return decimals >= exactDecimals ? exactEpic(atomic) : cutEpic(atomic, decimals);
@@ -50,7 +51,7 @@ String formatEpicL(AppLocalizations l, int nano, {int decimals = displayDecimals
     : localDigits(l, formatEpic(nano, decimals: decimals, trim: trim, minDecimals: minDecimals));
 
 /// [nano] as [surface] shows it with its unit after a no-break space (`epicFor`):
-/// `12.5000 EPIC`. For a sentence or label that puts an amount in its words.
+/// `12.5 EPIC`. For a sentence or label that puts an amount in its words.
 String epicTextL(AppLocalizations l, int nano, {AmountSurface surface = AmountSurface.row, bool signed = false}) =>
     epicFor(l, BigInt.from(nano), surface: surface, signed: signed);
 

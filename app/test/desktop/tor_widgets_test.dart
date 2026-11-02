@@ -91,7 +91,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Link · Tor (their wallet must be open)'), findsOneWidget);
       await enterReviewPassword(tester);
-      await tester.tap(find.text('Send 1.00000000\u00a0EPIC'));
+      await tester.tap(find.text('Send 1.0\u00a0EPIC'));
       await tester.pumpAndSettle();
       expect(wallet.sent.single.method, TxMethod.tor);
       expect(wallet.sent.single.to, _onion);

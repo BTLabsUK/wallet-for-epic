@@ -16,6 +16,7 @@ library;
 
 import 'dart:convert';
 
+import '../amount.dart' show formatEpic, shownMinDecimals;
 import '../wallet_service.dart';
 import 'merge.dart' show userFieldName;
 import 'meta_store.dart';
@@ -231,13 +232,9 @@ class HistoryPayload {
   }
 }
 
-/// `amount` in EPIC with 8 decimals, e.g. `-1.50000000`.
-String epicDecimal(BigInt amount) {
-  final sign = amount.isNegative ? '-' : '';
-  final a = amount.abs();
-  final unit = BigInt.from(100000000);
-  return '$sign${a ~/ unit}.${(a % unit).toString().padLeft(8, '0')}';
-}
+/// `amount` in EPIC up to its last significant decimal, at least one: `-1.5`, `2.0`,
+/// `0.00000005`. Ungrouped, `.` decimals, so a spreadsheet reads it as a number.
+String epicDecimal(BigInt amount) => formatEpic(amount, minDecimals: shownMinDecimals);
 
 /// One CSV field: quoted when it holds a comma, quote or line break, and with a leading `'`
 /// when text could be read as a spreadsheet formula (counterparty and note come from others).

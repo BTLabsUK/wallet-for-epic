@@ -28749,7 +28749,7 @@ abstract class AppLocalizations {
   /// The one sentence under the balance in the small Overview picture at Shallow. A sample.
   ///
   /// In en, this message translates to:
-  /// **'+12.5000 arriving · 25.0000 on hold'**
+  /// **'+12.5 arriving · 25.0 on hold'**
   String get deskLvStartMiniLine;
 
   /// Balance tile in the small Overview picture at Deeper: mining rewards not yet spendable.

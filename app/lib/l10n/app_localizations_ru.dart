@@ -19060,7 +19060,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskLvStartMiniWallet => 'Основной кошелёк';
 
   @override
-  String get deskLvStartMiniLine => '+12,5000 поступает · 25,0000 удерживается';
+  String get deskLvStartMiniLine => '+12,5 поступает · 25,0 удерживается';
 
   @override
   String get deskLvStartMiniFresh => 'Свежие с майнинга';

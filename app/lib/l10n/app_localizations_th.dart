@@ -18013,7 +18013,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskLvStartMiniWallet => 'กระเป๋าเงินหลัก';
 
   @override
-  String get deskLvStartMiniLine => '+12.5000 กำลังเข้า · 25.0000 ถูกพักไว้';
+  String get deskLvStartMiniLine => '+12.5 กำลังเข้า · 25.0 ถูกพักไว้';
 
   @override
   String get deskLvStartMiniFresh => 'ใหม่จากการขุด';

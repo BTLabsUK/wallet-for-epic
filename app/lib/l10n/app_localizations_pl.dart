@@ -19075,7 +19075,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskLvStartMiniWallet => 'Główny portfel';
 
   @override
-  String get deskLvStartMiniLine => '+12,5000 nadchodzi · 25,0000 wstrzymane';
+  String get deskLvStartMiniLine => '+12,5 nadchodzi · 25,0 wstrzymane';
 
   @override
   String get deskLvStartMiniFresh => 'Świeże z kopania';
