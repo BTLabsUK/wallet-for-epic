@@ -88,7 +88,7 @@
   "deskSetRowPasswordHint": "Entsperrt diese Wallet.",
   "deskSetSynPassword": "passwort, kennwort, passwort ändern, entsperren, pin",
   "deskSetRowRememberedHint": "Öffnet beim Start ohne Passwort. Beim Senden wird es weiter abgefragt.",
-  "deskSetSynRemembered": "angemeldet bleiben, passwort, entsperren, automatisch entsperren, vergessen",
+  "deskSetSynRemembered": "merken, passwort, entsperren, automatisch entsperren, vergessen",
   "deskSetRowAutolockHint": "Sperrt, wenn keine Taste gedrückt und die Maus nicht bewegt wird. Alle Wallets.",
   "deskSetSynAutolock": "sperre, zeitlimit, leerlauf, inaktivität, bildschirmsperre",
   "deskSetRowEpicboxHint": "Bezahlen und bezahlt werden über einen Epicbox-Server. Die meisten Zahlungen laufen so. Alle Wallets.",
@@ -105,7 +105,7 @@
   "deskSetRowTorPayInfo": "Tor läuft nur, um Zahlungen an der Tor-Adresse zu senden und zu empfangen. Node, Preise und Updates folgen der Einstellung unter Netzwerk & Datenschutz.",
   "deskSetSynTorPay": "tor, onion, anonym, hidden service, datenschutz, methode",
   "deskSetRowFileHint": "Durch Übergabe einer Transaktionsdatei. Kein Netzwerk nötig. Alle Wallets.",
-  "deskSetSynFile": "datei, offline, slate, tx-datei, usb, e-mail, methode, manuell",
+  "deskSetSynFile": "datei, offline, slate, tx-datei, usb, methode, manuell",
   "deskSetRowDefaultMethodHint": "Womit Senden öffnet. Alle Wallets.",
   "deskSetSynDefaultMethod": "senden, methode, standard",
   "deskSetRowStrategy": "Outputs, die ein Senden ausgibt",
@@ -190,7 +190,7 @@
   "deskSetRowLogFilesHint": "Die Protokolldateien leeren oder ihren Ordner öffnen.",
   "deskSetSynLogFiles": "protokoll, log, protokolle leeren, protokolle löschen",
   "deskSetRowReportHint": "Beschreiben Sie, was schiefging; das bereinigte App-Protokoll kann mitgehen.",
-  "deskSetSynReport": "fehler, bug, problem, support, kontakt, absturz, fehlerbericht",
+  "deskSetSynReport": "fehler, bug, problem, support, absturz, fehlerbericht",
   "deskSetSynTour": "tour, anleitung, einführung, rundgang",
   "deskSetRowSetup": "Einrichtung erneut ausführen",
   "deskSetRowSetupHint": "Node und Empfang, Schritt für Schritt.",
@@ -200,6 +200,5 @@
   "deskSetRowWebsite": "Website",
   "deskSetSynWebsite": "website, webseite, internet, epic cash",
   "deskSetSynSource": "github, quellcode, code, open source, repository",
-  "deskSetSynPrivacyPolicy": "datenschutz, richtlinie, dsgvo, daten",
-  "deskSetSynContact": "e-mail, support, kontakt, mail"
+  "deskSetSynPrivacyPolicy": "datenschutz, richtlinie, dsgvo, daten"
 }

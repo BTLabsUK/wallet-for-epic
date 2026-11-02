@@ -256,7 +256,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       'Send with a file',
       'The manual way: save a transaction file, pass it to the recipient, then open the response file they send back.',
       [
-        const HelpBlock.p('Direct · File Transfer does the same handshake as Epicbox, but the messages travel by hand, for example by email, chat or a USB stick. It works without Epicbox and without both wallets being online at the same time.'),
+        const HelpBlock.p('Direct · File Transfer does the same handshake as Epicbox, but the messages travel by hand, for example by chat or a USB stick. It works without Epicbox and without both wallets being online at the same time.'),
         if (phone)
           const HelpBlock.ol(['**Sender:** on Send, choose **Direct · File Transfer**, enter the amount and share the file (it ends in .tx). The coins are locked from now on.', '**Recipient:** opens the file under [[Receive › Direct · File]]. Their wallet signs it and shares a response file (it ends in .response). They send that file back.', '**Sender:** opens the response file under [[Receive › Direct · File]]. The wallet finishes the payment and posts it.'])
         else
@@ -422,7 +422,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       [
         const HelpBlock.p('The recovery phrase brings back everything that is on the chain, which is the balance.'),
         HelpBlock.p('**To restore** on a new ${phone ? 'phone' : 'computer'} or after a loss: open $restorePlace, enter the words and choose ${phone ? 'a PIN' : 'a password'}. When the wallet opens, it scans the chain for its outputs. The balance appears after that first scan; the payments it finds are labelled **Restored**.'),
-        HelpBlock.p('**What a restore cannot bring back:** what was never on the chain, such as who paid what, notes and labels, contacts, invoices, settings and wallet names. A wallet data file keeps them: $historyBackupPlace.${phone ? ' Keep the file outside the phone, for example in email or cloud storage.' : ''}'),
+        HelpBlock.p('**What a restore cannot bring back:** what was never on the chain, such as who paid what, notes and labels, contacts, invoices, settings and wallet names. A wallet data file keeps them: $historyBackupPlace.${phone ? ' Keep the file outside the phone, for example in cloud storage or on a USB stick.' : ''}'),
         const HelpBlock.p('**The wallet data file is not the recovery phrase.** It holds no words and cannot restore the wallet on its own. To restore: enter the recovery phrase first, then import the file; the wallet offers that right after the restore.'),
         HelpBlock.p('**Balance looks wrong?** Run $recheckPlace. It reads the whole chain again for this wallet’s outputs.'),
         if (!phone)

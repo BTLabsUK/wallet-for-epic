@@ -1026,7 +1026,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get historyBackupShareSubtitle =>
-      'A copy off this phone, such as email or cloud storage.';
+      'A copy off this phone, such as cloud storage or another device.';
 
   @override
   String get historyBackupSaveToDevice => 'Save to device';
@@ -3079,9 +3079,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPrivacyPolicy => 'Privacy policy';
 
   @override
-  String get contactLabel => 'Contact';
-
-  @override
   String get settingsLicences => 'Licences';
 
   @override
@@ -3200,13 +3197,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get feedbackMessageMissing => 'Write a few words about what happened.';
 
   @override
-  String get feedbackEmailLabel => 'Contact (optional)';
-
-  @override
-  String get feedbackEmailInvalid =>
-      'This does not look like an email address.';
-
-  @override
   String get feedbackAttachLogs => 'Attach logs';
 
   @override
@@ -3224,13 +3214,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get feedbackFileExplanation =>
-      'Your feedback becomes a text file you can send by email or chat, or save.';
+      'Your feedback becomes a text file you can share or save.';
 
   @override
   String get feedbackShareOrSave => 'Share or save';
 
   @override
-  String get feedbackShareHint => 'Send it by email or a chat app';
+  String get feedbackShareHint => 'Hand the file to another app';
 
   @override
   String get feedbackSaveToDevice => 'Save to device';
@@ -3358,7 +3348,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fileHelpSendStep2 =>
-      'You send it to your friend any way you like, such as a chat or an email.';
+      'You send it to your friend any way you like, such as a chat app or a USB stick.';
 
   @override
   String get fileHelpSendStep3 =>
@@ -3374,7 +3364,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fileHelpReceiveStep2 =>
-      'They send it to you any way they like, such as a chat or an email.';
+      'They send it to you any way they like, such as a chat app or a USB stick.';
 
   @override
   String get fileHelpReceiveStep3 =>
@@ -9000,11 +8990,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbUnlockWhoWindows =>
-      'Anyone using this Windows account can open this wallet.';
+      'Anyone who uses this computer as you can open this wallet.';
 
   @override
   String get deskOnbUnlockWho =>
-      'Anyone using this account can open this wallet.';
+      'Anyone who uses this computer as you can open this wallet.';
 
   @override
   String get deskOnbUnlockWrong =>
@@ -11851,13 +11841,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'What you did, what you expected, what happened instead';
 
   @override
-  String get deskSetReportContact => 'Contact';
-
-  @override
-  String get deskSetReportContactHint =>
-      'An email address or other handle, for a reply';
-
-  @override
   String get deskSetReportAttach => 'Attach logs';
 
   @override
@@ -12426,21 +12409,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskErrSecretProtect =>
-      'Windows could not protect the wallet’s secrets (DPAPI refused), so nothing was saved. Sign in to Windows with your own account and its password, not through a remote or service session, then try again.';
+      'Windows could not protect the wallet’s secrets (DPAPI refused), so nothing was saved. Use Windows directly as yourself, with your own password, not through a remote or service session, then try again.';
 
   @override
   String get deskKeyringMissingTitle => 'No keyring found';
 
   @override
   String get deskKeyringMissingText =>
-      'BT Wallet keeps its settings and your wallet’s sealed password in the system keyring, and none answered. Install or start a keyring (GNOME Keyring or KWallet), sign in to a desktop session that runs one, then choose Retry.';
+      'BT Wallet keeps its settings and your wallet’s sealed password in the system keyring, and none answered. Install or start a keyring (GNOME Keyring or KWallet), or use a desktop session that runs one, then choose Retry.';
 
   @override
   String get deskKeyringLockedTitle => 'The keyring is locked';
 
   @override
   String get deskKeyringLockedText =>
-      'BT Wallet keeps its settings and your wallet’s sealed password in the system keyring, which is locked. Unlock it (it opens with your login password), then choose Retry, or choose Unlock now to have the system ask for it.';
+      'BT Wallet keeps its settings and your wallet’s sealed password in the system keyring, which is locked. Unlock it (usually with the password you unlock this computer with), then choose Retry, or choose Unlock now to have the system ask for it.';
 
   @override
   String get deskKeyringUnlockNow => 'Unlock now';
@@ -13222,7 +13205,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get txFileHint =>
-      'File Transfer makes a transaction file that you pass to the other person any way you like (a message, a mail, a cable), and they pass one back. It needs no connection between the two wallets. Adds File Transfer to Send and Receive.';
+      'File Transfer makes a transaction file that you pass to the other person any way you like (a chat message, a USB stick, a cable), and they pass one back. It needs no connection between the two wallets. Adds File Transfer to Send and Receive.';
 
   @override
   String get txStartHeader => 'Default method';
@@ -13802,7 +13785,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairWayMessage => 'Invite by message';
 
   @override
-  String get pairWayMessageHint => 'Send a link in any chat or email.';
+  String get pairWayMessageHint => 'Send a link in any chat.';
 
   @override
   String get pairWayMessageInfo =>
@@ -17189,7 +17172,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskErrMacKeychain =>
-      'macOS did not let the app read its saved data in the keychain. Quit BT Wallet and open it again; when macOS asks, enter your Mac login password and choose Always Allow.';
+      'macOS did not let the app read its saved data in the keychain. Quit BT Wallet and open it again; when macOS asks, enter the password you unlock your Mac with and choose Always Allow.';
 
   @override
   String get deskUpdOpenDmg => 'Open the disk image';
@@ -17268,11 +17251,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String settingsFileNotPort(String file, int line) {
     return '$file, line $line: not a port number. The last good value is in use.';
-  }
-
-  @override
-  String settingsFileNotEmail(String file, int line) {
-    return '$file, line $line: not an e-mail address. The last good value is in use.';
   }
 
   @override
@@ -19596,7 +19574,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetSynFile =>
-      'file, offline, slate, tx file, usb, email, method, manual';
+      'file, offline, slate, tx file, usb, method, manual';
 
   @override
   String get deskSetRowDefaultMethodHint =>
@@ -19900,8 +19878,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Describe what went wrong; the cleaned app log can go with it.';
 
   @override
-  String get deskSetSynReport =>
-      'bug, issue, support, contact, crash, error report';
+  String get deskSetSynReport => 'bug, issue, support, crash, error report';
 
   @override
   String get deskSetSynTour => 'tour, tutorial, intro, onboarding, guide';
@@ -19933,9 +19910,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetSynPrivacyPolicy => 'privacy, policy, gdpr, data';
-
-  @override
-  String get deskSetSynContact => 'email, support, contact, mail';
 
   @override
   String get deskSetAcctBackup => 'Backup';

@@ -1708,7 +1708,7 @@ abstract class AppLocalizations {
   /// Second line of the Share choice.
   ///
   /// In en, this message translates to:
-  /// **'A copy off this phone, such as email or cloud storage.'**
+  /// **'A copy off this phone, such as cloud storage or another device.'**
   String get historyBackupShareSubtitle;
 
   /// Choice in a sheet: save the history file in a folder on this device.
@@ -4963,12 +4963,6 @@ abstract class AppLocalizations {
   /// **'Privacy policy'**
   String get settingsPrivacyPolicy;
 
-  /// Label before the public contact email address, in Help (report a problem) and About.
-  ///
-  /// In en, this message translates to:
-  /// **'Contact'**
-  String get contactLabel;
-
   /// Settings › About row that opens the short Licences screen: the app, Flutter, LEPIC, Tor and the fonts in one line each, with a link to every full text.
   ///
   /// In en, this message translates to:
@@ -5161,18 +5155,6 @@ abstract class AppLocalizations {
   /// **'Write a few words about what happened.'**
   String get feedbackMessageMissing;
 
-  /// Label of the email field.
-  ///
-  /// In en, this message translates to:
-  /// **'Contact (optional)'**
-  String get feedbackEmailLabel;
-
-  /// Error under the email field.
-  ///
-  /// In en, this message translates to:
-  /// **'This does not look like an email address.'**
-  String get feedbackEmailInvalid;
-
   /// Switch: add the app's log to the report.
   ///
   /// In en, this message translates to:
@@ -5206,7 +5188,7 @@ abstract class AppLocalizations {
   /// Shown above the Share or save button in builds without a feedback server.
   ///
   /// In en, this message translates to:
-  /// **'Your feedback becomes a text file you can send by email or chat, or save.'**
+  /// **'Your feedback becomes a text file you can share or save.'**
   String get feedbackFileExplanation;
 
   /// Button that hands the report over as a text file.
@@ -5218,7 +5200,7 @@ abstract class AppLocalizations {
   /// Under Share in the sheet that picks where the report file goes.
   ///
   /// In en, this message translates to:
-  /// **'Send it by email or a chat app'**
+  /// **'Hand the file to another app'**
   String get feedbackShareHint;
 
   /// Choice in the sheet that picks where the report file goes.
@@ -5452,7 +5434,7 @@ abstract class AppLocalizations {
   /// Payment file animation, sender's side, step 2 of 4.
   ///
   /// In en, this message translates to:
-  /// **'You send it to your friend any way you like, such as a chat or an email.'**
+  /// **'You send it to your friend any way you like, such as a chat app or a USB stick.'**
   String get fileHelpSendStep2;
 
   /// Payment file animation, sender's side, step 3 of 4. The reply is a second file.
@@ -5476,7 +5458,7 @@ abstract class AppLocalizations {
   /// Payment file animation, receiver's side, step 2 of 4.
   ///
   /// In en, this message translates to:
-  /// **'They send it to you any way they like, such as a chat or an email.'**
+  /// **'They send it to you any way they like, such as a chat app or a USB stick.'**
   String get fileHelpReceiveStep2;
 
   /// Payment file animation, receiver's side, step 3 of 4. The reply is a second file.
@@ -14176,13 +14158,13 @@ abstract class AppLocalizations {
   /// Tooltip of the 'Remember on this computer' checkbox on Windows, and part of the Remembered row in Settings: who can open a remembered wallet.
   ///
   /// In en, this message translates to:
-  /// **'Anyone using this Windows account can open this wallet.'**
+  /// **'Anyone who uses this computer as you can open this wallet.'**
   String get deskOnbUnlockWhoWindows;
 
-  /// Same as the previous message on macOS and Linux (the computer account).
+  /// Same as the previous message on macOS and Linux (whoever uses the computer as the user).
   ///
   /// In en, this message translates to:
-  /// **'Anyone using this account can open this wallet.'**
+  /// **'Anyone who uses this computer as you can open this wallet.'**
   String get deskOnbUnlockWho;
 
   /// Error under the password field after a wrong password.
@@ -18630,18 +18612,6 @@ abstract class AppLocalizations {
   /// **'What you did, what you expected, what happened instead'**
   String get deskSetReportWhatHint;
 
-  /// Report a problem dialog: label and screen reader name of the optional contact field.
-  ///
-  /// In en, this message translates to:
-  /// **'Contact'**
-  String get deskSetReportContact;
-
-  /// Report a problem dialog: placeholder of the contact field.
-  ///
-  /// In en, this message translates to:
-  /// **'An email address or other handle, for a reply'**
-  String get deskSetReportContactHint;
-
   /// Report a problem dialog: checkbox label.
   ///
   /// In en, this message translates to:
@@ -19599,7 +19569,7 @@ abstract class AppLocalizations {
   /// Error when Windows (DPAPI) refused to protect the wallet's secrets, e.g. in a remote or service session. DPAPI and Windows are names.
   ///
   /// In en, this message translates to:
-  /// **'Windows could not protect the wallet’s secrets (DPAPI refused), so nothing was saved. Sign in to Windows with your own account and its password, not through a remote or service session, then try again.'**
+  /// **'Windows could not protect the wallet’s secrets (DPAPI refused), so nothing was saved. Use Windows directly as yourself, with your own password, not through a remote or service session, then try again.'**
   String get deskErrSecretProtect;
 
   /// Desktop, Linux, first screen: the system has no usable keyring (Secret Service) to keep the wallet's secrets.
@@ -19611,7 +19581,7 @@ abstract class AppLocalizations {
   /// Desktop, Linux: what is missing and what to do. Names the keyring programs; Retry is the commonRetry button.
   ///
   /// In en, this message translates to:
-  /// **'BT Wallet keeps its settings and your wallet’s sealed password in the system keyring, and none answered. Install or start a keyring (GNOME Keyring or KWallet), sign in to a desktop session that runs one, then choose Retry.'**
+  /// **'BT Wallet keeps its settings and your wallet’s sealed password in the system keyring, and none answered. Install or start a keyring (GNOME Keyring or KWallet), or use a desktop session that runs one, then choose Retry.'**
   String get deskKeyringMissingText;
 
   /// Desktop, Linux, first screen: the system keyring exists but is locked.
@@ -19623,7 +19593,7 @@ abstract class AppLocalizations {
   /// Desktop, Linux: the keyring is locked. Retry is commonRetry; 'Unlock now' is deskKeyringUnlockNow.
   ///
   /// In en, this message translates to:
-  /// **'BT Wallet keeps its settings and your wallet’s sealed password in the system keyring, which is locked. Unlock it (it opens with your login password), then choose Retry, or choose Unlock now to have the system ask for it.'**
+  /// **'BT Wallet keeps its settings and your wallet’s sealed password in the system keyring, which is locked. Unlock it (usually with the password you unlock this computer with), then choose Retry, or choose Unlock now to have the system ask for it.'**
   String get deskKeyringLockedText;
 
   /// Desktop, Linux, locked keyring: go on, and the system asks for the keyring's password.
@@ -20877,7 +20847,7 @@ abstract class AppLocalizations {
   /// Info sheet text of the File switch on Settings › Transactions.
   ///
   /// In en, this message translates to:
-  /// **'File Transfer makes a transaction file that you pass to the other person any way you like (a message, a mail, a cable), and they pass one back. It needs no connection between the two wallets. Adds File Transfer to Send and Receive.'**
+  /// **'File Transfer makes a transaction file that you pass to the other person any way you like (a chat message, a USB stick, a cable), and they pass one back. It needs no connection between the two wallets. Adds File Transfer to Send and Receive.'**
   String get txFileHint;
 
   /// Header on Settings › Transactions above the choice of the method Send opens on.
@@ -21783,7 +21753,7 @@ abstract class AppLocalizations {
   /// Option 2 line
   ///
   /// In en, this message translates to:
-  /// **'Send a link in any chat or email.'**
+  /// **'Send a link in any chat.'**
   String get pairWayMessageHint;
 
   /// ⓘ of option 2
@@ -26811,7 +26781,7 @@ abstract class AppLocalizations {
   /// Error when macOS refused the app access to its keychain items (wrong or locked login keychain, access denied, or a new unsigned build not yet allowed). macOS, BT Wallet and the button name 'Always Allow' (as macOS shows it in each language) are names.
   ///
   /// In en, this message translates to:
-  /// **'macOS did not let the app read its saved data in the keychain. Quit BT Wallet and open it again; when macOS asks, enter your Mac login password and choose Always Allow.'**
+  /// **'macOS did not let the app read its saved data in the keychain. Quit BT Wallet and open it again; when macOS asks, enter the password you unlock your Mac with and choose Always Allow.'**
   String get deskErrMacKeychain;
 
   /// macOS: button and sidebar line once the update's disk image is downloaded and checked: the app closes and the disk image opens in Finder (the app cannot install itself there).
@@ -26909,12 +26879,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{file}, line {line}: not a port number. The last good value is in use.'**
   String settingsFileNotPort(String file, int line);
-
-  /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be an e-mail address is something else. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
-  ///
-  /// In en, this message translates to:
-  /// **'{file}, line {line}: not an e-mail address. The last good value is in use.'**
-  String settingsFileNotEmail(String file, int line);
 
   /// Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be an Epicbox address (es…@server) is something else. Epicbox stays in Latin script. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.
   ///
@@ -30615,7 +30579,7 @@ abstract class AppLocalizations {
   /// Settings search: other words that find the “Direct · File Transfer” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
   ///
   /// In en, this message translates to:
-  /// **'file, offline, slate, tx file, usb, email, method, manual'**
+  /// **'file, offline, slate, tx file, usb, method, manual'**
   String get deskSetSynFile;
 
   /// Settings row “Default method”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
@@ -31125,7 +31089,7 @@ abstract class AppLocalizations {
   /// Settings search: other words that find the “Report a problem” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
   ///
   /// In en, this message translates to:
-  /// **'bug, issue, support, contact, crash, error report'**
+  /// **'bug, issue, support, crash, error report'**
   String get deskSetSynReport;
 
   /// Settings search: other words that find the “Show the tour again” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
@@ -31187,12 +31151,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'privacy, policy, gdpr, data'**
   String get deskSetSynPrivacyPolicy;
-
-  /// Settings search: other words that find the “Contact” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
-  ///
-  /// In en, this message translates to:
-  /// **'email, support, contact, mail'**
-  String get deskSetSynContact;
 
   /// Wallet settings: heading of the export and import rows.
   ///

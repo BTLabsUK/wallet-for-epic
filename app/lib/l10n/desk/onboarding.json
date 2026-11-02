@@ -340,13 +340,13 @@
   "@deskOnbSameOpen": {
     "description": "Primary button of that dialog: go to the existing wallet's unlock. Short."
   },
-  "deskOnbUnlockWhoWindows": "Anyone using this Windows account can open this wallet.",
+  "deskOnbUnlockWhoWindows": "Anyone who uses this computer as you can open this wallet.",
   "@deskOnbUnlockWhoWindows": {
     "description": "Tooltip of the 'Remember on this computer' checkbox on Windows, and part of the Remembered row in Settings: who can open a remembered wallet."
   },
-  "deskOnbUnlockWho": "Anyone using this account can open this wallet.",
+  "deskOnbUnlockWho": "Anyone who uses this computer as you can open this wallet.",
   "@deskOnbUnlockWho": {
-    "description": "Same as the previous message on macOS and Linux (the computer account)."
+    "description": "Same as the previous message on macOS and Linux (whoever uses the computer as the user)."
   },
   "deskOnbUnlockWrong": "Wrong password. Check Caps Lock and the keyboard layout.",
   "@deskOnbUnlockWrong": {

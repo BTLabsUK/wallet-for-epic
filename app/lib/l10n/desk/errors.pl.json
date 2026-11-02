@@ -129,7 +129,7 @@
   "deskDataUpdUnreachable": "Nie udało się połączyć z serwerem aktualizacji.",
   "deskDataUpdStatus": "Błąd serwera aktualizacji ({status}).",
   "deskDataUpdNone": "Nie opublikowano jeszcze informacji o aktualizacjach wersji desktopowej.",
-  "deskErrSecretProtect": "Windows nie mógł zabezpieczyć sekretów portfela (DPAPI odmówiło), więc nic nie zapisano. Zaloguj się do Windows na własne konto i jego hasłem, nie przez sesję zdalną ani usługową, i spróbuj ponownie.",
+  "deskErrSecretProtect": "Windows nie mógł zabezpieczyć sekretów portfela (DPAPI odmówiło), więc nic nie zapisano. Używaj Windows bezpośrednio, jako ty, ze swoim hasłem, nie przez sesję zdalną ani usługową, i spróbuj ponownie.",
   "deskErrOldLinks": "Folder tego portfela zawiera dowiązania, więc nie zostanie zaimportowany. Przywróć portfel z frazy odzyskiwania.",
   "deskErrOldIncomplete": "Folderu tego portfela nie udało się odczytać w całości, więc nie zostanie zaimportowany. Przywróć portfel z frazy odzyskiwania.",
   "deskErrOldSeedTooLarge": "Plik wallet.seed jest za duży, by był seedem portfela.",
@@ -139,5 +139,5 @@
   "deskErrNotDeliveredRelay": "Nie dostarczono: {relay} nie odpowiedział. Płatność czeka w Aktywności; anuluj ją tam, aby odblokować środki.",
   "deskErrRelayNoAnswer": "{relay} nie odpowiedział.",
   "deskErrInputsSpentElsewhere": "Węzeł pokazuje te monety jako już wydane, a ten portfel ich nie wydał. Najpewniej zrobił to inny portfel z Twoją frazą odzyskiwania.",
-  "deskErrMacKeychain": "macOS nie pozwolił aplikacji odczytać jej zapisanych danych z pęku kluczy. Zamknij BT Wallet i otwórz go ponownie; gdy macOS zapyta, wpisz hasło logowania do Maca i wybierz „Zawsze pozwalaj”."
+  "deskErrMacKeychain": "macOS nie pozwolił aplikacji odczytać jej zapisanych danych z pęku kluczy. Zamknij BT Wallet i otwórz go ponownie; gdy macOS zapyta, wpisz hasło, którym odblokowujesz Maca, i wybierz „Zawsze pozwalaj”."
 }

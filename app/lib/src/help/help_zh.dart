@@ -73,7 +73,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       '用文件发送',
       '手动方式：保存交易文件，交给收款方，然后打开对方发回的回复文件。',
       [
-        const HelpBlock.p('直接 · 文件传输完成的握手与 Epicbox 相同，只是消息由人工传递，例如通过电子邮件、聊天或 U 盘。它不依赖 Epicbox，也不需要双方钱包同时在线。'),
+        const HelpBlock.p('直接 · 文件传输完成的握手与 Epicbox 相同，只是消息由人工传递，例如通过聊天或 U 盘。它不依赖 Epicbox，也不需要双方钱包同时在线。'),
         if (phone)
           const HelpBlock.ol(['**发送方：** 在“发送”中选择 **直接 · 文件传输**，输入金额并分享文件（以 .tx 结尾）。从此刻起币被锁定。', '**收款方：** 在[[接收 › 直接 · 文件|Receive › Direct · File]]中打开该文件。其钱包签名后分享一个回复文件（以 .response 结尾），并把该文件发回。', '**发送方：** 在[[接收 › 直接 · 文件|Receive › Direct · File]]中打开回复文件。钱包完成付款并广播。'])
         else
@@ -237,7 +237,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('助记词能找回区块链上的一切，也就是余额。'),
         HelpBlock.p('**恢复方法**：在新${phone ? '手机' : '电脑'}上或丢失后，打开$restorePlace，输入单词并设置${phone ? ' PIN 码' : '密码'}。钱包打开后会扫描区块链查找自己的输出。首次扫描完成后余额才会出现；找到的付款标记为 **恢复的资金**。'),
-        HelpBlock.p('**恢复无法找回的内容：** 从未上链的信息，例如谁付了什么、备注和标签、联系人、账单、设置和钱包名称。钱包数据文件会保存这些：$historyBackupPlace。${phone ? '请把该文件保存在手机以外的地方，例如电子邮件或云存储中。' : ''}'),
+        HelpBlock.p('**恢复无法找回的内容：** 从未上链的信息，例如谁付了什么、备注和标签、联系人、账单、设置和钱包名称。钱包数据文件会保存这些：$historyBackupPlace。${phone ? '请把该文件保存在手机以外的地方，例如云存储或 U 盘中。' : ''}'),
         const HelpBlock.p('**钱包数据文件不是助记词。** 它不含助记词，也无法单独恢复钱包。恢复时：先输入助记词，再导入该文件；恢复完成后钱包会立即提示导入。'),
         HelpBlock.p('**余额看起来不对？** 运行$recheckPlace。它会为此钱包的输出重新读取整条区块链。'),
         if (!phone)

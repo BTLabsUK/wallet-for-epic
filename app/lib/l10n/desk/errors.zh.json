@@ -129,7 +129,7 @@
   "deskDataUpdUnreachable": "无法连接更新服务器。",
   "deskDataUpdStatus": "更新服务器错误（{status}）。",
   "deskDataUpdNone": "尚未发布桌面版的更新信息。",
-  "deskErrSecretProtect": "Windows 无法保护钱包的机密（DPAPI 拒绝），因此未保存任何内容。请用你自己的账户和密码登录 Windows，不要通过远程或服务会话，然后重试。",
+  "deskErrSecretProtect": "Windows 无法保护钱包的机密（DPAPI 拒绝），因此未保存任何内容。请直接以你自己的身份使用 Windows，用你自己的密码，不要通过远程或服务会话，然后重试。",
   "deskErrOldLinks": "此钱包的文件夹中含有链接，因此不会导入。请用助记词恢复。",
   "deskErrOldIncomplete": "无法完整读取此钱包的文件夹，因此不会导入。请用助记词恢复。",
   "deskErrOldSeedTooLarge": "wallet.seed 文件太大，不可能是钱包种子文件。",
@@ -139,5 +139,5 @@
   "deskErrNotDeliveredRelay": "未送达：{relay} 没有响应。这笔付款保留在“活动”中；在那里取消即可解锁资金。",
   "deskErrRelayNoAnswer": "{relay} 没有响应。",
   "deskErrInputsSpentElsewhere": "节点显示这些币已被花掉，而本钱包没有花它们。很可能是另一个使用你助记词的钱包花掉的。",
-  "deskErrMacKeychain": "macOS 不允许应用读取其保存在钥匙串中的数据。请退出 BT Wallet 并重新打开；当 macOS 询问时，输入你的 Mac 登录密码并选择“始终允许”。"
+  "deskErrMacKeychain": "macOS 不允许应用读取其保存在钥匙串中的数据。请退出 BT Wallet 并重新打开；当 macOS 询问时，输入你解锁 Mac 的密码并选择“始终允许”。"
 }

@@ -105,7 +105,7 @@
   "deskSetRowTorPayInfo": "Tor ทำงานเพื่อส่งและรับเงินที่ที่อยู่ Tor เท่านั้น โหนด ราคา และการอัปเดตใช้การตั้งค่าในเครือข่ายและความเป็นส่วนตัว",
   "deskSetSynTorPay": "tor, onion, ไม่ระบุตัวตน, hidden service, ความเป็นส่วนตัว, วิธีการ",
   "deskSetRowFileHint": "โดยส่งต่อไฟล์ธุรกรรม ไม่ต้องใช้เครือข่าย ทุกวอลเล็ต",
-  "deskSetSynFile": "ไฟล์, ออฟไลน์, slate, ไฟล์ธุรกรรม, usb, อีเมล, วิธีการ, ด้วยตนเอง",
+  "deskSetSynFile": "ไฟล์, ออฟไลน์, slate, ไฟล์ธุรกรรม, usb, วิธีการ, ด้วยตนเอง",
   "deskSetRowDefaultMethodHint": "สิ่งที่หน้าส่งเปิดขึ้นมา ทุกวอลเล็ต",
   "deskSetSynDefaultMethod": "ส่ง, วิธีการ, ค่าเริ่มต้น",
   "deskSetRowStrategy": "เอาต์พุตที่การส่งใช้",
@@ -190,7 +190,7 @@
   "deskSetRowLogFilesHint": "ล้างไฟล์บันทึกหรือเปิดโฟลเดอร์",
   "deskSetSynLogFiles": "บันทึก, log, ล้างบันทึก, ลบบันทึก",
   "deskSetRowReportHint": "อธิบายว่าเกิดอะไรผิดพลาด แนบบันทึกแอปที่ล้างข้อมูลแล้วได้",
-  "deskSetSynReport": "ข้อผิดพลาด, บั๊ก, ปัญหา, ช่วยเหลือ, ติดต่อ, แครช, รายงานข้อผิดพลาด",
+  "deskSetSynReport": "ข้อผิดพลาด, บั๊ก, ปัญหา, ช่วยเหลือ, แครช, รายงานข้อผิดพลาด",
   "deskSetSynTour": "ทัวร์, บทแนะนำ, แนะนำ, เริ่มต้นใช้งาน",
   "deskSetRowSetup": "เรียกใช้การตั้งค่าอีกครั้ง",
   "deskSetRowSetupHint": "โหนดและการรับ ทีละขั้นตอน",
@@ -200,6 +200,5 @@
   "deskSetRowWebsite": "เว็บไซต์",
   "deskSetSynWebsite": "เว็บไซต์, เว็บ, ไซต์, epic cash",
   "deskSetSynSource": "github, โค้ด, ซอร์สโค้ด, โอเพนซอร์ส, repository",
-  "deskSetSynPrivacyPolicy": "ความเป็นส่วนตัว, นโยบาย, gdpr, ข้อมูล",
-  "deskSetSynContact": "อีเมล, ช่วยเหลือ, ติดต่อ, เมล"
+  "deskSetSynPrivacyPolicy": "ความเป็นส่วนตัว, นโยบาย, gdpr, ข้อมูล"
 }

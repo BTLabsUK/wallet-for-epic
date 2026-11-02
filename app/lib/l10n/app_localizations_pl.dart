@@ -1063,7 +1063,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get historyBackupShareSubtitle =>
-      'Kopia poza telefonem, np. w e-mailu lub w chmurze.';
+      'Kopia poza telefonem, np. w chmurze lub na innym urządzeniu.';
 
   @override
   String get historyBackupSaveToDevice => 'Zapisz na urządzeniu';
@@ -3179,9 +3179,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsPrivacyPolicy => 'Polityka prywatności';
 
   @override
-  String get contactLabel => 'Kontakt';
-
-  @override
   String get settingsLicences => 'Licencje';
 
   @override
@@ -3303,12 +3300,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get feedbackMessageMissing => 'Napisz kilka słów o tym, co się stało.';
 
   @override
-  String get feedbackEmailLabel => 'Kontakt (opcjonalnie)';
-
-  @override
-  String get feedbackEmailInvalid => 'To nie wygląda na adres e-mail.';
-
-  @override
   String get feedbackAttachLogs => 'Dołącz logi';
 
   @override
@@ -3326,13 +3317,13 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get feedbackFileExplanation =>
-      'Opinia zostanie zapisana jako plik tekstowy, który możesz wysłać e-mailem lub w komunikatorze albo zachować.';
+      'Opinia zostanie zapisana jako plik tekstowy, który możesz udostępnić albo zachować.';
 
   @override
   String get feedbackShareOrSave => 'Udostępnij lub zapisz';
 
   @override
-  String get feedbackShareHint => 'Wyślij e-mailem lub w komunikatorze';
+  String get feedbackShareHint => 'Przekaż plik innej aplikacji';
 
   @override
   String get feedbackSaveToDevice => 'Zapisz na urządzeniu';
@@ -3460,7 +3451,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get fileHelpSendStep2 =>
-      'Wysyłasz go znajomemu w dowolny sposób, na przykład czatem lub e-mailem.';
+      'Wysyłasz go znajomemu w dowolny sposób, na przykład w komunikatorze lub na pendrivie.';
 
   @override
   String get fileHelpSendStep3 =>
@@ -3476,7 +3467,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get fileHelpReceiveStep2 =>
-      'Wysyła ci go w dowolny sposób, na przykład czatem lub e-mailem.';
+      'Wysyła ci go w dowolny sposób, na przykład w komunikatorze lub na pendrivie.';
 
   @override
   String get fileHelpReceiveStep3 =>
@@ -9412,11 +9403,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOnbUnlockWhoWindows =>
-      'Każdy, kto używa tego konta Windows, może otworzyć ten portfel.';
+      'Każdy, kto używa tego komputera jako ty, może otworzyć ten portfel.';
 
   @override
   String get deskOnbUnlockWho =>
-      'Każdy, kto używa tego konta, może otworzyć ten portfel.';
+      'Każdy, kto używa tego komputera jako ty, może otworzyć ten portfel.';
 
   @override
   String get deskOnbUnlockWrong =>
@@ -12331,13 +12322,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Co było robione, czego oczekiwano, co stało się zamiast tego';
 
   @override
-  String get deskSetReportContact => 'Kontakt';
-
-  @override
-  String get deskSetReportContactHint =>
-      'Adres e-mail lub inny kontakt do odpowiedzi';
-
-  @override
   String get deskSetReportAttach => 'Dołącz logi';
 
   @override
@@ -12915,21 +12899,21 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskErrSecretProtect =>
-      'Windows nie mógł zabezpieczyć sekretów portfela (DPAPI odmówiło), więc nic nie zapisano. Zaloguj się do Windows na własne konto i jego hasłem, nie przez sesję zdalną ani usługową, i spróbuj ponownie.';
+      'Windows nie mógł zabezpieczyć sekretów portfela (DPAPI odmówiło), więc nic nie zapisano. Używaj Windows bezpośrednio, jako ty, ze swoim hasłem, nie przez sesję zdalną ani usługową, i spróbuj ponownie.';
 
   @override
   String get deskKeyringMissingTitle => 'Nie znaleziono pęku kluczy';
 
   @override
   String get deskKeyringMissingText =>
-      'BT Wallet przechowuje swoje ustawienia i zapieczętowane hasło portfela w systemowym pęku kluczy, ale żaden nie odpowiedział. Zainstaluj lub uruchom pęk kluczy (GNOME Keyring lub KWallet), zaloguj się do sesji pulpitu, która go uruchamia, a potem wybierz Ponów.';
+      'BT Wallet przechowuje swoje ustawienia i zapieczętowane hasło portfela w systemowym pęku kluczy, ale żaden nie odpowiedział. Zainstaluj lub uruchom pęk kluczy (GNOME Keyring lub KWallet) albo użyj sesji pulpitu, która go uruchamia, a potem wybierz Ponów.';
 
   @override
   String get deskKeyringLockedTitle => 'Pęk kluczy jest zablokowany';
 
   @override
   String get deskKeyringLockedText =>
-      'BT Wallet przechowuje swoje ustawienia i zapieczętowane hasło portfela w systemowym pęku kluczy, który jest zablokowany. Odblokuj go (otwiera się hasłem logowania), a potem wybierz Ponów, albo wybierz Odblokuj teraz, aby system o nie poprosił.';
+      'BT Wallet przechowuje swoje ustawienia i zapieczętowane hasło portfela w systemowym pęku kluczy, który jest zablokowany. Odblokuj go (zwykle hasłem, którym odblokowujesz ten komputer), a potem wybierz Ponów, albo wybierz Odblokuj teraz, aby system o nie poprosił.';
 
   @override
   String get deskKeyringUnlockNow => 'Odblokuj teraz';
@@ -13730,7 +13714,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get txFileHint =>
-      'Przesyłanie pliku tworzy plik transakcji, który przekazujesz drugiej osobie dowolnym sposobem (wiadomość, mail, kabel), a ona odsyła ci drugi. Nie potrzeba połączenia między portfelami. Dodaje Przesyłanie pliku do Wyślij i Odbierz.';
+      'Przesyłanie pliku tworzy plik transakcji, który przekazujesz drugiej osobie dowolnym sposobem (wiadomość na czacie, pendrive, kabel), a ona odsyła ci drugi. Nie potrzeba połączenia między portfelami. Dodaje Przesyłanie pliku do Wyślij i Odbierz.';
 
   @override
   String get txStartHeader => 'Domyślna metoda';
@@ -14327,8 +14311,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get pairWayMessage => 'Przez wiadomość';
 
   @override
-  String get pairWayMessageHint =>
-      'Wyślij link w dowolnym czacie lub e-mailem.';
+  String get pairWayMessageHint => 'Wyślij link w dowolnym czacie.';
 
   @override
   String get pairWayMessageInfo =>
@@ -17813,7 +17796,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskErrMacKeychain =>
-      'macOS nie pozwolił aplikacji odczytać jej zapisanych danych z pęku kluczy. Zamknij BT Wallet i otwórz go ponownie; gdy macOS zapyta, wpisz hasło logowania do Maca i wybierz „Zawsze pozwalaj”.';
+      'macOS nie pozwolił aplikacji odczytać jej zapisanych danych z pęku kluczy. Zamknij BT Wallet i otwórz go ponownie; gdy macOS zapyta, wpisz hasło, którym odblokowujesz Maca, i wybierz „Zawsze pozwalaj”.';
 
   @override
   String get deskUpdOpenDmg => 'Otwórz obraz dysku';
@@ -17894,11 +17877,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String settingsFileNotPort(String file, int line) {
     return '$file, wiersz $line: to nie numer portu. Obowiązuje ostatnia poprawna wartość.';
-  }
-
-  @override
-  String settingsFileNotEmail(String file, int line) {
-    return '$file, wiersz $line: to nie adres e-mail. Obowiązuje ostatnia poprawna wartość.';
   }
 
   @override
@@ -20263,7 +20241,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetSynFile =>
-      'plik, offline, slate, plik tx, usb, e-mail, metoda, ręcznie';
+      'plik, offline, slate, plik tx, usb, metoda, ręcznie';
 
   @override
   String get deskSetRowDefaultMethodHint =>
@@ -20573,7 +20551,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetSynReport =>
-      'błąd, bug, problem, wsparcie, kontakt, awaria, zgłoszenie';
+      'błąd, bug, problem, wsparcie, awaria, zgłoszenie';
 
   @override
   String get deskSetSynTour => 'przewodnik, samouczek, wprowadzenie, tour';
@@ -20607,9 +20585,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetSynPrivacyPolicy => 'prywatność, polityka, rodo, dane';
-
-  @override
-  String get deskSetSynContact => 'e-mail, wsparcie, kontakt, poczta';
 
   @override
   String get deskSetAcctBackup => 'Kopia zapasowa';

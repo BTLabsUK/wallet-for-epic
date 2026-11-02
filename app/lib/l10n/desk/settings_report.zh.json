@@ -13,8 +13,6 @@
   "deskSetReportDesc": "已加密，只有开发者能读取。“保存到文件”会保留一份未加密的副本。",
   "deskSetReportWhat": "发生了什么",
   "deskSetReportWhatHint": "你做了什么，期望发生什么，实际发生了什么",
-  "deskSetReportContact": "联系方式",
-  "deskSetReportContactHint": "电子邮件地址或其他账号，用于回复",
   "deskSetReportAttach": "附上日志",
   "deskSetReportAttachHint": "应用日志的最新部分，不含助记词、密码和其他机密信息。",
   "deskSetReportFullDetails": "包含完整详情",

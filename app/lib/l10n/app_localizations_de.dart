@@ -1033,7 +1033,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get historyBackupShareSubtitle =>
-      'Kopie außerhalb dieses Smartphones, etwa per E-Mail oder in der Cloud.';
+      'Kopie außerhalb dieses Smartphones, etwa im Cloud-Speicher oder auf einem anderen Gerät.';
 
   @override
   String get historyBackupSaveToDevice => 'Auf dem Gerät speichern';
@@ -3124,9 +3124,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsPrivacyPolicy => 'Datenschutzerklärung';
 
   @override
-  String get contactLabel => 'Kontakt';
-
-  @override
   String get settingsLicences => 'Lizenzen';
 
   @override
@@ -3247,13 +3244,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Beschreiben Sie in ein paar Worten, was passiert ist.';
 
   @override
-  String get feedbackEmailLabel => 'Kontakt (optional)';
-
-  @override
-  String get feedbackEmailInvalid =>
-      'Das sieht nicht nach einer E-Mail-Adresse aus.';
-
-  @override
   String get feedbackAttachLogs => 'Protokolle anhängen';
 
   @override
@@ -3271,13 +3261,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get feedbackFileExplanation =>
-      'Ihr Feedback wird zu einer Textdatei, die Sie per E-Mail oder Chat senden oder speichern können.';
+      'Ihr Feedback wird zu einer Textdatei, die Sie weitergeben oder speichern können.';
 
   @override
   String get feedbackShareOrSave => 'Teilen oder speichern';
 
   @override
-  String get feedbackShareHint => 'Per E-Mail oder Chat-App senden';
+  String get feedbackShareHint => 'Datei an eine andere App übergeben';
 
   @override
   String get feedbackSaveToDevice => 'Auf dem Gerät speichern';
@@ -3406,7 +3396,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get fileHelpSendStep2 =>
-      'Sie schicken sie Ihrem Gegenüber, wie Sie möchten, etwa per Chat oder E-Mail.';
+      'Sie schicken sie Ihrem Gegenüber, wie Sie möchten, etwa per Chat-App oder USB-Stick.';
 
   @override
   String get fileHelpSendStep3 =>
@@ -3422,7 +3412,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get fileHelpReceiveStep2 =>
-      'Es schickt sie Ihnen auf beliebigem Weg, etwa per Chat oder E-Mail.';
+      'Es schickt sie Ihnen auf beliebigem Weg, etwa per Chat-App oder USB-Stick.';
 
   @override
   String get fileHelpReceiveStep3 =>
@@ -9116,11 +9106,11 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOnbUnlockWhoWindows =>
-      'Jeder, der dieses Windows-Konto nutzt, kann diese Wallet öffnen.';
+      'Jeder, der diesen Computer als Sie nutzt, kann diese Wallet öffnen.';
 
   @override
   String get deskOnbUnlockWho =>
-      'Jeder, der dieses Benutzerkonto nutzt, kann diese Wallet öffnen.';
+      'Jeder, der diesen Computer als Sie nutzt, kann diese Wallet öffnen.';
 
   @override
   String get deskOnbUnlockWrong =>
@@ -11989,13 +11979,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Was Sie getan haben, was Sie erwartet haben, was stattdessen passiert ist';
 
   @override
-  String get deskSetReportContact => 'Kontakt';
-
-  @override
-  String get deskSetReportContactHint =>
-      'Eine E-Mail-Adresse oder ein anderer Name, für eine Antwort';
-
-  @override
   String get deskSetReportAttach => 'Protokolle anhängen';
 
   @override
@@ -12568,21 +12551,21 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskErrSecretProtect =>
-      'Windows konnte die Geheimnisse der Wallet nicht schützen (DPAPI hat abgelehnt), daher wurde nichts gespeichert. Melden Sie sich mit Ihrem eigenen Konto und dessen Passwort bei Windows an, nicht über eine Remote- oder Dienstsitzung, und versuchen Sie es erneut.';
+      'Windows konnte die Geheimnisse der Wallet nicht schützen (DPAPI hat abgelehnt), daher wurde nichts gespeichert. Verwenden Sie Windows direkt als Sie selbst, mit Ihrem eigenen Passwort, nicht über eine Remote- oder Dienstsitzung, und versuchen Sie es erneut.';
 
   @override
   String get deskKeyringMissingTitle => 'Kein Schlüsselbund gefunden';
 
   @override
   String get deskKeyringMissingText =>
-      'BT Wallet speichert seine Einstellungen und das versiegelte Passwort deiner Wallet im Schlüsselbund des Systems, aber keiner hat geantwortet. Installiere oder starte einen Schlüsselbund (GNOME Keyring oder KWallet), melde dich in einer Desktop-Sitzung an, die einen ausführt, und wähle dann Wiederholen.';
+      'BT Wallet speichert seine Einstellungen und das versiegelte Passwort deiner Wallet im Schlüsselbund des Systems, aber keiner hat geantwortet. Installiere oder starte einen Schlüsselbund (GNOME Keyring oder KWallet) oder nutze eine Desktop-Sitzung, die einen ausführt, und wähle dann Wiederholen.';
 
   @override
   String get deskKeyringLockedTitle => 'Der Schlüsselbund ist gesperrt';
 
   @override
   String get deskKeyringLockedText =>
-      'BT Wallet speichert seine Einstellungen und das versiegelte Passwort deiner Wallet im Schlüsselbund des Systems, und der ist gesperrt. Entsperre ihn (er öffnet sich mit deinem Anmeldepasswort) und wähle dann Wiederholen, oder wähle Jetzt entsperren, damit das System danach fragt.';
+      'BT Wallet speichert seine Einstellungen und das versiegelte Passwort deiner Wallet im Schlüsselbund des Systems, und der ist gesperrt. Entsperre ihn (meist mit dem Passwort, mit dem du diesen Computer entsperrst) und wähle dann Wiederholen, oder wähle Jetzt entsperren, damit das System danach fragt.';
 
   @override
   String get deskKeyringUnlockNow => 'Jetzt entsperren';
@@ -13380,7 +13363,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get txFileHint =>
-      'Die Dateiübertragung erstellt eine Transaktionsdatei, die Sie der anderen Person auf beliebigem Weg weitergeben (Nachricht, Mail, Kabel), und sie gibt eine zurück. Zwischen den beiden Wallets ist keine Verbindung nötig. Fügt die Dateiübertragung zu Senden und Empfangen hinzu.';
+      'Die Dateiübertragung erstellt eine Transaktionsdatei, die Sie der anderen Person auf beliebigem Weg weitergeben (Chatnachricht, USB-Stick, Kabel), und sie gibt eine zurück. Zwischen den beiden Wallets ist keine Verbindung nötig. Fügt die Dateiübertragung zu Senden und Empfangen hinzu.';
 
   @override
   String get txStartHeader => 'Standardmethode';
@@ -13970,7 +13953,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pairWayMessageHint =>
-      'Senden Sie einen Link in einem Chat oder per E-Mail.';
+      'Senden Sie einen Link in einem beliebigen Chat.';
 
   @override
   String get pairWayMessageInfo =>
@@ -17393,7 +17376,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskErrMacKeychain =>
-      'macOS hat der App nicht erlaubt, ihre gespeicherten Daten im Schlüsselbund zu lesen. Beenden Sie BT Wallet und öffnen Sie es erneut; wenn macOS fragt, geben Sie Ihr Mac-Anmeldepasswort ein und wählen Sie „Immer erlauben“.';
+      'macOS hat der App nicht erlaubt, ihre gespeicherten Daten im Schlüsselbund zu lesen. Beenden Sie BT Wallet und öffnen Sie es erneut; wenn macOS fragt, geben Sie das Passwort ein, mit dem Sie Ihren Mac entsperren, und wählen Sie „Immer erlauben“.';
 
   @override
   String get deskUpdOpenDmg => 'Disk-Image öffnen';
@@ -17472,11 +17455,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String settingsFileNotPort(String file, int line) {
     return '$file, Zeile $line: Keine Portnummer. Der letzte gültige Wert gilt weiter.';
-  }
-
-  @override
-  String settingsFileNotEmail(String file, int line) {
-    return '$file, Zeile $line: Keine E-Mail-Adresse. Der letzte gültige Wert gilt weiter.';
   }
 
   @override
@@ -19770,7 +19748,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetSynRemembered =>
-      'angemeldet bleiben, passwort, entsperren, automatisch entsperren, vergessen';
+      'merken, passwort, entsperren, automatisch entsperren, vergessen';
 
   @override
   String get deskSetRowAutolockHint =>
@@ -19832,7 +19810,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetSynFile =>
-      'datei, offline, slate, tx-datei, usb, e-mail, methode, manuell';
+      'datei, offline, slate, tx-datei, usb, methode, manuell';
 
   @override
   String get deskSetRowDefaultMethodHint =>
@@ -20148,7 +20126,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetSynReport =>
-      'fehler, bug, problem, support, kontakt, absturz, fehlerbericht';
+      'fehler, bug, problem, support, absturz, fehlerbericht';
 
   @override
   String get deskSetSynTour => 'tour, anleitung, einführung, rundgang';
@@ -20181,9 +20159,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetSynPrivacyPolicy => 'datenschutz, richtlinie, dsgvo, daten';
-
-  @override
-  String get deskSetSynContact => 'e-mail, support, kontakt, mail';
 
   @override
   String get deskSetAcctBackup => 'Sicherung';

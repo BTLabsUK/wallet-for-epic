@@ -13,8 +13,6 @@
   "deskSetReportDesc": "Zaszyfrowany, więc przeczyta go tylko twórca aplikacji. Zapisz do pliku zachowuje kopię bez szyfrowania.",
   "deskSetReportWhat": "Co się stało",
   "deskSetReportWhatHint": "Co było robione, czego oczekiwano, co stało się zamiast tego",
-  "deskSetReportContact": "Kontakt",
-  "deskSetReportContactHint": "Adres e-mail lub inny kontakt do odpowiedzi",
   "deskSetReportAttach": "Dołącz logi",
   "deskSetReportAttachHint": "Najnowsza część logu aplikacji, bez frazy odzyskiwania, hasła i innych poufnych danych.",
   "deskSetReportFullDetails": "Dołącz pełne szczegóły",

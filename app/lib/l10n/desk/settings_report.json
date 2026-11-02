@@ -65,14 +65,6 @@
   "@deskSetReportWhatHint": {
     "description": "Report a problem dialog: placeholder of the description field."
   },
-  "deskSetReportContact": "Contact",
-  "@deskSetReportContact": {
-    "description": "Report a problem dialog: label and screen reader name of the optional contact field."
-  },
-  "deskSetReportContactHint": "An email address or other handle, for a reply",
-  "@deskSetReportContactHint": {
-    "description": "Report a problem dialog: placeholder of the contact field."
-  },
   "deskSetReportAttach": "Attach logs",
   "@deskSetReportAttach": {
     "description": "Report a problem dialog: checkbox label."

@@ -75,7 +75,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       'Wyślij plikiem',
       'Sposób ręczny: zapisz plik transakcji, przekaż go odbiorcy, a potem otwórz plik odpowiedzi, który odeśle.',
       [
-        const HelpBlock.p('Bezpośrednio · Przesyłanie pliku to ten sam uścisk dłoni co przez Epicbox, tylko wiadomości przekazujesz ręcznie, na przykład e-mailem, na czacie lub na pendrivie. Działa to bez Epicbox i bez tego, by oba portfele były online w tym samym czasie.'),
+        const HelpBlock.p('Bezpośrednio · Przesyłanie pliku to ten sam uścisk dłoni co przez Epicbox, tylko wiadomości przekazujesz ręcznie, na przykład na czacie lub na pendrivie. Działa to bez Epicbox i bez tego, by oba portfele były online w tym samym czasie.'),
         if (phone)
           const HelpBlock.ol(['**Nadawca:** w Wyślij wybiera **Bezpośrednio · Przesyłanie pliku**, wpisuje kwotę i udostępnia plik (kończy się na .tx). Od teraz monety są zablokowane.', '**Odbiorca:** otwiera plik w [[Odbierz › Bezpośrednio · Plik|Receive › Direct · File]]. Jego portfel podpisuje go i udostępnia plik odpowiedzi (kończy się na .response). Ten plik odsyła.', '**Nadawca:** otwiera plik odpowiedzi w [[Odbierz › Bezpośrednio · Plik|Receive › Direct · File]]. Portfel kończy płatność i wysyła ją do sieci.'])
         else
@@ -239,7 +239,7 @@ List<HelpTopic> helpTopicsPl(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('Fraza odzyskiwania przywraca wszystko, co jest w łańcuchu bloków, czyli saldo.'),
         HelpBlock.p('**Aby przywrócić** portfel na nowym ${phone ? 'telefonie' : 'komputerze'} lub po utracie: otwórz $restorePlace, wpisz słowa i wybierz ${phone ? 'PIN' : 'hasło'}. Po otwarciu portfel skanuje łańcuch bloków w poszukiwaniu swoich wyjść. Saldo pojawi się po tym pierwszym skanowaniu; znalezione płatności są oznaczone jako **Odzyskane środki**.'),
-        HelpBlock.p('**Czego przywracanie nie odtworzy:** tego, czego nigdy nie było w łańcuchu bloków, np. kto komu zapłacił, notatek i etykiet, kontaktów, faktur, ustawień i nazw portfeli. Plik danych portfela je zachowuje: $historyBackupPlace.${phone ? ' Trzymaj ten plik poza telefonem, na przykład w e-mailu lub w chmurze.' : ''}'),
+        HelpBlock.p('**Czego przywracanie nie odtworzy:** tego, czego nigdy nie było w łańcuchu bloków, np. kto komu zapłacił, notatek i etykiet, kontaktów, faktur, ustawień i nazw portfeli. Plik danych portfela je zachowuje: $historyBackupPlace.${phone ? ' Trzymaj ten plik poza telefonem, na przykład w chmurze lub na pendrivie.' : ''}'),
         const HelpBlock.p('**Plik danych portfela to nie fraza odzyskiwania.** Nie zawiera słów i sam nie przywróci portfela. Aby przywrócić: najpierw wpisz frazę odzyskiwania, potem zaimportuj plik; portfel zaproponuje to zaraz po przywróceniu.'),
         HelpBlock.p('**Saldo wygląda na błędne?** Uruchom $recheckPlace. Portfel jeszcze raz przeszukuje cały łańcuch bloków w poszukiwaniu swoich wyjść.'),
         if (!phone)

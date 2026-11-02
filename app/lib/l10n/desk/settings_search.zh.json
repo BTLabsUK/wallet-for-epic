@@ -105,7 +105,7 @@
   "deskSetRowTorPayInfo": "Tor 只用于在 Tor 地址上收发付款。节点、价格和更新沿用“网络与隐私”中的设置。",
   "deskSetSynTorPay": "tor, 洋葱, 匿名, 隐藏服务, 隐私, 方式",
   "deskSetRowFileHint": "通过交换交易文件。无需网络。所有钱包。",
-  "deskSetSynFile": "文件, 离线, slate, 交易文件, usb, 邮件, 方式, 手动",
+  "deskSetSynFile": "文件, 离线, slate, 交易文件, usb, 方式, 手动",
   "deskSetRowDefaultMethodHint": "“发送”打开时使用的方式。所有钱包。",
   "deskSetSynDefaultMethod": "发送, 方式, 默认",
   "deskSetRowStrategy": "发送使用的输出",
@@ -190,7 +190,7 @@
   "deskSetRowLogFilesHint": "清除日志文件或打开其文件夹。",
   "deskSetSynLogFiles": "日志, 清除日志, 删除日志",
   "deskSetRowReportHint": "描述出了什么问题；可附上清理后的应用日志。",
-  "deskSetSynReport": "错误, bug, 问题, 支持, 联系, 崩溃, 错误报告",
+  "deskSetSynReport": "错误, bug, 问题, 支持, 崩溃, 错误报告",
   "deskSetSynTour": "导览, 教程, 介绍, 引导",
   "deskSetRowSetup": "重新运行设置",
   "deskSetRowSetupHint": "节点和接收，逐步设置。",
@@ -200,6 +200,5 @@
   "deskSetRowWebsite": "网站",
   "deskSetSynWebsite": "网站, 网页, 官网, epic cash",
   "deskSetSynSource": "github, 代码, 源代码, 开源, 仓库",
-  "deskSetSynPrivacyPolicy": "隐私, 政策, gdpr, 数据",
-  "deskSetSynContact": "邮件, email, 支持, 联系"
+  "deskSetSynPrivacyPolicy": "隐私, 政策, gdpr, 数据"
 }

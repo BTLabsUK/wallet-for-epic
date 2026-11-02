@@ -1060,7 +1060,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get historyBackupShareSubtitle =>
-      'Копия вне телефона, например в почте или облаке.';
+      'Копия вне телефона, например в облаке или на другом устройстве.';
 
   @override
   String get historyBackupSaveToDevice => 'Сохранить на устройстве';
@@ -3156,9 +3156,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsPrivacyPolicy => 'Политика конфиденциальности';
 
   @override
-  String get contactLabel => 'Контакт';
-
-  @override
   String get settingsLicences => 'Лицензии';
 
   @override
@@ -3282,13 +3279,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Напишите пару слов о том, что произошло.';
 
   @override
-  String get feedbackEmailLabel => 'Контакт (необязательно)';
-
-  @override
-  String get feedbackEmailInvalid =>
-      'Это не похоже на адрес электронной почты.';
-
-  @override
   String get feedbackAttachLogs => 'Приложить журналы';
 
   @override
@@ -3306,13 +3296,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get feedbackFileExplanation =>
-      'Ваш отзыв будет сохранён в текстовый файл, который можно отправить по почте или в мессенджере либо сохранить.';
+      'Ваш отзыв будет сохранён в текстовый файл, которым можно поделиться или который можно сохранить.';
 
   @override
   String get feedbackShareOrSave => 'Поделиться или сохранить';
 
   @override
-  String get feedbackShareHint => 'Отправьте по почте или в мессенджере';
+  String get feedbackShareHint => 'Передайте файл другому приложению';
 
   @override
   String get feedbackSaveToDevice => 'Сохранить на устройстве';
@@ -3441,7 +3431,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get fileHelpSendStep2 =>
-      'Вы отправляете его другу любым удобным способом, например в чате или по почте.';
+      'Вы отправляете его другу любым удобным способом, например в мессенджере или на флешке.';
 
   @override
   String get fileHelpSendStep3 =>
@@ -3456,7 +3446,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get fileHelpReceiveStep2 =>
-      'Он отправляет его вам любым удобным способом, например в чате или по почте.';
+      'Он отправляет его вам любым удобным способом, например в мессенджере или на флешке.';
 
   @override
   String get fileHelpReceiveStep3 =>
@@ -9385,11 +9375,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbUnlockWhoWindows =>
-      'Этот кошелёк может открыть любой, кто пользуется этой учётной записью Windows.';
+      'Этот кошелёк может открыть любой, кто пользуется этим компьютером как вы.';
 
   @override
   String get deskOnbUnlockWho =>
-      'Этот кошелёк может открыть любой, кто пользуется этой учётной записью.';
+      'Этот кошелёк может открыть любой, кто пользуется этим компьютером как вы.';
 
   @override
   String get deskOnbUnlockWrong =>
@@ -12302,13 +12292,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Что вы делали, чего ожидали и что произошло вместо этого';
 
   @override
-  String get deskSetReportContact => 'Контакт';
-
-  @override
-  String get deskSetReportContactHint =>
-      'Эл. почта или другой контакт для ответа';
-
-  @override
   String get deskSetReportAttach => 'Приложить журналы';
 
   @override
@@ -12885,21 +12868,21 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskErrSecretProtect =>
-      'Windows не смог защитить секреты кошелька (DPAPI отказал), поэтому ничего не сохранено. Войдите в Windows под своей учётной записью с её паролем, а не через удалённый или служебный сеанс, и попробуйте снова.';
+      'Windows не смог защитить секреты кошелька (DPAPI отказал), поэтому ничего не сохранено. Работайте в Windows напрямую от своего имени, со своим паролем, а не через удалённый или служебный сеанс, и попробуйте снова.';
 
   @override
   String get deskKeyringMissingTitle => 'Связка ключей не найдена';
 
   @override
   String get deskKeyringMissingText =>
-      'BT Wallet хранит свои настройки и запечатанный пароль кошелька в системной связке ключей, но ни одна не ответила. Установите или запустите связку ключей (GNOME Keyring или KWallet), войдите в сеанс рабочего стола, где она работает, затем нажмите «Повторить».';
+      'BT Wallet хранит свои настройки и запечатанный пароль кошелька в системной связке ключей, но ни одна не ответила. Установите или запустите связку ключей (GNOME Keyring или KWallet) либо используйте сеанс рабочего стола, где она работает, затем нажмите «Повторить».';
 
   @override
   String get deskKeyringLockedTitle => 'Связка ключей заблокирована';
 
   @override
   String get deskKeyringLockedText =>
-      'BT Wallet хранит свои настройки и запечатанный пароль кошелька в системной связке ключей, а она заблокирована. Разблокируйте её (она открывается паролем входа), затем нажмите «Повторить», или нажмите «Разблокировать сейчас», чтобы система запросила пароль.';
+      'BT Wallet хранит свои настройки и запечатанный пароль кошелька в системной связке ключей, а она заблокирована. Разблокируйте её (обычно паролем, которым вы разблокируете этот компьютер), затем нажмите «Повторить», или нажмите «Разблокировать сейчас», чтобы система запросила пароль.';
 
   @override
   String get deskKeyringUnlockNow => 'Разблокировать сейчас';
@@ -13706,7 +13689,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get txFileHint =>
-      '«Передача файла» создаёт файл транзакции, который вы передаёте другому человеку любым способом (сообщением, письмом, кабелем), а он передаёт вам ответный. Связь между кошельками не нужна. Добавляет «Передачу файла» в «Отправить» и «Получить».';
+      '«Передача файла» создаёт файл транзакции, который вы передаёте другому человеку любым способом (сообщением в чате, флешкой, кабелем), а он передаёт вам ответный. Связь между кошельками не нужна. Добавляет «Передачу файла» в «Отправить» и «Получить».';
 
   @override
   String get txStartHeader => 'Способ по умолчанию';
@@ -14304,8 +14287,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pairWayMessage => 'Через сообщение';
 
   @override
-  String get pairWayMessageHint =>
-      'Отправьте ссылку в любом чате или по почте.';
+  String get pairWayMessageHint => 'Отправьте ссылку в любом чате.';
 
   @override
   String get pairWayMessageInfo =>
@@ -17799,7 +17781,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskErrMacKeychain =>
-      'macOS не разрешила приложению прочитать его сохранённые данные в связке ключей. Закройте BT Wallet и откройте снова; когда macOS спросит, введите пароль входа в Mac и выберите «Всегда разрешать».';
+      'macOS не разрешила приложению прочитать его сохранённые данные в связке ключей. Закройте BT Wallet и откройте снова; когда macOS спросит, введите пароль, которым вы разблокируете Mac, и выберите «Всегда разрешать».';
 
   @override
   String get deskUpdOpenDmg => 'Открыть образ диска';
@@ -17880,11 +17862,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String settingsFileNotPort(String file, int line) {
     return '$file, строка $line: это не номер порта. Действует последнее верное значение.';
-  }
-
-  @override
-  String settingsFileNotEmail(String file, int line) {
-    return '$file, строка $line: это не адрес электронной почты. Действует последнее верное значение.';
   }
 
   @override
@@ -20247,7 +20224,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetSynFile =>
-      'файл, офлайн, slate, файл транзакции, usb, почта, способ, вручную';
+      'файл, офлайн, slate, файл транзакции, usb, способ, вручную';
 
   @override
   String get deskSetRowDefaultMethodHint =>
@@ -20558,7 +20535,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetSynReport =>
-      'ошибка, баг, проблема, поддержка, контакт, сбой, отчёт об ошибке';
+      'ошибка, баг, проблема, поддержка, сбой, отчёт об ошибке';
 
   @override
   String get deskSetSynTour => 'тур, обучение, введение, знакомство';
@@ -20590,9 +20567,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetSynPrivacyPolicy => 'приватность, политика, gdpr, данные';
-
-  @override
-  String get deskSetSynContact => 'почта, email, поддержка, контакт';
 
   @override
   String get deskSetAcctBackup => 'Резервная копия';

@@ -105,7 +105,7 @@
   "deskSetRowTorPayInfo": "Tor работает только для отправки и получения платежей по Tor-адресу. Узел, цены и обновления следуют настройке в разделе Сеть и приватность.",
   "deskSetSynTorPay": "tor, onion, анонимно, скрытый сервис, приватность, способ",
   "deskSetRowFileHint": "Передачей файла транзакции. Сеть не нужна. Все кошельки.",
-  "deskSetSynFile": "файл, офлайн, slate, файл транзакции, usb, почта, способ, вручную",
+  "deskSetSynFile": "файл, офлайн, slate, файл транзакции, usb, способ, вручную",
   "deskSetRowDefaultMethodHint": "С чего открывается Отправка. Все кошельки.",
   "deskSetSynDefaultMethod": "отправить, способ, по умолчанию",
   "deskSetRowStrategy": "Какие выходы тратит отправка",
@@ -190,7 +190,7 @@
   "deskSetRowLogFilesHint": "Очистить файлы журнала или открыть их папку.",
   "deskSetSynLogFiles": "журнал, лог, очистить журналы, удалить журналы",
   "deskSetRowReportHint": "Опишите, что пошло не так; можно приложить очищенный журнал приложения.",
-  "deskSetSynReport": "ошибка, баг, проблема, поддержка, контакт, сбой, отчёт об ошибке",
+  "deskSetSynReport": "ошибка, баг, проблема, поддержка, сбой, отчёт об ошибке",
   "deskSetSynTour": "тур, обучение, введение, знакомство",
   "deskSetRowSetup": "Запустить настройку снова",
   "deskSetRowSetupHint": "Узел и получение, шаг за шагом.",
@@ -200,6 +200,5 @@
   "deskSetRowWebsite": "Сайт",
   "deskSetSynWebsite": "сайт, веб, интернет, epic cash",
   "deskSetSynSource": "github, код, исходный код, open source, репозиторий",
-  "deskSetSynPrivacyPolicy": "приватность, политика, gdpr, данные",
-  "deskSetSynContact": "почта, email, поддержка, контакт"
+  "deskSetSynPrivacyPolicy": "приватность, политика, gdpr, данные"
 }

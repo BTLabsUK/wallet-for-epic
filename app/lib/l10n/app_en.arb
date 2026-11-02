@@ -1194,7 +1194,7 @@
   "@historyBackupShare": {
     "description": "Choice in a sheet: hand the history file to another app through the share sheet."
   },
-  "historyBackupShareSubtitle": "A copy off this phone, such as email or cloud storage.",
+  "historyBackupShareSubtitle": "A copy off this phone, such as cloud storage or another device.",
   "@historyBackupShareSubtitle": {
     "description": "Second line of the Share choice."
   },
@@ -3910,10 +3910,6 @@
   "@settingsPrivacyPolicy": {
     "description": "About row (phone and desktop) with the link to BT Labs' privacy policy."
   },
-  "contactLabel": "Contact",
-  "@contactLabel": {
-    "description": "Label before the public contact email address, in Help (report a problem) and About."
-  },
   "settingsLicences": "Licences",
   "@settingsLicences": {
     "description": "Settings › About row that opens the short Licences screen: the app, Flutter, LEPIC, Tor and the fonts in one line each, with a link to every full text."
@@ -4052,14 +4048,6 @@
   "@feedbackMessageMissing": {
     "description": "Error under an empty message field."
   },
-  "feedbackEmailLabel": "Contact (optional)",
-  "@feedbackEmailLabel": {
-    "description": "Label of the email field."
-  },
-  "feedbackEmailInvalid": "This does not look like an email address.",
-  "@feedbackEmailInvalid": {
-    "description": "Error under the email field."
-  },
   "feedbackAttachLogs": "Attach logs",
   "@feedbackAttachLogs": {
     "description": "Switch: add the app's log to the report."
@@ -4080,7 +4068,7 @@
   "@feedbackShareOrSaveInstead": {
     "description": "Button under Send: hand the report over as a file instead."
   },
-  "feedbackFileExplanation": "Your feedback becomes a text file you can send by email or chat, or save.",
+  "feedbackFileExplanation": "Your feedback becomes a text file you can share or save.",
   "@feedbackFileExplanation": {
     "description": "Shown above the Share or save button in builds without a feedback server."
   },
@@ -4088,7 +4076,7 @@
   "@feedbackShareOrSave": {
     "description": "Button that hands the report over as a text file."
   },
-  "feedbackShareHint": "Send it by email or a chat app",
+  "feedbackShareHint": "Hand the file to another app",
   "@feedbackShareHint": {
     "description": "Under Share in the sheet that picks where the report file goes."
   },
@@ -4271,7 +4259,7 @@
   "@fileHelpSendStep1": {
     "description": "Payment file animation, told by the person who pays, step 1 of 4."
   },
-  "fileHelpSendStep2": "You send it to your friend any way you like, such as a chat or an email.",
+  "fileHelpSendStep2": "You send it to your friend any way you like, such as a chat app or a USB stick.",
   "@fileHelpSendStep2": {
     "description": "Payment file animation, sender's side, step 2 of 4."
   },
@@ -4287,7 +4275,7 @@
   "@fileHelpReceiveStep1": {
     "description": "Payment file animation, told by the person who gets paid, step 1 of 4."
   },
-  "fileHelpReceiveStep2": "They send it to you any way they like, such as a chat or an email.",
+  "fileHelpReceiveStep2": "They send it to you any way they like, such as a chat app or a USB stick.",
   "@fileHelpReceiveStep2": {
     "description": "Payment file animation, receiver's side, step 2 of 4."
   },
@@ -11794,13 +11782,13 @@
   "@deskOnbSameOpen": {
     "description": "Primary button of that dialog: go to the existing wallet's unlock. Short."
   },
-  "deskOnbUnlockWhoWindows": "Anyone using this Windows account can open this wallet.",
+  "deskOnbUnlockWhoWindows": "Anyone who uses this computer as you can open this wallet.",
   "@deskOnbUnlockWhoWindows": {
     "description": "Tooltip of the 'Remember on this computer' checkbox on Windows, and part of the Remembered row in Settings: who can open a remembered wallet."
   },
-  "deskOnbUnlockWho": "Anyone using this account can open this wallet.",
+  "deskOnbUnlockWho": "Anyone who uses this computer as you can open this wallet.",
   "@deskOnbUnlockWho": {
-    "description": "Same as the previous message on macOS and Linux (the computer account)."
+    "description": "Same as the previous message on macOS and Linux (whoever uses the computer as the user)."
   },
   "deskOnbUnlockWrong": "Wrong password. Check Caps Lock and the keyboard layout.",
   "@deskOnbUnlockWrong": {
@@ -15718,14 +15706,6 @@
   "@deskSetReportWhatHint": {
     "description": "Report a problem dialog: placeholder of the description field."
   },
-  "deskSetReportContact": "Contact",
-  "@deskSetReportContact": {
-    "description": "Report a problem dialog: label and screen reader name of the optional contact field."
-  },
-  "deskSetReportContactHint": "An email address or other handle, for a reply",
-  "@deskSetReportContactHint": {
-    "description": "Report a problem dialog: placeholder of the contact field."
-  },
   "deskSetReportAttach": "Attach logs",
   "@deskSetReportAttach": {
     "description": "Report a problem dialog: checkbox label."
@@ -16477,7 +16457,7 @@
       }
     }
   },
-  "deskErrSecretProtect": "Windows could not protect the wallet’s secrets (DPAPI refused), so nothing was saved. Sign in to Windows with your own account and its password, not through a remote or service session, then try again.",
+  "deskErrSecretProtect": "Windows could not protect the wallet’s secrets (DPAPI refused), so nothing was saved. Use Windows directly as yourself, with your own password, not through a remote or service session, then try again.",
   "@deskErrSecretProtect": {
     "description": "Error when Windows (DPAPI) refused to protect the wallet's secrets, e.g. in a remote or service session. DPAPI and Windows are names."
   },
@@ -16485,7 +16465,7 @@
   "@deskKeyringMissingTitle": {
     "description": "Desktop, Linux, first screen: the system has no usable keyring (Secret Service) to keep the wallet's secrets."
   },
-  "deskKeyringMissingText": "BT Wallet keeps its settings and your wallet’s sealed password in the system keyring, and none answered. Install or start a keyring (GNOME Keyring or KWallet), sign in to a desktop session that runs one, then choose Retry.",
+  "deskKeyringMissingText": "BT Wallet keeps its settings and your wallet’s sealed password in the system keyring, and none answered. Install or start a keyring (GNOME Keyring or KWallet), or use a desktop session that runs one, then choose Retry.",
   "@deskKeyringMissingText": {
     "description": "Desktop, Linux: what is missing and what to do. Names the keyring programs; Retry is the commonRetry button."
   },
@@ -16493,7 +16473,7 @@
   "@deskKeyringLockedTitle": {
     "description": "Desktop, Linux, first screen: the system keyring exists but is locked."
   },
-  "deskKeyringLockedText": "BT Wallet keeps its settings and your wallet’s sealed password in the system keyring, which is locked. Unlock it (it opens with your login password), then choose Retry, or choose Unlock now to have the system ask for it.",
+  "deskKeyringLockedText": "BT Wallet keeps its settings and your wallet’s sealed password in the system keyring, which is locked. Unlock it (usually with the password you unlock this computer with), then choose Retry, or choose Unlock now to have the system ask for it.",
   "@deskKeyringLockedText": {
     "description": "Desktop, Linux: the keyring is locked. Retry is commonRetry; 'Unlock now' is deskKeyringUnlockNow."
   },
@@ -17539,7 +17519,7 @@
   "@txEpicboxHint": {
     "description": "Info sheet text of the Epicbox row on Settings › Transactions."
   },
-  "txFileHint": "File Transfer makes a transaction file that you pass to the other person any way you like (a message, a mail, a cable), and they pass one back. It needs no connection between the two wallets. Adds File Transfer to Send and Receive.",
+  "txFileHint": "File Transfer makes a transaction file that you pass to the other person any way you like (a chat message, a USB stick, a cable), and they pass one back. It needs no connection between the two wallets. Adds File Transfer to Send and Receive.",
   "@txFileHint": {
     "description": "Info sheet text of the File switch on Settings › Transactions."
   },
@@ -18278,7 +18258,7 @@
   "@pairWayMessage": {
     "description": "Option 2 title"
   },
-  "pairWayMessageHint": "Send a link in any chat or email.",
+  "pairWayMessageHint": "Send a link in any chat.",
   "@pairWayMessageHint": {
     "description": "Option 2 line"
   },
@@ -23014,7 +22994,7 @@
   "@deskBarTurnOnHint": {
     "description": "Title bar status glyphs: appended to the tooltip and label of a service that is off; its row in the list opens the switch."
   },
-  "deskErrMacKeychain": "macOS did not let the app read its saved data in the keychain. Quit BT Wallet and open it again; when macOS asks, enter your Mac login password and choose Always Allow.",
+  "deskErrMacKeychain": "macOS did not let the app read its saved data in the keychain. Quit BT Wallet and open it again; when macOS asks, enter the password you unlock your Mac with and choose Always Allow.",
   "@deskErrMacKeychain": {
     "description": "Error when macOS refused the app access to its keychain items (wrong or locked login keychain, access denied, or a new unsigned build not yet allowed). macOS, BT Wallet and the button name 'Always Allow' (as macOS shows it in each language) are names."
   },
@@ -23176,19 +23156,6 @@
   "settingsFileNotPort": "{file}, line {line}: not a port number. The last good value is in use.",
   "@settingsFileNotPort": {
     "description": "Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be a port number (1 to 65535) is something else. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.",
-    "placeholders": {
-      "file": {
-        "type": "String",
-        "example": "settings.toml"
-      },
-      "line": {
-        "type": "int"
-      }
-    }
-  },
-  "settingsFileNotEmail": "{file}, line {line}: not an e-mail address. The last good value is in use.",
-  "@settingsFileNotEmail": {
-    "description": "Notice when a hand edit of the settings file (settings.toml) left a bad value: a value that must be an e-mail address is something else. That key is skipped and its last good value is used. {file} is the file name, {line} the line number.",
     "placeholders": {
       "file": {
         "type": "String",
@@ -26559,7 +26526,7 @@
   "@deskSetRowFileHint": {
     "description": "Settings row “Direct · File Transfer”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
   },
-  "deskSetSynFile": "file, offline, slate, tx file, usb, email, method, manual",
+  "deskSetSynFile": "file, offline, slate, tx file, usb, method, manual",
   "@deskSetSynFile": {
     "description": "Settings search: other words that find the “Direct · File Transfer” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
   },
@@ -26899,7 +26866,7 @@
   "@deskSetRowReportHint": {
     "description": "Settings row “Report a problem”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
   },
-  "deskSetSynReport": "bug, issue, support, contact, crash, error report",
+  "deskSetSynReport": "bug, issue, support, crash, error report",
   "@deskSetSynReport": {
     "description": "Settings search: other words that find the “Report a problem” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
   },
@@ -26942,10 +26909,6 @@
   "deskSetSynPrivacyPolicy": "privacy, policy, gdpr, data",
   "@deskSetSynPrivacyPolicy": {
     "description": "Settings search: other words that find the “Privacy policy” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
-  },
-  "deskSetSynContact": "email, support, contact, mail",
-  "@deskSetSynContact": {
-    "description": "Settings search: other words that find the “Contact” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
   },
   "deskSetAcctBackup": "Backup",
   "@deskSetAcctBackup": {

@@ -1012,7 +1012,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get historyBackupShareSubtitle =>
-      'สำเนานอกโทรศัพท์นี้ เช่น อีเมลหรือคลาวด์';
+      'สำเนานอกโทรศัพท์นี้ เช่น คลาวด์หรืออุปกรณ์อื่น';
 
   @override
   String get historyBackupSaveToDevice => 'บันทึกลงอุปกรณ์';
@@ -3026,9 +3026,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsPrivacyPolicy => 'นโยบายความเป็นส่วนตัว';
 
   @override
-  String get contactLabel => 'ติดต่อ';
-
-  @override
   String get settingsLicences => 'สัญญาอนุญาต';
 
   @override
@@ -3145,12 +3142,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get feedbackMessageMissing => 'เขียนสั้นๆ ว่าเกิดอะไรขึ้น';
 
   @override
-  String get feedbackEmailLabel => 'ช่องทางติดต่อ (ไม่บังคับ)';
-
-  @override
-  String get feedbackEmailInvalid => 'ดูไม่เหมือนที่อยู่อีเมล';
-
-  @override
   String get feedbackAttachLogs => 'แนบบันทึก';
 
   @override
@@ -3168,13 +3159,13 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get feedbackFileExplanation =>
-      'ความคิดเห็นจะถูกสร้างเป็นไฟล์ข้อความ ส่งทางอีเมลหรือแชต หรือบันทึกไว้ได้';
+      'ความคิดเห็นจะถูกสร้างเป็นไฟล์ข้อความ แชร์หรือบันทึกไว้ได้';
 
   @override
   String get feedbackShareOrSave => 'แชร์หรือบันทึก';
 
   @override
-  String get feedbackShareHint => 'ส่งทางอีเมลหรือแอปแชต';
+  String get feedbackShareHint => 'ส่งไฟล์ให้แอปอื่น';
 
   @override
   String get feedbackSaveToDevice => 'บันทึกลงอุปกรณ์';
@@ -3302,7 +3293,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get fileHelpSendStep2 =>
-      'ส่งไฟล์ให้เพื่อนด้วยวิธีใดก็ได้ เช่น แชตหรืออีเมล';
+      'ส่งไฟล์ให้เพื่อนด้วยวิธีใดก็ได้ เช่น แอปแชตหรือแฟลชไดรฟ์ USB';
 
   @override
   String get fileHelpSendStep3 =>
@@ -3316,7 +3307,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get fileHelpReceiveStep2 =>
-      'เพื่อนส่งไฟล์ให้คุณด้วยวิธีใดก็ได้ เช่น แชตหรืออีเมล';
+      'เพื่อนส่งไฟล์ให้คุณด้วยวิธีใดก็ได้ เช่น แอปแชตหรือแฟลชไดรฟ์ USB';
 
   @override
   String get fileHelpReceiveStep3 => 'คุณเปิดไฟล์ในกระเป๋าแล้วส่งไฟล์ตอบกลับไป';
@@ -8721,10 +8712,11 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbUnlockWhoWindows =>
-      'ใครที่ใช้บัญชี Windows นี้ก็เปิดกระเป๋าเงินนี้ได้';
+      'ใครที่ใช้คอมพิวเตอร์เครื่องนี้ในฐานะคุณก็เปิดกระเป๋าเงินนี้ได้';
 
   @override
-  String get deskOnbUnlockWho => 'ใครที่ใช้บัญชีนี้ก็เปิดกระเป๋าเงินนี้ได้';
+  String get deskOnbUnlockWho =>
+      'ใครที่ใช้คอมพิวเตอร์เครื่องนี้ในฐานะคุณก็เปิดกระเป๋าเงินนี้ได้';
 
   @override
   String get deskOnbUnlockWrong =>
@@ -11531,12 +11523,6 @@ class AppLocalizationsTh extends AppLocalizations {
       'ทำอะไร คาดว่าจะเกิดอะไร และเกิดอะไรขึ้นแทน';
 
   @override
-  String get deskSetReportContact => 'ช่องทางติดต่อ';
-
-  @override
-  String get deskSetReportContactHint => 'อีเมลหรือชื่อบัญชีอื่น สำหรับตอบกลับ';
-
-  @override
   String get deskSetReportAttach => 'แนบบันทึก';
 
   @override
@@ -12095,21 +12081,21 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskErrSecretProtect =>
-      'Windows ป้องกันข้อมูลลับของกระเป๋าเงินไม่ได้ (DPAPI ปฏิเสธ) จึงไม่ได้บันทึกอะไร ลงชื่อเข้าใช้ Windows ด้วยบัญชีของคุณเองและรหัสผ่านของบัญชีนั้น ไม่ใช่ผ่านเซสชันระยะไกลหรือเซสชันบริการ แล้วลองอีกครั้ง';
+      'Windows ป้องกันข้อมูลลับของกระเป๋าเงินไม่ได้ (DPAPI ปฏิเสธ) จึงไม่ได้บันทึกอะไร ใช้ Windows โดยตรงในฐานะตัวคุณเองด้วยรหัสผ่านของคุณเอง ไม่ใช่ผ่านเซสชันระยะไกลหรือเซสชันบริการ แล้วลองอีกครั้ง';
 
   @override
   String get deskKeyringMissingTitle => 'ไม่พบพวงกุญแจ';
 
   @override
   String get deskKeyringMissingText =>
-      'BT Wallet เก็บการตั้งค่าและรหัสผ่านที่ปิดผนึกของกระเป๋าเงินไว้ในพวงกุญแจของระบบ แต่ไม่มีพวงกุญแจใดตอบกลับ ติดตั้งหรือเริ่มพวงกุญแจ (GNOME Keyring หรือ KWallet) เข้าสู่ระบบเดสก์ท็อปที่ใช้งานพวงกุญแจ แล้วเลือกลองอีกครั้ง';
+      'BT Wallet เก็บการตั้งค่าและรหัสผ่านที่ปิดผนึกของกระเป๋าเงินไว้ในพวงกุญแจของระบบ แต่ไม่มีพวงกุญแจใดตอบกลับ ติดตั้งหรือเริ่มพวงกุญแจ (GNOME Keyring หรือ KWallet) หรือใช้เซสชันเดสก์ท็อปที่ใช้งานพวงกุญแจ แล้วเลือกลองอีกครั้ง';
 
   @override
   String get deskKeyringLockedTitle => 'พวงกุญแจถูกล็อก';
 
   @override
   String get deskKeyringLockedText =>
-      'BT Wallet เก็บการตั้งค่าและรหัสผ่านที่ปิดผนึกของกระเป๋าเงินไว้ในพวงกุญแจของระบบ ซึ่งถูกล็อกอยู่ ปลดล็อกพวงกุญแจ (ใช้รหัสผ่านเข้าสู่ระบบ) แล้วเลือกลองอีกครั้ง หรือเลือกปลดล็อกตอนนี้เพื่อให้ระบบถามรหัสผ่าน';
+      'BT Wallet เก็บการตั้งค่าและรหัสผ่านที่ปิดผนึกของกระเป๋าเงินไว้ในพวงกุญแจของระบบ ซึ่งถูกล็อกอยู่ ปลดล็อกพวงกุญแจ (โดยปกติใช้รหัสผ่านที่คุณใช้ปลดล็อกคอมพิวเตอร์เครื่องนี้) แล้วเลือกลองอีกครั้ง หรือเลือกปลดล็อกตอนนี้เพื่อให้ระบบถามรหัสผ่าน';
 
   @override
   String get deskKeyringUnlockNow => 'ปลดล็อกตอนนี้';
@@ -12878,7 +12864,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get txFileHint =>
-      'โอนไฟล์สร้างไฟล์ธุรกรรมที่คุณส่งให้อีกฝ่ายด้วยวิธีใดก็ได้ (ข้อความ อีเมล สายเคเบิล) แล้วเขาส่งกลับมาหนึ่งไฟล์ ไม่ต้องมีการเชื่อมต่อระหว่างสองกระเป๋าเงิน เพิ่มโอนไฟล์ใน ส่ง และ รับ';
+      'โอนไฟล์สร้างไฟล์ธุรกรรมที่คุณส่งให้อีกฝ่ายด้วยวิธีใดก็ได้ (ข้อความแชต แฟลชไดรฟ์ USB สายเคเบิล) แล้วเขาส่งกลับมาหนึ่งไฟล์ ไม่ต้องมีการเชื่อมต่อระหว่างสองกระเป๋าเงิน เพิ่มโอนไฟล์ใน ส่ง และ รับ';
 
   @override
   String get txStartHeader => 'วิธีเริ่มต้น';
@@ -13442,7 +13428,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairWayMessage => 'เชิญทางข้อความ';
 
   @override
-  String get pairWayMessageHint => 'ส่งลิงก์ในแชตหรืออีเมลใดก็ได้';
+  String get pairWayMessageHint => 'ส่งลิงก์ในแชตใดก็ได้';
 
   @override
   String get pairWayMessageInfo =>
@@ -16784,7 +16770,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskErrMacKeychain =>
-      'macOS ไม่อนุญาตให้แอปอ่านข้อมูลที่บันทึกไว้ในพวงกุญแจ ปิด BT Wallet แล้วเปิดใหม่ เมื่อ macOS ถาม ให้ป้อนรหัสผ่านเข้าสู่ระบบ Mac แล้วเลือก \"อนุญาตเสมอ\"';
+      'macOS ไม่อนุญาตให้แอปอ่านข้อมูลที่บันทึกไว้ในพวงกุญแจ ปิด BT Wallet แล้วเปิดใหม่ เมื่อ macOS ถาม ให้ป้อนรหัสผ่านที่คุณใช้ปลดล็อก Mac แล้วเลือก \"อนุญาตเสมอ\"';
 
   @override
   String get deskUpdOpenDmg => 'เปิดดิสก์อิมเมจ';
@@ -16862,11 +16848,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String settingsFileNotPort(String file, int line) {
     return '$file บรรทัด $line: ไม่ใช่หมายเลขพอร์ต ยังใช้ค่าล่าสุดที่ถูกต้องอยู่';
-  }
-
-  @override
-  String settingsFileNotEmail(String file, int line) {
-    return '$file บรรทัด $line: ไม่ใช่ที่อยู่อีเมล ยังใช้ค่าล่าสุดที่ถูกต้องอยู่';
   }
 
   @override
@@ -19177,7 +19158,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetSynFile =>
-      'ไฟล์, ออฟไลน์, slate, ไฟล์ธุรกรรม, usb, อีเมล, วิธีการ, ด้วยตนเอง';
+      'ไฟล์, ออฟไลน์, slate, ไฟล์ธุรกรรม, usb, วิธีการ, ด้วยตนเอง';
 
   @override
   String get deskSetRowDefaultMethodHint =>
@@ -19478,7 +19459,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetSynReport =>
-      'ข้อผิดพลาด, บั๊ก, ปัญหา, ช่วยเหลือ, ติดต่อ, แครช, รายงานข้อผิดพลาด';
+      'ข้อผิดพลาด, บั๊ก, ปัญหา, ช่วยเหลือ, แครช, รายงานข้อผิดพลาด';
 
   @override
   String get deskSetSynTour => 'ทัวร์, บทแนะนำ, แนะนำ, เริ่มต้นใช้งาน';
@@ -19511,9 +19492,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetSynPrivacyPolicy => 'ความเป็นส่วนตัว, นโยบาย, gdpr, ข้อมูล';
-
-  @override
-  String get deskSetSynContact => 'อีเมล, ช่วยเหลือ, ติดต่อ, เมล';
 
   @override
   String get deskSetAcctBackup => 'สำรองข้อมูล';

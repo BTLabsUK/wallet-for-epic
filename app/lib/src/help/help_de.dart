@@ -75,7 +75,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       'Per Datei senden',
       'Der manuelle Weg: Transaktionsdatei speichern, dem Empfänger geben, dann die Antwortdatei öffnen, die er zurückschickt.',
       [
-        const HelpBlock.p('Direkt · Dateiübertragung durchläuft denselben Handschlag wie Epicbox, nur werden die Nachrichten von Hand übergeben, zum Beispiel per E-Mail, Chat oder USB-Stick. Das funktioniert ohne Epicbox und ohne dass beide Wallets gleichzeitig online sind.'),
+        const HelpBlock.p('Direkt · Dateiübertragung durchläuft denselben Handschlag wie Epicbox, nur werden die Nachrichten von Hand übergeben, zum Beispiel per Chat oder USB-Stick. Das funktioniert ohne Epicbox und ohne dass beide Wallets gleichzeitig online sind.'),
         if (phone)
           const HelpBlock.ol(['**Absender:** wählt unter Senden **Direkt · Dateiübertragung**, gibt den Betrag ein und teilt die Datei (sie endet auf .tx). Ab jetzt sind die Coins gesperrt.', '**Empfänger:** öffnet die Datei unter [[Empfangen › Direkt · Datei|Receive › Direct · File]]. Seine Wallet signiert sie und teilt eine Antwortdatei (sie endet auf .response). Diese Datei schickt er zurück.', '**Absender:** öffnet die Antwortdatei unter [[Empfangen › Direkt · Datei|Receive › Direct · File]]. Die Wallet schließt die Zahlung ab und sendet sie.'])
         else
@@ -239,7 +239,7 @@ List<HelpTopic> helpTopicsDe(int confirmations, {required HelpPlatform platform,
       [
         const HelpBlock.p('Die Wiederherstellungsphrase holt alles zurück, was in der Chain steht, also das Guthaben.'),
         HelpBlock.p('**Zum Wiederherstellen** auf einem neuen ${phone ? 'Smartphone' : 'Computer'} oder nach einem Verlust: Öffnen Sie $restorePlace, geben Sie die Wörter ein und wählen Sie ${phone ? 'eine PIN' : 'ein Passwort'}. Wenn die Wallet geöffnet wird, durchsucht sie die Chain nach ihren Outputs. Das Guthaben erscheint nach diesem ersten Scan; die gefundenen Zahlungen sind als **Wiederhergestelltes Guthaben** gekennzeichnet.'),
-        HelpBlock.p('**Was eine Wiederherstellung nicht zurückholt:** was nie in der Chain stand, etwa wer was bezahlt hat, Notizen und Bezeichnungen, Kontakte, Rechnungen, Einstellungen und Wallet-Namen. Eine Wallet-Datendatei bewahrt sie: $historyBackupPlace.${phone ? ' Bewahren Sie die Datei außerhalb des Smartphones auf, zum Beispiel in einer E-Mail oder einem Cloud-Speicher.' : ''}'),
+        HelpBlock.p('**Was eine Wiederherstellung nicht zurückholt:** was nie in der Chain stand, etwa wer was bezahlt hat, Notizen und Bezeichnungen, Kontakte, Rechnungen, Einstellungen und Wallet-Namen. Eine Wallet-Datendatei bewahrt sie: $historyBackupPlace.${phone ? ' Bewahren Sie die Datei außerhalb des Smartphones auf, zum Beispiel in einem Cloud-Speicher oder auf einem USB-Stick.' : ''}'),
         const HelpBlock.p('**Die Wallet-Datendatei ist nicht die Wiederherstellungsphrase.** Sie enthält keine Wörter und kann die Wallet allein nicht wiederherstellen. Zum Wiederherstellen: zuerst die Wiederherstellungsphrase eingeben, dann die Datei importieren; die Wallet bietet das direkt nach der Wiederherstellung an.'),
         HelpBlock.p('**Guthaben sieht falsch aus?** Starten Sie $recheckPlace. Dabei wird die ganze Chain erneut nach den Outputs dieser Wallet durchsucht.'),
         if (!phone)

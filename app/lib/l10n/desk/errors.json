@@ -634,7 +634,7 @@
   "@deskDataUpdNone": {
     "description": "Update check: the update list has no entry for the desktop app yet."
   },
-  "deskErrSecretProtect": "Windows could not protect the wallet’s secrets (DPAPI refused), so nothing was saved. Sign in to Windows with your own account and its password, not through a remote or service session, then try again.",
+  "deskErrSecretProtect": "Windows could not protect the wallet’s secrets (DPAPI refused), so nothing was saved. Use Windows directly as yourself, with your own password, not through a remote or service session, then try again.",
   "@deskErrSecretProtect": {
     "description": "Error when Windows (DPAPI) refused to protect the wallet's secrets, e.g. in a remote or service session. DPAPI and Windows are names."
   },
@@ -684,7 +684,7 @@
   "@deskErrInputsSpentElsewhere": {
     "description": "Error when posting a send fails because the chain shows its coins already spent by another wallet using the same recovery phrase. The send is released and a refresh follows."
   },
-  "deskErrMacKeychain": "macOS did not let the app read its saved data in the keychain. Quit BT Wallet and open it again; when macOS asks, enter your Mac login password and choose Always Allow.",
+  "deskErrMacKeychain": "macOS did not let the app read its saved data in the keychain. Quit BT Wallet and open it again; when macOS asks, enter the password you unlock your Mac with and choose Always Allow.",
   "@deskErrMacKeychain": {
     "description": "Error when macOS refused the app access to its keychain items (wrong or locked login keychain, access denied, or a new unsigned build not yet allowed). macOS, BT Wallet and the button name 'Always Allow' (as macOS shows it in each language) are names."
   }

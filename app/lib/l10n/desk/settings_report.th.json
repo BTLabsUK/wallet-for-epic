@@ -13,8 +13,6 @@
   "deskSetReportDesc": "เข้ารหัสให้นักพัฒนาอ่านได้เท่านั้น บันทึกเป็นไฟล์ จะเก็บสำเนาที่ไม่เข้ารหัส",
   "deskSetReportWhat": "เกิดอะไรขึ้น",
   "deskSetReportWhatHint": "ทำอะไร คาดว่าจะเกิดอะไร และเกิดอะไรขึ้นแทน",
-  "deskSetReportContact": "ช่องทางติดต่อ",
-  "deskSetReportContactHint": "อีเมลหรือชื่อบัญชีอื่น สำหรับตอบกลับ",
   "deskSetReportAttach": "แนบบันทึก",
   "deskSetReportAttachHint": "ส่วนล่าสุดของบันทึกแอป ไม่รวมวลีกู้คืน รหัสผ่าน และข้อมูลลับอื่นๆ",
   "deskSetReportFullDetails": "แนบรายละเอียดทั้งหมด",

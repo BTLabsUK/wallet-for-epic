@@ -1,7 +1,7 @@
 {
   "deskKeyringMissingTitle": "Nie znaleziono pęku kluczy",
-  "deskKeyringMissingText": "BT Wallet przechowuje swoje ustawienia i zapieczętowane hasło portfela w systemowym pęku kluczy, ale żaden nie odpowiedział. Zainstaluj lub uruchom pęk kluczy (GNOME Keyring lub KWallet), zaloguj się do sesji pulpitu, która go uruchamia, a potem wybierz Ponów.",
+  "deskKeyringMissingText": "BT Wallet przechowuje swoje ustawienia i zapieczętowane hasło portfela w systemowym pęku kluczy, ale żaden nie odpowiedział. Zainstaluj lub uruchom pęk kluczy (GNOME Keyring lub KWallet) albo użyj sesji pulpitu, która go uruchamia, a potem wybierz Ponów.",
   "deskKeyringLockedTitle": "Pęk kluczy jest zablokowany",
-  "deskKeyringLockedText": "BT Wallet przechowuje swoje ustawienia i zapieczętowane hasło portfela w systemowym pęku kluczy, który jest zablokowany. Odblokuj go (otwiera się hasłem logowania), a potem wybierz Ponów, albo wybierz Odblokuj teraz, aby system o nie poprosił.",
+  "deskKeyringLockedText": "BT Wallet przechowuje swoje ustawienia i zapieczętowane hasło portfela w systemowym pęku kluczy, który jest zablokowany. Odblokuj go (zwykle hasłem, którym odblokowujesz ten komputer), a potem wybierz Ponów, albo wybierz Odblokuj teraz, aby system o nie poprosił.",
   "deskKeyringUnlockNow": "Odblokuj teraz"
 }

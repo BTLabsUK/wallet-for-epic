@@ -13,8 +13,6 @@
   "deskSetReportDesc": "Зашифрован, чтобы прочитать его мог только разработчик. «Сохранить в файл» сохраняет незашифрованную копию.",
   "deskSetReportWhat": "Что произошло",
   "deskSetReportWhatHint": "Что вы делали, чего ожидали и что произошло вместо этого",
-  "deskSetReportContact": "Контакт",
-  "deskSetReportContactHint": "Эл. почта или другой контакт для ответа",
   "deskSetReportAttach": "Приложить журналы",
   "deskSetReportAttachHint": "Последняя часть журнала приложения, без фразы восстановления, пароля и других секретных данных.",
   "deskSetReportFullDetails": "Приложить все подробности",

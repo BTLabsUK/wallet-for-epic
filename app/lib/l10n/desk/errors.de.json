@@ -129,7 +129,7 @@
   "deskDataUpdUnreachable": "Der Update-Server war nicht erreichbar.",
   "deskDataUpdStatus": "Fehler des Update-Servers ({status}).",
   "deskDataUpdNone": "Für die Desktop-App sind noch keine Update-Informationen veröffentlicht.",
-  "deskErrSecretProtect": "Windows konnte die Geheimnisse der Wallet nicht schützen (DPAPI hat abgelehnt), daher wurde nichts gespeichert. Melden Sie sich mit Ihrem eigenen Konto und dessen Passwort bei Windows an, nicht über eine Remote- oder Dienstsitzung, und versuchen Sie es erneut.",
+  "deskErrSecretProtect": "Windows konnte die Geheimnisse der Wallet nicht schützen (DPAPI hat abgelehnt), daher wurde nichts gespeichert. Verwenden Sie Windows direkt als Sie selbst, mit Ihrem eigenen Passwort, nicht über eine Remote- oder Dienstsitzung, und versuchen Sie es erneut.",
   "deskErrOldLinks": "Der Ordner dieser Wallet enthält Verknüpfungen und wird deshalb nicht importiert. Stellen Sie die Wallet mit der Wiederherstellungsphrase wieder her.",
   "deskErrOldIncomplete": "Der Ordner dieser Wallet konnte nicht vollständig gelesen werden und wird deshalb nicht importiert. Stellen Sie die Wallet mit der Wiederherstellungsphrase wieder her.",
   "deskErrOldSeedTooLarge": "Die Datei wallet.seed ist zu groß, um ein Wallet-Seed zu sein.",
@@ -139,5 +139,5 @@
   "deskErrNotDeliveredRelay": "Nicht zugestellt: {relay} hat nicht geantwortet. Die Zahlung wartet unter Aktivität; stornieren Sie sie dort, um den Betrag freizugeben.",
   "deskErrRelayNoAnswer": "{relay} hat nicht geantwortet.",
   "deskErrInputsSpentElsewhere": "Der Node zeigt diese Coins schon als ausgegeben, und diese Wallet hat sie nicht ausgegeben. Wahrscheinlich hat das eine andere Wallet mit Ihrer Wiederherstellungsphrase getan.",
-  "deskErrMacKeychain": "macOS hat der App nicht erlaubt, ihre gespeicherten Daten im Schlüsselbund zu lesen. Beenden Sie BT Wallet und öffnen Sie es erneut; wenn macOS fragt, geben Sie Ihr Mac-Anmeldepasswort ein und wählen Sie „Immer erlauben“."
+  "deskErrMacKeychain": "macOS hat der App nicht erlaubt, ihre gespeicherten Daten im Schlüsselbund zu lesen. Beenden Sie BT Wallet und öffnen Sie es erneut; wenn macOS fragt, geben Sie das Passwort ein, mit dem Sie Ihren Mac entsperren, und wählen Sie „Immer erlauben“."
 }

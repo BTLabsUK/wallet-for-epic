@@ -974,7 +974,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get historyBackupShare => '分享';
 
   @override
-  String get historyBackupShareSubtitle => '手机以外的副本，例如电子邮件或云存储。';
+  String get historyBackupShareSubtitle => '手机以外的副本，例如云存储或其他设备。';
 
   @override
   String get historyBackupSaveToDevice => '保存到设备';
@@ -2909,9 +2909,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsPrivacyPolicy => '隐私政策';
 
   @override
-  String get contactLabel => '联系方式';
-
-  @override
   String get settingsLicences => '许可证';
 
   @override
@@ -3024,12 +3021,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get feedbackMessageMissing => '请简单描述发生了什么。';
 
   @override
-  String get feedbackEmailLabel => '联系方式（可选）';
-
-  @override
-  String get feedbackEmailInvalid => '这看起来不是有效的电子邮箱地址。';
-
-  @override
   String get feedbackAttachLogs => '附加日志';
 
   @override
@@ -3045,13 +3036,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get feedbackShareOrSaveInstead => '分享或保存';
 
   @override
-  String get feedbackFileExplanation => '你的反馈将生成一个文本文件，你可以通过电子邮件或聊天应用发送，也可以保存。';
+  String get feedbackFileExplanation => '你的反馈将生成一个文本文件，你可以分享或保存。';
 
   @override
   String get feedbackShareOrSave => '分享或保存';
 
   @override
-  String get feedbackShareHint => '通过电子邮件或聊天应用发送';
+  String get feedbackShareHint => '把文件交给其他应用';
 
   @override
   String get feedbackSaveToDevice => '保存到设备';
@@ -3177,7 +3168,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get fileHelpSendStep1 => '你创建一个交易文件。';
 
   @override
-  String get fileHelpSendStep2 => '你用任何方式把它发给朋友，比如聊天或电子邮件。';
+  String get fileHelpSendStep2 => '你用任何方式把它交给朋友，比如聊天应用或 U 盘。';
 
   @override
   String get fileHelpSendStep3 => '朋友在自己的钱包中打开它，并把回复文件发还给你。';
@@ -3189,7 +3180,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get fileHelpReceiveStep1 => '朋友为你创建一个交易文件。';
 
   @override
-  String get fileHelpReceiveStep2 => '对方用任何方式把它发给你，比如聊天或电子邮件。';
+  String get fileHelpReceiveStep2 => '对方用任何方式把它交给你，比如聊天应用或 U 盘。';
 
   @override
   String get fileHelpReceiveStep3 => '你在钱包中打开它，并发回回复文件。';
@@ -8424,10 +8415,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOnbSameOpen => '打开';
 
   @override
-  String get deskOnbUnlockWhoWindows => '使用此 Windows 账户的任何人都能打开此钱包。';
+  String get deskOnbUnlockWhoWindows => '任何以你的身份使用这台电脑的人都能打开此钱包。';
 
   @override
-  String get deskOnbUnlockWho => '使用此账户的任何人都能打开此钱包。';
+  String get deskOnbUnlockWho => '任何以你的身份使用这台电脑的人都能打开此钱包。';
 
   @override
   String get deskOnbUnlockWrong => '密码错误。请检查大写锁定键和键盘布局。';
@@ -11153,12 +11144,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetReportWhatHint => '你做了什么，期望发生什么，实际发生了什么';
 
   @override
-  String get deskSetReportContact => '联系方式';
-
-  @override
-  String get deskSetReportContactHint => '电子邮件地址或其他账号，用于回复';
-
-  @override
   String get deskSetReportAttach => '附上日志';
 
   @override
@@ -11692,21 +11677,21 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskErrSecretProtect =>
-      'Windows 无法保护钱包的机密（DPAPI 拒绝），因此未保存任何内容。请用你自己的账户和密码登录 Windows，不要通过远程或服务会话，然后重试。';
+      'Windows 无法保护钱包的机密（DPAPI 拒绝），因此未保存任何内容。请直接以你自己的身份使用 Windows，用你自己的密码，不要通过远程或服务会话，然后重试。';
 
   @override
   String get deskKeyringMissingTitle => '未找到密钥环';
 
   @override
   String get deskKeyringMissingText =>
-      'BT Wallet 将其设置和钱包的密封密码保存在系统密钥环中，但没有密钥环响应。请安装或启动密钥环（GNOME Keyring 或 KWallet），登录运行密钥环的桌面会话，然后选择重试。';
+      'BT Wallet 将其设置和钱包的密封密码保存在系统密钥环中，但没有密钥环响应。请安装或启动密钥环（GNOME Keyring 或 KWallet），或使用运行密钥环的桌面会话，然后选择重试。';
 
   @override
   String get deskKeyringLockedTitle => '密钥环已锁定';
 
   @override
   String get deskKeyringLockedText =>
-      'BT Wallet 将其设置和钱包的密封密码保存在系统密钥环中，而它已锁定。请解锁它（使用您的登录密码），然后选择重试，或选择立即解锁让系统询问密码。';
+      'BT Wallet 将其设置和钱包的密封密码保存在系统密钥环中，而它已锁定。请解锁它（通常使用你解锁这台电脑的密码），然后选择重试，或选择立即解锁让系统询问密码。';
 
   @override
   String get deskKeyringUnlockNow => '立即解锁';
@@ -12452,7 +12437,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get txFileHint =>
-      '“文件传输”生成一个交易文件，你用任何方式（消息、邮件、数据线）交给对方，对方再回传一个。两个钱包之间不需要连接。会在“发送”和“接收”中加入“文件传输”。';
+      '“文件传输”生成一个交易文件，你用任何方式（聊天消息、U 盘、数据线）交给对方，对方再回传一个。两个钱包之间不需要连接。会在“发送”和“接收”中加入“文件传输”。';
 
   @override
   String get txStartHeader => '默认方式';
@@ -12984,7 +12969,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairWayMessage => '通过消息邀请';
 
   @override
-  String get pairWayMessageHint => '在任意聊天或电子邮件中发送链接。';
+  String get pairWayMessageHint => '在任意聊天中发送链接。';
 
   @override
   String get pairWayMessageInfo =>
@@ -16196,7 +16181,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskErrMacKeychain =>
-      'macOS 不允许应用读取其保存在钥匙串中的数据。请退出 BT Wallet 并重新打开；当 macOS 询问时，输入你的 Mac 登录密码并选择“始终允许”。';
+      'macOS 不允许应用读取其保存在钥匙串中的数据。请退出 BT Wallet 并重新打开；当 macOS 询问时，输入你解锁 Mac 的密码并选择“始终允许”。';
 
   @override
   String get deskUpdOpenDmg => '打开磁盘映像';
@@ -16274,11 +16259,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String settingsFileNotPort(String file, int line) {
     return '$file，第 $line 行：不是端口号。仍使用上次有效的值。';
-  }
-
-  @override
-  String settingsFileNotEmail(String file, int line) {
-    return '$file，第 $line 行：不是电子邮件地址。仍使用上次有效的值。';
   }
 
   @override
@@ -18488,7 +18468,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetRowFileHint => '通过交换交易文件。无需网络。所有钱包。';
 
   @override
-  String get deskSetSynFile => '文件, 离线, slate, 交易文件, usb, 邮件, 方式, 手动';
+  String get deskSetSynFile => '文件, 离线, slate, 交易文件, usb, 方式, 手动';
 
   @override
   String get deskSetRowDefaultMethodHint => '“发送”打开时使用的方式。所有钱包。';
@@ -18746,7 +18726,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetRowReportHint => '描述出了什么问题；可附上清理后的应用日志。';
 
   @override
-  String get deskSetSynReport => '错误, bug, 问题, 支持, 联系, 崩溃, 错误报告';
+  String get deskSetSynReport => '错误, bug, 问题, 支持, 崩溃, 错误报告';
 
   @override
   String get deskSetSynTour => '导览, 教程, 介绍, 引导';
@@ -18777,9 +18757,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetSynPrivacyPolicy => '隐私, 政策, gdpr, 数据';
-
-  @override
-  String get deskSetSynContact => '邮件, email, 支持, 联系';
 
   @override
   String get deskSetAcctBackup => '备份';

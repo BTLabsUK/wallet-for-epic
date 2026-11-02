@@ -1,7 +1,7 @@
 {
   "deskKeyringMissingTitle": "未找到密钥环",
-  "deskKeyringMissingText": "BT Wallet 将其设置和钱包的密封密码保存在系统密钥环中，但没有密钥环响应。请安装或启动密钥环（GNOME Keyring 或 KWallet），登录运行密钥环的桌面会话，然后选择重试。",
+  "deskKeyringMissingText": "BT Wallet 将其设置和钱包的密封密码保存在系统密钥环中，但没有密钥环响应。请安装或启动密钥环（GNOME Keyring 或 KWallet），或使用运行密钥环的桌面会话，然后选择重试。",
   "deskKeyringLockedTitle": "密钥环已锁定",
-  "deskKeyringLockedText": "BT Wallet 将其设置和钱包的密封密码保存在系统密钥环中，而它已锁定。请解锁它（使用您的登录密码），然后选择重试，或选择立即解锁让系统询问密码。",
+  "deskKeyringLockedText": "BT Wallet 将其设置和钱包的密封密码保存在系统密钥环中，而它已锁定。请解锁它（通常使用你解锁这台电脑的密码），然后选择重试，或选择立即解锁让系统询问密码。",
   "deskKeyringUnlockNow": "立即解锁"
 }
