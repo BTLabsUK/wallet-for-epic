@@ -17,6 +17,7 @@ import '../network_gate.dart';
 import '../pairing_providers.dart';
 import '../amount.dart';
 import '../providers.dart';
+import '../send_amount_gate.dart';
 import '../send_preflight.dart';
 import '../settings.dart';
 import '../slate_files.dart' show responseFileName, sealedFileName;
@@ -52,6 +53,14 @@ Future<bool> _invoiceGate(BuildContext context, WidgetRef ref) async {
   );
   return approved == true;
 }
+
+/// An invoice or payment request of [amount] against the [spendable] balance: its amount is
+/// fixed and the wallet adds the fee, so [SendAmountGate] wants the balance, not an estimate.
+SendAmountGate _payGate(BigInt? spendable, BigInt amount) => SendAmountGate.check(
+  amount: amount.toInt(),
+  spendable: spendable?.toInt(),
+  needsEstimate: false,
+);
 
 /// The amount large, the service by the user's own label, the time left counting down, and
 /// the service's message as one plain line. Approve and Decline at the foot.
@@ -104,10 +113,17 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
     final l = context.l10n;
     final service = _service();
     final container = ProviderScope.containerOf(context, listen: false);
+    // Asked on the tap, before the PIN: nothing is paid that does not fit.
+    if (!_payGate(ref.read(homeProvider).value?.summary.spendable, _invoice.amount).ready) return;
     // The gate first, every time: nothing below runs without it.
     if (!await _invoiceGate(context, ref) || !mounted) return;
     final session = ref.read(sessionProvider);
     if (session == null) return;
+    // Asked again after the PIN: the balance may have moved.
+    if (!_payGate(ref.read(homeProvider).value?.summary.spendable, _invoice.amount).ready) {
+      setState(() {});
+      return;
+    }
     // The time may have run out, or the service withdrawn it, while the PIN was asked.
     final pending = ref.read(pendingInvoicesProvider).value;
     if (_invoice.isExpiredAt(ref.read(invoiceClockProvider)()) ||
@@ -223,10 +239,11 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
         !pending.any((i) => i.slateId == _invoice.slateId);
     final display = amountDisplay(ref);
     final spendable = ref.watch(homeProvider).value?.summary.spendable;
-    // The wallet adds the fee; this catches what cannot be paid at all.
-    final short =
-        unsent == null && spendable != null && _invoice.amount > spendable
-        ? _invoice.amount - spendable
+    // The wallet adds the fee; the gate catches what cannot be paid at all, and holds Approve
+    // until the balance is known.
+    final gate = _payGate(spendable, _invoice.amount);
+    final short = unsent == null && gate.notEnough
+        ? _invoice.amount - spendable!
         : null;
     // Approving, declining and sending again all answer over the network.
     final block = watchNetBlock(context, ref);
@@ -259,7 +276,7 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
               BusyButton(
                 label: l.invoiceApprove,
                 busy: _busy,
-                onPressed: canAnswer && short == null ? _approve : null,
+                onPressed: canAnswer && gate.ready ? _approve : null,
               ),
               const SizedBox(height: 8),
               OutlinedButton(
@@ -509,10 +526,17 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
     final l = context.l10n;
     final container = ProviderScope.containerOf(context, listen: false);
     final notices = ref.read(noticeProvider.notifier);
+    // Asked on the tap, before the PIN: nothing is paid that does not fit.
+    if (!_payGate(ref.read(homeProvider).value?.summary.spendable, _info.amount).ready) return;
     // The gate first, every time: nothing below runs without it.
     if (!await _invoiceGate(context, ref) || !mounted) return;
     final session = ref.read(sessionProvider);
     if (session == null) return;
+    // Asked again after the PIN: the balance may have moved.
+    if (!_payGate(ref.read(homeProvider).value?.summary.spendable, _info.amount).ready) {
+      setState(() {});
+      return;
+    }
     setState(() => _busy = true);
     try {
       final sealedText = widget.sealedText;
@@ -650,7 +674,8 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
     final display = amountDisplay(ref);
     final spendable = ref.watch(homeProvider).value?.summary.spendable;
     final refused = _refused;
-    final short = refused == null && spendable != null && _info.amount > spendable ? _info.amount - spendable : null;
+    final gate = _payGate(spendable, _info.amount);
+    final short = refused == null && gate.notEnough ? _info.amount - spendable! : null;
     final fiat = approxFiat(l, _info.amount, (hidden: false, price: display.price, currency: display.currency));
     // The issuer's words, unchecked: the first message an I1 carries is the issuer's.
     final message = invoiceMessageLine(
@@ -670,7 +695,7 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
                 key: requestFileApproveKey,
                 label: widget.scanned ? l.reqApproveShowAnswer : l.reqApproveSaveAnswer,
                 busy: _busy,
-                onPressed: !_busy && short == null ? _approve : null,
+                onPressed: !_busy && gate.ready ? _approve : null,
               ),
             TextButton(
               key: requestFileNotNowKey,

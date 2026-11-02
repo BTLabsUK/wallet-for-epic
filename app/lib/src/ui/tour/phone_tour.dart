@@ -2,8 +2,8 @@
 /// The phone's first-unlock tour: coach marks over the real screens, one step per screen. Each
 /// step opens its screen (a Home tab, or a screen pushed over Home), lights what matters on it
 /// and says in a line or two what is there; Skip, Back and Next, a step counter, Done on the
-/// last. The card sits at the bottom, or at the top when the lit area is low, and never covers
-/// what it lights.
+/// last. The card sits at the bottom on every step (a tall lit area is cut short above it), and
+/// at the top only when what a step lights is low on the screen.
 ///
 /// Screens mark what a step lights with [PhoneTourTarget] (`tour_target.dart`); the steps are
 /// in `tour_steps.dart`. [PhoneTourAnchor] wraps Home: it opens the tour once, after the first
@@ -21,13 +21,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../demo.dart';
+import '../../devices/phone_devices.dart' show linkedDevicesOnProvider;
 import '../../levels/level_features.dart' show LevelWording;
 import '../../levels/level_providers.dart' show levelFeaturesProvider;
 import '../../l10n.dart';
 import '../../pairing_providers.dart' show invoicesShownProvider;
 import '../../providers.dart';
 import '../../settings.dart';
-import '../contacts_screen.dart';
+import '../devices/linked_devices_screen.dart';
 import '../help_screen.dart';
 import '../history_screen.dart';
 import '../invoices_screen.dart';
@@ -240,6 +241,7 @@ class _PhoneTourOverlayState extends ConsumerState<PhoneTourOverlay>
       debugPhoneTourSteps ??
       phoneTourSteps(
         invoices: ref.read(invoicesShownProvider),
+        devices: ref.read(linkedDevicesOnProvider),
       );
 
   /// The step being opened, and the one the card shows: they differ while the next screen
@@ -348,7 +350,7 @@ class _PhoneTourOverlayState extends ConsumerState<PhoneTourOverlay>
 
   Widget _screenFor(TourPlace place) => switch (place) {
     TourPlace.activity => const HistoryScreen(),
-    TourPlace.contacts => const ContactsScreen(),
+    TourPlace.devices => const LinkedDevicesScreen(),
     TourPlace.invoices => const InvoicesScreen(),
     TourPlace.privacy => const SettingsSectionScreen(
       section: SettingsSection.privacyNetwork,
@@ -408,6 +410,12 @@ class _PhoneTourOverlayState extends ConsumerState<PhoneTourOverlay>
               duration: Duration.zero,
               alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtStart,
             );
+            // A target that would reach the card at the bottom goes up the page instead, as far
+            // as its page scrolls, so the card can stay where it was.
+            final at = MatrixUtils.transformRect(box.getTransformTo(me), Offset.zero & box.size);
+            if (at.bottom > _cardTop(me.size)) {
+              Scrollable.ensureVisible(ctx, duration: Duration.zero);
+            }
           }
           final r = MatrixUtils.transformRect(
             box.getTransformTo(me),
@@ -432,9 +440,16 @@ class _PhoneTourOverlayState extends ConsumerState<PhoneTourOverlay>
     WidgetsBinding.instance.scheduleFrame();
   }
 
-  /// Puts the card and the ring: the card at the bottom unless the lit area is low enough to
-  /// reach it, then at the top; a lit area that reaches both is cut short above (or below) the
-  /// card, on the side that keeps more of it.
+  /// Where the top of a card at the bottom would be, the ring's gap above it, in an overlay of
+  /// [size].
+  double _cardTop(Size size) {
+    final cardH = (_ghost.currentContext?.findRenderObject() as RenderBox?)?.size.height ?? 0;
+    return size.height - MediaQuery.paddingOf(context).bottom - _cardGap - cardH - _ringGap;
+  }
+
+  /// Puts the card and the ring. The card stays at the bottom on every step, so it does not
+  /// jump between steps: a lit area that reaches it is cut short above it. Only a lit area
+  /// that would keep less than [_minLit] above the card sends the card to the top.
   void _apply(Rect? area) {
     final me = _self.currentContext?.findRenderObject() as RenderBox?;
     if (me == null || !me.hasSize) return;
@@ -443,9 +458,8 @@ class _PhoneTourOverlayState extends ConsumerState<PhoneTourOverlay>
     final cardH =
         (_ghost.currentContext?.findRenderObject() as RenderBox?)?.size.height ??
         0;
-    const gap = _cardGap;
-    final topEdge = pad.top + gap + cardH + _ringGap;
-    final bottomEdge = size.height - pad.bottom - gap - cardH - _ringGap;
+    final topEdge = pad.top + _cardGap + cardH + _ringGap;
+    final bottomEdge = _cardTop(size);
     Rect? ring;
     var atTop = false;
     if (area != null) {
@@ -457,18 +471,11 @@ class _PhoneTourOverlayState extends ConsumerState<PhoneTourOverlay>
       );
       if (r.bottom <= bottomEdge) {
         ring = r;
-      } else if (r.top >= topEdge) {
-        ring = r;
-        atTop = true;
+      } else if (bottomEdge - r.top >= math.min(r.height, _minLit)) {
+        ring = Rect.fromLTRB(r.left, r.top, r.right, bottomEdge);
       } else {
-        final keepAbove = bottomEdge - r.top;
-        final keepBelow = r.bottom - topEdge;
-        if (keepAbove >= keepBelow) {
-          ring = Rect.fromLTRB(r.left, r.top, r.right, math.max(r.top + 1, bottomEdge));
-        } else {
-          atTop = true;
-          ring = Rect.fromLTRB(r.left, math.min(r.bottom - 1, topEdge), r.right, r.bottom);
-        }
+        atTop = true;
+        ring = Rect.fromLTRB(r.left, math.max(r.top, math.min(r.bottom - 1, topEdge)), r.right, r.bottom);
       }
     }
     setState(() {
@@ -490,6 +497,9 @@ class _PhoneTourOverlayState extends ConsumerState<PhoneTourOverlay>
 
   static const double _cardGap = 16;
   static const double _ringGap = 6;
+
+  /// The least of a lit area that must show above a bottom card before the card goes to the top.
+  static const double _minLit = 96;
 
   @override
   Widget build(BuildContext context) {

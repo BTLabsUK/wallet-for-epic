@@ -51,11 +51,20 @@ double get settingsWideMax => 1760.u;
 /// The Settings page: title, sub-navigation on the left (a scrolling strip while the page is narrower than Lay.xl)
 /// and the page on the right.
 class SettingsFrame extends ConsumerWidget {
-  const SettingsFrame({super.key, required this.route, required this.child, this.width = SettingsWidth.form});
+  const SettingsFrame({super.key, required this.route, required this.child, this.width = SettingsWidth.form, this.fill = false});
 
   final DeskRoute route;
   final Widget child;
   final SettingsWidth width;
+
+  /// [child] gets the page's height instead of scrolling in it, so it can keep parts of its own
+  /// in view ([EPhraseLayout]: only the words scroll). With less room than [fillMinHeight] it
+  /// scrolls.
+  final bool fill;
+
+  /// The room [fill] needs: the Recovery phrase heading, actions and warning, and two rows of
+  /// words.
+  static double get fillMinHeight => 320.u;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -84,6 +93,9 @@ class SettingsFrame extends ConsumerWidget {
     );
     // The section list goes beside the page only when the page itself (the room EPage leaves
     // inside its gutters) is Lay.xl wide; a 1000 px window with the sidebar gets the strip.
+    Widget page() => fill
+        ? LayoutBuilder(builder: (context, box) => box.maxHeight < fillMinHeight ? SingleChildScrollView(child: content) : content)
+        : SingleChildScrollView(child: content);
     return LayoutBuilder(builder: (context, box) {
     final wide = box.maxWidth - 2 * Sp.x8 >= Lay.xl;
     return EPage(
@@ -91,7 +103,7 @@ class SettingsFrame extends ConsumerWidget {
       width: EPageWidth.full,
       // Wide: the section list stays in view while the page scrolls (a Help topic far down
       // keeps Help selected beside it).
-      scroll: !wide,
+      scroll: !wide && !fill,
       child: wide
           ? Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,7 +125,7 @@ class SettingsFrame extends ConsumerWidget {
                   ),
                 ),
                 SizedBox(width: Sp.x8),
-                Expanded(child: SingleChildScrollView(child: content)),
+                Expanded(child: page()),
               ],
             )
           : Column(
@@ -125,7 +137,7 @@ class SettingsFrame extends ConsumerWidget {
                   onTap: nav.go,
                 ),
                 SizedBox(height: Sp.x6),
-                content,
+                if (fill) Expanded(child: page()) else content,
               ],
             ),
     );

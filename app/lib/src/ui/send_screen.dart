@@ -31,6 +31,7 @@ import '../scan/incoming_link.dart' show linkBusyProvider;
 import '../scan/scan_checks.dart';
 import '../scan/scan_router.dart';
 import '../scan/scan_text.dart' show directHostBesideOf;
+import '../send_amount_gate.dart';
 import '../send_preflight.dart';
 import '../settings.dart';
 import '../smart_outputs.dart' show planSessionSend;
@@ -105,6 +106,9 @@ const Key sendEpicboxDownKey = ValueKey('send-epicbox-down');
 const Key sendRecipientFieldKey = ValueKey('send-recipient-field');
 const Key sendAmountFieldKey = ValueKey('send-amount-field');
 const Key sendFileAmountFieldKey = ValueKey('send-file-amount-field');
+
+/// "Not enough spendable EPIC…" under the amount, said on the keystroke.
+const Key sendNotEnoughKey = ValueKey('send-not-enough');
 
 /// The × in the filled To field, for tests.
 const Key sendRecipientClearKey = ValueKey('send-recipient-clear');
@@ -1080,7 +1084,8 @@ class _SendViewState extends ConsumerState<SendView> {
       _error = null;
     });
     final valid = _parsedAmount;
-    if (valid != null) {
+    // More than can be spent: said at once, and no estimate is asked for it.
+    if (valid != null && !_gate.notEnough) {
       _debounce = Timer(
         const Duration(milliseconds: 400),
         () => _estimateFee(valid),
@@ -1113,7 +1118,11 @@ class _SendViewState extends ConsumerState<SendView> {
   }
 
   void _chooseStrategy(SelectionStrategy strategy) {
-    setState(() => _strategyOverride = strategy);
+    // The estimate was made for the other strategy: the confirm waits for the new one.
+    setState(() {
+      _strategyOverride = strategy;
+      if (!_maxUsed) _estimate = null;
+    });
     final amount = _parsedAmount;
     if (amount != null && !_maxUsed) _estimateFee(amount);
   }
@@ -1224,8 +1233,20 @@ class _SendViewState extends ConsumerState<SendView> {
     }
   }
 
-  bool get _amountReady =>
-      _parsedAmount != null && _estimateError == null && !_estimating;
+  /// The amount against the spendable balance and the estimate made for it
+  /// ([SendAmountGate]): Continue, Make payment file and Make payment QR wait for it.
+  SendAmountGate get _gate => _gateWith(_estimate);
+
+  SendAmountGate _gateWith(FeeEstimate? estimate) => SendAmountGate.check(
+    amount: _parsedAmount?.toInt(),
+    spendable: ref.read(homeProvider).value?.summary.spendable.toInt(),
+    estimate: estimate == null
+        ? null
+        : (amount: estimate.amount.toInt(), fee: estimate.fee.toInt()),
+    estimateFailed: _estimateError != null,
+  );
+
+  bool get _amountReady => _gate.ready && !_estimating;
 
   // Review.
 
@@ -1247,6 +1268,11 @@ class _SendViewState extends ConsumerState<SendView> {
     final session = ref.read(sessionProvider);
     final amount = _parsedAmount;
     if (session == null || amount == null) return;
+    // The tap asks again: an amount above the spendable balance goes no further.
+    if (_gate.notEnough) {
+      setState(() {});
+      return;
+    }
     final problem = _recipientProblem(_recipient.text, required: true);
     if (problem != null) {
       setState(() {
@@ -1275,6 +1301,17 @@ class _SendViewState extends ConsumerState<SendView> {
           : await _plan(session, amount, minimum);
       final estimate = plan.estimate;
       if (!mounted) return;
+      // The fresh estimate must fit what can be spent now, or the review does not open (Max
+      // asked for what fits).
+      if (!_maxUsed && !_gateWith(estimate).ready) {
+        _closeChecks();
+        setState(() {
+          _estimate = estimate;
+          _options = plan.options;
+          _estimateError = null;
+        });
+        return;
+      }
       setState(() {
         _estimate = estimate;
         _options = plan.options;
@@ -1392,6 +1429,11 @@ class _SendViewState extends ConsumerState<SendView> {
     if (reviewed == null || _stage != SendStage.review) return;
     // A second tap while the first one's dialogs show opens no second set.
     if (_asking) return;
+    // Asked again on the tap: the reviewed amount and its fee must fit what can be spent now.
+    if (!_gateWith(reviewed).ready) {
+      setState(() {});
+      return;
+    }
     final l = context.l10n;
     final to = parseRecipient(_recipient.text);
     _asking = true;
@@ -1404,6 +1446,11 @@ class _SendViewState extends ConsumerState<SendView> {
       _asking = false;
     }
     if (!mounted || _stage != SendStage.review || _busy) return;
+    // The balance may have moved while the PIN was asked.
+    if (!_gateWith(reviewed).ready) {
+      setState(() {});
+      return;
+    }
     if (to.kind == RecipientKind.tor) return _sendTor(reviewed, to);
     if (to.kind == RecipientKind.http) return _sendHttp(reviewed, to);
     // Captured now: after the await the screen may be gone, and home must still refresh.
@@ -1841,6 +1888,12 @@ class _SendViewState extends ConsumerState<SendView> {
   Future<void> _createFile() async {
     final amount = _parsedAmount;
     if (amount == null) return;
+    // Asked again on the tap: nothing is built for an amount that does not fit, or before its
+    // estimate has come.
+    if (!_amountReady) {
+      setState(() {});
+      return;
+    }
     final l = context.l10n;
     final amountText = epicText(l, amount);
     final reason = switch ((_viaQr, usesPassphrase(ref))) {
@@ -1851,6 +1904,11 @@ class _SendViewState extends ConsumerState<SendView> {
     };
     if (!await _pinGate(reason)) return;
     if (!mounted) return;
+    // The amount, the balance or the estimate may have moved while the PIN was asked.
+    if (_parsedAmount != amount || !_amountReady) {
+      setState(() {});
+      return;
+    }
     final container = ProviderScope.containerOf(context, listen: false);
     final options = _sendOptions;
     await _run((session) async {
@@ -2162,8 +2220,13 @@ class _SendViewState extends ConsumerState<SendView> {
         _estimate = null;
         _estimateError = null;
       });
-      // After Max the amount is the old balance's maximum; ask for the new one.
-      _maxUsed ? _max() : _estimateFee(amount);
+      // After Max the amount is the old balance's maximum; ask for the new one. An amount
+      // above the new balance needs no estimate: the gate says so.
+      if (_maxUsed) {
+        _max();
+      } else if (!_gate.notEnough) {
+        _estimateFee(amount);
+      }
     });
     // A recipient handed over while the tab is kept alive fills the form in place.
     ref.listen(sendRecipientProvider, (_, handoff) {
@@ -2255,7 +2318,14 @@ class _SendViewState extends ConsumerState<SendView> {
               ],
             )
           : bottom,
-      children: [...children, if (_error != null) ErrorText(_error!)],
+      children: [
+        ...children,
+        if (_error != null)
+          ErrorText(_error!)
+        // The reviewed payment no longer fits: Send is off, and this says why.
+        else if (_stage == SendStage.review && !_sendFailed && _gate.notEnough)
+          ErrorText(context.l10n.errorNotEnoughFunds),
+      ],
     );
   }
 
@@ -2856,6 +2926,7 @@ class _SendViewState extends ConsumerState<SendView> {
         ref.watch(appSettingsProvider).value?.fiatCurrency ?? 'usd';
     final amount = _parsedAmount;
     final estimate = _estimate;
+    final gate = _gate;
     String? amountHelper;
     if (amount != null && price != null) {
       amountHelper = _fiatEntry
@@ -2979,9 +3050,13 @@ class _SendViewState extends ConsumerState<SendView> {
             ),
           ),
         ),
-      if (_estimateError != null) ErrorText(_estimateError!),
+      if (_estimateError != null)
+        ErrorText(_estimateError!)
+      // More than can be spent: said on the keystroke, before any estimate.
+      else if (gate.notEnough)
+        ErrorText(l.errorNotEnoughFunds, key: sendNotEnoughKey),
       // Coins another linked device is spending: why the amount does not fit.
-      if (_estimateError != null) ..._heldLines(context),
+      if (_estimateError != null || gate.notEnough) ..._heldLines(context),
       // A device is linked and nothing goes over Epicbox: it does not see this payment.
       if (ref.watch(phoneDevices.view)?.book.linked case final linked? when ref.watch(phoneDevicesEpicboxOffProvider))
         Padding(
@@ -3329,7 +3404,12 @@ class _SendViewState extends ConsumerState<SendView> {
     // A pairing whose keys changed meanwhile holds the send until the words are checked.
     final pairs = _pairingTo == null || (_toPairing()?.paysByMailbox ?? false);
     final canSend =
-        checks.ready && !_busy && torGoes(way) && _block == NetBlock.none && pairs;
+        checks.ready &&
+        !_busy &&
+        torGoes(way) &&
+        _block == NetBlock.none &&
+        pairs &&
+        _gate.ready;
     // The Send button names the exact amount, as the review above it (a commit surface).
     final amount = epicExact(l, _estimate!.amount);
     final quiet = TextButton.styleFrom(minimumSize: const Size.fromHeight(44));

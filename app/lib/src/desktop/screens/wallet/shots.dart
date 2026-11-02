@@ -74,6 +74,12 @@ Tx _tx(BuildContext context, int id) {
   return container.read(deskProvider).txs!.firstWhere((t) => t.id == id);
 }
 
+/// Keeps the mock's [n] newest payments, and shows them.
+Future<void> Function(ProviderContainer) _newest(int n) => (c) async {
+  mockBehind(c.read(deskApiProvider))?.keepNewest(n);
+  await c.read(deskProvider.notifier).refresh();
+};
+
 /// Adds the mock's payment whose sender reports it posted, and shows it.
 Future<void> _senderPosted(ProviderContainer c, BuildContext _) async {
   mockBehind(c.read(deskApiProvider))?.addSenderPostedDemo();
@@ -130,6 +136,9 @@ final List<DeskShot> walletShots = [
   const DeskShot(id: '10-overview-800', title: 'Overview at 800x700, the smallest window', route: DeskRoute.overview, width: 800, height: 700),
   DeskShot(id: '10-overview-narrow', title: 'Overview at 1000x700', route: DeskRoute.overview, width: 1000, height: 700),
   const DeskShot(id: '10b-overview-empty', title: 'Overview, new wallet', route: DeskRoute.overview, arg: OverviewDemo.empty),
+  // A short history: the BT Labs lattice under Recent activity, at 75 % and 40 %.
+  DeskShot(id: '10b-overview-one', title: 'Overview, one payment', route: DeskRoute.overview, before: _newest(1)),
+  DeskShot(id: '10b-overview-three', title: 'Overview, three payments', route: DeskRoute.overview, before: _newest(3)),
   const DeskShot(id: '10c-overview-node-down', title: 'Overview, node down', route: DeskRoute.overview, arg: OverviewDemo.nodeDown),
   const DeskShot(id: '10d-overview-loading', title: 'Overview, loading', route: DeskRoute.overview, arg: OverviewDemo.loading),
   const DeskShot(id: '10e-overview-starting', title: 'Overview, just unlocked', route: DeskRoute.overview, arg: OverviewDemo.starting),

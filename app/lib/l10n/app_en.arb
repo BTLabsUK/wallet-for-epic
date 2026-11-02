@@ -5008,14 +5008,6 @@
   "@tourPhoneActivityText": {
     "description": "Text of the tour card for the Activity screen; one or two short sentences."
   },
-  "tourPhoneContactsTitle": "Contacts",
-  "@tourPhoneContactsTitle": {
-    "description": "Title of the tour card for the Contacts screen (first-unlock tour). Short."
-  },
-  "tourPhoneContactsText": "Saved addresses by name. Send picks from here.",
-  "@tourPhoneContactsText": {
-    "description": "Text of the tour card for the Contacts screen; one or two short sentences."
-  },
   "tourPhoneInvoicesTitle": "Invoices",
   "@tourPhoneInvoicesTitle": {
     "description": "Title of the tour card for the Invoices screen (first-unlock tour). Short."
@@ -5023,6 +5015,10 @@
   "tourPhoneInvoicesText": "Pay an invoice someone sent, or ask someone for a payment. The tabs switch between the two.",
   "@tourPhoneInvoicesText": {
     "description": "Text of the tour card for the Invoices screen; one or two short sentences."
+  },
+  "tourPhoneDevicesText": "This wallet on a second device: each shows the other’s payments. An experiment.",
+  "@tourPhoneDevicesText": {
+    "description": "Text of the tour card for the Linked devices screen; one or two short sentences. Linked devices is an experiment."
   },
   "tourPhonePrivacyTitle": "Privacy & network",
   "@tourPhonePrivacyTitle": {

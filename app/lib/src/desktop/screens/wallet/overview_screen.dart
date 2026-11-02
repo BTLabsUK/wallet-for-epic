@@ -21,6 +21,8 @@ import '../../widgets/pay_steps.dart' show DeskPaymentSteps, payInFlight;
 import '../invoices/overview_card.dart';
 import '../settings/backup.dart' show HistoryReminder, historyBackupProvider, showHistoryImportOffer;
 import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
+import '../../../recent_activity.dart' show recentActivityCount, showViewAll;
+import '../../../ui/theme/lattice.dart' show BrandLattice, latticeCellDesktop, latticeStrength;
 import 'restore_scan_panel.dart';
 import 'tx_display.dart';
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
@@ -203,6 +205,15 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     return EPage(
       title: l.deskOvTitle,
       width: EPageWidth.full,
+      // The BT Labs lattice in the room a short Recent activity leaves, fading as rows come.
+      fill: restore == null || (s.txs?.isNotEmpty ?? false)
+          ? BrandLattice(
+              color: context.dc.text,
+              strength: latticeStrength(txs?.length),
+              cell: latticeCellDesktop.u,
+              vignette: true,
+            )
+          : null,
       actions: [
         // Shallow moves the eye to Settings › Appearance.
         if (lv.hideAmountsInHeader)
@@ -860,7 +871,7 @@ class _Recent extends StatelessWidget {
     } else {
       body = Column(
         children: [
-          for (final (i, t) in (shallow ? list.where((t) => !t.immature) : list).take(5).indexed) ...[if (i > 0) Divider(height: 1, color: c.line), TxRow(tx: t, compact: true, onTap: () => onOpen(t))],
+          for (final (i, t) in (shallow ? list.where((t) => !t.immature) : list).take(recentActivityCount).indexed) ...[if (i > 0) Divider(height: 1, color: c.line), TxRow(tx: t, compact: true, onTap: () => onOpen(t))],
         ],
       );
     }
@@ -870,7 +881,7 @@ class _Recent extends StatelessWidget {
         ESectionHead(
           l.deskOvRecent,
           top: Sp.x6,
-          trailing: list == null || list.isEmpty ? null : ELink(label: l.deskOvViewAll(list.length), onPressed: onAll),
+          trailing: list == null || !showViewAll(list.length) ? null : ELink(label: l.deskOvViewAll(list.length), onPressed: onAll),
         ),
         Container(
           clipBehavior: Clip.antiAlias,

@@ -12,8 +12,8 @@ enum TourPlace {
   send,
   receive,
   activity,
-  contacts,
   invoices,
+  devices,
   privacy,
   advanced,
   help,
@@ -35,8 +35,10 @@ class PhoneTourStep {
   final String Function(AppLocalizations l) textOf;
 }
 
-/// The steps, with Invoices after Receive only when the wallet [invoices] (as the desktop does).
-List<PhoneTourStep> phoneTourSteps({required bool invoices}) => [
+/// The steps: what the wallet holds (Wallet, Send, Receive, Activity, Invoices when the wallet
+/// [invoices] as the desktop does, Linked devices while [devices] is on), then where it is set up
+/// (Network & privacy, Advanced) and Help. No Contacts step: on a new wallet its list is empty.
+List<PhoneTourStep> phoneTourSteps({required bool invoices, bool devices = true}) => [
   PhoneTourStep(
     place: TourPlace.wallet,
     targets: const ['tour-balance'],
@@ -62,18 +64,19 @@ List<PhoneTourStep> phoneTourSteps({required bool invoices}) => [
     titleOf: (l) => l.tourPhoneActivityTitle,
     textOf: (l) => l.tourPhoneActivityText,
   ),
-  PhoneTourStep(
-    place: TourPlace.contacts,
-    targets: const ['tour-contacts-list'],
-    titleOf: (l) => l.tourPhoneContactsTitle,
-    textOf: (l) => l.tourPhoneContactsText,
-  ),
   if (invoices)
     PhoneTourStep(
       place: TourPlace.invoices,
       targets: const ['tour-invoices-tabs'],
       titleOf: (l) => l.tourPhoneInvoicesTitle,
       textOf: (l) => l.tourPhoneInvoicesText,
+    ),
+  if (devices)
+    PhoneTourStep(
+      place: TourPlace.devices,
+      targets: const ['tour-devices-link'],
+      titleOf: (l) => l.expLinkedDevices,
+      textOf: (l) => l.tourPhoneDevicesText,
     ),
   PhoneTourStep(
     place: TourPlace.privacy,
