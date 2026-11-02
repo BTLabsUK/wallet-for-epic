@@ -18993,4 +18993,730 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskRailOpenNetworkPrivacy => 'เปิดเครือข่ายและความเป็นส่วนตัว';
+
+  @override
+  String get deskSetSearchHint => 'ค้นหาการตั้งค่า';
+
+  @override
+  String get deskSetSearchKeyHint => 'Ctrl K';
+
+  @override
+  String get deskSetSearchClear => 'ล้างการค้นหา';
+
+  @override
+  String deskSetSearchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ผลลัพธ์',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSetSearchFor(String query) {
+    return 'สำหรับ “$query”';
+  }
+
+  @override
+  String get deskSetSearchKeysMove => 'เลื่อน';
+
+  @override
+  String get deskSetSearchKeysGo => 'ไปที่การตั้งค่า';
+
+  @override
+  String get deskSetSearchKeysClear => 'ล้าง';
+
+  @override
+  String deskSetSearchMatches(String word) {
+    return 'ตรงกับ “$word”';
+  }
+
+  @override
+  String get deskSetSearchHelpTopics => 'หัวข้อช่วยเหลือ';
+
+  @override
+  String get deskSetSearchHidden => 'ซ่อนอยู่ที่นี่';
+
+  @override
+  String get deskSetSearchHiddenLine =>
+      'มุมมองอื่นหรือสวิตช์ในขั้นสูงจะแสดงรายการเหล่านี้';
+
+  @override
+  String deskSetSearchShowIn(String view) {
+    return 'แสดงใน $view';
+  }
+
+  @override
+  String get deskSetSearchTurnOn => 'เปิด';
+
+  @override
+  String get deskSetSearchOpen => 'เปิด';
+
+  @override
+  String get deskSetSearchRead => 'อ่าน';
+
+  @override
+  String deskSetSearchNone(String query) {
+    return 'ไม่มีการตั้งค่าที่ตรงกับ “$query”';
+  }
+
+  @override
+  String get deskSetSearchTry => 'ลอง';
+
+  @override
+  String get deskSetSearchTryWords =>
+      'รหัสผ่าน,tor,วลีกู้คืน,สำรอง,ค่าธรรมเนียม,โหนด,ล็อก';
+
+  @override
+  String get deskSetSearchNoResults => 'ไม่มีผลลัพธ์';
+
+  @override
+  String get deskSetSearchResults => 'ผลการค้นหา';
+
+  @override
+  String deskSetSearchViewGate(String view) {
+    return 'มุมมอง $view';
+  }
+
+  @override
+  String deskSetSearchFeatGate(String feature) {
+    return 'ขั้นสูง › $feature';
+  }
+
+  @override
+  String deskSetSearchGateJoin(String first, String last) {
+    return '$first และ $last';
+  }
+
+  @override
+  String deskSetSearchMore(int count, String gates) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'อีก $count ตัวเลือก · แสดงเมื่อใช้ $gates',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSetSearchLess(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'ซ่อนตัวเลือกเพิ่มเติม $count รายการ',
+      one: 'ซ่อนตัวเลือกเพิ่มเติม',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSetSearchViewApplied(String view) {
+    return 'มุมมอง: $view';
+  }
+
+  @override
+  String deskSetSearchFeatApplied(String feature) {
+    return 'ขั้นสูง › $feature: เปิด';
+  }
+
+  @override
+  String deskSetSearchFallbackView(String page, String view) {
+    return '$page แสดงในมุมมอง $view';
+  }
+
+  @override
+  String deskSetSearchFallbackFeat(String page, String feature) {
+    return '$page แสดงเมื่อเปิด ขั้นสูง › $feature';
+  }
+
+  @override
+  String get deskSetSecWallet => 'วอลเล็ต';
+
+  @override
+  String get deskSetSecPayments => 'การชำระเงิน';
+
+  @override
+  String get deskSetSecDevices => 'อุปกรณ์ที่เชื่อมโยง';
+
+  @override
+  String get deskSetSecWallets => 'วอลเล็ตทั้งหมด';
+
+  @override
+  String get deskSetSecFiles => 'ไฟล์และบันทึก';
+
+  @override
+  String get deskSetSecDonate => 'บริจาค';
+
+  @override
+  String get deskSetNavApp => 'แอป';
+
+  @override
+  String get deskSetNavComputer => 'คอมพิวเตอร์เครื่องนี้';
+
+  @override
+  String get deskSetGrpBackup => 'สำรองข้อมูล';
+
+  @override
+  String get deskSetGrpBalance => 'ยอดเงิน';
+
+  @override
+  String get deskSetGrpRemove => 'ลบออก';
+
+  @override
+  String get deskSetGrpMethods => 'วิธีการ';
+
+  @override
+  String get deskSetGrpSending => 'การส่ง';
+
+  @override
+  String get deskSetGrpReceiving => 'การรับ';
+
+  @override
+  String get deskSetGrpThisDevice => 'อุปกรณ์นี้';
+
+  @override
+  String get deskSetGrpLinkedDevice => 'อุปกรณ์ที่เชื่อมโยง';
+
+  @override
+  String get deskSetGrpSync => 'ซิงค์';
+
+  @override
+  String get deskSetGrpConnection => 'การเชื่อมต่อ';
+
+  @override
+  String get deskSetGrpLocalNode => 'โหนดบนคอมพิวเตอร์เครื่องนี้';
+
+  @override
+  String get deskSetGrpConnections => 'การเชื่อมต่อ';
+
+  @override
+  String get deskSetGrpTor => 'Tor';
+
+  @override
+  String get deskSetGrpServerStatus => 'สถานะเซิร์ฟเวอร์';
+
+  @override
+  String get deskSetGrpView => 'มุมมอง';
+
+  @override
+  String get deskSetGrpShowsMore => 'แสดงเพิ่มเติม';
+
+  @override
+  String get deskSetGrpExperiments => 'การทดลอง';
+
+  @override
+  String get deskSetGrpOnComputer => 'บนคอมพิวเตอร์เครื่องนี้';
+
+  @override
+  String get deskSetGrpAddWallet => 'เพิ่มวอลเล็ต';
+
+  @override
+  String get deskSetGrpFolders => 'โฟลเดอร์';
+
+  @override
+  String get deskSetGrpLogs => 'บันทึก';
+
+  @override
+  String get deskSetGrpSupport => 'การสนับสนุน';
+
+  @override
+  String get deskSetGrpStartAgain => 'เริ่มใหม่';
+
+  @override
+  String get deskSetGrpLinks => 'ลิงก์';
+
+  @override
+  String get deskSetRowNameHint => 'แสดงเฉพาะในแอปนี้';
+
+  @override
+  String get deskSetSynName => 'เปลี่ยนชื่อ, ชื่อวอลเล็ต, ป้ายชื่อ, ชื่อ';
+
+  @override
+  String get deskSetRowExportDataHint =>
+      'ประวัติ รายชื่อติดต่อ ใบแจ้งหนี้ และการตั้งค่า ในไฟล์เข้ารหัสไฟล์เดียว';
+
+  @override
+  String get deskSetRowExportDataInfo =>
+      'มีเพียงวอลเล็ตที่ใช้วลีกู้คืนนี้เท่านั้นที่เปิดไฟล์ได้ ส่วนเหรียญกู้คืนได้จากวลีกู้คืน';
+
+  @override
+  String get deskSetSynExportData =>
+      'สำรอง, แบ็กอัป, บันทึก, ประวัติ, รายชื่อติดต่อ, ไฟล์';
+
+  @override
+  String get deskSetRowImportDataHint =>
+      'นำประวัติ รายชื่อติดต่อ ใบแจ้งหนี้ และการตั้งค่ากลับมาจากไฟล์ส่งออก';
+
+  @override
+  String get deskSetSynImportData => 'กู้คืน, สำรอง, ประวัติ, โหลด';
+
+  @override
+  String get deskSetRowExportCsvHint => 'ตารางธรรมดาสำหรับสเปรดชีต ไม่เข้ารหัส';
+
+  @override
+  String get deskSetSynExportCsv =>
+      'csv, excel, สเปรดชีต, ภาษี, ประวัติ, รายงาน';
+
+  @override
+  String get deskSetRowRecheckGoHint =>
+      'อ่านเชนอีกครั้งเพื่อหาเหรียญของวอลเล็ตนี้';
+
+  @override
+  String get deskSetSynRecheckGo =>
+      'สแกนใหม่, สแกน, ยอดผิด, หายไป, ซิงค์ใหม่, รีเฟรช, ซ่อม';
+
+  @override
+  String get deskSetRowDeleteWalletHint =>
+      'ลบคีย์และฐานข้อมูลของวอลเล็ตออกจากคอมพิวเตอร์เครื่องนี้';
+
+  @override
+  String get deskSetSynDeleteWallet => 'ลบออก, ลบ, ล้าง';
+
+  @override
+  String get deskSetSynRecheckFrom => 'เริ่ม, วันที่, ความสูง, บล็อก';
+
+  @override
+  String get deskSetRowRecheckMonth => 'เดือน';
+
+  @override
+  String get deskSetSynRecheckMonth =>
+      'เดือน, วันที่, ปฏิทิน, สร้างเมื่อ, เมื่อไร';
+
+  @override
+  String get deskSetRowRecheckHeight => 'บล็อกเริ่มต้น';
+
+  @override
+  String get deskSetSynRecheckHeight => 'ความสูง, บล็อก';
+
+  @override
+  String get deskSetRowRecheckDropHint =>
+      'ยกเลิกธุรกรรมที่ยังไม่ยืนยันด้วย การชำระเงินที่กำลังส่งอาจล้มเหลว';
+
+  @override
+  String get deskSetSynRecheckDrop => 'ยังไม่ยืนยัน, ค้าง, ยกเลิก, ปลดล็อก';
+
+  @override
+  String get deskSetRowPhraseGoHint => '24 คำที่ใช้กู้คืนวอลเล็ตนี้';
+
+  @override
+  String get deskSetSynPhraseGo =>
+      'seed, วลีกู้คืน, mnemonic, คำ, สำรอง, ความลับ, กู้คืน, 24 คำ, คีย์ส่วนตัว';
+
+  @override
+  String get deskSetRowPasswordHint => 'ปลดล็อกวอลเล็ตนี้';
+
+  @override
+  String get deskSetSynPassword => 'รหัสผ่าน, เปลี่ยนรหัสผ่าน, ปลดล็อก, pin';
+
+  @override
+  String get deskSetRowRememberedHint =>
+      'เปิดได้โดยไม่ต้องใช้รหัสผ่านเมื่อเริ่มแอป การส่งยังต้องใช้รหัสผ่าน';
+
+  @override
+  String get deskSetSynRemembered =>
+      'จดจำ, รหัสผ่าน, ปลดล็อก, ปลดล็อกอัตโนมัติ, ลืม';
+
+  @override
+  String get deskSetRowAutolockHint =>
+      'ล็อกเมื่อไม่มีการกดแป้นหรือขยับเมาส์ ทุกวอลเล็ต';
+
+  @override
+  String get deskSetSynAutolock => 'ล็อก, หมดเวลา, ไม่ได้ใช้งาน, ล็อกหน้าจอ';
+
+  @override
+  String get deskSetRowEpicboxHint =>
+      'จ่ายและรับเงินผ่านเซิร์ฟเวอร์ Epicbox การชำระเงินส่วนใหญ่ใช้ทางนี้ ทุกวอลเล็ต';
+
+  @override
+  String get deskSetSynEpicbox =>
+      'รีเลย์, เซิร์ฟเวอร์, ที่อยู่, รับ, ส่ง, วิธีการ';
+
+  @override
+  String get deskSetSynEpicboxRecv => 'รอรับ, ขาเข้า, รับ';
+
+  @override
+  String get deskSetRowEpicboxServerHint => 'ส่วนหนึ่งของที่อยู่วอลเล็ตนี้';
+
+  @override
+  String get deskSetSynEpicboxServer => 'รีเลย์, เซิร์ฟเวอร์, โฮสต์, ที่อยู่';
+
+  @override
+  String get deskSetSynEpicboxStart => 'เริ่มอัตโนมัติ, ตอนเริ่ม';
+
+  @override
+  String get deskSetRowHttpHint =>
+      'วอลเล็ตถึงวอลเล็ตที่ที่อยู่เว็บ ขณะที่ทั้งสองเปิดอยู่ ทุกวอลเล็ต';
+
+  @override
+  String get deskSetSynHttp => 'http, ip, พอร์ต, โดยตรง, ตัวรับฟัง, วิธีการ';
+
+  @override
+  String get deskSetSynHttpReach =>
+      'อินเทอร์เน็ต, เราเตอร์, ส่งต่อพอร์ต, สาธารณะ';
+
+  @override
+  String get deskSetSynHttpPort => 'พอร์ต, tcp';
+
+  @override
+  String get deskSetRowTorPayHint =>
+      'วอลเล็ตถึงวอลเล็ตที่ที่อยู่ Tor ของวอลเล็ตนี้ ขณะที่ทั้งสองเปิดอยู่ ทุกวอลเล็ต';
+
+  @override
+  String get deskSetRowTorPayInfo =>
+      'Tor ทำงานเพื่อส่งและรับเงินที่ที่อยู่ Tor เท่านั้น โหนด ราคา และการอัปเดตใช้การตั้งค่าในเครือข่ายและความเป็นส่วนตัว';
+
+  @override
+  String get deskSetSynTorPay =>
+      'tor, onion, ไม่ระบุตัวตน, hidden service, ความเป็นส่วนตัว, วิธีการ';
+
+  @override
+  String get deskSetRowFileHint =>
+      'โดยส่งต่อไฟล์ธุรกรรม ไม่ต้องใช้เครือข่าย ทุกวอลเล็ต';
+
+  @override
+  String get deskSetSynFile =>
+      'ไฟล์, ออฟไลน์, slate, ไฟล์ธุรกรรม, usb, อีเมล, วิธีการ, ด้วยตนเอง';
+
+  @override
+  String get deskSetRowDefaultMethodHint =>
+      'สิ่งที่หน้าส่งเปิดขึ้นมา ทุกวอลเล็ต';
+
+  @override
+  String get deskSetSynDefaultMethod => 'ส่ง, วิธีการ, ค่าเริ่มต้น';
+
+  @override
+  String get deskSetRowStrategy => 'เอาต์พุตที่การส่งใช้';
+
+  @override
+  String get deskSetRowStrategyHint =>
+      'เล็กที่สุดพอดีกับจำนวน ทั้งหมดใช้ทุกเอาต์พุต';
+
+  @override
+  String get deskSetRowStrategyInfo =>
+      'ใช้เอาต์พุตมากขึ้น ค่าธรรมเนียมก็สูงขึ้น';
+
+  @override
+  String get deskSetSynStrategy =>
+      'ค่าธรรมเนียม, กลยุทธ์, เลือกเหรียญ, อินพุต, utxo, เอาต์พุต';
+
+  @override
+  String get deskSetRowSplitChangeHint =>
+      'เงินทอนกลับมาเป็นสูงสุด 4 เอาต์พุต เมื่อเหลือน้อย';
+
+  @override
+  String get deskSetRowSplitChangeInfo =>
+      'เฉพาะเมื่อการส่งจะเหลือเอาต์พุตที่ใช้ได้น้อยกว่า 3 และเงินทอนอย่างน้อย 1 EPIC แต่ละเอาต์พุตที่เพิ่มมีค่า 0.004 EPIC';
+
+  @override
+  String get deskSetSynSplitChange =>
+      'ค่าธรรมเนียม, เงินทอน, เอาต์พุต, utxo, แบ่ง';
+
+  @override
+  String get deskSetRowConfirmationsHint =>
+      'จำนวนบล็อกที่เงินที่ได้รับต้องรอก่อนใช้ได้';
+
+  @override
+  String get deskSetSynConfirmations =>
+      'ยืนยัน, บล็อก, ใช้ได้, ล็อก, รอดำเนินการ, รอ';
+
+  @override
+  String get deskSetRowPairShopHint =>
+      'รายชื่อที่จับคู่แล้วซึ่งคุณอนุญาต สามารถส่งใบแจ้งหนี้มาที่วอลเล็ตนี้ได้';
+
+  @override
+  String get deskSetSynPairShop =>
+      'จับคู่, ใบแจ้งหนี้, ร้านค้า, กระดานเทรด, ผู้ขาย';
+
+  @override
+  String get deskSetRowTimeToPayHint => 'ใบแจ้งหนี้ชำระได้นานเท่าใด';
+
+  @override
+  String get deskSetSynTimeToPay => 'ใบแจ้งหนี้, หมดอายุ, กำหนด';
+
+  @override
+  String get deskSetSynDeviceName => 'ชื่ออุปกรณ์, เปลี่ยนชื่อ';
+
+  @override
+  String get deskSetRowLinkDeviceHint =>
+      'วอลเล็ตนี้บนสองอุปกรณ์: แต่ละเครื่องแสดงการชำระเงินของอีกเครื่อง';
+
+  @override
+  String get deskSetRowLinkDeviceInfo =>
+      'เชื่อมโยงได้หนึ่งอุปกรณ์ แต่ละเครื่องถือเหรียญที่อีกเครื่องกำลังใช้ จึงไม่มีทางใช้เหรียญเดียวกัน';
+
+  @override
+  String get deskSetSynLinkDevice =>
+      'เชื่อมโยงอุปกรณ์, จับคู่โทรศัพท์, อุปกรณ์ที่สอง, โทรศัพท์, ซิงค์, มือถือ, หลายอุปกรณ์';
+
+  @override
+  String get deskSetRowPauseSyncHint =>
+      'ขณะหยุดชั่วคราว การแจ้งเตือนรออยู่บนเซิร์ฟเวอร์';
+
+  @override
+  String get deskSetSynPauseSync => 'ซิงค์, หยุดชั่วคราว, เชื่อมโยง';
+
+  @override
+  String get deskSetSynTheme => 'โหมดมืด, โหมดสว่าง, สี, กลางคืน, dark mode';
+
+  @override
+  String get deskSetSynLanguage => 'ภาษา, แปล, ไทย, english, polski';
+
+  @override
+  String get deskSetRowScaleHint => 'ข้อความและตัวควบคุม ใหญ่ขึ้นหรือเล็กลง';
+
+  @override
+  String get deskSetSynScale =>
+      'ซูม, ขนาด, ขนาดตัวอักษร, ใหญ่ขึ้น, เล็กลง, dpi';
+
+  @override
+  String get deskSetRowHideAmountsHint => 'จุดแทนยอดเงินและจำนวน';
+
+  @override
+  String get deskSetSynHideAmounts =>
+      'ความเป็นส่วนตัว, ซ่อนยอดเงิน, ปิดบัง, แชร์หน้าจอ, สตรีม';
+
+  @override
+  String get deskSetRowNodeServerHint => 'อ่านเชนและส่งธุรกรรมของวอลเล็ตนี้';
+
+  @override
+  String get deskSetSynNodeServer => 'โหนด, เซิร์ฟเวอร์, โฮสต์, rpc, api, url';
+
+  @override
+  String get deskSetRowFailover => 'สลับโหนดอัตโนมัติ';
+
+  @override
+  String get deskSetRowFailoverHint =>
+      'เมื่อโหนดหยุดตอบ ใช้โหนดถัดไปที่ทำงานได้';
+
+  @override
+  String get deskSetSynFailover => 'failover, สำรอง, อัตโนมัติ';
+
+  @override
+  String get deskSetRowMyNodeHint =>
+      'ถามสถานะจากโหนดโดยตรง และให้สิทธิ์เจ้าของ';
+
+  @override
+  String get deskSetSynMyNode =>
+      'โหนดของตัวเอง, โหนดของฉัน, โฮสต์เอง, เจ้าของ, api secret';
+
+  @override
+  String get deskSetRowLocalNode => 'โหนดบนคอมพิวเตอร์เครื่องนี้';
+
+  @override
+  String get deskSetRowLocalNodeHint =>
+      'รันโหนดของตัวเองที่นี่ ใช้พื้นที่ดิสก์หลายกิกะไบต์';
+
+  @override
+  String get deskSetSynLocalNode =>
+      'โหนดภายในเครื่อง, โหนดในตัว, ฟูลโหนด, รันโหนด, ซิงค์เชน';
+
+  @override
+  String get deskSetRowLocalStartHint => 'ทำให้โหนดซิงค์อยู่ขณะที่แอปเปิด';
+
+  @override
+  String get deskSetSynLocalStart => 'เริ่มอัตโนมัติ, โหนดภายในเครื่อง';
+
+  @override
+  String get deskSetRowNetMode => 'โหมดการเชื่อมต่อ';
+
+  @override
+  String get deskSetSynNetMode =>
+      'tor เท่านั้น, undercover, ออฟไลน์, kill switch, โหนดเท่านั้น, vpn, ip, ความเป็นส่วนตัว, โหมดเครื่องบิน';
+
+  @override
+  String get deskSetRowTorAll => 'Tor สำหรับทุกการเชื่อมต่อ';
+
+  @override
+  String get deskSetRowTorAllHint => 'โหนด Epicbox ราคา และการอัปเดต ผ่าน Tor';
+
+  @override
+  String get deskSetRowTorAllInfo =>
+      'Tor ซ่อนที่อยู่ IP ของวอลเล็ต สำหรับการชำระเงินที่ที่อยู่ Tor เท่านั้น ดู การชำระเงิน › ลิงก์ · Tor';
+
+  @override
+  String get deskSetSynTorAll =>
+      'tor, onion, ไม่ระบุตัวตน, ip, ซ่อน ip, พร็อกซี, ความเป็นส่วนตัว';
+
+  @override
+  String get deskSetRowStatusSiteHint =>
+      'แสดงว่าโหนดและเซิร์ฟเวอร์ Epicbox ใดออนไลน์อยู่';
+
+  @override
+  String get deskSetSynStatusSite => 'สถานะ, สุขภาพ, ออนไลน์, ตรวจสอบ';
+
+  @override
+  String get deskSetRowView => 'มุมมอง';
+
+  @override
+  String get deskSetRowViewHint =>
+      'น้ำตื้น ลึกขึ้น หรือน้ำลึก: แสดงวอลเล็ตมากแค่ไหน';
+
+  @override
+  String get deskSetSynView =>
+      'ระดับ, ความลึก, น้ำตื้น, ลึกขึ้น, น้ำลึก, ง่าย, ผู้เชี่ยวชาญ, มือใหม่, โหมดขั้นสูง';
+
+  @override
+  String get deskSetRowAdvOutputsHint =>
+      'หน้าเอาต์พุต: เหรียญที่รวมเป็นยอดเงิน';
+
+  @override
+  String get deskSetSynAdvOutputs => 'utxo, เหรียญ, เอาต์พุต, แบ่ง, รวม';
+
+  @override
+  String get deskSetRowAdvTechHint =>
+      'Kernel, slate ID และ commitment ในทุกธุรกรรม';
+
+  @override
+  String get deskSetSynAdvTech =>
+      'kernel, slate, commitment, tx id, รายละเอียด';
+
+  @override
+  String get deskSetRowAdvSendoptsHint =>
+      'ตัวเลือกเอาต์พุตและเงินทอนในหน้าส่งและในการชำระเงิน';
+
+  @override
+  String get deskSetSynAdvSendopts =>
+      'ค่าธรรมเนียม, เลือกเหรียญ, เอาต์พุต, เงินทอน';
+
+  @override
+  String get deskSetRowAdvServersHint =>
+      'โฮสต์ เวลาแฝง เวอร์ชัน และความสูง ในรายการเซิร์ฟเวอร์';
+
+  @override
+  String get deskSetSynAdvServers => 'เวลาแฝง, ping, ความสูง, เวอร์ชัน, โฮสต์';
+
+  @override
+  String get deskSetRowAdvHeightHint =>
+      'จุดเริ่มต้นและลบที่ยังไม่ยืนยัน ในตรวจยอดเงินใหม่';
+
+  @override
+  String get deskSetSynAdvHeight => 'สแกนใหม่, ความสูง, บล็อก';
+
+  @override
+  String get deskSetRowAdvLocalHint => 'รันโหนดบนคอมพิวเตอร์เครื่องนี้ ใต้โหนด';
+
+  @override
+  String get deskSetSynAdvLocal => 'ฟูลโหนด, โหนดภายในเครื่อง';
+
+  @override
+  String get deskSetRowAdvLogsHint =>
+      'ระดับบันทึกและไฟล์บันทึก ในไฟล์และบันทึก';
+
+  @override
+  String get deskSetSynAdvLogs => 'บันทึก, log, ดีบัก, วินิจฉัย';
+
+  @override
+  String get deskSetRowXInvoicesHint =>
+      'ขอให้รายชื่อที่จับคู่ชำระเงิน อนุมัติคำขอของพวกเขา';
+
+  @override
+  String get deskSetSynXInvoices => 'ใบแจ้งหนี้, ขอชำระเงิน, จับคู่, บิล';
+
+  @override
+  String get deskSetRowWalletRows => 'รายการวอลเล็ต';
+
+  @override
+  String get deskSetRowWalletRowsHint =>
+      'วอลเล็ตบนคอมพิวเตอร์เครื่องนี้ เปิดหรือลบออก';
+
+  @override
+  String get deskSetSynWalletRows =>
+      'วอลเล็ต, สลับวอลเล็ต, วอลเล็ตอื่น, รายการ';
+
+  @override
+  String get deskSetRowCreateWalletHint => 'วอลเล็ตใหม่พร้อมวลีกู้คืนใหม่';
+
+  @override
+  String get deskSetSynCreateWallet => 'วอลเล็ตใหม่, เพิ่มวอลเล็ต';
+
+  @override
+  String get deskSetRowImportWalletsHint =>
+      'จาก Epic Wallet รุ่นเก่าหรือโฟลเดอร์';
+
+  @override
+  String get deskSetSynImportWallets =>
+      'ย้าย, วอลเล็ตเก่า, electron, gui wallet, โฟลเดอร์';
+
+  @override
+  String get deskSetRowRestoreWalletHint => 'จากวลีกู้คืน 24 คำ';
+
+  @override
+  String get deskSetSynRestoreWallet => 'seed, กู้คืน, วลีกู้คืน, mnemonic';
+
+  @override
+  String get deskSetRowWalletFolderHint => 'คีย์และฐานข้อมูลของวอลเล็ตนี้';
+
+  @override
+  String get deskSetSynWalletFolder =>
+      'โฟลเดอร์ข้อมูล, ไดเรกทอรี, พาธ, ไฟล์, ตำแหน่ง';
+
+  @override
+  String get deskSetRowAppFilesHint => 'settings.toml และบันทึก';
+
+  @override
+  String get deskSetSynAppFiles =>
+      'ไฟล์ตั้งค่า, settings.toml, config, toml, ไดเรกทอรี';
+
+  @override
+  String get deskSetRowLogLevelHint =>
+      'ละเอียดเก็บบรรทัดมากขึ้น รายงานไม่รวมที่อยู่';
+
+  @override
+  String get deskSetSynLogLevel => 'บันทึก, log, ดีบัก, ละเอียด';
+
+  @override
+  String get deskSetRowLogFilesHint => 'ล้างไฟล์บันทึกหรือเปิดโฟลเดอร์';
+
+  @override
+  String get deskSetSynLogFiles => 'บันทึก, log, ล้างบันทึก, ลบบันทึก';
+
+  @override
+  String get deskSetRowReportHint =>
+      'อธิบายว่าเกิดอะไรผิดพลาด แนบบันทึกแอปที่ล้างข้อมูลแล้วได้';
+
+  @override
+  String get deskSetSynReport =>
+      'ข้อผิดพลาด, บั๊ก, ปัญหา, ช่วยเหลือ, ติดต่อ, แครช, รายงานข้อผิดพลาด';
+
+  @override
+  String get deskSetSynTour => 'ทัวร์, บทแนะนำ, แนะนำ, เริ่มต้นใช้งาน';
+
+  @override
+  String get deskSetRowSetup => 'เรียกใช้การตั้งค่าอีกครั้ง';
+
+  @override
+  String get deskSetRowSetupHint => 'โหนดและการรับ ทีละขั้นตอน';
+
+  @override
+  String get deskSetSynSetup => 'ตั้งค่า, วิซาร์ด, ผู้ช่วย, ตั้งค่าใหม่';
+
+  @override
+  String get deskSetRowUpdatesHint => 'ตรวจหาเวอร์ชันใหม่';
+
+  @override
+  String get deskSetSynUpdates =>
+      'อัปเดต, อัปเกรด, เวอร์ชันใหม่, ดาวน์โหลด, รีลีส';
+
+  @override
+  String get deskSetRowWebsite => 'เว็บไซต์';
+
+  @override
+  String get deskSetSynWebsite => 'เว็บไซต์, เว็บ, ไซต์, epic cash';
+
+  @override
+  String get deskSetSynSource =>
+      'github, โค้ด, ซอร์สโค้ด, โอเพนซอร์ส, repository';
+
+  @override
+  String get deskSetSynPrivacyPolicy => 'ความเป็นส่วนตัว, นโยบาย, gdpr, ข้อมูล';
+
+  @override
+  String get deskSetSynContact => 'อีเมล, ช่วยเหลือ, ติดต่อ, เมล';
+
+  @override
+  String get deskSetSearchKeyEnter => 'Enter';
+
+  @override
+  String get deskSetSearchKeyEsc => 'Esc';
 }

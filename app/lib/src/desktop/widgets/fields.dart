@@ -241,7 +241,17 @@ class _EInputState extends State<EInput> {
     return MouseRegion(
       onEnter: (_) => setState(() => _hover = true),
       onExit: (_) => setState(() => _hover = false),
-      child: AnimatedContainer(
+      // The line look with focus: the accent outline all round as well, so the focus shows by
+      // more than a line's colour (review 9).
+      child: DecoratedBox(
+        position: DecorationPosition.foreground,
+        decoration: line && focused
+            ? BoxDecoration(
+                borderRadius: BorderRadius.circular(Rad.sm),
+                border: Border.all(color: border, width: 1.5, strokeAlign: BorderSide.strokeAlignOutside),
+              )
+            : const BoxDecoration(),
+        child: AnimatedContainer(
         duration: Dur.fast,
         height: sm ? Ctl.sm : null,
         constraints: sm ? null : BoxConstraints(minHeight: multi ? 80.u : Ctl.md),
@@ -317,6 +327,7 @@ class _EInputState extends State<EInput> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

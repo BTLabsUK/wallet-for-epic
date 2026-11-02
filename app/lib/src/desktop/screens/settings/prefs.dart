@@ -15,6 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../levels/level_features.dart' show AdvancedPageKind;
 import '../../data/desk_levels.dart' show deskLevelFeaturesProvider;
 import '../../data/desk_store.dart';
+import '../../data/settings_registry.dart' show settingsEntry;
 import '../../widgets/kit.dart';
 
 /// The HTTP listener: off, starting or stopping, running, or failed to start
@@ -27,12 +28,17 @@ const String builtinNode = 'internal';
 /// Where a jump into Settings lands: the node, a receiving group, or the Tor switch (Privacy).
 enum SettingsJump { node, epicbox, http, tor, experimental, confirmations, network }
 
-/// A jump request: [n] changes on every request so the same section flashes again.
+/// A jump request: [n] changes on every request so the same section flashes again. A jump to
+/// a section names [section]; a jump to one row (search) names its [row] id instead.
 @immutable
 class JumpTo {
-  const JumpTo(this.section, this.n);
+  const JumpTo(SettingsJump this.section, this.n) : row = null;
+  const JumpTo.row(String this.row, this.n) : section = null;
 
-  final SettingsJump section;
+  final SettingsJump? section;
+
+  /// The row's id ([SetId]).
+  final String? row;
   final int n;
 }
 
@@ -165,6 +171,18 @@ class SettingsPrefsController extends Notifier<SettingsPrefs> {
   void set(SettingsPrefs p) => state = p;
 
   void removeWallet(String folder) => state = state.copyWith(removedWallets: {...state.removedWallets, folder});
+
+  /// Opens the page of row [id] ([SetId]) and shows the row there: scrolled into view, its
+  /// control focused, the gold outline fading ([ESetAnchors]). A row that sits under another
+  /// and is not on the page now (Receiving while Epicbox is off) shows that one instead. A row
+  /// the registry does not know opens nothing.
+  void jumpToRow(String id) {
+    final e = settingsEntry(id);
+    if (e == null) return;
+    state = state.copyWith(jump: JumpTo.row(id, (state.jump?.n ?? 0) + 1));
+    ref.read(deskNavProvider.notifier).go(e.route);
+    unawaited(ESetAnchors.jump(id, fallback: e.parent));
+  }
 
   /// Opens a settings section, scrolled to and flashed, also when it is open already.
   void jumpTo(SettingsJump section) {
