@@ -184,6 +184,7 @@ const Set<String> localSessionMembers = {
   'resendTor',
   // Route the server's own Epicbox connection through its tor; answered by the client.
   'setEpicboxOverTor',
+  'setNodeAndHttpOverTor',
   'epicboxOverTor',
   'expectTor',
   'setOnionRoutes',
