@@ -794,13 +794,20 @@ class _OutputRow extends StatelessWidget {
         ],
       );
     }
-    final commitment = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Flexible(child: EShortAddress(o.commitment, style: ts.mono(size: Fs.xs, color: spent ? c.faint : c.dim))),
-        SizedBox(width: Sp.x1),
-        ECopyButton(text: o.commitment, label: l.deskOutCopyCommitment(shortCommitment(o.commitment))),
-      ],
+    final address = EShortAddress(o.commitment, style: ts.mono(size: Fs.xs, color: spent ? c.faint : c.dim));
+    // The copy button keeps its own room; a cell too narrow for it (long words in the other
+    // columns) shows the address alone rather than overflow.
+    final commitment = LayoutBuilder(
+      builder: (context, box) => box.maxWidth < 48.u
+          ? address
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(child: address),
+                SizedBox(width: Sp.x1),
+                ECopyButton(text: o.commitment, label: l.deskOutCopyCommitment(shortCommitment(o.commitment))),
+              ],
+            ),
     );
     final value = EMoney(o.value, unit: false, color: spent ? c.faint : c.text);
     final t = tx;

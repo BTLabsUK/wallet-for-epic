@@ -182,20 +182,18 @@ void main() {
     });
   });
 
-  testWidgets('Send at level 1 has no method strip and offers QR Payment as a quiet link', (tester) async {
+  testWidgets('Send at level 1 has no method strip and no direct ways while QR Payment and Files are off', (tester) async {
     await _pump(tester, SlotScaffold(body: SendView(onDone: () {})));
     expect(find.byKey(sendMethodsKey), findsNothing);
-    expect(find.byKey(sendQuietQrKey), findsOneWidget);
-    expect(find.text('Both phones here? QR Payment'), findsOneWidget);
-    // The step is Send, not a method to pick; no address-shape hint; the link sits under the
-    // Paste / Contacts shortcuts.
+    // Pay in person and Pay with a file wait for their switches on Settings › Transactions.
+    expect(find.text('No address?'), findsNothing);
+    expect(find.text('Pay in person'), findsNothing);
+    expect(find.text('Pay with a file'), findsNothing);
+    // The step is Send, not a method to pick; no address-shape hint.
     expect(find.text('Send'), findsOneWidget);
     expect(find.text('Payment method'), findsNothing);
     expect(find.byTooltip('Address kinds'), findsNothing);
-    expect(
-      tester.getRect(find.byKey(sendQuietQrKey)).top,
-      greaterThan(tester.getRect(find.text('Paste')).bottom),
-    );
+    expect(find.text('Paste'), findsOneWidget);
   });
 
   testWidgets('Receive at level 1 says Connected without the server', (tester) async {

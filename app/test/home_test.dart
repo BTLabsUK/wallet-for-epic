@@ -20,7 +20,6 @@ import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/history_screen.dart';
 import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/home_status.dart' show barNodeIconKey;
-import 'package:epic_wallet/src/ui/method_art.dart' show TransferMethod;
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/ui/network_status.dart' show NetworkStatusCard;
 import 'package:epic_wallet/src/ui/receive_screen.dart';
@@ -4410,7 +4409,8 @@ void main() {
         expect(_toField(tester), carol);
 
         // The same from the payment file screens.
-        await _tap(tester, find.text('Direct · File').last);
+        await _tap(tester, find.byKey(sendRecipientClearKey));
+        await _tap(tester, find.text('Pay with a file'));
         await tester.enterText(
           find.widgetWithText(TextField, 'Amount (EPIC)'),
           '1',
@@ -4635,10 +4635,8 @@ void main() {
   // Tester report 26.10.21: Send keeps its draft across tabs, and a filled recipient always
   // has × to empty it, with the method it moved back where Send starts (the owner).
   group('Send recipient Clear', () {
-    TransferMethod method(WidgetTester tester) => tester
-        .widget<SegmentedButton<TransferMethod>>(find.byKey(sendMethodsKey))
-        .selected
-        .single;
+    // The method line under the To field names the way the address takes (the field picks it).
+    Finder methodLine(String name) => find.descendant(of: find.byType(SendView), matching: find.text(name));
     Finder continueButton() => find.widgetWithText(FilledButton, 'Continue');
     bool canContinue(WidgetTester tester) =>
         tester.widget<FilledButton>(continueButton()).onPressed != null;
@@ -4654,7 +4652,8 @@ void main() {
       expect(find.byTooltip('Clear recipient'), findsOneWidget);
       await _tap(tester, find.byKey(sendRecipientClearKey));
       expect(_toField(tester), isEmpty);
-      expect(method(tester), TransferMethod.epicbox, reason: 'the method Send starts on');
+      expect(methodLine('Epicbox'), findsNothing, reason: 'no address, no method line');
+      expect(methodLine('Link · HTTP'), findsNothing);
       expect(canContinue(tester), isFalse);
       expect(find.byKey(sendRecipientClearKey), findsNothing);
     }
@@ -4668,10 +4667,10 @@ void main() {
       await tester.enterText(find.widgetWithText(TextField, 'To'), link);
       await tester.pump(const Duration(seconds: 4));
       await tester.pumpAndSettle();
-      expect(method(tester), TransferMethod.direct, reason: 'the address moved the method');
+      expect(methodLine('Link · HTTP'), findsOneWidget, reason: 'the address picked the method');
       await leaveAndBack(tester);
       expect(_toField(tester), link);
-      expect(method(tester), TransferMethod.direct);
+      expect(methodLine('Link · HTTP'), findsOneWidget);
       await clear(tester);
     });
 
@@ -4693,9 +4692,11 @@ void main() {
 
       await _tap(tester, find.text('Contacts'));
       await _tap(tester, find.text('Carol'));
-      expect(_toField(tester), carol);
+      // A picked contact shows as a chip in place of the field.
+      expect(find.byKey(sendRecipientClearKey), findsOneWidget);
+      expect(find.widgetWithText(TextField, 'To'), findsNothing);
       await leaveAndBack(tester);
-      expect(_toField(tester), carol);
+      expect(find.byKey(sendRecipientClearKey), findsOneWidget);
       await clear(tester);
     });
   });

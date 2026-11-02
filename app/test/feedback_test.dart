@@ -429,6 +429,8 @@ void main() {
         (l) => l.feedbackServerAnswered(503),
       );
       await tap(tester, find.widgetWithText(FilledButton, 'Send'));
+      // The note closes the list, below the form and the backup banner.
+      await tester.scrollUntilVisible(find.text('The feedback server answered 503.'), 100, scrollable: find.byType(Scrollable).first);
       expect(find.text('The feedback server answered 503.'), findsOneWidget);
 
       h.outlet.postError = null;
@@ -500,6 +502,7 @@ void main() {
       await h.pump(tester);
       await h.openFeedback(tester);
       await enter(tester, 'What happened', 'Please add dark mode');
+      await tester.scrollUntilVisible(find.text('Off in Node only. Save the report as a file instead.'), 100, scrollable: find.byType(Scrollable).first);
       expect(find.text('Off in Node only. Save the report as a file instead.'), findsOneWidget);
       final send = find.widgetWithText(FilledButton, 'Send');
       await tester.ensureVisible(send);

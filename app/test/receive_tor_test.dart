@@ -263,7 +263,7 @@ void main() {
       expect(find.text('Meanwhile, share the Epicbox address.'), findsNothing);
     });
 
-    testWidgets('the Link tab stays where the app has no Tor: Link · HTTP is still a way', (tester) async {
+    testWidgets('no Link tab where the app has no Tor: the phone only sends over Link · HTTP', (tester) async {
       final h = _Harness(bundle: null);
       await h.pump(tester);
       expect(h.tor.phase, PhoneTorPhase.unavailable);
@@ -272,11 +272,9 @@ void main() {
       );
       expect(
         [for (final s in tabs.segments) s.value],
-        [ReceiveTab.epicbox, ReceiveTab.direct, ReceiveTab.file],
+        [ReceiveTab.epicbox, ReceiveTab.file],
       );
       // No Tor to turn on.
-      h.container.read(receiveTabProvider.notifier).choose(ReceiveTab.direct);
-      await tester.pumpAndSettle();
       expect(find.byKey(receiveTurnOnLinkTorKey), findsNothing);
     });
   });

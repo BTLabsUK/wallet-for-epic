@@ -1911,7 +1911,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           if (_to.text.isNotEmpty)
-                            EIconButton(key: const ValueKey('send-to-clear'), icon: EIcons.close, label: l.deskSendClearTo, size: EBtnSize.inline, onPressed: _clearRecipient)
+                            EIconButton(key: const ValueKey('send-to-clear'), icon: EIcons.close, label: l.deskSendClearTo, size: EBtnSize.inline, tabStop: false, onPressed: _clearRecipient)
                           else
                             EIconButton(icon: EIcons.paste, label: l.commonPaste, size: EBtnSize.inline, tabStop: false, onPressed: _paste),
                           SizedBox(width: Sp.x1),

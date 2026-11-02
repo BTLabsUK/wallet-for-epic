@@ -52,7 +52,7 @@ void main() {
       expect(find.byKey(const ValueKey('bar-status-node')), findsOneWidget);
       expect(find.byKey(const ValueKey('bar-status-epicbox')), findsOneWidget);
       expect(find.byKey(const ValueKey('bar-status-http')), findsNothing);
-      expect(find.byKey(const ValueKey('bar-status-tor')), findsNothing);
+      expect(find.byKey(const ValueKey('bar-status-network')), findsNothing);
 
       await tester.tap(find.byKey(const ValueKey('bar-status-node')));
       await tester.pump(const Duration(milliseconds: 500));
@@ -96,7 +96,7 @@ void main() {
       expect(find.byKey(const ValueKey('bar-status-node')), findsOneWidget);
       expect(find.byKey(const ValueKey('bar-status-epicbox')), findsOneWidget);
       expect(find.byKey(const ValueKey('bar-status-http')), findsOneWidget);
-      if (DeskFeatures.tor) expect(find.byKey(const ValueKey('bar-status-tor')), findsOneWidget);
+      if (DeskFeatures.tor) expect(find.byKey(const ValueKey('bar-status-network')), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('bar-status-epicbox')));
       await tester.pump(const Duration(milliseconds: 500));
       expect(find.byKey(const ValueKey('status-open-epicbox')), findsOneWidget);

@@ -129,11 +129,15 @@ void main() {
       h.drop();
       h.elapse(const Duration(seconds: 1));
       expect(h.offer?.to, _healthy);
-      // It stays while the relay keeps flapping.
+      // A reconnect takes it away at once; a drop before the relay has held offers it again.
       h.subscribed();
+      expect(h.offer, isNull);
       h.elapse(const Duration(seconds: 57));
-      expect(h.offer, isNotNull);
+      h.drop();
+      h.elapse(const Duration(seconds: 1));
+      expect(h.offer?.to, _healthy);
       // Up for two minutes in one go: the outage is over.
+      h.subscribed();
       h.elapse(relayStableFor);
       expect(h.offer, isNull);
       h.container.dispose();

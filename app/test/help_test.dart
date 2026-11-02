@@ -92,7 +92,7 @@ void main() {
       expect(all.toLowerCase(), isNot(contains(' we ')));
       // the Tor rule: one switch, nothing the user chose changes.
       final tor = helpTopics(3, platform: HelpPlatform.phone).firstWhere((t) => t.id == HelpId.tor);
-      expect(tor.bodyText, contains('Settings › Network & privacy › Tor network'));
+      expect(tor.bodyText, contains('Settings › Network & privacy › Tor only'));
       // the owner: the switch names only what goes over Tor, never what does not.
       expect(tor.bodyText, isNot(contains('Not over Tor')));
       expect(tor.bodyText, contains('same address'));

@@ -1411,20 +1411,20 @@ void main() {
       await done(tester);
     });
 
-    testWidgets('receiving has HTTP receiving; the Tor switch is in Privacy as DeskFeatures.tor says', (tester) async {
+    testWidgets('receiving has HTTP receiving; Tor only is a Connection mode in Privacy as DeskFeatures.tor says', (tester) async {
       await pump(tester, DeskRoute.settingsReceiving);
       // The method's switch; its receiving rows sit under it while it is on.
       expect(find.byKey(const ValueKey('st-method-linkHttp')), findsOneWidget);
       expect(find.text('Tor receiving'), findsNothing);
       await done(tester);
       await pump(tester, DeskRoute.settingsPrivacy);
-      expect(find.byKey(const ValueKey('privacy-tor-switch')), DeskFeatures.tor ? findsOneWidget : findsNothing);
+      expect(find.byKey(const ValueKey('adv-mode-torOnly')), DeskFeatures.tor ? findsOneWidget : findsNothing);
       await done(tester);
     });
 
-    testWidgets('send has Epicbox, Link and File (an onion is a Link send), no Dandelion++', (tester) async {
+    testWidgets('send has one To field, no method list (the address decides: an onion is a Link send), no Dandelion++', (tester) async {
       await pump(tester, DeskRoute.send);
-      expect(find.text('Link'), findsOneWidget);
+      expect(find.text('Link'), findsNothing, reason: 'the address picks the method; none is listed');
       expect(find.text('Tor'), findsNothing, reason: 'no Tor method of its own');
       expect(find.textContaining('Dandelion'), findsNothing);
       await done(tester);

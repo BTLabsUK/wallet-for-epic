@@ -155,9 +155,11 @@ void main() {
       await n.saveSettings(container.read(deskProvider).settings.copyWith(payments: const PaymentPrefs(linkHttp: true)));
     });
     await tester.pump(const Duration(milliseconds: 600));
-    await tester.ensureVisible(find.text('From the internet'));
+    // The guide sits behind the (?) of the internet address.
+    final help = find.byTooltip('Receive from the internet: how it works');
+    await tester.ensureVisible(help);
     await tester.pump(const Duration(milliseconds: 300));
-    await tester.tap(find.text('From the internet'));
+    await tester.tap(help);
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.byType(InternetGuide), findsOneWidget);
     await tester.tap(find.text('Turn on Tor'));
@@ -165,7 +167,7 @@ void main() {
     expect(api.torOn, 1);
     expect(container.read(deskProvider).settings.tor, isTrue);
     expect(container.read(deskProvider).settings.publicMode, isFalse, reason: 'the HTTP mode is unchanged');
-    expect(container.read(settingsPrefsProvider).jump?.section, SettingsJump.tor, reason: 'lands on the Tor switch (Privacy)');
+    expect(container.read(settingsPrefsProvider).jump?.section, SettingsJump.network, reason: 'lands on Network & privacy');
     await tester.pump(const Duration(seconds: 2));
   });
 
