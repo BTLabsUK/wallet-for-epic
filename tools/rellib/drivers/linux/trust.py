@@ -175,12 +175,15 @@ class Run:
     # ---- preparation
 
     def appimage(self, folder, version):
-        names = ["EpicCashDesktop-%s%s-x86_64.AppImage" % (version, "-notor" if self.variant == "notor" else "")]
+        # bt-wallet-<v>[-notor]-linux-x86_64.AppImage; a release before the rename has
+        # EpicCashDesktop-<v>[-notor]-x86_64.AppImage.
+        sfx = "-notor" if self.variant == "notor" else ""
+        names = ["bt-wallet-%s%s-linux-x86_64.AppImage" % (version, sfx), "EpicCashDesktop-%s%s-x86_64.AppImage" % (version, sfx)]
         for n in names:
             p = os.path.join(folder, n)
             if os.path.isfile(p):
                 return p
-        rx = re.compile(r"EpicCashDesktop-.*%s-x86_64\.AppImage$" % ("-notor" if self.variant == "notor" else r"(?<!-notor)"))
+        rx = re.compile(r"^(?:bt-wallet-.*%s-linux|EpicCashDesktop-.*%s)-x86_64\.AppImage$" % ((sfx or r"(?<!-notor)",) * 2))
         hits = sorted(f for f in os.listdir(folder) if rx.search(f)) if os.path.isdir(folder) else []
         if len(hits) == 1:
             return os.path.join(folder, hits[0])

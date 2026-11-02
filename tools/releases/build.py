@@ -40,7 +40,24 @@ DEFAULT_OUT = os.environ.get('WFE_RELEASES_SITE') or os.path.expanduser('~/code/
 V = r'(\d+\.\d+\.\d+(?:-r\d+)?)'
 # (pattern of the file name, platform, label, primary). The first match wins. A platform's
 # primary file gets the big button; everything else sits in the platform's fold.
+# Release files are bt-wallet-<version>[-notor]-<platform>-…; the releases before that name keep
+# their epic-cash-desktop-…, EpicCashDesktop-…, epic-cash-mobile-… and EpicCashMobile-… files on
+# the server and in releases.json, so both sets of patterns stay.
 KINDS = [
+    (rf'^bt-wallet-{V}-windows-x64-setup\.exe$', 'windows', 'Installer', True),
+    (rf'^bt-wallet-{V}-notor-windows-x64-setup\.exe$', 'windows', 'Installer without Tor', False),
+    (rf'^bt-wallet-{V}-(?:notor-)?windows-x64-portable\.zip$', 'windows', 'Portable, zip', False),
+    (rf'^bt-wallet-{V}-linux-x86_64\.AppImage$', 'linux', 'AppImage', True),
+    (rf'^bt-wallet-{V}-notor-linux-x86_64\.AppImage$', 'linux', 'AppImage without Tor', False),
+    (rf'^bt-wallet-{V}-android-arm64-v8a\.apk$', 'android', 'APK, arm64', True),
+    (rf'^bt-wallet-{V}-notor-android-arm64-v8a\.apk$', 'android', 'APK without Tor, arm64', False),
+    (rf'^bt-wallet-{V}-(?:notor-)?android-universal\.apk$', 'android', 'APK, universal', False),
+    (rf'^bt-wallet-{V}-(?:notor-)?android-x86_64\.apk$', 'android', 'APK, x86_64 (emulators)', False),
+    (rf'^bt-wallet-{V}-macos\.dmg$', 'macos', 'Disk image', True),
+    (rf'^bt-wallet-{V}-notor-macos\.dmg$', 'macos', 'Disk image without Tor', False),
+    (rf'^bt-wallet-{V}-ios-unsigned\.ipa$', 'ios', 'Unsigned IPA', True),
+    (rf'^bt-wallet-{V}-notor-ios-unsigned\.ipa$', 'ios', 'Unsigned IPA without Tor', False),
+    (rf'^bt-wallet-{V}-ios-simulator\.zip$', 'ios', 'Simulator app, for Xcode', False),
     (rf'^epic-cash-desktop-{V}-windows-x64-setup\.exe$', 'windows', 'Installer', True),
     (rf'^epic-cash-desktop-{V}-notor-windows-x64-setup\.exe$', 'windows', 'Installer without Tor', False),
     (rf'^epic-cash-desktop-{V}-(?:notor-)?windows-x64-portable\.zip$', 'windows', 'Portable, zip', False),

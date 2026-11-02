@@ -9,7 +9,7 @@
 # see windows/trust.py and windows/rig.py.
 #
 # Env (the runner's contract):
-#   REL_PREVIOUS_DIR, REL_PREVIOUS_VERSION   previous release folder (epic-cash-desktop-<v>[-notor]-windows-x64-setup.exe)
+#   REL_PREVIOUS_DIR, REL_PREVIOUS_VERSION   previous release folder (bt-wallet-<v>[-notor]-windows-x64-setup.exe, or the name before it)
 #   REL_CANDIDATE_DIR, REL_CANDIDATE_VERSION the candidate's files
 #   REL_VARIANT tor|notor        REL_CHECKS comma list (default: all eight, plus store_encrypted,app_files_kept,lan_nodes_kept,contact_note_kept for a candidate from 26.10.25; without send_ok,receive_ok when REL_FUNDS=0)
 #   REL_FUNDS 1|0                1: also receive from and send to P with the candidate

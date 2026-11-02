@@ -177,8 +177,8 @@ needs = ["source-check"]
 run = "app/tool/build_android_release.sh {stage}"
 env = { WFE_TOR = "{tor}", WFE_EMULATOR_X86_64 = "1" }
 heavy = true
-outputs = ["epic-cash-mobile-{version}{notor}-arm64-v8a.apk"]
-extras = ["emulator/epic-cash-mobile-{version}{notor}-x86_64.apk"]
+outputs = ["bt-wallet-{version}{notor}-android-arm64-v8a.apk"]
+extras = ["emulator/bt-wallet-{version}{notor}-android-x86_64.apk"]
 timeout = "120m"
 # The app without its tests and side tools, the build script and the tools it calls, the pins.
 reuse = ["app", "!app/test", "!app/integration_test", "!app/tool", "app/tool/build_android_release.sh",
@@ -199,7 +199,7 @@ needs = ["build-android"]
 run = "app/tool/build_android_release.sh {stage}"
 env = { WFE_TOR = "{tor}", WFE_DIST = "play" }
 heavy = true
-extras = ["epic-cash-mobile-{version}{notor}-play.aab"]
+extras = ["bt-wallet-{version}{notor}-play-android.aab"]
 timeout = "120m"
 
 # With a signer ([host.signer] endpoint, docs/RELEASING.md "Signer") the builds are unsigned and
@@ -227,10 +227,10 @@ host = "build"
 # Linux variants one after the other. metrics.jsonl has the pair's peak memory ("overlap" lines).
 lane = "build-linux"
 needs = ["source-check"]
-run = "scripts/build-linux.sh && mv -f build-linux/EpicCashDesktop-{version}{notor}-x86_64.AppImage {stage}/"
+run = "scripts/build-linux.sh && mv -f build-linux/bt-wallet-{version}{notor}-linux-x86_64.AppImage {stage}/"
 env = { WFE_TOR = "{tor}", WFE_NODE_BIN = "{path.node_bin_linux}" }
 heavy = true
-outputs = ["EpicCashDesktop-{version}{notor}-x86_64.AppImage"]
+outputs = ["bt-wallet-{version}{notor}-linux-x86_64.AppImage"]
 timeout = "120m"
 # The app without its tests and side tools, the container build (scripts/), the tools it calls.
 reuse = ["app", "!app/test", "!app/integration_test", "!app/tool", "scripts", "tools/env.sh", "tools/version.sh",
@@ -247,9 +247,9 @@ lane = "build-windows-{variant}"
 needs = ["source-check"]
 # A fresh work dir per run and variant on the Windows machine (never a stale LEPIC blob from an
 # older run); only this run's installer is taken back.
-run = "app/tool/build_windows_release_remote.sh {host.windows.ssh} {host.windows.workdir}/{run_id}-{variant} && mv -f build-windows/epic-cash-desktop-{version}{notor}-windows-x64-setup.exe {stage}/"
+run = "app/tool/build_windows_release_remote.sh {host.windows.ssh} {host.windows.workdir}/{run_id}-{variant} && mv -f build-windows/bt-wallet-{version}{notor}-windows-x64-setup.exe {stage}/"
 env = { WFE_TOR = "{tor}", WFE_NODE_BIN_WIN = "{path.node_bin_windows}" }
-outputs = ["epic-cash-desktop-{version}{notor}-windows-x64-setup.exe"]
+outputs = ["bt-wallet-{version}{notor}-windows-x64-setup.exe"]
 timeout = "150m"
 # The app without its tests and side tools, the two build scripts, the tools and pins they read
 # (the Windows toolchain lives on that machine), as for the other builds.
@@ -268,8 +268,8 @@ platform = "macos"
 for_each = "variant"
 host = "apple"
 needs = ["source-check"]
-run = "git fetch job/wfe.bundle HEAD && git checkout --detach FETCH_HEAD && test \"$(git rev-parse HEAD)\" = {commit} && RELEASE_COMMIT={commit} WFE_TOR={tor} tools/build-apple.sh mac-release  # then build-apple/mac-release/EpicCashDesktop-{version}{notor}-macos.{dmg,dmg.sha256,REPORT.txt} into results/"
-results = ["EpicCashDesktop-{version}{notor}-macos.dmg", "EpicCashDesktop-{version}{notor}-macos.dmg.sha256", "EpicCashDesktop-{version}{notor}-macos.REPORT.txt"]
+run = "git fetch job/wfe.bundle HEAD && git checkout --detach FETCH_HEAD && test \"$(git rev-parse HEAD)\" = {commit} && RELEASE_COMMIT={commit} WFE_TOR={tor} tools/build-apple.sh mac-release  # then build-apple/mac-release/bt-wallet-{version}{notor}-macos.{dmg,dmg.sha256,REPORT.txt} into results/"
+results = ["bt-wallet-{version}{notor}-macos.dmg", "bt-wallet-{version}{notor}-macos.dmg.sha256", "bt-wallet-{version}{notor}-macos.REPORT.txt"]
 timeout = "48h"
 
 [step.apple-mac-check]
@@ -278,8 +278,8 @@ platform = "macos"
 for_each = "variant"
 host = "local"
 needs = ["apple-mac@variant"]
-run = "{rel}/tools/rellib/steps/apple-mac-check.sh {run}/handoff/apple-mac-{variant}/results EpicCashDesktop-{version}{notor}-macos.dmg {commit} \"{host.apple.team_id}\" {stage}"
-outputs = ["EpicCashDesktop-{version}{notor}-macos.dmg"]
+run = "{rel}/tools/rellib/steps/apple-mac-check.sh {run}/handoff/apple-mac-{variant}/results bt-wallet-{version}{notor}-macos.dmg {commit} \"{host.apple.team_id}\" {stage}"
+outputs = ["bt-wallet-{version}{notor}-macos.dmg"]
 
 # iOS goes to TestFlight from Xcode (Archive → Distribute → App Store Connect): nothing is
 # published from here. Only the build without Tor. The builder writes REPORT.txt by hand (the
@@ -527,7 +527,7 @@ variants = ["tor"]
 host = "signer"
 skippable = true
 needs = ["verify-live", "build-play@variant"]
-run = "tools/play-upload.sh {run}/extra/epic-cash-mobile-{version}{notor}-play.aab --track internal --notes-file {notes_file}"
+run = "tools/play-upload.sh {run}/extra/bt-wallet-{version}{notor}-play-android.aab --track internal --notes-file {notes_file}"
 scratch = "scratch_noop"
 
 # Then the same bundle onto a testing track after internal (stores.play_promote, e.g. "beta"), as

@@ -15,7 +15,7 @@
 #                                           when it has the commit, else https://gitlab.com/epic-cash-bt/lepic.git)
 #        LEPIC_FLUTTER_REPO=<url or path>   the same for lepic-flutter (package:lepic): ~/lepic-flutter
 #                                           or https://gitlab.com/epic-cash-bt/lepic-flutter.git
-# Output: build-linux/EpicCashDesktop-<version>[-notor]-x86_64.AppImage
+# Output: build-linux/bt-wallet-<version>[-notor]-linux-x86_64.AppImage
 # Caches: docker volumes wfe-linux-{pub,cargo,home,lepic-target} keep rebuilds fast.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

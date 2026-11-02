@@ -8,13 +8,15 @@
 #   folder   holds the files exactly as published in
 #            https://epiccash.btlabs.uk/releases/downloads/ (the same folder as
 #            https://examples.btlabs.uk/epic-cash-wallets/downloads/):
-#              epic-cash-desktop-<version>-windows-x64-setup.exe
-#              EpicCashDesktop-<version>-x86_64.AppImage
-#              EpicCashDesktop-<version>-macos.dmg          (when the Apple build ships)
+#              bt-wallet-<version>-windows-x64-setup.exe
+#              bt-wallet-<version>-linux-x86_64.AppImage
+#              bt-wallet-<version>-macos.dmg          (when the Apple build ships)
 #            and their -notor twins for the builds without Tor
-#            (epic-cash-desktop-<version>-notor-windows-x64-setup.exe, …), which go into
+#            (bt-wallet-<version>-notor-windows-x64-setup.exe, …), which go into
 #            {"notor": {"desktop": {...}}}, the part only those builds read. A release ships
-#            both variants: the Windows and Linux files of each are required.
+#            both variants: the Windows and Linux files of each are required. A folder of an
+#            earlier build, with the names before bt-wallet (epic-cash-desktop-<version>-…-setup.exe,
+#            EpicCashDesktop-<version>-….AppImage/.dmg), is read too.
 #
 # Output: {"desktop": {...}, "notor": {"desktop": {...}}}, to put into the payload by hand or with
 #   jq -s '.[0] * .[1]' update.payload.json <(tool/desktop_update_entry.sh 26.10.9 <folder>)
@@ -26,7 +28,7 @@ set -euo pipefail
 shopt -s inherit_errexit
 
 if [[ $# -ne 2 ]]; then
-  sed -n '6,16p' "${BASH_SOURCE[0]}" >&2
+  sed -n '6,18p' "${BASH_SOURCE[0]}" >&2
   exit 64
 fi
 version="$1"
@@ -55,17 +57,21 @@ kept() { # system variant → the kept entry, or exit non-zero
   if [[ -z "$2" ]]; then jq -ec --arg s "$1" '.desktop[$s] // empty' "$WFE_DESKTOP_KEEP"
   else jq -ec --arg s "$1" '.notor.desktop[$s] // empty' "$WFE_DESKTOP_KEEP"; fi
 }
-pick() { # system variant file → this release's file, else the kept entry, else "missing"
-  if [[ -f "$dir/$3" ]]; then entry "$3"; else kept "$1" "$2" || entry "$3"; fi
+pick() { # system variant file [old name] → this release's file, else the kept entry, else "missing"
+  if [[ -f "$dir/$3" ]]; then entry "$3"
+  elif [[ -n "${4:-}" && -f "$dir/$4" ]]; then entry "$4"
+  else kept "$1" "$2" || entry "$3"; fi
 }
 
 # One variant's block: Windows and Linux required (this release's or kept), macOS when its dmg
 # is there or kept. $1 is "" or -notor.
 systems() {
   local v="$1" windows linux macos="null"
-  windows="$(pick windows "$v" "epic-cash-desktop-$version$v-windows-x64-setup.exe")"
-  linux="$(pick linux "$v" "EpicCashDesktop-$version$v-x86_64.AppImage")"
-  if [[ -f "$dir/EpicCashDesktop-$version$v-macos.dmg" ]]; then
+  windows="$(pick windows "$v" "bt-wallet-$version$v-windows-x64-setup.exe" "epic-cash-desktop-$version$v-windows-x64-setup.exe")"
+  linux="$(pick linux "$v" "bt-wallet-$version$v-linux-x86_64.AppImage" "EpicCashDesktop-$version$v-x86_64.AppImage")"
+  if [[ -f "$dir/bt-wallet-$version$v-macos.dmg" ]]; then
+    macos="$(entry "bt-wallet-$version$v-macos.dmg")"
+  elif [[ -f "$dir/EpicCashDesktop-$version$v-macos.dmg" ]]; then
     macos="$(entry "EpicCashDesktop-$version$v-macos.dmg")"
   elif kept macos "$v" >/dev/null; then
     macos="$(kept macos "$v")"

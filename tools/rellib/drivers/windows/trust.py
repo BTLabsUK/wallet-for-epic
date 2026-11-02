@@ -189,11 +189,14 @@ class Run:
 
     def setup_exe(self, folder, version):
         sfx = "-notor" if self.variant == "notor" else ""
-        exact = os.path.join(folder, "epic-cash-desktop-%s%s-windows-x64-setup.exe" % (version, sfx))
-        if os.path.isfile(exact):
-            return exact
+        # bt-wallet-<v>[-notor]-windows-x64-setup.exe; a release before the rename has
+        # epic-cash-desktop-<v>[-notor]-windows-x64-setup.exe.
+        for name in ("bt-wallet", "epic-cash-desktop"):
+            exact = os.path.join(folder, "%s-%s%s-windows-x64-setup.exe" % (name, version, sfx))
+            if os.path.isfile(exact):
+                return exact
         # a rebuild keeps the version in the file name (26.10.24-r2 ships ...-26.10.24-...)
-        rx = re.compile(r"^epic-cash-desktop-[\d.]+%s-windows-x64-setup\.exe$" % sfx)
+        rx = re.compile(r"^(?:bt-wallet|epic-cash-desktop)-[\d.]+%s-windows-x64-setup\.exe$" % sfx)
         hits = sorted(f for f in os.listdir(folder) if rx.match(f)) if os.path.isdir(folder) else []
         if len(hits) == 1:
             return os.path.join(folder, hits[0])

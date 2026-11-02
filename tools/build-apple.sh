@@ -35,7 +35,7 @@
 #             its Developer ID Application certificate in the keychain, the notarytool profile),
 #             doctor, sources, lepic (macOS), macos; then the app signed with Developer ID
 #             (hardened runtime, timestamp, each Mach-O inside out), notarised, stapled; the .dmg
-#             signed, notarised, stapled; gatekeeper. Out: mac-release/EpicCashDesktop-<v>-macos.dmg,
+#             signed, notarised, stapled; gatekeeper. Out: mac-release/bt-wallet-<v>-macos.dmg,
 #             .dmg.sha256 and .REPORT.txt, which go to the owner
 #   ios-prepare  release-check, doctor, sources, lepic (iOS), flutter build ios --config-only;
 #             then Xcode archives and uploads (Product > Archive). Needs WFE_TOR=0 (the App Store
@@ -300,9 +300,9 @@ dmg() {
   ditto "$bundle" "$stage/$desktop_name.app"
   ln -s /Applications "$stage/Applications"
   hdiutil create -quiet -volname "$desktop_name" -srcfolder "$stage" -ov -format UDZO \
-    "$out/EpicCashDesktop-$version$(variant)-macos.dmg"
+    "$out/bt-wallet-$version$(variant)-macos.dmg"
   rm -rf "$stage"
-  result PASS dmg "EpicCashDesktop-$version$(variant)-macos.dmg $(du -h "$out/EpicCashDesktop-$version$(variant)-macos.dmg" | cut -f1)"
+  result PASS dmg "bt-wallet-$version$(variant)-macos.dmg $(du -h "$out/bt-wallet-$version$(variant)-macos.dmg" | cut -f1)"
 }
 
 # The udid of SIM_DEVICE (a name or udid), else of the first available iPhone.
@@ -330,7 +330,7 @@ ios_sim() {
   sleep 15
   mkdir -p "$out"
   xcrun simctl io "$udid" screenshot "$out/ios-sim.png"
-  ditto -c -k --keepParent "$bundle" "$out/EpicCashMobile-$(app_version)$(variant)-ios-simulator.zip"
+  ditto -c -k --keepParent "$bundle" "$out/bt-wallet-$(app_version)$(variant)-ios-simulator.zip"
   result PASS ios-sim "$udid, screenshot ios-sim.png"
 }
 
@@ -342,7 +342,7 @@ ipa() {
     --dart-define=WFE_BUILD_ID="$(build_id)" ${tor_def:+"$tor_def"})
   local bundle="$app/build/ios/iphoneos/Runner.app" stage="$out/ipa-stage"
   local ipa_file
-  ipa_file="$out/EpicCashMobile-$(app_version)$(variant)-ios-unsigned.ipa"
+  ipa_file="$out/bt-wallet-$(app_version)$(variant)-ios-unsigned.ipa"
   [ -d "$bundle" ] || die "no $bundle"
   [ -f "$bundle/Frameworks/lepic_ffi.framework/lepic_ffi" ] || die "the .app has no lepic_ffi.framework"
   # The framework Flutter makes from LEPIC has no privacy manifest; App Store Connect wants the
@@ -571,8 +571,8 @@ handoff() {
   dir="$out/handoff/$name"
   rm -rf "$dir"
   mkdir -p "$dir"
-  mac_tar="EpicCashDesktop-$(app_version)$(variant)-macos-unsigned.tar.gz"
-  ios_tar="EpicCashMobile-$(app_version)$(variant)-ios-unsigned.tar.gz"
+  mac_tar="bt-wallet-$(app_version)$(variant)-macos-unsigned.tar.gz"
+  ios_tar="bt-wallet-$(app_version)$(variant)-ios-unsigned.tar.gz"
   pack "$(dirname "$mac_app")" "$(basename "$mac_app")" "$dir/$mac_tar"
   pack "$(dirname "$ios_app")" Runner.app "$dir/$ios_tar"
   provenance "$mac_app" "$ios_app" > "$dir/PROVENANCE.txt"
@@ -591,8 +591,9 @@ dmg_signed() {
   [ -f "$dir/SHA256SUMS" ] || die "no SHA256SUMS beside $tar"
   (cd "$dir" && grep " $(basename "$tar")\$" SHA256SUMS | shasum -a 256 -c -) \
     || die "$tar does not match SHA256SUMS"
-  version="$(basename "$tar" | sed -n 's/^EpicCashDesktop-\(.*\)-macos-signed\.tar\.gz$/\1/p')"
-  [ -n "$version" ] || die "$tar is not named EpicCashDesktop-<version>-macos-signed.tar.gz"
+  # bt-wallet-<version>-…; a signer's tar from before the rename is EpicCashDesktop-<version>-….
+  version="$(basename "$tar" | sed -n -e 's/^bt-wallet-\(.*\)-macos-signed\.tar\.gz$/\1/p' -e 's/^EpicCashDesktop-\(.*\)-macos-signed\.tar\.gz$/\1/p')"
+  [ -n "$version" ] || die "$tar is not named bt-wallet-<version>-macos-signed.tar.gz"
   stage="$out/dmg-signed-stage"
   rm -rf "$stage"
   mkdir -p "$stage"
@@ -604,7 +605,7 @@ dmg_signed() {
   xcrun stapler validate "$app_dir"
   spctl --assess --type execute --verbose=4 "$app_dir"
   ln -s /Applications "$stage/Applications"
-  name="EpicCashDesktop-$version-macos.dmg"
+  name="bt-wallet-$version-macos.dmg"
   mkdir -p "$out/dmg-signed"
   hdiutil create -quiet -volname "$desktop_name" -srcfolder "$stage" -ov -format UDZO "$out/dmg-signed/$name"
   rm -rf "$stage"
@@ -760,7 +761,7 @@ mac_release_sign() {
   [ -n "$id" ] || die "no Developer ID Application identity for team $team"
   [ -d "$out/$desktop_name.app" ] || die "no $out/$desktop_name.app: run the macos step"
   v="$(app_version)$(variant)"
-  name="EpicCashDesktop-$v-macos"
+  name="bt-wallet-$v-macos"
   dir="$out/mac-release"
   stage="$dir/stage"
   rm -rf "$stage"

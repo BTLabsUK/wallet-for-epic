@@ -445,7 +445,7 @@ class EvidenceTest(Base):
         self.assertIsNone(evidence.publish_refusal(run))
         # The bytes change (a rebuild, or anything else): the proof is about other bytes, the
         # approval too, and nothing is published.
-        apk = os.path.join(run.files, "epic-cash-mobile-26.10.25-arm64-v8a.apk")
+        apk = os.path.join(run.files, "bt-wallet-26.10.25-android-arm64-v8a.apk")
         with open(apk, "ab") as f:
             f.write(b"x")
         self.assertIn("no longer match", evidence.publish_refusal(run))
@@ -461,7 +461,7 @@ class EvidenceTest(Base):
         # build-android-tor ran again and made other bytes.
         st = run.status("build-android-tor")
         outs = st["outputs"]
-        outs["epic-cash-mobile-26.10.25-arm64-v8a.apk"]["sha256"] = "0" * 64
+        outs["bt-wallet-26.10.25-android-arm64-v8a.apk"]["sha256"] = "0" * 64
         run.set_status("build-android-tor", outputs=outs)
         path = os.path.join(self.tmp, "pipeline.toml")
         wtext(path, FAKE_PIPELINE)

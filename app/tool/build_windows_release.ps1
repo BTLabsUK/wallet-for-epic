@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
-# Builds the Windows installer, epic-cash-desktop-<version>[-notor]-windows-x64-setup.exe, in one go. Run in
+# Builds the Windows installer, bt-wallet-<version>[-notor]-windows-x64-setup.exe, in one go. Run in
 # PowerShell 7 (pwsh -NoProfile -File) on Windows, in a session without a window: nothing is started.
-# -Dist msstore builds the Microsoft Store package instead, epic-cash-desktop-<version>-msstore-x64.msix
+# -Dist msstore builds the Microsoft Store package instead, bt-wallet-<version>-msstore-windows-x64.msix
 # (https://docs.btlabs.uk/developers/build/variants/): no in-app updater, no Inno Setup, an unsigned MSIX that the Store signs.
 #
 # Needs what build_windows.ps1 needs (Flutter, rustup, VS 2022 Build Tools, CMake, Git) plus
@@ -266,7 +266,7 @@ if ($Dist -eq 'msstore') {
     foreach ($f in 'epic_wallet.exe', 'lepic_ffi.dll', 'bin\epic.exe', 'bin\tor-bundle\tor.exe', 'resources.pri') {
         if (-not (Test-Path "$layout\$f")) { throw "the package would miss $f (pass -NodeBin and -TorBundle)" }
     }
-    $msix = Join-Path $OutDir "epic-cash-desktop-$name-msstore-x64.msix"
+    $msix = Join-Path $OutDir "bt-wallet-$name-msstore-windows-x64.msix"
     & "$kit\makeappx.exe" pack /d $layout /p $msix /o /h SHA256
     if ($LASTEXITCODE) { throw 'makeappx pack failed' }
     $hash = (Get-FileHash $msix -Algorithm SHA256).Hash.ToLower()
@@ -280,7 +280,7 @@ Step 'Inno Setup'
 $iss = Join-Path $app 'windows\installer\epic_wallet.iss'
 & $Iscc /Qp "/DSourceDir=$rel" "/DOutputDir=$OutDir" "/DAppVersion=$name" "/DVariant=$variant" $iss
 if ($LASTEXITCODE) { throw 'ISCC failed' }
-$setup = Join-Path $OutDir "epic-cash-desktop-$name$variant-windows-x64-setup.exe"
+$setup = Join-Path $OutDir "bt-wallet-$name$variant-windows-x64-setup.exe"
 # Inno Setup pads the string FileVersion with spaces (and a NUL): compare the trimmed text.
 $setupVersion = ((Get-Item $setup).VersionInfo.FileVersion -replace '[\s\x00]', '')
 if ($setupVersion -ne $fileVersion) { throw "the installer's file version is $setupVersion, not $fileVersion" }
