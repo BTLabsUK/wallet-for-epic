@@ -133,7 +133,7 @@ void main() {
   testWidgets('Help opens Report a problem', (tester) async {
     final h = _Harness();
     await h.pump(tester, home: const SettingsHelpScreen());
-    final button = find.widgetWithText(EButton, 'Report a problem');
+    final button = find.widgetWithText(EButton, 'Report…');
     await tester.ensureVisible(button);
     await tester.tap(button);
     await tester.pumpAndSettle();

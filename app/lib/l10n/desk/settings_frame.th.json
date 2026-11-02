@@ -24,5 +24,11 @@
   "deskSetFrameDaysAgo": "{count, plural, other{{count} วันที่แล้ว}}",
   "deskSetComboOpens": "เปิดรายการ",
   "deskSetComboNoAnswer": "ยังไม่ตอบ",
-  "deskSetComboUse": "ใช้ {host}"
+  "deskSetComboUse": "ใช้ {host}",
+  "deskSetFrameBack": "กระเป๋า",
+  "deskSetFrameBackTip": "กลับไปที่กระเป๋า (Esc)",
+  "deskSetFrameBackTo": "กลับไปที่ {page}",
+  "deskSetFrameEscKey": "Esc",
+  "deskSetFrameEscHint": "กลับไปที่กระเป๋า",
+  "deskSetFrameExperiment": "ทดลอง"
 }

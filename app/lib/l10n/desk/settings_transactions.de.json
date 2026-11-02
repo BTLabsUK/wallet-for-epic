@@ -1,15 +1,14 @@
 {
   "deskSetFrameTransactions": "Transaktionen",
-  "deskSetTxMethods": "Zahlungsmethoden",
-  "deskSetTxEpicboxHint": "Zahlen und bezahlt werden über einen Epicbox-Server. Die meisten Zahlungen laufen so. Aus: Die Wallet verbindet sich mit keinem Epicbox-Server, also keine Epicbox-Zahlungen oder Rechnungen. Die anderen Methoden funktionieren weiter.",
-  "deskSetTxDirectHint": "Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Web-Adresse (http://host:{port}), ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind; aus, solange Tor an ist. Fügt Link · HTTP zu Senden und seine Adresse zu Empfangen hinzu.",
-  "deskSetTxFileHint": "Zahlen und bezahlt werden, indem Sie eine Transaktionsdatei übergeben, ganz ohne Netzwerk. Fügt die Dateiübertragung zu Senden und die Dateischritte zu Empfangen hinzu.",
-  "deskSetTxSend": "Senden",
+  "deskSetTxMethods": "Methoden",
+  "deskSetTxEpicboxHint": "Zahlen und bezahlt werden über einen Epicbox-Server. Die meisten Zahlungen laufen so. Aus: Die Wallet verbindet sich mit keinem Epicbox-Server, also keine Epicbox-Zahlungen oder Rechnungen. Die anderen Methoden funktionieren weiter. Alle Wallets.",
+  "deskSetTxDirectHint": "Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Web-Adresse (http://host:{port}), ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind; aus, solange Tor an ist. Fügt Link · HTTP zu Senden und seine Adresse zu Empfangen hinzu. Alle Wallets.",
+  "deskSetTxFileHint": "Zahlen und bezahlt werden, indem Sie eine Transaktionsdatei übergeben, ganz ohne Netzwerk. Fügt die Dateiübertragung zu Senden und die Dateischritte zu Empfangen hinzu. Alle Wallets.",
   "deskSetTxStart": "Standardmethode",
-  "deskSetTxStartHint": "Die Methode, mit der die Seite Senden sich öffnet. Für eine einzelne Zahlung können Sie sie auf Senden trotzdem ändern.",
+  "deskSetTxStartHint": "Die Methode, mit der die Seite Senden sich öffnet. Für eine einzelne Zahlung können Sie sie auf Senden trotzdem ändern. Alle Wallets.",
   "deskSetTxTorHint": "Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Onion-Adresse, über Tor, ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind. Braucht Tor: Der Tor-Schalter unter Datenschutz leitet die Verbindungen der Wallet über Tor; dieser Schalter schaltet nur die Adresse ein. Fügt Link · Tor zu Senden und seine Adresse zu Empfangen hinzu.",
-  "deskSetTxTorHintNet": "Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Onion-Adresse, über Tor, ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind. Braucht Tor: Der Tor-Schalter unter Netzwerk & Datenschutz leitet die Verbindungen der Wallet über Tor; dieser Schalter schaltet nur die Adresse ein. Fügt Link · Tor zu Senden und seine Adresse zu Empfangen hinzu.",
   "deskSetTxTorNeedsTor": "Tor ist aus. Schalten Sie es unter Datenschutz ein, um an der Tor-Adresse bezahlt zu werden.",
-  "deskSetTxTorNeedsTorNet": "Tor ist aus. Schalten Sie es unter Netzwerk & Datenschutz ein, um an der Tor-Adresse bezahlt zu werden.",
-  "deskSetTxLastMethod": "Mindestens eine Zahlungsmethode bleibt eingeschaltet."
+  "deskSetTxLastMethod": "Mindestens eine Zahlungsmethode bleibt eingeschaltet.",
+  "deskSetTxSending": "Senden",
+  "deskSetTxTorPayHint": "Tor läuft nur, um Zahlungen an der Tor-Adresse zu senden und zu empfangen. Node, Kurse und Updates folgen der Einstellung unter Netzwerk & Datenschutz. Alle Wallets."
 }

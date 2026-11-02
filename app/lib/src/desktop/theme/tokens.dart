@@ -72,6 +72,9 @@ abstract final class Ctl {
   static double get iconLg => _px(24);
 
   static double get sidebar => _px(224);
+
+  /// The Settings column that takes the sidebar's place while a Settings page is open.
+  static double get settingsNav => _px(288);
   static double get rail => _px(72);
   static double get topbar => _px(64);
 

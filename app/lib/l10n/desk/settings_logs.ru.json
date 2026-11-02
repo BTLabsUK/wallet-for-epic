@@ -16,5 +16,6 @@
   "deskSetLogsDetailed": "Подробный",
   "deskSetLogsFiles": "Файлы журнала",
   "deskSetLogsSize": "Текущий размер {size} из {max}. Хранится ещё один старый файл.",
-  "deskSetLogsOpenFolder": "Открыть папку журналов"
+  "deskSetLogsOpenFolder": "Открыть папку журналов",
+  "deskSetFilesFolders": "Папки"
 }

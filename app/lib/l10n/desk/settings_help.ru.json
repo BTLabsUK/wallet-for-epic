@@ -25,10 +25,14 @@
   "deskSetHelpStep": "Шаг {number} из {total}",
   "deskSetHelpSearch": "Поиск по справке",
   "deskSetHelpSupportHead": "Поддержка",
-  "deskSetHelpTopicsHead": "Темы",
   "deskSetHelpSearchKeys": "Нажмите /, чтобы искать. Esc очищает поиск.",
   "deskSetHelpSearchHint": "Например: файл, подтверждения, фраза",
   "deskSetHelpClear": "Очистить поиск",
   "deskSetHelpTourAgain": "Показать тур снова",
-  "deskSetHelpTopics": "{count, plural, one{{count} тема} few{{count} темы} many{{count} тем} other{{count} темы}}"
+  "deskSetHelpTopics": "{count, plural, one{{count} тема} few{{count} темы} many{{count} тем} other{{count} темы}}",
+  "deskSetHelpReportButton": "Сообщить…",
+  "deskSetHelpSetupAgain": "Запустить настройку снова",
+  "deskSetHelpSetupHint": "Узел и получение, шаг за шагом.",
+  "deskSetHelpStartAgain": "Начать заново",
+  "deskSetHelpTourStart": "Начать тур"
 }

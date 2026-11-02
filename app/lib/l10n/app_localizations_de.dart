@@ -10383,9 +10383,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetAcctSaveLabel => 'Name speichern';
 
   @override
-  String get deskSetAcctFiles => 'Dateien';
-
-  @override
   String get deskSetAcctWalletFolder => 'Wallet-Ordner';
 
   @override
@@ -10399,13 +10396,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAcctNetworkHint => 'Beim Erstellen der Wallet festgelegt.';
-
-  @override
-  String get deskSetAcctSetup => 'Einrichtungsassistent';
-
-  @override
-  String get deskSetAcctSetupHint =>
-      'Node und Empfang noch einmal durchgehen. Nichts geht verloren.';
 
   @override
   String get deskSetAcctRunSetup => 'Einrichtung starten…';
@@ -10489,9 +10479,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskSetBackupWriteFailed =>
       'Die Datei konnte nicht geschrieben werden. Wählen Sie einen anderen Ordner.';
-
-  @override
-  String get deskSetBackupGroup => 'Wallet-Daten';
 
   @override
   String get deskSetBackupExportTitle => 'Wallet-Daten exportieren';
@@ -13149,10 +13136,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetFrameAdvanced => 'Erweitert';
 
   @override
-  String get deskSetAdvIntro =>
-      'Jeder Schalter blendet einen weiteren Teil der Wallet an der passenden Stelle ein.';
-
-  @override
   String get deskSetAdvShows => 'Zeigt mehr';
 
   @override
@@ -13230,7 +13213,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetAcctAutoLockHint =>
-      'Sperrt die Wallet nach dieser Zeit ohne Tastendruck oder Mausbewegung. Bei „Nie“ sperrt nur „Wallet sperren“.';
+      'Sperrt die Wallet nach dieser Zeit ohne Tastendruck oder Mausbewegung. Bei „Nie“ sperrt nur „Wallet sperren“. Alle Wallets.';
 
   @override
   String get torUndercoverKeepsOn => 'Inkognito lässt Tor eingeschaltet.';
@@ -13626,30 +13609,27 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetFrameTransactions => 'Transaktionen';
 
   @override
-  String get deskSetTxMethods => 'Zahlungsmethoden';
+  String get deskSetTxMethods => 'Methoden';
 
   @override
   String get deskSetTxEpicboxHint =>
-      'Zahlen und bezahlt werden über einen Epicbox-Server. Die meisten Zahlungen laufen so. Aus: Die Wallet verbindet sich mit keinem Epicbox-Server, also keine Epicbox-Zahlungen oder Rechnungen. Die anderen Methoden funktionieren weiter.';
+      'Zahlen und bezahlt werden über einen Epicbox-Server. Die meisten Zahlungen laufen so. Aus: Die Wallet verbindet sich mit keinem Epicbox-Server, also keine Epicbox-Zahlungen oder Rechnungen. Die anderen Methoden funktionieren weiter. Alle Wallets.';
 
   @override
   String deskSetTxDirectHint(String port) {
-    return 'Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Web-Adresse (http://host:$port), ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind; aus, solange Tor an ist. Fügt Link · HTTP zu Senden und seine Adresse zu Empfangen hinzu.';
+    return 'Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Web-Adresse (http://host:$port), ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind; aus, solange Tor an ist. Fügt Link · HTTP zu Senden und seine Adresse zu Empfangen hinzu. Alle Wallets.';
   }
 
   @override
   String get deskSetTxFileHint =>
-      'Zahlen und bezahlt werden, indem Sie eine Transaktionsdatei übergeben, ganz ohne Netzwerk. Fügt die Dateiübertragung zu Senden und die Dateischritte zu Empfangen hinzu.';
-
-  @override
-  String get deskSetTxSend => 'Senden';
+      'Zahlen und bezahlt werden, indem Sie eine Transaktionsdatei übergeben, ganz ohne Netzwerk. Fügt die Dateiübertragung zu Senden und die Dateischritte zu Empfangen hinzu. Alle Wallets.';
 
   @override
   String get deskSetTxStart => 'Standardmethode';
 
   @override
   String get deskSetTxStartHint =>
-      'Die Methode, mit der die Seite Senden sich öffnet. Für eine einzelne Zahlung können Sie sie auf Senden trotzdem ändern.';
+      'Die Methode, mit der die Seite Senden sich öffnet. Für eine einzelne Zahlung können Sie sie auf Senden trotzdem ändern. Alle Wallets.';
 
   @override
   String get deskSendMethodHeader => 'Zahlungsart';
@@ -16365,21 +16345,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskBarBuildCopied => 'Build-Info kopiert';
 
   @override
-  String deskBarBuildTip(String version, String commit) {
-    return 'Version $version, Commit $commit. Ein Klick kopiert die Build-Info.';
-  }
-
-  @override
-  String deskBarBuildTipRebuild(String version, String rebuild, String commit) {
-    return 'Version $version, Neubau $rebuild, Commit $commit. Ein Klick kopiert die Build-Info.';
-  }
-
-  @override
-  String deskBarBuildTipDev(String version) {
-    return 'Version $version. Ein Entwicklungs-Build. Ein Klick kopiert die Build-Info.';
-  }
-
-  @override
   String get deskBarKeyMenu => 'App-Menü öffnen';
 
   @override
@@ -16755,7 +16720,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskNoTorSetTxDirectHint(String port) {
-    return 'Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Web-Adresse (http://host:$port), ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind. Fügt Link · HTTP zu Senden und seine Adresse zu Empfangen hinzu.';
+    return 'Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Web-Adresse (http://host:$port), ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind. Fügt Link · HTTP zu Senden und seine Adresse zu Empfangen hinzu. Alle Wallets.';
   }
 
   @override
@@ -17268,9 +17233,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get syncHelpNotChecked => 'Nicht geprüft';
-
-  @override
-  String get deskSetAdvBalance => 'Guthaben';
 
   @override
   String get deskSetAdvConfirmations => 'Bestätigungen';
@@ -18771,10 +18733,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ihre Übersicht in dieser Ansicht. Gespeichert wird nichts anders.';
 
   @override
-  String get deskLvStartPreviewCaptionShort =>
-      'Ihre Übersicht in dieser Ansicht.';
-
-  @override
   String get deskLvStartCover => 'Stufe wählen, um die Vorschau zu sehen';
 
   @override
@@ -18811,15 +18769,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskLvStartMiniWaiting => 'Wartet auf die Gegenseite';
-
-  @override
-  String get deskLvStartAdvNote =>
-      'Eine tiefere Ansicht zeigt mehr von der Wallet. Gespeichert wird nichts anders.';
-
-  @override
-  String deskLvStartAboutDepth(String name) {
-    return 'Ansicht: $name';
-  }
 
   @override
   String get deskLvSendHowTo => 'So senden';
@@ -19154,9 +19103,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetHelpSupportHead => 'Support';
-
-  @override
-  String get deskSetHelpTopicsHead => 'Themen';
 
   @override
   String deskKitPasswordRule(int count) {
@@ -19631,14 +19577,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskRecvTorOffTextNet =>
       'Die Tor-Adresse funktioniert, solange Tor an ist. Tor ist der Schalter unter Einstellungen › Netzwerk & Datenschutz; er leitet die Verbindungen der Wallet über Tor.';
-
-  @override
-  String get deskSetTxTorHintNet =>
-      'Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Onion-Adresse, über Tor, ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind. Braucht Tor: Der Tor-Schalter unter Netzwerk & Datenschutz leitet die Verbindungen der Wallet über Tor; dieser Schalter schaltet nur die Adresse ein. Fügt Link · Tor zu Senden und seine Adresse zu Empfangen hinzu.';
-
-  @override
-  String get deskSetTxTorNeedsTorNet =>
-      'Tor ist aus. Schalten Sie es unter Netzwerk & Datenschutz ein, um an der Tor-Adresse bezahlt zu werden.';
 
   @override
   String get deskRailOpenNetworkPrivacy => 'Netzwerk & Datenschutz öffnen';
@@ -20384,6 +20322,100 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetSynContact => 'e-mail, support, kontakt, mail';
+
+  @override
+  String get deskSetAcctBackup => 'Sicherung';
+
+  @override
+  String get deskSetAcctBalance => 'Guthaben';
+
+  @override
+  String get deskSetAcctRemove => 'Entfernen';
+
+  @override
+  String get deskSetAdvViewLineOne =>
+      'Senden, Empfangen und Sicherungen. Node und Epicbox-Server werden automatisch gewählt.';
+
+  @override
+  String get deskSetAdvViewLineTwo =>
+      'Dazu Zahlungsmethoden, der Node, Netzwerkmodi und weitere Wallets.';
+
+  @override
+  String get deskSetAdvViewLineThree =>
+      'Dazu Outputs, Rechnungen, der lokale Node und jeder Schalter unter Erweitert.';
+
+  @override
+  String get deskSetAdvViewNote =>
+      'Eine Ansicht ändert nur, welche Seiten und Schalter erscheinen.';
+
+  @override
+  String get deskSetAdvExperiments => 'Experimente';
+
+  @override
+  String get deskSetFrameBack => 'Wallet';
+
+  @override
+  String get deskSetFrameBackTip => 'Zurück zur Wallet (Esc)';
+
+  @override
+  String deskSetFrameBackTo(String page) {
+    return 'Zurück zu $page';
+  }
+
+  @override
+  String get deskSetFrameEscKey => 'Esc';
+
+  @override
+  String get deskSetFrameEscHint => 'zurück zur Wallet';
+
+  @override
+  String get deskSetFrameExperiment => 'Experiment';
+
+  @override
+  String get deskSetHelpReportButton => 'Melden…';
+
+  @override
+  String get deskSetHelpSetupAgain => 'Einrichtung erneut ausführen';
+
+  @override
+  String get deskSetHelpSetupHint => 'Node und Empfang, Schritt für Schritt.';
+
+  @override
+  String get deskSetHelpStartAgain => 'Neu beginnen';
+
+  @override
+  String get deskSetHelpTourStart => 'Tour starten';
+
+  @override
+  String get deskSetFilesFolders => 'Ordner';
+
+  @override
+  String get deskSetNodeConnection => 'Verbindung';
+
+  @override
+  String get deskSetNodeFailover => 'Node automatisch wechseln';
+
+  @override
+  String get deskSetNodeStatus => 'Status';
+
+  @override
+  String get deskSetPrivTorAll => 'Tor für alle Verbindungen';
+
+  @override
+  String get deskSetPrivServerStatus => 'Serverstatus';
+
+  @override
+  String get deskSetPrivMode => 'Verbindungsmodus';
+
+  @override
+  String get deskSetTxSending => 'Senden';
+
+  @override
+  String get deskSetTxTorPayHint =>
+      'Tor läuft nur, um Zahlungen an der Tor-Adresse zu senden und zu empfangen. Node, Kurse und Updates folgen der Einstellung unter Netzwerk & Datenschutz. Alle Wallets.';
+
+  @override
+  String get deskSetWalletsOnComputer => 'Auf diesem Computer';
 
   @override
   String get deskSetSearchKeyEnter => 'Eingabe';

@@ -9963,9 +9963,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetAcctSaveLabel => 'บันทึกชื่อ';
 
   @override
-  String get deskSetAcctFiles => 'ไฟล์';
-
-  @override
   String get deskSetAcctWalletFolder => 'โฟลเดอร์กระเป๋าเงิน';
 
   @override
@@ -9979,13 +9976,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAcctNetworkHint => 'กำหนดตอนสร้างกระเป๋าเงิน';
-
-  @override
-  String get deskSetAcctSetup => 'ผู้ช่วยตั้งค่า';
-
-  @override
-  String get deskSetAcctSetupHint =>
-      'ตั้งค่าโหนดและการรับเงินอีกครั้ง ไม่มีอะไรหาย';
 
   @override
   String get deskSetAcctRunSetup => 'เริ่มตั้งค่า…';
@@ -10066,9 +10056,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetBackupWriteFailed => 'เขียนไฟล์ไม่ได้ เลือกโฟลเดอร์อื่น';
-
-  @override
-  String get deskSetBackupGroup => 'ข้อมูลกระเป๋าเงิน';
 
   @override
   String get deskSetBackupExportTitle => 'ส่งออกข้อมูลกระเป๋าเงิน';
@@ -12661,10 +12648,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetFrameAdvanced => 'ขั้นสูง';
 
   @override
-  String get deskSetAdvIntro =>
-      'แต่ละสวิตช์จะแสดงส่วนของกระเป๋าเงินเพิ่มอีกส่วนในตำแหน่งของมัน';
-
-  @override
   String get deskSetAdvShows => 'แสดงเพิ่ม';
 
   @override
@@ -12741,7 +12724,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetAcctAutoLockHint =>
-      'ล็อกกระเป๋าเมื่อไม่มีการกดแป้นหรือขยับเมาส์ตามเวลานี้ ถ้าเลือก “ไม่ล็อก” จะล็อกได้ด้วย “ล็อกกระเป๋า” เท่านั้น';
+      'ล็อกกระเป๋าเมื่อไม่มีการกดแป้นหรือขยับเมาส์ตามเวลานี้ ถ้าเลือก “ไม่ล็อก” จะล็อกได้ด้วย “ล็อกกระเป๋า” เท่านั้น ทุกกระเป๋า';
 
   @override
   String get torUndercoverKeepsOn => 'โหมดปกปิดตัวตนเปิด Tor ไว้ตลอด';
@@ -13120,30 +13103,27 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetFrameTransactions => 'ธุรกรรม';
 
   @override
-  String get deskSetTxMethods => 'วิธีชำระเงิน';
+  String get deskSetTxMethods => 'วิธีการ';
 
   @override
   String get deskSetTxEpicboxHint =>
-      'จ่ายและรับเงินผ่านเซิร์ฟเวอร์ Epicbox การชำระเงินส่วนใหญ่ใช้ทางนี้ เมื่อปิด กระเป๋าเงินจะไม่เชื่อมต่อเซิร์ฟเวอร์ Epicbox ใด ไม่มีการจ่ายผ่าน Epicbox หรือใบแจ้งหนี้ วิธีอื่นยังใช้ได้';
+      'จ่ายและรับเงินผ่านเซิร์ฟเวอร์ Epicbox การชำระเงินส่วนใหญ่ใช้ทางนี้ เมื่อปิด กระเป๋าเงินจะไม่เชื่อมต่อเซิร์ฟเวอร์ Epicbox ใด ไม่มีการจ่ายผ่าน Epicbox หรือใบแจ้งหนี้ วิธีอื่นยังใช้ได้ ทุกกระเป๋า';
 
   @override
   String deskSetTxDirectHint(String port) {
-    return 'จ่ายและรับเงินตรงจากกระเป๋าเงินสู่กระเป๋าเงินที่ที่อยู่เว็บ (http://host:$port) โดยไม่มีเซิร์ฟเวอร์คั่นกลาง ใช้ได้เฉพาะตอนที่กระเป๋าเงินเปิดอยู่ทั้งสองฝั่ง และปิดขณะเปิด Tor เพิ่ม ลิงก์ · HTTP ใน ส่ง และที่อยู่ของมันใน รับ';
+    return 'จ่ายและรับเงินตรงจากกระเป๋าเงินสู่กระเป๋าเงินที่ที่อยู่เว็บ (http://host:$port) โดยไม่มีเซิร์ฟเวอร์คั่นกลาง ใช้ได้เฉพาะตอนที่กระเป๋าเงินเปิดอยู่ทั้งสองฝั่ง และปิดขณะเปิด Tor เพิ่ม ลิงก์ · HTTP ใน ส่ง และที่อยู่ของมันใน รับ ทุกกระเป๋า';
   }
 
   @override
   String get deskSetTxFileHint =>
-      'จ่ายและรับเงินโดยส่งต่อไฟล์ธุรกรรม ไม่ต้องใช้เครือข่าย เพิ่มโอนไฟล์ใน ส่ง และเพิ่มขั้นตอนเกี่ยวกับไฟล์ใน รับ';
-
-  @override
-  String get deskSetTxSend => 'ส่ง';
+      'จ่ายและรับเงินโดยส่งต่อไฟล์ธุรกรรม ไม่ต้องใช้เครือข่าย เพิ่มโอนไฟล์ใน ส่ง และเพิ่มขั้นตอนเกี่ยวกับไฟล์ใน รับ ทุกกระเป๋า';
 
   @override
   String get deskSetTxStart => 'วิธีเริ่มต้น';
 
   @override
   String get deskSetTxStartHint =>
-      'วิธีที่หน้า ส่ง เปิดขึ้นมา สำหรับการจ่ายครั้งเดียวยังเปลี่ยนได้ที่หน้า ส่ง';
+      'วิธีที่หน้า ส่ง เปิดขึ้นมา สำหรับการจ่ายครั้งเดียวยังเปลี่ยนได้ที่หน้า ส่ง ทุกกระเป๋า';
 
   @override
   String get deskSendMethodHeader => 'วิธีชำระเงิน';
@@ -15787,21 +15767,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskBarBuildCopied => 'คัดลอกข้อมูลบิลด์แล้ว';
 
   @override
-  String deskBarBuildTip(String version, String commit) {
-    return 'เวอร์ชัน $version คอมมิต $commit คลิกเพื่อคัดลอกข้อมูลบิลด์';
-  }
-
-  @override
-  String deskBarBuildTipRebuild(String version, String rebuild, String commit) {
-    return 'เวอร์ชัน $version บิลด์ใหม่ $rebuild คอมมิต $commit คลิกเพื่อคัดลอกข้อมูลบิลด์';
-  }
-
-  @override
-  String deskBarBuildTipDev(String version) {
-    return 'เวอร์ชัน $version บิลด์สำหรับพัฒนา คลิกเพื่อคัดลอกข้อมูลบิลด์';
-  }
-
-  @override
   String get deskBarKeyMenu => 'เปิดเมนูแอป';
 
   @override
@@ -16166,7 +16131,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskNoTorSetTxDirectHint(String port) {
-    return 'จ่ายและรับเงินตรงจากกระเป๋าเงินสู่กระเป๋าเงินที่ที่อยู่เว็บ (http://host:$port) โดยไม่มีเซิร์ฟเวอร์คั่นกลาง ใช้ได้เฉพาะตอนที่กระเป๋าเงินเปิดอยู่ทั้งสองฝั่ง เพิ่ม ลิงก์ · HTTP ใน ส่ง และที่อยู่ของมันใน รับ';
+    return 'จ่ายและรับเงินตรงจากกระเป๋าเงินสู่กระเป๋าเงินที่ที่อยู่เว็บ (http://host:$port) โดยไม่มีเซิร์ฟเวอร์คั่นกลาง ใช้ได้เฉพาะตอนที่กระเป๋าเงินเปิดอยู่ทั้งสองฝั่ง เพิ่ม ลิงก์ · HTTP ใน ส่ง และที่อยู่ของมันใน รับ ทุกกระเป๋า';
   }
 
   @override
@@ -16667,9 +16632,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get syncHelpNotChecked => 'ยังไม่ได้ตรวจ';
-
-  @override
-  String get deskSetAdvBalance => 'ยอดเงิน';
 
   @override
   String get deskSetAdvConfirmations => 'การยืนยัน';
@@ -18137,9 +18099,6 @@ class AppLocalizationsTh extends AppLocalizations {
       'ภาพรวมของคุณในมุมมองนี้ ข้อมูลที่บันทึกไว้ไม่เปลี่ยน';
 
   @override
-  String get deskLvStartPreviewCaptionShort => 'ภาพรวมของคุณในมุมมองนี้';
-
-  @override
   String get deskLvStartCover => 'เลือกระดับเพื่อดูภาพตัวอย่าง';
 
   @override
@@ -18176,15 +18135,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskLvStartMiniWaiting => 'รออีกฝ่าย';
-
-  @override
-  String get deskLvStartAdvNote =>
-      'ยิ่งมุมมองลึก ยิ่งแสดงกระเป๋าเงินมาก ข้อมูลที่บันทึกไว้ไม่เปลี่ยน';
-
-  @override
-  String deskLvStartAboutDepth(String name) {
-    return 'มุมมอง: $name';
-  }
 
   @override
   String get deskLvSendHowTo => 'วิธีส่ง';
@@ -18513,9 +18463,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetHelpSupportHead => 'การสนับสนุน';
-
-  @override
-  String get deskSetHelpTopicsHead => 'หัวข้อ';
 
   @override
   String deskKitPasswordRule(int count) {
@@ -18982,14 +18929,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskRecvTorOffTextNet =>
       'ที่อยู่ Tor ใช้ได้ขณะเปิด Tor Tor คือสวิตช์ใน ตั้งค่า › เครือข่ายและความเป็นส่วนตัว ซึ่งส่งการเชื่อมต่อของกระเป๋าเงินผ่าน Tor';
-
-  @override
-  String get deskSetTxTorHintNet =>
-      'จ่ายและรับเงินตรงจากกระเป๋าเงินสู่กระเป๋าเงินที่ที่อยู่ onion ผ่าน Tor โดยไม่มีเซิร์ฟเวอร์คั่นกลาง ใช้ได้เฉพาะตอนที่กระเป๋าเงินเปิดอยู่ทั้งสองฝั่ง ต้องใช้ Tor: สวิตช์ Tor ใน เครือข่ายและความเป็นส่วนตัว ส่งการเชื่อมต่อของกระเป๋าเงินผ่าน Tor สวิตช์นี้เพียงเปิดที่อยู่ เพิ่ม ลิงก์ · Tor ใน ส่ง และที่อยู่ของมันใน รับ';
-
-  @override
-  String get deskSetTxTorNeedsTorNet =>
-      'Tor ปิดอยู่ เปิดได้ที่ เครือข่ายและความเป็นส่วนตัว เพื่อรับเงินที่ที่อยู่ Tor';
 
   @override
   String get deskRailOpenNetworkPrivacy => 'เปิดเครือข่ายและความเป็นส่วนตัว';
@@ -19713,6 +19652,100 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetSynContact => 'อีเมล, ช่วยเหลือ, ติดต่อ, เมล';
+
+  @override
+  String get deskSetAcctBackup => 'สำรองข้อมูล';
+
+  @override
+  String get deskSetAcctBalance => 'ยอดคงเหลือ';
+
+  @override
+  String get deskSetAcctRemove => 'ลบ';
+
+  @override
+  String get deskSetAdvViewLineOne =>
+      'ส่ง รับ และสำรองข้อมูล เลือกโหนดและเซิร์ฟเวอร์ Epicbox ให้อัตโนมัติ';
+
+  @override
+  String get deskSetAdvViewLineTwo =>
+      'เพิ่มวิธีชำระเงิน โหนด โหมดเครือข่าย และกระเป๋าอื่น';
+
+  @override
+  String get deskSetAdvViewLineThree =>
+      'เพิ่มเอาต์พุต ใบแจ้งหนี้ โหนดในเครื่อง และทุกสวิตช์ขั้นสูง';
+
+  @override
+  String get deskSetAdvViewNote =>
+      'มุมมองเปลี่ยนเพียงว่าจะแสดงหน้าและสวิตช์ใดบ้าง';
+
+  @override
+  String get deskSetAdvExperiments => 'การทดลอง';
+
+  @override
+  String get deskSetFrameBack => 'กระเป๋า';
+
+  @override
+  String get deskSetFrameBackTip => 'กลับไปที่กระเป๋า (Esc)';
+
+  @override
+  String deskSetFrameBackTo(String page) {
+    return 'กลับไปที่ $page';
+  }
+
+  @override
+  String get deskSetFrameEscKey => 'Esc';
+
+  @override
+  String get deskSetFrameEscHint => 'กลับไปที่กระเป๋า';
+
+  @override
+  String get deskSetFrameExperiment => 'ทดลอง';
+
+  @override
+  String get deskSetHelpReportButton => 'รายงาน…';
+
+  @override
+  String get deskSetHelpSetupAgain => 'ตั้งค่าอีกครั้ง';
+
+  @override
+  String get deskSetHelpSetupHint => 'โหนดและการรับ ทีละขั้น';
+
+  @override
+  String get deskSetHelpStartAgain => 'เริ่มใหม่';
+
+  @override
+  String get deskSetHelpTourStart => 'เริ่มทัวร์';
+
+  @override
+  String get deskSetFilesFolders => 'โฟลเดอร์';
+
+  @override
+  String get deskSetNodeConnection => 'การเชื่อมต่อ';
+
+  @override
+  String get deskSetNodeFailover => 'สลับโหนดอัตโนมัติ';
+
+  @override
+  String get deskSetNodeStatus => 'สถานะ';
+
+  @override
+  String get deskSetPrivTorAll => 'Tor สำหรับทุกการเชื่อมต่อ';
+
+  @override
+  String get deskSetPrivServerStatus => 'สถานะเซิร์ฟเวอร์';
+
+  @override
+  String get deskSetPrivMode => 'โหมดการเชื่อมต่อ';
+
+  @override
+  String get deskSetTxSending => 'การส่ง';
+
+  @override
+  String get deskSetTxTorPayHint =>
+      'Tor ทำงานเฉพาะเพื่อส่งและรับเงินที่ที่อยู่ Tor เท่านั้น โหนด ราคา และการอัปเดตใช้การตั้งค่าในเครือข่ายและความเป็นส่วนตัว ทุกกระเป๋า';
+
+  @override
+  String get deskSetWalletsOnComputer => 'ในคอมพิวเตอร์นี้';
 
   @override
   String get deskSetSearchKeyEnter => 'Enter';

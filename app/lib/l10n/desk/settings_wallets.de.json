@@ -13,5 +13,6 @@
   "deskSetWalletsImport": "Wallets importieren",
   "deskSetWalletsImportText": "Aus einer älteren Epic Wallet oder einem Ordner",
   "deskSetWalletsRestore": "Mit Phrase wiederherstellen",
-  "deskSetWalletsRestoreText": "Aus der Wiederherstellungsphrase"
+  "deskSetWalletsRestoreText": "Aus der Wiederherstellungsphrase",
+  "deskSetWalletsOnComputer": "Auf diesem Computer"
 }

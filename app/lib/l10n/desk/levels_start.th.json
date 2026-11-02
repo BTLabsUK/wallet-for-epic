@@ -1,7 +1,6 @@
 {
   "deskLvStartPreviewLabel": "ภาพตัวอย่างภาพรวม ยิ่งเลือกลึก ยิ่งแสดงมาก",
   "deskLvStartPreviewCaption": "ภาพรวมของคุณในมุมมองนี้ ข้อมูลที่บันทึกไว้ไม่เปลี่ยน",
-  "deskLvStartPreviewCaptionShort": "ภาพรวมของคุณในมุมมองนี้",
   "deskLvStartCover": "เลือกระดับเพื่อดูภาพตัวอย่าง",
   "deskLvStartUndercoverAbout": "เกี่ยวกับการปกปิดตัวตน",
   "deskLvStartChangeLater": "เปลี่ยนได้ทุกเมื่อที่ การตั้งค่า › ขั้นสูง",
@@ -12,7 +11,5 @@
   "deskLvStartMiniWallet": "กระเป๋าเงินหลัก",
   "deskLvStartMiniLine": "+12.5000 กำลังเข้า · 25.0000 ถูกพักไว้",
   "deskLvStartMiniFresh": "ใหม่จากการขุด",
-  "deskLvStartMiniWaiting": "รออีกฝ่าย",
-  "deskLvStartAdvNote": "ยิ่งมุมมองลึก ยิ่งแสดงกระเป๋าเงินมาก ข้อมูลที่บันทึกไว้ไม่เปลี่ยน",
-  "deskLvStartAboutDepth": "มุมมอง: {name}"
+  "deskLvStartMiniWaiting": "รออีกฝ่าย"
 }

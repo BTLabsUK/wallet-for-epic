@@ -4,7 +4,7 @@
 /// the slot shows progress and events (Offline mode, a scan, an update out or to restart, a
 /// payment on its way, new requests, the local node syncing, an update downloading), at most two
 /// lines, the most important first, a `+N` for the rest; each line opens its screen. Resting:
-/// Help · Report a problem. Health (a node that does not answer, Epicbox, Tor) stays in the title
+/// Help · Report a problem (the build is in the title bar's tooltip and About). Health (a node that does not answer, Epicbox, Tor) stays in the title
 /// bar's status.
 library;
 
@@ -27,7 +27,6 @@ import '../screens/settings/prefs.dart';
 import '../screens/settings/report_problem.dart' show showReportProblemDialog;
 import '../widgets/kit.dart';
 import 'desk_app.dart' show deskNavigatorKey;
-import 'title_bar.dart' show DeskBuildLabel;
 import 'update_notice.dart' show deskUpdateAct, deskUpdateWords;
 
 /// One line of the slot.
@@ -227,9 +226,12 @@ List<NowItem> nowItems(BuildContext context, WidgetRef ref) {
 
 /// The slot. [compact] is the 72 px rail: icons, the words in their tooltips.
 class NowSlot extends ConsumerStatefulWidget {
-  const NowSlot({super.key, required this.compact});
+  const NowSlot({super.key, required this.compact, this.resting = true});
 
   final bool compact;
+
+  /// Help · Report a problem when nothing runs; the Settings column has none (it is in Help).
+  final bool resting;
 
   @override
   ConsumerState<NowSlot> createState() => _NowSlotState();
@@ -298,6 +300,8 @@ class _NowSlotState extends ConsumerState<NowSlot> {
       order[k] = shown[n].id;
     }
     _order = order;
+    // The Settings column: the slot only while something runs (or a line still closes).
+    if (!widget.resting && order.isEmpty) return const SizedBox.shrink();
     return Semantics(
       container: true,
       label: l.deskSlotNow,
@@ -319,8 +323,10 @@ class _NowSlotState extends ConsumerState<NowSlot> {
                   child: _Line(item: _lines[id]!, compact: widget.compact, more: shown.isNotEmpty && id == shown.last.id ? more : const []),
                 ),
               ),
-            AnimatedContainer(duration: Motion.expand, height: shown.isEmpty ? 0 : Sp.x1),
-            _Resting(compact: widget.compact),
+            if (widget.resting) ...[
+              AnimatedContainer(duration: Motion.expand, height: shown.isEmpty ? 0 : Sp.x1),
+              _Resting(compact: widget.compact),
+            ],
           ],
         ),
       ),
@@ -532,7 +538,7 @@ class _Line extends StatelessWidget {
   }
 }
 
-/// Help · Report a problem, and the build under them (the rail has it in the mark's tooltip).
+/// Help · Report a problem.
 class _Resting extends ConsumerWidget {
   const _Resting({required this.compact});
 
@@ -574,15 +580,7 @@ class _Resting extends ConsumerWidget {
         ],
       ),
     );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        links,
-        SizedBox(height: 2.u),
-        const Align(alignment: AlignmentDirectional.centerStart, child: DeskBuildLabel()),
-      ],
-    );
+    return links;
   }
 }
 

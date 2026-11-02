@@ -7,10 +7,6 @@
   "@deskLvStartPreviewCaption": {
     "description": "Caption under the Overview picture on Welcome (first start)."
   },
-  "deskLvStartPreviewCaptionShort": "Your Overview in this view.",
-  "@deskLvStartPreviewCaptionShort": {
-    "description": "Caption under the Overview picture on the Change level page."
-  },
   "deskLvStartCover": "Pick a stop to see the preview",
   "@deskLvStartCover": {
     "description": "Over the faded Overview picture on Welcome before a stop of the depth dial is picked."
@@ -54,19 +50,5 @@
   "deskLvStartMiniWaiting": "Waiting for the other side",
   "@deskLvStartMiniWaiting": {
     "description": "Balance tile in the small Overview picture at Deeper: coins waiting for the sender to sign."
-  },
-  "deskLvStartAdvNote": "A deeper view shows more of the wallet. Nothing stored changes.",
-  "@deskLvStartAdvNote": {
-    "description": "Settings › Advanced at Shallow, under the Depth row."
-  },
-  "deskLvStartAboutDepth": "View: {name}",
-  "@deskLvStartAboutDepth": {
-    "description": "Screen-reader text of the Depth row in Settings › About. name is the depth: Shallow, Deeper or Deep end.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Shallow"
-      }
-    }
   }
 }

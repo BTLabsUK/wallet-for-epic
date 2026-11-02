@@ -25,9 +25,6 @@
   "deskBarKeyList": "Diese Liste",
   "deskBarCopyBuild": "Build-Info kopieren",
   "deskBarBuildCopied": "Build-Info kopiert",
-  "deskBarBuildTip": "Version {version}, Commit {commit}. Ein Klick kopiert die Build-Info.",
-  "deskBarBuildTipRebuild": "Version {version}, Neubau {rebuild}, Commit {commit}. Ein Klick kopiert die Build-Info.",
-  "deskBarBuildTipDev": "Version {version}. Ein Entwicklungs-Build. Ein Klick kopiert die Build-Info.",
   "deskBarKeyMenu": "App-Menü öffnen",
   "deskBarTurnOnHint": "Aus. Einschalten unter Einstellungen › Transaktionen.",
   "deskDemoStripe": "Demo · Beispieldaten"

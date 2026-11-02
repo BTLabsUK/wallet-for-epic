@@ -3,7 +3,7 @@
   "@deskNoTorSendDirectLine2": {
     "description": "Under Send › Link, the line under the method in the build without Tor (no onion addresses)."
   },
-  "deskNoTorSetTxDirectHint": "Pay and get paid straight from wallet to wallet at a web address (http://host:{port}), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive.",
+  "deskNoTorSetTxDirectHint": "Pay and get paid straight from wallet to wallet at a web address (http://host:{port}), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive. All wallets.",
   "@deskNoTorSetTxDirectHint": {
     "description": "Settings › Transactions › Link · HTTP info hint in the build without Tor (no 'off while Tor is on').",
     "placeholders": {

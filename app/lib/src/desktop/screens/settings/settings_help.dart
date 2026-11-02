@@ -10,7 +10,6 @@ import '../../../ui/language_flag.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/help_art.dart';
 import '../../widgets/kit.dart';
-import '../../../seed_contacts.dart' show btLabsContact;
 import '../../data/pairing_state.dart' show deskPairsProvider;
 import 'help_pairing.dart';
 import 'help_places.dart';
@@ -18,9 +17,9 @@ import 'help_sync.dart';
 import 'help_topics.dart';
 import 'report_problem.dart';
 import 'settings_frame.dart';
-import '../../../ui/settings_screen.dart' show supportEmail;
-import 'settings_advanced.dart' show advancedHas, advancedOf, AdvancedFeature;
-import 'settings_logs.dart';
+import 'settings_advanced.dart' show advancedOf;
+import '../../data/desk_levels.dart' show deskLevelUiProvider;
+import 'setting_ids.dart';
 
 /// The query's words, lower case, longest first; none under two letters in all.
 List<String> queryWords(String q) {
@@ -97,13 +96,13 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
   late final _query = TextEditingController(text: widget.arg is String ? widget.arg as String : '');
   final _focus = FocusNode(debugLabel: 'help search');
   final _sectionKeys = {for (final s in [...helpSections.map((s) => s.id), pairingHelpSection]) s: GlobalKey(debugLabel: 'help $s')};
-  final _logsKey = GlobalKey(debugLabel: 'help logs');
+  final _endKey = GlobalKey(debugLabel: 'help end');
 
   @override
   void initState() {
     super.initState();
     HardwareKeyboard.instance.addHandler(_onKey);
-    if (widget.arg == HelpDemo.bottom) WidgetsBinding.instance.addPostFrameCallback((_) => _show(_logsKey, 1));
+    if (widget.arg == HelpDemo.bottom) WidgetsBinding.instance.addPostFrameCallback((_) => _show(_endKey, 1));
     if (widget.arg == HelpDemo.open) WidgetsBinding.instance.addPostFrameCallback((_) => _show(_sectionKeys['how']!));
     if (widget.arg case HelpAt(:final section) when _sectionKeys.containsKey(section)) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _show(_sectionKeys[section]!));
@@ -191,18 +190,12 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // The tour's last step lights the support bar, the search and the section chips.
+          // The tour's last step lights the search and the section chips.
           TourTarget(
             id: 'help-top',
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // The same section heads as every Settings page: Support, then Topics.
-                ESectionHead(context.l10n.deskSetHelpSupportHead, top: 0),
-                const _SupportBar(),
-                SizedBox(height: Sp.x3),
-                const _DonateBar(),
-                ESectionHead(context.l10n.deskSetHelpTopicsHead),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
@@ -224,21 +217,24 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(width: Sp.x3),
-                    // Level with the field, above its one-line hint.
-                    Padding(padding: EdgeInsets.only(bottom: 24.u), child: _HelpLanguageSwitch(current: lang)),
+                    SizedBox(width: Sp.x4),
+                    // Its own control (review 11, named "Help language" to a screen reader): it
+                    // sets only the topics' language. Level with the field, above its hint.
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 24.u),
+                      child: _HelpLanguageSwitch(current: lang),
+                    ),
                   ],
                 ),
                 if (!searching) ...[
-                  SizedBox(height: Sp.x3),
-                  // The section chips, then the tour: it flows with them at every width.
+                  SizedBox(height: Sp.x4),
+                  // The section chips: each scrolls to its section.
                   Wrap(
                     spacing: Sp.x2,
                     runSpacing: Sp.x2,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       for (final (s, _) in sections) _Chip(s.title, onTap: () => _show(_sectionKeys[s.id]!)),
-                      EButton.ghost(label: context.l10n.deskSetHelpTourAgain, icon: EIcons.restart, size: EBtnSize.inline, hit44: true, onPressed: () => startDeskTour(ref)),
                     ],
                   ),
                 ],
@@ -262,12 +258,13 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
                 ],
               ),
           ] else ...[
-            SizedBox(height: Sp.x6),
+            SizedBox(height: Sp.x8),
             for (final (s, art) in sections)
               if (helpTopics.where((t) => t.section == s.id).toList() case final topics when topics.isNotEmpty)
                 Padding(
                   key: _sectionKeys[s.id],
-                  padding: EdgeInsets.only(bottom: Sp.x5),
+                  // Room between the sections (item 4).
+                  padding: EdgeInsets.only(bottom: Sp.x8),
                   child: _Box(
                     children: [
                       _SectionHead(section: s, art: art, count: topics.length),
@@ -285,8 +282,9 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
                   ),
                 ),
           ],
-          // Advanced › Logs.
-          if (advancedHas(ref, AdvancedFeature.logs)) ...[SizedBox(height: Sp.x2), LogsGroup(key: _logsKey)],
+          SizedBox(height: Sp.x4),
+          KeyedSubtree(key: _endKey, child: const _SupportGroup()),
+          const _StartAgainGroup(),
         ],
       ),
     );
@@ -368,77 +366,54 @@ class _HeaderRow extends StatelessWidget {
   }
 }
 
-/// Report a problem, first on the page.
-class _SupportBar extends StatelessWidget {
-  const _SupportBar();
+/// Help › Support: Report a problem.
+class _SupportGroup extends StatelessWidget {
+  const _SupportGroup();
 
   @override
   Widget build(BuildContext context) {
-    final c = context.dc;
-    final ts = context.ts;
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: 14.u),
-      decoration: BoxDecoration(color: c.s1, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
-      child: _HeaderRow(
-        art: HelpArt('help-support', width: 112.u),
-        words: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Semantics(header: true, child: Text(context.l10n.deskSetReportTitle, style: ts.strong)),
-            SizedBox(height: 2.u),
-            Text(context.l10n.deskSetHelpReportText, style: ts.small),
-            SizedBox(height: 2.u),
-            // Wraps in a narrow window: the label and the address, the address selectable.
-            if (supportEmail case final email?)
-              Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Text('${context.l10n.contactLabel}: ', style: ts.small),
-                  SelectableText(email, style: ts.small),
-                ],
-              ),
-          ],
+    final l = context.l10n;
+    return ESetGroup(
+      title: l.deskSetHelpSupportHead,
+      rows: [
+        ESetRow(
+          anchor: SetId.report,
+          title: l.deskSetReportTitle,
+          hint: l.deskSetHelpReportText,
+          control: ERowControl(child: EButton(label: l.deskSetHelpReportButton, icon: EIcons.bug, size: EBtnSize.sm, onPressed: () => showReportProblemDialog(context))),
         ),
-        actions: [EButton(label: context.l10n.deskSetReportTitle, icon: EIcons.bug, size: EBtnSize.sm, onPressed: () => showReportProblemDialog(context))],
-      ),
+      ],
     );
   }
 }
 
-/// Support development: one line and a Copy address button, under the report bar.
-class _DonateBar extends StatefulWidget {
-  const _DonateBar();
+/// Help › Start again: the tour, and Set up (Deeper and up; Shallow has no Set up).
+class _StartAgainGroup extends ConsumerWidget {
+  const _StartAgainGroup();
 
   @override
-  State<_DonateBar> createState() => _DonateBarState();
-}
-
-class _DonateBarState extends State<_DonateBar> {
-  /// Read once when the bar opens: a signed btlabs.json verified meanwhile never changes what
-  /// this bar copies.
-  final String? _address = btLabsContact?.address;
-
-  @override
-  Widget build(BuildContext context) {
-    // No donation contact in app-config.toml: no bar.
-    final address = _address;
-    if (address == null) return const SizedBox.shrink();
-    final c = context.dc;
-    final ts = context.ts;
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: 14.u),
-      decoration: BoxDecoration(color: c.s1, border: Border.all(color: c.line), borderRadius: BorderRadius.circular(Rad.sm)),
-      child: _HeaderRow(
-        words: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Semantics(header: true, child: Text(context.l10n.helpDonateTitle, style: ts.strong)),
-            SizedBox(height: 2.u),
-            Text(context.l10n.helpDonateText, style: ts.small),
-          ],
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final setup = ref.watch(deskLevelUiProvider).setupWizard;
+    final setupRow = ESetRow(
+      anchor: SetId.setup,
+      advancedBy: setup ? null : advancedByView(l, 2),
+      title: l.deskSetHelpSetupAgain,
+      hint: l.deskSetHelpSetupHint,
+      control: ERowControl(child: EButton(label: l.deskSetAcctRunSetup, icon: EIcons.restart, size: EBtnSize.sm, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.setup))),
+    );
+    return ESetGroup(
+      title: l.deskSetHelpStartAgain,
+      rows: [
+        ESetRow(
+          anchor: SetId.tour,
+          title: l.deskSetHelpTourAgain,
+          control: ERowControl(child: EButton(label: l.deskSetHelpTourStart, icon: EIcons.restart, size: EBtnSize.sm, onPressed: () => startDeskTour(ref))),
         ),
-        actions: [ECopyButton(text: address, label: context.l10n.helpDonateCopy, withLabel: true, kind: EBtnKind.secondary, size: EBtnSize.sm)],
-      ),
+        if (setup) setupRow,
+      ],
+      hidden: [if (!setup) setupRow],
+      revealKey: 'help-again',
     );
   }
 }

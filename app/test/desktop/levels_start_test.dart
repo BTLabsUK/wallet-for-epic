@@ -11,7 +11,6 @@ import 'package:epic_wallet/src/desktop/screens/onboarding/setup_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/unlock_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/welcome_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_advanced.dart';
-import 'package:epic_wallet/src/desktop/screens/settings/settings_level.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/levels/first_start.dart';
@@ -58,7 +57,6 @@ class _Router extends ConsumerWidget {
         DeskRoute.setup => SetupScreen(arg: at.arg),
         DeskRoute.unlock => UnlockScreen(arg: at.arg),
         DeskRoute.settingsAdvanced => SettingsAdvancedScreen(arg: at.arg),
-        DeskRoute.settingsLevel => SettingsLevelScreen(arg: at.arg),
         _ => Text('at ${at.route.name}'),
       },
     );
@@ -198,22 +196,19 @@ void main() {
     await end(tester);
   });
 
-  testWidgets('Settings › Advanced at Shallow: the Depth row alone', (tester) async {
+  testWidgets('Settings › Advanced at Shallow: the View cards; the switches wait behind ⇕', (tester) async {
     container = make(level: WalletLevel.justSendReceive);
     await pumpApp(tester, DeskRoute.settingsAdvanced, height: 900);
     expect(find.byKey(const ValueKey('adv-depth')), findsOneWidget);
     expect(find.text('Shallow'), findsOneWidget);
     expect(find.byKey(const ValueKey('adv-outputs')), findsNothing);
-    expect(find.byKey(const ValueKey('adv-experimental')), findsNothing);
+    expect(find.byKey(const ValueKey('adv-invoices')), findsNothing);
     expect(find.byKey(const ValueKey('adv-mode-standard')), findsNothing);
     expect(find.byKey(const ValueKey('adv-nodeFailover')), findsNothing);
-    await tester.tap(find.byKey(const ValueKey('adv-depth-change')));
-    await tester.pump();
-    expect(container.read(deskNavProvider).route, DeskRoute.settingsLevel);
     await end(tester);
   });
 
-  testWidgets('Settings › Advanced at Deeper: the Depth row on top of today\'s page', (tester) async {
+  testWidgets('Settings › Advanced at Deeper: the View cards on top of the switches', (tester) async {
     container = make(level: WalletLevel.casual);
     await pumpApp(tester, DeskRoute.settingsAdvanced, height: 900);
     expect(find.byKey(const ValueKey('adv-depth')), findsOneWidget);
@@ -223,18 +218,18 @@ void main() {
     await end(tester);
   });
 
-  testWidgets('Change level: a pick applies at once, no Save; the preview follows', (tester) async {
+  testWidgets('Advanced › View: a pick applies at once, no Save; Change view opens Advanced', (tester) async {
     container = make();
     await pumpApp(tester, DeskRoute.settingsAdvanced, height: 900);
     container.read(deskNavProvider.notifier).go(DeskRoute.settingsLevel);
     await tester.pump();
+    expect(container.read(deskNavProvider).route, DeskRoute.settingsAdvanced, reason: 'Change view is Advanced now');
     expect(find.text('Save'), findsNothing);
-    expect(find.byKey(deskLevelPreviewKey), findsOneWidget);
-    await tester.tap(find.byKey(deskLevelStopKey(WalletLevel.casual)));
+    await tester.tap(find.byKey(advViewKey(WalletLevel.casual)));
     await wait(tester, 300);
     expect(container.read(deskLevelProvider), WalletLevel.casual);
     expect(await store.read(levelKey), '2');
-    expect(container.read(deskNavProvider).route, DeskRoute.settingsLevel, reason: 'stays on the page');
+    expect(container.read(deskNavProvider).route, DeskRoute.settingsAdvanced, reason: 'stays on the page');
     await end(tester);
   });
 }

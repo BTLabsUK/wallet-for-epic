@@ -1,7 +1,6 @@
 {
   "deskLvStartPreviewLabel": "概览预览。档位越深，显示越多。",
   "deskLvStartPreviewCaption": "此视图下的概览。已保存的内容不会改变。",
-  "deskLvStartPreviewCaptionShort": "此视图下的概览。",
   "deskLvStartCover": "选择一个档位以查看预览",
   "deskLvStartUndercoverAbout": "关于隐身",
   "deskLvStartChangeLater": "随时可在 设置 › 高级 中更改。",
@@ -12,7 +11,5 @@
   "deskLvStartMiniWallet": "主钱包",
   "deskLvStartMiniLine": "+12.5000 即将到账 · 25.0000 已冻结",
   "deskLvStartMiniFresh": "刚挖出的币",
-  "deskLvStartMiniWaiting": "等待对方",
-  "deskLvStartAdvNote": "视图越深，显示的钱包内容越多。已保存的内容不会改变。",
-  "deskLvStartAboutDepth": "视图：{name}"
+  "deskLvStartMiniWaiting": "等待对方"
 }

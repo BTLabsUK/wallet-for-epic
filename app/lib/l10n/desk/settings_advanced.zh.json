@@ -1,6 +1,5 @@
 {
   "deskSetFrameAdvanced": "高级",
-  "deskSetAdvIntro": "每个开关会在相应位置显示钱包的另一部分。",
   "deskSetAdvShows": "显示更多",
   "deskSetAdvOutputs": "输出",
   "deskSetAdvOutputsHint": "在侧边栏显示“输出”页面。它列出组成余额的币，可以拆分或合并，并设置发送使用的默认值。正在进行的拆分或合并会让该页面保持可见。",
@@ -28,7 +27,6 @@
   "deskNetRecvWaitTorText": "Tor 连接后才开始接收。文件传输仍然可用。",
   "deskSetAdvNodeFailover": "节点故障切换",
   "deskSetAdvNodeFailoverHint": "当你的节点不再响应时，钱包在本次会话中改用列表里下一个可用的节点。",
-  "deskSetAdvBalance": "余额",
   "deskSetAdvConfirmations": "确认数",
   "deskSetAdvConfirmationsHint": "收到的付款要等待多少个区块，其输出才能花费。默认 {byDefault}，可设为 {min} 到 {max}。",
   "deskSetAdvConfirmationsDefault": "默认",
@@ -37,5 +35,10 @@
   "deskSetAdvConfirmationsMore": "增加确认数",
   "deskSetAdvConfirmationsCount": "{count, plural, other{{count} 个确认}}",
   "deskSetAdvConfirmationsLowNote": "确认数越少越快，但越不安全。",
-  "deskSetAdvConfirmationsNotSaved": "确认数未更改"
+  "deskSetAdvConfirmationsNotSaved": "确认数未更改",
+  "deskSetAdvViewLineOne": "发送、收款和备份。节点和 Epicbox 服务器自动选择。",
+  "deskSetAdvViewLineTwo": "增加付款方式、节点、网络模式和更多钱包。",
+  "deskSetAdvViewLineThree": "增加输出、发票、本地节点和所有高级开关。",
+  "deskSetAdvViewNote": "视图只改变显示哪些页面和开关。",
+  "deskSetAdvExperiments": "实验功能"
 }

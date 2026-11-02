@@ -105,5 +105,17 @@
   "deskNodeSwitchStoppingWord": "Stopping",
   "@deskNodeSwitchStoppingWord": {
     "description": "Sidebar Node status word, one word: the built-in local node is shutting down after a switch to a public node."
+  },
+  "deskSetNodeConnection": "Connection",
+  "@deskSetNodeConnection": {
+    "description": "Node page: heading of the node picker and its switches."
+  },
+  "deskSetNodeFailover": "Switch node automatically",
+  "@deskSetNodeFailover": {
+    "description": "Node › Connection: switch that moves to the next working node when this one stops answering."
+  },
+  "deskSetNodeStatus": "Status",
+  "@deskSetNodeStatus": {
+    "description": "Node page: heading of what the node says of itself."
   }
 }

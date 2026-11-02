@@ -270,7 +270,8 @@ class DeskTitleBar extends ConsumerWidget {
       builder: (context, w, _) {
         final dim = !w.focused;
         final controls = window.frameless ? _WindowControls(window: window, state: w, style: style) : null;
-        final sideWidth = compact ? Ctl.rail : Ctl.sidebar;
+        // In Settings the brand stands over its column, wider than the sidebar.
+        final sideWidth = compact ? Ctl.rail : (route.section == DeskSection.settings ? Ctl.settingsNav : Ctl.sidebar);
         final bar = Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -620,7 +621,7 @@ class _BarMenuState extends State<_BarMenu> {
 void _toggle(MenuController m) => m.isOpen ? m.close() : m.open();
 
 /// Mark, then "Epic Cash" over "DESKTOP" as [BrandWordmark] sets them; in an open wallet it
-/// opens the app menu (hover and pressed fills say so). The build sits at the sidebar's foot.
+/// opens the app menu (hover and pressed fills say so); its tooltip names the build.
 class _Brand extends ConsumerWidget {
   const _Brand({required this.menu, required this.compact, required this.dim});
 
@@ -674,7 +675,8 @@ class _Brand extends ConsumerWidget {
     if (!menu) return Semantics(label: appName, excludeSemantics: true, child: Padding(padding: EdgeInsetsDirectional.only(start: Sp.x3), child: lockup));
     // The rail: the mark alone, the build in its tooltip; Copy build info is in the menu.
     if (compact) return _appMenu(context, ref, Center(widthFactor: 1, child: mark(22.u)), tooltip: '$appName ${deskBuildLabel()}');
-    return _appMenu(context, ref, lockup);
+    // The build in the tooltip (the sidebar has no version line).
+    return _appMenu(context, ref, lockup, tooltip: '$appName ${deskBuildLabel()}');
   }
 
   Widget _appMenu(BuildContext context, WidgetRef ref, Widget child, {String? tooltip}) {
@@ -747,87 +749,6 @@ Future<void> copyBuildInfo() async {
   await Clipboard.setData(ClipboardData(text: info));
   final shown = deskNavigatorKey.currentContext;
   if (shown != null && shown.mounted) showEToast(shown, shown.l10n.deskBarBuildCopied, text: info, tone: ETone.ok);
-}
-
-/// The build at the sidebar's foot, under Help and Report a problem: caption size, mono,
-/// faint; a click copies the build info.
-class DeskBuildLabel extends StatefulWidget {
-  const DeskBuildLabel({super.key});
-
-  @override
-  State<DeskBuildLabel> createState() => _DeskBuildLabelState();
-}
-
-class _DeskBuildLabelState extends State<DeskBuildLabel> {
-  bool _hover = false;
-  bool _copied = false;
-  Timer? _flash;
-
-  @override
-  void dispose() {
-    _flash?.cancel();
-    super.dispose();
-  }
-
-  Future<void> _copy() async {
-    await copyBuildInfo();
-    if (!mounted) return;
-    setState(() => _copied = true);
-    _flash?.cancel();
-    _flash = Timer(const Duration(milliseconds: 900), () {
-      if (mounted) setState(() => _copied = false);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.dc;
-    final ts = context.ts;
-    final l = context.l10n;
-    final parts = deskBuildLabel().split(metaSeparator);
-    final color = _copied ? c.ok : (_hover ? c.dim : c.faint);
-    final style = ts.mono(size: Fs.xs, color: color).copyWith(height: 1.2, fontFeatures: const [FontFeature.tabularFigures(), FontFeature.slashedZero()]);
-    final text = Text.rich(
-      TextSpan(
-        children: [
-          for (final (i, p) in parts.indexed) ...[
-            if (i > 0) TextSpan(text: metaSeparator, style: style.copyWith(color: c.lineField, letterSpacing: 0)), // l10n-ok: separator
-            TextSpan(text: p),
-          ],
-        ],
-      ),
-      maxLines: 1,
-      softWrap: false,
-      style: style,
-    );
-    final chip = AnimatedContainer(
-      duration: Dur.fast,
-      height: 20.u,
-      alignment: Alignment.centerLeft,
-      padding: EdgeInsets.symmetric(horizontal: Sp.x1),
-      decoration: BoxDecoration(color: _hover ? c.hover : Colors.transparent, borderRadius: BorderRadius.circular(Rad.xs)),
-      child: text,
-    );
-    final tip = appBuildId.isEmpty
-        ? l.deskBarBuildTipDev(deskAppVersion)
-        : appBuildTag.isEmpty
-        ? l.deskBarBuildTip(deskAppVersion, appBuildId)
-        : l.deskBarBuildTipRebuild(deskAppVersion, appBuildTag.replaceFirst('r', ''), appBuildId);
-    return ETip(
-      tip,
-      child: Semantics(
-        button: true,
-        label: tip,
-        excludeSemantics: true,
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          onEnter: (_) => setState(() => _hover = true),
-          onExit: (_) => setState(() => _hover = false),
-          child: GestureDetector(key: const ValueKey('bar-build'), onTap: () => unawaited(_copy()), child: chip),
-        ),
-      ),
-    );
-  }
 }
 
 /// The platform word of the lockup, as [BrandWordmark] spells it.

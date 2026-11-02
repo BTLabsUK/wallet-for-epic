@@ -9,6 +9,7 @@ import '../../data/desk_errors.dart' show deskErrorText;
 import '../../widgets/kit.dart';
 import '../onboarding/unlock_screen.dart' show rememberWho;
 import 'dialogs.dart';
+import 'setting_ids.dart';
 import 'settings_frame.dart';
 
 /// Demo states of the page for the tour's shots.
@@ -18,8 +19,7 @@ enum SecurityDemo { autoLockOpen }
 const settingsPhraseOpenKey = ValueKey('settings-phrase-open');
 
 /// Settings › Security, in the phone's order: the recovery phrase (its own page), auto-lock,
-/// the password and this computer's Remember; Delete wallet apart at the end. The one place on
-/// the desktop that deletes this wallet.
+/// the password and this computer's Remember. Delete wallet is under Wallet › Remove.
 class SettingsSecurityScreen extends ConsumerStatefulWidget {
   const SettingsSecurityScreen({super.key, this.arg});
 
@@ -74,9 +74,9 @@ class _SettingsSecurityScreenState extends ConsumerState<SettingsSecurityScreen>
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ESetGroup(
-            title: l.settingsSectionSecurity,
             rows: [
               ESetRow(
+                anchor: SetId.phraseGo,
                 title: l.deskSetFramePhrase,
                 hint: l.deskSetPhraseIntro,
                 control: ERowControl(
@@ -91,26 +91,18 @@ class _SettingsSecurityScreenState extends ConsumerState<SettingsSecurityScreen>
               ),
               _AutoLockRow(open: widget.arg == SecurityDemo.autoLockOpen),
               ESetRow(
+                anchor: SetId.password,
                 title: l.deskSetDlgPassword,
                 hint: l.deskSetAcctPasswordHint,
                 control: ERowControl(child: EButton(label: l.deskSetAcctChangePassword, size: EBtnSize.sm, icon: EIcons.lock, onPressed: () => showChangePasswordDialog(context))),
               ),
               if (_remembered)
                 ESetRow(
+                  anchor: SetId.remembered,
                   title: l.deskSetAcctRemembered,
                   hint: l.deskSetAcctRememberedHint(rememberWho(l)),
                   control: ERowControl(child: EButton(label: l.deskSetAcctForget, icon: EIcons.lock, size: EBtnSize.sm, onPressed: _forget)),
                 ),
-            ],
-          ),
-          // Apart from the rest: the one step that cannot be undone.
-          ESetGroup(
-            rows: [
-              ESetRow(
-                title: l.deskSetDlgDeleteWallet,
-                hint: l.deskSetAcctDeleteHint,
-                control: ERowControl(child: EButton(label: l.deskSetLnodeDelete, size: EBtnSize.sm, icon: EIcons.trash, kind: EBtnKind.danger, onPressed: () => showDeleteWalletDialog(context))),
-              ),
             ],
           ),
         ],
@@ -137,6 +129,7 @@ class _AutoLockRow extends ConsumerWidget {
     final s = ref.watch(deskProvider.select((d) => d.settings));
     void save(DeskSettings next) => ref.read(deskProvider.notifier).saveSettings(next);
     return ESetRow(
+      anchor: SetId.autolock,
       title: l.settingsAutoLock,
       hint: l.deskSetAcctAutoLockHint,
       control: ERowControl(

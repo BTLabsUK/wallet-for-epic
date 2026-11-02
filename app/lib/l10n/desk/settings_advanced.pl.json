@@ -1,6 +1,5 @@
 {
   "deskSetFrameAdvanced": "Zaawansowane",
-  "deskSetAdvIntro": "Każdy przełącznik pokazuje kolejną część portfela w miejscu, do którego należy.",
   "deskSetAdvShows": "Pokazuje więcej",
   "deskSetAdvOutputs": "Wyjścia",
   "deskSetAdvOutputsHint": "Pokazuje stronę Wyjścia na pasku bocznym. Wymienia monety, z których składa się saldo, pozwala je dzielić lub scalać i ustawia domyślne zasady wysyłki. Trwający podział lub scalanie utrzymuje stronę widoczną.",
@@ -28,7 +27,6 @@
   "deskNetRecvWaitTorText": "Odbieranie zacznie się, gdy Tor się połączy. Przesyłanie pliku nadal działa.",
   "deskSetAdvNodeFailover": "Automatyczna zmiana węzła",
   "deskSetAdvNodeFailoverHint": "Gdy twój węzeł przestaje odpowiadać, portfel na czas tej sesji używa następnego działającego węzła z twojej listy.",
-  "deskSetAdvBalance": "Saldo",
   "deskSetAdvConfirmations": "Potwierdzenia",
   "deskSetAdvConfirmationsHint": "Ile bloków odebrana płatność czeka, zanim jej wyjścia będzie można wydać. Domyślnie {byDefault}; od {min} do {max}.",
   "deskSetAdvConfirmationsDefault": "Domyślnie",
@@ -37,5 +35,10 @@
   "deskSetAdvConfirmationsMore": "Więcej potwierdzeń",
   "deskSetAdvConfirmationsCount": "{count, plural, one{{count} potwierdzenie} few{{count} potwierdzenia} many{{count} potwierdzeń} other{{count} potwierdzenia}}",
   "deskSetAdvConfirmationsLowNote": "Mniej potwierdzeń to szybciej, ale mniej bezpiecznie.",
-  "deskSetAdvConfirmationsNotSaved": "Nie zmieniono potwierdzeń"
+  "deskSetAdvConfirmationsNotSaved": "Nie zmieniono potwierdzeń",
+  "deskSetAdvViewLineOne": "Wysyłanie, odbieranie i kopie zapasowe. Węzeł i serwer Epicbox są wybierane automatycznie.",
+  "deskSetAdvViewLineTwo": "Dodaje metody płatności, węzeł, tryby sieci i kolejne portfele.",
+  "deskSetAdvViewLineThree": "Dodaje wyjścia, faktury, lokalny węzeł i każdy przełącznik Zaawansowanych.",
+  "deskSetAdvViewNote": "Widok zmienia tylko, które strony i przełączniki są widoczne.",
+  "deskSetAdvExperiments": "Eksperymenty"
 }

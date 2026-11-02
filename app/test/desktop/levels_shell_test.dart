@@ -68,20 +68,20 @@ void main() {
       await _end(tester);
     });
 
-    testWidgets('Settings: six entries, Recheck balance from This wallet; hidden pages read as the landing', (tester) async {
+    testWidgets('Settings: Wallet, Security, Linked devices, Appearance, Advanced, Help, Donate, About; hidden pages fall back', (tester) async {
       final c = await _pump(tester, WalletLevel.justSendReceive, start: DeskRoute.settingsAccount);
       Finder side(String l) => find.descendant(of: find.byType(ESubnav), matching: find.text(l));
-      for (final l in ['Appearance', 'This wallet', 'Security', 'Advanced', 'About', 'Help']) {
-        expect(side(l), findsOneWidget, reason: l);
+      for (final l in ['Wallet', 'Security', 'Linked devices', 'Appearance', 'Advanced', 'Help', 'Donate', 'About']) {
+        expect(side(l), findsWidgets, reason: l);
       }
-      for (final l in ['Node', 'Transactions', 'Privacy', 'All wallets', 'Recheck balance']) {
+      for (final l in ['Node', 'Payments', 'Network & privacy', 'Wallets', 'Files & logs', 'Recheck balance', 'This computer']) {
         expect(side(l), findsNothing, reason: l);
       }
       expect(find.byKey(const ValueKey('account-recheck')), findsOneWidget);
 
       c.read(deskNavProvider.notifier).go(DeskRoute.settingsNode);
       await tester.pump(const Duration(milliseconds: 500));
-      expect(find.text('Interface scale'), findsOneWidget, reason: 'Settings › Node reads as Appearance');
+      expect(find.text('Interface scale'), findsOneWidget, reason: 'Settings › Node falls back to Appearance, the first of App');
       c.read(deskNavProvider.notifier).go(DeskRoute.outputs);
       await tester.pump(const Duration(milliseconds: 500));
       expect(find.byType(OverviewScreen), findsOneWidget, reason: 'Outputs reads as Overview');
@@ -105,13 +105,14 @@ void main() {
       await _end(tester);
     });
 
-    testWidgets("Settings: today's side list", (tester) async {
+    testWidgets('Settings: the four groups, every entry; Recheck balance a row of Wallet', (tester) async {
       await _pump(tester, WalletLevel.everything, start: DeskRoute.settingsAccount);
       Finder side(String l) => find.descendant(of: find.byType(ESubnav), matching: find.text(l));
-      for (final l in ['Node', 'Transactions', 'Network & privacy', 'Appearance', 'This wallet', 'All wallets', 'Security', 'Recheck balance', 'Advanced', 'About', 'Help']) {
-        expect(side(l), findsOneWidget, reason: l);
+      for (final l in ['Wallet', 'Security', 'Payments', 'Linked devices', 'Appearance', 'Node', 'Network & privacy', 'Advanced', 'Wallets', 'Files & logs', 'Help', 'Donate', 'About', 'APP', 'THIS COMPUTER', 'HELP']) {
+        expect(side(l), findsWidgets, reason: l);
       }
-      expect(find.byKey(const ValueKey('account-recheck')), findsNothing);
+      expect(side('Recheck balance'), findsNothing);
+      expect(find.byKey(const ValueKey('account-recheck')), findsOneWidget);
       await _end(tester);
     });
   });

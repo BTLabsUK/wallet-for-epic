@@ -543,65 +543,116 @@ class _ESelectState<T> extends State<ESelect<T>> {
   }
 }
 
-/// A vertical list of sub-pages (settings) with the current one raised.
+/// One group of [ESubnav]: an optional heading (small caps) over its entries.
+class ESubnavGroup {
+  const ESubnavGroup({this.heading, required this.items, this.trailing});
+
+  /// The group's name ("App", the wallet's name); null for none.
+  final String? heading;
+
+  /// (id, label, icon) per entry.
+  final List<(Object, String, IconData)> items;
+
+  /// After the heading, at its end (a "more options" control).
+  final Widget? trailing;
+}
+
+/// A vertical list of sub-pages (settings) in groups, each under its heading, with the current
+/// one raised. Every entry is its icon and name only.
 class ESubnav extends StatelessWidget {
-  const ESubnav({super.key, required this.items, required this.current, required this.onTap, this.wrap, this.details});
+  const ESubnav({super.key, required this.groups, required this.current, required this.onTap, this.wrap, this.matches, this.noMatchLabel});
 
-  /// Null entries draw a separator.
-  final List<(Object, String, IconData)?> items;
-
-  /// A short state line under an entry, by its id (Network & privacy: "Normal · Tor off").
-  final Map<Object, String>? details;
+  final List<ESubnavGroup> groups;
   final Object current;
   final ValueChanged<Object> onTap;
 
   /// Wraps each entry (the tour marks them as targets).
   final Widget Function(Object id, Widget entry)? wrap;
 
+  /// While a search runs: the entries with results. The others are dimmed and say
+  /// [noMatchLabel] to a screen reader. Null: no search, nothing dimmed.
+  final Set<Object>? matches;
+  final String? noMatchLabel;
+
   @override
   Widget build(BuildContext context) {
-    final c = context.dc;
     // One group: Tab does not interleave the sub-pages with the page's controls.
     return FocusTraversalGroup(
       child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (final item in items)
-          if (item == null)
-            Padding(padding: EdgeInsets.symmetric(vertical: Sp.x2, horizontal: Sp.x3), child: Divider(height: 1, color: c.line))
-          else
-            (wrap ?? (_, w) => w)(
-              item.$1,
-              ENavItem(
-                icon: item.$3,
-                label: item.$2,
-                detail: details?[item.$1],
-                selected: item.$1 == current,
-                onTap: () => onTap(item.$1),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final (i, g) in groups.indexed) ...[
+            if (g.heading != null) ESubnavHeading(g.heading!, top: i == 0 ? 0 : Sp.x5, trailing: g.trailing) else if (i > 0) SizedBox(height: Sp.x4),
+            for (final item in g.items)
+              (wrap ?? (_, w) => w)(
+                item.$1,
+                ENavItem(
+                  icon: item.$3,
+                  label: item.$2,
+                  selected: item.$1 == current,
+                  dimmed: matches != null && !matches!.contains(item.$1),
+                  value: matches != null && !matches!.contains(item.$1) ? noMatchLabel : null,
+                  onTap: () => onTap(item.$1),
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// A group heading in a navigation list: small caps in the dim colour, a header to a screen
+/// reader.
+class ESubnavHeading extends StatelessWidget {
+  const ESubnavHeading(this.text, {super.key, this.top, this.trailing});
+
+  final String text;
+  final double? top;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(Sp.x3, top ?? Sp.x5, Sp.x2, Sp.x1),
+      child: Row(
+        children: [
+          Expanded(
+            child: Semantics(
+              header: true,
+              child: Text(
+                text.toUpperCase(),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.ts.caption.copyWith(color: c.dim, fontWeight: FontWeight.w600, letterSpacing: Fs.xs * 0.08),
               ),
             ),
-      ],
-    ),
+          ),
+          ?trailing,
+        ],
+      ),
     );
   }
 }
 
 /// A 40 px navigation entry: icon, label, optional count badge. Used by the sidebar and
-/// sub-navigation.
+/// sub-navigation. Never a second line: a state belongs on its page.
 class ENavItem extends StatefulWidget {
-  const ENavItem({super.key, required this.icon, required this.label, required this.selected, required this.onTap, this.count, this.compact = false, this.detail});
+  const ENavItem({super.key, required this.icon, required this.label, required this.selected, required this.onTap, this.count, this.compact = false, this.dimmed = false, this.value});
 
   final IconData icon;
   final String label;
-
-  /// A short state line under the label, dim and small (not in [compact]).
-  final String? detail;
   final bool selected;
   final VoidCallback onTap;
   final int? count;
 
   /// Icon only (the narrow rail), the label in a tooltip.
   final bool compact;
+
+  /// Quieter text and icon (a search found nothing here); [value] says why to a screen reader.
+  final bool dimmed;
+  final String? value;
 
   @override
   State<ENavItem> createState() => _ENavItemState();
@@ -646,18 +697,11 @@ class _ENavItemState extends State<ENavItem> {
           if (!widget.compact) ...[
             SizedBox(width: Sp.x3),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.label,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: Fs.md, height: 1.4, fontWeight: FontWeight.w500, color: sel || _hover ? c.text : c.dim),
-                  ),
-                  if (widget.detail case final d?)
-                    Text(d, maxLines: 2, overflow: TextOverflow.ellipsis, style: context.ts.small.copyWith(color: c.dim)),
-                ],
+              child: Text(
+                widget.label,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: Fs.md, height: 1.4, fontWeight: FontWeight.w500, color: widget.dimmed && !sel ? c.faint : (sel || _hover ? c.text : c.dim)),
               ),
             ),
             if (count > 0)
@@ -679,9 +723,8 @@ class _ENavItemState extends State<ENavItem> {
       selected: sel,
       label: count > 0
           ? context.l10n.deskKitNeedAction(widget.label, count)
-          : widget.detail == null || widget.compact
-          ? widget.label
-          : '${widget.label}, ${widget.detail}',
+          : widget.label,
+      value: widget.value,
       excludeSemantics: true,
       onTap: widget.onTap,
       child: FocusableActionDetector(

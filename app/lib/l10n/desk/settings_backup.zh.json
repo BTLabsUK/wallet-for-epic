@@ -8,7 +8,6 @@
   "deskSetBackupWriteFailedHere": "无法写入该文件夹：{reason}。请选择其他文件夹。",
   "deskSetBackupWriteFailedIn": "无法写入 {folder}：{reason}。请选择其他文件夹。",
   "deskSetBackupWriteFailed": "无法写入文件。请选择其他文件夹。",
-  "deskSetBackupGroup": "钱包数据",
   "deskSetBackupExportTitle": "导出钱包数据",
   "deskSetBackupExportHint": "交易记录、联系人、账单和设置，存在只有持这个助记词的钱包才能打开的文件里。助记词本身只找回余额，找不回这些。",
   "deskSetBackupExporting": "正在导出…",

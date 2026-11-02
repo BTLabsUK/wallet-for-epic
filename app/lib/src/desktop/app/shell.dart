@@ -8,14 +8,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../ui/theme/brand.dart' show BrandLockup, BrandVariant;
 import '../desk_l10n.dart';
 import '../data/desk_node.dart' show nodeHost;
 import '../data/desk_update.dart' show deskAppVersion, deskUpdateAutoProvider, deskUpdateProvider;
 import '../../ui/notices.dart' show NoticeLevel;
 import '../../ui/pairing/pairing_notices.dart' show pairingEventOnScreen, pairingNoticeOf;
 import '../../models.dart' show PairingCollectTrigger, PairingEventKind;
-import '../data/devices_state.dart' show deskDeviceServiceProvider, deskLinkedDevicesOnProvider;
+import '../data/devices_state.dart' show deskDeviceServiceProvider;
 import '../../devices/device_service.dart' show DeviceSyncTrigger;
 import '../data/pairing_state.dart' show deskContactKeysOf, deskInvoicesShownProvider, deskKeysBackProvider, deskPairRequestsProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
@@ -30,6 +29,9 @@ import '../../levels/wallet_level.dart' show WalletLevel;
 import '../data/desk_levels.dart';
 import '../screens/settings/history_conflicts.dart' show showHistoryConflicts;
 import '../screens/settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
+import '../screens/settings/settings_frame.dart' show SettingsColumn, settingsTakeover;
+import '../screens/settings/search/search_slot.dart' show SettingsSearchKeys, openSettingsSearch, settingsQueryProvider;
+import '../screens/settings/search/settings_sections.dart' show settingsFallback, setViewProvider;
 import '../widgets/kit.dart';
 import 'desk_app.dart' show deskNavigatorKey;
 import 'desk_failover.dart';
@@ -43,7 +45,8 @@ import 'tour.dart';
 
 export 'rail.dart' show ServiceRows;
 
-/// The app version the sidebar, About and the support report show, with the build's commit.
+/// The app version About, the title bar's tooltip and the support report show, with the
+/// build's commit.
 final String deskVersion = withBuildId(deskAppVersion);
 
 
@@ -163,10 +166,34 @@ class _DeskShellState extends ConsumerState<DeskShell> {
 
   AppLifecycleListener? _focus;
 
-  /// Ctrl+L / ⌘L locks, Ctrl+Q / ⌘Q quits, wherever the focus is (6.1.6 app menu).
+  /// The hidden Settings place last answered with a fallback toast (once per place).
+  DeskLocation? _fellBack;
+
+  /// Around the Settings takeover: Esc bubbles up to it from the page and the column.
+  final _settingsFocus = FocusNode(debugLabel: 'settings takeover', skipTraversal: true);
+
+  /// Esc in Settings goes back to the wallet page it came from: not while a text field or a
+  /// menu has it (those take Esc first and stop it), a dialog or the tour is open, or a search
+  /// is typed (Esc clears it first).
+  bool _onSettingsEsc(KeyEvent e) {
+    if (e is! KeyDownEvent || e.logicalKey != LogicalKeyboardKey.escape || !mounted) return false;
+    final hw = HardwareKeyboard.instance;
+    if (hw.isShiftPressed || hw.isControlPressed || hw.isMetaPressed || hw.isAltPressed) return false;
+    if (ref.read(deskNavProvider).route.section != DeskSection.settings) return false;
+    if (deskTextFocused() || _navHeld(ref) || ref.read(settingsQueryProvider).trim().isNotEmpty) return false;
+    ref.read(deskNavProvider.notifier).leaveSettings();
+    return true;
+  }
+
+  /// Ctrl+L / ⌘L locks, Ctrl+Q / ⌘Q quits, wherever the focus is (6.1.6 app menu). Esc in
+  /// Settings when nothing in it has the focus (the focus tree would not see the key).
   bool _onKey(KeyEvent e) {
     if (e is! KeyDownEvent || !mounted) return false;
     if (_onQuestion(e)) return true;
+    if (e.logicalKey == LogicalKeyboardKey.escape) {
+      final inside = _settingsFocus.hasFocus;
+      return !inside && _onSettingsEsc(e);
+    }
     final hw = HardwareKeyboard.instance;
     if (!(hw.isControlPressed || hw.isMetaPressed) || hw.isShiftPressed || hw.isAltPressed) return false;
     if (e.logicalKey == LogicalKeyboardKey.keyL) {
@@ -175,6 +202,12 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     }
     if (e.logicalKey == LogicalKeyboardKey.keyQ) {
       unawaited(deskClose(ref));
+      return true;
+    }
+    // Ctrl+K from a wallet page: Settings with its search focused (inside Settings the
+    // search's own keys take it).
+    if (e.logicalKey == LogicalKeyboardKey.keyK && ref.read(deskNavProvider).route.section != DeskSection.settings && !_navHeld(ref)) {
+      openSettingsSearch(ref);
       return true;
     }
     return false;
@@ -219,6 +252,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     _ownAsk?.cancel();
     _collectTimer?.cancel();
     _focus?.dispose();
+    _settingsFocus.dispose();
     super.dispose();
   }
 
@@ -291,9 +325,23 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     });
     // A place of a part switched off (Pairing, Invoices) or one the level hides reads as
     // Overview, or as the Settings landing for a Settings page.
-    final shown = deskRouteShown(ref, at.route)
-        ? at
-        : DeskLocation(at.route.section == DeskSection.settings ? deskSettingsHome(ref) : DeskRoute.overview);
+    // A Settings page the view hides falls back to the first entry of its group, with a toast
+    // that says what shows it (review 14).
+    final DeskLocation shown;
+    if (deskRouteShown(ref, at.route)) {
+      shown = at;
+    } else if (at.route.section == DeskSection.settings) {
+      final back = settingsFallback(context.l10n, ref.watch(setViewProvider), at.route);
+      shown = DeskLocation(deskRouteShown(ref, back.route) ? back.route : deskSettingsHome(ref));
+      if (back.notice != null && _fellBack != at) {
+        _fellBack = at;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) showEToast(context, back.notice!, tone: ETone.info);
+        });
+      }
+    } else {
+      shown = const DeskLocation(DeskRoute.overview);
+    }
     final page = KeyedSubtree(key: ValueKey(shown.route), child: deskScreen(shown));
     // The page's text is selectable and copyable (selectable.dart); the sidebar is not.
     final main = Material(color: c.bg, child: DeskSelectable(child: page));
@@ -305,6 +353,29 @@ class _DeskShellState extends ConsumerState<DeskShell> {
         backgroundColor: c.bg,
         body: SafeArea(child: Column(children: [_PhoneTopBar(section: shown.route.section), Expanded(child: FocusTraversalGroup(child: main))])),
         bottomNavigationBar: _PhoneNav(section: shown.route.section),
+      );
+    } else if (shown.route.section == DeskSection.settings && settingsTakeover(context)) {
+      // Settings takes the sidebar's place (option 1): its column, then the page. Esc and
+      // "← Wallet" go back to the wallet page it came from.
+      final nav = ref.read(deskNavProvider.notifier);
+      frame = Scaffold(
+        backgroundColor: c.bg,
+        // The search's keys first (Esc clears a query), then Esc back to the wallet.
+        body: Focus(
+          focusNode: _settingsFocus,
+          skipTraversal: true,
+          onKeyEvent: (_, e) => _onSettingsEsc(e) ? KeyEventResult.handled : KeyEventResult.ignored,
+          child: SettingsSearchKeys(
+            onLeave: nav.leaveSettings,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                FocusTraversalGroup(child: SettingsColumn(route: shown.route)),
+                Expanded(child: FocusTraversalGroup(child: main)),
+              ],
+            ),
+          ),
+        ),
       );
     } else {
       final compact = width < Bp.desktop;
@@ -563,13 +634,7 @@ class _PhoneTopBar extends ConsumerWidget {
       decoration: BoxDecoration(border: Border(bottom: BorderSide(color: c.line))),
       child: Row(
         children: [
-          Flexible(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: AlignmentDirectional.centerStart,
-              child: BrandLockup(variant: BrandVariant.desktop, size: 24.u, textRatio: 0.58),
-            ),
-          ),
+          // The brand is in the title bar above.
           const Spacer(),
           const ServiceRows(compact: true, horizontal: true),
           TourTarget(
@@ -599,14 +664,12 @@ bool deskRouteShown(WidgetRef ref, DeskRoute route) {
     DeskRoute.pair => ref.watch(deskPairsProvider),
     DeskRoute.invoices || DeskRoute.invoiceIssue || DeskRoute.invoiceReview || DeskRoute.settingsInvoices =>
       ref.watch(deskInvoicesShownProvider),
-    DeskRoute.settingsDevices => ref.watch(deskLinkedDevicesOnProvider),
     _ => true,
   };
 }
 
-/// Where Settings opens: Node, or Appearance at a level without the node page.
-DeskRoute deskSettingsHome(WidgetRef ref) =>
-    ref.watch(deskLevelUiProvider).nodeSettings ? DeskRoute.settingsNode : DeskRoute.settingsAppearance;
+/// Where Settings opens: Wallet, its first entry, at every view.
+DeskRoute deskSettingsHome(WidgetRef ref) => DeskRoute.settingsAccount;
 
 /// Advanced › Outputs at Deep end, or a split or consolidation the node did not take yet at any
 /// level (never hide what is in use: its Broadcast again and Cancel live there).

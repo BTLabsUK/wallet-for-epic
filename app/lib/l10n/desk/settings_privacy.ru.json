@@ -17,5 +17,8 @@
   "deskSetPrivUseStatus": "Использовать {site}",
   "deskSetPrivUseStatusHint": "Показывает, какие узлы и серверы Epicbox в сети, по публичному списку на status.btlabs.uk.",
   "deskSetPrivUndercoverLine": "Инкогнито держит Tor включённым.",
-  "deskSetPrivUndercoverChange": "Изменить «Инкогнито»"
+  "deskSetPrivUndercoverChange": "Изменить «Инкогнито»",
+  "deskSetPrivTorAll": "Tor для всех соединений",
+  "deskSetPrivServerStatus": "Состояние серверов",
+  "deskSetPrivMode": "Режим соединения"
 }

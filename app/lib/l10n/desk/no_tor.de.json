@@ -1,6 +1,6 @@
 {
   "deskNoTorSendDirectLine2": "Eine http(s)-Adresse. Die Wallet des Empfängers muss geöffnet sein.",
-  "deskNoTorSetTxDirectHint": "Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Web-Adresse (http://host:{port}), ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind. Fügt Link · HTTP zu Senden und seine Adresse zu Empfangen hinzu.",
+  "deskNoTorSetTxDirectHint": "Zahlen und bezahlt werden direkt von Wallet zu Wallet unter einer Web-Adresse (http://host:{port}), ohne Server dazwischen. Funktioniert nur, solange beide Wallets geöffnet sind. Fügt Link · HTTP zu Senden und seine Adresse zu Empfangen hinzu. Alle Wallets.",
   "deskNoTorTxDetailsFromBad": "Verwenden Sie eine Epicbox- oder http(s)-Adresse.",
   "deskNoTorTourAdvancedText": "Outputs und technische Details sind hier. Schalten Sie ein, was Sie brauchen."
 }

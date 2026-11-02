@@ -114,11 +114,12 @@ void main() {
     });
   });
 
-  testWidgets('Report a problem is the first block of Help', (tester) async {
+  testWidgets('Help › Support holds Report a problem, under the topics', (tester) async {
     await _pump(tester, const SettingsHelpScreen());
     final report = tester.getTopLeft(find.text('Report a problem').first);
     final search = tester.getTopLeft(find.text('Search help').first);
-    expect(report.dy, lessThan(search.dy));
+    expect(report.dy, greaterThan(search.dy));
+    expect(find.text('Support'), findsOneWidget);
   });
 
   testWidgets('the Internet guide says "the wallet answers" and offers Tor', (tester) async {

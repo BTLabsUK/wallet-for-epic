@@ -1,7 +1,6 @@
 {
   "deskLvStartPreviewLabel": "Vorschau der Übersicht. Sie zeigt mehr, je tiefer der Regler steht.",
   "deskLvStartPreviewCaption": "Ihre Übersicht in dieser Ansicht. Gespeichert wird nichts anders.",
-  "deskLvStartPreviewCaptionShort": "Ihre Übersicht in dieser Ansicht.",
   "deskLvStartCover": "Stufe wählen, um die Vorschau zu sehen",
   "deskLvStartUndercoverAbout": "Über Inkognito",
   "deskLvStartChangeLater": "Jederzeit änderbar unter Einstellungen › Erweitert.",
@@ -12,7 +11,5 @@
   "deskLvStartMiniWallet": "Hauptwallet",
   "deskLvStartMiniLine": "+12,5000 kommen an · 25,0000 gehalten",
   "deskLvStartMiniFresh": "Frisch vom Mining",
-  "deskLvStartMiniWaiting": "Wartet auf die Gegenseite",
-  "deskLvStartAdvNote": "Eine tiefere Ansicht zeigt mehr von der Wallet. Gespeichert wird nichts anders.",
-  "deskLvStartAboutDepth": "Ansicht: {name}"
+  "deskLvStartMiniWaiting": "Wartet auf die Gegenseite"
 }

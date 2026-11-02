@@ -10707,9 +10707,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetAcctSaveLabel => 'Zapisz etykietę';
 
   @override
-  String get deskSetAcctFiles => 'Pliki';
-
-  @override
   String get deskSetAcctWalletFolder => 'Folder portfela';
 
   @override
@@ -10723,13 +10720,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAcctNetworkHint => 'Ustalona przy tworzeniu portfela.';
-
-  @override
-  String get deskSetAcctSetup => 'Asystent konfiguracji';
-
-  @override
-  String get deskSetAcctSetupHint =>
-      'Przejdź jeszcze raz przez ustawienia węzła i odbierania. Nic nie przepadnie.';
 
   @override
   String get deskSetAcctRunSetup => 'Uruchom asystenta…';
@@ -10814,9 +10804,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskSetBackupWriteFailed =>
       'Nie udało się zapisać pliku. Wybierz inny folder.';
-
-  @override
-  String get deskSetBackupGroup => 'Dane portfela';
 
   @override
   String get deskSetBackupExportTitle => 'Eksportuj dane portfela';
@@ -13505,10 +13492,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetFrameAdvanced => 'Zaawansowane';
 
   @override
-  String get deskSetAdvIntro =>
-      'Każdy przełącznik pokazuje kolejną część portfela w miejscu, do którego należy.';
-
-  @override
   String get deskSetAdvShows => 'Pokazuje więcej';
 
   @override
@@ -13588,7 +13571,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetAcctAutoLockHint =>
-      'Blokuje portfel po tym czasie bez naciśnięcia klawisza lub ruchu myszy. Przy „Nigdy” portfel blokuje tylko „Zablokuj portfel”.';
+      'Blokuje portfel po tym czasie bez naciśnięcia klawisza lub ruchu myszy. Przy „Nigdy” portfel blokuje tylko „Zablokuj portfel”. Wszystkie portfele.';
 
   @override
   String get torUndercoverKeepsOn => 'Incognito utrzymuje Tor włączony.';
@@ -13981,30 +13964,27 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetFrameTransactions => 'Transakcje';
 
   @override
-  String get deskSetTxMethods => 'Metody płatności';
+  String get deskSetTxMethods => 'Metody';
 
   @override
   String get deskSetTxEpicboxHint =>
-      'Płać i dostawaj zapłatę przez serwer Epicbox. Tak idzie większość płatności. Wyłączony: portfel nie łączy się z żadnym serwerem Epicbox, więc bez płatności Epicbox i faktur. Pozostałe metody nadal działają.';
+      'Płać i dostawaj zapłatę przez serwer Epicbox. Tak idzie większość płatności. Wyłączony: portfel nie łączy się z żadnym serwerem Epicbox, więc bez płatności Epicbox i faktur. Pozostałe metody nadal działają. Wszystkie portfele.';
 
   @override
   String deskSetTxDirectHint(String port) {
-    return 'Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem internetowym (http://host:$port), bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte; wyłączony, gdy Tor jest włączony. Dodaje Link · HTTP do Wyślij, a jego adres do Odbierz.';
+    return 'Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem internetowym (http://host:$port), bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte; wyłączony, gdy Tor jest włączony. Dodaje Link · HTTP do Wyślij, a jego adres do Odbierz. Wszystkie portfele.';
   }
 
   @override
   String get deskSetTxFileHint =>
-      'Płać i dostawaj zapłatę, przekazując plik transakcji, bez potrzeby sieci. Dodaje Przesyłanie pliku do Wyślij, a kroki z plikami do Odbierz.';
-
-  @override
-  String get deskSetTxSend => 'Wyślij';
+      'Płać i dostawaj zapłatę, przekazując plik transakcji, bez potrzeby sieci. Dodaje Przesyłanie pliku do Wyślij, a kroki z plikami do Odbierz. Wszystkie portfele.';
 
   @override
   String get deskSetTxStart => 'Domyślna metoda';
 
   @override
   String get deskSetTxStartHint =>
-      'Metoda, z którą otwiera się strona Wyślij. Dla jednej płatności nadal możesz ją zmienić na stronie Wyślij.';
+      'Metoda, z którą otwiera się strona Wyślij. Dla jednej płatności nadal możesz ją zmienić na stronie Wyślij. Wszystkie portfele.';
 
   @override
   String get deskSendMethodHeader => 'Metoda płatności';
@@ -16763,21 +16743,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskBarBuildCopied => 'Skopiowano informacje o wersji';
 
   @override
-  String deskBarBuildTip(String version, String commit) {
-    return 'Wersja $version, commit $commit. Kliknięcie kopiuje informacje o wersji.';
-  }
-
-  @override
-  String deskBarBuildTipRebuild(String version, String rebuild, String commit) {
-    return 'Wersja $version, przebudowa $rebuild, commit $commit. Kliknięcie kopiuje informacje o wersji.';
-  }
-
-  @override
-  String deskBarBuildTipDev(String version) {
-    return 'Wersja $version. Wersja deweloperska. Kliknięcie kopiuje informacje o wersji.';
-  }
-
-  @override
   String get deskBarKeyMenu => 'Otwórz menu aplikacji';
 
   @override
@@ -17156,7 +17121,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskNoTorSetTxDirectHint(String port) {
-    return 'Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem internetowym (http://host:$port), bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte. Dodaje Link · HTTP do Wyślij, a jego adres do Odbierz.';
+    return 'Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem internetowym (http://host:$port), bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte. Dodaje Link · HTTP do Wyślij, a jego adres do Odbierz. Wszystkie portfele.';
   }
 
   @override
@@ -17679,9 +17644,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get syncHelpNotChecked => 'Nie sprawdzono';
-
-  @override
-  String get deskSetAdvBalance => 'Saldo';
 
   @override
   String get deskSetAdvConfirmations => 'Potwierdzenia';
@@ -19202,9 +19164,6 @@ class AppLocalizationsPl extends AppLocalizations {
       'Twój Przegląd w tym widoku. Nic zapisanego się nie zmienia.';
 
   @override
-  String get deskLvStartPreviewCaptionShort => 'Twój Przegląd w tym widoku.';
-
-  @override
   String get deskLvStartCover => 'Wybierz punkt, aby zobaczyć podgląd';
 
   @override
@@ -19241,15 +19200,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskLvStartMiniWaiting => 'Czeka na drugą stronę';
-
-  @override
-  String get deskLvStartAdvNote =>
-      'Głębszy widok pokazuje więcej portfela. Nic zapisanego się nie zmienia.';
-
-  @override
-  String deskLvStartAboutDepth(String name) {
-    return 'Widok: $name';
-  }
 
   @override
   String get deskLvSendHowTo => 'Jak to wysłać';
@@ -19580,9 +19530,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetHelpSupportHead => 'Wsparcie';
-
-  @override
-  String get deskSetHelpTopicsHead => 'Tematy';
 
   @override
   String deskKitPasswordRule(int count) {
@@ -20057,14 +20004,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskRecvTorOffTextNet =>
       'Adres Tor działa, gdy Tor jest włączony. Tor to przełącznik w Ustawienia › Sieć i prywatność; kieruje połączenia portfela przez Tor.';
-
-  @override
-  String get deskSetTxTorHintNet =>
-      'Płać i dostawaj zapłatę prosto z portfela do portfela pod adresem onion, przez Tor, bez serwera pośrodku. Działa tylko, gdy oba portfele są otwarte. Wymaga Tora: przełącznik Tor w Sieci i prywatności kieruje połączenia portfela przez Tor; ten przełącznik tylko włącza adres. Dodaje Link · Tor do Wyślij, a jego adres do Odbierz.';
-
-  @override
-  String get deskSetTxTorNeedsTorNet =>
-      'Tor jest wyłączony. Włącz go w Sieci i prywatności, aby przyjmować płatności na adres Tor.';
 
   @override
   String get deskRailOpenNetworkPrivacy => 'Otwórz Sieć i prywatność';
@@ -20811,6 +20750,100 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetSynContact => 'e-mail, wsparcie, kontakt, poczta';
+
+  @override
+  String get deskSetAcctBackup => 'Kopia zapasowa';
+
+  @override
+  String get deskSetAcctBalance => 'Saldo';
+
+  @override
+  String get deskSetAcctRemove => 'Usuwanie';
+
+  @override
+  String get deskSetAdvViewLineOne =>
+      'Wysyłanie, odbieranie i kopie zapasowe. Węzeł i serwer Epicbox są wybierane automatycznie.';
+
+  @override
+  String get deskSetAdvViewLineTwo =>
+      'Dodaje metody płatności, węzeł, tryby sieci i kolejne portfele.';
+
+  @override
+  String get deskSetAdvViewLineThree =>
+      'Dodaje wyjścia, faktury, lokalny węzeł i każdy przełącznik Zaawansowanych.';
+
+  @override
+  String get deskSetAdvViewNote =>
+      'Widok zmienia tylko, które strony i przełączniki są widoczne.';
+
+  @override
+  String get deskSetAdvExperiments => 'Eksperymenty';
+
+  @override
+  String get deskSetFrameBack => 'Portfel';
+
+  @override
+  String get deskSetFrameBackTip => 'Wróć do portfela (Esc)';
+
+  @override
+  String deskSetFrameBackTo(String page) {
+    return 'Wróć do: $page';
+  }
+
+  @override
+  String get deskSetFrameEscKey => 'Esc';
+
+  @override
+  String get deskSetFrameEscHint => 'powrót do portfela';
+
+  @override
+  String get deskSetFrameExperiment => 'Eksperyment';
+
+  @override
+  String get deskSetHelpReportButton => 'Zgłoś…';
+
+  @override
+  String get deskSetHelpSetupAgain => 'Uruchom konfigurację ponownie';
+
+  @override
+  String get deskSetHelpSetupHint => 'Węzeł i odbieranie, krok po kroku.';
+
+  @override
+  String get deskSetHelpStartAgain => 'Od nowa';
+
+  @override
+  String get deskSetHelpTourStart => 'Rozpocznij przewodnik';
+
+  @override
+  String get deskSetFilesFolders => 'Foldery';
+
+  @override
+  String get deskSetNodeConnection => 'Połączenie';
+
+  @override
+  String get deskSetNodeFailover => 'Zmieniaj węzeł automatycznie';
+
+  @override
+  String get deskSetNodeStatus => 'Stan';
+
+  @override
+  String get deskSetPrivTorAll => 'Tor dla wszystkich połączeń';
+
+  @override
+  String get deskSetPrivServerStatus => 'Stan serwerów';
+
+  @override
+  String get deskSetPrivMode => 'Tryb połączenia';
+
+  @override
+  String get deskSetTxSending => 'Wysyłanie';
+
+  @override
+  String get deskSetTxTorPayHint =>
+      'Tor działa tylko do wysyłania i odbierania płatności pod adresem Tor. Węzeł, kursy i aktualizacje zachowują ustawienie z sekcji Sieć i prywatność. Wszystkie portfele.';
+
+  @override
+  String get deskSetWalletsOnComputer => 'Na tym komputerze';
 
   @override
   String get deskSetSearchKeyEnter => 'Enter';

@@ -1,7 +1,6 @@
 {
   "deskLvStartPreviewLabel": "Превью обзора. Чем глубже уровень, тем больше на нём видно.",
   "deskLvStartPreviewCaption": "Ваш обзор в этом виде. Сохранённые данные не меняются.",
-  "deskLvStartPreviewCaptionShort": "Ваш обзор в этом виде.",
   "deskLvStartCover": "Выберите положение, чтобы увидеть превью",
   "deskLvStartUndercoverAbout": "Об Инкогнито",
   "deskLvStartChangeLater": "Изменить можно в любой момент: Настройки › Дополнительно.",
@@ -12,7 +11,5 @@
   "deskLvStartMiniWallet": "Основной кошелёк",
   "deskLvStartMiniLine": "+12,5000 поступает · 25,0000 удерживается",
   "deskLvStartMiniFresh": "Свежие с майнинга",
-  "deskLvStartMiniWaiting": "Ожидание другой стороны",
-  "deskLvStartAdvNote": "Чем глубже вид, тем больше видно в кошельке. Сохранённые данные не меняются.",
-  "deskLvStartAboutDepth": "Вид: {name}"
+  "deskLvStartMiniWaiting": "Ожидание другой стороны"
 }

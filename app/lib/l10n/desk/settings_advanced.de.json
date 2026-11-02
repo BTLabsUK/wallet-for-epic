@@ -1,6 +1,5 @@
 {
   "deskSetFrameAdvanced": "Erweitert",
-  "deskSetAdvIntro": "Jeder Schalter blendet einen weiteren Teil der Wallet an der passenden Stelle ein.",
   "deskSetAdvShows": "Zeigt mehr",
   "deskSetAdvOutputs": "Outputs",
   "deskSetAdvOutputsHint": "Zeigt die Seite Outputs in der Seitenleiste. Sie listet die Coins, aus denen das Guthaben besteht, lässt Sie sie aufteilen oder zusammenführen und legt die Vorgaben für Zahlungen fest. Eine laufende Aufteilung oder Zusammenführung hält die Seite sichtbar.",
@@ -28,7 +27,6 @@
   "deskNetRecvWaitTorText": "Der Empfang startet, sobald Tor verbunden ist. Die Dateiübertragung funktioniert weiterhin.",
   "deskSetAdvNodeFailover": "Automatischer Node-Wechsel",
   "deskSetAdvNodeFailoverHint": "Antwortet Ihr Node nicht mehr, nutzt die Wallet für diese Sitzung den nächsten funktionierenden Node in Ihrer Liste.",
-  "deskSetAdvBalance": "Guthaben",
   "deskSetAdvConfirmations": "Bestätigungen",
   "deskSetAdvConfirmationsHint": "Wie viele Blöcke eine empfangene Zahlung wartet, bevor ihre Outputs verfügbar sind. Standardmäßig {byDefault}; jeder Wert von {min} bis {max}.",
   "deskSetAdvConfirmationsDefault": "Voreinstellung",
@@ -37,5 +35,10 @@
   "deskSetAdvConfirmationsMore": "Mehr Bestätigungen",
   "deskSetAdvConfirmationsCount": "{count, plural, one{{count} Bestätigung} other{{count} Bestätigungen}}",
   "deskSetAdvConfirmationsLowNote": "Weniger Bestätigungen sind schneller, aber weniger sicher.",
-  "deskSetAdvConfirmationsNotSaved": "Bestätigungen nicht geändert"
+  "deskSetAdvConfirmationsNotSaved": "Bestätigungen nicht geändert",
+  "deskSetAdvViewLineOne": "Senden, Empfangen und Sicherungen. Node und Epicbox-Server werden automatisch gewählt.",
+  "deskSetAdvViewLineTwo": "Dazu Zahlungsmethoden, der Node, Netzwerkmodi und weitere Wallets.",
+  "deskSetAdvViewLineThree": "Dazu Outputs, Rechnungen, der lokale Node und jeder Schalter unter Erweitert.",
+  "deskSetAdvViewNote": "Eine Ansicht ändert nur, welche Seiten und Schalter erscheinen.",
+  "deskSetAdvExperiments": "Experimente"
 }

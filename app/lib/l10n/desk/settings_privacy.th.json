@@ -17,5 +17,8 @@
   "deskSetPrivUseStatus": "ใช้ {site}",
   "deskSetPrivUseStatusHint": "แสดงว่าโหนดและเซิร์ฟเวอร์ Epicbox ใดออนไลน์อยู่ จากรายการสาธารณะบน status.btlabs.uk",
   "deskSetPrivUndercoverLine": "โหมดปกปิดตัวตนเปิด Tor ไว้ตลอด",
-  "deskSetPrivUndercoverChange": "เปลี่ยนโหมดปกปิดตัวตน"
+  "deskSetPrivUndercoverChange": "เปลี่ยนโหมดปกปิดตัวตน",
+  "deskSetPrivTorAll": "Tor สำหรับทุกการเชื่อมต่อ",
+  "deskSetPrivServerStatus": "สถานะเซิร์ฟเวอร์",
+  "deskSetPrivMode": "โหมดการเชื่อมต่อ"
 }

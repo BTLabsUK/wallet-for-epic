@@ -13524,10 +13524,6 @@
   "@deskSetAcctSaveLabel": {
     "description": "Tooltip and screen reader label of the check button in the label field."
   },
-  "deskSetAcctFiles": "Files",
-  "@deskSetAcctFiles": {
-    "description": "Settings > This wallet: title of the group of folder rows."
-  },
   "deskSetAcctWalletFolder": "Wallet folder",
   "@deskSetAcctWalletFolder": {
     "description": "Settings > This wallet: row title for the folder holding this wallet’s files."
@@ -13547,14 +13543,6 @@
   "deskSetAcctNetworkHint": "Set when the wallet was created.",
   "@deskSetAcctNetworkHint": {
     "description": "Settings > This wallet: hint under the Network row."
-  },
-  "deskSetAcctSetup": "Setup assistant",
-  "@deskSetAcctSetup": {
-    "description": "Settings > This wallet: row title for the first-run setup assistant."
-  },
-  "deskSetAcctSetupHint": "Walk through node and receiving again. Nothing is lost.",
-  "@deskSetAcctSetupHint": {
-    "description": "Settings > This wallet: hint under the Setup assistant row."
   },
   "deskSetAcctRunSetup": "Run setup…",
   "@deskSetAcctRunSetup": {
@@ -13685,10 +13673,6 @@
   "deskSetBackupWriteFailed": "The file could not be written. Choose another folder.",
   "@deskSetBackupWriteFailed": {
     "description": "Error in the Export dialogs when the file could not be saved, reason unknown."
-  },
-  "deskSetBackupGroup": "Wallet data",
-  "@deskSetBackupGroup": {
-    "description": "Settings > This wallet: title of the Backup group of rows."
   },
   "deskSetBackupExportTitle": "Export wallet data",
   "@deskSetBackupExportTitle": {
@@ -17267,10 +17251,6 @@
   "@deskSetFrameAdvanced": {
     "description": "Settings sidebar entry and page name of the Advanced section. Narrow (about 200 px)."
   },
-  "deskSetAdvIntro": "Each switch shows one more part of the wallet, where it belongs.",
-  "@deskSetAdvIntro": {
-    "description": "First line of Settings › Advanced."
-  },
   "deskSetAdvShows": "Shows more",
   "@deskSetAdvShows": {
     "description": "Title of the group of visibility switches on Settings › Advanced."
@@ -17356,7 +17336,7 @@
       }
     }
   },
-  "deskSetAcctAutoLockHint": "Locks the wallet after this long without a key press or mouse movement. With Never, only Lock wallet locks it.",
+  "deskSetAcctAutoLockHint": "Locks the wallet after this long without a key press or mouse movement. With Never, only Lock wallet locks it. All wallets.",
   "@deskSetAcctAutoLockHint": {
     "description": "Settings › Account › Security: the hint of the Auto-lock row (a minutes choice and an on/off switch)."
   },
@@ -17875,15 +17855,15 @@
   "@deskSetFrameTransactions": {
     "description": "Settings sidebar entry and page name for how payments are made: the methods, what Send starts on, receiving. Narrow (about 200 px)."
   },
-  "deskSetTxMethods": "Payment methods",
+  "deskSetTxMethods": "Methods",
   "@deskSetTxMethods": {
-    "description": "Title of the page’s first part on Settings › Transactions: one group per family (Epicbox, Link, Direct) with a switch per method."
+    "description": "Payments: heading of the payment method switches."
   },
-  "deskSetTxEpicboxHint": "Pay and get paid through an Epicbox server. Most payments go this way. Off, the wallet connects to no Epicbox server: no Epicbox payments or invoices. The other methods still work.",
+  "deskSetTxEpicboxHint": "Pay and get paid through an Epicbox server. Most payments go this way. Off, the wallet connects to no Epicbox server: no Epicbox payments or invoices. The other methods still work. All wallets.",
   "@deskSetTxEpicboxHint": {
     "description": "Hover card behind the info icon of the Epicbox row on Settings › Transactions."
   },
-  "deskSetTxDirectHint": "Pay and get paid straight from wallet to wallet at a web address (http://host:{port}), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive.",
+  "deskSetTxDirectHint": "Pay and get paid straight from wallet to wallet at a web address (http://host:{port}), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive. All wallets.",
   "@deskSetTxDirectHint": {
     "description": "Hover card behind the info icon of the Link › HTTP row (switch) on Settings › Transactions.",
     "placeholders": {
@@ -17893,19 +17873,15 @@
       }
     }
   },
-  "deskSetTxFileHint": "Pay and get paid by handing over a transaction file, with no network needed. Adds File Transfer to Send and the file steps to Receive.",
+  "deskSetTxFileHint": "Pay and get paid by handing over a transaction file, with no network needed. Adds File Transfer to Send and the file steps to Receive. All wallets.",
   "@deskSetTxFileHint": {
     "description": "Hover card behind the info icon of the File row (switch) on Settings › Transactions."
-  },
-  "deskSetTxSend": "Send",
-  "@deskSetTxSend": {
-    "description": "Title of the group on Settings › Transactions with what the Send page starts on and, with Advanced › Send options on, its defaults."
   },
   "deskSetTxStart": "Default method",
   "@deskSetTxStart": {
     "description": "Row title on Settings › Transactions: the payment method the Send page opens with. The control lists the methods that are on."
   },
-  "deskSetTxStartHint": "The method the Send page opens with. You can still change it for one payment on Send.",
+  "deskSetTxStartHint": "The method the Send page opens with. You can still change it for one payment on Send. All wallets.",
   "@deskSetTxStartHint": {
     "description": "Hover card behind the info icon of the Send starts on row."
   },
@@ -21622,42 +21598,6 @@
   "@deskBarBuildCopied": {
     "description": "Toast after the build info was copied; the copied line shows under it."
   },
-  "deskBarBuildTip": "Version {version}, commit {commit}. Click copies the build info.",
-  "@deskBarBuildTip": {
-    "description": "Tooltip of the small build label under the brand in the title bar. {version} e.g. 26.10.16, {commit} a short git commit like 810de1e.",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      },
-      "commit": {
-        "type": "String"
-      }
-    }
-  },
-  "deskBarBuildTipRebuild": "Version {version}, rebuild {rebuild}, commit {commit}. Click copies the build info.",
-  "@deskBarBuildTipRebuild": {
-    "description": "As deskBarBuildTip, for a rebuild of the same version. {rebuild} is e.g. r2.",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      },
-      "rebuild": {
-        "type": "String"
-      },
-      "commit": {
-        "type": "String"
-      }
-    }
-  },
-  "deskBarBuildTipDev": "Version {version}. A development build. Click copies the build info.",
-  "@deskBarBuildTipDev": {
-    "description": "As deskBarBuildTip, for a development build without a commit.",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
   "deskBarKeyMenu": "Open the app menu",
   "@deskBarKeyMenu": {
     "description": "Keyboard-shortcuts row: F10 opens the app menu in the title bar."
@@ -22159,7 +22099,7 @@
   "@deskNoTorSendDirectLine2": {
     "description": "Under Send › Link, the line under the method in the build without Tor (no onion addresses)."
   },
-  "deskNoTorSetTxDirectHint": "Pay and get paid straight from wallet to wallet at a web address (http://host:{port}), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive.",
+  "deskNoTorSetTxDirectHint": "Pay and get paid straight from wallet to wallet at a web address (http://host:{port}), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive. All wallets.",
   "@deskNoTorSetTxDirectHint": {
     "description": "Settings › Transactions › Link · HTTP info hint in the build without Tor (no 'off while Tor is on').",
     "placeholders": {
@@ -22857,10 +22797,6 @@
   "syncHelpNotChecked": "Not checked",
   "@syncHelpNotChecked": {
     "description": "Status panel: the server's state is not known yet."
-  },
-  "deskSetAdvBalance": "Balance",
-  "@deskSetAdvBalance": {
-    "description": "Title of the group on Settings › Advanced that holds the Confirmations row. One word."
   },
   "deskSetAdvConfirmations": "Confirmations",
   "@deskSetAdvConfirmations": {
@@ -25022,10 +24958,6 @@
   "@deskLvStartPreviewCaption": {
     "description": "Caption under the Overview picture on Welcome (first start)."
   },
-  "deskLvStartPreviewCaptionShort": "Your Overview in this view.",
-  "@deskLvStartPreviewCaptionShort": {
-    "description": "Caption under the Overview picture on the Change level page."
-  },
   "deskLvStartCover": "Pick a stop to see the preview",
   "@deskLvStartCover": {
     "description": "Over the faded Overview picture on Welcome before a stop of the depth dial is picked."
@@ -25069,20 +25001,6 @@
   "deskLvStartMiniWaiting": "Waiting for the other side",
   "@deskLvStartMiniWaiting": {
     "description": "Balance tile in the small Overview picture at Deeper: coins waiting for the sender to sign."
-  },
-  "deskLvStartAdvNote": "A deeper view shows more of the wallet. Nothing stored changes.",
-  "@deskLvStartAdvNote": {
-    "description": "Settings › Advanced at Shallow, under the Depth row."
-  },
-  "deskLvStartAboutDepth": "View: {name}",
-  "@deskLvStartAboutDepth": {
-    "description": "Screen-reader text of the Depth row in Settings › About. name is the depth: Shallow, Deeper or Deep end.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Shallow"
-      }
-    }
   },
   "deskLvSendHowTo": "How to send it",
   "@deskLvSendHowTo": {
@@ -25625,10 +25543,6 @@
   "deskSetHelpSupportHead": "Support",
   "@deskSetHelpSupportHead": {
     "description": "Section head at the top of Settings › Help, over the support and donation bars."
-  },
-  "deskSetHelpTopicsHead": "Topics",
-  "@deskSetHelpTopicsHead": {
-    "description": "Section head of Settings › Help over the search and the help topics."
   },
   "deskKitPasswordRule": "{count, plural, one{{count} character or more} other{{count} characters or more}}",
   "@deskKitPasswordRule": {
@@ -26313,14 +26227,6 @@
   "deskRecvTorOffTextNet": "The Tor address works while Tor is on. Tor is the switch in Settings › Network & privacy; it routes the wallet’s connections through Tor.",
   "@deskRecvTorOffTextNet": {
     "description": "Second line of the Link · Tor needs Tor notice on Receive. Buttons: Turn on Tor, Settings (opens Network & privacy)."
-  },
-  "deskSetTxTorHintNet": "Pay and get paid straight from wallet to wallet at an onion address, over Tor, with no server between. Works only while both wallets are open. Needs Tor: the Tor switch under Network & privacy routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and its address to Receive.",
-  "@deskSetTxTorHintNet": {
-    "description": "Info text of the Link · Tor switch on Settings › Transactions. Names the page with the Tor switch (Network & privacy)."
-  },
-  "deskSetTxTorNeedsTorNet": "Tor is off. Turn it on under Network & privacy to be paid at the Tor address.",
-  "@deskSetTxTorNeedsTorNet": {
-    "description": "Notice under the Link › Tor switch on Settings › Transactions while it is on and Tor is off; the button beside it opens Settings › Network & privacy."
   },
   "deskRailOpenNetworkPrivacy": "Open Network & privacy",
   "@deskRailOpenNetworkPrivacy": {
@@ -27217,6 +27123,127 @@
   "deskSetSynContact": "email, support, contact, mail",
   "@deskSetSynContact": {
     "description": "Settings search: other words that find the “Contact” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetAcctBackup": "Backup",
+  "@deskSetAcctBackup": {
+    "description": "Wallet settings: heading of the export and import rows."
+  },
+  "deskSetAcctBalance": "Balance",
+  "@deskSetAcctBalance": {
+    "description": "Wallet settings: heading of the Recheck balance row."
+  },
+  "deskSetAcctRemove": "Remove",
+  "@deskSetAcctRemove": {
+    "description": "Wallet settings: heading of the Delete wallet row."
+  },
+  "deskSetAdvViewLineOne": "Sending, receiving and backups. The node and the Epicbox server are chosen automatically.",
+  "@deskSetAdvViewLineOne": {
+    "description": "Advanced › View: the Shallow view’s one line. Facts only."
+  },
+  "deskSetAdvViewLineTwo": "Adds payment methods, the node, network modes and more wallets.",
+  "@deskSetAdvViewLineTwo": {
+    "description": "Advanced › View: the Deeper view’s one line. Facts only."
+  },
+  "deskSetAdvViewLineThree": "Adds outputs, invoices, the local node and every Advanced switch.",
+  "@deskSetAdvViewLineThree": {
+    "description": "Advanced › View: the Deep end view’s one line. Facts only."
+  },
+  "deskSetAdvViewNote": "A view changes only which pages and switches show.",
+  "@deskSetAdvViewNote": {
+    "description": "Advanced › View: the line under the three views."
+  },
+  "deskSetAdvExperiments": "Experiments",
+  "@deskSetAdvExperiments": {
+    "description": "Advanced: heading of the experimental features (Invoices)."
+  },
+  "deskSetFrameBack": "Wallet",
+  "@deskSetFrameBack": {
+    "description": "Settings column: the button at its top that goes back to the wallet pages. Narrow."
+  },
+  "deskSetFrameBackTip": "Back to the wallet (Esc)",
+  "@deskSetFrameBackTip": {
+    "description": "Tooltip of the Settings column’s back button. Esc is the key."
+  },
+  "deskSetFrameBackTo": "Back to {page}",
+  "@deskSetFrameBackTo": {
+    "description": "Tooltip of a sub-page’s back link, e.g. \"Back to Security\".",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetFrameEscKey": "Esc",
+  "@deskSetFrameEscKey": {
+    "description": "The Esc key as the keyboard shows it, in the Settings column’s foot."
+  },
+  "deskSetFrameEscHint": "back to the wallet",
+  "@deskSetFrameEscHint": {
+    "description": "After the Esc key in the Settings column’s foot: what Esc does. Lowercase."
+  },
+  "deskSetFrameExperiment": "Experiment",
+  "@deskSetFrameExperiment": {
+    "description": "Tag beside an experimental feature’s title (Linked devices, Invoices)."
+  },
+  "deskSetHelpReportButton": "Report…",
+  "@deskSetHelpReportButton": {
+    "description": "Help › Support: button that opens Report a problem."
+  },
+  "deskSetHelpSetupAgain": "Run setup again",
+  "@deskSetHelpSetupAgain": {
+    "description": "Help › Start again: row that opens Set up (node and receiving) again."
+  },
+  "deskSetHelpSetupHint": "Node and receiving, step by step.",
+  "@deskSetHelpSetupHint": {
+    "description": "Info text of Run setup again."
+  },
+  "deskSetHelpStartAgain": "Start again",
+  "@deskSetHelpStartAgain": {
+    "description": "Help: heading of the tour and setup rows."
+  },
+  "deskSetHelpTourStart": "Start tour",
+  "@deskSetHelpTourStart": {
+    "description": "Help › Start again: button that starts the tour."
+  },
+  "deskSetFilesFolders": "Folders",
+  "@deskSetFilesFolders": {
+    "description": "Files & logs: heading of the wallet folder and app files rows."
+  },
+  "deskSetNodeConnection": "Connection",
+  "@deskSetNodeConnection": {
+    "description": "Node page: heading of the node picker and its switches."
+  },
+  "deskSetNodeFailover": "Switch node automatically",
+  "@deskSetNodeFailover": {
+    "description": "Node › Connection: switch that moves to the next working node when this one stops answering."
+  },
+  "deskSetNodeStatus": "Status",
+  "@deskSetNodeStatus": {
+    "description": "Node page: heading of what the node says of itself."
+  },
+  "deskSetPrivTorAll": "Tor for all connections",
+  "@deskSetPrivTorAll": {
+    "description": "Network & privacy: the switch that sends every connection through Tor."
+  },
+  "deskSetPrivServerStatus": "Server status",
+  "@deskSetPrivServerStatus": {
+    "description": "Network & privacy: heading of the status site row."
+  },
+  "deskSetPrivMode": "Connection mode",
+  "@deskSetPrivMode": {
+    "description": "Network & privacy: heading of Normal, Tor only, Node only, Kill switch."
+  },
+  "deskSetTxSending": "Sending",
+  "@deskSetTxSending": {
+    "description": "Payments: heading of the Default method and send option rows."
+  },
+  "deskSetTxTorPayHint": "Tor runs only to send and receive payments at the Tor address. The node, prices and updates keep the setting under Network & privacy. All wallets.",
+  "@deskSetTxTorPayHint": {
+    "description": "Info text of Payments › Link · Tor. \"All wallets\": the switch is app-wide."
+  },
+  "deskSetWalletsOnComputer": "On this computer",
+  "@deskSetWalletsOnComputer": {
+    "description": "Wallets page: heading of the list of wallets on this computer."
   },
   "deskSetSearchKeyEnter": "Enter",
   "@deskSetSearchKeyEnter": {

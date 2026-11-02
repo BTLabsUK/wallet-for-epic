@@ -8,6 +8,7 @@ import '../../desk_l10n.dart';
 import '../../data/files.dart' show deskOpenFolderProvider;
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../widgets/kit.dart';
+import 'setting_ids.dart';
 import '../onboarding/import_warning.dart';
 import 'dialogs.dart';
 import 'settings_frame.dart';
@@ -89,10 +90,10 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ESetGroup(
-                  title: l.deskSetFrameAllWallets,
+                  title: l.deskSetWalletsOnComputer,
                   rows: [
-                    for (final w in wallets)
-                      Padding(
+                    for (final (i, w) in wallets.indexed)
+                      _anchorFirst(i == 0, Padding(
                         padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x3),
                         child: Row(
                           children: [
@@ -132,7 +133,7 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
                                 : EIconButton(icon: EIcons.trash, label: l.deskSetWalletsRemove(w.name), onPressed: () => _remove(w)),
                           ],
                         ),
-                      ),
+                      )),
                   ],
                 ),
                 if (_removed.isNotEmpty)
@@ -155,30 +156,30 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
                     final perRow = box.maxWidth >= Lay.md ? 3 : 1;
                     final row = perRow > 1;
                     final cards = [
-                      EChoiceCard(
+                      SetAnchor(id: SetId.createWallet, child: EChoiceCard(
                         titleLines: row ? 2 : null,
                         title: l.deskSetWalletsCreate,
                         description: l.deskSetWalletsCreateText,
                         icon: EIcons.plus,
                         selected: false,
                         onTap: () => nav.go(DeskRoute.create),
-                      ),
-                      EChoiceCard(
+                      )),
+                      SetAnchor(id: SetId.importWallets, child: EChoiceCard(
                         titleLines: row ? 2 : null,
                         title: l.deskSetWalletsImport,
                         description: l.deskSetWalletsImportText,
                         icon: EIcons.folderOpen,
                         selected: false,
                         onTap: () => importAfterWarning(context, ref, () => nav.go(DeskRoute.importWallets)),
-                      ),
-                      EChoiceCard(
+                      )),
+                      SetAnchor(id: SetId.restoreWallet, child: EChoiceCard(
                         titleLines: row ? 2 : null,
                         title: l.deskSetWalletsRestore,
                         description: l.deskSetWalletsRestoreText,
                         icon: EIcons.backup,
                         selected: false,
                         onTap: () => nav.go(DeskRoute.restore),
-                      ),
+                      )),
                     ];
                     if (!row) {
                       return Column(children: [for (final w in cards) Padding(padding: EdgeInsets.only(bottom: Sp.x3), child: w)]);
@@ -208,3 +209,6 @@ class _SettingsWalletsScreenState extends ConsumerState<SettingsWalletsScreen> {
     );
   }
 }
+
+/// The wallet list's first row carries the list's anchor (search lands at the list).
+Widget _anchorFirst(bool first, Widget row) => first ? SetAnchor(id: SetId.walletRows, child: row) : row;

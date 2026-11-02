@@ -8,14 +8,11 @@
   "deskSetAcctLabel": "Name",
   "deskSetAcctLabelHint": "Wird nur in dieser App angezeigt.",
   "deskSetAcctSaveLabel": "Name speichern",
-  "deskSetAcctFiles": "Dateien",
   "deskSetAcctWalletFolder": "Wallet-Ordner",
   "deskSetAcctAppFiles": "App-Dateien",
   "deskSetAcctAppFilesHint": "Einstellungen und das Protokoll.",
   "deskSetAcctNetwork": "Netzwerk",
   "deskSetAcctNetworkHint": "Beim Erstellen der Wallet festgelegt.",
-  "deskSetAcctSetup": "Einrichtungsassistent",
-  "deskSetAcctSetupHint": "Node und Empfang noch einmal durchgehen. Nichts geht verloren.",
   "deskSetAcctRunSetup": "Einrichtung starten…",
   "deskSetAcctSecurity": "Sicherheit",
   "deskSetAcctRemembered": "Auf diesem Computer gemerkt",
@@ -26,5 +23,8 @@
   "deskSetAcctDeleteHint": "Löscht ihre Schlüssel und ihre Datenbank.",
   "deskSetAcctFolderNotFound": "Ordner nicht gefunden",
   "deskSetAcctCopyPath": "Pfad kopieren: {title}",
-  "deskSetAcctAutoLockHint": "Sperrt die Wallet nach dieser Zeit ohne Tastendruck oder Mausbewegung. Bei „Nie“ sperrt nur „Wallet sperren“."
+  "deskSetAcctAutoLockHint": "Sperrt die Wallet nach dieser Zeit ohne Tastendruck oder Mausbewegung. Bei „Nie“ sperrt nur „Wallet sperren“. Alle Wallets.",
+  "deskSetAcctBackup": "Sicherung",
+  "deskSetAcctBalance": "Guthaben",
+  "deskSetAcctRemove": "Entfernen"
 }

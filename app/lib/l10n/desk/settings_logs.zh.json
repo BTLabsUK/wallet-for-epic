@@ -16,5 +16,6 @@
   "deskSetLogsDetailed": "详细",
   "deskSetLogsFiles": "日志文件",
   "deskSetLogsSize": "当前大小 {size}，上限 {max}。保留一个较旧的文件。",
-  "deskSetLogsOpenFolder": "打开日志文件夹"
+  "deskSetLogsOpenFolder": "打开日志文件夹",
+  "deskSetFilesFolders": "文件夹"
 }

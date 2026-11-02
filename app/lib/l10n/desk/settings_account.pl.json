@@ -8,14 +8,11 @@
   "deskSetAcctLabel": "Nazwa",
   "deskSetAcctLabelHint": "Widoczna tylko w tej aplikacji.",
   "deskSetAcctSaveLabel": "Zapisz etykietę",
-  "deskSetAcctFiles": "Pliki",
   "deskSetAcctWalletFolder": "Folder portfela",
   "deskSetAcctAppFiles": "Pliki aplikacji",
   "deskSetAcctAppFilesHint": "Ustawienia i log.",
   "deskSetAcctNetwork": "Sieć",
   "deskSetAcctNetworkHint": "Ustalona przy tworzeniu portfela.",
-  "deskSetAcctSetup": "Asystent konfiguracji",
-  "deskSetAcctSetupHint": "Przejdź jeszcze raz przez ustawienia węzła i odbierania. Nic nie przepadnie.",
   "deskSetAcctRunSetup": "Uruchom asystenta…",
   "deskSetAcctSecurity": "Bezpieczeństwo",
   "deskSetAcctRemembered": "Zapamiętany na tym komputerze",
@@ -26,5 +23,8 @@
   "deskSetAcctDeleteHint": "Usuwa jego klucze i bazę danych.",
   "deskSetAcctFolderNotFound": "Nie znaleziono folderu",
   "deskSetAcctCopyPath": "Kopiuj ścieżkę: {title}",
-  "deskSetAcctAutoLockHint": "Blokuje portfel po tym czasie bez naciśnięcia klawisza lub ruchu myszy. Przy „Nigdy” portfel blokuje tylko „Zablokuj portfel”."
+  "deskSetAcctAutoLockHint": "Blokuje portfel po tym czasie bez naciśnięcia klawisza lub ruchu myszy. Przy „Nigdy” portfel blokuje tylko „Zablokuj portfel”. Wszystkie portfele.",
+  "deskSetAcctBackup": "Kopia zapasowa",
+  "deskSetAcctBalance": "Saldo",
+  "deskSetAcctRemove": "Usuwanie"
 }

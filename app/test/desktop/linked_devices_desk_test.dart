@@ -12,8 +12,8 @@ import 'package:epic_wallet/src/desktop/data/devices_state.dart';
 import 'package:epic_wallet/src/desktop/data/mock_devices.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/devices/link_flow.dart';
-import 'package:epic_wallet/src/desktop/screens/settings/settings_account.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_devices.dart';
+import 'package:epic_wallet/src/desktop/screens/settings/settings_frame.dart' show SettingsColumn;
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/devices/device_model.dart';
@@ -91,7 +91,6 @@ void main() {
 
   testWidgets('the section lists this computer, says none linked, and offers Link a device', (tester) async {
     await show(tester, const DevicesSettingsBlock());
-    expect(find.text('Linked devices'), findsOneWidget);
     expect(find.byKey(const ValueKey('dev-this')), findsOneWidget);
     // This computer's default name carries its short code, so two computers are told apart.
     expect(find.textContaining(RegExp(r'^Desktop [0-9A-F]{4}$')), findsOneWidget);
@@ -101,26 +100,17 @@ void main() {
     await end(tester);
   });
 
-  testWidgets('Linked devices is a page of This wallet: a row there opens it, no section of its own, This wallet stays raised', (tester) async {
-    await show(tester, const SettingsAccountScreen());
-    final subnav = find.byType(ESubnav);
-    expect(find.descendant(of: subnav, matching: find.text('Linked devices')), findsNothing);
-    expect(find.descendant(of: subnav, matching: find.text('This wallet')), findsOneWidget);
-    expect(find.text('Linked devices'), findsOneWidget);
-    expect(find.text('None'), findsOneWidget);
-    await tester.tap(find.byKey(settingsDevicesOpenKey));
-    await settle(tester);
-    expect(container.read(deskNavProvider).route, DeskRoute.settingsDevices);
-
-    await tester.pumpWidget(
-      UncontrolledProviderScope(
-        container: container,
-        child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: SettingsDevicesScreen())),
+  testWidgets('Linked devices has its own entry under the wallet, raised on its page, with the Experiment tag', (tester) async {
+    await show(
+      tester,
+      const Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [SettingsColumn(route: DeskRoute.settingsDevices), Expanded(child: SettingsDevicesScreen())],
       ),
     );
-    await settle(tester);
     final raised = tester.widgetList<ENavItem>(find.descendant(of: find.byType(ESubnav), matching: find.byType(ENavItem))).where((e) => e.selected).map((e) => e.label);
-    expect(raised, ['This wallet']);
+    expect(raised, ['Linked devices']);
+    expect(find.byKey(const ValueKey('settings-experiment-tag')), findsOneWidget);
     expect(find.byKey(devicesLinkKey), findsOneWidget);
     await end(tester);
   });

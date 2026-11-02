@@ -5,7 +5,7 @@ import 'package:epic_wallet/src/app_log_io.dart';
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/desktop/data/files.dart';
 import 'package:epic_wallet/src/desktop/data/logs.dart';
-import 'package:epic_wallet/src/desktop/screens/settings/settings_logs.dart';
+import 'package:epic_wallet/src/desktop/screens/settings/settings_files.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';

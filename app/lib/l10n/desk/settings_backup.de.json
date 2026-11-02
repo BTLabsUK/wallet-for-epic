@@ -8,7 +8,6 @@
   "deskSetBackupWriteFailedHere": "In den Ordner konnte nicht geschrieben werden: {reason}. Wählen Sie einen anderen Ordner.",
   "deskSetBackupWriteFailedIn": "In {folder} konnte nicht geschrieben werden: {reason}. Wählen Sie einen anderen Ordner.",
   "deskSetBackupWriteFailed": "Die Datei konnte nicht geschrieben werden. Wählen Sie einen anderen Ordner.",
-  "deskSetBackupGroup": "Wallet-Daten",
   "deskSetBackupExportTitle": "Wallet-Daten exportieren",
   "deskSetBackupExportHint": "Zahlungsverlauf, Kontakte, Rechnungen und Einstellungen, in einer Datei, die nur eine Wallet mit dieser Wiederherstellungsphrase öffnet. Die Phrase allein bringt das Guthaben zurück, nicht diese.",
   "deskSetBackupExporting": "Wird exportiert…",

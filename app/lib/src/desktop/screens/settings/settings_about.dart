@@ -10,11 +10,11 @@ import '../../../tor_licence.dart' show TorSourceNote;
 import '../../../ui/settings_screen.dart' show epicCashUrl, privacyPolicyUrl, projectRepoUrl, supportEmail;
 import '../../../ui/theme/fonts.dart' show flagsLicenceNote, sasPicturesLicenceNote;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../ui/levels/level_picker.dart' show levelStopName;
-import '../../data/desk_levels.dart' show deskLevelProvider;
 import '../../data/desk_update.dart';
 import '../../data/desk_update_apply.dart' show deskUpdateApplierProvider;
 import '../../data/files.dart' show deskOpenUrlProvider;
@@ -24,7 +24,9 @@ import '../../../network_gate.dart' show NetBlock;
 import '../../desk_l10n.dart';
 import '../../../ui/theme/brand.dart' show BrandVariant, BrandWordmark;
 import '../../widgets/kit.dart';
+import '../../app/title_bar.dart' show copyBuildInfo;
 import 'licence_texts_dialog.dart';
+import 'setting_ids.dart';
 import 'settings_frame.dart';
 
 /// The Epic Cash website, from `app-config.toml` (`links.website`); null when left out (the
@@ -41,6 +43,9 @@ List<String> licenceLines(AppLocalizations l) => [
   flagsLicenceNote,
   sasPicturesLicenceNote,
 ];
+
+/// Start states of About for the screenshots.
+enum AboutDemo { licencesOpen }
 
 class SettingsAboutScreen extends ConsumerStatefulWidget {
   const SettingsAboutScreen({super.key, this.arg});
@@ -66,8 +71,6 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
     final ts = context.ts;
     final node = ref.watch(deskProvider.select((s) => s.status?.node.version));
     final l = context.l10n;
-    final depth = levelStopName(l, ref.watch(deskLevelProvider));
-    Widget linkRow(String title, String shown, String url) => _LinkRow(title: title, shown: shown, url: url);
     return SettingsFrame(
       route: DeskRoute.settingsAbout,
       child: Column(
@@ -76,7 +79,6 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
           // The app first, then its updates as one row of the same card (the owner: "first About,
           // then Updates", and compact); the links and licences follow.
           ESetGroup(
-            title: l.deskSetFrameAbout,
             rows: [
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4),
@@ -95,8 +97,6 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                           _Facts(rows: [
                             (l.deskSetAboutVersionLabel, withBuildId(withCoreVersion(deskAppVersion)), l.deskSetAboutVersion(withBuildId(withCoreVersion(deskAppVersion)))),
                             (l.deskSetAboutNodeLabel, node ?? '-', l.deskSetAboutNode(node ?? '-')),
-                            // Which depth, for support.
-                            (l.lvPickDepth, depth, l.deskLvStartAboutDepth(depth)),
                           ]),
                           // A store build: the store updates it, there is no Updates group.
                           if (distStore != null) ...[
@@ -106,49 +106,32 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
                         ],
                       ),
                     ),
+                    SizedBox(width: Sp.x4),
+                    // What the sidebar's version line copied (item 7).
+                    EButton(
+                      key: const ValueKey('about-copy-build'),
+                      label: l.deskBarCopyBuild,
+                      icon: EIcons.copy,
+                      size: EBtnSize.sm,
+                      onPressed: () => unawaited(copyBuildInfo()),
+                    ),
                   ],
                 ),
               ),
-              if (deskUpdatesSupported) const _Updates(),
+              if (deskUpdatesSupported) const SetAnchor(id: SetId.updates, child: _Updates()),
             ],
           ),
-          // A few sentences, not a catalogue: one line per component with its licence, the
-          // bundled tor's source note (its GPL asks for it), and the full texts one click away.
-          ESetGroup(
-            title: l.deskSetAboutLicences,
-            rows: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(l.deskSetAboutLicencesLead, style: ts.small),
-                    SizedBox(height: Sp.x3),
-                    for (final line in licenceLines(l)) Padding(padding: EdgeInsets.only(bottom: Sp.x2), child: Text(line, style: ts.body)),
-                    if (DeskFeatures.tor) ...[SizedBox(height: Sp.x2), TorSourceNote(style: ts.caption)],
-                  ],
-                ),
-              ),
-              ESetRow(
-                title: l.licencesFull,
-                control: ERowControl(
-                  child: EButton(
-                    label: l.deskSetAboutView,
-                    size: EBtnSize.sm,
-                    onPressed: () => showLicenceTextsDialog(context),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          // Folded (item 5): the heading and one line; open, one line per component with its
+          // licence, the bundled tor's source note (its GPL asks for it) and the full texts.
+          ESetGroup(rows: [_LicencesFold(open: widget.arg == AboutDemo.licencesOpen)]),
           // The phone's rows in its order (GP2-020): the website, the source, the privacy policy
           // and the contact address.
           ESetGroup(
             rows: [
-              if (websiteUrl case final w?) linkRow(shownUrl(w), w, w),
-              if (projectRepoUrl case final r?) linkRow(l.deskSetAboutSource, shownUrl(r), r),
-              if (privacyPolicyUrl case final url?) linkRow(l.settingsPrivacyPolicy, shownUrl(url), url),
-              if (supportEmail case final e?) _LinkRow(title: l.contactLabel, shown: e, url: 'mailto:$e', copy: e),
+              if (websiteUrl case final w?) _LinkRow(anchor: SetId.website, title: shownUrl(w), shown: w, url: w),
+              if (projectRepoUrl case final r?) _LinkRow(anchor: SetId.source, title: l.deskSetAboutSource, shown: shownUrl(r), url: r),
+              if (privacyPolicyUrl case final url?) _LinkRow(anchor: SetId.privacyPolicy, title: l.settingsPrivacyPolicy, shown: shownUrl(url), url: url),
+              if (supportEmail case final e?) _LinkRow(anchor: SetId.contact, title: l.contactLabel, shown: e, url: 'mailto:$e', copy: e),
             ],
           ),
         ],
@@ -157,10 +140,94 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
   }
 }
 
+/// Licences, folded: the heading and one line, with the ⇕ glyph; open, every component's
+/// licence, the Tor source note and All licence texts.
+class _LicencesFold extends StatefulWidget {
+  const _LicencesFold({this.open = false});
+
+  final bool open;
+
+  @override
+  State<_LicencesFold> createState() => _LicencesFoldState();
+}
+
+class _LicencesFoldState extends State<_LicencesFold> {
+  late bool _open = widget.open;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final ts = context.ts;
+    final c = context.dc;
+    final head = Semantics(
+      button: true,
+      expanded: _open,
+      label: l.deskSetAboutLicences,
+      hint: l.deskSetAboutLicencesLead,
+      excludeSemantics: true,
+      child: InkWell(
+        key: const ValueKey('about-licences-fold'),
+        onTap: () => setState(() => _open = !_open),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: 56.u),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x3),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(l.deskSetAboutLicences, style: ts.strong),
+                      const SizedBox(height: 2),
+                      Text(l.deskSetAboutLicencesLead, style: ts.small),
+                    ],
+                  ),
+                ),
+                SizedBox(width: Sp.x3),
+                Icon(_open ? EIcons.unfoldLess : EIcons.unfoldMore, size: Ctl.icon, color: c.dim),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        head,
+        if (_open) ...[
+          Divider(height: 1, thickness: 1, color: c.line),
+          Padding(
+            key: const ValueKey('about-licences'),
+            padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (final line in licenceLines(l)) Padding(padding: EdgeInsets.only(bottom: Sp.x2), child: Text(line, style: ts.body)),
+                if (DeskFeatures.tor) ...[SizedBox(height: Sp.x2), TorSourceNote(style: ts.caption)],
+              ],
+            ),
+          ),
+          Divider(height: 1, thickness: 1, color: c.line),
+          ESetRow(
+            title: l.licencesFull,
+            control: ERowControl(
+              child: EButton(label: l.deskSetAboutView, size: EBtnSize.sm, onPressed: () => showLicenceTextsDialog(context)),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
 /// A link: its title, Open (the browser), and the address under it with a copy button.
 class _LinkRow extends ConsumerWidget {
-  const _LinkRow({required this.title, required this.shown, required this.url, this.copy});
+  const _LinkRow({required this.anchor, required this.title, required this.shown, required this.url, this.copy});
 
+  final String anchor;
   final String title;
   final String shown;
   final String url;
@@ -182,6 +249,7 @@ class _LinkRow extends ConsumerWidget {
     }
 
     return ESetRow(
+      anchor: anchor,
       title: title,
       control: ERowControl(child: EButton(label: l.deskSetAboutOpen, icon: EIcons.external, size: EBtnSize.sm, onPressed: open)),
       below: Row(

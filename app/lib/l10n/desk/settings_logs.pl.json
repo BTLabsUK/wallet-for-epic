@@ -16,5 +16,6 @@
   "deskSetLogsDetailed": "Szczegółowy",
   "deskSetLogsFiles": "Pliki logów",
   "deskSetLogsSize": "Obecny rozmiar {size} z {max}. Zachowuje jeden starszy plik.",
-  "deskSetLogsOpenFolder": "Otwórz folder logów"
+  "deskSetLogsOpenFolder": "Otwórz folder logów",
+  "deskSetFilesFolders": "Foldery"
 }

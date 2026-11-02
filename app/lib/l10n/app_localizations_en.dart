@@ -10263,9 +10263,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetAcctSaveLabel => 'Save label';
 
   @override
-  String get deskSetAcctFiles => 'Files';
-
-  @override
   String get deskSetAcctWalletFolder => 'Wallet folder';
 
   @override
@@ -10279,13 +10276,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAcctNetworkHint => 'Set when the wallet was created.';
-
-  @override
-  String get deskSetAcctSetup => 'Setup assistant';
-
-  @override
-  String get deskSetAcctSetupHint =>
-      'Walk through node and receiving again. Nothing is lost.';
 
   @override
   String get deskSetAcctRunSetup => 'Run setup…';
@@ -10368,9 +10358,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskSetBackupWriteFailed =>
       'The file could not be written. Choose another folder.';
-
-  @override
-  String get deskSetBackupGroup => 'Wallet data';
 
   @override
   String get deskSetBackupExportTitle => 'Export wallet data';
@@ -13003,10 +12990,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetFrameAdvanced => 'Advanced';
 
   @override
-  String get deskSetAdvIntro =>
-      'Each switch shows one more part of the wallet, where it belongs.';
-
-  @override
   String get deskSetAdvShows => 'Shows more';
 
   @override
@@ -13084,7 +13067,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetAcctAutoLockHint =>
-      'Locks the wallet after this long without a key press or mouse movement. With Never, only Lock wallet locks it.';
+      'Locks the wallet after this long without a key press or mouse movement. With Never, only Lock wallet locks it. All wallets.';
 
   @override
   String get torUndercoverKeepsOn => 'Undercover keeps Tor on.';
@@ -13466,30 +13449,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetFrameTransactions => 'Transactions';
 
   @override
-  String get deskSetTxMethods => 'Payment methods';
+  String get deskSetTxMethods => 'Methods';
 
   @override
   String get deskSetTxEpicboxHint =>
-      'Pay and get paid through an Epicbox server. Most payments go this way. Off, the wallet connects to no Epicbox server: no Epicbox payments or invoices. The other methods still work.';
+      'Pay and get paid through an Epicbox server. Most payments go this way. Off, the wallet connects to no Epicbox server: no Epicbox payments or invoices. The other methods still work. All wallets.';
 
   @override
   String deskSetTxDirectHint(String port) {
-    return 'Pay and get paid straight from wallet to wallet at a web address (http://host:$port), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive.';
+    return 'Pay and get paid straight from wallet to wallet at a web address (http://host:$port), with no server between. Works only while both wallets are open; off while Tor is on. Adds Link · HTTP to Send and its address to Receive. All wallets.';
   }
 
   @override
   String get deskSetTxFileHint =>
-      'Pay and get paid by handing over a transaction file, with no network needed. Adds File Transfer to Send and the file steps to Receive.';
-
-  @override
-  String get deskSetTxSend => 'Send';
+      'Pay and get paid by handing over a transaction file, with no network needed. Adds File Transfer to Send and the file steps to Receive. All wallets.';
 
   @override
   String get deskSetTxStart => 'Default method';
 
   @override
   String get deskSetTxStartHint =>
-      'The method the Send page opens with. You can still change it for one payment on Send.';
+      'The method the Send page opens with. You can still change it for one payment on Send. All wallets.';
 
   @override
   String get deskSendMethodHeader => 'Payment method';
@@ -16172,21 +16152,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskBarBuildCopied => 'Build info copied';
 
   @override
-  String deskBarBuildTip(String version, String commit) {
-    return 'Version $version, commit $commit. Click copies the build info.';
-  }
-
-  @override
-  String deskBarBuildTipRebuild(String version, String rebuild, String commit) {
-    return 'Version $version, rebuild $rebuild, commit $commit. Click copies the build info.';
-  }
-
-  @override
-  String deskBarBuildTipDev(String version) {
-    return 'Version $version. A development build. Click copies the build info.';
-  }
-
-  @override
   String get deskBarKeyMenu => 'Open the app menu';
 
   @override
@@ -16559,7 +16524,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskNoTorSetTxDirectHint(String port) {
-    return 'Pay and get paid straight from wallet to wallet at a web address (http://host:$port), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive.';
+    return 'Pay and get paid straight from wallet to wallet at a web address (http://host:$port), with no server between. Works only while both wallets are open. Adds Link · HTTP to Send and its address to Receive. All wallets.';
   }
 
   @override
@@ -17067,9 +17032,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncHelpNotChecked => 'Not checked';
-
-  @override
-  String get deskSetAdvBalance => 'Balance';
 
   @override
   String get deskSetAdvConfirmations => 'Confirmations';
@@ -18553,9 +18515,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your Overview in this view. Nothing stored changes between views.';
 
   @override
-  String get deskLvStartPreviewCaptionShort => 'Your Overview in this view.';
-
-  @override
   String get deskLvStartCover => 'Pick a stop to see the preview';
 
   @override
@@ -18592,15 +18551,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskLvStartMiniWaiting => 'Waiting for the other side';
-
-  @override
-  String get deskLvStartAdvNote =>
-      'A deeper view shows more of the wallet. Nothing stored changes.';
-
-  @override
-  String deskLvStartAboutDepth(String name) {
-    return 'View: $name';
-  }
 
   @override
   String get deskLvSendHowTo => 'How to send it';
@@ -18930,9 +18880,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetHelpSupportHead => 'Support';
-
-  @override
-  String get deskSetHelpTopicsHead => 'Topics';
 
   @override
   String deskKitPasswordRule(int count) {
@@ -19400,14 +19347,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskRecvTorOffTextNet =>
       'The Tor address works while Tor is on. Tor is the switch in Settings › Network & privacy; it routes the wallet’s connections through Tor.';
-
-  @override
-  String get deskSetTxTorHintNet =>
-      'Pay and get paid straight from wallet to wallet at an onion address, over Tor, with no server between. Works only while both wallets are open. Needs Tor: the Tor switch under Network & privacy routes the wallet’s connections through Tor; this switch only turns the address on. Adds Link · Tor to Send and its address to Receive.';
-
-  @override
-  String get deskSetTxTorNeedsTorNet =>
-      'Tor is off. Turn it on under Network & privacy to be paid at the Tor address.';
 
   @override
   String get deskRailOpenNetworkPrivacy => 'Open Network & privacy';
@@ -20135,6 +20074,100 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetSynContact => 'email, support, contact, mail';
+
+  @override
+  String get deskSetAcctBackup => 'Backup';
+
+  @override
+  String get deskSetAcctBalance => 'Balance';
+
+  @override
+  String get deskSetAcctRemove => 'Remove';
+
+  @override
+  String get deskSetAdvViewLineOne =>
+      'Sending, receiving and backups. The node and the Epicbox server are chosen automatically.';
+
+  @override
+  String get deskSetAdvViewLineTwo =>
+      'Adds payment methods, the node, network modes and more wallets.';
+
+  @override
+  String get deskSetAdvViewLineThree =>
+      'Adds outputs, invoices, the local node and every Advanced switch.';
+
+  @override
+  String get deskSetAdvViewNote =>
+      'A view changes only which pages and switches show.';
+
+  @override
+  String get deskSetAdvExperiments => 'Experiments';
+
+  @override
+  String get deskSetFrameBack => 'Wallet';
+
+  @override
+  String get deskSetFrameBackTip => 'Back to the wallet (Esc)';
+
+  @override
+  String deskSetFrameBackTo(String page) {
+    return 'Back to $page';
+  }
+
+  @override
+  String get deskSetFrameEscKey => 'Esc';
+
+  @override
+  String get deskSetFrameEscHint => 'back to the wallet';
+
+  @override
+  String get deskSetFrameExperiment => 'Experiment';
+
+  @override
+  String get deskSetHelpReportButton => 'Report…';
+
+  @override
+  String get deskSetHelpSetupAgain => 'Run setup again';
+
+  @override
+  String get deskSetHelpSetupHint => 'Node and receiving, step by step.';
+
+  @override
+  String get deskSetHelpStartAgain => 'Start again';
+
+  @override
+  String get deskSetHelpTourStart => 'Start tour';
+
+  @override
+  String get deskSetFilesFolders => 'Folders';
+
+  @override
+  String get deskSetNodeConnection => 'Connection';
+
+  @override
+  String get deskSetNodeFailover => 'Switch node automatically';
+
+  @override
+  String get deskSetNodeStatus => 'Status';
+
+  @override
+  String get deskSetPrivTorAll => 'Tor for all connections';
+
+  @override
+  String get deskSetPrivServerStatus => 'Server status';
+
+  @override
+  String get deskSetPrivMode => 'Connection mode';
+
+  @override
+  String get deskSetTxSending => 'Sending';
+
+  @override
+  String get deskSetTxTorPayHint =>
+      'Tor runs only to send and receive payments at the Tor address. The node, prices and updates keep the setting under Network & privacy. All wallets.';
+
+  @override
+  String get deskSetWalletsOnComputer => 'On this computer';
 
   @override
   String get deskSetSearchKeyEnter => 'Enter';

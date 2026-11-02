@@ -15,6 +15,7 @@ import '../../data/desk_errors.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/http_reach.dart';
 import '../../widgets/kit.dart';
+import 'setting_ids.dart';
 import 'prefs.dart';
 
 /// HTTP receiving as the status shows it.
@@ -116,6 +117,7 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ESetRow(
+          anchor: SetId.httpReach,
           title: l.deskSetHttpReachable,
           hint: l.deskSetHttpReachableHint,
           control: Row(
@@ -151,6 +153,7 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
         ),
         Divider(height: 1, thickness: 1, color: c.line),
         ESetRow(
+          anchor: SetId.httpPort,
           title: l.deskSetHttpPort,
           hint: l.deskSetHttpPortHint,
           control: ERowControl(

@@ -56,7 +56,7 @@ enum DeskRoute {
   settingsAccount(section: DeskSection.settings),
 
   /// This wallet on other devices (`devices/`): the devices, their servers, the coins they
-  /// hold. Hidden while Linked devices is off.
+  /// hold. At every view, marked as an experiment.
   settingsDevices(section: DeskSection.settings),
   settingsWallets(section: DeskSection.settings),
   settingsPhrase(section: DeskSection.settings),
@@ -66,8 +66,10 @@ enum DeskRoute {
   settingsSecurity(section: DeskSection.settings),
   settingsRescan(section: DeskSection.settings),
 
-  /// The expert features' switches and the network mode (`settings_advanced.dart`).
+  /// The view, the switches that show more, the experiments (`settings_advanced.dart`).
   settingsAdvanced(section: DeskSection.settings),
+
+  /// The old Change view page: it opens Advanced, where the view is chosen ([DeskNav.go]).
   settingsLevel(section: DeskSection.settings),
   settingsAbout(section: DeskSection.settings),
   settingsHelp(section: DeskSection.settings),
@@ -117,12 +119,12 @@ String deskNavLabel(AppLocalizations l, DeskSection s) => switch (s) {
   DeskSection.settings => l.deskShellNavSettings,
 };
 
-/// Whether the level hides [route]'s page: Shallow has no Node, Transactions, Privacy or All
-/// wallets page; Invoices and the pairing places are Deep end's (with their switches, which the
-/// shell checks too). Recheck balance stays: This wallet opens it at Shallow.
+/// Whether the level hides [route]'s page: Shallow has no Node, Payments, Network & privacy,
+/// Wallets or Files & logs page; Invoices and the pairing places are Deep end's (with their
+/// switches, which the shell checks too). Recheck balance and Linked devices stay at every view.
 bool deskLevelHides(DeskLevelFeatures ui, DeskRoute route) => switch (route) {
   DeskRoute.settingsNode => !ui.nodeSettings,
-  DeskRoute.settingsReceiving || DeskRoute.settingsPrivacy => ui.shallow,
+  DeskRoute.settingsReceiving || DeskRoute.settingsPrivacy || DeskRoute.settingsFiles => ui.shallow,
   DeskRoute.settingsWallets => !ui.addWallet,
   DeskRoute.invoices || DeskRoute.invoiceIssue || DeskRoute.invoiceReview || DeskRoute.settingsInvoices => !ui.invoicesPage,
   DeskRoute.pair => !ui.pairingPages,
@@ -151,25 +153,48 @@ class DeskNav extends Notifier<DeskLocation> {
   final List<DeskLocation> _history = [];
   final List<DeskLocation> _forward = [];
 
+  /// The last in-app place outside Settings: where Settings' "← Wallet" and Esc go back to.
+  DeskLocation? _outside;
+
+  /// Moves to [value], remembering it when it is a wallet page outside Settings.
+  void _to(DeskLocation value) {
+    final r = value.route;
+    if (r.bare) {
+      _outside = null;
+    } else if (r.section != DeskSection.settings) {
+      _outside = value;
+    }
+    state = value;
+  }
+
+  /// Leaves Settings for the wallet page it was opened from (Overview when none).
+  void leaveSettings() => go(_outside?.route ?? DeskRoute.overview, _outside?.arg);
+
   /// Older places beyond this are forgotten.
   static const _keep = 50;
 
   @override
-  DeskLocation build() => DeskLocation(ref.read(deskStartProvider));
+  DeskLocation build() {
+    final start = DeskLocation(ref.read(deskStartProvider));
+    _outside = start.route.bare || start.route.section == DeskSection.settings ? null : start;
+    return start;
+  }
 
   void go(DeskRoute route, [Object? arg]) {
+    // Change view is a part of Advanced now.
+    if (route == DeskRoute.settingsLevel) route = DeskRoute.settingsAdvanced;
     if (route == state.route && arg == state.arg) return;
     _history.add(state);
     if (_history.length > _keep) _history.removeAt(0);
     _forward.clear();
-    state = DeskLocation(route, arg);
+    _to(DeskLocation(route, arg));
   }
 
   /// Replaces the place without history (after unlock, lock, finishing a flow).
   void reset(DeskRoute route, [Object? arg]) {
     _history.clear();
     _forward.clear();
-    state = DeskLocation(route, arg);
+    _to(DeskLocation(route, arg));
   }
 
   bool get canBack => _history.isNotEmpty;
@@ -181,18 +206,18 @@ class DeskNav extends Notifier<DeskLocation> {
     if (_history.isEmpty) {
       if (!state.route.bare && state.route != DeskRoute.overview) {
         _forward.add(state);
-        state = const DeskLocation(DeskRoute.overview);
+        _to(const DeskLocation(DeskRoute.overview));
       }
       return;
     }
     _forward.add(state);
-    state = _history.removeLast();
+    _to(_history.removeLast());
   }
 
   void forward() {
     if (_forward.isEmpty) return;
     _history.add(state);
-    state = _forward.removeLast();
+    _to(_forward.removeLast());
   }
 }
 

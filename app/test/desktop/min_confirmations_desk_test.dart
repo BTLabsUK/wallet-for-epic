@@ -24,7 +24,7 @@ Future<void> _open(WidgetTester tester) async {
     await n.refresh();
     await n.saveSettings(_container.read(deskProvider).settings.copyWith(tourSeen: true));
   });
-  _container.read(deskNavProvider.notifier).reset(DeskRoute.settingsAdvanced);
+  _container.read(deskNavProvider.notifier).reset(DeskRoute.settingsReceiving);
   await tester.pumpWidget(UncontrolledProviderScope(container: _container, child: const DeskApp()));
   await _settle(tester);
 }

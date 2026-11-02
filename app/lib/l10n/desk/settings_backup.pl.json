@@ -8,7 +8,6 @@
   "deskSetBackupWriteFailedHere": "Nie udało się zapisać w folderze: {reason}. Wybierz inny folder.",
   "deskSetBackupWriteFailedIn": "Nie udało się zapisać w {folder}: {reason}. Wybierz inny folder.",
   "deskSetBackupWriteFailed": "Nie udało się zapisać pliku. Wybierz inny folder.",
-  "deskSetBackupGroup": "Dane portfela",
   "deskSetBackupExportTitle": "Eksportuj dane portfela",
   "deskSetBackupExportHint": "Historia płatności, kontakty, faktury i ustawienia, w pliku, który otworzy tylko portfel z tą frazą odzyskiwania. Sama fraza przywraca saldo, nie te dane.",
   "deskSetBackupExporting": "Eksportowanie…",

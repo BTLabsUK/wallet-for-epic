@@ -24,5 +24,11 @@
   "deskSetFrameDaysAgo": "{count, plural, other{{count} 天前}}",
   "deskSetComboOpens": "打开列表",
   "deskSetComboNoAnswer": "暂无响应",
-  "deskSetComboUse": "使用 {host}"
+  "deskSetComboUse": "使用 {host}",
+  "deskSetFrameBack": "钱包",
+  "deskSetFrameBackTip": "返回钱包（Esc）",
+  "deskSetFrameBackTo": "返回{page}",
+  "deskSetFrameEscKey": "Esc",
+  "deskSetFrameEscHint": "返回钱包",
+  "deskSetFrameExperiment": "实验"
 }

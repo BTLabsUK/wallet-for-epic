@@ -16,5 +16,6 @@
   "deskSetLogsDetailed": "ละเอียด",
   "deskSetLogsFiles": "ไฟล์บันทึก",
   "deskSetLogsSize": "ขนาดปัจจุบัน {size} จาก {max} เก็บไฟล์เก่าไว้หนึ่งไฟล์",
-  "deskSetLogsOpenFolder": "เปิดโฟลเดอร์บันทึก"
+  "deskSetLogsOpenFolder": "เปิดโฟลเดอร์บันทึก",
+  "deskSetFilesFolders": "โฟลเดอร์"
 }

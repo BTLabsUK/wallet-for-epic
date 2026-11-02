@@ -35,10 +35,6 @@
   "@deskSetAcctSaveLabel": {
     "description": "Tooltip and screen reader label of the check button in the label field."
   },
-  "deskSetAcctFiles": "Files",
-  "@deskSetAcctFiles": {
-    "description": "Settings > This wallet: title of the group of folder rows."
-  },
   "deskSetAcctWalletFolder": "Wallet folder",
   "@deskSetAcctWalletFolder": {
     "description": "Settings > This wallet: row title for the folder holding this wallet’s files."
@@ -58,14 +54,6 @@
   "deskSetAcctNetworkHint": "Set when the wallet was created.",
   "@deskSetAcctNetworkHint": {
     "description": "Settings > This wallet: hint under the Network row."
-  },
-  "deskSetAcctSetup": "Setup assistant",
-  "@deskSetAcctSetup": {
-    "description": "Settings > This wallet: row title for the first-run setup assistant."
-  },
-  "deskSetAcctSetupHint": "Walk through node and receiving again. Nothing is lost.",
-  "@deskSetAcctSetupHint": {
-    "description": "Settings > This wallet: hint under the Setup assistant row."
   },
   "deskSetAcctRunSetup": "Run setup…",
   "@deskSetAcctRunSetup": {
@@ -117,8 +105,20 @@
       }
     }
   },
-  "deskSetAcctAutoLockHint": "Locks the wallet after this long without a key press or mouse movement. With Never, only Lock wallet locks it.",
+  "deskSetAcctAutoLockHint": "Locks the wallet after this long without a key press or mouse movement. With Never, only Lock wallet locks it. All wallets.",
   "@deskSetAcctAutoLockHint": {
     "description": "Settings › Account › Security: the hint of the Auto-lock row (a minutes choice and an on/off switch)."
+  },
+  "deskSetAcctBackup": "Backup",
+  "@deskSetAcctBackup": {
+    "description": "Wallet settings: heading of the export and import rows."
+  },
+  "deskSetAcctBalance": "Balance",
+  "@deskSetAcctBalance": {
+    "description": "Wallet settings: heading of the Recheck balance row."
+  },
+  "deskSetAcctRemove": "Remove",
+  "@deskSetAcctRemove": {
+    "description": "Wallet settings: heading of the Delete wallet row."
   }
 }

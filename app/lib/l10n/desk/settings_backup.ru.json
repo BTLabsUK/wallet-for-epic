@@ -8,7 +8,6 @@
   "deskSetBackupWriteFailedHere": "Не удалось записать в папку: {reason}. Выберите другую папку.",
   "deskSetBackupWriteFailedIn": "Не удалось записать в {folder}: {reason}. Выберите другую папку.",
   "deskSetBackupWriteFailed": "Не удалось записать файл. Выберите другую папку.",
-  "deskSetBackupGroup": "Данные кошелька",
   "deskSetBackupExportTitle": "Экспорт данных кошелька",
   "deskSetBackupExportHint": "История платежей, контакты, счета и настройки в файле, который откроет только кошелёк с этой фразой восстановления. Сама фраза возвращает баланс, но не их.",
   "deskSetBackupExporting": "Экспорт…",

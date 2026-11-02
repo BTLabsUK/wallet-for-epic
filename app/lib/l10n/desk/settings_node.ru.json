@@ -19,5 +19,8 @@
   "deskNodeSwitchConnecting": "Подключение к {host}…",
   "deskNodeSwitchStarting": "Запуск локального узла…",
   "deskNodeSwitchStopping": "Остановка локального узла…",
-  "deskNodeSwitchStoppingWord": "Остановка"
+  "deskNodeSwitchStoppingWord": "Остановка",
+  "deskSetNodeConnection": "Подключение",
+  "deskSetNodeFailover": "Менять узел автоматически",
+  "deskSetNodeStatus": "Состояние"
 }
