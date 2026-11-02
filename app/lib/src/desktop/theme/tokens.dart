@@ -276,7 +276,7 @@ class DeskColors extends ThemeExtension<DeskColors> {
 
   /// The resting panel's shadow, drawn with [lift]; nothing in dark.
   List<BoxShadow>? get panelShadow =>
-      lift.a == 0 ? null : [BoxShadow(color: lift, blurRadius: 14.u, offset: Offset(0, 4.u))];
+      lift.a == 0 ? null : [BoxShadow(color: lift, blurRadius: 18.u, offset: Offset(0, 6.u), spreadRadius: -4.u)];
 
   /// The shadow under a floating surface: soft and low, the same for every popover and menu.
   List<BoxShadow> get popShadow => [BoxShadow(color: shadow, blurRadius: 24.u, offset: Offset(0, 8.u))];

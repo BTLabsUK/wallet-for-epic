@@ -70,28 +70,30 @@ abstract final class PaletteDark {
 
 /// The light set. Gold becomes an AA brown, amber a burnt orange well apart from it in hue
 /// (19° against the brown's 34°, so a warning never reads as the brand), the ticks the same
-/// brown as the dark set's (the brand's frame, never charcoal). The window is a warm paper
-/// grey, a clear step under the white panels; fields are white wells with a [lineField] edge,
-/// as on the desktop.
+/// brand's gold-deep (a frame, never charcoal). The neutrals are the BT Wallet landing page's
+/// Day look (epiccash.btlabs.uk, look c): a warm paper window, white panels a clear step
+/// above it, warm lines and ink, so nothing cool-grey sits beside the brown; hover, selection and
+/// the cancelled grey stay neutral (theme_test). Fields are white
+/// wells with a [lineField] edge, as on the desktop.
 abstract final class PaletteLight {
-  static const bg = Color(0xFFEAE7E2);
+  static const bg = Color(0xFFF5EFE4);
   static const s1 = Color(0xFFFFFFFF);
   static const s2 = Color(0xFFFFFFFF);
-  static const s3 = Color(0xFFEEEEF0);
+  static const s3 = Color(0xFFF1EDE6);
   static const s4 = Color(0xFFFFFFFF);
-  static const line = Color(0xFFD9D6D1);
-  static const lineStrong = Color(0xFFC9C9D0);
-  static const lineField = Color(0xFF868690);
-  static const text = Color(0xFF1C1E21);
-  static const dim = Color(0xFF55555F);
-  static const faint = Color(0xFF65656F);
+  static const line = Color(0xFFEAE0CE);
+  static const lineStrong = Color(0xFFDACBB0);
+  static const lineField = Color(0xFF8A7F70);
+  static const text = Color(0xFF211A11);
+  static const dim = Color(0xFF574D40);
+  static const faint = Color(0xFF645D56);
   static const accent = Color(0xFF8F5E1F);
   static const accentDeep = Color(0xFF8F5E1F);
   static const accentInk = Color(0xFFFFFFFF);
   static const accentText = Color(0xFF815525);
   static const accentSoft = Color(0x1F8F5E1F);
   static const accentFaint = Color(0x0D8F5E1F);
-  static const tick = Color(0xFF8F5E1F);
+  static const tick = Color(0xFFC98A3E);
   static const ok = Color(0xFF1F7A3A);
   static const okSoft = Color(0x1A1F7A3A);
   static const warn = Color(0xFFB54708);
@@ -106,25 +108,25 @@ abstract final class PaletteLight {
 
   /// The phone's selected row: the desktop's selection fill, and its outline.
   static const selected = s3;
-  static const selectedLine = Color(0xFFB4B4BD);
+  static const selectedLine = Color(0xFFBCB6AE);
 
-  static const hover = Color(0x0A000000);
-  static const press = Color(0x12000000);
-  static const grid = Color(0x081C1E21);
-  static const scrim = Color(0x661C1E21);
-  static const shadow = Color(0x1F1C1E21);
+  static const hover = Color(0x0A5A3A12);
+  static const press = Color(0x145A3A12);
+  static const grid = Color(0x0A8F5E1F);
+  static const scrim = Color(0x66211A11);
+  static const shadow = Color(0x245A3A12);
   static const glow = Color(0x298F5E1F);
 
-  /// [lift] is the one low shadow under a resting panel, so white panels sit on the paper
-  /// grey instead of dissolving into it; [wash] is the warm brand tint of the page backdrop
-  /// (desktop `DeskBackdrop`), at a strength that leaves text and panels crisp.
-  static const lift = Color(0x1F1C1E21);
-  static const wash = Color(0x408F5E1F);
+  /// [lift] is the one low shadow under a resting panel, warm and soft, so the white panels
+  /// sit on the paper without a grey band; [wash] is the gold glow at the top of the page
+  /// backdrop (desktop `DeskBackdrop`), the Day look's light, never a brown tint over the page.
+  static const lift = Color(0x145A3A12);
+  static const wash = Color(0x66FFD27A);
 
   /// Light only, transparent in dark: [hero] the warm fill the balance frame starts from,
   /// [tint] the brand tint of an icon tile and the sidebar's selected item, [dots] the dot
-  /// texture of the page backdrop.
-  static const hero = Color(0xFFFBF2E0);
-  static const tint = Color(0x248F5E1F);
-  static const dots = Color(0x2E8F5E1F);
+  /// texture of the page backdrop (off: the paper is plain, as on the Day page).
+  static const hero = Color(0xFFFFF4DE);
+  static const tint = Color(0x1FC98A3E);
+  static const dots = Color(0x00000000);
 }
