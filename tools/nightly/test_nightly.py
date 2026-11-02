@@ -461,5 +461,68 @@ class DmTest(unittest.TestCase):
         self.assertEqual((out["sent"], out["duplicate"]), (True, True))
 
 
+class LauncherTest(unittest.TestCase):
+    """launch.py runs main's own nightly.py from a fresh worktree at main's sha, with --sha; the
+    installed copy only when that commit's cannot run."""
+
+    def setUp(self):
+        import subprocess
+        import launch
+        self.launch, self.sp = launch, subprocess
+        self.tmp = Path(tempfile.mkdtemp(prefix="nightly-launch-"))
+        self.repo = self.tmp / "repo"
+        (self.repo / "tools" / "nightly").mkdir(parents=True)
+        self.git("init", "-q", "-b", "main")
+
+    def tearDown(self):
+        import shutil
+        self.sp.run(["git", "-C", str(self.repo), "worktree", "prune"], capture_output=True)
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def git(self, *a):
+        return self.sp.run(["git", "-C", str(self.repo), "-c", "user.email=t@t", "-c", "user.name=t", *a],
+                           check=True, capture_output=True, text=True).stdout.strip()
+
+    def commit(self, text):
+        (self.repo / "tools" / "nightly" / "nightly.py").write_text(text)
+        self.git("add", "-A")
+        self.git("commit", "-q", "-m", "x")
+        return self.git("rev-parse", "HEAD")
+
+    def choose(self, *argv):
+        return self.launch.choose(list(argv), repo=self.repo, code=self.tmp / "code",
+                                  fallback=self.tmp / "installed.py", base=self.tmp / "base")
+
+    def test_main_code_at_the_sha(self):
+        sha = self.commit("# knows --sha\nprint('main')\n")
+        cmd, runner, note = self.choose("--by-hand")
+        self.assertEqual(cmd[1:], [str(self.tmp / "code" / "tools" / "nightly" / "nightly.py"), "--by-hand", "--sha", sha])
+        self.assertEqual((runner, note), (f"worktree:{sha}", None))
+        (self.tmp / "code" / "stray").write_text("x")
+        sha2 = self.commit("# knows --sha\nprint('newer')\n")
+        cmd, runner, _ = self.choose()
+        self.assertEqual(runner, f"worktree:{sha2}")
+        self.assertFalse((self.tmp / "code" / "stray").exists(), "the code worktree is fresh")
+        self.assertIn("newer", Path(cmd[1]).read_text())
+
+    def test_an_older_commit_without_sha_runs_without_it(self):
+        self.commit("print('old')\n")
+        cmd, runner, _ = self.choose()
+        self.assertNotIn("--sha", cmd)
+        self.assertTrue(runner.startswith("worktree:"))
+
+    def test_a_broken_nightly_falls_back_to_the_installed_copy(self):
+        self.commit("def broken(:\n")
+        cmd, runner, note = self.choose("--by-hand")
+        self.assertEqual(cmd[1:], [str(self.tmp / "installed.py"), "--by-hand"])
+        self.assertTrue(runner.startswith("installed:"))
+        self.assertIn("fallback", note)
+
+    def test_runner_is_recorded(self):
+        self.assertEqual(nightly.runner_info({"WFE_NIGHTLY_RUNNER": "worktree:abc"}),
+                         {"kind": "worktree", "detail": "abc"})
+        self.assertEqual(nightly.runner_info({})["kind"], "direct")
+
+
 if __name__ == "__main__":
     unittest.main()

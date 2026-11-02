@@ -25,7 +25,7 @@ from .config import (ConfigError, PLATFORMS, Pipeline, load_hosts, load_scope, s
 from .engine import (EXIT_BUSY, EXIT_DENIED, EXIT_FAILED, EXIT_OK, EXIT_PREFLIGHT, EXIT_USAGE, EXIT_WAITING, Engine, relmsg_state)
 from .graph import build_graph, dependents
 from .relmsg import Relmsg
-from .run import Busy, Run, read_json, write_json
+from .run import Busy, Run, now_iso, read_json, write_json
 
 EXIT_TEXT = {0: "ok", 10: "waiting", 20: "step failed", 30: "preflight failed", 40: "gate closed", 64: "usage", 75: "busy"}
 
@@ -156,9 +156,16 @@ class App:
         elif pubs:
             p = pubs[-1]
             prev = {"dir": os.path.join(p["run"], "files"), "version": p["version"], "ref": p.get("tag", "")}
-        elif retention.by_hand(self.state_root):
-            p = retention.by_hand(self.state_root)[-1]
-            prev = {"dir": p["dir"], "version": p["version"], "ref": p["tag"]}
+        else:
+            # Releases published by hand (26.10.23, 26.10.24-r2) are the previous release too. Set it in
+            # the scope so G1 and G4 find it from any run folder (doctor's lives in a temp dir).
+            by_hand = [p for p in retention.published_by_hand(self.state_root)
+                       if p["version"] != scope["version"] and os.path.isdir(os.path.expanduser(p.get("dir", "")))]
+            if by_hand:
+                p = by_hand[-1]
+                d = os.path.expanduser(p["dir"])
+                prev = {"dir": d, "version": p["version"], "ref": p.get("tag", f"v{p['version']}")}
+                scope["proof"].update(previous_dir=d, previous_version=prev["version"], previous_ref=prev["ref"])
         warns = validate_scope(scope, self.pipeline, vac, prev.get("version"))
         return commit, scope, prev, warns
 
@@ -199,9 +206,27 @@ class App:
         wt = self.hosts["path"].get("worktrees", os.path.expanduser("~/wfe-worktrees"))
         src = os.path.abspath(a.src) if a.src else os.path.join(wt, f"rel-{version}-{commit[:7]}")
         steps = build_graph(self.pipeline, scope, context(version, commit, path, run_id, src, scope, self.hosts, prev))
+        g2 = next((s for s in steps if s.base == "source-check"), None)
+        if g2 and not a.dry_run and not a.run_source_check and g2.base not in scope["skip"]:
+            # Only a candidate whose content already passed the full suite (any source: an earlier
+            # run, the nightly, a `tools/check.sh --full` on that commit) starts without the flag.
+            found, key = self.green_source(commit, version, g2)
+            if not found:
+                return self.out(EXIT_PREFLIGHT,
+                                f"no green full check for {commit[:12]} (G2 key {key}): from a clean checkout at "
+                                "that commit run `FULL_RUN=release build-slot tools/rellib/steps/source-check.sh "
+                                "<scratch dir>` (tools/check.sh --full; it records /tmp/epic-build/green/<sha>.json), or "
+                                "wait for the nightly; or pass --run-source-check to run G2 in this run")
+            self.echo(f"G2: green full check on this content: {found['label']} ({found['commit'][:12]})")
+        conc = {k: v for k, v in (("max_heavy", a.max_heavy), ("shared", False if a.exclusive_machine else None))
+                if v is not None}
         info = {"version": version, "commit": commit, "scope": scope, "test": scope["test"], "dry": bool(a.dry_run),
                 "target": scope["publish"]["target"], "src": src, "src_made": not a.src, "warnings": warns,
                 "previous": prev, "kind": "release", "no_relmsg": bool(a.no_relmsg), "argv": sys.argv[1:]}
+        if conc:
+            info["concurrency"] = conc
+        if a.sign_inline:
+            info["sign_requested"] = "at start (--sign-inline)"
         os.makedirs(self.state_root, exist_ok=True)
         run = Run.create(self.state_root, version, info, scope_toml(scope), steps)
         with open(os.path.join(run.path, "notes.txt"), "w", encoding="utf-8") as f:
@@ -223,7 +248,24 @@ class App:
         self.relmsg_start(run, eng)
         return self.drive(run, eng, phase="build", until=a.until)
 
+    def concurrency_overrides(self, run, a):
+        """--max-heavy N / --exclusive-machine: kept in run.json, so a resume keeps them."""
+        over = dict(run.info.get("concurrency") or {})
+        if getattr(a, "max_heavy", None):
+            over["max_heavy"] = a.max_heavy
+        if getattr(a, "exclusive_machine", False):
+            over["shared"] = False
+        if over != (run.info.get("concurrency") or {}):
+            run.info["concurrency"] = over
+            run.save_info()
+
     def drive(self, run, eng, phase, until=None, retry_failed=False):
+        if phase == "publish" and not eng.dry:
+            # Only the bytes the gate approved are published (tools/rellib/evidence.py).
+            from . import evidence
+            why = evidence.publish_refusal(run)
+            if why:
+                return self.out(EXIT_DENIED, why, run)
         try:
             run.lock()
         except Busy as e:
@@ -240,14 +282,33 @@ class App:
                     frontier = nxt - need
                     need |= nxt
                 sel = [x for x in sel if x in need]
+            from . import evidence
+            manifest = evidence.read_manifest(run)
+            stale = {sid for sid, _ in evidence.stale_proofs(eng, manifest)} if manifest else set()
             for sid in sel:
                 st = run.status(sid)
                 s = run.step(sid)
+                if sid in stale:
+                    run.set_status(sid, status="pending", note="not applicable any more: it tested other bytes "
+                                                               "than rc-manifest.json")
+                    run.event(sid, "invalidated", reason="tested other bytes than rc-manifest.json")
+                    continue
                 if st["status"] == "failed" and retry_failed:
                     run.set_status(sid, retry=True)
                 if st["status"] == "done" and not st.get("dry") and st.get("input_hash") and \
                         st["input_hash"] != eng.input_hash(s) and not s.publish:
                     run.set_status(sid, status="pending", note="inputs changed since it ran")
+                elif st["status"] == "done" and not st.get("dry") and st.get("inputs_digest") and not s.publish and \
+                        st["inputs_digest"] != eng.inputs_digest(s):
+                    # Evidence tied to the artefacts: a build it depends on ran again, so what this
+                    # step proved (G3, a trust proof, signing, the gate) is about other bytes.
+                    run.set_status(sid, status="pending", note="not applicable any more: a build it depends on "
+                                                               "ran again since (new bytes)")
+                    run.event(sid, "invalidated", reason="build inputs changed")
+                    if s.kind == "gate":
+                        gname = "rollback" if s.base == "rollback-gate" else "publish"
+                        run.info.get("gates", {}).pop(gname, None)  # a new approval for the new bytes
+                        run.save_info()
                 if st["status"] == "running":
                     run.set_status(sid, status="pending", note="was running when tools/rel stopped")
             code = eng.drive(sel)
@@ -310,11 +371,45 @@ class App:
             if st["status"] not in ("pending", "running"):
                 eng.relmsg.step(s.id, relmsg_state(st), note=st.get("note") or st.get("reason"), label=s.title)
 
+    def green_source(self, commit, version, step):
+        """(source, key): where the G2 result for this content key already is (an earlier run, the
+        nightly, a green record of `tools/check.sh --full`), or (None, key)."""
+        from . import reuse
+        spec = self.pipeline.steps.get(step.base) or {}
+        if not spec.get("reuse"):
+            return None, "-"
+        k, _, src = reuse.find_source(self.repo, self.state_root, {"commit": commit, "version": version}, step,
+                                      spec["reuse"], reuse.nightly_dir(spec), reuse.green_dir(spec))
+        return src, k
+
+    def cmd_sign(self, a):
+        """the owner is ready for his code: sign-android asks the signer now (or as soon as every build
+        is in), and the run carries on from there. [sign] when = "on-demand" in pipeline.toml."""
+        run = self.load_run()
+        ss = [s for s in run.steps if s.base == "sign-android"]
+        if not ss:
+            return self.out(EXIT_USAGE, "this run has no sign-android step (no Android in scope)", run)
+        st = run.status(ss[0].id)
+        if st["status"] == "done":
+            return self.out(EXIT_OK, f"{ss[0].id} is done: {st.get('note') or ''}", run)
+        run.info["sign_requested"] = now_iso()
+        run.save_info()
+        run.event(ss[0].id, "sign-requested")
+        if st["status"] in ("failed", "waiting"):
+            run.set_status(ss[0].id, status="pending", retry=False, polled=None)
+        self.concurrency_overrides(run, a)
+        eng = self.engine(run)
+        if eng.relmsg:
+            eng.relmsg.reopen()
+        self.relmsg_start(run, eng)
+        return self.drive(run, eng, phase="build")
+
     def cmd_resume(self, a):
         run = self.load_run()
         if a.relmsg and run.info.get("no_relmsg"):
             run.info["no_relmsg"] = False
             run.save_info()
+        self.concurrency_overrides(run, a)
         eng = self.engine(run)
         if eng.relmsg:
             eng.relmsg.reopen()
@@ -734,6 +829,17 @@ def parser():
     sp.add_argument("--dry-run", action="store_true", help="print and record every command; run nothing")
     sp.add_argument("--no-relmsg", action="store_true", help="no Telegram (the publish gate then stays closed)")
     sp.add_argument("--until", help="stop after this step")
+    sp.add_argument("--run-source-check", action="store_true",
+                    help="start although no green full check of this content exists: G2 runs in this run")
+    sp.add_argument("--sign-inline", action="store_true",
+                    help="ask for the Android signing code as soon as every build is in (the owner is ready now); "
+                         "default: the run waits at sign-android until `tools/rel sign`")
+
+    def machine_args(sp):
+        sp.add_argument("--max-heavy", type=int, help="heavy steps at once (default [concurrency] max_heavy, 2)")
+        sp.add_argument("--exclusive-machine", action="store_true",
+                        help="no agents share this machine: Android and Windows trust may run side by side")
+    machine_args(sp)
     sp = sub.add_parser("doctor", help="G1 preflight alone")
     scope_args(sp, version_required=False)
     for name, hlp in (("resume", "carry on: failed steps again, done ones kept"), ("status", "steps and gates"),
@@ -746,6 +852,7 @@ def parser():
         if name == "resume":
             sp.add_argument("--publish", action="store_true", help="also the publish phase (needs the gate)")
             sp.add_argument("--relmsg", action="store_true", help="turn Telegram on for a run started with --no-relmsg")
+            machine_args(sp)
         if name == "publish":
             sp.add_argument("--dry-run", action="store_true")
     for name, hlp in (("run", "one step, nothing after it"), ("retry", "a failed step again"), ("logs", "a step's log"),
@@ -766,6 +873,9 @@ def parser():
             sp.add_argument("--exec", action="store_true")
         if name == "skip":
             sp.add_argument("--reason", required=True)
+    sp = sub.add_parser("sign", help="the owner is ready for the Android signing code: sign now, then carry on")
+    sp.add_argument("--run", help="run id, folder or version (default: the newest run)")
+    machine_args(sp)
     sp = sub.add_parser("verify", help="G3 checks on any folder of release files")
     sp.add_argument("folder")
     sp = sub.add_parser("rollback", help="re-sign and publish the previous release with a higher serial")

@@ -14,18 +14,13 @@ Thank you for helping. Bug reports, translations and code are all welcome.
 
 1. Build the app as the [README](README.md#build-from-source) describes.
 2. Keep each commit to one logical change and stage files by name.
-3. Before you open a pull request, run:
-
-   ```bash
-   cd app
-   flutter analyze
-   flutter test
-   ```
-
-   `tools/check.sh` does the same from the repository root: it checks LEPIC at the pin, runs the
-   analyzer and only the tests your change touches (`tools/check.sh --list` shows which).
+3. Before you open a pull request, run `tools/check.sh` from the repository root: it checks
+   LEPIC at the pin, runs the analyzer and the tests your change reaches (`tools/t`, which you
+   can also run alone; `tools/t --list` shows which and why). See [docs/TESTING.md](docs/TESTING.md).
 4. User-facing text goes through the ARB files in `app/lib/l10n/` (English in `app_en.arb`); run
-   `flutter gen-l10n` after editing them. Other languages may stay untranslated in your change.
+   `tools/l10n sync` after editing them. It adds your keys to the other languages in English and
+   lists them in `app/lib/l10n/untranslated.json`; `l10n_quality_test` stays red until they are
+   translated, which a maintainer may do.
 5. Tests that need the network stay opt-in (they skip without their environment variables).
    Never add a test that reaches a real node, relay or Tor to the default test run.
 

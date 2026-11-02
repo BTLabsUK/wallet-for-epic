@@ -2,6 +2,10 @@
 // Checks every translation against the English template, so a missing key, a dropped
 // placeholder or a plural without the forms its language needs fails here rather than on a
 // phone. gen-l10n itself only reports missing keys, and only as a warning.
+//
+// Missing or stale keys: `tools/l10n sync` (from the repository root) adds the template's
+// missing keys in English, lists them in lib/l10n/untranslated.json, drops stale keys and runs
+// gen-l10n. `tools/l10n check` names the file to edit for anything left.
 
 import 'dart:convert';
 import 'dart:io';
@@ -150,12 +154,13 @@ void main() {
         expect(
           messages.keys.toSet().difference(english.keys.toSet()),
           isEmpty,
-          reason: 'extra',
+          reason: 'keys app_en.arb does not have: run tools/l10n sync (it removes them)',
         );
         expect(
           english.keys.toSet().difference(messages.keys.toSet()),
           isEmpty,
-          reason: 'missing',
+          reason:
+              'keys missing: run tools/l10n sync (it adds them in English, to translate)',
         );
       });
 
@@ -208,7 +213,13 @@ void main() {
             }
           }
         }
-        expect(problems, isEmpty, reason: problems.join('\n'));
+        expect(
+          problems,
+          isEmpty,
+          reason:
+              '${problems.join('\n')}\nfix each translation by hand in the file '
+              '`tools/l10n check` names for it, then run tools/l10n sync',
+        );
       });
     });
   }

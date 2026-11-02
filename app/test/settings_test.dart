@@ -50,7 +50,7 @@ import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'support/experimental.dart';
-import 'support/test_settings.dart' show useNetworkModeFile;
+import 'support/settings_modes.dart' show useNetworkModeFile;
 
 const _mainnetDir = '/fake/wallets/mainnet';
 const _pin = '123456';

@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
+// The settings every test runs with (test/flutter_test_config.dart loads them). Every test
+// compiles this file: it imports host_settings.dart alone, so a change elsewhere in lib/ does not
+// reach every test (tools/t affected). Helpers that need more of the app are in
+// settings_modes.dart.
 import 'dart:io';
 
-import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
-import 'package:epic_wallet/src/models.dart' show Chain;
 import 'package:epic_wallet/src/settings_file/host_settings.dart';
-import 'package:epic_wallet/src/settings_file/network_mode_file.dart' show networkModeKey, networkModeText;
 import 'package:flutter_test/flutter_test.dart';
 
 /// `test/settings/`: the shipped pair's layout with example hosts only.
@@ -57,21 +58,4 @@ void useShippedSettings() {
     hostSettings = testSettings();
     shippedHostSettings = hostSettings;
   });
-}
-
-/// Makes [mode] the settings file's `[network] mode` for this test (the one place the mode is
-/// kept, `network_mode_file.dart`); the next test starts from the test settings again.
-void useNetworkModeFile(NetworkMode mode) {
-  hostSettings = hostSettings.withValues({networkModeKey: networkModeText(mode)});
-}
-
-/// Makes a dev [chain]'s own `app-config.toml` (`tool/config/<chain>/`, its node ports among
-/// it) the configuration in use for this test, over the test default copy; mainnet keeps the
-/// test configuration.
-void useChainConfig(Chain chain) {
-  if (chain == Chain.mainnet) return;
-  hostSettings = HostSettings.fromText(
-    testSettingsText(),
-    config: AppConfig.fromText(File('tool/config/${chain.name}/app-config.toml').readAsStringSync()),
-  );
 }

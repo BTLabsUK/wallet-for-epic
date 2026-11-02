@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/builtin_node.dart';
 import 'package:epic_wallet/src/models.dart' show Chain;
 import 'package:epic_wallet/src/settings_file/host_settings.dart';
 
+import 'support/settings_modes.dart';
 import 'support/test_settings.dart';
 
 class FakeInspector implements ProcessInspector {

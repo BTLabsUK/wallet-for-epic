@@ -112,7 +112,9 @@ def pick(candidates, ok, override=None):
 
 
 def resolve_previous(engine):
-    """The release G4 updates from: the scope's previous_dir, else the newest published run."""
+    """The release G4 updates from: the scope's previous_dir, else the newest published run, else
+    the newest release published by hand (published-by-hand.json: 26.10.23 and 26.10.24-r2 went
+    out that way, so without it every run failed G1 until someone passed --previous)."""
     s = engine.info["scope"]["proof"]
     if s.get("previous_dir"):
         d = os.path.expanduser(s["previous_dir"])
@@ -125,10 +127,11 @@ def resolve_previous(engine):
         p = pubs[-1]
         return {"dir": os.path.join(p["run"], "files"), "version": p["version"], "ref": p.get("tag", f"v{p['version']}"),
                 "extra": os.path.join(p["run"], "extra")}
-    hand = [p for p in retention.by_hand(os.path.dirname(os.path.dirname(engine.run.path)))
-            if p["version"] != engine.info["version"]]
-    if hand:
-        return {"dir": hand[-1]["dir"], "version": hand[-1]["version"], "ref": hand[-1]["tag"]}
+    by_hand = [p for p in retention.published_by_hand(os.path.dirname(os.path.dirname(engine.run.path)))
+               if p.get("version") != engine.info["version"] and os.path.isdir(os.path.expanduser(p.get("dir", "")))]
+    if by_hand:
+        p = by_hand[-1]
+        return {"dir": os.path.expanduser(p["dir"]), "version": p["version"], "ref": p.get("tag", f"v{p['version']}")}
     return {}
 
 
@@ -203,6 +206,11 @@ def preflight(engine, step, say):
         tools.append(engine.relmsg.bin)
     for t in tools:
         (ok if shutil.which(t) else bad)(f"tool {t}")
+    if s["publish"]["target"] == "live" and not info.get("test"):
+        # publish-source (tools/publish-github.sh) and publish-manifests (tools/publish-update-json.sh)
+        # rewrite history with it, after the gate; a broken install there strands a half-published release.
+        rc, _ = sh(["git", "filter-repo", "--version"], lambda *a: None, timeout=30)
+        (ok if rc == 0 else bad)("tool git-filter-repo (publish-source, publish-manifests)")
     if "android" in plats and shutil.which("flutter"):
         want = open(os.path.join(engine.repo, "scripts/linux/flutter.version")).read().strip()
         rc, out = sh(["flutter", "--version", "--machine"], lambda *a: None, timeout=120)
@@ -271,6 +279,15 @@ def preflight(engine, step, say):
         else:
             ok(f"live update manifests valid for more than {pipe.manifest_warn_days()} days")
     ids = {x.base for x in engine.run.steps}
+    if live:
+        # tag, publish-page and publish-source run in it after the gate: a missing one would strand
+        # a half-published release (on 2026-11-02 a worktree cleanup had removed it). Doctor's run
+        # has no steps, so this does not wait for "tag" to be in the plan.
+        main = os.path.expanduser(hosts["path"].get("main_checkout") or engine.repo)
+        rc, head = sh(["git", "-C", main, "branch", "--show-current"], lambda *a: None)
+        (ok if rc == 0 and head.strip() == "main" else bad)(
+            f"paths.main_checkout {main}: " + ("on main" if rc == 0 and head.strip() == "main" else
+                                               "missing or not on main (git worktree add <it> main)"))
     if live and "tag" in ids:
         # The tag step refuses a commit that is not on main: say so now, not after the gate.
         main = os.path.expanduser(hosts["path"].get("main_checkout") or engine.repo)
@@ -501,9 +518,16 @@ def artefacts(engine, step, say):
         for p in problems:
             say("FAIL", p)
         return {"status": "failed", "note": f"{len(problems)} problem(s): " + "; ".join(problems)[:300]}
+    # Every built file's bytes as they ship (after signing): the evidence after G3 is keyed by
+    # this list's hash (tools/rellib/evidence.py).
+    from . import evidence
+    mhash, missing = evidence.write_manifest(engine)
+    if missing:
+        return {"status": "failed", "note": "rc-manifest.json: built files missing: " + ", ".join(missing)[:250]}
+    say(f"rc-manifest.json {mhash}")
     total = sum(m["bytes"] for m in meta.values())
-    return {"status": "done", "note": f"{len(present)} files, {total / 1e6:.0f} MB, SHA256SUMS + provenance.json + {SBOM}",
-            "bytes": total}
+    return {"status": "done", "note": f"{len(present)} files, {total / 1e6:.0f} MB, SHA256SUMS + provenance.json + {SBOM}"
+                                      f"; rc-manifest {mhash[:12]}", "bytes": total, "rc_manifest": mhash}
 
 
 SBOM = "sbom.cdx.json"
@@ -708,13 +732,29 @@ def update_trust(engine, step, say):
         mst = [engine.run.status(x.id) for x in engine.run.steps if x.base == "trust-manifest"]
         if not mst or mst[0]["status"] != "done":
             failed.append("manifests")
-    write_json(os.path.join(engine.run.path, "proof-summary.json"), {k: {"state": v[0], "text": v[1]} for k, v in table.items()})
+    summary = {k: {"state": v[0], "text": v[1]} for k, v in table.items()}
+    write_json(os.path.join(engine.run.path, "proof-summary.json"), summary)
     if failed:
         return {"status": "failed", "note": "not proven: " + ", ".join(failed)}
+    from . import evidence
+    manifest = None if engine.dry else evidence.read_manifest(engine.run)
+    extra = {}
+    if manifest:
+        # A proof counts only for the bytes it tested: those must be the release's (rc-manifest.json).
+        stale = evidence.stale_proofs(engine, manifest)
+        for sid, why in stale:
+            say(f"not applicable: {sid}: {why}")
+        if stale:
+            return {"status": "failed", "note": "proofs made on other bytes than rc-manifest.json: "
+                    + "; ".join(f"{sid} ({why})" for sid, why in stale)[:300]
+                    + " (tools/rel resume runs them again)"}
+        d = evidence.keep(engine, manifest, summary)
+        say(f"evidence for rc-manifest {manifest['hash']}: {d}")
+        extra = {"rc_manifest": manifest["hash"]}
     waived = [p for p, (st, _) in table.items() if st == "waived"]
     head = "dry run: every driver answered its dry run" if engine.dry else "every platform proven"
     return {"status": "done", "note": head + (f"; waived (NOT PROVEN): {', '.join(waived)}" if waived else ""),
-            **({"dry": True} if engine.dry else {})}
+            **extra, **({"dry": True} if engine.dry else {})}
 
 
 # ---- G5 publish gate ----------------------------------------------------------------------------
@@ -747,6 +787,11 @@ def gate_summary(engine):
                      + (" (TEST key)" if info.get("test") else ""))
     elif not s["publish"]["manifests"]:
         lines.append("Manifests: NONE (publish.manifests = false): no app is offered this update")
+    from . import evidence
+    m = evidence.read_manifest(run)
+    if m:
+        lines.append(f"Artefacts: rc-manifest {m['hash'][:16]}… ({len(m['files'])} built files); "
+                     "the proofs below are about exactly these bytes")
     lines.append("Update trust (G4):")
     for p, (state, text) in proof_table(engine).items():
         lines.append(f"- {p}: {text}"[:300])
@@ -816,11 +861,19 @@ def publish_gate(engine, step, say):
     g = gates.get(gname, {})
     if not engine.relmsg or not engine.relmsg.enabled:
         return {"status": "closed", "note": "relmsg is off for this run: the publish gate cannot open (fail closed)"}
+    from . import evidence
+    m = evidence.read_manifest(engine.run)
+    if g.get("gate_id") and m and g.get("rc_manifest") and g["rc_manifest"] != m["hash"]:
+        # Asked about other bytes: that question no longer applies; a new one is asked.
+        engine.run.event(step.id, "gate", gate=gname, gate_id=g["gate_id"], state="superseded")
+        g = {}
     if not g.get("gate_id"):
         gid, err = engine.relmsg.gate_open(gname, path)
         if gid is None:
             return {"status": "closed", "note": f"gate not opened: {err} (fail closed; tools/rel gate publish asks again)"}
         g = {"gate_id": gid, "asked": now_iso()}
+        if m:
+            g["rc_manifest"] = m["hash"]  # the bytes this question is about (tools/rel publish checks)
         gates[gname] = g
         engine.run.save_info()
         engine.run.event(step.id, "gate", gate=gname, gate_id=gid, state="asked")

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Fails on text the user reads that is written into a desktop screen instead of the ARB files
-// (lib/l10n/desk/, merged by tool/desk_l10n.py): every string literal under lib/src/desktop that
+// (lib/l10n/desk/, merged by tools/l10n sync): every string literal under lib/src/desktop that
 // reads like words, outside log calls, keys and other technical places.
 //
 // A literal that is not for the user (a file name, a protocol word, a format) stays when its line
@@ -97,7 +97,11 @@ void main() {
       }
     }
     expect(emptyPending, isEmpty, reason: 'clean now: remove from _pending: ${emptyPending.join(', ')}');
-    expect(findings, isEmpty, reason: 'hard-coded text (move it to lib/l10n/desk/, or end the line with // l10n-ok):\n$report');
+    expect(findings, isEmpty,
+        reason: 'hard-coded text:\n$report\n'
+            'fix: put each text in lib/l10n/desk/<part>.json (English, with an @description), read it with '
+            'context.l10n.<key>, then run tools/l10n sync from the repository root (adds the key to every '
+            'language and regenerates); a literal that is not for the user ends its line with // l10n-ok');
   });
 
   test('the lexer finds prose and leaves technical strings', () {

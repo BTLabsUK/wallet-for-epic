@@ -161,13 +161,18 @@ class Base(unittest.TestCase):
         os.environ["REL_RELMSG"] = self.fake
         os.environ["REL_FAKE_GATE"] = "pending"
         os.environ["REL_RELMSG_BACKOFF"] = "0,0,0"
+        # Never the machine's real release window, build-slot slots or green records.
+        os.environ["REL_WINDOW_MARKER"] = os.path.join(self.tmp, "release-window")
+        os.environ["REL_HEAVY_STATUS_CMD"] = ""
+        os.environ["WFE_GREEN_DIR"] = os.path.join(self.tmp, "green")
         self.pipeline = Pipeline.loads(FAKE_PIPELINE) if hasattr(Pipeline, "loads") else Pipeline(
             __import__("tomllib").loads(FAKE_PIPELINE))
         self.hosts = {"host": {}, "path": {}, "file": "none", "exists": True}
 
     def tearDown(self):
         shutil.rmtree(self.tmp, ignore_errors=True)
-        for k in ("REL_FAKE_DIR", "REL_RELMSG", "REL_FAKE_GATE", "REL_RELMSG_BACKOFF", "REL_FAKE_BUSY", "REL_FAKE_DOWN"):
+        for k in ("REL_FAKE_DIR", "REL_RELMSG", "REL_FAKE_GATE", "REL_RELMSG_BACKOFF", "REL_FAKE_BUSY", "REL_FAKE_DOWN",
+                  "REL_WINDOW_MARKER", "REL_HEAVY_STATUS_CMD", "WFE_GREEN_DIR"):
             os.environ.pop(k, None)
 
     def make_run(self, version="26.10.25", **scope_kw):

@@ -2,18 +2,21 @@
 # SPDX-License-Identifier: Apache-2.0
 """Nightly full check of Epic Wallet's local main, with one Telegram DM to the owner when it is red.
 
-What it is: a script started by a systemd user timer on the build machine (tools/nightly/install.sh puts it
-in ~/.local/lib/wfe-nightly/ and the units in ~/.config/systemd/user/). It is not an agent: it runs
-the full check on main, records the result and reports. It never fixes, pushes, starts agents or
-blocks merges.
+What it is: a script started by a systemd user timer on the build machine through tools/nightly/launch.py,
+which runs THIS file from a fresh worktree at main's sha (~/wfe-worktrees/nightly-code) with
+--sha, so the nightly is always main's own code; the copy tools/nightly/install.sh puts in
+~/.local/lib/wfe-nightly/ is only the launcher's fallback (result.json `runner` says which ran).
+It is not an agent: it runs the full check on main, records the result and reports. It never
+fixes, pushes, starts agents or blocks merges.
 
   nightly.py                     one attempt, as wfe-nightly.timer runs it (02:30, 03:30, 04:30 and
                                  05:30 local time). It refuses outside 01:00-06:00 local time
                                  (`skipped: daytime`), and skips while any build-slot slot is held
                                  or any tools/rel run is active (`skipped: busy`)
-  python3 ~/.local/lib/wfe-nightly/nightly.py --by-hand
+  python3 ~/.local/lib/wfe-nightly/launch.py --by-hand
                                  the same run started by a person: any time of day, waits for a
                                  build slot, still refuses while a tools/rel run is active
+  nightly.py --sha <sha>         test that commit instead of reading main (launch.py passes it)
   nightly.py --simulate-red      no check: posts a red DM built from a fixture with test: true and
                                  "TEST" before the step, and writes it only under test-runs/
   nightly.py --parse <log>       print what the parser reads from a log (debugging)
@@ -851,7 +854,16 @@ class Refused(Exception):
     """The busy rules said no right before the check."""
 
 
-def cmd_run(by_hand):
+def runner_info(environ=None):
+    """Which code ran this nightly: launch.py's WFE_NIGHTLY_RUNNER (worktree:<sha> or
+    installed:<why>), else this file started directly."""
+    e = os.environ if environ is None else environ
+    r = e.get("WFE_NIGHTLY_RUNNER") or f"direct:{Path(__file__).resolve()}"
+    kind, _, detail = r.partition(":")
+    return {"kind": kind, "detail": detail[:200]}
+
+
+def cmd_run(by_hand, pinned_sha=None):
     kind = "hand" if by_hand else "timer"
     BASE.mkdir(parents=True, exist_ok=True)
     lock = open(BASE / ".lock", "w")
@@ -863,7 +875,8 @@ def cmd_run(by_hand):
 
     state = read_json(BASE / "state.json", {})
     try:
-        sha = git("-C", str(REPO), "rev-parse", "refs/heads/main")
+        # launch.py pins the sha whose code this is (--sha): the run tests exactly that commit.
+        sha = pinned_sha or git("-C", str(REPO), "rev-parse", "refs/heads/main")
     except (RuntimeError, subprocess.SubprocessError) as e:
         return broken_run(kind, state, None, f"cannot read main: {e}")
 
@@ -956,6 +969,7 @@ def cmd_run(by_hand):
         "last_green_sha": sha if status == "green" else last_green,
         "commits_since_green": [] if status == "green" else commits_between(last_green, sha),
         "log": str(log_path),
+        "runner": runner_info(),
     }
     if error:
         result["error"] = error
@@ -1089,6 +1103,7 @@ def main(argv=None):
     g.add_argument("--simulate-red", action="store_true",
                    help="post a TEST red DM from a fixture; no check runs")
     g.add_argument("--parse", metavar="LOG", help="print what the parser reads from a check log")
+    ap.add_argument("--sha", help="test this commit of main (launch.py passes the sha its code is from)")
     a = ap.parse_args(argv)
     if a.simulate_red:
         return cmd_simulate_red()
@@ -1096,7 +1111,9 @@ def main(argv=None):
         with open(a.parse, encoding="utf-8", errors="replace") as f:
             print(json.dumps(parse_check_log(f), indent=2, ensure_ascii=False))
         return 0
-    return cmd_run(a.by_hand)
+    if a.sha and not re.fullmatch(r"[0-9a-f]{40}", a.sha):
+        ap.error("--sha: a full 40-character commit id")
+    return cmd_run(a.by_hand, a.sha)
 
 
 if __name__ == "__main__":

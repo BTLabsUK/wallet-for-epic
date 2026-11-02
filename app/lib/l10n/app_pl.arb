@@ -3453,9 +3453,6 @@
   "@txMethodsHeader": {
     "description": "Header on Settings › Transactions above the three payment methods."
   },
-  "@txAlwaysOn": {
-    "description": "Second line of the Epicbox row on Settings › Transactions: it has no switch."
-  },
   "txEpicboxHint": "Epicbox płaci przez serwer, więc drugi portfel nie musi być otwarty. Wyłączony: portfel nie łączy się z żadnym serwerem, więc bez płatności Epicbox i faktur. Pozostałe metody nadal działają.",
   "@txEpicboxHint": {
     "description": "Info sheet text of the Epicbox row on Settings › Transactions."

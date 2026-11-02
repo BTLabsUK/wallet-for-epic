@@ -3,22 +3,27 @@
 # Repository gate. Two modes:
 #   tools/check.sh           fast, the default (a branch before review, main after a merge):
 #                            version, install contract, LEPIC at the pin, no hosts, the plain-Dart
-#                            core, flutter analyze, and only the Flutter tests the change touches
-#                            (rule below); the bot's tests only when bot/ changed; the release
-#                            tools' own tests (tools/rel, the nightly, sbom, test order, the
-#                            incremental publisher, the screens feedback service) only when
-#                            tools/ changed.
+#                            core, flutter analyze, and only the Flutter tests the change reaches
+#                            (tools/t affected); the bot's tests only when bot/ changed; the
+#                            release tools' own tests (tools/rel, the nightly, sbom, test order,
+#                            tools/t, the incremental publisher, the screens feedback service) only
+#                            when tools/ changed.
 #   tools/check.sh --full    everything: the whole flutter test suite, the integration tests and
 #                            the web build too. Once per release candidate: tools/rel's source
-#                            gate runs it. Between releases nobody runs --full.
+#                            gate runs it, or the nightly, or the release lead on the candidate.
+#                            Green on a clean tree, it records /tmp/epic-build/green/<sha>.json
+#                            (tools/rellib/green.py), which G2 reuses for that content: tools/rel
+#                            start refuses a candidate without one unless --run-source-check.
+#                            Between releases nobody else runs --full.
 #   tools/check.sh --list    print the mode, the rule and the tests the fast mode would run; run
 #                            nothing.
-# Which tests the fast mode runs: the change is every file that differs from the merge base with
-# main (committed, staged, unstaged and untracked). Test files in it under app/test/ run, and for
-# each changed app/lib/.../<name>.dart every app/test/**/<name>_test.dart. Nothing else: a change
-# with no matching test runs analyze only. CHECK_BASE=<ref> compares with another ref.
+# Which Flutter tests the fast mode runs is tools/t's selection (tools/tlib/select.py,
+# docs/TESTING.md): the change is every file that differs from the merge base with main
+# (committed, staged, unstaged and untracked); the tests whose import closure holds a changed file
+# run, plus a fixed set of sentinels. CHECK_BASE=<ref> compares with another ref.
 # Usage: tools/check.sh [--full | --list]   (from anywhere inside the main checkout or a worktree)
 set -euo pipefail
+started_epoch="$(date +%s)"
 root="$(git rev-parse --show-toplevel)"
 . "$(cd "$(dirname "$0")" && pwd)/env.sh"
 
@@ -36,34 +41,17 @@ step() { printf '\n== %s\n' "$1"; }
 base_ref="${CHECK_BASE:-main}"
 base="$(git -C "$root" merge-base HEAD "$base_ref" 2>/dev/null || git -C "$root" rev-parse HEAD)"
 changed="$( (git -C "$root" diff --name-only "$base"; git -C "$root" ls-files --others --exclude-standard) | sort -u)"
-tests=()
-while IFS= read -r f; do
-  [[ -n "$f" ]] || continue
-  case "$f" in
-    app/test/*_test.dart) [[ -f "$root/$f" ]] && tests+=("${f#app/}") ;;
-    app/lib/*.dart)
-      name="$(basename "$f" .dart)"
-      while IFS= read -r t; do tests+=("${t#"$root"/app/}"); done \
-        < <(find "$root/app/test" -name "${name}_test.dart" -type f 2>/dev/null)
-      ;;
-  esac
-done <<<"$changed"
-if [[ ${#tests[@]} -gt 0 ]]; then
-  mapfile -t tests < <(printf '%s\n' "${tests[@]}" | sort -u)
-fi
 bot_changed=0
 grep -q '^bot/' <<<"$changed" && bot_changed=1
 tools_changed=0
 grep -q '^tools/' <<<"$changed" && tools_changed=1
 
-rule="affected tests = changed app/test/**/*_test.dart + app/test/**/<name>_test.dart for each changed app/lib/**/<name>.dart (vs merge base with $base_ref, ${base:0:10})"
 if [[ $mode == full ]]; then
   echo "check mode: FULL (whole flutter test suite, integration tests, bot, release tools, web build)"
 else
   echo "check mode: fast (--full runs everything: once per release candidate, by tools/rel)"
-  echo "rule: $rule"
-  echo "affected tests: ${#tests[@]}$([[ $bot_changed == 1 ]] && echo '; bot/ changed: bot tests run')$([[ $tools_changed == 1 ]] && echo '; tools/ changed: release tool tests run')"
-  for t in "${tests[@]}"; do echo "  $t"; done
+  echo "rule: tools/t affected (the tests whose imports reach the change, plus the sentinels)$([[ $bot_changed == 1 ]] && echo '; bot/ changed: bot tests run')$([[ $tools_changed == 1 ]] && echo '; tools/ changed: release tool tests run')"
+  "$root/tools/t" affected --list --base "$base_ref"
 fi
 [[ $mode == list ]] && exit 0
 
@@ -89,21 +77,27 @@ step "flutter analyze"
 
 if [[ $mode == full ]]; then
   step "flutter test (all)"
-  # Slowest files first (tools/flutter-test-all.sh): the same files, a shorter run.
-  (cd "$root/app" && "$root/tools/flutter-test-all.sh")
+  # Every test file, slowest first, never from the result cache (green files still fill it).
+  "$root/tools/t" full --no-cache
 
   step "integration tests on LEPIC (Linux, offline)"
   # One run per file: a second app start in one `flutter test` run fails on Linux now and then.
+  # The app keeps its PIN vault in the platform keyring. Run by hand (ssh, an agent's shell) there
+  # is no unlocked one and the test waits on it forever, so each file gets its own session bus
+  # and an unlocked throwaway keyring, as the nightly does, and a hard time limit.
   for t in simple_test history_test; do
-    (cd "$root/app" && xvfb-run -a flutter test --no-pub -d linux "integration_test/$t.dart")
+    kr="$(mktemp -d)"
+    rc=0
+    (cd "$root/app" && timeout --kill-after=30 "${WFE_INTEGRATION_TIMEOUT:-600}" \
+      dbus-run-session -- bash -c 'export XDG_DATA_HOME="$1"
+        printf "throwaway\n" | gnome-keyring-daemon --unlock --components=secrets >/dev/null
+        exec xvfb-run -a flutter test --no-pub -d linux "integration_test/$2.dart"' _ "$kr" "$t") || rc=$?
+    rm -rf "$kr"
+    [[ $rc == 0 ]] || { [[ $rc == 124 ]] && echo "integration_test/$t.dart: timed out" >&2; exit "$rc"; }
   done
 else
-  step "flutter test (affected: ${#tests[@]})"
-  if [[ ${#tests[@]} -gt 0 ]]; then
-    (cd "$root/app" && flutter test --no-pub "${tests[@]}")
-  else
-    echo "no affected tests"
-  fi
+  step "flutter test (affected vs $base_ref)"
+  "$root/tools/t" affected --base "$base_ref"
 fi
 
 if [[ $mode == full || $bot_changed == 1 ]]; then
@@ -115,6 +109,7 @@ if [[ $mode == full || $tools_changed == 1 ]]; then
   step "release tools (tools/)"
   # tools/rel's own tests (docs/RELEASING.md), then the single-file ones, each as its file says.
   (cd "$root" && python3 -m unittest discover -s tools/rellib/tests)
+  (cd "$root" && python3 -m unittest discover -s tools/tlib/tests)
   (cd "$root" && python3 -m unittest tools/nightly/test_nightly.py tools/test_sbom.py tools/test_flutter_test_order.py)
   # Says "skip:" and passes without git-filter-repo, gitleaks or trufflehog.
   "$root/tools/publish/test-incremental.sh"
@@ -131,3 +126,7 @@ if [[ $mode == full ]]; then
 fi
 
 printf '\ncheck passed (%s)\n' "$mode"
+if [[ $mode == full ]]; then
+  # For tools/rel's G2 (docs/RELEASING.md, "Reused results"); never fails the check.
+  python3 "$root/tools/rellib/green.py" record --root "$root" --started "$started_epoch" || true
+fi
