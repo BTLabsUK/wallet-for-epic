@@ -51,8 +51,13 @@ Steps marked ⏳ wait for Apple to approve the membership.
    check it shows up: `security find-identity -v -p codesigning` lists
    `Developer ID Application: <BT Labs name> (<Team ID>)`. Back it up once: Keychain Access, My
    Certificates, the Developer ID entry, Export as `.p12` with a strong password, kept offline.
-6. **Builder**: Xcode, Settings, Accounts, + your Apple ID; the BT Labs team appears. Xcode makes
-   the Apple Development and Apple Distribution certificates itself on the first Archive.
+6. **Builder**: Xcode, Settings, Accounts, + your Apple ID; the BT Labs team appears. Before the
+   first build: Xcode, Settings, Accounts, the BT Labs team, **Manage Certificates**, +, **Apple
+   Development**. `mac-release` never archives, so Xcode does not make this one itself
+   (`app/Signing.xcconfig` signs macOS builds as Apple Development). Xcode makes the Apple
+   Distribution certificate on the first iOS Archive.
+   If a build fails with an error that mentions "Mac Development", the Apple Development
+   certificate is missing: make it as above.
 7. **Builder**: the notarisation login, stored in the keychain. Make an app-specific password
    at account.apple.com (Sign-In and Security), then:
 
