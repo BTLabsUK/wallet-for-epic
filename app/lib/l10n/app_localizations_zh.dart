@@ -18930,4 +18930,10 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetSynContact => '邮件, email, 支持, 联系';
+
+  @override
+  String get deskSetSearchKeyEnter => 'Enter';
+
+  @override
+  String get deskSetSearchKeyEsc => 'Esc';
 }

@@ -425,9 +425,9 @@ class SettingsSearchResults extends ConsumerWidget {
               spacing: Sp.x4,
               runSpacing: Sp.x1,
               children: [
-                _keys(context, const ['↑', '↓'], l.deskSetSearchKeysMove, icons: const [EIcons.arrowUp, EIcons.arrowDown]),
-                _keys(context, const ['Enter'], l.deskSetSearchKeysGo),
-                _keys(context, const ['Esc'], l.deskSetSearchKeysClear),
+                _keys(context, const ['', ''], l.deskSetSearchKeysMove, icons: const [EIcons.arrowUp, EIcons.arrowDown]),
+                _keys(context, [l.deskSetSearchKeyEnter], l.deskSetSearchKeysGo),
+                _keys(context, [l.deskSetSearchKeyEsc], l.deskSetSearchKeysClear),
               ],
             ),
           ),

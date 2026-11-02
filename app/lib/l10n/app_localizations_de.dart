@@ -20345,4 +20345,10 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetSynContact => 'e-mail, support, kontakt, mail';
+
+  @override
+  String get deskSetSearchKeyEnter => 'Eingabe';
+
+  @override
+  String get deskSetSearchKeyEsc => 'Esc';
 }

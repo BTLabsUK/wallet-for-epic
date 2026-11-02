@@ -20049,7 +20049,7 @@ class AppLocalizationsPl extends AppLocalizations {
       other: '$count wyniku',
       many: '$count wyników',
       few: '$count wyniki',
-      one: '1 wynik',
+      one: '$count wynik',
     );
     return '$_temp0';
   }
@@ -20138,7 +20138,7 @@ class AppLocalizationsPl extends AppLocalizations {
       other: '$count opcji więcej · pokazuje je $gates',
       many: '$count opcji więcej · pokazuje je $gates',
       few: '$count opcje więcej · pokazuje je $gates',
-      one: '1 opcja więcej · pokazuje ją $gates',
+      one: '$count opcja więcej · pokazuje ją $gates',
     );
     return '$_temp0';
   }
@@ -20774,4 +20774,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetSynContact => 'e-mail, wsparcie, kontakt, poczta';
+
+  @override
+  String get deskSetSearchKeyEnter => 'Enter';
+
+  @override
+  String get deskSetSearchKeyEsc => 'Esc';
 }

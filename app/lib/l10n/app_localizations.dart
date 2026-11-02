@@ -31433,6 +31433,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'email, support, contact, mail'**
   String get deskSetSynContact;
+
+  /// Settings search: the Enter key as its key cap names it, in the key hints over the results.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter'**
+  String get deskSetSearchKeyEnter;
+
+  /// Settings search: the Esc key as its key cap names it, in the key hints over the results.
+  ///
+  /// In en, this message translates to:
+  /// **'Esc'**
+  String get deskSetSearchKeyEsc;
 }
 
 class _AppLocalizationsDelegate

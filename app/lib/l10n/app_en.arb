@@ -27169,5 +27169,13 @@
   "deskSetSynContact": "email, support, contact, mail",
   "@deskSetSynContact": {
     "description": "Settings search: other words that find the “Contact” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
+  },
+  "deskSetSearchKeyEnter": "Enter",
+  "@deskSetSearchKeyEnter": {
+    "description": "Settings search: the Enter key as its key cap names it, in the key hints over the results."
+  },
+  "deskSetSearchKeyEsc": "Esc",
+  "@deskSetSearchKeyEsc": {
+    "description": "Settings search: the Esc key as its key cap names it, in the key hints over the results."
   }
 }

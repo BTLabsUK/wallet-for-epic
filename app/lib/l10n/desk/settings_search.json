@@ -7,6 +7,14 @@
   "@deskSetSearchKeyHint": {
     "description": "Settings search field: the keyboard shortcut shown at its right end. Keep the key names as on the keyboard."
   },
+  "deskSetSearchKeyEnter": "Enter",
+  "@deskSetSearchKeyEnter": {
+    "description": "Settings search: the Enter key as its key cap names it, in the key hints over the results."
+  },
+  "deskSetSearchKeyEsc": "Esc",
+  "@deskSetSearchKeyEsc": {
+    "description": "Settings search: the Esc key as its key cap names it, in the key hints over the results."
+  },
   "deskSetSearchClear": "Clear search",
   "@deskSetSearchClear": {
     "description": "Settings search: the button that empties the search field."

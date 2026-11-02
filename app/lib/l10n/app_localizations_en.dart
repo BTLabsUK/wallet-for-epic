@@ -20098,4 +20098,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetSynContact => 'email, support, contact, mail';
+
+  @override
+  String get deskSetSearchKeyEnter => 'Enter';
+
+  @override
+  String get deskSetSearchKeyEsc => 'Esc';
 }

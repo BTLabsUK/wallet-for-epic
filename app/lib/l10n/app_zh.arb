@@ -5237,5 +5237,7 @@
   "deskSetSynWebsite": "网站, 网页, 官网, epic cash",
   "deskSetSynSource": "github, 代码, 源代码, 开源, 仓库",
   "deskSetSynPrivacyPolicy": "隐私, 政策, gdpr, 数据",
-  "deskSetSynContact": "邮件, email, 支持, 联系"
+  "deskSetSynContact": "邮件, email, 支持, 联系",
+  "deskSetSearchKeyEnter": "Enter",
+  "deskSetSearchKeyEsc": "Esc"
 }

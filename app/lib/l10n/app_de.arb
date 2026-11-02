@@ -5237,5 +5237,7 @@
   "deskSetSynWebsite": "website, webseite, internet, epic cash",
   "deskSetSynSource": "github, quellcode, code, open source, repository",
   "deskSetSynPrivacyPolicy": "datenschutz, richtlinie, dsgvo, daten",
-  "deskSetSynContact": "e-mail, support, kontakt, mail"
+  "deskSetSynContact": "e-mail, support, kontakt, mail",
+  "deskSetSearchKeyEnter": "Eingabe",
+  "deskSetSearchKeyEsc": "Esc"
 }

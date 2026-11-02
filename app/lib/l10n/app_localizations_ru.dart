@@ -20756,4 +20756,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetSynContact => 'почта, email, поддержка, контакт';
+
+  @override
+  String get deskSetSearchKeyEnter => 'Enter';
+
+  @override
+  String get deskSetSearchKeyEsc => 'Esc';
 }

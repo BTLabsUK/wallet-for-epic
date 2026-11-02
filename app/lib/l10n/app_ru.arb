@@ -5040,7 +5040,7 @@
   "deskSetSearchHint": "Поиск по настройкам",
   "deskSetSearchKeyHint": "Ctrl K",
   "deskSetSearchClear": "Очистить поиск",
-  "deskSetSearchCount": "{count, plural, =1{1 результат} one{{count} результат} few{{count} результата} many{{count} результатов} other{{count} результата}}",
+  "deskSetSearchCount": "{count, plural, one{{count} результат} few{{count} результата} many{{count} результатов} other{{count} результата}}",
   "deskSetSearchFor": "по запросу «{query}»",
   "deskSetSearchKeysMove": "выбор",
   "deskSetSearchKeysGo": "к настройке",
@@ -5061,8 +5061,8 @@
   "deskSetSearchViewGate": "вид «{view}»",
   "deskSetSearchFeatGate": "Дополнительно › {feature}",
   "deskSetSearchGateJoin": "{first} и {last}",
-  "deskSetSearchMore": "{count, plural, =1{Ещё 1 параметр · показывает {gates}} one{Ещё {count} параметр · показывает {gates}} few{Ещё {count} параметра · показывает {gates}} many{Ещё {count} параметров · показывает {gates}} other{Ещё {count} параметра · показывает {gates}}}",
-  "deskSetSearchLess": "{count, plural, =1{Скрыть дополнительный параметр} one{Скрыть {count} дополнительный параметр} few{Скрыть {count} дополнительных параметра} many{Скрыть {count} дополнительных параметров} other{Скрыть {count} дополнительного параметра}}",
+  "deskSetSearchMore": "{count, plural, one{Ещё {count} параметр · показывает {gates}} few{Ещё {count} параметра · показывает {gates}} many{Ещё {count} параметров · показывает {gates}} other{Ещё {count} параметра · показывает {gates}}}",
+  "deskSetSearchLess": "{count, plural, one{Скрыть {count} дополнительный параметр} few{Скрыть {count} дополнительных параметра} many{Скрыть {count} дополнительных параметров} other{Скрыть {count} дополнительного параметра}}",
   "deskSetSearchViewApplied": "Вид: {view}",
   "deskSetSearchFeatApplied": "Дополнительно › {feature}: вкл.",
   "deskSetSearchFallbackView": "{page} есть в виде «{view}».",
@@ -5237,5 +5237,7 @@
   "deskSetSynWebsite": "сайт, веб, интернет, epic cash",
   "deskSetSynSource": "github, код, исходный код, open source, репозиторий",
   "deskSetSynPrivacyPolicy": "приватность, политика, gdpr, данные",
-  "deskSetSynContact": "почта, email, поддержка, контакт"
+  "deskSetSynContact": "почта, email, поддержка, контакт",
+  "deskSetSearchKeyEnter": "Enter",
+  "deskSetSearchKeyEsc": "Esc"
 }

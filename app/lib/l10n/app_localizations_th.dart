@@ -19676,4 +19676,10 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetSynContact => 'อีเมล, ช่วยเหลือ, ติดต่อ, เมล';
+
+  @override
+  String get deskSetSearchKeyEnter => 'Enter';
+
+  @override
+  String get deskSetSearchKeyEsc => 'Esc';
 }

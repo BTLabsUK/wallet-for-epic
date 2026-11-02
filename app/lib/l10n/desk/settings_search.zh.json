@@ -1,6 +1,8 @@
 {
   "deskSetSearchHint": "搜索设置",
   "deskSetSearchKeyHint": "Ctrl K",
+  "deskSetSearchKeyEnter": "Enter",
+  "deskSetSearchKeyEsc": "Esc",
   "deskSetSearchClear": "清除搜索",
   "deskSetSearchCount": "{count, plural, other{{count} 个结果}}",
   "deskSetSearchFor": "搜索“{query}”",

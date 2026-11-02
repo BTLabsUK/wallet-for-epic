@@ -1,6 +1,8 @@
 {
   "deskSetSearchHint": "ค้นหาการตั้งค่า",
   "deskSetSearchKeyHint": "Ctrl K",
+  "deskSetSearchKeyEnter": "Enter",
+  "deskSetSearchKeyEsc": "Esc",
   "deskSetSearchClear": "ล้างการค้นหา",
   "deskSetSearchCount": "{count, plural, other{{count} ผลลัพธ์}}",
   "deskSetSearchFor": "สำหรับ “{query}”",

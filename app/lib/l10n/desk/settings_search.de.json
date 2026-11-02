@@ -1,6 +1,8 @@
 {
   "deskSetSearchHint": "Einstellungen durchsuchen",
   "deskSetSearchKeyHint": "Strg K",
+  "deskSetSearchKeyEnter": "Eingabe",
+  "deskSetSearchKeyEsc": "Esc",
   "deskSetSearchClear": "Suche leeren",
   "deskSetSearchCount": "{count, plural, =1{1 Treffer} other{{count} Treffer}}",
   "deskSetSearchFor": "für „{query}“",
