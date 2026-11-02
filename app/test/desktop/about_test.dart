@@ -96,10 +96,9 @@ void main() {
     }
   });
 
-  testWidgets('About shows the contact address', (tester) async {
+  testWidgets('About shows no contact address', (tester) async {
     await pump(tester, (_) async => (200, newer));
-    expect(find.text('Contact'), findsOneWidget);
-    expect(find.text(hostSettings.supportEmail!), findsOneWidget);
+    expect(find.text('Contact'), findsNothing);
   });
 
   test('versions compare by number', () {

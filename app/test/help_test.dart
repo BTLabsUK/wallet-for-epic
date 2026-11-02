@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: Apache-2.0
-import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/help/help_content.dart';
 import 'package:epic_wallet/src/help/help_i18n.dart';
 import 'package:epic_wallet/src/l10n.dart';
@@ -148,11 +147,10 @@ void main() {
   });
 
   group('help screen', () {
-    testWidgets('the index ends with the contact address', (tester) async {
+    testWidgets('the index shows no contact address', (tester) async {
       final h = AppHarness();
       await h.pump(tester, const HelpScreen());
-      await tester.scrollUntilVisible(find.text(hostSettings.supportEmail!), 300, scrollable: _list.last);
-      expect(find.text('Contact'), findsOneWidget);
+      expect(find.text('Contact'), findsNothing);
     });
 
     testWidgets('the index lists every section with a phone topic, and its topics', (tester) async {

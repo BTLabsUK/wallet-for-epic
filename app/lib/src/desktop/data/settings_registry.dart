@@ -133,7 +133,6 @@ final List<SetEntry> settingsRegistry = [
   SetEntry(SetId.website, DeskRoute.settingsAbout, label: (l) => l.deskSetRowWebsite, group: (l) => l.deskSetGrpLinks, synonyms: (l) => l.deskSetSynWebsite),
   SetEntry(SetId.source, DeskRoute.settingsAbout, label: (l) => l.deskSetAboutSource, group: (l) => l.deskSetGrpLinks, synonyms: (l) => l.deskSetSynSource),
   SetEntry(SetId.privacyPolicy, DeskRoute.settingsAbout, label: (l) => l.settingsPrivacyPolicy, group: (l) => l.deskSetGrpLinks, synonyms: (l) => l.deskSetSynPrivacyPolicy),
-  SetEntry(SetId.contact, DeskRoute.settingsAbout, label: (l) => l.deskSetReportContact, group: (l) => l.deskSetGrpLinks, synonyms: (l) => l.deskSetSynContact),
 ];
 
 final Map<String, SetEntry> _byId = {for (final e in settingsRegistry) e.id: e};

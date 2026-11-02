@@ -19,7 +19,6 @@ enum ValueProblem {
   notWebAddress,
   notOnion,
   notPort,
-  notEmail,
   notEpicboxAddress,
 }
 
@@ -118,7 +117,6 @@ class SettingsKey {
 final RegExp _label = RegExp(r'^[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?$');
 final RegExp _ipv4 = RegExp(r'^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$');
 final RegExp _onion = RegExp(r'^[a-z2-7]{56}\.onion$');
-final RegExp _email = RegExp(r'^[A-Za-z0-9._%+\-]+@([^@\s]+)$');
 final RegExp _epicboxAddress = RegExp(r'^es[1-9A-HJ-NP-Za-km-z]{30,80}@(.+)$');
 
 /// A host name (labels of letters, digits and `-`) or an IPv4 address.
@@ -172,11 +170,6 @@ TextCheck checkTemplate(String name, {bool optional = false}) => (v) {
 };
 
 ValueProblem? checkOnion(String v) => _onion.hasMatch(v) ? null : ValueProblem.notOnion;
-
-ValueProblem? checkEmail(String v) {
-  final m = _email.firstMatch(v);
-  return m != null && isHostName(m.group(1)!) ? null : ValueProblem.notEmail;
-}
 
 ValueProblem? checkEpicboxAddress(String v) {
   final m = _epicboxAddress.firstMatch(v);
@@ -258,6 +251,10 @@ const List<SettingsKey> settingsKeys = [
 /// Tables earlier test builds wrote that the app no longer reads: left alone, never reported
 /// as unknown (`[donate]`: a donation page and contact page, gone).
 const Set<String> retiredSettingsTables = {'donate'};
+
+/// Keys earlier builds wrote that the app no longer reads: left alone, never reported as unknown
+/// (`support.email`: the support address, gone).
+const Set<String> retiredSettingsKeys = {'support.email'};
 
 /// The comment above a key the default copy leaves out, written with it when the app adds it.
 const Map<String, List<String>> keyComments = {
@@ -372,7 +369,6 @@ const List<SettingsKey> configKeys = [
   // [support]
   SettingsKey('support.timeout_s', _seconds, requiredWith: ['support.report']),
   SettingsKey('support.report', _url, byDefault: ''),
-  SettingsKey('support.email', TextKind(_optionalEmail), byDefault: ''),
   SettingsKey('support.donation', TextKind(_donation), byDefault: ''),
   SettingsKey('support.signed_file', _url, byDefault: ''),
   // [links]
@@ -407,7 +403,6 @@ const List<SettingsKey> configKeys = [
 ];
 
 ValueProblem? _explorerBlock(String v) => checkTemplate('height', optional: true)(v);
-ValueProblem? _optionalEmail(String v) => v.isEmpty ? null : checkEmail(v);
 ValueProblem? _reachTemplate(String v) => checkTemplate('port', optional: true)(v);
 
 /// The status site's addresses: its timing keys are needed only with one of them.

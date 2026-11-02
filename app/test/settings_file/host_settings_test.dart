@@ -212,10 +212,9 @@ void main() {
       final c = AppConfig.fromText(testConfigText().replaceFirst(RegExp(r'manifests = \[[^\]]*\]'), 'manifests = []'));
       expect(c.updateManifests, isEmpty);
     });
-    test('support report and e-mail', () {
-      final c = without(['report', 'email']);
+    test('support report', () {
+      final c = without(['report']);
       expect(c.supportReport, isNull);
-      expect(c.supportEmail, isNull);
     });
     test('each link', () {
       final c = without(['website', 'community']);

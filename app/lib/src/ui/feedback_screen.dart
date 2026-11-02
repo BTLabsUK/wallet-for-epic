@@ -96,7 +96,7 @@ String describeSyncState(WidgetRef ref) {
   return parts.isEmpty ? 'Wallet open' : parts.join(', ');
 }
 
-/// "Send feedback": a message, an optional email, and the diagnostic log unless turned off.
+/// "Send feedback": a message and the diagnostic log unless turned off.
 class FeedbackScreen extends ConsumerStatefulWidget {
   const FeedbackScreen({super.key, this.lastSession});
 
@@ -113,11 +113,9 @@ enum _Destination { device, share }
 class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   final _message = TextEditingController();
   bool _prefilled = false;
-  final _email = TextEditingController();
   bool _attachLogs = true;
   bool _busy = false;
   String? _messageError;
-  String? _emailError;
   String? _error;
 
   @override
@@ -137,7 +135,6 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   @override
   void dispose() {
     _message.dispose();
-    _email.dispose();
     super.dispose();
   }
 
@@ -186,7 +183,6 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
     }
     return buildFeedbackReport(
       message: _message.text,
-      email: _email.text,
       details: details,
       ring: ring,
       log: log,
@@ -199,15 +195,11 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
   bool _validate() {
     final l = context.l10n;
     final message = _message.text.trim();
-    final email = _email.text.trim();
     setState(() {
       _messageError = message.isEmpty ? l.feedbackMessageMissing : null;
-      _emailError = email.isNotEmpty && !isValidFeedbackEmail(email)
-          ? l.feedbackEmailInvalid
-          : null;
       _error = null;
     });
-    return _messageError == null && _emailError == null;
+    return _messageError == null;
   }
 
   /// Opens the preview with the report as it would leave now. Building it reads and cleans
@@ -390,19 +382,6 @@ class _FeedbackScreenState extends ConsumerState<FeedbackScreen> {
               error: _messageError == null
                   ? null
                   : LiveFieldError(_messageError!),
-            ),
-          ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _email,
-            keyboardType: TextInputType.emailAddress,
-            autocorrect: false,
-            onChanged: (_) {
-              if (_emailError != null) setState(() => _emailError = null);
-            },
-            decoration: InputDecoration(
-              labelText: l.feedbackEmailLabel,
-              error: _emailError == null ? null : LiveFieldError(_emailError!),
             ),
           ),
           const SizedBox(height: 8),

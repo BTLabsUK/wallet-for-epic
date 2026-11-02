@@ -17,7 +17,6 @@ const _guiBundle =
 SupportReport _report({List<SupportFile> files = const []}) => SupportReport(
   created: DateTime.utc(2026, 10, 22, 10),
   description: '  Zażółć gęślą jaźń\u0007\u0000 ',
-  contact: '@tester',
   app: {'version': 'wfe-0.1.0', 'ui': 'desktop', 'platform': 'linux'},
   files: files,
 );
@@ -71,16 +70,14 @@ void main() {
       publicKey: _guiPublic,
     );
     final opened = await openSupportBundle(bundle, private);
-    expect(opened.keys, ['v', 'created', 'app', 'description', 'contact', 'files', 'dropped']);
+    expect(opened.keys, ['v', 'created', 'app', 'description', 'files', 'dropped']);
     expect(opened['description'], 'Zażółć gęślą jaźń');
-    expect(opened['contact'], '@tester');
     expect(opened['app'], {'version': 'wfe-0.1.0', 'ui': 'desktop', 'platform': 'linux'});
     expect(opened['files'], [
       {'name': 'app/wfe.log', 'bytes': 14, 'text': 'line 1\nline 2\n', 'cut': false},
     ]);
-    final long = SupportReport(created: DateTime.utc(2026), description: 'x' * 3000, contact: 'y' * 200, app: const {});
+    final long = SupportReport(created: DateTime.utc(2026), description: 'x' * 3000, app: const {});
     expect(long.description.length, maxSupportDescription);
-    expect(long.contact.length, maxSupportContact);
 
     // For the format check against the GUI's own openBundle (see the report): set the variable to
     // a file path and open it with node.

@@ -105,8 +105,7 @@ abstract final class SetId {
   static const website = 'website';
   static const source = 'source';
   static const privacyPolicy = 'privacyPolicy';
-  static const contact = 'contact';
 
   /// Every id, in the order of the Settings navigation.
-  static const all = [name, exportData, importData, exportCsv, recheckGo, deleteWallet, recheckFrom, recheckMonth, recheckHeight, recheckDrop, phraseGo, password, remembered, autolock, epicbox, epicboxRecv, epicboxServer, epicboxStart, http, httpReach, httpPort, torPay, file, defaultMethod, strategy, splitChange, confirmations, pairShop, timeToPay, deviceName, linkDevice, pauseSync, theme, language, scale, hideAmounts, nodeServer, failover, myNode, localNode, localStart, netMode, statusSite, view, advOutputs, advTech, advSendopts, advServers, advHeight, advLocal, advLogs, xInvoices, walletRows, createWallet, importWallets, restoreWallet, walletFolder, appFiles, logLevel, logFiles, report, tour, setup, updates, website, source, privacyPolicy, contact];
+  static const all = [name, exportData, importData, exportCsv, recheckGo, deleteWallet, recheckFrom, recheckMonth, recheckHeight, recheckDrop, phraseGo, password, remembered, autolock, epicbox, epicboxRecv, epicboxServer, epicboxStart, http, httpReach, httpPort, torPay, file, defaultMethod, strategy, splitChange, confirmations, pairShop, timeToPay, deviceName, linkDevice, pauseSync, theme, language, scale, hideAmounts, nodeServer, failover, myNode, localNode, localStart, netMode, statusSite, view, advOutputs, advTech, advSendopts, advServers, advHeight, advLocal, advLogs, xInvoices, walletRows, createWallet, importWallets, restoreWallet, walletFolder, appFiles, logLevel, logFiles, report, tour, setup, updates, website, source, privacyPolicy];
 }

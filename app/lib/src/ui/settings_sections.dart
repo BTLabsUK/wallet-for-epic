@@ -86,9 +86,6 @@ String? get privacyPolicyUrl => hostSettings.linkPrivacy;
 
 String? get epicCashUrl => hostSettings.linkWebsite;
 
-/// The public contact address, shown in Help and About. Never translated. Null: not shown.
-String? get supportEmail => hostSettings.supportEmail;
-
 
 /// The app version and the core's: the installed package's on Android, else the one this
 /// build was made from (`pubspec.yaml`, passed in by `flutter build`), with the build's commit
@@ -1282,7 +1279,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       if (epicCashUrl case final site?) LinkTile(title: shownUrl(site), url: site),
       if (projectRepoUrl != null) LinkTile(title: l.settingsSourceCode, url: projectRepoUrl!),
       if (privacyPolicyUrl case final url?) LinkTile(title: l.settingsPrivacyPolicy, url: url),
-      if (supportEmail case final email?) LinkTile(title: l.contactLabel, url: email, email: true),
     ];
   }
 }
@@ -1366,23 +1362,20 @@ class _TorPayLine extends ConsumerWidget {
 
 /// A web link. The app has no browser launcher, so tapping copies the address.
 class LinkTile extends StatelessWidget {
-  const LinkTile({super.key, required this.title, required this.url, this.email = false});
+  const LinkTile({super.key, required this.title, required this.url});
 
   final String title;
   final String url;
-
-  /// [url] is an email address: a mail icon, and the notice says the address was copied.
-  final bool email;
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     return ListTile(
-      leading: Icon(email ? Icons.mail_outline : Icons.link),
+      leading: const Icon(Icons.link),
       title: Text(title),
       subtitle: Text(url),
-      trailing: Icon(Icons.copy, semanticLabel: email ? l.settingsCopyAddress : l.settingsCopyLink),
-      onTap: () => copyText(context, url, email ? l.settingsAddressCopied : l.settingsLinkCopied),
+      trailing: Icon(Icons.copy, semanticLabel: l.settingsCopyLink),
+      onTap: () => copyText(context, url, l.settingsLinkCopied),
     );
   }
 }

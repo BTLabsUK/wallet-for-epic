@@ -2,7 +2,6 @@
 import 'dart:async';
 import 'dart:io' show File;
 
-import 'package:epic_wallet/src/settings_file/host_settings.dart' show hostSettings;
 import 'package:epic_wallet/src/app.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
@@ -1613,41 +1612,7 @@ void main() {
       expect(find.text('Source code'), findsOneWidget);
       // The site link reads as its address.
       expect(find.text(shownUrl(epicCashUrl!)), findsOneWidget, reason: 'the other links stay');
-      await _reveal(tester, find.text(hostSettings.supportEmail!));
-      expect(find.text('Contact'), findsOneWidget);
-      // An email address, not a link: the notice says so.
-      final copied = <Object?>[];
-      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-        SystemChannels.platform,
-        (call) async {
-          if (call.method == 'Clipboard.setData') copied.add(call.arguments);
-          return null;
-        },
-      );
-      addTearDown(
-        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
-          SystemChannels.platform,
-          null,
-        ),
-      );
-      await tester.ensureVisible(find.text(hostSettings.supportEmail!));
-      await tester.pump();
-      await tester.tap(find.text(hostSettings.supportEmail!));
-      await tester.pump();
-      expect(copied, [
-        {'text': hostSettings.supportEmail!},
-      ]);
-      final notices = ProviderScope.containerOf(
-        tester.element(find.text(hostSettings.supportEmail!)),
-      );
-      expect(notices.read(noticeProvider)?.text, 'Address copied');
-      expect(
-        find.byWidgetPredicate(
-          (w) => w is Icon && w.semanticLabel == 'Copy address',
-        ),
-        findsOneWidget,
-      );
-      // Back up to Licences, above the contact row.
+      // Back up to Licences.
       await tester.scrollUntilVisible(
         find.byKey(settingsLicencesKey),
         -200,

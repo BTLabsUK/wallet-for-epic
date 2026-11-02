@@ -21,7 +21,7 @@ import '../../../network_gate.dart' show NetBlock;
 import '../../widgets/kit.dart';
 import '../../../settings_file/host_settings.dart' show hostSettings, shippedHostSettings;
 
-/// Settings › Help › Report a problem: what happened, an optional contact and the app log
+/// Settings › Help › Report a problem: what happened and the app log
 /// (LEPIC's log ring, redacted at the source; `wfe.log`, cleaned, with Include full details),
 /// previewed, sealed to the developer and sent to the support intake. The same report
 /// as the phone's Send feedback and the Electron GUI's Report a problem (`support_report.dart`).
@@ -44,7 +44,6 @@ class ReportProblemDialog extends ConsumerStatefulWidget {
 class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
   final _description = TextEditingController();
   bool _prefilled = false;
-  final _contact = TextEditingController();
   bool _attachLogs = true;
 
   /// "Include full details": the log's wallet addresses and amounts as they are, so `wfe.log`
@@ -79,7 +78,6 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
     super.initState();
     _logRead;
     _description.addListener(_refreshPreview);
-    _contact.addListener(_refreshPreview);
   }
 
   @override
@@ -100,7 +98,6 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
   void dispose() {
     _previewTimer?.cancel();
     _description.dispose();
-    _contact.dispose();
     super.dispose();
   }
 
@@ -166,7 +163,6 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
   /// The report as it would be sent now, cleaned on another isolate.
   Future<SupportReport> _report() {
     final message = _description.text;
-    final email = _contact.text;
     final details = _details();
     final fullDetails = _attachLogs && _fullDetails;
     // The ring unless Include full details asks for what only `wfe.log` holds.
@@ -182,7 +178,7 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
     return Isolate.run(() {
       hostSettings = settings;
       shippedHostSettings = shipped;
-      return buildFeedbackReport(message: message, email: email, details: details, ring: ring, log: log, at: at, ui: 'desktop', context: context, fullDetails: fullDetails, lastSession: lastSession);
+      return buildFeedbackReport(message: message, details: details, ring: ring, log: log, at: at, ui: 'desktop', context: context, fullDetails: fullDetails, lastSession: lastSession);
     });
   }
 
@@ -291,17 +287,6 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
                 invalid: emptyError != null,
                 hint: l.deskSetReportWhatHint,
                 semanticLabel: l.deskSetReportWhat,
-                onChanged: (_) => setState(() {}),
-              ),
-            ),
-            SizedBox(height: Sp.x4),
-            EField(
-              label: l.deskSetReportContact,
-              optional: true,
-              child: EInput(
-                controller: _contact,
-                hint: l.deskSetReportContactHint,
-                semanticLabel: l.deskSetReportContact,
                 onChanged: (_) => setState(() {}),
               ),
             ),

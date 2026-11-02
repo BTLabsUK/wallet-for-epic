@@ -191,7 +191,6 @@ void main() {
     test('states the facts, redacts the message and attaches the log', () {
       final report = buildFeedbackReport(
         message: 'Restore failed with $_phrase and PIN 123456, paid $_address',
-        email: ' me@example.com ',
         details: _details,
         log: 'INFO dart.unlock: PIN 654321\nWARN x: sent to $_address\n',
         at: DateTime.utc(2026, 10, 1, 8, 5),
@@ -203,7 +202,7 @@ void main() {
           'Restore failed with [recovery phrase removed] and PIN [redacted], paid <address-1>@box.epic.invalid',
         ),
       );
-      expect(report, contains('Contact: me@example.com'));
+      expect(report, isNot(contains('Contact:')));
       expect(report, contains('version: 1.1.2 (12)'));
       expect(report, contains('ui: phone'));
       expect(report, contains('platform: android 14'));
@@ -260,7 +259,7 @@ void main() {
         details: _details,
         at: DateTime.utc(2026, 10, 1),
       ).text;
-      expect(report, contains('Contact: none'));
+      expect(report, isNot(contains('Contact:')));
       expect(report, contains('Logs: none attached'));
     });
 
@@ -331,9 +330,7 @@ void main() {
       return HttpOverrides.runWithHttpOverrides(_postsToLoopback, _RealHttp());
     });
 
-    test('checks emails loosely and names files by the minute', () {
-      expect(isValidFeedbackEmail('a@b.co'), isTrue);
-      expect(isValidFeedbackEmail('not an email'), isFalse);
+    test('names files by the minute', () {
       expect(
         feedbackFileName(DateTime(2026, 10, 1, 9, 5)),
         'epic-wallet-feedback-20261001-0905.txt',
@@ -381,7 +378,7 @@ void main() {
     });
 
     testWidgets(
-      'asks for a message, checks the email, and can leave logs out',
+      'asks for a message and can leave logs out',
       (tester) async {
         final h = _Harness();
         h.log.write(LogLevel.info, 'app', 'start');
@@ -395,19 +392,11 @@ void main() {
         expect(h.outlet.shared, isEmpty);
 
         await enter(tester, 'What happened', 'The balance looks wrong');
-        await enter(tester, 'Contact (optional)', 'nope');
-        await tap(tester, find.text('Share or save'));
-        expect(
-          find.text('This does not look like an email address.'),
-          findsOneWidget,
-        );
-
-        await enter(tester, 'Contact (optional)', 'me@example.com');
         await tap(tester, find.text('Attach logs'));
         await tap(tester, find.text('Share or save'));
         await tap(tester, find.text('Save to device'));
         final saved = h.outlet.saved.single.report;
-        expect(saved, contains('Contact: me@example.com'));
+        expect(saved, isNot(contains('Contact:')));
         expect(saved, contains('Logs: none attached'));
         expect(saved, isNot(contains('dart.app: start')));
         expect(

@@ -3,7 +3,7 @@
 /// the Electron GUI's "Report a problem" (its `src/shared/supportBundle.js`), so the developer's
 /// `support:list` and `support:fetch` tools read reports from both apps:
 ///
-/// - The report is JSON `{v: 1, created, app, description, contact, files, dropped}`, gzipped.
+/// - The report is JSON `{v: 1, created, app, description, files, dropped}`, gzipped.
 /// - It is sealed to the developer's X25519 public key: each report gets a fresh key pair, and
 ///   the key is HKDF-SHA256(X25519(ephemeral, developer), salt = ephemeral || developer,
 ///   info = `epic-gui-support v1`). Layout: `EPICSUP1` (8) | key id (8) | ephemeral public
@@ -39,12 +39,10 @@ const String _supportUrlOverride = String.fromEnvironment('WFE_SUPPORT_URL');
 /// report). A build can point elsewhere with `--dart-define=WFE_SUPPORT_URL=...`.
 String? get supportUrlSetting => _supportUrlOverride.isEmpty ? hostSettings.supportReport : _supportUrlOverride;
 
-/// The intake's limits: a sealed report, the tail kept of each file, the description, the
-/// contact.
+/// The intake's limits: a sealed report, the tail kept of each file, the description.
 const int maxSupportBundle = 2 * 1024 * 1024;
 const int maxSupportFileText = 512 * 1024;
 const int maxSupportDescription = 2000;
-const int maxSupportContact = 100;
 
 /// How long a send may take before it counts as failed (`support.timeout_s`).
 Duration get supportTimeout => appConfig.supportTimeout;
@@ -101,15 +99,12 @@ class SupportReport {
   SupportReport({
     required this.created,
     required String description,
-    String contact = '',
     required this.app,
     this.files = const [],
-  }) : description = _oneLine(description, maxSupportDescription),
-       contact = _oneLine(contact, maxSupportContact);
+  }) : description = _oneLine(description, maxSupportDescription);
 
   final DateTime created;
   final String description;
-  final String contact;
   final Map<String, String> app;
   final List<SupportFile> files;
 
@@ -118,7 +113,6 @@ class SupportReport {
     'created': _iso(created),
     'app': app,
     'description': description,
-    'contact': contact,
     'files': [for (final f in files) f.toJson()],
     'dropped': dropped,
   };
@@ -127,7 +121,6 @@ class SupportReport {
   String get text {
     final out = StringBuffer()
       ..writeln('Created: ${_iso(created)}')
-      ..writeln('Contact: ${contact.isEmpty ? 'none' : contact}')
       ..writeln();
     for (final MapEntry(:key, :value) in app.entries) {
       out.writeln('$key: $value');
@@ -249,7 +242,6 @@ Future<Uint8List> buildSupportBundle(
     final kept = SupportReport(
       created: report.created,
       description: report.description,
-      contact: report.contact,
       app: report.app,
       files: files,
     );

@@ -33,6 +33,5 @@ String _problemText(AppLocalizations l, ValueProblem p, String file, int line) =
   ValueProblem.notWebAddress => l.settingsFileNotWebAddress(file, line),
   ValueProblem.notOnion => l.settingsFileNotOnion(file, line),
   ValueProblem.notPort => l.settingsFileNotPort(file, line),
-  ValueProblem.notEmail => l.settingsFileNotEmail(file, line),
   ValueProblem.notEpicboxAddress => l.settingsFileNotEpicboxAddress(file, line),
 };

@@ -87,23 +87,18 @@ class FeedbackDetails {
   final String? logLevel;
 }
 
-/// A loose check that [email] can be replied to.
-bool isValidFeedbackEmail(String email) =>
-    RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email.trim());
-
 /// The report. [ring] is LEPIC's log ring, oldest file first, attached as it is: it was
 /// redacted at the source. Without it, [log] is the attached log tail; both are null when the
 /// user turned logs off. The message, the facts and [log] are cleaned here, whatever the caller
-/// did; the email is the user's own, for a reply, and stays as written. [fullDetails] ("Include
-/// full details") keeps the wallet addresses and amounts [log] holds ([cleanForReport]), and
-/// the report says so; the ring never holds them, so a caller passes [log] for it.
+/// did. [fullDetails] ("Include full details") keeps the wallet addresses and amounts [log] holds
+/// ([cleanForReport]), and the report says so; the ring never holds them, so a caller passes
+/// [log] for it.
 ///
 /// With [lastSession] (the report the "stopped responding last time" notice opens), [ring] and
 /// [log] are the last session's, kept at this start, and go as `app/last-session/...`, with
 /// Android's trace of the end, cleaned like the log, and the end among the facts.
 SupportReport buildFeedbackReport({
   required String message,
-  String? email,
   required FeedbackDetails details,
   List<LogRingFile>? ring,
   String? log,
@@ -122,7 +117,6 @@ SupportReport buildFeedbackReport({
   return SupportReport(
     created: at,
     description: cleanForReport(message.trim(), context: context),
-    contact: email?.trim() ?? '',
     app: {
       'version': details.appVersion,
       'ui': ui,

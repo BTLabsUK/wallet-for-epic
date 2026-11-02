@@ -169,15 +169,13 @@ void main() {
     h.log.record(LogLevel.warn, 'dart.send', 'to $_address@box.epic.invalid via 203.0.113.7:3413');
     await h.pump(tester);
     await describe(tester, 'Sending to $_address fails');
-    await tester.enterText(find.descendant(of: find.byType(ReportProblemDialog), matching: find.byType(TextField)).at(1), 'me@example.com');
-    await tester.pump();
     await tester.tap(find.text('What is sent'));
     await settle(tester);
     final preview = previewText(tester);
     // The rows on screen are the text's first lines.
     expect(find.text(preview.split('\n').first), findsOneWidget);
     expect(preview, contains('Sending to <address-1> fails'));
-    expect(preview, contains('Contact: me@example.com'));
+    expect(preview, isNot(contains('Contact:')));
     expect(preview, contains('== app/wfe.log =='));
     expect(preview, contains('[recovery phrase removed]'));
     expect(preview, contains('to <address-1>@box.epic.invalid via <ip-1>:3413'));

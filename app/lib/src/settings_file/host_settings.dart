@@ -268,9 +268,6 @@ class AppConfig {
   /// Where a report is sent; null: no Send report.
   String? get supportReport => _orNull(_text('support.report'));
 
-  /// The support e-mail address; null: none shown.
-  String? get supportEmail => _orNull(_text('support.email'));
-
   /// BT Labs' donation contact, or null when the file leaves it out: no donation entry anywhere.
   String? get supportDonation => _orNull(_text('support.donation'));
 
@@ -450,7 +447,6 @@ class HostSettings {
   String? get releasesPage => config.releasesPage;
   List<String> get updatePages => config.updatePages;
   String? get supportReport => config.supportReport;
-  String? get supportEmail => config.supportEmail;
   String? get supportDonation => config.supportDonation;
   String? get supportDirectory => config.supportSignedFile;
   String? get linkWebsite => config.linkWebsite;
@@ -730,6 +726,7 @@ List<UnknownKey> _unknownKeys(Map<String, dynamic> doc, TomlScan scan) {
       final path = '$top.${k.key}';
       final key = settingsKeysByPath[path];
       if (key == null) {
+        if (retiredSettingsKeys.contains(path)) continue;
         out.add(UnknownKey(path, scan.lineOf([top, k.key])));
         continue;
       }

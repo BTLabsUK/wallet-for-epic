@@ -5,13 +5,13 @@ import 'package:epic_wallet/src/feedback.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// One real report to the support intake. Off unless WFE_SUPPORT_LIVE=1: each run is a report
-/// in the developer's inbox.
+/// in the developer's inbox. WFE_SUPPORT_LIVE_URL posts to another intake (a local one) instead
+/// of https://support.btlabs.uk/v1/report.
 void main() {
   test('sends one report to the live intake', () async {
     final id = await HttpOverrides.runWithHttpOverrides(() async {
       final report = buildFeedbackReport(
         message: 'TEST from wfe-01-fixes, ignore. Desktop Report a problem format check.',
-        email: 'test@example.com',
         details: const FeedbackDetails(
           appVersion: '0.1.0',
           platform: 'linux test',
@@ -32,6 +32,6 @@ void main() {
   }, skip: Platform.environment['WFE_SUPPORT_LIVE'] != '1');
 }
 
-final feedbackUrlProviderDefault = parseFeedbackUrl('https://support.btlabs.uk/v1/report')!;
+final feedbackUrlProviderDefault = parseFeedbackUrl(Platform.environment['WFE_SUPPORT_LIVE_URL'] ?? 'https://support.btlabs.uk/v1/report')!;
 
 class _RealHttp extends HttpOverrides {}

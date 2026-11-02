@@ -6,7 +6,7 @@ import '../../../dist_build.dart' show distStore;
 import '../../../l10n.dart' show localInt;
 import '../../../tor_build.dart' show inAppUpdates;
 import '../../../tor_licence.dart' show TorSourceNote;
-import '../../../ui/settings_screen.dart' show epicCashUrl, privacyPolicyUrl, projectRepoUrl, supportEmail;
+import '../../../ui/settings_screen.dart' show epicCashUrl, privacyPolicyUrl, projectRepoUrl;
 import '../../../ui/theme/fonts.dart' show flagsLicenceNote, sasPicturesLicenceNote;
 
 import 'dart:async';
@@ -123,14 +123,12 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
           // Folded (item 5): the heading and one line; open, one line per component with its
           // licence, the bundled tor's source note (its GPL asks for it) and the full texts.
           ESetGroup(rows: [_LicencesFold(open: widget.arg == AboutDemo.licencesOpen)]),
-          // The phone's rows in its order (GP2-020): the website, the source, the privacy policy
-          // and the contact address.
+          // The phone's rows in its order (GP2-020): the website, the source and the privacy policy.
           ESetGroup(
             rows: [
               if (websiteUrl case final w?) _LinkRow(anchor: SetId.website, title: shownUrl(w), shown: w, url: w),
               if (projectRepoUrl case final r?) _LinkRow(anchor: SetId.source, title: l.deskSetAboutSource, shown: shownUrl(r), url: r),
               if (privacyPolicyUrl case final url?) _LinkRow(anchor: SetId.privacyPolicy, title: l.settingsPrivacyPolicy, shown: shownUrl(url), url: url),
-              if (supportEmail case final e?) _LinkRow(anchor: SetId.contact, title: l.contactLabel, shown: e, url: 'mailto:$e', copy: e),
             ],
           ),
         ],
@@ -224,15 +222,12 @@ class _LicencesFoldState extends State<_LicencesFold> {
 
 /// A link: its title, Open (the browser), and the address under it with a copy button.
 class _LinkRow extends ConsumerWidget {
-  const _LinkRow({required this.anchor, required this.title, required this.shown, required this.url, this.copy});
+  const _LinkRow({required this.anchor, required this.title, required this.shown, required this.url});
 
   final String anchor;
   final String title;
   final String shown;
   final String url;
-
-  /// What the copy button puts on the clipboard, when it is not [url].
-  final String? copy;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -256,7 +251,7 @@ class _LinkRow extends ConsumerWidget {
         children: [
           Flexible(child: Text(shown, style: context.ts.mono(size: Fs.sm, color: c.faint), overflow: TextOverflow.ellipsis)),
           SizedBox(width: Sp.x1),
-          LinkCopyButton(url: copy ?? url),
+          LinkCopyButton(url: url),
         ],
       ),
     );
