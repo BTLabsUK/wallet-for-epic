@@ -19969,4 +19969,12 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get sendFactOnline => 'Their wallet has to be open.';
+
+  @override
+  String get deskSaToAddress => 'Send to an address';
+
+  @override
+  String deskSaToContactSem(String name) {
+    return 'To $name';
+  }
 }

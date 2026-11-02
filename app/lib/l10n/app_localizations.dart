@@ -32009,6 +32009,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Their wallet has to be open.'**
   String get sendFactOnline;
+
+  /// Quiet button on the desktop Send page's file form (Pay with a file): back to the To field, sending to an address or a contact.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to an address'**
+  String get deskSaToAddress;
+
+  /// Screen reader label of the contact chip in Send's To field after a contact was picked. {name} is the contact's name.
+  ///
+  /// In en, this message translates to:
+  /// **'To {name}'**
+  String deskSaToContactSem(String name);
 }
 
 class _AppLocalizationsDelegate

@@ -9,22 +9,25 @@ import '../../../address_field.dart';
 import '../../../amount.dart' as shared show formatEpic;
 import '../../../amount.dart' show exactDecimals;
 import '../../../l10n.dart' show LocalizedFormatException, localDecimal;
-import '../../../payment_prefs.dart' show PaymentPrefs;
 import '../../../providers.dart' show defaultMinimumConfirmations;
 import '../../../known_relays.dart';
 import '../../../log.dart';
 import '../../../network.dart' show EpicboxRelay;
 import '../../../devices/device_link_code.dart' show isDeviceLinkText;
-import '../../data/api.dart' show DeskWalletApi;
 import '../../data/devices_state.dart' show deskHeldProvider, deskLinkedDevicesOnProvider;
 import '../devices/link_flow.dart' show showDeskLinkDevice;
-import '../../data/http_address.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
 import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
 import '../../../models.dart' show PairingRecord, PairingState, slateMessageMaxBytes;
 import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
+import '../../../settings_file/host_settings.dart' show appConfig;
+import '../../../advanced.dart' show NetworkMode;
+import '../../../ui/network_mode_text.dart' show switchPausesSends;
+import '../../../send_reach.dart';
+import '../../../send_route.dart';
+import '../../../ui/send_route_text.dart';
 import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;
 import '../../../send_amount_gate.dart';
 import '../../../smart_outputs.dart';
@@ -45,8 +48,8 @@ import 'finalize_screen.dart' show FinalizeArgs;
 import 'import_tx_screen.dart' show ImportArgs;
 import 'send_advanced.dart';
 import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
-import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature;
-import '../../data/method_names.dart' show methodKindOf, methodShortLabel;
+import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, confirmNetworkModeSwitch;
+import '../../data/method_names.dart' show methodKindOf;
 import '../../../scan/scan_router.dart';
 import '../../../scan/scan_text.dart';
 import 'send_code.dart';
@@ -70,7 +73,6 @@ class SendArgs {
     this.tor,
     this.privacyOpen = false,
     this.suggest = false,
-    this.switched = false,
     this.strategy,
     this.smart,
     this.advancedOpen = false,
@@ -83,7 +85,8 @@ class SendArgs {
   /// [contact] with no address and a pairing that pays this way opens the same.
   final String? pairingTo;
 
-  /// The method Send opens on; null is the one chosen in Settings › Transactions.
+  /// [TxMethod.file] opens the file form (Pay with a file); any other method is ignored: the
+  /// address in To decides how it goes.
   final TxMethod? method;
   final String? recipient;
   final String? amount;
@@ -99,9 +102,6 @@ class SendArgs {
 
   /// Show the contacts matching [recipient] as if it was typed.
   final bool suggest;
-
-  /// [recipient] was just pasted: the method follows it and the switch tag shows.
-  final bool switched;
 
   /// This send's strategy and Split change (Advanced); null is the Outputs default.
   final SelectionStrategy? strategy;
@@ -135,9 +135,17 @@ class _Draft {
     this.pairingId,
     this.queued = false,
     this.confirmations = defaultMinimumConfirmations,
+    this.route,
+    this.torStarts = false,
   });
 
   final TxMethod method;
+
+  /// [to] as Send read it: the method's name, the host as contacted, plain http.
+  final RecipientInput? route;
+
+  /// An onion while the Tor switch is off: the review says Tor starts when it sends.
+  final bool torStarts;
 
   /// The wallet's minimum confirmations: blocks until the change confirms.
   final int confirmations;
@@ -185,30 +193,13 @@ int? _parseAmount(AppLocalizations l, String raw) {
   }
 }
 
-/// What is wrong with the recipient for method [m], or null (one parser for every kind).
-String? _recipientError(AppLocalizations l, TxMethod m, String v, DeskWalletApi api) {
-  final t = v.trim();
-  if (m == TxMethod.file) return null;
-  if (t.isEmpty) return l.deskSendErrNoAddress;
-  final p = parseAddress(t, api);
-  // The build without Tor reaches no onion, by any method.
-  if (!DeskFeatures.tor && p.kind == AddressKind.tor) return l.sendTorNotInVersion;
-  switch (m) {
-    case TxMethod.file:
-      return null;
-    case TxMethod.epicbox:
-      return p.kind == AddressKind.epicbox && p.complete ? null : l.deskSendErrEpicbox;
-    // Direct: an http(s) address or an onion; the address decides the route.
-    case TxMethod.http || TxMethod.tor:
-      if (p.kind == AddressKind.epicbox) return l.deskSendErrNotDirect;
-      if (p.kind == AddressKind.tor) return p.complete ? null : l.deskSendErrOnion;
-      final problem = httpAddressProblem(p.kind == AddressKind.http ? p.canonical : t, l);
-      return problem == null ? null : '$problem.';
-  }
-}
-
-/// The segment a method shows under: a send to an onion is a Direct send ([TxMethod.http]).
-TxMethod _segmentOf(TxMethod m) => m == TxMethod.tor ? TxMethod.http : m;
+/// The method an address in To goes by; null when To holds no address.
+TxMethod? _methodOf(RecipientInput r) => switch (r.kind) {
+  RecipientInputKind.epicbox => TxMethod.epicbox,
+  RecipientInputKind.onion => TxMethod.tor,
+  RecipientInputKind.https || RecipientInputKind.http => TxMethod.http,
+  _ => null,
+};
 
 
 /// The Send form as it was left, for the wallet it was filled in: people leave Send to check
@@ -220,17 +211,19 @@ class _KeptSend {
     required this.to,
     required this.amount,
     required this.message,
-    required this.method,
+    required this.file,
     required this.pairingTo,
     required this.code,
     required this.codeBanner,
+    required this.contactId,
   });
 
   final String? wallet;
+  final String? contactId;
   final String to;
   final String amount;
   final String message;
-  final TxMethod method;
+  final bool file;
   final String? pairingTo;
   final SendCode? code;
   final bool codeBanner;
@@ -262,11 +255,30 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   final _amount = TextEditingController();
   final _message = TextEditingController();
   late final SendArgs _args;
-  TxMethod _method = TxMethod.epicbox;
+  // The file form (Pay with a file); otherwise the address in To decides the method.
+  bool _file = false;
   bool _submitted = false;
-  // A field's error goes away as soon as the field is edited, until the next review.
-  bool _toEdited = false;
+  // To's error shows once the field is left, Enter pressed, an address pasted or Review
+  // pressed; typing hides it again.
+  bool _toTouched = false;
+  // An amount's error goes away as soon as the field is edited, until the next review.
   bool _amountEdited = false;
+  final _toFocus = FocusNode();
+  // The clean-up of the last paste or focus loss: the text before it, for Undo.
+  String? _cleanedFrom;
+  // The text Undo put back: it is not cleaned again.
+  String? _undone;
+  // The contact picked, shown as a chip in To; [_to] holds the address used.
+  String? _contactId;
+  bool _holdBusy = false;
+  // The reach check, per clean address: asked once, again only on Try again.
+  final Map<String, ReachResult> _reach = {};
+  final Set<String> _reachAsked = {};
+  // "Checking…" shows only for a slow answer.
+  bool _reachSlow = false;
+  Timer? _reachTimer;
+  String? _readFor;
+  RecipientInput _readNow = RecipientInput.empty;
   bool _all = false;
   bool _allBusy = false;
   String? _allError;
@@ -285,12 +297,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   // Advanced: this send's choices; null takes the Outputs default.
   late SelectionStrategy? _strategyOverride = _args.strategy;
   late bool? _smartOverride = _args.smart;
-  // The auto-switch: the To text before this change, and the tag's method while
-  // it shows (3 s).
+  // The To text before this change: one change of 8 or more characters is a paste.
   String _lastTo = '';
-  TxMethod? _switchedTo;
-  bool _tagOn = false;
-  Timer? _tagTimer;
   SendResult? _result;
   // The failed payment's message, worded when shown.
   String Function(AppLocalizations l)? _failure;
@@ -319,8 +327,32 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return ref.read(deskContactPairingProvider(c.id))?.id;
   }
 
-  /// [_pairingTo] goes by its mailbox now: Epicbox chosen (File and the rest ignore it).
-  bool get _viaPairing => _pairingTo != null && _method == TxMethod.epicbox;
+  /// [_pairingTo] goes by its mailbox now (the file form ignores it).
+  bool get _viaPairing => _pairingTo != null && !_file;
+
+  /// What To holds, read once per text ([readRecipient]).
+  RecipientInput get _read {
+    final t = _to.text;
+    if (t != _readFor) {
+      _readFor = t;
+      _readNow = readRecipient(t, defaultRelay: ref.read(hostSettingsProvider).epicboxUse, listenPort: appConfig.httpListenPort);
+    }
+    return _readNow;
+  }
+
+  /// The method this send goes by: File for the file form, Epicbox for a pairing, else the
+  /// address's. Shallow sends by Epicbox alone. Epicbox while To holds no address.
+  TxMethod get _method {
+    if (_file) return TxMethod.file;
+    if (_viaPairing || !_strip) return TxMethod.epicbox;
+    return _methodOf(_read) ?? TxMethod.epicbox;
+  }
+
+  /// A method follows from what is in To (or the file form, or a pairing).
+  bool get _hasMethod => _file || _viaPairing || _methodOf(_read) != null;
+
+  /// The contact picked, when it is still in the list.
+  Contact? _picked(DeskState st) => _contactId == null ? null : st.contacts?.where((c) => c.id == _contactId).firstOrNull;
 
   /// A mailbox payment made now waits in the outbox: Epicbox is off (LEPIC queues it).
   bool _queues() => _viaPairing && ref.read(deskPairNetProvider) == DeskPairNet.epicboxOff;
@@ -343,12 +375,19 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     }
     _args = args;
     final contact = args.contact;
-    final contactTo = contact == null ? null : contactAddress(contact, ref.read(deskProvider).settings.payments);
-    _method = contact != null ? contactMethod(contact, contactTo) : args.method ?? _startMethod();
+    final st0 = ref.read(deskProvider);
+    _file = args.method == TxMethod.file;
     _pairingTo = args.pairingTo ?? (contact == null ? null : _pairingOf(contact));
-    if (_pairingTo != null) _method = TxMethod.epicbox;
-    _to.text = args.recipient ?? contactTo ?? '';
-    _autoSwitch(forced: true, tag: args.switched);
+    if (contact != null && _pairingTo == null) {
+      _contactId = contact.id;
+      _to.text = _bestAddress(contact, st0);
+    } else {
+      _to.text = args.recipient ?? '';
+      // A recipient handed in (a link, the tour) is read as a paste: clean, with its line.
+      if (_to.text.isNotEmpty && !args.suggest) _settleTo(st0);
+    }
+    _lastTo = _to.text;
+    _toFocus.addListener(_onToFocus);
     _suggestOff = _to.text.isNotEmpty && !args.suggest;
     _amount.text = args.amount ?? '';
     _message.text = args.message ?? '';
@@ -367,10 +406,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final kept = _keeper.kept;
     _keeper.kept = null;
     if (a == null && kept != null && kept.wallet == _wallet) _restore(kept);
-    if (!_strip) _method = TxMethod.epicbox;
     switch (args.step) {
       case SendStep.errors:
         _submitted = true;
+        _toTouched = true;
       case SendStep.review || SendStep.sending:
         WidgetsBinding.instance.addPostFrameCallback((_) => _openReview(startBusy: args.step == SendStep.sending));
       // The demo result reads the amount, which needs the language: built in
@@ -378,7 +417,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       case SendStep.done:
         _demoStep = SendStep.done;
       case SendStep.fileReady:
-        _method = TxMethod.file;
+        _file = true;
         _demoStep = SendStep.fileReady;
       case SendStep.failed:
         _failure = (l) => l.deskSendNoAnswer;
@@ -419,7 +458,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     _lastTo = kept.to;
     _amount.text = kept.amount;
     _message.text = kept.message;
-    _method = kept.method;
+    _file = kept.file;
+    _contactId = kept.contactId;
     _pairingTo = kept.pairingTo;
     _code = kept.code;
     _codeBanner = kept.codeBanner;
@@ -439,17 +479,20 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       to: _to.text,
       amount: _all ? '' : _amount.text,
       message: _message.text,
-      method: _method,
+      file: _file,
       pairingTo: _pairingTo,
       code: _code,
       codeBanner: _codeBanner,
+      contactId: _contactId,
     );
   }
 
   @override
   void dispose() {
     _keeper.kept = _toKeep;
-    _tagTimer?.cancel();
+    _reachTimer?.cancel();
+    _toFocus.removeListener(_onToFocus);
+    _toFocus.dispose();
     _to.dispose();
     _amount.dispose();
     _message.dispose();
@@ -499,50 +542,61 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   bool _epicboxBlocked(DeskState st) {
     // LEPIC posts a mailbox payment itself, or keeps it in the outbox until it can.
-    if (_method != TxMethod.epicbox || _viaPairing) return false;
+    if (!_byEpicbox || _viaPairing) return false;
     final h = _epicboxHealth(st);
     return h == ServiceHealth.off || h == ServiceHealth.checking;
   }
 
   TorState _torState(DeskState st) => _args.tor ?? deskNetTor(st);
 
-  /// The network mode holds this send: Epicbox and Link in Node only and Kill switch (a Link
-  /// send to a local address too: Node only turns Link off), and in Tor only without Tor. A
-  /// file is never held: Node only lets it use the node in use ([deskOfflineUsesNode] says so
-  /// on the screen), Kill switch makes it without a node. A method whose switch is off (Settings ›
-  /// Transactions) holds it too ([NetBlock.methodOff]): a pasted address of that kind picks
-  /// the method and the notice says it is off. Until To holds an address, Link is held only
-  /// when both its methods are off: the address decides between Link · HTTP and Link · Tor.
-  NetBlock _netBlock(DeskState st) => _method == TxMethod.file
-      ? NetBlock.none
-      // A pairing's mailbox payment waits in the outbox while Epicbox is off ("Queue
-      // payment"); Offline and Tor still hold it.
-      : _viaPairing
-      ? deskNetBlock(st)
-      : deskNetBlock(
-          st,
-          // An Epicbox address goes by Epicbox whatever the selector moved to (D-06 moves off a
-          // method that is off): its switch holds the send and the notice names it, as on the phone.
-          epicbox: _method == TxMethod.epicbox || addressKindOf(_to.text) == AddressKind.epicbox,
-          // An onion in the build without Tor: no method would send it, its own line says so.
-          offered: _onionNoTor ||
-              (_method != TxMethod.epicbox && _to.text.trim().isEmpty
-                  ? st.settings.payments.offersFamily(MethodFamily.link)
-                  : st.settings.payments.offers(methodKindOf(_method))),
-        );
+  /// An address in To that goes by Epicbox, or a pairing's mailbox.
+  bool get _byEpicbox => _hasMethod && _method == TxMethod.epicbox;
+
+  /// The Tor switch is on (or the tour says so).
+  bool _torOn(DeskState st) => _torState(st) != TorState.off;
+
+  /// What the network mode holds the address in To with ([sendHoldFor]); null when it may go,
+  /// for the file form and a pairing (their own notices say what holds them).
+  SendHold? _hold(DeskState st) => _file || _viaPairing || !_strip ? null : sendHoldFor(_read, mode: deskNetMode(st), torOn: _torOn(st));
+
+  /// The switch (Settings › Transactions) the address in To needs; null for none yet.
+  MethodKind? get _needs => !_strip ? (_read.kind == RecipientInputKind.epicbox ? MethodKind.epicbox : null) : sendMethodKind(_read);
+
+  /// What else holds this send: the mode with no address in To yet (an address's hold is
+  /// [_hold]), Tor only waiting for tor, and the method's switch (Settings › Transactions:
+  /// [NetBlock.methodOff], [NetBlock.epicboxOff]). A file is never held: Node only lets it use
+  /// the node in use ([deskOfflineUsesNode] says so on the screen), Kill switch makes it
+  /// without a node.
+  NetBlock _netBlock(DeskState st) {
+    if (_file) return NetBlock.none;
+    // A pairing's mailbox payment waits in the outbox while Epicbox is off ("Queue payment");
+    // the mode and Tor still hold it.
+    if (_viaPairing) return deskNetBlock(st);
+    final kind = _needs;
+    return deskNetBlock(
+      st,
+      epicbox: kind == MethodKind.epicbox,
+      // An onion in the build without Tor: no method would send it, its own line says so. An
+      // http(s) address is never held by a switch: Link · HTTP's switch is the listener's.
+      offered: _onionNoTor || kind == null || kind == MethodKind.linkHttp || st.settings.payments.offers(kind),
+    );
+  }
 
   /// An onion in To in the build without Tor: said at once under To, nothing offered for it.
-  bool get _onionNoTor => !DeskFeatures.tor && _method != TxMethod.file && addressKindOf(_to.text) == AddressKind.tor;
+  bool get _onionNoTor => !DeskFeatures.tor && !_file && _read.kind == RecipientInputKind.onion;
 
   /// The method this send goes by, for its name and its switch.
-  MethodKind get _kind => methodKindOf(_method);
+  MethodKind get _kind => _needs ?? methodKindOf(_method);
 
-  /// How this send's connection goes with the Tor switch as it is now; null for File.
+  /// How this send's connection goes with the Tor switch as it is now; null for File, for no
+  /// address yet and for plain http (never over Tor: direct to this computer and the local
+  /// network, else held by [_hold]).
   TorWay? _torWay(DeskState st) {
+    if (!_hasMethod) return null;
     final route = switch (_method) {
       TxMethod.epicbox => TorRoute.epicbox,
       TxMethod.tor => TorRoute.onionDirect,
-      TxMethod.http => _to.text.trim().isNotEmpty && plainHttpNeedsConsent(_to.text) ? TorRoute.plainHttpDirect : TorRoute.httpDirect,
+      TxMethod.http => _read.kind == RecipientInputKind.http ? null : TorRoute.httpDirect,
       TxMethod.file => null,
     };
     // An onion goes through the wallet's tor whoever started it: Link · Tor runs one for
@@ -551,13 +605,21 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return route == null ? null : torWay(route, _torState(st));
   }
 
+  /// An onion while the Tor switch is off: the wallet's own Tor for payments carries it, which
+  /// the method line and the review say ("Tor starts when you send.").
+  bool _torStarts(DeskState st) =>
+      _hasMethod && _method == TxMethod.tor && !_torOn(st) && deskNetMode(st) == NetworkMode.standard && switch (_torWay(st)) {
+        TorWay.overTor || TorWay.wait => true,
+        _ => false,
+      };
+
   /// Tor holds this send: starting, not connected, or off for an onion. Nothing falls back.
   bool _torHeld(DeskState st) {
     final way = _torWay(st);
     return way != null && !torGoes(way);
   }
 
-  bool _canSend(DeskState st) => _netBlock(st) == NetBlock.none && _nodeBlock(st) == null && !_epicboxBlocked(st) && !_torHeld(st) && _result is! SendDone;
+  bool _canSend(DeskState st) => _netBlock(st) == NetBlock.none && _hold(st) == null && _nodeBlock(st) == null && !_epicboxBlocked(st) && !_torHeld(st) && _result is! SendDone;
 
   OutputPrefs get _prefs => ref.read(deskOutputPrefsProvider).value ?? const OutputPrefs();
 
@@ -637,130 +699,148 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     });
   }
 
-  /// The method follows the address: a complete address of another kind, or any
-  /// address that was pasted ([forced], or one change adding 8 or more characters), moves it to
-  /// that kind. Text still being typed never does, and nothing switches back when the text
-  /// becomes incomplete. The field keeps its text.
-  void _autoSwitch({bool forced = false, bool tag = true}) {
-    final text = _to.text;
-    final added = text.length - _lastTo.length;
-    _lastTo = text;
-    // Shallow sends by Epicbox alone: the address never moves the method.
-    if (!_strip || _method == TxMethod.file) return;
-    final p = parseAddress(text, ref.read(deskApiProvider));
-    // Under Direct the address decides the route: an onion over Tor, anything else http(s).
-    if (_segmentOf(_method) == TxMethod.http) _method = _directRoute(p.kind);
-    final m = methodForKind(p.kind);
-    if (m == null || _segmentOf(m) == _segmentOf(_method) || !_offered(m)) return;
-    if (!(forced || added >= 8 || p.complete)) return;
-    _method = m;
-    if (tag) _showSwitched(m);
+  /// [t] read as a recipient, with this wallet's default relay and listener port.
+  RecipientInput _readOf(String t) => readRecipient(t, defaultRelay: ref.read(hostSettingsProvider).epicboxUse, listenPort: appConfig.httpListenPort);
+
+  /// What the mode holds an address [r] with now.
+  SendHold? _heldOf(RecipientInput r, DeskState st) => sendHoldFor(r, mode: deskNetMode(st), torOn: _torOn(st));
+
+  /// [r] can be sent to by this build, at this level, with its method switched on (http(s)
+  /// needs no switch).
+  bool _sendable(RecipientInput r, DeskState st) {
+    final k = sendMethodKind(r);
+    if (k == null || (k == MethodKind.linkTor && !DeskFeatures.tor) || (!_strip && k != MethodKind.epicbox)) return false;
+    // Link · HTTP's switch turns the listener on and off, never a send.
+    return k == MethodKind.linkHttp || st.settings.payments.offers(k);
   }
 
-  TxMethod _directRoute(AddressKind k) => k == AddressKind.tor && DeskFeatures.tor ? TxMethod.tor : TxMethod.http;
-
-  /// Settings › Transactions › Send starts on, among the methods this build has.
-  TxMethod _startMethod() => switch (ref.read(deskProvider).settings.payments.startMethod) {
-    _ when !_strip => TxMethod.epicbox,
-    // Node only and Kill switch: Epicbox and Link don't go out, so an empty send starts on File
-    // (an address given in To keeps its own method, and the note says why it is held).
-    _ when NetGate.restricted && (_args.recipient ?? '').trim().isEmpty => TxMethod.file,
-    MethodKind.linkHttp || MethodKind.linkTor => TxMethod.http,
-    MethodKind.directFile => TxMethod.file,
-    _ => TxMethod.epicbox,
-  };
-
-  /// Where an empty form goes when its method was switched off: the start method, or
-  /// for one the desktop does not send by (QR Payment) the first it does that is on.
-  TxMethod _nextMethod(PaymentPrefs p) {
-    final link = p.offersFamily(MethodFamily.link);
-    final start = _startMethod();
-    if (start != TxMethod.epicbox || p.epicbox) return start;
-    return link ? TxMethod.http : (p.directFile ? TxMethod.file : TxMethod.epicbox);
+  /// The address of [c] Send uses first: Epicbox, https, Tor, plain http, skipping any the mode
+  /// holds or whose method is off ([bestAddressIndex]).
+  String _bestAddress(Contact c, DeskState st) {
+    final list = c.addresses;
+    final i = bestAddressIndex(list, read: _readOf, held: (r) => _heldOf(r, st) != null || !_sendable(r, st));
+    return i < 0 ? c.address : list[i];
   }
 
-  /// File Transfer is in the selector: its switch is on, or it is the fallback of a failed
-  /// Epicbox, or a file send is under way.
-  bool _fileShown(DeskState st) {
-    final p = st.settings.payments;
-    final eb = _epicboxHealth(st);
-    return p.directFile || _method == TxMethod.file || (p.epicbox && (eb == ServiceHealth.off || eb == ServiceHealth.down));
-  }
-
-  /// The selector's segment for [m] can be chosen now: Epicbox and Link wait for the network
-  /// mode (Node only, Kill switch), Epicbox for its switch too (a pairing's mailbox queues),
-  /// and a pairing recipient has no Link address. File always can. Tor still starting is no
-  /// reason to move: the payment waits for Tor under its notice.
-  bool _segmentOn(DeskState st, TxMethod m) => switch (_segmentOf(m)) {
-    TxMethod.epicbox => _modeAllows(st) && (st.settings.payments.epicbox || _pairingTo != null),
-    TxMethod.file => true,
-    _ => _pairingTo == null && _modeAllows(st),
-  };
-
-  bool _modeAllows(DeskState st) => switch (deskNetBlock(st)) {
-    NetBlock.none || NetBlock.waitingForTor => true,
-    _ => false,
-  };
-
-  /// The first method that can be chosen now, in the selector's order; null when none can.
-  TxMethod? _firstOn(DeskState st) {
-    for (final m in [TxMethod.epicbox, TxMethod.http, if (_fileShown(st)) TxMethod.file]) {
-      if (_segmentOn(st, m)) return m == TxMethod.http ? _directRoute(parseAddress(_to.text, ref.read(deskApiProvider)).kind) : m;
+  /// To left (focus lost, Enter, Review) or pasted into: the text takes its clean form, with the
+  /// line that says what changed; a contact's address becomes its chip; a Link address is
+  /// asked once whether a wallet answers. The caller sets the state.
+  void _settleTo(DeskState st) {
+    final before = _to.text;
+    if (before.trim().isEmpty) return;
+    _toTouched = true;
+    final r = _read;
+    if (before != _undone && r.isAddress && r.address != before) {
+      _cleanedFrom = before;
+      _to.text = r.address;
+      _lastTo = _to.text;
     }
-    return null;
+    if (_contactId == null && _pairingTo == null) _contactId = _contactOf(st.contacts)?.id;
+    _askReach(st);
   }
 
-  bool _moving = false;
-
-  /// The method was picked by hand for the address in To: the address no longer moves it back.
-  bool _methodByHand = false;
-
-  /// The method of the address in To, when it is not the one chosen and can be chosen now: a
-  /// method D-06 moved off comes back once it is on again (an Epicbox address goes by Epicbox,
-  /// never by Link). Null while a method picked by hand, File, or a pairing holds.
-  TxMethod? _addressMethod(DeskState st) {
-    if (_methodByHand || _method == TxMethod.file || _pairingTo != null) return null;
-    final m = methodForKind(addressKindOf(_to.text));
-    if (m == null || _segmentOf(m) == _segmentOf(_method) || !_offered(m) || !_segmentOn(st, m)) return null;
-    return m;
+  void _onToFocus() {
+    if (_toFocus.hasFocus || !mounted || _file) return;
+    setState(() => _settleTo(ref.read(deskProvider)));
   }
 
-  /// A method that cannot be chosen now never stays chosen with a live form (D-06): Send moves
-  /// to the first that can, after this frame, and back to the address's method once that can
-  /// be chosen again. Only this screen's choice moves; Settings › Transactions › Send starts
-  /// on stays as it is.
-  void _keepMethodOn(DeskState st) {
-    if (!_strip || _moving || _result != null) return;
-    if (_segmentOn(st, _method) && _addressMethod(st) == null) return;
-    if (!_segmentOn(st, _method) && _firstOn(st) == null) return;
-    _moving = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _moving = false;
-      if (!mounted) return;
-      final now = ref.read(deskProvider);
-      if (_result != null) return;
-      final m = _addressMethod(now) ?? (_segmentOn(now, _method) ? null : _firstOn(now));
-      if (m == null) return;
-      setState(() {
-        _method = m;
-        _failure = null;
-      });
+  /// To takes the focus once it is built again (after a chip or the file form).
+  void _focusTo() => WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (mounted && _toFocus.context != null) _toFocus.requestFocus();
+  });
+
+  /// Undo the clean-up: the text as it was, not cleaned again.
+  void _undoClean() {
+    final before = _cleanedFrom;
+    if (before == null) return;
+    setState(() {
+      _to.text = before;
+      _lastTo = before;
+      _undone = before;
+      _cleanedFrom = null;
+      _contactId = null;
+      // "Sends to" says the clean form again.
+      _toTouched = false;
+    });
+    _focusTo();
+  }
+
+  /// Asks the Link address in To once, in the background, whether a wallet answers there
+  /// ([checkWalletAnswers]); "Checking…" shows only after 1.5 s without an answer.
+  void _askReach(DeskState st) {
+    final r = _read;
+    final mode = deskNetMode(st);
+    if (!_strip || _file || !reachCheckApplies(r, mode: mode) || _heldOf(r, st) != null) return;
+    final key = r.address;
+    if (!_reachAsked.add(key)) return;
+    _reachSlow = false;
+    _reachTimer?.cancel();
+    _reachTimer = Timer(const Duration(milliseconds: 1500), () {
+      if (mounted && !_reach.containsKey(key)) setState(() => _reachSlow = true);
+    });
+    unawaited(checkWalletAnswers(r, mode: mode).then((res) {
+      if (mounted) setState(() => _reach[key] = res);
+    }));
+  }
+
+  /// Try again: the address in To is asked once more.
+  void _retryReach() {
+    final key = _read.address;
+    setState(() {
+      _reach.remove(key);
+      _reachAsked.remove(key);
+      _askReach(ref.read(deskProvider));
     });
   }
 
-  static bool _offered(TxMethod m) => switch (m) {
-    TxMethod.tor => DeskFeatures.tor,
-    _ => true,
-  };
+  /// The reach check's answer for To now; null while there is none.
+  ReachResult? get _reachNow => _reach[_read.address];
 
-  /// "Direct" (or the other method) next to To for 3 s, read out once.
-  void _showSwitched(TxMethod m) {
-    _switchedTo = m;
-    _tagOn = true;
-    _tagTimer?.cancel();
-    _tagTimer = Timer(const Duration(seconds: 3), () {
-      if (mounted) setState(() => _tagOn = false);
+  /// The hold's one action: the network mode back to Normal, or the Tor switch off.
+  Future<void> _fixHold(SendHold h) async {
+    final l = context.l10n;
+    if (h.fix == SendHoldFix.torOff) {
+      await _setTor(false);
+      if (mounted && !_torOn(ref.read(deskProvider))) showEToast(context, l.sendHeldTorIsOff, tone: ETone.ok);
+      return;
+    }
+    final st = ref.read(deskProvider);
+    final s = st.settings;
+    final adv = s.advanced;
+    if (adv.networkMode == NetworkMode.standard) return;
+    // As Settings › Privacy chooses a mode: a switch that pauses waiting sends asks first
+    // (Normal never does, so this only guards a future mode list).
+    final waiting = switchPausesSends(NetworkMode.standard) && !switchPausesSends(adv.networkMode) ? deskPendingNetworkSends(st) : 0;
+    if (waiting > 0) {
+      final ok = await confirmNetworkModeSwitch(context, mode: NetworkMode.standard, waiting: waiting);
+      if (ok != true || !mounted) return;
+    }
+    setState(() => _holdBusy = true);
+    try {
+      await ref.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: adv.withMode(NetworkMode.standard)));
+      if (mounted) showEToast(context, l.sendHeldModeNormal, tone: ETone.ok);
+    } on Object catch (e) {
+      if (mounted) showEToast(context, deskErrorText(e, l), tone: ETone.risk);
+    } finally {
+      if (mounted) setState(() => _holdBusy = false);
+    }
+  }
+
+  /// Pay with a file: the file form, the recipient kept for the way back.
+  void _openFile() => setState(() {
+    _file = true;
+    _failure = null;
+    _submitted = false;
+  });
+
+  /// Back from the file form to sending to an address.
+  void _leaveFile() {
+    setState(() {
+      _file = false;
+      _failure = null;
+      _submitted = false;
     });
+    if (_pairingTo == null && _contactId == null) _focusTo();
   }
 
   bool _torBusy = false;
@@ -785,7 +865,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     }
   }
 
-  void _changed({bool to = false, bool amount = false, bool pasted = false}) {
+  void _changed({bool to = false, bool amount = false}) {
     setState(() {
       if (amount) {
         _all = false;
@@ -793,11 +873,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         _allError = null;
       }
       if (to) {
-        _methodByHand = false;
-        _toEdited = true;
+        _lastTo = _to.text;
+        // Typing: no error until the field is left, and the clean-up line goes.
+        _toTouched = false;
+        _cleanedFrom = null;
         _suggestOff = false;
         _codeError = null;
-        _autoSwitch(forced: pasted);
         if (_leaveCode()) amount = true;
       }
       if (_result is SendDone) _result = null;
@@ -877,15 +958,26 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final t = d?.text?.trim();
     if (t == null || t.isEmpty || !mounted) return;
     if (openPaymentText(t, origin: CodeOrigin.paste)) return;
-    setState(() => _to.text = t);
-    _changed(to: true, pasted: true);
+    _pasted(t);
+  }
+
+  /// [t] pasted into To (the Paste button, Ctrl+V): read at once, the clean form in the field
+  /// and the line that says what changed.
+  void _pasted(String t) {
+    _to.text = t;
+    _undone = null;
+    _changed(to: true);
+    setState(() => _settleTo(ref.read(deskProvider)));
   }
 
   /// To changed by typing or a paste into it: one change of 8 or more characters is a paste,
   /// and a code in it goes through the router; typing never does (a half-typed `epic:…` would
   /// fill the form under the cursor).
   void _toChanged(String text) {
-    if (text.length - _lastTo.length >= 8 && openPaymentText(text, origin: CodeOrigin.paste)) return;
+    if (text.length - _lastTo.length >= 8) {
+      if (openPaymentText(text, origin: CodeOrigin.paste)) return;
+      return _pasted(text);
+    }
     _changed(to: true);
   }
 
@@ -911,7 +1003,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _lastTo = _to.text;
       _codeError = error;
       _code = null;
-      _toEdited = false;
+      _toTouched = false;
+      _cleanedFrom = null;
+      _contactId = null;
       _suggestOff = true;
     });
     void dialog(IconData icon, String title, String body, String shown) =>
@@ -924,7 +1018,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           _lastTo = '';
           _codeError = (l) => l.scanPhraseFoundPasted;
           _code = null;
-          _toEdited = false;
+          _toTouched = false;
+          _cleanedFrom = null;
+          _contactId = null;
           _suggestOff = true;
         });
       case PaymentRequest():
@@ -937,17 +1033,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         setState(() => _to.text = _lastTo);
         // Open signs the pasted text as if its file had been chosen (LNX-3); an answer to one
         // of this wallet's sends is finalized instead (LNX-14).
-        showSlateTextDialog(
-          context,
-          onOpen: () async {
-            final nav = ref.read(deskNavProvider.notifier);
-            if (await ref.read(deskApiProvider).isResponseText(slate)) {
-              nav.go(DeskRoute.finalize, FinalizeArgs(text: slate));
-            } else {
-              nav.go(DeskRoute.importTx, ImportArgs(text: slate));
-            }
-          },
-        );
+        showSlateTextDialog(context, onOpen: () => _openSlate(slate));
       case SlateFrames() when pasted:
         fieldError((l) => l.deskSendToQrPayment);
       case PairingLink() when pasted && !ref.read(deskPairsProvider):
@@ -975,6 +1061,17 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return true;
   }
 
+  /// A transaction text: signed as if its file had been chosen, or finalized when it answers
+  /// one of this wallet's sends.
+  Future<void> _openSlate(String slate) async {
+    final nav = ref.read(deskNavProvider.notifier);
+    if (await ref.read(deskApiProvider).isResponseText(slate)) {
+      nav.go(DeskRoute.finalize, FinalizeArgs(text: slate));
+    } else {
+      nav.go(DeskRoute.importTx, ImportArgs(text: slate));
+    }
+  }
+
   /// A pairing link: Pair with Anna?, the words check or why not; a wallet that does not pair
   /// says so.
   void openPairingLink(String link) => ref.read(deskPairsProvider)
@@ -991,7 +1088,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final st = ref.read(deskProvider);
     final payments = st.settings.payments;
     final to = r.recipientFor(
-      (m) => payments.offers(m) && switch (m) {
+      // Link · HTTP's switch is the listener's: an http(s) address is always sendable.
+      (m) => (m == MethodKind.linkHttp || payments.offers(m)) && switch (m) {
         MethodKind.linkTor => DeskFeatures.tor,
         _ => true,
       },
@@ -1014,7 +1112,6 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   void _fillAddress(String to, CodeOrigin origin) => _fill(to, SendCode(origin: origin, address: to), () {});
 
   void _fill(String to, SendCode code, VoidCallback fields) {
-    final m = methodForKind(parseAddress(to, ref.read(deskApiProvider)).kind);
     setState(() {
       // A new code replaces the old one: what the old one put in and is still untouched goes,
       // so its amount and note never ride along to another payee.
@@ -1024,25 +1121,28 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         if (old.noteFilled && _message.text == old.note) _message.clear();
       }
       _pairingTo = null;
+      _contactId = null;
+      _file = false;
       _to.text = to;
       _lastTo = to;
-      _methodByHand = false;
+      // The code's address stays as the code wrote it: the banner and the review name it.
+      _undone = to;
+      _cleanedFrom = null;
       fields();
-      if (_strip && m != null && _offered(m)) {
-        if (_segmentOf(m) != _segmentOf(_method)) _showSwitched(m);
-        _method = m;
-      }
       _code = code;
       _codeBanner = code.banner;
       _codeError = null;
       _all = false;
       _allError = null;
       _submitted = false;
-      _toEdited = false;
+      _toTouched = false;
       _amountEdited = false;
       _suggestOff = true;
       if (_result is SendDone) _result = null;
       _failure = null;
+      final st = ref.read(deskProvider);
+      _contactId = _contactOf(st.contacts)?.id;
+      _askReach(st);
     });
     unawaited(_loadFee());
   }
@@ -1067,29 +1167,32 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     if (_pairingOf(c) case final id?) {
       setState(() {
         _pairingTo = id;
-        if (_method != TxMethod.file) _method = TxMethod.epicbox;
+        _contactId = null;
         _to.clear();
         _lastTo = '';
         _code = null;
         _codeError = null;
+        _cleanedFrom = null;
         _suggestOff = true;
         _failure = null;
         if (_result is SendDone) _result = null;
       });
       return;
     }
+    _useAddress(c, _bestAddress(c, ref.read(deskProvider)));
+  }
+
+  /// [c] in To as its chip, paid at [address] (one of its addresses).
+  void _useAddress(Contact c, String address) {
+    _to.text = address;
+    _changed(to: true);
     setState(() {
       _pairingTo = null;
-      // The address whose method is on, when the contact has one.
-      final to = contactAddress(c, ref.read(deskProvider).settings.payments);
-      final m = _strip ? contactMethod(c, to) : TxMethod.epicbox;
-      if (_segmentOf(m) != _segmentOf(_method)) _showSwitched(m);
-      _method = m;
-      _to.text = to;
-      _lastTo = to;
+      _contactId = c.id;
+      _suggestOff = true;
+      _toTouched = true;
+      _askReach(ref.read(deskProvider));
     });
-    _changed(to: true);
-    setState(() => _suggestOff = true);
   }
 
   Future<void> _pick() async {
@@ -1107,11 +1210,14 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return null;
   }
 
-  /// Contacts whose name or address holds what is typed in To, at most four.
-  List<Contact> _matches(DeskState st) {
+  /// Contacts whose name or address holds what is typed in To, at most four; none once one
+  /// was picked.
+  List<Contact> _matches(DeskState st) => _suggestOff ? const [] : _nameMatches(st);
+
+  List<Contact> _nameMatches(DeskState st) {
     final q = _to.text.trim().toLowerCase();
     final contacts = st.contacts;
-    if (_suggestOff || q.length < 2 || contacts == null || _contactOf(contacts) != null) return const [];
+    if (_contactId != null || q.length < 2 || contacts == null || _contactOf(contacts) != null) return const [];
     return contacts.where(contactSendable).where((c) => c.name.toLowerCase().contains(q) || c.address.toLowerCase().contains(q)).take(4).toList();
   }
 
@@ -1131,8 +1237,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// left out (":443" is the same server).
   String? _ownAddressError(DeskState st) {
     final own = st.epicboxAddress;
-    if (_method != TxMethod.epicbox || own == null || own.isEmpty) return null;
-    final (key, host) = _epicboxParts(_to.text);
+    if (_read.kind != RecipientInputKind.epicbox || own == null || own.isEmpty) return null;
+    final (key, host) = _epicboxParts(_read.address);
     final (ownKey, ownHost) = _epicboxParts(own);
     return key == ownKey && (host == null || host == ownHost) ? context.l10n.deskSendErrOwn : null;
   }
@@ -1150,7 +1256,30 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   String? _toError(DeskState st) {
     // A pairing recipient has no address: its card says whether it can be paid.
     if (_viaPairing) return ref.read(deskPairingByIdProvider(_pairingTo!))?.paysByMailbox ?? false ? null : context.l10n.deskSendErrNoAddress;
-    return _ownAddressError(st) ?? _recipientError(context.l10n, _method, _to.text, ref.read(deskApiProvider));
+    if (_file) return null;
+    final l = context.l10n;
+    final r = _read;
+    switch (r.kind) {
+      case RecipientInputKind.empty:
+        return l.deskSendErrNoAddress;
+      // Its own notice offers to open it.
+      case RecipientInputKind.slate:
+        return null;
+      // A contact's name while one matches; else no address.
+      case RecipientInputKind.text:
+        return _nameMatches(st).isNotEmpty ? null : sendProblemText(l, r.problem ?? RecipientProblem.notAddress);
+      case RecipientInputKind.invalid:
+        return sendProblemText(l, r.problem ?? RecipientProblem.incomplete);
+      default:
+    }
+    // The build without Tor reaches no onion, by any method.
+    if (!DeskFeatures.tor && r.kind == RecipientInputKind.onion) return l.sendTorNotInVersion;
+    // Shallow sends by Epicbox alone.
+    if (!_strip && r.kind != RecipientInputKind.epicbox) return l.deskSendErrEpicbox;
+    if (_ownAddressError(st) case final own?) return own;
+    // The key's checksum.
+    if (r.kind == RecipientInputKind.epicbox && !parseAddress(r.address, ref.read(deskApiProvider)).complete) return l.deskSendErrEpicbox;
+    return null;
   }
 
   /// LEPIC signs at most [slateMessageMaxBytes] UTF-8 bytes of a message and cuts the rest
@@ -1165,7 +1294,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     if (_gate(st).holds) return;
     setState(() {
       _submitted = true;
-      _toEdited = false;
+      _settleTo(st);
+      _toTouched = true;
       _amountEdited = false;
       _reviewing = true;
     });
@@ -1215,7 +1345,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final code = _method == TxMethod.file ? null : _codeNow;
     // The relay in the address, when the app knows no such server: the public list, the
     // monitor's, and the one this wallet is on.
-    final addressRelay = _method == TxMethod.epicbox ? recipientRelay(_to.text.trim()) : null;
+    final addressRelay = _method == TxMethod.epicbox ? recipientRelay(_read.address) : null;
     final own = st.status?.epicbox;
     final unknownRelay =
         addressRelay != null &&
@@ -1233,7 +1363,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       final viaPairing = _viaPairing;
       return _Draft(
         method: _method,
-        to: _method == TxMethod.file || viaPairing ? null : _to.text.trim(),
+        // The clean form: Undo leaves the text as given, the send goes to what "Sends to" says.
+        to: _method == TxMethod.file || viaPairing ? null : (_read.isAddress ? _read.address : _to.text.trim()),
         contactName: viaPairing ? ref.read(deskPairingNameProvider(_pairingTo!)) : _contactOf(contacts)?.name,
         pairingId: viaPairing ? _pairingTo : null,
         queued: _queues(),
@@ -1250,20 +1381,17 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         unknownRelay: unknownRelay,
         code: code,
         confirmations: balance?.minConfirmations ?? defaultMinimumConfirmations,
+        route: _method == TxMethod.file || viaPairing ? null : _read,
+        torStarts: _torStarts(ref.read(deskProvider)),
       );
     }
 
     final draft = draftOf(_plan);
     // Plain HTTP to another computer goes through without asking; the wallet needs the flag.
-    final plain = draft.method == TxMethod.http && plainHttpNeedsConsent(draft.to!);
-    // Tor came on since Send was enabled: plain HTTP never goes through a Tor exit.
-    if (plain && _torWay(ref.read(deskProvider)) == TorWay.off) {
-      setState(() {
-        _failure = (l) => l.sendPlainHttpOffWithTor;
-        _failureInActivity = false;
-      });
-      return;
-    }
+    // The review is the consent: the wallet needs the flag for plain http to another device.
+    final plain = draft.route?.plainHttpToOther ?? false;
+    // The mode or Tor changed since Review was enabled: the hold's notice says what to do.
+    if (_hold(ref.read(deskProvider)) != null) return;
     final notifier = ref.read(deskProvider.notifier);
     // Every send asks the wallet's password, also when it was opened with the remembered one.
     final api = ref.read(deskApiProvider);
@@ -1325,6 +1453,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             _submitted = false;
             _code = null;
             _pairingTo = null;
+            _contactId = null;
+            _cleanedFrom = null;
           }
       }
     });
@@ -1338,17 +1468,17 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// the method it moved, a code's untouched amount and note, the switch tag and the errors,
   /// back to the method Send starts on. Amount and Message typed by hand stay.
   void _clearRecipient() {
-    _tagTimer?.cancel();
     setState(() {
       _to.clear();
       _pairingTo = null;
-      _method = _nextMethod(ref.read(deskProvider).settings.payments);
-      _switchedTo = null;
-      _tagOn = false;
+      _contactId = null;
+      _cleanedFrom = null;
+      _undone = null;
       _codeError = null;
       _submitted = false;
     });
     _changed(to: true);
+    _focusTo();
   }
 
   void _reset() => setState(() {
@@ -1356,6 +1486,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     _failure = null;
     _code = null;
     _pairingTo = null;
+    _contactId = null;
+    _cleanedFrom = null;
+    _file = false;
     _to.clear();
     _amount.clear();
     _message.clear();
@@ -1383,15 +1516,6 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     // A method switched off in Settings › Transactions while Send is open: with To empty and
     // nothing sent, Send moves to the method it starts on now, as after a restart. An address
     // in To keeps its method, with the note that it is off.
-    ref.listen(deskProvider.select((s) => s.settings.payments), (_, p) {
-      if (_result != null || _to.text.trim().isNotEmpty) return;
-      final on = switch (_method) {
-        // Link stays listed with its switches off: the notice says so and turns it on.
-        TxMethod.http || TxMethod.tor => true,
-        _ => p.offers(methodKindOf(_method)),
-      };
-      if (!on) setState(() => _method = _nextMethod(p));
-    });
     // A half-filled form holds Back (mouse, Alt+Left).
     return LayoutBuilder(
       builder: (context, outer) {
@@ -1552,18 +1676,14 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   bool _turningOn = false;
 
-  /// The method-off notice's Turn on: Link · HTTP starts its listener with the switch, as
-  /// Settings › Transactions does; Link · Tor only shows the onion, so its switch alone.
+  /// The method-off notice's Turn on (Link · Tor: an http(s) address needs no switch): the
+  /// switch alone, as Settings › Transactions does.
   Future<void> _turnOn(MethodKind m) async {
     final n = ref.read(deskProvider.notifier);
     setState(() => _turningOn = true);
     try {
-      if (m == MethodKind.linkHttp) {
-        await n.setHttp(true);
-      } else {
-        final s = ref.read(deskProvider).settings;
-        await n.saveSettings(s.copyWith(payments: s.payments.withMethod(m, true)));
-      }
+      final s = ref.read(deskProvider).settings;
+      await n.saveSettings(s.copyWith(payments: s.payments.withMethod(m, true)));
     } on Object catch (e) {
       if (mounted) showEToast(context, context.l10n.deskRecvTurnOnFailed(MethodIcons.fullName(context.l10n, m)), text: deskErrorText(e, context.l10n), tone: ETone.risk);
     } finally {
@@ -1571,12 +1691,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     }
   }
 
-  /// The mode's note for this send: Node only names the method that is off, Kill switch says
-  /// nothing connects; both say what still works. Tor only waiting has its own line.
+  /// The mode's note for this send: the hold's sentence (Kill switch, Node only), or Tor only
+  /// waiting for tor.
   String _blockTitle(AppLocalizations l, NetBlock net) => switch (net) {
-    // The banner names the tab as the tab itself reads (Direct · File).
-    NetBlock.killSwitch => l.deskSendKillSwitchTab(MethodIcons.shortName(l, MethodKind.directFile)),
-    NetBlock.nodeOnly => _method == TxMethod.epicbox ? l.deskSendEpicboxNodeOnlyTab(MethodIcons.shortName(l, MethodKind.directFile)) : l.deskSendLinkNodeOnlyTab(MethodIcons.shortName(l, MethodKind.directFile)),
+    NetBlock.killSwitch => sendHoldText(l, SendHold.killSwitch),
+    NetBlock.nodeOnly => sendHoldText(l, SendHold.nodeOnly),
     _ => netBlockReason(l, net)!,
   };
 
@@ -1614,6 +1733,24 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           if (_kind.family == MethodFamily.link)
             EButton(label: l.sendTurnOnMethod(MethodIcons.fullName(l, _kind)), icon: MethodIcons.of(_kind), size: EBtnSize.inline, busy: _turningOn, onPressed: _turningOn ? null : () => _turnOn(_kind)),
           EButton(label: l.deskRecvSettings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsReceiving)),
+        ],
+      );
+    }
+    // The hold of the address in To is said under the field, once.
+    final hold = _hold(st);
+    if (hold != null && (net.byMode || net == NetBlock.waitingForTor)) return null;
+    // No address yet: the mode's hold above the form, with its fix and the way that works
+    // without a connection.
+    if (net.byMode) {
+      final h = net == NetBlock.killSwitch ? SendHold.killSwitch : SendHold.nodeOnly;
+      return ENotice(
+        key: const ValueKey('send-net-blocked'),
+        title: sendHoldText(l, h),
+        text: l.torTurnOffCaption,
+        icon: EIcons.lanOff,
+        actions: [
+          EButton(key: const ValueKey('send-hold-fix'), label: sendHoldAction(l, h), size: EBtnSize.inline, busy: _holdBusy, onPressed: _holdBusy ? null : () => _fixHold(h)),
+          if (!_file) _payByFile(),
         ],
       );
     }
@@ -1692,7 +1829,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       );
     }
     final eb = _epicboxHealth(st);
-    if (_method == TxMethod.epicbox && !_viaPairing && ref.read(hostSettingsProvider).epicboxServers.isEmpty) {
+    if (_byEpicbox && !_viaPairing && ref.read(hostSettingsProvider).epicboxServers.isEmpty) {
       return ENotice(
         key: const ValueKey('send-no-epicbox'),
         title: l.deskSlNoEpicboxTitle,
@@ -1702,7 +1839,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         actions: [EButton(label: l.deskRecvSettings, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsReceiving))],
       );
     }
-    if (_method == TxMethod.epicbox && eb == ServiceHealth.down) return const EpicboxDownNotice();
+    if (_byEpicbox && eb == ServiceHealth.down) return const EpicboxDownNotice();
     if (_epicboxBlocked(st)) {
       return ENotice(
         title: l.deskSendEpicboxOff,
@@ -1712,11 +1849,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         actions: [
           if (eb == ServiceHealth.off)
             EButton(label: l.deskSendEpicboxTurnOn, icon: EIcons.epicbox, size: EBtnSize.inline, busy: _starting, onPressed: _starting ? null : _startEpicbox),
+          _payByFile(),
         ],
       );
     }
     // Offline on a local node without peers: the payment waits in its pool.
-    if (_method != TxMethod.epicbox && ref.watch(deskOfflinePeersProvider).value == 0) {
+    if (_hasMethod && _method != TxMethod.epicbox && ref.watch(deskOfflinePeersProvider).value == 0) {
       return ENotice(key: const ValueKey('send-offline-no-peers'), title: l.deskNetOfflineNoPeers, icon: EIcons.server);
     }
     return null;
@@ -1747,94 +1885,34 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     ];
   }
 
-  /// The form's panel: the method selector in its header band (level with the Summary's), the
-  /// method's strip, then the fields.
+  /// The form's panel: To and the lines under it (the method, the clean-up, what holds it), or
+  /// the file form's line; then Amount, Message, Advanced and Dandelion.
   Widget _form(DeskState st) {
     final l = context.l10n;
     final ts = context.ts;
     final c = context.dc;
     final spendable = st.balance?.spendable;
-    final contact = _contactOf(st.contacts);
-    final file = _method == TxMethod.file;
+    final picked = _picked(st);
+    final contact = picked ?? _contactOf(st.contacts);
+    final file = _file;
     final code = file ? null : _codeNow;
-    final toErr = _codeError?.call(l) ?? ((_submitted && !_toEdited) || _onionNoTor ? _toError(st) : null);
+    final toErr = _codeError?.call(l) ?? (_toTouched || _onionNoTor ? _toError(st) : null);
     // More than can be spent is said on the keystroke; the other amount errors after Review.
     final amErr = _allError ?? ((_submitted && !_amountEdited) || _gate(st).notEnough ? _amountError(spendable) : null);
-    final matches = file ? const <Contact>[] : _matches(st);
-    // Epicbox and Direct wait for the network mode; File runs in every mode, and in Offline
-    // on a node that is not local its tooltip says the node is used.
-    final net = deskNetBlock(st);
-    final netIdle = net == NetBlock.none;
-    final netWhy = netBlockReason(l, net);
+    final matches = file || picked != null ? const <Contact>[] : _matches(st);
     final pairing = _pairingTo == null ? null : ref.watch(deskPairingByIdProvider(_pairingTo!));
     final pairingName = _pairingTo == null ? '' : ref.watch(deskPairingNameProvider(_pairingTo!));
-    _keepMethodOn(st);
-    // Nothing can be chosen (Node only with File Transfer off): no segment is selected and the
-    // fields wait, the notice above says why.
-    final noMethod = _strip && !_segmentOn(st, _method);
-    final epicboxOn = _segmentOn(st, TxMethod.epicbox);
-    final off = EBadge.state(l.deskKitMethodOff, on: false);
-    // Shallow: no method strip, Epicbox alone and unnamed. Deeper words the strip's heading
-    // casually; Deep end keeps "Payment method".
-    final strip = _strip;
     final shallow = ref.read(deskLevelUiProvider).shallow;
+    final empty = _to.text.trim().isEmpty;
     return EPanel(
-      padding: EdgeInsets.zero,
-      title: !strip ? null : (ref.read(deskLevelUiProvider).casualWords ? l.deskLvSendHowTo : l.deskSendMethodHeader),
+      padding: EdgeInsets.all(Sp.panel),
       child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (strip) ...[
-        Padding(
-          padding: EdgeInsets.fromLTRB(Sp.panel, Sp.panel, Sp.panel, Sp.x3),
-          child: TourTarget(
-          id: 'send-methods',
-          child: ESegmented<TxMethod?>(
-          stretch: true,
-          segments: [
-            // A pairing's mailbox takes a payment with Epicbox off too: it waits in the outbox.
-            ESegment(TxMethod.epicbox, MethodIcons.shortName(l, MethodKind.epicbox), icon: MethodIcons.of(MethodKind.epicbox), enabled: epicboxOn, badge: epicboxOn ? null : off, tooltip: netWhy ?? (st.settings.payments.epicbox || pairing != null ? null : l.netBlockEpicboxOff)),
-            // Link: http(s) or an onion, the address decides ([TxMethod.tor] is its route), so
-            // the segment names the family. Settings › Transactions: the methods on. The
-            // method in use stays (a pasted onion picks Link; a file send in progress or the
-            // file fallback of a failed Epicbox keeps File Transfer).
-            // Listed from the start, its switches on or not: sending by Link needs no
-            // listener, and with both off the notice above turns one on.
-            // A pairing recipient has no Link address.
-            pairing != null
-                ? ESegment(TxMethod.http, MethodIcons.familyName(l, MethodFamily.link), icon: MethodIcons.family(MethodFamily.link), enabled: false, tooltip: l.deskSendContactNoLink(pairingName))
-                : ESegment(TxMethod.http, MethodIcons.familyName(l, MethodFamily.link), icon: MethodIcons.family(MethodFamily.link), enabled: netIdle, badge: netIdle ? null : off, tooltip: netWhy),
-            // The file fallback of a failed Epicbox: only while its switch is on (an Epicbox
-            // turned off on purpose is no failure, and File Transfer keeps its own switch).
-            if (_fileShown(st))
-              ESegment(TxMethod.file, MethodIcons.shortName(l, MethodKind.directFile), icon: MethodIcons.of(MethodKind.directFile)),
-          ],
-          value: noMethod ? null : _segmentOf(_method),
-          onChanged: (m) => setState(() {
-            if (m == null) return;
-            _method = m == TxMethod.http ? _directRoute(parseAddress(_to.text, ref.read(deskApiProvider)).kind) : m;
-            _methodByHand = _to.text.trim().isNotEmpty;
-            _failure = null;
-          }),
-          ),
-        ),
-        ),
-        if (!noMethod) Padding(padding: EdgeInsets.fromLTRB(Sp.panel, 0, Sp.panel, Sp.panel), child: _MethodStrip(_segmentOf(_method))),
-        Divider(height: 1, thickness: 1, color: c.line),
-        ],
-        // No method can be chosen: the fields wait (dimmed, out of reach) until one can.
-        ExcludeFocus(
-          excluding: noMethod,
-          child: IgnorePointer(
-          ignoring: noMethod,
-          child: Opacity(
-          opacity: noMethod ? 0.4 : 1,
-          child: Padding(
-          padding: EdgeInsets.all(Sp.panel),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-        if (!file && pairing != null) ...[
+        if (file) ...[
+          _FileLine(onBack: _leaveFile),
+          SizedBox(height: Sp.x5),
+        ] else if (pairing != null) ...[
           EField(
             label: l.deskSendTo,
             child: _PairingCard(
@@ -1846,42 +1924,48 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             ),
           ),
           SizedBox(height: Sp.x5),
-        ] else if (!file) ...[
-          EField(
-            label: l.deskSendTo,
-            labelTrailing: _SwitchTag(method: _switchedTo, shown: _tagOn),
-            error: toErr,
-            help: toErr == null ? l.deskSendToHelp : null,
-            child: EInput(
-              controller: _to,
-              mono: true,
-              fadeEnd: true,
-              invalid: toErr != null,
-              hint: l.deskSendToHint,
-              semanticLabel: l.deskSendToSem,
-              leading: EIcons.user,
-              onChanged: _toChanged,
-              // Enter picks the first matching contact, else goes on to Amount.
-              onSubmitted: matches.isEmpty ? null : (_) => _use(matches.first),
-              trailingTabStop: true,
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // A Tab stop when no contact card below has its own Clear.
-                  if (_to.text.isNotEmpty)
-                    EIconButton(key: const ValueKey('send-to-clear'), icon: EIcons.close, label: l.deskSendClearTo, size: EBtnSize.inline, tabStop: contact == null, onPressed: _clearRecipient)
-                  else
-                    EIconButton(icon: EIcons.paste, label: l.commonPaste, size: EBtnSize.inline, tabStop: false, onPressed: _paste),
-                  SizedBox(width: Sp.x1),
-                  EButton(label: l.deskSendContacts, icon: EIcons.contacts, size: EBtnSize.inline, onPressed: _pick),
-                ],
-              ),
+        ] else ...[
+          TourTarget(
+            id: 'send-methods',
+            child: EField(
+              label: l.deskSendTo,
+              error: toErr,
+              // The help while To is empty; then the lines under it say what it holds.
+              help: toErr == null && empty ? l.deskSendToHelp : null,
+              child: picked != null
+                  ? _ContactChip(contact: picked, onClear: _clearRecipient)
+                  : EInput(
+                      controller: _to,
+                      focusNode: _toFocus,
+                      mono: true,
+                      fadeEnd: true,
+                      invalid: toErr != null,
+                      hint: l.deskSendToHint,
+                      semanticLabel: l.deskSendToSem,
+                      onChanged: _toChanged,
+                      // Enter picks the first matching contact, else goes on to Amount (and
+                      // the field, left, takes its clean form).
+                      onSubmitted: matches.isEmpty ? null : (_) => _use(matches.first),
+                      trailingTabStop: true,
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (_to.text.isNotEmpty)
+                            EIconButton(key: const ValueKey('send-to-clear'), icon: EIcons.close, label: l.deskSendClearTo, size: EBtnSize.inline, onPressed: _clearRecipient)
+                          else
+                            EIconButton(icon: EIcons.paste, label: l.commonPaste, size: EBtnSize.inline, tabStop: false, onPressed: _paste),
+                          SizedBox(width: Sp.x1),
+                          EButton(label: l.deskSendContacts, icon: EIcons.contacts, size: EBtnSize.inline, onPressed: _pick),
+                        ],
+                      ),
+                    ),
             ),
           ),
           if (matches.isNotEmpty) ...[
             SizedBox(height: Sp.x2),
-            _Suggestions(contacts: matches, onPick: _use, addressOf: (x) => contactAddress(x, st.settings.payments), pairingOf: (x) => contactPairingOnly(ref, x)),
+            _Suggestions(contacts: matches, onPick: _use, addressOf: (x) => _bestAddress(x, st), pairingOf: (x) => contactPairingOnly(ref, x)),
           ],
+          ..._underTo(st, picked),
           // A payment request's banner: it keeps the last code's words while it closes.
           ExpandFade(
             open: code != null && code.banner && _codeBanner,
@@ -1892,49 +1976,6 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                     child: CodeBanner(code: _code!, onDismiss: () => setState(() => _codeBanner = false)),
                   ),
           ),
-          // Offline: Tor never runs there; the notice above gives the Offline reason (LNX-12).
-          // Link · Tor switched off: that comes first, Tor alone would not send it.
-          if (DeskFeatures.tor && _torWay(st) == TorWay.needsTor && !_netBlock(st).byMode && _netBlock(st) != NetBlock.methodOff) ...[
-            SizedBox(height: Sp.x3),
-            ENotice(
-              key: const ValueKey('send-needs-tor'),
-              title: l.deskSendNeedsTor,
-              text: st.status?.torIncluded ?? true ? l.deskSendNeedsTorText : l.deskSendNoTorBuild,
-              tone: ETone.warn,
-              icon: EIcons.tor,
-              actions: [
-                if (st.status?.torIncluded ?? true)
-                  EButton(label: l.deskSendTurnOnTor, size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(true)),
-              ],
-            ),
-          ] else if (_method == TxMethod.http && _torState(st) != TorState.off && _torWay(st) == TorWay.clearnet) ...[
-            SizedBox(height: Sp.x2),
-            Text(l.deskSendHttpClearnet, key: const ValueKey('send-http-clearnet'), style: ts.small),
-          ] else if (DeskFeatures.tor && _method == TxMethod.http && _torWay(st) == TorWay.off) ...[
-            // Plain http:// to another computer with Tor on: the why is behind the info icon;
-            // Turn Tor off says under it that it is the switch for every connection (D-05).
-            SizedBox(height: Sp.x2),
-            Wrap(
-              key: const ValueKey('send-plain-http-off'),
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: Sp.x2,
-              runSpacing: Sp.x1,
-              children: [
-                Text(l.sendPlainHttpOffWithTor, style: ts.small.copyWith(color: c.warn)),
-                EInfoHint(l.sendPlainHttpOffWithTorWhy, title: l.sendPlainHttpOffWithTor, icon: EIcons.alert, size: Ctl.inline),
-                EButton(key: const ValueKey('send-turn-tor-off'), label: l.torTurnOff, icon: EIcons.tor, size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(false)),
-              ],
-            ),
-            Text(l.torTurnOffCaption, key: const ValueKey('send-turn-tor-off-caption'), style: ts.small),
-          ],
-          if (contact != null) ...[
-            SizedBox(height: Sp.x2),
-            _PickedCard(
-              contact: contact,
-              address: _to.text.trim(),
-              onClear: _clearRecipient,
-            ),
-          ],
           // The payee's words; the name not when the contact has it already.
           if (code != null && (code.note != null || EPayeeClaims.labelBeside(code.label, contact?.name) != null)) ...[
             SizedBox(height: Sp.x2),
@@ -2033,15 +2074,171 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             ),
           ),
         ],
-            ],
-          ),
-        ),
-        ),
-        ),
-        ),
       ],
       ),
     );
+  }
+
+  /// Pay with a file: the quiet way to the file form, under an empty To and in the notices of
+  /// a connection that does not go.
+  Widget _payByFile() => EButton.ghost(key: const ValueKey('send-pay-file'), label: context.l10n.sendPayByFile, icon: EIcons.file, size: EBtnSize.inline, onPressed: _openFile);
+
+  /// Under To: a transaction text's notice, the method line, the clean-up line (or "Sends to"
+  /// while typing), then the one notice that holds it (the mode, Tor, a wallet that did not
+  /// answer) with its one action; Pay with a file under an empty field.
+  List<Widget> _underTo(DeskState st, Contact? picked) {
+    final l = context.l10n;
+    final ts = context.ts;
+    final c = context.dc;
+    final r = _read;
+    final out = <Widget>[];
+    void add(Widget w, {double gap = 0}) => out.addAll([SizedBox(height: gap == 0 ? Sp.x3 : gap), w]);
+    if (r.kind == RecipientInputKind.empty) {
+      // The mode's notice above has it already.
+      if (!_netBlock(st).byMode) add(Align(alignment: AlignmentDirectional.centerStart, child: Transform.translate(offset: Offset(-EButton.labelInset(EBtnSize.inline), 0), child: _payByFile())), gap: Sp.x2);
+      return out;
+    }
+    if (r.kind == RecipientInputKind.slate) {
+      add(ENotice(
+        key: const ValueKey('send-slate-text'),
+        title: l.sendIsSlateText,
+        icon: EIcons.file,
+        actions: [EButton(label: l.sendOpenSlateText, size: EBtnSize.inline, onPressed: () => _openSlate(r.address))],
+      ));
+      return out;
+    }
+    if (_methodOf(r) == null || _onionNoTor || (!_strip && r.kind != RecipientInputKind.epicbox)) return out;
+    final hold = _hold(st);
+    final mode = deskNetMode(st);
+    final others = picked == null ? const <String>[] : picked.addresses;
+    add(_RouteLine(
+      key: ValueKey('send-route-${r.kind.name}'),
+      to: r,
+      tag: sendRouteTag(l, r, phone: false, overTor: hold == null && sendOverTor(r, mode: mode, torOn: _torOn(st))),
+      torStarts: hold == null && _torStarts(st),
+      change: others.length < 2
+          ? null
+          : _AddressMenu(
+              name: picked!.name,
+              addresses: others,
+              current: _to.text,
+              read: _readOf,
+              held: (x) => _heldOf(x, st),
+              onPick: (a) => _useAddress(picked, a),
+            ),
+    ));
+    final from = _cleanedFrom;
+    final cleaned = from == null ? null : sendCleanedLine(l, _readOf(from), before: from);
+    if (cleaned != null) {
+      add(
+        Padding(
+          padding: EdgeInsetsDirectional.only(start: _RouteLine.textInset),
+          child: Row(
+            key: const ValueKey('send-cleaned'),
+            children: [
+              Expanded(child: Semantics(liveRegion: true, child: Text(cleaned, style: ts.small))),
+              SizedBox(width: Sp.x3),
+              Semantics(
+                label: l.sendCleanUndoSem,
+                button: true,
+                excludeSemantics: true,
+                onTap: _undoClean,
+                child: EButton.ghost(key: const ValueKey('send-clean-undo'), label: l.sendCleanUndo, size: EBtnSize.inline, onPressed: _undoClean),
+              ),
+            ],
+          ),
+        ),
+        gap: Sp.x1,
+      );
+    } else if ((!_toTouched || _undone == _to.text) && picked == null && r.address != _to.text.trim()) {
+      // Typing (or the text put back by Undo): the clean form, faint, which is what is sent.
+      add(
+        Padding(
+          padding: EdgeInsetsDirectional.only(start: _RouteLine.textInset),
+          child: Text.rich(
+            key: const ValueKey('send-sends-to'),
+            TextSpan(children: [
+              TextSpan(text: '${l.sendSendsTo} ', style: ts.small.copyWith(color: c.faint)),
+              TextSpan(text: r.address, style: ts.mono(size: Fs.xs, color: c.faint)),
+            ]),
+          ),
+        ),
+        gap: Sp.x1,
+      );
+    }
+    if (hold != null) {
+      add(ENotice(
+        key: ValueKey('send-hold-${hold.name}'),
+        title: sendHoldText(l, hold),
+        text: l.torTurnOffCaption,
+        icon: hold.fix == SendHoldFix.torOff ? EIcons.tor : EIcons.lanOff,
+        actions: [
+          EButton(key: const ValueKey('send-hold-fix'), label: sendHoldAction(l, hold), size: EBtnSize.inline, busy: _holdBusy || _torBusy, onPressed: _holdBusy || _torBusy ? null : () => _fixHold(hold)),
+        ],
+      ));
+      if (hold.offersDirect) {
+        add(
+          Wrap(
+            key: const ValueKey('send-without-connection'),
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: Sp.x2,
+            children: [Text(l.sendWithoutConnection, style: ts.small), _payByFile()],
+          ),
+          gap: Sp.x2,
+        );
+      }
+      return out;
+    }
+    // Link · Tor switched off comes first ([_blockNotice]): Tor alone would not send it.
+    final net = _netBlock(st);
+    if (DeskFeatures.tor && _torWay(st) == TorWay.needsTor && !net.byMode && net != NetBlock.methodOff) {
+      add(ENotice(
+        key: const ValueKey('send-needs-tor'),
+        title: l.deskSendNeedsTor,
+        text: st.status?.torIncluded ?? true ? l.deskSendNeedsTorText : l.deskSendNoTorBuild,
+        tone: ETone.warn,
+        icon: EIcons.tor,
+        actions: [
+          if (st.status?.torIncluded ?? true)
+            EButton(label: l.deskSendTurnOnTor, size: EBtnSize.inline, busy: _torBusy, onPressed: _torBusy ? null : () => _setTor(true)),
+        ],
+      ));
+      return out;
+    }
+    // The reach check: only a failure shows, and "Checking…" for a slow answer.
+    final reach = _reachNow;
+    final lines = reach == null ? null : sendReachLines(l, r, reach);
+    if (lines != null) {
+      add(ENotice(
+        key: const ValueKey('send-reach'),
+        title: lines.$1,
+        text: lines.$2,
+        tone: ETone.warn,
+        actions: [
+          if (reach == ReachResult.noAnswer) EButton(key: const ValueKey('send-reach-retry'), label: l.sendReachTryAgain, icon: EIcons.refresh, size: EBtnSize.inline, onPressed: _retryReach),
+          _payByFile(),
+        ],
+      ));
+    } else if (reach == null && _reachSlow && _reachAsked.contains(r.address)) {
+      add(
+        Padding(
+          padding: EdgeInsetsDirectional.only(start: _RouteLine.textInset),
+          child: Semantics(
+            liveRegion: true,
+            child: Row(
+              key: const ValueKey('send-reach-checking'),
+              children: [
+                SizedBox.square(dimension: 12.u, child: CircularProgressIndicator(strokeWidth: 1.5, color: c.faint)),
+                SizedBox(width: Sp.x2),
+                Text(l.sendReachChecking, style: ts.small.copyWith(color: c.faint)),
+              ],
+            ),
+          ),
+        ),
+        gap: Sp.x2,
+      );
+    }
+    return out;
   }
 
   /// What the summary shows now: the amounts and the one line under Review send.
@@ -2055,10 +2252,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     // The line under Review, and whether it names a block: then Review is off until it clears.
     final (hint, blocker) = switch (null) {
       _ when res is SendDone => (_queuedFor == null ? l.deskSendHintSent : l.deskSendHintQueued, true),
+      // The address in To is held by the mode or Tor: the notice's sentence, once more here.
+      _ when _hold(st) != null => (sendHoldText(l, _hold(st)!), true),
       // The network mode first, as the banner: Offline does not poll a node that is not local,
       // so its "not synced" says nothing then (LNX-15).
-      // Node only: the banner explains, this line names the block only (UD-014).
-      _ when _netBlock(st) == NetBlock.nodeOnly => (l.deskSendHintNeedsMethod(_method == TxMethod.epicbox ? l.methodEpicbox : MethodIcons.familyName(l, MethodFamily.link)), true),
       _ when _netBlock(st).byMode || _netBlock(st) == NetBlock.waitingForTor => (_blockTitle(l, _netBlock(st)), true),
       _ when _onionNoTor => (l.sendTorNotInVersion, true),
       _ when nodeBlocked && _nodeDown(st) && _noNode => (l.deskSlNoNodeTitle, true),
@@ -2070,8 +2267,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _ when _torWay(st) == TorWay.wait => (l.deskSendHintTorWait, true),
       _ when _torWay(st) == TorWay.blocked => (l.deskSendHintTorBlocked, true),
       _ when _torWay(st) == TorWay.needsTor => (l.deskSendHintNeedsTor, true),
-      _ when _method == TxMethod.http && _torWay(st) == TorWay.off => (l.sendPlainHttpOffWithTor, true),
-      _ when _submitted && !_toEdited && _toError(st) != null => (l.deskSendHintFix, true),
+      // No address yet: Review waits for one; a marked field after the field was left.
+      _ when !_hasMethod => (_toTouched && _toError(st) != null ? l.deskSendHintFix : l.deskSendErrNoAddress, true),
+      _ when _toTouched && _toError(st) != null => (l.deskSendHintFix, true),
       _ when _submitted && !_amountEdited && _amountError(spendable) != null => (l.deskSendHintFix, true),
       _ when gate.notEnough => (l.deskSendHintFix, true),
       _ when _messageTooLong => (l.deskSendHintFix, true),
@@ -2081,7 +2279,22 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     };
     final plan = _plan?.estimate.amount == n && n > 0 ? _plan : null;
     final balance = st.balance;
+    // Via: the method's name, and under it the relay, the short onion or the host as contacted.
+    final r = _read;
+    final (String? via, String? viaSub) = switch (null) {
+      _ when !_strip => (null, null),
+      _ when _file => (MethodIcons.fullName(l, MethodKind.directFile), null),
+      _ when _viaPairing => (l.methodEpicbox, ref.watch(deskPairingNameProvider(_pairingTo!))),
+      _ when _methodOf(r) == null || _onionNoTor => ('—', null), // l10n-ok: nothing yet
+      _ => (sendMethodName(l, r), switch (r.kind) {
+        RecipientInputKind.epicbox => r.host,
+        RecipientInputKind.onion => shortAddress(r.host, compact: true),
+        _ => r.contacted,
+      }),
+    };
     return _SendSummary(
+      via: via,
+      viaSub: viaSub,
       amount: n,
       fee: fee,
       feeLoading: n > 0 && _feeBusy && (fee == null || plan == null),
@@ -2129,6 +2342,8 @@ class _SendSummary extends StatelessWidget {
     required this.onReview,
     required this.reviewLabel,
     this.reviewTip,
+    this.via,
+    this.viaSub,
     this.summary,
     this.extraFee = 0,
     this.strategy = SelectionStrategy.smallest,
@@ -2137,6 +2352,10 @@ class _SendSummary extends StatelessWidget {
     this.review = true,
     this.lockRows = true,
   });
+
+  /// The method this send goes by, and under it where it goes; null hides the row (Shallow).
+  final String? via;
+  final String? viaSub;
 
   /// Balance after, the lock rows and the split line: Deeper and Deep end. Shallow keeps
   /// Amount, Network fee and Total.
@@ -2198,6 +2417,28 @@ class _SendSummary extends StatelessWidget {
         children: [
           line(l.deskSendAmount, n > 0 ? n : null, risk: bad),
           line(l.deskSendNetworkFee, fee, loading: pending && fee == null),
+          if (via != null)
+            Padding(
+              key: const ValueKey('send-summary-via'),
+              padding: EdgeInsets.symmetric(vertical: Sp.x2),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l.sendFactVia, style: ts.bodyDim),
+                  SizedBox(width: Sp.x3),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(via!, style: ts.body, textAlign: TextAlign.end),
+                        if (viaSub != null && viaSub!.isNotEmpty)
+                          Text(viaSub!, style: ts.mono(size: Fs.xs, color: c.dim), textAlign: TextAlign.end, maxLines: 2, overflow: TextOverflow.ellipsis),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ExpandFade(
             open: lockRows && ready && (summary?.changeOutputs ?? 0) > 1,
             child: summary == null || summary!.changeOutputs < 2
@@ -2221,117 +2462,235 @@ class _SendSummary extends StatelessWidget {
   }
 }
 
-/// Under the selector: the method's picture and one short line on what it does, the same shape
-/// for every method; the rest is behind its ⓘ (the phone's MethodStrip does the same).
-/// The art goes above the text in a narrow column; a method change crossfades.
-class _MethodStrip extends StatelessWidget {
-  const _MethodStrip(this.method);
+/// The method's icon in its small square, for the method line and the file form's line.
+class _MethodGlyph extends StatelessWidget {
+  const _MethodGlyph(this.icon);
 
-  final TxMethod method;
+  final IconData icon;
 
-  /// The line, and what the ⓘ says.
-  static (String, String) words(AppLocalizations l, TxMethod m) => switch (m) {
-    TxMethod.epicbox => (l.methodSendEpicboxTitle, l.deskSendEpicboxLine2),
-    TxMethod.http || TxMethod.tor => (l.deskSendDirectLine1, DeskFeatures.tor ? l.deskSendDirectLine2 : l.deskNoTorSendDirectLine2),
-    TxMethod.file => (l.deskSendFileLine1, l.deskSendFileLine2),
-  };
-
-  @override
-  Widget build(BuildContext context) {
-    final ts = context.ts;
-    final reduce = MediaQuery.disableAnimationsOf(context);
-    final l = context.l10n;
-    final (line, more) = words(l, method);
-    // The first section of the form's panel: no frame of its own.
-    return AnimatedSwitcher(
-        duration: reduce ? Duration.zero : Motion.cross,
-        switchInCurve: Motion.easeOut,
-        switchOutCurve: Motion.easeIn,
-        layoutBuilder: (current, previous) => Stack(alignment: Alignment.topLeft, children: [...previous, ?current]),
-        child: LayoutBuilder(
-          key: ValueKey(method),
-          builder: (context, box) {
-            final text = Row(
-              children: [
-                Flexible(child: Text(line, style: ts.body)),
-                SizedBox(width: Sp.x1),
-                EInfoHint(more, title: MethodIcons.fullName(l, methodKindOf(method)), icon: methodIcon(method)),
-              ],
-            );
-            if (box.maxWidth < Lay.sm) {
-              return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [HeroArt(method), SizedBox(height: Sp.x2), text]);
-            }
-            return Row(children: [HeroArt(method), SizedBox(width: 20.u), Expanded(child: text)]);
-          },
-        ),
-    );
-  }
-}
-
-/// "Direct" next to To after the method followed the address: fades in, and out after 3 s,
-/// over the same [Motion.cross] both ways; read out once.
-class _SwitchTag extends StatelessWidget {
-  const _SwitchTag({required this.method, required this.shown});
-
-  final TxMethod? method;
-  final bool shown;
-
-  @override
-  Widget build(BuildContext context) {
-    final m = method;
-    if (m == null) return const SizedBox.shrink();
-    final l = context.l10n;
-    final word = methodShortLabel(l, m);
-    final said = switch (m) {
-      TxMethod.tor || TxMethod.http => l.deskSendSwitchedDirect,
-      TxMethod.file => l.deskSendSwitchedFile,
-      TxMethod.epicbox => l.deskSendSwitchedEpicbox,
-    };
-    final reduce = MediaQuery.disableAnimationsOf(context);
-    return Padding(
-      padding: EdgeInsets.only(left: Sp.x2),
-      child: Semantics(
-        liveRegion: true,
-        label: shown ? said : null,
-        excludeSemantics: true,
-        child: AnimatedOpacity(
-          key: const ValueKey('send-switch-tag'),
-          opacity: shown ? 1 : 0,
-          duration: reduce ? Duration.zero : Motion.cross,
-          curve: shown ? Motion.easeOut : Motion.easeIn,
-          child: SizedBox(height: 22.u, child: EBadge(word, icon: _segmentOf(m) == TxMethod.http ? EIcons.link : methodIcon(_segmentOf(m)))),
-        ),
-      ),
-    );
-  }
-}
-
-/// The contact the To field holds: name and kind, the short address, Clear.
-class _PickedCard extends StatelessWidget {
-  const _PickedCard({required this.contact, required this.address, required this.onClear});
-
-  final Contact contact;
-
-  /// The contact's address in To, which a contact with several need not have first (LNX-9).
-  final String address;
-  final VoidCallback onClear;
+  static double get size => 32.u;
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     return Container(
-      key: const ValueKey('send-picked'),
-      padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
+      width: size,
+      height: size,
       decoration: c.well,
+      child: Icon(icon, size: Ctl.iconSm, color: c.accentText),
+    );
+  }
+}
+
+/// The method line under To: the method's icon, its name and tag (This computer, Your network,
+/// Over Tor), the host exactly as it will be contacted (the host in bold), "Tor starts when you
+/// send." for an onion while the Tor switch is off, and [change] for a contact's other addresses.
+class _RouteLine extends StatelessWidget {
+  const _RouteLine({super.key, required this.to, this.tag, this.torStarts = false, this.change});
+
+  final RecipientInput to;
+  final String? tag;
+  final bool torStarts;
+  final Widget? change;
+
+  /// Where the line's text starts: the lines under it line up with it.
+  static double get textInset => _MethodGlyph.size + Sp.x3;
+
+  static IconData iconOf(RecipientInput r) => switch (r.kind) {
+    RecipientInputKind.epicbox => EIcons.epicbox,
+    RecipientInputKind.onion => EIcons.tor,
+    _ => EIcons.link,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final l = context.l10n;
+    final name = sendMethodName(l, to);
+    final mono = ts.mono(size: Fs.xs, color: c.dim);
+    final bold = mono.copyWith(color: c.text, fontWeight: FontWeight.w600);
+    final where = switch (to.kind) {
+      RecipientInputKind.https || RecipientInputKind.http => [
+        TextSpan(text: '${to.kind == RecipientInputKind.https ? 'https' : 'http'}://'), // l10n-ok: scheme
+        TextSpan(text: to.hostShown, style: bold),
+        TextSpan(text: ':${to.port}${to.path}'),
+      ],
+      RecipientInputKind.epicbox => [TextSpan(text: to.host, style: bold)],
+      _ => [TextSpan(text: to.host)],
+    };
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _MethodGlyph(iconOf(to)),
+        SizedBox(width: Sp.x3),
+        Expanded(
+          child: Semantics(
+            container: true,
+            label: l.sendRouteSemantics(name, sendContactedText(to)),
+            excludeSemantics: true,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  spacing: Sp.x2,
+                  runSpacing: Sp.x1,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(name, style: ts.strong),
+                    if (tag != null) EBadge(tag!, key: const ValueKey('send-route-tag')),
+                  ],
+                ),
+                Text.rich(TextSpan(style: mono, children: where), key: const ValueKey('send-route-host')),
+                if (torStarts) Text(l.sendRouteTorStarts, key: const ValueKey('send-route-tor-starts'), style: ts.small),
+              ],
+            ),
+          ),
+        ),
+        if (change != null) ...[SizedBox(width: Sp.x2), change!],
+      ],
+    );
+  }
+}
+
+/// Change on the method line: a menu of the contact's addresses, the method and the short
+/// address each, the one in use checked; one the mode holds is greyed with the reason and
+/// cannot be chosen. Arrows move, Enter picks, Esc closes.
+class _AddressMenu extends StatelessWidget {
+  const _AddressMenu({required this.name, required this.addresses, required this.current, required this.read, required this.held, required this.onPick});
+
+  final String name;
+  final List<String> addresses;
+  final String current;
+  final RecipientInput Function(String) read;
+  final SendHold? Function(RecipientInput) held;
+  final ValueChanged<String> onPick;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final l = context.l10n;
+    return MenuAnchor(
+      consumeOutsideTap: true,
+      alignmentOffset: Offset(0, Sp.x1),
+      menuChildren: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(Sp.x3, Sp.x2, Sp.x3, Sp.x1),
+          child: Text(l.sendRouteAddressesOf(name), style: ts.caption),
+        ),
+        for (final a in addresses)
+          Builder(builder: (context) {
+            final r = read(a);
+            final hold = held(r);
+            final on = a == current;
+            final kind = r.isAddress ? sendMethodName(l, r) : a;
+            return Semantics(
+              checked: on,
+              inMutuallyExclusiveGroup: true,
+              child: MenuItemButton(
+                key: ValueKey('send-address-$a'),
+                onPressed: hold == null ? () => onPick(a) : null,
+                style: ButtonStyle(
+                  minimumSize: WidgetStatePropertyAll(Size(280.u, 52.u)),
+                  padding: WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2)),
+                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(6.u))),
+                  backgroundColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.hovered) || s.contains(WidgetState.focused) ? c.s3 : null),
+                ),
+                leadingIcon: Icon(_RouteLine.iconOf(r), size: Ctl.iconSm, color: hold == null ? c.dim : c.faint),
+                trailingIcon: on ? Icon(EIcons.check, size: Ctl.iconSm, color: c.ok) : SizedBox(width: Ctl.iconSm),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(kind, style: ts.strong.copyWith(color: hold == null ? null : c.faint)),
+                    Text(shortAddress(r.isAddress ? r.address : a, compact: true), style: ts.mono(size: Fs.xs, color: hold == null ? c.dim : c.faint)),
+                    if (hold != null) Text(sendHoldReason(l, hold), style: ts.small.copyWith(color: c.faint, fontStyle: FontStyle.italic)),
+                  ],
+                ),
+              ),
+            );
+          }),
+      ],
+      builder: (context, controller, _) => CallbackShortcuts(
+        bindings: {const SingleActivator(LogicalKeyboardKey.escape): controller.close},
+        child: EButton.ghost(
+          key: const ValueKey('send-route-change'),
+          label: l.sendRouteChange,
+          size: EBtnSize.inline,
+          onPressed: () => controller.isOpen ? controller.close() : controller.open(),
+        ),
+      ),
+    );
+  }
+}
+
+/// A picked contact in To: the initial, the name and Clear. The method line under it says
+/// which of the contact's addresses is used.
+class _ContactChip extends StatelessWidget {
+  const _ContactChip({required this.contact, required this.onClear});
+
+  final Contact contact;
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final l = context.l10n;
+    return Container(
+      key: const ValueKey('send-picked'),
+      constraints: BoxConstraints(minHeight: Ctl.md),
+      padding: EdgeInsetsDirectional.only(start: Sp.x2, end: Sp.x1),
+      decoration: BoxDecoration(color: c.s2, borderRadius: BorderRadius.circular(Rad.sm), border: Border.all(color: c.lineField)),
       child: Row(
         children: [
           EAvatar(contact.name, size: 28.u),
           SizedBox(width: Sp.x3),
-          Expanded(child: EAddressLines(name: contact.name, address: address)),
+          Expanded(
+            child: Semantics(
+              label: l.deskSaToContactSem(contact.name),
+              excludeSemantics: true,
+              child: Text(contact.name, style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
+          ),
           SizedBox(width: Sp.x2),
-          EButton.ghost(label: context.l10n.deskSendClear, size: EBtnSize.inline, onPressed: onClear),
+          EIconButton(key: const ValueKey('send-to-clear'), icon: EIcons.close, label: l.deskSendClearTo, size: EBtnSize.inline, onPressed: onClear),
         ],
       ),
+    );
+  }
+}
+
+/// The file form's line in To's place: Direct · File Transfer, what it does, and the way back
+/// to sending to an address.
+class _FileLine extends StatelessWidget {
+  const _FileLine({required this.onBack});
+
+  final VoidCallback onBack;
+
+  @override
+  Widget build(BuildContext context) {
+    final ts = context.ts;
+    final l = context.l10n;
+    return Row(
+      key: const ValueKey('send-file-line'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _MethodGlyph(EIcons.file),
+        SizedBox(width: Sp.x3),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(MethodIcons.fullName(l, MethodKind.directFile), style: ts.strong),
+              Text(l.deskSendFileLine1, style: ts.small),
+            ],
+          ),
+        ),
+        SizedBox(width: Sp.x2),
+        EButton.ghost(key: const ValueKey('send-file-back'), label: l.deskSaToAddress, icon: EIcons.send, size: EBtnSize.inline, onPressed: onBack),
+      ],
     );
   }
 }
@@ -2434,7 +2793,7 @@ class _Suggestions extends StatelessWidget {
   /// The pairing a contact with no address is paid through ([contactPairingOnly]).
   final PairingRecord? Function(Contact) pairingOf;
 
-  /// The address a pick fills in ([contactAddress]), shown on its row.
+  /// The address a pick fills in (Send's first by [bestAddressIndex]), shown on its row.
   final String Function(Contact) addressOf;
 
   @override
@@ -2633,6 +2992,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
       TxMethod.file => l.deskSendViaFile,
     };
     final code = d.code;
+    final route = d.route;
     // The payee's words under the facts; the name not when the contact has it.
     final codeLabel = EPayeeClaims.labelBeside(code?.label, d.contactName);
     // A Direct payment from a code: the host on its own line, where a look-alike shows (§7.3).
@@ -2706,10 +3066,22 @@ class _ReviewDialogState extends State<_ReviewDialog> {
                   ],
                 ),
               ),
+            // Via: the method, and whether their wallet has to be open.
             (
-              l.deskSendFactVia,
-              Text(via, style: ts.body),
+              l.sendFactVia,
+              Column(
+                key: const ValueKey('send-review-via'),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(route != null && route.isAddress ? sendMethodName(l, route) : via, style: ts.body),
+                  if (d.method != TxMethod.file) Text(d.method == TxMethod.epicbox ? l.sendFactOffline : l.sendFactOnline, style: ts.small),
+                ],
+              ),
             ),
+            if (route != null && route.isUrl) (l.sendFactHost, SelectableText(route.contacted, key: const ValueKey('send-review-contacted'), style: ts.mono(size: Fs.sm, color: c.text))),
+            // Plain http to another device: a fact, not a warning; the review is the consent.
+            if (route != null && route.plainHttpToOther) (l.sendFactConnection, Text(l.sendFactNotEncrypted, key: const ValueKey('send-review-plain'), style: ts.body)),
+            if (d.torStarts) (l.sendFactTor, Text(l.sendFactTorStarts, style: ts.body)),
             (
               l.deskSendNetworkFee,
               Column(

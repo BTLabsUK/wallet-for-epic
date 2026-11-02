@@ -5330,5 +5330,7 @@
   "sendFactTor": "Tor",
   "sendFactTorStarts": "Starts when you send",
   "sendFactOffline": "Their wallet can be offline.",
-  "sendFactOnline": "Their wallet has to be open."
+  "sendFactOnline": "Their wallet has to be open.",
+  "deskSaToAddress": "Send to an address",
+  "deskSaToContactSem": "To {name}"
 }

@@ -1,5 +1,7 @@
 {
   "de": [
+    "deskSaToAddress",
+    "deskSaToContactSem",
     "sendCleanBrackets",
     "sendCleanDefaultPort",
     "sendCleanDefaultRelay",
@@ -78,6 +80,8 @@
     "sendWithoutConnection"
   ],
   "pl": [
+    "deskSaToAddress",
+    "deskSaToContactSem",
     "sendCleanBrackets",
     "sendCleanDefaultPort",
     "sendCleanDefaultRelay",
@@ -156,6 +160,8 @@
     "sendWithoutConnection"
   ],
   "ru": [
+    "deskSaToAddress",
+    "deskSaToContactSem",
     "sendCleanBrackets",
     "sendCleanDefaultPort",
     "sendCleanDefaultRelay",
@@ -234,6 +240,8 @@
     "sendWithoutConnection"
   ],
   "th": [
+    "deskSaToAddress",
+    "deskSaToContactSem",
     "sendCleanBrackets",
     "sendCleanDefaultPort",
     "sendCleanDefaultRelay",
@@ -312,6 +320,8 @@
     "sendWithoutConnection"
   ],
   "zh": [
+    "deskSaToAddress",
+    "deskSaToContactSem",
     "sendCleanBrackets",
     "sendCleanDefaultPort",
     "sendCleanDefaultRelay",
