@@ -32,6 +32,10 @@ import '../scan/scan_checks.dart';
 import '../scan/scan_router.dart';
 import '../scan/scan_text.dart' show directHostBesideOf;
 import '../send_amount_gate.dart';
+import '../send_reach.dart';
+import '../send_route.dart';
+import 'network_mode_phone.dart' show chooseNetworkMode;
+import 'send_route_text.dart';
 import '../send_preflight.dart';
 import '../settings.dart';
 import '../smart_outputs.dart' show planSessionSend;
@@ -56,8 +60,6 @@ import 'handshake.dart';
 import 'home_parts.dart' show outputsShown;
 import 'help_screen.dart';
 import 'tip.dart';
-import 'info_hint.dart';
-import 'method_names.dart';
 import '../levels/level_features.dart' show TimelineStyle;
 import '../levels/level_providers.dart' show levelFeaturesProvider;
 import 'levels/payment_steps.dart';
@@ -90,9 +92,11 @@ import 'inline_button.dart';
 export '../utf8_limit.dart';
 
 // Sending, in three steps: the recipient, the amount, a review with quiet checks; then a
-// tracker that follows the payment as both wallets finish it. A method selector on top picks
-// Epicbox, HTTP, Tor or File, and follows the kind of address given. A payment file is also
-// the fallback when their relay does not answer.
+// tracker that follows the payment as both wallets finish it. There is no method picker: the
+// method follows the recipient field (an Epicbox address, an http(s) or onion address, or a
+// contact's address), and one line under the field names it with the host as contacted
+// (send_route.dart). Pay in person (QR) and Pay with a file are their own route, also the
+// fallback when their relay does not answer.
 
 /// The key of the row under the amount with "Use USD" and "Max", for tests.
 const Key amountSuffixKey = ValueKey('send-amount-suffix');
@@ -380,10 +384,18 @@ class _SendViewState extends ConsumerState<SendView> {
   bool get _overHttp =>
       parseRecipient(_recipient.text).kind == RecipientKind.http;
 
-  /// The method the selector shows for the address way. File and QR are their own route
+  /// The method the address way sends by, from the To field: Link for an http(s) or onion
+  /// address, else Epicbox (also for a pairing's mailbox). File and QR are their own route
   /// ([SendStage.fileAmount] and after), so this is never [TransferMethod.file] or
   /// [TransferMethod.qr].
-  TransferMethod _method = TransferMethod.epicbox;
+  TransferMethod get _method => _pairingTo == null && _read.isLink ? TransferMethod.direct : TransferMethod.epicbox;
+
+  /// [text] read as Send's recipient ([readRecipient]).
+  RecipientInput _readOf(String text) =>
+      readRecipient(text, defaultRelay: hostSettings.epicboxUse, listenPort: appConfig.httpListenPort);
+
+  /// The To field read as a recipient.
+  RecipientInput get _read => _readOf(_recipient.text);
 
   /// The file route is the QR way: the payment is shown as an animated code to the phone next
   /// to this one, and the reply is scanned.
@@ -392,14 +404,27 @@ class _SendViewState extends ConsumerState<SendView> {
   /// The To text at the last change, to tell a paste (8 or more characters at once).
   String _lastTo = '';
 
-  /// The method the address moved the selector to, and whether its tag still shows.
-  TransferMethod? _switchedTo;
-  bool _tagOn = false;
-  Timer? _tagTimer;
+  /// The text as pasted or typed before the clean-up put its clean form in To, for the
+  /// "Cleaned up" line and its Undo; null when To holds what was given.
+  String? _cleanedFrom;
 
-  /// The user agreed to send over plain HTTP to another device, for this recipient.
+  /// The field was left, pasted into or submitted: its errors show and a Link address is
+  /// asked once whether a wallet answers. Typing clears it.
+  bool _touched = false;
 
-  /// Send's consent or PIN dialog is open.
+  /// The contact picked (Contacts, a name match, Recent): To shows its chip and holds the
+  /// address in use, one of [Contact.addresses]; Change picks another.
+  Contact? _contact;
+
+  /// The reach check's answers, per clean address; asked once each, again on Try again.
+  final Map<String, ReachResult> _reach = {};
+
+  /// Addresses being asked now, and those with no answer after [_reachSlowAfter].
+  final Set<String> _reachAsking = {};
+  final Set<String> _reachSlow = {};
+  static const Duration _reachSlowAfter = Duration(milliseconds: 1500);
+
+  /// Send's PIN dialog is open.
   bool _asking = false;
 
   /// A recipient handed over while the tracker or a file screen shows, for the next form.
@@ -493,7 +518,6 @@ class _SendViewState extends ConsumerState<SendView> {
       );
       _recipient.text = to.address;
       _lastTo = to.address;
-      if (recipientShaped(to)) _method = methodForRecipient(to.kind);
       if (request != null) {
         // The amount is written in the user's number format, which needs the locale.
         final origin = handoff.origin ?? CodeOrigin.qr;
@@ -520,8 +544,7 @@ class _SendViewState extends ConsumerState<SendView> {
             if (start == null || _startApplied || !mounted) return;
             if (_stage != SendStage.recipient ||
                 _recipient.text.isNotEmpty ||
-                _pairingTo != null ||
-                _method != TransferMethod.epicbox) {
+                _pairingTo != null) {
               return;
             }
             setState(() => _startOn(start));
@@ -541,39 +564,32 @@ class _SendViewState extends ConsumerState<SendView> {
     setState(() {
       _stage = SendStage.recipient;
       _viaQr = false;
-      _method = TransferMethod.epicbox;
       _error = null;
       _startOn(payments.startMethod);
     });
   }
 
-  /// Whether the method the idle form shows is still on in [payments].
+  /// Whether the route the idle form shows is still on in [payments]. The recipient step has
+  /// no method of its own: an address in To keeps its method, with the note that it is off.
   bool _formOffered(PaymentPrefs payments) {
     if (_stage == SendStage.fileAmount) {
       return payments.offers(_viaQr ? MethodKind.directQr : MethodKind.directFile);
     }
-    if (_stage != SendStage.recipient) return true;
-    if (_pairingTo != null || recipientShaped(parseRecipient(_recipient.text))) return true;
-    return switch (_method) {
-      TransferMethod.epicbox => payments.epicbox,
-      // Link is always listed: with its switches off it stays, with the note and Turn on.
-      _ => true,
-    };
+    return true;
   }
 
   /// Opens the form on [start], the method Settings › Transactions chose (null: not loaded).
+  /// Epicbox and Link start on the recipient step, whose field picks the method.
   void _startOn(MethodKind? start) {
     if (start == null) return;
     _startApplied = true;
     switch (start) {
-      case MethodKind.linkHttp || MethodKind.linkTor:
-        _method = TransferMethod.direct;
       case MethodKind.directFile:
         _stage = SendStage.fileAmount;
       case MethodKind.directQr:
         _stage = SendStage.fileAmount;
         _viaQr = true;
-      case MethodKind.epicbox:
+      case MethodKind.epicbox || MethodKind.linkHttp || MethodKind.linkTor:
         break;
     }
   }
@@ -582,7 +598,6 @@ class _SendViewState extends ConsumerState<SendView> {
   void dispose() {
     if (widget.back?._handler == _stepBack) widget.back?._handler = null;
     _debounce?.cancel();
-    _tagTimer?.cancel();
     _checks?.close();
     _recipient.dispose();
     _amount.dispose();
@@ -610,37 +625,78 @@ class _SendViewState extends ConsumerState<SendView> {
     // A pairing recipient has no address to check: its card says whether it can be paid.
     if (_pairingTo != null) return null;
     if (text.trim().isEmpty) return required ? l.sendAddressMissing : null;
-    final to = parseRecipient(text);
-    // A whole address of another kind has moved the method already; text that does not fit
-    // the method chosen by hand gets that method's own sentence.
-    if (_method == TransferMethod.direct && to.kind == RecipientKind.epicbox) {
-      return torBuilt ? l.sendDirectAddressShape : l.sendDirectAddressShapeNoTor;
+    final read = _readOf(text);
+    switch (read.kind) {
+      case RecipientInputKind.empty:
+        return required ? l.sendAddressMissing : null;
+      // A transaction text: its own notice offers to open it, never an error.
+      case RecipientInputKind.slate:
+        return null;
+      // Words: a contact's name while one matches.
+      case RecipientInputKind.text:
+        return _nameMatches(text, watch: false).isNotEmpty ? null : l.sendProblemNotAddress;
+      case RecipientInputKind.invalid:
+        return sendProblemText(l, read.problem ?? RecipientProblem.incomplete);
+      case RecipientInputKind.https || RecipientInputKind.http:
+        return httpAddressComplete(read.address) ? null : l.sendProblemIncomplete;
+      case RecipientInputKind.onion:
+        if (!torBuilt) return l.sendTorNotInVersion;
+        if (ref.read(phoneTorProvider).phase == PhoneTorPhase.unavailable) return l.sendTorUnavailable;
+        // An onion with a typo: the check's own sentence says so.
+        return ref.read(walletServiceProvider).validateOnionAddress(address: read.address) ? null : l.sendOnionIncomplete;
+      case RecipientInputKind.epicbox:
+        if (_isOwnAddress(read)) return l.sendProblemOwn;
+        return ref.read(walletServiceProvider).validateEpicboxAddress(address: read.address)
+            ? null
+            : (read.key ?? '').length < 52
+            ? l.sendAddressIncomplete
+            : l.sendAddressNotEpic;
     }
-    if (to.kind == RecipientKind.http) {
-      return httpAddressComplete(to.address)
-          ? null
-          : l.contactsUrlIncomplete(sendHttpShape);
-    }
-    if (to.kind == RecipientKind.tor && !torBuilt) return l.sendTorNotInVersion;
-    if (to.kind == RecipientKind.tor &&
-        ref.read(phoneTorProvider).phase == PhoneTorPhase.unavailable) {
-      return l.sendTorUnavailable;
-    }
-    final problem = checkRecipient(l, ref.read(walletServiceProvider), text);
-    if (problem == null) return null;
-    // An onion with a typo: the check's own sentence says so.
-    if (to.kind == RecipientKind.tor) return problem;
-    final at = to.address.indexOf('@');
-    final key = at < 0 ? to.address : to.address.substring(0, at);
-    final looksLikeKey = RegExp(r'^[1-9A-HJ-NP-Za-km-z]+$').hasMatch(key);
-    return looksLikeKey && (key.length < 52 || at < 0)
-        ? l.sendAddressIncomplete
-        : l.sendAddressNotEpic;
   }
 
+  /// [to] is this wallet's own Epicbox address: the key the same (case counts) and the relay
+  /// this wallet's.
+  bool _isOwnAddress(RecipientInput to) {
+    final own = ref.read(addressProvider).value;
+    if (own == null || own.isEmpty || to.kind != RecipientInputKind.epicbox) return false;
+    final mine = _readOf(own);
+    return mine.key == to.key && mine.host == to.host;
+  }
+
+  /// The field was left: errors show now, and an address in another form takes its clean one,
+  /// with the "Cleaned up" line and Undo.
   void _recipientFocusChanged() {
     if (_recipientFocus.hasFocus || _stage != SendStage.recipient) return;
-    setState(() => _recipientError = _recipientProblem(_recipient.text));
+    if (_contact != null || _recipient.text.trim().isEmpty) return;
+    setState(() {
+      _settleRecipient();
+      _recipientError = _recipientProblem(_recipient.text);
+    });
+  }
+
+  /// To takes the clean form of its address, remembering what was there for Undo. Call
+  /// inside setState.
+  void _settleRecipient() {
+    _touched = true;
+    final text = _recipient.text;
+    final read = _readOf(text);
+    if (!read.isAddress || read.address == text) return;
+    _cleanedFrom ??= text;
+    _recipient.text = read.address;
+    _lastTo = read.address;
+  }
+
+  /// Undo on the "Cleaned up" line: To holds what was given again.
+  void _undoClean() {
+    final before = _cleanedFrom;
+    if (before == null) return;
+    setState(() {
+      _recipient.text = before;
+      _lastTo = before;
+      _cleanedFrom = null;
+      _touched = false;
+      _recipientError = null;
+    });
   }
 
   Future<void> _paste() async {
@@ -650,21 +706,29 @@ class _SendViewState extends ConsumerState<SendView> {
     _openText(text, CodeOrigin.paste);
   }
 
-  /// A scanned or pasted text: a payment code fills the form, an address the To field, and
-  /// anything the router knows elsewhere goes there. Plain text that is none of these (a name,
-  /// half an address) lands in the To field as before, where its own check speaks.
-  /// [typedOver] is the To text before the code was typed or pasted into the field: a code
-  /// that opens a sheet puts it back, so the field never keeps the code behind the sheet.
-  void _openText(String text, CodeOrigin origin, {String? typedOver}) {
+  /// A scanned or pasted text: a payment code fills the form, an address the To field (in its
+  /// clean form, with the "Cleaned up" line), and anything the router knows elsewhere goes
+  /// there. A transaction text lands in the field with its "Open it" notice unless [open] (that
+  /// button). Plain text that is none of these (a name, half an address) lands in the To field,
+  /// where its own check speaks. [typedOver] is the To text before the code was typed or pasted
+  /// into the field: a code that opens a sheet puts it back, so the field never keeps the code
+  /// behind the sheet.
+  void _openText(String text, CodeOrigin origin, {String? typedOver, bool open = false}) {
     final l = context.l10n;
     final code = classifyFor(ref.read(walletServiceProvider), text);
+    final read = _readOf(text);
     switch (code) {
       case PaymentRequest() when requestCarriesMore(code):
         _applyRequest(code, origin);
       case PaymentRequest(:final recipient) || ScannedAddress(:final recipient):
         // A code with a second address fills the one whose method is on.
         final to = code is PaymentRequest ? _requestRecipient(code) : recipient;
-        _setRecipient(to.address, origin: origin);
+        _setRecipient(to.address, origin: origin, given: code is ScannedAddress ? text : null);
+      case SlateText() when !open && origin == CodeOrigin.paste:
+        _setRecipient(text);
+      // An address in text around it, or written another way: Send's own reader takes it.
+      case UnknownCode() when read.isAddress && origin != CodeOrigin.link:
+        _setRecipient(read.address, origin: origin == CodeOrigin.paste ? null : origin, given: text);
       case UnknownCode(reason: UnknownReason.notEpic)
           when origin == CodeOrigin.paste && !looksLikeCode(text):
         _setRecipient(text);
@@ -705,26 +769,21 @@ class _SendViewState extends ConsumerState<SendView> {
     setState(() => _recipientError = problem);
   }
 
-  /// Whether the wallet can pay [to] as it is: the checksum, chain and host hold.
-  bool _complete(Recipient to) {
-    final service = ref.read(walletServiceProvider);
-    return switch (to.kind) {
-      RecipientKind.epicbox => service.validateEpicboxAddress(
-        address: to.address,
-      ),
-      RecipientKind.tor => service.validateOnionAddress(address: to.address),
-      RecipientKind.http => httpAddressComplete(to.address),
-    };
-  }
+  /// The connection a payment to [to] takes, for the Tor switch: Epicbox's, an onion's, an
+  /// https address's; null for plain http, which never goes over Tor (the mode holds it or it
+  /// goes direct, [sendHoldFor]) and for anything that is no address.
+  TorRoute? _routeOf(RecipientInput to) => switch (to.kind) {
+    RecipientInputKind.epicbox => TorRoute.epicbox,
+    RecipientInputKind.onion => TorRoute.onionDirect,
+    RecipientInputKind.https => TorRoute.httpDirect,
+    _ => null,
+  };
 
-  /// The connection the To text takes, for the Tor switch: Epicbox's whatever is typed, and
-  /// on Direct the address's own once it has a shape; null before that.
-  TorRoute? get _toRoute {
-    if (_method == TransferMethod.epicbox) return TorRoute.epicbox;
-    final to = parseRecipient(_recipient.text);
-    if (to.kind == RecipientKind.epicbox || !recipientShaped(to)) return null;
-    return sendRoute(to);
-  }
+  /// The connection the To text takes; Epicbox for a pairing's mailbox.
+  TorRoute? get _toRoute => _pairingTo != null ? TorRoute.epicbox : _routeOf(_read);
+
+  /// An onion with Tor off still goes: Send starts Tor for it ([PhoneTor.whileSending]).
+  static bool _goes(TorWay way) => torGoes(way) || way == TorWay.needsTor;
 
   /// The Tor switch's state, watched: for build only.
   TorState get _torState => phoneTorState(ref.watch(phoneTorProvider));
@@ -753,52 +812,17 @@ class _SendViewState extends ConsumerState<SendView> {
     ];
   }
 
-  /// The method follows the address: a whole address of another kind, or
-  /// any address that was pasted, scanned or picked ([forced], or one change adding 8 or more
-  /// characters), moves it to that kind, with a tag for 3 s. Text still being typed never
-  /// does, nothing switches back when the text becomes incomplete, and the field keeps its
-  /// text. Call inside setState.
-  void _followAddress(String text, {bool forced = false}) {
-    final added = text.length - _lastTo.length;
-    _lastTo = text;
-    final to = parseRecipient(text);
-    if (!recipientShaped(to)) return;
-    final method = methodForRecipient(to.kind);
-    if (method == _method) return;
-    if (!(forced || added >= 8 || _complete(to))) return;
-    _method = method;
-    _switchedTo = method;
-    _tagOn = true;
-    _tagTimer?.cancel();
-    _tagTimer = Timer(const Duration(seconds: 3), () {
-      if (!mounted) return;
-      setState(() => _tagOn = false);
-      // Once faded out it leaves the label, or the outline's notch keeps its width (android-08).
-      _tagTimer = Timer(_switchTagFade, () {
-        if (mounted && !_tagOn) setState(() => _switchedTo = null);
-      });
-    });
-  }
+  /// The way a connection problem leaves: Pay in person (a QR Payment, where this phone
+  /// offers it) and Pay with a file, each while its method is on.
+  bool get _qrOffered =>
+      _watchedPayments.directQr &&
+      offersQrPayment(ref) &&
+      ref.watch(levelFeaturesProvider.select((f) => f.sendMethods)).contains(MethodKind.directQr);
 
-  /// The selector: an address method keeps the To text; File opens the file route.
-  void _chooseMethod(TransferMethod method) {
-    if (_busy || _estimating) return;
-    if (method == TransferMethod.file || method == TransferMethod.qr) {
-      _toFileRoute(qr: method == TransferMethod.qr);
-      return;
-    }
-    _tagTimer?.cancel();
-    setState(() {
-      _method = method;
-      _viaQr = false;
-      _tagOn = false;
-      _stage = SendStage.recipient;
-      _error = null;
-      _recipientError = _recipient.text.trim().isEmpty
-          ? null
-          : _recipientProblem(_recipient.text);
-    });
-  }
+  bool get _fileOffered =>
+      (_watchedPayments.directFile &&
+          ref.watch(levelFeaturesProvider.select((f) => f.sendMethods)).contains(MethodKind.directFile)) ||
+      hasPendingFileSend(ref.watch(homeProvider.select((h) => h.value?.transactions)));
 
   Future<void> _scan() async {
     final text = await ref.read(qrScannerProvider).scanCode(context);
@@ -891,13 +915,45 @@ class _SendViewState extends ConsumerState<SendView> {
     return watch ? ref.watch(contactPairingProvider(contact.id)) : ref.read(contactPairingProvider(contact.id));
   }
 
-  /// [contact] as the recipient: its address whose method is on, or its pairing.
-  void _useContact(Contact contact) {
+  /// What holds a send to [to] now: the network mode ([sendHoldFor]). Read in a build.
+  SendHold? _holdOf(RecipientInput to) => sendHoldFor(
+    to,
+    mode: AdvancedOptions.of(context).networkMode,
+    torOn: ref.watch(phoneTorProvider.select((s) => s.receiving)),
+  );
+
+  /// [to] cannot be paid now: the mode holds it, or its method is off in Settings ›
+  /// Transactions. For a contact's addresses.
+  bool _heldNow(RecipientInput to, {bool watch = true}) {
+    final mode = AdvancedOptions.of(context).networkMode;
+    final torOn = watch ? ref.watch(phoneTorProvider.select((s) => s.receiving)) : ref.read(phoneTorProvider).receiving;
+    if (sendHoldFor(to, mode: mode, torOn: torOn) != null) return true;
+    final kind = sendMethodKind(to);
+    return kind != null && !(watch ? _watchedPayments : _payments.copyWith(linkHttp: true)).offers(kind);
+  }
+
+  /// The index in [contact]'s addresses Send uses first ([bestAddressIndex]).
+  int _bestIndex(Contact contact, {bool watch = true}) =>
+      bestAddressIndex(contact.addresses, read: _readOf, held: (to) => _heldNow(to, watch: watch));
+
+  /// [contact] as the recipient: its chip in To and its first address that can be paid now,
+  /// or its pairing. [address], one of its addresses, is used instead when given (Recent).
+  void _useContact(Contact contact, {String? address}) {
     if (_pairingOnly(contact) case final pairing?) {
       _setPairing(pairing.id);
       return;
     }
-    _setRecipient(contactSendAddress(contact, _payments.offers));
+    final i = _bestIndex(contact, watch: false);
+    final use = address ?? (i < 0 ? contact.address : contact.addresses[i]);
+    _setRecipient(_readOf(use).isAddress ? _readOf(use).address : use, contact: contact);
+  }
+
+  /// Change on the method line: another of the contact's addresses. Only the method line
+  /// follows.
+  void _pickAddress(String address) {
+    final contact = _contact;
+    if (contact == null) return;
+    _setRecipient(_readOf(address).isAddress ? _readOf(address).address : address, contact: contact);
   }
 
   /// The recipient is the pairing [id], a contact with no address: its card takes the To
@@ -911,17 +967,16 @@ class _SendViewState extends ConsumerState<SendView> {
       return;
     }
     _closeChecks();
-    _tagTimer?.cancel();
     setState(() {
       _recipient.clear();
       _lastTo = '';
       _leaveRequest();
       _pairingTo = id;
+      _contact = null;
+      _cleanedFrom = null;
+      _touched = false;
       _viaMailbox = false;
-      _method = TransferMethod.epicbox;
       _viaQr = false;
-      _switchedTo = null;
-      _tagOn = false;
       // Not held (above): the amount, the review or the file route go back to the recipient.
       _stage = SendStage.recipient;
       _recipientError = null;
@@ -929,33 +984,34 @@ class _SendViewState extends ConsumerState<SendView> {
     });
   }
 
-  /// × on the filled To field or on the pairing card. Leaving Send keeps the draft (people
-  /// switch tabs to check the balance), so a filled recipient always has this way out: the
-  /// recipient goes with everything that followed from it (the method it moved, a code's
-  /// untouched amount and note, the warnings), back to step 1's empty start. Amount and note
-  /// typed by hand stay.
+  /// × on the filled To field, the contact chip or the pairing card. Leaving Send keeps the
+  /// draft (people switch tabs to check the balance), so a filled recipient always has this
+  /// way out: the recipient goes with everything that followed from it (a code's untouched
+  /// amount and note, the warnings), back to step 1's empty start. Amount and note typed by
+  /// hand stay.
   void _clearRecipient() {
     _closeChecks();
-    _tagTimer?.cancel();
     setState(() {
       _recipient.clear();
       _lastTo = '';
       _leaveRequest();
       _pairingTo = null;
+      _contact = null;
+      _cleanedFrom = null;
+      _touched = false;
       _viaMailbox = false;
-      _switchedTo = null;
-      _tagOn = false;
       _recipientError = null;
       _error = null;
       _viaQr = false;
       _stage = SendStage.recipient;
-      _method = TransferMethod.epicbox;
       _startOn(_payments.startMethod);
     });
   }
 
-  /// Fills the recipient and checks it at once, as after a paste.
-  void _setRecipient(String text, {CodeOrigin? origin}) {
+  /// Fills the recipient and checks it at once, as after a paste: an address takes its clean
+  /// form; when [given] (the text as pasted or scanned) differs from it, the "Cleaned up" line
+  /// shows with Undo. [contact] puts its chip in To.
+  void _setRecipient(String text, {CodeOrigin? origin, String? given, Contact? contact}) {
     if (_holdsPayment) {
       // Not over a payment in progress, or one a refused send holds: the next form takes
       // it, so Send again cannot make a second payment meanwhile.
@@ -965,8 +1021,12 @@ class _SendViewState extends ConsumerState<SendView> {
       _laterPairing = null;
       return;
     }
+    final read = _readOf(text);
+    final clean = read.isAddress ? read.address : (read.kind == RecipientInputKind.slate ? text : text.trim());
+    final before = given ?? text;
     _pairingTo = null;
-    _recipient.text = parseRecipient(text).address;
+    _recipient.text = clean;
+    _lastTo = clean;
     if (_stage == SendStage.amount || _stage == SendStage.review) {
       _closeChecks();
       _stage = SendStage.recipient;
@@ -977,7 +1037,10 @@ class _SendViewState extends ConsumerState<SendView> {
         _origin = origin;
         _requestAddress = _recipient.text;
       }
-      _followAddress(_recipient.text, forced: true);
+      _contact = contact;
+      // A contact's address is its own; a pasted one that changed says how.
+      _cleanedFrom = contact == null && read.isAddress && _readOf(before).address == read.address && before.trim() != clean ? before : null;
+      _touched = true;
       _recipientError = _recipientProblem(_recipient.text);
       _error = null;
     });
@@ -990,15 +1053,19 @@ class _SendViewState extends ConsumerState<SendView> {
   );
 
   /// On to the amount; [focus] puts the cursor there (not for a code, whose amount is read
-  /// first, with the keyboard down).
+  /// first, with the keyboard down). The clean form replaces what was typed first; a hold of
+  /// the mode keeps the step.
   void _toAmount({bool focus = true}) {
+    if (_contact == null && _pairingTo == null) setState(_settleRecipient);
     final problem = _recipientProblem(_recipient.text, required: true);
+    final read = _read;
+    final held = _pairingTo == null && read.isAddress && _heldNow(read, watch: false);
     setState(() {
       _recipientError = problem;
       _error = null;
-      if (problem == null) _stage = SendStage.amount;
+      if (problem == null && !held && (_pairingTo != null || read.isAddress)) _stage = SendStage.amount;
     });
-    if (problem == null && focus) _amountFocus.requestFocus();
+    if (problem == null && focus && _stage == SendStage.amount) _amountFocus.requestFocus();
   }
 
   /// The Android back: the step the header's arrow goes to, held like the arrow while the
@@ -2068,11 +2135,6 @@ class _SendViewState extends ConsumerState<SendView> {
   /// wait while it is not [NetBlock.none]; the File route never does.
   NetBlock _block = NetBlock.none;
 
-  /// What the network mode alone allows Epicbox and Link now (Node only, Kill switch), read in
-  /// [build]: the selector shows them Off while it blocks. Tor still starting is no reason to
-  /// move: the payment waits for Tor under its note.
-  NetBlock _modeBlock = NetBlock.none;
-
   /// What it allows the File method: Offline stops making a file too (it asks the node),
   /// unless the node is local.
   /// What the network mode allows finishing and posting a file or QR Payment, which reach
@@ -2130,18 +2192,14 @@ class _SendViewState extends ConsumerState<SendView> {
   /// the address picks (Link · HTTP or Link · Tor); null while a Link send has no address yet,
   /// and for the file routes (their gate is [_postBlock]).
   MethodKind? get _sendMethod {
-    if (_method == TransferMethod.epicbox) return MethodKind.epicbox;
-    if (_method != TransferMethod.direct) return null;
-    // Link with no address yet: nothing to hold, Link · HTTP has no switch on the phone.
-    if (_recipient.text.trim().isEmpty) return null;
-    final kind = parseRecipient(_recipient.text).kind;
-    // An http(s) address sends with no switch: only the network mode holds it.
-    if (kind == RecipientKind.http) return null;
+    if (_pairingTo != null) return MethodKind.epicbox;
+    final read = _read;
+    // No address yet: nothing to hold. An http(s) address sends with no switch on the phone:
+    // only the network mode holds it.
+    if (!read.isAddress || read.isUrl) return null;
     // No Tor in this build: an onion has no method to turn on, its own error says so.
-    if (kind == RecipientKind.tor && !torBuilt) return null;
-    // An Epicbox address goes over Epicbox whatever the selector says (Send may have moved off
-    // it while Epicbox is off): its switch holds the send.
-    return kind == RecipientKind.epicbox ? MethodKind.epicbox : MethodKind.ofRecipient(kind);
+    if (read.kind == RecipientInputKind.onion && !torBuilt) return null;
+    return sendMethodKind(read);
   }
 
   /// Settings › Transactions, watched: the build follows a switch (the defaults until it loads).
@@ -2190,12 +2248,6 @@ class _SendViewState extends ConsumerState<SendView> {
     // A pairing recipient's payment waits in the outbox while Epicbox is off ("Queue
     // payment"); Offline and Tor still hold it.
     _block = watchNetBlock(context, ref, method: _pairingTo != null ? null : _sendMethod);
-    _modeBlock = switch (watchNetBlock(context, ref)) {
-      NetBlock.waitingForTor => NetBlock.none,
-      final b => b,
-    };
-    _onNow = {for (final m in TransferMethod.values) if (_methodOnNow(m)) m};
-    _keepMethodOn();
     // The pairing went (removed elsewhere): back to the To field.
     if (_pairingTo != null && _toPairing() == null && ref.watch(pairingsProvider).hasValue && !_holdsPayment) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -2239,7 +2291,12 @@ class _SendViewState extends ConsumerState<SendView> {
       } else if (request != null) {
         _applyRequest(request, handoff.origin ?? CodeOrigin.qr);
       } else {
-        _setRecipient(handoff.text, origin: handoff.origin);
+        // A saved contact's address (Send from the contact, Send again): its chip, so Change
+        // offers the contact's other addresses.
+        final saved = handoff.origin == null
+            ? contactFor(ref.read(contactsProvider).value ?? const <Contact>[], handoff.text)
+            : null;
+        _setRecipient(handoff.text, origin: handoff.origin, contact: saved);
       }
     });
 
@@ -2271,8 +2328,10 @@ class _SendViewState extends ConsumerState<SendView> {
       ),
       SendStage.fileSent => (_fileSentStep(context), _doneAction()),
     };
-    // The reason sits above the button that waits for the network (not after a send).
+    // The reason sits above the button that waits for the network (not after a send). A hold
+    // the recipient step shows under the field is not said twice.
     final note = switch (_stage) {
+      SendStage.recipient when _holdShown && _block.byMode => NetBlock.none,
       SendStage.recipient || SendStage.amount => _block,
       SendStage.review when !_sendFailed => _block,
       // Making a file needs no connection of its own (Tor only without tor makes it too).
@@ -2452,223 +2511,77 @@ class _SendViewState extends ConsumerState<SendView> {
     return contactNameFor(contacts, address);
   }
 
-  /// Epicbox, Link, Direct · QR and Direct · File, one segment each, icon over label. Link is
-  /// the family: the address picks Link · HTTP or Link · Tor. Tor is not a method: the one Tor
-  /// switch (Settings › Privacy) changes how Epicbox and Link connect.
-  /// [m] can be chosen now: Epicbox and Link wait for the network mode, Epicbox for its switch
-  /// too (a pairing's mailbox queues), and a pairing recipient has no Link address. QR Payment
-  /// and File Transfer are made without a connection: always, while offered.
-  bool _methodOnNow(TransferMethod m) => switch (m) {
-    TransferMethod.epicbox => _modeBlock == NetBlock.none && (_watchedPayments.epicbox || _pairingTo != null),
-    TransferMethod.direct => _modeBlock == NetBlock.none && _pairingTo == null,
-    TransferMethod.qr => _watchedPayments.directQr && offersQrPayment(ref),
-    TransferMethod.file => _watchedPayments.directFile || hasPendingFileSend(ref.watch(homeProvider.select((h) => h.value?.transactions))),
-  };
+  /// What the network mode holds the To field's address with, watched; none for a pairing,
+  /// whose mailbox the bottom note speaks for.
+  SendHold? get _hold => _pairingTo == null ? _holdOf(_read) : null;
 
-  /// The methods that can be chosen now, worked out in [build] ([_methodOnNow]).
-  Set<TransferMethod> _onNow = TransferMethod.values.toSet();
-
-  bool _methodOn(TransferMethod m) => _onNow.contains(m);
-
-  /// No method can be chosen on the address steps (Node only with QR Payment and File Transfer
-  /// off): nothing is selected and the form waits, the note says why.
-  bool get _noMethod =>
-      (_stage == SendStage.recipient || _stage == SendStage.amount) && _onNow.isEmpty;
-
-  bool _moving = false;
-
-  /// A method that cannot be chosen now never stays chosen with a live form (D-06): on the
-  /// address steps Send moves to the first that can, after this frame (QR Payment and File
-  /// Transfer open their route). Only this screen's choice moves; Settings stay as they are.
-  void _keepMethodOn() {
-    if (_moving || _holdsPayment || _busy || _estimating) return;
-    if (_stage != SendStage.recipient && _stage != SendStage.amount) return;
-    if (_methodOn(_method)) return;
-    if (_onNow.isEmpty) return;
-    _moving = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _moving = false;
-      if (!mounted || _holdsPayment || _busy || _estimating) return;
-      if (_stage != SendStage.recipient && _stage != SendStage.amount) return;
-      if (_methodOn(_method)) return;
-      for (final m in TransferMethod.values) {
-        if (!_methodOn(m)) continue;
-        _chooseMethod(m);
-        return;
-      }
-    });
-  }
-
-  /// The form under the selector, dimmed and out of reach while [_noMethod].
-  List<Widget> _waitForMethod(List<Widget> children) => !_noMethod
-      ? children
-      : [
-          ExcludeFocus(
-            child: IgnorePointer(
-              child: Opacity(
-                opacity: 0.4,
-                child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
-              ),
-            ),
-          ),
-        ];
-
-  Widget _methodSelector(BuildContext context, TransferMethod selected) {
-    final l = context.l10n;
-    final labelStyle = Theme.of(context).textTheme.labelMedium;
-    ButtonSegment<TransferMethod> segment(
-      TransferMethod value,
-      IconData icon,
-      String label,
-    ) {
-      // Not available now: Off under the name, and it cannot be chosen.
-      final on = _methodOn(value);
-      return ButtonSegment(
-        value: value,
-        tooltip: label,
-        enabled: on,
-        label: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 18),
-            const SizedBox(height: 2),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(label, maxLines: 1, style: labelStyle),
-            ),
-            if (!on) ...[
-              const SizedBox(height: 2),
-              FittedBox(fit: BoxFit.scaleDown, child: EBadge.state(l.netStatusOff, on: false)),
-            ],
-          ],
-        ),
-      );
-    }
-    // Settings › Transactions says which methods are offered; the method in use stays
-    // whatever the switch says (a pasted onion picks Link; a file send, the failed-Epicbox
-    // file fallback and a file waiting for its reply keep File).
-    final payments = _watchedPayments;
-    final filePending = hasPendingFileSend(
-      ref.watch(homeProvider.select((h) => h.value?.transactions)),
-    );
-    final segments = [
-      // Epicbox off (Settings › Transactions) hides it too; a pasted Epicbox address brings it
-      // back for this send, where the note says it is off.
-      if (selected == TransferMethod.epicbox || payments.epicbox || _pairingTo != null)
-        segment(TransferMethod.epicbox, MethodIcons.of(MethodKind.epicbox), MethodIcons.shortName(l, MethodKind.epicbox)),
-      // Link is listed from the start: an http(s) address needs no switch; an onion with
-      // Link · Tor off gets the note and a one-tap Turn on.
-      // A pairing recipient has no Link address.
-      if (selected == TransferMethod.direct || _pairingTo == null)
-        segment(TransferMethod.direct, MethodIcons.family(MethodFamily.link), MethodIcons.familyName(l, MethodFamily.link)),
-      if (selected == TransferMethod.qr || (payments.directQr && offersQrPayment(ref)))
-        segment(TransferMethod.qr, MethodIcons.of(MethodKind.directQr), MethodIcons.shortName(l, MethodKind.directQr)),
-      if (selected == TransferMethod.file || payments.directFile || filePending)
-        segment(TransferMethod.file, MethodIcons.of(MethodKind.directFile), MethodIcons.shortName(l, MethodKind.directFile)),
-    ];
-    if (segments.length == 1) return const SizedBox.shrink();
-    return PhoneTourTarget(
-      id: 'tour-send-methods',
-      child: Semantics(
-      label: l.sendMethodLabel,
-      container: true,
-      child: SegmentedButton<TransferMethod>(
-        key: sendMethodsKey,
-        segments: segments,
-        selected: _noMethod ? const {} : {selected},
-        emptySelectionAllowed: _noMethod,
-        showSelectedIcon: false,
-        expandedInsets: EdgeInsets.zero,
-        style: const ButtonStyle(
-          minimumSize: WidgetStatePropertyAll(Size(0, 44)),
-          padding: WidgetStatePropertyAll(
-            EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-          ),
-          visualDensity: VisualDensity.standard,
-        ),
-        onSelectionChanged: (chosen) => _chooseMethod(chosen.first),
-      ),
-    ),
-    );
-  }
-
-  /// Level 1's replacement for the method selector: a text link to QR Payment (when it is
-  /// offered) and, inside it, back to sending to an address. Null when there is nothing to offer.
-  Widget? _quietLink(BuildContext context, TransferMethod method) {
-    final l = context.l10n;
-    final qrOffered = ref.watch(levelFeaturesProvider.select((f) => f.sendMethods)).contains(MethodKind.directQr);
-    final (label, to) = switch (method) {
-      TransferMethod.epicbox when qrOffered && offersQrPayment(ref) => (l.lvPaySendQrLink, TransferMethod.qr),
-      TransferMethod.qr => (l.lvPaySendAddressLink, TransferMethod.epicbox),
-      _ => (null, null),
-    };
-    if (label == null || to == null) return null;
-    return Align(
-      alignment: AlignmentDirectional.centerStart,
-      child: InlineTextButton(
-        key: sendQuietQrKey,
-        onPressed: _busy || _estimating ? null : () => _chooseMethod(to),
-        child: Text(label),
-      ),
-    );
-  }
-
-  /// The selector and, 12 dp under it, the strip that says what [method] means.
-  List<Widget> _methodHead(BuildContext context, TransferMethod method) {
-    // Epicbox chosen while its listener is down: say so and offer Retry (UP-038); the other
-    // methods go on as before.
-    final epicbox = ref.watch(walletStatusProvider.select((s) => s.epicbox));
-    final none = _noMethod;
-    final down = !none && method == TransferMethod.epicbox && (epicbox == null || epicbox == EpicboxState.offline);
-    final quiet = !ref.watch(levelFeaturesProvider.select((f) => f.methodStrip));
-    return [
-      if (!quiet)
-        _methodSelector(context, method)
-      else if (method != TransferMethod.epicbox)
-        // Level 1: Epicbox is just how sending works, so no selector and no strip. Inside
-        // QR Payment, the link back to sending to an address; the link in (QR Payment) sits
-        // under the recipient's shortcuts ([_recipientStep]).
-        ?_quietLink(context, method),
-      // No method can be chosen: no picture of one.
-      if (!none && !quiet) ...[
-        const SizedBox(height: 12),
-        DismissibleTip(
-          id: sendMethodTipId,
-          child: MethodStrip(method: method),
-        ),
-      ],
-      if (down) ...[
-        const SizedBox(height: 12),
-        InlineNotice(
-          key: sendEpicboxDownKey,
-          level: NoticeLevel.warning,
-          icon: Icons.cloud_off,
-          text: context.l10n.statusEpicboxOffline,
-          actions: [
-            TextButton.icon(
-              icon: const Icon(Icons.refresh),
-              label: Text(context.l10n.commonRetry),
-              onPressed: () => ref.read(listenerProvider.notifier).restart(),
-            ),
-          ],
-        ),
-      ],
-      const SizedBox(height: 16),
-    ];
-  }
+  /// A hold shows under the field: the bottom note does not say it again.
+  bool get _holdShown => _stage == SendStage.recipient && _hold != null;
 
   /// Saved contacts whose name holds [text], for "Address or contact": at most three.
-  List<Contact> _nameMatches(String text) {
+  List<Contact> _nameMatches(String text, {bool watch = true}) {
     final query = text.trim().toLowerCase();
-    if (query.length < 2 || recipientShaped(parseRecipient(query))) {
-      return const [];
-    }
-    final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
-    return contacts
-        .where((c) => c.name.toLowerCase().contains(query))
-        .take(3)
-        .toList();
+    if (query.length < 2 || _readOf(query).isAddress) return const [];
+    final contacts = (watch ? ref.watch(contactsProvider) : ref.read(contactsProvider)).value ?? const <Contact>[];
+    return contacts.where((c) => c.name.toLowerCase().contains(query)).take(3).toList();
   }
+
+  // The reach check.
+
+  /// The Link address the reach check asks about now: complete and clean in To (pasted, left,
+  /// or a contact's), not held, in a mode that lets it ask. Null otherwise.
+  RecipientInput? _reachTarget(RecipientInput read, SendHold? hold) {
+    if (!read.isLink || hold != null || _recipient.text != read.address) return null;
+    if (!_touched && _contact == null) return null;
+    if (!reachCheckApplies(read, mode: AdvancedOptions.of(context).networkMode)) return null;
+    if (_recipientProblem(read.address) != null) return null;
+    return read;
+  }
+
+  /// Asks [to] once, in the background; "Checking…" only after [_reachSlowAfter].
+  void _askReach(RecipientInput to) {
+    final key = to.address;
+    if (_reach.containsKey(key) || _reachAsking.contains(key)) return;
+    _reachAsking.add(key);
+    final mode = AdvancedOptions.of(context).networkMode;
+    Timer(_reachSlowAfter, () {
+      if (mounted && _reachAsking.contains(key)) setState(() => _reachSlow.add(key));
+    });
+    unawaited(
+      checkWalletAnswers(to, mode: mode).then((result) {
+        if (!mounted) return;
+        setState(() {
+          _reachAsking.remove(key);
+          _reachSlow.remove(key);
+          _reach[key] = result;
+        });
+      }),
+    );
+  }
+
+  /// Try again on the reach notice: the one way to ask an address again.
+  void _retryReach(RecipientInput to) {
+    if (_reachAsking.contains(to.address)) return;
+    setState(() => _reach.remove(to.address));
+    _askReach(to);
+  }
+
+  /// The one action of a hold's notice: Normal mode, or the Tor switch off; a toast after.
+  Future<void> _fixHold(SendHold hold) async {
+    final l = context.l10n;
+    final notices = ref.read(noticeProvider.notifier);
+    switch (hold.fix) {
+      case SendHoldFix.normalMode:
+        if (await chooseNetworkMode(context, ref, NetworkMode.standard)) {
+          notices.show(l.sendHeldModeNormal, level: NoticeLevel.success);
+        }
+      case SendHoldFix.torOff:
+        await ref.read(phoneTorProvider.notifier).setReceiving(false);
+        notices.show(l.sendHeldTorIsOff, level: NoticeLevel.success);
+    }
+  }
+
+  // The recipient step.
 
   List<Widget> _recipientStep(BuildContext context) {
     final l = context.l10n;
@@ -2676,26 +2589,18 @@ class _SendViewState extends ConsumerState<SendView> {
     final t = context.tokens;
     final scan = offersQrScan(ref);
     final text = _recipient.text.trim();
-    final to = parseRecipient(text);
-    final valid = text.isNotEmpty && _recipientProblem(text) == null;
-    final recent = recentRecipients(
-      ref.watch(homeProvider).value?.transactions ?? const <TxEntry>[],
-    );
-    final matches = _nameMatches(text);
-    final shape = sendAddressShape(l, _method);
-    final way = _wayOf(_toRoute);
+    final read = _read;
+    final contact = _contact;
+    // Kept alive while the step shows: the own-address check reads it.
+    ref.watch(addressProvider);
     final pairing = _toPairing();
-    // Level 1: the step is "Send" (there is no method to pick), the address's shape and the
-    // servers in recent addresses are not shown, and QR Payment is a quiet link under the
-    // shortcuts.
-    final quiet = !ref.watch(levelFeaturesProvider.select((f) => f.methodStrip));
     final hosts = ref.watch(levelFeaturesProvider.select((f) => f.serverNames));
-    final stepTitle = quiet ? l.homeSendButton : l.sendStepMethod;
+    final epicboxNamed = ref.watch(levelFeaturesProvider.select((f) => f.epicboxNamed));
+    final stepTitle = l.homeSendButton;
     if (pairing != null) {
       final name = _pairingNameOf(pairing.id);
       return [
         _header(context, stepTitle, step: 1),
-        ..._methodHead(context, _method),
         Semantics(
           label: l.sendToLabel,
           container: true,
@@ -2713,124 +2618,195 @@ class _SendViewState extends ConsumerState<SendView> {
         _recipientButtons(scan),
       ];
     }
+    final hold = _hold;
+    final valid = read.isAddress && _recipientProblem(_recipient.text) == null;
+    final recent = recentRecipients(
+      ref.watch(homeProvider).value?.transactions ?? const <TxEntry>[],
+    );
+    final matches = contact == null && read.kind == RecipientInputKind.text ? _nameMatches(text) : const <Contact>[];
+    final target = _reachTarget(read, hold);
+    if (target != null) _askReach(target);
+    final reach = target == null ? null : _reach[target.address];
+    final reachLines = reach == null ? null : sendReachLines(l, target!, reach);
+    final epicboxState = ref.watch(walletStatusProvider.select((s) => s.epicbox));
+    final epicboxDown = hold == null &&
+        read.kind == RecipientInputKind.epicbox &&
+        (epicboxState == null || epicboxState == EpicboxState.offline);
+    // Level 1 does not name Epicbox: no method line for it, unless Change is needed.
+    final several = contact != null && contact.addresses.length > 1;
+    final routeShown = read.isAddress && (epicboxNamed || read.kind != RecipientInputKind.epicbox || several);
+    final cleaned = _cleanedFrom == null || !read.isAddress || _recipient.text != read.address
+        ? null
+        // The notes are the given text's: what the clean-up changed in it.
+        : sendCleanedLine(l, _readOf(_cleanedFrom!), before: _cleanedFrom!);
+    final preview = contact == null && cleaned == null && read.isAddress && read.address != text;
+    final saveable = valid && contact == null && _contactName(read.address) == null;
+    const indent = EdgeInsetsDirectional.only(start: 42);
     return [
       _header(context, stepTitle, step: 1),
-      ..._methodHead(context, _method),
-      ..._waitForMethod([
-      PhoneTourTarget(
-        id: 'tour-send-recipient',
-        child: TextField(
-        key: sendRecipientFieldKey,
-        controller: _recipient,
-        focusNode: _recipientFocus,
-        autocorrect: false,
-        enableSuggestions: false,
-        // Grows to show the whole address, so its start can be checked.
-        minLines: 1,
-        maxLines: null,
-        keyboardType: TextInputType.url,
-        textInputAction: TextInputAction.next,
-        onEditingComplete: _toAmount,
-        style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily),
-        onChanged: (text) {
-          if (text.length - _lastTo.length >= 8 && looksLikeCode(text)) {
-            final before = _lastTo;
-            _lastTo = text;
-            _openText(text.trim(), CodeOrigin.paste, typedOver: before);
-            return;
-          }
-          setState(() {
-            _followAddress(text);
-            _recipientError = null;
-            _error = null;
-            _leaveRequest();
-          });
-        },
-        decoration: InputDecoration(
-          label: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(l.sendToLabel),
-              if (_switchedTo != null) ...[
-                const SizedBox(width: 8),
-                Flexible(
-                  child: _SwitchTag(method: _switchedTo, shown: _tagOn),
-                ),
-              ],
-              if (_TorTag.shows(way, _torState)) ...[
-                const SizedBox(width: 8),
-                Flexible(child: _TorTag(way: way)),
-              ],
-            ],
+      if (contact != null)
+        _contactChip(context, contact)
+      else
+        PhoneTourTarget(
+          id: 'tour-send-recipient',
+          child: TextField(
+            key: sendRecipientFieldKey,
+            controller: _recipient,
+            focusNode: _recipientFocus,
+            autocorrect: false,
+            enableSuggestions: false,
+            // Grows to show the whole address, so its start can be checked.
+            minLines: 1,
+            maxLines: null,
+            keyboardType: TextInputType.url,
+            textInputAction: TextInputAction.next,
+            onEditingComplete: _toAmount,
+            style: theme.textTheme.bodyMedium?.copyWith(fontFamily: t.monoFamily),
+            onChanged: _recipientChanged,
+            decoration: InputDecoration(
+              labelText: l.sendToLabel,
+              hintText: l.sendToHint,
+              // The hint is words; what is typed is an address, in the mono face.
+              hintStyle: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+              floatingLabelBehavior: FloatingLabelBehavior.always,
+              suffixIcon: _recipient.text.isEmpty
+                  ? null
+                  : IconButton(
+                      key: sendRecipientClearKey,
+                      tooltip: l.sendClearRecipient,
+                      icon: const Icon(Icons.close),
+                      onPressed: _clearRecipient,
+                    ),
+              error: _recipientError == null ? null : LiveFieldError(_recipientError!),
+            ),
           ),
-          hintText: l.sendToHint,
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          suffixIcon: _recipient.text.isEmpty
-              ? null
-              : IconButton(
-                  key: sendRecipientClearKey,
-                  tooltip: l.sendClearRecipient,
-                  icon: const Icon(Icons.close),
-                  onPressed: _clearRecipient,
-                ),
-          error: _recipientError == null
-              ? null
-              : LiveFieldError(_recipientError!),
         ),
-      ),
-      ),
-      if (_tagOn && _switchedTo != null)
-        _SwitchAnnouncement(method: _switchedTo!),
-      _TorNotice(way: way, onion: parseRecipient(_recipient.text).kind == RecipientKind.tor),
-      // A saved contact: Send via its other addresses; paired, its trust and the seal.
-      if (valid)
-        SendPairingLine(
-          address: to.address,
-          epicbox: _method == TransferMethod.epicbox,
-          viaMailbox: _viaMailbox,
-          onViaMailbox: (on) => setState(() => _viaMailbox = on),
-          onAddress: (address) => setState(() {
-            _recipient.text = address;
-            _followAddress(address);
-            _recipientError = null;
-          }),
-        ),
-      if (text.isEmpty && shape != null && !quiet)
-        Row(
-          children: [
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                shape,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  fontFamily: t.monoFamily,
-                  fontSize: 12,
-                  color: t.dim,
-                ),
+      // A transaction text: open it where it belongs, no error.
+      if (read.kind == RecipientInputKind.slate) ...[
+        const SizedBox(height: 8),
+        InlineNotice(
+          level: NoticeLevel.info,
+          icon: Icons.notes,
+          text: l.sendIsSlateText,
+          below: Padding(
+            padding: const EdgeInsets.only(top: 8, bottom: 4),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: OutlinedButton(
+                onPressed: () => _openText(_recipient.text, CodeOrigin.paste, typedOver: '', open: true),
+                child: Text(l.sendOpenSlateText),
               ),
             ),
-            IconButton(
-              tooltip: l.methodAddressKindsTooltip,
-              icon: Icon(Icons.help_outline, size: 20, color: t.dim),
-              onPressed: () => openHelp(context, HelpId.addresses),
+          ),
+        ),
+      ],
+      if (routeShown) _routeLine(context, read, contact: contact, hold: hold),
+      if (cleaned != null)
+        Padding(
+          padding: indent,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Semantics(
+                    liveRegion: true,
+                    child: Text(cleaned, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                  ),
+                ),
+              ),
+              InlineTextButton(
+                onPressed: _undoClean,
+                child: Semantics(
+                  label: l.sendCleanUndoSem,
+                  excludeSemantics: true,
+                  child: Text(l.sendCleanUndo),
+                ),
+              ),
+            ],
+          ),
+        )
+      else if (preview)
+        Padding(
+          padding: indent.add(const EdgeInsets.only(top: 4)),
+          child: Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(text: '${l.sendSendsTo} '),
+                TextSpan(text: read.address, style: TextStyle(fontFamily: t.monoFamily)),
+              ],
+            ),
+            style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+          ),
+        ),
+      if (saveable)
+        Padding(
+          padding: indent,
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: InlineTextButton(
+              icon: const Icon(Icons.person_add_alt, size: 18),
+              onPressed: () => _saveContact(read.address),
+              child: Text(l.sendSaveContact),
+            ),
+          ),
+        ),
+      if (hold != null) ...[
+        const SizedBox(height: 8),
+        _holdNotice(context, hold),
+        if (hold.offersDirect) ?_directWays(context, lead: l.sendWithoutConnection),
+      ] else if (reachLines != null) ...[
+        const SizedBox(height: 8),
+        _reachNotice(context, target!, reach!, reachLines),
+      ] else if (target != null && _reachSlow.contains(target.address))
+        Padding(
+          padding: indent.add(const EdgeInsets.only(top: 6)),
+          child: Semantics(
+            liveRegion: true,
+            child: Row(
+              children: [
+                if (!MediaQuery.disableAnimationsOf(context))
+                  const Padding(
+                    padding: EdgeInsetsDirectional.only(end: 8),
+                    child: SizedBox.square(dimension: 12, child: CircularProgressIndicator(strokeWidth: 1.5)),
+                  ),
+                Text(l.sendReachChecking, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+              ],
+            ),
+          ),
+        ),
+      // Epicbox chosen while its listener is down: say so and offer Retry (UP-038).
+      if (epicboxDown) ...[
+        const SizedBox(height: 8),
+        InlineNotice(
+          key: sendEpicboxDownKey,
+          level: NoticeLevel.warning,
+          icon: Icons.cloud_off,
+          text: l.statusEpicboxOffline,
+          actions: [
+            TextButton.icon(
+              icon: const Icon(Icons.refresh),
+              label: Text(l.commonRetry),
+              onPressed: () => ref.read(listenerProvider.notifier).restart(),
             ),
           ],
         ),
-      _recipientButtons(scan),
-      if (quiet) ?_quietLink(context, _method),
-      if (valid) ...[
-        const SizedBox(height: 8),
-        RecipientCard(
-          address: to.address,
-          name: _contactName(to.address),
-          onSave: _contactName(to.address) == null
-              ? () => _saveContact(to.address)
-              : null,
-        ),
-        ..._payeeClaims(gapBefore: 8),
       ],
+      _TorNotice(way: _wayOf(_toRoute)),
+      ..._payeeClaims(gapBefore: 8),
+      // A saved contact, paired: its trust and the seal, and the mailbox switch.
+      if (valid)
+        SendPairingLine(
+          address: read.address,
+          epicbox: _method == TransferMethod.epicbox,
+          viaMailbox: _viaMailbox,
+          onViaMailbox: (on) => setState(() => _viaMailbox = on),
+          showVia: false,
+          onAddress: _pickAddress,
+        ),
+      const SizedBox(height: 4),
+      _recipientButtons(scan),
       if (matches.isNotEmpty) ...[
         const SizedBox(height: 8),
         Text(
@@ -2838,36 +2814,393 @@ class _SendViewState extends ConsumerState<SendView> {
           style: theme.textTheme.labelLarge?.copyWith(color: t.dim),
         ),
         const SizedBox(height: 4),
-        for (final contact in matches)
+        for (final c in matches)
           _RecentRow(
-            address: contactSendAddress(contact, _payments.offers),
-            name: contact.name,
+            address: _contactRowAddress(c),
+            name: c.name,
             relay: hosts,
             // A contact with no address: through its pairing, never an empty address.
-            subtitle: _pairingOnly(contact, watch: true) == null ? null : l.sendRecipientPairing(contact.name),
-            onTap: () => _useContact(contact),
+            subtitle: _pairingOnly(c, watch: true) == null ? null : l.sendRecipientPairing(c.name),
+            onTap: () => _useContact(c),
           ),
       ],
-      if (text.isEmpty && recent.isNotEmpty) ...[
-        const SizedBox(height: 16),
-        Text(
-          l.sendRecent,
-          style: theme.textTheme.labelLarge?.copyWith(color: t.dim),
-        ),
-        const SizedBox(height: 4),
-        for (final address in recent)
-          _RecentRow(
-            address: address,
-            name: _contactName(address),
-            relay: hosts,
-            onTap: () {
-              _setRecipient(address);
-              _toAmount();
-            },
+      if (text.isEmpty) ...[
+        ?_directWays(context, lead: l.sendNoAddress),
+        if (recent.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Text(
+            l.sendRecent,
+            style: theme.textTheme.labelLarge?.copyWith(color: t.dim),
           ),
+          const SizedBox(height: 4),
+          for (final address in recent)
+            _RecentRow(
+              address: address,
+              name: _contactName(address),
+              relay: hosts,
+              onTap: () {
+                final saved = contactFor(ref.read(contactsProvider).value ?? const <Contact>[], address);
+                if (saved != null) {
+                  _useContact(saved, address: address);
+                } else {
+                  _setRecipient(address);
+                }
+                _toAmount();
+              },
+            ),
+        ],
       ],
-      ]),
     ];
+  }
+
+  /// The address a contact row shows: the one Send would use.
+  String _contactRowAddress(Contact c) {
+    final i = _bestIndex(c);
+    return i < 0 ? c.address : c.addresses[i];
+  }
+
+  /// A keystroke, or a paste into the field: a jump of 8 or more characters is read at once,
+  /// as the Paste button does; typing only clears what the last reading said.
+  void _recipientChanged(String text) {
+    final jump = text.length - _lastTo.length >= 8;
+    if (jump && looksLikeCode(text)) {
+      final before = _lastTo;
+      _lastTo = text;
+      _openText(text.trim(), CodeOrigin.paste, typedOver: before);
+      return;
+    }
+    if (jump && _readOf(text).isAddress) {
+      _setRecipient(text, given: text);
+      return;
+    }
+    setState(() {
+      _lastTo = text;
+      _touched = false;
+      _cleanedFrom = null;
+      _recipientError = null;
+      _error = null;
+      _leaveRequest();
+    });
+  }
+
+  /// To with a contact picked: their avatar and name, × to clear.
+  Widget _contactChip(BuildContext context, Contact contact) {
+    final l = context.l10n;
+    return Semantics(
+      container: true,
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: l.sendToLabel,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          contentPadding: const EdgeInsetsDirectional.fromSTEB(8, 6, 4, 6),
+        ),
+        child: Row(
+          children: [
+            _Initial(name: contact.name, size: 32),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                contact.name,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(color: context.tokens.text),
+              ),
+            ),
+            IconButton(
+              key: sendRecipientClearKey,
+              tooltip: l.sendClearRecipient,
+              icon: const Icon(Icons.close),
+              onPressed: _clearRecipient,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// The method line under To: the method's icon and name, where it goes (this phone, your
+  /// network, over Tor), and the host exactly as it will be contacted. A contact with more
+  /// than one address gets Change, a menu of them.
+  Widget _routeLine(BuildContext context, RecipientInput to, {Contact? contact, SendHold? hold}) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    final mode = AdvancedOptions.of(context).networkMode;
+    final torOn = ref.watch(phoneTorProvider.select((s) => s.receiving));
+    final overTor = sendOverTor(to, mode: mode, torOn: torOn);
+    final tag = sendRouteTag(l, to, phone: true, overTor: overTor);
+    final name = sendMethodName(l, to);
+    final kind = sendMethodKind(to)!;
+    final torStarts = torBuilt && to.kind == RecipientInputKind.onion && !torOn && mode != NetworkMode.torOnly && hold == null;
+    final dim = TextStyle(color: t.dim);
+    final strong = TextStyle(color: t.text, fontWeight: FontWeight.w600);
+    final where = switch (to.kind) {
+      RecipientInputKind.https || RecipientInputKind.http => TextSpan(
+        children: [
+          TextSpan(text: '${to.kind == RecipientInputKind.https ? 'https' : 'http'}://', style: dim),
+          TextSpan(text: to.hostShown, style: strong),
+          TextSpan(text: ':${to.port}${to.path}', style: dim),
+        ],
+      ),
+      // An onion's ends marked, as every address of its kind.
+      RecipientInputKind.onion => addressSpan(
+        to.host,
+        style: TextStyle(color: t.text),
+        mark: TextStyle(color: t.accentText, fontWeight: FontWeight.w600),
+        quiet: dim,
+      ),
+      _ => TextSpan(text: to.host, style: strong),
+    };
+    final several = contact != null && contact.addresses.length > 1;
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Semantics(
+              container: true,
+              label: metaLine([
+                l.sendRouteSemantics(name, sendContactedText(to)),
+                ?tag,
+                if (torStarts) l.sendRouteTorStarts,
+              ]),
+              excludeSemantics: true,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: t.surface,
+                      border: Border.all(color: t.line),
+                      borderRadius: BorderRadius.circular(t.radiusSmall),
+                    ),
+                    child: Icon(MethodIcons.of(kind), size: 18, color: t.accentText),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 2,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(name, style: theme.textTheme.titleSmall?.copyWith(color: t.text, fontWeight: FontWeight.w600)),
+                            if (tag != null)
+                              overTor ? EBadge.tor(tag, way: TorWay.overTor) : EBadge(tag),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Text.rich(
+                          where,
+                          style: theme.textTheme.bodySmall?.copyWith(fontFamily: t.monoFamily, height: 1.35),
+                        ),
+                        if (torStarts)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(l.sendRouteTorStarts, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (several) _changeMenu(context, contact, to),
+        ],
+      ),
+    );
+  }
+
+  /// Change on the method line: "`name`’s addresses", each with its method and a short form,
+  /// the one in use checked, those the mode holds greyed with the reason.
+  Widget _changeMenu(BuildContext context, Contact contact, RecipientInput current) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    final first = contact.name.trim().split(RegExp(r'\s+')).first;
+    return MenuAnchor(
+      style: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll(t.surface),
+        side: WidgetStatePropertyAll(BorderSide(color: t.line)),
+        shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(t.radiusSmall))),
+      ),
+      menuChildren: [
+        Semantics(
+          header: true,
+          child: Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(16, 10, 16, 4),
+            child: Text(l.sendRouteAddressesOf(first), style: theme.textTheme.labelMedium?.copyWith(color: t.dim)),
+          ),
+        ),
+        for (final address in contact.addresses)
+          if (_readOf(address) case final to when to.isAddress) _addressItem(context, to, current: to.address == current.address),
+      ],
+      builder: (context, controller, _) => Semantics(
+        expanded: controller.isOpen,
+        child: TextButton(
+          onPressed: () => controller.isOpen ? controller.close() : controller.open(),
+          child: Text(l.sendRouteChange, semanticsLabel: l.sendRouteChangeSem(contact.addresses.length - 1)),
+        ),
+      ),
+    );
+  }
+
+  Widget _addressItem(BuildContext context, RecipientInput to, {required bool current}) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    final hold = _holdOf(to);
+    final kind = sendMethodKind(to)!;
+    final off = hold == null && !_watchedPayments.offers(kind);
+    final reason = hold != null ? sendHoldReason(l, hold) : (off ? methodOffReason(l, kind) : null);
+    final name = sendMethodName(l, to);
+    final short = to.isUrl ? to.address : shortAddress(to.address);
+    return Semantics(
+      checked: current,
+      inMutuallyExclusiveGroup: true,
+      child: MenuItemButton(
+        leadingIcon: Icon(MethodIcons.of(kind), size: 18),
+        trailingIcon: current ? Icon(Icons.check, size: 18, color: t.ok) : null,
+        onPressed: reason != null ? null : () => _pickAddress(to.address),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 240),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(name, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  short,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(fontFamily: t.monoFamily, color: t.dim),
+                ),
+                if (reason != null)
+                  Text(reason, style: theme.textTheme.bodySmall?.copyWith(color: t.dim, fontStyle: FontStyle.italic)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// A hold's notice: what holds it, the one action that lifts it, and that the action is
+  /// the app's, not this payment's.
+  Widget _holdNotice(BuildContext context, SendHold hold) {
+    final l = context.l10n;
+    final t = context.tokens;
+    return InlineNotice(
+      level: NoticeLevel.info,
+      icon: Icons.block,
+      liveRegion: true,
+      text: sendHoldText(l, hold),
+      below: Padding(
+        padding: const EdgeInsets.only(top: 8, bottom: 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            OutlinedButton(
+              key: hold.fix == SendHoldFix.torOff ? sendTurnOffTorKey : null,
+              onPressed: () => _fixHold(hold),
+              child: Text(sendHoldAction(l, hold)),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              l.torTurnOffCaption,
+              key: hold.fix == SendHoldFix.torOff ? sendTurnOffTorCaptionKey : null,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// No wallet answers at a Link address, or something else does: a warning, Continue stays.
+  Widget _reachNotice(BuildContext context, RecipientInput to, ReachResult reach, (String, String) lines) {
+    final l = context.l10n;
+    final t = context.tokens;
+    return InlineNotice(
+      level: NoticeLevel.warning,
+      liveRegion: true,
+      text: lines.$1,
+      below: Padding(
+        padding: const EdgeInsets.only(top: 2, bottom: 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(lines.$2, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim)),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                if (reach == ReachResult.noAnswer)
+                  OutlinedButton(onPressed: () => _retryReach(to), child: Text(l.sendReachTryAgain)),
+                if (_fileOffered)
+                  TextButton.icon(
+                    style: TextButton.styleFrom(foregroundColor: t.dim),
+                    icon: const Icon(MethodIcons.file, size: 18),
+                    label: Text(l.sendPayByFile),
+                    onPressed: _toFileRoute,
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Pay in person and Pay with a file, after [lead]; null when neither is offered.
+  Widget? _directWays(BuildContext context, {required String lead}) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final qr = _qrOffered;
+    final file = _fileOffered;
+    if (!qr && !file) return null;
+    final quiet = TextButton.styleFrom(foregroundColor: t.dim, minimumSize: const Size(48, 44));
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsetsDirectional.only(start: 4),
+            child: Text(lead, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim)),
+          ),
+          Wrap(
+            spacing: 4,
+            children: [
+              if (qr)
+                TextButton.icon(
+                  style: quiet,
+                  icon: const Icon(MethodIcons.qr, size: 20),
+                  label: Text(l.sendPayInPerson),
+                  onPressed: _busy || _estimating ? null : () => _toFileRoute(qr: true),
+                ),
+              if (file)
+                TextButton.icon(
+                  style: quiet,
+                  icon: const Icon(MethodIcons.file, size: 20),
+                  label: Text(l.sendPayByFile),
+                  onPressed: _busy || _estimating ? null : _toFileRoute,
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   /// Paste, Scan (where the phone scans) and Contacts under the recipient.
@@ -2900,18 +3233,11 @@ class _SendViewState extends ConsumerState<SendView> {
   /// messages; keys that changed meanwhile hold Continue until the words are checked.
   bool get _hasRecipient => _pairingTo != null
       ? _toPairing()?.paysByMailbox ?? false
-      : _recipient.text.trim().isNotEmpty;
-
-  /// Plain `http://` to another device with the Tor switch on: the notice under To says so,
-  /// and Continue waits until Tor is off or the address changes.
-  bool get _plainHttpOff =>
-      _pairingTo == null &&
-      _toRoute == TorRoute.plainHttpDirect &&
-      _wayOf(TorRoute.plainHttpDirect) == TorWay.off;
+      : _read.isAddress;
 
   Widget _recipientAction() => BusyButton(
     label: context.l10n.commonContinue,
-    onPressed: !_hasRecipient || _block != NetBlock.none || _plainHttpOff
+    onPressed: !_hasRecipient || _block != NetBlock.none || _hold != null
         ? null
         : _toAmount,
   );
@@ -3141,11 +3467,10 @@ class _SendViewState extends ConsumerState<SendView> {
       return;
     }
     // A connection that waits for Tor, or needs it, goes no further than here.
-    final way = _wayOf(
-      sendRoute(parseRecipient(_recipient.text)),
-      phoneTorState(ref.read(phoneTorProvider)),
-    );
-    if (!torGoes(way) || _block != NetBlock.none) return;
+    final way = _wayOf(_toRoute, phoneTorState(ref.read(phoneTorProvider)));
+    final read = _read;
+    final held = _pairingTo == null && read.isAddress && _heldNow(read, watch: false);
+    if (!_goes(way) || _block != NetBlock.none || held) return;
     _toReview();
   }
 
@@ -3169,10 +3494,7 @@ class _SendViewState extends ConsumerState<SendView> {
           name: _pairingTo == null ? _contactName(address) : _pairingNameOf(_pairingTo!),
         ),
       ),
-      _TorNotice(
-        way: _wayOf(sendRoute(parseRecipient(_recipient.text))),
-        onion: parseRecipient(_recipient.text).kind == RecipientKind.tor,
-      ),
+      _TorNotice(way: _wayOf(_toRoute)),
       ..._payeeClaims(gapBefore: 12),
       const SizedBox(height: 20),
       ..._amountFields(context, file: false),
@@ -3181,14 +3503,14 @@ class _SendViewState extends ConsumerState<SendView> {
 
   /// Continue to the review; it waits while the payment's connection waits for Tor.
   Widget _amountAction() {
-    final way = _wayOf(sendRoute(parseRecipient(_recipient.text)));
+    final way = _wayOf(_toRoute);
     return BusyButton(
       label: way == TorWay.wait
           ? context.l10n.torWaiting
           : context.l10n.commonContinue,
       busy: _estimating,
       onPressed:
-          _amountReady && !_busy && torGoes(way) && _block == NetBlock.none
+          _amountReady && !_busy && _goes(way) && _block == NetBlock.none && _hold == null
           ? _toReview
           : null,
     );
@@ -3214,7 +3536,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final overHttp = to.kind == RecipientKind.http;
     final tor = overTor ? ref.watch(phoneTorProvider) : null;
     final torState = _torState;
-    final way = _wayOf(sendRoute(to), torState);
+    final way = _wayOf(_toRoute, torState);
     final String? failed;
     if (!_sendFailed) {
       failed = null;
@@ -3272,7 +3594,8 @@ class _SendViewState extends ConsumerState<SendView> {
         RecipientCard(
           address: to.address,
           name: _contactName(to.address),
-          host: _activeOrigin != null && to.kind != RecipientKind.epicbox
+          // An http(s) address has its Host row below.
+          host: _activeOrigin != null && to.kind == RecipientKind.tor
               ? directHostBesideOf(to.address)
               : null,
         ),
@@ -3285,20 +3608,9 @@ class _SendViewState extends ConsumerState<SendView> {
         style: theme.textTheme.headlineMedium?.copyWith(color: t.text),
       ),
       const SizedBox(height: 12),
-      // Level 1 does not name Epicbox: it is just how sending works, so no Method row.
-      if (ref.watch(levelFeaturesProvider.select((f) => f.epicboxNamed)) || to.kind != RecipientKind.epicbox)
-      _Row(
-        label: l.sendMethodLabel,
-        value: switch (to.kind) {
-          RecipientKind.epicbox || RecipientKind.http when way == TorWay.overTor =>
-            metaLine([recipientMethodWord(l, to.kind), l.sendOverTor]),
-          RecipientKind.http
-              when way == TorWay.clearnet && torState != TorState.off =>
-            metaLine([recipientMethodWord(l, to.kind), l.torNotOverTor]),
-          _ => recipientMethodWord(l, to.kind),
-        },
-        mono: false,
-      ),
+      // How it goes: the method, the host as contacted, a plain http connection, Tor to start.
+      // Level 1 does not name Epicbox: it is just how sending works, so no Via row.
+      ..._reviewFacts(context, way: way, torState: torState),
       // What the recipient will read, as entered; the history keeps it as the private note.
       if (_noteText.isNotEmpty)
         Padding(
@@ -3395,20 +3707,46 @@ class _SendViewState extends ConsumerState<SendView> {
     ];
   }
 
+  /// The review's facts of the way: Via (with what it asks of their wallet), Host for http(s),
+  /// Connection for plain http to another device (a fact, no warning), Tor when it starts on
+  /// the tap.
+  List<Widget> _reviewFacts(BuildContext context, {required TorWay way, required TorState torState}) {
+    final l = context.l10n;
+    final read = _pairingTo != null ? null : _read;
+    final epicbox = read == null || read.kind == RecipientInputKind.epicbox;
+    final mode = AdvancedOptions.of(context).networkMode;
+    final name = read == null ? l.methodEpicbox : sendMethodName(l, read);
+    return [
+      if (ref.watch(levelFeaturesProvider.select((f) => f.epicboxNamed)) || !epicbox)
+        _Row(
+          label: l.sendFactVia,
+          value: way == TorWay.overTor && read?.kind != RecipientInputKind.onion ? metaLine([name, l.sendRouteOverTor]) : name,
+          sub: epicbox ? l.sendFactOffline : l.sendFactOnline,
+          mono: false,
+        ),
+      if (read != null && read.isUrl) _Row(label: l.sendFactHost, value: read.contacted),
+      if (read != null && read.plainHttpToOther)
+        _Row(label: l.sendFactConnection, value: l.sendFactNotEncrypted, mono: false),
+      if (torBuilt && read?.kind == RecipientInputKind.onion && torState == TorState.off && mode != NetworkMode.torOnly)
+        _Row(label: l.sendFactTor, value: l.sendFactTorStarts, mono: false),
+    ];
+  }
+
   Widget _reviewAction(BuildContext context) {
     final l = context.l10n;
     final checks = ref.watch(sendPreflightProvider(_relay));
     final relayDown = checks.relayOutcome == CheckOutcome.failed;
     // Without a node answer the send could not be built or posted, and a connection that
-    // waits for Tor or needs it does not go.
-    final way = _wayOf(sendRoute(parseRecipient(_recipient.text)));
+    // waits for Tor does not go; an onion with Tor off starts it on the tap.
+    final way = _wayOf(_toRoute);
     // A pairing whose keys changed meanwhile holds the send until the words are checked.
     final pairs = _pairingTo == null || (_toPairing()?.paysByMailbox ?? false);
     final canSend =
         checks.ready &&
         !_busy &&
-        torGoes(way) &&
+        _goes(way) &&
         _block == NetBlock.none &&
+        _hold == null &&
         pairs &&
         _gate.ready;
     // The Send button names the exact amount, as the review above it (a commit surface).
@@ -3712,7 +4050,15 @@ class _SendViewState extends ConsumerState<SendView> {
                 ),
               ),
       ),
-      ..._methodHead(context, _viaQr ? TransferMethod.qr : TransferMethod.file),
+      // The strip that says what the way means; no method selector: the back arrow goes to
+      // the recipient, whose field picks the method.
+      if (ref.watch(levelFeaturesProvider.select((f) => f.methodStrip))) ...[
+        DismissibleTip(
+          id: sendMethodTipId,
+          child: MethodStrip(method: _viaQr ? TransferMethod.qr : TransferMethod.file),
+        ),
+        const SizedBox(height: 16),
+      ],
       ..._sealChoice(context),
       ..._amountFields(context, file: true),
       const SizedBox(height: 12),
@@ -4152,125 +4498,23 @@ class AddressEnds extends StatelessWidget {
   );
 }
 
-/// "Direct address" / "Via Epicbox" beside the To label for 3 s after the address moved the
-/// method: fades in over 120 ms and out over 200 ms (at once with reduced motion), and is read
-/// out once as "Direct address. Method set to Direct."
-/// How long the switch tag takes to fade out before it leaves the To label.
-const Duration _switchTagFade = Duration(milliseconds: 200);
-
-class _SwitchTag extends StatelessWidget {
-  const _SwitchTag({required this.method, required this.shown});
-
-  final TransferMethod? method;
-  final bool shown;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final method = this.method;
-    final still = MediaQuery.disableAnimationsOf(context);
-    if (method == null) return const SizedBox.shrink();
-    final (icon, text) = switch (method) {
-      TransferMethod.direct => (MethodIcons.family(MethodFamily.link), l.sendSwitchedDirect),
-      _ => (MethodIcons.of(MethodKind.epicbox), l.sendSwitchedEpicbox),
-    };
-    // The text field merges its label: [_SwitchAnnouncement] says it out loud.
-    return ExcludeSemantics(
-      child: AnimatedOpacity(
-        key: sendSwitchedTagKey,
-        opacity: shown ? 1 : 0,
-        duration: still
-            ? Duration.zero
-            : shown
-            ? const Duration(milliseconds: 120)
-            : _switchTagFade,
-        child: EBadge(text, icon: icon, tone: BadgeTone.gold),
-      ),
-    );
-  }
-}
-
-/// "Direct address. Method set to Direct." read out once when the address moved the method:
-/// its own live region under the To field, outside the field's merged label.
-class _SwitchAnnouncement extends StatelessWidget {
-  const _SwitchAnnouncement({required this.method});
-
-  final TransferMethod method;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    return Semantics(
-      container: true,
-      liveRegion: true,
-      label: switch (method) {
-        TransferMethod.direct => l.sendSwitchedDirectAnnounce,
-        _ => l.sendSwitchedEpicboxAnnounce,
-      },
-      child: const SizedBox(width: double.infinity, height: 1),
-    );
-  }
-}
-
-/// Beside the To label, from the Tor switch: "Over Tor" while the payment's connection goes
-/// through Tor, "Not over Tor" for one that stays on the clearnet while Tor is on, "Waiting
-/// for Tor" while Tor starts. Nothing with Tor off; [_TorNotice] covers needing and failing.
-class _TorTag extends StatelessWidget {
-  const _TorTag({required this.way});
-
-  final TorWay way;
-
-  /// Whether a tag shows for [way] with the switch at [state].
-  static bool shows(TorWay way, TorState state) => switch (way) {
-    TorWay.overTor || TorWay.wait => true,
-    TorWay.clearnet => state != TorState.off,
-    TorWay.needsTor || TorWay.blocked || TorWay.off => false,
-  };
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    final text = switch (way) {
-      TorWay.overTor => l.sendOverTor,
-      TorWay.wait => l.torWaiting,
-      _ => l.torNotOverTor,
-    };
-    // Read with the field's label: "To, Over Tor".
-    return KeyedSubtree(key: sendTorTagKey, child: EBadge.tor(text, way: way));
-  }
-}
-
-/// Under To while the payment's connection cannot go: an onion address with Tor off ("Needs
-/// Tor." with Turn on Tor, which keeps the form), or Tor on but not connected ("Tor is not
-/// connected." with Retry and Turn Tor off). Nothing falls back to the clearnet.
+/// Under To while Tor is on but not connected, for a payment that goes over it: "Tor is not
+/// connected." with Retry. Nothing falls back to the clearnet. An onion with Tor off needs no
+/// notice (Tor starts on the tap), and plain http with Tor on is a hold of its own.
 class _TorNotice extends ConsumerWidget {
-  const _TorNotice({required this.way, this.onion = false});
+  const _TorNotice({required this.way});
 
   final TorWay way;
-
-  /// To holds an onion: a Link · Tor payment, whose own switch comes before Tor.
-  final bool onion;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final t = context.tokens;
-    // Without Tor in the app the address's own error says so. A build with Tor whose tor
-    // files are missing shows Tor as blocked: nothing goes around it.
-    final available = torBuilt;
-    // Plain http:// is off while Tor is on: the why (a Tor exit could take the payment)
-    // sits behind the info icon.
-    final plainOff = way == TorWay.off && !onion;
-    if (!available || (way != TorWay.needsTor && way != TorWay.blocked && !plainOff)) {
-      return const SizedBox.shrink();
-    }
+    // Without Tor in the app the address's own error says so.
+    if (!torBuilt || way != TorWay.blocked) return const SizedBox.shrink();
     // Offline: Tor never runs there; the form's Offline line gives the reason (LNX-12).
     if (watchNetBlock(context, ref).byMode) return const SizedBox.shrink();
-    // Link · Tor switched off: the form's off line comes first, Tor alone would not send it.
-    if (onion && watchNetBlock(context, ref, method: MethodKind.linkTor) == NetBlock.methodOff) return const SizedBox.shrink();
     final tor = ref.read(phoneTorProvider.notifier);
-    final blocked = way == TorWay.blocked;
-    final quiet = TextButton.styleFrom(minimumSize: const Size(48, 44));
     return Semantics(
       key: sendTorNoticeKey,
       container: true,
@@ -4286,65 +4530,20 @@ class _TorNotice extends ConsumerWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    blocked || plainOff ? Icons.error_outline : torIcon,
-                    size: 18,
-                    color: blocked || plainOff ? t.risk : t.dim,
-                  ),
+                  Icon(Icons.error_outline, size: 18, color: t.risk),
                   const SizedBox(width: 6),
                   Flexible(
-                    child: Text(
-                      plainOff
-                          ? l.sendPlainHttpOffWithTor
-                          : blocked
-                          ? l.torNotConnectedNotice
-                          : l.torNeeds,
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
+                    child: Text(l.torNotConnectedNotice, style: Theme.of(context).textTheme.bodyMedium),
                   ),
-                  // The why, behind the info icon (the owner: no explanation on the screen).
-                  if (plainOff)
-                    InfoHint(
-                      l.sendPlainHttpOffWithTorWhy,
-                      key: sendPlainHttpOffInfoKey,
-                      title: l.sendPlainHttpOffWithTor,
-                      icon: Icons.error_outline,
-                    ),
                 ],
               ),
             ),
             // Retry only (D-05): turning Tor off is never the fix an error offers.
-            if (blocked)
-              TextButton(
-                style: quiet,
-                onPressed: tor.retry,
-                child: Text(l.commonRetry),
-              )
-            else if (plainOff) ...[
-              TextButton(
-                key: sendTurnOffTorKey,
-                style: quiet,
-                onPressed: () => tor.setReceiving(false),
-                child: Text(l.torTurnOff),
-              ),
-              // The switch is the app's, not this payment's: said where it is pressed, on a
-              // line of its own.
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsetsDirectional.only(start: 28, end: 4),
-                child: Text(
-                  l.torTurnOffCaption,
-                  key: sendTurnOffTorCaptionKey,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
-                ),
-              ),
-            ] else
-              TextButton(
-                key: sendTurnOnTorKey,
-                style: quiet,
-                onPressed: () => tor.setReceiving(true),
-                child: Text(l.torTurnOn),
-              ),
+            TextButton(
+              style: TextButton.styleFrom(minimumSize: const Size(48, 44)),
+              onPressed: tor.retry,
+              child: Text(l.commonRetry),
+            ),
           ],
         ),
       ),
@@ -4364,9 +4563,10 @@ class _TorPill extends StatelessWidget {
 /// The contact's avatar ([PairAvatar], as in Contacts and on the contact page), or a person
 /// in the same tile for a new recipient.
 class _Initial extends StatelessWidget {
-  const _Initial({this.name});
+  const _Initial({this.name, this.size = 40});
 
   final String? name;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
@@ -4375,8 +4575,8 @@ class _Initial extends StatelessWidget {
     final named = name != null && nameInitials(name).isNotEmpty;
     return ExcludeSemantics(
       child: named
-          ? PairAvatar(name: name, size: 40)
-          : GlyphTile(size: 40, child: Icon(Icons.person_outline, size: 20, color: context.tokens.dim)),
+          ? PairAvatar(name: name, size: size)
+          : GlyphTile(size: size, child: Icon(Icons.person_outline, size: size / 2, color: context.tokens.dim)),
     );
   }
 }
@@ -4587,12 +4787,7 @@ class _ReadyLine extends ConsumerWidget {
         t.text,
         retryTor,
       ),
-      _ when way == TorWay.needsTor => (
-        Icon(torIcon, size: 18, color: t.dim),
-        l.torNeeds,
-        t.text,
-        null,
-      ),
+      // An onion with Tor off: Tor starts on the tap (the Tor row says so).
       _ when tor != null => (
         Icon(Icons.check, size: 18, color: t.ok),
         l.sendTorReady,

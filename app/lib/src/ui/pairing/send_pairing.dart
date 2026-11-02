@@ -56,7 +56,12 @@ class SendPairingLine extends ConsumerWidget {
     required this.viaMailbox,
     required this.onViaMailbox,
     required this.onAddress,
+    this.showVia = true,
   });
+
+  /// "Send via" with the contact's other addresses; off where Send's own Change menu picks
+  /// them.
+  final bool showVia;
 
   /// The recipient as typed or picked.
   final String address;
@@ -88,7 +93,7 @@ class SendPairingLine extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (kinds.length > 1) ...[
+          if (showVia && kinds.length > 1) ...[
             Text(l.sendVia, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: t.dim)),
             const SizedBox(height: 4),
             SegmentedButton<RecipientKind>(
