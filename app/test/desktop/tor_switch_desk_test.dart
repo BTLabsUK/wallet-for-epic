@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-// The one Tor switch on the desktop (Settings › Privacy): its state everywhere it shows, the
+// The one Tor control on the desktop (Settings › Network & privacy › Tor only): its state everywhere it shows, the
 // clearnet HTTP listener off while it is on, and Epicbox waiting for it, never going around it.
+import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/desktop/app/rail.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
@@ -8,6 +9,7 @@ import 'package:epic_wallet/src/desktop/data/tor_view.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart' show SettingsJump;
 import 'package:epic_wallet/src/desktop/screens/settings/settings_privacy.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/receive_screen.dart';
+import 'package:epic_wallet/src/desktop/screens/transfer/send_advanced.dart' show ERadioRow;
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
@@ -78,7 +80,7 @@ void main() {
       final failed = torRow(const DeskSettings(tor: true), _status(tor: ServiceHealth.down));
       expect(failed.word, 'Not connected');
       expect(failed.state, EState.risk);
-      expect(failed.jump, SettingsJump.tor);
+      expect(failed.jump, SettingsJump.network);
     }, skip: _skip);
 
     test('Epicbox waits for Tor while it starts, is not connected when it failed, and says over Tor once on', () {
@@ -100,7 +102,7 @@ void main() {
     });
   });
 
-  group('Settings › Privacy', () {
+  group('Settings › Network & privacy', () {
     late _Wallet wallet;
     late ProviderContainer container;
 
@@ -125,41 +127,32 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    Finder torSwitch() => find.byKey(const ValueKey('privacy-tor-switch'));
-    String torLine(WidgetTester tester) => tester.widget<EStateLine>(find.byKey(const ValueKey('privacy-tor-state'))).line.text;
+    Finder modeRow(NetworkMode m) => find.byKey(ValueKey('adv-mode-${m.name}'));
+    bool selected(WidgetTester tester, NetworkMode m) => tester.widget<ERadioRow>(modeRow(m)).selected;
 
-    testWidgets('off by default; the switch turns Tor on now and at every unlock', (tester) async {
+    testWidgets('no Tor switch; Tor only is the control for Tor on now and at every unlock', (tester) async {
       await show(tester, const SettingsPrivacyScreen());
-      expect(tester.widget<ESwitch>(torSwitch()).value, isFalse);
-      expect(torLine(tester), startsWith('Off'));
-      await tester.tap(torSwitch());
+      expect(find.byKey(const ValueKey('privacy-tor-switch')), findsNothing);
+      expect(selected(tester, NetworkMode.standard), isTrue);
+      expect(container.read(deskProvider).settings.tor, isFalse);
+      await tester.tap(modeRow(NetworkMode.torOnly));
       await tester.pumpAndSettle();
       final s = container.read(deskProvider).settings;
-      expect(s.tor, isTrue);
-      expect(s.torAutostart, isTrue, reason: 'one switch: remembered');
-      expect(torLine(tester), startsWith('Connected'));
-      await tester.tap(torSwitch());
+      expect(s.advanced.networkMode, NetworkMode.torOnly);
+      expect(s.torAutostart, isTrue, reason: 'remembered, so Tor starts at every unlock');
+      expect(selected(tester, NetworkMode.torOnly), isTrue);
+      await tester.tap(modeRow(NetworkMode.standard));
       await tester.pumpAndSettle();
-      expect(container.read(deskProvider).settings.torAutostart, isFalse);
+      // The real wallet turns Tor off with the mode (network_modes_desk_test).
+      expect(container.read(deskProvider).settings.advanced.networkMode, NetworkMode.standard);
     }, skip: _skip);
 
-    testWidgets('not connected: Retry and Turn Tor off', (tester) async {
-      wallet.torHealth = ServiceHealth.down;
-      await show(tester, const SettingsPrivacyScreen());
-      await tester.tap(torSwitch());
-      await tester.pumpAndSettle();
-      expect(torLine(tester), startsWith('Not connected'));
-      expect(find.text('Retry'), findsOneWidget);
-      await tester.tap(find.text('Turn Tor off'));
-      await tester.pumpAndSettle();
-      expect(container.read(deskProvider).settings.tor, isFalse);
-    }, skip: _skip);
-
-    testWidgets('without the bundle the switch is disabled and says so', (tester) async {
+    testWidgets('without the bundle the Tor only row is disabled and says so', (tester) async {
       wallet.included = false;
       await show(tester, const SettingsPrivacyScreen());
-      expect(tester.widget<ESwitch>(torSwitch()).onChanged, isNull);
-      expect(torLine(tester), 'Not in this build');
+      final row = tester.widget<ERadioRow>(modeRow(NetworkMode.torOnly));
+      expect(row.onSelected, isNull);
+      expect(row.tag, 'Not in this build');
     }, skip: _skip);
 
     testWidgets('the clearnet HTTP listener stops while Tor is on and comes back after', (tester) async {

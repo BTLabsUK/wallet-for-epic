@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-// Settings › Privacy & network: the one Tor switch, bound to the phone's Tor controller, with one line
-// saying what it covers ("Not connected" and Retry when Tor failed); not under Advanced,
-// and absent where the app has no Tor.
+// Settings › Network & privacy: Tor is a Connection mode (Tor only), not a switch; the Tor
+// only row is disabled where the app has no Tor.
 
 import 'dart:async';
 
@@ -9,6 +8,7 @@ import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
+import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
@@ -135,216 +135,64 @@ void main() {
     return;
   }
   group('network modes', () {
-    Switch torSwitch(WidgetTester tester) => tester.widget<Switch>(
-      find.descendant(
-        of: find.byKey(torReceivingSwitchKey),
-        matching: find.byType(Switch),
-      ),
-    );
+    ListTile row(WidgetTester tester, NetworkMode m) =>
+        tester.widget<ListTile>(find.byKey(networkModeRowKey(m)));
+    NetworkMode? selected(WidgetTester tester) =>
+        tester.widget<RadioGroup<NetworkMode>>(find.byType(RadioGroup<NetworkMode>)).groupValue;
 
-    testWidgets('Standard: the switch is the user\'s, with no mode line', (
-      tester,
-    ) async {
+    testWidgets('Standard: Tor only is one of the rows, off, and there is no Tor switch', (tester) async {
       final h = _Harness();
       await h.pump(tester, privacy: true);
-      await _reach(tester, find.byKey(torReceivingSwitchKey));
-      expect(torSwitch(tester).onChanged, isNotNull);
-      expect(torSwitch(tester).value, isFalse);
+      await _reach(tester, find.byKey(networkModeRowKey(NetworkMode.torOnly)));
+      expect(row(tester, NetworkMode.torOnly).enabled, isTrue);
+      expect(selected(tester), NetworkMode.standard);
+      expect(find.byKey(torReceivingSwitchKey), findsNothing);
+      expect(find.byKey(torLockedLineKey), findsNothing);
+      expect(find.byKey(settingsPrivacyKey), findsNothing);
+      expect(find.text('Tor for all connections'), findsNothing);
+      expect(h.container.read(phoneTorProvider).receiving, isFalse);
+    });
+
+    testWidgets('Tor only: its row is the one chosen', (tester) async {
+      final h = _Harness();
+      await h.pump(tester, privacy: true);
+      await h.container.read(appSettingsProvider.future);
+      await h.container.read(appSettingsProvider.notifier).setNetworkMode(NetworkMode.torOnly);
+      await tester.pumpAndSettle();
+      await _reach(tester, find.byKey(networkModeRowKey(NetworkMode.torOnly)));
+      expect(selected(tester), NetworkMode.torOnly);
+      expect(find.byKey(torReceivingSwitchKey), findsNothing);
       expect(find.byKey(torLockedLineKey), findsNothing);
     });
 
-    testWidgets('Tor only: the switch shows on, disabled and faded, its line names the mode on the same page', (
-      tester,
-    ) async {
-      final h = _Harness(
-        advanced: const AdvancedPrefs(networkMode: NetworkMode.torOnly),
-      );
+    testWidgets('Kill switch: its row is the one chosen, with no Tor switch', (tester) async {
+      final h = _Harness();
       await h.pump(tester, privacy: true);
-      await _reach(tester, find.byKey(torReceivingSwitchKey));
-      expect(torSwitch(tester).value, isTrue, reason: 'shown on although Tor is off');
-      expect(torSwitch(tester).onChanged, isNull, reason: 'locked');
-      // The bug: the theme painted a disabled switch as a live one. Disabled now fades.
-      for (final tokens in [protocolDark, protocolLight]) {
-        final theme = buildWalletTheme(tokens, tokens == protocolDark ? Brightness.dark : Brightness.light).switchTheme;
-        const live = {WidgetState.selected};
-        const off = {WidgetState.selected, WidgetState.disabled};
-        expect(theme.trackColor!.resolve(off), theme.trackColor!.resolve(live)!.withValues(alpha: 0.4));
-        expect(theme.thumbColor!.resolve(off), theme.thumbColor!.resolve(live)!.withValues(alpha: 0.4));
-      }
-      expect(find.byKey(torLockedLineKey), findsOneWidget);
-      expect(find.text('On in Tor only.'), findsOneWidget);
-      // The mode is right above (B-03): no link to another page.
-      expect(find.byKey(torUndercoverChangeKey), findsNothing);
-      expect(find.byKey(networkModeRowKey(NetworkMode.torOnly)), findsOneWidget);
-      await tester.tap(find.byKey(torReceivingSwitchKey));
+      await h.container.read(appSettingsProvider.future);
+      await h.container.read(appSettingsProvider.notifier).setNetworkMode(NetworkMode.killSwitch);
       await tester.pumpAndSettle();
-      expect(h.container.read(phoneTorProvider).receiving, isFalse);
-      expect(h.session.torStarts, isEmpty);
-    });
-
-    testWidgets('Kill switch: the switch is off and disabled, with its line', (
-      tester,
-    ) async {
-      final h = _Harness(
-        advanced: const AdvancedPrefs(networkMode: NetworkMode.killSwitch),
-      );
-      await h.pump(tester, privacy: true);
-      await _reach(tester, find.byKey(torReceivingSwitchKey));
-      expect(torSwitch(tester).value, isFalse);
-      expect(torSwitch(tester).onChanged, isNull);
-      expect(find.text('Off in Kill switch: nothing connects.'), findsOneWidget);
-      await tester.tap(find.byKey(torReceivingSwitchKey));
-      await tester.pumpAndSettle();
+      await _reach(tester, find.byKey(networkModeRowKey(NetworkMode.killSwitch)));
+      expect(selected(tester), NetworkMode.killSwitch);
+      expect(find.byKey(torReceivingSwitchKey), findsNothing);
       expect(h.session.torStarts, isEmpty);
     });
   });
 
-  testWidgets('Privacy: one Tor switch, what it covers, no Advanced needed', (
-    tester,
-  ) async {
-    final h = _Harness();
-    await h.pump(tester, privacy: true);
-    final privacy = find.byKey(settingsPrivacyKey);
-    expect(privacy, findsOneWidget);
-    // Network & privacy: the switch sits under its own Tor header.
-    expect(find.descendant(of: privacy, matching: find.text('Tor')), findsOneWidget);
-    expect(find.text('Receiving'), findsNothing);
-    expect(find.text('Tor receiving'), findsNothing);
-    // The switch is the first row under Tor.
-    await _reach(tester, privacy);
-    expect(
-      tester.getTopLeft(find.byKey(torReceivingSwitchKey)).dy,
-      greaterThan(tester.getTopLeft(privacy).dy),
-    );
-    await tester.ensureVisible(find.byKey(torReceivingSwitchKey));
-    await tester.pumpAndSettle();
-    // The label only; the explanation is the info icon's tooltip, and no line in the row
-    // says what goes over Tor or what does not.
-    expect(
-      find.descendant(
-        of: find.byKey(torReceivingSwitchKey),
-        matching: find.text('Tor network'),
-      ),
-      findsOneWidget,
-    );
-    // The info icon opens the Tor Network sheet: the icon, the title, the explanation.
-    final hint = find.descendant(
-      of: find.byKey(torReceivingSwitchKey),
-      matching: find.byType(InfoHint),
-    );
-    expect(hint, findsOneWidget);
-    expect(find.textContaining('go through Tor'), findsNothing);
-    expect(find.textContaining('Not over Tor'), findsNothing);
-    expect(find.byKey(torStatusKey), findsNothing, reason: 'off: no state line');
-    await tester.tap(hint);
-    await tester.pumpAndSettle();
-    expect(find.byType(InfoSheet), findsOneWidget);
-    expect(
-      find.descendant(of: find.byType(InfoSheet), matching: find.text('Tor network')),
-      findsOneWidget,
-    );
-    expect(
-      find.textContaining('Network activity goes through the Tor network.'),
-      findsOneWidget,
-    );
-    expect(find.textContaining('Notifications'), findsNothing);
-    expect(find.textContaining('Not over Tor'), findsNothing);
-    await tester.tap(find.text('Close'));
-    await tester.pumpAndSettle();
-    expect(find.byType(InfoSheet), findsNothing);
-
-    for (final word in ['Listener', 'listener', 'Advanced Tor']) {
-      expect(find.textContaining(word), findsNothing);
-    }
-
-    await tester.tap(find.byKey(torReceivingSwitchKey));
-    await tester.pumpAndSettle();
-    // No confirmation: it just turns on.
-    expect(find.byType(AlertDialog), findsNothing);
-    expect(h.session.torStarts, hasLength(1));
-    expect(h.container.read(phoneTorProvider).receiving, isTrue);
-    // Starting: the state word alone, under the label.
-    expect(
-      find.descendant(
-        of: find.byKey(torStatusKey),
-        matching: find.text('Starting'),
-      ),
-      findsOneWidget,
-    );
-    expect(find.textContaining('go through Tor'), findsNothing);
-    expect(
-      tester
-          .widget<Switch>(
-            find.descendant(
-              of: find.byKey(torReceivingSwitchKey),
-              matching: find.byType(Switch),
-            ),
-          )
-          .value,
-      isTrue,
-    );
-    // The choice is saved for this wallet.
-    final config = h.container.read(walletConfigProvider);
-    if (config != null) {
-      expect(h.store.values[PhoneTor.receivingKey(config)], 'true');
-    }
-  });
-
-  testWidgets('Tor not connected: the line says so, with Retry', (
-    tester,
-  ) async {
-    final h = _Harness();
-    await h.pump(tester, privacy: true);
-    await h.container.read(phoneTorProvider.notifier).setReceiving(true);
-    await tester.pumpAndSettle();
-    await h.emit(tester, TorEventKind.failed, failure: TorFailure.network);
-    await h.emit(tester, TorEventKind.stopped);
-    await tester.ensureVisible(find.byKey(torReceivingSwitchKey));
-    await tester.pumpAndSettle();
-    expect(
-      find.descendant(
-        of: find.byKey(torStatusKey),
-        matching: find.text('Not connected'),
-      ),
-      findsOneWidget,
-    );
-    expect(find.byKey(torRetryKey), findsOneWidget);
-    await tester.tap(find.byKey(torRetryKey));
-    await tester.pumpAndSettle();
-    expect(h.session.torStarts, hasLength(2));
-  });
-
-  testWidgets('opened for privacy, the Tor switch is in view', (tester) async {
+  testWidgets('opened for privacy, the Connection mode rows are in view', (tester) async {
     final h = _Harness();
     await h.pump(tester, privacy: true);
     final view = tester.getRect(find.byType(ListView));
-    final row = tester.getRect(find.byKey(torReceivingSwitchKey));
+    final row = tester.getRect(find.byKey(networkModeRowKey(NetworkMode.standard)));
     expect(row.top, greaterThanOrEqualTo(view.top));
     expect(row.bottom, lessThanOrEqualTo(view.bottom));
     expect(h.container.read(phoneTorProvider).receiving, isFalse);
   });
 
-  testWidgets('no Tor switch where the app has no Tor', (tester) async {
+  testWidgets('no Tor only where the app has no Tor', (tester) async {
     final h = _Harness(bundle: null);
     await h.pump(tester, privacy: true);
     expect(find.byKey(torReceivingSwitchKey), findsNothing);
-  });
-
-  testWidgets('the switch left on without a tor bundle stays in view and can go off', (tester) async {
-    final h = _Harness(bundle: null);
-    await h.pump(tester, privacy: true);
-    // Saved on before the bundle went missing: the wallet waits for tor, blocked.
-    await h.container.read(phoneTorProvider.notifier).setReceiving(true);
-    await tester.pumpAndSettle();
-    await _reach(tester, find.byKey(torReceivingSwitchKey));
-    final tile = tester.widget<Switch>(
-      find.descendant(of: find.byKey(torReceivingSwitchKey), matching: find.byType(Switch)),
-    );
-    expect(tile.value, isTrue);
-    expect(tile.onChanged, isNotNull, reason: 'off ends the blocked wait');
-    await tester.tap(find.byKey(torReceivingSwitchKey));
-    await tester.pumpAndSettle();
-    expect(h.container.read(phoneTorProvider).receiving, isFalse);
-    expect(find.byKey(torReceivingSwitchKey), findsNothing);
+    final tile = tester.widget<ListTile>(find.byKey(networkModeRowKey(NetworkMode.torOnly)));
+    expect(tile.enabled, isFalse, reason: 'Tor only is disabled while Tor is unavailable');
   });
 }

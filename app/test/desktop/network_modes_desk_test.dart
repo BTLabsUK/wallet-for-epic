@@ -118,7 +118,7 @@ void main() {
     expect(session().refreshCalls, greaterThan(refreshes));
   });
 
-  test('Tor only turns the Tor switch on and refuses it off', () async {
+  test('Tor only turns Tor on and refuses it off; leaving it turns Tor off', () async {
     expect((await wallet.settings()).torAutostart, isFalse);
     await mode(NetworkMode.torOnly);
     final s = await wallet.settings();
@@ -131,10 +131,9 @@ void main() {
     session().routeLog.clear();
     await wallet.setEpicboxOverTor(false);
     expect(session().routeLog, isNot(contains('epicboxOverTor:false')));
-    // Back to Standard leaves the switch on, for the user to turn off.
+    // Back to Standard turns Tor for everything off with the mode: no other control does.
     await mode(NetworkMode.standard);
-    expect((await wallet.settings()).torAutostart, isTrue);
-    await wallet.setTor(false);
+    expect((await wallet.settings()).torAutostart, isFalse);
     expect((await wallet.settings()).tor, isFalse);
   }, skip: torBuilt ? null : 'no Tor in this build');
 

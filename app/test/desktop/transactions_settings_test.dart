@@ -77,10 +77,6 @@ Future<void> _settle(WidgetTester tester) async {
 
 PaymentPrefs get _payments => _container.read(deskProvider).settings.payments;
 
-List<String> _segments<T>(WidgetTester tester) => tester.widget<ESegmented<T>>(find.byType(ESegmented<T>).first).segments.map((s) => s.label).toList();
-
-T _selected<T>(WidgetTester tester) => tester.widget<ESegmented<T>>(find.byType(ESegmented<T>).first).value;
-
 /// The sidebar's Link · HTTP row.
 // The HTTP status row, in its title-bar icon's popover (opened first).
 Future<Finder> _railHttp(WidgetTester tester) async {
@@ -160,7 +156,7 @@ void main() {
       expect(find.byKey(const ValueKey('st-switch-http')), findsNothing, reason: 'no duplicate switch for the same thing');
       expect(find.byKey(const ValueKey('st-autostart-http')), findsNothing, reason: 'on means now and at unlock');
       expect(find.byKey(const ValueKey('st-state-http')), findsOneWidget);
-      expect(find.text('Reachable'), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('st-state-http')), matching: find.textContaining('Receiving')), findsOneWidget);
       await tester.tap(_offer('linkHttp'));
       await _settle(tester);
       expect(_payments.linkHttp, isFalse);
@@ -259,142 +255,105 @@ void main() {
   });
 
   group('Send follows the switches', () {
-    testWidgets('default: Epicbox, Link (listed from the start) and Direct · File', (tester) async {
+    // The address in To decides the method (08897d39a): the method line names it, and a switch
+    // that is off holds the send with its reason.
+    String routeHost(WidgetTester tester) => tester.widget<Text>(find.byKey(const ValueKey('send-route-host'))).textSpan!.toPlainText();
+
+    testWidgets('default: no address, nothing named as off', (tester) async {
       await _open(tester, DeskRoute.send);
-      expect(_segments<TxMethod?>(tester), ['Epicbox', 'Link', 'Direct · File']);
       expect(find.byKey(const ValueKey('send-method-off')), findsNothing);
+      expect(find.byKey(const ValueKey('send-epicbox-off')), findsNothing);
+      expect(find.byKey(const ValueKey('send-route-host')), findsNothing);
     });
 
-    testWidgets('Link picked with its switches off: the reason, and Turn on Link · HTTP turns it on here', (tester) async {
-      await _open(tester, DeskRoute.send);
-      await tester.tap(find.descendant(of: find.byType(ESegmented<TxMethod?>), matching: find.text('Link')));
-      await _settle(tester);
-      expect(_selected<TxMethod?>(tester), TxMethod.http);
-      expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
-      expect(find.text('Link · HTTP is off in Settings\u00a0›\u00a0Transactions.'), findsWidgets);
-      await tester.tap(find.widgetWithText(EButton, 'Turn on Link · HTTP'));
-      await _settle(tester);
-      expect(_payments.linkHttp, isTrue);
-      expect(_payments.linkTor, isFalse);
-      expect(find.byKey(const ValueKey('send-method-off')), findsNothing);
-      expect(_selected<TxMethod?>(tester), TxMethod.http);
-    });
-
-    testWidgets('Link appears with either of its switches, named for the family', (tester) async {
-      await _open(tester, DeskRoute.send, payments: const PaymentPrefs(linkTor: true));
-      expect(_segments<TxMethod?>(tester), ['Epicbox', 'Link', 'Direct · File']);
-    });
-
-    testWidgets('File Transfer off: the segment is gone', (tester) async {
-      await _open(tester, DeskRoute.send, payments: const PaymentPrefs(directFile: false));
-      expect(_segments<TxMethod?>(tester), ['Epicbox', 'Link']);
-    });
-
-    testWidgets('a pasted onion with Link off brings Link for this send, with the reason it is off, never a silent refusal', (tester) async {
+    testWidgets('an onion with Link · Tor off: the reason, and Turn on Link · Tor turns it on here', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs());
       await tester.enterText(find.byType(EditableText).first, _onion);
       await _settle(tester);
-      expect(_segments<TxMethod?>(tester), ['Epicbox', 'Link', 'Direct · File']);
-      expect(_selected<TxMethod?>(tester), TxMethod.http);
       expect(_payments.offersFamily(MethodFamily.link), isFalse, reason: 'nothing was switched on');
       expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
-      expect(find.text('Link · Tor is off in Settings\u00a0›\u00a0Transactions.'), findsWidgets);
+      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsWidgets);
+      await tester.tap(find.widgetWithText(EButton, 'Turn on Link · Tor'));
+      await _settle(tester);
+      expect(_payments.linkTor, isTrue);
+      expect(_payments.linkHttp, isFalse);
+      expect(find.byKey(const ValueKey('send-method-off')), findsNothing);
     }, skip: !torBuilt);
 
-    testWidgets('an http address with Link · HTTP off but Link · Tor on: the reason names Link · HTTP, the contact-only line names the contact', (tester) async {
-      await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'https://wallet.example.org', amount: '1'), payments: const PaymentPrefs(linkTor: true));
-      expect(_selected<TxMethod?>(tester), TxMethod.http);
-      expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
-      expect(find.text('Link · HTTP is off in Settings\u00a0›\u00a0Transactions.'), findsWidgets);
-      expect(find.text('Send'), findsWidgets);
+    testWidgets('Link · Tor on: an onion is not held by a switch', (tester) async {
+      await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: _onion, amount: '1'), payments: const PaymentPrefs(linkTor: true));
+      expect(find.byKey(const ValueKey('send-method-off')), findsNothing);
+      expect(find.byKey(const ValueKey('send-route-host')), findsOneWidget);
+    }, skip: !torBuilt);
+
+    testWidgets('an http address is never held by Link · HTTP, the listener\'s own switch', (tester) async {
+      await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'https://wallet.example.org', amount: '1'));
+      expect(_payments.linkHttp, isFalse);
+      expect(find.byKey(const ValueKey('send-method-off')), findsNothing);
+      expect(routeHost(tester), startsWith('https://wallet.example.org'));
     });
 
     testWidgets('picks by method: a contact opens Send on its address whose method is on (qa-next)', (tester) async {
       final two = Contact(id: 'c-two', name: 'Two Way', tor: _onion, http: 'https://wallet.example.org');
       await _open(tester, DeskRoute.send, arg: SendArgs(contact: two), payments: const PaymentPrefs(linkHttp: true));
-      expect(tester.widget<EditableText>(find.byType(EditableText).first).controller.text, 'https://wallet.example.org');
-      expect(_selected<TxMethod?>(tester), TxMethod.http);
+      expect(routeHost(tester), startsWith('https://wallet.example.org'));
       expect(find.byKey(const ValueKey('send-method-off')), findsNothing);
-      // LNX-9: the card under To names the address in To and its kind, not the contact's first.
-      await tester.runAsync(() => _container.read(deskProvider.notifier).saveContact(Contact(id: '', name: 'Two Way', tor: _onion, http: 'https://wallet.example.org')));
-      await _settle(tester);
-      final kind = find.descendant(of: find.byKey(const ValueKey('send-picked')), matching: find.byType(EKindTag));
-      expect(tester.widget<EKindTag>(kind).kind, AddressKind.http);
     });
 
-    testWidgets('a pasted onion of a contact with another address stays, without "only" (qa-next)', (tester) async {
+    testWidgets('a pasted onion of a contact with another address stays, with the reason Link · Tor is off, without "only" (qa-next)', (tester) async {
       await _open(tester, DeskRoute.send, payments: const PaymentPrefs(linkHttp: true));
       await tester.runAsync(() => _container.read(deskProvider.notifier).saveContact(Contact(id: '', name: 'Two Way', tor: _onion, http: 'https://wallet.example.org')));
       await tester.enterText(find.byType(EditableText).first, _onion);
       await _settle(tester);
-      expect(tester.widget<EditableText>(find.byType(EditableText).first).controller.text, _onion);
       expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
-      expect(find.text('Link · Tor is off in Settings\u00a0›\u00a0Transactions.'), findsWidgets);
+      expect(find.text('Link · Tor is off in Settings › Transactions.'), findsWidgets);
       expect(find.textContaining('has only'), findsNothing);
     }, skip: !torBuilt);
 
-    testWidgets('picks by method: a code with an Epicbox and an onion address fills the one that is on (qa-next)', (tester) async {
+    testWidgets('picks by method: a code with an Epicbox and an onion address fills the Epicbox (qa-next)', (tester) async {
       const anna = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@box.epic.invalid';
       await _open(tester, DeskRoute.send, arg: const SendArgs(code: 'epic:$anna?method=direct&direct=$_onion'), payments: const PaymentPrefs(linkHttp: true));
-      expect(tester.widget<EditableText>(find.byType(EditableText).first).controller.text, anna);
-      expect(_selected<TxMethod?>(tester), TxMethod.epicbox);
+      expect(routeHost(tester), 'box.epic.invalid');
       expect(find.byKey(const ValueKey('send-method-off')), findsNothing);
     });
 
     testWidgets('picks by method: Epicbox off, the code\'s onion with Link · Tor on (qa-next)', (tester) async {
       const anna = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@box.epic.invalid';
       await _open(tester, DeskRoute.send, arg: const SendArgs(code: 'epic:$anna?direct=$_onion'), payments: const PaymentPrefs(epicbox: false, linkTor: true));
-      expect(tester.widget<EditableText>(find.byType(EditableText).first).controller.text, _onion.substring('http://'.length));
-      expect(_selected<TxMethod?>(tester), TxMethod.http);
+      expect(routeHost(tester), contains(_onion.substring('http://'.length)));
     }, skip: !torBuilt);
-
-    testWidgets('LNX-1: Epicbox switched off is no failure, so File Transfer off stays off', (tester) async {
-      await _open(tester, DeskRoute.send, arg: const SendArgs(epicboxHealth: ServiceHealth.off), payments: const PaymentPrefs(epicbox: false, linkTor: true, directFile: false));
-      expect(_segments<TxMethod?>(tester), isNot(contains('Direct · File')));
-      expect(_segments<TxMethod?>(tester), contains('Link'));
-    });
-
-    testWidgets('LNX-1: a failed Epicbox still offers the file fallback with File Transfer off', (tester) async {
-      await _open(tester, DeskRoute.send, arg: const SendArgs(epicboxHealth: ServiceHealth.down), payments: const PaymentPrefs(directFile: false));
-      expect(_segments<TxMethod?>(tester), contains('Direct · File'));
-    });
 
     testWidgets('LNX-1b: Link with an empty To and only Link · Tor on names no method as off', (tester) async {
-      await _open(tester, DeskRoute.send, arg: const SendArgs(method: TxMethod.http), payments: const PaymentPrefs(linkTor: true));
-      expect(_selected<TxMethod?>(tester), TxMethod.http);
+      await _open(tester, DeskRoute.send, payments: const PaymentPrefs(linkTor: true));
       expect(find.byKey(const ValueKey('send-method-off')), findsNothing);
       expect(find.textContaining('Link · HTTP is off'), findsNothing);
-      // The address decides: an http one with Link · HTTP off says so.
+      // An http address needs no switch (the listener's own).
       await tester.enterText(find.byType(EditableText).first, 'https://wallet.example.org');
       await _settle(tester);
-      expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
+      expect(find.byKey(const ValueKey('send-method-off')), findsNothing);
     }, skip: !torBuilt);
 
-    testWidgets('a file send being made keeps Direct · File with the switch off', (tester) async {
+    testWidgets('a file send being made (Pay with a file) is never held by File Transfer\'s switch', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(method: TxMethod.file), payments: const PaymentPrefs(directFile: false));
-      expect(_segments<TxMethod?>(tester), contains('Direct · File'));
+      expect(find.byKey(const ValueKey('send-method-off')), findsNothing);
+      expect(find.byKey(const ValueKey('send-net-blocked')), findsNothing);
     });
 
-    testWidgets('Epicbox off: the segment is disabled with the reason, the notice names a contact with only that address', (tester) async {
+    testWidgets('Epicbox off: an Epicbox address is held with the reason, the notice names a contact with only that address', (tester) async {
       // Mining pool payouts has only an Epicbox address (Anna has a Link · HTTP one too).
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'esZr8mQ2pVtW5kNcY7uLfB3hJd9gA4sXeR6oTnC1vK8xHwP2b@box.net.invalid', amount: '1'), payments: const PaymentPrefs(epicbox: false));
-      final epicbox = tester.widget<ESegmented<TxMethod?>>(find.byType(ESegmented<TxMethod?>).first).segments.firstWhere((s) => s.label == 'Epicbox');
-      expect(epicbox.enabled, isFalse);
-      expect(epicbox.tooltip, 'Epicbox is off in Settings\u00a0›\u00a0Transactions.');
       expect(find.byKey(const ValueKey('send-epicbox-off')), findsOneWidget);
+      expect(find.text('Epicbox is off in Settings › Transactions.'), findsWidgets);
       expect(find.text('Mining pool payouts has only an Epicbox address.'), findsOneWidget);
-    });
-
-    testWidgets('Epicbox not connected keeps the file fallback with the switch off', (tester) async {
-      await _open(tester, DeskRoute.send, arg: const SendArgs(epicboxHealth: ServiceHealth.down), payments: const PaymentPrefs(directFile: false));
-      expect(_segments<TxMethod?>(tester), contains('Direct · File'));
     });
   });
 
   group('Receive and the sidebar follow the switches', () {
-    testWidgets('Link · HTTP off: no HTTP card; the HTTP row stays, reading Off', (tester) async {
+    testWidgets('Link · HTTP off: the HTTP card is one line with its own switch; the HTTP row stays, reading Off', (tester) async {
       await _open(tester, DeskRoute.receive);
-      expect(find.text('Link · HTTP address'), findsNothing);
+      expect(find.text('Link · HTTP address'), findsWidgets);
+      expect(find.byKey(const ValueKey('rx-switch-http')), findsOneWidget);
+      expect(tester.widget<ESwitch>(find.byKey(const ValueKey('rx-switch-http'))).value, isFalse);
       final row = await _railHttp(tester);
       expect(row, findsOneWidget);
       expect(find.descendant(of: row, matching: find.text('Off')), findsOneWidget);

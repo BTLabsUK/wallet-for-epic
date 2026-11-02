@@ -89,21 +89,22 @@ void main() {
       expect(find.widgetWithText(EButton, 'Turn on Tor'), findsNothing);
       await tester.tap(find.text('Review'));
       await tester.pumpAndSettle();
-      expect(find.text('Link · Tor (their wallet must be open)'), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('send-review-via')), matching: find.text('Link · Tor')), findsOneWidget);
       await enterReviewPassword(tester);
       await tester.tap(find.text('Send 1.0\u00a0EPIC'));
       await tester.pumpAndSettle();
       expect(wallet.sent.single.method, TxMethod.tor);
-      expect(wallet.sent.single.to, _onion);
+      // The reader sends the clean form of the address, without the scheme.
+      expect(wallet.sent.single.to, _onion.substring('http://'.length));
     }, skip: _skip);
 
-    testWidgets('an onion pasted under Epicbox switches to Link', (tester) async {
+    testWidgets('an onion pasted in the To field is read as a Link · Tor address', (tester) async {
       await show(tester, const SendScreen(arg: SendArgs(amount: '1')));
       await tester.enterText(find.byType(EditableText).first, _onion);
       await tester.pumpAndSettle();
-      expect(tester.widget<ESegmented<TxMethod?>>(find.byType(ESegmented<TxMethod?>)).value, TxMethod.http);
+      expect(find.byKey(const ValueKey('send-route-onion')), findsOneWidget);
       // Link · Tor is off here: that comes first, before Tor (Tor alone would not send it).
-      expect(find.textContaining('Link · Tor'), findsWidgets);
+      expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
       expect(find.widgetWithText(EButton, 'Turn on Tor'), findsNothing);
     }, skip: _skip);
   });
