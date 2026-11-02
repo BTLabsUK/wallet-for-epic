@@ -818,8 +818,6 @@
   "licencesPackageCount": "{count, plural, one{{count} лицензия} few{{count} лицензии} many{{count} лицензий} other{{count} лицензии}}",
   "settingsCopyLink": "Копировать ссылку",
   "settingsLinkCopied": "Ссылка скопирована",
-  "settingsAddressCopied": "Адрес скопирован",
-  "settingsCopyAddress": "Копировать адрес",
   "settingsPinTitle": "Изменить PIN-код",
   "settingsPinEnterCurrent": "Введите текущий PIN-код",
   "settingsPinCurrentLabel": "Текущий PIN-код",

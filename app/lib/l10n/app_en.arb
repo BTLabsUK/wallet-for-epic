@@ -3959,14 +3959,6 @@
   "@settingsLinkCopied": {
     "description": "Notice after a web link was copied."
   },
-  "settingsAddressCopied": "Address copied",
-  "@settingsAddressCopied": {
-    "description": "Notice after the contact email address was copied (About and Help › Contact)."
-  },
-  "settingsCopyAddress": "Copy address",
-  "@settingsCopyAddress": {
-    "description": "Screen-reader label of the copy icon on the contact email row."
-  },
   "settingsPinTitle": "Change PIN",
   "@settingsPinTitle": {
     "description": "Title of the screen that sets a new 6-digit PIN."

@@ -3170,12 +3170,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get settingsLinkCopied => 'Link kopiert';
 
   @override
-  String get settingsAddressCopied => 'Adresse kopiert';
-
-  @override
-  String get settingsCopyAddress => 'Adresse kopieren';
-
-  @override
   String get settingsPinTitle => 'PIN ändern';
 
   @override

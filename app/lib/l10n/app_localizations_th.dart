@@ -3071,12 +3071,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsLinkCopied => 'คัดลอกลิงก์แล้ว';
 
   @override
-  String get settingsAddressCopied => 'คัดลอกที่อยู่แล้ว';
-
-  @override
-  String get settingsCopyAddress => 'คัดลอกที่อยู่';
-
-  @override
   String get settingsPinTitle => 'เปลี่ยน PIN';
 
   @override

@@ -3204,12 +3204,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsLinkCopied => 'Ссылка скопирована';
 
   @override
-  String get settingsAddressCopied => 'Адрес скопирован';
-
-  @override
-  String get settingsCopyAddress => 'Копировать адрес';
-
-  @override
   String get settingsPinTitle => 'Изменить PIN-код';
 
   @override

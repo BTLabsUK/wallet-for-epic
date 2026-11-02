@@ -818,8 +818,6 @@
   "licencesPackageCount": "{count, plural, other{{count} 个许可证}}",
   "settingsCopyLink": "复制链接",
   "settingsLinkCopied": "链接已复制",
-  "settingsAddressCopied": "地址已复制",
-  "settingsCopyAddress": "复制地址",
   "settingsPinTitle": "修改 PIN 码",
   "settingsPinEnterCurrent": "请输入当前 PIN 码",
   "settingsPinCurrentLabel": "当前 PIN 码",

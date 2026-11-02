@@ -2951,12 +2951,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsLinkCopied => '链接已复制';
 
   @override
-  String get settingsAddressCopied => '地址已复制';
-
-  @override
-  String get settingsCopyAddress => '复制地址';
-
-  @override
   String get settingsPinTitle => '修改 PIN 码';
 
   @override

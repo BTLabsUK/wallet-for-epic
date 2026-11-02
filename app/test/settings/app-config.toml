@@ -119,7 +119,6 @@ pages = ["https://releases.lab.invalid/releases/", "https://hub.example.invalid/
 [support]
 timeout_s = 20
 report = "https://support.lab.invalid/v1/report"
-email = "support@lab.invalid"
 donation = "esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@box.epic.invalid"
 signed_file = "https://pages.example.invalid/btlabs.json"
 [links]

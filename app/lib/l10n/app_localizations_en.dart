@@ -3125,12 +3125,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLinkCopied => 'Link copied';
 
   @override
-  String get settingsAddressCopied => 'Address copied';
-
-  @override
-  String get settingsCopyAddress => 'Copy address';
-
-  @override
   String get settingsPinTitle => 'Change PIN';
 
   @override

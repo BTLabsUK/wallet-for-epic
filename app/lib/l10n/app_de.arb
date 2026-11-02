@@ -818,8 +818,6 @@
   "licencesPackageCount": "{count, plural, one{{count} Lizenz} other{{count} Lizenzen}}",
   "settingsCopyLink": "Link kopieren",
   "settingsLinkCopied": "Link kopiert",
-  "settingsAddressCopied": "Adresse kopiert",
-  "settingsCopyAddress": "Adresse kopieren",
   "settingsPinTitle": "PIN ändern",
   "settingsPinEnterCurrent": "Geben Sie Ihre aktuelle PIN ein",
   "settingsPinCurrentLabel": "Aktuelle PIN",

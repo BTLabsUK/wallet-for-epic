@@ -252,10 +252,6 @@ const List<SettingsKey> settingsKeys = [
 /// as unknown (`[donate]`: a donation page and contact page, gone).
 const Set<String> retiredSettingsTables = {'donate'};
 
-/// Keys earlier builds wrote that the app no longer reads: left alone, never reported as unknown
-/// (`support.email`: the support address, gone).
-const Set<String> retiredSettingsKeys = {'support.email'};
-
 /// The comment above a key the default copy leaves out, written with it when the app adds it.
 const Map<String, List<String>> keyComments = {
   'node.plain_http': ['# Nodes at a shared address (100.64.x.x: Tailscale) you agreed to reach over plain, unencrypted http.'],

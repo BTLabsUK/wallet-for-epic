@@ -818,8 +818,6 @@
   "licencesPackageCount": "{count, plural, other{สัญญาอนุญาต {count} ฉบับ}}",
   "settingsCopyLink": "คัดลอกลิงก์",
   "settingsLinkCopied": "คัดลอกลิงก์แล้ว",
-  "settingsAddressCopied": "คัดลอกที่อยู่แล้ว",
-  "settingsCopyAddress": "คัดลอกที่อยู่",
   "settingsPinTitle": "เปลี่ยน PIN",
   "settingsPinEnterCurrent": "ป้อน PIN ปัจจุบัน",
   "settingsPinCurrentLabel": "PIN ปัจจุบัน",

@@ -726,7 +726,6 @@ List<UnknownKey> _unknownKeys(Map<String, dynamic> doc, TomlScan scan) {
       final path = '$top.${k.key}';
       final key = settingsKeysByPath[path];
       if (key == null) {
-        if (retiredSettingsKeys.contains(path)) continue;
         out.add(UnknownKey(path, scan.lineOf([top, k.key])));
         continue;
       }

@@ -5029,18 +5029,6 @@ abstract class AppLocalizations {
   /// **'Link copied'**
   String get settingsLinkCopied;
 
-  /// Notice after the contact email address was copied (About and Help › Contact).
-  ///
-  /// In en, this message translates to:
-  /// **'Address copied'**
-  String get settingsAddressCopied;
-
-  /// Screen-reader label of the copy icon on the contact email row.
-  ///
-  /// In en, this message translates to:
-  /// **'Copy address'**
-  String get settingsCopyAddress;
-
   /// Title of the screen that sets a new 6-digit PIN.
   ///
   /// In en, this message translates to:

@@ -3227,12 +3227,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get settingsLinkCopied => 'Skopiowano link';
 
   @override
-  String get settingsAddressCopied => 'Skopiowano adres';
-
-  @override
-  String get settingsCopyAddress => 'Kopiuj adres';
-
-  @override
   String get settingsPinTitle => 'Zmień PIN';
 
   @override
