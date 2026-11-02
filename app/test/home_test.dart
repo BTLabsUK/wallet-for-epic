@@ -915,6 +915,20 @@ void main() {
       expect(find.byType(HistoryScreen), findsOneWidget);
     });
 
+    // View all only once the list is full (recent_activity.dart): one payment has no link to
+    // the same row, five do.
+    testWidgets('no View all under one payment', (tester) async {
+      await _Harness(transactions: _latticeTxs(1)).pump(tester);
+      expect(find.byType(TxTile), findsOneWidget);
+      expect(find.textContaining('View all'), findsNothing);
+    });
+
+    testWidgets('View all under five payments', (tester) async {
+      await _Harness(transactions: _latticeTxs(recentActivityCount)).pump(tester);
+      expect(find.byType(TxTile), findsNWidgets(recentActivityCount));
+      expect(find.text('View all $recentActivityCount'), findsOneWidget);
+    });
+
     // The BT Labs lattice fills the room under a short list and is gone once the list is full.
     testWidgets('the lattice under a short list', (tester) async {
       final painted = _latticePainted;
