@@ -164,3 +164,9 @@ id = "apksigner-no-java"
 steps = ["sign-android"]
 pattern = "(java: not found|the signer's file is not signed by|not signed by the release key)"
 hint = "apksigner could not run (no java on PATH), so every certificate read as wrong. tools/rel sources tools/env.sh for JAVA_HOME; check `apksigner verify --print-certs` on signer/out by hand. When the cert is right, `tools/rel run sign-android` takes the files again from the signer's receipt: no new code."
+
+[[failure]]
+id = "android-dev-plugin-registrant"
+steps = ["build-android", "build-play"]
+pattern = "package dev\\.flutter\\.plugins\\.integration_test does not exist"
+hint = "A flutter test in the release checkout (the screens tours) rewrote GeneratedPluginRegistrant.java with the dev plugins while the APK compiled. Let nothing run flutter test in that checkout, then `tools/rel retry <step>`; screens waits for the builds made in the checkout from now on."

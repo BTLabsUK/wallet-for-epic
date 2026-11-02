@@ -352,8 +352,10 @@ outputs = ["bt-wallet-{version}{notor}-ios-unsigned.ipa"]
 # slot like a build (the step itself is not heavy, or it would hold a slot while it waits for
 # them). `latest` stays on the published release until screens-publish. Reuses the catalogue when
 # its content key is unchanged. warn_only: a failed render never stops a build or a trust run
-# mid-way; screens-check turns it into a FAIL before the gate. Defined after the builds, so when G2
-# passes the builds ask for their slots first.
+# mid-way; screens-check turns it into a FAIL before the gate. It renders in the release checkout,
+# so it waits for the builds made there: a tour's `flutter test` rewrites the generated plugin
+# registrants with the dev plugins, and an Android build compiling meanwhile fails on
+# integration_test (26.10.25 run-15).
 [step.screens]
 title = "Screen catalogue (render)"
 host = "build"
@@ -361,7 +363,7 @@ lane = "screens"
 warn_only = true
 skippable = true
 capped = true
-needs = ["source", "source-check"]
+needs = ["source", "source-check", "build-android", "build-play", "build-linux"]
 run = "{rel}/tools/rellib/steps/screens.sh {version} {stage}"
 timeout = "120m"
 
