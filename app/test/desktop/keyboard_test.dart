@@ -335,10 +335,12 @@ void main() {
   });
 
   group('Esc', () {
-    testWidgets('closes a tooltip first, then the dialog under it; with nothing open it does nothing', (tester) async {
-      final container = await _open(tester, DeskRoute.settingsAccount);
+    testWidgets('closes a tooltip first, then the dialog under it; with nothing open it leaves Settings', (tester) async {
+      final container = await _open(tester, DeskRoute.contacts);
       await _key(tester, LogicalKeyboardKey.escape);
-      expect(container.read(deskNavProvider).route, DeskRoute.settingsAccount);
+      expect(container.read(deskNavProvider).route, DeskRoute.contacts, reason: 'outside Settings Esc does nothing by itself');
+      container.read(deskNavProvider.notifier).go(DeskRoute.settingsAccount);
+      await _settle(tester);
 
       showEDialog(
         tester.element(find.byType(EPage)),
@@ -359,6 +361,12 @@ void main() {
       await _key(tester, LogicalKeyboardKey.escape);
       await _settle(tester);
       expect(find.text('Test'), findsNothing, reason: 'a dialog showing Close closes on Esc even without a dismissing barrier');
+      expect(container.read(deskNavProvider).route, DeskRoute.settingsAccount, reason: 'the dialog took that Esc');
+
+      // Nothing open: Esc goes back to the wallet page Settings came from.
+      await _key(tester, LogicalKeyboardKey.escape);
+      await _settle(tester);
+      expect(container.read(deskNavProvider).route, DeskRoute.contacts);
       await _end(tester);
     });
 

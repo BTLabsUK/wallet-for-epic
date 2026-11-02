@@ -78,7 +78,9 @@ void main() {
     expect(projectRepoUrl, isNotNull);
     expect(find.text('Source code'), findsOneWidget);
     expect(find.textContaining('code is on GitHub'), findsNothing);
-    expect(find.textContaining('Apache-2.0'), findsWidgets, reason: 'the licence line stays');
+    // Licences are folded (item 5): the heading and its one line.
+    expect(find.byKey(const ValueKey('about-licences-fold')), findsOneWidget);
+    expect(find.textContaining('Apache-2.0'), findsNothing);
   });
 
   // Run also with --dart-define=WFE_DIST=msstore (https://docs.btlabs.uk/developers/build/variants/).
@@ -138,9 +140,12 @@ void main() {
     expect(find.text('Telegram'), findsNothing);
   });
 
-  testWidgets('Licences: one line per component, the tor source note, and View opens the full texts', (tester) async {
+  testWidgets('Licences: folded, then one line per component, the tor source note, and View opens the full texts', (tester) async {
     await pump(tester, (_) async => (404, ''));
     expect(find.text('Licences'), findsOneWidget);
+    expect(find.byKey(const ValueKey('about-licences')), findsNothing, reason: 'folded by default');
+    await tester.tap(find.byKey(const ValueKey('about-licences-fold')));
+    await tester.pumpAndSettle();
     expect(find.textContaining('Tor: GNU General Public License, version 3.'), findsOneWidget);
     expect(find.textContaining('LEPIC, the Epic Cash wallet library: Apache-2.0'), findsOneWidget);
     expect(find.textContaining('Flutter and its Dart packages'), findsOneWidget);

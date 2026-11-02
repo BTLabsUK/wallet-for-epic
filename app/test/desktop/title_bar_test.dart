@@ -217,7 +217,7 @@ void main() {
     expect(find.text('Wallet by BT Labs'), findsNothing);
   });
 
-  testWidgets('the build label and Copy build info put the build on the clipboard', (tester) async {
+  testWidgets('no build label in the sidebar (item 7); Copy build info puts the build on the clipboard', (tester) async {
     String? copied;
     tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
       if (call.method == 'Clipboard.setData') copied = (call.arguments as Map)['text'] as String?;
@@ -225,17 +225,12 @@ void main() {
     });
     addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
     await pump(tester);
-    expect(find.byKey(const ValueKey('bar-build')), findsOneWidget);
-    await tester.tap(find.byKey(const ValueKey('bar-build')));
-    await tester.pump();
-    expect(copied, startsWith('Epic Cash Desktop '));
-    expect(copied, contains('core '));
-    await tester.pumpAndSettle();
-    copied = null;
+    expect(find.byKey(const ValueKey('bar-build')), findsNothing);
     await openMenu(tester);
     await tester.tap(find.byKey(const ValueKey('bar-menu-build')));
     await tester.pumpAndSettle();
     expect(copied, startsWith('Epic Cash Desktop '));
+    expect(copied, contains('core '));
     expect(find.text('Build info copied'), findsOneWidget);
   });
 

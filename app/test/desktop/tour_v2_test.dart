@@ -254,9 +254,9 @@ void main() {
     await _settle(tester);
     container.read(deskTourProvider.notifier).close();
     // Settings scrolls its own column beside the section list: bring the link in.
-    await tester.ensureVisible(find.text('Show the tour again'));
+    await tester.ensureVisible(find.text('Start tour'));
     await _settle(tester);
-    await tester.tap(find.text('Show the tour again'));
+    await tester.tap(find.text('Start tour'));
     await _settle(tester);
     expect(container.read(deskTourProvider).open, isTrue);
     expect(container.read(deskNavProvider).route, DeskRoute.overview);
@@ -318,9 +318,9 @@ void main() {
     second.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp);
     await _settle(tester);
     // Settings scrolls its own column beside the section list: bring the link in.
-    await tester.ensureVisible(find.text('Show the tour again'));
+    await tester.ensureVisible(find.text('Start tour'));
     await _settle(tester);
-    await tester.tap(find.text('Show the tour again'));
+    await tester.tap(find.text('Start tour'));
     await _settle(tester);
     expect(find.byType(DeskTourOverlay), findsOneWidget);
     expect(second.read(deskNavProvider).route, DeskRoute.overview);
@@ -355,10 +355,10 @@ void main() {
 
     container.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp);
     await _settle(tester);
-    // 28 px drawn: 19 px under the centre is outside it, inside 44.
-    await tester.ensureVisible(find.text('Show the tour again'));
+    // 36 px drawn: 20 px under the centre is outside it, inside 44.
+    await tester.ensureVisible(find.text('Start tour'));
     await _settle(tester);
-    await tester.tapAt(tester.getCenter(find.text('Show the tour again')) + const Offset(0, 19));
+    await tester.tapAt(tester.getCenter(find.widgetWithText(EButton, 'Start tour')) + const Offset(0, 20));
     await _settle(tester);
     expect(container.read(deskTourProvider).open, isTrue);
   });

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // Help as the settings design draws it: the support bar first, six sections with their
 // art, lede and count, the topic set with bodies, search over the bodies, and the copy rules.
-import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/help_topics.dart';
@@ -93,11 +92,12 @@ void main() {
     expect(parts.where((p) => p.term).single.text, 'Save');
   });
 
-  testWidgets('the support bar first, then search, chips and the six sections with their art', (tester) async {
+  testWidgets('search, chips and the six sections with their art, then Support and Start again', (tester) async {
     await _pump(tester);
     final report = tester.getTopLeft(find.text('Report a problem').first);
-    expect(report.dy, lessThan(tester.getTopLeft(find.text('Search help')).dy));
-    expect(find.widgetWithText(EButton, 'Report a problem'), findsOneWidget);
+    expect(report.dy, greaterThan(tester.getTopLeft(find.text('Search help')).dy));
+    expect(find.widgetWithText(EButton, 'Report…'), findsOneWidget);
+    expect(find.widgetWithText(EButton, 'Start tour'), findsOneWidget);
     expect(find.text('Help and FAQ'), findsNothing);
     for (final s in helpSections) {
       expect(find.text(s.lede), findsOneWidget);
@@ -106,13 +106,13 @@ void main() {
     expect(find.text('5 topics'), findsWidgets, reason: 'Pairing');
     expect(find.text('2 topics'), findsWidgets, reason: 'Maintenance');
     expect(find.text('4 topics'), findsWidgets, reason: 'Troubleshooting, Payments by another wallet, Cancelling a payment and Coins held by another device');
-    expect(find.byType(HelpArt), findsNWidgets(7));
+    expect(find.byType(HelpArt), findsNWidgets(6));
   }, skip: !torBuilt);
 
-  testWidgets('the support bar shows the contact address', (tester) async {
+  testWidgets('no donation card in Help: Donate has its own page (item 4)', (tester) async {
     await _pump(tester);
-    expect(find.text('Contact: '), findsOneWidget);
-    expect(find.text(hostSettings.supportEmail!), findsOneWidget);
+    expect(find.text('Support development'), findsNothing);
+    expect(find.text('Copy address'), findsNothing);
   });
 
   testWidgets('Read more opens the body with the stepper; Show less folds it', (tester) async {

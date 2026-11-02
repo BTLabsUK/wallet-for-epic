@@ -218,11 +218,11 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
                       ),
                     ),
                     SizedBox(width: Sp.x4),
-                    // Its own control with its own label (review 11): it sets only the topics'
-                    // language. Level with the field, above the field's one-line hint.
+                    // Its own control (review 11, named "Help language" to a screen reader): it
+                    // sets only the topics' language. Level with the field, above its hint.
                     Padding(
                       padding: EdgeInsets.only(bottom: 24.u),
-                      child: EField(label: context.l10n.helpLanguageLabel, child: _HelpLanguageSwitch(current: lang)),
+                      child: _HelpLanguageSwitch(current: lang),
                     ),
                   ],
                 ),
@@ -408,7 +408,7 @@ class _StartAgainGroup extends ConsumerWidget {
         ESetRow(
           anchor: SetId.tour,
           title: l.deskSetHelpTourAgain,
-          control: ERowControl(child: EButton(label: l.deskSetHelpTourStart, icon: EIcons.restart, size: EBtnSize.sm, onPressed: () => startDeskTour(ref))),
+          control: ERowControl(child: EButton(label: l.deskSetHelpTourStart, icon: EIcons.restart, size: EBtnSize.sm, hit44: true, onPressed: () => startDeskTour(ref))),
         ),
         if (setup) setupRow,
       ],

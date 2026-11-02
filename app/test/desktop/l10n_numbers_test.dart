@@ -43,12 +43,12 @@ void main() {
     expect(formatEpic(nano), '1,281.5261');
   });
 
-  for (final (lang, key) in [('de', 'Seed-Phrase'), ('pl', 'Fraza odzyskiwania'), ('de', 'Guthaben neu prüfen')]) {
+  for (final (lang, key) in [('de', 'Netzwerk & Datenschutz'), ('pl', 'Sieć i prywatność'), ('de', 'Erweitert')]) {
     testWidgets('$lang settings sections are whole at 1280x800', (tester) async {
       tester.view.physicalSize = const Size(1280, 800);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
-      await tester.pumpWidget(_app(lang, const SettingsFrame(route: DeskRoute.settingsAbout, child: SizedBox())));
+      await tester.pumpWidget(_app(lang, const Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [SettingsColumn(route: DeskRoute.settingsAbout)])));
       await tester.pump(const Duration(milliseconds: 300));
       expect(tester.takeException(), isNull);
       expect(find.text(key), findsOneWidget);

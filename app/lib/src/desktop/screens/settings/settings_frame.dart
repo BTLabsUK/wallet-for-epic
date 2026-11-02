@@ -87,7 +87,11 @@ class SettingsColumn extends ConsumerWidget {
             ),
             Padding(
               padding: EdgeInsets.fromLTRB(Sp.x4, Sp.x2, Sp.x4, Sp.x3),
-              child: Semantics(header: true, child: Text(l.deskSetFrameTitle, style: ts.h2, maxLines: 1, overflow: TextOverflow.ellipsis)),
+              // The tour lights it as the place it shows (the sidebar's Settings entry is gone here).
+              child: TourTarget(
+                id: 'nav-settings',
+                child: Semantics(header: true, child: Text(l.deskSetFrameTitle, style: ts.h2, maxLines: 1, overflow: TextOverflow.ellipsis)),
+              ),
             ),
             Padding(padding: EdgeInsets.symmetric(horizontal: Sp.x3), child: const SettingsSearchSlot()),
             Expanded(

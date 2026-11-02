@@ -95,7 +95,8 @@ void main() {
     testWidgets('Payment methods: one switch per method, grouped by family, Epicbox on', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
       // The page's header is the nav item's name (polish #88): the nav and the header.
-      expect(find.text('Transactions'), findsWidgets);
+      expect(find.text('Payments'), findsWidgets);
+      expect(find.text('Methods'), findsOneWidget);
       expect(find.text('Payment methods'), findsNothing);
       expect(find.text('Always on'), findsNothing);
       expect(tester.widget<ESwitch>(_offer('epicbox')).value, isTrue);
@@ -139,9 +140,9 @@ void main() {
       expect(find.textContaining('Node only'), findsWidgets);
       await tester.tap(_offer('linkTor'));
       await _settle(tester);
-      expect(find.byKey(const ValueKey('st-tor-needs-tor')), findsOneWidget);
+      // Item 2: no "Tor is off" card; Tor for payments is the switch's own business.
+      expect(find.byKey(const ValueKey('st-tor-needs-tor')), findsNothing);
       expect(find.text('Turn on Tor'), findsNothing);
-      expect(find.descendant(of: find.byKey(const ValueKey('st-tor-needs-tor')), matching: find.text('Off in Node only.')), findsOneWidget);
       await tester.pump(const Duration(seconds: 5));
     }, skip: !torBuilt);
 
@@ -166,190 +167,15 @@ void main() {
       expect(find.byKey(const ValueKey('st-details-linkHttp')), findsNothing);
     }, skip: !torBuilt);
 
-    testWidgets('Link · Tor saves; with Tor off its row says what it needs, with Tor on its group shows the Tor state', (tester) async {
+    testWidgets('Link · Tor saves; no Tor-is-off card (item 2); its ⓘ says what Tor covers', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
       await tester.tap(_offer('linkTor'));
       await _settle(tester);
       expect(_payments.linkTor, isTrue);
-      expect(find.byKey(const ValueKey('st-tor-needs-tor')), findsOneWidget);
-      expect(find.text('Tor is off. Turn it on under Network & privacy to be paid at the Tor address.'), findsOneWidget);
-      expect(find.byKey(const ValueKey('st-details-linkTor')), findsOneWidget);
-      // Tor is switched on Network & privacy only (B-03): the notice leads there.
-      expect(find.widgetWithText(EButton, 'Turn on Tor'), findsNothing);
-      await tester.tap(find.byKey(const ValueKey('st-tor-open-network')));
-      await _settle(tester);
-      expect(_container.read(deskNavProvider).route, DeskRoute.settingsPrivacy);
-      await tester.runAsync(() => _container.read(deskProvider.notifier).setTor(true));
-      _container.read(deskNavProvider.notifier).go(DeskRoute.settingsReceiving);
-      await _settle(tester);
-      expect(_container.read(deskProvider).settings.tor, isTrue);
       expect(find.byKey(const ValueKey('st-tor-needs-tor')), findsNothing);
-      expect(find.byKey(const ValueKey('st-state-tor')), findsOneWidget);
-      expect(find.byKey(const ValueKey('st-switch-tor')), findsNothing, reason: 'Tor itself is Privacy\'s switch');
-    }, skip: !torBuilt);
-
-    testWidgets('the Epicbox switch saves, stops the listener, its rows fold away, and comes back on with them', (tester) async {
-      await _open(tester, DeskRoute.settingsReceiving);
-      expect(_container.read(deskProvider).status?.epicboxHealth, isNot(ServiceHealth.off));
-      expect(find.byKey(const ValueKey('st-details-epicbox')), findsOneWidget);
-      await tester.tap(_offer('epicbox'));
-      await _settle(tester);
-      expect(_payments.epicbox, isFalse);
-      expect(NetGate.epicbox, isFalse);
-      expect(_container.read(deskProvider).status?.epicboxHealth, ServiceHealth.off);
-      // Off: the switch says it all; the receiving rows (listener, autostart, server) are gone.
-      expect(find.byKey(const ValueKey('st-details-epicbox')), findsNothing);
-      expect(find.byKey(const ValueKey('st-switch-epicbox')), findsNothing);
-      // No confirm: nothing waited for a reply.
-      expect(find.text('Turn Epicbox off?'), findsNothing);
-      await tester.tap(_offer('epicbox'));
-      await _settle(tester);
-      expect(_payments.epicbox, isTrue);
-      expect(NetGate.epicbox, isTrue);
-      expect(find.byKey(const ValueKey('st-details-epicbox')), findsOneWidget);
-      expect(tester.widget<ESwitch>(find.byKey(const ValueKey('st-switch-epicbox'))).onChanged, isNotNull);
-    });
-
-    testWidgets('Epicbox off while a send waits for its reply over Epicbox asks first', (tester) async {
-      await _open(tester, DeskRoute.settingsReceiving, pendingEpicbox: true);
-      await tester.tap(_offer('epicbox'));
-      await _settle(tester);
-      expect(find.text('Turn Epicbox off?'), findsOneWidget);
-      expect(find.text('A payment is waiting for its reply over Epicbox. It arrives when Epicbox is on again.'), findsOneWidget);
-      await tester.tap(find.text('Cancel'));
-      await _settle(tester);
-      expect(_payments.epicbox, isTrue);
-      await tester.tap(_offer('epicbox'));
-      await _settle(tester);
-      await tester.tap(find.text('Turn off'));
-      await _settle(tester);
-      expect(_payments.epicbox, isFalse);
-    });
-
-    testWidgets('the File Transfer switch saves', (tester) async {
-      await _open(tester, DeskRoute.settingsReceiving);
-      await tester.tap(_offer('directFile'));
-      await _settle(tester);
-      expect(_payments.directFile, isFalse);
-      await tester.tap(_offer('directFile'));
-      await _settle(tester);
-      expect(_payments.directFile, isTrue);
-    });
-
-    testWidgets('the last method on stays on: the switch does not move and a toast says why', (tester) async {
-      await _open(tester, DeskRoute.settingsReceiving, payments: PaymentPrefs.defaults.copyWith(directFile: false));
-      expect(_payments.on, [MethodKind.epicbox]);
-      await tester.tap(_offer('epicbox'));
-      await _settle(tester);
-      expect(_payments.epicbox, isTrue);
-      expect(find.text('Keep at least one payment method on.'), findsOneWidget);
-      expect(NetGate.epicbox, isTrue);
-    });
-
-    testWidgets('a listener Receive started keeps the HTTP group: it is the same switch', (tester) async {
-      await _open(tester, DeskRoute.settingsReceiving);
-      await tester.runAsync(() => _container.read(deskProvider.notifier).setHttp(true));
-      await _settle(tester);
-      expect(_payments.linkHttp, isTrue, reason: 'Receive\'s Try again and the method switch are one setting');
-      expect(tester.widget<ESwitch>(_offer('linkHttp')).value, isTrue);
-      expect(find.byKey(const ValueKey('st-details-linkHttp')), findsOneWidget);
-    });
-  });
-
-  group('Send starts on', () {
-    testWidgets('lists the methods that are on, Link once for its family, and the choice saves', (tester) async {
-      await _open(tester, DeskRoute.settingsReceiving);
-      final start = find.descendant(of: find.byKey(const ValueKey('st-start-method')), matching: find.byType(ESegmented<MethodKind>));
-      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Direct · File']);
-      await tester.tap(find.descendant(of: start, matching: find.text('Direct · File')));
-      await _settle(tester);
-      expect(_payments.defaultMethod, MethodKind.directFile);
-      await tester.tap(_offer('linkTor'));
-      await _settle(tester);
-      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Link', 'Direct · File']);
-      await tester.tap(_offer('linkHttp'));
-      await _settle(tester);
-      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Link', 'Direct · File'], reason: 'Link once');
-    }, skip: !torBuilt);
-
-    testWidgets('a default that is switched off falls back to Epicbox and is not offered', (tester) async {
-      await _open(tester, DeskRoute.settingsReceiving, payments: const PaymentPrefs(linkHttp: true, defaultMethod: MethodKind.linkHttp));
-      final start = find.descendant(of: find.byKey(const ValueKey('st-start-method')), matching: find.byType(ESegmented<MethodKind>));
-      expect(tester.widget<ESegmented<MethodKind>>(start).value, MethodKind.linkHttp);
-      await tester.tap(_offer('linkHttp'));
-      await _settle(tester);
-      expect(_payments.startMethod, MethodKind.epicbox);
-      expect(tester.widget<ESegmented<MethodKind>>(start).segments.map((s) => s.label), ['Epicbox', 'Direct · File']);
-      expect(tester.widget<ESegmented<MethodKind>>(start).value, MethodKind.epicbox);
-    });
-
-    testWidgets('with only Epicbox on there is nothing to choose', (tester) async {
-      await _open(tester, DeskRoute.settingsReceiving, payments: const PaymentPrefs(directFile: false));
-      expect(find.byKey(const ValueKey('st-start-method')), findsNothing);
-    });
-
-    testWidgets('Send opens on the chosen method', (tester) async {
-      await _open(tester, DeskRoute.send, payments: const PaymentPrefs(defaultMethod: MethodKind.directFile));
-      expect(_selected<TxMethod?>(tester), TxMethod.file);
-    });
-
-    testWidgets('Send opens on Link when that is the choice and a Link method is on', (tester) async {
-      await _open(tester, DeskRoute.send, payments: const PaymentPrefs(linkTor: true, defaultMethod: MethodKind.linkHttp));
-      expect(_selected<TxMethod?>(tester), TxMethod.http);
-    }, skip: !torBuilt);
-
-    testWidgets('Send opens on Epicbox when the chosen method was switched off', (tester) async {
-      await _open(tester, DeskRoute.send, payments: const PaymentPrefs(directFile: false, defaultMethod: MethodKind.directFile));
-      expect(_selected<TxMethod?>(tester), TxMethod.epicbox);
-    });
-
-    testWidgets('Epicbox switched off while Send is open: an empty form moves to the start method', (tester) async {
-      await _open(tester, DeskRoute.send, payments: const PaymentPrefs(linkHttp: true));
-      expect(_selected<TxMethod?>(tester), TxMethod.epicbox);
-      await tester.runAsync(() => _container.read(deskProvider.notifier).saveSettings(_container.read(deskProvider).settings.copyWith(payments: const PaymentPrefs(epicbox: false, linkHttp: true))));
-      await _settle(tester);
-      expect(_selected<TxMethod?>(tester), TxMethod.http);
-      expect(find.byKey(const ValueKey('send-epicbox-off')), findsNothing);
-    });
-  });
-
-  group('Send defaults', () {
-    testWidgets('Strategy and Split change are not shown by default', (tester) async {
-      await _open(tester, DeskRoute.settingsReceiving);
-      expect(find.byKey(const ValueKey('st-strategy')), findsNothing);
-      expect(find.byKey(const ValueKey('st-split')), findsNothing);
-    });
-
-    testWidgets('Strategy and Split change show with Advanced › Send options', (tester) async {
-      await _open(tester, DeskRoute.settingsReceiving, advanced: AdvancedPrefs(features: {AdvancedFeature.sendOptions}));
-      expect(find.byKey(const ValueKey('st-strategy')), findsOneWidget);
-      expect(find.byKey(const ValueKey('st-split')), findsOneWidget);
-    });
-
-    testWidgets('they save per wallet, as the Outputs page’s box did', (tester) async {
-      await _open(tester, DeskRoute.settingsReceiving, advanced: AdvancedPrefs(features: {AdvancedFeature.sendOptions}));
-      await tester.tap(find.descendant(of: find.byKey(const ValueKey('st-strategy')), matching: find.text('All')));
-      await _settle(tester);
-      expect(_container.read(deskOutputPrefsProvider).value!.strategy.name, 'all');
-      final before = _container.read(deskOutputPrefsProvider).value!.smartOutputs;
-      await tester.tap(find.descendant(of: find.byKey(const ValueKey('st-split')), matching: find.byType(ESwitch)));
-      await _settle(tester);
-      expect(_container.read(deskOutputPrefsProvider).value!.smartOutputs, !before);
-    });
-
-    testWidgets('linux-07: Split change says which change it splits, behind its info icon', (tester) async {
-      await _open(tester, DeskRoute.settingsReceiving, advanced: AdvancedPrefs(features: {AdvancedFeature.sendOptions}));
-      // The rule (smart_outputs.dart): change of at least 1 EPIC, parts of at least 0.5 EPIC.
-      final hint = find.byWidgetPredicate((w) => w is EInfoHint && w.text.contains('at least 1 EPIC') && w.text.contains('0.5 EPIC'));
-      expect(hint, findsOneWidget);
-      expect(find.textContaining('at least 1 EPIC'), findsNothing);
-    });
-
-    testWidgets('Outputs has no defaults box and, with Send options off, no line either', (tester) async {
-      await _open(tester, DeskRoute.outputs, advanced: AdvancedPrefs(features: {AdvancedFeature.outputs}));
-      expect(find.text('Defaults for sends'), findsNothing);
-      expect(find.text('Strategy for sends'), findsNothing);
-      expect(find.byKey(const ValueKey('out-defaults-moved')), findsNothing, reason: 'Send options is off');
+      expect(find.text('Tor is off. Turn it on under Network & privacy to be paid at the Tor address.'), findsNothing);
+      expect(find.byKey(const ValueKey('st-details-linkTor')), findsOneWidget);
+      expect(find.widgetWithText(EButton, 'Turn on Tor'), findsNothing);
     });
 
     testWidgets('Outputs holds one line to Payments with Send options on', (tester) async {
@@ -359,7 +185,7 @@ void main() {
       expect(find.text('Strategy for sends'), findsNothing);
       await tester.tap(find.text('Open Transactions'));
       await _settle(tester);
-      expect(find.text('Transactions'), findsWidgets);
+      expect(find.text('Payments'), findsWidgets);
       expect(find.byKey(const ValueKey('st-strategy')), findsOneWidget);
     });
   });
