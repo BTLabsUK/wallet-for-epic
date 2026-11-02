@@ -160,8 +160,11 @@ void main() {
       ),
       store,
     );
+    // The way is named on the file route; the recipient field picks the method on the first step.
+    await tester.tap(find.text('Pay with a file'));
+    await tester.pumpAndSettle();
     await _closeAndBringBack(tester, container, store, sendMethodTipId, [
-      find.byKey(sendRecipientFieldKey),
+      find.byKey(sendFileAmountFieldKey),
     ]);
   });
 

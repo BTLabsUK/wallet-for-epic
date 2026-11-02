@@ -185,7 +185,7 @@ Future<void> _untilRendered(WidgetTester tester, bool Function() done) async {
 
 void main() {
   group('tabs', () {
-    testWidgets('three tabs with Send\'s look; Epicbox address by default', (
+    testWidgets('two tabs without Tor with Send\'s look; Epicbox address by default', (
       tester,
     ) async {
       final h = _Harness();
@@ -202,8 +202,8 @@ void main() {
             // The whole name: a long one wraps in two lines on the tab (PH-1).
             (s.value, s.tooltip),
         ],
-        // Link stays whatever Settings says.
-        [(ReceiveTab.epicbox, 'Epicbox'), (ReceiveTab.direct, 'Link'), (ReceiveTab.file, 'Direct · File')],
+        // The phone's Link is Tor only: no Tor in this harness, no Link tab.
+        [(ReceiveTab.epicbox, 'Epicbox'), (ReceiveTab.file, 'Direct · File')],
       );
       // The icon above the label, on every tab.
       expect(
@@ -211,7 +211,7 @@ void main() {
           for (final s in tabs.segments)
             tester.widget<Icon>(find.descendant(of: find.byWidget(s.label!), matching: find.byType(Icon))).icon,
         ],
-        [EpicGlyphs.epicbox, EpicGlyphs.link, Icons.description_outlined],
+        [EpicGlyphs.epicbox, Icons.description_outlined],
       );
       // Full width: as wide as the address card under it.
       expect(
