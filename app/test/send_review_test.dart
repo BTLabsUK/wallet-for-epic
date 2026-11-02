@@ -517,15 +517,14 @@ void main() {
   });
 
   group('file route', () {
-    testWidgets('File in the selector, with the file help', (tester) async {
+    testWidgets('Pay with a file, with the file help', (tester) async {
       final h = _Harness();
       await h.pump(tester);
-      // The method selector up front, Epicbox chosen, and one address field.
-      expect(find.byKey(sendMethodsKey), findsOneWidget);
+      // One address field, and the way to a file under it.
+      expect(find.byKey(sendMethodsKey), findsNothing);
       expect(find.widgetWithText(TextField, 'To'), findsOneWidget);
-      expect(find.text('esXXXX…XXXX@box.epic.invalid'), findsOneWidget);
 
-      await _tap(tester, find.text('Direct · File'));
+      await _tap(tester, find.text('Pay with a file'));
       expect(find.text('Direct · File Transfer'), findsOneWidget);
       expect(find.widgetWithText(TextField, 'To'), findsNothing);
       expect(find.text('Make transaction file'), findsOneWidget);
@@ -556,7 +555,7 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      await _tap(tester, find.text('Direct · File'));
+      await _tap(tester, find.text('Pay with a file'));
       await _enter(tester, 'Amount (EPIC)', '1.5');
       final tipsBefore = h.service.tipCalls;
       await _tap(tester, find.text('Make transaction file'));
@@ -591,7 +590,7 @@ void main() {
     testWidgets('a file send signs the note in and keeps it', (tester) async {
       final h = _Harness();
       await h.pump(tester);
-      await _tap(tester, find.text('Direct · File'));
+      await _tap(tester, find.text('Pay with a file'));
       await _enter(tester, 'Amount (EPIC)', '1.5');
       await _tap(tester, find.text('Add a message'));
       await _enter(tester, 'Message', ' For rent ');
@@ -603,7 +602,7 @@ void main() {
     testWidgets('a file send without a note signs none in', (tester) async {
       final h = _Harness();
       await h.pump(tester);
-      await _tap(tester, find.text('Direct · File'));
+      await _tap(tester, find.text('Pay with a file'));
       await _enter(tester, 'Amount (EPIC)', '1.5');
       await _tap(tester, find.text('Make transaction file'));
       expect(h.session.sentMessages, [null]);
@@ -620,7 +619,7 @@ void main() {
           case 'amount':
             await _recipient(tester, _bob);
           case 'file':
-            await _tap(tester, find.text('Direct · File'));
+            await _tap(tester, find.text('Pay with a file'));
           case 'review':
             await _review(tester, _bob);
         }
