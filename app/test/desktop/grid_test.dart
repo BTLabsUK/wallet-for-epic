@@ -206,7 +206,12 @@ void main() {
           expect(panels.first.width, moreOrLessEquals(summary.width, epsilon: 0.5));
           expect(summary.top, greaterThan(panels.first.bottom));
         } else {
-          _expectOneUnit(tester, 'Send, $at');
+          // The form has no header band (the address decides the method); only the Summary has one.
+          final row = tester.renderObject<RenderPanelRow>(find.byType(PanelRow));
+          final main = _rect(row.firstChild!);
+          final side = _rect(row.childAfter(row.firstChild!)!);
+          expect(main.top, moreOrLessEquals(side.top, epsilon: 0.5), reason: 'Send, $at: tops');
+          expect(main.bottom, moreOrLessEquals(side.bottom, epsilon: 0.5), reason: 'Send, $at: bottoms');
         }
         expect(tester.takeException(), isNull);
         await _done(tester);
