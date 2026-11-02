@@ -355,6 +355,9 @@ class App:
             if old.info.get("dry") or old.info.get("no_relmsg"):
                 continue
             Relmsg(old, self.pipeline.relmsg).done("aborted", note=f"superseded by {new_run.info['run_id']}")
+            if (old.info.get("relmsg") or {}).get("ended") == "aborted":
+                old.info["relmsg"]["superseded_by"] = new_run.info["run_id"]  # a resume does not reopen it
+                old.save_info()
 
     def relmsg_start(self, run, eng):
         """Opens the run's live message (idempotent on the run id) and shows every step's state

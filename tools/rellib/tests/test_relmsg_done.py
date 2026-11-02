@@ -117,6 +117,38 @@ class RelmsgDoneTest(Base):
             run.unlock()
         self.assertEqual(len(self.dones()), 3)
 
+    def starts(self):
+        return [l for l in self.relmsg_calls().splitlines() if " start " in f" {l}"]
+
+    def test_a_stopped_run_resumes_under_a_new_relay_release(self):
+        run = self.make_run()
+        rm = Relmsg(run, {"bin": self.fake})
+        rm.start(["scope"], [])
+        rm.done("aborted", note="tools/rel stopped by SIGTERM")
+        again = Relmsg(Run(run.path), {"bin": self.fake})  # tools/rel resume
+        again.reopen()
+        self.assertIsNone(again.release_id)
+        self.assertIsNone(again.ended)
+        again.start(["scope"], [])
+        self.assertIn(f"--run-id {run.info['run_id']}+1", self.starts()[-1])
+        self.assertEqual(Run(run.path).info["relmsg"]["previous"], [7])
+        self.assertTrue(again.done("ok"))
+
+    def test_a_superseded_or_finished_run_stays_ended(self):
+        old = self.make_run()
+        Relmsg(old, {"bin": self.fake}).start(["scope"], [])
+        self.app().supersede(self.make_run())
+        ok = self.make_run()
+        rm = Relmsg(ok, {"bin": self.fake})
+        rm.start(["scope"], [])
+        rm.done("ok")
+        for run in (old, ok):
+            again = Relmsg(Run(run.path), {"bin": self.fake})
+            again.reopen()
+            self.assertIsNotNone(again.ended)
+            self.assertEqual(again.release_id, 7)
+        self.assertEqual(Run(old.path).info["relmsg"]["superseded_by"].split("-run")[0], "26.10.25")
+
     def test_main_turns_a_signal_into_128_plus_n_and_restores_the_handlers(self):
         before = signal.getsignal(signal.SIGTERM)
         orig = App.cmd_status
