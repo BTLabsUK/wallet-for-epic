@@ -39,6 +39,9 @@ import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/history/backup_summary.dart';
 import 'package:epic_wallet/src/ui/settings_pin.dart';
 import 'package:epic_wallet/src/ui/licences_screen.dart';
+import 'package:epic_wallet/src/ui/settings_sections.dart' show epicCashUrl;
+import 'package:epic_wallet/src/ui/network_mode_phone.dart' show networkModeRowKey, networkSectionKey;
+import 'package:epic_wallet/src/address_format.dart' show shownUrl;
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/ui/tor_ui.dart';
 import 'package:epic_wallet/src/updater.dart';
@@ -154,6 +157,9 @@ class _Harness {
     if (sealed) {
       store.values['wallet.mainnet.pinSealed'] = fakeSealedPassword(_pin);
     }
+    // Home's recovery phrase reminder (a notice, due once a day) was shown today: it is not
+    // what these tests look at, and an open dock would move the rows they measure.
+    store.values['wallet.mainnet.backupNoticeAt'] = '${now.millisecondsSinceEpoch}';
     service = FakeWalletService(
       existingWallets: walletExists ? {_mainnetDir} : {},
       session: session,
@@ -538,8 +544,7 @@ void main() {
       }
       for (final section in SettingsSection.values) {
         // The hub has eight rows now: the last may be below the fold.
-        await tester.ensureVisible(find.byKey(settingsGroupKey(section)));
-        await tester.pumpAndSettle();
+        await _reveal(tester, find.byKey(settingsGroupKey(section)));
         await tester.tap(find.byKey(settingsGroupKey(section)));
         await tester.pumpAndSettle();
         expect(find.byKey(settingsSectionKey(section)), findsOneWidget);
@@ -574,8 +579,8 @@ void main() {
       expect((tiles.last.title as Text).data, 'Delete wallet');
     });
 
-    testWidgets('Privacy & network opens at once with the Tor switch under '
-        'the Privacy header', (tester) async {
+    testWidgets('Privacy & network opens at once with the Connection mode '
+        'rows under the Network header', (tester) async {
       final h = _Harness(tor: true);
       await h.pump(tester);
       await h.unlock(tester);
@@ -594,13 +599,15 @@ void main() {
         find.byKey(settingsSectionKey(SettingsSection.privacyNetwork)),
         findsOneWidget,
       );
-      expect(find.byKey(settingsPrivacyKey), findsOneWidget);
-      expect(find.byKey(torReceivingSwitchKey), findsOneWidget);
+      expect(find.byKey(networkSectionKey), findsOneWidget);
+      // Tor only is the one whole-wallet Tor control; there is no Tor switch.
+      expect(find.byKey(networkModeRowKey(NetworkMode.torOnly)), findsOneWidget);
+      expect(find.byKey(torReceivingSwitchKey), findsNothing);
       expect(
-        tester.getTopLeft(find.byKey(torReceivingSwitchKey)).dy,
-        greaterThan(tester.getTopLeft(find.byKey(settingsPrivacyKey)).dy),
+        tester.getTopLeft(find.byKey(networkModeRowKey(NetworkMode.torOnly))).dy,
+        greaterThan(tester.getTopLeft(find.byKey(networkSectionKey)).dy),
       );
-    }, skip: !torBuilt);
+    });
   });
 
   group('updates on opening', () {
@@ -1605,7 +1612,8 @@ void main() {
       expect(find.text('Licences'), findsOneWidget);
       await _reveal(tester, find.text('Source code'));
       expect(find.text('Source code'), findsOneWidget);
-      expect(find.text('Epic Cash'), findsWidgets, reason: 'the other links stay');
+      // The site link reads as its address.
+      expect(find.text(shownUrl(epicCashUrl!)), findsOneWidget, reason: 'the other links stay');
       await _reveal(tester, find.text(hostSettings.supportEmail!));
       expect(find.text('Contact'), findsOneWidget);
       // An email address, not a link: the notice says so.
@@ -1833,11 +1841,12 @@ void main() {
         await tester.pumpAndSettle();
       }
 
+      // In the page's order: _reveal only scrolls down.
       await noSubtitles(SettingsSection.wallet, [
+        'Contacts',
         'Export wallet data',
         'Export CSV',
         'Import wallet data',
-        'Contacts',
         'Recheck balance',
         'Delete wallet',
       ]);
