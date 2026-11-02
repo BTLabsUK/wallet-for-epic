@@ -26212,7 +26212,7 @@
       }
     }
   },
-  "deskSetDlgRemoveUnlockHintSecurity": "To delete its files as well, unlock this wallet and use Delete wallet under Settings › Wallet.",
+  "deskSetDlgRemoveUnlockHintSecurity": "To delete its files as well, unlock this wallet and use Delete wallet under Settings › Wallet.",
   "@deskSetDlgRemoveUnlockHintSecurity": {
     "description": "Remove wallet dialog: shown for a locked wallet. \"Settings › Security\" is a menu path (the Security page, where Delete wallet is)."
   },

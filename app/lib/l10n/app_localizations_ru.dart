@@ -19975,7 +19975,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetDlgRemoveUnlockHintSecurity =>
-      'Чтобы удалить и его файлы, разблокируйте этот кошелёк и выберите «Удалить кошелёк» в разделе «Настройки › Кошелёк».';
+      'Чтобы удалить и его файлы, разблокируйте этот кошелёк и выберите «Удалить кошелёк» в разделе «Настройки › Кошелёк».';
 
   @override
   String get deskRecvHttpTorHintNet =>
