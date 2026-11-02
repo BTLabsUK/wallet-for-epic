@@ -180,12 +180,13 @@ void main() {
       await _open(tester, DeskRoute.send);
       await _type(tester, 'Recipient', 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNL@box.epic.invalid');
       await _type(tester, 'Amount', '1');
-      final tabs = await _tabs(tester, _edit('Recipient'), 8);
-      // Contacts is the stop right after its field; paste and clear are not. The Advanced
-      // disclosure follows Message, then the summary's help icon (keyboard-reachable), then Review.
-      expect(tabs.take(7), ['button:Contacts', 'field:Amount in EPIC', 'button:Max', 'field:Message', 'details', 'help:Why the change is split', 'button:Review']);
+      final tabs = await _tabs(tester, _edit('Recipient'), 9);
+      // A filled To has its × as a stop (the only Clear, tester report 26.10.21), then Contacts;
+      // paste is not a stop. The Advanced disclosure follows Message, then the summary's help
+      // icon (keyboard-reachable), then Review.
+      expect(tabs.take(8), ['icon:Clear recipient', 'button:Contacts', 'field:Amount in EPIC', 'button:Max', 'field:Message', 'details', 'help:Why the change is split', 'button:Review']);
       expect(tabs.last, startsWith('nav:'), reason: 'the sidebar comes after the form');
-      expect(tabs, _noSecondary);
+      expect(tabs.where((t) => t != 'icon:Clear recipient'), _noSecondary);
       await _end(tester);
     });
 
