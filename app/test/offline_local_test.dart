@@ -53,6 +53,11 @@ class _Wallet implements lepic.EpicWallet {
     return lepic.HttpSentTx(txId: 5, slateId: 'sent-1', amount: amount, fee: BigInt.one, posted: true);
   }
 
+  final List<bool> torSet = [];
+
+  @override
+  void setHttpOverTor({required bool enabled}) => torSet.add(enabled);
+
   @override
   dynamic noSuchMethod(Invocation invocation) => throw StateError('reached LEPIC: ${invocation.memberName}');
 }
@@ -262,15 +267,31 @@ void main() {
     }
 
     for (final mode in [NetworkMode.standard, NetworkMode.torOnly]) {
-      test('${mode.name}: a send and a resend over plain http are refused before LEPIC', () async {
+      test('${mode.name}: a send and a resend over plain http to the internet are refused before LEPIC', () async {
         NetGate.set(mode);
         TorSwitch.on = true;
         final off = throwsA(isA<PlainHttpOffWithTor>());
-        await expectLater(send('http://10.0.1.30:3415'), off);
+        await expectLater(send('http://203.0.113.5:3415'), off);
         await expectLater(session.resendHttp(txId: 5, url: 'HTTP://203.0.113.5:3415', allowPlainHttp: true), off);
         expect(wallet.sentTo, isEmpty);
       });
     }
+
+    test('standard: plain http to the local network goes direct, with Tor back on after', () async {
+      NetGate.set(NetworkMode.standard);
+      TorSwitch.on = true;
+      expect(await send('http://10.0.1.30:3415'), 'http://10.0.1.30:3415');
+      expect(wallet.torSet, [false, true]);
+    });
+
+    test('torOnly: plain http to the local network is refused before LEPIC', () async {
+      NetGate.set(NetworkMode.torOnly);
+      TorSwitch.on = true;
+      final off = throwsA(isA<PlainHttpOffWithTor>());
+      await expectLater(send('http://10.0.1.30:3415'), off);
+      await expectLater(session.resendHttp(txId: 5, url: 'HTTP://10.0.1.30:3415', allowPlainHttp: true), off);
+      expect(wallet.sentTo, isEmpty);
+    });
 
     test('https and this device still go; onions take sendTor, untouched', () async {
       TorSwitch.on = true;
