@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/settings_file/settings_layout.dart' show checkOnion;
 import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/tor_routes.dart';
@@ -84,5 +85,9 @@ void main() {
   // The build without Tor keeps the in-app updater (it reads the notor section of update.json).
   test('in-app updates as in the build with Tor', () {
     expect(inAppUpdates, distUpdates);
+  }, skip: _skip);
+
+  test('the settings file reports no onion problem', () {
+    expect(checkOnion('not-an-onion'), isNull);
   }, skip: _skip);
 }

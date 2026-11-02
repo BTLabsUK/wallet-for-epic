@@ -66,7 +66,7 @@
   "deskNodeDurationHm": "{hours} ชั่วโมง {minutes} นาที",
   "deskNodeDurationM": "{minutes} นาที",
   "deskTorNetworkLabel": "เครือข่าย Tor",
-  "deskTorNetworkHint": "การเชื่อมต่อเครือข่ายจะผ่านเครือข่าย Tor ซึ่งซ่อนที่อยู่ IP ของกระเป๋าเงิน: แต่ละการเชื่อมต่อผ่านรีเลย์หลายตัวที่อาสาสมัครดูแล จึงไม่มีเซิร์ฟเวอร์ไหนรู้ว่ากระเป๋าเงินอยู่ที่ไหน",
+  "deskTorNetworkHint": "การเชื่อมต่อเครือข่ายจะผ่านเครือข่าย Tor",
   "deskTorOff": "ปิด",
   "deskTorStarting": "กำลังเริ่ม…",
   "deskTorOn": "เปิด",

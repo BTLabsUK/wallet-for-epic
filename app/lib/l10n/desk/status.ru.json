@@ -66,7 +66,7 @@
   "deskNodeDurationHm": "{hours} ч {minutes} мин",
   "deskNodeDurationM": "{minutes} мин",
   "deskTorNetworkLabel": "Сеть Tor",
-  "deskTorNetworkHint": "Сетевая активность идёт через сеть Tor. Tor скрывает IP-адрес кошелька: каждое соединение проходит через несколько узлов, которые держат добровольцы, и ни один сервер не узнаёт, где находится кошелёк.",
+  "deskTorNetworkHint": "Сетевая активность идёт через сеть Tor.",
   "deskTorOff": "Выкл.",
   "deskTorStarting": "Запуск…",
   "deskTorOn": "Вкл.",

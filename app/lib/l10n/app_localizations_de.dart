@@ -5455,7 +5455,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Die Netzwerkaktivität läuft über das Tor-Netzwerk. Tor verbirgt die IP-Adresse der Wallet: Jede Verbindung geht über mehrere ehrenamtlich betriebene Relays, sodass kein Server erfährt, wo die Wallet ist. Um unter einer Tor-Adresse bezahlt zu werden, schalten Sie Link · Tor unter Einstellungen › Transaktionen ein.';
+      'Die Netzwerkaktivität läuft über das Tor-Netzwerk. Um unter einer Tor-Adresse bezahlt zu werden, schalten Sie Link · Tor unter Einstellungen › Transaktionen ein.';
 
   @override
   String get receiveTabDirect => 'Link';
@@ -6215,7 +6215,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskTorNetworkHint =>
-      'Die Netzwerkaktivität läuft über das Tor-Netzwerk. Tor verbirgt die IP-Adresse der Wallet: Jede Verbindung geht über mehrere ehrenamtlich betriebene Relays, sodass kein Server erfährt, wo die Wallet ist.';
+      'Die Netzwerkaktivität läuft über das Tor-Netzwerk.';
 
   @override
   String get deskTorOff => 'Aus';
@@ -18135,7 +18135,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get lvPickTorLead =>
-      'Die erste Verbindung kann eine Minute dauern. Nichts geht an Tor vorbei.';
+      'Die erste Verbindung über Tor kann eine Minute dauern.';
 
   @override
   String get lvPickTorBusy => 'Verbindung wird aufgebaut…';

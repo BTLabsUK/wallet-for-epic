@@ -8605,7 +8605,7 @@ abstract class AppLocalizations {
   /// Tooltip of the Tor Network switch and status row (its info icon): what the switch does and what Tor is, in plain words. Never list what does not go over Tor.
   ///
   /// In en, this message translates to:
-  /// **'Network activity goes through the Tor network. Tor hides the wallet’s IP address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. To get paid at a Tor address, turn on Link · Tor in Settings › Transactions.'**
+  /// **'Network activity goes through the Tor network. To get paid at a Tor address, turn on Link · Tor in Settings › Transactions.'**
   String get torNetworkHint;
 
   /// Receive tab: receiving straight to this wallet at its onion address.
@@ -9817,7 +9817,7 @@ abstract class AppLocalizations {
   /// Explains what the Tor switch does, in the info hover card behind the Tor switch.
   ///
   /// In en, this message translates to:
-  /// **'Network activity goes through the Tor network. Tor hides the wallet’s IP address: each connection passes through several volunteer-run relays, so no server learns where the wallet is.'**
+  /// **'Network activity goes through the Tor network.'**
   String get deskTorNetworkHint;
 
   /// Tor state word: the switch is off. Short.
@@ -27903,7 +27903,7 @@ abstract class AppLocalizations {
   /// Waiting for Tor: line under the heading.
   ///
   /// In en, this message translates to:
-  /// **'The first connection can take a minute. Nothing goes around Tor.'**
+  /// **'The first connection through Tor can take a minute.'**
   String get lvPickTorLead;
 
   /// Waiting for Tor: the busy line.

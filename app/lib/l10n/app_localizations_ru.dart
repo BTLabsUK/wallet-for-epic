@@ -5518,7 +5518,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Сетевая активность идёт через сеть Tor. Tor скрывает IP-адрес кошелька: каждое соединение проходит через несколько добровольческих узлов, и ни один сервер не узнаёт, где находится кошелёк. Чтобы получать платежи на адрес Tor, включите «Ссылка · Tor» в Настройки › Транзакции.';
+      'Сетевая активность идёт через сеть Tor. Чтобы получать платежи на адрес Tor, включите «Ссылка · Tor» в Настройки › Транзакции.';
 
   @override
   String get receiveTabDirect => 'Ссылка';
@@ -6282,8 +6282,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskTorNetworkLabel => 'Сеть Tor';
 
   @override
-  String get deskTorNetworkHint =>
-      'Сетевая активность идёт через сеть Tor. Tor скрывает IP-адрес кошелька: каждое соединение проходит через несколько узлов, которые держат добровольцы, и ни один сервер не узнаёт, где находится кошелёк.';
+  String get deskTorNetworkHint => 'Сетевая активность идёт через сеть Tor.';
 
   @override
   String get deskTorOff => 'Выкл.';
@@ -18552,7 +18551,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get lvPickTorLead =>
-      'Первое подключение может занять минуту. Ничего не идёт в обход Tor.';
+      'Первое подключение через Tor может занять минуту.';
 
   @override
   String get lvPickTorBusy => 'Строится цепочка…';

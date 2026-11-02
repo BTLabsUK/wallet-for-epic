@@ -5281,7 +5281,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'การเชื่อมต่อเครือข่ายจะผ่านเครือข่าย Tor ซึ่งซ่อนที่อยู่ IP ของกระเป๋า แต่ละการเชื่อมต่อผ่านเซิร์ฟเวอร์หลายจุดที่อาสาสมัครดูแล จึงไม่มีเซิร์ฟเวอร์ใดรู้ว่ากระเป๋าอยู่ที่ไหน หากต้องการรับเงินที่ที่อยู่ Tor ให้เปิด ลิงก์ · Tor ใน การตั้งค่า › ธุรกรรม';
+      'การเชื่อมต่อเครือข่ายจะผ่านเครือข่าย Tor หากต้องการรับเงินที่ที่อยู่ Tor ให้เปิด ลิงก์ · Tor ใน การตั้งค่า › ธุรกรรม';
 
   @override
   String get receiveTabDirect => 'ลิงก์';
@@ -6014,8 +6014,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskTorNetworkLabel => 'เครือข่าย Tor';
 
   @override
-  String get deskTorNetworkHint =>
-      'การเชื่อมต่อเครือข่ายจะผ่านเครือข่าย Tor ซึ่งซ่อนที่อยู่ IP ของกระเป๋าเงิน: แต่ละการเชื่อมต่อผ่านรีเลย์หลายตัวที่อาสาสมัครดูแล จึงไม่มีเซิร์ฟเวอร์ไหนรู้ว่ากระเป๋าเงินอยู่ที่ไหน';
+  String get deskTorNetworkHint => 'การเชื่อมต่อเครือข่ายจะผ่านเครือข่าย Tor';
 
   @override
   String get deskTorOff => 'ปิด';
@@ -17512,7 +17511,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get lvPickTorLead =>
-      'การเชื่อมต่อครั้งแรกอาจใช้เวลาราวหนึ่งนาที ไม่มีอะไรเลี่ยง Tor';
+      'การเชื่อมต่อผ่าน Tor ครั้งแรกอาจใช้เวลาราวหนึ่งนาที';
 
   @override
   String get lvPickTorBusy => 'กำลังสร้างเส้นทาง…';

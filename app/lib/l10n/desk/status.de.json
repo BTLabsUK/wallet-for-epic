@@ -66,7 +66,7 @@
   "deskNodeDurationHm": "{hours} h {minutes} Min.",
   "deskNodeDurationM": "{minutes} Min.",
   "deskTorNetworkLabel": "Tor-Netzwerk",
-  "deskTorNetworkHint": "Die Netzwerkaktivität läuft über das Tor-Netzwerk. Tor verbirgt die IP-Adresse der Wallet: Jede Verbindung geht über mehrere ehrenamtlich betriebene Relays, sodass kein Server erfährt, wo die Wallet ist.",
+  "deskTorNetworkHint": "Die Netzwerkaktivität läuft über das Tor-Netzwerk.",
   "deskTorOff": "Aus",
   "deskTorStarting": "Startet…",
   "deskTorOn": "An",

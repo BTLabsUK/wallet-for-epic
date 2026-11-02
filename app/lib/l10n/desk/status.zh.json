@@ -66,7 +66,7 @@
   "deskNodeDurationHm": "{hours} 小时 {minutes} 分钟",
   "deskNodeDurationM": "{minutes} 分钟",
   "deskTorNetworkLabel": "Tor 网络",
-  "deskTorNetworkHint": "网络活动经由 Tor 网络。Tor 会隐藏钱包的 IP 地址：每个连接都经过多个由志愿者运行的中继，因此没有任何服务器知道钱包在哪里。",
+  "deskTorNetworkHint": "网络活动经由 Tor 网络。",
   "deskTorOff": "关闭",
   "deskTorStarting": "正在启动…",
   "deskTorOn": "开启",

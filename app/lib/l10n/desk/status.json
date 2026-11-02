@@ -415,7 +415,7 @@
   "@deskTorNetworkLabel": {
     "description": "Label of the Tor switch in Settings › Privacy and the status rail's Tor row."
   },
-  "deskTorNetworkHint": "Network activity goes through the Tor network. Tor hides the wallet’s IP address: each connection passes through several volunteer-run relays, so no server learns where the wallet is.",
+  "deskTorNetworkHint": "Network activity goes through the Tor network.",
   "@deskTorNetworkHint": {
     "description": "Explains what the Tor switch does, in the info hover card behind the Tor switch."
   },

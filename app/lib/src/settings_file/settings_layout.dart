@@ -7,6 +7,8 @@
 /// file, named once in a notice).
 library;
 
+import '../tor_build.dart';
+
 /// Why a value was not used. Each has its own sentence in the notices.
 enum ValueProblem {
   notText,
@@ -169,7 +171,8 @@ TextCheck checkTemplate(String name, {bool optional = false}) => (v) {
   return isWebAddress(v.replaceAll('{$name}', '0')) ? null : ValueProblem.notWebAddress;
 };
 
-ValueProblem? checkOnion(String v) => _onion.hasMatch(v) ? null : ValueProblem.notOnion;
+/// The build without Tor never uses an onion, so it reports none.
+ValueProblem? checkOnion(String v) => !torBuilt || _onion.hasMatch(v) ? null : ValueProblem.notOnion;
 
 ValueProblem? checkEpicboxAddress(String v) {
   final m = _epicboxAddress.firstMatch(v);

@@ -5092,7 +5092,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      '网络活动经由 Tor 网络。Tor 隐藏钱包的 IP 地址：每个连接都经过多个志愿者运营的中继，因此没有服务器能得知钱包所在。要通过 Tor 地址收款，请在“设置 › 交易”中开启 链接 · Tor。';
+      '网络活动经由 Tor 网络。要通过 Tor 地址收款，请在“设置 › 交易”中开启 链接 · Tor。';
 
   @override
   String get receiveTabDirect => '链接';
@@ -5810,8 +5810,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskTorNetworkLabel => 'Tor 网络';
 
   @override
-  String get deskTorNetworkHint =>
-      '网络活动经由 Tor 网络。Tor 会隐藏钱包的 IP 地址：每个连接都经过多个由志愿者运行的中继，因此没有任何服务器知道钱包在哪里。';
+  String get deskTorNetworkHint => '网络活动经由 Tor 网络。';
 
   @override
   String get deskTorOff => '关闭';
@@ -16886,7 +16885,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get lvPickTorTitle => '正在通过 Tor 连接';
 
   @override
-  String get lvPickTorLead => '第一次连接可能需要一分钟。没有任何连接绕过 Tor。';
+  String get lvPickTorLead => '第一次通过 Tor 连接可能需要一分钟。';
 
   @override
   String get lvPickTorBusy => '正在建立线路…';

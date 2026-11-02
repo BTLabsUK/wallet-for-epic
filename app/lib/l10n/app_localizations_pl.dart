@@ -5541,7 +5541,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Ruch sieciowy przechodzi przez sieć Tor. Tor ukrywa adres IP portfela: każde połączenie przechodzi przez kilka przekaźników prowadzonych przez wolontariuszy, więc żaden serwer nie dowiaduje się, gdzie jest portfel. Aby przyjmować płatności na adres Tor, włącz Link · Tor w Ustawienia › Transakcje.';
+      'Ruch sieciowy przechodzi przez sieć Tor. Aby przyjmować płatności na adres Tor, włącz Link · Tor w Ustawienia › Transakcje.';
 
   @override
   String get receiveTabDirect => 'Link';
@@ -6310,8 +6310,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskTorNetworkLabel => 'Sieć Tor';
 
   @override
-  String get deskTorNetworkHint =>
-      'Ruch sieciowy przechodzi przez sieć Tor. Tor ukrywa adres IP portfela: każde połączenie przechodzi przez kilka przekaźników prowadzonych przez wolontariuszy, więc żaden serwer nie dowiaduje się, gdzie jest portfel.';
+  String get deskTorNetworkHint => 'Ruch sieciowy przechodzi przez sieć Tor.';
 
   @override
   String get deskTorOff => 'Wyłączony';
@@ -18568,7 +18567,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get lvPickTorLead =>
-      'Pierwsze połączenie może potrwać minutę. Nic nie omija Tora.';
+      'Pierwsze połączenie przez Tor może potrwać minutę.';
 
   @override
   String get lvPickTorBusy => 'Budowanie obwodu…';

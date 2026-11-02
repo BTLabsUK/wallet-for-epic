@@ -6984,7 +6984,7 @@
   "@torNetworkLabel": {
     "description": "The one Tor switch (Settings › Privacy) and the status card’s Tor row: the label, with no description in the row."
   },
-  "torNetworkHint": "Network activity goes through the Tor network. Tor hides the wallet’s IP address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. To get paid at a Tor address, turn on Link · Tor in Settings › Transactions.",
+  "torNetworkHint": "Network activity goes through the Tor network. To get paid at a Tor address, turn on Link · Tor in Settings › Transactions.",
   "@torNetworkHint": {
     "description": "Tooltip of the Tor Network switch and status row (its info icon): what the switch does and what Tor is, in plain words. Never list what does not go over Tor."
   },
@@ -8040,7 +8040,7 @@
   "@deskTorNetworkLabel": {
     "description": "Label of the Tor switch in Settings › Privacy and the status rail's Tor row."
   },
-  "deskTorNetworkHint": "Network activity goes through the Tor network. Tor hides the wallet’s IP address: each connection passes through several volunteer-run relays, so no server learns where the wallet is.",
+  "deskTorNetworkHint": "Network activity goes through the Tor network.",
   "@deskTorNetworkHint": {
     "description": "Explains what the Tor switch does, in the info hover card behind the Tor switch."
   },
@@ -24112,7 +24112,7 @@
   "@lvPickTorTitle": {
     "description": "Waiting for Tor after the PIN, with Undercover on: heading."
   },
-  "lvPickTorLead": "The first connection can take a minute. Nothing goes around Tor.",
+  "lvPickTorLead": "The first connection through Tor can take a minute.",
   "@lvPickTorLead": {
     "description": "Waiting for Tor: line under the heading."
   },

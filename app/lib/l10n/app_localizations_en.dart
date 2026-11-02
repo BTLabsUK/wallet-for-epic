@@ -5382,7 +5382,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get torNetworkHint =>
-      'Network activity goes through the Tor network. Tor hides the wallet’s IP address: each connection passes through several volunteer-run relays, so no server learns where the wallet is. To get paid at a Tor address, turn on Link · Tor in Settings › Transactions.';
+      'Network activity goes through the Tor network. To get paid at a Tor address, turn on Link · Tor in Settings › Transactions.';
 
   @override
   String get receiveTabDirect => 'Link';
@@ -6130,7 +6130,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskTorNetworkHint =>
-      'Network activity goes through the Tor network. Tor hides the wallet’s IP address: each connection passes through several volunteer-run relays, so no server learns where the wallet is.';
+      'Network activity goes through the Tor network.';
 
   @override
   String get deskTorOff => 'Off';
@@ -17921,7 +17921,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get lvPickTorLead =>
-      'The first connection can take a minute. Nothing goes around Tor.';
+      'The first connection through Tor can take a minute.';
 
   @override
   String get lvPickTorBusy => 'Building the circuit…';
