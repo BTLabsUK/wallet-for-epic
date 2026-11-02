@@ -23,7 +23,7 @@ void main() {
 
   test('a word matches at a word start only: tor finds Tor, not restore', () {
     final r = find('tor');
-    expect(ids(r.shown), containsAll([SetId.torPay, SetId.torAll]));
+    expect(ids(r.shown), containsAll([SetId.torPay, SetId.netMode]));
     // "Restore from phrase" and "Import wallet data" (synonym "restore") stay out.
     expect(ids(r.shown), isNot(contains(SetId.restoreWallet)));
     expect(ids(r.shown), isNot(contains(SetId.importData)));
@@ -33,7 +33,7 @@ void main() {
   test('under two letters searches nothing; every word must match', () {
     expect(find('t').words, isEmpty);
     expect(find('t').isEmpty, isTrue);
-    expect(ids(find('tor all').shown), contains(SetId.torAll));
+    expect(ids(find('tor only').shown), contains(SetId.netMode));
     expect(find('tor zebra').shown, isEmpty);
   });
 
@@ -64,7 +64,7 @@ void main() {
     final seen = [for (final h in r.shown) order.indexOf(h.entry.route)];
     expect(seen, orderedEquals([...seen]..sort()));
     // Payments (this wallet) before Network & privacy (app).
-    expect(ids(r.shown).indexOf(SetId.torPay), lessThan(ids(r.shown).indexOf(SetId.torAll)));
+    expect(ids(r.shown).indexOf(SetId.torPay), lessThan(ids(r.shown).indexOf(SetId.netMode)));
   });
 
   test('hidden by the view or a switch: listed apart, with what shows them', () {
