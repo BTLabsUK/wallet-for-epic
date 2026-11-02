@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 """The signer's own primitives: TOTP (RFC 6238), the portable bundle (scrypt + AES-256-GCM),
-minisign signatures (the bytes tools/gitlab-release.py writes) and btlabs-public key ids.
+minisign signatures (the bytes tools/release-files.py writes) and btlabs-public key ids.
 
 Nothing here logs or returns key material in an error message."""
 from __future__ import annotations
@@ -148,7 +148,7 @@ def keyid_of(raw_pub: bytes) -> str:
 
 def minisign_sign(key: Ed25519PrivateKey, data: bytes, trusted: str) -> str:
     """minisign's ED format (Ed25519 over BLAKE2b-512 of the file), byte for byte what
-    tools/gitlab-release.py minisign_sign writes for the same key, file and comment."""
+    tools/release-files.py minisign_sign writes for the same key, file and comment."""
     keyid = keyid_of(raw_public(key))
     sig = key.sign(hashlib.blake2b(data, digest_size=64).digest())
     glob = key.sign(sig + trusted.encode())

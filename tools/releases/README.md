@@ -32,10 +32,10 @@ files). By hand:
 
 1. `tools/releases/build.py add 26.10.24 /srv/wfe-release/26.10.24` (the folder with
    the files and SHA256SUMS; `--date` if not today). Checksums are recomputed and must agree.
-   When the folder holds `SHA256SUMS.sig` (written by `tools/gitlab-release.py publish`), every
+   When the folder holds `SHA256SUMS.sig` (written by `tools/release-files.py publish`), every
    Before you install fold also shows the minisign check: then `SHA256SUMS` and
-   `SHA256SUMS.sig` must be in `downloads/` on the server too. `--gitlab` / `--github` add the
-   Mirror links, only once that host's release exists and logged-out visitors can open it.
+   `SHA256SUMS.sig` must be in `downloads/` on the server too. `--github` adds the Mirror
+   link, only once the GitHub Release exists and logged-out visitors can open it.
 2. `tools/releases/build.py render` writes the page into the page repo's `site/epic-cash/`
    (`~/code/epic-gui-wallet-progress`, or `$WFE_RELEASES_SITE`). Add the version's entry to
    `site/epic-cash/changelog/index.html` there (`id="v26.10.24"`: the page links it).

@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 # Step `publish-github-release` of tools/rel (release.toml publish.github): the GitHub Release of
 # tag v<version> on BTLabsUK/wallet-for-epic, with the files publish-downloads put on the server
-# (the run's SHA256SUMS lists them) as assets, through tools/gitlab-release.py. It works on a
-# copy in the stage folder: gitlab-release.py writes its own SHA256SUMS and SHA256SUMS.sig there,
+# (the run's SHA256SUMS lists them) as assets, through tools/release-files.py. It works on a
+# copy in the stage folder: release-files.py writes its own SHA256SUMS and SHA256SUMS.sig there,
 # and the run's SHA256SUMS stays as G6 reads it. The tag is on GitHub from publish-source.
 # Usage: publish-github-release.sh <version> <files dir> <stage dir>
 # Settings: GITHUB_RELEASE_REPO (default BTLabsUK/wallet-for-epic); REL_SIGNER_SIGNING_KEY and
@@ -23,7 +23,7 @@ rm -rf "$out" && mkdir -p "$out"
 for f in "${files[@]}"; do
   ln "$dir/$f" "$out/$f" 2>/dev/null || cp -p "$dir/$f" "$out/$f"
 done
-# The release notes: the fastlane changelog of the version (gitlab-release.py's default), else
+# The release notes: the fastlane changelog of the version (release-files.py's default), else
 # the run's update notes, else one line.
 IFS=. read -r y m p <<<"${v%%-*}"
 notes=()
@@ -35,5 +35,5 @@ if [[ ! -s "$src/fastlane/metadata/android/en-US/changelogs/$(printf '%02d%02d%0
     notes=(--notes "$stage/github-notes.txt")
   fi
 fi
-python3 "$src/tools/gitlab-release.py" publish "$v" "$out" --target github --github-repo "$repo" \
+python3 "$src/tools/release-files.py" publish "$v" "$out" --github-repo "$repo" \
   --key "$key" --keyring "$keyring" "${notes[@]}"

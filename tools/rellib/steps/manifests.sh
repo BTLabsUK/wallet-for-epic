@@ -73,7 +73,7 @@ elif [[ "$reuse" == 1 ]]; then
     --envelope "$out/update-v2.json"
   cp -f -- "$out/SHA256SUMS.sig" "$m/SHA256SUMS.sig"
   python3 "$(dirname "$0")/server_sums.py" verify "$m/SHA256SUMS" "$m/SHA256SUMS.sig" \
-    "$bp/keys/btlabs-keyring.json" "$src/tools/gitlab-release.py"
+    "$bp/keys/btlabs-keyring.json" "$src/tools/release-files.py"
 elif [[ -f "$sj" ]]; then
   client="$(jq -r .client "$sj")"
   REL_HOSTS="$(jq -r .hosts "$sj")"; export REL_HOSTS
@@ -91,7 +91,7 @@ elif [[ -f "$sj" ]]; then
   # A copy: the signed file stays beside the client's receipt for a retry.
   cp -f -- "$out/SHA256SUMS.sig" "$m/SHA256SUMS.sig"
   python3 "$(dirname "$0")/server_sums.py" verify "$m/SHA256SUMS" "$m/SHA256SUMS.sig" \
-    "$bp/keys/btlabs-keyring.json" "$src/tools/gitlab-release.py"
+    "$bp/keys/btlabs-keyring.json" "$src/tools/release-files.py"
 else
   BTLABS_SIGNING_KEY="${REL_SIGNER_SIGNING_KEY:-$HOME/.config/btlabs/signing/btlabs-2026-a.key}" \
     "$src/app/tool/release_android.sh" "$base" "$notes"

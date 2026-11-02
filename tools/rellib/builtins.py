@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """Steps tools/rel does itself: the gates (G0 scope, G1 preflight, G3 artefacts, G4 update trust
 and manifest checks, G5 publish, G6 read back), the source checkout, cleanup, and the scratch
-publish target (a folder in the run that stands in for the server, page, GitLab and manifests).
+publish target (a folder in the run that stands in for the server, page, GitHub and manifests).
 
 Every gate fails closed: what it cannot check counts as failed, never as passed."""
 import datetime as dt
@@ -258,19 +258,6 @@ def preflight(engine, step, say):
             pth = hosts["path"].get(k, "")
             (ok if pth and os.path.isfile(pth) else bad)(f"paths.{k} ({pth or 'unset'}): the built-in node")
     if live:
-        tok_exp = signer.get("gitlab_token_expires", "")
-        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", tok_exp or ""):
-            days = (dt.date.fromisoformat(tok_exp) - dt.date.today()).days
-            if days < 0:
-                bad(f"GitLab token expired {tok_exp}")
-            elif days < 7:
-                warns.append(f"GitLab token expires {tok_exp} ({days} days)")
-                say("warn", warns[-1])
-            else:
-                ok(f"GitLab token valid until {tok_exp}")
-        else:
-            warns.append("host.signer.gitlab_token_expires not set: token expiry not checked")
-            say("warn", warns[-1])
         from .resign import live_expiry_warning
         w = live_expiry_warning(engine.repo, pipe.manifest_warn_days())
         if w:

@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: Apache-2.0
-"""The GitHub mirror of a release, against a fake GitHub on 127.0.0.1 and a fake gh: nothing
-here talks to github.com. tools/gitlab-release.py makes the release (latest, every file an
+"""The GitHub Release of a release, against a fake GitHub on 127.0.0.1 and a fake gh: nothing
+here talks to github.com. tools/release-files.py makes the release (latest, every file an
 asset, writes a second apart, BT Labs' login only, no token printed) and puts update-v2.json on
 the latest release; tools/publish-update-json.sh runs that step only when switched on and never
-fails on it. The server, GitLab and git push are shims."""
+fails on it. The server, the raw reads and tools/push-github.sh are shims."""
 import base64
 import hashlib
 import json
@@ -23,7 +23,7 @@ from support import REPO
 
 BP = os.path.expanduser(os.environ.get("BTLABS_PUBLIC", "~/code/btlabs-public"))
 SIGN = os.path.join(BP, "tool/btlabs_sign.py")
-TOOL = os.path.join(REPO, "tools/gitlab-release.py")
+TOOL = os.path.join(REPO, "tools/release-files.py")
 REPO_NAME = "BTLabsUK/wallet-for-epic"
 TOKEN = "fake-token-0123456789"
 
@@ -38,7 +38,7 @@ esac
 
 
 class FakeGitHub:
-    """The few REST calls gitlab-release.py makes, for one repository, in memory."""
+    """The few REST calls release-files.py makes, for one repository, in memory."""
 
     def __init__(self):
         self.tags, self.releases, self.blobs, self.log = set(), {}, {}, []
@@ -209,7 +209,7 @@ class GitHubReleaseTest(unittest.TestCase):
         return p.returncode, p.stdout + p.stderr
 
     def publish(self, *extra):
-        return self.tool("publish", "26.10.25", self.files, "--target", "github", "--key", self.key,
+        return self.tool("publish", "26.10.25", self.files, "--key", self.key,
                          "--keyring", self.ring, "--notes", self.notes, *extra)
 
     def envelope(self, serial):
@@ -287,7 +287,7 @@ class GitHubReleaseTest(unittest.TestCase):
         self.assertIn("tag v26.10.25 is not on GitHub", out)
         self.gh.tags.add("v26.10.25")
         self.gh.log.clear()
-        rc, out = self.tool("publish", "26.10.25", self.files, "--target", "github", "--key", self.key,
+        rc, out = self.tool("publish", "26.10.25", self.files, "--key", self.key,
                             "--keyring", self.ring, "--notes", self.notes, env={"FAKE_GH_LOGIN": "someone-else"})
         self.assertNotEqual(rc, 0)
         self.assertIn("logged in as someone-else, not btlabs-uk", out)
@@ -319,19 +319,20 @@ class GitHubReleaseTest(unittest.TestCase):
         # tools/publish/test-incremental.sh, skip where it is not installed.
         if subprocess.run(["git", "filter-repo", "--version"], capture_output=True).returncode != 0:
             self.skipTest("git-filter-repo is not installed")
-        """tools/publish-update-json.sh with the server (ssh, scp), GitLab (git push, curl) and the
-        signature tool stubbed; GitHub is the fake one."""
+        """tools/publish-update-json.sh with the server (ssh, scp), the site push (push-github.sh),
+        the raw reads (curl) and the signature tool stubbed; the GitHub Release is the fake one."""
         shim = os.path.join(self.tmp, "bin")
-        real_git, real_curl = shutil.which("git"), shutil.which("curl")
+        real_curl = shutil.which("curl")
         self.write_exe(os.path.join(shim, "ssh"), '#!/usr/bin/env bash\necho "ssh $*" >> "$FAKE_DIR/calls"\n')
         self.write_exe(os.path.join(shim, "scp"), '#!/usr/bin/env bash\necho "scp $*" >> "$FAKE_DIR/calls"\n')
-        self.write_exe(os.path.join(shim, "git"), f'#!/usr/bin/env bash\nfor a in "$@"; do [[ $a == push ]] && '
-                       f'{{ echo "git push" >> "$FAKE_DIR/calls"; exit 0; }}; done\nexec {real_git} "$@"\n')
-        # The server and GitLab copies read back as what was published; anything else (the fake
-        # GitHub) through the real curl.
+        push = os.path.join(self.tmp, "push-github.sh")
+        self.write_exe(push, '#!/usr/bin/env bash\necho "push-github $1" >> "$FAKE_DIR/calls"\n'
+                       'git -C "$2" rev-parse --verify -q main >/dev/null\n')
+        # The server and site copies read back as what was published; anything else (the fake
+        # GitHub Release) through the real curl.
         self.write_exe(os.path.join(shim, "curl"), f'#!/usr/bin/env bash\nfor a in "$@"; do case $a in\n'
-                       f'  https://*/update.json|https://gitlab.com/*/update.json) cat "$FAKE_DIR/pub/update.json"; exit ;;\n'
-                       f'  https://*/v1/update.json|https://gitlab.com/*/update-v2.json) cat "$FAKE_DIR/pub/update-v2.json"; exit ;;\n'
+                       f'  https://*/update.json) cat "$FAKE_DIR/pub/update.json"; exit ;;\n'
+                       f'  https://*/v1/update.json|https://raw.githubusercontent.com/*/update-v2.json) cat "$FAKE_DIR/pub/update-v2.json"; exit ;;\n'
                        f'esac; done\nexec {real_curl} "$@"\n')
         sign = os.path.join(self.tmp, "sign.py")
         with open(sign, "w") as f:
@@ -346,14 +347,11 @@ class GitHubReleaseTest(unittest.TestCase):
         v1 = self.envelope(5)
         shutil.copy(v1, os.path.join(pub, "update.json"))
         shutil.copy(v1, os.path.join(pub, "update-v2.json"))
-        token = os.path.join(self.tmp, "gitlab-token")
-        with open(token, "w") as f:
-            f.write("glpat-fake")
         e = dict(self.env, UPDATE_PUBLISH_CONF=os.path.join(self.tmp, "none.env"), UPDATE_SSH_HOST="server.invalid",
                  UPDATE_URL="https://server.invalid/update.json", UPDATE_URL_V2="https://server.invalid/v1/update.json",
-                 UPDATE_SITE=site, UPDATE_KEYRING=self.ring, UPDATE_SIGN_TOOL=sign, GITLAB_TOKEN_FILE=token,
+                 UPDATE_SITE=site, UPDATE_KEYRING=self.ring, UPDATE_SIGN_TOOL=sign, PUSH_GITHUB=push,
                  GITHUB_UPDATE_URL=f"{self.gh.base}/web/{REPO_NAME}/releases/latest/download/update-v2.json",
-                 GITHUB_MIRROR_SITE="0", GIT_AUTHOR_NAME="t", GIT_AUTHOR_EMAIL="t@example.invalid", GIT_COMMITTER_NAME="t",
+                 GIT_AUTHOR_NAME="t", GIT_AUTHOR_EMAIL="t@example.invalid", GIT_COMMITTER_NAME="t",
                  GIT_COMMITTER_EMAIL="t@example.invalid", **env)
         p = subprocess.run(["bash", os.path.join(REPO, "tools/publish-update-json.sh"), v1, v1], capture_output=True,
                            text=True, timeout=120, env=e)
@@ -366,7 +364,7 @@ class GitHubReleaseTest(unittest.TestCase):
         latest = self.gh.add_release("v26.10.25")
         rc, out, calls = self.publish_update_json()
         self.assertEqual(rc, 0, out)
-        self.assertIn("git push", calls)
+        self.assertIn("push-github btlabs-epic.github.io", calls)
         self.assertIn("scp", calls)
         self.assertEqual(self.gh.log, [])  # off by default: GitHub is not touched
         self.assertNotIn("releases/latest/download", out)
@@ -374,13 +372,13 @@ class GitHubReleaseTest(unittest.TestCase):
         self.assertEqual(rc, 0, out)
         self.assertEqual([a["name"] for a in latest["assets"]], ["update-v2.json"])
         self.assertIn(f"{self.gh.base}/web/{REPO_NAME}/releases/latest/download/update-v2.json: ok", out)
-        # A GitHub failure is a warning; the server and GitLab copies are published all the same.
+        # A GitHub Release failure is a warning; the server and site copies are published all the same.
         os.remove(os.path.join(self.tmp, "calls"))
         rc, out, calls = self.publish_update_json(GITHUB_UPDATE_JSON="1", FAKE_GH_LOGIN="someone-else")
         self.assertEqual(rc, 0, out)
         self.assertIn("warning: update-v2.json not on the GitHub release", out)
         self.assertIn("scp", calls)
-        self.assertIn("git push", calls)
+        self.assertIn("push-github btlabs-epic.github.io", calls)
 
 
 if __name__ == "__main__":
