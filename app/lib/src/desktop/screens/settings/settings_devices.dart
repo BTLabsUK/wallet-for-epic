@@ -17,6 +17,7 @@ import '../../data/devices_state.dart';
 import '../../data/pairing_state.dart' show DeskPairNet, deskPairNetProvider;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import 'setting_ids.dart';
 import '../devices/link_flow.dart';
 import 'settings_frame.dart' show SettingsFrame;
 
@@ -59,26 +60,12 @@ class DevicesSettingsBlock extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
-    final ts = context.ts;
-    final c = context.dc;
     final view = ref.watch(deskDeviceViewProvider);
     final service = ref.watch(deskDeviceServiceProvider);
     final net = ref.watch(deskPairNetProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Icon(EIcons.devices, size: Ctl.icon, color: c.dim),
-            SizedBox(width: Sp.x2),
-            Flexible(child: Text(l.expLinkedDevices, style: ts.h3)),
-            SizedBox(width: Sp.x2),
-            EBadge(l.advExperimental),
-            SizedBox(width: Sp.x1),
-            EInfoHint(l.expLinkedDevicesHint, title: l.expLinkedDevices, icon: EIcons.devices),
-          ],
-        ),
-        SizedBox(height: Sp.x5),
         if (view == null || service == null)
           const SettingsLoadingBlock()
         else ...[
@@ -141,6 +128,7 @@ class _DevicesGroup extends ConsumerWidget {
           rows: [
             ESetRow(
               key: const ValueKey('dev-this'),
+              anchor: SetId.deviceName,
               leading: EIcons.computer,
               title: book.deviceName,
               control: EButton(
@@ -155,12 +143,13 @@ class _DevicesGroup extends ConsumerWidget {
           title: l.devicesOthers,
           trailing: book.linked != null
               ? null
-              : EButton.primary(
+              : SetAnchor(id: SetId.linkDevice, child: EButton.primary(
                   key: devicesLinkKey,
                   label: l.devicesLink,
                   icon: EIcons.link,
                   size: EBtnSize.sm,
                   onPressed: view.supported && !epicboxOff ? () => unawaited(showDeskLinkDevice(context)) : null,
+                ),
                 ),
           rows: [
             // A device removed while this one was offline, until its notice goes; Remove again
@@ -298,6 +287,7 @@ class _SyncGroup extends StatelessWidget {
       rows: [
         ESetRow(
           key: devicesPauseKey,
+          anchor: SetId.pauseSync,
           title: l.devicesPause,
           text: rests ?? l.devicesPauseHint,
           control: ESwitch(value: view.book.paused, semanticLabel: l.devicesPause, onChanged: (v) => unawaited(service.setPaused(v))),

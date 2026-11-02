@@ -40,6 +40,7 @@ import '../transfer/send_screen.dart' show SendArgs;
 import '../../../wallet_service.dart' show FakeWalletSession;
 import '../../../help/help_content.dart' show HelpAnchor, HelpId;
 import 'help_pairing.dart' show HelpAt;
+import 'settings_about.dart' show AboutDemo;
 import 'settings_help.dart' show HelpDemo;
 import 'settings_security.dart' show SecurityDemo;
 import 'settings_rescan.dart';
@@ -317,6 +318,9 @@ final List<DeskShot> settingsShots = [
     route: DeskRoute.settingsAbout,
     prepare: (c, _) async => c.read(deskUpdateProvider.notifier).showDemo(DeskUpdateState(DeskUpdatePhase.latest, checkedAt: DateTime.now().subtract(const Duration(minutes: 2)))),
   ),
+  const DeskShot(id: '29g-settings-about-licences', title: 'About, Licences unfolded', route: DeskRoute.settingsAbout, arg: AboutDemo.licencesOpen, height: 1000),
+  const DeskShot(id: '26b-settings-files', title: 'Settings › Files & logs', route: DeskRoute.settingsFiles),
+  const DeskShot(id: '26c-settings-donate', title: 'Settings › Donate', route: DeskRoute.settingsDonate),
   DeskShot(id: '29b-settings-about-update', title: 'About: an update to download and install', route: DeskRoute.settingsAbout, prepare: (c, _) async => _update(c, DeskUpdatePhase.available)),
   DeskShot(
     id: '29c-settings-about-update-manual',
@@ -341,7 +345,7 @@ final List<DeskShot> settingsShots = [
   const DeskShot(id: '30-settings-help', title: 'Help', route: DeskRoute.settingsHelp, height: 1000),
   const DeskShot(id: '30b-settings-help-search', title: 'Help, search', route: DeskRoute.settingsHelp, arg: 'file'),
   const DeskShot(id: '30d-settings-help-open', title: 'Help, a topic open', route: DeskRoute.settingsHelp, arg: HelpDemo.open),
-  const DeskShot(id: '30e-settings-help-bottom', title: 'Help, the end: Tor and Logs', route: DeskRoute.settingsHelp, arg: HelpDemo.bottom),
+  const DeskShot(id: '30e-settings-help-bottom', title: 'Help, the end: Support and Start again', route: DeskRoute.settingsHelp, arg: HelpDemo.bottom),
   const DeskShot(id: '30f-settings-help-cleanup', title: 'Help › Maintenance: clean up old wallet folders', route: DeskRoute.settingsHelp, arg: HelpAt('maintenance'), height: 1000),
   const DeskShot(id: '30g-settings-help-cancel', title: 'Help › Cancelling a payment, opened at Receiving', route: DeskRoute.settingsHelp, arg: HelpAt.topic(HelpId.cancel, anchor: HelpAnchor.receiving), height: 1000),
   DeskShot(
@@ -411,10 +415,7 @@ final List<DeskShot> settingsShots = [
   // Wallet levels: Advanced (its Depth group on top) at Shallow and Deeper.
   DeskShot(id: '43-advanced-l1', title: 'Settings › Advanced, Shallow', route: DeskRoute.settingsAdvanced, before: _level(WalletLevel.justSendReceive)),
   DeskShot(id: '43-advanced-l2', title: 'Settings › Advanced, Deeper', route: DeskRoute.settingsAdvanced, before: _level(WalletLevel.casual)),
-  const DeskShot(id: '43z-change-level', title: 'Settings › Advanced › Change level', route: DeskRoute.settingsLevel),
-  DeskShot(id: '43z-change-level-l1', title: 'Change level at Shallow', route: DeskRoute.settingsLevel, before: _level(WalletLevel.justSendReceive)),
-  DeskShot(id: '43z-change-level-l2', title: 'Change level at Deeper', route: DeskRoute.settingsLevel, before: _level(WalletLevel.casual)),
-  const DeskShot(id: '43z-change-level-narrow', title: 'Change level at 1000x750', route: DeskRoute.settingsLevel, width: 1000, height: 750),
+  const DeskShot(id: '43-advanced-narrow', title: 'Settings › Advanced at 1000x750', route: DeskRoute.settingsAdvanced, width: 1000, height: 750),
   DeskShot(id: '43d-overview-offline', title: 'Overview, Offline', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.killSwitch)),
   DeskShot(id: '43e-overview-waiting-tor', title: 'Overview, Tor only waiting for Tor', route: DeskRoute.overview, prepare: (c, _) => _networkMode(c, NetworkMode.torOnly)),
   DeskShot(id: '43f-send-offline', title: 'Send, Offline', route: DeskRoute.send, prepare: (c, _) => _networkMode(c, NetworkMode.killSwitch)),

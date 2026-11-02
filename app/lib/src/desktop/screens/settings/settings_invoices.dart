@@ -15,6 +15,7 @@ import '../../../ui/pairing/pairing_parts.dart' show TrustBadge;
 import '../../data/pairing_state.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import 'setting_ids.dart';
 import '../invoices/invoice_parts.dart';
 import '../pairing/pair_screens.dart';
 import 'settings_frame.dart' show SettingsFrame;
@@ -137,7 +138,7 @@ class InvoiceSettingsBlock extends ConsumerWidget {
         ],
         ESetGroup(
           title: l.invSetPaired,
-          trailing: EButton(label: l.invSetPairShop, icon: EIcons.trusted, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair)),
+          trailing: SetAnchor(id: SetId.pairShop, child: EButton(label: l.invSetPairShop, icon: EIcons.trusted, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair))),
           rows: [
             if (paired.isEmpty) ESetRow(text: l.invSetEmpty) else for (final r in paired) row(r),
           ],
@@ -148,6 +149,7 @@ class InvoiceSettingsBlock extends ConsumerWidget {
             child: ESetGroup(
               rows: [
                 ESetRow(
+                  anchor: SetId.timeToPay,
                   title: l.deskInvSetExpiry,
                   text: l.deskInvSetExpiryHint,
                   control: SizedBox(

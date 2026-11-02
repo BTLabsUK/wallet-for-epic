@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Settings › Advanced: the switches that show more of the wallet, each explained in a hover
-/// card (the network mode is on Network & privacy, `settings_privacy.dart`). Nothing here is a value the simple path needs; what a switch
-/// turns on appears where it belongs (the sidebar, Send, a transaction's details).
+/// Settings › Advanced: the view (Shallow, Deeper, Deep end), the switches that show more of
+/// the wallet, each explained behind its ⓘ, and the experiments (Invoices). What a switch turns
+/// on appears where it belongs (the sidebar, Send, a transaction's details). The network mode
+/// is on Network & privacy (`settings_privacy.dart`).
 library;
 
 import 'package:flutter/material.dart';
@@ -9,16 +10,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../advanced.dart';
 import '../../../ui/network_mode_text.dart';
-import '../../../models.dart' show defaultMinimumConfirmations, maxMinimumConfirmations, minMinimumConfirmations;
 import '../../app/tour.dart' show TourTarget;
-import '../../../levels/level_features.dart' show AdvancedPageKind;
-import '../../../ui/levels/level_picker.dart' show levelLine, levelStopName;
-import '../../data/desk_errors.dart' show deskErrorText;
-import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelProvider;
+import '../../../levels/wallet_level.dart';
+import '../../../log.dart';
+import '../../../ui/levels/level_picker.dart' show levelStopName;
+import '../../data/desk_levels.dart' show deskLevelControlProvider, deskLevelProvider;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
-import '../wallet/outputs_dialogs.dart' show EStepper;
+import '../../widgets/more_options.dart' show moreOptionsRevealProvider;
 import 'prefs.dart' show SettingsJump;
+import 'setting_ids.dart';
 import 'settings_frame.dart';
 
 export '../../../advanced.dart';
@@ -61,62 +62,111 @@ class SettingsAdvancedScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    // Shallow: the Depth row alone; the switches belong to Deeper and up.
-    final changeOnly = ref.watch(deskLevelFeaturesProvider.select((f) => f.advancedPage)) == AdvancedPageKind.changeLevelOnly;
     return SettingsFrame(
       route: DeskRoute.settingsAdvanced,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const _DepthGroup(),
-          if (changeOnly)
-            Text(l.deskLvStartAdvNote, key: const ValueKey('adv-depth-note'), style: context.ts.small)
-          else ...[
-            // The tour lights the top of the page: the intro and the switches.
-            TourTarget(
-              id: 'advanced-top',
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(l.deskSetAdvIntro, style: context.ts.bodyDim),
-                  SizedBox(height: Sp.x5),
-                  const _ShowsGroup(),
-                ],
-              ),
+          // The tour lights the top of the page: the view and the switches.
+          TourTarget(
+            id: 'advanced-top',
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: const [_ViewGroup(), _ShowsGroup()],
             ),
-            const JumpSection(section: SettingsJump.confirmations, child: _BalanceGroup()),
-            // An "experimental" dialog's Open Advanced lands here (LNX3-1).
-            const JumpSection(section: SettingsJump.experimental, child: _ExperimentalGroup()),
-          ],
+          ),
+          // An "experimental" dialog's Open Advanced lands here (LNX3-1).
+          const JumpSection(section: SettingsJump.experimental, child: _ExperimentalGroup()),
         ],
       ),
     );
   }
 }
 
-/// The depth in force with its line and Change level (Settings › Advanced › Depth).
-class _DepthGroup extends ConsumerWidget {
-  const _DepthGroup();
+/// A view's one line: what it shows, in facts.
+String viewLine(AppLocalizations l, WalletLevel level) => switch (level) {
+  WalletLevel.justSendReceive => l.deskSetAdvViewLineOne,
+  WalletLevel.casual => l.deskSetAdvViewLineTwo,
+  WalletLevel.everything => l.deskSetAdvViewLineThree,
+};
+
+/// The key of a view's card, for tests.
+Key advViewKey(WalletLevel level) => ValueKey('adv-view-${level.number}');
+
+/// Advanced › View: the three views as cards, side by side while they fit; a pick applies at
+/// once (the level's preset with it, as Welcome's dial), and the line under them says what a
+/// view changes.
+class _ViewGroup extends ConsumerStatefulWidget {
+  const _ViewGroup();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_ViewGroup> createState() => _ViewGroupState();
+}
+
+class _ViewGroupState extends ConsumerState<_ViewGroup> {
+  bool _busy = false;
+
+  Future<void> _pick(WalletLevel level) async {
+    if (_busy || level == ref.read(deskLevelProvider)) return;
+    setState(() => _busy = true);
+    try {
+      await ref.read(deskLevelControlProvider).setLevel(level);
+      // A new view: every "more options" folds again.
+      ref.read(moreOptionsRevealProvider.notifier).clear();
+    } on Object catch (e) {
+      logWarn('levels', 'level not saved: ${e.runtimeType}');
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l = context.l10n;
     final level = ref.watch(deskLevelProvider);
     return ESetGroup(
       key: const ValueKey('adv-depth'),
       title: l.lvPickDepth,
       rows: [
-        ESetRow(
-          title: levelStopName(l, level),
-          text: levelLine(l, level),
-          control: ERowControl(
-            child: EButton(
-              key: const ValueKey('adv-depth-change'),
-              label: l.levelChangeTitle,
-              size: EBtnSize.sm,
-              onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.settingsLevel),
-            ),
+        Padding(
+          padding: EdgeInsets.all(Sp.x4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SetAnchor(id: SetId.view, child: Semantics(
+                container: true,
+                label: l.lvPickDepth,
+                child: LayoutBuilder(
+                  builder: (context, box) {
+                    final cards = [
+                      for (final lv in WalletLevel.values)
+                        _ViewCard(
+                          key: advViewKey(lv),
+                          name: levelStopName(l, lv),
+                          line: viewLine(l, lv),
+                          selected: lv == level,
+                          onTap: _busy ? null : () => _pick(lv),
+                        ),
+                    ];
+                    if (box.maxWidth < 560.u) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [for (final (i, c) in cards.indexed) ...[if (i > 0) SizedBox(height: Sp.x2), c]],
+                      );
+                    }
+                    return IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [for (final (i, c) in cards.indexed) ...[if (i > 0) SizedBox(width: Sp.x2), Expanded(child: c)]],
+                      ),
+                    );
+                  },
+                ),
+              ),
+              ),
+              SizedBox(height: Sp.x3),
+              Text(l.deskSetAdvViewNote, key: const ValueKey('adv-view-note'), style: context.ts.small),
+            ],
           ),
         ),
       ],
@@ -124,7 +174,88 @@ class _DepthGroup extends ConsumerWidget {
   }
 }
 
-/// One row per feature: title, a hover card, a switch.
+/// One view: a radio mark, the name and its line; the picked one raised with an accent edge.
+class _ViewCard extends StatefulWidget {
+  const _ViewCard({super.key, required this.name, required this.line, required this.selected, required this.onTap});
+
+  final String name;
+  final String line;
+  final bool selected;
+  final VoidCallback? onTap;
+
+  @override
+  State<_ViewCard> createState() => _ViewCardState();
+}
+
+class _ViewCardState extends State<_ViewCard> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.dc;
+    final ts = context.ts;
+    final sel = widget.selected;
+    return Semantics(
+      inMutuallyExclusiveGroup: true,
+      checked: sel,
+      button: true,
+      label: widget.name,
+      hint: widget.line,
+      excludeSemantics: true,
+      child: FocusableActionDetector(
+        enabled: widget.onTap != null,
+        mouseCursor: widget.onTap == null ? SystemMouseCursors.basic : SystemMouseCursors.click,
+        onShowHoverHighlight: (v) => setState(() => _hover = v),
+        actions: {ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) => widget.onTap?.call())},
+        child: Builder(
+          builder: (context) => GestureDetector(
+            onTap: widget.onTap,
+            child: FocusRing(
+              focused: Focus.of(context).hasFocus,
+              child: AnimatedContainer(
+                duration: Dur.fast,
+                padding: EdgeInsets.all(Sp.x3),
+                decoration: BoxDecoration(
+                  color: sel ? c.s3 : (_hover ? c.hover : c.s2),
+                  borderRadius: BorderRadius.circular(Rad.sm),
+                  border: Border.all(color: sel ? c.accent : c.line),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // The radio mark of ERadioRow: a ring, the accent dot when picked.
+                    Container(
+                      width: 16.u,
+                      height: 16.u,
+                      margin: EdgeInsets.only(top: 2.u),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: sel ? c.accent : c.lineStrong, width: 1.5)),
+                      child: sel ? Container(width: 8.u, height: 8.u, decoration: BoxDecoration(shape: BoxShape.circle, color: c.accent)) : null,
+                    ),
+                    SizedBox(width: Sp.x2),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(widget.name, style: ts.strong),
+                          const SizedBox(height: 2),
+                          Text(widget.line, style: ts.small),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Advanced › Shows more: one row per feature, title, ⓘ, a switch; Deeper and up. At Shallow
+/// the rows wait behind the group's ⇕ (shown with the Deeper view); Local node is Deep end's.
 class _ShowsGroup extends ConsumerWidget {
   const _ShowsGroup();
 
@@ -132,68 +263,63 @@ class _ShowsGroup extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final s = ref.watch(deskProvider.select((s) => s.settings));
+    final level = ref.watch(deskLevelProvider).number;
     final adv = s.advanced;
     final n = ref.read(deskProvider.notifier);
     void set(AdvancedFeature f, bool on) =>
         n.saveSettings(s.copyWith(advanced: adv.withFeature(f, on)));
-    ESetRow row(AdvancedFeature f, String hint, {bool shown = true}) => ESetRow(
+    ESetRow row(AdvancedFeature f, String id, String hint, {int minLevel = 2}) => ESetRow(
       key: ValueKey('adv-${f.name}'),
+      anchor: id,
+      advancedBy: level >= minLevel ? null : advancedByView(l, minLevel),
       title: advancedFeatureName(l, f),
       hint: hint,
       hintTitle: advancedFeatureName(l, f),
       control: ESwitch(
         value: adv.has(f),
         semanticLabel: advancedFeatureName(l, f),
-        onChanged: shown ? (v) => set(f, v) : null,
+        onChanged: (v) => set(f, v),
       ),
     );
+    final all = [
+      (row(AdvancedFeature.outputs, SetId.advOutputs, l.deskSetAdvOutputsHint), 2),
+      (row(AdvancedFeature.technicalDetails, SetId.advTech, l.deskSetAdvTechnicalHint), 2),
+      (row(AdvancedFeature.sendOptions, SetId.advSendopts, l.deskSetAdvSendOptionsHint), 2),
+      (row(AdvancedFeature.serverDetails, SetId.advServers, l.deskSetAdvServerDetailsHint), 2),
+      (row(AdvancedFeature.recheckFromHeight, SetId.advHeight, l.deskSetAdvRecheckHint), 2),
+      (row(AdvancedFeature.builtInNode, SetId.advLocal, l.deskSetAdvBuiltInNodeHint, minLevel: 3), 3),
+      (row(AdvancedFeature.logs, SetId.advLogs, l.deskSetAdvLogsHint), 2),
+    ];
     final on = adv.shownFeatures.length;
-    final trailing = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (on > 0) Text(l.deskSetAdvOn(on), style: context.ts.small),
-          if (on > 0) SizedBox(width: Sp.x3),
-          EButton.ghost(
-            key: const ValueKey('adv-reset'),
-            label: l.deskSetAdvReset,
-            icon: EIcons.eyeOff,
-            size: EBtnSize.inline,
-            onPressed: on == 0
-                ? null
-                : () => n.saveSettings(s.copyWith(advanced: adv.withoutShown())),
-          ),
-        ],
-      );
-    final group = ESetGroup(
-      rows: [
-        row(AdvancedFeature.outputs, l.deskSetAdvOutputsHint),
-        row(AdvancedFeature.technicalDetails, l.deskSetAdvTechnicalHint),
-        row(AdvancedFeature.sendOptions, l.deskSetAdvSendOptionsHint),
-        row(AdvancedFeature.serverDetails, l.deskSetAdvServerDetailsHint),
-        row(AdvancedFeature.recheckFromHeight, l.deskSetAdvRecheckHint),
-        row(AdvancedFeature.builtInNode, l.deskSetAdvBuiltInNodeHint),
-        row(AdvancedFeature.logs, l.deskSetAdvLogsHint),
-      ],
-    );
-    // The trailing count and Reset sit beside the title while the header has room, else under it.
-    return LayoutBuilder(
-      builder: (context, box) {
-        if (box.maxWidth >= Lay.sm) return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [ESectionHead(l.deskSetAdvShows, top: 0, trailing: trailing), group]);
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ESectionHead(l.deskSetAdvShows, top: 0),
-            Align(alignment: Alignment.centerLeft, child: Padding(padding: EdgeInsets.only(bottom: Sp.x3), child: trailing)),
-            group,
-          ],
-        );
-      },
+    final trailing = level < 2
+        ? null
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (on > 0) Text(l.deskSetAdvOn(on), style: context.ts.small),
+              if (on > 0) SizedBox(width: Sp.x3),
+              EButton.ghost(
+                key: const ValueKey('adv-reset'),
+                label: l.deskSetAdvReset,
+                icon: EIcons.eyeOff,
+                size: EBtnSize.inline,
+                onPressed: on == 0 ? null : () => n.saveSettings(s.copyWith(advanced: adv.withoutShown())),
+              ),
+            ],
+          );
+    return ESetGroup(
+      key: const ValueKey('adv-shows'),
+      title: l.deskSetAdvShows,
+      trailing: trailing,
+      rows: [for (final (r, min) in all) if (level >= min) r],
+      hidden: [for (final (r, min) in all) if (level < min) r],
+      revealKey: 'adv-shows',
     );
   }
 }
 
-/// Pairing and Invoices, off by default, and Linked devices, on unless turned off: each with an
-/// Experimental tag, the rule between the first two in one line under them.
+/// Advanced › Experiments: Invoices, off by default, Deep end's. Linked devices shows at every
+/// view and has no switch (item 10).
 class _ExperimentalGroup extends ConsumerWidget {
   const _ExperimentalGroup();
 
@@ -201,96 +327,32 @@ class _ExperimentalGroup extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     final s = ref.watch(deskProvider.select((s) => s.settings));
+    final deep = ref.watch(deskLevelProvider) == WalletLevel.everything;
     final adv = s.advanced;
     final n = ref.read(deskProvider.notifier);
-    ESetRow row(AdvancedFeature f, bool value, String hint) => ESetRow(
-      key: ValueKey('adv-${f.name}'),
-      title: advancedFeatureName(l, f),
-      badge: EBadge(l.advExperimental),
-      hint: hint,
-      hintTitle: advancedFeatureName(l, f),
+    final invoices = ESetRow(
+      key: ValueKey('adv-${AdvancedFeature.invoices.name}'),
+      anchor: SetId.xInvoices,
+      advancedBy: deep ? null : advancedByView(l, 3),
+      title: advancedFeatureName(l, AdvancedFeature.invoices),
+      badge: EBadge(l.deskSetFrameExperiment),
+      hint: l.expInvoicesHint,
+      hintTitle: advancedFeatureName(l, AdvancedFeature.invoices),
       control: ESwitch(
-        value: value,
-        semanticLabel: advancedFeatureName(l, f),
-        onChanged: (v) => n.saveSettings(s.copyWith(advanced: adv.withExperimental(f, v))),
+        value: adv.invoicesOn,
+        semanticLabel: advancedFeatureName(l, AdvancedFeature.invoices),
+        onChanged: (v) => n.saveSettings(s.copyWith(advanced: adv.withExperimental(AdvancedFeature.invoices, v))),
       ),
     );
     return ESetGroup(
       key: const ValueKey('adv-experimental'),
-      title: l.advExperimental,
-      rows: [
-        row(AdvancedFeature.invoices, adv.invoicesOn, l.expInvoicesHint),
-        // On unless turned off; independent of Pairing (its pairings are private).
-        row(AdvancedFeature.linkedDevices, adv.linkedDevicesOn, l.expLinkedDevicesHint),
-      ],
+      title: l.deskSetAdvExperiments,
+      rows: [if (deep) invoices],
+      hidden: [if (!deep) invoices],
+      revealKey: 'adv-experiments',
     );
   }
 }
-
-/// The wallet's minimum confirmations (the core keeps it per wallet): a stepper that applies
-/// each step at once, a Default tag at the default and Reset elsewhere, and a quiet line under
-/// it below the default. A refused count goes back and says why in a toast.
-class _BalanceGroup extends ConsumerWidget {
-  const _BalanceGroup();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final c = context.dc;
-    final count = ref.watch(deskMinConfirmationsSettingProvider).value ?? deskMinConfirmations(ref);
-    Future<void> set(int n) async {
-      if (n == count) return;
-      try {
-        await ref.read(deskMinConfirmationsSettingProvider.notifier).set(n);
-      } on Object catch (e) {
-        if (context.mounted) showEToast(context, l.deskSetAdvConfirmationsNotSaved, text: deskErrorText(e, l), tone: ETone.risk);
-      }
-    }
-
-    return ESetGroup(
-      key: const ValueKey('adv-balance'),
-      title: l.deskSetAdvBalance,
-      rows: [
-        ESetRow(
-          key: const ValueKey('adv-minConfirmations'),
-          title: l.deskSetAdvConfirmations,
-          hint: l.deskSetAdvConfirmationsHint(defaultMinimumConfirmations, minMinimumConfirmations, maxMinimumConfirmations),
-          hintTitle: l.deskSetAdvConfirmations,
-          wrap: true,
-          control: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (count == defaultMinimumConfirmations)
-                EBadge(l.deskSetAdvConfirmationsDefault)
-              else
-                EButton.ghost(
-                  key: const ValueKey('adv-minConfirmations-reset'),
-                  label: l.deskSetAdvConfirmationsReset(defaultMinimumConfirmations),
-                  size: EBtnSize.inline,
-                  onPressed: () => set(defaultMinimumConfirmations),
-                ),
-              SizedBox(width: Sp.x3),
-              EStepper(
-                value: count,
-                min: minMinimumConfirmations,
-                max: maxMinimumConfirmations,
-                label: l.deskSetAdvConfirmations,
-                fewerLabel: l.deskSetAdvConfirmationsFewer,
-                moreLabel: l.deskSetAdvConfirmationsMore,
-                valueText: l.deskSetAdvConfirmationsCount,
-                onChanged: set,
-              ),
-            ],
-          ),
-          below: count < defaultMinimumConfirmations
-              ? Text(l.deskSetAdvConfirmationsLowNote, key: const ValueKey('adv-minConfirmations-note'), style: context.ts.small.copyWith(color: c.dim))
-              : null,
-        ),
-      ],
-    );
-  }
-}
-
 
 /// The key of the switch confirmation dialog.
 const Key advModeConfirmKey = ValueKey('adv-mode-confirm');

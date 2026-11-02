@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import '../../../tor_routes.dart' show TorState;
-import '../../../advanced.dart' show NetworkMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 
-import '../../../advanced.dart' show NetworkModeRestricted;
+import '../../../levels/wallet_level.dart';
+import '../../../models.dart' show defaultMinimumConfirmations, maxMinimumConfirmations, minMinimumConfirmations;
 import '../../../payment_prefs.dart';
 import '../../data/method_names.dart';
 import '../../data/net_mode_view.dart' show netTorState;
@@ -19,7 +19,11 @@ import '../../widgets/kit.dart';
 import '../../widgets/server_list_panel.dart';
 import '../../data/server_lists.dart';
 import '../transfer/epicbox_notice.dart';
+import '../../data/desk_levels.dart' show deskLevelProvider;
+import '../wallet/outputs_dialogs.dart' show EStepper;
 import 'prefs.dart';
+import 'search/settings_sections.dart' show setJoinReasons;
+import 'setting_ids.dart';
 import 'settings_frame.dart';
 import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 import 'settings_http.dart';
@@ -38,8 +42,8 @@ ETone epicboxTone(ServiceHealth h) => switch (h) {
   ServiceHealth.off => ETone.neutral,
 };
 
-/// Settings › Transactions (26.10.13; one switch per method 26.10.16): how payments
-/// are made. Payment methods grouped by family (Epicbox; Link › HTTP, Tor; Direct › File
+/// Settings › Payments (once Transactions; one switch per method 26.10.16): how payments
+/// are made, then Sending and Receiving (Confirmations). Payment methods grouped by family (Epicbox; Link › HTTP, Tor; Direct › File
 /// Transfer), each one switch, at least one on; what Send starts on and, with Advanced › Send
 /// options, its defaults. Each method's receiving details sit under its own switch, shown
 /// only while it is on (no scrolling to the bottom to see them): Epicbox its
@@ -160,12 +164,13 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   /// The group's first row: the switch (a spinner while it runs) and the state line. Without
   /// [switchable] the row is the state alone: the method's switch in Payment methods is the
   /// one switch (Link · HTTP), so none is repeated here.
-  Widget _receivingRow(TxMethod m, String text, bool on, MethodLine line, {bool enabled = true, bool switchable = true, Widget? notice, Widget? picker}) {
+  Widget _receivingRow(TxMethod m, String text, bool on, MethodLine line, {bool enabled = true, bool switchable = true, Widget? notice, Widget? picker, String? anchor}) {
     final l = context.l10n;
     final busy = _busy.contains(m);
     // The row's info hint describes the method: an "Off" line needs no repeat of it.
     final shown = line.state == EState.off && m != TxMethod.epicbox ? MethodLine(line.word, line.state) : line;
     return ESetRow(
+      anchor: anchor,
       title: l.deskSetRecvReceiving,
       hint: text,
       control: !switchable ? null : SizedBox(
@@ -216,6 +221,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   Widget _autostart(TxMethod m, bool value, ValueChanged<bool>? onChanged) {
     final l = context.l10n;
     return ESetRow(
+      anchor: m == TxMethod.epicbox ? SetId.epicboxStart : null,
       title: l.deskSetRecvAutostart,
       hint: l.deskSetRecvAutostartHint,
       control: ESwitch(key: ValueKey('st-autostart-${m.name}'), value: value, semanticLabel: l.deskSetRecvMethodAutostart(methodLabel(l, m)), onChanged: onChanged),
@@ -273,13 +279,16 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
         return _setEpicbox(on);
       case MethodKind.linkHttp:
         return _toggle(TxMethod.http, on);
+      // TODO(settings-items): Link · Tor runs Tor for payments by itself (item 2): switch it
+      // with `deskProvider.notifier.setLinkTor(on)`, enabled by `torPayCanSwitch(deskTorPayProvider)`,
+      // its line from `torPayLine(l, TorPay)`, Retry `retryTorPay()`.
       case MethodKind.linkTor || MethodKind.directQr || MethodKind.directFile:
         return _savePayments((x) => x.withMethod(m, on));
     }
   }
 
   /// A method's row in Payment methods: its icon, its name under the family's subhead, one
-  /// hint, and its switch. Link · Tor on while Tor is off says what it needs.
+  /// hint, and its switch. Link · Tor starts Tor for its payments by itself (item 2).
   Widget _methodRow(MethodKind m, PaymentPrefs p, DeskSettings s) {
     final l = context.l10n;
     final name = MethodIcons.groupName(l, m);
@@ -287,14 +296,19 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     final hint = switch (m) {
       MethodKind.epicbox => l.deskSetTxEpicboxHint,
       MethodKind.linkHttp => DeskFeatures.tor ? l.deskSetTxDirectHint('${appConfig.httpListenPort}') : l.deskNoTorSetTxDirectHint('${appConfig.httpListenPort}'),
-      MethodKind.linkTor => l.deskSetTxTorHintNet,
+      MethodKind.linkTor => l.deskSetTxTorPayHint,
       MethodKind.directQr => '',
       MethodKind.directFile => l.deskSetTxFileHint,
     };
     final busy = m == MethodKind.linkHttp && _busy.contains(TxMethod.http);
-    final needsTor = m == MethodKind.linkTor && p.linkTor && !s.tor;
     return ESetRow(
       key: ValueKey('st-method-${m.name}'),
+      anchor: switch (m) {
+        MethodKind.epicbox => SetId.epicbox,
+        MethodKind.linkHttp => SetId.http,
+        MethodKind.linkTor => SetId.torPay,
+        MethodKind.directQr || MethodKind.directFile => SetId.file,
+      },
       leading: MethodIcons.of(m),
       title: name,
       hint: hint,
@@ -312,26 +326,6 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
                 onChanged: (v) => _setMethod(m, v),
               ),
       ),
-      below: needsTor
-          ? ENotice(
-              key: const ValueKey('st-tor-needs-tor'),
-              icon: EIcons.tor,
-              title: l.deskSetTxTorNeedsTorNet,
-              // Offline: Tor never runs there; the reason instead.
-              text: s.advanced.networkMode == NetworkMode.killSwitch ? l.netBlockKillSwitch : (s.advanced.networkMode.restricted ? l.netBlockNodeOnly : null),
-              // Tor and the mode are set on Network & privacy only (B-03): one way there, as on
-              // the phone.
-              actions: [
-                EButton(
-                  key: const ValueKey('st-tor-open-network'),
-                  label: l.settingsSectionNetworkPrivacy,
-                  icon: EIcons.tor,
-                  size: EBtnSize.inline,
-                  onPressed: () => ref.read(settingsPrefsProvider.notifier).jumpTo(s.advanced.networkMode.restricted ? SettingsJump.network : SettingsJump.tor),
-                ),
-              ],
-            )
-          : null,
     );
   }
 
@@ -391,7 +385,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       );
     }
     return ESetGroup(
-      title: l.deskSetFrameTransactions,
+      title: l.deskSetTxMethods,
       rows: [
         for (final f in MethodFamily.values)
           for (final (i, m) in _familyMethods(f).indexed)
@@ -405,7 +399,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
 
   /// Send: the method it starts on, and with Advanced › Send options its defaults (the strategy
   /// and Split change that Outputs kept before).
-  Widget? _sendGroup(PaymentPrefs p) {
+  Widget _sendGroup(PaymentPrefs p) {
     final l = context.l10n;
     // Link once, whichever of its methods is on (the address decides the route).
     final offered = [
@@ -414,16 +408,54 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
       if (p.directFile) MethodKind.directFile,
     ];
     final start = p.startMethod.family == MethodFamily.link ? MethodKind.linkHttp : p.startMethod;
-    final options = advancedHas(ref, AdvancedFeature.sendOptions);
-    if (offered.length < 2 && !options) return null;
+    // Deep end with Advanced › Send options; otherwise behind the group's ⇕, saying both.
+    final deep = ref.watch(deskLevelProvider) == WalletLevel.everything;
+    final options = deep && advancedHas(ref, AdvancedFeature.sendOptions);
+    final by = options
+        ? null
+        : setJoinReasons(l, [if (!deep) advancedByView(l, 3), if (!advancedHas(ref, AdvancedFeature.sendOptions)) advancedByFeature(l, AdvancedFeature.sendOptions)]);
     final out = ref.watch(deskOutputPrefsProvider).value ?? const OutputPrefs();
     final save = ref.read(deskOutputPrefsProvider.notifier).save;
+    final optionRows = [
+            ESetRow(
+              key: const ValueKey('st-strategy'),
+              anchor: SetId.strategy,
+              advancedBy: by,
+              title: l.deskOutStrategyTitle,
+              hint: l.deskOutStrategyHint,
+              hintTitle: l.deskOutStrategyHelpTitle,
+              hintIcon: EIcons.coins,
+              control: ERowControl(
+                child: ESegmented<SelectionStrategy>(
+                  stretch: true,
+                  segments: [ESegment(SelectionStrategy.smallest, l.deskOutStrategySmallest), ESegment(SelectionStrategy.all, l.deskOutStrategyAll)],
+                  value: out.strategy,
+                  onChanged: (v) => save(OutputPrefs(strategy: v, smartOutputs: out.smartOutputs)),
+                ),
+              ),
+            ),
+            ESetRow(
+              key: const ValueKey('st-split'),
+              anchor: SetId.splitChange,
+              advancedBy: by,
+              title: l.deskOutSplitChangeTitle,
+              hint: l.deskOutSplitChangeText,
+              control: ESwitch(
+                value: out.smartOutputs,
+                semanticLabel: l.deskOutSplitChangeTitle,
+                onChanged: (v) => save(OutputPrefs(strategy: out.strategy, smartOutputs: v)),
+              ),
+            ),
+    ];
     return ESetGroup(
-        title: l.deskSetTxSend,
+        title: l.deskSetTxSending,
+        hidden: options ? const [] : optionRows,
+        revealKey: 'pay-sending',
         rows: [
           if (offered.length > 1)
             ESetRow(
               key: const ValueKey('st-start-method'),
+              anchor: SetId.defaultMethod,
               title: l.deskSetTxStart,
               hint: l.deskSetTxStartHint,
               // Sized to its words: three segments with the family names do not fit the
@@ -440,33 +472,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
                 ),
               ),
             ),
-          if (options) ...[
-            ESetRow(
-              key: const ValueKey('st-strategy'),
-              title: l.deskOutStrategyTitle,
-              hint: l.deskOutStrategyHint,
-              hintTitle: l.deskOutStrategyHelpTitle,
-              hintIcon: EIcons.coins,
-              control: ERowControl(
-                child: ESegmented<SelectionStrategy>(
-                  stretch: true,
-                  segments: [ESegment(SelectionStrategy.smallest, l.deskOutStrategySmallest), ESegment(SelectionStrategy.all, l.deskOutStrategyAll)],
-                  value: out.strategy,
-                  onChanged: (v) => save(OutputPrefs(strategy: v, smartOutputs: out.smartOutputs)),
-                ),
-              ),
-            ),
-            ESetRow(
-              key: const ValueKey('st-split'),
-              title: l.deskOutSplitChangeTitle,
-              hint: l.deskOutSplitChangeText,
-              control: ESwitch(
-                value: out.smartOutputs,
-                semanticLabel: l.deskOutSplitChangeTitle,
-                onChanged: (v) => save(OutputPrefs(strategy: out.strategy, smartOutputs: v)),
-              ),
-            ),
-          ],
+          if (options) ...optionRows,
         ],
     );
   }
@@ -502,8 +508,9 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
             status.epicboxHealth != ServiceHealth.off,
             // The picker names the server: the line keeps its word and any detail beyond the host.
             ebLine.detail == box.domain ? MethodLine(ebLine.word, ebLine.state) : ebLine,
+            anchor: SetId.epicboxRecv,
             notice: status.epicboxHealth == ServiceHealth.down ? const EpicboxDownNotice(sentence: false) : null,
-            picker: ServerListPanel(
+            picker: SetAnchor(id: SetId.epicboxServer, child: ServerListPanel(
               kind: ServerKind.relay,
               label: l.deskSetRecvEpicboxServer,
               value: relayLabel(box),
@@ -519,6 +526,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
               demo: widget.arg == ReceivingDemo.picked ? ServerPanelDemo(pick: shippedHostSettings.epicboxServers.elementAtOrNull(1)?.label ?? relayLabel(box)) : null,
               onChoose: _switch,
               onTest: _test,
+            ),
             ),
           ),
           _autostart(TxMethod.epicbox, s.epicboxAutostart, (v) => _saveAutostart(s.copyWith(epicboxAutostart: v))),
@@ -571,7 +579,8 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _methodsGroup(s.payments, s, details),
-          ?_sendGroup(s.payments),
+          _sendGroup(s.payments),
+          const JumpSection(section: SettingsJump.confirmations, child: ReceivingGroup()),
         ],
       ),
     );
@@ -607,6 +616,72 @@ class _MethodDetails extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Payments › Receiving: the wallet's minimum confirmations (the core keeps it per wallet): a
+/// stepper that applies each step at once, a Default tag at the default and Reset elsewhere,
+/// and a quiet line under it below the default. A refused count goes back and says why in a
+/// toast.
+class ReceivingGroup extends ConsumerWidget {
+  const ReceivingGroup({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = context.l10n;
+    final c = context.dc;
+    final count = ref.watch(deskMinConfirmationsSettingProvider).value ?? deskMinConfirmations(ref);
+    Future<void> set(int n) async {
+      if (n == count) return;
+      try {
+        await ref.read(deskMinConfirmationsSettingProvider.notifier).set(n);
+      } on Object catch (e) {
+        if (context.mounted) showEToast(context, l.deskSetAdvConfirmationsNotSaved, text: deskErrorText(e, l), tone: ETone.risk);
+      }
+    }
+
+    return ESetGroup(
+      key: const ValueKey('adv-balance'),
+      title: l.deskSetRecvReceiving,
+      rows: [
+        ESetRow(
+          key: const ValueKey('adv-minConfirmations'),
+          anchor: SetId.confirmations,
+          title: l.deskSetAdvConfirmations,
+          hint: l.deskSetAdvConfirmationsHint(defaultMinimumConfirmations, minMinimumConfirmations, maxMinimumConfirmations),
+          hintTitle: l.deskSetAdvConfirmations,
+          wrap: true,
+          control: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (count == defaultMinimumConfirmations)
+                EBadge(l.deskSetAdvConfirmationsDefault)
+              else
+                EButton.ghost(
+                  key: const ValueKey('adv-minConfirmations-reset'),
+                  label: l.deskSetAdvConfirmationsReset(defaultMinimumConfirmations),
+                  size: EBtnSize.inline,
+                  onPressed: () => set(defaultMinimumConfirmations),
+                ),
+              SizedBox(width: Sp.x3),
+              EStepper(
+                value: count,
+                min: minMinimumConfirmations,
+                max: maxMinimumConfirmations,
+                label: l.deskSetAdvConfirmations,
+                fewerLabel: l.deskSetAdvConfirmationsFewer,
+                moreLabel: l.deskSetAdvConfirmationsMore,
+                valueText: l.deskSetAdvConfirmationsCount,
+                onChanged: set,
+              ),
+            ],
+          ),
+          below: count < defaultMinimumConfirmations
+              ? Text(l.deskSetAdvConfirmationsLowNote, key: const ValueKey('adv-minConfirmations-note'), style: context.ts.small.copyWith(color: c.dim))
+              : null,
+        ),
+      ],
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
+import 'setting_ids.dart';
 import '../onboarding/onboarding_parts.dart' show deskLanguageItems, deskSystemLanguage;
 import 'settings_frame.dart';
 
@@ -20,9 +21,9 @@ class SettingsAppearanceScreen extends ConsumerWidget {
     return SettingsFrame(
       route: DeskRoute.settingsAppearance,
       child: ESetGroup(
-        title: l.deskSetFrameAppearance,
         rows: [
           ESetRow(
+            anchor: SetId.theme,
             title: l.deskSetAppearTheme,
             hint: l.deskSetAppearThemeHint,
             // At least the wide control; wider when a language's words need it, the three
@@ -46,6 +47,7 @@ class SettingsAppearanceScreen extends ConsumerWidget {
             ),
           ),
           ESetRow(
+            anchor: SetId.scale,
             title: l.deskSetAppearScale,
             hint: l.deskSetAppearScaleHint,
             control: ERowControl(
@@ -59,6 +61,7 @@ class SettingsAppearanceScreen extends ConsumerWidget {
             ),
           ),
           ESetRow(
+            anchor: SetId.language,
             title: l.deskSetAppearLanguage,
             hint: l.deskSetAppearLanguageHint,
             control: ERowControl(
@@ -73,6 +76,7 @@ class SettingsAppearanceScreen extends ConsumerWidget {
             ),
           ),
           ESetRow(
+            anchor: SetId.hideAmounts,
             title: l.deskOvHideAmounts,
             hint: l.deskSetAppearHideHint,
             control: ESwitch(value: s.hideAmounts, semanticLabel: l.deskOvHideAmounts, onChanged: (v) => n.saveSettings(s.copyWith(hideAmounts: v))),

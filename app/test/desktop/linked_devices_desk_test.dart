@@ -101,17 +101,7 @@ void main() {
     await end(tester);
   });
 
-  testWidgets('Linked devices is a page of This wallet: a row there opens it, no section of its own, This wallet stays raised', (tester) async {
-    await show(tester, const SettingsAccountScreen());
-    final subnav = find.byType(ESubnav);
-    expect(find.descendant(of: subnav, matching: find.text('Linked devices')), findsNothing);
-    expect(find.descendant(of: subnav, matching: find.text('This wallet')), findsOneWidget);
-    expect(find.text('Linked devices'), findsOneWidget);
-    expect(find.text('None'), findsOneWidget);
-    await tester.tap(find.byKey(settingsDevicesOpenKey));
-    await settle(tester);
-    expect(container.read(deskNavProvider).route, DeskRoute.settingsDevices);
-
+  testWidgets('Linked devices has its own entry under the wallet, raised on its page, with the Experiment tag', (tester) async {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
@@ -120,7 +110,8 @@ void main() {
     );
     await settle(tester);
     final raised = tester.widgetList<ENavItem>(find.descendant(of: find.byType(ESubnav), matching: find.byType(ENavItem))).where((e) => e.selected).map((e) => e.label);
-    expect(raised, ['This wallet']);
+    expect(raised, ['Linked devices']);
+    expect(find.byKey(const ValueKey('settings-experiment-tag')), findsOneWidget);
     expect(find.byKey(devicesLinkKey), findsOneWidget);
     await end(tester);
   });

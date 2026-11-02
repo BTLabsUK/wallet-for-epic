@@ -7,13 +7,12 @@ import '../../desk_l10n.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../../advanced.dart' show NetworkMode;
 import '../../../ui/network_mode_text.dart';
-import '../../../levels/level_features.dart' show AdvancedPageKind;
-import '../../data/desk_levels.dart' show deskLevelFeaturesProvider;
 import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
 import '../../widgets/kit.dart';
 import '../transfer/send_advanced.dart' show ERadioRow;
 import 'prefs.dart';
+import 'setting_ids.dart';
 import 'settings_frame.dart';
 import 'settings_advanced.dart' show confirmNetworkModeSwitch;
 import '../../../settings_file/status_site.dart' show statusSiteConfigured, statusSiteHost;
@@ -22,9 +21,9 @@ import '../../../settings_file/status_site.dart' show statusSiteConfigured, stat
 enum PrivacyDemo { torOn, torStarting, torFailed }
 
 /// Settings › Network & privacy (B-03): how the wallet reaches the network, on one page in the
-/// phone's order. The network mode, the one Tor switch (what it covers is `tor_routes.dart`'s),
-/// then the servers: whether the status site is asked, and Node failover. Stored settings are
-/// the same as before the page was merged; only the place of the controls moved.
+/// phone's order (Deeper and up). Connection mode, Tor for all connections (what it covers is
+/// `tor_routes.dart`'s; locked on in Tor only, off in Kill switch, with the line that says
+/// why), then Server status. Node failover is on the Node page.
 class SettingsPrivacyScreen extends ConsumerWidget {
   const SettingsPrivacyScreen({super.key, this.arg});
 
@@ -32,18 +31,15 @@ class SettingsPrivacyScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // The mode and failover belong to Deeper and up, as on Advanced before (Shallow has no
-    // section here; a Tor link may still open the page there).
-    final full = ref.watch(deskLevelFeaturesProvider.select((f) => f.advancedPage)) == AdvancedPageKind.full;
     return SettingsFrame(
       route: DeskRoute.settingsPrivacy,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // ESetGroup owns the gap between groups.
-          if (full) const JumpSection(section: SettingsJump.network, child: NetworkModeGroup()),
+          const JumpSection(section: SettingsJump.network, child: NetworkModeGroup()),
           if (DeskFeatures.tor) TorGroup(demo: arg is PrivacyDemo ? arg as PrivacyDemo : null),
-          PrivacyGroup(failover: full),
+          const PrivacyGroup(),
         ],
       ),
     );
@@ -126,9 +122,10 @@ class _TorGroupState extends ConsumerState<TorGroup> {
         title: l.deskSetPrivTor,
         rows: [
           ESetRow(
-            title: torNetworkLabel(context.l10n),
+            anchor: SetId.torAll,
+            title: l.deskSetPrivTorAll,
             hint: torOnly ? '${torNetworkHint(l)}\n\n${l.torLockedTorOnly}' : torNetworkHint(l),
-            hintTitle: torNetworkLabel(context.l10n),
+            hintTitle: l.deskSetPrivTorAll,
             hintIcon: EIcons.tor,
             control: SizedBox(
               width: 40.u,
@@ -138,7 +135,7 @@ class _TorGroupState extends ConsumerState<TorGroup> {
                   : ESwitch(
                       key: const ValueKey('privacy-tor-switch'),
                       value: (torOnly || st.settings.tor) && included && !offline,
-                      semanticLabel: torNetworkLabel(context.l10n),
+                      semanticLabel: l.deskSetPrivTorAll,
                       onChanged: included && !torOnly && !offline ? _set : null,
                     ),
             ),
@@ -195,48 +192,30 @@ MethodLine torStateLine(AppLocalizations l, TorState tor, ServiceStatus? status,
   };
 }
 
-/// The servers' group: whether the status site is asked ([DeskSettings.useStatusSite]; off,
-/// the node and Epicbox lists are the built-in ones with health from the servers themselves)
-/// and Node failover. Each applies at once.
+/// Server status: whether the status site is asked ([DeskSettings.useStatusSite]; off, the node
+/// and Epicbox lists are the built-in ones with health from the servers themselves). No status
+/// site in app-config.toml: no group.
 class PrivacyGroup extends ConsumerWidget {
-  const PrivacyGroup({super.key, this.failover = true});
-
-  /// Whether the Node failover row shows (Deeper and up).
-  final bool failover;
+  const PrivacyGroup({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final s = ref.watch(deskProvider.select((s) => s.settings));
-    final adv = s.advanced;
     final l = context.l10n;
     final n = ref.read(deskProvider.notifier);
-    if (!statusSiteConfigured && !failover) return const SizedBox.shrink();
+    if (!statusSiteConfigured) return const SizedBox.shrink();
     return ESetGroup(
       key: const ValueKey('privacy-servers'),
-      title: l.netPageServers,
+      title: l.deskSetPrivServerStatus,
       rows: [
-        // No status site in app-config.toml: no row.
-        if (statusSiteConfigured)
-          ESetRow(
-            title: l.deskSetPrivUseStatus(statusSiteHost),
-            hint: l.deskSetPrivUseStatusHint,
-            control: ESwitch(
-              value: s.useStatusSite,
-              semanticLabel: l.deskSetPrivUseStatus(statusSiteHost),
-              onChanged: (v) => n.saveSettings(s.copyWith(useStatusSite: v)),
-            ),
-          ),
-        // On by default: the one switch here that keeps the simple app working.
-        if (failover)
         ESetRow(
-          key: const ValueKey('adv-nodeFailover'),
-          title: l.deskSetAdvNodeFailover,
-          hint: l.deskSetAdvNodeFailoverHint,
-          hintTitle: l.deskSetAdvNodeFailover,
+          anchor: SetId.statusSite,
+          title: l.deskSetPrivUseStatus(statusSiteHost),
+          hint: l.deskSetPrivUseStatusHint,
           control: ESwitch(
-            value: adv.nodeFailover,
-            semanticLabel: l.deskSetAdvNodeFailover,
-            onChanged: (v) => n.saveSettings(s.copyWith(advanced: adv.withNodeFailover(v))),
+            value: s.useStatusSite,
+            semanticLabel: l.deskSetPrivUseStatus(statusSiteHost),
+            onChanged: (v) => n.saveSettings(s.copyWith(useStatusSite: v)),
           ),
         ),
       ],
@@ -277,14 +256,22 @@ class NetworkModeGroup extends ConsumerWidget {
     );
     return ESetGroup(
       key: const ValueKey('privacy-network'),
-      title: l.deskSetAdvNetwork,
+      title: l.deskSetPrivMode,
       rows: [
         // One row per mode, as tall as a settings row (its padding less the radio row's own).
-        for (final (m, tor) in [(NetworkMode.standard, false), if (DeskFeatures.tor) (NetworkMode.torOnly, true), (NetworkMode.nodeOnly, false), (NetworkMode.killSwitch, false)])
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x2),
-            child: mode(m, tor: tor),
+        SetAnchor(id: SetId.netMode, child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (i, (m, tor)) in [(NetworkMode.standard, false), if (DeskFeatures.tor) (NetworkMode.torOnly, true), (NetworkMode.nodeOnly, false), (NetworkMode.killSwitch, false)].indexed) ...[
+                if (i > 0) Divider(height: 1, thickness: 1, color: context.dc.line),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x2),
+                  child: mode(m, tor: tor),
+                ),
+              ],
+            ],
           ),
+        ),
       ],
     );
   }

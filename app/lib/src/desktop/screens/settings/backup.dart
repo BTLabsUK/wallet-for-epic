@@ -22,6 +22,7 @@ import '../../../history/backup_summary.dart';
 import '../../data/backup_settings_desk.dart';
 import '../../data/pairing_state.dart' show deskPairingCall;
 import '../../widgets/kit.dart';
+import 'setting_ids.dart';
 import '../devices/link_offer.dart';
 import 'history_conflicts.dart';
 
@@ -140,9 +141,10 @@ class _BackupGroupState extends ConsumerState<BackupGroup> {
     final state = ref.watch(historyBackupProvider).value;
     final busy = _busy;
     return ESetGroup(
-      title: l.deskSetBackupGroup,
+      title: l.deskSetAcctBackup,
       rows: [
         ESetRow(
+          anchor: SetId.exportData,
           title: l.deskSetBackupExportTitle,
           hint: l.deskSetBackupExportHint,
           below: Padding(
@@ -160,6 +162,7 @@ class _BackupGroupState extends ConsumerState<BackupGroup> {
           ),
         ),
         ESetRow(
+          anchor: SetId.importData,
           title: l.deskSetBackupImportTitle,
           hint: l.deskSetBackupImportHint,
           control: ERowControl(
@@ -172,6 +175,7 @@ class _BackupGroupState extends ConsumerState<BackupGroup> {
           ),
         ),
         ESetRow(
+          anchor: SetId.exportCsv,
           title: l.deskSetBackupCsvDialogTitle,
           hint: l.deskSetBackupCsvHint,
           control: ERowControl(

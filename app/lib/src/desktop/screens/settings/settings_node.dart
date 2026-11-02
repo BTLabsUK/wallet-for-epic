@@ -28,6 +28,7 @@ import 'local_node.dart';
 import 'local_node_dialogs.dart' show showReuseChainDataDialog, fallbackAskedThisSession;
 import 'own_node_panel.dart';
 import 'prefs.dart';
+import 'setting_ids.dart';
 import 'settings_frame.dart';
 import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 import '../../../settings_file/status_site.dart' show statusSiteHost;
@@ -429,9 +430,10 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
               id: 'node-server',
               child: ESetGroup(
               gap: false,
-              title: l.deskSetFrameNode,
+              title: l.deskSetNodeConnection,
               rows: [
                 ESetRow(
+                  anchor: SetId.nodeServer,
                   title: l.deskSetNodeServer,
                   hint: l.deskSetNodeServerHint,
                   stacked: true,
@@ -478,6 +480,44 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                   ),
                   ),
                 ),
+                // On by default: the one switch here that keeps the simple app working.
+                ESetRow(
+                  key: const ValueKey('adv-nodeFailover'),
+                  anchor: SetId.failover,
+                  title: l.deskSetNodeFailover,
+                  hint: l.deskSetAdvNodeFailoverHint,
+                  hintTitle: l.deskSetNodeFailover,
+                  control: ESwitch(
+                    value: st.settings.advanced.nodeFailover,
+                    semanticLabel: l.deskSetNodeFailover,
+                    onChanged: (v) => ref.read(deskProvider.notifier).saveSettings(st.settings.copyWith(advanced: st.settings.advanced.withNodeFailover(v))),
+                  ),
+                ),
+                // A listed https node the user also runs: marked as theirs, it is asked directly.
+                if (!prefs.builtin && Uri.tryParse(chosenUrl)?.scheme == 'https' && !nodeClassOf(chosenUrl).local)
+                  ESetRow(
+                    anchor: SetId.myNode,
+                    title: l.deskOwnMine,
+                    hint: l.deskOwnMineHint(statusSiteHost),
+                    hintHelp: localNodeHelp(ref),
+                    control: ESwitch(
+                      value: mine,
+                      semanticLabel: l.deskOwnMine,
+                      onChanged: (v) => p.set(prefs.copyWith(mineNodes: v ? {...prefs.mineNodes, chosenUrl} : ({...prefs.mineNodes}..remove(chosenUrl)))),
+                    ),
+                  ),
+              ],
+            ),
+            ),
+            ),
+          ),
+          // What the node says of itself: its card, or the panel of the user's own node or of
+          // the node on this computer.
+          if (!(switching != null && !prefs.builtin && !own))
+            ESetGroup(
+              key: const ValueKey('node-status'),
+              title: l.deskSetNodeStatus,
+              rows: [
                 if (own)
                   OwnNodePanel(
                     key: ValueKey('own-$chosenUrl'),
@@ -499,18 +539,6 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                       onSwitch: (t) => _useRemote(t.url),
                     ),
                   ),
-                // A listed https node the user also runs: marked as theirs, it is asked directly.
-                if (!prefs.builtin && Uri.tryParse(chosenUrl)?.scheme == 'https' && !nodeClassOf(chosenUrl).local)
-                  ESetRow(
-                    title: l.deskOwnMine,
-                    hint: l.deskOwnMineHint(statusSiteHost),
-                    hintHelp: localNodeHelp(ref),
-                    control: ESwitch(
-                      value: mine,
-                      semanticLabel: l.deskOwnMine,
-                      onChanged: (v) => p.set(prefs.copyWith(mineNodes: v ? {...prefs.mineNodes, chosenUrl} : ({...prefs.mineNodes}..remove(chosenUrl)))),
-                    ),
-                  ),
                 if (prefs.builtin) LocalNodePanel(initialTab: widget.arg == NodeDemo.peers ? LocalTab.peers : LocalTab.status),
                 if (prefs.builtin && DeskFeatures.nodeBackground)
                   ESetRow(
@@ -525,9 +553,6 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                   ),
               ],
             ),
-            ),
-            ),
-          ),
         ],
       ),
     );
