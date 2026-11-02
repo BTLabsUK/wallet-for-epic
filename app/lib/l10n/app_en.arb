@@ -26281,5 +26281,245 @@
   "deskRailOpenNetworkPrivacy": "Open Network & privacy",
   "@deskRailOpenNetworkPrivacy": {
     "description": "Status rail, Tor row: the link that opens Settings › Network & privacy."
+  },
+  "deskSetSearchHint": "Search settings",
+  "@deskSetSearchHint": {
+    "description": "Settings search field: placeholder and its name for screen readers."
+  },
+  "deskSetSearchKeyHint": "Ctrl K",
+  "@deskSetSearchKeyHint": {
+    "description": "Settings search field: the keyboard shortcut shown at its right end. Keep the key names as on the keyboard."
+  },
+  "deskSetSearchClear": "Clear search",
+  "@deskSetSearchClear": {
+    "description": "Settings search: the button that empties the search field."
+  },
+  "deskSetSearchCount": "{count, plural, =1{1 result} other{{count} results}}",
+  "@deskSetSearchCount": {
+    "description": "Settings search: heading over the results; counts every result listed (settings, Help topics, hidden ones). Read out by screen readers.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetSearchFor": "for “{query}”",
+  "@deskSetSearchFor": {
+    "description": "Settings search: beside the result count, what was searched. Use the language's own quotation marks.",
+    "placeholders": {
+      "query": {
+        "type": "String",
+        "example": "tor"
+      }
+    }
+  },
+  "deskSetSearchKeysMove": "move",
+  "@deskSetSearchKeysMove": {
+    "description": "Settings search: key hint after the up and down arrow keys."
+  },
+  "deskSetSearchKeysGo": "go to setting",
+  "@deskSetSearchKeysGo": {
+    "description": "Settings search: key hint after the Enter key."
+  },
+  "deskSetSearchKeysClear": "clear",
+  "@deskSetSearchKeysClear": {
+    "description": "Settings search: key hint after the Esc key."
+  },
+  "deskSetSearchMatches": "Matches “{word}”",
+  "@deskSetSearchMatches": {
+    "description": "Settings search result: the result was found through this other word (a synonym), not its name. Use the language's own quotation marks.",
+    "placeholders": {
+      "word": {
+        "type": "String",
+        "example": "seed"
+      }
+    }
+  },
+  "deskSetSearchHelpTopics": "Help topics",
+  "@deskSetSearchHelpTopics": {
+    "description": "Settings search: heading of the Help topics that match."
+  },
+  "deskSetSearchHidden": "Hidden here",
+  "@deskSetSearchHidden": {
+    "description": "Settings search: heading of matching settings that the current view or an Advanced switch hides."
+  },
+  "deskSetSearchHiddenLine": "Another view or an Advanced switch shows them",
+  "@deskSetSearchHiddenLine": {
+    "description": "Settings search: line beside the Hidden here heading."
+  },
+  "deskSetSearchShowIn": "Show in {view}",
+  "@deskSetSearchShowIn": {
+    "description": "Settings search, hidden result: button that changes to the view that shows the setting, then goes to it. view is Shallow, Deeper or Deep end.",
+    "placeholders": {
+      "view": {
+        "type": "String",
+        "example": "Deep end"
+      }
+    }
+  },
+  "deskSetSearchTurnOn": "Turn on",
+  "@deskSetSearchTurnOn": {
+    "description": "Settings search, hidden result: button that turns on the Advanced switch that shows the setting, then goes to it."
+  },
+  "deskSetSearchOpen": "Open",
+  "@deskSetSearchOpen": {
+    "description": "Settings search result: button that goes to the setting on its page."
+  },
+  "deskSetSearchRead": "Read",
+  "@deskSetSearchRead": {
+    "description": "Settings search, Help topic result: button that opens the topic in Help."
+  },
+  "deskSetSearchNone": "No setting matches “{query}”.",
+  "@deskSetSearchNone": {
+    "description": "Settings search: nothing matches. Use the language's own quotation marks.",
+    "placeholders": {
+      "query": {
+        "type": "String",
+        "example": "xyz"
+      }
+    }
+  },
+  "deskSetSearchTry": "Try",
+  "@deskSetSearchTry": {
+    "description": "Settings search, nothing found: before a few example words to search for."
+  },
+  "deskSetSearchTryWords": "password,tor,seed,backup,fee,node,lock",
+  "@deskSetSearchTryWords": {
+    "description": "Settings search, nothing found: example words to search for, comma-separated, lower case, in this language (each must find a setting)."
+  },
+  "deskSetSearchNoResults": "No results",
+  "@deskSetSearchNoResults": {
+    "description": "Settings navigation while searching: read by screen readers for a section without matching settings."
+  },
+  "deskSetSearchResults": "Search results",
+  "@deskSetSearchResults": {
+    "description": "Settings search: the results list's name for screen readers."
+  },
+  "deskSetSearchViewGate": "{view} view",
+  "@deskSetSearchViewGate": {
+    "description": "What shows a hidden setting: a view. view is Shallow, Deeper or Deep end, e.g. \"Deep end view\".",
+    "placeholders": {
+      "view": {
+        "type": "String",
+        "example": "Deep end"
+      }
+    }
+  },
+  "deskSetSearchFeatGate": "Advanced › {feature}",
+  "@deskSetSearchFeatGate": {
+    "description": "What shows a hidden setting: a switch on Settings › Advanced, e.g. \"Advanced › Invoices\".",
+    "placeholders": {
+      "feature": {
+        "type": "String",
+        "example": "Invoices"
+      }
+    }
+  },
+  "deskSetSearchGateJoin": "{first} and {last}",
+  "@deskSetSearchGateJoin": {
+    "description": "Joins the reasons that show hidden options: \"Deep end view and Advanced › Invoices\". first may itself be a comma-separated list.",
+    "placeholders": {
+      "first": {
+        "type": "String"
+      },
+      "last": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetSearchMore": "{count, plural, =1{1 more option · shown with {gates}} other{{count} more options · shown with {gates}}}",
+  "@deskSetSearchMore": {
+    "description": "More options control (⇕): its tooltip and name while folded. gates names what shows them, e.g. \"Deep end view and Advanced › Invoices\".",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "gates": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetSearchLess": "{count, plural, =1{Hide the extra option} other{Hide the {count} extra options}}",
+  "@deskSetSearchLess": {
+    "description": "More options control (⇕): its tooltip and name while the hidden options show.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "deskSetSearchViewApplied": "View: {view}",
+  "@deskSetSearchViewApplied": {
+    "description": "Notice after a search result changed the view. view is Shallow, Deeper or Deep end.",
+    "placeholders": {
+      "view": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetSearchFeatApplied": "Advanced › {feature}: on",
+  "@deskSetSearchFeatApplied": {
+    "description": "Notice after a search result turned on an Advanced switch.",
+    "placeholders": {
+      "feature": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetSearchFallbackView": "{page} shows in the {view} view.",
+  "@deskSetSearchFallbackView": {
+    "description": "Notice when a link opens a Settings page the current view hides; the first page of its group opens instead. view is Shallow, Deeper or Deep end.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      },
+      "view": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetSearchFallbackFeat": "{page} shows with Advanced › {feature}.",
+  "@deskSetSearchFallbackFeat": {
+    "description": "Notice when a link opens a Settings page an Advanced switch hides; the first page of its group opens instead.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      },
+      "feature": {
+        "type": "String"
+      }
+    }
+  },
+  "deskSetSecWallet": "Wallet",
+  "@deskSetSecWallet": {
+    "description": "Settings navigation: the open wallet's page (name, backup, balance, remove)."
+  },
+  "deskSetSecPayments": "Payments",
+  "@deskSetSecPayments": {
+    "description": "Settings navigation: payment methods, sending and receiving."
+  },
+  "deskSetSecDevices": "Linked devices",
+  "@deskSetSecDevices": {
+    "description": "Settings navigation: this wallet on other devices."
+  },
+  "deskSetSecWallets": "Wallets",
+  "@deskSetSecWallets": {
+    "description": "Settings navigation: the wallets on this computer."
+  },
+  "deskSetSecFiles": "Files & logs",
+  "@deskSetSecFiles": {
+    "description": "Settings navigation: folders and logs on this computer."
+  },
+  "deskSetSecDonate": "Donate",
+  "@deskSetSecDonate": {
+    "description": "Settings navigation: the donation page."
+  },
+  "deskSetNavApp": "App",
+  "@deskSetNavApp": {
+    "description": "Settings navigation: heading of the app-wide sections."
+  },
+  "deskSetNavComputer": "This computer",
+  "@deskSetNavComputer": {
+    "description": "Settings navigation: heading of the sections about this computer."
   }
 }

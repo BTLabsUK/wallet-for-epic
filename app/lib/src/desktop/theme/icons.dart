@@ -36,6 +36,9 @@ abstract final class EIcons {
   static const chevronRight = Icons.chevron_right;
   static const chevronDown = Icons.expand_more;
   static const chevronLeft = Icons.chevron_left;
+  static const unfoldMore = Icons.unfold_more;
+  static const unfoldLess = Icons.unfold_less;
+  static const donate = Icons.volunteer_activism_outlined;
   static const arrowLeft = Icons.arrow_back;
   static const search = Icons.search;
   static const file = MethodIcons.file;

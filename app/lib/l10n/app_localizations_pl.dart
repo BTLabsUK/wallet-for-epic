@@ -20034,4 +20034,165 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskRailOpenNetworkPrivacy => 'Otwórz Sieć i prywatność';
+
+  @override
+  String get deskSetSearchHint => 'Search settings';
+
+  @override
+  String get deskSetSearchKeyHint => 'Ctrl K';
+
+  @override
+  String get deskSetSearchClear => 'Clear search';
+
+  @override
+  String deskSetSearchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count results',
+      one: '1 result',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSetSearchFor(String query) {
+    return 'for “$query”';
+  }
+
+  @override
+  String get deskSetSearchKeysMove => 'move';
+
+  @override
+  String get deskSetSearchKeysGo => 'go to setting';
+
+  @override
+  String get deskSetSearchKeysClear => 'clear';
+
+  @override
+  String deskSetSearchMatches(String word) {
+    return 'Matches “$word”';
+  }
+
+  @override
+  String get deskSetSearchHelpTopics => 'Help topics';
+
+  @override
+  String get deskSetSearchHidden => 'Hidden here';
+
+  @override
+  String get deskSetSearchHiddenLine =>
+      'Another view or an Advanced switch shows them';
+
+  @override
+  String deskSetSearchShowIn(String view) {
+    return 'Show in $view';
+  }
+
+  @override
+  String get deskSetSearchTurnOn => 'Turn on';
+
+  @override
+  String get deskSetSearchOpen => 'Open';
+
+  @override
+  String get deskSetSearchRead => 'Read';
+
+  @override
+  String deskSetSearchNone(String query) {
+    return 'No setting matches “$query”.';
+  }
+
+  @override
+  String get deskSetSearchTry => 'Try';
+
+  @override
+  String get deskSetSearchTryWords => 'password,tor,seed,backup,fee,node,lock';
+
+  @override
+  String get deskSetSearchNoResults => 'No results';
+
+  @override
+  String get deskSetSearchResults => 'Search results';
+
+  @override
+  String deskSetSearchViewGate(String view) {
+    return '$view view';
+  }
+
+  @override
+  String deskSetSearchFeatGate(String feature) {
+    return 'Advanced › $feature';
+  }
+
+  @override
+  String deskSetSearchGateJoin(String first, String last) {
+    return '$first and $last';
+  }
+
+  @override
+  String deskSetSearchMore(int count, String gates) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more options · shown with $gates',
+      one: '1 more option · shown with $gates',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSetSearchLess(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Hide the $count extra options',
+      one: 'Hide the extra option',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String deskSetSearchViewApplied(String view) {
+    return 'View: $view';
+  }
+
+  @override
+  String deskSetSearchFeatApplied(String feature) {
+    return 'Advanced › $feature: on';
+  }
+
+  @override
+  String deskSetSearchFallbackView(String page, String view) {
+    return '$page shows in the $view view.';
+  }
+
+  @override
+  String deskSetSearchFallbackFeat(String page, String feature) {
+    return '$page shows with Advanced › $feature.';
+  }
+
+  @override
+  String get deskSetSecWallet => 'Wallet';
+
+  @override
+  String get deskSetSecPayments => 'Payments';
+
+  @override
+  String get deskSetSecDevices => 'Linked devices';
+
+  @override
+  String get deskSetSecWallets => 'Wallets';
+
+  @override
+  String get deskSetSecFiles => 'Files & logs';
+
+  @override
+  String get deskSetSecDonate => 'Donate';
+
+  @override
+  String get deskSetNavApp => 'App';
+
+  @override
+  String get deskSetNavComputer => 'This computer';
 }

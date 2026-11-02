@@ -30233,6 +30233,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open Network & privacy'**
   String get deskRailOpenNetworkPrivacy;
+
+  /// Settings search field: placeholder and its name for screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Search settings'**
+  String get deskSetSearchHint;
+
+  /// Settings search field: the keyboard shortcut shown at its right end. Keep the key names as on the keyboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Ctrl K'**
+  String get deskSetSearchKeyHint;
+
+  /// Settings search: the button that empties the search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get deskSetSearchClear;
+
+  /// Settings search: heading over the results; counts every result listed (settings, Help topics, hidden ones). Read out by screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 result} other{{count} results}}'**
+  String deskSetSearchCount(int count);
+
+  /// Settings search: beside the result count, what was searched. Use the language's own quotation marks.
+  ///
+  /// In en, this message translates to:
+  /// **'for “{query}”'**
+  String deskSetSearchFor(String query);
+
+  /// Settings search: key hint after the up and down arrow keys.
+  ///
+  /// In en, this message translates to:
+  /// **'move'**
+  String get deskSetSearchKeysMove;
+
+  /// Settings search: key hint after the Enter key.
+  ///
+  /// In en, this message translates to:
+  /// **'go to setting'**
+  String get deskSetSearchKeysGo;
+
+  /// Settings search: key hint after the Esc key.
+  ///
+  /// In en, this message translates to:
+  /// **'clear'**
+  String get deskSetSearchKeysClear;
+
+  /// Settings search result: the result was found through this other word (a synonym), not its name. Use the language's own quotation marks.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches “{word}”'**
+  String deskSetSearchMatches(String word);
+
+  /// Settings search: heading of the Help topics that match.
+  ///
+  /// In en, this message translates to:
+  /// **'Help topics'**
+  String get deskSetSearchHelpTopics;
+
+  /// Settings search: heading of matching settings that the current view or an Advanced switch hides.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden here'**
+  String get deskSetSearchHidden;
+
+  /// Settings search: line beside the Hidden here heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Another view or an Advanced switch shows them'**
+  String get deskSetSearchHiddenLine;
+
+  /// Settings search, hidden result: button that changes to the view that shows the setting, then goes to it. view is Shallow, Deeper or Deep end.
+  ///
+  /// In en, this message translates to:
+  /// **'Show in {view}'**
+  String deskSetSearchShowIn(String view);
+
+  /// Settings search, hidden result: button that turns on the Advanced switch that shows the setting, then goes to it.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on'**
+  String get deskSetSearchTurnOn;
+
+  /// Settings search result: button that goes to the setting on its page.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get deskSetSearchOpen;
+
+  /// Settings search, Help topic result: button that opens the topic in Help.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get deskSetSearchRead;
+
+  /// Settings search: nothing matches. Use the language's own quotation marks.
+  ///
+  /// In en, this message translates to:
+  /// **'No setting matches “{query}”.'**
+  String deskSetSearchNone(String query);
+
+  /// Settings search, nothing found: before a few example words to search for.
+  ///
+  /// In en, this message translates to:
+  /// **'Try'**
+  String get deskSetSearchTry;
+
+  /// Settings search, nothing found: example words to search for, comma-separated, lower case, in this language (each must find a setting).
+  ///
+  /// In en, this message translates to:
+  /// **'password,tor,seed,backup,fee,node,lock'**
+  String get deskSetSearchTryWords;
+
+  /// Settings navigation while searching: read by screen readers for a section without matching settings.
+  ///
+  /// In en, this message translates to:
+  /// **'No results'**
+  String get deskSetSearchNoResults;
+
+  /// Settings search: the results list's name for screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'Search results'**
+  String get deskSetSearchResults;
+
+  /// What shows a hidden setting: a view. view is Shallow, Deeper or Deep end, e.g. "Deep end view".
+  ///
+  /// In en, this message translates to:
+  /// **'{view} view'**
+  String deskSetSearchViewGate(String view);
+
+  /// What shows a hidden setting: a switch on Settings › Advanced, e.g. "Advanced › Invoices".
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced › {feature}'**
+  String deskSetSearchFeatGate(String feature);
+
+  /// Joins the reasons that show hidden options: "Deep end view and Advanced › Invoices". first may itself be a comma-separated list.
+  ///
+  /// In en, this message translates to:
+  /// **'{first} and {last}'**
+  String deskSetSearchGateJoin(String first, String last);
+
+  /// More options control (⇕): its tooltip and name while folded. gates names what shows them, e.g. "Deep end view and Advanced › Invoices".
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more option · shown with {gates}} other{{count} more options · shown with {gates}}}'**
+  String deskSetSearchMore(int count, String gates);
+
+  /// More options control (⇕): its tooltip and name while the hidden options show.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Hide the extra option} other{Hide the {count} extra options}}'**
+  String deskSetSearchLess(int count);
+
+  /// Notice after a search result changed the view. view is Shallow, Deeper or Deep end.
+  ///
+  /// In en, this message translates to:
+  /// **'View: {view}'**
+  String deskSetSearchViewApplied(String view);
+
+  /// Notice after a search result turned on an Advanced switch.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced › {feature}: on'**
+  String deskSetSearchFeatApplied(String feature);
+
+  /// Notice when a link opens a Settings page the current view hides; the first page of its group opens instead. view is Shallow, Deeper or Deep end.
+  ///
+  /// In en, this message translates to:
+  /// **'{page} shows in the {view} view.'**
+  String deskSetSearchFallbackView(String page, String view);
+
+  /// Notice when a link opens a Settings page an Advanced switch hides; the first page of its group opens instead.
+  ///
+  /// In en, this message translates to:
+  /// **'{page} shows with Advanced › {feature}.'**
+  String deskSetSearchFallbackFeat(String page, String feature);
+
+  /// Settings navigation: the open wallet's page (name, backup, balance, remove).
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get deskSetSecWallet;
+
+  /// Settings navigation: payment methods, sending and receiving.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get deskSetSecPayments;
+
+  /// Settings navigation: this wallet on other devices.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked devices'**
+  String get deskSetSecDevices;
+
+  /// Settings navigation: the wallets on this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets'**
+  String get deskSetSecWallets;
+
+  /// Settings navigation: folders and logs on this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'Files & logs'**
+  String get deskSetSecFiles;
+
+  /// Settings navigation: the donation page.
+  ///
+  /// In en, this message translates to:
+  /// **'Donate'**
+  String get deskSetSecDonate;
+
+  /// Settings navigation: heading of the app-wide sections.
+  ///
+  /// In en, this message translates to:
+  /// **'App'**
+  String get deskSetNavApp;
+
+  /// Settings navigation: heading of the sections about this computer.
+  ///
+  /// In en, this message translates to:
+  /// **'This computer'**
+  String get deskSetNavComputer;
 }
 
 class _AppLocalizationsDelegate
