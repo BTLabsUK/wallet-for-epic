@@ -3,6 +3,8 @@
 // switch, the sidebar and Overview in Offline and Tor only, Send and Receive held by the network
 // mode (File goes on), a pasted onion with Link off, Restore's start height for everyone, and
 // the tour's Advanced step.
+import 'dart:convert';
+
 import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
@@ -12,9 +14,11 @@ import 'package:epic_wallet/src/desktop/data/net_mode_view.dart' show deskOfflin
 import 'package:epic_wallet/src/desktop/screens/invoices/invoices_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/restore_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/overview_screen.dart';
+import 'package:epic_wallet/src/desktop/data/files.dart' show DeskFiles, PickedSlate, deskFilesProvider;
 import 'package:epic_wallet/src/desktop/data/history_files.dart' show MockDeskHistoryFiles, deskHistoryFilesProvider;
 import 'package:epic_wallet/src/desktop/screens/settings/settings_advanced.dart' show advModeConfirmKey;
 import 'package:epic_wallet/src/desktop/screens/transfer/finalize_screen.dart' show FinalizeArgs;
+import 'package:epic_wallet/src/desktop/screens/transfer/send_advanced.dart' show ERadioRow;
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/wallet_service.dart' show FakeWalletSession;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
@@ -24,6 +28,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _onion = 'http://pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion';
+
+/// The file dialog picking one finished payment.
+class _PickFinished implements DeskFiles {
+  @override
+  Future<String?> pickSlate({required String title}) async => null;
+
+  @override
+  Future<List<PickedSlate>> pickSlates({required String title}) async =>
+      [(name: 'payment.finished.tx', path: 'payment.finished.tx', bytes: utf8.encode(FakeWalletSession.fakeFinishedText(3)))];
+}
 
 late MockDeskWallet _wallet;
 late ProviderContainer _container;
@@ -36,13 +50,18 @@ Future<void> _open(
   bool tor = false,
   String? node,
   int? peers,
+  DeskFiles? files,
 }) async {
   tester.view.physicalSize = const Size(1280, 1000);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   _wallet = MockDeskWallet(delay: Duration.zero);
   _container = ProviderContainer(
-    overrides: [deskApiProvider.overrideWithValue(_wallet), deskOfflinePeersProvider.overrideWith((ref) async => peers)],
+    overrides: [
+      deskApiProvider.overrideWithValue(_wallet),
+      deskOfflinePeersProvider.overrideWith((ref) async => peers),
+      if (files != null) deskFilesProvider.overrideWithValue(files),
+    ],
     retry: (_, _) => null,
   );
   addTearDown(_container.dispose);
@@ -100,34 +119,32 @@ void main() {
   });
 
   group('Settings › Network & privacy', () {
-    ESwitch torSwitch(WidgetTester tester) => tester.widget<ESwitch>(find.byKey(const ValueKey('privacy-tor-switch')));
+    // One Tor control (9dff7df46): Connection mode › Tor only. The Tor for all connections
+    // switch and its mode line are gone; the page keeps the mode rows.
+    bool selected(WidgetTester tester, NetworkMode m) => tester.widget<ERadioRow>(find.byKey(ValueKey('adv-mode-${m.name}'))).selected;
 
-    testWidgets('Standard: the switch is the user’s', (tester) async {
+    testWidgets('Standard: Normal is chosen, no Tor switch', (tester) async {
       await _open(tester, DeskRoute.settingsPrivacy);
-      expect(torSwitch(tester).onChanged, isNotNull);
+      expect(selected(tester, NetworkMode.standard), isTrue);
+      expect(selected(tester, NetworkMode.torOnly), isFalse);
+      expect(find.byKey(const ValueKey('privacy-tor-switch')), findsNothing);
       expect(find.byKey(const ValueKey('privacy-mode-line')), findsNothing);
     }, skip: !torBuilt);
 
-    testWidgets('Tor only: on and disabled; its line names the mode, chosen right above on the same page', (tester) async {
+    testWidgets('Tor only: its row is chosen on the same page, no other Tor control', (tester) async {
       await _open(tester, DeskRoute.settingsPrivacy, advanced: _torOnly);
-      expect(torSwitch(tester).value, isTrue);
-      expect(torSwitch(tester).onChanged, isNull);
-      expect(
-        tester.widget<Opacity>(find.descendant(of: find.byKey(const ValueKey('privacy-tor-switch')), matching: find.byType(Opacity))).opacity,
-        lessThan(1),
-        reason: 'looks disabled',
-      );
-      expect(find.text('On in Tor only.'), findsOneWidget);
+      expect(selected(tester, NetworkMode.torOnly), isTrue);
+      expect(selected(tester, NetworkMode.standard), isFalse);
+      expect(find.byKey(const ValueKey('privacy-tor-switch')), findsNothing);
       // No way off to another page (B-03): the mode's radio is on this one.
       expect(find.byKey(const ValueKey('privacy-undercover-change')), findsNothing);
-      expect(find.byKey(const ValueKey('adv-mode-torOnly')), findsOneWidget);
+      expect(find.byKey(const ValueKey('adv-mode-standard')), findsOneWidget);
     }, skip: !torBuilt);
 
-    testWidgets('Kill switch: disabled, with the reason', (tester) async {
+    testWidgets('Kill switch: its row is chosen, no Tor switch', (tester) async {
       await _open(tester, DeskRoute.settingsPrivacy, advanced: _kill);
-      expect(torSwitch(tester).onChanged, isNull);
-      expect(torSwitch(tester).value, isFalse);
-      expect(find.text('Off in Kill switch: nothing connects.'), findsOneWidget);
+      expect(selected(tester, NetworkMode.killSwitch), isTrue);
+      expect(find.byKey(const ValueKey('privacy-tor-switch')), findsNothing);
     }, skip: !torBuilt);
   });
 
@@ -174,18 +191,21 @@ void main() {
   });
 
   group('Send', () {
-    ESegment<TxMethod?> segment(WidgetTester tester, String label) =>
-        tester.widget<ESegmented<TxMethod?>>(find.byType(ESegmented<TxMethod?>)).segments.firstWhere((s) => s.label == label);
+    // The address in To decides the method (08897d39a); the mode holds an address with its
+    // reason under To, and Pay with a file goes on.
+    const epicbox = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com';
 
-    testWidgets('Node only: Epicbox is disabled with the reason; File runs and its tooltip says the node is used', (tester) async {
-      await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com', amount: '1'), advanced: _offline);
-      // D-06 (772eae3ad): Epicbox reads Off with the mode's reason and Send moves to File.
-      expect(find.byKey(const ValueKey('send-net-blocked')), findsNothing);
-      expect(segment(tester, 'Epicbox').enabled, isFalse);
-      expect(segment(tester, 'Epicbox').tooltip, 'Off in Node only.');
-      expect(_selected(tester), TxMethod.file);
-      expect(segment(tester, 'Direct · File').enabled, isTrue);
-      // The note sits under the selector now, not in the segment's tooltip.
+    testWidgets('Node only: an address is held with the reason; Pay with a file runs and says the node is used', (tester) async {
+      await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: epicbox, amount: '1'), advanced: _offline);
+      expect(find.byKey(const ValueKey('send-hold-nodeOnly')), findsOneWidget);
+      expect(find.text('Node only is on. Only the node connects.'), findsWidgets);
+      expect(find.byKey(const ValueKey('send-without-connection')), findsOneWidget);
+      await tester.ensureVisible(find.byKey(const ValueKey('send-pay-file')));
+      await tester.tap(find.byKey(const ValueKey('send-pay-file')));
+      await _settle(tester);
+      expect(find.byKey(const ValueKey('send-hold-nodeOnly')), findsNothing);
+      expect(find.byKey(const ValueKey('file-offline-node')), findsOneWidget);
+      // The note sits in the file form.
       expect(find.text('Uses the node to read the chain and post. For the most privacy, use a local node.'), findsWidgets);
     });
 
@@ -210,62 +230,45 @@ void main() {
       expect(find.textContaining('7.25'), findsWidgets);
     });
 
-    testWidgets('Offline with a public node: Link\'s summary gives the Offline reason the banner gives, not the node sync (LNX-15)', (tester) async {
+    testWidgets('Kill switch with a public node: a Link address gets the Kill switch reason, not the node sync (LNX-15)', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'http://203.0.113.5:3415', amount: '1', nodeSync: -1), advanced: _kill);
       expect(find.text('Waiting for the node to sync.'), findsNothing);
-      // D-06: Link reads Off with the Kill switch reason, never the node sync, and Send moves to File.
-      expect(find.byKey(const ValueKey('send-net-blocked')), findsNothing);
-      expect(segment(tester, 'Link').enabled, isFalse);
-      expect(segment(tester, 'Link').tooltip, 'Off in Kill switch: nothing connects.');
-      expect(_selected(tester), TxMethod.file);
+      expect(find.byKey(const ValueKey('send-hold-killSwitch')), findsOneWidget);
+      expect(find.text('Kill switch is on. Nothing connects.'), findsWidgets);
     });
 
-    testWidgets('Offline: an onion in To gives the Offline reason, never Needs Tor with Turn on Tor (LNX-12)', (tester) async {
-      await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'http://pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion', amount: '1'), advanced: _offline);
+    testWidgets('Node only: an onion in To gives the Node only reason, never Needs Tor with Turn on Tor (LNX-12)', (tester) async {
+      await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: _onion, amount: '1'), advanced: _offline);
       expect(find.byKey(const ValueKey('send-needs-tor')), findsNothing);
       expect(find.text('Turn on Tor'), findsNothing);
-      // D-06: Link reads Off with the mode's reason; Send moves to File.
-      expect(segment(tester, 'Link').tooltip, 'Off in Node only.');
-      expect(_selected(tester), TxMethod.file);
+      expect(find.byKey(const ValueKey('send-hold-nodeOnly')), findsOneWidget);
     });
 
-    testWidgets('Node only with a LAN node: a Link send to a LAN address is held too (Link is off), File runs', (tester) async {
+    testWidgets('Node only with a LAN node: a Link send to a LAN address is held too, Pay with a file runs', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'http://10.0.1.30:3415', amount: '1'), advanced: _offline, node: 'http://10.100.10.20:3413', peers: 0);
-      expect(segment(tester, 'Epicbox').enabled, isFalse);
-      expect(segment(tester, 'Link').enabled, isFalse);
-      expect(segment(tester, 'Direct · File').enabled, isTrue);
-      // D-06: Link reads Off with the mode's reason; Send moves to File.
-      expect(segment(tester, 'Link').tooltip, 'Off in Node only.');
-      expect(_selected(tester), TxMethod.file);
+      expect(find.byKey(const ValueKey('send-hold-nodeOnly')), findsOneWidget);
+      expect(find.byKey(const ValueKey('send-pay-file')), findsOneWidget);
     });
 
-    testWidgets('Tor only without Tor: the same, with the Tor reason', (tester) async {
+    testWidgets('Tor only without Tor: the Tor reason, and File Transfer still works', (tester) async {
       await _open(tester, DeskRoute.send, advanced: _torOnly);
       expect(find.byKey(const ValueKey('send-net-blocked')), findsOneWidget);
       expect(find.text('Waiting for Tor. Nothing connects until it is ready.'), findsWidgets);
-      // Tor still starting keeps the chosen method (7acea2920): Epicbox waits for Tor.
-      expect(segment(tester, 'Epicbox').enabled, isTrue);
       // A file needs no connection of its own: it goes on while Tor connects.
-      expect(segment(tester, 'Direct · File').enabled, isTrue);
-      await tester.tap(find.text('Direct · File'));
-      await _settle(tester);
-      expect(find.byKey(const ValueKey('send-net-blocked')), findsNothing);
+      expect(find.text('File Transfer still works.'), findsOneWidget);
     }, skip: !torBuilt);
 
     testWidgets('Standard: nothing is held', (tester) async {
       await _open(tester, DeskRoute.send);
       expect(find.byKey(const ValueKey('send-net-blocked')), findsNothing);
-      expect(segment(tester, 'Epicbox').enabled, isTrue);
+      expect(find.byKey(const ValueKey('send-hold-fix')), findsNothing);
     });
 
-    testWidgets('Link receiving off: Link is listed, and a pasted onion picks it for this send', (tester) async {
+    testWidgets('Link receiving off: a pasted onion is named as off for this send, with the reason', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(), tor: true);
-      List<String> labels() => tester.widget<ESegmented<TxMethod?>>(find.byType(ESegmented<TxMethod?>)).segments.map((s) => s.label).toList();
-      expect(labels(), ['Epicbox', 'Link', 'Direct · File']);
       await tester.enterText(find.byType(EditableText).first, _onion);
       await _settle(tester);
-      expect(labels(), ['Epicbox', 'Link', 'Direct · File']);
-      expect(tester.widget<ESegmented<TxMethod?>>(find.byType(ESegmented<TxMethod?>)).value, TxMethod.http);
+      expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
       expect(_container.read(deskProvider).settings.payments.offersFamily(MethodFamily.link), isFalse, reason: 'nothing was switched on');
     }, skip: !torBuilt);
   });
@@ -392,30 +395,14 @@ void main() {
       expect(find.byKey(const ValueKey('activity-last-known')), findsOneWidget);
     });
 
-    testWidgets('Receive › Transaction files: Post a finished payment reads the text, shows the summary, posts', (tester) async {
-      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
-        if (call.method == 'Clipboard.getData') return <String, Object?>{'text': FakeWalletSession.fakeFinishedText(3)};
-        return null;
-      });
-      addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
-      await _open(tester, DeskRoute.receive);
-      await tester.ensureVisible(find.byKey(const ValueKey('rx-post-finished-open')));
-      await tester.tap(find.byKey(const ValueKey('rx-post-finished-open')));
+    testWidgets('Receive › Transaction files: Open posts a finished payment', (tester) async {
+      await _open(tester, DeskRoute.receive, files: _PickFinished());
+      await tester.ensureVisible(find.byKey(const ValueKey('rx-files-open')));
+      await tester.tap(find.byKey(const ValueKey('rx-files-open')));
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
       await _settle(tester);
-      expect(find.byKey(const ValueKey('post-finished-dialog')), findsOneWidget);
-      await tester.tap(find.byKey(const ValueKey('post-finished-paste')));
-      await _settle(tester);
-      expect(find.byKey(const ValueKey('post-finished-summary')), findsOneWidget);
-      expect(find.text('Amount'), findsOneWidget);
-      await tester.tap(find.byKey(const ValueKey('post-finished-post')));
-      await _settle(tester);
-      expect(find.text('Posted'), findsWidgets);
-    });
-
-    testWidgets('Receive › Transaction files: the entry is off in Kill switch, with its note', (tester) async {
-      await _open(tester, DeskRoute.receive, advanced: _kill);
-      expect(find.text('Off in Kill switch: nothing connects here.'), findsOneWidget);
-      expect(tester.widget<EButton>(find.byKey(const ValueKey('rx-post-finished-open'))).onPressed, isNull);
+      expect(find.byKey(const ValueKey('rx-files-results')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('rx-files-results')), matching: find.textContaining('Payment posted', findRichText: true)), findsOneWidget);
     });
 
     testWidgets('Finalize under Kill switch ends on Finished, not posted with Save file and Copy', (tester) async {
