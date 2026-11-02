@@ -752,7 +752,9 @@ class Run:
         toml = self.toml_servers()
         lines = self.applog()[self.log_mark:]
         subs = [re.search(r"relay=(\S+)", l).group(1) for l in lines if "epicbox subscribed" in l and "relay=" in l]
+        # cli: the store was read through the LEPIC CLI (no outputs by commitment, no counterparties): compare() checks totals
         dg = {"address": self.address(self.prev_ver if tag == "previous" else self.cand_ver), "wallets": w, "db_path": d and d["path"],
+              "cli": bool(d and d.get("cli")),
               "outputs": d and d["outputs"], "txs": d and d["txs"], "db_settings": d and d["settings"],
               "balance": self.balance(d, self.tip()), "settings": self.settings_now(),
               "store_servers": servers_23(s), "servers": servers_of(s, toml), "settings_toml": toml, "relay_subscribed": subs,
