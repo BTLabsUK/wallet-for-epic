@@ -5317,7 +5317,7 @@ abstract class AppLocalizations {
   /// **'Help'**
   String get settingsSectionHelpFeedback;
 
-  /// Phone Settings hub row directly under Help, and the Donate screen's title: BT Labs' donation page and address.
+  /// Phone Settings hub row directly under Help, and the Donate screen's title: BT Labs' donation address.
   ///
   /// In en, this message translates to:
   /// **'Donate'**
@@ -5335,24 +5335,6 @@ abstract class AppLocalizations {
   /// **'Donations fund development of this wallet.'**
   String get donateLead;
 
-  /// Donate screen: row with the donation page's address; a tap copies the link.
-  ///
-  /// In en, this message translates to:
-  /// **'Donation page'**
-  String get donatePage;
-
-  /// Donate screen, notice title: the donation page from settings.toml did not answer.
-  ///
-  /// In en, this message translates to:
-  /// **'The donation page does not answer.'**
-  String get donatePageDown;
-
-  /// Donate screen, notice text after donatePageDown.
-  ///
-  /// In en, this message translates to:
-  /// **'Send EPIC to the address below, or use the contact page.'**
-  String get donatePageDownText;
-
   /// Donate screen: header over BT Labs' Epic Cash donation address (Copy and QR beside it).
   ///
   /// In en, this message translates to:
@@ -5365,17 +5347,11 @@ abstract class AppLocalizations {
   /// **'QR code of the donation address'**
   String get donateQrLabel;
 
-  /// Donate screen: row with BT Labs' contact page; a tap copies the link.
+  /// Donate screen: under the BT Labs contact's name; a tap opens the contact. Shown only while Contacts hold it.
   ///
   /// In en, this message translates to:
-  /// **'Contact page'**
-  String get donateContact;
-
-  /// Donate screen when settings.toml names no donation page, address or contact page.
-  ///
-  /// In en, this message translates to:
-  /// **'No donation page or address is set.'**
-  String get donateNothing;
+  /// **'In your contacts'**
+  String get donateInContacts;
 
   /// State line under the Security group while the recovery phrase has not been backed up.
   ///
@@ -31554,41 +31530,11 @@ abstract class AppLocalizations {
   /// **'Donations fund development of this wallet.'**
   String get deskDonateLead;
 
-  /// Settings › Donate: the row that opens BT Labs' donation page in the browser; the host is under it.
-  ///
-  /// In en, this message translates to:
-  /// **'Donation page'**
-  String get deskDonatePage;
-
-  /// Settings › Donate: the button that opens the page in the browser.
+  /// Settings › Donate: the button that opens BT Labs' contact in Contacts.
   ///
   /// In en, this message translates to:
   /// **'Open'**
   String get deskDonateOpen;
-
-  /// Settings › Donate: notice when the donation page could not be reached or is not set.
-  ///
-  /// In en, this message translates to:
-  /// **'The donation page does not answer.'**
-  String get deskDonateNoAnswer;
-
-  /// Settings › Donate: text of the notice when the donation page does not answer.
-  ///
-  /// In en, this message translates to:
-  /// **'Send EPIC to the address below, or use the contact page.'**
-  String get deskDonateNoAnswerText;
-
-  /// Settings › Donate: notice title in Node only or Kill switch; {mode} is the network mode's name.
-  ///
-  /// In en, this message translates to:
-  /// **'{mode}: the donation page is not opened.'**
-  String deskDonateOffInMode(String mode);
-
-  /// Settings › Donate: opens BT Labs' contact page in the browser.
-  ///
-  /// In en, this message translates to:
-  /// **'Contact page'**
-  String get deskDonateContact;
 
   /// Settings › Donate: the row with the donation address, Copy and QR.
   ///
@@ -31685,6 +31631,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search, while in Settings'**
   String get deskBarKeySearchHere;
+
+  /// Settings › Donate: under the BT Labs contact's name, beside Open; shown only while Contacts hold it.
+  ///
+  /// In en, this message translates to:
+  /// **'In your contacts'**
+  String get deskDonateInContacts;
 
   /// Title of the Link · HTTP address for wallets on this computer (http://127.0.0.1:port), on Receive and in Settings. Short.
   ///

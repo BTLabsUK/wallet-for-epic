@@ -3,34 +3,9 @@
   "@deskDonateLead": {
     "description": "Settings › Donate: the line at the top of the page."
   },
-  "deskDonatePage": "Donation page",
-  "@deskDonatePage": {
-    "description": "Settings › Donate: the row that opens BT Labs' donation page in the browser; the host is under it."
-  },
   "deskDonateOpen": "Open",
   "@deskDonateOpen": {
-    "description": "Settings › Donate: the button that opens the page in the browser."
-  },
-  "deskDonateNoAnswer": "The donation page does not answer.",
-  "@deskDonateNoAnswer": {
-    "description": "Settings › Donate: notice when the donation page could not be reached or is not set."
-  },
-  "deskDonateNoAnswerText": "Send EPIC to the address below, or use the contact page.",
-  "@deskDonateNoAnswerText": {
-    "description": "Settings › Donate: text of the notice when the donation page does not answer."
-  },
-  "deskDonateOffInMode": "{mode}: the donation page is not opened.",
-  "@deskDonateOffInMode": {
-    "description": "Settings › Donate: notice title in Node only or Kill switch; {mode} is the network mode's name.",
-    "placeholders": {
-      "mode": {
-        "type": "String"
-      }
-    }
-  },
-  "deskDonateContact": "Contact page",
-  "@deskDonateContact": {
-    "description": "Settings › Donate: opens BT Labs' contact page in the browser."
+    "description": "Settings › Donate: the button that opens BT Labs' contact in Contacts."
   },
   "deskDonateAddress": "Epic Cash address",
   "@deskDonateAddress": {
@@ -43,5 +18,9 @@
   "deskDonateCopy": "Copy donation address",
   "@deskDonateCopy": {
     "description": "Settings › Donate: name of the copy button of the donation address."
+  },
+  "deskDonateInContacts": "In your contacts",
+  "@deskDonateInContacts": {
+    "description": "Settings › Donate: under the BT Labs contact's name, beside Open; shown only while Contacts hold it."
   }
 }

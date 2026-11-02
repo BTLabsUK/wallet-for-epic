@@ -3397,26 +3397,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get donateLead => 'Darowizny finansują rozwój tego portfela.';
 
   @override
-  String get donatePage => 'Strona darowizn';
-
-  @override
-  String get donatePageDown => 'Strona darowizn nie odpowiada.';
-
-  @override
-  String get donatePageDownText =>
-      'Wyślij EPIC na adres poniżej lub skorzystaj ze strony kontaktowej.';
-
-  @override
   String get donateAddress => 'Adres Epic Cash';
 
   @override
   String get donateQrLabel => 'Kod QR adresu do darowizn';
 
   @override
-  String get donateContact => 'Strona kontaktowa';
-
-  @override
-  String get donateNothing => 'Nie ustawiono strony ani adresu do darowizn.';
+  String get donateInContacts => 'W kontaktach';
 
   @override
   String get settingsStateBackUp => 'Zapisz frazę odzyskiwania';
@@ -20825,25 +20812,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskDonateLead => 'Darowizny finansują rozwój tego portfela.';
 
   @override
-  String get deskDonatePage => 'Strona darowizn';
-
-  @override
   String get deskDonateOpen => 'Otwórz';
-
-  @override
-  String get deskDonateNoAnswer => 'Strona darowizn nie odpowiada.';
-
-  @override
-  String get deskDonateNoAnswerText =>
-      'Wyślij EPIC na adres poniżej lub skorzystaj ze strony kontaktowej.';
-
-  @override
-  String deskDonateOffInMode(String mode) {
-    return '$mode: strona darowizn nie jest otwierana.';
-  }
-
-  @override
-  String get deskDonateContact => 'Strona kontaktowa';
 
   @override
   String get deskDonateAddress => 'Adres Epic Cash';
@@ -20900,6 +20869,9 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskBarKeySearchHere => 'Szukaj, gdy otwarte są Ustawienia';
+
+  @override
+  String get deskDonateInContacts => 'W kontaktach';
 
   @override
   String get deskHttpLocalTitle => 'Ten komputer';

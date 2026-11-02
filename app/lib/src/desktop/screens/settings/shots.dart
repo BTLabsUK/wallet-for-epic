@@ -45,7 +45,6 @@ import 'settings_about.dart' show AboutDemo;
 import 'settings_help.dart' show HelpDemo;
 import 'settings_security.dart' show SecurityDemo;
 import 'settings_rescan.dart';
-import 'settings_donate.dart' show DonateDemo;
 import 'search/search_slot.dart' show settingsQueryProvider;
 import '../../widgets/more_options.dart' show moreOptionsRevealProvider;
 import '../wallet/tx_detail.dart' show txMoreDemoProvider;
@@ -492,7 +491,6 @@ final List<DeskShot> settingsShots = [
     },
     after: (_, ctx) async => _tap(ctx, EStartMonthField.fieldKey),
   ),
-  const DeskShot(id: '26d-settings-donate-no-answer', title: 'Settings › Donate, the address could not be checked', route: DeskRoute.settingsDonate, arg: DonateDemo.noAnswer),
 ];
 
 /// A tap at the middle of the widget with [key] under [context], as a pointer would make it.

@@ -1,12 +1,8 @@
 {
   "deskDonateLead": "Darowizny finansują rozwój tego portfela.",
-  "deskDonatePage": "Strona darowizn",
   "deskDonateOpen": "Otwórz",
-  "deskDonateNoAnswer": "Strona darowizn nie odpowiada.",
-  "deskDonateNoAnswerText": "Wyślij EPIC na adres poniżej lub skorzystaj ze strony kontaktowej.",
-  "deskDonateOffInMode": "{mode}: strona darowizn nie jest otwierana.",
-  "deskDonateContact": "Strona kontaktowa",
   "deskDonateAddress": "Adres Epic Cash",
   "deskDonateAddressQr": "adresu do darowizn",
-  "deskDonateCopy": "Kopiuj adres do darowizn"
+  "deskDonateCopy": "Kopiuj adres do darowizn",
+  "deskDonateInContacts": "W kontaktach"
 }

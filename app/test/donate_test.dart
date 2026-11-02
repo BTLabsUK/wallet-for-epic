@@ -1,57 +1,32 @@
 // SPDX-License-Identifier: Apache-2.0
-// Donate (item 4): the page and contact page come from settings.toml, the address from
-// app-config.toml; the page is asked before it opens, never in Node only or Kill switch.
-import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
+// Donate (item 4): the address comes from app-config.toml, BT Labs' contact is the one in
+// Contacts holding it; an old [donate] table in settings.toml is left alone.
 import 'package:epic_wallet/src/donate.dart';
-import 'package:epic_wallet/src/net/http_types.dart' show NetError;
-import 'package:epic_wallet/src/network_gate.dart' show NetGate;
+import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/test_settings.dart';
 
 void main() {
-  tearDown(() => NetGate.set(null));
-  const wait = Duration(seconds: 1);
-  final link = DonateLink(page: Uri.parse('https://donate.lab.invalid/'), contact: Uri.parse('https://contact.lab.invalid/'), address: 'es1@relay.lab.invalid');
-
-  test('the settings files give the page, the contact page and the address', () {
+  test('the settings files give the address', () {
     final l = DonateLink.of(testSettings());
-    expect(l.page, Uri.parse('https://donate.lab.invalid/'));
-    expect(l.contact, Uri.parse('https://contact.lab.invalid/'));
     expect(l.address, testSettings().supportDonation);
     expect(l.any, isTrue);
-    final none = DonateLink.of(testSettings().withValues({'donate.page': '', 'donate.contact': ''}));
-    expect(none.page, isNull);
-    expect(none.contact, isNull);
+    expect(const DonateLink().any, isFalse);
   });
 
-  test('answers on 2xx and 3xx; no answer on an error status, a network error or a timeout', () async {
-    expect(await checkDonatePage(link, timeout: wait, get: (_, _) async => 200), DonateCheck.answers);
-    expect(await checkDonatePage(link, timeout: wait, get: (_, _) async => 301), DonateCheck.answers);
-    expect(await checkDonatePage(link, timeout: wait, get: (_, _) async => 404), DonateCheck.noAnswer);
-    expect(await checkDonatePage(link, timeout: wait, get: (_, _) async => throw const NetError('refused')), DonateCheck.noAnswer);
+  test("BT Labs' contact: the one holding the address; none when no contact holds it", () {
+    final contacts = [('a', 'es1@x.invalid'), ('b', 'es2@x.invalid'), ('c', null)];
+    String? box((String, String?) c) => c.$2;
+    expect(donateContactIn(contacts, 'es2@x.invalid', box)?.$1, 'b');
+    expect(donateContactIn(contacts, 'es9@x.invalid', box), isNull);
+    expect(donateContactIn(contacts, null, box), isNull);
+    expect(donateContactIn(const <(String, String?)>[], 'es1@x.invalid', box), isNull);
   });
 
-  test('no page set: none, nothing asked', () async {
-    var asked = false;
-    final r = await checkDonatePage(DonateLink(address: link.address), timeout: wait, get: (_, _) async {
-      asked = true;
-      return 200;
-    });
-    expect(r, DonateCheck.none);
-    expect(asked, isFalse);
+  test('a [donate] table from an earlier build is not reported as unknown', () {
+    final read = readSettings('[donate]\npage = "https://donate.lab.invalid/"\ncontact = "https://contact.lab.invalid/"\n', shipped: testSettings());
+    expect(read.unknown, isEmpty);
+    expect(read.issues, isEmpty);
   });
-
-  for (final mode in [NetworkMode.nodeOnly, NetworkMode.killSwitch]) {
-    test('${mode.name}: skipped, nothing asked', () async {
-      NetGate.set(mode);
-      var asked = false;
-      final r = await checkDonatePage(link, timeout: wait, get: (_, _) async {
-        asked = true;
-        return 200;
-      });
-      expect(r, DonateCheck.skipped);
-      expect(asked, isFalse);
-    });
-  }
 }

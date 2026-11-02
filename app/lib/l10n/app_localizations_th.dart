@@ -3239,26 +3239,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get donateLead => 'เงินบริจาคใช้พัฒนากระเป๋าเงินนี้';
 
   @override
-  String get donatePage => 'หน้าบริจาค';
-
-  @override
-  String get donatePageDown => 'หน้าบริจาคไม่ตอบสนอง';
-
-  @override
-  String get donatePageDownText =>
-      'ส่ง EPIC ไปยังที่อยู่ด้านล่าง หรือใช้หน้าติดต่อ';
-
-  @override
   String get donateAddress => 'ที่อยู่ Epic Cash';
 
   @override
   String get donateQrLabel => 'QR Code ของที่อยู่สำหรับบริจาค';
 
   @override
-  String get donateContact => 'หน้าติดต่อ';
-
-  @override
-  String get donateNothing => 'ยังไม่ได้ตั้งหน้าหรือที่อยู่สำหรับบริจาค';
+  String get donateInContacts => 'อยู่ในผู้ติดต่อ';
 
   @override
   String get settingsStateBackUp => 'สำรองวลีกู้คืน';
@@ -19727,25 +19714,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskDonateLead => 'เงินบริจาคช่วยสนับสนุนการพัฒนากระเป๋าเงินนี้';
 
   @override
-  String get deskDonatePage => 'หน้าบริจาค';
-
-  @override
   String get deskDonateOpen => 'เปิด';
-
-  @override
-  String get deskDonateNoAnswer => 'หน้าบริจาคไม่ตอบสนอง';
-
-  @override
-  String get deskDonateNoAnswerText =>
-      'ส่ง EPIC ไปยังที่อยู่ด้านล่าง หรือใช้หน้าติดต่อ';
-
-  @override
-  String deskDonateOffInMode(String mode) {
-    return '$mode: ไม่เปิดหน้าบริจาค';
-  }
-
-  @override
-  String get deskDonateContact => 'หน้าติดต่อ';
 
   @override
   String get deskDonateAddress => 'ที่อยู่ Epic Cash';
@@ -19802,6 +19771,9 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskBarKeySearchHere => 'ค้นหา ขณะอยู่ในการตั้งค่า';
+
+  @override
+  String get deskDonateInContacts => 'อยู่ในผู้ติดต่อ';
 
   @override
   String get deskHttpLocalTitle => 'คอมพิวเตอร์เครื่องนี้';

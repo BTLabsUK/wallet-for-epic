@@ -3378,26 +3378,13 @@ class AppLocalizationsRu extends AppLocalizations {
       'Пожертвования финансируют разработку этого кошелька.';
 
   @override
-  String get donatePage => 'Страница пожертвований';
-
-  @override
-  String get donatePageDown => 'Страница пожертвований не отвечает.';
-
-  @override
-  String get donatePageDownText =>
-      'Отправьте EPIC на адрес ниже или воспользуйтесь страницей контактов.';
-
-  @override
   String get donateAddress => 'Адрес Epic Cash';
 
   @override
   String get donateQrLabel => 'QR-код адреса для пожертвований';
 
   @override
-  String get donateContact => 'Страница контактов';
-
-  @override
-  String get donateNothing => 'Страница и адрес для пожертвований не заданы.';
+  String get donateInContacts => 'В контактах';
 
   @override
   String get settingsStateBackUp => 'Сохраните фразу восстановления';
@@ -20809,25 +20796,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Пожертвования финансируют разработку этого кошелька.';
 
   @override
-  String get deskDonatePage => 'Страница пожертвований';
-
-  @override
   String get deskDonateOpen => 'Открыть';
-
-  @override
-  String get deskDonateNoAnswer => 'Страница пожертвований не отвечает.';
-
-  @override
-  String get deskDonateNoAnswerText =>
-      'Отправьте EPIC на адрес ниже или воспользуйтесь страницей контактов.';
-
-  @override
-  String deskDonateOffInMode(String mode) {
-    return '$mode: страница пожертвований не открывается.';
-  }
-
-  @override
-  String get deskDonateContact => 'Страница контактов';
 
   @override
   String get deskDonateAddress => 'Адрес Epic Cash';
@@ -20884,6 +20853,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskBarKeySearchHere => 'Поиск, когда открыты Настройки';
+
+  @override
+  String get deskDonateInContacts => 'В контактах';
 
   @override
   String get deskHttpLocalTitle => 'Этот компьютер';

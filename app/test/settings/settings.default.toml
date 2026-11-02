@@ -27,7 +27,3 @@ price = true
 
 [invite]
 page = "https://invite.lab.invalid"
-
-[donate]
-page = "https://donate.lab.invalid/"
-contact = "https://contact.lab.invalid/"
