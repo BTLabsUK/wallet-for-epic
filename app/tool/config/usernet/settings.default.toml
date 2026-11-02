@@ -22,9 +22,3 @@ price = false        # test coins have no price
 # The page an invite's link opens: Share invite sends <page>/pair#<invite>. Empty shares the bare
 # epiccash:// invite. The invite is only in the part after #, which is never sent to the page.
 page = "https://epiccash.btlabs.uk"
-
-[donate]
-# Settings › Donate opens this page; when it does not answer, the donation address and this
-# contact page show instead. Empty: none.
-page = "https://btlabs.uk/donate/"
-contact = "https://btlabs.uk/"

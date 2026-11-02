@@ -155,8 +155,6 @@ vpn_suffixes = [".ts.net"]
 # After the app starts or comes back to the front, warnings about the node, Epicbox and Tor wait
 # this long: meanwhile only the title-bar icons show the state ("Connecting").
 server_grace_s = 20
-# How long Settings › Donate waits for the donation page before it shows the address instead.
-page_check_s = 8
 
 [payments]
 # After a payment is posted: how often the tip is read, then how long, then how often after.

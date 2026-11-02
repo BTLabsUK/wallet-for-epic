@@ -1,12 +1,8 @@
 {
   "deskDonateLead": "เงินบริจาคช่วยสนับสนุนการพัฒนากระเป๋าเงินนี้",
-  "deskDonatePage": "หน้าบริจาค",
   "deskDonateOpen": "เปิด",
-  "deskDonateNoAnswer": "หน้าบริจาคไม่ตอบสนอง",
-  "deskDonateNoAnswerText": "ส่ง EPIC ไปยังที่อยู่ด้านล่าง หรือใช้หน้าติดต่อ",
-  "deskDonateOffInMode": "{mode}: ไม่เปิดหน้าบริจาค",
-  "deskDonateContact": "หน้าติดต่อ",
   "deskDonateAddress": "ที่อยู่ Epic Cash",
   "deskDonateAddressQr": "ที่อยู่สำหรับบริจาค",
-  "deskDonateCopy": "คัดลอกที่อยู่สำหรับบริจาค"
+  "deskDonateCopy": "คัดลอกที่อยู่สำหรับบริจาค",
+  "deskDonateInContacts": "อยู่ในผู้ติดต่อ"
 }

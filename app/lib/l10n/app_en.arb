@@ -4169,7 +4169,7 @@
   },
   "settingsDonate": "Donate",
   "@settingsDonate": {
-    "description": "Phone Settings hub row directly under Help, and the Donate screen's title: BT Labs' donation page and address."
+    "description": "Phone Settings hub row directly under Help, and the Donate screen's title: BT Labs' donation address."
   },
   "settingsExperimentTag": "Experiment",
   "@settingsExperimentTag": {
@@ -4179,18 +4179,6 @@
   "@donateLead": {
     "description": "Donate screen, first line."
   },
-  "donatePage": "Donation page",
-  "@donatePage": {
-    "description": "Donate screen: row with the donation page's address; a tap copies the link."
-  },
-  "donatePageDown": "The donation page does not answer.",
-  "@donatePageDown": {
-    "description": "Donate screen, notice title: the donation page from settings.toml did not answer."
-  },
-  "donatePageDownText": "Send EPIC to the address below, or use the contact page.",
-  "@donatePageDownText": {
-    "description": "Donate screen, notice text after donatePageDown."
-  },
   "donateAddress": "Epic Cash address",
   "@donateAddress": {
     "description": "Donate screen: header over BT Labs' Epic Cash donation address (Copy and QR beside it)."
@@ -4199,13 +4187,9 @@
   "@donateQrLabel": {
     "description": "Screen reader label of the donation address's QR code."
   },
-  "donateContact": "Contact page",
-  "@donateContact": {
-    "description": "Donate screen: row with BT Labs' contact page; a tap copies the link."
-  },
-  "donateNothing": "No donation page or address is set.",
-  "@donateNothing": {
-    "description": "Donate screen when settings.toml names no donation page, address or contact page."
+  "donateInContacts": "In your contacts",
+  "@donateInContacts": {
+    "description": "Donate screen: under the BT Labs contact's name; a tap opens the contact. Shown only while Contacts hold it."
   },
   "settingsStateBackUp": "Back up your recovery phrase",
   "@settingsStateBackUp": {
@@ -27257,34 +27241,9 @@
   "@deskDonateLead": {
     "description": "Settings › Donate: the line at the top of the page."
   },
-  "deskDonatePage": "Donation page",
-  "@deskDonatePage": {
-    "description": "Settings › Donate: the row that opens BT Labs' donation page in the browser; the host is under it."
-  },
   "deskDonateOpen": "Open",
   "@deskDonateOpen": {
-    "description": "Settings › Donate: the button that opens the page in the browser."
-  },
-  "deskDonateNoAnswer": "The donation page does not answer.",
-  "@deskDonateNoAnswer": {
-    "description": "Settings › Donate: notice when the donation page could not be reached or is not set."
-  },
-  "deskDonateNoAnswerText": "Send EPIC to the address below, or use the contact page.",
-  "@deskDonateNoAnswerText": {
-    "description": "Settings › Donate: text of the notice when the donation page does not answer."
-  },
-  "deskDonateOffInMode": "{mode}: the donation page is not opened.",
-  "@deskDonateOffInMode": {
-    "description": "Settings › Donate: notice title in Node only or Kill switch; {mode} is the network mode's name.",
-    "placeholders": {
-      "mode": {
-        "type": "String"
-      }
-    }
-  },
-  "deskDonateContact": "Contact page",
-  "@deskDonateContact": {
-    "description": "Settings › Donate: opens BT Labs' contact page in the browser."
+    "description": "Settings › Donate: the button that opens BT Labs' contact in Contacts."
   },
   "deskDonateAddress": "Epic Cash address",
   "@deskDonateAddress": {
@@ -27364,5 +27323,9 @@
   "deskBarKeySearchHere": "Search, while in Settings",
   "@deskBarKeySearchHere": {
     "description": "Keyboard-shortcuts row: the / key focuses the search field while a Settings page is open (on Help, Help's own search). Settings is the name of the Settings area."
+  },
+  "deskDonateInContacts": "In your contacts",
+  "@deskDonateInContacts": {
+    "description": "Settings › Donate: under the BT Labs contact's name, beside Open; shown only while Contacts hold it."
   }
 }

@@ -3343,27 +3343,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get donateLead => 'Spenden finanzieren die Entwicklung dieser Wallet.';
 
   @override
-  String get donatePage => 'Spendenseite';
-
-  @override
-  String get donatePageDown => 'Die Spendenseite antwortet nicht.';
-
-  @override
-  String get donatePageDownText =>
-      'Senden Sie EPIC an die Adresse unten oder nutzen Sie die Kontaktseite.';
-
-  @override
   String get donateAddress => 'Epic-Cash-Adresse';
 
   @override
   String get donateQrLabel => 'QR-Code der Spendenadresse';
 
   @override
-  String get donateContact => 'Kontaktseite';
-
-  @override
-  String get donateNothing =>
-      'Keine Spendenseite und keine Adresse eingerichtet.';
+  String get donateInContacts => 'In Ihren Kontakten';
 
   @override
   String get settingsStateBackUp => 'Wiederherstellungsphrase sichern';
@@ -20428,25 +20414,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Spenden finanzieren die Entwicklung dieser Wallet.';
 
   @override
-  String get deskDonatePage => 'Spendenseite';
-
-  @override
   String get deskDonateOpen => 'Öffnen';
-
-  @override
-  String get deskDonateNoAnswer => 'Die Spendenseite antwortet nicht.';
-
-  @override
-  String get deskDonateNoAnswerText =>
-      'Senden Sie EPIC an die Adresse unten oder nutzen Sie die Kontaktseite.';
-
-  @override
-  String deskDonateOffInMode(String mode) {
-    return '$mode: Die Spendenseite wird nicht geöffnet.';
-  }
-
-  @override
-  String get deskDonateContact => 'Kontaktseite';
 
   @override
   String get deskDonateAddress => 'Epic-Cash-Adresse';
@@ -20503,4 +20471,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskBarKeySearchHere => 'Suchen, in den Einstellungen';
+
+  @override
+  String get deskDonateInContacts => 'In Ihren Kontakten';
 }

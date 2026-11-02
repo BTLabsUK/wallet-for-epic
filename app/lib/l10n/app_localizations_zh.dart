@@ -3115,25 +3115,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get donateLead => '捐款用于开发这个钱包。';
 
   @override
-  String get donatePage => '捐款页面';
-
-  @override
-  String get donatePageDown => '捐款页面没有响应。';
-
-  @override
-  String get donatePageDownText => '把 EPIC 发送到下面的地址，或使用联系页面。';
-
-  @override
   String get donateAddress => 'Epic Cash 地址';
 
   @override
   String get donateQrLabel => '捐款地址二维码';
 
   @override
-  String get donateContact => '联系页面';
-
-  @override
-  String get donateNothing => '未设置捐款页面或地址。';
+  String get donateInContacts => '在联系人中';
 
   @override
   String get settingsStateBackUp => '备份助记词';
@@ -19010,24 +18998,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskDonateLead => '捐款用于资助本钱包的开发。';
 
   @override
-  String get deskDonatePage => '捐款页面';
-
-  @override
   String get deskDonateOpen => '打开';
-
-  @override
-  String get deskDonateNoAnswer => '捐款页面没有响应。';
-
-  @override
-  String get deskDonateNoAnswerText => '请将 EPIC 发送到下方地址，或使用联系页面。';
-
-  @override
-  String deskDonateOffInMode(String mode) {
-    return '$mode：不会打开捐款页面。';
-  }
-
-  @override
-  String get deskDonateContact => '联系页面';
 
   @override
   String get deskDonateAddress => 'Epic Cash 地址';
@@ -19082,4 +19053,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskBarKeySearchHere => '在设置中搜索';
+
+  @override
+  String get deskDonateInContacts => '在联系人中';
 }
