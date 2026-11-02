@@ -1,4 +1,4 @@
-<p>Epic Cash Mobile is a self-custody wallet for Epic Cash (EPIC). The keys and the coins stay on the phone, locked with a PIN or the phone's fingerprint or face unlock. The recovery phrase is the backup.</p>
+<p>BT Wallet is a self-custody wallet for Epic Cash (EPIC). The keys and the coins stay on the phone, locked with a PIN or the phone's fingerprint or face unlock. The recovery phrase is the backup.</p>
 <p>The wallet core is LEPIC, a Rust library; the app is built with Flutter. Both are open source under the Apache License 2.0.</p>
 
 <p><b>Payment methods</b></p>

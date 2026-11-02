@@ -414,7 +414,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = uk.btlabs.btwallet.macos.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BT Wallet.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BT Wallet";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BT Wallet.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/btwallet";
 			};
 			name = Debug;
 		};
@@ -428,7 +428,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = uk.btlabs.btwallet.macos.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BT Wallet.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BT Wallet";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BT Wallet.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/btwallet";
 			};
 			name = Release;
 		};
@@ -442,7 +442,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = uk.btlabs.btwallet.macos.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BT Wallet.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/BT Wallet";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BT Wallet.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/btwallet";
 			};
 			name = Profile;
 		};

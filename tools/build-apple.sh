@@ -88,6 +88,7 @@ ios_min=15.0
 darwin_targets=aarch64-apple-darwin
 ios_targets="aarch64-apple-ios aarch64-apple-ios-sim"
 desktop_name="BT Wallet"
+desktop_exe="btwallet"   # CFBundleExecutable: the file in Contents/MacOS
 phone_id=uk.btlabs.btwallet.ios
 # The built-in node for WFE_NODE_FETCH: the Epic Cash node release the Linux and Windows builds
 # bundle (epic 4.1.1), its macOS zip. arm64 only: there is no x86_64 macOS release of 4.1, which
@@ -282,11 +283,11 @@ macos() {
   # framework would fail library validation under it.
   codesign --force --sign - --entitlements "$app/macos/Runner/Release.entitlements" "$bundle"
   codesign --verify --deep --strict --verbose=2 "$bundle"
-  [ "$(lipo -archs "$bundle/Contents/MacOS/$desktop_name")" = arm64 ] || die "the app is not arm64 only"
+  [ "$(lipo -archs "$bundle/Contents/MacOS/$desktop_exe")" = arm64 ] || die "the app is not arm64 only"
   mkdir -p "$out"
   rm -rf "$out/$desktop_name.app"
   ditto "$bundle" "$out/$desktop_name.app"
-  result PASS macos "$(lipo -archs "$bundle/Contents/MacOS/$desktop_name") $(du -sh "$bundle" | cut -f1)"
+  result PASS macos "$(lipo -archs "$bundle/Contents/MacOS/$desktop_exe") $(du -sh "$bundle" | cut -f1)"
 }
 
 dmg() {
@@ -436,9 +437,9 @@ smoke() {
   if [ -d "$bundle" ]; then
     open -n "$bundle"
     sleep 20
-    if pgrep -f "$desktop_name.app/Contents/MacOS/" >/dev/null; then
+    if pgrep -f "$desktop_name.app/Contents/MacOS/$desktop_exe" >/dev/null; then
       screencapture -x "$out/macos.png" 2>/dev/null || echo "no screenshot (Screen Recording permission)"
-      osascript -e "quit app \"$desktop_name\"" 2>/dev/null || pkill -f "$desktop_name.app/Contents/MacOS/" || true
+      osascript -e "quit app \"$desktop_name\"" 2>/dev/null || pkill -f "$desktop_name.app/Contents/MacOS/$desktop_exe" || true
       result PASS smoke-macos-app "started and stayed up 20 s"
     else
       result FAIL smoke-macos-app "not running 20 s after open"; status=1
@@ -685,7 +686,7 @@ is_macho() { case "$(file -b "$1")" in Mach-O*) return 0 ;; *) return 1 ;; esac;
 # sealed as resources of the app, as Xcode leaves them.
 devid_sign() {
   local bundle="$1" id="$2" rel fw name
-  local main="Contents/MacOS/$desktop_name"
+  local main="Contents/MacOS/$desktop_exe"
   # Loose Mach-O files first (the node, tor, libevent, anything nested in a framework that is not
   # its own binary), deepest path first.
   while IFS= read -r rel; do
