@@ -47,6 +47,13 @@ if [[ -f "$root/$v/manifest.json" && "$(cat "$root/$v/.rel-key" 2>/dev/null || t
   result 1 1 "same content key: reused"
   exit 0
 fi
+# The tours need LEPIC's Linux library in the release checkout. G2 builds it there; a run that skips
+# G2 has only what the builds put in (26.10.25 run-15: the Android one), so build it here (from the
+# prebuilt cache when it has this key).
+if [[ ! -f "$src/app/third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so" ]]; then
+  heavy=(); command -v build-slot >/dev/null && heavy=(build-slot)
+  (cd "$src" && "${heavy[@]}" tools/lepic.sh build linux)
+fi
 if ! "$src/tools/screens.sh" "$v" --src "$src" --candidate; then
   result 0 0 "tools/screens.sh failed (tour logs in $root/failed-$v.logs when a tour failed)"
   exit 1
