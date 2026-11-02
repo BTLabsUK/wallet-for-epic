@@ -24,7 +24,7 @@ import warnings
 warnings.filterwarnings("ignore")  # PyGObject deprecation noise from Atspi.Text & co
 
 SB = os.path.abspath(os.environ.get("TRUST_SB", "") or ".")
-APP_NAMES = ("uk.btlabs.epiccash.desktop", "com.blacktyger.epicwallet", "epic_wallet")
+APP_NAMES = ("uk.btlabs.epiccash.desktop", "btwallet", "com.blacktyger.epicwallet", "epic_wallet")
 
 try:
     for _l in open(os.path.join(SB, "env")):

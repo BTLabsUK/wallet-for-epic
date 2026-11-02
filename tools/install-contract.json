@@ -661,12 +661,20 @@
       "platforms": [
         "linux"
       ],
-      "what": "The Linux executable name (AppImage and tarball users start it by name; the desktop updater replaces it).",
-      "value": "epic_wallet",
+      "what": "The Linux executable name (AppImage and tarball users start it by name; the desktop updater replaces it). 26.10.24 and older: epic_wallet.",
+      "value": "btwallet",
       "probes": [
         {
           "file": "app/linux/CMakeLists.txt",
-          "contains": "set(BINARY_NAME \"epic_wallet\")"
+          "contains": "set(BINARY_NAME \"btwallet\")"
+        },
+        {
+          "file": "scripts/linux/in-container.sh",
+          "contains": "exec \"$HERE/usr/bin/btwallet\" \"$@\""
+        },
+        {
+          "file": "scripts/linux/in-container.sh",
+          "contains": "Exec=btwallet %u"
         }
       ]
     },
@@ -830,6 +838,14 @@
       "migration": "At the first unlock, under LEPIC's directory lock: the plain database is opened read-only (its schema never migrated before the switch), copied with its WAL into wallet.enc.sqlite3.tmp under the store key, checked (quick_check, user_version, row count of every table), the key check written, then tmp renamed to wallet.enc.sqlite3 (the switch), the plain file renamed wallet.sqlite3.pre-encryption and kept one release. Before the switch nothing outside tmp changes and a crash restarts the copy from scratch; after it a plain file beside a matching record only finishes the rename. A copy that fails (disk full) keeps the session on the plain file and tries again at the next open. Then the app seals wfe_meta.json into wfe_meta.sealed and contacts.json into contacts.sealed (each tmp, flushed, read back and opened, renamed), recording the plain file's size and hash; the plain files are left as they were, so a rollback to 26.10.24-r2 keeps notes and the address book, and a plain file an older build changed since is merged back in (adding only). After a rollback the older build's new plain database is set aside as wallet.sqlite3.after-rollback-<unix> and a restore scan runs. The shared book is used by one app process at a time (contacts.lock); a second one waits, then leaves it closed.",
       "migration_test": "app/test/store_encryption_upgrade_test.dart",
       "approved_by": "the owner, 2026-11-01 (explicit yes to this install-contract record: database renamed, app files kept)"
+    },
+    {
+      "date": "2026-11-02",
+      "items_sha256": "1021da54e6733e0b06d630f4649797792cf8327382c8c5d45a109f1f3c786c4e",
+      "change": "linux.binary_name: the Linux executable epic_wallet becomes btwallet (BINARY_NAME in app/linux/CMakeLists.txt), with the AppImage's AppRun and its .desktop entry (Exec=btwallet %u); the probes now cover those two lines too. The application id uk.btlabs.epiccash.desktop, the data folder <home>/.epic_cash_desktop and the keyring entry (named after the application id) stay as they are.",
+      "migration": "None needed: nothing on disk is named after the executable. The data folder is fixed by name (data_folder_io.dart), the keyring label and account come from APPLICATION_ID, and the single-instance lock is the GApplication id. A 26.10.24 AppImage updating itself replaces the whole AppImage file at $APPIMAGE and starts that file again (AppImageApplier), so the inner name never comes into it; the new AppRun starts usr/bin/btwallet. Desktop integrators (appimaged, AppImageLauncher, Gear Lever) rewrite Exec to the AppImage path when they install the .desktop entry. Release proof: G4 Linux update-trust from the published 26.10.24 AppImage to a build of this commit.",
+      "migration_test": "tools/rellib/drivers/trust-linux.sh",
+      "approved_by": "the owner, 2026-11-02 (explicit yes to renaming the Linux binary to btwallet: \"yes, Linux too\")"
     }
   ]
 }

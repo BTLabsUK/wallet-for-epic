@@ -7,7 +7,7 @@ built once into a store on this host and reused by every agent and worktree.
         print the path of the binary for commit X (default: HEAD of the worktree you are in).
         A hit prints at once. A miss builds it once into the store, under the store's build
         lock (a second caller waits for the first and then reuses its build), and prints it.
-        linux: the bundle directory (run <path>/epic_wallet); apk: the .apk file.
+        linux: the bundle directory (run <path>/btwallet); apk: the .apk file.
   testbin.sh refresh     what the timer runs: builds main (tor; linux and apk) when it has no
                          entry yet and moves `latest` to it. Skips while a tools/rel run holds
                          its lock or another build holds the store's lock.
