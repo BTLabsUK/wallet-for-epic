@@ -5,6 +5,7 @@
 //   flutter test test/phone_no_tor_test.dart
 //   flutter test --dart-define=WFE_TOR=false test/phone_no_tor_test.dart
 import 'package:epic_wallet/src/contacts.dart';
+import 'package:epic_wallet/src/dist_build.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
@@ -13,7 +14,6 @@ import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/tor_routes.dart';
-import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -81,12 +81,8 @@ void main() {
     expect(container.read(epicboxWaitingForTorProvider), isFalse);
   }, skip: _skip);
 
-  test('no in-app update check', () async {
-    final container = ProviderContainer(retry: (_, _) => null);
-    addTearDown(container.dispose);
-    final update = container.read(updateProvider.notifier);
-    expect(update.supported, isFalse);
-    await update.check();
-    expect(container.read(updateProvider).phase, UpdatePhase.idle);
+  // The build without Tor keeps the in-app updater (it reads the notor section of update.json).
+  test('in-app updates as in the build with Tor', () {
+    expect(inAppUpdates, distUpdates);
   }, skip: _skip);
 }

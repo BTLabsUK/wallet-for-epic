@@ -52,10 +52,11 @@ void main() {
     expect(httpAddressProblem('http://$_onion', englishStrings), _noTor);
   }, skip: skip);
 
-  testWidgets('Network & privacy lists Standard and Offline, no Tor only', (tester) async {
+  testWidgets('Network & privacy lists Standard, Node only and Kill switch, no Tor only', (tester) async {
     await _open(tester, DeskRoute.settingsPrivacy);
     expect(find.byKey(const ValueKey('adv-mode-standard')), findsOneWidget);
-    expect(find.byKey(const ValueKey('adv-mode-offline')), findsOneWidget);
+    expect(find.byKey(const ValueKey('adv-mode-nodeOnly')), findsOneWidget);
+    expect(find.byKey(const ValueKey('adv-mode-killSwitch')), findsOneWidget);
     expect(find.byKey(const ValueKey('adv-mode-torOnly')), findsNothing);
     expect(find.text('Tor only'), findsNothing);
   }, skip: skip != null);

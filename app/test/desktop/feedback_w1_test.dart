@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart';
 import 'package:epic_wallet/src/payment_prefs.dart';
+import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/material.dart';
@@ -143,7 +144,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     expect(choice, InternetGuideChoice.tor);
     expect(find.byType(InternetGuide), findsNothing);
-  });
+  }, skip: !torBuilt);
 
   testWidgets('the Transactions page turns Tor on from the guide', (tester) async {
     final api = _Wallet();
@@ -169,13 +170,15 @@ void main() {
     expect(container.read(deskProvider).settings.publicMode, isFalse, reason: 'the HTTP mode is unchanged');
     expect(container.read(settingsPrefsProvider).jump?.section, SettingsJump.network, reason: 'lands on Network & privacy');
     await tester.pump(const Duration(seconds: 2));
-  });
+  }, skip: !torBuilt);
 
   testWidgets('a contact form has no format hint and one error naming every accepted form', (tester) async {
     await _pump(tester, const ContactsScreen(arg: ContactsArgs(adding: true)));
     expect(find.textContaining('starts with “es”'), findsNothing);
     expect(find.textContaining('e.g. @epicbox'), findsNothing);
-    for (final bad in ['http://', 'esShort', 'nonsense.onion', 'hello world']) {
+    // Without Tor an onion gets its own message (no_tor_desk_test) and the error names no onion.
+    final invalid = torBuilt ? englishStrings.deskConErrAddressInvalid : englishStrings.contactsAddressInvalidAnyNoTor;
+    for (final bad in ['http://', 'esShort', if (torBuilt) 'nonsense.onion', 'hello world']) {
       await tester.enterText(_input('Name'), 'Ann');
       // The form adds a second Address field once the first holds text: the first is the one tested.
       // Labelled by its kind ("Epicbox address" while empty, "Address" for text of no kind).
@@ -183,7 +186,7 @@ void main() {
       await tester.pump();
       await tester.tap(find.text('Save contact'));
       await tester.pump(const Duration(milliseconds: 300));
-      expect(find.text('Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an onion address (….onion).'), findsOneWidget, reason: '"$bad"');
+      expect(find.text(invalid), findsOneWidget, reason: '"$bad"');
     }
   });
 
