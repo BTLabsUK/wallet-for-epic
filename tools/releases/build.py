@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The public releases page for Epic Cash Desktop and Epic Cash Mobile.
+"""The public releases page for BT Wallet for Epic Cash (desktop and mobile).
 
     tools/releases/build.py add <version> <dir> [--date YYYY-MM-DD] [--gitlab] [--github]
         Record a release from a folder holding its files and SHA256SUMS (the release lead's
@@ -22,6 +22,11 @@ the copy buttons, the platform the browser reports (User-Agent Client Hints, the
 agent) and the platform switch (the hero's tiles and the section's own, one state, no scrolling);
 without it the page shows every platform the same way and every switch is a plain anchor.
 No tracking, nothing loaded from another host.
+
+The page wears the BT Wallet landing page's three looks (epiccash.btlabs.uk): Night (a), Grid (b)
+and Day (c), all in one style.css under html[data-look]. theme.js applies the look this browser
+picked there (localStorage btw-look, Night when none) before the first paint; page.js adds the
+same quiet Look picker to the footer, which switches in place.
 """
 import datetime as dt
 import hashlib
@@ -80,12 +85,13 @@ NOTOR = re.compile(r'-notor-')
 
 # The platforms in the order they are shown. (key, heading, app, requirement line, preview)
 PLATFORMS = [
-    ('windows', 'Windows', 'Epic Cash Desktop', 'Windows 10 and 11, 64-bit', False),
-    ('linux', 'Linux', 'Epic Cash Desktop', 'x86_64, AppImage', False),
-    ('android', 'Android', 'Epic Cash Mobile', 'Android 7 or newer, arm64', False),
-    ('macos', 'macOS', 'Epic Cash Desktop', 'macOS 12 or newer, Apple silicon and Intel', True),
-    ('ios', 'iOS', 'Epic Cash Mobile', 'iPhone and iPad, iOS 15 or newer, sideloaded', True),
+    ('windows', 'Windows', 'Desktop', 'Windows 10 and 11, 64-bit', False),
+    ('linux', 'Linux', 'Desktop', 'x86_64, AppImage', False),
+    ('android', 'Android', 'Mobile', 'Android 7 or newer, arm64', False),
+    ('macos', 'macOS', 'Desktop', 'macOS 12 or newer, Apple silicon and Intel', True),
+    ('ios', 'iOS', 'Mobile', 'iPhone and iPad, iOS 15 or newer, sideloaded', True),
 ]
+APP = 'BT Wallet'
 PLAT = {p[0]: p for p in PLATFORMS}
 
 # A release mirrored on GitLab (the gitlab-releases tool, off until switched on) gets a Mirror
@@ -120,15 +126,15 @@ ICONS = {
 BEFORE = {
     'windows': (
         '<p>The installer is not code-signed. SmartScreen shows <b>Windows protected your PC</b> on the first '
-        'run: choose <b>More info</b>, then <b>Run anyway</b>. BT Labs is too new to hold a signing certificate.</p>'
+        'run: choose <b>More info</b>, then <b>Run anyway</b>. BT LABS is too new to hold a signing certificate.</p>'
         '<p>The app installs for the current user only; no administrator rights are needed.</p>',
         'certutil -hashfile {file} SHA256'),
     'macos': (
         '<p>The disk image is not signed or notarised by Apple, so Gatekeeper blocks the first start. Open the '
-        'disk image, drag <b>BT Wallet</b> to Applications and open it once. An older <b>Epic Cash Desktop</b> in Applications goes to the Bin. When macOS refuses, go to '
+        'disk image, drag the app to Applications and open it once.{older} When macOS refuses, go to '
         '<b>System Settings › Privacy &amp; Security</b>, scroll to the Security section and click '
         '<b>Open Anyway</b>, then confirm with the Mac login password.</p>'
-        '<p>Or in Terminal: <code>xattr -dr com.apple.quarantine "/Applications/BT Wallet.app"</code></p>'
+        '<p>Or in Terminal: <code>xattr -dr com.apple.quarantine "/Applications/{bundle}"</code></p>'
         '<p>The keychain asks once per version to let the app use its saved data: <b>Always Allow</b>. '
         'The built-in node runs on Apple silicon only.</p>',
         'shasum -a 256 {file}'),
@@ -139,7 +145,7 @@ BEFORE = {
         '<code>--appimage-extract-and-run</code>.</p>',
         'sha256sum {file}'),
     'android': (
-        '<p>The APK is signed with BT Labs\' release key. Certificate SHA-256: '
+        '<p>The APK is signed with BT LABS\' release key. Certificate SHA-256: '
         '<code class="fp" translate="no">' + ANDROID_CERT_SHA256 + '</code>. '
         '<code>apksigner verify --print-certs {file}</code> prints it; Android itself refuses an update whose key differs.</p>'
         '<p>Android asks to allow installs from this source (the browser or the file manager) the first time.</p>',
@@ -151,6 +157,15 @@ BEFORE = {
         '<p>Neither iOS file carries Tor; the one without Tor also leaves Tor out of the settings and help.</p>',
         'shasum -a 256 {file}'),
 }
+
+
+def mac_bundle(name):
+    """The macOS fold's app bundle and its note on the older one: the disk images before the
+    bt-wallet-… names (26.10.24 and earlier) install the app under its old bundle name."""
+    if name.startswith('bt-wallet-'):
+        return {'bundle': 'BT Wallet.app',
+                'older': ' An older <b translate="no">Epic Cash Desktop.app</b> in Applications goes to the Bin.'}
+    return {'bundle': 'Epic Cash Desktop.app', 'older': ''}
 
 
 def esc(s):
@@ -278,34 +293,60 @@ def file_row(e):
     )
 
 
-def platform_card(key, g, latest):
-    pkey, heading, app, req, preview = PLAT.get(key, (key, 'Other files', '', '', False))
+def notor_of(g):
+    """The platform's 'without Tor' twin of its primary file, if the release has one."""
     p = g['primary']
-    folded = [e for e in g['files'] if not p or e['name'] != p['name']]
+    if not p:
+        return None
+    for e in g['files']:
+        if e is not p and NOTOR.search(e['name']) and e['name'].replace('-notor', '') == p['name']:
+            return e
+    return None
+
+
+def platform_row(key, g, latest):
+    """One platform: name and requirement, the primary download with its size, the version without
+    Tor beside it, then two folds: the install guide (Before you install) and every file with its
+    checksum. The visitor's own platform is marked by page.js, never moved."""
+    _, heading, kind, req, preview = PLAT.get(key, (key, 'Other files', '', '', False))
+    p = g['primary']
+    nt = notor_of(g)
     icon = ICONS.get(key, ICONS['other'])
-    out = [f'<article class="card" data-plat="{key}" id="dl-{key}"><div class="cm">']
-    out.append(f'<header class="ch"><span class="ico">{icon}</span><div><h3>{esc(heading)}'
-               + (' <span class="pill">Preview</span>' if preview else '') + '</h3>'
-               f'<p class="app">{esc(app)}</p><p class="req">{esc(req)}</p></div></header>')
+    out = [f'<li class="row" data-plat="{key}" id="dl-{key}"{" data-preview" if preview else ""}>',
+           f'<div class="r-main"><span class="ico">{icon}</span><div class="r-name"><h3>{esc(heading)}'
+           + (' <span class="pill">Preview</span>' if preview else '') + '</h3>'
+           f'<p class="req">{esc(req)}</p></div>']
     if p:
-        out.append(f'<a class="btn primary" href="downloads/{esc(p["name"])}" download>{ICONS["down"]}'
-                   f'<span>Download <b>{esc(app)}</b> for {esc(heading)}'
-                   f'<small>{esc(p["label"])} · {mb(p["size"])}&nbsp;MB · {esc(latest["version"])}</small></span></a>')
-        out.append(f'<p class="fn main" translate="no">{esc(p["name"])}</p>')
-    out.append('</div><div class="cf">')
-    if g['files']:
-        n = len(g['files'])
-        out.append(f'<details class="fold files"><summary>{"All files and checksums" if folded else "Checksum"}'
-                   f'<span class="cnt">{n}</span></summary><ul class="fl-list">')
-        out += [file_row(e) for e in g['files']]
-        out.append('</ul></details>')
+        out.append(f'<div class="r-get"><a class="btn primary" href="downloads/{esc(p["name"])}" download '
+                   f'data-label="{esc(p["label"])}" data-size="{mb(p["size"])}&nbsp;MB">{ICONS["down"]}'
+                   f'<span>Download<span class="vh"> {APP} for {esc(heading)}</span>'
+                   f'<small>{esc(p["label"])} · {mb(p["size"])}&nbsp;MB</small></span></a>'
+                   + (f'<a class="alt" href="downloads/{esc(nt["name"])}" download>Without Tor · {mb(nt["size"])}&nbsp;MB</a>' if nt else '')
+                   + '</div>')
+    out.append('</div><div class="r-folds">')
     if key in BEFORE and p:
         text, cmd = BEFORE[key]
-        out.append(f'<details class="fold before" data-before="{key}" id="before-{key}"><summary>Before you install</summary>'
-                   f'<div class="bt">{text.format(file=esc(p["name"]))}'
-                   f'<p class="verify"><span>Check the download</span><code data-copy translate="no">'
-                   f'{esc(cmd.format(file=p["name"]))}</code></p>{sig_check(latest)}</div></details>')
-    out.append('</div></article>')
+        out.append(f'<details class="fold" data-before="{key}" id="before-{key}"><summary>Install guide</summary>'
+                   f'<div class="bt">{text.format(file=esc(p["name"]), **mac_bundle(p["name"]))}</div></details>')
+    if g['files']:
+        out.append(f'<details class="fold files"><summary>Files and checksums<span class="cnt">{len(g["files"])}</span></summary>'
+                   '<ul class="fl-list">' + ''.join(file_row(e) for e in g['files']) + '</ul></details>')
+    out.append('</div></li>')
+    return '\n'.join(out)
+
+
+def platforms(g, latest):
+    """Desktop, then Mobile, then any file no pattern knows."""
+    groups = [('Desktop', [k for k in g if k in PLAT and PLAT[k][2] == 'Desktop']),
+              ('Mobile', [k for k in g if k in PLAT and PLAT[k][2] == 'Mobile']),
+              ('Other files', [k for k in g if k not in PLAT])]
+    out = []
+    for title, keys in groups:
+        if not keys:
+            continue
+        out.append(f'<div class="group"><h3 class="g-h">{title}</h3><ul class="rows">')
+        out += [platform_row(k, g[k], latest) for k in keys]
+        out.append('</ul></div>')
     return '\n'.join(out)
 
 
@@ -314,10 +355,26 @@ def sig_check(r):
     if not r.get('sig'):
         return ''
     cmd = f'minisign -Vm SHA256SUMS -x SHA256SUMS.sig -P {MINISIGN_PUBKEY}'
-    return ('<p>To check the checksums themselves: download <a href="downloads/SHA256SUMS" download>SHA256SUMS</a> '
-            'and <a href="downloads/SHA256SUMS.sig" download>SHA256SUMS.sig</a>, check the signature with BT Labs\' '
-            'release key, then compare the file\'s SHA-256 with its line.</p>'
-            f'<p class="verify"><span>Check the signature</span><code data-copy translate="no">{esc(cmd)}</code></p>')
+    return ('<p>Check the checksums themselves: download <a href="downloads/SHA256SUMS.sig" download>SHA256SUMS.sig</a> '
+            'too and check its signature with BT LABS\' release key.</p>'
+            f'<p class="verify"><span>Signature</span><code data-copy translate="no">{esc(cmd)}</code></p>')
+
+
+def verify(g, latest):
+    """How to check a download: SHA256SUMS, one command per system for its primary file, the
+    signature when the release has one. Folded: there for whoever wants it, out of everyone's way."""
+    cmds = []
+    for key in ('windows', 'macos', 'linux', 'android'):
+        if key in g and g[key]['primary'] and key in BEFORE:
+            cmd = BEFORE[key][1].format(file=g[key]['primary']['name'])
+            cmds.append(f'<p class="verify"><span>{esc(PLAT[key][1])}</span><code data-copy translate="no">{esc(cmd)}</code></p>')
+    return f'''<details class="fold verify-fold" id="verify"><summary>Verify a download</summary>
+  <div class="bt">
+    <p>Every file's SHA-256 is under Files and checksums; <a href="downloads/SHA256SUMS" download translate="no">SHA256SUMS</a> lists them all. Compare it with the file's own:</p>
+    {''.join(cmds)}
+    {sig_check(latest)}
+  </div>
+</details>'''
 
 
 def mirror(r):
@@ -327,60 +384,145 @@ def mirror(r):
                    for url, label, on in links if on)
 
 
-def tiles(g):
-    """One square tile per platform with a primary download, each a link to its card."""
-    out = []
-    for key, gg in g.items():
-        if key not in PLAT or not gg['primary']:
-            continue
-        _, heading, app, req, preview = PLAT[key]
-        out.append(f'<li><a class="tile" href="#dl-{key}" data-pick="{key}" aria-label="{esc(app)} for {esc(heading)}'
-                   + (', preview' if preview else '') + f'"><span class="t-ico">{ICONS[key]}</span>'
-                   f'<span class="t-name">{esc(heading)}</span>'
-                   + (f'<span class="t-note">Preview</span>' if preview else '') + '</a></li>')
-    return '\n'.join(out)
+# Release notes come from the changelog page (changelog/index.html next to the page): the entry
+# with id="v<version>". Its old app names read as the app here; the changelog keeps them as written.
+OLD_NAMES = [('Epic Cash Desktop and Mobile', 'both apps'), ('Epic Cash Desktop', 'the desktop app'),
+             ('Epic Cash Mobile', 'the phone app')]
+NOTES_MAX = 5
 
 
-def switcher(g):
-    """The platform switch inside the downloads section: one link per platform to its card. With
-    page.js it picks the platform in place (the same state as the hero's tiles); without it a
-    plain anchor to the card."""
-    out = ['<nav class="plat-switch" aria-label="Platform"><span class="ps-h">Show</span><ul>']
-    for key, gg in g.items():
-        if key not in PLAT or not gg['primary']:
-            continue
-        _, heading, app, req, preview = PLAT[key]
-        out.append(f'<li><a href="#dl-{key}" data-pick="{key}" aria-label="{esc(heading)}'
-                   + (', preview' if preview else '') + f'">{ICONS[key]}<span>{esc(heading)}</span></a></li>')
-    out.append('</ul></nav>')
-    return ''.join(out)
+def changelog(out_dir):
+    path = os.path.join(out_dir, 'changelog', 'index.html')
+    if not os.path.exists(path):
+        return ''
+    with open(path, encoding='utf-8') as f:
+        return f.read()
 
 
-def hero(latest, plat_line):
-    """Title, one line, the download button for the browser's platform (page.js fills it; without
-    it the button leads to the platform list), the Before you install button, and the app itself:
-    the desktop Overview and the phone's Home from the release screen catalog, dark and light."""
+def notes(latest, log):
+    """What's new: the first few points of this version's changelog entry with their group (New,
+    Better, Fixed…), a link to the whole entry, and the earlier versions folded, each linking to
+    its entry. Versions newer than this release (written ahead in the changelog) are left out."""
+    ver = latest['version']
+    m = re.search(r'<section class="ver" id="v' + re.escape(ver) + r'">(.*?)</section>', log, re.S)
+    items = []
+    if m:
+        for head, ul in re.findall(r'<h3>(.*?)</h3>\s*<ul>(.*?)</ul>', m.group(1), re.S):
+            for li in re.findall(r'<li>(.*?)</li>', ul, re.S):
+                for old, new in OLD_NAMES:
+                    li = li.replace(old, new)
+                items.append((re.sub(r'<[^>]+>', '', head), li.strip()))
+    shown = items[:NOTES_MAX]
+    lis = ''.join(f'<li><span class="n-tag">{esc(t)}</span><span class="n-text">{li}</span></li>' for t, li in shown)
+    more = len(items) - len(shown)
+    older = [(i, d) for i, d in re.findall(r'<section class="ver" id="v([^"]+)">\s*<h2>.*?<time datetime="([^"]+)"', log, re.S)
+             if vkey(i) < vkey(ver)]
+    older_html = ''
+    if older:
+        older_html = (f'<details class="fold older"><summary>Earlier versions<span class="cnt">{len(older)}</span></summary><ul class="old-list">'
+                      + ''.join(f'<li><a href="changelog/#v{esc(i)}"><span class="o-v" translate="no">{esc(i)}</span>'
+                                f'<time datetime="{esc(d)}">{human_date(d)}</time></a></li>' for i, d in older)
+                      + '</ul></details>')
+    full = f'<a href="changelog/#v{esc(ver)}">All {len(items)} changes</a>' if more > 0 else f'<a href="changelog/#v{esc(ver)}">The full entry</a>'
+    return f'''<section class="wrap notes" id="notes" aria-labelledby="notes-h">
+  <div class="sh"><h2 id="notes-h"><span class="k-n" aria-hidden="true">[02]</span>What's new in <span translate="no">{esc(ver)}</span></h2><p class="sl"><time datetime="{latest['date']}">{human_date(latest['date'])}</time></p></div>
+  <div class="notes-in">
+    <div class="n-main">
+      {'<ul class="n-list">' + lis + '</ul>' if lis else ''}
+      <p class="n-more">{full}{mirror(latest)}</p>
+    </div>
+    <div class="n-side">
+      {older_html}
+      <p class="beta-note"><b>Open beta.</b> Bugs are expected; test with small amounts. Report a problem from the app: Settings › Send feedback on the phone, Settings › Help › Report a problem on the desktop.</p>
+    </div>
+  </div>
+</section>'''
+
+
+def phones(g):
+    """Short install steps for the phones: no store, so the APK and the IPA."""
+    cards = []
+    if 'android' in g and g['android']['primary']:
+        cards.append(f'''<div class="step-card"><h3><span class="ico sm">{ICONS['android']}</span>Android</h3>
+      <ol class="steps"><li>Download the APK on the phone.</li><li>Open it. Android asks once to allow installs from the browser or the file manager.</li><li>Updates install from inside the app.</li></ol>
+      <p class="s-note">Signed with BT LABS' release key; the install guide has its fingerprint.</p></div>''')
+    if 'ios' in g and g['ios']['primary']:
+        cards.append(f'''<div class="step-card"><h3><span class="ico sm">{ICONS['ios']}</span>iPhone and iPad <span class="pill">Preview</span></h3>
+      <ol class="steps"><li>Download the IPA on a computer.</li><li>Sign and install it with an Apple ID through AltStore or Sideloadly.</li><li>With a free Apple ID, install it again every 7 days. The wallet stays on the phone.</li></ol>
+      <p class="s-note">The IPA is unsigned; an iPhone installs only signed apps.</p></div>''')
+    if not cards:
+        return ''
+    return f'''<div class="phones"><h3 class="g-h">On a phone</h3><div class="step-cards">{''.join(cards)}</div></div>'''
+
+
+# The BT LABS mask (the brand kit's polygons) and its gold, for the header's mark.
+DEFS = '''<svg class="defs" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="bt-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6d471"/><stop offset="1" stop-color="#c98a3e"/></linearGradient>
+    <symbol id="bt-mask" viewBox="0 31 645 559"><polygon points="197,105.46 322.5,33 448,105.46 448,165.46 322.5,93 197,165.46"/><polygon points="58,97 187,171.48 214.27,247.22 85.27,172.74"/><polygon points="587,97 458,171.48 430.73,247.22 559.73,172.74"/><polygon points="222,256 322.5,314.02 423,256 395.73,331.74 322.5,374.02 249.27,331.74"/><polygon points="2,209 143,290.41 170.27,366.15 29.27,284.74"/><polygon points="643,209 502,290.41 474.73,366.15 615.73,284.74"/><polygon points="171,374 249,419.03 322.5,376.6 396,419.03 474,374 446.73,449.74 396,479.03 322.5,436.6 249,479.03 198.27,449.74"/><polygon points="252,487 322.5,527.7 393,487 365.73,562.74 322.5,587.7 279.27,562.74"/></symbol>
+  </defs>
+</svg>'''
+
+# The landing page, for the brand and About links: absolute, since the page is also served
+# under examples.btlabs.uk.
+LANDING = 'https://epiccash.btlabs.uk/'
+
+
+def header(up=''):
+    """The landing page's header: the BT LABS mask, BT WALLET, for Epic Cash. up is '../' from
+    the changelog."""
+    return f'''<header class="top">
+  <div class="wrap top-in">
+    <a class="brand" href="{LANDING}" aria-label="BT Wallet for Epic Cash, about the wallet"><svg class="brand-mark" aria-hidden="true"><use href="#bt-mask" fill="url(#bt-gold)"/></svg><span class="brand-name" translate="no">BT Wallet</span><span class="brand-sub" translate="no">for Epic Cash</span></a>
+    <nav class="top-nav" aria-label="Site"><a href="{LANDING}">About</a><a href="{up}#notes">What's new</a><a href="{up}changelog/">Changelog</a></nav>
+    <a class="btn btn-sm ghost" href="{up}#latest">Downloads</a>
+  </div>
+</header>'''
+
+
+def footer(up=''):
+    """The landing page's footer: the lockup, the links, the independence line. page.js adds the
+    Look picker at its end."""
+    return f'''<footer class="foot">
+  <div class="wrap foot-in">
+    <a class="foot-lockup" href="{LANDING}" aria-label="BT Wallet for Epic Cash, about the wallet"><img class="on-dark-img" src="{up}img/bt-wallet-lockup-row-dark.svg" width="220" height="53" alt="" decoding="async"><img class="on-light-img" src="{up}img/bt-wallet-lockup-row-light.svg" width="220" height="53" alt="" decoding="async"></a>
+    <nav class="foot-nav" aria-label="Links"><a href="{LANDING}">About the wallet</a><a href="{up}changelog/">Changelog</a><a href="{LANDING}screens/">Every screen</a><a href="{up}restore/">Restore map</a><a href="mailto:support@btlabs.uk" translate="no">support@btlabs.uk</a></nav>
+    <p class="pub">An independent, open-source wallet by <span translate="no">BT LABS</span>. Not made by the Epic Cash project. Use it within the law where you live.</p>
+  </div>
+</footer>'''
+
+
+def hero(latest, g, plat_line):
+    """One download: page.js points the big button at the primary file of the platform the browser
+    reports and fills its name, size and requirement; without it (or on an unknown system) the
+    button leads to the platform list. Under it the version and date, the other platforms as
+    small links, and the app itself: the desktop Overview and the phone's Home from the release
+    screen catalog, dark and light (the Day look shows the light pair)."""
     shot = ('<img class="on-dark-img" src="img/{d}.webp" width="{w}" height="{h}" alt="{alt}" decoding="async"{eager}>'
             '<img class="on-light-img" src="img/{d}-light.webp" width="{w}" height="{h}" alt="{alt}" decoding="async" loading="lazy">')
     desk = shot.format(d='hero-desktop', w=1280, h=800, eager=' fetchpriority="high"',
-                       alt='Epic Cash Desktop: the Overview with the balance, Send and Receive, and recent activity')
+                       alt='The desktop app: the Overview with the balance, Send and Receive, and recent activity')
     phone = shot.format(d='hero-phone', w=640, h=1421, eager=' loading="lazy"',
-                        alt='Epic Cash Mobile: the Home screen with the balance and recent activity')
+                        alt='The phone app: the Home screen with the balance and recent activity')
+    chips = ''.join(f'<li><a href="#dl-{k}" data-pick="{k}" title="{esc(PLAT[k][1])}">{ICONS[k]}<span>{esc(PLAT[k][1])}</span></a></li>'
+                    for k in g if k in PLAT and g[k]['primary'])
     return f'''<section class="hero">
+  <div class="wrap hero-in">
   <div class="hero-text">
-    <p class="eyebrow" translate="no">Desktop and Mobile</p>
-    <h1 translate="no">Epic Cash</h1>
-    <p class="lede">The wallet for desktop and phone. Keys and coins stay on the device, locked with a password.</p>
-    <p class="readout"><span class="bracket" aria-hidden="true">[</span><span translate="no">{esc(latest['version'])}</span><span class="bracket" aria-hidden="true">]</span><time datetime="{latest['date']}">{human_date(latest['date'])}</time><span class="pill solid">Open beta</span></p>
-    <div class="cta">
-      <a class="btn primary hero-dl" id="hero-dl" href="#latest"><span class="b-ico" id="hero-dl-ico">{ICONS['down']}</span><span class="b-text"><span id="hero-dl-text">Choose a platform</span><small id="hero-dl-sub"></small></span></a>
-      <a class="btn secondary" id="hero-before" href="#latest">Before you install</a>
+    <p class="badge"><span class="dot" aria-hidden="true"></span>Open beta<span class="b-sep" aria-hidden="true"></span><span translate="no">{esc(latest['version'])}</span></p>
+    <h1><span class="h1-a">Download</span> <span class="h1-b" translate="no">BT Wallet.</span></h1>
+    <p class="lede">A self-custodial wallet for Epic Cash. Keys stay on your device, locked with a password.</p>
+    <div class="get">
+      <a class="btn primary big" id="hero-dl" href="#latest"><span class="b-ico" id="hero-dl-ico">{ICONS['down']}</span><span class="b-text"><span id="hero-dl-text">Choose your platform</span><small id="hero-dl-sub">{esc(plat_line)}</small></span></a>
+      <p class="get-meta"><span id="hero-req"></span><span translate="no">{esc(latest['version'])}</span> · <time datetime="{latest['date']}">{human_date(latest['date'])}</time> · <a href="#notes">What's new</a></p>
+      <p class="get-alt" id="hero-alt" hidden><a id="hero-before" href="#latest">Install guide</a><a id="hero-notor" href="#latest" hidden download>Without Tor</a><a href="#verify">Verify</a></p>
     </div>
-    <p class="avail"><span id="avail-mine"></span> <span id="avail-rest">{esc(plat_line)}.</span> <span id="avail-back"></span></p>
+    <div class="also"><p id="also-h">All platforms</p><ul aria-labelledby="also-h">{chips}</ul></div>
   </div>
   <div class="hero-art">
     <figure class="window">{desk}</figure>
     <figure class="phone">{phone}</figure>
+  </div>
   </div>
 </section>
 '''
@@ -394,65 +536,59 @@ def render(out_dir):
     g = group(latest)
     plat_names = [PLAT[k][1] for k in g if k in PLAT and not PLAT[k][4]]
     previews = [PLAT[k][1] for k in g if k in PLAT and PLAT[k][4]]
-    cards = '\n'.join(platform_card(k, gg, latest) for k, gg in g.items())
     plat_line = ', '.join(plat_names) + ('; ' + ' and '.join(previews) + ' preview' if previews else '')
+    sizes = [e['size'] for gg in g.values() if gg['primary'] for e in [gg['primary']]]
 
     page = f'''<!doctype html>
-<html lang="en">
+<html lang="en" data-look="a">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#08080a">
-<meta name="description" content="Download Epic Cash Desktop and Epic Cash Mobile {esc(latest['version'])}: {esc(plat_line)}. With checksums.">
-<title>Epic Cash releases</title>
-<link rel="icon" href="img/favicon.png" type="image/png">
+<meta name="description" content="Download BT Wallet for Epic Cash {esc(latest['version'])}: {esc(plat_line)}. With checksums.">
+<title>Download BT Wallet for Epic Cash</title>
+<link rel="icon" href="img/favicon.ico" sizes="any">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <link rel="stylesheet" href="style.css">
 <script src="theme.js"></script>
 <script src="page.js" defer></script>
 </head>
 <body>
+{DEFS}
 <a class="skip" href="#latest">Skip to the downloads</a>
 
-<header class="top">
-  <a class="brand" href="https://btlabs.uk/" aria-label="BT LABS"><img class="emblem" src="img/btlabs-emblem.png" width="32" height="32" alt="" decoding="async"><span class="brand-name" translate="no">BT LABS</span></a>
-  <nav class="topnav" aria-label="Site">
-    <a href="https://epiccash.btlabs.uk/">Epic Cash</a>
-    <a href="changelog/">Changelog</a>
-    <button class="theme" id="theme" type="button" aria-label="Switch to the light look">{ICONS['sun'].replace('<svg', '<svg class="on-dark"')}{ICONS['moon'].replace('<svg', '<svg class="on-light"')}<span class="on-dark">Light</span><span class="on-light">Dark</span></button>
-  </nav>
-</header>
+{header()}
 
 <main>
-{hero(latest, plat_line)}
-<nav class="tiles" aria-labelledby="tiles-h">
-  <p class="tiles-h" id="tiles-h">Platforms</p>
-  <ul>
-{tiles(g)}
-  </ul>
-</nav>
+{hero(latest, g, plat_line)}
+<dl class="wrap facts">
+  <div><dt>Version</dt><dd translate="no">{esc(latest['version'])}</dd></div>
+  <div><dt>Released</dt><dd><time datetime="{latest['date']}">{human_date(latest['date'])}</time></dd></div>
+  <div><dt>Download</dt><dd>{mb(min(sizes))}–{mb(max(sizes))}&nbsp;MB</dd></div>
+  <div><dt>Status</dt><dd>Open beta</dd></div>
+</dl>
 
-<p class="beta"><span>Bugs are expected; test with small amounts. Report a problem from the app: Settings › Send feedback on the phone, Settings › Help › Report a problem on the desktop.</span></p>
-
-<section class="latest" id="latest" aria-labelledby="latest-h">
-  <div class="sh"><h2 id="latest-h">Latest <span translate="no">{esc(latest['version'])}</span></h2><p class="sl"><a href="changelog/#v{esc(latest['version'])}">What changed</a>{mirror(latest)} · <a href="changelog/">Earlier versions</a></p></div>
-{switcher(g)}
-  <div class="cards">
-{cards}
+<section class="wrap latest" id="latest" aria-labelledby="latest-h">
+  <div class="sh"><h2 id="latest-h"><span class="k-n" aria-hidden="true">[01]</span>All platforms</h2><p class="sl"><a href="#verify">Verify a download</a></p></div>
+{platforms(g, latest)}
+{phones(g)}
+  <div class="small-print">
+    <p><b>Without Tor</b>: the same app with Tor left out, for places where Tor is unwanted or blocked. It cannot send to Tor addresses and updates itself like the normal app. Installing either over the other keeps the wallets.</p>
+    {verify(g, latest)}
   </div>
-  <p class="foot-note"><b>Without Tor</b>: the same app with Tor left out, for places where Tor is unwanted or blocked; it cannot send to Tor addresses and updates itself like the normal app. Installing either over the other keeps the wallets. <a href="downloads/SHA256SUMS" class="mono" translate="no">SHA256SUMS</a> lists every file.</p>
 </section>
+
+{notes(latest, changelog(out_dir))}
 </main>
 
-<footer class="foot">
-  <p>Wallet by <a href="https://btlabs.uk/" translate="no">BT LABS</a> · <a href="https://epiccash.btlabs.uk/">About the wallet</a> · <a href="https://epiccash.btlabs.uk/screens/">Every screen</a> · <a href="restore/">Restore map</a></p>
-  <p>Contact: <a href="mailto:support@btlabs.uk">support@btlabs.uk</a> · © 2026 BT LABS</p>
-</footer>
+{footer()}
 </body>
 </html>
 '''
     os.makedirs(out_dir, exist_ok=True)
-    with open(os.path.join(out_dir, 'index.html'), 'w') as f:
+    with open(os.path.join(out_dir, 'index.html'), 'w', encoding='utf-8', newline='') as f:
         f.write(page)
     for name in ('style.css', 'page.js', 'theme.js'):
         shutil.copy(os.path.join(ASSETS, name), os.path.join(out_dir, name))
