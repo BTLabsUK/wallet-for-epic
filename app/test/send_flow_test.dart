@@ -257,7 +257,7 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      expect(find.text('Payment method'), findsOneWidget);
+      expect(find.text('Send'), findsOneWidget);
       expect(find.text('1 of 3'), findsOneWidget);
       expect(find.byTooltip('Back'), findsNothing);
 
@@ -268,7 +268,7 @@ void main() {
       await _tap(tester, find.byTooltip('Back'));
       expect(find.text('1 of 3'), findsOneWidget);
       // The address stays.
-      expect(find.text('New recipient'), findsOneWidget);
+      expect(find.text(_bob), findsOneWidget);
 
       await _tap(tester, _continue);
       await _enter(tester, 'Amount (EPIC)', '1');
@@ -480,7 +480,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       final recipient = editable(tester, sendRecipientFieldKey);
-      await _tap(tester, find.text('Direct · File'));
+      await _tap(tester, find.text('Pay with a file'));
       expect(find.byKey(sendRecipientFieldKey), findsNothing);
       final fileAmount = editable(tester, sendFileAmountFieldKey);
       expect(identical(fileAmount, recipient), isFalse);

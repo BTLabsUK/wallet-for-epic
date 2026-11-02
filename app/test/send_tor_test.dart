@@ -303,21 +303,9 @@ void main() {
         '$_onion:3415',
       ]) {
         await _enter(tester, 'To', form);
-        // The field's × wraps the address to a third line: the card may sit below the fold.
-        await tester.scrollUntilVisible(
-          find.byType(RecipientCard),
-          100,
-          scrollable: find.byWidgetPredicate((w) => w is Scrollable && w.axisDirection == AxisDirection.down).first,
-        );
-        expect(
-          find.descendant(
-            of: find.byType(RecipientCard),
-            matching: find.text('Over Tor'),
-          ),
-          findsOneWidget,
-          reason: form,
-        );
-        expect(find.text('New recipient'), findsOneWidget, reason: form);
+        // The method line under the field names the way and, with Tor off, that it starts.
+        expect(find.text('Link · Tor'), findsOneWidget, reason: form);
+        expect(find.text('Tor starts when you send.'), findsOneWidget, reason: form);
         expect(
           find.textContaining('.onion', findRichText: true),
           findsWidgets,
@@ -363,14 +351,13 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await _enter(tester, 'To', _onion);
-      expect(find.text('Link · Tor needs Tor.'), findsOneWidget);
-      await _tap(tester, find.byKey(sendTurnOnTorKey));
+      expect(find.text('Tor starts when you send.'), findsOneWidget);
+      expect(find.byKey(sendTurnOnTorKey), findsNothing);
+      await h.toReview(tester);
+      // Tor starts as the review opens; the send waits for it.
       expect(h.session.torStarts, hasLength(1));
-      expect(h.tor.phase, PhoneTorPhase.starting);
-      expect(h.tor.receiving, isTrue);
       await h.emit(tester, TorEventKind.starting, progress: 60);
       await h.emit(tester, TorEventKind.ready);
-      await h.toReview(tester);
       expect(find.text('Over Tor'), findsOneWidget);
       expect(find.text('Ready to send over Tor'), findsOneWidget);
       // No epicbox check on a Tor payment.
