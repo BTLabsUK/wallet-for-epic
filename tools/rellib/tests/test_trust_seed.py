@@ -108,7 +108,7 @@ class PreviousReleaseFilesTest(unittest.TestCase):
             seed.meta_note('{"version":1}', 7)
 
     def test_lan_nodes_file(self):
-        self.assertEqual(seed.lan_nodes_json(["http://b:1", "http://a:1"]), '{"plainHttp":["http://a:1","http://b:1"]}')
+        self.assertEqual(seed.lan_nodes_json(["http://b:1", "http://A:1", "c"]), '{"plainHttp":["a:1","b:1","c:80"]}')
 
 
 if __name__ == "__main__":

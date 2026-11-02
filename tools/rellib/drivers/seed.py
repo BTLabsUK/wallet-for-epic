@@ -154,8 +154,13 @@ def meta_note(text, tx_id, note=NOTE):
 
 
 def lan_nodes_json(urls):
-    """lan_nodes.json as 26.10.24-r2 writes it: {"plainHttp": [urls, sorted]}."""
-    return json.dumps({"plainHttp": sorted(urls)}, separators=(",", ":"))
+    """lan_nodes.json as 26.10.24-r2 writes it: {"plainHttp": [keys, sorted]}, each key the node's
+    host:port, lower case, 80 when it names no port (lan_node_relay.dart _nodeKey), not its URL."""
+    keys = set()
+    for u in urls:
+        u = u.strip().split("://", 1)[-1].split("/", 1)[0].lower()
+        keys.add(u if ":" in u else u + ":80")
+    return json.dumps({"plainHttp": sorted(keys)}, separators=(",", ":"))
 
 
 def first_tx_id(db_path):

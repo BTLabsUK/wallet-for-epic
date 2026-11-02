@@ -51,7 +51,8 @@ FUND_IN = "0.03"     # P -> wallet before the update
 FUND_AFTER = "0.01"  # P -> wallet with the candidate
 CAP_SEND = decimal.Decimal("0.05")
 CAP_JOB = decimal.Decimal("1")
-AMOUNT = re.compile(r"^(-?[\d,]+(?:\.\d+)?) EPIC$")
+# From 26.10.25 a no-break space joins the unit, and a minus sign (U+2212) may lead.
+AMOUNT = re.compile(r"^([-\u2212]?[\d,]+(?:\.\d+)?)[ \u00a0\u202f]EPIC$")
 # Settings' sections the driver opens or may see beside them: a narrow page lists them as chips, and
 # where two rows of chips are not enough as a dropdown that names only the section shown (87d01a220).
 # Both layouts: up to 26.10.24 (This wallet, Transactions, Receiving, ...) and from 26.10.25 (Wallet,
@@ -447,8 +448,22 @@ class Run:
             self.unlock()
             self.after_unlock()
         self.last_session_toast()
-        self.ui.click("re:^%s$" % re.escape(name), role="button")
+        want = "re:^%s$" % re.escape(name)
+        # From 26.10.25 Settings takes the whole window: no rail there, Esc goes back to the wallet.
+        for _ in range(3):
+            if self.ui.find(want, role="button") or not self.in_settings():
+                break
+            if name == "Settings":
+                return
+            self.ui.key("Escape")
+            time.sleep(1)
+        self.ui.click(want, role="button")
         time.sleep(1.2)
+
+    def in_settings(self):
+        """On the whole-window Settings (26.10.25 on): no rail entry Settings, its sections listed."""
+        names = {n.name.strip() for n in self.ui.nodes() if n.role == "button"}
+        return "Settings" not in names and len(names & set(SECTIONS)) >= 2
 
     def settings_page(self, section):
         """Settings › [section]: from the section list beside the page, the chips above it, or (a page
@@ -458,7 +473,7 @@ class Run:
         want = "re:^%s$" % re.escape(section)
         shown = {n.name.strip() for n in ui.nodes() if n.role == "button" and n.name.strip() in SECTIONS}
         if len(shown) != 1:
-            ui.click(want, role="button")
+            ui.click(want, role="button", nth=99)  # the list's own entry, not "← Wallet" above it
         elif section not in shown:
             current = shown.pop()
             ui.click("re:^%s$" % re.escape(current), role="button")
@@ -848,7 +863,7 @@ class Run:
             if pw_fields:
                 ui.fill(pw_fields[0], open(os.path.join(self.sb, "wallet.pw")).read())
                 time.sleep(0.5)
-            ui.click(re.compile(r"^Send [\d.,]+ EPIC$"), role="button", timeout=20)
+            ui.click(re.compile(r"^Send [\d.,]+\sEPIC$"), role="button", timeout=20)
             ui.wait("re:Check and send", 300, gone=True)
             time.sleep(3)
             self.shot("send-after")
@@ -1338,7 +1353,7 @@ class Run:
 
 def epic(s):
     m = AMOUNT.match(s.strip())
-    return D(m.group(1).replace(",", "")) if m else None
+    return D(m.group(1).replace(",", "").replace("\u2212", "-")) if m else None
 
 
 def fmt_bal(b):
@@ -1363,7 +1378,7 @@ def short(a):
 def same_row(r0, r1):
     """Same payment: direction and amount (states move on with confirmations)."""
     def key(r):
-        m = re.match(r"^(\w+)\D*?([\d.,]+) EPIC", r)
+        m = re.match(r"^(\w+)\D*?([\d.,]+)\sEPIC", r)
         return (m.group(1), D(m.group(2).replace(",", ""))) if m else r
     return key(r0) == key(r1)
 
