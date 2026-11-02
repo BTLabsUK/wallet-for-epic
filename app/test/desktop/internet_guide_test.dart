@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-// The Receive from the internet guide shows the first time From the internet is picked, then
-// never again by itself (app-wide, saved); the (?) opens it any time and changes nothing.
+// The Receive from the internet guide opens from the (?) beside the Internet address and changes
+// nothing by itself; opening it is saved app-wide as seen. The Internet switch never opens it.
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_http.dart';
@@ -56,53 +56,62 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<void> pickInternet(WidgetTester tester) async {
-    await tester.ensureVisible(find.text('From the internet'));
-    await tester.tap(find.text('From the internet'));
+  final help = find.byWidgetPredicate((w) => w is EIconButton && w.label == 'Receive from the internet: how it works');
+  final internetSwitch = find.byKey(const ValueKey('http-public-switch'));
+
+  Future<void> openGuide(WidgetTester tester) async {
+    await tester.ensureVisible(help);
+    await tester.tap(help);
     await settle(tester);
   }
 
-  testWidgets('first pick shows the guide; later picks switch straight, also after a restart', (tester) async {
-    var container = await show(tester);
-    await pickInternet(tester);
-    expect(find.byType(InternetGuide), findsOneWidget);
-    await tester.tap(find.widgetWithText(EButton, 'Close'));
+  Future<void> flipInternet(WidgetTester tester) async {
+    await tester.ensureVisible(internetSwitch);
+    await tester.tap(internetSwitch);
     await settle(tester);
-    expect(container.read(deskProvider).settings.publicMode, isFalse, reason: 'Close changes nothing');
-    expect(container.read(deskProvider).settings.internetGuideSeen, isTrue);
+  }
 
-    await pickInternet(tester);
+  testWidgets('the Internet switch turns it on and off at once; the guide never opens by itself', (tester) async {
+    var container = await show(tester);
+    await flipInternet(tester);
     expect(find.byType(InternetGuide), findsNothing);
     expect(container.read(deskProvider).settings.publicMode, isTrue);
+    await flipInternet(tester);
+    expect(find.byType(InternetGuide), findsNothing);
+    expect(container.read(deskProvider).settings.publicMode, isFalse);
+    expect(container.read(deskProvider).settings.internetGuideSeen, isFalse);
 
-    // A new app start with the same store: still seen.
+    // The (?) saves that the guide was seen, app-wide: a new app start with the same store.
+    await openGuide(tester);
+    expect(container.read(deskProvider).settings.internetGuideSeen, isTrue);
     await tester.pumpWidget(const SizedBox());
     container = await show(tester);
     expect(container.read(deskProvider).settings.internetGuideSeen, isTrue);
-    await tester.tap(find.text('Local only'));
-    await settle(tester);
-    await pickInternet(tester);
-    expect(find.byType(InternetGuide), findsNothing);
-    expect(container.read(deskProvider).settings.publicMode, isTrue);
   });
 
   testWidgets('the (?) opens the guide and changes nothing by itself', (tester) async {
     final container = await show(tester);
-    final help = find.byWidgetPredicate((w) => w is EIconButton && w.label == 'Receive from the internet: how it works');
-    await tester.ensureVisible(help);
-    await tester.tap(help);
-    await settle(tester);
+    await openGuide(tester);
     expect(find.byType(InternetGuide), findsOneWidget);
     await tester.tap(find.widgetWithText(EButton, 'Close'));
     await settle(tester);
     expect(container.read(deskProvider).settings.publicMode, isFalse);
-    // Seen once from the (?) too: the next pick switches straight.
-    await pickInternet(tester);
-    expect(find.byType(InternetGuide), findsNothing);
     // Open again from the (?) after it was seen.
-    await tester.tap(help);
-    await settle(tester);
+    await openGuide(tester);
     expect(find.byType(InternetGuide), findsOneWidget);
+  });
+
+  testWidgets('the guide\'s buttons switch: Receive from the internet on, Back to local only off', (tester) async {
+    final container = await show(tester);
+    await openGuide(tester);
+    await tester.tap(find.widgetWithText(EButton, 'Receive from the internet'));
+    await settle(tester);
+    expect(find.byType(InternetGuide), findsNothing);
+    expect(container.read(deskProvider).settings.publicMode, isTrue);
+    await openGuide(tester);
+    await tester.tap(find.widgetWithText(EButton, 'Back to local only'));
+    await settle(tester);
+    expect(container.read(deskProvider).settings.publicMode, isFalse);
   });
 
   test('the seen flag is saved app-wide and read back', () {

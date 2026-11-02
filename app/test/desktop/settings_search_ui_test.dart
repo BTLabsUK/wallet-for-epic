@@ -103,8 +103,8 @@ void main() {
     expect(tester.widget<EditableText>(field).focusNode.hasFocus, isTrue);
     await tester.enterText(field, 'tor');
     await tester.pumpAndSettle();
-    // Payments' Link · Tor first, Network & privacy's Tor for all connections next.
-    expect(find.text('Tor for all connections'), findsOneWidget);
+    // Payments' Link · Tor first, Network & privacy's Connection mode (Tor only) next.
+    expect(find.text('Connection mode'), findsOneWidget);
     expect(find.textContaining('results'), findsOneWidget);
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
     await tester.pump();
@@ -113,8 +113,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(c.read(deskNavProvider).route, DeskRoute.settingsPrivacy);
     expect(c.read(settingsQueryProvider), isEmpty);
-    expect(_focusIn(tester, SetId.torAll), isTrue);
-    expect(tester.getRect(find.byKey(const ValueKey('row-${SetId.torAll}'))).bottom, lessThanOrEqualTo(800));
+    expect(_focusIn(tester, SetId.netMode), isTrue);
+    expect(tester.getRect(find.byKey(const ValueKey('row-${SetId.netMode}'))).bottom, lessThanOrEqualTo(800));
   });
 
   testWidgets('Esc clears the search, a second Esc leaves Settings', (tester) async {

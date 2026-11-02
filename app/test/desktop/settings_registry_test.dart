@@ -13,7 +13,8 @@ import 'package:flutter_test/flutter_test.dart';
 /// `SetId` constant name → id, read from its source.
 Map<String, String> _idNames() {
   final src = File('lib/src/desktop/screens/settings/setting_ids.dart').readAsStringSync();
-  return {for (final m in RegExp(r"static const (\w+) = '(\w+)';").allMatches(src)) m[1]!: m[2]!};
+  // `torAll` is kept as a constant but is in no page, search or SetId.all (see setting_ids.dart).
+  return {for (final m in RegExp(r"static const (\w+) = '(\w+)';").allMatches(src)) if (m[1] != 'torAll') m[1]!: m[2]!};
 }
 
 /// The ids the desktop's pages anchor, with the files that do.
@@ -23,7 +24,7 @@ Map<String, List<String>> _anchors(Map<String, String> names) {
   for (final f in dir.listSync(recursive: true).whereType<File>().where((f) => f.path.endsWith('.dart'))) {
     // Code only: the doc comments name `anchor: SetId.x` as an example.
     final code = f.readAsLinesSync().where((line) => !line.trimLeft().startsWith('//')).join('\n');
-    for (final m in RegExp(r'(?:anchor|SetAnchor\(id):\s*SetId\.(\w+)').allMatches(code)) {
+    for (final m in RegExp(r'(?:anchor|SetAnchor\(\s*id):\s*SetId\.(\w+)').allMatches(code)) {
       final id = names[m[1]!] ?? '?${m[1]}';
       (out[id] ??= []).add(f.path.split('/').last);
     }
