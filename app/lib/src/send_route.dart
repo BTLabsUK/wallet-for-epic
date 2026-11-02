@@ -200,6 +200,7 @@ class RecipientInput {
     this.scope = HostScope.internet,
     this.unicodeHost,
     this.key,
+    this.typing,
   });
 
   static const empty = RecipientInput._(RecipientInputKind.empty);
@@ -221,8 +222,8 @@ class RecipientInput {
   /// in lower-case ASCII, IPv6 without brackets.
   final String host;
 
-  /// The port contacted: as given, else 443 for https, the listener's default for http and 80
-  /// for an onion. Null for Epicbox.
+  /// The port contacted: as given, else the listener's default for http and https and 80 for an
+  /// onion. Null for Epicbox.
   final int? port;
 
   /// The URL's path without a trailing `/`, or empty.
@@ -236,6 +237,14 @@ class RecipientInput {
 
   /// The Epicbox key (the part before `@`).
   final String? key;
+
+  /// An http(s) address still being typed ([RecipientInputKind.invalid], incomplete): the kind
+  /// its scheme names, so the method line shows from `https://` on. [host] holds what is typed
+  /// of the host and [port] the port typed or the listener's default.
+  final RecipientInputKind? typing;
+
+  /// The http(s) kind: [kind] for an address, [typing] while one is typed; null otherwise.
+  RecipientInputKind? get urlKind => isUrl ? kind : typing;
 
   /// An address of a kind Send can pay (Epicbox, onion, http or https).
   bool get isAddress => switch (kind) {
@@ -438,7 +447,23 @@ RecipientInput readRecipient(String raw, {required String defaultRelay, required
   } else if (s.substring(0, s.indexOf(':')) != s.substring(0, s.indexOf(':')).toLowerCase()) {
     notes.add(RecipientNote.schemeLower);
   }
-  return _readUrl(s, t, notes, listenPort);
+  final read = _readUrl(s, t, notes, listenPort);
+  return read.problem == RecipientProblem.incomplete ? _typingUrl(s, read, listenPort) : read;
+}
+
+/// [read] (incomplete) with the kind [s]'s scheme names, the host typed so far and the port.
+RecipientInput _typingUrl(String s, RecipientInput read, int listenPort) {
+  final m = RegExp(r'^(https?)://(\[[^\]/]*\]?|[^/?#:@]*)(?::(\d{0,5}))?', caseSensitive: false).firstMatch(s);
+  if (m == null) return read;
+  final port = int.tryParse(m[3] ?? '');
+  return RecipientInput._(
+    RecipientInputKind.invalid,
+    address: read.address,
+    problem: read.problem,
+    typing: m[1]!.toLowerCase() == 'https' ? RecipientInputKind.https : RecipientInputKind.http,
+    host: m[2]!.toLowerCase().replaceAll(RegExp(r'[\[\]]'), ''),
+    port: port != null && port >= 1 && port <= 65535 ? port : listenPort,
+  );
 }
 
 RecipientInput _invalid(String t, RecipientProblem p) => RecipientInput._(RecipientInputKind.invalid, address: t, problem: p);
@@ -528,14 +553,19 @@ RecipientInput _readUrl(String s, String given, List<RecipientNote> notes, int l
   }
   if (m[4] != null || m[5] != null) notes.add(RecipientNote.queryLeftOut);
 
+  // No port: the listener's default, written so the address says where it goes.
+  if (port == null) {
+    port = listenPort;
+    notes.add(RecipientNote.defaultPort);
+  }
   final shown = v6 ? '[$host]' : host;
-  final norm = '$scheme://$shown${port == null ? '' : ':$port'}$path';
+  final norm = '$scheme://$shown:$port$path';
   if (norm.length > recipientMaxLength) return _invalid(given, RecipientProblem.tooLong);
   return RecipientInput._(
     scheme == 'https' ? RecipientInputKind.https : RecipientInputKind.http,
     address: norm,
     host: host,
-    port: port ?? (scheme == 'https' ? 443 : listenPort),
+    port: port,
     path: path,
     scope: hostScope(host),
     unicodeHost: unicodeHost,
