@@ -103,6 +103,16 @@ function Step($m) { Write-Output "`n== $m" }
 Step 'LEPIC'
 $rev = (Get-Content (Join-Path $Source 'tools\lepic.rev') -Raw).Trim()
 $clone = Join-Path $app 'third_party\lepic'
+# No -LepicCache: reuse the newest earlier build folder beside this one (…\wfe-rel\*\src) whose
+# LEPIC is at the same pin and has a cargo target, so an unchanged LEPIC is not compiled again.
+if (-not $LepicCache -and -not (Test-Path $clone)) {
+    $builds = Split-Path (Split-Path (Resolve-Path $Source))
+    $LepicCache = Get-ChildItem $builds -Directory -ErrorAction SilentlyContinue |
+        ForEach-Object { Join-Path $_.FullName 'src\app\third_party\lepic' } |
+        Where-Object { (Test-Path "$_\target") -and ((git -C $_ rev-parse HEAD 2>$null) -eq $rev) } |
+        Sort-Object { (Get-Item "$_\target").LastWriteTime } -Descending | Select-Object -First 1
+    if ($LepicCache) { Write-Output "LEPIC cache: $LepicCache" }
+}
 if ($LepicCache -and -not (Test-Path $clone)) {
     New-Item -ItemType Directory -Force (Split-Path $clone) | Out-Null
     robocopy $LepicCache $clone /E /NFL /NDL /NJH /NJS /NP | Out-Null
