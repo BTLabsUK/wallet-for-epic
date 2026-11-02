@@ -56,28 +56,31 @@ void main() {
     await pump(tester, const SendScreen());
   }
 
-  TxMethod? method(WidgetTester tester) => tester.widget<ESegmented<TxMethod?>>(find.byType(ESegmented<TxMethod?>)).value;
+  // There is no method selector: the method line under To names what the address chose, none while To is empty.
+  String? method(WidgetTester tester) => const ['epicbox', 'onion', 'http', 'https']
+      .where((k) => find.byKey(ValueKey('send-route-$k')).evaluate().isNotEmpty)
+      .firstOrNull;
   String toText(WidgetTester tester) => tester.widget<EditableText>(find.byType(EditableText).first).controller.text;
   Finder clear() => find.byKey(const ValueKey('send-to-clear'));
 
   testWidgets('a pasted address stays after leaving Send; × empties To and puts the method back', (tester) async {
     await show(tester);
-    expect(method(tester), TxMethod.epicbox);
+    expect(method(tester), isNull);
     await tester.enterText(find.byType(EditableText).first, _onion);
     await tester.enterText(find.byType(EditableText).at(1), '2');
     await tester.pump(const Duration(seconds: 4));
-    expect(method(tester), TxMethod.http, reason: 'the onion moved the method to Link');
+    expect(method(tester), 'onion', reason: 'the onion is read as Link · Tor');
 
     await leaveAndBack(tester);
     expect(toText(tester), _onion);
-    expect(method(tester), TxMethod.http);
+    expect(method(tester), 'onion');
     expect(tester.widget<EditableText>(find.byType(EditableText).at(1)).controller.text, '2');
 
     expect(tester.widget<EIconButton>(clear()).tabStop, isTrue, reason: 'no card below: the × is the Tab stop');
     await tester.tap(clear());
     await tester.pumpAndSettle();
     expect(toText(tester), isEmpty);
-    expect(method(tester), TxMethod.epicbox, reason: 'back to the method Send starts on');
+    expect(method(tester), isNull, reason: 'back to Send as it starts: no address, no method line');
     expect(clear(), findsNothing);
     expect(tester.widget<EditableText>(find.byType(EditableText).at(1)).controller.text, '2', reason: 'a typed amount stays');
   }, skip: !torBuilt);
@@ -85,19 +88,18 @@ void main() {
   testWidgets('a picked contact stays after leaving Send; its Clear resets the recipient', (tester) async {
     final olga = (await container.read(deskApiProvider).contacts()).firstWhere((c) => c.id == 'ol');
     await show(tester, olga);
-    expect(method(tester), TxMethod.http);
+    expect(method(tester), 'http');
     expect(find.byKey(const ValueKey('send-picked')), findsOneWidget);
 
     await leaveAndBack(tester);
-    expect(toText(tester), _http);
-    expect(method(tester), TxMethod.http);
-    expect(find.byKey(const ValueKey('send-picked')), findsOneWidget);
-    expect(tester.widget<EIconButton>(clear()).tabStop, isFalse, reason: "the card's Clear is the Tab stop");
+    expect(method(tester), 'http');
+    expect(find.byKey(const ValueKey('send-picked')), findsOneWidget, reason: 'the chip stands for the address');
+    expect(tester.widget<EIconButton>(clear()).tabStop, isTrue, reason: "the chip's × is the Tab stop");
 
-    await tester.tap(find.descendant(of: find.byKey(const ValueKey('send-picked')), matching: find.text('Clear')));
+    await tester.tap(clear());
     await tester.pumpAndSettle();
     expect(toText(tester), isEmpty);
-    expect(method(tester), TxMethod.epicbox);
+    expect(method(tester), isNull);
     expect(find.byKey(const ValueKey('send-picked')), findsNothing);
 
     // Cleared and left: Send opens empty.
@@ -111,10 +113,11 @@ void main() {
     await tester.pump(const Duration(seconds: 4));
     await leaveAndBack(tester);
     expect(toText(tester), _epicbox);
+    expect(method(tester), 'epicbox');
     await tester.tap(clear());
     await tester.pumpAndSettle();
     expect(toText(tester), isEmpty);
-    expect(method(tester), TxMethod.epicbox);
+    expect(method(tester), isNull);
     await leaveAndBack(tester);
     expect(toText(tester), isEmpty);
   });
