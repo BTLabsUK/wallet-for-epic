@@ -30,3 +30,9 @@ price = true         # fiat value of the balance
 # The page an invite's link opens: Share invite sends <page>/pair#<invite>. Empty shares the bare
 # epiccash:// invite. The invite is only in the part after #, which is never sent to the page.
 page = "https://epiccash.btlabs.uk"
+
+[donate]
+# Settings › Donate opens this page in the browser; when it does not answer, the app shows the
+# donation address and this contact page instead. Empty: none.
+page = "https://btlabs.uk/donate/"
+contact = "https://btlabs.uk/"

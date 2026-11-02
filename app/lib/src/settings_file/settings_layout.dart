@@ -253,6 +253,10 @@ const List<SettingsKey> settingsKeys = [
   // [invite]: the page whose https link Share invite carries (invite_links.dart); empty shares
   // the bare epiccash:// invite.
   SettingsKey('invite.page', TextKind(checkInvitePage)),
+  // [donate]: the page Settings › Donate opens and the contact page offered when it does not
+  // answer (`donate.dart`); empty for none.
+  SettingsKey('donate.page', TextKind(checkPageOrEmpty)),
+  SettingsKey('donate.contact', TextKind(checkPageOrEmpty)),
 ];
 
 /// The comment above a key the default copy leaves out, written with it when the app adds it.
@@ -273,6 +277,14 @@ ValueProblem? checkInvitePage(String v) {
   if (v.isEmpty) return null;
   final uri = Uri.tryParse(v);
   if (uri == null || uri.scheme != 'https' || uri.hasQuery || !isWebAddress(v)) return ValueProblem.notWebAddress;
+  return null;
+}
+
+/// A page the app opens in the browser: an https address, or empty for none.
+ValueProblem? checkPageOrEmpty(String v) {
+  if (v.isEmpty) return null;
+  final uri = Uri.tryParse(v);
+  if (uri == null || uri.scheme != 'https' || !isWebAddress(v)) return ValueProblem.notWebAddress;
   return null;
 }
 
@@ -389,6 +401,10 @@ const List<SettingsKey> configKeys = [
   SettingsKey('report.keep_domains', TextListKind(checkHostName)),
   // [network]
   SettingsKey('network.vpn_suffixes', TextListKind(checkSuffix)),
+  // [notices]: the grace after start and resume before a server warning shows
+  // (`connection_grace.dart`; 0 shows them at once), and the donation page's check.
+  SettingsKey('notices.server_grace_s', IntKind(min: 0, max: 600)),
+  SettingsKey('notices.page_check_s', _seconds),
   // [payments]
   SettingsKey('payments.watch_fast_every_s', _seconds),
   SettingsKey('payments.watch_fast_for_s', _seconds),
