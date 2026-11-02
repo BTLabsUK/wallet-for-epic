@@ -715,7 +715,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final tab = ref.watch(shellTabProvider);
     final l = context.l10n;
     final features = ref.watch(levelFeaturesProvider);
-    final scan = offersQrScan(ref) && features.scanInAppBar;
+    final scan = offersQrScan(ref);
 
     // The Android back: Send takes its own steps back first, then Send and Receive go to
     // Wallet; on Wallet the app leaves, as the system does. Screens over the shell pop first.

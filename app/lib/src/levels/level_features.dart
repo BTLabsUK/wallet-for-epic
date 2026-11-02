@@ -128,7 +128,6 @@ class LevelFeatures {
     required this.activityChips,
     required this.balanceTiles,
     required this.hideBalancesInHero,
-    required this.scanInAppBar,
     required this.restoreHeightField,
     required this.welcomeServerLink,
     required this.outputs,
@@ -181,7 +180,6 @@ class LevelFeatures {
       activityChips: one ? ActivityChips.basic : ActivityChips.full,
       balanceTiles: one ? BalancePresentation.quietLine : BalancePresentation.tiles,
       hideBalancesInHero: !one,
-      scanInAppBar: !one,
       restoreHeightField: !one,
       welcomeServerLink: !one,
       outputs: !one && prefs.has(AdvancedFeature.outputs),
@@ -275,9 +273,6 @@ class LevelFeatures {
   /// The hide-balances eye in the hero (level 1 moves it to Appearance).
   final bool hideBalancesInHero;
 
-  /// The scan button in the app bar.
-  final bool scanInAppBar;
-
   /// The restore-from-height field.
   final bool restoreHeightField;
 
@@ -334,7 +329,6 @@ class LevelFeatures {
       other.activityChips == activityChips &&
       other.balanceTiles == balanceTiles &&
       other.hideBalancesInHero == hideBalancesInHero &&
-      other.scanInAppBar == scanInAppBar &&
       other.restoreHeightField == restoreHeightField &&
       other.welcomeServerLink == welcomeServerLink &&
       other.outputs == outputs &&
@@ -370,7 +364,6 @@ class LevelFeatures {
     activityChips,
     balanceTiles,
     hideBalancesInHero,
-    scanInAppBar,
     restoreHeightField,
     welcomeServerLink,
     outputs,
