@@ -2603,6 +2603,7 @@
   "deskKitMethodStarting": "Startet…",
   "deskKitMethodHttpInternet": "aus dem Internet, Port {port}",
   "deskKitMethodHttpLocal": "nur dieser Computer (127.0.0.1)",
+  "deskKitMethodHttpNotReachable": "auf diesem Computer, nicht aus dem Internet: Port {port} weiterleiten",
   "deskKitMethodNotReceiving": "Kein Empfang",
   "deskKitMethodPortInUse": "Port {port} wird von einem anderen Programm genutzt. Schließen Sie es oder ändern Sie unten den Port.",
   "deskKitMethodNotInBuild": "Nicht in dieser Version",

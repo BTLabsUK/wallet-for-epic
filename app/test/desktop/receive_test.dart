@@ -126,17 +126,22 @@ void main() {
     expect(find.byKey(const ValueKey('rx-qr-image-http')), findsOneWidget);
   });
 
-  testWidgets('the HTTP panel comes with the Link · HTTP switch (Settings), grown, with no switch of its own', (tester) async {
+  testWidgets('the HTTP panel stays with Link · HTTP off, one line with its switch; on, grown with the address switches instead', (tester) async {
     final container = await _pump(tester, const ReceiveArgs());
     final panel = find.byKey(const ValueKey('rx-panel-http'));
-    expect(panel, findsNothing, reason: 'Link · HTTP off: no card');
-    await tester.runAsync(() => container.read(deskProvider.notifier).setHttp(true));
+    final own = find.byKey(const ValueKey('rx-switch-http'));
+    expect(panel, findsOneWidget, reason: 'Link · HTTP off: the card stays, so it is turned on here');
+    expect(own, findsOneWidget);
+    expect(container.read(deskProvider).settings.payments.linkHttp, isFalse);
+    await tester.tap(own);
     for (var i = 0; i < 4; i++) {
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
       await tester.pumpAndSettle();
     }
+    expect(container.read(deskProvider).settings.payments.linkHttp, isTrue);
     expect(panel, findsOneWidget);
-    expect(find.byKey(const ValueKey('rx-switch-http')), findsNothing);
+    expect(own, findsNothing, reason: "on, the switches are the addresses'");
+    expect(find.byKey(const ValueKey('http-local-switch')), findsOneWidget);
     expect(find.byKey(const ValueKey('rx-qr-http')), findsNothing, reason: 'no QR code for 127.0.0.1');
   });
 

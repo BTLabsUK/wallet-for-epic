@@ -10213,6 +10213,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskKitMethodHttpLocal => 'nur dieser Computer (127.0.0.1)';
 
   @override
+  String deskKitMethodHttpNotReachable(String port) {
+    return 'auf diesem Computer, nicht aus dem Internet: Port $port weiterleiten';
+  }
+
+  @override
   String get deskKitMethodNotReceiving => 'Kein Empfang';
 
   @override

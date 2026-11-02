@@ -17,6 +17,7 @@ import '../../data/tor_view.dart';
 import '../../app/tour.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/http_addresses.dart';
+import '../../widgets/http_reach.dart' show deskLastHttpReachProvider;
 import '../../data/pairing_state.dart' show deskInvoicesShownProvider, deskPairsProvider;
 import '../../widgets/kit.dart';
 import '../../widgets/pay_steps.dart' show DeskPaymentSteps;
@@ -61,7 +62,6 @@ class ReceiveScreen extends ConsumerStatefulWidget {
 class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
   ReceiveArgs? _args;
   String? _http;
-  bool _httpSeen = false;
   String? _tor;
   final Set<TxMethod> _busy = {};
   final Map<TxMethod, GlobalKey> _panels = {for (final m in TxMethod.values) m: GlobalKey()};
@@ -191,6 +191,9 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     TxMethod.file => false,
   };
 
+  /// The reach check said the internet does not reach Link · HTTP's port.
+  bool get _reachClosed => ref.watch(deskLastHttpReachProvider)?.reachable == false;
+
   void _jump(TxMethod m) {
     final at = _panels[m]?.currentContext;
     if (at != null) Scrollable.ensureVisible(at, duration: MediaQuery.disableAnimationsOf(context) ? Duration.zero : Dur.base, alignmentPolicy: ScrollPositionAlignmentPolicy.explicit);
@@ -216,14 +219,12 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       child: st.settings.payments.epicbox ? (shallow ? _shallowPanel(st, status, moved) : _epicboxPanel(st, status)) : _epicboxOffNotice(nav),
     );
     // Settings › Payments: Link · Tor's panel while its switch is on: it starts tor for payments
-    // by itself (item 2), or the Tor switch runs it; Link · HTTP's while its switch is on and
-    // the Tor switch is not (it stops the clearnet listener), or while its listener still runs.
+    // by itself (item 2), or the Tor switch runs it; Link · HTTP's while the Tor switch is off
+    // (it stops the clearnet listener), or while its listener still runs. Off, Link · HTTP's
+    // panel is one line with its switch, so it is turned on again here.
     final p = st.settings.payments;
     final torPanel = feat.linkPayments && DeskFeatures.tor && p.linkTor && (st.settings.tor || torPayWantedIn(st.settings));
-    final httpPanel = feat.linkPayments && ((p.linkHttp && !st.settings.tor) || status?.httpListener == ServiceHealth.ok || (_httpSeen && !st.settings.tor));
-    // Its local switch turns Link · HTTP off: the panel stays while this page is open, so the
-    // switch can turn it on again.
-    if (httpPanel) _httpSeen = true;
+    final httpPanel = feat.linkPayments && (!st.settings.tor || status?.httpListener == ServiceHealth.ok);
     final others = [
       if (torPanel) _torPanel(st, status),
       if (httpPanel) _httpPanel(st, status),
@@ -255,7 +256,9 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       width: EPageWidth.full,
       actions: [if (!shallow) _indicator(st, status)],
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: 1180.u),
+        // Wide enough at large windows for the QR beside the Epicbox address and room for
+        // Other ways (UI-063).
+        constraints: BoxConstraints(maxWidth: 1600.u),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -374,7 +377,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
             ? null
             : offline
             ? MethodLine(statusOffByModeWord(l, deskNetMode(st)), EState.off)
-            : methodStateLine(l, m, status, st.settings),
+            : methodStateLine(l, m, status, st.settings, reachClosed: _reachClosed),
     };
     // The line's own word (state_language.dart), spoken: "connected", "receiving", "off".
     String word(TxMethod m) => lines[m]?.word.toLowerCase() ?? l.deskRecvStateChecking;
@@ -674,7 +677,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
     final ts = context.ts;
     final l = context.l10n;
     final on = _switchOn(m, status, st.settings);
-    final line = status == null ? null : methodStateLine(context.l10n, m, status, st.settings);
+    final line = status == null ? null : methodStateLine(context.l10n, m, status, st.settings, reachClosed: _reachClosed);
     final ok = status?.httpListener == ServiceHealth.ok;
     final failed = status?.httpListener == ServiceHealth.down;
     final addr = on && _http != null && _http!.isNotEmpty ? _http : null;
@@ -685,9 +688,10 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       state: line?.state ?? EState.off,
       switchOn: on,
       busy: _busy.contains(m) || status == null,
-      // The switches are the two addresses' (HttpAddresses): this computer and the internet.
-      onSwitch: null,
-      showSwitch: false,
+      // On, the switches are the two addresses' (HttpAddresses): this computer and the
+      // internet. Off, the panel's own switch turns it on again.
+      onSwitch: status == null ? null : (v) => unawaited(_toggle(m, v)),
+      showSwitch: !on,
       grown: on,
       small: line == null ? const SizedBox.shrink() : EStateLine(line, key: const ValueKey('rx-state-http')),
       body: Column(
@@ -705,7 +709,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
               addressOpacity: ok ? 1 : 0.6,
               tag: failed ? l.deskRecvTagNotReachable : (ok ? null : l.deskRecvTagStarting),
               method: 'http',
-              initiallyShown: _args?.qr == RxQr.http && address == addr,
+              initiallyShown: _args?.qr == RxQr.http,
             ),
           ),
           SizedBox(height: Sp.x4),

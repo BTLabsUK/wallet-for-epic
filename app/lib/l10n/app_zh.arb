@@ -3197,6 +3197,7 @@
   "deskKitMethodStarting": "正在启动…",
   "deskKitMethodHttpInternet": "可从互联网访问，端口 {port}",
   "deskKitMethodHttpLocal": "仅限本机（127.0.0.1）",
+  "deskKitMethodHttpNotReachable": "仅在本机，无法从互联网访问：请转发端口 {port}",
   "deskKitMethodNotReceiving": "无法接收",
   "deskKitMethodPortInUse": "端口 {port} 被其他程序占用。请关闭该程序，或在下方更改端口。",
   "deskKitMethodNotInBuild": "此版本不含 Tor",

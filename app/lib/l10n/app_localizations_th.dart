@@ -9796,6 +9796,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskKitMethodHttpLocal => 'คอมพิวเตอร์นี้เท่านั้น (127.0.0.1)';
 
   @override
+  String deskKitMethodHttpNotReachable(String port) {
+    return 'บนคอมพิวเตอร์นี้ ไม่ใช่จากอินเทอร์เน็ต: Forward พอร์ต $port';
+  }
+
+  @override
   String get deskKitMethodNotReceiving => 'ไม่ได้รับเงิน';
 
   @override
