@@ -534,8 +534,8 @@ class LevelPreview extends StatelessWidget {
   }
 }
 
-/// Tor only as a quiet row: the agent, the name (and at first start its line), the switch,
-/// and its ⓘ.
+/// Tor only as a quiet row: the name, the switch, and its ⓘ; Change level's ([later]) with the
+/// agent and a full-size switch.
 class UndercoverRow extends StatelessWidget {
   const UndercoverRow({super.key, required this.value, required this.onChanged, this.later = false});
 
@@ -569,27 +569,31 @@ class UndercoverRow extends StatelessWidget {
                     child: Row(
                       children: [
                         const SizedBox(width: 2),
-                        LevelArt(LevelArtKind.agent, size: 22, color: value ? t.accentText : t.faint),
-                        const SizedBox(width: 10),
+                        // First start: one quiet line, "Tor only" and its ⓘ, a small switch
+                        // (the owner). Change level keeps the agent and the full-size switch.
+                        if (later) ...[
+                          LevelArt(LevelArtKind.agent, size: 22, color: value ? t.accentText : t.faint),
+                          const SizedBox(width: 10),
+                        ],
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                later ? l.lvPickUndercover : l.levelUndercoverTitle,
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.text),
-                              ),
-                              // First start: what Tor only does, in one line (the owner).
-                              if (!later)
-                                Text(
-                                  l.levelUndercoverLine,
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
-                                ),
-                            ],
+                          child: Text(
+                            later ? l.lvPickUndercover : l.levelUndercoverTitle,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.text),
                           ),
                         ),
-                        Switch(value: value, onChanged: onChanged),
+                        if (later)
+                          Switch(value: value, onChanged: onChanged)
+                        else
+                          SizedBox(
+                            height: 24,
+                            child: FittedBox(
+                              child: Switch(
+                                value: value,
+                                onChanged: onChanged,
+                                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),

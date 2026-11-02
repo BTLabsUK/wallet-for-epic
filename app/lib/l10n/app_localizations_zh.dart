@@ -1161,7 +1161,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeNoticePaymentFailed => '有一笔付款失败。';
 
   @override
-  String get homeBackupCardText => '请备份你的助记词。';
+  String get homeBackupCardText => '助记词未备份';
 
   @override
   String get homeBackupCardButton => '备份';
@@ -17014,9 +17014,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get levelUndercoverTitle => '仅 Tor';
 
   @override
-  String get levelUndercoverLine => '所有连接都经过 Tor。';
-
-  @override
   String get levelFooter => '随时可在 设置 › 高级 中更改。';
 
   @override
@@ -19060,78 +19057,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendOpenSlateText => '打开';
 
   @override
-  String sendCleanedUp(String what) {
-    return '已整理：$what。';
-  }
-
-  @override
-  String get sendCleanUndo => '撤销';
-
-  @override
-  String get sendCleanUndoSem => '撤销整理';
-
-  @override
   String get sendSendsTo => '发送到';
-
-  @override
-  String get sendCleanTextAround => '去掉地址前后的文字';
-
-  @override
-  String get sendCleanJoined => '删除空格和换行';
-
-  @override
-  String get sendCleanSpaces => '去掉空格';
-
-  @override
-  String get sendCleanQuotes => '删除引号和括号';
-
-  @override
-  String get sendCleanOnionForm => '按标准格式显示';
-
-  @override
-  String get sendCleanEpicboxScheme => '去掉 epicbox://';
-
-  @override
-  String sendCleanDefaultRelay(String host) {
-    return '未指定服务器：使用默认的 $host';
-  }
-
-  @override
-  String get sendCleanRelayLower => '服务器名改为小写';
-
-  @override
-  String get sendCleanHttpsAdded => '未写协议：添加 https://';
-
-  @override
-  String get sendCleanHttpAdded => '未写协议：添加 http://';
-
-  @override
-  String sendCleanDefaultPort(String port) {
-    return '端口 $port，监听程序的默认端口';
-  }
-
-  @override
-  String get sendCleanBrackets => 'IPv6 地址加上方括号';
-
-  @override
-  String get sendCleanSchemeLower => '协议改为小写';
-
-  @override
-  String get sendCleanHostLower => '主机名改为小写';
-
-  @override
-  String sendCleanIdn(String name) {
-    return '$name 改写为实际连接时的形式';
-  }
-
-  @override
-  String get sendCleanForeignPath => '去掉 /v2/foreign：钱包会自动添加';
-
-  @override
-  String get sendCleanTrailingSlash => '去掉末尾的 /';
-
-  @override
-  String get sendCleanQuery => '去掉 ?… 和 #…';
 
   @override
   String get sendProblemNotAddress => '这不是地址，也没有叫这个名字的联系人。';

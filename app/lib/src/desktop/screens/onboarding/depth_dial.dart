@@ -377,8 +377,8 @@ class DeskLevelCaption extends StatelessWidget {
   }
 }
 
-/// Tor only: a quiet row with the agent, the name (and at first start its line), the switch
-/// and its ⓘ. [later] is the Change level wording.
+/// Tor only: a quiet row with the switch, the name and its ⓘ (small, one line, at first start);
+/// [later] is the Change level wording, with the agent.
 class DeskUndercoverRow extends StatelessWidget {
   const DeskUndercoverRow({super.key, required this.value, required this.onChanged, this.later = false});
 
@@ -398,25 +398,24 @@ class DeskUndercoverRow extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ESwitch(key: deskUndercoverKey, value: value, onChanged: onChanged, semanticLabel: title),
+            // First start: a small switch, "Tor only" and its ⓘ, one line (the owner).
+            if (later)
+              ESwitch(key: deskUndercoverKey, value: value, onChanged: onChanged, semanticLabel: title)
+            else
+              SizedBox(
+                height: 18.u,
+                child: FittedBox(child: ESwitch(key: deskUndercoverKey, value: value, onChanged: onChanged, semanticLabel: title)),
+              ),
             SizedBox(width: Sp.x3),
-            LevelArt(LevelArtKind.agent, size: 22.u, color: value ? c.accentText : c.faint),
-            SizedBox(width: Sp.x2),
+            if (later) ...[
+              LevelArt(LevelArtKind.agent, size: 22.u, color: value ? c.accentText : c.faint),
+              SizedBox(width: Sp.x2),
+            ],
             Flexible(
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: onChanged == null ? null : () => onChanged!(!value),
-                child: ExcludeSemantics(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(title, style: context.ts.body),
-                      // First start: what Tor only does, in one line (the owner).
-                      if (!later) Text(l.levelUndercoverLine, style: context.ts.small),
-                    ],
-                  ),
-                ),
+                child: ExcludeSemantics(child: Text(title, style: later ? context.ts.body : context.ts.small)),
               ),
             ),
             SizedBox(width: Sp.x1),

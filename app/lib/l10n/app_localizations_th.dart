@@ -1207,7 +1207,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get homeNoticePaymentFailed => 'รายการหนึ่งไม่สำเร็จ';
 
   @override
-  String get homeBackupCardText => 'สำรองวลีกู้คืน';
+  String get homeBackupCardText => 'ยังไม่ได้สำรองวลี';
 
   @override
   String get homeBackupCardButton => 'สำรอง';
@@ -17645,9 +17645,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get levelUndercoverTitle => 'Tor เท่านั้น';
 
   @override
-  String get levelUndercoverLine => 'ทุกการเชื่อมต่อผ่าน Tor';
-
-  @override
   String get levelFooter => 'เปลี่ยนได้ทุกเมื่อที่ การตั้งค่า › ขั้นสูง';
 
   @override
@@ -19800,79 +19797,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendOpenSlateText => 'เปิด';
 
   @override
-  String sendCleanedUp(String what) {
-    return 'จัดรูปแบบแล้ว: $what';
-  }
-
-  @override
-  String get sendCleanUndo => 'เลิกทำ';
-
-  @override
-  String get sendCleanUndoSem => 'เลิกทำการจัดรูปแบบ';
-
-  @override
   String get sendSendsTo => 'ส่งไปที่';
-
-  @override
-  String get sendCleanTextAround => 'ตัดข้อความรอบที่อยู่ออก';
-
-  @override
-  String get sendCleanJoined => 'ลบช่องว่างและการขึ้นบรรทัดใหม่';
-
-  @override
-  String get sendCleanSpaces => 'ตัดช่องว่างออก';
-
-  @override
-  String get sendCleanQuotes => 'ลบเครื่องหมายคำพูดและวงเล็บ';
-
-  @override
-  String get sendCleanOnionForm => 'แสดงในรูปแบบมาตรฐาน';
-
-  @override
-  String get sendCleanEpicboxScheme => 'ตัด epicbox:// ออก';
-
-  @override
-  String sendCleanDefaultRelay(String host) {
-    return 'ไม่ได้ระบุเซิร์ฟเวอร์: ใช้ $host ซึ่งเป็นค่าเริ่มต้น';
-  }
-
-  @override
-  String get sendCleanRelayLower => 'ชื่อเซิร์ฟเวอร์เป็นตัวพิมพ์เล็ก';
-
-  @override
-  String get sendCleanHttpsAdded => 'ไม่ได้ระบุโปรโตคอล: เพิ่ม https://';
-
-  @override
-  String get sendCleanHttpAdded => 'ไม่ได้ระบุโปรโตคอล: เพิ่ม http://';
-
-  @override
-  String sendCleanDefaultPort(String port) {
-    return 'พอร์ต $port ค่าเริ่มต้นของตัวรับฟัง';
-  }
-
-  @override
-  String get sendCleanBrackets => 'ใส่วงเล็บเหลี่ยมให้ที่อยู่ IPv6';
-
-  @override
-  String get sendCleanSchemeLower => 'โปรโตคอลเป็นตัวพิมพ์เล็ก';
-
-  @override
-  String get sendCleanHostLower => 'โฮสต์เป็นตัวพิมพ์เล็ก';
-
-  @override
-  String sendCleanIdn(String name) {
-    return 'เขียน $name ในรูปแบบที่ใช้เชื่อมต่อ';
-  }
-
-  @override
-  String get sendCleanForeignPath =>
-      'ตัด /v2/foreign ออก: กระเป๋าเงินเพิ่มให้เอง';
-
-  @override
-  String get sendCleanTrailingSlash => 'ตัด / ท้ายสุดออก';
-
-  @override
-  String get sendCleanQuery => 'ตัด ?… และ #… ออก';
 
   @override
   String get sendProblemNotAddress =>

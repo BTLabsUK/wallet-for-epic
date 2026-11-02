@@ -2029,10 +2029,10 @@ abstract class AppLocalizations {
   /// **'A payment failed.'**
   String get homeNoticePaymentFailed;
 
-  /// Card on home until the user writes down the recovery phrase (the 12 or 24 words).
+  /// Home's reminder toast while the recovery phrase (the 12 or 24 words) is not written down; one short line, Back up beside it.
   ///
   /// In en, this message translates to:
-  /// **'Back up your recovery phrase.'**
+  /// **'Phrase not backed up'**
   String get homeBackupCardText;
 
   /// Button on the recovery phrase card. Short: it shares a row with the card's text.
@@ -28122,12 +28122,6 @@ abstract class AppLocalizations {
   /// **'Tor only'**
   String get levelUndercoverTitle;
 
-  /// Line under the Tor only switch on the first onboarding screen.
-  ///
-  /// In en, this message translates to:
-  /// **'Every connection goes through Tor.'**
-  String get levelUndercoverLine;
-
   /// In the ⓘ sheet of Change view: where to change the view later.
   ///
   /// In en, this message translates to:
@@ -31704,137 +31698,11 @@ abstract class AppLocalizations {
   /// **'Open it'**
   String get sendOpenSlateText;
 
-  /// Send: line under the To field after the address was cleaned up; {what} lists the changes, joined by ' · '.
-  ///
-  /// In en, this message translates to:
-  /// **'Cleaned up: {what}.'**
-  String sendCleanedUp(String what);
-
-  /// Send: button that puts back the text as it was pasted or typed.
-  ///
-  /// In en, this message translates to:
-  /// **'Undo'**
-  String get sendCleanUndo;
-
-  /// Send: screen reader label of Undo.
-  ///
-  /// In en, this message translates to:
-  /// **'Undo the clean-up'**
-  String get sendCleanUndoSem;
-
   /// Send: before the clean form of a typed address, while it is typed.
   ///
   /// In en, this message translates to:
   /// **'Sends to'**
   String get sendSendsTo;
-
-  /// Send: one clean-up change, in the 'Cleaned up' line (lower case, no full stop).
-  ///
-  /// In en, this message translates to:
-  /// **'text around the address left out'**
-  String get sendCleanTextAround;
-
-  /// Send: one clean-up change.
-  ///
-  /// In en, this message translates to:
-  /// **'spaces and line breaks removed'**
-  String get sendCleanJoined;
-
-  /// Send: one clean-up change.
-  ///
-  /// In en, this message translates to:
-  /// **'spaces left out'**
-  String get sendCleanSpaces;
-
-  /// Send: one clean-up change.
-  ///
-  /// In en, this message translates to:
-  /// **'quotes and brackets removed'**
-  String get sendCleanQuotes;
-
-  /// Send: one clean-up change (a Tor address).
-  ///
-  /// In en, this message translates to:
-  /// **'shown in its standard form'**
-  String get sendCleanOnionForm;
-
-  /// Send: one clean-up change.
-  ///
-  /// In en, this message translates to:
-  /// **'epicbox:// left out'**
-  String get sendCleanEpicboxScheme;
-
-  /// Send: one clean-up change; {host} is the Epicbox server in use.
-  ///
-  /// In en, this message translates to:
-  /// **'no server given: {host}, the default'**
-  String sendCleanDefaultRelay(String host);
-
-  /// Send: one clean-up change.
-  ///
-  /// In en, this message translates to:
-  /// **'server in lower case'**
-  String get sendCleanRelayLower;
-
-  /// Send: one clean-up change.
-  ///
-  /// In en, this message translates to:
-  /// **'no scheme: https:// added'**
-  String get sendCleanHttpsAdded;
-
-  /// Send: one clean-up change.
-  ///
-  /// In en, this message translates to:
-  /// **'no scheme: http:// added'**
-  String get sendCleanHttpAdded;
-
-  /// Send: one clean-up change.
-  ///
-  /// In en, this message translates to:
-  /// **'port {port}, the listener’s default'**
-  String sendCleanDefaultPort(String port);
-
-  /// Send: one clean-up change.
-  ///
-  /// In en, this message translates to:
-  /// **'IPv6 address put in brackets'**
-  String get sendCleanBrackets;
-
-  /// Send: one clean-up change.
-  ///
-  /// In en, this message translates to:
-  /// **'scheme in lower case'**
-  String get sendCleanSchemeLower;
-
-  /// Send: one clean-up change.
-  ///
-  /// In en, this message translates to:
-  /// **'host in lower case'**
-  String get sendCleanHostLower;
-
-  /// Send: one clean-up change; {name} is the international host name as typed, which is sent in its ASCII (xn--) form.
-  ///
-  /// In en, this message translates to:
-  /// **'{name} written as it is contacted'**
-  String sendCleanIdn(String name);
-
-  /// Send: one clean-up change.
-  ///
-  /// In en, this message translates to:
-  /// **'/v2/foreign left out: the wallet adds it'**
-  String get sendCleanForeignPath;
-
-  /// Send: one clean-up change.
-  ///
-  /// In en, this message translates to:
-  /// **'trailing / left out'**
-  String get sendCleanTrailingSlash;
-
-  /// Send: one clean-up change.
-  ///
-  /// In en, this message translates to:
-  /// **'?… and #… left out'**
-  String get sendCleanQuery;
 
   /// Send: To field error, shown once the field loses focus.
   ///

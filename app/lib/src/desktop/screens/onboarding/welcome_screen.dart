@@ -152,14 +152,14 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                     ? IntrinsicHeight(
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [Expanded(child: create), SizedBox(width: Sp.x3), Expanded(child: import), SizedBox(width: Sp.x3), Expanded(child: restore)],
+                          children: [Expanded(child: create), SizedBox(width: Sp.x4), Expanded(child: import), SizedBox(width: Sp.x4), Expanded(child: restore)],
                         ),
                       )
-                    : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [create, SizedBox(height: Sp.x3), import, SizedBox(height: Sp.x3), restore]),
+                    : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [create, SizedBox(height: Sp.x4), import, SizedBox(height: Sp.x4), restore]),
               ),
               // Niche, so under the doors and quiet (the owner).
               if (offered) ...[
-                SizedBox(height: Sp.x5),
+                SizedBox(height: Sp.x6),
                 Center(
                   child: ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: 480.u),

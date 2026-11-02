@@ -193,7 +193,7 @@ void main() {
     await _enter(tester, 'Repeat PIN', '123456');
 
     await _pumpUntil(tester, find.byKey(balanceFigureKey));
-    expect(find.text('Back up your recovery phrase.'), findsOneWidget);
+    expect(find.text('Phrase not backed up'), findsOneWidget);
 
     final container = ProviderScope.containerOf(
       tester.element(find.byType(HomeScreen)),

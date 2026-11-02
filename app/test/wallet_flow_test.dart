@@ -293,7 +293,7 @@ void main() {
         service.createGate!.complete();
         await tester.pumpAndSettle();
         expect(find.byKey(balanceFigureKey), findsOneWidget);
-        expect(find.text('Back up your recovery phrase.'), findsOneWidget);
+        expect(find.text('Phrase not backed up'), findsOneWidget);
 
         expect(service.createdConfig?.chain, Chain.mainnet);
         expect(service.createdConfig?.dataDir, _mainnetDir);
@@ -398,7 +398,7 @@ void main() {
       await _tapText(tester, 'Not now');
       expect(find.byKey(balanceFigureKey), findsOneWidget);
       // The old wallet's backed-up flag does not carry over to the new one.
-      expect(find.text('Back up your recovery phrase.'), findsOneWidget);
+      expect(find.text('Phrase not backed up'), findsOneWidget);
       for (final e in old.entries) {
         expect(device.store.values[e.key], e.value);
       }
@@ -459,7 +459,7 @@ void main() {
       expect(service.createdPin, _pin);
       expect(service.session.scanCalls, 1);
       expect(find.byKey(balanceFigureKey), findsOneWidget);
-      expect(find.text('Back up your recovery phrase.'), findsNothing);
+      expect(find.text('Phrase not backed up'), findsNothing);
       expect(
         device.store.values['wallet.mainnet.pinSealed'],
         fakeSealedPassword(_pin),
@@ -818,7 +818,7 @@ void main() {
         await _tapText(tester, 'Done');
 
         expect(find.text('Recovery phrase backed up'), findsOneWidget);
-        expect(find.text('Back up your recovery phrase.'), findsNothing);
+        expect(find.text('Phrase not backed up'), findsNothing);
         expect(device.store.values['wallet.mainnet.backedUp'], '1');
       },
     );

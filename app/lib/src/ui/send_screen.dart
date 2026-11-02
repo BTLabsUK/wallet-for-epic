@@ -404,10 +404,6 @@ class _SendViewState extends ConsumerState<SendView> {
   /// The To text at the last change, to tell a paste (8 or more characters at once).
   String _lastTo = '';
 
-  /// The text as pasted or typed before the clean-up put its clean form in To, for the
-  /// "Cleaned up" line and its Undo; null when To holds what was given.
-  String? _cleanedFrom;
-
   /// The field was left, pasted into or submitted: its errors show and a Link address is
   /// asked once whether a wallet answers. Typing clears it.
   bool _touched = false;
@@ -663,8 +659,8 @@ class _SendViewState extends ConsumerState<SendView> {
     return mine.key == to.key && mine.host == to.host;
   }
 
-  /// The field was left: errors show now, and an address in another form takes its clean one,
-  /// with the "Cleaned up" line and Undo.
+  /// The field was left: errors show now. The field keeps what was given; the method line shows
+  /// the address as it will be contacted.
   void _recipientFocusChanged() {
     if (_recipientFocus.hasFocus || _stage != SendStage.recipient) return;
     if (_contact != null || _recipient.text.trim().isEmpty) return;
@@ -674,30 +670,9 @@ class _SendViewState extends ConsumerState<SendView> {
     });
   }
 
-  /// To takes the clean form of its address, remembering what was there for Undo. Call
-  /// inside setState.
-  void _settleRecipient() {
-    _touched = true;
-    final text = _recipient.text;
-    final read = _readOf(text);
-    if (!read.isAddress || read.address == text) return;
-    _cleanedFrom ??= text;
-    _recipient.text = read.address;
-    _lastTo = read.address;
-  }
-
-  /// Undo on the "Cleaned up" line: To holds what was given again.
-  void _undoClean() {
-    final before = _cleanedFrom;
-    if (before == null) return;
-    setState(() {
-      _recipient.text = before;
-      _lastTo = before;
-      _cleanedFrom = null;
-      _touched = false;
-      _recipientError = null;
-    });
-  }
+  /// To is settled: the reach check may ask. The text stays as given (the parser reads its
+  /// clean form). Call inside setState.
+  void _settleRecipient() => _touched = true;
 
   Future<void> _paste() async {
     final data = await Clipboard.getData(Clipboard.kTextPlain);
@@ -706,8 +681,8 @@ class _SendViewState extends ConsumerState<SendView> {
     _openText(text, CodeOrigin.paste);
   }
 
-  /// A scanned or pasted text: a payment code fills the form, an address the To field (in its
-  /// clean form, with the "Cleaned up" line), and anything the router knows elsewhere goes
+  /// A scanned or pasted text: a payment code fills the form, an address the To field (as
+  /// given), and anything the router knows elsewhere goes
   /// there. A transaction text lands in the field with its "Open it" notice unless [open] (that
   /// button). Plain text that is none of these (a name, half an address) lands in the To field,
   /// where its own check speaks. [typedOver] is the To text before the code was typed or pasted
@@ -973,7 +948,6 @@ class _SendViewState extends ConsumerState<SendView> {
       _leaveRequest();
       _pairingTo = id;
       _contact = null;
-      _cleanedFrom = null;
       _touched = false;
       _viaMailbox = false;
       _viaQr = false;
@@ -997,7 +971,6 @@ class _SendViewState extends ConsumerState<SendView> {
       _leaveRequest();
       _pairingTo = null;
       _contact = null;
-      _cleanedFrom = null;
       _touched = false;
       _viaMailbox = false;
       _recipientError = null;
@@ -1008,9 +981,9 @@ class _SendViewState extends ConsumerState<SendView> {
     });
   }
 
-  /// Fills the recipient and checks it at once, as after a paste: an address takes its clean
-  /// form; when [given] (the text as pasted or scanned) differs from it, the "Cleaned up" line
-  /// shows with Undo. [contact] puts its chip in To.
+  /// Fills the recipient and checks it at once, as after a paste. An address stays as given
+  /// ([given], the text as pasted or scanned); the method line shows its clean form. [contact]
+  /// puts its chip in To.
   void _setRecipient(String text, {CodeOrigin? origin, String? given, Contact? contact}) {
     if (_holdsPayment) {
       // Not over a payment in progress, or one a refused send holds: the next form takes
@@ -1023,10 +996,11 @@ class _SendViewState extends ConsumerState<SendView> {
     }
     final read = _readOf(text);
     final clean = read.isAddress ? read.address : (read.kind == RecipientInputKind.slate ? text : text.trim());
-    final before = given ?? text;
+    // The field keeps what was given; a contact's address is its own.
+    final shown = contact != null || read.kind == RecipientInputKind.slate ? clean : (given ?? text).trim();
     _pairingTo = null;
-    _recipient.text = clean;
-    _lastTo = clean;
+    _recipient.text = shown;
+    _lastTo = shown;
     if (_stage == SendStage.amount || _stage == SendStage.review) {
       _closeChecks();
       _stage = SendStage.recipient;
@@ -1035,11 +1009,9 @@ class _SendViewState extends ConsumerState<SendView> {
       _leaveRequest();
       if (origin != null) {
         _origin = origin;
-        _requestAddress = _recipient.text;
+        _requestAddress = clean;
       }
       _contact = contact;
-      // A contact's address is its own; a pasted one that changed says how.
-      _cleanedFrom = contact == null && read.isAddress && _readOf(before).address == read.address && before.trim() != clean ? before : null;
       _touched = true;
       _recipientError = _recipientProblem(_recipient.text);
       _error = null;
@@ -1053,8 +1025,7 @@ class _SendViewState extends ConsumerState<SendView> {
   );
 
   /// On to the amount; [focus] puts the cursor there (not for a code, whose amount is read
-  /// first, with the keyboard down). The clean form replaces what was typed first; a hold of
-  /// the mode keeps the step.
+  /// first, with the keyboard down). A hold of the mode keeps the step.
   void _toAmount({bool focus = true}) {
     if (_contact == null && _pairingTo == null) setState(_settleRecipient);
     final problem = _recipientProblem(_recipient.text, required: true);
@@ -2184,7 +2155,7 @@ class _SendViewState extends ConsumerState<SendView> {
   /// recipient not paired, or Seal payments off.
   PairingRecord? _fileSealTarget({bool watch = true}) {
     if (_viaQr) return null;
-    final r = _pairingTo != null ? _toPairing(watch: watch) : sendPairingFor(ref, _recipient.text.trim(), watch: watch);
+    final r = _pairingTo != null ? _toPairing(watch: watch) : sendPairingFor(ref, _read.isAddress ? _read.address : _recipient.text.trim(), watch: watch);
     return r != null && r.seals ? r : null;
   }
 
@@ -2528,10 +2499,10 @@ class _SendViewState extends ConsumerState<SendView> {
 
   // The reach check.
 
-  /// The Link address the reach check asks about now: complete and clean in To (pasted, left,
-  /// or a contact's), not held, in a mode that lets it ask. Null otherwise.
+  /// The Link address the reach check asks about now: complete in To (pasted, left, or a
+  /// contact's), not held, in a mode that lets it ask. Null otherwise.
   RecipientInput? _reachTarget(RecipientInput read, SendHold? hold) {
-    if (!read.isLink || hold != null || _recipient.text != read.address) return null;
+    if (!read.isLink || hold != null) return null;
     if (!_touched && _contact == null) return null;
     if (!reachCheckApplies(read, mode: AdvancedOptions.of(context).networkMode)) return null;
     if (_recipientProblem(read.address) != null) return null;
@@ -2635,11 +2606,8 @@ class _SendViewState extends ConsumerState<SendView> {
     // Level 1 does not name Epicbox: no method line for it, unless Change is needed.
     final several = contact != null && contact.addresses.length > 1;
     final routeShown = read.isAddress && (epicboxNamed || read.kind != RecipientInputKind.epicbox || several);
-    final cleaned = _cleanedFrom == null || !read.isAddress || _recipient.text != read.address
-        ? null
-        // The notes are the given text's: what the clean-up changed in it.
-        : sendCleanedLine(l, _readOf(_cleanedFrom!), before: _cleanedFrom!);
-    final preview = contact == null && cleaned == null && read.isAddress && read.address != text;
+    // Without a method line (level 1's Epicbox), the address as it will be contacted.
+    final preview = contact == null && !routeShown && read.isAddress && read.address != text;
     final saveable = valid && contact == null && _contactName(read.address) == null;
     const indent = EdgeInsetsDirectional.only(start: 42);
     return [
@@ -2701,33 +2669,7 @@ class _SendViewState extends ConsumerState<SendView> {
         ),
       ],
       if (routeShown) _routeLine(context, read, contact: contact, hold: hold),
-      if (cleaned != null)
-        Padding(
-          padding: indent,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Semantics(
-                    liveRegion: true,
-                    child: Text(cleaned, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
-                  ),
-                ),
-              ),
-              InlineTextButton(
-                onPressed: _undoClean,
-                child: Semantics(
-                  label: l.sendCleanUndoSem,
-                  excludeSemantics: true,
-                  child: Text(l.sendCleanUndo),
-                ),
-              ),
-            ],
-          ),
-        )
-      else if (preview)
+      if (preview)
         Padding(
           padding: indent.add(const EdgeInsets.only(top: 4)),
           child: Text.rich(
@@ -2877,7 +2819,6 @@ class _SendViewState extends ConsumerState<SendView> {
     setState(() {
       _lastTo = text;
       _touched = false;
-      _cleanedFrom = null;
       _recipientError = null;
       _error = null;
       _leaveRequest();

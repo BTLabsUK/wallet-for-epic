@@ -46,36 +46,6 @@ String? sendRouteTag(AppLocalizations l, RecipientInput to, {required bool phone
   return null;
 }
 
-/// One clean-up change, in lower case, for the "Cleaned up: …" line.
-String sendCleanNote(AppLocalizations l, RecipientNote n, RecipientInput to) => switch (n) {
-  RecipientNote.textAround => l.sendCleanTextAround,
-  RecipientNote.joined => l.sendCleanJoined,
-  RecipientNote.spaces => l.sendCleanSpaces,
-  RecipientNote.quotes => l.sendCleanQuotes,
-  RecipientNote.onionForm => l.sendCleanOnionForm,
-  RecipientNote.epicboxScheme => l.sendCleanEpicboxScheme,
-  RecipientNote.defaultRelay => l.sendCleanDefaultRelay(to.host),
-  RecipientNote.relayLower => l.sendCleanRelayLower,
-  RecipientNote.httpsAdded => l.sendCleanHttpsAdded,
-  RecipientNote.httpAdded => l.sendCleanHttpAdded,
-  RecipientNote.defaultPort => l.sendCleanDefaultPort('${to.port}'),
-  RecipientNote.brackets => l.sendCleanBrackets,
-  RecipientNote.schemeLower => l.sendCleanSchemeLower,
-  RecipientNote.hostLower => l.sendCleanHostLower,
-  RecipientNote.idn => l.sendCleanIdn(to.unicodeHost ?? to.host),
-  RecipientNote.foreignPath => l.sendCleanForeignPath,
-  RecipientNote.trailingSlash => l.sendCleanTrailingSlash,
-  RecipientNote.queryLeftOut => l.sendCleanQuery,
-};
-
-/// "Cleaned up: a · b · c." for [to]'s notes; null when nothing changed. A clean form that
-/// differs only by spaces says so.
-String? sendCleanedLine(AppLocalizations l, RecipientInput to, {required String before}) {
-  if (!to.isAddress || to.address == before) return null;
-  final notes = to.notes.isEmpty ? [RecipientNote.spaces] : to.notes;
-  return l.sendCleanedUp(notes.map((n) => sendCleanNote(l, n, to)).join(' · '));
-}
-
 /// The field's error for [p].
 String sendProblemText(AppLocalizations l, RecipientProblem p) => switch (p) {
   RecipientProblem.notAddress => l.sendProblemNotAddress,

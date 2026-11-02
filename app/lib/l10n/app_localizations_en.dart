@@ -1220,7 +1220,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeNoticePaymentFailed => 'A payment failed.';
 
   @override
-  String get homeBackupCardText => 'Back up your recovery phrase.';
+  String get homeBackupCardText => 'Phrase not backed up';
 
   @override
   String get homeBackupCardButton => 'Back up';
@@ -18059,9 +18059,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get levelUndercoverTitle => 'Tor only';
 
   @override
-  String get levelUndercoverLine => 'Every connection goes through Tor.';
-
-  @override
   String get levelFooter => 'Change it any time in Settings › Advanced.';
 
   @override
@@ -20222,78 +20219,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sendOpenSlateText => 'Open it';
 
   @override
-  String sendCleanedUp(String what) {
-    return 'Cleaned up: $what.';
-  }
-
-  @override
-  String get sendCleanUndo => 'Undo';
-
-  @override
-  String get sendCleanUndoSem => 'Undo the clean-up';
-
-  @override
   String get sendSendsTo => 'Sends to';
-
-  @override
-  String get sendCleanTextAround => 'text around the address left out';
-
-  @override
-  String get sendCleanJoined => 'spaces and line breaks removed';
-
-  @override
-  String get sendCleanSpaces => 'spaces left out';
-
-  @override
-  String get sendCleanQuotes => 'quotes and brackets removed';
-
-  @override
-  String get sendCleanOnionForm => 'shown in its standard form';
-
-  @override
-  String get sendCleanEpicboxScheme => 'epicbox:// left out';
-
-  @override
-  String sendCleanDefaultRelay(String host) {
-    return 'no server given: $host, the default';
-  }
-
-  @override
-  String get sendCleanRelayLower => 'server in lower case';
-
-  @override
-  String get sendCleanHttpsAdded => 'no scheme: https:// added';
-
-  @override
-  String get sendCleanHttpAdded => 'no scheme: http:// added';
-
-  @override
-  String sendCleanDefaultPort(String port) {
-    return 'port $port, the listener’s default';
-  }
-
-  @override
-  String get sendCleanBrackets => 'IPv6 address put in brackets';
-
-  @override
-  String get sendCleanSchemeLower => 'scheme in lower case';
-
-  @override
-  String get sendCleanHostLower => 'host in lower case';
-
-  @override
-  String sendCleanIdn(String name) {
-    return '$name written as it is contacted';
-  }
-
-  @override
-  String get sendCleanForeignPath => '/v2/foreign left out: the wallet adds it';
-
-  @override
-  String get sendCleanTrailingSlash => 'trailing / left out';
-
-  @override
-  String get sendCleanQuery => '?… and #… left out';
 
   @override
   String get sendProblemNotAddress =>

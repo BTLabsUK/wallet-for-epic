@@ -1233,7 +1233,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get homeNoticePaymentFailed => 'Eine Zahlung ist fehlgeschlagen.';
 
   @override
-  String get homeBackupCardText => 'Sichern Sie Ihre Wiederherstellungsphrase.';
+  String get homeBackupCardText => 'Phrase nicht gesichert';
 
   @override
   String get homeBackupCardButton => 'Sichern';
@@ -18273,9 +18273,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get levelUndercoverTitle => 'Nur Tor';
 
   @override
-  String get levelUndercoverLine => 'Jede Verbindung läuft über Tor.';
-
-  @override
   String get levelFooter =>
       'Jederzeit änderbar unter Einstellungen › Erweitert.';
 
@@ -20472,79 +20469,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get sendOpenSlateText => 'Öffnen';
 
   @override
-  String sendCleanedUp(String what) {
-    return 'Bereinigt: $what.';
-  }
-
-  @override
-  String get sendCleanUndo => 'Rückgängig';
-
-  @override
-  String get sendCleanUndoSem => 'Bereinigung rückgängig machen';
-
-  @override
   String get sendSendsTo => 'Sendet an';
-
-  @override
-  String get sendCleanTextAround => 'Text um die Adresse weggelassen';
-
-  @override
-  String get sendCleanJoined => 'Leerzeichen und Zeilenumbrüche entfernt';
-
-  @override
-  String get sendCleanSpaces => 'Leerzeichen weggelassen';
-
-  @override
-  String get sendCleanQuotes => 'Anführungszeichen und Klammern entfernt';
-
-  @override
-  String get sendCleanOnionForm => 'in Standardform angezeigt';
-
-  @override
-  String get sendCleanEpicboxScheme => 'epicbox:// weggelassen';
-
-  @override
-  String sendCleanDefaultRelay(String host) {
-    return 'kein Server angegeben: $host, der Standard';
-  }
-
-  @override
-  String get sendCleanRelayLower => 'Server in Kleinbuchstaben';
-
-  @override
-  String get sendCleanHttpsAdded => 'kein Protokoll: https:// ergänzt';
-
-  @override
-  String get sendCleanHttpAdded => 'kein Protokoll: http:// ergänzt';
-
-  @override
-  String sendCleanDefaultPort(String port) {
-    return 'Port $port, der Standard des Listeners';
-  }
-
-  @override
-  String get sendCleanBrackets => 'IPv6-Adresse in eckige Klammern gesetzt';
-
-  @override
-  String get sendCleanSchemeLower => 'Protokoll in Kleinbuchstaben';
-
-  @override
-  String get sendCleanHostLower => 'Host in Kleinbuchstaben';
-
-  @override
-  String sendCleanIdn(String name) {
-    return '$name so geschrieben, wie es kontaktiert wird';
-  }
-
-  @override
-  String get sendCleanForeignPath =>
-      '/v2/foreign weggelassen: Die Wallet ergänzt es';
-
-  @override
-  String get sendCleanTrailingSlash => 'abschließendes / weggelassen';
-
-  @override
-  String get sendCleanQuery => '?… und #… weggelassen';
 
   @override
   String get sendProblemNotAddress =>

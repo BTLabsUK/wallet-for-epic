@@ -1255,7 +1255,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get homeNoticePaymentFailed => 'Платёж не удался.';
 
   @override
-  String get homeBackupCardText => 'Сохраните фразу восстановления.';
+  String get homeBackupCardText => 'Фраза не сохранена';
 
   @override
   String get homeBackupCardButton => 'Сохранить';
@@ -18690,9 +18690,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get levelUndercoverTitle => 'Только Tor';
 
   @override
-  String get levelUndercoverLine => 'Каждое соединение идёт через Tor.';
-
-  @override
   String get levelFooter =>
       'Изменить можно в любой момент: Настройки › Дополнительно.';
 
@@ -20883,79 +20880,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get sendOpenSlateText => 'Открыть';
 
   @override
-  String sendCleanedUp(String what) {
-    return 'Исправлено: $what.';
-  }
-
-  @override
-  String get sendCleanUndo => 'Отменить';
-
-  @override
-  String get sendCleanUndoSem => 'Отменить исправление';
-
-  @override
   String get sendSendsTo => 'Отправка на';
-
-  @override
-  String get sendCleanTextAround => 'убран текст вокруг адреса';
-
-  @override
-  String get sendCleanJoined => 'удалены пробелы и переносы строк';
-
-  @override
-  String get sendCleanSpaces => 'убраны пробелы';
-
-  @override
-  String get sendCleanQuotes => 'удалены кавычки и скобки';
-
-  @override
-  String get sendCleanOnionForm => 'показан в стандартном виде';
-
-  @override
-  String get sendCleanEpicboxScheme => 'убрано epicbox://';
-
-  @override
-  String sendCleanDefaultRelay(String host) {
-    return 'сервер не указан: $host, по умолчанию';
-  }
-
-  @override
-  String get sendCleanRelayLower => 'сервер в нижнем регистре';
-
-  @override
-  String get sendCleanHttpsAdded => 'протокол не указан: добавлено https://';
-
-  @override
-  String get sendCleanHttpAdded => 'протокол не указан: добавлено http://';
-
-  @override
-  String sendCleanDefaultPort(String port) {
-    return 'порт $port, по умолчанию для слушателя';
-  }
-
-  @override
-  String get sendCleanBrackets => 'адрес IPv6 взят в квадратные скобки';
-
-  @override
-  String get sendCleanSchemeLower => 'протокол в нижнем регистре';
-
-  @override
-  String get sendCleanHostLower => 'хост в нижнем регистре';
-
-  @override
-  String sendCleanIdn(String name) {
-    return '$name записано в том виде, в каком к нему подключаются';
-  }
-
-  @override
-  String get sendCleanForeignPath =>
-      'убрано /v2/foreign: кошелёк добавляет его сам';
-
-  @override
-  String get sendCleanTrailingSlash => 'убран / в конце';
-
-  @override
-  String get sendCleanQuery => 'убраны ?… и #…';
 
   @override
   String get sendProblemNotAddress =>

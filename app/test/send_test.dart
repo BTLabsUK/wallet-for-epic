@@ -1377,7 +1377,8 @@ void main() {
           .hand('epicbox://$_bob');
       await tester.pumpAndSettle();
       expect(find.text('1 of 3'), findsOneWidget);
-      expect(_fieldText(tester, _address), _bob);
+      // The field keeps the text as handed over; the method line shows the clean form.
+      expect(_fieldText(tester, _address), 'epicbox://$_bob');
       await _tap(tester, _continue);
       expect(_fieldText(tester, 'Amount (EPIC)'), '2');
     });

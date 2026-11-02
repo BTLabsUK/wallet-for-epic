@@ -2047,7 +2047,7 @@ void main() {
       _reminderDue(h);
       h.store.values.remove('wallet.mainnet.backedUp');
       await h.pump(tester);
-      expect(find.text('Back up your recovery phrase.'), findsOneWidget);
+      expect(find.text('Phrase not backed up'), findsOneWidget);
       expect(find.descendant(of: find.byKey(noticeKey), matching: find.text('Back up')), findsOneWidget);
       expect(h.store.values['wallet.mainnet.backupNoticeAt'], '${_now.millisecondsSinceEpoch}');
       // The history reminder waits until the phrase is written down.
@@ -2056,13 +2056,13 @@ void main() {
       // Not on the next opening the same day.
       await tester.pumpWidget(const SizedBox());
       await h.pump(tester);
-      expect(find.text('Back up your recovery phrase.'), findsNothing);
+      expect(find.text('Phrase not backed up'), findsNothing);
 
       // A day later it comes back.
       h.store.values['wallet.mainnet.backupNoticeAt'] = '${_now.subtract(const Duration(days: 1)).millisecondsSinceEpoch}';
       await tester.pumpWidget(const SizedBox());
       await h.pump(tester);
-      expect(find.text('Back up your recovery phrase.'), findsOneWidget);
+      expect(find.text('Phrase not backed up'), findsOneWidget);
     });
 
     testWidgets('deleting the wallet forgets the phrase reminder', (
@@ -3065,7 +3065,7 @@ void main() {
       _reminderDue(h);
       h.store.values.remove('wallet.mainnet.backedUp');
       await h.pump(tester);
-      expect(find.text('Back up your recovery phrase.'), findsOneWidget);
+      expect(find.text('Phrase not backed up'), findsOneWidget);
       expect(find.text(reminder), findsNothing);
     });
 

@@ -1262,7 +1262,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get homeNoticePaymentFailed => 'Płatność nie powiodła się.';
 
   @override
-  String get homeBackupCardText => 'Zabezpiecz frazę odzyskiwania.';
+  String get homeBackupCardText => 'Fraza bez kopii';
 
   @override
   String get homeBackupCardButton => 'Zabezpiecz';
@@ -18704,9 +18704,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get levelUndercoverTitle => 'Tylko Tor';
 
   @override
-  String get levelUndercoverLine => 'Każde połączenie idzie przez Tor.';
-
-  @override
   String get levelFooter =>
       'Zmienisz to w każdej chwili w Ustawienia › Zaawansowane.';
 
@@ -20899,79 +20896,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get sendOpenSlateText => 'Otwórz';
 
   @override
-  String sendCleanedUp(String what) {
-    return 'Uporządkowano: $what.';
-  }
-
-  @override
-  String get sendCleanUndo => 'Cofnij';
-
-  @override
-  String get sendCleanUndoSem => 'Cofnij porządkowanie';
-
-  @override
   String get sendSendsTo => 'Wysyła do';
-
-  @override
-  String get sendCleanTextAround => 'pominięto tekst wokół adresu';
-
-  @override
-  String get sendCleanJoined => 'usunięto spacje i podziały wierszy';
-
-  @override
-  String get sendCleanSpaces => 'pominięto spacje';
-
-  @override
-  String get sendCleanQuotes => 'usunięto cudzysłowy i nawiasy';
-
-  @override
-  String get sendCleanOnionForm => 'pokazano w standardowej postaci';
-
-  @override
-  String get sendCleanEpicboxScheme => 'pominięto epicbox://';
-
-  @override
-  String sendCleanDefaultRelay(String host) {
-    return 'nie podano serwera: $host, domyślny';
-  }
-
-  @override
-  String get sendCleanRelayLower => 'serwer małymi literami';
-
-  @override
-  String get sendCleanHttpsAdded => 'brak protokołu: dodano https://';
-
-  @override
-  String get sendCleanHttpAdded => 'brak protokołu: dodano http://';
-
-  @override
-  String sendCleanDefaultPort(String port) {
-    return 'port $port, domyślny dla nasłuchu';
-  }
-
-  @override
-  String get sendCleanBrackets => 'adres IPv6 ujęto w nawiasy kwadratowe';
-
-  @override
-  String get sendCleanSchemeLower => 'protokół małymi literami';
-
-  @override
-  String get sendCleanHostLower => 'host małymi literami';
-
-  @override
-  String sendCleanIdn(String name) {
-    return '$name zapisano w postaci używanej przy połączeniu';
-  }
-
-  @override
-  String get sendCleanForeignPath =>
-      'pominięto /v2/foreign: portfel dodaje go sam';
-
-  @override
-  String get sendCleanTrailingSlash => 'pominięto końcowy /';
-
-  @override
-  String get sendCleanQuery => 'pominięto ?… i #…';
 
   @override
   String get sendProblemNotAddress =>

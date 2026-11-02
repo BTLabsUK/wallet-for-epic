@@ -106,7 +106,7 @@ class _LevelStepScreenState extends ConsumerState<LevelStepScreen> {
                 SliverFillRemaining(
                   hasScrollBody: false,
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -119,7 +119,7 @@ class _LevelStepScreenState extends ConsumerState<LevelStepScreen> {
                           label: Text(l.firstRunCreate),
                           onPressed: _busy ? null : () => _go(restore: false),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 16),
                         OutlinedButton.icon(
                           key: levelRestoreKey,
                           style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
@@ -129,7 +129,7 @@ class _LevelStepScreenState extends ConsumerState<LevelStepScreen> {
                         ),
                         // Niche, so under the two ways in and quiet (the owner).
                         if (offered) ...[
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 16),
                           UndercoverRow(
                             value: _undercover,
                             onChanged: _busy ? null : (v) => setState(() => _undercover = v),

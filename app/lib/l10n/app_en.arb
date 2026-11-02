@@ -1482,9 +1482,9 @@
   "@homeNoticePaymentFailed": {
     "description": "Notice: something went wrong with one payment."
   },
-  "homeBackupCardText": "Back up your recovery phrase.",
+  "homeBackupCardText": "Phrase not backed up",
   "@homeBackupCardText": {
-    "description": "Card on home until the user writes down the recovery phrase (the 12 or 24 words)."
+    "description": "Home's reminder toast while the recovery phrase (the 12 or 24 words) is not written down; one short line, Back up beside it."
   },
   "homeBackupCardButton": "Back up",
   "@homeBackupCardButton": {
@@ -24311,10 +24311,6 @@
   "@levelUndercoverTitle": {
     "description": "Switch on the first onboarding screen (Tor builds only): Connection mode › Tor only from the first connection. Off by default."
   },
-  "levelUndercoverLine": "Every connection goes through Tor.",
-  "@levelUndercoverLine": {
-    "description": "Line under the Tor only switch on the first onboarding screen."
-  },
   "levelFooter": "Change it any time in Settings › Advanced.",
   "@levelFooter": {
     "description": "In the ⓘ sheet of Change view: where to change the view later."
@@ -27340,113 +27336,9 @@
   "@sendOpenSlateText": {
     "description": "Send: button that opens a pasted transaction text."
   },
-  "sendCleanedUp": "Cleaned up: {what}.",
-  "@sendCleanedUp": {
-    "description": "Send: line under the To field after the address was cleaned up; {what} lists the changes, joined by ' · '.",
-    "placeholders": {
-      "what": {
-        "type": "String"
-      }
-    }
-  },
-  "sendCleanUndo": "Undo",
-  "@sendCleanUndo": {
-    "description": "Send: button that puts back the text as it was pasted or typed."
-  },
-  "sendCleanUndoSem": "Undo the clean-up",
-  "@sendCleanUndoSem": {
-    "description": "Send: screen reader label of Undo."
-  },
   "sendSendsTo": "Sends to",
   "@sendSendsTo": {
     "description": "Send: before the clean form of a typed address, while it is typed."
-  },
-  "sendCleanTextAround": "text around the address left out",
-  "@sendCleanTextAround": {
-    "description": "Send: one clean-up change, in the 'Cleaned up' line (lower case, no full stop)."
-  },
-  "sendCleanJoined": "spaces and line breaks removed",
-  "@sendCleanJoined": {
-    "description": "Send: one clean-up change."
-  },
-  "sendCleanSpaces": "spaces left out",
-  "@sendCleanSpaces": {
-    "description": "Send: one clean-up change."
-  },
-  "sendCleanQuotes": "quotes and brackets removed",
-  "@sendCleanQuotes": {
-    "description": "Send: one clean-up change."
-  },
-  "sendCleanOnionForm": "shown in its standard form",
-  "@sendCleanOnionForm": {
-    "description": "Send: one clean-up change (a Tor address)."
-  },
-  "sendCleanEpicboxScheme": "epicbox:// left out",
-  "@sendCleanEpicboxScheme": {
-    "description": "Send: one clean-up change."
-  },
-  "sendCleanDefaultRelay": "no server given: {host}, the default",
-  "@sendCleanDefaultRelay": {
-    "description": "Send: one clean-up change; {host} is the Epicbox server in use.",
-    "placeholders": {
-      "host": {
-        "type": "String"
-      }
-    }
-  },
-  "sendCleanRelayLower": "server in lower case",
-  "@sendCleanRelayLower": {
-    "description": "Send: one clean-up change."
-  },
-  "sendCleanHttpsAdded": "no scheme: https:// added",
-  "@sendCleanHttpsAdded": {
-    "description": "Send: one clean-up change."
-  },
-  "sendCleanHttpAdded": "no scheme: http:// added",
-  "@sendCleanHttpAdded": {
-    "description": "Send: one clean-up change."
-  },
-  "sendCleanDefaultPort": "port {port}, the listener’s default",
-  "@sendCleanDefaultPort": {
-    "description": "Send: one clean-up change.",
-    "placeholders": {
-      "port": {
-        "type": "String"
-      }
-    }
-  },
-  "sendCleanBrackets": "IPv6 address put in brackets",
-  "@sendCleanBrackets": {
-    "description": "Send: one clean-up change."
-  },
-  "sendCleanSchemeLower": "scheme in lower case",
-  "@sendCleanSchemeLower": {
-    "description": "Send: one clean-up change."
-  },
-  "sendCleanHostLower": "host in lower case",
-  "@sendCleanHostLower": {
-    "description": "Send: one clean-up change."
-  },
-  "sendCleanIdn": "{name} written as it is contacted",
-  "@sendCleanIdn": {
-    "description": "Send: one clean-up change; {name} is the international host name as typed, which is sent in its ASCII (xn--) form.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "sendCleanForeignPath": "/v2/foreign left out: the wallet adds it",
-  "@sendCleanForeignPath": {
-    "description": "Send: one clean-up change."
-  },
-  "sendCleanTrailingSlash": "trailing / left out",
-  "@sendCleanTrailingSlash": {
-    "description": "Send: one clean-up change."
-  },
-  "sendCleanQuery": "?… and #… left out",
-  "@sendCleanQuery": {
-    "description": "Send: one clean-up change."
   },
   "sendProblemNotAddress": "Not an address, and no contact has this name.",
   "@sendProblemNotAddress": {

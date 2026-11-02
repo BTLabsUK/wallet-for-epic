@@ -264,10 +264,6 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   // An amount's error goes away as soon as the field is edited, until the next review.
   bool _amountEdited = false;
   final _toFocus = FocusNode();
-  // The clean-up of the last paste or focus loss: the text before it, for Undo.
-  String? _cleanedFrom;
-  // The text Undo put back: it is not cleaned again.
-  String? _undone;
   // The contact picked, shown as a chip in To; [_to] holds the address used.
   String? _contactId;
   bool _holdBusy = false;
@@ -383,7 +379,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _to.text = _bestAddress(contact, st0);
     } else {
       _to.text = args.recipient ?? '';
-      // A recipient handed in (a link, the tour) is read as a paste: clean, with its line.
+      // A recipient handed in (a link, the tour) is read as a paste.
       if (_to.text.isNotEmpty && !args.suggest) _settleTo(st0);
     }
     _lastTo = _to.text;
@@ -722,19 +718,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return i < 0 ? c.address : list[i];
   }
 
-  /// To left (focus lost, Enter, Review) or pasted into: the text takes its clean form, with the
-  /// line that says what changed; a contact's address becomes its chip; a Link address is
-  /// asked once whether a wallet answers. The caller sets the state.
+  /// To left (focus lost, Enter, Review) or pasted into: the text stays as given (the method
+  /// line shows the address as it will be contacted); a contact's address becomes its chip; a
+  /// Link address is asked once whether a wallet answers. The caller sets the state.
   void _settleTo(DeskState st) {
-    final before = _to.text;
-    if (before.trim().isEmpty) return;
+    if (_to.text.trim().isEmpty) return;
     _toTouched = true;
-    final r = _read;
-    if (before != _undone && r.isAddress && r.address != before) {
-      _cleanedFrom = before;
-      _to.text = r.address;
-      _lastTo = _to.text;
-    }
     if (_contactId == null && _pairingTo == null) _contactId = _contactOf(st.contacts)?.id;
     _askReach(st);
   }
@@ -748,22 +737,6 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   void _focusTo() => WidgetsBinding.instance.addPostFrameCallback((_) {
     if (mounted && _toFocus.context != null) _toFocus.requestFocus();
   });
-
-  /// Undo the clean-up: the text as it was, not cleaned again.
-  void _undoClean() {
-    final before = _cleanedFrom;
-    if (before == null) return;
-    setState(() {
-      _to.text = before;
-      _lastTo = before;
-      _undone = before;
-      _cleanedFrom = null;
-      _contactId = null;
-      // "Sends to" says the clean form again.
-      _toTouched = false;
-    });
-    _focusTo();
-  }
 
   /// Asks the Link address in To once, in the background, whether a wallet answers there
   /// ([checkWalletAnswers]); "Checking…" shows only after 1.5 s without an answer.
@@ -874,9 +847,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       }
       if (to) {
         _lastTo = _to.text;
-        // Typing: no error until the field is left, and the clean-up line goes.
+        // Typing: no error until the field is left.
         _toTouched = false;
-        _cleanedFrom = null;
         _suggestOff = false;
         _codeError = null;
         if (_leaveCode()) amount = true;
@@ -961,11 +933,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     _pasted(t);
   }
 
-  /// [t] pasted into To (the Paste button, Ctrl+V): read at once, the clean form in the field
-  /// and the line that says what changed.
+  /// [t] pasted into To (the Paste button, Ctrl+V): read at once, as given.
   void _pasted(String t) {
     _to.text = t;
-    _undone = null;
     _changed(to: true);
     setState(() => _settleTo(ref.read(deskProvider)));
   }
@@ -1004,7 +974,6 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _codeError = error;
       _code = null;
       _toTouched = false;
-      _cleanedFrom = null;
       _contactId = null;
       _suggestOff = true;
     });
@@ -1019,8 +988,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           _codeError = (l) => l.scanPhraseFoundPasted;
           _code = null;
           _toTouched = false;
-          _cleanedFrom = null;
-          _contactId = null;
+            _contactId = null;
           _suggestOff = true;
         });
       case PaymentRequest():
@@ -1126,8 +1094,6 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _to.text = to;
       _lastTo = to;
       // The code's address stays as the code wrote it: the banner and the review name it.
-      _undone = to;
-      _cleanedFrom = null;
       fields();
       _code = code;
       _codeBanner = code.banner;
@@ -1172,7 +1138,6 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         _lastTo = '';
         _code = null;
         _codeError = null;
-        _cleanedFrom = null;
         _suggestOff = true;
         _failure = null;
         if (_result is SendDone) _result = null;
@@ -1363,7 +1328,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       final viaPairing = _viaPairing;
       return _Draft(
         method: _method,
-        // The clean form: Undo leaves the text as given, the send goes to what "Sends to" says.
+        // The clean form: the field keeps the text as given, the send goes to the method line's.
         to: _method == TxMethod.file || viaPairing ? null : (_read.isAddress ? _read.address : _to.text.trim()),
         contactName: viaPairing ? ref.read(deskPairingNameProvider(_pairingTo!)) : _contactOf(contacts)?.name,
         pairingId: viaPairing ? _pairingTo : null,
@@ -1454,8 +1419,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             _code = null;
             _pairingTo = null;
             _contactId = null;
-            _cleanedFrom = null;
-          }
+              }
       }
     });
   }
@@ -1472,9 +1436,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       _to.clear();
       _pairingTo = null;
       _contactId = null;
-      _cleanedFrom = null;
-      _undone = null;
-      _codeError = null;
+        _codeError = null;
       _submitted = false;
     });
     _changed(to: true);
@@ -1487,7 +1449,6 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     _code = null;
     _pairingTo = null;
     _contactId = null;
-    _cleanedFrom = null;
     _file = false;
     _to.clear();
     _amount.clear();
@@ -1885,7 +1846,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     ];
   }
 
-  /// The form's panel: To and the lines under it (the method, the clean-up, what holds it), or
+  /// The form's panel: To and the lines under it (the method, what holds it), or
   /// the file form's line; then Amount, Message, Advanced and Dandelion.
   Widget _form(DeskState st) {
     final l = context.l10n;
@@ -1943,8 +1904,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                       hint: l.deskSendToHint,
                       semanticLabel: l.deskSendToSem,
                       onChanged: _toChanged,
-                      // Enter picks the first matching contact, else goes on to Amount (and
-                      // the field, left, takes its clean form).
+                      // Enter picks the first matching contact, else goes on to Amount.
                       onSubmitted: matches.isEmpty ? null : (_) => _use(matches.first),
                       trailingTabStop: true,
                       trailing: Row(
@@ -2083,8 +2043,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   /// a connection that does not go.
   Widget _payByFile() => EButton.ghost(key: const ValueKey('send-pay-file'), label: context.l10n.sendPayByFile, icon: EIcons.file, size: EBtnSize.inline, onPressed: _openFile);
 
-  /// Under To: a transaction text's notice, the method line, the clean-up line (or "Sends to"
-  /// while typing), then the one notice that holds it (the mode, Tor, a wallet that did not
+  /// Under To: a transaction text's notice, the method line ("Sends to" while typing), then the one notice that holds it (the mode, Tor, a wallet that did not
   /// answer) with its one action; Pay with a file under an empty field.
   List<Widget> _underTo(DeskState st, Contact? picked) {
     final l = context.l10n;
@@ -2127,31 +2086,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               onPick: (a) => _useAddress(picked, a),
             ),
     ));
-    final from = _cleanedFrom;
-    final cleaned = from == null ? null : sendCleanedLine(l, _readOf(from), before: from);
-    if (cleaned != null) {
-      add(
-        Padding(
-          padding: EdgeInsetsDirectional.only(start: _RouteLine.textInset),
-          child: Row(
-            key: const ValueKey('send-cleaned'),
-            children: [
-              Expanded(child: Semantics(liveRegion: true, child: Text(cleaned, style: ts.small))),
-              SizedBox(width: Sp.x3),
-              Semantics(
-                label: l.sendCleanUndoSem,
-                button: true,
-                excludeSemantics: true,
-                onTap: _undoClean,
-                child: EButton.ghost(key: const ValueKey('send-clean-undo'), label: l.sendCleanUndo, size: EBtnSize.inline, onPressed: _undoClean),
-              ),
-            ],
-          ),
-        ),
-        gap: Sp.x1,
-      );
-    } else if ((!_toTouched || _undone == _to.text) && picked == null && r.address != _to.text.trim()) {
-      // Typing (or the text put back by Undo): the clean form, faint, which is what is sent.
+    if (!_toTouched && picked == null && r.address != _to.text.trim()) {
+      // Typing: the clean form, faint, which is what is sent.
       add(
         Padding(
           padding: EdgeInsetsDirectional.only(start: _RouteLine.textInset),
