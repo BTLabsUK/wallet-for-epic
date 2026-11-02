@@ -31,6 +31,7 @@ import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/shell_header.dart';
 import 'package:epic_wallet/src/ui/status.dart';
 import 'package:epic_wallet/src/ui/theme/brand.dart';
+import 'package:epic_wallet/src/ui/theme/lattice.dart';
 import 'package:epic_wallet/src/ui/theme/protocol.dart';
 import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
@@ -390,9 +391,21 @@ class _Harness {
   }
 }
 
+/// The BT Labs lattice under Recent activity, while it draws.
+Finder _latticePainted() => find.descendant(
+  of: find.byType(BrandLattice),
+  matching: find.byWidgetPredicate((w) => w is CustomPaint && w.painter is LatticePainter),
+);
+
+/// [n] confirmed payments, one a day.
+List<TxEntry> _latticeTxs(int n) => [
+  for (var i = 0; i < n; i++)
+    fakeTx(id: i, status: TxStatus.confirmed, createdAtUnix: _at(DateTime(2026, 9, 1 + i)), amountCredited: _epic(i + 1)),
+];
+
 /// The Wallet tab's list, the vertical scrollable under the header.
 Finder _walletList() => find
-    .descendant(of: find.byType(ListView), matching: find.byType(Scrollable))
+    .descendant(of: find.byType(CustomScrollView), matching: find.byType(Scrollable))
     .first;
 
 /// The first list that scrolls down: the screen's own, never the shell's pages.
@@ -900,6 +913,31 @@ void main() {
       expect(find.text('+2.0000\u00a0EPIC'), findsNothing);
       await _tap(tester, find.text('View all 7'));
       expect(find.byType(HistoryScreen), findsOneWidget);
+    });
+
+    // The BT Labs lattice fills the room under a short list and is gone once the list is full.
+    testWidgets('the lattice under a short list', (tester) async {
+      final painted = _latticePainted;
+      await _Harness(transactions: _latticeTxs(1)).pump(tester);
+      expect(painted(), findsOneWidget);
+      expect(tester.widget<BrandLattice>(find.byType(BrandLattice)).strength, .75);
+      // Below the one row, never behind it.
+      expect(tester.getTopLeft(painted()).dy, greaterThanOrEqualTo(tester.getBottomLeft(find.byType(TxTile)).dy));
+      expect(tester.getSize(painted()).height, greaterThan(latticeMinHeight));
+      // Decorative: out of the semantics tree.
+      expect(
+        find.descendant(
+          of: find.descendant(of: find.byType(BrandLattice), matching: find.byType(ExcludeSemantics)),
+          matching: painted(),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('no lattice under a full list', (tester) async {
+      await _Harness(transactions: _latticeTxs(recentActivityCount)).pump(tester);
+      expect(find.byType(TxTile), findsNWidgets(recentActivityCount));
+      expect(_latticePainted(), findsNothing);
     });
 
     testWidgets('the eye hides every amount and remembers it', (tester) async {

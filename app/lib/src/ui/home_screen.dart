@@ -47,6 +47,8 @@ import 'settings_screen.dart';
 import 'slate_file_screen.dart';
 import 'status.dart';
 import 'theme/brand.dart';
+import 'theme/lattice.dart';
+import 'theme/tokens.dart' show WalletTokensOf;
 import 'theme/protocol.dart';
 import 'tour/phone_tour.dart';
 import 'levels/relay_down.dart' show RelayDownNotices;
@@ -849,10 +851,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             child: RefreshIndicator(
               onRefresh: _refresh,
               child: column(
-                ListView(
+                CustomScrollView(
                   // Pull to refresh works on a short list too.
                   physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+                      sliver: SliverList.list(
                   children: [
                     // The desktop Overview's tiles, then its sidebar's destinations. The
                     // statuses are the icons in the balance area above; the full card is in
@@ -942,6 +947,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       transactions,
                     ).take(recentActivityCount))
                       TxTile(tx: tx),
+                  ],
+                      ),
+                    ),
+                    // The BT Labs lattice in the room a short list leaves, fading as rows come.
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: BrandLattice(
+                        color: context.tokens.text,
+                        strength: latticeStrength(data == null ? null : transactions.length),
+                      ),
+                    ),
                   ],
                 ),
               ),
