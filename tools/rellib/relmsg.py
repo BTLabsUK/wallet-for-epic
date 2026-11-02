@@ -33,11 +33,18 @@ class Relmsg:
         return (self.run.info.get("relmsg") or {}).get("ended")
 
     def reopen(self):
-        """A run that ended failed is resumed: it may end again. (An ok or aborted end is final.)"""
+        """A run that ended failed is resumed: it may end again. A run that was stopped (aborted, not
+        superseded) is resumed under a new relay release, since the relay keeps a finished release
+        and its gates closed; the next start opens it. An ok end, or a superseded run, is final."""
         rm = self.run.info.get("relmsg") or {}
         if rm.get("ended") == "failed":
             rm.pop("ended")
             self.run.save_info()
+        elif rm.get("ended") == "aborted" and not rm.get("superseded_by") and rm.get("release_id") is not None:
+            rm.setdefault("previous", []).append(rm.pop("release_id"))
+            rm.pop("ended")
+            self.run.save_info()
+            self.run.event("relmsg", "reopen", previous=rm["previous"][-1])
 
     def _call(self, args, want_json=True):
         if not self.enabled:
@@ -79,7 +86,10 @@ class Relmsg:
         if self.release_id:
             return self.release_id
         info = self.run.info
-        args = ["start", info["version"], "--commit", info["commit"], "--run-id", info["run_id"],
+        # The relay gives the same run id its existing release back: a reopened run asks under a new one.
+        previous = (info.get("relmsg") or {}).get("previous") or []
+        relay_run_id = f"{info['run_id']}+{len(previous)}" if previous else info["run_id"]
+        args = ["start", info["version"], "--commit", info["commit"], "--run-id", relay_run_id,
                 "--title", self.title, "--steps", ",".join(steps)]
         if platforms:
             args += ["--platforms", ",".join(platforms)]
