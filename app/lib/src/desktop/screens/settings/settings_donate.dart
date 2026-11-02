@@ -87,7 +87,6 @@ class _SettingsDonateScreenState extends ConsumerState<SettingsDonateScreen> {
             rows: [
               if (page != null && !fallback)
                 ESetRow(
-                  anchor: 'donatePage',
                   title: l.deskDonatePage,
                   text: page.host,
                   control: ERowControl(
@@ -117,7 +116,6 @@ class _SettingsDonateScreenState extends ConsumerState<SettingsDonateScreen> {
                 ),
               if (address != null)
                 ESetRow(
-                  anchor: 'donateAddress',
                   title: l.deskDonateAddress,
                   stacked: true,
                   control: EQrReveal(

@@ -14,6 +14,10 @@ import '../../../l10n.dart' show localInt;
 import '../../../start_month.dart' show startMonthRecent;
 import '../../widgets/kit.dart';
 import '../wallet/restore_scan_panel.dart' show RestoreScanProgress;
+import '../../data/settings_registry.dart' show settingsEntry;
+import '../../widgets/more_options.dart' show moreOptionsOpen;
+import 'search/settings_sections.dart' show SetGate, setGateReasons, setJoinReasons, setViewProvider;
+import 'setting_ids.dart';
 import 'settings_frame.dart';
 import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 
@@ -44,6 +48,12 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
   bool _deleteUnconfirmed = false;
   _From? _fromChoice;
   DateTime? _fromDate;
+
+  /// The reveal key of the start rows the view or Advanced › Recheck from a height hides.
+  static const _revealKey = 'rescan-start';
+
+  /// The start rows are in use: shown by the view and the switch, or revealed here.
+  bool get _choice => advancedHas(ref, AdvancedFeature.recheckFromHeight) || moreOptionsOpen(ref, _revealKey);
 
   /// Dates map to heights only on mainnet.
   bool get _datesOk => (ref.read(deskProvider).account?.network ?? 'mainnet') == 'mainnet'; // l10n-ok: network id
@@ -101,7 +111,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
   /// The start the choice asks for; null for the recent blocks. A height that is not a number of
   /// 1 or more is refused under the field.
   ({BigInt? start, bool ok}) _startHeight(AppLocalizations l) {
-    if (!advancedHas(ref, AdvancedFeature.recheckFromHeight)) return (start: null, ok: true);
+    if (!_choice) return (start: null, ok: true);
     switch (_from) {
       case _From.date:
         final d = _fromDate;
@@ -124,7 +134,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
 
   Future<void> _start() async {
     final l = context.l10n;
-    final delete = advancedHas(ref, AdvancedFeature.recheckFromHeight) && _deleteUnconfirmed;
+    final delete = _choice && _deleteUnconfirmed;
     final from = _startHeight(l);
     if (!from.ok) return;
     setState(() {
@@ -215,7 +225,10 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
     // The scan a restore owes runs: its progress here, and no second scan.
     final restore = ref.watch(deskProvider.select((s) => s.status?.restoreScan));
     final restoreRuns = !_running && restore?.state == RestoreScanState.running;
-    final choice = advancedHas(ref, AdvancedFeature.recheckFromHeight);
+    final shown = advancedHas(ref, AdvancedFeature.recheckFromHeight);
+    // Hidden here: what shows the rows, for the ⇕ control and each row's marker.
+    final gate = settingsEntry(SetId.recheckFrom)?.gate ?? SetGate.none;
+    final by = shown ? null : setJoinReasons(l, setGateReasons(l, gate, ref.watch(setViewProvider)));
     return SettingsFrame(
       route: DeskRoute.settingsRescan,
       child: Column(
@@ -223,6 +236,8 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
         children: [
           ESetGroup(
             title: l.deskSetFrameRescan,
+            revealKey: _revealKey,
+            hidden: !_running && !shown ? _startRows(context, advancedBy: by) : const [],
             rows: [
               if (!_running)
                 ESetRow(
@@ -243,7 +258,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                       : null,
                 ),
               // Where to start, then its month or block, aligned with the other rows (item 6).
-              if (!_running && choice) ..._startRows(context),
+              if (!_running && shown) ..._startRows(context),
               if (_running)
                 ESetRow(
                   text: l.deskSetRescanScanning,
@@ -289,7 +304,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
 
   /// The rows of Advanced › Recheck from a height: Where to start, the month or block it
   /// needs, and Delete unconfirmed, each a Settings row with its control in the control column.
-  List<Widget> _startRows(BuildContext context) {
+  List<Widget> _startRows(BuildContext context, {String? advancedBy}) {
     final l = context.l10n;
     final c = context.dc;
     final ts = context.ts;
@@ -297,7 +312,8 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
     final error = _heightError == null ? null : Text(_heightError!, key: const ValueKey('rescan-start-error'), style: ts.small.copyWith(color: c.risk));
     return [
       ESetRow(
-        anchor: 'recheckFrom',
+        anchor: SetId.recheckFrom,
+        advancedBy: advancedBy,
         title: l.deskSetRescanStartHeading,
         text: _from == _From.wholeChain ? l.deskSetRescanWholeChainHint : null,
         control: ERowControl(
@@ -321,14 +337,15 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
       ),
       if (_from == _From.date)
         ESetRow(
-          anchor: 'recheckMonth',
-          title: l.restoreStartByMonth,
+          anchor: SetId.recheckMonth,
+          advancedBy: advancedBy,
+          title: l.deskSetRowRecheckMonth,
           text: month == null ? null : l.restoreMonthStart(localInt(l, month.height)),
           control: ERowControl(
             child: EStartMonthField(
               month: month,
               invalid: _heightError != null,
-              semanticLabel: l.restoreStartByMonth,
+              semanticLabel: l.deskSetRowRecheckMonth,
               onChanged: (m) => setState(() {
                 _fromDate = m.firstDay;
                 _heightError = null;
@@ -341,8 +358,9 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
         ),
       if (_from == _From.height)
         ESetRow(
-          anchor: 'recheckHeight',
-          title: l.deskOnbRestoreFromLabel,
+          anchor: SetId.recheckHeight,
+          advancedBy: advancedBy,
+          title: l.deskSetRowRecheckHeight,
           control: ERowControl(
             child: EInput(
               key: const ValueKey('rescan-height'),
@@ -350,7 +368,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
               mono: true,
               autofocus: true,
               size: EBtnSize.sm,
-              semanticLabel: l.deskOnbRestoreFromLabel,
+              semanticLabel: l.deskSetRowRecheckHeight,
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               invalid: _heightError != null,
@@ -361,7 +379,8 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
           below: error,
         ),
       ESetRow(
-        anchor: 'recheckDrop',
+        anchor: SetId.recheckDrop,
+        advancedBy: advancedBy,
         title: l.deskSetRescanDeleteUnconfirmed,
         hint: l.deskSetRescanDeleteHint,
         control: ESwitch(
