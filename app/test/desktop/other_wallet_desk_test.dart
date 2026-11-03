@@ -5,9 +5,12 @@ import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/other_wallet_offer.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 Future<void> _open(WidgetTester tester, {Object? arg}) async {
   tester.view.physicalSize = const Size(1280, 1000);
@@ -33,22 +36,22 @@ Future<void> _open(WidgetTester tester, {Object? arg}) async {
 void main() {
   testWidgets('Activity lists both rows by name', (tester) async {
     await _open(tester);
-    expect(find.text('Sent from another device'), findsWidgets);
-    expect(find.text('Received by another device'), findsWidgets);
+    expect(find.text(_l.txSentFromOtherWallet), findsWidgets);
+    expect(find.text(_l.txReceivedByOtherWallet), findsWidgets);
   });
 
   testWidgets('the details of a send: what it is, the fee not known, no method, the offer spot', (tester) async {
     await _open(tester, arg: 107);
-    expect(find.text('Sent from another device with this wallet’s recovery phrase. Only the amount is known.'), findsOneWidget);
-    expect(find.text('Not known'), findsOneWidget);
-    expect(find.text('Method'), findsNothing);
+    expect(find.text(_l.txDetailsOtherWallet), findsOneWidget);
+    expect(find.text(_l.txDetailsNotKnown), findsOneWidget);
+    expect(find.text(_l.deskTxFactMethod), findsNothing);
     expect(find.byType(DeskSentFromOtherWalletOffer), findsOneWidget);
   });
 
   testWidgets('the details of a receive: what it is, no fee', (tester) async {
     await _open(tester, arg: 108);
-    expect(find.text('Received by another device with this wallet’s recovery phrase. Only the amount is known.'), findsOneWidget);
-    expect(find.text('Not known'), findsNothing);
+    expect(find.text(_l.txDetailsOtherWalletIn), findsOneWidget);
+    expect(find.text(_l.txDetailsNotKnown), findsNothing);
     expect(find.byType(DeskSentFromOtherWalletOffer), findsOneWidget);
   });
 }

@@ -9,9 +9,12 @@ import 'package:epic_wallet/src/desktop/screens/settings/dialogs.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/shots.dart' show demoOtherWallet;
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 class _Recorder extends MockDeskWallet {
   _Recorder() : super(delay: const Duration(milliseconds: 10));
@@ -82,7 +85,7 @@ void main() {
   testWidgets('unlock opens the wallet picked in the Wallet select', (tester) async {
     final api = _Recorder();
     await _pump(tester, api, const UnlockScreen());
-    expect(find.text('Wallet'), findsOneWidget);
+    expect(find.text(_l.deskOnbSameWallet), findsOneWidget);
     expect(find.text('Main wallet'), findsOneWidget);
     await tester.tap(find.text('Main wallet'));
     await tester.pump(const Duration(milliseconds: 500));
@@ -98,7 +101,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     expect(api.calls, ['select ${demoOtherWallet.id}']);
     await tester.enterText(find.byType(EditableText).first, 'wrong');
-    await tester.tap(find.text('Unlock'));
+    await tester.tap(find.text(_l.deskOnbUnlockButton));
     await _wait(tester);
     expect(api.calls, ['select ${demoOtherWallet.id}', 'select ${demoOtherWallet.id}', 'unlock']);
     await _end(tester);
@@ -109,9 +112,9 @@ void main() {
     await _pump(tester, api, Builder(builder: (c) => TextButton(onPressed: () => showRemoveWalletDialog(c, demoOtherWallet), child: const Text('open'))));
     await tester.tap(find.text('open'));
     await tester.pump(const Duration(milliseconds: 500));
-    expect(find.text('Remove from list'), findsWidgets);
-    expect(find.text('Delete wallet'), findsNothing);
-    await tester.tap(find.widgetWithText(EButton, 'Remove from list'));
+    expect(find.text(_l.deskSetDlgRemoveFromList), findsWidgets);
+    expect(find.text(_l.deskSetDlgDeleteWallet), findsNothing);
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetDlgRemoveFromList));
     await _wait(tester);
     expect(api.calls, ['remove ${demoOtherWallet.id} list']);
     expect(find.text('Savings removed from the list'), findsOneWidget);
@@ -127,8 +130,8 @@ void main() {
     expect(container.read(deskProvider).account, isNotNull, reason: 'a wallet is open');
     await tester.tap(find.text('open'));
     await tester.pump(const Duration(milliseconds: 500));
-    expect(find.text('To delete its files as well, unlock this wallet and use Delete wallet under Settings\u00a0›\u00a0Wallet.'), findsOneWidget);
-    await tester.tap(find.text('Unlock this wallet'));
+    expect(find.text(_l.deskSetDlgRemoveUnlockHintSecurity), findsOneWidget);
+    await tester.tap(find.text(_l.deskSetDlgRemoveUnlock));
     await _wait(tester);
     expect(api.locked, isTrue, reason: 'the open wallet is locked first');
     expect(api.calls, contains('select ${demoOtherWallet.id}'));
@@ -151,15 +154,15 @@ void main() {
     await _wait(tester, 4000);
     await tester.tap(find.text('open'));
     await tester.pump(const Duration(milliseconds: 500));
-    expect(find.text('Delete wallet'), findsOneWidget);
-    expect(find.text('Unlock this wallet'), findsNothing, reason: 'the open wallet can be deleted here');
-    await tester.tap(find.text('Delete wallet'));
+    expect(find.text(_l.deskSetDlgDeleteWallet), findsOneWidget);
+    expect(find.text(_l.deskSetDlgRemoveUnlock), findsNothing, reason: 'the open wallet can be deleted here');
+    await tester.tap(find.text(_l.deskSetDlgDeleteWallet));
     await tester.pump(const Duration(milliseconds: 300));
-    final button = find.widgetWithText(EButton, 'Delete wallet');
+    final button = find.widgetWithText(EButton, _l.deskSetDlgDeleteWallet);
     expect(tester.widget<EButton>(button).onPressed, isNull);
     final fields = find.byType(EditableText);
     await tester.enterText(fields.at(0), 'Main wallet');
-    await tester.tap(find.text('The recovery phrase is written down'));
+    await tester.tap(find.text(_l.deskSetDlgPhraseWritten));
     await tester.pump();
     expect(tester.widget<EButton>(button).onPressed, isNull, reason: 'the password is still missing');
     await tester.enterText(fields.at(1), 'test-pass-1234');

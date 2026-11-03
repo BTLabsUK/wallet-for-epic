@@ -15,6 +15,8 @@ import 'package:epic_wallet/src/ui/status.dart' show StatusDot;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 void main() {
   late AppLocalizations l;
   setUpAll(() async => l = await AppLocalizations.delegate.load(const Locale('en')));
@@ -44,8 +46,8 @@ void main() {
     for (final s in ShownState.values) {
       expect(s.word(l), isNot('On'), reason: s.name);
     }
-    expect(ShownState.connected.word(l), 'Connected');
-    expect(ShownState.receiving.word(l), 'Receiving');
+    expect(ShownState.connected.word(l), _l.netStatusConnected);
+    expect(ShownState.receiving.word(l), _l.stateReceiving);
   });
 
   test('the desktop and the phone draw the same dot for a state', () {
@@ -69,7 +71,7 @@ void main() {
   });
 
   test('Tor in one word per state', () {
-    expect(torShownState(TorState.on).word(l), 'Connected');
+    expect(torShownState(TorState.on).word(l), _l.netStatusConnected);
     expect(torShownState(TorState.off).mark, StateMark.off);
     expect(torShownState(TorState.starting).mark, StateMark.busy);
     expect(torShownState(TorState.failed).tone, StateTone.risk);
@@ -83,7 +85,7 @@ void main() {
     test('down with a public node standing in: Not answering, not the stand-in\'s Synced', () {
       final v = ownNodeView(l, url, down, health: ServiceHealth.ok, standIn: standIn);
       expect(v.state, EState.risk);
-      expect(v.word, 'Not answering');
+      expect(v.word, _l.deskNodeNotAnswering);
     });
 
     test('in use and answering the wallet: the wallet\'s own view speaks for it', () {
@@ -93,7 +95,7 @@ void main() {
 
     test('nothing known yet: Checking, a blue ring', () {
       final v = ownNodeView(l, url, null);
-      expect(v.word, 'Checking');
+      expect(v.word, _l.deskNodeChecking);
       expect(v.state, EState.active);
     });
   });

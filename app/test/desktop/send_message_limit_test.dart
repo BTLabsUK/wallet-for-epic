@@ -6,9 +6,12 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 void main() {
   late ProviderContainer container;
@@ -49,8 +52,8 @@ void main() {
   testWidgets('a message over 256 bytes is marked and Review refuses it', (tester) async {
     await pump(tester, SendArgs(recipient: anna, amount: '25', message: '😀' * 92));
     expect(find.text('368 / 256'), findsOneWidget);
-    expect(find.text('The message is too long. Shorten it.'), findsOneWidget);
-    await tester.tap(find.widgetWithText(EButton, 'Review'));
+    expect(find.text(_l.deskSendMessageTooLongPlain), findsOneWidget);
+    await tester.tap(find.widgetWithText(EButton, _l.deskSendReview));
     await tester.pumpAndSettle();
     expect(find.text('Check and send'), findsNothing);
   });
@@ -58,7 +61,7 @@ void main() {
   testWidgets('Check and send keeps Send on the screen with the tallest message', (tester) async {
     // 128 short lines: within the 256 bytes, and taller than any window.
     await pump(tester, SendArgs(recipient: anna, amount: '25', message: '${'a\n' * 127}a', step: SendStep.review));
-    expect(find.text('Check and send'), findsOneWidget);
+    expect(find.text(_l.deskSendReviewTitle), findsOneWidget);
     final send = find.byWidgetPredicate((w) => w is EButton && w.label.startsWith('Send 25'));
     final rect = tester.getRect(send);
     expect(rect.top, greaterThanOrEqualTo(0));

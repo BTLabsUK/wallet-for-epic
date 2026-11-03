@@ -8,10 +8,12 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/activity_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
-import 'package:epic_wallet/src/l10n.dart' show AppLocalizations, lookupAppLocalizations;
+import 'package:epic_wallet/src/l10n.dart' show AppLocalizations, englishStrings, lookupAppLocalizations;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 const _names = <String, List<String>>{
   'en': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Direct · File Transfer'],
@@ -66,7 +68,7 @@ void main() {
   group('Activity and the details', () {
     testWidgets('a Link send over HTTP reads Link · HTTP, never HTTP alone', (tester) async {
       await _pump(tester, const ActivityScreen(arg: 35));
-      expect(find.text('Link · HTTP'), findsWidgets);
+      expect(find.text(_l.methodDirectHttp), findsWidgets);
       expect(find.text('HTTP'), findsNothing);
       expect(find.text('Tor'), findsNothing);
     });
@@ -93,9 +95,9 @@ void main() {
         home: Column(children: [EKindTag(AddressKind.epicbox), EKindTag(AddressKind.http), EKindTag(AddressKind.tor)]),
       ),
     );
-    expect(find.text('Epicbox'), findsOneWidget);
-    expect(find.text('Link · HTTP'), findsOneWidget);
-    expect(find.text('Link · Tor'), findsOneWidget);
+    expect(find.text(_l.methodEpicbox), findsOneWidget);
+    expect(find.text(_l.methodShortHttp), findsOneWidget);
+    expect(find.text(_l.methodShortTor), findsOneWidget);
     expect(find.text('HTTP'), findsNothing, reason: 'a sub-option never stands alone');
     expect(find.byIcon(EIcons.epicbox), findsOneWidget);
     expect(find.byIcon(EIcons.http), findsOneWidget);
@@ -113,7 +115,7 @@ void main() {
     );
     expect(find.byType(Text), findsNothing);
     expect(find.byIcon(EIcons.tor), findsOneWidget);
-    expect(find.byTooltip('Link · Tor'), findsOneWidget);
-    expect(find.bySemanticsLabel('Link · Tor'), findsOneWidget);
+    expect(find.byTooltip(_l.methodDirectTor), findsOneWidget);
+    expect(find.bySemanticsLabel(_l.methodDirectTor), findsOneWidget);
   });
 }

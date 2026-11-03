@@ -14,9 +14,12 @@ import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 const _password = 'test-pass-1234';
 
@@ -84,11 +87,11 @@ void main() {
     (tester) async {
       final desk = _Desk();
       await _pump(tester, _tx(undelivered: true), desk);
-      expect(statusOf(englishStrings, _tx(undelivered: true)).$1, 'Not delivered');
+      expect(statusOf(englishStrings, _tx(undelivered: true)).$1, _l.deskTxStatusUndelivered);
       expect(find.textContaining('Not delivered.'), findsOneWidget);
       // linux-14: the relay that did not answer is named.
       expect(find.textContaining('epicbox.example did not answer'), findsOneWidget);
-      expect(find.widgetWithText(EButton, 'Cancel payment'), findsOneWidget);
+      expect(find.widgetWithText(EButton, _l.deskTxCancelOutgoingAction), findsOneWidget);
       await tester.tap(find.widgetWithText(EButton, 'Send again'));
       await tester.pump();
       expect(desk.resent, [77]);
@@ -118,7 +121,7 @@ void main() {
       final desk = _Desk();
       final tx = _tx(undelivered: true, method: TxMethod.http);
       await _pump(tester, tx, desk);
-      expect(statusOf(englishStrings, tx).$1, 'Not delivered');
+      expect(statusOf(englishStrings, tx).$1, _l.deskTxStatusUndelivered);
       expect(find.textContaining('Not delivered.'), findsOneWidget);
       // Its words fit the method (windows-07): no epicbox for an HTTP send.
       expect(find.textContaining('(Link · HTTP)'), findsOneWidget);
@@ -143,7 +146,7 @@ void main() {
       final desk = _Desk();
       final tx = _tx(notPosted: true);
       await _pump(tester, tx, desk);
-      expect(statusOf(englishStrings, tx).$1, 'Not on the network');
+      expect(statusOf(englishStrings, tx).$1, _l.deskTxStatusNotPosted);
       expect(find.textContaining('Not on the network.'), findsOneWidget);
       expect(find.textContaining('waiting for a block'), findsNothing);
       await tester.tap(find.widgetWithText(EButton, 'Post again'));
@@ -158,9 +161,9 @@ void main() {
     'a send that is not undelivered (the one being sent now) has no Send again',
     (tester) async {
       await _pump(tester, _tx(), _Desk());
-      expect(statusOf(englishStrings, _tx()).$1, 'Waiting for recipient');
+      expect(statusOf(englishStrings, _tx()).$1, _l.deskTxStatusWaitingRecipient);
       expect(find.widgetWithText(EButton, 'Send again'), findsNothing);
-      expect(find.widgetWithText(EButton, 'Cancel payment'), findsOneWidget);
+      expect(find.widgetWithText(EButton, _l.deskTxCancelOutgoingAction), findsOneWidget);
     },
   );
 

@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 class _Tor extends PhoneTor {
   _Tor(this.value);
 
@@ -66,7 +68,7 @@ void main() {
       const PhoneTorState(receiving: true, phase: PhoneTorPhase.unavailable),
     );
     if (torBuilt) {
-      final text = tester.widget<Text>(find.text('Waiting for Tor'));
+      final text = tester.widget<Text>(find.text(_l.torWayWaiting));
       expect(text.style?.color, _tokens(tester).risk);
     } else {
       expect(find.byType(Text), findsNothing);
@@ -140,6 +142,6 @@ void main() {
       expect(torWayWords(l, t, way), isNull);
     }
     expect(torWayWords(l, t, TorWay.overTor)?.detail, isNull);
-    expect(torWayWords(l, t, TorWay.blocked)?.detail, 'Tor is not connected.');
+    expect(torWayWords(l, t, TorWay.blocked)?.detail, _l.torWayNotConnected);
   });
 }

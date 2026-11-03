@@ -8,9 +8,12 @@ import 'package:epic_wallet/src/desktop/screens/wallet/overview_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 const _change = 8200000;
 
@@ -69,9 +72,9 @@ void main() {
       return tester.widget<FitMoney>(find.descendant(of: column, matching: find.byType(FitMoney))).nano;
     }
 
-    expect(cell('Waiting for sender'), 0);
-    expect(cell('Locked in sends'), 10000000);
-    expect(cell('Total'), 10000000);
+    expect(cell(_l.deskOvBreakAwaiting), 0);
+    expect(cell(_l.deskOvBreakLocked), 10000000);
+    expect(cell(_l.deskOvBreakTotal), 10000000);
     final send = tester.widget<EButton>(find.widgetWithText(EButton, 'Send'));
     final receive = tester.widget<EButton>(find.widgetWithText(EButton, 'Receive'));
     expect(send.kind, receive.kind);

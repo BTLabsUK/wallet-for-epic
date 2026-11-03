@@ -13,9 +13,12 @@ import 'package:epic_wallet/src/desktop/data/server_lists.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/levels/relay_switch.dart';
 import 'package:epic_wallet/src/levels/wallet_level.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 /// The mock with the last server of each list not answering, recording the moves.
 class _Wallet extends MockDeskWallet {
@@ -105,9 +108,9 @@ void main() {
     for (final s in servers) {
       expect(find.descendant(of: find.byKey(ValueKey('status-switch-epicbox-${s.value}')), matching: find.text(s.name)), findsOneWidget);
     }
-    expect(find.text('Healthy'), findsWidgets);
-    expect(find.text('Not answering'), findsOneWidget);
-    expect(find.text('Switching gives you a new Epicbox address.'), findsOneWidget, reason: 'said plainly where the server is chosen');
+    expect(find.text(_l.serverHealthy), findsWidgets);
+    expect(find.text(_l.deskNodeNotAnswering), findsOneWidget);
+    expect(find.text(_l.slSwitchBody), findsOneWidget, reason: 'said plainly where the server is chosen');
     expect(_row(tester, 'epicbox', servers.last.value).onTap, isNull, reason: 'a server not answering cannot be picked');
 
     final pick = servers.first;

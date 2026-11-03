@@ -2,10 +2,13 @@
 import 'package:epic_wallet/src/desktop/screens/wallet/activity_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 // What a screen reader (AT-SPI on Linux) sees and can do: buttons carry a tap, text fields a
 // name, and Cancel on a pending send opens its dialog from the semantics tap.
@@ -94,11 +97,11 @@ void main() {
   testWidgets('Cancel on a pending send opens its dialog from the semantics tap', (tester) async {
     final handle = tester.ensureSemantics();
     await pumpPendingSend(tester);
-    await tester.ensureVisible(find.widgetWithText(EButton, 'Cancel payment'));
+    await tester.ensureVisible(find.widgetWithText(EButton, _l.deskTxCancelOutgoingAction));
     await tester.pump();
-    tester.semantics.tap(find.semantics.byLabel('Cancel payment'));
+    tester.semantics.tap(find.semantics.byLabel(_l.deskTxCancelOutgoingAction));
     await tester.pump(const Duration(milliseconds: 600));
-    expect(find.text('Cancel this payment?'), findsOneWidget);
+    expect(find.text(_l.deskTxCancelOutgoingTitle), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.tap(find.text('Keep'));
     await tester.pump(const Duration(seconds: 3));

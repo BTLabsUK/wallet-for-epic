@@ -19,6 +19,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 /// Time passing while a spinner turns behind a dialog: pumpAndSettle would never return.
 Future<void> _flow(WidgetTester tester) async {
   for (var i = 0; i < 10; i++) {
@@ -83,12 +85,12 @@ void main() {
       expect(titleOf(l, _plain(address: _addr)), shortAddress(_addr));
       expect(shortAddress(_addr), startsWith('esZr8m'));
       expect(shortAddress(_addr), contains('…'));
-      expect(titleOf(l, _plain()), 'Unknown sender');
+      expect(titleOf(l, _plain()), _l.deskTxUnknownSender);
     });
 
     test('a scan find is "Restored" until a sender is typed, then that address', () {
       final l = englishStrings;
-      expect(titleOf(l, _plain(restored: true)), 'Found by recheck');
+      expect(titleOf(l, _plain(restored: true)), _l.deskTxFoundRescanLabel);
       expect(titleOf(l, _plain(restored: true, address: _addr)), startsWith('esZr8m'));
       expect(titleOf(l, _plain(restored: true, label: 'Pool')), 'Pool');
     });
@@ -98,7 +100,7 @@ void main() {
     testWidgets('the pen: its screen-reader name, and a Tab stop that opens the field with Enter', (tester) async {
       final semantics = tester.ensureSemantics();
       await _pump(tester, const ActivityScreen(arg: ActivityArgs(query: 'Rent')));
-      expect(find.bySemanticsLabel('Edit label'), findsOneWidget);
+      expect(find.bySemanticsLabel(_l.deskTxLabelEdit), findsOneWidget);
       expect(find.text('Rent, October'), findsOneWidget);
       // Tab until the pen has the focus.
       final pen = find.descendant(of: find.byType(TxPen), matching: find.byType(GestureDetector)).first;
@@ -118,7 +120,7 @@ void main() {
     testWidgets('a row with no label says Add label', (tester) async {
       final semantics = tester.ensureSemantics();
       await _pump(tester, const ActivityScreen(arg: ActivityArgs(query: 'Mining pool payouts')));
-      expect(find.bySemanticsLabel('Add label'), findsWidgets);
+      expect(find.bySemanticsLabel(_l.deskTxLabelAdd), findsWidgets);
       expect(find.bySemanticsLabel('Edit label'), findsNothing);
       semantics.dispose();
     });
@@ -141,7 +143,7 @@ void main() {
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
       expect((_tx(35)).label, 'Rent, November');
-      expect(find.text('Label saved'), findsOneWidget);
+      expect(find.text(_l.deskTxLabelSaved), findsOneWidget);
       expect(find.byType(TxLabelField), findsNothing);
       expect(find.text('Rent, November'), findsWidgets);
     });
@@ -153,7 +155,7 @@ void main() {
       await tester.tapAt(const Offset(1200, 880));
       await tester.pumpAndSettle();
       expect((_tx(35)).label, 'Flat');
-      expect(find.text('Label saved'), findsOneWidget);
+      expect(find.text(_l.deskTxLabelSaved), findsOneWidget);
     });
 
     testWidgets('the mouse moving off the row keeps the typed text, and a click outside saves it', (tester) async {
@@ -202,7 +204,7 @@ void main() {
       final t = _tx(35);
       expect(t.label, isNull);
       expect(t.manualFields, isEmpty);
-      expect(find.text('Label removed'), findsOneWidget);
+      expect(find.text(_l.deskTxLabelRemoved), findsOneWidget);
       expect(find.text('Tom'), findsWidgets);
     });
 
@@ -241,7 +243,7 @@ void main() {
     testWidgets('the panel title is the label with its tag; Edit label opens the field there', (tester) async {
       await _pump(tester, const ActivityScreen(arg: 35));
       expect(find.text('Rent, October'), findsWidgets);
-      expect(find.text('Added by you'), findsWidgets);
+      expect(find.text(_l.deskTxManualTag), findsWidgets);
       await tester.tap(find.widgetWithText(EButton, 'Edit label'));
       await tester.pumpAndSettle();
       expect(find.byType(TxLabelField), findsOneWidget);
@@ -253,14 +255,14 @@ void main() {
 
     testWidgets('the details editor is offered only on a restored row', (tester) async {
       await _pump(tester, const ActivityScreen(arg: 102));
-      expect(find.widgetWithText(EButton, 'Add details'), findsOneWidget);
+      expect(find.widgetWithText(EButton, _l.deskTxDetailsAdd), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
       await _pump(tester, const ActivityScreen(arg: 35));
       expect(find.widgetWithText(EButton, 'Add details'), findsNothing);
       expect(find.widgetWithText(EButton, 'Edit'), findsNothing);
       await tester.pumpWidget(const SizedBox());
       await _pump(tester, const ActivityScreen(arg: 103));
-      expect(find.widgetWithText(EButton, 'Edit'), findsOneWidget);
+      expect(find.widgetWithText(EButton, _l.deskTxDetailsEdit), findsOneWidget);
     });
 
     testWidgets('the dialog saves sender, method and note, tagged Added by you', (tester) async {

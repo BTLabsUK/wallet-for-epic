@@ -15,9 +15,12 @@ import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 const _password = 'test-pass-1234';
 const _other = 'legal winner thank year wave sausage worth useful legal winner thank yellow';
@@ -303,7 +306,7 @@ void main() {
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
       await settle(tester);
       // The step's title and lead say it; the notice under them gives the reason.
-      expect(find.text('Password not changed'), findsWidgets);
+      expect(find.text(_l.deskOnbForgotFailedTitle), findsWidgets);
       expect(find.text('The current password still opens the wallet.'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('reset-restore-instead')));
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
@@ -344,7 +347,7 @@ void main() {
         await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
       }
       await settle(tester);
-      expect(find.text('Unlock failed'), findsOneWidget);
+      expect(find.text(_l.deskOnbUnlockFailed), findsOneWidget);
       expect(find.textContaining('recovery phrase to open it again'), findsOneWidget);
       expect(find.text('No wallet found'), findsNothing);
       expect(find.text('Try again'), findsNothing, reason: 'trying again cannot open it');
@@ -379,7 +382,7 @@ void main() {
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
       await settle(tester);
       expect(container.read(deskNavProvider).route, DeskRoute.unlock);
-      expect(find.text('Password changed.'), findsOneWidget);
+      expect(find.text(_l.deskSetDlgPwChanged), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(seconds: 10));
     });

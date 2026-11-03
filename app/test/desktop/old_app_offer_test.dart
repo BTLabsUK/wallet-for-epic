@@ -12,6 +12,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 const _old = '/Applications/Epic Cash Desktop.app';
 final _mac = TargetPlatformVariant.only(TargetPlatform.macOS);
 
@@ -76,10 +78,10 @@ void main() {
   testWidgets('old app: the dialog names it; Move to Bin trashes it and says so', (tester) async {
     await pump(tester);
     await start(tester);
-    expect(find.text('Old app found'), findsOneWidget);
+    expect(find.text(_l.deskOldAppTitle), findsOneWidget);
     expect(find.text('Epic Cash Desktop is still in /Applications.'), findsOneWidget);
-    expect(find.bySemanticsLabel('Move to Bin'), findsOneWidget);
-    expect(find.bySemanticsLabel('Keep'), findsOneWidget);
+    expect(find.bySemanticsLabel(_l.deskOldAppTrash), findsOneWidget);
+    expect(find.bySemanticsLabel(_l.deskOldAppKeep), findsOneWidget);
     await tester.tap(find.text('Move to Bin'));
     await tester.pumpAndSettle();
     expect(calls.map((c) => '${c.method}:${c.arguments}'), ['find:null', 'trash:$_old']);
@@ -92,7 +94,7 @@ void main() {
     trashAnswer = 'failed';
     await pump(tester);
     await start(tester);
-    await tester.tap(find.text('Move to Bin'));
+    await tester.tap(find.text(_l.deskOldAppTrash));
     await tester.pumpAndSettle();
     expect(find.text('Epic Cash Desktop could not be moved to Bin'), findsOneWidget);
     expect(find.text('Epic Cash Desktop moved to Bin'), findsNothing);
@@ -101,7 +103,7 @@ void main() {
   testWidgets('Keep is remembered and the dialog does not come back', (tester) async {
     await pump(tester);
     await start(tester);
-    await tester.tap(find.text('Keep'));
+    await tester.tap(find.text(_l.deskOldAppKeep));
     await tester.pumpAndSettle();
     expect(calls.map((c) => c.method), ['find'], reason: 'Keep never trashes');
     expect(store.values[deskOldAppKeptKey], 'kept');

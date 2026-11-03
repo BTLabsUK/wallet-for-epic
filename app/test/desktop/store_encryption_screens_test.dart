@@ -8,9 +8,12 @@ import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/models.dart' show StoreMigrationProgress;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 void main() {
   final containers = <ProviderContainer>[];
@@ -94,7 +97,7 @@ void main() {
     container.read(deskNavProvider.notifier).go(DeskRoute.contacts);
     await run(tester);
     expect(find.byKey(const ValueKey('contacts-closed')), findsOneWidget);
-    expect(find.text('Address book closed'), findsOneWidget);
+    expect(find.text(_l.contactsClosedTitle), findsOneWidget);
     await done(tester);
   });
 }

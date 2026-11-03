@@ -14,6 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 Future<ProviderContainer> _pump(WidgetTester tester, {List<Locale> system = const [Locale('en')], DeskSettings? settings}) async {
   tester.view.physicalSize = const Size(1280, 1000);
   tester.view.devicePixelRatio = 1;
@@ -70,7 +72,7 @@ void main() {
     expect(settings.language, isNull);
     expect(deskLocaleOf(settings.language), isNull);
     expect(find.descendant(of: _switch, matching: find.text('ไทย')), findsOneWidget);
-    expect(find.text('Search help'), findsOneWidget);
+    expect(find.text(_l.deskSetHelpSearch), findsOneWidget);
   });
 
   testWidgets('a remembered choice beats the computer\'s language', (tester) async {

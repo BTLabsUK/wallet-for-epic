@@ -4,6 +4,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+final _l = englishStrings;
+
 /// The pending pairing row's invite time: a fact, never a ticking age.
 void main() {
   setUpAll(() => initializeDateFormatting());
@@ -15,8 +17,8 @@ void main() {
   });
 
   test('yesterday: the word, whatever the hour', () {
-    expect(invitedLine(l, DateTime(2026, 10, 27, 23, 59), now), 'Invited yesterday');
-    expect(invitedLine(l, DateTime(2026, 10, 27, 0, 1), now), 'Invited yesterday');
+    expect(invitedLine(l, DateTime(2026, 10, 27, 23, 59), now), _l.pairInvitedYesterday);
+    expect(invitedLine(l, DateTime(2026, 10, 27, 0, 1), now), _l.pairInvitedYesterday);
   });
 
   test('older: the day', () {

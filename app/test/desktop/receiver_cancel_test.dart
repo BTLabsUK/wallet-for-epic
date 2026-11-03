@@ -13,9 +13,12 @@ import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_service.dart' as core;
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 const _password = 'test-pass-1234';
 
@@ -152,7 +155,7 @@ void main() {
     testWidgets('while the sender reports it posted: no Cancel, the line says so', (tester) async {
       await _pump(tester, waiting(ago: const Duration(minutes: 40), senderPosted: true), _Desk());
       expect(_cancelButton, findsNothing);
-      expect(find.text('Cancel is unavailable while the sender reports it posted.'), findsOneWidget);
+      expect(find.text(_l.txDetailsCancelWhileReported), findsOneWidget);
       expect(find.byKey(const ValueKey('tx-sender-posted')), findsOneWidget);
       await _end(tester);
     });
@@ -192,7 +195,7 @@ void main() {
       expect(find.textContaining('shows as received'), findsOneWidget);
       expect(find.textContaining('week'), findsNothing);
       expect(find.textContaining('locked amount'), findsNothing);
-      await tester.tap(find.text('Keep'));
+      await tester.tap(find.text(_l.deskTxCancelKeep));
       await tester.pumpAndSettle();
       expect(desk.cancelled, isEmpty);
     });
@@ -206,9 +209,9 @@ void main() {
         await tester.pump(const Duration(milliseconds: 60));
       }
       expect(find.text('Cancel this payment?'), findsOneWidget);
-      expect(find.textContaining('Nothing has been paid yet: cancelling is free and certain.'), findsOneWidget, reason: 'the dialog only: no quiet line under Cancel');
+      expect(find.textContaining(_l.txDetailsCancelSendBody), findsOneWidget, reason: 'the dialog only: no quiet line under Cancel');
       // In the dialog only: no note beside the Cancel button.
-      expect(find.text('How cancelling works'), findsOneWidget);
+      expect(find.text(_l.cancelMoreInHelp), findsOneWidget);
       // The pane's button and the dialog's confirm say the same (GP-012).
       expect(find.text('Cancel payment'), findsNWidgets(2));
     });
@@ -223,9 +226,9 @@ void main() {
       await tester.tap(find.text('Cancel payment').last);
       await tester.pumpAndSettle();
       expect(desk.cancelled, [77]);
-      expect(find.text('Not cancelled: the network already has this payment. It completes when the blockchain confirms it.'), findsOneWidget);
+      expect(find.text(_l.txDetailsCancelRefusedOnNetwork), findsOneWidget);
       expect(find.text(cancelRefusedText), findsNothing, reason: 'not the red error toast');
-      expect(find.text('Transaction cancelled'), findsNothing);
+      expect(find.text(_l.deskTxCancelled), findsNothing);
       expect(_cancelButton, findsNothing, reason: 'the node has it: Cancel stays away for this visit');
     });
 
@@ -237,14 +240,14 @@ void main() {
       await tester.tap(find.text('Cancel payment').last);
       await tester.pumpAndSettle();
       expect(desk.cancelled, [77]);
-      expect(find.text('Transaction cancelled'), findsOneWidget);
+      expect(find.text(_l.deskTxCancelled), findsOneWidget);
     });
 
     testWidgets('a cancelled receive says a late post still arrives; a cancelled send does not', (tester) async {
       await _pump(tester, _tx(incoming: true, state: TxState.cancelled), _Desk());
-      expect(find.text('Cancelled. If the sender posts it later, it still arrives.'), findsOneWidget);
+      expect(find.text(_l.txDetailsCancelledIncoming), findsOneWidget);
       await _pump(tester, _tx(incoming: false, state: TxState.cancelled), _Desk());
-      expect(find.text('Cancelled'), findsWidgets);
+      expect(find.text(_l.deskTxNowCancelled), findsWidgets);
       expect(find.textContaining('still arrives'), findsNothing);
     });
   });

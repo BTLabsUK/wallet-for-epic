@@ -25,6 +25,8 @@ import 'package:pretty_qr_code/pretty_qr_code.dart';
 
 import 'support/real_time.dart';
 
+final _l = englishStrings;
+
 /// A full-length address, as long as a real one.
 /// The address on the Receive card: a rich text whose server sits on its own line.
 /// The key part of the address; its server is a line of its own under it (UP-033).
@@ -145,7 +147,7 @@ class _Harness {
 
   /// Shows the Payment file tab.
   Future<void> byFile(WidgetTester tester) =>
-      _tap(tester, find.descendant(of: find.byKey(receiveTabsKey), matching: find.byTooltip('Direct · File')));
+      _tap(tester, find.descendant(of: find.byKey(receiveTabsKey), matching: find.byTooltip(_l.methodShortFile)));
 
   Future<void> listener(WidgetTester tester, ListenerEventKind kind) async {
     session.listenerEvents.add(ListenerEvent(kind: kind, message: 'x'));
@@ -222,12 +224,12 @@ void main() {
       }
       expect(find.byKey(receiveRequestKey), findsNothing);
       expect(find.byType(MarkedQr), findsOneWidget);
-      expect(find.text('Receive by transaction file'), findsNothing);
-      expect(find.text('How receiving works'), findsOneWidget);
+      expect(find.text(_l.receiveFileTitle), findsNothing);
+      expect(find.text(_l.receiveHelpButton), findsOneWidget);
       // Payment file: the file card and the help, nothing else.
       await h.byFile(tester);
-      expect(find.text('Receive by transaction file'), findsOneWidget);
-      expect(find.text('How receiving works'), findsOneWidget);
+      expect(find.text(_l.receiveFileTitle), findsOneWidget);
+      expect(find.text(_l.receiveHelpButton), findsOneWidget);
       for (final key in [
         receiveAddressKey,
         receiveEpicboxKey,
@@ -238,8 +240,8 @@ void main() {
       expect(find.byType(MarkedQr), findsNothing);
       // The help ends both tabs.
       expect(
-        tester.getRect(find.text('How receiving works')).top,
-        greaterThan(tester.getRect(find.text('Open file')).bottom),
+        tester.getRect(find.text(_l.receiveHelpButton)).top,
+        greaterThan(tester.getRect(find.text(_l.receiveFileOpen)).bottom),
       );
       // Under 360 dp the tabs are icons alone: the name is the tooltip.
       await _tap(tester, find.descendant(of: find.byKey(receiveTabsKey), matching: find.byTooltip('Epicbox')));
@@ -269,7 +271,7 @@ void main() {
       expect(find.byType(ReceiveView), findsNothing);
       shown.value = true;
       await tester.pumpAndSettle();
-      expect(find.text('Receive by transaction file'), findsOneWidget);
+      expect(find.text(_l.receiveFileTitle), findsOneWidget);
       expect(find.byKey(receiveAddressKey), findsNothing);
     });
 
@@ -290,7 +292,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       expect(find.byKey(const ValueKey('receive-no-epicbox')), findsOneWidget);
-      expect(find.textContaining('No Epicbox server set'), findsOneWidget);
+      expect(find.textContaining(_l.deskSlNoEpicboxTitle), findsOneWidget);
       expect(find.byKey(receiveAddressKey), findsNothing);
       expect(find.byType(PrettyQrView), findsNothing);
       expect(find.byType(ErrorText), findsNothing, reason: 'no raw core error');
@@ -328,7 +330,7 @@ void main() {
         _addressText,
       ]) {
         await _tap(tester, target);
-        expect(find.text('Address copied'), findsOneWidget);
+        expect(find.text(_l.receiveAddressCopied), findsOneWidget);
         h.container.read(noticeProvider.notifier).clear();
         await tester.pumpAndSettle();
       }
@@ -373,7 +375,7 @@ void main() {
       final h = _Harness(files: _NoShareFiles());
       await h.pump(tester);
       expect(find.byKey(receiveShareKey), findsNothing);
-      expect(find.byTooltip('Share'), findsNothing);
+      expect(find.byTooltip(_l.commonShare), findsNothing);
       expect(find.byIcon(Icons.copy), findsOneWidget);
       await _tap(tester, _addressText);
       expect(h.copied, [_address]);
@@ -403,7 +405,7 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      await tester.tap(find.byTooltip('Share'));
+      await tester.tap(find.byTooltip(_l.commonShare));
       await _untilRendered(tester, () => h.files.sharedImages.isNotEmpty);
       final shared = h.files.sharedImages.single;
       expect(shared.text, _address);
@@ -418,7 +420,7 @@ void main() {
     ) async {
       final h = _Harness()..files.canShare = false;
       await h.pump(tester);
-      await _tap(tester, find.byTooltip('Share'));
+      await _tap(tester, find.byTooltip(_l.commonShare));
       expect(h.files.sharedTexts, [_address]);
       expect(h.files.sharedImages, isEmpty);
     });
@@ -531,18 +533,18 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      expect(find.text('Epicbox connecting'), findsOneWidget);
-      expect(find.text('Retry'), findsNothing);
+      expect(find.text(_l.statusEpicboxConnecting), findsOneWidget);
+      expect(find.text(_l.commonRetry), findsNothing);
 
       await h.listener(tester, ListenerEventKind.connected);
       expect(find.text('Connected · box.epic.invalid'), findsOneWidget);
       expect(find.byIcon(EpicGlyphs.epicbox), findsWidgets);
-      expect(find.text('Retry'), findsNothing);
+      expect(find.text(_l.commonRetry), findsNothing);
 
       await h.listener(tester, ListenerEventKind.disconnected);
       expect(find.text('Not connected · box.epic.invalid'), findsOneWidget);
       expect(find.textContaining('wait on the Epicbox server'), findsOneWidget);
-      expect(find.text('Retry'), findsOneWidget);
+      expect(find.text(_l.commonRetry), findsOneWidget);
 
       await h.listener(tester, ListenerEventKind.connected);
       expect(find.text('Connected · box.epic.invalid'), findsOneWidget);
@@ -551,7 +553,7 @@ void main() {
       // A stopped listener receives nothing either.
       await h.listener(tester, ListenerEventKind.stopped);
       expect(find.text('Not connected · box.epic.invalid'), findsOneWidget);
-      expect(find.text('Retry'), findsOneWidget);
+      expect(find.text(_l.commonRetry), findsOneWidget);
     });
 
     testWidgets('Retry stops the listener, waits for it, and starts it again', (
@@ -562,19 +564,19 @@ void main() {
       expect(h.session.listenerStarts, 1);
       await h.listener(tester, ListenerEventKind.disconnected);
 
-      await tester.tap(find.text('Retry'));
+      await tester.tap(find.text(_l.commonRetry));
       await tester.pump();
       // The shown status follows a turn later.
       await tester.pump();
       expect(h.session.listenerStops, 1);
-      expect(find.text('Epicbox connecting'), findsOneWidget);
-      expect(find.text('Retry'), findsNothing);
+      expect(find.text(_l.statusEpicboxConnecting), findsOneWidget);
+      expect(find.text(_l.commonRetry), findsNothing);
       // The core starts a new listener only once the old one has stopped.
       expect(h.session.listenerStarts, 1);
       await h.listener(tester, ListenerEventKind.stopped);
       expect(h.session.listenerStarts, 2);
       // The old listener's last word did not make it look stopped.
-      expect(find.text('Epicbox connecting'), findsOneWidget);
+      expect(find.text(_l.statusEpicboxConnecting), findsOneWidget);
 
       await h.listener(tester, ListenerEventKind.connected);
       expect(find.text('Connected · box.epic.invalid'), findsOneWidget);
@@ -586,7 +588,7 @@ void main() {
         final h = _Harness();
         await h.pump(tester);
         await h.listener(tester, ListenerEventKind.disconnected);
-        await tester.tap(find.text('Retry'));
+        await tester.tap(find.text(_l.commonRetry));
         await tester.pump(listenerStopWait - const Duration(milliseconds: 100));
         expect(h.session.listenerStarts, 1);
         await tester.pump(const Duration(milliseconds: 200));
@@ -600,13 +602,13 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      expect(find.text('Epicbox connecting'), findsOneWidget);
+      expect(find.text(_l.statusEpicboxConnecting), findsOneWidget);
       // LEPIC's stream when a listener runs already: it closes with no event.
       await h.session.listenerEvents.close();
       await tester.pumpAndSettle();
       expect(h.container.read(listenerProvider).stopped, isTrue);
       expect(find.text('Not connected · box.epic.invalid'), findsOneWidget);
-      expect(find.text('Retry'), findsOneWidget);
+      expect(find.text(_l.commonRetry), findsOneWidget);
     });
 
     testWidgets('an error stays offline when its stream then ends', (
@@ -621,7 +623,7 @@ void main() {
       final state = h.container.read(listenerProvider);
       expect(state.lost, isTrue);
       expect(state.stopped, isFalse);
-      expect(find.text('Retry'), findsOneWidget);
+      expect(find.text(_l.commonRetry), findsOneWidget);
     });
 
     testWidgets('the relay readout is for Advanced options only', (
@@ -652,7 +654,7 @@ void main() {
         );
       }
       await tester.pumpAndSettle();
-      expect(find.text('Epicbox blocked'), findsOneWidget);
+      expect(find.text(_l.statusEpicboxBlocked), findsOneWidget);
       expect(
         find.text(
           'This network blocks box.epic.invalid. A network filter may be the cause. '
@@ -660,7 +662,7 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(find.text('Retry'), findsNothing, reason: 'a restart changes nothing here');
+      expect(find.text(_l.commonRetry), findsNothing, reason: 'a restart changes nothing here');
       expect(find.textContaining('wait on the Epicbox server'), findsNothing);
       expect(find.text('Switching gives you a new Epicbox address.'), findsOneWidget);
 
@@ -693,9 +695,9 @@ void main() {
       await tester.pump(statusSettle);
       await tester.pumpAndSettle();
       expect(find.text('Not connected · box.epic.invalid'), findsOneWidget);
-      expect(find.text('Epicbox blocked'), findsNothing);
+      expect(find.text(_l.statusEpicboxBlocked), findsNothing);
       expect(find.textContaining('Switch to'), findsNothing);
-      expect(find.text('Retry'), findsOneWidget);
+      expect(find.text(_l.commonRetry), findsOneWidget);
     });
   });
 
@@ -706,11 +708,11 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await h.byFile(tester);
-      expect(find.text('Receive by transaction file'), findsOneWidget);
-      expect(find.text('Open file'), findsOneWidget);
-      expect(find.text('Paste'), findsOneWidget);
+      expect(find.text(_l.receiveFileTitle), findsOneWidget);
+      expect(find.text(_l.receiveFileOpen), findsOneWidget);
+      expect(find.text(_l.commonPaste), findsOneWidget);
       // The sheet loops its animation, so it never settles.
-      await tester.tap(find.byTooltip('How a transaction file works'));
+      await tester.tap(find.byTooltip(_l.fileHelpTitle));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
       final help = tester.widget<FileExchangeHelp>(
@@ -726,8 +728,8 @@ void main() {
       await h.pump(tester);
       await h.byFile(tester);
       h.files.picks.add(const SlateFile(name: 'photo.jpg', json: 'nope'));
-      await _tap(tester, find.text('Open file'));
-      expect(find.text('That file is not a transaction file.'), findsOneWidget);
+      await _tap(tester, find.text(_l.receiveFileOpen));
+      expect(find.text(_l.slateNotTransactionFile), findsOneWidget);
       await tester.pageBack();
       await tester.pumpAndSettle();
 
@@ -739,15 +741,15 @@ void main() {
         stage: SlateStage.send,
       );
       h.files.picks.add(const SlateFile(name: 'from-bob.tx', json: incoming));
-      await _tap(tester, find.text('Open file'));
+      await _tap(tester, find.text(_l.receiveFileOpen));
       expect(find.text('from-bob.tx'), findsOneWidget);
-      await _tap(tester, find.text('Accept payment'));
+      await _tap(tester, find.text(_l.slateAcceptPayment));
       expect(h.session.receivedSlates, [incoming]);
-      await _tap(tester, find.text('Save to device'));
+      await _tap(tester, find.text(_l.slateSaveToDevice));
       expect(h.files.saved.single.name, 'from-bob.tx.response');
-      await _tap(tester, find.text('Share'));
+      await _tap(tester, find.text(_l.commonShare));
       expect(h.files.shared.single.name, 'from-bob.tx.response');
-      expect(find.text('Copy reply'), findsNothing);
+      expect(find.text(_l.slateCopyReply), findsNothing);
     });
 
     testWidgets('paste: an empty clipboard and text that is no payment', (
@@ -756,14 +758,14 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await h.byFile(tester);
-      await _tap(tester, find.text('Paste'));
+      await _tap(tester, find.text(_l.commonPaste));
       expect(
-        find.text('Copy the payment text first, then tap Paste.'),
+        find.text(_l.receivePasteEmpty),
         findsOneWidget,
       );
       h.clipboard = 'hello';
-      await _tap(tester, find.text('Paste'));
-      expect(find.text('That file is not a transaction file.'), findsOneWidget);
+      await _tap(tester, find.text(_l.commonPaste));
+      expect(find.text(_l.slateNotTransactionFile), findsOneWidget);
       expect(find.byType(SlateFileScreen), findsNothing);
     });
 
@@ -781,18 +783,18 @@ void main() {
         stage: SlateStage.send,
       );
       h.clipboard = '  $incoming\n';
-      await _tap(tester, find.text('Paste'));
-      expect(find.text('Pasted payment'), findsOneWidget);
+      await _tap(tester, find.text(_l.commonPaste));
+      expect(find.text(_l.slatePastedTitle), findsOneWidget);
       expect(find.text('Someone is sending you 3.0\u00a0EPIC.'), findsOneWidget);
-      await _tap(tester, find.text('Accept payment'));
+      await _tap(tester, find.text(_l.slateAcceptPayment));
       expect(h.session.receivedSlates, [incoming]);
       expect(
         find.text('Accepted. Return incoming.response to the sender.'),
         findsOneWidget,
       );
-      await _tap(tester, find.text('Copy reply'));
+      await _tap(tester, find.text(_l.slateCopyReply));
       expect(h.copied, [h.session.responseSlate.json]);
-      await _tap(tester, find.text('Save to device'));
+      await _tap(tester, find.text(_l.slateSaveToDevice));
       expect(h.files.saved.single.name, 'incoming.response');
       expect(h.files.saved.single.json, h.session.responseSlate.json);
       // The reply is secret text: its clipboard clear is pending (WAL-04).
@@ -812,7 +814,7 @@ void main() {
         expect(tester.takeException(), isNull);
         await h.byFile(tester);
         expect(tester.takeException(), isNull);
-        expect(find.text('Open file'), findsOneWidget);
+        expect(find.text(_l.receiveFileOpen), findsOneWidget);
       });
 
       testWidgets('tap targets and contrast, ${state.name}', (tester) async {

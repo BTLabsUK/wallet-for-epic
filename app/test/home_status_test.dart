@@ -29,6 +29,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/ui/status_icons.dart';
 import 'package:epic_wallet/src/tor_build.dart';
 
+final _l = englishStrings;
+
 WalletSummary _summary({bool validated = true, int height = 2499990, BigInt? spendable}) =>
     WalletSummary(
       lastConfirmedHeight: BigInt.from(height),
@@ -478,7 +480,7 @@ void main() {
       // Every connection as a row, the service and its state word, the detail under it.
       final sheet = find.byKey(connectionsSheetKey);
       expect(sheet, findsOneWidget);
-      expect(find.descendant(of: sheet, matching: find.text('Connections')), findsOneWidget);
+      expect(find.descendant(of: sheet, matching: find.text(_l.connectionsSheetTitle)), findsOneWidget);
       for (final key in [nodeStatusKey, epicboxStatusKey, torIconKey, directIconKey]) {
         final label = _label(tester, key);
         expect(find.descendant(of: sheet, matching: find.text(label)), findsOneWidget, reason: label);
@@ -621,7 +623,7 @@ void main() {
       await _pump(tester, advanced: nodeOnly, tor: _torOff);
       expect(find.byKey(netModeStatusKey), findsOneWidget);
       expect(
-        find.descendant(of: find.byKey(netModeStatusKey), matching: find.text('Node only')),
+        find.descendant(of: find.byKey(netModeStatusKey), matching: find.text(_l.advModeNodeOnly)),
         findsOneWidget,
       );
       expect(_label(tester, netModeStatusKey), 'Network mode: Node only. Opens the Network section.');
@@ -643,7 +645,7 @@ void main() {
     ) async {
       await _pump(tester, advanced: kill, tor: _torOff);
       expect(
-        find.descendant(of: find.byKey(netModeStatusKey), matching: find.text('Kill switch')),
+        find.descendant(of: find.byKey(netModeStatusKey), matching: find.text(_l.advModeKillSwitch)),
         findsOneWidget,
       );
       expect(_label(tester, nodeStatusKey), 'Node, Off (Kill switch)');
@@ -669,7 +671,7 @@ void main() {
     ) async {
       await _pump(tester, advanced: torOnly, tor: _torStarting);
       expect(
-        find.descendant(of: find.byKey(netModeStatusKey), matching: find.text('Tor only')),
+        find.descendant(of: find.byKey(netModeStatusKey), matching: find.text(_l.advModeTorOnly)),
         findsOneWidget,
       );
       expect(_label(tester, nodeStatusKey), contains('Waiting for Tor'));
@@ -736,7 +738,7 @@ void main() {
         final area = tester.getRect(find.byKey(walletBalanceKey));
         final direct = tester.getRect(find.byKey(directIconKey));
         final fiat = tester.getRect(find.byKey(fiatValueKey));
-        final eye = tester.getRect(find.byTooltip('Hide amounts'));
+        final eye = tester.getRect(find.byTooltip(_l.homeHideBalances));
         // Icons at the start, then the fiat value, then the eye at the end, on one line.
         expect(fiat.left, greaterThanOrEqualTo(direct.right));
         expect(eye.left, greaterThanOrEqualTo(fiat.right - 0.5));

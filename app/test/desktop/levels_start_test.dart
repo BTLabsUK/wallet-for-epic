@@ -19,9 +19,12 @@ import 'package:epic_wallet/src/network_gate.dart';
 import 'package:epic_wallet/src/providers.dart' show secretStoreProvider;
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayProbeProvider;
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 class _Wallet extends MockDeskWallet {
   _Wallet() : super(delay: Duration.zero);
@@ -155,7 +158,7 @@ void main() {
     container = make(level: WalletLevel.casual);
     await pumpApp(tester, DeskRoute.setup, arg: const SetupFirstRun(UnlockAdded('Wallet', id: 'x')));
     await wait(tester, 800);
-    expect(find.text('Choose a node'), findsOneWidget);
+    expect(find.text(_l.deskSetupNodeTitle), findsOneWidget);
     expect(container.read(deskNavProvider).route, DeskRoute.setup);
     await end(tester);
   });
@@ -170,7 +173,7 @@ void main() {
     container = make(level: WalletLevel.everything);
     await pumpApp(tester, DeskRoute.unlock);
     await wait(tester, 500);
-    expect(find.text('Add a wallet'), findsOneWidget);
+    expect(find.text(_l.deskOnbWelcomeAdd), findsOneWidget);
     await end(tester);
   });
 
@@ -178,7 +181,7 @@ void main() {
     container = make(level: WalletLevel.justSendReceive);
     await pumpApp(tester, DeskRoute.settingsAdvanced, height: 900);
     expect(find.byKey(const ValueKey('adv-depth')), findsOneWidget);
-    expect(find.text('Shallow'), findsWidgets);
+    expect(find.text(_l.lvPickStopOne), findsWidgets);
     expect(find.byKey(const ValueKey('adv-outputs')), findsNothing);
     expect(find.byKey(const ValueKey('adv-invoices')), findsNothing);
     expect(find.byKey(const ValueKey('adv-mode-standard')), findsNothing);
@@ -190,7 +193,7 @@ void main() {
     container = make(level: WalletLevel.casual);
     await pumpApp(tester, DeskRoute.settingsAdvanced, height: 900);
     expect(find.byKey(const ValueKey('adv-depth')), findsOneWidget);
-    expect(find.text('Deeper'), findsWidgets);
+    expect(find.text(_l.lvPickStopTwo), findsWidgets);
     expect(find.byKey(const ValueKey('adv-outputs')), findsOneWidget);
     expect(find.byKey(const ValueKey('adv-experimental')), findsOneWidget);
     await end(tester);

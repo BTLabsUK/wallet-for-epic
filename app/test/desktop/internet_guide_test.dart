@@ -8,11 +8,14 @@ import 'package:epic_wallet/src/desktop/screens/settings/settings_receiving.dart
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'advanced_on.dart';
+
+final _l = englishStrings;
 
 void main() {
   late MemorySecretStore secrets;
@@ -104,7 +107,7 @@ void main() {
   testWidgets('the guide\'s buttons switch: Receive from the internet on, Back to local only off', (tester) async {
     final container = await show(tester);
     await openGuide(tester);
-    await tester.tap(find.widgetWithText(EButton, 'Receive from the internet'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetHttpGuideTitle));
     await settle(tester);
     expect(find.byType(InternetGuide), findsNothing);
     expect(container.read(deskProvider).settings.publicMode, isTrue);

@@ -13,9 +13,12 @@ import 'package:epic_wallet/src/password_estimate.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 const _password = 'test-pass-1234';
 const _next = 'new-pass-5678';
@@ -198,13 +201,13 @@ void main() {
       await settle(tester);
     }
 
-    EButton mainButton(WidgetTester tester) => tester.widget<EButton>(find.widgetWithText(EButton, 'Change password').last);
+    EButton mainButton(WidgetTester tester) => tester.widget<EButton>(find.widgetWithText(EButton, _l.deskSetDlgPwTitle).last);
 
     testWidgets('Enter moves Current → New → Repeat; from Repeat it changes only when valid', (tester) async {
       await open(tester);
-      expect(focused(tester, 'Current password'), isTrue);
+      expect(focused(tester, _l.deskSetDlgPwCurrent), isTrue);
       expect(mainButton(tester).onPressed, isNull);
-      await type(tester, 'Current password', 'right password');
+      await type(tester, _l.deskSetDlgPwCurrent, 'right password');
       await enter(tester);
       expect(focused(tester, 'New password'), isTrue);
       await type(tester, 'New password', _next);
@@ -227,9 +230,9 @@ void main() {
 
     testWidgets('a short new password says so and blocks the change', (tester) async {
       await open(tester);
-      await type(tester, 'Current password', 'right password');
-      await type(tester, 'New password', 'short');
-      await type(tester, 'Repeat new password', 'short');
+      await type(tester, _l.deskSetDlgPwCurrent, 'right password');
+      await type(tester, _l.deskSetDlgPwNew, 'short');
+      await type(tester, _l.deskSetDlgPwRepeat, 'short');
       expect(find.text('At least 8 characters'), findsOneWidget);
       expect(mainButton(tester).onPressed, isNull);
       await enter(tester);
@@ -239,9 +242,9 @@ void main() {
 
     testWidgets('a wrong current password: an error on its field, no toast, the dialog stays', (tester) async {
       await open(tester);
-      await type(tester, 'Current password', 'wrong');
-      await type(tester, 'New password', _next);
-      await type(tester, 'Repeat new password', _next);
+      await type(tester, _l.deskSetDlgPwCurrent, 'wrong');
+      await type(tester, _l.deskSetDlgPwNew, _next);
+      await type(tester, _l.deskSetDlgPwRepeat, _next);
       await tester.tap(find.widgetWithText(EButton, 'Change password').last);
       await settle(tester);
       expect(find.byType(ChangePasswordDialog), findsOneWidget);

@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 String _json(int parts, [String tag = 'a']) =>
     '{"id":"$tag","pad":"${tag * (qrFragmentLen * parts - 20)}"}';
 
@@ -86,7 +88,7 @@ void main() {
   ) async {
     final h = _Harness();
     await h.pump(tester);
-    expect(find.text('Scan payment QR'), findsOneWidget);
+    expect(find.text(_l.qrScanPayment), findsOneWidget);
     expect(h.camera.started, isTrue);
     expect(
       find.text('Point the camera at the QR code on their phone.'),
@@ -122,7 +124,7 @@ void main() {
   testWidgets('the reply scanner words its hints for a reply', (tester) async {
     final h = _Harness();
     await h.pump(tester, kind: QrScanKind.reply);
-    expect(find.text('Scan their reply'), findsOneWidget);
+    expect(find.text(_l.qrScanReply), findsOneWidget);
     expect(
       find.text('Point the camera at the reply on their phone.'),
       findsOneWidget,
@@ -192,7 +194,7 @@ void main() {
     // A part already known does not count as new.
     await h.see(tester, parts[0]);
     await tester.pump(const Duration(seconds: 1));
-    expect(find.text('Hold steady, or move a little closer.'), findsOneWidget);
+    expect(find.text(_l.qrScanSteady), findsOneWidget);
     await h.see(tester, parts[1]);
     expect(
       find.text('Scanned 2 of 3. Keep the code in the frame.'),
@@ -210,7 +212,7 @@ void main() {
     expect(h.camera.value.zoomed, isTrue);
     expect(find.text('2×'), findsOneWidget);
     expect(find.byIcon(Icons.flashlight_off), findsOneWidget);
-    await tester.tap(find.byTooltip('Torch'));
+    await tester.tap(find.byTooltip(_l.qrScanTorch));
     await tester.pump();
     expect(h.camera.value.torchOn, isTrue);
     expect(find.byIcon(Icons.flashlight_on), findsOneWidget);
@@ -245,9 +247,9 @@ void main() {
     h.camera.problem = QrCameraProblem.denied;
     await h.pump(tester);
     expect(find.textContaining('Camera access is off'), findsOneWidget);
-    expect(find.text('Open settings'), findsOneWidget);
-    expect(find.text('Open a file instead'), findsOneWidget);
-    expect(find.text('Back'), findsOneWidget);
+    expect(find.text(_l.qrScanOpenSettings), findsOneWidget);
+    expect(find.text(_l.qrScanOpenFileInstead), findsOneWidget);
+    expect(find.text(_l.scanQrBack), findsOneWidget);
     await tester.tap(find.text('Open a file instead'));
     await tester.pump(const Duration(milliseconds: 400));
     expect(h.result, isA<QrScanOpenFile>());
@@ -280,7 +282,7 @@ void main() {
     expect(find.text('Open settings'), findsNothing);
     final starts = h.camera.starts;
     h.camera.problem = null;
-    await tester.tap(find.text('Try again'));
+    await tester.tap(find.text(_l.scanQrTryAgain));
     await tester.pump();
     await tester.pump();
     expect(h.camera.starts, starts + 1);

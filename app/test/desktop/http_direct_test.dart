@@ -14,7 +14,10 @@ import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:epic_wallet/src/payment_prefs.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 const _password = 'test-pass-1234';
 
@@ -81,9 +84,9 @@ void main() {
       expect(httpAddressProblem('https://wallet.example.org'), isNull);
       expect(httpAddressProblem(' HTTP://203.0.113.5:3415 '), isNull);
       expect(httpAddressProblem('https://wallet.example.org:8443/x'), isNull);
-      expect(httpAddressProblem('203.0.113.5:3415'), 'Start with https:// or http://');
-      expect(httpAddressProblem('ftp://203.0.113.5'), 'Not an http(s) address');
-      expect(httpAddressProblem('http://abc.onion'), 'Onion addresses need Tor');
+      expect(httpAddressProblem('203.0.113.5:3415'), _l.deskDataHttpScheme);
+      expect(httpAddressProblem('ftp://203.0.113.5'), _l.deskDataHttpNot);
+      expect(httpAddressProblem('http://abc.onion'), _l.deskDataHttpOnion);
       expect(httpAddressProblem(''), isNotNull);
     }, skip: torBuilt ? null : 'no Tor in this build');
 
@@ -110,7 +113,7 @@ void main() {
     test('plain http to another computer needs consent', () async {
       const to = 'http://203.0.113.5:3415';
       final refused = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: to));
-      expect((refused as SendFailed).message, 'Plain HTTP not confirmed');
+      expect((refused as SendFailed).message, _l.deskErrPlainHttp);
       expect(session().httpSends, isEmpty);
 
       final r = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: to, allowPlainHttp: true, message: ' rent '));
@@ -144,7 +147,7 @@ void main() {
     test('LEPIC’s URL errors read as short sentences', () async {
       session().sendError = const core.WalletError(kind: core.WalletErrorKind.httpUrlInvalid, message: 'bad url');
       final r = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: 'https://wallet.example.org'));
-      expect((r as SendFailed).message, 'Not an http(s) address');
+      expect((r as SendFailed).message, _l.deskErrNotHttpAddress);
       expect(r.inActivity, isFalse);
     });
   });
@@ -296,7 +299,7 @@ void main() {
         ..httpPosted = false
         ..repostFailures = 3;
       final r = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: to));
-      expect((r as SendFailed).message, 'Signed by both wallets, but the node refused it. Cancel it in Activity to free the coins.');
+      expect((r as SendFailed).message, _l.deskErrNodeRefused);
       expect(r.inActivity, isTrue);
       expect(session().repostFailures, 2, reason: 'tried once');
       expect(session().repostedKeys, isEmpty);
@@ -306,11 +309,11 @@ void main() {
       const plain = 'http://203.0.113.5:3415';
       for (var i = 0; i < 2; i++) {
         final r = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: plain));
-        expect((r as SendFailed).message, 'Plain HTTP not confirmed');
+        expect((r as SendFailed).message, _l.deskErrPlainHttp);
       }
       expect(await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: plain, allowPlainHttp: true)), isA<SendDone>());
       final again = await wallet.send(const SendRequest(method: TxMethod.http, amount: 1000, to: plain));
-      expect((again as SendFailed).message, 'Plain HTTP not confirmed', reason: 'consent is not remembered');
+      expect((again as SendFailed).message, _l.deskErrPlainHttp, reason: 'consent is not remembered');
       expect(session().httpSends, hasLength(1));
     });
   });

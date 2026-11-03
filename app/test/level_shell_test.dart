@@ -24,6 +24,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 class _OpenSession extends SessionNotifier {
   _OpenSession(this.session);
 
@@ -143,7 +145,7 @@ void main() {
   testWidgets('level 1: an invoice waiting is a row under Recent activity, never a notice', (tester) async {
     await _pump(tester, level: '1', invoice: true);
     expect(find.byKey(quietInvoiceKey('inv-1')), findsOneWidget);
-    expect(find.text('Invoice · waiting for your approval'), findsOneWidget);
+    expect(find.text(_l.lvPolInvoiceWaiting), findsOneWidget);
     expect(find.byKey(noticeKey), findsNothing);
     // No explainer card about a send that waits: the rows say "Waiting for …" themselves.
     expect(find.textContaining('A payment is waiting'), findsNothing);
@@ -162,12 +164,12 @@ void main() {
     }
     // The icon opens the connections sheet; its Network row the Network sheet.
     expect(find.byKey(connectionsSheetKey), findsOneWidget);
-    await tester.tap(find.descendant(of: find.byKey(connectionsSheetKey), matching: find.textContaining('Network')));
+    await tester.tap(find.descendant(of: find.byKey(connectionsSheetKey), matching: find.textContaining(_l.settingsAboutNetwork)));
     for (var i = 0; i < 5; i++) {
       await tester.pump(const Duration(milliseconds: 100));
     }
     expect(find.byKey(networkSheetKey), findsOneWidget);
-    final okBottom = tester.getBottomLeft(find.widgetWithText(TextButton, 'OK')).dy;
+    final okBottom = tester.getBottomLeft(find.widgetWithText(TextButton, _l.commonOk)).dy;
     expect(okBottom, lessThanOrEqualTo(2400 / 3 - 48));
   });
 
@@ -179,13 +181,13 @@ void main() {
     }
     expect(find.byKey(connectionsSheetKey), findsOneWidget);
     expect(find.byKey(epicboxSheetKey), findsNothing);
-    await tester.tap(find.descendant(of: find.byKey(connectionsSheetKey), matching: find.textContaining('Epicbox')));
+    await tester.tap(find.descendant(of: find.byKey(connectionsSheetKey), matching: find.textContaining(_l.netStatusEpicbox)));
     for (var i = 0; i < 5; i++) {
       await tester.pump(const Duration(milliseconds: 100));
     }
     expect(find.byKey(epicboxSheetKey), findsOneWidget);
     expect(find.text('For support'), findsNothing);
-    expect(find.text('Switch server'), findsOneWidget);
+    expect(find.text(_l.lvShellSwitchServer), findsOneWidget);
   });
 
   for (final level in ['1', '3']) {
@@ -195,9 +197,9 @@ void main() {
       expect(find.byKey(noticeKey), findsOneWidget);
       // Compact (item 11): a title, one line naming the server, Switch; the close button is
       // Not now.
-      expect(find.text('Your Epicbox server is not reachable.'), findsOneWidget);
+      expect(find.text(_l.lvShellRelayDownTitle), findsOneWidget);
       expect(find.text('Relay B can take over; your address changes with it.'), findsOneWidget);
-      expect(find.text('Not now'), findsNothing);
+      expect(find.text(_l.homeHistoryReminderNotNow), findsNothing);
       expect(offer.accepts, 0, reason: 'nothing moves without a tap');
       await tester.tap(find.widgetWithText(TextButton, 'Switch'));
       for (var i = 0; i < 5; i++) {
@@ -205,7 +207,7 @@ void main() {
       }
       expect(offer.accepts, 1, reason: 'only the tap moves');
       expect(find.text('Now on Relay B. Your new address is ready.'), findsOneWidget);
-      expect(find.text('Show new address'), findsOneWidget);
+      expect(find.text(_l.lvShellShowNewAddress), findsOneWidget);
     });
   }
 

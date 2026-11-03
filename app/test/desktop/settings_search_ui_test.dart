@@ -21,6 +21,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 /// A page with every registry row of [route], each with its anchor and a switch.
 class _Page extends StatelessWidget {
   const _Page(this.route);
@@ -105,7 +107,7 @@ void main() {
     await tester.enterText(field, 'tor');
     await tester.pumpAndSettle();
     // Payments' Link · Tor first, Network & privacy's Connection mode (Tor only) next.
-    expect(find.text('Connection mode'), findsOneWidget);
+    expect(find.text(_l.deskSetRowNetMode), findsOneWidget);
     expect(find.textContaining('results'), findsOneWidget);
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
     await tester.pump();
@@ -172,7 +174,7 @@ void main() {
     final field = find.descendant(of: find.byKey(SettingsSearchSlot.fieldKey), matching: find.byType(EditableText));
     await tester.enterText(field, 'epicbox server');
     await tester.pumpAndSettle();
-    expect(find.text('Hidden here'), findsOneWidget);
+    expect(find.text(_l.deskSetSearchHidden), findsOneWidget);
     expect(find.text('Deeper view'), findsWidgets);
     expect(find.widgetWithText(EButton, 'Show in Deeper'), findsWidgets);
     expect(c.read(settingsSearchRoutesProvider), contains(DeskRoute.settingsReceiving));

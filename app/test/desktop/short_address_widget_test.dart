@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+
+final _l = englishStrings;
 
 const _epicbox = 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.epiccash.com';
 const _tor = 'wfe7q3k2mz5xr4tbv6ld5yhnpjc7sgo2a3ue6iwq4fk7tr3mxzabcdid.onion';
@@ -50,7 +53,7 @@ void main() {
     // The row shows the method glyph alone; the name is its tooltip.
     expect(find.text('Epicbox'), findsNothing);
     expect(find.byIcon(EIcons.epicbox), findsOneWidget);
-    expect(find.byTooltip('Epicbox'), findsOneWidget);
+    expect(find.byTooltip(_l.methodEpicbox), findsOneWidget);
     expect(_shown(tester), 'esWxbo…3jUcNK@epicbox.epiccash.com');
     expect(find.textContaining('makers'), findsOneWidget);
     await _pump(tester, lines, 240);

@@ -11,6 +11,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 const _second = Key('second');
 
 class _Home extends StatelessWidget {
@@ -606,7 +608,7 @@ void main() {
       final paragraph = tester.renderObject<RenderParagraph>(find.text(text));
       expect(paragraph.didExceedMaxLines, isFalse);
       // The close button stays level with the first line.
-      final close = tester.getRect(find.byTooltip('Close'));
+      final close = tester.getRect(find.byTooltip(_l.commonClose));
       expect(close.top, lessThan(words.top + 20));
     });
 

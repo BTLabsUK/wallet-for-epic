@@ -9,6 +9,9 @@ import 'package:epic_wallet/src/desktop/screens/onboarding/create_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_phrase.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+
+final _l = englishStrings;
 
 Future<void> _pump(WidgetTester tester, Widget child, Size size) async {
   tester.view.physicalSize = size;
@@ -61,10 +64,10 @@ void main() {
   testWidgets('new wallet: Hide, Copy, Show QR above the words; in a short window the checkbox stays in view', (tester) async {
     await _pump(tester, const CreateScreen(arg: CreateStep.phrase), const Size(1000, 640));
     final grid = tester.getTopLeft(find.byType(ESeedGrid));
-    await tester.tap(find.text('Reveal phrase'));
+    await tester.tap(find.text(_l.deskOnbCreateReveal));
     await tester.pump();
     expect(tester.getTopLeft(find.byType(ESeedGrid)), grid, reason: 'Reveal moves nothing');
-    _actionsAbove(tester, 'Hide', find.text('Show QR'));
+    _actionsAbove(tester, _l.deskOnbCreateHide, find.text(_l.deskOnbCreateShowQr));
     final checkbox = find.byType(ECheckbox);
     expect(tester.getRect(checkbox).bottom, lessThan(tester.getRect(_button('Continue')).top));
     await _onlyWordsScroll(tester, checkbox, _button('Copy'));
@@ -77,9 +80,9 @@ void main() {
 
   testWidgets('new wallet: a tall window shows the checkbox right under the words', (tester) async {
     await _pump(tester, const CreateScreen(arg: CreateStep.phrase), const Size(1280, 1000));
-    await tester.tap(find.text('Reveal phrase'));
+    await tester.tap(find.text(_l.deskOnbCreateReveal));
     await tester.pump();
-    _actionsAbove(tester, 'Hide', find.text('Show QR'));
+    _actionsAbove(tester, _l.deskOnbCreateHide, find.text(_l.deskOnbCreateShowQr));
     final gap = tester.getRect(find.byType(ECheckbox)).top - tester.getRect(find.byType(ESeedGrid)).bottom;
     expect(gap, lessThan(40));
     await _end(tester);
@@ -87,8 +90,8 @@ void main() {
 
   testWidgets('Settings › Recovery phrase: the actions above the words; in a short window the warning stays in view', (tester) async {
     await _pump(tester, const SettingsPhraseScreen(arg: PhraseDemo.shown), const Size(1000, 580));
-    _actionsAbove(tester, 'Copy', _button('Hide recovery phrase'));
-    await _onlyWordsScroll(tester, find.byType(ENotice), _button('Copy'));
+    _actionsAbove(tester, _l.commonCopy, _button(_l.deskSetPhraseHideWords));
+    await _onlyWordsScroll(tester, find.byType(ENotice), _button(_l.commonCopy));
     expect(tester.takeException(), isNull);
     await _end(tester);
   });

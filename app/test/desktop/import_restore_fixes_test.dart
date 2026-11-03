@@ -9,10 +9,13 @@ import 'package:epic_wallet/src/desktop/data/state.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/import_wallets_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/welcome_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 /// The in-use check gives no answer, as on Windows.
 class _NoAnswer extends MockDeskWallet {
@@ -52,10 +55,10 @@ Future<void> _end(WidgetTester tester) async {
 void main() {
   testWidgets('Done: the older Epicbox server is kept by default; Use the app\'s says the address changes', (tester) async {
     final api = await _pump(tester, const ImportWalletsScreen(arg: ImportStep.done));
-    expect(find.text('Wallets imported'), findsOneWidget);
+    expect(find.text(_l.deskOnbImportDoneTitle), findsOneWidget);
     expect(find.textContaining('Epicbox server for '), findsOneWidget, reason: 'only the wallet that used another server');
     expect(find.textContaining('The older app received through epicbox.example.org.'), findsOneWidget);
-    expect(find.text('Unlock with the old password.'), findsWidgets);
+    expect(find.text(_l.deskOnbImportUnlockOld), findsWidgets);
     // Keep is chosen already: tapping it changes nothing.
     await tester.tap(find.text('Keep epicbox.example.org'));
     await _wait(tester);
@@ -74,9 +77,9 @@ void main() {
     debugDefaultTargetPlatformOverride = TargetPlatform.windows;
     addTearDown(() => debugDefaultTargetPlatformOverride = null);
     await _pump(tester, const ImportWalletsScreen(), _NoAnswer());
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await tester.pump();
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await _wait(tester);
     expect(find.text('Close the older Epic Wallet before importing. Whether it is still running cannot be checked on Windows.'), findsOneWidget);
     expect(find.text('Each wallet asks for its old password once.'), findsNothing, reason: 'stays on Check');
@@ -89,9 +92,9 @@ void main() {
 
   testWidgets('Check elsewhere: nothing in use goes straight on, no Windows line', (tester) async {
     await _pump(tester, const ImportWalletsScreen(), _NoAnswer());
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await tester.pump();
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await _wait(tester);
     expect(find.textContaining('cannot be checked on Windows'), findsNothing);
     expect(find.text('Each wallet asks for its old password once.'), findsOneWidget);
@@ -102,8 +105,8 @@ void main() {
     const line = 'From Stack Wallet or Epic Pay: restore with the recovery phrase.';
     await _pump(tester, const WelcomeScreen());
     // On Welcome, the Restore card's own line, no period, like the other cards' (polish #42).
-    expect(find.text('Also from Stack Wallet or Epic Pay'), findsOneWidget);
-    expect(find.text('With a new recovery phrase'), findsOneWidget);
+    expect(find.text(_l.deskOnbWelcomeRestoreSub), findsOneWidget);
+    expect(find.text(_l.deskOnbWelcomeCreateSub), findsOneWidget);
     await _pump(tester, const ImportWalletsScreen(arg: ImportStep.none));
     expect(find.text(line), findsOneWidget);
     await _end(tester);
