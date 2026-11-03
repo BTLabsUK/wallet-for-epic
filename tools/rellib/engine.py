@@ -49,6 +49,16 @@ def relmsg_state(st):
     return {"held": "waiting", "closed": "waiting"}.get(st["status"], st["status"])
 
 
+
+def recovered_note(proof):
+    """`; RECOVERED by AI: <steps>` when the driver needed the model to find a control or get past a
+    screen (the owner 2026-11-03: such a lane may pass, marked, with a selector fix drafted next to its proof)."""
+    rec = proof.get("recovered") or []
+    if not rec:
+        return ""
+    steps = sorted({str(r.get("step")) for r in rec})
+    return f"; RECOVERED by AI ({len(rec)}): {', '.join(steps)[:120]} (selector-fixes.md)"
+
 class Engine:
     def __init__(self, run, pipeline, hosts, repo, *, relmsg=None, dry=False, echo=None, failures=None):
         self.run = run
@@ -461,6 +471,9 @@ class Engine:
             det = proof.get("details", {})
             note = "not proven: " + ", ".join(
                 f"{c} ({det.get(c, 'false')})"[:80] for c in bad) if bad else f"driver exit {rc}"
+            # the driver's one line (core/faults.py): PRODUCT or HARNESS, the step, what broke, the screenshot
+            if (proof.get("fault") or {}).get("line"):
+                note = proof["fault"]["line"][:200] + "; " + note
             # A waived platform (release.toml [proof.waive]) still runs its driver so the gate shows
             # what it found; its result is reported, never counted as proven, and blocks nothing.
             reason = self.info["scope"]["proof"]["waive"].get(step.platforms[0]) if step.platforms else None
@@ -470,7 +483,11 @@ class Engine:
                 res.update(status="failed", note=note)
         else:
             res.update(status="done", note=f"proven {proof.get('previous')} → {proof.get('candidate')} "
-                                           f"({proof.get('update_method', '?')}; node {proof.get('node')}, epicbox {proof.get('epicbox')})")
+                                           f"({proof.get('update_method', '?')}; node {proof.get('node')}, epicbox {proof.get('epicbox')}"
+                                           + (f"; from saved state" if proof.get("start") == "state" else "") + ")"
+                                           + recovered_note(proof))
+            if proof.get("recovered"):
+                res["recovered"] = [r.get("step") for r in proof["recovered"]]
         return res
 
     def collect(self, step, stage):
