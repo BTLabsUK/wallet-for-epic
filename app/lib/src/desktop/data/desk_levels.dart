@@ -43,7 +43,19 @@ const String deskLevelNewsKey = 'desk.level_news';
 
 /// At launch, before the settings open and before any request ([holdUntilFirstStart] with the
 /// desktop's markers). An existing install settling into levels now also gets the one notice.
-Future<bool> deskHoldUntilFirstStart(SecretStore store) async {
+/// [walletsOnDisk]: whether the data folder already holds a wallet. Such an install is past
+/// Welcome, the only screen that answers the first-start step, so it is never held, also when
+/// the keychain lost its keys or holds a pending step (a new code signature, a wiped keychain):
+/// held, it would reach no node, relay or site and never be asked.
+Future<bool> deskHoldUntilFirstStart(SecretStore store, {Future<bool> Function()? walletsOnDisk}) async {
+  try {
+    if (walletsOnDisk != null && LevelChoice.decode(await store.read(levelKey)) is! LevelChosen && await walletsOnDisk()) {
+      await store.write(levelKey, const LevelChosen(existingInstallLevel).encode());
+      logInfo('levels', 'a wallet on disk: existing install, level ${existingInstallLevel.number}');
+    }
+  } on Object catch (e) {
+    logWarn('levels', 'wallets on disk not checked: ${e.runtimeType}');
+  }
   try {
     if (LevelChoice.decode(await store.read(levelKey)) == null) {
       for (final k in deskExistingInstallMarkers) {

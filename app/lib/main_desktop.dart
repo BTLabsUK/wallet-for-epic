@@ -123,6 +123,14 @@ Future<void> main(List<String> args) async {
   });
 }
 
+/// Whether `<data>/wallets` holds any file: a wallet was created or restored here (the first
+/// wallet's folder alone may exist empty).
+Future<bool> _walletsOnDisk() async {
+  final dir = Directory('${(await appDataDirectory()).path}${Platform.pathSeparator}wallets');
+  if (!await dir.exists()) return false;
+  return dir.list(recursive: true).any((e) => e is File);
+}
+
 /// The real wallet behind the desktop UI, its saved settings read before the first frame, and
 /// the first screen: Welcome without a wallet, Unlock with one.
 Future<List<Override>> deskOverrides() async {
@@ -131,7 +139,7 @@ Future<List<Override>> deskOverrides() async {
   final store = DeskStore(secrets);
   // Before the settings open and before any request: a fresh install opens no connection until
   // Welcome's depth dial is answered (levels/first_start.dart, desk_levels.dart).
-  await deskHoldUntilFirstStart(secrets);
+  await deskHoldUntilFirstStart(secrets, walletsOnDisk: _walletsOnDisk);
   // Before the wallet core starts: its runtime takes the log level once.
   await applySavedLogLevel(store);
   // Before anything reads an address: the settings file (docs/settings-file.md), watched for
