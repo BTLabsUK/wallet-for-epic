@@ -341,6 +341,7 @@ def invoice(lane, amount, names, check="pair_invoice_ok"):
     a, b = lane.w["a"], lane.w["b"]
     wait_for(lane, b, "pair-invoice: B spendable", lambda d: spendable(d) >= nano(D(amount) + FEE_MAX), SPEND_WAIT_S)
     _awake(lane)
+    b.pair.allow_invoices(names["a"])  # the payer allows the issuer's invoices
     a0, b0 = digest(lane, a, "pair-invoice"), digest(lane, b, "pair-invoice")
     ok, why = a.pair.issue_invoice(names["b"], amount)
     if not ok:

@@ -58,6 +58,7 @@ CONFIRMED_TOO = T("pair.state.both", role="text", keys=("pairConfirmedToo",), na
                   match="contains")
 REMOVE_PAIRING = T("pair.contact.remove", keys=("contactRemovePairing",), names=("Remove pairing",), match="exact")
 REMOVE_CONFIRM = T("pair.contact.removeok", keys=("contactRemove",), names=("Remove",), match="exact")
+CONTACT_CHECK = T("pair.contact.check", keys=("pairCheckWords",), names=("Check the words",), match="exact")
 CONTACT_PAIR = T("pair.contact.pair", keys=("pairTitle", "pairAgain"), names=("Pair", "Pair again"), match="exact")
 # a pair request to a proven contact: "Pair with Lane A" › Send request; the other side's Pair requests · 1 › Pair
 REQUEST_SEND = T("pair.request.send", keys=("pairSendRequest",), names=("Send request",), match="exact")
@@ -169,8 +170,9 @@ class Pairing:
 
     # ---- the words
 
-    def words(self, timeout=300):
-        """The four words the open check dialog shows (waits for it); -> list of 4, lower case."""
+    def words(self, timeout=300, contact=None):
+        """The four words the check dialog shows (waits for it); -> list of 4, lower case. With
+        [contact]: when no dialog opens in [timeout], <contact>'s page › Check the words opens it."""
         d = self.d
 
         def got(dd, tree):
@@ -181,6 +183,11 @@ class Pairing:
                 if len(w) == 4:
                     return w
             return None
+        if contact and not d.wait(Expect("the four words", got), timeout):
+            self.log("%s: no words check opened by itself; %s's page › Check the words" % (self.ui.which, contact))
+            self.open_contact(contact)
+            d.press(CONTACT_CHECK, step="pair-check-open", then=shows(CHECK_MATCH), timeout=30)
+            timeout = 30
         w = d.must(Expect("the four words", got), timeout, step="pair-words")
         d.shot("pair-words")
         return w
@@ -201,6 +208,7 @@ class Pairing:
     def open_contact(self, name):
         """Contacts › <name>: the contact page with its Pairing block."""
         d = self.d
+        self.ui.ensure_unlocked()  # a wallet that waited long enough locked itself
         self.ui.nav(NAV_CONTACTS)  # keeps a contact page open: its back (an unnamed button) shows the list
         if not d.wait(shows(CONTACTS_SEARCH), 5):
             back = [n for n in d.tree() if n.role == "button" and not n.name.strip()]
@@ -261,6 +269,11 @@ class Pairing:
             d._act(d.s.press, hits[-1])
 
     # ---- an invoice between paired contacts
+
+    def allow_invoices(self, name):
+        """<name>'s contact page › Allow invoices on (the payer's side; a verified pairing only)."""
+        self.open_contact(name)
+        self.d.toggle(CHECK_ALLOW, True, step="pair-allow-invoices")
 
     def issue_invoice(self, name, amount):
         """<name>'s contact page › Issue an invoice (to <name>) › Amount › Send invoice. -> (ok, why)."""

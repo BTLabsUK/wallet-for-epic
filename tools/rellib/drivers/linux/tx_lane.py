@@ -254,6 +254,7 @@ class TxLane(Lane):
             self.skip_phase("pair-end", "A and B are not paired")
 
     def _both_verified(self, check, how):
+        self.awake()  # a locked wallet takes no notice of the other's confirmation
         a, b = self.w["a"].pair, self.w["b"].pair
         got = {k: p.wait_state(PAIR_NAME[o], "verified") for k, o, p in (("a", "b", a), ("b", "a", b))}
         too = {k: p.state(PAIR_NAME[o], refresh=False)[1] for k, o, p in (("a", "b", a), ("b", "a", b))}
@@ -275,7 +276,7 @@ class TxLane(Lane):
         b.enter_invite(a.copy_invite(), PAIR_NAME["a"])
         wa = a.words()  # the inviter's check opens on B's answer; B's waits for A's confirmation
         a.confirm_words(allow_invoices=True)
-        wb = b.words()
+        wb = b.words(timeout=60, contact=PAIR_NAME["a"])  # 26.11.0 does not always open it on B
         if wa != wb:  # the words are no secret, but a mismatch is all the proof needs
             self.fail("pair_invite_ok", "the four words differ between A and B")
             return
