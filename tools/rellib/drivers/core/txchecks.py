@@ -103,10 +103,11 @@ class Ledger:
              "returned": [f(a) for a in self.returned], "returned_total": f(self.back()),
              "fees": [f(a) for a in self.fees], "fees_total": f(self.fee()),
              "cap_run": f(self.cap_run), "cap_send": f(self.cap_send)}
+        # P's info: EPIC text
         if p_before is not None:
-            d["p_spendable_before"] = num(p_before)
+            d["p_spendable_before"] = str(p_before)
         if p_after is not None:
-            d["p_spendable_after"] = num(p_after)
+            d["p_spendable_after"] = str(p_after)
         return d
 
 

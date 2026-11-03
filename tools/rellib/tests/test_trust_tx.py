@@ -71,9 +71,9 @@ class MoneyTest(unittest.TestCase):
         with self.assertRaises(HarnessFault):
             led.charge("0.01")  # 0.11 out of P this run
         self.assertEqual(led.sent(), D("0.1"))
-        doc = led.doc(int(5 * N), int(4.95 * N))
+        doc = led.doc("5.0", "4.95")
         self.assertEqual(doc["p_sent_total"], "0.10")
-        self.assertEqual(doc["p_spendable_before"], "5")
+        self.assertEqual(doc["p_spendable_before"], "5.0")
 
     def test_sweep_plan(self):
         self.assertEqual(tx.sweep_plan(0), [])
