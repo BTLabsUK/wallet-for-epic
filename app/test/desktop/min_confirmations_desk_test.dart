@@ -160,7 +160,7 @@ void main() {
       expect(button, hasLength(1), reason: label);
       expect(_below(field.parent!).contains(button.single), isTrue, reason: '$label in the same group as the field');
     }
-    tester.binding.pipelineOwner.semanticsOwner!.performAction(field.id, SemanticsAction.increase);
+    tester.binding.performSemanticsAction(SemanticsActionEvent(type: SemanticsAction.increase, nodeId: field.id, viewId: tester.view.viewId));
     await _settle(tester);
     expect(_shown(tester), '7');
     expect(await tester.runAsync(_wallet.minimumConfirmations), 7);
