@@ -50,6 +50,8 @@ class Labels:
             self.arb, self.origin = _load_dir(ROOT) or {}, "this checkout"
         self.en = self.arb   # the English strings, before a locale's own go over them
         if self.locale != "en" and arb is None:
+            if self.origin == "this checkout":
+                src, ref = ROOT, None
             loc = (_load_dir(src, self.locale) if src else None) or (_load_ref(ref, self.locale) if ref else None) or {}
             self.arb = dict(self.arb, **{k: v for k, v in loc.items() if isinstance(v, str) and v and not k.startswith("@")})
             self.origin += " (%s)" % self.locale

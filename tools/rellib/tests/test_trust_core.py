@@ -21,7 +21,7 @@ from core import targets as tg  # noqa: E402
 from core.desktop import TECHNICAL, Desktop  # noqa: E402
 from core.driver import Driver, shows  # noqa: E402
 from core.faults import HarnessFault, ProductFault  # noqa: E402
-from core.labels import Labels  # noqa: E402
+from core.labels import ROOT, Labels  # noqa: E402
 from core.recover import Recover  # noqa: E402
 from core.surface import Node  # noqa: E402
 
@@ -133,6 +133,15 @@ class CoreTest(unittest.TestCase):
         self.assertNotIn("hunter2", text)
         d.dump("phrase", [n(0, "text", " ".join(["abandon"] * 24)), n(1, "text_field", "Password", states=("password",))])
         self.assertFalse(os.path.exists(os.path.join(self.out, "tree-000-phrase.txt")))
+
+    def test_labels_from_this_checkout_in_the_builds_language(self):
+        """A candidate given no source tree or ref reads this checkout's strings in the locale the app
+        shows, as one given a source tree does."""
+        with unittest.mock.patch.dict(os.environ, {"REL_TRUST_LOCALE": "pl"}):
+            l = Labels()
+        self.assertEqual(l.origin, "this checkout (pl)")
+        self.assertEqual(l.text("deskOnbUnlockTitle"), Labels(src=ROOT, locale="pl").text("deskOnbUnlockTitle"))
+        self.assertNotEqual(l.text("deskOnbUnlockTitle"), l.en.get("deskOnbUnlockTitle"))
 
     def test_destructive_pick_refused(self):
         f = Fake({"s": [n(0, "button", "Delete wallet")]}, "s", {})
