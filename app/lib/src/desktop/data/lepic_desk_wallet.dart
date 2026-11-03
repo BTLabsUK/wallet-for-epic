@@ -257,6 +257,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _dirNodesAt = null;
     _boxes = null;
     _boxesAt = null;
+    _boxesFailedAt = null;
     await _secrets.write(networkKey, network);
     _changed();
   }
@@ -265,6 +266,9 @@ class LepicDeskWallet implements DeskWalletApi {
   final RelayDirectory? relayDirectory;
   List<EpicboxServer>? _boxes;
   DateTime? _boxesAt;
+  /// When reading the relay list last failed: not read again for a while, so a blocked or
+  /// failing read is not repeated by every caller.
+  DateTime? _boxesFailedAt;
 
   /// When [_importHistoryOnce] last read each wallet's old database (by meta key).
   final Map<String, DateTime> _historyTried = {};
@@ -531,6 +535,7 @@ class LepicDeskWallet implements DeskWalletApi {
     _dirNodesAt = null;
     _boxes = null;
     _boxesAt = null;
+    _boxesFailedAt = null;
     _changed();
   }
 
@@ -2511,6 +2516,8 @@ class LepicDeskWallet implements DeskWalletApi {
     if (_boxes != null && at != null && DateTime.now().difference(at) < const Duration(minutes: 5)) return _boxes!;
     // Tor still connecting: the list known now, read again by a later call once it is up.
     if (TorNet.mode == TorNetMode.waiting) return _boxes ?? _builtInBoxes;
+    final failed = _boxesFailedAt;
+    if (failed != null && DateTime.now().difference(failed) < const Duration(seconds: 30)) return _boxes ?? _builtInBoxes;
     try {
       final listed = await dir.relays(preset.statusChain!).timeout(nodeTimeout);
       if (!statusSite.on) return _builtInBoxes;
@@ -2527,8 +2534,10 @@ class LepicDeskWallet implements DeskWalletApi {
           ),
       ];
       _boxesAt = DateTime.now();
+      _boxesFailedAt = null;
       return _boxes!;
     } on Object catch (e) {
+      _boxesFailedAt = DateTime.now();
       logWarn('desk', 'epicbox status: ${e.runtimeType}');
       return _boxes ?? _builtInBoxes;
     }
