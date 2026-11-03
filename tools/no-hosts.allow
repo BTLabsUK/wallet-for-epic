@@ -64,6 +64,6 @@ lepic/crates/lepic-telemetry/src/mobile.rs	epic\.cash
 app/lib/l10n/*	status\.btlabs\.uk
 app/lib/src/help/help_*.dart	(?<![0-9])(3413|3414)(?![0-9])
 
-# The test drivers' control id for Send's recipient field (g4.<screen>.<control>): "to" is the
-# control, not a top-level domain.
-app/lib/src/trust_ids.dart	g4\.send\.to
+# The test drivers' control ids (g4.<screen>.<control>: `g4.send.to`, `g4.restore.info`): dotted
+# like a host, ending in what reads as a top-level domain; never an address.
+app/lib/src/trust_ids.dart	(?<![A-Za-z0-9_.])g4(\.[a-z][A-Za-z0-9]*)+
