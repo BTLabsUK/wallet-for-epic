@@ -7,6 +7,8 @@
 #   relay.sh status   running or not, and the relay's /status
 #   relay.sh health   /healthz answers and the identity is $RELAY_ADDR; exit 0 only then
 #
+# Logs at DEBUG as JSON lines into var/log/relay.log, capped by rotlog.py (RELAY_LOG_MB × files).
+#
 # The app speaks plain ws:// to a loopback relay and wss:// to anything else (LEPIC
 # crates/lepic-epicbox/src/session.rs check_security; app/lib/src/send_preflight.dart relayProbeUri),
 # so a device reaches this relay as 127.0.0.1:$RELAY_PORT: adb reverse on the emulator, an ssh -R
@@ -39,8 +41,8 @@ start)
     cd "$RELAY_SRC"
     EPIC_RELAY_HOST=127.0.0.1 EPIC_RELAY_PORT="$RELAY_PORT" \
     EPIC_RELAY_EPICBOX_DOMAIN="$RELAY_DOMAIN" EPIC_RELAY_ALIASES="$RELAY_ALIASES" \
-    EPIC_RELAY_PG_DSN="$RELAY_PG_DSN" \
-        nohup uv run --frozen epic-relay >>"$LOG" 2>&1 &
+    EPIC_RELAY_PG_DSN="$RELAY_PG_DSN" EPIC_RELAY_LOG_LEVEL=DEBUG EPIC_RELAY_LOG_JSON=1 \
+        nohup uv run --frozen epic-relay > >(python3 -I "$HERMETIC_SRC/rotlog.py" "$LOG" "$RELAY_LOG_MB" "$RELAY_LOG_FILES") 2>&1 &
     echo $! > "$PID"
     for _ in $(seq 30); do
         curl -sf -m 2 "http://$RELAY_ADDR/healthz" >/dev/null && break

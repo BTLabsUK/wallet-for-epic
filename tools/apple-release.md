@@ -108,15 +108,20 @@ When the release runner (`tools/rel`) drives the release, steps 2 to 4 are its h
 and the results folders, and where the Team ID for the check is set, are in `docs/RELEASING.md`,
 section Apple. By hand it is:
 
-1. **Owner**: send the builder the commit (or tag) on GitHub to build.
-2. **Builder**, macOS: on a clean checkout of that commit, build the variant with Tor and the one
+1. **Owner**: send the builder the release's version, e.g. `26.10.25`. Its tag `v26.10.25` on
+   GitHub is the one commit both the macOS and the iOS builds come from. Never build from `main`:
+   it moves on to the next version right after a release is published.
+2. **Builder**, macOS: on a clean checkout of that tag, build the variant with Tor and the one
    without (both are published, as on the other platforms):
 
    ```
-   git fetch --tags origin && git checkout --detach <commit>
-   RELEASE_COMMIT=<commit> tools/build-apple.sh mac-release
-   RELEASE_COMMIT=<commit> WFE_TOR=0 tools/build-apple.sh mac-release
+   git fetch --tags origin && git checkout --detach v<version>
+   RELEASE_VERSION=<version> tools/build-apple.sh mac-release
+   RELEASE_VERSION=<version> WFE_TOR=0 tools/build-apple.sh mac-release
    ```
+
+   Every release step refuses a checkout whose app version is not `<version>` or whose commit is
+   not the tag `v<version>`.
 
    One command does all of it: checks the checkout and the toolchain, the Developer ID
    certificate and the notary login, builds, signs every binary with Developer ID (hardened
@@ -127,7 +132,7 @@ section Apple. By hand it is:
 3. **Builder**, iOS:
 
    ```
-   RELEASE_COMMIT=<commit> WFE_TOR=0 WFE_DIST=appstore tools/build-apple.sh ios-prepare
+   RELEASE_VERSION=<version> WFE_TOR=0 WFE_DIST=appstore tools/build-apple.sh ios-prepare
    open app/ios/Runner.xcworkspace
    ```
 
@@ -139,7 +144,8 @@ section Apple. By hand it is:
 4. **Owner**, before the `.dmg` goes on the download page (the release gate):
    - `sha256sum -c bt-wallet-<v>-macos.dmg.sha256` passes, and the hash is the one the
      builder sent by chat;
-   - in the REPORT: `commit:` is the commit you asked for, and it is on GitHub;
+   - in the REPORT: `app version:` is the release's version and `commit:` is the commit of
+     its tag on GitHub;
    - `TeamIdentifier=` is the BT Labs Team ID, for the `.dmg` and for the app in it;
    - the Gatekeeper part says `accepted` and `source=Notarized Developer ID`, for the `.dmg` and
      for the app.
@@ -270,7 +276,7 @@ The `.dmg` goes back to the Mac because nothing on Linux can write an Apple disk
 hand-off is checked by its SHA-256 (sent by chat) and `SHA256SUMS`, so any channel works for the
 files.
 
-On the Mac: `RELEASE_COMMIT=<commit> [WFE_TOR=0] tools/build-apple.sh release` writes
+On the Mac, at the tag: `RELEASE_VERSION=<version> [WFE_TOR=0] tools/build-apple.sh release` writes
 `build-apple/handoff/EpicCash-<v>-<commit>/` (both unsigned apps as `.tar.gz`, `PROVENANCE.txt`
 with every file's SHA-256, `SHA256SUMS`). Later, `tools/build-apple.sh dmg-signed <signed tar>`
 and `tools/build-apple.sh gatekeeper <final dmg>`.

@@ -19,19 +19,20 @@ import 'package:flutter/services.dart' show KeyDownEvent, KeyRepeatEvent, Logica
 
 import '../../l10n.dart' show localInt, localMonthShort, localMonthYear, localYear;
 import '../../start_month.dart';
+import '../../trust_ids.dart' show TrustId;
 import '../desk_l10n.dart';
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
 import 'selectable.dart';
 
-export '../../start_month.dart' show mainnetHeightForDate, StartMonth;
+export '../../start_month.dart' show defaultStartMonth, mainnetHeightForDate, StartMonth;
 
 /// The start of a restore as a month (a year and a month, no day; the scan starts from the
 /// first): the month field and, under it, the block the chosen month starts from (or [hint]),
 /// with a warning when the month is this one or the one before.
 class EStartDate extends StatelessWidget {
-  const EStartDate({super.key, required this.date, required this.onChanged, this.label, this.hint});
+  const EStartDate({super.key, required this.date, required this.onChanged, this.label, this.hint, this.semanticsId});
 
   /// The chosen month's first day; null for none.
   final DateTime? date;
@@ -44,6 +45,9 @@ class EStartDate extends StatelessWidget {
 
   /// The line under the field before a month is chosen; none when null.
   final String? hint;
+
+  /// The test drivers' stable name for the field (`TrustIds`, lib/src/trust_ids.dart).
+  final String? semanticsId;
 
   /// The key of the recent-month warning, for tests.
   static const Key recentKey = ValueKey('start-date-recent');
@@ -60,7 +64,7 @@ class EStartDate extends StatelessWidget {
       children: [
         SizedBox(
           width: Ctl.rowWide,
-          child: EStartMonthField(month: chosen, placeholder: label, size: EBtnSize.md, onChanged: (m) => onChanged(m.firstDay)),
+          child: EStartMonthField(month: chosen, placeholder: label, size: EBtnSize.md, semanticsId: semanticsId, onChanged: (m) => onChanged(m.firstDay)),
         ),
         if (line != null) ...[SizedBox(height: Sp.x1), Text(line, style: ts.small)],
         if (chosen != null && startMonthRecent(chosen, DateTime.now())) EStartMonthRecent(key: recentKey),
@@ -114,6 +118,7 @@ class EStartMonthField extends StatefulWidget {
     this.size = EBtnSize.sm,
     this.semanticLabel,
     this.invalid = false,
+    this.semanticsId,
   });
 
   final StartMonth? month;
@@ -130,6 +135,9 @@ class EStartMonthField extends StatefulWidget {
 
   /// Drawn with the risk edge (Recheck without a month).
   final bool invalid;
+
+  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  final String? semanticsId;
 
   static const Key fieldKey = ValueKey('start-date-pick');
 
@@ -171,7 +179,7 @@ class _EStartMonthFieldState extends State<EStartMonthField> {
     final m = widget.month;
     final text = m == null ? (widget.placeholder ?? l.restorePickMonthShort) : localMonthYear(l, m.firstDay);
     final edge = _open ? c.accent : (widget.invalid ? c.risk : (_hover ? c.faint : c.lineField));
-    return Semantics(
+    return TrustId(widget.semanticsId, child: Semantics(
       button: true,
       expanded: _open,
       label: widget.semanticLabel ?? l.restoreDatePickerTitle,
@@ -220,7 +228,7 @@ class _EStartMonthFieldState extends State<EStartMonthField> {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 

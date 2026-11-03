@@ -1902,20 +1902,10 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get restoreWholeChain => 'Сканировать весь блокчейн';
-
-  @override
   String get restorePickMonth => 'Выберите месяц создания кошелька';
 
   @override
   String get restorePickMonthShort => 'Выбрать месяц';
-
-  @override
-  String get restorePickMonthFirst => 'Сначала выберите месяц.';
-
-  @override
-  String get restoreMonthHint =>
-      'Необязательно. Если не уверены, выберите более ранний месяц: при более позднем часть средств может не найтись.';
 
   @override
   String restoreMonthStart(String height) {
@@ -1944,7 +1934,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get restoreUnfinishedRunning =>
-      'Поиск средств этого кошелька с блока 0. Получение и отправка станут доступны после завершения.';
+      'Поиск средств этого кошелька. Получение и отправка станут доступны после завершения.';
 
   @override
   String get restoreUnfinishedOffline =>
@@ -12030,7 +12020,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskSetHttpStep2Text(String port) {
-    return 'На странице роутера (часто 10.0.1.1) найдите «Перенаправление портов» (Port forwarding) и перенаправьте TCP $port на этот компьютер.';
+    return 'На странице роутера (часто 192.168.1.1) найдите «Перенаправление портов» (Port forwarding) и перенаправьте TCP $port на этот компьютер.';
   }
 
   @override
@@ -13299,6 +13289,20 @@ class AppLocalizationsRu extends AppLocalizations {
   String get restoreStartFromMonthLink => 'Начать с месяца или высоты';
 
   @override
+  String restoreScanningFrom(String month) {
+    return 'Начало сканирования: $month';
+  }
+
+  @override
+  String get restoreScanningFromStart => 'Сканирование с начала';
+
+  @override
+  String get restoreOlderCoins => 'Старые монеты?';
+
+  @override
+  String get restoreScanFromStart => 'Сканировать с начала';
+
+  @override
   String get settingsRescanBodyPlain =>
       'Кошелёк заново ищет свои средства, с первого блока.';
 
@@ -13423,9 +13427,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSlHelpChoose =>
       'Выберите сервер или введите текст, чтобы отфильтровать список или добавить сервер.';
-
-  @override
-  String get deskOnbRestoreFromHide => 'Проверить весь блокчейн';
 
   @override
   String get deskOnbRestoreFromLabel => 'Начать с блока';
@@ -15927,7 +15928,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOvRestoreRunning =>
-      'Поиск средств этого кошелька в блокчейне с первого блока. Полученные EPIC появляются по мере нахождения; получение и отправка станут доступны после завершения сканирования.';
+      'Поиск средств этого кошелька в блокчейне. Полученные EPIC появляются по мере нахождения; получение и отправка станут доступны после завершения сканирования.';
 
   @override
   String deskOvRestoreAfterHeight(String height) {
@@ -15946,7 +15947,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetRescanRestoreRunning =>
-      'Идёт сканирование после восстановления: блокчейн читается с первого блока. Сверка баланса станет доступна после его завершения.';
+      'Идёт сканирование после восстановления. Сверка баланса станет доступна после его завершения.';
 
   @override
   String get deskSetRescanStartHeading => 'Откуда начать';

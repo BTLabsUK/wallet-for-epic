@@ -1827,20 +1827,10 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get restoreWholeChain => 'สแกนทั้งบล็อกเชนแทน';
-
-  @override
   String get restorePickMonth => 'เลือกเดือนที่สร้างกระเป๋าเงิน';
 
   @override
   String get restorePickMonthShort => 'เลือกเดือน';
-
-  @override
-  String get restorePickMonthFirst => 'เลือกเดือนก่อน';
-
-  @override
-  String get restoreMonthHint =>
-      'ไม่บังคับ ถ้าไม่แน่ใจ ให้เลือกเดือนก่อนหน้า: เดือนที่หลังกว่าอาจทำให้เงินบางส่วนหายไป';
 
   @override
   String restoreMonthStart(String height) {
@@ -1869,7 +1859,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get restoreUnfinishedRunning =>
-      'กำลังค้นหายอดเงินของกระเป๋าเงินนี้ตั้งแต่บล็อก 0 เมื่อเสร็จจึงรับและส่งได้';
+      'กำลังค้นหายอดเงินของกระเป๋าเงินนี้ เมื่อเสร็จจึงรับและส่งได้';
 
   @override
   String get restoreUnfinishedOffline => 'การสแกนจะดำเนินต่อเมื่อปิดออฟไลน์';
@@ -11265,7 +11255,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskSetHttpStep2Text(String port) {
-    return 'ในหน้าตั้งค่าเราเตอร์ (มักเป็น 10.0.1.1) หา Port forwarding แล้ว forward TCP $port มายังคอมพิวเตอร์นี้';
+    return 'ในหน้าตั้งค่าเราเตอร์ (มักเป็น 192.168.1.1) หา Port forwarding แล้ว forward TCP $port มายังคอมพิวเตอร์นี้';
   }
 
   @override
@@ -12488,6 +12478,20 @@ class AppLocalizationsTh extends AppLocalizations {
   String get restoreStartFromMonthLink => 'เริ่มจากเดือนหรือความสูงบล็อก';
 
   @override
+  String restoreScanningFrom(String month) {
+    return 'สแกนตั้งแต่ $month';
+  }
+
+  @override
+  String get restoreScanningFromStart => 'สแกนตั้งแต่ต้น';
+
+  @override
+  String get restoreOlderCoins => 'มีเหรียญที่เก่ากว่านี้ไหม';
+
+  @override
+  String get restoreScanFromStart => 'สแกนตั้งแต่ต้นแทน';
+
+  @override
   String get settingsRescanBodyPlain =>
       'กระเป๋าเงินจะค้นหาเงินของตัวเองอีกครั้ง ตั้งแต่บล็อกแรก';
 
@@ -12604,9 +12608,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSlHelpChoose =>
       'เลือกหนึ่งรายการ หรือพิมพ์เพื่อกรองรายการหรือเพิ่มเซิร์ฟเวอร์';
-
-  @override
-  String get deskOnbRestoreFromHide => 'ตรวจทั้งบล็อกเชน';
 
   @override
   String get deskOnbRestoreFromLabel => 'เริ่มจากบล็อก';
@@ -15010,7 +15011,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOvRestoreRunning =>
-      'กำลังค้นหายอดเงินของกระเป๋าเงินนี้บนบล็อกเชนตั้งแต่บล็อกแรก EPIC ที่ได้รับจะแสดงตามที่พบ เมื่อสแกนเสร็จจึงรับและส่งได้';
+      'กำลังค้นหายอดเงินของกระเป๋าเงินนี้บนบล็อกเชน EPIC ที่ได้รับจะแสดงตามที่พบ เมื่อสแกนเสร็จจึงรับและส่งได้';
 
   @override
   String deskOvRestoreAfterHeight(String height) {
@@ -15029,7 +15030,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetRescanRestoreRunning =>
-      'กำลังสแกนหลังกู้คืน: อ่านบล็อกเชนตั้งแต่บล็อกแรก ตรวจยอดใหม่ได้เมื่อสแกนเสร็จ';
+      'กำลังสแกนหลังกู้คืน ตรวจยอดใหม่ได้เมื่อสแกนเสร็จ';
 
   @override
   String get deskSetRescanStartHeading => 'เริ่มจากตรงไหน';

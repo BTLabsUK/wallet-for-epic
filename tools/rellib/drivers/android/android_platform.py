@@ -3,9 +3,11 @@
 lane's own, driven over uiautomator (uia.py) and read as root from the app's data folder (files.py).
 
 The update is `adb install -r`: the candidate APK over the previous one, same package and signer, what
-the in-app updater's PackageInstaller does; the data folder and the app's Keystore keys stay. A loopback
-node and relay stand-in (linux/standin.py) are reached from the emulator through `adb reverse`; `adb
-root` restarts adbd and drops the reverses, so every root is followed by setting them again.
+the in-app updater's PackageInstaller does; the data folder and the app's Keystore keys stay. The
+hermetic node and relay on this host (core/hermetic.py plan, ports 43413 / 43423), or a loopback stand-in
+(linux/standin.py) of a public server for one that is not offered, are reached from the emulator
+through `adb reverse` of the same port; `adb root` restarts adbd and drops the reverses, so every root
+is followed by setting them again.
 
 The emulator is the lane's: AVD REL_ANDROID_AVD (default wfe_trust_<variant>), port REL_ANDROID_PORT
 (5580 tor, 5582 notor), writable (the app's data must outlive an emulator that dies mid-run: recover()
@@ -33,6 +35,7 @@ sys.path.insert(0, HERE)
 import facts  # noqa: E402
 import seed  # noqa: E402
 from core import checks  # noqa: E402
+from core import hermetic  # noqa: E402
 from core import state as st  # noqa: E402
 from core import walletdata as wd  # noqa: E402
 from core.faults import HarnessFault, HarnessGone, ProductFault  # noqa: E402
@@ -99,6 +102,7 @@ class AndroidPlatform(Platform):
         self.surface = None
         self.certs = {}
         self.snapshot = None     # the saved state's snapshot name, for state_meta()
+        self.hermetic = None     # core/hermetic.py plan(), from prepare
         self._secrets = {}
         self.work = os.path.join(out, "work")
 
@@ -196,6 +200,8 @@ class AndroidPlatform(Platform):
         if not create and (not self.certs["previous"] or self.certs["previous"] != self.certs["candidate"]):
             raise HarnessFault("prepare", "the two APKs are not signed with the same certificate (%s / %s): an update "
                                "would be refused; sign both with the test key" % (self.certs["previous"], self.certs["candidate"]))
+        self.hermetic = hermetic.plan(checks.P_ADDR)
+        self.log("hermetic: %s" % self.hermetic["reason"])
         self._pick_servers()
         self._standins()
         self._boot()
@@ -204,9 +210,14 @@ class AndroidPlatform(Platform):
                                                                      self.relay, self.custom_relay))
 
     def _pick_servers(self):
-        if not self.node:
+        plan = self.hermetic or {}
+        if plan.get("node"):
+            self.node = plan["node"]
+        elif not self.node:
             self.node = next((u for u in facts.NODE_PICK if node_up(u)), "")
-        if not self.relay:
+        if plan.get("relay"):
+            self.relay = plan["relay"]
+        elif not self.relay:
             self.relay = next((h for h in facts.RELAY_PICK if relay_up(h)), "")
         if not self.node or not self.relay:
             raise HarnessFault("prepare", "no node or Epicbox server answers (%s / %s)" % (facts.NODE_PICK, facts.RELAY_PICK))
@@ -214,8 +225,13 @@ class AndroidPlatform(Platform):
             self.node = "https://" + self.node
 
     def _standins(self):
+        """A stand-in for each server that is not local; a local one is its own custom entry. Every port
+        the app is given, the local services' fixed ones too, goes in self.ports for _reverse()."""
+        plan = self.hermetic or {}
         ports = {}
         for kind, up in (("node", self.node), ("relay", self.relay)):
+            if plan.get(kind):
+                continue
             ports[kind] = free_port()
             logf = open(os.path.join(self.out, "standin-%s.log" % kind), "w")
             self.standins.append(subprocess.Popen(
@@ -223,13 +239,17 @@ class AndroidPlatform(Platform):
                 stdout=logf, stderr=subprocess.STDOUT, start_new_session=True))
         for attempt in range(3):
             time.sleep(1 if attempt == 0 else 5)
-            if node_up("http://127.0.0.1:%d" % ports["node"]):
+            if "node" not in ports or node_up("http://127.0.0.1:%d" % ports["node"]):
                 break
         else:
             raise HarnessFault("prepare", "the loopback node stand-in does not answer")
-        self.ports = [ports["node"], ports["relay"]]
-        self.custom_node = "127.0.0.1:%d" % ports["node"]
-        self.custom_relay = "127.0.0.1:%d" % ports["relay"]
+        self.ports = list(ports.values()) + plan.get("ports", [])
+        self.custom_node = hermetic.entry(plan["node"]) if plan.get("node") else "127.0.0.1:%d" % ports["node"]
+        self.custom_relay = plan["relay"] if plan.get("relay") else "127.0.0.1:%d" % ports["relay"]
+
+    def live_servers(self):
+        """The public node and relay the live-servers phase puts in use (core/lane.py)."""
+        return hermetic.pick_live(node_up, relay_up, facts.NODE_PICK, facts.RELAY_PICK)
 
     def install_previous(self):
         """A fresh install: whatever the emulator had of the app goes, then the previous APK."""
@@ -430,7 +450,7 @@ class AndroidPlatform(Platform):
                 (meta.get("signer") or "?")[:12], (self.certs.get("previous") or "?")[:12])
         if meta.get("avd") != self.avd or meta.get("snapshot") not in self._snapshots():
             return False, "its emulator snapshot %s is not in AVD %s" % (meta.get("snapshot"), self.avd)
-        return True, ""
+        return st.hermetic_fits(meta, self)
 
     def state_meta(self):
         return {"signer": self.certs.get("candidate"), "avd": self.avd, "snapshot": self.snapshot}

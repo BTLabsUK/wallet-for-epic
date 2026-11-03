@@ -24,6 +24,12 @@ it shows is checked and dropped, never stored.
 At its end a lane with a phrase (seed or create) scans its whole REL_OUT for 3 consecutive words of it:
 a hit is a HarnessFault naming only the file (exit 2).
 
+Servers: each platform's prepare asks core/hermetic.py plan() which of this host's local node and relay
+the app is given (as its own server and in use); the proof records it (details["hermetic"]) and the
+hosts outside this machine the app and the driver touched (details["non_local"], before and after
+live-servers). With REL_FUNDS the live-servers phase puts a public node and relay in use through the
+screens before the funds legs, so one send and receive per platform runs on real mainnet servers.
+
 Resilience: a phase that raises HarnessGone (display, emulator, rig, sandbox gone) has the platform
 rebuilt (platform.recover()) and the phase run again, once per phase; phases are written to be
 re-run (each starts by finding where the app is). A ProductFault or a false check is never retried.
@@ -36,6 +42,7 @@ import time
 import traceback
 
 from . import breaks
+from . import hermetic
 from . import lane_seed as ls
 from . import state as st
 from .recover import Recover
@@ -89,6 +96,9 @@ class Lane:
         self.balance = None  # the last balance the wallet's data showed in this run (seed mode)
         self.needles = None  # what the end-of-lane scan looks for (lane_seed.Needles): no word kept
         self.fund_tx = self.inflow = self.send_pending = None  # set by checks.py
+        self.touched = []      # the servers the driver gave the app at prepare, and P's relay
+        self.last_digest = None  # the newest digest read (checks._digest): its log names the hosts the app used
+        self.split = None      # the app log's line count when live-servers started
 
     # ---- results
 
@@ -171,6 +181,10 @@ class Lane:
                 self.p.shutdown()
             except Exception as e:  # noqa: BLE001
                 self.log("shutdown: %s" % e)
+        try:
+            self._non_local()
+        except Exception as e:  # noqa: BLE001 — evidence, never the result
+            self.log("non_local not recorded: %s" % e)
         if code == 0 and not all(self.results.get(c) for c in self.required):
             code = 1
         missing = [c for c in self.required if c not in self.results]
@@ -208,6 +222,7 @@ class Lane:
 
     def _main(self):
         self.run_phase("prepare", self.p.prepare)
+        self._hermetic()
         saved = self._pick()
         if self.mode == "seed":
             self.seed.lock()
@@ -243,6 +258,8 @@ class Lane:
         after = self.run_phase("digest-after", lambda: self.checks_mod.settle(self, before))
         self._ui_settings(after)
         self.checks_mod.compare(self, before, after, snap)
+        if self.funds:
+            self.run_phase("live-servers", lambda: self._live_servers(after))
         # without REL_FUNDS the legs are not checked; the balance still goes back to P
         self.run_phase("funds", lambda: self.checks_mod.funds_legs(self, after))
         # a passing lane leaves its wallet for the next release (REL_TRUST_SAVE_STATE=0 for trial runs)
@@ -251,6 +268,48 @@ class Lane:
         elif all(self.results.get(c) for c in self.required) and os.environ.get("REL_TRUST_SAVE_STATE", "1") != "0":
             self.run_phase("save-state", lambda: st.save(self.p, self.secrets, self.checks_mod.public(after), log=self.log))
         return 0
+
+    # ---- servers (core/hermetic.py)
+
+    def _hermetic(self):
+        plan = getattr(self.p, "hermetic", None) or {"on": False, "reason": "the platform has no hermetic plan"}
+        self.details["hermetic"] = {"on": bool(plan.get("on")), "reason": plan.get("reason", ""),
+                                    "node": getattr(self.p, "node", None), "relay": getattr(self.p, "relay", None)}
+        p_addr = getattr(self.checks_mod, "P_ADDR", "") or ""
+        self.touched = [getattr(self.p, k, None) for k in ("node", "relay", "custom_node", "custom_relay")]
+        self.touched.append(p_addr.split("@", 1)[1] if "@" in p_addr else None)  # the app answers P there
+
+    def _live_servers(self, after):
+        """The funds legs on public servers: the node and relay in use that are this host's own become a
+        public pair (platform.live_servers(): REL_NODE / REL_EPICBOX or health-picked), through the
+        recipe's screens. The wallet's own servers stay listed; nothing is switched back."""
+        self.split = ((after or {}).get("log") or {}).get("lines")
+        local = [k for k in ("node", "relay") if hermetic.local(getattr(self.p, k, ""))]
+        if not local:
+            self.log("live servers: the node and relay in use are public already")
+            return
+        if after is None or not self.results.get("wallet_opens") or not self.results.get("balance_kept"):
+            self.log("live servers: not switched (the funds legs do not run)")
+            return
+        node, relay = self.p.live_servers()
+        node = node if "node" in local else self.p.node
+        relay = relay if "relay" in local else self.p.relay
+        self.ui.use_servers(node, relay)
+        self.p.node, self.p.relay = node, relay
+        self.details["live_servers"] = {"node": node, "relay": relay}
+
+    def _non_local(self):
+        """details["non_local"]: the hosts outside this machine the driver and the app (its log's lines, as
+        the newest digest read them) touched, before and after live-servers. Before is logged, not failed."""
+        log = ((self.last_digest or {}).get("log") or {})
+        hosts = log.get("hosts") or []
+        split = self.split if self.split is not None else float("inf")
+        live = self.details.get("live_servers") or {}
+        before = hermetic.non_local(self.touched + [h for i, h in hosts if i < split])
+        after = hermetic.non_local([live.get("node"), live.get("relay")] + [h for i, h in hosts if i >= split])
+        self.details["non_local"] = {"before": before, "after": after, "app_log": bool(log)}
+        if before:
+            self.log("hosts outside this machine before live-servers (logged, not failed): %s" % ", ".join(before))
 
     def _ui_settings(self, digest):
         """A platform whose files cannot show the settings (settings_from_ui: Android keeps them

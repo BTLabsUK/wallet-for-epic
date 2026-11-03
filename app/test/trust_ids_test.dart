@@ -136,6 +136,10 @@ void main() {
     '02a-create': ['g4.account.password', 'g4.account.confirm', 'g4.create.submit'],
     '02b-create-phrase': ['g4.create.reveal'],
     '02c-create-phrase-shown': ['g4.create.written', 'g4.create.continue'],
+    '03-restore': ['g4.restore.phrase', 'g4.restore.next'],
+    '03c-restore-password': [
+      'g4.restore.password', 'g4.restore.passwordConfirm', 'g4.restore.continue', 'g4.restore.start', 'g4.restore.fromStart',
+    ],
     '04g-setup-resumed': ['g4.setup.skip'],
     '05-unlock': ['g4.unlock.password', 'g4.unlock.submit'],
     '10-overview': [
@@ -188,6 +192,19 @@ void main() {
     await tester.enterText(find.descendant(of: find.byWidgetPredicate((w) => w is EInput && w.semanticsId == TrustIds.walletLabelField), matching: find.byType(EditableText)), 'Renamed wallet');
     await tester.pump(const Duration(milliseconds: 200));
     expect(check(tester, 'g4.wallet.label.save'), isNull);
+    await close(tester);
+    handle.dispose();
+  });
+
+  testWidgets('Restore\u2019s start opened: by month, by height, the month, the height', (tester) async {
+    final handle = tester.ensureSemantics();
+    await open(tester, shots['03c-restore-password']!);
+    await tester.tap(find.byKey(const ValueKey('restore-from-link')));
+    await tester.pump(const Duration(milliseconds: 400));
+    expect([for (final id in ['g4.restore.by.month', 'g4.restore.by.height', 'g4.restore.month', 'g4.restore.fromStart']) check(tester, id)].nonNulls, isEmpty);
+    await tester.tap(find.bySemanticsIdentifier('g4.restore.by.height'));
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(check(tester, 'g4.restore.height'), isNull);
     await close(tester);
     handle.dispose();
   });

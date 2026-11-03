@@ -1,0 +1,416 @@
+# SPDX-License-Identifier: Apache-2.0
+# Hosted builds of the release files, dispatched by tools/rel (--builds hosted) on the tip of
+# published main: one job per platform and variant, each through the repository's own build script
+# and its offline verify script, returning unsigned files (signing stays on the release host) as one
+# artifact <platform>-<variant> with SHA256SUMS, build-info.json and a build provenance attestation.
+#
+# Safety rules (tools/check-workflow.py enforces them in tools/check.sh): no Tor, onion, node or
+# Epicbox traffic, no wallet sends, no emulators, tests or app runs, no secrets; actions pinned by
+# full SHA; a timeout on every job and one concurrency group per kind.
+name: build
+run-name: build ${{ inputs.kind }} ${{ inputs.request }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: The published commit, 40 hex; must be this run's commit
+        required: true
+        type: string
+      build_id:
+        description: The build id shown in About (WFE_BUILD_ID)
+        required: true
+        type: string
+      version:
+        description: The version; must equal tools/version.sh name
+        required: true
+        type: string
+      platforms:
+        description: JSON subset of ["android","linux","windows"]
+        required: true
+        type: string
+      variants:
+        description: JSON subset of ["tor","notor"]
+        required: true
+        type: string
+      kind:
+        description: dev or release (artifacts kept 1 or 3 days)
+        required: true
+        type: string
+      request:
+        description: The id tools/rel finds the run by
+        required: true
+        type: string
+      build_tag:
+        description: A rebuild of the same version, e.g. r2 (WFE_BUILD_TAG)
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+concurrency:
+  group: build-${{ inputs.kind }}
+  cancel-in-progress: ${{ inputs.kind == 'dev' }}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  android:
+    if: contains(fromJSON(inputs.platforms), 'android')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: ${{ fromJSON(inputs.variants) }}
+    env:
+      WFE_TOR: ${{ matrix.variant == 'tor' && '1' || '0' }}
+      WFE_BUILD_ID: ${{ inputs.build_id }}
+      WFE_BUILD_TAG: ${{ inputs.build_tag }}
+      WFE_VERSION: ${{ inputs.version }}
+    steps:
+      - name: Commit is this run's commit
+        env:
+          WFE_COMMIT: ${{ inputs.commit }}
+        run: |
+          [[ "$WFE_COMMIT" =~ ^[0-9a-f]{40}$ && "$WFE_COMMIT" == "$GITHUB_SHA" ]] \
+            || { echo "::error::commit '$WFE_COMMIT' is not this run's commit $GITHUB_SHA"; exit 1; }
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - uses: ./.github/actions/check-inputs
+        with:
+          commit: ${{ inputs.commit }}
+          build-id: ${{ inputs.build_id }}
+          version: ${{ inputs.version }}
+          platforms: ${{ inputs.platforms }}
+          variants: ${{ inputs.variants }}
+          kind: ${{ inputs.kind }}
+          request: ${{ inputs.request }}
+          build-tag: ${{ inputs.build_tag }}
+          platform: android
+          variant: ${{ matrix.variant }}
+      - name: Free disk
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost /usr/share/swift \
+            /opt/hostedtoolcache/CodeQL /usr/local/share/powershell /usr/local/lib/node_modules
+          df -h /
+      - name: Android SDK, NDK and JDK
+        run: |
+          ndk="$(jq -r .ndk tools/build-inputs.json)"
+          [[ "$ndk" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::tools/build-inputs.json: ndk '$ndk'"; exit 1; }
+          # The image's other NDKs: not used, and space the build needs.
+          for d in "$ANDROID_HOME"/ndk/*; do
+            [[ "$(basename "$d")" == "$ndk" ]] || sudo rm -rf -- "$d"
+          done
+          sudo rm -rf -- "$ANDROID_HOME/ndk-bundle"
+          JAVA_HOME="$JAVA_HOME_21_X64" "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;$ndk" >/dev/null
+          [[ -x "$ANDROID_HOME/ndk/$ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf" ]] \
+            || { echo "::error::NDK $ndk did not install"; exit 1; }
+          {
+            echo "JAVA_HOME=$JAVA_HOME_21_X64"
+            echo "ANDROID_SDK_ROOT=$ANDROID_HOME"
+            echo "ANDROID_NDK_VERSION=$ndk"
+            echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/$ndk"
+            echo "ANDROID_NDK_ROOT=$ANDROID_HOME/ndk/$ndk"
+            echo "ANDROID_NDK=$ANDROID_HOME/ndk/$ndk"
+            echo "ANDROID_NDK_LATEST_HOME=$ANDROID_HOME/ndk/$ndk"
+          } >> "$GITHUB_ENV"
+          df -h /
+      - uses: ./.github/actions/setup-flutter
+        with:
+          precache: android
+      # Before the build script: its `flutter pub get` needs the binding (pubspec.yaml's path
+      # dependency) that this clones.
+      - name: LEPIC and lepic-flutter at the pins
+        run: tools/lepic.sh sync
+      - uses: ./.github/actions/setup-rust
+        with:
+          lepic: app/third_party/lepic
+          targets: aarch64-linux-android,armv7-linux-androideabi,x86_64-linux-android
+          # toolchain.md's cargo-ndk.
+          cargo-ndk: 4.1.2
+      # tools/lepic.sh's shared clones, one per variant and ABI, with their cargo targets.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/wfe-lepic/android-${{ matrix.variant }}-*
+          key: lepic-android-${{ matrix.variant }}-${{ hashFiles('tools/lepic.rev', 'tools/lepic-flutter.rev') }}
+          restore-keys: lepic-android-${{ matrix.variant }}-
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('app/android/**/*.gradle.kts', 'app/android/gradle/wrapper/gradle-wrapper.properties', 'app/android/gradle.properties') }}
+          restore-keys: gradle-
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.pub-cache
+          key: pub-${{ runner.os }}-${{ hashFiles('app/pubspec.lock') }}
+          restore-keys: pub-${{ runner.os }}-
+      - name: Build
+        env:
+          WFE_UNSIGNED: "1"
+          WFE_EMULATOR_X86_64: "1"
+        run: app/tool/build_android_release.sh "$RUNNER_TEMP/out"
+      - name: Verify
+        env:
+          WFE_UNSIGNED: "1"
+        run: app/tool/verify_android_release.sh "$RUNNER_TEMP/out"
+      - uses: ./.github/actions/package
+        with:
+          from: ${{ runner.temp }}/out
+          files: |
+            bt-wallet-${{ inputs.version }}${{ matrix.variant == 'notor' && '-notor' || '' }}-android-arm64-v8a.apk
+            emulator/bt-wallet-${{ inputs.version }}${{ matrix.variant == 'notor' && '-notor' || '' }}-android-x86_64.apk
+          platform: android
+          variant: ${{ matrix.variant }}
+          commit: ${{ inputs.commit }}
+          build-id: ${{ inputs.build_id }}
+          version: ${{ inputs.version }}
+          retention-days: ${{ inputs.kind == 'release' && 3 || 1 }}
+
+  linux:
+    if: contains(fromJSON(inputs.platforms), 'linux')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: ${{ fromJSON(inputs.variants) }}
+    env:
+      WFE_TOR: ${{ matrix.variant == 'tor' && '1' || '0' }}
+      WFE_BUILD_ID: ${{ inputs.build_id }}
+      WFE_BUILD_TAG: ${{ inputs.build_tag }}
+      WFE_VERSION: ${{ inputs.version }}
+    steps:
+      - name: Commit is this run's commit
+        env:
+          WFE_COMMIT: ${{ inputs.commit }}
+        run: |
+          [[ "$WFE_COMMIT" =~ ^[0-9a-f]{40}$ && "$WFE_COMMIT" == "$GITHUB_SHA" ]] \
+            || { echo "::error::commit '$WFE_COMMIT' is not this run's commit $GITHUB_SHA"; exit 1; }
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - uses: ./.github/actions/check-inputs
+        with:
+          commit: ${{ inputs.commit }}
+          build-id: ${{ inputs.build_id }}
+          version: ${{ inputs.version }}
+          platforms: ${{ inputs.platforms }}
+          variants: ${{ inputs.variants }}
+          kind: ${{ inputs.kind }}
+          request: ${{ inputs.request }}
+          build-tag: ${{ inputs.build_tag }}
+          platform: linux
+          variant: ${{ matrix.variant }}
+      - name: Free disk
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /usr/local/share/boost /usr/share/swift \
+            /opt/hostedtoolcache/CodeQL /usr/local/share/powershell /usr/local/lib/android
+          df -h /
+      # unsquashfs lets scripts/verify-linux.sh look inside the AppImage; without it those checks
+      # say "skip", so a failed install does not stop the build.
+      - name: squashfs-tools
+        run: |
+          timeout 300 sudo apt-get update -q >/dev/null && timeout 300 sudo apt-get install -y -q --no-install-recommends squashfs-tools >/dev/null \
+            || echo "::warning::squashfs-tools did not install: the checks inside the AppImage are skipped"
+          command -v unsquashfs || true
+      # scripts/build-linux.sh's docker volumes for LEPIC's cargo target and the pub cache, backed
+      # by folders this job caches. The cargo volume keeps the image's own binaries: left alone.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/wfe-docker/lepic-target-${{ matrix.variant }}
+          key: lepic-linux-${{ matrix.variant }}-${{ hashFiles('tools/lepic.rev', 'tools/lepic-flutter.rev', 'scripts/linux/Dockerfile') }}
+          restore-keys: lepic-linux-${{ matrix.variant }}-
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/wfe-docker/pub
+          key: pub-linux-docker-${{ hashFiles('app/pubspec.lock') }}
+          restore-keys: pub-linux-docker-
+      - name: Docker volumes
+        run: |
+          target=wfe-linux-lepic-target
+          [[ "$WFE_TOR" == 1 ]] || target=wfe-linux-lepic-target-notor
+          vol() { # <name> <folder>
+            mkdir -p "$2"
+            docker volume create --driver local --opt type=none --opt o=bind --opt device="$2" "$1" >/dev/null
+            echo "$1 -> $2"
+          }
+          vol "$target" "$HOME/wfe-docker/lepic-target-$MATRIX_VARIANT"
+          vol wfe-linux-pub "$HOME/wfe-docker/pub"
+        env:
+          MATRIX_VARIANT: ${{ matrix.variant }}
+      - name: Node binary
+        id: node
+        run: |
+          bin="$(tools/fetch-build-inputs.sh node linux "$RUNNER_TEMP/node" | tail -n1)"
+          [[ -x "$bin" ]] || { echo "::error::no node binary from tools/fetch-build-inputs.sh"; exit 1; }
+          echo "bin=$bin" >> "$GITHUB_OUTPUT"
+      - name: Build
+        env:
+          WFE_NODE_BIN: ${{ steps.node.outputs.bin }}
+        run: scripts/build-linux.sh
+      - name: Verify
+        env:
+          WFE_APPIMAGE: build-linux/bt-wallet-${{ inputs.version }}${{ matrix.variant == 'notor' && '-notor' || '' }}-linux-x86_64.AppImage
+        run: scripts/verify-linux.sh "$WFE_APPIMAGE"
+      - uses: ./.github/actions/package
+        with:
+          from: build-linux
+          files: bt-wallet-${{ inputs.version }}${{ matrix.variant == 'notor' && '-notor' || '' }}-linux-x86_64.AppImage
+          platform: linux
+          variant: ${{ matrix.variant }}
+          commit: ${{ inputs.commit }}
+          build-id: ${{ inputs.build_id }}
+          version: ${{ inputs.version }}
+          retention-days: ${{ inputs.kind == 'release' && 3 || 1 }}
+
+  windows:
+    if: contains(fromJSON(inputs.platforms), 'windows')
+    runs-on: windows-2022
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: ${{ fromJSON(inputs.variants) }}
+    env:
+      WFE_TOR: ${{ matrix.variant == 'tor' && '1' || '0' }}
+      WFE_BUILD_ID: ${{ inputs.build_id }}
+      WFE_BUILD_TAG: ${{ inputs.build_tag }}
+      WFE_VERSION: ${{ inputs.version }}
+    steps:
+      - name: Commit is this run's commit
+        env:
+          WFE_COMMIT: ${{ inputs.commit }}
+        run: |
+          [[ "$WFE_COMMIT" =~ ^[0-9a-f]{40}$ && "$WFE_COMMIT" == "$GITHUB_SHA" ]] \
+            || { echo "::error::commit '$WFE_COMMIT' is not this run's commit $GITHUB_SHA"; exit 1; }
+      # LF checkouts (the bash scripts break on CRLF) and paths past 260 characters (Flutter, cargo).
+      - name: Git settings
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+          git config --global core.longpaths true
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      # Git Bash's bash first on PATH (System32 also has WSL's bash.exe), and python3 and jq that
+      # print LF: native Windows builds print CRLF, which the bash scripts would keep in values.
+      - name: Shell tools
+        run: |
+          shims="$RUNNER_TEMP/wfe-shims"
+          mkdir -p "$shims"
+          py="$(command -v python)" jq="$(command -v jq)"
+          [[ -n "$py" && -n "$jq" ]] || { echo "::error::python or jq not found"; exit 1; }
+          printf '#!/usr/bin/env bash\nset -o pipefail\n"%s" "$@" | tr -d '"'"'\\r'"'"'\n' "$py" > "$shims/python3"
+          printf '#!/usr/bin/env bash\nset -o pipefail\n"%s" "$@" | tr -d '"'"'\\r'"'"'\n' "$jq" > "$shims/jq"
+          chmod +x "$shims/python3" "$shims/jq"
+          cat "$shims/python3"
+          cygpath -w "$shims" >> "$GITHUB_PATH"
+          printf '%s\n' 'C:\Program Files\Git\bin' >> "$GITHUB_PATH"
+      - uses: ./.github/actions/check-inputs
+        with:
+          commit: ${{ inputs.commit }}
+          build-id: ${{ inputs.build_id }}
+          version: ${{ inputs.version }}
+          platforms: ${{ inputs.platforms }}
+          variants: ${{ inputs.variants }}
+          kind: ${{ inputs.kind }}
+          request: ${{ inputs.request }}
+          build-tag: ${{ inputs.build_tag }}
+          platform: windows
+          variant: ${{ matrix.variant }}
+      - name: Shell tools are the right ones
+        shell: pwsh
+        run: |
+          (Get-Command bash).Source
+          if ((Get-Command bash).Source -notlike '*\Git\*') { throw "bash is $((Get-Command bash).Source), not Git Bash" }
+          bash -c 'command -v python3 jq; printf "%s" "$(python3 -c "print(1)")" | od -c | head -1'
+          if ($LASTEXITCODE) { throw 'the python3 shim does not run' }
+      - uses: ./.github/actions/setup-flutter
+        with:
+          precache: windows
+      # The script clones LEPIC itself; cloned here first so the toolchain is installed from its
+      # pin before the build, and the script finds the clone at the pin.
+      - name: LEPIC at the pin
+        run: |
+          rev="$(tr -d '[:space:]' < tools/lepic.rev)"
+          git clone --quiet --no-checkout https://github.com/BTLabsUK/lepic.git app/third_party/lepic
+          git -C app/third_party/lepic checkout --quiet --detach "$rev"
+          git -C app/third_party/lepic log --oneline -1
+      - uses: ./.github/actions/setup-rust
+        with:
+          lepic: app/third_party/lepic
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/wfe-cargo-target-${{ matrix.variant }}
+          key: lepic-windows-${{ matrix.variant }}-${{ hashFiles('tools/lepic.rev', 'tools/lepic-flutter.rev') }}
+          restore-keys: lepic-windows-${{ matrix.variant }}-
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/AppData/Local/Pub/Cache
+          key: pub-${{ runner.os }}-${{ hashFiles('app/pubspec.lock') }}
+          restore-keys: pub-${{ runner.os }}-
+      - name: Node binary and Tor bundle
+        id: inputs
+        run: |
+          tmp="$(cygpath -u "$RUNNER_TEMP")"
+          bin="$(bash tools/fetch-build-inputs.sh node windows "$tmp/node" | tail -n1)"
+          [[ -f "$bin" ]] || { echo "::error::no node binary from tools/fetch-build-inputs.sh"; exit 1; }
+          echo "node=$(cygpath -w "$bin")" >> "$GITHUB_OUTPUT"
+          if [[ "$WFE_TOR" == 1 ]]; then
+            bash tools/fetch-tor.sh win "$tmp/tor-bundle"
+            [[ -f "$tmp/tor-bundle/tor.exe" ]] || { echo "::error::no tor.exe from tools/fetch-tor.sh"; exit 1; }
+            echo "tor=$(cygpath -w "$tmp/tor-bundle")" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Build
+        shell: pwsh
+        env:
+          WFE_NODE_WIN: ${{ steps.inputs.outputs.node }}
+          WFE_TOR_BUNDLE: ${{ steps.inputs.outputs.tor }}
+          WFE_CARGO_TARGET: ${{ runner.temp }}/wfe-cargo-target-${{ matrix.variant }}
+          WFE_UNSIGNED: "1"
+        run: |
+          $iscc = @("${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe", "$env:ProgramFiles\Inno Setup 6\ISCC.exe") |
+            Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $iscc) { $iscc = (Get-Command iscc -ErrorAction SilentlyContinue).Source }
+          if (-not $iscc) { throw 'ISCC.exe (Inno Setup 6) not found' }
+          $want = (Get-Content tools/build-inputs.json -Raw | ConvertFrom-Json).innoSetup
+          Write-Output "ISCC $iscc $((Get-Item $iscc).VersionInfo.ProductVersion) (tools/build-inputs.json: $want)"
+          $a = @('-Source', $env:GITHUB_WORKSPACE,
+            '-Lepic', 'https://github.com/BTLabsUK/lepic.git',
+            '-LepicFlutter', 'https://github.com/BTLabsUK/lepic-flutter.git',
+            '-OutDir', "$env:RUNNER_TEMP\out", '-Flutter', "$env:FLUTTER_ROOT\bin", '-Iscc', $iscc,
+            '-NodeBin', $env:WFE_NODE_WIN, '-BuildId', $env:WFE_BUILD_ID, '-CargoTarget', $env:WFE_CARGO_TARGET)
+          if ($env:WFE_BUILD_TAG) { $a += @('-BuildTag', $env:WFE_BUILD_TAG) }
+          if ($env:WFE_TOR -eq '1') { $a += @('-TorBundle', $env:WFE_TOR_BUNDLE) } else { $a += '-NoTor' }
+          pwsh -NoProfile -File app/tool/build_windows_release.ps1 @a
+          if ($LASTEXITCODE) { throw "build_windows_release.ps1 failed ($LASTEXITCODE)" }
+      - name: Verify
+        env:
+          WFE_UNSIGNED: "1"
+          WFE_SETUP: bt-wallet-${{ inputs.version }}${{ matrix.variant == 'notor' && '-notor' || '' }}-windows-x64-setup.exe
+        run: bash app/tool/verify_windows_release.sh "$(cygpath -u "$RUNNER_TEMP")/out/$WFE_SETUP"
+      - uses: ./.github/actions/package
+        with:
+          from: ${{ runner.temp }}/out
+          files: bt-wallet-${{ inputs.version }}${{ matrix.variant == 'notor' && '-notor' || '' }}-windows-x64-setup.exe
+          platform: windows
+          variant: ${{ matrix.variant }}
+          commit: ${{ inputs.commit }}
+          build-id: ${{ inputs.build_id }}
+          version: ${{ inputs.version }}
+          retention-days: ${{ inputs.kind == 'release' && 3 || 1 }}

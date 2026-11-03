@@ -7,6 +7,10 @@
 # Usage: scripts/build-linux.sh [flutter build args...]
 # Env:   WFE_TARGET=lib/main_desktop.dart   entry point
 #        WFE_NODE_BIN=<path to epic>        bundle the built-in node's binary as usr/bin/bin/epic
+#        WFE_FETCH_INPUTS=1                 the hosted runner: with WFE_NODE_BIN unset, fetch the pinned node binary
+#                                           (tools/fetch-build-inputs.sh, tools/build-inputs.json)
+#        WFE_BUILD_ID=<id>                  the build id shown in About, instead of the short commit
+#                                           (the hosted build passes the published commit)
 #        WFE_BUILD_LEPIC=0                  skip the LEPIC build (the mock build does not use it)
 #        WFE_TOR=0                          the build without Tor (https://docs.btlabs.uk/developers/build/variants/): no Tor bundle
 #                                           (tools/fetch-tor.sh, in by default), --dart-define=WFE_TOR=false,
@@ -66,8 +70,12 @@ rust="$(sed -n 's/^channel *= *"\(.*\)"/\1/p' "$src/rust-toolchain.toml")"
 flutter_v="$(tr -d '[:space:]' < "$root/scripts/linux/flutter.version")"
 # The commit, shown beside the version in the app (WFE_BUILD_ID, lib/src/app_info.dart); a
 # WFE_WORKTREE=1 build of uncommitted changes says so.
-build_id="$(git -C "$root" rev-parse --short=7 HEAD)"
-if [[ "${WFE_WORKTREE:-0}" = 1 && -n "$(git -C "$root" status --porcelain)" ]]; then build_id+=-dirty; fi
+if [[ -n "${WFE_BUILD_ID:-}" ]]; then
+  build_id="$WFE_BUILD_ID"
+else
+  build_id="$(git -C "$root" rev-parse --short=7 HEAD)"
+  if [[ "${WFE_WORKTREE:-0}" = 1 && -n "$(git -C "$root" status --porcelain)" ]]; then build_id+=-dirty; fi
+fi
 # A rebuild of the same version: r2 from the tag v<version>-r2 on HEAD (WFE_BUILD_TAG).
 build_tag="${WFE_BUILD_TAG:-$(git -C "$root" tag --points-at HEAD | sed -n 's/^v[0-9.]*-\(r[0-9][0-9]*\)$/\1/p' | head -1)}"
 
@@ -93,6 +101,10 @@ rm -rf "$stage"
 mkdir -p "$work/app/build" "$work/app/third_party/lepic" "$work/app/third_party/lepic-flutter" "$work/build-linux"
 # The built-in node's epic binary (WFE_NODE_BIN, optional) goes in as node-bin/epic.
 mkdir -p "$work/node-bin"
+# On the hosted runner (WFE_FETCH_INPUTS=1) without WFE_NODE_BIN, the pinned one is downloaded.
+if [[ -z "${WFE_NODE_BIN:-}" && "${WFE_FETCH_INPUTS:-}" = 1 ]]; then
+  WFE_NODE_BIN="$("$root/tools/fetch-build-inputs.sh" node linux "$work/node-fetch")"
+fi
 if [[ -n "${WFE_NODE_BIN:-}" ]]; then
   cp "$WFE_NODE_BIN" "$work/node-bin/epic"
   echo "node binary: $(sha256sum "$work/node-bin/epic" | cut -d' ' -f1)"
@@ -126,5 +138,11 @@ docker run --rm --user "$(id -u):$(id -g)" \
   -v wfe-linux-pub:/cache/pub \
   -v wfe-linux-home:/cache/home \
   "$image" /work/scripts/linux/in-container.sh "$@"
+built=("$work"/build-linux/*.AppImage)
 mv -f "$work"/build-linux/*.AppImage "$root/build-linux/"
 ls -l "$root"/build-linux/*.AppImage
+# The checks are scripts/verify-linux.sh's, which also runs on a downloaded AppImage.
+for img in "${built[@]}"; do
+  WFE_BUILD_ID="$build_id" "$root/scripts/verify-linux.sh" "$root/build-linux/$(basename "$img")"
+done
+

@@ -8,8 +8,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../desk_l10n.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../../data_folder_io.dart' show desktopDataFolder, desktopDataFolderName;
+import '../../../l10n.dart' show localMonthYear;
 import '../../../log.dart';
 import '../../../secret_store_api.dart' show SecretProtectError;
+import '../../../trust_ids.dart';
 import '../../widgets/kit.dart';
 import 'onboarding_parts.dart';
 import '../../../phrase_problem.dart';
@@ -51,13 +53,18 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   final _password = TextEditingController();
   final _confirm = TextEditingController();
 
-  /// Restore's start height: offered to everyone (a restore happens once), empty = the whole chain.
+  /// Restore's start height: offered to everyone (a restore happens once), empty = block 0.
   final _fromHeight = TextEditingController();
   bool _fromOpen = false;
 
   /// The start by date (mainnet) or by height, as on the phone.
   bool _byDate = true;
+
+  /// The month chosen; null is [defaultStartMonth].
   DateTime? _fromDate;
+
+  /// Scan from the start was pressed: block 0 instead of a month.
+  bool _fromStart = false;
   late final PhraseEntry _entry;
   late RestoreStep _step = widget.arg is RestoreStep ? widget.arg as RestoreStep : RestoreStep.words;
   RestoreSample? get _sampleArg => widget.arg is RestoreSample ? widget.arg as RestoreSample : null;
@@ -119,12 +126,17 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
 
   bool get _usesDate => _byDate && _datesOk;
 
-  /// The start: the chosen date's block, or the typed height; null for the whole chain.
-  BigInt? get _startHeight => !_fromOpen
-      ? null
-      : _usesDate
-      ? (_fromDate == null ? null : mainnetHeightForDate(_fromDate!))
-      : BigInt.tryParse(_fromHeight.text.trim());
+  /// The month the scan starts from on mainnet: the one chosen, else [defaultStartMonth].
+  StartMonth get _fromMonth => _fromDate == null ? defaultStartMonth : StartMonth.of(_fromDate!);
+
+  /// The start, as on the phone: on mainnet the month's block (January 2025 unless another is
+  /// chosen) or the typed height, null (block 0) on Scan from the start; on a test network
+  /// the typed height, else null.
+  BigInt? get _startHeight => _fromOpen && !_usesDate
+      ? BigInt.tryParse(_fromHeight.text.trim())
+      : _datesOk && !_fromStart
+      ? _fromMonth.height
+      : null;
 
   bool get _fromHeightOk => !_fromOpen || _usesDate || _fromHeight.text.trim().isEmpty || BigInt.tryParse(_fromHeight.text.trim()) != null;
 
@@ -264,7 +276,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           lead: l.deskOnbRestorePasswordLead,
           back: backButton(() => setState(() => _step = RestoreStep.words)),
           actions: [
-            EButton.primary(label: l.deskOnbRestoreSide, onPressed: _accountOk ? _restore : null),
+            EButton.primary(label: l.deskOnbRestoreSide, onPressed: _accountOk ? _restore : null, semanticsId: TrustIds.restoreContinue),
           ],
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -280,6 +292,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
                 confirmError: ce,
                 onChanged: () => setState(() {}),
                 onSubmit: _accountOk ? _restore : null,
+                passwordId: TrustIds.restorePassword,
+                confirmId: TrustIds.restorePasswordConfirm,
               ),
               SizedBox(height: Sp.x4),
               _startFrom(l),
@@ -293,41 +307,67 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     }
   }
 
-  /// A small link, then the phone's choice: where to start scanning, by date (mainnet) or block
-  /// height; the whole chain when nothing is chosen.
+  /// Where the scan starts, at every level, as on the phone (the owner, 2026-11-03). Mainnet:
+  /// "Scanning from January 2025" (or the month chosen), the link that opens the choice by
+  /// month or block height, and Scan from the start for older coins. A test network: block 0,
+  /// or the height typed after the link.
   Widget _startFrom(AppLocalizations l) {
     final ts = context.ts;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    final dates = _datesOk;
+    final fromStart = Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: Sp.x1,
       children: [
-        Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: ELink(
-            key: const ValueKey('restore-from-link'),
-            label: _fromOpen ? l.deskOnbRestoreFromHide : l.restoreStartFromMonthLink,
-            onPressed: () => setState(() => _fromOpen = !_fromOpen),
-          ),
+        Text(l.restoreOlderCoins, style: ts.small),
+        ELink(
+          key: const ValueKey('restore-from-start'),
+          label: l.restoreScanFromStart,
+          semanticsId: TrustIds.restoreFromStart,
+          onPressed: () => setState(() {
+            _fromStart = true;
+            _fromOpen = false;
+          }),
         ),
+      ],
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (!_fromOpen) ...[
+          if (dates) Text(_fromStart ? l.restoreScanningFromStart : l.restoreScanningFrom(localMonthYear(l, _fromMonth.firstDay)), style: ts.small),
+          ELink(
+            key: const ValueKey('restore-from-link'),
+            label: l.restoreStartFromMonthLink,
+            semanticsId: TrustIds.restoreStart,
+            onPressed: () => setState(() {
+              _fromOpen = true;
+              _fromStart = false;
+            }),
+          ),
+        ],
         ExpandFade(
           open: _fromOpen,
           child: Padding(
-            padding: EdgeInsets.only(top: Sp.x3),
+            padding: EdgeInsets.only(top: Sp.x1),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Semantics(header: true, child: Text(l.restoreStartHeading, style: ts.label)),
                 SizedBox(height: Sp.x2),
-                if (_datesOk) ...[
+                if (dates) ...[
                   ESegmented<bool>(
                     key: const ValueKey('restore-from-by'),
-                    segments: [ESegment(true, l.restoreStartByMonth), ESegment(false, l.restoreStartByHeight)],
+                    segments: [
+                      ESegment(true, l.restoreStartByMonth, semanticsId: TrustIds.restoreByMonth),
+                      ESegment(false, l.restoreStartByHeight, semanticsId: TrustIds.restoreByHeight),
+                    ],
                     value: _byDate,
                     onChanged: (v) => setState(() => _byDate = v),
                   ),
                   SizedBox(height: Sp.x3),
                 ],
                 if (_usesDate)
-                  EStartDate(date: _fromDate, hint: l.restoreMonthHint, onChanged: (d) => setState(() => _fromDate = d))
+                  EStartDate(date: _fromMonth.firstDay, semanticsId: TrustIds.restoreMonth, onChanged: (d) => setState(() => _fromDate = d))
                 else
                   EField(
                     label: l.deskOnbRestoreFromLabel,
@@ -340,14 +380,17 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
                       invalid: !_fromHeightOk,
                       hint: l.deskOnbRestoreFromHint,
                       semanticLabel: l.deskOnbRestoreFromLabel,
+                      semanticsId: TrustIds.restoreHeight,
                       keyboardType: TextInputType.number,
                       onChanged: (_) => setState(() {}),
                     ),
                   ),
+                if (dates) ...[SizedBox(height: Sp.x2), fromStart],
               ],
             ),
           ),
         ),
+        if (!_fromOpen && dates && !_fromStart) fromStart,
       ],
     );
   }
@@ -388,6 +431,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           label: l.commonContinue,
           busy: _checking,
           onPressed: complete && !_checking ? _toAccount : null,
+          semanticsId: TrustIds.restoreNext,
         ),
       ],
       child: Column(
@@ -404,7 +448,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
             ],
           ),
           SizedBox(height: Sp.x3),
-          PhraseGrid(entry: e, autofocus: true, onSubmit: _toAccount),
+          PhraseGrid(entry: e, autofocus: true, onSubmit: _toAccount, firstId: TrustIds.restorePhrase),
           SizedBox(height: Sp.x3),
           // One line, always there, so the grid never moves when the verdict changes.
           ConstrainedBox(

@@ -34,13 +34,17 @@ class Step:
     warn_only: bool = False
     capped: bool = False  # counts toward [concurrency] max_heavy although not heavy (tools/rellib/window.py)
     remote: bool = False  # its load is on another machine (a rig): never counts toward max_heavy
+    local_run: str = None  # a hosted build's local command (runs only if build-fetch's fallback is re-enabled)
 
     @property
     def phase(self):
         return "publish" if self.publish else "build"
 
     def to_dict(self):
-        return asdict(self)
+        d = asdict(self)
+        if d["local_run"] is None:
+            del d["local_run"]  # local runs: plan.json as before hosted builds
+        return d
 
     @classmethod
     def from_dict(cls, d):
@@ -115,6 +119,7 @@ def build_graph(pipeline, scope, ctx):
             c["github"] = "1" if scope["publish"].get("github") else "0"
             c["play_promote"] = str(scope.get("stores", {}).get("play_promote") or "")
             c["stage"] = f"{ctx['run']}/steps/{sid}/out"
+            c.setdefault("build_id", ctx.get("short", ""))
             where = f"step {sid}"
             needs = []
             for n in spec.get("needs", []):
@@ -160,6 +165,15 @@ def build_graph(pipeline, scope, ctx):
                 capped=bool(spec.get("capped")),
                 remote=bool(spec.get("remote")),
             )
+            if spec.get("hosted") and (scope.get("builds") or {}).get("hosted"):
+                # --builds hosted: the GitHub runner builds it, build-fetch waits, verifies and places
+                # the files. Same env, outputs and reuse paths as the local build (one reuse key).
+                plat = spec["hosted"]
+                step.local_run, step.run = step.run, render(
+                    f"python3 {{rel}}/tools/rellib/steps/build-fetch.py {plat} {{variant}} {{stage}}", c, where)
+                step.host, step.heavy, step.capped, step.remote = "local", False, False, False
+                step.lane = render(f"hosted-{plat}-{{variant}}", c, where)
+                step.title += " (hosted)"
             steps.append(step)
     return topo(steps)
 

@@ -534,6 +534,17 @@ class Desktop:
         self.log("Epicbox: %s added, %s in use" % (custom_relay, relay))
         self.d.shot("%s-relay" % self.which)
 
+    def use_servers(self, node, relay):
+        """The live-servers phase (core/lane.py): a public node and relay in use, through the same pickers
+        as set_servers; the wallet's own servers stay listed."""
+        self._view_deep_end()
+        self.find_setting(NODE_PICKER, ("node",), "the node picker")
+        self.use_server(NODE_PICKER, node, re.sub(r"^https?://", "", node).rstrip("/"), use=True)
+        self.find_setting(RELAY_PICKER, ("payments",), "the Epicbox picker")
+        self.use_server(RELAY_PICKER, relay, relay, use=True)
+        self.log("live servers in use: node %s, Epicbox %s" % (node, relay))
+        self.d.shot("%s-live-servers" % self.which)
+
     def _view_deep_end(self):
         """A release with levels opens a new install in the basic view, where Settings hides Node and
         more: Settings › Advanced › View › Deep end (level 3). Nothing on a build without levels."""

@@ -4,8 +4,15 @@
 # is left alone. Exits 0 when both are healthy; a node still syncing makes it exit 1 with the relay up.
 set -uo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-bash "$HERE/node.sh" start || exit 1
-bash "$HERE/relay.sh" start || exit 1
+. "$HERE/env.sh"
+# Trust lanes start side by side and each runs this (release/pipeline.toml): one at a time, so two
+# never both start a node or a relay.
+mkdir -p "$HERMETIC_RUN"
+exec 9>"$HERMETIC_RUN/up.lock"
+flock -w 600 9 || { echo "up: another up.sh still holds $HERMETIC_RUN/up.lock after 10 min" >&2; exit 1; }
+# 9>&-: the services started here must not inherit the lock and hold it after this script ends
+bash "$HERE/node.sh" start 9>&- || exit 1
+bash "$HERE/relay.sh" start 9>&- || exit 1
 rc=0
 bash "$HERE/relay.sh" health || rc=1
 bash "$HERE/node.sh" health || rc=1

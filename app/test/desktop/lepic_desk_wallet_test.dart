@@ -24,6 +24,7 @@ import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'advanced_on.dart';
 
@@ -123,9 +124,9 @@ class _TwoPhrases extends core.FakeWalletService {
   bool validateMnemonic({required String phrase}) => phrase == this.phrase || phrase == other;
 
   @override
-  Future<core.WalletSession> create({required core.WalletConfig config, String? mnemonic, required String password}) {
+  Future<core.WalletSession> create({required core.WalletConfig config, String? mnemonic, required String password, BigInt? restoreFromHeight}) {
     creates++;
-    return super.create(config: config, mnemonic: mnemonic, password: password);
+    return super.create(config: config, mnemonic: mnemonic, password: password, restoreFromHeight: restoreFromHeight);
   }
 }
 
@@ -139,9 +140,9 @@ class _Recording extends _TwoPhrases {
   core.WalletError? createError;
 
   @override
-  Future<core.WalletSession> create({required core.WalletConfig config, String? mnemonic, required String password}) async {
+  Future<core.WalletSession> create({required core.WalletConfig config, String? mnemonic, required String password, BigInt? restoreFromHeight}) async {
     if (createError != null) throw createError!;
-    return super.create(config: config, mnemonic: mnemonic, password: password);
+    return super.create(config: config, mnemonic: mnemonic, password: password, restoreFromHeight: restoreFromHeight);
   }
 
   @override
@@ -181,6 +182,8 @@ class _DeleteFails extends _Recording {
 }
 
 void main() {
+  // The start month shows as a month and year (localMonthYear).
+  setUpAll(initializeDateFormatting);
   late Directory files;
   late Directory support;
   late MemorySecretStore secrets;

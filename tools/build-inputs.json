@@ -1,0 +1,25 @@
+{
+  "comment": "External inputs of the hosted builds (.github/workflows/build.yml), pinned. The epic node binaries are epic 4.1.1 as released, kept on our downloads host outside downloads/ (tools/rellib/steps/prune-downloads.sh empties that folder of everything it does not name); tools/fetch-build-inputs.sh downloads them and checks the sha256. Never a patched node or 4.1.2.",
+  "node": {
+    "version": "4.1.1",
+    "platforms": {
+      "linux": {
+        "url": "https://examples.btlabs.uk/epic-cash-wallets/build-inputs/epic-node/4.1.1/linux/epic",
+        "sha256": "9e84309c0b397250e16024cbf0738fcffef94798515f48ec02259a59417f135a",
+        "file": "epic"
+      },
+      "windows": {
+        "url": "https://examples.btlabs.uk/epic-cash-wallets/build-inputs/epic-node/4.1.1/windows/epic.exe",
+        "sha256": "5c23328cc44c7a94aa0933f2027fc6383653fc73f80945a7f08014d3ea0b74a6",
+        "file": "epic.exe"
+      }
+    }
+  },
+  "ndk": "28.2.13676358",
+  "innoSetup": "6.7",
+  "runnerImages": {
+    "linux": "ubuntu-24.04",
+    "android": "ubuntu-24.04",
+    "windows": "windows-2022"
+  }
+}

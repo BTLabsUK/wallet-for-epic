@@ -35,7 +35,8 @@ The digest (JSON-safe; amounts are integers in nanoEPIC, 1 EPIC = 1e8):
     address_book  {source, contacts: [{id, name, epicbox}]} | None;  notes: [text] | None
     hashes        {relative path: sha256} of the plain app files in migration.WATCHED
     files         the file listing
-    log           {lines, first_start: [(line no, text)], subscribed: [(line no, relay)]} from logs/wfe.log
+    log           {lines, first_start: [(line no, text)], subscribed: [(line no, relay)],
+                   hosts: [(line no, host)] (the servers its lines name; hermetic.log_hosts)} from logs/wfe.log
 """
 import datetime
 import decimal
@@ -55,6 +56,7 @@ import urllib.request
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 import facts  # noqa: E402
 import migration  # noqa: E402
+from .hermetic import log_hosts  # noqa: E402
 
 D = decimal.Decimal
 NANO = 100000000
@@ -374,7 +376,8 @@ def log_flags(files):
     return {"lines": len(lines),
             "first_start": [(i, l) for i, l in enumerate(lines) if FIRST_START.search(l)],
             "subscribed": [(i, m.group(1)) for i, l in enumerate(lines)
-                           if "epicbox subscribed" in l for m in [re.search(r"relay=(\S+)", l)] if m]}
+                           if "epicbox subscribed" in l for m in [re.search(r"relay=(\S+)", l)] if m],
+            "hosts": [(i, h) for i, l in enumerate(lines) for h in log_hosts(l)]}
 
 
 # ---- the plain database -----------------------------------------------------------------------------

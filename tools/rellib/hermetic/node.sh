@@ -57,10 +57,13 @@ write_config() {
     if [ ! -f "$NODE_DIR/epic-server.toml" ]; then
         (cd "$NODE_DIR" && "$HERMETIC_EPIC" server config >/dev/null)
     fi
+    local peer_ip
+    peer_ip="$(getent ahostsv4 "$NODE_PEER_HOST" | awk 'NR==1{print $1}')"
+    [ -n "$peer_ip" ] || { echo "node: cannot resolve $NODE_PEER_HOST" >&2; exit 1; }
     # Set the keys this environment owns, every start, so the config cannot drift from env.sh.
-    python3 - "$NODE_DIR/epic-server.toml" <<PY
+    python3 - "$NODE_DIR/epic-server.toml" "$peer_ip:$NODE_PEER_PORT" <<PY
 import re, sys
-path = sys.argv[1]
+path, peer = sys.argv[1], sys.argv[2]
 text = open(path).read()
 want = {
     "db_root": '"$NODE_DIR/chain_data"',
@@ -73,13 +76,28 @@ want = {
     "host": '"127.0.0.1"',
     "port": "$NODE_P2P_PORT",
     "enable_stratum_server": "false",
+    # Debug to a rotated file (NODE_LOG_MB × NODE_LOG_FILES at most, rotated files gzipped); stdout,
+    # which nohup appends to node.log unrotated, keeps warnings only.
     "log_to_stdout": "true",
-    "log_to_file": "false",
+    "stdout_log_level": '"WARN"',
+    "log_to_file": "true",
+    "file_log_level": '"DEBUG"',
+    "log_file_path": '"$NODE_LOG"',
+    "log_file_append": "true",
+    "log_max_size": str($NODE_LOG_MB * 1048576),
+    "log_max_files": "$NODE_LOG_FILES",
+    "seeding_type": '"DNSSeed"',
 }
 for k, v in want.items():
     text, n = re.subn(r"(?m)^#?\s*%s\s*=.*$" % k, "%s = %s" % (k, v), text, count=1)
     if n != 1:
         sys.exit("epic-server.toml has no %s" % k)
+# Normal peer discovery from the mainnet DNS seed; our public node is one preferred peer among many,
+# never the only one (no seed list, no allow list). The node listens on loopback only, so it has
+# outbound peers alone, and the network answers with 2-3 of them: sync starts at 2 (stock waits for 4).
+text = re.sub(r'(?m)^(seeds|peers_allow|peers_preferred|peer_min_preferred_outbound_count)\s*=.*\n', "", text)
+text = re.sub(r'(?m)^(seeding_type = "DNSSeed")$',
+              r'\1\npeers_preferred = ["%s"]\npeer_min_preferred_outbound_count = 2' % peer, text, count=1)
 # The foreign API stays open, as on a user's own node the app is pointed at.
 text = re.sub(r'(?m)^foreign_api_secret_path\s*=.*$', '#foreign_api_secret_path = ".foreign_api_secret"', text)
 open(path, "w").write(text)
@@ -118,11 +136,11 @@ start)
     write_config
     cd "$NODE_DIR"
     # Low priority: the sync is long and the machine is shared.
-    nohup nice -n 10 ionice -c3 "$HERMETIC_EPIC" >>"$LOG" 2>&1 &
+    nohup nice -n 10 ionice -c3 "$HERMETIC_EPIC" > >(python3 -I "$HERMETIC_SRC/rotlog.py" "$LOG" 4 2) 2>&1 &
     echo $! > "$PID"
     sleep 2
     alive "$PID" || { echo "node: exited at once; tail $LOG" >&2; tail -20 "$LOG" >&2; exit 1; }
-    echo "node: started ($(cat "$PID")), API $NODE_API_URL, P2P $NODE_P2P_PORT, log $LOG"
+    echo "node: started ($(cat "$PID")), API $NODE_API_URL, P2P $NODE_P2P_PORT (DNS seed peers, $NODE_PEER_HOST preferred), debug log $NODE_LOG"
     ;;
 stop)
     stop_pid "$PID" node
