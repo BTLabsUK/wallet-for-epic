@@ -96,7 +96,7 @@ if [[ $mode == full || $tools_changed == 1 ]]; then
   (cd "$root" && python3 -m unittest discover -s tools/rellib/tests)
   (cd "$root" && python3 -m unittest discover -s tools/tlib/tests)
   (cd "$root" && python3 -m unittest tools/nightly/test_nightly.py tools/test_sbom.py tools/test_flutter_test_order.py \
-    tools/test_check_workflow.py)
+    tools/test_check_workflow.py tools/publish/test_buildcheck.py)
   # Says "skip:" and passes without git-filter-repo, gitleaks or trufflehog.
   "$root/tools/publish/test-incremental.sh"
   if command -v node >/dev/null; then
