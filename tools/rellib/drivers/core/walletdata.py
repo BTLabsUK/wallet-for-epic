@@ -551,7 +551,7 @@ def parse_cli(res):
 
 # The CLI could not reach its node: exit 9 (the node error kind), or the error says so
 NODE_DOWN = re.compile(r'could not connect to the node|"kind"\s*:\s*"node"', re.I)
-UNREACHABLE_NODE = "127.0.0.1:9"   # the discard port: nothing answers (the node-down break)
+UNREACHABLE_NODE = "http://127.0.0.1:9"   # the discard port: nothing answers (the node-down break)
 
 
 def with_node(text, host):
@@ -599,7 +599,12 @@ class LepicCli:
 
     def _order(self, settings_text):
         own = ((toml_servers(settings_text) or {}).get("node") or [])[:1]
-        order = list(dict.fromkeys(server_entry(x) for x in own + list(facts.NODE_PICK) if x))
+        # URLs as they are: the CLI's node.servers needs the scheme; the same server listed twice is tried once
+        seen, order = set(), []
+        for x in own + list(facts.NODE_PICK):
+            if x and server_entry(x) not in seen:
+                seen.add(server_entry(x))
+                order.append(x if re.match(r"^https?://", x) else "http://" + x)
         if breaks.node_down():
             self.log("BREAK: the CLI's first node is %s (nothing answers there)" % UNREACHABLE_NODE)
             order.insert(0, UNREACHABLE_NODE)
