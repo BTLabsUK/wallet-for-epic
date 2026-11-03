@@ -93,7 +93,7 @@ async def main():
     state = base / "state"
     version = subprocess.run(["git", "-C", str(REPO), "show", "HEAD:app/pubspec.yaml"], capture_output=True,
                              text=True).stdout.split("version:")[1].split("+")[0].strip()
-    env = dict(os.environ, REL_RELMSG=str(wrapper))
+    env = dict(os.environ, REL_RELMSG=str(wrapper), REL_GATEWATCH="off")  # this script asks the gate itself
     env.pop("REL_STATE_ROOT", None)
 
     def rel_sync(*args):

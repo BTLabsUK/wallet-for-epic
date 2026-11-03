@@ -541,6 +541,22 @@ class App:
                                 + (f"; not blocking, failed: {', '.join(warned)}" if warned else ""))
         return code
 
+    def cmd_gate_watch(self, a):
+        """The gate watcher (tools/rellib/gatewatch.py): --foreground runs it here; without, it is
+        started detached, as the gate does when it waits."""
+        from . import gatewatch
+        run = self.load_run()
+        if run.info.get("dry"):
+            return self.out(EXIT_USAGE, "a dry run has no gate to watch", run)
+        if a.foreground:
+            w = gatewatch.Watcher(run, self.pipeline, gatewatch.rel_caller(run, self.pipeline, self.args.hosts),
+                                  every=a.every)
+            code, msg = w.loop()
+            return self.out(code, msg, run)
+        ok, msg = gatewatch.start(run, self.pipeline, self.args.hosts, "gate-watch", every=a.every)
+        return self.out(EXIT_OK if ok else EXIT_USAGE, msg or "not started: REL_GATEWATCH is set", run,
+                        watch=gatewatch.watch_of(run))
+
     # ---- looking ----
 
     def cmd_status(self, a):
@@ -553,6 +569,10 @@ class App:
         print(f"scope: {scope_summary(run.info['scope'])}")
         if run.info.get("tainted"):
             print(f"TAINTED: {run.info['tainted'][-1]['reason']} (never publishable)")
+        from . import gatewatch
+        w = gatewatch.watch_of(run)
+        if w:
+            print(f"gate watcher running: {w.get('unit') or 'pid ' + str(w.get('pid'))}, log {gatewatch.log_path(run)}")
         for r in rows:
             d = f"{r['duration_s']:.0f}s" if r.get("duration_s") is not None else ""
             extra = r.get("note") or r.get("reason") or ""
@@ -938,6 +958,10 @@ def parser():
     sp.add_argument("--live-dir", help="--test: the folder standing in for the live manifests")
     sp = sub.add_parser("cleanup", help="keep the current and the previous release; remove the rest")
     sp.add_argument("--dry-run", action="store_true")
+    sp = sub.add_parser("gate-watch", help="check the gate until it is decided; publish once approved (started by the gate)")
+    sp.add_argument("--run", help="run id, folder or version (default: the newest run)")
+    sp.add_argument("--every", type=float, help="seconds between checks (default [gate] watch_every, 60)")
+    sp.add_argument("--foreground", action="store_true", help="watch here instead of starting a detached watcher")
     sp = sub.add_parser("stats", help="per-step times and failures across runs")
     sp.add_argument("--lanes", action="store_true", help="per trust lane: first-try pass rate, tries a run, recoveries, causes")
     sub.add_parser("runs", help="every run kept")

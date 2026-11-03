@@ -77,6 +77,13 @@ warn_days = 14
 bin = "relmsg"
 title = "Epic Wallet"
 
+# The gate watcher (tools/rellib/gatewatch.py): once the publish or rollback gate waits, it checks
+# every watch_every seconds and runs `tools/rel publish` as soon as the owner approves; it gives up
+# after watch_hours without a decision.
+[gate]
+watch_every = 60
+watch_hours = 72
+
 # How a run shares this machine (tools/rellib/window.py; docs/RELEASING.md, "Sharing the
 # machine"). 26.10.25 run-8 lost every Android and Windows trust lane ("no proof.json (driver
 # exit -15)" at about 1,190 s) with 7-9 steps side by side at load 36 and 17-22 GB in use.
