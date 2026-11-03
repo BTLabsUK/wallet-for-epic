@@ -35,7 +35,23 @@ case "${1:-}" in
   *) echo "usage: tools/check.sh [--full | --list]" >&2; exit 64 ;;
 esac
 
-step() { printf '\n== %s\n' "$1"; }
+# Each step prints its time when it ends, one line (`== bot: ok 4s`; the name is the title up to
+# " ("), so the nightly's log and the audit have per-step times. A step that fails prints
+# `== <name>: FAILED after Ns` from the exit trap.
+step_name="" step_t0=0
+step_label() { local n="${step_name%% (*}"; printf '%s' "$n"; }
+step_done() {
+  [[ -n $step_name ]] || return 0
+  printf '== %s: ok %ss\n' "$(step_label)" $((SECONDS - step_t0))
+  step_name=""
+}
+step() { step_done; printf '\n== %s\n' "$1"; step_name="$1"; step_t0=$SECONDS; }
+on_exit() {
+  local rc=$?
+  [[ $rc != 0 && -n $step_name ]] && printf '== %s: FAILED (exit %s) after %ss\n' "$(step_label)" "$rc" $((SECONDS - step_t0))
+  return 0
+}
+trap on_exit EXIT
 
 # The change: files that differ from the merge base with main, untracked ones included.
 base_ref="${CHECK_BASE:-main}"
@@ -61,13 +77,35 @@ step "version (https://docs.btlabs.uk/developers/releases/)"
 step "install contract (docs/install-contract.md)"
 "$root/tools/check-install-contract.sh"
 
+step "no hosts in code (docs/settings-file.md)"
+"$root/tools/check-no-hosts.sh"
+
+# Everything that takes seconds runs before the minutes: a release run once failed on a lint
+# after the full Flutter suite had passed (docs/TESTING.md, "Order of the steps").
+if [[ $mode == full || $bot_changed == 1 ]]; then
+  step "bot"
+  (cd "$root/bot" && uvx ruff check . && uv run pytest -q)
+fi
+
+if [[ $mode == full || $tools_changed == 1 ]]; then
+  step "release tools (tools/)"
+  # tools/rel's own tests (docs/RELEASING.md), then the single-file ones, each as its file says.
+  (cd "$root" && python3 -m unittest discover -s tools/rellib/tests)
+  (cd "$root" && python3 -m unittest discover -s tools/tlib/tests)
+  (cd "$root" && python3 -m unittest tools/nightly/test_nightly.py tools/test_sbom.py tools/test_flutter_test_order.py)
+  # Says "skip:" and passes without git-filter-repo, gitleaks or trufflehog.
+  "$root/tools/publish/test-incremental.sh"
+  if command -v node >/dev/null; then
+    (cd "$root" && node --test tools/screens-feedback/feedback.test.mjs)
+  else
+    echo "skip: node is not installed (tools/screens-feedback/feedback.test.mjs)"
+  fi
+fi
+
 step "LEPIC at the pin (tools/lepic.rev)"
 # From the shared clone of the pin (tools/lepic.sh, docs/TESTING.md); LEPIC_SHARED=0 builds in
 # app/third_party/lepic instead.
 LEPIC_SHARED="${LEPIC_SHARED:-1}" "$root/tools/lepic.sh" build linux
-
-step "no hosts in code (docs/settings-file.md)"
-"$root/tools/check-no-hosts.sh"
 
 step "wallet core under plain Dart (no Flutter on its path)"
 (cd "$root/app" && dart run bin/core_check.dart)
@@ -100,31 +138,12 @@ else
   "$root/tools/t" affected --base "$base_ref"
 fi
 
-if [[ $mode == full || $bot_changed == 1 ]]; then
-  step "bot"
-  (cd "$root/bot" && uv run pytest -q && uvx ruff check .)
-fi
-
-if [[ $mode == full || $tools_changed == 1 ]]; then
-  step "release tools (tools/)"
-  # tools/rel's own tests (docs/RELEASING.md), then the single-file ones, each as its file says.
-  (cd "$root" && python3 -m unittest discover -s tools/rellib/tests)
-  (cd "$root" && python3 -m unittest discover -s tools/tlib/tests)
-  (cd "$root" && python3 -m unittest tools/nightly/test_nightly.py tools/test_sbom.py tools/test_flutter_test_order.py)
-  # Says "skip:" and passes without git-filter-repo, gitleaks or trufflehog.
-  "$root/tools/publish/test-incremental.sh"
-  if command -v node >/dev/null; then
-    (cd "$root" && node --test tools/screens-feedback/feedback.test.mjs)
-  else
-    echo "skip: node is not installed (tools/screens-feedback/feedback.test.mjs)"
-  fi
-fi
-
 if [[ $mode == full ]]; then
   step "web build (the preview, tool/build_web.sh)"
   (cd "$root/app" && tool/build_web.sh >/dev/null)
 fi
 
+step_done
 printf '\ncheck passed (%s)\n' "$mode"
 if [[ $mode == full ]]; then
   # For tools/rel's G2 (docs/RELEASING.md, "Reused results"); never fails the check.
