@@ -3,7 +3,7 @@
 """The Windows G4 lane on the shared core (core/lane.py): windows_platform.py for the rig, Setup and its
 files, core/desktop.py on UI Automation (uia.py) for the screens, core/checks.py on the wallet's files.
 Called by ../trust-windows.sh (the default; REL_TRUST_DRIVER=v1 runs windows/trust.py) with the REL_* environment (see there).
-The rig user's language is Polish: the app's strings come from the Polish ARB (REL_TRUST_LOCALE=pl)."""
+The app runs in English: windows_platform.py puts the language setting in the rig user's store before the first start."""
 import os
 import signal
 import sys
@@ -51,7 +51,6 @@ def main():
 
     create = e.get("REL_TRUST_MODE") == "create"   # the create-wallet test: the candidate fresh, no funds
     funds = not create and e.get("REL_FUNDS", "1") == "1"
-    os.environ.setdefault("REL_TRUST_LOCALE", "pl")
     os.environ.setdefault("REL_TRUST_SAVE_STATE", "0")   # no saved Windows states yet (windows_platform.save_state)
     os.environ.setdefault("REL_TRUST_START", "auto")   # seed when the lane has one, else fresh (no saved states)
     plat = WindowsPlatform(out, log)

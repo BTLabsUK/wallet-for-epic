@@ -33,8 +33,8 @@ ROLE = {
 }
 VK = {"escape": 0x1B, "back": 0x1B, "enter": 0x0D, "tab": 0x09, "page_down": 0x22, "page_up": 0x21, "space": 0x20,
       "end": 0x23, "ctrl_enter": 0x0D, "shift_tab": 0x09}
-EYE = re.compile(r"(?i)^(show|hide|pokaż|ukryj)\b[^(]*\(")
-SEARCH_HINTS = ("Search settings", "Szukaj w ustawieniach")
+EYE = re.compile(r"(?i)^(show|hide)\b[^(]*\(")
+SEARCH_HINTS = ("Search settings",)
 ERASE_SECRET = 64   # a password field's text is not readable: this many backspaces clear it
 
 

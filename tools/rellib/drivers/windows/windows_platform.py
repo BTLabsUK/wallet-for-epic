@@ -21,6 +21,7 @@ import os
 import re
 import socket
 import ssl
+import subprocess
 import sys
 import time
 import urllib.request
@@ -36,12 +37,34 @@ import seed  # noqa: E402
 from core import checks  # noqa: E402
 from core import hermetic  # noqa: E402
 from core import walletdata as wd  # noqa: E402
-from core.faults import HarnessFault, ProductFault  # noqa: E402
+from core.faults import HarnessFault, InfraFault, ProductFault  # noqa: E402
 from core.lane import Platform  # noqa: E402
 from rig import Rig, RigDead, RigError, candidate_sessions, describe, health, task_name, work_dir  # noqa: E402
 from uia import WinSurface  # noqa: E402
 
 AGENT_IDLE_MIN = 90
+SSH_TRIES = 3   # the first try and two retries in place
+APP_LANGUAGE = '{"language":"en"}'   # the desk.settings the rig user's store starts with (store_init)
+
+
+def retry_ssh(rig, log, step=lambda: "rig"):
+    """Every ssh and scp of the rig runs again in place when it times out (twice), then it is an
+    InfraFault (sub ssh): the rig is unreachable, not the app wrong. Replaces the Rig's methods on the instance."""
+    def wrap(name):
+        inner = getattr(rig, name)
+
+        def run(*a, **kw):
+            for n in range(1, SSH_TRIES + 1):
+                try:
+                    return inner(*a, **kw)
+                except subprocess.TimeoutExpired:
+                    if n == SSH_TRIES:
+                        raise InfraFault(step(), "ssh to %s timed out %d times" % (rig.host, SSH_TRIES), sub="ssh")
+                    log("ssh to %s timed out (%s): trying again (%d of %d)" % (rig.host, name, n, SSH_TRIES - 1))
+        return run
+    for name in ("ssh", "put", "get"):
+        setattr(rig, name, wrap(name))
+    return rig
 
 
 def windows_env(env=None):
@@ -85,6 +108,7 @@ class WindowsPlatform(Platform):
         self.entry = None
         self.ports = {}
         self.hermetic = None    # core/hermetic.py plan(), from prepare
+        self.step = "rig"       # the rig op in hand, for an InfraFault's step
 
     # ---- preparation
 
@@ -162,7 +186,7 @@ class WindowsPlatform(Platform):
         sessions = candidate_sessions(self.variant)
         try:
             report = health(self.host, sessions)
-        except (RigError, OSError, ValueError) as e:  # an unanswered health check never blocks the run
+        except (RigError, OSError, ValueError, subprocess.SubprocessError) as e:  # an unanswered health check never blocks the run
             self.log("rig health not read (%s): trying rig session %d as configured" % (e, sessions[0]))
             report = {}
         dead = []
@@ -174,6 +198,7 @@ class WindowsPlatform(Platform):
                 continue
             self.rig = Rig(self.host, self.name_run, self.log,
                            os.path.join(os.path.expanduser("~"), ".cache", "rel-trust-windows", "ctl"), session=k)
+            retry_ssh(self.rig, self.log, lambda: self.step)
             try:
                 self.rig.prepare()
                 if prev:
@@ -214,22 +239,33 @@ class WindowsPlatform(Platform):
         return self.rig.run + "\\home\\.epic_cash_desktop"
 
     def _call(self, op, timeout=120, **kw):
+        self.step = op
         return self.surface._call(op, timeout=timeout, **kw)
 
     # ---- install and the app
 
     def install_previous(self):
         self._install("previous", "prev-setup.exe")
+        self._init_store()
 
     def install_candidate_fresh(self):
         """The create-wallet test's fresh install: the candidate's Setup, silent, on a rig user without the app."""
         self._install("candidate", "cand-setup.exe")
+        self._init_store()
+
+    def _init_store(self):
+        """The app's secret store on a rig user that has none, holding only the English language setting, so the
+        first start shows English whatever the Windows display language is (agent.ps1 store_init; it refuses an
+        existing store). The language stays through the update and the seed (seed.desk_settings keeps every key)."""
+        r = self._call("store_init", file=self.data + "\\flutter_secure_storage.dat", set={"desk.settings": APP_LANGUAGE})
+        if not r.get("ok"):
+            raise HarnessFault("install", "the English language setting could not be put in the app's store: %s" % (r.get("error") or "")[:200])
+        self.log("the app's store holds desk.settings %s: the app starts in English" % APP_LANGUAGE)
 
     def _install(self, which, setup):
         e = self._call("entry").get("entry")
         if e:
-            raise HarnessFault("install", "%s already has %s installed (%s at %s): left alone" % (
-                self.rig.user, e.get("name") or "BT Wallet", e.get("version"), e.get("location")))
+            e = self._clear_leftover(e)
         r = self._call("setup", exe=self.rig.run + "\\" + setup, timeout=400, wait_s=300,
                        args=["/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/LOG=%s\\setup-%s.log" % (self.rig.run, which)])
         if not r.get("ok"):
@@ -237,6 +273,22 @@ class WindowsPlatform(Platform):
         self.entry = r["entry"]
         self.exe = installed_exe(self.entry)
         self.log("%s installed: %s at %s" % (which, self.entry.get("version"), self.entry.get("location")))
+
+    def _clear_leftover(self, e):
+        """An install of this run's own earlier attempt (under <runs>\\<variant>-<prev>-to-<cand>-<time>, a crashed run's
+        folder) is uninstalled; any other install is not ours and stays: an InfraFault (leftover)."""
+        text = "%s already has %s installed (%s at %s): left alone" % (
+            self.rig.user, e.get("name") or "BT Wallet", e.get("version"), e.get("location"))
+        prefix = "-".join(self.name_run.split("-")[:-2])   # variant-prev-to-cand, without the date and time
+        if not run_folder_of(e.get("location"), self.rig.base + "\\runs\\", prefix):
+            raise InfraFault("install", text, sub="leftover")
+        self.log("leftover install of an earlier attempt of this run (%s at %s): uninstalling it" % (e.get("version"), e.get("location")))
+        r = self._call("uninstall_leftover", timeout=300, prefix=prefix)
+        left = self._call("entry").get("entry")
+        if not r.get("ok") or left:
+            raise InfraFault("install", "%s; uninstalling it failed: %s" % (text, (r.get("error") or "exit %s" % r.get("exit"))[:160]), sub="leftover")
+        self.log("leftover install removed")
+        return None
 
     def _procs(self):
         return self._call("procs").get("procs") or []
@@ -438,6 +490,13 @@ class WindowsPlatform(Platform):
         self.rig.quit_agent()
         self.rig.close()
         self.log("rig: app uninstalled, agent stopped; the wallet's data folder stays in %s\\home" % self.rig.run)
+
+
+def run_folder_of(location, runs, prefix):
+    """True when `location` is inside `<runs><prefix>-<yyyymmdd>-<hhmmss>\\` (the run folder naming of
+    WindowsPlatform.name_run): an earlier attempt of the same run."""
+    rx = r"(?i)^%s%s-\d{8}-\d{6}\\" % (re.escape(runs), re.escape(prefix))
+    return bool(re.match(rx, str(location or "")))
 
 
 def installed_exe(entry):

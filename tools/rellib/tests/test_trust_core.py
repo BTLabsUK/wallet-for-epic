@@ -174,14 +174,12 @@ class CoreTest(unittest.TestCase):
         d.dump("phrase", [n(0, "text", " ".join(["abandon"] * 24)), n(1, "text_field", "Password", states=("password",))])
         self.assertFalse(os.path.exists(os.path.join(self.out, "tree-000-phrase.txt")))
 
-    def test_labels_from_this_checkout_in_the_builds_language(self):
-        """A candidate given no source tree or ref reads this checkout's strings in the locale the app
-        shows, as one given a source tree does."""
+    def test_labels_from_this_checkout_are_english(self):
+        """A candidate given no source tree or ref reads this checkout's English strings, whatever REL_TRUST_LOCALE says."""
         with unittest.mock.patch.dict(os.environ, {"REL_TRUST_LOCALE": "pl"}):
             l = Labels()
-        self.assertEqual(l.origin, "this checkout (pl)")
-        self.assertEqual(l.text("deskOnbUnlockTitle"), Labels(src=ROOT, locale="pl").text("deskOnbUnlockTitle"))
-        self.assertNotEqual(l.text("deskOnbUnlockTitle"), l.en.get("deskOnbUnlockTitle"))
+        self.assertEqual(l.origin, "this checkout")
+        self.assertEqual(l.text("deskOnbUnlockTitle"), l.en.get("deskOnbUnlockTitle"))
 
     def test_destructive_pick_refused(self):
         f = Fake({"s": [n(0, "button", "Delete wallet")]}, "s", {})
