@@ -352,6 +352,7 @@ class Desktop:
         the list shows (a setting moved to another page is found there, and the log says so)."""
         d = self.d
         self.settings()
+        kept = pages
         if breaks.moved(target.id):
             self.log("BREAK: %s taken as moved; the recipe's pages %s are not tried first" % (what, ", ".join(pages)))
             pages = ()
@@ -375,7 +376,7 @@ class Desktop:
             if name in tried:
                 continue
             if self.section(name) and d.wait(shows(target), 3):
-                self.log("%s found under Settings › %s (not where this release kept it: %s)" % (what, name, ", ".join(pages)))
+                self.log("%s found under Settings › %s (not where this release kept it: %s)" % (what, name, ", ".join(kept)))
                 return True
         n = d.rec.pick(target, d.tree(), step="find-%s" % target.id, texts=d.texts(target))
         if n:
