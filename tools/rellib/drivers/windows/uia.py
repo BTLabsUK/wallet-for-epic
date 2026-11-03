@@ -70,7 +70,28 @@ class WinSurface:
             nxt = nodes[i + 1]
             if n and nxt and n.role == "text_field" and EYE.match(nxt.name):
                 n.states = n.states | {"password"}
+        self._list_items(nodes)
         return [n for n in nodes if n]
+
+    @staticmethod
+    def _list_items(nodes):
+        """The engine can merge a list into one node: a button whose value is the chosen item, followed by the
+        items as plain texts. The list is not a control, the items are rows (pressed by a click at their own rect, the merged node has
+        no per-item action)."""
+        live = [n for n in nodes if n]
+        for k, n in enumerate(live):
+            if n.role != "button" or not n.value or "editable" not in n.states:
+                continue
+            run = []
+            for m in live[k + 1:]:
+                if m.role != "text":
+                    break
+                run.append(m)
+            if len(run) >= 2 and any(m.name == n.value for m in run):
+                n.role = "other"   # the merged list is not a control of its own
+                for m in run:
+                    m.role = "row"
+                    m.ref["click"] = True
 
     @staticmethod
     def _node(i, d):
@@ -120,6 +141,8 @@ class WinSurface:
     def press(self, node):
         # MSAA's default action is a no-op on a check box or switch, and a press the driver sees did nothing
         # and repeats is clicked instead
+        if node.ref.get("click"):
+            return self._click(node)
         key = (node.role, node.name)
         again = self.last_press == (key, int(time.time() // 30))
         self.last_press = (key, int(time.time() // 30))
