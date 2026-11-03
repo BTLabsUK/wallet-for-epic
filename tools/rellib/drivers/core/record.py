@@ -11,11 +11,12 @@ except Exception:  # noqa: BLE001 - the DB is optional for a lane
     _client = None
 
 
-def emit(kind, **fields):
+def emit(event, /, **fields):
+    """Positional-only: events carry a field named kind (wallet.address)."""
     if _client is None:
         return
     try:
-        _client.emit(kind, source="driver", **fields)
+        _client.emit(event, source="driver", **fields)
     except Exception:  # noqa: BLE001
         pass
 

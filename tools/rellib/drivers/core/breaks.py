@@ -228,7 +228,7 @@ def stale_rows(surface, pred):
 def at_phase(lane, phase):
     """Called by lane.run_phase as [phase] starts (the first time only)."""
     for it in _items():
-        if it.startswith("overlay@%s" % phase) and _first(it):
+        if (it == "overlay@%s" % phase or it.startswith("overlay@%s:" % phase)) and _first(it):
             reads = int(it.split(":", 1)[1]) if ":" in it else 20
             lane.log("BREAK: a scan overlay covers the page for %d reads as %s starts" % (reads, phase))
             _overlay[0] = reads
