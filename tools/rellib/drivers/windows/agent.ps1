@@ -163,6 +163,148 @@ public static class Standin {
   }
 }
 '@
+
+# UI Automation (see UIA below): the Flutter engine builds its accessibility tree when its window gets WM_GETOBJECT.
+# -ReferencedAssemblies replaces Add-Type's defaults, so the runtime facades are named too.
+Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes, WindowsBase
+$uiaRefs = @([Windows.Automation.AutomationElement].Assembly.Location, [Windows.Automation.ControlType].Assembly.Location,
+  [System.Windows.Rect].Assembly.Location, 'System.Runtime', 'System.Collections', 'System.Threading', 'System.Threading.Thread', 'netstandard')
+Add-Type -ReferencedAssemblies $uiaRefs -TypeDefinition (@'
+using System; using System.Collections.Generic; using System.Runtime.InteropServices; using System.Threading; using System.Windows.Automation;
+/// UI Automation client for the app's FLUTTERVIEW (the Flutter engine builds its accessibility tree when it
+/// receives WM_GETOBJECT). Every call runs on its own STA thread (COM is initialised by the thread), and the
+/// elements of the last read are kept by runtime id so a press or a value can name the node it read.
+public static class UIA {
+  static readonly Dictionary<string, AutomationElement> Seen = new Dictionary<string, AutomationElement>();
+  static T Sta<T>(Func<T> f, int ms) {
+    T r = default(T); Exception err = null;
+    var t = new Thread(() => { try { r = f(); } catch (Exception e) { err = e; } });
+    t.SetApartmentState(ApartmentState.STA); t.IsBackground = true; t.Start();
+    if (!t.Join(ms)) throw new TimeoutException("a UIA call did not finish in " + ms + " ms");
+    if (err != null) throw new Exception(err.GetType().Name + " 0x" + err.HResult.ToString("X8") + ": " + err.Message);
+    return r;
+  }
+  static string Rid(AutomationElement e) { return string.Join(".", e.GetRuntimeId()); }
+  static string Role(AutomationElement e) { return e.Cached.ControlType.ProgrammaticName.Replace("ControlType.", ""); }
+
+  /// The nodes below [hwnd], document order: rid, ct (control type), name, aid, cls, en, off, focus, pw, tog, val,
+  /// pat (supported patterns), rect.
+  public static List<Dictionary<string, object>> Tree(IntPtr hwnd, int max, int ms) {
+    return Sta(() => {
+      var o = new List<Dictionary<string, object>>();
+      var cr = new CacheRequest { TreeScope = TreeScope.Element };
+      foreach (var p in new AutomationProperty[] { AutomationElement.NameProperty, AutomationElement.AutomationIdProperty,
+        AutomationElement.ControlTypeProperty, AutomationElement.ClassNameProperty, AutomationElement.IsEnabledProperty,
+        AutomationElement.IsOffscreenProperty, AutomationElement.HasKeyboardFocusProperty, AutomationElement.BoundingRectangleProperty,
+        AutomationElement.IsPasswordProperty, AutomationElement.IsInvokePatternAvailableProperty, AutomationElement.IsValuePatternAvailableProperty,
+        AutomationElement.IsTogglePatternAvailableProperty, AutomationElement.IsSelectionItemPatternAvailableProperty,
+        AutomationElement.IsExpandCollapsePatternAvailableProperty, AutomationElement.IsScrollPatternAvailableProperty,
+        AutomationElement.IsScrollItemPatternAvailableProperty,
+        AutomationElement.IsRangeValuePatternAvailableProperty,
+        TogglePatternIdentifiers.ToggleStateProperty, ValuePatternIdentifiers.ValueProperty,
+        SelectionItemPatternIdentifiers.IsSelectedProperty }) cr.Add(p);
+      cr.Add(TogglePattern.Pattern); cr.Add(ValuePattern.Pattern); cr.Add(SelectionItemPattern.Pattern);
+      AutomationElementCollection all;
+      using (cr.Activate()) {
+        var root = AutomationElement.FromHandle(hwnd);
+        all = root.FindAll(TreeScope.Descendants, Condition.TrueCondition);
+        lock (Seen) {
+          Seen.Clear();
+          for (int i = 0; i < all.Count && i < max; i++) {
+            var e = all[i];
+            var d = new Dictionary<string, object>();
+            string rid = Rid(e); Seen[rid] = e;
+            d["rid"] = rid; d["ct"] = Role(e); d["name"] = e.Cached.Name; d["aid"] = e.Cached.AutomationId; d["cls"] = e.Cached.ClassName;
+            d["en"] = e.Cached.IsEnabled; d["off"] = e.Cached.IsOffscreen; d["focus"] = e.Cached.HasKeyboardFocus;
+            bool pw = false; try { pw = e.Cached.IsPassword; } catch { } d["pw"] = pw;
+            var pat = new List<object>();
+            Func<AutomationProperty, bool> av = p => { try { return (bool)e.GetCachedPropertyValue(p); } catch { return false; } };
+            if (av(AutomationElement.IsInvokePatternAvailableProperty)) pat.Add("invoke");
+            if (av(AutomationElement.IsValuePatternAvailableProperty)) pat.Add("value");
+            if (av(AutomationElement.IsTogglePatternAvailableProperty)) pat.Add("toggle");
+            if (av(AutomationElement.IsSelectionItemPatternAvailableProperty)) pat.Add("select");
+            if (av(AutomationElement.IsExpandCollapsePatternAvailableProperty)) pat.Add("expand");
+            if (av(AutomationElement.IsScrollPatternAvailableProperty)) pat.Add("scroll");
+            if (av(AutomationElement.IsScrollItemPatternAvailableProperty)) pat.Add("scrollitem");
+            if (av(AutomationElement.IsRangeValuePatternAvailableProperty)) pat.Add("range");
+            d["pat"] = pat;
+            if (pat.Contains((object)"toggle")) { try { d["tog"] = ((TogglePattern)e.GetCachedPattern(TogglePattern.Pattern)).Cached.ToggleState.ToString(); } catch { } }
+            if (pat.Contains((object)"select")) { try { d["sel"] = ((SelectionItemPattern)e.GetCachedPattern(SelectionItemPattern.Pattern)).Cached.IsSelected; } catch { } }
+            if (pat.Contains((object)"value") && !pw) { try { d["val"] = ((ValuePattern)e.GetCachedPattern(ValuePattern.Pattern)).Cached.Value; } catch { } }
+            var r = e.Cached.BoundingRectangle;
+            d["rect"] = r.IsEmpty ? new int[0] : new[] { (int)r.X, (int)r.Y, (int)r.Width, (int)r.Height };
+            o.Add(d);
+          }
+        }
+      }
+      return o;
+    }, ms);
+  }
+
+  static AutomationElement Get(string rid) {
+    lock (Seen) { AutomationElement e; if (!Seen.TryGetValue(rid, out e)) throw new Exception("no node " + rid + " in the last read"); return e; }
+  }
+  [DllImport("user32.dll")] static extern bool IsWindowVisible(IntPtr h);
+  [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr h, int cmd);
+  [DllImport("user32.dll")] static extern bool IsWindowEnabled(IntPtr h);
+  [DllImport("user32.dll")] static extern IntPtr GetForegroundWindow();
+  [DllImport("user32.dll")] static extern IntPtr GetFocus();
+  [DllImport("user32.dll")] static extern int GetWindowLong(IntPtr h, int i);
+  public static string Diag(IntPtr view, IntPtr top) {
+    return "view visible=" + IsWindowVisible(view) + " enabled=" + IsWindowEnabled(view) + "; top visible=" + IsWindowVisible(top) + " enabled=" + IsWindowEnabled(top)
+      + " style=0x" + GetWindowLong(top, -16).ToString("X8") + "; foreground=" + GetForegroundWindow().ToInt64() + " (top " + top.ToInt64() + "); GetFocus=" + GetFocus().ToInt64();
+  }
+  public static string Invoke(string rid, int ms) { return Sta(() => { ((InvokePattern)Get(rid).GetCurrentPattern(InvokePattern.Pattern)).Invoke(); return "ok"; }, ms); }
+  public static string Toggle(string rid, int ms) { return Sta(() => { var p = (TogglePattern)Get(rid).GetCurrentPattern(TogglePattern.Pattern); p.Toggle(); return p.Current.ToggleState.ToString(); }, ms); }
+  public static string Select(string rid, int ms) { return Sta(() => { ((SelectionItemPattern)Get(rid).GetCurrentPattern(SelectionItemPattern.Pattern)).Select(); return "ok"; }, ms); }
+  public static string SetValue(string rid, string text, int ms) { return Sta(() => { ((ValuePattern)Get(rid).GetCurrentPattern(ValuePattern.Pattern)).SetValue(text); return "ok"; }, ms); }
+  public static string Focus(string rid, int ms) { return Sta(() => { Get(rid).SetFocus(); return "ok"; }, ms); }
+  public static string Scroll(string rid, int ms) { return Sta(() => { ((ScrollItemPattern)Get(rid).GetCurrentPattern(ScrollItemPattern.Pattern)).ScrollIntoView(); return "ok"; }, ms); }
+}
+'@)
+
+
+# Legacy MSAA (IAccessible) view of the same tree: the engine answers WM_GETOBJECT for OBJID_CLIENT too.
+Add-Type -AssemblyName Accessibility
+Add-Type -IgnoreWarnings -ReferencedAssemblies @([Accessibility.IAccessible].Assembly.Location, 'System.Runtime', 'System.Collections', 'netstandard', 'System.Runtime.InteropServices') -TypeDefinition @'
+using System; using System.Collections.Generic; using System.Runtime.InteropServices; using Accessibility;
+public static class MSAA {
+  [DllImport("oleacc.dll")] static extern int AccessibleObjectFromWindow(IntPtr h, uint id, ref Guid iid, [MarshalAs(UnmanagedType.Interface)] out IAccessible acc);
+  [DllImport("oleacc.dll")] static extern int AccessibleChildren(IAccessible c, int first, int n, [Out, MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 2)] object[] kids, out int got);
+  static IAccessible Root(IntPtr hwnd) {
+    var iid = new Guid("618736E0-3C3D-11CF-810C-00AA00389B71"); IAccessible a;
+    int hr = AccessibleObjectFromWindow(hwnd, 0xFFFFFFFC, ref iid, out a);
+    if (hr != 0) throw new Exception("AccessibleObjectFromWindow 0x" + hr.ToString("X8"));
+    return a;
+  }
+  static void Walk(IAccessible a, string path, int depth, List<Dictionary<string, object>> o, int max) {
+    if (o.Count >= max) return;
+    var d = new Dictionary<string, object>(); d["path"] = path;
+    try { d["name"] = a.get_accName(0); } catch { }
+    try { d["role"] = a.get_accRole(0); } catch { }
+    try { d["state"] = a.get_accState(0); } catch { }
+    try { d["act"] = a.get_accDefaultAction(0); } catch { }
+    o.Add(d);
+    int n = 0; try { n = a.accChildCount; } catch { }
+    if (n == 0 || depth > 40) return;
+    var kids = new object[n]; int got;
+    if (AccessibleChildren(a, 0, n, kids, out got) != 0) return;
+    for (int i = 0; i < got; i++) { var ia = kids[i] as IAccessible; if (ia != null) Walk(ia, path + "." + i, depth + 1, o, max); }
+  }
+  public static List<Dictionary<string, object>> Tree(IntPtr hwnd, int max) { var o = new List<Dictionary<string, object>>(); Walk(Root(hwnd), "0", 0, o, max); return o; }
+  public static string Do(IntPtr hwnd, string path) {
+    IAccessible a = Root(hwnd);
+    var parts = path.Split('.');
+    for (int k = 1; k < parts.Length; k++) {
+      var p = parts[k];
+      var kids = new object[a.accChildCount]; int got; AccessibleChildren(a, 0, kids.Length, kids, out got);
+      a = (IAccessible)kids[int.Parse(p)];
+    }
+    a.accDoDefaultAction(0); return "done";
+  }
+}
+'@
+
 [Standin]::LogFile = Join-Path $Run 'standins.log'
 
 # The app's exe: btwallet.exe from 26.10.25, epic_wallet.exe before (an update test runs both).
@@ -264,6 +406,40 @@ function Do-Cmd($c) {
       return @{ ok = $true; w = $sz[0]; h = $sz[1]; procs = $procs; windows = @($wins) }
     }
     'procs' { return @{ ok = $true; procs = @(Get-Process btwallet, epic_wallet, epic, tor, unins000 -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "$Run\*" } | ForEach-Object { "$($_.Name) $($_.Id) $($_.Path)" }) } }
+    'uia_tree' {
+      # the accessibility tree of the app's view, waiting up to wait_s for the engine to build it (it turns
+      # semantics on when the first client asks); nodes carry a rid that the other uia_ ops take
+      $v = NeedView
+      $end = (Get-Date).AddSeconds([int]($c.wait_s ?? 0))
+      do {
+        $nodes = [UIA]::Tree($v, [int]($c.max ?? 1500), 30000)
+        if ($nodes.Count -ge [int]($c.min ?? 1)) { break }
+        Start-Sleep -Milliseconds 500
+      } while ((Get-Date) -lt $end)
+      return @{ ok = $true; n = $nodes.Count; nodes = @($nodes) }
+    }
+    'uia_diag' {
+      # what the window looks like to Win32 (visible, enabled, foreground) and the legacy MSAA root
+      $v = NeedView; $t = Top
+      return @{ ok = $true; view = $v.ToInt64(); top = $t.ToInt64(); info = [UIA]::Diag($v, $t) }
+    }
+    'uia_show' {
+      # the runner creates its window hidden and shows it after the first frame; on this station nothing sees it
+      $t = Top; if (-not $t) { return @{ ok = $false; error = 'no app window' } }
+      return @{ ok = $true; was_visible = [UIA]::ShowWindow($t, [int]($c.cmd ?? 8)) }
+    }
+    'msaa_tree' { $v = NeedView; return @{ ok = $true; nodes = @([MSAA]::Tree($v, [int]($c.max ?? 800))) } }
+    'msaa_do' { $v = NeedView; return @{ ok = $true; r = [MSAA]::Do($v, [string]$c.path) } }
+    'uia_invoke' { return @{ ok = $true; r = [UIA]::Invoke([string]$c.rid, 15000) } }
+    'uia_toggle' { return @{ ok = $true; r = [UIA]::Toggle([string]$c.rid, 15000) } }
+    'uia_select' { return @{ ok = $true; r = [UIA]::Select([string]$c.rid, 15000) } }
+    'uia_focus' { return @{ ok = $true; r = [UIA]::Focus([string]$c.rid, 15000) } }
+    'uia_scroll_to' { return @{ ok = $true; r = [UIA]::Scroll([string]$c.rid, 15000) } }
+    'uia_set_value' {
+      # text from a file under the run folder (a secret) or inline; never logged
+      $t = if ($c.file) { (Get-Content -Raw -LiteralPath (Mine $c.file)).TrimEnd("`r", "`n") } else { [string]$c.text }
+      return @{ ok = $true; r = [UIA]::SetValue([string]$c.rid, $t, 15000) }
+    }
     'click' { $v = NeedView; [TR]::Click($v, [int]$c.x, [int]$c.y); return @{ ok = $true } }
     'type' {
       $v = NeedView
