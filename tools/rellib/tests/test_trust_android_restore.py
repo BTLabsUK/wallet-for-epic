@@ -50,9 +50,9 @@ class FakeRestore:
     """The phone's restore screens as a small state machine, pressed and typed into by name."""
     platform, family = "android", "phone"
 
-    def __init__(self, scan_reads=2, card_reads=3, problem=False):
+    def __init__(self, scan_reads=2, card_reads=3, problem=False, level=3):
         self.cur, self.phrase, self.height, self.month, self.year = "welcome", "", "", None, 2024
-        self.start_open, self.by_height, self.problem = False, False, problem
+        self.start_open, self.by_height, self.problem, self.level = False, False, problem, level
         self.info, self.from_start = False, False
         self.scan_reads, self.card_reads = scan_reads, card_reads
         self.typed, self.pressed, self.shots = [], [], []
@@ -65,7 +65,9 @@ class FakeRestore:
             t = [text(0, "Restore wallet"), field(1, "Recovery phrase", self.phrase)]
             # The planned final design, every level: "Scanning from January 2025" (the default on mainnet), the
             # button "Change the start", and "Scan from the start" behind the info button "Scan start".
-            if not self.start_open:
+            if self.level == 1:
+                pass   # 26.10.26 and older: level 1 hides the start, a restore scans from block 0
+            elif not self.start_open:
                 t += [text(2, "Scanning from the start" if self.from_start else "Scanning from January 2025"),
                       btn(10, "Change the start"), btn(11, "Scan start")]
                 if self.info:
@@ -232,6 +234,13 @@ class RestoreTest(unittest.TestCase):
         self.assertEqual(s.pressed.count("Scan from the start"), 1)   # leaving it alone means January 2025
         self.assertTrue(s.from_start)
         self.assertIn(s.cur, ("home", "home-card"))
+
+    def test_level_one_on_an_older_build_restores_from_block_0(self):
+        s = FakeRestore(level=1)   # 26.10.26: a phone's fresh install is level 1
+        self.recipe(s).restore_wallet(PHRASE, {"height": 2345678, "month": "2026-11"})
+        self.assertIsNone(s.month)
+        self.assertIn(s.cur, ("home", "home-card"))
+        self.assertTrue(any("offers no start choice" in line for line in self.lines))
 
     def test_a_birth_does_not_press_scan_from_the_start(self):
         s = FakeRestore()

@@ -295,8 +295,8 @@ class Phone:
 
     def _restore_start(self, birth):
         """Where the scan starts: the birth height in Block height, else the birth month in the month
-        picker, through "Start from a month or height". Neither: "Scan from the start" (block 0), since
-        leaving the screen alone scans from January 2025 on mainnet. Every level offers the choice."""
+        picker, through "Change the start". Neither: "Scan from the start" (block 0), since leaving the
+        screen alone scans from January 2025 on mainnet. 26.10.26 and older hide the choice at level 1."""
         d = self.d
         month, height = birth.get("month"), birth.get("height")
         if not month and height is None:
@@ -304,7 +304,10 @@ class Phone:
             d.shot("restore-start")
             return
         if not d.wait(shows(RESTORE_START), 5):
-            d.harness("the restore screen offers no Start from a month or height")
+            # 26.10.26 and older: a phone's first run is level 1, and level 1 hides the start: a restore on
+            # a fresh install scans from block 0, whatever the wallet's birth
+            self.log("restore start: the whole chain (this build offers no start choice at its level)")
+            return
         d.press(RESTORE_START, step="restore-start", then=shows(RESTORE_PICK_MONTH, RESTORE_HEIGHT), timeout=20)
         if height is None:
             year, mon = (int(x) for x in month.split("-")[:2])
