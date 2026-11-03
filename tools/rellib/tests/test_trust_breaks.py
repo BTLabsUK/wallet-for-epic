@@ -443,6 +443,7 @@ class LaneTest(Base):
         self.assertEqual(self.lane().main(), 0)
         self.assertEqual(self.checks.funded, [])   # fund (P paid back) never ran
         self.assertTrue(self.logged("STOP after previous-setup (REL_TRUST_UNTIL)"))
+        self.assertEqual(self.logged("at or after fund"), [])
         p = self.proof()
         self.assertEqual(p["until"], {"phase": "previous-setup", "stopped": True})
         self.assertEqual(p["phases"]["done"], ["prepare", "install", "previous", "previous-setup"])
@@ -453,6 +454,11 @@ class LaneTest(Base):
         self.assertRegex(puts[0]["name"], r"-\d{8}-\d{6}-sandbox$")
         with open(os.path.join(self.out, "trust.log")) as f:
             self.assertNotIn("abandon", f.read())
+
+    def test_until_after_fund_says_coins_move(self):
+        os.environ["REL_TRUST_UNTIL"] = "digest-before"
+        self.lane()
+        self.assertTrue(self.logged("REL_TRUST_UNTIL=digest-before is at or after fund: P pays"), self.logs)
 
     def test_until_refused_in_a_release_run(self):
         os.environ.update(REL_TRUST_UNTIL="digest-before", REL_RUN_KIND="release")

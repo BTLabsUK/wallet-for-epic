@@ -152,6 +152,9 @@ class Lane:
         self.attempt = time.strftime("%Y%m%d-%H%M%S", time.gmtime())   # a fresh wallet's name in the test DB
         self.p, self.recipe_for, self.checks_mod = platform, recipe_for, checks
         self.out, self.log, self.required, self.funds, self.funder = out, log, required, funds, p
+        if self.until and PHASES.index(self.until) >= PHASES.index("fund"):
+            log("REL_TRUST_UNTIL=%s is at or after fund: P pays this lane's wallet and the stop leaves it there "
+                "(its phrase is in the test DB); stop at address to move no coins" % self.until)
         self.results, self.details = {}, {}
         self.rec = Recover(out, platform.name, log=log)
         self.ui = None  # the recipe on the app that runs now
