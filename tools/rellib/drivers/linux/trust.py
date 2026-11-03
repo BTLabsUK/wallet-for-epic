@@ -1405,6 +1405,20 @@ def counterparty(r):
 
 
 def phrase_words(names):
+    """The revealed phrase off the accessibility names: each grid cell's number then its word ("1",
+    "abandon", "2", …, or "1 abandon"), read in order; else the words after a "24"/"12" word-count
+    label (builds before 26.10.25, whose label came before the grid)."""
+    words, want = [], 1
+    for i, name in enumerate(names):
+        m = re.fullmatch(r"(\d{1,2})\.? ?([a-z]{3,12})?", name or "")
+        if not m or int(m.group(1)) != want:
+            continue
+        w = m.group(2) or (names[i + 1] if i + 1 < len(names) else "")
+        if re.fullmatch(r"[a-z]{3,12}", w or ""):
+            words.append(w)
+            want += 1
+    if len(words) in (12, 24):
+        return words
     if "24" in names:
         i = names.index("24")
     elif "12" in names:

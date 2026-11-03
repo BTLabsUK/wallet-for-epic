@@ -474,12 +474,8 @@ class Run:
         self.start_app("previous")
         self.wait_log(r"dart\.app: desktop start", 60, "previous start")
         time.sleep(6)
-        # A previous release with wallet levels shows the depth dial on Welcome first; these key presses
-        # know only Welcome without it, so stop rather than press into the dial.
-        if any(re.search(r"levels.*first start", l) for l in self.applog()[self.log_mark:]):
-            raise CannotRun("the previous release asks for the wallet level first; the Windows key path has no "
-                            "step for the depth dial yet (add one: Deep end, then Create)")
-        # Welcome: Create a new wallet
+        # Welcome: Create a new wallet. A previous release with wallet levels (26.10.25) logs "levels: first
+        # start" here; its Welcome has no dial, and the Create door answers the first start (the basic view).
         self.keys(TAB, ENTER)
         time.sleep(2.5)
         # Create wallet: the two password fields
@@ -1162,7 +1158,7 @@ class Run:
         else:
             self.ok("settings_kept", "theme %s, label %r, %s confirmations, Technical details %s%s" % (
                 s0["theme"], s0["label"], s0["confirmations"], "on" if s0["technical_details"] else "off", src))
-        lv, why = facts.level_after_update(a.get("level"))
+        lv, why = facts.level_after_update(a.get("level"), before=b.get("level"))
         if lv is None and facts.LEVELS_BUILT:
             lv, why = False, "no wallet level stored after the update, though the candidate has levels: an existing install must be stored as level 3"
         if self.first_start_lines:

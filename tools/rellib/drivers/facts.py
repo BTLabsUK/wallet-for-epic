@@ -155,13 +155,19 @@ DESK_DEPTH = label("lvPickDepth", "View")  # desktop: the dial's group, Settings
 LEVEL_KEY = "app.level"  # the stored level (app/lib/src/levels/wallet_level.dart levelKey): 1, 2, 3 or ask
 
 
-def level_after_update(value):
-    """An install from before wallet levels, updated to a build with them, is level 3 and never asked.
-    [value] is the stored level or the level the screen names; (True | False | None, why), None when
-    the build has no levels (nothing stored or shown)."""
+def level_after_update(value, before=None):
+    """An install from before wallet levels, updated to a build with them, is level 3 and never asked;
+    one from a release with levels keeps the level it had ([before], stored the same way). [value] is
+    the stored level or the level the screen names; (True | False | None, why), None when the build
+    has no levels (nothing stored or shown)."""
     v = str(value).strip() if value is not None else ""
     if not v:
         return None, "no wallet level stored or shown (a build without levels)"
+    b = str(before).strip() if before is not None else ""
+    if b and b != "ask":
+        if v == b:
+            return True, "level %s, as the previous release stored it" % v
+        return False, "level %s after the update; the previous release stored level %s" % (v, b)
     if v in ("3", LEVEL_DEEP_END, LEVEL_THREE):
         return True, "level 3 (%s), as an existing install must be" % LEVEL_DEEP_END
     if v == "ask":
