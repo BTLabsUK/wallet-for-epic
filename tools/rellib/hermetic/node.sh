@@ -92,10 +92,12 @@ for k, v in want.items():
     text, n = re.subn(r"(?m)^#?\s*%s\s*=.*$" % k, "%s = %s" % (k, v), text, count=1)
     if n != 1:
         sys.exit("epic-server.toml has no %s" % k)
-# Normal peer discovery from the mainnet DNS seed; our public node is one preferred peer among
-# many, never the only one (no seeds, peers_allow or outbound-count overrides).
+# Normal peer discovery from the mainnet DNS seed; our public node is one preferred peer among many,
+# never the only one (no seed list, no allow list). The node listens on loopback only, so it has
+# outbound peers alone, and the network answers with 2-3 of them: sync starts at 2 (stock waits for 4).
 text = re.sub(r'(?m)^(seeds|peers_allow|peers_preferred|peer_min_preferred_outbound_count)\s*=.*\n', "", text)
-text = re.sub(r'(?m)^(seeding_type = "DNSSeed")$', r'\1\npeers_preferred = ["%s"]' % peer, text, count=1)
+text = re.sub(r'(?m)^(seeding_type = "DNSSeed")$',
+              r'\1\npeers_preferred = ["%s"]\npeer_min_preferred_outbound_count = 2' % peer, text, count=1)
 # The foreign API stays open, as on a user's own node the app is pointed at.
 text = re.sub(r'(?m)^foreign_api_secret_path\s*=.*$', '#foreign_api_secret_path = ".foreign_api_secret"', text)
 open(path, "w").write(text)
