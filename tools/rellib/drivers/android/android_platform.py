@@ -436,6 +436,23 @@ class AndroidPlatform(Platform):
         self.dev.sh("cat /data/local/tmp/break.tmp > '%s' && chown %s:%s '%s' && chmod 600 '%s'; rm -f /data/local/tmp/break.tmp; "
                     "restorecon '%s' 2>/dev/null" % (dest, uid, uid, dest, dest, dest))
 
+    def break_lose_node(self):
+        """The custom node's line goes from the closed previous release's settings.toml."""
+        files = self._files()
+        text = files.text(facts.SETTINGS_TOML)
+        if text is None:
+            raise HarnessFault("break", "lose-node needs the previous release's settings.toml")
+        lines = text.splitlines(keepends=True)
+        kept = [ln for ln in lines if self.custom_node not in ln]
+        if len(kept) == len(lines):
+            raise HarnessFault("break", "lose-node: %s is not in settings.toml" % self.custom_node)
+        os.makedirs(self.work, exist_ok=True)
+        local = os.path.join(self.work, "settings.toml")
+        with open(local, "w") as f:
+            f.writelines(kept)
+        self._push_bin(files, local, facts.SETTINGS_TOML)
+        self.log("BREAK: the custom node %s removed from the closed wallet's settings.toml" % self.custom_node)
+
     def break_lose_balance(self):
         """The closed wallet's database loses its outputs. A plain store: its outputs deleted. An encrypted
         store: replaced by an empty store under the same key (a CLI restore of the wallet's phrase, no scan),
