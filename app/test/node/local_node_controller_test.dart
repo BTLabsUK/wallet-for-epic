@@ -117,7 +117,18 @@ void main() {
     return c;
   }
 
-  Future<void> settle() => Future<void>.delayed(const Duration(milliseconds: 20));
+  /// Lets the node's events and the controller's answers to them run: microtasks and zero
+  /// timers here, which [pumpEventQueue] runs in order.
+  Future<void> settle() => pumpEventQueue();
+
+  /// Waits for [done]: the disk measure that [LocalNodeController.load] starts reads the real
+  /// folders, which no fixed wait covers on a busy machine. Gives up after about 10 s; the
+  /// expectations after it say what did not happen.
+  Future<void> until(bool Function() done) async {
+    for (var i = 0; i < 2000 && !done(); i++) {
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+    }
+  }
 
   setUp(() {
     dir = Directory.systemTemp.createTempSync('local_node_controller_test');
@@ -151,7 +162,7 @@ void main() {
     final c = make(node);
     expect(c.state.phase, LocalNodePhase.stopped);
     await c.load();
-    await settle();
+    await until(() => c.state.chainDataBytes != null);
     expect(node.options, const NodeTomlOptions(maxOutbound: 4));
     expect(node.pid, isNull);
     expect(c.state.chainDataBytes, 1000);
@@ -166,9 +177,9 @@ void main() {
   test('the disk is measured again on the timer; the first size stays', () async {
     final c = make(makeNode(), diskEvery: const Duration(milliseconds: 30));
     await c.load();
-    await settle();
+    await until(() => c.state.chainDataBytes != null);
     sizeNow = 5000;
-    await Future<void>.delayed(const Duration(milliseconds: 80));
+    await until(() => c.state.chainDataBytes == 5000);
     expect(dirSizeCalls, greaterThan(1));
     expect(c.state.chainDataBytes, 5000);
     expect(c.state.chainDataBytesAtStart, 1000);
