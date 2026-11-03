@@ -182,11 +182,11 @@ class HostedTest(Base):
         except FileNotFoundError:
             return []
 
-    def hosted_run(self, only="android,linux", deadline="60s", test=True, no_variant="notor", waves=""):
+    def hosted_run(self, only="android,linux", deadline="60s", test=True, no_variant="notor", waves="", fallback=False):
         text = PIPELINE.format(tmp=self.tmp, deadline=deadline, waves=waves)
         self.pipeline = Pipeline(tomllib.loads(text))
         scope = load_scope(None, "26.10.25", only=only, no_variant=no_variant, sets=["publish.manifests=false"], test=test)
-        scope["builds"] = {"hosted": True}
+        scope["builds"] = {"hosted": True, **({"fallback": "local"} if fallback else {})}
         path, run_id = Run.next_path(self.root, "26.10.25")
         c = {"version": "26.10.25", "commit": LOCAL, "short": LOCAL[:7], "run_id": run_id, "run": path, "rel": REPO,
              "build_id": hosted.build_id_for(LOCAL, os.path.join(self.tmp, "commit-map")),
@@ -312,6 +312,14 @@ class HostedTest(Base):
         self.assertFailed(run, "build-android-tor", "SHA256SUMS says")
         self.assertEqual(os.listdir(run.files) if os.path.isdir(run.files) else [], [])
 
+    def test_local_fallback_builds_here(self):
+        """--local-fallback: the failed job's local build runs (here it exits 3, so the step still fails)."""
+        self.state(jobs=[job("android", "tor", conclusion="failure")])
+        run = self.drive(only="android", fallback=True)
+        self.assertEqual(run.status("build-android-tor")["status"], "failed")
+        self.assertIn("building locally instead", self.log(run, "build-android-tor"))
+        self.assertEqual(self.calls(), ["local build", ""])
+
     def test_attested_commit_wrong_fails(self):
         self.state(attested="d" * 40)
         run = self.drive(only="android")
@@ -376,10 +384,10 @@ class HostedTest(Base):
 
 
 class GraphTest(Base):
-    def graph(self, builds):
+    def graph(self, builds, local=None):
         s = load_scope(None, "26.10.25")
         if builds == "hosted":
-            s["builds"] = {"hosted": True}
+            s["builds"] = {"hosted": True, **({"local": local} if local else {})}
         return {x.id: x for x in build_graph(PIPE, s, real_ctx(s))}
 
     def test_builds_local_plan_unchanged(self):
@@ -409,6 +417,17 @@ class GraphTest(Base):
                 self.assertIn("(hosted)", s.title)
         # Same env as the local build: one reuse key for both.
         self.assertEqual(g["build-linux-tor"].env, self.graph("local")["build-linux-tor"].env)
+
+    def test_local_build_keeps_a_platform_here(self):
+        g, local = self.graph("hosted", local="linux"), self.graph("local")
+        for var in ("tor", "notor"):
+            s, l = g[f"build-linux-{var}"], local[f"build-linux-{var}"]
+            self.assertEqual((s.run, s.host, s.heavy, s.lane), (l.run, l.host, l.heavy, l.lane))
+            self.assertIsNone(s.local_run)
+            self.assertNotIn("(hosted)", s.title)
+            self.assertTrue(g[f"build-android-{var}"].local_run)
+            self.assertTrue(g[f"build-windows-{var}"].local_run)
+        self.assertIn("hosted-dispatch", g)
 
     def test_hosted_key_checked(self):
         from rellib.config import ConfigError

@@ -167,9 +167,11 @@ def build_graph(pipeline, scope, ctx):
                 capped=bool(spec.get("capped")),
                 remote=bool(spec.get("remote")),
             )
-            if spec.get("hosted") and (scope.get("builds") or {}).get("hosted"):
+            builds = scope.get("builds") or {}
+            if spec.get("hosted") and builds.get("hosted") and spec["hosted"] not in str(builds.get("local", "")).split(","):
                 # --builds hosted: the GitHub runner builds it, build-fetch waits, verifies and places
                 # the files. Same env, outputs and reuse paths as the local build (one reuse key).
+                # --local-build <platform> keeps that platform's build here, as in a local run.
                 plat = spec["hosted"]
                 step.local_run, step.run = step.run, render(
                     f"python3 {{rel}}/tools/rellib/steps/build-fetch.py {plat} {{variant}} {{stage}}", c, where)

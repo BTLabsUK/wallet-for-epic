@@ -147,6 +147,12 @@ class App:
             scope["proof"]["previous_dir"] = a.previous
         if getattr(a, "builds", "local") == "hosted":
             scope["builds"] = {"hosted": True}  # local runs carry no [builds]: their plan is as before
+            if getattr(a, "local_build", None):
+                scope["builds"]["local"] = a.local_build
+            if getattr(a, "local_fallback", False):
+                scope["builds"]["fallback"] = "local"
+        elif getattr(a, "local_build", None) or getattr(a, "local_fallback", False):
+            raise ConfigError("--local-build and --local-fallback go with --builds hosted")
         vac = version_at(self.repo, commit)
         prev = {}
         pubs = retention.published(self.state_root)
@@ -800,6 +806,14 @@ class App:
         return EXIT_OK
 
 
+def _local_builds(v):
+    """--local-build: a comma list of hosted platforms, e.g. "linux"."""
+    plats = sorted({p.strip() for p in v.split(",") if p.strip()})
+    if not plats or any(p not in hosted.HOSTED_PLATFORMS for p in plats):
+        raise argparse.ArgumentTypeError(f"one or more of {', '.join(hosted.HOSTED_PLATFORMS)}")
+    return ",".join(plats)
+
+
 def shlex_quote(s):
     import shlex
     return shlex.quote(str(s))
@@ -900,6 +914,11 @@ def parser():
         sp.add_argument("--builds", choices=("local", "hosted"), default="local",
                         help="hosted: android, linux and windows build on GitHub runners from the published commit "
                              "(release/pipeline.toml [hosted]); default local")
+        sp.add_argument("--local-build", type=_local_builds,
+                        help="with --builds hosted: these platforms build on this machine instead, e.g. linux")
+        sp.add_argument("--local-fallback", action="store_true",
+                        help="with --builds hosted: a hosted build that fails runs its local build instead "
+                             "(no second dispatch)")
 
     sp = sub.add_parser("plan", help="the graph for a scope; no side effects")
     scope_args(sp)

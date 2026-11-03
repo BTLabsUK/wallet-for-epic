@@ -503,11 +503,19 @@ class Fetch:
             self.after_failure()
             self.run.event(self.sid, "via", via="hosted", failed=str(e)[:300])
             self.say(f"FAIL {e}")  # the log's last line: the step's reason
-            # Local fallback: off (the owner 2026-11-03, "only try github or fail"). To re-enable,
-            # uncomment the two lines below: the step then runs its local build (plan.json local_run).
-            # self.say("building locally instead"); return subprocess.call(
-            #     ["bash", "-c", "set -euo pipefail\n" + self.run.step(self.sid).local_run], cwd=self.run.info["src"])
-            return 1
+            # Local fallback: off unless the run was started with --local-fallback (the owner 2026-11-03,
+            # "only try github or fail"; 26.11.0 run-4: a failed hosted build is built here instead).
+            if ((self.run.info.get("scope") or {}).get("builds") or {}).get("fallback") != "local":
+                return 1
+            if self.platform == "windows":  # its local build runs on the Windows host, not through bash here
+                self.say("no local fallback for a Windows build: build it on the Windows host")
+                return 1
+            self.say("building locally instead")
+            rc = subprocess.call(
+                ["bash", "-c", "set -euo pipefail\n" + self.run.step(self.sid).local_run], cwd=self.run.info["src"])
+            if rc == 0:
+                self.run.event(self.sid, "via", via="local", attestation="none", why=str(e)[:300])
+            return rc
         self.mark("done", **{k: built_by.get(k) for k in ("run_url", "job_url")})
         self.run.event(self.sid, "via", via="hosted", run_url=built_by["run_url"], job_url=built_by.get("job_url"))
         self.cleanup_run()

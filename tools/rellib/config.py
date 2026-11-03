@@ -422,7 +422,10 @@ def scope_summary(scope):
     if scope["publish"].get("github"):
         parts.append("GitHub release mirror")
     if (scope.get("builds") or {}).get("hosted"):
-        parts.append("builds on GitHub runners")
+        local = (scope.get("builds") or {}).get("local")
+        fb = (scope.get("builds") or {}).get("fallback") == "local"
+        parts.append("builds on GitHub runners" + (f" ({local} on this machine)" if local else "")
+                     + ("; a failed one is built locally" if fb else ""))
     if scope["skip"]:
         parts.append("skip: " + "; ".join(f"{k} ({v})" for k, v in scope["skip"].items()))
     if scope["proof"]["waive"]:
