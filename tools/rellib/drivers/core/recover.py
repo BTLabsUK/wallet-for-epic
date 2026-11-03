@@ -24,7 +24,7 @@ import time
 from .surface import COMPATIBLE
 
 DESTRUCTIVE = re.compile(r"\b(delete|remove|erase|reset|wipe|forget|restore|uninstall|log ?out|sign ?out|send|pay|"
-                         r"cancel (the )?(payment|send)|replace)\b", re.I)
+                         r"cancel (the )?(payment|send)|replace|clear|import|unlink|disconnect)\b", re.I)
 ACTIONABLE = {"button", "link", "menu_item", "row", "tab", "checkbox", "toggle"}
 PHRASE = re.compile(r"(\b[a-z]{3,8}\b[\s|,]+){11,}")  # 12+ short lower-case words in a row: maybe a recovery phrase
 # A phrase shown one word per node: "Word 3: ghost" (phone), "3. ghost" / "3" + "ghost" (desktop grid)

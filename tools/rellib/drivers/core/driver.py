@@ -95,6 +95,13 @@ class Driver:
     # ---- evidence
 
     def shot(self, name):
+        """A screenshot, never of a secret screen (the phrase or a password shown)."""
+        from .recover import secret_screen
+        try:
+            if secret_screen(self.s.tree()):
+                return None
+        except Exception:  # noqa: BLE001 — a tree that cannot be read is not shot either
+            return None
         self.shots += 1
         d = os.path.join(self.out, "shots")
         os.makedirs(d, exist_ok=True)
@@ -137,12 +144,12 @@ class Driver:
             r = expect.test(self, tree)
             if r:
                 return r
+            if time.time() >= end:
+                return None
             if dismiss and self._dismiss(tree):
                 continue
             if not self.s.alive():
                 self.app_quit()
-            if time.time() >= end:
-                return None
             time.sleep(self.poll)
 
     def must(self, expect, timeout=30, *, step=None, goal=None):

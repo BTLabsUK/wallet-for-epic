@@ -75,8 +75,9 @@ def save(platform, secrets, digest, *, log=print, extra=None):
     base = os.path.join(root(), "%s-%s" % (platform.name, platform.variant))
     os.makedirs(base, exist_ok=True)
     tmp = os.path.join(base, "%s.tmp-%d" % (version, os.getpid()))
+    os.makedirs(tmp, mode=0o700)
     os.makedirs(os.path.join(tmp, "secrets"), mode=0o700)
-    os.makedirs(os.path.join(tmp, "payload"))
+    os.makedirs(os.path.join(tmp, "payload"), mode=0o700)
     for n, v in secrets.items():
         if n in SECRET_NAMES and v:
             p = os.path.join(tmp, "secrets", n)

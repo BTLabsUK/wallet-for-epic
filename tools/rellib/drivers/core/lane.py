@@ -113,7 +113,7 @@ class Lane:
                 self.log("phase %s: %s; rebuilding the platform and running the phase again" % (name, e.line()))
                 self.details.setdefault("harness_recovered", []).append("%s: %s" % (name, e.what))
                 self.p.recover()
-                if self.ui is not None and name not in ("prepare", "restore", "install", "previous", "candidate", "update"):
+                if self.ui is not None and getattr(self.p, "running", True) and name not in ("prepare", "restore", "install", "previous", "candidate", "update"):
                     # the app was started again: back to the wallet before the phase
                     self.ui.open_wallet(self.secrets, after_update=getattr(self.ui, "which", "") == "candidate")
 
@@ -136,6 +136,10 @@ class Lane:
                 self.log("shutdown: %s" % e)
         if code == 0 and not all(self.results.get(c) for c in self.required):
             code = 1
+        missing = [c for c in self.required if c not in self.results]
+        if code == 1 and not self.fault and missing:  # a check that never ran says nothing about the app
+            self.fault = HarnessFault(self.phase or "checks", "required checks never computed: %s" % ", ".join(missing))
+            code = 2
         proof = self.proof()
         line = self.fault.line() if self.fault else (
             "PASS %s %s %s → %s%s" % (self.p.name, self.p.variant, proof["previous"], proof["candidate"],

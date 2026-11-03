@@ -21,7 +21,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
 
 import sandbox  # noqa: E402
-from core.faults import HarnessGone  # noqa: E402
+from core.faults import HarnessFault, HarnessGone  # noqa: E402
 from core.surface import Node  # noqa: E402
 
 ROLE = {
@@ -40,7 +40,7 @@ KEYS = {"escape": "Escape", "back": "Escape", "enter": "Return", "tab": "Tab", "
         "page_down": "Next", "page_up": "Prior", "space": "space", "ctrl_enter": "ctrl+Return", "end": "End"}
 CALL_S = 45       # one AT-SPI call; Flutter's tree read takes a few seconds on a busy host
 TAB_LIMIT = 60    # focus steps tried to reach a control with no action
-DESTRUCTIVE = re.compile(r"(?i)delete|remove|forget|reset|erase|send")
+DESTRUCTIVE = re.compile(r"(?i)delete|remove|forget|reset|erase|wipe|replace|restore|unlink|clear|send|pay")
 
 
 class AtspiSurface:
@@ -110,7 +110,8 @@ class AtspiSurface:
                 return json.loads(ans[0])
         if not self.display_alive():
             raise HarnessGone("ui", "the sandbox's Xvfb or dbus is gone")
-        raise HarnessGone("ui", "AT-SPI stopped answering (%s twice in %d s)" % (req.get("op"), timeout))
+        # the display is up: a rebuild would kill an app that may be busy (a first-start migration)
+        raise HarnessFault("ui", "AT-SPI stopped answering (%s twice in %d s)" % (req.get("op"), timeout))
 
     # ---- Surface
 

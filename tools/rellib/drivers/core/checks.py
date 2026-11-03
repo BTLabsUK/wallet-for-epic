@@ -170,14 +170,14 @@ def _pay(lane, address, amount, tag, what, count_dir="incoming"):
                 break
             time.sleep(POLL_S)
         if not posted:
-            raise ProductFault(what, "P sent %s EPIC and the wallet's data shows no incoming transaction in 15 min (wallet records %s)" % (amount, last))
+            raise (HarnessFault if tag == "previous" else ProductFault)(what, "P sent %s EPIC and the wallet's data shows no incoming transaction in 15 min (wallet records %s)" % (amount, last))
     while time.time() < end:
         d = _digest(lane, tag)
         new = [t for t in _txs(d) if t["direction"] == count_dir][n0:]
         if new and new[-1]["state"] == "confirmed":
             return d0, new[-1]
         time.sleep(POLL_S)
-    raise ProductFault(what, "posted by P, not confirmed in the wallet's data in 15 min (wallet records %s)" % last)
+    raise (HarnessFault if tag == "previous" else ProductFault)(what, "posted by P, not confirmed in the wallet's data in 15 min (wallet records %s)" % last)
 
 
 def wait_spendable(lane, tag, at_least, what, timeout=FUND_WAIT_S):
@@ -418,8 +418,8 @@ def _settings(lane, b, a):
     lane.details["level"] = why + " (desk store %s, wfe.log)" % facts.LEVEL_KEY
     if all(s1.get(k) is None for k, _ in FIELDS):
         lane.fail("settings_kept", "no setting could be read after the update%s" % note)
-    elif unset:
-        lane.fail("settings_kept", "the test could not set them on the previous release: %s" % unset)
+    elif unset and "settings_kept" in lane.required:  # the driver's setup did not take: nothing to compare
+        raise HarnessFault("digest-after", "the test could not set them on the previous release: %s" % unset)
     elif diff:
         lane.fail("settings_kept", "changed by the update (before, after): %s%s%s" % (diff, src, note))
     elif lv is False:
@@ -510,7 +510,7 @@ def funds_legs(lane, after):
             d = wait_spendable(lane, "candidate", start + _nano(FUND_AFTER), "receive spendable")
             _set(lane, RECEIVE, True, "P -> %s %s EPIC via Epicbox: incoming %s EPIC confirmed (wallet data); spendable %s" % (
                 short(address), FUND_AFTER, num(tx["credited"]), num(_spendable(d))))
-        except (HarnessFault, ProductFault) as e:
+        except ProductFault as e:  # a HarnessFault (P, the display) is the lane's, not a false check
             _set(lane, RECEIVE, False, e.what)
     _send_back(lane, SEND if lane.funds else None)
 
@@ -526,7 +526,7 @@ def _send_back(lane, pair):
             _set(lane, pair, ok, ("to P via Epicbox, the Send page with Max: %s" % why) if ok else why)
         else:
             lane.log("returned to P: %s" % why)
-    except (HarnessFault, ProductFault) as e:
+    except ProductFault as e:
         if pair:
             _set(lane, pair, False, "%s: %s" % (e.kind, e.what))
         else:

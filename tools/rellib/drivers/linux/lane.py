@@ -58,8 +58,8 @@ def main():
 
     def stopped(sig, _frame):  # a runner's timeout: the sandbox and stand-ins still go
         raise HarnessFault(lane.phase or "start", "the lane was stopped (signal %d)" % sig)
-    signal.signal(signal.SIGTERM, stopped)
     lane = Lane(plat, recipe_for, checks, out=out, log=log, required=required(funds), funds=funds, p=funder)
+    signal.signal(signal.SIGTERM, stopped)
     return lane.main()
 
 
