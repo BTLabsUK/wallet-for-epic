@@ -144,6 +144,22 @@ class Desktop:
     def _passwords(self, tree):
         return [n for n in tree if n.role == "text_field" and "password" in n.states]
 
+    def _unflagged_password(self):
+        """A text field named by the build's password label that is not a password to assistive tech is
+        the app's fault. On Windows the engine sets no IsPassword: the surface knows a password field by
+        its show/hide button right after it, and 26.10.26 b1e4540's Semantics ids put that button around
+        the field instead. The field is empty here (nothing typed yet), so its tree is saved."""
+        d = self.d
+        tree = d.tree()
+        words = {tg._norm(w) for w in (d.labels.text("deskOnbStepPassword"), "Password") if w}
+        named = [n for n in tree if n.role == "text_field" and "password" not in n.states
+                 and any(w in tg._norm(n.name.split("\n")[0]) for w in words)]
+        if named:
+            shot = d.shot("fail-" + d.step)
+            d.dump("fail-" + d.step, tree)
+            raise ProductFault(d.step, "password field not exposed as a password to assistive tech: %s"
+                               % ", ".join(n.brief() for n in named), shot)
+
     def _fill_passwords(self, step, want_at_least=1, submit=None):
         """Types the password into every password field on screen (create: password and confirm,
         unlock: one); order does not matter, each gets the same text. With `submit`, the form's button
@@ -154,6 +170,7 @@ class Desktop:
             fields = d.wait(Expect("%d password field(s)" % want_at_least,
                                    lambda dd, tree: (lambda f: f if len(f) >= want_at_least else None)(self._passwords(tree))), 60)
             if not fields:
+                self._unflagged_password()
                 d.harness("no password field (wanted %d)" % want_at_least)
             for n in fields:
                 d._act(d.s.set_text, n, self.password)

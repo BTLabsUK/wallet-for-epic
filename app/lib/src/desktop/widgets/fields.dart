@@ -325,8 +325,13 @@ class _EInputState extends State<EInput> {
               if (widget.trailing != null)
                 Padding(
                   padding: EdgeInsets.only(right: Sp.x1),
-                  // Icons inside a field (eye, clear, paste) are never Tab stops.
-                  child: ExcludeFocusTraversal(excluding: !widget.trailingTabStop, child: widget.trailing!),
+                  // Icons inside a field (eye, clear, paste) are never Tab stops. Their own node, beside
+                  // the field's: with a [semanticsId] the field's row would otherwise take the icon's
+                  // button and label, and the field would sit inside it.
+                  child: Semantics(
+                    container: true,
+                    child: ExcludeFocusTraversal(excluding: !widget.trailingTabStop, child: widget.trailing!),
+                  ),
                 ),
             ],
           ),
