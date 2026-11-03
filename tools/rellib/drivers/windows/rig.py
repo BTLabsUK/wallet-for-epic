@@ -194,7 +194,7 @@ class Rig:
         self._lock = None
         os.makedirs(control_dir, mode=0o700, exist_ok=True)
         self.ssh_opts = ["-o", "BatchMode=yes", "-o", "ControlMaster=auto", "-o", "ControlPersist=900",
-                         "-o", "ControlPath=%s/cm-%%C" % control_dir, "-o", "ServerAliveInterval=30"]
+                         "-o", "ControlPath=%s/cm-s%d-%%C" % (control_dir, session), "-o", "ServerAliveInterval=30"]
         self.seq = 0
 
     # ---- plumbing
@@ -223,6 +223,7 @@ class Rig:
         return r.returncode == 0
 
     def close(self):
+        # the master is this session's own (ControlPath above): lanes on other rigs keep theirs
         subprocess.run(["ssh", *self.ssh_opts, "-O", "exit", self.host], capture_output=True, timeout=20)
         if self._lock:
             self._lock.close()

@@ -15,6 +15,7 @@ _spec = importlib.util.spec_from_file_location("win_trust", os.path.join(WIN, "t
 wt = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(wt)
 
+import rig as wrig  # noqa: E402
 import uia  # noqa: E402
 import windows_platform as wp  # noqa: E402
 from core.faults import HarnessFault  # noqa: E402
@@ -170,6 +171,16 @@ class LoseNodeTest(unittest.TestCase):
         p = self.platform('[node]\nservers = ["node.example.org"]\n')
         with self.assertRaises(HarnessFault):
             p.break_lose_node()
+
+
+class SshMasterTest(unittest.TestCase):
+    def test_each_rig_session_has_its_own_ssh_master(self):
+        """A lane that ends closes its ssh master; one on another rig, run at the same time, must keep its own."""
+        ctl = tempfile.mkdtemp()
+        paths = [next(o for o in wrig.Rig("win", "run", print, ctl, session=n).ssh_opts if o.startswith("ControlPath="))
+                 for n in (1, 4, 5)]
+        self.assertEqual(len(set(paths)), 3, paths)
+        self.assertTrue(all(p.startswith("ControlPath=%s/" % ctl) for p in paths))
 
 
 if __name__ == "__main__":
