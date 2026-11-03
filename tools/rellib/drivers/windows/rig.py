@@ -10,8 +10,14 @@ installers, logs).
 
 Every rig job runs in session 0, where Local\\ is one namespace for all, and a job's user has one HKCU:
 two runs as the same Windows user collide on the app's single-instance mutex and on Setup's uninstall
-key. So a run holds a lock on its rig's user (here, flock) and a second run for the same user waits;
-only rigs with different users run side by side."""
+key. So a run holds a lock on its rig's user (here, flock, ~/.cache/rel-trust-windows/ctl/user-<host>-<user>.lock)
+and a second run for the same user waits; only rigs with different users run side by side. A second user
+shares session 0's names but not their access: the mutex the first user made refuses it
+(ERROR_ACCESS_DENIED, which main.cpp lets start; only ERROR_ALREADY_EXISTS ends it), and it has an HKCU
+of its own.
+
+Rig users (2026-11-03): rigs 1..3 epicrig, rig 4 epicrig3, rig 5 epicrig2. A rig of its own user is made
+on the box, elevated, with wintest-rig scripts\\setup-test-user.ps1 -UserName epicrig<n> -Only <k>."""
 import base64
 import datetime
 import fcntl
@@ -19,6 +25,7 @@ import gzip
 import json
 import os
 import re
+import signal
 import subprocess
 import time
 
@@ -87,6 +94,10 @@ class RigDead(RigError):
     """The rig session did not pick up a job: another session may take the run."""
 
 
+class RigStopped(RigError):
+    """A signal stopped the run while it waited for its rig user's lock."""
+
+
 # ---- health (read-only, as BT, no admin): rig-health.ps1 on the box, judged here
 
 def ps_file_command(path, args=""):
@@ -148,6 +159,8 @@ def judge(r, now=None):
             bad.append("%s is denied 'Log on as a batch job' (SeDenyBatchLogonRight)" % user)
         elif not r.get("batch_right") and not r.get("rights_error"):
             bad.append("%s lacks 'Log on as a batch job' (SeBatchLogonRight), so the task cannot log it on" % user)
+        if r.get("work_grant") is False:
+            bad.append("%s has no Modify grant of its own on %s" % (user, r.get("work")))
     res = r.get("last_result")
     running = r.get("state") == "Running"
     last = _when(r.get("last_run"))
@@ -177,8 +190,18 @@ def health(host, sessions=None, timeout=120, ssh_opts=()):
     return {k: (recs.get(k), judge(recs.get(k))) for k in want}
 
 
-def describe(session, problems):
-    return "rig %d (%s): %s" % (session, task_name(session), "; ".join(problems) if problems else "ok")
+def describe(session, problems, facts=None):
+    who = " as %s" % facts["user"] if facts and facts.get("user") else ""
+    return "rig %d (%s%s): %s" % (session, task_name(session), who, "; ".join(problems) if problems else "ok")
+
+
+def same_user(report):
+    """{user: [sessions]} from health(): rigs listed together share one user and run one at a time."""
+    out = {}
+    for k, (facts, _) in sorted(report.items()):
+        if facts and facts.get("user"):
+            out.setdefault(facts["user"], []).append(k)
+    return out
 
 
 class Rig:
@@ -192,6 +215,7 @@ class Rig:
         self.job = None
         self.control_dir = control_dir
         self._lock = None
+        self.agent_queued = False
         os.makedirs(control_dir, mode=0o700, exist_ok=True)
         self.ssh_opts = ["-o", "BatchMode=yes", "-o", "ControlMaster=auto", "-o", "ControlPersist=900",
                          "-o", "ControlPath=%s/cm-%%C" % control_dir, "-o", "ServerAliveInterval=30"]
@@ -245,8 +269,36 @@ class Rig:
             fcntl.flock(self._lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
             self.log("rig session %d runs as %s, whose other run is still on the rig: waiting for it" % (self.session, self.user))
-            fcntl.flock(self._lock, fcntl.LOCK_EX)
+            self._wait_lock()
         self.log("rig session %d (%s, %s) as %s" % (self.session, task_name(self.session), work_dir(self.session), self.user))
+
+    def _wait_lock(self):
+        """The blocking wait for the user's lock, ended by SIGTERM or SIGINT: the caller's handler runs (lane.py
+        raises its HarnessFault), else RigStopped; either way the lock file is closed and the stop logged."""
+        def stop(sig, frame):
+            h = old.get(sig)
+            if h == signal.SIG_IGN:
+                return
+            if callable(h) and h is not signal.default_int_handler:
+                h(sig, frame)
+            raise RigStopped("stopped by %s while waiting for %s's lock on rig session %d"
+                             % (signal.Signals(sig).name, self.user, self.session))
+        old = {}
+        try:
+            for sig in (signal.SIGTERM, signal.SIGINT):
+                old[sig] = signal.signal(sig, stop)
+        except ValueError:  # not the main thread: the default handlers stay
+            pass
+        try:
+            fcntl.flock(self._lock, fcntl.LOCK_EX)
+        except BaseException as e:
+            self._lock.close()
+            self._lock = None
+            self.log("HARNESS lock: rig session %d stopped while waiting for %s's lock: %s" % (self.session, self.user, e))
+            raise
+        finally:
+            for sig, h in old.items():
+                signal.signal(sig, h)
 
     def prepare(self):
         self.lock_user()
@@ -271,6 +323,7 @@ class Rig:
         label = "trust-" + self.run.rsplit("\\", 1)[-1][-15:]
         out = self.pwsh("& '%s' '%s\\bin\\agent.ps1' -ScriptArgs @('%s','%d') -Label '%s' -Session %d"
                         % (QUEUE, self.base, self.run, idle_min, label, self.session))
+        self.agent_queued = True
         m = re.search(r"queued (\S+\.json)", out)
         self.job = m.group(1) if m else None
         self.log("rig agent queued as %s in rig session %d (%s)" % (self.user, self.session, label))
@@ -315,6 +368,8 @@ class Rig:
             return ["health check failed: %s" % e]
 
     def call(self, op, timeout=120, **kw):
+        if not self.agent_queued:  # a run stopped before its agent: nothing would answer rpc.ps1 for minutes
+            return {"ok": False, "error": "no agent on the rig (this run never queued one)"}
         self.seq += 1
         seq = "%s-%05d" % (time.strftime("%H%M%S"), self.seq)
         kw["op"] = op
