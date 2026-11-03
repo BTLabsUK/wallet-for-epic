@@ -383,8 +383,8 @@ def validate_scope(scope, pipeline, version_at_commit=None, previous_version=Non
             errs.append(f"[proof.waive] {p}: give a reason")
     left = [p for p in ("windows", "linux", "macos") if not scope["platforms"].get(p)]
     if left and scope["publish"].get("manifests"):
-        warns.append(f"{', '.join(left)} out of scope: the update manifests keep those systems' live entries "
-                     "(their files stay on the server), but the releases page lists only this release's files")
+        warns.append(f"{', '.join(left)} out of scope: the update manifests keep those systems' live entries, "
+                     "and the releases page, SHA256SUMS and the server keep their newest files")
     if errs:
         raise ConfigError("the release scope makes no sense:\n  - " + "\n  - ".join(errs))
     return warns

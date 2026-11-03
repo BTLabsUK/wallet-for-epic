@@ -721,12 +721,20 @@ def trust_manifest(engine, step, say):
 
 
 def kept_files(run):
-    """{file name: sha256} of the desktop entries this run's manifests keep from the live one."""
+    """{file name: sha256} of the live files this run keeps: the desktop entries its manifests
+    keep (desktop-keep.json) and every platform it has no file for (live-keep.sums)."""
+    out = {}
     kp = os.path.join(run.path, "manifests", "desktop-keep.json")
-    if not os.path.isfile(kp):
-        return {}
-    return {e["url"].rsplit("/", 1)[-1]: e.get("sha256") for e in walk_objects(json.load(open(kp)))
-            if isinstance(e.get("url"), str)}
+    if os.path.isfile(kp):
+        out.update({e["url"].rsplit("/", 1)[-1]: e.get("sha256") for e in walk_objects(json.load(open(kp)))
+                    if isinstance(e.get("url"), str)})
+    lp = os.path.join(run.path, "manifests", "live-keep.sums")
+    if os.path.isfile(lp):
+        for line in open(lp, encoding="utf-8"):
+            sha, _, name = line.rstrip("\n").partition("  ")
+            if name:
+                out[name] = sha
+    return out
 
 
 def walk_objects(o):
@@ -1092,14 +1100,23 @@ def scratch_manifests(engine, step, say):
     return {"status": "done", "note": f"scratch: both manifests in {tgt}"}
 
 
+def releases_keep(repo, version, names):
+    """tools/releases/build.py keep: per platform and variant the newest version's files."""
+    spec = importlib.util.spec_from_file_location("releases_build", os.path.join(repo, "tools/releases/build.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod.keep(version, names)
+
+
 def scratch_prune(engine, step, say):
     d = os.path.join(scratch_dir(engine), "downloads")
     arch = os.path.join(scratch_dir(engine), "archive")
     v = engine.info["version"]
     moved = []
-    for n in sorted(os.listdir(d)) if os.path.isdir(d) else []:
-        if (n not in ("SHA256SUMS", "SHA256SUMS.sig", "provenance.json", SBOM) and f"-{v}-" not in n
-                and n not in kept_files(engine.run)):
+    names = sorted(os.listdir(d)) if os.path.isdir(d) else []
+    keep = releases_keep(engine.repo, v, names) | set(kept_files(engine.run))
+    for n in names:
+        if n not in ("SHA256SUMS", "SHA256SUMS.sig", "provenance.json", SBOM) and n not in keep:
             os.makedirs(arch, exist_ok=True)
             shutil.move(os.path.join(d, n), os.path.join(arch, n))
             moved.append(n)

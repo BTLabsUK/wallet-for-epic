@@ -6,9 +6,15 @@ signer can sign it before anything is published (docs/RELEASING.md, "Signer").
   server_sums.py write <files dir> <manifests dir> <out>
       this run's files/SHA256SUMS (every release file, provenance.json, sbom.cdx.json) and the
       desktop installers its manifests keep from the live one (manifests/desktop-keep.json, their
-      hashes from that verified manifest), sorted by name: the lines the server's
-      `ls | grep -vx -e SHA256SUMS -e SHA256SUMS.sig | LC_ALL=C sort | xargs sha256sum` gives
+      hashes from that verified manifest) and the files `live` carries (manifests/live-keep.sums),
+      sorted by name: the lines the server's
+      `ls | grep -vx -e SHA256SUMS -e SHA256SUMS.sig -e SHA256SUMS.new | LC_ALL=C sort | xargs sha256sum` gives
       after prune-downloads.
+  server_sums.py live <downloads URL> <files dir> <version> <keyring> <release-files.py> <out>
+      the live folder's files that stay once <version> is live (tools/releases/build.py keep:
+      every platform and variant the run has no file for keeps its newest release, whatever the
+      release's scope), as SHA256SUMS lines from the live SHA256SUMS, its signature checked
+      against the keyring first. No live SHA256SUMS (HTTP 404, a first release): an empty <out>.
   server_sums.py same <files dir> <manifests dir> <SHA256SUMS>
       exit 0 when the files dir holds exactly what its SHA256SUMS lists, with those hashes, and
       `write` would give this SHA256SUMS byte for byte (the manifests step's retry: the listing
@@ -29,6 +35,10 @@ import json
 import os
 import re
 import sys
+import urllib.error
+import urllib.request
+
+HERE = os.path.dirname(os.path.abspath(__file__))
 
 LINE = re.compile(r"([0-9a-f]{64})  (\S+)\Z")
 
@@ -68,12 +78,66 @@ def write(files, mdir, out):
                 if sums.get(name, sha) != sha:
                     raise SystemExit(f"{name}: two hashes ({sums[name][:12]}…, {sha[:12]}…)")
                 sums[name] = sha
+    lp = os.path.join(mdir, "live-keep.sums")
+    if os.path.isfile(lp):
+        for name, sha in read_sums(lp).items():
+            if sums.get(name, sha) != sha:
+                raise SystemExit(f"{name}: two hashes ({sums[name][:12]}…, {sha[:12]}…)")
+            sums[name] = sha
     text = "".join(f"{sums[n]}  {n}\n" for n in sorted(sums))
     tmp = out + ".tmp"
     with open(tmp, "w", encoding="utf-8") as f:
         f.write(text)
     os.replace(tmp, out)
     print(f"{out}: {len(sums)} files")
+
+
+def build_py():
+    spec = importlib.util.spec_from_file_location("releases_build", os.path.join(HERE, "../../releases/build.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def carried(version, live, run):
+    """Of the live listing ({name: sha256}), the lines that stay beside the run's file names."""
+    kept = build_py().keep(version, list(live) + list(run))
+    return {n: live[n] for n in sorted(kept) if n in live and n not in run}
+
+
+def fetch(url):
+    try:
+        with urllib.request.urlopen(url, timeout=30) as r:
+            return r.read()
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            return None
+        raise
+
+
+def live(base, files, version, keyring, tool, out):
+    base = base.rstrip("/")
+    sums = fetch(f"{base}/SHA256SUMS")
+    lines = {}
+    if sums is not None:
+        sig = fetch(f"{base}/SHA256SUMS.sig")
+        if sig is None:
+            raise SystemExit(f"{base}/SHA256SUMS.sig: not served, so the live hashes are not trusted")
+        gr = release_files(tool)
+        from pathlib import Path
+        gr.minisign_verify(sig.decode("utf-8"), sums, gr.load_keyring(Path(keyring)))
+        tmp = out + ".live"
+        with open(tmp, "wb") as f:
+            f.write(sums)
+        try:
+            listed = read_sums(tmp)
+        finally:
+            os.remove(tmp)
+        lines = carried(version, listed, read_sums(os.path.join(files, "SHA256SUMS")))
+    with open(out + ".tmp", "w", encoding="utf-8") as f:
+        f.write("".join(f"{sha}  {n}\n" for n, sha in lines.items()))
+    os.replace(out + ".tmp", out)
+    print(f"{out}: {len(lines)} file(s) kept from the live folder" + "".join(f"\n  {n}" for n in lines))
 
 
 def same(files, mdir, sums):
@@ -156,6 +220,13 @@ def sign_key(sums, key_file, version, keyring, tool):
 def main(argv):
     if len(argv) == 4 and argv[0] == "write":
         write(*argv[1:])
+    elif len(argv) == 7 and argv[0] == "live":
+        try:
+            live(*argv[1:])
+        except SystemExit:
+            raise
+        except Exception as e:  # unreachable, a bad signature
+            raise SystemExit(f"{argv[1]}: the live SHA256SUMS: {e}") from None
     elif len(argv) == 4 and argv[0] == "same":
         sys.exit(same(*argv[1:]))
     elif len(argv) == 5 and argv[0] == "sign":

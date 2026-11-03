@@ -4,17 +4,24 @@
     tools/releases/build.py add <version> <dir> [--date YYYY-MM-DD] [--github]
         Record a release from a folder holding its files and SHA256SUMS (the release lead's
         folder, e.g. /srv/wfe-release/26.10.24). Every file in SHA256SUMS whose name
-        carries <version> is taken; its checksum is recomputed and must agree. Replaces
-        whatever record was there: the page shows the current release only. --github adds
+        carries <version> is taken; its checksum is recomputed and must agree. The release
+        replaces the files of every slot it has a file for (see keep); a slot it leaves out
+        (a platform out of its scope) keeps the earlier record's files. --github adds
         the Mirror link (only once the GitHub Release exists and is public);
         a SHA256SUMS.sig in <dir> adds the signature check to every Before you install.
+    tools/releases/build.py keep <version> < names
+        Of the file names on stdin (the server's downloads/), print the ones the folder keeps
+        once <version> is live: per slot, <version>'s files when it has any, else the newest
+        version's (prune-downloads and server_sums.py use this one rule).
     tools/releases/build.py render [--out DIR]
         Write the page (index.html, style.css, page.js, theme.js, fonts/, img/) into DIR,
         the page repo's site/epic-cash/ by default ($WFE_RELEASES_SITE). Deploy from there
         with the page repo's ./deploy-epic-cash.sh.
 
-The data is releases.json next to this script: one record, the current release (version, date,
-files with name, size and sha256). What a file is (platform, label, primary or folded) comes
+The data is releases.json next to this script: the current release (version, date, files with
+name, size and sha256), and an earlier record for each platform the current one left out. A slot
+is a platform and its variant (with Tor, without): the newest version that has a file in a slot
+is the one the page offers there, and the server keeps. What a file is (platform, label, primary or folded) comes
 from its name, see KINDS: a new kind of build needs one line there and nothing else.
 
 The page is plain HTML and CSS: every download is a link, every fold a <details>. page.js adds
@@ -188,6 +195,31 @@ def version_of(name):
     return m.group(1) if m else None
 
 
+def slot(name):
+    """The platform and variant a release file fills ('android', 'tor'), or None (no version in
+    its name, or a file no pattern knows)."""
+    plat = classify(name)[0]
+    if plat == 'other' or not version_of(name):
+        return None
+    return plat, 'notor' if NOTOR.search(name) else 'tor'
+
+
+def keep(version, names):
+    """The names that stay once <version> is live: in each slot <version>'s files when it has
+    any, else the newest version's. Names without a slot stay only when they carry <version>."""
+    by = {}
+    for n in names:
+        s = slot(n)
+        if s:
+            by.setdefault(s, []).append(n)
+    out = {n for n in names if not slot(n) and version_of(n) == version}
+    for ns in by.values():
+        vs = {version_of(n) for n in ns}
+        want = version if version in vs else max(vs, key=vkey)
+        out.update(n for n in ns if version_of(n) == want)
+    return out
+
+
 def mb(size):
     return f'{size / 1e6:.1f}'
 
@@ -250,23 +282,41 @@ def cmd_add(args):
         rec['github'] = True
     if os.path.exists(os.path.join(d, 'SHA256SUMS.sig')):
         rec['sig'] = True
-    data['releases'] = [rec]
+    data['releases'] = merge(data['releases'], rec)
     save(data)
     print(f'{ver}: {len(files)} files, {date}')
+    for r in data['releases']:
+        if r is not rec:
+            print(f'  kept from {r["version"]}: {", ".join(f["name"] for f in r["files"])}')
+
+
+def merge(records, rec):
+    """The records once rec is live: rec, and of the others only the files keep() leaves (the
+    slots rec has no file for). A record left without files goes."""
+    others = [r for r in records if r['version'] != rec['version']]
+    kept = keep(rec['version'], [f['name'] for r in others for f in r['files']] + [f['name'] for f in rec['files']])
+    out = [rec]
+    for r in others:
+        fs = [f for f in r['files'] if f['name'] in kept]
+        if fs:
+            out.append(dict(r, files=fs))
+    return out
 
 
 # ---------------------------------------------------------------------------- the page
 
-def group(release):
-    """{platform: {'primary': file or None, 'files': [...]}} in page order, plus 'other'."""
+def group(releases):
+    """{platform: {'primary': file or None, 'files': [...]}} in page order, plus 'other'. Every
+    recorded file, each with its release's version and date (add leaves one version per slot)."""
     out = {}
-    for f in release['files']:
-        plat, label, primary = classify(f['name'])
-        g = out.setdefault(plat, {'primary': None, 'files': []})
-        entry = dict(f, label=label, primary=primary)
-        g['files'].append(entry)
-        if primary:
-            g['primary'] = entry
+    for r in releases:
+        for f in r['files']:
+            plat, label, primary = classify(f['name'])
+            g = out.setdefault(plat, {'primary': None, 'files': []})
+            entry = dict(f, label=label, primary=primary, version=r['version'], date=r['date'])
+            g['files'].append(entry)
+            if primary:
+                g['primary'] = entry
     ordered = {}
     for key, *_ in PLATFORMS:
         if key in out:
@@ -308,10 +358,17 @@ def platform_row(key, g, latest):
     p = g['primary']
     nt = notor_of(g)
     icon = ICONS.get(key, ICONS['other'])
-    out = [f'<li class="row" data-plat="{key}" id="dl-{key}"{" data-preview" if preview else ""}>',
+    # A platform the current release left out offers its newest release: its version and date
+    # under the requirement, and on the row for page.js (the hero's version line).
+    own = p and p['version'] != latest['version']
+    out = [f'<li class="row" data-plat="{key}" id="dl-{key}"{" data-preview" if preview else ""}'
+           + (f' data-version="{esc(p["version"])}" data-date="{p["date"]}" data-when="{human_date(p["date"])}"' if own else '') + '>',
            f'<div class="r-main"><span class="ico">{icon}</span><div class="r-name"><h3>{esc(heading)}'
            + (' <span class="pill">Preview</span>' if preview else '') + '</h3>'
-           f'<p class="req">{esc(req)}</p></div>']
+           f'<p class="req">{esc(req)}</p>'
+           + (f'<p class="req r-ver">Version <span translate="no">{esc(p["version"])}</span> · '
+              f'<time datetime="{p["date"]}">{human_date(p["date"])}</time></p>' if own else '')
+           + '</div>']
     if p:
         out.append(f'<div class="r-get"><a class="btn primary" href="downloads/{esc(p["name"])}" download '
                    f'data-label="{esc(p["label"])}" data-size="{mb(p["size"])}&nbsp;MB">{ICONS["down"]}'
@@ -509,7 +566,7 @@ def hero(latest, g, plat_line):
     <p class="lede">A self-custodial wallet for Epic Cash. Keys stay on your device, locked with a password.</p>
     <div class="get">
       <a class="btn primary big" id="hero-dl" href="#latest"><span class="b-ico" id="hero-dl-ico">{ICONS['down']}</span><span class="b-text"><span id="hero-dl-text">Choose your platform</span><small id="hero-dl-sub">{esc(plat_line)}</small></span></a>
-      <p class="get-meta"><span id="hero-req"></span><span translate="no">{esc(latest['version'])}</span> · <time datetime="{latest['date']}">{human_date(latest['date'])}</time> · <a href="#notes">What's new</a></p>
+      <p class="get-meta"><span id="hero-req"></span><span id="hero-ver" translate="no">{esc(latest['version'])}</span> · <time id="hero-date" datetime="{latest['date']}">{human_date(latest['date'])}</time> · <a href="#notes">What's new</a></p>
       <p class="get-alt" id="hero-alt" hidden><a id="hero-before" href="#latest">Install guide</a><a id="hero-notor" href="#latest" hidden download>Without Tor</a><a href="#verify">Verify</a></p>
     </div>
     <div class="also"><p id="also-h">All platforms</p><ul aria-labelledby="also-h">{chips}</ul></div>
@@ -528,7 +585,7 @@ def render(out_dir):
     rels = sorted(data['releases'], key=lambda r: vkey(r['version']), reverse=True)
     assert rels, 'no release recorded: run add first'
     latest = rels[0]
-    g = group(latest)
+    g = group(rels)
     plat_names = [PLAT[k][1] for k in g if k in PLAT and not PLAT[k][4]]
     previews = [PLAT[k][1] for k in g if k in PLAT and PLAT[k][4]]
     plat_line = ', '.join(plat_names) + ('; ' + ' and '.join(previews) + ' preview' if previews else '')
@@ -591,7 +648,8 @@ def render(out_dir):
         os.makedirs(os.path.join(out_dir, sub), exist_ok=True)
         for name in os.listdir(os.path.join(ASSETS, sub)):
             shutil.copy(os.path.join(ASSETS, sub, name), os.path.join(out_dir, sub, name))
-    print(f'{out_dir}: {latest["version"]}, {len(latest["files"])} files')
+    print(f'{out_dir}: {latest["version"]}, '
+          + ', '.join(f'{k} {gg["primary"]["version"]}' for k, gg in g.items() if gg['primary']))
 
 
 def main(argv):
@@ -601,6 +659,8 @@ def main(argv):
     cmd, args = argv[0], argv[1:]
     if cmd == 'add':
         cmd_add(args)
+    elif cmd == 'keep':
+        print('\n'.join(sorted(keep(args[0], [n.strip() for n in sys.stdin if n.strip()]))))
     elif cmd == 'render':
         out = args[args.index('--out') + 1] if '--out' in args else DEFAULT_OUT
         render(out)

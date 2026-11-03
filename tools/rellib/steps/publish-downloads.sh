@@ -39,7 +39,7 @@ rsync -t "${files[@]/#/$dir/}" "${signed[@]}" "$host:$stage/"
 ssh "$host" "set -e; cd ~/$stage
   sudo install -o root -g root -m 0644 ${files[*]} $dest/
   cd $dest
-  ls | grep -vx -e SHA256SUMS -e SHA256SUMS.sig | LC_ALL=C sort | xargs sha256sum | sudo tee SHA256SUMS.new >/dev/null
+  ls | grep -vx -e SHA256SUMS -e SHA256SUMS.sig -e SHA256SUMS.new | LC_ALL=C sort | xargs sha256sum | sudo tee SHA256SUMS.new >/dev/null
   sudo chmod 0644 SHA256SUMS.new"
 if (( ${#signed[@]} > 0 )); then
   # Every line signed must be the folder's (files of older versions still there until the prune

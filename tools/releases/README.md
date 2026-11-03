@@ -25,10 +25,12 @@ assets/            style.css, page.js, theme.js, fonts/ (Montserrat, JetBrains M
 ## A new release
 
 `tools/rel` does this as its `publish-page` and `prune-downloads` steps (docs/RELEASING.md;
-`publish-page` also commits `releases.json` on main, step 4);
-the page lists only the files of the release folder, so a release that leaves a platform out
-needs the page settled first (the manifests keep that platform's live entry, prune keeps its
-files). By hand:
+`publish-page` also commits `releases.json` on main, step 4).
+One rule decides what the page offers and the server keeps (`build.py keep`): per slot, a
+platform and its variant (with Tor, without), the newest version that has a file there. A
+release that leaves a platform out (`--only android`, a Linux fix) replaces only the slots it
+has files for; the others keep their earlier record, shown with its own version and date, and
+their files stay in `downloads/` and in the signed `SHA256SUMS`. By hand:
 
 1. `tools/releases/build.py add 26.10.24 /srv/wfe-release/26.10.24` (the folder with
    the files and SHA256SUMS; `--date` if not today). Checksums are recomputed and must agree.
@@ -42,8 +44,9 @@ files). By hand:
 3. In the page repo: commit, then `./deploy-epic-cash.sh`. It leaves downloads/ and
    update.json alone and checks the live URLs.
 4. Commit `releases.json` here.
-5. Prune the server: the page keeps no history, so the previous version's files leave
-   `downloads/` (keep anything an update manifest still names: update.json at examples,
+5. Prune the server: in each slot only the newest version's files stay (`build.py keep <version>`
+   over the folder's names lists them); the rest leave `downloads/` (keep anything an update
+   manifest still names: update.json at examples,
    /api/v1/update.json, the mirrors' update.json and update-v2.json). Keep a local copy of
    each removed file with its checksum under `/tmp/epic-build/wfe-release-archive/<version>/`
    first. Old version URLs answering 404 is intended.
