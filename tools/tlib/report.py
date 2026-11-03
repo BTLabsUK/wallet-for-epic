@@ -28,6 +28,9 @@ class Run:
         self.errors = {}  # test id -> [(error, stack)]
         self.done = {}  # test id -> testDone event
         self.prints = {}  # test id -> printed messages (a widget test's exception report)
+        self.offset = 0  # added to the ids of a later flutter process's events (a retry)
+        self.suite_time = {}  # suite id -> ms since the run started
+        self.done_time = {}  # test id -> ms
         self.success = None
         self.other = []  # lines that were not events (compile output, crashes)
 
@@ -40,12 +43,28 @@ class Run:
             path = os.path.relpath(path, self.app_root)
         return path.replace(os.sep, "/")
 
+    def drop_files(self, files):
+        """Forget the given files' suites and tests (their first attempt, before a retry)."""
+        files = set(files)
+        sids = {sid for sid, p in self.suites.items() if p in files}
+        tids = {tid for tid, t in self.tests.items() if t.get("suiteID") in sids}
+        for sid in sids:
+            self.suites.pop(sid, None)
+            self.suite_time.pop(sid, None)
+        for tid in tids:
+            for d in (self.tests, self.errors, self.done, self.prints, self.done_time):
+                d.pop(tid, None)
+
     def feed(self, e):
+        if self.offset:
+            e = shift_ids(e, self.offset)
         kind = e.get("type")
         if kind == "suite":
             s = e.get("suite") or {}
             if "id" in s and s.get("path"):
                 self.suites[s["id"]] = self.rel(s["path"])
+                if "time" in e:
+                    self.suite_time[s["id"]] = e["time"]
         elif kind == "testStart":
             t = e.get("test") or {}
             if "id" in t:
@@ -56,6 +75,8 @@ class Run:
             self.prints.setdefault(e.get("testID"), []).append(e.get("message") or "")
         elif kind == "testDone":
             self.done[e.get("testID")] = e
+            if "time" in e:
+                self.done_time[e.get("testID")] = e["time"]
         elif kind == "done":
             self.success = bool(e.get("success"))
 
@@ -103,7 +124,7 @@ class Run:
             name = t.get("name") or ""
             if name.startswith("loading "):
                 name = "loading the file (it does not compile or throws in main)"
-            errs = self.errors.get(tid) or [("(no message)", "")]
+            errs = self.errors.get(tid) or [("(no message: the test process ended without a result)", "")]
             text = "\n".join(e for e, _ in errs).strip()
             stack = "\n".join(s for _, s in errs)
             caught = exception_report("\n".join(self.prints.get(tid, [])))
@@ -123,11 +144,95 @@ class Run:
         out.sort(key=lambda x: (x["file"], x["line"] or 0, x["name"]))
         return out
 
+    def file_outcomes(self, files, rc=0):
+        """{app-relative file: {result, reason, failing, duration_s}} for the given files of one run.
+
+        `pass`: the file ran and every test passed. `fail`: a test reported an error that is the
+        test's own (an expect, an exception, code that does not compile). `infra`: the file failed
+        with no such error, only the process dying, not starting or losing its connection, or the
+        file never finished in a run that ended abnormally (`rc` not 0). A file with both is
+        `fail`.
+        """
+        by_file = {}
+        for tid, d in self.done.items():
+            by_file.setdefault(self.file_of(tid), []).append((tid, d))
+        started = {}
+        for tid in self.tests:
+            started.setdefault(self.file_of(tid), set()).add(tid)
+        out = {}
+        seen = set(self.suites.values())
+        for f in files:
+            tests = by_file.get(f, [])
+            bad = [(tid, d) for tid, d in tests if d.get("result") != "success"]
+            unfinished = [tid for tid in started.get(f, ()) if tid not in self.done]
+            failing, kinds, reasons = [], set(), []
+            for tid, d in bad:
+                t = self.tests.get(tid) or {}
+                errs = self.errors.get(tid) or []
+                text = "\n".join(e for e, _ in errs) + "\n" + "\n".join(self.prints.get(tid, []))
+                kind = classify_error(text) if errs else "infra"
+                kinds.add(kind)
+                name = t.get("name") or ""
+                failing.append("loading the file" if name.startswith("loading ") else name)
+                if kind == "infra":
+                    reasons.append(_first_line(text) or "the test process ended without a result")
+            if unfinished and rc != 0:
+                kinds.add("infra")
+                reasons.append("the test process ended before the file finished")
+            if f not in seen and not tests and rc != 0:
+                kinds.add("infra")
+                reasons.append(f"flutter test exited {rc} before the file ran")
+            if "fail" in kinds:
+                out[f] = {"result": "fail", "failing": failing, "reason": ""}
+            elif "infra" in kinds:
+                out[f] = {"result": "infra", "failing": failing, "reason": reasons[0][:200]}
+            elif f in seen and tests:
+                out[f] = {"result": "pass", "failing": [], "reason": ""}
+            else:
+                continue
+            out[f]["duration_s"] = self.file_seconds(f)
+        return out
+
+    def file_seconds(self, f):
+        """Seconds from the file's suite start to its last test's end, from the event times."""
+        sids = [sid for sid, p in self.suites.items() if p == f]
+        start = min((self.suite_time[s] for s in sids if s in self.suite_time), default=None)
+        end = max((self.done_time[tid] for tid in self.done if self.file_of(tid) == f
+                   and tid in self.done_time), default=None)
+        return round((end - start) / 1000, 1) if start is not None and end is not None else 0.0
+
     def files_green(self, files):
         """The given app-relative test files whose every test passed."""
         bad = {self.file_of(tid) for tid, d in self.done.items() if d.get("result") != "success"}
         seen = set(self.suites.values())
         return [f for f in files if f in seen and f not in bad and self.success is not None]
+
+
+# What flutter prints when the process that runs a test file died, never started or lost its
+# connection: the machine, not the test (tools/tlib/infra.py).
+INFRA_ERROR = re.compile(
+    r"The Dart compiler exited unexpectedly|"
+    r"Shell subprocess (?:ended|crashed|cleanup)|flutter_tester|Exited \(|exited with code|"
+    r"Connection (?:closed|reset)|SocketException|WebSocket|Broken pipe|"
+    r"Out of memory|Cannot allocate memory|OutOfMemory|"
+    r"Unable to (?:start|spawn)|Failed to (?:start|spawn)|Process .* (?:died|was killed|crashed)|"
+    r"\.dill\b.*(?:No such file|Could not|corrupt|truncated)|"
+    r"(?:No such file|Could not|corrupt|truncated).*\.dill\b|"
+    r"kernel (?:file|snapshot).*(?:missing|corrupt|invalid)|frontend_server.*(?:crashed|died|exited)|"
+    r"Bad state: (?:StreamSink|Stream has already been|Cannot add|The test process)|"
+    r"Unexpected end of file|SIGKILL|SIGSEGV|signal 9\b|signal 11\b", re.I)
+# Dart code that does not compile, or a test that threw: the code's own failure, never infra.
+CODE_ERROR = re.compile(r"\.dart:\d+:\d+: Error:|\bError: |Expected: |Actual: |Test failed\. See exception|"
+                        r"The following .* was thrown|TestFailure|_?AssertionError|Golden \"")
+
+
+def classify_error(text):
+    """'infra' for a failure message that is about the test process, else 'fail'."""
+    if CODE_ERROR.search(text) and not INFRA_ERROR.search(text):
+        return "fail"
+    if CODE_ERROR.search(text) and re.search(r"\.dart:\d+:\d+: Error:|Expected: |TestFailure|Test failed\.", text):
+        return "fail"
+    return "infra" if INFRA_ERROR.search(text) else "fail"
 
 
 def exception_report(printed):
@@ -158,6 +263,30 @@ def _line_in(stack, file):
         if best is None:
             best = int(m.group(2))
     return best
+
+
+def shift_ids(e, n):
+    """A copy of an event with its suite and test ids moved by n (two processes' ids collide)."""
+    e = dict(e)
+    for k in ("testID",):
+        if isinstance(e.get(k), int):
+            e[k] += n
+    if isinstance(e.get("suite"), dict) and isinstance(e["suite"].get("id"), int):
+        e["suite"] = {**e["suite"], "id": e["suite"]["id"] + n}
+    if isinstance(e.get("test"), dict):
+        t = dict(e["test"])
+        for k in ("id", "suiteID"):
+            if isinstance(t.get(k), int):
+                t[k] += n
+        e["test"] = t
+    return e
+
+
+def _first_line(text):
+    for line in text.splitlines():
+        if line.strip():
+            return line.strip()
+    return ""
 
 
 def clock(seconds):

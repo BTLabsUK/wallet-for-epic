@@ -123,14 +123,29 @@ if [[ $mode == full ]]; then
   # The app keeps its PIN vault in the platform keyring. Run by hand (ssh, an agent's shell) there
   # is no unlocked one and the test waits on it forever, so each file gets its own session bus
   # and an unlocked throwaway keyring, as the nightly does, and a hard time limit.
-  for t in simple_test history_test; do
-    kr="$(mktemp -d)"
-    rc=0
+  # A file whose failure is the machine's (docs/TESTING.md, "Infrastructure failures are retried
+  # once": a timeout before the app started, xvfb, dbus or the keyring not starting) runs once more;
+  # a file with a failing test never does.
+  run_integration() {
+    local t="$1" kr log rc=0
+    kr="$(mktemp -d)"; log="$(mktemp)"
     (cd "$root/app" && timeout --kill-after=30 "${WFE_INTEGRATION_TIMEOUT:-600}" \
       dbus-run-session -- bash -c 'export XDG_DATA_HOME="$1"
         printf "throwaway\n" | gnome-keyring-daemon --unlock --components=secrets >/dev/null
-        exec xvfb-run -a flutter test --no-pub -d linux "integration_test/$2.dart"' _ "$kr" "$t") || rc=$?
-    rm -rf "$kr"
+        exec xvfb-run -a flutter test --no-pub -d linux "integration_test/$2.dart"' _ "$kr" "$t") 2>&1 \
+      | tee "$log" || rc=${PIPESTATUS[0]}
+    INTEGRATION_RESULT="$(python3 "$root/tools/tlib/infra.py" classify "$rc" "$log")"
+    rm -rf "$kr" "$log"
+    return "$rc"
+  }
+  for t in simple_test history_test; do
+    rc=0
+    run_integration "$t" || rc=$?
+    if [[ $rc != 0 && $INTEGRATION_RESULT == infra* ]]; then
+      echo "retried after an infrastructure failure: integration_test/$t.dart (${INTEGRATION_RESULT#infra: })"
+      rc=0
+      run_integration "$t" || rc=$?
+    fi
     [[ $rc == 0 ]] || { [[ $rc == 124 ]] && echo "integration_test/$t.dart: timed out" >&2; exit "$rc"; }
   done
 else
