@@ -121,6 +121,20 @@ runs = 10
 min_first_try = 0.8
 min_runs = 3
 
+# A failed G4 lane: the server-side log lines for its window go to steps/<id>/out/server-logs.txt
+# and, quoted, into the alert and the gate (tools/rellib/serverlogs.py). Read only: the public server's
+# node log and Epicbox relay journal over ssh, the hermetic node's and relay's logs here.
+[serverlogs]
+enabled = true
+ssh = "demo-vps"
+remote_node_log = "~/.epic/main/epic-server.log"
+remote_relay_unit = "epic-floonet-epicbox"
+local_node_log = "/tmp/epic-build/rel/hermetic/var/log/epic-server.log"
+local_relay_log = "/tmp/epic-build/rel/hermetic/var/log/relay.log"
+pad_s = 60
+per_source = 40
+quote = 3
+
 # G4: what "proven" means for a platform. DEFAULT PENDING the owner'S CALL: the previous release
 # with a funded wallet, history, custom nodes and relays and changed settings updates the way
 # users update to the candidate and keeps all of it; then one send and one receive on BT Labs
