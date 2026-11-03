@@ -12,6 +12,7 @@ Choice (REL_TRUST_START): `fresh` never uses a state; `state` must (could not ru
 `auto` (default) uses one when it exists for the previous version and its meta says it fits (the
 platform's `fits(meta)`, e.g. an Android state signed with the key this run's previous APK carries).
 A state that will not load is the harness's fault, never the product's: auto then falls back to fresh.
+Saving is on by default; REL_TRUST_SAVE_STATE=0 for trial runs (a build that is not a release).
 """
 import json
 import os

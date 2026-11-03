@@ -169,7 +169,8 @@ class Lane:
         self.checks_mod.compare(self, before, after, snap)
         if self.funds:
             self.run_phase("funds", lambda: self.checks_mod.funds_legs(self, after))
-        if all(self.results.get(c) for c in self.required) and os.environ.get("REL_TRUST_SAVE_STATE") == "1":
+        # a passing lane leaves its wallet for the next release (REL_TRUST_SAVE_STATE=0 for trial runs)
+        if all(self.results.get(c) for c in self.required) and os.environ.get("REL_TRUST_SAVE_STATE", "1") != "0":
             self.run_phase("save-state", lambda: st.save(self.p, self.secrets, self.checks_mod.public(after), log=self.log))
         return 0
 
