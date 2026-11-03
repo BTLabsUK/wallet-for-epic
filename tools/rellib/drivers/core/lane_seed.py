@@ -387,9 +387,10 @@ class Needles:
         return False
 
 
-def scan(paths, phrases, skip=()):
-    """-> (files with a hit, files read). Symlinks are not followed; paths under `skip` are not read."""
-    needles = Needles(phrases)
+def scan(paths, phrases=(), skip=(), needles=None):
+    """-> (files with a hit, files read). Symlinks are not followed; paths under `skip` are not read.
+    [needles] (a Needles) in place of [phrases] for a phrase no longer held."""
+    needles = needles if needles is not None else Needles(phrases)
     skip = [os.path.realpath(s) for s in skip]
     hits, n = [], 0
 
