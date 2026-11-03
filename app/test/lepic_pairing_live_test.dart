@@ -159,8 +159,8 @@ void main() {
     }
 
     expect(await failureOf(anna.pairing.openInvite(invite.inviteLink!)), PairingFailure.ownCard);
-    // Fails on LEPIC be49441: pairingsPending leaves out the standing invite, so after a
-    // restart _refuseOwn no longer knows it (product bug, reported).
+    // After a restart the run's links are gone; LEPIC's preview still knows the invite as
+    // this wallet's (InvitePreview.own). Failed on LEPIC be49441, whose preview did not tell.
     final again = LepicWalletSession(w);
     expect(await failureOf(again.pairing.openInvite(invite.inviteLink!)), PairingFailure.ownCard);
     expect((await carl.pairing.openInvite(invite.inviteLink!)).name, 'Anna');

@@ -121,7 +121,7 @@ class _PairingWallet implements lepic.EpicWallet {
 
   @override
   Future<lepic.InvitePreview> pairingPreview({required String link}) async =>
-      lepic.InvitePreview(claimedName: 'Anna', kind: lepic.ContactKind.person, expiresAtMs: 1792990000000, homeRelay: _relay, service: false, pairingClass: lepic.PairingClass.contact);
+      lepic.InvitePreview(claimedName: 'Anna', kind: lepic.ContactKind.person, expiresAtMs: 1792990000000, homeRelay: _relay, service: false, pairingClass: lepic.PairingClass.contact, own: false);
 
   @override
   Future<lepic.PairingAnswer> pairingAccept({
