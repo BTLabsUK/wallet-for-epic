@@ -45,6 +45,9 @@ team_id = ""
 ssh = "<alias>"
 downloads_dir = "/srv/examples/epic-cash-wallets/downloads"
 
+# The paths below are for builds on this machine. The hosted builds (.github/workflows/build.yml)
+# set WFE_FETCH_INPUTS=1 instead and download the same epic 4.1.1 binaries, checked by sha256, from
+# tools/build-inputs.json (tools/fetch-build-inputs.sh); with these paths set, nothing is fetched.
 [paths]
 node_bin_linux = "/tmp/epic-build/node-bin/4.1.1/linux/epic-v4.1.1-linux-amd64/epic"
 node_bin_windows = "/tmp/epic-build/node-bin/4.1.1/win/Windows-v4.1.1/epic.exe"

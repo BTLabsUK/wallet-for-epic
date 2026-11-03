@@ -1,0 +1,79 @@
+# SPDX-License-Identifier: Apache-2.0
+# The one artifact of a build job, <platform>-<variant>: the built files under their relative paths,
+# SHA256SUMS over them (sha256sum format, relative paths) and build-info.json, each file attested
+# with build provenance. tools/rel downloads it and checks both. Works on Linux and on Windows
+# (Git Bash).
+name: package
+description: Stage, checksum, describe, attest and upload one build's files
+inputs:
+  from:
+    description: The folder the files are in
+    required: true
+  files:
+    description: The files to ship, one relative path per line
+    required: true
+  platform:
+    required: true
+  variant:
+    required: true
+  commit:
+    required: true
+  build-id:
+    required: true
+  version:
+    required: true
+  retention-days:
+    required: true
+runs:
+  using: composite
+  steps:
+    - id: stage
+      shell: bash
+      env:
+        WFE_FROM: ${{ inputs.from }}
+        WFE_FILES: ${{ inputs.files }}
+        WFE_PLATFORM: ${{ inputs.platform }}
+        WFE_VARIANT: ${{ inputs.variant }}
+        WFE_COMMIT: ${{ inputs.commit }}
+        WFE_BUILD_ID: ${{ inputs.build-id }}
+        WFE_VERSION: ${{ inputs.version }}
+      run: |
+        from="$WFE_FROM" dist="$RUNNER_TEMP/dist/$WFE_PLATFORM-$WFE_VARIANT"
+        if [[ "$RUNNER_OS" == Windows ]]; then from="$(cygpath -u "$from")" dist="$(cygpath -u "$dist")"; fi
+        rm -rf -- "$dist"
+        mkdir -p "$dist"
+        : > "$dist/SHA256SUMS"
+        files='{}'
+        while IFS= read -r rel; do
+          rel="${rel%$'\r'}"
+          [[ -n "$rel" ]] || continue
+          [[ -f "$from/$rel" ]] || { echo "::error::missing $from/$rel"; ls -lR "$from" || true; exit 1; }
+          mkdir -p "$dist/$(dirname "$rel")"
+          cp -- "$from/$rel" "$dist/$rel"
+          # From stdin, so that sha256sum never prints a binary-mode '*' (Git Bash).
+          sum="$(sha256sum < "$dist/$rel" | cut -d' ' -f1)"
+          printf '%s  %s\n' "$sum" "$rel" >> "$dist/SHA256SUMS"
+          files="$(jq -c --arg k "$rel" --arg v "$sum" '. + {($k): $v}' <<<"$files" | tr -d '\r')"
+        done <<<"$WFE_FILES"
+        [[ -s "$dist/SHA256SUMS" ]] || { echo "::error::no files to package"; exit 1; }
+        jq -n --arg commit "$WFE_COMMIT" --arg build_id "$WFE_BUILD_ID" --arg version "$WFE_VERSION" \
+          --arg platform "$WFE_PLATFORM" --arg variant "$WFE_VARIANT" \
+          --arg runner_image "${ImageOS:-} ${ImageVersion:-}" \
+          --argjson run_id "$GITHUB_RUN_ID" --argjson run_attempt "$GITHUB_RUN_ATTEMPT" --argjson files "$files" \
+          '{commit: $commit, build_id: $build_id, version: $version, platform: $platform, variant: $variant,
+            runner_image: $runner_image, run_id: $run_id, run_attempt: $run_attempt, files: $files}' \
+          | tr -d '\r' > "$dist/build-info.json"
+        cat "$dist/SHA256SUMS" "$dist/build-info.json"
+        (cd "$dist" && sha256sum -c SHA256SUMS)
+        out="$dist"
+        [[ "$RUNNER_OS" != Windows ]] || out="$(cygpath -w "$dist")"
+        echo "dir=$out" >> "$GITHUB_OUTPUT"
+    - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+      with:
+        subject-checksums: ${{ steps.stage.outputs.dir }}/SHA256SUMS
+    - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+      with:
+        name: ${{ inputs.platform }}-${{ inputs.variant }}
+        path: ${{ steps.stage.outputs.dir }}
+        if-no-files-found: error
+        retention-days: ${{ inputs.retention-days }}
