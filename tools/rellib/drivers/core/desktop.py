@@ -316,6 +316,9 @@ class Desktop:
                 tried.append(p)
                 if d.wait(shows(target), 3):
                     return True
+                # renamed on the page the recipe expects: the model's pick, before every section is searched
+                if d.rec.pick(target, d.tree(), step="find-%s" % target.id, texts=d.texts(target)):
+                    return True
         listed = [n.name.split("\n")[0].strip() for n in d.tree()
                   if n.role in ("button", "tab", "row") and n.name.split("\n")[0].strip() in ALL_SECTIONS]
         for name in listed:
