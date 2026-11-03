@@ -35,6 +35,22 @@ def required(funds):
     return base + (checks.MIGRATION_CHECKS if migrate else []) + (["history_kept", "send_ok", "receive_ok"] if funds else [])
 
 
+def keep_secrets(out, secrets, log):
+    """The test wallet still holds P's funds: its PIN, password and phrase in <out>/secrets (0600 files in a
+    0700 folder, never printed), so the funds can be swept back to P with the LEPIC CLI."""
+    folder = os.path.join(out, "secrets")
+    os.makedirs(folder, mode=0o700, exist_ok=True)
+    os.chmod(folder, 0o700)
+    for n, v in secrets.items():
+        if isinstance(v, str) and v:
+            p = os.path.join(folder, n)
+            fd = os.open(p, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+            with os.fdopen(fd, "w") as f:
+                f.write(v)
+            os.chmod(p, 0o600)
+    log("funds left: the test wallet's secrets kept in %s (0600) to send them back to P" % folder)
+
+
 def main():
     e = os.environ
     out = os.path.abspath(e.get("REL_OUT") or ".")
@@ -53,6 +69,16 @@ def main():
                int(e.get("REL_P_PASS_LINE") or "1"),
                e.get("REL_P_LOCK") or os.path.expanduser("/opt/epic/qa-funder/.rel-lock"), out, log)
 
+    paid = []  # what P sent the test wallet: its secrets are kept when the funds are not sent back
+    send = funder.send
+
+    def counted(address, amount):
+        ok, out_ = send(address, amount)
+        if ok:
+            paid.append(amount)
+        return ok, out_
+    funder.send = counted
+
     def recipe_for(lane, which, surface):
         d = Driver(surface, Labels.for_build(which), lane.rec, out=lane.out, log=lane.log)
         return Phone(d, which, lane.log)
@@ -62,6 +88,8 @@ def main():
     signal.signal(signal.SIGTERM, stopped)
     lane = Lane(plat, recipe_for, checks, out=out, log=log, required=required(funds), funds=funds, p=funder)
     rc = lane.main()
+    if paid and not lane.results.get("send_ok"):
+        keep_secrets(out, lane.secrets, log)
     lane.details.setdefault("signer", plat.certs.get("previous"))
     lane.proof({"signer": plat.certs, "emulator": plat.health})
     return rc
