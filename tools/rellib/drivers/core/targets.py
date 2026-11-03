@@ -72,6 +72,14 @@ def _norm_pat(p):
     return re.sub(r"(\\ )+|\s+", " ", p).casefold()
 
 
+def _role_fit(want, got):
+    """0 the role asked for, 1 a check box where a switch is asked for and back, 2 any other compatible
+    role (a Windows row of a switch is a label button next to its check box: the check box is the control)."""
+    if got == want:
+        return 0
+    return 1 if {want, got} == {"toggle", "checkbox"} else 2
+
+
 def find(target, tree, labels=None):
     """The nodes that are this target: by id first, else by role and label. Best first."""
     if breaks.hidden(target.id):
@@ -84,7 +92,7 @@ def find(target, tree, labels=None):
     for rank, pat in enumerate(patterns(target, labels)):
         for n in tree:
             if n.role in ok_roles and _fits(n.name, pat, target.match) and n not in hits:
-                hits.append((rank, 0 if n.role == target.role else 1, 0 if n.enabled else 1, n))
+                hits.append((rank, _role_fit(target.role, n.role), 0 if n.enabled else 1, n))
     hits.sort(key=lambda h: h[:3])
     return [h[3] for h in hits]
 
