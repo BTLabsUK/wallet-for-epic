@@ -9,7 +9,7 @@
 #                            test order, check-workflow, tools/t, the incremental publisher, the
 #                            screens feedback service) only when tools/ changed.
 #   tools/check.sh --full    everything: the whole flutter test suite, the integration tests and
-#                            the web build too. Once per release candidate: tools/rel's source
+#                            the web build and LEPIC's golden-vector replay too. Once per release candidate: tools/rel's source
 #                            gate runs it, or the nightly, or the release lead on the candidate.
 #                            Green on a clean tree, it records /tmp/epic-build/green/<sha>.json
 #                            (tools/rellib/green.py), which G2 reuses for that content: tools/rel
@@ -110,6 +110,13 @@ step "LEPIC at the pin (tools/lepic.rev)"
 # From the shared clone of the pin (tools/lepic.sh, docs/TESTING.md); LEPIC_SHARED=0 builds in
 # app/third_party/lepic instead.
 LEPIC_SHARED="${LEPIC_SHARED:-1}" "$root/tools/lepic.sh" build linux
+
+if [[ $mode == full ]]; then
+  step "LEPIC golden vectors (cargo xtask vectors verify)"
+  # LEPIC's own replay of its golden vectors, at the pin, in the shared clone (tools/lepic.sh xtask).
+  # tools/rel's source gate and the nightly both run this through --full.
+  "$root/tools/lepic.sh" xtask vectors verify
+fi
 
 step "wallet core under plain Dart (no Flutter on its path)"
 (cd "$root/app" && dart run bin/core_check.dart)

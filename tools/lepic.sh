@@ -14,6 +14,8 @@
 #   tools/lepic.sh build linux       liblepic_ffi.so for this host, bundled by the hook on Linux
 #   tools/lepic.sh build android     the three Android ABIs into the binding's native/
 #   tools/lepic.sh build all         both
+#   tools/lepic.sh xtask <args>      cargo xtask <args> in the shared clone of the pin (vectors verify,
+#                                    upstream-drift); the clone is never moved off the pin
 #   tools/lepic.sh lib               print the path of the Linux library
 #   tools/lepic.sh prebuild          sync, then fill the shared cache for linux; keep two keys
 #   tools/lepic.sh prune-shared      remove shared builds (below) unused for LEPIC_SHARED_DAYS (14)
@@ -283,6 +285,16 @@ case "${1:-}" in
     touch "$cache_root/$(cache_key)"
     cache_prune
     echo "prebuilt cache: $cache_root"
+    ;;
+  xtask)
+    shift
+    [ "$#" -gt 0 ] || { sed -n '9,19p' "$0" >&2; exit 2; }
+    src="$(shared_clone)"
+    check_clone "$src" "$rev"
+    exec {lock}>>"$src.lock"
+    flock -n "$lock" || { echo "waiting for another build from $src"; flock "$lock"; }
+    touch "$src.used"
+    cd "$src" && cargo xtask "$@"
     ;;
   lib)
     echo "$binding/native/x86_64-unknown-linux-gnu/liblepic_ffi.so"

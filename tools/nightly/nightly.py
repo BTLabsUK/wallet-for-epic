@@ -44,6 +44,11 @@ A run:
      ~/.config/wfe-nightly/notify_token (without both nothing is sent: "not configured"). The key
      nightly-<sha8>-<red|broken> is sent once: state.json remembers it and the bot dedupes on it.
      A failed send never fails the run; result.json `notified` records it;
+  7a. LEPIC's golden vectors (`cargo xtask vectors verify`, a check.sh --full step, red on failure)
+     and, after the check unless it broke, `cargo xtask upstream-drift` at the wallet's pin
+     (tools/lepic.sh xtask, report only): latest.json `drift` {status: clean|drift|unknown, lines},
+     a `group: drift` step, and the summary line names the modules with upstream changes. Drift or an
+     unreachable upstream never turns the nightly red or sends a DM;
   7b. after a green source check, one fast G4 update-trust pass per platform (linux, android,
      windows) on the LAST TWO PUBLISHED releases (no builds): previous = the one before the last in
      /tmp/epic-build/rel/published.json plus published-by-hand.json (hand releases), candidate = the last, tor variant, REL_FUNDS=1, BT Labs node
@@ -986,6 +991,47 @@ def rig_step(rigs):
     return step
 
 
+DRIFT_TIMEOUT_S = 15 * 60
+DRIFT_LINES_KEPT = 40
+
+
+def run_drift(run_dir, env, worktree=None, runner=None):
+    """LEPIC's `cargo xtask upstream-drift` at the wallet's pin (tools/lepic.sh xtask), report only:
+    exit 2 is drift, exit 0 none, anything else (offline, a build failure) is unknown. Never turns
+    the nightly red. Returns {status: clean|drift|unknown, lines: [str], reason}."""
+    worktree = Path(worktree or WORKTREE)
+    lepic = worktree / "tools" / "lepic.sh"
+    try:
+        if "  xtask)" not in lepic.read_text(encoding="utf-8"):
+            return {"status": "unknown", "lines": [], "reason": "this commit's tools/lepic.sh has no xtask command"}
+    except OSError as e:
+        return {"status": "unknown", "lines": [], "reason": _clip(str(e), 200)}
+    argv = ["nice", "-n", "15", "ionice", "-c3", "build-slot", str(lepic), "xtask", "upstream-drift"]
+    log_path = Path(run_dir) / "drift.log"
+    try:
+        with open(log_path, "w", encoding="utf-8") as log:
+            rc, tail = (runner or run_logged)(argv, log, env, str(worktree), timeout=DRIFT_TIMEOUT_S, slot_wait=True)
+        lines = [l.split(" ", 1)[-1] if re.match(r"\d\d:\d\d:\d\d ", l) else l
+                 for l in log_path.read_text(encoding="utf-8").splitlines()]
+    except Exception as e:  # report only: never raised
+        return {"status": "unknown", "lines": [], "reason": _clip(f"nightly error: {e}", 200)}
+    lines = [l for l in lines if l.strip() and not l.startswith("build-slot:")][-DRIFT_LINES_KEPT:]
+    if rc == 0:
+        return {"status": "clean", "lines": lines[-3:], "reason": ""}
+    if rc == 2:
+        return {"status": "drift", "lines": lines, "reason": ""}
+    why = "timed out" if rc is None else f"exit {rc}"
+    return {"status": "unknown", "lines": lines[-5:], "reason": f"{why}: " + _clip(" / ".join(lines[-2:]), 160)}
+
+
+def drift_step(drift):
+    step = {"name": "LEPIC upstream drift (report only)", "group": "drift",
+            "status": "skipped" if drift["status"] == "unknown" else "ok", "duration_s": 0}
+    if drift["status"] != "clean":
+        step["reason"] = drift["reason"] or "upstream changed since the recorded pins"
+    return step
+
+
 def trust_summary(steps):
     """{status: red|green|skipped, failed: [str]} for the result; None without trust steps."""
     if not steps:
@@ -1231,6 +1277,9 @@ def cmd_run(by_hand, pinned_sha=None):
         except Exception as e:  # the break lane never breaks the run
             break_step = {"name": "G4 break linux", "group": "breaks", "platform": "linux", "status": "skipped",
                           "duration_s": 0, "reason": f"nightly error: {str(e)[:150]}"}
+    drift = None
+    if status != "error":
+        drift = run_drift(run_dir, {k: v for k, v in env.items() if k not in ("XDG_DATA_HOME", "NIGHTLY_XDG")})
     rigs = rig_health()
     last_green = state.get("last_green_sha")
     result = {
@@ -1242,7 +1291,8 @@ def cmd_run(by_hand, pinned_sha=None):
         "kind": kind,
         "command": command,
         "exit": rc,
-        "steps": parsed["steps"] + trust_steps + ([break_step] if break_step else []) + [rig_step(rigs)],
+        "steps": parsed["steps"] + trust_steps + ([break_step] if break_step else []) + ([drift_step(drift)] if drift else []) + [rig_step(rigs)],
+        "drift": drift,
         "trust": trust_summary(trust_steps),
         "breaks": (break_step or {}).get("breaks") or ({"score": "skipped", "why": break_step["reason"]} if break_step else None),
         "rigs": rigs,
@@ -1318,6 +1368,13 @@ def summary_line(r):
     b = r.get("breaks")
     if b:
         line += f" | G4 break {b.get('break', '-')}: {b['score']}" + (f" ({b['why']})" if b.get("why") and b["score"] not in ("recovered right",) else "")
+    d = r.get("drift") or {}
+    if d.get("status") == "drift":
+        found = next((m.group(1) for l in reversed(d.get("lines") or [])
+                      for m in [re.search(r"(\d+ of \d+ module\(s\))", l)] if m), "upstream changes")
+        line += f" | LEPIC upstream drift: {found} (drift.log in the run folder)"
+    elif d.get("status") == "unknown":
+        line += f" | LEPIC drift unknown: {d.get('reason')}"
     rigs = r.get("rigs") or {}
     if rigs.get("status") == "dead":
         line += " | Windows rig dead: " + "; ".join(rigs["dead"])

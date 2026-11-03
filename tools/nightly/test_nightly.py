@@ -744,5 +744,38 @@ class LauncherTest(unittest.TestCase):
         self.assertEqual(nightly.runner_info({})["kind"], "direct")
 
 
+class DriftTest(unittest.TestCase):
+    def _run(self, rc, out, lepic_text="  xtask)\n"):
+        with tempfile.TemporaryDirectory() as d:
+            wt = Path(d) / "wt"
+            (wt / "tools").mkdir(parents=True)
+            (wt / "tools" / "lepic.sh").write_text(lepic_text)
+
+            def runner(argv, log, env, cwd, timeout=None, slot_wait=False):
+                log.write(out)
+                log.flush()
+                return rc, []
+            return nightly.run_drift(d, {}, worktree=wt, runner=runner)
+
+    def test_clean_drift_and_outage(self):
+        self.assertEqual(self._run(0, "upstream-drift: no upstream changes\n")["status"], "clean")
+        d = self._run(2, "epic core/src/ser.rs\n  abc123 change\nError: 1 of 40 module(s) have upstream changes to review\n")
+        self.assertEqual(d["status"], "drift")
+        self.assertEqual(nightly.drift_step(d)["status"], "ok")
+        o = self._run(1, "fatal: unable to access\n")
+        self.assertEqual(o["status"], "unknown")
+        self.assertEqual(nightly.drift_step(o)["status"], "skipped")
+
+    def test_old_commit_without_xtask_is_unknown(self):
+        self.assertEqual(self._run(0, "", lepic_text="nothing\n")["status"], "unknown")
+
+    def test_summary_names_the_drift_but_stays_green(self):
+        r = {"ended": "2026-11-04T03:00:00Z", "status": "green", "sha": "a" * 40, "tests": {}, "duration_s": 5,
+             "steps": [], "drift": {"status": "drift", "lines": ["Error: 3 of 40 module(s) have upstream changes to review"]}}
+        line = nightly.summary_line(r)
+        self.assertIn("green", line)
+        self.assertIn("3 of 40 module(s)", line)
+
+
 if __name__ == "__main__":
     unittest.main()
