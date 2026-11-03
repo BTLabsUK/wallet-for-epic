@@ -296,7 +296,8 @@ class Desktop:
         t = SECTION.get(key_or_name) or T("g4.settings.section.%s" % tg._norm(key_or_name).replace(" ", "_"),
                                           names=(key_or_name,), match="exact")
         if not d.wait(shows(t), 4):
-            return False
+            if not self._open_section_list() or not d.wait(shows(t), 4):
+                return False
         # 26.10.25 names the back button "Wallet" too: a press that leaves Settings was the wrong one
         # the one that stayed is tried first next time
         first = getattr(self, "_section_hit", {}).get(t.id, 0)
@@ -312,6 +313,19 @@ class Desktop:
             self.log("Settings › %s: %s left Settings; trying the next one" % (key_or_name, hits[k].brief()))
             self.settings()
         d.harness("Settings › %s: no control of that name opens the section" % key_or_name)
+
+    def _open_section_list(self):
+        """A narrow window folds the section list into one selector: a button named like the open section,
+        holding it as its value. Pressing it lists the sections again."""
+        tree = self.d.tree()
+        sel = [n for n in tree if n.role == "button" and n.value and tg._norm(n.name.split("\n")[0]) == tg._norm(n.value)
+               and tg._norm(n.value) in self.section_names()]
+        if not sel:
+            return False
+        self.log("Settings: the section list is folded into %s; opening it" % sel[0].brief())
+        self.d._act(self.d.s.press, sel[0])
+        time.sleep(0.8)
+        return True
 
     def find_setting(self, target, pages, what):
         """Opens the Settings page that holds `target`: the known `pages` first, then every section
