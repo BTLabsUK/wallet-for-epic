@@ -118,7 +118,8 @@ class Base(unittest.TestCase):
         self.events = []
         for target, new in (("core.record.emit", lambda event, /, **f: self.events.append((event, f))),
                             ("core.record.read", lambda: None), ("core.driver.SLOW", 0.02),
-                            ("core.desktop.time.sleep", lambda s: None), ("core.breaks.time.sleep", lambda s: None)):
+                            ("core.desktop.time.sleep", lambda s: None), ("core.breaks.time.sleep", lambda s: None),
+                            ("core.walletdata.node_status", lambda u: ("ok", 100))):
             p = unittest.mock.patch(target, new)
             p.start()
             self.addCleanup(p.stop)
@@ -323,6 +324,18 @@ class NodeDownTest(Base):
         finally:
             cli.close()
         self.assertEqual(ran, ["http://10.0.0.1:3413"])
+
+    def test_an_unsynced_node_is_moved_past_before_the_first_read(self):
+        health = {"http://127.0.0.1:9999": ("syncing body_sync", 90), "https://node.btlabs.uk": ("ok", 100)}
+        cli, ran = self.cli({"http://127.0.0.1:9999", "https://node.btlabs.uk"})
+        with unittest.mock.patch.object(wd, "node_status", lambda u: health.get(u, ("down", None))):
+            try:
+                cli._restore(PHRASE, "pw", self.SETTINGS)
+            finally:
+                cli.close()
+        self.assertEqual(ran, ["https://node.btlabs.uk"])
+        self.assertTrue(self.logged("LEPIC CLI: node http://127.0.0.1:9999 not synced (body_sync, height 90): "
+                                    "using https://node.btlabs.uk, the next synced one"), self.logs)
 
     def test_all_nodes_down_is_infra_node(self):
         cli, ran = self.cli(set())

@@ -56,6 +56,7 @@ import urllib.request
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 import facts  # noqa: E402
 import migration  # noqa: E402
+import nodehealth  # noqa: E402
 from . import breaks  # noqa: E402
 from .faults import InfraFault  # noqa: E402
 from .hermetic import entry as server_entry, log_hosts  # noqa: E402
@@ -563,6 +564,7 @@ def parse_cli(res):
 
 # The CLI could not reach its node: exit 9 (the node error kind), or the error says so
 NODE_DOWN = re.compile(r'could not connect to the node|"kind"\s*:\s*"node"', re.I)
+node_status = nodehealth.status   # one node's health (tests put a stand-in here)
 UNREACHABLE_NODE = "http://127.0.0.1:9"   # the discard port: nothing answers (the node-down break)
 
 
@@ -617,6 +619,9 @@ class LepicCli:
             if x and server_entry(x) not in seen:
                 seen.add(server_entry(x))
                 order.append(x if re.match(r"^https?://", x) else "http://" + x)
+        # down, syncing or behind: the next synced node first (the exit-9 failover below still covers a node
+        # that stops answering later)
+        order = nodehealth.synced_first(order, log=lambda m: self.log("LEPIC CLI: " + m), probe=node_status)
         if breaks.node_down():
             self.log("BREAK: the CLI's first node is %s (nothing answers there)" % UNREACHABLE_NODE)
             order.insert(0, UNREACHABLE_NODE)

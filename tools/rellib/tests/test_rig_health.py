@@ -144,8 +144,9 @@ class OrphanRig(FakeRig):
 
     def pwsh(self, script, timeout=120, check=True):
         if script.startswith("New-Item"):
+            assert "-Path '" in script, script   # New-Item has no -LiteralPath
             self.stopped.append(script.split("'")[1])
-            return ""
+            return "True\r\n"
         if "running.json" in script:
             if self.stopped:
                 self.stops -= 1
@@ -181,9 +182,9 @@ class OrphanTest(unittest.TestCase):
         self.assertEqual(self.stop(r), [])
         self.assertEqual(r.stopped, [])
 
-    def test_an_agent_that_does_not_stop_is_a_rig_error(self):
+    def test_an_agent_that_does_not_stop_makes_the_session_dead(self):
         r = OrphanRig([self.OLD], stops=10 ** 6)
-        with self.assertRaises(rig.RigError):
+        with self.assertRaises(rig.RigDead):
             self.stop(r, wait_s=60)
 
 

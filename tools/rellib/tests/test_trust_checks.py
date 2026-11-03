@@ -316,6 +316,7 @@ class WalletData(unittest.TestCase):
 class Cli(unittest.TestCase):
     """The CLI wrapper's stdin handling, on a stub executable: the phrase and password never reach argv or env."""
 
+    @mock.patch.object(wd, "node_status", lambda u: ("ok", 100))
     def test_secrets_on_stdin_only(self):
         tmp = tempfile.mkdtemp(prefix="cli-")
         os.environ["TMPDIR"] = tmp

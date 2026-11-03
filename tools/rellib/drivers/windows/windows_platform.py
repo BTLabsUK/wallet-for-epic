@@ -33,6 +33,7 @@ sys.path.insert(0, DRIVERS)
 sys.path.insert(0, os.path.join(DRIVERS, "linux"))
 
 import facts  # noqa: E402
+import nodehealth  # noqa: E402
 import seed  # noqa: E402
 from core import breaks  # noqa: E402
 from core import checks  # noqa: E402
@@ -167,7 +168,7 @@ class WindowsPlatform(Platform):
 
     def live_servers(self):
         """The public node and relay the live-servers phase puts in use (core/lane.py)."""
-        return hermetic.pick_live(node_up, relay_up, facts.NODE_PICK, facts.RELAY_PICK)
+        return hermetic.pick_live(node_up, relay_up, nodehealth.synced_first(facts.NODE_PICK, log=self.log), facts.RELAY_PICK)
 
     def _pick_servers(self):
         plan = self.hermetic or {}
