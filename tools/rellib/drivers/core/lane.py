@@ -80,7 +80,7 @@ class Lane:
     def fail(self, check, why):
         self.results[check] = False
         self.details[check] = why
-        self.log("FAIL %s: %s" % (check, why))
+        self.log("%s %s: %s" % ("FAIL" if check in self.required else "false (not required)", check, why))
 
     def proof(self, extra=None):
         p = {"platform": self.p.name, "variant": self.p.variant,
