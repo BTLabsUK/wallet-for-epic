@@ -25,8 +25,9 @@ KEEP_DAYS = 30
 CONTEXT_FILES = ("app/pubspec.yaml", "app/pubspec.lock", "app/l10n.yaml", "tools/lepic.rev",
                  "tools/lepic-flutter.rev")
 ENV_PREFIXES = ("WFE_", "DESK_")
-# Variables of the runner itself, not read by tests.
-ENV_IGNORED = ("WFE_TEST_RESULTS", "WFE_TEST_TIMES")
+# Variables of the runner itself, not read by tests; and the LEPIC library's path, whose bytes
+# are in the key already (the path differs per worktree, the library does not).
+ENV_IGNORED = ("WFE_TEST_RESULTS", "WFE_TEST_TIMES", "WFE_TEST_HISTORY", "WFE_DEMO_LEPIC_LIB")
 
 
 def sha256_file(path):
