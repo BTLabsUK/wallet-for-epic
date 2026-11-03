@@ -32,12 +32,11 @@ def required(funds):
     if given:
         return given
     migrate = checks.migrating()[0]
-    base = ["wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept", "custom_relays_kept"]  # settings_kept: see NOT_CHECKED
+    base = ["wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept", "custom_relays_kept", "settings_kept"]
     return base + (checks.MIGRATION_CHECKS if migrate else []) + (["send_ok", "receive_ok"] if funds else [])
 
 
-NOT_CHECKED = {"settings_kept": "settings_kept not checked on Android: theme/Technical details in Keystore-encrypted "
-                                "storage, confirmations not reported by the LEPIC CLI, no wallets.json label"}
+NOT_CHECKED = {}  # every check is made on Android: settings_kept reads Settings (Platform.settings_from_ui)
 
 
 def keep_secrets(out, secrets, log):

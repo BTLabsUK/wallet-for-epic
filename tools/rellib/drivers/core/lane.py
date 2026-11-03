@@ -168,6 +168,7 @@ class Lane:
         self.details["address"] = address[:8] + "…" + address[-6:] if address else None
         self.run_phase("fund", lambda: self.checks_mod.fund_before(self, address))
         before = self.run_phase("digest-before", lambda: self.p.digest("previous", self.secrets))
+        self._ui_settings(before)
         if hasattr(self.checks_mod, "setup_took"):
             self.checks_mod.setup_took(self, before)
         self.run_phase("stop-previous", self.p.stop)
@@ -177,6 +178,7 @@ class Lane:
         self.run_phase("update", self.p.update)
         self.run_phase("candidate", lambda: self._open("candidate"))
         after = self.run_phase("digest-after", lambda: self.checks_mod.settle(self, before))
+        self._ui_settings(after)
         self.checks_mod.compare(self, before, after, snap)
         # without REL_FUNDS the legs are not checked; the balance still goes back to P
         self.run_phase("funds", lambda: self.checks_mod.funds_legs(self, after))
@@ -184,6 +186,24 @@ class Lane:
         if all(self.results.get(c) for c in self.required) and os.environ.get("REL_TRUST_SAVE_STATE", "1") != "0":
             self.run_phase("save-state", lambda: st.save(self.p, self.secrets, self.checks_mod.public(after), log=self.log))
         return 0
+
+    def _ui_settings(self, digest):
+        """A platform whose files cannot show the settings (settings_from_ui: Android keeps them
+        Keystore-encrypted) has them read off the app's Settings pages; a value the files showed stays."""
+        if not getattr(self.p, "settings_from_ui", False):
+            return
+        got = self.run_phase("settings-%s" % self.ui.which, self.ui.read_settings)
+        s, unread = digest.setdefault("settings", {}), digest.setdefault("unread", {})
+        for k, v in got.items():
+            if k == "level":
+                if digest.get("level") is None and v is not None:
+                    digest["level"] = v
+                    unread.pop("level", None)
+            elif s.get(k) is None and v is not None:
+                s[k] = v
+                unread.pop(k, None)
+        digest["settings_source"] = "the app's Settings pages (its storage is Keystore-encrypted)"
+        self.log("settings read off the %s app: %s" % (self.ui.which, got))
 
     def _open(self, which):
         surface = self.p.start(which)

@@ -586,6 +586,29 @@ class Phone:
         d.shot("%s-settings" % self.which)
         self.home()
 
+    def read_settings(self):
+        """The settings change_settings made, read off Settings: the phone app keeps them in
+        Keystore-encrypted storage, which its files cannot show. -> {theme, confirmations,
+        technical_details, level}; None for one the pages do not show."""
+        d = self.d
+        out = {}
+        self.find_setting(THEME_ROW, ("appearance",), "the theme row")
+        tree = d.tree()
+        out["theme"] = next((name for name, t in THEME.items() if self._theme_is(t, tree)), None)
+        self.find_setting(CONF_FEWER, ("advanced",), "the confirmations stepper")
+        out["confirmations"] = self._confirmations()
+        self.find_setting(TECHNICAL, ("advanced",), "Technical details")
+        n = next(iter(d.find_in(TECHNICAL, d.tree())), None)
+        out["technical_details"] = ("checked" in n.states) if n else None
+        out["level"] = None
+        if self.section("advanced") and self._look(LEVEL_ROW, 1):
+            tree = d.tree()
+            row = next(iter(d.find_in(LEVEL_ROW, tree)), None)
+            out["level"] = "3" if self._level_three(tree) else (row.name.split("\n", 1)[-1].strip() if row else None)
+        d.shot("%s-settings-read" % self.which)
+        self.home()
+        return out
+
     def _theme_is(self, theme, tree=None):
         tree = tree if tree is not None else self.d.tree()
         pats = self.d.texts(theme)

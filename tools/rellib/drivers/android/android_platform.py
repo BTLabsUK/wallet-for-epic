@@ -76,6 +76,7 @@ class AndroidPlatform(Platform):
     name, family = "android", "phone"
     update_method = ("adb install -r: the candidate APK over the previous one (same package, same signer), as the "
                      "in-app updater's PackageInstaller does; data folder and Keystore kept")
+    settings_from_ui = True  # theme, Technical details and level are Keystore-encrypted: core/lane.py reads Settings
 
     def __init__(self, out, log):
         e = os.environ

@@ -404,7 +404,7 @@ def _settings(lane, b, a):
             diff[k] = (s0[k], s1[k])
     unset = {k: s0.get(k) for k in ("theme", "technical_details", "confirmations", "label")
              if s0.get(k) is not None and k in want and not (k == "label" and state_label) and not _same(k, s0[k], want[k])}
-    src = " (desk store desk.settings, wallets.json label, the wallet database's minimum confirmations)"
+    src = " (%s)" % (a.get("settings_source") or "desk store desk.settings, wallets.json label, the wallet database's minimum confirmations")
     note = "; NOT read: %s" % "; ".join(unread) if unread else ""
     lv, why = facts.level_after_update(a.get("level"), before=b.get("level"))
     if lv is None and facts.LEVELS_BUILT:
