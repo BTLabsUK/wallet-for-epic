@@ -137,6 +137,18 @@ class PaymentCheckTest(unittest.TestCase):
         self.assertEqual(tx.held(digest(spendable=0.01, total=0.06)), int(0.06 * N))
 
 
+class FundToTest(unittest.TestCase):
+    def test_the_apps_own_relay_is_kept(self):
+        # a fresh 26.11.0 lists epicbox.epiccash.com first: its address is there, whatever the lane picked
+        self.assertEqual(tx.fund_to("es1@epicbox.epiccash.com", "epicbox.stackwallet.com"), "es1@epicbox.epiccash.com")
+
+    def test_a_local_relay_readdresses(self):
+        self.assertEqual(tx.fund_to("es1@epicbox.epiccash.com", "127.0.0.1:43423"), "es1@127.0.0.1:43423")
+
+    def test_a_bare_address_takes_the_relay(self):
+        self.assertEqual(tx.fund_to("es1", "epicbox.stackwallet.com"), "es1@epicbox.stackwallet.com")
+
+
 class InvoiceCheckTest(unittest.TestCase):
     def setUp(self):
         self.a0 = digest(t("incoming", credited=0.04, slate="F1"))

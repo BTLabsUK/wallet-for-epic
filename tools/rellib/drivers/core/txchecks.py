@@ -19,6 +19,7 @@ import decimal
 import time
 
 from . import checks
+from . import hermetic
 from . import walletdata as wd
 from .checks import CAP_SEND, FEE_MAX, P_ADDR, POLL_S, pay_to
 from .faults import HarnessFault, InfraFault, ProductFault
@@ -247,6 +248,14 @@ def remaining(lane):
     return [m for m in lane.methods if not paid_already(lane.base["a"], a, m)]
 
 
+def fund_to(address, relay):
+    """A's address for P's send: as the app shows it (its relay is settings.toml's first server, which
+    need not be the lane's pick); moved to [relay] only when that is a local hermetic relay."""
+    if "@" in address and not hermetic.local(relay):
+        return address
+    return pay_to(address, relay)
+
+
 def fund(lane, methods):
     """P pays A what [methods] need (fund_plan), each send waited for in A's data, then A spendable for
     the first payment. -> what P sent ([EPIC])."""
@@ -262,7 +271,7 @@ def fund(lane, methods):
         before = digest(lane, a, "fund")
         with p.exchange("fund A"):
             relay = checks._relay_with_p(lane, p)
-            ok, out = p.send(pay_to(lane.address["a"]["epicbox"], relay), amount)
+            ok, out = p.send(fund_to(lane.address["a"]["epicbox"], relay), amount)
             lane.log("P -> A %s EPIC: %s (%s)" % (amount, "sent" if ok else "FAILED", out))
             if not ok:
                 lane.ledger.p_sent.pop()
