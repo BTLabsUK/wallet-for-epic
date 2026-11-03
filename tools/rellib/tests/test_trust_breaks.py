@@ -449,6 +449,8 @@ class LaneTest(Base):
         self.assertNotIn("fault", p)
         puts = [f for k, f in self.events if k == "wallet.put"]
         self.assertEqual((puts[0]["role"], puts[0]["phrase"], puts[0]["password"]), ("sandbox", PHRASE, "pw-test"))
+        # each attempt's fresh wallet keeps its own row: a retry never overwrites a phrase that may hold coins
+        self.assertRegex(puts[0]["name"], r"-\d{8}-\d{6}-sandbox$")
         with open(os.path.join(self.out, "trust.log")) as f:
             self.assertNotIn("abandon", f.read())
 
