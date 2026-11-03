@@ -73,6 +73,15 @@ class P:
         r = self.client.call("status", slate=self.slate)
         return r.get("state") in ("posted", "confirmed")
 
+    def relay(self):
+        """The relay P's listener and sender use: its address's domain, as the service's ping reports it
+        (None when the service does not answer). The lane's relay in use must be this one when it is local."""
+        try:
+            addr = self.client.call("ping", timeout=20).get("address") or ""
+        except (OSError, ValueError):  # an unanswered ping: the send says why
+            return None
+        return addr.split("@", 1)[1] if "@" in addr else None
+
     def info(self):
         r = self.client.call("info")
         return r.get("spendable") if r.get("ok") else None

@@ -23,6 +23,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 import facts  # noqa: E402
 import migration  # noqa: E402
 import seed  # noqa: E402
+from . import hermetic  # noqa: E402
 from . import walletdata as wd  # noqa: E402
 from .faults import HarnessFault, ProductFault  # noqa: E402
 
@@ -75,9 +76,11 @@ def _set(lane, pair, ok, why):
 
 def _digest(lane, tag):
     try:
-        return lane.p.digest(tag, lane.secrets)
+        d = lane.p.digest(tag, lane.secrets)
     except wd.ReadError as e:
         raise HarnessFault("digest-" + tag, "the wallet's data could not be read: %s" % e)
+    lane.last_digest = d  # its log's hosts are the lane's evidence of the servers the app touched
+    return d
 
 
 def same_tx(t0, t1):
@@ -136,6 +139,19 @@ def _p_ready(lane):
     return p
 
 
+def _relay_with_p(lane, p):
+    """The relay in use, which P must post through too. A local relay (core/hermetic.py plan) works only
+    when P's own listener and sender are on it: P is on another host and reaches no relay but its
+    address's. This is the one place that says so."""
+    relay = host(getattr(lane.p, "relay", "") or "")
+    if hermetic.local(relay):
+        p_relay = getattr(p, "relay", lambda: None)()
+        if host(p_relay or "") != relay:
+            raise HarnessFault("fund", "the relay in use is the local %s but P posts through %s" % (
+                relay, p_relay or "a relay its service does not name"))
+    return relay
+
+
 def _pay(lane, address, amount, tag, what, count_dir="incoming"):
     """P sends [amount] to [address]; the wallet's data must show the new incoming transaction confirmed
     (P's confirmed payment is the proof of receipt). -> (txs before, the new transaction)."""
@@ -147,7 +163,7 @@ def _pay(lane, address, amount, tag, what, count_dir="incoming"):
         _unlock(lane)
         if not p.start_listener():
             raise HarnessFault("fund", "P's listener did not start (3 tries)")
-        relay = host(getattr(lane.p, "relay", "") or "")
+        relay = _relay_with_p(lane, p)
         # the wallet listens on the relay in use only: a bare address would go to P's own default
         full = address if "@" in address or not relay else "%s@%s" % (address, relay)
         ok, out = p.send(full, amount)

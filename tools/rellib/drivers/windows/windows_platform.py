@@ -10,8 +10,11 @@ from the rig's files (core/walletdata.py over Rig: wallet database copies, walle
 desk store as the rig's user, settings.toml); the encrypted store of a migrating candidate is read
 through the shared LEPIC CLI from copies of its files.
 
-A loopback node and relay stand-in run inside the rig agent (agent.ps1); their ports are fixed when
-the agent has to be started again, so the servers the wallet was given stay valid.
+The hermetic node and relay on this host (core/hermetic.py plan) reach the rig's own 127.0.0.1 through
+an ssh remote forward on the rig's ControlMaster (rig.py forward(): code and unit tests only, never run
+on a rig yet); for a server that is not offered, a loopback stand-in of a public one runs inside the rig
+agent (agent.ps1). The stand-ins' ports are fixed when the agent has to be started again, so the
+servers the wallet was given stay valid.
 """
 import json
 import os
@@ -31,6 +34,7 @@ sys.path.insert(0, os.path.join(DRIVERS, "linux"))
 import facts  # noqa: E402
 import seed  # noqa: E402
 from core import checks  # noqa: E402
+from core import hermetic  # noqa: E402
 from core import walletdata as wd  # noqa: E402
 from core.faults import HarnessFault, ProductFault  # noqa: E402
 from core.lane import Platform  # noqa: E402
@@ -69,6 +73,7 @@ class WindowsPlatform(Platform):
         self.exe = None         # the installed app's exe
         self.entry = None
         self.ports = {}
+        self.hermetic = None    # core/hermetic.py plan(), from prepare
 
     # ---- preparation
 
@@ -87,23 +92,54 @@ class WindowsPlatform(Platform):
     def prepare(self):
         prev = self.setup_exe(self.prev_dir, self.prev_ver)
         cand = self.setup_exe(self.cand_dir, self.cand_ver)
+        self.hermetic = hermetic.plan(checks.P_ADDR)
+        self.log("hermetic: %s" % self.hermetic["reason"])
         self._pick_servers()
         os.makedirs(self.work, mode=0o700, exist_ok=True)
         self.log("previous %s, candidate %s" % (os.path.basename(prev), os.path.basename(cand)))
         self._healthy_rig(prev, cand)
-        r = self.rig.call("standins", node=self.node, relay=self.relay)
-        if not r.get("ok"):
-            raise HarnessFault("prepare", "stand-ins on the rig: %s" % (r.get("error") or "")[:160])
-        self.ports = {"node": r["node"], "relay": r["relay"]}
-        self.custom_node = "127.0.0.1:%d" % r["node"]
-        self.custom_relay = "127.0.0.1:%d" % r["relay"]
+        self._servers()
         self.surface = WinSurface(self.rig, self.log, secret_dir=self.work)
-        self.log("stand-ins on the rig: node %s -> %s, relay %s -> %s" % (self.custom_node, self.node, self.custom_relay, self.relay))
+
+    def _servers(self, again=False):
+        """The local services forwarded to the rig (once per master; asked again after a recovery), and
+        the agent's stand-ins for what is not local, skipped when both are (on the same ports again)."""
+        plan = self.hermetic or {}
+        try:
+            self.rig.forward(plan.get("ports") or [])
+        except RigError as e:
+            raise HarnessFault("recover" if again else "prepare", "the local node/relay forward to the rig: %s" % e)
+        if plan.get("node"):
+            self.custom_node = hermetic.entry(plan["node"])
+        if plan.get("relay"):
+            self.custom_relay = plan["relay"]
+        if plan.get("node") and plan.get("relay"):
+            return
+        r = self.rig.call("standins", node=self.node, relay=self.relay,
+                          node_port=self.ports.get("node", 0), relay_port=self.ports.get("relay", 0))
+        if not r.get("ok"):
+            raise HarnessFault("recover" if again else "prepare", "stand-ins on the rig: %s" % (r.get("error") or "")[:160])
+        # the agent starts both; the one for a local server is not given to the app
+        self.ports = {"node": r["node"], "relay": r["relay"]}
+        if not plan.get("node"):
+            self.custom_node = "127.0.0.1:%d" % r["node"]
+        if not plan.get("relay"):
+            self.custom_relay = "127.0.0.1:%d" % r["relay"]
+        self.log("on the rig: node %s -> %s, relay %s -> %s" % (self.custom_node, self.node, self.custom_relay, self.relay))
+
+    def live_servers(self):
+        """The public node and relay the live-servers phase puts in use (core/lane.py)."""
+        return hermetic.pick_live(node_up, relay_up, facts.NODE_PICK, facts.RELAY_PICK)
 
     def _pick_servers(self):
-        if not self.node:
+        plan = self.hermetic or {}
+        if plan.get("node"):
+            self.node = plan["node"]
+        elif not self.node:
             self.node = next((u for u in facts.NODE_PICK if node_up(u)), "")
-        if not self.relay:
+        if plan.get("relay"):
+            self.relay = plan["relay"]
+        elif not self.relay:
             self.relay = next((h for h in facts.RELAY_PICK if relay_up(h)), "")
         if not self.node or not self.relay:
             raise HarnessFault("prepare", "no node or Epicbox server answers (%s / %s)" % (facts.NODE_PICK, facts.RELAY_PICK))
@@ -249,10 +285,7 @@ class WindowsPlatform(Platform):
                 self.rig.start_agent(idle_min=AGENT_IDLE_MIN, wait_s=1800 if self.rig.busy() else 420)
             except RigError as e:
                 raise HarnessFault("recover", "the rig agent could not be started again: %s" % e)
-            s = self.rig.call("standins", node=self.node, relay=self.relay,
-                              node_port=self.ports.get("node", 0), relay_port=self.ports.get("relay", 0))
-            if not s.get("ok"):
-                raise HarnessFault("recover", "stand-ins again: %s" % (s.get("error") or "")[:160])
+            self._servers(again=True)
         which = self.running
         if which:
             self.start(which)

@@ -140,10 +140,16 @@ beside_not_applicable = ["history_kept", "custom_nodes_kept", "custom_relays_kep
 funds_variant = "tor"
 variants = ["tor", "notor"]
 
+# Each driver first has the hermetic node and relay up on this machine (tools/rellib/hermetic/up.sh:
+# idempotent, a running service is left alone, one lane at a time). It exits 1 while the node still
+# syncs or a service is not healthy: the driver runs anyway, and its prepare (drivers/core/hermetic.py
+# plan) uses what status.json says is healthy, records why not for the rest in proof.json
+# details["hermetic"], and refuses to run without both only under REL_HERMETIC=1. Any other exit of
+# up.sh stops the step.
 [proof.drivers]
-android = "{rel}/tools/rellib/drivers/trust-android.sh"
-linux = "{rel}/tools/rellib/drivers/trust-linux.sh"
-windows = "{rel}/tools/rellib/drivers/trust-windows.sh"
+android = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rellib/drivers/trust-android.sh"
+linux = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rellib/drivers/trust-linux.sh"
+windows = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rellib/drivers/trust-windows.sh"
 # macos, ios: no driver yet; those platforms are not proven until one exists.
 
 # ---- G0, G1, source -------------------------------------------------------------------------
@@ -412,6 +418,9 @@ host = "local"
 when = ["publish.manifests"]
 needs = ["manifests"]
 
+# Every trust step runs tools/rellib/hermetic/up.sh before its driver ([proof.drivers]) and carries on
+# when it exits 1 (the node still syncing): the lanes use this machine's mainnet node and Epicbox relay
+# where they are healthy, and public servers for the one live-funds leg (REL_FUNDS) per platform.
 # Update trust runs per platform from when this machine's builds are done (no driver competes
 # with a build for the CPU), Windows and macOS also after their own build, Android and Linux
 # without waiting for them; at most [concurrency] max_heavy at once (Windows runs on its rigs and

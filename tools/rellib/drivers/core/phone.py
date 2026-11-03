@@ -406,6 +406,16 @@ class Phone:
         self.d.shot("%s-relay" % self.which)
         self.home()
 
+    def use_servers(self, node, relay):
+        """The live-servers phase (core/lane.py): a public node and relay in use, through the same sheets
+        as set_servers; the wallet's own servers stay listed."""
+        self._view_deep_end()
+        self.use_server("node", bare_host(node), bare_host(node), use=True)
+        self.use_server("relay", relay, relay, use=True)
+        self.log("live servers in use: node %s, Epicbox %s" % (bare_host(node), relay))
+        self.d.shot("%s-live-servers" % self.which)
+        self.home()
+
     def _level_three(self, tree):
         three = tg._norm(self._text("levelThreeTitle", "Let me explore everything"))
         return any(three in tg._norm(n.name) for n in self.d.find_in(LEVEL_ROW, tree))

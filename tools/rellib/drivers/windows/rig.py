@@ -246,6 +246,34 @@ class Rig:
                            capture_output=True, text=True, timeout=timeout)
         return r.returncode == 0
 
+    def forward(self, ports):
+        """This host's [ports] on the rig's own 127.0.0.1 (ssh -R on this session's ControlMaster), where
+        the app reaches the hermetic node and relay as loopback servers (core/hermetic.py plan).
+
+        NEVER RUN ON A RIG: written and unit-tested only. To check on the first live run: the rig's
+        sshd_config allows TCP forwarding (Windows OpenSSH does by default) and nothing on the rig holds
+        43413 / 43423. A master asked again for a forward it has answers yes; another master (a lane on
+        another rig session of the same host) is refused the port ("remote port forwarding failed"),
+        which is taken as that lane's forward serving it, and logged. The forward lives as long as the
+        master that made it (ControlPersist after the last use; close() ends it)."""
+        if not ports:
+            return True
+        if subprocess.run(["ssh", *self.ssh_opts, "-O", "check", self.host], capture_output=True, timeout=20).returncode != 0:
+            # no master yet: one is made by a plain command, so the forward has one to ride on
+            self.ssh("echo up", timeout=60)
+        args = [a for p in ports for a in ("-R", "%d:127.0.0.1:%d" % (p, p))]
+        r = subprocess.run(["ssh", *self.ssh_opts, "-O", "forward", *args, self.host], capture_output=True, text=True,
+                           errors="replace", timeout=30)
+        if r.returncode == 0:
+            self.log("rig: this host's %s forwarded to the rig's 127.0.0.1" % ", ".join(map(str, ports)))
+            return True
+        why = (r.stderr or r.stdout).strip()[-300:]
+        if "forwarding failed" in why:
+            self.log("rig: %s already held on the rig (another lane's forward, taken as serving it): %s" % (
+                ", ".join(map(str, ports)), why))
+            return True
+        raise RigError("ssh -O forward %s: exit %d: %s" % (" ".join(args), r.returncode, why))
+
     def close(self):
         # the master is this session's own (ControlPath above): lanes on other rigs keep theirs
         subprocess.run(["ssh", *self.ssh_opts, "-O", "exit", self.host], capture_output=True, timeout=20)

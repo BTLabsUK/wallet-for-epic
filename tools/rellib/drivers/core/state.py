@@ -13,11 +13,18 @@ Choice (REL_TRUST_START): `fresh` never uses a state; `state` must (could not ru
 platform's `fits(meta)`, e.g. an Android state signed with the key this run's previous APK carries).
 A state that will not load is the harness's fault, never the product's: auto then falls back to fresh.
 Saving is on by default; REL_TRUST_SAVE_STATE=0 for trial runs (a build that is not a release).
+
+A state keeps the servers its wallet had in use: meta "hermetic" says which were this host's local
+node and relay (core/hermetic.py). A run restores only a state whose servers are as local as its own
+(hermetic_fits, from the platform's fits): the restored previous release is not pointed again.
+A state without the key was saved before hermetic lanes, on public servers.
 """
 import json
 import os
 import shutil
 import time
+
+from . import hermetic
 
 KEEP = 2
 SECRET_NAMES = ("password", "pin", "phrase")
@@ -42,6 +49,21 @@ class Saved:
                 with open(p) as f:
                     out[n] = f.read().strip()
         return out
+
+
+def in_use(platform):
+    """{"node", "relay"}: whether the server the platform's app has in use is this host's own."""
+    return {"node": hermetic.local(getattr(platform, "node", "")), "relay": hermetic.local(getattr(platform, "relay", ""))}
+
+
+def hermetic_fits(meta, platform):
+    """(ok, why): the state's servers in use are as local as this run's."""
+    saved = meta.get("hermetic") or {"node": False, "relay": False}
+    now = in_use(platform)
+    if {k: bool(saved.get(k)) for k in now} == now:
+        return True, ""
+    say = lambda d: ", ".join("%s %s" % (k, "local" if d.get(k) else "public") for k in ("node", "relay"))
+    return False, "saved with %s in use, this run uses %s" % (say(saved), say(now))
 
 
 def pick(platform, variant, version, fits=None, log=print):
@@ -87,7 +109,7 @@ def save(platform, secrets, digest, *, log=print, extra=None):
     platform.save_state(os.path.join(tmp, "payload"))
     meta = {"version": version, "commit": os.environ.get("REL_CANDIDATE_COMMIT"), "run": os.environ.get("REL_RUN"),
             "saved_at": time.strftime("%Y-%m-%dT%H:%M:%S"), "platform": platform.name, "variant": platform.variant,
-            "digest": digest}
+            "digest": digest, "hermetic": in_use(platform)}
     meta.update(extra or {})
     meta.update(getattr(platform, "state_meta", lambda: {})())
     with open(os.path.join(tmp, "meta.json"), "w") as f:

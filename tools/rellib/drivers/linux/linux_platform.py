@@ -3,9 +3,10 @@
 sandbox of their own (HOME, Xvfb, dbus, keyring; sandbox.py) and read over AT-SPI (atspi.py).
 
 The update is the AppImage swap: the previous release's AppImage stops, the candidate's starts on
-the same HOME (data folder and keyring kept), which is what the in-app AppImage update leaves. A
-loopback node and relay stand-in (standin.py) give the wallet servers of the user's own that are in
-no built-in list. The wallet's data is read from the sandbox's files (files.py, core/walletdata.py).
+the same HOME (data folder and keyring kept), which is what the in-app AppImage update leaves. The
+hermetic node and relay on this host (core/hermetic.py plan; shared loopback, nothing to forward) are
+the wallet's own servers and the ones in use; for one that is not offered, a loopback stand-in
+(standin.py) of a public server is the server of the user's own, in no built-in list. The wallet's data is read from the sandbox's files (files.py, core/walletdata.py).
 """
 import glob
 import os
@@ -30,8 +31,10 @@ import sandbox  # noqa: E402
 import seed  # noqa: E402
 from atspi import AtspiSurface  # noqa: E402
 from core import checks  # noqa: E402
+from core import hermetic  # noqa: E402
 from core import walletdata as wd  # noqa: E402
 from core.faults import HarnessFault, HarnessGone, ProductFault  # noqa: E402
+from core import state as st  # noqa: E402
 from core.lane import Platform  # noqa: E402
 from files import SandboxFiles, data_root  # noqa: E402
 
@@ -57,6 +60,7 @@ class LinuxPlatform(Platform):
         self.standins = []
         self.lan_before = None
         self.surface = None
+        self.hermetic = None  # core/hermetic.py plan(), from prepare
 
     # ---- preparation
 
@@ -74,6 +78,8 @@ class LinuxPlatform(Platform):
     def prepare(self):
         e = os.environ
         os.makedirs(self.sb, mode=0o700, exist_ok=True)
+        self.hermetic = hermetic.plan(checks.P_ADDR)
+        self.log("hermetic: %s" % self.hermetic["reason"])
         self._pick_servers()
         self._standins()
         for which, folder, ver in (("previous", e.get("REL_PREVIOUS_DIR", ""), e.get("REL_PREVIOUS_VERSION", "")),
@@ -83,9 +89,14 @@ class LinuxPlatform(Platform):
         self.log("sandbox %s up; node %s (+ %s), Epicbox %s (+ %s)" % (self.sb, self.node, self.custom_node, self.relay, self.custom_relay))
 
     def _pick_servers(self):
-        if not self.node:
+        plan = self.hermetic or {}
+        if plan.get("node"):
+            self.node = plan["node"]
+        elif not self.node:
             self.node = next((u for u in facts.NODE_PICK if node_up(u)), "")
-        if not self.relay:
+        if plan.get("relay"):
+            self.relay = plan["relay"]
+        elif not self.relay:
             self.relay = next((h for h in facts.RELAY_PICK if relay_up(h)), "")
         if not self.node or not self.relay:
             raise HarnessFault("prepare", "no node or Epicbox server answers (%s / %s)" % (facts.NODE_PICK, facts.RELAY_PICK))
@@ -93,20 +104,28 @@ class LinuxPlatform(Platform):
             self.node = "https://" + self.node
 
     def _standins(self):
+        """A stand-in for each server that is not local; a local one is its own custom entry."""
+        h = self.hermetic or {}
         ports = {}
         for kind, up in (("node", self.node), ("relay", self.relay)):
+            if h.get(kind):
+                continue
             ports[kind] = free_port()
             log = open(os.path.join(self.out, "standin-%s.log" % kind), "w")
             self.standins.append(subprocess.Popen([sys.executable, "-I", os.path.join(HERE, "standin.py"), kind, str(ports[kind]), up],
                                                   stdout=log, stderr=subprocess.STDOUT, start_new_session=True))
         for attempt in range(3):  # one slow answer from the upstream node is not a dead stand-in
             time.sleep(1 if attempt == 0 else 5)
-            if node_up("http://127.0.0.1:%d" % ports["node"]):
+            if "node" not in ports or node_up("http://127.0.0.1:%d" % ports["node"]):
                 break
         else:
             raise HarnessFault("prepare", "the loopback node stand-in does not answer")
-        self.custom_node = "127.0.0.1:%d" % ports["node"]
-        self.custom_relay = "127.0.0.1:%d" % ports["relay"]
+        self.custom_node = hermetic.entry(h["node"]) if h.get("node") else "127.0.0.1:%d" % ports["node"]
+        self.custom_relay = h["relay"] if h.get("relay") else "127.0.0.1:%d" % ports["relay"]
+
+    def live_servers(self):
+        """The public node and relay the live-servers phase puts in use (core/lane.py)."""
+        return hermetic.pick_live(node_up, relay_up, facts.NODE_PICK, facts.RELAY_PICK)
 
     def _extract(self, appimage, which):
         dest = os.path.join(self.work, which)
@@ -250,7 +269,7 @@ class LinuxPlatform(Platform):
     def fits(self, meta):
         if meta.get("platform") != "linux" or meta.get("variant") != self.variant:
             return False, "saved for %s %s" % (meta.get("platform"), meta.get("variant"))
-        return True, ""
+        return st.hermetic_fits(meta, self)
 
     # ---- break tests (core/breaks.py)
 
