@@ -593,6 +593,21 @@ run = "{rel}/tools/rellib/drivers/trust-linux.sh"
 timeout = "30m"
 env = { REL_TRUST_MODE = "create", REL_OUT = "{stage}", REL_CHECKS = "create_ok", REL_FUNDS = "0", REL_CANDIDATE_DIR = "{files}", REL_CANDIDATE_EXTRA = "{extra}", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
 
+[step.trust-tx-linux]
+title = "Payments between two wallets, Linux ({variant})"
+platform = "linux"
+for_each = "proof_variant"
+variants = ["tor"]
+host = "build"
+lane = "trust-linux-{variant}"
+needs = ["trust-linux"]
+warn_only = true
+# Two candidate wallets pay each other 0.01 by Epicbox, Link · HTTP, Link · Tor and File; P funds A
+# (at most 0.1 EPIC a run) and every coin goes back to P in the same run (linux/tx_lane.py).
+run = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rellib/drivers/trust-tx-linux.sh"
+timeout = "150m"
+env = { REL_OUT = "{stage}", REL_FUNDS = "1", REL_EPICBOX = "{epicbox}", REL_CANDIDATE_DIR = "{files}", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
+
 [step.create-windows]
 title = "New wallet on the candidate, Windows ({variant})"
 platform = "windows"

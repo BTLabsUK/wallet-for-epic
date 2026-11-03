@@ -151,7 +151,7 @@ class Payments:
         d = self.d
         self.ui.nav(NAV_ACTIVITY)
         word = "received" if incoming else "sent"
-        amt = re.escape(amount_text)
+        amt = re.escape(amount_text) + "0*"  # the row may show 4 decimals (0.0100)
 
         def row(dd, tree):
             return next((n for n in tree if n.name and TX_ROW_RX.match(n.name) and n.name.lower().startswith(word)
