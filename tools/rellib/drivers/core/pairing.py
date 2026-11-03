@@ -24,6 +24,8 @@ ADV_PAIRING = T("pair.adv.pairing", role="toggle", keys=("expPairing",), names=(
 ADV_INVOICES = T("pair.adv.invoices", role="toggle", keys=("expInvoices",), names=("Invoices",), match="exact")
 
 # Contacts › Pair: Your invite | Have their invite?
+CONTACTS_SEARCH = T("pair.contacts.search", role="text_field", keys=("deskConSearch",), names=("Search contacts",),
+                    match="starts")
 CONTACTS_PAIR = T("pair.contacts.pair", keys=("pairTitle",), names=("Pair",), match="exact")
 PAIR_YOUR = T("pair.screen.yours", role="text", keys=("pairYourCode",), names=("Your invite",), match="exact")
 PAIR_COPY = T("pair.screen.copy", keys=("pairCopyLink",), names=("Copy invite",), match="exact")
@@ -199,8 +201,13 @@ class Pairing:
     def open_contact(self, name):
         """Contacts › <name>: the contact page with its Pairing block."""
         d = self.d
-        self.ui.nav(NAV_CONTACTS)
-        row = T("pair.contact.row.%s" % name.lower().replace(" ", "_"), role="other", names=(name,), match="line")
+        self.ui.nav(NAV_CONTACTS)  # keeps a contact page open: its back (an unnamed button) shows the list
+        if not d.wait(shows(CONTACTS_SEARCH), 5):
+            back = [n for n in d.tree() if n.role == "button" and not n.name.strip()]
+            if back:
+                d._act(d.s.press, back[-1])
+            d.must(shows(CONTACTS_SEARCH), 20, step="contacts-list")
+        row = T("pair.contact.row.%s" % name.lower().replace(" ", "_"), role="button", names=(name,), match="line")
         d.press(row, step="contact-open", then=either(*(shows(t) for _, t in STATES)), timeout=30)
 
     def state(self, name, refresh=True):

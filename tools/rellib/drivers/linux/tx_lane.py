@@ -273,12 +273,13 @@ class TxLane(Lane):
             p.seen_as(PAIR_NAME[k])
         a, b = self.w["a"].pair, self.w["b"].pair
         b.enter_invite(a.copy_invite(), PAIR_NAME["a"])
-        wa, wb = a.words(), b.words()
+        wa = a.words()  # the inviter's check opens on B's answer; B's waits for A's confirmation
+        a.confirm_words(allow_invoices=True)
+        wb = b.words()
         if wa != wb:  # the words are no secret, but a mismatch is all the proof needs
             self.fail("pair_invite_ok", "the four words differ between A and B")
             return
         b.confirm_words(allow_invoices=True)
-        a.confirm_words(allow_invoices=True)
         self._both_verified("pair_invite_ok", "invite by text, the same four words on both")
 
     def _pair_remove(self):
