@@ -33,6 +33,12 @@
 # sources, the features and the paths baked into xtask those of that pin; a lock per clone runs
 # one build at a time and the others wait. The libraries still land in this worktree's
 # lepic-flutter/native/, as without it.
+#
+# Android under LEPIC_SHARED=1 builds from one clone per variant and ABI instead,
+# ~/.cache/wfe-lepic/android-<tor|notor>-<triple>/, moved to the pin under its lock. Its path
+# stays the same from pin to pin, so a new pin rebuilds only the crates it changed, and the three
+# ABIs build at once, each in its own clone and cargo target, with a third of the cores each
+# (LEPIC_ANDROID_JOBS). Same features, targets and flags as one build after another.
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
@@ -147,6 +153,60 @@ shared_clone() {
   echo "$dir"
 }
 
+# Must match android_targets in the binding's tool/lepic.sh.
+android_triples=(aarch64-linux-android armv7-linux-androideabi x86_64-linux-android)
+
+# Prints the Android clone for this variant and the triple $1, made from this worktree's clone
+# on first use. It is moved to another pin only by android_build_one, under the clone's lock.
+android_clone() {
+  local variant=tor dir tmp
+  case "${WFE_TOR:-1}" in 0|false|off) variant=notor ;; esac
+  dir="$shared_dir/android-$variant-$1"
+  if [ ! -d "$dir/.git" ]; then
+    mkdir -p "$shared_dir"
+    tmp="$dir.tmp.$$"
+    git clone --quiet --no-checkout "$clone" "$tmp" >&2
+    git -C "$tmp" checkout --quiet --detach "$rev"
+    mv -T "$tmp" "$dir" 2>/dev/null || rm -rf -- "$tmp"   # another build made it first
+  fi
+  echo "$dir"
+}
+
+# Builds LEPIC for the triple $1 from its clone $2 into the binding's native/: takes the clone's
+# lock, moves it to the pin (from this worktree's clone, no network) and builds.
+android_build_one() {
+  local lock
+  exec {lock}>>"$2.lock"
+  flock -n "$lock" || { echo "waiting for another build from $2"; flock "$lock"; }
+  touch "$2.used"
+  if [ "$(git -C "$2" rev-parse -q --verify HEAD || true)" != "$rev" ]; then
+    git -C "$2" fetch --quiet "$clone" HEAD
+    git -C "$2" checkout --quiet --detach "$rev"
+  fi
+  check_clone "$2" "$rev"
+  LEPIC_DIR="$2" "$binding/tool/lepic.sh" build "$1"
+}
+
+# The three Android ABIs at once, each from its clone; their output follows in ABI order.
+android_build_shared() {
+  local logs t src i=0 failed=0 pids=()
+  export CARGO_BUILD_JOBS="${LEPIC_ANDROID_JOBS:-$(( ($(nproc) + 2) / 3 ))}"
+  logs="$(mktemp -d)"
+  for t in "${android_triples[@]}"; do
+    src="$(android_clone "$t")"
+    echo "LEPIC $rev ($(basename "$src" | cut -d- -f2)) for $t builds from the shared clone $src"
+    android_build_one "$t" "$src" > "$logs/$t.log" 2>&1 &
+    pids+=("$!")
+  done
+  for t in "${android_triples[@]}"; do
+    wait "${pids[$i]}" || failed=1
+    i=$((i + 1))
+    cat "$logs/$t.log"
+  done
+  rm -r -- "$logs"
+  [ "$failed" = 0 ] || { echo "LEPIC's Android build failed (above)" >&2; exit 1; }
+}
+
 case "${1:-}" in
   sync)
     sync_clone "$binding" "$binding_repo" "$binding_rev"
@@ -178,7 +238,9 @@ case "${1:-}" in
     fi
     if [ "$what" = linux ] && [ "$build_linux" = 0 ]; then exit 0; fi
     src="$clone"
-    if [ "${LEPIC_SHARED:-0}" = 1 ]; then
+    shared=0
+    [ "${LEPIC_SHARED:-0}" = 1 ] && shared=1
+    if [ "$shared" = 1 ] && [ "$build_linux" = 1 ]; then
       src="$(shared_clone)"
       check_clone "$src" "$rev"
       echo "LEPIC $rev ($(basename "$src" | sed "s/.*-//")) builds from the shared clone $src"
@@ -192,7 +254,11 @@ case "${1:-}" in
       echo "linux: $binding/native/x86_64-unknown-linux-gnu/"
     fi
     if [ "$what" = android ] || [ "$what" = all ]; then
-      LEPIC_DIR="$src" "$binding/tool/lepic.sh" build android
+      if [ "$shared" = 1 ]; then
+        android_build_shared
+      else
+        LEPIC_DIR="$src" "$binding/tool/lepic.sh" build android
+      fi
       echo "android: $binding/native/"
     fi
     ;;

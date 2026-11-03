@@ -110,10 +110,10 @@ if [[ $dist == fdroid ]]; then
   export RUSTFLAGS="--remap-path-prefix=${CARGO_HOME:-$HOME/.cargo}=/cargo"
   shared=0
 fi
-# The binding's tool/lepic.sh builds LEPIC without Tor for WFE_TOR=0. From the shared clone of the
-# pin for this variant (tools/lepic.sh, LEPIC_SHARED): its cargo target is kept between releases
-# and the two variants never share one (the owner 2026-11-02). F-Droid builds in this checkout, as on
-# its build server.
+# The binding's tool/lepic.sh builds LEPIC without Tor for WFE_TOR=0. From the shared Android
+# clones of this variant, one per ABI, built at once (tools/lepic.sh, LEPIC_SHARED): their cargo
+# targets are kept between releases, also across pins, and the two variants never share one
+# (the owner 2026-11-02). F-Droid builds in this checkout, as on its build server.
 LEPIC_SHARED=$shared LEPIC_NO_CACHE=1 WFE_TOR=$tor "$app_dir/../tools/lepic.sh" build android
 
 apks="$app_dir/build/app/outputs/flutter-apk"
