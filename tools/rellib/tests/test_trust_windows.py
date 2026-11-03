@@ -15,9 +15,14 @@ _spec = importlib.util.spec_from_file_location("win_trust", os.path.join(WIN, "t
 wt = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(wt)
 
+# drivers/android has a uia.py too: these modules get the Windows one and leave the name as they found it.
+_other_uia = sys.modules.pop("uia", None)
 import rig as wrig  # noqa: E402
 import uia  # noqa: E402
 import windows_platform as wp  # noqa: E402
+sys.modules.pop("uia")
+if _other_uia is not None:
+    sys.modules["uia"] = _other_uia
 from core.faults import HarnessFault  # noqa: E402
 
 T = "2026-11-01T10:00:00.000Z INFO  "
