@@ -15,8 +15,9 @@ import time
 import tomllib
 import urllib.request
 
+from . import hosted
 from .config import PLATFORMS, scope_summary
-from .run import now_iso, read_json, write_json
+from .run import Run, now_iso, read_json, write_json
 
 
 def run(engine, step, log):
@@ -28,6 +29,7 @@ def run(engine, step, log):
         "scratch_downloads": scratch_downloads, "scratch_page": scratch_page, "scratch_source": scratch_source,
         "scratch_manifests": scratch_manifests, "scratch_prune": scratch_prune, "scratch_noop": scratch_noop,
         "rollback-gate": publish_gate, "rollback-resign": _resign, "sign-android": _sign_android,
+        "hosted-dispatch": hosted_dispatch,
     }.get(name)
     if fn is None:
         return {"status": "failed", "note": f"no builtin {name!r}"}
@@ -36,6 +38,30 @@ def run(engine, step, log):
             f.write(" ".join(str(x) for x in a) + "\n")
             f.flush()
         return fn(engine, step, say)
+
+
+def hosted_dispatch(engine, step, say):
+    return hosted.dispatch(engine, step, say)
+
+
+def built_by(engine, s):
+    """Who built a release file: {stage}/built_by.json of a hosted build (of the run it was reused
+    from, when reused), else a local build."""
+    st = engine.run.status(s.id)
+    src = st.get("reused_from") or {}
+    out = {"via": "local"}
+    try:
+        stage = engine.run.step_dir(s.id)
+        if src.get("kind") == "run":
+            stage = Run.find(os.path.dirname(os.path.dirname(engine.run.path)), src["label"]).step_dir(s.id)
+        got = read_json(os.path.join(stage, "out", "built_by.json"))
+        if isinstance(got, dict) and got.get("via"):
+            out = got
+    except Exception:
+        pass
+    if src:
+        out = dict(out, reused_from=src.get("label"))
+    return out
 
 
 def _resign(engine, step, say):
@@ -381,6 +407,8 @@ def preflight(engine, step, say):
                 except (subprocess.TimeoutExpired, OSError):
                     good, note = False, f"the shared P service did not answer in {p.timeout} s"
                 (ok if good else bad)(note)
+    if hosted.is_hosted(s):
+        hosted.preflight_checks(engine, ok, bad)  # published, main's tip, buildcheck, the dispatch cap
     nodes, boxes = pipe.defaults.get("nodes", []), pipe.defaults.get("epicboxes", [])
     node, tried = pick(nodes, health_node, os.environ.get("REL_NODE"))
     (ok if node else bad)(f"node for tests: {node or 'none healthy'} (tried {', '.join(tried)})")
@@ -521,7 +549,8 @@ def artefacts(engine, step, say):
             if "name='uk.btlabs.btwallet'" not in head:
                 problems.append(f"{name}: package is not uk.btlabs.btwallet")
         meta[name] = {"bytes": size, "sha256": run.status(s.id)["outputs"].get(name, {}).get("sha256") if s else None,
-                      "step": s.id if s else None, "host": s.host if s else None}
+                      "step": s.id if s else None, "host": s.host if s else None,
+                      "built_by": built_by(engine, s) if s else None}
     if "android" in [p for p in PLATFORMS if info["scope"]["platforms"].get(p)]:
         for s in run.steps:
             if s.base == "build-android":
@@ -551,6 +580,8 @@ def artefacts(engine, step, say):
         "version": version, "version_code": want_code, "commit": info["commit"], "run_id": info["run_id"],
         "created": now_iso(), "pins": info.get("pins", {}), "scope": scope_summary(info["scope"]),
         "toolchain": toolchain(engine.repo), "files": meta, "test": bool(info.get("test")),
+        "published_commit": (info.get("published") or {}).get("commit"),
+        "published_pins": {k: (info.get("published") or {}).get(k) for k in ("lepic", "lepic_flutter")},
     }
     write_json(os.path.join(run.files, "provenance.json"), prov)
     listed = {name: meta[name]["sha256"] for name in present}
