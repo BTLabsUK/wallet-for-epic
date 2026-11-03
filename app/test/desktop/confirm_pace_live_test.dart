@@ -11,7 +11,7 @@
 //
 // Each side writes `<role>.log`: one line per change of the payment as the app shows it (ms,
 // state, confirmations). WFE_PACE_WATCH=off asks the node at the normal pace only, as before
-// watch mode. Without the library it is skipped.
+// watch mode. Without the library and WFE_PACE_DIR it is skipped.
 import 'dart:convert';
 import 'dart:io';
 
@@ -152,5 +152,5 @@ void main() {
     note('end');
     await log.close();
     await wallet.dispose();
-  }, skip: _lib == null ? 'needs WFE_DEMO_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 40)));
+  }, skip: _lib == null || _env['WFE_PACE_DIR'] == null ? 'needs WFE_DEMO_LEPIC_LIB and WFE_PACE_* (two processes, see the header)' : false, timeout: const Timeout(Duration(minutes: 40)));
 }
