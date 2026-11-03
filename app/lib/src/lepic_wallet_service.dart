@@ -3685,21 +3685,15 @@ class _LepicPairing implements PairingApi {
   @override
   Future<PairingInvitePreview> openInvite(String link) => _call(() async {
     final preview = await _w.pairingPreview(link: link.trim());
-    await _refuseOwn(link.trim(), preview);
+    _refuseOwn(preview);
     return _preview(link.trim(), preview);
   });
 
   /// This wallet's own invite, opened here: refused before "Pair with …?", which
-  /// LEPIC would only refuse on the answer. Known by its link while this run made it, else by
-  /// a pending invite of this wallet with the same name and expiry to the second (the link
-  /// carries seconds).
-  Future<void> _refuseOwn(String link, lepic.InvitePreview p) async {
-    if (_inviteLinks.values.contains(link)) throw pairingError(PairingFailure.ownCard);
-    for (final mine in await _w.pairingsPending()) {
-      if (mine.inviter && mine.inviteName == p.claimedName && mine.expiresAtMs.toInt() ~/ 1000 == p.expiresAtMs.toInt() ~/ 1000) {
-        throw pairingError(PairingFailure.ownCard);
-      }
-    }
+  /// LEPIC would only refuse on the answer. LEPIC's preview knows every invite this wallet
+  /// made, standing, waiting or cancelled, also after a restart.
+  void _refuseOwn(lepic.InvitePreview p) {
+    if (p.own) throw pairingError(PairingFailure.ownCard);
   }
 
   @override
