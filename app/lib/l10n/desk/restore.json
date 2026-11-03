@@ -3,7 +3,7 @@
   "@deskOvRestoreTitle": {
     "description": "Overview panel title while the core's restore scan from block 0 has not finished."
   },
-  "deskOvRestoreRunning": "Looking for this wallet’s coins on the chain, from the first block. Received EPIC shows as it is found; receiving and sending open when the scan finishes.",
+  "deskOvRestoreRunning": "Looking for this wallet’s coins on the chain. Received EPIC shows as it is found; receiving and sending open when the scan finishes.",
   "@deskOvRestoreRunning": {
     "description": "Overview panel text while the restore scan runs; a progress bar follows."
   },
@@ -32,7 +32,7 @@
   "@deskErrRestoreScanRequired": {
     "description": "Error for the core's RestoreScanRequired on the desktop (Receive, Send, invoices)."
   },
-  "deskSetRescanRestoreRunning": "The restore scan is running: the chain is read from the first block. Recheck balance is available when it finishes.",
+  "deskSetRescanRestoreRunning": "The restore scan is running. Recheck balance is available when it finishes.",
   "@deskSetRescanRestoreRunning": {
     "description": "Recheck page line while the restore scan runs (replaces the generic \"a scan is already running\"); progress follows."
   },

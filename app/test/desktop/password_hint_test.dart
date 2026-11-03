@@ -15,6 +15,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 final _l = englishStrings;
 
@@ -73,6 +74,8 @@ Future<void> _end(WidgetTester tester) async {
 Finder _field(String label) => find.descendant(of: find.widgetWithText(EField, label), matching: find.byType(EditableText)).first;
 
 void main() {
+  // The start month shows as a month and year (localMonthYear).
+  setUpAll(initializeDateFormatting);
   testWidgets('the count follows each keystroke, the time comes 150 ms after typing stops', (tester) async {
     final c = TextEditingController();
     addTearDown(c.dispose);

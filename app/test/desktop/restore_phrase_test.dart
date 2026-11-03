@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 final _l = englishStrings;
 
@@ -83,6 +84,8 @@ Future<void> _key(WidgetTester tester, LogicalKeyboardKey key) async {
 }
 
 void main() {
+  // The start month shows as a month and year (localMonthYear).
+  setUpAll(initializeDateFormatting);
   group('bip39PhraseValid', () {
     test('accepts the standard vectors of every length', () {
       expect(bip39PhraseValid(_v12), isTrue);

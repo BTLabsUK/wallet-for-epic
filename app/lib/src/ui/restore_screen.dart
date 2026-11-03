@@ -9,12 +9,12 @@ import '../app_log.dart';
 import '../errors.dart';
 import '../bip39_words.dart';
 import '../levels/first_run_servers_phone.dart';
-import '../levels/level_providers.dart';
 import '../l10n.dart';
 import '../phrase_problem.dart';
 import '../providers.dart';
 import '../restore_scan.dart';
 import '../start_month.dart';
+import '../trust_ids.dart';
 import '../secure_screen.dart' show hidePreview, keepScreenOn;
 import '../settings.dart' show autoLockHoldProvider;
 import '../wallet_service.dart';
@@ -59,8 +59,11 @@ enum _RestoreStep { phrase, pin, scan, importOffer }
 
 enum _StartBy { date, height }
 
-/// The key of the "Start from a date or height" link, for tests.
+/// The key of the "Start from a month or height" link, for tests.
 const Key restoreStartLinkKey = ValueKey('restore-start-link');
+
+/// The key of the "Scan from the start" link, for tests.
+const Key restoreFromStartKey = ValueKey('restore-from-start');
 
 /// The restore scan's Stop, Try again and Open wallet buttons, for tests.
 const Key restoreStopKey = ValueKey('restore-stop');
@@ -78,9 +81,12 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   String? _error;
   bool _busy = false;
 
-  /// "Start from a date or height" was tapped: the choice shows. Restore is a one-off, so it
-  /// is not behind the Recheck from a height switch.
+  /// "Start from a month or height" was tapped: the choice shows, at every level. Restore is a
+  /// one-off, so it is not behind the Recheck from a height switch.
   bool _startOpen = false;
+
+  /// "Scan from the start" was tapped: block 0 instead of a month.
+  bool _fromStart = false;
 
   /// [RestoreScreen.replace]: the old wallet is deleted now, so Back and Continue work as on a
   /// first run.
@@ -159,17 +165,17 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     if (!service.validateMnemonic(phrase: phrase)) {
       problem = _phraseError(l, phrase);
     }
-    // The start choice is offered to everyone behind a small link; until it is opened the scan
-    // covers the whole chain.
-    final advanced = _startOpen;
-    final byDate = _startBy == _StartBy.date && _datesSupported;
-    final heightText = byDate || !advanced ? '' : _startHeight.text.trim();
-    final date = byDate && advanced ? _startDate : null;
-    final startHeight = date != null
-        ? mainnetHeightForDate(date)
-        : heightText.isEmpty
-        ? null
-        : BigInt.tryParse(heightText);
+    // Mainnet starts from a month (January 2025 unless another is chosen), or from block 0 on
+    // Scan from the start; a test network from block 0 unless a height is typed. Null is
+    // block 0, for the wallet and its scan alike.
+    final dates = _datesSupported;
+    final byHeight = _startOpen && (_startBy == _StartBy.height || !dates);
+    final heightText = byHeight ? _startHeight.text.trim() : '';
+    final startHeight = byHeight
+        ? (heightText.isEmpty ? null : BigInt.tryParse(heightText))
+        : dates && !_fromStart
+        ? _startMonth.height
+        : null;
     if (problem == null && heightText.isNotEmpty && startHeight == null) {
       problem = l.restoreStartHeightInvalid;
     }
@@ -242,6 +248,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           config,
           pin: pin,
           mnemonic: phrase,
+          restoreFromHeight: startHeight,
           useBiometrics: biometrics,
         );
         await vault.markBackedUp(config.chain);
@@ -272,6 +279,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         config,
         pin: pin,
         mnemonic: _validPhrase,
+        restoreFromHeight: _height,
         useBiometrics: useBiometrics,
       );
       _validPhrase = '';
@@ -316,7 +324,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     }
   }
 
-  /// The restore's scan, from the start the user chose. The screen stays on meanwhile, so
+  /// The restore's scan, from the start the wallet was made with (null: block 0), which then
+  /// finishes the restore. The screen stays on meanwhile, so
   /// Android does not cut the network; Try again goes on from the last stored page.
   Future<void> _scan() async {
     setState(() {
@@ -383,6 +392,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
               bottom: BusyButton(
                 label: l.commonContinue,
                 onPressed: _checkPhrase,
+                semanticsId: TrustIds.restoreContinue,
               ),
               children: steps,
             )
@@ -439,67 +449,109 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
 
   List<Widget> _form(BuildContext context) {
     final l = context.l10n;
-    final advanced = _startOpen;
     return [
       // From Settings: nothing changes before the phrase checks out and the user confirms.
       if (widget.replace && !_replaced) ...[
         Text(l.restoreReplaceLead),
         const SizedBox(height: 16),
       ],
-      TextField(
-        controller: _phrase,
-        // A phrase error is about the words as they were: an edit takes it away; the word
-        // chips under the field follow every keystroke.
-        onChanged: (_) => setState(() => _error = null),
-        minLines: 3,
-        maxLines: 5,
-        autocorrect: false,
-        enableSuggestions: false,
-        enableIMEPersonalizedLearning: false,
-        keyboardType: TextInputType.visiblePassword,
-        decoration: InputDecoration(
-          labelText: l.restorePhraseLabel,
-          helperText: l.restorePhraseHelper,
-          alignLabelWithHint: true,
-          // The phrase as a QR code (Show QR on the backup screen).
-          suffixIcon: offersQrScan(ref)
-              ? IconButton(
-                  key: restoreScanKey,
-                  tooltip: l.scanQrTooltip,
-                  icon: const Icon(Icons.qr_code_scanner),
-                  onPressed: _scanPhrase,
-                )
-              : null,
+      trustId(
+        TrustIds.restorePhrase,
+        TextField(
+          controller: _phrase,
+          // A phrase error is about the words as they were: an edit takes it away; the word
+          // chips under the field follow every keystroke.
+          onChanged: (_) => setState(() => _error = null),
+          minLines: 3,
+          maxLines: 5,
+          autocorrect: false,
+          enableSuggestions: false,
+          enableIMEPersonalizedLearning: false,
+          keyboardType: TextInputType.visiblePassword,
+          decoration: InputDecoration(
+            labelText: l.restorePhraseLabel,
+            helperText: l.restorePhraseHelper,
+            alignLabelWithHint: true,
+            // The phrase as a QR code (Show QR on the backup screen).
+            suffixIcon: offersQrScan(ref)
+                ? IconButton(
+                    key: restoreScanKey,
+                    tooltip: l.scanQrTooltip,
+                    icon: const Icon(Icons.qr_code_scanner),
+                    onPressed: _scanPhrase,
+                  )
+                : null,
+          ),
         ),
       ),
       RestoreWordCheck(text: _phrase.text),
-      // Level 1 starts every restore from the beginning: no date or height to get wrong.
-      if (!advanced && ref.watch(levelFeaturesProvider.select((f) => f.restoreHeightField)))
+      const SizedBox(height: 8),
+      ..._start(context),
+      const SizedBox(height: 16),
+      if (_error != null) ErrorText(_error!),
+    ];
+  }
+
+  /// The month the scan starts from on mainnet: the one chosen, else [defaultStartMonth].
+  StartMonth get _startMonth => _startDate == null ? defaultStartMonth : StartMonth.of(_startDate!);
+
+  /// Where the scan starts, at every level (the owner, 2026-11-03). Mainnet: "Scanning from
+  /// January 2025" (or the month chosen), the link that changes it, and Scan from the start for
+  /// older coins. A test network: block 0, or the height typed after the link.
+  List<Widget> _start(BuildContext context) {
+    final l = context.l10n;
+    final dates = _datesSupported;
+    final fromStart = Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 4,
+        children: [
+          Text(l.restoreOlderCoins),
+          InlineTextButton(
+            key: restoreFromStartKey,
+            onPressed: () => setState(() {
+              _fromStart = true;
+              _startOpen = false;
+            }),
+            child: trustId(TrustIds.restoreFromStart, Text(l.restoreScanFromStart)),
+          ),
+        ],
+      ),
+    );
+    if (!_startOpen) {
+      return [
+        if (dates)
+          Text(_fromStart ? l.restoreScanningFromStart : l.restoreScanningFrom(localMonthYear(l, _startMonth.firstDay))),
         Align(
           alignment: AlignmentDirectional.centerStart,
           child: InlineTextButton(
             key: restoreStartLinkKey,
-            onPressed: () => setState(() => _startOpen = true),
-            child: Text(l.restoreStartFromMonthLink),
+            onPressed: () => setState(() {
+              _startOpen = true;
+              _fromStart = false;
+            }),
+            child: trustId(TrustIds.restoreStart, Text(l.restoreStartFromMonthLink)),
           ),
         ),
-      const SizedBox(height: 12),
-      if (advanced && _datesSupported) ...[
-        Text(
-          l.restoreStartHeading,
-          style: Theme.of(context).textTheme.titleSmall,
-        ),
-        const SizedBox(height: 8),
+        if (dates && !_fromStart) fromStart,
+      ];
+    }
+    return [
+      const SizedBox(height: 4),
+      Text(l.restoreStartHeading, style: Theme.of(context).textTheme.titleSmall),
+      const SizedBox(height: 8),
+      if (dates) ...[
         // The app's tab style, no check mark.
         SegmentedButton<_StartBy>(
           segments: [
             ButtonSegment(
               value: _StartBy.date,
-              label: Text(l.restoreStartByMonth),
+              label: trustId(TrustIds.restoreByMonth, Text(l.restoreStartByMonth)),
             ),
             ButtonSegment(
               value: _StartBy.height,
-              label: Text(l.restoreStartByHeight),
+              label: trustId(TrustIds.restoreByHeight, Text(l.restoreStartByHeight)),
             ),
           ],
           selected: {_startBy},
@@ -509,16 +561,16 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         ),
         const SizedBox(height: 12),
       ],
-      if (advanced) ...[
-        if (_startBy == _StartBy.date && _datesSupported)
-          // A month, no day (the owner, 2026-11-01): the scan starts from its first.
-          StartMonthChoice(
-            date: _startDate,
-            hint: l.restoreMonthHint,
-            clearLabel: l.restoreWholeChain,
-            onChanged: (date) => setState(() => _startDate = date),
-          )
-        else
+      if (dates && _startBy == _StartBy.date)
+        // A month, no day (the owner, 2026-11-01): the scan starts from its first.
+        StartMonthChoice(
+          date: _startMonth.firstDay,
+          semanticsId: TrustIds.restoreMonth,
+          onChanged: (date) => setState(() => _startDate = date),
+        )
+      else
+        trustId(
+          TrustIds.restoreHeight,
           TextField(
             controller: _startHeight,
             keyboardType: TextInputType.number,
@@ -528,9 +580,8 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
               helperText: l.restoreStartHeightHelper,
             ),
           ),
-      ],
-      const SizedBox(height: 16),
-      if (_error != null) ErrorText(_error!),
+        ),
+      if (dates) ...[const SizedBox(height: 4), fromStart],
     ];
   }
 
@@ -560,9 +611,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       ),
       const SizedBox(height: 8),
       Text(l.restoreImportExplanation, textAlign: TextAlign.center),
-      // From a start height the funds after it are found; the scan from block 0 finishes the
-      // restore from Home before receiving and sending open.
-      if (_height != null) ...[
+      // The restore is still due after its scan (a wallet whose start the core did not take):
+      // Home finishes it before receiving and sending open.
+      if (ref.watch(restoreScanProvider).required) ...[
         const SizedBox(height: 8),
         Text(l.restoreFinishOnHome, textAlign: TextAlign.center),
       ],

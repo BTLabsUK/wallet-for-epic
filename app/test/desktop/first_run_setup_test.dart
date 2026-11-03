@@ -21,6 +21,7 @@ import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 final _l = englishStrings;
 
@@ -131,6 +132,8 @@ class _Router extends ConsumerWidget {
 }
 
 void main() {
+  // The start month shows as a month and year (localMonthYear).
+  setUpAll(initializeDateFormatting);
   late _Wallet wallet;
   late ProviderContainer container;
 

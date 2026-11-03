@@ -1910,20 +1910,10 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get restoreWholeChain => 'Skanuj cały łańcuch';
-
-  @override
   String get restorePickMonth => 'Wybierz miesiąc utworzenia portfela';
 
   @override
   String get restorePickMonthShort => 'Wybierz miesiąc';
-
-  @override
-  String get restorePickMonthFirst => 'Najpierw wybierz miesiąc.';
-
-  @override
-  String get restoreMonthHint =>
-      'Opcjonalnie. W razie wątpliwości wybierz wcześniejszy miesiąc: późniejszy może pominąć część środków.';
 
   @override
   String restoreMonthStart(String height) {
@@ -1952,7 +1942,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get restoreUnfinishedRunning =>
-      'Wyszukiwanie środków tego portfela od bloku 0. Odbieranie i wysyłanie będą dostępne, gdy to się zakończy.';
+      'Wyszukiwanie środków tego portfela. Odbieranie i wysyłanie będą dostępne, gdy to się zakończy.';
 
   @override
   String get restoreUnfinishedOffline =>
@@ -12060,7 +12050,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskSetHttpStep2Text(String port) {
-    return 'Na stronie routera (często 10.0.1.1) znajdź Przekierowanie portów i przekieruj TCP $port do tego komputera.';
+    return 'Na stronie routera (często 192.168.1.1) znajdź Przekierowanie portów i przekieruj TCP $port do tego komputera.';
   }
 
   @override
@@ -13329,6 +13319,20 @@ class AppLocalizationsPl extends AppLocalizations {
   String get restoreStartFromMonthLink => 'Zacznij od miesiąca lub wysokości';
 
   @override
+  String restoreScanningFrom(String month) {
+    return 'Początek skanowania: $month';
+  }
+
+  @override
+  String get restoreScanningFromStart => 'Skanowanie od początku';
+
+  @override
+  String get restoreOlderCoins => 'Starsze środki?';
+
+  @override
+  String get restoreScanFromStart => 'Skanuj od początku';
+
+  @override
   String get settingsRescanBodyPlain =>
       'Portfel ponownie szuka swoich środków, od pierwszego bloku.';
 
@@ -13450,9 +13454,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskSlHelpChoose =>
       'Wybierz jeden albo wpisz, aby przefiltrować listę lub dodać serwer.';
-
-  @override
-  String get deskOnbRestoreFromHide => 'Sprawdź cały łańcuch';
 
   @override
   String get deskOnbRestoreFromLabel => 'Zacznij od bloku';
@@ -15951,7 +15952,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOvRestoreRunning =>
-      'Wyszukiwanie środków tego portfela w łańcuchu od pierwszego bloku. Odebrane EPIC pojawiają się w miarę znajdowania; odbieranie i wysyłanie będą dostępne, gdy skanowanie się zakończy.';
+      'Wyszukiwanie środków tego portfela w łańcuchu. Odebrane EPIC pojawiają się w miarę znajdowania; odbieranie i wysyłanie będą dostępne, gdy skanowanie się zakończy.';
 
   @override
   String deskOvRestoreAfterHeight(String height) {
@@ -15970,7 +15971,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetRescanRestoreRunning =>
-      'Trwa skanowanie po przywróceniu: łańcuch jest odczytywany od pierwszego bloku. Sprawdź saldo będzie dostępne, gdy się zakończy.';
+      'Trwa skanowanie po przywróceniu. Sprawdź saldo będzie dostępne, gdy się zakończy.';
 
   @override
   String get deskSetRescanStartHeading => 'Od czego zacząć';

@@ -11,7 +11,7 @@ import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
 import '../../../network_gate.dart' show NetBlock;
 import '../../../l10n.dart' show localInt;
-import '../../../start_month.dart' show startMonthRecent;
+import '../../../start_month.dart' show defaultStartMonth, startMonthRecent;
 import '../../widgets/kit.dart';
 import '../wallet/restore_scan_panel.dart' show RestoreScanProgress;
 import '../../data/settings_registry.dart' show settingsEntry;
@@ -27,9 +27,9 @@ enum RescanDemo { running }
 /// Why a scan ended, for the result card.
 enum _End { finished, stopped }
 
-/// Where Recheck starts with Advanced › Recheck from a height, as on the phone: a date's
-/// block (mainnet), a typed height, or block 0. Without the switch it starts a little before
-/// the last scan's end.
+/// Where Recheck starts with Advanced › Recheck from a height, as on the phone: a month's
+/// block (mainnet; January 2025 unless another is picked), a typed height, or block 0 (a test
+/// network's first choice). Without the switch it starts a little before the last scan's end.
 enum _From { date, height, wholeChain }
 
 class SettingsRescanScreen extends ConsumerStatefulWidget {
@@ -47,7 +47,11 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
   _End? _end;
   bool _deleteUnconfirmed = false;
   _From? _fromChoice;
+
+  /// The month picked; null is [defaultStartMonth].
   DateTime? _fromDate;
+
+  StartMonth get _fromMonth => _fromDate == null ? defaultStartMonth : StartMonth.of(_fromDate!);
 
   /// The reveal key of the start rows the view or Advanced › Recheck from a height hides.
   static const _revealKey = 'rescan-start';
@@ -58,7 +62,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
   /// Dates map to heights only on mainnet.
   bool get _datesOk => (ref.read(deskProvider).account?.network ?? 'mainnet') == 'mainnet'; // l10n-ok: network id
 
-  _From get _from => _fromChoice ?? (_datesOk ? _From.date : _From.height);
+  _From get _from => _fromChoice ?? (_datesOk ? _From.date : _From.wholeChain);
   set _from(_From v) => _fromChoice = v;
   final _height = TextEditingController();
   String? _heightError;
@@ -114,12 +118,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
     if (!_choice) return (start: null, ok: true);
     switch (_from) {
       case _From.date:
-        final d = _fromDate;
-        if (d == null) {
-          setState(() => _heightError = l.restorePickMonthFirst);
-          return (start: null, ok: false);
-        }
-        return (start: mainnetHeightForDate(d), ok: true);
+        return (start: _fromMonth.height, ok: true);
       case _From.wholeChain:
         return (start: BigInt.zero, ok: true);
       case _From.height:
@@ -308,7 +307,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
     final l = context.l10n;
     final c = context.dc;
     final ts = context.ts;
-    final month = _fromDate == null ? null : StartMonth.of(_fromDate!);
+    final month = _fromMonth;
     final error = _heightError == null ? null : Text(_heightError!, key: const ValueKey('rescan-start-error'), style: ts.small.copyWith(color: c.risk));
     return [
       ESetRow(
@@ -344,7 +343,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
           anchor: SetId.recheckMonth,
           advancedBy: advancedBy,
           title: l.deskSetRowRecheckMonth,
-          text: month == null ? null : l.restoreMonthStart(localInt(l, month.height)),
+          text: l.restoreMonthStart(localInt(l, month.height)),
           control: ERowControl(
             child: EStartMonthField(
               month: month,
@@ -356,7 +355,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
               }),
             ),
           ),
-          below: error != null || (month != null && startMonthRecent(month, DateTime.now()))
+          below: error != null || startMonthRecent(month, DateTime.now())
               ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [?error, if (error == null) const EStartMonthRecent(key: EStartDate.recentKey)])
               : null,
         ),

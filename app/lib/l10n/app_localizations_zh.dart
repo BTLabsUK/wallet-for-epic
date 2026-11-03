@@ -1757,19 +1757,10 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get restoreWholeChain => '改为扫描整条链';
-
-  @override
   String get restorePickMonth => '选择你创建钱包的月份';
 
   @override
   String get restorePickMonthShort => '选择月份';
-
-  @override
-  String get restorePickMonthFirst => '请先选择月份。';
-
-  @override
-  String get restoreMonthHint => '可选。不确定时请选更早的月份：更晚的月份可能漏掉资金。';
 
   @override
   String restoreMonthStart(String height) {
@@ -1795,7 +1786,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get restoreUnfinishedTitle => '恢复尚未完成';
 
   @override
-  String get restoreUnfinishedRunning => '正在从区块 0 开始查找此钱包的资金。完成后即可接收和发送。';
+  String get restoreUnfinishedRunning => '正在查找此钱包的资金。完成后即可接收和发送。';
 
   @override
   String get restoreUnfinishedOffline => '关闭离线后扫描会继续。';
@@ -10898,7 +10889,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskSetHttpStep2Text(String port) {
-    return '在路由器的管理页面（通常是 10.0.1.1）找到“端口转发”，把 TCP $port 转发到这台电脑。';
+    return '在路由器的管理页面（通常是 192.168.1.1）找到“端口转发”，把 TCP $port 转发到这台电脑。';
   }
 
   @override
@@ -12077,6 +12068,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get restoreStartFromMonthLink => '从某个月份或高度开始';
 
   @override
+  String restoreScanningFrom(String month) {
+    return '从 $month 开始扫描';
+  }
+
+  @override
+  String get restoreScanningFromStart => '从头开始扫描';
+
+  @override
+  String get restoreOlderCoins => '有更早的币？';
+
+  @override
+  String get restoreScanFromStart => '从头扫描';
+
+  @override
   String get settingsRescanBodyPlain => '钱包从第一个区块开始，重新查找它的资金。';
 
   @override
@@ -12190,9 +12195,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSlHelpChoose => '选择一个，或输入以筛选列表或添加服务器。';
-
-  @override
-  String get deskOnbRestoreFromHide => '检查整条链';
 
   @override
   String get deskOnbRestoreFromLabel => '从区块开始';
@@ -14483,7 +14485,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOvRestoreRunning =>
-      '正在从第一个区块开始在链上查找此钱包的资金。已收到的 EPIC 会随查找逐步显示；扫描完成后即可接收和发送。';
+      '正在链上查找此钱包的资金。已收到的 EPIC 会随查找逐步显示；扫描完成后即可接收和发送。';
 
   @override
   String deskOvRestoreAfterHeight(String height) {
@@ -14500,8 +14502,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskOvRestoreProgress => '恢复扫描进度';
 
   @override
-  String get deskSetRescanRestoreRunning =>
-      '恢复扫描正在进行：从第一个区块开始读取链。扫描完成后才能重新核对余额。';
+  String get deskSetRescanRestoreRunning => '恢复扫描正在进行。扫描完成后才能重新核对余额。';
 
   @override
   String get deskSetRescanStartHeading => '从哪里开始';

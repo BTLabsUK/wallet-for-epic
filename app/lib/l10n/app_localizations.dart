@@ -3007,12 +3007,6 @@ abstract class AppLocalizations {
   /// **'Scanning starts two days before this date, from block {height}.'**
   String restoreDateStart(String height);
 
-  /// Button that clears the start date.
-  ///
-  /// In en, this message translates to:
-  /// **'Scan the whole chain instead'**
-  String get restoreWholeChain;
-
   /// Button that opens the month picker for the scan's start (restore).
   ///
   /// In en, this message translates to:
@@ -3024,18 +3018,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick a month'**
   String get restorePickMonthShort;
-
-  /// Error under the month picker: Start was pressed before a month was chosen.
-  ///
-  /// In en, this message translates to:
-  /// **'Pick a month first.'**
-  String get restorePickMonthFirst;
-
-  /// Under the month picker before a month is chosen.
-  ///
-  /// In en, this message translates to:
-  /// **'Optional. If unsure, pick an earlier month: a later one can miss coins.'**
-  String get restoreMonthHint;
 
   /// Under the chosen start month: the block number the scan starts from (just before the 1st of the month).
   ///
@@ -3073,7 +3055,7 @@ abstract class AppLocalizations {
   /// **'Open wallet'**
   String get restoreOpenWallet;
 
-  /// Heading of the Home card while the core's restore scan from block 0 has not finished; the state's name everywhere.
+  /// Heading of the Home card while the core's restore scan has not finished; the state's name everywhere.
   ///
   /// In en, this message translates to:
   /// **'Restore not finished'**
@@ -3082,7 +3064,7 @@ abstract class AppLocalizations {
   /// Home card line while the restore scan runs or starts; the bar and the percent line follow.
   ///
   /// In en, this message translates to:
-  /// **'Looking for this wallet’s coins from block 0. Receiving and sending open when this ends.'**
+  /// **'Looking for this wallet’s coins. Receiving and sending open when this ends.'**
   String get restoreUnfinishedRunning;
 
   /// Home card line while Offline mode (Advanced) stops the restore scan from running.
@@ -18171,7 +18153,7 @@ abstract class AppLocalizations {
   /// Internet guide dialog: step 2 text.
   ///
   /// In en, this message translates to:
-  /// **'On the router’s page (often 10.0.1.1), find Port forwarding and forward TCP {port} to this computer.'**
+  /// **'On the router’s page (often 192.168.1.1), find Port forwarding and forward TCP {port} to this computer.'**
   String deskSetHttpStep2Text(String port);
 
   /// Internet guide dialog: step 3 title.
@@ -20214,6 +20196,30 @@ abstract class AppLocalizations {
   /// **'Start from a month or height'**
   String get restoreStartFromMonthLink;
 
+  /// Restore, mainnet: where the scan starts, shown above the link that changes it. The month is localised (January 2025).
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning from {month}'**
+  String restoreScanningFrom(String month);
+
+  /// Restore: the scan starts from the chain's first block, after the user chose Scan from the start.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanning from the start'**
+  String get restoreScanningFromStart;
+
+  /// Restore: before the Scan from the start link, for wallets with coins from before the default start month.
+  ///
+  /// In en, this message translates to:
+  /// **'Older coins?'**
+  String get restoreOlderCoins;
+
+  /// Restore: link that makes the scan start from the chain's first block instead of a month.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan from the start'**
+  String get restoreScanFromStart;
+
   /// Recheck balance dialog text while Recheck from a height is off in Advanced: no start choice, the whole chain is scanned.
   ///
   /// In en, this message translates to:
@@ -20399,12 +20405,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick one, or type to filter the list or add a server.'**
   String get deskSlHelpChoose;
-
-  /// The same link while the field is open: closes it and checks the whole chain again.
-  ///
-  /// In en, this message translates to:
-  /// **'Check the whole chain'**
-  String get deskOnbRestoreFromHide;
 
   /// Label of the optional start block field on Restore.
   ///
@@ -24093,7 +24093,7 @@ abstract class AppLocalizations {
   /// Overview panel text while the restore scan runs; a progress bar follows.
   ///
   /// In en, this message translates to:
-  /// **'Looking for this wallet’s coins on the chain, from the first block. Received EPIC shows as it is found; receiving and sending open when the scan finishes.'**
+  /// **'Looking for this wallet’s coins on the chain. Received EPIC shows as it is found; receiving and sending open when the scan finishes.'**
   String get deskOvRestoreRunning;
 
   /// Overview panel text when the restore started from a block height and the earlier blocks are scanned now.
@@ -24123,7 +24123,7 @@ abstract class AppLocalizations {
   /// Recheck page line while the restore scan runs (replaces the generic "a scan is already running"); progress follows.
   ///
   /// In en, this message translates to:
-  /// **'The restore scan is running: the chain is read from the first block. Recheck balance is available when it finishes.'**
+  /// **'The restore scan is running. Recheck balance is available when it finishes.'**
   String get deskSetRescanRestoreRunning;
 
   /// Heading of the start-choice radio group on the Recheck page.

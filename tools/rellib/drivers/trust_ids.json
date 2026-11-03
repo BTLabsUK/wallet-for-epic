@@ -815,6 +815,158 @@
    ],
    "match": "line",
    "secret": false
+  },
+  {
+   "id": "g4.restore.phrase",
+   "screen": "restore",
+   "family": [
+    "desktop",
+    "android"
+   ],
+   "role": "text_field",
+   "keys": [
+    "restorePhraseLabel",
+    "deskOnbWordN"
+   ],
+   "match": "line",
+   "secret": true
+  },
+  {
+   "id": "g4.restore.start",
+   "screen": "restore",
+   "family": [
+    "desktop",
+    "android"
+   ],
+   "role": "link",
+   "keys": [
+    "restoreStartFromMonthLink"
+   ],
+   "match": "line",
+   "secret": false
+  },
+  {
+   "id": "g4.restore.by.month",
+   "screen": "restore",
+   "family": [
+    "desktop",
+    "android"
+   ],
+   "role": "button",
+   "keys": [
+    "restoreStartByMonth"
+   ],
+   "match": "line",
+   "secret": false
+  },
+  {
+   "id": "g4.restore.by.height",
+   "screen": "restore",
+   "family": [
+    "desktop",
+    "android"
+   ],
+   "role": "button",
+   "keys": [
+    "restoreStartByHeight"
+   ],
+   "match": "line",
+   "secret": false
+  },
+  {
+   "id": "g4.restore.month",
+   "screen": "restore",
+   "family": [
+    "desktop",
+    "android"
+   ],
+   "role": "button",
+   "keys": [],
+   "match": "line",
+   "secret": false
+  },
+  {
+   "id": "g4.restore.height",
+   "screen": "restore",
+   "family": [
+    "desktop",
+    "android"
+   ],
+   "role": "text_field",
+   "keys": [
+    "restoreStartHeightLabel",
+    "deskOnbRestoreFromLabel"
+   ],
+   "match": "line",
+   "secret": false
+  },
+  {
+   "id": "g4.restore.fromStart",
+   "screen": "restore",
+   "family": [
+    "desktop",
+    "android"
+   ],
+   "role": "link",
+   "keys": [
+    "restoreScanFromStart"
+   ],
+   "match": "line",
+   "secret": false
+  },
+  {
+   "id": "g4.restore.next",
+   "screen": "restore",
+   "family": [
+    "desktop"
+   ],
+   "role": "button",
+   "keys": [
+    "commonContinue"
+   ],
+   "match": "line",
+   "secret": true
+  },
+  {
+   "id": "g4.restore.continue",
+   "screen": "restore",
+   "family": [
+    "desktop",
+    "android"
+   ],
+   "role": "button",
+   "keys": [
+    "commonContinue",
+    "deskOnbRestoreSide"
+   ],
+   "match": "line",
+   "secret": true
+  },
+  {
+   "id": "g4.restore.password",
+   "screen": "restore_password",
+   "family": [
+    "desktop"
+   ],
+   "role": "text_field",
+   "keys": [
+    "deskOnbStepPassword"
+   ],
+   "match": "line",
+   "secret": true
+  },
+  {
+   "id": "g4.restore.passwordConfirm",
+   "screen": "restore_password",
+   "family": [
+    "desktop"
+   ],
+   "role": "text_field",
+   "keys": [
+    "deskSetupConfirmPassword"
+   ],
+   "match": "line",
+   "secret": true
   }
  ]
 }
