@@ -1254,7 +1254,7 @@ class LepicWalletService implements WalletService {
         store: await _store(config, creating: true),
         mnemonic: mnemonic,
         password: password,
-        // restoreFromHeight: wired when the LEPIC pin moves
+        restoreFromHeight: restoreFromHeight,
       ),
     ),
   );
@@ -1361,7 +1361,7 @@ class LepicWalletService implements WalletService {
       store: await _store(config, creating: true),
       mnemonic: mnemonic,
       pin: pin,
-      // restoreFromHeight: wired when the LEPIC pin moves
+      restoreFromHeight: restoreFromHeight,
     );
     return (
       session: await _session(config, created.wallet) as WalletSession,
