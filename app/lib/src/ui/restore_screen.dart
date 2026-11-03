@@ -2,7 +2,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_log.dart';
@@ -13,7 +12,6 @@ import '../l10n.dart';
 import '../phrase_problem.dart';
 import '../providers.dart';
 import '../restore_scan.dart';
-import '../start_month.dart';
 import '../trust_ids.dart';
 import '../secure_screen.dart' show hidePreview, keepScreenOn;
 import '../settings.dart' show autoLockHoldProvider;
@@ -22,16 +20,15 @@ import 'app_dialog.dart';
 import 'centered_body.dart';
 import 'common.dart';
 import 'launch_screen.dart';
-import 'month_picker.dart';
 import 'pin.dart';
 import 'scan_screen.dart' show offersQrScan, qrScannerProvider;
+import 'scan_start.dart';
 import 'settings_history.dart';
 import 'settings_sections.dart' show DeleteWalletDialog;
 import 'wallet_delete.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
 import 'devices/device_parts.dart' show LinkDeviceOffer;
-import 'inline_button.dart';
 
 export '../start_month.dart' show mainnetHeightForDate, mainnetFirstDay, mainnetBlockOneUnix, blockSeconds, restoreMarginBlocks;
 
@@ -57,14 +54,6 @@ class RestoreScreen extends ConsumerStatefulWidget {
 
 enum _RestoreStep { phrase, pin, scan, importOffer }
 
-enum _StartBy { date, height }
-
-/// The key of the "Start from a month or height" link, for tests.
-const Key restoreStartLinkKey = ValueKey('restore-start-link');
-
-/// The key of the "Scan from the start" link, for tests.
-const Key restoreFromStartKey = ValueKey('restore-from-start');
-
 /// The restore scan's Stop, Try again and Open wallet buttons, for tests.
 const Key restoreStopKey = ValueKey('restore-stop');
 const Key restoreRetryKey = ValueKey('restore-retry');
@@ -72,21 +61,15 @@ const Key restoreOpenKey = ValueKey('restore-open');
 
 class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   final _phrase = TextEditingController();
-  final _startHeight = TextEditingController();
   _RestoreStep _step = _RestoreStep.phrase;
-  _StartBy _startBy = _StartBy.date;
-  DateTime? _startDate;
+
+  /// Where the scan starts, at every level: restore is a one-off, so the height is not behind
+  /// the Recheck from a height switch. Made on first use: the chain comes from the provider.
+  late final _scanStart = ScanStartController(dates: _datesSupported);
   String _validPhrase = '';
   BigInt? _height;
   String? _error;
   bool _busy = false;
-
-  /// "Start from a month or height" was tapped: the choice shows, at every level. Restore is a
-  /// one-off, so it is not behind the Recheck from a height switch.
-  bool _startOpen = false;
-
-  /// "Scan from the start" was tapped: block 0 instead of a month.
-  bool _fromStart = false;
 
   /// [RestoreScreen.replace]: the old wallet is deleted now, so Back and Continue work as on a
   /// first run.
@@ -124,7 +107,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     _phrase.clear();
     _validPhrase = '';
     _phrase.dispose();
-    _startHeight.dispose();
+    _scanStart.dispose();
     super.dispose();
   }
 
@@ -168,17 +151,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
     // Mainnet starts from a month (January 2025 unless another is chosen), or from block 0 on
     // Scan from the start; a test network from block 0 unless a height is typed. Null is
     // block 0, for the wallet and its scan alike.
-    final dates = _datesSupported;
-    final byHeight = _startOpen && (_startBy == _StartBy.height || !dates);
-    final heightText = byHeight ? _startHeight.text.trim() : '';
-    final startHeight = byHeight
-        ? (heightText.isEmpty ? null : BigInt.tryParse(heightText))
-        : dates && !_fromStart
-        ? _startMonth.height
-        : null;
-    if (problem == null && heightText.isNotEmpty && startHeight == null) {
-      problem = l.restoreStartHeightInvalid;
-    }
+    final startHeight = _scanStart.start;
     if (problem != null) {
       setState(() => _error = problem);
       return;
@@ -486,102 +459,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       ),
       RestoreWordCheck(text: _phrase.text),
       const SizedBox(height: 8),
-      ..._start(context),
+      ScanStart(controller: _scanStart, ids: ScanStartIds.restore),
       const SizedBox(height: 16),
       if (_error != null) ErrorText(_error!),
-    ];
-  }
-
-  /// The month the scan starts from on mainnet: the one chosen, else [defaultStartMonth].
-  StartMonth get _startMonth => _startDate == null ? defaultStartMonth : StartMonth.of(_startDate!);
-
-  /// Where the scan starts, at every level (the owner, 2026-11-03). Mainnet: "Scanning from
-  /// January 2025" (or the month chosen), the link that changes it, and Scan from the start for
-  /// older coins. A test network: block 0, or the height typed after the link.
-  List<Widget> _start(BuildContext context) {
-    final l = context.l10n;
-    final dates = _datesSupported;
-    final fromStart = Align(
-      alignment: AlignmentDirectional.centerStart,
-      child: Wrap(
-        crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: 4,
-        children: [
-          Text(l.restoreOlderCoins),
-          InlineTextButton(
-            key: restoreFromStartKey,
-            onPressed: () => setState(() {
-              _fromStart = true;
-              _startOpen = false;
-            }),
-            child: trustId(TrustIds.restoreFromStart, Text(l.restoreScanFromStart)),
-          ),
-        ],
-      ),
-    );
-    if (!_startOpen) {
-      return [
-        if (dates)
-          Text(_fromStart ? l.restoreScanningFromStart : l.restoreScanningFrom(localMonthYear(l, _startMonth.firstDay))),
-        Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: InlineTextButton(
-            key: restoreStartLinkKey,
-            onPressed: () => setState(() {
-              _startOpen = true;
-              _fromStart = false;
-            }),
-            child: trustId(TrustIds.restoreStart, Text(l.restoreStartFromMonthLink)),
-          ),
-        ),
-        if (dates && !_fromStart) fromStart,
-      ];
-    }
-    return [
-      const SizedBox(height: 4),
-      Text(l.restoreStartHeading, style: Theme.of(context).textTheme.titleSmall),
-      const SizedBox(height: 8),
-      if (dates) ...[
-        // The app's tab style, no check mark.
-        SegmentedButton<_StartBy>(
-          segments: [
-            ButtonSegment(
-              value: _StartBy.date,
-              label: trustId(TrustIds.restoreByMonth, Text(l.restoreStartByMonth)),
-            ),
-            ButtonSegment(
-              value: _StartBy.height,
-              label: trustId(TrustIds.restoreByHeight, Text(l.restoreStartByHeight)),
-            ),
-          ],
-          selected: {_startBy},
-          showSelectedIcon: false,
-          style: const ButtonStyle(minimumSize: WidgetStatePropertyAll(Size(0, 44))),
-          onSelectionChanged: (s) => setState(() => _startBy = s.first),
-        ),
-        const SizedBox(height: 12),
-      ],
-      if (dates && _startBy == _StartBy.date)
-        // A month, no day (the owner, 2026-11-01): the scan starts from its first.
-        StartMonthChoice(
-          date: _startMonth.firstDay,
-          semanticsId: TrustIds.restoreMonth,
-          onChanged: (date) => setState(() => _startDate = date),
-        )
-      else
-        trustId(
-          TrustIds.restoreHeight,
-          TextField(
-            controller: _startHeight,
-            keyboardType: TextInputType.number,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            decoration: InputDecoration(
-              labelText: l.restoreStartHeightLabel,
-              helperText: l.restoreStartHeightHelper,
-            ),
-          ),
-        ),
-      if (dates) ...[const SizedBox(height: 4), fromStart],
     ];
   }
 

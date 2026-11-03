@@ -1856,12 +1856,6 @@ class AppLocalizationsRu extends AppLocalizations {
       'Все слова (12, 15, 18, 21 или 24) через пробел.';
 
   @override
-  String get restoreStartHeading => 'Начало сканирования';
-
-  @override
-  String get restoreStartByDate => 'Дата';
-
-  @override
   String get restoreStartByMonth => 'Месяц';
 
   @override
@@ -1873,10 +1867,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get restoreStartHeightHelper =>
       'Сканировать с этого блока. Оставьте пустым, чтобы просканировать весь блокчейн.';
-
-  @override
-  String get restoreStartHeightInvalid =>
-      'Начальная высота должна быть целым числом.';
 
   @override
   String get restoreBackToPhrase => 'Вернуться к фразе';
@@ -2968,31 +2958,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get settingsRescanBody =>
-      'Заново проверяет блокчейн на наличие средств этого кошелька. Чем раньше начало, тем больше найдётся, но тем дольше это займёт.';
-
-  @override
-  String get settingsRescanFromDate => 'С даты';
-
-  @override
-  String get settingsRescanFromMonth => 'С месяца';
-
-  @override
-  String get settingsRescanFromHeight => 'С высоты блока';
-
-  @override
-  String get settingsRescanWholeChain => 'Весь блокчейн';
-
-  @override
-  String get settingsRescanPickDate => 'Выбрать дату';
-
-  @override
-  String get settingsRescanPickDateFirst => 'Сначала выберите дату.';
-
-  @override
-  String get settingsRescanStartHeight => 'Начальная высота';
-
-  @override
-  String get settingsRescanHeightInvalid => 'Введите высоту блока не меньше 1.';
+      'Заново проверяет блокчейн на наличие средств этого кошелька.';
 
   @override
   String get settingsRescanButton => 'Сверить';
@@ -13286,9 +13252,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get restoreStartFromLink => 'Начать с даты или высоты';
 
   @override
-  String get restoreStartFromMonthLink => 'Начать с месяца или высоты';
-
-  @override
   String restoreScanningFrom(String month) {
     return 'Начало сканирования: $month';
   }
@@ -13297,14 +13260,22 @@ class AppLocalizationsRu extends AppLocalizations {
   String get restoreScanningFromStart => 'Сканирование с начала';
 
   @override
-  String get restoreOlderCoins => 'Старые монеты?';
-
-  @override
   String get restoreScanFromStart => 'Сканировать с начала';
 
   @override
-  String get settingsRescanBodyPlain =>
-      'Кошелёк заново ищет свои средства, с первого блока.';
+  String restoreScanningFromBlock(String height) {
+    return 'Начало сканирования: блок $height';
+  }
+
+  @override
+  String get scanStartChange => 'Изменить начало';
+
+  @override
+  String get scanStartInfoTitle => 'Начало сканирования';
+
+  @override
+  String get scanStartInfo =>
+      'Находятся только монеты начиная с этой точки. Более раннее начало найдёт старые монеты, но займёт больше времени.';
 
   @override
   String get slNodeField => 'Адрес узла';
@@ -13427,20 +13398,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSlHelpChoose =>
       'Выберите сервер или введите текст, чтобы отфильтровать список или добавить сервер.';
-
-  @override
-  String get deskOnbRestoreFromLabel => 'Начать с блока';
-
-  @override
-  String get deskOnbRestoreFromHint => 'Высота блока';
-
-  @override
-  String get deskOnbRestoreFromHelp =>
-      'Только если первый платёж кошелька пришёл после этого блока. Оставьте пустым, чтобы проверить весь блокчейн.';
-
-  @override
-  String get deskOnbRestoreFromInvalid =>
-      'Введите только цифры или оставьте пустым.';
 
   @override
   String get deskNetWaitingTorReason =>
@@ -15951,19 +15908,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetRescanStartHeading => 'Откуда начать';
-
-  @override
-  String get deskSetRescanFromHeight => 'С высоты блока';
-
-  @override
-  String get deskSetRescanHeightInvalid => 'Введите высоту блока от 1.';
-
-  @override
-  String get deskSetRescanWholeChain => 'Весь блокчейн';
-
-  @override
-  String get deskSetRescanWholeChainHint =>
-      'С первого блока. Находит всё, но занимает много времени. Также завершает незаконченное восстановление.';
 
   @override
   String get deskOnbForgotLink => 'Забыли пароль?';
@@ -19929,18 +19873,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetSynRecheckFrom => 'начало, дата, высота, блок';
 
   @override
-  String get deskSetRowRecheckMonth => 'Месяц';
-
-  @override
-  String get deskSetSynRecheckMonth => 'месяц, дата, календарь, создан, когда';
-
-  @override
-  String get deskSetRowRecheckHeight => 'Начальный блок';
-
-  @override
-  String get deskSetSynRecheckHeight => 'высота, блок';
-
-  @override
   String get deskSetRowRecheckDropHint =>
       'Также отменяет неподтверждённые транзакции. Платёж в пути может тогда не пройти.';
 
@@ -20455,9 +20387,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetSearchKeyEsc => 'Esc';
-
-  @override
-  String get deskSetRescanByWholeChain => 'Вся цепочка';
 
   @override
   String get deskTorPayOff => 'Выкл.';

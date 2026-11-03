@@ -11,6 +11,7 @@ import 'package:epic_wallet/src/desktop/screens/settings/settings_rescan.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/ui/scan_start.dart';
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
@@ -84,8 +85,8 @@ class _Fails extends MockDeskWallet {
 void main() {
   // The start month shows as a month and year (localMonthYear).
   setUpAll(initializeDateFormatting);
-  /// [whole]: with Recheck from a height on, From a date comes first and needs a date; the
-  /// tests that only run a recheck start from the whole chain.
+  /// [whole]: the start block is January 2025 until changed; the tests that only run a recheck
+  /// pick Scan from the start (block 0) through the info popover.
   Future<void> pump(WidgetTester tester, [MockDeskWallet? api, bool whole = true]) async {
     tester.view.physicalSize = const Size(1280, 1400);
     tester.view.devicePixelRatio = 1;
@@ -102,7 +103,9 @@ void main() {
     ));
     await tester.pumpAndSettle();
     if (whole) {
-      await tester.tap(find.text(_l.deskSetRescanByWholeChain));
+      await tester.tap(find.byKey(ScanStart.infoKey));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(ScanStart.fromStartKey));
       await tester.pumpAndSettle();
     }
   }
@@ -114,29 +117,34 @@ void main() {
     }
   }
 
-  testWidgets('the phone\u2019s start choices: a month (January 2025 by default), a typed height, or the whole chain (0)', (tester) async {
+  testWidgets('the phone\u2019s start choices: a month (January 2025 by default), a typed height, or the start (0)', (tester) async {
     final api = _Starts();
     await pump(tester, api, false);
     expect(find.text(_l.deskSetRescanStartHeading), findsOneWidget);
-    expect(find.text('Month'), findsWidgets, reason: 'GP-030: the phone\u2019s choices');
-    // From a month is the first choice on mainnet, January 2025 until another is picked.
-    expect(find.text('January 2025'), findsOneWidget);
+    // The shared scan-start line (scan_start.dart): January 2025 until another month is picked.
+    expect(find.text(_l.restoreScanningFrom('January 2025')), findsOneWidget);
     await tester.tap(find.widgetWithText(EButton, _l.deskSetRescanRecheck));
     await run(tester, const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
     expect(api.starts, [defaultStartMonth.height]);
+    await tester.tap(find.byKey(ScanStart.changeKey));
+    await tester.pumpAndSettle();
+    expect(find.text('Month'), findsWidgets, reason: 'GP-030: the phone\u2019s choices');
     await tester.tap(find.text(_l.restoreStartByHeight));
+    await tester.pumpAndSettle();
+    // An empty height is the start (block 0); a typed one shows on the line.
+    expect(find.text(_l.restoreScanningFromStart), findsOneWidget);
+    await tester.enterText(find.byKey(ScanStart.heightKey), '2800000');
     await tester.pump();
-    await tester.tap(find.widgetWithText(EButton, _l.deskSetRescanRecheckAgain));
-    await tester.pump();
-    expect(find.text(_l.deskSetRescanHeightInvalid), findsOneWidget, reason: 'an empty height is refused under the field');
-    await tester.enterText(find.byKey(const ValueKey('rescan-height')), '2800000');
-    await tester.pump();
+    expect(find.text(_l.restoreScanningFromBlock('2,800,000')), findsOneWidget);
     await tester.tap(find.widgetWithText(EButton, _l.deskSetRescanRecheckAgain));
     await run(tester, const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(_l.deskSetRescanByWholeChain));
-    await tester.pump();
+    await tester.tap(find.byKey(ScanStart.infoKey));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(ScanStart.fromStartKey));
+    await tester.pumpAndSettle();
+    expect(find.text(_l.restoreScanningFromStart), findsOneWidget);
     await tester.tap(find.widgetWithText(EButton, _l.deskSetRescanRecheckAgain));
     await run(tester, const Duration(milliseconds: 400));
     await tester.pumpAndSettle();

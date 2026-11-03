@@ -12,7 +12,11 @@ import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
 
 import '../l10n.dart';
+import '../trust_ids.dart' show TrustId;
+import 'info_action.dart';
 import 'theme/tokens.dart';
+
+export 'info_action.dart';
 
 /// The info icon with [text] as its explanation. The drawn icon is 18 dp; [size] is its tap
 /// square, 48 dp by default, so an icon standing on its own is a full target. Inside a row
@@ -21,7 +25,7 @@ import 'theme/tokens.dart';
 /// required: a sheet with no title reads as a stray sentence) and [icon] beside it; [onHelp]
 /// adds "More in Help" under the text, as the desktop's popover does.
 class InfoHint extends StatelessWidget {
-  const InfoHint(this.text, {super.key, this.size = target, required this.title, this.icon, this.labelled = true, this.label, this.onHelp, this.onOpen});
+  const InfoHint(this.text, {super.key, this.size = target, required this.title, this.icon, this.labelled = true, this.label, this.onHelp, this.onOpen, this.action});
 
   /// The tap square of an icon standing on its own, the default [size].
   static const double target = 48;
@@ -45,6 +49,9 @@ class InfoHint extends StatelessWidget {
   /// stays what a screen reader hears.
   final VoidCallback? onOpen;
 
+  /// A choice the sheet holds, as a button under the text ("Scan from the start").
+  final InfoAction? action;
+
   /// False where the row's own title names it already: a disabled row merges the icon into
   /// itself, and its label would say the title twice.
   final bool labelled;
@@ -59,7 +66,7 @@ class InfoHint extends StatelessWidget {
     // The semantics node carries the tap itself: the row around it is a button too, and a
     // tap sent to this node (a screen reader, a browser with semantics on) must open the
     // hint, not the row.
-    void open() => onOpen != null ? onOpen!() : showInfoSheet(context, title: title, text: text, icon: icon, onHelp: onHelp);
+    void open() => onOpen != null ? onOpen!() : showInfoSheet(context, title: title, text: text, icon: icon, onHelp: onHelp, action: action);
     return Semantics(
       button: true,
       label: labelled ? (label ?? title) : null,
@@ -78,10 +85,11 @@ Future<void> showInfoSheet(
   required String text,
   IconData? icon,
   VoidCallback? onHelp,
+  InfoAction? action,
 }) => showPhoneSheet<void>(
   context: context,
   showDragHandle: true,
-  builder: (_) => InfoSheet(title: title, text: text, icon: icon, onHelp: onHelp),
+  builder: (_) => InfoSheet(title: title, text: text, icon: icon, onHelp: onHelp, action: action),
 );
 
 /// The info card: the icon and the title on one line, the explanation under it at a reading
@@ -89,7 +97,7 @@ Future<void> showInfoSheet(
 /// long explanation (large text on a short phone) scrolls under the title with Close still in
 /// reach. The desktop's hover card ([EInfoHint] with a title) has the same shape.
 class InfoSheet extends StatelessWidget {
-  const InfoSheet({super.key, required this.title, required this.text, this.icon, this.onHelp});
+  const InfoSheet({super.key, required this.title, required this.text, this.icon, this.onHelp, this.action});
 
   final String title;
   final String text;
@@ -97,6 +105,9 @@ class InfoSheet extends StatelessWidget {
 
   /// "More in Help": closes the sheet, then opens the topic.
   final VoidCallback? onHelp;
+
+  /// A choice under the text: closes the sheet, then runs.
+  final InfoAction? action;
 
   @override
   Widget build(BuildContext context) {
@@ -137,8 +148,23 @@ class InfoSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            Row(
+            // Side by side while they fit, stacked when the labels are long.
+            OverflowBar(
+              alignment: MainAxisAlignment.end,
+              overflowAlignment: OverflowBarAlignment.end,
+              spacing: 8,
+              overflowSpacing: 4,
               children: [
+                if (action case final action?)
+                  TextButton(
+                    key: action.key,
+                    onPressed: () {
+                      Navigator.pop(context);
+                      action.onPressed();
+                    },
+                    // The id on the label: the button makes its own node (trust_ids.dart).
+                    child: TrustId(action.semanticsId, child: Text(action.label)),
+                  ),
                 if (onHelp case final help?)
                   TextButton(
                     key: const ValueKey('info-sheet-help'),
@@ -149,7 +175,6 @@ class InfoSheet extends StatelessWidget {
                     // The desktop popover's words, shared.
                     child: Text(l.deskKitMoreInHelp),
                   ),
-                const Spacer(),
                 TextButton(
                   onPressed: () => Navigator.pop(context),
                   child: Text(l.commonClose),

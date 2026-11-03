@@ -1807,12 +1807,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'All the words (12, 15, 18, 21 or 24), separated by spaces.';
 
   @override
-  String get restoreStartHeading => 'Where to start scanning';
-
-  @override
-  String get restoreStartByDate => 'Date';
-
-  @override
   String get restoreStartByMonth => 'Month';
 
   @override
@@ -1824,10 +1818,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get restoreStartHeightHelper =>
       'Scan from this block. Leave empty to scan the whole chain.';
-
-  @override
-  String get restoreStartHeightInvalid =>
-      'Start height must be a whole number.';
 
   @override
   String get restoreBackToPhrase => 'Back to the phrase';
@@ -2890,32 +2880,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsRescanBody =>
-      'Checks the chain again for this wallet’s coins. An earlier start finds more but takes longer.';
-
-  @override
-  String get settingsRescanFromDate => 'From a date';
-
-  @override
-  String get settingsRescanFromMonth => 'From a month';
-
-  @override
-  String get settingsRescanFromHeight => 'From a block height';
-
-  @override
-  String get settingsRescanWholeChain => 'The whole chain';
-
-  @override
-  String get settingsRescanPickDate => 'Pick a date';
-
-  @override
-  String get settingsRescanPickDateFirst => 'Pick a date first.';
-
-  @override
-  String get settingsRescanStartHeight => 'Start height';
-
-  @override
-  String get settingsRescanHeightInvalid =>
-      'Enter a block height of 1 or more.';
+      'Checks the chain again for this wallet’s coins.';
 
   @override
   String get settingsRescanButton => 'Recheck';
@@ -12813,9 +12778,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restoreStartFromLink => 'Start from a date or height';
 
   @override
-  String get restoreStartFromMonthLink => 'Start from a month or height';
-
-  @override
   String restoreScanningFrom(String month) {
     return 'Scanning from $month';
   }
@@ -12824,14 +12786,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restoreScanningFromStart => 'Scanning from the start';
 
   @override
-  String get restoreOlderCoins => 'Older coins?';
-
-  @override
   String get restoreScanFromStart => 'Scan from the start';
 
   @override
-  String get settingsRescanBodyPlain =>
-      'The wallet looks for its coins again, from the first block.';
+  String restoreScanningFromBlock(String height) {
+    return 'Scanning from block $height';
+  }
+
+  @override
+  String get scanStartChange => 'Change the start';
+
+  @override
+  String get scanStartInfoTitle => 'Scan start';
+
+  @override
+  String get scanStartInfo =>
+      'Only coins from this point on are found. An earlier start finds older coins and takes longer.';
 
   @override
   String get slNodeField => 'Node address';
@@ -12947,19 +12917,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskSlHelpChoose =>
       'Pick one, or type to filter the list or add a server.';
-
-  @override
-  String get deskOnbRestoreFromLabel => 'Start from block';
-
-  @override
-  String get deskOnbRestoreFromHint => 'Block height';
-
-  @override
-  String get deskOnbRestoreFromHelp =>
-      'Only if the wallet’s first payment came after this block. Leave it empty to check the whole chain.';
-
-  @override
-  String get deskOnbRestoreFromInvalid => 'Use digits only, or leave it empty.';
 
   @override
   String get deskNetWaitingTorReason =>
@@ -15405,19 +15362,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetRescanStartHeading => 'Where to start';
-
-  @override
-  String get deskSetRescanFromHeight => 'From a block height';
-
-  @override
-  String get deskSetRescanHeightInvalid => 'Enter a block height of 1 or more.';
-
-  @override
-  String get deskSetRescanWholeChain => 'The whole chain';
-
-  @override
-  String get deskSetRescanWholeChainHint =>
-      'From the first block. Finds everything and takes long. Also finishes an unfinished restore.';
 
   @override
   String get deskOnbForgotLink => 'Forgot password?';
@@ -19284,18 +19228,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetSynRecheckFrom => 'start, date, height, block';
 
   @override
-  String get deskSetRowRecheckMonth => 'Month';
-
-  @override
-  String get deskSetSynRecheckMonth => 'month, date, calendar, created, when';
-
-  @override
-  String get deskSetRowRecheckHeight => 'Start block';
-
-  @override
-  String get deskSetSynRecheckHeight => 'height, block';
-
-  @override
   String get deskSetRowRecheckDropHint =>
       'Also cancels unconfirmed transactions. A payment on its way may then fail.';
 
@@ -19799,9 +19731,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetSearchKeyEsc => 'Esc';
-
-  @override
-  String get deskSetRescanByWholeChain => 'Whole chain';
 
   @override
   String get deskTorPayOff => 'Off';

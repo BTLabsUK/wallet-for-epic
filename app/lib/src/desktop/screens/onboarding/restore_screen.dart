@@ -8,10 +8,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../desk_l10n.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../../data_folder_io.dart' show desktopDataFolder, desktopDataFolderName;
-import '../../../l10n.dart' show localMonthYear;
 import '../../../log.dart';
 import '../../../secret_store_api.dart' show SecretProtectError;
 import '../../../trust_ids.dart';
+import '../../../ui/scan_start.dart';
 import '../../widgets/kit.dart';
 import 'onboarding_parts.dart';
 import '../../../phrase_problem.dart';
@@ -53,18 +53,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   final _password = TextEditingController();
   final _confirm = TextEditingController();
 
-  /// Restore's start height: offered to everyone (a restore happens once), empty = block 0.
-  final _fromHeight = TextEditingController();
-  bool _fromOpen = false;
-
-  /// The start by date (mainnet) or by height, as on the phone.
-  bool _byDate = true;
-
-  /// The month chosen; null is [defaultStartMonth].
-  DateTime? _fromDate;
-
-  /// Scan from the start was pressed: block 0 instead of a month.
-  bool _fromStart = false;
+  /// Where the scan starts: offered to everyone (a restore happens once), the phone's block.
+  /// Made in initState: the network comes from the flow, and dispose must not read it.
+  late final ScanStartController _scanStart;
   late final PhraseEntry _entry;
   late RestoreStep _step = widget.arg is RestoreStep ? widget.arg as RestoreStep : RestoreStep.words;
   RestoreSample? get _sampleArg => widget.arg is RestoreSample ? widget.arg as RestoreSample : null;
@@ -80,6 +71,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   @override
   void initState() {
     super.initState();
+    _scanStart = ScanStartController(dates: _datesOk);
     final api = ref.read(deskApiProvider);
     _entry = PhraseEntry(check: api.checkPhrase)..addListener(_onEntry);
     final sample = _sampleArg;
@@ -113,32 +105,17 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   void dispose() {
     _password.dispose();
     _confirm.dispose();
-    _fromHeight.dispose();
+    _scanStart.dispose();
     _entry.removeListener(_onEntry);
     _entry.dispose();
     super.dispose();
   }
 
-  bool get _accountOk => passwordLongEnough(_password.text) && _password.text == _confirm.text && _fromHeightOk;
+  bool get _accountOk => passwordLongEnough(_password.text) && _password.text == _confirm.text;
 
   /// Dates map to heights only on mainnet; a test network starts by height.
   bool get _datesOk => !ref.read(onbFlowProvider).testNet;
 
-  bool get _usesDate => _byDate && _datesOk;
-
-  /// The month the scan starts from on mainnet: the one chosen, else [defaultStartMonth].
-  StartMonth get _fromMonth => _fromDate == null ? defaultStartMonth : StartMonth.of(_fromDate!);
-
-  /// The start, as on the phone: on mainnet the month's block (January 2025 unless another is
-  /// chosen) or the typed height, null (block 0) on Scan from the start; on a test network
-  /// the typed height, else null.
-  BigInt? get _startHeight => _fromOpen && !_usesDate
-      ? BigInt.tryParse(_fromHeight.text.trim())
-      : _datesOk && !_fromStart
-      ? _fromMonth.height
-      : null;
-
-  bool get _fromHeightOk => !_fromOpen || _usesDate || _fromHeight.text.trim().isEmpty || BigInt.tryParse(_fromHeight.text.trim()) != null;
 
   Future<void> _pasteClipboard() async {
     final data = await Clipboard.getData(Clipboard.kTextPlain);
@@ -207,7 +184,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         name: _name ?? '',
         password: _password.text,
         phrase: _entry.phrase,
-        startHeight: _startHeight,
+        startHeight: _scanStart.start,
       );
       if (!mounted) return;
       if (open) {
@@ -296,7 +273,7 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
                 confirmId: TrustIds.restorePasswordConfirm,
               ),
               SizedBox(height: Sp.x4),
-              _startFrom(l),
+              ScanStart(controller: _scanStart, ids: ScanStartIds.restore),
             ],
           ),
           ),
@@ -305,94 +282,6 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
         // Typed words hold Back, so a thumb button never throws them away.
         return DeskStepBack(onBack: _entry.filled > 0 ? () {} : null, child: _wordsStep(context, nav));
     }
-  }
-
-  /// Where the scan starts, at every level, as on the phone (the owner, 2026-11-03). Mainnet:
-  /// "Scanning from January 2025" (or the month chosen), the link that opens the choice by
-  /// month or block height, and Scan from the start for older coins. A test network: block 0,
-  /// or the height typed after the link.
-  Widget _startFrom(AppLocalizations l) {
-    final ts = context.ts;
-    final dates = _datesOk;
-    final fromStart = Wrap(
-      crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: Sp.x1,
-      children: [
-        Text(l.restoreOlderCoins, style: ts.small),
-        ELink(
-          key: const ValueKey('restore-from-start'),
-          label: l.restoreScanFromStart,
-          semanticsId: TrustIds.restoreFromStart,
-          onPressed: () => setState(() {
-            _fromStart = true;
-            _fromOpen = false;
-          }),
-        ),
-      ],
-    );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (!_fromOpen) ...[
-          if (dates) Text(_fromStart ? l.restoreScanningFromStart : l.restoreScanningFrom(localMonthYear(l, _fromMonth.firstDay)), style: ts.small),
-          ELink(
-            key: const ValueKey('restore-from-link'),
-            label: l.restoreStartFromMonthLink,
-            semanticsId: TrustIds.restoreStart,
-            onPressed: () => setState(() {
-              _fromOpen = true;
-              _fromStart = false;
-            }),
-          ),
-        ],
-        ExpandFade(
-          open: _fromOpen,
-          child: Padding(
-            padding: EdgeInsets.only(top: Sp.x1),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Semantics(header: true, child: Text(l.restoreStartHeading, style: ts.label)),
-                SizedBox(height: Sp.x2),
-                if (dates) ...[
-                  ESegmented<bool>(
-                    key: const ValueKey('restore-from-by'),
-                    segments: [
-                      ESegment(true, l.restoreStartByMonth, semanticsId: TrustIds.restoreByMonth),
-                      ESegment(false, l.restoreStartByHeight, semanticsId: TrustIds.restoreByHeight),
-                    ],
-                    value: _byDate,
-                    onChanged: (v) => setState(() => _byDate = v),
-                  ),
-                  SizedBox(height: Sp.x3),
-                ],
-                if (_usesDate)
-                  EStartDate(date: _fromMonth.firstDay, semanticsId: TrustIds.restoreMonth, onChanged: (d) => setState(() => _fromDate = d))
-                else
-                  EField(
-                    label: l.deskOnbRestoreFromLabel,
-                    help: _fromHeightOk ? l.deskOnbRestoreFromHelp : null,
-                    error: _fromHeightOk ? null : l.deskOnbRestoreFromInvalid,
-                    child: EInput(
-                      key: const ValueKey('restore-from-height'),
-                      controller: _fromHeight,
-                      mono: true,
-                      invalid: !_fromHeightOk,
-                      hint: l.deskOnbRestoreFromHint,
-                      semanticLabel: l.deskOnbRestoreFromLabel,
-                      semanticsId: TrustIds.restoreHeight,
-                      keyboardType: TextInputType.number,
-                      onChanged: (_) => setState(() {}),
-                    ),
-                  ),
-                if (dates) ...[SizedBox(height: Sp.x2), fromStart],
-              ],
-            ),
-          ),
-        ),
-        if (!_fromOpen && dates && !_fromStart) fromStart,
-      ],
-    );
   }
 
   Widget _wordsStep(BuildContext context, DeskNav nav) {

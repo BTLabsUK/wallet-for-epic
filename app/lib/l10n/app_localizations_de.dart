@@ -1829,12 +1829,6 @@ class AppLocalizationsDe extends AppLocalizations {
       'Alle Wörter (12, 15, 18, 21 oder 24), durch Leerzeichen getrennt.';
 
   @override
-  String get restoreStartHeading => 'Beginn des Scans';
-
-  @override
-  String get restoreStartByDate => 'Datum';
-
-  @override
   String get restoreStartByMonth => 'Monat';
 
   @override
@@ -1846,10 +1840,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get restoreStartHeightHelper =>
       'Ab diesem Block scannen. Leer lassen, um die gesamte Blockchain zu scannen.';
-
-  @override
-  String get restoreStartHeightInvalid =>
-      'Der Startblock muss eine ganze Zahl sein.';
 
   @override
   String get restoreBackToPhrase => 'Zurück zur Phrase';
@@ -2932,32 +2922,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get settingsRescanBody =>
-      'Prüft die Blockchain erneut auf das Guthaben dieser Wallet. Ein früherer Startpunkt findet mehr, dauert aber länger.';
-
-  @override
-  String get settingsRescanFromDate => 'Ab einem Datum';
-
-  @override
-  String get settingsRescanFromMonth => 'Ab einem Monat';
-
-  @override
-  String get settingsRescanFromHeight => 'Ab einer Blockhöhe';
-
-  @override
-  String get settingsRescanWholeChain => 'Gesamte Blockchain';
-
-  @override
-  String get settingsRescanPickDate => 'Datum wählen';
-
-  @override
-  String get settingsRescanPickDateFirst => 'Wählen Sie zuerst ein Datum.';
-
-  @override
-  String get settingsRescanStartHeight => 'Startblock';
-
-  @override
-  String get settingsRescanHeightInvalid =>
-      'Geben Sie eine Blockhöhe von 1 oder höher ein.';
+      'Prüft die Blockchain erneut auf das Guthaben dieser Wallet.';
 
   @override
   String get settingsRescanButton => 'Neu prüfen';
@@ -12956,10 +12921,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get restoreStartFromLink => 'Ab einem Datum oder einer Höhe starten';
 
   @override
-  String get restoreStartFromMonthLink =>
-      'Ab einem Monat oder einer Höhe starten';
-
-  @override
   String restoreScanningFrom(String month) {
     return 'Scan ab $month';
   }
@@ -12968,14 +12929,22 @@ class AppLocalizationsDe extends AppLocalizations {
   String get restoreScanningFromStart => 'Scan ab dem Anfang';
 
   @override
-  String get restoreOlderCoins => 'Ältere Guthaben?';
-
-  @override
   String get restoreScanFromStart => 'Ab dem Anfang scannen';
 
   @override
-  String get settingsRescanBodyPlain =>
-      'Die Wallet sucht ab dem ersten Block erneut nach ihrem Guthaben.';
+  String restoreScanningFromBlock(String height) {
+    return 'Scan ab Block $height';
+  }
+
+  @override
+  String get scanStartChange => 'Start ändern';
+
+  @override
+  String get scanStartInfoTitle => 'Scan-Start';
+
+  @override
+  String get scanStartInfo =>
+      'Gefunden werden nur Coins ab diesem Punkt. Ein früherer Start findet ältere Coins und dauert länger.';
 
   @override
   String get slNodeField => 'Node-Adresse';
@@ -13099,20 +13068,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskSlHelpChoose =>
       'Wählen Sie einen aus oder tippen Sie, um die Liste zu filtern oder einen Server hinzuzufügen.';
-
-  @override
-  String get deskOnbRestoreFromLabel => 'Ab Block starten';
-
-  @override
-  String get deskOnbRestoreFromHint => 'Blockhöhe';
-
-  @override
-  String get deskOnbRestoreFromHelp =>
-      'Nur, wenn die erste Zahlung der Wallet nach diesem Block kam. Leer lassen, um die gesamte Blockchain zu prüfen.';
-
-  @override
-  String get deskOnbRestoreFromInvalid =>
-      'Nur Ziffern verwenden oder leer lassen.';
 
   @override
   String get deskNetWaitingTorReason =>
@@ -15591,20 +15546,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetRescanStartHeading => 'Wo beginnen';
-
-  @override
-  String get deskSetRescanFromHeight => 'Ab einer Blockhöhe';
-
-  @override
-  String get deskSetRescanHeightInvalid =>
-      'Geben Sie eine Blockhöhe von 1 oder mehr ein.';
-
-  @override
-  String get deskSetRescanWholeChain => 'Gesamte Blockchain';
-
-  @override
-  String get deskSetRescanWholeChainHint =>
-      'Ab dem ersten Block. Findet alles und dauert lange. Schließt auch eine nicht abgeschlossene Wiederherstellung ab.';
 
   @override
   String get deskOnbForgotLink => 'Passwort vergessen?';
@@ -19514,18 +19455,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetSynRecheckFrom => 'start, datum, höhe, block';
 
   @override
-  String get deskSetRowRecheckMonth => 'Monat';
-
-  @override
-  String get deskSetSynRecheckMonth => 'monat, datum, kalender, erstellt, wann';
-
-  @override
-  String get deskSetRowRecheckHeight => 'Startblock';
-
-  @override
-  String get deskSetSynRecheckHeight => 'höhe, block';
-
-  @override
   String get deskSetRowRecheckDropHint =>
       'Bricht auch unbestätigte Transaktionen ab. Eine Zahlung unterwegs kann dann scheitern.';
 
@@ -20046,9 +19975,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetSearchKeyEsc => 'Esc';
-
-  @override
-  String get deskSetRescanByWholeChain => 'Ganze Kette';
 
   @override
   String get deskTorPayOff => 'Aus';

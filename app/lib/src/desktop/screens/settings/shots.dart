@@ -45,6 +45,7 @@ import 'settings_about.dart' show AboutShot;
 import 'settings_help.dart' show HelpShot;
 import 'settings_security.dart' show SecurityShot;
 import 'settings_rescan.dart';
+import '../../../ui/scan_start.dart' show ScanStart;
 import 'search/search_slot.dart' show settingsQueryProvider;
 import '../../widgets/more_options.dart' show moreOptionsRevealProvider;
 import '../wallet/tx_detail.dart' show txMoreShotProvider;
@@ -481,19 +482,32 @@ final List<DeskShot> settingsShots = [
   ),
   DeskShot(id: '45d-settings-shallow', title: 'Settings in the Shallow view: the nav', route: DeskRoute.settingsAccount, before: _level(WalletLevel.justSendReceive)),
   DeskShot(
-    id: '45e-rescan-month-open',
-    title: 'Recheck balance from a month: the month picker open',
+    id: '45e-rescan-start-open',
+    title: 'Recheck balance: the scan start open (month or height, with Recheck from a height on)',
     route: DeskRoute.settingsRescan,
     prepare: (c, _) async {
       final s = c.read(deskProvider).settings;
       await c.read(deskProvider.notifier).saveSettings(s.copyWith(advanced: s.advanced.withFeature(AdvancedFeature.recheckFromHeight, true)));
     },
-    after: (_, ctx) async => _tap(ctx, EStartMonthField.fieldKey),
+    after: (_, ctx) async => tapShotKey(ctx, ScanStart.changeKey),
+  ),
+  DeskShot(
+    id: '45f-rescan-month-open',
+    title: 'Recheck balance: the month picker open',
+    route: DeskRoute.settingsRescan,
+    prepare: (_, ctx) async => tapShotKey(ctx, ScanStart.changeKey),
+    after: (_, ctx) async => tapShotKey(ctx, EStartMonthField.fieldKey),
+  ),
+  DeskShot(
+    id: '45g-rescan-start-info',
+    title: 'Recheck balance: the scan start\u2019s info, with Scan from the start',
+    route: DeskRoute.settingsRescan,
+    dialog: (ctx) => openInfoHint(ctx, title: (l) => l.scanStartInfoTitle),
   ),
 ];
 
 /// A tap at the middle of the widget with [key] under [context], as a pointer would make it.
-void _tap(BuildContext context, Key key) {
+void tapShotKey(BuildContext context, Key key) {
   Element? found;
   void visit(Element e) {
     if (found != null) return;

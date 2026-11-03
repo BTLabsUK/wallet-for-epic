@@ -1714,12 +1714,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get restorePhraseHelper => '全部单词（12、15、18、21 或 24 个），以空格分隔。';
 
   @override
-  String get restoreStartHeading => '从何处开始扫描';
-
-  @override
-  String get restoreStartByDate => '日期';
-
-  @override
   String get restoreStartByMonth => '月份';
 
   @override
@@ -1730,9 +1724,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get restoreStartHeightHelper => '从此区块开始扫描。留空则扫描整条链。';
-
-  @override
-  String get restoreStartHeightInvalid => '起始高度必须是整数。';
 
   @override
   String get restoreBackToPhrase => '返回助记词';
@@ -2730,31 +2721,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsRescanTitle => '重新核对余额';
 
   @override
-  String get settingsRescanBody => '重新核对链上属于此钱包的资金。起点越早，找到的越全，但耗时越长。';
-
-  @override
-  String get settingsRescanFromDate => '从某个日期开始';
-
-  @override
-  String get settingsRescanFromMonth => '从某个月份开始';
-
-  @override
-  String get settingsRescanFromHeight => '从某个区块高度开始';
-
-  @override
-  String get settingsRescanWholeChain => '整条链';
-
-  @override
-  String get settingsRescanPickDate => '选择日期';
-
-  @override
-  String get settingsRescanPickDateFirst => '请先选择日期。';
-
-  @override
-  String get settingsRescanStartHeight => '起始高度';
-
-  @override
-  String get settingsRescanHeightInvalid => '请输入不小于 1 的区块高度。';
+  String get settingsRescanBody => '重新核对链上属于此钱包的资金。';
 
   @override
   String get settingsRescanButton => '重新核对';
@@ -12065,9 +12032,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get restoreStartFromLink => '从某个日期或高度开始';
 
   @override
-  String get restoreStartFromMonthLink => '从某个月份或高度开始';
-
-  @override
   String restoreScanningFrom(String month) {
     return '从 $month 开始扫描';
   }
@@ -12076,13 +12040,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get restoreScanningFromStart => '从头开始扫描';
 
   @override
-  String get restoreOlderCoins => '有更早的币？';
-
-  @override
   String get restoreScanFromStart => '从头扫描';
 
   @override
-  String get settingsRescanBodyPlain => '钱包从第一个区块开始，重新查找它的资金。';
+  String restoreScanningFromBlock(String height) {
+    return '从区块 $height 开始扫描';
+  }
+
+  @override
+  String get scanStartChange => '更改起点';
+
+  @override
+  String get scanStartInfoTitle => '扫描起点';
+
+  @override
+  String get scanStartInfo => '只会找到从此点开始的币。更早的起点能找到更早的币，但耗时更长。';
 
   @override
   String get slNodeField => '节点地址';
@@ -12195,18 +12167,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSlHelpChoose => '选择一个，或输入以筛选列表或添加服务器。';
-
-  @override
-  String get deskOnbRestoreFromLabel => '从区块开始';
-
-  @override
-  String get deskOnbRestoreFromHint => '区块高度';
-
-  @override
-  String get deskOnbRestoreFromHelp => '仅当钱包的第一笔付款发生在此区块之后才使用。留空则检查整条链。';
-
-  @override
-  String get deskOnbRestoreFromInvalid => '只能输入数字，或留空。';
 
   @override
   String get deskNetWaitingTorReason => '等待 Tor。“高级”中已开启“仅 Tor”。';
@@ -14506,18 +14466,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetRescanStartHeading => '从哪里开始';
-
-  @override
-  String get deskSetRescanFromHeight => '从某个区块高度开始';
-
-  @override
-  String get deskSetRescanHeightInvalid => '请输入 1 或更大的区块高度。';
-
-  @override
-  String get deskSetRescanWholeChain => '整条链';
-
-  @override
-  String get deskSetRescanWholeChainHint => '从第一个区块开始。能找到全部，但耗时很长。也会完成未完成的恢复。';
 
   @override
   String get deskOnbForgotLink => '忘记密码？';
@@ -18202,18 +18150,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetSynRecheckFrom => '开始, 日期, 高度, 区块';
 
   @override
-  String get deskSetRowRecheckMonth => '月份';
-
-  @override
-  String get deskSetSynRecheckMonth => '月份, 日期, 日历, 创建, 何时';
-
-  @override
-  String get deskSetRowRecheckHeight => '起始区块';
-
-  @override
-  String get deskSetSynRecheckHeight => '高度, 区块';
-
-  @override
   String get deskSetRowRecheckDropHint => '同时取消未确认的交易。正在途中的付款可能因此失败。';
 
   @override
@@ -18656,9 +18592,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetSearchKeyEsc => 'Esc';
-
-  @override
-  String get deskSetRescanByWholeChain => '整条链';
 
   @override
   String get deskTorPayOff => '关闭';

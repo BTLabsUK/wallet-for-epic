@@ -7,6 +7,7 @@ import 'package:epic_wallet/src/desktop/screens/onboarding/restore_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/start_month.dart' show defaultStartMonth;
+import 'package:epic_wallet/src/ui/scan_start.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -69,8 +70,9 @@ void main() {
     final api = await _pump(tester);
     await _toAccount(tester);
     expect(find.text(_l.restoreScanningFrom('January 2025')), findsOneWidget);
-    expect(find.byKey(const ValueKey('restore-from-link')), findsOneWidget);
-    expect(find.byKey(const ValueKey('restore-from-start')), findsOneWidget);
+    expect(find.byKey(ScanStart.changeKey), findsOneWidget);
+    expect(find.byKey(ScanStart.infoKey), findsOneWidget);
+    expect(find.byKey(ScanStart.fromStartKey), findsNothing, reason: 'inside the info popover');
     await _restore(tester);
     expect(api.restoreStartHeight, defaultStartMonth.height);
     await _end(tester);
@@ -79,11 +81,13 @@ void main() {
   testWidgets('Scan from the start restores with no start height', (tester) async {
     final api = await _pump(tester);
     await _toAccount(tester);
-    await tester.tap(find.byKey(const ValueKey('restore-from-start')));
+    await tester.tap(find.byKey(ScanStart.infoKey));
+    await _wait(tester, 300);
+    expect(find.text(_l.scanStartInfo), findsOneWidget);
+    await tester.tap(find.byKey(ScanStart.fromStartKey));
     await _wait(tester, 300);
     expect(find.text(_l.restoreScanningFromStart), findsOneWidget);
-    expect(find.byKey(const ValueKey('restore-from-start')), findsNothing);
-    expect(find.byKey(const ValueKey('restore-from-link')), findsOneWidget, reason: 'the way back to a month');
+    expect(find.byKey(ScanStart.changeKey), findsOneWidget, reason: 'the way back to a month');
     await _restore(tester);
     expect(api.restoreStartHeight, isNull);
     await _end(tester);
