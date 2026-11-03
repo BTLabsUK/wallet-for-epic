@@ -35,8 +35,10 @@ Matcher invalidArgument(String text) => throwsA(
       .having((e) => e.message, 'message', contains(text)),
 );
 
-/// Lets broadcast events and archive writes finish.
-Future<void> settle() => Future<void>.delayed(const Duration(milliseconds: 20));
+/// Lets broadcast events, provider rebuilds and the work they start finish: all of it is
+/// microtasks and zero timers here, which [pumpEventQueue] runs in order. A fixed real wait is
+/// not enough: on a loaded machine it expires before a zero timer started after it, and runs first.
+Future<void> settle() => pumpEventQueue();
 
 /// Nothing an issuer does may spend: no send, no slate, no invoice payment.
 void expectNothingSpent(FakeWalletSession s) {
@@ -336,11 +338,7 @@ void main() {
       await settle();
       expect(s.drainPaymentCalls, 0, reason: 'nothing while locked');
       c.read(sessionProvider.notifier).unlocked(s);
-      // The drain starts after the unlock's own async work: waited for, not a fixed 20 ms,
-      // which a loaded machine (the full suite, 12 files at once) can outlast.
-      for (var i = 0; i < 100 && s.drainPaymentCalls == 0; i++) {
-        await settle();
-      }
+      await settle();
       expect(s.drainPaymentCalls, 1);
       expect(c.read(paymentsDrainProvider), const PaymentsDrainReport());
       await c.read(paymentsDrainProvider.notifier).drain();
