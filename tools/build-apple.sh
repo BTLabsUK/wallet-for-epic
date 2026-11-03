@@ -24,7 +24,8 @@
 #             into app/third_party/lepic-flutter/native/<target>/ beside a SHA256SUMS, and a copy
 #             kept in the variant's out dir (native/<target>/). The steps that build or test against
 #             LEPIC (macos, ios-sim, ipa, smoke, live) first put the variant's copy back into the
-#             shared native/, so after `all` either variant's tests run with no rebuild:
+#             shared native/ (a missing copy is built again by cargo, from its cache when that
+#             variant was built before), so after `all` either variant's tests run with no rebuild:
 #             tools/build-apple.sh smoke live; WFE_TOR=0 tools/build-apple.sh smoke live
 #   macos     flutter build macos --release (arm64); the node and tor go into the bundle, then it
 #             is signed ad hoc
@@ -78,8 +79,7 @@
 #                              Contents/Resources/bin/epic. Without it the app has no built-in node.
 #   WFE_NODE_FETCH=1           fetch the node release pinned below (by SHA-256) when
 #                              WFE_NODE_BIN_MAC_ARM64 is not set (the release step sets it)
-#   CARGO_TARGET_DIR           LEPIC's cargo output (default app/third_party/lepic/target, and
-#                              target-notor with WFE_TOR=0, so a switch of variant rebuilds nothing)
+#   CARGO_TARGET_DIR           LEPIC's cargo output (default app/third_party/lepic/target)
 #   WFE_TOR=0                  the build without Tor (https://docs.btlabs.uk/developers/build/variants/): LEPIC without its
 #                              tor feature, no tor in the .app, --dart-define=WFE_TOR=false
 #   WFE_DIST=appstore          the App Store build (https://docs.btlabs.uk/developers/build/variants/): --dart-define=
@@ -111,9 +111,6 @@ macos_min=12.0
 ios_min=15.0
 darwin_targets=aarch64-apple-darwin
 ios_targets="aarch64-apple-ios aarch64-apple-ios-sim"
-# LEPIC's cargo output, one per variant: the two builds differ in features and would overwrite
-# each other's library.
-cargo_target="${CARGO_TARGET_DIR:-$lepic/$(if [ "${WFE_TOR:-1}" = 0 ]; then echo target-notor; else echo target; fi)}"
 desktop_name="BT Wallet"
 desktop_exe="btwallet"   # CFBundleExecutable: the file in Contents/MacOS
 phone_id=uk.btlabs.btwallet.ios
@@ -208,7 +205,7 @@ package_library() {
   local dir="$binding/native/$1"
   rm -rf "$dir"
   mkdir -p "$dir"
-  cp "$cargo_target/$1/release/liblepic_ffi.dylib" "$dir/"
+  cp "${CARGO_TARGET_DIR:-$lepic/target}/$1/release/liblepic_ffi.dylib" "$dir/"
   (cd "$dir" && printf '%s  liblepic_ffi.dylib\n' "$(sha256 liblepic_ffi.dylib)" > SHA256SUMS)
   # LEPIC's xtask writes the features beside each library; `tor` unless built without it.
   if [ "${WFE_TOR:-1}" = 0 ]; then : > "$dir/FEATURES"; else echo tor > "$dir/FEATURES"; fi
@@ -225,11 +222,19 @@ package_library() {
 }
 
 # Puts this variant's LEPIC for the targets $@ (kept by the lepic step in $out/native/) into the
-# shared native/ the builds and tests read, so they never use the other variant's library.
+# shared native/ the builds and tests read, so they never use the other variant's library. A
+# target with no kept copy is built first: cargo keeps both variants' artifacts in its target
+# dir, so for a variant built before only lepic-ffi itself is compiled again.
 use_native() {
-  local t
+  local t missing=""
   for t in "$@"; do
-    [ -f "$out/native/$t/liblepic_ffi.dylib" ] || die "no LEPIC $t for this variant in $out/native: run $(if [ "${WFE_TOR:-1}" = 0 ]; then echo 'WFE_TOR=0 '; fi)tools/build-apple.sh sources lepic"
+    [ -f "$out/native/$t/liblepic_ffi.dylib" ] || missing="$missing $t"
+  done
+  if [ -n "$missing" ]; then
+    echo "no LEPIC kept in $out/native for$missing: building it (cargo's cache)"
+    lepic_libs "${missing# }"
+  fi
+  for t in "$@"; do
     rm -rf "$binding/native/$t"
     mkdir -p "$binding/native"
     cp -R "$out/native/$t" "$binding/native/$t"
@@ -250,7 +255,7 @@ lepic_libs() {
   (cd "$lepic" && rustup target add $targets)
   # A plain cargo build per target: LEPIC's xtask packages iOS but has no macOS targets yet.
   for t in $targets; do
-    (cd "$lepic" && CARGO_TARGET_DIR="$cargo_target" MACOSX_DEPLOYMENT_TARGET=$macos_min IPHONEOS_DEPLOYMENT_TARGET=$ios_min \
+    (cd "$lepic" && MACOSX_DEPLOYMENT_TARGET=$macos_min IPHONEOS_DEPLOYMENT_TARGET=$ios_min \
       cargo build --package lepic-ffi --lib --locked --release --target "$t" $features)
     package_library "$t"
   done
