@@ -78,6 +78,7 @@ TECHNICAL = T("g4.advanced.technical", role="toggle", keys=("deskSetAdvTechnical
 
 NODE_PICKER = T("g4.server.node", keys=("deskSetNodeServer",), names=("Node server",), match="starts")
 RELAY_PICKER = T("g4.server.epicbox", keys=("deskSetRecvEpicboxServer",), names=("Epicbox server",), match="starts")
+PICKER_PAGES = {"g4.server.node": ("node",), "g4.server.epicbox": ("payments",)}
 PICKER_SEARCH = T("g4.server.search", role="text_field", names=("re:.*",))
 SWITCH = T("g4.server.switch", keys=("deskSendEpicboxSwitch",), names=("Switch",), match="exact")
 SERVER_REFUSED = T("g4.server.refused", role="text", names=("re:.*(no answer from this server|nothing added|not a node).*",),
@@ -384,6 +385,8 @@ class Desktop:
 
     def _open_picker(self, picker):
         d = self.d
+        if not d.wait(shows(picker), 3):  # a stray Escape or a dialog took the page away: back to it
+            self.find_setting(picker, PICKER_PAGES[picker.id], str(picker))
         d.press(picker, step="open-%s" % picker.id, timeout=20,
                 then=Expect("the picker open", lambda dd, tree: any(n.role == "text_field" and "focused" in n.states for n in tree)
                             or any(tg._norm(n.name).startswith("use ") for n in tree)))
@@ -430,7 +433,7 @@ class Desktop:
             d.harness("%s %s never %s" % (picker, entry, "in use" if use else "listed"))
         tree = d.tree()
         if any(tg._norm(n.name).startswith("use ") for n in tree):
-            d.s.key("escape")
+            d.s.key("escape")  # closes the picker (if it closed first, _open_picker finds the page again)
             time.sleep(0.8)
 
     def change_settings(self, want):
