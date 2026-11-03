@@ -115,6 +115,11 @@
   var ico = row.querySelector('.ico svg');
   if (ico) { $('hero-dl-ico').textContent = ''; $('hero-dl-ico').appendChild(ico.cloneNode(true)); }
   $('hero-req').textContent = row.querySelector('.req').textContent + ' · ';
+  if (row.hasAttribute('data-version')) {
+    $('hero-ver').textContent = row.getAttribute('data-version');
+    $('hero-date').setAttribute('datetime', row.getAttribute('data-date'));
+    $('hero-date').textContent = row.getAttribute('data-when');
+  }
 
   var alt = $('hero-alt');
   alt.hidden = false;

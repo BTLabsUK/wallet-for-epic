@@ -151,7 +151,7 @@ void main() {
     });
 
     testWidgets('the tour’s port-in-use state names the port', (tester) async {
-      await show(tester, const SettingsReceivingScreen(arg: ReceivingDemo.httpFailed));
+      await show(tester, const SettingsReceivingScreen(arg: ReceivingShot.httpFailed));
       expect(httpState(tester), contains('Port 3415 is in use by another program'));
       expect(find.text(_l.deskSetBackupTryAgain), findsOneWidget);
     });

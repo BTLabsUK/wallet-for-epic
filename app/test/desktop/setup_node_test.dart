@@ -274,7 +274,7 @@ void main() {
 
   testWidgets('a typed address without a scheme: https, except on this computer or the local network', (tester) async {
     expect(nodeUrlOf('node.example.org:3413'), 'https://node.example.org:3413');
-    expect(nodeUrlOf('10.0.1.24:3413'), 'http://10.0.1.24:3413');
+    expect(nodeUrlOf('192.168.1.24:3413'), 'http://192.168.1.24:3413');
     expect(nodeUrlOf('127.0.0.1:3413'), 'http://127.0.0.1:3413');
     expect(nodeUrlOf('localhost:3413'), 'http://localhost:3413');
     expect(nodeUrlOf('http://node.example.org'), 'http://node.example.org');
@@ -358,7 +358,7 @@ void main() {
         container: container,
         child: MaterialApp(
           theme: buildDeskTheme(Brightness.dark),
-          home: Scaffold(body: Builder(builder: (c) => EButton(label: 'open', onPressed: () async => out = await showLocalNodeSetupDialog(c, demo: LocalNodeDemo.found)))),
+          home: Scaffold(body: Builder(builder: (c) => EButton(label: 'open', onPressed: () async => out = await showLocalNodeSetupDialog(c, shot: LocalNodeShot.found)))),
         ),
       ),
     );
@@ -389,7 +389,7 @@ void main() {
           container: container,
           child: MaterialApp(
             theme: buildDeskTheme(Brightness.dark),
-            home: Scaffold(body: Builder(builder: (c) => EButton(label: 'open', onPressed: () async => out = await showLocalNodeSetupDialog(c, demo: LocalNodeDemo.notFound)))),
+            home: Scaffold(body: Builder(builder: (c) => EButton(label: 'open', onPressed: () async => out = await showLocalNodeSetupDialog(c, shot: LocalNodeShot.notFound)))),
           ),
         ),
       );

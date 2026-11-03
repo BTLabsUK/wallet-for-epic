@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
 """Hosts a release's files on GitHub: a signed SHA256SUMS, then the GitHub Release of tag
-v<version> with every file as an asset. Runs on our own machines (no CI on GitHub). Re-running
+v<version> with every file as an asset. Runs on our own machines, never on GitHub. Re-running
 changes only what differs; --dry-run changes nothing.
 
   tools/release-files.py publish <version> <folder> [--dry-run] [--github-repo O/R] [--notes FILE]

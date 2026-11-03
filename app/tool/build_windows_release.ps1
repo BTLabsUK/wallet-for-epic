@@ -34,15 +34,18 @@ param(
     [string]$Flutter = "$env:USERPROFILE\flutter\bin",
     [string]$Iscc = "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe",
     # The built-in node's epic.exe (optional), bundled as bin\epic.exe next to btwallet.exe.
-    [string]$NodeBin,
+    # Default: $env:WFE_NODE_BIN_WIN; unset, with WFE_FETCH_INPUTS=1 (the hosted runner), the pinned
+    # one (tools/build-inputs.json) is downloaded by tools/fetch-build-inputs.sh in Git Bash.
+    [string]$NodeBin = $env:WFE_NODE_BIN_WIN,
     # The Tor bundle from tools/fetch-tor.sh win (tor.exe, LICENSE.tor.txt, VERSION), bundled as
     # bin\tor-bundle next to btwallet.exe. Without it the app shows Tor as not included.
     [string]$TorBundle,
     # The build without Tor (https://docs.btlabs.uk/developers/build/variants/): --dart-define=WFE_TOR=false, LEPIC without
     # its tor feature, no Tor bundle (-TorBundle is refused), -notor in the installer's name.
     [switch]$NoTor,
-    # The commit shown beside the version in the app (WFE_BUILD_ID); default: -Source's HEAD.
-    [string]$BuildId,
+    # The commit shown beside the version in the app (WFE_BUILD_ID); default: $env:WFE_BUILD_ID,
+    # else -Source's HEAD.
+    [string]$BuildId = $env:WFE_BUILD_ID,
     # A rebuild of the same version (WFE_BUILD_TAG, e.g. r2); default: from the tag v<version>-rN
     # on -Source's HEAD.
     [string]$BuildTag,
@@ -232,6 +235,14 @@ foreach ($d in 'msvcp140.dll', 'vcruntime140.dll', 'vcruntime140_1.dll') {
     Write-Output "bundled $d $((Get-Item "$rel\$d").VersionInfo.FileVersion)"
 }
 
+if (-not $NodeBin -and $env:WFE_FETCH_INPUTS -eq '1') {
+    $bash = Get-Command bash -ErrorAction SilentlyContinue
+    if (-not $bash) { throw 'WFE_FETCH_INPUTS=1 needs bash (Git Bash) on PATH' }
+    $fetched = & $bash.Source (Join-Path $Source 'tools/fetch-build-inputs.sh') node windows (Join-Path $env:TEMP 'wfe-node-input') | Select-Object -Last 1
+    if ($LASTEXITCODE -or -not $fetched) { throw 'tools/fetch-build-inputs.sh node windows failed' }
+    $NodeBin = (& $bash.Source -c "cygpath -w '$fetched'") | Select-Object -Last 1
+    Write-Output "node binary fetched: $NodeBin"
+}
 if ($NodeBin) {
     New-Item -ItemType Directory -Force "$rel\bin" | Out-Null
     Copy-Item $NodeBin "$rel\bin\epic.exe" -Force
@@ -303,6 +314,16 @@ $setup = Join-Path $OutDir "bt-wallet-$name$variant-windows-x64-setup.exe"
 $setupVersion = ((Get-Item $setup).VersionInfo.FileVersion -replace '[\s\x00]', '')
 if ($setupVersion -ne $fileVersion) { throw "the installer's file version is $setupVersion, not $fileVersion" }
 Sign-File $setup
+# The packaging checks of the installer are app/tool/verify_windows_release.sh's (bash, python3),
+# which also runs on a downloaded file. Here only when Git Bash is on PATH.
+$bash = Get-Command bash -ErrorAction SilentlyContinue
+if ($bash -and (Get-Command python3, python -ErrorAction SilentlyContinue)) {
+    $env:WFE_VERSION = $name; $env:WFE_BUILD_ID = $BuildId; $env:WFE_TOR = $(if ($NoTor) { '0' } else { '1' })
+    & $bash.Source (Join-Path $app 'tool/verify_windows_release.sh') ($setup -replace '\\', '/')
+    $rc = $LASTEXITCODE
+    Remove-Item Env:WFE_VERSION, Env:WFE_TOR
+    if ($rc) { throw 'verify_windows_release.sh failed' }
+} else { Write-Warning 'bash or python not found: tool/verify_windows_release.sh not run' }
 $hash = (Get-FileHash $setup -Algorithm SHA256).Hash.ToLower()
 "$hash  $(Split-Path $setup -Leaf)" | Set-Content -Encoding ascii "$setup.sha256"
 Write-Output "Wrote $setup ($((Get-Item $setup).Length) bytes) sha256 $hash"

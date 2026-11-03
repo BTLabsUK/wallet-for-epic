@@ -122,13 +122,13 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
       epicbox: s.epicbox,
       epicboxHealth: epicbox,
       epicboxBlocked: blocked || s.epicboxBlocked,
-      epicboxInstead: blocked ? EpicboxRelay(host: hostSettings.epicboxServers.last.host) : s.epicboxInstead, // l10n-ok: tour demo relay
+      epicboxInstead: blocked ? EpicboxRelay(host: hostSettings.epicboxServers.last.host) : s.epicboxInstead, // l10n-ok: tour shot relay
       httpListener: http,
       tor: tor,
       httpProblem: a.http == RxHttp.failed ? HttpProblem.portInUse : s.httpProblem,
       httpProblemPort: a.http == RxHttp.failed ? appConfig.httpListenPort : s.httpProblemPort,
       torProgress: a.tor == RxTor.connecting ? 45 : s.torProgress,
-      torProblem: a.tor == RxTor.failed ? 'Tor could not connect to the network.' : s.torProblem, // l10n-ok: tour demo state
+      torProblem: a.tor == RxTor.failed ? 'Tor could not connect to the network.' : s.torProblem, // l10n-ok: tour shot state
       torCanSend: a.tor == RxTor.connecting ? false : s.torCanSend,
       torIncluded: s.torIncluded,
       syncProgress: s.syncProgress,

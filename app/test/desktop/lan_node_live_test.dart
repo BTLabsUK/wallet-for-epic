@@ -2,10 +2,10 @@
 // Live: a node on the local network (a 192.168.x address, plain http as the app writes it)
 // checked through the real LEPIC core, as Settings › Node does (it goes through the loopback
 // relay, lan_node_relay.dart). Needs a node answering on
-// WFE_LAN_NODE (e.g. http://10.0.0.44:4413) and the Linux library:
+// WFE_LAN_NODE (e.g. http://192.168.0.44:4413) and the Linux library:
 //
-//   WFE_DEMO_LEPIC_LIB=$PWD/third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so \
-//   WFE_LAN_NODE=http://10.0.0.44:4413 flutter test test/desktop/lan_node_live_test.dart
+//   WFE_LEPIC_LIB=$PWD/third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so \
+//   WFE_LAN_NODE=http://192.168.0.44:4413 flutter test test/desktop/lan_node_live_test.dart
 //
 // Without them it is skipped.
 import 'dart:io';
@@ -18,7 +18,7 @@ import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:flutter_test/flutter_test.dart';
 
-final String? _lib = Platform.environment['WFE_DEMO_LEPIC_LIB'];
+final String? _lib = Platform.environment['WFE_LEPIC_LIB'];
 final String? _lan = Platform.environment['WFE_LAN_NODE'];
 
 void main() {
@@ -52,5 +52,5 @@ void main() {
     expect(r.health, ServiceHealth.ok, reason: '$_lan');
     expect(r.height, greaterThan(0));
     await wallet.dispose();
-  }, timeout: const Timeout(Duration(minutes: 2)), skip: _lib == null || _lan == null ? 'needs WFE_DEMO_LEPIC_LIB and WFE_LAN_NODE' : false);
+  }, timeout: const Timeout(Duration(minutes: 2)), skip: _lib == null || _lan == null ? 'needs WFE_LEPIC_LIB and WFE_LAN_NODE' : false);
 }

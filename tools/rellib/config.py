@@ -136,6 +136,8 @@ class Pipeline:
             # judged by screens-check); a gate, a proof or a build never just warns.
             if s.get("warn_only") and (kind in ("gate", "builtin", "handoff") or s.get("proof") or s.get("outputs")):
                 raise ConfigError(f"{path}: step {name}: warn_only is never for a gate, proof or build")
+        from . import hosted  # [hosted] and the build steps' `hosted` keys (tools/rellib/hosted.py)
+        hosted.check_pipeline(self)
         self._check_cycles()
 
     def _check_cycles(self):
@@ -383,8 +385,8 @@ def validate_scope(scope, pipeline, version_at_commit=None, previous_version=Non
             errs.append(f"[proof.waive] {p}: give a reason")
     left = [p for p in ("windows", "linux", "macos") if not scope["platforms"].get(p)]
     if left and scope["publish"].get("manifests"):
-        warns.append(f"{', '.join(left)} out of scope: the update manifests keep those systems' live entries "
-                     "(their files stay on the server), but the releases page lists only this release's files")
+        warns.append(f"{', '.join(left)} out of scope: the update manifests keep those systems' live entries, "
+                     "and the releases page, SHA256SUMS and the server keep their newest files")
     if errs:
         raise ConfigError("the release scope makes no sense:\n  - " + "\n  - ".join(errs))
     return warns
@@ -409,6 +411,8 @@ def scope_summary(scope):
         parts.append("Apple ad hoc (dmg not notarised, iOS unsigned ipa)")
     if scope["publish"].get("github"):
         parts.append("GitHub release mirror")
+    if (scope.get("builds") or {}).get("hosted"):
+        parts.append("builds on GitHub runners")
     if scope["skip"]:
         parts.append("skip: " + "; ".join(f"{k} ({v})" for k, v in scope["skip"].items()))
     if scope["proof"]["waive"]:
@@ -426,7 +430,9 @@ def scope_toml(scope):
 
     lines = ["# The resolved scope of this run (release.toml + command line).",
              f"version = {val(scope['version'])}", f"test = {val(scope['test'])}"]
-    for table in ("platforms", "variants", "stores", "publish", "apple", "skip"):
+    for table in ("platforms", "variants", "stores", "publish", "apple", "skip", "builds"):
+        if table == "builds" and table not in scope:
+            continue  # only --builds hosted sets it (tools/rel start)
         lines.append(f"\n[{table}]")
         for k, v in scope.get(table, {}).items():  # runs from before a table was added lack it
             lines.append(f"{k if re.fullmatch(r'[A-Za-z0-9_-]+', k) else val(k)} = {val(v)}")

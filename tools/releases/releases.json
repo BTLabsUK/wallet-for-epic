@@ -37,6 +37,34 @@
    ],
    "github": true,
    "sig": true
+  },
+  {
+   "version": "26.10.25",
+   "date": "2026-11-02",
+   "files": [
+    {
+     "name": "bt-wallet-26.10.25-ios-unsigned.ipa",
+     "size": 23247433,
+     "sha256": "d842a0371dda4449d314667d0767e5b364bb46f9c6c937ac8a5e35882d2749ea"
+    },
+    {
+     "name": "bt-wallet-26.10.25-macos.dmg",
+     "size": 45383499,
+     "sha256": "4cdc9d14407d0feb4361775a3ee3ccea6db8b909d0f3c4f90a965f921d548ac5"
+    },
+    {
+     "name": "bt-wallet-26.10.25-notor-ios-unsigned.ipa",
+     "size": 22993070,
+     "sha256": "3654fefea6c4ba550b56fa571379bc6d39dee26a75b9ae363d087b71b2f1ab31"
+    },
+    {
+     "name": "bt-wallet-26.10.25-notor-macos.dmg",
+     "size": 40899478,
+     "sha256": "d4551e94660413a948bbaf3656bb6ec5f284c8b31c7db2f15fc4cf8b681f5e9d"
+    }
+   ],
+   "github": true,
+   "sig": true
   }
  ]
 }

@@ -171,7 +171,7 @@ void main() {
     await tester.pumpWidget(
       UncontrolledProviderScope(
         container: container,
-        child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: SettingsNodeScreen(arg: NodeDemo.down))),
+        child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: const Scaffold(body: SettingsNodeScreen(arg: NodeShot.down))),
       ),
     );
     await tester.pump(const Duration(seconds: 1));

@@ -8,7 +8,7 @@ library;
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
-import '../../../demo_fixtures.dart';
+import '../../../mock_fixtures.dart';
 import 'package:flutter/services.dart' show FilteringTextInputFormatter, LengthLimitingTextInputFormatter;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -213,16 +213,16 @@ class _LocalNodePortsFieldsState extends State<LocalNodePortsFields> {
 }
 
 /// The tour's start states of the step.
-enum LocalNodeDemo { none, found, notFound }
+enum LocalNodeShot { none, found, notFound }
 
 /// "5 GB", "4.8 GB".
 String _gb(AppLocalizations l, int bytes) => bytesText(bytes, l);
 
 class LocalNodeStep extends ConsumerStatefulWidget {
-  const LocalNodeStep({super.key, required this.onChanged, this.demo = LocalNodeDemo.none, this.compact = false, this.ports = false, this.portsOpen = false, this.taken = const {}});
+  const LocalNodeStep({super.key, required this.onChanged, this.shot = LocalNodeShot.none, this.compact = false, this.ports = false, this.portsOpen = false, this.taken = const {}});
 
   final ValueChanged<LocalNodeChoice> onChanged;
-  final LocalNodeDemo demo;
+  final LocalNodeShot shot;
 
   /// Tighter spacing for the dialog.
   final bool compact;
@@ -260,15 +260,15 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
     () async {
       // Never inside the first build: the parent gets the choice a microtask later.
       await Future<void>.delayed(Duration.zero);
-      final p = switch (widget.demo) {
-        LocalNodeDemo.found => LocalNodeProbe(url: _localUrl, answers: true, version: demoNodeVersion, height: mockTip, readyForTxs: true, latencyMs: 3),
-        LocalNodeDemo.notFound => LocalNodeProbe(url: _localUrl, answers: false),
-        LocalNodeDemo.none => await api.probe(),
+      final p = switch (widget.shot) {
+        LocalNodeShot.found => LocalNodeProbe(url: _localUrl, answers: true, version: mockNodeVersion, height: mockTip, readyForTxs: true, latencyMs: 3),
+        LocalNodeShot.notFound => LocalNodeProbe(url: _localUrl, answers: false),
+        LocalNodeShot.none => await api.probe(),
       };
       if (!mounted) return;
       _url.text = p.url;
       final found = p.answers && !p.ours;
-      _set(_choice.copyWith(existingUrl: p.url, probe: widget.demo == LocalNodeDemo.notFound || found ? p : null, how: found ? LocalNodeHow.existing : LocalNodeHow.bundled));
+      _set(_choice.copyWith(existingUrl: p.url, probe: widget.shot == LocalNodeShot.notFound || found ? p : null, how: found ? LocalNodeHow.existing : LocalNodeHow.bundled));
     }();
   }
 
@@ -451,13 +451,13 @@ class _LocalNodeStepState extends ConsumerState<LocalNodeStep> {
 /// up), with the Advanced fold for the bundled node's ports. Returns the choice, or null on
 /// Cancel. The primary action checks the ports are free on this computer first; a taken one
 /// is named with the next free port, and nothing is returned until both are free.
-Future<LocalNodeChoice?> showLocalNodeSetupDialog(BuildContext context, {LocalNodeDemo demo = LocalNodeDemo.none, bool portsOpen = false}) =>
-    showEDialog<LocalNodeChoice>(context, builder: (_) => LocalNodeSetupDialog(demo: demo, portsOpen: portsOpen));
+Future<LocalNodeChoice?> showLocalNodeSetupDialog(BuildContext context, {LocalNodeShot shot = LocalNodeShot.none, bool portsOpen = false}) =>
+    showEDialog<LocalNodeChoice>(context, builder: (_) => LocalNodeSetupDialog(shot: shot, portsOpen: portsOpen));
 
 class LocalNodeSetupDialog extends ConsumerStatefulWidget {
-  const LocalNodeSetupDialog({super.key, this.demo = LocalNodeDemo.none, this.portsOpen = false});
+  const LocalNodeSetupDialog({super.key, this.shot = LocalNodeShot.none, this.portsOpen = false});
 
-  final LocalNodeDemo demo;
+  final LocalNodeShot shot;
 
   /// The Advanced fold open from the start (the tour's shot).
   final bool portsOpen;
@@ -496,7 +496,7 @@ class _LocalNodeSetupDialogState extends ConsumerState<LocalNodeSetupDialog> {
       size: DialogWidth.wide,
       body: LocalNodeStep(
         compact: true,
-        demo: widget.demo,
+        shot: widget.shot,
         ports: true,
         portsOpen: widget.portsOpen,
         taken: _taken,

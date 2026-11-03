@@ -13,8 +13,8 @@ import '../../widgets/kit.dart';
 enum SelfSendPhase { choose, posting, done, notPosted, failed }
 
 /// Opens a dialog at a phase with made-up figures (the screenshot tour).
-class SelfSendDemo {
-  const SelfSendDemo(this.phase, {this.outputs = 4, this.txId = 44});
+class SelfSendShot {
+  const SelfSendShot(this.phase, {this.outputs = 4, this.txId = 44});
 
   final SelfSendPhase phase;
   final int outputs;
@@ -25,14 +25,14 @@ class SelfSendDemo {
 
 /// Split outputs: asks how many, shows the fee, posts it. Returns when closed; the
 /// caller reloads the outputs and the balance.
-Future<void> showSplitDialog(BuildContext context, {SelfSendDemo? demo}) =>
-    showEDialog<void>(context, dismissible: false, builder: (_) => _SelfSendDialog(split: true, demo: demo));
+Future<void> showSplitDialog(BuildContext context, {SelfSendShot? shot}) =>
+    showEDialog<void>(context, dismissible: false, builder: (_) => _SelfSendDialog(split: true, shot: shot));
 
 /// Consolidate outputs. [spendableCount] of 1 shows why there is nothing to do.
-Future<void> showConsolidateDialog(BuildContext context, {int? spendableCount, SelfSendDemo? demo}) => showEDialog<void>(
+Future<void> showConsolidateDialog(BuildContext context, {int? spendableCount, SelfSendShot? shot}) => showEDialog<void>(
   context,
   dismissible: false,
-  builder: (_) => spendableCount == 1 ? const _NothingToConsolidate() : _SelfSendDialog(split: false, demo: demo),
+  builder: (_) => spendableCount == 1 ? const _NothingToConsolidate() : _SelfSendDialog(split: false, shot: shot),
 );
 
 /// Each split output must be at least this.
@@ -53,25 +53,25 @@ List<InlineSpan> _marked(String template, List<String> parts, TextStyle bold) {
 }
 
 class _SelfSendDialog extends ConsumerStatefulWidget {
-  const _SelfSendDialog({required this.split, this.demo});
+  const _SelfSendDialog({required this.split, this.shot});
 
   final bool split;
-  final SelfSendDemo? demo;
+  final SelfSendShot? shot;
 
   @override
   ConsumerState<_SelfSendDialog> createState() => _SelfSendDialogState();
 }
 
 class _SelfSendDialogState extends ConsumerState<_SelfSendDialog> {
-  late int _n = widget.demo?.outputs ?? 4;
+  late int _n = widget.shot?.outputs ?? 4;
   SendEstimate? _est;
   bool _estNothing = false;
   String? _estErrorText;
   bool _notEnough = false;
   bool _estimating = true;
-  late SelfSendPhase _phase = widget.demo?.phase ?? SelfSendPhase.choose;
+  late SelfSendPhase _phase = widget.shot?.phase ?? SelfSendPhase.choose;
   SelfSend? _sent;
-  late int? _txId = widget.demo?.phase == SelfSendPhase.notPosted ? widget.demo!.txId : null;
+  late int? _txId = widget.shot?.phase == SelfSendPhase.notPosted ? widget.shot!.txId : null;
   bool _goNothing = false;
   String? _errorText;
   bool _busy = false;

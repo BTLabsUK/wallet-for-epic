@@ -44,7 +44,7 @@ List<String> licenceLines(AppLocalizations l) => [
 ];
 
 /// Start states of About for the screenshots.
-enum AboutDemo { licencesOpen }
+enum AboutShot { licencesOpen }
 
 class SettingsAboutScreen extends ConsumerStatefulWidget {
   const SettingsAboutScreen({super.key, this.arg});
@@ -122,7 +122,7 @@ class _SettingsAboutScreenState extends ConsumerState<SettingsAboutScreen> {
           ),
           // Folded (item 5): the heading and one line; open, one line per component with its
           // licence, the bundled tor's source note (its GPL asks for it) and the full texts.
-          ESetGroup(rows: [_LicencesFold(open: widget.arg == AboutDemo.licencesOpen)]),
+          ESetGroup(rows: [_LicencesFold(open: widget.arg == AboutShot.licencesOpen)]),
           // The phone's rows in its order (GP2-020): the website, the source and the privacy policy.
           ESetGroup(
             rows: [

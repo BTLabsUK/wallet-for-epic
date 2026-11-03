@@ -29,11 +29,11 @@ enum SetupStep { prefs, node, local, epicbox, review }
 
 /// A tour start state: the step, and for the local step which probe answer to show.
 @immutable
-class SetupDemo {
-  const SetupDemo(this.step, {this.local = LocalNodeDemo.none, this.localChosen = false, this.listOpen = false, this.first, this.saveFailed = false});
+class SetupShot {
+  const SetupShot(this.step, {this.local = LocalNodeShot.none, this.localChosen = false, this.listOpen = false, this.first, this.saveFailed = false});
 
   final SetupStep step;
-  final LocalNodeDemo local;
+  final LocalNodeShot local;
 
   /// The Review step with the local node chosen.
   final bool localChosen;
@@ -67,7 +67,7 @@ class SetupFirstRun {
 /// back to Setup in this session, even when the pending mark could not be cleared.
 final Set<String> setupSkippedThisSession = {};
 
-/// The setup steps. [arg] is a [SetupStep], a [SetupDemo] or a [SetupFirstRun].
+/// The setup steps. [arg] is a [SetupStep], a [SetupShot] or a [SetupFirstRun].
 class SetupScreen extends ConsumerStatefulWidget {
   const SetupScreen({super.key, this.arg});
 
@@ -83,11 +83,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   late final String _startRelay = EpicboxRelay.parse(hostSettings.epicboxUse)?.label ?? hostSettings.epicboxUse;
   late String _relay = _startRelay;
   bool _epicboxOn = true;
-  SetupFirstRun? get _first => widget.arg is SetupFirstRun ? widget.arg! as SetupFirstRun : _demo?.first;
+  SetupFirstRun? get _first => widget.arg is SetupFirstRun ? widget.arg! as SetupFirstRun : _shot?.first;
   late final List<SetupStep> _steps = [if (_first == null) SetupStep.prefs, SetupStep.node, SetupStep.epicbox, SetupStep.review];
 
-  SetupDemo? get _demo => widget.arg is SetupDemo ? widget.arg! as SetupDemo : null;
-  SetupStep get _startStep => _demo?.step ?? (widget.arg is SetupStep ? widget.arg! as SetupStep : _steps.first);
+  SetupShot? get _shot => widget.arg is SetupShot ? widget.arg! as SetupShot : null;
+  SetupStep get _startStep => _shot?.step ?? (widget.arg is SetupStep ? widget.arg! as SetupStep : _steps.first);
 
   // Lazy: [_steps] needs the widget.
   late SetupStep _step = _startStep == SetupStep.local || _steps.contains(_startStep) ? _startStep : _steps.first;
@@ -95,7 +95,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   late String? _language = ref.read(deskProvider).settings.language;
 
   /// Local node chosen on the node step (the bundled node or one already running here).
-  late bool _local = _startStep == SetupStep.local || (_demo?.localChosen ?? false);
+  late bool _local = _startStep == SetupStep.local || (_shot?.localChosen ?? false);
   LocalNodeChoice? _localChoice;
 
   /// The remote node: null until a node's check came back healthy or the user picked one.
@@ -120,7 +120,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   bool _checking = false;
 
   /// A first run at Shallow: no wizard; its defaults are saved ([_saveDefaults]) and Unlock follows.
-  late bool _auto = _first != null && _demo == null && !ref.read(deskLevelUiProvider).setupWizard;
+  late bool _auto = _first != null && _shot == null && !ref.read(deskLevelUiProvider).setupWizard;
 
   /// Why the last Save failed on a first run: the Review step then offers to skip it.
   String? _saveFailed;
@@ -146,7 +146,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       });
     }
     if (_rerun) {
-      if (_demo == null && widget.arg is! SetupStep) _local = _wasBuiltin;
+      if (_shot == null && widget.arg is! SetupStep) _local = _wasBuiltin;
       if (!_wasBuiltin) _nodeUrl = st.status?.node.url;
     }
     final api = ref.read(deskApiProvider);
@@ -358,7 +358,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       SetupStep.local => (
         l.deskSetupLocalTitle,
         l.deskSetupLocalLead,
-        LocalNodeStep(demo: _demo?.local ?? LocalNodeDemo.none, onChanged: (c) => setState(() => _localChoice = c)),
+        LocalNodeStep(shot: _shot?.local ?? LocalNodeShot.none, onChanged: (c) => setState(() => _localChoice = c)),
       ),
       SetupStep.epicbox => (l.deskSetupEpicboxTitle, again ?? l.deskSetupEpicboxText, _epicbox(context)),
       SetupStep.review => (l.deskSetupReviewTitle, again ?? l.deskSetupReviewLead, _review(context)),
@@ -431,7 +431,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       keepBelow: Ctl.md + Sp.x8,
       // The field sits Sp.x4 in from the choice cards (below); the open list reaches their edges.
       panelOverhang: Sp.x4,
-      openInitially: _demo?.listOpen ?? false,
+      openInitially: _shot?.listOpen ?? false,
       onChoose: (v) async => setState(() {
         _picked = true;
         _nodeUrl = nodeUrlOf(v);
@@ -537,7 +537,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 source: relaySource(boxes ?? const [], inUse: _relay),
                 chooseOnly: true,
                 keepBelow: Ctl.md + Sp.x8,
-                openInitially: _demo?.listOpen ?? false,
+                openInitially: _shot?.listOpen ?? false,
                 onChoose: (v) async => setState(() => _relay = v),
                 onTest: _testRelay,
               ),
@@ -601,7 +601,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         (l.deskSetupDataFolder, Text(folder, style: ts.mono(), overflow: TextOverflow.ellipsis)),
       ],
     ];
-    final failed = _first == null ? null : _saveFailed ?? (_demo?.saveFailed ?? false ? l.deskErrWalletLocked : null);
+    final failed = _first == null ? null : _saveFailed ?? (_shot?.saveFailed ?? false ? l.deskErrWalletLocked : null);
     final panel = EPanel(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

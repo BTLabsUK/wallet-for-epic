@@ -35,7 +35,7 @@ import '../../../settings_file/status_site.dart' show statusSiteHost;
 
 /// Start states of Settings › Transactions (once Receiving), for the tour. [directOn] has the
 /// Direct switch on, [sendOptions] also Advanced › Send options.
-enum ReceivingDemo { comboOpen, picked, torOn, torStopped, epicboxDown, httpOn, httpFailed, httpPublic, directOn, sendOptions }
+enum ReceivingShot { comboOpen, picked, torOn, torStopped, epicboxDown, httpOn, httpFailed, httpPublic, directOn, sendOptions }
 
 ETone epicboxTone(ServiceHealth h) => switch (h) {
   ServiceHealth.ok => ETone.ok,
@@ -79,15 +79,15 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
     Future.microtask(() async {
       final n = ref.read(deskProvider.notifier);
       final s = ref.read(deskProvider).settings;
-      if (arg == ReceivingDemo.torOn || arg == ReceivingDemo.torStopped) {
+      if (arg == ReceivingShot.torOn || arg == ReceivingShot.torStopped) {
         // Link · Tor on: Tor for payments starts, the Tor switch of Network & privacy stays off.
         await n.setLinkTor(true);
       }
-      if (arg == ReceivingDemo.httpOn || arg == ReceivingDemo.httpFailed || arg == ReceivingDemo.httpPublic) await n.setHttp(true);
-      if (arg == ReceivingDemo.httpPublic && !s.publicMode) await n.saveSettings(ref.read(deskProvider).settings.copyWith(publicMode: true));
-      if (arg == ReceivingDemo.directOn || arg == ReceivingDemo.sendOptions) {
+      if (arg == ReceivingShot.httpOn || arg == ReceivingShot.httpFailed || arg == ReceivingShot.httpPublic) await n.setHttp(true);
+      if (arg == ReceivingShot.httpPublic && !s.publicMode) await n.saveSettings(ref.read(deskProvider).settings.copyWith(publicMode: true));
+      if (arg == ReceivingShot.directOn || arg == ReceivingShot.sendOptions) {
         await n.setHttp(true);
-        if (arg == ReceivingDemo.sendOptions) {
+        if (arg == ReceivingShot.sendOptions) {
           final now = ref.read(deskProvider).settings;
           await n.saveSettings(now.copyWith(advanced: now.advanced.withFeature(AdvancedFeature.sendOptions, true)));
         }
@@ -98,19 +98,19 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   /// The real status with the tour's failed states laid over it.
   ServiceStatus _status(ServiceStatus s) {
     final a = widget.arg;
-    if (a != ReceivingDemo.epicboxDown && a != ReceivingDemo.httpFailed && a != ReceivingDemo.torStopped) return s;
+    if (a != ReceivingShot.epicboxDown && a != ReceivingShot.httpFailed && a != ReceivingShot.torStopped) return s;
     return ServiceStatus(
       node: s.node,
       nodeHealth: s.nodeHealth,
       nodeHeight: s.nodeHeight,
       epicbox: s.epicbox,
-      epicboxHealth: a == ReceivingDemo.epicboxDown ? ServiceHealth.down : s.epicboxHealth,
-      httpListener: a == ReceivingDemo.httpFailed ? ServiceHealth.down : s.httpListener,
-      tor: a == ReceivingDemo.torStopped ? ServiceHealth.down : s.tor,
-      httpProblem: a == ReceivingDemo.httpFailed ? HttpProblem.portInUse : s.httpProblem,
-      httpProblemPort: a == ReceivingDemo.httpFailed ? ref.read(deskProvider).settings.httpPort : s.httpProblemPort,
+      epicboxHealth: a == ReceivingShot.epicboxDown ? ServiceHealth.down : s.epicboxHealth,
+      httpListener: a == ReceivingShot.httpFailed ? ServiceHealth.down : s.httpListener,
+      tor: a == ReceivingShot.torStopped ? ServiceHealth.down : s.tor,
+      httpProblem: a == ReceivingShot.httpFailed ? HttpProblem.portInUse : s.httpProblem,
+      httpProblemPort: a == ReceivingShot.httpFailed ? ref.read(deskProvider).settings.httpPort : s.httpProblemPort,
       torProgress: s.torProgress,
-      torProblem: a == ReceivingDemo.torStopped ? 'Tor could not connect to the network.' : s.torProblem, // l10n-ok: demo status text
+      torProblem: a == ReceivingShot.torStopped ? 'Tor could not connect to the network.' : s.torProblem, // l10n-ok: shot status text
       torCanSend: s.torCanSend,
       torIncluded: s.torIncluded,
       syncProgress: s.syncProgress,
@@ -527,7 +527,7 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
   TorPay _torPay(DeskSettings s) {
     final p = ref.watch(deskTorPayProvider);
     if (p.kind == TorPayKind.off && s.advanced.networkMode.restricted) return TorPay(TorPayKind.blocked, mode: p.mode, torAll: p.torAll);
-    if (widget.arg == ReceivingDemo.torStopped && s.payments.linkTor) return TorPay(TorPayKind.failed, mode: p.mode, torAll: p.torAll);
+    if (widget.arg == ReceivingShot.torStopped && s.payments.linkTor) return TorPay(TorPayKind.failed, mode: p.mode, torAll: p.torAll);
     return p;
   }
 
@@ -576,8 +576,8 @@ class _SettingsReceivingScreenState extends ConsumerState<SettingsReceivingScree
               listNote: st.settings.useStatusSite ? l.deskSetRecvListNote(statusSiteHost) : null,
               busy: _switching,
               busyLabel: l.deskSetRecvSwitchingServer,
-              openInitially: widget.arg == ReceivingDemo.comboOpen,
-              demo: widget.arg == ReceivingDemo.picked ? ServerPanelDemo(pick: shippedHostSettings.epicboxServers.elementAtOrNull(1)?.label ?? relayLabel(box)) : null,
+              openInitially: widget.arg == ReceivingShot.comboOpen,
+              shot: widget.arg == ReceivingShot.picked ? ServerPanelShot(pick: shippedHostSettings.epicboxServers.elementAtOrNull(1)?.label ?? relayLabel(box)) : null,
               onChoose: _switch,
               onTest: _test,
             ),
