@@ -112,8 +112,8 @@ def main():
     returned = []  # the sends back to P that the wallet's data shows confirmed (send_ok is unset without REL_FUNDS)
     send_to_p = checks._send_to_p
 
-    def tracked(lane_, d0):
-        ok, why = send_to_p(lane_, d0)
+    def tracked(lane_, d0, amount=None):
+        ok, why = send_to_p(lane_, d0, amount)
         returned.append(ok)
         return ok, why
     checks._send_to_p = tracked
