@@ -50,9 +50,9 @@ class FakeRestore:
     """The phone's restore screens as a small state machine, pressed and typed into by name."""
     platform, family = "android", "phone"
 
-    def __init__(self, scan_reads=2, card_reads=3, problem=False):
+    def __init__(self, scan_reads=2, card_reads=3, problem=False, level=3):
         self.cur, self.phrase, self.height, self.month, self.year = "welcome", "", "", None, 2024
-        self.start_open, self.by_height, self.problem = False, False, problem
+        self.start_open, self.by_height, self.problem, self.level = False, False, problem, level
         self.scan_reads, self.card_reads = scan_reads, card_reads
         self.typed, self.pressed, self.shots = [], [], []
 
@@ -62,7 +62,9 @@ class FakeRestore:
             return [btn(0, "Create a new wallet"), btn(1, "Restore from phrase")]
         if c == "restore":
             t = [text(0, "Restore wallet"), field(1, "Recovery phrase", self.phrase)]
-            if not self.start_open:
+            if self.level == 1:
+                pass   # level 1 hides the start: a restore scans from block 0
+            elif not self.start_open:
                 t.append(btn(2, "Start from a month or height"))
             else:
                 t += [text(3, "Where to start scanning"), btn(4, "Month"), btn(5, "Block height")]
@@ -212,6 +214,13 @@ class RestoreTest(unittest.TestCase):
         self.recipe(s).restore_wallet(PHRASE, {"height": None, "month": None})
         self.assertNotIn("Start from a month or height", s.pressed)
         self.assertIn(s.cur, ("home", "home-card"))
+
+    def test_level_one_restores_from_block_0_whatever_the_birth(self):
+        s = FakeRestore(level=1)   # a phone's fresh install is level 1
+        self.recipe(s).restore_wallet(PHRASE, {"height": 2345678, "month": "2026-11"})
+        self.assertIsNone(s.month)
+        self.assertIn(s.cur, ("home", "home-card"))
+        self.assertTrue(any("level 1 on a fresh install" in line for line in self.lines))
 
     def test_a_phrase_problem_fails_hushed(self):
         s = FakeRestore(problem=True)

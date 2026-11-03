@@ -291,7 +291,10 @@ class Phone:
             self.log("restore start: the whole chain (no birth month or height)")
             return
         if not d.wait(shows(RESTORE_START), 5):
-            d.harness("no 'Start from a month or height' link on the restore screen (level 1 hides it)")
+            # a phone's first run is level 1 (firstStartLevel), and level 1 hides the start: every restore
+            # on a fresh install scans from block 0, whatever the wallet's birth
+            self.log("restore start: the whole chain (level 1 on a fresh install offers no month or height)")
+            return
         d.press(RESTORE_START, step="restore-start", then=shows(RESTORE_PICK_MONTH, RESTORE_HEIGHT), timeout=20)
         if month:
             year, mon = (int(x) for x in month.split("-")[:2])
@@ -332,7 +335,7 @@ class Phone:
         tries = 0
         while True:
             at = d.must(where({"done": shows(RESTORE_DONE), "home": self._home(), "unfinished": shows(RESTORE_OPEN)}),
-                        1800, step="restore-scan", goal="the restore's scan done")
+                        RESTORE_HOME_S * SLOW, step="restore-scan", goal="the restore's scan done")
             if at == "home":
                 return
             if at == "done":
