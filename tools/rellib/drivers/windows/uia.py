@@ -32,6 +32,7 @@ ROLE = {
 VK = {"escape": 0x1B, "back": 0x1B, "enter": 0x0D, "tab": 0x09, "page_down": 0x22, "page_up": 0x21, "space": 0x20,
       "end": 0x23, "ctrl_enter": 0x0D, "shift_tab": 0x09}
 EYE = re.compile(r"(?i)^(show|hide|pokaż|ukryj)\b[^(]*\(")
+SEARCH_HINTS = ("Search settings", "Szukaj w ustawieniach")
 ERASE_SECRET = 64   # a password field's text is not readable: this many backspaces clear it
 
 
@@ -71,7 +72,18 @@ class WinSurface:
             if n and nxt and n.role == "text_field" and EYE.match(nxt.name):
                 n.states = n.states | {"password"}
         self._list_items(nodes)
-        return [n for n in nodes if n]
+        nodes = [n for n in nodes if n]
+        self._trace(nodes)
+        return nodes
+
+    def _trace(self, nodes):
+        """REL_TRUST_TREES=<file>: every read of a Settings page (the screens with the settings search field,
+        never a secret screen) as one block of lines, to see how the engine exposes a page over time."""
+        path = os.environ.get("REL_TRUST_TREES")
+        if not path or not any(n.role == "text_field" and n.name.split("\n")[0] in SEARCH_HINTS for n in nodes):
+            return
+        with open(path, "a") as f:
+            f.write("---- %s\n%s\n" % (time.strftime("%H:%M:%S"), "\n".join(n.brief() for n in nodes)))
 
     @staticmethod
     def _list_items(nodes):
