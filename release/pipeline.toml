@@ -185,6 +185,10 @@ max_per_day = 8
 ramp_until = "2026-11-10"
 ramp_max_per_day = 2
 poll = "30s"
+# Builds go out in waves: the Tor builds first, the no-Tor builds only once every Tor build is in
+# (fetched and verified); a failed Tor build stops it there (the owner 2026-11-03). Each wave is one
+# dispatch and counts toward the cap.
+waves = [["tor"], ["notor"]]
 
 # From the dispatch to the files, per platform. The workflow's own job timeouts (75 min android
 # and linux, 90 min windows) fire first.

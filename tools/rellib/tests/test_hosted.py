@@ -35,6 +35,7 @@ state = "{tmp}/dispatches.jsonl"
 ramp_until = ""
 poll = "0.05s"
 find_wait = "2s"
+{waves}
 
 [hosted.deadline]
 android = "{deadline}"
@@ -181,10 +182,10 @@ class HostedTest(Base):
         except FileNotFoundError:
             return []
 
-    def hosted_run(self, only="android,linux", deadline="60s", test=True):
-        text = PIPELINE.format(tmp=self.tmp, deadline=deadline)
+    def hosted_run(self, only="android,linux", deadline="60s", test=True, no_variant="notor", waves=""):
+        text = PIPELINE.format(tmp=self.tmp, deadline=deadline, waves=waves)
         self.pipeline = Pipeline(tomllib.loads(text))
-        scope = load_scope(None, "26.10.25", only=only, no_variant="notor", sets=["publish.manifests=false"], test=test)
+        scope = load_scope(None, "26.10.25", only=only, no_variant=no_variant, sets=["publish.manifests=false"], test=test)
         scope["builds"] = {"hosted": True}
         path, run_id = Run.next_path(self.root, "26.10.25")
         c = {"version": "26.10.25", "commit": LOCAL, "short": LOCAL[:7], "run_id": run_id, "run": path, "rel": REPO,
@@ -251,6 +252,41 @@ class HostedTest(Base):
         res = builtins.hosted_dispatch(eng, run.step("hosted-dispatch"), lambda *a: None)
         self.assertEqual(res["status"], "done")
         self.assertEqual(len([c for c in self.gh_calls() if c["args"][:2] == ["workflow", "run"]]), 1)
+
+    # ---- waves: tor first, notor only once every tor build is in ----
+
+    def waves_run(self, **kw):
+        self.artifact("android", "notor", {"bt-wallet-26.10.25-notor-android-arm64-v8a.apk": b"apk2",
+                                           "emulator/bt-wallet-26.10.25-notor-android-x86_64.apk": b"emu2"})
+        return self.drive(only="android", no_variant=None, waves='waves = [["tor"], ["notor"]]', **kw)
+
+    def test_waves_second_after_first(self):
+        run = self.waves_run()
+        for sid in ("hosted-dispatch", "build-android-tor", "build-android-notor"):
+            self.assertEqual(run.status(sid)["status"], "done", self.log(run, sid))
+        disp = [c["args"] for c in self.gh_calls() if c["args"][:2] == ["workflow", "run"]]
+        self.assertEqual(len(disp), 2)
+        self.assertIn('variants=["tor"]', disp[0])
+        self.assertIn('variants=["notor"]', disp[1])
+        self.assertIn(f"request={run.info['run_id']}-2", disp[1])
+        self.assertIn("android-notor once these are in", run.status("hosted-dispatch")["note"])
+        self.assertIn("wave 2: waiting for android-tor", self.log(run, "build-android-notor"))
+        self.assertEqual(len(text(os.path.join(self.tmp, "dispatches.jsonl")).splitlines()), 2)
+
+    def test_waves_first_fails_second_not_sent(self):
+        self.state(jobs=[job("android", "tor", conclusion="failure"), job("android", "notor")])
+        run = self.waves_run()
+        self.assertFailed(run, "build-android-tor", "job android (tor) failure")
+        self.assertFailed(run, "build-android-notor", "wave 2 not sent: android-tor failed")
+        self.assertEqual(len([c for c in self.gh_calls() if c["args"][:2] == ["workflow", "run"]]), 1)
+
+    def test_waves_of(self):
+        c = {"waves": [["tor"], ["notor"]]}
+        self.assertEqual(hosted.waves_of(c, ["android-tor", "linux-notor", "linux-tor"]),
+                         [["android-tor", "linux-tor"], ["linux-notor"]])
+        self.assertEqual(hosted.waves_of(c, ["linux-notor"]), [["linux-notor"]])
+        self.assertEqual(hosted.waves_of({"waves": []}, ["a-tor", "a-notor"]), [["a-tor", "a-notor"]])
+        self.assertEqual(hosted.waves_of({"waves": [["notor"]]}, ["a-tor", "a-notor"]), [["a-notor"], ["a-tor"]])
 
     # ---- failures: the step fails with the reason, nothing local runs ----
 
