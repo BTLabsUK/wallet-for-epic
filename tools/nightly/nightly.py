@@ -82,6 +82,14 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+# The run history of tools/t (tlib/history.py). The installed fallback copy of this file sits
+# outside the repository and has no tlib: it then reports no flake records.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+try:
+    from tlib import history as test_history
+except ImportError:  # pragma: no cover
+    test_history = None
+
 HOME = Path.home()
 REPO = Path(os.environ.get("WFE_NIGHTLY_REPO", HOME / "wallet-for-epic"))
 WORKTREE = Path(os.environ.get("WFE_NIGHTLY_WORKTREE", HOME / "wfe-worktrees" / "nightly"))
@@ -276,6 +284,40 @@ def parse_check_log(lines, expected_steps=()):
             "failing_step": failing_step}
 
 
+def mark_flaky(failing, records=None, days=30):
+    """The failing tests of a run, each with `flaky` = {fails, passes, last_fail, scope} when the run
+    history (`tools/t flaky`) has the test, or else its file, failing and passing with the same
+    inputs; without a record the test has no `flaky` key. Nothing is hidden: the marks only add."""
+    if records is None:
+        if test_history is None:
+            return failing
+        records = test_history.read(since=time.time() - days * 86400)
+    index = test_history.flaky_index(records) if test_history else {}
+    out = []
+    for t in failing:
+        t = dict(t)
+        f = t.get("file", "")
+        f = f[len("app/"):] if f.startswith("app/") else f
+        e = index.get((f, t.get("name"))) or index.get((f, "(file)"))
+        scope = "test"
+        if not e:
+            e, scope = index.get((f, None)), "file"
+        if e:
+            t["flaky"] = {"fails": e["fails"], "passes": e["passes"], "last_fail": e["last_fail"][:10],
+                          "scope": scope}
+        out.append(t)
+    return out
+
+
+def flaky_tag(t):
+    """' [flaky: 3 fails, 12 passes, last 2026-11-02]' for a failing test with a record, else ''."""
+    k = t.get("flaky")
+    if not k:
+        return ""
+    where = "" if k.get("scope") == "test" else " in its file"
+    return f" [flaky{where}: {k['fails']} fails, {k['passes']} passes, last {k['last_fail']}]"
+
+
 def expected_steps_of(check_sh, full=True):
     """The literal step names in a check.sh, in order (a name with a shell expansion is the
     fast mode's and is left out in full mode)."""
@@ -422,8 +464,11 @@ def dm_body(result, test=False):
     if trust:  # source green: the failing checks, no commit list (driver drift or a real regression)
         tests = [_clip(f, DM_TEST_CHARS) for f in result["trust"]["failed"][:DM_ITEMS]]
     else:
-        tests = [_clip(f"{t['file']}: {t['name']}" if t.get("file") else t["name"], DM_TEST_CHARS)
-                 for t in (result.get("failing_tests") or [])[:DM_ITEMS]]
+        tests = []
+        for t in (result.get("failing_tests") or [])[:DM_ITEMS]:
+            tag = flaky_tag(t)
+            text = f"{t['file']}: {t['name']}" if t.get("file") else t["name"]
+            tests.append(_clip(text, DM_TEST_CHARS - len(tag)) + tag)
     if tests:
         body["tests"] = tests
     commits = [_clip(c, DM_COMMIT_CHARS)
@@ -978,7 +1023,7 @@ def cmd_run(by_hand, pinned_sha=None):
         "rigs": rigs,
         "failing_step": parsed["failing_step"],
         "tests": parsed["tests"],
-        "failing_tests": parsed["failing_tests"],
+        "failing_tests": mark_flaky(parsed["failing_tests"]) if status == "red" else parsed["failing_tests"],
         "last_green_sha": sha if status == "green" else last_green,
         "commits_since_green": [] if status == "green" else commits_between(last_green, sha),
         "log": str(log_path),
