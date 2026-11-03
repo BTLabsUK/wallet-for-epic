@@ -38,16 +38,17 @@ CONTINUE = T("g4.create.continue", keys=("commonContinue",), names=("Continue",)
 SETUP_SKIP = T("g4.setup.skip", keys=("deskSetupSkip",), names=("Skip setup",))
 
 # restore from phrase (26.10.25 and 26.10.26: restore_screen.dart, phrase_grid.dart). The word fields are
-# "Word N" (deskOnbWordN, Desktop._word); the words step's button is CONTINUE.
-RESTORE_SUBMIT = T("g4.restore.submit", keys=("deskOnbRestoreSide",), names=("Restore wallet",), match="exact", secret=True)
+# "Word N" (deskOnbWordN, Desktop._word); the words step's button is CONTINUE. Ids g4.restore.* from the
+# release with restore from a height (trust_ids.dart); older builds are found by label.
+RESTORE_SUBMIT = T("g4.restore.continue", keys=("deskOnbRestoreSide",), names=("Restore wallet",), match="exact", secret=True)
 # the link is an unnamed node with its label a text of its own on Linux (the label's press reaches the link)
-RESTORE_FROM_OPEN = T("g4.restore.from.open", role="other", keys=("restoreStartFromMonthLink",),
+RESTORE_FROM_OPEN = T("g4.restore.start", role="other", keys=("restoreStartFromMonthLink",),
                       names=("Start from a month or height",), secret=True)
 RESTORE_FROM_HIDE = T("g4.restore.from.hide", role="other", keys=("deskOnbRestoreFromHide",), names=("Check the whole chain",),
                       secret=True)
-RESTORE_BY_HEIGHT = T("g4.restore.from.by_height", keys=("restoreStartByHeight",), names=("Block height",), match="exact",
+RESTORE_BY_HEIGHT = T("g4.restore.by.height", keys=("restoreStartByHeight",), names=("Block height",), match="exact",
                       secret=True)
-RESTORE_HEIGHT = T("g4.restore.from.height", role="text_field", keys=("deskOnbRestoreFromLabel",), names=("Start from block",),
+RESTORE_HEIGHT = T("g4.restore.height", role="text_field", keys=("deskOnbRestoreFromLabel",), names=("Start from block",),
                    match="starts", secret=True)
 RESTORE_RESTORING = T("g4.restore.restoring", role="text", keys=("deskOnbRestoreRestoring",), names=("Restoring the wallet",),
                       secret=True)
@@ -305,7 +306,7 @@ class Desktop:
         texts = {self.d.labels.text("deskOnbWordN"), "Word {number}"} - {None}
         pats = tuple(sorted("re:(?:.* )?%s(?: .*)?" % re.escape(tg._norm(t)).replace(re.escape("{number}"), str(i))
                             for t in texts))
-        return T("g4.restore.word.%d" % i, role="text_field", names=pats, match="exact", secret=True)
+        return T("g4.restore.phrase" if i == 1 else "g4.restore.word.%d" % i, role="text_field", names=pats, match="exact", secret=True)
 
     def _type_words(self, words):
         """Each word into its own field, checked against what the field then holds (a key lost on the way
@@ -334,10 +335,12 @@ class Desktop:
             d.must(ready, 30, step="restore-words", goal="the phrase checked: Continue enabled")
 
     def _start_from(self, height):
-        """Start from a month or height › Block height › the birth height."""
+        """Start from a month or height › Block height › the birth height. 26.10.25 shows Check the whole
+        chain once the choice is open; later builds the month or height choice."""
         d = self.d
-        if not d.seen(RESTORE_FROM_HIDE):
-            d.press(RESTORE_FROM_OPEN, step="restore-from", then=shows(RESTORE_FROM_HIDE), timeout=20)
+        opened = either(shows(RESTORE_FROM_HIDE), shows(RESTORE_BY_HEIGHT), shows(RESTORE_HEIGHT))
+        if not d.wait(opened, 2, dismiss=False):
+            d.press(RESTORE_FROM_OPEN, step="restore-from", then=opened, timeout=20)
         by = d.wait(shows(RESTORE_BY_HEIGHT), 5)
         if by:  # mainnet offers a month first
             d._act(d.s.press, by)

@@ -9,15 +9,17 @@ Store (outside the repo, like P's secrets), REL_TRUST_SEEDS_ROOT overrides the r
         bip39-english.txt                                  the BIP39 English list, checked by its sha256
         <platform>-<variant>/                              0700
             phrase                                         0600: 24 words, one line
-            meta.json                                      0600: created_at, birth_height, birth_month,
-                                                           last {spendable, total, run, at} (EPIC text),
-                                                           fundings [{amount, at, run, slate8}]
+            meta.json                                      0600: created_at, birth {height, date, month,
+                                                           method}, last {spendable, total, run, at} (EPIC
+                                                           text), fundings [{amount, at, run, slate8, height}]
             .lock                                          the lane holds flock on it for its whole run
 No address and no word in meta.json. Nothing here ever prints, logs or returns a word but phrase().
 
 CLI (python3 -I tools/rellib/drivers/core/lane_seed.py ...):
-    init <lane>|all     a new phrase from secrets.token_bytes(32), birth = the node's tip and this month;
+    init <lane>|all     a new phrase from secrets.token_bytes(32), birth = the node's tip and today;
                         refuses to overwrite a phrase that exists
+    birth [lane ...]    sets each birth from the record: the block before the first funding's output
+                        ("first output"), else the tip when the seed was made ("tip at creation")
     check [lane ...]    the doctor's checks (tools/rel doctor also weighs P's balance)
     scan <dir|file>...  the full phrase or any 3 consecutive words of any lane seed, in text, binary and
                         .gz files; prints the paths of the files that hold one; exit 1 on a hit
@@ -213,14 +215,29 @@ class LaneSeed:
         _write(self.meta_path, json.dumps(m, indent=1) + "\n")
 
     def birth(self):
+        """{height, date YYYY-MM-DD, month YYYY-MM, method}: where every restore of this wallet starts its
+        scan (the height; month and date for screens that take only those)."""
         m = self.meta()
-        return {"height": m.get("birth_height"), "month": m.get("birth_month")}
+        b = dict(m.get("birth") or {})
+        if not b and m.get("birth_height") is not None:  # a seed made before birth{} was kept
+            b = {"height": m["birth_height"], "date": (m.get("created_at") or "")[:10] or None,
+                 "month": m.get("birth_month"), "method": "tip at creation"}
+        if b.get("date") and not b.get("month"):
+            b["month"] = b["date"][:7]
+        return {"height": b.get("height"), "date": b.get("date"), "month": b.get("month"), "method": b.get("method")}
+
+    def set_birth(self, height, date, method):
+        m = self.meta()
+        m.pop("birth_height", None)
+        m.pop("birth_month", None)
+        m["birth"] = {"height": int(height), "date": date, "month": date[:7], "method": method}
+        self._save_meta(m)
 
     def last_spendable(self):
         """meta.last.spendable in nanoEPIC, or None when no lane recorded one."""
         return nano(((self.meta().get("last") or {}).get("spendable")))
 
-    def create(self, phrase, birth_height, birth_month):
+    def create(self, phrase, birth_height, birth_date):
         """Writes a new seed; refuses (FileExistsError) when the lane has a phrase."""
         _mkdir(os.path.dirname(self.dir))
         _mkdir(self.dir)
@@ -234,8 +251,10 @@ class LaneSeed:
             os.link(tmp, self.phrase_path)  # never replaces an existing phrase
         finally:
             os.unlink(tmp)
-        self._save_meta({"created_at": time.strftime("%Y-%m-%dT%H:%M:%S"), "birth_height": birth_height,
-                         "birth_month": birth_month, "last": None, "fundings": []})
+        self._save_meta({"created_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
+                         "birth": {"height": int(birth_height), "date": birth_date, "month": birth_date[:7],
+                                   "method": "tip at creation"},
+                         "last": None, "fundings": []})
 
     # ---- the lock
 
@@ -283,11 +302,38 @@ class LaneSeed:
                      "at": time.strftime("%Y-%m-%dT%H:%M:%S")}
         self._save_meta(m)
 
-    def record_funding(self, amount, run, slate):
+    def record_funding(self, amount, run, slate, height=None):
         m = self.meta()
         m.setdefault("fundings", []).append({"amount": str(amount), "at": time.strftime("%Y-%m-%dT%H:%M:%S"), "run": run,
-                                             "slate8": (slate or "")[:8] or None})
+                                             "slate8": (slate or "")[:8] or None, "height": height})
         self._save_meta(m)
+
+    def record_funding_height(self, slate, height):
+        """The height the funding [slate] confirmed at, once the wallet's data shows it."""
+        m = self.meta()
+        for f in reversed(m.get("fundings") or []):
+            if slate and f.get("slate8") == slate[:8] and f.get("height") is None:
+                f["height"] = int(height)
+                self._save_meta(m)
+                return True
+        return False
+
+    def birth_from_record(self):
+        """(height, date, method) from what the lanes recorded, or a HarnessFault when the record cannot
+        tell: fundings with no height (a scan of the wallet would)."""
+        m = self.meta()
+        fundings = m.get("fundings") or []
+        heights = [int(f["height"]) for f in fundings if f.get("height") is not None]
+        if heights:
+            h = min(heights) - 1
+            return h, block_date(h), "first output"
+        if fundings:
+            raise HarnessFault("seed", "lane seed %s: %d fundings with no height; its first output needs a scan"
+                               % (self.lane, len(fundings)))
+        b = self.birth()
+        if b.get("height") is None:
+            raise HarnessFault("seed", "lane seed %s has no birth on record" % self.lane)
+        return int(b["height"]), b.get("date") or (m.get("created_at") or "")[:10], "tip at creation"
 
 
 def run_id():
@@ -314,6 +360,29 @@ def tip(nodes=None, timeout=15):
         except Exception:  # noqa: BLE001 — the next node
             continue
     raise HarnessFault("seed", "no node answered get_tip (tried %s)" % ", ".join(tried))
+
+
+def _foreign(method, params, nodes=None, timeout=15):
+    tried = []
+    for url in ([os.environ["REL_NODE"]] if os.environ.get("REL_NODE") else []) + list(nodes or NODES):
+        if url in tried:
+            continue
+        tried.append(url)
+        u = url if "://" in url else "https://" + url
+        body = json.dumps({"jsonrpc": "2.0", "method": method, "params": params, "id": 1}).encode()
+        req = urllib.request.Request(u.rstrip("/") + "/v2/foreign", data=body, headers={"content-type": "application/json"})
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return json.loads(r.read(1 << 20))["result"]["Ok"], url
+        except Exception:  # noqa: BLE001 — the next node
+            continue
+    raise HarnessFault("seed", "no node answered %s (tried %s)" % (method, ", ".join(tried)))
+
+
+def block_date(height, nodes=None):
+    """YYYY-MM-DD (UTC) of block [height], from its header's timestamp."""
+    h, _ = _foreign("get_header", [int(height), None, None], nodes)
+    return str(h["timestamp"])[:10]
 
 
 # ---- the leak scan -----------------------------------------------------------------------------------
@@ -464,6 +533,11 @@ def doctor(lanes, p_spendable=None, funds_lanes=(), base=None):
         else:
             out.append(("ok", "lane seed %s: %s, modes 0700/0600, distinct, lock free; last spendable %s" % (
                 lane, why, "%s EPIC" % epic(last) if last is not None else "not on record yet")))
+        b = s.birth()
+        if b["height"] is None:
+            out.append(("FAIL", "lane seed %s: no birth height on record (lane_seed.py birth %s)" % (lane, lane)))
+        else:
+            out.append(("ok", "lane seed %s: birth height %d, date %s (%s)" % (lane, b["height"], b["date"], b["method"])))
         if last is None:
             out.append(("warn", "lane seed %s: no balance on record (first run): counted as needing the top-up" % lane))
         amount, _ = checks.p_pays(last, True)
@@ -498,7 +572,8 @@ def cmd_init(args):
     _mkdir(root())
     words()  # the list checked (and copied into the store) before anything is made
     height, node = tip()
-    print("birth height %d from %s; month %s" % (height, node, datetime.date.today().strftime("%Y-%m")))
+    today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+    print("birth height %d from %s; date %s" % (height, node, today))
     known = {fingerprint(LaneSeed(x).phrase()) for x in LANES if LaneSeed(x).exists()}
     refused = 0
     for lane in lanes:
@@ -513,7 +588,7 @@ def cmd_init(args):
         assert validate(p)[0]
         known.add(fingerprint(p))
         try:
-            s.create(p, height, datetime.date.today().strftime("%Y-%m"))
+            s.create(p, height, today)
         except FileExistsError:
             print("%s: refused, a phrase exists (%s)" % (lane, s.phrase_path))
             refused += 1
@@ -529,6 +604,26 @@ def cmd_check(args):
     for level, line in out:
         print("%-4s %s" % (level, line))
     return 1 if any(level == "FAIL" for level, _ in out) else 0
+
+
+def cmd_birth(args):
+    """Each lane's birth set from its record (birth_from_record); prints height, date and method only."""
+    bad = 0
+    for lane in _lanes(args):
+        s = LaneSeed(lane)
+        if not s.exists():
+            print("%s: no seed" % lane)
+            bad += 1
+            continue
+        try:
+            height, date, method = s.birth_from_record()
+        except HarnessFault as e:
+            print("%s: %s" % (lane, e.what))
+            bad += 1
+            continue
+        s.set_birth(height, date, method)
+        print("%s: birth height %d, date %s (%s)" % (lane, height, date, method))
+    return 1 if bad else 0
 
 
 def cmd_scan(args):
@@ -547,7 +642,7 @@ def cmd_scan(args):
 
 
 def main(argv):
-    cmds = {"init": cmd_init, "check": cmd_check, "scan": cmd_scan}
+    cmds = {"init": cmd_init, "check": cmd_check, "birth": cmd_birth, "scan": cmd_scan}
     if not argv or argv[0] not in cmds:
         print(__doc__.split("CLI")[1].strip(), file=sys.stderr)
         return 64

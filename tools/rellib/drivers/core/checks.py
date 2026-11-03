@@ -255,6 +255,15 @@ def _funded(lane, amount, tx):
         f(amount, tx)
 
 
+def _funded_at(lane, tx, d):
+    """The height P's payment [tx] confirmed at, from the data [d] that shows it spendable: kept on the lane
+    seed's record (lane.on_funding_height), so the wallet's birth can be its first output."""
+    f = getattr(lane, "on_funding_height", None)
+    t = next((t for t in _txs(d) if tx and tx.get("slate") and t.get("slate") == tx["slate"]), None)
+    if callable(f) and t and t.get("height") is not None:
+        f(tx, t["height"])
+
+
 def fund_before(lane, address):
     """P pays the previous release's wallet FUND_IN and the data shows it spendable, on every lane: the
     update must keep a balance and a history (as v1). REL_FUNDS only adds the candidate's legs. A lane
@@ -267,6 +276,7 @@ def fund_before(lane, address):
     lane.fund_tx, lane.inflow = tx, D(FUND_IN)
     _funded(lane, amount, tx)
     d = wait_spendable(lane, "previous", start + _nano(amount), "fund spendable")
+    _funded_at(lane, tx, d)
     why = ""
     if top:
         why = " (%s this run's inflow and a %s top-up that stays in the lane: spendable was %s, below %s; capped by the %s per-send cap)" % (
@@ -608,6 +618,7 @@ def funds_legs(lane, after):
             _funded(lane, FUND_AFTER, tx)
             lane.inflow = getattr(lane, "inflow", D(FUND_IN)) + D(FUND_AFTER)
             d = wait_spendable(lane, "candidate", start + _nano(FUND_AFTER), "receive spendable")
+            _funded_at(lane, tx, d)
             _set(lane, RECEIVE, True, "P -> %s %s EPIC via Epicbox: incoming %s EPIC confirmed (wallet data); spendable %s" % (
                 short(address), FUND_AFTER, num(tx["credited"]), num(_spendable(d))))
         except ProductFault as e:  # a HarnessFault (P, the display) is the lane's, not a false check

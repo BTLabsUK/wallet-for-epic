@@ -339,7 +339,13 @@ class Lane:
         surface = self.p.start("previous")
         self.rec.build = os.environ.get("REL_PREVIOUS_VERSION", "previous")
         self.ui = self.recipe_for(self, "previous", surface)
-        got = self.ui.restore_wallet(self.seed.phrase(), self.seed.birth()) or {}
+        birth = self.seed.birth()
+        if birth.get("height") is None:
+            raise HarnessFault("restore", "lane seed %s has no birth height (lane_seed.py birth %s)" % (
+                self.seed.lane, self.seed.lane))
+        self.details["birth"] = {k: birth.get(k) for k in ("height", "date", "method")}
+        self.log("restore: from the lane seed's birth height %d (%s, %s)" % (birth["height"], birth.get("date"), birth.get("method")))
+        got = self.ui.restore_wallet(self.seed.phrase(), birth) or {}
         self.secrets.update({k: got[k] for k in ("pin", "password") if got.get(k)})
         self.secrets["phrase"] = self.seed.phrase()
 
@@ -384,6 +390,14 @@ class Lane:
                 self.seed.record_funding(amount, ls.run_id(), tx.get("slate"))
             except OSError as e:
                 self.log("lane seed %s: funding not recorded: %s" % (self.seed.lane, e))
+
+    def on_funding_height(self, tx, height):
+        """checks.py: the funding [tx] confirmed at [height] (the wallet's data)."""
+        if self.seed:
+            try:
+                self.seed.record_funding_height(tx.get("slate"), height)
+            except OSError as e:
+                self.log("lane seed %s: funding height not recorded: %s" % (self.seed.lane, e))
 
     def _record_seed(self):
         """meta.last of the lane seed: the last balance this run read, once the restore reached the one on
@@ -437,11 +451,24 @@ class Lane:
             self.fail("create_ok", "a new wallet created and its home reached, but the phrase it showed: %s" % why)
         return 0
 
+    def _create_birth(self):
+        """The chain's tip as the new wallet is made: its birth, as a lane seed keeps one (proof details)."""
+        try:
+            height, node = ls.tip()
+        except Exception as e:  # noqa: BLE001 — evidence only; the create check does not hang on a node
+            self.details["birth"] = {"height": None, "why": str(e)[:200]}
+            self.log("create: birth height not read: %s" % e)
+            return
+        date = time.strftime("%Y-%m-%d", time.gmtime())
+        self.details["birth"] = {"height": height, "date": date, "method": "tip at creation", "node": node}
+        self.log("create: birth height %d, date %s (tip at creation, %s)" % (height, date, node))
+
     def _create_wallet(self):
         """-> (phrase valid, what it is): the words never leave this function but as the scan's hashes."""
         surface = self.p.start("candidate")
         self.rec.build = os.environ.get("REL_CANDIDATE_VERSION", "candidate")
         self.ui = self.recipe_for(self, "candidate", surface)
+        self._create_birth()
         got = dict(self.ui.create_wallet() or {})
         phrase = got.pop("phrase", None) or getattr(self.ui, "phrase", None)
         if hasattr(self.ui, "phrase"):

@@ -107,6 +107,7 @@ RESTORE_BY_HEIGHT = T("g4.restore.by.height", keys=("restoreStartByHeight",), na
                       secret=True)
 RESTORE_HEIGHT = T("g4.restore.height", role="text_field", keys=("restoreStartHeightLabel",),
                    names=("Start height (optional)",), match="starts", secret=True)
+RESTORE_CONTINUE = T("g4.restore.continue", keys=("commonContinue",), names=("Continue",), match="exact", secret=True)
 RESTORE_PICK_MONTH = T("g4.restore.month", keys=("restorePickMonth",), names=("Pick the month you created the wallet",),
                        match="exact", secret=True)
 MONTH_TITLE = T("g4.restore.month.title", role="text", keys=("restoreDatePickerTitle",),
@@ -255,7 +256,7 @@ class Phone:
             d.fill(RESTORE_PHRASE, phrase, step="restore-phrase")
             if hasattr(d.s, "hide_keyboard"):
                 d.s.hide_keyboard()
-            d.press(CONTINUE, step="restore-continue", then=either(shows(PIN_CHOOSE), shows(RESTORE_PROBLEM)), timeout=60)
+            d.press(RESTORE_CONTINUE, step="restore-continue", then=either(shows(PIN_CHOOSE), shows(RESTORE_PROBLEM)), timeout=60)
             if d.find_in(RESTORE_PROBLEM, d.tree()):
                 d.harness("the restore screen did not take the phrase (a phrase or start problem shown)")
         self._type_pin("restore-pin-choose", shows(PIN_AGAIN), 30)
@@ -283,20 +284,20 @@ class Phone:
         self.log("restore timing: the scan from block 0 finished %d s after the restore screen's scan began" % (time.time() - t0))
 
     def _restore_start(self, birth):
-        """Where the scan starts: the birth month in the month picker (mainnet's default), else the
-        birth height in Block height. Neither: the whole chain (the link is not opened)."""
+        """Where the scan starts: the birth height in Block height, else the birth month in the month
+        picker. Neither: the whole chain (the link is not opened)."""
         d = self.d
         month, height = birth.get("month"), birth.get("height")
         if not month and height is None:
             self.log("restore start: the whole chain (no birth month or height)")
             return
         if not d.wait(shows(RESTORE_START), 5):
-            # a phone's first run is level 1 (firstStartLevel), and level 1 hides the start: every restore
-            # on a fresh install scans from block 0, whatever the wallet's birth
+            # 26.10.25: a phone's first run is level 1 (firstStartLevel), and level 1 hides the start: a
+            # restore on a fresh install scans from block 0, whatever the wallet's birth
             self.log("restore start: the whole chain (level 1 on a fresh install offers no month or height)")
             return
         d.press(RESTORE_START, step="restore-start", then=shows(RESTORE_PICK_MONTH, RESTORE_HEIGHT), timeout=20)
-        if month:
+        if height is None:
             year, mon = (int(x) for x in month.split("-")[:2])
             self._pick_month(year, mon)
             line = d.wait(shows(MONTH_START), 10)

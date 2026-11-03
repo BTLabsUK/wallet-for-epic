@@ -83,28 +83,28 @@ class Phrases(Store):
 class Files(Store):
     def test_create_modes_and_meta(self):
         s = ls.LaneSeed("linux-tor")
-        s.create(FAKE, 100, "2026-11")
+        s.create(FAKE, 100, "2026-11-03")
         self.assertEqual(mode(os.path.dirname(s.dir)), 0o700)
         self.assertEqual(mode(s.dir), 0o700)
         self.assertEqual(mode(s.phrase_path), 0o600)
         self.assertEqual(mode(s.meta_path), 0o600)
         self.assertEqual(s.phrase(), FAKE)
-        self.assertEqual(s.birth(), {"height": 100, "month": "2026-11"})
+        self.assertEqual(s.birth(), {"height": 100, "date": "2026-11-03", "month": "2026-11", "method": "tip at creation"})
         with open(s.meta_path) as f:
             meta = f.read()
         self.assertFalse(set(json.dumps(json.loads(meta)).replace('"', " ").split()) & set(FAKE.split()))
-        self.assertEqual(sorted(json.loads(meta)), ["birth_height", "birth_month", "created_at", "fundings", "last"])
+        self.assertEqual(sorted(json.loads(meta)), ["birth", "created_at", "fundings", "last"])
 
     def test_never_overwritten(self):
         s = ls.LaneSeed("linux-tor")
-        s.create(FAKE, 100, "2026-11")
+        s.create(FAKE, 100, "2026-11-03")
         with self.assertRaises(FileExistsError):
-            s.create(OTHER, 100, "2026-11")
+            s.create(OTHER, 100, "2026-11-03")
         self.assertEqual(s.phrase(), FAKE)
 
     def test_last_and_fundings(self):
         s = ls.LaneSeed("android-tor")
-        s.create(FAKE, 100, "2026-11")
+        s.create(FAKE, 100, "2026-11-03")
         self.assertIsNone(s.last_spendable())
         s.record_last({"spendable": 5600000, "total": 5600000}, "26.11.1-run1")
         s.record_funding("0.05", "26.11.1-run1", "C" * 32)
@@ -120,7 +120,7 @@ class Files(Store):
         s = ls.LaneSeed("windows-tor")
         with self.assertRaises(HarnessFault):
             s.phrase()
-        s.create(FAKE, 1, "2026-11")
+        s.create(FAKE, 1, "2026-11-03")
         with open(s.phrase_path, "w") as f:
             f.write(" ".join(FAKE.split()[:23]) + "\n")
         with self.assertRaises(HarnessFault) as c:
@@ -252,7 +252,7 @@ class Doctor(Store):
     def make(self, *lanes, last=None):
         for i, lane in enumerate(lanes):
             s = ls.LaneSeed(lane)
-            s.create(ls.encode(bytes([i + 1]) * 32), 1, "2026-11")
+            s.create(ls.encode(bytes([i + 1]) * 32), 1, "2026-11-03")
             if last is not None:
                 s.record_last({"spendable": ls.nano(last), "total": ls.nano(last)}, "r1")
 
@@ -283,6 +283,68 @@ class Doctor(Store):
         out = ls.doctor(["windows-tor"], None, [])
         self.assertEqual(out[0][0], "FAIL")
         self.assertIn("in use by pid", out[0][1])
+
+
+class Birth(Store):
+    """The birth kept beside each seed: the block before its first output, else the tip when it was made."""
+
+    def legacy(self, lane="linux-tor"):
+        s = ls.LaneSeed(lane)
+        s.create(FAKE, 3782025, "2026-11-03")
+        m = s.meta()
+        b = m.pop("birth")
+        m.update(birth_height=b["height"], birth_month="2026-11", created_at="2026-11-03T09:00:00")
+        s._save_meta(m)
+        return s
+
+    def test_a_seed_made_before_birth_reads_as_tip_at_creation(self):
+        s = self.legacy()
+        self.assertEqual(s.birth(), {"height": 3782025, "date": "2026-11-03", "month": "2026-11", "method": "tip at creation"})
+
+    def test_cli_birth_moves_the_record_and_keeps_the_modes(self):
+        self.legacy()
+        code, out = self.run_cli("birth", "linux-tor")
+        self.assertEqual(code, 0, out)
+        self.assertIn("linux-tor: birth height 3782025, date 2026-11-03 (tip at creation)", out)
+        self.assertNoWord(out)
+        s = ls.LaneSeed("linux-tor")
+        self.assertNotIn("birth_height", s.meta())
+        self.assertEqual(s.meta()["birth"]["method"], "tip at creation")
+        self.assertEqual((mode(s.dir), mode(s.meta_path), mode(s.phrase_path)), (0o700, 0o600, 0o600))
+
+    def test_first_output_wins(self):
+        s = self.legacy()
+        s.record_funding("0.06", "r1", "AB" * 16)
+        s.record_funding("0.01", "r2", "CD" * 16)
+        self.assertTrue(s.record_funding_height("CD" * 16, 3790500))
+        self.assertTrue(s.record_funding_height("AB" * 16, 3785000))
+        self.assertFalse(s.record_funding_height("EF" * 16, 1))
+        with mock.patch.object(ls, "block_date", lambda h, nodes=None: "2026-11-04" if h == 3784999 else "?"):
+            self.assertEqual(s.birth_from_record(), (3784999, "2026-11-04", "first output"))
+            code, out = self.run_cli("birth", "linux-tor")
+        self.assertEqual(code, 0, out)
+        self.assertEqual(s.birth(), {"height": 3784999, "date": "2026-11-04", "month": "2026-11", "method": "first output"})
+
+    def test_fundings_with_no_height_need_a_scan(self):
+        s = self.legacy()
+        s.record_funding("0.06", "r1", "AB" * 16)
+        with self.assertRaises(HarnessFault) as c:
+            s.birth_from_record()
+        self.assertIn("needs a scan", c.exception.what)
+        code, out = self.run_cli("birth", "all")
+        self.assertEqual(code, 1)
+        self.assertIn("android-tor: no seed", out)
+        self.assertEqual(s.birth()["height"], 3782025)   # left as it was
+
+    def test_doctor_shows_the_birth_and_fails_without_one(self):
+        s = self.legacy()
+        out = ls.doctor(["linux-tor"], None, [])
+        self.assertIn(("ok", "lane seed linux-tor: birth height 3782025, date 2026-11-03 (tip at creation)"), out)
+        m = s.meta()
+        m.pop("birth_height")
+        s._save_meta(m)
+        out = ls.doctor(["linux-tor"], None, [])
+        self.assertIn("FAIL", [lvl for lvl, line in out if "birth" in line])
 
 
 class FakePlatform:
@@ -345,7 +407,7 @@ class LaneModes(Store):
 
     def seeded(self, last=None):
         s = ls.LaneSeed("linux-tor")
-        s.create(FAKE, 1, "2026-11")
+        s.create(FAKE, 1, "2026-11-03")
         if last is not None:
             s.record_last({"spendable": last, "total": last}, "26.11.1-run1")
         return s
@@ -435,11 +497,13 @@ class LaneModes(Store):
 
     def test_create_mode(self):
         with mock.patch.dict(os.environ, {"REL_TRUST_MODE": "create", "REL_PREVIOUS_VERSION": "26.11.2",
-                                          "REL_CANDIDATE_VERSION": "26.11.3"}):
+                                          "REL_CANDIDATE_VERSION": "26.11.3"}), \
+             mock.patch.object(ls, "tip", lambda *a, **k: (3790000, "https://node.btlabs.uk")):
             r = FakeRecipe(OTHER, False)
             lane = self.lane(FakePlatform([0]), ["create_ok"], r)
             self.assertEqual(lane.main(), 0, lane.details)
             self.assertTrue(lane.results["create_ok"])
+            self.assertEqual((lane.details["birth"]["height"], lane.details["birth"]["method"]), (3790000, "tip at creation"))
             self.assertIsNone(r.phrase)
             self.assertNotIn("phrase", lane.secrets)
             self.assertNoWord(json.dumps(lane.details))
@@ -456,6 +520,55 @@ class LaneModes(Store):
             self.assertEqual(lane.main(), 1)
             self.assertFalse(lane.results["create_ok"])
             self.assertIn("home not reached", lane.details["create_ok"])
+
+    def test_create_mode_without_a_node_still_creates(self):
+        def down(*a, **k):
+            raise HarnessFault("seed", "no node answered get_tip (tried x)")
+        with mock.patch.dict(os.environ, {"REL_TRUST_MODE": "create", "REL_CANDIDATE_VERSION": "26.11.3"}), \
+             mock.patch.object(ls, "tip", down):
+            lane = self.lane(FakePlatform([0]), ["create_ok"], FakeRecipe(OTHER, False))
+            self.assertEqual(lane.main(), 0, lane.details)
+            self.assertIsNone(lane.details["birth"]["height"])
+
+    def test_restore_starts_at_the_birth_height(self):
+        self.seeded()
+        got = []
+
+        class Restorer:
+            def restore_wallet(self, phrase, birth):
+                got.append(birth)
+                return {"password": "pw-not-a-word"}
+        lane = self.lane(FakePlatform([0]), ["restore_ok"], Restorer())
+        lane._pick()
+        lane._restore()
+        self.assertEqual(got[0]["height"], 1)
+        self.assertEqual(lane.details["birth"], {"height": 1, "date": "2026-11-03", "method": "tip at creation"})
+
+    def test_restore_without_a_birth_height_is_harness(self):
+        s = self.seeded()
+        m = s.meta()
+        m.pop("birth")
+        s._save_meta(m)
+
+        class Restorer:
+            def restore_wallet(self, phrase, birth):
+                raise AssertionError("restored with no start")
+        lane = self.lane(FakePlatform([0]), ["restore_ok"], Restorer())
+        lane._pick()
+        with self.assertRaises(HarnessFault) as c:
+            lane._restore()
+        self.assertIn("no birth height", c.exception.what)
+
+    def test_a_funding_keeps_its_confirmed_height(self):
+        from core import checks
+        seed = self.seeded()
+        lane = self.lane(FakePlatform([0]), ["restore_ok"])
+        lane._pick()
+        tx = {"slate": "AB" * 16, "height": None}
+        checks._funded(lane, "0.01", tx)
+        checks._funded_at(lane, tx, {"txs": [{"slate": "CD" * 16, "height": 5}, dict(tx, height=3790001)]})
+        self.assertEqual(seed.meta()["fundings"][0]["height"], 3790001)
+        self.assertEqual(mode(seed.meta_path), 0o600)
 
     def test_unknown_trust_mode_is_harness(self):
         with mock.patch.dict(os.environ, {"REL_TRUST_MODE": "both"}):

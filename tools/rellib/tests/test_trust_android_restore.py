@@ -181,7 +181,7 @@ class RestoreTest(unittest.TestCase):
     def test_restore_with_a_month_reaches_home_then_waits_for_the_full_scan(self):
         s = FakeRestore()
         r = self.recipe(s)
-        got = r.restore_wallet(PHRASE, {"height": 2345678, "month": "2026-11"})
+        got = r.restore_wallet(PHRASE, {"height": None, "month": "2026-11"})
         self.assertEqual(sorted(got), ["password", "pin"])
         self.assertRegex(got["pin"], r"^\d{6}$")
         self.assertEqual(s.cur, "home-card")   # back at Home after the month scan: the scan from block 0 goes on
@@ -202,6 +202,13 @@ class RestoreTest(unittest.TestCase):
         order = s.pressed.index("March 2025"), [i for i, n in enumerate(s.pressed) if n == "Continue"][0]
         self.assertLess(*order)
         self.assertEqual(s.month, (2025, 3))
+
+    def test_the_birth_height_goes_first_when_both_are_known(self):
+        s = FakeRestore()
+        self.recipe(s).restore_wallet(PHRASE, {"height": 2345678, "month": "2026-11", "method": "tip at creation"})
+        self.assertIn("Block height", s.pressed)
+        self.assertIsNone(s.month)
+        self.assertTrue(any("restore start: block 2345678" in line for line in self.lines))
 
     def test_a_height_alone_goes_in_block_height(self):
         s = FakeRestore()
