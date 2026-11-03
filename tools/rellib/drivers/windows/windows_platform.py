@@ -34,6 +34,7 @@ sys.path.insert(0, os.path.join(DRIVERS, "linux"))
 
 import facts  # noqa: E402
 import seed  # noqa: E402
+from core import breaks  # noqa: E402
 from core import checks  # noqa: E402
 from core import hermetic  # noqa: E402
 from core import walletdata as wd  # noqa: E402
@@ -56,6 +57,8 @@ def retry_ssh(rig, log, step=lambda: "rig"):
         def run(*a, **kw):
             for n in range(1, SSH_TRIES + 1):
                 try:
+                    if breaks.ssh_timeout(step()):
+                        raise subprocess.TimeoutExpired("ssh (REL_TRUST_BREAK)", 0)
                     return inner(*a, **kw)
                 except subprocess.TimeoutExpired:
                     if n == SSH_TRIES:

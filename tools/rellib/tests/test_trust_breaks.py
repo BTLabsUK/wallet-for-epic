@@ -116,7 +116,7 @@ class Base(unittest.TestCase):
         self.out = self.tmp.name
         self.logs = []
         self.events = []
-        for target, new in (("core.record.emit", lambda kind, **f: self.events.append((kind, f))),
+        for target, new in (("core.record.emit", lambda event, /, **f: self.events.append((event, f))),
                             ("core.record.read", lambda: None), ("core.driver.SLOW", 0.02),
                             ("core.desktop.time.sleep", lambda s: None), ("core.breaks.time.sleep", lambda s: None)):
             p = unittest.mock.patch(target, new)
@@ -252,6 +252,23 @@ class BreakKindsTest(Base):
         self.assertIn("tried scroll (scrolled down 3 and back)", c.exception.what)
         self.assertEqual(c.exception.cause_class, "HARNESS-ui")
         self.assertIn("scroll (scrolled down 3 and back)", c.exception.tried)
+
+
+class RecordTest(unittest.TestCase):
+    def test_emit_takes_a_field_named_kind(self):
+        from core import record
+        with unittest.mock.patch.dict(os.environ, {"REL_TESTDB": "off"}):
+            record.emit("wallet.address", name="w", role="lane", kind="epicbox", address="a@b")
+
+
+class OverlayPhaseTest(Base):
+    def test_overlay_fires_at_its_own_phase_only(self):
+        self.breaks("overlay@previous-setup:5")
+        lane = types.SimpleNamespace(log=self.logs.append, ui=None)
+        breaks.at_phase(lane, "previous")
+        self.assertEqual(self.logged("BREAK: a scan overlay"), [])
+        breaks.at_phase(lane, "previous-setup")
+        self.assertEqual(len(self.logged("BREAK: a scan overlay covers the page for 5 reads as previous-setup")), 1)
 
 
 class NodeDownTest(Base):
