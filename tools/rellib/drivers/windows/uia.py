@@ -230,6 +230,8 @@ class WinSurface:
 
     def alive(self):
         r = self._call("procs")
+        if not r.get("ok"):
+            raise HarnessFault("ui", "the rig agent could not list the app's processes: %s" % (r.get("error") or "")[:120])
         return any(p.split(" ")[0] in ("btwallet", "epic_wallet") for p in (r.get("procs") or []))
 
     def close(self):
