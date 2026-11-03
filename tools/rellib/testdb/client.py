@@ -29,10 +29,17 @@ Events (fields besides these are kept in the event body; `ts` defaults to now, U
   aipath.put     key, platform, goal, screen_sig, actions
   aipath.hit / aipath.fail   key
   aipath.set_state  key, state (new|replayed|reviewed|promoted|rejected), reviewed_by
+  wallet.put     name, role, platform, lane, phrase, password, created, origin, note, state (active|retired)
+                 An upsert by name: a newer ts wins, an empty value never blanks a known one.
+  wallet.address name, role, kind (epicbox|http|tor|other), address
+  wallet.snapshot  name, role, spendable, total, unconfirmed, locked (text, EPIC), txs (JSON), origin,
+                 and optionally run, lane, n
+  wallet.retire  name, role, note
+  Test wallets only (the ones the harness makes or uses; never a user's own): every wallet.* event
+  needs `role` in lane|seed|funder|qa|sandbox|create|reviewer, else the writer refuses it. The DB is
+  local; phrases and passwords sit in it, and no network query returns them.
 Missing run/lane/n fall back to what tools/rel exports to a step: REL_RUN_ID, the step folder of REL_STAGE
-(lane) and its newest attempt-N.log (n). Reserved keyword names: kind, source, db, ts, eid.
-Any field named password/passphrase/phrase/seed/mnemonic, or any text with 12+ short lower-case
-words in a row, makes the writer refuse the whole event (counted, never stored).
+(lane) and its newest attempt-N.log (n). Reserved keyword names: source, db, ts, eid (the event kind is positional-only).
 """
 import itertools
 import json
@@ -46,7 +53,7 @@ import urllib.request
 
 KINDS = frozenset("""run.start run.end lane.start lane.end attempt.start attempt.end attempt.heartbeat
 step.start step.end failure bundle playbook.propose playbook.set_state aipath.put aipath.hit aipath.fail
-aipath.set_state""".split())
+aipath.set_state wallet.put wallet.address wallet.snapshot wallet.retire""".split())
 MAX_EVENT = 256 * 1024
 DRAIN_BUDGET = 0.1
 HOST = socket.gethostname()
@@ -152,13 +159,13 @@ def post(url, payload, timeout=3):
         return r.status
 
 
-def emit(kind, source="cli", db=None, **fields):
+def emit(event, /, source="cli", db=None, **fields):
     """Queues one event; returns its eid, or None when it could not be queued. Never raises."""
     try:
         if disabled(db):
             return None
         path = db_path(db)
-        ev = make_event(kind, source, fields)
+        ev = make_event(event, source, fields)
         url = os.environ.get("TESTDB_URL")
         if url:
             try:

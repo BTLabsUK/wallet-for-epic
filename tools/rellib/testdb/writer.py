@@ -12,15 +12,13 @@ import time
 from . import client
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-# Same shape as drivers/core/recover.py PHRASE: 12+ short lower-case words in a row, maybe a recovery phrase.
-PHRASE = re.compile(r"(\b[a-z]{3,8}\b[\s|,]+){12,}")
-SECRET_KEY = re.compile(r"password|passphrase|phrase|seed|mnemonic", re.I)
+WALLET_ROLES = ("lane", "seed", "funder", "qa", "sandbox", "create", "reviewer")
 PLAYBOOK_STATES = ("open", "accepted", "rejected")
 PATH_STATES = ("new", "replayed", "reviewed", "promoted", "rejected")
 
 
 class Refused(Exception):
-    """An event holding something secret-shaped: counted, never stored."""
+    """An event the writer will not store (a wallet.* event without a test-wallet role): counted, dropped."""
 
 
 class Bad(Exception):
@@ -62,30 +60,6 @@ def migrate_db(conn):
                            "INSERT OR REPLACE INTO meta VALUES('schema_version','%d');\nCOMMIT;" % (sql, version))
         have = version
     return have
-
-
-def check_secrets(value):
-    """`value` with phrase-shaped text cut out, and how many cuts. A field named like a secret refuses
-    the whole event (Refused); phrase-shaped text in a note is cut, so the event (an attempt's end)
-    still lands and no attempt stays "running" for a false match."""
-    if isinstance(value, dict):
-        out, cuts = {}, 0
-        for k, v in value.items():
-            if SECRET_KEY.search(str(k)):
-                raise Refused("field %s" % k)
-            out[k], c = check_secrets(v)
-            cuts += c
-        return out, cuts
-    if isinstance(value, (list, tuple)):
-        out, cuts = [], 0
-        for v in value:
-            x, c = check_secrets(v)
-            out.append(x)
-            cuts += c
-        return out, cuts
-    if isinstance(value, str) and PHRASE.search(value.lower() + " "):
-        return PHRASE.sub("[phrase-shaped text removed] ", value.lower() + " ").strip(), 1
-    return value, 0
 
 
 def norm_ts(ts):
@@ -257,8 +231,53 @@ def apply_event(conn, ev):
         conn.execute("INSERT OR IGNORE INTO ai_paths(key, state, created) VALUES(?, 'new', ?)", (body["key"], ts))
         _fill_and_set(conn, "ai_paths", "key", body["key"], ts,
                       {"state": body["state"], "reviewed_by": body.get("reviewed_by")})
+    elif kind.startswith("wallet."):
+        _wallet(conn, kind, ts, body)
     else:
         raise Bad("unknown kind %s" % kind)
+
+
+WALLET_COLS = ("role", "platform", "lane", "phrase", "password", "created", "note")
+
+
+def _wallet(conn, kind, ts, body):
+    _need(body, "name")
+    name = str(body["name"])
+    conn.execute("INSERT OR IGNORE INTO wallets(name, role, state, created, updated) VALUES(?,?,'active',?,?)",
+                 (name, body["role"], body.get("created") or ts, ts))
+    wid = conn.execute("SELECT id FROM wallets WHERE name=?", (name,)).fetchone()[0]
+    if kind == "wallet.put":
+        # a newer ts wins; an empty value never blanks what is known (phrase and password included)
+        sets = {c: body[c] for c in WALLET_COLS if body.get(c) not in (None, "")}
+        if body.get("origin"):  # the column is `source`; the event field is `origin` (emit() owns `source`)
+            sets["source"] = body["origin"]
+        if body.get("state") in ("active", "retired"):
+            sets["state"] = body["state"]
+        sets["updated"] = ts
+        _fill_and_set(conn, "wallets", "id", wid, ts, sets)
+    elif kind == "wallet.retire":
+        _fill_and_set(conn, "wallets", "id", wid, ts, {"state": "retired", "updated": ts, "note": body.get("note")})
+    elif kind == "wallet.address":
+        _need(body, "address")
+        akind = body.get("kind") or "other"
+        if akind not in ("epicbox", "http", "tor", "other"):
+            raise Bad("bad address kind %s" % akind)
+        conn.execute("INSERT OR IGNORE INTO wallet_addresses(wallet_id, kind, address, first_seen, last_seen) "
+                     "VALUES(?,?,?,?,?)", (wid, akind, body["address"], ts, ts))
+        conn.execute("UPDATE wallet_addresses SET first_seen=MIN(first_seen, ?), last_seen=MAX(last_seen, ?) "
+                     "WHERE wallet_id=? AND kind=? AND address=?", (ts, ts, wid, akind, body["address"]))
+    elif kind == "wallet.snapshot":
+        conn.execute("INSERT INTO wallet_snapshots(wallet_id, ts, run, lane, n, spendable, total, unconfirmed, locked, txs, source) "
+                     "VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+                     (wid, ts, body.get("run"), body.get("lane"), body.get("n"), _txt(body.get("spendable")),
+                      _txt(body.get("total")), _txt(body.get("unconfirmed")), _txt(body.get("locked")),
+                      _json(body.get("txs")), body.get("origin")))
+    else:
+        raise Bad("unknown kind %s" % kind)
+
+
+def _txt(v):
+    return None if v is None else str(v)
 
 
 def validate(ev, size=0):
@@ -277,13 +296,12 @@ def validate(ev, size=0):
 
 def ingest(conn, ev, size=0):
     """Validates and applies one event in one transaction; a repeated eid is a no-op. Returns True when
-    applied, False for a repeat. Raises Refused (secret-shaped) or Bad."""
+    applied, False for a repeat. Raises Refused (a wallet.* event without a valid role) or Bad."""
     ev = validate(ev, size)
     if not ev["eid"]:
         raise Bad("missing eid")
-    ev["body"], cuts = check_secrets(ev["body"])
-    if cuts:
-        _count_refused(conn)
+    if ev["kind"].startswith("wallet.") and ev["body"].get("role") not in WALLET_ROLES:
+        raise Refused("wallet event without a test-wallet role")
     conn.execute("BEGIN IMMEDIATE")
     try:
         cur = conn.execute("INSERT OR IGNORE INTO events(eid, ts, host, source, seq, kind, body, received) "
@@ -349,7 +367,7 @@ def _drain_locked(db, budget):
                     ev = json.load(f)
                 ingest(conn, ev, size)
             except Refused:
-                _count_refused(conn)  # counted, never stored: the file goes away
+                _count_refused(conn)  # counted: the file goes away
             except sqlite3.OperationalError:
                 raise  # busy, locked, disk: the file stays and the next drain tries again
             except FileNotFoundError:

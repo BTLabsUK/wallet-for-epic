@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 """`testdb serve`: remote machines POST events here; the server only drops them into the inbox (the
-writer applies them). GET /q/<last|failures|live|playbook|paths> answers read-only JSON.
+writer applies them). GET /q/<last|failures|live|playbook|paths|wallets|wallet> answers read-only JSON (wallet phrases and passwords are never in it).
 
 Bind it to the tailnet address only. A non-loopback bind refuses to start without TESTDB_TOKEN; clients
 send it as a bearer token (set the same TESTDB_TOKEN on the posting machines)."""
@@ -85,7 +85,7 @@ def make_server(db, bind="127.0.0.1:8765"):
                 return self._send(404, {"error": "not found"})
             if not self._authed():
                 return self._send(401, {"error": "token required"})
-            args = {k: v[0] for k, v in parse_qs(u.query).items()}
+            args = {k: v[0] for k, v in parse_qs(u.query).items() if k != "secrets"}  # never over the network
             try:
                 conn = client.read(db)
             except Exception:  # noqa: BLE001 - nothing written yet

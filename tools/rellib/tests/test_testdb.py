@@ -126,22 +126,71 @@ class QueueTest(TdbCase):
         self.assertIsNone(client.emit("run.start", run="r"))
 
 
-class SecretTest(TdbCase):
-    def test_secret_fields_refused_phrase_text_cut(self):
-        phrase = " ".join("word" for _ in range(12))
-        client.emit("step.end", run="r", lane="L", n=1, step="ok11", detail=" ".join("word" for _ in range(11)))
-        client.emit("step.end", run="r", lane="L", n=1, step="s", detail={"password": "x"})
-        client.emit("step.end", run="r", lane="L", n=1, step="s", detail="typed " + phrase)
-        client.emit("step.end", run="r", lane="L", n=1, step="s", seed="abc")
-        client.emit("step.end", run="r", lane="L", n=1, step="s", detail="short words only here")
+class WalletTest(TdbCase):
+    PHRASE = " ".join("tword" for _ in range(24))
+
+    def test_role_rule_and_upsert(self):
+        client.emit("wallet.put", name="w", phrase="x")  # no role: refused
+        client.emit("wallet.put", name="w", role="user", phrase="x")  # not a test-wallet role: refused
+        client.emit("wallet.put", ts="2026-01-01T00:00:05.000000Z", name="w", role="lane", platform="linux",
+                    phrase=self.PHRASE, password="pw1")
+        client.emit("wallet.put", ts="2026-01-01T00:00:09.000000Z", name="w", role="lane", platform="android", phrase="", password=None)
+        client.emit("wallet.put", ts="2026-01-01T00:00:02.000000Z", name="w", role="lane", platform="windows")
+        client.emit("wallet.address", name="w", role="lane", kind="epicbox", address="esA@box")
+        client.emit("wallet.address", name="w", role="lane", kind="epicbox", address="esA@box")
+        client.emit("wallet.snapshot", ts="2026-01-02T00:00:00.000000Z", name="w", role="lane", spendable="0.05", total="0.06", txs=[{"a": 1}])
+        client.emit("wallet.snapshot", ts="2026-01-03T00:00:00.000000Z", name="w", role="lane", spendable="0.04", total="0.04")
         self.drain()
-        # the 11-word text, the short one and the phrase-shaped one with the phrase cut; the two secret fields refused
-        self.assertEqual(self.q("SELECT COUNT(*) c FROM events")[0]["c"], 3)
-        self.assertIn("[phrase-shaped text removed]", json.dumps(self.q("SELECT body FROM events")))
-        self.assertEqual(self.q("SELECT value FROM meta WHERE key='refused'")[0]["value"], "3")
-        self.assertNotIn(" ".join(["word"] * 12), json.dumps(self.q("SELECT body FROM events")))
-        self.assertEqual(writer.pending(self.db), 0)
-        self.assertFalse(os.path.exists(os.path.join(client.inbox_dir(self.db), "bad")))
+        self.assertEqual(self.q("SELECT value FROM meta WHERE key='refused'")[0]["value"], "2")
+        w = self.q("SELECT * FROM wallets")
+        self.assertEqual(len(w), 1)
+        self.assertEqual((w[0]["platform"], w[0]["phrase"], w[0]["password"]), ("android", self.PHRASE, "pw1"))  # newer wins, nothing blanked
+        self.assertEqual(self.q("SELECT COUNT(*) c FROM wallet_addresses")[0]["c"], 1)
+        conn = client.read(self.db)
+        try:
+            row = queries.wallets(conn)[0]
+            self.assertEqual((row["address"], row["spendable"]), ("esA@box", "0.04"))
+            self.assertNotIn(self.PHRASE, json.dumps(queries.wallets(conn)))
+            plain = queries.wallet(conn, name="w")
+            self.assertNotIn(self.PHRASE, json.dumps(plain))
+            self.assertEqual(plain["phrase"], "(set)")
+            self.assertEqual(queries.wallet(conn, name="w", secrets=True)["phrase"], self.PHRASE)
+            self.assertEqual(len(plain["snapshots"]), 2)
+        finally:
+            conn.close()
+        client.emit("wallet.retire", name="w", role="lane")
+        self.drain()
+        self.assertEqual(self.q("SELECT state FROM wallets")[0]["state"], "retired")
+
+    def test_text_that_looks_like_a_phrase_is_kept_in_ordinary_events(self):
+        client.emit("step.end", run="r", lane="L", n=1, step="s", detail=self.PHRASE, phrase_screen=True)
+        self.drain()
+        self.assertEqual(self.q("SELECT COUNT(*) c FROM events")[0]["c"], 1)
+
+    def test_server_never_returns_secrets(self):
+        client.emit("wallet.put", name="w", role="qa", phrase=self.PHRASE, password="pw-secret")
+        self.drain()
+        srv = server.make_server(self.db, "127.0.0.1:0")
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        self.addCleanup(srv.server_close)
+        self.addCleanup(srv.shutdown)
+        url = "http://127.0.0.1:%d" % srv.server_address[1]
+        for path in ("/q/wallets", "/q/wallet?name=w&secrets=1", "/q/wallet?name=w&secrets=true"):
+            with urllib.request.urlopen(url + path, timeout=5) as r:
+                text = r.read().decode()
+            self.assertNotIn(self.PHRASE, text)
+            self.assertNotIn("pw-secret", text)
+        with urllib.request.urlopen(url + "/q/wallet?name=w", timeout=5) as r:
+            self.assertEqual(json.loads(r.read())["name"], "w")
+
+    def test_cli_wallet_secrets_only_with_flag(self):
+        client.emit("wallet.put", name="w", role="qa", phrase=self.PHRASE, password="pw-secret")
+        self.drain()
+        tool = os.path.join(os.path.dirname(RELLIB), "testdb")
+        run = lambda *a: subprocess.run([tool, *a], capture_output=True, text=True, env=dict(os.environ), timeout=60).stdout  # noqa: E731
+        self.assertNotIn(self.PHRASE, run("wallets") + run("wallet", "w"))
+        self.assertIn(self.PHRASE, run("wallet", "w", "--secrets"))
+        self.assertIn("w ", run("wallets", "--role", "qa"))
 
 
 class ServerTest(TdbCase):

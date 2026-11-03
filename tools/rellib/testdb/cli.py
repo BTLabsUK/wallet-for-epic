@@ -12,7 +12,7 @@ def table(rows, cols=None):
     if not rows:
         return "(none)"
     cols = cols or list(rows[0])
-    cells = [[("" if r.get(c) is None else str(r.get(c)).replace("\n", " ")[:70]) for c in cols] for r in rows]
+    cells = [[("" if r.get(c) is None else str(r.get(c)).replace("\n", " ")[:100]) for c in cols] for r in rows]
     w = [max(len(c), *(len(r[i]) for r in cells)) for i, c in enumerate(cols)]
     lines = ["  ".join(c.ljust(w[i]) for i, c in enumerate(cols)).rstrip()]
     lines += ["  ".join(v.ljust(w[i]) for i, v in enumerate(r)).rstrip() for r in cells]
@@ -23,6 +23,7 @@ COLS = {
     "last": ["lane", "run_id", "n", "state", "rc", "cause_class", "cause", "ended"],
     "failures": ["ts", "run_id", "lane", "n", "step", "cause_class", "cause", "what"],
     "playbook": ["id", "key", "state", "situation", "fix", "version_added"],
+    "wallets": ["name", "role", "platform", "address", "spendable", "total", "balance_at", "state"],
     "paths": ["id", "key", "platform", "goal", "state", "hits", "fails", "reviewed_by"],
 }
 
@@ -83,6 +84,12 @@ def main(argv=None):
     p.add_argument("--open", action="store_true", help="same as --state open")
     p = q("paths", "AI paths")
     p.add_argument("--state")
+    p = q("wallets", "test wallets (no phrase or password); `wallets import` reads the harness's wallet files")
+    p.add_argument("--role")
+    p.add_argument("action", nargs="?", choices=["import"])
+    p = q("wallet", "one test wallet")
+    p.add_argument("name")
+    p.add_argument("--secrets", action="store_true", help="also show the phrase and the password")
     pp = sub.add_parser("path", help="path review|promote|reject <id>")
     pp.add_argument("action", choices=["review", "promote", "reject"])
     pp.add_argument("id")
@@ -112,8 +119,27 @@ def main(argv=None):
             break
     ns = ap.parse_args(argv)
     db = client.db_path(ns.db)
-    if ns.cmd in ("last", "failures", "live", "playbook", "paths"):
-        args = {k: v for k, v in vars(ns).items() if k not in ("db", "cmd", "open") and v is not None}
+    if ns.cmd == "wallets" and ns.action == "import":
+        from . import walletimport
+        walletimport.run(db)
+    elif ns.cmd == "wallet":
+        conn = client.read(db)
+        try:
+            data = queries.wallet(conn, name=ns.name, secrets=ns.secrets)
+        finally:
+            conn.close()
+        if not data:
+            sys.exit("testdb: no wallet %s" % ns.name)
+        if ns.json:
+            print(json.dumps(data, indent=1, default=str))
+        else:
+            for k, v in data.items():
+                if k not in ("addresses", "snapshots"):
+                    print("%-10s %s" % (k, "" if v is None else v))
+            print("\naddresses:\n" + table(data["addresses"]))
+            print("\nsnapshots:\n" + table(data["snapshots"]))
+    elif ns.cmd in ("last", "failures", "live", "playbook", "paths", "wallets"):
+        args = {k: v for k, v in vars(ns).items() if k not in ("db", "cmd", "open", "action") and v is not None}
         if getattr(ns, "open", False):
             args["state"] = "open"
         query(ns.cmd, args, db)
