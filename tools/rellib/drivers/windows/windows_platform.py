@@ -204,6 +204,7 @@ class WindowsPlatform(Platform):
             retry_ssh(self.rig, self.log, lambda: self.step)
             try:
                 self.rig.prepare()
+                self.rig.stop_orphans()   # a killed run's agent would hold the rig until its idle limit
                 if prev:
                     self.rig.put(prev, self.rig.run + "\\prev-setup.exe")
                 self.rig.put(cand, self.rig.run + "\\cand-setup.exe")
@@ -221,7 +222,7 @@ class WindowsPlatform(Platform):
         if dead:
             self._alert_dead(dead, self.rig.session if self.rig else None)
         if not self.rig:
-            raise HarnessFault("prepare", "no healthy Windows rig: %s" % " | ".join(describe(k, p) for k, p in dead))
+            raise InfraFault("prepare", "no healthy Windows rig: %s" % " | ".join(describe(k, p) for k, p in dead), sub="rig")
         self.log("rig session %d (%s), run folder %s" % (self.rig.session, task_name(self.rig.session), self.rig.run))
 
     def _alert_dead(self, dead, used):
