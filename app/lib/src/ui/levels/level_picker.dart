@@ -163,8 +163,7 @@ class _Stop extends StatelessWidget {
     final dark = theme.brightness == Brightness.dark;
     final border = on ? t.accent : (passed ? t.tick : t.line);
     final ink = on ? t.accentText : (passed ? t.dim : t.faint);
-    return Semantics(
-      identifier: TrustIds.levelStop(level.number),
+    return TrustId(TrustIds.levelStop(level.number), child: Semantics(
       inMutuallyExclusiveGroup: true,
       checked: on,
       child: InkWell(
@@ -209,7 +208,7 @@ class _Stop extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 

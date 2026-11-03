@@ -82,7 +82,7 @@ class Recover:
             with open(os.path.join(self.out, "selector-fixes.md"), "a") as f:
                 if kind == "pick":
                     f.write("- `%s` (step %s, %s %s): not found as %s %s; the screen has %s %r. Fix: give the control "
-                            "`Semantics(identifier: '%s')`, or add its key to tools/rellib/drivers/trust_ids.json.\n" % (
+                            "`trustId('%s', …)` (app/lib/src/trust_ids.dart), or add its key to tools/rellib/drivers/trust_ids.json.\n" % (
                                 e["target"], step, self.platform, self.build, getattr(target, "role", "?"), texts,
                                 node.role, node.name.split("\n")[0], e["target"]))
                 else:

@@ -5,12 +5,65 @@
 /// language; a control without one is found by its label.
 library;
 
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
-/// Names a control for the drivers: the id lands on the one node that carries the control's
-/// role, tap action and label (a merge around [child]).
-Widget trustId(String id, Widget child) =>
-    MergeSemantics(child: Semantics(identifier: id, child: child));
+/// Whether the controls carry their ids. Off only in test/trust_ids_semantics_test.dart, which
+/// builds each screen with and without ids and expects a screen reader to get the same tree.
+@visibleForTesting
+bool trustIdsOn = true;
+
+/// Names a control for the drivers: [id] joins the semantics node that [child]'s own semantics
+/// end in, and changes nothing else. `Semantics(identifier:)` is not used for this: an identifier
+/// there starts a node of its own, which splits a control from the tooltip, label or button it
+/// shares a node with (a password field read as its "Show" button). Around a widget that makes
+/// its own node (a Material button or list tile), the mark goes inside it, on the label or the
+/// icon: outside, the id lands on the node around the control, or on none.
+class TrustId extends StatelessWidget {
+  const TrustId(this.id, {super.key, required this.child});
+
+  final String? id;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => switch (trustIdsOn ? id : null) {
+    final id? => _TrustIdMark(id, child: child),
+    // No id: nothing in between, so the control's own render object is still the top one.
+    null => child,
+  };
+}
+
+class _TrustIdMark extends SingleChildRenderObjectWidget {
+  const _TrustIdMark(this.id, {required Widget super.child});
+
+  final String id;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) => _RenderTrustId(id);
+
+  @override
+  void updateRenderObject(BuildContext context, _RenderTrustId renderObject) => renderObject.id = id;
+}
+
+class _RenderTrustId extends RenderProxyBox {
+  _RenderTrustId(this._id);
+
+  String _id;
+  set id(String value) {
+    if (value == _id) return;
+    _id = value;
+    markNeedsSemanticsUpdate();
+  }
+
+  @override
+  void describeSemanticsConfiguration(SemanticsConfiguration config) {
+    super.describeSemanticsConfiguration(config);
+    config.identifier = _id;
+  }
+}
+
+/// [TrustId] around [child].
+Widget trustId(String id, Widget child) => TrustId(id, child: child);
 
 /// The ids of one server list (node or Epicbox).
 class TrustServerIds {

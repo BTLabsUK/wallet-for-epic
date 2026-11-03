@@ -96,24 +96,18 @@ class ConfirmationsRow extends ConsumerWidget {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              trustId(
-                TrustIds.confirmationsFewer,
-                IconButton(
-                  key: confirmationsMinusKey,
-                  icon: const Icon(Icons.remove),
-                  tooltip: l.advConfirmationsFewer,
-                  onPressed: ready && shown > minMinimumConfirmations ? () => set(shown - 1) : null,
-                ),
+              IconButton(
+                key: confirmationsMinusKey,
+                icon: trustId(TrustIds.confirmationsFewer, const Icon(Icons.remove)),
+                tooltip: l.advConfirmationsFewer,
+                onPressed: ready && shown > minMinimumConfirmations ? () => set(shown - 1) : null,
               ),
               valueText,
-              trustId(
-                TrustIds.confirmationsMore,
-                IconButton(
-                  key: confirmationsPlusKey,
-                  icon: const Icon(Icons.add),
-                  tooltip: l.advConfirmationsMore,
-                  onPressed: ready && shown < maxMinimumConfirmations ? () => set(shown + 1) : null,
-                ),
+              IconButton(
+                key: confirmationsPlusKey,
+                icon: trustId(TrustIds.confirmationsMore, const Icon(Icons.add)),
+                tooltip: l.advConfirmationsMore,
+                onPressed: ready && shown < maxMinimumConfirmations ? () => set(shown + 1) : null,
               ),
             ],
           ),

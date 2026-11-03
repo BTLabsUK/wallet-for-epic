@@ -11,6 +11,7 @@ import '../../ui/theme/brand.dart' show MarkedQr;
 import '../../amount.dart' show AmountSurface, epicFor, epicUnit, exactDecimals;
 import '../../initials.dart';
 import '../../text_join.dart' show noBreakSpace, withUnit;
+import '../../trust_ids.dart' show TrustId;
 import '../../providers.dart' show defaultMinimumConfirmations;
 import '../data/state.dart';
 import '../theme/icons.dart';
@@ -755,8 +756,7 @@ class _ENavItemState extends State<ENavItem> {
       ),
     );
     if (widget.compact) item = ETip(widget.label, child: item);
-    return Semantics(
-      identifier: widget.semanticsId,
+    return TrustId(widget.semanticsId, child: Semantics(
       button: true,
       selected: sel,
       label: count > 0
@@ -776,7 +776,7 @@ class _ENavItemState extends State<ENavItem> {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 

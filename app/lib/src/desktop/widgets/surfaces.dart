@@ -11,6 +11,7 @@ import '../../address_format.dart' show AddressPart, AddressTone, addressLines, 
 import '../desk_l10n.dart';
 import '../../balanced_text.dart';
 import '../../log.dart' show logWarn;
+import '../../trust_ids.dart' show TrustId;
 import '../../ui/theme/protocol.dart' show CornerTicksPainter, GridFieldPainter;
 import '../theme/icons.dart';
 import '../../ui/badge.dart';
@@ -524,7 +525,7 @@ TextSpan _cut(String a, int head, int tail, TextStyle st, DeskColors c, bool mar
 
 /// An address to read and copy: the first and last six characters in the accent.
 class EAddress extends StatelessWidget {
-  const EAddress(this.address, {super.key, this.large = false, this.onCopied, this.copyLabel, this.copy = true, this.extra});
+  const EAddress(this.address, {super.key, this.large = false, this.onCopied, this.copyLabel, this.copy = true, this.extra, this.semanticsId});
 
   final String address;
   final bool large;
@@ -540,6 +541,9 @@ class EAddress extends StatelessWidget {
 
   /// A small control before the copy icon (Receive's QR button).
   final Widget? extra;
+
+  /// The address's id for the drivers ([TrustId]), on the address and not on Copy.
+  final String? semanticsId;
 
   @override
   Widget build(BuildContext context) {
@@ -653,7 +657,7 @@ class EAddress extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(child: text),
+          Expanded(child: TrustId(semanticsId, child: text)),
           if (extra != null) ...[SizedBox(width: Sp.x2), extra!],
           if (copy) ...[SizedBox(width: Sp.x2), ECopyButton(text: address, label: copyLabel ?? context.l10n.commonCopy, onCopied: onCopied)],
         ],

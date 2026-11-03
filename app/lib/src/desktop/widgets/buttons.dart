@@ -5,6 +5,7 @@ import 'selectable.dart';
 
 import '../theme/tokens.dart';
 import 'tip.dart';
+import '../../trust_ids.dart' show TrustId;
 
 /// [primarySoft] is the primary of a row of peers (a detail header's Send): the accent as a soft
 /// tint with gold ink and a gold hairline, where a filled block would shout.
@@ -213,8 +214,7 @@ class _EButtonState extends State<EButton> {
       ),
     );
     // A label is never selected by a drag over the page (selectable.dart).
-    Widget body = Semantics(
-      identifier: widget.semanticsId,
+    Widget body = TrustId(widget.semanticsId, child: Semantics(
       button: true,
       enabled: enabled,
       label: widget.label,
@@ -246,7 +246,7 @@ class _EButtonState extends State<EButton> {
           },
         ),
       ),
-    );
+    ));
     if (widget.tooltip != null) body = ETip(widget.tooltip, child: body);
     return ExcludeFocusTraversal(excluding: !widget.tabStop, child: body);
   }
@@ -318,8 +318,7 @@ class _EIconButtonState extends State<EIconButton> {
       excluding: !widget.tabStop,
       child: ETip(
       widget.label,
-      child: Semantics(
-        identifier: widget.semanticsId,
+      child: TrustId(widget.semanticsId, child: Semantics(
         button: true,
         label: widget.label,
         selected: widget.selected,
@@ -353,7 +352,7 @@ class _EIconButtonState extends State<EIconButton> {
             ),
           ),
         ),
-      ),
+      )),
       ),
     );
   }
@@ -387,8 +386,7 @@ class _ELinkState extends State<ELink> {
     final color = widget.dim ? (_hover ? c.text : c.dim) : c.accentText;
     return ExcludeFocusTraversal(
       excluding: !widget.tabStop,
-      child: Semantics(
-      identifier: widget.semanticsId,
+      child: TrustId(widget.semanticsId, child: Semantics(
       link: true,
       onTap: widget.onPressed,
       child: FocusableActionDetector(
@@ -415,7 +413,7 @@ class _ELinkState extends State<ELink> {
             ),
           ),
         ),
-      ),
+      )),
       ),
     );
   }

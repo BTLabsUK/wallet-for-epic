@@ -12,6 +12,7 @@ import 'keyboard.dart';
 import 'selectable.dart';
 import 'tip.dart';
 import '../../text_join.dart';
+import '../../trust_ids.dart' show TrustId;
 
 /// Label, control, then help or error. [aside] sits at the label's right (e.g. "Available …").
 class EField extends StatelessWidget {
@@ -285,8 +286,7 @@ class _EInputState extends State<EInput> {
               Expanded(
                 child: _FadeEnd(
                   on: widget.fadeEnd && !multi && widget.trailing != null,
-                  child: Semantics(
-                  identifier: widget.semanticsId,
+                  child: TrustId(widget.semanticsId, child: Semantics(
                   label: widget.semanticLabel ?? _EFieldLabel.of(context) ?? widget.hint,
                   child: TextField(
                     controller: widget.controller,
@@ -318,20 +318,15 @@ class _EInputState extends State<EInput> {
                         vertical: multi ? Sp.x3 : (sm ? 0 : 12),
                       ),
                     ),
-                  ),
+                  )),
                   ),
                 ),
               ),
               if (widget.trailing != null)
                 Padding(
                   padding: EdgeInsets.only(right: Sp.x1),
-                  // Icons inside a field (eye, clear, paste) are never Tab stops. Their own node, beside
-                  // the field's: with a [semanticsId] the field's row would otherwise take the icon's
-                  // button and label, and the field would sit inside it.
-                  child: Semantics(
-                    container: true,
-                    child: ExcludeFocusTraversal(excluding: !widget.trailingTabStop, child: widget.trailing!),
-                  ),
+                  // Icons inside a field (eye, clear, paste) are never Tab stops.
+                  child: ExcludeFocusTraversal(excluding: !widget.trailingTabStop, child: widget.trailing!),
                 ),
             ],
           ),
@@ -547,8 +542,7 @@ class ESwitch extends StatelessWidget {
         ),
       ),
     );
-    return Semantics(
-      identifier: semanticsId,
+    return TrustId(semanticsId, child: Semantics(
       toggled: value,
       label: label ?? semanticLabel,
       child: FocusableActionDetector(
@@ -576,7 +570,7 @@ class ESwitch extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 
@@ -758,8 +752,7 @@ class _SegState<T> extends State<_Seg<T>> {
     final fg = sel ? c.text : (off ? c.faint : (_hover ? c.text : c.dim));
     final label = TextStyle(fontSize: Fs.sm, fontWeight: FontWeight.w500, color: fg);
     final tip = widget.seg.tooltip;
-    final seg = Semantics(
-      identifier: widget.seg.semanticsId,
+    final seg = TrustId(widget.seg.semanticsId, child: Semantics(
       button: true,
       selected: sel,
       enabled: !off,
@@ -815,7 +808,7 @@ class _SegState<T> extends State<_Seg<T>> {
           ),
         ),
       ),
-    );
+    ));
     return ETip(tip, child: seg);
   }
 }
@@ -861,8 +854,7 @@ class _EChoiceCardState extends State<EChoiceCard> {
     final c = context.dc;
     final ts = context.ts;
     final sel = widget.selected;
-    return Semantics(
-      identifier: widget.semanticsId,
+    return TrustId(widget.semanticsId, child: Semantics(
       inMutuallyExclusiveGroup: true,
       checked: sel,
       button: true,
@@ -919,7 +911,7 @@ class _EChoiceCardState extends State<EChoiceCard> {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 
@@ -936,8 +928,7 @@ class ECheckbox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    return Semantics(
-      identifier: semanticsId,
+    return TrustId(semanticsId, child: Semantics(
       checked: value,
       label: label,
       excludeSemantics: true,
@@ -975,7 +966,7 @@ class ECheckbox extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 

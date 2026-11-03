@@ -702,16 +702,13 @@ class _TourCard extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  trustId(
-                    TrustIds.tourSkip,
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        minimumSize: tap,
-                        foregroundColor: t.dim,
-                      ),
-                      onPressed: onSkip,
-                      child: Text(l.tourPhoneSkip),
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      minimumSize: tap,
+                      foregroundColor: t.dim,
                     ),
+                    onPressed: onSkip,
+                    child: trustId(TrustIds.tourSkip, Text(l.tourPhoneSkip)),
                   ),
                   const SizedBox(width: 8),
                   // Back and Next wrap under each other rather than overflow at a large font.

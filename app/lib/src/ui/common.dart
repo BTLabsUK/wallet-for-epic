@@ -26,6 +26,7 @@ import '../settings.dart';
 import '../stall_retry.dart';
 import '../text_join.dart';
 import '../wallet_service.dart';
+import '../trust_ids.dart' show TrustId;
 import 'home_screen.dart';
 import 'launch_screen.dart';
 import 'address_view.dart' show ShortAddressText;
@@ -2025,6 +2026,7 @@ class BusyButton extends StatelessWidget {
     required this.onPressed,
     this.busy = false,
     this.busyLabel,
+    this.semanticsId,
   });
 
   final String label;
@@ -2032,12 +2034,15 @@ class BusyButton extends StatelessWidget {
   final bool busy;
   final String? busyLabel;
 
+  /// The button's id for the drivers ([TrustId]).
+  final String? semanticsId;
+
   @override
   Widget build(BuildContext context) {
     return FilledButton(
       onPressed: busy ? null : onPressed,
       style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-      child: busy
+      child: TrustId(semanticsId, child: busy
           ? Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -2052,7 +2057,7 @@ class BusyButton extends StatelessWidget {
                 Text(busyLabel ?? label),
               ],
             )
-          : Text(label),
+          : Text(label)),
     );
   }
 }

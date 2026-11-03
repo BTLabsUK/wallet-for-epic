@@ -578,9 +578,7 @@
     "desktop"
    ],
    "role": "text",
-   "keys": [
-    "deskRecvCopyEpicbox"
-   ],
+   "keys": [],
    "match": "contains",
    "secret": false
   },

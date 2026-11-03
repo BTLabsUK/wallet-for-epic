@@ -761,8 +761,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
           // node", "Checking…") is in the interface face.
           final isHost = typedServerValue(widget.kind, widget.fieldText.trim().split(RegExp(r'[\s,]+')).first) != null;
           final valueStyle = isHost ? ts.mono(size: 13.u, color: c.text) : ts.body.copyWith(color: c.text);
-          return Semantics(
-            identifier: _ids.picker,
+          return TrustId(_ids.picker, child: Semantics(
             button: true,
             onTap: open ? collapse : this.open,
             label: '${widget.label}: ${widget.fieldText}${widget.fieldSub != null ? ', ${widget.fieldSub}' : ''}',
@@ -837,7 +836,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
                 ),
               ),
             ),
-          );
+          ));
         },
       ),
     );
@@ -1209,8 +1208,7 @@ class _Row extends StatelessWidget {
       if (s.latencyMs != null) (l.deskSlLatency(digitsText(l, s.latencyMs!)), dim, false),
       if (kind == ServerKind.node && !down && s.version != null) (s.version!, s.versionOld ? c.warn : dim, false),
     ];
-    final row = Semantics(
-      identifier: semanticsId,
+    final row = TrustId(semanticsId, child: Semantics(
       button: ticked == null,
       selected: ticked == null ? selected : null,
       checked: ticked,
@@ -1321,7 +1319,7 @@ class _Row extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
     return dimmed ? Opacity(opacity: 0.55, child: row) : row;
   }
 }
@@ -1411,8 +1409,7 @@ class _AddRow extends StatelessWidget {
     final l = context.l10n;
     return Padding(
       padding: EdgeInsets.only(bottom: Sp.x1),
-      child: Semantics(
-        identifier: semanticsId,
+      child: TrustId(semanticsId, child: Semantics(
         button: true,
         label: l.slAddRow(host),
         child: EInkWell(
@@ -1453,7 +1450,7 @@ class _AddRow extends StatelessWidget {
             ),
           ),
         ),
-      ),
+      )),
     );
   }
 }

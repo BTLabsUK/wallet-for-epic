@@ -124,24 +124,18 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
         text: '${l.backupConsentWhat} ${l.backupConsentReady}\n\n${l.backupCopyWarning}',
       ),
       const SizedBox(height: 8),
-      trustId(
-        TrustIds.backupAgree,
-        CheckboxListTile(
-          contentPadding: EdgeInsets.zero,
-          controlAffinity: ListTileControlAffinity.leading,
-          value: _agreed,
-          onChanged: (value) => setState(() => _agreed = value ?? false),
-          title: Text(l.backupCopyAgree),
-        ),
+      CheckboxListTile(
+        contentPadding: EdgeInsets.zero,
+        controlAffinity: ListTileControlAffinity.leading,
+        value: _agreed,
+        onChanged: (value) => setState(() => _agreed = value ?? false),
+        title: trustId(TrustIds.backupAgree, Text(l.backupCopyAgree)),
       ),
       const SizedBox(height: 16),
-      trustId(
-        TrustIds.backupShow,
-        FilledButton(
-          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-          onPressed: _agreed ? _load : null,
-          child: Text(l.backupShowPhrase),
-        ),
+      FilledButton(
+        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+        onPressed: _agreed ? _load : null,
+        child: trustId(TrustIds.backupShow, Text(l.backupShowPhrase)),
       ),
     ];
   }
@@ -172,7 +166,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
       const SizedBox(height: 8),
     ];
     return ScreenBody(
-      bottom: trustId(TrustIds.backupDone, BusyButton(label: l.commonDone, onPressed: _done)),
+      bottom: BusyButton(label: l.commonDone, onPressed: _done, semanticsId: TrustIds.backupDone),
       scrolling: _grid(context),
       children: top,
     );
