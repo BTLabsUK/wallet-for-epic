@@ -132,6 +132,11 @@ class Pipeline:
             for v in s.get("variants", []):
                 if v not in VARIANTS:
                     raise ConfigError(f"{path}: step {name}: unknown variant {v}")
+            for v, over in (s.get("by_variant") or {}).items():
+                if v not in VARIANTS:
+                    raise ConfigError(f"{path}: step {name}: by_variant: unknown variant {v}")
+                if not s.get("for_each") or set(over) - {"run", "results", "outputs", "title"}:
+                    raise ConfigError(f"{path}: step {name}: by_variant needs for_each and sets only run, results, outputs, title")
             # warn_only: a failure is shown as a warning and holds nothing. For what comes after the
             # release is live, and for a pre-gate step another step judges (the screens render,
             # judged by screens-check); a gate, a proof or a build never just warns.
@@ -349,6 +354,9 @@ def validate_scope(scope, pipeline, version_at_commit=None, previous_version=Non
                     "production stays a click in Play Console")
     if promote and not scope["variants"].get("tor"):
         errs.append("stores.play_promote needs the tor variant (Play takes the build with Tor)")
+    if scope["platforms"].get("ios") and not scope.get("apple", {}).get("signed", True) and not scope["variants"].get("notor"):
+        errs.append("Apple ad hoc ios needs the notor variant (the one unsigned ipa is the build without Tor): "
+                    "keep notor or leave ios out")
     if scope["publish"]["manifests"]:
         if not scope["platforms"].get("android"):
             errs.append("publish.manifests needs android in scope (app/tool/release_android.sh builds the manifest "

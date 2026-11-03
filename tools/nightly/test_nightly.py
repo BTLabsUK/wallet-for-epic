@@ -155,6 +155,15 @@ class DecisionTest(unittest.TestCase):
             self.assertEqual(nightly.decide(st, "s1"), ("skip", "unchanged"))
             self.assertEqual(nightly.decide(st, "s2"), ("run", None))
 
+    def test_green_record_skips(self):
+        with tempfile.TemporaryDirectory() as d:
+            Path(d, "s1.json").write_text(json.dumps({"sha": "s1", "status": "green", "clean": True,
+                                                      "by": "release"}))
+            Path(d, "s2.json").write_text(json.dumps({"sha": "s2", "status": "green", "clean": False}))
+            self.assertEqual(nightly.decide({}, "s1", d)[0], "skip")
+            self.assertEqual(nightly.decide({}, "s2", d), ("run", None))
+            self.assertEqual(nightly.decide({}, "s3", d), ("run", None))
+
     def test_error_retried_twice(self):
         st = {"last_completed": {"sha": "s1", "status": "error"}, "errors": {"s1": 1}}
         self.assertEqual(nightly.decide(st, "s1")[0], "run")

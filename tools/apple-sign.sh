@@ -105,7 +105,8 @@ macho_files() {
 }
 
 # The handoff folder $1: its SHA256SUMS hold, PROVENANCE.txt is shown, and the commit is the one
-# asked for (RELEASE_COMMIT). Sets name, version, mac_tar, ios_tar.
+# asked for (RELEASE_COMMIT). Sets name, version, mac_tar, ios_tar (empty for a hand-off with Tor:
+# iOS is only built without Tor).
 check_handoff() {
   local dir="$1" head
   [ -d "$dir" ] || die "no hand-off folder $dir"
@@ -115,7 +116,7 @@ check_handoff() {
   # bt-wallet-<v>-…; a hand-off made before the rename has EpicCashDesktop-<v>-… and EpicCashMobile-<v>-….
   mac_tar="$(cd "$dir" && ls bt-wallet-*-macos-unsigned.tar.gz EpicCashDesktop-*-macos-unsigned.tar.gz 2>/dev/null | head -1 || true)"
   ios_tar="$(cd "$dir" && ls bt-wallet-*-ios-unsigned.tar.gz EpicCashMobile-*-ios-unsigned.tar.gz 2>/dev/null | head -1 || true)"
-  [ -n "$mac_tar" ] && [ -n "$ios_tar" ] || die "$dir has no macos-unsigned and ios-unsigned tar.gz"
+  [ -n "$mac_tar" ] || die "$dir has no macos-unsigned tar.gz"
   version="${mac_tar#bt-wallet-}"
   version="${version#EpicCashDesktop-}"
   version="${version%-macos-unsigned.tar.gz}"
@@ -144,13 +145,15 @@ check_cmd() {
   local work
   work="$(mktemp -d "${TMPDIR:-/tmp}/apple-check.XXXXXX")"
   unpack_checked "$1/$mac_tar" "$work/mac" "$desktop_name.app" "$1/PROVENANCE.txt"
-  unpack_checked "$1/$ios_tar" "$work/ios" Runner.app "$1/PROVENANCE.txt"
   echo "macOS Mach-O files:"
   macho_files "$work/mac/$desktop_name.app" | sed 's/^/  /'
-  echo "iOS Mach-O files:"
-  macho_files "$work/ios/Runner.app" | sed 's/^/  /'
+  if [ -n "$ios_tar" ]; then
+    unpack_checked "$1/$ios_tar" "$work/ios" Runner.app "$1/PROVENANCE.txt"
+    echo "iOS Mach-O files:"
+    macho_files "$work/ios/Runner.app" | sed 's/^/  /'
+  fi
   rm -rf "$work"
-  echo "PASS check: $name, the files of both apps match PROVENANCE.txt"
+  echo "PASS check: $name, the files of $([ -n "$ios_tar" ] && echo both apps || echo the app) match PROVENANCE.txt"
 }
 
 # The signature of every Mach-O file under $1 (a bundle or one file), every architecture in it:
@@ -414,7 +417,8 @@ ios_cmd() {
   need_file IOS_PROFILE
   check_handoff "$1"
   grep -q '^variant: *without Tor' "$1/PROVENANCE.txt" \
-    || echo "note: this hand-off is the build with Tor; the App Store build is the one without Tor (WFE_TOR=0)" >&2
+    || die "this hand-off is the build with Tor; iOS is only built without Tor (WFE_TOR=0)"
+  [ -n "$ios_tar" ] || die "$1 has no ios-unsigned tar.gz"
   local dir out work app ent ipa p12
   dir="$(cd "$1" && pwd)"
   out="$out_root/$name"

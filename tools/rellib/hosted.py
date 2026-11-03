@@ -1,10 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
 """Hosted builds: the build-* steps of a run started with `tools/rel start --builds hosted`.
 
-hosted-dispatch (a builtin, right after source) sends ONE workflow_dispatch of
+hosted-dispatch (a builtin, right after source) sends a workflow_dispatch of
 .github/workflows/build.yml on BTLabsUK/wallet-for-epic for the published twin of the release
 commit, with the platforms and variants of the build steps that the reuse check does not cover.
-Each build step then runs tools/rellib/steps/build-fetch.py instead of its local build: it waits
+With [hosted] waves the builds go out in waves (the Tor builds, then the no-Tor ones): the first
+wave from hosted-dispatch, a later one from the first of its build steps once every build of the
+waves before is in; a failed one stops it there. Each build step then runs tools/rellib/steps/build-fetch.py instead of its local build: it waits
 for its job (deadline from dispatch), downloads its artifact, verifies it (the run's commit and
 workflow, SHA256SUMS, the build attestation and its commit, the platform's verify script,
 build-info.json), places the files in {stage} as the local build would, writes built_by.json
@@ -33,7 +35,7 @@ DEFAULTS = {
     "repo": "BTLabsUK/wallet-for-epic", "workflow": "build.yml", "gh_config": "~/.config/gh-btlabs",
     "account": "btlabs-uk", "commit_map": "~/publish/wallet-for-epic.commit-map",
     "state": "/tmp/epic-build/rel/hosted-dispatches.jsonl", "max_per_day": 8, "ramp_until": "",
-    "ramp_max_per_day": 2, "poll": "30s", "find_wait": "120s",
+    "ramp_max_per_day": 2, "poll": "30s", "find_wait": "120s", "waves": [],
     "deadline": {"android": "90m", "linux": "90m", "windows": "105m"},
 }
 # The verify scripts of the release checkout (shared with the local builds and the runner).
@@ -59,6 +61,10 @@ def conf(pipeline):
     for k in ("max_per_day", "ramp_max_per_day"):
         if type(c[k]) is not int or c[k] < 0:
             raise ConfigError(f"[hosted] {k} = {c[k]!r}: a whole number, 0 or more")
+    w = c["waves"]
+    if not isinstance(w, list) or not all(isinstance(x, list) and x and set(x) <= {"tor", "notor"} for x in w) \
+            or len([v for x in w for v in x]) != len({v for x in w for v in x}):
+        raise ConfigError(f"[hosted] waves = {w!r}: lists of variants (tor, notor), each variant once")
     return out
 
 
@@ -289,15 +295,28 @@ def _ordered(names, allowed):
     return [x for x in allowed if x in names]
 
 
+def waves_of(c, need_names):
+    """The dispatch's waves: lists of `<platform>-<variant>` builds, in [hosted] waves order (a list
+    of variant lists, e.g. [["tor"], ["notor"]]); a variant no wave names goes in a last wave of its
+    own; empty waves are dropped. No waves: one wave with every build."""
+    order = [list(w) for w in c.get("waves") or []]
+    named = {v for w in order for v in w}
+    rest = sorted({n.rsplit("-", 1)[1] for n in need_names} - named, key=("tor", "notor").index)
+    if rest:
+        order.append(rest)
+    out = [[n for n in need_names if n.rsplit("-", 1)[1] in w] for w in order] if order else [list(need_names)]
+    return [w for w in out if w]
+
+
 def dispatch(engine, step, say):
     run, info = engine.run, engine.info
     c = conf(engine.pipeline)
     path = os.path.join(hosted_dir(run), "dispatch.json")
     old = _read(path)
-    if old and old.get("run_id"):
-        # One dispatch per run, never a second (no re-dispatch): a resume finds the same run.
-        say(f"already dispatched: {old.get('run_url')}")
-        return {"status": "done", "note": f"dispatched earlier: run {old['run_id']}"}
+    if old and (old.get("waves") or [{}])[0].get("run_id"):
+        # One dispatch per wave, never a second (no re-dispatch): a resume finds the same run.
+        say(f"already dispatched: {old['waves'][0].get('run_url')}")
+        return {"status": "done", "note": f"dispatched earlier: run {old['waves'][0]['run_id']}"}
     builds = [s for s in build_steps(engine) if run.status(s.id).get("status") != "skipped"]
     need = [s for s in builds if not reused(engine, s)]
     for s in builds:
@@ -305,48 +324,71 @@ def dispatch(engine, step, say):
             say(f"{s.id}: reused (an earlier build with the same inputs), not built")
     if not need:
         return {"status": "done", "note": "nothing to build: every build is reused"}
-    plats = _ordered({(engine.pipeline.steps[s.base])["hosted"] for s in need}, HOSTED_PLATFORMS)
-    vars_ = _ordered({s.variant for s in need}, ("tor", "notor"))
     pub = (info.get("published") or {}).get("commit")
     build_id = need[0].env.get("WFE_BUILD_ID") or (pub or info["commit"])[:7]
     kind = kind_of(info)
-    expected = [f"{engine.pipeline.steps[s.base]['hosted']}-{s.variant}" for s in need]
+    names = [f"{engine.pipeline.steps[s.base]['hosted']}-{s.variant}" for s in need]
+    waves = waves_of(c, names)
     if engine.dry:
-        say(f"dry run: would dispatch {c['workflow']} on {c['repo']}: platforms {plats}, variants {vars_}, kind {kind}")
-        return {"status": "done", "note": f"dry run: {', '.join(expected)}", "dry": True}
+        for i, w in enumerate(waves, 1):
+            say(f"dry run: wave {i} would dispatch {c['workflow']} on {c['repo']}: {', '.join(w)}, kind {kind}")
+        return {"status": "done", "note": "dry run: " + "; then ".join(", ".join(w) for w in waves), "dry": True}
     if not pub:
         return {"status": "failed", "note": "no published commit in run.json (G1 preflight records it)"}
     why = account_problem(c)
     if why:
         return {"status": "failed", "note": why}
+    if not old:
+        old = {"commit": pub, "local_commit": info["commit"], "build_id": build_id, "version": info["version"],
+               "kind": kind, "run": info["run_id"], "conf": _fetch_conf(c),
+               "waves": [{"expected": w} for w in waves]}
+        _write(path, old)
+    ok, note = send_wave(c, path, 0, say)
+    if not ok:
+        return {"status": "failed", "note": note}
+    w = _read(path)["waves"][0]
+    out_dir = os.path.join(run.step_dir(step.id), "out")
+    os.makedirs(out_dir, exist_ok=True)
+    _write(os.path.join(out_dir, "links.json"), [{"label": "hosted builds", "url": w["run_url"]}])
+    later = old["waves"][1:]
+    if later:
+        note += "; then " + "; then ".join(", ".join(x["expected"]) for x in later) + " once these are in"
+    return {"status": "done", "note": note}
+
+
+def send_wave(c, path, i, say):
+    """Dispatches wave i of dispatch.json (once: a wave with a request is looked up, never sent
+    again) and records its run. -> (ok, note)."""
     os.makedirs(os.path.dirname(c["state"]) or ".", exist_ok=True)
     with open(c["state"] + ".lock", "w") as lock:
-        fcntl.flock(lock, fcntl.LOCK_EX)  # two runs never both pass the cap
-        if old and old.get("request"):
-            request = old["request"]  # dispatched, run not found yet: look again, never send again
-        else:
+        fcntl.flock(lock, fcntl.LOCK_EX)  # two runs (or two fetches of a wave) never both pass the cap
+        d = _read(path)
+        w = d["waves"][i]
+        if not w.get("request"):
             why = cap_problem(c)
             if why:
-                return {"status": "failed", "note": f"not dispatched: {why}"}
-            n = 1 + sum(1 for d in dispatches_since(c, dt.datetime.min.replace(tzinfo=dt.timezone.utc))
-                        if d.get("run") == info["run_id"])
-            request = f"{info['run_id']}-{n}"
+                return False, f"not dispatched: {why}"
+            n = 1 + sum(1 for x in dispatches_since(c, dt.datetime.min.replace(tzinfo=dt.timezone.utc))
+                        if x.get("run") == d["run"])
+            request = f"{d['run']}-{n}"
+            plats = _ordered({x.rsplit("-", 1)[0] for x in w["expected"]}, HOSTED_PLATFORMS)
+            vars_ = _ordered({x.rsplit("-", 1)[1] for x in w["expected"]}, ("tor", "notor"))
             args = ["workflow", "run", c["workflow"], "--repo", c["repo"], "--ref", "main",
-                    "-f", f"commit={pub}", "-f", f"build_id={build_id}", "-f", f"version={info['version']}",
+                    "-f", f"commit={d['commit']}", "-f", f"build_id={d['build_id']}", "-f", f"version={d['version']}",
                     "-f", f"platforms={json.dumps(plats)}", "-f", f"variants={json.dumps(vars_)}",
-                    "-f", f"kind={kind}", "-f", f"request={request}"]
+                    "-f", f"kind={d['kind']}", "-f", f"request={request}"]
             say("gh " + " ".join(args))
             rc, out, err = gh(c, args)
             if rc != 0:
-                return {"status": "failed", "note": f"gh workflow run: exit {rc}: {err.strip()[-200:]}"}
-            old = {"request": request, "dispatched_at": _now().isoformat(), "commit": pub, "local_commit": info["commit"],
-                   "build_id": build_id, "version": info["version"], "platforms": plats, "variants": vars_,
-                   "kind": kind, "expected": expected, "conf": _fetch_conf(c)}
-            _write(path, old)
+                return False, f"gh workflow run: exit {rc}: {err.strip()[-200:]}"
+            w.update(request=request, dispatched_at=_now().isoformat(), platforms=plats, variants=vars_)
+            _write(path, d)
             with open(c["state"], "a", encoding="utf-8") as f:
-                f.write(json.dumps({"ts": old["dispatched_at"], "run": info["run_id"], "request": request,
-                                    "kind": kind, "commit": pub, "builds": expected}) + "\n")
-    title = f"build {old['kind']} {old['request']}"
+                f.write(json.dumps({"ts": w["dispatched_at"], "run": d["run"], "request": request,
+                                    "kind": d["kind"], "commit": d["commit"], "builds": w["expected"]}) + "\n")
+        if w.get("run_id"):
+            return True, f"{', '.join(w['expected'])}: {w['run_url']}"
+        title = f"build {d['kind']} {w['request']}"
     found, deadline = None, time.time() + c["find_wait_s"]
     while True:
         try:
@@ -360,19 +402,20 @@ def dispatch(engine, step, say):
             break
         time.sleep(min(5, c["poll_s"]) or 0.1)
     if not found:
-        return {"status": "failed", "note": f"dispatched ({old['request']}) but no run titled {title!r} "
-                                            f"in {c['find_wait_s']:.0f} s; tools/rel retry hosted-dispatch looks again"}
-    old.update(run_id=found["databaseId"], run_url=found["url"], head_sha=found.get("headSha"))
-    _write(path, old)
-    out_dir = os.path.join(run.step_dir(step.id), "out")
-    os.makedirs(out_dir, exist_ok=True)
-    _write(os.path.join(out_dir, "links.json"), [{"label": "hosted builds", "url": found["url"]}])
-    say(f"run {found['databaseId']}: {found['url']}")
-    return {"status": "done", "note": f"{', '.join(expected)}: {found['url']}"}
+        return False, (f"dispatched ({w['request']}) but no run titled {title!r} in {c['find_wait_s']:.0f} s; "
+                       "tools/rel retry looks again")
+    with open(c["state"] + ".lock", "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        d = _read(path)
+        d["waves"][i].update(run_id=found["databaseId"], run_url=found["url"], head_sha=found.get("headSha"))
+        _write(path, d)
+    say(f"wave {i + 1}: run {found['databaseId']}: {found['url']}")
+    return True, f"{', '.join(w['expected'])}: {found['url']}"
 
 
 def _fetch_conf(c):
-    return {k: c[k] for k in ("repo", "workflow", "gh_config", "account", "deadline_s", "poll_s")}
+    return {k: c[k] for k in ("repo", "workflow", "gh_config", "account", "deadline_s", "poll_s", "find_wait_s",
+                              "state", "max_per_day", "ramp_until", "ramp_max_per_day")}
 
 
 def _read(path):
@@ -439,10 +482,13 @@ class Fetch:
     def __init__(self, run, sid, platform, variant, stage, say=print):
         self.run, self.sid, self.platform, self.variant, self.stage, self.say = run, sid, platform, variant, stage, say
         self.dir = hosted_dir(run)
-        self.d = _read(os.path.join(self.dir, "dispatch.json"))
+        self.path = os.path.join(self.dir, "dispatch.json")
+        self.all = _read(self.path)
         self.name = f"{platform}-{variant}"
         self.state_path = os.path.join(self.dir, f"fetch-{self.name}.json")
-        self.c = dict((self.d or {}).get("conf") or {})
+        self.c = dict((self.all or {}).get("conf") or {})
+        self.wave = next((i for i, w in enumerate((self.all or {}).get("waves") or []) if self.name in w["expected"]), None)
+        self.d = None if self.wave is None else {**self.all, **self.all["waves"][self.wave]}
 
     def mark(self, status, **kw):
         _write(self.state_path, dict(status=status, ts=_now().isoformat(), **kw))
@@ -469,11 +515,14 @@ class Fetch:
         return 0
 
     def fetch(self):
-        d = self.d
-        if not d or not d.get("run_id"):
+        if not self.all or not (self.all.get("waves") or [{}])[0].get("run_id"):
             raise HostedError(f"no dispatched run ({self.dir}/dispatch.json): hosted-dispatch did not run or failed")
-        if self.name not in (d.get("expected") or []):
-            raise HostedError(f"{self.name} was not in the dispatch ({', '.join(d.get('expected') or [])})")
+        if self.wave is None:
+            raise HostedError(f"{self.name} was not in the dispatch "
+                              f"({', '.join(n for w in self.all['waves'] for n in w['expected'])})")
+        if self.wave > 0:
+            self.send_after_earlier_waves()
+        d = self.d
         repo, rid = self.c["repo"], d["run_id"]
         why = account_problem(self.c)
         if why:
@@ -608,6 +657,32 @@ class Fetch:
             raise HostedError("build-info.json: " + "; ".join(bad))
         say(f"ok   build-info.json: {self.name} {d['version']} {d['build_id']} on {info.get('runner_image')}")
         return sums
+
+    def send_after_earlier_waves(self):
+        """A later wave goes out only when every build of the waves before it is in (fetched and
+        verified); a failed one stops it there (the owner 2026-11-03). The first of its fetches to get
+        here dispatches it; the others find the dispatch."""
+        earlier = [n for w in self.all["waves"][:self.wave] for n in w["expected"]]
+        first = self.all["waves"][0]
+        limit = (dt.datetime.fromisoformat(first["dispatched_at"]).timestamp()
+                 + max(float(v) for v in self.c["deadline_s"].values()) + 1800)
+        self.say(f"wave {self.wave + 1}: waiting for {', '.join(earlier)}")
+        while True:
+            st = {n: (_read(os.path.join(self.dir, f"fetch-{n}.json")) or {}).get("status") for n in earlier}
+            bad = [n for n, s in st.items() if s == "failed"]
+            if bad:
+                raise HostedError(f"wave {self.wave + 1} not sent: {', '.join(bad)} failed in an earlier wave")
+            if all(s == "done" for s in st.values()):
+                break
+            if time.time() >= limit:
+                raise HostedError(f"wave {self.wave + 1} not sent: "
+                                  f"{', '.join(n for n, s in st.items() if s != 'done')} not in by the deadline")
+            time.sleep(float(self.c.get("poll_s", 30)))
+        ok, note = send_wave(self.c, self.path, self.wave, self.say)
+        if not ok:
+            raise HostedError(f"wave {self.wave + 1}: {note}")
+        self.all = _read(self.path)
+        self.d = {**self.all, **self.all["waves"][self.wave]}
 
     def delete_artifact(self, name=None):
         """Deletes this run's artifact `name` (every artifact when None) on GitHub: unsigned files

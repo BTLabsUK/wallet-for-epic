@@ -106,6 +106,8 @@ WORKTREE = Path(os.environ.get("WFE_NIGHTLY_WORKTREE", HOME / "wfe-worktrees" / 
 BASE = Path(os.environ.get("WFE_NIGHTLY_DIR", HOME / "epic-build" / "nightly"))
 REL_LOCKS = str(HOME / "epic-build" / "rel" / "*" / "run-*" / ".lock")
 NOTIFY_CONF = HOME / ".config" / "wfe-nightly"
+# Green `tools/check.sh --full` records (tools/rellib/green.py): a commit with one is not run again.
+GREEN_DIR = Path(os.environ.get("WFE_GREEN_DIR") or HOME / "epic-build" / "green")
 
 CHECK_TIMEOUT_S = 90 * 60
 KEEP_RUNS = 7
@@ -354,8 +356,9 @@ def count_line(tests):
 
 # ---------------------------------------------------------------- decisions
 
-def decide(state, sha):
-    """('run', None) or ('skip', reason) for main at `sha`, from state.json."""
+def decide(state, sha, green_dir=None):
+    """('run', None) or ('skip', reason) for main at `sha`, from state.json and the green records:
+    the full suite never runs twice on one tree (a release's G2 on this commit counts)."""
     last = state.get("last_completed") or {}
     if last.get("sha") == sha:
         if last.get("status") in ("green", "red"):
@@ -364,6 +367,9 @@ def decide(state, sha):
             n = int((state.get("errors") or {}).get(sha, 0))
             if n >= MAX_ERROR_RUNS:
                 return "skip", f"error retries used up ({n} runs ended in error)"
+    rec = read_json(Path(green_dir or GREEN_DIR) / f"{sha}.json", {})
+    if isinstance(rec, dict) and rec.get("status") == "green" and rec.get("clean") is True:
+        return "skip", f"already green: tools/check.sh --full passed on this commit (by {rec.get('by', '?')}, {rec.get('ended', '?')})"
     return "run", None
 
 

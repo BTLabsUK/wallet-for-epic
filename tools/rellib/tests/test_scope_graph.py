@@ -65,6 +65,8 @@ class ScopeTest(unittest.TestCase):
         self.refused("not in scope, nothing to waive", only="android", waive=["macos=no test"])
         self.refused("publish.manifests needs android", only="linux")
         self.refused("needs both variants", no_variant="notor")
+        self.refused("the one unsigned ipa is the build without Tor", sets=["apple.signed=false", "publish.manifests=false"],
+                     no_variant="notor")
         self.refused("stores.play needs android", only="linux", sets=["publish.manifests=false", "stores.play=true"])
         self.refused("unknown key", sets=["stores.appstore=true"])
 
@@ -328,7 +330,13 @@ class ScriptsTest(unittest.TestCase):
         self.assertIn("bt-wallet-26.10.25-notor-ios-unsigned.ipa", by["apple-adhoc-notor"].results)
         self.assertEqual(by["apple-adhoc-mac-notor"].needs, ["apple-adhoc-notor"])
         self.assertEqual(by["apple-adhoc-mac-tor"].outputs, ["bt-wallet-26.10.25-macos.dmg"])
-        self.assertEqual(by["apple-adhoc-ios-tor"].outputs, ["bt-wallet-26.10.25-ios-unsigned.ipa"])
+        # One iOS file: the ipa of the build without Tor. The Mac's hand-off with Tor builds the dmg only.
+        self.assertEqual(by["apple-adhoc-ios-notor"].outputs, ["bt-wallet-26.10.25-notor-ios-unsigned.ipa"])
+        self.assertNotIn("apple-adhoc-ios-tor", by)
+        self.assertNotIn("trust-ios-tor", by)
+        self.assertIn("WFE_TOR=1", by["apple-adhoc-tor"].run)
+        self.assertIn("macos dmg  #", by["apple-adhoc-tor"].run)
+        self.assertEqual(by["apple-adhoc-tor"].results, ["bt-wallet-26.10.25-macos.dmg", "results.txt", "SHA256SUMS"])
         for gate in ("artefacts", "sign-android"):
             self.assertIn("apple-adhoc-mac-tor", by[gate].needs)
             self.assertIn("apple-adhoc-ios-notor", by[gate].needs)

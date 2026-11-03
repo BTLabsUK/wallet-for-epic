@@ -111,6 +111,8 @@ def build_graph(pipeline, scope, ctx):
         kind = spec.get("kind", "command")
         host = spec.get("host", "build")
         for var in vars_:
+            # by_variant: this variant's own run, results, outputs or title (pipeline.toml).
+            spec = {**pipeline.steps[name], **(pipeline.steps[name].get("by_variant") or {}).get(var or "", {})}
             sid = f"{name}-{var}" if var else name
             c = dict(ctx)
             c["variant"] = var or ""

@@ -20,7 +20,7 @@
 
 The data is releases.json next to this script: the current release (version, date, files with
 name, size and sha256), and an earlier record for each platform the current one left out. A slot
-is a platform and its variant (with Tor, without): the newest version that has a file in a slot
+is a platform and its variant (with Tor, without; iOS has only the one without): the newest version that has a file in a slot
 is the one the page offers there, and the server keeps. What a file is (platform, label, primary or folded) comes
 from its name, see KINDS: a new kind of build needs one line there and nothing else.
 
@@ -67,8 +67,8 @@ KINDS = [
     (rf'^bt-wallet-{V}-(?:notor-)?android-x86_64\.apk$', 'android', 'APK, x86_64 (emulators)', False),
     (rf'^bt-wallet-{V}-macos\.dmg$', 'macos', 'Disk image', True),
     (rf'^bt-wallet-{V}-notor-macos\.dmg$', 'macos', 'Disk image without Tor', False),
-    (rf'^bt-wallet-{V}-ios-unsigned\.ipa$', 'ios', 'Unsigned IPA', True),
-    (rf'^bt-wallet-{V}-notor-ios-unsigned\.ipa$', 'ios', 'Unsigned IPA without Tor', False),
+    # iOS cannot run Tor: one IPA per release, the build without Tor, under its -notor name.
+    (rf'^bt-wallet-{V}-notor-ios-unsigned\.ipa$', 'ios', 'Unsigned IPA', True),
     (rf'^bt-wallet-{V}-ios-simulator\.zip$', 'ios', 'Simulator app, for Xcode', False),
     (rf'^epic-cash-desktop-{V}-windows-x64-setup\.exe$', 'windows', 'Installer', True),
     (rf'^epic-cash-desktop-{V}-notor-windows-x64-setup\.exe$', 'windows', 'Installer without Tor', False),
@@ -158,8 +158,7 @@ BEFORE = {
     'ios': (
         '<p>The IPA is unsigned; an iPhone installs only signed apps. Sign and install it with an Apple ID through a '
         'sideloading tool such as AltStore or Sideloadly. With a free Apple ID the app stops opening after 7 days: '
-        'install it again the same way, the wallet stays on the phone.</p>'
-        '<p>Neither iOS file carries Tor; the one without Tor also leaves Tor out of the settings and help.</p>',
+        'install it again the same way, the wallet stays on the phone.</p>',
         'shasum -a 256 {file}'),
 }
 

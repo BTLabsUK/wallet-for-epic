@@ -245,6 +245,11 @@ proven by the first real run:
 Other commands of `tools/build-apple.sh` (no Apple account needed): `doctor`, `macos` and `dmg`
 (an ad-hoc build to try), `ios-sim`, `smoke`, `live`, `gatekeeper <dmg>`.
 
+iOS is only built without Tor. `ios-sim`, `ipa` and `ios-prepare` refuse to run unless
+`WFE_TOR=0`; with Tor, `lepic` builds the macOS library only, `smoke` and `live` skip the
+Simulator, and `release` and `handoff` carry the macOS app only. A release has one iOS file:
+`bt-wallet-<version>-notor-ios-unsigned.ipa` (ad hoc) or the TestFlight build.
+
 ## Later
 
 - Push notifications on iOS need an APNs key and the `aps-environment` entitlement; not built.
@@ -264,7 +269,7 @@ through Apple yet.
 Mac (any builder)                             Owner (Linux)
 -----------------                             -------------
 build-apple.sh release            ─ hand-off ─▶ apple-sign.sh check
-  unsigned .app + Runner.app                     apple-sign.sh macos-app   (sign, notarise, staple)
+  unsigned .app + Runner.app (no Tor)            apple-sign.sh macos-app   (sign, notarise, staple)
   PROVENANCE.txt, SHA256SUMS                     apple-sign.sh ios         (sign with the profile)
                                                  apple-sign.sh ios-upload  (TestFlight)
 build-apple.sh dmg-signed <tar>  ◀─ signed app ─
@@ -355,7 +360,7 @@ RELEASE_COMMIT=<commit> tools/apple-sign.sh macos-app <hand-off dir>      # each
 RELEASE_COMMIT=<commit> tools/apple-sign.sh macos-dmg <hand-off dir> <.dmg from the Mac>
 #  -> apple-signed/<hand-off>/bt-wallet-<v>-macos.dmg (+ .sha256): to the Mac for the
 #     gatekeeper step, then to the download page and update.json as on other platforms
-RELEASE_COMMIT=<commit> tools/apple-sign.sh ios <hand-off dir without Tor>
+RELEASE_COMMIT=<commit> tools/apple-sign.sh ios <hand-off dir without Tor>   # refuses the one with Tor (it has no iOS app)
 tools/apple-sign.sh ios-upload apple-signed/<hand-off>/bt-wallet-<v>-ios.ipa   # <v> = <version>-notor
 ```
 

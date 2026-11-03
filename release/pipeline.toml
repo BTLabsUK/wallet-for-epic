@@ -24,6 +24,8 @@
 #   outputs    files the step leaves in {stage} that are published: copied into {files}
 #   extras     files the step leaves in {stage} that are kept but never published ({extra})
 #   variants   with for_each: only these variants, e.g. ["tor"] (Play takes one bundle per version code)
+#   by_variant with for_each: per variant, its own run, results, outputs or title, e.g.
+#              by_variant.tor.results = [...] (the Mac's hand-off with Tor builds no iOS app)
 #   proof      true: the step must write {stage}/proof.json with every [proof] check true
 #   skippable  true: release.toml [skip] may skip it with a reason (builds and gates never)
 #   publish    true: a command step of the publish phase (after the gate); kind publish implies it
@@ -187,6 +189,10 @@ max_per_day = 8
 ramp_until = "2026-11-10"
 ramp_max_per_day = 2
 poll = "30s"
+# Builds go out in waves: the Tor builds first, the no-Tor builds only once every Tor build is in
+# (fetched and verified); a failed Tor build stops it there (the owner 2026-11-03). Each wave is one
+# dispatch and counts toward the cap.
+waves = [["tor"], ["notor"]]
 
 # From the dispatch to the files, per platform. The workflow's own job timeouts (75 min android
 # and linux, 90 min windows) fire first.
@@ -390,9 +396,11 @@ timeout = "48h"
 
 # Apple ad hoc (release.toml [apple] signed = false, --set apple.signed=false): what 26.10.24
 # shipped, for test releases without the team's signing set-up. One Mac build per variant gives
-# the ad-hoc-signed .dmg (not notarised: Gatekeeper asks the user to open it by hand) and the
-# unsigned .ipa (a device install needs it signed first). Linux checks the Mac's results.txt
-# (release-check at the commit, every step PASS) and the SHA256SUMS before either file can ship.
+# the ad-hoc-signed .dmg (not notarised: Gatekeeper asks the user to open it by hand); the one
+# without Tor also gives the unsigned .ipa (a device install needs it signed first). iOS cannot
+# run Tor, so there is one iOS file per release, bt-wallet-<version>-notor-ios-unsigned.ipa, and
+# build-apple.sh refuses an iOS build with Tor. Linux checks the Mac's results.txt (release-check
+# at the commit, every step PASS) and the SHA256SUMS before any file can ship.
 [step.apple-adhoc]
 title = "Apple ad-hoc dmg + unsigned ipa ({variant})"
 kind = "handoff"
@@ -404,6 +412,10 @@ needs = ["source", "source-check"]
 run = "rm -rf src out && git clone -q job/wfe.bundle src && cd src && git checkout -q --detach {commit} && RELEASE_COMMIT={commit} RELEASE_VERSION={version} WFE_TOR={tor} APPLE_OUT=$PWD/../out tools/build-apple.sh release-check doctor sources lepic macos dmg ipa  # in the folder holding job/: a fresh clone beside job/ (release-check refuses untracked files, and a build changes tracked ones); then out/{bt-wallet-{version}{notor}-macos.dmg,bt-wallet-{version}{notor}-ios-unsigned.ipa,results.txt} into results/ with their SHA256SUMS"
 results = ["bt-wallet-{version}{notor}-macos.dmg", "bt-wallet-{version}{notor}-ios-unsigned.ipa", "results.txt", "SHA256SUMS"]
 timeout = "48h"
+[step.apple-adhoc.by_variant.tor]
+title = "Apple ad-hoc dmg (tor)"
+run = "rm -rf src out && git clone -q job/wfe.bundle src && cd src && git checkout -q --detach {commit} && RELEASE_COMMIT={commit} RELEASE_VERSION={version} WFE_TOR={tor} APPLE_OUT=$PWD/../out tools/build-apple.sh release-check doctor sources lepic macos dmg  # in the folder holding job/: a fresh clone beside job/ (release-check refuses untracked files, and a build changes tracked ones); then out/{bt-wallet-{version}-macos.dmg,results.txt} into results/ with their SHA256SUMS. No ipa: iOS is only built without Tor"
+results = ["bt-wallet-{version}-macos.dmg", "results.txt", "SHA256SUMS"]
 
 [step.apple-adhoc-mac]
 title = "macOS ad-hoc dmg check: sums, commit, steps ({variant})"
@@ -416,10 +428,11 @@ run = "{rel}/tools/rellib/steps/apple-adhoc-check.sh {run}/handoff/apple-adhoc-{
 outputs = ["bt-wallet-{version}{notor}-macos.dmg"]
 
 [step.apple-adhoc-ios]
-title = "iOS unsigned ipa check: sums, commit, steps ({variant})"
+title = "iOS unsigned ipa check: sums, commit, steps"
 platform = "ios"
 unless = ["apple.signed"]
 for_each = "variant"
+variants = ["notor"]
 host = "local"
 needs = ["apple-adhoc@variant"]
 run = "{rel}/tools/rellib/steps/apple-adhoc-check.sh {run}/handoff/apple-adhoc-{variant}/results bt-wallet-{version}{notor}-ios-unsigned.ipa {commit} {version} {stage}"
@@ -539,9 +552,10 @@ needs = ["build-android", "build-play", "sign-android", "build-linux", "apple-ma
 proof = true
 
 [step.trust-ios]
-title = "G4 update trust iOS ({variant})"
+title = "G4 update trust iOS"
 platform = "ios"
 for_each = "proof_variant"
+variants = ["notor"]
 host = "build"
 lane = "trust-ios"
 needs = ["build-android", "build-play", "sign-android", "build-linux", "ios-testflight", "apple-adhoc-ios@variant"]
