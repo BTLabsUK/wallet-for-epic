@@ -11630,7 +11630,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetHttpNotChanged => 'Nicht geändert';
 
   @override
-  String get deskSetHttpPortError => 'Port muss zwischen 1 und 65535 liegen';
+  String get deskSetHttpPortError => 'Port muss zwischen 1024 und 65535 liegen';
 
   @override
   String get deskSetHttpGuideHelp =>
@@ -11640,8 +11640,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetHttpPort => 'Port';
 
   @override
-  String get deskSetHttpPortHint =>
-      '1 bis 65535. Wird von der HTTP-Adresse genutzt.';
+  String deskSetHttpPortHint(String port) {
+    return '1024 bis 65535. Standard: $port.';
+  }
 
   @override
   String get deskSetHttpPortLabel => 'HTTP-Port';

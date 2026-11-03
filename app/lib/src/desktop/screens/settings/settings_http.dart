@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../log.dart';
+import '../../../settings_file/host_settings.dart' show appConfig;
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../desk_l10n.dart';
 import '../../widgets/http_addresses.dart';
@@ -26,10 +27,11 @@ HttpRun httpRun(ServiceStatus? s) => switch (s?.httpListener) {
   _ => HttpRun.off,
 };
 
-/// The port a field holds, or null when it is not one.
+/// The port a field holds, or null when it is not one the listener may take (1024 to 65535:
+/// below that a system port).
 int? parsePort(String text) {
   final n = int.tryParse(text.trim());
-  return n != null && n >= 1 && n <= 65535 ? n : null;
+  return n != null && n >= 1024 && n <= 65535 ? n : null;
 }
 
 /// The indent of a method's detail rows in Settings › Payments: to the method's title
@@ -48,10 +50,26 @@ class HttpOptions extends ConsumerStatefulWidget {
 
 class _HttpOptionsState extends ConsumerState<HttpOptions> {
   late final TextEditingController _port = TextEditingController(text: '${ref.read(deskProvider).settings.httpPort}');
+  late final DeskController _desk;
   String? _portError;
+  // The settings of the last build: leaving the page saves a port typed but not yet applied.
+  DeskSettings? _shown;
+
+  @override
+  void initState() {
+    super.initState();
+    _desk = ref.read(deskProvider.notifier);
+  }
 
   @override
   void dispose() {
+    // Esc or a jump to another page takes no focus from the field first: a valid port typed
+    // still applies.
+    final port = parsePort(_port.text);
+    final s = _shown;
+    if (port != null && s != null && s.httpPort != port) {
+      unawaited(_desk.saveSettings(s.copyWith(httpPort: port)).catchError((Object e) => logWarn('desk', 'http port not changed: $e')));
+    }
     _port.dispose();
     super.dispose();
   }
@@ -109,6 +127,7 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
   @override
   Widget build(BuildContext context) {
     final s = ref.watch(deskProvider.select((st) => st.settings));
+    _shown = s;
     final listening = ref.watch(deskProvider.select((st) => st.status?.httpListener == ServiceHealth.ok));
     final c = context.dc;
     final ts = context.ts;
@@ -134,7 +153,7 @@ class _HttpOptionsState extends ConsumerState<HttpOptions> {
           child: ESetRow(
           anchor: SetId.httpPort,
           title: l.deskSetHttpPort,
-          hint: l.deskSetHttpPortHint,
+          hint: l.deskSetHttpPortHint('${appConfig.httpListenPort}'),
           control: ERowControl(
             child: Focus(
               onFocusChange: (f) => f ? null : unawaited(_applyPort()),

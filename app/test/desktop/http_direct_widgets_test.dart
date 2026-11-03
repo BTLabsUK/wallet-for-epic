@@ -136,18 +136,33 @@ void main() {
       expect(httpState(tester), 'Receiving\u00A0· local network only. To be paid from the internet, your router must pass port 3415 on to this computer.');
     });
 
-    testWidgets('a port outside 1 to 65535 is refused', (tester) async {
+    // The port's field: this computer's address above it is selectable text, not an input.
+    Finder portField() => find.descendant(of: find.byType(HttpOptions), matching: find.descendant(of: find.byType(EInput), matching: find.byType(EditableText)));
+
+    testWidgets('a port outside 1024 to 65535 is refused', (tester) async {
       await show(tester, const SettingsReceivingScreen());
-      // The port's field: this computer's address above it is selectable text, not an input.
-      final field = find.descendant(of: find.byType(HttpOptions), matching: find.descendant(of: find.byType(EInput), matching: find.byType(EditableText)));
-      await tester.enterText(field, '70000');
-      await tester.testTextInput.receiveAction(TextInputAction.done);
-      await tester.pumpAndSettle();
-      expect(find.text(_l.deskSetHttpPortError), findsOneWidget);
+      final field = portField();
+      for (final wrong in ['70000', '1023']) {
+        await tester.enterText(field, wrong);
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle();
+        expect(find.text(_l.deskSetHttpPortError), findsOneWidget);
+        expect(container.read(deskProvider).settings.httpPort, 3415);
+      }
       await tester.enterText(field, '3420');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
       expect(container.read(deskProvider).settings.httpPort, 3420);
+    });
+
+    testWidgets('a port typed and not applied applies when the page closes', (tester) async {
+      await show(tester, const SettingsReceivingScreen());
+      await tester.enterText(portField(), '3421');
+      await tester.pump();
+      expect(container.read(deskProvider).settings.httpPort, 3415);
+      await tester.pumpWidget(UncontrolledProviderScope(container: container, child: const MaterialApp(home: SizedBox())));
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      expect(container.read(deskProvider).settings.httpPort, 3421);
     });
 
     testWidgets('the tour’s port-in-use state names the port', (tester) async {

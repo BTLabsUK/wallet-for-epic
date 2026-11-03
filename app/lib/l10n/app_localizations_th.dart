@@ -11185,7 +11185,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetHttpNotChanged => 'ไม่ได้เปลี่ยน';
 
   @override
-  String get deskSetHttpPortError => 'พอร์ตต้องอยู่ระหว่าง 1 ถึง 65535';
+  String get deskSetHttpPortError => 'พอร์ตต้องอยู่ระหว่าง 1024 ถึง 65535';
 
   @override
   String get deskSetHttpGuideHelp => 'รับจากอินเทอร์เน็ต: ทำงานอย่างไร';
@@ -11194,7 +11194,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetHttpPort => 'พอร์ต';
 
   @override
-  String get deskSetHttpPortHint => '1 ถึง 65535 ใช้กับที่อยู่ HTTP';
+  String deskSetHttpPortHint(String port) {
+    return '1024 ถึง 65535 ค่าเริ่มต้น $port';
+  }
 
   @override
   String get deskSetHttpPortLabel => 'พอร์ต HTTP';

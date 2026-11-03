@@ -15246,7 +15246,7 @@
   "@deskSetHttpNotChanged": {
     "description": "Toast title when changing an HTTP receiving option failed. The error follows as text."
   },
-  "deskSetHttpPortError": "Port must be 1 to 65535",
+  "deskSetHttpPortError": "Port must be 1024 to 65535",
   "@deskSetHttpPortError": {
     "description": "Settings > Receiving > HTTP: error under the port field."
   },
@@ -15258,9 +15258,15 @@
   "@deskSetHttpPort": {
     "description": "Settings > Receiving > HTTP: row title for the port number."
   },
-  "deskSetHttpPortHint": "1 to 65535. Used by the HTTP address.",
+  "deskSetHttpPortHint": "1024 to 65535. Default {port}.",
   "@deskSetHttpPortHint": {
-    "description": "Settings > Receiving > HTTP: hint under the Port row."
+    "description": "Settings > Receiving > HTTP: hint under the Port row.",
+    "placeholders": {
+      "port": {
+        "type": "String",
+        "example": "3415"
+      }
+    }
   },
   "deskSetHttpPortLabel": "HTTP port",
   "@deskSetHttpPortLabel": {
