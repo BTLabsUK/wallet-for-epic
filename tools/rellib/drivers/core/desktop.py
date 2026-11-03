@@ -284,12 +284,20 @@ class Desktop:
         self.settings()
         t = SECTION.get(key_or_name) or T("g4.settings.section.%s" % tg._norm(key_or_name).replace(" ", "_"),
                                           names=(key_or_name,), match="exact")
-        n = d.wait(shows(t), 4)
-        if not n:
+        if not d.wait(shows(t), 4):
             return False
-        d._act(d.s.press, n)
-        time.sleep(1)
-        return True
+        # 26.10.25 names the back button "Wallet" too: a press that leaves Settings was the wrong one
+        for k in range(3):
+            hits = d.find_in(t, d.tree())
+            if k >= len(hits):
+                break
+            d._act(d.s.press, hits[k])
+            time.sleep(1)
+            if d.wait(Expect("still in Settings", lambda dd, tree: self.in_settings(tree)), 4, dismiss=False):
+                return True
+            self.log("Settings › %s: %s left Settings; trying the next one" % (key_or_name, hits[k].brief()))
+            self.settings()
+        d.harness("Settings › %s: no control of that name opens the section" % key_or_name)
 
     def find_setting(self, target, pages, what):
         """Opens the Settings page that holds `target`: the known `pages` first, then every section
@@ -434,7 +442,7 @@ class Desktop:
         d.press(theme, step="theme", timeout=20,
                 then=Expect("%s chosen" % theme, lambda dd, tree: any("selected" in n.states or "checked" in n.states
                                                                       for n in dd.find_in(theme, tree))))
-        self.find_setting(LABEL_SAVE, ("wallet",), "the wallet label")
+        self.find_setting(LABEL_FIELD, ("wallet",), "the wallet label")  # Save label shows once it is edited
         d.fill(LABEL_FIELD, want["label"], step="label")
         d.press(LABEL_SAVE, step="label-save", timeout=20)
         self.find_setting(CONF_FEWER, ("payments", "advanced"), "the confirmations stepper")
