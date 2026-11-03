@@ -7,6 +7,7 @@ import 'package:epic_wallet/src/desktop/screens/settings/settings_receiving.dart
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,6 +15,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'advanced_on.dart';
 
 import 'review_password.dart';
+
+final _l = englishStrings;
 
 /// The mock wallet, recording each send.
 class _Wallet extends MockDeskWallet {
@@ -56,7 +59,7 @@ void main() {
 
   Future<void> sendTo(WidgetTester tester, String to) async {
     await show(tester, SendScreen(arg: SendArgs(method: TxMethod.http, recipient: to, amount: '1')));
-    await tester.tap(find.text('Review'));
+    await tester.tap(find.text(_l.deskSendReview));
     await tester.pumpAndSettle();
   }
 
@@ -64,7 +67,7 @@ void main() {
     testWidgets('plain http to another computer goes straight to the review and sends', (tester) async {
       await sendTo(tester, 'http://203.0.113.5:3415');
       expect(find.text('Not encrypted. Send anyway?'), findsNothing);
-      expect(find.text('Check and send'), findsOneWidget);
+      expect(find.text(_l.deskSendReviewTitle), findsOneWidget);
       await enterReviewPassword(tester);
       await tester.tap(find.text('Send 1.0\u00a0EPIC'));
       await tester.pumpAndSettle();
@@ -75,19 +78,19 @@ void main() {
     testWidgets('https and this computer go straight to the review', (tester) async {
       await sendTo(tester, 'https://wallet.example.org');
       expect(find.text('Not encrypted. Send anyway?'), findsNothing);
-      expect(find.text('Check and send'), findsOneWidget);
+      expect(find.text(_l.deskSendReviewTitle), findsOneWidget);
     });
 
     testWidgets('host:port without a scheme is read as http:// and goes to the review', (tester) async {
       await sendTo(tester, '203.0.113.5:3415');
-      expect(find.text('Check and send'), findsOneWidget);
+      expect(find.text(_l.deskSendReviewTitle), findsOneWidget);
       expect(find.byKey(const ValueKey('send-review-plain')), findsOneWidget, reason: 'an IP address gets http://, said as not encrypted');
     });
 
     testWidgets('another scheme is refused with a reason', (tester) async {
       await sendTo(tester, 'ftp://203.0.113.5:3415');
-      expect(find.text('Not an address this wallet can pay.'), findsOneWidget);
-      expect(find.text('Check and send'), findsNothing);
+      expect(find.text(_l.sendProblemOtherScheme), findsOneWidget);
+      expect(find.text(_l.deskSendReviewTitle), findsNothing);
     });
   });
 
@@ -116,7 +119,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(InternetGuide), findsOneWidget);
       // Close leaves it local only.
-      await tester.tap(find.widgetWithText(EButton, 'Close'));
+      await tester.tap(find.widgetWithText(EButton, _l.commonClose));
       await tester.pumpAndSettle();
       expect(container.read(deskProvider).settings.publicMode, isFalse);
 
@@ -129,7 +132,7 @@ void main() {
       expect(container.read(deskProvider).settings.publicMode, isTrue);
       expect(find.byKey(const ValueKey('http-public-note')), findsOneWidget);
       // The mock's reach check: the port is not forwarded, so no green internet claim.
-      expect(find.text('Not reachable from the internet'), findsOneWidget);
+      expect(find.text(_l.deskKitReachClosedTitle), findsOneWidget);
       expect(httpState(tester), 'Receiving\u00A0· local network only. To be paid from the internet, your router must pass port 3415 on to this computer.');
     });
 
@@ -140,7 +143,7 @@ void main() {
       await tester.enterText(field, '70000');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
-      expect(find.text('Port must be 1 to 65535'), findsOneWidget);
+      expect(find.text(_l.deskSetHttpPortError), findsOneWidget);
       await tester.enterText(field, '3420');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();

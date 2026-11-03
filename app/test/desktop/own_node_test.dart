@@ -19,9 +19,12 @@ import 'package:epic_wallet/src/desktop/widgets/status.dart' show EState, EState
 import 'package:epic_wallet/src/redact.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 class _Dir implements NodeDirectory, NetworkDirectory {
   _Dir({this.tip});
@@ -246,19 +249,19 @@ void main() {
     testWidgets('1280: tier 1 facts asked directly, Owner access not set up; Add… opens the dialog with the LAN warning', (tester) async {
       await show(tester, const Size(1280, 1000), NodeDemo.own);
       expect(find.textContaining('Own node · home network'), findsWidgets);
-      expect(find.text('Mempool'), findsOneWidget);
+      expect(find.text(_l.deskOwnFactMempool), findsOneWidget);
       expect(find.text('3 waiting'), findsOneWidget);
       expect(find.text('Asked directly every 15 s · tip from status.lab.invalid'), findsOneWidget);
-      expect(find.text('Not set up'), findsOneWidget);
-      await tester.tap(find.text('Add…'));
+      expect(find.text(_l.deskSetNodeRowNotSetUp), findsOneWidget);
+      await tester.tap(find.text(_l.deskOwnAdd));
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.text('Owner access to 10.0.1.24:3413'), findsOneWidget);
-      expect(find.text('The secret travels unencrypted on the home network'), findsOneWidget);
-      expect(find.text('Pick the file…'), findsNothing, reason: 'the file picker is for this computer only');
+      expect(find.text(_l.deskOwnDlgPlainTitle), findsOneWidget);
+      expect(find.text(_l.deskOwnDlgPick), findsNothing, reason: 'the file picker is for this computer only');
       await tester.enterText(find.byType(EditableText).last, 'wrong');
       await tester.tap(find.text('Add').last);
       await tester.pump(const Duration(milliseconds: 200));
-      expect(find.text('The node refused this secret'), findsOneWidget);
+      expect(find.text(_l.deskOwnDlgRefused), findsOneWidget);
       await tester.enterText(find.byType(EditableText).last, node.ownerSecret);
       await tester.tap(find.text('Add').last);
       await tester.pump(const Duration(milliseconds: 400));
@@ -270,7 +273,7 @@ void main() {
       // A 1280 window less the Settings column beside the page.
       await show(tester, Size(1280 - Ctl.settingsNav, 1000), NodeDemo.ownAccess);
       // A home-network node over plain http: the row says the secret goes unencrypted.
-      expect(find.text('Added · goes to the node unencrypted (plain http), readable on that network'), findsOneWidget);
+      expect(find.text(_l.deskOwnAccessOnPlain), findsOneWidget);
       expect(find.descendant(of: _tabs, matching: find.text('Status')), findsOneWidget);
       expect(find.descendant(of: _tabs, matching: find.text('Peers')), findsOneWidget);
       expect(find.text('Address'), findsNothing, reason: 'the peers table is behind its tab');
@@ -282,7 +285,7 @@ void main() {
       expect(find.text('Address'), findsOneWidget);
       // The group's heading says Status; no Status tab.
       expect(_tabs, findsNothing);
-      final facts = tester.getRect(find.text('Mempool').first);
+      final facts = tester.getRect(find.text(_l.deskOwnFactMempool).first);
       final table = tester.getRect(find.text('Address'));
       expect(table.left, greaterThan(facts.right), reason: 'side by side');
       expect(tester.getSize(find.byType(SettingsNodeScreen)).width, 2474);
@@ -291,25 +294,25 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
       await tester.pump(const Duration(milliseconds: 200));
       expect(find.text('Refused since 14:02'), findsOneWidget);
-      expect(find.text('Update…'), findsOneWidget);
-      expect(find.textContaining('Synced', findRichText: true), findsWidgets, reason: 'a refused secret is not a node down');
+      expect(find.text(_l.deskOwnUpdate), findsOneWidget);
+      expect(find.textContaining(_l.deskSetFrameNodeSynced, findRichText: true), findsWidgets, reason: 'a refused secret is not a node down');
       await end(tester);
     });
 
     testWidgets('syncing: the fallback offer per node, remembered', (tester) async {
       await show(tester, const Size(1280, 1000), NodeDemo.ownSyncing);
-      expect(find.text('Use a public node until this node is synced?'), findsOneWidget);
-      await tester.tap(find.text('Wait for this node'));
+      expect(find.text(_l.deskOwnSyncTitle), findsOneWidget);
+      await tester.tap(find.text(_l.deskOwnWaitForMine));
       await tester.pump(const Duration(milliseconds: 300));
       expect(container.read(settingsPrefsProvider).ownFallback[ownDemoUrl], isFalse);
-      expect(find.text('Use a public node until this node is synced?'), findsNothing);
+      expect(find.text(_l.deskOwnSyncTitle), findsNothing);
       await end(tester);
     });
 
     testWidgets('down with a public node standing in: Try now and Use for good', (tester) async {
       await show(tester, const Size(1280, 1000), NodeDemo.ownDown);
-      expect(find.text('Own node not answering'), findsOneWidget);
-      expect(find.text('Try now'), findsOneWidget);
+      expect(find.text(_l.deskOwnDownTitle), findsOneWidget);
+      expect(find.text(_l.deskOwnTryNow), findsOneWidget);
       expect(find.text('Keep node.lab.invalid'), findsOneWidget);
       // #76: the Node field's dot and the panel's line read one state, never Synced next to
       // Not answering while a public node stands in.

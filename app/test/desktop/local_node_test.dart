@@ -19,6 +19,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 void main() {
   late MockDeskNode node;
   late ProviderContainer container;
@@ -123,8 +125,8 @@ void main() {
 
   testWidgets('starting → headers → download → kernels → blocks → synced: word, stage line, %, strip, rail line', (tester) async {
     await show(tester, choice: const FallbackChoice(FallbackConsent.accepted), state: mockLocalNode(LocalNodePhase.starting));
-    expect(find.textContaining('Starting', findRichText: true), findsWidgets);
-    expect(find.textContaining('waiting for peers', findRichText: true), findsOneWidget);
+    expect(find.textContaining(_l.deskSetNodeRowStarting, findRichText: true), findsWidgets);
+    expect(find.textContaining(_l.deskSetLnodeWaitingPeers, findRichText: true), findsOneWidget);
     expect(find.text('Connecting to peers'), findsOneWidget);
     expect(tester.widget<StageStrip>(find.byType(StageStrip)).step, isNull);
 
@@ -146,24 +148,24 @@ void main() {
     }
 
     await step(tester, mockLocalNode(LocalNodePhase.synced));
-    expect(find.textContaining('Synced', findRichText: true), findsWidgets);
+    expect(find.textContaining(_l.deskSetFrameNodeSynced, findRichText: true), findsWidgets);
     expect(find.textContaining('3,764,975\u00A0· at tip', findRichText: true), findsOneWidget);
     expect(find.byType(StageStrip), findsNothing);
     expect(find.text('Peers'), findsWidgets, reason: 'the tiles');
     expect(localNodeView(englishStrings, mockLocalNode(LocalNodePhase.synced)).second, 'Local node');
-    expect(find.text('Stop'), findsOneWidget);
-    expect(find.text('Restart'), findsOneWidget);
+    expect(find.text(_l.deskSetLnodeStop), findsOneWidget);
+    expect(find.text(_l.deskSetLnodeRestart), findsOneWidget);
     await end(tester);
   });
 
   testWidgets('syncing without the fallback: the info notice offers the public node; stalled, each failure, stopped', (tester) async {
     await show(tester, choice: const FallbackChoice(FallbackConsent.declined), state: mockLocalNode(LocalNodePhase.syncing, overall: 0.12));
-    expect(find.text('Nothing can be sent or received until the local node is synced.'), findsOneWidget);
+    expect(find.text(_l.deskSetLnodeNothingUntilSynced), findsOneWidget);
     expect(find.text('Use node.epic.invalid meanwhile'), findsOneWidget);
 
     await step(tester, mockLocalNode(LocalNodePhase.error, stalled: true));
-    expect(find.textContaining('Stalled', findRichText: true), findsWidgets);
-    expect(find.text('The node makes no progress.'), findsOneWidget);
+    expect(find.textContaining(_l.deskSetNodeRowStalled, findRichText: true), findsWidgets);
+    expect(find.text(_l.deskSetLnodeNoProgress), findsOneWidget);
     expect(headText(tester), 'risk');
 
     final failures = <NodeFailure, String>{
@@ -174,17 +176,17 @@ void main() {
     };
     for (final e in failures.entries) {
       await step(tester, mockLocalNode(LocalNodePhase.error, failure: e.key, reason: e.key == NodeFailure.exited ? 'exit code 101' : null));
-      expect(find.textContaining('Failed', findRichText: true), findsWidgets, reason: e.key.name);
+      expect(find.textContaining(_l.deskSetNodeRowFailed, findRichText: true), findsWidgets, reason: e.key.name);
       expect(find.text(e.value), findsOneWidget, reason: e.key.name);
-      expect(find.text('Start'), e.key == NodeFailure.binaryMissing ? findsNothing : findsOneWidget, reason: e.key.name);
+      expect(find.text(_l.deskSetLnodeStart), e.key == NodeFailure.binaryMissing ? findsNothing : findsOneWidget, reason: e.key.name);
       expect(find.byType(StageStrip), findsNothing, reason: e.key.name);
     }
     expect(find.textContaining('(exit code 101)', findRichText: true), findsOneWidget);
 
     await step(tester, mockLocalNode(LocalNodePhase.stopped));
-    expect(find.textContaining('Stopped', findRichText: true), findsWidgets);
-    expect(find.textContaining('nothing can be sent until it runs', findRichText: true), findsOneWidget);
-    expect(find.text('Start'), findsOneWidget);
+    expect(find.textContaining(_l.deskSetNodeRowStopped, findRichText: true), findsWidgets);
+    expect(find.textContaining(_l.deskSetLnodeNothingUntilRuns, findRichText: true), findsOneWidget);
+    expect(find.text(_l.deskSetLnodeStart), findsOneWidget);
     expect(find.textContaining('stopped 14:02'), findsOneWidget);
     expect(node.calls.where((c) => c == 'start'), isEmpty, reason: 'nothing starts the node by itself');
     await end(tester);
@@ -222,9 +224,9 @@ void main() {
     await show(tester, choice: const FallbackChoice(FallbackConsent.accepted), state: mockLocalNode(LocalNodePhase.syncing, overall: 0.12));
     expect(find.text('Use node.epic.invalid until the local node is synced'), findsOneWidget);
     // Three Change… buttons: Ports, While syncing, Data folder.
-    await tester.tap(find.text('Change…').at(1));
+    await tester.tap(find.text(_l.deskSetLnodeChange).at(1));
     await settle(tester);
-    expect(find.text('Node while syncing'), findsOneWidget);
+    expect(find.text(_l.deskSetLndPickTitle), findsOneWidget);
     expect(find.descendant(of: find.byType(EDialog), matching: find.text('Local node')), findsNothing, reason: 'no This computer group in the fallback list');
     await tester.tap(find.text('node.lab.invalid'));
     await settle(tester);
@@ -236,11 +238,11 @@ void main() {
 
   testWidgets('Delete chain data enables only on exactly "delete"; then stops and deletes', (tester) async {
     await show(tester, choice: const FallbackChoice(FallbackConsent.accepted), state: mockLocalNode(LocalNodePhase.synced));
-    await tester.tap(find.text('Delete…'));
+    await tester.tap(find.text(_l.deskSetLnodeDelete));
     await tester.pumpAndSettle();
-    expect(find.text('Delete chain data?'), findsOneWidget);
+    expect(find.text(_l.deskSetLndDeleteQuestion), findsOneWidget);
     expect(find.textContaining('Removes 5.2 GB from'), findsOneWidget);
-    final button = find.widgetWithText(EButton, 'Delete chain data');
+    final button = find.widgetWithText(EButton, _l.deskSetLndDeleteTitle);
     expect(tester.widget<EButton>(button).onPressed, isNull);
     await tester.enterText(find.descendant(of: find.byType(EDialog), matching: find.byType(EditableText)), 'Delete');
     await tester.pump();
@@ -251,27 +253,27 @@ void main() {
     await tester.tap(button);
     await tester.pumpAndSettle();
     expect(node.calls, containsAllInOrder(['stop', 'delete']));
-    expect(find.text('Chain data deleted'), findsOneWidget);
+    expect(find.text(_l.deskSetLndDeleted), findsOneWidget);
     await end(tester);
   });
 
   testWidgets('a pointed folder: Delete is off with the sub-text', (tester) async {
     await show(tester, choice: const FallbackChoice(FallbackConsent.accepted), state: mockLocalNode(LocalNodePhase.synced, origin: ChainDataOrigin.pointed));
-    expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Delete…')).onPressed, isNull);
-    expect(find.text('This node reads another program’s folder; delete it there.'), findsOneWidget);
+    expect(tester.widget<EButton>(find.widgetWithText(EButton, _l.deskSetLnodeDelete)).onPressed, isNull);
+    expect(find.text(_l.deskSetLnodeChainPointed), findsOneWidget);
     await end(tester);
   });
 
   testWidgets('Reuse lists the candidates, disables the one in use, and points the node at the pick', (tester) async {
     await show(tester, choice: const FallbackChoice(FallbackConsent.accepted), state: mockLocalNode(LocalNodePhase.stopped));
-    await tester.tap(find.text('Reuse existing…'));
+    await tester.tap(find.text(_l.deskSetLnodeReuse));
     await tester.pumpAndSettle();
-    expect(find.text('Chain data found'), findsOneWidget);
+    expect(find.text(_l.deskSetLndReuseTitle), findsOneWidget);
     expect(find.text('~/.epic/main/chain_data'), findsOneWidget);
     expect(find.text('~/.epic-gui/node/main/chain_data'), findsOneWidget);
-    expect(find.textContaining('In use by another program'), findsOneWidget);
-    expect(find.text('Download fresh'), findsOneWidget);
-    await tester.tap(find.text('Continue'));
+    expect(find.textContaining(_l.deskSetLndLocked), findsOneWidget);
+    expect(find.text(_l.deskSetLndFresh), findsOneWidget);
+    await tester.tap(find.text(_l.commonContinue));
     await tester.pumpAndSettle();
     expect(node.calls, contains('reuse point ~/.epic/main/chain_data'));
     await end(tester);
@@ -279,22 +281,22 @@ void main() {
 
   testWidgets('the node log: 200 lines, newest at the bottom, Copy', (tester) async {
     await show(tester, choice: const FallbackChoice(FallbackConsent.accepted), state: mockLocalNode(LocalNodePhase.synced));
-    await tester.tap(find.text('View node log'));
+    await tester.tap(find.text(_l.deskSetLnodeViewLog));
     await tester.pumpAndSettle();
-    expect(find.text('Node log'), findsOneWidget);
+    expect(find.text(_l.deskSetLndLogTitle), findsOneWidget);
     expect(find.textContaining('bad block from 203.0.113.9:3414', findRichText: true), findsOneWidget);
-    expect(find.text('Last 200 lines of epic-server.log in the data folder. Newest at the bottom.'), findsOneWidget);
+    expect(find.text(_l.deskSetLndLogNote), findsOneWidget);
     await end(tester);
   });
 
   testWidgets('controls: Start when stopped; Stop and Restart while running; Start with the app switch', (tester) async {
     await show(tester, choice: const FallbackChoice(FallbackConsent.accepted), state: mockLocalNode(LocalNodePhase.stopped));
-    await tester.tap(find.text('Start'));
+    await tester.tap(find.text(_l.deskSetLnodeStart));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     expect(node.calls, contains('start'));
-    expect(find.text('Stop'), findsOneWidget);
-    await tester.tap(find.text('Restart'));
+    expect(find.text(_l.deskSetLnodeStop), findsOneWidget);
+    await tester.tap(find.text(_l.deskSetLnodeRestart));
     await tester.pump();
     expect(node.calls.last, 'restart');
     // The row's words and its switch; the row's search anchor adds no label of its own.

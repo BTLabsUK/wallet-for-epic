@@ -16,9 +16,12 @@ import 'package:epic_wallet/src/desktop/data/files.dart' show deskOpenUrlProvide
 import 'package:epic_wallet/src/desktop/screens/settings/settings_about.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 const _v = '99.1.0';
 const _manual = 'This copy cannot install updates itself.';
@@ -158,7 +161,7 @@ void main() {
     await pump(tester, _state(DeskUpdatePhase.available), downloadEnds: _state(DeskUpdatePhase.ready));
     expect(line(), findsOneWidget);
     expect(find.byKey(const ValueKey('now-update-dot')), findsNothing);
-    expect(find.descendant(of: line(), matching: find.text('Update available')), findsOneWidget);
+    expect(find.descendant(of: line(), matching: find.text(_l.deskUpdAvailable)), findsOneWidget);
     expect(find.descendant(of: line(), matching: find.text(_v)), findsOneWidget);
     expect(tip(tester), contains('Download $_v'));
     await tester.tap(line());
@@ -167,8 +170,8 @@ void main() {
     expect(opened, isEmpty);
     expect(ready(), findsOneWidget);
     expect(find.text('Restart to update'), findsOneWidget);
-    expect(find.text('The wallet locks and the app opens again.'), findsOneWidget);
-    await tester.tap(find.widgetWithText(EButton, 'Later'));
+    expect(find.text(_l.deskUpdReadyBody), findsOneWidget);
+    await tester.tap(find.widgetWithText(EButton, _l.deskUpdLater));
     await tester.pumpAndSettle();
     expect(ready(), findsNothing);
     expect(fake.restarts, 0);
@@ -185,9 +188,9 @@ void main() {
     expect(find.descendant(of: ready(), matching: find.text('$_v is ready')), findsOneWidget);
     expect(find.descendant(of: ready(), matching: find.text(hint)), findsOneWidget);
     expect(find.text('Restart now'), findsNothing);
-    await tester.tap(find.widgetWithText(EButton, 'Later'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskUpdLater));
     await tester.pumpAndSettle();
-    expect(find.descendant(of: line(), matching: find.text('Open the disk image')), findsOneWidget);
+    expect(find.descendant(of: line(), matching: find.text(_l.deskUpdOpenDmg)), findsOneWidget);
     expect(tip(tester), contains(hint));
     await tapAndRun(tester, line());
     expect((fake.restarts, quits), (1, 1));
@@ -231,7 +234,7 @@ void main() {
 
   testWidgets('a copy that cannot install updates: the line opens the download page and says so', (tester) async {
     await pump(tester, _state(DeskUpdatePhase.available, inApp: false));
-    expect(find.descendant(of: line(), matching: find.text('Update available')), findsOneWidget);
+    expect(find.descendant(of: line(), matching: find.text(_l.deskUpdAvailable)), findsOneWidget);
     expect(tip(tester), allOf(contains('Opens the download page'), contains(_manual)));
     await tester.tap(line());
     await tester.pumpAndSettle();
@@ -267,16 +270,16 @@ void main() {
   testWidgets('Settings › About: the download page is a link at the end of the status line', (tester) async {
     await pump(tester, const DeskUpdateState(DeskUpdatePhase.latest), home: about);
     // One row: the status, the link, the small Check button; no address, no copy button, no Open.
-    expect(find.widgetWithText(ELink, 'Download page'), findsOneWidget);
+    expect(find.widgetWithText(ELink, _l.deskSetAboutDownloadPage), findsOneWidget);
     expect(find.text('releases.lab.invalid/releases'), findsNothing);
-    final card = find.widgetWithText(ESetGroup, 'About');
+    final card = find.widgetWithText(ESetGroup, _l.deskSetFrameAbout);
     expect(find.descendant(of: card, matching: find.byType(LinkCopyButton)), findsNothing);
     expect(find.descendant(of: card, matching: find.widgetWithText(EButton, 'Open')), findsNothing);
-    expect(find.widgetWithText(EButton, 'Check'), findsOneWidget);
+    expect(find.widgetWithText(EButton, _l.deskSetAboutCheckNow), findsOneWidget);
     expect(act(), findsNothing);
-    await tester.ensureVisible(find.widgetWithText(ELink, 'Download page'));
+    await tester.ensureVisible(find.widgetWithText(ELink, _l.deskSetAboutDownloadPage));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(ELink, 'Download page'));
+    await tester.tap(find.widgetWithText(ELink, _l.deskSetAboutDownloadPage));
     await tester.pumpAndSettle();
     expect(opened, [deskReleasesUrl]);
   }, skip: !inAppUpdates);
@@ -294,7 +297,7 @@ void main() {
       await pump(tester, s, home: about, downloadEnds: _state(DeskUpdatePhase.ready));
       expect(find.text(title), findsOneWidget, reason: why);
       expect(tester.widget<EButton>(act()).label, label, reason: why);
-      expect(find.widgetWithText(EButton, 'Check'), checks ? findsOneWidget : findsNothing, reason: why);
+      expect(find.widgetWithText(EButton, _l.deskSetAboutCheckNow), checks ? findsOneWidget : findsNothing, reason: why);
       expect(find.textContaining(_manual), inApp ? findsNothing : findsOneWidget, reason: why);
       await tapAndRun(tester, act());
       switch (label) {

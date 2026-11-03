@@ -16,6 +16,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 const _skip = !DeskFeatures.tor;
 
 /// The mock wallet with tor's health set by the test; [included] false is a build without it.
@@ -173,7 +175,7 @@ void main() {
       await tester.runAsync(() => container.read(deskProvider.notifier).setTor(true));
       await show(tester, const ReceiveScreen());
       expect(find.text('Link · Tor address'), findsOneWidget);
-      expect(find.text('Link · HTTP address'), findsNothing);
+      expect(find.text(_l.deskRecvHttpAddress), findsNothing);
       expect(find.byKey(const ValueKey('rx-switch-tor')), findsNothing);
       expect(find.text('Over Tor'), findsOneWidget, reason: 'the chip beside the title');
     }, skip: _skip);
@@ -184,7 +186,7 @@ void main() {
       await tester.runAsync(() => container.read(deskProvider.notifier).setTor(true));
       await show(tester, const ReceiveScreen());
       expect(find.byKey(const ValueKey('rx-tor-notice')), findsOneWidget);
-      expect(find.text('Turn Tor off'), findsNothing);
+      expect(find.text(_l.torTurnOff), findsNothing);
     }, skip: _skip);
   });
 }

@@ -23,6 +23,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
 final DateTime _now = DateTime(2026, 9, 30, 12);
@@ -171,7 +173,7 @@ void main() {
       // The contact's name.
       expect(find.text('Knut'), findsOneWidget);
       // A payment with no counterparty keeps today's word.
-      expect(find.text('Found on the chain'), findsOneWidget);
+      expect(find.text(_l.txRestoredFunds), findsOneWidget);
     });
 
     testWidgets('a short address when nobody is named', (tester) async {
@@ -195,7 +197,7 @@ void main() {
       h.session.labels['s:plain'] = 'Rent, September';
       await h.pump(tester, const HistoryScreen());
       await tester.enterText(
-        find.widgetWithText(TextField, 'Search'),
+        find.widgetWithText(TextField, _l.historySearchLabel),
         'septem',
       );
       await tester.pump(searchDebounce);
@@ -283,7 +285,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(h.session.labels, {'s:plain': 'Rent September'});
       expect(find.text('Rent September'), findsOneWidget);
-      expect(find.text('Label added'), findsOneWidget);
+      expect(find.text(_l.txLabelAddedNotice), findsOneWidget);
     });
 
     testWidgets('tapping elsewhere saves', (tester) async {
@@ -316,7 +318,7 @@ void main() {
       expect(h.session.labels, {'s:plain': 'Rent'});
       expect(find.text('Rent'), findsOneWidget);
       expect(find.text('Something else'), findsNothing);
-      expect(find.text('Label saved'), findsNothing);
+      expect(find.text(_l.txLabelSavedNotice), findsNothing);
     });
 
     testWidgets('an empty field removes the label', (tester) async {
@@ -328,7 +330,7 @@ void main() {
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
       expect(h.session.labels, isEmpty);
-      expect(find.text('Label removed'), findsOneWidget);
+      expect(find.text(_l.txLabelRemovedNotice), findsOneWidget);
     });
 
     testWidgets('the field stops at 60 characters', (tester) async {
@@ -348,7 +350,7 @@ void main() {
       await _openLabel(tester);
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
-      expect(find.text('Label saved'), findsNothing);
+      expect(find.text(_l.txLabelSavedNotice), findsNothing);
     });
   });
 
@@ -366,68 +368,68 @@ void main() {
       await tester.pumpAndSettle();
       expect(h.session.labels, {'s:plain': 'Rent'});
       // With a label the tile reads Label, the value and the tag.
-      expect(find.text('Label'), findsOneWidget);
-      expect(find.text('Added by you'), findsOneWidget);
+      expect(find.text(_l.txLabel), findsOneWidget);
+      expect(find.text(_l.txManualTag), findsOneWidget);
       expect(find.text('Rent'), findsWidgets);
     });
 
     testWidgets('only a restored payment offers details', (tester) async {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 's:plain'));
-      expect(find.text('Add details'), findsNothing);
-      expect(find.text('Edit details'), findsNothing);
+      expect(find.text(_l.txEditAdd), findsNothing);
+      expect(find.text(_l.txEditEdit), findsNothing);
       await h.pump(tester, const TxDetailsScreen(txKey: 'c:restored'));
-      expect(find.text('Add details'), findsOneWidget);
+      expect(find.text(_l.txEditAdd), findsOneWidget);
     });
 
     testWidgets('the sheet saves the sender, method and note', (tester) async {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 'c:restored'));
-      await tester.tap(find.text('Add details'));
+      await tester.tap(find.text(_l.txEditAdd));
       await tester.pumpAndSettle();
-      expect(find.text('Cancel'), findsOneWidget);
+      expect(find.text(_l.commonCancel), findsOneWidget);
       // The date is a line, not a field.
-      expect(find.text('Date'), findsWidgets);
+      expect(find.text(_l.txDetailsDate), findsWidgets);
       await tester.tap(find.widgetWithText(ChoiceChip, 'Link · Tor'));
       await tester.pump();
       await tester.enterText(find.widgetWithText(TextField, 'Private note'), 'Pool');
-      await tester.tap(find.text('Save'));
+      await tester.tap(find.text(_l.commonSave));
       await tester.pumpAndSettle();
       expect(h.session.details['c:restored'], (
         counterparty: null,
         transport: 'tor',
         note: 'Pool',
       ));
-      expect(find.text('Details added'), findsOneWidget);
-      expect(find.text('Edit details'), findsOneWidget);
+      expect(find.text(_l.txEditAddedNotice), findsOneWidget);
+      expect(find.text(_l.txEditEdit), findsOneWidget);
       // The method row and the tag follow.
-      expect(find.text('Method'), findsOneWidget);
+      expect(find.text(_l.sendMethodLabel), findsOneWidget);
       expect(find.text('Link · Tor'), findsOneWidget);
-      expect(find.text('Added by you'), findsWidgets);
+      expect(find.text(_l.txManualTag), findsWidgets);
     });
 
     testWidgets('a sender that is no address is refused', (tester) async {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 'c:restored'));
-      await tester.tap(find.text('Add details'));
+      await tester.tap(find.text(_l.txEditAdd));
       await tester.pumpAndSettle();
       await tester.enterText(
         find.widgetWithText(TextField, 'From'),
         'nonsense',
       );
-      await tester.tap(find.text('Save'));
+      await tester.tap(find.text(_l.commonSave));
       await tester.pumpAndSettle();
       expect(h.session.details, isEmpty);
-      expect(find.text('Save'), findsOneWidget);
+      expect(find.text(_l.commonSave), findsOneWidget);
     });
 
     testWidgets('Cancel writes nothing', (tester) async {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 'c:restored'));
-      await tester.tap(find.text('Add details'));
+      await tester.tap(find.text(_l.txEditAdd));
       await tester.pumpAndSettle();
       await tester.enterText(find.widgetWithText(TextField, 'Private note'), 'Pool');
-      await tester.tap(find.text('Cancel'));
+      await tester.tap(find.text(_l.commonCancel));
       await tester.pumpAndSettle();
       expect(h.session.details, isEmpty);
     });
@@ -499,7 +501,7 @@ void main() {
       final h = await open(tester);
       await tester.tap(find.text('Backup note'));
       await tester.pump();
-      await tester.tap(find.text('Keep all mine'));
+      await tester.tap(find.text(_l.histConflictKeepAll));
       await tester.pumpAndSettle();
       expect(h.session.lastUseBackup, {
         'c:restored|note': false,
@@ -527,12 +529,12 @@ void main() {
 
     testWidgets('Cancel writes nothing', (tester) async {
       final h = await open(tester);
-      await tester.tap(find.text('Cancel'));
+      await tester.tap(find.text(_l.commonCancel));
       await tester.pumpAndSettle();
       // Only the first call, without choices, was made: nothing was applied.
       expect(h.session.lastUseBackup, isNull);
       expect(h.session.importConflicts, isNotEmpty);
-      expect(find.text('Wallet data imported'), findsNothing);
+      expect(find.text(_l.historyBackupImportedTitle), findsNothing);
     });
   });
 }

@@ -37,6 +37,8 @@ import 'package:share_plus/share_plus.dart';
 
 import 'support/send_pin.dart';
 
+final _l = englishStrings;
+
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
 /// A valid address for [FakeWalletService.validateEpicboxAddress].
@@ -343,7 +345,7 @@ Finder get _maxButton => find.descendant(
   matching: find.widgetWithText(TextButton, 'Max'),
 );
 
-Finder get _continue => find.widgetWithText(FilledButton, 'Continue');
+Finder get _continue => find.widgetWithText(FilledButton, _l.commonContinue);
 
 /// The first step for [to], then Continue to the amount.
 Future<void> _toAmount(WidgetTester tester, [String? to]) async {
@@ -354,7 +356,7 @@ Future<void> _toAmount(WidgetTester tester, [String? to]) async {
 /// Unfolds the note on the amount step and writes [text] in it.
 Future<void> _note(WidgetTester tester, String text) async {
   if (find.widgetWithText(TextField, 'Message').evaluate().isEmpty) {
-    await _tap(tester, find.text('Add a message'));
+    await _tap(tester, find.text(_l.sendAddNote));
   }
   await _enter(tester, 'Message', text);
 }
@@ -373,7 +375,7 @@ Future<void> _toReview(
 }
 
 /// The payment file route, from the first step.
-Future<void> _toFile(WidgetTester tester) => _tap(tester, find.text('Pay with a file'));
+Future<void> _toFile(WidgetTester tester) => _tap(tester, find.text(_l.sendPayByFile));
 
 String _fieldText(WidgetTester tester, String label) => tester
     .widget<TextField>(find.widgetWithText(TextField, label))
@@ -501,7 +503,7 @@ class _AppHarness {
     );
     // Home keeps refresh timers; unmounting cancels them.
     addTearDown(() => tester.pumpWidget(const SizedBox()));
-    await tester.enterText(find.widgetWithText(TextField, 'PIN'), _pin);
+    await tester.enterText(find.widgetWithText(TextField, _l.pinLabel), _pin);
     await tester.pumpAndSettle();
     expect(container.read(sessionProvider), isNotNull);
   }
@@ -665,7 +667,7 @@ void main() {
         // A tall phone: the rows sit under the method strip, past a test font's fold.
         tester.view.physicalSize = const Size(1080, 3600);
         await tester.pumpAndSettle();
-        expect(find.text('Recent'), findsOneWidget);
+        expect(find.text(_l.sendRecent), findsOneWidget);
         expect(find.text('Bob'), findsOneWidget);
         // A name keeps its address beside it.
         expect(find.text('bbbbbb…bbbbbb@epicbox.epiccash.com'), findsOneWidget);
@@ -680,15 +682,15 @@ void main() {
         await _tap(tester, find.text('Bob'));
         expect(find.text('2 of 3'), findsOneWidget);
         expect(find.textContaining('Bob'), findsWidgets);
-        await _tap(tester, find.byTooltip('Back'));
+        await _tap(tester, find.byTooltip(_l.scanQrBack));
         // The chip names him; no offer to save him again.
         expect(find.text('Bob'), findsOneWidget);
         expect(find.byKey(sendRecipientFieldKey), findsNothing);
-        expect(find.text('Save as contact'), findsNothing);
+        expect(find.text(_l.sendSaveContact), findsNothing);
         // Only while the field is empty.
-        expect(find.text('Recent'), findsNothing);
+        expect(find.text(_l.sendRecent), findsNothing);
         await _tap(tester, find.byKey(sendRecipientClearKey));
-        expect(find.text('Recent'), findsOneWidget);
+        expect(find.text(_l.sendRecent), findsOneWidget);
       },
     );
 
@@ -698,7 +700,7 @@ void main() {
         fakeTx(kind: TxKind.received, counterparty: dave),
       ];
       await h.pump(tester, _sendTab());
-      expect(find.text('Recent'), findsNothing);
+      expect(find.text(_l.sendRecent), findsNothing);
     });
   });
 
@@ -751,10 +753,10 @@ void main() {
         expect(find.text('2 of 3'), findsNothing);
 
         await _enter(tester, _address, _bob);
-        expect(find.text('Epicbox'), findsOneWidget);
-        expect(find.text('Save as contact'), findsOneWidget);
+        expect(find.text(_l.methodEpicbox), findsOneWidget);
+        expect(find.text(_l.sendSaveContact), findsOneWidget);
         await _tap(tester, _continue);
-        expect(find.text('Amount'), findsOneWidget);
+        expect(find.text(_l.sendStepAmount), findsOneWidget);
         expect(find.text('2 of 3'), findsOneWidget);
         expect(find.text('Available 40.0\u00a0EPIC'), findsOneWidget);
         await _enter(tester, 'Amount (EPIC)', '1.5');
@@ -763,7 +765,7 @@ void main() {
         expect(find.textContaining('gets exactly'), findsNothing);
         await _note(tester, 'Lunch');
         await _tap(tester, _continue);
-        expect(find.text('Review'), findsOneWidget);
+        expect(find.text(_l.sendStepReview), findsOneWidget);
         expect(find.text('3 of 3'), findsOneWidget);
         expect(find.text('1.5\u00a0EPIC'), findsOneWidget);
         expect(find.text('0.008\u00a0EPIC'), findsOneWidget);
@@ -782,11 +784,11 @@ void main() {
         expect(h.session.notes, {'s:send-1': 'Lunch'});
         expect(h.session.sentMessages, ['Lunch']);
         // The tracker, not "Sent": the payment waits for their wallet.
-        expect(find.text('Payment started'), findsOneWidget);
-        expect(find.text('Recipient signed'), findsOneWidget);
-        expect(find.text('Posted to the network'), findsOneWidget);
-        expect(find.text('Confirming'), findsOneWidget);
-        expect(find.text('Completed'), findsOneWidget);
+        expect(find.text(_l.txStepStarted), findsOneWidget);
+        expect(find.text(_l.txStepAccepted), findsOneWidget);
+        expect(find.text(_l.txStepPosted), findsOneWidget);
+        expect(find.text(_l.txStepConfirming), findsOneWidget);
+        expect(find.text(_l.txStatusCompleted), findsOneWidget);
         expect(
           find.text(
             'Their wallet signs it when it opens. '
@@ -796,22 +798,22 @@ void main() {
         );
         // The cancel rule waits behind a small expandable.
         expect(find.textContaining('cancels by itself'), findsNothing);
-        await _tap(tester, find.text('What if it never finishes?'));
+        await _tap(tester, find.text(_l.sendTrackIfNot));
         expect(
           find.textContaining('If it is still not completed after 1 day'),
           findsOneWidget,
         );
 
-        await _tap(tester, find.text('Save as contact'));
-        expect(find.text('New contact'), findsOneWidget);
+        await _tap(tester, find.text(_l.sendSaveContact));
+        expect(find.text(_l.contactsNewTitle), findsOneWidget);
         expect(find.text(_bob), findsOneWidget);
         await _enter(tester, 'Name', 'Bob');
-        await _tap(tester, find.text('Save contact'));
+        await _tap(tester, find.text(_l.contactsSave));
         final saved = h.session.contactsValue;
         expect(saved.single.name, 'Bob');
         expect(saved.single.address, _bob);
         // Known now: the offer is gone and the steps name him.
-        expect(find.text('Save as contact'), findsNothing);
+        expect(find.text(_l.sendSaveContact), findsNothing);
         expect(find.textContaining('Bob'), findsWidgets);
         expect(find.text('Waiting for Bob’s wallet'), findsOneWidget);
       },
@@ -859,18 +861,18 @@ void main() {
       await h.pump(tester, _sendTab());
 
       clipboard = 'https://';
-      await _tap(tester, find.text('Paste'));
+      await _tap(tester, find.text(_l.commonPaste));
       expect(find.byType(LiveFieldError), findsOneWidget);
       clipboard = 'es${'b' * 40}';
-      await _tap(tester, find.text('Paste'));
+      await _tap(tester, find.text(_l.commonPaste));
       expect(find.text('This address looks incomplete.'), findsOneWidget);
       clipboard = 'not an address!';
-      await _tap(tester, find.text('Paste'));
-      expect(find.text('Not an address, and no contact has this name.'), findsOneWidget);
+      await _tap(tester, find.text(_l.commonPaste));
+      expect(find.text(_l.sendProblemNotAddress), findsOneWidget);
       clipboard = ' $_bob ';
-      await _tap(tester, find.text('Paste'));
+      await _tap(tester, find.text(_l.commonPaste));
       expect(find.byType(LiveFieldError), findsNothing);
-      expect(find.text('Save as contact'), findsOneWidget);
+      expect(find.text(_l.sendSaveContact), findsOneWidget);
 
       // Typed: no message while typing, one when the field is left.
       await tester.tap(find.widgetWithText(TextField, _address));
@@ -879,7 +881,7 @@ void main() {
       expect(find.byType(LiveFieldError), findsNothing);
       FocusManager.instance.primaryFocus?.unfocus();
       await tester.pumpAndSettle();
-      expect(find.text('Not an address, and no contact has this name.'), findsOneWidget);
+      expect(find.text(_l.sendProblemNotAddress), findsOneWidget);
     });
 
     testWidgets(
@@ -898,14 +900,14 @@ void main() {
           find.textContaining("refused it."),
           findsOneWidget,
         );
-        expect(find.text('Send anyway'), findsNothing);
+        expect(find.text(_l.sendAnyway), findsNothing);
         expect(find.text('Send 2.0\u00a0EPIC'), findsNothing);
         expect(find.text('Edit'), findsNothing);
         // The payment waits with its coins on hold until it is cancelled.
         expect(h.session.summaryValue.locked, _epic(2) + h.session.fee);
 
         h.session.sendError = null;
-        await _tap(tester, find.text('Leave it for now'));
+        await _tap(tester, find.text(_l.sendLeaveIt));
         expect(h.session.epicboxSends, hasLength(1));
         expect(h.session.cancelledTxIds, isEmpty);
       },
@@ -924,7 +926,7 @@ void main() {
       await _tap(tester, find.text('Send 2.0\u00a0EPIC'));
       await _reveal(tester, find.byType(ErrorText));
       expect(find.byType(ErrorText), findsOneWidget);
-      expect(find.text('Pay with a file instead'), findsNothing);
+      expect(find.text(_l.sendPayWithFile), findsNothing);
       h.session.sendError = null;
       await _tap(tester, find.text('Send 2.0\u00a0EPIC'));
       expect(h.session.epicboxSends, hasLength(1));
@@ -936,9 +938,9 @@ void main() {
       await _toAmount(tester);
       // Folded until asked for.
       expect(find.widgetWithText(TextField, 'Message'), findsNothing);
-      await _tap(tester, find.text('Add a message'));
+      await _tap(tester, find.text(_l.sendAddNote));
       const label = 'Message';
-      expect(find.text('The recipient sees it.'), findsOneWidget);
+      expect(find.text(_l.sendNoteHelper), findsOneWidget);
       expect(find.text('0/256'), findsOneWidget);
       await _enter(tester, label, 'Zażółć');
       // Four of the six letters take two bytes.
@@ -1058,11 +1060,11 @@ void main() {
       await tester.tap(send, warnIfMissed: false);
       await tester.pumpAndSettle();
       // One PIN dialog for the two taps.
-      expect(find.widgetWithText(TextField, 'PIN'), findsOneWidget);
+      expect(find.widgetWithText(TextField, _l.pinLabel), findsOneWidget);
       await answerPin(tester);
       expect(h.session.epicboxSends, hasLength(1));
       // The Send tab is still there, on its tracker.
-      expect(find.text('Recipient signed'), findsOneWidget);
+      expect(find.text(_l.txStepAccepted), findsOneWidget);
     });
 
     testWidgets('Continue asks for the fee again; a changed fee is shown', (
@@ -1163,7 +1165,7 @@ void main() {
       for (final text in ['NaN', 'Infinity', '1e400']) {
         await _enter(tester, 'Amount (USD)', text);
         expect(tester.takeException(), isNull);
-        expect(find.text('Enter an amount such as 10.50'), findsOneWidget);
+        expect(find.text(_l.sendAmountEnterFiatExample), findsOneWidget);
       }
     });
 
@@ -1325,9 +1327,9 @@ void main() {
       );
       await h.pump(tester, _sendTab());
       h.scanner.codes.add(' epicbox://$_bob ');
-      await _tap(tester, find.text('Scan'));
+      await _tap(tester, find.text(_l.sendScanButton));
       expect(_fieldText(tester, _address), contains(_bob));
-      expect(find.text('Save as contact'), findsNothing);
+      expect(find.text(_l.sendSaveContact), findsNothing);
       await _tap(tester, _continue);
       expect(find.textContaining('Bob'), findsWidgets);
     });
@@ -1335,8 +1337,8 @@ void main() {
     testWidgets('scan is hidden where unsupported', (tester) async {
       final h = _Harness(scanSupported: false);
       await h.pump(tester, _sendTab());
-      expect(find.text('Scan'), findsNothing);
-      expect(find.text('Paste'), findsOneWidget);
+      expect(find.text(_l.sendScanButton), findsNothing);
+      expect(find.text(_l.commonPaste), findsOneWidget);
     });
 
     testWidgets('pick a contact as the recipient', (tester) async {
@@ -1349,7 +1351,7 @@ void main() {
       );
       await h.pump(tester, _sendTab());
       await _tap(tester, find.text('Contacts'));
-      expect(find.text('Choose a contact'), findsWidgets);
+      expect(find.text(_l.contactsPickTitle), findsWidgets);
       await _tap(tester, find.text('Carol'));
       expect(find.text('Carol'), findsOneWidget);
       await _tap(tester, _continue);
@@ -1363,7 +1365,7 @@ void main() {
       await _tap(tester, find.text('Send 1.0\u00a0EPIC'));
       expect(h.session.epicboxSends.single.to, _carol);
       expect(find.text('To Carol'), findsOneWidget);
-      expect(find.text('Save as contact'), findsNothing);
+      expect(find.text(_l.sendSaveContact), findsNothing);
     });
 
     testWidgets('a recipient handed over fills the open form', (tester) async {
@@ -1390,7 +1392,7 @@ void main() {
       await h.pump(tester, _sendTab());
       await _toFile(tester);
       await _enter(tester, 'Amount (EPIC)', '1.5');
-      final make = find.text('Make transaction file');
+      final make = find.text(_l.sendMakeFile);
       await tester.ensureVisible(make);
       await tester.tap(make);
       await tester.pumpAndSettle();
@@ -1410,15 +1412,15 @@ void main() {
       final h = _Harness();
       await h.pump(tester, _sendTab());
       await _toFile(tester);
-      expect(find.text('Direct · File Transfer'), findsOneWidget);
+      expect(find.text(_l.sendFileTitle), findsOneWidget);
       expect(find.widgetWithText(TextField, _address), findsNothing);
       await _enter(tester, 'Amount (EPIC)', '1.5');
-      await _tap(tester, find.text('Make transaction file'));
+      await _tap(tester, find.text(_l.sendMakeFile));
       expect(h.session.sentAmounts, [_epic(1.5)]);
       // Nothing leaves the app until the user picks how.
       expect(h.files.saved, isEmpty);
       expect(h.files.shared, isEmpty);
-      await _tap(tester, find.text('Save to device'));
+      await _tap(tester, find.text(_l.slateSaveToDevice));
       expect(h.files.saved.single.name, 'slate-1.tx');
       expect(h.files.saved.single.json, h.session.sendSlate.json);
       // The confirmation is in the notice slot, not a snack bar.
@@ -1430,9 +1432,9 @@ void main() {
         findsOneWidget,
       );
       expect(find.byType(SnackBar), findsNothing);
-      await _tap(tester, find.text('Share'));
+      await _tap(tester, find.text(_l.commonShare));
       expect(h.files.shared.single.name, 'slate-1.tx');
-      expect(find.text('Open response file'), findsOneWidget);
+      expect(find.text(_l.sendOpenReply), findsOneWidget);
 
       // A response for another transaction is refused before anything is signed.
       h.files.picks.add(
@@ -1444,9 +1446,9 @@ void main() {
         fee: BigInt.one,
         stage: SlateStage.response,
       );
-      await _tap(tester, find.text('Open response file'));
+      await _tap(tester, find.text(_l.sendOpenReply));
       expect(find.textContaining('for a different payment'), findsOneWidget);
-      expect(find.text('Finish payment'), findsNothing);
+      expect(find.text(_l.slateFinishPayment), findsNothing);
       // The error notice goes first, so the screen is back in its own place.
       ProviderScope.containerOf(tester.element(find.byType(MaterialApp)))
           .read(noticeProvider.notifier)
@@ -1454,7 +1456,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.pageBack();
       await tester.pumpAndSettle();
-      expect(find.text('Waiting for the response file'), findsOneWidget);
+      expect(find.text(_l.sendFileWaitingReply), findsOneWidget);
 
       h.files.picks.add(
         SlateFile(
@@ -1468,22 +1470,22 @@ void main() {
         fee: h.session.fee,
         stage: SlateStage.response,
       );
-      await _tap(tester, find.text('Open response file'));
+      await _tap(tester, find.text(_l.sendOpenReply));
       expect(
         find.textContaining('answer to your send of 1.5\u00a0EPIC'),
         findsOneWidget,
       );
-      await _tap(tester, find.text('Finish payment'));
+      await _tap(tester, find.text(_l.slateFinishPayment));
       expect(h.session.finalizedSlates, [h.session.responseSlate.json]);
       expect(
         find.text('Payment of 1.5\u00a0EPIC posted to the network.'),
         findsOneWidget,
       );
       // Back on Send, the tracker has moved on.
-      await _tap(tester, find.widgetWithText(FilledButton, 'Done'));
-      expect(find.text('Waiting for the response file'), findsNothing);
-      expect(find.text('Recipient signed'), findsOneWidget);
-      expect(find.text('Open response file'), findsNothing);
+      await _tap(tester, find.widgetWithText(FilledButton, _l.commonDone));
+      expect(find.text(_l.sendFileWaitingReply), findsNothing);
+      expect(find.text(_l.txStepAccepted), findsOneWidget);
+      expect(find.text(_l.sendOpenReply), findsNothing);
     });
 
     testWidgets('where files cannot be shared, only Save to device shows', (
@@ -1494,9 +1496,9 @@ void main() {
       await h.pump(tester, _sendTab());
       await _toFile(tester);
       await _enter(tester, 'Amount (EPIC)', '1');
-      await _tap(tester, find.text('Make transaction file'));
-      expect(find.text('Save to device'), findsOneWidget);
-      expect(find.widgetWithText(OutlinedButton, 'Share'), findsNothing);
+      await _tap(tester, find.text(_l.sendMakeFile));
+      expect(find.text(_l.slateSaveToDevice), findsOneWidget);
+      expect(find.widgetWithText(OutlinedButton, _l.commonShare), findsNothing);
     });
 
     testWidgets('by file: a pasted reply to another payment is refused', (
@@ -1512,8 +1514,8 @@ void main() {
       await h.pump(tester, _sendTab());
       await _toFile(tester);
       await _enter(tester, 'Amount (EPIC)', '1.5');
-      await _tap(tester, find.text('Make transaction file'));
-      await _tap(tester, find.text('Copy and paste instead'));
+      await _tap(tester, find.text(_l.sendMakeFile));
+      await _tap(tester, find.text(_l.sendCopyPasteInstead));
       for (final (text, message) in [
         ('{"other":1}', 'for a different payment'),
         ('not a reply', 'not a transaction file'),
@@ -1525,11 +1527,11 @@ void main() {
           ),
           text,
         );
-        await _tap(tester, find.text('Finish payment'));
+        await _tap(tester, find.text(_l.slateFinishPayment));
         expect(find.textContaining(message), findsOneWidget, reason: text);
         expect(h.session.finalizedSlates, isEmpty, reason: text);
       }
-      expect(find.text('Waiting for the response file', skipOffstage: false), findsOneWidget);
+      expect(find.text(_l.sendFileWaitingReply, skipOffstage: false), findsOneWidget);
     });
 
     testWidgets('by file: paste the response instead', (tester) async {
@@ -1537,11 +1539,11 @@ void main() {
       await h.pump(tester, _sendTab());
       await _toFile(tester);
       await _enter(tester, 'Amount (EPIC)', '1.5');
-      await _tap(tester, find.text('Make transaction file'));
-      await _tap(tester, find.text('Copy and paste instead'));
-      await _tap(tester, find.text('Finish payment'));
+      await _tap(tester, find.text(_l.sendMakeFile));
+      await _tap(tester, find.text(_l.sendCopyPasteInstead));
+      await _tap(tester, find.text(_l.slateFinishPayment));
       expect(
-        find.text('Paste the response text from the recipient.'),
+        find.text(_l.sendPasteResponseMissing),
         findsOneWidget,
       );
       await tester.enterText(
@@ -1551,11 +1553,11 @@ void main() {
         ),
         h.session.responseSlate.json,
       );
-      await _tap(tester, find.text('Finish payment'));
+      await _tap(tester, find.text(_l.slateFinishPayment));
       expect(h.session.finalizedSlates, [h.session.responseSlate.json]);
-      expect(find.text('Recipient signed'), findsOneWidget);
-      expect(find.text('Posted to the network'), findsOneWidget);
-      expect(find.text('Waiting for the response file'), findsNothing);
+      expect(find.text(_l.txStepAccepted), findsOneWidget);
+      expect(find.text(_l.txStepPosted), findsOneWidget);
+      expect(find.text(_l.sendFileWaitingReply), findsNothing);
     });
   });
 
@@ -1563,27 +1565,27 @@ void main() {
     testWidgets('add, search, edit and delete', (tester) async {
       final h = _Harness();
       await h.pump(tester, const ContactsScreen());
-      expect(find.textContaining('No contacts yet'), findsOneWidget);
+      expect(find.textContaining(_l.contactsEmptyTitle), findsOneWidget);
       // Nothing to search yet: the empty state sits in the middle, without a search field.
       expect(find.widgetWithText(TextField, 'Name or address'), findsNothing);
       expect(find.byType(CenteredBody), findsOneWidget);
 
-      await _tap(tester, find.text('Add contact'));
-      await _tap(tester, find.text('Save contact'));
-      expect(find.text('Enter a name.'), findsOneWidget);
+      await _tap(tester, find.text(_l.contactsAdd));
+      await _tap(tester, find.text(_l.contactsSave));
+      expect(find.text(_l.contactsNameMissing), findsOneWidget);
       expect(find.text('Enter their address.'), findsOneWidget);
 
       await _enter(tester, 'Name', 'Bob');
       await _enterAddress(tester, 'nonsense');
-      await _tap(tester, find.text('Save contact'));
+      await _tap(tester, find.text(_l.contactsSave));
       expect(find.textContaining('Use an Epicbox address'), findsOneWidget);
 
       await _enterAddress(tester, ' $_bob ');
-      await _tap(tester, find.text('Save contact'));
+      await _tap(tester, find.text(_l.contactsSave));
       expect(find.text('Bob'), findsOneWidget);
 
       // With contacts, Add is the app bar's icon.
-      await _tap(tester, find.byTooltip('Add contact'));
+      await _tap(tester, find.byTooltip(_l.contactsAdd));
       await _enter(tester, 'Name', 'Carol');
       await _enterAddress(tester, _bob);
       expect(
@@ -1592,7 +1594,7 @@ void main() {
       );
       await _enterAddress(tester, _carol);
       expect(find.textContaining('already saved'), findsNothing);
-      await _tap(tester, find.text('Save contact'));
+      await _tap(tester, find.text(_l.contactsSave));
       expect(find.text('Carol'), findsOneWidget);
 
       await _enter(tester, 'Name or address', 'car');
@@ -1603,9 +1605,9 @@ void main() {
       // A tap opens the contact's page; Edit opens the form.
       await _tap(tester, find.text('Bob'));
       await _tap(tester, find.byKey(contactPageEditKey));
-      expect(find.text('Edit contact'), findsOneWidget);
+      expect(find.text(_l.contactsEditTitle), findsOneWidget);
       await _enter(tester, 'Name', 'Robert');
-      await _tap(tester, find.text('Save contact'));
+      await _tap(tester, find.text(_l.contactsSave));
       expect(find.text('Robert'), findsOneWidget);
       expect(find.text('Bob'), findsNothing);
 
@@ -1617,7 +1619,7 @@ void main() {
         tester,
         find.descendant(
           of: find.byType(AlertDialog),
-          matching: find.text('Delete'),
+          matching: find.text(_l.commonDelete),
         ),
       );
       expect(find.text('Robert'), findsNothing);
@@ -1633,7 +1635,7 @@ void main() {
       await h.pumpUnlocked(tester);
       await h.open(tester, _receiveTab());
 
-      await tester.tap(find.byTooltip('Share'));
+      await tester.tap(find.byTooltip(_l.commonShare));
       await _untilRendered(tester, () => h.files.gate != null);
       expect(h.container.read(autoLockHoldProvider), 1);
       await h.awayAndBack(tester, const Duration(minutes: 10));
@@ -1665,7 +1667,7 @@ void main() {
       h.session.sendGate!.complete();
       await tester.pumpAndSettle();
       expect(h.locked, isFalse);
-      expect(find.text('Recipient signed'), findsOneWidget);
+      expect(find.text(_l.txStepAccepted), findsOneWidget);
       expect(h.container.read(autoLockHoldProvider), 0);
     });
 
@@ -1674,8 +1676,8 @@ void main() {
       await h.pumpUnlocked(tester);
       await h.open(tester, _receiveTab());
       // The tab's label may break at its " · "; its tooltip keeps the whole name.
-      await _tap(tester, find.descendant(of: find.byKey(receiveTabsKey), matching: find.byTooltip('Direct · File')));
-      await _tap(tester, find.text('Open file'));
+      await _tap(tester, find.descendant(of: find.byKey(receiveTabsKey), matching: find.byTooltip(_l.methodShortFile)));
+      await _tap(tester, find.text(_l.receiveFileOpen));
       expect(h.container.read(autoLockHoldProvider), 1);
       await h.awayAndBack(tester, const Duration(minutes: 10));
       await h.finishTrip(tester);
@@ -1689,8 +1691,8 @@ void main() {
       await h.open(tester, _sendTab());
       await _toFile(tester);
       await _enter(tester, 'Amount (EPIC)', '1.5');
-      await _tap(tester, find.text('Make transaction file'));
-      await _tap(tester, find.text('Save to device'));
+      await _tap(tester, find.text(_l.sendMakeFile));
+      await _tap(tester, find.text(_l.slateSaveToDevice));
       expect(h.container.read(autoLockHoldProvider), 1);
       await h.awayAndBack(tester, const Duration(minutes: 10));
       await h.finishTrip(tester);
@@ -1707,8 +1709,8 @@ void main() {
       await h.pump(tester, _sendTab());
       await _toFile(tester);
       await _enter(tester, 'Amount (EPIC)', '1.5');
-      await _tap(tester, find.text('Make transaction file'));
-      await _tap(tester, find.text('Copy and paste instead'));
+      await _tap(tester, find.text(_l.sendMakeFile));
+      await _tap(tester, find.text(_l.sendCopyPasteInstead));
       await tester.enterText(
         find.descendant(
           of: find.byType(SlateInput),
@@ -1716,9 +1718,9 @@ void main() {
         ),
         h.session.responseSlate.json,
       );
-      await _tap(tester, find.text('Finish payment'));
+      await _tap(tester, find.text(_l.slateFinishPayment));
       expect(find.text(NotPostedNotice.text(englishStrings)), findsOneWidget);
-      expect(find.text('Finish payment'), findsNothing);
+      expect(find.text(_l.slateFinishPayment), findsNothing);
     });
 
     testWidgets('file screen: the same notice after Finish payment', (
@@ -1741,10 +1743,10 @@ void main() {
           ),
         ),
       );
-      await _tap(tester, find.text('Finish payment'));
+      await _tap(tester, find.text(_l.slateFinishPayment));
       expect(find.text(NotPostedNotice.text(englishStrings)), findsOneWidget);
       expect(find.textContaining('sent to the network'), findsNothing);
-      expect(find.text('Finish payment'), findsNothing);
+      expect(find.text(_l.slateFinishPayment), findsNothing);
     });
   });
 
@@ -1991,7 +1993,7 @@ void main() {
       await _enter(tester, 'Amount (USD)', '10,50');
       expect(find.text('≈\u00a021.0\u00a0EPIC'), findsOneWidget);
       await _enter(tester, 'Amount (USD)', '1e5');
-      expect(find.text('Enter an amount such as 10.50'), findsOneWidget);
+      expect(find.text(_l.sendAmountEnterFiatExample), findsOneWidget);
     });
 
     testWidgets(
@@ -2024,7 +2026,7 @@ void main() {
         expect(find.text('3 of 3'), findsOneWidget);
 
         await _tap(tester, find.text('Edit'));
-        await _tap(tester, find.text('Add a message'));
+        await _tap(tester, find.text(_l.sendAddNote));
         expect(editable('Message').focusNode.hasFocus, isTrue);
         await tester.tap(find.widgetWithText(TextField, 'Amount (EPIC)'));
         await tester.pump();
@@ -2103,7 +2105,7 @@ void main() {
     testWidgets('receive links to help about receiving', (tester) async {
       final h = _Harness();
       await h.pump(tester, _receiveTab());
-      await _tap(tester, find.text('How receiving works'));
+      await _tap(tester, find.text(_l.receiveHelpButton));
       expect(find.byType(HelpTopicScreen), findsOneWidget);
       expect(find.text('Receive your first EPIC'), findsOneWidget);
     });
@@ -2113,7 +2115,7 @@ void main() {
       await h.pump(tester, _sendTab());
       await _toReview(tester);
       await _tap(tester, find.text('Send 1.0\u00a0EPIC'));
-      await _tap(tester, find.text('What if it never finishes?'));
+      await _tap(tester, find.text(_l.sendTrackIfNot));
       await _tap(tester, find.widgetWithText(TextButton, 'Help'));
       expect(find.byType(HelpTopicScreen), findsOneWidget);
       expect(find.text('Send to someone'), findsOneWidget);
@@ -2167,7 +2169,7 @@ void main() {
           ),
         ),
       );
-      expect(find.text('Message from the recipient'), findsOneWidget);
+      expect(find.text(_l.txDetailsMessageFromRecipient), findsOneWidget);
       expect(find.text('got it'), findsOneWidget);
       expect(find.text('ours'), findsNothing);
     });
@@ -2217,7 +2219,7 @@ void main() {
         ),
       );
       final loads = h.session.transactionsCalls;
-      await _tap(tester, find.text('Accept payment'));
+      await _tap(tester, find.text(_l.slateAcceptPayment));
       expect(h.session.receivedSlates, [incoming, incoming]);
       expect(h.session.transactionsCalls, loads);
       expect(
@@ -2228,7 +2230,7 @@ void main() {
       );
       expect(find.textContaining('not a second payment'), findsOneWidget);
       expect(find.textContaining('Accepted. Return'), findsNothing);
-      await _tap(tester, find.text('Save to device'));
+      await _tap(tester, find.text(_l.slateSaveToDevice));
       expect(h.files.saved.single.name, 'from-bob.tx.response');
       expect(h.files.saved.single.json, h.session.responseSlate.json);
     });
@@ -2252,19 +2254,19 @@ void main() {
         ),
         settle: false,
       );
-      expect(find.bySemanticsLabel('Reading the file'), findsOneWidget);
-      expect(find.text('Accept payment'), findsNothing);
+      expect(find.bySemanticsLabel(_l.slateReading), findsOneWidget);
+      expect(find.text(_l.slateAcceptPayment), findsNothing);
       expect(find.byType(ErrorText), findsNothing);
 
       gate.complete();
       await tester.pumpAndSettle();
-      expect(find.bySemanticsLabel('Reading the file'), findsNothing);
+      expect(find.bySemanticsLabel(_l.slateReading), findsNothing);
       expect(
-        find.text('Invoices are experimental'),
+        find.text(_l.expInvoicesOffTitle),
         findsOneWidget,
       );
-      expect(find.text('Accept payment'), findsNothing);
-      expect(find.text('Finish payment'), findsNothing);
+      expect(find.text(_l.slateAcceptPayment), findsNothing);
+      expect(find.text(_l.slateFinishPayment), findsNothing);
       expect(h.session.receivedSlates, isEmpty);
       expect(h.session.finalizedSlates, isEmpty);
     });
@@ -2276,14 +2278,14 @@ void main() {
     ) async {
       final off = _Harness();
       await off.pump(tester, _sendTab());
-      expect(find.text('Pay with a file'), findsOneWidget);
+      expect(find.text(_l.sendPayByFile), findsOneWidget);
       expect(find.text('Other ways to send'), findsNothing);
 
       // A fresh tree, so the screen's state starts over.
       await tester.pumpWidget(const SizedBox());
       final on = _Harness(direct: true);
       await on.pump(tester, _sendTab());
-      expect(find.text('Pay with a file'), findsOneWidget);
+      expect(find.text(_l.sendPayByFile), findsOneWidget);
       await _enter(tester, _address, 'http://203.0.113.5:3415');
       await _tap(tester, _continue);
       expect(find.text('2 of 3'), findsOneWidget);
@@ -2304,7 +2306,7 @@ void main() {
       await on.pump(tester, _sendTab());
       await _toAmount(tester, null);
       expect(find.byKey(sendStrategyKey), findsOneWidget);
-      expect(find.text('Strategy for this send'), findsOneWidget);
+      expect(find.text(_l.deskSendAdvStrategy), findsOneWidget);
       final picker = tester.widget<SegmentedButton<SelectionStrategy>>(
         find.byKey(sendStrategyKey),
       );
@@ -2321,7 +2323,7 @@ void main() {
         tester,
         find.descendant(
           of: find.byKey(sendStrategyKey),
-          matching: find.text('All'),
+          matching: find.text(_l.outputsAll),
         ),
       );
       await tester.pump(const Duration(seconds: 1));

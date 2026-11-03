@@ -14,6 +14,9 @@ import 'package:epic_wallet/src/desktop/screens/onboarding/unlock_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/welcome_screen.dart';
 import 'package:epic_wallet/src/desktop/app/routes.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+
+final _l = englishStrings;
 
 Widget _screen(DeskRoute r, Object? a) => switch (r) {
   DeskRoute.welcome => WelcomeScreen(arg: a),
@@ -60,22 +63,22 @@ void flows() {
   testWidgets('unlock: fail stops at the wallet service with Back and Try again', (tester) async {
     await _pump(tester, const UnlockScreen());
     await tester.enterText(_field(0), 'fail');
-    await tester.tap(find.text('Unlock').last);
+    await tester.tap(find.text(_l.deskOnbUnlockButton).last);
     await _wait(tester);
-    expect(find.text('Unlock failed'), findsOneWidget);
+    expect(find.text(_l.deskOnbUnlockFailed), findsOneWidget);
     expect(find.text('Try again'), findsOneWidget);
     await tester.tap(find.text('Back'));
     await tester.pump();
-    expect(find.text('Unlock wallet'), findsOneWidget);
+    expect(find.text(_l.deskOnbUnlockTitle), findsOneWidget);
     await _end(tester);
   });
 
   testWidgets('unlock: wrong password returns to the form with the message', (tester) async {
     await _pump(tester, const UnlockScreen());
     await tester.enterText(_field(0), 'wrong');
-    await tester.tap(find.text('Unlock').last);
+    await tester.tap(find.text(_l.deskOnbUnlockButton).last);
     await _wait(tester, 4000);
-    expect(find.textContaining('Wrong password'), findsOneWidget);
+    expect(find.textContaining(_l.deskErrWrongPassword), findsOneWidget);
     await _end(tester);
   });
 
@@ -86,7 +89,7 @@ void flows() {
     await _wait(tester, 500);
     expect(find.text('12 of 12 words'), findsOneWidget);
     expect(find.text('All 12 words check out.'), findsOneWidget);
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await tester.pump();
     expect(find.byKey(const ValueKey('wallet-name-title')), findsOneWidget);
     expect(find.text('Name'), findsNothing);
@@ -99,7 +102,7 @@ void flows() {
     final words = [...List.filled(11, 'abandon'), 'about'].join(' ');
     await tester.enterText(_field(0), words);
     await _wait(tester, 500);
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await tester.pump();
     expect(find.text('Wallet'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('wallet-name-pen')));
@@ -113,7 +116,7 @@ void flows() {
     await tester.enterText(_field(0), 'longpassword');
     await tester.enterText(_field(1), 'longpassword');
     await tester.pump();
-    await tester.tap(find.text('Restore wallet').last);
+    await tester.tap(find.text(_l.deskOnbRestoreSide).last);
     await _wait(tester, 4000);
     final nav = container.read(deskNavProvider);
     expect(nav.route, DeskRoute.setup);
@@ -144,42 +147,42 @@ void flows() {
     final container = await _pump(tester, const ImportWalletsScreen());
     await _wait(tester, 1500);
     expect(find.text('3 wallets found'), findsOneWidget, reason: 'a test network wallet is not offered');
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await tester.pump();
-    expect(find.text('Choose wallets'), findsOneWidget);
+    expect(find.text(_l.deskOnbImportChooseTitle), findsOneWidget);
     expect(find.textContaining('Test network wallet'), findsNothing);
     expect(find.text('Same wallet as Everyday. Tick for a second copy.'), findsOneWidget);
     expect(find.text('2 of 3 selected'), findsOneWidget, reason: 'the copy starts unticked');
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await _wait(tester, 1500);
     // Nothing in use: Check goes straight on to Import.
-    expect(find.text('Each wallet asks for its old password once.'), findsOneWidget);
+    expect(find.text(_l.deskOnbImportLead), findsOneWidget);
     expect(find.text('0 of 2 imported'), findsOneWidget);
     await tester.enterText(_field(0), 'wrong-password');
-    await tester.tap(find.text('Import').last);
+    await tester.tap(find.text(_l.deskOnbImportTitle).last);
     await _wait(tester, 1500);
-    expect(find.text('Wrong old password'), findsOneWidget);
+    expect(find.text(_l.deskErrWrongOldPassword), findsOneWidget);
     await tester.enterText(_field(0), 'old-password');
-    await tester.tap(find.text('Import').last);
+    await tester.tap(find.text(_l.deskOnbImportTitle).last);
     await _wait(tester, 1500);
     expect(find.text('1 of 2 imported'), findsOneWidget);
-    expect(find.text('Old folder unchanged'), findsOneWidget);
+    expect(find.text(_l.deskErrProofFolderUnchanged), findsOneWidget);
     // A short old password asks for a new one.
     await tester.enterText(_field(0), 'abc');
     await tester.pump();
-    expect(find.text('New password'), findsOneWidget);
+    expect(find.text(_l.deskOnbImportNewPassword), findsOneWidget);
     await tester.enterText(_field(1), 'new-password');
     await tester.enterText(_field(2), 'new-password');
-    await tester.tap(find.text('Import').last);
+    await tester.tap(find.text(_l.deskOnbImportTitle).last);
     await _wait(tester, 1500);
     expect(find.text('2 of 2 imported'), findsOneWidget);
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await tester.pump();
-    expect(find.text('Wallets imported'), findsOneWidget);
-    expect(find.text('Unlock with the old password.'), findsOneWidget);
-    expect(find.text('Unlock with the new password chosen here.'), findsOneWidget);
+    expect(find.text(_l.deskOnbImportDoneTitle), findsOneWidget);
+    expect(find.text(_l.deskOnbImportUnlockOld), findsOneWidget);
+    expect(find.text(_l.deskOnbImportUnlockNew), findsOneWidget);
     expect(find.text('Keep epicbox.example.org'), findsOneWidget);
-    await tester.tap(find.text('Open wallet'));
+    await tester.tap(find.text(_l.deskOnbImportOpen));
     await tester.pump();
     expect(container.read(deskNavProvider).route, DeskRoute.unlock);
     final added = container.read(deskNavProvider).arg as UnlockAdded;
@@ -193,19 +196,19 @@ void flows() {
   testWidgets('import: Cancel after an import asks, then removes it', (tester) async {
     final container = await _pump(tester, const ImportWalletsScreen());
     await _wait(tester, 1500);
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await tester.pump();
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await _wait(tester, 1500);
     await tester.enterText(_field(0), 'old-password');
-    await tester.tap(find.text('Import').last);
+    await tester.tap(find.text(_l.deskOnbImportTitle).last);
     await _wait(tester, 1500);
     final api = container.read(deskApiProvider);
     expect((await tester.runAsync(api.wallets))!.map((w) => w.id), contains('imp-sav'));
-    await tester.tap(find.text('Cancel'));
+    await tester.tap(find.text(_l.commonCancel));
     await tester.pump(const Duration(milliseconds: 500));
-    expect(find.text('Stop the import?'), findsOneWidget);
-    await tester.tap(find.text('Stop import'));
+    expect(find.text(_l.deskOnbImportStopTitle), findsOneWidget);
+    await tester.tap(find.text(_l.deskOnbImportStop));
     await _wait(tester, 1000);
     expect((await tester.runAsync(api.wallets))!.map((w) => w.id), isNot(contains('imp-sav')));
     await _end(tester);
@@ -221,17 +224,17 @@ void flows() {
     await tester.enterText(_field(1), 'longpassword');
     await tester.pump();
     expect(find.text('Check phrase'), findsNothing);
-    await tester.tap(find.text('Create wallet').last);
+    await tester.tap(find.text(_l.deskOnbCreateTitle).last);
     await tester.pump(const Duration(milliseconds: 100));
-    expect(find.text('Creating the wallet'), findsOneWidget);
+    expect(find.text(_l.deskOnbCreateCreating), findsOneWidget);
     await _wait(tester, 4000);
-    expect(find.text('Recovery phrase'), findsWidgets);
+    expect(find.text(_l.deskOnbStepPhrase), findsWidgets);
     expect(find.text('Check phrase'), findsNothing);
-    await tester.tap(find.text('Reveal phrase'));
+    await tester.tap(find.text(_l.deskOnbCreateReveal));
     await tester.pump();
     await tester.tap(find.textContaining('I have written down'));
     await tester.pump();
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await _wait(tester, 500);
     expect(find.text('Check the phrase'), findsNothing);
     final nav = container.read(deskNavProvider);
@@ -272,13 +275,13 @@ void flows() {
     await tester.enterText(_field(0), 'longpassword');
     await tester.enterText(_field(1), 'longpassword');
     await tester.pump();
-    await tester.tap(find.text('Create wallet').last);
+    await tester.tap(find.text(_l.deskOnbCreateTitle).last);
     await _wait(tester, 4000);
-    await tester.tap(find.text('Reveal phrase'));
+    await tester.tap(find.text(_l.deskOnbCreateReveal));
     await tester.pump();
     await tester.tap(find.textContaining('I have written down'));
     await tester.pump();
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await _wait(tester, 500);
     final nav = container.read(deskNavProvider);
     expect(nav.route, DeskRoute.setup);
@@ -303,7 +306,7 @@ void flows() {
     );
     await _wait(tester, 1000);
     expect((await tester.runAsync(api.wallets))!.firstWhere((w) => w.current).id, added.id);
-    expect(find.text('New wallet added.'), findsOneWidget);
+    expect(find.text(_l.deskSetupNewWalletAdded), findsOneWidget);
     expect(find.text('Wallet 2 added.'), findsNothing, reason: 'the notice names no wallet');
     await _end(tester);
   });

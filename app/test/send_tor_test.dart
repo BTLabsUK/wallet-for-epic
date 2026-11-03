@@ -32,6 +32,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'support/send_pin.dart';
 
+final _l = englishStrings;
+
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
 const String _name = 'wfe7q3k2mz5xr4tbv6ld5yhnpjc7sgo2a3ue6iwq4fk7tr3mxzabcdid';
@@ -205,7 +207,7 @@ class _Harness {
     await _tap(tester, _continue);
     await _enter(tester, 'Amount (EPIC)', '1');
     await _tap(tester, _continue);
-    expect(find.text('Review'), findsOneWidget);
+    expect(find.text(_l.sendStepReview), findsOneWidget);
   }
 
   /// The payment as the wallet lists it once their wallet answered over Tor and it was
@@ -228,7 +230,7 @@ class _Harness {
   }
 }
 
-Finder get _continue => find.widgetWithText(FilledButton, 'Continue');
+Finder get _continue => find.widgetWithText(FilledButton, _l.commonContinue);
 
 /// Pumps a second of frames and lets a slice of real time pass, twice: the controller's work
 /// and the fake's stream cancel complete on root-zone microtasks the test clock does not
@@ -250,7 +252,7 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.pump();
   await tester.tap(finder);
   await _settle(tester);
-  if (find.widgetWithText(TextField, 'PIN').evaluate().isNotEmpty) {
+  if (find.widgetWithText(TextField, _l.pinLabel).evaluate().isNotEmpty) {
     await answerPin(tester, settle: false);
     await _settle(tester);
   }
@@ -303,7 +305,7 @@ void main() {
         await _enter(tester, 'To', form);
         // The method line under the field names the way and, with Tor off, that it starts.
         expect(find.text('Link · Tor'), findsOneWidget, reason: form);
-        expect(find.text('Tor starts when you send.'), findsOneWidget, reason: form);
+        expect(find.text(_l.sendRouteTorStarts), findsOneWidget, reason: form);
         expect(
           find.textContaining('.onion', findRichText: true),
           findsWidgets,
@@ -335,7 +337,7 @@ void main() {
       expect(find.text('1 of 3'), findsOneWidget);
       expect(
         find.text(
-          'This app cannot send over Tor, so a Tor address cannot be paid here.',
+          _l.sendTorUnavailable,
         ),
         findsOneWidget,
       );
@@ -349,7 +351,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await _enter(tester, 'To', _onion);
-      expect(find.text('Tor starts when you send.'), findsOneWidget);
+      expect(find.text(_l.sendRouteTorStarts), findsOneWidget);
       expect(find.byKey(sendTurnOnTorKey), findsNothing);
       await h.toReview(tester);
       // Tor starts as the review opens; the send waits for it.
@@ -357,9 +359,9 @@ void main() {
       await h.emit(tester, TorEventKind.starting, progress: 60);
       await h.emit(tester, TorEventKind.ready);
       expect(find.text('Over Tor'), findsOneWidget);
-      expect(find.text('Ready to send over Tor'), findsOneWidget);
+      expect(find.text(_l.sendTorReady), findsOneWidget);
       // No epicbox check on a Tor payment.
-      expect(find.text('Not connected yet. You can still send.'), findsNothing);
+      expect(find.text(_l.sendListenerDown), findsNothing);
       expect(find.textContaining('minute'), findsNothing);
 
       h.session.torSendGate = Completer<void>();
@@ -395,7 +397,7 @@ void main() {
       expect(find.textContaining('wfe7q3…abcdid.onion'), findsOneWidget);
       // Tor stays up for the session; nothing was stopped.
       expect(h.session.torStops, 0);
-      await _tap(tester, find.text('Done'));
+      await _tap(tester, find.text(_l.commonDone));
       expect(h.done, 1);
     });
 
@@ -407,7 +409,7 @@ void main() {
       await h.container.read(phoneTorProvider.notifier).setReceiving(true);
       await h.emit(tester, TorEventKind.ready);
       await h.toReview(tester);
-      expect(find.text('Ready to send over Tor'), findsOneWidget);
+      expect(find.text(_l.sendTorReady), findsOneWidget);
       await _tap(tester, find.text('Send 1.0\u00a0EPIC'));
       expect(h.session.torStarts, hasLength(1));
       expect(h.session.torSends, hasLength(1));
@@ -426,16 +428,16 @@ void main() {
       );
       await h.toReview(tester);
       await _tap(tester, find.text('Send 1.0\u00a0EPIC'));
-      await _reveal(tester, find.textContaining('Their wallet was not reached over Tor.'));
+      await _reveal(tester, find.textContaining(_l.errorOnionUnreachable));
       expect(
-        find.textContaining('Their wallet was not reached over Tor.'),
+        find.textContaining(_l.errorOnionUnreachable),
         findsOneWidget,
       );
       expect(find.textContaining('stays locked until you cancel it'), findsOne);
       expect(find.byKey(sendTryAgainKey), findsOneWidget);
       expect(find.byKey(sendCancelPaymentKey), findsOneWidget);
       expect(find.text('Send 1.0\u00a0EPIC'), findsNothing);
-      expect(find.byTooltip('Back'), findsNothing);
+      expect(find.byTooltip(_l.scanQrBack), findsNothing);
       // The coins are on hold, as after a refused epicbox send.
       expect(h.session.transactionsValue, hasLength(1));
 
@@ -446,7 +448,7 @@ void main() {
       expect(h.session.torSends.last.txId, isNotNull);
       expect(h.session.transactionsValue, hasLength(1));
       expect(find.byType(RoundSteps), findsOneWidget);
-      expect(find.text('Done'), findsOneWidget);
+      expect(find.text(_l.commonDone), findsOneWidget);
     });
 
     testWidgets('their wallet not reached: Cancel payment frees the coins', (
@@ -481,7 +483,7 @@ void main() {
       await h.emit(tester, TorEventKind.failed, failure: TorFailure.network);
       await h.emit(tester, TorEventKind.stopped);
       expect(h.tor.phase, PhoneTorPhase.failed);
-      expect(find.text('Tor is not connected.'), findsOneWidget);
+      expect(find.text(_l.torNotConnectedNotice), findsOneWidget);
       expect(
         tester
             .widget<FilledButton>(
@@ -493,7 +495,7 @@ void main() {
       expect(h.session.torSends, isEmpty);
       expect(h.session.transactionsValue, isEmpty);
       final starts = h.session.torStarts.length;
-      await _tap(tester, find.text('Retry'));
+      await _tap(tester, find.text(_l.commonRetry));
       expect(h.session.torStarts.length, greaterThan(starts));
     });
   });

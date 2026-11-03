@@ -21,6 +21,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 const TorBundle _bundle = TorBundle(binary: '/data/app/lib/arm64/libtor.so');
 
 class _OpenSession extends SessionNotifier {
@@ -147,7 +149,7 @@ void main() {
       expect(find.byKey(torReceivingSwitchKey), findsNothing);
       expect(find.byKey(torLockedLineKey), findsNothing);
       expect(find.byKey(settingsPrivacyKey), findsNothing);
-      expect(find.text('Tor for all connections'), findsNothing);
+      expect(find.text(_l.deskSetPrivTorAll), findsNothing);
       expect(h.container.read(phoneTorProvider).receiving, isFalse);
     });
 

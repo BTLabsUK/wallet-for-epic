@@ -8,10 +8,13 @@ import 'package:epic_wallet/src/desktop/screens/onboarding/phrase_grid.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/restore_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/buttons.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 List<String> _vector(int n, String last) => [...List.filled(n - 1, 'abandon'), last];
 final _v12 = _vector(12, 'about');
@@ -335,7 +338,7 @@ void main() {
   testWidgets('a pasted phrase with a bad checksum shows the one line', (tester) async {
     await _pump(tester);
     await _type(tester, 0, List.filled(12, 'abandon').join(' '));
-    expect(find.text('This phrase’s check number does not match. Compare every word with the paper.'), findsOneWidget);
+    expect(find.text(_l.deskOnbRestoreChecksumFirm), findsOneWidget);
     expect(_continueEnabled(tester), isFalse);
     await _type(tester, 0, _v24.join(' '));
     expect(find.text('All 24 words check out.'), findsOneWidget);
@@ -372,12 +375,12 @@ void main() {
       return null;
     });
     addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
-    await tester.tap(find.text('Paste'));
+    await tester.tap(find.text(_l.commonPaste));
     await tester.pump();
     expect(find.text('12 of 12 words'), findsOneWidget);
     // The focus is in the grid, not on the button, so Enter goes on rather than pasting again.
     expect(_entry(tester).focus.any((f) => f.hasFocus), isTrue);
-    await tester.tap(find.text('Clear'));
+    await tester.tap(find.text(_l.deskOnbRestoreClear));
     await tester.pump();
     expect(find.text('0 of 24 words'), findsOneWidget);
     expect(_entry(tester).count, isNull);

@@ -15,12 +15,15 @@ import 'package:epic_wallet/src/btlabs_public.dart' show ManifestState;
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/updater.dart' show updateManifestSources, updateKeyringProvider, updateStateKey, updateStateUnreadableKey;
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/signed_update.dart';
+
+final _l = englishStrings;
 
 void main() {
   // An asset read inside an earlier test's fake clock never completes; the next test reads it again.
@@ -92,13 +95,13 @@ void main() {
     } else {
       expect(find.text('Updates come from $distStore.'), findsOneWidget);
       expect(find.byKey(const ValueKey('about-update-act')), findsNothing);
-      expect(find.text('Check'), findsNothing);
+      expect(find.text(_l.deskSetAboutCheckNow), findsNothing);
     }
   });
 
   testWidgets('About shows no contact address', (tester) async {
     await pump(tester, (_) async => (200, newer));
-    expect(find.text('Contact'), findsNothing);
+    expect(find.text(_l.contactTitle), findsNothing);
   });
 
   test('versions compare by number', () {
@@ -128,7 +131,7 @@ void main() {
   testWidgets('the links open epiccash.com and the source code in the browser; no Telegram row', (tester) async {
     final (_, opened) = await pump(tester, (_) async => (404, ''));
     // The phone's rows (GP2-020): each link row has its own Open.
-    Finder openOf(String title) => find.descendant(of: find.widgetWithText(ESetRow, title), matching: find.widgetWithText(EButton, 'Open'));
+    Finder openOf(String title) => find.descendant(of: find.widgetWithText(ESetRow, title), matching: find.widgetWithText(EButton, _l.deskSetAboutOpen));
     for (final row in [shownUrl(hostSettings.linkWebsite!), 'Source code']) {
       await tester.ensureVisible(openOf(row));
       await tester.pumpAndSettle();
@@ -141,7 +144,7 @@ void main() {
 
   testWidgets('Licences: folded, then one line per component, the tor source note, and View opens the full texts', (tester) async {
     await pump(tester, (_) async => (404, ''));
-    expect(find.text('Licences'), findsOneWidget);
+    expect(find.text(_l.deskSetAboutLicences), findsOneWidget);
     expect(find.byKey(const ValueKey('about-licences')), findsNothing, reason: 'folded by default');
     await tester.tap(find.byKey(const ValueKey('about-licences-fold')));
     await tester.pumpAndSettle();
@@ -158,8 +161,8 @@ void main() {
     expect(find.textContaining('tor 0.4.9.14, unmodified'), findsOneWidget, reason: 'the GPL notice with the source');
     expect(find.text('Credits'), findsNothing);
     registerTorLicence();
-    await tester.ensureVisible(find.widgetWithText(EButton, 'View'));
-    await tester.tap(find.widgetWithText(EButton, 'View'));
+    await tester.ensureVisible(find.widgetWithText(EButton, _l.deskSetAboutView));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetAboutView));
     // The licences are read from assets, in real time.
     for (var i = 0; i < 20; i++) {
       await tester.pump(const Duration(milliseconds: 50));
@@ -168,12 +171,12 @@ void main() {
     // The app's own dialog (polish #10), not Flutter's stock LicensePage.
     expect(find.byType(LicenceTextsDialog), findsOneWidget);
     expect(find.byType(LicensePage), findsNothing);
-    for (var i = 0; i < 50 && find.text('Tor').evaluate().isEmpty; i++) {
+    for (var i = 0; i < 50 && find.text(_l.sendFactTor).evaluate().isEmpty; i++) {
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
       await tester.pump();
     }
-    await tester.ensureVisible(find.text('Tor'));
-    await tester.tap(find.text('Tor'));
+    await tester.ensureVisible(find.text(_l.sendFactTor));
+    await tester.tap(find.text(_l.sendFactTor));
     await tester.pump();
     // Tor's licence as written: one block, its first line where the file has it.
     expect(find.textContaining('This file contains the license for Tor'), findsOneWidget);
@@ -187,8 +190,8 @@ void main() {
       return (404, 'Not Found');
     });
     expect(find.text('$deskAppVersion is the latest'), findsOneWidget);
-    expect(find.text('Could not check'), findsNothing);
-    await tester.tap(find.widgetWithText(EButton, 'Check'));
+    expect(find.text(_l.deskSetAboutCouldNotCheck), findsNothing);
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetAboutCheckNow));
     await tester.pumpAndSettle();
     expect(calls, 2);
   }, skip: !inAppUpdates);
@@ -197,7 +200,7 @@ void main() {
     final (container, opened) = await pump(tester, (_) async => (200, newer));
     expect(find.text('Update available: $next'), findsOneWidget);
     // No installer or AppImage under test: this copy cannot install it, so the page, and why.
-    expect(find.textContaining('This copy cannot install updates itself.'), findsOneWidget);
+    expect(find.textContaining(_l.deskUpdManual), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('about-update-act')));
     await tester.pumpAndSettle();
     expect(opened, [page], reason: 'this copy installs nothing itself: the button opens the page');
@@ -208,30 +211,30 @@ void main() {
       updateKeyringProvider.overrideWithValue(testUpdateKeyring),
       deskOpenUrlProvider.overrideWithValue((_) async => true),
     ]);
-    await tester.tap(find.widgetWithText(EButton, 'Check'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetAboutCheckNow));
     await tester.pumpAndSettle();
     expect(find.text('$deskAppVersion is the latest'), findsOneWidget);
   }, skip: !inAppUpdates);
 
   testWidgets("the phone's manifest alone offers nothing to the desktop", (tester) async {
     await pump(tester, (_) async => (200, phoneOnly));
-    expect(find.text('Could not check'), findsOneWidget);
+    expect(find.text(_l.deskSetAboutCouldNotCheck), findsOneWidget);
     expect(find.text('No desktop update information is published yet. Checked just now.'), findsOneWidget);
-    expect(find.textContaining('Update available'), findsNothing);
+    expect(find.textContaining(_l.deskUpdAvailable), findsNothing);
   }, skip: !inAppUpdates);
 
   testWidgets('a page off the project accounts: the manifest is not used', (tester) async {
     await pump(tester, (_) async => (200, offAccounts));
     expect(find.text('$deskAppVersion is the latest'), findsOneWidget);
-    expect(find.textContaining('Update available'), findsNothing);
+    expect(find.textContaining(_l.deskUpdAvailable), findsNothing);
   }, skip: !inAppUpdates);
 
   for (final (name, body) in [('an unsigned', () => unsignedNewer), ('a forged', () => forgedNewer)]) {
     testWidgets('$name manifest offers no update and no error', (tester) async {
       await pump(tester, (_) async => (200, body()));
       expect(find.text('$deskAppVersion is the latest'), findsOneWidget);
-      expect(find.textContaining('Update available'), findsNothing);
-      expect(find.text('Could not check'), findsNothing);
+      expect(find.textContaining(_l.deskUpdAvailable), findsNothing);
+      expect(find.text(_l.deskSetAboutCouldNotCheck), findsNothing);
     }, skip: !inAppUpdates);
   }
 
@@ -241,7 +244,7 @@ void main() {
     expect(find.text('Update available: $next'), findsOneWidget);
     for (final reply in [(200, olderLatest), (200, forgedNewer), (deskManifestTooLarge, ''), (404, '')]) {
       body = reply;
-      await tester.tap(find.widgetWithText(EButton, 'Check'));
+      await tester.tap(find.widgetWithText(EButton, _l.deskSetAboutCheckNow));
       await tester.pumpAndSettle();
       expect(find.text('Update available: $next'), findsOneWidget, reason: 'after ${reply.$1}');
     }

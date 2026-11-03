@@ -6,11 +6,14 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'review_password.dart';
+
+final _l = englishStrings;
 
 const _onion = 'http://pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion';
 // testWidgets takes a bool only.
@@ -85,11 +88,11 @@ void main() {
         await n.saveSettings(s.copyWith(payments: s.payments.copyWith(linkTor: true)));
       });
       await show(tester, const SendScreen(arg: SendArgs(method: TxMethod.http, recipient: _onion, amount: '1')));
-      expect(find.text('Link · Tor needs Tor'), findsNothing);
-      expect(find.widgetWithText(EButton, 'Turn on Tor'), findsNothing);
-      await tester.tap(find.text('Review'));
+      expect(find.text(_l.deskSendNeedsTor), findsNothing);
+      expect(find.widgetWithText(EButton, _l.deskSendTurnOnTor), findsNothing);
+      await tester.tap(find.text(_l.deskSendReview));
       await tester.pumpAndSettle();
-      expect(find.descendant(of: find.byKey(const ValueKey('send-review-via')), matching: find.text('Link · Tor')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('send-review-via')), matching: find.text(_l.methodDirectTor)), findsOneWidget);
       await enterReviewPassword(tester);
       await tester.tap(find.text('Send 1.0\u00a0EPIC'));
       await tester.pumpAndSettle();
@@ -105,7 +108,7 @@ void main() {
       expect(find.byKey(const ValueKey('send-route-onion')), findsOneWidget);
       // Link · Tor is off here: that comes first, before Tor (Tor alone would not send it).
       expect(find.byKey(const ValueKey('send-method-off')), findsOneWidget);
-      expect(find.widgetWithText(EButton, 'Turn on Tor'), findsNothing);
+      expect(find.widgetWithText(EButton, _l.deskSendTurnOnTor), findsNothing);
     }, skip: _skip);
   });
 }

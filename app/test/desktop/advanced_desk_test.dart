@@ -22,10 +22,13 @@ import 'package:epic_wallet/src/desktop/screens/transfer/send_advanced.dart' sho
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/wallet_service.dart' show FakeWalletSession;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 const _onion = 'http://pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion';
 
@@ -103,7 +106,7 @@ void main() {
       await _settle(tester);
       expect(find.text('Kernel'), findsOneWidget);
       expect(find.text('Slate ID'), findsOneWidget);
-      expect(find.text('Less'), findsOneWidget);
+      expect(find.text(_l.deskTxLess), findsOneWidget);
       expect(_advanced.has(AdvancedFeature.technicalDetails), isFalse, reason: 'the switch stays off');
       await tester.ensureVisible(find.byKey(const ValueKey('tx-more')));
       await tester.tap(find.byKey(const ValueKey('tx-more')));
@@ -114,7 +117,7 @@ void main() {
     testWidgets('Technical details on: the fold, no More link', (tester) async {
       await _open(tester, DeskRoute.activity, arg: 36, advanced: AdvancedPrefs.all);
       expect(find.byKey(const ValueKey('tx-more')), findsNothing);
-      expect(find.text('Technical details'), findsWidgets);
+      expect(find.text(_l.deskSetAdvTechnical), findsWidgets);
     });
   });
 
@@ -161,9 +164,9 @@ void main() {
       expect(find.descendant(of: find.byKey(const ValueKey('status-row-epicbox')), matching: find.text('Off (Kill switch)')), findsOneWidget);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await _settle(tester);
-      expect(find.text('Last known'), findsWidgets);
+      expect(find.text(_l.lastKnownCaption), findsWidgets);
       expect(find.byKey(const ValueKey('overview-offline')), findsOneWidget);
-      expect(find.text('Available to spend'), findsOneWidget, reason: 'the last known balance stays');
+      expect(find.text(_l.deskOvAvailable), findsOneWidget, reason: 'the last known balance stays');
     });
 
     testWidgets('Tor only without Tor: Node and Epicbox read Waiting for Tor', (tester) async {
@@ -173,12 +176,12 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('bar-status-epicbox')));
       await _settle(tester);
       expect(find.byKey(const ValueKey('status-row-epicbox')), findsOneWidget);
-      expect(find.descendant(of: find.byKey(const ValueKey('status-row-epicbox')), matching: find.text('Waiting for Tor')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('status-row-epicbox')), matching: find.text(_l.deskSendReviewWaitTor)), findsOneWidget);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await _settle(tester);
       await tester.tap(find.byKey(const ValueKey('bar-status-node')));
       await _settle(tester);
-      expect(find.descendant(of: find.byKey(const ValueKey('status-row-node')), matching: find.text('Waiting for Tor')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('status-row-node')), matching: find.text(_l.deskSendReviewWaitTor)), findsOneWidget);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await _settle(tester);
       expect(find.byKey(const ValueKey('overview-offline')), findsNothing);
@@ -198,7 +201,7 @@ void main() {
     testWidgets('Node only: an address is held with the reason; Pay with a file runs and says the node is used', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: epicbox, amount: '1'), advanced: _offline);
       expect(find.byKey(const ValueKey('send-hold-nodeOnly')), findsOneWidget);
-      expect(find.text('Node only is on. Only the node connects.'), findsWidgets);
+      expect(find.text(_l.sendHeldNodeOnly), findsWidgets);
       expect(find.byKey(const ValueKey('send-without-connection')), findsOneWidget);
       await tester.ensureVisible(find.byKey(const ValueKey('send-pay-file')));
       await tester.tap(find.byKey(const ValueKey('send-pay-file')));
@@ -206,41 +209,41 @@ void main() {
       expect(find.byKey(const ValueKey('send-hold-nodeOnly')), findsNothing);
       expect(find.byKey(const ValueKey('file-offline-node')), findsOneWidget);
       // The note sits in the file form.
-      expect(find.text('Uses the node to read the chain and post. For the most privacy, use a local node.'), findsWidgets);
+      expect(find.text(_l.netOfflineNodeHint), findsWidgets);
     });
 
     testWidgets('Offline with a public node: Direct · File is not held by the node sync, and says it uses the node (LNX-7)', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(method: TxMethod.file, amount: '1', nodeSync: -1), advanced: _offline);
       // nodeSync -1: the node does not answer, as when Offline stops polling it.
-      expect(find.text('Node not synced'), findsNothing);
+      expect(find.text(_l.deskSendNodeNotSynced), findsNothing);
       expect(find.byKey(const ValueKey('file-offline-node')), findsOneWidget);
-      expect(find.text('Uses the node to read the chain and post. For the most privacy, use a local node.'), findsWidgets);
+      expect(find.text(_l.netOfflineNodeHint), findsWidgets);
     });
 
     testWidgets('Overview: what a sender reports posted leaves Waiting for sender for its own line (LNX-13)', (tester) async {
       await _open(tester, DeskRoute.overview);
-      expect(find.text('Sender reports posted'), findsNothing);
+      expect(find.text(_l.deskTxStatusSenderPosted), findsNothing);
       expect(find.textContaining('12.5'), findsWidgets, reason: 'the mock awaits 12.5 EPIC finalization');
       _wallet.addSenderPostedDemo();
       await tester.runAsync(() => _container.read(deskProvider.notifier).refresh());
       await _settle(tester);
       // Its own line (and the row): 7.25 reported, 5.25 still awaiting; Total unchanged.
-      expect(find.text('Sender reports posted'), findsWidgets);
+      expect(find.text(_l.deskTxStatusSenderPosted), findsWidgets);
       expect(find.textContaining('5.25'), findsWidgets);
       expect(find.textContaining('7.25'), findsWidgets);
     });
 
     testWidgets('Kill switch with a public node: a Link address gets the Kill switch reason, not the node sync (LNX-15)', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'http://203.0.113.5:3415', amount: '1', nodeSync: -1), advanced: _kill);
-      expect(find.text('Waiting for the node to sync.'), findsNothing);
+      expect(find.text(_l.deskSendHintNode), findsNothing);
       expect(find.byKey(const ValueKey('send-hold-killSwitch')), findsOneWidget);
-      expect(find.text('Kill switch is on. Nothing connects.'), findsWidgets);
+      expect(find.text(_l.sendHeldKillSwitch), findsWidgets);
     });
 
     testWidgets('Node only: an onion in To gives the Node only reason, never Needs Tor with Turn on Tor (LNX-12)', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: _onion, amount: '1'), advanced: _offline);
       expect(find.byKey(const ValueKey('send-needs-tor')), findsNothing);
-      expect(find.text('Turn on Tor'), findsNothing);
+      expect(find.text(_l.deskSendTurnOnTor), findsNothing);
       expect(find.byKey(const ValueKey('send-hold-nodeOnly')), findsOneWidget);
     });
 
@@ -253,9 +256,9 @@ void main() {
     testWidgets('Tor only without Tor: the Tor reason, and File Transfer still works', (tester) async {
       await _open(tester, DeskRoute.send, advanced: _torOnly);
       expect(find.byKey(const ValueKey('send-net-blocked')), findsOneWidget);
-      expect(find.text('Waiting for Tor. Nothing connects until it is ready.'), findsWidgets);
+      expect(find.text(_l.netBlockWaitingForTorLong), findsWidgets);
       // A file needs no connection of its own: it goes on while Tor connects.
-      expect(find.text('File Transfer still works.'), findsOneWidget);
+      expect(find.text(_l.deskNetSendFileHint), findsOneWidget);
     }, skip: !torBuilt);
 
     testWidgets('Standard: nothing is held', (tester) async {
@@ -278,11 +281,11 @@ void main() {
       await _open(tester, DeskRoute.receive, advanced: _offline);
       expect(find.byKey(const ValueKey('rx-net-blocked')), findsOneWidget);
       expect(find.text('Epicbox is off in Node only.'), findsWidgets);
-      expect(find.text('Epicbox address'), findsWidgets);
+      expect(find.text(_l.deskRecvEpicboxAddress), findsWidgets);
       expect(find.textContaining('Turned off by the network mode'), findsWidgets);
       expect(find.byKey(tourKey('receive-files')), findsOneWidget);
       expect(find.byKey(const ValueKey('rx-files-offline-node')), findsOneWidget);
-      expect(find.text('Uses the node to read the chain and post. For the most privacy, use a local node.'), findsOneWidget);
+      expect(find.text(_l.netOfflineNodeHint), findsOneWidget);
       for (final button in tester.widgetList<EButton>(find.descendant(of: find.byKey(tourKey('receive-files')), matching: find.byType(EButton)))) {
         expect(button.onPressed, isNotNull, reason: button.label);
       }
@@ -349,7 +352,7 @@ void main() {
       await _settle(tester);
       expect(find.byKey(advModeConfirmKey), findsOneWidget);
       expect(find.text('Switch to Kill switch?'), findsOneWidget);
-      await tester.tap(find.text('Cancel'));
+      await tester.tap(find.text(_l.commonCancel));
       await _settle(tester);
       expect(_advanced.networkMode, NetworkMode.standard);
     });
@@ -362,10 +365,10 @@ void main() {
     testWidgets('the title bar mark shows off Normal; its popover says what the mode does and Change opens Network & privacy', (tester) async {
       await _open(tester, DeskRoute.overview, advanced: _offline);
       expect(find.byKey(const ValueKey('bar-net-mode')), findsOneWidget);
-      expect(find.descendant(of: find.byKey(const ValueKey('bar-net-mode')), matching: find.text('Node only')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('bar-net-mode')), matching: find.text(_l.advModeNodeOnly)), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('bar-net-mode')));
       await _settle(tester);
-      expect(find.text('Only the node in use. Epicbox, Link, updates and price are off.'), findsOneWidget);
+      expect(find.text(_l.netMarkLineNodeOnly), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('bar-mode-change')));
       await _settle(tester);
       expect(_container.read(deskNavProvider).route, DeskRoute.settingsPrivacy);
@@ -386,7 +389,7 @@ void main() {
 
     testWidgets('Kill switch: the Overview marks the balance Last known and shows no fiat value', (tester) async {
       await _open(tester, DeskRoute.overview, advanced: _kill);
-      expect(find.text('Last known'), findsWidgets);
+      expect(find.text(_l.lastKnownCaption), findsWidgets);
       expect(find.textContaining('≈'), findsNothing);
     });
 
@@ -402,7 +405,7 @@ void main() {
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
       await _settle(tester);
       expect(find.byKey(const ValueKey('rx-files-results')), findsOneWidget);
-      expect(find.descendant(of: find.byKey(const ValueKey('rx-files-results')), matching: find.textContaining('Payment posted', findRichText: true)), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('rx-files-results')), matching: find.textContaining(_l.deskFinPosted, findRichText: true)), findsOneWidget);
     });
 
     testWidgets('Finalize under Kill switch ends on Finished, not posted with Save file and Copy', (tester) async {
@@ -410,7 +413,7 @@ void main() {
       final tx = _container.read(deskProvider).txs!.firstWhere((t) => !t.incoming);
       _container.read(deskNavProvider.notifier).go(DeskRoute.finalize, FinalizeArgs(finishedTx: tx));
       await _settle(tester);
-      expect(find.text('Finished, not posted'), findsOneWidget);
+      expect(find.text(_l.finalizeNotPostedTitle), findsOneWidget);
       expect(find.byKey(const ValueKey('finished-save')), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('finished-save')));
       await _settle(tester);
@@ -423,15 +426,15 @@ void main() {
     testWidgets('Offline: Recheck balance is disabled with the reason', (tester) async {
       await _open(tester, DeskRoute.settingsRescan, advanced: _kill);
       expect(find.byKey(const ValueKey('rescan-net-blocked')), findsOneWidget);
-      final start = tester.widget<EButton>(find.widgetWithText(EButton, 'Recheck'));
+      final start = tester.widget<EButton>(find.widgetWithText(EButton, _l.deskSetRescanRecheck));
       expect(start.onPressed, isNull);
     });
 
     testWidgets('Standard: Recheck balance starts', (tester) async {
       await _open(tester, DeskRoute.settingsRescan);
       expect(find.byKey(const ValueKey('rescan-net-blocked')), findsNothing);
-      expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Recheck')).onPressed, isNotNull);
-      expect(find.text('Delete unconfirmed'), findsNothing, reason: 'behind Recheck from a height');
+      expect(tester.widget<EButton>(find.widgetWithText(EButton, _l.deskSetRescanRecheck)).onPressed, isNotNull);
+      expect(find.text(_l.deskSetRescanDeleteUnconfirmed), findsNothing, reason: 'behind Recheck from a height');
     });
   });
 
@@ -448,10 +451,10 @@ void main() {
       await _settle(tester);
       await tester.enterText(find.byKey(const ValueKey('restore-from-height')), 'x12');
       await _settle(tester);
-      expect(find.text('Use digits only, or leave it empty.'), findsOneWidget);
+      expect(find.text(_l.deskOnbRestoreFromInvalid), findsOneWidget);
       await tester.enterText(find.byKey(const ValueKey('restore-from-height')), '2800000');
       await _settle(tester);
-      expect(find.text('Use digits only, or leave it empty.'), findsNothing);
+      expect(find.text(_l.deskOnbRestoreFromInvalid), findsNothing);
     });
   });
 

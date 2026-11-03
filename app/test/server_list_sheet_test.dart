@@ -36,6 +36,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'support/test_settings.dart';
 
+final _l = englishStrings;
+
 class _Home extends HomeNotifier {
   @override
   Future<HomeData> build() async => HomeData(
@@ -320,7 +322,7 @@ void main() {
         'the one in use shows in its row only', (tester) async {
       final env = _Env();
       await _pump(tester, ServerKind.node, env);
-      expect(find.text('Node'), findsOneWidget);
+      expect(find.text(_l.serverNodeTitle), findsOneWidget);
       expect(_fieldText(tester), '');
       expect(find.text(_placeholder), findsOneWidget);
       expect(find.text('In use. Edit it to switch, or type to filter the list.'), findsNothing);
@@ -349,7 +351,7 @@ void main() {
     ) async {
       final env = _Env();
       await _pump(tester, ServerKind.relay, env);
-      expect(find.text('Epicbox'), findsOneWidget);
+      expect(find.text(_l.serverEpicboxTitle), findsOneWidget);
       expect(_fieldText(tester), '');
       expect(find.text(_placeholder), findsOneWidget);
       expect(_row(defaultEpicboxHost), findsOneWidget);
@@ -457,7 +459,7 @@ void main() {
       await _type(tester, 'node.net');
       expect(_row(_epicnet), findsOneWidget);
       expect(find.byKey(serverListAddKey), findsOneWidget);
-      expect(find.text('Not in the list.'), findsOneWidget);
+      expect(find.text(_l.slHelpAddable), findsOneWidget);
       expect(find.text(_noMatch), findsNothing);
       // A listed address has no Add row; Done on the field picks it.
       await _type(tester, 'node.net.invalid:3413');
@@ -559,12 +561,12 @@ void main() {
       final line = find.byKey(serverNotConnectedKey);
       expect(line, findsOneWidget);
       expect(
-        find.descendant(of: line, matching: find.text('Server up · not connected')),
+        find.descendant(of: line, matching: find.text(_l.serverUpNotConnected)),
         findsOneWidget,
       );
       // Right under the server in use, whose health still reads healthy.
       expect(tester.getTopLeft(line).dy, greaterThan(tester.getTopLeft(_row(_stack)).dy));
-      await tester.tap(find.descendant(of: line, matching: find.text('Retry')));
+      await tester.tap(find.descendant(of: line, matching: find.text(_l.commonRetry)));
       await tester.pump();
       expect(listener.restarts, 1);
     });
@@ -699,7 +701,7 @@ void main() {
       await _tapAdd(tester);
 
       expect(env.probe.probed, hasLength(1));
-      expect(find.text('No answer from this server. Nothing added.'), findsOneWidget);
+      expect(find.text(_l.slRelayNoAnswer), findsOneWidget);
       expect(_row('relay.example.org'), findsNothing);
       expect(_saved(tester, ServerKind.relay).entries, before);
       expect(find.byKey(serverListSwitchKey), findsNothing);
@@ -1089,9 +1091,9 @@ void main() {
         await tester.drag(rows, const Offset(0, -300));
         await tester.pumpAndSettle();
 
-        final card = find.text('Height');
+        final card = find.text(_l.serverFactHeight);
         expect(card, findsOneWidget);
-        final title = tester.getTopLeft(find.text('Node'));
+        final title = tester.getTopLeft(find.text(_l.serverNodeTitle));
         final field = tester.getTopLeft(_field());
         final cardAt = tester.getTopLeft(card);
         final scrollable = tester.state<ScrollableState>(
@@ -1103,7 +1105,7 @@ void main() {
         await tester.drag(find.byKey(serverListListKey), const Offset(0, -150));
         await tester.pumpAndSettle();
 
-        expect(tester.getTopLeft(find.text('Node')), title);
+        expect(tester.getTopLeft(find.text(_l.serverNodeTitle)), title);
         expect(tester.getTopLeft(_field()), field);
         expect(tester.getTopLeft(card), cardAt);
         expect(scrollable.position.pixels, greaterThan(scrolled), reason: 'the rows did move');
@@ -1150,8 +1152,8 @@ void main() {
       expect(ticked(tester, epiccash), isTrue);
       expect(ticked(tester, _stack), isTrue);
       expect(ticked(tester, floo), isFalse);
-      expect(find.descendant(of: _row(floo), matching: find.text('Default')), findsOneWidget);
-      expect(find.descendant(of: _row(epicnet), matching: find.text('Default')), findsNothing);
+      expect(find.descendant(of: _row(floo), matching: find.text(_l.serverDefault)), findsOneWidget);
+      expect(find.descendant(of: _row(epicnet), matching: find.text(_l.serverDefault)), findsNothing);
       // The one-server picker's warning and Current card are not here.
       expect(find.byIcon(Icons.warning_amber_rounded), findsNothing);
       expect(find.byKey(serverListResetKey), findsOneWidget, reason: 'floo is a default and not chosen');
@@ -1219,7 +1221,7 @@ void main() {
       await _tapAdd(tester);
       expect(calls.last, [epiccash, 'relay.example.org']);
       expect(_foot('Added relay.example.org. Wallets that also use it find you there.'), findsOneWidget);
-      expect(find.descendant(of: _row('relay.example.org'), matching: find.text('Added by you')), findsOneWidget);
+      expect(find.descendant(of: _row('relay.example.org'), matching: find.text(_l.slAddedByYou)), findsOneWidget);
       expect(_saved(tester, ServerKind.relay).isAddedByUser(ServerKind.relay, 'relay.example.org'), isTrue);
       await _timers(tester);
     });
@@ -1241,8 +1243,8 @@ void main() {
       await _pump(tester, ServerKind.relay, env);
       await _type(tester, 'relay.example.org');
       await _tapAdd(tester);
-      expect(find.descendant(of: _row('relay.example.org'), matching: find.text('Added by you')), findsOneWidget);
-      expect(find.descendant(of: _row('box.net.invalid'), matching: find.text('Added by you')), findsNothing);
+      expect(find.descendant(of: _row('relay.example.org'), matching: find.text(_l.slAddedByYou)), findsOneWidget);
+      expect(find.descendant(of: _row('box.net.invalid'), matching: find.text(_l.slAddedByYou)), findsNothing);
       await _timers(tester);
     });
   });

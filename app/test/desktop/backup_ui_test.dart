@@ -17,6 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 class _Wallet extends MockDeskWallet {
   _Wallet() : super(delay: Duration.zero);
 
@@ -116,27 +118,27 @@ void main() {
   testWidgets('the Backup group: three rows and the state line', (tester) async {
     await _pump(tester, const BackupGroup());
     // The group sits on Settings › Wallet as Backup.
-    expect(find.text('Backup'), findsOneWidget);
-    expect(find.text('Export wallet data'), findsOneWidget);
+    expect(find.text(_l.deskSetAcctBackup), findsOneWidget);
+    expect(find.text(_l.deskSetBackupExportTitle), findsOneWidget);
     expect(find.text('Import wallet data'), findsOneWidget);
     // GP-049: the CSV row reads as the wallet data rows do.
-    expect(find.text('Export CSV'), findsOneWidget);
+    expect(find.text(_l.deskSetBackupCsvDialogTitle), findsOneWidget);
     expect(find.text('Last export 3 Oct 2026, 14:02 · 12 payments since.'), findsOneWidget);
-    expect(find.widgetWithText(EButton, 'Export…'), findsNWidgets(2));
+    expect(find.widgetWithText(EButton, _l.deskSetBackupExportButton), findsNWidgets(2));
   });
 
   testWidgets('export: Save as… writes, records the export and shows the path', (tester) async {
     await _pump(tester, _opener(showExportHistoryDialog));
     await _open(tester);
     expect(find.text('48 payments, 6 contacts'), findsOneWidget);
-    expect(find.text('The recovery phrase, keys, the password'), findsOneWidget);
-    await tester.tap(find.widgetWithText(EButton, 'Save as…'));
+    expect(find.text(_l.deskSetBackupNotInValue), findsOneWidget);
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetBackupSaveAs));
     await tester.pumpAndSettle();
-    expect(find.text('Saved'), findsOneWidget);
+    expect(find.text(_l.deskSetBackupSaved), findsOneWidget);
     expect(find.textContaining(RegExp(r'~/Documents/epic-wallet-data-([a-z0-9-]+-)?\d{8}\.wfeh')), findsOneWidget);
     expect(_api.exports, 1);
     expect(_files.saved.single, endsWith('.wfeh'));
-    await tester.tap(find.widgetWithText(EButton, 'Open folder'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetBackupOpenFolder));
     expect(_opened.single, '~/Documents');
   });
 
@@ -144,10 +146,10 @@ void main() {
     await _pump(tester, _opener(showExportHistoryDialog));
     _files.saves.add(null);
     await _open(tester);
-    await tester.tap(find.widgetWithText(EButton, 'Save as…'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetBackupSaveAs));
     await tester.pumpAndSettle();
-    expect(find.text('Saved'), findsNothing);
-    expect(find.widgetWithText(EButton, 'Save as…'), findsOneWidget);
+    expect(find.text(_l.deskSetBackupSaved), findsNothing);
+    expect(find.widgetWithText(EButton, _l.deskSetBackupSaveAs), findsOneWidget);
     expect(_api.exports, 0);
   });
 
@@ -155,11 +157,11 @@ void main() {
     await _pump(tester, _opener(showExportHistoryDialog));
     _files.saves.add(const FileSystemException('Cannot open file', '/media/usb/x.wfeh', OSError('Permission denied', 13)));
     await _open(tester);
-    await tester.tap(find.widgetWithText(EButton, 'Save as…'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetBackupSaveAs));
     await tester.pumpAndSettle();
-    expect(find.text('Not saved'), findsOneWidget);
+    expect(find.text(_l.deskSetBackupNotSaved), findsOneWidget);
     expect(find.text('Could not write to /media/usb: Permission denied. Choose another folder.'), findsOneWidget);
-    expect(find.widgetWithText(EButton, 'Try again'), findsOneWidget);
+    expect(find.widgetWithText(EButton, _l.deskSetBackupTryAgain), findsOneWidget);
     expect(_api.exports, 0);
   });
 
@@ -167,21 +169,21 @@ void main() {
     await _pump(tester, _opener(showImportHistoryDialog));
     await _open(tester);
     expect(
-      find.text('A file from this wallet (same recovery phrase). Restore the wallet from its phrase first.'),
+      find.text(_l.deskSetBackupNeedsValue),
       findsOneWidget,
     );
-    await tester.tap(find.widgetWithText(EButton, 'Choose file…'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetBackupChooseFile));
     await tester.pumpAndSettle();
     expect(find.text('Imported'), findsOneWidget);
     // One summary of what came back.
     expect(find.textContaining('Imported: '), findsOneWidget);
     expect(find.textContaining('records were already here'), findsOneWidget);
-    await tester.tap(find.widgetWithText(EButton, 'Done'));
+    await tester.tap(find.widgetWithText(EButton, _l.commonDone));
     await tester.pumpAndSettle();
     await _open(tester);
-    await tester.tap(find.widgetWithText(EButton, 'Choose file…'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetBackupChooseFile));
     await tester.pumpAndSettle();
-    expect(find.text('Nothing new'), findsOneWidget);
+    expect(find.text(_l.deskSetBackupNothingNew), findsOneWidget);
     expect(find.textContaining('was already here', findRichText: true), findsOneWidget);
   });
 
@@ -189,34 +191,34 @@ void main() {
     await _pump(tester, _opener(showImportHistoryDialog));
     _api.nextImport = const HistoryFileError(HistoryFileProblem.otherChain, 'The file is from another network.');
     await _open(tester);
-    await tester.tap(find.widgetWithText(EButton, 'Choose file…'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetBackupChooseFile));
     await tester.pumpAndSettle();
-    expect(find.text('Wrong network'), findsOneWidget);
+    expect(find.text(_l.deskErrHistOtherChain), findsOneWidget);
     expect(find.text('The file is from another network.'), findsOneWidget);
-    expect(find.widgetWithText(EButton, 'Choose file…'), findsOneWidget);
+    expect(find.widgetWithText(EButton, _l.deskSetBackupChooseFile), findsOneWidget);
     _files.picks.add(tooLargeHistoryFile);
-    await tester.tap(find.widgetWithText(EButton, 'Choose file…'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetBackupChooseFile));
     await tester.pumpAndSettle();
-    expect(find.text('The file is too large to be one.'), findsOneWidget);
+    expect(find.text(_l.deskErrHistTooLarge), findsOneWidget);
   });
 
   testWidgets('CSV: the warning before any file; a bad custom day disables Save as…', (tester) async {
     await _pump(tester, _opener(showExportCsvDialog));
     await _open(tester);
-    expect(find.text('Not encrypted.'), findsOneWidget);
+    expect(find.text(_l.deskSetBackupNotEncrypted), findsOneWidget);
     expect(find.textContaining(RegExp(r'payments? · '), findRichText: true), findsOneWidget);
     expect(_files.saved, isEmpty);
-    await tester.tap(find.text('Custom'));
+    await tester.tap(find.text(_l.deskSetBackupRangeCustom));
     await tester.pumpAndSettle();
     await tester.enterText(find.descendant(of: find.widgetWithText(EField, 'From'), matching: find.byType(EditableText)), '2026-13-01');
     await tester.pumpAndSettle();
-    expect(find.text('Enter a date as 2026-01-31'), findsOneWidget);
-    expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Save as…')).onPressed, isNull);
-    await tester.tap(find.text('All time'));
+    expect(find.text(_l.deskSetBackupDateError), findsOneWidget);
+    expect(tester.widget<EButton>(find.widgetWithText(EButton, _l.deskSetBackupSaveAs)).onPressed, isNull);
+    await tester.tap(find.text(_l.deskSetBackupRangeAll));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(EButton, 'Save as…'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetBackupSaveAs));
     await tester.pumpAndSettle();
-    expect(find.text('Saved'), findsOneWidget);
+    expect(find.text(_l.deskSetBackupSaved), findsOneWidget);
     expect(_files.saved.single, endsWith('.csv'));
     expect(find.textContaining('newest first. Amounts in EPIC with 8 decimals; dates in UTC.'), findsOneWidget);
   });
@@ -226,7 +228,7 @@ void main() {
     final state = const HistoryBackupState(unbacked: 12, reminder: 12);
     await _pump(tester, HistoryReminder(state: state));
     expect(find.text('12 payments are not in your exported wallet data.'), findsOneWidget);
-    expect(find.text('A restore from the recovery phrase brings back the balance, not who paid what.'), findsOneWidget);
+    expect(find.text(_l.deskSetBackupReminderBody), findsOneWidget);
     await tester.tap(find.widgetWithText(EButton, 'Not now'));
     await tester.pumpAndSettle();
     expect(_api.dismissals, 1);
@@ -250,12 +252,12 @@ void main() {
     expect(statusOf(englishStrings, t).$1, 'Imported');
     expect(whoTip(englishStrings, t), 'Imported from a wallet data file.');
     await _pump(tester, TxRow(tx: t, onTap: () {}));
-    expect(find.text('Received'), findsOneWidget);
+    expect(find.text(_l.deskTxReceived), findsOneWidget);
     expect(find.textContaining('Imported', findRichText: true), findsWidgets);
     await _pump(tester, TxDetail(tx: t));
-    expect(find.text('imported from a wallet data file'), findsOneWidget);
-    expect(find.text('Imported from a wallet data file. Status not checked on the chain.'), findsOneWidget);
-    expect(find.text('Progress'), findsNothing);
-    expect(find.widgetWithText(EButton, 'Cancel'), findsNothing);
+    expect(find.text(_l.deskTxHeadBackup), findsOneWidget);
+    expect(find.text(_l.deskTxNowBackup), findsOneWidget);
+    expect(find.text(_l.deskTxSubProgress), findsNothing);
+    expect(find.widgetWithText(EButton, _l.commonCancel), findsNothing);
   });
 }

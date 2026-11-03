@@ -17,9 +17,12 @@ import 'package:epic_wallet/src/desktop/screens/onboarding/unlock_screen.dart';
 import 'package:epic_wallet/src/desktop/widgets/server_list_panel.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 class _Wallet extends MockDeskWallet {
   _Wallet() : super(delay: Duration.zero);
@@ -168,21 +171,21 @@ void main() {
   /// Node step → pick nothing → Continue → Epicbox → Continue → Review → Save.
   Future<void> throughSetup(WidgetTester tester, {required String node}) async {
     expect(container.read(deskNavProvider).route, DeskRoute.setup);
-    expect(find.text('Choose a node'), findsOneWidget, reason: 'the first run starts on the node step');
-    expect(find.text('Preferences'), findsNothing);
-    expect(find.text('Back'), findsNothing, reason: 'no way back to the phrase');
-    expect(find.text('Back to wallet'), findsNothing);
+    expect(find.text(_l.deskSetupNodeTitle), findsOneWidget, reason: 'the first run starts on the node step');
+    expect(find.text(_l.deskSetupStepPrefs), findsNothing);
+    expect(find.text(_l.deskSetupBack), findsNothing, reason: 'no way back to the phrase');
+    expect(find.text(_l.deskSetupBackToWallet), findsNothing);
     expect(tester.widget<ServerListPanel>(find.byType(ServerListPanel)).value, node);
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await wait(tester, 1000);
-    expect(find.text('The Epicbox server holds payments until the wallet opens.'), findsOneWidget);
-    await tester.tap(find.text('Continue'));
+    expect(find.text(_l.deskSetupEpicboxText), findsOneWidget);
+    await tester.tap(find.text(_l.commonContinue));
     await wait(tester, 300);
-    expect(find.text('Review settings'), findsOneWidget);
+    expect(find.text(_l.deskSetupReviewTitle), findsOneWidget);
     // host:port on the review; the full URL only in the field.
     expect(find.text(hostPort(node)), findsOneWidget);
     expect(wallet.calls, isEmpty, reason: 'nothing happens before Save');
-    await tester.tap(find.text('Save settings'));
+    await tester.tap(find.text(_l.deskSetupSave));
     await wait(tester, 800);
   }
 
@@ -191,13 +194,13 @@ void main() {
     await tester.enterText(field(0), 'longpassword');
     await tester.enterText(field(1), 'longpassword');
     await tester.pump();
-    await tester.tap(find.text('Create wallet').last);
+    await tester.tap(find.text(_l.deskOnbCreateTitle).last);
     await wait(tester, 4000);
-    await tester.tap(find.text('Reveal phrase'));
+    await tester.tap(find.text(_l.deskOnbCreateReveal));
     await tester.pump();
     await tester.tap(find.textContaining('I have written down'));
     await tester.pump();
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await wait(tester, 800);
     final arg = container.read(deskNavProvider).arg;
     expect(arg, isA<SetupFirstRun>());
@@ -214,12 +217,12 @@ void main() {
     await pumpApp(tester, DeskRoute.restore);
     await tester.enterText(field(0), [...List.filled(11, 'abandon'), 'about'].join(' '));
     await wait(tester, 500);
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await tester.pump();
     await tester.enterText(field(0), 'longpassword');
     await tester.enterText(field(1), 'longpassword');
     await tester.pump();
-    await tester.tap(find.text('Restore wallet').last);
+    await tester.tap(find.text(_l.deskOnbRestoreSide).last);
     await wait(tester, 5000);
     expect(container.read(deskNavProvider).arg, isA<SetupFirstRun>());
     await throughSetup(tester, node: 'https://current.example:3413');
@@ -251,12 +254,12 @@ void main() {
     await pumpApp(tester, DeskRoute.setup, const SetupFirstRun(UnlockAdded('Wallet 1', id: 'x')));
     var combo = tester.widget<ServerListPanel>(find.byType(ServerListPanel));
     expect(combo.value, '', reason: 'a node being checked is not healthy');
-    expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Continue')).onPressed, isNull);
+    expect(tester.widget<EButton>(find.widgetWithText(EButton, _l.commonContinue)).onPressed, isNull);
     checking.finish();
     await wait(tester, 800);
     combo = tester.widget<ServerListPanel>(find.byType(ServerListPanel));
     expect(combo.value, 'https://fast.example:3413');
-    expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Continue')).onPressed, isNotNull);
+    expect(tester.widget<EButton>(find.widgetWithText(EButton, _l.commonContinue)).onPressed, isNotNull);
     await end(tester);
   });
 
@@ -274,11 +277,11 @@ void main() {
     final arg = container.read(deskNavProvider).arg! as SetupFirstRun;
     expect(arg.added.id, added.id);
     await tester.pump(const Duration(seconds: 1));
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await wait(tester, 1000);
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await wait(tester, 300);
-    await tester.tap(find.text('Save settings'));
+    await tester.tap(find.text(_l.deskSetupSave));
     await wait(tester, 800);
     expect(await tester.runAsync(() => wallet.setupPending(added.id)), isFalse);
     expect(container.read(deskNavProvider).route, DeskRoute.unlock);
@@ -311,13 +314,13 @@ void main() {
     await tester.enterText(field(0), 'longpassword');
     await tester.enterText(field(1), 'longpassword');
     await tester.pump();
-    await tester.tap(find.text('Create wallet').last);
+    await tester.tap(find.text(_l.deskOnbCreateTitle).last);
     await wait(tester, 4000);
-    await tester.tap(find.text('Reveal phrase'));
+    await tester.tap(find.text(_l.deskOnbCreateReveal));
     await tester.pump();
     await tester.tap(find.textContaining('I have written down'));
     await tester.pump();
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await wait(tester, 800);
     final id = (container.read(deskNavProvider).arg! as SetupFirstRun).added.id!;
     expect(await tester.runAsync(() => wallet.setupPending(id)), isTrue);
@@ -346,11 +349,11 @@ void main() {
       final l = lookupAppLocalizations(const Locale('en'));
       expect(find.byKey(const ValueKey('setup-skip')), findsOneWidget, reason: 'Skip from the first step');
       expect(find.text(l.deskSetupResumeLead), findsOneWidget, reason: 'a resumed Setup says so');
-      await tester.tap(find.text('Continue'));
+      await tester.tap(find.text(_l.commonContinue));
       await wait(tester, 1000);
-      await tester.tap(find.text('Continue'));
+      await tester.tap(find.text(_l.commonContinue));
       await wait(tester, 300);
-      await tester.tap(find.text('Save settings'));
+      await tester.tap(find.text(_l.deskSetupSave));
       await wait(tester, 800);
       expect(container.read(deskNavProvider).route, DeskRoute.setup, reason: 'Save failed: still on Review');
       expect(find.text(l.deskSetupSaveFailedTitle), findsOneWidget);

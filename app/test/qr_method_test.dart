@@ -224,7 +224,7 @@ void main() {
       await tester.tap(find.text(_l.commonClose));
       await tester.pumpAndSettle();
 
-      await tester.enterText(find.widgetWithText(TextField, 'To'), _linkAddress);
+      await tester.enterText(find.widgetWithText(TextField, _l.sendToLabel), _linkAddress);
       await tester.pumpAndSettle();
       await _openHow(tester);
       expect(_howCaption(tester), '1. ${_l.handshakeLink1}');
@@ -252,7 +252,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.byTooltip('Direct · QR'),
+          matching: find.byTooltip(_l.methodShortQr),
         ),
       );
       await tester.pumpAndSettle();
@@ -306,15 +306,15 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.byTooltip('Direct · QR'),
+          matching: find.byTooltip(_l.methodShortQr),
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Next to the other phone?'), findsOneWidget);
+      expect(find.text(_l.receiveQrTitle), findsOneWidget);
       expect(find.byKey(receiveScanQrKey), findsOneWidget);
       // Asking for an amount, shown as a QR, sits under the scan (Invoices on).
       expect(find.byKey(receiveQrRequestKey), findsOneWidget);
-      expect(find.text('Direct · File'), findsNothing);
+      expect(find.text(_l.methodShortFile), findsNothing);
     });
 
     testWidgets('Receive: with Invoices off the QR tab has no Request button', (
@@ -325,7 +325,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.byTooltip('Direct · QR'),
+          matching: find.byTooltip(_l.methodShortQr),
         ),
       );
       await tester.pumpAndSettle();
@@ -347,7 +347,7 @@ void main() {
         await tester.tap(
           find.descendant(
             of: find.byKey(receiveTabsKey),
-            matching: find.byTooltip('Direct · QR'),
+            matching: find.byTooltip(_l.methodShortQr),
           ),
         );
         await tester.pumpAndSettle();
@@ -517,7 +517,7 @@ void main() {
       await h.pump(tester, SendView(onDone: () {}));
       await tester.tap(_way('Pay in person'));
       await tester.pumpAndSettle();
-      expect(find.text('Direct · QR Payment'), findsOneWidget);
+      expect(find.text(_l.methodDirectQr), findsOneWidget);
 
       await tester.enterText(find.byKey(sendFileAmountFieldKey), '1');
       // Past the fee estimate's debounce: Make payment QR waits for it.
@@ -529,8 +529,8 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
 
       // The code opens by itself, hidden, with what to do.
-      expect(find.text('Payment QR'), findsOneWidget);
-      expect(find.text('Show this to the recipient.'), findsOneWidget);
+      expect(find.text(_l.qrShowTitlePayment), findsOneWidget);
+      expect(find.text(_l.qrStatusSendHidden), findsOneWidget);
       expect(h.session.sentAmounts, [_epic(1)]);
       await tester.tap(find.byKey(qrShowButtonKey));
       await _tick(tester, 3);
@@ -543,7 +543,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
       await tester.pump(const Duration(milliseconds: 400));
-      expect(find.text('Scan their reply'), findsWidgets);
+      expect(find.text(_l.qrScanReply), findsWidgets);
       final replyParts = await h.parts(_replyJson);
       final n = partCountOf(replyParts.first);
       await h.scan(tester, replyParts.take(1).toList());
@@ -559,7 +559,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(h.session.finalizedSlates, [_replyJson]);
       expect(find.text('Confirming 0/3'), findsOneWidget);
-      expect(find.text('Posted to the network'), findsOneWidget);
+      expect(find.text(_l.txStepPosted), findsOneWidget);
     });
 
     testWidgets(
@@ -597,7 +597,7 @@ void main() {
         expect(h.session.finalizedSlates, isEmpty);
         expect(
           find.text(
-            'This reply is for a different payment. Scan the reply for this send.',
+            _l.slateWrongPaymentQr,
           ),
           findsOneWidget,
         );
@@ -619,7 +619,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.byTooltip('Direct · QR'),
+          matching: find.byTooltip(_l.methodShortQr),
         ),
       );
       await tester.pumpAndSettle();
@@ -629,10 +629,10 @@ void main() {
       await h.scan(tester, await h.parts(json));
       await tester.pump(qrCompleteFor);
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Accept payment'));
+      await tester.tap(find.text(_l.slateAcceptPayment));
       await tester.pumpAndSettle();
       expect(find.byKey(showReplyQrKey), findsOneWidget);
-      expect(find.text('Save to device'), findsOneWidget);
+      expect(find.text(_l.slateSaveToDevice), findsOneWidget);
     });
 
     testWidgets('Receive: scan, accept, show the reply, follow the payment', (
@@ -650,51 +650,51 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byKey(receiveTabsKey),
-          matching: find.byTooltip('Direct · QR'),
+          matching: find.byTooltip(_l.methodShortQr),
         ),
       );
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(receiveScanQrKey));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
-      expect(find.text('Scan payment QR'), findsWidgets);
+      expect(find.text(_l.qrScanPayment), findsWidgets);
       await h.scan(tester, await h.parts(json));
-      expect(find.text('Code read'), findsOneWidget);
+      expect(find.text(_l.qrScanGot), findsOneWidget);
       await tester.pump(qrCompleteFor);
       await tester.pumpAndSettle();
 
       // The payment screen of a scanned payment.
-      expect(find.text('Scanned payment'), findsOneWidget);
+      expect(find.text(_l.slateScannedPaymentTitle), findsOneWidget);
       expect(
-        find.text('Accept it, then show the reply to the sender.'),
+        find.text(_l.slateIncomingSendHintQr),
         findsOneWidget,
       );
       // Titled for the method, with no word of files.
       expect(
         find.descendant(
           of: find.byType(AppBar),
-          matching: find.text('Direct · QR Payment'),
+          matching: find.text(_l.methodDirectQr),
         ),
         findsOneWidget,
       );
-      expect(find.text('Transaction file'), findsNothing);
-      await tester.tap(find.text('Accept payment'));
+      expect(find.text(_l.slateFileTitle), findsNothing);
+      await tester.tap(find.text(_l.slateAcceptPayment));
       await tester.pumpAndSettle();
       expect(
-        find.text('Accepted. Show the reply to the sender.'),
+        find.text(_l.slateAcceptedHeadlineQr),
         findsOneWidget,
       );
       expect(find.byKey(showReplyQrKey), findsOneWidget);
       // The home notice stays quiet while this screen is open.
       expect(qrPaymentScreensOpen, 1);
       // File is off on this phone: no Save, Share or Copy under the reply QR.
-      expect(find.text('Save to device'), findsNothing);
-      expect(find.text('Copy reply'), findsNothing);
+      expect(find.text(_l.slateSaveToDevice), findsNothing);
+      expect(find.text(_l.slateCopyReply), findsNothing);
 
       await tester.tap(find.byKey(showReplyQrKey));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
-      expect(find.text('Reply QR'), findsOneWidget);
+      expect(find.text(_l.qrShowTitleReply), findsOneWidget);
       expect(find.text('Hidden'), findsOneWidget);
       await tester.tap(find.byKey(qrShowButtonKey));
       await _tick(tester, 3);
@@ -729,7 +729,7 @@ void main() {
       expect(find.text('Posted. Confirming 1/3'), findsOneWidget);
       // Posted: the hidden card and its Show again give way to the done card, Done is primary.
       expect(find.byKey(qrDoneCardKey), findsOneWidget);
-      expect(find.text('Show again'), findsNothing);
+      expect(find.text(_l.qrShowAgain), findsNothing);
       expect(find.byKey(qrShowButtonKey), findsNothing);
       expect(find.byKey(qrNextButtonKey), findsOneWidget);
       expect(tester.widget(find.byKey(qrNextButtonKey)), isA<FilledButton>());
@@ -743,15 +743,15 @@ void main() {
       ];
       await h.container.read(homeProvider.notifier).reload();
       await tester.pump();
-      expect(find.text('Received.'), findsOneWidget);
+      expect(find.text(_l.qrStatusReceived), findsOneWidget);
       expect(find.byKey(qrDoneCardKey), findsOneWidget);
 
       // Done closes the reply and the payment screen behind it.
       await tester.tap(find.byKey(qrNextButtonKey));
       await tester.pumpAndSettle();
-      expect(find.text('Reply QR'), findsNothing);
+      expect(find.text(_l.qrShowTitleReply), findsNothing);
       expect(
-        find.text('Accepted. Show the reply to the sender.'),
+        find.text(_l.slateAcceptedHeadlineQr),
         findsNothing,
       );
       expect(h.session.receivedSlates, [json]);
@@ -787,7 +787,7 @@ void main() {
       await tester.tap(make(), warnIfMissed: false);
       await tester.pump(const Duration(milliseconds: 500));
       await tester.pumpAndSettle();
-      expect(find.widgetWithText(TextField, 'PIN'), findsNothing);
+      expect(find.widgetWithText(TextField, _l.pinLabel), findsNothing);
       expect(h.session.sentAmounts, isEmpty);
       expect(tester.widget<FilledButton>(make()).onPressed, isNull);
     });

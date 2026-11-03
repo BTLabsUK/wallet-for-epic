@@ -9,9 +9,12 @@ import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/levels/wallet_level.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 class _Wallet extends MockDeskWallet {
   _Wallet() : super(delay: Duration.zero);
@@ -53,18 +56,18 @@ void main() {
     final wallet = await _pump(tester, WalletLevel.justSendReceive, SendScreen(arg: SendArgs(recipient: _to, amount: '1', epicboxHealth: ServiceHealth.ok)));
     expect(find.byType(ESegmented<TxMethod?>), findsNothing);
     expect(find.text('Payment method'), findsNothing);
-    expect(find.text('How to send it'), findsNothing);
+    expect(find.text(_l.deskLvSendHowTo), findsNothing);
     expect(find.text('Send options'), findsNothing);
-    expect(find.text('Nothing leaves until you press Send. After that it cannot be taken back.'), findsOneWidget);
+    expect(find.text(_l.deskLvSendNothingLeaves), findsOneWidget);
     final button = find.widgetWithText(EButton, 'Send 1.0\u00a0EPIC');
     expect(button, findsOneWidget);
-    expect(find.widgetWithText(EButton, 'Review'), findsNothing);
+    expect(find.widgetWithText(EButton, _l.deskSendReview), findsNothing);
     await tester.tap(button);
     await tester.pumpAndSettle();
     // The password guards the send; the page was the review.
-    expect(find.text('Check and send'), findsNothing);
-    expect(find.text('Your password'), findsOneWidget);
-    await tester.enterText(find.descendant(of: find.widgetWithText(EField, 'Password'), matching: find.byType(TextField)), 'secret-pass');
+    expect(find.text(_l.deskSendReviewTitle), findsNothing);
+    expect(find.text(_l.deskLvSendPasswordTitle), findsOneWidget);
+    await tester.enterText(find.descendant(of: find.widgetWithText(EField, _l.deskSendPassword), matching: find.byType(TextField)), 'secret-pass');
     await tester.pump();
     await tester.tap(find.widgetWithText(EButton, 'Send').last);
     await tester.pumpAndSettle();
@@ -72,36 +75,36 @@ void main() {
     expect(wallet.sent.single.method, TxMethod.epicbox);
     // The page now shows the payment's steps, not the old "Sent" card.
     expect(find.byKey(const ValueKey('send-done')), findsOneWidget);
-    expect(find.text('On its way'), findsOneWidget);
-    expect(find.text('Handed to Epicbox. Completes when the recipient answers.'), findsNothing);
+    expect(find.text(_l.lvPayOnItsWay), findsOneWidget);
+    expect(find.text(_l.deskSendDoneViaEpicbox), findsNothing);
   });
 
   testWidgets('Deeper Send: no method strip, the method line follows the address and Review stays', (tester) async {
     await _pump(tester, WalletLevel.casual, SendScreen(arg: SendArgs(recipient: _to, amount: '1', epicboxHealth: ServiceHealth.ok)));
-    expect(find.text('How to send it'), findsNothing);
+    expect(find.text(_l.deskLvSendHowTo), findsNothing);
     expect(find.text('Payment method'), findsNothing);
     expect(find.byType(ESegmented<TxMethod?>), findsNothing);
     expect(find.byKey(const ValueKey('send-route-epicbox')), findsOneWidget);
-    expect(find.widgetWithText(EButton, 'Review'), findsOneWidget);
+    expect(find.widgetWithText(EButton, _l.deskSendReview), findsOneWidget);
   });
 
   testWidgets('Deep end Send: the same method line and Review', (tester) async {
     await _pump(tester, WalletLevel.everything, SendScreen(arg: SendArgs(recipient: _to, amount: '1', epicboxHealth: ServiceHealth.ok)));
     expect(find.text('Payment method'), findsNothing);
     expect(find.byKey(const ValueKey('send-route-epicbox')), findsOneWidget);
-    expect(find.widgetWithText(EButton, 'Review'), findsOneWidget);
+    expect(find.widgetWithText(EButton, _l.deskSendReview), findsOneWidget);
   });
 
   testWidgets('Shallow Receive: Your address, its QR code shown, no switch, no files, no closed-wallet line', (tester) async {
     await _pump(tester, WalletLevel.justSendReceive, const ReceiveScreen());
-    expect(find.text('Your address'), findsOneWidget);
+    expect(find.text(_l.deskLvSendYourAddress), findsOneWidget);
     expect(find.byKey(const ValueKey('rx-qr-image-epicbox')), findsOneWidget);
     expect(find.text('Show QR'), findsNothing);
-    expect(find.text('Ready to receive'), findsOneWidget);
+    expect(find.text(_l.deskLvSendReady), findsOneWidget);
     expect(find.byKey(const ValueKey('rx-switch-epicbox')), findsNothing);
-    expect(find.text('Receiving'), findsNothing);
+    expect(find.text(_l.deskRecvReceiving), findsNothing);
     expect(find.textContaining('files'), findsNothing);
-    expect(find.text('Other ways to receive'), findsNothing);
+    expect(find.text(_l.deskRecvOtherWays), findsNothing);
     expect(find.textContaining('closed'), findsNothing);
     final card = find.byKey(const ValueKey('rx-shallow-address'));
     final address = tester.widget<EAddress>(find.descendant(of: card, matching: find.byType(EAddress)));
@@ -112,17 +115,17 @@ void main() {
   testWidgets('Deeper Receive: the switch and the files card in casual words, one Open for every file', (tester) async {
     await _pump(tester, WalletLevel.casual, const ReceiveScreen());
     expect(find.byKey(const ValueKey('rx-switch-epicbox')), findsOneWidget);
-    expect(find.text('Payment files'), findsOneWidget);
+    expect(find.text(_l.deskLvSendPayFiles), findsOneWidget);
     expect(find.text('Transaction files'), findsNothing);
     expect(find.byKey(const ValueKey('rx-files-open')), findsOneWidget);
-    expect(find.text('Post a finished payment'), findsNothing);
+    expect(find.text(_l.postFinishedTitle), findsNothing);
     expect(find.textContaining('closed'), findsNothing);
   });
 
   testWidgets('Deep end Receive keeps the Transaction files card with its one Open', (tester) async {
     await _pump(tester, WalletLevel.everything, const ReceiveScreen());
     expect(find.text('Transaction files'), findsOneWidget);
-    expect(find.text('Payment files'), findsNothing);
+    expect(find.text(_l.deskLvSendPayFiles), findsNothing);
     expect(find.byKey(const ValueKey('rx-files-open')), findsOneWidget);
     expect(find.textContaining('closed'), findsNothing);
   });

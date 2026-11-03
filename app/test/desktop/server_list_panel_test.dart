@@ -26,11 +26,14 @@ import 'package:epic_wallet/src/server_list_file.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart' hide EpicboxServer, NodeServer;
 import 'package:epic_wallet/src/settings_file/settings_providers.dart';
 import 'package:epic_wallet/src/ui/server_tile.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../support/test_settings.dart';
+
+final _l = englishStrings;
 
 /// The fixture PNG for an icon URL, by its hash.
 Future<Uint8List?> _fixtureIcon(Uri url) async {
@@ -195,11 +198,11 @@ void main() {
       await tap(tester, row(floo));
       expect(calls.last, [epiccash]);
       await tap(tester, row(epiccash));
-      expect(find.text('Keep at least one.'), findsOneWidget);
+      expect(find.text(_l.slKeepOne), findsOneWidget);
       expect(calls.last, [epiccash]);
 
       await tap(tester, find.byKey(ValueKey('server-row-remove-$epiccash')));
-      expect(find.text('Chosen. Untick first.'), findsOneWidget);
+      expect(find.text(_l.slChosenUntick), findsOneWidget);
       await end(tester);
     });
 
@@ -210,7 +213,7 @@ void main() {
       await tap(tester, find.byKey(const ValueKey('server-list-reset')));
       expect(calls.last, defaults);
       expect(find.byKey(const ValueKey('server-list-reset')), findsNothing);
-      expect(find.text('Reset to defaults.'), findsOneWidget);
+      expect(find.text(_l.slReset), findsOneWidget);
       await end(tester);
     });
   });
@@ -219,7 +222,7 @@ void main() {
     await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen));
     final edit = tester.widget<EditableText>(field);
     expect(edit.controller.text, '', reason: 'the node in use shows in its row, never in the field');
-    expect(find.text('Paste or type to filter or add'), findsOneWidget);
+    expect(find.text(_l.slFieldHint), findsOneWidget);
     expect(find.byKey(const ValueKey('server-list-helper')), findsNothing);
     for (final v in [_btlabs, _epicnet, _epiccash, 'http://10.0.1.24:3413']) {
       expect(row(v), findsOneWidget, reason: v);

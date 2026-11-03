@@ -5,11 +5,14 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'review_password.dart';
+
+final _l = englishStrings;
 
 /// The mock wallet, with [send] and [transactions] scripted.
 class _Wallet extends MockDeskWallet {
@@ -64,7 +67,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Check and send'), findsOneWidget);
+    expect(find.text(_l.deskSendReviewTitle), findsOneWidget);
   }
 
   testWidgets('a send that throws closes the review and points to Activity', (tester) async {
@@ -73,10 +76,10 @@ void main() {
     await enterReviewPassword(tester);
     await tester.tap(find.text('Send 1.0\u00a0EPIC'));
     await tester.pumpAndSettle();
-    expect(find.text('Check and send'), findsNothing);
-    expect(find.text('Not confirmed. Check Activity before sending again.'), findsOneWidget);
+    expect(find.text(_l.deskSendReviewTitle), findsNothing);
+    expect(find.text(_l.deskSendNotConfirmed), findsOneWidget);
     expect(find.text('View in Activity'), findsOneWidget);
-    expect(find.text('Review again'), findsNothing);
+    expect(find.text(_l.deskSendReviewAgain), findsNothing);
     expect(wallet.sends, 1);
   });
 
@@ -87,12 +90,12 @@ void main() {
     await tester.tap(find.text('Send 1.0\u00a0EPIC'));
     await tester.pumpAndSettle();
     expect(find.text('View in Activity'), findsOneWidget);
-    expect(find.text('Review again'), findsNothing);
+    expect(find.text(_l.deskSendReviewAgain), findsNothing);
   });
 
   testWidgets('linux-14: a server the app does not know is named in a warning, and the send goes on', (tester) async {
     await review(tester, recipient: 'esXyz1234567890abcdefghijk@epicbox.stackwalle');
-    expect(find.text('Unknown Epicbox server'), findsOneWidget);
+    expect(find.text(_l.deskSendRelayUnknownTitle), findsOneWidget);
     expect(find.textContaining('epicbox.stackwalle is not a server this app knows'), findsOneWidget);
     await enterReviewPassword(tester);
     await tester.tap(find.text('Send 1.0\u00a0EPIC'));
@@ -102,7 +105,7 @@ void main() {
 
   testWidgets('a server the app lists raises no warning', (tester) async {
     await review(tester);
-    expect(find.text('Unknown Epicbox server'), findsNothing);
+    expect(find.text(_l.deskSendRelayUnknownTitle), findsNothing);
   });
 
   testWidgets('a plain refusal still offers Review again', (tester) async {
@@ -111,7 +114,7 @@ void main() {
     await enterReviewPassword(tester);
     await tester.tap(find.text('Send 1.0\u00a0EPIC'));
     await tester.pumpAndSettle();
-    expect(find.text('Review again'), findsOneWidget);
+    expect(find.text(_l.deskSendReviewAgain), findsOneWidget);
   });
 
   test('the send result stands when the lists cannot reload after it', () async {

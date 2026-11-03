@@ -8,9 +8,12 @@ import 'package:epic_wallet/src/desktop/screens/settings/settings_help.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/help_art.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 Future<ProviderContainer> _pump(WidgetTester tester, {Object? arg}) async {
   tester.view.physicalSize = const Size(1280, 1000);
@@ -94,10 +97,10 @@ void main() {
 
   testWidgets('search and the six sections with their art, with Support above and Start again below', (tester) async {
     await _pump(tester);
-    final report = tester.getTopLeft(find.text('Report a problem').first);
-    expect(report.dy, lessThan(tester.getTopLeft(find.text('Search help')).dy));
-    expect(find.widgetWithText(EButton, 'Report…'), findsOneWidget);
-    expect(find.widgetWithText(EButton, 'Start tour'), findsOneWidget);
+    final report = tester.getTopLeft(find.text(_l.deskSetReportTitle).first);
+    expect(report.dy, lessThan(tester.getTopLeft(find.text(_l.deskSetHelpSearch)).dy));
+    expect(find.widgetWithText(EButton, _l.deskSetHelpReportButton), findsOneWidget);
+    expect(find.widgetWithText(EButton, _l.deskSetHelpTourStart), findsOneWidget);
     expect(find.text('Help and FAQ'), findsNothing);
     for (final s in helpSections) {
       expect(find.text(s.lede), findsOneWidget);
@@ -112,20 +115,20 @@ void main() {
   testWidgets('no Support development card in Help', (tester) async {
     await _pump(tester);
     expect(find.text('Support development'), findsNothing);
-    expect(find.text('Copy address'), findsNothing);
+    expect(find.text(_l.deskTxCopyAddress), findsNothing);
   });
 
   testWidgets('Read more opens the body with the stepper; Show less folds it', (tester) async {
     await _pump(tester);
     final title = find.text('Why does a transaction need both sides?');
     await tester.ensureVisible(title);
-    final more = find.descendant(of: find.ancestor(of: title, matching: find.byType(Row)).first, matching: find.text('Read more'));
+    final more = find.descendant(of: find.ancestor(of: title, matching: find.byType(Row)).first, matching: find.text(_l.deskSetHelpReadMore));
     await tester.tap(more);
     await tester.pumpAndSettle();
-    expect(find.text('Show less'), findsOneWidget);
+    expect(find.text(_l.deskSetHelpShowLess), findsOneWidget);
     expect(find.byType(HelpHandshake), findsOneWidget);
     expect(find.textContaining('Epic Cash uses Mimblewimble', findRichText: true), findsOneWidget);
-    await tester.tap(find.text('Show less'));
+    await tester.tap(find.text(_l.deskSetHelpShowLess));
     await tester.pumpAndSettle();
     expect(find.byType(HelpHandshake), findsNothing);
   });
@@ -133,7 +136,7 @@ void main() {
   testWidgets('a search that matches a body opens the topic; no match says so', (tester) async {
     await _pump(tester, arg: 'mimblewimble');
     expect(find.text('1 topic found'), findsOneWidget);
-    expect(find.text('Show less'), findsOneWidget);
+    expect(find.text(_l.deskSetHelpShowLess), findsOneWidget);
     expect(find.text('Getting started'), findsNothing, reason: 'no section heads while searching');
     await _pump(tester, arg: 'zebra');
     expect(find.text('No topic matches “zebra”. Try another word.'), findsOneWidget);

@@ -20,6 +20,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 WalletSummary _summary() => WalletSummary(
   lastConfirmedHeight: BigInt.from(2500000),
   minimumConfirmations: BigInt.from(3),
@@ -363,7 +365,7 @@ void main() {
 
     testWidgets('Tor off: no Tor line on the Epicbox and node rows', (tester) async {
       await _pump(tester);
-      expect(find.text('Over Tor'), findsNothing);
+      expect(find.text(_l.torWayOver), findsNothing);
       expect(find.text('Waiting for Tor'), findsNothing);
       expect(
         find.descendant(of: find.byKey(netStatusEpicboxKey), matching: find.byIcon(torIcon)),

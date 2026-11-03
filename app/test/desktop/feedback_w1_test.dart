@@ -22,6 +22,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'advanced_on.dart';
 
+final _l = englishStrings;
+
 class _Wallet extends MockDeskWallet {
   _Wallet() : super(delay: Duration.zero);
 
@@ -117,10 +119,10 @@ void main() {
 
   testWidgets('Help › Support holds Report a problem, above the search', (tester) async {
     await _pump(tester, const SettingsHelpScreen());
-    final report = tester.getTopLeft(find.text('Report a problem').first);
-    final search = tester.getTopLeft(find.text('Search help').first);
+    final report = tester.getTopLeft(find.text(_l.deskSetReportTitle).first);
+    final search = tester.getTopLeft(find.text(_l.deskSetHelpSearch).first);
     expect(report.dy, lessThan(search.dy));
-    expect(find.text('Support'), findsOneWidget);
+    expect(find.text(_l.deskSetHelpSupportHead), findsOneWidget);
   });
 
   testWidgets('the Internet guide says "the wallet answers" and offers Tor', (tester) async {
@@ -139,7 +141,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.textContaining('The wallet answers on 0.0.0.0, port 3415'), findsOneWidget);
     expect(find.textContaining('Advanced'), findsNothing);
-    expect(find.text('Tor works from anywhere with nothing to forward.'), findsOneWidget);
+    expect(find.text(_l.deskSetHttpNoRouterText), findsOneWidget);
     await tester.tap(find.text('Turn on Tor'));
     await tester.pump(const Duration(milliseconds: 400));
     expect(choice, InternetGuideChoice.tor);
@@ -157,7 +159,7 @@ void main() {
     });
     await tester.pump(const Duration(milliseconds: 600));
     // The guide sits behind the (?) of the internet address.
-    final help = find.byTooltip('Receive from the internet: how it works');
+    final help = find.byTooltip(_l.deskSetHttpGuideHelp);
     await tester.ensureVisible(help);
     await tester.pump(const Duration(milliseconds: 300));
     await tester.tap(help);
@@ -184,7 +186,7 @@ void main() {
       // Labelled by its kind ("Epicbox address" while empty, "Address" for text of no kind).
       await tester.enterText(find.descendant(of: find.byWidgetPredicate((w) => w is EField && w.label.toLowerCase().endsWith('address')), matching: find.byType(EditableText)).first, bad);
       await tester.pump();
-      await tester.tap(find.text('Save contact'));
+      await tester.tap(find.text(_l.deskConSave));
       await tester.pump(const Duration(milliseconds: 300));
       expect(find.text(invalid), findsOneWidget, reason: '"$bad"');
     }
@@ -192,7 +194,7 @@ void main() {
 
   testWidgets('an empty contact list beside the form never says "No contacts match"', (tester) async {
     await _pump(tester, const ContactsScreen(arg: ContactsArgs(adding: true)));
-    expect(find.text('No contacts match'), findsNothing);
+    expect(find.text(_l.deskConNoMatchList), findsNothing);
     expect(find.text('Clear search'), findsNothing);
   });
 
@@ -202,9 +204,9 @@ void main() {
     await _pump(tester, SendScreen(arg: SendArgs(recipient: own, amount: '1')), api: api);
     expect(find.text('Balance after'), findsOneWidget);
     expect(find.text('Left to spend'), findsNothing);
-    await tester.tap(find.text('Review'));
+    await tester.tap(find.text(_l.deskSendReview));
     await tester.pump(const Duration(milliseconds: 600));
-    expect(find.text('This is the wallet’s own address.'), findsOneWidget);
+    expect(find.text(_l.deskSendErrOwn), findsOneWidget);
     expect(find.text('Send 1.0\u00a0EPIC'), findsNothing, reason: 'no review dialog');
   });
 
@@ -221,9 +223,9 @@ void main() {
       final api = _Wallet();
       expect((await api.epicboxAddress()).split('@').first, ownKey);
       await _pump(tester, SendScreen(arg: SendArgs(recipient: to, amount: '1')), api: api);
-      await tester.tap(find.text('Review'));
+      await tester.tap(find.text(_l.deskSendReview));
       await tester.pump(const Duration(milliseconds: 600));
-      expect(find.text('This is the wallet’s own address.'), refused ? findsOneWidget : findsNothing);
+      expect(find.text(_l.deskSendErrOwn), refused ? findsOneWidget : findsNothing);
       // The review dialog that opens for another address starts a timer of its own.
       await tester.pumpAndSettle();
     });
@@ -231,16 +233,16 @@ void main() {
 
   testWidgets('no send while the local node is at height 0', (tester) async {
     await _pump(tester, const SendScreen(arg: SendArgs(recipient: 'abc.onion', amount: '1')), api: _NodeAtZero());
-    expect(find.text('Node not synced'), findsOneWidget);
-    expect(find.text('Waiting for the node to sync.'), findsOneWidget);
+    expect(find.text(_l.deskSendNodeNotSynced), findsOneWidget);
+    expect(find.text(_l.deskSendHintNode), findsOneWidget);
   });
 
   testWidgets('an empty contact address says "Add an address."', (tester) async {
     await _pump(tester, const ContactsScreen(arg: ContactsArgs(adding: true)));
     await tester.enterText(_input('Name'), 'Ann');
-    await tester.tap(find.text('Save contact'));
+    await tester.tap(find.text(_l.deskConSave));
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.text('Add an address.'), findsOneWidget);
+    expect(find.text(_l.deskConErrAddressEmpty), findsOneWidget);
   });
 
   testWidgets('a toast closes when the screen changes', (tester) async {

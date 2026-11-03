@@ -39,6 +39,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../support/send_pin.dart';
 
+final _l = englishStrings;
+
 const _key = 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK';
 
 /// A valid Epicbox address (the one the epic: URI examples use).
@@ -270,10 +272,10 @@ Finder _noteTile(String note) =>
 bool _onAmount() => find.byKey(sendAmountFieldKey).evaluate().isNotEmpty;
 
 Future<void> _continue(WidgetTester tester) =>
-    _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
+    _tap(tester, find.widgetWithText(FilledButton, _l.commonContinue));
 
 Future<void> _back(WidgetTester tester) =>
-    _tap(tester, find.byTooltip('Back').first);
+    _tap(tester, find.byTooltip(_l.scanQrBack).first);
 
 /// The review's origin pill says [text].
 Finder _origin(String text) => find.descendant(
@@ -296,7 +298,7 @@ void main() {
       expect(_field(tester, sendAmountFieldKey), '1.5');
       expect(_inBanner('Invoice'), findsOneWidget);
       expect(_inBanner('Check the amount, then continue.'), findsOneWidget);
-      expect(find.text('Requested by the code'), findsOneWidget);
+      expect(find.text(_l.sendAmountFromCode), findsOneWidget);
       // The note travels in the payment: its tile is folded and shows it.
       expect(_noteTile('Lunch with Anna'), findsOneWidget);
       expect(_inPayee('Anna'), findsOneWidget);
@@ -323,7 +325,7 @@ void main() {
       expect(_inPayee('Lunch with Anna'), findsOneWidget);
 
       await _tap(tester, find.textContaining('Send 1.5'));
-      expect(find.widgetWithText(TextField, 'PIN'), findsOneWidget);
+      expect(find.widgetWithText(TextField, _l.pinLabel), findsOneWidget);
       expect(h.session.epicboxSends, isEmpty);
       await answerPin(tester);
       expect(h.session.epicboxSends.single.amount, _epic(1.5));
@@ -381,10 +383,10 @@ void main() {
         'epic:$_e?amount=1&message=${Uri.encodeComponent(note)}',
       );
       expect(_onAmount(), isTrue);
-      expect(find.text('Add a message'), findsOneWidget);
+      expect(find.text(_l.sendAddNote), findsOneWidget);
       expect(_noteTile(note), findsNothing);
       expect(_inPayee(note), findsOneWidget);
-      await _tap(tester, find.text('Add a message'));
+      await _tap(tester, find.text(_l.sendAddNote));
       expect(_field(tester, sendNoteFieldKey), isEmpty);
     });
   });
@@ -397,7 +399,7 @@ void main() {
       await _tap(tester, find.byKey(sendRequestDismissKey));
       expect(find.byKey(sendRequestBannerKey), findsNothing);
       expect(_field(tester, sendAmountFieldKey), '1.5');
-      expect(find.text('Requested by the code'), findsOneWidget);
+      expect(find.text(_l.sendAmountFromCode), findsOneWidget);
       expect(find.byKey(payeeClaimsKey), findsOneWidget);
       expect(_noteTile('Lunch with Anna'), findsOneWidget);
     });
@@ -411,7 +413,7 @@ void main() {
       await tester.enterText(find.byKey(sendAmountFieldKey), '2');
       await tester.pump(const Duration(milliseconds: 500));
       await tester.pumpAndSettle();
-      expect(find.text('Requested by the code'), findsNothing);
+      expect(find.text(_l.sendAmountFromCode), findsNothing);
       expect(find.textContaining('The code asked for 1.5'), findsOneWidget);
     });
 
@@ -431,7 +433,7 @@ void main() {
       expect(_field(tester, sendAmountFieldKey), isEmpty);
       expect(find.byKey(sendRequestBannerKey), findsNothing);
       expect(find.byKey(payeeClaimsKey), findsNothing);
-      expect(find.text('Add a message'), findsOneWidget);
+      expect(find.text(_l.sendAddNote), findsOneWidget);
     });
 
     testWidgets('an edited amount stays when the address changes', (
@@ -481,7 +483,7 @@ void main() {
       await _back(tester);
       expect(_field(tester, sendRecipientFieldKey), _e);
       // Not a saved contact at this address: it can be saved.
-      expect(find.text('Save as contact'), findsOneWidget);
+      expect(find.text(_l.sendSaveContact), findsOneWidget);
       expect(_inPayee('Anna'), findsOneWidget);
     });
 
@@ -554,12 +556,12 @@ void main() {
       await h.pump(tester);
       await h.scan(tester, text);
       expect(find.byKey(scanResultSheetKey), findsOneWidget);
-      expect(find.text('Not an Epic code'), findsOneWidget);
+      expect(find.text(_l.scanNotEpicTitle), findsOneWidget);
       expect(
         find.text('${String.fromCharCodes(text.runes.take(80))}…'),
         findsOneWidget,
       );
-      expect(find.text('Scan again'), findsOneWidget);
+      expect(find.text(_l.qrScanAgain), findsOneWidget);
       await _tap(tester, find.byKey(scanResultCopyKey));
       expect(h.copied, [text]);
       expect(find.byKey(scanResultSheetKey), findsNothing);
@@ -584,7 +586,7 @@ void main() {
       final h = _Harness(otherChain: true);
       await h.pump(tester);
       await h.scan(tester, 'epic:$_floonet?amount=1');
-      expect(find.text('Other network'), findsOneWidget);
+      expect(find.text(_l.scanWrongNetworkTitle), findsOneWidget);
       expect(find.text(_floonet), findsOneWidget);
       expect(_tab(tester), ShellTab.wallet);
     });
@@ -596,9 +598,9 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await h.scan(tester, json);
-      expect(find.text('Transaction file'), findsOneWidget);
+      expect(find.text(_l.slateFileTitle), findsOneWidget);
       expect(
-        find.text('This is the text of a transaction file, not an address.'),
+        find.text(_l.scanSlateTextBody),
         findsOneWidget,
       );
       await _tap(tester, find.widgetWithText(FilledButton, 'Open'));
@@ -610,9 +612,9 @@ void main() {
       h.session.pairing.enabled = false;
       await h.pump(tester);
       await h.scan(tester, 'epiccash://pair/1/abc');
-      expect(find.text('Pairing link'), findsOneWidget);
+      expect(find.text(_l.scanPairingTitle), findsOneWidget);
       expect(
-        find.text('Pairing is not available in this version.'),
+        find.text(_l.scanPairingUnavailable),
         findsOneWidget,
       );
     });
@@ -622,7 +624,7 @@ void main() {
       await h.pump(tester);
       await h.scan(tester, h.session.pairing.inviteLinkFrom(name: 'Anna'));
       expect(find.text('Pair with Anna?'), findsOneWidget);
-      expect(find.text('Pairing is not available in this version.'), findsNothing);
+      expect(find.text(_l.scanPairingUnavailable), findsNothing);
     });
   });
 
@@ -632,8 +634,8 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      await _tap(tester, find.text('Send').last);
-      await _tap(tester, find.text('Wallet').last);
+      await _tap(tester, find.text(_l.homeSendButton).last);
+      await _tap(tester, find.text(_l.shellWalletTab).last);
       await h.scan(tester, _e);
       expect(_tab(tester), ShellTab.send);
       expect(_field(tester, sendRecipientFieldKey), _e);
@@ -652,7 +654,7 @@ void main() {
       await h.pump(tester);
       await h.scan(tester, 'epic:$_e?amount=5&message=Table%204');
       expect(_field(tester, sendAmountFieldKey), '5');
-      await _tap(tester, find.text('Wallet').last);
+      await _tap(tester, find.text(_l.shellWalletTab).last);
       await h.scan(tester, 'epic:$_e?label=Bob');
       expect(_onAmount(), isTrue);
       expect(_field(tester, sendAmountFieldKey), isEmpty);
@@ -667,11 +669,11 @@ void main() {
         tester,
         find.descendant(
           of: find.byType(NavigationBar),
-          matching: find.text('Send'),
+          matching: find.text(_l.homeSendButton),
         ),
       );
       h.clipboard = text;
-      await _tap(tester, find.widgetWithText(TextButton, 'Paste'));
+      await _tap(tester, find.widgetWithText(TextButton, _l.commonPaste));
     }
 
     testWidgets('a payment code fills the form, origin Pasted', (tester) async {
@@ -695,7 +697,7 @@ void main() {
       await paste(tester, h, 'epic:notanaddress');
       expect(_field(tester, sendRecipientFieldKey), 'epic:notanaddress');
       expect(
-        find.text('The address in this code is not valid.'),
+        find.text(_l.scanBadAddress),
         findsOneWidget,
       );
       expect(find.byKey(scanResultSheetKey), findsNothing);
@@ -708,7 +710,7 @@ void main() {
       await paste(tester, h, half);
       expect(_field(tester, sendRecipientFieldKey), half);
       expect(find.byKey(scanResultSheetKey), findsNothing);
-      expect(find.text('The address in this code is not valid.'), findsNothing);
+      expect(find.text(_l.scanBadAddress), findsNothing);
       expect(find.byKey(sendRequestBannerKey), findsNothing);
     });
   });
@@ -744,7 +746,7 @@ void main() {
       await tester.pumpAndSettle();
       // Nothing closed.
       expect(find.text('another screen'), findsOneWidget);
-      expect(find.text('Payment link received'), findsOneWidget);
+      expect(find.text(_l.linkWaitingNotice), findsOneWidget);
       await _tap(
         tester,
         find.descendant(of: find.byKey(noticeKey), matching: find.text('Open')),
@@ -769,7 +771,7 @@ void main() {
       h.container.read(incomingLinkProvider.notifier).deliver('epiccash://pair/1/AAAA');
       await tester.pumpAndSettle();
       expect(opened, ['epiccash://pair/1/AAAA']);
-      expect(find.text('Payment link received'), findsNothing);
+      expect(find.text(_l.linkWaitingNotice), findsNothing);
       expect(h.container.read(incomingLinkProvider), isNull);
     });
 
@@ -782,7 +784,7 @@ void main() {
       await tester.pump(const Duration(seconds: 4));
       await tester.pumpAndSettle();
       expect(find.text('Pairing is off or not available in this wallet.'), findsOneWidget);
-      expect(find.text('Payment link received'), findsNothing);
+      expect(find.text(_l.linkWaitingNotice), findsNothing);
     });
 
     testWidgets('while busy: dropped, said so', (tester) async {
@@ -791,7 +793,7 @@ void main() {
       h.container.read(linkBusyProvider.notifier).set(true);
       h.container.read(incomingLinkProvider.notifier).deliver(_lunch);
       await tester.pumpAndSettle();
-      expect(find.text('Finish the current payment first.'), findsOneWidget);
+      expect(find.text(_l.linkFinishCurrentFirst), findsOneWidget);
       expect(_tab(tester), ShellTab.wallet);
       expect(h.container.read(incomingLinkProvider), isNull);
       expect(h.container.read(sendRecipientProvider), isNull);
