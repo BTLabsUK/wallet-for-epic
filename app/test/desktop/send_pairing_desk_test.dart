@@ -76,11 +76,11 @@ void main() {
     expect(find.text(_l.deskSendToHint), findsNothing);
     await tester.tap(find.widgetWithText(EButton, _l.deskSendReview));
     await tester.pumpAndSettle();
-    expect(find.text('Check and send'), findsOneWidget);
+    expect(find.text(_l.deskSendReviewTitle), findsOneWidget);
     expect(find.byKey(const ValueKey('send-review-pairing')), findsOneWidget);
     expect(find.text(_l.deskSendCheckChars), findsNothing);
     expect(find.textContaining('@'), findsNothing);
-    await tester.enterText(find.descendant(of: find.widgetWithText(EField, 'Password'), matching: find.byType(TextField)), 'secret-pass');
+    await tester.enterText(find.descendant(of: find.widgetWithText(EField, _l.deskSendPassword), matching: find.byType(TextField)), 'secret-pass');
     await tester.pump();
     await tester.tap(find.widgetWithText(EButton, 'Send 1.0\u00a0EPIC'));
     await tester.pumpAndSettle();
@@ -109,7 +109,7 @@ void main() {
     await tester.tap(find.widgetWithText(EButton, _l.sendQueue));
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey('send-review-queued')), findsOneWidget);
-    await tester.enterText(find.descendant(of: find.widgetWithText(EField, 'Password'), matching: find.byType(TextField)), 'secret-pass');
+    await tester.enterText(find.descendant(of: find.widgetWithText(EField, _l.deskSendPassword), matching: find.byType(TextField)), 'secret-pass');
     await tester.pump();
     await tester.tap(find.widgetWithText(EButton, _l.sendQueue).last);
     await tester.pumpAndSettle();

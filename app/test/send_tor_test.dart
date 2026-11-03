@@ -304,7 +304,7 @@ void main() {
       ]) {
         await _enter(tester, 'To', form);
         // The method line under the field names the way and, with Tor off, that it starts.
-        expect(find.text('Link · Tor'), findsOneWidget, reason: form);
+        expect(find.text(_l.methodDirectTor), findsOneWidget, reason: form);
         expect(find.text(_l.sendRouteTorStarts), findsOneWidget, reason: form);
         expect(
           find.textContaining('.onion', findRichText: true),
@@ -358,7 +358,7 @@ void main() {
       expect(h.session.torStarts, hasLength(1));
       await h.emit(tester, TorEventKind.starting, progress: 60);
       await h.emit(tester, TorEventKind.ready);
-      expect(find.text('Over Tor'), findsOneWidget);
+      expect(find.text(_l.sendOverTor), findsOneWidget);
       expect(find.text(_l.sendTorReady), findsOneWidget);
       // No epicbox check on a Tor payment.
       expect(find.text(_l.sendListenerDown), findsNothing);
@@ -388,8 +388,8 @@ void main() {
       await _settle(tester);
       // Their wallet signed and the payment is out: it is confirming already.
       expect(_steps(tester, TimelineState.done), [
-        'Payment started',
-        'Recipient signed',
+        _l.txStepStarted,
+        _l.txStepAccepted,
         'Posted to the network',
       ]);
       expect(_steps(tester, TimelineState.current).single, contains('onfirm'));

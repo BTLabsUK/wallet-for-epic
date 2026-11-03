@@ -16,9 +16,12 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/test_settings.dart';
+
+final _l = englishStrings;
 
 class _NoPrice implements PriceSource {
   const _NoPrice();
@@ -67,7 +70,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       final button = find.widgetWithText(TextButton, 'Node and Epicbox');
-      await tester.tap(button.evaluate().isNotEmpty ? button : find.byTooltip('Node and Epicbox'));
+      await tester.tap(button.evaluate().isNotEmpty ? button : find.byTooltip(_l.setupNetworkSettingsTooltip));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(networkMenuEpicboxKey));
       await tester.pumpAndSettle();

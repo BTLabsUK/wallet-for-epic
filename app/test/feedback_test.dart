@@ -353,7 +353,7 @@ void main() {
       // Without a feedback server there is no Send, only share or save.
       expect(find.widgetWithText(FilledButton, _l.feedbackSend), findsNothing);
 
-      await enter(tester, 'What happened', 'My phrase $_phrase does not work');
+      await enter(tester, _l.feedbackMessageLabel, 'My phrase $_phrase does not work');
       await tap(tester, find.text('What is sent'));
       final preview = previewText(tester);
       expect(preview, contains('[recovery phrase removed] does not work'));
@@ -387,16 +387,16 @@ void main() {
         h.log.write(LogLevel.info, 'app', 'start');
         await h.pump(tester);
         await h.openFeedback(tester);
-        await tap(tester, find.text('Share or save'));
+        await tap(tester, find.text(_l.feedbackShareOrSave));
         expect(
           find.text(_l.feedbackMessageMissing),
           findsOneWidget,
         );
         expect(h.outlet.shared, isEmpty);
 
-        await enter(tester, 'What happened', 'The balance looks wrong');
+        await enter(tester, _l.feedbackMessageLabel, 'The balance looks wrong');
         await tap(tester, find.text(_l.feedbackAttachLogs));
-        await tap(tester, find.text('Share or save'));
+        await tap(tester, find.text(_l.feedbackShareOrSave));
         await tap(tester, find.text('Save to device'));
         final saved = h.outlet.saved.single.report;
         expect(saved, isNot(contains('Contact:')));
@@ -415,7 +415,7 @@ void main() {
       final h = _Harness()..url = Uri.parse('https://feedback.example.com/in');
       await h.pump(tester);
       await h.openFeedback(tester);
-      await enter(tester, 'What happened', 'Please add dark mode');
+      await enter(tester, _l.feedbackMessageLabel, 'Please add dark mode');
 
       h.outlet.postError = FeedbackSendError(
         (l) => l.feedbackServerAnswered(503),
@@ -442,7 +442,7 @@ void main() {
       await h.pump(tester);
       h.log.write(LogLevel.info, 'app', 'only in wfe.log');
       await h.openFeedback(tester);
-      await enter(tester, 'What happened', 'Sync stuck');
+      await enter(tester, _l.feedbackMessageLabel, 'Sync stuck');
       await tap(tester, find.widgetWithText(FilledButton, _l.feedbackSend));
       final files = h.outlet.posted.single.report.files;
       expect([for (final f in files) f.name], ['app/lepic.0.log']);
@@ -493,7 +493,7 @@ void main() {
       useNetworkModeFile(NetworkMode.nodeOnly);
       await h.pump(tester);
       await h.openFeedback(tester);
-      await enter(tester, 'What happened', 'Please add dark mode');
+      await enter(tester, _l.feedbackMessageLabel, 'Please add dark mode');
       await tester.scrollUntilVisible(find.text('Off in Node only. Save the report as a file instead.'), 100, scrollable: find.byType(Scrollable).first);
       expect(find.text('Off in Node only. Save the report as a file instead.'), findsOneWidget);
       final send = find.widgetWithText(FilledButton, _l.feedbackSend);
@@ -600,7 +600,7 @@ void previewLargeLog() {
       }
       await h.pump(tester);
       await h.openFeedback(tester);
-      await enter(tester, 'What happened', 'The preview with a big log');
+      await enter(tester, _l.feedbackMessageLabel, 'The preview with a big log');
       // No wall-clock bound: under a loaded machine it says nothing about the screen.
       await tap(tester, find.text('What is sent'));
       expect(find.byKey(feedbackPreviewListKey), findsOneWidget, reason: 'the preview opened');
@@ -630,7 +630,7 @@ void previewLargeLog() {
       h.log = _ThrowingLog();
       await h.pump(tester);
       await h.openFeedback(tester);
-      await enter(tester, 'What happened', 'hello');
+      await enter(tester, _l.feedbackMessageLabel, 'hello');
       await tap(tester, find.text('What is sent'));
       // The log tail failure is caught and written into the report, so the preview opens.
       expect(find.byKey(feedbackPreviewListKey), findsOneWidget);

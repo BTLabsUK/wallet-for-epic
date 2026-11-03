@@ -9,11 +9,14 @@ import 'package:epic_wallet/src/desktop/screens/settings/dialogs.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/password_estimate.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 /// Patterns only, no word lists: quick to build, and estimates the same way.
 final _estimator = PasswordEstimator(const {});
@@ -164,21 +167,21 @@ void main() {
 
     testWidgets('create', (tester) async {
       await _pump(tester, const CreateScreen(arg: CreateStep.account));
-      await check(tester, _field('Password'));
+      await check(tester, _field(_l.deskOnbStepPassword));
       await _end(tester);
     });
 
     testWidgets('restore', (tester) async {
       await _pump(tester, const RestoreScreen(arg: RestoreStep.account));
-      await check(tester, _field('Password'));
+      await check(tester, _field(_l.deskOnbStepPassword));
       await _end(tester);
     });
 
     testWidgets('import: a new password for a short old one', (tester) async {
       await _pump(tester, const ImportWalletsScreen(arg: ImportStep.import));
       expect(find.byType(PasswordHint), findsNothing);
-      await _type(tester, _field('Old password'), 'short');
-      await check(tester, _field('New password'));
+      await _type(tester, _field(_l.deskOnbImportOldPassword), 'short');
+      await check(tester, _field(_l.deskOnbImportNewPassword));
       await _end(tester);
     });
 
@@ -186,7 +189,7 @@ void main() {
       await _pump(tester, Builder(builder: (c) => TextButton(onPressed: () => showChangePasswordDialog(c), child: const Text('open'))));
       await tester.tap(find.text('open'));
       await tester.pump(const Duration(milliseconds: 500));
-      await check(tester, _field('New password'));
+      await check(tester, _field(_l.deskSetDlgPwNew));
       await _end(tester);
     });
 
@@ -202,7 +205,7 @@ void main() {
     final c = TextEditingController(text: 'abc');
     addTearDown(c.dispose);
     await _pump(tester, Column(children: [TextField(controller: c), PasswordHint(controller: c)]));
-    expect(find.bySemanticsLabel('How the time is estimated'), findsOneWidget);
+    expect(find.bySemanticsLabel(_l.deskKitPasswordNoteLabel), findsOneWidget);
     final note = find.byKey(const ValueKey('info-popover-text'));
     await tester.tap(find.byIcon(EIcons.info));
     await tester.pump();
@@ -234,7 +237,7 @@ void main() {
     final confirm = find.byType(PasswordBox).at(1);
     final at = tester.getTopLeft(confirm);
     for (final t in ['a', 'abc', 'abcdefgh', 'abcdefghijkl', '']) {
-      await _type(tester, _field('Password'), t);
+      await _type(tester, _field(_l.deskOnbStepPassword), t);
       await tester.pump(const Duration(milliseconds: 400));
       expect(tester.getTopLeft(confirm), at, reason: 'after typing "$t"');
     }

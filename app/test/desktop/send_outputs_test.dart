@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/desktop/screens/transfer/send_advanced.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,6 +17,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'advanced_on.dart';
 
 import 'review_password.dart';
+
+final _l = englishStrings;
 
 class _Wallet extends MockDeskWallet {
   _Wallet() : super(delay: Duration.zero);
@@ -74,15 +77,15 @@ void main() {
 
   testWidgets('the summary says what stays spendable and what is locked', (tester) async {
     await pump(tester, const SendArgs(recipient: anna, amount: '25'));
-    expect(find.text('Balance after'), findsOneWidget);
-    expect(find.text('Available while this confirms'), findsOneWidget);
+    expect(find.text(_l.deskSendBalanceAfter), findsOneWidget);
+    expect(find.text(_l.deskSendSpendableWhile), findsOneWidget);
     expect(find.textContaining('locked,'), findsOneWidget);
     expect(wallet.asked.first?.strategy, SelectionStrategy.smallest);
   });
 
   testWidgets('a strategy picked under Advanced estimates again with it', (tester) async {
     await pump(tester, const SendArgs(recipient: anna, amount: '25', advancedOpen: true));
-    expect(find.text('default'), findsOneWidget);
+    expect(find.text(_l.deskSendDefaultTag), findsOneWidget);
     await tester.tap(find.descendant(of: find.byType(ERadioRow), matching: find.text('All')));
     await tester.pumpAndSettle();
     expect(wallet.asked.last?.strategy, SelectionStrategy.all);
@@ -94,7 +97,7 @@ void main() {
     await pump(tester, const SendArgs(recipient: anna, advancedOpen: true));
     await tester.tap(find.widgetWithText(EButton, 'Max'));
     await tester.pumpAndSettle();
-    expect(find.text('Sending everything spends every output.'), findsOneWidget);
+    expect(find.text(_l.deskSendAdvAllNote), findsOneWidget);
     for (final r in tester.widgetList<ERadioRow>(find.byType(ERadioRow))) {
       expect(r.onSelected, isNull);
     }
@@ -114,8 +117,8 @@ void main() {
 
   testWidgets('the review repeats the lock', (tester) async {
     await pump(tester, const SendArgs(recipient: anna, amount: '25', step: SendStep.review));
-    expect(find.text('Check and send'), findsOneWidget);
-    expect(find.text('Locks'), findsOneWidget);
+    expect(find.text(_l.deskSendReviewTitle), findsOneWidget);
+    expect(find.text(_l.deskSendFactLocks), findsOneWidget);
     expect(find.textContaining('until this payment confirms (6\u00A0blocks)'), findsOneWidget);
   });
 
@@ -127,14 +130,14 @@ void main() {
     wallet.hold = Completer<void>();
     await tester.tap(find.descendant(of: find.byType(ERadioRow), matching: find.text('All')));
     await tester.pump();
-    expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Review')).onPressed, isNull);
-    await tester.tap(find.widgetWithText(EButton, 'Review'), warnIfMissed: false);
+    expect(tester.widget<EButton>(find.widgetWithText(EButton, _l.deskSendReview)).onPressed, isNull);
+    await tester.tap(find.widgetWithText(EButton, _l.deskSendReview), warnIfMissed: false);
     await tester.pump();
     expect(find.text('Check and send'), findsNothing);
     wallet.hold!.complete();
     wallet.hold = null;
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(EButton, 'Review'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSendReview));
     await tester.pumpAndSettle();
     expect(find.text('Check and send'), findsOneWidget);
     await enterReviewPassword(tester);

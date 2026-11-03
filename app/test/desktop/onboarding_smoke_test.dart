@@ -66,8 +66,8 @@ void flows() {
     await tester.tap(find.text(_l.deskOnbUnlockButton).last);
     await _wait(tester);
     expect(find.text(_l.deskOnbUnlockFailed), findsOneWidget);
-    expect(find.text('Try again'), findsOneWidget);
-    await tester.tap(find.text('Back'));
+    expect(find.text(_l.deskSetupTryAgain), findsOneWidget);
+    await tester.tap(find.text(_l.deskSetupBack));
     await tester.pump();
     expect(find.text(_l.deskOnbUnlockTitle), findsOneWidget);
     await _end(tester);
@@ -78,7 +78,7 @@ void flows() {
     await tester.enterText(_field(0), 'wrong');
     await tester.tap(find.text(_l.deskOnbUnlockButton).last);
     await _wait(tester, 4000);
-    expect(find.textContaining(_l.deskErrWrongPassword), findsOneWidget);
+    expect(find.textContaining(_l.deskOnbUnlockWrong), findsOneWidget);
     await _end(tester);
   });
 

@@ -17,6 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 /// Starts with [session] already unlocked.
 class _OpenSession extends SessionNotifier {
   _OpenSession(this.session);
@@ -123,11 +125,11 @@ Future<void> _closeAndBringBack(
   final semantics = tester.ensureSemantics();
   await tester.pump();
   expect(_seen(tester), isTrue);
-  expect(find.semantics.byLabel('Hide tip'), findsOneWidget);
+  expect(find.semantics.byLabel(_l.tipHide), findsOneWidget);
   final before = _places(tester, below);
 
   // Through the screen reader: the X is its own node, and its tap closes only the guide.
-  tester.semantics.tap(find.semantics.byLabel('Hide tip'));
+  tester.semantics.tap(find.semantics.byLabel(_l.tipHide));
   await tester.pumpAndSettle();
 
   expect(_places(tester, below), before, reason: 'nothing moves');
@@ -161,7 +163,7 @@ void main() {
       store,
     );
     // The way is named on the file route; the recipient field picks the method on the first step.
-    await tester.tap(find.text('Pay with a file'));
+    await tester.tap(find.text(_l.sendPayByFile));
     await tester.pumpAndSettle();
     await _closeAndBringBack(tester, container, store, sendMethodTipId, [
       find.byKey(sendFileAmountFieldKey),
@@ -178,7 +180,7 @@ void main() {
       store,
     );
     await _closeAndBringBack(tester, container, store, receiveMethodTipId, [
-      find.text('How receiving works'),
+      find.text(_l.receiveHelpButton),
     ]);
   });
 

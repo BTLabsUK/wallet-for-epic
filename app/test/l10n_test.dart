@@ -17,6 +17,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+final _l = englishStrings;
+
 /// The plural categories CLDR defines for whole numbers in each language.
 const Map<String, Set<String>> _pluralCategories = {
   'en': {'one', 'other'},
@@ -300,7 +302,7 @@ void main() {
           WalletErrorKind.invalidArgument,
           'This history file is damaged',
         ),
-        'This wallet data file is damaged.',
+        _l.errorHistoryDamaged,
       );
     });
 

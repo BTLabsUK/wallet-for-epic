@@ -577,7 +577,7 @@ String _toField(WidgetTester tester) => tester
 
 /// On the shell's Send tab: [to], 1\u00a0EPIC, review, Send.
 Future<void> _sendOne(WidgetTester tester, String to) async {
-  await _tab(tester, 'Send');
+  await _tab(tester, _l.homeSendButton);
   await tester.enterText(find.widgetWithText(TextField, _l.sendToLabel), to);
   await tester.pumpAndSettle();
   await _tap(tester, find.widgetWithText(FilledButton, _l.commonContinue));
@@ -610,11 +610,11 @@ void main() {
       String label(TxEntry tx) => txStatusLabel(englishStrings, tx, _tip, target: 3);
       expect(
         label(fakeTx(kind: TxKind.sent, status: TxStatus.awaitingRecipient)),
-        'Waiting for recipient',
+        _l.txStatusWaitingRecipient,
       );
       expect(
         label(fakeTx(status: TxStatus.awaitingConfirmation)),
-        'Waiting for sender',
+        _l.txStatusWaitingSender,
       );
       expect(
         label(fakeTx(kind: TxKind.sent, status: TxStatus.awaitingConfirmation)),
@@ -630,7 +630,7 @@ void main() {
         label(
           fakeTx(status: TxStatus.confirmed, blockHeight: _tip - BigInt.two),
         ),
-        'Received',
+        _l.txStatusReceived,
       );
       expect(label(fakeTx(status: TxStatus.confirmed)), 'Received');
       expect(
@@ -643,7 +643,7 @@ void main() {
     test('one title style: contact, else short address, else the kind', () {
       expect(
         txTitle(englishStrings, fakeTx(kind: TxKind.coinbase)),
-        'Mining reward',
+        _l.txMiningReward,
       );
       expect(
         txTitle(
@@ -651,7 +651,7 @@ void main() {
           fakeTx(source: TxSource.restored),
           contactName: 'Bob',
         ),
-        'Found on the chain',
+        _l.txRestoredFunds,
       );
       // The status never changes the title: pending, completed and cancelled read alike.
       for (final status in TxStatus.values) {
@@ -667,7 +667,7 @@ void main() {
         );
         expect(
           txTitle(englishStrings, fakeTx(kind: TxKind.sent, status: status)),
-          'Outgoing payment',
+          _l.txOutgoingPayment,
         );
         expect(
           txTitle(englishStrings, fakeTx(status: status)),
@@ -689,18 +689,18 @@ void main() {
         status: TxStatus.confirmed,
         counterparty: _bob,
       );
-      expect(txHeading(englishStrings, send), 'Outgoing payment');
+      expect(txHeading(englishStrings, send), _l.txOutgoingPayment);
       expect(txHeading(englishStrings, send, contactName: 'Bob'), 'Bob');
       expect(
         txHeading(
           englishStrings,
           fakeTx(source: TxSource.imported, counterparty: _bob),
         ),
-        'Incoming payment',
+        _l.txIncomingPayment,
       );
       expect(
         txHeading(englishStrings, fakeTx(kind: TxKind.coinbase)),
-        'Mining reward',
+        _l.txMiningReward,
       );
     });
 
@@ -723,7 +723,7 @@ void main() {
       expect(isPending(tx), isFalse);
       expect(
         txStatusLabel(englishStrings, tx, _tip),
-        'Imported',
+        _l.txStatusFromBackup,
       );
       expect(matchesFilter(tx, HistoryFilter.pending), isFalse);
       expect(matchesFilter(tx, HistoryFilter.sent), isTrue);
@@ -1069,7 +1069,7 @@ void main() {
         await tester.pump(autoRefreshInterval);
         await tester.pumpAndSettle();
         expect(
-          chip(kind == TxKind.sent ? 'Sent' : 'Received'),
+          chip(kind == TxKind.sent ? _l.txStatusSent : _l.txStatusReceived),
           findsOneWidget,
         );
       });
@@ -1188,7 +1188,7 @@ void main() {
           'esBobKey2345678923456789ABCDEFGHJKLMNPQRSTUVWXYZabcd@box.epic.invalid';
       h.scanner.codes.add(scanned);
       await h.pump(tester);
-      await _tap(tester, find.byTooltip('Scan QR code'));
+      await _tap(tester, find.byTooltip(_l.scanQrTooltip));
       // The Send tab, not a pushed screen, with the recipient filled in.
       expect(find.byType(SendView), findsOneWidget);
       expect(_toField(tester), scanned);
@@ -1199,7 +1199,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       final payee = '${'b' * 52}@box.epic.invalid';
-      await _tab(tester, 'Send');
+      await _tab(tester, _l.homeSendButton);
       await tester.enterText(find.widgetWithText(TextField, _l.sendToLabel), payee);
       await tester.pumpAndSettle();
       await _tap(tester, find.widgetWithText(FilledButton, _l.commonContinue));
@@ -1214,7 +1214,7 @@ void main() {
       expect(await tester.binding.handlePopRoute(), isTrue);
       await tester.pumpAndSettle();
       expect(_selectedTab(tester), ShellTab.wallet);
-      await _tab(tester, 'Receive');
+      await _tab(tester, _l.homeReceiveButton);
       expect(await tester.binding.handlePopRoute(), isTrue);
       await tester.pumpAndSettle();
       expect(_selectedTab(tester), ShellTab.wallet);
@@ -1226,7 +1226,7 @@ void main() {
       final h = _Harness(scanSupported: true, still: true);
       h.scanner.codes.add('abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art');
       await h.pump(tester);
-      await _tap(tester, find.byTooltip('Scan QR code'));
+      await _tap(tester, find.byTooltip(_l.scanQrTooltip));
       expect(find.text(_l.scanPhraseFoundQr), findsOneWidget);
       expect(find.textContaining('abandon'), findsNothing);
       expect(find.text(_l.commonCopy), findsNothing);
@@ -1307,10 +1307,10 @@ void main() {
       );
       await h.pump(tester, const TxDetailsScreen(txKey: 's:from-alice'));
       // One label for the message, whoever wrote it (GP-011).
-      expect(find.text('Message'), findsOneWidget);
+      expect(find.text(_l.txDetailsMessageFromSender), findsOneWidget);
       expect(find.text('September rent'), findsOneWidget);
       expect(find.text(_l.txDetailsMessageHintFromSender), findsOneWidget);
-      expect(find.text('Private note'), findsOneWidget);
+      expect(find.text(_l.txDetailsPrivateNoteLabel), findsOneWidget);
       expect(find.text('Rent share'), findsOneWidget);
     });
 
@@ -1339,7 +1339,7 @@ void main() {
         await h.pump(tester, const TxDetailsScreen(txKey: 's:rent-bob'));
         final message = find.byKey(txOwnMessageKey);
         expect(
-          find.descendant(of: message, matching: find.text('Message')),
+          find.descendant(of: message, matching: find.text(_l.txDetailsYourMessage)),
           findsOneWidget,
         );
         expect(
@@ -1355,7 +1355,7 @@ void main() {
         );
         final note = find.byKey(txPrivateNoteKey);
         expect(
-          find.descendant(of: note, matching: find.text('Private note')),
+          find.descendant(of: note, matching: find.text(_l.txDetailsPrivateNoteLabel)),
           findsOneWidget,
         );
         expect(
@@ -1431,7 +1431,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(TxStatusChip),
-          matching: find.text('Waiting for recipient'),
+          matching: find.text(_l.txStatusWaitingRecipient),
         ),
         findsOneWidget,
       );
@@ -1477,7 +1477,7 @@ void main() {
       await _tap(tester, find.widgetWithText(FilledButton, _l.txDetailsSendAgain));
       expect(h.session.resentEpicboxKeys, ['s:send-bob']);
       expect(find.widgetWithText(FilledButton, _l.txDetailsSendAgain), findsNothing);
-      expect(find.text('Cancel payment'), findsOneWidget);
+      expect(find.text(_l.txDetailsCancelPayment), findsOneWidget);
     });
 
     testWidgets('linux-14: the relay that did not answer is named, on the row and in the error', (
@@ -1510,7 +1510,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
       expect(find.text(_l.txDetailsSendAgain), findsNothing);
-      expect(find.text('Waiting for recipient'), findsWidgets);
+      expect(find.text(_l.txStatusWaitingRecipient), findsWidgets);
     });
 
     testWidgets('opening the wallet sends an undelivered epicbox send again, once', (
@@ -1527,7 +1527,7 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 'c:restored'));
-      expect(find.text('Found on the chain'), findsOneWidget);
+      expect(find.text(_l.txRestoredFunds), findsOneWidget);
       expect(
         find.textContaining('Found on the chain. Sender and fee'),
         findsOneWidget,
@@ -1569,7 +1569,7 @@ void main() {
         expect(isStuck(h.session.transactionsValue.single), isTrue);
 
         await h.pump(tester, const TxDetailsScreen(txKey: 's:refused'));
-        expect(find.text('Not on the network'), findsWidgets);
+        expect(find.text(_l.txStatusNotPosted), findsWidgets);
         expect(find.textContaining('Published to the network'), findsNothing);
         expect(find.textContaining('Confirming 0'), findsNothing);
         expect(
@@ -1740,7 +1740,7 @@ void main() {
       final tx = fakeTx(amountCredited: _epic(1.5), counterparty: _bob);
       expect(
         paymentNotice(englishStrings, repeated, tx),
-        'Already accepted. No second payment.',
+        _l.homeNoticeRepeated,
       );
       expect(
         paymentNotice(englishStrings, repeated, tx, contactName: 'Alice'),
@@ -1769,7 +1769,7 @@ void main() {
       expect(find.textContaining('on the way. It completes'), findsNothing);
       expect(h.session.transactionsCalls, loads);
       // The notice still leads to the payment answered the first time.
-      await tester.tap(find.text('View'));
+      await tester.tap(find.text(_l.homeNoticeView));
       await tester.pumpAndSettle();
       expect(find.byType(TxDetailsScreen), findsOneWidget);
       expect(find.text('Rent share'), findsOneWidget);
@@ -1875,7 +1875,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('View'), findsOneWidget);
+      expect(find.text(_l.homeNoticeView), findsOneWidget);
       // What a lock does: home goes, the unlock screen takes the whole stack.
       Navigator.of(tester.element(find.byType(HomeScreen))).pushAndRemoveUntil(
         MaterialPageRoute<void>(
@@ -1885,7 +1885,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.byType(HomeScreen), findsNothing);
-      await tester.tap(find.text('View'));
+      await tester.tap(find.text(_l.homeNoticeView));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       expect(find.byType(TxDetailsScreen), findsNothing);
@@ -2170,7 +2170,7 @@ void main() {
     testWidgets('cancelling a send keeps the send wording', (tester) async {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 's:send-bob'));
-      await _tap(tester, find.widgetWithText(DangerButton, 'Cancel payment').first);
+      await _tap(tester, find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).first);
       expect(find.textContaining('cancelling is free and certain'), findsOneWidget, reason: 'the dialog only: no quiet line under Cancel');
       expect(find.textContaining('rescan'), findsNothing);
     });
@@ -2209,7 +2209,7 @@ void main() {
       await h.pump(tester);
       expect(find.text('A payment is waiting for the recipient'), findsNothing);
       expect(
-        find.textContaining('Imported'),
+        find.textContaining(_l.txStatusFromBackup),
         findsOneWidget,
       );
     });
@@ -2236,7 +2236,7 @@ void main() {
       expect(find.text('≈\u00a00.50\u00a0USD'), findsNothing);
       expect(find.text('≈\u00a01.00\u00a0USD'), findsOneWidget);
       // Cancelled is said by the chip, not the title.
-      expect(find.text('Outgoing payment'), findsOneWidget);
+      expect(find.text(_l.txOutgoingPayment), findsOneWidget);
     });
 
     testWidgets('filter chips scroll on one row', (tester) async {
@@ -2327,7 +2327,7 @@ void main() {
         await h.pump(tester);
         expect(find.text('esBobA…567890'), findsOneWidget);
         await _tap(tester, find.byKey(const ValueKey('tx-s:send-bob')));
-        expect(find.text('Outgoing payment'), findsOneWidget);
+        expect(find.text(_l.txOutgoingPayment), findsOneWidget);
         expect(find.textContaining('esBobA…'), findsNothing);
         expect(find.text(_bob.split('@').first), findsOneWidget);
         expect(find.byTooltip(_l.txDetailsCopyAddress), findsOneWidget);
@@ -2411,7 +2411,7 @@ void main() {
       expect(isStuck(finished(repostable: true)), isTrue);
       expect(
         txStatusLabel(englishStrings, finished(repostable: true), _tip),
-        'Not on the network',
+        _l.txStatusNotPosted,
       );
       expect(
         txExplanation(englishStrings, finished(repostable: false), _tip),
@@ -2452,7 +2452,7 @@ void main() {
       await h.pump(tester, const TxDetailsScreen(txKey: 's:old'));
       expect(find.textContaining('can no longer complete'), findsOneWidget);
       expect(
-        find.widgetWithText(DangerButton, 'Cancel payment').first,
+        find.widgetWithText(DangerButton, _l.txDetailsCancelPayment).first,
         findsOneWidget,
       );
     });
@@ -2481,7 +2481,7 @@ void main() {
       expect(find.text(_l.txDetailsReleaseBody), findsOneWidget);
       expect(find.text(_l.cancelCompareMoveBack), findsOneWidget);
       expect(find.textContaining('Unlock coins: free'), findsOneWidget);
-      expect(find.textContaining(_l.cancelMoveBack), findsNWidgets(2));
+      expect(find.textContaining(_l.cancelCompareMoveBack), findsNWidgets(2));
       expect(find.text(_l.cancelUnlockOpen), findsOneWidget);
       await _tap(tester, find.text(_l.txDetailsReleaseKeepWaiting));
       expect(h.session.releasedKeys, isEmpty);
@@ -2755,7 +2755,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(coreExpired), findsOneWidget);
       expect(find.textContaining('The funds are unlocked'), findsNothing);
-      expect(find.text('View'), findsOneWidget);
+      expect(find.text(_l.homeNoticeView), findsOneWidget);
     });
   });
 
@@ -3031,7 +3031,7 @@ void main() {
       _reminderDue(h);
       await h.pump(tester);
       expect(find.text(reminder), findsOneWidget);
-      await _tap(tester, find.text('Export wallet data'));
+      await _tap(tester, find.text(_l.homeHistoryExportButton));
       expect(h.files.saved.single.name, 'epic-wallet-data-20260930.wfeh');
       expect(find.text(reminder), findsNothing);
       expect(h.store.values['app.history_exported.mainnet'], '${_at(_now)}');
@@ -3041,7 +3041,7 @@ void main() {
       final h = _Harness(transactions: _backlog());
       _reminderDue(h);
       await h.pump(tester);
-      await _tap(tester, find.text('Not now'));
+      await _tap(tester, find.text(_l.homeHistoryReminderNotNow));
       expect(find.text(reminder), findsNothing);
       expect(
         h.store.values['app.history_reminder_dismissed.mainnet'],
@@ -3231,7 +3231,7 @@ void main() {
       final h = _Harness(transactions: _backlog());
       _reminderDue(h);
       await h.pump(tester);
-      await _tap(tester, find.text('Export wallet data'));
+      await _tap(tester, find.text(_l.homeHistoryExportButton));
       expect(find.textContaining('exported wallet data.'), findsNothing);
       // The pending send to Bob is completed now; its record in the file is stale.
       h.session.transactionsValue = [
@@ -3357,7 +3357,7 @@ void main() {
     ) async {
       final h = _Harness(price: 0.5);
       await h.pump(tester);
-      await _tab(tester, 'Send', settle: false);
+      await _tab(tester, _l.homeSendButton, settle: false);
       for (final (from, to) in [('Send', 'Receive'), ('Receive', 'Send')]) {
         await tester.tap(
           find.descendant(
@@ -3428,10 +3428,10 @@ void main() {
       final appBar = tester.element(find.byType(AppBar));
       expect(_selectedTab(tester), ShellTab.wallet);
 
-      await _tab(tester, 'Receive', settle: false);
+      await _tab(tester, _l.homeReceiveButton, settle: false);
       expect(_selectedTab(tester), ShellTab.receive);
       expect(find.byType(ReceiveView), findsOneWidget);
-      await _tab(tester, 'Send', settle: false);
+      await _tab(tester, _l.homeSendButton, settle: false);
       expect(_selectedTab(tester), ShellTab.send);
       expect(find.byType(SendView), findsOneWidget);
 
@@ -3632,7 +3632,7 @@ void main() {
       final tile = find.byKey(balanceTileKey(BalanceKind.locked));
       expect(tile, findsOneWidget);
       expect(tester.getRect(tile).top, greaterThanOrEqualTo(eye.bottom));
-      expect(_inTile(BalanceKind.locked, 'Locked in sends'), findsOneWidget);
+      expect(_inTile(BalanceKind.locked, _l.homeTileLocked), findsOneWidget);
       expect(_inTile(BalanceKind.locked, '2.0'), findsOneWidget);
       expect(
         tester.getSemantics(tile),
@@ -4075,7 +4075,7 @@ void main() {
           await _frames(tester, 15);
           expect(_sweep(tester), 0);
           // On every tab: the bar is shared.
-          await _tab(tester, 'Send', settle: false);
+          await _tab(tester, _l.homeSendButton, settle: false);
           h.session.summaryValue = _balances(spendable: 16);
           await tester.pump(autoRefreshInterval);
           await tester.pump();
@@ -4184,7 +4184,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byType(NavigationBar),
-          matching: find.text('Send'),
+          matching: find.text(_l.homeSendButton),
         ),
       );
       await tester.pump();
@@ -4200,11 +4200,11 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      await _tab(tester, 'Send', settle: false);
+      await _tab(tester, _l.homeSendButton, settle: false);
       await tester.tap(
         find.descendant(
           of: find.byType(NavigationBar),
-          matching: find.text('Receive'),
+          matching: find.text(_l.homeReceiveButton),
         ),
       );
       for (var i = 0; i < 15; i++) {
@@ -4245,7 +4245,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byType(NavigationBar),
-          matching: find.text('Receive'),
+          matching: find.text(_l.homeReceiveButton),
         ),
       );
       await tester.pump();
@@ -4347,13 +4347,13 @@ void main() {
     testWidgets('a tab keeps its form while another is shown', (tester) async {
       final h = _Harness(still: true);
       await h.pump(tester);
-      await _tab(tester, 'Send');
+      await _tab(tester, _l.homeSendButton);
       await tester.enterText(
         find.widgetWithText(TextField, _l.sendToLabel),
         payee,
       );
-      await _tab(tester, 'Receive');
-      await _tab(tester, 'Wallet');
+      await _tab(tester, _l.homeReceiveButton);
+      await _tab(tester, _l.shellWalletTab);
       await _tab(tester, 'Send');
       expect(_toField(tester), payee);
     });
@@ -4361,7 +4361,7 @@ void main() {
     testWidgets('Receive keeps its tab across a tab change', (tester) async {
       final h = _Harness(still: true);
       await h.pump(tester);
-      await _tab(tester, 'Receive');
+      await _tab(tester, _l.homeReceiveButton);
       // Epicbox address by default.
       expect(find.byKey(receiveAddressKey).hitTestable(), findsOneWidget);
       expect(find.text(_l.receiveFileTitle), findsNothing);
@@ -4402,7 +4402,7 @@ void main() {
       expect(find.text(_l.sendTrackWaiting), findsOneWidget);
       await _tap(tester, find.text(_l.commonDone));
       expect(_selectedTab(tester), ShellTab.wallet);
-      await _tab(tester, 'Send');
+      await _tab(tester, _l.homeSendButton);
       expect(_toField(tester), isEmpty);
     });
 
@@ -4421,7 +4421,7 @@ void main() {
         // The tracker stays.
         expect(find.text(_l.sendTrackWaiting), findsOneWidget);
         await _tap(tester, find.text(_l.commonDone));
-        await _tab(tester, 'Send');
+        await _tab(tester, _l.homeSendButton);
         expect(_toField(tester), carol);
 
         // The same from the payment file screens.
@@ -4450,7 +4450,7 @@ void main() {
               .first,
         );
         await _tap(tester, find.widgetWithText(TextButton, _l.commonDone));
-        await _tab(tester, 'Send');
+        await _tab(tester, _l.homeSendButton);
         expect(_toField(tester), payee);
       },
     );
@@ -4512,7 +4512,7 @@ void main() {
         await _tab(tester, tab);
         // Receive's short address is selectable text, 24 dp tall, inside the address card
         // that a rebuild repeats; every button there passes.
-        if (tab != 'Receive') {
+        if (tab != _l.homeReceiveButton) {
           await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
         }
         await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
@@ -4609,7 +4609,7 @@ void main() {
                 await _tab(tester, tab);
                 final why = '${formatEpic(amount)} on $tab';
                 expect(tester.takeException(), isNull, reason: why);
-                if (tab == 'Wallet') {
+                if (tab == _l.shellWalletTab) {
                   // One line by the display rule, inside the area with its unit.
                   final figure = tester.widget<Text>(
                     find.byKey(balanceFigureKey),
@@ -4659,8 +4659,8 @@ void main() {
 
     /// Wallet, then Receive, then back to Send.
     Future<void> leaveAndBack(WidgetTester tester) async {
-      await _tab(tester, 'Wallet');
-      await _tab(tester, 'Receive');
+      await _tab(tester, _l.shellWalletTab);
+      await _tab(tester, _l.homeReceiveButton);
       await _tab(tester, 'Send');
     }
 
@@ -4677,13 +4677,13 @@ void main() {
     testWidgets('a pasted Link address stays across tabs; × empties it and the method', (tester) async {
       final h = _Harness(still: true);
       await h.pump(tester);
-      await _tab(tester, 'Send');
+      await _tab(tester, _l.homeSendButton);
       expect(find.byKey(sendRecipientClearKey), findsNothing, reason: 'nothing to clear yet');
       const link = 'http://10.0.1.24:3415';
       await tester.enterText(find.widgetWithText(TextField, _l.sendToLabel), link);
       await tester.pump(const Duration(seconds: 4));
       await tester.pumpAndSettle();
-      expect(methodLine('Link · HTTP'), findsOneWidget, reason: 'the address picked the method');
+      expect(methodLine(_l.methodDirectHttp), findsOneWidget, reason: 'the address picked the method');
       await leaveAndBack(tester);
       expect(_toField(tester), link);
       expect(methodLine('Link · HTTP'), findsOneWidget);
@@ -4697,7 +4697,7 @@ void main() {
         contact: Contact(id: '', name: 'Carol', address: carol, note: null),
       );
       await h.pump(tester);
-      await _tab(tester, 'Send');
+      await _tab(tester, _l.homeSendButton);
       final bob = '${'b' * 52}@box.epic.invalid';
       await tester.enterText(find.widgetWithText(TextField, _l.sendToLabel), bob);
       await tester.pumpAndSettle();

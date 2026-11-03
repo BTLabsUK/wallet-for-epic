@@ -238,10 +238,10 @@ void main() {
 
   testWidgets('deleting a paired contact says the pairing goes, and removes it', (tester) async {
     await _contact(tester, 'c1');
-    await tester.tap(find.text('Delete'));
+    await tester.tap(find.text(_l.deskConDelete));
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.textContaining(_l.contactDeletePaired('Anna Kowalska')), findsOneWidget);
-    await tester.tap(find.text('Delete contact'));
+    await tester.tap(find.text(_l.deskConDeleteAction));
     await _real(tester, 800);
     expect(_c.read(deskProvider).contacts!.any((x) => x.id == 'c1'), isFalse);
     expect(await tester.runAsync(() => _pairing.pairing(mockAnnaPairing)), isNull);

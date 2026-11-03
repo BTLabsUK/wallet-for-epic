@@ -5,9 +5,12 @@
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 late MockDeskWallet _wallet;
 late ProviderContainer _container;
@@ -51,7 +54,7 @@ void main() {
     await _open(tester);
     expect(_row, findsOneWidget);
     expect(_shown(tester), '6');
-    expect(find.descendant(of: _row, matching: find.text('Default')), findsOneWidget);
+    expect(find.descendant(of: _row, matching: find.text(_l.deskSetAdvConfirmationsDefault)), findsOneWidget);
     expect(find.byKey(const ValueKey('adv-minConfirmations-reset')), findsNothing);
     expect(find.byKey(const ValueKey('adv-minConfirmations-note')), findsNothing);
     expect(_container.read(deskProvider).balance!.minConfirmations, 6);
@@ -59,7 +62,7 @@ void main() {
 
   testWidgets('+ stores 7 at once and the balance counts with it; Reset brings back 6', (tester) async {
     await _open(tester);
-    await _tap(tester, _button('More confirmations'));
+    await _tap(tester, _button(_l.deskSetAdvConfirmationsMore));
     expect(_shown(tester), '7');
     expect(await tester.runAsync(_wallet.minimumConfirmations), 7);
     expect(_container.read(deskProvider).balance!.minConfirmations, 7);
@@ -75,7 +78,7 @@ void main() {
     await _open(tester);
     final before = _container.read(deskProvider).balance!;
     for (var i = 0; i < 3; i++) {
-      await _tap(tester, _button('Fewer confirmations'));
+      await _tap(tester, _button(_l.deskSetAdvConfirmationsFewer));
     }
     expect(_shown(tester), '3');
     expect(find.byKey(const ValueKey('adv-minConfirmations-note')), findsOneWidget);
@@ -96,12 +99,12 @@ void main() {
     await tester.runAsync(() => _container.read(deskMinConfirmationsSettingProvider.notifier).set(1));
     await _settle(tester);
     expect(_shown(tester), '1');
-    expect(_iconButton(tester, 'Fewer confirmations').onPressed, isNull);
-    expect(_iconButton(tester, 'More confirmations').onPressed, isNotNull);
+    expect(_iconButton(tester, _l.deskSetAdvConfirmationsFewer).onPressed, isNull);
+    expect(_iconButton(tester, _l.deskSetAdvConfirmationsMore).onPressed, isNotNull);
     await tester.runAsync(() => _container.read(deskMinConfirmationsSettingProvider.notifier).set(30));
     await _settle(tester);
     expect(_shown(tester), '30');
-    expect(_iconButton(tester, 'More confirmations').onPressed, isNull);
+    expect(_iconButton(tester, _l.deskSetAdvConfirmationsMore).onPressed, isNull);
     final refused = await tester.runAsync(() async {
       try {
         await _wallet.setMinimumConfirmations(31);
@@ -117,10 +120,10 @@ void main() {
   testWidgets('a refused count goes back and says so', (tester) async {
     await _open(tester);
     _wallet.refuseMinConfirmations = true;
-    await _tap(tester, _button('More confirmations'));
+    await _tap(tester, _button(_l.deskSetAdvConfirmationsMore));
     expect(_shown(tester), '6');
     expect(_container.read(deskMinConfirmationsSettingProvider).value, 6);
-    expect(find.text('Confirmations not changed'), findsOneWidget);
-    expect(find.descendant(of: _row, matching: find.text('Default')), findsOneWidget);
+    expect(find.text(_l.deskSetAdvConfirmationsNotSaved), findsOneWidget);
+    expect(find.descendant(of: _row, matching: find.text(_l.deskSetAdvConfirmationsDefault)), findsOneWidget);
   });
 }

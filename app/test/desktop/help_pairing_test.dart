@@ -12,6 +12,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../support/experimental.dart';
 
+final _l = englishStrings;
+
 Future<void> _pump(WidgetTester tester, {Object? arg, double width = 1280}) async {
   tester.view.physicalSize = Size(width, 1000);
   tester.view.devicePixelRatio = 1;
@@ -36,7 +38,7 @@ const _topics = ['What pairing is', 'Two ways to pair', 'Why check the words', '
 void main() {
   testWidgets('the pairing section shows its five topics, before trouble', (tester) async {
     await _pump(tester);
-    expect(find.text('Pairing'), findsWidgets);
+    expect(find.text(_l.helpPairingSection), findsWidgets);
     expect(find.byType(PairingHelpMark), findsOneWidget);
     for (final t in _topics) {
       expect(find.text(t, findRichText: true), findsOneWidget, reason: t);
@@ -69,6 +71,6 @@ void main() {
 
   test('search finds the pairing topics', () {
     final hits = searchTopics(pairingHelpTopics(englishStrings), queryWords('two ways'));
-    expect(hits.first.topic.title, 'Two ways to pair');
+    expect(hits.first.topic.title, _l.helpPairTwoWaysTitle);
   });
 }

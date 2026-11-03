@@ -22,6 +22,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
+final _l = englishStrings;
+
 BigInt _epic(num n) => BigInt.from((n * 100000000).round());
 
 const _address = 'esVeVUhWwJT4HcFNwCw8wxqauG3SoQ3aKABLyaXWq6HUZ83es6TA@box.epic.invalid';
@@ -132,8 +134,8 @@ void main() {
 
     test('taken by the network but in no block yet is Posted, never Confirming 0 of 3', () {
       final posted = sent(TxStatus.awaitingConfirmation, height: BigInt.from(1001), finalized: 1700000000);
-      expect(paymentStepWord(l, posted, tip, style: TimelineStyle.liveSentence, target: 3), 'Posted');
-      expect(paymentStepWord(l, posted, tip, style: TimelineStyle.casualSteps, target: 3), 'Posted');
+      expect(paymentStepWord(l, posted, tip, style: TimelineStyle.liveSentence, target: 3), _l.lvPolPosted);
+      expect(paymentStepWord(l, posted, tip, style: TimelineStyle.casualSteps, target: 3), _l.lvPolPosted);
       expect(paymentStepWord(l, posted, tip, style: TimelineStyle.technicalSteps, target: 3), 'Confirming 0/3');
       final steps = paymentSteps(l, posted, tip, target: 3, who: 'Alice')!;
       expect(steps.map((s) => s.label), ['Payment started', 'Alice signed', 'Posted to the network', 'Confirming', 'Completed']);
@@ -177,7 +179,7 @@ void main() {
         status: TxStatus.awaitingConfirmation,
         amountCredited: _epic(1),
       );
-      expect(paymentStepWord(l, tx, tip, style: TimelineStyle.liveSentence), 'Arriving');
+      expect(paymentStepWord(l, tx, tip, style: TimelineStyle.liveSentence), _l.lvPayArriving);
       expect(paymentStepWord(l, tx, tip, style: TimelineStyle.technicalSteps), l.txStatusWaitingSender);
     });
   });
@@ -190,10 +192,10 @@ void main() {
     expect(find.text('Pay in person'), findsNothing);
     expect(find.text('Pay with a file'), findsNothing);
     // The step is Send, not a method to pick; no address-shape hint.
-    expect(find.text('Send'), findsOneWidget);
+    expect(find.text(_l.homeSendButton), findsOneWidget);
     expect(find.text('Payment method'), findsNothing);
     expect(find.byTooltip('Address kinds'), findsNothing);
-    expect(find.text('Paste'), findsOneWidget);
+    expect(find.text(_l.commonPaste), findsOneWidget);
   });
 
   testWidgets('Receive at level 1 says Connected without the server', (tester) async {
@@ -208,7 +210,7 @@ void main() {
   testWidgets('Receive at level 1 shows New today and the server line after a server move', (tester) async {
     await _pump(tester, const SlotScaffold(body: ReceiveView()), moved: true);
     expect(find.byKey(receiveTabsKey), findsNothing);
-    expect(find.text('New today'), findsOneWidget);
+    expect(find.text(_l.lvPayNewToday), findsOneWidget);
     expect(find.text('Epicbox server: Stack Wallet.'), findsOneWidget);
     expect(find.text('Anyone with the old address needs the new one.'), findsOneWidget);
   });

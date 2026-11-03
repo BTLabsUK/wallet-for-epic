@@ -70,8 +70,8 @@ Future<void> describe(WidgetTester tester, String text) async {
 }
 
 Future<void> send(WidgetTester tester) async {
-  await tester.ensureVisible(find.widgetWithText(EButton, 'Send'));
-  await tester.tap(find.widgetWithText(EButton, 'Send'));
+  await tester.ensureVisible(find.widgetWithText(EButton, _l.deskSetReportSend));
+  await tester.tap(find.widgetWithText(EButton, _l.deskSetReportSend));
   await settle(tester);
 }
 
@@ -122,14 +122,14 @@ void main() {
     await tester.tap(find.text('offer'));
     await tester.pumpAndSettle();
     expect(kept.offers, 1);
-    await tester.tap(find.descendant(of: find.byType(SnackBar), matching: find.text('Send')));
+    await tester.tap(find.descendant(of: find.byType(SnackBar), matching: find.text(_l.deskLastSessionSend)));
     await settle(tester);
     expect(find.byType(ReportProblemDialog), findsOneWidget);
     expect(find.text(_l.deskLastSessionReportClosed), findsOneWidget);
     expect(find.textContaining(_l.deskLastSessionAttached), findsOneWidget);
     await send(tester);
     final report = h.outlet.posted.single.report;
-    expect(report.description, 'The app closed unexpectedly.');
+    expect(report.description, _l.deskLastSessionReportClosed);
     expect(report.app['last session'], 'not closed');
     final log = report.files.single;
     expect(log.name, 'app/last-session/wfe.log');
@@ -160,7 +160,7 @@ void main() {
     await send(tester);
     expect(find.text(_l.deskSetReportNotSentTitle), findsOneWidget);
     expect(find.text(_l.feedbackServerUnreachable), findsOneWidget);
-    expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Send')).busy, isFalse);
+    expect(tester.widget<EButton>(find.widgetWithText(EButton, _l.deskSetReportSend)).busy, isFalse);
     expect(tester.widget<EButton>(find.widgetWithText(EButton, _l.commonCancel)).onPressed, isNotNull);
 
     h.outlet.postError = null;
@@ -373,16 +373,16 @@ void main() {
     await h.pump(tester);
     await describe(tester, 'The balance looks wrong');
     // Not settled: the spinner would run the clock past the deadline.
-    await tester.tap(find.widgetWithText(EButton, 'Send'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetReportSend));
     await tester.pump(const Duration(milliseconds: 400));
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 800)));
     await tester.pump();
-    expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Send')).busy, isTrue);
+    expect(tester.widget<EButton>(find.widgetWithText(EButton, _l.deskSetReportSend)).busy, isTrue);
     await tester.pump(feedbackSendDeadline + const Duration(seconds: 1));
     await tester.pumpAndSettle();
     expect(find.text(_l.deskSetReportNotSentTitle), findsOneWidget);
     expect(find.text(_l.feedbackServerNoAnswer), findsOneWidget);
-    expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Send')).busy, isFalse);
+    expect(tester.widget<EButton>(find.widgetWithText(EButton, _l.deskSetReportSend)).busy, isFalse);
   });
 }
 

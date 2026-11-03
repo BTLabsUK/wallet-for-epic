@@ -20,6 +20,8 @@ import 'advanced_on.dart';
 
 import 'review_password.dart';
 
+final _l = englishStrings;
+
 core.TxEntry _entry({String? transport, String? counterparty, core.TxStatus status = core.TxStatus.awaitingConfirmation}) => core.TxEntry(
   key: 'l:7',
   id: 7,
@@ -56,7 +58,7 @@ void main() {
   });
 
   test('a split or consolidate is with this wallet', () {
-    expect(whoOf(englishStrings, deskTx(_entry(transport: 'self'), tip: 10, minConf: 10, fallbackId: -1)), 'This wallet');
+    expect(whoOf(englishStrings, deskTx(_entry(transport: 'self'), tip: 10, minConf: 10, fallbackId: -1)), _l.deskTxThisWallet);
   });
 
   group('Send result', () {
@@ -78,7 +80,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Review'));
+      await tester.tap(find.text(_l.deskSendReview));
       await tester.pumpAndSettle();
       await enterReviewPassword(tester);
       await tester.tap(find.textContaining(RegExp(r'^Send \d')));

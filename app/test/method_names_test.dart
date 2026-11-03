@@ -12,6 +12,8 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 /// Epicbox, Link · HTTP, Link · Tor, Direct · File Transfer per language; Link stays Latin in en, de and pl; ru, zh and th name it in their own word, as Direct.
 const _names = <String, List<String>>{
   'en': ['Epicbox', 'Link · HTTP', 'Link · Tor', 'Direct · File Transfer'],
@@ -38,8 +40,8 @@ void main() {
 
     test('an unknown or missing transport reads Unknown, not a bare protocol', () {
       final l = lookupAppLocalizations(const Locale('en'));
-      expect(txMethodWord(l, null), 'Unknown');
-      expect(txMethodWord(l, 'carrier-pigeon'), 'Unknown');
+      expect(txMethodWord(l, null), _l.txMethodUnknown);
+      expect(txMethodWord(l, 'carrier-pigeon'), _l.txMethodUnknown);
     });
 
     test('no language names HTTP or Tor alone as a method', () {

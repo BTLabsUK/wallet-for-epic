@@ -25,6 +25,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'support/experimental.dart';
 
+final _l = englishStrings;
+
 /// A full-length address, as long as a real one.
 const String _address =
     'esVeVUhWwJT4HcFNwCw8wxqauG3SoQ3aKABLyaXWq6HUZ83es6TA@box.epic.invalid';
@@ -138,7 +140,7 @@ Future<void> _pump(
   await tester.tap(
     find.descendant(
       of: find.byType(NavigationBar),
-      matching: find.text('Receive'),
+      matching: find.text(_l.homeReceiveButton),
     ),
   );
   await tester.pumpAndSettle();
@@ -257,7 +259,7 @@ void main() {
     await tester.fling(find.byType(ReceiveView), const Offset(0, -2000), 3000);
     await tester.pumpAndSettle();
     expect(
-      tester.getRect(find.text('How receiving works')).bottom,
+      tester.getRect(find.text(_l.receiveHelpButton)).bottom,
       lessThanOrEqualTo(tester.getRect(find.byType(NavigationBar)).top),
     );
     expect(tester.takeException(), isNull);

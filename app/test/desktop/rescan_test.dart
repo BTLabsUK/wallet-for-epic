@@ -143,7 +143,7 @@ void main() {
     await pump(tester);
     expect(find.textContaining('Checks the chain again for this wallet’s coins'), findsOneWidget);
     // One name (Recheck balance): the page title only; the group has no second heading.
-    expect(find.text(_l.settingsRescan), findsOneWidget);
+    expect(find.text(_l.deskSetFrameRescan), findsOneWidget);
     expect(find.textContaining('Rescan'), findsNothing);
     await tester.tap(find.byKey(const ValueKey('rescan-delete-unconfirmed')));
     await tester.pump();

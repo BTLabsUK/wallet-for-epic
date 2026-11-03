@@ -136,7 +136,7 @@ void main() {
     expect(find.text(_l.deskSetPrivServerStatus), findsOneWidget);
     expect(find.text('Use ${Uri.parse(hostSettings.statusDirectory!).host}'), findsOneWidget);
     // Label only; the sentence is behind the info icon (its popover).
-    expect(find.byWidgetPredicate((w) => w is EInfoHint && w.text == 'Shows which nodes and Epicbox servers are online, from a public list on status.btlabs.uk.'), findsOneWidget);
+    expect(find.byWidgetPredicate((w) => w is EInfoHint && w.text == _l.deskSetPrivUseStatusHint), findsOneWidget);
     expect(find.textContaining('Server health'), findsNothing);
 
     // The group's one row is the status site.

@@ -282,11 +282,11 @@ void main() {
 
     testWidgets('2474: status beside the peers table, no tabs; a rotated secret is a warn row', (tester) async {
       await show(tester, const Size(2474, 1338), NodeDemo.ownAccess);
-      expect(find.text('Address'), findsOneWidget);
+      expect(find.text(_l.deskSetPeersColAddress), findsOneWidget);
       // The group's heading says Status; no Status tab.
       expect(_tabs, findsNothing);
       final facts = tester.getRect(find.text(_l.deskOwnFactMempool).first);
-      final table = tester.getRect(find.text('Address'));
+      final table = tester.getRect(find.text(_l.deskSetPeersColAddress));
       expect(table.left, greaterThan(facts.right), reason: 'side by side');
       expect(tester.getSize(find.byType(SettingsNodeScreen)).width, 2474);
       node.ownerRefuses = true;
@@ -295,7 +295,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 200));
       expect(find.text('Refused since 14:02'), findsOneWidget);
       expect(find.text(_l.deskOwnUpdate), findsOneWidget);
-      expect(find.textContaining(_l.deskSetFrameNodeSynced, findRichText: true), findsWidgets, reason: 'a refused secret is not a node down');
+      expect(find.textContaining(_l.netStatusSynced, findRichText: true), findsWidgets, reason: 'a refused secret is not a node down');
       await end(tester);
     });
 
@@ -320,7 +320,7 @@ void main() {
       expect(dot.state, EState.risk);
       final glyph = tester.widget<EStatusGlyph>(find.byType(EStatusGlyph).first);
       expect(glyph.state, dot.state);
-      expect(find.textContaining('Not answering', findRichText: true), findsWidgets);
+      expect(find.textContaining(_l.deskNodeNotAnswering, findRichText: true), findsWidgets);
       await end(tester);
     });
   });

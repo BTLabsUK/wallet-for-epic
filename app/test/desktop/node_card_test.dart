@@ -86,7 +86,7 @@ void main() {
 
   testWidgets('the words match the rail: Synced, Behind, Synced (old), Not answering', (tester) async {
     await _pump(tester, _card(mockNodeInfo(_url)));
-    expect(find.textContaining('Synced', findRichText: true), findsOneWidget);
+    expect(find.textContaining(_l.netStatusSynced, findRichText: true), findsOneWidget);
     expect(find.text('synced'), findsNothing, reason: 'the status line says it once');
     expect(find.text(_l.deskKitVersionLatest), findsOneWidget);
     expect(find.text('99.7%'), findsOneWidget);
@@ -132,13 +132,13 @@ void main() {
       await _pump(tester, _card(info(version)));
       expect(find.text(_l.deskKitFactUnknown), findsOneWidget, reason: '$version');
       expect(find.textContaining(label), findsOneWidget, reason: '$version');
-      if (label == 'no answer') expect(find.textContaining('before 4.1.0'), findsNothing, reason: '$version');
+      if (label == _l.deskKitNodeNoAnswer) expect(find.textContaining('before 4.1.0'), findsNothing, reason: '$version');
     }
   });
 
   testWidgets('nothing known yet: every value prints – and nothing spins', (tester) async {
     await _pump(tester, _card(null));
-    expect(find.textContaining(_l.deskInvChecking, findRichText: true), findsOneWidget);
+    expect(find.textContaining(_l.deskNodeChecking, findRichText: true), findsOneWidget);
     expect(find.text('–'), findsWidgets);
     expect(find.byType(ESpinner), findsNothing);
     expect(tester.takeException(), isNull);
@@ -212,8 +212,8 @@ void main() {
     );
     expect(find.textContaining('Not answering', findRichText: true), findsNothing);
     expect(find.textContaining('Switch to'), findsNothing);
-    expect(remoteNodeView(englishStrings, _url, probe, health: ServiceHealth.ok).word, 'Synced', reason: 'the rail and the head say the same');
-    expect(remoteNodeView(englishStrings, _url, probe, health: ServiceHealth.down).word, 'Not answering');
+    expect(remoteNodeView(englishStrings, _url, probe, health: ServiceHealth.ok).word, _l.netStatusSynced, reason: 'the rail and the head say the same');
+    expect(remoteNodeView(englishStrings, _url, probe, health: ServiceHealth.down).word, _l.deskNodeNotAnswering);
   });
 
   testWidgets('Tor turned on: a direct reading is dropped at once, never shown with Tor on', (tester) async {

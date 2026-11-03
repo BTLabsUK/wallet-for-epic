@@ -24,8 +24,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/server_list_file.dart' show useServerValues;
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 
 import 'advanced_on.dart';
+
+final _l = englishStrings;
 
 /// A test network's wallet layer: one Epicbox server of its own.
 class _Floonet extends MockDeskWallet {
@@ -158,9 +161,9 @@ void main() {
   group('Tab order', () {
     testWidgets('Create: Password, Confirm, Create wallet, the name pen; Shift+Tab reverses', (tester) async {
       await _open(tester, DeskRoute.create);
-      await _type(tester, 'Password', 'longpassword');
-      await _type(tester, 'Confirm password', 'longpassword');
-      final fwd = await _tabs(tester, _edit('Password'), 3);
+      await _type(tester, _l.deskOnbStepPassword, 'longpassword');
+      await _type(tester, _l.deskSetupConfirmPassword, 'longpassword');
+      final fwd = await _tabs(tester, _edit(_l.deskOnbStepPassword), 3);
       // The wallet's name sits in the title, its pen the first stop (a Tab from the last wraps there).
       expect(fwd, ['field:Confirm password', 'button:Create wallet', 'pen:Edit wallet name']);
       final back = await _tabs(tester, _edit('Password'), 3, back: true);
@@ -170,7 +173,7 @@ void main() {
 
     testWidgets('Unlock: Wallet, Password, Remember, Unlock, Forgot password?, Add a wallet, wrap; never the eye', (tester) async {
       await _open(tester, DeskRoute.unlock);
-      final tabs = await _tabs(tester, _edit('Password'), 6);
+      final tabs = await _tabs(tester, _edit(_l.deskOnbStepPassword), 6);
       // Forgot password? and Add a wallet stay reachable for keyboard-only users, after the main button.
       expect(tabs, ['check:Remember on this computer', 'button:Unlock', 'link:Forgot password?', 'link:Add a wallet', 'select:Wallet', 'field:Password']);
       await _end(tester);
@@ -178,9 +181,9 @@ void main() {
 
     testWidgets('Send: To, Amount, Message, then Review send before the sidebar', (tester) async {
       await _open(tester, DeskRoute.send);
-      await _type(tester, 'Recipient', 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNL@box.epic.invalid');
+      await _type(tester, _l.deskSendToSem, 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNL@box.epic.invalid');
       await _type(tester, 'Amount', '1');
-      final tabs = await _tabs(tester, _edit('Recipient'), 9);
+      final tabs = await _tabs(tester, _edit(_l.deskSendToSem), 9);
       // A filled To has its × as a stop (the only Clear, tester report 26.10.21), then Contacts;
       // paste is not a stop. The Advanced disclosure follows Message, then the summary's help
       // icon (keyboard-reachable), then Review.
@@ -266,8 +269,8 @@ void main() {
   group('Enter', () {
     testWidgets('Create: Enter in Password goes to Confirm; in Confirm it creates only when valid', (tester) async {
       await _open(tester, DeskRoute.create);
-      await _type(tester, 'Password', 'longpassword');
-      await _focus(tester, _edit('Password'));
+      await _type(tester, _l.deskOnbStepPassword, 'longpassword');
+      await _focus(tester, _edit(_l.deskOnbStepPassword));
       await _enter(tester, TextInputAction.next);
       expect(_focused(), 'field:Confirm password');
 
@@ -294,7 +297,7 @@ void main() {
       await tester.enterText(address, 'not an address');
       await _enter(tester);
       expect(find.text('Contact not saved'), findsNothing);
-      expect(find.text('New contact'), findsWidgets, reason: 'still on the form, the error shown');
+      expect(find.text(_l.deskConNewTitle), findsWidgets, reason: 'still on the form, the error shown');
       await _end(tester);
     });
 
@@ -311,7 +314,7 @@ void main() {
 
     testWidgets('Send: Enter in Amount opens the review dialog, never the send itself', (tester) async {
       final container = await _open(tester, DeskRoute.send);
-      await _type(tester, 'Recipient', 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@box.epic.invalid');
+      await _type(tester, _l.deskSendToSem, 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@box.epic.invalid');
       await _type(tester, 'Amount', '1');
       await _focus(tester, _edit('Amount'));
       await _enter(tester);
@@ -327,7 +330,7 @@ void main() {
       await _settle(tester);
       await tester.enterText(find.descendant(of: find.byType(Dialog), matching: find.byType(EditableText)), 'password');
       await _enter(tester);
-      expect(find.text('Delete this wallet?'), findsOneWidget);
+      expect(find.text(_l.deskSetDlgDeleteTitle), findsOneWidget);
       expect(container.read(deskNavProvider).route, DeskRoute.settingsAccount, reason: 'nothing was deleted, no place changed');
       expect(container.read(deskProvider).account, isNotNull, reason: 'the wallet is still open');
       await _end(tester);
@@ -462,7 +465,7 @@ void main() {
       await _settle(tester);
       await _key(tester, LogicalKeyboardKey.arrowLeft, alt: true);
       expect(container.read(deskNavProvider).route, DeskRoute.settingsAccount);
-      expect(find.text('Delete this wallet?'), findsOneWidget);
+      expect(find.text(_l.deskSetDlgDeleteTitle), findsOneWidget);
       await _end(tester);
     });
 
@@ -471,10 +474,10 @@ void main() {
       container.read(deskNavProvider.notifier).go(DeskRoute.setup, SetupStep.epicbox);
       await _settle(tester);
       await _key(tester, LogicalKeyboardKey.arrowLeft, alt: true);
-      expect(find.text('Choose a node'), findsOneWidget);
+      expect(find.text(_l.deskSetupNodeTitle), findsOneWidget);
       expect(container.read(deskNavProvider).route, DeskRoute.setup);
       await _key(tester, LogicalKeyboardKey.arrowLeft, alt: true);
-      expect(find.text('Preferences'), findsWidgets, reason: 'the language step comes first');
+      expect(find.text(_l.deskSetupStepPrefs), findsWidgets, reason: 'the language step comes first');
       expect(container.read(deskNavProvider).route, DeskRoute.setup);
       await _key(tester, LogicalKeyboardKey.arrowLeft, alt: true);
       expect(container.read(deskNavProvider).route, DeskRoute.overview);
@@ -483,7 +486,7 @@ void main() {
       await _settle(tester);
       await _mouse(tester, kBackMouseButton);
       expect(container.read(deskNavProvider).route, DeskRoute.create);
-      expect(find.text('Recovery phrase'), findsWidgets);
+      expect(find.text(_l.deskOnbStepPhrase), findsWidgets);
       await _end(tester);
     });
 
@@ -575,10 +578,10 @@ void main() {
     testWidgets('while busy the chevron stays and Checking… shows; after the timeout No answer yet', (tester) async {
       await pumpCombo(tester, busy: true);
       expect(find.byIcon(EIcons.chevronDown), findsOneWidget);
-      expect(find.text('Checking…'), findsOneWidget);
+      expect(find.text(_l.deskSetFrameChecking), findsOneWidget);
       expect(find.byType(ESpinner), findsNothing, reason: 'no spinner in the field');
       await tester.pump(const Duration(seconds: 3));
-      expect(find.text('No answer yet'), findsOneWidget);
+      expect(find.text(_l.deskSetComboNoAnswer), findsOneWidget);
       expect(find.byIcon(EIcons.chevronDown), findsOneWidget);
     });
   });
@@ -690,7 +693,7 @@ void main() {
       final container = await _open(tester, DeskRoute.overview);
       container.read(deskNavProvider.notifier).go(DeskRoute.create);
       await _settle(tester);
-      await _type(tester, 'Password', 'abc');
+      await _type(tester, _l.deskOnbStepPassword, 'abc');
       await _mouse(tester, kBackMouseButton);
       expect(container.read(deskNavProvider).route, DeskRoute.create);
       await _end(tester);
@@ -758,7 +761,7 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
       await _settle(tester, 6);
-      expect(find.text('Review settings'), findsOneWidget);
+      expect(find.text(_l.deskSetupReviewTitle), findsOneWidget);
       await _end(tester);
     });
 

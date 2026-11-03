@@ -22,6 +22,8 @@ import 'support/btlabs_public_file.dart' show donation, signedPublicFile, testKe
 import 'support/btlabs_sign.dart' show testKeyFromPem;
 import 'support/signed_update.dart';
 
+final _l = englishStrings;
+
 void main() {
   group('WalletVault', () {
     const dir = '/fake/wallets/mainnet';
@@ -773,7 +775,7 @@ void main() {
       expect(state.phase, UpdatePhase.upToDate);
       expect(
         state.text?.call(englishStrings),
-        'No update information available.',
+        _l.updateNoInformation,
       );
       await updates.checkOnOpening();
       expect(container.read(updateProvider).phase, UpdatePhase.idle);
@@ -790,7 +792,7 @@ void main() {
         expect(state.update, isNull);
         expect(
           state.text?.call(englishStrings),
-          'No update information available.',
+          _l.updateNoInformation,
         );
       },
     );
@@ -999,7 +1001,7 @@ void main() {
         await Future.wait([updates.resumed(), updates.checkOnOpening()]);
         final state = c.read(updateProvider);
         expect(state.phase, UpdatePhase.needsPermission);
-        expect(state.text!(englishStrings), 'Allow installs from BT Wallet, then return.');
+        expect(state.text!(englishStrings), _l.updateAllowInstalls);
       });
 
       test('back from the home screen while the install dialog was up: offered again, not stuck', () async {
@@ -1013,7 +1015,7 @@ void main() {
         await updates.resumed();
         final state = c.read(updateProvider);
         expect(state.phase, UpdatePhase.available);
-        expect(state.text!(englishStrings), 'The update was not installed. You can try again.');
+        expect(state.text!(englishStrings), _l.updateInstallCancelled);
         await updates.install();
         expect(platform.installs, 2);
       });
@@ -1041,7 +1043,7 @@ void main() {
         await pumpEventQueue();
         final state = c.read(updateProvider);
         expect(state.phase, UpdatePhase.available);
-        expect(state.text!(englishStrings), 'The update was not installed. You can try again.');
+        expect(state.text!(englishStrings), _l.updateInstallCancelled);
         await updates.install();
         expect(platform.installs, 2);
       });
@@ -1131,7 +1133,7 @@ void main() {
         expect(state.phase, UpdatePhase.upToDate);
         expect(
           state.text?.call(englishStrings),
-          'No update information available.',
+          _l.updateNoInformation,
         );
       },
     );

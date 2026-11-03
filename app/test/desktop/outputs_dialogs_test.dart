@@ -125,12 +125,12 @@ void main() {
       expect(wallet.splitAsks, [4]);
       expect(find.text('Split into 4'), findsOneWidget);
 
-      await tester.tap(find.byWidgetPredicate((w) => w is EIconButton && w.label == 'Fewer'));
+      await tester.tap(find.byWidgetPredicate((w) => w is EIconButton && w.label == _l.deskOutStepperFewer));
       await tester.pump(const Duration(milliseconds: 200));
-      await tester.tap(find.byWidgetPredicate((w) => w is EIconButton && w.label == 'Fewer'));
+      await tester.tap(find.byWidgetPredicate((w) => w is EIconButton && w.label == _l.deskOutStepperFewer));
       await tester.pumpAndSettle();
       expect(find.text('Split into 2'), findsOneWidget);
-      expect(iconPressed(tester, 'Fewer'), isNull);
+      expect(iconPressed(tester, _l.deskOutStepperFewer), isNull);
       expect(wallet.splitAsks.last, 2);
 
       // End jumps to 10 from the value field.
@@ -146,7 +146,7 @@ void main() {
     testWidgets('a new count waits for its own estimate before Split can go', (tester) async {
       await open(tester, (c) => showSplitDialog(c));
       expect(pressed(tester, 'Split into 4'), isNotNull);
-      await tester.tap(find.byWidgetPredicate((w) => w is EIconButton && w.label == 'Fewer'));
+      await tester.tap(find.byWidgetPredicate((w) => w is EIconButton && w.label == _l.deskOutStepperFewer));
       await tester.pump();
       expect(pressed(tester, 'Split into 3'), isNull, reason: 'the estimate is still for 4');
       await tester.pumpAndSettle();
@@ -159,9 +159,9 @@ void main() {
       await open(tester, (c) => showSplitDialog(c));
       expect(find.text(_l.deskOutEachMin), findsOneWidget);
       expect(pressed(tester, 'Split into 4'), isNull);
-      await tester.tap(find.byWidgetPredicate((w) => w is EIconButton && w.label == 'Fewer'));
+      await tester.tap(find.byWidgetPredicate((w) => w is EIconButton && w.label == _l.deskOutStepperFewer));
       await tester.pump(const Duration(milliseconds: 200));
-      await tester.tap(find.byWidgetPredicate((w) => w is EIconButton && w.label == 'Fewer'));
+      await tester.tap(find.byWidgetPredicate((w) => w is EIconButton && w.label == _l.deskOutStepperFewer));
       await tester.pumpAndSettle();
       expect(find.text(_l.deskOutEachMin), findsNothing);
       expect(pressed(tester, 'Split into 2'), isNotNull);
@@ -193,7 +193,7 @@ void main() {
       await open(tester, (c) => showSplitDialog(c));
       await tester.tap(find.text('Split into 4'));
       await tester.pumpAndSettle();
-      expect(find.text('Not posted'), findsOneWidget);
+      expect(find.text(_l.deskOutNotPostedTitle), findsOneWidget);
       await tester.tap(find.text(_l.deskOutPostAgain));
       await tester.pumpAndSettle();
       expect(wallet.reposts, [77]);
@@ -227,7 +227,7 @@ void main() {
     testWidgets('one output: nothing to do', (tester) async {
       await open(tester, (c) => showConsolidateDialog(c, spendableCount: 1));
       expect(find.textContaining('Nothing to consolidate'), findsOneWidget);
-      await tester.tap(find.text('Done'));
+      await tester.tap(find.text(_l.commonDone));
       await tester.pumpAndSettle();
       expect(find.text(_l.deskOutConsDialogTitle), findsNothing);
     });
@@ -237,7 +237,7 @@ void main() {
       await open(tester, (c) => showConsolidateDialog(c, spendableCount: 2));
       expect(find.textContaining(_l.deskOutWhatFewer, findRichText: true), findsOneWidget);
       expect(find.text(_l.deskOutNoEstimate), findsNothing);
-      await tester.tap(find.text('Done'));
+      await tester.tap(find.text(_l.commonDone));
       await tester.pumpAndSettle();
       expect(find.text(_l.deskOutConsDialogTitle), findsNothing);
     });
@@ -245,7 +245,7 @@ void main() {
     testWidgets('several: fee, then one output', (tester) async {
       await open(tester, (c) => showConsolidateDialog(c, spendableCount: 3));
       expect(find.text(_l.deskOutFactFee), findsOneWidget);
-      await tester.tap(find.widgetWithText(EButton, 'Consolidate'));
+      await tester.tap(find.widgetWithText(EButton, _l.deskOutConsolidateButton));
       await tester.pumpAndSettle();
       expect(wallet.consolidates, 1);
       expect(find.text(_l.deskOutConsPosted), findsOneWidget);
@@ -264,15 +264,15 @@ void main() {
 
     testWidgets('several spendable, nothing locked: both open', (tester) async {
       await page(tester, [out(1, 10, OutputStatus.unspent), out(2, 20, OutputStatus.unspent)], bal(30));
-      expect(pressed(tester, 'Split…'), isNotNull);
-      expect(pressed(tester, 'Consolidate…'), isNotNull);
+      expect(pressed(tester, _l.deskOutSplitCardButton), isNotNull);
+      expect(pressed(tester, _l.deskOutConsCardButton), isNotNull);
       expect(find.textContaining('Fee at least'), findsOneWidget);
     });
 
     testWidgets('something locked: both wait', (tester) async {
       await page(tester, [out(1, 10, OutputStatus.unspent), out(2, 20, OutputStatus.locked)], bal(10, locked: 20));
-      expect(pressed(tester, 'Split…'), isNull);
-      expect(pressed(tester, 'Consolidate…'), isNull);
+      expect(pressed(tester, _l.deskOutSplitCardButton), isNull);
+      expect(pressed(tester, _l.deskOutConsCardButton), isNull);
       expect(find.text('Wait until the send confirms (about 6 blocks).'), findsNWidgets(2));
       // The note sits behind the Locked tile's info icon, not in the main view.
       expect(find.byWidgetPredicate((w) => w is EInfoHint && w.text.startsWith('Locked outputs are being spent')), findsOneWidget);
@@ -280,14 +280,14 @@ void main() {
 
     testWidgets('one spendable: split only', (tester) async {
       await page(tester, [out(1, 10, OutputStatus.unspent)], bal(10));
-      expect(pressed(tester, 'Split…'), isNotNull);
-      expect(pressed(tester, 'Consolidate…'), isNull);
+      expect(pressed(tester, _l.deskOutSplitCardButton), isNotNull);
+      expect(pressed(tester, _l.deskOutConsCardButton), isNull);
       expect(find.text(_l.deskOutConsOne), findsOneWidget);
     });
 
     testWidgets('only confirming: nothing yet', (tester) async {
       await page(tester, [out(1, 10, OutputStatus.confirming)], bal(0, confirming: 10));
-      expect(pressed(tester, 'Split…'), isNull);
+      expect(pressed(tester, _l.deskOutSplitCardButton), isNull);
       expect(find.text(_l.deskOutSplitNothing), findsOneWidget);
       expect(find.text(_l.deskOutConsNothing), findsOneWidget);
     });
@@ -295,8 +295,8 @@ void main() {
     testWidgets('no outputs: the empty state, cards closed', (tester) async {
       await page(tester, const [], bal(0));
       expect(find.text(_l.deskOutNoneTitle), findsOneWidget);
-      expect(pressed(tester, 'Split…'), isNull);
-      expect(pressed(tester, 'Consolidate…'), isNull);
+      expect(pressed(tester, _l.deskOutSplitCardButton), isNull);
+      expect(pressed(tester, _l.deskOutConsCardButton), isNull);
     });
 
     // The send defaults (strategy, Split change) moved to Settings › Transactions:

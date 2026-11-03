@@ -17,6 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 const _password = 'test-pass-1234';
 
 /// The OS store, which can stop answering for the remembered keys (a locked keyring, a slow
@@ -328,11 +330,11 @@ void unlockScreenTests() {
     final container = await pump(tester, api);
     await run(tester);
     await tester.enterText(find.byType(TextField), 'secret-pass');
-    await tester.tap(find.text('Remember on this computer'));
-    await tester.tap(find.widgetWithText(EButton, 'Unlock'));
+    await tester.tap(find.text(_l.deskOnbUnlockRemember));
+    await tester.tap(find.widgetWithText(EButton, _l.deskOnbUnlockButton));
     await run(tester);
     expect(container.read(deskNavProvider).route, DeskRoute.overview);
-    expect(find.text('Not remembered'), findsOneWidget);
+    expect(find.text(_l.deskOnbUnlockNotRemembered), findsOneWidget);
     expect(find.text('This computer’s key store is unavailable.'), findsOneWidget);
     await done(tester);
   });
@@ -363,10 +365,10 @@ void unlockScreenTests() {
     rememberAutoTried = true;
     await pump(tester, api);
     await run(tester);
-    ECheckbox box() => tester.widget<ECheckbox>(find.widgetWithText(ECheckbox, 'Remember on this computer'));
+    ECheckbox box() => tester.widget<ECheckbox>(find.widgetWithText(ECheckbox, _l.deskOnbUnlockRemember));
     expect(box().value, isTrue, reason: 'a remembered wallet shows the box ticked');
     await tester.enterText(find.byType(EditableText).first, 'wrong');
-    await tester.tap(find.widgetWithText(EButton, 'Unlock'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskOnbUnlockButton));
     for (var w = 0; w < 30 && find.widgetWithText(EButton, 'Unlock').evaluate().isEmpty; w++) {
       await run(tester);
     }
@@ -395,11 +397,11 @@ void unlockScreenTests() {
     final api = MockDeskWallet(delay: const Duration(milliseconds: 5));
     var container = await pump(tester, api);
     await run(tester);
-    final box = tester.widget<ECheckbox>(find.widgetWithText(ECheckbox, 'Remember on this computer'));
+    final box = tester.widget<ECheckbox>(find.widgetWithText(ECheckbox, _l.deskOnbUnlockRemember));
     expect(box.value, isFalse);
     expect(rememberWho(englishStrings), contains('can open this wallet'));
     await tester.enterText(find.byType(TextField), 'secret-pass');
-    await tester.tap(find.text('Remember on this computer'));
+    await tester.tap(find.text(_l.deskOnbUnlockRemember));
     await tester.pump();
     expect(find.text('For 30 days. ${rememberWho(englishStrings)}'), findsOneWidget);
     await tester.tap(find.widgetWithText(EButton, 'Unlock'));

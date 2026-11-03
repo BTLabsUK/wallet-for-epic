@@ -77,7 +77,7 @@ void main() {
     test('the status card shows the Tor row in every state and opens Privacy', () {
       RailItem torRow(DeskSettings s, ServiceStatus st) => receivingRailItems(englishStrings, st, s).singleWhere((i) => i.name == 'Tor');
       expect(torRow(const DeskSettings(), _status()).word, 'Off');
-      expect(torRow(const DeskSettings(tor: true), _status(tor: ServiceHealth.checking)).word, 'Starting');
+      expect(torRow(const DeskSettings(tor: true), _status(tor: ServiceHealth.checking)).word, _l.deskNodeStarting);
       expect(torRow(const DeskSettings(tor: true), _status(tor: ServiceHealth.ok, canSend: true)).word, 'Connected');
       final failed = torRow(const DeskSettings(tor: true), _status(tor: ServiceHealth.down));
       expect(failed.word, 'Not connected');
@@ -88,8 +88,8 @@ void main() {
     test('Epicbox waits for Tor while it starts, is not connected when it failed, and says over Tor once on', () {
       RailItem ebRow(DeskSettings s, ServiceStatus st) => receivingRailItems(englishStrings, st, s).singleWhere((i) => i.name == 'Epicbox');
       const on = DeskSettings(tor: true);
-      expect(ebRow(on, _status(tor: ServiceHealth.checking, epicbox: ServiceHealth.checking)).word, 'Waiting for Tor');
-      expect(ebRow(on, _status(tor: ServiceHealth.down, epicbox: ServiceHealth.down)).word, 'Not connected');
+      expect(ebRow(on, _status(tor: ServiceHealth.checking, epicbox: ServiceHealth.checking)).word, _l.deskKitMethodWaitingTor);
+      expect(ebRow(on, _status(tor: ServiceHealth.down, epicbox: ServiceHealth.down)).word, _l.netStatusNotConnected);
       expect(ebRow(on, _status(tor: ServiceHealth.ok, canSend: true)).lines, contains('Over Tor'));
       expect(ebRow(const DeskSettings(), _status()).lines, isNot(contains('Over Tor')));
       final line = methodStateLine(englishStrings, TxMethod.epicbox, _status(tor: ServiceHealth.down, epicbox: ServiceHealth.down), on);
@@ -98,7 +98,7 @@ void main() {
 
     test('the coverage text names only what goes over Tor', () {
       final text = torCoverageText(englishStrings);
-      expect(text, 'Over Tor: Epicbox, the node, status, price, updates, support and Tor addresses.');
+      expect(text, _l.deskTorCoverage);
       expect(text, isNot(contains('Not over Tor')));
       expect(text, isNot(contains('Link to http(s)')));
     });
@@ -154,7 +154,7 @@ void main() {
       await show(tester, const SettingsPrivacyScreen());
       final row = tester.widget<ERadioRow>(modeRow(NetworkMode.torOnly));
       expect(row.onSelected, isNull);
-      expect(row.tag, 'Not in this build');
+      expect(row.tag, _l.deskSetAdvNotInBuild);
     }, skip: _skip);
 
     testWidgets('the clearnet HTTP listener stops while Tor is on and comes back after', (tester) async {
@@ -174,10 +174,10 @@ void main() {
       await tester.runAsync(() => _linkTorOn(container));
       await tester.runAsync(() => container.read(deskProvider.notifier).setTor(true));
       await show(tester, const ReceiveScreen());
-      expect(find.text('Link · Tor address'), findsOneWidget);
+      expect(find.text(_l.deskRecvDirectTor), findsOneWidget);
       expect(find.text(_l.deskRecvHttpAddress), findsNothing);
       expect(find.byKey(const ValueKey('rx-switch-tor')), findsNothing);
-      expect(find.text('Over Tor'), findsOneWidget, reason: 'the chip beside the title');
+      expect(find.text(_l.deskKitChipOverTor), findsOneWidget, reason: 'the chip beside the title');
     }, skip: _skip);
 
     testWidgets('Receive: Tor not connected shows the notice, no Turn Tor off (that is in Settings)', (tester) async {

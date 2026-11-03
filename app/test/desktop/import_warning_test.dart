@@ -9,9 +9,12 @@ import 'package:epic_wallet/src/desktop/screens/onboarding/welcome_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 Future<ProviderContainer> _pump(WidgetTester tester, DeskStore store) async {
   tester.view.physicalSize = const Size(1280, 800);
@@ -44,7 +47,7 @@ void main() {
     final store = DeskStore(MemorySecretStore());
     final c = await _pump(tester, store);
     final start = c.read(deskNavProvider).route;
-    await tester.tap(find.text('Import wallets'));
+    await tester.tap(find.text(_l.deskOnbWelcomeImport));
     await tester.pumpAndSettle();
     expect(_title, findsOneWidget);
     expect(find.text('This is an early version of a new app. Import only reads your old wallets and files and never deletes or changes them.'), findsOneWidget);
@@ -67,15 +70,15 @@ void main() {
     final store = DeskStore(MemorySecretStore());
     final c = await _pump(tester, store);
     final start = c.read(deskNavProvider).route;
-    await tester.tap(find.text('Import wallets'));
+    await tester.tap(find.text(_l.deskOnbWelcomeImport));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(EButton, 'Cancel'));
+    await tester.tap(find.widgetWithText(EButton, _l.commonCancel));
     await tester.pumpAndSettle();
     expect(_title, findsNothing);
     expect(c.read(deskNavProvider).route, start);
     expect((await store.settings()).importWarningSeen, isFalse);
 
-    await tester.tap(find.text('Import wallets'));
+    await tester.tap(find.text(_l.deskOnbWelcomeImport));
     await tester.pumpAndSettle();
     expect(_title, findsOneWidget);
   });
@@ -84,7 +87,7 @@ void main() {
     final store = DeskStore(MemorySecretStore());
     await store.saveImportWarningSeen();
     final c = await _pump(tester, store);
-    await tester.tap(find.text('Import wallets'));
+    await tester.tap(find.text(_l.deskOnbWelcomeImport));
     await tester.pumpAndSettle();
     expect(_title, findsNothing);
     expect(c.read(deskNavProvider).route, DeskRoute.importWallets);

@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_node.dart' show NodeDemo;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -16,6 +17,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'advanced_on.dart';
+
+final _l = englishStrings;
 
 /// The mock with a balance the test can change.
 class _Wallet extends MockDeskWallet {
@@ -201,7 +204,7 @@ void main() {
         if (find.byType(PanelRow).evaluate().isEmpty) {
           // Under Lay.xl of page the Summary goes below the form: one column, same edges.
           final panels = find.byType(EPanel).evaluate().map((e) => _rect(e.renderObject! as RenderBox)).toList();
-          final summary = _rect(find.ancestor(of: find.text('Summary'), matching: find.byType(EPanel)).evaluate().first.renderObject! as RenderBox);
+          final summary = _rect(find.ancestor(of: find.text(_l.deskSendSummary), matching: find.byType(EPanel)).evaluate().first.renderObject! as RenderBox);
           expect(panels.first.left, moreOrLessEquals(summary.left, epsilon: 0.5));
           expect(panels.first.width, moreOrLessEquals(summary.width, epsilon: 0.5));
           expect(summary.top, greaterThan(panels.first.bottom));
@@ -235,8 +238,8 @@ void main() {
 
       testWidgets('Outputs: Split and Consolidate buttons on one line, one size, $at', (tester) async {
         await _pump(tester, size, scale, DeskRoute.outputs);
-        final split = tester.getRect(find.widgetWithText(EButton, 'Split…'));
-        final cons = tester.getRect(find.widgetWithText(EButton, 'Consolidate…'));
+        final split = tester.getRect(find.widgetWithText(EButton, _l.deskOutSplitCardButton));
+        final cons = tester.getRect(find.widgetWithText(EButton, _l.deskOutConsCardButton));
         expect(split.size.width, moreOrLessEquals(cons.size.width, epsilon: 0.5));
         expect(split.size.height, moreOrLessEquals(cons.size.height, epsilon: 0.5));
         // Side by side from 860 u of page: one line. Stacked below that.

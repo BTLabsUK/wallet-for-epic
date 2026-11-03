@@ -270,7 +270,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester, SendView(onDone: () {}));
       expect(find.byKey(sendMethodsKey), findsNothing);
-      expect(_way('Pay in person'), findsOneWidget);
+      expect(_way(_l.sendPayInPerson), findsOneWidget);
       expect(_way('Pay with a file'), findsNothing);
     });
 
@@ -293,7 +293,7 @@ void main() {
         h = _Harness(prefs: 'file,noqr|epicbox');
         await h.pump(tester, SendView(onDone: () {}));
         expect(_way('Pay in person'), findsNothing);
-        expect(_way('Pay with a file'), findsOneWidget);
+        expect(_way(_l.sendPayByFile), findsOneWidget);
       },
     );
 
@@ -380,28 +380,28 @@ void main() {
         ).text;
 
     test('the sender: show this, wait for the scan, show again', () {
-      expect(say(QrShowPhase.hidden), 'Show this to the recipient.');
+      expect(say(QrShowPhase.hidden), _l.qrStatusSendHidden);
       expect(
         say(QrShowPhase.showing),
-        'Waiting for the recipient to scan. Then scan their reply.',
+        _l.qrStatusSendShowing,
       );
       expect(
         say(QrShowPhase.timedOut),
-        'Hidden',
+        _l.qrStatusHiddenAgain,
       );
       expect(say(QrShowPhase.away), say(QrShowPhase.timedOut));
     });
 
     test('the receiver follows the received payment to Received', () {
-      expect(say(QrShowPhase.hidden, reply: true), 'Hidden');
+      expect(say(QrShowPhase.hidden, reply: true), _l.qrStatusReplyHidden);
       expect(
         say(QrShowPhase.showing, reply: true),
-        'Waiting for the sender to scan.',
+        _l.qrStatusReplyShowing,
       );
       final waiting = received(TxStatus.awaitingConfirmation);
       expect(
         say(QrShowPhase.showing, reply: true, tx: waiting),
-        'Payment received. Waiting for the sender to scan and post it.',
+        _l.qrStatusReceivedWaiting,
       );
       expect(
         say(QrShowPhase.timedOut, reply: true, tx: waiting),
@@ -695,10 +695,10 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.text(_l.qrShowTitleReply), findsOneWidget);
-      expect(find.text('Hidden'), findsOneWidget);
+      expect(find.text(_l.qrStatusReplyHidden), findsOneWidget);
       await tester.tap(find.byKey(qrShowButtonKey));
       await _tick(tester, 3);
-      expect(find.text('Waiting for the sender to scan.'), findsOneWidget);
+      expect(find.text(_l.qrStatusReplyShowing), findsOneWidget);
 
       // The received payment shows in the wallet's history, then the sender posts it.
       h.session.transactionsValue = [

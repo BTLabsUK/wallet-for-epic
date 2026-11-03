@@ -83,7 +83,7 @@ Future<void> _open(WidgetTester tester) async {
 void main() {
   test('the state line in its three forms', () {
     final now = DateTime(2026, 10, 22, 16);
-    expect(backupStateLine(englishStrings, const HistoryBackupState()), 'Never exported.');
+    expect(backupStateLine(englishStrings, const HistoryBackupState()), _l.deskSetBackupNeverExported);
     expect(
       backupStateLine(englishStrings, HistoryBackupState(lastExport: DateTime(2026, 10, 3, 14, 2), unbacked: 12), now: now),
       'Last export 3 Oct 2026, 14:02 · 12 payments since.',
@@ -120,7 +120,7 @@ void main() {
     // The group sits on Settings › Wallet as Backup.
     expect(find.text(_l.deskSetAcctBackup), findsOneWidget);
     expect(find.text(_l.deskSetBackupExportTitle), findsOneWidget);
-    expect(find.text('Import wallet data'), findsOneWidget);
+    expect(find.text(_l.deskSetBackupImportTitle), findsOneWidget);
     // GP-049: the CSV row reads as the wallet data rows do.
     expect(find.text(_l.deskSetBackupCsvDialogTitle), findsOneWidget);
     expect(find.text('Last export 3 Oct 2026, 14:02 · 12 payments since.'), findsOneWidget);
@@ -174,7 +174,7 @@ void main() {
     );
     await tester.tap(find.widgetWithText(EButton, _l.deskSetBackupChooseFile));
     await tester.pumpAndSettle();
-    expect(find.text('Imported'), findsOneWidget);
+    expect(find.text(_l.deskSetBackupImported), findsOneWidget);
     // One summary of what came back.
     expect(find.textContaining('Imported: '), findsOneWidget);
     expect(find.textContaining('records were already here'), findsOneWidget);
@@ -210,7 +210,7 @@ void main() {
     expect(_files.saved, isEmpty);
     await tester.tap(find.text(_l.deskSetBackupRangeCustom));
     await tester.pumpAndSettle();
-    await tester.enterText(find.descendant(of: find.widgetWithText(EField, 'From'), matching: find.byType(EditableText)), '2026-13-01');
+    await tester.enterText(find.descendant(of: find.widgetWithText(EField, _l.deskSetBackupFrom), matching: find.byType(EditableText)), '2026-13-01');
     await tester.pumpAndSettle();
     expect(find.text(_l.deskSetBackupDateError), findsOneWidget);
     expect(tester.widget<EButton>(find.widgetWithText(EButton, _l.deskSetBackupSaveAs)).onPressed, isNull);
@@ -229,7 +229,7 @@ void main() {
     await _pump(tester, HistoryReminder(state: state));
     expect(find.text('12 payments are not in your exported wallet data.'), findsOneWidget);
     expect(find.text(_l.deskSetBackupReminderBody), findsOneWidget);
-    await tester.tap(find.widgetWithText(EButton, 'Not now'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetBackupNotNow));
     await tester.pumpAndSettle();
     expect(_api.dismissals, 1);
     await _pump(tester, HistoryReminder(state: HistoryBackupState(lastExport: DateTime(2026, 9), unbacked: 11, reminder: 11)));
@@ -248,9 +248,9 @@ void main() {
       created: DateTime(2026, 9, 14),
       fromBackup: true,
     );
-    expect(whoOf(englishStrings, t), 'Received');
-    expect(statusOf(englishStrings, t).$1, 'Imported');
-    expect(whoTip(englishStrings, t), 'Imported from a wallet data file.');
+    expect(whoOf(englishStrings, t), _l.deskTxReceived);
+    expect(statusOf(englishStrings, t).$1, _l.deskTxFromBackup);
+    expect(whoTip(englishStrings, t), _l.deskTxBackupTip);
     await _pump(tester, TxRow(tx: t, onTap: () {}));
     expect(find.text(_l.deskTxReceived), findsOneWidget);
     expect(find.textContaining('Imported', findRichText: true), findsWidgets);

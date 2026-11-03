@@ -256,9 +256,9 @@ void main() {
       expect(find.byType(LabelPen), findsNothing);
       final labelled = tester.getSemantics(find.byKey(const ValueKey('tx-s:plain')));
       expect(labelled.getSemanticsData().hasAction(ui.SemanticsAction.longPress), isTrue);
-      expect(_longPressHint(labelled), 'Edit label');
+      expect(_longPressHint(labelled), _l.txLabelEdit);
       final plain = tester.getSemantics(find.byKey(const ValueKey('tx-s:known')));
-      expect(_longPressHint(plain), 'Add label');
+      expect(_longPressHint(plain), _l.txLabelAdd);
       semantics.dispose();
     });
 
@@ -279,7 +279,7 @@ void main() {
       await h.pump(tester, const HistoryScreen());
       await _openLabel(tester);
       final field = find.widgetWithText(TextField, '');
-      expect(find.text('Add label'), findsWidgets);
+      expect(find.text(_l.txLabelHint), findsWidgets);
       await tester.enterText(field.last, '  Rent   September ');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
@@ -360,8 +360,8 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester, const TxDetailsScreen(txKey: 's:plain'));
-      expect(find.text('Add label'), findsOneWidget);
-      await tester.tap(find.text('Add label'));
+      expect(find.text(_l.txLabelAdd), findsOneWidget);
+      await tester.tap(find.text(_l.txLabelAdd));
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), 'Rent');
       await tester.testTextInput.receiveAction(TextInputAction.done);
@@ -414,7 +414,7 @@ void main() {
       await tester.tap(find.text(_l.txEditAdd));
       await tester.pumpAndSettle();
       await tester.enterText(
-        find.widgetWithText(TextField, 'From'),
+        find.widgetWithText(TextField, _l.txEditFrom),
         'nonsense',
       );
       await tester.tap(find.text(_l.commonSave));
@@ -475,12 +475,12 @@ void main() {
 
     testWidgets('shows both values, Mine chosen', (tester) async {
       await open(tester);
-      expect(find.text('Details differ'), findsOneWidget);
+      expect(find.text(_l.histConflictTitle), findsOneWidget);
       expect(find.text('Mine note'), findsOneWidget);
       expect(find.text('Backup note'), findsOneWidget);
       // Link · Tor is shown in its words; an empty value says so.
-      expect(find.text('Link · Tor'), findsOneWidget);
-      expect(find.text('empty'), findsOneWidget);
+      expect(find.text(_l.methodDirectTor), findsOneWidget);
+      expect(find.text(_l.histConflictEmpty), findsOneWidget);
       final mine = tester.getSemantics(
         find.bySemanticsLabel('Mine: Mine note'),
       );
@@ -489,7 +489,7 @@ void main() {
 
     testWidgets('Import without a choice keeps mine', (tester) async {
       final h = await open(tester);
-      await tester.tap(find.text('Import'));
+      await tester.tap(find.text(_l.histConflictImport));
       await tester.pumpAndSettle();
       expect(h.session.lastUseBackup, {
         'c:restored|note': false,
@@ -515,7 +515,7 @@ void main() {
       final h = await open(tester);
       await tester.tap(find.text('Backup note'));
       await tester.pump();
-      await tester.tap(find.text('Import'));
+      await tester.tap(find.text(_l.histConflictImport));
       await tester.pumpAndSettle();
       expect(h.session.lastUseBackup, {
         'c:restored|note': true,

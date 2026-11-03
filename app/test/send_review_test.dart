@@ -304,7 +304,7 @@ Future<void> _review(WidgetTester tester, String to, {String? note}) async {
   await _enter(tester, 'Amount (EPIC)', '1.5');
   if (note != null) {
     await _tap(tester, find.text(_l.sendAddNote));
-    await _enter(tester, 'Message', note);
+    await _enter(tester, _l.sendNoteLabel, note);
   }
   await _tap(tester, find.widgetWithText(FilledButton, _l.commonContinue));
 }
@@ -532,7 +532,7 @@ void main() {
       expect(find.text(_l.sendMakeFile), findsOneWidget);
       // A file carries the note as an address payment does.
       await _tap(tester, find.text(_l.sendAddNote));
-      expect(find.widgetWithText(TextField, 'Message'), findsOneWidget);
+      expect(find.widgetWithText(TextField, _l.sendNoteLabel), findsOneWidget);
 
       // The help loops its animation, so it never settles while open. Reaching the note scrolled
       // the step's header under the app bar: scroll back to the top first.
@@ -595,7 +595,7 @@ void main() {
       await _tap(tester, find.text(_l.sendPayByFile));
       await _enter(tester, 'Amount (EPIC)', '1.5');
       await _tap(tester, find.text(_l.sendAddNote));
-      await _enter(tester, 'Message', ' For rent ');
+      await _enter(tester, _l.sendNoteLabel, ' For rent ');
       await _tap(tester, find.text(_l.sendMakeFile));
       expect(h.session.sentMessages, ['For rent']);
       expect(h.session.notes, {'s:${h.session.sendSlate.slateId}': 'For rent'});
@@ -676,7 +676,7 @@ void main() {
         // The message is there as typed, with where it goes.
         final block = find.byKey(sendReviewMessageKey);
         expect(
-          find.descendant(of: block, matching: find.text('Message')),
+          find.descendant(of: block, matching: find.text(_l.sendNoteLabel)),
           findsOneWidget,
         );
         expect(
@@ -806,10 +806,10 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, _l.commonContinue));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
-      expect(find.text('Checking…'), findsOneWidget);
+      expect(find.text(_l.sendChecking), findsOneWidget);
       expect(_enabled(tester, _sendButton), isFalse);
       await tester.pump(const Duration(seconds: 7));
-      expect(find.text('Checking…'), findsOneWidget);
+      expect(find.text(_l.sendChecking), findsOneWidget);
       await tester.pump(const Duration(seconds: 1));
       await tester.pumpAndSettle();
       expect(find.text(_l.sendNodeDown), findsOneWidget);
@@ -827,7 +827,7 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, _l.commonContinue));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
-      expect(find.text('Checking…'), findsOneWidget);
+      expect(find.text(_l.sendChecking), findsOneWidget);
       expect(find.byIcon(Icons.hourglass_empty), findsOneWidget);
       expect(find.byType(CircularProgressIndicator), findsNothing);
       h.service.pending!.complete(_tip);
@@ -948,7 +948,7 @@ void main() {
         );
         expect(
           tester
-              .widget<TextField>(find.widgetWithText(TextField, 'Message'))
+              .widget<TextField>(find.widgetWithText(TextField, _l.sendNoteLabel))
               .controller!
               .text,
           'For rent',
@@ -1265,7 +1265,7 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, _l.commonContinue));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
-      expect(find.text('Checking…'), findsOneWidget);
+      expect(find.text(_l.sendChecking), findsOneWidget);
       expect(_enabled(tester, _sendButton), isFalse);
       probe.answer.complete(true);
       await tester.pumpAndSettle();

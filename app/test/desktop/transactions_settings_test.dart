@@ -111,8 +111,8 @@ void main() {
       // Under the family's subhead the method keeps its short word; the full name is the
       // switch's label for a screen reader.
       expect(find.descendant(of: find.byKey(const ValueKey('st-method-linkHttp')), matching: find.text(_l.methodGroupHttp)), findsOneWidget);
-      expect(find.descendant(of: find.byKey(const ValueKey('st-method-directFile')), matching: find.text(_l.deskSetHelpFile)), findsOneWidget);
-      expect(tester.widget<ESwitch>(_offer('linkTor')).semanticLabel, 'Link · Tor');
+      expect(find.descendant(of: find.byKey(const ValueKey('st-method-directFile')), matching: find.text(_l.methodFile)), findsOneWidget);
+      expect(tester.widget<ESwitch>(_offer('linkTor')).semanticLabel, _l.methodDirectTor);
       // Epicbox's receiving rows sit under its switch, nothing is duplicated.
       expect(find.byKey(const ValueKey('st-details-epicbox')), findsOneWidget);
       expect(find.byKey(const ValueKey('st-switch-epicbox')), findsOneWidget);
@@ -186,7 +186,7 @@ void main() {
       expect((s.payments.linkTor, s.tor, s.torAutostart), (true, false, false), reason: 'Network & privacy\'s Tor switch stays off');
       final line = find.byKey(deskTorPayLineKey);
       expect(line, findsOneWidget);
-      expect(find.descendant(of: line, matching: find.text(_l.deskSetRecvReceiving, findRichText: true)), findsOneWidget);
+      expect(find.descendant(of: line, matching: find.text(_l.deskTorPayReady, findRichText: true)), findsOneWidget);
       expect(find.descendant(of: line, matching: find.byType(EAddress)), findsOneWidget);
       expect(find.descendant(of: line, matching: find.bySemanticsLabel(_l.deskRecvCopyTor)), findsOneWidget);
       expect(find.descendant(of: line, matching: find.text(_l.deskTorPayRestOff)), findsOneWidget);
@@ -373,7 +373,7 @@ void main() {
       // Item 2: Link · Tor starts tor for payments by itself; the Tor switch stays off.
       await _open(tester, DeskRoute.receive, payments: const PaymentPrefs(linkTor: true));
       expect(find.byKey(const ValueKey('rx-tor-off-notice')), findsNothing);
-      expect(find.text('Link · Tor address'), findsWidgets);
+      expect(find.text(_l.deskRecvDirectTor), findsWidgets);
       expect(_container.read(deskProvider).settings.tor, isFalse);
     }, skip: !torBuilt);
 

@@ -28,6 +28,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'support/settings_modes.dart';
 
+final _l = englishStrings;
+
 class _Home extends HomeNotifier {
   _Home(this.txs);
 
@@ -134,8 +136,8 @@ void main() {
         expect(networkModeHint(l, m, tor: true), isNotEmpty);
         expect(networkModeGlyph(m), isNotNull);
       }
-      expect(networkModeName(l, NetworkMode.nodeOnly), 'Node only');
-      expect(networkModeName(l, NetworkMode.killSwitch), 'Kill switch');
+      expect(networkModeName(l, NetworkMode.nodeOnly), _l.advModeNodeOnly);
+      expect(networkModeName(l, NetworkMode.killSwitch), _l.advModeKillSwitch);
       expect(statusOffByModeWord(l, NetworkMode.nodeOnly), 'Off (Node only)');
     });
 
@@ -164,7 +166,7 @@ void main() {
       await _tapKey(tester, networkModeHintKey(NetworkMode.killSwitch));
       expect(find.byKey(networkModesSheetKey), findsOneWidget);
       expect(find.text(l.netModesDescKillSwitch), findsOneWidget);
-      await tester.tap(find.text('Close'));
+      await tester.tap(find.text(_l.commonClose));
       await tester.pumpAndSettle();
       expect(tester.widget<Radio<NetworkMode>>(find.descendant(of: find.byKey(networkModeRowKey(NetworkMode.standard)), matching: find.byType(Radio<NetworkMode>))).value, NetworkMode.standard);
       // No explanation in the list: the rows carry no subtitle; the heading's ⓘ opens the picture.
@@ -231,7 +233,7 @@ void main() {
       await container.read(appSettingsProvider.notifier).setNetworkMode(NetworkMode.killSwitch);
       await tester.pumpAndSettle();
       expect(find.byKey(networkModeMarkKey), findsOneWidget);
-      expect(find.descendant(of: find.byKey(networkModeMarkKey), matching: find.text('Kill switch')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(networkModeMarkKey), matching: find.text(_l.advModeKillSwitch)), findsOneWidget);
     });
   });
 
@@ -243,12 +245,12 @@ void main() {
       final files = FakeSlateFiles();
       await _pump(tester, FinishedNotPosted(tx: stuck), session: FakeWalletSession(), files: files);
       expect(find.byKey(finishedTitleKey), findsOneWidget);
-      expect(find.text('Finished, not posted'), findsOneWidget);
+      expect(find.text(_l.finalizeNotPostedTitle), findsOneWidget);
       expect(find.textContaining('Kill switch is on, so this phone cannot post it'), findsOneWidget);
       await _tapKey(tester, finishedSaveKey);
       expect(files.saved.single.name, 'abcdef01.finished.tx');
       await _tapKey(tester, finishedQrKey);
-      expect(find.text('Finished payment'), findsWidgets);
+      expect(find.text(_l.finishedQrTitle), findsWidgets);
     });
 
     testWidgets('a core that cannot write the text yet says so, politely', (tester) async {
@@ -262,7 +264,7 @@ void main() {
       final l = lookupAppLocalizations(const Locale('en'));
       expect(toPostElsewhere(stuck, killSwitch: true), isTrue);
       NetGate.set(NetworkMode.killSwitch);
-      expect(txStatusLabel(l, stuck, BigInt.from(100)), 'To be posted elsewhere');
+      expect(txStatusLabel(l, stuck, BigInt.from(100)), _l.txPostElsewhere);
       NetGate.set(NetworkMode.standard);
       expect(txStatusLabel(l, stuck, BigInt.from(100)), isNot('To be posted elsewhere'));
     });
@@ -281,13 +283,13 @@ void main() {
       final session = FakeWalletSession();
       clipboard(tester, FakeWalletSession.fakeFinishedText(5));
       await _pump(tester, const PostFinishedScreen(), bare: true, session: session);
-      expect(find.text('Post a finished payment'), findsOneWidget);
+      expect(find.text(_l.postFinishedTitle), findsOneWidget);
       expect(find.byKey(postFinishedPostKey), findsNothing);
       await _tapKey(tester, postFinishedPasteKey);
       expect(find.byKey(postFinishedSummaryKey), findsOneWidget);
-      expect(find.text('Amount'), findsOneWidget);
+      expect(find.text(_l.postFinishedAmount), findsOneWidget);
       expect(find.text('Fee'), findsOneWidget);
-      expect(find.text('Kernel'), findsOneWidget);
+      expect(find.text(_l.postFinishedKernel), findsOneWidget);
       expect(find.text('Posting puts it on the network. The wallet that made it shows it confirming once it sees it on the chain.'), findsOneWidget);
       await _tapKey(tester, postFinishedPostKey);
       expect(session.postedFinished, hasLength(1));
@@ -308,7 +310,7 @@ void main() {
     testWidgets('Kill switch: every way in is disabled, with the one-line note', (tester) async {
       NetGate.set(NetworkMode.killSwitch);
       await _pump(tester, const PostFinishedScreen(), bare: true, session: FakeWalletSession(), mode: NetworkMode.killSwitch);
-      expect(find.text('Off in Kill switch: nothing connects here.'), findsOneWidget);
+      expect(find.text(_l.postFinishedOffKill), findsOneWidget);
       for (final key in [postFinishedOpenKey, postFinishedScanKey, postFinishedPasteKey]) {
         expect(tester.widget<OutlinedButton>(find.byKey(key)).onPressed, isNull, reason: '$key');
       }

@@ -14,6 +14,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 RailItem _item(SettingsJump jump, EState state, {bool byMode = false}) =>
     RailItem(icon: EIcons.node, name: jump.name, word: 'Not answering', state: state, second: 'host', lines: const ['why'], open: 'Open', jump: jump, byMode: byMode);
 
@@ -31,7 +33,7 @@ void main() {
     final g = graceRailItems(l, items, grace: true);
     for (final i in g.take(3)) {
       expect(i.state, EState.active);
-      expect(i.word, 'Connecting');
+      expect(i.word, _l.netStatusConnecting);
       expect(i.lines, isEmpty, reason: 'no warning lines meanwhile');
     }
     expect(g[3].state, EState.risk, reason: 'the HTTP listener is this computer');
@@ -52,6 +54,6 @@ void main() {
     expect(find.byKey(const ValueKey('epicbox-down')), findsNothing);
     await tester.pump(const Duration(seconds: 21));
     expect(find.byKey(const ValueKey('epicbox-down')), findsOneWidget);
-    expect(find.text('Epicbox server not answering'), findsOneWidget);
+    expect(find.text(_l.deskSendEpicboxDownTitle), findsOneWidget);
   });
 }

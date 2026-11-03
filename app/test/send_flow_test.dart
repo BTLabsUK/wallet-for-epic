@@ -327,14 +327,14 @@ void main() {
       await _send(tester);
       await h.payment(tester, TxStatus.awaitingRecipient);
       expect(_steps(tester, TimelineState.current), [
-        'Recipient signed',
+        _l.txStepAccepted,
       ]);
 
       // Their wallet signed; ours finished it and handed it to the network.
       await h.payment(tester, TxStatus.awaitingConfirmation);
       expect(_steps(tester, TimelineState.done), [
-        'Payment started',
-        'Recipient signed',
+        _l.txStepStarted,
+        _l.txStepAccepted,
         'Posted to the network',
       ]);
       expect(
@@ -365,7 +365,7 @@ void main() {
         await tester.pump(const Duration(minutes: 1));
         await h.payment(tester, TxStatus.awaitingRecipient);
         expect(_steps(tester, TimelineState.current), [
-          'Recipient signed',
+          _l.txStepAccepted,
         ]);
       }
       expect(

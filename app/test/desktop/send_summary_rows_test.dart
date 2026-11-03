@@ -118,7 +118,7 @@ void main() {
     });
 
     test('subtitle says when the change is not split', () {
-      expect(advancedSubtitle(englishStrings, SelectionStrategy.smallest, split: false), '· Smallest outputs, change not split');
+      expect(advancedSubtitle(englishStrings, SelectionStrategy.smallest, split: false), _l.deskSendAdvSmallestNoSplit);
     });
   });
 

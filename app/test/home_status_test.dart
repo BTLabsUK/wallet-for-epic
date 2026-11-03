@@ -671,7 +671,7 @@ void main() {
     ) async {
       await _pump(tester, advanced: torOnly, tor: _torStarting);
       expect(
-        find.descendant(of: find.byKey(netModeStatusKey), matching: find.text('Tor only')),
+        find.descendant(of: find.byKey(netModeStatusKey), matching: find.text(_l.advModeTorOnly)),
         findsOneWidget,
       );
       expect(_label(tester, nodeStatusKey), contains('Waiting for Tor'));

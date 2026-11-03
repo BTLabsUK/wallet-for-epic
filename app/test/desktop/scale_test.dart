@@ -4,10 +4,13 @@ import 'package:epic_wallet/src/desktop/app/routes.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/state.dart';
 import 'package:epic_wallet/src/desktop/theme/tokens.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 void main() {
   testWidgets('interface scale applies at once to text and layout', (tester) async {
@@ -27,7 +30,7 @@ void main() {
 
     // Selectable text wraps its paragraph in a MouseRegion: measure the paragraph itself.
     double titleSize() => tester
-        .renderObject<RenderParagraph>(find.descendant(of: find.text('Interface scale').first, matching: find.byType(RichText)))
+        .renderObject<RenderParagraph>(find.descendant(of: find.text(_l.deskSetAppearScale).first, matching: find.byType(RichText)))
         .textSize
         .height;
     expect(deskScale, deskBase);

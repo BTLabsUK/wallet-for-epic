@@ -224,7 +224,7 @@ class _Harness {
   }
 
   Future<void> unlock(WidgetTester tester) async {
-    expect(find.text(_l.biometricPromptTitle), findsOneWidget);
+    expect(find.text(_l.unlockTitle), findsOneWidget);
     await tester.enterText(find.widgetWithText(TextField, 'PIN'), _pin);
     await tester.pumpAndSettle();
     expect(container.read(sessionProvider), isNotNull);
@@ -396,9 +396,9 @@ void main() {
     ) async {
       final h = _Harness(sealed: false, walletExists: false);
       await h.pump(tester);
-      await _tapText(tester, 'Restore from phrase');
-      await _enter(tester, 'Recovery phrase', h.service.phrase);
-      await _tapText(tester, 'Start from a month or height');
+      await _tapText(tester, _l.firstRunRestore);
+      await _enter(tester, _l.restorePhraseLabel, h.service.phrase);
+      await _tapText(tester, _l.restoreStartFromMonthLink);
       await _tapText(tester, 'Pick the month you created the wallet');
       // Year and month, no day: the picker opens on 2019 (never today); two years on, July.
       expect(find.text('2019'), findsOneWidget);
@@ -441,8 +441,8 @@ void main() {
       expect(app().themeMode, ThemeMode.dark);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.display);
-      await _tapText(tester, 'Theme');
-      await _tapText(tester, 'Light');
+      await _tapText(tester, _l.settingsTheme);
+      await _tapText(tester, _l.settingsThemeLight);
       expect(app().themeMode, ThemeMode.light);
       expect(h.store.values['app.theme'], 'light');
     });
@@ -566,8 +566,8 @@ void main() {
           .map((t) => (t.title as Text?)?.data)
           .whereType<String>()
           .toList();
-      expect(titles.first, 'Back up recovery phrase');
-      expect(titles.last, 'Lock wallet');
+      expect(titles.first, _l.settingsBackupPhrase);
+      expect(titles.last, _l.settingsLockWallet);
       await tester.pageBack();
       await tester.pumpAndSettle();
       await tester.pageBack();
@@ -749,7 +749,7 @@ void main() {
       h.now = h.now.add(const Duration(minutes: 15));
       await _return(tester);
       expect(h.container.read(sessionProvider), isNull);
-      expect(find.text(_l.biometricPromptTitle), findsOneWidget);
+      expect(find.text(_l.unlockTitle), findsOneWidget);
     });
 
     testWidgets('never, and the shortest choice (a minute)', (tester) async {
@@ -800,7 +800,7 @@ void main() {
       await h.session.controller!.close();
       await tester.pumpAndSettle();
       expect(h.container.read(sessionProvider), isNull);
-      expect(find.text(_l.biometricPromptTitle), findsOneWidget);
+      expect(find.text(_l.unlockTitle), findsOneWidget);
     });
 
     testWidgets('a trip to the file picker does not count', (tester) async {
@@ -851,11 +851,11 @@ void main() {
       await tester.tap(find.byTooltip(_l.homeLockTooltip));
       await tester.pumpAndSettle();
       expect(h.container.read(sessionProvider), isNull);
-      expect(find.text(_l.biometricPromptTitle), findsOneWidget);
+      expect(find.text(_l.unlockTitle), findsOneWidget);
       expect(find.widgetWithText(TextField, 'PIN'), findsOneWidget);
       expect(h.bio.prompts, 1);
 
-      await tester.tap(find.text('Use biometrics'));
+      await tester.tap(find.text(_l.pinUseBiometrics));
       await tester.pumpAndSettle();
       expect(h.bio.prompts, 2);
       expect(h.container.read(sessionProvider), isNotNull);
@@ -867,13 +867,13 @@ void main() {
       final h = withBiometrics(succeed: false);
       await h.pump(tester);
       expect(h.bio.prompts, 1);
-      expect(find.text(_l.biometricPromptTitle), findsOneWidget);
+      expect(find.text(_l.unlockTitle), findsOneWidget);
 
       await _leave(tester);
       h.now = h.now.add(const Duration(minutes: 10));
       await _return(tester);
       expect(h.bio.prompts, 1);
-      expect(find.text(_l.biometricPromptTitle), findsOneWidget);
+      expect(find.text(_l.unlockTitle), findsOneWidget);
     });
 
     testWidgets('the auto-lock timeout prompts again', (tester) async {
@@ -897,11 +897,11 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.security);
-      await _tapText(tester, 'Change PIN');
+      await _tapText(tester, _l.settingsChangePin);
 
       final field = find.byType(TextField);
       final at = tester.getRect(field);
-      await _enter(tester, 'Current PIN', '000000');
+      await _enter(tester, _l.settingsPinCurrentLabel, '000000');
       expect(find.textContaining('Wrong PIN'), findsOneWidget);
       expect(tester.getRect(field), at, reason: 'the error line was held');
       await _enter(tester, 'Current PIN', _pin);
@@ -947,7 +947,7 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
-      await _tapText(tester, 'Delete wallet');
+      await _tapText(tester, _l.settingsDeleteWallet);
 
       // The destructive confirm is the outlined risk style (one dialog anatomy).
       DangerButton deleteButton() =>
@@ -996,13 +996,13 @@ void main() {
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
 
-      await _tapText(tester, 'Export wallet data');
+      await _tapText(tester, _l.settingsExportHistory);
       // Share comes first: the copy that matters is the one off this phone.
       // What the file holds, that it is not the recovery phrase, and the order of a restore.
       expect(find.text(backupFileNote(englishStrings)), findsOneWidget);
       expect(backupFileNote(englishStrings), contains('enter the recovery phrase first'));
       expect(
-        tester.getTopLeft(find.text('Share')).dy <
+        tester.getTopLeft(find.text(_l.historyBackupShare)).dy <
             tester.getTopLeft(find.text('Save to device')).dy,
         isTrue,
       );
@@ -1059,7 +1059,7 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
-      await _tapText(tester, 'Export wallet data');
+      await _tapText(tester, _l.settingsExportHistory);
       expect(find.text('Share'), findsNothing);
       expect(h.files.saved.single.name, 'epic-wallet-data-20260930.wfeh');
     });
@@ -1069,7 +1069,7 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
-      await _tapText(tester, 'Export wallet data');
+      await _tapText(tester, _l.settingsExportHistory);
       await tester.tapAt(const Offset(200, 100));
       await tester.pumpAndSettle();
       expect(h.files.saved, isEmpty);
@@ -1099,13 +1099,13 @@ void main() {
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
 
-      await _tapText(tester, 'Recheck balance');
+      await _tapText(tester, _l.settingsRescan);
       // No start choice: the from-height stays behind the Advanced switch.
       expect(find.text('From a block height'), findsNothing);
       expect(find.text(_l.settingsRescanFromMonth), findsNothing);
       expect(find.text('The whole chain'), findsNothing);
       // Block 0: only a scan from there finishes a restore.
-      await _tapText(tester, 'Recheck');
+      await _tapText(tester, _l.settingsRescanButton);
       expect(h.session.lastStart, BigInt.zero);
       expect(h.session.scanCalls, 1);
     });
@@ -1119,9 +1119,9 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
-      await _reveal(tester, find.text('Recheck balance'));
+      await _reveal(tester, find.text(_l.settingsRescan));
       expect(find.text(_l.recheckOffKill), findsOneWidget);
-      await _tapText(tester, 'Recheck balance');
+      await _tapText(tester, _l.settingsRescan);
       expect(find.byType(AlertDialog), findsNothing);
       expect(h.session.scanCalls, 0);
     });
@@ -1132,8 +1132,8 @@ void main() {
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
 
-      await _tapText(tester, 'Recheck balance');
-      await _tapText(tester, 'From a block height');
+      await _tapText(tester, _l.settingsRescan);
+      await _tapText(tester, _l.settingsRescanFromHeight);
       await _tapText(tester, 'Recheck');
       expect(find.text(_l.settingsRescanHeightInvalid), findsOneWidget);
       await _enter(tester, 'Start height', '3000000');
@@ -1171,7 +1171,7 @@ void main() {
         final create = find.byKey(firstRunCreateKey);
         final restore = find.byKey(firstRunRestoreKey);
         expect(find.text(_l.firstRunCreate), findsOneWidget);
-        expect(find.text('Restore from phrase'), findsOneWidget);
+        expect(find.text(_l.firstRunRestore), findsOneWidget);
         // Both whole buttons inside the part of the screen the keyboard leaves, unscrolled.
         for (final button in [create, restore]) {
           final rect = tester.getRect(button);
@@ -1200,7 +1200,7 @@ void main() {
         await tester.tap(restore);
         await tester.pumpAndSettle();
         expect(find.byType(RestoreScreen), findsOneWidget);
-        expect(find.widgetWithText(TextField, 'Recovery phrase'), findsOneWidget);
+        expect(find.widgetWithText(TextField, _l.restorePhraseLabel), findsOneWidget);
       },
     );
 
@@ -1209,7 +1209,7 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
-      await _tapText(tester, 'Delete wallet');
+      await _tapText(tester, _l.settingsDeleteWallet);
       await tester.tap(find.text(_l.settingsDeleteHavePhrase));
       await _enter(tester, 'Type “delete” to confirm', 'delete');
       await tester.tap(find.text('Delete wallet').last);
@@ -1238,8 +1238,8 @@ void main() {
         await h.openSettings(tester, SettingsSection.wallet);
         await _reveal(tester, find.byKey(settingsRestoreKey));
         // Next to Delete, in the row's normal colour.
-        expect(find.text('Restore from phrase'), findsOneWidget);
-        expect(find.text('Delete wallet'), findsOneWidget);
+        expect(find.text(_l.firstRunRestore), findsOneWidget);
+        expect(find.text(_l.settingsDeleteWallet), findsOneWidget);
 
         // The phrase first; Back leaves the wallet as it is.
         await _tapText(tester, 'Restore from phrase');
@@ -1356,8 +1356,8 @@ void main() {
       await h.unlock(tester);
       h.session.controller = StreamController<ScanProgress>();
       await h.openSettings(tester, SettingsSection.wallet);
-      await _tapText(tester, 'Recheck balance');
-      await tester.tap(find.text('Recheck'));
+      await _tapText(tester, _l.settingsRescan);
+      await tester.tap(find.text(_l.settingsRescanButton));
       for (var i = 0; i < 5; i++) {
         await tester.pump(const Duration(milliseconds: 100));
       }
@@ -1379,7 +1379,7 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
-      await _tapText(tester, 'Delete wallet');
+      await _tapText(tester, _l.settingsDeleteWallet);
       await tester.tap(find.text(_l.settingsDeleteHavePhrase));
       await _enter(tester, 'Type “delete” to confirm', 'delete');
       await tester.tap(find.text('Delete wallet').last);
@@ -1432,7 +1432,7 @@ void main() {
     await h.pump(tester);
     await h.unlock(tester);
     await h.openSettings(tester, SettingsSection.wallet);
-    await _tapText(tester, 'Contacts');
+    await _tapText(tester, _l.settingsContacts);
     final screen = tester.widget<ContactsScreen>(find.byType(ContactsScreen));
     expect(screen.pick, isFalse);
   });
@@ -1493,8 +1493,8 @@ void main() {
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
-      await _reveal(tester, find.text('Contacts'));
-      expect(find.text('Contacts'), findsOneWidget);
+      await _reveal(tester, find.text(_l.settingsContacts));
+      expect(find.text(_l.settingsContacts), findsOneWidget);
       expect(find.text(_l.settingsInvoicesSubtitle), findsNothing);
     });
 
@@ -1700,7 +1700,7 @@ void main() {
     await h.unlock(tester);
     await h.openSettings(tester, SettingsSection.about);
     // Every build from our own page has it, the build without Tor too; a store build none.
-    expect(find.text('Check for updates'), inAppUpdates ? findsOneWidget : findsNothing);
+    expect(find.text(_l.settingsCheckUpdates), inAppUpdates ? findsOneWidget : findsNothing);
     expect(h.container.read(updateProvider.notifier).supported, inAppUpdates);
   });
 
@@ -1776,10 +1776,10 @@ void main() {
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.display);
       expect(find.text(englishStrings.settingsPricesOnNotice), findsNothing);
-      await _tapText(tester, 'Show prices');
+      await _tapText(tester, _l.settingsShowPrices);
       expect(h.store.values['app.show_fiat'], 'false');
       expect(find.text(englishStrings.settingsPricesOnNotice), findsNothing);
-      await _tapText(tester, 'Show prices');
+      await _tapText(tester, _l.settingsShowPrices);
       expect(find.text(englishStrings.settingsPricesOnNotice), findsOneWidget);
     });
 
@@ -1808,8 +1808,8 @@ void main() {
 
       // In the page's order: _reveal only scrolls down.
       await noSubtitles(SettingsSection.wallet, [
-        'Contacts',
-        'Export wallet data',
+        _l.settingsContacts,
+        _l.settingsExportHistory,
         'Export CSV',
         'Import wallet data',
         'Recheck balance',
@@ -1976,13 +1976,13 @@ void main() {
         // By its semantics label, as label or icon: network_settings_button_test.dart checks
         // which form shows, with the real faces.
         expect(find.bySemanticsLabel(_l.setupNetworkSettingsTooltip), findsOneWidget);
-        await _tapText(tester, 'Restore from phrase');
+        await _tapText(tester, _l.firstRunRestore);
         expect(find.text(_l.restoreStartHeading), findsNothing);
         expect(find.text('Pick the month you created the wallet'), findsNothing);
         expect(find.text('Block height'), findsNothing);
         expect(find.byKey(restoreStartLinkKey), findsOneWidget);
-        await _enter(tester, 'Recovery phrase', h.service.phrase);
-        await _tapText(tester, 'Continue');
+        await _enter(tester, _l.restorePhraseLabel, h.service.phrase);
+        await _tapText(tester, _l.commonContinue);
         await _enter(tester, 'PIN', _pin);
         await _enter(tester, 'Repeat PIN', _pin);
         expect(h.session.scanCalls, 1);
@@ -1998,11 +1998,11 @@ void main() {
       final h = _Harness(sealed: false, walletExists: false);
       await h.pump(tester);
       expect(find.bySemanticsLabel(_l.setupNetworkSettingsTooltip), findsOneWidget);
-      await _tapText(tester, 'Restore from phrase');
+      await _tapText(tester, _l.firstRunRestore);
       expect(find.byKey(restoreStartLinkKey), findsOneWidget);
-      expect(find.text('Start from a month or height'), findsOneWidget);
+      expect(find.text(_l.restoreStartFromMonthLink), findsOneWidget);
       expect(find.text(_l.restoreStartHeading), findsNothing);
-      await _tapText(tester, 'Start from a month or height');
+      await _tapText(tester, _l.restoreStartFromMonthLink);
       expect(find.byKey(restoreStartLinkKey), findsNothing);
       expect(find.text(_l.restoreStartHeading), findsOneWidget);
       expect(find.text('Pick the month you created the wallet'), findsOneWidget);

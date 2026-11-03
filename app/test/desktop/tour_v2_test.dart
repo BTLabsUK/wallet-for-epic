@@ -12,6 +12,7 @@ import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,6 +20,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'advanced_on.dart';
 import '../support/experimental.dart';
+
+final _l = englishStrings;
 
 /// A wallet that does not take invoices (the LEPIC adapter before it is wired).
 class _NoInvoices extends MockDeskWallet {
@@ -99,10 +102,10 @@ void main() {
     test('with the Invoices page: nine, Invoices after Receive, lighting its tabs and sidebar entry', () {
       final steps = tourStepsFor(invoices: true);
       expect(steps.length, 9);
-      expect(steps[3].title, 'Invoices');
+      expect(steps[3].title, _l.deskTourInvoicesTitle);
       expect(steps[3].targets, ['invoices-tabs']);
-      expect(steps[2].title, 'Receive');
-      expect(steps[4].title, 'Activity');
+      expect(steps[2].title, _l.deskTourReceiveTitle);
+      expect(steps[4].title, _l.deskTourActivityTitle);
       expect(steps[3].text, 'Pay an invoice someone sent, or issue one to someone who owes you. The tabs switch between the two.');
     });
 
@@ -156,10 +159,10 @@ void main() {
       expect(_inCard(step.text), findsOneWidget);
       // The page area, the sidebar entry, and on a Settings page its list entry.
       expect(_holes(tester), step.subId == null ? 2 : 3, reason: 'step ${i + 1} ${step.title}');
-      expect(_inCard('Back'), i == 0 ? findsNothing : findsOneWidget);
+      expect(_inCard(_l.deskTourBack), i == 0 ? findsNothing : findsOneWidget);
       final last = i == steps.length - 1;
-      expect(_inCard(last ? 'Done' : 'Next'), findsOneWidget);
-      await tester.tap(_inCard(last ? 'Done' : 'Next'));
+      expect(_inCard(last ? 'Done' : _l.deskTourNext), findsOneWidget);
+      await tester.tap(_inCard(last ? 'Done' : _l.deskTourNext));
       await _settle(tester);
     }
     expect(container.read(deskTourProvider).open, isFalse);
@@ -178,7 +181,7 @@ void main() {
     for (final (i, step) in steps.indexed) {
       expect(container.read(deskNavProvider).route, step.route, reason: 'step ${i + 1}');
       expect(_inCard(step.title), findsOneWidget);
-      await tester.tap(_inCard(i == steps.length - 1 ? 'Done' : 'Next'));
+      await tester.tap(_inCard(i == steps.length - 1 ? _l.commonDone : _l.deskTourNext));
       await _settle(tester);
     }
     expect(container.read(deskTourProvider).open, isFalse);
@@ -198,7 +201,7 @@ void main() {
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
     await _settle(tester);
     expect(container.read(deskNavProvider).route, DeskRoute.send);
-    await tester.tap(_inCard('Back'));
+    await tester.tap(_inCard(_l.deskTourBack));
     await _settle(tester);
     expect(container.read(deskNavProvider).route, DeskRoute.overview);
     expect(_inCard('1 of ${deskTourSteps.length}'), findsOneWidget);
@@ -213,9 +216,9 @@ void main() {
     final container = await _open(tester, DeskRoute.overview);
     container.read(deskTourProvider.notifier).open();
     await _settle(tester);
-    await tester.tap(_inCard('Next'));
+    await tester.tap(_inCard(_l.deskTourNext));
     await _settle(tester);
-    await tester.tap(_inCard('Next'));
+    await tester.tap(_inCard(_l.deskTourNext));
     await _settle(tester);
     expect(container.read(deskNavProvider).route, DeskRoute.receive);
     await tester.sendKeyEvent(LogicalKeyboardKey.escape);
@@ -230,9 +233,9 @@ void main() {
     final container = await _open(tester, DeskRoute.overview);
     container.read(deskTourProvider.notifier).open();
     await _settle(tester);
-    await tester.tap(_inCard('Next'));
+    await tester.tap(_inCard(_l.deskTourNext));
     await _settle(tester);
-    await tester.tap(_inCard('Skip tour'));
+    await tester.tap(_inCard(_l.deskTourSkip));
     await _settle(tester);
     expect(container.read(deskTourProvider).open, isFalse);
     expect(container.read(deskNavProvider).route, DeskRoute.overview);
@@ -254,9 +257,9 @@ void main() {
     await _settle(tester);
     container.read(deskTourProvider.notifier).close();
     // Settings scrolls its own column beside the section list: bring the link in.
-    await tester.ensureVisible(find.text('Start tour'));
+    await tester.ensureVisible(find.text(_l.deskSetHelpTourStart));
     await _settle(tester);
-    await tester.tap(find.text('Start tour'));
+    await tester.tap(find.text(_l.deskSetHelpTourStart));
     await _settle(tester);
     expect(container.read(deskTourProvider).open, isTrue);
     expect(container.read(deskNavProvider).route, DeskRoute.overview);
@@ -304,7 +307,7 @@ void main() {
     expect(first.read(deskTourProvider).seen, isFalse);
     first.read(deskTourProvider.notifier).open();
     await _settle(tester);
-    await tester.tap(_inCard('Skip tour'));
+    await tester.tap(_inCard(_l.deskTourSkip));
     await _settle(tester);
     await tester.runAsync(() => pumpEventQueue());
     expect((await tester.runAsync(store.settings))!.tourSeen, isTrue);
@@ -318,9 +321,9 @@ void main() {
     second.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp);
     await _settle(tester);
     // Settings scrolls its own column beside the section list: bring the link in.
-    await tester.ensureVisible(find.text('Start tour'));
+    await tester.ensureVisible(find.text(_l.deskSetHelpTourStart));
     await _settle(tester);
-    await tester.tap(find.text('Start tour'));
+    await tester.tap(find.text(_l.deskSetHelpTourStart));
     await _settle(tester);
     expect(find.byType(DeskTourOverlay), findsOneWidget);
     expect(second.read(deskNavProvider).route, DeskRoute.overview);
@@ -349,14 +352,14 @@ void main() {
     container.read(deskTourProvider.notifier).open();
     await _settle(tester);
     // 20 px under the centre of the 36 px Skip button: outside the drawn button, inside 44.
-    await tester.tapAt(tester.getCenter(_inCard('Skip tour')) + const Offset(0, 20));
+    await tester.tapAt(tester.getCenter(_inCard(_l.deskTourSkip)) + const Offset(0, 20));
     await _settle(tester);
     expect(container.read(deskTourProvider).open, isFalse);
 
     container.read(deskNavProvider.notifier).go(DeskRoute.settingsHelp);
     await _settle(tester);
     // Help › Start again: a row button (Ctl.sm, as every row control), it starts the tour.
-    await tester.ensureVisible(find.text('Start tour'));
+    await tester.ensureVisible(find.text(_l.deskSetHelpTourStart));
     await _settle(tester);
     await tester.tap(find.widgetWithText(EButton, 'Start tour'));
     await _settle(tester);

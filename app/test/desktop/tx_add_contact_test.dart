@@ -7,9 +7,12 @@ import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 late ProviderContainer _container;
 
@@ -44,14 +47,14 @@ void main() {
     await _open(tester, 28, forget: 'c1');
     final tx = _container.read(deskProvider).txs!.firstWhere((t) => t.id == 28);
     expect(tx.contactName, isNull);
-    expect(find.text('Sent to'), findsOneWidget);
+    expect(find.text(_l.txDetailsSentTo), findsOneWidget);
     expect(_add, findsOneWidget);
 
     await tester.ensureVisible(_add);
     await tester.tap(_add);
     await _settle(tester);
     expect(_container.read(deskNavProvider).route, DeskRoute.contacts);
-    expect(find.text('New contact'), findsWidgets);
+    expect(find.text(_l.deskConNewTitle), findsWidgets);
     // The address is in; the name field has the focus.
     expect(find.byWidgetPredicate((w) => w is EditableText && w.controller.text == tx.counterparty), findsOneWidget);
     await tester.enterText(find.byWidgetPredicate((w) => w is EditableText && w.focusNode.hasFocus), 'Anna again');
@@ -69,7 +72,7 @@ void main() {
 
   testWidgets('a receive from an unsaved address says Received from and offers it too', (tester) async {
     await _open(tester, 27, forget: 'c2');
-    expect(find.text('Received from'), findsOneWidget);
+    expect(find.text(_l.txDetailsReceivedFrom), findsOneWidget);
     expect(_add, findsOneWidget);
   });
 
@@ -79,7 +82,7 @@ void main() {
     await tester.ensureVisible(_add);
     await tester.tap(_add);
     await _settle(tester);
-    await tester.tap(find.widgetWithText(EButton, 'Cancel'));
+    await tester.tap(find.widgetWithText(EButton, _l.commonCancel));
     await _settle(tester);
     expect(_container.read(deskNavProvider).route, DeskRoute.activity);
     expect(_container.read(deskProvider).contacts!.length, before);

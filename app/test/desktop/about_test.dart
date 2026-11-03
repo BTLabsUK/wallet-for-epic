@@ -79,7 +79,7 @@ void main() {
   testWidgets('windows-02: the source code link is the one in app-config.toml', (tester) async {
     await pump(tester, (_) async => (200, newer));
     expect(projectRepoUrl, isNotNull);
-    expect(find.text('Source code'), findsOneWidget);
+    expect(find.text(_l.deskSetAboutSource), findsOneWidget);
     expect(find.textContaining('code is on GitHub'), findsNothing);
     // Licences are folded (item 5): the heading and its one line.
     expect(find.byKey(const ValueKey('about-licences-fold')), findsOneWidget);

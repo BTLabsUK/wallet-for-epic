@@ -169,13 +169,13 @@ void main() {
     expect(fake.downloads, 1);
     expect(opened, isEmpty);
     expect(ready(), findsOneWidget);
-    expect(find.text('Restart to update'), findsOneWidget);
+    expect(find.text(_l.deskUpdReadyTitle), findsOneWidget);
     expect(find.text(_l.deskUpdReadyBody), findsOneWidget);
     await tester.tap(find.widgetWithText(EButton, _l.deskUpdLater));
     await tester.pumpAndSettle();
     expect(ready(), findsNothing);
     expect(fake.restarts, 0);
-    expect(find.descendant(of: line(), matching: find.text('Restart now')), findsOneWidget);
+    expect(find.descendant(of: line(), matching: find.text(_l.deskUpdRestartNow)), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   }, skip: !inAppUpdates);
 
@@ -201,7 +201,7 @@ void main() {
     await pump(tester, _state(DeskUpdatePhase.available), downloadEnds: _state(DeskUpdatePhase.ready), restartOk: true);
     await tester.tap(line());
     await tester.pumpAndSettle();
-    await tapAndRun(tester, find.widgetWithText(EButton, 'Restart now'));
+    await tapAndRun(tester, find.widgetWithText(EButton, _l.deskUpdRestartNow));
     expect(fake.restarts, 1);
     expect(quits, 1);
     await tester.pumpWidget(const SizedBox());
@@ -219,7 +219,7 @@ void main() {
     }
     expect(fake.downloads, 1);
     expect(ready(), findsNothing, reason: 'a send is under way');
-    expect(find.descendant(of: line(), matching: find.text('Restart now')), findsOneWidget);
+    expect(find.descendant(of: line(), matching: find.text(_l.deskUpdRestartNow)), findsOneWidget);
     done.complete();
     await send;
     await tester.pumpWidget(const SizedBox());
@@ -228,7 +228,7 @@ void main() {
     await tester.tap(line());
     await tester.pumpAndSettle();
     expect(ready(), findsNothing);
-    expect(find.descendant(of: line(), matching: find.text('Could not download the update')), findsOneWidget);
+    expect(find.descendant(of: line(), matching: find.text(_l.deskUpdFailed)), findsOneWidget);
     await tester.pumpWidget(const SizedBox());
   }, skip: !inAppUpdates);
 
@@ -254,7 +254,7 @@ void main() {
 
   testWidgets('Update ready: the line restarts; one that fails does not quit', (tester) async {
     await pump(tester, _state(DeskUpdatePhase.ready), restartOk: true);
-    expect(find.descendant(of: line(), matching: find.text('Restart now')), findsOneWidget);
+    expect(find.descendant(of: line(), matching: find.text(_l.deskUpdRestartNow)), findsOneWidget);
     await tapAndRun(tester, line());
     expect(fake.restarts, 1);
     expect(quits, 1);

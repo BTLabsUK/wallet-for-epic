@@ -358,7 +358,7 @@ Future<void> _note(WidgetTester tester, String text) async {
   if (find.widgetWithText(TextField, 'Message').evaluate().isEmpty) {
     await _tap(tester, find.text(_l.sendAddNote));
   }
-  await _enter(tester, 'Message', text);
+  await _enter(tester, _l.sendNoteLabel, text);
 }
 
 /// The recipient and the amount, then Continue to the review.
@@ -742,7 +742,7 @@ void main() {
       (tester) async {
         final h = _Harness();
         await h.pump(tester, _sendTab());
-        expect(find.text('Send'), findsOneWidget);
+        expect(find.text(_l.homeSendButton), findsOneWidget);
         expect(find.text('1 of 3'), findsOneWidget);
         // Continue waits for an address.
         expect(tester.widget<FilledButton>(_continue).onPressed, isNull);
@@ -772,7 +772,7 @@ void main() {
         expect(find.text('1.508\u00a0EPIC'), findsOneWidget);
 
         // Edit goes back without sending.
-        await _tap(tester, find.text('Edit'));
+        await _tap(tester, find.text(_l.sendReviewEdit));
         expect(h.session.epicboxSends, isEmpty);
         expect(find.text('2 of 3'), findsOneWidget);
         expect(_fieldText(tester, 'Message'), 'Lunch');
@@ -865,7 +865,7 @@ void main() {
       expect(find.byType(LiveFieldError), findsOneWidget);
       clipboard = 'es${'b' * 40}';
       await _tap(tester, find.text(_l.commonPaste));
-      expect(find.text('This address looks incomplete.'), findsOneWidget);
+      expect(find.text(_l.sendAddressIncomplete), findsOneWidget);
       clipboard = 'not an address!';
       await _tap(tester, find.text(_l.commonPaste));
       expect(find.text(_l.sendProblemNotAddress), findsOneWidget);
@@ -1350,7 +1350,7 @@ void main() {
         contact: Contact(id: '', name: 'Bob', address: _bob, note: null),
       );
       await h.pump(tester, _sendTab());
-      await _tap(tester, find.text('Contacts'));
+      await _tap(tester, find.text(_l.sendContactsButton));
       expect(find.text(_l.contactsPickTitle), findsWidgets);
       await _tap(tester, find.text('Carol'));
       expect(find.text('Carol'), findsOneWidget);
@@ -1573,9 +1573,9 @@ void main() {
       await _tap(tester, find.text(_l.contactsAdd));
       await _tap(tester, find.text(_l.contactsSave));
       expect(find.text(_l.contactsNameMissing), findsOneWidget);
-      expect(find.text('Enter their address.'), findsOneWidget);
+      expect(find.text(_l.contactsAddressMissing), findsOneWidget);
 
-      await _enter(tester, 'Name', 'Bob');
+      await _enter(tester, _l.contactsNameLabel, 'Bob');
       await _enterAddress(tester, 'nonsense');
       await _tap(tester, find.text(_l.contactsSave));
       expect(find.textContaining('Use an Epicbox address'), findsOneWidget);
@@ -1586,7 +1586,7 @@ void main() {
 
       // With contacts, Add is the app bar's icon.
       await _tap(tester, find.byTooltip(_l.contactsAdd));
-      await _enter(tester, 'Name', 'Carol');
+      await _enter(tester, _l.contactsNameLabel, 'Carol');
       await _enterAddress(tester, _bob);
       expect(
         find.text('This address is already saved as Bob.'),
@@ -1836,17 +1836,17 @@ void main() {
       test('a history-file message is shown alone, as a sentence', () {
         expect(
           say('This is not a history file exported by this app'),
-          'This is not a wallet data file from this app.',
+          _l.errorHistoryNotOurs,
         );
         expect(
           say('This history file belongs to a different wallet'),
-          'This file belongs to a different wallet. Only the wallet restored from the same recovery phrase can open it.',
+          _l.errorHistoryOtherWallet,
         );
         expect(
           say(
             'This history file is from floonet, but this wallet is on mainnet',
           ),
-          'This wallet data file is from another network.',
+          _l.errorHistoryOtherNetwork,
         );
         expect(
           say('This history file is damaged.'),
@@ -1879,7 +1879,7 @@ void main() {
       );
       expect(
         text,
-        'The wallet is still finishing a task. Try again in a moment.',
+        _l.errorWalletBusy,
       );
       expect(text, isNot(contains('network')));
     });
@@ -1922,12 +1922,12 @@ void main() {
       ]) {
         expect(
           say(WalletErrorKind.torNotRunning, message),
-          'Tor is not connected.',
+          _l.errorTorNotRunning,
         );
       }
       expect(
         say(WalletErrorKind.onionUnreachable, 'not reached'),
-        'Their wallet was not reached over Tor.',
+        _l.errorOnionUnreachable,
       );
       // A bad address still carries the core's sentence about it.
       expect(
@@ -1968,7 +1968,7 @@ void main() {
       expect(find.byType(LiveFieldError), findsNothing);
       await _tap(tester, _continue);
       expect(find.text('12.508\u00a0EPIC'), findsOneWidget);
-      await _tap(tester, find.text('Edit'));
+      await _tap(tester, find.text(_l.sendReviewEdit));
       for (final (text, message) in [
         ('-2', 'The amount cannot be negative.'),
         ('0,000000001', 'At most 8 decimal places'),
@@ -2025,14 +2025,14 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('3 of 3'), findsOneWidget);
 
-        await _tap(tester, find.text('Edit'));
+        await _tap(tester, find.text(_l.sendReviewEdit));
         await _tap(tester, find.text(_l.sendAddNote));
-        expect(editable('Message').focusNode.hasFocus, isTrue);
+        expect(editable(_l.sendNoteLabel).focusNode.hasFocus, isTrue);
         await tester.tap(find.widgetWithText(TextField, 'Amount (EPIC)'));
         await tester.pump();
         await tester.testTextInput.receiveAction(TextInputAction.next);
         await tester.pumpAndSettle();
-        expect(editable('Message').focusNode.hasFocus, isTrue);
+        expect(editable(_l.sendNoteLabel).focusNode.hasFocus, isTrue);
         expect(editable('Message').textInputAction, TextInputAction.done);
         await tester.testTextInput.receiveAction(TextInputAction.done);
         await tester.pumpAndSettle();
@@ -2058,11 +2058,11 @@ void main() {
       await _enter(tester, _address, 'not an address!');
       FocusManager.instance.primaryFocus?.unfocus();
       await tester.pumpAndSettle();
-      expect(live('Not an address, and no contact has this name.'), isTrue);
+      expect(live(_l.sendProblemNotAddress), isTrue);
       await _enter(tester, _address, _bob);
       await _tap(tester, _continue);
       await _enter(tester, 'Amount (EPIC)', '-1');
-      expect(live('The amount cannot be negative.'), isTrue);
+      expect(live(_l.sendAmountNegative), isTrue);
       handle.dispose();
     });
 
@@ -2094,8 +2094,8 @@ void main() {
       final h = _Harness();
       await h.pump(tester, _receiveTab());
       expect(
-        tester.getSemantics(find.bySemanticsLabel('QR code of your address')),
-        matchesSemantics(label: 'QR code of your address', isImage: true),
+        tester.getSemantics(find.bySemanticsLabel(_l.receiveQrLabel)),
+        matchesSemantics(label: _l.receiveQrLabel, isImage: true),
       );
       handle.dispose();
     });
@@ -2116,7 +2116,7 @@ void main() {
       await _toReview(tester);
       await _tap(tester, find.text('Send 1.0\u00a0EPIC'));
       await _tap(tester, find.text(_l.sendTrackIfNot));
-      await _tap(tester, find.widgetWithText(TextButton, 'Help'));
+      await _tap(tester, find.widgetWithText(TextButton, _l.sendHelp));
       expect(find.byType(HelpTopicScreen), findsOneWidget);
       expect(find.text('Send to someone'), findsOneWidget);
     });
@@ -2141,7 +2141,7 @@ void main() {
           file: SlateFile(name: 'from-alice.tx', json: incoming),
         ),
       );
-      expect(find.text('Message'), findsOneWidget);
+      expect(find.text(_l.txDetailsMessageFromSender), findsOneWidget);
       expect(find.text('hi Bob'), findsOneWidget);
       expect(h.session.receivedSlates, isEmpty);
     });

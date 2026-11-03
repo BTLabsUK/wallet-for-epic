@@ -100,7 +100,7 @@ Future<void> _pump(WidgetTester tester, Widget home) async {
 void main() {
   testWidgets('the history rows name the other wallet, with no address and the direction\'s amount', (tester) async {
     await _pump(tester, const HistoryScreen());
-    expect(find.text('Sent from another device'), findsOneWidget);
+    expect(find.text(_l.txSentFromOtherWallet), findsOneWidget);
     expect(find.text(_l.txReceivedByOtherWallet), findsOneWidget);
     expect(find.textContaining('35.4'), findsWidgets);
     expect(find.textContaining('6.2'), findsWidgets);
@@ -108,7 +108,7 @@ void main() {
 
   testWidgets('a sent row\'s details: what it is, no recipient, no known fee, the offer spot at the end', (tester) async {
     await _pump(tester, const TxDetailsScreen(txKey: 'l:1'));
-    expect(find.text('Sent from another device'), findsWidgets);
+    expect(find.text(_l.txSentFromOtherWallet), findsWidgets);
     expect(find.text(_l.txDetailsOtherWallet), findsOneWidget);
     expect(find.text(_l.txDetailsSentTo), findsNothing);
     expect(find.text(_l.txDetailsFee), findsOneWidget);
@@ -128,14 +128,14 @@ void main() {
   test('the spoken rows and the error text', () {
     final l = lookupAppLocalizations(const Locale('en'));
     final sent = _rows()[0], received = _rows()[1];
-    expect(txTitle(l, sent), 'Sent from another device');
-    expect(txTitle(l, received), 'Received by another device');
+    expect(txTitle(l, sent), _l.txSentFromOtherWallet);
+    expect(txTitle(l, received), _l.txReceivedByOtherWallet);
     String say(TxEntry tx) => txSpokenLabel(l, tx, who: null, date: 'Today', status: 'Completed', hidden: false);
     expect(say(sent), startsWith('Sent from another device'));
     expect(say(received), startsWith('Received by another device'));
     expect(
       describeError(l, const WalletError(kind: WalletErrorKind.inputsSpentElsewhere, message: 'spent')),
-      'The node shows these coins already spent, and this wallet did not spend them. Most likely another wallet using your recovery phrase did.',
+      _l.errorInputsSpentElsewhere,
     );
   });
 
@@ -152,7 +152,7 @@ void main() {
       blockHeight: _tip - BigInt.from(5),
       unverified: unverified,
     );
-    expect(txTitle(l, row(sent: true)), 'Sent from another device · unverified');
+    expect(txTitle(l, row(sent: true)), _l.txSentFromOtherWalletUnverified);
     expect(txExplanation(l, row(sent: true), _tip), endsWith('Recheck balance to confirm it.'));
     expect(txTitle(l, row(sent: true, unverified: false)), 'Sent from another device');
     expect(txExplanation(l, row(sent: true, unverified: false), _tip), isNot(contains('Unverified')));

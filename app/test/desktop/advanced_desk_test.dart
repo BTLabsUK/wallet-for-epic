@@ -104,8 +104,8 @@ void main() {
       await tester.ensureVisible(find.byKey(const ValueKey('tx-more')));
       await tester.tap(find.byKey(const ValueKey('tx-more')));
       await _settle(tester);
-      expect(find.text('Kernel'), findsOneWidget);
-      expect(find.text('Slate ID'), findsOneWidget);
+      expect(find.text(_l.txDetailsKernel), findsOneWidget);
+      expect(find.text(_l.txDetailsSlateId), findsOneWidget);
       expect(find.text(_l.deskTxLess), findsOneWidget);
       expect(_advanced.has(AdvancedFeature.technicalDetails), isFalse, reason: 'the switch stays off');
       await tester.ensureVisible(find.byKey(const ValueKey('tx-more')));
@@ -117,7 +117,7 @@ void main() {
     testWidgets('Technical details on: the fold, no More link', (tester) async {
       await _open(tester, DeskRoute.activity, arg: 36, advanced: AdvancedPrefs.all);
       expect(find.byKey(const ValueKey('tx-more')), findsNothing);
-      expect(find.text(_l.deskSetAdvTechnical), findsWidgets);
+      expect(find.text(_l.deskTxTechTitle), findsWidgets);
     });
   });
 
@@ -176,7 +176,7 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('bar-status-epicbox')));
       await _settle(tester);
       expect(find.byKey(const ValueKey('status-row-epicbox')), findsOneWidget);
-      expect(find.descendant(of: find.byKey(const ValueKey('status-row-epicbox')), matching: find.text(_l.deskSendReviewWaitTor)), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('status-row-epicbox')), matching: find.text(_l.deskKitMethodWaitingTor)), findsOneWidget);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await _settle(tester);
       await tester.tap(find.byKey(const ValueKey('bar-status-node')));
@@ -447,7 +447,7 @@ void main() {
       await _settle(tester);
       // The phone's choice (GP-031): Date first on mainnet, Block height beside it.
       expect(find.byKey(const ValueKey('start-date-pick')), findsOneWidget);
-      await tester.tap(find.text('Block height'));
+      await tester.tap(find.text(_l.restoreStartByHeight));
       await _settle(tester);
       await tester.enterText(find.byKey(const ValueKey('restore-from-height')), 'x12');
       await _settle(tester);
@@ -462,8 +462,8 @@ void main() {
     test('Advanced comes just before Help', () {
       for (final invoices in [false, true]) {
         final titles = tourStepsFor(invoices: invoices).map((s) => s.title).toList();
-        expect(titles[titles.length - 2], 'Advanced');
-        expect(titles.last, 'Help');
+        expect(titles[titles.length - 2], _l.deskTourAdvancedTitle);
+        expect(titles.last, _l.deskTourHelpTitle);
       }
       final step = tourStepsFor(invoices: false).firstWhere((s) => s.title == 'Advanced');
       expect(step.route, DeskRoute.settingsAdvanced);

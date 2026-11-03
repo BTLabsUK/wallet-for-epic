@@ -124,7 +124,7 @@ void main() {
 
   testWidgets('Deep end Receive keeps the Transaction files card with its one Open', (tester) async {
     await _pump(tester, WalletLevel.everything, const ReceiveScreen());
-    expect(find.text('Transaction files'), findsOneWidget);
+    expect(find.text(_l.deskRecvFiles), findsOneWidget);
     expect(find.text(_l.deskLvSendPayFiles), findsNothing);
     expect(find.byKey(const ValueKey('rx-files-open')), findsOneWidget);
     expect(find.textContaining('closed'), findsNothing);

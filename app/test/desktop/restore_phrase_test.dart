@@ -44,7 +44,7 @@ bool _focusedOn(WidgetTester tester, int i) => _entry(tester).focus[i].hasFocus;
 
 /// The phrase step's primary button: "Continue" until the phrase checks out, then "Use N words".
 EButton _continue(WidgetTester tester) => tester.widget<EButton>(
-  find.byWidgetPredicate((w) => w is EButton && (w.label == 'Continue' || RegExp(r'^Use \d+ words$').hasMatch(w.label))),
+  find.byWidgetPredicate((w) => w is EButton && (w.label == _l.commonContinue || RegExp(r'^Use \d+ words$').hasMatch(w.label))),
 );
 
 bool _continueEnabled(WidgetTester tester) => _continue(tester).onPressed != null;
@@ -209,11 +209,11 @@ void main() {
     }
     expect(_continueEnabled(tester), isTrue, reason: 'the 12 typed words pass the checksum');
     expect(find.text('12 of 12 words'), findsOneWidget);
-    expect(_continue(tester).label, 'Continue');
+    expect(_continue(tester).label, _l.commonContinue);
     await _key(tester, LogicalKeyboardKey.enter);
     expect(find.byKey(const ValueKey('wallet-name-title')), findsNothing, reason: 'a typed phrase under 24 words goes on with the button only');
     expect(_focusedOn(tester, 12), isTrue);
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await tester.pump();
     expect(find.byKey(const ValueKey('wallet-name-title')), findsOneWidget);
     expect(find.textContaining('Set the password that unlocks this wallet'), findsOneWidget);
@@ -311,7 +311,7 @@ void main() {
     expect(find.text('24 of 24 words'), findsOneWidget);
     expect(find.text('All 24 words check out.'), findsOneWidget);
     expect(_continueEnabled(tester), isTrue);
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await tester.pump();
     expect(find.byKey(const ValueKey('wallet-name-title')), findsOneWidget);
     expect(find.byType(EditableText), findsNWidgets(2), reason: 'password and confirmation; the wallet name is the title, edited from its pen');

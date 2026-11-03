@@ -84,11 +84,11 @@ void main() {
 
   testWidgets('a notice that goes away eases out with its own words, not an empty box', (tester) async {
     await show(tester, choice: const FallbackChoice(FallbackConsent.accepted), state: mockLocalNode(LocalNodePhase.error, failure: NodeFailure.diskLow));
-    expect(find.text('Less than 2 GB free on this volume.'), findsOneWidget);
+    expect(find.text(_l.deskSetLnodeDiskLow), findsOneWidget);
     node.show(mockLocalNode(LocalNodePhase.synced));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    expect(find.text('Less than 2 GB free on this volume.'), findsOneWidget, reason: 'still the child while it closes');
+    expect(find.text(_l.deskSetLnodeDiskLow), findsOneWidget, reason: 'still the child while it closes');
     await end(tester);
   });
 
@@ -127,7 +127,7 @@ void main() {
     await show(tester, choice: const FallbackChoice(FallbackConsent.accepted), state: mockLocalNode(LocalNodePhase.starting));
     expect(find.textContaining(_l.deskSetNodeRowStarting, findRichText: true), findsWidgets);
     expect(find.textContaining(_l.deskSetLnodeWaitingPeers, findRichText: true), findsOneWidget);
-    expect(find.text('Connecting to peers'), findsOneWidget);
+    expect(find.text(_l.deskNodeLineWaiting), findsOneWidget);
     expect(tester.widget<StageStrip>(find.byType(StageStrip)).step, isNull);
 
     final steps = <(LocalNodeState, String, int, String, String)>[

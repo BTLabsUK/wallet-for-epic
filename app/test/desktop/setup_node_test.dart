@@ -131,7 +131,7 @@ void main() {
 
   testWidgets('Local → its own step; Continue needs a found node for the existing option; the bundled node needs nothing', (tester) async {
     await show(tester, SetupStep.node);
-    await tester.tap(find.text('Local node'));
+    await tester.tap(find.text(_l.deskSetupLocalTitle));
     await tester.pumpAndSettle();
     await tester.tap(find.text(_l.commonContinue));
     await tester.pumpAndSettle();
@@ -164,7 +164,7 @@ void main() {
     hostSettings = testSettings().withValues({'node.servers': <String>[]});
     expect(hasFallbackNode, isFalse);
     await show(tester, SetupStep.node);
-    await tester.tap(find.text('Local node'));
+    await tester.tap(find.text(_l.deskSetupLocalTitle));
     await tester.pumpAndSettle();
     await tester.tap(find.text(_l.commonContinue));
     await tester.pumpAndSettle();
@@ -189,7 +189,7 @@ void main() {
 
   testWidgets('the bundled node: Review names the type, the fallback and the folder; Save is the only start and answers the fallback question', (tester) async {
     await show(tester, SetupStep.node);
-    await tester.tap(find.text('Local node'));
+    await tester.tap(find.text(_l.deskSetupLocalTitle));
     await tester.pumpAndSettle();
     await tester.tap(find.text(_l.commonContinue));
     await tester.pumpAndSettle();
@@ -199,7 +199,7 @@ void main() {
     await tester.tap(find.text(_l.commonContinue));
     await tester.pumpAndSettle();
     expect(find.text(_l.deskSetupReviewTitle), findsOneWidget);
-    expect(find.text('Local node'), findsWidgets);
+    expect(find.text(_l.deskSetupBundledNode), findsWidgets);
     expect(find.text(hostPort(defaultFallbackNodeUrl)), findsOneWidget);
     expect(find.text(mockDataFolder), findsOneWidget);
     expect(find.textContaining('Save starts the node; ${hostPort(defaultFallbackNodeUrl)} stands in'), findsOneWidget);
@@ -327,7 +327,7 @@ void main() {
   testWidgets('run again with the local node: Local stays chosen; Save unchanged keeps it running', (tester) async {
     container.read(settingsPrefsProvider.notifier).set(container.read(settingsPrefsProvider).copyWith(builtin: true));
     await rerun(tester);
-    expect(tester.widget<EChoiceCard>(find.widgetWithText(EChoiceCard, 'Local node')).selected, isTrue);
+    expect(tester.widget<EChoiceCard>(find.widgetWithText(EChoiceCard, _l.deskSetupLocalTitle)).selected, isTrue);
     await toReviewAndSave(tester);
     expect(wallet.calls, isEmpty, reason: 'no useNode to a public node, no second start');
     expect(container.read(settingsPrefsProvider).builtin, isTrue);
@@ -336,7 +336,7 @@ void main() {
 
   testWidgets('the fallback answer is stored only after the reuse question is answered', (tester) async {
     await show(tester, SetupStep.node);
-    await tester.tap(find.text('Local node'));
+    await tester.tap(find.text(_l.deskSetupLocalTitle));
     await tester.pumpAndSettle();
     await toReviewAndSave(tester);
     expect(find.text(_l.deskSetLndReuseTitle), findsOneWidget);
@@ -364,8 +364,8 @@ void main() {
     );
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
-    expect(find.text('Local node'), findsOneWidget);
-    expect(find.text('Use this node'), findsOneWidget, reason: 'a found node preselects the existing option');
+    expect(find.text(_l.deskOnbNodeDialogTitle), findsOneWidget);
+    expect(find.text(_l.deskOnbNodeUseThis), findsOneWidget, reason: 'a found node preselects the existing option');
     await tester.tap(find.text(_l.deskOnbNodeBundled));
     await tester.pumpAndSettle();
     expect(find.text(_l.deskOnbNodeStart), findsOneWidget);
@@ -412,9 +412,9 @@ void main() {
       expect(find.textContaining('API ${hostSettings.localNodeApiPort}', findRichText: true), findsNothing, reason: 'no subtitle at the defaults');
       await tester.tap(find.text(_l.deskOnbNodeAdvanced));
       await tester.pumpAndSettle();
-      expect(find.text('API port'), findsOneWidget);
-      expect(find.text('P2P port'), findsOneWidget);
-      expect(textOf(tester, 'API port'), '${hostSettings.localNodeApiPort}');
+      expect(find.text(_l.deskOnbNodeApiPort), findsOneWidget);
+      expect(find.text(_l.deskOnbNodeP2pPort), findsOneWidget);
+      expect(textOf(tester, _l.deskOnbNodeApiPort), '${hostSettings.localNodeApiPort}');
       expect(textOf(tester, 'P2P port'), '${hostSettings.localNodeP2pPort}');
       await tester.enterText(field('API port'), '13413');
       await tester.enterText(field('P2P port'), '13414');
@@ -430,12 +430,12 @@ void main() {
       await openDialog(tester);
       await tester.tap(find.text(_l.deskOnbNodeAdvanced));
       await tester.pumpAndSettle();
-      await tester.enterText(field('API port'), '80');
+      await tester.enterText(field(_l.deskOnbNodeApiPort), '80');
       await tester.pumpAndSettle();
       expect(find.text('A number from 1024 to 65535.'), findsOneWidget);
       expect(tester.widget<EButton>(find.widgetWithText(EButton, _l.deskOnbNodeStart)).onPressed, isNull);
-      await tester.enterText(field('API port'), '13414');
-      await tester.enterText(field('P2P port'), '13414');
+      await tester.enterText(field(_l.deskOnbNodeApiPort), '13414');
+      await tester.enterText(field(_l.deskOnbNodeP2pPort), '13414');
       await tester.pumpAndSettle();
       expect(find.text(_l.deskOnbNodePortsSame), findsOneWidget);
       expect(tester.widget<EButton>(find.widgetWithText(EButton, _l.deskOnbNodeStart)).onPressed, isNull);
@@ -450,8 +450,8 @@ void main() {
       final out = await openDialog(tester);
       await tester.tap(find.text(_l.deskOnbNodeAdvanced));
       await tester.pumpAndSettle();
-      await tester.enterText(field('API port'), '13413');
-      await tester.enterText(field('P2P port'), '13500');
+      await tester.enterText(field(_l.deskOnbNodeApiPort), '13413');
+      await tester.enterText(field(_l.deskOnbNodeP2pPort), '13500');
       await tester.pumpAndSettle();
       await tester.tap(find.text(_l.deskOnbNodeStart));
       await tester.pumpAndSettle();

@@ -366,7 +366,7 @@ void main() {
       final env = _Env();
       await _pump(tester, ServerKind.relay, env);
       expect(
-        find.text('Switching gives you a new Epicbox address.'),
+        find.text(_l.slRelayWarning),
         findsOneWidget,
       );
       expect(_confirm(), findsNothing);
@@ -477,7 +477,7 @@ void main() {
       await _pump(tester, ServerKind.node, env);
       await tester.tap(_row(_btlabs));
       await tester.pumpAndSettle();
-      expect(_foot('Already in use.'), findsOneWidget);
+      expect(_foot(_l.serverAlreadyInUse), findsOneWidget);
       expect(env.saved, 0);
       await tester.tap(_row(_epicnet));
       await tester.pumpAndSettle();
@@ -614,7 +614,7 @@ void main() {
       expect(_row('https://node.example.org'), findsOneWidget);
       expect(_saved(tester, ServerKind.node).entries.last, 'https://node.example.org');
       expect(_foot('Added node.example.org.'), findsOneWidget);
-      expect(_footAction('Switch'), findsOneWidget);
+      expect(_footAction(_l.slSwitch), findsOneWidget);
       // The field is empty again; the filter is closed.
       expect(_fieldText(tester), '');
       expect(_row(_btlabs), findsOneWidget);
@@ -622,7 +622,7 @@ void main() {
       // The wallet still uses the old node until Switch.
       expect(_settings(tester).nodeUse, _btlabs);
 
-      await tester.tap(_footAction('Switch'));
+      await tester.tap(_footAction(_l.slSwitch));
       await tester.pumpAndSettle();
       expect(_settings(tester).nodeUse, 'https://node.example.org');
       expect(env.saved, 1);
@@ -643,7 +643,7 @@ void main() {
       expect(_foot('Added relay.example.org:4443.'), findsOneWidget);
       expect(_settings(tester).epicboxUse, _stack);
 
-      await tester.tap(_footAction('Switch'));
+      await tester.tap(_footAction(_l.slSwitch));
       await tester.pumpAndSettle();
       expect(find.text('Switch to relay.example.org:4443?'), findsOneWidget);
       await tester.tap(_confirmSwitch());
@@ -721,14 +721,14 @@ void main() {
       expect(_row(_epicnet), findsNothing);
       expect(_foot('Removed node.net.invalid:3413.'), findsOneWidget);
       expect(
-        find.descendant(of: find.byKey(serverListFootKey), matching: find.text('Undo')),
+        find.descendant(of: find.byKey(serverListFootKey), matching: find.text(_l.slUndo)),
         findsOneWidget,
       );
       final list = _saved(tester, ServerKind.node);
       expect(list.entries, isNot(contains(_epicnet)));
 
       await tester.tap(
-        find.descendant(of: find.byKey(serverListFootKey), matching: find.text('Undo')),
+        find.descendant(of: find.byKey(serverListFootKey), matching: find.text(_l.slUndo)),
       );
       await tester.pumpAndSettle();
       expect(_row(_epicnet), findsOneWidget);
@@ -761,7 +761,7 @@ void main() {
       // The row in use has no live Remove: the button is disabled and says why.
       final remove = tester.widget<IconButton>(find.byKey(serverListRemoveKey(_btlabs)));
       expect(remove.onPressed, isNull);
-      expect(remove.tooltip, 'Switch first');
+      expect(remove.tooltip, _l.slSwitchFirst);
       await tester.tap(find.byKey(serverListRemoveKey(_btlabs)), warnIfMissed: false);
       await tester.pumpAndSettle();
       expect(_row(_btlabs), findsOneWidget);
@@ -984,7 +984,7 @@ void main() {
                 // its Undo must be in reach instead.
                 await tester.tap(find.byKey(serverListRemoveKey(target)));
                 await tester.pumpAndSettle();
-                final undo = tester.getRect(_footAction('Undo'));
+                final undo = tester.getRect(_footAction(_l.slUndo));
                 expect(undo.bottom, lessThanOrEqualTo(size.height));
                 expect(undo.top, greaterThanOrEqualTo(0));
                 await _timers(tester);
@@ -1190,11 +1190,11 @@ void main() {
       await tester.tap(_row(epiccash));
       await tester.pumpAndSettle();
       expect(calls, isEmpty);
-      expect(_foot('Keep at least one.'), findsOneWidget);
+      expect(_foot(_l.slKeepOne), findsOneWidget);
 
       await tester.tap(find.byKey(serverListRemoveKey(epiccash)));
       await tester.pumpAndSettle();
-      expect(_foot('Chosen. Untick first.'), findsOneWidget);
+      expect(_foot(_l.slChosenUntick), findsOneWidget);
       expect(_row(epiccash), findsOneWidget);
       await _timers(tester);
     });
@@ -1206,8 +1206,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(calls.last, defaults);
       expect(find.byKey(serverListResetKey), findsNothing);
-      expect(_foot('Reset to defaults.'), findsOneWidget);
-      await tester.tap(_footAction('Undo'));
+      expect(_foot(_l.slReset), findsOneWidget);
+      await tester.tap(_footAction(_l.slUndo));
       await tester.pumpAndSettle();
       expect(calls.last, [epicnet, _stack]);
       expect(find.byKey(serverListResetKey), findsOneWidget);

@@ -447,7 +447,7 @@ void main() {
       final w = make(damaged);
       await w.createWallet(name: '', password: _password);
       expect(await w.unlock(_password), isTrue);
-      expect((await w.status()).notice, 'Wallet database damaged, rebuilding');
+      expect((await w.status()).notice, _l.deskErrDbDamaged);
       await w.sync();
       expect(damaged.session.scanCalls, 1);
       expect((await w.status()).notice, isNull);
@@ -1400,7 +1400,7 @@ void main() {
 
     testWidgets('welcome offers the import, no folder or network choice', (tester) async {
       await pump(tester, DeskRoute.welcome);
-      expect(find.text('Import wallets'), findsOneWidget);
+      expect(find.text(_l.deskOnbWelcomeImport), findsOneWidget);
       expect(find.text('Advanced'), findsNothing);
       await done(tester);
     });

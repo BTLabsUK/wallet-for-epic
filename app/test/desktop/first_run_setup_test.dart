@@ -304,7 +304,7 @@ void main() {
       final arg = container.read(deskNavProvider).arg! as SetupFirstRun;
       expect(arg.resumed, isTrue);
       expect(arg.added.id, added.id);
-      expect(arg.added.notice, restored ? 'Wallet restored.' : isNull, reason: 'null: "New wallet added."');
+      expect(arg.added.notice, restored ? _l.deskOnbRestoreDone : isNull, reason: 'null: "New wallet added."');
       await end(tester);
     });
   }

@@ -174,7 +174,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.widgetWithText(EButton, 'Switch to box.stack.invalid'), findsOneWidget);
-      expect(find.text('Switching gives you a new Epicbox address.'), findsOneWidget);
+      expect(find.text(_l.slSwitchBody), findsOneWidget);
       expect(find.text('Not answering', findRichText: true), findsNothing);
       expect(find.textContaining(_l.commonRetry, findRichText: true), findsNothing);
       await tester.tap(find.widgetWithText(EButton, 'Switch to box.stack.invalid'));

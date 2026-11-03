@@ -33,6 +33,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 class _OpenSession extends SessionNotifier {
   _OpenSession(this.session);
 
@@ -284,8 +286,8 @@ void main() {
     testWidgets('Skip ends it, marks it seen and lands on Wallet; it does not come back', (tester) async {
       final rig = await _pump(tester);
       await _startAuto(tester);
-      await _tap(tester, 'Next');
-      await _tap(tester, 'Skip tour');
+      await _tap(tester, _l.tourPhoneNext);
+      await _tap(tester, _l.tourPhoneSkip);
       expect(_overlay, findsNothing);
       expect(rig.container.read(shellTabProvider), ShellTab.wallet);
       expect(rig.store.values[AppSettingsNotifier.phoneTourSeenKey], 'true');
@@ -331,14 +333,14 @@ void main() {
       expectStep(0);
       expect(rig.container.read(shellTabProvider), ShellTab.wallet);
       expect(_button('Back'), findsNothing, reason: 'nothing before the first step');
-      await _tap(tester, 'Next');
+      await _tap(tester, _l.tourPhoneNext);
       expectStep(1);
       expect(rig.container.read(shellTabProvider), ShellTab.send);
-      await _tap(tester, 'Next');
+      await _tap(tester, _l.tourPhoneNext);
       expectStep(2);
       expect(rig.container.read(shellTabProvider), ShellTab.receive);
       for (var i = 3; i < steps.length; i++) {
-        await _tap(tester, 'Next');
+        await _tap(tester, _l.tourPhoneNext);
         expectStep(i);
       }
       expect(find.text('Done'), findsWidgets);
@@ -362,10 +364,10 @@ void main() {
       final rig = await _pump(tester);
       await _startAuto(tester);
       for (var i = 0; i < 3; i++) {
-        await _tap(tester, 'Next');
+        await _tap(tester, _l.tourPhoneNext);
       }
       expect(find.byType(HistoryScreen), findsOneWidget);
-      await _tap(tester, 'Back');
+      await _tap(tester, _l.tourPhoneBack);
       expect(find.byType(HistoryScreen), findsNothing);
       expect(rig.container.read(shellTabProvider), ShellTab.receive);
       expect(_counter(tester), '3 of 9');
@@ -375,7 +377,7 @@ void main() {
       await _pump(tester);
       await _startAuto(tester);
       for (var i = 0; i < 4; i++) {
-        await _tap(tester, 'Next');
+        await _tap(tester, _l.tourPhoneNext);
       }
       expect(find.byType(InvoicesScreen), findsOneWidget);
       await tester.binding.handlePopRoute();
@@ -399,7 +401,7 @@ void main() {
       await _startAuto(tester);
       expect(_counter(tester), '1 of 8');
       for (var i = 0; i < 7; i++) {
-        await _tap(tester, 'Next');
+        await _tap(tester, _l.tourPhoneNext);
         expect(find.byType(InvoicesScreen), findsNothing);
       }
       expect(_counter(tester), '8 of 8');
@@ -410,7 +412,7 @@ void main() {
       final rig = await _pump(tester);
       await _startAuto(tester);
       for (var i = 0; i < 7; i++) {
-        await _tap(tester, 'Next');
+        await _tap(tester, _l.tourPhoneNext);
       }
       expect(_inTour(find.text('Advanced')), findsOneWidget);
       expect(find.byType(SettingsSectionScreen), findsOneWidget);
@@ -427,7 +429,7 @@ void main() {
       await _pump(tester);
       await _startAuto(tester);
       for (var i = 0; i < 3; i++) {
-        await _tap(tester, 'Next');
+        await _tap(tester, _l.tourPhoneNext);
       }
       expect(find.byType(HistoryScreen), findsOneWidget);
       // The scrim takes taps: the Activity screen's own controls do not react under it.
@@ -475,7 +477,7 @@ void main() {
     testWidgets('the Send step lights what the tab shows: that there is nothing to send yet', (tester) async {
       await _pump(tester, funded: false);
       await _startAuto(tester);
-      await _tap(tester, 'Next');
+      await _tap(tester, _l.tourPhoneNext);
       expect(_lit('tour-send-empty'), isTrue);
       expect(_lit('tour-send-methods'), isFalse);
       expect(_ring(tester), isNotNull);
@@ -509,7 +511,7 @@ void main() {
           expect(ring.width, greaterThan(20), reason: 'step ${i + 1}');
           expect(ring.height, greaterThan(20), reason: 'step ${i + 1}');
           expect(tester.takeException(), isNull, reason: 'step ${i + 1}');
-          if (i < steps.length - 1) await _tap(tester, 'Next');
+          if (i < steps.length - 1) await _tap(tester, _l.tourPhoneNext);
         }
       });
     }
@@ -536,9 +538,9 @@ void main() {
         expect(card.height, lessThanOrEqualTo(800 * 0.5 + 1));
         expect(tester.takeException(), isNull);
         // The buttons stay reachable under the long text.
-        expect(_button('Skip tour'), findsOneWidget);
-        expect(find.descendant(of: _card, matching: find.text(i == 1 ? 'Done' : 'Next')), findsOneWidget);
-        if (i == 0) await _tap(tester, 'Next');
+        expect(_button(_l.tourPhoneSkip), findsOneWidget);
+        expect(find.descendant(of: _card, matching: find.text(i == 1 ? 'Done' : _l.tourPhoneNext)), findsOneWidget);
+        if (i == 0) await _tap(tester, _l.tourPhoneNext);
       }
     });
 
@@ -557,7 +559,7 @@ void main() {
       final handle = tester.ensureSemantics();
       await _pump(tester);
       await _startAuto(tester);
-      expect(find.bySemanticsLabel('Wallet tour'), findsOneWidget);
+      expect(find.bySemanticsLabel(_l.tourPhoneSemantics), findsOneWidget);
       expect(find.bySemanticsLabel(RegExp(r'^Next$')), findsOneWidget);
       expect(find.bySemanticsLabel(RegExp(r'^Skip tour$')), findsOneWidget);
       handle.dispose();

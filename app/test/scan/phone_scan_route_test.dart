@@ -234,7 +234,7 @@ class _Harness {
   /// Home's scan button, with [text] as what the camera reads.
   Future<void> scan(WidgetTester tester, String text) async {
     scanner.codes.add(text);
-    await _tap(tester, find.byTooltip('Scan QR code'));
+    await _tap(tester, find.byTooltip(_l.scanQrTooltip));
   }
 }
 
@@ -296,8 +296,8 @@ void main() {
       expect(find.byType(SendView), findsOneWidget);
       expect(_onAmount(), isTrue);
       expect(_field(tester, sendAmountFieldKey), '1.5');
-      expect(_inBanner('Invoice'), findsOneWidget);
-      expect(_inBanner('Check the amount, then continue.'), findsOneWidget);
+      expect(_inBanner(_l.sendRequestTitle), findsOneWidget);
+      expect(_inBanner(_l.sendRequestCheck), findsOneWidget);
       expect(find.text(_l.sendAmountFromCode), findsOneWidget);
       // The note travels in the payment: its tile is folded and shows it.
       expect(_noteTile('Lunch with Anna'), findsOneWidget);
@@ -319,7 +319,7 @@ void main() {
       await h.scan(tester, _lunch);
       await _continue(tester);
 
-      expect(_origin('From a QR code'), findsOneWidget);
+      expect(_origin(_l.sendOriginQr), findsOneWidget);
       expect(tester.widget<AddressEnds>(find.byType(AddressEnds)).address, _e);
       expect(_inPayee('Anna'), findsOneWidget);
       expect(_inPayee('Lunch with Anna'), findsOneWidget);
@@ -520,7 +520,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
       await tester.pumpAndSettle();
       await _continue(tester);
-      expect(_origin('From a QR code'), findsOneWidget);
+      expect(_origin(_l.sendOriginQr), findsOneWidget);
     });
 
     testWidgets('a Link address selects Link', (tester) async {
@@ -529,7 +529,7 @@ void main() {
       await h.scan(tester, _d);
       expect(_field(tester, sendRecipientFieldKey), _d);
       // The method line names the way the address picks.
-      expect(find.text('Link · HTTP'), findsOneWidget);
+      expect(find.text(_l.methodDirectHttp), findsOneWidget);
     });
 
     testWidgets('a QR Payment part opens the payment reader with it', (
@@ -539,7 +539,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       h.scanner.codes.add(part);
-      await tester.tap(find.byTooltip('Scan QR code'));
+      await tester.tap(find.byTooltip(_l.scanQrTooltip));
       for (var i = 0; i < 5; i++) {
         await tester.pump(const Duration(milliseconds: 200));
       }
@@ -572,7 +572,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       h.scanner.codes.addAll(['hello there', _e]);
-      await _tap(tester, find.byTooltip('Scan QR code'));
+      await _tap(tester, find.byTooltip(_l.scanQrTooltip));
       expect(find.byKey(scanResultSheetKey), findsOneWidget);
       await _tap(tester, find.byKey(scanResultPrimaryKey));
       expect(h.scanner.codes, isEmpty);
@@ -603,7 +603,7 @@ void main() {
         find.text(_l.scanSlateTextBody),
         findsOneWidget,
       );
-      await _tap(tester, find.widgetWithText(FilledButton, 'Open'));
+      await _tap(tester, find.widgetWithText(FilledButton, _l.commonOpen));
       expect(find.byType(SlateFileScreen), findsOneWidget);
     });
 
@@ -644,7 +644,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
       await tester.pumpAndSettle();
       await _continue(tester);
-      expect(_origin('From a QR code'), findsOneWidget);
+      expect(_origin(_l.sendOriginQr), findsOneWidget);
     });
 
     testWidgets('a second code without an amount drops the first one\'s', (
@@ -682,10 +682,10 @@ void main() {
       await paste(tester, h, _lunch);
       expect(_onAmount(), isTrue);
       expect(_field(tester, sendAmountFieldKey), '1.5');
-      expect(_inBanner('Invoice'), findsOneWidget);
+      expect(_inBanner(_l.sendRequestTitle), findsOneWidget);
       expect(_inPayee('Lunch with Anna'), findsOneWidget);
       await _continue(tester);
-      expect(_origin('Pasted'), findsOneWidget);
+      expect(_origin(_l.sendOriginPasted), findsOneWidget);
       expect(h.session.epicboxSends, isEmpty);
     });
 
@@ -724,9 +724,9 @@ void main() {
       expect(_tab(tester), ShellTab.send);
       expect(_onAmount(), isTrue);
       expect(_field(tester, sendAmountFieldKey), '1.5');
-      expect(_inBanner('Invoice'), findsOneWidget);
+      expect(_inBanner(_l.sendRequestTitle), findsOneWidget);
       await _continue(tester);
-      expect(_origin('From a link'), findsOneWidget);
+      expect(_origin(_l.sendOriginLink), findsOneWidget);
     });
 
     testWidgets('under another screen: a notice, Open fills Send', (
@@ -749,7 +749,7 @@ void main() {
       expect(find.text(_l.linkWaitingNotice), findsOneWidget);
       await _tap(
         tester,
-        find.descendant(of: find.byKey(noticeKey), matching: find.text('Open')),
+        find.descendant(of: find.byKey(noticeKey), matching: find.text(_l.commonOpen)),
       );
       expect(find.text('another screen'), findsNothing);
       expect(_tab(tester), ShellTab.send);
@@ -840,7 +840,7 @@ void main() {
     }
     await tester.pump();
     await _continue(tester);
-    expect(_origin('From a QR code'), findsOneWidget);
+    expect(_origin(_l.sendOriginQr), findsOneWidget);
     expect(find.text('Host'), findsNothing);
     final onCard = find.descendant(
       of: find.byType(RecipientCard),
@@ -857,7 +857,7 @@ void main() {
     await h.pump(tester);
     await h.scan(tester, 'epic:$_d/pay?amount=1');
     await _continue(tester);
-    expect(find.text('Host'), findsOneWidget);
+    expect(find.text(_l.sendFactHost), findsOneWidget);
     expect(find.text('1.2.3.4:3415'), findsOneWidget);
     // The reach check's slow-answer timer runs out.
     await tester.pump(const Duration(seconds: 2));
@@ -895,7 +895,7 @@ void main() {
         find.byType(Scrollable).first,
         const Offset(0, 200),
       );
-      expect(_origin('From a QR code'), findsOneWidget);
+      expect(_origin(_l.sendOriginQr), findsOneWidget);
       final host = find.text('1.2.3.4:3415');
       // The list is lazy: the host row is built once scrolled to.
       await tester.dragUntilVisible(

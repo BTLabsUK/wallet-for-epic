@@ -123,9 +123,9 @@ void main() {
   });
 
   test('the tag says how the address is reached', () {
-    expect(contactTag(_l, _alice), 'Epicbox');
-    expect(contactTag(_l, _onion), 'Link · Tor');
-    expect(contactTag(_l, 'http://${'t' * 55}d.onion'), 'Link · Tor');
+    expect(contactTag(_l, _alice), _l.methodEpicbox);
+    expect(contactTag(_l, _onion), _l.methodDirectTor);
+    expect(contactTag(_l, 'http://${'t' * 55}d.onion'), _l.methodDirectTor);
     expect(contactTag(_l, _http), 'Link · HTTP');
   });
 
@@ -166,8 +166,8 @@ void main() {
       // Not paired: the method badge after the name.
       expect(find.byIcon(EpicGlyphs.epicbox), findsNWidgets(2));
       expect(find.byIcon(EpicGlyphs.tor), findsOneWidget);
-      expect(find.text('Epicbox'), findsNWidgets(2));
-      expect(find.text('Link · Tor'), findsOneWidget);
+      expect(find.text(_l.methodEpicbox), findsNWidgets(2));
+      expect(find.text(_l.methodShortTor), findsOneWidget);
       expect(
         find.textContaining(
           shortAddress(_bob).split('@').first,

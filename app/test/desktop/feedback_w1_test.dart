@@ -111,8 +111,8 @@ void main() {
         created: DateTime(2026),
         foundByScan: true,
       );
-      expect(whoOf(englishStrings, t), 'Found by recheck');
-      expect(whoTip(englishStrings, t), 'Found on the chain by a scan. The sender is not recorded.');
+      expect(whoOf(englishStrings, t), _l.deskTxFoundRescanLabel);
+      expect(whoTip(englishStrings, t), _l.deskTxFoundScanTip);
       expect(whoTip(englishStrings, t), isNot(contains('scan found')));
     });
   });
@@ -142,7 +142,7 @@ void main() {
     expect(find.textContaining('The wallet answers on 0.0.0.0, port 3415'), findsOneWidget);
     expect(find.textContaining('Advanced'), findsNothing);
     expect(find.text(_l.deskSetHttpNoRouterText), findsOneWidget);
-    await tester.tap(find.text('Turn on Tor'));
+    await tester.tap(find.text(_l.deskSetHttpTurnOnTor));
     await tester.pump(const Duration(milliseconds: 400));
     expect(choice, InternetGuideChoice.tor);
     expect(find.byType(InternetGuide), findsNothing);
@@ -165,7 +165,7 @@ void main() {
     await tester.tap(help);
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.byType(InternetGuide), findsOneWidget);
-    await tester.tap(find.text('Turn on Tor'));
+    await tester.tap(find.text(_l.deskSetHttpTurnOnTor));
     await tester.pump(const Duration(milliseconds: 600));
     expect(api.torOn, 1);
     expect(container.read(deskProvider).settings.tor, isTrue);
@@ -202,7 +202,7 @@ void main() {
     final api = _Wallet();
     final own = await api.epicboxAddress();
     await _pump(tester, SendScreen(arg: SendArgs(recipient: own, amount: '1')), api: api);
-    expect(find.text('Balance after'), findsOneWidget);
+    expect(find.text(_l.deskSendBalanceAfter), findsOneWidget);
     expect(find.text('Left to spend'), findsNothing);
     await tester.tap(find.text(_l.deskSendReview));
     await tester.pump(const Duration(milliseconds: 600));
@@ -286,7 +286,7 @@ void main() {
     await tester.tap(find.text('Copy id'));
     await tester.pump(const Duration(milliseconds: 300));
     expect(calls, 2);
-    expect(find.text('Copied'), findsOneWidget);
+    expect(find.text(_l.deskKitCopied), findsOneWidget);
     await tester.pump(const Duration(milliseconds: 1600));
   });
 }

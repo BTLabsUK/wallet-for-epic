@@ -123,11 +123,11 @@ void main() {
     for (final (name, to) in [('Epicbox', _epicbox), ('a Link onion', _onion)]) {
       testWidgets('$name waits: Review disabled, "Waiting for Tor", nothing sent', (tester) async {
         await show(tester, SendArgs(recipient: to, amount: '1'));
-        expect(chip('Tor starting'), findsOneWidget);
+        expect(chip(_l.deskKitChipStarting), findsOneWidget);
         expect(find.text(_l.deskSendTorStarting), findsOneWidget);
         // The button keeps its name; the short reason is its tip.
-        expect(review(tester).label, 'Review');
-        expect(review(tester).tooltip, 'Waiting for Tor');
+        expect(review(tester).label, _l.deskSendReview);
+        expect(review(tester).tooltip, _l.deskSendReviewWaitTor);
         expect(review(tester).onPressed, isNull);
         // Enter in Amount does not review either.
         await tester.tap(find.byType(EditableText).at(1));
@@ -215,7 +215,7 @@ void main() {
 
   testWidgets('Link onion with Tor on: "Over Tor", sent over Tor', (tester) async {
     await show(tester, const SendArgs(method: TxMethod.http, recipient: _onion, amount: '1'));
-    expect(chip('Over Tor'), findsOneWidget);
+    expect(chip(_l.deskKitChipOverTor), findsOneWidget);
     expect(find.text(_l.deskSendHttpClearnet), findsNothing);
     expect(review(tester).onPressed, isNotNull);
   }, skip: !torBuilt);

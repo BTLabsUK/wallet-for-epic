@@ -6,9 +6,12 @@ import 'package:epic_wallet/src/desktop/screens/wallet/activity_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/overview_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 /// [n] sends waiting for their recipients, the newest first (ids 1..n).
 class _Wallet extends MockDeskWallet {
@@ -73,7 +76,7 @@ void main() {
     expect(_more, findsNothing);
     // A row says the step it is at, as the card does, and opens its payment in Activity.
     expect(find.descendant(of: _row(2), matching: find.textContaining('Sending to')), findsOneWidget);
-    expect(find.descendant(of: _row(2), matching: find.text('On Epicbox')), findsOneWidget);
+    expect(find.descendant(of: _row(2), matching: find.text(_l.deskLvPayOnEpicbox)), findsOneWidget);
     await tester.tap(_row(3));
     await tester.pump();
     expect(container.read(deskNavProvider).route, DeskRoute.activity);
@@ -91,7 +94,7 @@ void main() {
       expect(_card(id), findsNothing);
     }
     expect(find.descendant(of: _more, matching: find.text('3 more payments under way')), findsOneWidget);
-    await tester.tap(find.descendant(of: _more, matching: find.text('View')));
+    await tester.tap(find.descendant(of: _more, matching: find.text(_l.deskOvInflightView)));
     await tester.pump();
     final at = container.read(deskNavProvider);
     expect(at.route, DeskRoute.activity);

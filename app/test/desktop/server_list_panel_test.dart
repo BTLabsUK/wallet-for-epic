@@ -177,7 +177,7 @@ void main() {
       expect(ticked(tester, floo), isFalse);
       // The defaults come first, in their order; Default is on each.
       expect(tester.getTopLeft(row(floo)).dy, lessThan(tester.getTopLeft(row(epicnet)).dy));
-      expect(find.descendant(of: row(floo), matching: find.text('Default')), findsOneWidget);
+      expect(find.descendant(of: row(floo), matching: find.text(_l.deskSlDefault)), findsOneWidget);
       expect(find.descendant(of: row(epicnet), matching: find.text('Default')), findsNothing);
 
       await tap(tester, row(floo));
@@ -261,13 +261,13 @@ void main() {
     expect(find.byKey(const ValueKey('server-list-add')), findsNothing, reason: 'no Add for text that is no address');
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pump();
-    expect(helper(tester), 'Not a server address. Use host or host:port.');
+    expect(helper(tester), _l.slNotAnAddress);
     expect(nodes(), before);
 
     await type(tester, 'bad.example.org:3413');
     await tap(tester, find.byKey(const ValueKey('server-list-add')));
     await settle(tester);
-    expect(helper(tester), 'No answer from this node. Nothing added.');
+    expect(helper(tester), _l.deskSlNodeNoAnswer);
     expect(nodes(), before);
     expect(find.byKey(const ValueKey('server-list-switch')), findsNothing);
     await end(tester);
@@ -305,7 +305,7 @@ void main() {
     // The bin is shown disabled and says why.
     final bin = tester.widget<EIconButton>(find.byKey(const ValueKey('server-row-remove-$_btlabs')));
     expect(bin.onPressed, isNull);
-    expect(bin.label, 'In use. Switch first.');
+    expect(bin.label, _l.slInUseSwitchFirst);
     expect(nodes(), contains(_btlabs));
     expect(container.read(deskProvider).status!.node.url, _btlabs, reason: 'never a silent switch');
     await end(tester);
