@@ -427,6 +427,9 @@ void main() {
     h.emit(TorEventKind.failed, failure: TorFailure.network);
     h.emit(TorEventKind.stopped);
     await h.until((s) => s.phase == PhoneTorPhase.failed);
+    // The backoff restart may come before the network's (on a busy machine): the network then
+    // refreshes the tor being started, which LEPIC answers without an error.
+    h.session.torStatusValue = const TorStatus(kind: TorStatusKind.starting);
     h.network.add(true);
     await h.until((s) => s.phase == PhoneTorPhase.starting);
     expect(h.session.torStarts, hasLength(3));
