@@ -341,7 +341,8 @@ class Rig:
         """Agents of earlier trust runs still on this rig (the running jobs of <base>\\bin\\agent.ps1 for another
         run folder): with the user's lock held no live run drives them, so their driver died (killed, a lost
         ssh). Each gets its run's stop file (the agent stops what it started and ends); the wait ends when
-        their running marks are gone. -> the run folders stopped; RigError when one is still running."""
+        their running marks are gone. -> the run folders stopped; RigDead (another session may take the run)
+        when one is still running."""
         done = work_dir(self.session) + "\\queue\\done"
         out = self.pwsh(
             "Get-ChildItem '%s' -Filter *.running.json -File -ErrorAction SilentlyContinue | "
@@ -354,7 +355,10 @@ class Rig:
             return []
         for r in runs:
             self.log("rig session %d: the agent of %s is still running with no run behind it: stopping it" % (self.session, r))
-            self.pwsh("New-Item -ItemType File -Force -LiteralPath '%s\\stop' | Out-Null" % r, check=False)
+            made = self.pwsh("New-Item -ItemType File -Force -Path '%s\\stop' | Out-Null; Test-Path -LiteralPath '%s\\stop'"
+                             % (r, r), check=False)
+            if "True" not in made:
+                raise RigDead("rig session %d: no stop file could be made for the leftover agent of %s" % (self.session, r))
         t0 = time.time()
         while True:
             left = [r for r in runs if ("ORPHAN " + r) in self.pwsh(
@@ -364,7 +368,7 @@ class Rig:
                 self.log("rig session %d: %d leftover agent(s) stopped" % (self.session, len(runs)))
                 return runs
             if time.time() - t0 > wait_s:
-                raise RigError("rig session %d: the leftover agent of %s did not stop within %d s" % (self.session, left[0], wait_s))
+                raise RigDead("rig session %d: the leftover agent of %s did not stop within %d s" % (self.session, left[0], wait_s))
             time.sleep(10)
 
     def busy(self):
