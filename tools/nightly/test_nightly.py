@@ -384,6 +384,158 @@ class TrustTest(unittest.TestCase):
         self.assertEqual(nightly.report(result, {})["why"], "green sends nothing")
 
 
+class BreakLaneTest(unittest.TestCase):
+    CONTROLS = [
+        {"id": "g4.nav.settings", "screen": "shell", "family": ["desktop"], "role": "tab", "secret": False},
+        {"id": "g4.advanced.technical", "screen": "advanced", "family": ["desktop"], "role": "toggle", "secret": False,
+         "keys": ["deskTech"], "names": ["Technical details"]},
+        {"id": "g4.confirmations.more", "screen": "payments", "family": ["desktop", "android"], "role": "button", "secret": False},
+        {"id": "g4.send.max", "screen": "send", "family": ["desktop"], "role": "button", "secret": False},
+        {"id": "g4.unlock.submit", "screen": "unlock", "family": ["desktop"], "role": "button", "secret": True},
+        {"id": "g4.home.lock", "screen": "home", "family": ["android"], "role": "button", "secret": False},
+    ]
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        make_release(self.root / "rel", "26.10.24")
+        make_release(self.root / "rel", "26.10.25")
+        self.drivers = self.root / "wt" / "tools" / "rellib" / "drivers"
+        (self.drivers / "core").mkdir(parents=True)
+        (self.drivers / "trust-linux.sh").write_text("#!/bin/sh\n")
+        (self.drivers / "trust_ids.json").write_text(json.dumps({"controls": self.CONTROLS}))
+        (self.drivers / "core" / "surface.py").write_text(
+            'COMPATIBLE = {"toggle": {"toggle", "checkbox", "button"}, "tab": {"tab", "button"}}\n')
+        (self.drivers / "core" / "desktop.py").write_text('x = 1\nTECH = T("g4.advanced.technical")\n')
+        self.pub = [{"version": v, "run": str(self.root / "rel" / v / "run-1"), "kind": "release"}
+                    for v in ("26.10.24", "26.10.25")]
+        (self.root / "rel" / "published.json").write_text(json.dumps(self.pub))
+        self.ok = [{"platform": "linux", "status": "ok"}]
+        n = len(nightly.break_list(self.root / "wt"))  # a night whose break is the first hide:
+        self.today = dt.date.fromordinal(dt.date(2026, 11, 3).toordinal() // n * n + n)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def lane(self, rc, proof=None, result="", seen=None, trust=None, **kw):
+        def run(argv, env, log, timeout):
+            if seen is not None:
+                seen.append(env)
+            if proof is not None:
+                Path(env["REL_OUT"], "proof.json").write_text(json.dumps(proof))
+            Path(env["REL_OUT"], "result.txt").write_text(result + "\n")
+            return rc
+        return nightly.run_breaks(self.root / "run", {}, self.ok if trust is None else trust,
+                                  worktree=self.root / "wt", rel_root=self.root / "rel", runner=run,
+                                  busy=lambda: [], today=self.today, **kw)
+
+    def break_of(self):
+        return nightly.break_for(self.today.toordinal(), nightly.break_list(self.root / "wt"))
+
+    def test_list_comes_from_the_registry_and_rotation_covers_it(self):
+        lst = nightly.break_list(self.root / "wt")
+        self.assertEqual(lst, ["hide:g4.advanced.technical", "hide:g4.confirmations.more",
+                               "hide:g4.nav.settings", nightly.BREAK_DIALOG])
+        days = [dt.date(2026, 11, 3).toordinal() + i for i in range(len(lst) * 2)]
+        picks = [nightly.break_for(d, lst) for d in days]
+        self.assertEqual(set(picks), set(lst))
+        self.assertEqual(picks, [nightly.break_for(d, lst) for d in days])  # deterministic
+        self.assertIsNone(nightly.break_for(5, []))
+
+    def test_skipped_when_the_plain_lane_did_not_prove(self):
+        seen = []
+        for trust in ([{"platform": "linux", "status": "fail"}], [{"platform": "linux", "status": "skipped"}],
+                      [{"platform": "android", "status": "ok"}], []):
+            self.assertIsNone(self.lane(0, seen=seen, trust=trust))
+        self.assertEqual(seen, [])
+
+    def test_off_switch(self):
+        import os
+        old = os.environ.get("NIGHTLY_BREAKS")
+        os.environ["NIGHTLY_BREAKS"] = "0"
+        try:
+            self.assertIsNone(self.lane(0))
+        finally:
+            os.environ.pop("NIGHTLY_BREAKS") if old is None else os.environ.__setitem__("NIGHTLY_BREAKS", old)
+
+    def test_env_never_moves_coins_and_names_the_break(self):
+        seen = []
+        self.lane(0, {"checks": {}, "recovered": []}, "PASS", seen=seen)
+        e = seen[0]
+        self.assertEqual((e["REL_FUNDS"], e["REL_TRUST_SAVE_STATE"]), ("0", "0"))
+        self.assertEqual(e["REL_TRUST_BREAK"], self.break_of())
+        self.assertTrue(e["REL_OUT"].endswith("breaks-linux"))
+        self.assertNotIn("REL_RUN_KIND", e)
+
+    def score_for(self, rc, proof, result):
+        step = self.lane(rc, proof, result)
+        return step, step["breaks"]
+
+    def hide_pick(self, role="toggle", pid=None):
+        t = self.break_of().partition(":")[2]
+        return t, {"kind": "pick", "step": "s", "target": t, "picked": {"role": role, "name": "Tech", "id": pid}}
+
+    def test_four_scores(self):
+        self.assertEqual(self.break_of(), "hide:g4.advanced.technical")
+        t, rec = self.hide_pick()
+        step, sc = self.score_for(0, {"checks": {"a": True}, "recovered": [rec]}, "PASS linux")
+        self.assertEqual((sc["score"], step["status"]), ("recovered right", "ok"))
+        t, rec = self.hide_pick(role="text")
+        step, sc = self.score_for(0, {"checks": {"a": True}, "recovered": [rec]}, "PASS linux")
+        self.assertEqual((sc["score"], step["status"]), ("recovered wrong", "fail"))
+        fault = {"kind": "harness", "step": "x", "what": "control %s never reached" % t, "line": "HARNESS x: %s" % t}
+        step, sc = self.score_for(2, {"checks": {}, "fault": fault, "recovered": []}, "HARNESS x: " + t)
+        self.assertEqual((sc["score"], step["status"]), ("failed honestly", "ok"))
+        step, sc = self.score_for(1, {"checks": {"a": False}}, "PRODUCT checks false")
+        self.assertEqual(sc["score"], "failed silently")
+        step, sc = self.score_for(0, {"checks": {"a": True}, "recovered": []}, "PASS linux")
+        self.assertEqual(sc["score"], "failed silently")
+        self.assertIn("not applied", sc["why"])
+        step, sc = self.score_for(1, None, "")
+        self.assertEqual(sc["score"], "failed silently")
+
+    def test_another_control_picked_is_wrong_and_dialog_scores(self):
+        t, rec = self.hide_pick(role="tab", pid="g4.nav.settings")
+        rec["target"] = t
+        _, sc = self.score_for(0, {"checks": {"a": True}, "recovered": [rec]}, "PASS")
+        self.assertEqual(sc["score"], "recovered wrong")
+        controls = nightly.registry_controls(self.root / "wt")
+        out = self.root / "d"
+        out.mkdir()
+        (out / "proof.json").write_text(json.dumps({"checks": {"a": True}, "recovered": [{"kind": "advance", "step": "unlock", "picked": {"role": "button", "name": "OK"}}]}))
+        (out / "result.txt").write_text("PASS\n")
+        self.assertEqual(nightly.score_break(nightly.BREAK_DIALOG, 0, out, controls)["score"], "recovered right")
+        (out / "proof.json").write_text(json.dumps({"checks": {"a": True}, "recovered": []}))
+        self.assertEqual(nightly.score_break(nightly.BREAK_DIALOG, 0, out, controls)["score"], "failed silently")
+
+    def test_wrong_pick_drafts_a_fix_with_the_driver_line(self):
+        out = self.root / "w"
+        out.mkdir()
+        rec = {"kind": "pick", "step": "s", "target": "g4.advanced.technical", "looked_for": ["technical details"],
+               "picked": {"role": "text", "name": "Network", "id": None}}
+        (out / "proof.json").write_text(json.dumps({"checks": {"a": True}, "recovered": [rec]}))
+        (out / "result.txt").write_text("PASS\n")
+        controls = nightly.registry_controls(self.root / "wt")
+        sc = nightly.score_break("hide:g4.advanced.technical", 0, out, controls, self.root / "wt")
+        self.assertEqual(sc["score"], "recovered wrong")
+        note = nightly.draft_fix(sc, controls, self.root / "wt")
+        for want in ("g4.advanced.technical", "Network", "deskTech", "core/desktop.py:2"):
+            self.assertIn(want, note)
+        sc["score"] = "recovered right"
+        self.assertIsNone(nightly.draft_fix(sc, controls))
+
+    def test_lane_writes_breaks_json_and_fix_file(self):
+        t, rec = self.hide_pick(role="text")
+        step = self.lane(0, {"checks": {"a": True}, "recovered": [rec]}, "PASS")
+        run = self.root / "run"
+        self.assertEqual(json.loads((run / "breaks.json").read_text())["score"], "recovered wrong")
+        self.assertIn(t, (run / "breaks-fix.md").read_text())
+        line = nightly.summary_line({"status": "green", "sha": "a" * 40, "ended": "2026-11-03T03:00:00Z",
+                                     "tests": {}, "breaks": step["breaks"], "steps": []})
+        self.assertIn("G4 break", line)
+        self.assertIn("recovered wrong", line)
+
+
 class FakeResponse:
     def __init__(self, status, body=b"{}"):
         self.status, self.body = status, body
