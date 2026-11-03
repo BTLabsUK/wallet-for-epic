@@ -240,8 +240,18 @@ def fund(lane, methods):
             if not ok:
                 lane.ledger.p_sent.pop()
                 raise HarnessFault("fund", "P send failed: %s" % out)
-        wait_for(lane, a, "fund", lambda d: any((t.get("credited") or 0) == nano(amount) for t in new_txs(before, d, "incoming")),
-                 900)
+        mine = lambda d: [t for t in new_txs(before, d, "incoming") if (t.get("credited") or 0) == nano(amount)]  # noqa: E731
+        wait_for(lane, a, "fund", lambda d: bool(mine(d)), 900)
+        # A answered; P finalizes and posts. P that does not (its node not synced, its listener paused) is
+        # the infrastructure's, never the app's
+        end = time.time() + 900
+        while not any(t["state"] in ("posted", "confirmed") for t in mine(digest(lane, a, "fund"))):
+            if p.finalized():
+                break
+            if time.time() >= end:
+                raise InfraFault("fund", "P sent %s EPIC, A answered, P did not finalize it in 900 s (P's node or "
+                                 "listener)" % amount, sub="node")
+            time.sleep(POLL_S)
     wait_for(lane, a, "fund spendable", lambda d: spendable(d) >= nano(per_pay()), SPEND_WAIT_S)
     lane.details["fund"] = "P -> A %s EPIC in %d sends (A's spendable was %s, %d payments left)" % (
         "+".join(format(x, "f") for x in plan), len(plan), num(spendable(d0)), len(methods))
