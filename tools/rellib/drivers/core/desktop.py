@@ -173,7 +173,7 @@ class Desktop:
             return True
         # a narrow window shows one section at a time, with no list: the search field is on every Settings page
         hint = tg._norm(self.d.labels.text("deskSetSearchHint") or "Search settings")
-        return any(n.role == "text_field" and tg._norm(n.name.split("|")[0]) == hint for n in tree)
+        return any(n.role == "text_field" and tg._norm(n.name.split("\n")[0]) == hint for n in tree)
 
     def section_names(self):
         """Every section name a release has had, in English and as this build shows them (its locale)."""
