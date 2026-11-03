@@ -154,7 +154,7 @@ void main() {
         BackupKey.theme: 'light',
         BackupKey.hideBalances: true,
         BackupKey.servers: {
-          BackupKey.node: ['http://10.0.1.24:3413'],
+          BackupKey.node: ['http://192.168.1.24:3413'],
           BackupKey.epicbox: c.read(hostSettingsProvider).epicboxLabels,
         },
       });

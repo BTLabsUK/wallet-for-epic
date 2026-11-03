@@ -57,7 +57,7 @@ void main() {
 
   testWidgets('an http address, then the contact: the method line moves to Epicbox, no Link notice', (tester) async {
     await _open(tester, arg: const SendArgs());
-    await tester.enterText(find.byType(EditableText).first, 'http://10.0.1.77:3415');
+    await tester.enterText(find.byType(EditableText).first, 'http://192.168.1.77:3415');
     await _settle(tester);
     expect(_selected(tester), 'http');
     await tester.enterText(find.byType(EditableText).first, 'BT La');

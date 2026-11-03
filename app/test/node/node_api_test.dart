@@ -238,13 +238,13 @@ void main() {
       }
       expect(f.calls, isEmpty);
       for (final u in ['https://node.example', 'https://node.example:3413/', 'http://127.0.0.1:3413', 'http://127.5.5.5',
-        'http://[::1]:3413', 'http://LOCALHOST:3413', 'http://10.0.1.24:3413', 'http://100.101.1.2:3413', 'http://alice-node.lan:3413']) {
+        'http://[::1]:3413', 'http://LOCALHOST:3413', 'http://192.168.1.24:3413', 'http://100.101.1.2:3413', 'http://alice-node.lan:3413']) {
         await _client(f, url: u).tip();
       }
       expect(f.calls, hasLength(9));
       expect(f.calls[1].url.toString(), 'https://node.example:3413/v2/foreign');
       // The home-network, VPN and .lan nodes went through the relay, nothing else did.
-      expect(relayed, ['http://evil.lan:3413', 'http://10.0.1.24:3413', 'http://100.101.1.2:3413', 'http://alice-node.lan:3413']);
+      expect(relayed, ['http://evil.lan:3413', 'http://192.168.1.24:3413', 'http://100.101.1.2:3413', 'http://alice-node.lan:3413']);
       expect(f.calls[6].url.toString(), 'http://127.0.0.1:40000/v2/foreign');
     });
 

@@ -162,7 +162,7 @@ void main() {
   });
 
   group('Node only', () {
-    for (final node in ['http://127.0.0.1:3413', 'http://10.100.10.20:3413', 'https://node.example']) {
+    for (final node in ['http://127.0.0.1:3413', 'http://192.168.1.20:3413', 'https://node.example']) {
       test('$node: synced and rechecked; Epicbox and the Link listener stay off', () async {
         await wallet.useNode(node);
         await pumpEventQueue();

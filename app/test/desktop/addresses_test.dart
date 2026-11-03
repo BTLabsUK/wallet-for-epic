@@ -73,7 +73,7 @@ void main() {
       expect(a.complete, isTrue);
     });
     test('an IPv4 with a port and localhost are complete', () {
-      expect(parseAddress('http://10.0.1.24:3415', api).complete, isTrue);
+      expect(parseAddress('http://192.168.1.24:3415', api).complete, isTrue);
       expect(parseAddress('http://localhost:3415', api).complete, isTrue);
     });
     test('a single-label host is http but incomplete', () {

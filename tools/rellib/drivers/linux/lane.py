@@ -44,7 +44,8 @@ def main():
         with open(os.path.join(out, "trust.log"), "a") as f:
             f.write(line + "\n")
 
-    funds = e.get("REL_FUNDS", "1") == "1"
+    create = e.get("REL_TRUST_MODE") == "create"   # the create-wallet test: the candidate fresh, no funds
+    funds = not create and e.get("REL_FUNDS", "1") == "1"
     plat = LinuxPlatform(out, log)
     funder = P(e.get("REL_P_TOOL") or os.path.expanduser("/tmp/epic-build/interop/epicpay/p.py"),
                e.get("REL_P_PASS_FILE") or os.path.expanduser("~/.config/btlabs/p-pass-candidates"),
@@ -57,9 +58,9 @@ def main():
 
     def stopped(sig, _frame):  # a runner's timeout: the sandbox and stand-ins still go
         raise HarnessFault(lane.phase or "start", "the lane was stopped (signal %d)" % sig)
-    lane = Lane(plat, recipe_for, checks, out=out, log=log, required=required(funds), funds=funds, p=funder)
+    lane = Lane(plat, recipe_for, checks, out=out, log=log, required=["create_ok"] if create else required(funds), funds=funds, p=funder)
     signal.signal(signal.SIGTERM, stopped)
-    return lane.main()
+    return lane.create_only() if create else lane.main()
 
 
 if __name__ == "__main__":

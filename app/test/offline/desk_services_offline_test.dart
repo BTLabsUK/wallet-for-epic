@@ -25,13 +25,13 @@ void main() {
       test('${cut.name}: no public IP, no verdict, within the probe timeout', () async {
         _oneSecond('status.reach_timeout_s');
         await withoutNetwork(cut, (_) async {
-          final cache = HttpReachCache(lan: () async => '10.100.10.20');
+          final cache = HttpReachCache(lan: () async => '192.168.1.20');
           final r = await timed(() => cache.read(3415));
           expect(r.error, isNull);
           final reach = r.value! as HttpReach;
           expect(reach.publicIp, isNull);
           expect(reach.reachable, isNull);
-          expect(reach.lan, '10.100.10.20', reason: 'the local address needs no network');
+          expect(reach.lan, '192.168.1.20', reason: 'the local address needs no network');
           expect(r.took, lessThan(const Duration(seconds: 5)), reason: 'its 1 s limit, not the usual 10 s');
         });
       });

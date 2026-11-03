@@ -50,7 +50,7 @@ final List<DeskShot> invoiceReqShots = [
     id: 'inv-req-06-form-http',
     title: 'Issue form: HTTP address refused on Epicbox',
     route: DeskRoute.invoiceIssue,
-    arg: 'http://10.0.1.24:3415',
+    arg: 'http://192.168.1.24:3415',
   ),
   DeskShot(
     id: 'inv-req-07-form-relay-down',

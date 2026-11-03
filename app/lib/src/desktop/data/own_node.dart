@@ -23,7 +23,7 @@ import '../../node/sync_progress.dart';
 import '../../secret_store_api.dart';
 
 /// The secret store key of [url]'s owner secret: `node.ownerSecret.<scheme>://<host>:<port>`,
-/// the default port written out, so `http://10.0.1.24:<port>/` and `http://10.0.1.24:<port>`
+/// the default port written out, so `http://192.168.1.24:<port>/` and `http://192.168.1.24:<port>`
 /// share one.
 String ownerSecretKey(String url) {
   final u = Uri.tryParse(url.trim());

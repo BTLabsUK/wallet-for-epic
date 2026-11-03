@@ -3,10 +3,12 @@
 (core/walletdata.py digests) and never on a screen.
 
 lane.py calls, in this order:
-    fund_before(lane, address)      P pays the previous release's wallet; waits until the data shows it spendable
+    fund_before(lane, address)      P pays the previous release's wallet (with a top-up for a low lane seed);
+                                    waits until the data shows it spendable
     settle(lane, before) -> after   the candidate's data, read again until it stops moving
     compare(lane, before, after, snap)   lane.ok / lane.fail per check
-    funds_legs(lane, after)         receive on the candidate, send everything back to P through the UI
+    funds_legs(lane, after)         receive on the candidate, send back to P through the UI: a lane seed's
+                                    wallet this run's inflow (an amount), any other wallet everything (Max)
     public(digest)                  the digest without anything secret (it goes into a saved state)
 
 A check that cannot be read says so in its detail ("NOT read: ..."); it is never passed by saying nothing.
@@ -29,10 +31,17 @@ from .faults import HarnessFault, ProductFault  # noqa: E402
 
 D = decimal.Decimal
 NANO = wd.NANO
-FUND_IN = "0.03"
+FUND_IN = "0.01"
 FUND_AFTER = "0.01"
 CAP_SEND = D("0.05")
 CAP_JOB = D("1")
+# A lane seed's wallet (lane.mode "seed") keeps its coins between runs: when its spendable is below
+# TOPUP_BELOW, P's payment before the update carries TOPUP more, capped so the one payment stays within
+# CAP_SEND (0.01 + 0.04). The top-up stays in the lane; only this run's inflow goes back to P.
+TOPUP_BELOW = D("0.05")
+TOPUP = D("0.05")
+FEE_MAX = D("0.005")  # what the doctor allows for each payment's fee (0.003-0.004 seen)
+CREATE_CHECKS = ["create_ok"]
 P_ADDR = os.environ.get("REL_P_ADDR") or "esa57kJmWkZyX8fSkKPW2Gu12ENhFF6MXfdsrsY4gqVK58ZwzB4d@epicbox.stackwallet.com"
 POLL_S = 20
 FUND_WAIT_S = 1800
@@ -90,10 +99,36 @@ def same_tx(t0, t1):
     return (t0["direction"], t0["credited"], t0["debited"]) == (t1["direction"], t1["credited"], t1["debited"])
 
 
-def txs_text(ts):
-    return "; ".join("%s %s EPIC %s, %s" % (t["direction"], num(t["credited"] or t["debited"]), t["state"],
+def match_txs(t0, t1):
+    """Each transaction of [t0] paired with a different one of [t1]: by slate first, then by direction and
+    amounts (a restored wallet's scanned transactions have no slate and no counterparty, and two of them
+    can have the same amounts). -> (pairs, unmatched of t0)."""
+    free = list(range(len(t1)))
+    pairs, rest = [], []
+    for t in t0:
+        i = next((i for i in free if t.get("slate") and t1[i].get("slate") == t["slate"]), None)
+        if i is None:
+            rest.append(t)
+        else:
+            free.remove(i)
+            pairs.append((t, t1[i]))
+    missing = []
+    for t in rest:
+        fits = [i for i in free if same_tx(t, t1[i])]
+        i = next((i for i in fits if bool(t1[i].get("slate")) == bool(t.get("slate"))), fits[0] if fits else None)
+        if i is None:
+            missing.append(t)
+        else:
+            free.remove(i)
+            pairs.append((t, t1[i]))
+    return pairs, missing
+
+
+def txs_text(ts, most=8):
+    text = "; ".join("%s %s EPIC %s, %s" % (t["direction"], num(t["credited"] or t["debited"]), t["state"],
                                              short(t.get("counterparty")) if t.get("counterparty") else "no counterparty")
-                     for t in ts)
+                     for t in ts[:most])
+    return text + ("; and %d more" % (len(ts) - most) if len(ts) > most else "")
 
 
 def _budget(lane, amount):
@@ -216,16 +251,54 @@ def _nano(s):
     return int((D(str(s)) * NANO).to_integral_value())
 
 
+def seeded(lane):
+    return getattr(lane, "mode", None) == "seed"
+
+
+def p_pays(spendable, seed):
+    """(what P pays before the update as EPIC text, the top-up in it) for a wallet whose spendable is
+    [spendable] nanoEPIC (None: not known, counted as low). Only a lane seed's wallet gets a top-up."""
+    if not seed or (spendable is not None and D(spendable) / NANO >= TOPUP_BELOW):
+        return FUND_IN, D(0)
+    top = min(TOPUP, CAP_SEND - D(FUND_IN))
+    return format(D(FUND_IN) + top, "f"), top
+
+
+def _funded(lane, amount, tx):
+    """A payment from P the wallet's data shows: kept on the lane seed's record (lane.on_funding)."""
+    f = getattr(lane, "on_funding", None)
+    if callable(f):
+        f(amount, tx)
+
+
+def _funded_at(lane, tx, d):
+    """The height P's payment [tx] confirmed at, from the data [d] that shows it spendable: kept on the lane
+    seed's record (lane.on_funding_height), so the wallet's birth can be its first output."""
+    f = getattr(lane, "on_funding_height", None)
+    t = next((t for t in _txs(d) if tx and tx.get("slate") and t.get("slate") == tx["slate"]), None)
+    if callable(f) and t and t.get("height") is not None:
+        f(tx, t["height"])
+
+
 def fund_before(lane, address):
     """P pays the previous release's wallet FUND_IN and the data shows it spendable, on every lane: the
-    update must keep a balance and a history (as v1). REL_FUNDS only adds the candidate's legs."""
+    update must keep a balance and a history (as v1). REL_FUNDS only adds the candidate's legs. A lane
+    seed's wallet below TOPUP_BELOW gets the top-up in the same payment."""
     lane.address = address
     d0 = _digest(lane, "previous")
     start = _spendable(d0) or 0
-    _, tx = _pay(lane, address, FUND_IN, "previous", "fund the previous release")
-    d = wait_spendable(lane, "previous", start + _nano(FUND_IN), "fund spendable")
-    lane.details["fund"] = "P -> %s %s EPIC: incoming confirmed, spendable %s (wallet data)" % (
-        short(address), FUND_IN, num(_spendable(d)))
+    amount, top = p_pays(start, seeded(lane))
+    _, tx = _pay(lane, address, amount, "previous", "fund the previous release")
+    lane.fund_tx, lane.inflow = tx, D(FUND_IN)
+    _funded(lane, amount, tx)
+    d = wait_spendable(lane, "previous", start + _nano(amount), "fund spendable")
+    _funded_at(lane, tx, d)
+    why = ""
+    if top:
+        why = " (%s this run's inflow and a %s top-up that stays in the lane: spendable was %s, below %s; capped by the %s per-send cap)" % (
+            FUND_IN, top, num(start), TOPUP_BELOW, CAP_SEND)
+    lane.details["fund"] = "P -> %s %s EPIC%s: incoming confirmed, spendable %s (wallet data)" % (
+        short(address), amount, why, num(_spendable(d)))
     lane.log(lane.details["fund"])
 
 
@@ -253,7 +326,7 @@ def settle(lane, before, wait_s=150):
 def _same_state(b, a):
     if (a.get("balance") or {}).get("total") != (b.get("balance") or {}).get("total"):
         return False
-    return all(any(same_tx(t, x) for x in _txs(a)) for t in _txs(b))
+    return not match_txs(_txs(b), _txs(a))[1]
 
 
 # ---- compare ----------------------------------------------------------------------------------------
@@ -312,13 +385,19 @@ def _balance(lane, b, a):
 
 
 def _history(lane, b, a):
+    """Every transaction from before is there after (a different one each); those with a counterparty
+    keep it. A restored wallet's scanned transactions have neither slate nor counterparty, so the sender
+    that must be recorded is this run's payment from P's (lane.fund_tx), else any."""
     t0, t1 = _txs(b), _txs(a)
     how = _how(a)
-    missing = [t for t in t0 if not any(same_tx(t, x) for x in t1)]
+    pairs, missing = match_txs(t0, t1)
     cp_read = a.get("counterparties_read", True)
-    lost = [] if not cp_read else [t for t in t0 if t not in missing and t.get("counterparty")
-                                  and not any(same_tx(t, x) and x.get("counterparty") == t["counterparty"] for x in t1)]
-    senders = sum(1 for t in t0 if t.get("counterparty"))
+    lost = [] if not cp_read else [t for t, x in pairs if t.get("counterparty") and x.get("counterparty") != t["counterparty"]]
+    fund = getattr(lane, "fund_tx", None)
+    ours = [t for t in t0 if fund and fund.get("slate") and t.get("slate") == fund["slate"]]
+    senders = sum(1 for t in (ours or t0) if t.get("counterparty"))
+    scanned = sum(1 for t in t0 if not t.get("slate") and not t.get("counterparty"))
+    note = "; %d of them from the restore's scan, without slate or counterparty" % scanned if scanned else ""
     if b.get("txs") is None or a.get("txs") is None:
         lane.fail("history_kept", "the transactions could not be read %s" % ("before the update" if b.get("txs") is None else "after the update"))
     elif missing:
@@ -328,12 +407,13 @@ def _history(lane, b, a):
     elif not t0:
         lane.fail("history_kept", "the wallet has no transaction before the update: nothing to compare")
     elif cp_read and not senders:
-        lane.fail("history_kept", "the payment before the update has no sender recorded: nothing to compare")
+        lane.fail("history_kept", "%s has no sender recorded: nothing to compare" % (
+            "this run's payment from P" if ours else "the payment before the update"))
     elif not cp_read:
         lane.ok("history_kept", "%d transactions kept by slate, direction, state and amounts (%s); who paid or was paid NOT compared "
-                "(the LEPIC CLI does not report counterparties)%s" % (len(t0), txs_text(t0), how))
+                "(the LEPIC CLI does not report counterparties)%s%s" % (len(t0), txs_text(t0), note, how))
     else:
-        lane.ok("history_kept", "%d transactions kept with their counterparties (%s)%s" % (len(t0), txs_text(t0), how))
+        lane.ok("history_kept", "%d transactions kept with their counterparties (%s)%s%s" % (len(t0), txs_text(t0), note, how))
 
 
 def setup_took(lane, b):
@@ -535,7 +615,8 @@ def _migration(lane, b, a, b_list, b_hash):
 # ---- payments on the candidate ----------------------------------------------------------------------
 
 def funds_legs(lane, after):
-    """Receive on the candidate (P sends FUND_AFTER), then everything back to P through the recipe's Send."""
+    """Receive on the candidate (P sends FUND_AFTER), then back to P through the recipe's Send: a lane
+    seed's wallet this run's inflow (lane.inflow), any other wallet everything."""
     res = lane.results
     if after is None or not res.get("wallet_opens") or not res.get("balance_kept"):
         why = ("the wallet did not open with the candidate" if after is None or not res.get("wallet_opens")
@@ -550,7 +631,10 @@ def funds_legs(lane, after):
         start = _spendable(after) or 0
         try:
             _, tx = _pay(lane, address, FUND_AFTER, "candidate", "receive with the candidate")
+            _funded(lane, FUND_AFTER, tx)
+            lane.inflow = getattr(lane, "inflow", D(FUND_IN)) + D(FUND_AFTER)
             d = wait_spendable(lane, "candidate", start + _nano(FUND_AFTER), "receive spendable")
+            _funded_at(lane, tx, d)
             _set(lane, RECEIVE, True, "P -> %s %s EPIC via Epicbox: incoming %s EPIC confirmed (wallet data); spendable %s" % (
                 short(address), FUND_AFTER, num(tx["credited"]), num(_spendable(d))))
         except ProductFault as e:  # a HarnessFault (P, the display) is the lane's, not a false check
@@ -562,11 +646,13 @@ def _send_back(lane, pair):
     if not lane.funds and os.environ.get("REL_KEEP_FUNDS") == "1":
         lane.log("funds kept in the test wallet (REL_KEEP_FUNDS=1)")
         return
+    amount = getattr(lane, "inflow", None) if seeded(lane) else None
     try:
-        d0 = wait_spendable(lane, "candidate", _nano("0.001"), "before sending back", 900)
-        ok, why = _send_to_p(lane, d0)
+        d0 = wait_spendable(lane, "candidate", _nano(amount) if amount else _nano("0.001"), "before sending back", 900)
+        ok, why = _send_to_p(lane, d0, amount)
+        how = "an amount of %s EPIC (this run's inflow; the rest stays in the lane seed's wallet)" % amount if amount else "Max"
         if pair:
-            _set(lane, pair, ok, ("to P via Epicbox, the Send page with Max: %s" % why) if ok else why)
+            _set(lane, pair, ok, ("to P via Epicbox, the Send page with %s: %s" % (how, why)) if ok else why)
         else:
             lane.log("returned to P: %s" % why)
     except ProductFault as e:
@@ -576,20 +662,24 @@ def _send_back(lane, pair):
             lane.log("could not return the funds: %s" % e.what)
 
 
-def _send_to_p(lane, d0):
-    """Everything (Max) to P through the recipe; True when the data shows the payment posted and confirmed."""
+def _send_to_p(lane, d0, amount=None):
+    """[amount] (EPIC, a Decimal) to P through the recipe's Send page, or everything (Max) when None; True
+    when the data shows the payment posted and confirmed (and of that amount)."""
     n0 = len([t for t in _txs(d0) if t["direction"] == "outgoing"])
     avail = _spendable(d0) or 0
-    if D(avail) / NANO > CAP_SEND:
-        return False, "available %s over the per-send cap %s" % (num(avail), CAP_SEND)
-    _budget(lane, D(avail) / NANO)
+    a = D(str(amount)) if amount is not None else D(avail) / NANO
+    if a > CAP_SEND:
+        return False, "%s %s over the per-send cap %s" % ("amount" if amount is not None else "available", num(_nano(a)), CAP_SEND)
+    _budget(lane, a)
     p = _p_ready(lane)
     with p.exchange("send back to P"):
         _unlock(lane)
         if not p.start_listener():
             raise HarnessFault("send", "P's listener did not start (3 tries)")
-        ok, why = lane.ui.send(P_ADDR, None)
+        lane.send_pending = a  # until the data shows it confirmed: the lane seed's record counts it gone
+        ok, why = lane.ui.send(P_ADDR, format(a, "f") if amount is not None else None)
         if not ok:
+            lane.send_pending = None
             return False, "the Send did not go through: %s" % why
         end = time.time() + 900
         last = None
@@ -608,8 +698,12 @@ def _send_to_p(lane, d0):
         out = [t for t in _txs(_digest(lane, "candidate")) if t["direction"] == "outgoing"][n0:]
         if out and out[-1]["state"] == "confirmed":
             t = out[-1]
-            return True, "outgoing %s EPIC (fee %s) to P, posted and confirmed (wallet data)" % (
-                num((t["debited"] or 0) - (t["credited"] or 0) - (t["fee"] or 0)), num(t["fee"] or 0))
+            lane.send_pending = None
+            sent = (t["debited"] or 0) - (t["credited"] or 0) - (t["fee"] or 0)
+            if amount is not None and sent != _nano(a):
+                return False, "outgoing %s EPIC (fee %s) to P confirmed, the Send page was given %s EPIC (wallet data)" % (
+                    num(sent), num(t["fee"] or 0), a)
+            return True, "outgoing %s EPIC (fee %s) to P, posted and confirmed (wallet data)" % (num(sent), num(t["fee"] or 0))
         time.sleep(POLL_S)
     return False, "posted, not confirmed in 15 min (wallet records %s)" % last
 

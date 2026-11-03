@@ -163,7 +163,7 @@
   "@deskSetHttpStep2": {
     "description": "Internet guide dialog: step 2 title."
   },
-  "deskSetHttpStep2Text": "On the router’s page (often 10.0.1.1), find Port forwarding and forward TCP {port} to this computer.",
+  "deskSetHttpStep2Text": "On the router’s page (often 192.168.1.1), find Port forwarding and forward TCP {port} to this computer.",
   "@deskSetHttpStep2Text": {
     "description": "Internet guide dialog: step 2 text.",
     "placeholders": {

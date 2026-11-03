@@ -59,6 +59,7 @@ class WindowsPlatform(Platform):
         self.variant = e.get("REL_VARIANT") or "tor"
         self.prev_dir, self.prev_ver = e.get("REL_PREVIOUS_DIR", ""), e.get("REL_PREVIOUS_VERSION", "")
         self.cand_dir, self.cand_ver = e.get("REL_CANDIDATE_DIR", ""), e.get("REL_CANDIDATE_VERSION", "")
+        self.create = e.get("REL_TRUST_MODE") == "create"   # the create-wallet test: the candidate alone
         self.host = e.get("REL_WIN_HOST") or "windows-pc"
         self.node, self.relay = e.get("REL_NODE", ""), e.get("REL_EPICBOX", "")
         self.custom_node = self.custom_relay = None
@@ -90,13 +91,13 @@ class WindowsPlatform(Platform):
         raise HarnessFault("prepare", "no %s Windows Setup for %s in %s" % (self.variant, version, folder))
 
     def prepare(self):
-        prev = self.setup_exe(self.prev_dir, self.prev_ver)
+        prev = None if self.create else self.setup_exe(self.prev_dir, self.prev_ver)
         cand = self.setup_exe(self.cand_dir, self.cand_ver)
         self.hermetic = hermetic.plan(checks.P_ADDR)
         self.log("hermetic: %s" % self.hermetic["reason"])
         self._pick_servers()
         os.makedirs(self.work, mode=0o700, exist_ok=True)
-        self.log("previous %s, candidate %s" % (os.path.basename(prev), os.path.basename(cand)))
+        self.log("previous %s, candidate %s" % (os.path.basename(prev) if prev else "none (create)", os.path.basename(cand)))
         self._healthy_rig(prev, cand)
         self._servers()
         self.surface = WinSurface(self.rig, self.log, secret_dir=self.work)
@@ -165,7 +166,8 @@ class WindowsPlatform(Platform):
                            os.path.join(os.path.expanduser("~"), ".cache", "rel-trust-windows", "ctl"), session=k)
             try:
                 self.rig.prepare()
-                self.rig.put(prev, self.rig.run + "\\prev-setup.exe")
+                if prev:
+                    self.rig.put(prev, self.rig.run + "\\prev-setup.exe")
                 self.rig.put(cand, self.rig.run + "\\cand-setup.exe")
                 waiting = self.rig.busy()
                 if waiting:
@@ -207,17 +209,24 @@ class WindowsPlatform(Platform):
     # ---- install and the app
 
     def install_previous(self):
+        self._install("previous", "prev-setup.exe")
+
+    def install_candidate_fresh(self):
+        """The create-wallet test's fresh install: the candidate's Setup, silent, on a rig user without the app."""
+        self._install("candidate", "cand-setup.exe")
+
+    def _install(self, which, setup):
         e = self._call("entry").get("entry")
         if e:
             raise HarnessFault("install", "%s already has %s installed (%s at %s): left alone" % (
                 self.rig.user, e.get("name") or "BT Wallet", e.get("version"), e.get("location")))
-        r = self._call("setup", exe=self.rig.run + "\\prev-setup.exe", timeout=400, wait_s=300,
-                       args=["/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/LOG=%s\\setup-previous.log" % self.rig.run])
+        r = self._call("setup", exe=self.rig.run + "\\" + setup, timeout=400, wait_s=300,
+                       args=["/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/LOG=%s\\setup-%s.log" % (self.rig.run, which)])
         if not r.get("ok"):
-            raise HarnessFault("install", "the previous release's Setup failed: %s" % (r.get("error") or "exit %s" % r.get("exit")))
+            raise HarnessFault("install", "the %s release's Setup failed: %s" % (which, r.get("error") or "exit %s" % r.get("exit")))
         self.entry = r["entry"]
         self.exe = installed_exe(self.entry)
-        self.log("previous installed: %s at %s" % (self.entry.get("version"), self.entry.get("location")))
+        self.log("%s installed: %s at %s" % (which, self.entry.get("version"), self.entry.get("location")))
 
     def _procs(self):
         return self._call("procs").get("procs") or []

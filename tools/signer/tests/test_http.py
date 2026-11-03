@@ -118,7 +118,7 @@ class Http(SignerCase):
 
 class Listen(unittest.TestCase):
     def test_tailnet_or_loopback_only(self):
-        for bad in ("0.0.0.0", "10.0.0.57", "::", "example.org"):
+        for bad in ("0.0.0.0", "192.168.0.57", "::", "example.org"):
             with self.assertRaises(ValueError):
                 server.check_listen(bad)
         server.check_listen("10.90.15.122")

@@ -17,7 +17,7 @@ import time
 
 from . import breaks
 from . import targets as tg
-from .driver import Expect, either, gone, shows, where
+from .driver import SLOW, Expect, either, gone, shows, where
 from .faults import HarnessFault, ProductFault
 
 T = tg.T
@@ -95,6 +95,62 @@ SEND_BACK = T("g4.send.back", names=("Back",), match="exact")
 SEND_FAILED = T("g4.send.failed", role="text", names=(r"re:.*(send failed|not sent|nothing was sent|could not send).*",),
                 match="contains")
 
+MONTHS = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
+          "November", "December")
+# Restore from a phrase (restore_screen.dart, month_picker.dart, restore_card.dart): the phrase is on these
+# screens, so every target is secret and the typing is hushed (Driver.hush).
+RESTORE = T("g4.welcome.restore", keys=("firstRunRestore",), names=("Restore from phrase",), secret=True)
+RESTORE_TITLE = T("g4.restore.title", role="text", keys=("restoreTitle",), names=("Restore wallet",), match="exact", secret=True)
+RESTORE_PHRASE = T("g4.restore.phrase", role="text_field", keys=("restorePhraseLabel",), names=("Recovery phrase",),
+                   match="starts", secret=True)
+# The scan starts in January 2025 on mainnet unless told otherwise. Built to the planned final design of the
+# scan-start block (feat/restore-start-ui, same on phone and desktop): a button "Change the start" opens the
+# Month | Block height panel; "Scan from the start" (block 0) sits behind the info button "Scan start". The
+# names after the keys are main's interim texts (a link "Start from a month or height", "Scan from the start"
+# shown in the open), so both screens are found. A rename is a change to these four targets only.
+RESTORE_START = T("g4.restore.start", role="button", keys=("scanStartChange",),
+                  names=("Change the start", "Start from a month or height"), match="exact", secret=True)
+RESTORE_INFO = T("g4.restore.info", role="button", keys=("scanStartInfoTitle",), names=("Scan start",),
+                 match="exact", secret=True)
+RESTORE_FROM_START = T("g4.restore.fromStart", role="button", keys=("restoreScanFromStart",),
+                       names=("Scan from the start",), match="exact", secret=True)
+RESTORE_BY_HEIGHT = T("g4.restore.by.height", keys=("restoreStartByHeight",), names=("Block height",), match="starts",
+                      secret=True)
+RESTORE_HEIGHT = T("g4.restore.height", role="text_field", keys=("restoreStartHeightLabel",),
+                   names=("Start height (optional)",), match="starts", secret=True)
+RESTORE_CONTINUE = T("g4.restore.continue", keys=("commonContinue",), names=("Continue",), match="exact", secret=True)
+# The month button shows the chosen month ("January 2025"; the default start is the first choice shown).
+RESTORE_PICK_MONTH = T("g4.restore.month", names=(r"re:(%s) \d{4}" % "|".join(m.casefold() for m in MONTHS),
+                                                  "Pick the month you created the wallet"), match="exact", secret=True)
+MONTH_TITLE = T("g4.restore.month.title", role="text", keys=("restoreDatePickerTitle",),
+                names=("When did you create the wallet?",), match="exact", secret=True)
+MONTH_EARLIER = T("g4.restore.month.earlier", keys=("restoreMonthEarlierYear",), names=("Earlier year",), match="exact",
+                  secret=True)
+MONTH_LATER = T("g4.restore.month.later", keys=("restoreMonthLaterYear",), names=("Later year",), match="exact", secret=True)
+MONTH_START = T("g4.restore.month.start", role="text", keys=("restoreMonthStart",),
+                names=(r"re:scanning starts from block .*",), match="starts", secret=True)
+RESTORE_PROBLEM = T("g4.restore.problem", role="text", keys=("restorePhraseChecksum", "restorePhraseWordCount",
+                                                             "restorePhraseUnknownWord", "restorePhraseUnknownWords",
+                                                             "restoreStartHeightInvalid"),
+                    names=(r"re:.*(does not check out|not in the word list|this phrase has \d+ words?).*",),
+                    match="contains", secret=True)
+RESTORE_SCANNING = T("g4.restore.scan", role="text", keys=("restoreScanIntro",),
+                     names=(r"re:looking for this wallet.s coins on the chain.*",), match="starts", secret=True)
+RESTORE_RETRY = T("g4.restore.retry", keys=("launchTryAgain",), names=("Try again",), match="exact", secret=True)
+RESTORE_OPEN = T("g4.restore.open", keys=("restoreOpenWallet",), names=("Open wallet",), match="exact", secret=True)
+RESTORE_DONE = T("g4.restore.done", role="text", keys=("restoreDoneTitle",), names=("Your wallet is restored",),
+                 match="exact", secret=True)
+RESTORE_NOT_NOW = T("g4.restore.notnow", keys=("restoreImportNotNow",), names=("Not now",), match="exact", secret=True)
+RESTORE_UNFINISHED = T("g4.restore.unfinished", role="text", keys=("restoreUnfinishedTitle",),
+                       names=("Restore not finished",), secret=True)
+RESTORE_OFFLINE = T("g4.restore.offline", role="text", keys=("restoreUnfinishedOffline",),
+                    names=(r"re:the scan goes on when offline is off.*",), match="starts", secret=True)
+RESTORE_FAILED = T("g4.restore.failed", role="text", keys=("restoreUnfinishedFailed",),
+                   names=(r"re:the scan stopped and is retried by itself.*",), match="starts", secret=True)
+# A month from the wallet's birth to a full scan from block 0 on Home (restore_card.dart): the genesis scan
+# takes minutes on an emulator; this is its ceiling before REL_TRUST_SLOW.
+RESTORE_HOME_S = 2400
+
 ADDRESS_RX = re.compile(r"\b([1-9A-HJ-NP-Za-km-z]{48,56})(@[\w.:-]+)?")
 
 
@@ -128,6 +184,7 @@ class Phone:
     def __init__(self, driver, which, log=print):
         self.d, self.which, self.log = driver, which, log
         self.pin = self.password = self.phrase = None
+        self.restoring = None   # a restore's start time while its scan from block 0 still runs on Home
         self.d.obstacles += [(TOUR_SKIP, "the app tour"), (BIOMETRICS_NOT_NOW, "the biometrics offer"),
                              (ANR_WAIT, "Android's not-responding dialog")]
 
@@ -151,7 +208,7 @@ class Phone:
         d.trail.append(step)
         for _ in range(2):
             f = d.locate(PIN_FIELD, 30)
-            d._act(d.s.set_text, f, self.pin)
+            d._act(d.s.set_text, f, self.pin, True)
             r = d.wait(then, timeout)
             if r:
                 return r
@@ -183,6 +240,180 @@ class Phone:
         self.log("wallet created; the PIN and phrase are kept with the lane's secrets, not printed")
         self.home()
         return {"pin": self.pin, "password": self.password, "phrase": self.phrase}
+
+    def restore_wallet(self, phrase, birth=None):
+        """The wallet of [phrase] on a fresh install: first run › Restore from phrase › the start (the
+        birth month, else its height, else the whole chain) › the phrase › Continue › a new PIN › the
+        scan › Not now (no wallet data file) › Home. The scan from block 0 that finishes every restore
+        goes on there; restore_finish() (address, send) waits for it. Returns {pin, password}. The phrase is
+        typed hushed from a file on the emulator: never on a command line, a log, a shot or a dump."""
+        d = self.d
+        birth = birth or {}
+        self.pin = "".join(_secrets.choice("0123456789") for _ in range(6))
+        self.password = _secrets.token_urlsafe(16)
+        self.phrase = phrase
+        at = d.must(where({"welcome": shows(RESTORE), "levels": shows(LEVEL_PICK)}), 180, step="welcome",
+                    goal="the first screen with Restore from phrase")
+        if at == "levels":
+            self._pick_deep_end()
+        if d.seen(TOR_ONLY):
+            d.toggle(TOR_ONLY, False, step="tor-only-off")
+        d.press(RESTORE, step="restore", then=shows(RESTORE_PHRASE), timeout=60)
+        self._restore_start(birth)   # before the phrase: the screen holds no word while the start is chosen
+        with d.hush():
+            if hasattr(d.s, "hide_keyboard"):
+                d.s.hide_keyboard()
+            d.fill(RESTORE_PHRASE, phrase, step="restore-phrase")
+            if hasattr(d.s, "hide_keyboard"):
+                d.s.hide_keyboard()
+            d.press(RESTORE_CONTINUE, step="restore-continue", then=either(shows(PIN_CHOOSE), shows(RESTORE_PROBLEM)), timeout=60)
+            if d.find_in(RESTORE_PROBLEM, d.tree()):
+                d.harness("the restore screen did not take the phrase (a phrase or start problem shown)")
+        self._type_pin("restore-pin-choose", shows(PIN_AGAIN), 30)
+        self._type_pin("restore-pin-again", either(shows(RESTORE_SCANNING, RESTORE_DONE, RESTORE_OPEN), self._home()), 300)
+        t0 = time.time()
+        self._restore_scan()
+        self._wait_home("restore-home", 120)
+        d.shot("restore-home")
+        self.restoring = t0
+        self.log("restore timing: the restore screen's scan (from the start chosen) to Home %d s; the scan from "
+                 "block 0 goes on on Home and is waited for before Receive or Send (the app refuses both until it "
+                 "ends)" % (time.time() - t0))
+        self.log("wallet restored; the PIN is kept with the lane's secrets, not printed")
+        return {"pin": self.pin, "password": self.password}
+
+    def restore_finish(self):
+        """A restore's scan from block 0 waited out on Home (no-op without one): the app refuses
+        receiving, sending and invoices until it ends (restore_scan.dart, restoreScanRequired)."""
+        if self.restoring is None:
+            return
+        t0 = self.restoring
+        self.home()
+        self._restore_home()
+        self.restoring = None
+        self.log("restore timing: the scan from block 0 finished %d s after the restore screen's scan began" % (time.time() - t0))
+
+    def _restore_start(self, birth):
+        """Where the scan starts: the birth height in Block height, else the birth month in the month
+        picker, through "Change the start". Neither: "Scan from the start" (block 0), since leaving the
+        screen alone scans from January 2025 on mainnet. 26.10.26 and older hide the choice at level 1."""
+        d = self.d
+        month, height = birth.get("month"), birth.get("height")
+        if not month and height is None:
+            self._scan_from_start()
+            d.shot("restore-start")
+            return
+        if not d.wait(shows(RESTORE_START), 5):
+            # 26.10.26 and older: a phone's first run is level 1, and level 1 hides the start: a restore on
+            # a fresh install scans from block 0, whatever the wallet's birth
+            self.log("restore start: the whole chain (this build offers no start choice at its level)")
+            return
+        d.press(RESTORE_START, step="restore-start", then=shows(RESTORE_PICK_MONTH, RESTORE_HEIGHT), timeout=20)
+        if height is None:
+            year, mon = (int(x) for x in month.split("-")[:2])
+            self._pick_month(year, mon)
+            line = d.wait(shows(MONTH_START), 10)
+            self.log("restore start: %04d-%02d (%s)" % (year, mon, line.name.split("\n")[0] if line else "no start line"))
+        else:
+            if not d.seen(RESTORE_HEIGHT):
+                d.press(RESTORE_BY_HEIGHT, step="restore-by-height", then=shows(RESTORE_HEIGHT), timeout=20)
+            d.fill(RESTORE_HEIGHT, str(int(height)), step="restore-height")
+            self.log("restore start: block %d" % int(height))
+        d.shot("restore-start")
+
+    def _scan_from_start(self):
+        """Scan from the start (block 0): doing nothing scans from January 2025 on mainnet. The button may sit
+        behind the info button; a test network scans from block 0 already and offers neither."""
+        d = self.d
+        if not d.wait(shows(RESTORE_FROM_START), 3):
+            if d.seen(RESTORE_INFO):
+                d.press(RESTORE_INFO, step="restore-start-info", then=shows(RESTORE_FROM_START), timeout=20)
+        if not d.wait(shows(RESTORE_FROM_START), 3):
+            self.log("restore start: the whole chain (no birth month or height; no Scan from the start offered)")
+            return
+        d.press(RESTORE_FROM_START, step="restore-from-start", then=gone(RESTORE_FROM_START), timeout=20)
+        self.log("restore start: the whole chain (no birth month or height; Scan from the start)")
+
+    def _pick_month(self, year, mon):
+        """The month picker opens on the first year a wallet can be from: Later year (or Earlier) to
+        [year], then its cell ("November 2026")."""
+        d = self.d
+        cell = T("g4.restore.month.%04d-%02d" % (year, mon), names=("%s %d" % (MONTHS[mon - 1], year),),
+                 match="exact", secret=True)
+        d.press(RESTORE_PICK_MONTH, step="restore-month", then=shows(MONTH_TITLE), timeout=20)
+        for _ in range(20):
+            tree = d.tree()
+            if d.find_in(cell, tree):
+                break
+            shown = [int(n.name) for n in tree if n.role == "text" and re.fullmatch(r"\d{4}", n.name.strip())]
+            arrow = MONTH_EARLIER if shown and shown[0] > year else MONTH_LATER
+            n = self._pressable(arrow, tree)
+            if n is None or not n.enabled:
+                d.harness("the month picker has no %s cell (%s)" % (cell.names[0], "year %s" % shown[0] if shown else "no year"))
+            d._act(d.s.press, n)
+            d.wait(Expect("the year changed", lambda dd, t, b=shown: [x.name for x in t if re.fullmatch(r"\d{4}", x.name.strip())] != [str(y) for y in b]), 5)
+        d.press(cell, step="restore-month-pick", then=gone(MONTH_TITLE), timeout=20)
+
+    def _restore_scan(self):
+        """The restore screen's own scan (from the start chosen): its done screen (Not now), or Try
+        again twice when it stops, then Open wallet (Home carries the scan on)."""
+        d = self.d
+        tries = 0
+        while True:
+            at = d.must(where({"done": shows(RESTORE_DONE), "home": self._home(), "unfinished": shows(RESTORE_OPEN)}),
+                        RESTORE_HOME_S * SLOW, step="restore-scan", goal="the restore's scan done")
+            if at == "home":
+                return
+            if at == "done":
+                d.shot("restore-done")
+                n = d.seen(RESTORE_NOT_NOW)   # "Not now" is a known obstacle too: a wait may press it first
+                if n:
+                    d._act(d.s.press, n)
+                d.must(self._home(), 60, step="restore-not-now", goal="the wallet's home after Not now")
+                return
+            d.shot("restore-unfinished")
+            if tries < 2 and d.seen(RESTORE_RETRY):
+                tries += 1
+                self.log("restore: the scan stopped before the end; Try again (%d)" % tries)
+                d.press(RESTORE_RETRY, step="restore-retry", then=shows(RESTORE_SCANNING), timeout=30)
+                continue
+            self.log("restore: the scan stopped before the end; Open wallet (Home carries it on)")
+            d.press(RESTORE_OPEN, step="restore-open", then=self._home(), timeout=60)
+            return
+
+    def _restore_home(self, timeout=RESTORE_HOME_S):
+        """Home until its 'Restore not finished' card goes (the scan from block 0), twice in a row:
+        the wallet only receives and sends after it. A failed scan is tried again from the card."""
+        d = self.d
+        end, gone_n, retries, said = time.time() + timeout * SLOW, 0, 0, set()
+        t0 = time.time()
+        while True:
+            tree = d.tree()
+            if d.find_in(UNLOCK_TITLE, tree):
+                self.unlock()
+                continue
+            home, card = self._home().test(d, tree), d.find_in(RESTORE_UNFINISHED, tree)
+            gone_n = gone_n + 1 if home and not card else 0
+            if gone_n >= 2:
+                self.log("restore: the scan from block 0 finished on Home (%d s)" % (time.time() - t0))
+                d.shot("restore-finished")
+                return
+            for t, what in ((RESTORE_OFFLINE, "waits for Offline to be off"), (RESTORE_FAILED, "stopped")):
+                if card and d.find_in(t, tree) and what not in said:
+                    said.add(what)
+                    self.log("restore card: the scan %s" % what)
+            if card and d.find_in(RESTORE_FAILED, tree) and retries < 5:
+                n = self._pressable(RESTORE_RETRY, tree)
+                if n:
+                    retries += 1
+                    d._act(d.s.press, n)
+            if not home and not card:
+                self.home()
+            if time.time() >= end:
+                d.harness("the restore's scan from block 0 did not finish on Home in %d s" % (timeout * SLOW))
+            if not d.s.alive():
+                d.app_quit()
+            time.sleep(d.poll * 12)
 
     def _pick_deep_end(self):
         """A build with wallet levels asks the depth on a fresh install: Deep end (level 3), what a
@@ -641,6 +872,7 @@ class Phone:
     def address(self):
         """The Epicbox address on the Receive tab (the full one, key@relay)."""
         d = self.d
+        self.restore_finish()
         self.tab(TAB_RECEIVE)
         m = d.seen(RECEIVE_EPICBOX)
         if m and "selected" not in m.states:
@@ -663,6 +895,7 @@ class Phone:
         Continue › Send <amount> › PIN. True when the app took it; its progress is read from the
         wallet's files by the checks, never from these screens."""
         d = self.d
+        self.restore_finish()
         self.tab(TAB_SEND)
         for _ in range(4):  # a send left half-way: back to its first step
             if d.wait(shows(SEND_TO), 3) or not d.seen(SEND_BACK):

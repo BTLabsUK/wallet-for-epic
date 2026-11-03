@@ -13,7 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 const _onion = 'pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion';
 const _epicbox = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com';
-const _http = 'http://10.0.1.24:3415';
+const _http = 'http://192.168.1.24:3415';
 
 class _Wallet extends MockDeskWallet {
   _Wallet() : super(delay: Duration.zero);

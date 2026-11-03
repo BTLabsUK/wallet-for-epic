@@ -48,6 +48,7 @@ class LinuxPlatform(Platform):
         e = os.environ
         self.out, self.log = out, log
         self.variant = e.get("REL_VARIANT") or "tor"
+        self.create = e.get("REL_TRUST_MODE") == "create"   # the create-wallet test: the candidate alone
         stamp = time.strftime("%Y%m%d-%H%M%S")
         work_root = e.get("REL_WORK") or os.path.join(os.path.expanduser("~"), ".cache", "rel-trust-linux")
         self.work = os.path.join(work_root, "%s-%s-to-%s-%s" % (self.variant, e.get("REL_PREVIOUS_VERSION", "?"),
@@ -84,6 +85,8 @@ class LinuxPlatform(Platform):
         self._standins()
         for which, folder, ver in (("previous", e.get("REL_PREVIOUS_DIR", ""), e.get("REL_PREVIOUS_VERSION", "")),
                                    ("candidate", e.get("REL_CANDIDATE_DIR", ""), e.get("REL_CANDIDATE_VERSION", ""))):
+            if self.create and which == "previous":
+                continue
             self.roots[which] = self._extract(self.appimage(folder, ver), which)
         sandbox.start(self.sb)
         self.log("sandbox %s up; node %s (+ %s), Epicbox %s (+ %s)" % (self.sb, self.node, self.custom_node, self.relay, self.custom_relay))
@@ -145,6 +148,10 @@ class LinuxPlatform(Platform):
         """A fresh install is the empty sandbox HOME: nothing to do but make sure it is empty."""
         if os.listdir(data_root(self.sb)) if os.path.isdir(data_root(self.sb)) else False:
             raise HarnessFault("install", "the new sandbox already has a data folder")
+
+    def install_candidate_fresh(self):
+        """The create-wallet test's fresh install: the candidate's AppImage on the empty sandbox HOME."""
+        self.install_previous()
 
     # ---- the app
 

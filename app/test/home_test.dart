@@ -4679,7 +4679,7 @@ void main() {
       await h.pump(tester);
       await _tab(tester, _l.homeSendButton);
       expect(find.byKey(sendRecipientClearKey), findsNothing, reason: 'nothing to clear yet');
-      const link = 'http://10.0.1.24:3415';
+      const link = 'http://192.168.1.24:3415';
       await tester.enterText(find.widgetWithText(TextField, _l.sendToLabel), link);
       await tester.pump(const Duration(seconds: 4));
       await tester.pumpAndSettle();

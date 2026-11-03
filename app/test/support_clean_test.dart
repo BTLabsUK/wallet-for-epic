@@ -16,7 +16,7 @@ INFO cli: epic-wallet --pass "s3cret pass" listen
 WARN send: to $_address@box.epic.invalid failed
 WARN send: to esWn9r…@box.epic.invalid again
 INFO tor: listening on http://$_onion.onion/v2/foreign
-INFO node: connected to 203.0.113.7:3413 and http://10.0.1.24:3413, local 127.0.0.1:3415
+INFO node: connected to 203.0.113.7:3413 and http://192.168.1.24:3413, local 127.0.0.1:3415
 INFO node: tried http://mynode.example.org:3413 and https://node.epic.invalid
 INFO files: /home/alice/.local/share/wallet and C:\\Users\\Alice Smith\\AppData
 INFO user alice on alice-laptop: done
@@ -28,7 +28,7 @@ INFO mail me@example.com, PIN 123456
 ''';
     final out = cleanForReport(log, context: const CleanContext(home: '/home/alice', username: 'alice', hostname: 'alice-laptop'));
     for (final secret in [
-      'abandon', 'hunter2', 's3cret', _address, 'esWn9r', _onion, '203.0.113.7', '10.0.1.24',
+      'abandon', 'hunter2', 's3cret', _address, 'esWn9r', _onion, '203.0.113.7', '192.168.1.24',
       'mynode.example.org', 'alice', 'Alice Smith', '08a1b2c3', 'part_sig', 'me@example.com', '123456',
     ]) {
       expect(out, isNot(contains(secret)), reason: secret);

@@ -77,7 +77,7 @@ void main() {
       for (final h in ['127.0.0.1', '127.255.255.255', '127.0.0.0']) {
         kind(h, HostKind.local);
       }
-      for (final h in ['10.0.0.0', '10.255.255.255', '172.16.0.0', '172.31.255.255', '10.0.0.0', '10.0.255.255', '169.254.0.0', '169.254.255.255']) {
+      for (final h in ['10.0.0.0', '10.255.255.255', '172.16.0.0', '172.31.255.255', '192.168.0.0', '192.168.255.255', '169.254.0.0', '169.254.255.255']) {
         kind(h, HostKind.local);
       }
       for (final h in ['126.255.255.255', '128.0.0.0', '9.255.255.255', '11.0.0.0', '172.15.255.255', '172.32.0.0', '192.167.255.255', '192.169.0.0', '169.253.255.255', '169.255.0.0', '0.0.0.0', '255.255.255.255', '8.8.8.8', '100.63.255.255']) {
@@ -95,7 +95,7 @@ void main() {
     });
 
     test('IPv4-mapped IPv6 is judged as the IPv4 address', () {
-      kind('::ffff:10.100.10.20', HostKind.local);
+      kind('::ffff:192.168.1.20', HostKind.local);
       kind('::ffff:127.0.0.1', HostKind.local);
       kind('[::ffff:c0a8:114]', HostKind.local);
       kind('::ffff:8.8.8.8', HostKind.public);
@@ -113,7 +113,7 @@ void main() {
     });
 
     test('isLocalAddressUrl: literal local hosts only, never a name', () {
-      expect(isLocalAddressUrl('http://10.100.10.20:3413'), isTrue);
+      expect(isLocalAddressUrl('http://192.168.1.20:3413'), isTrue);
       expect(isLocalAddressUrl('http://127.0.0.1:3413'), isTrue);
       expect(isLocalAddressUrl('http://[::1]:3413'), isTrue);
       expect(isLocalAddressUrl('http://localhost:3413'), isTrue);
@@ -128,7 +128,7 @@ void main() {
   group('resolveLocal: a name is looked up once', () {
     test('a literal address and localhost are never looked up', () async {
       Future<List<String>> never(String h) async => fail('looked up $h');
-      expect(await resolveLocal('10.100.10.20', never), '10.100.10.20');
+      expect(await resolveLocal('192.168.1.20', never), '192.168.1.20');
       expect(await resolveLocal('localhost', never), 'localhost');
       expect(await resolveLocal('8.8.8.8', never), isNull);
       expect(await resolveLocal('abc.onion', never), isNull);
@@ -140,8 +140,8 @@ void main() {
         asked.add(h);
         return found;
       };
-      expect(await resolveLocal('pc.lan', answer(['10.100.10.20', 'fe80::1'])), '10.100.10.20');
-      expect(await resolveLocal('pc.lan', answer(['10.100.10.20', '203.0.113.5'])), isNull);
+      expect(await resolveLocal('pc.lan', answer(['192.168.1.20', 'fe80::1'])), '192.168.1.20');
+      expect(await resolveLocal('pc.lan', answer(['192.168.1.20', '203.0.113.5'])), isNull);
       expect(await resolveLocal('pc.lan', answer(['203.0.113.5'])), isNull);
       expect(await resolveLocal('pc.lan', answer([])), isNull);
       expect(await resolveLocal('pc.lan', (_) async => throw const SocketException('no')), isNull);
@@ -149,12 +149,12 @@ void main() {
     });
 
     test('localUrl connects to the address found, keeping the rest of the URL', () async {
-      expect(await localUrl('http://pc.lan:3415/v2/foreign', (_) async => ['10.100.10.20']), 'http://10.100.10.20:3415/v2/foreign');
+      expect(await localUrl('http://pc.lan:3415/v2/foreign', (_) async => ['192.168.1.20']), 'http://192.168.1.20:3415/v2/foreign');
       expect(await localUrl('http://pc.lan:3415', (_) async => ['fd00::5']), 'http://[fd00::5]:3415');
-      expect(await localUrl('http://10.100.10.20:3415', (_) async => fail('looked up')), 'http://10.100.10.20:3415');
-      expect(await localUrl('http://pc.lan:3415', (_) async => ['10.100.10.20', '8.8.8.8']), isNull);
+      expect(await localUrl('http://192.168.1.20:3415', (_) async => fail('looked up')), 'http://192.168.1.20:3415');
+      expect(await localUrl('http://pc.lan:3415', (_) async => ['192.168.1.20', '8.8.8.8']), isNull);
       expect(await localUrl('https://wallet.example.org', (_) async => ['203.0.113.5']), isNull);
-      expect(await localUrl('ftp://10.100.10.20', (_) async => []), isNull);
+      expect(await localUrl('ftp://192.168.1.20', (_) async => []), isNull);
     });
   });
 
@@ -205,7 +205,7 @@ void main() {
       session.nodeUrl = 'https://node.btlabs.uk';
       await session.createSendSlate(amount: BigInt.from(10), minimumConfirmations: BigInt.from(3));
       expect(wallet.slates, 1);
-      await expectLater(send('http://10.0.1.30:3415'), throwsA(isA<NetBlocked>()));
+      await expectLater(send('http://192.168.1.30:3415'), throwsA(isA<NetBlocked>()));
       await expectLater(
         session.sendEpicbox(amount: BigInt.from(10), minimumConfirmations: BigInt.from(3), address: 'esX@epicbox.epiccash.com'),
         throwsA(isA<NetBlocked>()),
@@ -280,7 +280,7 @@ void main() {
     test('standard: plain http to the local network goes direct, with Tor back on after', () async {
       NetGate.set(NetworkMode.standard);
       TorSwitch.on = true;
-      expect(await send('http://10.0.1.30:3415'), 'http://10.0.1.30:3415');
+      expect(await send('http://192.168.1.30:3415'), 'http://192.168.1.30:3415');
       expect(wallet.torSet, [false, true]);
     });
 
@@ -288,8 +288,8 @@ void main() {
       NetGate.set(NetworkMode.torOnly);
       TorSwitch.on = true;
       final off = throwsA(isA<PlainHttpOffWithTor>());
-      await expectLater(send('http://10.0.1.30:3415'), off);
-      await expectLater(session.resendHttp(txId: 5, url: 'HTTP://10.0.1.30:3415', allowPlainHttp: true), off);
+      await expectLater(send('http://192.168.1.30:3415'), off);
+      await expectLater(session.resendHttp(txId: 5, url: 'HTTP://192.168.1.30:3415', allowPlainHttp: true), off);
       expect(wallet.sentTo, isEmpty);
     });
 
@@ -303,7 +303,7 @@ void main() {
 
     test('with the switch off plain http goes, with the consent it was given', () async {
       NetGate.set(NetworkMode.standard);
-      expect(await send('http://10.0.1.30:3415'), 'http://10.0.1.30:3415');
+      expect(await send('http://192.168.1.30:3415'), 'http://192.168.1.30:3415');
     });
 
     test('the refusal reads as plain http off with Tor, phone and desktop', () {
@@ -322,8 +322,8 @@ void main() {
         sent = jsonDecode(utf8.decode(b)) as Map<String, Object?>;
         return HttpReply(status, jsonEncode(body));
       };
-      expect(await nodePeerCount('http://10.100.10.20:3413/', post: reply(200, {'result': {'Ok': {'connections': 0}}})), 0);
-      expect(asked.toString(), 'http://10.100.10.20:3413/v2/owner');
+      expect(await nodePeerCount('http://192.168.1.20:3413/', post: reply(200, {'result': {'Ok': {'connections': 0}}})), 0);
+      expect(asked.toString(), 'http://192.168.1.20:3413/v2/owner');
       expect(sent?['method'], 'get_status');
       expect(await nodePeerCount('http://127.0.0.1:3413', post: reply(200, {'result': {'Ok': {'connections': 8}}})), 8);
       expect(await nodePeerCount('http://127.0.0.1:3413', post: reply(401, {})), isNull);

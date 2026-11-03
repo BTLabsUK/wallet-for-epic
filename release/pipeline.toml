@@ -100,8 +100,10 @@ watch_hours = 72
 [concurrency]
 max_heavy = 2
 shared = true
-apart = [["source-check", "trust-android"], ["source-check", "trust-windows"]]
-apart_shared = [["trust-android", "trust-windows"]]
+apart = [["source-check", "trust-android"], ["source-check", "trust-windows"],
+         ["source-check", "create-android"], ["source-check", "create-windows"]]
+apart_shared = [["trust-android", "trust-windows"], ["create-android", "trust-windows"], ["trust-android", "create-windows"],
+                ["create-android", "create-windows"]]
 external_suites = ["check.sh --full", "flutter-test-all", "source-check.sh"]
 external_wait = "60m"
 infra_retries = 1
@@ -143,8 +145,10 @@ quote = 3
 # waives it ([proof] waive), and the publish gate then shows it as not proven.
 [proof]
 status = "default pending the owner's call"
+# restore_ok: a lane that starts from its permanent wallet (drivers/core/lane_seed.py) restored the
+# balance it had on record; "not applicable" for a lane without a seed.
 checks = ["wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept", "custom_relays_kept", "settings_kept",
-          "store_encrypted", "app_files_kept", "lan_nodes_kept", "contact_note_kept"]
+          "store_encrypted", "app_files_kept", "lan_nodes_kept", "contact_note_kept", "restore_ok"]
 funds_checks = ["send_ok", "receive_ok"]
 # A new app beside the previous one (app id changed, authorised: the owner 2026-11-02 for 26.10.25):
 # the wallet is restored from its phrase, so the checks on carried data do not apply. Only for
@@ -556,6 +560,50 @@ host = "build"
 lane = "trust-ios"
 needs = ["build-android", "build-play", "sign-android", "build-linux", "ios-testflight", "apple-adhoc-ios@variant"]
 proof = true
+
+# A new user's first start on the candidate (REL_TRUST_MODE=create, drivers/core/lane.py): the
+# candidate installed with no app data, a wallet created through its screens and its home reached
+# (check create_ok). No funds; the phrase is checked and dropped. One variant per platform, on the
+# lane's own emulator, sandbox or rig, after that platform's update-trust lanes. A warning only: not
+# a proof step and not needed by update-trust.
+[step.create-android]
+title = "New wallet on the candidate, Android ({variant})"
+platform = "android"
+for_each = "proof_variant"
+variants = ["tor"]
+host = "build"
+lane = "trust-android-{variant}"
+needs = ["trust-android"]
+warn_only = true
+run = "{rel}/tools/rellib/drivers/trust-android.sh"
+timeout = "30m"
+env = { REL_TRUST_MODE = "create", REL_OUT = "{stage}", REL_CHECKS = "create_ok", REL_FUNDS = "0", REL_CANDIDATE_DIR = "{files}", REL_CANDIDATE_EXTRA = "{extra}", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
+
+[step.create-linux]
+title = "New wallet on the candidate, Linux ({variant})"
+platform = "linux"
+for_each = "proof_variant"
+variants = ["tor"]
+host = "build"
+lane = "trust-linux-{variant}"
+needs = ["trust-linux"]
+warn_only = true
+run = "{rel}/tools/rellib/drivers/trust-linux.sh"
+timeout = "30m"
+env = { REL_TRUST_MODE = "create", REL_OUT = "{stage}", REL_CHECKS = "create_ok", REL_FUNDS = "0", REL_CANDIDATE_DIR = "{files}", REL_CANDIDATE_EXTRA = "{extra}", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
+
+[step.create-windows]
+title = "New wallet on the candidate, Windows ({variant})"
+platform = "windows"
+for_each = "proof_variant"
+variants = ["tor"]
+host = "build"
+lane = "trust-windows-{variant}"
+needs = ["trust-windows"]
+warn_only = true
+run = "{rel}/tools/rellib/drivers/trust-windows.sh"
+timeout = "30m"
+env = { REL_TRUST_MODE = "create", REL_OUT = "{stage}", REL_CHECKS = "create_ok", REL_FUNDS = "0", REL_CANDIDATE_DIR = "{files}", REL_CANDIDATE_EXTRA = "{extra}", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }
 
 [step.update-trust]
 title = "G4 update trust"

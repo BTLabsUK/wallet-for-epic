@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// A node on the local network (a tester, 26.10.15: http://10.0.0.138:4413 "Not
+// A node on the local network (a tester, 26.10.15: http://192.168.0.138:4413 "Not
 // responding"; a tester's LAN node at 10.0.1.16:3413 and alice-node.lan:3413 "no answer"). LEPIC refuses plain
 // http to anything but loopback, so the app hands such a node to LEPIC through a loopback relay
 // (a .local/.lan name looked up once, every address local); loopback goes directly; https,
@@ -53,8 +53,8 @@ void main() {
   // (LEPIC takes it as it is: loopback), unchanged (https, public, onion, other names: LEPIC
   // judges them as before, plain http to them refused).
   const relayed = [
-    'http://10.0.0.138:4413',
-    'http://10.0.1.16:3413',
+    'http://192.168.0.138:4413',
+    'http://192.168.1.16:3413',
     'http://10.0.0.5:3413',
     'http://172.16.0.9:3413',
     'http://172.31.255.1:3413',
@@ -74,7 +74,7 @@ void main() {
   const unchanged = [
     'https://node.btlabs.uk',
     'https://node.epiccash.com:3413',
-    'https://10.0.0.138:4413',
+    'https://192.168.0.138:4413',
     'http://203.0.113.5:3413',
     'http://172.32.0.1:3413',
     // Just outside 100.64.0.0/10.
@@ -96,9 +96,9 @@ void main() {
     lanNodeLookup = (host) async {
       lookups.add(host);
       return switch (host.toLowerCase()) {
-        'alice-node.lan' => ['10.0.1.16'],
-        'mynode.local' => ['fe80::2', '10.100.10.20'],
-        'public.lan' => ['10.0.1.30', '203.0.113.7'],
+        'alice-node.lan' => ['192.168.1.16'],
+        'mynode.local' => ['fe80::2', '192.168.1.20'],
+        'public.lan' => ['192.168.1.30', '203.0.113.7'],
         _ => throw const SocketException('no such host'),
       };
     };
@@ -116,8 +116,8 @@ void main() {
       expect(_lepicTakes(url), isTrue, reason: url);
     }
     // One relay per node.
-    final a = (await LepicWalletService.lepicConfigOf(_config('http://10.0.0.138:4413'))).nodeUrl;
-    final b = (await LepicWalletService.lepicConfigOf(_config('http://10.0.0.138:4413'))).nodeUrl;
+    final a = (await LepicWalletService.lepicConfigOf(_config('http://192.168.0.138:4413'))).nodeUrl;
+    final b = (await LepicWalletService.lepicConfigOf(_config('http://192.168.0.138:4413'))).nodeUrl;
     expect(a, b);
   });
 
@@ -135,7 +135,7 @@ void main() {
     readLanNodesFile = () async => '{"plainHttp":[]}';
     const tail = 'http://100.64.21.31:3413';
     expect(needsPlainHttpConsent(tail), isTrue);
-    expect(needsPlainHttpConsent('http://10.0.0.5:3413'), isFalse);
+    expect(needsPlainHttpConsent('http://192.168.0.5:3413'), isFalse);
     expect(needsPlainHttpConsent('https://100.64.21.31:3413'), isFalse);
     expect(await lanNodeUrl(tail), tail, reason: 'LEPIC refuses it as before');
     await allowPlainHttpNode(tail);
@@ -189,8 +189,8 @@ void main() {
     final via = await lanNodeUrl('http://Alice-node.lan:3413');
     expect(lookups, ['alice-node.lan'], reason: 'a URL host is lowercase');
     expect(Uri.parse(via).host, '127.0.0.1');
-    // Same address, same relay: http://10.0.1.16:3413 typed directly shares it.
-    expect(await lanNodeUrl('http://10.0.1.16:3413'), via);
+    // Same address, same relay: http://192.168.1.16:3413 typed directly shares it.
+    expect(await lanNodeUrl('http://192.168.1.16:3413'), via);
   });
 
   test('which nodes count as local for the node list', () {

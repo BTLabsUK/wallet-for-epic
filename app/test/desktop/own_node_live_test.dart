@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 // Live: the user's own node reached by its home-network address, with the app's
 // real node client, the node relay and the owner secret. Needs a node answering plain http on
-// WFE_OWN_NODE (e.g. http://10.0.0.44:33413, never 127.0.0.1) and its `.api_secret` at
+// WFE_OWN_NODE (e.g. http://192.168.0.44:33413, never 127.0.0.1) and its `.api_secret` at
 // WFE_OWN_NODE_SECRET; WFE_OWN_NODE_CHAIN is the status site's chain name (none for usernet).
 // Without them it is skipped:
 //
-//   WFE_OWN_NODE=http://10.0.0.44:33413 WFE_OWN_NODE_SECRET=<node dir>/.api_secret \
+//   WFE_OWN_NODE=http://192.168.0.44:33413 WFE_OWN_NODE_SECRET=<node dir>/.api_secret \
 //   flutter test test/desktop/own_node_live_test.dart
 //
 // WFE_MINE_NODE=https://floo-node.btlabs.uk also asks that listed node as one marked Mine.

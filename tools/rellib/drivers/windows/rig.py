@@ -471,8 +471,10 @@ class Rig:
     def put_secret(self, local, name):
         """A secret file into <run>\\secret (readable by BT and the rig's user only); its path on the box."""
         d = self.run + "\\secret"
-        self.pwsh("New-Item -ItemType Directory -Force '%s' | Out-Null; icacls '%s' /inheritance:r /grant:r "
-                  "\"${env:USERNAME}:(OI)(CI)F\" \"%s:(OI)(CI)F\" | Out-Null" % (d, d, self.user or "epicrig"))
+        if getattr(self, "_secret_dir", None) != d:  # made once per run (each phrase word is a file of its own)
+            self.pwsh("New-Item -ItemType Directory -Force '%s' | Out-Null; icacls '%s' /inheritance:r /grant:r "
+                      "\"${env:USERNAME}:(OI)(CI)F\" \"%s:(OI)(CI)F\" | Out-Null" % (d, d, self.user or "epicrig"))
+            self._secret_dir = d
         self.put(local, d + "\\" + name)
         return d + "\\" + name
 

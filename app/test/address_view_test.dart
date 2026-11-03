@@ -36,7 +36,7 @@ void main() {
   });
 
   testWidgets('a link that fits stays on one line with its host:port whole', (tester) async {
-    await tester.pumpWidget(_app(const MarkedAddress('http://10.100.10.20:3415/')));
+    await tester.pumpWidget(_app(const MarkedAddress('http://192.168.1.20:3415/')));
     expect(find.byType(Column), findsNothing);
     expect(tester.takeException(), isNull);
   });

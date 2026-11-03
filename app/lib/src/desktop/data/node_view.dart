@@ -97,7 +97,7 @@ String ownLabel(AppLocalizations l, NodeClass c, String url) => l.deskOwnLabel(o
 /// the address's.
 NodeClass shownClass(String url, NodeInfo? info, {bool mine = false}) => info?.nodeClass ?? nodeClassOf(url, mine: mine);
 
-/// `10.0.1.24:<port>`: an own node's address with its port, no scheme.
+/// `192.168.1.24:<port>`: an own node's address with its port, no scheme.
 String ownAddress(String url) {
   final u = Uri.tryParse(url.contains('://') ? url : 'http://$url');
   if (u == null || u.host.isEmpty) return url;
@@ -110,7 +110,7 @@ String ownAddress(String url) {
 /// check or a sync answered) is never "Not answering" because the info probe failed, as one
 /// over Tor can while the wallet syncs through it.
 NodeView remoteNodeView(AppLocalizations l, String url, NodeInfo? info, {ServiceHealth? health, DateTime? downSince, bool torOn = false, bool mine = false}) {
-  // An own node: "Your node" on the rail, "Your node · 10.0.1.24:<port>" in the tooltip.
+  // An own node: "Your node" on the rail, "Your node · 192.168.1.24:<port>" in the tooltip.
   final own = shownClass(url, info, mine: mine).own;
   final full = own ? metaLine([l.deskOwnYourNode, ownAddress(url)]) : nodeHost(url);
   final host = own ? l.deskOwnYourNode : railHost('Node', full); // l10n-ok: railHost's kind key

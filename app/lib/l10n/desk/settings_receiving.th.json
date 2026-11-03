@@ -31,7 +31,7 @@
   "deskSetHttpStep1": "รอรับทุก interface",
   "deskSetHttpStep1Text": "กระเป๋าเงินจะตอบที่ 0.0.0.0 พอร์ต {port} อุปกรณ์อื่นจึงส่งเงินมาได้",
   "deskSetHttpStep2": "Forward พอร์ต",
-  "deskSetHttpStep2Text": "ในหน้าตั้งค่าเราเตอร์ (มักเป็น 10.0.1.1) หา Port forwarding แล้ว forward TCP {port} มายังคอมพิวเตอร์นี้",
+  "deskSetHttpStep2Text": "ในหน้าตั้งค่าเราเตอร์ (มักเป็น 192.168.1.1) หา Port forwarding แล้ว forward TCP {port} มายังคอมพิวเตอร์นี้",
   "deskSetHttpStep3": "แชร์ที่อยู่สาธารณะ",
   "deskSetHttpStep3Text": "ผู้ส่งใช้ http://<public IP>:{port} โดย public IP อาจเปลี่ยนได้",
   "deskSetHttpNoRouter": "ไม่ได้ตั้งค่าเราเตอร์?",

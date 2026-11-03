@@ -24,7 +24,7 @@ final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
 final String _alice = 'es${'a' * 50}@epicbox.epiccash.com';
 final String _bob = 'es${'b' * 50}@epicbox.epicnet.us';
 final String _onion = '${'t' * 55}d.onion';
-const String _http = 'http://10.100.10.20:3415';
+const String _http = 'http://192.168.1.20:3415';
 
 class _OpenSession extends SessionNotifier {
   _OpenSession(this.session);

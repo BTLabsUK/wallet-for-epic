@@ -9,6 +9,7 @@ way a keyboard user does: focus moved with Tab until that control has it, then E
 Never coordinates, never the order of the tree. Text fields often have no name: their description
 or the label the recipe gives them is matched instead (see core/targets.py).
 """
+import dataclasses
 import json
 import os
 import re
@@ -225,16 +226,21 @@ class AtspiSurface:
             self.key("escape")
         time.sleep(0.8)
 
-    def set_text(self, node, text):
+    def set_text(self, node, text, secret=False):
         """Focus, select all, type (the text on xdotool's stdin, never its command line). Flutter's
         GTK embedder takes EditableText.set_text_contents into the semantics value only, not the
         field: the form never sees it (26.10.25's create form said "Passwords differ"); it is
-        the fallback for a field that will not take focus."""
+        the fallback for a field that will not take focus, never for a secret. A secret is typed
+        slower (xdotool drops keys at speed and a phrase word is checked letter for letter) and its
+        field is named without its value in any line."""
         if self._call(self._req(node, "focus")).get("ok"):
-            self._xdo("key", "ctrl+a")
-            self._xdo("key", "BackSpace")
-            self._xdo("type", "--delay", "12", "--file", "-", inp=text)
+            if node.value != "":   # an empty field is left as it is: Backspace there moves a phrase grid back a field
+                self._xdo("key", "ctrl+a")
+                self._xdo("key", "BackSpace")
+            self._xdo("type", "--delay", "90" if secret else "12", "--file", "-", inp=text)
             return
+        if secret:
+            raise RuntimeError("%s took no focus (a secret is only typed)" % dataclasses.replace(node, value=None).brief())
         if not self._call(self._req(node, "set_text", text=text)).get("ok"):
             raise RuntimeError("%s took neither focus nor text" % node.brief())
 

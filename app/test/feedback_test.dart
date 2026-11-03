@@ -245,11 +245,11 @@ void main() {
           appVersion: '0.1.0',
           platform: 'android 14',
           network: 'Mainnet',
-          node: '10.0.1.24',
+          node: '192.168.1.24',
           relay: 'box.epic.invalid',
           sync: 'Syncing',
         ),
-        log: 'WARN node: http://10.0.1.24:3413 timed out\n',
+        log: 'WARN node: http://192.168.1.24:3413 timed out\n',
         at: DateTime.utc(2026),
       );
       expect(report.app['node'], '<ip-1>');

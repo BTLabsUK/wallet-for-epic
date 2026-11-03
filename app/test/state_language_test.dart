@@ -78,7 +78,7 @@ void main() {
   });
 
   group('the own node: one state for the field and the panel (#76)', () {
-    const url = 'http://10.0.1.24:3413';
+    const url = 'http://192.168.1.24:3413';
     final down = mockOwnNodeInfo(url, head: NodeHead.down);
     final standIn = NodeFailover(chosen: url, inUse: 'https://node.example', at: DateTime(2026, 10, 22, 14, 2));
 

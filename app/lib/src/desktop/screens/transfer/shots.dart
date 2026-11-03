@@ -18,7 +18,7 @@ import 'send_screen.dart';
 final _onion = 'http://$fakeWalletOnion';
 final _anna = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@$mockBox';
 /// Tom's wallet on the LAN (the mock's contact c4).
-const _tomLan = 'http://10.0.1.24:3415';
+const _tomLan = 'http://192.168.1.24:3415';
 // No saved contact has it.
 final _payee = 'esTk4wRm8Nq2Vx7Lc5Bh9Jd3Fg6Hs1Ka8Pz4Yu2Wn7Ec5Rt9Q@$mockBox';
 final _request = 'epic:$_payee?amount=12.5&message=Table%204%2C%20lunch%20for%20two&label=Corner%20Caf%C3%A9';
@@ -39,8 +39,8 @@ final List<DeskShot> transferShots = [
   DeskShot(id: '13d-send-epicbox-down', title: 'Send, Epicbox down', route: DeskRoute.send, arg: SendArgs(epicboxHealth: ServiceHealth.down)),
   DeskShot(id: '13e-send-privacy', title: 'Send, privacy open', route: DeskRoute.send, arg: SendArgs(privacyOpen: true, recipient: _anna, amount: '12.5')),
   DeskShot(id: '13f-send-suggestions', title: 'Send, matching contacts', route: DeskRoute.send, arg: SendArgs(recipient: 'an', suggest: true)),
-  DeskShot(id: '13g-send-http', title: 'Send, Link · HTTP', route: DeskRoute.send, arg: const SendArgs(method: TxMethod.http, recipient: 'http://10.0.1.24:3415', amount: '5'), prepare: (c, _) => _linkOn(c)),
-  DeskShot(id: '13u-send-http-off', title: 'Send, Link · HTTP off, a contact with only that address', route: DeskRoute.send, arg: const SendArgs(method: TxMethod.http, recipient: 'http://10.0.1.24:3415', amount: '5'), prepare: (c, _) => _linkOff(c)),
+  DeskShot(id: '13g-send-http', title: 'Send, Link · HTTP', route: DeskRoute.send, arg: const SendArgs(method: TxMethod.http, recipient: 'http://192.168.1.24:3415', amount: '5'), prepare: (c, _) => _linkOn(c)),
+  DeskShot(id: '13u-send-http-off', title: 'Send, Link · HTTP off, a contact with only that address', route: DeskRoute.send, arg: const SendArgs(method: TxMethod.http, recipient: 'http://192.168.1.24:3415', amount: '5'), prepare: (c, _) => _linkOff(c)),
   DeskShot(id: '13j-send-summary', title: 'Send, summary with what stays spendable', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '25'), height: 900),
   DeskShot(id: '13k-send-advanced', title: 'Send, Advanced open', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '25', advancedOpen: true), height: 1000),
   DeskShot(

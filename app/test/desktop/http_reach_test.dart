@@ -47,7 +47,7 @@ class _Wallet extends MockDeskWallet {
 }
 
 HttpReach _reach({String? ip = '203.0.113.24', bool? reachable}) =>
-    HttpReach(port: 3415, publicIp: ip, lan: '10.0.1.24', reachable: reachable, checkedAt: DateTime(2026));
+    HttpReach(port: 3415, publicIp: ip, lan: '192.168.1.24', reachable: reachable, checkedAt: DateTime(2026));
 
 void main() {
   group('HttpReachCache', () {
@@ -59,14 +59,14 @@ void main() {
     setUp(() {
       probe = _Probe();
       now = DateTime(2026, 10, 23, 12);
-      lan = '10.0.1.24';
+      lan = '192.168.1.24';
       cache = HttpReachCache(probe: probe, lan: () async => lan, now: () => now);
     });
 
     test('asks the IP, then the port on it', () async {
       final r = await cache.read(3415);
       expect(probe.calls, ['ip', '203.0.113.24:3415']);
-      expect((r.publicAddress, r.lanAddress, r.reachable), ('http://203.0.113.24:3415', 'http://10.0.1.24:3415', false));
+      expect((r.publicAddress, r.lanAddress, r.reachable), ('http://203.0.113.24:3415', 'http://192.168.1.24:3415', false));
     });
 
     test('kept 2 minutes; asked again after, on recheck, a new port or a new network', () async {
@@ -125,7 +125,7 @@ void main() {
     testWidgets('not reachable: forward the port; Check asks again', (tester) async {
       final wallet = await pump(tester, [_reach(reachable: false), _reach(reachable: true)]);
       expect(find.text(_l.deskKitReachClosedTitle), findsOneWidget);
-      expect(find.textContaining('Forward TCP port 3415 on your router to this computer (10.0.1.24)'), findsOneWidget);
+      expect(find.textContaining('Forward TCP port 3415 on your router to this computer (192.168.1.24)'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('http-reach-check')));
       await tester.pump();
       expect(find.text(_l.deskKitReachOpenTitle), findsOneWidget);
@@ -137,7 +137,7 @@ void main() {
       await pump(tester, [_reach(ip: null)]);
       expect(find.text(_l.deskKitReachNoIpTitle), findsOneWidget);
       // The address sits in the sentence as its own unbroken span, so the notice's text is read.
-      expect(tester.widget<ENotice>(find.byKey(const ValueKey('http-reach'))).text, contains('On your network: http://10.0.1.24:3415'));
+      expect(tester.widget<ENotice>(find.byKey(const ValueKey('http-reach'))).text, contains('On your network: http://192.168.1.24:3415'));
       await tester.pumpWidget(const SizedBox());
       await pump(tester, [_reach()]);
       expect(find.text(_l.deskKitReachUnknownTitle), findsOneWidget);

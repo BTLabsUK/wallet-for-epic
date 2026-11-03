@@ -31,7 +31,7 @@
   "deskSetHttpStep1": "Nasłuchuj na wszystkich interfejsach",
   "deskSetHttpStep1Text": "Portfel odpowiada na 0.0.0.0, port {port}, więc inne urządzenia mogą do niego wysyłać.",
   "deskSetHttpStep2": "Przekieruj port",
-  "deskSetHttpStep2Text": "Na stronie routera (często 10.0.1.1) znajdź Przekierowanie portów i przekieruj TCP {port} do tego komputera.",
+  "deskSetHttpStep2Text": "Na stronie routera (często 192.168.1.1) znajdź Przekierowanie portów i przekieruj TCP {port} do tego komputera.",
   "deskSetHttpStep3": "Udostępnij adres publiczny",
   "deskSetHttpStep3Text": "Nadawcy używają http://<publiczne IP>:{port}. Publiczne IP może się zmieniać.",
   "deskSetHttpNoRouter": "Bez konfiguracji routera?",

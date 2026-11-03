@@ -78,7 +78,7 @@ void main() {
     await n.setPayments(PaymentPrefs.phoneDefaults.copyWith(linkTor: true, defaultMethod: MethodKind.directQr));
     await old.read(pairingSeenAsProvider.future);
     await old.read(pairingSeenAsProvider.notifier).set('Alice');
-    final nodes = ['https://node.net.invalid:3413', 'https://my.node.invalid:3413', 'http://10.0.1.24:3413', 'https://node.lab.invalid'];
+    final nodes = ['https://node.net.invalid:3413', 'https://my.node.invalid:3413', 'http://192.168.1.24:3413', 'https://node.lab.invalid'];
     final boxes = ['box.stack.invalid:8443', 'box.epic.invalid'];
     await old.read(hostSettingsProvider.notifier).setAll({'node.servers': nodes, 'epicbox.servers': boxes});
     await old.read(secretStoreProvider).write(PhoneTor.receivingKey(_config), 'true');
@@ -159,7 +159,7 @@ void main() {
       BackupKey.advanced: AdvancedPrefs.none.toJson(),
       BackupKey.hideBalances: true,
       BackupKey.servers: {
-        BackupKey.node: ['http://10.0.1.50:3413', 'https://node.net.invalid:3413'],
+        BackupKey.node: ['http://192.168.1.50:3413', 'https://node.net.invalid:3413'],
         BackupKey.epicbox: ['box.epic.invalid'],
       },
     };
@@ -171,7 +171,7 @@ void main() {
     expect(await glue.apply(plan, takeConflicts: false), 3);
     final s = await c.read(appSettingsProvider.future);
     expect((s.themeMode, s.advanced.networkMode, s.hideBalances), (ThemeMode.light, NetworkMode.torOnly, true));
-    expect(c.read(hostSettingsProvider).nodeUrls, ['https://node.net.invalid:3413', 'http://10.0.1.50:3413'], reason: 'a LAN node is never made the node in use');
+    expect(c.read(hostSettingsProvider).nodeUrls, ['https://node.net.invalid:3413', 'http://192.168.1.50:3413'], reason: 'a LAN node is never made the node in use');
     expect(c.read(hostSettingsProvider).epicboxLabels, ['box.epic.invalid']);
 
     expect(await glue.apply(await glue.plan(file), takeConflicts: true), 2);

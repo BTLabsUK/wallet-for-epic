@@ -198,7 +198,7 @@ void main() {
     });
 
     test('a node on this computer, the local network or a tailnet is never made the node in use; it stays in the list', () {
-      for (final url in ['http://127.0.0.1:3413', 'http://10.0.1.24:3413', 'http://100.101.2.3:3413', 'http://node.lan:3413', 'http://localhost:3413']) {
+      for (final url in ['http://127.0.0.1:3413', 'http://192.168.1.24:3413', 'http://100.101.2.3:3413', 'http://node.lan:3413', 'http://localhost:3413']) {
         final plan = _plan(_map(BackupPlatform.mobile, _servers(nodes: [url, lab, _defaultNode])));
         expect(_keys(plan.refused), {BackupItem.nodeServers}, reason: url);
         expect(plan.values(takeConflicts: true)[BackupItem.nodeServers], [lab, url, _defaultNode], reason: url);

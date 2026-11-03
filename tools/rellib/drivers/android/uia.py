@@ -13,6 +13,7 @@ When adb or the emulator is gone every call raises HarnessGone: the lane restart
 import html
 import os
 import re
+import secrets
 import subprocess
 import time
 import xml.etree.ElementTree as ET
@@ -38,9 +39,9 @@ class Device:
     def __init__(self, serial, adb=ADB):
         self.serial, self.adb = serial, adb
 
-    def run(self, *args, timeout=60, text=True, check_gone=True):
+    def run(self, *args, timeout=60, text=True, check_gone=True, inp=None):
         try:
-            r = subprocess.run([self.adb, "-s", self.serial, *args], capture_output=True, timeout=timeout,
+            r = subprocess.run([self.adb, "-s", self.serial, *args], capture_output=True, timeout=timeout, input=inp,
                                **({"text": True, "errors": "replace"} if text else {}))
         except subprocess.TimeoutExpired:
             if check_gone and not self.online():
@@ -200,10 +201,29 @@ class Uia:
         b = node.ref["bounds"]
         self._tap((b[0] + b[2]) // 2, (b[1] + b[3]) // 2)
 
+    @staticmethod
+    def _parts(text, chunk):
+        return [text[i:i + chunk].replace("%", r"\%").replace(" ", "%s") for i in range(0, len(text), chunk)]
+
     def _type(self, text, chunk):
-        for i in range(0, len(text), chunk):
-            part = text[i:i + chunk].replace("%", r"\%").replace(" ", "%s")
+        for part in self._parts(text, chunk):
             self.dev.run("shell", "input text '%s'" % part.replace("'", "'\\''"))
+
+    def _type_secret(self, text, chunk):
+        """[text] never on this host's command lines nor in a file here: the parts go on adb's stdin
+        into a file only its owner reads on the emulator, which types them one by one and deletes it."""
+        f = "/data/local/tmp/wfe-in-%s" % secrets.token_hex(8)
+        parts = self._parts(text, chunk)
+        data = "".join(p + "\n" for p in parts)
+        r = self.dev.run("shell", "umask 077; cat > %s" % f, inp=data)
+        try:
+            if r.returncode != 0:
+                raise RuntimeError("the emulator did not take the text to type (adb exit %d)" % r.returncode)
+            r = self.dev.run("shell", 'while IFS= read -r c; do input text "$c"; done < %s' % f, timeout=60 + 2 * len(parts))
+            if r.returncode != 0:
+                raise RuntimeError("typing on the emulator failed (adb exit %d)" % r.returncode)
+        finally:
+            self.dev.run("shell", "rm -f %s" % f)
 
     def _clear(self, node):
         self.dev.run("shell", "input keycombination 113 29")  # ctrl+a selects the field's text
@@ -212,15 +232,17 @@ class Uia:
         if v:  # a field that ignores ctrl+a: delete from the end
             self.dev.run("shell", "input keyevent 123 " + " ".join(["67"] * (len(v) + 2)))
 
-    def set_text(self, node, text):
+    def set_text(self, node, text, secret=False):
         """Focus the field, clear it, type [text]. `input text` drops characters on a busy emulator:
         typed in chunks, read back (not a password field, whose text reads as dots) and typed again
-        one character at a time if it did not take. The text is never logged."""
+        one character at a time if it did not take. The text is never logged; [secret] text (a
+        phrase, a PIN) is typed on the emulator from a file (_type_secret), never from adb's arguments."""
+        typer = self._type_secret if secret else self._type
         b = node.ref["bounds"]
         self._tap((b[0] + b[2]) // 2, (b[1] + b[3]) // 2)
         time.sleep(0.3)
         self._clear(node)
-        self._type(text, self.chunk)
+        typer(text, self.chunk)
         if "password" in node.states:
             return
         for chunk in (1,):
@@ -228,7 +250,7 @@ class Uia:
             if got is None or got == text:
                 return
             self._clear(self._fresh(node))
-            self._type(text, chunk)
+            typer(text, chunk)
 
     def type_digits(self, digits):
         """A PIN pad's digits as key events (no field to set): KEYCODE_0..9."""

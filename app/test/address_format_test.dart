@@ -23,7 +23,7 @@ void main() {
     row(_epicbox, 'esWxbo…3jUcNK@epicbox.epiccash.com', 'esWxbo…3jUcNK');
     row('esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK', 'esWxbo…3jUcNK', 'esWxbo…3jUcNK');
     row(_tor, 'wfe7q3…abcdid.onion', 'wfe7q3…abcdid');
-    row('http://10.0.1.24:3415', 'http://10.0.1.24:3415', '10.0.1.24:3415');
+    row('http://192.168.1.24:3415', 'http://192.168.1.24:3415', '192.168.1.24:3415');
     row('https://pay.example.org/v2/foreign', 'https://pay.example.org/…', 'pay.example.org/…');
     row('https://pay.example.org/', 'https://pay.example.org', 'pay.example.org');
     row(
@@ -87,7 +87,7 @@ void main() {
     });
 
     test('a Link URL marks host:port as one token: an IP is never split', () {
-      expect(shape('http://10.100.10.20:3415'), 'quiet!(http://) mark!(10.100.10.20:3415)');
+      expect(shape('http://192.168.1.20:3415'), 'quiet!(http://) mark!(192.168.1.20:3415)');
       expect(shape('https://pay.example.org:8443/v2/foreign'), 'quiet!(https://) mark!(pay.example.org:8443) quiet|(/v2/foreign)');
       expect(shape('http://[::1]:3415/'), 'quiet!(http://) mark!([::1]:3415) quiet!(/)');
     });

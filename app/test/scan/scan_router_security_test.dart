@@ -494,8 +494,8 @@ void main() {
 
     test('LAN addresses pass the router; the mode gates are Send’s', () {
       // §7.3: the router adds no allowance and refuses none; network_gate.dart decides.
-      final p = _pay('epic:http://10.0.1.5:3415');
-      expect(p.recipient.address, 'http://10.0.1.5:3415');
+      final p = _pay('epic:http://192.168.1.5:3415');
+      expect(p.recipient.address, 'http://192.168.1.5:3415');
       expect(plainHttpToOtherDevice(p.recipient.address), isTrue);
     });
 

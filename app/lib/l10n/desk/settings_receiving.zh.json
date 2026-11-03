@@ -31,7 +31,7 @@
   "deskSetHttpStep1": "在所有网络接口上监听",
   "deskSetHttpStep1Text": "钱包在 0.0.0.0 的端口 {port} 上响应，其他设备即可向它付款。",
   "deskSetHttpStep2": "转发端口",
-  "deskSetHttpStep2Text": "在路由器的管理页面（通常是 10.0.1.1）找到“端口转发”，把 TCP {port} 转发到这台电脑。",
+  "deskSetHttpStep2Text": "在路由器的管理页面（通常是 192.168.1.1）找到“端口转发”，把 TCP {port} 转发到这台电脑。",
   "deskSetHttpStep3": "分享公网地址",
   "deskSetHttpStep3Text": "发送方使用 http://<public IP>:{port}。公网 IP 可能会变化。",
   "deskSetHttpNoRouter": "不想设置路由器？",

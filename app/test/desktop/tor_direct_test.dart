@@ -61,7 +61,7 @@ void main() {
     torBundle: () async => bundle,
     torFeature: true,
     torStartBackoff: const [Duration.zero, Duration.zero, Duration.zero],
-    httpReach: HttpReachCache(probe: probe, lan: () async => '10.0.1.24'),
+    httpReach: HttpReachCache(probe: probe, lan: () async => '192.168.1.24'),
   );
 
   Future<void> tor(core.TorEvent e) async {
@@ -545,7 +545,7 @@ void main() {
 
   // WAL-05: plain http:// to another computer never goes through a Tor exit, in any mode.
   group('plain HTTP with the Tor switch on', () {
-    const lan = 'http://10.0.1.30:3415';
+    const lan = 'http://192.168.1.30:3415';
     // In Normal the local network goes direct (Tor cannot reach it); an internet host is refused.
     const web = 'http://wallet.example.org:3415';
     final offText = englishStrings.sendPlainHttpOffWithTor;

@@ -109,7 +109,7 @@ void main() {
       expect(r.epicboxDomain, 'epicbox.epiccash.com');
       expect(r.epicboxPort, 8443);
       expect(names(r), ['Dave']);
-      expect(r.contacts.single.httpAddress, 'http://10.100.10.20:3415');
+      expect(r.contacts.single.httpAddress, 'http://192.168.1.20:3415');
     });
 
     test('the app settings: locale and My nodes, cleaned as myNodes.js does', () async {
@@ -118,7 +118,7 @@ void main() {
       expect(g.myNodes.keys, ['mainnet', 'floonet']);
       expect([for (final n in g.myNodes['mainnet']!) (n.address, n.label)], [
         ('https://node.example.com:3413', 'Home node'),
-        ('http://10.0.1.5:3413', 'LAN'),
+        ('http://192.168.1.5:3413', 'LAN'),
       ]);
       expect(g.myNodes['floonet']!.single.address, 'http://127.0.0.1:13413');
       await expectUnchanged(before);
@@ -160,7 +160,7 @@ void main() {
       final r = await readGuiImport(roots(), w);
       expect(r.label, 'Alpha (6.0)');
       expect(r.epicboxDomain, 'epicbox.fastepic.eu'); // the User row before config.json
-      expect(r.nodeUrl, 'http://10.100.10.20:3413'); // a LAN host gets http, slashes and spaces go
+      expect(r.nodeUrl, 'http://192.168.1.20:3413'); // a LAN host gets http, slashes and spaces go
       // 6.0 first; 5.3.1's 'Shared' is a repeat; Frank and Heidi were written to the log after
       // the table was compacted, Bob deleted before it
       expect(names(r), ['Shared', 'Grace', 'Frank', 'Carol', 'Heidi']);
@@ -188,7 +188,7 @@ void main() {
       await Directory('$home/.config/epic-desktop-wallet').delete(recursive: true);
       final r = await readGuiImport(roots(), await walletAt('$home/.epic/alpha/main'));
       expect(r.notes.join('\n'), contains('damaged block'));
-      expect(r.nodeUrl, 'http://10.100.10.20:3413');
+      expect(r.nodeUrl, 'http://192.168.1.20:3413');
     });
 
     test('no global settings without GUI 6.1', () async {
@@ -216,7 +216,7 @@ void main() {
       expect(cleanNodeAddress(''), '');
       expect(cleanNodeAddress('http://'), 'http://');
       expect(cleanNodeAddress(' node.example.com:3413/ '), 'https://node.example.com:3413');
-      expect(cleanNodeAddress('10.0.0.5:3413'), 'http://10.0.0.5:3413');
+      expect(cleanNodeAddress('192.168.0.5:3413'), 'http://192.168.0.5:3413');
       expect(cleanNodeAddress('localhost:3413'), 'http://localhost:3413');
       expect(cleanNodeAddress('HTTPS://Node.Example.com:443/'), 'https://node.example.com');
       expect(cleanNodeAddress('https://node.example.com:3413/api/?x#y'), 'https://node.example.com:3413/api');

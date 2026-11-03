@@ -31,7 +31,7 @@
   "deskSetHttpStep1": "Auf allen Schnittstellen lauschen",
   "deskSetHttpStep1Text": "Die Wallet antwortet auf 0.0.0.0, Port {port}, sodass andere Geräte an sie senden können.",
   "deskSetHttpStep2": "Port weiterleiten",
-  "deskSetHttpStep2Text": "Suchen Sie auf der Seite des Routers (oft 10.0.1.1) die Portweiterleitung und leiten Sie TCP {port} an diesen Computer weiter.",
+  "deskSetHttpStep2Text": "Suchen Sie auf der Seite des Routers (oft 192.168.1.1) die Portweiterleitung und leiten Sie TCP {port} an diesen Computer weiter.",
   "deskSetHttpStep3": "Öffentliche Adresse teilen",
   "deskSetHttpStep3Text": "Absender nutzen http://<public IP>:{port}. Die öffentliche IP kann sich ändern.",
   "deskSetHttpNoRouter": "Keine Router-Einrichtung?",

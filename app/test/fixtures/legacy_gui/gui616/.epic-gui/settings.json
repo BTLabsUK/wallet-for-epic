@@ -7,7 +7,7 @@
     "mainnet": [
       { "address": "https://node.example.com:3413/", "label": "Home\u0007node", "addedAt": "2026-01-01T00:00:00.000Z" },
       { "address": "HTTPS://Node.Example.com:3413", "label": "the same node again" },
-      { "address": "10.0.1.5:3413", "label": "LAN" },
+      { "address": "192.168.1.5:3413", "label": "LAN" },
       { "address": "ftp://not-a-node.example", "label": "dropped" },
       "not an entry"
     ],

@@ -41,15 +41,18 @@ def secret_screen(tree):
 
 
 def phrase_screen(tree):
-    """What may be a recovery phrase on the screen (a password field alone is not one)."""
-    cells = lone = 0
+    """What may be a recovery phrase on the screen (a password field alone is not one): in the labels, or
+    typed into fields (a restore screen's word fields, or the whole phrase pasted into one)."""
+    cells = lone = vals = 0
     for n in tree:
-        if PHRASE.search(" ".join([n.name or "", n.value or ""]).lower()):
+        value = (n.value or "").strip().lower()
+        if PHRASE.search(" ".join([n.name or "", n.value or ""]).lower()) or PHRASE.search(value + " "):
             return True
         name = (n.name or "").strip()
         cells += bool(WORD_CELL.fullmatch(name))
         lone += bool(LONE_WORD.fullmatch(name))
-    return cells >= 3 or lone >= 6
+        vals += bool(LONE_WORD.fullmatch(value))
+    return cells >= 3 or lone >= 6 or vals >= 6
 
 
 def _ask(prompt, timeout):

@@ -63,15 +63,15 @@ void main() {
   testWidgets('an http address is saved at once, as typed (a host with a dot or an IP: spec 7)', (tester) async {
     final api = _Wallet();
     await _open(tester, api);
-    await _fill(tester, 'lol', 'http://10.0.1.24:3415');
-    expect(api.saved.single.address, 'http://10.0.1.24:3415');
+    await _fill(tester, 'lol', 'http://192.168.1.24:3415');
+    expect(api.saved.single.address, 'http://192.168.1.24:3415');
     expect(api.saved.single.id, isEmpty, reason: 'a new contact gets its id from the store');
     expect(find.byType(ESpinner), findsNothing);
   });
 
   testWidgets('a refused save ends the spinner and says why', (tester) async {
     await _open(tester, _Wallet(fail: true));
-    await _fill(tester, 'lol', 'http://10.0.1.24:3415');
+    await _fill(tester, 'lol', 'http://192.168.1.24:3415');
     expect(find.text(_l.deskConSaveFailed), findsOneWidget);
     expect(find.textContaining('Disk full'), findsOneWidget);
     expect(find.byType(ESpinner), findsNothing);

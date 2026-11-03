@@ -23,7 +23,7 @@ void main() {
     }
   }
 
-  const hosts = ['node.example', 'status.example', '127.0.0.1', 'localhost', '10.100.10.20'];
+  const hosts = ['node.example', 'status.example', '127.0.0.1', 'localhost', '192.168.1.20'];
 
   test('Normal: every kind to every host; Tor only: all but the system browser (tor routes the rest)', () {
     for (final m in [NetworkMode.standard, NetworkMode.torOnly]) {
@@ -40,7 +40,7 @@ void main() {
     NetGate.set(NetworkMode.torOnly);
     expect(() => NetGate.dialDirect(NetDial.http, 'https://node.example:3413'), throwsA(isA<NetBlocked>()));
     NetGate.dialDirect(NetDial.http, 'http://127.0.0.1:3413');
-    NetGate.dialDirect(NetDial.http, 'http://10.100.10.20:3413');
+    NetGate.dialDirect(NetDial.http, 'http://192.168.1.20:3413');
     NetGate.set(NetworkMode.standard);
     NetGate.dialDirect(NetDial.http, 'https://node.example:3413');
   });
@@ -76,10 +76,10 @@ void main() {
       dials(NetDial.http, h, allowed: true);
     }
     dials(NetDial.builtInNode, '127.0.0.1', allowed: true);
-    dials(NetDial.http, '10.100.10.20', allowed: false);
-    NetGate.nodeInUse = () => 'http://10.100.10.20:3413';
-    dials(NetDial.nodeRelay, '10.100.10.20', allowed: true);
-    dials(NetDial.http, '10.100.10.20', allowed: true);
+    dials(NetDial.http, '192.168.1.20', allowed: false);
+    NetGate.nodeInUse = () => 'http://192.168.1.20:3413';
+    dials(NetDial.nodeRelay, '192.168.1.20', allowed: true);
+    dials(NetDial.http, '192.168.1.20', allowed: true);
     dials(NetDial.http, '127.0.0.1', allowed: false);
     dials(NetDial.builtInNode, '127.0.0.1', allowed: false);
   });

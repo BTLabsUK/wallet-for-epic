@@ -84,7 +84,7 @@ class FakePhone:
     def press(self, n):
         pass
 
-    def set_text(self, n, text):
+    def set_text(self, n, text, secret=False):
         self.typed.append(len(text))  # the length only: a test log never holds a PIN either
         if self.cur == "unlock":
             self.cur = "home"

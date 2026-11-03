@@ -50,7 +50,7 @@ const String _name = 'wfe7q3k2mz5xr4tbv6ld5yhnpjc7sgo2a3ue6iwq4fk7tr3mxzabcdid';
 const String _onion = '$_name.onion';
 
 const String _https = 'https://wallet.example.com:3415';
-const String _lan = 'http://10.0.1.24:3415';
+const String _lan = 'http://192.168.1.24:3415';
 const String _plainHttp = 'http://wallet.example.com:3415';
 
 const TorBundle _bundle = TorBundle(binary: '/data/app/lib/arm64/libtor.so');
@@ -564,10 +564,10 @@ void main() {
       skip: !torBuilt,
     );
 
-    testWidgets('http://10.0.1.24 typed gets its line from http:// on', (tester) async {
+    testWidgets('http://192.168.1.24 typed gets its line from http:// on', (tester) async {
       final h = _Harness();
       await h.pump(tester);
-      const url = 'http://10.0.1.24';
+      const url = 'http://192.168.1.24';
       final seen = await _type(tester, url);
       expect(seen[url.indexOf('//')], isEmpty, reason: 'http:/ is no scheme yet');
       expect(seen.sublist(url.indexOf('//') + 1), everyElement([_l.methodDirectHttp]));
@@ -914,7 +914,7 @@ void main() {
       tester,
     ) async {
       final h = _Harness();
-      await h.pump(tester, advanced: offline, node: 'http://10.100.10.20:3413', peers: 0);
+      await h.pump(tester, advanced: offline, node: 'http://192.168.1.20:3413', peers: 0);
       // No Epicbox and no Link in Node only, a local address included.
       await _enter(tester, 'To', _lan);
       expect(find.text(_l.sendHeldNodeOnly), findsOneWidget);

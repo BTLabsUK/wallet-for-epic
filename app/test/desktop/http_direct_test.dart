@@ -47,7 +47,7 @@ void main() {
     service = core.FakeWalletService(password: _password);
     probe = _Probe();
     wallet = LepicDeskWallet(
-      httpReach: HttpReachCache(probe: probe, lan: () async => '10.0.1.24'),
+      httpReach: HttpReachCache(probe: probe, lan: () async => '192.168.1.24'),
       service: service,
       walletDir: (chain) async {
         final dir = Directory(WalletRegistry.firstWalletDir(support.path, chain));
@@ -175,7 +175,7 @@ void main() {
       await pumpEventQueue();
       expect(await wallet.httpAddress(), 'http://127.0.0.1:3420', reason: 'the local address; the public one is httpReach');
       final reach = await wallet.httpReach();
-      expect((reach!.publicAddress, reach.lanAddress, reach.reachable), ('http://203.0.113.24:3420', 'http://10.0.1.24:3420', false));
+      expect((reach!.publicAddress, reach.lanAddress, reach.reachable), ('http://203.0.113.24:3420', 'http://192.168.1.24:3420', false));
 
       // Stop receiving stops HTTP too; Start listener brings it back while the switch is on.
       await wallet.setListening(false);
@@ -186,7 +186,7 @@ void main() {
     });
 
     test('Node only with a LAN node: the Link listener stops, no address, the internet is not asked', () async {
-      await wallet.useNode('http://10.100.10.20:3413');
+      await wallet.useNode('http://192.168.1.20:3413');
       await wallet.saveSettings((await wallet.settings()).let((s) => s.copyWith(payments: s.payments.copyWith(linkHttp: true), publicMode: true, httpPort: 3420)));
       await wallet.setHttpListening(true);
       session().httpListenerEvents.add(const core.HttpListenerEvent(kind: core.HttpListenerEventKind.started, port: 3420));
@@ -400,22 +400,22 @@ void main() {
         list: () async => nics({
           'docker0': '172.17.0.1',
           'br-1f2e': '172.18.0.1',
-          'virbr0': '10.0.122.1',
+          'virbr0': '192.168.122.1',
           'veth9': '172.19.0.2',
           'tun0': '10.8.0.2',
           'wg0': '10.9.0.2',
           'tailscale0': '10.64.0.5',
           'wlp3s0': '203.0.113.9',
-          'enp2s0': '10.0.1.24',
+          'enp2s0': '192.168.1.24',
         }),
       );
-      expect(a, '10.0.1.24');
+      expect(a, '192.168.1.24');
     });
 
     test('windows-04: a VPN adapter listed first does not beat the Ethernet address', () async {
-      expect(await lanAddress(list: () async => nics({'NordLynx': '10.5.0.2', 'Ethernet': '10.0.0.57'})), '10.0.0.57');
+      expect(await lanAddress(list: () async => nics({'NordLynx': '10.5.0.2', 'Ethernet': '192.168.0.57'})), '192.168.0.57');
       expect(await lanAddress(list: () async => nics({'OpenVPN TAP-Windows': '10.8.0.6', 'Wi-Fi': '172.20.1.5'})), '172.20.1.5');
-      expect(await lanAddress(list: () async => nics({'Unknown1': '10.0.0.4', 'Unknown2': '10.0.0.9'})), '10.0.0.9');
+      expect(await lanAddress(list: () async => nics({'Unknown1': '10.0.0.4', 'Unknown2': '192.168.0.9'})), '192.168.0.9');
     });
 
     test('a public address only when no private one is left; none with only virtual ones', () async {

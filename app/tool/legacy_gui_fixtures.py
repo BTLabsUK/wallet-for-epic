@@ -180,7 +180,7 @@ def contacts_616():
         contact(0, 'Alice', externalOne='duplicate row, same name and onion'),
         contact(0, 'Bob', externalOne=EPICBOX_B),
         contact(0, 'Carol', externalTwo='http://carol.example:3415', notice='first note'),
-        contact(1, 'Dave', externalTwo='http://10.100.10.20:3415', alwaysproof=True, proofaddr='abc'),
+        contact(1, 'Dave', externalTwo='http://192.168.1.20:3415', alwaysproof=True, proofaddr='abc'),
     ]
 
 

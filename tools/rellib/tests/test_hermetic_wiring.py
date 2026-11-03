@@ -330,7 +330,7 @@ class LaneServersTest(unittest.TestCase):
                 mock.patch.object(core_lane.Lane, "_ui_settings", lambda self_, d: None), \
                 mock.patch.object(checks, "compare", lambda *a: None), \
                 mock.patch.object(checks, "setup_took", lambda *a: None), \
-                mock.patch.dict(os.environ, {"REL_TRUST_SAVE_STATE": "0"}):
+                mock.patch.dict(os.environ, {"REL_TRUST_SAVE_STATE": "0", "REL_TRUST_START": "fresh"}):  # not this host's lane seed
             lane._main()
         return lane, names
 

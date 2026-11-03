@@ -782,14 +782,14 @@ void main() {
   });
 
   group('a node on the local network', () {
-    const lan = 'http://10.0.0.138:4413';
+    const lan = 'http://192.168.0.138:4413';
 
     testWidgets('is asked from this phone, never judged by the monitor: no answer reads "Not '
         'reachable from this computer"; a public node the monitor finds down "Not answering"', (
       tester,
     ) async {
       final env = _Env(
-        store: _store({ServerKind.node: ServerList(entries: [for (final (u, _) in _nodeServers) u, lan], added: const {'10.0.0.138:4413'})}),
+        store: _store({ServerKind.node: ServerList(entries: [for (final (u, _) in _nodeServers) u, lan], added: const {'192.168.0.138:4413'})}),
         directory: _Directory(
           nodeList: const [
             NodeStatus(url: _epicnet, healthy: false, verified: true, state: NodeHealthState.down),
@@ -810,7 +810,7 @@ void main() {
     });
 
     testWidgets('one that answers its check is not marked down', (tester) async {
-      final env = _Env(store: _store({ServerKind.node: ServerList(entries: [for (final (u, _) in _nodeServers) u, lan], added: const {'10.0.0.138:4413'})}));
+      final env = _Env(store: _store({ServerKind.node: ServerList(entries: [for (final (u, _) in _nodeServers) u, lan], added: const {'192.168.0.138:4413'})}));
       await _pump(tester, ServerKind.node, env);
       expect(env.service.nodeTipCalls, 1);
       expect(_inRow(lan, 'Not reachable'), findsNothing);
