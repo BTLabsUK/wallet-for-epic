@@ -38,6 +38,16 @@ AddressVerdict _check(Recipient to) => switch (to.kind) {
 
 ScannedCode _scan(String text) => classifyScan(text, check: _check);
 
+/// The CPU time this process has used, on Linux (utime and stime in `/proc/self/stat`, in
+/// ticks of 10 ms): what the work in between costs, which a loaded machine does not stretch as
+/// it stretches the wall clock. Null elsewhere.
+Duration? _cpuTime() {
+  if (!Platform.isLinux) return null;
+  final stat = File('/proc/self/stat').readAsStringSync();
+  final fields = stat.substring(stat.lastIndexOf(')') + 2).split(' ');
+  return Duration(milliseconds: 10 * (int.parse(fields[11]) + int.parse(fields[12])));
+}
+
 PaymentRequest _pay(String text) {
   final code = _scan(text);
   expect(code, isA<PaymentRequest>(), reason: text);
@@ -484,8 +494,8 @@ void main() {
 
     test('LAN addresses pass the router; the mode gates are Send’s', () {
       // §7.3: the router adds no allowance and refuses none; network_gate.dart decides.
-      final p = _pay('epic:http://10.0.1.5:3415');
-      expect(p.recipient.address, 'http://10.0.1.5:3415');
+      final p = _pay('epic:http://192.168.1.5:3415');
+      expect(p.recipient.address, 'http://192.168.1.5:3415');
       expect(plainHttpToOtherDevice(p.recipient.address), isTrue);
     });
 
@@ -723,6 +733,7 @@ void main() {
 
   group('very long input', () {
     test('a megabyte of anything is not an Epic code, and quick', () {
+      final cpu = _cpuTime();
       final watch = Stopwatch()..start();
       _refused('a' * 1000000);
       _refused('epic:$_e?message=${'a' * 1000000}');
@@ -733,7 +744,10 @@ void main() {
         _scan('{"version_info": 1, ${'"x": 1, ' * 100000}}'),
         isA<SlateText>(),
       );
-      expect(watch.elapsed, lessThan(const Duration(seconds: 5)));
+      // Off Linux the wall clock, which a busy machine can push over the bound; the CPU time
+      // still catches a check that does too much work.
+      final took = cpu == null ? watch.elapsed : _cpuTime()! - cpu;
+      expect(took, lessThan(const Duration(seconds: 5)));
     });
   });
 
