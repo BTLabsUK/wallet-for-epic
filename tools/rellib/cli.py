@@ -644,7 +644,8 @@ class App:
         root = tempfile.mkdtemp(dir=tmp)
         try:
             run = Run.create(root, scope["version"], {"version": scope["version"], "commit": commit, "scope": scope,
-                                                      "test": scope["test"], "src": self.repo, "previous": prev}, "", [])
+                                                      "test": scope["test"], "src": self.repo, "previous": prev,
+                                                      "state_root": self.state_root}, "", [])
             eng = Engine(run, self.pipeline, self.hosts, self.repo, echo=self.echo)
             lines = []
             res = preflight(eng, None, lambda *x: lines.append(" ".join(str(y) for y in x)))

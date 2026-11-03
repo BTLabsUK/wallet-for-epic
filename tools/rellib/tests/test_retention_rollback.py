@@ -216,5 +216,25 @@ class PublishedByHandTest(unittest.TestCase):
         import tempfile
         self.assertEqual(retention.published_by_hand(tempfile.mkdtemp()), [])
 
+
+class DoctorPreviousTest(Base):
+    """tools/rel doctor's throwaway run lives under .doctor/<tmp>/: it still finds the published release
+    in the state root it names (26.10.26 doctor said G4 had no previous release while start found it)."""
+
+    def test_throwaway_run_reads_the_named_state_root(self):
+        import tempfile
+        from types import SimpleNamespace
+        from rellib.builtins import resolve_previous
+        prev = fake_run(self.root, "26.10.25", "1")
+        os.makedirs(os.path.join(self.root, ".doctor"))
+        tmp = tempfile.mkdtemp(dir=os.path.join(self.root, ".doctor"))
+        run = Run.create(tmp, "26.10.26", {"version": "26.10.26", "commit": "c" * 40, "scope": {}}, "", [])
+        info = {"version": "26.10.26", "scope": {"proof": {}}, "state_root": self.root}
+        got = resolve_previous(SimpleNamespace(info=info, run=run))
+        self.assertEqual(got["version"], "26.10.25")
+        self.assertEqual(got["dir"], os.path.join(prev.path, "files"))
+        del info["state_root"]
+        self.assertEqual(resolve_previous(SimpleNamespace(info=info, run=run)), {})
+
 if __name__ == "__main__":
     unittest.main()

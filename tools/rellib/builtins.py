@@ -121,13 +121,15 @@ def resolve_previous(engine):
         v = s.get("previous_version") or os.path.basename(d.rstrip("/")).split("-r")[0]
         return {"dir": d, "version": v, "ref": s.get("previous_ref") or f"v{os.path.basename(d.rstrip('/'))}"}
     from . import retention
-    pubs = retention.published(os.path.dirname(os.path.dirname(engine.run.path)))
+    # tools/rel doctor's throwaway run lives under .doctor/, not in the state root: it names the root.
+    root = engine.info.get("state_root") or os.path.dirname(os.path.dirname(engine.run.path))
+    pubs = retention.published(root)
     pubs = [p for p in pubs if p["version"] != engine.info["version"]]
     if pubs:
         p = pubs[-1]
         return {"dir": os.path.join(p["run"], "files"), "version": p["version"], "ref": p.get("tag", f"v{p['version']}"),
                 "extra": os.path.join(p["run"], "extra")}
-    by_hand = [p for p in retention.published_by_hand(os.path.dirname(os.path.dirname(engine.run.path)))
+    by_hand = [p for p in retention.published_by_hand(root)
                if p.get("version") != engine.info["version"] and os.path.isdir(os.path.expanduser(p.get("dir", "")))]
     if by_hand:
         p = by_hand[-1]
