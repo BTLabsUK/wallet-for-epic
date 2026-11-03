@@ -9,10 +9,20 @@ how its files are read, and a Surface for its UI. The UI steps are the family's 
 The checks (core/checks.py) compare what the wallet's own files hold before and after, never what a
 screen was scraped for.
 
-Start modes (REL_TRUST_START=auto|state|fresh, default auto): `state` restores the end state a
+Start modes (REL_TRUST_START=auto|seed|state|fresh, default auto): `seed` restores the lane's
+permanent wallet from its recovery phrase (core/lane_seed.py) through the previous release's own
+screens, then sets everything up as `fresh` does; its coins stay in it between runs, and the lane
+holds the seed's lock for its whole run and saves no trust state. `state` restores the end state a
 passing lane of the previous release saved (core/state.py), so the previous binary only starts,
 unlocks, is funded and stopped; `fresh` creates the wallet and sets everything up on the previous
-binary (the bootstrap for a previous release no lane has saved yet).
+binary. auto: seed when the lane has a seed, else state when one fits, else fresh.
+
+REL_TRUST_MODE=create (create_only): no update and no funds. The candidate is installed with no app
+data, a new wallet is created through its screens and its home reached (check create_ok); the phrase
+it shows is checked and dropped, never stored.
+
+At its end a lane with a phrase (seed or create) scans its whole REL_OUT for 3 consecutive words of it:
+a hit is a HarnessFault naming only the file (exit 2).
 
 Resilience: a phase that raises HarnessGone (display, emulator, rig, sandbox gone) has the platform
 rebuilt (platform.recover()) and the phase run again, once per phase; phases are written to be
@@ -26,6 +36,7 @@ import time
 import traceback
 
 from . import breaks
+from . import lane_seed as ls
 from . import state as st
 from .recover import Recover
 from .faults import Fault, HarnessFault, HarnessGone, ProductFault
@@ -54,6 +65,9 @@ class Platform:
     def logs(self): ...                         # {name: path} of the app's logs for the evidence
     def shutdown(self): ...
 
+    def install_candidate_fresh(self):          # create mode: the candidate installed with no app data
+        raise HarnessFault("install", "%s has no fresh install of the candidate (REL_TRUST_MODE=create)" % self.name)
+
 
 class Lane:
     def __init__(self, platform, recipe_for, checks, *, out, log, required, funds, p=None):
@@ -71,6 +85,10 @@ class Lane:
         self.phase = None
         self.retried = set()
         self.ui_settings = {}  # what the screens show where the files cannot be read (platform.reads_settings_in_ui)
+        self.seed = None  # the lane seed (lane_seed.LaneSeed) in start mode seed; it alone holds the phrase
+        self.balance = None  # the last balance the wallet's data showed in this run (seed mode)
+        self.needles = None  # what the end-of-lane scan looks for (lane_seed.Needles): no word kept
+        self.fund_tx = self.inflow = self.send_pending = None  # set by checks.py
 
     # ---- results
 
@@ -120,9 +138,25 @@ class Lane:
                     self.ui.open_wallet(self.secrets, after_update=getattr(self.ui, "which", "") == "candidate")
 
     def main(self):
+        """The lane, or create_only() when REL_TRUST_MODE=create. -> exit code."""
+        mode = os.environ.get("REL_TRUST_MODE") or "update"
+        if mode == "create":
+            return self.create_only()
+        if mode != "update":
+            return self._run(lambda: self._refuse("REL_TRUST_MODE=%s: not update or create" % mode))
+        return self._run(self._main)
+
+    def create_only(self):
+        """REL_TRUST_MODE=create. -> exit code, as main()."""
+        return self._run(self._create)
+
+    def _refuse(self, why):
+        raise HarnessFault("start", why)
+
+    def _run(self, body):
         code = 2
         try:
-            code = self._main()
+            code = body()
         except Fault as f:
             self.fault = f
             self.log(f.line())
@@ -142,6 +176,23 @@ class Lane:
         if code == 1 and not self.fault and missing:  # a check that never ran says nothing about the app
             self.fault = HarnessFault(self.phase or "checks", "required checks never computed: %s" % ", ".join(missing))
             code = 2
+        try:
+            self._record_seed()
+            code = self._result(code)
+            hits = self._leak_scan()
+            if hits:
+                if self.fault:
+                    self.details["fault_before_scan"] = self.fault.line()
+                self.fault = HarnessFault("leak", "lane seed words found in %s" % ", ".join(hits))
+                self.log(self.fault.line())
+                code = self._result(2)
+        finally:
+            if self.seed:
+                self.seed.unlock()
+        return code
+
+    def _result(self, code):
+        """proof.json and result.txt for [code]."""
         proof = self.proof()
         line = self.fault.line() if self.fault else (
             "PASS %s %s %s → %s%s" % (self.p.name, self.p.variant, proof["previous"], proof["candidate"],
@@ -155,11 +206,14 @@ class Lane:
 
     def _main(self):
         self.run_phase("prepare", self.p.prepare)
-        saved = st.pick(self.p.name, self.p.variant, os.environ.get("REL_PREVIOUS_VERSION"),
-                        fits=getattr(self.p, "fits", None), log=self.log)
-        self.mode = "state" if saved else "fresh"
-        self.log("start mode: %s%s" % (self.mode, " (%s)" % saved.folder if saved else ""))
-        if saved:
+        saved = self._pick()
+        if self.mode == "seed":
+            self.seed.lock()
+            self.run_phase("install", self.p.install_previous)
+            self.run_phase("previous", self._restore)
+            self.run_phase("restore-ok", self._restore_ok)
+            self.run_phase("previous-setup", self._setup)
+        elif saved:
             self.secrets = saved.secrets()
             self.run_phase("restore", lambda: self.p.restore_state(saved.payload))
             self.run_phase("previous", lambda: self._open("previous"))
@@ -190,7 +244,9 @@ class Lane:
         # without REL_FUNDS the legs are not checked; the balance still goes back to P
         self.run_phase("funds", lambda: self.checks_mod.funds_legs(self, after))
         # a passing lane leaves its wallet for the next release (REL_TRUST_SAVE_STATE=0 for trial runs)
-        if all(self.results.get(c) for c in self.required) and os.environ.get("REL_TRUST_SAVE_STATE", "1") != "0":
+        if self.mode == "seed":
+            self.log("no trust state saved: the lane seed's wallet is restored from its phrase next run")
+        elif all(self.results.get(c) for c in self.required) and os.environ.get("REL_TRUST_SAVE_STATE", "1") != "0":
             self.run_phase("save-state", lambda: st.save(self.p, self.secrets, self.checks_mod.public(after), log=self.log))
         return 0
 
@@ -237,5 +293,159 @@ class Lane:
         self.rec.build = os.environ.get("REL_PREVIOUS_VERSION", "previous")
         self.ui = self.recipe_for(self, "previous", surface)
         self.secrets.update(self.ui.create_wallet())
+        self._setup()
+
+    def _setup(self):
         self.ui.set_servers(self.p.node, self.p.custom_node, self.p.relay, self.p.custom_relay)
         self.ui.change_settings(self.checks_mod.WANT_SETTINGS)
+
+    # ---- the lane seed
+
+    def _pick(self):
+        """The start mode (self.mode) -> the saved state to start from, or None."""
+        want = os.environ.get("REL_TRUST_START") or "auto"
+        if want not in ("auto", "seed", "state", "fresh"):
+            raise HarnessFault("start", "REL_TRUST_START=%s: not auto, seed, state or fresh" % want)
+        seed = ls.LaneSeed(ls.lane_name(self.p.name, self.p.variant))
+        if want == "seed" or (want == "auto" and seed.exists()):
+            if not seed.exists():
+                raise HarnessFault("start", "REL_TRUST_START=seed but lane %s has no seed in %s (lane_seed.py init %s)" % (
+                    seed.lane, seed.dir, seed.lane))
+            self.seed, self.mode = seed, "seed"
+            self.needles = ls.Needles([seed.phrase()])
+            read = self.p.digest
+
+            def digest(tag, secrets):  # the last balance read, for the seed's record
+                d = read(tag, secrets)
+                if d and d.get("balance"):
+                    self.balance = d["balance"]
+                return d
+            self.p.digest = digest
+            self.log("start mode: seed (lane seed %s, born %s)" % (seed.lane, seed.birth()))
+            return None
+        saved = st.pick(self.p.name, self.p.variant, os.environ.get("REL_PREVIOUS_VERSION"),
+                        fits=getattr(self.p, "fits", None), log=self.log)
+        self.mode = "state" if saved else "fresh"
+        self.log("start mode: %s%s" % (self.mode, " (%s)" % saved.folder if saved else ""))
+        self.ok("restore_ok", "not applicable: start mode %s (no lane seed)" % self.mode)
+        return saved
+
+    def _restore(self):
+        """The lane seed's wallet restored through the previous release's screens; the recipe leaves the app
+        on the wallet's home. Only the pin and password it chose go into the lane's secrets."""
+        surface = self.p.start("previous")
+        self.rec.build = os.environ.get("REL_PREVIOUS_VERSION", "previous")
+        self.ui = self.recipe_for(self, "previous", surface)
+        got = self.ui.restore_wallet(self.seed.phrase(), self.seed.birth()) or {}
+        self.secrets.update({k: got[k] for k in ("pin", "password") if got.get(k)})
+
+    def _restore_ok(self):
+        """The restored wallet's spendable reaches the one the lane seed has on record (the scan may still
+        run: read again until REL_TRUST_RESTORE_WAIT_S)."""
+        want = self.seed.last_spendable()
+        on_record = (self.seed.meta().get("last") or {}).get("run")
+        wait = int(os.environ.get("REL_TRUST_RESTORE_WAIT_S") or 900)
+        poll = float(os.environ.get("REL_TRUST_RESTORE_POLL_S") or 20)
+        t0 = time.time()
+        got, err = None, None
+        while True:
+            try:
+                b = (self.p.digest("previous", self.secrets) or {}).get("balance")
+                got, err = (b or {}).get("spendable"), None if b else "no balance in the wallet's data"
+            except Fault:
+                raise
+            except Exception as e:  # noqa: BLE001 — read again until the wait is over
+                err = "%s: %s" % (type(e).__name__, e)
+            took = int(time.time() - t0)
+            if want is None and got is not None:
+                self.ok("restore_ok", "first run of lane seed %s: no balance on record to reach; the restored wallet's "
+                        "spendable is %s EPIC (wallet data)" % (self.seed.lane, ls.epic(got)))
+                return
+            if got is not None and got >= want:
+                self.ok("restore_ok", "the restored wallet's spendable %s EPIC reached the %s EPIC on record (run %s) after %d s "
+                        "(wallet data)" % (ls.epic(got), ls.epic(want), on_record, took))
+                return
+            if took >= wait:
+                self.fail("restore_ok", "the restored wallet's spendable %s did not reach the %s EPIC on record (run %s) in %d s%s" % (
+                    "%s EPIC" % ls.epic(got) if got is not None else "NOT read", ls.epic(want) if want is not None else "?",
+                    on_record, took, " (%s)" % err if err else " (wallet data)"))
+                return
+            self.log("restore: spendable %s, on record %s; reading again" % (ls.epic(got), ls.epic(want)))
+            time.sleep(poll)
+
+    def on_funding(self, amount, tx):
+        """checks.py: P paid the wallet [amount] and its data shows it (tx)."""
+        if self.seed:
+            try:
+                self.seed.record_funding(amount, ls.run_id(), tx.get("slate"))
+            except OSError as e:
+                self.log("lane seed %s: funding not recorded: %s" % (self.seed.lane, e))
+
+    def _record_seed(self):
+        """meta.last of the lane seed: the last balance this run read, once the restore reached the one on
+        record (an incomplete scan never lowers the bar). A send to P not seen confirmed counts as gone."""
+        if not self.seed or self.balance is None:
+            return
+        if not self.results.get("restore_ok"):
+            self.log("lane seed %s: last balance kept as it was (the restore did not reach it)" % self.seed.lane)
+            return
+        b = dict(self.balance)
+        if self.send_pending:
+            fee = getattr(self.checks_mod, "FEE_MAX", 0)
+            b["spendable"] = max(0, b["spendable"] - int((self.send_pending + fee) * ls.NANO))
+        try:
+            self.seed.record_last(b, ls.run_id())
+            self.log("lane seed %s: last spendable %s EPIC, total %s EPIC recorded" % (
+                self.seed.lane, ls.epic(b["spendable"]), ls.epic(b.get("total"))))
+        except OSError as e:
+            self.log("lane seed %s: last balance not recorded: %s" % (self.seed.lane, e))
+
+    def _leak_scan(self):
+        """[files under REL_OUT holding 3 consecutive words of this lane's phrase] (paths relative to it)."""
+        if not self.needles:
+            return []
+        try:
+            hits, n = ls.scan([self.out], needles=self.needles, skip=[ls.root()])
+        except OSError as e:
+            return ["(the scan could not read a file: %s)" % e]
+        self.log("phrase scan of %s: %d files read, %d with words of the phrase" % (self.out, n, len(hits)))
+        return [os.path.relpath(h, self.out) for h in hits]
+
+    # ---- create mode
+
+    def _create(self):
+        self.mode = "create"
+        self.log("trust mode: create (the candidate installed with no app data, a new wallet created; no funds, "
+                 "the phrase checked and dropped)")
+        self.run_phase("prepare", self.p.prepare)
+        self.run_phase("install", self.p.install_candidate_fresh)
+        words = self.run_phase("candidate", self._create_wallet)
+        try:
+            self.run_phase("home", lambda: self.ui.d.wait(self.ui._home(), 120))
+        except ProductFault as e:
+            self.fail("create_ok", "wallet created, its home not reached: %s" % e.what)
+            return 1
+        ok, why = words
+        if ok:
+            self.ok("create_ok", "a new wallet created on the candidate %s with no app data and its home reached; the "
+                    "phrase it showed: %s (dropped, not stored)" % (os.environ.get("REL_CANDIDATE_VERSION", "?"), why))
+        else:
+            self.fail("create_ok", "a new wallet created and its home reached, but the phrase it showed: %s" % why)
+        return 0
+
+    def _create_wallet(self):
+        """-> (phrase valid, what it is): the words never leave this function but as the scan's hashes."""
+        surface = self.p.start("candidate")
+        self.rec.build = os.environ.get("REL_CANDIDATE_VERSION", "candidate")
+        self.ui = self.recipe_for(self, "candidate", surface)
+        got = dict(self.ui.create_wallet() or {})
+        phrase = got.pop("phrase", None) or getattr(self.ui, "phrase", None)
+        if hasattr(self.ui, "phrase"):
+            self.ui.phrase = None
+        self.secrets.update({k: got[k] for k in ("pin", "password") if got.get(k)})
+        if not phrase:
+            return False, "none read off the screen"
+        self.needles = ls.Needles([phrase])
+        res = ls.validate(phrase)
+        del phrase
+        return res

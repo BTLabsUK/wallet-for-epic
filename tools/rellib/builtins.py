@@ -11,6 +11,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import time
 import tomllib
 import urllib.request
@@ -172,17 +173,21 @@ def android_avd_module():
     return mod
 
 
-def lane_inputs(engine, prev, ok, bad):
-    """Every G4 lane in scope (platform with a driver, not waived; proof variant): the previous release's
-    file it installs, and for Android the emulator AVD it boots."""
+def trust_lanes(engine):
+    """[(platform, variant)] of every G4 lane in scope: platform with a driver, not waived; proof variant."""
     from .graph import variants_for
     s, pipe = engine.info["scope"], engine.pipeline
     drivers = pipe.proof.get("drivers", {})
     variants = variants_for({"for_each": "proof_variant"}, s, pipe)
-    for plat in PLATFORMS:
-        if not s["platforms"].get(plat) or plat in s["proof"]["waive"] or plat not in drivers or plat not in PREVIOUS_INPUTS:
-            continue
-        for v in variants:
+    return [(plat, v) for plat in PLATFORMS if s["platforms"].get(plat) and plat not in s["proof"]["waive"] and plat in drivers
+            for v in variants]
+
+
+def lane_inputs(engine, prev, ok, bad):
+    """Every G4 lane in scope: the previous release's file it installs, and for Android the emulator AVD
+    it boots."""
+    for plat, v in trust_lanes(engine):
+        if plat in PREVIOUS_INPUTS:
             f, looked = previous_input(prev, plat, v)
             if f:
                 ok(f"G4 {plat} {v}: previous {os.path.basename(f)}")
@@ -193,6 +198,33 @@ def lane_inputs(engine, prev, ok, bad):
                 name = os.environ.get("REL_ANDROID_AVD") or avd.avd_name(v)
                 err = avd.avd_problem(name)
                 (ok if not err else bad)(f"G4 android {v}: emulator AVD {name}" + (f": {err}" if err else ""))
+
+
+def lane_seed_module():
+    d = os.path.join(os.path.dirname(os.path.abspath(__file__)), "drivers")
+    if d not in sys.path:
+        sys.path.insert(0, d)
+    from core import lane_seed
+    return lane_seed
+
+
+def lane_seeds(engine, ok, bad, say, p_spendable=None):
+    """The permanent wallet of every G4 lane in scope (drivers/core/lane_seed.py): its seed present, private,
+    valid, distinct and free, and P's spendable (EPIC text; None: not read) covering what the lanes take
+    from it. A missing or shared seed fails; a balance not known warns. -> the warnings."""
+    ls = lane_seed_module()
+    lanes = [ls.lane_name(p, v) for p, v in trust_lanes(engine) if ls.lane_name(p, v) in ls.LANES]
+    fv = engine.pipeline.proof.get("funds_variant", "tor")
+    warns = []
+    for level, line in ls.doctor(lanes, p_spendable, [x for x in lanes if x.endswith("-" + fv)]):
+        if level == "FAIL":
+            bad(line)
+        elif level == "warn":
+            warns.append(line)
+            say("warn", line)
+        else:
+            ok(line)
+    return warns
 
 
 def windows_rig_module():
@@ -369,6 +401,7 @@ def preflight(engine, step, say):
             ok(f"previous release {prev['version']} at {prev['dir']}")
             info["previous"] = prev
             lane_inputs(engine, prev, ok, bad)
+        p_spendable = None
         if not engine.dry:
             # G4 pays from P side by side (the shared P service): at least p_outputs.LOW free outputs.
             from . import p_outputs
@@ -381,6 +414,12 @@ def preflight(engine, step, say):
                 except (subprocess.TimeoutExpired, OSError):
                     good, note = False, f"the shared P service did not answer in {p.timeout} s"
                 (ok if good else bad)(note)
+                try:
+                    r = p.client.call("info", timeout=300)
+                    p_spendable = r.get("spendable") if r.get("ok") else None
+                except (OSError, ValueError):
+                    p_spendable = None
+        warns += lane_seeds(engine, ok, bad, say, p_spendable)
     nodes, boxes = pipe.defaults.get("nodes", []), pipe.defaults.get("epicboxes", [])
     node, tried = pick(nodes, health_node, os.environ.get("REL_NODE"))
     (ok if node else bad)(f"node for tests: {node or 'none healthy'} (tried {', '.join(tried)})")
