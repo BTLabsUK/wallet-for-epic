@@ -169,7 +169,13 @@ class Desktop:
     def in_settings(self, tree=None):
         tree = tree if tree is not None else self.d.tree()
         names = {tg._norm(n.name.split("\n")[0]) for n in tree if n.role in ("button", "tab", "row", "link")}
-        return len(names & {tg._norm(s) for s in ALL_SECTIONS}) >= 2
+        return len(names & self.section_names()) >= 2
+
+    def section_names(self):
+        """Every section name a release has had, in English and as this build shows them (its locale)."""
+        if getattr(self, "_section_names", None) is None:
+            self._section_names = {tg._norm(s) for s in (*ALL_SECTIONS, *self.d.labels.localized(ALL_SECTIONS))}
+        return self._section_names
 
     # ---- first run and unlock
 
@@ -320,7 +326,7 @@ class Desktop:
                 if d.rec.pick(target, d.tree(), step="find-%s" % target.id, texts=d.texts(target)):
                     return True
         listed = [n.name.split("\n")[0].strip() for n in d.tree()
-                  if n.role in ("button", "tab", "row") and n.name.split("\n")[0].strip() in ALL_SECTIONS]
+                  if n.role in ("button", "tab", "row") and tg._norm(n.name.split("\n")[0]) in self.section_names()]
         for name in listed:
             if name in tried:
                 continue

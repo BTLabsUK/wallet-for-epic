@@ -48,6 +48,7 @@ class Labels:
             self.arb, self.origin = _load_ref(ref), "git " + ref
         if self.arb is None:
             self.arb, self.origin = _load_dir(ROOT) or {}, "this checkout"
+        self.en = self.arb   # the English strings, before a locale's own go over them
         if self.locale != "en" and arb is None:
             loc = (_load_dir(src, self.locale) if src else None) or (_load_ref(ref, self.locale) if ref else None) or {}
             self.arb = dict(self.arb, **{k: v for k, v in loc.items() if isinstance(v, str) and v and not k.startswith("@")})
@@ -61,6 +62,13 @@ class Labels:
         v = (os.environ.get("REL_PREVIOUS_VERSION") or "").strip()
         ref = (os.environ.get("REL_PREVIOUS_REF") or "").strip() or (("v" + v.lstrip("v")) if v else None)
         return cls(src=os.environ.get("REL_PREVIOUS_SRC"), ref=ref)
+
+    def localized(self, english, prefix="deskSet"):
+        """The texts this build shows (its locale) for the English names given: those of every `prefix` key whose
+        English text is one of them. For a name list written in English (a recipe's section names) on a
+        build shown in another language."""
+        names = set(english)
+        return {self.text(k) for k, v in self.en.items() if k.startswith(prefix) and v in names and self.text(k)}
 
     def text(self, key):
         v = self.arb.get(key)
