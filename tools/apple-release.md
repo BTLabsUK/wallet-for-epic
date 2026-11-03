@@ -64,10 +64,11 @@ Steps marked ⏳ wait for Apple to approve the membership.
    at account.apple.com (Sign-In and Security), then:
 
    ```
-   xcrun notarytool store-credentials epic-notary --apple-id <your Apple ID> --team-id <Team ID>
+   xcrun notarytool store-credentials btlabs-notary --apple-id <your Apple ID> --team-id <Team ID>
    ```
 
-   (it asks for the app-specific password).
+   (it asks for the app-specific password). `mac-release` uses the profile `btlabs-notary`
+   (Developer ID Application: BT Labs LTD (AM8YPW9P6T)); `NOTARY_PROFILE=<name>` picks another.
 8. **Builder**: the tools (table below), then the source and the team:
 
    ```
@@ -121,7 +122,7 @@ section Apple. By hand it is:
    ```
 
    Every release step refuses a checkout whose app version is not `<version>` or whose commit is
-   not the tag `v<version>`.
+   not the tag `v<version>` (or `RELEASE_COMMIT`; `RELEASE_COMMIT=HEAD` takes the commit checked out).
 
    One command does all of it: checks the checkout and the toolchain, the Developer ID
    certificate and the notary login, builds, signs every binary with Developer ID (hardened
@@ -130,12 +131,15 @@ section Apple. By hand it is:
    `build-apple/notor/mac-release/` (`$APPLE_OUT/mac-release/` when set):
    `bt-wallet-<v>-macos.dmg`, `.dmg.sha256` and `.REPORT.txt` (`<v>` is `26.10.24` or
    `26.10.24-notor`). Send all three to the owner, and the `.sha256` line also by chat.
-3. **Builder**, iOS:
+3. **Builder**, iOS. `ios-prepare` is the TestFlight step: it runs before the public release,
+   when the release has no tag yet, so it builds the commit checked out:
 
    ```
-   RELEASE_VERSION=<version> WFE_TOR=0 WFE_DIST=appstore tools/build-apple.sh ios-prepare
+   RELEASE_VERSION=<version> RELEASE_COMMIT=HEAD WFE_TOR=0 WFE_DIST=appstore tools/build-apple.sh ios-prepare
    open app/ios/Runner.xcworkspace
    ```
+
+   Once the tag exists, the same command without `RELEASE_COMMIT=HEAD` builds the tag.
 
    In Xcode: scheme **Runner**, destination **Any iOS Device (arm64)**, Product, **Archive**.
    When the Organizer opens: **Distribute App**, **App Store Connect**, **Upload**, automatic
@@ -247,9 +251,23 @@ Bob's test build of both variants, no Apple account needed, is one command on th
 
 ```
 git pull
-cp /tmp/live-hosts.json app/integration_test/
+cp <the release's live-hosts.json> app/integration_test/
 tools/build-apple.sh all
 ```
+
+`doctor` checks first what the steps asked for need, each with its fix on one line:
+`app/integration_test/live-hosts.json`, a Simulator, a clean checkout for the release steps
+(an untracked file is moved out with `mv`; `git restore` leaves untracked files), the Flutter
+version.
+
+Each step that opens a window (the tests on macOS, the start of the `.app`, the Simulator) waits
+first, up to `MAC_IDLE_WAIT` seconds (default 900; 0: never), until nobody has used the Mac for
+2 minutes. Leave the test windows alone while they run. A test app quit from the Dock or with
+Cmd-Q gives `INTERRUPTED (app quit by user)` instead of FAIL, with the command that runs that
+step again alone.
+
+`live` makes a new wallet on mainnet and scans it from its creation height, then restores it from
+the same height. `LIVE_RESTORE_FROM_0=1` restores from block 0 instead (about 15 minutes).
 
 `all` runs the build with Tor (`doctor sources lepic macos dmg smoke live`, out
 `build-apple/tor/`), then, in a second run of the script, the one without Tor (the same steps plus

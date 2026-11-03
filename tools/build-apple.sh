@@ -16,7 +16,10 @@
 #
 # Usage: tools/build-apple.sh [step...]   default: doctor sources lepic macos dmg (and ios-sim with WFE_TOR=0)
 #        tools/build-apple.sh all         both variants, one after the other, in one command
-#   doctor    print and check the toolchain (Xcode, SDKs, Simulator runtime, Flutter, Rust)
+#   doctor    print and check the toolchain (Xcode, SDKs, Simulator runtime, Flutter, Rust) and,
+#             for the steps asked for, what they need: integration_test/live-hosts.json (smoke,
+#             live), an iPhone Simulator (WFE_TOR=0: ios-sim, smoke, live), a checkout that
+#             release-check accepts (release steps); each problem with its one-line fix
 #   sources   the LEPIC and lepic-flutter clones in app/third_party at tools/lepic.rev and
 #             tools/lepic-flutter.rev (cloned when missing from LEPIC_REPO / LEPIC_FLUTTER_REPO,
 #             default the public GitHub copies, as tools/lepic.sh does)
@@ -41,7 +44,12 @@
 #             a throwaway keychain there, so no keychain dialog either)
 #   live      integration_test/apple_live_test.dart on macOS and on the Simulator, on mainnet: a
 #             new wallet on node.btlabs.uk (then node.epicnet.us, node.epiccash.com), its scan to
-#             the tip, a restore from its phrase, the Epicbox listener connected (needs internet)
+#             the tip, a restore from its phrase, the Epicbox listener connected (needs internet).
+#             Both wallets scan from the tip at the new wallet's creation (LIVE_RESTORE_FROM_0=1:
+#             the restore from block 0, about 14 min more)
+# The steps that open windows (smoke, live, ios-sim) wait while the Mac is in use (input in the
+# last 2 min), up to MAC_IDLE_WAIT seconds, then start anyway. A test app that someone quits is
+# INTERRUPTED (app quit by user), not FAIL; the line says how to run that step again alone.
 #   all       alone, no other step: both variants, each in its own run of this script (own WFE_TOR,
 #             own out dir), the one with Tor first: doctor sources lepic macos dmg smoke live; then
 #             WFE_TOR=0: the same and ios-sim. The without-Tor run happens even when the one with
@@ -55,14 +63,17 @@
 #             (hardened runtime, timestamp, each Mach-O inside out), notarised, stapled; the .dmg
 #             signed, notarised, stapled; gatekeeper. Out: mac-release/bt-wallet-<v>-macos.dmg,
 #             .dmg.sha256 and .REPORT.txt, which go to the owner
-#   ios-prepare  release-check, doctor, sources, lepic (iOS), flutter build ios --config-only;
-#             then Xcode archives and uploads (Product > Archive). Needs WFE_TOR=0 (the App Store
-#             build is the one without Tor) and WFE_DIST=appstore (no in-app updater)
+#   ios-prepare  the TestFlight step, before the public release: release-check, doctor, sources,
+#             lepic (iOS), flutter build ios --config-only; then Xcode archives and uploads
+#             (Product > Archive). Needs WFE_TOR=0 (the App Store build is the one without Tor)
+#             and WFE_DIST=appstore (no in-app updater). Before the release has its tag, build
+#             the commit checked out with RELEASE_COMMIT=HEAD
 # Backup route steps (signing on Linux, tools/apple-release.md appendix):
 #   release   the build to sign, from a clean checkout: checks (release-check), then sources,
 #             lepic, macos, ipa and handoff
 #   release-check  the tree is clean, at version $RELEASE_VERSION and its tag v<version> (or at
-#             RELEASE_COMMIT when set), Flutter is exactly the pinned version, the built-in
+#             RELEASE_COMMIT when set; RELEASE_COMMIT=HEAD: the commit checked out, before the
+#             tag exists), Flutter is exactly the pinned version, the built-in
 #             node is fetched by its pin
 #   handoff   handoff/<name>/: the unsigned .app and (WFE_TOR=0) iOS Runner.app as tar files, PROVENANCE.txt
 #             (commit, toolchain, pins, the SHA-256 of every file in both apps) and SHA256SUMS
@@ -94,10 +105,14 @@
 #                              iPhone that is not an "iPhone Duo")
 #   RELEASE_VERSION=<version>  release-check (required): the release, e.g. 26.10.25; the app's
 #                              version must be it, and HEAD its tag v<version> (or RELEASE_COMMIT)
-#   RELEASE_COMMIT=<sha>       release-check: the commit the owner asked for (full or short)
+#   RELEASE_COMMIT=<sha>       release-check: the commit the owner asked for (full or short), or
+#                              HEAD for the checkout as it is (TestFlight before the tag)
 #   APPLE_TEAM_ID=<id>         the team for mac-release (default: DEVELOPMENT_TEAM in
 #                              app/Signing.xcconfig)
-#   NOTARY_PROFILE=<name>      the notarytool keychain profile (default epic-notary)
+#   NOTARY_PROFILE=<name>      the notarytool keychain profile (default btlabs-notary)
+#   MAC_IDLE_WAIT=<seconds>    how long a step that opens windows waits for the Mac to be left
+#                              alone for 2 min (default 900; 0: never waits)
+#   LIVE_RESTORE_FROM_0=1      live: the restore scans from block 0
 #
 # Written for the bash 3.2 macOS ships: no mapfile, no ${x,,}, no associative arrays.
 set -euo pipefail
@@ -128,7 +143,12 @@ node_zip_sha=35bacc695c251723ecb4379b4a50270a8118fc140373723bb80fb73c65e36133
 
 die() { echo "build-apple.sh: $*" >&2; exit 1; }
 say() { printf '\n== %s\n' "$*"; }
-result() { mkdir -p "$out"; printf '%s %s %s\n' "$1" "$2" "${3:-}" | tee -a "$results"; recorded="$2"; }
+# One line in results.txt: PASS, FAIL, SKIP or INTERRUPTED, the check, a note.
+result() {
+  mkdir -p "$out"
+  printf '%s %s %s\n' "$1" "$2" "${3:-}" | tee -a "$results"
+  case "$1" in FAIL|INTERRUPTED) step_failed=1 ;; esac
+}
 sha256() { shasum -a 256 "$1" | cut -d' ' -f1; }
 build_id() { git -C "$root" rev-parse --short=8 HEAD; }
 # The dart-define of the build without Tor (WFE_TOR=0), else empty: pass it as ${tor_def:+"$tor_def"}.
@@ -145,6 +165,91 @@ case "$dist" in web|appstore) ;; *) echo "WFE_DIST=$dist: use web or appstore on
 dist_def=""
 if [ "$dist" = appstore ]; then dist_def=--dart-define=WFE_DIST=appstore; fi
 app_version() { sed -n 's/^version: *\([0-9.]*\(-rc[0-9]*\)\{0,1\}\).*/\1/p' "$app/pubspec.yaml"; }
+# The steps asked for on the command line; doctor checks what they need. Set before the steps run.
+requested=" "
+wants() { local s; for s in "$@"; do case "$requested" in *" $s "*) return 0 ;; esac; done; return 1; }
+# The command that runs step $1 again alone, in this variant.
+again() { printf '%stools/build-apple.sh %s' "$(if [ "${WFE_TOR:-1}" = 0 ]; then echo 'WFE_TOR=0 '; fi)" "$1"; }
+hosts_fix="cp <the release's live-hosts.json> app/integration_test/ (keys: app/integration_test/live-hosts.example.json)"
+
+# One line per path that keeps the checkout from being clean ($1: git status --porcelain), with its
+# fix, run from the repo root.
+dirty_fixes() {
+  local line f
+  while IFS= read -r line; do
+    [ -n "$line" ] || continue
+    f="${line:3}"
+    case "$line" in
+      '??'*) echo "  untracked $f: mv \"$f\" ~/  (git restore leaves untracked files where they are)" ;;
+      *) echo "  changed $f: git restore --staged --worktree \"$f\"  (drops the change)" ;;
+    esac
+  done <<< "$1"
+}
+dirty_paths() { git -C "$root" status --porcelain --untracked-files=normal -- . ':!build-apple'; }
+
+# Seconds since the last keyboard, mouse or trackpad input on this Mac.
+idle_seconds() { ioreg -c IOHIDSystem | awk '/HIDIdleTime/ { print int($NF / 1000000000); exit }'; }
+
+# Before a step that opens windows ($1): while the Mac is in use (input in the last 2 min), waits
+# up to MAC_IDLE_WAIT seconds for it to be left alone, so nobody quits or covers the test app.
+wait_idle() {
+  local limit="${MAC_IDLE_WAIT:-900}" idle waited=0
+  idle="$(idle_seconds 2>/dev/null || true)"
+  idle="${idle:-999}"
+  if [ "$limit" -le 0 ] || [ "$idle" -ge 120 ]; then return 0; fi
+  echo "the Mac is in use (input ${idle} s ago): waiting up to $((limit / 60)) min for 2 idle minutes before $1; leave its windows alone while it runs"
+  while [ "$idle" -lt 120 ] && [ "$waited" -lt "$limit" ]; do
+    sleep 10
+    waited=$((waited + 10))
+    idle="$(idle_seconds 2>/dev/null || true)"
+    idle="${idle:-999}"
+  done
+  if [ "$idle" -lt 120 ]; then echo "still in use after $((waited / 60)) min: $1 starts anyway"; fi
+}
+
+# Why the test app $1 (its process name; empty for the Simulator), started at $2 (as `log show
+# --start` takes it), stopped early because of someone at the Mac, or nothing: macOS logged its
+# quit (the Dock, the app menu, Cmd-Q), or there was input on the Mac in the last minute.
+quit_by_user() {
+  local logged="" idle
+  if [ -n "$1" ]; then
+    logged="$(log show --style compact --start "$2" \
+      --predicate "process == \"$1\" AND eventMessage CONTAINS[c] \"terminate\"" 2>/dev/null || true)"
+    if grep -Eqi '^[0-9]{4}-[0-9]{2}-[0-9]{2} .*terminate' <<< "$logged"; then
+      echo "macOS logged a quit of the app"
+      return 0
+    fi
+  fi
+  idle="$(idle_seconds 2>/dev/null || true)"
+  if [ "${idle:-999}" -lt 60 ]; then echo "it stopped while the Mac was in use (input ${idle} s ago)"; return 0; fi
+  return 1
+}
+
+# Runs a flutter test that opens a window, from app/, into the log $3: $1 the result's name, $2 the
+# step to run again, $4 the test app's process name ("" on the Simulator), the rest the command.
+# Waits for an idle Mac first. When the tests stopped early because someone quit the app, writes
+# the INTERRUPTED line itself and returns 2; else the command's exit.
+gui_test() {
+  local name="$1" again_step="$2" log="$3" proc="$4" since rc=0 why
+  shift 4
+  wait_idle "$name"
+  since="$(date '+%Y-%m-%d %H:%M:%S')"
+  (cd "$app" && "$@") > "$log" 2>&1 || rc=$?
+  [ "$rc" != 0 ] || return 0
+  if grep -q 'did not complete' "$log" && why="$(quit_by_user "$proc" "$since")"; then
+    result INTERRUPTED "$name" "(app quit by user) $why; again alone: $(again "$again_step")"
+    return 2
+  fi
+  return "$rc"
+}
+
+# The tests that failed in the flutter test log $1, separated by "; ".
+failed_tests() {
+  sed -n '/^Failing tests:/,/^[^ ]/ s/^  [^ ]*\.dart: //p' "$1" | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/; /g'
+}
+
+# The Flutter SDK's folder (a git checkout), for the fix of a wrong version.
+flutter_dir() { (cd "$(dirname "$(command -v flutter)")/.." && pwd -P); }
 
 doctor() {
   say doctor
@@ -167,12 +272,43 @@ doctor() {
     local v
     v="$(flutter --version 2>/dev/null | sed -n 's/^Flutter \([0-9.]*\).*/\1/p')"
     echo "flutter: $v"
-    [ "$v" = "$flutter_version" ] || echo "warning: the app is built with Flutter $flutter_version" >&2
+    if [ "$v" != "$flutter_version" ]; then
+      echo "Flutter is ${v:-unknown}, the app is built with $flutter_version: git -C \"$(flutter_dir)\" fetch --tags && git -C \"$(flutter_dir)\" checkout $flutter_version && flutter --version" >&2
+      if wants release-check release mac-release ios-prepare; then ok=0; fi
+    fi
   fi
   # Swift Package Manager is on by default in Flutter 3.47; CocoaPods only when it is turned off.
   if flutter config --list 2>/dev/null | grep -q 'enable-swift-package-manager: false'; then
     command -v pod >/dev/null || { echo "SPM is off and CocoaPods is missing" >&2; ok=0; }
   fi
+  # What the steps asked for need, found now rather than an hour into the run.
+  if { wants live || { wants smoke && [ "${WFE_TOR:-1}" = 1 ]; }; } && [ ! -f "$app/integration_test/live-hosts.json" ]; then
+    echo "no app/integration_test/live-hosts.json (the servers of the live tests): $hosts_fix" >&2
+    ok=0
+  fi
+  if ios_built && wants ios-sim smoke live; then
+    local sim
+    sim="$(simulator 2>/dev/null || true)"
+    if [ -n "$sim" ]; then
+      echo "Simulator: $(xcrun simctl list devices 2>/dev/null | grep -m1 "$sim" | sed 's/^ *//')"
+    else
+      echo "no iPhone Simulator${SIM_DEVICE:+ \"$SIM_DEVICE\"}: xcrun simctl create \"iPhone 18 Pro\" <an iPhone device type> <an iOS runtime> (xcrun simctl list devicetypes runtimes)" >&2
+      ok=0
+    fi
+  fi
+  local dirty
+  dirty="$(dirty_paths)"
+  if [ -n "$dirty" ]; then
+    if wants release-check release mac-release ios-prepare; then
+      echo "the checkout is not clean, which release builds refuse; from the repo root:" >&2
+      ok=0
+    else
+      echo "note: the checkout is not clean, which release builds (ios-prepare, mac-release) refuse; from the repo root:"
+    fi
+    dirty_fixes "$dirty" >&2
+  fi
+  # Information only, never asked for: nothing here takes screenshots of windows.
+  echo "Screen Recording permission: $(osascript -l JavaScript -e 'ObjC.import("CoreGraphics"); $.CGPreflightScreenCaptureAccess()' 2>/dev/null || echo unknown) (not needed)"
   df -h "$root" | tail -1
   if [ "$ok" = 1 ]; then result PASS doctor; else result FAIL doctor; die "fix the toolchain first"; fi
 }
@@ -405,6 +541,7 @@ ios_sim() {
   [ -d "$bundle" ] || die "no $bundle"
   udid="$(simulator)"
   [ -n "$udid" ] || die "no Simulator found (xcrun simctl list devices available)"
+  wait_idle "the Simulator"
   xcrun simctl boot "$udid" 2>/dev/null || true
   xcrun simctl bootstatus "$udid" -b
   xcrun simctl install "$udid" "$bundle"
@@ -503,18 +640,20 @@ smoke() {
   test_native
   mkdir -p "$out"
   local status=0 udid
-  if (cd "$app" && flutter test integration_test/simple_test.dart -d macos --dart-define=WFE_TEST_NO_KEYCHAIN=true) > "$out/smoke-macos.log" 2>&1; then
+  if gui_test smoke-macos smoke "$out/smoke-macos.log" "$desktop_exe" \
+      flutter test integration_test/simple_test.dart -d macos --dart-define=WFE_TEST_NO_KEYCHAIN=true; then
     result PASS smoke-macos simple_test
   else
-    result FAIL smoke-macos "simple_test, see smoke-macos.log"; status=1
+    [ $? = 2 ] || result FAIL smoke-macos "simple_test, see smoke-macos.log"; status=1
   fi
   if ! ios_built; then
     result SKIP smoke-ios-sim "iOS is only built without Tor (WFE_TOR=0)"
-  elif udid="$(simulator)" && [ -n "$udid" ] && (cd "$app" && flutter test integration_test/simple_test.dart -d "$udid") \
-      > "$out/smoke-ios-sim.log" 2>&1; then
+  elif ! udid="$(simulator)" || [ -z "$udid" ]; then
+    result FAIL smoke-ios-sim "no Simulator found (xcrun simctl list devices available)"; status=1
+  elif gui_test smoke-ios-sim smoke "$out/smoke-ios-sim.log" "" flutter test integration_test/simple_test.dart -d "$udid"; then
     result PASS smoke-ios-sim simple_test
   else
-    result FAIL smoke-ios-sim "simple_test, see smoke-ios-sim.log"; status=1
+    [ $? = 2 ] || result FAIL smoke-ios-sim "simple_test, see smoke-ios-sim.log"; status=1
   fi
   # The release .app starts and stays up.
   local bundle="$out/$desktop_name.app"
@@ -544,6 +683,9 @@ smoke() {
           || [ "$(security default-keychain -d user 2>/dev/null || true)" != "$own" ]; then
         result SKIP smoke-macos-app "the throwaway keychain is not the smoke home's default: not started"
       else
+        local since why
+        wait_idle smoke-macos-app
+        since="$(date '+%Y-%m-%d %H:%M:%S')"
         HOME="$home" CFFIXED_USER_HOME="$home" "$bundle/Contents/MacOS/$desktop_exe" > "$out/smoke-macos-app.log" 2>&1 &
         pid=$!
         sleep 20
@@ -551,6 +693,8 @@ smoke() {
           kill "$pid" 2>/dev/null || true
           wait "$pid" 2>/dev/null || true
           result PASS smoke-macos-app "started and stayed up 20 s"
+        elif why="$(quit_by_user "$desktop_exe" "$since")"; then
+          result INTERRUPTED smoke-macos-app "(app quit by user) $why; again alone: $(again smoke)"; status=1
         else
           result FAIL smoke-macos-app "not running 20 s after start, see smoke-macos-app.log"; status=1
         fi
@@ -563,11 +707,14 @@ smoke() {
     result FAIL smoke-tor "tor in the build without Tor"; status=1
   elif [ -x "$tor" ]; then
     tor_check "$bundle" || status=1
-    if (cd "$app" && flutter test integration_test/tor_apple_test.dart -d macos --dart-define-from-file=integration_test/live-hosts.json \
-        --dart-define=WFE_TEST_TOR="$tor") > "$out/smoke-tor-app.log" 2>&1; then
+    if [ ! -f "$app/integration_test/live-hosts.json" ]; then
+      result FAIL smoke-tor-app "no app/integration_test/live-hosts.json: $hosts_fix"; status=1
+    elif gui_test smoke-tor-app smoke "$out/smoke-tor-app.log" "$desktop_exe" \
+        flutter test integration_test/tor_apple_test.dart -d macos --dart-define-from-file=integration_test/live-hosts.json \
+        --dart-define=WFE_TEST_TOR="$tor"; then
       result PASS smoke-tor-app "$(grep -m1 'over tor: height' "$out/smoke-tor-app.log" | sed 's/.*TOR-CHECK //')"
     else
-      result FAIL smoke-tor-app "see smoke-tor-app.log"; status=1
+      [ $? = 2 ] || result FAIL smoke-tor-app "$(failed_tests "$out/smoke-tor-app.log"), see smoke-tor-app.log"; status=1
     fi
   else
     # The build without Tor must have none; any other build must.
@@ -581,20 +728,27 @@ live() {
   say live
   test_native
   mkdir -p "$out"
-  local status=0 udid
-  if (cd "$app" && flutter test integration_test/apple_live_test.dart -d macos --dart-define-from-file=integration_test/live-hosts.json ${tor_def:+"$tor_def"}) \
-      > "$out/live-macos.log" 2>&1; then
+  [ -f "$app/integration_test/live-hosts.json" ] || die "no app/integration_test/live-hosts.json (the servers of the live tests): $hosts_fix"
+  local status=0 udid from0=""
+  # A restore from block 0 (about 15 min on a Mac) instead of from the new wallet's height.
+  if [ "${LIVE_RESTORE_FROM_0:-0}" = 1 ]; then from0=--dart-define=LIVE_RESTORE_FROM_0=true; fi
+  if gui_test live-macos live "$out/live-macos.log" "$desktop_exe" \
+      flutter test integration_test/apple_live_test.dart -d macos --dart-define-from-file=integration_test/live-hosts.json \
+      ${tor_def:+"$tor_def"} ${from0:+"$from0"}; then
     result PASS live-macos "$(grep 'LIVE-CHECK' "$out/live-macos.log" | sed 's/.*LIVE-CHECK //' | tr '\n' ';')"
   else
-    result FAIL live-macos "see live-macos.log"; status=1
+    [ $? = 2 ] || result FAIL live-macos "$(failed_tests "$out/live-macos.log"), see live-macos.log"; status=1
   fi
   if ! ios_built; then
     result SKIP live-ios-sim "iOS is only built without Tor (WFE_TOR=0)"
-  elif udid="$(simulator)" && [ -n "$udid" ] && (cd "$app" && flutter test integration_test/apple_live_test.dart -d "$udid" --dart-define-from-file=integration_test/live-hosts.json ${tor_def:+"$tor_def"}) \
-      > "$out/live-ios-sim.log" 2>&1; then
+  elif ! udid="$(simulator)" || [ -z "$udid" ]; then
+    result FAIL live-ios-sim "no Simulator found (xcrun simctl list devices available)"; status=1
+  elif gui_test live-ios-sim live "$out/live-ios-sim.log" "" \
+      flutter test integration_test/apple_live_test.dart -d "$udid" --dart-define-from-file=integration_test/live-hosts.json \
+      ${tor_def:+"$tor_def"} ${from0:+"$from0"}; then
     result PASS live-ios-sim "$(grep 'LIVE-CHECK' "$out/live-ios-sim.log" | sed 's/.*LIVE-CHECK //' | tr '\n' ';')"
   else
-    result FAIL live-ios-sim "see live-ios-sim.log"; status=1
+    [ $? = 2 ] || result FAIL live-ios-sim "$(failed_tests "$out/live-ios-sim.log"), see live-ios-sim.log"; status=1
   fi
   return "$status"
 }
@@ -627,10 +781,16 @@ release_check() {
   say release-check
   local head dirty v tag
   head="$(git -C "$root" rev-parse HEAD)"
-  dirty="$(git -C "$root" status --porcelain --untracked-files=normal -- . ':!build-apple')"
+  dirty="$(dirty_paths)"
   if [ -n "$dirty" ]; then
-    echo "$dirty" >&2
-    die "the checkout has local changes or untracked files: release builds come from a clean clone"
+    echo "release builds come from a clean checkout; from the repo root:" >&2
+    dirty_fixes "$dirty" >&2
+    die "the checkout has local changes or untracked files (above, each with its fix)"
+  fi
+  # HEAD: the commit checked out, for the TestFlight build before the release has its tag.
+  if [ "${RELEASE_COMMIT:-}" = HEAD ]; then
+    RELEASE_COMMIT="$head"
+    echo "RELEASE_COMMIT=HEAD: building $head, no tag needed"
   fi
   if [ -n "${RELEASE_COMMIT:-}" ]; then
     case "$head" in "$RELEASE_COMMIT"*) ;; *) die "HEAD is $head, not RELEASE_COMMIT $RELEASE_COMMIT" ;; esac
@@ -643,11 +803,11 @@ release_check() {
   # Without RELEASE_COMMIT (the release runner's hand-offs give its own commit id), HEAD is the tag.
   if [ -z "${RELEASE_COMMIT:-}" ]; then
     tag="$(git -C "$root" rev-parse -q --verify "refs/tags/v$RELEASE_VERSION^{commit}")" \
-      || die "no tag v$RELEASE_VERSION here: git fetch --tags origin && git checkout --detach v$RELEASE_VERSION"
+      || die "no tag v$RELEASE_VERSION here: git fetch --tags origin && git checkout --detach v$RELEASE_VERSION; before the release is tagged (TestFlight), RELEASE_COMMIT=HEAD builds the commit checked out"
     [ "$head" = "$tag" ] || die "HEAD is $head, not the tag v$RELEASE_VERSION ($tag): git checkout --detach v$RELEASE_VERSION"
   fi
   v="$(flutter --version 2>/dev/null | sed -n 's/^Flutter \([0-9.]*\).*/\1/p')"
-  [ "$v" = "$flutter_version" ] || die "Flutter is $v; release builds use exactly $flutter_version"
+  [ "$v" = "$flutter_version" ] || die "Flutter is $v; release builds use exactly $flutter_version: git -C \"$(flutter_dir)\" fetch --tags && git -C \"$(flutter_dir)\" checkout $flutter_version"
   [ "$(uname -m)" = arm64 ] || die "release builds run on an Apple silicon Mac"
   if [ -z "${WFE_NODE_BIN_MAC_ARM64:-}" ]; then WFE_NODE_FETCH=1; fi
   result PASS release-check "$(git -C "$root" rev-parse --short=9 HEAD) $(app_version) flutter $v"
@@ -787,7 +947,7 @@ gatekeeper() {
 # ---- The release route (tools/apple-release.md): the release Mac signs with the BT Labs team ----
 
 # The notarytool keychain profile (made once: xcrun notarytool store-credentials).
-notary_profile="${NOTARY_PROFILE:-epic-notary}"
+notary_profile="${NOTARY_PROFILE:-btlabs-notary}"
 
 # The Team ID: APPLE_TEAM_ID, else DEVELOPMENT_TEAM of app/Signing.xcconfig.
 team_id() {
@@ -995,17 +1155,18 @@ if [ $# -ge 1 ] && [ "$1" = all ]; then
 fi
 
 # A step that dies (or fails a command) gets its FAIL line here unless it wrote one itself.
-recorded="" step=""
-trap 'rc=$?; if [ "$rc" != 0 ] && [ -n "$step" ] && [ "$recorded" != "$step" ]; then result FAIL "$step" "exit $rc"; fi' EXIT
+step_failed="" step=""
+trap 'rc=$?; if [ "$rc" != 0 ] && [ -n "$step" ] && [ -z "$step_failed" ]; then result FAIL "$step" "exit $rc"; fi' EXIT
 
 if [ $# -eq 0 ]; then
   set -- doctor sources lepic macos dmg
   if ios_built; then set -- "$@" ios-sim; fi
 fi
+requested=" $* "
 while [ $# -gt 0 ]; do
   step="$1"
   shift
-  recorded=""
+  step_failed=""
   case "$step" in
     doctor) doctor ;;
     sources) sources ;;
@@ -1027,7 +1188,7 @@ while [ $# -gt 0 ]; do
     handoff) handoff ;;
     dmg-signed) [ $# -gt 0 ] || die "dmg-signed needs the signed .app tar.gz"; dmg_signed "$1"; shift ;;
     gatekeeper) [ $# -gt 0 ] || die "gatekeeper needs the final .dmg"; gatekeeper "$1"; shift ;;
-    *) step=""; sed -n '2,98p' "$0" >&2; exit 2 ;;
+    *) step=""; sed -n '2,/^# Written for the bash/p' "$0" >&2; exit 2 ;;
   esac
 done
 echo "results: $results"

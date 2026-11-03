@@ -6,6 +6,11 @@
 //
 // Prints one `LIVE-CHECK <what>: <result>` line per check. Never print the phrase or PIN;
 // compare them only.
+//
+// The new wallet scans from the node's tip at its creation, and the restore from that same
+// height: a scan from block 0 takes about 14 min on mainnet. --dart-define=LIVE_RESTORE_FROM_0=true
+// restores from block 0 instead (with a longer limit). Each check stops its own scan before its
+// time limit, so nothing of one check runs on into the next one and fails it.
 import 'dart:async';
 import 'dart:io';
 
@@ -40,6 +45,9 @@ final _minConfirmations = liveMinConfirmations;
 /// A mainnet tip is past this height.
 final _mainnetFloor = BigInt.from(3700000);
 
+/// The restore scans from block 0, not from the first wallet's creation height.
+const _restoreFromZero = bool.fromEnvironment('LIVE_RESTORE_FROM_0');
+
 void _report(String what, String result) {
   // ignore: avoid_print
   print('LIVE-CHECK $what: $result');
@@ -53,19 +61,38 @@ Future<Directory> _tempDir(String name) async {
   return base.createTemp('wfe-it-$name-');
 }
 
-/// Runs a scan to its `finished` event; a "Scan failed:" end throws.
-Future<ScanResult?> _scan(WalletSession session, String what) async {
+/// Runs a scan from [from] (the wallet's own start when null) to its `finished` event; a "Scan
+/// failed:" end throws. A scan still running after [limit] is stopped and fails the check, so it
+/// ends before the test's own time limit.
+Future<ScanResult?> _scan(
+  WalletSession session,
+  String what, {
+  BigInt? from,
+  required Duration limit,
+}) async {
   final started = DateTime.now();
   var last = -1;
   ScanProgress? end;
-  await for (final p in session.scan().timeout(const Duration(minutes: 5))) {
-    final percent = p.percent ?? last;
-    if (percent >= last + 25 || p.finished) {
-      // ignore: avoid_print
-      print('  $what scan ${p.percent ?? '-'} % ${p.message}');
-      last = percent;
+  var stopped = false;
+  final stop = Timer(limit, () {
+    stopped = true;
+    session.cancelScan();
+  });
+  try {
+    await for (final p in session.scan(startHeight: from).timeout(const Duration(minutes: 5))) {
+      final percent = p.percent ?? last;
+      if (percent >= last + 25 || p.finished) {
+        // ignore: avoid_print
+        print('  $what scan ${p.percent ?? '-'} % ${p.message}');
+        last = percent;
+      }
+      if (p.finished) end = p;
     }
-    if (p.finished) end = p;
+  } finally {
+    stop.cancel();
+  }
+  if (stopped && end == null) {
+    fail('$what scan from ${from ?? 'its start'} not finished after ${limit.inMinutes} min (at $last %)');
   }
   if (end == null) fail('$what scan ended without a finished event');
   if (end.message.startsWith(scanFailedPrefix)) fail('$what: ${end.message}');
@@ -175,13 +202,19 @@ void main() {
     );
     _report('node tip', '${tip!.height} (> $_mainnetFloor)');
 
-    final found = await _scan(session, 'new wallet');
+    // A new wallet has nothing before its creation: it scans from the tip it was made at.
+    final found = await _scan(
+      session,
+      'new wallet',
+      from: tip!.height,
+      limit: const Duration(minutes: 6),
+    );
     final summary = await _refresh(session);
     // The node's tip now, asked as the open wallet asks it.
     final now = (await session.nodeTipFor(config: config!)).height;
     _report(
       'sync',
-      'scan finished (found ${found?.found ?? '-'}), refresh at height '
+      'scan from ${tip!.height} finished (found ${found?.found ?? '-'}), refresh at height '
           '${summary.lastConfirmedHeight}, node at $now, validated '
           '${summary.validatedWithNode}, total ${summary.total}',
     );
@@ -203,15 +236,22 @@ void main() {
       nodeUrl: nodeUrl!,
       relay: _relays.first,
     );
+    // From the first wallet's creation height: nothing of it is on chain before that.
+    final from = _restoreFromZero ? null : tip!.height;
     final restored = await lepic.createWithPin(
       config: restoreConfig,
       mnemonic: phrase,
       pin: _pin,
+      restoreFromHeight: from,
     );
     final session = restored.session;
     cleanup.add(() async => session.dispose());
     expect(await session.restoreScanRequired(), isTrue);
-    final result = await _scan(session, 'restore');
+    final result = await _scan(
+      session,
+      'restore',
+      limit: Duration(minutes: _restoreFromZero ? 25 : 10),
+    );
     expect(await session.restoreScanRequired(), isFalse);
     final summary = await _refresh(session);
 
@@ -224,7 +264,7 @@ void main() {
         await created.fingerprint();
     _report(
       'restore',
-      'scan from block 0 finished (found ${result?.found ?? '-'}), height '
+      'scan from ${from == null ? 'block 0' : 'height $from'} finished (found ${result?.found ?? '-'}), height '
           '${summary.lastConfirmedHeight}, total ${summary.total}; fingerprint '
           '${sameFingerprint ? 'matches' : 'DIFFERS'}, Epicbox address '
           '${sameAddress ? 'matches' : 'DIFFERS'}, phrase fingerprint '
@@ -234,7 +274,7 @@ void main() {
     expect(sameAddress, isTrue);
     expect(phraseFingerprint, isTrue);
     expect(summary.total, BigInt.zero);
-  }, timeout: const Timeout(Duration(minutes: 15)));
+  }, timeout: Timeout(Duration(minutes: _restoreFromZero ? 30 : 15)));
 
   testWidgets(
     'epicbox: the listener comes online on the first relay that connects',
