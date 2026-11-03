@@ -44,6 +44,7 @@ class WinSurface:
         self.secret_dir = secret_dir or os.environ.get("TMPDIR") or tempfile.gettempdir()
         self.last = []        # the nodes of the last read, UIA order, unfiltered
         self.last_press = None
+        self.tree_nodes = []
         self.pressed = {}     # how presses went: {"msaa": n, "click": n}
 
     # ---- the agent
@@ -73,6 +74,7 @@ class WinSurface:
                 n.states = n.states | {"password"}
         self._list_items(nodes)
         nodes = [n for n in nodes if n]
+        self.tree_nodes = nodes
         self._trace(nodes)
         return nodes
 
@@ -164,6 +166,9 @@ class WinSurface:
             r = self._call("ui_at", idx=node.ref["idx"], name=node.ref["name"], what="press")
             if r.get("ok"):
                 self.pressed["msaa"] = self.pressed.get("msaa", 0) + 1
+                if node.role in ("button", "row") and self._unchanged(node):
+                    self.log("the default action changed nothing on %s; clicking" % node.brief())
+                    self._click(node)
                 return
             err = r.get("error") or ""
             if "different node" in err or "wanted #" in err:
@@ -175,6 +180,16 @@ class WinSurface:
             self.log("MSAA press failed (%s); clicking" % err[:100])
             return self._click(node)
         raise HarnessFault("ui", "could not press %s" % node.brief())
+
+    @staticmethod
+    def _signature(nodes):
+        return [(n.role, n.name, n.value, tuple(sorted(n.states))) for n in nodes]
+
+    def _unchanged(self, node):
+        """True when the screen reads the same just after a default action: some controls take none."""
+        before = self._signature(self.tree_nodes)
+        time.sleep(0.8)
+        return self._signature(self.tree()) == before
 
     def set_text(self, node, text):
         """Click into the field, clear what it holds, type. A password field's value is not readable,
