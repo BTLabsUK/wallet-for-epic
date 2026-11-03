@@ -38,8 +38,9 @@ CONTINUE = T("g4.create.continue", keys=("commonContinue",), names=("Continue",)
 SETUP_SKIP = T("g4.setup.skip", keys=("deskSetupSkip",), names=("Skip setup",))
 
 # restore from phrase (26.10.25 and 26.10.26: restore_screen.dart, phrase_grid.dart). The word fields are
-# "Word N" (deskOnbWordN, Desktop._word); the words step's button is CONTINUE. Ids g4.restore.* from the
-# release with restore from a height (trust_ids.dart); older builds are found by label.
+# "Word N" (deskOnbWordN, Desktop._word); the words step's button is RESTORE_NEXT. Ids g4.restore.* from
+# the release with restore from a height (trust_ids.dart); older builds are found by label.
+RESTORE_NEXT = T("g4.restore.next", keys=("commonContinue",), names=("Continue",))
 RESTORE_SUBMIT = T("g4.restore.continue", keys=("deskOnbRestoreSide",), names=("Restore wallet",), match="exact", secret=True)
 # the link is an unnamed node with its label a text of its own on Linux (the label's press reaches the link)
 RESTORE_FROM_OPEN = T("g4.restore.start", role="other", keys=("restoreStartFromMonthLink",),
@@ -276,7 +277,7 @@ class Desktop:
         with d.hush():
             self._type_words(words)
             del words
-            d.press(CONTINUE, step="restore-words", timeout=60,
+            d.press(RESTORE_NEXT, step="restore-words", timeout=60,
                     then=Expect("the password step", lambda dd, tree: len(self._passwords(tree)) >= 2))
         self.log("restore: the phrase took (%d words); the password step" % len(phrase.split()))
         self._fill_passwords("restore-password", 2, submit=RESTORE_SUBMIT)
@@ -329,7 +330,7 @@ class Desktop:
                 # Space commits the word and moves to the next field, as a person typing does: AT-SPI's
                 # focus reaches the first field only (26.10.25 on Linux kept the keyboard in field 1)
                 d.s.key("space")
-        ready = Expect("Continue enabled", lambda dd, tree: any(n.enabled and n.role == "button" for n in dd.find_in(CONTINUE, tree)))
+        ready = Expect("Continue enabled", lambda dd, tree: any(n.enabled and n.role == "button" for n in dd.find_in(RESTORE_NEXT, tree)))
         if not d.wait(ready, 5):
             d.s.key("tab")   # commits the last field (its word checked), as a person moving on does
             d.must(ready, 30, step="restore-words", goal="the phrase checked: Continue enabled")
