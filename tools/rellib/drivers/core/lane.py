@@ -334,12 +334,14 @@ class Lane:
 
     def _restore(self):
         """The lane seed's wallet restored through the previous release's screens; the recipe leaves the app
-        on the wallet's home. Only the pin and password it chose go into the lane's secrets."""
+        on the wallet's home. The pin and password it chose go into the lane's secrets, and the phrase too:
+        an encrypted store (desktop from 26.10.25) is read through the LEPIC CLI, which restores from it."""
         surface = self.p.start("previous")
         self.rec.build = os.environ.get("REL_PREVIOUS_VERSION", "previous")
         self.ui = self.recipe_for(self, "previous", surface)
         got = self.ui.restore_wallet(self.seed.phrase(), self.seed.birth()) or {}
         self.secrets.update({k: got[k] for k in ("pin", "password") if got.get(k)})
+        self.secrets["phrase"] = self.seed.phrase()
 
     def _restore_ok(self):
         """The restored wallet's spendable reaches the one the lane seed has on record (the scan may still
@@ -372,7 +374,7 @@ class Lane:
                     "%s EPIC" % ls.epic(got) if got is not None else "NOT read", ls.epic(want) if want is not None else "?",
                     on_record, took, " (%s)" % err if err else " (wallet data)"))
                 return
-            self.log("restore: spendable %s, on record %s; reading again" % (ls.epic(got), ls.epic(want)))
+            self.log("restore: spendable %s, on record %s%s; reading again" % (ls.epic(got), ls.epic(want), " (%s)" % err if err else ""))
             time.sleep(poll)
 
     def on_funding(self, amount, tx):
