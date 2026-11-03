@@ -33,7 +33,7 @@ P's folder into memory only.
 The service starts on the first client that needs it (Client.ensure) and stops after REL_P_IDLE_MIN
 (default 40) minutes without a request and without a send of its own still unconfirmed.
 
-    python3 -I p_service.py serve | status | stop | info
+    python3 -I p_service.py serve | status | stop | info | cancel <slate> [why]
 
 Env: REL_P_TOOL (p.py), REL_P_PASS_FILE + REL_P_PASS_LINE (P's password), REL_P_LOCK (the old
 flock), REL_P_SERVICE_DIR (socket, logs; default ~/.cache/rel-p-service), REL_P_OWNER_PORT (P's
@@ -492,10 +492,29 @@ class Service:
             out = clean(r.stdout + r.stderr)
             self.log("p.py %s: exit %d" % (" ".join(args[:6]), r.returncode))
             return {"ok": r.returncode == 0, "rc": r.returncode, "out": out}
+        if op == "cancel":
+            return self.cancel(req["slate"], req.get("why", ""))
         if op == "stop":
             threading.Thread(target=self.shutdown_soon, daemon=True).start()
             return {"ok": True}
         return {"ok": False, "note": "unknown op %r" % op}
+
+    def cancel(self, slate, why=""):
+        """Cancels a send of P that can never finalize (its slate went where the receiver does not read):
+        P's inputs it holds are spendable again. Refused once the send is confirmed."""
+        with self.send_mu:
+            e = self.tx_entry(slate_id=slate)
+            if not e:
+                return {"ok": False, "note": "P has no send with slate %s" % slate}
+            if e.get("confirmed"):
+                return {"ok": False, "note": "send %s is confirmed" % slate}
+            if e.get("tx_type") != "TxSentCancelled":
+                self.rpc("cancel_tx", [None, slate])
+            with self.state_mu:
+                if slate in self.sends:
+                    self.sends[slate]["state"] = "cancelled"
+        self.log("send %s (tx %s) cancelled%s" % (slate, e.get("id"), ": " + why if why else ""))
+        return {"ok": True, "tx": e.get("id")}
 
     def shutdown_soon(self):
         time.sleep(0.5)
@@ -628,6 +647,9 @@ def main(argv):
     if why:
         print(why, file=sys.stderr)
         return 2
+    if cmd == "cancel":
+        print(json.dumps(c.call("cancel", slate=argv[2], why=" ".join(argv[3:]))))
+        return 0
     print(json.dumps(c.call(cmd)))
     return 0
 
