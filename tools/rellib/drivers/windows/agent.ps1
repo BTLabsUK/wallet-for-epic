@@ -104,7 +104,7 @@ public static class Standin {
   public static string LogFile;
   public static long Requests;
   static void Log(string s) { try { lock (hop) File.AppendAllText(LogFile, DateTime.Now.ToString("HH:mm:ss ") + s + "\n"); } catch { } }
-  static TcpListener Listen() { var l = new TcpListener(IPAddress.Loopback, 0); l.Start(); return l; }
+  static TcpListener Listen(int port) { var l = new TcpListener(IPAddress.Loopback, port); l.Start(); return l; }
   static void Serve(TcpListener l, Action<TcpClient> each) {
     var t = new Thread(() => { while (true) { TcpClient c; try { c = l.AcceptTcpClient(); } catch { return; }
       var w = new Thread(() => { try { each(c); } catch (Exception e) { Log("conn: " + e.Message); } finally { try { c.Close(); } catch { } } }) { IsBackground = true }; w.Start(); } }) { IsBackground = true };
@@ -116,8 +116,8 @@ public static class Standin {
     return ch < 0 && b.Count == 0 ? null : Encoding.ASCII.GetString(b.ToArray());
   }
   /// http://127.0.0.1:<port> -> upstream (https://host[:port]); answers one request per connection.
-  public static int Node(string upstream) {
-    var l = Listen(); upstream = upstream.TrimEnd('/');
+  public static int Node(string upstream, int port = 0) {
+    var l = Listen(port); upstream = upstream.TrimEnd('/');
     Serve(l, c => {
       var s = c.GetStream();
       var first = Line(s); if (string.IsNullOrEmpty(first)) return;
@@ -153,8 +153,8 @@ public static class Standin {
     return ((IPEndPoint)l.LocalEndpoint).Port;
   }
   /// 127.0.0.1:<port> piped into TLS to host:443 (the app speaks ws:// to a loopback relay).
-  public static int Relay(string host) {
-    var l = Listen();
+  public static int Relay(string host, int port = 0) {
+    var l = Listen(port);
     Serve(l, c => {
       var up = new TcpClient(host, 443);
       var tls = new SslStream(up.GetStream()); tls.AuthenticateAsClient(host);
@@ -394,8 +394,8 @@ function Do-Cmd($c) {
     'ping' { return @{ ok = $true; user = $env:USERNAME; profile = $env:USERPROFILE; entry = (Entry) } }
     'entry' { return @{ ok = $true; entry = (Entry) } }
     'standins' {
-      $n = [Standin]::Node([string]$c.node)
-      $r = [Standin]::Relay([string]$c.relay)
+      $n = [Standin]::Node([string]$c.node, [int]($c.node_port ?? 0))
+      $r = [Standin]::Relay([string]$c.relay, [int]($c.relay_port ?? 0))
       Rep "stand-ins: node 127.0.0.1:$n -> $($c.node), relay 127.0.0.1:$r -> $($c.relay)"
       return @{ ok = $true; node = $n; relay = $r }
     }
