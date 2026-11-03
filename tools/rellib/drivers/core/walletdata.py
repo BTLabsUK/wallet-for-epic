@@ -200,10 +200,14 @@ def rig_files(rig, data):
             return sorted(p.replace("\\", "/") for p in rig.files(data))
 
         def fetch(self, rel, local):
-            got = rig.fetch_db(self._w(rel), os.path.dirname(local), os.path.basename(local))
+            # the rig keeps a database's files (with -wal and -shm) in a folder of their own: not at `local`,
+            # which is where the finished file goes
+            got = rig.fetch_db(self._w(rel), os.path.join(os.path.dirname(local), ".rig"), os.path.basename(local))
             if got and os.path.exists(got):
-                if got != local:
-                    shutil.copyfile(got, local)
+                shutil.copyfile(got, local)
+                for x in ("-wal", "-shm"):
+                    if os.path.exists(got + x):
+                        shutil.copyfile(got + x, local + x)
                 return True
             return False
 
