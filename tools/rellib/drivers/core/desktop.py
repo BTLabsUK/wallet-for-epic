@@ -538,6 +538,9 @@ class Desktop:
                 tried.append(p)
                 if d.wait(shows(target), 3):
                     return True
+                d.step = "find-%s" % target.id
+                if d.untangle(target):   # folded, scrolled off, a dialog in the way: the known-trouble rules first
+                    return True
                 # renamed on the page the recipe expects: the model's pick, before every section is searched
                 if d.rec.pick(target, d.tree(), step="find-%s" % target.id, texts=d.texts(target)):
                     return True

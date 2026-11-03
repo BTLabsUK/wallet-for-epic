@@ -150,6 +150,17 @@ class BreakKindsTest(Base):
         self.assertTrue(self.logged("known trouble folded: expanded 'Show more'"), self.logs)
         self.assertTrue(self.logged("found after folded"), self.logs)
 
+    def test_fold_without_trust_ids_hides_the_control_by_label(self):
+        # a Windows UIA tree: no trust ids, the control matched by the recipe's label
+        self.breaks("fold:g4.unlock.submit")
+        f = Fake({"lock": [n(0, "button", "Unlock")], "home": [n(0, "text", "Available to spend")]},
+                 "lock", {("lock", "Unlock"): "home"})
+        d = self.driver(f)
+        self.assertEqual([x.name for x in d.s.tree()], [breaks.FOLD_BUTTON])
+        d.press(UNLOCK, step="unlock", then=shows(HOME), timeout=1)
+        self.assertEqual((f.cur, f.pressed), ("home", ["Unlock"]))
+        self.assertTrue(self.logged("known trouble folded: expanded 'Show more'"), self.logs)
+
     def test_overlay_waited_out_and_never_pressed(self):
         self.breaks("overlay@address:5")
         lane = types.SimpleNamespace(log=self.logs.append, p=None, retried=set())
@@ -272,7 +283,7 @@ class OverlayPhaseTest(Base):
 
 
 class NodeDownTest(Base):
-    SETTINGS = '[node]\nservers = ["127.0.0.1:9999"]\n'
+    SETTINGS = '[node]\nservers = ["http://127.0.0.1:9999"]\n'
 
     def cli(self, answers):
         cli = wd.LepicCli(exe="lepic", log=self.logs.append)
@@ -295,14 +306,23 @@ class NodeDownTest(Base):
 
     def test_node_down_moves_to_the_next_node(self):
         self.breaks("node-down")
-        cli, ran = self.cli({"node.btlabs.uk"})
+        cli, ran = self.cli({"https://node.btlabs.uk"})
         try:
             cli._restore(PHRASE, "pw", self.SETTINGS)
         finally:
             cli.close()
-        self.assertEqual(ran, [wd.UNREACHABLE_NODE, "127.0.0.1:9999", "node.btlabs.uk"])
+        # the CLI's node.servers needs the scheme (lepic NodeEndpoint::parse)
+        self.assertEqual(ran, [wd.UNREACHABLE_NODE, "http://127.0.0.1:9999", "https://node.btlabs.uk"])
         self.assertEqual(len(self.logged("not reachable (exit 9); trying")), 2, self.logs)
-        self.assertTrue(self.logged("BREAK: the CLI's first node is 127.0.0.1:9"))
+        self.assertTrue(self.logged("BREAK: the CLI's first node is http://127.0.0.1:9"))
+
+    def test_a_node_without_scheme_gets_one(self):
+        cli, ran = self.cli({"http://10.0.0.1:3413"})
+        try:
+            cli._restore(PHRASE, "pw", '[node]\nservers = ["10.0.0.1:3413", "https://node.btlabs.uk"]\n')
+        finally:
+            cli.close()
+        self.assertEqual(ran, ["http://10.0.0.1:3413"])
 
     def test_all_nodes_down_is_infra_node(self):
         cli, ran = self.cli(set())
