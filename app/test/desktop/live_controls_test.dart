@@ -12,11 +12,14 @@ import 'package:epic_wallet/src/desktop/screens/settings/settings_frame.dart' sh
 import 'package:epic_wallet/src/desktop/widgets/server_list_panel.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/amount.dart' as amount show displayEpic, exactEpic;
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 /// The mock, with a Refresh held until [gate] and failing with [error], and its lock counted.
 class _Wallet extends MockDeskWallet {
@@ -126,7 +129,7 @@ void main() {
     final container = await _open(tester, _Wallet(), DeskRoute.settingsHelp);
     container.read(deskTourProvider.notifier).close();
     // Help › Start again: the row "Show the tour again" with its Start tour button.
-    final start = find.widgetWithText(EButton, 'Start tour');
+    final start = find.widgetWithText(EButton, _l.deskSetHelpTourStart);
     await tester.ensureVisible(start);
     await tester.pumpAndSettle();
     await tester.tap(start);

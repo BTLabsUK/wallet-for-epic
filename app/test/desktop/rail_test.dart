@@ -16,6 +16,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'advanced_on.dart';
 
+final _l = englishStrings;
+
 /// The mock wallet with a fixed status ([status] null: nothing known yet).
 class _Wallet extends MockDeskWallet {
   _Wallet(this.fixed) : super(delay: Duration.zero);
@@ -116,7 +118,7 @@ void main() {
 
     testWidgets('nothing known yet: the rows say Checking with no bars', (tester) async {
       await show(tester, null, refresh: false);
-      expect(find.text('Node'), findsOneWidget);
+      expect(find.text(_l.deskRailNode), findsOneWidget);
       expect(find.text('Epicbox'), findsOneWidget);
       final bars = tester.widgetList<EStatusGlyph>(find.byType(EStatusGlyph)).map((b) => b.state);
       // Not known yet is the blue ring (state_language.dart), never a healthy dot.
@@ -138,7 +140,7 @@ void main() {
       await tester.tap(find.text('Epicbox'));
       await tester.pump();
       expect(c.read(settingsPrefsProvider).jump?.section, SettingsJump.epicbox);
-      await tester.tap(find.text('Node'));
+      await tester.tap(find.text(_l.deskRailNode));
       await tester.pump();
       expect(c.read(settingsPrefsProvider).jump?.section, SettingsJump.node);
     });
@@ -175,8 +177,8 @@ void main() {
       expect(node().marker, isNull);
       now = now.add(const Duration(seconds: 31));
       await tester.pump(const Duration(seconds: 31));
-      expect(node().word, 'Not answering');
-      expect(node().marker, 'no answer');
+      expect(node().word, _l.deskNodeNotAnswering);
+      expect(node().marker, _l.deskNodeMarkerNoAnswer);
       expect(node().lines.first, 'node.lab.invalid · since 14:02');
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(milliseconds: 1));
@@ -314,11 +316,11 @@ void main() {
     final behind = mockNodeInfo(url, behind: 12);
     final tip = behind.networkHeight!;
     // The node caught up since: at tip by the wallet's height.
-    expect(remoteNodeView(englishStrings, url, behind.withNodeHeight(tip)).word, 'Synced');
+    expect(remoteNodeView(englishStrings, url, behind.withNodeHeight(tip)).word, _l.netStatusSynced);
     // Partly caught up: still behind by what is left.
     final part = behind.withNodeHeight(tip - 11);
     expect(part.blocksBehind, 11);
-    expect(remoteNodeView(englishStrings, url, part).word, 'Behind');
+    expect(remoteNodeView(englishStrings, url, part).word, _l.deskNodeBehind);
     // An older wallet height changes nothing, and a node past the last known tip is at it.
     expect(identical(behind.withNodeHeight(tip - 20), behind), isTrue);
     expect(behind.withNodeHeight(tip + 3).blocksBehind, 0);

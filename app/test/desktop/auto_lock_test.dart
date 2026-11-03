@@ -5,11 +5,14 @@
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 class _Wallet extends MockDeskWallet {
   _Wallet() : super(delay: Duration.zero);
@@ -143,7 +146,7 @@ void main() {
     await _idle(tester, Duration.zero);
     ESelect<int> select() => tester.widget<ESelect<int>>(list);
     expect(select().value, 15);
-    expect(select().items.last.title, 'Never');
+    expect(select().items.last.title, _l.autoLockNever);
     select().onChanged(select().items.last.value);
     await _idle(tester, Duration.zero);
     expect(container.read(deskProvider).settings.autoLockOn, isFalse);

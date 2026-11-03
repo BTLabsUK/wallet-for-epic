@@ -8,9 +8,12 @@ import 'package:epic_wallet/src/desktop/data/state.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/restore_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/unlock_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 const _v12 = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
 
@@ -70,13 +73,13 @@ void main() {
     final before = (await tester.runAsync(api.wallets))!.length;
     await _paste(tester, MockDeskWallet.samePhrase);
     expect(find.text('All 24 words check out.'), findsOneWidget);
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await _wait(tester);
-    expect(find.text('This wallet is already here'), findsOneWidget);
+    expect(find.text(_l.deskOnbSameTitle), findsOneWidget);
     expect(find.text('Main wallet'), findsOneWidget);
     expect(find.text('~/.epic_cash_desktop/wallet'), findsOneWidget);
     expect(find.byKey(const ValueKey('wallet-name-title')), findsNothing, reason: 'no password step for a wallet that exists');
-    await tester.tap(find.text('Open it'));
+    await tester.tap(find.text(_l.deskOnbSameOpen));
     await _wait(tester);
     final nav = container.read(deskNavProvider);
     expect(nav.route, DeskRoute.unlock);
@@ -88,10 +91,10 @@ void main() {
   testWidgets('Cancel keeps the phrase on the grid', (tester) async {
     final container = await _pump(tester);
     await _paste(tester, MockDeskWallet.samePhrase);
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await _wait(tester);
-    expect(find.text('This wallet is already here'), findsOneWidget);
-    await tester.tap(find.text('Cancel'));
+    expect(find.text(_l.deskOnbSameTitle), findsOneWidget);
+    await tester.tap(find.text(_l.commonCancel));
     await _wait(tester);
     expect(find.text('This wallet is already here'), findsNothing);
     expect(find.text('24 of 24 words'), findsOneWidget);
@@ -103,7 +106,7 @@ void main() {
   testWidgets('a phrase that is not here goes on to the password step', (tester) async {
     await _pump(tester);
     await _paste(tester, _v12);
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await _wait(tester);
     expect(find.text('This wallet is already here'), findsNothing);
     expect(find.byKey(const ValueKey('wallet-name-title')), findsOneWidget);
@@ -114,17 +117,17 @@ void main() {
     final api = _Backstop();
     final container = await _pump(tester, api: api);
     await _paste(tester, _v12);
-    await tester.tap(find.text('Continue'));
+    await tester.tap(find.text(_l.commonContinue));
     await _wait(tester);
     expect(find.byKey(const ValueKey('wallet-name-title')), findsOneWidget);
     await tester.enterText(find.byType(EditableText).at(0), 'password-1234');
     await tester.enterText(find.byType(EditableText).at(1), 'password-1234');
     await tester.pump();
-    await tester.tap(find.text('Restore wallet').last);
+    await tester.tap(find.text(_l.deskOnbRestoreSide).last);
     await _wait(tester);
     expect(api.restores, 1);
     expect(find.text('Wallet not restored'), findsNothing);
-    expect(find.text('This wallet is already here'), findsOneWidget);
+    expect(find.text(_l.deskOnbSameTitle), findsOneWidget);
     await tester.tap(find.text('Open it'));
     await _wait(tester);
     final nav = container.read(deskNavProvider);

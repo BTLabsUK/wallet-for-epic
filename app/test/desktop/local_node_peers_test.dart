@@ -8,10 +8,13 @@ import 'package:epic_wallet/src/desktop/data/node_view.dart' show hhmm;
 import 'package:epic_wallet/src/desktop/screens/settings/local_node_peers.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 void main() {
   late MockDeskNode node;
@@ -168,7 +171,7 @@ void main() {
 
   testWidgets('the restart notice shows when settings changed', (tester) async {
     await show(tester, restartNeeded: true);
-    expect(find.text('Settings changed.'), findsOneWidget);
+    expect(find.text(_l.deskSetLnodeSettingsChanged), findsOneWidget);
     expect(find.text('Restart now'), findsNothing, reason: 'Restart is the page header\'s');
     await end(tester);
   });

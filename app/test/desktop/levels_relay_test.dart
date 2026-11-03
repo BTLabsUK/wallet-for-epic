@@ -11,9 +11,12 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/levels/wallet_level.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 class _Wallet extends MockDeskWallet {
   _Wallet() : super(delay: Duration.zero);
@@ -81,7 +84,7 @@ void main() {
       expect(offer, isNotNull);
       expect(offer!.name, mockBoxAt(1));
       expect(offer.name, isNot(mockBox));
-      expect(find.text('Epicbox server not reachable'), findsOneWidget);
+      expect(find.text(_l.deskErrEpicboxUnreachable), findsOneWidget);
       expect(find.text('${mockBoxAt(1)} can take over; your address changes with it.'), findsOneWidget);
       expect(find.widgetWithText(EButton, 'Switch'), findsOneWidget);
       expect(find.textContaining(mockBoxOp(1)), findsNothing, reason: 'never the operator name');
@@ -105,7 +108,7 @@ void main() {
       final name = rig.container.read(deskRelayOfferProvider)!.name;
       // The toast in place first.
       await tester.pump(const Duration(seconds: 1));
-      await tester.tap(find.widgetWithText(EButton, 'Switch'));
+      await tester.tap(find.widgetWithText(EButton, _l.lvShellSwitch));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.text('Switch to $name?'), findsOneWidget);

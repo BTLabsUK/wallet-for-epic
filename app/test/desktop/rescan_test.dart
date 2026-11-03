@@ -13,11 +13,14 @@ import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'advanced_on.dart';
+
+final _l = englishStrings;
 
 const _password = 'test-pass-1234';
 
@@ -96,7 +99,7 @@ void main() {
     ));
     await tester.pumpAndSettle();
     if (whole) {
-      await tester.tap(find.text('Whole chain'));
+      await tester.tap(find.text(_l.deskSetRescanByWholeChain));
       await tester.pumpAndSettle();
     }
   }
@@ -111,26 +114,26 @@ void main() {
   testWidgets('the phone\u2019s start choices: a date (picked first), a typed height, or the whole chain (0)', (tester) async {
     final api = _Starts();
     await pump(tester, api, false);
-    expect(find.text('Where to start'), findsOneWidget);
+    expect(find.text(_l.deskSetRescanStartHeading), findsOneWidget);
     expect(find.text('Month'), findsWidgets, reason: 'GP-030: the phone\u2019s choices');
     // From a month is the first choice on mainnet; Recheck without a month says so.
-    await tester.tap(find.widgetWithText(EButton, 'Recheck'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetRescanRecheck));
     await tester.pump();
-    expect(find.text('Pick a month first.'), findsOneWidget);
+    expect(find.text(_l.restorePickMonthFirst), findsOneWidget);
     expect(api.starts, isEmpty);
-    await tester.tap(find.text('Block height'));
+    await tester.tap(find.text(_l.restoreStartByHeight));
     await tester.pump();
-    await tester.tap(find.widgetWithText(EButton, 'Recheck'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetRescanRecheck));
     await tester.pump();
-    expect(find.text('Enter a block height of 1 or more.'), findsOneWidget, reason: 'an empty height is refused under the field');
+    expect(find.text(_l.deskSetRescanHeightInvalid), findsOneWidget, reason: 'an empty height is refused under the field');
     await tester.enterText(find.byKey(const ValueKey('rescan-height')), '2800000');
     await tester.pump();
-    await tester.tap(find.widgetWithText(EButton, 'Recheck'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetRescanRecheck));
     await run(tester, const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Whole chain'));
+    await tester.tap(find.text(_l.deskSetRescanByWholeChain));
     await tester.pump();
-    await tester.tap(find.widgetWithText(EButton, 'Recheck again'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetRescanRecheckAgain));
     await run(tester, const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
     expect(api.starts, [BigInt.from(2800000), BigInt.zero]);
@@ -140,62 +143,62 @@ void main() {
     await pump(tester);
     expect(find.textContaining('Checks the chain again for this wallet’s coins'), findsOneWidget);
     // One name (Recheck balance): the page title only; the group has no second heading.
-    expect(find.text('Recheck balance'), findsOneWidget);
+    expect(find.text(_l.deskSetFrameRescan), findsOneWidget);
     expect(find.textContaining('Rescan'), findsNothing);
     await tester.tap(find.byKey(const ValueKey('rescan-delete-unconfirmed')));
     await tester.pump();
-    await tester.tap(find.widgetWithText(EButton, 'Recheck'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetRescanRecheck));
     await run(tester, const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
-    expect(find.text('Recheck finished'), findsOneWidget);
-    expect(find.text('Balance before'), findsOneWidget);
-    expect(find.text('Balance after'), findsOneWidget);
-    expect(find.text('Outputs found'), findsOneWidget);
-    expect(find.text('Deleted'), findsOneWidget);
-    expect(find.text('Unlocked'), findsOneWidget);
+    expect(find.text(_l.deskSetRescanFinished), findsOneWidget);
+    expect(find.text(_l.deskSetRescanBefore), findsOneWidget);
+    expect(find.text(_l.deskSetRescanAfter), findsOneWidget);
+    expect(find.text(_l.deskSetRescanFound), findsOneWidget);
+    expect(find.text(_l.deskSetRescanDeleted), findsOneWidget);
+    expect(find.text(_l.deskSetRescanUnlocked), findsOneWidget);
     expect(find.text('The balance is up to date. Unconfirmed transactions were cancelled and their outputs unlocked.'), findsOneWidget);
-    expect(find.widgetWithText(EButton, 'Recheck again'), findsOneWidget);
+    expect(find.widgetWithText(EButton, _l.deskSetRescanRecheckAgain), findsOneWidget);
   });
 
   testWidgets('running and finished without Delete unconfirmed', (tester) async {
     await pump(tester);
-    await tester.tap(find.widgetWithText(EButton, 'Recheck'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetRescanRecheck));
     await run(tester, const Duration(milliseconds: 40));
-    expect(find.textContaining('Checking…'), findsOneWidget);
-    expect(find.text('Scanning the chain. The wallet stays usable; the balance updates when the scan ends.'), findsOneWidget);
-    expect(find.text('Recheck log'), findsOneWidget);
+    expect(find.textContaining(_l.deskSetFrameChecking), findsOneWidget);
+    expect(find.text(_l.deskSetRescanScanning), findsOneWidget);
+    expect(find.text(_l.deskSetRescanLog), findsOneWidget);
     await run(tester, const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
-    expect(find.text('Recheck finished'), findsOneWidget);
-    expect(find.text('The balance is up to date.'), findsOneWidget);
-    expect(find.text('Deleted'), findsNothing);
+    expect(find.text(_l.deskSetRescanFinished), findsOneWidget);
+    expect(find.text(_l.deskSetRescanUpToDate), findsOneWidget);
+    expect(find.text(_l.deskSetRescanDeleted), findsNothing);
   });
 
   testWidgets('Stop ends the scan; with Delete unconfirmed it says nothing was deleted', (tester) async {
     await pump(tester);
     await tester.tap(find.byKey(const ValueKey('rescan-delete-unconfirmed')));
     await tester.pump();
-    await tester.tap(find.widgetWithText(EButton, 'Recheck'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetRescanRecheck));
     await run(tester, const Duration(milliseconds: 40));
-    expect(find.widgetWithText(EButton, 'Stop'), findsOneWidget);
-    await tester.tap(find.widgetWithText(EButton, 'Stop'));
+    expect(find.widgetWithText(EButton, _l.deskSetLnodeStop), findsOneWidget);
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetLnodeStop));
     await tester.pump();
-    expect(find.text('Stopping…'), findsOneWidget);
+    expect(find.text(_l.deskSetRescanStopping), findsOneWidget);
     await run(tester, const Duration(milliseconds: 200));
     await tester.pumpAndSettle();
-    expect(find.text('Scan stopped'), findsWidgets);
+    expect(find.text(_l.deskSetRescanStoppedLine), findsWidgets);
     expect(find.textContaining('Unconfirmed transactions were not deleted'), findsOneWidget);
-    expect(find.text('Outputs found'), findsNothing);
+    expect(find.text(_l.deskSetRescanFound), findsNothing);
   });
 
   testWidgets('Stop waits for the scan to answer; leaving the screen stops the scan', (tester) async {
     final api = _Stops();
     await pump(tester, api);
-    await tester.tap(find.widgetWithText(EButton, 'Recheck'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetRescanRecheck));
     await tester.pump();
-    expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Stop')).onPressed, isNull);
+    expect(tester.widget<EButton>(find.widgetWithText(EButton, _l.deskSetLnodeStop)).onPressed, isNull);
     await run(tester, const Duration(milliseconds: 40));
-    expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Stop')).onPressed, isNotNull);
+    expect(tester.widget<EButton>(find.widgetWithText(EButton, _l.deskSetLnodeStop)).onPressed, isNotNull);
     await tester.pumpWidget(const SizedBox());
     expect(api.stops, 1);
     await run(tester, const Duration(milliseconds: 400));
@@ -203,13 +206,13 @@ void main() {
 
   testWidgets('a failed scan says so, with the error, and offers Start again', (tester) async {
     await pump(tester, _Fails());
-    await tester.tap(find.widgetWithText(EButton, 'Recheck'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetRescanRecheck));
     await run(tester, const Duration(milliseconds: 40));
     await tester.pumpAndSettle();
-    expect(find.text('Scan failed'), findsOneWidget);
+    expect(find.text(_l.deskSetRescanFailed), findsOneWidget);
     expect(find.text('The node did not answer.'), findsOneWidget);
-    expect(find.widgetWithText(EButton, 'Recheck again'), findsOneWidget);
-    expect(find.text('Recheck finished'), findsNothing);
+    expect(find.widgetWithText(EButton, _l.deskSetRescanRecheckAgain), findsOneWidget);
+    expect(find.text(_l.deskSetRescanFinished), findsNothing);
   });
 
   group('LepicDeskWallet', () {

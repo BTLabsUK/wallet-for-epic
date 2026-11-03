@@ -10,6 +10,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 Tx _found({FoundDuring? during, bool byBlock = true}) => Tx(
   id: 1,
   slateId: '',
@@ -28,9 +30,9 @@ Tx _found({FoundDuring? during, bool byBlock = true}) => Tx(
 void main() {
   test('the four kinds', () {
     final restored = foundTexts(englishStrings, _found(during: FoundDuring.restore));
-    expect(restored.label, 'Restored');
-    expect(restored.line, 'Found on the chain');
-    expect(restored.step, 'Found on the chain');
+    expect(restored.label, _l.deskTxFoundRestoredLabel);
+    expect(restored.line, _l.deskTxFoundRestoredLine);
+    expect(restored.step, _l.deskTxFoundRestoredStep);
     expect(restored.note, 'Time of the block. The sender is unknown.');
     expect(restored.tip, 'Found on the chain while restoring this wallet. The sender is not recorded.');
 
@@ -69,25 +71,25 @@ void main() {
 
   testWidgets('a row: the label, the origin line, the tooltip', (tester) async {
     await pump(tester, TxRow(tx: _found(during: FoundDuring.restore), onTap: () {}));
-    expect(find.text('Restored'), findsOneWidget);
-    expect(find.textContaining('Found on the chain'), findsOneWidget);
-    expect(find.byTooltip('Found on the chain while restoring this wallet. The sender is not recorded.'), findsOneWidget);
+    expect(find.text(_l.deskTxFoundRestoredLabel), findsOneWidget);
+    expect(find.textContaining(_l.deskTxFoundRestoredLine), findsOneWidget);
+    expect(find.byTooltip(_l.deskTxFoundRestoredTip), findsOneWidget);
   });
 
   testWidgets('the detail: restored under the amount, the found step first, Method –', (tester) async {
     await pump(tester, TxDetail(tx: _found(during: FoundDuring.restore)));
-    expect(find.text('restored'), findsOneWidget);
+    expect(find.text(_l.deskTxHeadRestored), findsOneWidget);
     expect(find.textContaining('from '), findsNothing);
-    expect(find.text('Found on the chain'), findsOneWidget);
-    expect(find.text('Time of the block. The sender is unknown.'), findsOneWidget);
+    expect(find.text(_l.deskTxFoundRestoredStep), findsOneWidget);
+    expect(find.text(_l.deskTxNoteBlock), findsOneWidget);
     expect(find.text('–'), findsOneWidget);
     expect(find.text('From'), findsNothing);
   });
 
   testWidgets('the detail of a rescan find with the scan time', (tester) async {
     await pump(tester, TxDetail(tx: _found(during: FoundDuring.rescan, byBlock: false)));
-    expect(find.text('Found on the chain'), findsOneWidget);
-    expect(find.text('Found by recheck'), findsOneWidget);
+    expect(find.text(_l.deskTxHeadFoundOnChain), findsOneWidget);
+    expect(find.text(_l.deskTxFoundRescanStep), findsOneWidget);
     expect(find.text('Time of the scan; the block’s time could not be read. The sender is not recorded.'), findsOneWidget);
   });
 }

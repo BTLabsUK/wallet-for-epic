@@ -7,10 +7,13 @@ import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 class _Wallet extends MockDeskWallet {
   _Wallet() : super(delay: Duration.zero);
@@ -61,7 +64,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Check and send'), findsOneWidget);
+    expect(find.text(_l.deskSendReviewTitle), findsOneWidget);
   }
 
   Finder sendButton() => find.widgetWithText(EButton, 'Send 1.0\u00a0EPIC');
@@ -120,7 +123,7 @@ void main() {
     await tester.tap(sendButton());
     await tester.pumpAndSettle();
     expect(wallet.sends, 0);
-    expect(find.text('Check and send'), findsOneWidget);
+    expect(find.text(_l.deskSendReviewTitle), findsOneWidget);
     await tester.enterText(password(), 'secret-pass');
     await tester.pump();
     await tester.tap(sendButton());
@@ -146,7 +149,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Check and send'), findsOneWidget);
+    expect(find.text(_l.deskSendReviewTitle), findsOneWidget);
     expect(password(), findsOneWidget);
     expect(tester.widget<EButton>(sendButton()).onPressed, isNull);
     await tester.enterText(password(), 'secret-pass');

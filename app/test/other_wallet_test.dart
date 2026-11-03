@@ -17,6 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
 final BigInt _tip = BigInt.from(2500000);
@@ -98,42 +100,42 @@ Future<void> _pump(WidgetTester tester, Widget home) async {
 void main() {
   testWidgets('the history rows name the other wallet, with no address and the direction\'s amount', (tester) async {
     await _pump(tester, const HistoryScreen());
-    expect(find.text('Sent from another device'), findsOneWidget);
-    expect(find.text('Received by another device'), findsOneWidget);
+    expect(find.text(_l.txSentFromOtherWallet), findsOneWidget);
+    expect(find.text(_l.txReceivedByOtherWallet), findsOneWidget);
     expect(find.textContaining('35.4'), findsWidgets);
     expect(find.textContaining('6.2'), findsWidgets);
   });
 
   testWidgets('a sent row\'s details: what it is, no recipient, no known fee, the offer spot at the end', (tester) async {
     await _pump(tester, const TxDetailsScreen(txKey: 'l:1'));
-    expect(find.text('Sent from another device'), findsWidgets);
-    expect(find.text('Sent from another device with this wallet’s recovery phrase. Only the amount is known.'), findsOneWidget);
-    expect(find.text('Sent to'), findsNothing);
-    expect(find.text('Fee'), findsOneWidget);
-    expect(find.text('Not known'), findsOneWidget);
+    expect(find.text(_l.txSentFromOtherWallet), findsWidgets);
+    expect(find.text(_l.txDetailsOtherWallet), findsOneWidget);
+    expect(find.text(_l.txDetailsSentTo), findsNothing);
+    expect(find.text(_l.txDetailsFee), findsOneWidget);
+    expect(find.text(_l.txDetailsNotKnown), findsOneWidget);
     expect(find.byType(SentFromOtherWalletOffer), findsOneWidget);
   });
 
   testWidgets('a received row\'s details: what it is, no sender, no fee row', (tester) async {
     await _pump(tester, const TxDetailsScreen(txKey: 'l:2'));
-    expect(find.text('Received by another device'), findsWidgets);
-    expect(find.text('Received by another device with this wallet’s recovery phrase. Only the amount is known.'), findsOneWidget);
-    expect(find.text('Received from'), findsNothing);
-    expect(find.text('Fee'), findsNothing);
+    expect(find.text(_l.txReceivedByOtherWallet), findsWidgets);
+    expect(find.text(_l.txDetailsOtherWalletIn), findsOneWidget);
+    expect(find.text(_l.txDetailsReceivedFrom), findsNothing);
+    expect(find.text(_l.txDetailsFee), findsNothing);
     expect(find.byType(SentFromOtherWalletOffer), findsOneWidget);
   });
 
   test('the spoken rows and the error text', () {
     final l = lookupAppLocalizations(const Locale('en'));
     final sent = _rows()[0], received = _rows()[1];
-    expect(txTitle(l, sent), 'Sent from another device');
-    expect(txTitle(l, received), 'Received by another device');
+    expect(txTitle(l, sent), _l.txSentFromOtherWallet);
+    expect(txTitle(l, received), _l.txReceivedByOtherWallet);
     String say(TxEntry tx) => txSpokenLabel(l, tx, who: null, date: 'Today', status: 'Completed', hidden: false);
     expect(say(sent), startsWith('Sent from another device'));
     expect(say(received), startsWith('Received by another device'));
     expect(
       describeError(l, const WalletError(kind: WalletErrorKind.inputsSpentElsewhere, message: 'spent')),
-      'The node shows these coins already spent, and this wallet did not spend them. Most likely another wallet using your recovery phrase did.',
+      _l.errorInputsSpentElsewhere,
     );
   });
 
@@ -150,7 +152,7 @@ void main() {
       blockHeight: _tip - BigInt.from(5),
       unverified: unverified,
     );
-    expect(txTitle(l, row(sent: true)), 'Sent from another device · unverified');
+    expect(txTitle(l, row(sent: true)), _l.txSentFromOtherWalletUnverified);
     expect(txExplanation(l, row(sent: true), _tip), endsWith('Recheck balance to confirm it.'));
     expect(txTitle(l, row(sent: true, unverified: false)), 'Sent from another device');
     expect(txExplanation(l, row(sent: true, unverified: false), _tip), isNot(contains('Unverified')));

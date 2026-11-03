@@ -17,6 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 const _epic = 100000000;
 
 /// Alice has not signed a send of 25; Bob's 12.5 is on its way in.
@@ -93,7 +95,7 @@ Future<void> _pump(WidgetTester tester, Widget screen, WalletLevel level, List<T
 void main() {
   testWidgets('Shallow Overview: one number, one sentence, no tiles, no eye; the payment card has live steps', (tester) async {
     await _pump(tester, const OverviewScreen(), WalletLevel.justSendReceive, [_sendToAlice, _fromBob]);
-    expect(find.text('Available to spend'), findsOneWidget);
+    expect(find.text(_l.deskOvAvailable), findsOneWidget);
     expect(find.text('+12.5 arriving from Bob'), findsOneWidget);
     expect(find.text('25.0 on hold until Alice signs'), findsOneWidget);
     for (final tile in ['Total', 'Locked in sends', 'Set aside for sends']) {
@@ -109,18 +111,18 @@ void main() {
 
   testWidgets('Shallow Overview of a wallet with no payments: ready notice with Show address, "Nothing arriving yet."', (tester) async {
     await _pump(tester, const OverviewScreen(), WalletLevel.justSendReceive, const []);
-    expect(find.text('Wallet ready'), findsOneWidget);
-    expect(find.text('Share the address to get the first EPIC.'), findsOneWidget);
-    expect(find.widgetWithText(EButton, 'Show address'), findsOneWidget);
+    expect(find.text(_l.deskLvPayReadyHead), findsOneWidget);
+    expect(find.text(_l.deskLvPayReadyText), findsOneWidget);
+    expect(find.widgetWithText(EButton, _l.deskOvShowAddress), findsOneWidget);
     expect(find.text('Nothing arriving yet.'), findsOneWidget);
     expect(find.text('No payments yet'), findsOneWidget);
   });
 
   testWidgets('Deeper Overview: the tiles in casual words; the Deep end keeps today\'s', (tester) async {
     await _pump(tester, const OverviewScreen(), WalletLevel.casual, [_sendToAlice]);
-    expect(find.text('Still confirming'), findsOneWidget);
-    expect(find.text('Set aside for sends'), findsOneWidget);
-    expect(find.text('Total'), findsOneWidget);
+    expect(find.text(_l.deskLvPayTileConfirming), findsOneWidget);
+    expect(find.text(_l.deskLvPayTileLocked), findsOneWidget);
+    expect(find.text(_l.deskOvBreakTotal), findsOneWidget);
     expect(find.text('On its way to Alice'), findsOneWidget);
     expect(find.text('Waiting for Alice’s wallet'), findsOneWidget);
   });
@@ -142,17 +144,17 @@ void main() {
 
   testWidgets('Activity chips: All, Sent, Received at Shallow; Pending and Cancelled from Deeper', (tester) async {
     await _pump(tester, const ActivityScreen(), WalletLevel.justSendReceive, [_sendToAlice, _fromBob]);
-    expect(find.textContaining('Received'), findsWidgets);
+    expect(find.textContaining(_l.deskActFilterReceived), findsWidgets);
     expect(find.textContaining('Pending'), findsNothing);
     expect(find.textContaining('Cancelled'), findsNothing);
     // Plain state words, no method, fee or id.
     expect(find.text('Waiting for Alice'), findsOneWidget);
-    expect(find.text('Arriving'), findsOneWidget);
+    expect(find.text(_l.lvPayArriving), findsOneWidget);
     expect(find.textContaining('Epicbox'), findsNothing);
     expect(find.textContaining('Fee'), findsNothing);
 
     await _pump(tester, const ActivityScreen(), WalletLevel.casual, [_sendToAlice, _fromBob]);
-    expect(find.textContaining('Pending'), findsWidgets);
+    expect(find.textContaining(_l.historyFilterPending), findsWidgets);
     expect(find.textContaining('Cancelled'), findsWidgets);
     expect(find.text('Waiting for Alice to sign'), findsOneWidget);
   });

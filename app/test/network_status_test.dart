@@ -20,6 +20,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 WalletSummary _summary() => WalletSummary(
   lastConfirmedHeight: BigInt.from(2500000),
   minimumConfirmations: BigInt.from(3),
@@ -182,9 +184,9 @@ void main() {
   group('node row', () {
     testWidgets('synced: the host and the word', (tester) async {
       await _pump(tester);
-      expect(_in(netStatusNodeKey, 'Node'), findsOneWidget);
+      expect(_in(netStatusNodeKey, _l.netStatusNode), findsOneWidget);
       expect(_in(netStatusNodeKey, 'node.example.org'), findsOneWidget);
-      expect(_in(netStatusNodeKey, 'Synced'), findsOneWidget);
+      expect(_in(netStatusNodeKey, _l.netStatusSynced), findsOneWidget);
       expect(
         tester.getSemantics(find.byKey(netStatusNodeKey)).label,
         'Node online, node.example.org, Synced',
@@ -203,7 +205,7 @@ void main() {
 
     testWidgets('syncing without a percent, while the wallet is behind the tip', (tester) async {
       await _pump(tester, syncing: true, tip: AsyncData(NodeTip(height: BigInt.from(2500020), nodeVersion: '3.6.0')));
-      expect(_in(netStatusNodeKey, 'Syncing'), findsOneWidget);
+      expect(_in(netStatusNodeKey, _l.netStatusSyncing), findsOneWidget);
     });
 
     testWidgets('android-04: a refresh at the tip reads synced, not syncing', (tester) async {
@@ -213,12 +215,12 @@ void main() {
 
     testWidgets('connecting while the node has not answered', (tester) async {
       await _pump(tester, tip: const AsyncLoading());
-      expect(_in(netStatusNodeKey, 'Connecting'), findsOneWidget);
+      expect(_in(netStatusNodeKey, _l.netStatusConnecting), findsOneWidget);
     });
 
     testWidgets('offline when the node fails', (tester) async {
       await _pump(tester, tip: AsyncError(StateError('no'), StackTrace.empty));
-      expect(_in(netStatusNodeKey, 'Not answering'), findsOneWidget);
+      expect(_in(netStatusNodeKey, _l.deskNodeNotAnswering), findsOneWidget);
     });
 
     testWidgets('behind when the network is ahead', (tester) async {
@@ -228,7 +230,7 @@ void main() {
 
     testWidgets('a block or two behind still reads synced', (tester) async {
       await _pump(tester, networkTip: 2500002);
-      expect(_in(netStatusNodeKey, 'Synced'), findsOneWidget);
+      expect(_in(netStatusNodeKey, _l.netStatusSynced), findsOneWidget);
     });
 
     testWidgets('a port that is not the default stays; the scheme goes', (
@@ -273,7 +275,7 @@ void main() {
     testWidgets('shown while Tor is off: Off, faint', (tester) async {
       await _pump(tester);
       expect(find.byKey(netStatusTorKey), findsOneWidget);
-      expect(_in(netStatusTorKey, 'Tor network'), findsOneWidget);
+      expect(_in(netStatusTorKey, _l.torNetworkLabel), findsOneWidget);
       // The explanation is the info icon's tooltip, not a line of the row.
       expect(find.descendant(of: find.byKey(netStatusTorKey), matching: find.byType(InfoHint)), findsOneWidget);
       expect(find.textContaining('go through Tor'), findsNothing);
@@ -311,7 +313,7 @@ void main() {
     }
 
     for (final (state, word, ok) in [
-      (const PhoneTorState(receiving: true, phase: PhoneTorPhase.ready), 'Connected', true),
+      (const PhoneTorState(receiving: true, phase: PhoneTorPhase.ready), _l.netStatusConnected, true),
       (
         const PhoneTorState(receiving: true, phase: PhoneTorPhase.failed),
         'Not connected',
@@ -335,13 +337,13 @@ void main() {
       await _pump(tester, tor: const PhoneTorState(receiving: true, phase: PhoneTorPhase.ready));
       final t = tester.element(find.byKey(netStatusTorKey)).tokens;
       for (final row in [netStatusEpicboxKey, netStatusNodeKey]) {
-        expect(tester.widget<Text>(_in(row, 'Over Tor')).style?.color, t.ok);
+        expect(tester.widget<Text>(_in(row, _l.torWayOver)).style?.color, t.ok);
         expect(
           find.descendant(of: find.byKey(row), matching: find.byIcon(torIcon)),
           findsOneWidget,
         );
       }
-      expect(_in(netStatusEpicboxKey, 'Connected'), findsOneWidget);
+      expect(_in(netStatusEpicboxKey, _l.netStatusConnected), findsOneWidget);
       expect(
         find.bySemanticsLabel(RegExp(r'^Epicbox.*, Connected, over Tor$')),
         findsOneWidget,
@@ -357,13 +359,13 @@ void main() {
         tester,
         tor: const PhoneTorState(receiving: true, phase: PhoneTorPhase.connected),
       );
-      expect(_in(netStatusEpicboxKey, 'Over Tor'), findsOneWidget);
-      expect(_in(netStatusNodeKey, 'Over Tor'), findsOneWidget);
+      expect(_in(netStatusEpicboxKey, _l.torWayOver), findsOneWidget);
+      expect(_in(netStatusNodeKey, _l.torWayOver), findsOneWidget);
     });
 
     testWidgets('Tor off: no Tor line on the Epicbox and node rows', (tester) async {
       await _pump(tester);
-      expect(find.text('Over Tor'), findsNothing);
+      expect(find.text(_l.torWayOver), findsNothing);
       expect(find.text('Waiting for Tor'), findsNothing);
       expect(
         find.descendant(of: find.byKey(netStatusEpicboxKey), matching: find.byIcon(torIcon)),
@@ -380,7 +382,7 @@ void main() {
       final t = tester.element(find.byKey(netStatusTorKey)).tokens;
       for (final row in [netStatusEpicboxKey, netStatusNodeKey]) {
         expect(
-          tester.widget<Text>(_in(row, 'Waiting for Tor')).style?.color,
+          tester.widget<Text>(_in(row, _l.torWayWaiting)).style?.color,
           t.info,
         );
       }
@@ -410,7 +412,7 @@ void main() {
       final t = tester.element(find.byKey(netStatusTorKey)).tokens;
       for (final row in [netStatusEpicboxKey, netStatusNodeKey]) {
         expect(
-          tester.widget<Text>(_in(row, 'Waiting for Tor')).style?.color,
+          tester.widget<Text>(_in(row, _l.torWayWaiting)).style?.color,
           t.risk,
         );
         expect(
@@ -432,7 +434,7 @@ void main() {
         tor: const PhoneTorState(receiving: true, phase: PhoneTorPhase.ready),
       );
       expect(_in(netStatusNodeKey, 'Over Tor'), findsNothing);
-      expect(_in(netStatusEpicboxKey, 'Over Tor'), findsOneWidget);
+      expect(_in(netStatusEpicboxKey, _l.torWayOver), findsOneWidget);
     });
 
     // A report said no mark showed: a long state word in a large font cut " · Tor" off its end. The

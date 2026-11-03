@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 int _nano(double epic) => (epic * nanoPerEpic).round();
 
 final int _total = _nano(1309.73215);
@@ -41,12 +43,12 @@ void main() {
 
   testWidgets('Smallest: what stays spendable and the lock caption', (tester) async {
     await host(tester, SendLockRows(summary: _summary(), strategy: SelectionStrategy.smallest, defaultStrategy: SelectionStrategy.smallest, blocks: 6));
-    expect(find.text('Balance after'), findsOneWidget);
+    expect(find.text(_l.deskSendBalanceAfter), findsOneWidget);
     expect(_rich('1,284.7241\u00a0EPIC'), findsOneWidget);
-    expect(find.text('Available while this confirms'), findsOneWidget);
+    expect(find.text(_l.deskSendSpendableWhile), findsOneWidget);
     expect(_rich('1,250.0\u00a0EPIC'), findsOneWidget);
     expect(find.text('1\u00a0output locked, 34.7321\u00a0EPIC, about 6\u00a0blocks.'), findsOneWidget);
-    expect(find.textContaining('Strategy for this send'), findsNothing);
+    expect(find.textContaining(_l.deskSendAdvStrategy), findsNothing);
   });
 
   testWidgets('All: nothing spendable, in warn, and the strategy line', (tester) async {
@@ -101,22 +103,22 @@ void main() {
     testWidgets('the default tag follows the default; a radio picks', (tester) async {
       final picked = await advanced(tester, def: SelectionStrategy.all);
       expect(find.text('Send options · All outputs', findRichText: true), findsOneWidget);
-      final tag = find.text('default');
+      final tag = find.text(_l.deskSendDefaultTag);
       expect(tag, findsOneWidget);
       expect(find.ancestor(of: tag, matching: find.byWidgetPredicate((w) => w is ERadioRow && w.title == 'All')), findsOneWidget);
-      await tester.tap(find.text('Smallest'));
+      await tester.tap(find.text(_l.deskSendStrategySmallest));
       expect(picked, [SelectionStrategy.smallest]);
     });
 
     testWidgets('send all turns the radios off', (tester) async {
       final picked = await advanced(tester, sendAll: true);
-      expect(find.text('Sending everything spends every output.'), findsOneWidget);
-      await tester.tap(find.text('Smallest'));
+      expect(find.text(_l.deskSendAdvAllNote), findsOneWidget);
+      await tester.tap(find.text(_l.deskSendStrategySmallest));
       expect(picked, isEmpty);
     });
 
     test('subtitle says when the change is not split', () {
-      expect(advancedSubtitle(englishStrings, SelectionStrategy.smallest, split: false), '· Smallest outputs, change not split');
+      expect(advancedSubtitle(englishStrings, SelectionStrategy.smallest, split: false), _l.deskSendAdvSmallestNoSplit);
     });
   });
 

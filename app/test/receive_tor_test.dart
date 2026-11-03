@@ -29,6 +29,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:epic_wallet/src/ui/info_hint.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 const String _address =
     'esVeVUhWwJT4HcFNwCw8wxqauG3SoQ3aKABLyaXWq6HUZ83es6TA@epicbox.epiccash.com';
 
@@ -260,7 +262,7 @@ void main() {
       final h = _Harness(payments: const PaymentPrefs(epicbox: false, linkTor: true));
       await h.pump(tester);
       expect(find.byKey(receiveTurnOnTorKey), findsOneWidget);
-      expect(find.text('Meanwhile, share the Epicbox address.'), findsNothing);
+      expect(find.text(_l.receiveDirectMeanwhile), findsNothing);
     });
 
     testWidgets('no Link tab where the app has no Tor: the phone only sends over Link · HTTP', (tester) async {
@@ -370,9 +372,9 @@ void main() {
       await h.torTab(tester);
       expect(find.byKey(receiveTorAddressKey), findsNothing);
       expect(find.byType(MarkedQr), findsNothing);
-      expect(find.text('Link · Tor needs Tor.'), findsOneWidget);
+      expect(find.text(_l.receiveDirectNeedsTor), findsOneWidget);
       expect(find.text('Link receiving is off in Node only.'), findsOneWidget);
-      expect(find.text('Meanwhile, share the Epicbox address.'), findsNothing);
+      expect(find.text(_l.receiveDirectMeanwhile), findsNothing);
       expect(find.byKey(receiveTurnOnTorKey), findsNothing);
       expect(h.session.torStarts, isEmpty);
     });
@@ -391,8 +393,8 @@ void main() {
           reason: label,
         );
       }
-      expect(find.text('Off in Node only.'), findsNothing);
-      expect(find.text('Uses the node'), findsWidgets);
+      expect(find.text(_l.netBlockNodeOnly), findsNothing);
+      expect(find.text(_l.netOfflineNodeLine), findsWidgets);
     });
 
     testWidgets('Epicbox off: no Epicbox tab, the first method that is on shows', (tester) async {
@@ -427,9 +429,9 @@ void main() {
       final h = _Harness(payments: _directOn);
       await h.pump(tester);
       await h.torTab(tester);
-      expect(find.text('Link · Tor needs Tor.'), findsOneWidget);
+      expect(find.text(_l.receiveDirectNeedsTor), findsOneWidget);
       expect(
-        find.text('Meanwhile, share the Epicbox address.'),
+        find.text(_l.receiveDirectMeanwhile),
         findsOneWidget,
       );
       expect(find.byKey(receiveTurnOnTorKey), findsOneWidget);
@@ -456,16 +458,15 @@ void main() {
       expect(h.session.torStarts, hasLength(1));
       expect(h.tor.receiving, isTrue);
       expect(_status('Tor\u00A0· Starting'), findsOneWidget);
-      expect(find.text('Link · Tor address'), findsOneWidget);
+      expect(find.text(_l.receiveTorAddressLabel), findsOneWidget);
       expect(find.text(h.session.onion), findsOneWidget);
       final qr = tester.widget<MarkedQr>(find.byType(MarkedQr));
       expect(qr.data, h.session.onion);
-      expect(find.bySemanticsLabel('QR code of your Tor address'), findsOne);
+      expect(find.bySemanticsLabel(_l.receiveTorQrLabel), findsOne);
       expect(find.byWidgetPredicate((w) => w is InfoHint && w.text == 'Works while the app is open.'), findsOneWidget);
       expect(
         find.text(
-          'Some wallets show the address without .onion; both are the same '
-          'address.',
+          _l.receiveTorCaption,
         ),
         findsOneWidget,
       );
@@ -490,7 +491,7 @@ void main() {
       await tester.tap(find.byKey(receiveTorAddressKey));
       await tester.pumpAndSettle();
       expect(h.copied, [h.session.onion]);
-      expect(find.text('Address copied'), findsOneWidget);
+      expect(find.text(_l.receiveAddressCopied), findsOneWidget);
     });
 
     testWidgets('not connected: the reason in one line and Retry', (

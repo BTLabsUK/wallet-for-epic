@@ -43,11 +43,7 @@ class _Harness {
         networkChangesProvider.overrideWithValue(network.stream),
         phoneTorTimingProvider.overrideWithValue(
           PhoneTorTiming(
-            backoff: [
-              Duration(milliseconds: 20),
-              Duration(milliseconds: 60),
-              Duration(milliseconds: 120),
-            ],
+            backoff: backoff,
             sendWait: Duration(milliseconds: 600),
             networkSettle: Duration(milliseconds: 30),
             awayRenew: const Duration(milliseconds: 50),
@@ -59,6 +55,12 @@ class _Harness {
     container.listen(phoneTorProvider, (_, _) {}, fireImmediately: true);
   }
 
+  /// The restart waits; a test may lengthen a step before the restart that uses it.
+  final backoff = [
+    const Duration(milliseconds: 20),
+    const Duration(milliseconds: 60),
+    const Duration(milliseconds: 120),
+  ];
   final store = MemorySecretStore();
   final session = FakeWalletSession();
   final network = StreamController<bool>.broadcast();
@@ -298,16 +300,14 @@ void main() {
     expect(gaps[0], greaterThanOrEqualTo(const Duration(milliseconds: 20)));
     expect(gaps[1], greaterThanOrEqualTo(const Duration(milliseconds: 60)));
     expect(gaps[2], greaterThanOrEqualTo(const Duration(milliseconds: 120)));
-    // Connected again: the next failure waits the first step again.
+    // Connected again: the next failure waits the first step again. The later steps now last
+    // longer than [_Harness.until] waits, so a restart at all is the first step: a real-time
+    // bound between 20 and 120 ms does not hold on a busy machine.
+    h.backoff[1] = h.backoff[2] = const Duration(minutes: 1);
     h.emit(TorEventKind.bootstrapped);
     await h.until((s) => s.phase == PhoneTorPhase.connected);
-    final before = DateTime.now();
     h.emit(TorEventKind.stopped);
     await h.until((s) => s.phase == PhoneTorPhase.starting);
-    expect(
-      DateTime.now().difference(before),
-      lessThan(const Duration(milliseconds: 100)),
-    );
   });
 
   test('no restart while in the background; resume restarts', () async {
@@ -427,6 +427,9 @@ void main() {
     h.emit(TorEventKind.failed, failure: TorFailure.network);
     h.emit(TorEventKind.stopped);
     await h.until((s) => s.phase == PhoneTorPhase.failed);
+    // The backoff restart may come before the network's (on a busy machine): the network then
+    // refreshes the tor being started, which LEPIC answers without an error.
+    h.session.torStatusValue = const TorStatus(kind: TorStatusKind.starting);
     h.network.add(true);
     await h.until((s) => s.phase == PhoneTorPhase.starting);
     expect(h.session.torStarts, hasLength(3));

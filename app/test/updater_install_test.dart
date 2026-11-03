@@ -15,6 +15,8 @@ import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 class _Platform implements UpdatePlatform {
   bool canInstall = false;
 
@@ -167,7 +169,7 @@ void main() {
     expect(hits, 0, reason: 'no download before the permission');
     expect(platform.installs, isEmpty);
     expect(state().phase, UpdatePhase.needsPermission);
-    expect(state().text!(l), 'Allow installs from BT Wallet, then return.');
+    expect(state().text!(l), _l.updateAllowInstalls);
     expect(state().update, update);
   });
 
@@ -291,7 +293,7 @@ void main() {
       cutAfter = 50000;
       await notifier().install();
       expect(state().phase, UpdatePhase.failed);
-      expect(state().text!(l), 'The download was interrupted.');
+      expect(state().text!(l), _l.updateDownloadInterrupted);
       await notifier().resumed();
       expect(hits, 1, reason: 'a return after a failure in front does not download by itself');
       await notifier().install();

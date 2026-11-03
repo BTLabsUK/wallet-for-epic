@@ -18,9 +18,12 @@ import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/tor_location.dart';
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 const _password = 'test-pass-1234';
 const _refused = 'could not connect to the relay: received fatal alert: CloseNotify';
@@ -165,31 +168,31 @@ void main() {
       wallet.epicboxBlocked = true;
       wallet.epicboxInstead = const EpicboxRelay(host: 'box.stack.invalid');
       await show(tester);
-      expect(find.textContaining('Blocked', findRichText: true), findsOneWidget);
+      expect(find.textContaining(_l.deskEpicboxBlockedWord, findRichText: true), findsOneWidget);
       expect(
         find.textContaining('This network blocks box.epic.invalid. Try another server', findRichText: true),
         findsOneWidget,
       );
       expect(find.widgetWithText(EButton, 'Switch to box.stack.invalid'), findsOneWidget);
-      expect(find.text('Switching gives you a new Epicbox address.'), findsOneWidget);
+      expect(find.text(_l.slSwitchBody), findsOneWidget);
       expect(find.text('Not answering', findRichText: true), findsNothing);
-      expect(find.textContaining('Retry', findRichText: true), findsNothing);
+      expect(find.textContaining(_l.commonRetry, findRichText: true), findsNothing);
       await tester.tap(find.widgetWithText(EButton, 'Switch to box.stack.invalid'));
       await tester.pumpAndSettle();
       expect(wallet.used, ['box.stack.invalid']);
-      expect(find.textContaining('Blocked', findRichText: true), findsNothing);
+      expect(find.textContaining(_l.deskEpicboxBlockedWord, findRichText: true), findsNothing);
     });
 
     testWidgets('blocked with no other relay left: the sentence, no button', (tester) async {
       wallet.epicboxBlocked = true;
       await show(tester);
-      expect(find.textContaining('Blocked', findRichText: true), findsOneWidget);
+      expect(find.textContaining(_l.deskEpicboxBlockedWord, findRichText: true), findsOneWidget);
       expect(find.byType(EButton).evaluate().where((e) => (e.widget as EButton).label.startsWith('Switch to')), isEmpty);
     });
 
     testWidgets('not blocked: the ordinary down notice stays as it was', (tester) async {
       await show(tester);
-      expect(find.textContaining('Blocked', findRichText: true), findsNothing);
+      expect(find.textContaining(_l.deskEpicboxBlockedWord, findRichText: true), findsNothing);
     });
   });
 }

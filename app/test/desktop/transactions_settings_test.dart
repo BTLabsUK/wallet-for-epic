@@ -15,9 +15,12 @@ import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/network_gate.dart' show NetGate;
 import 'package:epic_wallet/src/payment_prefs.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 const _onion = 'http://pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion';
 
@@ -92,9 +95,9 @@ void main() {
     testWidgets('Payment methods: one switch per method, grouped by family, Epicbox on', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);
       // The page's header is the nav item's name (polish #88): the nav and the header.
-      expect(find.text('Payments'), findsWidgets);
-      expect(find.text('Methods'), findsOneWidget);
-      expect(find.text('Payment methods'), findsNothing);
+      expect(find.text(_l.deskSetSecPayments), findsWidgets);
+      expect(find.text(_l.deskSetTxMethods), findsOneWidget);
+      expect(find.text(_l.txMethodsHeader), findsNothing);
       expect(find.text('Always on'), findsNothing);
       expect(tester.widget<ESwitch>(_offer('epicbox')).value, isTrue);
       // The families: Epicbox stands alone; Link and Direct carry a subhead over their methods.
@@ -107,14 +110,14 @@ void main() {
       expect(_offer('directQr'), findsNothing, reason: 'the phone\'s method');
       // Under the family's subhead the method keeps its short word; the full name is the
       // switch's label for a screen reader.
-      expect(find.descendant(of: find.byKey(const ValueKey('st-method-linkHttp')), matching: find.text('HTTP')), findsOneWidget);
-      expect(find.descendant(of: find.byKey(const ValueKey('st-method-directFile')), matching: find.text('File Transfer')), findsOneWidget);
-      expect(tester.widget<ESwitch>(_offer('linkTor')).semanticLabel, 'Link · Tor');
+      expect(find.descendant(of: find.byKey(const ValueKey('st-method-linkHttp')), matching: find.text(_l.methodGroupHttp)), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('st-method-directFile')), matching: find.text(_l.methodFile)), findsOneWidget);
+      expect(tester.widget<ESwitch>(_offer('linkTor')).semanticLabel, _l.methodDirectTor);
       // Epicbox's receiving rows sit under its switch, nothing is duplicated.
       expect(find.byKey(const ValueKey('st-details-epicbox')), findsOneWidget);
       expect(find.byKey(const ValueKey('st-switch-epicbox')), findsOneWidget);
       expect(find.text('Epicbox receiving'), findsNothing, reason: 'no group of its own at the bottom any more');
-      expect(find.text('Default method'), findsOneWidget);
+      expect(find.text(_l.deskSetTxStart), findsOneWidget);
     }, skip: !torBuilt);
 
     testWidgets('by default File Transfer is on, Link off, and Link’s receiving rows are not shown', (tester) async {
@@ -134,12 +137,12 @@ void main() {
       await _settle(tester);
       expect(_payments.linkHttp, isFalse);
       expect(tester.widget<ESwitch>(_offer('linkHttp')).value, isFalse);
-      expect(find.textContaining('Node only'), findsWidgets);
+      expect(find.textContaining(_l.advModeNodeOnly), findsWidgets);
       // Item 2: Node only blocks Tor for payments: the switch is locked, its line says why.
       expect(tester.widget<ESwitch>(_offer('linkTor')).onChanged, isNull);
       expect(find.text('Off in Node only: only the node connects.'), findsOneWidget);
       expect(find.byKey(const ValueKey('st-tor-needs-tor')), findsNothing);
-      expect(find.text('Turn on Tor'), findsNothing);
+      expect(find.text(_l.deskSendTurnOnTor), findsNothing);
       await tester.pump(const Duration(seconds: 5));
     }, skip: !torBuilt);
 
@@ -156,7 +159,7 @@ void main() {
       expect(find.byKey(const ValueKey('st-switch-http')), findsNothing, reason: 'no duplicate switch for the same thing');
       expect(find.byKey(const ValueKey('st-autostart-http')), findsNothing, reason: 'on means now and at unlock');
       expect(find.byKey(const ValueKey('st-state-http')), findsOneWidget);
-      expect(find.descendant(of: find.byKey(const ValueKey('st-state-http')), matching: find.textContaining('Receiving')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(const ValueKey('st-state-http')), matching: find.textContaining(_l.deskSetRecvReceiving)), findsOneWidget);
       await tester.tap(_offer('linkHttp'));
       await _settle(tester);
       expect(_payments.linkHttp, isFalse);
@@ -172,7 +175,7 @@ void main() {
       expect(find.byKey(const ValueKey('st-tor-needs-tor')), findsNothing);
       expect(find.text('Tor is off. Turn it on under Network & privacy to be paid at the Tor address.'), findsNothing);
       expect(find.byKey(const ValueKey('st-details-linkTor')), findsNothing, reason: 'the state is under the switch, no second row');
-      expect(find.widgetWithText(EButton, 'Turn on Tor'), findsNothing);
+      expect(find.widgetWithText(EButton, _l.deskSendTurnOnTor), findsNothing);
     }, skip: !torBuilt);
 
     testWidgets('Link · Tor runs Tor for payments alone: Receiving at the onion with Copy, the Tor switch untouched (item 2)', (tester) async {
@@ -183,10 +186,10 @@ void main() {
       expect((s.payments.linkTor, s.tor, s.torAutostart), (true, false, false), reason: 'Network & privacy\'s Tor switch stays off');
       final line = find.byKey(deskTorPayLineKey);
       expect(line, findsOneWidget);
-      expect(find.descendant(of: line, matching: find.text('Receiving', findRichText: true)), findsOneWidget);
+      expect(find.descendant(of: line, matching: find.text(_l.deskTorPayReady, findRichText: true)), findsOneWidget);
       expect(find.descendant(of: line, matching: find.byType(EAddress)), findsOneWidget);
-      expect(find.descendant(of: line, matching: find.bySemanticsLabel('Copy Tor address')), findsOneWidget);
-      expect(find.descendant(of: line, matching: find.text('Tor for every connection: off (Network & privacy).')), findsOneWidget);
+      expect(find.descendant(of: line, matching: find.bySemanticsLabel(_l.deskRecvCopyTor)), findsOneWidget);
+      expect(find.descendant(of: line, matching: find.text(_l.deskTorPayRestOff)), findsOneWidget);
       expect(find.byKey(const ValueKey('st-torPay-retry')), findsNothing);
       // Off again: tor for payments stops, the line goes.
       await tester.tap(_offer('linkTor'));
@@ -200,14 +203,14 @@ void main() {
       await _open(tester, DeskRoute.settingsReceiving, payments: const PaymentPrefs(linkTor: true), advanced: const AdvancedPrefs(networkMode: NetworkMode.killSwitch));
       expect(tester.widget<ESwitch>(_offer('linkTor')).value, isTrue);
       expect(tester.widget<ESwitch>(_offer('linkTor')).onChanged, isNull, reason: 'the mode decides, not the switch');
-      expect(find.text('Off in Kill switch: nothing connects.'), findsOneWidget);
+      expect(find.text(_l.netBlockKillSwitch), findsOneWidget);
       expect(find.descendant(of: find.byKey(deskTorPayLineKey), matching: find.byType(EAddress)), findsNothing);
       await tester.pump(const Duration(seconds: 5));
     }, skip: !torBuilt);
 
     testWidgets('Tor for payments that did not connect: the line says so, with Retry', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving, arg: ReceivingDemo.torStopped, payments: const PaymentPrefs(linkTor: true));
-      expect(find.text('Tor did not connect.'), findsOneWidget);
+      expect(find.text(_l.deskTorPayFailed), findsOneWidget);
       expect(find.byKey(const ValueKey('st-torPay-retry')), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('st-torPay-retry')));
       await _settle(tester);
@@ -218,10 +221,10 @@ void main() {
       await _open(tester, DeskRoute.outputs, advanced: AdvancedPrefs(features: {AdvancedFeature.outputs, AdvancedFeature.sendOptions}));
       await tester.ensureVisible(find.byKey(const ValueKey('out-defaults-moved')));
       expect(find.byKey(const ValueKey('out-defaults-moved')), findsOneWidget);
-      expect(find.text('Strategy for sends'), findsNothing);
-      await tester.tap(find.text('Open Payments'));
+      expect(find.text(_l.deskOutStrategyTitle), findsNothing);
+      await tester.tap(find.text(_l.deskOutDefaultsOpen));
       await _settle(tester);
-      expect(find.text('Payments'), findsWidgets);
+      expect(find.text(_l.deskSetSecPayments), findsWidgets);
       expect(find.byKey(const ValueKey('st-strategy')), findsOneWidget);
     });
   });
@@ -343,7 +346,7 @@ void main() {
       // Mining pool payouts has only an Epicbox address (Anna has a Link · HTTP one too).
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'esZr8mQ2pVtW5kNcY7uLfB3hJd9gA4sXeR6oTnC1vK8xHwP2b@box.net.invalid', amount: '1'), payments: const PaymentPrefs(epicbox: false));
       expect(find.byKey(const ValueKey('send-epicbox-off')), findsOneWidget);
-      expect(find.text('Epicbox is off in Settings › Transactions.'), findsWidgets);
+      expect(find.text(_l.netBlockEpicboxOff), findsWidgets);
       expect(find.text('Mining pool payouts has only an Epicbox address.'), findsOneWidget);
     });
   });
@@ -351,17 +354,17 @@ void main() {
   group('Receive and the sidebar follow the switches', () {
     testWidgets('Link · HTTP off: the HTTP card is one line with its own switch; the HTTP row stays, reading Off', (tester) async {
       await _open(tester, DeskRoute.receive);
-      expect(find.text('Link · HTTP address'), findsWidgets);
+      expect(find.text(_l.deskRecvHttpAddress), findsWidgets);
       expect(find.byKey(const ValueKey('rx-switch-http')), findsOneWidget);
       expect(tester.widget<ESwitch>(find.byKey(const ValueKey('rx-switch-http'))).value, isFalse);
       final row = await _railHttp(tester);
       expect(row, findsOneWidget);
-      expect(find.descendant(of: row, matching: find.text('Off')), findsOneWidget);
+      expect(find.descendant(of: row, matching: find.text(_l.deskKitMethodOff)), findsOneWidget);
     });
 
     testWidgets('Link · HTTP on: the HTTP card (no switch of its own) and the HTTP row', (tester) async {
       await _open(tester, DeskRoute.receive, payments: const PaymentPrefs(linkHttp: true));
-      expect(find.text('Link · HTTP address'), findsWidgets);
+      expect(find.text(_l.deskRecvHttpAddress), findsWidgets);
       expect(await _railHttp(tester), findsOneWidget);
       expect(find.byKey(const ValueKey('rx-switch-http')), findsNothing);
     });
@@ -370,7 +373,7 @@ void main() {
       // Item 2: Link · Tor starts tor for payments by itself; the Tor switch stays off.
       await _open(tester, DeskRoute.receive, payments: const PaymentPrefs(linkTor: true));
       expect(find.byKey(const ValueKey('rx-tor-off-notice')), findsNothing);
-      expect(find.text('Link · Tor address'), findsWidgets);
+      expect(find.text(_l.deskRecvDirectTor), findsWidgets);
       expect(_container.read(deskProvider).settings.tor, isFalse);
     }, skip: !torBuilt);
 
@@ -385,8 +388,8 @@ void main() {
     testWidgets('Epicbox off: the notice stands in the address panel\'s place', (tester) async {
       await _open(tester, DeskRoute.receive, payments: const PaymentPrefs(epicbox: false));
       expect(find.byKey(const ValueKey('rx-epicbox-off')), findsOneWidget);
-      expect(find.text('Epicbox is off in Settings\u00a0›\u00a0Transactions.'), findsOneWidget);
-      expect(find.text('Epicbox address'), findsNothing);
+      expect(find.text(_l.netBlockEpicboxOff), findsOneWidget);
+      expect(find.text(_l.deskRecvEpicboxAddress), findsNothing);
     });
 
     testWidgets('File Transfer off: the Files panel is gone', (tester) async {

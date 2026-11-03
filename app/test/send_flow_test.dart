@@ -21,6 +21,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'support/send_pin.dart';
 
+final _l = englishStrings;
+
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
 
 final String _bob = '${'b' * 52}@epicbox.epiccash.com';
@@ -143,7 +145,7 @@ class _Harness {
   }
 }
 
-Finder get _continue => find.widgetWithText(FilledButton, 'Continue');
+Finder get _continue => find.widgetWithText(FilledButton, _l.commonContinue);
 
 Future<void> _tap(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder);
@@ -253,15 +255,15 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      expect(find.text('Send'), findsOneWidget);
+      expect(find.text(_l.homeSendButton), findsOneWidget);
       expect(find.text('1 of 3'), findsOneWidget);
-      expect(find.byTooltip('Back'), findsNothing);
+      expect(find.byTooltip(_l.scanQrBack), findsNothing);
 
       await _enter(tester, 'To', _bob);
       await _tap(tester, _continue);
-      expect(find.text('Amount'), findsOneWidget);
+      expect(find.text(_l.sendStepAmount), findsOneWidget);
       expect(find.text('2 of 3'), findsOneWidget);
-      await _tap(tester, find.byTooltip('Back'));
+      await _tap(tester, find.byTooltip(_l.scanQrBack));
       expect(find.text('1 of 3'), findsOneWidget);
       // The address stays.
       expect(find.text(_bob), findsOneWidget);
@@ -269,16 +271,16 @@ void main() {
       await _tap(tester, _continue);
       await _enter(tester, 'Amount (EPIC)', '1');
       await _tap(tester, _continue);
-      expect(find.text('Review'), findsOneWidget);
+      expect(find.text(_l.sendStepReview), findsOneWidget);
       expect(find.text('3 of 3'), findsOneWidget);
-      await _tap(tester, find.byTooltip('Back'));
+      await _tap(tester, find.byTooltip(_l.scanQrBack));
       expect(find.text('2 of 3'), findsOneWidget);
       await _tap(tester, _continue);
       await _tap(tester, find.text('Send 1.0\u00a0EPIC'));
 
       // The tracker: no step count, no way back to a form that could send twice.
       expect(find.text('3 of 3'), findsNothing);
-      expect(find.byTooltip('Back'), findsNothing);
+      expect(find.byTooltip(_l.scanQrBack), findsNothing);
       expect(_steps(tester, TimelineState.done), ['Payment started']);
       expect(_steps(tester, TimelineState.current), [
         'Recipient signed',
@@ -288,7 +290,7 @@ void main() {
         'Confirming',
         'Completed',
       ]);
-      await _tap(tester, find.text('Done'));
+      await _tap(tester, find.text(_l.commonDone));
       expect(h.done, 1);
     });
 
@@ -297,7 +299,7 @@ void main() {
     ) async {
       final h = _Harness();
       await h.pump(tester);
-      final info = find.byTooltip('How it works');
+      final info = find.byTooltip(_l.sendHowItWorks);
       expect(info, findsOneWidget);
       // It loops, so it never settles while open.
       await tester.tap(info);
@@ -325,14 +327,14 @@ void main() {
       await _send(tester);
       await h.payment(tester, TxStatus.awaitingRecipient);
       expect(_steps(tester, TimelineState.current), [
-        'Recipient signed',
+        _l.txStepAccepted,
       ]);
 
       // Their wallet signed; ours finished it and handed it to the network.
       await h.payment(tester, TxStatus.awaitingConfirmation);
       expect(_steps(tester, TimelineState.done), [
-        'Payment started',
-        'Recipient signed',
+        _l.txStepStarted,
+        _l.txStepAccepted,
         'Posted to the network',
       ]);
       expect(
@@ -340,7 +342,7 @@ void main() {
         startsWith('Confirming 0/'),
       );
       expect(find.textContaining('finishes it when it opens'), findsNothing);
-      expect(find.text('What if it never finishes?'), findsNothing);
+      expect(find.text(_l.sendTrackIfNot), findsNothing);
 
       await h.payment(tester, TxStatus.confirmed, height: BigInt.one);
       expect(_steps(tester, TimelineState.done), [
@@ -363,7 +365,7 @@ void main() {
         await tester.pump(const Duration(minutes: 1));
         await h.payment(tester, TxStatus.awaitingRecipient);
         expect(_steps(tester, TimelineState.current), [
-          'Recipient signed',
+          _l.txStepAccepted,
         ]);
       }
       expect(
@@ -382,7 +384,7 @@ void main() {
       await h.pump(tester);
       await _send(tester);
       await h.payment(tester, TxStatus.cancelled);
-      expect(find.text('This payment was cancelled.'), findsOneWidget);
+      expect(find.text(_l.sendTrackCancelled), findsOneWidget);
       expect(find.byType(RoundSteps), findsNothing);
     });
 
@@ -476,7 +478,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       final recipient = editable(tester, sendRecipientFieldKey);
-      await _tap(tester, find.text('Pay with a file'));
+      await _tap(tester, find.text(_l.sendPayByFile));
       expect(find.byKey(sendRecipientFieldKey), findsNothing);
       final fileAmount = editable(tester, sendFileAmountFieldKey);
       expect(identical(fileAmount, recipient), isFalse);
@@ -488,14 +490,14 @@ void main() {
       await _enter(tester, 'Amount (EPIC)', '1');
       expect(fileAmount.widget.controller.text, '1');
 
-      await _tap(tester, find.byTooltip('Back'));
+      await _tap(tester, find.byTooltip(_l.scanQrBack));
       final again = editable(tester, sendRecipientFieldKey);
       expect(identical(again, fileAmount), isFalse);
       await _enter(tester, 'To', _bob);
       await _tap(tester, _continue);
       final amount = editable(tester, sendAmountFieldKey);
       expect(identical(amount, again), isFalse);
-      await _tap(tester, find.text('Add a message'));
+      await _tap(tester, find.text(_l.sendAddNote));
       expect(find.byKey(sendNoteFieldKey), findsOneWidget);
       expect(
         {
@@ -515,7 +517,7 @@ void main() {
     testWidgets('an empty wallet gets one line, not a form', (tester) async {
       final h = _Harness(summary: FakeWalletSession.emptySummary);
       await h.pump(tester);
-      expect(find.text('No coins to send yet.'), findsOneWidget);
+      expect(find.text(_l.sendNoCoins), findsOneWidget);
       expect(find.widgetWithText(TextField, 'To'), findsNothing);
     });
 
@@ -524,7 +526,7 @@ void main() {
     ) async {
       final h = _Harness(summary: _summary(onHold: _epic(10)));
       await h.pump(tester);
-      expect(find.text('No coins to send yet.'), findsNothing);
+      expect(find.text(_l.sendNoCoins), findsNothing);
       await _enter(tester, 'To', _bob);
       await _tap(tester, _continue);
       expect(find.text('+10.0\u00a0EPIC coming in'), findsOneWidget);

@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 class _Tor extends PhoneTor {
   @override
   PhoneTorState build() => const PhoneTorState(phase: PhoneTorPhase.off, onion: 'abc.onion');
@@ -201,7 +203,7 @@ void main() {
       expect(find.byType(HelpTopicScreen), findsOneWidget);
       expect(find.text('How Epic Cash works'), findsOneWidget);
       await _see(tester, find.textContaining('Network fee'));
-      await _see(tester, find.text('More in this section'));
+      await _see(tester, find.text(_l.helpMoreInSection));
       await _see(tester, find.text('Confirmations'));
     });
 
@@ -220,7 +222,7 @@ void main() {
     testWidgets('the handshake topic offers the animated sheet', (tester) async {
       final h = AppHarness();
       await h.pump(tester, const HelpScreen(topic: HelpId.handshake));
-      await _see(tester, find.text('Show how it works'));
+      await _see(tester, find.text(_l.helpShowHandshake));
     });
 
     testWidgets('a HelpButton opens its topic and is 44 dp', (tester) async {
@@ -229,7 +231,7 @@ void main() {
       final size = tester.getSize(find.byType(HelpButton));
       expect(size.width, greaterThanOrEqualTo(44));
       expect(size.height, greaterThanOrEqualTo(44));
-      await tester.tap(find.byTooltip('Help'));
+      await tester.tap(find.byTooltip(_l.helpButton));
       await tester.pumpAndSettle();
       expect(find.text('Locked amounts and change'), findsOneWidget);
     });

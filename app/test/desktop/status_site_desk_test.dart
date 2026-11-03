@@ -18,8 +18,11 @@ import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart' hide EpicboxServer, NodeServer;
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter_test/flutter_test.dart';
 import '../support/test_settings.dart';
+
+final _l = englishStrings;
 
 const _password = 'test-pass-1234';
 
@@ -130,10 +133,10 @@ void main() {
     ));
     await tester.pump(const Duration(seconds: 1));
     // Server status (26.10.25): Switch node automatically is on the Node page now.
-    expect(find.text('Server status'), findsOneWidget);
+    expect(find.text(_l.deskSetPrivServerStatus), findsOneWidget);
     expect(find.text('Use ${Uri.parse(hostSettings.statusDirectory!).host}'), findsOneWidget);
     // Label only; the sentence is behind the info icon (its popover).
-    expect(find.byWidgetPredicate((w) => w is EInfoHint && w.text == 'Shows which nodes and Epicbox servers are online, from a public list on status.btlabs.uk.'), findsOneWidget);
+    expect(find.byWidgetPredicate((w) => w is EInfoHint && w.text == _l.deskSetPrivUseStatusHint), findsOneWidget);
     expect(find.textContaining('Server health'), findsNothing);
 
     // The group's one row is the status site.

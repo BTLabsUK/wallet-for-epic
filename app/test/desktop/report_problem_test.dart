@@ -13,10 +13,13 @@ import 'package:epic_wallet/src/log.dart';
 import 'package:epic_wallet/src/support_clean.dart';
 import 'package:epic_wallet/src/support_report.dart';
 import 'package:epic_wallet/src/ui/feedback_screen.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 const _phrase = 'abandon ability able about above absent absorb abstract absurd abuse access accident';
 const _address = 'esWn9r2zQj5eKkVh3sT4YpX7cBdF8gHmNaLuRvS6tE1iPo2wZxC9';
@@ -67,8 +70,8 @@ Future<void> describe(WidgetTester tester, String text) async {
 }
 
 Future<void> send(WidgetTester tester) async {
-  await tester.ensureVisible(find.widgetWithText(EButton, 'Send'));
-  await tester.tap(find.widgetWithText(EButton, 'Send'));
+  await tester.ensureVisible(find.widgetWithText(EButton, _l.deskSetReportSend));
+  await tester.tap(find.widgetWithText(EButton, _l.deskSetReportSend));
   await settle(tester);
 }
 
@@ -113,20 +116,20 @@ void main() {
     );
     await tester.tap(find.text('offer'));
     await tester.pumpAndSettle();
-    expect(find.text('The app closed unexpectedly last time. Send the log?'), findsOneWidget);
+    expect(find.text(_l.deskLastSessionClosed), findsOneWidget);
     expect(kept.offers, 1);
     // Asked again (the next unlock): nothing more.
     await tester.tap(find.text('offer'));
     await tester.pumpAndSettle();
     expect(kept.offers, 1);
-    await tester.tap(find.descendant(of: find.byType(SnackBar), matching: find.text('Send')));
+    await tester.tap(find.descendant(of: find.byType(SnackBar), matching: find.text(_l.deskLastSessionSend)));
     await settle(tester);
     expect(find.byType(ReportProblemDialog), findsOneWidget);
-    expect(find.text('The app closed unexpectedly.'), findsOneWidget);
-    expect(find.textContaining('With the log of the last session.'), findsOneWidget);
+    expect(find.text(_l.deskLastSessionReportClosed), findsOneWidget);
+    expect(find.textContaining(_l.deskLastSessionAttached), findsOneWidget);
     await send(tester);
     final report = h.outlet.posted.single.report;
-    expect(report.description, 'The app closed unexpectedly.');
+    expect(report.description, _l.deskLastSessionReportClosed);
     expect(report.app['last session'], 'not closed');
     final log = report.files.single;
     expect(log.name, 'app/last-session/wfe.log');
@@ -138,7 +141,7 @@ void main() {
   testWidgets('Help opens Report a problem', (tester) async {
     final h = _Harness();
     await h.pump(tester, home: const SettingsHelpScreen());
-    final button = find.widgetWithText(EButton, 'Report…');
+    final button = find.widgetWithText(EButton, _l.deskSetHelpReportButton);
     await tester.ensureVisible(button);
     await tester.tap(button);
     await tester.pumpAndSettle();
@@ -149,20 +152,20 @@ void main() {
     final h = _Harness();
     await h.pump(tester);
     await send(tester);
-    expect(find.text('Describe what happened.'), findsOneWidget);
+    expect(find.text(_l.deskSetReportDescribe), findsOneWidget);
     expect(h.outlet.posted, isEmpty);
 
     await describe(tester, 'The balance looks wrong');
     h.outlet.postError = FeedbackSendError((l) => l.feedbackServerUnreachable);
     await send(tester);
-    expect(find.text('Not sent'), findsOneWidget);
-    expect(find.text('Could not reach the feedback server.'), findsOneWidget);
-    expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Send')).busy, isFalse);
-    expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Cancel')).onPressed, isNotNull);
+    expect(find.text(_l.deskSetReportNotSentTitle), findsOneWidget);
+    expect(find.text(_l.feedbackServerUnreachable), findsOneWidget);
+    expect(tester.widget<EButton>(find.widgetWithText(EButton, _l.deskSetReportSend)).busy, isFalse);
+    expect(tester.widget<EButton>(find.widgetWithText(EButton, _l.commonCancel)).onPressed, isNotNull);
 
     h.outlet.postError = null;
     await send(tester);
-    expect(find.text('Report sent'), findsOneWidget);
+    expect(find.text(_l.deskSetReportSent), findsOneWidget);
     expect(find.text('The report arrived. Its reference is ab12cd34.'), findsOneWidget);
     expect(h.outlet.posted.single.report.description, 'The balance looks wrong');
     expect(h.outlet.posted.single.report.app['ui'], 'desktop');
@@ -174,7 +177,7 @@ void main() {
     h.log.record(LogLevel.warn, 'dart.send', 'to $_address@box.epic.invalid via 203.0.113.7:3413');
     await h.pump(tester);
     await describe(tester, 'Sending to $_address fails');
-    await tester.tap(find.text('What is sent'));
+    await tester.tap(find.text(_l.deskSetReportSentWhat));
     await settle(tester);
     final preview = previewText(tester);
     // The rows on screen are the text's first lines.
@@ -189,10 +192,10 @@ void main() {
     }
 
     // Without logs, the preview says so.
-    await tester.tap(find.text('Attach logs'));
+    await tester.tap(find.text(_l.deskSetReportAttach));
     await settle(tester);
     expect(previewText(tester), contains('Logs: none attached'));
-    await tester.tap(find.text('Attach logs'));
+    await tester.tap(find.text(_l.deskSetReportAttach));
     await settle(tester);
 
     await send(tester);
@@ -203,16 +206,16 @@ void main() {
     final h = _Harness();
     h.log.record(LogLevel.warn, 'dart.send', 'to $_address@box.epic.invalid via 203.0.113.7:3413');
     await h.pump(tester);
-    expect(find.text('Include full details'), findsOneWidget);
+    expect(find.text(_l.deskSetReportFullDetails), findsOneWidget);
     // No small print under the tick: what it changes sits behind the info icon beside it.
     expect(find.byKey(const ValueKey('report-full-details-info')), findsOneWidget);
     expect(find.textContaining('Seeds, keys and passwords never'), findsNothing);
-    await tester.tap(find.text('What is sent'));
+    await tester.tap(find.text(_l.deskSetReportSentWhat));
     await settle(tester);
     expect(previewText(tester), isNot(contains(_address)));
     expect(find.textContaining('· Full details'), findsNothing);
 
-    await tester.tap(find.text('Include full details'));
+    await tester.tap(find.text(_l.deskSetReportFullDetails));
     await settle(tester);
     expect(find.textContaining('Seeds, keys and passwords never'), findsNothing, reason: 'ticked adds no text either');
     expect(find.textContaining('· Full details'), findsOneWidget);
@@ -222,9 +225,9 @@ void main() {
     expect(preview, isNot(contains('203.0.113.7')));
 
     // Attach logs off takes the tick with it.
-    await tester.tap(find.text('Attach logs'));
+    await tester.tap(find.text(_l.deskSetReportAttach));
     await settle(tester);
-    expect(find.text('Include full details'), findsNothing);
+    expect(find.text(_l.deskSetReportFullDetails), findsNothing);
     expect(find.byKey(const ValueKey('report-full-details-info')), findsNothing);
   });
 
@@ -234,7 +237,7 @@ void main() {
     final h = _Harness()..ring = [(name: 'lepic.1.log', text: older), (name: 'lepic.0.log', text: newer)];
     h.log.record(LogLevel.warn, 'dart.send', 'to $_address@box.epic.invalid');
     await h.pump(tester);
-    await tester.tap(find.text('What is sent'));
+    await tester.tap(find.text(_l.deskSetReportSentWhat));
     await settle(tester);
     expect(find.text('Report text\u00A0· lepic.0.log (all, 1 KB)\u00A0· lepic.1.log (all, 1 KB)'), findsOneWidget);
     var preview = previewText(tester);
@@ -252,8 +255,8 @@ void main() {
     final h = _Harness()..ring = [(name: 'lepic.0.log', text: '2026-10-01T08:00:00.000Z INFO dart: unlock tag=unlock\n')];
     h.log.record(LogLevel.warn, 'dart.send', 'to $_address@box.epic.invalid');
     await h.pump(tester);
-    await tester.tap(find.text('What is sent'));
-    await tester.tap(find.text('Include full details'));
+    await tester.tap(find.text(_l.deskSetReportSentWhat));
+    await tester.tap(find.text(_l.deskSetReportFullDetails));
     await settle(tester);
     expect(find.textContaining('lepic.0.log'), findsNothing);
     final preview = previewText(tester);
@@ -267,7 +270,7 @@ void main() {
     final h = _Harness();
     h.log = _FilesLog([const LogFileInfo('wfe.log', 100 * 1024), const LogFileInfo('wfe.log.1', 1024 * 1024)]);
     await h.pump(tester);
-    await tester.tap(find.text('What is sent'));
+    await tester.tap(find.text(_l.deskSetReportSentWhat));
     await settle(tester);
     expect(find.text('Report text\u00A0· wfe.log (all, 100 KB)\u00A0· wfe.log.1 (last 156 KB of 1.0 MB)'), findsOneWidget);
     expect(previewText(tester), contains('log level: normal'));
@@ -278,26 +281,26 @@ void main() {
     h.log.record(LogLevel.info, 'dart.restore', 'words $_phrase');
     await h.pump(tester);
     await describe(tester, 'Sending to $_address fails');
-    await tester.tap(find.text('What is sent'));
+    await tester.tap(find.text(_l.deskSetReportSentWhat));
     await settle(tester);
     final preview = previewText(tester);
-    await tester.ensureVisible(find.widgetWithText(EButton, 'Save to file'));
-    await tester.tap(find.widgetWithText(EButton, 'Save to file'));
+    await tester.ensureVisible(find.widgetWithText(EButton, _l.deskSetReportSaveToFile));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetReportSaveToFile));
     await settle(tester);
     final saved = h.outlet.saved.single;
     expect(saved.name, startsWith('epic-wallet-feedback-'));
     expect(saved.report.trimRight(), preview.trimRight());
     expect(saved.report, isNot(contains('abandon')));
-    expect(find.text('Saved. Cleaned of secrets, not encrypted.'), findsOneWidget);
+    expect(find.text(_l.deskSetReportSaved), findsOneWidget);
     expect(h.outlet.posted, isEmpty);
   });
 
   testWidgets('Esc closes the dialog with the focus on What is sent', (tester) async {
     final h = _Harness();
     await h.pump(tester);
-    await tester.tap(find.text('What is sent'));
+    await tester.tap(find.text(_l.deskSetReportSentWhat));
     await settle(tester);
-    Focus.of(tester.element(find.text('What is sent'))).requestFocus();
+    Focus.of(tester.element(find.text(_l.deskSetReportSentWhat))).requestFocus();
     await tester.pump();
     await tester.sendKeyEvent(LogicalKeyboardKey.escape);
     await tester.pumpAndSettle();
@@ -318,11 +321,11 @@ void main() {
     await tester.runAsync(_loadFonts);
     final h = _Harness();
     await h.pump(tester, height: 800);
-    await tester.tap(find.text('What is sent'));
+    await tester.tap(find.text(_l.deskSetReportSentWhat));
     await settle(tester);
     final scroll = find.descendant(of: find.byType(EDialog), matching: find.byType(Scrollable)).first;
     expect(tester.state<ScrollableState>(scroll).position.maxScrollExtent, 0);
-    expect(tester.getTopLeft(find.text('Report a problem')).dy, greaterThan(0));
+    expect(tester.getTopLeft(find.text(_l.deskSetReportTitle)).dy, greaterThan(0));
     await tester.sendKeyEvent(LogicalKeyboardKey.escape);
     await tester.pumpAndSettle();
     expect(find.byType(ReportProblemDialog), findsNothing);
@@ -336,7 +339,7 @@ void main() {
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     final h = _Harness();
     await h.pump(tester, width: 800, height: 700);
-    await tester.tap(find.text('What is sent'));
+    await tester.tap(find.text(_l.deskSetReportSentWhat));
     await settle(tester);
     await describe(tester, 'The balance looks wrong');
     final view = Offset.zero & const Size(800, 700);
@@ -345,7 +348,7 @@ void main() {
     expect(tester.widget<EButton>(sendButton).onPressed, isNotNull);
     await tester.tap(sendButton);
     await settle(tester);
-    expect(find.text('Report sent'), findsOneWidget);
+    expect(find.text(_l.deskSetReportSent), findsOneWidget);
   });
 
   testWidgets('when it cannot send, Send still shows and the reason stands beside it', (tester) async {
@@ -356,7 +359,7 @@ void main() {
     final sendButton = find.widgetWithText(EButton, 'Send');
     expect(sendButton, findsOneWidget);
     expect(tester.widget<EButton>(sendButton).onPressed, isNull);
-    final reason = find.text('Sending is off in this build');
+    final reason = find.text(_l.deskSetReportOff);
     expect(reason, findsOneWidget);
     // Pinned with the buttons, not at the foot of the scrolling body.
     final body = find.descendant(of: find.byType(EDialog), matching: find.byType(SingleChildScrollView)).last;
@@ -370,16 +373,16 @@ void main() {
     await h.pump(tester);
     await describe(tester, 'The balance looks wrong');
     // Not settled: the spinner would run the clock past the deadline.
-    await tester.tap(find.widgetWithText(EButton, 'Send'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetReportSend));
     await tester.pump(const Duration(milliseconds: 400));
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 800)));
     await tester.pump();
-    expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Send')).busy, isTrue);
+    expect(tester.widget<EButton>(find.widgetWithText(EButton, _l.deskSetReportSend)).busy, isTrue);
     await tester.pump(feedbackSendDeadline + const Duration(seconds: 1));
     await tester.pumpAndSettle();
-    expect(find.text('Not sent'), findsOneWidget);
-    expect(find.text('The feedback server did not answer.'), findsOneWidget);
-    expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Send')).busy, isFalse);
+    expect(find.text(_l.deskSetReportNotSentTitle), findsOneWidget);
+    expect(find.text(_l.feedbackServerNoAnswer), findsOneWidget);
+    expect(tester.widget<EButton>(find.widgetWithText(EButton, _l.deskSetReportSend)).busy, isFalse);
   });
 }
 

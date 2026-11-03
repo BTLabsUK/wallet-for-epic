@@ -5,10 +5,13 @@
 // window; gives the focus back to the icon.
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 const _text =
     'Tor hides your address from the Epicbox server and the node. Direct is faster and needs no Tor. '
@@ -56,7 +59,7 @@ void main() {
 
   testWidgets('without a title: the text alone with ✕, and the icon keeps a generic name', (tester) async {
     await host(tester, const EInfoHint(_text));
-    expect(find.bySemanticsLabel('More information'), findsOneWidget);
+    expect(find.bySemanticsLabel(_l.deskKitInfoLabel), findsOneWidget);
     await tester.tap(icon);
     await tester.pumpAndSettle();
     expect(find.text(_text), findsOneWidget);

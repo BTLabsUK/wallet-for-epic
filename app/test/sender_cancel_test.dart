@@ -191,7 +191,7 @@ void main() {
       expect(session.cancelledTxIds, [9]);
       final row = c.read(homeProvider).value!.transactions.single;
       expect(row.kind, TxKind.receivedCancelled);
-      expect(txStatusLabel(_l, row, _tip, now: _now), 'Cancelled by the sender');
+      expect(txStatusLabel(_l, row, _tip, now: _now), _l.txStatusSenderCancelled);
     });
 
     test('one the network has stays, and a refresh does not ask again', () async {
@@ -229,12 +229,12 @@ void main() {
     });
 
     test('the words, before and after the release', () {
-      expect(txStatusLabel(_l, _waiting(), _tip, now: _now), 'Cancelled by the sender');
+      expect(txStatusLabel(_l, _waiting(), _tip, now: _now), _l.txStatusSenderCancelled);
       expect(txExplanation(_l, _waiting(), _tip, now: _now), _l.txDetailsSenderCancelledWaiting);
       expect(txTimeline(_l, _waiting(), _tip, now: _now), isNull);
       final cleared = _waiting(kind: TxKind.receivedCancelled, status: TxStatus.cancelled);
       expect(txExplanation(_l, cleared, _tip, now: _now), _l.txDetailsSenderCancelled);
-      expect(txStatusLabel(_l, _waiting(cancelled: false), _tip, now: _now), 'Waiting for sender');
+      expect(txStatusLabel(_l, _waiting(cancelled: false), _tip, now: _now), _l.txStatusWaitingSender);
     });
   });
 

@@ -6,6 +6,8 @@ import 'package:epic_wallet/src/desktop/screens/wallet/tx_display.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 void main() {
   Tx row({required TxDirection direction, bool unverified = false}) => Tx(
     id: 7,
@@ -22,8 +24,8 @@ void main() {
 
   test('the row names an unverified send, and only a send', () {
     final l = englishStrings;
-    expect(whoOf(l, row(direction: TxDirection.sent, unverified: true)), 'Sent from another device · unverified');
-    expect(whoOf(l, row(direction: TxDirection.sent)), 'Sent from another device');
-    expect(whoOf(l, row(direction: TxDirection.received)), 'Received by another device');
+    expect(whoOf(l, row(direction: TxDirection.sent, unverified: true)), _l.txSentFromOtherWalletUnverified);
+    expect(whoOf(l, row(direction: TxDirection.sent)), _l.txSentFromOtherWallet);
+    expect(whoOf(l, row(direction: TxDirection.received)), _l.txReceivedByOtherWallet);
   });
 }

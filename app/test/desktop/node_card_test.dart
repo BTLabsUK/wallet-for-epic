@@ -19,6 +19,8 @@ import 'package:flutter/services.dart' show FontLoader;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 Future<void> _loadFonts() async {
   final dir = '${Platform.environment['FLUTTER_ROOT'] ?? '${Platform.environment['HOME']}/flutter'}/bin/cache/artifacts/material_fonts';
   final roboto = File('$dir/Roboto-Regular.ttf');
@@ -84,16 +86,16 @@ void main() {
 
   testWidgets('the words match the rail: Synced, Behind, Synced (old), Not answering', (tester) async {
     await _pump(tester, _card(mockNodeInfo(_url)));
-    expect(find.textContaining('Synced', findRichText: true), findsOneWidget);
+    expect(find.textContaining(_l.netStatusSynced, findRichText: true), findsOneWidget);
     expect(find.text('synced'), findsNothing, reason: 'the status line says it once');
-    expect(find.text('latest'), findsOneWidget);
+    expect(find.text(_l.deskKitVersionLatest), findsOneWidget);
     expect(find.text('99.7%'), findsOneWidget);
-    expect(find.text('listed as official'), findsOneWidget);
+    expect(find.text(_l.deskKitListedOfficial), findsOneWidget);
     expect(find.textContaining('Nodes agree on 3,764,975\u00A0· 5 of 6 nodes up\u00A0· 4 of 4 Epicbox servers up\u00A0· last block 40 s ago'), findsOneWidget);
     expect(find.textContaining('status.lab.invalid, checked 14:02\u00A0· latency measured from this computer'), findsOneWidget);
 
     await _pump(tester, _card(mockNodeInfo(_url, behind: 12, state: NodeHealthState.degraded)));
-    expect(find.textContaining('Behind', findRichText: true), findsOneWidget);
+    expect(find.textContaining(_l.lvShellStateBehind, findRichText: true), findsOneWidget);
     expect(find.text('12 behind'), findsOneWidget);
 
     await _pump(tester, _card(mockNodeInfo(_url, version: '4.1.0')));
@@ -104,19 +106,19 @@ void main() {
     // The header and one line instead of a row of dashes (UD-033).
     expect(find.textContaining('since 14:02', findRichText: true), findsNWidgets(2));
     expect(find.text('No answer since 14:02'), findsOneWidget);
-    expect(find.text('Height'), findsNothing);
+    expect(find.text(_l.deskKitFactHeight), findsNothing);
   });
 
   testWidgets('limited info: exactly four facts and the tag; the source line names the last reach', (tester) async {
     await _pump(tester, _card(mockNodeInfo(_url, source: NodeInfoSource.limited)));
-    expect(find.text('Limited info'), findsOneWidget);
+    expect(find.text(_l.deskKitLimitedInfo), findsOneWidget);
     for (final f in ['Height', 'Version', 'Accepts transactions', 'Latency']) {
       expect(find.text(f), findsOneWidget, reason: f);
     }
     for (final f in ['Uptime', 'Peers', 'Operator']) {
       expect(find.text(f), findsNothing, reason: f);
     }
-    expect(find.text('Yes'), findsOneWidget);
+    expect(find.text(_l.deskKitFactYes), findsOneWidget);
     expect(find.text('last block 3 min ago'), findsOneWidget);
     expect(find.textContaining('status.lab.invalid is not reachable'), findsOneWidget);
     expect(find.textContaining('Status site last reached'), findsNothing, reason: 'never reached this session');
@@ -128,15 +130,15 @@ void main() {
         NodeInfo(url: _url, source: NodeInfoSource.limited, at: _now, height: 3766864, version: version);
     for (final (version, label) in [('4.1.1', 'no answer'), ('4.1.0-1', 'no answer'), (null, 'no answer'), ('3.6.0', 'node before 4.1.0')]) {
       await _pump(tester, _card(info(version)));
-      expect(find.text('Unknown'), findsOneWidget, reason: '$version');
+      expect(find.text(_l.deskKitFactUnknown), findsOneWidget, reason: '$version');
       expect(find.textContaining(label), findsOneWidget, reason: '$version');
-      if (label == 'no answer') expect(find.textContaining('before 4.1.0'), findsNothing, reason: '$version');
+      if (label == _l.deskKitNodeNoAnswer) expect(find.textContaining('before 4.1.0'), findsNothing, reason: '$version');
     }
   });
 
   testWidgets('nothing known yet: every value prints – and nothing spins', (tester) async {
     await _pump(tester, _card(null));
-    expect(find.textContaining('Checking', findRichText: true), findsOneWidget);
+    expect(find.textContaining(_l.deskNodeChecking, findRichText: true), findsOneWidget);
     expect(find.text('–'), findsWidgets);
     expect(find.byType(ESpinner), findsNothing);
     expect(tester.takeException(), isNull);
@@ -152,9 +154,9 @@ void main() {
         onSwitch: (t) => to = t,
       ),
     );
-    expect(find.text('Node not answering'), findsOneWidget);
+    expect(find.text(_l.deskKitNodeDownHead), findsOneWidget);
     expect(find.text('Switch to node.lab.invalid, the healthiest other node?'), findsOneWidget);
-    await tester.tap(find.text('Switch'));
+    await tester.tap(find.text(_l.deskKitSwitch));
     expect(to?.url, 'https://node.lab.invalid');
   });
 
@@ -174,11 +176,11 @@ void main() {
     );
     await tester.pump(const Duration(seconds: 1));
     await tester.pump();
-    expect(find.text('Node not answering'), findsOneWidget);
+    expect(find.text(_l.deskKitNodeDownHead), findsOneWidget);
     // The healthy node of the Node list (settings.toml) with the lowest latency: the mock's
     // home node is not in the test list, so it is not offered.
     expect(find.text('Switch to node.epic.invalid, the healthiest other node?'), findsOneWidget);
-    await tester.tap(find.text('Switch'));
+    await tester.tap(find.text(_l.deskKitSwitch));
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
     await tester.pump(const Duration(seconds: 1));
     expect(container.read(deskProvider).status?.node.url, 'https://node.epic.invalid:3413');
@@ -196,8 +198,8 @@ void main() {
       latencyOverTor: true,
     );
     await _pump(tester, _card(i));
-    expect(find.text('over Tor'), findsOneWidget);
-    expect(find.textContaining('from this computer'), findsNothing);
+    expect(find.text(_l.deskKitOverTor), findsOneWidget);
+    expect(find.textContaining(_l.deskKitFromThisComputer), findsNothing);
     expect(find.textContaining('latency measured over Tor'), findsOneWidget);
   });
 
@@ -210,8 +212,8 @@ void main() {
     );
     expect(find.textContaining('Not answering', findRichText: true), findsNothing);
     expect(find.textContaining('Switch to'), findsNothing);
-    expect(remoteNodeView(englishStrings, _url, probe, health: ServiceHealth.ok).word, 'Synced', reason: 'the rail and the head say the same');
-    expect(remoteNodeView(englishStrings, _url, probe, health: ServiceHealth.down).word, 'Not answering');
+    expect(remoteNodeView(englishStrings, _url, probe, health: ServiceHealth.ok).word, _l.netStatusSynced, reason: 'the rail and the head say the same');
+    expect(remoteNodeView(englishStrings, _url, probe, health: ServiceHealth.down).word, _l.deskNodeNotAnswering);
   });
 
   testWidgets('Tor turned on: a direct reading is dropped at once, never shown with Tor on', (tester) async {
@@ -219,25 +221,25 @@ void main() {
     final direct = NodeInfo(url: _url, source: NodeInfoSource.limited, at: DateTime(2026, 10, 22, 14, 2), state: NodeHealthState.healthy, height: 2914414, latencyMs: 812);
     await _pump(tester, _card(direct, torOn: true));
     expect(find.textContaining('812'), findsNothing);
-    expect(find.textContaining('from this computer'), findsNothing);
+    expect(find.textContaining(_l.deskKitFromThisComputer), findsNothing);
     expect(shownLatency(direct, torOn: true), isNull);
     expect(remoteNodeView(englishStrings, _url, direct, torOn: true).lines.join(' '), isNot(contains('812')), reason: 'the rail drops it too');
     // Off, the same reading shows as before.
     await _pump(tester, _card(direct));
     expect(find.text('812 ms'), findsOneWidget);
-    expect(find.text('from this computer'), findsOneWidget);
+    expect(find.text(_l.deskKitFromThisComputer), findsOneWidget);
   });
 
   testWidgets('no figure: no measured label; with Tor on never from this computer', (tester) async {
     // Not answering over Tor: nothing measured.
     final none = NodeInfo(url: _url, source: NodeInfoSource.none, at: DateTime(2026, 10, 22, 14, 2), state: NodeHealthState.down);
     await _pump(tester, _card(none, torOn: true));
-    expect(find.textContaining('from this computer'), findsNothing);
-    expect(find.textContaining('over Tor'), findsNothing);
+    expect(find.textContaining(_l.deskKitFromThisComputer), findsNothing);
+    expect(find.textContaining(_l.deskKitOverTor), findsNothing);
     expect(find.textContaining('measured'), findsNothing);
     // Off, no figure: no label either.
     await _pump(tester, _card(none));
-    expect(find.textContaining('from this computer'), findsNothing);
+    expect(find.textContaining(_l.deskKitFromThisComputer), findsNothing);
     // A directory reading with no figure of its own or the monitor's: no "latency measured".
     final listed = NodeInfo(url: _url, source: NodeInfoSource.directory, at: DateTime(2026, 10, 22, 14, 2), state: NodeHealthState.healthy, height: 2914414);
     await _pump(tester, _card(listed, torOn: true));

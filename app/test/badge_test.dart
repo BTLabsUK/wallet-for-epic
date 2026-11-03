@@ -12,6 +12,8 @@ import 'package:epic_wallet/src/ui/theme/tokens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 Widget _phone(Widget child) => MaterialApp(
   theme: buildWalletTheme(protocolDark, Brightness.dark),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -72,15 +74,15 @@ void main() {
       _phone(Builder(builder: (context) => EBadge.kind(RecipientKind.tor, l: AppLocalizations.of(context)))),
     );
     expect(find.byIcon(EpicGlyphs.tor), findsOneWidget);
-    expect(find.text('Link · Tor'), findsOneWidget); // the short name, never Tor alone
+    expect(find.text(_l.methodShortTor), findsOneWidget); // the short name, never Tor alone
 
     await tester.pumpWidget(
       _desk(Builder(builder: (context) => EBadge.kind(RecipientKind.epicbox, l: AppLocalizations.of(context), compact: true))),
     );
     expect(find.byIcon(EpicGlyphs.epicbox), findsOneWidget);
     expect(find.byType(Text), findsNothing);
-    expect(find.bySemanticsLabel('Epicbox'), findsOneWidget);
-    expect(tester.widget<Tooltip>(find.byType(Tooltip)).message, 'Epicbox');
+    expect(find.bySemanticsLabel(_l.methodEpicbox), findsOneWidget);
+    expect(tester.widget<Tooltip>(find.byType(Tooltip)).message, _l.methodEpicbox);
   });
 
   testWidgets('state: On is a filled ok dot, Off a ring', (tester) async {

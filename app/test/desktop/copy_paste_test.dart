@@ -12,6 +12,9 @@ import 'package:epic_wallet/src/desktop/screens/onboarding/create_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/receive_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+
+final _l = englishStrings;
 
 /// The platform clipboard, as a map the test reads.
 String? _clip;
@@ -78,7 +81,7 @@ void main() {
     await tester.tap(find.text('Copy id'));
     // One retry after 150 ms, then the refusal shows.
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.text('Not copied'), findsOneWidget);
+    expect(find.text(_l.deskKitNotCopied), findsOneWidget);
     await tester.pump(const Duration(milliseconds: 1600));
   });
 
@@ -133,12 +136,12 @@ void phraseCopyOnboarding() {
     await tester.pump(const Duration(seconds: 1));
     // The words are hidden until Reveal; Copy shows with them.
     expect(find.text('Copy'), findsNothing);
-    await tester.tap(find.text('Reveal phrase'));
+    await tester.tap(find.text(_l.deskOnbCreateReveal));
     await tester.pump(const Duration(milliseconds: 300));
-    await tester.tap(find.text('Copy'));
+    await tester.tap(find.text(_l.commonCopy));
     await tester.pump(const Duration(milliseconds: 300));
     // The warning comes first; nothing is copied until it is confirmed.
-    expect(find.text('Copy the recovery phrase?'), findsOneWidget);
+    expect(find.text(_l.deskSetPhraseCopyTitle), findsOneWidget);
     expect(find.text('Anyone with these words can take the coins. Store the copy somewhere safe.'), findsOneWidget);
     expect(_clip, isNull);
     await tester.tap(find.descendant(of: find.byType(EDialog), matching: find.text('Cancel')));

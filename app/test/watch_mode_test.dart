@@ -9,6 +9,8 @@ import 'package:epic_wallet/src/watch_mode.dart';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 final _now = DateTime(2026, 10, 25, 12);
 int _ago(Duration d) => _now.subtract(d).millisecondsSinceEpoch ~/ 1000;
 final _tip = BigInt.from(1000);
@@ -203,10 +205,10 @@ void main() {
       amountDebited: BigInt.from(300000000),
     );
     for (final tx in [answered, posted]) {
-      expect(txExplanation(l, tx, _tip, now: _now, wait: BlockWait.noNewBlock), 'Waiting for the next block to be mined.');
+      expect(txExplanation(l, tx, _tip, now: _now, wait: BlockWait.noNewBlock), _l.txWaitNoNewBlock);
       expect(
         txExplanation(l, tx, _tip, now: _now, wait: BlockWait.notInBlock),
-        'Not in a block yet. It may still be on its way to the network.',
+        _l.txWaitNotInBlock,
       );
       expect(txExplanation(l, tx, _tip, now: _now), isNot(contains('block')), reason: 'no note inside the window');
     }

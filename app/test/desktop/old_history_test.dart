@@ -6,9 +6,12 @@ import 'package:epic_wallet/src/desktop/app/shell.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 late MockDeskWallet _api;
 late ProviderContainer _container;
@@ -77,7 +80,7 @@ void main() {
   testWidgets('differing fields open Details differ with Mine selected and the old wallet as the other side', (tester) async {
     await _pumpShell(tester);
     await _oldWalletDiffers(tester);
-    expect(find.text('Details differ'), findsOneWidget);
+    expect(find.text(_l.deskHistConflictTitle), findsOneWidget);
     expect(find.textContaining("The old wallet’s history has different details for 1 payment."), findsOneWidget);
     final cards = tester.widgetList<EChoiceCard>(find.byType(EChoiceCard)).map((c) => '${c.title}:${c.selected}').toList();
     expect(cards, ['Mine:true', 'Old wallet:false', 'Mine:true', 'Old wallet:false']);
@@ -88,9 +91,9 @@ void main() {
     await _pumpShell(tester);
     await _oldWalletDiffers(tester);
     final key = _container.read(deskProvider).txs!.firstWhere((t) => t.id == 103).key;
-    await tester.tap(find.text('Old wallet').first);
+    await tester.tap(find.text(_l.deskHistConflictOldWallet).first);
     await _flow(tester);
-    await tester.tap(find.widgetWithText(EButton, 'Apply'));
+    await tester.tap(find.widgetWithText(EButton, _l.deskHistConflictApply));
     await _answered(tester);
     expect(_api.lastUseOldWallet, {'$key|counterparty': true, '$key|transport': false});
     expect(find.text('Details differ'), findsNothing);
@@ -101,7 +104,7 @@ void main() {
     await _pumpShell(tester);
     await _oldWalletDiffers(tester);
     final key = _container.read(deskProvider).txs!.firstWhere((t) => t.id == 103).key;
-    await tester.tap(find.text('Old wallet').first);
+    await tester.tap(find.text(_l.deskHistConflictOldWallet).first);
     await tester.tap(find.widgetWithText(EButton, 'Keep all mine'));
     await _answered(tester);
     expect(_api.lastUseOldWallet, {'$key|counterparty': false, '$key|transport': false});
@@ -110,7 +113,7 @@ void main() {
   testWidgets('Cancel postpones: no choices go out and nothing is lost', (tester) async {
     await _pumpShell(tester);
     await _oldWalletDiffers(tester);
-    await tester.tap(find.widgetWithText(EButton, 'Cancel').last);
+    await tester.tap(find.widgetWithText(EButton, _l.commonCancel).last);
     await _answered(tester);
     expect(find.text('Details differ'), findsNothing);
     expect(_api.lastUseOldWallet, isNull);

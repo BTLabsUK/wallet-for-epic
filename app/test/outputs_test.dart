@@ -443,7 +443,7 @@ void main() {
     expect(find.text(_l.outputsFactHeight), findsOneWidget);
     expect(find.text('2499000'), findsOneWidget);
     // The table header and the sheet's fact carry the same word.
-    expect(find.text(_l.outputsFactConfirmations), findsNWidgets(2));
+    expect(find.text(_l.outputsColConfirmations), findsNWidgets(2));
     expect(find.text(_l.outputsCopy), findsOneWidget);
   });
 

@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 const _epicbox = 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@epicbox.epiccash.com';
 
 Widget _app(Widget child) => MaterialApp(
@@ -53,7 +55,7 @@ void main() {
     final node = tester.getSemantics(find.byType(MarkedAddress));
     expect(node.label, _epicbox);
     expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
-    expect(node.hintOverrides?.onTapHint, 'Copy');
+    expect(node.hintOverrides?.onTapHint, _l.commonCopy);
     tester.semantics.tap(find.semantics.byLabel(_epicbox));
     expect(taps, 1);
     handle.dispose();
