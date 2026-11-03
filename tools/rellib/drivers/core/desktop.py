@@ -454,7 +454,7 @@ class Desktop:
         self.nav(NAV_SETTINGS)
         d.must(Expect("Settings sections", lambda dd, tree: self.in_settings(tree)), 30, step="settings")
 
-    def section(self, key_or_name):
+    def section(self, key_or_name, _again=False):
         """Settings › a section, by its target (SECTION key) or a literal name. False when the build
         lists no such section."""
         d = self.d
@@ -462,8 +462,18 @@ class Desktop:
         t = SECTION.get(key_or_name) or T("g4.settings.section.%s" % tg._norm(key_or_name).replace(" ", "_"),
                                           names=(key_or_name,), match="exact")
         if not d.wait(shows(t), 4):
-            if not self._open_section_list() or not d.wait(shows(t), 4):
+            if not self._open_section_list():
                 return False
+            if not d.wait(shows(t), 4):
+                if _again:
+                    return False
+                # the open list shows only its rows inside the window (UIA drops the rest) and a scrolled
+                # page moves it: once more from a fresh Settings page
+                self.log("Settings › %s: not in the open section list; opening Settings again" % key_or_name)
+                d.s.key("escape")
+                time.sleep(0.8)
+                self.nav(NAV_OVERVIEW)
+                return self.section(key_or_name, _again=True)
         # 26.10.25 names the back button "Wallet" too: a press that leaves Settings was the wrong one
         # the one that stayed is tried first next time
         first = getattr(self, "_section_hit", {}).get(t.id, 0)
