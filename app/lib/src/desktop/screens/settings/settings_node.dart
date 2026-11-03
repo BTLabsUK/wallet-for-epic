@@ -3,7 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../demo_fixtures.dart';
+import '../../../mock_fixtures.dart';
 
 import '../../desk_l10n.dart';
 import '../../../legacy/gui_rules.dart' show isPrivateHost;
@@ -35,14 +35,14 @@ import '../../../settings_file/status_site.dart' show statusSiteHost;
 
 /// Start states of Settings › Node. [behind], [old], [limited] and [down] put the node card
 /// in that state through the mock node layer (the tour); [builtin] shows the local node panel.
-/// The own* states show a home-network node ([ownDemoUrl]): tier 1, with owner access, its
+/// The own* states show a home-network node ([ownShotUrl]): tier 1, with owner access, its
 /// peers, the Owner access dialog, syncing, and down with a public node standing in.
-enum NodeDemo { comboOpen, typed, badAddress, removed, picked, pickFailed, builtin, peers, behind, old, limited, down, own, ownAccess, ownPeers, ownDialog, ownSyncing, ownDown }
+enum NodeShot { comboOpen, typed, badAddress, removed, picked, pickFailed, builtin, peers, behind, old, limited, down, own, ownAccess, ownPeers, ownDialog, ownSyncing, ownDown }
 
 /// The tour's own node.
-String get ownDemoUrl => 'http://10.0.1.24:${appConfig.localNodeApiPort}'; // l10n-ok: a node address
+String get ownShotUrl => 'http://192.168.1.24:${appConfig.localNodeApiPort}'; // l10n-ok: a node address
 
-bool _ownDemo(Object? arg) => arg is NodeDemo && arg.name.startsWith('own');
+bool _ownShot(Object? arg) => arg is NodeShot && arg.name.startsWith('own');
 
 /// A typed node address as a URL: as typed when it has a scheme; else https, except this
 /// computer and the local network, where nodes answer plain http.
@@ -149,20 +149,20 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     _desk = ref.read(deskProvider.notifier);
     _desk.showNodes(true);
     final arg = widget.arg;
-    if (arg == NodeDemo.builtin || arg == NodeDemo.peers) {
+    if (arg == NodeShot.builtin || arg == NodeShot.peers) {
       Future.microtask(() {
         final p = ref.read(settingsPrefsProvider.notifier);
         p.set(ref.read(settingsPrefsProvider).copyWith(builtin: true, clearTyped: true));
       });
     }
-    if (_ownDemo(arg)) Future.microtask(_demoOwn);
-    Future.microtask(_demoCard);
+    if (_ownShot(arg)) Future.microtask(_shotOwn);
+    Future.microtask(_shotCard);
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (widget.arg == NodeDemo.pickFailed && _error == null && !_pickFailedShown) {
+    if (widget.arg == NodeShot.pickFailed && _error == null && !_pickFailedShown) {
       _pickFailedShown = true;
       _error = context.l10n.deskSetNodePortNote('${appConfig.localNodeApiPort}');
     }
@@ -178,7 +178,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
 
   /// The tour's card states, through the mock node layer; any other start puts the mock's
   /// answer back (the shots run one after another).
-  void _demoCard() {
+  void _shotCard() {
     if (!mounted) return;
     final api = ref.read(deskNodeProvider);
     final status = ref.read(deskProvider).status;
@@ -187,13 +187,13 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     final host = nodeHost(url);
     final before = api.infos[host];
     switch (widget.arg) {
-      case NodeDemo.behind:
+      case NodeShot.behind:
         api.infos[host] = mockNodeInfo(url, behind: 12, state: NodeHealthState.degraded);
-      case NodeDemo.old:
+      case NodeShot.old:
         api.infos[host] = mockNodeInfo(url, version: '4.1.0', latencyMs: 1083);
-      case NodeDemo.limited:
+      case NodeShot.limited:
         api.infos[host] = mockNodeInfo(url, source: NodeInfoSource.limited);
-      case NodeDemo.down:
+      case NodeShot.down:
         api.infos[host] = mockNodeInfo(url, state: NodeHealthState.down);
       default:
         api.infos.remove(host);
@@ -202,55 +202,55 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
   }
 
   /// The tour's own-node states, through the mock node layer.
-  Future<void> _demoOwn() async {
+  Future<void> _shotOwn() async {
     if (!mounted) return;
     final api = ref.read(deskNodeProvider);
     if (api is! MockDeskNode) return;
     final arg = widget.arg;
-    final host = nodeHost(ownDemoUrl);
+    final host = nodeHost(ownShotUrl);
     api.infos[host] = mockOwnNodeInfo(
-      ownDemoUrl,
+      ownShotUrl,
       head: switch (arg) {
-        NodeDemo.ownSyncing => NodeHead.syncing,
-        NodeDemo.ownDown => NodeHead.down,
+        NodeShot.ownSyncing => NodeHead.syncing,
+        NodeShot.ownDown => NodeHead.down,
         _ => NodeHead.synced,
       },
-      behind: arg == NodeDemo.ownSyncing ? 12340 : 0,
+      behind: arg == NodeShot.ownSyncing ? 12340 : 0,
     );
-    api.ownStatus = arg == NodeDemo.ownSyncing
+    api.ownStatus = arg == NodeShot.ownSyncing
         ? OwnNodeStatus(
             at: DateTime(2026, 10, 22, 14, 2),
             syncStatus: 'txhashset_kernels_validation',
             progress: const SyncProgress(SyncStage.chainStateKernels, overall: 0.64, done: 3100000, total: 4800000),
             peers: 9,
-            version: demoNodeVersion,
+            version: mockNodeVersion,
             height: mockTip - 12340,
           )
         : null;
-    if (arg == NodeDemo.ownAccess || arg == NodeDemo.ownPeers || arg == NodeDemo.ownSyncing) {
-      await api.addOwnerSecret(ownDemoUrl, api.ownerSecret);
+    if (arg == NodeShot.ownAccess || arg == NodeShot.ownPeers || arg == NodeShot.ownSyncing) {
+      await api.addOwnerSecret(ownShotUrl, api.ownerSecret);
     } else {
-      await api.removeOwnerSecret(ownDemoUrl);
+      await api.removeOwnerSecret(ownShotUrl);
     }
     if (!mounted) return;
     final p = ref.read(settingsPrefsProvider);
     ref.read(settingsPrefsProvider.notifier).set(
-      p.copyWith(builtin: false, typedNode: NodeServer(url: ownDemoUrl, label: '', health: ServiceHealth.ok, latencyMs: 6, height: mockTip, version: demoNodeVersion, own: true), ownFallback: {...p.ownFallback}..remove(ownDemoUrl)),
+      p.copyWith(builtin: false, typedNode: NodeServer(url: ownShotUrl, label: '', health: ServiceHealth.ok, latencyMs: 6, height: mockTip, version: mockNodeVersion, own: true), ownFallback: {...p.ownFallback}..remove(ownShotUrl)),
     );
-    if (arg == NodeDemo.ownDown) {
-      ref.read(deskFailoverProvider.notifier).moved(NodeFailover(chosen: ownDemoUrl, inUse: mainnetPreset.nodeUrl, at: DateTime(2026, 10, 22, 14, 2)));
+    if (arg == NodeShot.ownDown) {
+      ref.read(deskFailoverProvider.notifier).moved(NodeFailover(chosen: ownShotUrl, inUse: mainnetPreset.nodeUrl, at: DateTime(2026, 10, 22, 14, 2)));
     }
-    ref.invalidate(deskNodeInfoProvider(ownDemoUrl));
-    ref.invalidate(deskOwnerSecretProvider(ownDemoUrl));
+    ref.invalidate(deskNodeInfoProvider(ownShotUrl));
+    ref.invalidate(deskOwnerSecretProvider(ownShotUrl));
   }
 
   /// The tour's panel states.
-  ServerPanelDemo? get _panelDemo => switch (widget.arg) {
-    NodeDemo.typed => ServerPanelDemo(query: 'node.example.org:${appConfig.localNodeApiPort}'), // l10n-ok: a node address
-    NodeDemo.badAddress => const ServerPanelDemo(query: 'my home node', submit: true), // l10n-ok: what a user might type
+  ServerPanelShot? get _panelShot => switch (widget.arg) {
+    NodeShot.typed => ServerPanelShot(query: 'node.example.org:${appConfig.localNodeApiPort}'), // l10n-ok: a node address
+    NodeShot.badAddress => const ServerPanelShot(query: 'my home node', submit: true), // l10n-ok: what a user might type
     // The shipped list's last and second nodes.
-    NodeDemo.removed => ServerPanelDemo(remove: shippedHostSettings.nodeServers.last.url),
-    NodeDemo.picked => ServerPanelDemo(pick: shippedHostSettings.nodeServers.elementAtOrNull(1)?.url ?? shippedHostSettings.nodeUse),
+    NodeShot.removed => ServerPanelShot(remove: shippedHostSettings.nodeServers.last.url),
+    NodeShot.picked => ServerPanelShot(pick: shippedHostSettings.nodeServers.elementAtOrNull(1)?.url ?? shippedHostSettings.nodeUse),
     _ => null,
   };
 
@@ -391,9 +391,9 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
     final list = ref.watch(deskServerListProvider(ServerKind.node));
     final listed = list == null ? all : [for (final n in all) if (list.has(ServerKind.node, n.url)) n];
 
-    // The word and state of the head: the same the rail shows. The down demo's mock wallet
+    // The word and state of the head: the same the rail shows. The down shot's mock wallet
     // still reaches its node, which would keep it Synced.
-    final nodeHealth = widget.arg == NodeDemo.down ? ServiceHealth.down : status.nodeHealth;
+    final nodeHealth = widget.arg == NodeShot.down ? ServiceHealth.down : status.nodeHealth;
     // An own node: the one state its panel's line shows too ([ownNodeView]), whichever node
     // stands in for it, so the field's dot never says Synced next to Not answering (#76).
     final NodeView view = prefs.builtin
@@ -472,8 +472,8 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                     busy: switching != null,
                     busyLabel: switching == null ? null : nodeSwitchText(l, switching),
                     error: _error,
-                    openInitially: widget.arg == NodeDemo.comboOpen,
-                    demo: _panelDemo,
+                    openInitially: widget.arg == NodeShot.comboOpen,
+                    shot: _panelShot,
                     onChoose: _pick,
                     onTest: _test,
                   ),
@@ -523,8 +523,8 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                     key: ValueKey('own-$chosenUrl'),
                     url: chosenUrl,
                     health: nodeHealth,
-                    initialTab: widget.arg == NodeDemo.ownPeers ? LocalTab.peers : LocalTab.status,
-                    openAccess: widget.arg == NodeDemo.ownDialog,
+                    initialTab: widget.arg == NodeShot.ownPeers ? LocalTab.peers : LocalTab.status,
+                    openAccess: widget.arg == NodeShot.ownDialog,
                   ),
                 // While switching, the old node's status would read as the new one's.
                 if (!prefs.builtin && !own && switching == null)
@@ -539,7 +539,7 @@ class _SettingsNodeScreenState extends ConsumerState<SettingsNodeScreen> {
                       onSwitch: (t) => _useRemote(t.url),
                     ),
                   ),
-                if (prefs.builtin) SetAnchor(id: SetId.localNode, child: LocalNodePanel(initialTab: widget.arg == NodeDemo.peers ? LocalTab.peers : LocalTab.status)),
+                if (prefs.builtin) SetAnchor(id: SetId.localNode, child: LocalNodePanel(initialTab: widget.arg == NodeShot.peers ? LocalTab.peers : LocalTab.status)),
                 if (prefs.builtin && DeskFeatures.nodeBackground)
                   ESetRow(
                     title: l.deskSetNodeBackground,

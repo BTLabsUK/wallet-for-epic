@@ -33,7 +33,7 @@ final historyBackupProvider = FutureProvider.autoDispose<HistoryBackupState>((re
 });
 
 /// Start states of the Backup group for the screenshots.
-enum BackupDemo { busy }
+enum BackupShot { busy }
 
 // English reads the formats without locale data (widget tests pump screens on their own).
 String _clock(AppLocalizations l, DateTime d) => l.localeName == 'en' ? DateFormat('HH:mm').format(d) : localClock(l, d);
@@ -108,9 +108,9 @@ String _notSaved(AppLocalizations l, Object e) {
 
 /// The Backup group, between This wallet and Files.
 class BackupGroup extends ConsumerStatefulWidget {
-  const BackupGroup({super.key, this.demo});
+  const BackupGroup({super.key, this.shot});
 
-  final BackupDemo? demo;
+  final BackupShot? shot;
 
   @override
   ConsumerState<BackupGroup> createState() => _BackupGroupState();
@@ -119,7 +119,7 @@ class BackupGroup extends ConsumerStatefulWidget {
 enum _Busy { export, import, csv }
 
 class _BackupGroupState extends ConsumerState<BackupGroup> {
-  late _Busy? _busy = widget.demo == BackupDemo.busy ? _Busy.export : null;
+  late _Busy? _busy = widget.shot == BackupShot.busy ? _Busy.export : null;
 
   void _idle() {
     if (mounted) setState(() => _busy = null);
@@ -287,12 +287,12 @@ Future<void> _openFolder(WidgetRef ref, String path) => ref.read(deskOpenFolderP
 Future<void> showExportHistoryDialog(BuildContext context, {VoidCallback? onSaved}) => showEDialog<void>(context, builder: (_) => ExportHistoryDialog(onSaved: onSaved));
 
 class ExportHistoryDialog extends ConsumerStatefulWidget {
-  const ExportHistoryDialog({super.key, this.savedDemo, this.onSaved});
+  const ExportHistoryDialog({super.key, this.savedShot, this.onSaved});
 
   final VoidCallback? onSaved;
 
   /// Opens in the saved state at this path (screenshots).
-  final String? savedDemo;
+  final String? savedShot;
 
   @override
   ConsumerState<ExportHistoryDialog> createState() => _ExportHistoryDialogState();
@@ -300,7 +300,7 @@ class ExportHistoryDialog extends ConsumerStatefulWidget {
 
 class _ExportHistoryDialogState extends ConsumerState<ExportHistoryDialog> {
   bool _saving = false;
-  late String? _saved = widget.savedDemo;
+  late String? _saved = widget.savedShot;
   String? _failed;
 
   String get _name => deskHistoryFileName(ref.read(historyBackupProvider).value?.network ?? 'mainnet', DateTime.now(), 'wfeh', wallet: _openWalletName(ref));
@@ -387,10 +387,10 @@ class _ExportHistoryDialogState extends ConsumerState<ExportHistoryDialog> {
 Future<void> showImportHistoryDialog(BuildContext context) => showEDialog<void>(context, builder: (_) => const ImportHistoryDialog());
 
 class ImportHistoryDialog extends ConsumerStatefulWidget {
-  const ImportHistoryDialog({super.key, this.doneDemo});
+  const ImportHistoryDialog({super.key, this.doneShot});
 
   /// Opens with this result (screenshots).
-  final ({String name, HistoryImport result, int settings, bool walletName})? doneDemo;
+  final ({String name, HistoryImport result, int settings, bool walletName})? doneShot;
 
   @override
   ConsumerState<ImportHistoryDialog> createState() => _ImportHistoryDialogState();
@@ -398,7 +398,7 @@ class ImportHistoryDialog extends ConsumerStatefulWidget {
 
 class _ImportHistoryDialogState extends ConsumerState<ImportHistoryDialog> {
   String? _reading;
-  late ({String name, HistoryImport result, int settings, bool walletName})? _done = widget.doneDemo;
+  late ({String name, HistoryImport result, int settings, bool walletName})? _done = widget.doneShot;
   HistoryFileError? _refused;
   String? _failed;
 

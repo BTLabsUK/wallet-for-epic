@@ -7,7 +7,7 @@ import 'dart:io';
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
-import 'package:epic_wallet/src/desktop/screens/settings/settings_node.dart' show NodeDemo;
+import 'package:epic_wallet/src/desktop/screens/settings/settings_node.dart' show NodeShot;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
@@ -254,7 +254,7 @@ void main() {
       });
 
       testWidgets('Settings row controls share sizes and edges, $at', (tester) async {
-        for (final (route, arg) in [for (final r in _settingsPages) (r, null), (DeskRoute.settingsNode, null), (DeskRoute.settingsNode, NodeDemo.builtin)]) {
+        for (final (route, arg) in [for (final r in _settingsPages) (r, null), (DeskRoute.settingsNode, null), (DeskRoute.settingsNode, NodeShot.builtin)]) {
           await _pump(tester, size, scale, route, arg: arg);
           _expectRowControls(tester, '${route.name} ${arg ?? ''}, $at');
           expect(tester.takeException(), isNull, reason: route.name);

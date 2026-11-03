@@ -6,7 +6,7 @@
 // itself. The sender is funded by the QA funder (/opt/epic/qa-funder), which needs a floonet
 // miner for its confirmations. Throwaway wallets; prints no phrase, password or address.
 //
-//   WFE_DEMO_LEPIC_LIB=<path to liblepic_ffi.so> WFE_FLOO_FUND=<path to fund.sh> \
+//   WFE_LEPIC_LIB=<path to liblepic_ffi.so> WFE_FLOO_FUND=<path to fund.sh> \
 //   [WFE_LIVE_RELAY=epicbox.stackwallet.com] flutter test test/desktop/sender_cancel_live_test.dart
 //
 // Without them it is skipped.
@@ -22,7 +22,7 @@ import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:flutter_test/flutter_test.dart';
 
-final String? _lib = Platform.environment['WFE_DEMO_LEPIC_LIB'];
+final String? _lib = Platform.environment['WFE_LEPIC_LIB'];
 final String? _fund = Platform.environment['WFE_FLOO_FUND'];
 final String _relay = Platform.environment['WFE_LIVE_RELAY'] ?? 'epicbox.stackwallet.com';
 
@@ -127,5 +127,5 @@ void main() {
     final mine = (await a.transactions(refresh: true)).where((t) => t.slateId == sent.slateId).single;
     log('A row: ${mine.kind.name}/${mine.status.name}');
     expect(mine.kind, TxKind.sentCancelled);
-  }, skip: _lib == null || _fund == null ? 'needs WFE_DEMO_LEPIC_LIB and WFE_FLOO_FUND' : false, timeout: const Timeout(Duration(minutes: 40)));
+  }, skip: _lib == null || _fund == null ? 'needs WFE_LEPIC_LIB and WFE_FLOO_FUND' : false, timeout: const Timeout(Duration(minutes: 40)));
 }

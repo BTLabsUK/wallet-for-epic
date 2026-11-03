@@ -4,7 +4,7 @@
 // a fresh app over the same folders, and its remembered password is forgotten. A PIN wallet
 // refuses a password change. Needs the Linux library:
 //
-//   WFE_DEMO_LEPIC_LIB=$PWD/third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so \
+//   WFE_LEPIC_LIB=$PWD/third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so \
 //   flutter test test/desktop/change_password_live_test.dart
 //
 // Without it it is skipped.
@@ -18,7 +18,7 @@ import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
 
-final String? _lib = Platform.environment['WFE_DEMO_LEPIC_LIB'];
+final String? _lib = Platform.environment['WFE_LEPIC_LIB'];
 
 const _old = 'old-live-pass-1';
 const _new = 'new-live-pass-2';
@@ -92,7 +92,7 @@ void main() {
     expect(await unlock(again, _new), isTrue);
     expect(await again.revealPhrase(_new), phrase);
     expect(secrets.values.keys.where((k) => k.endsWith('vault-next')), isEmpty, reason: 'the change settled');
-  }, skip: _lib == null ? 'needs WFE_DEMO_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 4)));
+  }, skip: _lib == null ? 'needs WFE_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 4)));
 
   test('a PIN wallet has no password to change', () async {
     final service = LepicWalletService(secrets: secrets, oneWalletPerChain: true);
@@ -105,5 +105,5 @@ void main() {
       created.session.changePassword(currentPassword: 'anything-1', newPassword: _new),
       throwsA(isA<core.WalletError>().having((e) => e.kind, 'kind', core.WalletErrorKind.unsupported)),
     );
-  }, skip: _lib == null ? 'needs WFE_DEMO_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 2)));
+  }, skip: _lib == null ? 'needs WFE_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 2)));
 }

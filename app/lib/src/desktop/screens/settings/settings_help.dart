@@ -81,12 +81,12 @@ TextSpan marked(BuildContext context, String text, List<String> words, TextStyle
 }
 
 /// Start states of Help for the screenshots: a topic open, or the end of the page with Tor open.
-enum HelpDemo { open, bottom }
+enum HelpShot { open, bottom }
 
 class SettingsHelpScreen extends ConsumerStatefulWidget {
   const SettingsHelpScreen({super.key, this.arg});
 
-  /// A search to start with (String), a [HelpDemo] or a [HelpAt].
+  /// A search to start with (String), a [HelpShot] or a [HelpAt].
   final Object? arg;
 
   @override
@@ -103,8 +103,8 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
   void initState() {
     super.initState();
     HardwareKeyboard.instance.addHandler(_onKey);
-    if (widget.arg == HelpDemo.bottom) WidgetsBinding.instance.addPostFrameCallback((_) => _show(_endKey, 1));
-    if (widget.arg == HelpDemo.open) WidgetsBinding.instance.addPostFrameCallback((_) => _show(_sectionKeys['how']!));
+    if (widget.arg == HelpShot.bottom) WidgetsBinding.instance.addPostFrameCallback((_) => _show(_endKey, 1));
+    if (widget.arg == HelpShot.open) WidgetsBinding.instance.addPostFrameCallback((_) => _show(_sectionKeys['how']!));
     if (widget.arg case HelpAt(:final section) when _sectionKeys.containsKey(section)) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _show(_sectionKeys[section]!));
     }
@@ -147,7 +147,7 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
   void _show(GlobalKey key, [double alignment = 0]) {
     final ctx = key.currentContext;
     if (ctx == null) return;
-    final instant = MediaQuery.of(context).disableAnimations || widget.arg is HelpDemo || widget.arg is HelpAt;
+    final instant = MediaQuery.of(context).disableAnimations || widget.arg is HelpShot || widget.arg is HelpAt;
     Scrollable.ensureVisible(ctx, alignment: alignment, duration: instant ? Duration.zero : Dur.slow, curve: Curves.easeOut);
   }
 
@@ -159,8 +159,8 @@ class _SettingsHelpScreenState extends ConsumerState<SettingsHelpScreen> {
 
   /// The topic open at the start for the screenshots.
   bool _openAtStart(HelpTopic t, int index) => switch (widget.arg) {
-    HelpDemo.open => t.handshake,
-    HelpDemo.bottom => t.id == HelpId.tor,
+    HelpShot.open => t.handshake,
+    HelpShot.bottom => t.id == HelpId.tor,
     HelpAt(:final id) when id.isNotEmpty => t.id == id,
     HelpAt(:final section, :final topic) => t.section == section && index == topic,
     _ => false,

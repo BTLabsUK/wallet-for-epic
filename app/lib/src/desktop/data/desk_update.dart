@@ -220,7 +220,7 @@ class DeskUpdateController extends Notifier<DeskUpdateState> {
   }
 
   /// The screenshot tour's states (`screens/settings/shots.dart`), as the mock node shows its own.
-  void showDemo(DeskUpdateState s) => state = s;
+  void showShot(DeskUpdateState s) => state = s;
 
   /// Checks once per run, when About first opens.
   Future<void> checkOnce() async {

@@ -12,8 +12,8 @@ import 'dialogs.dart';
 import 'setting_ids.dart';
 import 'settings_frame.dart';
 
-/// Demo states of the page for the tour's shots.
-enum SecurityDemo { autoLockOpen }
+/// States of the page for the tour's shots.
+enum SecurityShot { autoLockOpen }
 
 /// The button that opens Recovery phrase from Security.
 const settingsPhraseOpenKey = ValueKey('settings-phrase-open');
@@ -89,7 +89,7 @@ class _SettingsSecurityScreenState extends ConsumerState<SettingsSecurityScreen>
                   ),
                 ),
               ),
-              _AutoLockRow(open: widget.arg == SecurityDemo.autoLockOpen),
+              _AutoLockRow(open: widget.arg == SecurityShot.autoLockOpen),
               ESetRow(
                 anchor: SetId.password,
                 title: l.deskSetDlgPassword,

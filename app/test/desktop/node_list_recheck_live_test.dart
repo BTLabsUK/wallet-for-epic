@@ -3,7 +3,7 @@
 // recheck, not the blocks between the first check and the own node's. Needs the Linux library
 // and a mainnet node of your own (on this computer or reached through a tunnel):
 //
-//   WFE_DEMO_LEPIC_LIB=<path to liblepic_ffi.so> WFE_OWN_NODE=http://127.0.0.1:43413 \
+//   WFE_LEPIC_LIB=<path to liblepic_ffi.so> WFE_OWN_NODE=http://127.0.0.1:43413 \
 //   flutter test test/desktop/node_list_recheck_live_test.dart
 //
 // Without them it is skipped.
@@ -18,7 +18,7 @@ import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:flutter_test/flutter_test.dart';
 
-final String? _lib = Platform.environment['WFE_DEMO_LEPIC_LIB'];
+final String? _lib = Platform.environment['WFE_LEPIC_LIB'];
 final String? _own = Platform.environment['WFE_OWN_NODE'];
 
 const _password = 'recheck-live-pass-1';
@@ -92,5 +92,5 @@ void main() {
     final up = rows.where((r) => r.behind != null).toList();
     expect(up.length, greaterThan(1));
     expect(up.map((r) => r.behind), everyElement(lessThanOrEqualTo(1)), reason: line(rows));
-  }, skip: _lib == null || _own == null ? 'needs WFE_DEMO_LEPIC_LIB and WFE_OWN_NODE' : false, timeout: const Timeout(Duration(minutes: 15)));
+  }, skip: _lib == null || _own == null ? 'needs WFE_LEPIC_LIB and WFE_OWN_NODE' : false, timeout: const Timeout(Duration(minutes: 15)));
 }
