@@ -13,7 +13,7 @@ from . import client
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 # Same shape as drivers/core/recover.py PHRASE: 12+ short lower-case words in a row, maybe a recovery phrase.
-PHRASE = re.compile(r"(\b[a-z]{3,8}\b[\s|,]+){11,}")
+PHRASE = re.compile(r"(\b[a-z]{3,8}\b[\s|,]+){12,}")
 SECRET_KEY = re.compile(r"password|passphrase|phrase|seed|mnemonic", re.I)
 PLAYBOOK_STATES = ("open", "accepted", "rejected")
 PATH_STATES = ("new", "replayed", "reviewed", "promoted", "rejected")
@@ -337,7 +337,9 @@ def _drain_locked(db, budget):
                 ingest(conn, ev, size)
             except Refused:
                 _count_refused(conn)  # counted, never stored: the file goes away
-            except (Bad, ValueError, KeyError, TypeError, sqlite3.IntegrityError) as e:
+            except sqlite3.OperationalError:
+                raise  # busy, locked, disk: the file stays and the next drain tries again
+            except Exception as e:  # noqa: BLE001 - one unusable event must never stall the queue behind it
                 _bad(inbox, name, "%s: %s" % (type(e).__name__, e))
             except FileNotFoundError:
                 continue

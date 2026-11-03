@@ -29,16 +29,17 @@ class TdbCase(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.mkdtemp(prefix="testdb-", dir=os.environ.get("TMPDIR") or None)
         self.db = os.path.join(self.tmp, "tests.db")
-        self.old = os.environ.get("REL_TESTDB")
+        self.saved = {k: os.environ.get(k) for k in ("REL_TESTDB", "TESTDB_URL", "TESTDB_TOKEN", "REL_RUN_ID", "REL_STAGE")}
         os.environ["REL_TESTDB"] = self.db
-        os.environ.pop("TESTDB_URL", None)
-        os.environ.pop("TESTDB_TOKEN", None)
+        for k in ("TESTDB_URL", "TESTDB_TOKEN", "REL_RUN_ID", "REL_STAGE"):
+            os.environ.pop(k, None)
 
     def tearDown(self):
-        if self.old is None:
-            os.environ.pop("REL_TESTDB", None)
-        else:
-            os.environ["REL_TESTDB"] = self.old
+        for k, v in self.saved.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
         import shutil
         shutil.rmtree(self.tmp, ignore_errors=True)
 
@@ -101,6 +102,25 @@ class QueueTest(TdbCase):
         self.assertIsNone(client.emit("run.start", run="r"))  # under unittest, no path given: a no-op
         self.assertFalse(os.path.exists(self.db))
 
+    def test_unbindable_event_does_not_stall_the_queue(self):
+        client.emit("failure", run="r", lane="L", n=1, what=["a list is not text"])
+        client.emit("attempt.end", run="r", lane="L", n=1, rc=2 ** 70)
+        client.emit("run.start", run="good")
+        self.drain()
+        self.assertEqual(writer.pending(self.db), 0)
+        self.assertEqual(len(os.listdir(os.path.join(client.inbox_dir(self.db), "bad"))), 4)
+        self.assertEqual(self.q("SELECT run_id FROM runs WHERE state='running'")[0]["run_id"], "good")
+
+    def test_context_from_the_tools_rel_env(self):
+        stage = os.path.join(self.tmp, "run", "steps", "trust-x", "out")
+        os.makedirs(stage)
+        for n in (1, 2):
+            open(os.path.join(os.path.dirname(stage), "attempt-%d.log" % n), "w").close()
+        os.environ.update(REL_RUN_ID="rid", REL_STAGE=stage)
+        client.emit("step.start", step="open")
+        self.drain()
+        self.assertEqual(self.q("SELECT id FROM steps")[0]["id"], "rid/trust-x#2/open")
+
     def test_emit_never_raises(self):
         os.environ["REL_TESTDB"] = "/proc/nope/tests.db"
         self.assertIsNone(client.emit("run.start", run="r"))
@@ -109,14 +129,15 @@ class QueueTest(TdbCase):
 class SecretTest(TdbCase):
     def test_refused_events_are_counted_not_stored(self):
         phrase = " ".join("word" for _ in range(12))
+        client.emit("step.end", run="r", lane="L", n=1, step="ok11", detail=" ".join("word" for _ in range(11)))
         client.emit("step.end", run="r", lane="L", n=1, step="s", detail={"password": "x"})
         client.emit("step.end", run="r", lane="L", n=1, step="s", detail="typed " + phrase)
         client.emit("step.end", run="r", lane="L", n=1, step="s", seed="abc")
         client.emit("step.end", run="r", lane="L", n=1, step="s", detail="short words only here")
         self.drain()
-        self.assertEqual(self.q("SELECT COUNT(*) c FROM events")[0]["c"], 1)
+        self.assertEqual(self.q("SELECT COUNT(*) c FROM events")[0]["c"], 2)  # the 11-word text and the short one
         self.assertEqual(self.q("SELECT value FROM meta WHERE key='refused'")[0]["value"], "3")
-        self.assertNotIn("word word", json.dumps(self.q("SELECT body FROM events")))
+        self.assertNotIn(" ".join(["word"] * 12), json.dumps(self.q("SELECT body FROM events")))
         self.assertEqual(writer.pending(self.db), 0)
         self.assertFalse(os.path.exists(os.path.join(client.inbox_dir(self.db), "bad")))
 
@@ -136,6 +157,10 @@ class ServerTest(TdbCase):
                 return resp.status, json.loads(resp.read())
         except urllib.error.HTTPError as e:
             return e.code, json.loads(e.read())
+
+    def test_non_loopback_bind_needs_a_token(self):
+        with self.assertRaises(SystemExit):
+            server.make_server(self.db, "0.0.0.0:0")
 
     def test_post_then_drain_then_query(self):
         url = self.serve()

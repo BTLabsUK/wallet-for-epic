@@ -2,8 +2,8 @@
 """`testdb serve`: remote machines POST events here; the server only drops them into the inbox (the
 writer applies them). GET /q/<last|failures|live|playbook|paths> answers read-only JSON.
 
-No login of its own: bind it to the tailnet address only. TESTDB_TOKEN, when set on the server, is
-required from clients as a bearer token (set the same TESTDB_TOKEN on the posting machines)."""
+Bind it to the tailnet address only. A non-loopback bind refuses to start without TESTDB_TOKEN; clients
+send it as a bearer token (set the same TESTDB_TOKEN on the posting machines)."""
 import hmac
 import json
 import os
@@ -18,6 +18,8 @@ MAX_LIST = 500
 
 def make_server(db, bind="127.0.0.1:8765"):
     host, _, port = bind.rpartition(":")
+    if (host or "127.0.0.1") not in ("127.0.0.1", "localhost", "::1") and not os.environ.get("TESTDB_TOKEN"):
+        raise SystemExit("testdb serve: a non-loopback bind needs TESTDB_TOKEN (clients send it as a bearer token)")
     inbox = client.inbox_dir(db)
 
     class Handler(BaseHTTPRequestHandler):
@@ -39,7 +41,7 @@ def make_server(db, bind="127.0.0.1:8765"):
             if not token:
                 return True
             got = self.headers.get("Authorization", "")
-            return hmac.compare_digest(got, "Bearer " + token)
+            return hmac.compare_digest(got.encode("utf-8", "replace"), ("Bearer " + token).encode())
 
         def do_POST(self):
             if urlparse(self.path).path != "/events":

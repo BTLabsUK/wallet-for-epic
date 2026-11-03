@@ -29,13 +29,15 @@ Events (fields besides these are kept in the event body; `ts` defaults to now, U
   aipath.put     key, platform, goal, screen_sig, actions
   aipath.hit / aipath.fail   key
   aipath.set_state  key, state (new|replayed|reviewed|promoted|rejected), reviewed_by
-Missing run/lane/n fall back to the env WFE_RELEASE_RUN, WFE_RELEASE_STEP, WFE_RELEASE_ATTEMPT.
+Missing run/lane/n fall back to what tools/rel exports to a step: REL_RUN_ID, the step folder of REL_STAGE
+(lane) and its newest attempt-N.log (n). Reserved keyword names: kind, source, db, ts, eid.
 Any field named password/passphrase/phrase/seed/mnemonic, or any text with 12+ short lower-case
 words in a row, makes the writer refuse the whole event (counted, never stored).
 """
 import itertools
 import json
 import os
+import re
 import socket
 import sqlite3
 import sys
@@ -99,14 +101,31 @@ def cause_class(cause):
     return None
 
 
+def _context():
+    """run, lane and n of the step a driver runs in, from what tools/rel exports: REL_RUN_ID, and REL_STAGE
+    (<run>/steps/<lane>/out) whose step folder holds attempt-N.log for the running attempt N."""
+    run = os.environ.get("REL_RUN_ID") or os.environ.get("WFE_RELEASE_RUN")
+    lane = n = None
+    stage = os.environ.get("REL_STAGE")
+    if stage:
+        step_dir = os.path.dirname(os.path.normpath(stage))
+        lane = os.path.basename(step_dir)
+        try:
+            nums = [int(m.group(1)) for m in (re.fullmatch(r"attempt-(\d+)\.log", x) for x in os.listdir(step_dir)) if m]
+            n = max(nums) if nums else None
+        except OSError:
+            pass
+    return {"run": run, "lane": lane, "n": n}
+
+
 def make_event(kind, source, fields):
     seq = next(_seq)
     ns = time.time_ns()
     ev = {"eid": "%s-%s-%d-%d-%d" % (HOST, source, os.getpid(), ns, seq), "ts": fields.pop("ts", None) or now_ts(),
           "host": HOST, "source": source, "seq": seq, "kind": kind, "_ns": ns}
-    for field, env in (("run", "WFE_RELEASE_RUN"), ("lane", "WFE_RELEASE_STEP"), ("n", "WFE_RELEASE_ATTEMPT")):
-        if fields.get(field) is None and os.environ.get(env):
-            fields[field] = int(os.environ[env]) if field == "n" and os.environ[env].isdigit() else os.environ[env]
+    for field, value in _context().items():
+        if fields.get(field) is None and value is not None:
+            fields[field] = value
     if "eid" in fields:  # a caller's own id (the importer's): the same event twice is one event
         ev["eid"] = str(fields.pop("eid"))
     ev["body"] = {k: v for k, v in fields.items() if v is not None}
