@@ -8,6 +8,7 @@
 library;
 
 import 'package:flutter/widgets.dart';
+import 'package:intl/date_symbol_data_local.dart' show initializeDateFormatting;
 import 'package:intl/intl.dart';
 
 import '../l10n/app_localizations.dart';
@@ -92,41 +93,50 @@ String percentText(AppLocalizations l, num value, {int decimals = 0}) =>
 // Dates. English keeps the day-first style the app always had ("21 Sep 2026"); the other
 // languages use CLDR's patterns ("21. Sept. 2026", "2026年9月21日").
 
+bool _dateData = false;
+
+/// [t] in [format], with CLDR's names and patterns of every language loaded first (once, and at
+/// once: the Future only reports it). Material's localizations load them too, but a screen
+/// built without them (the desktop's settings in a test) formats the restore start as well.
+String _date(DateFormat Function() format, DateTime t) {
+  if (!_dateData) {
+    initializeDateFormatting();
+    _dateData = true;
+  }
+  return format().format(t);
+}
+
 /// `21 Sep 2026`.
-String localDay(AppLocalizations l, DateTime t) => (l.localeName == 'en'
-        ? DateFormat('d MMM y', 'en')
-        : DateFormat.yMMMd(l.localeName))
-    .format(t);
+String localDay(AppLocalizations l, DateTime t) =>
+    _date(() => l.localeName == 'en' ? DateFormat('d MMM y', 'en') : DateFormat.yMMMd(l.localeName), t);
 
 /// `21 Sep`.
-String localDayMonth(AppLocalizations l, DateTime t) => (l.localeName == 'en'
-        ? DateFormat('d MMM', 'en')
-        : DateFormat.MMMd(l.localeName))
-    .format(t);
+String localDayMonth(AppLocalizations l, DateTime t) =>
+    _date(() => l.localeName == 'en' ? DateFormat('d MMM', 'en') : DateFormat.MMMd(l.localeName), t);
 
 /// `September 2021`, `Wrzesień 2021`, `2021年9月`: a month and its year as a value on its own
 /// (the restore start), capitalised: Polish and Russian write the month small only inside a
 /// sentence.
 String localMonthYear(AppLocalizations l, DateTime t) {
-  final s = DateFormat.yMMMM(l.localeName).format(t);
+  final s = _date(() => DateFormat.yMMMM(l.localeName), t);
   return s.isEmpty ? s : s[0].toUpperCase() + s.substring(1);
 }
 
 /// `Sep`, `Sept.`, `9月`: a month's short name on its own (the standalone form: `wrz`, not
 /// a date's), in a month picker's grid.
 String localMonthShort(AppLocalizations l, DateTime t) =>
-    DateFormat.LLL(l.localeName).format(t);
+    _date(() => DateFormat.LLL(l.localeName), t);
 
 /// `September`: a month's full name, for a screen reader.
 String localMonthName(AppLocalizations l, DateTime t) =>
-    DateFormat.LLLL(l.localeName).format(t);
+    _date(() => DateFormat.LLLL(l.localeName), t);
 
 /// `2021`, `2021年`: a year as a picker's header shows it.
-String localYear(AppLocalizations l, DateTime t) => DateFormat.y(l.localeName).format(t);
+String localYear(AppLocalizations l, DateTime t) => _date(() => DateFormat.y(l.localeName), t);
 
 /// `14:05`, on the 24-hour clock in every language the app has.
 String localClock(AppLocalizations l, DateTime t) =>
-    DateFormat.Hm(l.localeName).format(t);
+    _date(() => DateFormat.Hm(l.localeName), t);
 
 // Names.
 

@@ -12,7 +12,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show FilteringTextInputFormatter;
 
 import '../desktop/desk_l10n.dart';
-import '../desktop/widgets/kit.dart' as desk;
+// The desktop layout lives with the desktop's widgets; the web build takes the phone's (the kit
+// reaches the desktop's state and dart:io, which the web build must not).
+import '../desktop/theme/tokens.dart' show DeskColors;
+import '../desktop/widgets/motion.dart' show ExpandFade;
+import '../desktop/widgets/scan_start_desk.dart' if (dart.library.js_interop) '../desktop/widgets/scan_start_desk_web.dart';
 import '../l10n.dart' hide L10nContext;
 import '../start_month.dart';
 import '../trust_ids.dart';
@@ -142,21 +146,28 @@ class ScanStart extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: controller,
-    builder: (context, _) => Theme.of(context).extension<desk.DeskColors>() != null ? _desk(context) : _phone(context),
+    builder: (context, _) => Theme.of(context).extension<DeskColors>() != null ? deskScanStart(context, this) : phone(context),
   );
 
-  bool get _picks => controller.dates || heights;
-  bool get _byMonth => controller.dates && controller.by == ScanStartBy.month;
-  bool get _both => controller.dates && heights;
+  /// Whether there is a start to pick (the calendar button and its choice).
+  bool get picks => controller.dates || heights;
 
-  InfoAction? _fromStartAction(AppLocalizations l) => controller.fromStart
+  /// The month choice shows (else the height field).
+  bool get byMonth => controller.dates && controller.by == ScanStartBy.month;
+
+  /// Both ways to pick, so the By month / By height switch shows.
+  bool get both => controller.dates && heights;
+
+  /// The info's Scan from the start, until the start is already chosen.
+  InfoAction? fromStartAction(AppLocalizations l) => controller.fromStart
       ? null
       : InfoAction(l.restoreScanFromStart, controller.scanFromStart, key: fromStartKey, semanticsId: ids.fromStart);
 
   /// The calendar button: one node that says whether the choice is open.
-  Widget _change(bool open, Widget button) => MergeSemantics(child: Semantics(expanded: open, child: button));
+  static Widget change(bool open, Widget button) => MergeSemantics(child: Semantics(expanded: open, child: button));
 
-  Widget _phone(BuildContext context) {
+  /// The phone's layout (and the web build's).
+  Widget phone(BuildContext context) {
     final l = context.l10n;
     final c = controller;
     final theme = Theme.of(context);
@@ -167,8 +178,8 @@ class ScanStart extends StatelessWidget {
         Row(
           children: [
             Expanded(child: Text(line(l, c), key: lineKey, style: theme.textTheme.bodyMedium)),
-            if (_picks)
-              _change(
+            if (picks)
+              change(
                 c.open,
                 IconButton(
                   key: changeKey,
@@ -180,12 +191,12 @@ class ScanStart extends StatelessWidget {
               ),
             TrustId(
               ids.info,
-              child: InfoHint(l.scanStartInfo, key: infoKey, title: l.scanStartInfoTitle, action: _fromStartAction(l)),
+              child: InfoHint(l.scanStartInfo, key: infoKey, title: l.scanStartInfoTitle, action: fromStartAction(l)),
             ),
           ],
         ),
-        if (_picks)
-          desk.ExpandFade(
+        if (picks)
+          ExpandFade(
             open: c.open,
             child: Padding(
               padding: const EdgeInsets.only(top: 8, bottom: 4),
@@ -193,7 +204,7 @@ class ScanStart extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (_both) ...[
+                  if (both) ...[
                     SegmentedButton<ScanStartBy>(
                       key: byKey,
                       segments: [
@@ -207,7 +218,7 @@ class ScanStart extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                   ],
-                  if (_byMonth)
+                  if (byMonth)
                     StartMonthChoice(
                       date: c.month.firstDay,
                       semanticsId: ids.month,
@@ -223,96 +234,6 @@ class ScanStart extends StatelessWidget {
                         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                         onChanged: (_) => c.heightChanged(),
                         decoration: InputDecoration(labelText: l.restoreStartHeightLabel, helperText: l.restoreStartHeightHelper),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _desk(BuildContext context) {
-    final l = context.l10n;
-    final c = controller;
-    final ts = context.ts;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(child: Text(line(l, c), key: lineKey, style: ts.body)),
-            SizedBox(width: desk.Sp.x1),
-            if (_picks)
-              _change(
-                c.open,
-                desk.EIconButton(
-                  key: changeKey,
-                  icon: desk.EIcons.calendar,
-                  label: l.scanStartChange,
-                  selected: c.open,
-                  semanticsId: ids.start,
-                  onPressed: c.toggle,
-                ),
-              ),
-            TrustId(
-              ids.info,
-              child: desk.EInfoHint(
-                l.scanStartInfo,
-                key: infoKey,
-                title: l.scanStartInfoTitle,
-                size: desk.Ctl.sm,
-                action: _fromStartAction(l),
-              ),
-            ),
-          ],
-        ),
-        if (_picks)
-          desk.ExpandFade(
-            open: c.open,
-            child: Padding(
-              padding: EdgeInsets.only(top: desk.Sp.x2, bottom: desk.Sp.x1),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (_both) ...[
-                    desk.ESegmented<ScanStartBy>(
-                      key: byKey,
-                      segments: [
-                        desk.ESegment(ScanStartBy.month, l.restoreStartByMonth, semanticsId: ids.byMonth),
-                        desk.ESegment(ScanStartBy.height, l.restoreStartByHeight, semanticsId: ids.byHeight),
-                      ],
-                      value: c.by,
-                      onChanged: c.pickBy,
-                    ),
-                    SizedBox(height: desk.Sp.x3),
-                  ],
-                  if (_byMonth)
-                    desk.EStartDate(
-                      date: c.month.firstDay,
-                      semanticsId: ids.month,
-                      onChanged: (d) => c.pickMonth(d == null ? defaultStartMonth : StartMonth.of(d)),
-                    )
-                  else
-                    ConstrainedBox(
-                      constraints: BoxConstraints(minWidth: desk.Ctl.rowWide),
-                      child: desk.EField(
-                        label: l.restoreStartHeightLabel,
-                        help: l.restoreStartHeightHelper,
-                        child: desk.EInput(
-                          key: heightKey,
-                          controller: c.height,
-                          mono: true,
-                          semanticLabel: l.restoreStartHeightLabel,
-                          semanticsId: ids.height,
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                          onChanged: (_) => c.heightChanged(),
-                        ),
                       ),
                     ),
                 ],
