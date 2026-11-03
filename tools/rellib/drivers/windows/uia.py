@@ -140,7 +140,7 @@ class WinSurface:
             st.add("editable")
         acts = tuple(a for a, p in (("press", "invoke"), ("set_text", "value"), ("scroll", "scroll")) if p in pat)
         return Node(i=i, role=role, name=name, id=d.get("aid") or None, value=val, states=frozenset(st), actions=acts,
-                    ref={"idx": i, "rid": d.get("rid"), "rect": d.get("rect") or [], "name": name})
+                    ref={"idx": i, "rid": d.get("rid"), "rect": d.get("rect") or [], "name": d.get("name") or ""})
 
     def _fresh(self, node):
         """The node as the app has it now: the same role and name, when the screen changed since the read."""
