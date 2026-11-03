@@ -28,7 +28,9 @@ REL_TRUST_BREAK is a comma list of:
     quit@<phase>[:s]        the app's process is killed as the phase starts (after s seconds): the lane
                             ends PRODUCT (the app quit), or HarnessGone when the surface went with it
     node-down               the first node the LEPIC CLI reads through is unreachable, once: it moves to
-                            the next node of the test order and logs it (INFRA node when all fail)
+                            the next node of the test order and logs it (INFRA node when all fail). The
+                            first CLI read is in fund, after which P has paid: Linux only (the Windows
+                            rig's CLI reads have no hook), and the 0.01 stays in the run's wallet
     ssh-timeout@<rig op>    the first ssh call of that rig op (entry, setup, store_init, start, ...) times
                             out once: windows_platform's retry_ssh tries it again and logs it
 Each kind ends in a named cause or a logged recovery, never a bare "not found".
