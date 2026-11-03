@@ -219,6 +219,17 @@ class WindowsServersTest(unittest.TestCase):
         self.assertEqual(c.exception.step, "recover")
 
 
+class WindowsHermeticOffTest(unittest.TestCase):
+    """The Windows lanes leave the hermetic plan off unless REL_HERMETIC_WINDOWS=1 (26.11.0 run-4)."""
+
+    def test_off_by_default(self):
+        self.assertFalse(hermetic.plan(P_LOCAL, env=wp.windows_env({}), svc=BOTH)["node"])
+        self.assertFalse(hermetic.plan(P_LOCAL, env=wp.windows_env({"REL_HERMETIC": "1"}), svc=BOTH)["node"])
+
+    def test_on_when_asked(self):
+        self.assertTrue(hermetic.plan(P_LOCAL, env=wp.windows_env({"REL_HERMETIC_WINDOWS": "1"}), svc=BOTH)["on"])
+
+
 class RigForwardTest(unittest.TestCase):
     """rig.py forward() on a fake ssh: the commands it would give the rig's ControlMaster."""
 

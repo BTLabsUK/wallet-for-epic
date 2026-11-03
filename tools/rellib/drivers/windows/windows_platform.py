@@ -12,7 +12,7 @@ through the shared LEPIC CLI from copies of its files.
 
 The hermetic node and relay on this host (core/hermetic.py plan) reach the rig's own 127.0.0.1 through
 an ssh remote forward on the rig's ControlMaster (rig.py forward(): code and unit tests only, never run
-on a rig yet); for a server that is not offered, a loopback stand-in of a public one runs inside the rig
+on a rig yet; off unless REL_HERMETIC_WINDOWS=1, windows_env); for a server that is not offered, a loopback stand-in of a public one runs inside the rig
 agent (agent.ps1). The stand-ins' ports are fixed when the agent has to be started again, so the
 servers the wallet was given stay valid.
 """
@@ -42,6 +42,16 @@ from rig import Rig, RigDead, RigError, candidate_sessions, describe, health, ta
 from uia import WinSurface  # noqa: E402
 
 AGENT_IDLE_MIN = 90
+
+
+def windows_env(env=None):
+    """The environment hermetic.plan reads here: off (the stand-ins) unless REL_HERMETIC_WINDOWS=1. The
+    forward's first live run (26.11.0 run-4) left the node picker unreadable once the local node was in
+    use, while the stand-ins path proved 26.10.26."""
+    env = os.environ if env is None else env
+    if env.get("REL_HERMETIC_WINDOWS") == "1":
+        return env
+    return dict(env, REL_HERMETIC="0")
 
 
 class WindowsPlatform(Platform):
@@ -93,7 +103,7 @@ class WindowsPlatform(Platform):
     def prepare(self):
         prev = None if self.create else self.setup_exe(self.prev_dir, self.prev_ver)
         cand = self.setup_exe(self.cand_dir, self.cand_ver)
-        self.hermetic = hermetic.plan(checks.P_ADDR)
+        self.hermetic = hermetic.plan(checks.P_ADDR, env=windows_env())
         self.log("hermetic: %s" % self.hermetic["reason"])
         self._pick_servers()
         os.makedirs(self.work, mode=0o700, exist_ok=True)
