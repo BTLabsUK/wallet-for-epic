@@ -2,6 +2,7 @@
 // The desktop's own updates (data/desk_update.dart, data/desk_update_apply.dart): the release
 // file in the signed manifest, the old clients' view of it, the download with its checks, the
 // timed checks, Restart to update, and the Windows and Linux appliers.
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -107,6 +108,31 @@ class _FakeApplier implements DeskUpdateApplier {
   Future<void> apply(File file) async {
     if (fails) throw const FileSystemException('no');
     applied.add(file);
+  }
+}
+
+/// A timer the test holds and runs by hand ([run]), in place of one the clock would run.
+class _HeldTimer implements Timer {
+  _HeldTimer(this.duration, this._callback, {required this.periodic});
+
+  final Duration duration;
+  final bool periodic;
+  final void Function(Timer) _callback;
+  bool _active = true;
+
+  @override
+  int tick = 0;
+
+  @override
+  bool get isActive => _active;
+
+  @override
+  void cancel() => _active = false;
+
+  void run() {
+    tick++;
+    if (!periodic) _active = false;
+    _callback(this);
   }
 }
 
@@ -535,19 +561,40 @@ Future<void> main(List<String> a) async {
 
     test('checks shortly after the wallet opens and then periodically, once scheduled', () async {
       var fetches = 0;
-      final c = make(schedule: (const Duration(milliseconds: 40), const Duration(milliseconds: 150)), onFetch: () => fetches++);
+      const first = Duration(minutes: 3), every = Duration(hours: 6);
+      final c = make(schedule: (first, every), onFetch: () => fetches++);
       final n = c.read(deskUpdateProvider.notifier);
-      n.schedule();
-      n.schedule();
-      await Future<void>.delayed(const Duration(milliseconds: 100));
+      // The schedule's timers are held and run here: counting checks against real waits is off
+      // on a loaded machine. Every other timer (the checks' own) runs as usual.
+      final timers = <_HeldTimer>[];
+      runZoned(() {
+        n.schedule();
+        n.schedule();
+      }, zoneSpecification: ZoneSpecification(
+        createTimer: (_, parent, zone, d, f) =>
+            d == first ? (timers..add(_HeldTimer(d, (_) => f(), periodic: false))).last : parent.createTimer(zone, d, f),
+        createPeriodicTimer: (_, parent, zone, d, f) =>
+            d == every ? (timers..add(_HeldTimer(d, f, periodic: true))).last : parent.createPeriodicTimer(zone, d, f),
+      ));
+      expect([for (final t in timers) (t.duration, t.periodic)], [(first, false), (every, true)], reason: 'one timer each');
+      // Runs [t] and waits for the check it starts to end.
+      Future<void> check(_HeldTimer t) {
+        final done = Completer<void>();
+        final sub = c.listen(deskUpdateProvider, (_, s) {
+          if (s.phase != DeskUpdatePhase.checking && !done.isCompleted) done.complete();
+        });
+        t.run();
+        return done.future.whenComplete(sub.close);
+      }
+
+      await check(timers.first);
       expect(fetches, 1, reason: 'the first check');
       expect(c.read(deskUpdateProvider).phase, DeskUpdatePhase.available);
-      await Future<void>.delayed(const Duration(milliseconds: 400));
-      expect(fetches, inInclusiveRange(3, 4), reason: 'every period after, one timer only');
+      await check(timers.last);
+      await check(timers.last);
+      expect(fetches, 3, reason: 'every period after');
       c.dispose();
-      final stopped = fetches;
-      await Future<void>.delayed(const Duration(milliseconds: 200));
-      expect(fetches, stopped, reason: 'no checks after the app is gone');
+      expect([for (final t in timers) t.isActive], [false, false], reason: 'no checks after the app is gone');
     }, skip: inAppUpdates ? null : 'no in-app updates in this build');
 
     group('an update that did not finish', () {
