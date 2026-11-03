@@ -422,7 +422,8 @@ class LaneModes(Store):
         self.assertIsNone(lane.seed.lock_holder())
 
     def test_create_mode(self):
-        with mock.patch.dict(os.environ, {"REL_TRUST_MODE": "create"}):
+        with mock.patch.dict(os.environ, {"REL_TRUST_MODE": "create", "REL_PREVIOUS_VERSION": "26.11.2",
+                                          "REL_CANDIDATE_VERSION": "26.11.3"}):
             r = FakeRecipe(OTHER, False)
             lane = self.lane(FakePlatform([0]), ["create_ok"], r)
             self.assertEqual(lane.main(), 0, lane.details)
@@ -430,6 +431,10 @@ class LaneModes(Store):
             self.assertIsNone(r.phrase)
             self.assertNotIn("phrase", lane.secrets)
             self.assertNoWord(json.dumps(lane.details))
+            with open(os.path.join(self.out, "result.txt")) as f:
+                self.assertEqual(f.read(), "PASS linux tor create 26.11.3\n")
+            with open(os.path.join(self.out, "proof.json")) as f:
+                self.assertIsNone(json.load(f)["previous"])
             bad = " ".join(OTHER.split()[:-1] + [OTHER.split()[0]])
             if not ls.validate(bad)[0]:
                 lane = self.lane(FakePlatform([0]), ["create_ok"], FakeRecipe(bad, False))

@@ -104,7 +104,8 @@ class Lane:
 
     def proof(self, extra=None):
         p = {"platform": self.p.name, "variant": self.p.variant,
-             "previous": os.environ.get("REL_PREVIOUS_VERSION"), "candidate": os.environ.get("REL_CANDIDATE_VERSION"),
+             "previous": None if self.mode == "create" else os.environ.get("REL_PREVIOUS_VERSION"),
+             "candidate": os.environ.get("REL_CANDIDATE_VERSION"),
              "update_method": self.p.update_method, "start": self.mode,
              "node": getattr(self.p, "node", None), "epicbox": getattr(self.p, "relay", None),
              "checks": {c: self.results.get(c, False) for c in self.required},
@@ -195,8 +196,9 @@ class Lane:
         """proof.json and result.txt for [code]."""
         proof = self.proof()
         line = self.fault.line() if self.fault else (
-            "PASS %s %s %s → %s%s" % (self.p.name, self.p.variant, proof["previous"], proof["candidate"],
-                                      " (recovered: %s)" % ", ".join(r["step"] for r in self.rec.used) if self.rec.used else "")
+            "PASS %s %s %s%s" % (self.p.name, self.p.variant, "create %s" % proof["candidate"] if self.mode == "create"
+                                 else "%s → %s" % (proof["previous"], proof["candidate"]),
+                                 " (recovered: %s)" % ", ".join(r["step"] for r in self.rec.used) if self.rec.used else "")
             if code == 0 else "PRODUCT checks false: " + "; ".join(
                 "%s (%s)" % (c, str(self.details.get(c, "not reached"))[:120]) for c in self.required if not self.results.get(c)))
         with open(os.path.join(self.out, "result.txt"), "w") as f:
