@@ -73,7 +73,36 @@ class Labels:
         if t is None:
             return None
         if re.search(r"\{\w+,\s*(plural|select)", t):
+            if t.lstrip().startswith("{"):
+                return _icu_branches(t)
             t = t.split("{", 1)[0]
             return re.escape(t.strip()) + r".*" if t.strip() else None
         parts = re.split(r"\{\w+\}", t)
         return ".+?".join(re.escape(p) for p in parts)
+
+
+def _icu_branches(t):
+    """A message that is one plural/select ("{count, plural, one{I have {count} word} other{...}}"): any of
+    its branches, the count and other placeholders matching any text. None when it does not parse."""
+    t = t.strip()
+    m = re.match(r"\{\w+,\s*(?:plural|select),\s*", t)
+    if not m or not t.endswith("}"):
+        return None
+    body, branches, i = t[m.end():-1], [], 0
+    while i < len(body):
+        j = body.find("{", i)
+        if j < 0:
+            break
+        depth, k = 1, j + 1
+        while k < len(body) and depth:
+            depth += {"{": 1, "}": -1}.get(body[k], 0)
+            k += 1
+        if depth:
+            return None
+        branches.append(body[j + 1:k - 1])
+        i = k
+    alts = []
+    for b in branches:
+        parts = re.split(r"\{\w+\}|#", b)
+        alts.append(".+?".join(re.escape(p) for p in parts))
+    return "(?:%s)" % "|".join(alts) if alts else None
