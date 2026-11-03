@@ -21,7 +21,11 @@
 #             tools/lepic-flutter.rev (cloned when missing from LEPIC_REPO / LEPIC_FLUTTER_REPO,
 #             default the public GitHub copies, as tools/lepic.sh does)
 #   lepic     liblepic_ffi.dylib for aarch64-apple-darwin and, with WFE_TOR=0, aarch64-apple-ios(-sim)
-#             into app/third_party/lepic-flutter/native/<target>/ beside a SHA256SUMS
+#             into app/third_party/lepic-flutter/native/<target>/ beside a SHA256SUMS, and a copy
+#             kept in the variant's out dir (native/<target>/). The steps that build or test against
+#             LEPIC (macos, ios-sim, ipa, smoke, live) first put the variant's copy back into the
+#             shared native/, so after `all` either variant's tests run with no rebuild:
+#             tools/build-apple.sh smoke live; WFE_TOR=0 tools/build-apple.sh smoke live
 #   macos     flutter build macos --release (arm64); the node and tor go into the bundle, then it
 #             is signed ad hoc
 #   dmg       the .app in a compressed .dmg with an Applications link
@@ -74,14 +78,16 @@
 #                              Contents/Resources/bin/epic. Without it the app has no built-in node.
 #   WFE_NODE_FETCH=1           fetch the node release pinned below (by SHA-256) when
 #                              WFE_NODE_BIN_MAC_ARM64 is not set (the release step sets it)
-#   CARGO_TARGET_DIR           LEPIC's cargo output (default app/third_party/lepic/target)
+#   CARGO_TARGET_DIR           LEPIC's cargo output (default app/third_party/lepic/target, and
+#                              target-notor with WFE_TOR=0, so a switch of variant rebuilds nothing)
 #   WFE_TOR=0                  the build without Tor (https://docs.btlabs.uk/developers/build/variants/): LEPIC without its
 #                              tor feature, no tor in the .app, --dart-define=WFE_TOR=false
 #   WFE_DIST=appstore          the App Store build (https://docs.btlabs.uk/developers/build/variants/): --dart-define=
 #                              WFE_DIST=appstore, so no update check or Check for updates button
 #                              and About says the App Store updates the app. iOS steps only
 #                              (ios-sim, ipa, ios-prepare); unset or web, the builds are as before
-#   SIM_DEVICE=<name or udid>  the Simulator (default: the first available iPhone)
+#   SIM_DEVICE=<name or udid>  the Simulator (default: a booted iPhone, else the first available
+#                              iPhone that is not an "iPhone Duo")
 #   RELEASE_VERSION=<version>  release-check (required): the release, e.g. 26.10.25; the app's
 #                              version must be it, and HEAD its tag v<version> (or RELEASE_COMMIT)
 #   RELEASE_COMMIT=<sha>       release-check: the commit the owner asked for (full or short)
@@ -105,6 +111,9 @@ macos_min=12.0
 ios_min=15.0
 darwin_targets=aarch64-apple-darwin
 ios_targets="aarch64-apple-ios aarch64-apple-ios-sim"
+# LEPIC's cargo output, one per variant: the two builds differ in features and would overwrite
+# each other's library.
+cargo_target="${CARGO_TARGET_DIR:-$lepic/$(if [ "${WFE_TOR:-1}" = 0 ]; then echo target-notor; else echo target; fi)}"
 desktop_name="BT Wallet"
 desktop_exe="btwallet"   # CFBundleExecutable: the file in Contents/MacOS
 phone_id=uk.btlabs.btwallet.ios
@@ -193,11 +202,13 @@ sources() {
 }
 
 # Copies the release library of $1 into the binding's native/$1/ with its SHA256SUMS, the layout
-# package:lepic's hook (iOS) and app/hook/build.dart (macOS) read.
+# package:lepic's hook (iOS) and app/hook/build.dart (macOS) read; then keeps a copy of that
+# folder in the variant's $out/native/$1/, which use_native puts back.
 package_library() {
   local dir="$binding/native/$1"
+  rm -rf "$dir"
   mkdir -p "$dir"
-  cp "${CARGO_TARGET_DIR:-$lepic/target}/$1/release/liblepic_ffi.dylib" "$dir/"
+  cp "$cargo_target/$1/release/liblepic_ffi.dylib" "$dir/"
   (cd "$dir" && printf '%s  liblepic_ffi.dylib\n' "$(sha256 liblepic_ffi.dylib)" > SHA256SUMS)
   # LEPIC's xtask writes the features beside each library; `tor` unless built without it.
   if [ "${WFE_TOR:-1}" = 0 ]; then : > "$dir/FEATURES"; else echo tor > "$dir/FEATURES"; fi
@@ -207,7 +218,23 @@ package_library() {
   [ -z "$(git -C "$lepic" status --porcelain --untracked-files=no)" ] || tree=modified
   printf 'lepic %s\ntree %s\n%s\n' "$(git -C "$lepic" rev-parse HEAD)" "$tree" \
     "$(cd "$lepic" && rustc --version)" > "$dir/SOURCE"
-  echo "packaged $dir/liblepic_ffi.dylib"
+  rm -rf "$out/native/$1"
+  mkdir -p "$out/native"
+  cp -R "$dir" "$out/native/$1"
+  echo "packaged $dir/liblepic_ffi.dylib (kept in $out/native/$1)"
+}
+
+# Puts this variant's LEPIC for the targets $@ (kept by the lepic step in $out/native/) into the
+# shared native/ the builds and tests read, so they never use the other variant's library.
+use_native() {
+  local t
+  for t in "$@"; do
+    [ -f "$out/native/$t/liblepic_ffi.dylib" ] || die "no LEPIC $t for this variant in $out/native: run $(if [ "${WFE_TOR:-1}" = 0 ]; then echo 'WFE_TOR=0 '; fi)tools/build-apple.sh sources lepic"
+    rm -rf "$binding/native/$t"
+    mkdir -p "$binding/native"
+    cp -R "$out/native/$t" "$binding/native/$t"
+  done
+  echo "LEPIC $(if [ "${WFE_TOR:-1}" = 0 ]; then echo without; else echo with; fi) Tor from $out/native: $*"
 }
 
 # LEPIC for the targets $1 (default: macOS, and iOS when it is built: WFE_TOR=0).
@@ -223,7 +250,7 @@ lepic_libs() {
   (cd "$lepic" && rustup target add $targets)
   # A plain cargo build per target: LEPIC's xtask packages iOS but has no macOS targets yet.
   for t in $targets; do
-    (cd "$lepic" && MACOSX_DEPLOYMENT_TARGET=$macos_min IPHONEOS_DEPLOYMENT_TARGET=$ios_min \
+    (cd "$lepic" && CARGO_TARGET_DIR="$cargo_target" MACOSX_DEPLOYMENT_TARGET=$macos_min IPHONEOS_DEPLOYMENT_TARGET=$ios_min \
       cargo build --package lepic-ffi --lib --locked --release --target "$t" $features)
     package_library "$t"
   done
@@ -293,6 +320,7 @@ macos() {
   [ "$dist" = web ] || die "WFE_DIST=$dist is for the iOS steps; the macOS app is the web build"
   local bundle="$app/build/macos/Build/Products/Release/$desktop_name.app"
   local res="$bundle/Contents/Resources/bin"
+  use_native $darwin_targets
   stage_bin
   # FLUTTER_MACOS_ARM64_ONLY: Flutter's switch for an arm64-only release build (ARCHS=arm64);
   # the project also excludes x86_64 (macos/Runner/Configs/AppInfo.xcconfig).
@@ -335,18 +363,28 @@ dmg() {
   result PASS dmg "bt-wallet-$version$(variant)-macos.dmg $(du -h "$out/bt-wallet-$version$(variant)-macos.dmg" | cut -f1)"
 }
 
-# The udid of SIM_DEVICE (a name or udid), else of the first available iPhone.
+# The udid of SIM_DEVICE (a name or udid), else of a booted iPhone, else of the first available
+# iPhone that is not an "iPhone Duo" (Xcode 27.2 made one on which the launch fails, exit 22).
 simulator() {
   local want="${SIM_DEVICE:-}"
   xcrun simctl list devices available -j | jq -r --arg want "$want" '
-    [.devices | to_entries[] | select(.key | test("iOS")) | .value[]
-     | select(if $want == "" then (.name | startswith("iPhone"))
-              else (.name == $want or .udid == $want) end)] | first | .udid // empty'
+    [.devices | to_entries[] | select(.key | test("iOS")) | .value[]] as $all
+    | if $want != "" then [$all[] | select(.name == $want or .udid == $want)]
+      else [$all[] | select(.name | startswith("iPhone")) | select(.name | startswith("iPhone Duo") | not)]
+           | [.[] | select(.state == "Booted")] + .
+      end
+    | first | .udid // empty'
+}
+
+# The LEPIC targets smoke and live run against: macOS, and the Simulator when iOS is built.
+test_native() {
+  if ios_built; then use_native $darwin_targets aarch64-apple-ios-sim; else use_native $darwin_targets; fi
 }
 
 ios_sim() {
   say "flutter build ios --simulator"
   [ "$(uname -m)" = arm64 ] || die "the Simulator build needs an Apple silicon Mac (LEPIC has no x86_64 Simulator library)"
+  use_native aarch64-apple-ios-sim
   (cd "$app" && flutter pub get && flutter build ios --simulator --debug -t lib/main.dart \
     --dart-define=WFE_BUILD_ID="$(build_id)" ${tor_def:+"$tor_def"} ${dist_def:+"$dist_def"})
   local bundle="$app/build/ios/iphonesimulator/Runner.app" udid
@@ -368,6 +406,7 @@ ios_sim() {
 # is; a team's certificate and profile have to sign it first.
 ipa() {
   say "flutter build ios --no-codesign"
+  use_native aarch64-apple-ios
   (cd "$app" && flutter pub get && flutter build ios --release --no-codesign -t lib/main.dart \
     --dart-define=WFE_BUILD_ID="$(build_id)" ${tor_def:+"$tor_def"} ${dist_def:+"$dist_def"})
   local bundle="$app/build/ios/iphoneos/Runner.app" stage="$out/ipa-stage"
@@ -447,6 +486,7 @@ tor_check() {
 
 smoke() {
   say smoke
+  test_native
   mkdir -p "$out"
   local status=0 udid
   if (cd "$app" && flutter test integration_test/simple_test.dart -d macos) > "$out/smoke-macos.log" 2>&1; then
@@ -497,6 +537,7 @@ smoke() {
 
 live() {
   say live
+  test_native
   mkdir -p "$out"
   local status=0 udid
   if (cd "$app" && flutter test integration_test/apple_live_test.dart -d macos --dart-define-from-file=integration_test/live-hosts.json ${tor_def:+"$tor_def"}) \
@@ -944,7 +985,7 @@ while [ $# -gt 0 ]; do
     handoff) handoff ;;
     dmg-signed) [ $# -gt 0 ] || die "dmg-signed needs the signed .app tar.gz"; dmg_signed "$1"; shift ;;
     gatekeeper) [ $# -gt 0 ] || die "gatekeeper needs the final .dmg"; gatekeeper "$1"; shift ;;
-    *) step=""; sed -n '2,91p' "$0" >&2; exit 2 ;;
+    *) step=""; sed -n '2,97p' "$0" >&2; exit 2 ;;
   esac
 done
 echo "results: $results"

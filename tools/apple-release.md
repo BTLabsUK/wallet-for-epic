@@ -257,6 +257,20 @@ tools/build-apple.sh all
 failed; the exit is non-zero if either failed. It ends with both `results.txt` files. `APPLE_OUT`,
 when set, is the parent of `tor/` and `notor/`.
 
+Each variant keeps its own LEPIC library (`build-apple/<variant>/native/`, from its `lepic` step)
+and its own cargo output, so after one `all` the tests of either variant run again at any time
+with no rebuild:
+
+```
+tools/build-apple.sh smoke live            # with Tor
+WFE_TOR=0 tools/build-apple.sh smoke live  # without Tor (also on the Simulator)
+```
+
+`macos`, `ios-sim`, `ipa`, `smoke` and `live` stop with a one-line message when their variant has
+no LEPIC yet: run `tools/build-apple.sh sources lepic` (`WFE_TOR=0` in front for the build without
+Tor). The Simulator is `SIM_DEVICE` when set, else a booted iPhone, else the first iPhone that is
+not an "iPhone Duo".
+
 Other commands of `tools/build-apple.sh` (no Apple account needed): `doctor`, `macos` and `dmg`
 (an ad-hoc build to try), `ios-sim`, `smoke`, `live`, `gatekeeper <dmg>`.
 
