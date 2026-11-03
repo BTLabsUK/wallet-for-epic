@@ -3,6 +3,7 @@
 """The Android G4 lane on the shared core (core/lane.py): android_platform.py for the emulator and the
 `adb install -r` update, core/phone.py on uiautomator for the screens, core/checks.py on the wallet's
 files. Called by ../trust-android.sh with the REL_* environment (see there)."""
+import json
 import os
 import signal
 import sys
@@ -25,14 +26,14 @@ from p_funder import P  # noqa: E402
 
 def required(funds):
     """REL_CHECKS, else every check (as linux/lane.py): the migration ones only for a candidate that
-    encrypts the store, the payment ones only with funds."""
+    encrypts the store, the candidate's payment ones only with funds (every lane funds the previous
+    release's wallet)."""
     given = [c.strip() for c in (os.environ.get("REL_CHECKS") or "").split(",") if c.strip()]
     if given:
         return given
     migrate = checks.migrating()[0]
-    base = ["wallet_opens", "balance_kept", "custom_nodes_kept", "custom_relays_kept"]  # settings_kept: see NOT_CHECKED
-    # without funds the wallet has no transaction: history has nothing to compare
-    return base + (checks.MIGRATION_CHECKS if migrate else []) + (["history_kept", "send_ok", "receive_ok"] if funds else [])
+    base = ["wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept", "custom_relays_kept"]  # settings_kept: see NOT_CHECKED
+    return base + (checks.MIGRATION_CHECKS if migrate else []) + (["send_ok", "receive_ok"] if funds else [])
 
 
 NOT_CHECKED = {"settings_kept": "settings_kept not checked on Android: theme/Technical details in Keystore-encrypted "
@@ -53,6 +54,24 @@ def keep_secrets(out, secrets, log):
                 f.write(v)
             os.chmod(p, 0o600)
     log("funds left: the test wallet's secrets kept in %s (0600) to send them back to P" % folder)
+
+
+def fail_closed(reason):
+    """trust-android.sh could not start the lane: result.txt and a proof.json with every required check false."""
+    e = os.environ
+    out = os.path.abspath(e.get("REL_OUT") or ".")
+    os.makedirs(out, exist_ok=True)
+    f = HarnessFault("start", reason)
+    req = required(e.get("REL_FUNDS", "1") == "1")
+    proof = {"platform": "android", "variant": e.get("REL_VARIANT", "tor"),
+             "previous": e.get("REL_PREVIOUS_VERSION"), "candidate": e.get("REL_CANDIDATE_VERSION"),
+             "checks": {c: False for c in req}, "details": {c: "not performed: %s" % reason for c in req},
+             "fault": {"kind": f.kind, "step": f.step, "what": f.what, "shot": None, "line": f.line()}}
+    with open(os.path.join(out, "proof.json"), "w") as fh:
+        json.dump(proof, fh, indent=1)
+    with open(os.path.join(out, "result.txt"), "w") as fh:
+        fh.write(f.line() + "\n")
+    return 2
 
 
 def main():
@@ -82,6 +101,14 @@ def main():
             paid.append(amount)
         return ok, out_
     funder.send = counted
+    returned = []  # the sends back to P that the wallet's data shows confirmed (send_ok is unset without REL_FUNDS)
+    send_to_p = checks._send_to_p
+
+    def tracked(lane_, d0):
+        ok, why = send_to_p(lane_, d0)
+        returned.append(ok)
+        return ok, why
+    checks._send_to_p = tracked
 
     def recipe_for(lane, which, surface):
         d = Driver(surface, Labels.for_build(which), lane.rec, out=lane.out, log=lane.log)
@@ -92,7 +119,7 @@ def main():
     signal.signal(signal.SIGTERM, stopped)
     lane = Lane(plat, recipe_for, checks, out=out, log=log, required=required(funds), funds=funds, p=funder)
     rc = lane.main()
-    if paid and not lane.results.get("send_ok"):
+    if paid and not any(returned):
         keep_secrets(out, lane.secrets, log)
     lane.details.setdefault("signer", plat.certs.get("previous"))
     gaps = {c: why for c, why in NOT_CHECKED.items() if c not in lane.required}
@@ -108,4 +135,7 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    if sys.argv[1:2] == ["checks"]:  # the dry run's plan
+        print(",".join(required(os.environ.get("REL_FUNDS", "1") == "1")))
+        sys.exit(0)
+    sys.exit(fail_closed(sys.argv[2]) if sys.argv[1:2] == ["fail"] else main())

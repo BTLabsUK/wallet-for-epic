@@ -2,8 +2,7 @@
 # G4 update trust, Android: a user on the PREVIOUS release who updates to the CANDIDATE keeps the
 # wallet, its balance and history, their own node and Epicbox relay, and their settings; then the
 # candidate sends to and receives from P through Epicbox. Driven on an emulator with uiautomator by
-# the shared core (android/lane.py: core/lane.py, core/phone.py, android/android_platform.py);
-# REL_TRUST_DRIVER=v1 runs the old android/trust.py instead.
+# the shared core (android/lane.py: core/lane.py, core/phone.py, android/android_platform.py).
 #
 # Environment (the runner's contract):
 #   REL_PREVIOUS_DIR, REL_PREVIOUS_VERSION   previous release folder (emulator/bt-wallet-<v>[-notor]-android-x86_64.apk,
@@ -11,26 +10,24 @@
 #   REL_CANDIDATE_DIR, REL_CANDIDATE_VERSION candidate's published files
 #   REL_CANDIDATE_EXTRA                      candidate's non-published folder (emulator/…x86_64.apk)
 #   REL_VARIANT        tor | notor
-#   REL_CHECKS         comma list of checks that must be true (default: all eight but settings_kept, and for a candidate from 26.10.25 the
-#                      four migration checks: store_encrypted, app_files_kept, lan_nodes_kept, contact_note_kept)
-#   REL_FUNDS          1 = also send_ok / receive_ok, 0 = data checks only
+#   REL_CHECKS         comma list of checks that must be true (default, android/lane.py: all eight but settings_kept,
+#                      without send_ok,receive_ok when REL_FUNDS=0, and for a candidate from 26.10.25 the four
+#                      migration checks: store_encrypted, app_files_kept, lan_nodes_kept, contact_note_kept)
+#   REL_FUNDS          1 = also receive from and send to P with the candidate; 0 = not (P still funds the
+#                      previous release's wallet and the balance goes back to P)
 #   REL_NODE           node to type in, e.g. https://node.btlabs.uk (unset: health pick below)
 #   REL_EPICBOX        Epicbox relay to type in, e.g. epicbox.stackwallet.com (unset: health pick)
-#   REL_OUT            proof.json, logs, shots/ (debug) and screens/ (catalogue: screens.json + PNGs) go here
+#   REL_OUT            result.txt, proof.json, trust.log and shots/ go here
 #   REL_DRY_RUN=1      print the plan, touch nothing, exit 0
 # Optional:
-#   REL_ANDROID_SERIAL a running emulator to use (else REL_ANDROID_AVD, default wfe_trust_<variant>
-#                      (v1: wfe_api36, read-only), is started headless on port REL_ANDROID_PORT,
+#   REL_ANDROID_SERIAL a running emulator to use (else REL_ANDROID_AVD, default wfe_trust_<variant>,
+#                      is started headless on port REL_ANDROID_PORT,
 #                      default 5580 for tor and 5582 for notor, and stopped at the end;
 #                      REL_ANDROID_KEEP=1 leaves it running)
 #   REL_TRUST_START    auto | state | fresh, REL_TRUST_SAVE_STATE, REL_TRUST_STATE_ROOT: saved end
 #                      states (core/state.py; on Android an emulator snapshot of the AVD)
 #   REL_TRUST_BREAK    break tests (core/breaks.py); never in a release run
-#   REL_TRUST_STATE    (v1) where the test wallet's phrase and PIN are kept (mode 600; default
-#                      ~/.config/btlabs/rel-trust-android for tor, ~/.config/btlabs/rel-wallet-q
-#                      for notor: wallet Q, docs/RELEASING.md "Test wallets"); empty = a new
-#                      wallet funded from P. One run per wallet at a time (flock on its .lock).
-#   REL_P_*            P settings, see android/pfund.py
+#   REL_P_TOOL, REL_P_PASS_FILE, REL_P_PASS_LINE, REL_P_LOCK  the P funder (linux/p_funder.py)
 # Exit: 0 every check in REL_CHECKS true; 1 some false (not proven); 2 could not run.
 # Also writes $REL_OUT/emulator.json (boot time, booted, alive at the end) for the runner's metrics.
 set -uo pipefail
@@ -38,14 +35,6 @@ here="$(cd "$(dirname "$0")" && pwd)"
 drv="$here/android"
 sdk="${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}"
 export ADB="${ADB:-$sdk/platform-tools/adb}"
-# settings_kept is not in it: the theme and Technical details are in Keystore-encrypted storage, the LEPIC CLI
-# does not report the confirmations, and the phone has no wallets.json label (the proof says so).
-CHECKS_ALL=wallet_opens,balance_kept,history_kept,custom_nodes_kept,custom_relays_kept,send_ok,receive_ok
-# A candidate that encrypts the wallet database (26.10.25 on) must also pass the migration checks.
-if [[ "$(printf '%s\n' 26.10.25 "${REL_CANDIDATE_VERSION:-0}" | sort -V | head -1)" == 26.10.25 ]]; then
-  CHECKS_ALL+=,store_encrypted,app_files_kept,lan_nodes_kept,contact_note_kept
-fi
-export REL_CHECKS="${REL_CHECKS:-$CHECKS_ALL}"
 export REL_FUNDS="${REL_FUNDS:-1}" REL_VARIANT="${REL_VARIANT:-tor}"
 dry="${REL_DRY_RUN:-0}"
 
@@ -53,19 +42,15 @@ say() { echo "trust-android: $*" >&2; }
 cannot() { # reason: write a fail-closed proof (when REL_OUT is known) and exit 2
   say "cannot run: $1"
   if [[ -n "${REL_OUT:-}" && "$dry" != 1 ]]; then
-    mkdir -p "$REL_OUT" && python3 -I "$drv/trust.py" fail "$1" >/dev/null 2>&1
+    mkdir -p "$REL_OUT" && python3 -I "$drv/lane.py" fail "$1" >/dev/null 2>&1
   fi
   exit 2
 }
 
 [[ -n "${REL_OUT:-}" ]] || cannot "REL_OUT is not set"
 case "$REL_VARIANT" in tor | notor) ;; *) cannot "REL_VARIANT must be tor or notor, not '$REL_VARIANT'" ;; esac
-# Each variant its own test wallet and emulator, so the two run at the same time.
-if [[ "$REL_VARIANT" == notor ]]; then
-  export REL_TRUST_STATE="${REL_TRUST_STATE:-$HOME/.config/btlabs/rel-wallet-q}"; default_port=5582
-else
-  export REL_TRUST_STATE="${REL_TRUST_STATE:-$HOME/.config/btlabs/rel-trust-android}"; default_port=5580
-fi
+# Each variant its own emulator, so the two run at the same time.
+if [[ "$REL_VARIANT" == notor ]]; then default_port=5582; else default_port=5580; fi
 
 # The x86_64 emulator APK of a release folder for the variant: bt-wallet-<v>[-notor]-android-x86_64.apk,
 # or epic-cash-mobile-<v>[-notor]-x86_64.apk in a release made before the rename.
@@ -90,16 +75,6 @@ cand_apk="$(apk_in "${REL_CANDIDATE_EXTRA:-/nonexistent}" "${REL_CANDIDATE_VERSI
   if [[ "$dry" == 1 ]]; then cand_apk="<not built yet: ${REL_CANDIDATE_EXTRA:-REL_CANDIDATE_EXTRA}/emulator>"; else
   cannot "no candidate $REL_VARIANT x86_64 APK under REL_CANDIDATE_EXTRA/emulator or REL_CANDIDATE_DIR/emulator"; fi
 export REL_PREVIOUS_APK="$prev_apk" REL_CANDIDATE_APK="$cand_apk"
-# The package of each APK (aapt2 badging). They differ across the 26.10.25 app id change
-# (uk.btlabs.epiccash.mobile → uk.btlabs.btwallet, authorised 2026-11-02): trust.py then installs
-# the candidate beside the previous app instead of over it.
-apk_pkg() { # apk → package, or nothing
-  local a; a="$(ls -d "$sdk"/build-tools/*/aapt2 2>/dev/null | sort -V | tail -1)"
-  [[ -f "$1" && -n "$a" ]] && "$a" dump badging "$1" 2>/dev/null | sed -n "s/^package: name='\([^']*\)'.*/\1/p"
-}
-prev_pkg="$(apk_pkg "$prev_apk")" cand_pkg="$(apk_pkg "$cand_apk")"
-beside=0
-[[ -n "$prev_pkg" && -n "$cand_pkg" && "$prev_pkg" != "$cand_pkg" ]] && beside=1
 
 # Health pick, BT Labs first, when the runner gave none.
 node_ok() { curl -fsS -m 10 "$1/v1/status" 2>/dev/null | grep -q '"height"'; }
@@ -126,115 +101,34 @@ export REL_NODE REL_EPICBOX
 [[ -n "$picked" ]] && say "health pick (${picked# }$([[ "$dry" == 1 ]] && echo ", dry run: first in line, not checked")): node $REL_NODE, epicbox $REL_EPICBOX"
 
 port="${REL_ANDROID_PORT:-$default_port}"
-if [[ "${REL_TRUST_DRIVER:-v2}" != v1 ]]; then
-  avd="${REL_ANDROID_AVD:-wfe_trust_$REL_VARIANT}"
-  if [[ "$dry" == 1 ]]; then
-    cat <<EOF
-trust-android plan (v2, $REL_VARIANT, funds=$REL_FUNDS, required: $REL_CHECKS)
+avd="${REL_ANDROID_AVD:-wfe_trust_$REL_VARIANT}"
+if [[ "$dry" == 1 ]]; then
+  cat <<EOF
+trust-android plan ($REL_VARIANT, funds=$REL_FUNDS, required: ${REL_CHECKS:-$(python3 -I "$drv/lane.py" checks)})
   emulator   ${REL_ANDROID_SERIAL:-start AVD $avd headless (writable), emulator-$port; stopped at the end}
   signer     both APKs must carry the same certificate (apksigner); it goes in proof.json and the saved state
   start      ${REL_TRUST_START:-auto}: a saved $REL_VARIANT state of ${REL_PREVIOUS_VERSION:-?} (emulator snapshot) when one fits, else fresh
   fresh      adb uninstall; adb install $prev_apk; create a wallet (PIN, phrase read off Settings › Security);
              node $REL_NODE and Epicbox $REL_EPICBOX in use, loopback stand-ins added (adb reverse); Light, 1 confirmation, Technical details on
-  fund       P pays the wallet; digest from the app's files (adb root)
+  fund       P pays the wallet (every lane); digest from the app's files (adb root)
   update     app stopped; adb install -r $cand_apk
   candidate  launch, unlock with the PIN; digest again; compare
-  funds      $( [[ "$REL_FUNDS" == 1 ]] && echo "send to P and receive from P by Epicbox; everything back to P" || echo "skipped (REL_FUNDS=0)")
+  funds      $( [[ "$REL_FUNDS" == 1 ]] && echo "receive from P and send to P by Epicbox; everything back to P" || echo "everything back to P (REL_FUNDS=0: not checked)")
   out        $REL_OUT/result.txt, proof.json, trust.log, shots/, logcat.txt, emulator.json
-EOF
-    exit 0
-  fi
-  mkdir -p "$REL_OUT" || exit 2
-  # One lane per emulator: the AVD's disk and snapshots are the lane's.
-  lockdir="$HOME/.cache/rel-trust-android"
-  mkdir -p -m 700 "$lockdir" && exec 8>>"$lockdir/$avd.lock" || cannot "cannot open $lockdir/$avd.lock"
-  flock -n 8 || { say "AVD $avd in use: waiting for its lock"; flock -w 3600 8; } || cannot "AVD $avd busy for an hour"
-  export REL_ANDROID_AVD="$avd" REL_ANDROID_PORT="$port"
-  say "previous $prev_apk"
-  say "candidate $cand_apk"
-  python3 -I "$drv/lane.py" >"$REL_OUT/lane.out" 2>&1
-  rc=$?
-  case $rc in 0 | 1 | 2) ;; *) rc=2 ;; esac
-  [[ -f "$REL_OUT/result.txt" ]] && say "$(cat "$REL_OUT/result.txt")"
-  say "exit $rc ($( ((rc == 0)) && echo proven || { ((rc == 1)) && echo 'not proven' || echo 'could not run'; }))"
-  exit $rc
-fi
-avd="${REL_ANDROID_AVD:-wfe_api36}"
-if [[ "$dry" == 1 ]]; then
-  cat <<EOF
-trust-android plan ($REL_VARIANT, funds=$REL_FUNDS, required: $REL_CHECKS)
-  emulator   ${REL_ANDROID_SERIAL:-start AVD $avd read-only, headless, emulator-$port; stopped at the end}
-  packages   previous ${prev_pkg:-?}, candidate ${cand_pkg:-?}$([[ $beside == 1 ]] && echo ": different, the candidate goes in BESIDE the previous app (5 and 6 below)")
-  1 install  adb uninstall ${prev_pkg:-<previous package>} (and ${cand_pkg:-<candidate package>}); adb install $prev_apk
-  2 wallet   restore the test wallet from $REL_TRUST_STATE/phrase (none: create one, keep its phrase, P funds it); holds $REL_TRUST_STATE/.lock
-             a first-start level picker ("Pick your view", builds that have one): Deep end (level 3), Undercover off
-  3 user     node $REL_NODE typed in and in use; relay $REL_EPICBOX typed in and in use;
-             Theme ${REL_TRUST_THEME:-Dark}, Technical details on, Confirmations ${REL_TRUST_CONFIRMATIONS:-1}
-  4 digest   address, Total/Spendable, Activity rows, Node and Epicbox lists, settings
-  4b seed    (candidate 26.10.25 on) app stopped, adb root: a contact in contacts.json, a note in wfe_meta.json, the stand-in node in lan_nodes.json; file set read
-  5 update   adb install -r $cand_apk  (same signature, as the in-app updater's PackageInstaller)
-  6 open     launch, unlock with the PIN, digest again, compare; the level picker showing = wallet_opens false;
-             a candidate with levels must read level 3 in Settings › Advanced (settings_kept; proof "levels")
-  6b files   (candidate 26.10.25 on) wallet.enc.sqlite3 + .check present, wallet.sqlite3 absent, .pre-encryption kept; sealed app files + contacts.keys wrap, plain files unchanged;
-             [node] plain_http holds lan_nodes.json's agreements; the contact and note read in the app
-  beside     (packages differ) previous app stopped; adb install $cand_apk beside it; the test wallet restored there
-             from its phrase and set to Settings › Advanced › Wallet view › Deep end (a fresh install opens at
-             level 1); wallet_opens and balance_kept (same wallet key, same total); history, servers, settings
-             and the migration checks not applicable and not required
-  7 funds    $( [[ "$REL_FUNDS" == 1 ]] && echo "through the shared P service (no lock): send ${REL_TRUST_SEND:-0.01} to P, receive ${REL_TRUST_RECEIVE:-0.02} from P, by Epicbox" || echo "skipped (REL_FUNDS=0)")
-  out        $REL_OUT/proof.json, driver.log, screens.log, p.log, shots/
 EOF
   exit 0
 fi
-
 mkdir -p "$REL_OUT" || exit 2
-[[ -x "$ADB" ]] || cannot "adb not found at $ADB"
-# One run per test wallet: two emulators restoring the same wallet would spend the same outputs.
-# Wallet Q's CLI copy takes the same lock (docs/RELEASING.md "Test wallets").
-mkdir -p -m 700 "$REL_TRUST_STATE" && exec 8>>"$REL_TRUST_STATE/.lock" || cannot "cannot open $REL_TRUST_STATE/.lock"
-flock -n 8 || { say "test wallet $REL_TRUST_STATE in use: waiting for its lock"; flock -w 3600 8; } ||
-  cannot "test wallet $REL_TRUST_STATE busy for an hour (its .lock)"
-started="" boot_s="" booted=0
-emu_health() { # alive: 1|0 — the emulator's health for the runner's metrics (metrics.jsonl)
-  printf '{"avd": "%s", "port": %s, "own_emulator": %s, "booted": %s, "boot_s": %s, "alive_at_end": %s}\n' \
-    "$avd" "$port" "$([[ -n "$started" ]] && echo true || echo false)" "$([[ $booted == 1 ]] && echo true || echo false)" \
-    "${boot_s:-null}" "$([[ $1 == 1 ]] && echo true || echo false)" >"$REL_OUT/emulator.json"
-}
-stop_emu() {
-  if [[ -n "$started" ]]; then
-    "$ADB" -s "emulator-$port" emu kill >/dev/null 2>&1
-    for _ in $(seq 1 30); do kill -0 "$started" 2>/dev/null || break; sleep 1; done
-    kill "$started" 2>/dev/null
-  fi
-}
-trap stop_emu EXIT
-if [[ -n "${REL_ANDROID_SERIAL:-}" ]]; then
-  [[ "$("$ADB" -s "$REL_ANDROID_SERIAL" get-state 2>/dev/null)" == device ]] ||
-    cannot "emulator $REL_ANDROID_SERIAL is not online"
-else
-  "$ADB" devices | grep -q "^emulator-$port\b" && cannot "emulator-$port is already in use (set REL_ANDROID_SERIAL or REL_ANDROID_PORT)"
-  "$sdk/emulator/emulator" -list-avds 2>/dev/null | grep -qx "$avd" || cannot "no AVD $avd"
-  setsid "$sdk/emulator/emulator" -avd "$avd" -read-only -no-window -no-audio -no-boot-anim \
-    -port "$port" -gpu swiftshader_indirect >"$REL_OUT/emulator.log" 2>&1 </dev/null &
-  started=$! t_boot=$SECONDS
-  export REL_ANDROID_SERIAL="emulator-$port"
-  for _ in $(seq 1 90); do
-    [[ "$("$ADB" -s "$REL_ANDROID_SERIAL" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" == 1 ]] && { booted=1; break; }
-    kill -0 "$started" 2>/dev/null || break
-    sleep 2
-  done
-  boot_s=$((SECONDS - t_boot))
-  [[ $booted == 1 ]] || { emu_health 0; cannot "emulator $avd did not boot in ${boot_s}s (see $REL_OUT/emulator.log)"; }
-  "$ADB" -s "$REL_ANDROID_SERIAL" shell settings put global window_animation_scale 0 >/dev/null 2>&1
-  "$ADB" -s "$REL_ANDROID_SERIAL" shell settings put global transition_animation_scale 0 >/dev/null 2>&1
-fi
+# One lane per emulator: the AVD's disk and snapshots are the lane's.
+lockdir="$HOME/.cache/rel-trust-android"
+mkdir -p -m 700 "$lockdir" && exec 8>>"$lockdir/$avd.lock" || cannot "cannot open $lockdir/$avd.lock"
+flock -n 8 || { say "AVD $avd in use: waiting for its lock"; flock -w 3600 8; } || cannot "AVD $avd busy for an hour"
+export REL_ANDROID_AVD="$avd" REL_ANDROID_PORT="$port"
 say "previous $prev_apk"
 say "candidate $cand_apk"
-say "serial $REL_ANDROID_SERIAL, node $REL_NODE, epicbox $REL_EPICBOX, out $REL_OUT"
-python3 -I "$drv/trust.py" run
+python3 -I "$drv/lane.py" >"$REL_OUT/lane.out" 2>&1
 rc=$?
-[[ -n "$started" ]] || booted=1
-[[ "$("$ADB" -s "$REL_ANDROID_SERIAL" get-state 2>/dev/null)" == device ]] && emu_health 1 || emu_health 0
 case $rc in 0 | 1 | 2) ;; *) rc=2 ;; esac
+[[ -f "$REL_OUT/result.txt" ]] && say "$(cat "$REL_OUT/result.txt")"
 say "exit $rc ($( ((rc == 0)) && echo proven || { ((rc == 1)) && echo 'not proven' || echo 'could not run'; }))"
 exit $rc
