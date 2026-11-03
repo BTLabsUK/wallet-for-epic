@@ -147,7 +147,10 @@ def _pay(lane, address, amount, tag, what, count_dir="incoming"):
         _unlock(lane)
         if not p.start_listener():
             raise HarnessFault("fund", "P's listener did not start (3 tries)")
-        ok, out = p.send(address, amount)
+        relay = host(getattr(lane.p, "relay", "") or "")
+        # the wallet listens on the relay in use only: a bare address would go to P's own default
+        full = address if "@" in address or not relay else "%s@%s" % (address, relay)
+        ok, out = p.send(full, amount)
         lane.log("P -> %s %s: %s (%s)" % (short(address), amount, "sent" if ok else "FAILED", out))
         if not ok:
             raise HarnessFault("fund", "P send failed: %s" % out)
