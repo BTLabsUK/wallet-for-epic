@@ -12,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 final Finder _field = find.byKey(EStartMonthField.fieldKey);
 Finder _month(int y, int m) => find.byKey(EStartMonthPicker.monthKey(StartMonth(y, m)));
 final Finder _popover = find.byType(EStartMonthPicker);
@@ -61,7 +63,7 @@ void main() {
 
   testWidgets('a mouse click on an offered month picks it and closes the popover', (tester) async {
     final picked = await host(tester);
-    expect(find.text('Pick a month'), findsOneWidget);
+    expect(find.text(_l.restorePickMonthShort), findsOneWidget);
     await open(tester);
     expect(find.text('2019'), findsOneWidget, reason: 'nothing chosen: the first year');
     await tester.tap(find.byKey(EStartMonthPicker.laterKey), kind: PointerDeviceKind.mouse);

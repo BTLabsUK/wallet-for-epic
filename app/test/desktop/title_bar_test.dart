@@ -8,12 +8,15 @@ import 'package:epic_wallet/src/desktop/app/close_guard.dart';
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/desk_window.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:window_manager/window_manager.dart' show ResizeEdge;
+
+final _l = englishStrings;
 
 class _Window extends DeskWindow {
   _Window({this.frame = true});
@@ -112,12 +115,12 @@ void main() {
   testWidgets('Keyboard shortcuts lists the settings search: Ctrl+K anywhere, / in Settings', (tester) async {
     await pump(tester);
     await openMenu(tester);
-    await tester.tap(find.text('Keyboard shortcuts'));
+    await tester.tap(find.text(_l.deskBarShortcuts));
     await tester.pumpAndSettle();
     final dialog = find.byType(EDialog);
-    expect(find.descendant(of: dialog, matching: find.text('Search settings')), findsOneWidget);
+    expect(find.descendant(of: dialog, matching: find.text(_l.deskBarKeySearch)), findsOneWidget);
     expect(find.descendant(of: dialog, matching: find.text('Ctrl+K')), findsOneWidget);
-    expect(find.descendant(of: dialog, matching: find.text('Search, while in Settings')), findsOneWidget);
+    expect(find.descendant(of: dialog, matching: find.text(_l.deskBarKeySearchHere)), findsOneWidget);
     expect(find.descendant(of: dialog, matching: find.text('/')), findsOneWidget);
     await tester.sendKeyEvent(LogicalKeyboardKey.escape);
     await tester.pumpAndSettle();
@@ -140,7 +143,7 @@ void main() {
     await tester.tap(bar('max'));
     await tester.pumpAndSettle();
     expect(window.calls, ['min', 'max']);
-    expect(find.byTooltip('Restore'), findsOneWidget);
+    expect(find.byTooltip(_l.deskBarRestore), findsOneWidget);
     // Unfocused: nothing breaks, the bar stays.
     window.blur();
     await tester.pumpAndSettle();
@@ -155,7 +158,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
     }
     expect(quits, 1);
-    expect(find.text('Closing'), findsOneWidget);
+    expect(find.text(_l.deskBarClosing), findsOneWidget);
   });
 
   testWidgets('close mid-send asks; Keep open keeps the app open after the send too', (tester) async {
@@ -166,9 +169,9 @@ void main() {
     // The system's close (Alt+F4, the taskbar) goes the same way as ✕.
     unawaited(window.close!());
     await settle(tester);
-    expect(find.text('A send is in progress'), findsOneWidget);
-    expect(find.text('Keep open'), findsOneWidget);
-    expect(find.text('Close when it finishes'), findsOneWidget);
+    expect(find.text(_l.deskBarSendRunningTitle), findsOneWidget);
+    expect(find.text(_l.deskBarKeepOpen), findsOneWidget);
+    expect(find.text(_l.deskBarCloseAfterSend), findsOneWidget);
     expect(deskHoldExit(), isTrue, reason: 'the exit listener answers cancel meanwhile');
     await tester.tap(find.text('Keep open'));
     await settle(tester);
@@ -245,7 +248,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(copied, startsWith('BT Wallet '));
     expect(copied, contains('core '));
-    expect(find.text('Build info copied'), findsOneWidget);
+    expect(find.text(_l.deskBarBuildCopied), findsOneWidget);
   });
 
   testWidgets('the send ends while "A send is in progress" is open: it goes by itself, the dialog under it stays', (tester) async {

@@ -13,7 +13,10 @@ import 'package:epic_wallet/src/legacy_wallets.dart';
 import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 const _password = 'test-pass-1234';
 const _old = 'old password';
@@ -305,7 +308,7 @@ void main() {
     picked = await oldWallet('${support.path}/wallets/x/mainnet', '{"seed":"own"}');
     final own = (await wallet.pickFolder())!;
     expect(own.wallets, isEmpty);
-    expect(own.message, 'This wallet is in the app already.');
+    expect(own.message, _l.deskErrWalletInApp);
   });
 
   test('in use: a wallet program working in the folder', () async {

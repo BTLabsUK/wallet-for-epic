@@ -11,9 +11,12 @@ import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 final String _bob = '${'b' * 52}@epicbox.epiccash.com';
 
@@ -68,7 +71,7 @@ void main() {
     final fields = find.byType(TextField);
     await tester.enterText(fields.at(0), 'Shop');
     await tester.enterText(fields.at(1), 'https://203.0.113.5:3415');
-    await tester.tap(find.text('Save contact'));
+    await tester.tap(find.text(_l.contactsSave));
     await tester.pumpAndSettle();
     expect(session.contactsValue.single.address, 'https://203.0.113.5:3415');
   });

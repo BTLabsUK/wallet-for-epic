@@ -14,7 +14,10 @@ import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/settings.dart' show HistoryExportSnapshot;
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 const _password = 'test-pass-1234';
 
@@ -149,7 +152,7 @@ void main() {
       }
 
       expect((await refused(historyOtherWallet)).problem, HistoryFileProblem.otherWallet);
-      expect((await refused(historyNewer)).text, 'A newer version of the app made this file. Update the app, then import it.');
+      expect((await refused(historyNewer)).text, _l.deskErrHistNewerText);
       expect((await refused(historyDamaged)).problem.title, 'File damaged');
       final chain = await refused(historyOtherChain);
       expect((chain.problem.title, chain.text), ('Wrong network', 'The file is from another network.'));

@@ -7,11 +7,14 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'review_password.dart';
+
+final _l = englishStrings;
 
 const _onion = 'http://pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion';
 const _epicbox = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com';
@@ -120,17 +123,17 @@ void main() {
     for (final (name, to) in [('Epicbox', _epicbox), ('a Link onion', _onion)]) {
       testWidgets('$name waits: Review disabled, "Waiting for Tor", nothing sent', (tester) async {
         await show(tester, SendArgs(recipient: to, amount: '1'));
-        expect(chip('Tor starting'), findsOneWidget);
-        expect(find.text('Tor is starting'), findsOneWidget);
+        expect(chip(_l.deskKitChipStarting), findsOneWidget);
+        expect(find.text(_l.deskSendTorStarting), findsOneWidget);
         // The button keeps its name; the short reason is its tip.
-        expect(review(tester).label, 'Review');
-        expect(review(tester).tooltip, 'Waiting for Tor');
+        expect(review(tester).label, _l.deskSendReview);
+        expect(review(tester).tooltip, _l.deskSendReviewWaitTor);
         expect(review(tester).onPressed, isNull);
         // Enter in Amount does not review either.
         await tester.tap(find.byType(EditableText).at(1));
         await tester.testTextInput.receiveAction(TextInputAction.done);
         await settle(tester);
-        expect(find.text('Check and send'), findsNothing);
+        expect(find.text(_l.deskSendReviewTitle), findsNothing);
         expect(wallet.sent, isEmpty);
       }, skip: !torBuilt);
     }
@@ -144,23 +147,23 @@ void main() {
 
     testWidgets('a notice with Retry only, no Turn Tor off (D-05); nothing sent', (tester) async {
       await show(tester, const SendArgs(recipient: _epicbox, amount: '1'));
-      expect(find.text('Tor is not connected'), findsOneWidget);
-      expect(find.text('Nothing is sent until it is, or until Tor is turned off.'), findsOneWidget);
+      expect(find.text(_l.deskSendTorBlocked), findsOneWidget);
+      expect(find.text(_l.deskSendTorBlockedText), findsOneWidget);
       expect(chip('Tor not connected'), findsOneWidget);
       expect(review(tester).label, 'Review');
       expect(review(tester).tooltip, 'Tor not connected');
       expect(review(tester).onPressed, isNull);
-      await tester.tap(find.widgetWithText(EButton, 'Retry'));
+      await tester.tap(find.widgetWithText(EButton, _l.commonRetry));
       await tester.pumpAndSettle();
       expect(wallet.torRetries, 1, reason: 'Retry restarts the tor payments go through');
       expect(wallet.sent, isEmpty);
       // D-05: an error offers Retry only.
-      expect(find.widgetWithText(EButton, 'Turn Tor off'), findsNothing);
+      expect(find.widgetWithText(EButton, _l.torTurnOff), findsNothing);
     }, skip: !torBuilt);
 
     testWidgets('an onion is held too', (tester) async {
       await show(tester, const SendArgs(method: TxMethod.http, recipient: _onion, amount: '1'));
-      expect(find.text('Tor is not connected'), findsOneWidget);
+      expect(find.text(_l.deskSendTorBlocked), findsOneWidget);
       expect(review(tester).onPressed, isNull);
     }, skip: !torBuilt);
   });
@@ -168,11 +171,11 @@ void main() {
   testWidgets('Link https with Tor on: sendable, "Over Tor", sent over http through Tor', (tester) async {
     await show(tester, const SendArgs(method: TxMethod.http, recipient: _https, amount: '5'));
     expect(chip('Over Tor'), findsOneWidget);
-    expect(find.text('Link · HTTP goes directly, without Tor.'), findsNothing);
+    expect(find.text(_l.deskSendHttpClearnet), findsNothing);
     expect(review(tester).label, 'Review');
-    await tester.tap(find.text('Review'));
+    await tester.tap(find.text(_l.deskSendReview));
     await tester.pumpAndSettle();
-    expect(find.descendant(of: find.byType(Dialog), matching: find.text('Link · HTTPS')), findsOneWidget);
+    expect(find.descendant(of: find.byType(Dialog), matching: find.text(_l.sendRouteLinkHttps)), findsOneWidget);
     await enterReviewPassword(tester);
     await tester.tap(find.textContaining('Send 5'));
     await tester.pumpAndSettle();
@@ -184,12 +187,12 @@ void main() {
     await show(tester, const SendArgs(method: TxMethod.http, recipient: _httpInternet, amount: '5'));
     // The notice under To (Turn Tor off, captioned as the switch for every connection: D-05).
     expect(find.byKey(const ValueKey('send-hold-torOnPlainHttp')), findsOneWidget);
-    expect(find.text('Tor is on. Plain http:// cannot go over Tor.'), findsWidgets);
-    expect(find.text('Applies to every connection, not only this payment.'), findsOneWidget);
+    expect(find.text(_l.sendHeldTorOn), findsWidgets);
+    expect(find.text(_l.torTurnOffCaption), findsOneWidget);
     expect(find.byKey(const ValueKey('send-hold-fix')), findsOneWidget);
     expect(review(tester).onPressed, isNull);
     // Pressed anyway: no consent question, nothing sent.
-    await tester.tap(find.text('Review'), warnIfMissed: false);
+    await tester.tap(find.text(_l.deskSendReview), warnIfMissed: false);
     await tester.pumpAndSettle();
     expect(find.text('Not encrypted. Send anyway?'), findsNothing);
     expect(wallet.sent, isEmpty);
@@ -205,23 +208,23 @@ void main() {
   testWidgets('Link plain http opened at the review with Tor on: refused, never asked', (tester) async {
     await show(tester, const SendArgs(method: TxMethod.http, recipient: _httpInternet, amount: '5', step: SendStep.review));
     expect(find.text('Not encrypted. Send anyway?'), findsNothing);
-    expect(find.text('Check and send'), findsNothing);
-    expect(find.text('Tor is on. Plain http:// cannot go over Tor.'), findsWidgets);
+    expect(find.text(_l.deskSendReviewTitle), findsNothing);
+    expect(find.text(_l.sendHeldTorOn), findsWidgets);
     expect(wallet.sent, isEmpty);
   }, skip: !torBuilt);
 
   testWidgets('Link onion with Tor on: "Over Tor", sent over Tor', (tester) async {
     await show(tester, const SendArgs(method: TxMethod.http, recipient: _onion, amount: '1'));
-    expect(chip('Over Tor'), findsOneWidget);
-    expect(find.text('Link · HTTP goes directly, without Tor.'), findsNothing);
+    expect(chip(_l.deskKitChipOverTor), findsOneWidget);
+    expect(find.text(_l.deskSendHttpClearnet), findsNothing);
     expect(review(tester).onPressed, isNotNull);
   }, skip: !torBuilt);
 
   testWidgets('an onion with the Tor switch off goes over the tor Link · Tor runs for payments', (tester) async {
     // Item 2: Link · Tor on starts tor for payments; no Turn on Tor, the switch stays off.
     await show(tester, const SendArgs(method: TxMethod.http, recipient: _onion, amount: '1'), tor: false);
-    expect(find.text('Link · Tor needs Tor'), findsNothing);
-    expect(find.widgetWithText(EButton, 'Turn on Tor'), findsNothing);
+    expect(find.text(_l.deskSendNeedsTor), findsNothing);
+    expect(find.widgetWithText(EButton, _l.deskSendTurnOnTor), findsNothing);
     expect(review(tester).onPressed, isNotNull);
     expect(wallet.torCalls, isEmpty);
     expect(wallet.sent, isEmpty);

@@ -8,9 +8,12 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/http_reach.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 class _Probe implements PublicReachProbe {
   String? ip = '203.0.113.24';
@@ -121,23 +124,23 @@ void main() {
 
     testWidgets('not reachable: forward the port; Check asks again', (tester) async {
       final wallet = await pump(tester, [_reach(reachable: false), _reach(reachable: true)]);
-      expect(find.text('Not reachable from the internet'), findsOneWidget);
+      expect(find.text(_l.deskKitReachClosedTitle), findsOneWidget);
       expect(find.textContaining('Forward TCP port 3415 on your router to this computer (10.0.1.24)'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('http-reach-check')));
       await tester.pump();
-      expect(find.text('Reachable from the internet'), findsOneWidget);
+      expect(find.text(_l.deskKitReachOpenTitle), findsOneWidget);
       expect(wallet.rechecks, [false, true]);
       await tester.pumpWidget(const SizedBox());
     });
 
     testWidgets('no IP and no answer from the port check say so', (tester) async {
       await pump(tester, [_reach(ip: null)]);
-      expect(find.text('Public IP not found'), findsOneWidget);
+      expect(find.text(_l.deskKitReachNoIpTitle), findsOneWidget);
       // The address sits in the sentence as its own unbroken span, so the notice's text is read.
       expect(tester.widget<ENotice>(find.byKey(const ValueKey('http-reach'))).text, contains('On your network: http://10.0.1.24:3415'));
       await tester.pumpWidget(const SizedBox());
       await pump(tester, [_reach()]);
-      expect(find.text('Reachability unknown'), findsOneWidget);
+      expect(find.text(_l.deskKitReachUnknownTitle), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
     });
     testWidgets('not reachable, dismissed: gone and green for that address and port, back after From the internet off and on', (tester) async {

@@ -158,11 +158,11 @@ void main() {
   group('phone words', () {
     test('the row and the timeline say the sender reports it, never received', () {
       final tip = BigInt.from(1000);
-      expect(txStatusLabel(_l, _waiting(), tip, now: _now), 'Sender reports posted');
-      expect(txStatusLabel(_l, _waiting(reportedAgo: null), tip, now: _now), 'Waiting for sender');
+      expect(txStatusLabel(_l, _waiting(), tip, now: _now), _l.txStatusSenderPosted);
+      expect(txStatusLabel(_l, _waiting(reportedAgo: null), tip, now: _now), _l.txStatusWaitingSender);
       expect(
         txStatusLabel(_l, _waiting(reportedAgo: const Duration(hours: 2)), tip, now: _now),
-        'Waiting for sender',
+        _l.txStatusWaitingSender,
         reason: 'after the hour it waits again',
       );
       expect(txStatusLabel(_l, _waiting(transport: 'http'), tip, now: _now), 'Waiting for sender');
@@ -210,9 +210,9 @@ void main() {
       );
       await tester.pump();
       final badge = tester.widget<EBadge>(find.byType(EBadge));
-      expect(badge.label, 'Sender reports posted');
+      expect(badge.label, _l.txStatusSenderPosted);
       expect(badge.tone, BadgeTone.info);
-      expect(find.bySemanticsLabel('Sender reports posted'), findsOneWidget);
+      expect(find.bySemanticsLabel(_l.txStatusSenderPosted), findsOneWidget);
       expect(find.textContaining('12:00\u00a0· Sender reports posted', findRichText: true), findsOneWidget);
     });
   });
@@ -278,7 +278,7 @@ void main() {
     test('a waiting incoming payment waits for its sender; a paid request stays posted', () {
       final tx = deskTx(_waiting(reportedAgo: null), tip: 1000, minConf: 10, fallbackId: -1);
       expect(tx.state, TxState.waitingRecipient);
-      expect(statusOf(_l, tx).$1, 'Waiting for sender');
+      expect(statusOf(_l, tx).$1, _l.deskTxStatusWaitingSender);
       final request = deskTx(
         fakeTx(slateId: 'r', kind: core.TxKind.received, status: core.TxStatus.awaitingConfirmation, flow: core.TxFlow.invoice),
         tip: 1000,
@@ -317,10 +317,10 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
       final badge = tester.widget<EBadge>(find.byKey(const ValueKey('tx-sender-posted')));
       expect(badge.tone, ETone.info);
-      expect(badge.label, 'Sender reports posted');
+      expect(badge.label, _l.deskTxStatusSenderPosted);
       expect(find.text(_l.deskTxNowSenderPosted), findsOneWidget);
       // The Posted step is current with the report under it, not done.
-      expect(find.text('Sender reports posted'), findsNWidgets(2));
+      expect(find.text(_l.deskTxStatusSenderPosted), findsNWidgets(2));
       expect(find.text(_l.deskTxReceived), findsNothing);
     });
   });

@@ -6,9 +6,12 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 const _epicbox = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com';
 
@@ -35,8 +38,8 @@ void main() {
     expect(review().onPressed, isNotNull);
     await tester.tap(find.byWidgetPredicate((w) => w is EButton && w.kind == EBtnKind.primary));
     await tester.pumpAndSettle();
-    expect(find.text('Fix the marked fields.'), findsOneWidget);
-    expect(review().label, 'Review', reason: 'the name stays; the reason is the line under it');
+    expect(find.text(_l.deskSendHintFix), findsOneWidget);
+    expect(review().label, _l.deskSendReview, reason: 'the name stays; the reason is the line under it');
     expect(review().onPressed, isNull, reason: 'the line names a block');
 
     await tester.enterText(find.byType(EditableText).at(1), '1');
@@ -48,7 +51,7 @@ void main() {
     await tester.enterText(find.byType(EditableText).at(1), '50000');
     await tester.pump();
     expect(review().onPressed, isNull);
-    expect(review().label, 'Review');
+    expect(review().label, _l.deskSendReview);
     expect(find.text('Fix the marked fields.'), findsOneWidget);
     expect(find.text('More than the available balance.'), findsOneWidget);
     await tester.pumpAndSettle();

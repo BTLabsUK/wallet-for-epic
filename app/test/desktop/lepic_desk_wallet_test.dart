@@ -20,11 +20,14 @@ import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/network.dart' show defaultEpicboxHost;
 import 'package:epic_wallet/src/wallet_registry.dart' as reg;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'advanced_on.dart';
+
+final _l = englishStrings;
 
 const _password = 'test-pass-1234';
 
@@ -444,7 +447,7 @@ void main() {
       final w = make(damaged);
       await w.createWallet(name: '', password: _password);
       expect(await w.unlock(_password), isTrue);
-      expect((await w.status()).notice, 'Wallet database damaged, rebuilding');
+      expect((await w.status()).notice, _l.deskErrDbDamaged);
       await w.sync();
       expect(damaged.session.scanCalls, 1);
       expect((await w.status()).notice, isNull);
@@ -1397,15 +1400,15 @@ void main() {
 
     testWidgets('welcome offers the import, no folder or network choice', (tester) async {
       await pump(tester, DeskRoute.welcome);
-      expect(find.text('Import wallets'), findsOneWidget);
+      expect(find.text(_l.deskOnbWelcomeImport), findsOneWidget);
       expect(find.text('Advanced'), findsNothing);
       await done(tester);
     });
 
     testWidgets('settings list Wallets; node has no built-in node', (tester) async {
       await pump(tester, DeskRoute.settingsNode, column: true);
-      expect(find.text('Wallets'), findsOneWidget);
-      expect(find.text('Sync in background'), findsNothing);
+      expect(find.text(_l.deskSetSecWallets), findsOneWidget);
+      expect(find.text(_l.deskSetNodeBackground), findsNothing);
       // "last block" is no longer hidden: the node card (W6 §17) prints it only from a real
       // answer (the status directory's tip age, or a node's header time).
       await done(tester);
@@ -1425,7 +1428,7 @@ void main() {
     testWidgets('send has one To field, no method list (the address decides: an onion is a Link send), no Dandelion++', (tester) async {
       await pump(tester, DeskRoute.send);
       expect(find.text('Link'), findsNothing, reason: 'the address picks the method; none is listed');
-      expect(find.text('Tor'), findsNothing, reason: 'no Tor method of its own');
+      expect(find.text(_l.sendFactTor), findsNothing, reason: 'no Tor method of its own');
       expect(find.textContaining('Dandelion'), findsNothing);
       await done(tester);
     });
@@ -1433,20 +1436,20 @@ void main() {
     testWidgets('receive has the HTTP address with Tor off', (tester) async {
       // The Tor address follows Link · Tor alone (item 2: it starts tor for payments).
       await pump(tester, DeskRoute.receive);
-      expect(find.text('Link · HTTP address'), findsOneWidget);
+      expect(find.text(_l.deskRecvHttpAddress), findsOneWidget);
       await done(tester);
     });
 
     testWidgets('activity has one tab (Outputs is a page); account changes the password as DeskFeatures says', (tester) async {
       await pump(tester, DeskRoute.activity);
-      expect(find.text('Transactions'), findsNothing);
+      expect(find.text(_l.settingsSectionTransactions), findsNothing);
       await done(tester);
       // Change password is Security's; Delete wallet is under Wallet › Remove (26.10.25).
       await pump(tester, DeskRoute.settingsSecurity);
-      expect(find.text('Change password…'), findsOneWidget);
+      expect(find.text(_l.deskSetAcctChangePassword), findsOneWidget);
       await done(tester);
       await pump(tester, DeskRoute.settingsAccount);
-      expect(find.text('Delete…'), findsOneWidget);
+      expect(find.text(_l.deskSetLnodeDelete), findsOneWidget);
       await done(tester);
     });
 

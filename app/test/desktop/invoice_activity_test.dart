@@ -10,10 +10,13 @@ import 'package:epic_wallet/src/desktop/screens/invoices/issue_tab.dart';
 import 'package:epic_wallet/src/desktop/screens/invoices/pay_tab.dart';
 import 'package:epic_wallet/src/desktop/screens/invoices/tx_invoice_block.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../support/experimental.dart';
+
+final _l = englishStrings;
 
 /// Activity on [api], with [arg] (a transaction id selects it).
 Future<void> _open(WidgetTester tester, MockDeskWallet api, {Object? arg, Size size = const Size(1280, 800)}) async {
@@ -68,7 +71,7 @@ void main() {
     await _open(tester, api, arg: waiting.txId);
     expect(find.byType(TxInvoiceBlock), findsOneWidget);
     // The row's caption and the details' caption.
-    expect(find.text('Unpaid'), findsNWidgets(2));
+    expect(find.text(_l.deskInvUnpaid), findsNWidgets(2));
   });
 
   testWidgets('Open in Invoices on a paid invoice waiting to post: Pay tab, under Paid, selected', (tester) async {

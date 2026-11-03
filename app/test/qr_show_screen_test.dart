@@ -15,6 +15,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 /// Three parts of a payment.
 final String _json =
     '{"id":"slate-1","pad":"${'a' * (qrFragmentLen * 3 - 30)}"}';
@@ -115,16 +117,16 @@ void main() {
   ) async {
     final h = _Harness();
     await h.pump(tester);
-    expect(find.text('Payment QR'), findsOneWidget);
-    expect(find.text('Hidden until you show it'), findsOneWidget);
-    expect(find.text('Show QR'), findsOneWidget);
+    expect(find.text(_l.qrShowTitlePayment), findsOneWidget);
+    expect(find.text(_l.qrHiddenTitle), findsOneWidget);
+    expect(find.text(_l.qrShow), findsOneWidget);
     expect(find.text('1.5\u00a0EPIC to a phone next to you'), findsOneWidget);
     expect(find.textContaining('Part '), findsNothing);
 
     await tester.tap(show());
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.text('3'), findsOneWidget);
-    expect(find.text('Hide'), findsOneWidget);
+    expect(find.text(_l.qrHide), findsOneWidget);
     await tester.pump(const Duration(seconds: 1));
     expect(find.text('2'), findsOneWidget);
     await tester.pump(const Duration(seconds: 1));
@@ -146,12 +148,12 @@ void main() {
     expect(
       find.descendant(
         of: find.byKey(qrCardKey),
-        matching: find.text('Hidden until you show it'),
+        matching: find.text(_l.qrHiddenTitle),
       ),
       findsNothing,
     );
-    expect(find.text('Scan their reply'), findsOneWidget);
-    expect(find.text('Hold the other phone’s camera to this code.'), findsOneWidget);
+    expect(find.text(_l.qrScanReply), findsOneWidget);
+    expect(find.text(_l.qrHoldHint), findsOneWidget);
     // The frames cycle at six a second: part 2 after 167 ms.
     await tester.pump(const Duration(milliseconds: qrFrameMs));
     expect(find.textContaining('Part 2 of 3'), findsOneWidget);
@@ -171,8 +173,8 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.text('Hidden after 40 s'), findsOneWidget);
     expect(find.textContaining('Part '), findsNothing);
-    expect(find.text('Show again'), findsOneWidget);
-    expect(find.text('Scan their reply'), findsOneWidget);
+    expect(find.text(_l.qrShowAgain), findsOneWidget);
+    expect(find.text(_l.qrScanReply), findsOneWidget);
 
     await tester.tap(show());
     await tester.pump(const Duration(milliseconds: 300));
@@ -210,11 +212,11 @@ void main() {
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.textContaining('Part '), findsNothing);
-    expect(find.text('Hidden while the app was away'), findsOneWidget);
+    expect(find.text(_l.qrAwayTitle), findsOneWidget);
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.text('Hidden while the app was away'), findsOneWidget);
-    expect(find.text('Show again'), findsOneWidget);
+    expect(find.text(_l.qrAwayTitle), findsOneWidget);
+    expect(find.text(_l.qrShowAgain), findsOneWidget);
     // Frames stopped with it: no timer is left running.
     await _tick(tester, 5);
     expect(find.textContaining('Part '), findsNothing);
@@ -227,7 +229,7 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.text('Hidden while the app was away'), findsOneWidget);
+    expect(find.text(_l.qrAwayTitle), findsOneWidget);
     await _tick(tester, 5);
     expect(find.textContaining('Part '), findsNothing);
   });
@@ -239,10 +241,10 @@ void main() {
     await _tick(tester, 3);
     await tester.tap(find.byKey(qrHideButtonKey));
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.text('Hidden until you show it'), findsOneWidget);
-    expect(find.text('Show QR'), findsOneWidget);
+    expect(find.text(_l.qrHiddenTitle), findsOneWidget);
+    expect(find.text(_l.qrShow), findsOneWidget);
     await _tick(tester, 45);
-    expect(find.text('Hidden until you show it'), findsOneWidget);
+    expect(find.text(_l.qrHiddenTitle), findsOneWidget);
   });
 
   testWidgets('screenshots are blocked while the route is open', (tester) async {
@@ -253,7 +255,7 @@ void main() {
     await tester.tap(show());
     await _tick(tester, 3);
     // The line about screenshots shows with the code, on Android only.
-    expect(find.text('Screenshots are off on this screen'), findsOneWidget);
+    expect(find.text(_l.qrSecureLine), findsOneWidget);
     await tester.pageBack();
     await tester.pumpAndSettle();
     expect(h.secure, [true, false]);
@@ -269,7 +271,7 @@ void main() {
     await tester.tap(find.byKey(qrNextButtonKey));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
-    expect(find.text('Scan their reply'), findsWidgets);
+    expect(find.text(_l.qrScanReply), findsWidgets);
     expect(find.text('camera'), findsOneWidget);
     final reply = '{"id":"slate-2","step":"response"}';
     final parts = await h.service.encodeQrSlate(
@@ -298,8 +300,8 @@ void main() {
     Navigator.of(tester.element(find.byType(QrScanScreen))).pop();
     await tester.pump(const Duration(milliseconds: 400));
     expect(h.popped, isFalse);
-    expect(find.text('Hidden while the app was away'), findsOneWidget);
-    expect(find.text('Show again'), findsOneWidget);
+    expect(find.text(_l.qrAwayTitle), findsOneWidget);
+    expect(find.text(_l.qrShowAgain), findsOneWidget);
   });
 
   testWidgets('Open a file instead on the camera hands the choice back', (
@@ -313,7 +315,7 @@ void main() {
     await tester.tap(find.byKey(qrNextButtonKey));
     await tester.pump(const Duration(milliseconds: 400));
     await tester.pump(const Duration(milliseconds: 400));
-    await tester.tap(find.text('Open a file instead'));
+    await tester.tap(find.text(_l.qrScanOpenFileInstead));
     await tester.pump(const Duration(milliseconds: 400));
     expect(h.result, isA<QrShowOpenFile>());
   });
@@ -334,10 +336,10 @@ void main() {
   ) async {
     final h = _Harness();
     await h.pump(tester, reply: true);
-    expect(find.text('Reply QR'), findsOneWidget);
+    expect(find.text(_l.qrShowTitleReply), findsOneWidget);
     expect(find.text('To the sender of 1.5\u00a0EPIC'), findsOneWidget);
     expect(
-      find.text('Show it to the sender’s phone. Only their wallet can use it.'),
+      find.text(_l.qrHiddenBodyReply),
       findsOneWidget,
     );
     // The reply gets the same countdown and 40 s.
@@ -345,7 +347,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.text('3'), findsOneWidget);
     await _tick(tester, 3);
-    expect(find.text('Done'), findsOneWidget);
+    expect(find.text(_l.commonDone), findsOneWidget);
     await tester.tap(find.byKey(qrNextButtonKey));
     await tester.pump(const Duration(milliseconds: 400));
     expect(h.result, isA<QrShowDone>());

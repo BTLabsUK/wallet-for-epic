@@ -14,6 +14,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'review_password.dart';
 
+final _l = englishStrings;
+
 class _Wallet extends MockDeskWallet {
   _Wallet() : super(delay: Duration.zero);
 
@@ -75,7 +77,7 @@ void main() {
         step: SendStep.review,
       ),
     );
-    expect(find.text('Check and send'), findsOneWidget);
+    expect(find.text(_l.deskSendReviewTitle), findsOneWidget);
     expect(
       find.descendant(of: dialog, matching: find.text('Message')),
       findsOneWidget,
@@ -94,7 +96,7 @@ void main() {
       tester,
       const SendArgs(recipient: anna, amount: '25', step: SendStep.review),
     );
-    expect(find.text('Check and send'), findsOneWidget);
+    expect(find.text(_l.deskSendReviewTitle), findsOneWidget);
     expect(
       find.descendant(of: dialog, matching: find.text('Message')),
       findsNothing,

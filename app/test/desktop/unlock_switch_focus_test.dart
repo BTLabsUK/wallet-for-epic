@@ -6,11 +6,14 @@ import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/remember.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show LogicalKeyboardKey;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 const _main = 'legacy-mainnet';
 const _savings = '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f';
@@ -114,7 +117,7 @@ void main() {
     await run(tester);
     await switchTo(tester, 'Savings');
     expect(container.read(deskNavProvider).route, DeskRoute.unlock);
-    expect(find.widgetWithText(EButton, 'Unlock'), findsOneWidget);
+    expect(find.widgetWithText(EButton, _l.deskOnbUnlockButton), findsOneWidget);
     final field = password(tester);
     expect(field.widget.focusNode.hasPrimaryFocus, isTrue, reason: 'the password field has the focus after the switch');
     expect(field.widget.showCursor, isTrue);

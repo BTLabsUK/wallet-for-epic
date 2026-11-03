@@ -7,11 +7,14 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/receive_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'advanced_on.dart';
+
+final _l = englishStrings;
 
 const _args = [
   ReceiveArgs(),
@@ -140,12 +143,12 @@ void main() {
   testWidgets('two columns from 1340 px start level; one column below', (tester) async {
     await _pump(tester, const ReceiveArgs(http: RxHttp.on, tor: RxTor.on), width: 1440);
     final hero = tester.getRect(find.byKey(const ValueKey('rx-panel-epicbox')));
-    final head = tester.getRect(find.text('Other ways to receive'));
+    final head = tester.getRect(find.text(_l.deskRecvOtherWays));
     expect(head.left, greaterThan(hero.right));
     expect((head.top - hero.top).abs(), lessThan(10));
     await _pump(tester, const ReceiveArgs(http: RxHttp.on, tor: RxTor.on), width: 1200);
     final hero2 = tester.getRect(find.byKey(const ValueKey('rx-panel-epicbox')));
-    expect(tester.getRect(find.text('Other ways to receive')).top, greaterThan(hero2.bottom));
+    expect(tester.getRect(find.text(_l.deskRecvOtherWays)).top, greaterThan(hero2.bottom));
   });
 
   testWidgets("a header icon scrolls to its method's panel", (tester) async {

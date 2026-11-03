@@ -34,6 +34,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late MockDeskWallet wallet;
@@ -123,7 +125,7 @@ void main() {
     await settle(tester);
     expect(desk.link?.phase, LinkPhase.waiting);
     expect(find.byKey(deskLinkCodeKey), findsOneWidget);
-    expect(find.text('Waiting for the other device…'), findsOneWidget);
+    expect(find.text(_l.linkWaiting), findsOneWidget);
     expect(find.byKey(deskLinkCancelKey), findsOneWidget);
 
     // The phone answers; this computer reads its channel: paired, its hello out, the pictures.
@@ -211,7 +213,7 @@ void main() {
 
     await tester.tap(find.byKey(devicesLinkKey));
     await settle(tester);
-    await tester.tap(find.text('Paste invite'));
+    await tester.tap(find.text(_l.linkPaste));
     await settle(tester);
     await tester.enterText(find.byKey(deskLinkPasteFieldKey), code);
     await tester.tap(find.byKey(deskLinkGoKey));
@@ -235,13 +237,13 @@ void main() {
 
     await tester.tap(find.byKey(devicesLinkKey));
     await settle(tester);
-    await tester.tap(find.text('Paste invite'));
+    await tester.tap(find.text(_l.linkPaste));
     await settle(tester);
     await tester.enterText(find.byKey(deskLinkPasteFieldKey), code);
     await tester.tap(find.byKey(deskLinkGoKey));
     await settle(tester);
     expect(desk.link?.failure, LinkFailure.notFound);
-    expect(find.text('This invite was used already.'), findsOneWidget);
+    expect(find.text(_l.linkFailNotFound), findsOneWidget);
     await tester.tap(find.byKey(deskLinkPasteAnotherKey));
     await settle(tester);
     expect(desk.link, isNull);
@@ -288,7 +290,7 @@ void main() {
 
     await tester.tap(find.byKey(devicesLinkKey));
     await settle(tester);
-    await tester.tap(find.text('Paste invite'));
+    await tester.tap(find.text(_l.linkPaste));
     await settle(tester);
     await tester.enterText(find.byKey(deskLinkPasteFieldKey), code);
     await tester.tap(find.byKey(deskLinkGoKey));
@@ -306,12 +308,12 @@ void main() {
     await show(tester, const DevicesSettingsBlock());
     await tester.tap(find.byKey(devicesLinkKey));
     await settle(tester);
-    await tester.tap(find.text('Paste invite'));
+    await tester.tap(find.text(_l.linkPaste));
     await settle(tester);
     await tester.enterText(find.byKey(deskLinkPasteFieldKey), 'epiccash://pair/abc');
     await tester.tap(find.byKey(deskLinkGoKey));
     await settle(tester);
-    expect(find.text('Not a device invite.'), findsOneWidget);
+    expect(find.text(_l.linkFailInvalid), findsOneWidget);
     await end(tester);
   });
 
@@ -325,7 +327,7 @@ void main() {
     await epicbox(false);
     await settle(tester);
     expect(find.byKey(devicesEpicboxOffKey), findsOneWidget);
-    expect(find.text('Epicbox is off.'), findsOneWidget);
+    expect(find.text(_l.devicesEpicboxOffNone), findsOneWidget);
     expect(tester.widget<EButton>(find.byKey(devicesLinkKey)).onPressed, isNull);
     // On again: the link is made; off again: the line names the linked device.
     await epicbox(true);

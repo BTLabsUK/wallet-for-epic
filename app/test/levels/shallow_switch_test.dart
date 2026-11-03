@@ -22,6 +22,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 const _a = EpicboxRelay(host: 'relay-a.example.invalid');
 const _b = EpicboxRelay(host: 'relay-b.example.invalid');
 const _c = EpicboxRelay(host: 'relay-c.example.invalid', port: 8443);
@@ -130,9 +132,9 @@ void main() {
       for (final r in [_c, _d, _b]) tester.getTopLeft(find.byKey(shallowSwitchRowKey(r.label))).dy,
     ];
     expect(ys[0] < ys[1] && ys[1] < ys[2], isTrue);
-    expect(find.text('Healthy'), findsOneWidget);
-    expect(find.text('Not checked'), findsOneWidget);
-    expect(find.text('Not answering'), findsOneWidget);
+    expect(find.text(_l.serverHealthy), findsOneWidget);
+    expect(find.text(_l.stateUnchecked), findsOneWidget);
+    expect(find.text(_l.deskNodeNotAnswering), findsOneWidget);
     // A relay listed as down cannot be picked.
     expect(tester.widget<ListTile>(find.byKey(shallowSwitchRowKey(_b.label))).onTap, isNull);
     await tester.tap(find.byKey(shallowSwitchRowKey(_b.label)));

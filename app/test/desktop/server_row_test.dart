@@ -8,8 +8,11 @@ import 'package:epic_wallet/src/desktop/screens/settings/settings_node.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/desktop/widgets/server_row.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 const _node = ServerInfo(value: 'https://node.epiccash.com:3413', host: 'node.epiccash.com', operator: 'Epic Cash', behind: 0, latencyMs: 24, version: '4.1.1');
 const _behind = ServerInfo(value: 'b', host: 'node.btlabs.uk', operator: 'BT Labs', state: EState.warn, behind: 12, latencyMs: 18, version: '4.1.0', versionOld: true);
@@ -69,7 +72,7 @@ void main() {
     var tapped = false;
     await _pump(tester, 640, ServerRow(kind: ServerKind.node, info: _down, onTap: () => tapped = true));
     expect(tester.widget<ESignalBars>(find.byType(ESignalBars)).state, EState.risk);
-    expect(find.text('no answer'), findsOneWidget);
+    expect(find.text(_l.deskKitNodeNoAnswer), findsOneWidget);
     expect(find.text('–'), findsWidgets, reason: 'tip and version unknown');
     await tester.tap(find.byType(InkWell).first);
     expect(tapped, isTrue);
@@ -77,11 +80,11 @@ void main() {
 
   testWidgets('a relay row shows the default tag; a node row never does', (tester) async {
     await _pump(tester, 640, ServerRow(kind: ServerKind.relay, info: _relay, onTap: () {}));
-    expect(find.text('Default'), findsOneWidget);
+    expect(find.text(_l.deskSlDefault), findsOneWidget);
     expect(find.text('synced'), findsNothing, reason: 'no tip column on a relay');
     await _pump(tester, 640, ServerRow(kind: ServerKind.node, info: ServerInfo(value: _node.value, host: _node.host, behind: 0, isDefault: true), onTap: () {}));
     expect(find.text('Default'), findsNothing);
-    expect(find.text('synced'), findsOneWidget);
+    expect(find.text(_l.deskKitAtTip), findsOneWidget);
   });
 
   test('neutral order: state, then latency, then the source order', () {

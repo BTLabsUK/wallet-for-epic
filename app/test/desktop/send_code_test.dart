@@ -12,10 +12,13 @@ import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/payment_prefs.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+final _l = englishStrings;
 
 // No saved contact has these.
 const _e = 'esTk4wRm8Nq2Vx7Lc5Bh9Jd3Fg6Hs1Ka8Pz4Yu2Wn7Ec5Rt9Q@box.epic.invalid';
@@ -116,12 +119,12 @@ void main() {
   /// The Paste button next to To (To must be empty), with [code] on the clipboard.
   Future<void> paste(WidgetTester tester, String code) async {
     clip = code;
-    await tester.tap(find.byTooltip('Paste'));
+    await tester.tap(find.byTooltip(_l.commonPaste));
     await tester.pumpAndSettle();
   }
 
   Future<void> clearTo(WidgetTester tester) async {
-    await tester.tap(find.byTooltip('Clear recipient'));
+    await tester.tap(find.byTooltip(_l.deskSendClearTo));
     await tester.pumpAndSettle();
   }
 
@@ -129,30 +132,30 @@ void main() {
   Finder selectable(String s) => find.byWidgetPredicate((w) => w is SelectableText && (w.data ?? w.textSpan?.toPlainText()) == s);
 
   Future<void> review(WidgetTester tester) async {
-    await tester.ensureVisible(find.text('Review'));
+    await tester.ensureVisible(find.text(_l.deskSendReview));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Review'));
+    await tester.tap(find.text(_l.deskSendReview));
     await tester.pumpAndSettle();
-    expect(find.text('Check and send'), findsOneWidget);
+    expect(find.text(_l.deskSendReviewTitle), findsOneWidget);
   }
 
   testWidgets('a pasted payment request fills the form, says it is one, and sends nothing until review and password', (tester) async {
     await show(tester);
     await paste(tester, 'epic:$_e?amount=1.5&message=Lunch%20with%20Anna');
     expect(text(tester, 'To'), _e);
-    expect(text(tester, 'Amount'), '1.5');
-    expect(text(tester, 'Message'), 'Lunch with Anna');
+    expect(text(tester, _l.deskSendAmount), '1.5');
+    expect(text(tester, _l.deskSendMessage), 'Lunch with Anna');
     expect(banner(), findsOneWidget);
-    expect(find.text('Invoice'), findsOneWidget);
-    expect(find.text('Check the amount, then continue.'), findsOneWidget);
+    expect(find.text(_l.sendRequestTitle), findsOneWidget);
+    expect(find.text(_l.sendRequestCheck), findsOneWidget);
     expect(tester.widget<Text>(find.byKey(const ValueKey('send-code-note'))).data, 'Lunch with Anna');
-    expect(find.text('Message from the recipient (not verified)'), findsOneWidget);
-    expect(find.text('Requested by the code'), findsOneWidget);
-    expect(find.text('From the code. They see it too.'), findsOneWidget);
+    expect(find.text(_l.payeeNoteLabel), findsOneWidget);
+    expect(find.text(_l.sendAmountFromCode), findsOneWidget);
+    expect(find.text(_l.sendNoteFromCodeHelper), findsOneWidget);
     expect(wallet.sends, 0);
 
     // The fields stay editable; the marker says what the code asked for.
-    await tester.enterText(field('Amount'), '2');
+    await tester.enterText(field(_l.deskSendAmount), '2');
     await tester.pump();
     expect(find.text('The code asked for 1.5\u00a0EPIC.'), findsOneWidget);
     await tester.enterText(field('Amount'), '1.5');
@@ -161,13 +164,13 @@ void main() {
     await review(tester);
     expect(wallet.sends, 0);
     expect(inDialog(find.byKey(const ValueKey('send-review-origin'))), findsOneWidget);
-    expect(inDialog(find.text('Pasted')), findsOneWidget);
+    expect(inDialog(find.text(_l.sendOriginPasted)), findsOneWidget);
     expect(inDialog(find.byWidgetPredicate((w) => w is EAddress && w.address == _e)), findsOneWidget, reason: 'the whole address, not shortened');
     expect(inDialog(find.byKey(const ValueKey('send-code-claims'))), findsOneWidget);
 
     final send = find.widgetWithText(EButton, 'Send 1.5\u00a0EPIC');
     expect(tester.widget<EButton>(send).onPressed, isNull, reason: 'the password comes first');
-    await tester.enterText(find.descendant(of: find.widgetWithText(EField, 'Password'), matching: find.byType(TextField)), 'secret-pass');
+    await tester.enterText(find.descendant(of: find.widgetWithText(EField, _l.deskSendPassword), matching: find.byType(TextField)), 'secret-pass');
     await tester.pump();
     await tester.tap(send);
     await tester.pumpAndSettle();
@@ -177,14 +180,14 @@ void main() {
   testWidgets("a second code replaces the first: its untouched amount and note never ride along", (tester) async {
     await show(tester);
     await paste(tester, 'epic:$_e?amount=5&message=Table%204');
-    expect(text(tester, 'Amount'), '5');
-    expect(text(tester, 'Message'), 'Table 4');
+    expect(text(tester, _l.deskSendAmount), '5');
+    expect(text(tester, _l.deskSendMessage), 'Table 4');
     // Pasted over the first one, To still holding its address.
     await tester.enterText(field('To'), 'epic:$_annaAddress?label=Bob');
     await tester.pumpAndSettle();
     // Anna's address is a saved contact's: To shows her chip.
     expect(find.descendant(of: find.byKey(const ValueKey('send-picked')), matching: find.text(_anna)), findsOneWidget);
-    expect(text(tester, 'Amount'), isEmpty);
+    expect(text(tester, _l.deskSendAmount), isEmpty);
     expect(text(tester, 'Message'), isEmpty);
     expect(find.text('Bob'), findsOneWidget);
   });
@@ -194,17 +197,17 @@ void main() {
     await tester.enterText(field('To'), 'epic:$_e?amount=3&label=Bakery');
     await tester.pumpAndSettle();
     expect(text(tester, 'To'), _e);
-    expect(text(tester, 'Amount'), '3');
+    expect(text(tester, _l.deskSendAmount), '3');
     expect(tester.widget<Text>(find.byKey(const ValueKey('send-code-label'))).data, 'Bakery');
     await tester.tap(find.byKey(const ValueKey('send-code-dismiss')));
     await tester.pumpAndSettle();
-    expect(find.text('Invoice'), findsNothing);
+    expect(find.text(_l.sendRequestTitle), findsNothing);
     expect(find.byKey(const ValueKey('send-code-label')), findsOneWidget);
 
     // A different address: the code goes, and the amount it put in with it.
     await clearTo(tester);
     expect(find.byKey(const ValueKey('send-code-claims')), findsNothing);
-    expect(text(tester, 'Amount'), '');
+    expect(text(tester, _l.deskSendAmount), '');
     for (final t in ['e', 'ep', 'epi', 'epic', 'epic:']) {
       await tester.enterText(field('To'), t);
       await tester.pump();
@@ -235,7 +238,7 @@ void main() {
     await show(tester);
     await paste(tester, 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art');
     expect(text(tester, 'To'), '');
-    expect(find.text('That is a recovery phrase, so it was not pasted. Keep it private.'), findsOneWidget);
+    expect(find.text(_l.scanPhraseFoundPasted), findsOneWidget);
     expect(find.textContaining('abandon'), findsNothing);
     expect(find.byType(Dialog), findsNothing);
   });
@@ -291,9 +294,9 @@ void main() {
   testWidgets('a transaction file opens a dialog with the way to Import transaction', (tester) async {
     await show(tester);
     await paste(tester, 'BEGINSLATEPACK. 4H1qx1wHe668tFW yC2gfL8PPd8kSgv. ENDSLATEPACK.');
-    expect(inDialog(find.text('Transaction file')), findsOneWidget);
+    expect(inDialog(find.text(_l.slateFileTitle)), findsOneWidget);
     expect(text(tester, 'To'), '');
-    await tester.tap(find.text('Open'));
+    await tester.tap(find.text(_l.commonOpen));
     await tester.pumpAndSettle();
     expect(container.read(deskNavProvider).route, DeskRoute.importTx);
     // LNX-3: the pasted text goes along, not only the screen.
@@ -304,8 +307,8 @@ void main() {
     const answer = '{"ver":"4:3","id":"0436430c-2b02-624c-2032-570501212b00","sta":"S2"}';
     await show(tester);
     await paste(tester, answer);
-    expect(inDialog(find.text('Transaction file')), findsOneWidget);
-    await tester.tap(find.text('Open'));
+    expect(inDialog(find.text(_l.slateFileTitle)), findsOneWidget);
+    await tester.tap(find.text(_l.commonOpen));
     await tester.pumpAndSettle();
     expect(container.read(deskNavProvider).route, DeskRoute.finalize);
     expect((container.read(deskNavProvider).arg as FinalizeArgs?)?.text, answer);
@@ -323,7 +326,7 @@ void main() {
     );
     await tester.pump();
     await tester.pump(const Duration(seconds: 3));
-    expect(find.text('Payment posted'), findsWidgets);
+    expect(find.text(_l.deskFinPosted), findsWidgets);
   });
 
   testWidgets('the import screen signs pasted text at once, as a chosen file (LNX-3)', (tester) async {
@@ -339,7 +342,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
     expect(api.texts, ['{"ver":"4:3"}']);
-    expect(find.text('Response saved'), findsOneWidget);
+    expect(find.text(_l.deskImpSaved), findsOneWidget);
   });
 
   testWidgets('pasted text that is no transaction says so about text, not a file (LNX-3)', (tester) async {
@@ -354,17 +357,17 @@ void main() {
     );
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
-    expect(find.text('The pasted text is not a transaction. Paste the whole text the sender gave, or choose their file.'), findsOneWidget);
+    expect(find.text(_l.deskImpWrongTypePasted), findsOneWidget);
     expect(find.textContaining('.slate'), findsNothing);
   });
 
   testWidgets('a link opens Send filled the same way, "From a link" on the review', (tester) async {
     await show(tester, link: 'EPICCASH:$_e?AMOUNT=0.5');
     expect(text(tester, 'To'), _e);
-    expect(text(tester, 'Amount'), '0.5');
+    expect(text(tester, _l.deskSendAmount), '0.5');
     expect(banner(), findsOneWidget);
     await review(tester);
-    expect(inDialog(find.text('From a link')), findsOneWidget);
+    expect(inDialog(find.text(_l.sendOriginLink)), findsOneWidget);
     expect(wallet.sends, 0);
   });
 
@@ -372,10 +375,10 @@ void main() {
     await show(tester, link: _e);
     expect(text(tester, 'To'), _e);
     expect(banner(), findsNothing);
-    await tester.enterText(field('Amount'), '1');
+    await tester.enterText(field(_l.deskSendAmount), '1');
     await tester.pumpAndSettle();
     await review(tester);
-    expect(inDialog(find.text('From a link')), findsOneWidget);
+    expect(inDialog(find.text(_l.sendOriginLink)), findsOneWidget);
   });
 
   for (final (link, title) in [
@@ -389,11 +392,11 @@ void main() {
       await show(tester, link: link);
       expect(inDialog(find.text(title)), findsOneWidget);
       expect(text(tester, 'To'), '');
-      await tester.tap(inDialog(find.text('Copy')));
+      await tester.tap(inDialog(find.text(_l.commonCopy)));
       await tester.pumpAndSettle();
       expect(clip, link == 'epic:$_floonet' ? _floonet : link, reason: 'the whole text, or the address');
-      expect(find.text('Copied'), findsOneWidget);
-      await tester.tap(inDialog(find.text('OK')));
+      expect(find.text(_l.scanCopied), findsOneWidget);
+      await tester.tap(inDialog(find.text(_l.commonOk)));
       await tester.pumpAndSettle();
       expect(find.byType(Dialog), findsNothing);
       await tester.pump(const Duration(seconds: 5));
@@ -403,12 +406,12 @@ void main() {
 
   testWidgets('a dropped amount: the address fills, the banner says why Amount is empty', (tester) async {
     await show(tester);
-    await tester.enterText(field('Amount'), '7');
+    await tester.enterText(field(_l.deskSendAmount), '7');
     await paste(tester, 'epic:$_e?amount=0');
     expect(text(tester, 'To'), _e);
-    expect(text(tester, 'Amount'), '');
-    expect(find.descendant(of: banner(), matching: find.text('The amount in this code is not valid and was ignored.')), findsOneWidget);
-    expect(find.text('Check the amount, then continue.'), findsNothing);
+    expect(text(tester, _l.deskSendAmount), '');
+    expect(find.descendant(of: banner(), matching: find.text(_l.sendCodeAmountInvalid)), findsOneWidget);
+    expect(find.text(_l.sendRequestCheck), findsNothing);
   });
 
   testWidgets('a plain epic: address is an address: no banner, no block', (tester) async {
@@ -423,7 +426,7 @@ void main() {
     await show(tester);
     final note = 'ก' * 100; // 300 UTF-8 bytes
     await paste(tester, 'epic:$_e?amount=1&message=${Uri.encodeComponent(note)}');
-    expect(text(tester, 'Message'), '');
+    expect(text(tester, _l.deskSendMessage), '');
     expect(tester.widget<Text>(find.byKey(const ValueKey('send-code-note'))).data, note);
   });
 
@@ -438,7 +441,7 @@ void main() {
       await paste(tester, 'epic:$direct?amount=1&label=${Uri.encodeComponent('L' * 64)}&message=${Uri.encodeComponent(note)}');
       expect(text(tester, 'To'), direct);
       expect(tester.widget<Text>(find.byKey(const ValueKey('send-code-note'))).data, note);
-      expect(text(tester, 'Message'), '', reason: '264 bytes do not fit a slate');
+      expect(text(tester, _l.deskSendMessage), '', reason: '264 bytes do not fit a slate');
       expect(tester.takeException(), isNull);
 
       await review(tester);

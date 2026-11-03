@@ -12,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 class _Tor extends PhoneTor {
   @override
   PhoneTorState build() =>
@@ -331,7 +333,7 @@ void main() {
           ),
           findsOneWidget,
         );
-        expect(find.text('Help'), findsOneWidget);
+        expect(find.text(_l.helpTitle), findsOneWidget);
       },
     );
 

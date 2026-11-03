@@ -10,6 +10,9 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+
+final _l = englishStrings;
 
 /// The mock, with saves that fail or never return.
 class _Wallet extends MockDeskWallet {
@@ -51,7 +54,7 @@ Future<void> _fill(WidgetTester tester, String name, String address) async {
   // The empty address field is labelled by the kind it takes first ("Epicbox address").
   await tester.enterText(find.descendant(of: find.byWidgetPredicate((w) => w is EField && w.label.toLowerCase().endsWith('address')), matching: find.byType(EditableText)).first, address);
   await tester.pump();
-  await tester.tap(find.text('Save contact'));
+  await tester.tap(find.text(_l.deskConSave));
   await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
   await tester.pump(const Duration(milliseconds: 300));
 }
@@ -69,10 +72,10 @@ void main() {
   testWidgets('a refused save ends the spinner and says why', (tester) async {
     await _open(tester, _Wallet(fail: true));
     await _fill(tester, 'lol', 'http://10.0.1.24:3415');
-    expect(find.text('Contact not saved'), findsOneWidget);
+    expect(find.text(_l.deskConSaveFailed), findsOneWidget);
     expect(find.textContaining('Disk full'), findsOneWidget);
     expect(find.byType(ESpinner), findsNothing);
-    expect(find.text('Save contact'), findsOneWidget);
+    expect(find.text(_l.deskConSave), findsOneWidget);
   });
 
   testWidgets('a malformed address is refused inline, nothing is stored', (tester) async {
@@ -80,7 +83,7 @@ void main() {
     await _open(tester, api);
     await _fill(tester, 'lol', 'http://');
     expect(api.saved, isEmpty);
-    expect(find.text('Not a valid address. Use an Epicbox address (es5x…@server), a Link address (https://…) or an onion address (….onion).'), findsOneWidget);
+    expect(find.text(_l.deskConErrAddressInvalid), findsOneWidget);
     expect(find.byType(ESpinner), findsNothing);
   }, skip: !torBuilt);
 }

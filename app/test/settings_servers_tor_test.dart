@@ -27,6 +27,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/server_list_file.dart' show useServerValues;
 
+final _l = englishStrings;
+
 class _Tor extends PhoneTor {
   _Tor(this.value);
 
@@ -136,7 +138,7 @@ void main() {
     testWidgets('they show the server in use', (tester) async {
       await openPage(tester);
       expect(
-        find.descendant(of: find.byKey(settingsNodeKey), matching: find.text('Node')),
+        find.descendant(of: find.byKey(settingsNodeKey), matching: find.text(_l.netStatusNode)),
         findsOneWidget,
       );
       expect(
@@ -144,7 +146,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.descendant(of: find.byKey(settingsEpicboxKey), matching: find.text('Epicbox')),
+        find.descendant(of: find.byKey(settingsEpicboxKey), matching: find.text(_l.netStatusEpicbox)),
         findsOneWidget,
       );
       expect(
@@ -218,7 +220,7 @@ void main() {
           final row = _row(route);
           expect(row, findsOneWidget);
           // One row per server on the page: the status card's, nothing repeated below it.
-          expect(find.text(route == TorRoute.node ? 'Node' : 'Epicbox'), findsOneWidget);
+          expect(find.text(route == TorRoute.node ? _l.netStatusNode : _l.netStatusEpicbox), findsOneWidget);
           if (word == null) {
             for (final w in ['Over Tor', 'Waiting for Tor']) {
               expect(find.descendant(of: row, matching: find.text(w)), findsNothing);

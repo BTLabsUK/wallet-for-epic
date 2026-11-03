@@ -23,10 +23,13 @@ import 'package:epic_wallet/src/ui/settings_history.dart';
 import 'package:epic_wallet/src/ui/settings_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'support/settings_modes.dart' show useNetworkModeFile;
+
+final _l = englishStrings;
 
 const _pin = '123456';
 const _phrase =
@@ -130,7 +133,7 @@ class _Harness {
       tester.element(find.byType(MaterialApp)),
     );
     addTearDown(() => tester.pumpWidget(const SizedBox()));
-    await tester.enterText(find.widgetWithText(TextField, 'PIN'), _pin);
+    await tester.enterText(find.widgetWithText(TextField, _l.pinLabel), _pin);
     await tester.pumpAndSettle();
     expect(container.read(sessionProvider), isNotNull);
   }
@@ -148,7 +151,7 @@ class _Harness {
     await tester.pumpAndSettle();
     await tap(tester, find.byKey(settingsHelpKey));
     await tap(tester, find.byKey(helpFeedbackKey));
-    expect(find.text('Attach logs'), findsOneWidget);
+    expect(find.text(_l.feedbackAttachLogs), findsOneWidget);
   }
 }
 
@@ -348,9 +351,9 @@ void main() {
       await h.pump(tester);
       await h.openFeedback(tester);
       // Without a feedback server there is no Send, only share or save.
-      expect(find.widgetWithText(FilledButton, 'Send'), findsNothing);
+      expect(find.widgetWithText(FilledButton, _l.feedbackSend), findsNothing);
 
-      await enter(tester, 'What happened', 'My phrase $_phrase does not work');
+      await enter(tester, _l.feedbackMessageLabel, 'My phrase $_phrase does not work');
       await tap(tester, find.text('What is sent'));
       final preview = previewText(tester);
       expect(preview, contains('[recovery phrase removed] does not work'));
@@ -373,8 +376,8 @@ void main() {
       expect(shared.name, 'epic-wallet-feedback-20261001-0905.txt');
       // The shared file is the previewed text, line for line.
       expect(shared.report.trimRight(), preview.trimRight());
-      expect(find.text('Thank you for your feedback.'), findsOneWidget);
-      expect(find.text('Attach logs'), findsNothing);
+      expect(find.text(_l.feedbackThanks), findsOneWidget);
+      expect(find.text(_l.feedbackAttachLogs), findsNothing);
     });
 
     testWidgets(
@@ -384,16 +387,16 @@ void main() {
         h.log.write(LogLevel.info, 'app', 'start');
         await h.pump(tester);
         await h.openFeedback(tester);
-        await tap(tester, find.text('Share or save'));
+        await tap(tester, find.text(_l.feedbackShareOrSave));
         expect(
-          find.text('Write a few words about what happened.'),
+          find.text(_l.feedbackMessageMissing),
           findsOneWidget,
         );
         expect(h.outlet.shared, isEmpty);
 
-        await enter(tester, 'What happened', 'The balance looks wrong');
-        await tap(tester, find.text('Attach logs'));
-        await tap(tester, find.text('Share or save'));
+        await enter(tester, _l.feedbackMessageLabel, 'The balance looks wrong');
+        await tap(tester, find.text(_l.feedbackAttachLogs));
+        await tap(tester, find.text(_l.feedbackShareOrSave));
         await tap(tester, find.text('Save to device'));
         final saved = h.outlet.saved.single.report;
         expect(saved, isNot(contains('Contact:')));
@@ -412,23 +415,23 @@ void main() {
       final h = _Harness()..url = Uri.parse('https://feedback.example.com/in');
       await h.pump(tester);
       await h.openFeedback(tester);
-      await enter(tester, 'What happened', 'Please add dark mode');
+      await enter(tester, _l.feedbackMessageLabel, 'Please add dark mode');
 
       h.outlet.postError = FeedbackSendError(
         (l) => l.feedbackServerAnswered(503),
       );
-      await tap(tester, find.widgetWithText(FilledButton, 'Send'));
+      await tap(tester, find.widgetWithText(FilledButton, _l.feedbackSend));
       // The note closes the list, below the form and the backup banner.
       await tester.scrollUntilVisible(find.text('The feedback server answered 503.'), 100, scrollable: find.byType(Scrollable).first);
       expect(find.text('The feedback server answered 503.'), findsOneWidget);
 
       h.outlet.postError = null;
-      await tap(tester, find.widgetWithText(FilledButton, 'Send'));
+      await tap(tester, find.widgetWithText(FilledButton, _l.feedbackSend));
       final post = h.outlet.posted.single;
       expect(post.url.host, 'feedback.example.com');
       expect(post.report.description, 'Please add dark mode');
       expect(post.report.app['sync'], isNotEmpty);
-      expect(find.text('Thank you. Your feedback was sent.'), findsOneWidget);
+      expect(find.text(_l.feedbackSent), findsOneWidget);
     });
 
     testWidgets('sends the log ring rather than the log where there is one', (tester) async {
@@ -439,8 +442,8 @@ void main() {
       await h.pump(tester);
       h.log.write(LogLevel.info, 'app', 'only in wfe.log');
       await h.openFeedback(tester);
-      await enter(tester, 'What happened', 'Sync stuck');
-      await tap(tester, find.widgetWithText(FilledButton, 'Send'));
+      await enter(tester, _l.feedbackMessageLabel, 'Sync stuck');
+      await tap(tester, find.widgetWithText(FilledButton, _l.feedbackSend));
       final files = h.outlet.posted.single.report.files;
       expect([for (final f in files) f.name], ['app/lepic.0.log']);
       expect(files.single.text, line);
@@ -463,12 +466,12 @@ void main() {
       await h.pump(tester);
       expect(kept.offers, 1);
       final notice = find.byKey(noticeKey);
-      expect(find.descendant(of: notice, matching: find.text('The app stopped responding last time. Send the log?')), findsOneWidget);
-      await tap(tester, find.descendant(of: notice, matching: find.text('Send')));
+      expect(find.descendant(of: notice, matching: find.text(_l.deskLastSessionFroze)), findsOneWidget);
+      await tap(tester, find.descendant(of: notice, matching: find.text(_l.feedbackSend)));
       // The report form, its message started, the last session's log said.
-      expect(find.text('The app stopped responding.'), findsOneWidget);
-      expect(find.textContaining('With the log of the last session.'), findsOneWidget);
-      await tap(tester, find.widgetWithText(FilledButton, 'Send'));
+      expect(find.text(_l.deskLastSessionReportFroze), findsOneWidget);
+      expect(find.textContaining(_l.deskLastSessionAttached), findsOneWidget);
+      await tap(tester, find.widgetWithText(FilledButton, _l.feedbackSend));
       final report = h.outlet.posted.single.report;
       expect(report.description, 'The app stopped responding.');
       expect(report.app['last session'], 'anr');
@@ -490,10 +493,10 @@ void main() {
       useNetworkModeFile(NetworkMode.nodeOnly);
       await h.pump(tester);
       await h.openFeedback(tester);
-      await enter(tester, 'What happened', 'Please add dark mode');
+      await enter(tester, _l.feedbackMessageLabel, 'Please add dark mode');
       await tester.scrollUntilVisible(find.text('Off in Node only. Save the report as a file instead.'), 100, scrollable: find.byType(Scrollable).first);
       expect(find.text('Off in Node only. Save the report as a file instead.'), findsOneWidget);
-      final send = find.widgetWithText(FilledButton, 'Send');
+      final send = find.widgetWithText(FilledButton, _l.feedbackSend);
       await tester.ensureVisible(send);
       expect(tester.widget<FilledButton>(send).onPressed, isNull);
       // Saving or sharing the report needs no network.
@@ -597,7 +600,7 @@ void previewLargeLog() {
       }
       await h.pump(tester);
       await h.openFeedback(tester);
-      await enter(tester, 'What happened', 'The preview with a big log');
+      await enter(tester, _l.feedbackMessageLabel, 'The preview with a big log');
       // No wall-clock bound: under a loaded machine it says nothing about the screen.
       await tap(tester, find.text('What is sent'));
       expect(find.byKey(feedbackPreviewListKey), findsOneWidget, reason: 'the preview opened');
@@ -627,7 +630,7 @@ void previewLargeLog() {
       h.log = _ThrowingLog();
       await h.pump(tester);
       await h.openFeedback(tester);
-      await enter(tester, 'What happened', 'hello');
+      await enter(tester, _l.feedbackMessageLabel, 'hello');
       await tap(tester, find.text('What is sent'));
       // The log tail failure is caught and written into the report, so the preview opens.
       expect(find.byKey(feedbackPreviewListKey), findsOneWidget);

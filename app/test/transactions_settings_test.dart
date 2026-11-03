@@ -159,10 +159,10 @@ void main() {
     expect(find.descendant(of: _row('tx-family-link'), matching: find.text(_l.methodDirect)), findsOneWidget);
     expect(find.descendant(of: _row('tx-family-direct'), matching: find.text(_l.methodDirectFamily)), findsOneWidget);
     // Under its family a method goes by its own name: Epicbox, HTTP, Tor, File Transfer.
-    expect(_titleOf(tester, 'tx-epicbox'), 'Epicbox');
-    expect(_titleOf(tester, 'tx-http'), 'HTTP');
+    expect(_titleOf(tester, 'tx-epicbox'), _l.methodEpicbox);
+    expect(_titleOf(tester, 'tx-http'), _l.methodGroupHttp);
     expect(_titleOf(tester, 'tx-tor'), 'Tor');
-    expect(_titleOf(tester, 'tx-file'), 'File Transfer');
+    expect(_titleOf(tester, 'tx-file'), _l.methodFile);
     // Epicbox: a switch, on; the row is the label only, the explanation behind its info icon.
     expect(find.descendant(of: _row('tx-epicbox'), matching: find.text(_l.txEpicboxHint)), findsNothing);
     expect(tester.widget<Switch>(_switchOf('tx-epicbox')).value, isTrue);
@@ -452,7 +452,7 @@ void main() {
         'tx-family-direct',
         'tx-qr',
       ]);
-      expect(_titleOf(tester, 'tx-qr'), 'QR Payment');
+      expect(_titleOf(tester, 'tx-qr'), _l.methodQr);
       expect(tester.widget<Switch>(_switchOf('tx-qr')).value, isTrue);
       expect(_row('tx-file'), findsNothing);
       expect(_row('tx-start-qr'), findsOneWidget);

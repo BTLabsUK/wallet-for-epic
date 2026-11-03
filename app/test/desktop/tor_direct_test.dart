@@ -20,6 +20,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+final _l = englishStrings;
+
 const _password = 'test-pass-1234';
 const _bundle = TorBundle(binary: '/app/bin/tor-bundle/tor', libDir: '/app/bin/tor-bundle');
 const _onion = 'http://pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion';
@@ -228,10 +230,10 @@ void main() {
       expect(await wallet.unlock(_password), isTrue);
       final st = await wallet.status();
       expect(st.torIncluded, isFalse);
-      expect(torStatusLine(englishStrings, st), 'Tor not included in this build');
+      expect(torStatusLine(englishStrings, st), _l.deskErrTorMissing);
       await wallet.setTor(true);
       expect(session().torStarts, isEmpty);
-      expect((await wallet.status()).torProblem, 'Tor not included in this build');
+      expect((await wallet.status()).torProblem, _l.deskErrTorMissing);
     });
   });
 
@@ -272,11 +274,11 @@ void main() {
       await tor(const core.TorEvent(kind: core.TorEventKind.bootstrapped));
       st = await wallet.status();
       expect(st.torCanSend, isTrue);
-      expect(torStatusLine(englishStrings, st), 'Publishing the onion address…');
+      expect(torStatusLine(englishStrings, st), _l.deskTorLinePublishing);
       await tor(const core.TorEvent(kind: core.TorEventKind.ready, onion: 'pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd.onion'));
       st = await wallet.status();
       expect(st.tor, ServiceHealth.ok);
-      expect(torStatusLine(englishStrings, st), 'Ready');
+      expect(torStatusLine(englishStrings, st), _l.deskTorLineReady);
       expect(await wallet.torAddress(), _onion);
     });
 
@@ -310,8 +312,8 @@ void main() {
         await connected();
         await tor(core.TorEvent(kind: core.TorEventKind.failed, failure: failure));
         final st = await wallet.status();
-        expect(st.torProblem, 'Onion address not published');
-        expect(torStatusLine(englishStrings, st), startsWith('Onion address not published'));
+        expect(st.torProblem, _l.deskErrOnionNotPublished);
+        expect(torStatusLine(englishStrings, st), startsWith(_l.deskErrOnionNotPublished));
       });
     }
 
@@ -420,7 +422,7 @@ void main() {
         await tor(const core.TorEvent(kind: core.TorEventKind.stopped));
       }
       expect(session().torStarts, hasLength(4));
-      expect(torStatusLine(englishStrings, await wallet.status()), 'Tor stopped');
+      expect(torStatusLine(englishStrings, await wallet.status()), _l.deskErrTorStopped);
     });
 
     test('a payment over Tor reloads the history', () async {
@@ -483,7 +485,7 @@ void main() {
     test('Tor still connecting: refused before LEPIC', () async {
       await wallet.setTor(true);
       final r = await wallet.send(const SendRequest(method: TxMethod.tor, amount: 1000, to: _onion));
-      expect((r as SendFailed).message, 'Tor is still connecting. Try again in a moment.');
+      expect((r as SendFailed).message, _l.deskErrTorConnecting);
       expect(session().torSends, isEmpty);
     });
 
@@ -491,7 +493,7 @@ void main() {
       await wallet.setTor(true);
       await connected();
       final r = await wallet.send(const SendRequest(method: TxMethod.tor, amount: 1000, to: 'abc.onion'));
-      expect((r as SendFailed).message, 'Not an onion address');
+      expect((r as SendFailed).message, _l.deskErrNotOnion);
       expect(session().torSends, isEmpty);
     });
 
@@ -527,7 +529,7 @@ void main() {
       session().sendError = const core.WalletError(kind: core.WalletErrorKind.notEnoughFunds, message: 'short');
       final r = await wallet.send(const SendRequest(method: TxMethod.tor, amount: 1000, to: _onion));
       expect((r as SendFailed).inActivity, isFalse);
-      expect(r.message, 'Not enough EPIC');
+      expect(r.message, _l.deskErrNotEnoughFunds);
       expect((await wallet.transactions()).where((t) => !t.incoming), isEmpty);
     });
 
@@ -537,7 +539,7 @@ void main() {
       session().torStatusValue = core.TorStatus.off;
       final r = await wallet.send(const SendRequest(method: TxMethod.tor, amount: 1000, to: _onion));
       expect((r as SendFailed).inActivity, isFalse);
-      expect(r.message, 'Tor is not connected');
+      expect(r.message, _l.deskErrTorNotConnected);
     });
   });
 
