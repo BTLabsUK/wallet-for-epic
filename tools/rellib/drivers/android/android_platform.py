@@ -289,6 +289,8 @@ class AndroidPlatform(Platform):
             self.start(which)
 
     def alive(self):
+        if not self.dev.online():  # the emulator went, not the app
+            raise HarnessGone("alive", "emulator %s gone" % self.serial)
         return bool(self.dev.sh("pidof %s" % PKG).strip())
 
     # ---- data
