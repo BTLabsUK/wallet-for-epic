@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """The Windows update-trust driver (drivers/windows/trust.py): the click map by release and the checks
-it makes from the candidate's own files (wfe.log, desk store) without the rig."""
+it makes from the candidate's own files (wfe.log, desk store) without the rig; and the v2 lane's surface
+(uia.py) and platform (windows_platform.py) on a fake rig."""
 import importlib.util
 import os
 import sys
@@ -13,6 +14,10 @@ sys.path.insert(0, WIN)
 _spec = importlib.util.spec_from_file_location("win_trust", os.path.join(WIN, "trust.py"))
 wt = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(wt)
+
+import uia  # noqa: E402
+import windows_platform as wp  # noqa: E402
+from core.faults import HarnessFault  # noqa: E402
 
 T = "2026-11-01T10:00:00.000Z INFO  "
 
@@ -98,6 +103,73 @@ class CandidateStartTest(unittest.TestCase):
         r.first_start_lines = []
         r.compare_list("node", b, a)
         self.assertTrue(r.checks["custom_nodes_kept"], r.details["custom_nodes_kept"])
+
+
+class FakeRig:
+    run, user = "C:\\rig\\run", "epicrig"
+
+    def __init__(self, files=None):
+        self.files, self.calls = dict(files or {}), []
+
+    def call(self, op, timeout=120, **kw):
+        self.calls.append((op, kw))
+        if op == "write_file":
+            self.files[kw["file"]] = kw["text"]
+        return {"ok": True}
+
+    def text(self, path):
+        return self.files.get(path)
+
+
+VIEW = {"ct": "Custom", "name": "", "rect": [110, 35, 803, 691]}
+
+
+class PressTest(unittest.TestCase):
+    """26.10.26 on rig 1: the confirmations stepper lay below the window (y 1238, the window ends at 726) and
+    a second press within 30 s was a click there, which reached nothing."""
+
+    def surface(self, rect):
+        s = uia.WinSurface(FakeRig(), log=lambda line: None)
+        s.last = [VIEW, {"ct": "Button", "name": "Mniej potwierdzeń", "pat": ["invoke"], "rect": rect}]
+        s._unchanged = lambda node: False
+        return s, s._node(1, s.last[1])
+
+    def ops(self, s):
+        return [op for op, _ in s.rig.calls]
+
+    def test_a_node_below_the_window_is_never_clicked(self):
+        s, node = self.surface([726, 1238, 38, 39])
+        s.press(node)
+        s.press(node)   # again within 30 s: still its default action
+        self.assertEqual(self.ops(s), ["ui_at", "ui_at"])
+
+    def test_a_node_in_view_pressed_again_is_clicked(self):
+        s, node = self.surface([726, 400, 38, 39])
+        s.press(node)
+        s.press(node)
+        self.assertEqual(self.ops(s), ["ui_at", "click_rect"])
+
+
+class LoseNodeTest(unittest.TestCase):
+    def platform(self, text):
+        p = object.__new__(wp.WindowsPlatform)
+        p.rig = FakeRig({})
+        p.rig.files[p.data + "\\settings.toml"] = text
+        p.surface = type("S", (), {"_call": lambda self_, op, timeout=120, **kw: p.rig.call(op, **kw)})()
+        p.custom_node, p.log = "192.168.1.50:3413", lambda line: None
+        return p
+
+    def test_the_custom_node_line_goes(self):
+        p = self.platform('[node]\nservers = ["node.example.org",\n "http://192.168.1.50:3413"]\nplain_http = []\n')
+        p.break_lose_node()
+        kept = p.rig.files[p.data + "\\settings.toml"]
+        self.assertNotIn("192.168.1.50", kept)
+        self.assertIn('servers = ["node.example.org",', kept)
+
+    def test_no_custom_node_is_harness(self):
+        p = self.platform('[node]\nservers = ["node.example.org"]\n')
+        with self.assertRaises(HarnessFault):
+            p.break_lose_node()
 
 
 if __name__ == "__main__":

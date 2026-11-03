@@ -177,7 +177,8 @@ class Driver:
             if not self._dismiss(self.tree()):
                 break
         if target is not None and breaks.dialog(target.id):
-            info = [n for n in self.tree() if n.role == "button" and n.name == "More information"]
+            names = {"More information", self.labels.text("deskKitInfoLabel")}   # the build's own language
+            info = [n for n in self.tree() if n.role == "button" and n.name in names]
             if info:
                 self.log("BREAK: a dialog the recipe does not know opened before %s" % target)
                 self._act(self.s.press, info[0])

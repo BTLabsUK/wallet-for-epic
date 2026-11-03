@@ -159,21 +159,34 @@ class WinSurface:
         self.pressed["click"] = self.pressed.get("click", 0) + 1
         self.log("press by click at the node's centre: %s" % node.brief())
 
+    def _in_view(self, node):
+        """True when the node's centre is inside the app's view: the engine keeps nodes of a scrolled page
+        that lie below the window in the tree (not off screen to UIA), and a click there reaches nothing."""
+        view = next((d.get("rect") for d in self.last if len(d.get("rect") or []) == 4), None)
+        rect = node.ref.get("rect") or []
+        if not view or len(rect) != 4:
+            return True
+        x, y = rect[0] + rect[2] / 2, rect[1] + rect[3] / 2
+        return view[0] <= x < view[0] + view[2] and view[1] <= y < view[1] + view[3]
+
     def press(self, node):
         # MSAA's default action is a no-op on a check box or switch, and a press the driver sees did nothing
-        # and repeats is clicked instead
+        # and repeats is clicked instead; never a node outside the view, which only its default action reaches
         if node.ref.get("click"):
             return self._click(node)
         key = (node.role, node.name)
         again = self.last_press == (key, int(time.time() // 30))
         self.last_press = (key, int(time.time() // 30))
-        if node.role in ("checkbox", "toggle") or again:
+        seen = self._in_view(node)
+        if seen and (node.role in ("checkbox", "toggle") or again):
             return self._click(node)
         for attempt in range(2):
             r = self._call("ui_at", idx=node.ref["idx"], name=node.ref["name"], what="press")
             if r.get("ok"):
                 self.pressed["msaa"] = self.pressed.get("msaa", 0) + 1
-                if node.role in ("button", "row") and self._unchanged(node):
+                if not seen:
+                    self.log("pressed %s by its default action: it lies outside the view" % node.brief())
+                elif node.role in ("button", "row") and self._unchanged(node):
                     self.log("the default action changed nothing on %s; clicking" % node.brief())
                     self._click(node)
                 return

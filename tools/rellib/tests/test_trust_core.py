@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 """The shared driver core (drivers/core) on a fake surface: targets found by id, by a build's own
 label and after a rename by the model; obstacles pressed away; a secret screen never sent; the app
-quitting is the product's fault; saved states written and picked."""
+quitting is the product's fault; saved states written and picked; the confirmations stepper set and read
+on a build in Polish; the dialog break's button found in the build's language."""
 import json
 import os
 import stat
@@ -177,6 +178,41 @@ class CoreTest(unittest.TestCase):
         with self.assertRaises(HarnessFault) as c:
             desk._fill_passwords("unlock-password", 1)
         self.assertNotIsInstance(c.exception, ProductFault)
+    def test_stepper_set_both_ways_and_read_in_the_builds_language(self):
+        class Stepper(Fake):
+            def __init__(self, v, field):
+                super().__init__({}, "p", {})
+                self.v, self.field = v, field
+
+            def tree(self):
+                return [n(0, "button", "Mniej potwierdzeń"), n(1, "text_field", self.field, value=str(self.v)),
+                        n(2, "button", "Więcej potwierdzeń")]
+
+            def press(self, node):
+                self.pressed.append(node.name)
+                self.v += -1 if node.name.startswith("Mniej") else 1
+
+        arb = {"deskSetAdvConfirmations": "Potwierdzenia", "deskSetAdvConfirmationsFewer": "Mniej potwierdzeń",
+               "deskSetAdvConfirmationsMore": "Więcej potwierdzeń"}
+        # 26.10.26 named the field with the − button's tooltip after it; the build after it, the label alone
+        for field in ("Potwierdzenia. Mniej potwierdzeń", "Potwierdzenia"):
+            with self.subTest(field):
+                f = Stepper(6, field)
+                desk = Desktop(self.driver(f, arb), "candidate", self.logs.append)
+                self.assertEqual(desk._confirmations(), 6)
+                self.assertEqual(desk.set_confirmations(1), 1)
+                self.assertEqual(f.pressed, ["Mniej potwierdzeń"] * 5)
+                self.assertEqual(desk.set_confirmations(2), 2)
+                self.assertEqual(f.pressed[-1], "Więcej potwierdzeń")
+
+    def test_dialog_break_presses_the_builds_own_info_button(self):
+        f = Fake({"p": [n(0, "button", "Więcej informacji"), n(1, "button", "Unlock")]}, "p", {})
+        d = self.driver(f, dict(ARB, deskKitInfoLabel="Więcej informacji"))
+        with unittest.mock.patch.dict(os.environ, {"REL_TRUST_BREAK": "dialog:g4.unlock.submit"}), \
+                unittest.mock.patch("core.driver.time.sleep"):
+            d._clear(UNLOCK)
+        self.assertEqual(f.pressed, ["Więcej informacji"])
+
 
 if __name__ == "__main__":
     unittest.main()
