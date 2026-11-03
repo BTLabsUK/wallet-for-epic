@@ -396,8 +396,7 @@ class _Chip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
-    return Semantics(
-      identifier: semanticsId,
+    return TrustId(semanticsId, child: Semantics(
       button: true,
       selected: selected,
       child: EInkWell(
@@ -423,7 +422,7 @@ class _Chip extends StatelessWidget {
         ),
         ),
       ),
-    );
+    ));
   }
 }
 

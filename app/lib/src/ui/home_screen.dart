@@ -761,13 +761,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 icon: const Icon(Icons.qr_code_scanner),
                 onPressed: _scan,
               ),
-            trustId(
-              TrustIds.homeLock,
-              IconButton(
-                tooltip: l.homeLockTooltip,
-                icon: const Icon(Icons.lock_outline),
-                onPressed: () => lockWallet(context, ref),
-              ),
+            IconButton(
+              tooltip: l.homeLockTooltip,
+              icon: trustId(TrustIds.homeLock, const Icon(Icons.lock_outline)),
+              onPressed: () => lockWallet(context, ref),
             ),
             _SettingsButton(onPressed: () => _open(const SettingsScreen())),
           ],
@@ -1019,14 +1016,11 @@ class _SettingsButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     // No update dot: the update notice is the one place an update is offered.
-    return trustId(
-      TrustIds.homeSettings,
-      IconButton(
-        key: settingsButtonKey,
-        tooltip: l.homeSettingsTooltip,
-        icon: const Icon(Icons.settings_outlined),
-        onPressed: onPressed,
-      ),
+    return IconButton(
+      key: settingsButtonKey,
+      tooltip: l.homeSettingsTooltip,
+      icon: trustId(TrustIds.homeSettings, const Icon(Icons.settings_outlined)),
+      onPressed: onPressed,
     );
   }
 }

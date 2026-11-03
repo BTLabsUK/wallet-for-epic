@@ -297,8 +297,7 @@ class _Stop extends StatelessWidget {
     final c = context.dc;
     final ts = context.ts;
     final name = levelStopName(context.l10n, level);
-    return Semantics(
-      identifier: TrustIds.levelStop(level.number),
+    return TrustId(TrustIds.levelStop(level.number), child: Semantics(
       inMutuallyExclusiveGroup: true,
       checked: on,
       label: name,
@@ -341,7 +340,7 @@ class _Stop extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }
 

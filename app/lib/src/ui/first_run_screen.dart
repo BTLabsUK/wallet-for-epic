@@ -200,31 +200,25 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              trustId(
-                                TrustIds.welcomeCreate,
-                                FilledButton.icon(
-                                  key: firstRunCreateKey,
-                                  style: FilledButton.styleFrom(
-                                    minimumSize: const Size.fromHeight(48),
-                                  ),
-                                  icon: const Icon(Icons.add),
-                                  label: Text(l.firstRunCreate),
-                                  onPressed: () =>
-                                      setState(() => _creating = true),
+                              FilledButton.icon(
+                                key: firstRunCreateKey,
+                                style: FilledButton.styleFrom(
+                                  minimumSize: const Size.fromHeight(48),
                                 ),
+                                icon: const Icon(Icons.add),
+                                label: trustId(TrustIds.welcomeCreate, Text(l.firstRunCreate)),
+                                onPressed: () =>
+                                    setState(() => _creating = true),
                               ),
                               const SizedBox(height: 12),
-                              trustId(
-                                TrustIds.welcomeRestore,
-                                OutlinedButton.icon(
-                                  key: firstRunRestoreKey,
-                                  style: OutlinedButton.styleFrom(
-                                    minimumSize: const Size.fromHeight(48),
-                                  ),
-                                  icon: const Icon(Icons.restore),
-                                  label: Text(l.firstRunRestore),
-                                  onPressed: () => _leave(const RestoreScreen()),
+                              OutlinedButton.icon(
+                                key: firstRunRestoreKey,
+                                style: OutlinedButton.styleFrom(
+                                  minimumSize: const Size.fromHeight(48),
                                 ),
+                                icon: const Icon(Icons.restore),
+                                label: trustId(TrustIds.welcomeRestore, Text(l.firstRunRestore)),
+                                onPressed: () => _leave(const RestoreScreen()),
                               ),
                             ],
                           ),

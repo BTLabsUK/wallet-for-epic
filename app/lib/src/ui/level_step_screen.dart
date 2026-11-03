@@ -113,26 +113,20 @@ class _LevelStepScreenState extends ConsumerState<LevelStepScreen> {
                       children: [
                         Expanded(child: Center(child: BrandHero(title: l.firstRunTitle))),
                         const SizedBox(height: 16),
-                        trustId(
-                          TrustIds.welcomeCreate,
-                          FilledButton.icon(
-                            key: levelCreateKey,
-                            style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                            icon: const Icon(Icons.add),
-                            label: Text(l.firstRunCreate),
-                            onPressed: _busy ? null : () => _go(restore: false),
-                          ),
+                        FilledButton.icon(
+                          key: levelCreateKey,
+                          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                          icon: const Icon(Icons.add),
+                          label: trustId(TrustIds.welcomeCreate, Text(l.firstRunCreate)),
+                          onPressed: _busy ? null : () => _go(restore: false),
                         ),
                         const SizedBox(height: 16),
-                        trustId(
-                          TrustIds.welcomeRestore,
-                          OutlinedButton.icon(
-                            key: levelRestoreKey,
-                            style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                            icon: const Icon(Icons.restore),
-                            label: Text(l.firstRunRestore),
-                            onPressed: _busy ? null : () => _go(restore: true),
-                          ),
+                        OutlinedButton.icon(
+                          key: levelRestoreKey,
+                          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                          icon: const Icon(Icons.restore),
+                          label: trustId(TrustIds.welcomeRestore, Text(l.firstRunRestore)),
+                          onPressed: _busy ? null : () => _go(restore: true),
                         ),
                         // Niche, so under the two ways in and quiet (the owner).
                         if (offered) ...[

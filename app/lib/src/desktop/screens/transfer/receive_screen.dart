@@ -471,7 +471,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         ? Text(l.deskRecvAddressUnreadable, style: ts.small)
         : Opacity(
             opacity: on ? 1 : 0.6,
-            child: trustId(TrustIds.receiveAddress, EAddress(addr, large: true, copyLabel: l.deskRecvCopyEpicbox)),
+            child: EAddress(addr, large: true, copyLabel: l.deskRecvCopyEpicbox, semanticsId: TrustIds.receiveAddress),
           );
     final info = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -611,7 +611,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         ? Padding(padding: EdgeInsets.symmetric(vertical: Sp.x4), child: ESpinner(size: 20.u))
         : addr.isEmpty
         ? Text(l.deskRecvAddressUnreadable, style: ts.small)
-        : trustId(TrustIds.receiveAddress, EAddress(addr, large: true, copyLabel: l.deskRecvCopyEpicbox));
+        : EAddress(addr, large: true, copyLabel: l.deskRecvCopyEpicbox, semanticsId: TrustIds.receiveAddress);
     final info = Column(
       key: const ValueKey('rx-shallow-address'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
