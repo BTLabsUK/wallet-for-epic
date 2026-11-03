@@ -356,6 +356,19 @@ class Run:
             time.sleep(1.2)
         self.log("depth dial: %s (level 3)" % facts.LEVEL_DEEP_END)
 
+    def view_deep_end(self):
+        """A previous release with wallet levels (26.10.25) opens a new install in the basic view, where
+        Settings hides Node, Privacy, Wallets and Files: Settings › Advanced › View › Deep end (level 3,
+        saved on the press), the app a release before levels shows. Nothing on a build without levels."""
+        self.settings_page("Advanced")
+        stop = "re:^%s$" % re.escape(facts.LEVEL_DEEP_END)
+        if not self.ui.find(stop):
+            return
+        self.pass_depth_dial()
+        found = self.ui.find(stop)
+        if not found or "checked" not in found[0].states:
+            raise CannotRun("Settings › Advanced: the View dial's %s did not take" % facts.LEVEL_DEEP_END)
+
     def level_shown(self):
         """The depth Settings › About names ("View: Deep end"; "Depth: …" before the 26.10.25 rename); None on a build without levels."""
         try:
@@ -962,6 +975,7 @@ class Run:
         # previous release: the user's wallet and choices
         self.start_app(prev_root, "previous")
         self.create_wallet()
+        self.view_deep_end()
         self.set_servers()
         self.change_settings()
         addr = self.address()

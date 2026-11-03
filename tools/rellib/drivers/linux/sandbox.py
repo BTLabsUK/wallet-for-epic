@@ -12,6 +12,7 @@ gnome-keyring and the AT-SPI bus switched on, with HOME and the XDG dirs under o
 The app is never started unless HOME, the XDG dirs and DISPLAY are the sandbox's: a failed env
 step once started a release on the real display with the real HOME.
 """
+import fcntl
 import os
 import pwd
 import re
@@ -97,7 +98,20 @@ def _own_xvfb(sb, size):
     """Starts an Xvfb on a free display and returns (display, process) once that display is ours:
     two sandboxes started in the same second see the same free number, the later Xvfb finds it
     taken and quits while the other one's socket is there. The X lock file names the server that
-    holds the display, so a display counts as ours only when it names our Xvfb; else the next one."""
+    holds the display, so a display counts as ours only when it names our Xvfb; else the next one.
+    Sandboxes claim displays one at a time (a lock file in ~/.cache), and a claim counts once our
+    Xvfb is still up a moment later: two trust steps started together raced for :144 (26.10.26-run2)."""
+    path = os.path.join(pwd.getpwuid(os.getuid()).pw_dir, ".cache", "rel-xvfb-claim.lock")  # not a sandbox HOME
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        try:
+            return _claim_xvfb(sb, size)
+        finally:
+            fcntl.flock(lock, fcntl.LOCK_UN)
+
+
+def _claim_xvfb(sb, size):
     n = 140
     while True:
         n = _free_display(n)
@@ -109,7 +123,9 @@ def _own_xvfb(sb, size):
                 break
             time.sleep(0.1)
         if x.poll() is None and _lock_pid(n) == x.pid:
-            return n, x
+            time.sleep(0.5)
+            if x.poll() is None and _lock_pid(n) == x.pid:
+                return n, x
         if x.poll() is None:
             if os.path.exists("/tmp/.X11-unix/X%d" % n):
                 x.kill()  # up, but the display is another server's
