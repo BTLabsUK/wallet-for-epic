@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: Apache-2.0
+# The Flutter SDK at the version the app pins (scripts/linux/flutter.version, the Linux container's
+# too), cloned at its tag and cached per runner OS and version. Sets FLUTTER_ROOT (read by
+# tools/env.sh) and puts its bin on PATH. Works on Linux and on Windows (Git Bash).
+name: setup-flutter
+description: Flutter SDK at the pinned version, cached
+inputs:
+  precache:
+    description: The platform whose artifacts to download (android, windows or linux)
+    required: true
+outputs:
+  root:
+    description: The SDK folder (FLUTTER_ROOT)
+    value: ${{ steps.dir.outputs.root }}
+runs:
+  using: composite
+  steps:
+    - id: dir
+      shell: bash
+      run: |
+        version="$(tr -d '[:space:]' < scripts/linux/flutter.version)"
+        [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::scripts/linux/flutter.version: '$version'"; exit 1; }
+        root="$RUNNER_TOOL_CACHE/wfe-flutter/$version"
+        [[ "$RUNNER_OS" != Windows ]] || root="$(cygpath -w "$root")"
+        echo "version=$version" >> "$GITHUB_OUTPUT"
+        echo "root=$root" >> "$GITHUB_OUTPUT"
+    - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ steps.dir.outputs.root }}
+        key: flutter-${{ runner.os }}-${{ steps.dir.outputs.version }}-${{ inputs.precache }}
+    - shell: bash
+      env:
+        WFE_FLUTTER_ROOT: ${{ steps.dir.outputs.root }}
+        WFE_FLUTTER_VERSION: ${{ steps.dir.outputs.version }}
+        WFE_PRECACHE: ${{ inputs.precache }}
+      run: |
+        root="$WFE_FLUTTER_ROOT"
+        [[ "$RUNNER_OS" != Windows ]] || root="$(cygpath -u "$root")"
+        if [[ ! -f "$root/bin/flutter" ]]; then
+          rm -rf -- "$root"
+          git clone --quiet --depth 1 --branch "$WFE_FLUTTER_VERSION" https://github.com/flutter/flutter.git "$root"
+        fi
+        echo "FLUTTER_ROOT=$WFE_FLUTTER_ROOT" >> "$GITHUB_ENV"
+        if [[ "$RUNNER_OS" == Windows ]]; then
+          cygpath -w "$root/bin" >> "$GITHUB_PATH"
+        else
+          echo "$root/bin" >> "$GITHUB_PATH"
+        fi
+        flutter="$root/bin/flutter"
+        [[ "$RUNNER_OS" != Windows ]] || flutter="$root/bin/flutter.bat"
+        "$flutter" config --no-analytics >/dev/null
+        "$flutter" precache "--$WFE_PRECACHE"
+        "$flutter" --version
