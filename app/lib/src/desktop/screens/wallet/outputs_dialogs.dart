@@ -396,9 +396,11 @@ class _NothingToConsolidate extends StatelessWidget {
 }
 
 /// A whole number from [min] to [max]: − and + buttons around an editable value. Arrow keys
-/// step, Home and End jump to the ends; screen readers hear a slider.
+/// step, Home and End jump to the ends. Screen readers get a group of its own (nothing merges into
+/// the row around it) holding the − button, the number field (label, value, increase and decrease)
+/// and the + button side by side: the value is the field's own text, readable through UI Automation.
 class EStepper extends StatefulWidget {
-  const EStepper({super.key, required this.value, required this.min, required this.max, required this.onChanged, required this.label, this.fewerLabel, this.moreLabel, this.valueText, this.fewerId, this.moreId});
+  const EStepper({super.key, required this.value, required this.min, required this.max, required this.onChanged, required this.label, this.fewerLabel, this.moreLabel, this.fewerId, this.moreId});
 
   final int value;
   final int min;
@@ -413,9 +415,6 @@ class EStepper extends StatefulWidget {
   /// The test drivers' stable names for the − and + buttons (`TrustIds`, lib/src/trust_ids.dart).
   final String? fewerId;
   final String? moreId;
-
-  /// What a screen reader hears for a value ("6 confirmations"); the number when null.
-  final String Function(int value)? valueText;
 
   @override
   State<EStepper> createState() => _EStepperState();
@@ -460,18 +459,13 @@ class _EStepperState extends State<EStepper> {
   Widget build(BuildContext context) {
     final v = widget.value;
     final l = context.l10n;
-    String say(int n) => widget.valueText?.call(n) ?? '$n';
     return Semantics(
-      slider: true,
-      label: widget.label,
-      value: say(v),
-      increasedValue: say((v + 1).clamp(widget.min, widget.max)),
-      decreasedValue: say((v - 1).clamp(widget.min, widget.max)),
-      onIncrease: v < widget.max ? () => _set(v + 1) : null,
-      onDecrease: v > widget.min ? () => _set(v - 1) : null,
+      container: true,
+      explicitChildNodes: true,
       child: Focus(
         canRequestFocus: false,
         skipTraversal: true,
+        includeSemantics: false,
         onKeyEvent: _key,
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -480,16 +474,23 @@ class _EStepperState extends State<EStepper> {
             SizedBox(width: Sp.x1),
             SizedBox(
               width: 52.u,
-              child: EInput(
-                controller: _text,
-                mono: true,
-                semanticLabel: widget.label,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(2)],
-                onChanged: (t) {
-                  final n = int.tryParse(t);
-                  if (n != null && n >= widget.min && n <= widget.max) widget.onChanged(n);
-                },
+              child: Semantics(
+                container: true,
+                increasedValue: '${(v + 1).clamp(widget.min, widget.max)}',
+                decreasedValue: '${(v - 1).clamp(widget.min, widget.max)}',
+                onIncrease: v < widget.max ? () => _set(v + 1) : null,
+                onDecrease: v > widget.min ? () => _set(v - 1) : null,
+                child: EInput(
+                  controller: _text,
+                  mono: true,
+                  semanticLabel: widget.label,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(2)],
+                  onChanged: (t) {
+                    final n = int.tryParse(t);
+                    if (n != null && n >= widget.min && n <= widget.max) widget.onChanged(n);
+                  },
+                ),
               ),
             ),
             SizedBox(width: Sp.x1),
