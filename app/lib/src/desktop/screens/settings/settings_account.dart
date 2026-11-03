@@ -104,7 +104,7 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
               ),
             ],
           ),
-          BackupGroup(demo: widget.arg is BackupDemo ? widget.arg as BackupDemo : null),
+          BackupGroup(shot: widget.arg is BackupShot ? widget.arg as BackupShot : null),
           // Recheck balance: a sub-page of Wallet, at every view.
           ESetGroup(
             title: l.deskSetAcctBalance,

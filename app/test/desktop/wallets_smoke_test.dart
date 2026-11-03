@@ -6,7 +6,7 @@ import 'dart:async';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/unlock_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/dialogs.dart';
-import 'package:epic_wallet/src/desktop/screens/settings/shots.dart' show demoOtherWallet;
+import 'package:epic_wallet/src/desktop/screens/settings/shots.dart' show shotOtherWallet;
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
@@ -92,38 +92,38 @@ void main() {
     // Each option names its whole folder on hover; the list cuts it.
     // The mock's Savings lives in the app's own folder, under its id.
     expect(
-      find.byWidgetPredicate((w) => w is Tooltip && w.message == '~/.epic_cash_desktop/wallets/${demoOtherWallet.id}'),
+      find.byWidgetPredicate((w) => w is Tooltip && w.message == '~/.epic_cash_desktop/wallets/${shotOtherWallet.id}'),
       findsOneWidget,
     );
     // ... and copies it from its own button, which does not pick the wallet.
     expect(find.byTooltip('Copy path: Savings'), findsOneWidget);
     await tester.tap(find.text('Savings').last);
     await tester.pump(const Duration(milliseconds: 500));
-    expect(api.calls, ['select ${demoOtherWallet.id}']);
+    expect(api.calls, ['select ${shotOtherWallet.id}']);
     await tester.enterText(find.byType(EditableText).first, 'wrong');
     await tester.tap(find.text(_l.deskOnbUnlockButton));
     await _wait(tester);
-    expect(api.calls, ['select ${demoOtherWallet.id}', 'select ${demoOtherWallet.id}', 'unlock']);
+    expect(api.calls, ['select ${shotOtherWallet.id}', 'select ${shotOtherWallet.id}', 'unlock']);
     await _end(tester);
   });
 
   testWidgets('remove dialog for a wallet that is not open offers only Remove from list', (tester) async {
     final api = _Recorder();
-    await _pump(tester, api, Builder(builder: (c) => TextButton(onPressed: () => showRemoveWalletDialog(c, demoOtherWallet), child: const Text('open'))));
+    await _pump(tester, api, Builder(builder: (c) => TextButton(onPressed: () => showRemoveWalletDialog(c, shotOtherWallet), child: const Text('open'))));
     await tester.tap(find.text('open'));
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.text(_l.deskSetDlgRemoveFromList), findsWidgets);
     expect(find.text(_l.deskSetDlgDeleteWallet), findsNothing);
     await tester.tap(find.widgetWithText(EButton, _l.deskSetDlgRemoveFromList));
     await _wait(tester);
-    expect(api.calls, ['remove ${demoOtherWallet.id} list']);
+    expect(api.calls, ['remove ${shotOtherWallet.id} list']);
     expect(find.text('Savings removed from the list'), findsOneWidget);
     await _end(tester);
   });
 
   testWidgets('remove dialog for a wallet that is not open: the delete line and "Unlock this wallet"', (tester) async {
     final api = _FailingRemove();
-    await _pump(tester, api, Builder(builder: (c) => TextButton(onPressed: () => showRemoveWalletDialog(c, demoOtherWallet), child: const Text('open'))));
+    await _pump(tester, api, Builder(builder: (c) => TextButton(onPressed: () => showRemoveWalletDialog(c, shotOtherWallet), child: const Text('open'))));
     final container = ProviderScope.containerOf(tester.element(find.text('open')));
     await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
     await tester.pump();
@@ -134,13 +134,13 @@ void main() {
     await tester.tap(find.text(_l.deskSetDlgRemoveUnlock));
     await _wait(tester);
     expect(api.locked, isTrue, reason: 'the open wallet is locked first');
-    expect(api.calls, contains('select ${demoOtherWallet.id}'));
+    expect(api.calls, contains('select ${shotOtherWallet.id}'));
     expect(find.byType(RemoveWalletDialog), findsNothing);
     final nav = container.read(deskNavProvider);
     expect(nav.route, DeskRoute.unlock);
     final pick = nav.arg;
     expect(pick, isA<UnlockPick>());
-    expect((pick! as UnlockPick).id, demoOtherWallet.id);
+    expect((pick! as UnlockPick).id, shotOtherWallet.id);
     expect((pick as UnlockPick).then, DeskRoute.settingsSecurity);
     await _end(tester);
   });

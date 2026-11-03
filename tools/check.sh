@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 # Repository gate. Two modes:
 #   tools/check.sh           fast, the default (a branch before review, main after a merge):
-#                            version, install contract, LEPIC at the pin, no hosts, the plain-Dart
-#                            core, flutter analyze, and only the Flutter tests the change reaches
-#                            (tools/t affected); the bot's tests only when bot/ changed; the
-#                            release tools' own tests (tools/rel, the nightly, sbom, test order,
-#                            tools/t, the incremental publisher, the screens feedback service) only
-#                            when tools/ changed.
+#                            version, install contract, LEPIC at the pin, no hosts, workflows,
+#                            the plain-Dart core, flutter analyze, and only the Flutter tests the
+#                            change reaches (tools/t affected); the bot's tests only when bot/
+#                            changed; the release tools' own tests (tools/rel, the nightly, sbom,
+#                            test order, check-workflow, tools/t, the incremental publisher, the
+#                            screens feedback service) only when tools/ changed.
 #   tools/check.sh --full    everything: the whole flutter test suite, the integration tests and
 #                            the web build too. Once per release candidate: tools/rel's source
 #                            gate runs it, or the nightly, or the release lead on the candidate.
@@ -80,6 +80,9 @@ step "install contract (docs/install-contract.md)"
 step "no hosts in code (docs/settings-file.md)"
 "$root/tools/check-no-hosts.sh"
 
+step "workflows (.github/workflows, tools/check-workflow.py)"
+python3 "$root/tools/check-workflow.py"
+
 # Everything that takes seconds runs before the minutes: a release run once failed on a lint
 # after the full Flutter suite had passed (docs/TESTING.md, "Order of the steps").
 if [[ $mode == full || $bot_changed == 1 ]]; then
@@ -92,7 +95,8 @@ if [[ $mode == full || $tools_changed == 1 ]]; then
   # tools/rel's own tests (docs/RELEASING.md), then the single-file ones, each as its file says.
   (cd "$root" && python3 -m unittest discover -s tools/rellib/tests)
   (cd "$root" && python3 -m unittest discover -s tools/tlib/tests)
-  (cd "$root" && python3 -m unittest tools/nightly/test_nightly.py tools/test_sbom.py tools/test_flutter_test_order.py)
+  (cd "$root" && python3 -m unittest tools/nightly/test_nightly.py tools/test_sbom.py tools/test_flutter_test_order.py \
+    tools/test_check_workflow.py tools/publish/test_buildcheck.py)
   # Says "skip:" and passes without git-filter-repo, gitleaks or trufflehog.
   "$root/tools/publish/test-incremental.sh"
   if command -v node >/dev/null; then

@@ -166,6 +166,32 @@ linux = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rel
 windows = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rellib/drivers/trust-windows.sh"
 # macos, ios: no driver yet; those platforms are not proven until one exists.
 
+# ---- hosted builds ---------------------------------------------------------------------------
+# `tools/rel start --builds hosted`: build-android, build-linux and build-windows (the steps with a
+# `hosted` key) build on GitHub runners from the published twin of the release commit, and
+# build-fetch takes their files back after it verifies them (tools/rellib/hosted.py). One dispatch
+# per run, no retry, no local fallback: a failed or late build fails its step. {build_id} (WFE_BUILD_ID,
+# the About line, local and hosted builds) is the published short commit, else the local one.
+[hosted]
+repo = "BTLabsUK/wallet-for-epic"
+workflow = "build.yml"
+gh_config = "~/.config/gh-btlabs"
+account = "btlabs-uk"
+commit_map = "~/publish/wallet-for-epic.commit-map"
+# One JSON line per dispatch; the cap counts the last 24 h.
+state = "/tmp/epic-build/rel/hosted-dispatches.jsonl"
+max_per_day = 8
+ramp_until = "2026-11-10"
+ramp_max_per_day = 2
+poll = "30s"
+
+# From the dispatch to the files, per platform. The workflow's own job timeouts (75 min android
+# and linux, 90 min windows) fire first.
+[hosted.deadline]
+android = "90m"
+linux = "90m"
+windows = "105m"
+
 # ---- G0, G1, source -------------------------------------------------------------------------
 
 [step.scope]
@@ -212,6 +238,13 @@ reuse_nightly = true
 # the candidate): tools/rel start refuses a candidate without one unless --run-source-check.
 reuse_green = true
 
+[step.hosted-dispatch]
+title = "Hosted builds dispatch"
+kind = "builtin"
+host = "local"
+when = ["builds.hosted"]
+needs = ["source"]
+
 # ---- builds ----------------------------------------------------------------------------------
 
 [step.build-android]
@@ -221,9 +254,10 @@ for_each = "variant"
 # Without a signer Android is signed inside the Gradle build, so it runs where the release key
 # is; with one it builds unsigned (tool/build_android_release.sh) and sign-android signs it.
 host = "signer"
-needs = ["source", "source-check"]
+needs = ["source", "source-check", "hosted-dispatch"]
+hosted = "android"
 run = "app/tool/build_android_release.sh {stage}"
-env = { WFE_TOR = "{tor}", WFE_EMULATOR_X86_64 = "1" }
+env = { WFE_TOR = "{tor}", WFE_EMULATOR_X86_64 = "1", WFE_BUILD_ID = "{build_id}" }
 heavy = true
 outputs = ["bt-wallet-{version}{notor}-android-arm64-v8a.apk"]
 extras = ["emulator/bt-wallet-{version}{notor}-android-x86_64.apk"]
@@ -275,9 +309,10 @@ host = "build"
 # its own copy of the code. Each build still takes a build-slot slot (heavy = true); the two
 # Linux variants one after the other. metrics.jsonl has the pair's peak memory ("overlap" lines).
 lane = "build-linux"
-needs = ["source", "source-check"]
+needs = ["source", "source-check", "hosted-dispatch"]
+hosted = "linux"
 run = "scripts/build-linux.sh && mv -f build-linux/bt-wallet-{version}{notor}-linux-x86_64.AppImage {stage}/"
-env = { WFE_TOR = "{tor}", WFE_NODE_BIN = "{path.node_bin_linux}" }
+env = { WFE_TOR = "{tor}", WFE_NODE_BIN = "{path.node_bin_linux}", WFE_BUILD_ID = "{build_id}" }
 heavy = true
 outputs = ["bt-wallet-{version}{notor}-linux-x86_64.AppImage"]
 timeout = "120m"
@@ -293,14 +328,15 @@ host = "windows"
 # The variants build side by side, each in its own work dir (the owner 2026-10-31: the Windows
 # machine takes 4-6 jobs).
 lane = "build-windows-{variant}"
-needs = ["source", "source-check"]
+needs = ["source", "source-check", "hosted-dispatch"]
+hosted = "windows"
 # A fresh work dir per run, commit and variant on the Windows machine (never a stale LEPIC blob or
 # build tree from an older run: run ids come back after a cleanup, and 26.10.26-run3 once built on
 # a 10/31 tree that still named epic_wallet); only this run's installer is taken back.
 run = "app/tool/build_windows_release_remote.sh {host.windows.ssh} {host.windows.workdir}/{run_id}-{short}-{variant} && mv -f build-windows/bt-wallet-{version}{notor}-windows-x64-setup.exe {stage}/"
 # LEPIC's cargo target per variant, outside the run's work dir and kept between releases (the owner
 # 2026-11-02): the two variants never wait on one target's lock, and a new release starts warm.
-env = { WFE_TOR = "{tor}", WFE_NODE_BIN_WIN = "{path.node_bin_windows}", WFE_CARGO_TARGET = "{host.windows.workdir}/cargo-target/{variant}" }
+env = { WFE_TOR = "{tor}", WFE_NODE_BIN_WIN = "{path.node_bin_windows}", WFE_BUILD_ID = "{build_id}", WFE_CARGO_TARGET = "{host.windows.workdir}/cargo-target/{variant}" }
 outputs = ["bt-wallet-{version}{notor}-windows-x64-setup.exe"]
 timeout = "150m"
 # The app without its tests and side tools, the two build scripts, the tools and pins they read

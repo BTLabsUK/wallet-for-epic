@@ -134,16 +134,15 @@ def lepic_library():
 
 def use_lepic_library():
     """For `full`: the tests that open a wallet on the real core (vault_test.dart, the *_live_test.dart
-    files that need no node or funds) run instead of skipping, when WFE_DEMO_LEPIC_LIB (and
-    WFE_LEPIC_LIB, read by device_link_fingerprint_lepic_test.dart) names the library; the live files
+    files that need no node or funds) run instead of skipping, when WFE_LEPIC_LIB names
+    the library; the live files
     that also need WFE_LIVE_DIR stay skipped. A path set by the caller is kept. The cache key hashes the library's bytes (tlib/cache.py), so a green result is never reused across libraries."""
-    if "WFE_DEMO_LEPIC_LIB" in os.environ or not sys.platform.startswith("linux"):
+    if "WFE_LEPIC_LIB" in os.environ or not sys.platform.startswith("linux"):
         return
     env = toolchain_env()
     prepare(env)  # builds the library when this worktree has none
     if os.path.exists(lepic_library()):
-        os.environ["WFE_DEMO_LEPIC_LIB"] = lepic_library()
-        os.environ.setdefault("WFE_LEPIC_LIB", lepic_library())
+        os.environ["WFE_LEPIC_LIB"] = lepic_library()
 
 
 def prepare(env):

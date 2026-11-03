@@ -224,7 +224,7 @@ void main() {
       await _open(tester, DeskRoute.overview);
       expect(find.text(_l.deskTxStatusSenderPosted), findsNothing);
       expect(find.textContaining('12.5'), findsWidgets, reason: 'the mock awaits 12.5 EPIC finalization');
-      _wallet.addSenderPostedDemo();
+      _wallet.addSenderPostedShot();
       await tester.runAsync(() => _container.read(deskProvider.notifier).refresh());
       await _settle(tester);
       // Its own line (and the row): 7.25 reported, 5.25 still awaiting; Total unchanged.
@@ -248,7 +248,7 @@ void main() {
     }, skip: !torBuilt);
 
     testWidgets('Node only with a LAN node: a Link send to a LAN address is held too, Pay with a file runs', (tester) async {
-      await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'http://10.0.1.30:3415', amount: '1'), advanced: _offline, node: 'http://10.100.10.20:3413', peers: 0);
+      await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'http://192.168.1.30:3415', amount: '1'), advanced: _offline, node: 'http://192.168.1.20:3413', peers: 0);
       expect(find.byKey(const ValueKey('send-hold-nodeOnly')), findsOneWidget);
       expect(find.byKey(const ValueKey('send-pay-file')), findsOneWidget);
     });
@@ -292,7 +292,7 @@ void main() {
     });
 
     testWidgets('Offline with a LAN node: the Files panel runs without the node line', (tester) async {
-      await _open(tester, DeskRoute.receive, advanced: _offline, node: 'http://10.100.10.20:3413');
+      await _open(tester, DeskRoute.receive, advanced: _offline, node: 'http://192.168.1.20:3413');
       expect(find.byKey(const ValueKey('rx-files-offline-node')), findsNothing);
     });
 

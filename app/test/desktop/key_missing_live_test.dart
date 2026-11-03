@@ -6,7 +6,7 @@
 // fake core; this checks the fake's premise, that LEPIC answers walletNotFound. Temp folders,
 // unreachable node. Needs the Linux library:
 //
-//   WFE_DEMO_LEPIC_LIB=$PWD/third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so \
+//   WFE_LEPIC_LIB=$PWD/third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so \
 //   flutter test test/desktop/key_missing_live_test.dart
 //
 // Without it it is skipped.
@@ -19,7 +19,7 @@ import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:flutter_test/flutter_test.dart';
 
-final String? _lib = Platform.environment['WFE_DEMO_LEPIC_LIB'];
+final String? _lib = Platform.environment['WFE_LEPIC_LIB'];
 
 const _pass = 'key-missing-pass-1';
 
@@ -71,5 +71,5 @@ void main() {
     expect(await w.unlock('key-missing-pass-2'), isTrue);
     expect(await w.epicboxAddress(), address, reason: 'the same wallet');
     await w.dispose();
-  }, skip: _lib == null ? 'needs WFE_DEMO_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 3)));
+  }, skip: _lib == null ? 'needs WFE_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 3)));
 }

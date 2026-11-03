@@ -22,7 +22,7 @@ import 'settings_frame.dart';
 import 'settings_advanced.dart' show advancedHas, AdvancedFeature;
 
 /// Start states of Settings › Recheck balance.
-enum RescanDemo { running }
+enum RescanShot { running }
 
 /// Why a scan ended, for the result card.
 enum _End { finished, stopped }
@@ -88,7 +88,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.arg == RescanDemo.running) WidgetsBinding.instance.addPostFrameCallback((_) => _start());
+    if (widget.arg == RescanShot.running) WidgetsBinding.instance.addPostFrameCallback((_) => _start());
   }
 
   @override

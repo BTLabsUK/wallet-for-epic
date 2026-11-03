@@ -19,7 +19,7 @@ import subprocess
 import sys
 import tempfile
 
-from . import failures as known, guards, health, retention
+from . import failures as known, guards, health, hosted, retention
 from .config import (ConfigError, PLATFORMS, Pipeline, load_hosts, load_scope, scope_summary, scope_toml,
                      validate_scope)
 from .engine import (EXIT_BUSY, EXIT_DENIED, EXIT_FAILED, EXIT_OK, EXIT_PREFLIGHT, EXIT_USAGE, EXIT_WAITING, Engine, relmsg_state)
@@ -60,10 +60,11 @@ class Lenient(dict):
 RUNNER = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
-def context(version, commit, run_path, run_id, src, scope, hosts, previous):
+def context(version, commit, run_path, run_id, src, scope, hosts, previous, build_id=None):
     return {
         "rel": RUNNER,
         "version": version, "commit": commit, "short": commit[:7], "run_id": run_id, "run": run_path,
+        "build_id": build_id or commit[:7],
         "files": f"{run_path}/files", "extra": f"{run_path}/extra", "manifests": f"{run_path}/manifests",
         "src": src, "target": scope["publish"]["target"], "scratch": f"{run_path}/scratch/target",
         "notes_file": f"{run_path}/notes.txt",
@@ -144,6 +145,8 @@ class App:
                            a.test, None, a.waive)
         if a.previous:
             scope["proof"]["previous_dir"] = a.previous
+        if getattr(a, "builds", "local") == "hosted":
+            scope["builds"] = {"hosted": True}  # local runs carry no [builds]: their plan is as before
         vac = version_at(self.repo, commit)
         prev = {}
         pubs = retention.published(self.state_root)
@@ -169,12 +172,16 @@ class App:
         warns = validate_scope(scope, self.pipeline, vac, prev.get("version"))
         return commit, scope, prev, warns
 
+    def build_id(self, commit):
+        """WFE_BUILD_ID: the published short commit when the commit is published, else the local one."""
+        return hosted.build_id_for(commit, hosted.conf(self.pipeline)["commit_map"])
+
     def cmd_plan(self, a):
         commit, scope, prev, warns = self.resolve(a)
         path, run_id = Run.next_path(self.state_root, scope["version"])
         src = a.src or os.path.join(self.hosts["path"].get("worktrees", os.path.expanduser("~/wfe-worktrees")),
                                     f"rel-{scope['version']}-{commit[:7]}")
-        steps = build_graph(self.pipeline, scope, context(scope["version"], commit, path, run_id, src, scope, self.hosts, prev))
+        steps = build_graph(self.pipeline, scope, context(scope["version"], commit, path, run_id, src, scope, self.hosts, prev, self.build_id(commit)))
         if a.json:
             return self.out(0, "plan", steps=[s.to_dict() for s in steps], scope=scope, warnings=warns,
                             summary=scope_summary(scope))
@@ -211,7 +218,7 @@ class App:
         path, run_id = Run.next_path(self.state_root, version)
         wt = self.hosts["path"].get("worktrees", os.path.expanduser("~/wfe-worktrees"))
         src = os.path.abspath(a.src) if a.src else os.path.join(wt, f"rel-{version}-{commit[:7]}")
-        steps = build_graph(self.pipeline, scope, context(version, commit, path, run_id, src, scope, self.hosts, prev))
+        steps = build_graph(self.pipeline, scope, context(version, commit, path, run_id, src, scope, self.hosts, prev, self.build_id(commit)))
         g2 = next((s for s in steps if s.base == "source-check"), None)
         if g2 and not a.dry_run and not a.run_source_check and g2.base not in scope["skip"]:
             # Only a candidate whose content already passed the full suite (any source: an earlier
@@ -890,6 +897,9 @@ def parser():
         sp.add_argument("--commit", help="the commit to release (default HEAD of this checkout)")
         sp.add_argument("--src", help="use this clean checkout at the commit instead of a new worktree")
         sp.add_argument("--previous", help="the previous release's folder for G4 (default: the last published run)")
+        sp.add_argument("--builds", choices=("local", "hosted"), default="local",
+                        help="hosted: android, linux and windows build on GitHub runners from the published commit "
+                             "(release/pipeline.toml [hosted]); default local")
 
     sp = sub.add_parser("plan", help="the graph for a scope; no side effects")
     scope_args(sp)

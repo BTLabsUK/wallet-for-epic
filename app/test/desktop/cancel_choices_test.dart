@@ -115,13 +115,13 @@ void main() {
     });
 
     testWidgets('Unlock coins: cancelled with no spend back, a calm toast', (tester) async {
-      final desk = await _pump(tester, (_) => TxDetail(tx: _send(notPosted: true, id: MockDeskWallet.signedCancelDemoId)));
-      desk.addSignedCancelDemo(id: MockDeskWallet.signedCancelDemoId);
+      final desk = await _pump(tester, (_) => TxDetail(tx: _send(notPosted: true, id: MockDeskWallet.signedCancelShotId)));
+      desk.addSignedCancelShot(id: MockDeskWallet.signedCancelShotId);
       await tester.tap(_button(_l.deskTxCancelOutgoingAction).first);
       await _frames(tester);
       await tester.tap(_button(_l.cancelUnlockOpen));
       await _frames(tester, 20);
-      expect(desk.cancels, [(MockDeskWallet.signedCancelDemoId, false)]);
+      expect(desk.cancels, [(MockDeskWallet.signedCancelShotId, false)]);
       expect(find.text(_l.cancelStoppedWaitingTitle), findsOneWidget);
       expect(find.text(_l.cancelStoppedWaitingText), findsOneWidget);
       expect(find.text(_l.deskInvPayerSpentText), findsNothing);
@@ -129,13 +129,13 @@ void main() {
     });
 
     testWidgets('Move coins back: cancelled and spent back, as before', (tester) async {
-      final desk = await _pump(tester, (_) => TxDetail(tx: _send(notPosted: true, id: MockDeskWallet.signedCancelDemoId)));
-      desk.addSignedCancelDemo(id: MockDeskWallet.signedCancelDemoId);
+      final desk = await _pump(tester, (_) => TxDetail(tx: _send(notPosted: true, id: MockDeskWallet.signedCancelShotId)));
+      desk.addSignedCancelShot(id: MockDeskWallet.signedCancelShotId);
       await tester.tap(_button(_l.deskTxCancelOutgoingAction).first);
       await _frames(tester);
       await tester.tap(_button(_l.cancelMoveBack));
       await _frames(tester, 20);
-      expect(desk.cancels, [(MockDeskWallet.signedCancelDemoId, true)]);
+      expect(desk.cancels, [(MockDeskWallet.signedCancelShotId, true)]);
       expect(find.text(_l.deskTxCancelled), findsOneWidget);
       expect(find.text(_l.deskInvPayerSpentText), findsOneWidget);
       await _end(tester);

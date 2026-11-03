@@ -239,11 +239,11 @@ void main() {
       expect(s.spentToSelf, isEmpty);
     });
 
-    test('the desktop demo wallet: Stop waiting leaves the cancel not final', () async {
+    test('the desktop shot wallet: Stop waiting leaves the cancel not final', () async {
       final m = MockDeskWallet(delay: Duration.zero);
-      m.addSignedCancelDemo(id: MockDeskWallet.signedCancelDemoId);
-      expect(await m.cancelTx(MockDeskWallet.signedCancelDemoId, spendBack: false), CancelResult.stoppedWaiting);
-      final t = (await m.transactions()).singleWhere((t) => t.id == MockDeskWallet.signedCancelDemoId);
+      m.addSignedCancelShot(id: MockDeskWallet.signedCancelShotId);
+      expect(await m.cancelTx(MockDeskWallet.signedCancelShotId, spendBack: false), CancelResult.stoppedWaiting);
+      final t = (await m.transactions()).singleWhere((t) => t.id == MockDeskWallet.signedCancelShotId);
       expect(t.cancelFinal, isFalse);
     });
 

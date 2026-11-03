@@ -15,9 +15,9 @@ import time
 import tomllib
 import urllib.request
 
-from . import health
+from . import health, hosted
 from .config import PLATFORMS, scope_summary
-from .run import now_iso, read_json, write_json
+from .run import Run, now_iso, read_json, write_json
 
 
 def run(engine, step, log):
@@ -29,6 +29,7 @@ def run(engine, step, log):
         "scratch_downloads": scratch_downloads, "scratch_page": scratch_page, "scratch_source": scratch_source,
         "scratch_manifests": scratch_manifests, "scratch_prune": scratch_prune, "scratch_noop": scratch_noop,
         "rollback-gate": publish_gate, "rollback-resign": _resign, "sign-android": _sign_android,
+        "hosted-dispatch": hosted_dispatch,
     }.get(name)
     if fn is None:
         return {"status": "failed", "note": f"no builtin {name!r}"}
@@ -37,6 +38,30 @@ def run(engine, step, log):
             f.write(" ".join(str(x) for x in a) + "\n")
             f.flush()
         return fn(engine, step, say)
+
+
+def hosted_dispatch(engine, step, say):
+    return hosted.dispatch(engine, step, say)
+
+
+def built_by(engine, s):
+    """Who built a release file: {stage}/built_by.json of a hosted build (of the run it was reused
+    from, when reused), else a local build."""
+    st = engine.run.status(s.id)
+    src = st.get("reused_from") or {}
+    out = {"via": "local"}
+    try:
+        stage = engine.run.step_dir(s.id)
+        if src.get("kind") == "run":
+            stage = Run.find(os.path.dirname(os.path.dirname(engine.run.path)), src["label"]).step_dir(s.id)
+        got = read_json(os.path.join(stage, "out", "built_by.json"))
+        if isinstance(got, dict) and got.get("via"):
+            out = got
+    except Exception:
+        pass
+    if src:
+        out = dict(out, reused_from=src.get("label"))
+    return out
 
 
 def _resign(engine, step, say):
@@ -382,6 +407,8 @@ def preflight(engine, step, say):
                 except (subprocess.TimeoutExpired, OSError):
                     good, note = False, f"the shared P service did not answer in {p.timeout} s"
                 (ok if good else bad)(note)
+    if hosted.is_hosted(s):
+        hosted.preflight_checks(engine, ok, bad)  # published, main's tip, buildcheck, the dispatch cap
     nodes, boxes = pipe.defaults.get("nodes", []), pipe.defaults.get("epicboxes", [])
     node, tried = pick(nodes, health_node, os.environ.get("REL_NODE"))
     (ok if node else bad)(f"node for tests: {node or 'none healthy'} (tried {', '.join(tried)})")
@@ -522,7 +549,8 @@ def artefacts(engine, step, say):
             if "name='uk.btlabs.btwallet'" not in head:
                 problems.append(f"{name}: package is not uk.btlabs.btwallet")
         meta[name] = {"bytes": size, "sha256": run.status(s.id)["outputs"].get(name, {}).get("sha256") if s else None,
-                      "step": s.id if s else None, "host": s.host if s else None}
+                      "step": s.id if s else None, "host": s.host if s else None,
+                      "built_by": built_by(engine, s) if s else None}
     if "android" in [p for p in PLATFORMS if info["scope"]["platforms"].get(p)]:
         for s in run.steps:
             if s.base == "build-android":
@@ -552,6 +580,8 @@ def artefacts(engine, step, say):
         "version": version, "version_code": want_code, "commit": info["commit"], "run_id": info["run_id"],
         "created": now_iso(), "pins": info.get("pins", {}), "scope": scope_summary(info["scope"]),
         "toolchain": toolchain(engine.repo), "files": meta, "test": bool(info.get("test")),
+        "published_commit": (info.get("published") or {}).get("commit"),
+        "published_pins": {k: (info.get("published") or {}).get(k) for k in ("lepic", "lepic_flutter")},
     }
     write_json(os.path.join(run.files, "provenance.json"), prov)
     listed = {name: meta[name]["sha256"] for name in present}
@@ -721,12 +751,20 @@ def trust_manifest(engine, step, say):
 
 
 def kept_files(run):
-    """{file name: sha256} of the desktop entries this run's manifests keep from the live one."""
+    """{file name: sha256} of the live files this run keeps: the desktop entries its manifests
+    keep (desktop-keep.json) and every platform it has no file for (live-keep.sums)."""
+    out = {}
     kp = os.path.join(run.path, "manifests", "desktop-keep.json")
-    if not os.path.isfile(kp):
-        return {}
-    return {e["url"].rsplit("/", 1)[-1]: e.get("sha256") for e in walk_objects(json.load(open(kp)))
-            if isinstance(e.get("url"), str)}
+    if os.path.isfile(kp):
+        out.update({e["url"].rsplit("/", 1)[-1]: e.get("sha256") for e in walk_objects(json.load(open(kp)))
+                    if isinstance(e.get("url"), str)})
+    lp = os.path.join(run.path, "manifests", "live-keep.sums")
+    if os.path.isfile(lp):
+        for line in open(lp, encoding="utf-8"):
+            sha, _, name = line.rstrip("\n").partition("  ")
+            if name:
+                out[name] = sha
+    return out
 
 
 def walk_objects(o):
@@ -1120,14 +1158,23 @@ def scratch_manifests(engine, step, say):
     return {"status": "done", "note": f"scratch: both manifests in {tgt}"}
 
 
+def releases_keep(repo, version, names):
+    """tools/releases/build.py keep: per platform and variant the newest version's files."""
+    spec = importlib.util.spec_from_file_location("releases_build", os.path.join(repo, "tools/releases/build.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod.keep(version, names)
+
+
 def scratch_prune(engine, step, say):
     d = os.path.join(scratch_dir(engine), "downloads")
     arch = os.path.join(scratch_dir(engine), "archive")
     v = engine.info["version"]
     moved = []
-    for n in sorted(os.listdir(d)) if os.path.isdir(d) else []:
-        if (n not in ("SHA256SUMS", "SHA256SUMS.sig", "provenance.json", SBOM) and f"-{v}-" not in n
-                and n not in kept_files(engine.run)):
+    names = sorted(os.listdir(d)) if os.path.isdir(d) else []
+    keep = releases_keep(engine.repo, v, names) | set(kept_files(engine.run))
+    for n in names:
+        if n not in ("SHA256SUMS", "SHA256SUMS.sig", "provenance.json", SBOM) and n not in keep:
             os.makedirs(arch, exist_ok=True)
             shutil.move(os.path.join(d, n), os.path.join(arch, n))
             moved.append(n)

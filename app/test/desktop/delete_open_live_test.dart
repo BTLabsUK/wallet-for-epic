@@ -2,7 +2,7 @@
 // Live: deleting the open wallet on the real LEPIC core through LepicDeskWallet (tester report
 // 26.10.16: "Wallet busy", then a Settings page that never loads). Needs the Linux library:
 //
-//   WFE_DEMO_LEPIC_LIB=$PWD/third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so \
+//   WFE_LEPIC_LIB=$PWD/third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so \
 //   flutter test test/desktop/delete_open_live_test.dart
 //
 // Without it it is skipped.
@@ -15,7 +15,7 @@ import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:flutter_test/flutter_test.dart';
 
-final String? _lib = Platform.environment['WFE_DEMO_LEPIC_LIB'];
+final String? _lib = Platform.environment['WFE_LEPIC_LIB'];
 
 const _pass = 'delete-live-pass-1';
 
@@ -60,7 +60,7 @@ void main() {
     expect(await w.unlock(_pass), isTrue);
     await w.removeWallet(third.id, WalletRemoval.delete, password: _pass);
     expect((await w.wallets()).map((e) => e.name), ['Main']);
-  }, skip: _lib == null ? 'needs WFE_DEMO_LEPIC_LIB' : false);
+  }, skip: _lib == null ? 'needs WFE_LEPIC_LIB' : false);
 
   test('a restored wallet deletes right after unlock, while its first scan is due', () async {
     // A throwaway seed from a wallet made elsewhere.
@@ -74,5 +74,5 @@ void main() {
     await w.removeWallet(third.id, WalletRemoval.delete, password: _pass);
     expect((await w.wallets()).map((e) => e.name), ['Main']);
     expect(Directory('${third.folder}/lepic').existsSync(), isFalse);
-  }, skip: _lib == null ? 'needs WFE_DEMO_LEPIC_LIB' : false);
+  }, skip: _lib == null ? 'needs WFE_LEPIC_LIB' : false);
 }

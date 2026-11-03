@@ -154,10 +154,10 @@ void main() {
     expect(container.read(deskNavProvider).route, DeskRoute.settingsPhrase);
   });
 
-  testWidgets('the demo states open their topic', (tester) async {
-    await _pump(tester, arg: HelpDemo.open);
+  testWidgets('the shot states open their topic', (tester) async {
+    await _pump(tester, arg: HelpShot.open);
     expect(find.byType(HelpHandshake), findsOneWidget);
-    await _pump(tester, arg: HelpDemo.bottom);
+    await _pump(tester, arg: HelpShot.bottom);
     expect(find.textContaining('blocked or not allowed in some countries', findRichText: true), findsWidgets);
   }, skip: !torBuilt);
 }

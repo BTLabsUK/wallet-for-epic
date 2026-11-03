@@ -160,7 +160,7 @@ void main() {
 
   testWidgets('the node picker lists all the public nodes, offline', (tester) async {
     final w = make(_Down());
-    await pumpScreen(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen), w);
+    await pumpScreen(tester, const SettingsNodeScreen(arg: NodeShot.comboOpen), w);
     expect(tester.takeException(), isNull);
     for (final h in _hosts) {
       // The §18 row shows the host without its port; the port is in the row's tooltip.
@@ -172,7 +172,7 @@ void main() {
 
   testWidgets('the Epicbox picker lists all the public servers, offline', (tester) async {
     final w = make(_Down());
-    await pumpScreen(tester, const SettingsReceivingScreen(arg: ReceivingDemo.comboOpen), w);
+    await pumpScreen(tester, const SettingsReceivingScreen(arg: ReceivingShot.comboOpen), w);
     expect(tester.takeException(), isNull);
     for (final b in _boxes) {
       expect(find.textContaining(b, findRichText: true), findsWidgets, reason: b);

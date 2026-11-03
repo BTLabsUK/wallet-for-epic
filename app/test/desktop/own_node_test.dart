@@ -71,7 +71,7 @@ void main() {
       expect(nodeClassOf('http://127.0.0.1:3413'), NodeClass.thisComputer);
       expect(nodeClassOf('http://localhost:3413'), NodeClass.thisComputer);
       expect(nodeClassOf('http://[::1]:3413'), NodeClass.thisComputer);
-      for (final u in ['http://10.0.1.24:3413', 'http://10.0.0.5:3413', 'http://172.20.1.1:3413', 'http://Alice-node.lan:3413', 'http://node.local:3413', 'http://[fe80::1]:3413']) {
+      for (final u in ['http://192.168.1.24:3413', 'http://10.0.0.5:3413', 'http://172.20.1.1:3413', 'http://Alice-node.lan:3413', 'http://node.local:3413', 'http://[fe80::1]:3413']) {
         expect(nodeClassOf(u), NodeClass.homeNetwork, reason: u);
       }
       expect(nodeClassOf('http://100.101.1.2:3413'), NodeClass.vpn);
@@ -89,7 +89,7 @@ void main() {
     test('asked directly: no directory lookup, mempool, the tip from the status site', () async {
       final dir = _Dir(tip: 3764980);
       final s = NodeInfoService(nodes: dir, network: dir, clientFor: _node(() => 3764975));
-      final i = await s.info('http://10.0.1.24:3413', chain: 'mainnet');
+      final i = await s.info('http://192.168.1.24:3413', chain: 'mainnet');
       expect(dir.nodeCalls, 0, reason: 'status.lab.invalid cannot see a home node');
       expect(i.nodeClass, NodeClass.homeNetwork);
       expect(i.source, NodeInfoSource.limited);
@@ -103,13 +103,13 @@ void main() {
       var h = 3700000;
       final dir = _Dir();
       final s = NodeInfoService(nodes: dir, network: dir, clientFor: _node(() => h), publicTip: (_) async => (tip: 3764975, nodes: 4));
-      final first = await s.info('http://10.0.1.24:3413', chain: 'mainnet');
+      final first = await s.info('http://192.168.1.24:3413', chain: 'mainnet');
       expect(first.tipFrom, TipReference.publicNodes);
       expect(first.tipNodes, 4);
       expect(first.head, NodeHead.behind);
       h += 500;
-      expect((await s.info('http://10.0.1.24:3413', chain: 'mainnet')).head, NodeHead.syncing);
-      expect((await s.info('http://10.0.1.24:3413', chain: 'mainnet')).head, NodeHead.behind);
+      expect((await s.info('http://192.168.1.24:3413', chain: 'mainnet')).head, NodeHead.syncing);
+      expect((await s.info('http://192.168.1.24:3413', chain: 'mainnet')).head, NodeHead.behind);
     });
 
     test('not ready for transactions is Syncing; an unlisted https node is an own server', () async {
@@ -153,16 +153,16 @@ void main() {
       final store = MemorySecretStore();
       final o = owner();
       final a = OwnNodeAccess(store, clientFor: o.client, torOn: () => false);
-      expect(ownerSecretKey('http://10.0.1.24:3413/'), 'node.ownerSecret.http://10.0.1.24:3413');
+      expect(ownerSecretKey('http://192.168.1.24:3413/'), 'node.ownerSecret.http://192.168.1.24:3413');
       expect(ownerSecretKey('https://Node.Example'), 'node.ownerSecret.https://node.example:443');
-      expect(await a.add('http://10.0.1.24:3413', 'wrong'), OwnerCheck.refused);
+      expect(await a.add('http://192.168.1.24:3413', 'wrong'), OwnerCheck.refused);
       expect(store.values, isEmpty);
-      expect(await a.add('http://10.0.1.24:3413', 's3cret\nsecond line'), OwnerCheck.ok);
-      expect(store.values, {'node.ownerSecret.http://10.0.1.24:3413': 's3cret'});
-      final st = await a.status('http://10.0.1.24:3413');
+      expect(await a.add('http://192.168.1.24:3413', 's3cret\nsecond line'), OwnerCheck.ok);
+      expect(store.values, {'node.ownerSecret.http://192.168.1.24:3413': 's3cret'});
+      final st = await a.status('http://192.168.1.24:3413');
       expect(st.peers, 9);
       expect(st.synced, isTrue);
-      await a.remove('http://10.0.1.24:3413');
+      await a.remove('http://192.168.1.24:3413');
       expect(store.values, isEmpty);
     });
 
@@ -178,11 +178,11 @@ void main() {
       expect(ownerSecretMayTravel('http://8.8.8.8:3413', mine: false, torOn: false), isFalse);
       expect(ownerSecretMayTravel('https://node.lab.invalid', mine: true, torOn: false), isTrue);
       expect(ownerSecretMayTravel('https://node.lab.invalid', mine: true, torOn: true), isFalse);
-      expect(ownerSecretMayTravel('http://10.0.1.24:3413', mine: false, torOn: true), isTrue, reason: 'local addresses bypass Tor');
+      expect(ownerSecretMayTravel('http://192.168.1.24:3413', mine: false, torOn: true), isTrue, reason: 'local addresses bypass Tor');
       // https goes straight to its host, which Tor would carry: never while the switch is on.
-      expect(ownerSecretMayTravel('https://10.0.1.24:3413', mine: false, torOn: true), isFalse);
+      expect(ownerSecretMayTravel('https://192.168.1.24:3413', mine: false, torOn: true), isFalse);
       expect(ownerSecretMayTravel('https://box.tail1234.ts.net', mine: false, torOn: true), isFalse);
-      expect(ownerSecretMayTravel('https://10.0.1.24:3413', mine: false, torOn: false), isTrue);
+      expect(ownerSecretMayTravel('https://192.168.1.24:3413', mine: false, torOn: false), isTrue);
       // Plain http only where the relay takes it: a .ts.net name is not one.
       expect(ownerSecretMayTravel('http://box.tail1234.ts.net:3413', mine: false, torOn: false), isFalse);
       final o = owner();
@@ -190,18 +190,18 @@ void main() {
       expect(await a.add('https://node.lab.invalid', 's3cret'), OwnerCheck.refused);
       await expectLater(a.status('https://node.lab.invalid'), throwsA(isA<OwnerUnavailable>().having((e) => e.why, 'why', OwnerOff.torOn)));
       expect(o.auth, isEmpty, reason: 'nothing was sent');
-      expect(ownerSecretPlainOnLan('http://10.0.1.24:3413'), isTrue);
+      expect(ownerSecretPlainOnLan('http://192.168.1.24:3413'), isTrue);
       // 100.64/10 is a VPN only while one runs; otherwise the carrier's network: warned.
       expect(ownerSecretPlainOnLan('http://100.101.1.2:3413'), isTrue);
       expect(ownerSecretPlainOnLan('http://127.0.0.1:3413'), isFalse);
     });
 
     test('a rotated secret: refused since the first 401, not a down node', () async {
-      final store = MemorySecretStore({ownerSecretKey('http://10.0.1.24:3413'): 'old'});
+      final store = MemorySecretStore({ownerSecretKey('http://192.168.1.24:3413'): 'old'});
       final at = DateTime(2026, 10, 27, 14, 2);
       final a = OwnNodeAccess(store, clientFor: owner().client, torOn: () => false, clock: () => at);
       await expectLater(
-        a.status('http://10.0.1.24:3413'),
+        a.status('http://192.168.1.24:3413'),
         throwsA(isA<OwnerUnavailable>().having((e) => e.why, 'why', OwnerOff.refused).having((e) => e.since, 'since', at)),
       );
     });
@@ -209,7 +209,7 @@ void main() {
     test('redacted in logs; not in the saved prefs', () {
       final header = 'Authorization: Basic ${base64.encode(utf8.encode('epic:s3cretValue123'))}';
       expect(redact(header), isNot(contains(base64.encode(utf8.encode('epic:s3cretValue123')))));
-      final prefs = const SettingsPrefs().copyWith(mineNodes: {'https://node.lab.invalid'}, plainHttpSeen: {'http://10.0.1.24:3413'});
+      final prefs = const SettingsPrefs().copyWith(mineNodes: {'https://node.lab.invalid'}, plainHttpSeen: {'http://192.168.1.24:3413'});
       expect(jsonEncode(prefs.toJson()), isNot(contains('ownerSecret')));
     });
   });
@@ -225,7 +225,7 @@ void main() {
 
     tearDown(() => container.dispose());
 
-    Future<void> show(WidgetTester tester, Size size, NodeDemo demo) async {
+    Future<void> show(WidgetTester tester, Size size, NodeShot shot) async {
       tester.view.physicalSize = size;
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
@@ -233,7 +233,7 @@ void main() {
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
-          child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: Scaffold(body: SettingsNodeScreen(arg: demo))),
+          child: MaterialApp(theme: buildDeskTheme(Brightness.dark), home: Scaffold(body: SettingsNodeScreen(arg: shot))),
         ),
       );
       for (var i = 0; i < 6; i++) {
@@ -247,7 +247,7 @@ void main() {
     }
 
     testWidgets('1280: tier 1 facts asked directly, Owner access not set up; Add… opens the dialog with the LAN warning', (tester) async {
-      await show(tester, const Size(1280, 1000), NodeDemo.own);
+      await show(tester, const Size(1280, 1000), NodeShot.own);
       expect(find.textContaining('Own node · home network'), findsWidgets);
       expect(find.text(_l.deskOwnFactMempool), findsOneWidget);
       expect(find.text('3 waiting'), findsOneWidget);
@@ -255,7 +255,7 @@ void main() {
       expect(find.text(_l.deskSetNodeRowNotSetUp), findsOneWidget);
       await tester.tap(find.text(_l.deskOwnAdd));
       await tester.pump(const Duration(milliseconds: 400));
-      expect(find.text('Owner access to 10.0.1.24:3413'), findsOneWidget);
+      expect(find.text('Owner access to 192.168.1.24:3413'), findsOneWidget);
       expect(find.text(_l.deskOwnDlgPlainTitle), findsOneWidget);
       expect(find.text(_l.deskOwnDlgPick), findsNothing, reason: 'the file picker is for this computer only');
       await tester.enterText(find.byType(EditableText).last, 'wrong');
@@ -265,13 +265,13 @@ void main() {
       await tester.enterText(find.byType(EditableText).last, node.ownerSecret);
       await tester.tap(find.text('Add').last);
       await tester.pump(const Duration(milliseconds: 400));
-      expect(await node.hasOwnerSecret(ownDemoUrl), isTrue);
+      expect(await node.hasOwnerSecret(ownShotUrl), isTrue);
       await end(tester);
     });
 
     testWidgets('1280 with access: Status and Peers as tabs', (tester) async {
       // A 1280 window less the Settings column beside the page.
-      await show(tester, Size(1280 - Ctl.settingsNav, 1000), NodeDemo.ownAccess);
+      await show(tester, Size(1280 - Ctl.settingsNav, 1000), NodeShot.ownAccess);
       // A home-network node over plain http: the row says the secret goes unencrypted.
       expect(find.text(_l.deskOwnAccessOnPlain), findsOneWidget);
       expect(find.descendant(of: _tabs, matching: find.text('Status')), findsOneWidget);
@@ -281,7 +281,7 @@ void main() {
     });
 
     testWidgets('2474: status beside the peers table, no tabs; a rotated secret is a warn row', (tester) async {
-      await show(tester, const Size(2474, 1338), NodeDemo.ownAccess);
+      await show(tester, const Size(2474, 1338), NodeShot.ownAccess);
       expect(find.text(_l.deskSetPeersColAddress), findsOneWidget);
       // The group's heading says Status; no Status tab.
       expect(_tabs, findsNothing);
@@ -300,17 +300,17 @@ void main() {
     });
 
     testWidgets('syncing: the fallback offer per node, remembered', (tester) async {
-      await show(tester, const Size(1280, 1000), NodeDemo.ownSyncing);
+      await show(tester, const Size(1280, 1000), NodeShot.ownSyncing);
       expect(find.text(_l.deskOwnSyncTitle), findsOneWidget);
       await tester.tap(find.text(_l.deskOwnWaitForMine));
       await tester.pump(const Duration(milliseconds: 300));
-      expect(container.read(settingsPrefsProvider).ownFallback[ownDemoUrl], isFalse);
+      expect(container.read(settingsPrefsProvider).ownFallback[ownShotUrl], isFalse);
       expect(find.text(_l.deskOwnSyncTitle), findsNothing);
       await end(tester);
     });
 
     testWidgets('down with a public node standing in: Try now and Use for good', (tester) async {
-      await show(tester, const Size(1280, 1000), NodeDemo.ownDown);
+      await show(tester, const Size(1280, 1000), NodeShot.ownDown);
       expect(find.text(_l.deskOwnDownTitle), findsOneWidget);
       expect(find.text(_l.deskOwnTryNow), findsOneWidget);
       expect(find.text('Keep node.lab.invalid'), findsOneWidget);

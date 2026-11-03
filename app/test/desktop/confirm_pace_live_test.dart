@@ -3,7 +3,7 @@
 // LEPIC core through LepicDeskWallet against floonet. Run as two processes side by side, one
 // per wallet, which meet through files in WFE_PACE_DIR:
 //
-//   WFE_DEMO_LEPIC_LIB=<liblepic_ffi.so> WFE_PACE_DIR=<dir> WFE_PACE_ROLE=receiver \
+//   WFE_LEPIC_LIB=<liblepic_ffi.so> WFE_PACE_DIR=<dir> WFE_PACE_ROLE=receiver \
 //     WFE_PACE_HOME=<home>/.epic_cash_desktop WFE_PACE_PASSWORD=<pw> WFE_PACE_NODE=<url> \
 //     WFE_PACE_SECRETS=<the wallet's secrets as a JSON file> \
 //     [WFE_PACE_WATCH=off] flutter test test/desktop/confirm_pace_live_test.dart
@@ -24,7 +24,7 @@ import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:flutter_test/flutter_test.dart';
 
 final _env = Platform.environment;
-final String? _lib = _env['WFE_DEMO_LEPIC_LIB'];
+final String? _lib = _env['WFE_LEPIC_LIB'];
 
 /// The wallet's secret store as a JSON file, so a second run finds its LEPIC vault.
 class _FileSecretStore implements SecretStore {
@@ -152,5 +152,5 @@ void main() {
     note('end');
     await log.close();
     await wallet.dispose();
-  }, skip: _lib == null || _env['WFE_PACE_DIR'] == null ? 'needs WFE_DEMO_LEPIC_LIB and WFE_PACE_* (two processes, see the header)' : false, timeout: const Timeout(Duration(minutes: 40)));
+  }, skip: _lib == null || _env['WFE_PACE_DIR'] == null ? 'needs WFE_LEPIC_LIB and WFE_PACE_* (two processes, see the header)' : false, timeout: const Timeout(Duration(minutes: 40)));
 }

@@ -11,11 +11,11 @@ import 'settings_frame.dart';
 import '../../../phrase_clipboard.dart';
 
 /// Start states of Settings › Recovery phrase.
-enum PhraseDemo { shown, qr }
+enum PhraseShot { shown, qr }
 
 const _hideAfter = 60;
 
-const _demoWords = [
+const _sampleWords = [
   'orbit', 'hazard', 'velvet', 'cabin', 'sudden', 'meadow', 'brick', 'gesture', 'lunar', 'invest', 'pledge', 'saddle',
   'timber', 'crisp', 'wonder', 'echo', 'faculty', 'notable', 'ripple', 'garlic', 'stamp', 'dwarf', 'enjoy', 'harbor',
 ];
@@ -69,10 +69,10 @@ class _SettingsPhraseScreenState extends ConsumerState<SettingsPhraseScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.arg == PhraseDemo.shown || widget.arg == PhraseDemo.qr) {
-      _words = _demoWords;
+    if (widget.arg == PhraseShot.shown || widget.arg == PhraseShot.qr) {
+      _words = _sampleWords;
       _left = 48;
-      if (widget.arg == PhraseDemo.qr) WidgetsBinding.instance.addPostFrameCallback((_) => _openQr());
+      if (widget.arg == PhraseShot.qr) WidgetsBinding.instance.addPostFrameCallback((_) => _openQr());
     }
   }
 

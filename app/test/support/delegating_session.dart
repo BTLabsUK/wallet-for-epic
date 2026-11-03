@@ -149,11 +149,11 @@ class DelegatingWalletSession implements WalletSession {
   @override
   Future<void> stopListener() => _inner.stopListener();
 
-  // HTTP sends and the HTTP listener reach other computers or open a port on the demo server:
-  // not offered here.
+  // HTTP sends and the HTTP listener reach other computers or open a port: not offered to the
+  // tests that wrap a session.
   static const WalletError _noHttp = WalletError(
     kind: WalletErrorKind.other,
-    message: 'direct HTTP is not offered remotely',
+    message: 'direct HTTP is not offered here',
   );
 
   @override
@@ -185,12 +185,12 @@ class DelegatingWalletSession implements WalletSession {
   // Tor runs a process and reaches other computers from the server: not offered here.
   static const WalletError _noTor = WalletError(
     kind: WalletErrorKind.other,
-    message: 'Tor is not offered remotely',
+    message: 'Tor is not offered here',
   );
 
   static const WalletError _noDeviceLink = WalletError(
     kind: WalletErrorKind.other,
-    message: 'Linked devices are not offered remotely',
+    message: 'Linked devices are not offered here',
   );
 
   @override
@@ -359,7 +359,7 @@ class DelegatingWalletSession implements WalletSession {
   }) async =>
       throw const WalletError(
         kind: WalletErrorKind.invalidArgument,
-        message: 'Importing an old wallet is not offered remotely',
+        message: 'Importing an old wallet is not offered here',
       );
 
   @override

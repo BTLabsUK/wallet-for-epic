@@ -10,7 +10,8 @@
 # btlabs-public's test key against a test keyring kept in the run (manifests/test-keyring.json).
 # With a signer (<run>/signer.json, written by G1 when [host.signer] endpoint is set) the release
 # signer signs both manifests and the downloads folder's SHA256SUMS as it will stand once live
-# (server_sums.py: manifests/SHA256SUMS and SHA256SUMS.sig, installed by publish-downloads), in
+# (server_sums.py: manifests/SHA256SUMS and SHA256SUMS.sig, installed by publish-downloads; the
+# live files of platforms the release leaves out stay in it, manifests/live-keep.sums), in
 # one go: the follow-up sign-android's request declared (<run>/signer-continue.json), signed on
 # that request's code, so a release needs one code (docs/RELEASING.md, "Signer"). When that
 # request no longer waits (expired, a retry, a run that signed Android elsewhere) the client asks
@@ -77,7 +78,11 @@ elif [[ "$reuse" == 1 ]]; then
 elif [[ -f "$sj" ]]; then
   client="$(jq -r .client "$sj")"
   REL_HOSTS="$(jq -r .hosts "$sj")"; export REL_HOSTS
-  rm -f -- "$m/SHA256SUMS" "$m/SHA256SUMS.sig" "$out/SHA256SUMS.sig"
+  rm -f -- "$m/SHA256SUMS" "$m/SHA256SUMS.sig" "$out/SHA256SUMS.sig" "$m/live-keep.sums"
+  # Platforms this release has no file for keep their newest live files (prune-downloads keeps
+  # them too), so the listing signed now is the folder's once pruned.
+  python3 -I "$(dirname "$0")/server_sums.py" live "$base" "$files" "$REL_VERSION" \
+    "$bp/keys/btlabs-keyring.json" "$src/tools/release-files.py" "$m/live-keep.sums"
   python3 -I "$(dirname "$0")/server_sums.py" write "$files" "$m" "$m/SHA256SUMS"
   label="$(jq -r '.keys | min_by(.rank) | .label' "$bp/keys/btlabs-keyring.json")"
   # sign-android's request, when it declared these and is for this version: the same code.

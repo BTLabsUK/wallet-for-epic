@@ -168,7 +168,7 @@ void main() {
     });
 
     testWidgets('posting cannot be closed', (tester) async {
-      await open(tester, (c) => showSplitDialog(c, demo: const SelfSendDemo(SelfSendPhase.posting)), settle: false);
+      await open(tester, (c) => showSplitDialog(c, shot: const SelfSendShot(SelfSendPhase.posting)), settle: false);
       expect(find.text(_l.deskOutPostingSplit), findsOneWidget);
       expect(find.byWidgetPredicate((w) => w is EIconButton && w.label == 'Close (Esc)'), findsNothing);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);

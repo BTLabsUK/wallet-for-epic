@@ -89,7 +89,7 @@ void main() {
   });
 
   testWidgets('Settings › Recovery phrase: the actions above the words; in a short window the warning stays in view', (tester) async {
-    await _pump(tester, const SettingsPhraseScreen(arg: PhraseDemo.shown), const Size(1000, 580));
+    await _pump(tester, const SettingsPhraseScreen(arg: PhraseShot.shown), const Size(1000, 580));
     _actionsAbove(tester, _l.commonCopy, _button(_l.deskSetPhraseHideWords));
     await _onlyWordsScroll(tester, find.byType(ENotice), _button(_l.commonCopy));
     expect(tester.takeException(), isNull);

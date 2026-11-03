@@ -4,7 +4,7 @@
 // with HOME there, the app's folder and key store are temp, the node is unreachable. The
 // phrase is compared in memory and never printed. Needs the Linux library and the program:
 //
-//   WFE_DEMO_LEPIC_LIB=$PWD/third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so \
+//   WFE_LEPIC_LIB=$PWD/third_party/lepic-flutter/native/x86_64-unknown-linux-gnu/liblepic_ffi.so \
 //   WFE_IMPORT_LIVE_BIN=/path/to/a/copy/of/epic-wallet \
 //   flutter test test/desktop/import_live_test.dart
 //
@@ -20,7 +20,7 @@ import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:epic_wallet/src/wallet_service.dart' as core;
 import 'package:flutter_test/flutter_test.dart';
 
-final String? _lib = Platform.environment['WFE_DEMO_LEPIC_LIB'];
+final String? _lib = Platform.environment['WFE_LEPIC_LIB'];
 final String? _bin = Platform.environment['WFE_IMPORT_LIVE_BIN'];
 
 void main() {
@@ -97,5 +97,5 @@ void main() {
       ),
       throwsA(isA<core.WalletError>().having((e) => e.kind, 'kind', core.WalletErrorKind.invalidArgument)),
     );
-  }, skip: _lib == null || _bin == null ? 'needs WFE_DEMO_LEPIC_LIB and WFE_IMPORT_LIVE_BIN' : false, timeout: const Timeout(Duration(minutes: 4)));
+  }, skip: _lib == null || _bin == null ? 'needs WFE_LEPIC_LIB and WFE_IMPORT_LIVE_BIN' : false, timeout: const Timeout(Duration(minutes: 4)));
 }
