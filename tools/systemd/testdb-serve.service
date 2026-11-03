@@ -1,0 +1,13 @@
+[Unit]
+Description=BT Wallet test database intake and read-only queries
+After=network-online.target
+
+[Service]
+# ~/.config/testdb-serve.env: TESTDB_BIND=<tailnet address>:8765 and optionally TESTDB_TOKEN=...
+EnvironmentFile=%h/.config/testdb-serve.env
+ExecStart=%h/wallet-for-epic/tools/testdb serve --bind ${TESTDB_BIND}
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=default.target

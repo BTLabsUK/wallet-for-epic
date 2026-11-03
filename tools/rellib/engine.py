@@ -228,6 +228,18 @@ class Engine:
             pass
         return log
 
+    def tdb(self, event, **fields):
+        """One event into the test DB queue (tools/rellib/testdb); never raises, never blocks the run.
+        The DB sits in the state root unless REL_TESTDB says otherwise; a dry run writes nothing."""
+        if self.dry:
+            return
+        try:
+            from .testdb import client
+            root = os.path.dirname(os.path.dirname(self.run.path))
+            client.emit(event, source="engine", db=os.path.join(root, "tests.db"), run=self.info["run_id"], **fields)
+        except Exception:  # noqa: BLE001 - the DB is never a reason for a step or a run to fail
+            pass
+
     def execute(self, step, infra_try=0):
         """Runs one step to an end state; returns its status dict. A failure whose cause is the
         machine (window.cause_of: a signal, no proof.json, an ssh drop, no build slot) runs once
@@ -252,6 +264,9 @@ class Engine:
         self.run.event(step.id, "start", host=step.host, attempt=attempt, dry=self.dry or None,
                        infra_try=infra_try or None)
         self.load.step_started(step.id)
+        lane = dict(lane=step.id, n=attempt, platform=step.platforms[0] if len(step.platforms) == 1 else None,
+                    variant=getattr(step, "variant", None))
+        self.tdb("attempt.start", **lane)
         if self.relmsg:
             self.relmsg.step(step.id, "running", label=step.title, platform=(step.platforms[0] if len(step.platforms) == 1 else None))
         self.echo(f"▶ {step.id}  [{step.host}]{'  (dry run)' if self.dry else ''}"
@@ -313,6 +328,7 @@ class Engine:
             if rkey:
                 result["reuse_key"] = rkey
         st = self.run.set_status(step.id, **result)
+        self.tdb_end(step, lane, st, log)
         self.run.event(step.id, "end", status=st["status"], duration_s=dur, rc=st.get("rc"), bytes=st.get("bytes"),
                        note=st.get("note"), hint=st.get("hint"), cause=st.get("cause"))
         self.metric(step, st, dur, self.load.step_ended(step.id), infra_try=infra_try)
@@ -338,6 +354,19 @@ class Engine:
                                   expects=st.get("hint") or "retry, skip or abort? (tools/rel retry|skip|debug)",
                                   key=f"{self.info['run_id']}/{step.id}/{attempt}")
         return st
+
+    def tdb_end(self, step, lane, st, log):
+        try:
+            from .testdb import client
+            cause = st.get("cause")
+            cls = client.cause_class(cause)
+            self.tdb("attempt.end", state={"done": "ok"}.get(st["status"], st["status"]), rc=st.get("rc"), cause=cause,
+                     cause_class=cls, note=st.get("note"), log_path=log, out_dir=os.path.join(self.run.step_dir(step.id), "out"),
+                     **lane)
+            if st["status"] == "failed":
+                self.tdb("failure", step=step.id, cause=cause, cause_class=cls, what=st.get("note") or cause, **lane)
+        except Exception:  # noqa: BLE001
+            pass
 
     def server_logs(self, step, st, log):
         """A failed G4 lane: the server-side log lines for its window (tools/rellib/serverlogs.py) go
@@ -661,9 +690,14 @@ class Engine:
             window = win.Window(win.marker_path(self.policy.marker), self.info, self.policy,
                                 lambda: [r[2] for r in list(running.values())]).open()
         self._window = window
+        self.tdb("run.start", run_kind=self.info.get("kind"), version=self.info.get("version"))
+        code = None
         try:
-            return self._drive(steps, lanes_busy, running, stop, stop_on_fail, selected)
+            code = self._drive(steps, lanes_busy, running, stop, stop_on_fail, selected)
+            return code
         finally:
+            self.tdb("run.end", state={EXIT_OK: "ok", EXIT_WAITING: "waiting"}.get(code, "failed"),
+                     note="exit %s" % code)
             if window:
                 window.close()
             self._window = None
