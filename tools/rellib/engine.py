@@ -343,11 +343,12 @@ class Engine:
         """A failed G4 lane: the server-side log lines for its window (tools/rellib/serverlogs.py) go
         to the step's out folder, and quoted above the log's tail into the alert, so a harness fault
         reads apart from a server or product fault. Best effort: None leaves the alert as it was."""
-        conf = self.pipeline.serverlogs
-        if self.dry or not serverlogs.is_lane_step(step) or not serverlogs.settings(conf)["enabled"]:
+        conf, local = self.pipeline.serverlogs, self.hosts.get("serverlogs")
+        if self.dry or not serverlogs.is_lane_step(step) or not serverlogs.settings(conf, local)["enabled"]:
             return None
         try:
-            summary = serverlogs.collect(step, st, os.path.join(self.run.step_dir(step.id), "out"), conf)
+            summary = serverlogs.collect(step, st, os.path.join(self.run.step_dir(step.id), "out"), conf,
+                                         local=local)
         except Exception as e:  # never in the way of the alert
             self.echo(f"   server logs: {type(e).__name__}: {e}")
             return None

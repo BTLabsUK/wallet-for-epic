@@ -1,6 +1,7 @@
 // BT Wallet releases page: the Look picker, copy buttons for checksums and commands, and the
 // platform the browser reports: the hero's big button downloads its primary file, its row in the
-// list is marked. All of it is a nicety: without this file every download is still a link, every
+// list is marked This device; the All platforms pills and a #dl-/#before- link show another
+// platform in the hero, in place. All of it is a nicety: without this file every download is still a link, every
 // fold a <details>, and the hero's button leads to the platform list.
 // Nothing is fetched, nothing is tracked. The changelog shares the picker.
 (function () {
@@ -89,52 +90,83 @@
   }
 
   var $ = function (id) { return document.getElementById(id); };
-  var key = platform();
-  // a link to #dl-<key> or #before-<key> names the platform the visitor wants
-  var m = /^#(?:dl|before)-([a-z]+)$/.exec(location.hash || '');
-  if (m && $('dl-' + m[1])) key = m[1];
-  var row = key && $('dl-' + key);
-  var btn = row && row.querySelector('.r-get .btn.primary');
-  if (!btn) return;
-
-  var name = row.querySelector('h3').firstChild.textContent.trim();
-  var preview = row.hasAttribute('data-preview');
-  row.classList.add('is-mine');
-  var tag = document.createElement('span');
-  tag.className = 'mine-tag';
-  tag.textContent = 'This device';
-  row.querySelector('h3').appendChild(tag);
-  var chip = document.querySelector('.also a[data-pick="' + key + '"]');
-  if (chip) chip.setAttribute('aria-current', 'true');
-
   var dl = $('hero-dl');
-  dl.href = btn.getAttribute('href');
-  dl.setAttribute('download', '');
-  $('hero-dl-text').textContent = 'Download for ' + name;
-  $('hero-dl-sub').textContent = btn.getAttribute('data-label') + ' · ' + btn.getAttribute('data-size').replace(' ', ' ') + (preview ? ' · Preview' : '');
-  var ico = row.querySelector('.ico svg');
-  if (ico) { $('hero-dl-ico').textContent = ''; $('hero-dl-ico').appendChild(ico.cloneNode(true)); }
-  $('hero-req').textContent = row.querySelector('.req').textContent + ' · ';
-  if (row.hasAttribute('data-version')) {
-    $('hero-ver').textContent = row.getAttribute('data-version');
-    $('hero-date').setAttribute('datetime', row.getAttribute('data-date'));
-    $('hero-date').textContent = row.getAttribute('data-when');
+  if (!dl) return;
+  var chips = document.querySelectorAll('.also a[data-pick]');
+  // The page's own version and date, for a platform whose row carries none.
+  var pageVer = $('hero-ver').textContent, pageDate = $('hero-date').getAttribute('datetime'),
+      pageWhen = $('hero-date').textContent;
+
+  // The browser's own platform: its row is marked This device, once, whatever is shown later.
+  var mine = platform();
+  var mineRow = mine && $('dl-' + mine);
+  if (mineRow && mineRow.querySelector('.r-get .btn.primary')) {
+    mineRow.classList.add('is-mine');
+    var tag = document.createElement('span');
+    tag.className = 'mine-tag';
+    tag.textContent = 'This device';
+    mineRow.querySelector('h3').appendChild(tag);
+  } else {
+    mine = '';
   }
 
-  var alt = $('hero-alt');
-  alt.hidden = false;
-  var before = $('before-' + key);
-  if (before) {
-    $('hero-before').href = '#before-' + key;
-    $('hero-before').addEventListener('click', function () { before.open = true; });
-  } else {
-    $('hero-before').hidden = true;
+  // The hero for one platform: the big button downloads its primary file, the line under it
+  // has its requirement, version and date, the links its Install guide and its build without
+  // Tor. Callable any number of times: whatever the previous platform set is set again or reset.
+  var before = null;
+  function show(key) {
+    var row = key && $('dl-' + key);
+    var btn = row && row.querySelector('.r-get .btn.primary');
+    if (!btn) return false;
+    var name = row.querySelector('h3').firstChild.textContent.trim();
+    var preview = row.hasAttribute('data-preview');
+    dl.href = btn.getAttribute('href');
+    dl.setAttribute('download', '');
+    $('hero-dl-text').textContent = 'Download for ' + name;
+    $('hero-dl-sub').textContent = btn.getAttribute('data-label') + ' · ' + btn.getAttribute('data-size').replace(' ', ' ') + (preview ? ' · Preview' : '');
+    var ico = row.querySelector('.ico svg');
+    if (ico) { $('hero-dl-ico').textContent = ''; $('hero-dl-ico').appendChild(ico.cloneNode(true)); }
+    $('hero-req').textContent = row.querySelector('.req').textContent + ' · ';
+    var own = row.hasAttribute('data-version');
+    $('hero-ver').textContent = own ? row.getAttribute('data-version') : pageVer;
+    $('hero-date').setAttribute('datetime', own ? row.getAttribute('data-date') : pageDate);
+    $('hero-date').textContent = own ? row.getAttribute('data-when') : pageWhen;
+
+    $('hero-alt').hidden = false;
+    before = $('before-' + key);
+    $('hero-before').hidden = !before;
+    $('hero-before').href = before ? '#before-' + key : '#latest';
+    var notor = row.querySelector('.r-get .alt');
+    $('hero-notor').hidden = !notor;
+    $('hero-notor').href = notor ? notor.getAttribute('href') : '#latest';
+
+    for (var i = 0; i < chips.length; i++) {
+      if (chips[i].getAttribute('data-pick') === key) chips[i].setAttribute('aria-current', 'true');
+      else chips[i].removeAttribute('aria-current');
+    }
+    return true;
   }
-  var notor = row.querySelector('.r-get .alt');
-  if (notor) {
-    $('hero-notor').href = notor.getAttribute('href');
-    $('hero-notor').hidden = false;
+  $('hero-before').addEventListener('click', function () { if (before) before.open = true; });
+
+  // A link to #dl-<key> or #before-<key> names the platform the visitor wants; #before- also
+  // opens its fold. Read at load and on every hash change (the landing page's links, back and
+  // forward).
+  function fromHash() {
+    var m = /^#(dl|before)-([a-z]+)$/.exec(location.hash || '');
+    if (!m || !show(m[2])) return false;
+    if (m[1] === 'before' && before) before.open = true;
+    return true;
   }
-  // a Before you install link (#before-<key>) opens its fold
-  if (m && location.hash.indexOf('#before-') === 0 && before) before.open = true;
+  if (!fromHash()) show(mine);
+  window.addEventListener('hashchange', fromHash);
+
+  // The All platforms pills switch the hero in place: no scroll, the URL names the platform.
+  for (var p = 0; p < chips.length; p++) {
+    chips[p].addEventListener('click', function (e) {
+      var key = this.getAttribute('data-pick');
+      if (!show(key)) return; // no download for it: the plain link
+      e.preventDefault();
+      try { history.replaceState(null, '', '#dl-' + key); } catch (err) { /* file: or a sandbox */ }
+    });
+  }
 })();
