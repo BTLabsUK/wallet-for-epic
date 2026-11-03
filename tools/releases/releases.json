@@ -1,38 +1,38 @@
 {
  "releases": [
   {
-   "version": "26.10.26",
+   "version": "26.11.0",
    "date": "2026-11-03",
    "files": [
     {
-     "name": "bt-wallet-26.10.26-android-arm64-v8a.apk",
-     "size": 28920932,
-     "sha256": "021646f794ecf93d44c09270fdf25bee7829731594bd3ee01cfecb152ae2ccb3"
+     "name": "bt-wallet-26.11.0-android-arm64-v8a.apk",
+     "size": 28990564,
+     "sha256": "326166b277e1b1951c45984afc99f34024a4ff4e726c021f03a3e45abe3567a4"
     },
     {
-     "name": "bt-wallet-26.10.26-linux-x86_64.AppImage",
-     "size": 40589816,
-     "sha256": "f2f5555ace99243a37e0d2cd684d5f1b256693c37dff915ac59c2972e9f3bbf5"
+     "name": "bt-wallet-26.11.0-linux-x86_64.AppImage",
+     "size": 40655352,
+     "sha256": "f97dd446844549bc05fb06e96d33f201c96045a3736024944f31c15b34e09b30"
     },
     {
-     "name": "bt-wallet-26.10.26-notor-android-arm64-v8a.apk",
-     "size": 24681503,
-     "sha256": "e07525e8e1519dab80561b4a5c18756a0e96ecd85379db83cd3667e88f29b7f5"
+     "name": "bt-wallet-26.11.0-notor-android-arm64-v8a.apk",
+     "size": 24751135,
+     "sha256": "db92d245e5ac2de58179fe6f4d096b3316d243c244ad465c8ce212f8461380ee"
     },
     {
-     "name": "bt-wallet-26.10.26-notor-linux-x86_64.AppImage",
-     "size": 36403704,
-     "sha256": "d56b2635c026984d6f5dd24d38fb3861594370963cb16297eda5082cff3a2707"
+     "name": "bt-wallet-26.11.0-notor-linux-x86_64.AppImage",
+     "size": 36473336,
+     "sha256": "000fcced50dded35aab8c0f248a102016be332a739da4ad2b2f9154ed76f3797"
     },
     {
-     "name": "bt-wallet-26.10.26-notor-windows-x64-setup.exe",
-     "size": 35192383,
-     "sha256": "9918f6442e53fc9f4897db91d5c72634d5a0525afcb843c0c8768ce22fa76fe3"
+     "name": "bt-wallet-26.11.0-notor-windows-x64-setup.exe",
+     "size": 35236057,
+     "sha256": "27919bd7b2ae19573ba888bb5387e5bd3e829b1db12ff10e02ac96bd590fb76a"
     },
     {
-     "name": "bt-wallet-26.10.26-windows-x64-setup.exe",
-     "size": 37899145,
-     "sha256": "d15453c49cdff3592813c4d7e516c81017402ee8ce24fb169e91323b32112451"
+     "name": "bt-wallet-26.11.0-windows-x64-setup.exe",
+     "size": 37952037,
+     "sha256": "cccd8ff610790dede0f656ee65cba88373bb35ca2c1701d51a28565f49cdd3df"
     }
    ],
    "github": true,
