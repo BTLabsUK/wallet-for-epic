@@ -169,7 +169,11 @@ class Desktop:
     def in_settings(self, tree=None):
         tree = tree if tree is not None else self.d.tree()
         names = {tg._norm(n.name.split("\n")[0]) for n in tree if n.role in ("button", "tab", "row", "link")}
-        return len(names & self.section_names()) >= 2
+        if len(names & self.section_names()) >= 2:
+            return True
+        # a narrow window shows one section at a time, with no list: the search field is on every Settings page
+        hint = tg._norm(self.d.labels.text("deskSetSearchHint") or "Search settings")
+        return any(n.role == "text_field" and tg._norm(n.name.split("|")[0]) == hint for n in tree)
 
     def section_names(self):
         """Every section name a release has had, in English and as this build shows them (its locale)."""
