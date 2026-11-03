@@ -2481,7 +2481,7 @@ void main() {
       expect(find.text(_l.txDetailsReleaseBody), findsOneWidget);
       expect(find.text(_l.cancelCompareMoveBack), findsOneWidget);
       expect(find.textContaining('Unlock coins: free'), findsOneWidget);
-      expect(find.textContaining(_l.cancelCompareMoveBack), findsNWidgets(2));
+      expect(find.textContaining(_l.cancelMoveBack), findsNWidgets(2));
       expect(find.text(_l.cancelUnlockOpen), findsOneWidget);
       await _tap(tester, find.text(_l.txDetailsReleaseKeepWaiting));
       expect(h.session.releasedKeys, isEmpty);
