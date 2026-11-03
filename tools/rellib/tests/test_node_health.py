@@ -114,5 +114,31 @@ class PNodeTest(unittest.TestCase):
         self.assertEqual(s.killed, [])
 
 
+class CancelTest(unittest.TestCase):
+    """A send of P that can never finalize is cancelled through the service's owner API."""
+
+    def service(self, entry):
+        s = p_service.Service.__new__(p_service.Service)
+        d = tempfile.TemporaryDirectory()
+        self.addCleanup(d.cleanup)
+        s.dir, s.send_mu, s.state_mu, s.calls = d.name, p_service.threading.Lock(), p_service.threading.Lock(), []
+        s.sends = {"sl": {"state": "sent"}}
+        s.tx_entry = lambda slate_id=None, tx_id=None: entry if slate_id == "sl" else None
+        s.rpc = lambda method, params, timeout=180: s.calls.append((method, params))
+        return s
+
+    def test_an_unconfirmed_send_is_cancelled(self):
+        s = self.service({"id": 466, "tx_type": "TxSent", "confirmed": False})
+        self.assertEqual(s.cancel("sl", "wrong relay"), {"ok": True, "tx": 466})
+        self.assertEqual(s.calls, [("cancel_tx", [None, "sl"])])
+        self.assertEqual(s.sends["sl"]["state"], "cancelled")
+
+    def test_a_confirmed_or_unknown_send_is_refused(self):
+        s = self.service({"id": 1, "tx_type": "TxSent", "confirmed": True})
+        self.assertFalse(s.cancel("sl")["ok"])
+        self.assertFalse(s.cancel("other")["ok"])
+        self.assertEqual(s.calls, [])
+
+
 if __name__ == "__main__":
     unittest.main()
