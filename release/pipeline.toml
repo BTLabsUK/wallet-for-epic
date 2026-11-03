@@ -34,6 +34,8 @@
 #              without one gets [defaults] timeout. retries: re-runs on any failure before it
 #              counts as failed (infrastructure failures retry by themselves: [concurrency])
 #   capped     true: counts toward [concurrency] max_heavy although it is not heavy itself
+#   remote     true: the step's load is on another machine (the Windows rigs), so it never counts
+#              toward max_heavy here; apart still applies
 #   scratch    publish steps: what runs instead when the target is scratch (a builtin name)
 #   A step may leave links.json ([{label, url}]) and notice.json ({title, detail, expects}) in
 #              {stage}: tools/rel adds the links to the live message and sends the notice once.
@@ -396,7 +398,8 @@ needs = ["manifests"]
 
 # Update trust runs per platform from when this machine's builds are done (no driver competes
 # with a build for the CPU), Windows and macOS also after their own build, Android and Linux
-# without waiting for them; at most [concurrency] max_heavy at once, Android and Windows never
+# without waiting for them; at most [concurrency] max_heavy at once (Windows runs on its rigs and
+# does not count), Android and Windows never
 # beside each other while the machine is shared nor beside a full suite. Each lane has a hard
 # limit (Android and Windows 50 min, about 2.5x their slowest pass so far, 1,198 s and 1,280 s;
 # Linux 60 min, its slowest was 2,447 s under load); a lane killed by the machine (a signal, no
@@ -442,6 +445,10 @@ host = "build"
 lane = "trust-windows-{variant}"
 needs = ["build-android", "build-play", "build-linux", "build-windows@variant"]  # no signature, as Linux
 proof = true
+# The app runs on the rig; this machine only drives it over ssh (run 26.10.26: local load 1.7-2.75
+# during the Windows lanes). It took a heavy slot anyway and waited 2 h behind the Linux lanes, so
+# it no longer counts toward max_heavy. Still never beside Android while the machine is shared.
+remote = true
 timeout = "50m"
 
 [step.trust-macos]

@@ -65,6 +65,8 @@ class Policy:
 
     @staticmethod
     def counts(step):
+        if getattr(step, "remote", False):
+            return False
         return bool(step.heavy or step.proof or getattr(step, "capped", False))
 
     def why_not(self, step, running):

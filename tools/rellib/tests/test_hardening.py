@@ -141,6 +141,18 @@ class ConcurrencyTest(Base):
         self.assertEqual(eng.drive([s.id for s in run.steps]), 0)
         self.assertTrue(any(e["event"] == "external-suite" for e in run.events()))
 
+    def test_a_remote_lane_takes_no_heavy_slot_but_is_still_kept_apart(self):
+        """Windows trust runs its app on a rig: with both slots held by local lanes it still starts,
+        though never beside Android while the machine is shared."""
+        from types import SimpleNamespace as NS
+        pol = window.Policy()
+        lin = [NS(base="trust-linux", id="trust-linux-%s" % v, heavy=False, proof=True) for v in ("tor", "notor")]
+        win = NS(base="trust-windows", id="trust-windows-tor", heavy=False, proof=True, remote=True)
+        self.assertIsNone(pol.why_not(win, lin))
+        self.assertIn("cap (2)", pol.why_not(NS(base="trust-android", id="trust-android-tor", heavy=False, proof=True), lin))
+        self.assertIn("kept apart", pol.why_not(win, [NS(base="trust-android", id="trust-android-tor", heavy=False, proof=True)]))
+        self.assertIsNone(pol.why_not(lin[0], [lin[1], win]), "a running remote lane holds no slot")
+
     def test_concurrency_config_is_checked(self):
         for bad in ('max_heavy = 0', 'infra_retries = 9', 'apart = [["trust-android"]]', 'apart = [["nope", "scope"]]'):
             with self.subTest(bad=bad), self.assertRaises(ConfigError):
