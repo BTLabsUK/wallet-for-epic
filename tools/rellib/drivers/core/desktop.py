@@ -366,8 +366,11 @@ class Desktop:
                 # renamed on the page the recipe expects: the model's pick, before every section is searched
                 if d.rec.pick(target, d.tree(), step="find-%s" % target.id, texts=d.texts(target)):
                     return True
-        listed = [n.name.split("\n")[0].strip() for n in d.tree()
-                  if n.role in ("button", "tab", "row") and tg._norm(n.name.split("\n")[0]) in self.section_names()]
+        tree = d.tree()
+        if self._open_section_list():   # a narrow window: the sections are listed once the selector is open
+            tree = d.tree()
+        listed = list(dict.fromkeys(n.name.split("\n")[0].strip() for n in tree
+                                    if n.role in ("button", "tab", "row") and tg._norm(n.name.split("\n")[0]) in self.section_names()))
         for name in listed:
             if name in tried:
                 continue

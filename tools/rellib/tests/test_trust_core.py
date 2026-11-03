@@ -2,7 +2,8 @@
 """The shared driver core (drivers/core) on a fake surface: targets found by id, by a build's own
 label and after a rename by the model; obstacles pressed away; a secret screen never sent; the app
 quitting is the product's fault; saved states written and picked; the confirmations stepper set and read
-on a build in Polish; the dialog break's button found in the build's language."""
+on a build in Polish; the dialog break's button found in the build's language; a moved setting found
+by walking the sections when a narrow window folds their list into one selector."""
 import json
 import os
 import stat
@@ -16,7 +17,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(HERE), "drivers"))
 
 from core import state as st  # noqa: E402
 from core import targets as tg  # noqa: E402
-from core.desktop import Desktop  # noqa: E402
+from core.desktop import TECHNICAL, Desktop  # noqa: E402
 from core.driver import Driver, shows  # noqa: E402
 from core.faults import HarnessFault, ProductFault  # noqa: E402
 from core.labels import Labels  # noqa: E402
@@ -212,6 +213,22 @@ class CoreTest(unittest.TestCase):
                 unittest.mock.patch("core.driver.time.sleep"):
             d._clear(UNLOCK)
         self.assertEqual(f.pressed, ["Więcej informacji"])
+
+    def test_moved_setting_found_through_the_folded_section_list(self):
+        search = n(9, "text_field", "Search settings")
+        page = lambda name, *rest: [n(0, "button", name, value=name), search, *rest]  # noqa: E731
+        f = Fake({"pay": page("Payments", n(1, "button", "Fewer confirmations")),
+                  "list": [search, n(1, "row", "Payments"), n(2, "row", "Advanced"), n(3, "row", "Appearance")],
+                  "adv": page("Advanced", n(1, "toggle", "Technical details")),
+                  "app": page("Appearance")}, "pay",
+                 {("pay", "Payments"): "list", ("adv", "Advanced"): "list", ("app", "Appearance"): "list",
+                  ("list", "Payments"): "pay", ("list", "Advanced"): "adv", ("list", "Appearance"): "app"})
+        desk = Desktop(self.driver(f), "previous", self.logs.append)
+        with unittest.mock.patch.dict(os.environ, {"REL_TRUST_BREAK": "move:g4.advanced.technical", "REL_AI": "0"}), \
+                unittest.mock.patch("core.desktop.time.sleep"):
+            self.assertTrue(desk.find_setting(TECHNICAL, ("advanced",), "Technical details"))
+        self.assertEqual(f.cur, "adv")
+        self.assertTrue(any("found under Settings › Advanced" in line for line in self.logs), self.logs)
 
 
 if __name__ == "__main__":
