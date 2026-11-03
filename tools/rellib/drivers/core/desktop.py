@@ -639,7 +639,9 @@ class Desktop:
             # an Add is answered only once the app has checked the server: listed, or "No answer ... Nothing added"
             d.press(self._use_row(entry), step="use-%s" % entry, timeout=30,
                     then=Expect("%s %s" % (entry, "in use" if use else "listed or refused"),
-                                lambda dd, tree: ((self._in_use(picker, entry, tree) or dd.find_in(SWITCH, tree)) if use else
+                                lambda dd, tree: ((self._in_use(picker, entry, tree) or dd.find_in(SWITCH, tree)
+                                                   # the press closed the picker: the loop below reads the choice
+                                                   or not any(self._picker_row(n.name) for n in tree)) if use else
                                                   (self._listed(entry, tree) or self._in_use(picker, entry, tree)
                                                    or dd.find_in(SERVER_REFUSED, tree)
                                                    or not any(self._picker_row(n.name) for n in tree)))))
@@ -647,9 +649,22 @@ class Desktop:
                 break
             self.log("%s %s: no answer from the server; adding again (%d)" % (picker, entry, attempt + 1))
             time.sleep(3)
-        end = time.time() + 120
+        end, gone, rereads = time.time() + 120, None, 0
         while time.time() < end:
             tree = d.tree()
+            if use and rereads < 2 and not d.seen(picker, tree) and not any(self._picker_row(n.name) for n in tree):
+                # 26.10.26 on Windows: a choice closes the picker and UIA marks it off screen until the
+                # page is built again; leaving Settings and coming back shows it with the choice
+                gone = gone or time.time()
+                if time.time() - gone > 5 and not self._in_use(picker, entry, tree):
+                    rereads += 1
+                    self.log("%s closed but not in the tree; leaving Settings to read it again (%d)" % (picker, rereads))
+                    self.nav(NAV_OVERVIEW)
+                    self.find_setting(picker, PICKER_PAGES[picker.id], str(picker))
+                    gone = None
+                    continue
+            else:
+                gone = None
             if d.find_in(SERVER_REFUSED, tree):
                 raise HarnessFault("server", "%s %s refused by the app (the stand-in or server not answering)" % (picker, entry),
                                    d.shot("server-refused"))
