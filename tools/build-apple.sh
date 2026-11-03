@@ -10,12 +10,16 @@
 #
 # macOS builds are Apple silicon (arm64) only: the built-in node has no Intel build.
 #
-# Usage: tools/build-apple.sh [step...]          default: doctor sources lepic macos dmg ios-sim
+# iOS is only built without Tor (iOS cannot start a bundled tor): ios-sim, ipa and ios-prepare
+# refuse to run unless WFE_TOR=0, and with Tor the other steps leave iOS out (lepic builds the
+# macOS library only, smoke and live skip the Simulator, release and handoff carry the macOS app).
+#
+# Usage: tools/build-apple.sh [step...]   default: doctor sources lepic macos dmg (and ios-sim with WFE_TOR=0)
 #   doctor    print and check the toolchain (Xcode, SDKs, Simulator runtime, Flutter, Rust)
 #   sources   the LEPIC and lepic-flutter clones in app/third_party at tools/lepic.rev and
 #             tools/lepic-flutter.rev (cloned when missing from LEPIC_REPO / LEPIC_FLUTTER_REPO,
 #             default the public GitHub copies, as tools/lepic.sh does)
-#   lepic     liblepic_ffi.dylib for aarch64-apple-darwin and aarch64-apple-ios(-sim)
+#   lepic     liblepic_ffi.dylib for aarch64-apple-darwin and, with WFE_TOR=0, aarch64-apple-ios(-sim)
 #             into app/third_party/lepic-flutter/native/<target>/ beside a SHA256SUMS
 #   macos     flutter build macos --release (arm64); the node and tor go into the bundle, then it
 #             is signed ad hoc
@@ -46,7 +50,7 @@
 #   release-check  the tree is clean, at version $RELEASE_VERSION and its tag v<version> (or at
 #             RELEASE_COMMIT when set), Flutter is exactly the pinned version, the built-in
 #             node is fetched by its pin
-#   handoff   handoff/<name>/: the unsigned .app and iOS Runner.app as tar files, PROVENANCE.txt
+#   handoff   handoff/<name>/: the unsigned .app and (WFE_TOR=0) iOS Runner.app as tar files, PROVENANCE.txt
 #             (commit, toolchain, pins, the SHA-256 of every file in both apps) and SHA256SUMS
 #   dmg-signed <signed .app tar>   the .dmg of the app the signer signed and notarised (the
 #             signer's SHA256SUMS beside the tar is checked first); Gatekeeper must accept the
@@ -115,6 +119,9 @@ tor_def=""
 if [ "${WFE_TOR:-1}" = 0 ]; then tor_def=--dart-define=WFE_TOR=false; fi
 # The file name mark of the build without Tor, as the other platforms' packages have it.
 variant() { if [ "${WFE_TOR:-1}" = 0 ]; then echo -notor; fi; }
+# iOS is only built without Tor: true when this run builds iOS (WFE_TOR=0).
+ios_built() { [ "${WFE_TOR:-1}" = 0 ]; }
+ios_only_without_tor() { ios_built || die "$1: iOS is only built without Tor: WFE_TOR=0 tools/build-apple.sh $1"; }
 # The dart-define of the App Store build (WFE_DIST=appstore), else empty: pass it as ${dist_def:+"$dist_def"}.
 dist="${WFE_DIST:-web}"
 case "$dist" in web|appstore) ;; *) echo "WFE_DIST=$dist: use web or appstore on Apple" >&2; exit 2 ;; esac
@@ -196,9 +203,10 @@ package_library() {
   echo "packaged $dir/liblepic_ffi.dylib"
 }
 
-# LEPIC for the targets $1 (default: macOS and iOS).
+# LEPIC for the targets $1 (default: macOS, and iOS when it is built: WFE_TOR=0).
 lepic_libs() {
-  local targets="${1:-$darwin_targets $ios_targets}"
+  local targets="${1:-$darwin_targets}"
+  if [ -z "${1:-}" ] && ios_built; then targets="$darwin_targets $ios_targets"; fi
   say "LEPIC for $targets"
   [ -f "$lepic/Cargo.toml" ] || die "no LEPIC clone: run the sources step"
   # rust-toolchain.toml picks LEPIC's Rust; its targets list has the iOS ones, not macOS.
@@ -439,8 +447,9 @@ smoke() {
   else
     result FAIL smoke-macos "simple_test, see smoke-macos.log"; status=1
   fi
-  udid="$(simulator)"
-  if [ -n "$udid" ] && (cd "$app" && flutter test integration_test/simple_test.dart -d "$udid") \
+  if ! ios_built; then
+    result SKIP smoke-ios-sim "iOS is only built without Tor (WFE_TOR=0)"
+  elif udid="$(simulator)" && [ -n "$udid" ] && (cd "$app" && flutter test integration_test/simple_test.dart -d "$udid") \
       > "$out/smoke-ios-sim.log" 2>&1; then
     result PASS smoke-ios-sim simple_test
   else
@@ -489,8 +498,9 @@ live() {
   else
     result FAIL live-macos "see live-macos.log"; status=1
   fi
-  udid="$(simulator)"
-  if [ -n "$udid" ] && (cd "$app" && flutter test integration_test/apple_live_test.dart -d "$udid" --dart-define-from-file=integration_test/live-hosts.json ${tor_def:+"$tor_def"}) \
+  if ! ios_built; then
+    result SKIP live-ios-sim "iOS is only built without Tor (WFE_TOR=0)"
+  elif udid="$(simulator)" && [ -n "$udid" ] && (cd "$app" && flutter test integration_test/apple_live_test.dart -d "$udid" --dart-define-from-file=integration_test/live-hosts.json ${tor_def:+"$tor_def"}) \
       > "$out/live-ios-sim.log" 2>&1; then
     result PASS live-ios-sim "$(grep 'LIVE-CHECK' "$out/live-ios-sim.log" | sed 's/.*LIVE-CHECK //' | tr '\n' ';')"
   else
@@ -553,7 +563,8 @@ release_check() {
   result PASS release-check "$(git -C "$root" rev-parse --short=9 HEAD) $(app_version) flutter $v"
 }
 
-# What the release was built from and with, and the SHA-256 of every file in both apps.
+# What the release was built from and with, and the SHA-256 of every file in both apps (the
+# macOS app only when $2 is empty: the build with Tor has no iOS app).
 provenance() {
   local mac_app="$1" ios_app="$2" tor_pin
   echo "Epic Cash Apple release build: what it was built from and with"
@@ -581,28 +592,35 @@ provenance() {
   echo
   echo "== files of $desktop_name.app (unsigned)"
   manifest "$mac_app"
-  echo
-  echo "== files of Runner.app (iOS, unsigned)"
-  manifest "$ios_app"
+  if [ -n "$ios_app" ]; then
+    echo
+    echo "== files of Runner.app (iOS, unsigned)"
+    manifest "$ios_app"
+  fi
 }
 
-# The folder that goes to the signer: both unsigned apps as tar.gz, PROVENANCE.txt and SHA256SUMS.
+# The folder that goes to the signer: the unsigned apps as tar.gz (the iOS one only without Tor),
+# PROVENANCE.txt and SHA256SUMS.
 handoff() {
   say handoff
-  local mac_app="$out/$desktop_name.app" ios_app="$app/build/ios/iphoneos/Runner.app"
-  local name dir mac_tar ios_tar
+  local mac_app="$out/$desktop_name.app" ios_app="" name dir mac_tar ios_tar=""
   [ -d "$mac_app" ] || die "no $mac_app: run the macos step"
-  [ -d "$ios_app" ] || die "no $ios_app: run the ipa step"
+  if ios_built; then
+    ios_app="$app/build/ios/iphoneos/Runner.app"
+    [ -d "$ios_app" ] || die "no $ios_app: run the ipa step"
+  fi
   name="EpicCash-$(app_version)$(variant)-$(git -C "$root" rev-parse --short=9 HEAD)"
   dir="$out/handoff/$name"
   rm -rf "$dir"
   mkdir -p "$dir"
   mac_tar="bt-wallet-$(app_version)$(variant)-macos-unsigned.tar.gz"
-  ios_tar="bt-wallet-$(app_version)$(variant)-ios-unsigned.tar.gz"
   pack "$(dirname "$mac_app")" "$(basename "$mac_app")" "$dir/$mac_tar"
-  pack "$(dirname "$ios_app")" Runner.app "$dir/$ios_tar"
+  if [ -n "$ios_app" ]; then
+    ios_tar="bt-wallet-$(app_version)$(variant)-ios-unsigned.tar.gz"
+    pack "$(dirname "$ios_app")" Runner.app "$dir/$ios_tar"
+  fi
   provenance "$mac_app" "$ios_app" > "$dir/PROVENANCE.txt"
-  (cd "$dir" && shasum -a 256 "$mac_tar" "$ios_tar" PROVENANCE.txt > SHA256SUMS)
+  (cd "$dir" && shasum -a 256 "$mac_tar" ${ios_tar:+"$ios_tar"} PROVENANCE.txt > SHA256SUMS)
   cat "$dir/SHA256SUMS"
   result PASS handoff "$dir"
 }
@@ -865,7 +883,10 @@ ios_prepare() {
 recorded="" step=""
 trap 'rc=$?; if [ "$rc" != 0 ] && [ -n "$step" ] && [ "$recorded" != "$step" ]; then result FAIL "$step" "exit $rc"; fi' EXIT
 
-[ $# -gt 0 ] || set -- doctor sources lepic macos dmg ios-sim
+if [ $# -eq 0 ]; then
+  set -- doctor sources lepic macos dmg
+  if ios_built; then set -- "$@" ios-sim; fi
+fi
 while [ $# -gt 0 ]; do
   step="$1"
   shift
@@ -876,22 +897,22 @@ while [ $# -gt 0 ]; do
     lepic) lepic_libs ;;
     macos) macos ;;
     dmg) dmg ;;
-    ios-sim) ios_sim ;;
-    ipa) ipa ;;
+    ios-sim) ios_only_without_tor ios-sim; ios_sim ;;
+    ipa) ios_only_without_tor ipa; ipa ;;
     smoke) smoke ;;
     live) live ;;
-    all) doctor; sources; lepic_libs; macos; dmg; ios_sim; ipa; smoke ;;
+    all) doctor; sources; lepic_libs; macos; dmg; if ios_built; then ios_sim; ipa; fi; smoke ;;
     release-check) release_check ;;
     mac-release) release_check; mac_release_ready; doctor; sources; lepic_libs "$darwin_targets"; macos; mac_release_sign ;;
     ios-prepare)
       [ "${WFE_TOR:-1}" = 0 ] && [ "$dist" = appstore ] \
         || die "the App Store build is the one without Tor and updater: WFE_TOR=0 WFE_DIST=appstore tools/build-apple.sh ios-prepare"
       release_check; doctor; sources; lepic_libs "$ios_targets"; ios_prepare ;;
-    release) release_check; doctor; sources; lepic_libs; macos; ipa; handoff ;;
+    release) release_check; doctor; sources; lepic_libs; macos; if ios_built; then ipa; fi; handoff ;;
     handoff) handoff ;;
     dmg-signed) [ $# -gt 0 ] || die "dmg-signed needs the signed .app tar.gz"; dmg_signed "$1"; shift ;;
     gatekeeper) [ $# -gt 0 ] || die "gatekeeper needs the final .dmg"; gatekeeper "$1"; shift ;;
-    *) step=""; sed -n '2,79p' "$0" >&2; exit 2 ;;
+    *) step=""; sed -n '2,84p' "$0" >&2; exit 2 ;;
   esac
 done
 echo "results: $results"

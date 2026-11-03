@@ -2,7 +2,9 @@
 """A platform a release leaves out keeps its previous release: on the page (tools/releases/build.py
 add), in the signed SHA256SUMS (server_sums.py live, write) and on the server (prune-downloads).
 The inputs are release 26.10.26's run-4, which built Android, Windows and Linux only, over the
-folder 26.10.25's run-15 left: its prune deleted both iOS files. Nothing here leaves 127.0.0.1;
+folder 26.10.25's run-15 left: its prune deleted the iOS files. iOS has one file per release, the
+build without Tor (-notor-ios-unsigned.ipa); run-15 also built one with Tor, left out here except
+where a test says so. Nothing here leaves 127.0.0.1;
 ssh, rsync and sudo are shims that act on a temp folder."""
 import functools
 import hashlib
@@ -27,8 +29,8 @@ spec = importlib.util.spec_from_file_location("releases_build", os.path.join(REP
 build = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(build)
 
-RUN_15 = [  # /tmp/epic-build/rel/26.10.25/run-15/files/SHA256SUMS: every platform
-    "bt-wallet-26.10.25-android-arm64-v8a.apk", "bt-wallet-26.10.25-ios-unsigned.ipa",
+RUN_15 = [  # /tmp/epic-build/rel/26.10.25/run-15/files/SHA256SUMS: every platform, the one iOS file
+    "bt-wallet-26.10.25-android-arm64-v8a.apk",
     "bt-wallet-26.10.25-linux-x86_64.AppImage", "bt-wallet-26.10.25-macos.dmg",
     "bt-wallet-26.10.25-notor-android-arm64-v8a.apk", "bt-wallet-26.10.25-notor-ios-unsigned.ipa",
     "bt-wallet-26.10.25-notor-linux-x86_64.AppImage", "bt-wallet-26.10.25-notor-macos.dmg",
@@ -39,11 +41,12 @@ RUN_4 = [  # /tmp/epic-build/rel/26.10.26/run-4/files/SHA256SUMS: Android, Windo
     "bt-wallet-26.10.26-notor-android-arm64-v8a.apk", "bt-wallet-26.10.26-notor-linux-x86_64.AppImage",
     "bt-wallet-26.10.26-notor-windows-x64-setup.exe", "bt-wallet-26.10.26-windows-x64-setup.exe",
 ]
-CARRIED = [  # what 26.10.26 must leave of 26.10.25: macOS and iOS, both variants
-    "bt-wallet-26.10.25-ios-unsigned.ipa", "bt-wallet-26.10.25-macos.dmg",
+CARRIED = [  # what 26.10.26 must leave of 26.10.25: macOS both variants, the one iOS file
+    "bt-wallet-26.10.25-macos.dmg",
     "bt-wallet-26.10.25-notor-ios-unsigned.ipa", "bt-wallet-26.10.25-notor-macos.dmg",
 ]
 EXTRA = ["provenance.json", "sbom.cdx.json"]
+IOS_TOR = "bt-wallet-26.10.25-ios-unsigned.ipa"  # the iOS build with Tor run-15 also made: no longer a release file
 
 
 def body(name):
@@ -80,6 +83,13 @@ class KeepRuleTest(unittest.TestCase):
         self.assertNotIn("bt-wallet-26.10.25-macos.dmg", kept)
         self.assertIn("bt-wallet-26.10.25-notor-macos.dmg", kept)
 
+    def test_one_ios_slot_and_the_tor_named_ipa_is_not_kept(self):
+        self.assertEqual(build.slot("bt-wallet-26.10.25-notor-ios-unsigned.ipa"), ("ios", "notor"))
+        self.assertIsNone(build.slot(IOS_TOR))
+        self.assertEqual(build.classify("bt-wallet-26.10.25-notor-ios-unsigned.ipa"), ("ios", "Unsigned IPA", True))
+        kept = build.keep("26.10.26", RUN_15 + [IOS_TOR] + RUN_4)
+        self.assertEqual(sorted(kept), sorted(RUN_4 + CARRIED))
+
     def test_the_cli_reads_names_on_stdin(self):
         p = subprocess.run([sys.executable, "-I", os.path.join(REPO, "tools/releases/build.py"), "keep", "26.10.26"],
                            input="\n".join(RUN_15 + RUN_4 + EXTRA), capture_output=True, text=True, check=True)
@@ -95,6 +105,10 @@ class KeepRuleTest(unittest.TestCase):
         self.assertEqual({k: g[k]["primary"]["version"] for k in g if g[k]["primary"]},
                          {"windows": "26.10.26", "linux": "26.10.26", "android": "26.10.26",
                           "macos": "26.10.25", "ios": "26.10.25"})
+        # iOS: the one IPA is the primary download, with no "Without Tor" twin beside it.
+        self.assertEqual([f["name"] for f in g["ios"]["files"]], ["bt-wallet-26.10.25-notor-ios-unsigned.ipa"])
+        self.assertEqual(g["ios"]["primary"]["name"], "bt-wallet-26.10.25-notor-ios-unsigned.ipa")
+        self.assertIsNone(build.notor_of(g["ios"]))
 
 
 class Quiet(SimpleHTTPRequestHandler):
