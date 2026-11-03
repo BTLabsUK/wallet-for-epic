@@ -11,7 +11,8 @@ Read only: nothing on the servers is changed, and a source that cannot be read i
 failure. From the relays: the lines that name the lane's address (proof.json details.address,
 first 8…last 6) and every line of those connections (connects, subscribes, slate posts, closes), plus
 server-wide errors; error lines of other connections are only counted. From the nodes: warnings,
-errors and transaction/pool lines (never TRACE).
+errors and transaction/pool lines (never TRACE, peer gossip
+or the steady noise of other wallets).
 
 What is stored carries no IP addresses (loopback and [serverlogs] known_ips names stay), no full
 wallet addresses (the lane's is shortened like proof.json, others are <other address>), no slate
@@ -50,6 +51,9 @@ JOURNAL_LINE = re.compile(r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?[+-]\
 # The reference relay's connection id: "[time] [uid] New connection from ip", "- [uid][ip] -> [type]".
 CONN_TAG = re.compile(r"\] \[([A-Za-z0-9]{4,8})\] New connection|- \[([A-Za-z0-9]{4,8})\]\[")
 NODE_KEEP = re.compile(r"transaction|tx_pool|txpool|pool|stem|fluff|dandelion|push_tx|kernel", re.I)
+# Every node's steady noise: wallets asking for outputs the chain does not have, gossip of other
+# people's transactions.
+NODE_NOISE = re.compile(r"Output for commitment \w+, Message: Not found|rejected: DuplicateTx|truncate_reorg_cache")
 ERRORISH = re.compile(r"error|fail|timed out|reject|refus|invalid|denied", re.I)
 IPV4 = re.compile(r"(?<![\d.])(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})(?![\d.])")
 # An IPv6 address: hex groups with "::" or at least six groups, and a digit (so neither a time of day
@@ -210,10 +214,10 @@ def pick_relay(entries, marks):
 def pick_node(entries):
     kept = []
     for ts, level, text in entries:
-        if level == "TRACE":
+        if level == "TRACE" or NODE_NOISE.search(text):
             continue
         err = level in ("WARN", "ERROR")
-        if err or NODE_KEEP.search(text):
+        if err or (" epic_p2p::" not in text and NODE_KEEP.search(text)):
             kept.append((ts, err, text))
     return kept
 

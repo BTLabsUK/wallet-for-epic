@@ -98,7 +98,10 @@ class Pieces(unittest.TestCase):
 
     def test_node_keeps_warnings_and_pool_lines_never_trace(self):
         lines = [node_line(T, "TRACE", "transaction in pool"), node_line(T, "DEBUG", "header head updated"),
-                 node_line(T, "INFO", "add_to_pool: tx abc"), node_line(T, "WARN", "peer banned")]
+                 node_line(T, "INFO", "add_to_pool: tx abc"), node_line(T, "WARN", "peer banned"),
+                 node_line(T, "DEBUG", "Received tx kernel: abc", module="epic_p2p::protocol"),
+                 node_line(T, "WARN", "Output for commitment 09ab, Message: Not found.", module="epic_api::handlers::chain_api"),
+                 node_line(T, "DEBUG", "Transaction 1de rejected: DuplicateTx", module="epic_servers::common::adapters")]
         kept = sl.pick_node(sl.parse_node(lines, 0))
         self.assertEqual([e for _, e, _ in kept], [False, True])
 
