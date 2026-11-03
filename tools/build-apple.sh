@@ -522,32 +522,38 @@ smoke() {
     # Started with a home of its own, so the ad-hoc build (a new identity each build) never asks
     # for the login keychain, and its data folder is there. An empty keychain search list is not
     # enough: the app's first SecItemAdd fails (-25307) and macOS shows "Keychain Not Found". So
-    # the home gets a throwaway keychain, unlocked, as its default. Only when the home's
-    # preferences are its own: if `security` there still sees the user's default keychain, the
-    # start is skipped and nothing is written.
-    local home="$out/smoke-home" kc pid
+    # the home gets a throwaway keychain, unlocked, as its default. `security` keeps that setting
+    # in the home's Library/Preferences, and without the folder it says it set it but keeps
+    # nothing. The app starts only when the home's default is the throwaway keychain and the
+    # user's own default is what it was; otherwise the start is skipped.
+    local home="$out/smoke-home" kc pid own
     rm -rf "$home"
-    mkdir -p "$home/Library/Keychains"
+    mkdir -p "$home/Library/Keychains" "$home/Library/Preferences"
     kc="$home/Library/Keychains/smoke.keychain-db"
-    if [ "$(HOME="$home" CFFIXED_USER_HOME="$home" security default-keychain -d user 2>/dev/null)" \
-        = "$(security default-keychain -d user 2>/dev/null)" ]; then
+    own="$(security default-keychain -d user 2>/dev/null || true)"
+    if [ "$(HOME="$home" CFFIXED_USER_HOME="$home" security default-keychain -d user 2>/dev/null)" = "$own" ]; then
       result SKIP smoke-macos-app "a home of its own still has the user's default keychain: not started"
     else
       HOME="$home" CFFIXED_USER_HOME="$home" security create-keychain -p "" "$kc"
+      HOME="$home" CFFIXED_USER_HOME="$home" security unlock-keychain -p "" "$kc"
       # Never locks by itself (no timeout, not on sleep): a locked one would ask for its password.
       HOME="$home" CFFIXED_USER_HOME="$home" security set-keychain-settings "$kc"
-      HOME="$home" CFFIXED_USER_HOME="$home" security unlock-keychain -p "" "$kc"
       HOME="$home" CFFIXED_USER_HOME="$home" security list-keychains -d user -s "$kc"
       HOME="$home" CFFIXED_USER_HOME="$home" security default-keychain -d user -s "$kc"
-      HOME="$home" CFFIXED_USER_HOME="$home" "$bundle/Contents/MacOS/$desktop_exe" > "$out/smoke-macos-app.log" 2>&1 &
-      pid=$!
-      sleep 20
-      if kill -0 "$pid" 2>/dev/null; then
-        kill "$pid" 2>/dev/null || true
-        wait "$pid" 2>/dev/null || true
-        result PASS smoke-macos-app "started and stayed up 20 s"
+      if [ "$(HOME="$home" CFFIXED_USER_HOME="$home" security default-keychain -d user 2>/dev/null | sed 's/^ *"//; s/"$//')" != "$kc" ] \
+          || [ "$(security default-keychain -d user 2>/dev/null || true)" != "$own" ]; then
+        result SKIP smoke-macos-app "the throwaway keychain is not the smoke home's default: not started"
       else
-        result FAIL smoke-macos-app "not running 20 s after start, see smoke-macos-app.log"; status=1
+        HOME="$home" CFFIXED_USER_HOME="$home" "$bundle/Contents/MacOS/$desktop_exe" > "$out/smoke-macos-app.log" 2>&1 &
+        pid=$!
+        sleep 20
+        if kill -0 "$pid" 2>/dev/null; then
+          kill "$pid" 2>/dev/null || true
+          wait "$pid" 2>/dev/null || true
+          result PASS smoke-macos-app "started and stayed up 20 s"
+        else
+          result FAIL smoke-macos-app "not running 20 s after start, see smoke-macos-app.log"; status=1
+        fi
       fi
     fi
   fi
