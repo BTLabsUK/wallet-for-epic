@@ -454,6 +454,178 @@ class FundsOff(unittest.TestCase):
         self.assertNotIn("send_ok", lane.results)
 
 
+class LaneSeedFunds(unittest.TestCase):
+    """A lane seed's wallet keeps its coins: P tops it up when it is low, in the one payment before the
+    update, and it sends back only this run's inflow, as an amount on the Send page."""
+
+    def test_what_p_pays(self):
+        D = checks.D
+        self.assertEqual(checks.p_pays(0, True), ("0.05", D("0.04")), "low: the top-up capped by the per-send cap")
+        self.assertEqual(checks.p_pays(None, True), ("0.05", D("0.04")), "not known: counted as low")
+        self.assertEqual(checks.p_pays(4999999, True)[0], "0.05")
+        self.assertEqual(checks.p_pays(5000000, True), ("0.01", D(0)))
+        self.assertEqual(checks.p_pays(0, False), ("0.01", D(0)), "no top-up without a lane seed")
+        self.assertLessEqual(D(checks.p_pays(0, True)[0]), checks.CAP_SEND)
+
+    def fund(self, mode, spendable):
+        lane, paid, recorded = FakeLane(mode=mode), [], []
+        lane.on_funding = lambda amount, t: recorded.append((amount, t["slate"]))
+        with mock.patch.object(checks, "_digest", lambda *a: digest(total=spendable, txs=[])), \
+             mock.patch.object(checks, "_pay", lambda _l, addr, amount, *a: paid.append(amount) or (None, tx(slate=SLATE_B))), \
+             mock.patch.object(checks, "wait_spendable", lambda *a, **k: digest()):
+            checks.fund_before(lane, "esADDR")
+        return lane, paid, recorded
+
+    def test_low_lane_seed_topped_up(self):
+        lane, paid, recorded = self.fund("seed", 1000000)
+        self.assertEqual(paid, ["0.05"])
+        self.assertEqual(recorded, [("0.05", SLATE_B)])
+        self.assertEqual(lane.inflow, checks.D("0.01"), "the top-up is not this run's inflow")
+        self.assertIn("0.04 top-up that stays in the lane", lane.details["fund"])
+        self.assertEqual(lane.fund_tx["slate"], SLATE_B)
+
+    def test_lane_seed_with_enough_not_topped_up(self):
+        _, paid, _ = self.fund("seed", 7000000)
+        self.assertEqual(paid, ["0.01"])
+
+    def test_fresh_lane_never_topped_up(self):
+        _, paid, _ = self.fund("fresh", 0)
+        self.assertEqual(paid, ["0.01"])
+
+    def send_back(self, mode, funds, received=True):
+        lane, sent = FakeLane(mode=mode, funds=funds, required=["send_ok", "receive_ok"]), []
+        lane.inflow = checks.D("0.01")
+        lane.ok("wallet_opens", "x")
+        lane.ok("balance_kept", "x")
+
+        def pay(_l, addr, amount, *a):
+            if not received:
+                raise checks.ProductFault("receive", "no incoming")
+            return None, tx(amount=1000000)
+        with mock.patch.object(checks, "_pay", pay), \
+             mock.patch.object(checks, "wait_spendable", lambda *a, **k: digest(total=7000000)), \
+             mock.patch.object(checks, "_send_to_p", lambda _l, d0, amount=None: sent.append(amount) or (True, "confirmed")):
+            checks.funds_legs(lane, digest(total=6000000))
+        return lane, sent
+
+    def test_lane_seed_sends_back_this_runs_inflow(self):
+        lane, sent = self.send_back("seed", True)
+        self.assertEqual(sent, [checks.D("0.02")])
+        self.assertTrue(lane.results["send_ok"])
+        self.assertIn("an amount of 0.02 EPIC (this run's inflow", lane.details["send_ok"])
+
+    def test_lane_seed_without_funds_sends_back_the_first_inflow(self):
+        lane, sent = self.send_back("seed", False)
+        self.assertEqual(sent, [checks.D("0.01")])
+        self.assertNotIn("send_ok", lane.results)
+
+    def test_lane_seed_whose_receive_failed_sends_back_what_came(self):
+        lane, sent = self.send_back("seed", True, received=False)
+        self.assertEqual(sent, [checks.D("0.01")])
+        self.assertFalse(lane.results["receive_ok"])
+
+    def test_fresh_lane_sends_everything(self):
+        lane, sent = self.send_back("fresh", True)
+        self.assertEqual(sent, [None])
+        self.assertIn("with Max", lane.details["send_ok"])
+
+
+class FakeFunder:
+    def ready(self):
+        return None
+
+    def exchange(self, what):
+        import contextlib
+        return contextlib.nullcontext()
+
+    def start_listener(self):
+        return True
+
+
+class SendAmount(unittest.TestCase):
+    def send(self, sent_nano, amount="0.02"):
+        lane, asked = FakeLane(mode="seed"), []
+        lane.funder = FakeFunder()
+        lane.ui = mock.Mock()
+        lane.ui.send = lambda to, a: asked.append((to, a)) or (True, "")
+        out = dict(tx("outgoing", amount=sent_nano + 4000000, slate=None), credited=0, fee=4000000)
+        out["debited"] = sent_nano + 4000000
+        with mock.patch.object(checks, "_digest", lambda *a: digest(txs=[out])), mock.patch.object(checks, "POLL_S", 0):
+            ok, why = checks._send_to_p(lane, digest(total=7000000, txs=[]), checks.D(amount))
+        return lane, asked, ok, why
+
+    def test_amount_typed_and_checked(self):
+        lane, asked, ok, why = self.send(2000000)
+        self.assertEqual(asked, [(checks.P_ADDR, "0.02")])
+        self.assertTrue(ok, why)
+        self.assertIsNone(lane.send_pending)
+
+    def test_another_amount_sent_is_false(self):
+        _, _, ok, why = self.send(7000000)
+        self.assertFalse(ok)
+        self.assertIn("the Send page was given 0.02 EPIC", why)
+
+    def test_amount_over_the_cap_refused(self):
+        _, asked, ok, why = self.send(0, amount="0.06")
+        self.assertFalse(ok)
+        self.assertEqual(asked, [])
+        self.assertIn("over the per-send cap", why)
+
+
+class RestoredHistory(unittest.TestCase):
+    """A wallet restored from its phrase: the transactions its scan found have no slate and no
+    counterparty; the payment from P this run has both."""
+
+    def setUp(self):
+        self.env = dict(os.environ)
+        os.environ["REL_CANDIDATE_VERSION"] = "26.10.24"
+        os.environ["REL_PREVIOUS_VERSION"] = "26.10.23"
+
+    def tearDown(self):
+        os.environ.clear()
+        os.environ.update(self.env)
+
+    def scanned(self, amount=1000000, direction="incoming"):
+        return tx(direction, amount=amount, slate=None, who=None)
+
+    def run_history(self, before, after, fund=SLATE_B):
+        lane = FakeLane(mode="seed")
+        lane.fund_tx = tx(slate=fund) if fund else None
+        checks._history(lane, digest(txs=before), digest(txs=after))
+        return lane
+
+    def test_scanned_transactions_kept(self):
+        before = [self.scanned(), self.scanned(), self.scanned(2000000, "outgoing"), tx(slate=SLATE_B)]
+        lane = self.run_history(before, list(reversed(before)))
+        self.assertTrue(lane.results["history_kept"], lane.details["history_kept"])
+        self.assertIn("3 of them from the restore's scan", lane.details["history_kept"])
+
+    def test_one_of_two_alike_gone_is_missing(self):
+        lane = self.run_history([self.scanned(), self.scanned(), tx(slate=SLATE_B)], [self.scanned(), tx(slate=SLATE_B)])
+        self.assertFalse(lane.results["history_kept"])
+        self.assertIn("1 of 3 transactions missing", lane.details["history_kept"])
+
+    def test_this_runs_payment_without_its_sender_is_false(self):
+        lane = self.run_history([self.scanned(), tx(slate=SLATE_B, who=None)], [self.scanned(), tx(slate=SLATE_B, who=None)])
+        self.assertFalse(lane.results["history_kept"])
+        self.assertIn("this run's payment from P has no sender", lane.details["history_kept"])
+
+    def test_a_scanned_one_does_not_take_the_place_of_the_payment(self):
+        # the scan found a payment with the same amount as this run's: each before is paired with its own after
+        before = [self.scanned(), tx(slate=SLATE_B, amount=1000000)]
+        lane = self.run_history(before, [tx(slate=SLATE_B, amount=1000000), self.scanned()])
+        self.assertTrue(lane.results["history_kept"], lane.details["history_kept"])
+
+    def test_sender_lost_after_the_update_is_false(self):
+        lane = self.run_history([self.scanned(), tx(slate=SLATE_B)], [self.scanned(), tx(slate=SLATE_B, who=None)])
+        self.assertFalse(lane.results["history_kept"])
+        self.assertIn("who paid or was paid lost", lane.details["history_kept"])
+
+    def test_long_history_text_capped(self):
+        many = [self.scanned(1000000 + i) for i in range(12)]
+        self.assertIn("and 4 more", checks.txs_text(many))
+
+
 if __name__ == "__main__":
     unittest.main()
 

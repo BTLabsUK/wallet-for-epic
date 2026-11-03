@@ -153,6 +153,21 @@ class GraphTest(unittest.TestCase):
         self.assertEqual([x.id for x in steps if x.lane == "build-linux"], ["build-linux-tor", "build-linux-notor"])
         self.assertTrue(all(x.heavy for x in steps if x.lane == "build-linux"))
 
+    def test_create_steps_warn_only_after_the_trust_steps(self):
+        s, steps = graph()
+        by = {x.id: x for x in steps}
+        for plat in ("android", "linux", "windows"):
+            self.assertNotIn(f"create-{plat}-notor", by)
+            c = by[f"create-{plat}-tor"]
+            self.assertTrue(c.warn_only)
+            self.assertFalse(c.proof)
+            self.assertEqual(c.lane, f"trust-{plat}-tor")
+            self.assertEqual(c.needs, [f"trust-{plat}-tor", f"trust-{plat}-notor"])
+            self.assertEqual((c.env["REL_TRUST_MODE"], c.env["REL_CHECKS"], c.env["REL_FUNDS"]), ("create", "create_ok", "0"))
+            self.assertIn(f"trust-{plat}.sh", c.run)
+            self.assertNotIn(c.id, by["update-trust"].needs)
+        self.assertNotIn("create-macos-tor", by)
+
     def test_only_android_drops_the_rest_and_their_needs(self):
         s, steps = graph(only="android")
         ids = [x.id for x in steps]
