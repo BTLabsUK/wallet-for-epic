@@ -394,7 +394,7 @@ class Desktop:
         d._act(d.s.set_text, focused[0], typed)
         d.press(self._use_row(entry), step="use-%s" % entry, timeout=30,
                 then=Expect("%s %s" % (entry, "in use" if use else "listed"),
-                            lambda dd, tree: (self._in_use(picker, entry, tree) if use else
+                            lambda dd, tree: ((self._in_use(picker, entry, tree) or dd.find_in(SWITCH, tree)) if use else
                                               (self._listed(entry, tree) or self._in_use(picker, entry, tree)
                                                or not any(tg._norm(n.name).startswith("use ") for n in tree)))))
         end = time.time() + 120
