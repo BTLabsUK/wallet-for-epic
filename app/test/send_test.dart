@@ -35,6 +35,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:share_plus/share_plus.dart';
 
+import 'support/real_time.dart';
 import 'support/send_pin.dart';
 
 BigInt _epic(num value) => BigInt.from((value * 100000000).round());
@@ -433,12 +434,7 @@ class _GatedFiles extends FakeSlateFiles {
 /// Pumps until [done], letting real time pass between frames: the share card renders through
 /// the engine, which fake time does not move.
 Future<void> _untilRendered(WidgetTester tester, bool Function() done) async {
-  for (var i = 0; i < 100 && !done(); i++) {
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 20)),
-    );
-    await tester.pump();
-  }
+  await pumpUntil(tester, done);
   expect(done(), isTrue, reason: 'the share card did not render');
 }
 

@@ -51,6 +51,7 @@ import 'package:epic_wallet/src/advanced.dart' show NetworkMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'support/experimental.dart';
+import 'support/real_time.dart';
 import 'support/settings_modes.dart' show useNetworkModeFile;
 
 const _mainnetDir = '/fake/wallets/mainnet';
@@ -1661,10 +1662,7 @@ void main() {
       expect(find.textContaining('Tor: GNU General Public License, version 3.'), findsOneWidget);
       expect(find.textContaining('LEPIC, the Epic Cash wallet library: Apache-2.0'), findsOneWidget);
       // The source note is an asset, read in real time.
-      for (var i = 0; i < 50 && find.textContaining('tor 0.4.9.14, unmodified', skipOffstage: false).evaluate().isEmpty; i++) {
-        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
-        await tester.pump();
-      }
+      await pumpUntil(tester, () => find.textContaining('tor 0.4.9.14, unmodified', skipOffstage: false).evaluate().isNotEmpty);
       expect(find.textContaining('tor 0.4.9.14, unmodified', skipOffstage: false), findsOneWidget);
       await _reveal(tester, find.byKey(licencesFullKey));
       await tester.tap(find.byKey(licencesFullKey));
@@ -1675,12 +1673,7 @@ void main() {
       // British, like the row and the rest of the app.
       expect(find.text('Licenses'), findsNothing);
       // The registry reads the licences on real async.
-      for (var i = 0; i < 50 && find.text('Tor').evaluate().isEmpty; i++) {
-        await tester.runAsync(
-          () => Future<void>.delayed(const Duration(milliseconds: 20)),
-        );
-        await tester.pump();
-      }
+      await pumpUntil(tester, () => find.text('Tor').evaluate().isNotEmpty);
       expect(find.text('Tor'), findsOneWidget);
       // Tor's licence as written (polish #10): one preformatted block, not centred paragraphs.
       await tester.tap(find.text('Tor'));
