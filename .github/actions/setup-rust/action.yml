@@ -1,0 +1,58 @@
+# SPDX-License-Identifier: Apache-2.0
+# The Rust toolchain LEPIC pins (the channel in its rust-toolchain.toml), installed once before the
+# build with the targets the job needs, and named by RUSTUP_TOOLCHAIN for the rest of the job: the
+# file's other targets (iOS) are never downloaded and parallel builds never race to install it.
+# Caches cargo's registry and git checkouts by LEPIC's Cargo.lock; optionally installs cargo-ndk.
+# Works on Linux and on Windows (Git Bash).
+name: setup-rust
+description: LEPIC's pinned Rust toolchain, cargo registry cache, optional cargo-ndk
+inputs:
+  lepic:
+    description: The LEPIC checkout (rust-toolchain.toml, Cargo.lock)
+    required: true
+  targets:
+    description: Comma-separated extra targets
+    default: ""
+  cargo-ndk:
+    description: The cargo-ndk version to install, or empty for none
+    default: ""
+runs:
+  using: composite
+  steps:
+    - id: tc
+      shell: bash
+      env:
+        WFE_LEPIC: ${{ inputs.lepic }}
+      run: |
+        channel="$(sed -n 's/^channel *= *"\(.*\)"/\1/p' "$WFE_LEPIC/rust-toolchain.toml")"
+        [[ "$channel" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::no channel in $WFE_LEPIC/rust-toolchain.toml"; exit 1; }
+        echo "channel=$channel" >> "$GITHUB_OUTPUT"
+        echo "lock=$(sha256sum < "$WFE_LEPIC/Cargo.lock" | cut -c1-16)" >> "$GITHUB_OUTPUT"
+    - shell: bash
+      env:
+        WFE_CHANNEL: ${{ steps.tc.outputs.channel }}
+        WFE_TARGETS: ${{ inputs.targets }}
+      run: |
+        rustup --version
+        rustup toolchain install "$WFE_CHANNEL" --profile minimal --no-self-update ${WFE_TARGETS:+--target "$WFE_TARGETS"}
+        echo "RUSTUP_TOOLCHAIN=$WFE_CHANNEL" >> "$GITHUB_ENV"
+        RUSTUP_TOOLCHAIN="$WFE_CHANNEL" rustc --version
+    - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: |
+          ~/.cargo/registry/index
+          ~/.cargo/registry/cache
+          ~/.cargo/git/db
+        key: cargo-registry-${{ runner.os }}-${{ steps.tc.outputs.lock }}
+        restore-keys: cargo-registry-${{ runner.os }}-
+    - if: inputs.cargo-ndk != ''
+      id: ndk
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.cargo/bin/cargo-ndk
+        key: cargo-ndk-${{ runner.os }}-${{ inputs.cargo-ndk }}-${{ steps.tc.outputs.channel }}
+    - if: inputs.cargo-ndk != '' && steps.ndk.outputs.cache-hit != 'true'
+      shell: bash
+      env:
+        WFE_CARGO_NDK: ${{ inputs.cargo-ndk }}
+      run: cargo install cargo-ndk --version "$WFE_CARGO_NDK" --locked
