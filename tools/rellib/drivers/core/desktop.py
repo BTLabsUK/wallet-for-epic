@@ -40,9 +40,11 @@ SETUP_SKIP = T("g4.setup.skip", keys=("deskSetupSkip",), names=("Skip setup",))
 # restore from phrase (26.10.25 and 26.10.26: restore_screen.dart, phrase_grid.dart). The word fields are
 # "Word N" (deskOnbWordN, Desktop._word); the words step's button is CONTINUE.
 RESTORE_SUBMIT = T("g4.restore.submit", keys=("deskOnbRestoreSide",), names=("Restore wallet",), match="exact", secret=True)
-RESTORE_FROM_OPEN = T("g4.restore.from.open", keys=("restoreStartFromMonthLink",), names=("Start from a month or height",),
+# the link is an unnamed node with its label a text of its own on Linux (the label's press reaches the link)
+RESTORE_FROM_OPEN = T("g4.restore.from.open", role="other", keys=("restoreStartFromMonthLink",),
+                      names=("Start from a month or height",), secret=True)
+RESTORE_FROM_HIDE = T("g4.restore.from.hide", role="other", keys=("deskOnbRestoreFromHide",), names=("Check the whole chain",),
                       secret=True)
-RESTORE_FROM_HIDE = T("g4.restore.from.hide", keys=("deskOnbRestoreFromHide",), names=("Check the whole chain",), secret=True)
 RESTORE_BY_HEIGHT = T("g4.restore.from.by_height", keys=("restoreStartByHeight",), names=("Block height",), match="exact",
                       secret=True)
 RESTORE_HEIGHT = T("g4.restore.from.height", role="text_field", keys=("deskOnbRestoreFromLabel",), names=("Start from block",),
@@ -322,6 +324,10 @@ class Desktop:
                 self.log("restore: field %d does not hold the word typed (try %d)" % (i, attempt + 1))
             else:
                 d.harness("field %d of the phrase grid does not take the word typed" % i)
+            if i < len(words):
+                # Space commits the word and moves to the next field, as a person typing does: AT-SPI's
+                # focus reaches the first field only (26.10.25 on Linux kept the keyboard in field 1)
+                d.s.key("space")
         ready = Expect("Continue enabled", lambda dd, tree: any(n.enabled and n.role == "button" for n in dd.find_in(CONTINUE, tree)))
         if not d.wait(ready, 5):
             d.s.key("tab")   # commits the last field (its word checked), as a person moving on does

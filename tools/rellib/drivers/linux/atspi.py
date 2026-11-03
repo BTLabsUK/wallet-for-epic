@@ -234,8 +234,9 @@ class AtspiSurface:
         slower (xdotool drops keys at speed and a phrase word is checked letter for letter) and its
         field is named without its value in any line."""
         if self._call(self._req(node, "focus")).get("ok"):
-            self._xdo("key", "ctrl+a")
-            self._xdo("key", "BackSpace")
+            if node.value != "":   # an empty field is left as it is: Backspace there moves a phrase grid back a field
+                self._xdo("key", "ctrl+a")
+                self._xdo("key", "BackSpace")
             self._xdo("type", "--delay", "90" if secret else "12", "--file", "-", inp=text)
             return
         if secret:

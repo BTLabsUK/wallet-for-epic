@@ -5,6 +5,7 @@ product's fault, and no word in any log line or file. The surfaces' secret typin
 focus and xdotool's stdin, Windows from a rig file the agent deletes. The create-wallet test's fresh
 install of the candidate on both platforms."""
 import calendar
+import dataclasses
 import os
 import sys
 import tempfile
@@ -52,7 +53,8 @@ class RestoreApp:
             t = [n(50, "text", "Restore wallet"),
                  n(51, "text_field", "Password", value="", states=("enabled", "editable", "password")),
                  n(52, "text_field", "Confirm password", value="", states=("enabled", "editable", "password")),
-                 n(53, "link", "Check the whole chain" if self.panel else "Start from a month or height")]
+                 n(53, "link", ""),   # 26.10.25 on Linux: the link unnamed, its label a text of its own
+                 n(57, "text", "Check the whole chain" if self.panel else "Start from a month or height")]
             if self.panel:
                 t += [n(54, "button", "Month", states=("enabled",) if self.by_height else ("enabled", "selected")),
                       n(55, "button", "Block height")]
@@ -141,6 +143,7 @@ class RestoreTest(unittest.TestCase):
         self.assertEqual(app.height, "3412345")
         self.assertEqual(app.at, "home")
         self.assertIn("Block height", app.pressed)
+        self.assertEqual(app.keys, ["space"] * 23)   # each word committed, as a person typing moves on
         self.assertNoWord()
 
     def test_grid_named_in_the_builds_language(self):
@@ -209,6 +212,12 @@ class AtspiSecretTest(unittest.TestCase):
         self.assertEqual(inp, "zqbw")
         self.assertNotIn("zqbw", " ".join(args))
         self.assertEqual(args[:3], ("type", "--delay", "90"))
+
+    def test_an_empty_field_is_not_cleared(self):
+        """Backspace in an empty box of 26.10.25's phrase grid moves back a box: the word went into field 1 again."""
+        s = self.surface(True)
+        s.set_text(dataclasses.replace(self.node(), value=""), "zqbw", secret=True)
+        self.assertEqual([a[:2] for a, _ in s.xdo], [("type", "--delay")])
 
     def test_secret_never_set_through_the_worker(self):
         s = self.surface(False)
