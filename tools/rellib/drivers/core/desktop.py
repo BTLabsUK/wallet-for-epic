@@ -506,9 +506,17 @@ class Desktop:
         d = self.d
         theme = THEME[want.get("theme", "Light")]
         self.find_setting(theme, ("appearance",), "the theme choice")
-        d.press(theme, step="theme", timeout=20,
-                then=Expect("%s chosen" % theme, lambda dd, tree: any("selected" in n.states or "checked" in n.states
-                                                                      for n in dd.find_in(theme, tree))))
+        group = [t for t in THEME.values()]
+
+        def chosen(dd, tree):
+            if any("selected" in n.states or "checked" in n.states for n in dd.find_in(theme, tree)):
+                return True
+            # a platform that shows no chosen state on any of the three: the press landed, and the wallet's
+            # settings file (settings_kept) says which was chosen
+            blind = not getattr(dd.s, "shows_selection", True) and not any(
+                "selected" in n.states or "checked" in n.states for t in group for n in dd.find_in(t, tree))
+            return bool(blind and dd.find_in(theme, tree))
+        d.press(theme, step="theme", timeout=20, then=Expect("%s chosen" % theme, chosen))
         self.find_setting(LABEL_FIELD, ("wallet",), "the wallet label")  # Save label shows once it is edited
         d.fill(LABEL_FIELD, want["label"], step="label")
         d.press(LABEL_SAVE, step="label-save", timeout=20)
