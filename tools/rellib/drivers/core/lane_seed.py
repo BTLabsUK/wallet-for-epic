@@ -80,24 +80,26 @@ def words():
     """The BIP39 English list, from the store's copy, REL_BIP39_WORDS or the bip39 crate in the cargo
     registry; any copy must match BIP39_SHA256. The store keeps a checked copy."""
     global _WORDS
-    if _WORDS:
-        return _WORDS
     own = os.path.join(root(), WORDLIST_NAME)
-    cands = [own] + ([os.environ["REL_BIP39_WORDS"]] if os.environ.get("REL_BIP39_WORDS") else [])
-    for pat in WORDLIST_SOURCES:
-        cands += sorted(glob.glob(os.path.expanduser(pat)), reverse=True)
-    for c in cands:
-        try:
-            with open(c, encoding="utf-8") as f:
-                w = _list_of(f.read())
-        except OSError:
-            continue
-        if _good(w):
-            _WORDS = w
-            if c != own and os.path.isdir(root()):
-                _write(own, "\n".join(w) + "\n")
-            return w
-    raise HarnessFault("seed", "no BIP39 English list with sha256 %s… found (looked in %s)" % (BIP39_SHA256[:12], ", ".join(cands)))
+    if not _WORDS:
+        cands = [own] + ([os.environ["REL_BIP39_WORDS"]] if os.environ.get("REL_BIP39_WORDS") else [])
+        for pat in WORDLIST_SOURCES:
+            cands += sorted(glob.glob(os.path.expanduser(pat)), reverse=True)
+        for c in cands:
+            try:
+                with open(c, encoding="utf-8") as f:
+                    w = _list_of(f.read())
+            except OSError:
+                continue
+            if _good(w):
+                _WORDS = w
+                break
+        else:
+            raise HarnessFault("seed", "no BIP39 English list with sha256 %s… found (looked in %s)" % (
+                BIP39_SHA256[:12], ", ".join(cands)))
+    if os.path.isdir(root()) and not os.path.exists(own):
+        _write(own, "\n".join(_WORDS) + "\n")
+    return _WORDS
 
 
 # ---- phrases -----------------------------------------------------------------------------------------
