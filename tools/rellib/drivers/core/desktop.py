@@ -612,7 +612,7 @@ class Desktop:
             return not any(self._picker_row(x.name) for x in tree) and any(
                 x.role == "text" and rx.search(x.name.replace("\n", " | ")) for x in tree)
         # the server in use after the picker's label ("Node server: node.btlabs.uk"), or as its value
-        rests = [re.split(r"[:\n]", n.name, 1)[1].strip() if re.search(r"[:\n]", n.name) else "", (n.value or "").strip()]
+        rests = [re.split(r"[:\n]", n.name, maxsplit=1)[1].strip() if re.search(r"[:\n]", n.name) else "", (n.value or "").strip()]
         return any(r == entry or r.startswith(entry + ",") or r.startswith(entry + " ") for r in rests)
 
     def _words(self, verb):

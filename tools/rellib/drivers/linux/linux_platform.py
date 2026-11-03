@@ -50,7 +50,7 @@ class LinuxPlatform(Platform):
         self.variant = e.get("REL_VARIANT") or "tor"
         self.create = e.get("REL_TRUST_MODE") == "create"   # the create-wallet test: the candidate alone
         stamp = time.strftime("%Y%m%d-%H%M%S")
-        work_root = e.get("REL_WORK") or os.path.join(os.path.expanduser("~"), ".cache", "rel-trust-linux")
+        work_root = self.work_root = e.get("REL_WORK") or os.path.join(os.path.expanduser("~"), ".cache", "rel-trust-linux")
         self.work = os.path.join(work_root, "%s-%s-to-%s-%s" % (self.variant, e.get("REL_PREVIOUS_VERSION", "?"),
                                                                  e.get("REL_CANDIDATE_VERSION", "?"), stamp))
         self.sb = os.path.join(self.work, "sandbox")
@@ -62,6 +62,7 @@ class LinuxPlatform(Platform):
         self.lan_before = None
         self.surface = None
         self.hermetic = None  # core/hermetic.py plan(), from prepare
+        self.ports = {}       # the stand-ins' ports; a resume reuses the failed attempt's (the app's settings name them)
 
     # ---- preparation
 
@@ -113,7 +114,7 @@ class LinuxPlatform(Platform):
         for kind, up in (("node", self.node), ("relay", self.relay)):
             if h.get(kind):
                 continue
-            ports[kind] = free_port()
+            ports[kind] = self.ports.get(kind) or free_port()
             log = open(os.path.join(self.out, "standin-%s.log" % kind), "w")
             self.standins.append(subprocess.Popen([sys.executable, "-I", os.path.join(HERE, "standin.py"), kind, str(ports[kind]), up],
                                                   stdout=log, stderr=subprocess.STDOUT, start_new_session=True))
@@ -123,6 +124,7 @@ class LinuxPlatform(Platform):
                 break
         else:
             raise HarnessFault("prepare", "the loopback node stand-in does not answer")
+        self.ports = ports
         self.custom_node = hermetic.entry(h["node"]) if h.get("node") else "127.0.0.1:%d" % ports["node"]
         self.custom_relay = h["relay"] if h.get("relay") else "127.0.0.1:%d" % ports["relay"]
 
@@ -283,6 +285,41 @@ class LinuxPlatform(Platform):
     def break_kill(self):
         """Xvfb gone, as when the host's display server dies: the app goes with it."""
         os.kill(int(sandbox._pid(self.sb, "xvfb")), signal.SIGKILL)
+
+    def break_quit(self):
+        """The app gone at once (quit@<phase>), its display left up: a product fault, as a crash is."""
+        pid = sandbox._pid(self.sb, "app")
+        if not pid or not sandbox._alive(pid):
+            raise HarnessFault("break", "quit: no app running")
+        os.killpg(os.getpgid(int(pid)), signal.SIGKILL)
+        self.log("BREAK: the app (pid %s) killed; the display stays" % pid)
+
+    # ---- resume (core/lane.py, REL_TRUST_RESUME=1)
+
+    def resume_dir(self):
+        return os.path.join(self.work_root, ".resume-%s" % self.variant)
+
+    def resume_handle(self):
+        if self.create or not os.path.isdir(data_root(self.sb)):
+            return None
+        return {"work": self.work, "ports": dict(self.ports)}
+
+    def resume_from(self, handle):
+        work = os.path.abspath(str((handle or {}).get("work") or ""))
+        sb = os.path.join(work, "sandbox")
+        if os.path.dirname(work) != os.path.abspath(self.work_root):
+            return False, "the failed attempt's work folder %s is not under %s" % (work, self.work_root)
+        if not os.path.isdir(data_root(sb)) or not os.listdir(data_root(sb)):
+            return False, "the failed attempt's sandbox %s holds no wallet data" % sb
+        ports = {k: int(v) for k, v in ((handle or {}).get("ports") or {}).items() if v}
+        for kind, port in ports.items():
+            try:
+                with socket.socket() as so:
+                    so.bind(("127.0.0.1", port))
+            except OSError:
+                return False, "the %s stand-in's port %d (in the wallet's settings) is taken" % (kind, port)
+        self.work, self.sb, self.ports = work, sb, ports
+        return True, "sandbox %s, stand-in ports %s" % (sb, ports or "none")
 
     def break_freeze(self, on):
         pid = sandbox._pid(self.sb, "app")
