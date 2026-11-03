@@ -59,6 +59,7 @@ class Lane:
     def __init__(self, platform, recipe_for, checks, *, out, log, required, funds, p=None):
         """recipe_for(lane, which, surface) -> the family's recipe on a Driver over that surface, with the
         build's strings (core.labels) and the lane's one Recover (lane.rec)."""
+        breaks.refuse_in_release()
         self.p, self.recipe_for, self.checks_mod = platform, recipe_for, checks
         self.out, self.log, self.required, self.funds, self.funder = out, log, required, funds, p
         self.results, self.details = {}, {}

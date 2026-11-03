@@ -14,6 +14,7 @@ import time
 import queue
 
 from . import failures as known
+from . import guards
 from . import window as win
 from .load import LoadSampler
 from .run import SETTLED, now_iso, read_json, write_json
@@ -95,7 +96,7 @@ class Engine:
             "REL_COMMIT": i["commit"], "REL_FILES": self.run.files, "REL_EXTRA": self.run.extra,
             "REL_MANIFESTS": os.path.join(self.run.path, "manifests"),
             "REL_STAGE": os.path.join(self.run.step_dir(step.id), "out"), "REL_SRC": i.get("src", ""),
-            "REL_TEST": "1" if i.get("test") else "0", "REL_TARGET": i.get("target", "live"),
+            "REL_TEST": "1" if i.get("test") else "0", "REL_RUN_KIND": guards.run_kind(i), "REL_TARGET": i.get("target", "live"),
             "REL_VARIANT": step.variant or "", "REL_NOTES_FILE": os.path.join(self.run.path, "notes.txt"),
             "REL_PREVIOUS_DIR": prev.get("dir", ""), "REL_PREVIOUS_VERSION": prev.get("version", ""),
             "REL_PREVIOUS_REF": prev.get("ref", ""), "REL_PREVIOUS_EXTRA": prev.get("extra", ""),
@@ -177,6 +178,15 @@ class Engine:
 
     # ---- one step ----
 
+    def refusal(self, step):
+        """Why this step must not start (guards.py), or None. Every start, resume, retry and run passes here."""
+        why = guards.trust_break_refusal(self.info)
+        if why:
+            return why
+        if step.base == "source" or step.kind in ("gate",) or step.publish or step.base.startswith("publish"):
+            return guards.never_ship_refusal(self.info, self.repo)
+        return None
+
     def attempt_log(self, step, attempt):
         d = self.run.step_dir(step.id)
         os.makedirs(d, exist_ok=True)
@@ -197,6 +207,13 @@ class Engine:
         from . import builtins
         st = self.run.status(step.id)
         attempt = st.get("attempts", 0) + 1
+        why = self.refusal(step)
+        if why:
+            with open(self.attempt_log(step, attempt), "a", encoding="utf-8") as f:
+                f.write(f"tools/rel: refused: {why}\n")
+            self.echo(f"✗ {step.id}  refused: {why}")
+            return self.run.set_status(step.id, status="failed", attempts=attempt, note=f"refused: {why}",
+                                       cause="product: refused", ended=now_iso())
         started = time.time()
         log = self.attempt_log(step, attempt)
         self.run.set_status(step.id, status="running", attempts=attempt, started=now_iso(), ended=None,

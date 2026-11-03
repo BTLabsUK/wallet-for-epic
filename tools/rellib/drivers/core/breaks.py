@@ -22,6 +22,16 @@ import os
 import threading
 
 
+class BreakRefused(RuntimeError):
+    pass
+
+
+def refuse_in_release():
+    """The rel engine sets REL_RUN_KIND=release for a run that is not --test: no break list then."""
+    if os.environ.get("REL_RUN_KIND") == "release" and _items():
+        raise BreakRefused("REL_TRUST_BREAK is set in a release run: break tests run in --test runs only")
+
+
 def _items():
     return [x.strip() for x in (os.environ.get("REL_TRUST_BREAK") or "").split(",") if x.strip()]
 
