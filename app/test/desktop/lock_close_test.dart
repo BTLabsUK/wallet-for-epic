@@ -65,5 +65,5 @@ void main() {
     // ignore: avoid_print
     print('DISPOSE took ${watch.elapsedMilliseconds} ms');
     expect(watch.elapsed, lessThan(const Duration(seconds: 5)));
-  }, skip: _lib == null, timeout: const Timeout(Duration(minutes: 3)));
+  }, skip: _lib == null ? 'needs WFE_DEMO_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 3)));
 }

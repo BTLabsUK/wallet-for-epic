@@ -7,6 +7,7 @@ without -t: this folder is not a package and the tests import support from it.""
 import json
 import os
 import shutil
+import socket
 import stat
 import sys
 import tempfile
@@ -149,8 +150,22 @@ esac
 """
 
 
+def _no_outside_network(connect):
+    """socket.connect that refuses any address but loopback and unix sockets, with the error an
+    unreachable host gives: a test never waits on, or depends on, a real server (the preflight
+    test once spent 4 s fetching the live update.json)."""
+    def guarded(self, addr):
+        if isinstance(addr, tuple) and addr and addr[0] not in ("127.0.0.1", "::1", "localhost"):
+            raise OSError(f"tools/rellib tests do not reach the network ({addr[0]})")
+        return connect(self, addr)
+    return guarded
+
+
 class Base(unittest.TestCase):
     def setUp(self):
+        real = socket.socket.connect
+        socket.socket.connect = _no_outside_network(real)
+        self.addCleanup(setattr, socket.socket, "connect", real)
         self.tmp = tempfile.mkdtemp(prefix="reltest-", dir=os.environ.get("TMPDIR"))
         self.root = os.path.join(self.tmp, "state")
         self.src = os.path.join(self.tmp, "src")
@@ -169,6 +184,10 @@ class Base(unittest.TestCase):
         os.environ["REL_WINDOW_MARKER"] = os.path.join(self.tmp, "release-window")
         os.environ["REL_HEAVY_STATUS_CMD"] = ""
         os.environ["WFE_GREEN_DIR"] = os.path.join(self.tmp, "green")
+        # Never the machine's shared P service (p.sock, its funds): with no p.py a step that
+        # needs P reports it missing at once instead of asking the real wallet.
+        os.environ["REL_P_TOOL"] = os.path.join(self.tmp, "no-p.py")
+        os.environ["REL_P_SERVICE_DIR"] = os.path.join(self.tmp, "p-service")
         self.pipeline = Pipeline.loads(FAKE_PIPELINE) if hasattr(Pipeline, "loads") else Pipeline(
             __import__("tomllib").loads(FAKE_PIPELINE))
         self.hosts = {"host": {}, "path": {}, "file": "none", "exists": True}
@@ -176,7 +195,7 @@ class Base(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.tmp, ignore_errors=True)
         for k in ("REL_FAKE_DIR", "REL_RELMSG", "REL_FAKE_GATE", "REL_RELMSG_BACKOFF", "REL_FAKE_BUSY", "REL_FAKE_DOWN",
-                  "REL_WINDOW_MARKER", "REL_HEAVY_STATUS_CMD", "WFE_GREEN_DIR"):
+                  "REL_WINDOW_MARKER", "REL_HEAVY_STATUS_CMD", "WFE_GREEN_DIR", "REL_P_TOOL", "REL_P_SERVICE_DIR"):
             os.environ.pop(k, None)
 
     def make_run(self, version="26.10.25", **scope_kw):

@@ -173,7 +173,7 @@ void main() {
       expect(find.text('Tor is off. Turn it on under Network & privacy to be paid at the Tor address.'), findsNothing);
       expect(find.byKey(const ValueKey('st-details-linkTor')), findsNothing, reason: 'the state is under the switch, no second row');
       expect(find.widgetWithText(EButton, 'Turn on Tor'), findsNothing);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('Link · Tor runs Tor for payments alone: Receiving at the onion with Copy, the Tor switch untouched (item 2)', (tester) async {
       await _open(tester, DeskRoute.settingsReceiving);

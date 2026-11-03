@@ -29,7 +29,7 @@ void main() {
     // ignore: avoid_print
     print('support report id: $id');
     expect(id, isNotEmpty);
-  }, skip: Platform.environment['WFE_SUPPORT_LIVE'] != '1');
+  }, skip: Platform.environment['WFE_SUPPORT_LIVE'] != '1' ? 'set WFE_SUPPORT_LIVE=1: posts a real report to the intake' : false);
 }
 
 final feedbackUrlProviderDefault = parseFeedbackUrl(Platform.environment['WFE_SUPPORT_LIVE_URL'] ?? 'https://support.btlabs.uk/v1/report')!;

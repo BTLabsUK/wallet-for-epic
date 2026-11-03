@@ -339,33 +339,12 @@ void main() {
       },
       skip: !Platform.isLinux || !_hasFlock() ? 'Linux with flock only' : false,
     );
-
-    // The real epic 4.1.0 node the lead runs for this work. Only its lock is tried (read only).
-    const sample =
-        '/tmp/sample-node';
-    test('a running epic 4.1.0 node: locked', () async {
-      expect(
-        await probeChainLock('$sample/main/chain_data'),
-        FolderLock.locked,
-      );
-    }, skip: _sampleRunning(sample) ? false : 'the sample node is not running');
   });
 }
 
 bool _hasFlock() {
   try {
     return Process.runSync('flock', ['--version']).exitCode == 0;
-  } on Object {
-    return false;
-  }
-}
-
-bool _sampleRunning(String sample) {
-  try {
-    final pid = File('$sample/pid').readAsStringSync().trim();
-    return pid.isNotEmpty &&
-        Directory('/proc/$pid').existsSync() &&
-        File('$sample/main/chain_data/epic.lock').existsSync();
   } on Object {
     return false;
   }

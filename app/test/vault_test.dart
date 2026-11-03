@@ -333,7 +333,7 @@ void main() {
         pinDelay(freePinAttempts),
         reason: 'a new service (a restart) reads the same count',
       );
-    }, skip: _lib == null, timeout: const Timeout(Duration(minutes: 2)));
+    }, skip: _lib == null ? 'needs WFE_DEMO_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 2)));
 
     test('a wallet of the older app opens, and its first unlock moves the key', () async {
       // Created as the app before this change kept it: everything plain.
@@ -349,7 +349,7 @@ void main() {
       // Still the same PIN, and a wrong one still counts.
       expect((await rejected(v, '111111')).failures, 1);
       await keep(v.unlock(config, '123456'));
-    }, skip: _lib == null, timeout: const Timeout(Duration(minutes: 2)));
+    }, skip: _lib == null ? 'needs WFE_DEMO_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 2)));
 
     test('a lost Keystore key sends the user to the recovery phrase', () async {
       final v = vault();
@@ -358,7 +358,7 @@ void main() {
       await expectLater(v.unlock(config, '123456'), throwsA(isA<PinKeyLost>()));
       // Nothing was deleted: the wallet and its sealed text are still there.
       expect(await v.prepare(config), VaultStage.ready);
-    }, skip: _lib == null, timeout: const Timeout(Duration(minutes: 2)));
+    }, skip: _lib == null ? 'needs WFE_DEMO_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 2)));
 
     test('a passphrase replaces the PIN, and a PIN replaces it again', () async {
       final v = vault();
@@ -387,7 +387,7 @@ void main() {
       // Removing the wallet removes the flag with it.
       await v.forget(config.chain);
       expect(await v.passphraseEverUsed(config.chain), isFalse);
-    }, skip: _lib == null, timeout: const Timeout(Duration(minutes: 3)));
+    }, skip: _lib == null ? 'needs WFE_DEMO_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 3)));
 
     test('biometrics open the wallet in the same run that turned them on', () async {
       final v = vault();
@@ -398,6 +398,6 @@ void main() {
       expect(await v.biometricsEnabled(config.chain), isTrue);
       expect(await v.readBiometricPin(config.chain), '123456');
       expect(bio.prompts, prompts + 1, reason: 'read behind its own prompt');
-    }, skip: _lib == null, timeout: const Timeout(Duration(minutes: 2)));
+    }, skip: _lib == null ? 'needs WFE_DEMO_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 2)));
   });
 }
