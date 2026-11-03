@@ -296,6 +296,19 @@ class SshRetryTest(unittest.TestCase):
         self.assertTrue(e.exception.line().startswith("INFRA start:"))
 
 
+    def test_ssh_timeout_break_is_retried_once(self):
+        from core import breaks
+        os.environ["REL_TRUST_BREAK"] = "ssh-timeout@start"
+        try:
+            breaks.reset()
+            r, calls, logs = self.rig(0)
+            self.assertEqual(r.ssh("x"), "out")
+            self.assertEqual(r.ssh("y"), "out")
+            self.assertEqual((len(calls), len(logs)), (2, 1))
+        finally:
+            os.environ.pop("REL_TRUST_BREAK")
+            breaks.reset()
+
 class EnglishLabelsTest(unittest.TestCase):
     def test_lanes_read_english_whatever_the_environment_says(self):
         import unittest.mock

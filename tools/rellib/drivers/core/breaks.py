@@ -29,8 +29,8 @@ REL_TRUST_BREAK is a comma list of:
                             ends PRODUCT (the app quit), or HarnessGone when the surface went with it
     node-down               the first node the LEPIC CLI reads through is unreachable, once: it moves to
                             the next node of the test order and logs it (INFRA node when all fail)
-    ssh-timeout@<phase>     a hook only: ssh_timeout(phase) is True once for that phase, and a rig
-                            platform (windows_platform) takes it as an ssh timeout of its own
+    ssh-timeout@<rig op>    the first ssh call of that rig op (entry, setup, store_init, start, ...) times
+                            out once: windows_platform's retry_ssh tries it again and logs it
 Each kind ends in a named cause or a logged recovery, never a bare "not found".
 """
 import os
@@ -106,8 +106,8 @@ def node_down():
 
 
 def ssh_timeout(phase):
-    """True once for ssh-timeout@<phase>. A hook for a rig platform: windows_platform calls it before its
-    ssh calls in that phase and takes a True as an ssh timeout (its own retry, then InfraFault ssh)."""
+    """True once for ssh-timeout@<rig op>: windows_platform's retry_ssh takes it as an ssh timeout of that op
+    (its own retry, then InfraFault ssh)."""
     return ("ssh-timeout@%s" % phase) in _items() and _first("ssh-timeout@" + phase)
 
 
