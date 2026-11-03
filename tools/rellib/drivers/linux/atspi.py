@@ -41,6 +41,7 @@ KEYS = {"escape": "Escape", "back": "Escape", "enter": "Return", "tab": "Tab", "
         "page_down": "Next", "page_up": "Prior", "space": "space", "ctrl_enter": "ctrl+Return", "end": "End"}
 CALL_S = 45       # one AT-SPI call; Flutter's tree read takes a few seconds on a busy host
 TAB_LIMIT = 60    # focus steps tried to reach a control with no action
+SECRET_FOCUS_S = 8  # a secret field that does not take focus at once is asked again this long (never set_text)
 DESTRUCTIVE = re.compile(r"(?i)delete|remove|forget|reset|erase|wipe|replace|restore|unlink|clear|send|pay")
 
 
@@ -226,6 +227,17 @@ class AtspiSurface:
             self.key("escape")
         time.sleep(0.8)
 
+    def _focus(self, node, wait=0):
+        """Focus through AT-SPI, asked again for up to `wait` s: a field on a screen still coming in
+        takes it a moment later (26.11.0 run-3 linux-tor: Word 1 of the restore grid, 7 s after start)."""
+        end = time.time() + wait
+        while True:
+            if self._call(self._req(node, "focus")).get("ok") or self._focused_is(node):
+                return True
+            if time.time() >= end:
+                return False
+            time.sleep(0.5)
+
     def set_text(self, node, text, secret=False):
         """Focus, select all, type (the text on xdotool's stdin, never its command line). Flutter's
         GTK embedder takes EditableText.set_text_contents into the semantics value only, not the
@@ -233,7 +245,7 @@ class AtspiSurface:
         the fallback for a field that will not take focus, never for a secret. A secret is typed
         slower (xdotool drops keys at speed and a phrase word is checked letter for letter) and its
         field is named without its value in any line."""
-        if self._call(self._req(node, "focus")).get("ok"):
+        if self._focus(node, SECRET_FOCUS_S if secret else 0):
             if node.value != "":   # an empty field is left as it is: Backspace there moves a phrase grid back a field
                 self._xdo("key", "ctrl+a")
                 self._xdo("key", "BackSpace")

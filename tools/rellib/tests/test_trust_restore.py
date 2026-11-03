@@ -232,9 +232,9 @@ class AtspiSecretTest(unittest.TestCase):
 
     def test_secret_never_set_through_the_worker(self):
         s = self.surface(False)
-        with self.assertRaises(RuntimeError) as c:
+        with unittest.mock.patch.object(atspi, "SECRET_FOCUS_S", 1), self.assertRaises(RuntimeError) as c:
             s.set_text(self.node(), "zqbw", secret=True)
-        self.assertEqual(s.reqs, ["focus"])
+        self.assertEqual(set(s.reqs), {"focus", "tree"})   # focus asked again, never set_text
         self.assertNotIn("zqa", str(c.exception))   # the field's current word is not named either
         self.assertNotIn("zqbw", str(c.exception))
 
