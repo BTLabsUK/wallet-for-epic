@@ -114,6 +114,8 @@ class Run:
             if v.startswith(".") or not os.path.isdir(vdir):
                 continue
             for d in os.listdir(vdir):
+                if not os.path.isdir(os.path.join(vdir, d)):
+                    continue  # a log or other file beside the runs (e.g. a live harness's own folder)
                 info = read_json(os.path.join(vdir, d, "run.json"))
                 if info:
                     out.append((v, info["run_id"], os.path.join(vdir, d), info.get("created", "")))
