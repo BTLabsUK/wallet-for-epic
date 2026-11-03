@@ -562,7 +562,9 @@ class Phone:
         theme = THEME[want.get("theme", "Light")]
         self.find_setting(THEME_ROW, ("appearance",), "the theme row")
         if not self._theme_is(theme):
-            d.press(THEME_ROW, step="theme-open", then=shows(theme), timeout=20)
+            # the picker is open once any of its choices shows: the wanted one may be renamed (found by the model next)
+            d.press(THEME_ROW, step="theme-open", timeout=20,
+                    then=Expect("the theme picker", lambda dd, tree: next((n for t in THEME.values() for n in dd.find_in(t, tree)), None)))
             d.press(theme, step="theme", timeout=20, then=Expect("theme %s" % theme, lambda dd, tree: self._theme_is(theme, tree)))
         self.log("theme %s" % want.get("theme", "Light"))
         self.find_setting(CONF_FEWER, ("advanced",), "the confirmations stepper")
