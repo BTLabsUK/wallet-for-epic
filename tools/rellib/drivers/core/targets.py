@@ -80,13 +80,30 @@ def _role_fit(want, got):
     return 1 if {want, got} == {"toggle", "checkbox"} else 2
 
 
+def _box(n):
+    ref = n.ref if isinstance(n.ref, dict) else {}
+    return ref.get("bounds")
+
+
+def _control_in(row, tree):
+    """A switch's id on the row around it (26.11.0 on: the id joins the list tile's node, the switch
+    is a node of its own): the one switch or check box inside the row is the control, the node whose
+    checked state is the setting. The row itself where none is inside, or no bounds are read."""
+    if row.role in ("toggle", "checkbox") or not _box(row):
+        return row
+    r = _box(row)
+    inside = [n for n in tree if n.role in ("toggle", "checkbox") and _box(n)
+              and r[0] <= _box(n)[0] and r[1] <= _box(n)[1] and _box(n)[2] <= r[2] and _box(n)[3] <= r[3]]
+    return inside[0] if len(inside) == 1 else row
+
+
 def find(target, tree, labels=None):
     """The nodes that are this target: by id first, else by role and label. Best first."""
     if breaks.hidden(target.id):
         return []
     by_id = [n for n in tree if n.id and n.id == target.id]
     if by_id:
-        return by_id
+        return [_control_in(n, tree) if target.role in ("toggle", "checkbox") else n for n in by_id]
     ok_roles = COMPATIBLE.get(target.role, {target.role})
     hits = []
     for rank, pat in enumerate(patterns(target, labels)):

@@ -107,6 +107,15 @@ class CoreTest(unittest.TestCase):
         self.driver(f).press(UNLOCK, step="unlock", then=shows(HOME), timeout=1)
         self.assertEqual(f.pressed, ["Something else"])
 
+    def test_id_on_the_row_of_a_switch_finds_the_switch(self):
+        sw = tg.Target(id="g4.advanced.technical", role="toggle", keys=("advTechnical",))
+        row = Node(0, "button", "Technical details\nShows more", id="g4.advanced.technical", ref={"bounds": (0, 900, 1080, 1100)})
+        on = Node(1, "toggle", "Technical details", states=frozenset({"checked"}), ref={"bounds": (860, 960, 1000, 1060)})
+        other = Node(2, "toggle", "Outputs", ref={"bounds": (860, 820, 1000, 900)})
+        self.assertEqual(tg.find(sw, [row, on, other]), [on])
+        self.assertEqual(tg.find(sw, [row]), [row])  # no switch inside: the row, as before
+        self.assertEqual(tg.find(UNLOCK, [Node(0, "button", "Unlock", id="g4.unlock.submit", ref={"bounds": (0, 0, 9, 9)})])[0].name, "Unlock")
+
     def test_obstacle_pressed_away(self):
         f = Fake({"tour": [n(0, "button", "Skip tour")], "home": [n(0, "text", "Available to spend")]}, "tour",
                  {("tour", "Skip tour"): "home"})
