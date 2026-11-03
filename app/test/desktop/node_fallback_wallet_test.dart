@@ -113,7 +113,18 @@ class _NoOrphans implements ProcessInspector {
   void kill(int pid) {}
 }
 
-Future<void> _settle() => Future<void>.delayed(const Duration(milliseconds: 30));
+/// Lets the calls just made run up to where they wait (a gate, the switch, a send under way):
+/// all of that is microtasks and zero timers, which [pumpEventQueue] runs in order.
+Future<void> _settle() => pumpEventQueue();
+
+/// Waits for [done]: the wallet reads and writes its files on the way there, which no fixed
+/// wait covers on a busy machine. Gives up after about 10 s; the expectations after it say what
+/// did not happen.
+Future<void> _until(bool Function() done) async {
+  for (var i = 0; i < 2000 && !done(); i++) {
+    await Future<void>.delayed(const Duration(milliseconds: 5));
+  }
+}
 
 void main() {
   late Directory dir;
@@ -203,7 +214,7 @@ void main() {
     final opens = service.nodeUrls.length;
     final g = service.gates[_public] = Completer<void>();
     final first = w.applyNodeFallback(usePublic: true, publicUrl: _public);
-    await _settle();
+    await _until(() => service.nodeUrls.length > opens);
     final back = w.applyNodeFallback(usePublic: false);
     final again = w.applyNodeFallback(usePublic: true, publicUrl: _public);
     g.complete();
@@ -217,7 +228,7 @@ void main() {
     final w = await onLocal();
     final g = service.gates[_public] = Completer<void>();
     final fallback = w.applyNodeFallback(usePublic: true, publicUrl: _public);
-    await _settle();
+    await _until(() => service.nodeUrls.last == _public);
     final pick = w.useNode(_other);
     await _settle();
     g.complete();
@@ -243,7 +254,8 @@ void main() {
     await w.applyNodeFallback(usePublic: false);
     g.complete();
     await on;
-    await _settle();
+    // The decision is applied after `on` returns, without being waited for.
+    await _until(() => hostSettings.nodeUse == _local);
     expect(service.nodeUrls.reversed.take(2).toList().reversed, [_public, _local]);
     expect(hostSettings.nodeUse, _local);
     expect(await secrets.read(builtInNodeSettingKey(Chain.mainnet)), 'true');
@@ -265,7 +277,7 @@ void main() {
     final disposed = session.disposeCalls;
     final g = session.sendGate = Completer<void>();
     final send = w.send(SendRequest(method: TxMethod.epicbox, amount: 1000, to: _epicbox));
-    await _settle();
+    await _until(() => session.sendsStarted == 1);
     expect(session.sendsStarted, 1);
     final fallback = w.applyNodeFallback(usePublic: true, publicUrl: _public);
     await _settle();
@@ -284,7 +296,7 @@ void main() {
     final g = session.sendGate = Completer<void>();
     SendRequest req() => SendRequest(method: TxMethod.epicbox, amount: 1000, to: _epicbox);
     final first = w.send(req());
-    await _settle();
+    await _until(() => session.sendsStarted == 1);
     final pick = w.useNode(_other);
     await _settle();
     // Sends arriving while the pick waits do not start: the pick goes first.
@@ -307,7 +319,7 @@ void main() {
     final w = await onLocal();
     final g = service.gates[_public] = Completer<void>();
     final fallback = w.applyNodeFallback(usePublic: true, publicUrl: _public);
-    await _settle();
+    await _until(() => service.nodeUrls.last == _public);
     final send = w.send(SendRequest(method: TxMethod.epicbox, amount: 1000, to: _epicbox));
     await _settle();
     expect(session.sendsStarted, 0);
@@ -323,7 +335,7 @@ void main() {
     expect(await w.unlock(_password), isTrue);
     final steps = <ScanStep>[];
     final scan = w.rescan().listen(steps.add);
-    await _settle();
+    await _until(() => session.scanning != null);
     expect(session.scanning, isNotNull);
     expect(w.busy, isFalse, reason: 'a scan is not a payment');
     await w.lock().timeout(const Duration(seconds: 2));
@@ -336,7 +348,7 @@ void main() {
     final w = make();
     expect(await w.unlock(_password), isTrue);
     final scan = w.rescan().listen((_) {});
-    await _settle();
+    await _until(() => session.scanning != null);
     final opens = service.nodeUrls.length;
     await w.useNode(_other).timeout(const Duration(seconds: 2));
     expect(session.cancelScans, 1);
@@ -349,7 +361,7 @@ void main() {
     final w = await onLocal();
     final g = session.sendGate = Completer<void>();
     final send = w.send(SendRequest(method: TxMethod.epicbox, amount: 1000, to: _epicbox));
-    await _settle();
+    await _until(() => session.sendsStarted == 1);
     final lock = w.lock();
     await expectLater(w.rescan().first, throwsA(isA<DeskError>().having((e) => e.locked, 'locked', isTrue)));
     g.complete();
@@ -362,7 +374,7 @@ void main() {
     final w = await onLocal();
     final g = session.sendGate = Completer<void>();
     final send = w.send(SendRequest(method: TxMethod.epicbox, amount: 1000, to: _epicbox));
-    await _settle();
+    await _until(() => session.sendsStarted == 1);
     final first = w.lock();
     final second = w.lock();
     g.complete();
