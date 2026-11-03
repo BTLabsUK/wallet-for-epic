@@ -70,6 +70,7 @@ class Lane:
         self.mode = None
         self.phase = None
         self.retried = set()
+        self.ui_settings = {}  # what the screens show where the files cannot be read (platform.reads_settings_in_ui)
 
     # ---- results
 
@@ -165,6 +166,9 @@ class Lane:
         else:
             self.run_phase("install", self.p.install_previous)
             self.run_phase("previous", self._fresh)
+        ui_read = getattr(self.p, "reads_settings_in_ui", False)
+        if ui_read:
+            self.run_phase("settings-ui-before", lambda: self._ui_confirmations("before"))
         address = self.run_phase("address", lambda: self.ui.address())
         self.details["address"] = address[:8] + "…" + address[-6:] if address else None
         self.run_phase("fund", lambda: self.checks_mod.fund_before(self, address))
@@ -178,6 +182,8 @@ class Lane:
         snap = self.run_phase("snapshot", self.p.files_snapshot)
         self.run_phase("update", self.p.update)
         self.run_phase("candidate", lambda: self._open("candidate"))
+        if ui_read:
+            self.run_phase("settings-ui-after", lambda: self._ui_confirmations("after"))
         after = self.run_phase("digest-after", lambda: self.checks_mod.settle(self, before))
         self._ui_settings(after)
         self.checks_mod.compare(self, before, after, snap)
@@ -211,6 +217,20 @@ class Lane:
         self.rec.build = os.environ.get("REL_%s_VERSION" % which.upper(), which)
         self.ui = self.recipe_for(self, which, surface)
         self.ui.open_wallet(self.secrets, after_update=(which == "candidate"))
+
+    def _ui_confirmations(self, when):
+        """The confirmations count on the app's Settings page; after the update it is also set one
+        step away and back through the stepper, each read back on the page opened again."""
+        v = self.ui.read_confirmations()
+        self.ui_settings[when] = {"confirmations": v}
+        if when == "after" and v is not None:
+            to = v + 1 if v < 30 else v - 1  # 30: the app's highest count
+            read, refused = self.ui.confirmations_land(to)
+            back, refused_back = self.ui.confirmations_land(v)
+            self.ui_settings["set"] = {"from": v, "to": to, "read": read, "back": back, "refused": refused or refused_back}
+        self.ui.leave_settings()
+        self.details["settings_ui"] = self.ui_settings
+        self.log("settings on screen %s the update: %s" % (when, self.ui_settings))
 
     def _fresh(self):
         surface = self.p.start("previous")

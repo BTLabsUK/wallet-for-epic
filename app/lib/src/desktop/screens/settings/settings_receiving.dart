@@ -734,7 +734,6 @@ class ReceivingGroup extends ConsumerWidget {
                 moreLabel: l.deskSetAdvConfirmationsMore,
                 fewerId: TrustIds.paymentsConfirmationsFewer,
                 moreId: TrustIds.paymentsConfirmationsMore,
-                valueText: l.deskSetAdvConfirmationsCount,
                 onChanged: set,
               ),
             ],

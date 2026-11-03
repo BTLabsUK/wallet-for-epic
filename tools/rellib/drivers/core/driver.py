@@ -112,9 +112,10 @@ class Driver:
             return None
 
     def dump(self, name, tree):
-        """The tree as text next to the shots (never a secret screen's)."""
-        from .recover import secret_screen
-        if secret_screen(tree):
+        """The tree as text next to the shots: a password screen's without the field's value
+        (Node.brief), never a phrase screen's."""
+        from .recover import phrase_screen
+        if phrase_screen(tree):
             return
         with open(os.path.join(self.out, "tree-%03d-%s.txt" % (self.shots, name)), "w") as f:
             f.write("\n".join(n.brief() for n in tree))
@@ -177,7 +178,8 @@ class Driver:
             if not self._dismiss(self.tree()):
                 break
         if target is not None and breaks.dialog(target.id):
-            info = [n for n in self.tree() if n.role == "button" and n.name == "More information"]
+            names = {"More information", self.labels.text("deskKitInfoLabel")}   # the build's own language
+            info = [n for n in self.tree() if n.role == "button" and n.name in names]
             if info:
                 self.log("BREAK: a dialog the recipe does not know opened before %s" % target)
                 self._act(self.s.press, info[0])

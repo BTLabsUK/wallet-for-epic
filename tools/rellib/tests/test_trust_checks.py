@@ -368,6 +368,61 @@ class Files(unittest.TestCase):
             f.fetch("../x", "/dev/null")
 
 
+class ConfirmationsOnScreen(unittest.TestCase):
+    """The encrypted store's minimum confirmations are not in the LEPIC CLI's reports: on Windows the lane
+    reads them on the app's Settings page instead (lane.ui_settings), before and after the update."""
+
+    def setUp(self):
+        self.env = dict(os.environ)
+        os.environ["REL_CANDIDATE_VERSION"], os.environ["REL_PREVIOUS_VERSION"] = "26.10.24", "26.10.23"
+
+    def tearDown(self):
+        os.environ.clear()
+        os.environ.update(self.env)
+
+    def run_compare(self, ui):
+        why = {"confirmations": "the encrypted store's settings are not in the LEPIC CLI's reports"}
+        before = digest(settings={"confirmations": None}, unread=why, source="cli")
+        after = digest(settings={"confirmations": None}, unread=why, source="cli")
+        lane = FakeLane()
+        if ui is not None:
+            lane.ui_settings = ui
+        checks.compare(lane, before, after, ([], {}))
+        return lane, before
+
+    def test_not_read_without_the_screen(self):
+        lane, _ = self.run_compare(None)
+        self.assertTrue(lane.results["settings_kept"])
+        self.assertIn("NOT read: confirmations", lane.details["settings_kept"])
+
+    def test_read_on_screen_and_set_in_the_candidate(self):
+        lane, before = self.run_compare({"before": {"confirmations": 1}, "after": {"confirmations": 1},
+                                         "set": {"from": 1, "to": 2, "read": 2, "back": 1, "refused": False}})
+        d = lane.details["settings_kept"]
+        self.assertTrue(lane.results["settings_kept"], d)
+        self.assertNotIn("NOT read", d)
+        self.assertIn("1 confirmations", d)
+        self.assertIn("Settings › Payments page before and after", d)
+        self.assertIn("set to 2 and back to 1", d)
+        self.assertIsNone(before["settings"]["confirmations"], "the digest itself is left as read")
+
+    def test_changed_by_the_update_on_screen(self):
+        lane, _ = self.run_compare({"before": {"confirmations": 1}, "after": {"confirmations": 6}})
+        self.assertFalse(lane.results["settings_kept"])
+        self.assertIn("'confirmations': (1, 6)", lane.details["settings_kept"])
+
+    def test_a_count_set_in_the_candidate_that_does_not_keep(self):
+        lane, _ = self.run_compare({"before": {"confirmations": 1}, "after": {"confirmations": 1},
+                                    "set": {"from": 1, "to": 2, "read": 1, "back": 1, "refused": True}})
+        self.assertFalse(lane.results["settings_kept"])
+        self.assertIn("1 → 2 read back 1", lane.details["settings_kept"])
+        self.assertIn("not saved", lane.details["settings_kept"])
+
+    def test_not_set_on_the_previous_release_is_harness(self):
+        with self.assertRaises(checks.HarnessFault):
+            self.run_compare({"before": {"confirmations": 6}, "after": {"confirmations": 6}})
+
+
 class SetupNotTaken(unittest.TestCase):
     def test_settings_the_driver_did_not_set_are_harness(self):
         lane = FakeLane()

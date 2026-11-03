@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 """The shared driver core (drivers/core) on a fake surface: targets found by id, by a build's own
 label and after a rename by the model; obstacles pressed away; a secret screen never sent; the app
-quitting is the product's fault; saved states written and picked."""
+quitting is the product's fault; a failed step's tree kept
+without a password's value and never a phrase screen's; saved states written and picked; the confirmations stepper set and read
+on a build in Polish; the dialog break's button found in the build's language; a moved setting found
+by walking the sections when a narrow window folds their list into one selector."""
 import json
 import os
 import stat
@@ -15,10 +18,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(HERE), "drivers"))
 
 from core import state as st  # noqa: E402
 from core import targets as tg  # noqa: E402
-from core.desktop import Desktop  # noqa: E402
+from core.desktop import TECHNICAL, Desktop  # noqa: E402
 from core.driver import Driver, shows  # noqa: E402
 from core.faults import HarnessFault, ProductFault  # noqa: E402
-from core.labels import Labels  # noqa: E402
+from core.labels import ROOT, Labels  # noqa: E402
 from core.recover import Recover  # noqa: E402
 from core.surface import Node  # noqa: E402
 
@@ -119,6 +122,27 @@ class CoreTest(unittest.TestCase):
                 self.driver(f).press(UNLOCK, step="phrase", timeout=0.1)
             ask.assert_not_called()
 
+    def test_failure_dump_keeps_a_password_screen_without_its_value_and_never_a_phrase(self):
+        """A step that fails on a password screen leaves its tree for the report, the field's value
+        left out; a phrase screen leaves none."""
+        d = self.driver(Fake({}, "s", {}))
+        d.dump("pw", [n(0, "text", "Unlock wallet"), n(1, "text_field", "Password", value="hunter2", states=("password",))])
+        with open(os.path.join(self.out, "tree-000-pw.txt")) as f:
+            text = f.read()
+        self.assertIn("Unlock wallet", text)
+        self.assertNotIn("hunter2", text)
+        d.dump("phrase", [n(0, "text", " ".join(["abandon"] * 24)), n(1, "text_field", "Password", states=("password",))])
+        self.assertFalse(os.path.exists(os.path.join(self.out, "tree-000-phrase.txt")))
+
+    def test_labels_from_this_checkout_in_the_builds_language(self):
+        """A candidate given no source tree or ref reads this checkout's strings in the locale the app
+        shows, as one given a source tree does."""
+        with unittest.mock.patch.dict(os.environ, {"REL_TRUST_LOCALE": "pl"}):
+            l = Labels()
+        self.assertEqual(l.origin, "this checkout (pl)")
+        self.assertEqual(l.text("deskOnbUnlockTitle"), Labels(src=ROOT, locale="pl").text("deskOnbUnlockTitle"))
+        self.assertNotEqual(l.text("deskOnbUnlockTitle"), l.en.get("deskOnbUnlockTitle"))
+
     def test_destructive_pick_refused(self):
         f = Fake({"s": [n(0, "button", "Delete wallet")]}, "s", {})
         with unittest.mock.patch.dict(os.environ, {"REL_AI_CMD": "printf '{\"i\": 0, \"why\": \"x\"}'"}):
@@ -177,6 +201,65 @@ class CoreTest(unittest.TestCase):
         with self.assertRaises(HarnessFault) as c:
             desk._fill_passwords("unlock-password", 1)
         self.assertNotIsInstance(c.exception, ProductFault)
+    def test_stepper_set_both_ways_and_read_in_the_builds_language(self):
+        class Stepper(Fake):
+            def __init__(self, v, field):
+                super().__init__({}, "p", {})
+                self.v, self.field = v, field
+
+            def tree(self):
+                return [n(0, "button", "Mniej potwierdzeń"), n(1, "text_field", self.field, value=str(self.v)),
+                        n(2, "button", "Więcej potwierdzeń")]
+
+            def press(self, node):
+                self.pressed.append(node.name)
+                self.v += -1 if node.name.startswith("Mniej") else 1
+
+        arb = {"deskSetAdvConfirmations": "Potwierdzenia", "deskSetAdvConfirmationsFewer": "Mniej potwierdzeń",
+               "deskSetAdvConfirmationsMore": "Więcej potwierdzeń"}
+        # 26.10.26 named the field with the − button's tooltip after it; the build after it, the label alone
+        for field in ("Potwierdzenia. Mniej potwierdzeń", "Potwierdzenia"):
+            with self.subTest(field):
+                f = Stepper(6, field)
+                desk = Desktop(self.driver(f, arb), "candidate", self.logs.append)
+                self.assertEqual(desk._confirmations(), 6)
+                self.assertEqual(desk.set_confirmations(1), 1)
+                self.assertEqual(f.pressed, ["Mniej potwierdzeń"] * 5)
+                self.assertEqual(desk.set_confirmations(2), 2)
+                self.assertEqual(f.pressed[-1], "Więcej potwierdzeń")
+
+    def test_dialog_break_presses_the_builds_own_info_button(self):
+        f = Fake({"p": [n(0, "button", "Więcej informacji"), n(1, "button", "Unlock")]}, "p", {})
+        d = self.driver(f, dict(ARB, deskKitInfoLabel="Więcej informacji"))
+        with unittest.mock.patch.dict(os.environ, {"REL_TRUST_BREAK": "dialog:g4.unlock.submit"}), \
+                unittest.mock.patch("core.driver.time.sleep"):
+            d._clear(UNLOCK)
+        self.assertEqual(f.pressed, ["Więcej informacji"])
+
+    def test_moved_setting_found_through_the_folded_section_list(self):
+        search = n(9, "text_field", "Search settings")
+        page = lambda name, *rest: [n(0, "button", name, value=name), search, *rest]  # noqa: E731
+        f = Fake({"pay": page("Payments", n(1, "button", "Fewer confirmations")),
+                  "list": [search, n(1, "row", "Payments"), n(2, "row", "Advanced"), n(3, "row", "Appearance")],
+                  "adv": page("Advanced", n(1, "toggle", "Technical details")),
+                  "app": page("Appearance")}, "pay",
+                 {("pay", "Payments"): "list", ("adv", "Advanced"): "list", ("app", "Appearance"): "list",
+                  ("list", "Payments"): "pay", ("list", "Advanced"): "adv", ("list", "Appearance"): "app"})
+        d = self.driver(f)
+        desk = Desktop(d, "previous", self.logs.append)
+        with unittest.mock.patch.dict(os.environ, {"REL_TRUST_BREAK": "move:g4.advanced.technical", "REL_AI": "0"}), \
+                unittest.mock.patch("core.desktop.time.sleep"):
+            self.assertTrue(desk.find_setting(TECHNICAL, ("advanced",), "Technical details"))
+        self.assertEqual(f.cur, "adv")
+        self.assertTrue(any("found under Settings › Advanced" in line for line in self.logs), self.logs)
+        # listed as a recovery (proof.json, recovered.json) with a drafted fix to the recipe
+        self.assertEqual([(r["kind"], r["target"], r["picked"]["name"]) for r in d.rec.used],
+                         [("moved", "g4.advanced.technical", "Advanced")])
+        with open(os.path.join(self.out, "recovered.json")) as fh:
+            self.assertEqual(json.load(fh)[0]["kind"], "moved")
+        with open(os.path.join(self.out, "selector-fixes.md")) as fh:
+            self.assertIn("found under Settings › Advanced", fh.read())
+
 
 if __name__ == "__main__":
     unittest.main()

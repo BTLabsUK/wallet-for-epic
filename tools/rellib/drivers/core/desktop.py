@@ -72,7 +72,10 @@ THEME = {t: T("g4.appearance.theme.%s" % t.lower(), keys=("deskSetAppear%s" % t,
 LABEL_FIELD = T("g4.wallet.label", role="text_field", keys=("deskSetAcctLabel",), names=("Name",), match="exact")
 LABEL_SAVE = T("g4.wallet.label.save", keys=("deskSetAcctSaveLabel",), names=("Save label",))
 CONF_FEWER = T("g4.confirmations.fewer", keys=("deskSetAdvConfirmationsFewer",), names=("Fewer confirmations",))
-CONF_FIELD = T("g4.confirmations.value", role="text_field", keys=("deskSetAdvConfirmations",), names=("Confirmations",), match="exact")
+CONF_MORE = T("g4.confirmations.more", keys=("deskSetAdvConfirmationsMore",), names=("More confirmations",))
+# the number field; up to 26.10.26 its name went on with the − button's tooltip ("Confirmations. Fewer confirmations")
+CONF_FIELD = T("g4.confirmations.value", role="text_field", keys=("deskSetAdvConfirmations",), names=("Confirmations",), match="starts")
+CONF_NOT_SAVED = T("g4.confirmations.not_saved", role="text", keys=("deskSetAdvConfirmationsNotSaved",), names=("Confirmations not changed",))
 CONF_COUNT = T("g4.confirmations.count", role="text", keys=("deskSetAdvConfirmationsCount",), match="starts")
 TECHNICAL = T("g4.advanced.technical", role="toggle", keys=("deskSetAdvTechnical",), names=("Technical details",))
 
@@ -349,6 +352,7 @@ class Desktop:
         the list shows (a setting moved to another page is found there, and the log says so)."""
         d = self.d
         self.settings()
+        kept = pages
         if breaks.moved(target.id):
             self.log("BREAK: %s taken as moved; the recipe's pages %s are not tried first" % (what, ", ".join(pages)))
             pages = ()
@@ -363,13 +367,17 @@ class Desktop:
                 # renamed on the page the recipe expects: the model's pick, before every section is searched
                 if d.rec.pick(target, d.tree(), step="find-%s" % target.id, texts=d.texts(target)):
                     return True
-        listed = [n.name.split("\n")[0].strip() for n in d.tree()
-                  if n.role in ("button", "tab", "row") and tg._norm(n.name.split("\n")[0]) in self.section_names()]
+        tree = d.tree()
+        if self._open_section_list():   # a narrow window: the sections are listed once the selector is open
+            tree = d.tree()
+        listed = list(dict.fromkeys(n.name.split("\n")[0].strip() for n in tree
+                                    if n.role in ("button", "tab", "row") and tg._norm(n.name.split("\n")[0]) in self.section_names()))
         for name in listed:
             if name in tried:
                 continue
             if self.section(name) and d.wait(shows(target), 3):
-                self.log("%s found under Settings › %s (not where this release kept it: %s)" % (what, name, ", ".join(pages)))
+                self.log("%s found under Settings › %s (not where this release kept it: %s)" % (what, name, ", ".join(kept)))
+                d.rec.moved("find-%s" % target.id, target, name, kept)
                 return True
         n = d.rec.pick(target, d.tree(), step="find-%s" % target.id, texts=d.texts(target))
         if n:
@@ -538,17 +546,40 @@ class Desktop:
         d.fill(LABEL_FIELD, want["label"], step="label")
         d.press(LABEL_SAVE, step="label-save", timeout=20)
         self.find_setting(CONF_FEWER, ("payments", "advanced"), "the confirmations stepper")
-        for _ in range(30):
-            v = self._confirmations()
-            if v is None or v <= int(want.get("confirmations", 1)):
-                break
-            d.press(CONF_FEWER, step="confirmations", timeout=10,
-                    then=Expect("fewer", lambda dd, tree, v0=v: self._confirmations(tree) != v0))
+        self.set_confirmations(int(want.get("confirmations", 1)))
         if want.get("technical_details"):
             self.find_setting(TECHNICAL, ("advanced",), "Technical details")
             d.toggle(TECHNICAL, True, step="technical-details")
         d.shot("%s-settings" % self.which)
         self.leave_settings()
+
+    def set_confirmations(self, want):
+        """− or + on the stepper (its page open) until it shows `want`; the count it shows at the end
+        (None when this build's count cannot be read: then nothing is pressed)."""
+        d = self.d
+        v = self._confirmations()
+        for _ in range(30):
+            if v is None or v == want:
+                break
+            t = CONF_FEWER if v > want else CONF_MORE
+            d.press(t, step="confirmations", timeout=10,
+                    then=Expect("%s from %d" % (t, v), lambda dd, tree, v0=v: self._confirmations(tree) not in (None, v0)))
+            v = self._confirmations()
+        return v
+
+    def read_confirmations(self):
+        """The count on Settings › Payments (the wallet's own minimum confirmations, read back by the app)."""
+        self.find_setting(CONF_FEWER, ("payments", "advanced"), "the confirmations stepper")
+        return self.d.wait(Expect("the confirmations count", lambda dd, tree: self._confirmations(tree)), 10)
+
+    def confirmations_land(self, want):
+        """Sets the count on the stepper, leaves Settings and opens the page again: (the count it shows
+        then, whether the app said the change was not saved)."""
+        self.find_setting(CONF_FEWER, ("payments", "advanced"), "the confirmations stepper")
+        self.set_confirmations(want)
+        refused = bool(self.d.wait(shows(CONF_NOT_SAVED), 2, dismiss=False))
+        self.leave_settings()
+        return self.read_confirmations(), refused
 
     def _confirmations(self, tree=None):
         tree = tree if tree is not None else self.d.tree()

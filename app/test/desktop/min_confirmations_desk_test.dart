@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 // Settings › Advanced › Confirmations on the desktop: the wallet's minimum confirmations at the
 // default 6, each step applied at once and the balance split again, the note below the default,
-// the bounds, Reset, and a refused count going back.
+// the bounds, Reset, a refused count going back, and what a screen reader reads: one number field
+// with its value and increase/decrease, the − and + buttons beside it, no second value on the row.
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -47,6 +49,15 @@ Future<void> _tap(WidgetTester tester, Finder f) async {
   await tester.ensureVisible(f);
   await tester.tap(f);
   await _settle(tester);
+}
+
+List<SemanticsNode> _below(SemanticsNode n) {
+  final all = <SemanticsNode>[];
+  n.visitChildren((c) {
+    all..add(c)..addAll(_below(c));
+    return true;
+  });
+  return all;
 }
 
 void main() {
@@ -125,5 +136,35 @@ void main() {
     expect(_container.read(deskMinConfirmationsSettingProvider).value, 6);
     expect(find.text(_l.deskSetAdvConfirmationsNotSaved), findsOneWidget);
     expect(find.descendant(of: _row, matching: find.text(_l.deskSetAdvConfirmationsDefault)), findsOneWidget);
+  });
+
+  testWidgets('a screen reader reads one number field with increase/decrease; − and + sit beside it, the row carries no value', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await _open(tester);
+    final row = tester.getSemantics(_row);
+    expect(row.getSemanticsData().flagsCollection.isSlider, isFalse, reason: 'the row is not a second slider');
+    expect(row.value, isEmpty, reason: 'the count is read once, on its field');
+    final fields = _below(row).where((n) => n.getSemanticsData().flagsCollection.isTextField).toList();
+    expect(fields, hasLength(1));
+    final field = fields.single;
+    final data = field.getSemanticsData();
+    expect(data.label, _l.deskSetAdvConfirmations);
+    expect(data.value, '6');
+    expect(data.increasedValue, '7');
+    expect(data.decreasedValue, '5');
+    expect(data.hasAction(SemanticsAction.increase), isTrue);
+    expect(data.hasAction(SemanticsAction.decrease), isTrue);
+    expect(_below(field).where((n) => n.getSemanticsData().flagsCollection.isButton), isEmpty, reason: 'the buttons are not inside the field');
+    for (final label in [_l.deskSetAdvConfirmationsFewer, _l.deskSetAdvConfirmationsMore]) {
+      final button = _below(row).where((n) => n.label == label && n.getSemanticsData().flagsCollection.isButton).toList();
+      expect(button, hasLength(1), reason: label);
+      expect(_below(field.parent!).contains(button.single), isTrue, reason: '$label in the same group as the field');
+    }
+    tester.binding.performSemanticsAction(SemanticsActionEvent(type: SemanticsAction.increase, nodeId: field.id, viewId: tester.view.viewId));
+    await _settle(tester);
+    expect(_shown(tester), '7');
+    expect(await tester.runAsync(_wallet.minimumConfirmations), 7);
+    expect(tester.getSemantics(_row).value, isEmpty);
+    semantics.dispose();
   });
 }

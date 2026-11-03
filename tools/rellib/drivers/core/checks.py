@@ -391,8 +391,32 @@ def _same(k, x, y):
     return str(x).lower() == str(y).lower() if k == "theme" else x == y
 
 
+def _ui_read(lane, s0, s1):
+    """The confirmations count the app's Settings page showed (lane._ui_settings) in place of a value the
+    files do not give (the encrypted store's, not in the LEPIC CLI's reports); and what setting it in the
+    candidate did, when it went wrong."""
+    ui = getattr(lane, "ui_settings", None) or {}
+    used = []
+    for s, when in ((s0, "before"), (s1, "after")):
+        v = (ui.get(when) or {}).get("confirmations")
+        if s.get("confirmations") is None and v is not None:
+            s["confirmations"] = v
+            used.append(when)
+    st, wrong = ui.get("set"), None
+    if st and (st["read"] != st["to"] or st["back"] != st["from"] or st["refused"]):
+        wrong = "confirmations set in the candidate's Settings › Payments did not keep: %d → %d read back %s, back to %d read back %s%s" % (
+            st["from"], st["to"], st["read"], st["from"], st["back"], "; the app said it was not saved" if st["refused"] else "")
+    note = ""
+    if used:
+        note = "; confirmations read on the app's Settings › Payments page %s the update (the encrypted store's value is not in the LEPIC CLI's reports)" % " and ".join(used)
+    if st and not wrong:
+        note += "; in the candidate set to %d and back to %d through the stepper, each read back on the page opened again" % (st["to"], st["from"])
+    return note, wrong
+
+
 def _settings(lane, b, a):
-    s0, s1 = b["settings"], a["settings"]
+    s0, s1 = dict(b["settings"]), dict(a["settings"])
+    ui_note, ui_wrong = _ui_read(lane, s0, s1)
     u0, u1 = b.get("unread") or {}, a.get("unread") or {}
     want = getattr(lane, "want_settings", None) or WANT_SETTINGS
     state_label = getattr(lane, "mode", None) == "state"
@@ -404,7 +428,7 @@ def _settings(lane, b, a):
             diff[k] = (s0[k], s1[k])
     unset = {k: s0.get(k) for k in ("theme", "technical_details", "confirmations", "label")
              if s0.get(k) is not None and k in want and not (k == "label" and state_label) and not _same(k, s0[k], want[k])}
-    src = " (%s)" % (a.get("settings_source") or "desk store desk.settings, wallets.json label, the wallet database's minimum confirmations")
+    src = " (%s%s)" % (a.get("settings_source") or "desk store desk.settings, wallets.json label, the wallet database's minimum confirmations", ui_note)
     note = "; NOT read: %s" % "; ".join(unread) if unread else ""
     lv, why = facts.level_after_update(a.get("level"), before=b.get("level"))
     if lv is None and facts.LEVELS_BUILT:
@@ -423,6 +447,8 @@ def _settings(lane, b, a):
         raise HarnessFault("digest-after", "the test could not set them on the previous release: %s" % unset)
     elif diff:
         lane.fail("settings_kept", "changed by the update (before, after): %s%s%s" % (diff, src, note))
+    elif ui_wrong:
+        lane.fail("settings_kept", "%s%s%s" % (ui_wrong, src, note))
     elif lv is False:
         lane.fail("settings_kept", "%s; settings otherwise as before%s" % (why, note))
     else:

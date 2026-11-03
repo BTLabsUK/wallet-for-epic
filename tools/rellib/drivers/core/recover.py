@@ -37,9 +37,14 @@ def enabled():
 
 
 def secret_screen(tree):
+    return any("password" in n.states for n in tree) or phrase_screen(tree)
+
+
+def phrase_screen(tree):
+    """What may be a recovery phrase on the screen (a password field alone is not one)."""
     cells = lone = 0
     for n in tree:
-        if "password" in n.states or PHRASE.search(" ".join([n.name or "", n.value or ""]).lower()):
+        if PHRASE.search(" ".join([n.name or "", n.value or ""]).lower()):
             return True
         name = (n.name or "").strip()
         cells += bool(WORD_CELL.fullmatch(name))
@@ -71,6 +76,13 @@ class Recover:
         self.used = []          # what proof.json lists as `recovered`
         self.learned = {}       # target id -> the name the model found, reused within the lane without asking again
 
+    def moved(self, step, target, section, expected):
+        """A setting found by walking every Settings section, not on the pages the recipe names: listed as a
+        recovery (no model asked), with a drafted fix to the recipe."""
+        from .surface import Node
+        self._record("moved", step, target, Node(i=-1, role="section", name=section),
+                     "found under Settings › %s by walking the sections" % section, list(expected))
+
     def _record(self, kind, step, target, node, why, texts):
         e = {"kind": kind, "step": step, "target": getattr(target, "id", str(target)), "platform": self.platform,
              "build": self.build, "picked": {"role": node.role, "name": node.name, "id": node.id}, "why": why,
@@ -85,6 +97,10 @@ class Recover:
                             "`trustId('%s', …)` (app/lib/src/trust_ids.dart), or add its key to tools/rellib/drivers/trust_ids.json.\n" % (
                                 e["target"], step, self.platform, self.build, getattr(target, "role", "?"), texts,
                                 node.role, node.name.split("\n")[0], e["target"]))
+                elif kind == "moved":
+                    f.write("- `%s` (step %s, %s %s): not on Settings › %s; found under Settings › %s. Fix: name that page "
+                            "for it in the recipe (core/desktop.py), or move the control back.\n" % (
+                                e["target"], step, self.platform, self.build, " / ".join(texts) or "?", node.name))
                 else:
                     f.write("- step %s (%s %s): a screen the driver does not know stood in the way; pressed %s %r to go on. "
                             "Fix: teach the recipe this screen (its id or label) or drop it from the app.\n" % (

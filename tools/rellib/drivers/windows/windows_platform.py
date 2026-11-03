@@ -42,6 +42,7 @@ AGENT_IDLE_MIN = 90
 
 class WindowsPlatform(Platform):
     name, family = "windows", "desktop"
+    reads_settings_in_ui = True  # the encrypted store's confirmations are read on the Settings page (lane._ui_settings)
     update_method = ("the in-app update's own path: the candidate's published Setup is started with the arguments the app "
                      "gives it (/SILENT /NORESTART /UPDATEFROMAPP=1, plus /LOG), Setup installs over the previous release's "
                      "per-user install and opens the candidate itself. The lane has closed the previous app first (its "
@@ -322,6 +323,22 @@ class WindowsPlatform(Platform):
                   "Get-Process btwallet, epic_wallet -ErrorAction SilentlyContinue | Where-Object { $_.Path -like '%s\\*' } | "
                   "ForEach-Object { [N.S]::%s($_.Handle) | Out-Null }" % (self.rig.run, "NtSuspendProcess" if on else "NtResumeProcess"))
         self.rig.as_owner(script)
+
+    def break_lose_node(self):
+        """The custom node's line goes from the closed previous release's settings.toml (written back by
+        the agent, as the rig's user)."""
+        path = self.data + "\\" + facts.SETTINGS_TOML
+        text = self.rig.text(path)
+        if text is None:
+            raise HarnessFault("break", "lose-node needs the previous release's settings.toml")
+        lines = text.splitlines(keepends=True)
+        kept = [ln for ln in lines if self.custom_node not in ln]
+        if len(kept) == len(lines):
+            raise HarnessFault("break", "lose-node: %s is not in settings.toml" % self.custom_node)
+        r = self._call("write_file", file=path, text="".join(kept))
+        if not r.get("ok"):
+            raise HarnessFault("break", "lose-node: writing settings.toml: %s" % (r.get("error") or "")[:120])
+        self.log("BREAK: the custom node %s removed from the closed wallet's settings.toml" % self.custom_node)
 
     def break_lose_balance(self):
         files = self._files().listing()
