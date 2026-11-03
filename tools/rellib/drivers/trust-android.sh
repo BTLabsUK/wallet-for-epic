@@ -8,6 +8,8 @@
 # Environment (the runner's contract):
 #   REL_PREVIOUS_DIR, REL_PREVIOUS_VERSION   previous release folder (emulator/bt-wallet-<v>[-notor]-android-x86_64.apk,
 #                                            or epic-cash-mobile-<v>[-notor]-x86_64.apk before the rename)
+#   REL_PREVIOUS_EXTRA                       previous run's non-published folder (emulator/…x86_64.apk), looked in first:
+#                                            a release tools/rel published keeps its emulator APKs there, not in files/
 #   REL_CANDIDATE_DIR, REL_CANDIDATE_VERSION candidate's published files
 #   REL_CANDIDATE_EXTRA                      candidate's non-published folder (emulator/…x86_64.apk)
 #   REL_VARIANT        tor | notor
@@ -91,9 +93,10 @@ apk_in() { # dir version
   return 1
 }
 # A dry run comes before the builds: a missing APK is named in the plan, not an error.
-prev_apk="$(apk_in "${REL_PREVIOUS_DIR:-/nonexistent}" "${REL_PREVIOUS_VERSION:-}")" ||
+prev_apk="$(apk_in "${REL_PREVIOUS_EXTRA:-/nonexistent}" "${REL_PREVIOUS_VERSION:-}" ||
+  apk_in "${REL_PREVIOUS_DIR:-/nonexistent}" "${REL_PREVIOUS_VERSION:-}")" ||
   if [[ "$dry" == 1 ]]; then prev_apk="<not found: ${REL_PREVIOUS_DIR:-REL_PREVIOUS_DIR unset}/emulator>"; else
-  cannot "no previous $REL_VARIANT x86_64 APK under ${REL_PREVIOUS_DIR:-<REL_PREVIOUS_DIR unset>}/emulator"; fi
+  cannot "no previous $REL_VARIANT x86_64 APK under REL_PREVIOUS_EXTRA/emulator (${REL_PREVIOUS_EXTRA:-unset}) or ${REL_PREVIOUS_DIR:-<REL_PREVIOUS_DIR unset>}/emulator"; fi
 cand_apk="$(apk_in "${REL_CANDIDATE_EXTRA:-/nonexistent}" "${REL_CANDIDATE_VERSION:-}" ||
   apk_in "${REL_CANDIDATE_DIR:-/nonexistent}" "${REL_CANDIDATE_VERSION:-}")" ||
   if [[ "$dry" == 1 ]]; then cand_apk="<not built yet: ${REL_CANDIDATE_EXTRA:-REL_CANDIDATE_EXTRA}/emulator>"; else

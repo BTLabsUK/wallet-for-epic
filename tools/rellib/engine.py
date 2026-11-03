@@ -98,7 +98,7 @@ class Engine:
             "REL_TEST": "1" if i.get("test") else "0", "REL_TARGET": i.get("target", "live"),
             "REL_VARIANT": step.variant or "", "REL_NOTES_FILE": os.path.join(self.run.path, "notes.txt"),
             "REL_PREVIOUS_DIR": prev.get("dir", ""), "REL_PREVIOUS_VERSION": prev.get("version", ""),
-            "REL_PREVIOUS_REF": prev.get("ref", ""),
+            "REL_PREVIOUS_REF": prev.get("ref", ""), "REL_PREVIOUS_EXTRA": prev.get("extra", ""),
             "REL_NODE": net.get("node", ""), "REL_EPICBOX": net.get("epicbox", ""),
             "REL_DRY_RUN": "1" if self.dry else "0",
             "REL_MANIFEST_DAYS": str(self.pipeline.manifest_days()),

@@ -200,3 +200,9 @@ id = "windows-v1-setup-keys"
 steps = ["trust-windows"]
 pattern = "unlock after setup: no 'wallet opened' in wfe.log"
 hint = "The v1 Windows driver (windows/trust.py, REL_TRUST_DRIVER=v1) presses Setup's keys blind and does not fit a previous release with wallet levels (26.10.25+). Run the default v2 lane (windows/lane.py); unset REL_TRUST_DRIVER, then `tools/rel retry <step>`."
+
+[[failure]]
+id = "android-previous-apk-missing"
+steps = ["trust-android"]
+pattern = "no previous .* x86_64 APK under"
+hint = "A release tools/rel published keeps its emulator APKs in the previous run's extra/emulator, not in files/. Check run.json `previous.extra` names that folder and holds bt-wallet-<version>[-notor]-android-x86_64.apk (engine passes it as REL_PREVIOUS_EXTRA), then `tools/rel retry <step>`."
