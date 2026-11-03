@@ -4,6 +4,7 @@
 AppImage swap, core/desktop.py on AT-SPI for the screens, core/checks.py on the wallet's files.
 Called by ../trust-linux.sh with the REL_* environment (see there)."""
 import os
+import signal
 import sys
 import time
 
@@ -14,6 +15,7 @@ sys.path.insert(0, HERE)
 from core import checks  # noqa: E402
 from core.desktop import Desktop  # noqa: E402
 from core.driver import Driver  # noqa: E402
+from core.faults import HarnessFault  # noqa: E402
 from core.labels import Labels  # noqa: E402
 from core.lane import Lane  # noqa: E402
 from linux_platform import LinuxPlatform  # noqa: E402
@@ -53,6 +55,9 @@ def main():
         d = Driver(surface, Labels.for_build(which), lane.rec, out=lane.out, log=lane.log)
         return Desktop(d, which, lane.log)
 
+    def stopped(sig, _frame):  # a runner's timeout: the sandbox and stand-ins still go
+        raise HarnessFault(lane.phase or "start", "the lane was stopped (signal %d)" % sig)
+    signal.signal(signal.SIGTERM, stopped)
     lane = Lane(plat, recipe_for, checks, out=out, log=log, required=required(funds), funds=funds, p=funder)
     return lane.main()
 

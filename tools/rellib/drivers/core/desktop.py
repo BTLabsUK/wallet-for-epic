@@ -15,6 +15,7 @@ import secrets as _secrets
 import time
 
 from . import targets as tg
+from . import breaks
 from .driver import Expect, either, gone, shows, where
 from .faults import HarnessFault, ProductFault
 
@@ -142,18 +143,24 @@ class Desktop:
     def _passwords(self, tree):
         return [n for n in tree if n.role == "text_field" and "password" in n.states]
 
-    def _fill_passwords(self, step, want_at_least=1):
+    def _fill_passwords(self, step, want_at_least=1, submit=None):
         """Types the password into every password field on screen (create: password and confirm,
-        unlock: one); order does not matter, each gets the same text."""
+        unlock: one); order does not matter, each gets the same text. With `submit`, the form's button
+        must turn enabled; a field that lost keys while the screen settled is typed again (twice at most)."""
         d = self.d
         d.step = step
-        fields = d.wait(Expect("%d password field(s)" % want_at_least,
-                               lambda dd, tree: (lambda f: f if len(f) >= want_at_least else None)(self._passwords(tree))), 60)
-        if not fields:
-            d.harness("no password field (wanted %d)" % want_at_least)
-        for n in fields:
-            d.s.set_text(n, self.password)
-        return len(fields)
+        for attempt in range(3):
+            fields = d.wait(Expect("%d password field(s)" % want_at_least,
+                                   lambda dd, tree: (lambda f: f if len(f) >= want_at_least else None)(self._passwords(tree))), 60)
+            if not fields:
+                d.harness("no password field (wanted %d)" % want_at_least)
+            for n in fields:
+                d.s.set_text(n, self.password)
+            if submit is None or d.wait(Expect("%s enabled" % submit, lambda dd, tree: any(
+                    n.enabled and n.role == "button" for n in dd.find_in(submit, tree))), 4):
+                return len(fields)
+            self.log("%s: the form's button stays disabled after typing; typing again (%d)" % (step, attempt + 1))
+        d.harness("the password form does not take the password: %s stays disabled" % submit)
 
     def _home(self):
         return either(shows(MAIN_NAV), shows(NAV_OVERVIEW))
@@ -173,7 +180,7 @@ class Desktop:
         d.must(shows(WELCOME_CREATE), 120, step="welcome", goal="the welcome screen with Create a new wallet")
         self._depth_dial()
         d.press(WELCOME_CREATE, step="create", then=shows(CREATE_TITLE), timeout=30)
-        self._fill_passwords("create-password", 2)
+        self._fill_passwords("create-password", 2, submit=CREATE_TITLE)
         self._create_submit()
         d.press(REVEAL, step="reveal", then=Expect("the phrase shown", lambda dd, tree: len(phrase_words([n.name for n in tree])) in (12, 24)),
                 timeout=20)
@@ -289,7 +296,10 @@ class Desktop:
         the list shows (a setting moved to another page is found there, and the log says so)."""
         d = self.d
         self.settings()
-        if d.seen(target):
+        if breaks.moved(target.id):
+            self.log("BREAK: %s taken as moved; the recipe's pages %s are not tried first" % (what, ", ".join(pages)))
+            pages = ()
+        elif d.seen(target):
             return True
         tried = []
         for p in pages:

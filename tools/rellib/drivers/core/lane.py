@@ -25,6 +25,7 @@ import os
 import time
 import traceback
 
+from . import breaks
 from . import state as st
 from .recover import Recover
 from .faults import Fault, HarnessFault, HarnessGone, ProductFault
@@ -101,6 +102,7 @@ class Lane:
     def run_phase(self, name, fn):
         self.phase = name
         self.log("== phase %s" % name)
+        breaks.at_phase(self, name)
         while True:
             try:
                 return fn()
@@ -111,6 +113,9 @@ class Lane:
                 self.log("phase %s: %s; rebuilding the platform and running the phase again" % (name, e.line()))
                 self.details.setdefault("harness_recovered", []).append("%s: %s" % (name, e.what))
                 self.p.recover()
+                if self.ui is not None and name not in ("prepare", "restore", "install", "previous", "candidate", "update"):
+                    # the app was started again: back to the wallet before the phase
+                    self.ui.open_wallet(self.secrets, after_update=getattr(self.ui, "which", "") == "candidate")
 
     def main(self):
         code = 2

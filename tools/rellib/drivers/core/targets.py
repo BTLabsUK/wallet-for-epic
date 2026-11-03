@@ -16,6 +16,7 @@ import os
 import re
 from dataclasses import dataclass, field
 
+from . import breaks
 from .surface import COMPATIBLE
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -73,6 +74,8 @@ def _norm_pat(p):
 
 def find(target, tree, labels=None):
     """The nodes that are this target: by id first, else by role and label. Best first."""
+    if breaks.hidden(target.id):
+        return []
     by_id = [n for n in tree if n.id and n.id == target.id]
     if by_id:
         return by_id

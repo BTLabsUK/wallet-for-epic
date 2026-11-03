@@ -11,7 +11,9 @@ import glob
 import os
 import re
 import shutil
+import signal
 import socket
+import sqlite3
 import ssl
 import subprocess
 import sys
@@ -243,6 +245,29 @@ class LinuxPlatform(Platform):
         if meta.get("platform") != "linux" or meta.get("variant") != self.variant:
             return False, "saved for %s %s" % (meta.get("platform"), meta.get("variant"))
         return True, ""
+
+    # ---- break tests (core/breaks.py)
+
+    def break_kill(self):
+        """Xvfb gone, as when the host's display server dies: the app goes with it."""
+        os.kill(int(sandbox._pid(self.sb, "xvfb")), signal.SIGKILL)
+
+    def break_freeze(self, on):
+        pid = sandbox._pid(self.sb, "app")
+        if pid and sandbox._alive(pid):
+            os.killpg(os.getpgid(int(pid)), signal.SIGSTOP if on else signal.SIGCONT)
+
+    def break_lose_balance(self):
+        dbs = glob.glob(os.path.join(data_root(self.sb), "wallets", "*", facts.STORE_DIR, facts.STORE_PLAIN))
+        if len(dbs) != 1:
+            raise HarnessFault("break", "lose-balance needs one plain %s (found %d)" % (facts.STORE_PLAIN, len(dbs)))
+        c = sqlite3.connect(dbs[0])
+        try:
+            n = c.execute("delete from outputs").rowcount
+            c.commit()
+        finally:
+            c.close()
+        self.log("BREAK: %d outputs deleted from the closed wallet's database" % n)
 
     def logs(self):
         return {"wfe.log": os.path.join(data_root(self.sb), "logs", "wfe.log"), "sandbox": os.path.join(self.sb, "logs")}

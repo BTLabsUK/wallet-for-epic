@@ -33,7 +33,8 @@ ROLE = {
     "link": "link", "menu item": "menu_item", "dialog": "dialog", "alert": "dialog",
     "label": "text", "static": "text", "heading": "text", "paragraph": "text", "header": "text",
 }
-STATE = {"showing": "showing", "visible": "showing", "enabled": "enabled", "sensitive": "enabled",
+# Flutter reports a disabled button as sensitive without enabled: only enabled counts
+STATE = {"showing": "showing", "visible": "showing", "enabled": "enabled",
          "focused": "focused", "checked": "checked", "selected": "selected", "editable": "editable"}
 KEYS = {"escape": "Escape", "back": "Escape", "enter": "Return", "tab": "Tab", "shift_tab": "shift+Tab",
         "page_down": "Next", "page_up": "Prior", "space": "space", "ctrl_enter": "ctrl+Return", "end": "End"}
