@@ -24,13 +24,21 @@ from core.phone import Phone  # noqa: E402
 from p_funder import P  # noqa: E402
 
 
+def create_mode():
+    """REL_TRUST_MODE=create: the candidate installed fresh and a new wallet made on it (Lane.main runs
+    Lane.create_only); no previous release, no update, no funds."""
+    return (os.environ.get("REL_TRUST_MODE") or "").strip() == "create"
+
+
 def required(funds):
     """REL_CHECKS, else every check (as linux/lane.py): the migration ones only for a candidate that
     encrypts the store, the candidate's payment ones only with funds (every lane funds the previous
-    release's wallet)."""
+    release's wallet). Create mode: checks.CREATE_CHECKS."""
     given = [c.strip() for c in (os.environ.get("REL_CHECKS") or "").split(",") if c.strip()]
     if given:
         return given
+    if create_mode():
+        return list(getattr(checks, "CREATE_CHECKS", ["create_ok"]))
     migrate = checks.migrating()[0]
     base = ["wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept", "custom_relays_kept", "settings_kept"]
     return base + (checks.MIGRATION_CHECKS if migrate else []) + (["send_ok", "receive_ok"] if funds else [])
@@ -84,7 +92,8 @@ def main():
         with open(os.path.join(out, "trust.log"), "a") as f:
             f.write(line + "\n")
 
-    funds = e.get("REL_FUNDS", "1") == "1"
+    create = create_mode()
+    funds = e.get("REL_FUNDS", "1") == "1" and not create
     plat = AndroidPlatform(out, log)
     funder = P(e.get("REL_P_TOOL") or os.path.expanduser("/tmp/epic-build/interop/epicpay/p.py"),
                e.get("REL_P_PASS_FILE") or os.path.expanduser("~/.config/btlabs/p-pass-candidates"),
@@ -119,7 +128,10 @@ def main():
     lane = Lane(plat, recipe_for, checks, out=out, log=log, required=required(funds), funds=funds, p=funder)
     rc = lane.main()
     if paid and not any(returned):
-        keep_secrets(out, lane.secrets, log)
+        if getattr(lane, "mode", None) == "seed":  # the lane's own wallet: its phrase is in the seed store, nothing written here
+            log("funds left on the lane's seed wallet: sent back by the next run, no secrets written")
+        else:
+            keep_secrets(out, lane.secrets, log)
     lane.details.setdefault("signer", plat.certs.get("previous"))
     gaps = {c: why for c, why in NOT_CHECKED.items() if c not in lane.required}
     lane.proof({"signer": plat.certs, "emulator": plat.health, "not_checked": gaps})
@@ -135,6 +147,6 @@ def main():
 
 if __name__ == "__main__":
     if sys.argv[1:2] == ["checks"]:  # the dry run's plan
-        print(",".join(required(os.environ.get("REL_FUNDS", "1") == "1")))
+        print(",".join(required(os.environ.get("REL_FUNDS", "1") == "1" and not create_mode())))
         sys.exit(0)
     sys.exit(fail_closed(sys.argv[2]) if sys.argv[1:2] == ["fail"] else main())

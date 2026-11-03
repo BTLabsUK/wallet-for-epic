@@ -182,7 +182,10 @@ class AndroidPlatform(Platform):
 
     def prepare(self):
         os.makedirs(self.work, mode=0o700, exist_ok=True)
+        create = (os.environ.get("REL_TRUST_MODE") or "").strip() == "create"  # the candidate alone: no update
         for which, apk in self.apks.items():
+            if create and which == "previous":
+                continue
             if not os.path.isfile(apk):
                 raise HarnessFault("prepare", "no %s APK (%s)" % (which, apk or "REL_%s_APK unset" % which.upper()))
             self.certs[which] = signer(apk)
@@ -190,7 +193,7 @@ class AndroidPlatform(Platform):
             self.log("%s: %s (%s %s, signer %s…)" % (which, os.path.basename(apk), pkg, code, (self.certs[which] or "?")[:12]))
             if pkg != PKG:
                 raise HarnessFault("prepare", "%s APK is package %s, not %s" % (which, pkg, PKG))
-        if not self.certs["previous"] or self.certs["previous"] != self.certs["candidate"]:
+        if not create and (not self.certs["previous"] or self.certs["previous"] != self.certs["candidate"]):
             raise HarnessFault("prepare", "the two APKs are not signed with the same certificate (%s / %s): an update "
                                "would be refused; sign both with the test key" % (self.certs["previous"], self.certs["candidate"]))
         self._pick_servers()
@@ -230,12 +233,21 @@ class AndroidPlatform(Platform):
 
     def install_previous(self):
         """A fresh install: whatever the emulator had of the app goes, then the previous APK."""
+        self._install_fresh("previous")
+
+    def install_candidate_fresh(self):
+        """REL_TRUST_MODE=create: the candidate on its own, no previous release before it (a new user's
+        install), whatever the emulator had of the app gone first."""
+        self._install_fresh("candidate")
+
+    def _install_fresh(self, which):
+        self.running = None
         self.dev.run("uninstall", PKG, timeout=120)
-        r = self.dev.run("install", "-g", "--no-incremental", self.apks["previous"], timeout=300)
+        r = self.dev.run("install", "-g", "--no-incremental", self.apks[which], timeout=300)
         if "Success" not in r.stdout:
-            raise HarnessFault("install", "adb install of the previous APK: %s" % (r.stdout + r.stderr).strip()[-200:])
+            raise HarnessFault("install", "adb install of the %s APK: %s" % (which, (r.stdout + r.stderr).strip()[-200:]))
         self._sync()
-        self.log("installed the previous release: versionCode %s" % self.version())
+        self.log("installed the %s release fresh: versionCode %s" % (which, self.version()))
 
     def version(self):
         m = re.search(r"versionCode=(\d+)", self.dev.sh("dumpsys package %s | grep -m1 versionCode" % PKG))

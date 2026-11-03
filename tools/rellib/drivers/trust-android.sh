@@ -31,6 +31,8 @@
 #                      REL_ANDROID_KEEP=1 leaves it running)
 #   REL_TRUST_START    auto | state | fresh, REL_TRUST_SAVE_STATE, REL_TRUST_STATE_ROOT: saved end
 #                      states (core/state.py; on Android an emulator snapshot of the AVD)
+#   REL_TRUST_MODE     create: only the candidate, installed fresh, and a new wallet made on it (no
+#                      previous release, no update, no funds; v2 only)
 #   REL_TRUST_BREAK    break tests (core/breaks.py); never in a release run
 #   REL_TRUST_STATE    (v1) where the test wallet's phrase and PIN are kept (mode 600; default
 #                      ~/.config/btlabs/rel-trust-android for tor, ~/.config/btlabs/rel-wallet-q
@@ -97,9 +99,11 @@ apk_in() { # dir version
   return 1
 }
 # A dry run comes before the builds: a missing APK is named in the plan, not an error.
+create=0
+[[ "${REL_TRUST_MODE:-}" == create ]] && create=1
 prev_apk="$(apk_in "${REL_PREVIOUS_EXTRA:-/nonexistent}" "${REL_PREVIOUS_VERSION:-}" ||
   apk_in "${REL_PREVIOUS_DIR:-/nonexistent}" "${REL_PREVIOUS_VERSION:-}")" ||
-  if [[ "$dry" == 1 ]]; then prev_apk="<not found: ${REL_PREVIOUS_DIR:-REL_PREVIOUS_DIR unset}/emulator>"; else
+  if [[ $create == 1 && $v1 == 0 ]]; then prev_apk="<not used: REL_TRUST_MODE=create>"; elif [[ "$dry" == 1 ]]; then prev_apk="<not found: ${REL_PREVIOUS_DIR:-REL_PREVIOUS_DIR unset}/emulator>"; else
   cannot "no previous $REL_VARIANT x86_64 APK under REL_PREVIOUS_EXTRA/emulator (${REL_PREVIOUS_EXTRA:-unset}) or ${REL_PREVIOUS_DIR:-<REL_PREVIOUS_DIR unset>}/emulator"; fi
 cand_apk="$(apk_in "${REL_CANDIDATE_EXTRA:-/nonexistent}" "${REL_CANDIDATE_VERSION:-}" ||
   apk_in "${REL_CANDIDATE_DIR:-/nonexistent}" "${REL_CANDIDATE_VERSION:-}")" ||
@@ -144,6 +148,15 @@ export REL_NODE REL_EPICBOX
 port="${REL_ANDROID_PORT:-$default_port}"
 if [[ $v1 == 0 ]]; then
   avd="${REL_ANDROID_AVD:-wfe_trust_$REL_VARIANT}"
+  if [[ "$dry" == 1 && $create == 1 ]]; then
+    cat <<EOF
+trust-android plan (v2, $REL_VARIANT, mode=create, required: ${REL_CHECKS:-$(python3 -I "$drv/lane.py" checks)})
+  emulator   ${REL_ANDROID_SERIAL:-start AVD $avd headless (writable), emulator-$port; stopped at the end}
+  create     adb uninstall; adb install $cand_apk; create a wallet (PIN, phrase read and dropped); Home
+  out        $REL_OUT/result.txt, proof.json, trust.log, shots/, logcat.txt, emulator.json
+EOF
+    exit 0
+  fi
   if [[ "$dry" == 1 ]]; then
     cat <<EOF
 trust-android plan (v2, $REL_VARIANT, funds=$REL_FUNDS, required: ${REL_CHECKS:-$(python3 -I "$drv/lane.py" checks)})
