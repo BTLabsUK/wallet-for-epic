@@ -27,6 +27,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 
 import facts  # noqa: E402
+import nodehealth  # noqa: E402
 import sandbox  # noqa: E402
 import seed  # noqa: E402
 from atspi import AtspiSurface  # noqa: E402
@@ -130,7 +131,7 @@ class LinuxPlatform(Platform):
 
     def live_servers(self):
         """The public node and relay the live-servers phase puts in use (core/lane.py)."""
-        return hermetic.pick_live(node_up, relay_up, facts.NODE_PICK, facts.RELAY_PICK)
+        return hermetic.pick_live(node_up, relay_up, nodehealth.synced_first(facts.NODE_PICK, log=self.log), facts.RELAY_PICK)
 
     def _extract(self, appimage, which):
         dest = os.path.join(self.work, which)
