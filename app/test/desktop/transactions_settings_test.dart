@@ -10,7 +10,7 @@ import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
-import 'package:epic_wallet/src/desktop/screens/settings/settings_receiving.dart' show ReceivingDemo, deskTorPayLineKey;
+import 'package:epic_wallet/src/desktop/screens/settings/settings_receiving.dart' show ReceivingShot, deskTorPayLineKey;
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/network_gate.dart' show NetGate;
@@ -209,7 +209,7 @@ void main() {
     }, skip: !torBuilt);
 
     testWidgets('Tor for payments that did not connect: the line says so, with Retry', (tester) async {
-      await _open(tester, DeskRoute.settingsReceiving, arg: ReceivingDemo.torStopped, payments: const PaymentPrefs(linkTor: true));
+      await _open(tester, DeskRoute.settingsReceiving, arg: ReceivingShot.torStopped, payments: const PaymentPrefs(linkTor: true));
       expect(find.text(_l.deskTorPayFailed), findsOneWidget);
       expect(find.byKey(const ValueKey('st-torPay-retry')), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('st-torPay-retry')));

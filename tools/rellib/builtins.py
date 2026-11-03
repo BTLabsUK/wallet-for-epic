@@ -15,7 +15,7 @@ import time
 import tomllib
 import urllib.request
 
-from . import hosted
+from . import health, hosted
 from .config import PLATFORMS, scope_summary
 from .run import Run, now_iso, read_json, write_json
 
@@ -789,8 +789,12 @@ def proof_table(engine):
         sts = [(x, run.status(x.id)) for x in ts]
         if all(st["status"] == "done" and (st.get("proven") or st.get("dry")) for _, st in sts):
             dry = any(st.get("dry") for _, st in sts)
+            # What a reader must see first: a pass that took more than one try, drivers edited between tries.
+            flags = [f"{x.variant} passed on try {st.get('attempts')} (flaky)" for x, st in sts if st.get("flaky")]
+            flags += [f"{x.variant}: DRIVERS CHANGED between attempts" for x, st in sts if st.get("driver_changed")]
             out[p] = ("dry" if dry else "proven",
-                      ("dry run only" if dry else "proven: ") + "; ".join(f"{x.variant}: {st.get('note', '')}" for x, st in sts))
+                      ("; ".join(flags) + " · " if flags else "")
+                      + ("dry run only" if dry else "proven: ") + "; ".join(f"{x.variant}: {st.get('note', '')}" for x, st in sts))
         else:
             out[p] = ("not proven", "; ".join(f"{x.id} {st['status']}" + (f" ({st.get('note')})" if st.get("note") else "")
                                              for x, st in sts))
@@ -882,18 +886,33 @@ def gate_summary(engine):
     skips = [x for x in run.steps if run.status(x.id)["status"] == "skipped"]
     if skips:
         lines.append("Skipped (not done, not passed): " + "; ".join(f"{x.id} ({run.status(x.id).get('reason', '')})" for x in skips))
+    weak = [h for h in health.lanes_of(health.metrics_path(run), engine.pipeline.health) if h["weak"]]
+    at_weak = len(lines)
+    if weak:
+        lines.append("Weak trust lanes (they still gate):")
+        lines.extend(health.weak_line(h) for h in weak)
+    approve = len(lines)
     lines.append("Approve = tag, then publish in this order: downloads → page → source → manifests last.")
     after = [x.id for x in run.steps if x.base in ("screens-publish", "announce", "store-play", "store-play-promote")]
     if after:
         lines.append("Then, after the read-back: " + ", ".join(after) + " (the gallery and announce never hold the release).")
     text = "\n".join(lines)
     if len(text) > 2900:
-        # Too long for the message: the screens part shrinks to its first line and the report link,
-        # so the approve line is never cut off.
+        # Too long for the message: the weak lanes shrink to one line, then the screens part to its first
+        # line and the report link, so the approve line is never cut off.
+        if weak:
+            lines[at_weak:approve] = ["Weak trust lanes (they still gate): " + ", ".join(h["lane"] for h in weak)
+                                      + " (tools/rel stats --lanes)"]
+            approve = at_weak + 1
         sl = screens_lines(run)
         if len(sl) > 3:
             lines[at_screens:at_screens + len(sl)] = [sl[0], sl[1], sl[-1]]
+            approve -= len(sl) - 3
         text = "\n".join(lines)
+    if len(text) > 2900:
+        # Still too long: the lines before the Approve line give way, never the lines from it on.
+        tail = "\n".join(lines[approve:])
+        text = "\n".join(lines[:approve])[:max(0, 2900 - len(tail) - 1)] + "\n" + tail
     return text[:2900]
 
 
@@ -963,7 +982,11 @@ def publish_gate(engine, step, say):
     if state == "approved":
         return {"status": "done", "note": f"approved by {out.get('decided_by') or '?'} via {out.get('via') or '?'} at {out.get('at') or '?'}"}
     if state == "pending":
-        return {"status": "waiting", "note": f"waiting for approval (gate {g['gate_id']}); tools/rel gate to check again"}
+        # A detached watcher checks from now on and publishes once approved (tools/rellib/gatewatch.py).
+        from . import gatewatch
+        _, watch = gatewatch.start(engine.run, engine.pipeline, engine.hosts.get("file"), step.id)
+        return {"status": "waiting", "note": f"waiting for approval (gate {g['gate_id']}); tools/rel gate to check again"
+                + (f"; {watch}" if watch else "")}
     if state == "held":
         return {"status": "held", "note": f"held by {out.get('decided_by') or 'the owner'}" + (f": {out.get('note')}" if out.get("note") else "")}
     return {"status": "closed", "note": "gate status unreadable (relmsg error): not approved (fail closed)"}

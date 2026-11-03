@@ -33,6 +33,7 @@ class Step:
     scratch: str = None
     warn_only: bool = False
     capped: bool = False  # counts toward [concurrency] max_heavy although not heavy (tools/rellib/window.py)
+    remote: bool = False  # its load is on another machine (a rig): never counts toward max_heavy
     local_run: str = None  # a hosted build's local command (runs only if build-fetch's fallback is re-enabled)
 
     @property
@@ -162,6 +163,7 @@ def build_graph(pipeline, scope, ctx):
                 scratch=spec.get("scratch"),
                 warn_only=bool(spec.get("warn_only")),
                 capped=bool(spec.get("capped")),
+                remote=bool(spec.get("remote")),
             )
             if spec.get("hosted") and (scope.get("builds") or {}).get("hosted"):
                 # --builds hosted: the GitHub runner builds it, build-fetch waits, verifies and places
@@ -169,7 +171,7 @@ def build_graph(pipeline, scope, ctx):
                 plat = spec["hosted"]
                 step.local_run, step.run = step.run, render(
                     f"python3 {{rel}}/tools/rellib/steps/build-fetch.py {plat} {{variant}} {{stage}}", c, where)
-                step.host, step.heavy, step.capped = "local", False, False
+                step.host, step.heavy, step.capped, step.remote = "local", False, False, False
                 step.lane = render(f"hosted-{plat}-{{variant}}", c, where)
                 step.title += " (hosted)"
             steps.append(step)

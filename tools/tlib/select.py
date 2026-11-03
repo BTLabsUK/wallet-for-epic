@@ -23,7 +23,7 @@ import subprocess
 from . import graph as g
 
 # A fixed set of fast tests (about 5 s each, under a minute together) on what must never break,
-# run with every selection: opening a wallet (the PIN vault, and with WFE_DEMO_LEPIC_LIB the LEPIC
+# run with every selection: opening a wallet (the PIN vault, and with WFE_LEPIC_LIB the LEPIC
 # end to end part), a seed restore (the core's restore flag and scan; a restored wallet's first
 # Setup), an install made by an older release opened by this one (the install contract's test and
 # its migrations), the LEPIC binding without the native library (error mapping, rows, where a

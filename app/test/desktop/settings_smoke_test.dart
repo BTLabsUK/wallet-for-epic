@@ -7,7 +7,7 @@ import 'package:epic_wallet/src/desktop/app/app_dialogs.dart';
 import 'package:epic_wallet/src/desktop/app/shell.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/dialogs.dart';
-import 'package:epic_wallet/src/desktop/screens/settings/shots.dart' show demoOtherWallet;
+import 'package:epic_wallet/src/desktop/screens/settings/shots.dart' show shotOtherWallet;
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/settings_frame.dart' show JumpSection;
 import 'package:epic_wallet/src/desktop/screens/settings/settings_about.dart';
@@ -42,26 +42,26 @@ Widget deskScreen(DeskLocation at) {
 void main() {
   final cases = <(String, DeskLocation)>[
     ('node', const DeskLocation(DeskRoute.settingsNode)),
-    ('node combo', const DeskLocation(DeskRoute.settingsNode, NodeDemo.comboOpen)),
-    ('node typed', const DeskLocation(DeskRoute.settingsNode, NodeDemo.typed)),
-    ('node failed', const DeskLocation(DeskRoute.settingsNode, NodeDemo.pickFailed)),
-    ('node builtin', const DeskLocation(DeskRoute.settingsNode, NodeDemo.builtin)),
+    ('node combo', const DeskLocation(DeskRoute.settingsNode, NodeShot.comboOpen)),
+    ('node typed', const DeskLocation(DeskRoute.settingsNode, NodeShot.typed)),
+    ('node failed', const DeskLocation(DeskRoute.settingsNode, NodeShot.pickFailed)),
+    ('node builtin', const DeskLocation(DeskRoute.settingsNode, NodeShot.builtin)),
     ('receiving', const DeskLocation(DeskRoute.settingsReceiving)),
-    ('receiving combo', const DeskLocation(DeskRoute.settingsReceiving, ReceivingDemo.comboOpen)),
-    ('receiving tor', const DeskLocation(DeskRoute.settingsReceiving, ReceivingDemo.torOn)),
-    ('receiving down', const DeskLocation(DeskRoute.settingsReceiving, ReceivingDemo.epicboxDown)),
-    ('receiving http on', const DeskLocation(DeskRoute.settingsReceiving, ReceivingDemo.httpOn)),
-    ('receiving http failed', const DeskLocation(DeskRoute.settingsReceiving, ReceivingDemo.httpFailed)),
+    ('receiving combo', const DeskLocation(DeskRoute.settingsReceiving, ReceivingShot.comboOpen)),
+    ('receiving tor', const DeskLocation(DeskRoute.settingsReceiving, ReceivingShot.torOn)),
+    ('receiving down', const DeskLocation(DeskRoute.settingsReceiving, ReceivingShot.epicboxDown)),
+    ('receiving http on', const DeskLocation(DeskRoute.settingsReceiving, ReceivingShot.httpOn)),
+    ('receiving http failed', const DeskLocation(DeskRoute.settingsReceiving, ReceivingShot.httpFailed)),
     ('appearance', const DeskLocation(DeskRoute.settingsAppearance)),
     ('account', const DeskLocation(DeskRoute.settingsAccount)),
     ('wallets', const DeskLocation(DeskRoute.settingsWallets)),
     ('security', const DeskLocation(DeskRoute.settingsSecurity)),
-    ('security auto-lock', const DeskLocation(DeskRoute.settingsSecurity, SecurityDemo.autoLockOpen)),
+    ('security auto-lock', const DeskLocation(DeskRoute.settingsSecurity, SecurityShot.autoLockOpen)),
     ('phrase', const DeskLocation(DeskRoute.settingsPhrase)),
-    ('phrase shown', const DeskLocation(DeskRoute.settingsPhrase, PhraseDemo.shown)),
-    ('phrase qr', const DeskLocation(DeskRoute.settingsPhrase, PhraseDemo.qr)),
+    ('phrase shown', const DeskLocation(DeskRoute.settingsPhrase, PhraseShot.shown)),
+    ('phrase qr', const DeskLocation(DeskRoute.settingsPhrase, PhraseShot.qr)),
     ('rescan', const DeskLocation(DeskRoute.settingsRescan)),
-    ('rescan running', const DeskLocation(DeskRoute.settingsRescan, RescanDemo.running)),
+    ('rescan running', const DeskLocation(DeskRoute.settingsRescan, RescanShot.running)),
     ('about', const DeskLocation(DeskRoute.settingsAbout)),
     ('help', const DeskLocation(DeskRoute.settingsHelp)),
     ('help search', const DeskLocation(DeskRoute.settingsHelp, 'file')),
@@ -69,8 +69,8 @@ void main() {
   final dialogs = <(String, Future<void> Function(BuildContext))>[
     ('chain offer', showChainOfferDialog),
     ('chain offer in use', (c) => showChainOfferDialog(c, inUse: true)),
-    ('remove', (c) => showRemoveWalletDialog(c, demoOtherWallet)),
-    ('remove everything', (c) => showRemoveWalletDialog(c, demoOtherWallet, mode: RemoveMode.everything)),
+    ('remove', (c) => showRemoveWalletDialog(c, shotOtherWallet)),
+    ('remove everything', (c) => showRemoveWalletDialog(c, shotOtherWallet, mode: RemoveMode.everything)),
     ('password', showChangePasswordDialog),
     ('node synced', showNodeSyncedDialog),
     ('first scan', (c) => showFirstScanDialog(c)),

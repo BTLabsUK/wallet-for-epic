@@ -142,7 +142,7 @@ final List<DeskShot> invoicePayShots = [
     title: 'Approve: wrong password',
     route: DeskRoute.invoices,
     prepare: _openCoffee,
-    dialog: (ctx) => showApproveInvoice(ctx, _shown(ctx, _coffeeWaiting), demoPassword: 'wrong'),
+    dialog: (ctx) => showApproveInvoice(ctx, _shown(ctx, _coffeeWaiting), shotPassword: 'wrong'),
   ),
   DeskShot(
     id: 'inv-pay-11-not-delivered',
@@ -186,7 +186,7 @@ final List<DeskShot> invoicePayShots = [
       await _pastTtl(c);
       _proto(c).setNet(ProtoNet.nodeDown);
     }),
-    dialog: (ctx) => showCancelPaymentDialog(ctx, _shown(ctx, (i) => i.state == PayState.pastTtl), demoConfirm: true),
+    dialog: (ctx) => showCancelPaymentDialog(ctx, _shown(ctx, (i) => i.state == PayState.pastTtl), shotConfirm: true),
   ),
 
 ];

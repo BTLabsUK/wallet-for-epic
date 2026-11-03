@@ -42,7 +42,7 @@ Future<Uint8List?> _fixtureIcon(Uri url) async {
   return f.existsSync() ? f.readAsBytesSync() : null;
 }
 
-/// The mock wallet with its own LAN node (http://10.0.1.24:3413) not answering its check.
+/// The mock wallet with its own LAN node (http://192.168.1.24:3413) not answering its check.
 class _LanDown extends MockDeskWallet {
   _LanDown() : super(delay: Duration.zero);
 
@@ -79,7 +79,7 @@ void main() {
     probe = FakeRelayProbe();
     // The settings file's lists are the mock wallet's servers: the default copy's, and its own
     // home node (which a user adds by hand; nothing adds it by itself).
-    hostSettings = testSettings().withValues({'node.servers': [...testSettings().nodeUrls, 'http://10.0.1.24:3413']});
+    hostSettings = testSettings().withValues({'node.servers': [...testSettings().nodeUrls, 'http://192.168.1.24:3413']});
     container = make();
   });
 
@@ -219,12 +219,12 @@ void main() {
   });
 
   testWidgets('the field starts empty with its placeholder; typing filters by host or operator', (tester) async {
-    await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen));
+    await show(tester, const SettingsNodeScreen(arg: NodeShot.comboOpen));
     final edit = tester.widget<EditableText>(field);
     expect(edit.controller.text, '', reason: 'the node in use shows in its row, never in the field');
     expect(find.text(_l.slFieldHint), findsOneWidget);
     expect(find.byKey(const ValueKey('server-list-helper')), findsNothing);
-    for (final v in [_btlabs, _epicnet, _epiccash, 'http://10.0.1.24:3413']) {
+    for (final v in [_btlabs, _epicnet, _epiccash, 'http://192.168.1.24:3413']) {
       expect(row(v), findsOneWidget, reason: v);
     }
 
@@ -241,7 +241,7 @@ void main() {
   });
 
   testWidgets('Add: a good node is tested, added, and the switch offered; Switch moves the wallet', (tester) async {
-    await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen));
+    await show(tester, const SettingsNodeScreen(arg: NodeShot.comboOpen));
     await type(tester, 'node.example.org:3413');
     await tap(tester, find.byKey(const ValueKey('server-list-add')));
     expect(nodes(), contains('https://node.example.org:3413'));
@@ -255,7 +255,7 @@ void main() {
   });
 
   testWidgets('Add: text that is no address says so plainly; a node that does not answer adds nothing', (tester) async {
-    await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen));
+    await show(tester, const SettingsNodeScreen(arg: NodeShot.comboOpen));
     final before = [...nodes()];
     await type(tester, 'my home node');
     expect(find.byKey(const ValueKey('server-list-add')), findsNothing, reason: 'no Add for text that is no address');
@@ -274,7 +274,7 @@ void main() {
   });
 
   testWidgets('a Node row switches at once, with no dialog; the foot says so and the field stays empty', (tester) async {
-    await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen));
+    await show(tester, const SettingsNodeScreen(arg: NodeShot.comboOpen));
     await tap(tester, row(_epicnet));
     await settle(tester, 10);
     expect(find.byType(Dialog), findsNothing);
@@ -285,7 +285,7 @@ void main() {
   });
 
   testWidgets('the bin removes with Undo; a removed server is gone, with no Restore', (tester) async {
-    await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen));
+    await show(tester, const SettingsNodeScreen(arg: NodeShot.comboOpen));
     final at = nodes().indexOf(_epiccash);
     await tap(tester, find.byKey(const ValueKey('server-row-remove-$_epiccash')));
     expect(row(_epiccash), findsNothing);
@@ -301,7 +301,7 @@ void main() {
   });
 
   testWidgets('the row in use has no live bin: In use. Switch first.', (tester) async {
-    await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen));
+    await show(tester, const SettingsNodeScreen(arg: NodeShot.comboOpen));
     // The bin is shown disabled and says why.
     final bin = tester.widget<EIconButton>(find.byKey(const ValueKey('server-row-remove-$_btlabs')));
     expect(bin.onPressed, isNull);
@@ -323,17 +323,17 @@ void main() {
         serverIconFetchProvider.overrideWithValue(_fixtureIcon),
       ],
     );
-    await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen));
+    await show(tester, const SettingsNodeScreen(arg: NodeShot.comboOpen));
     Finder says(String value, String text) => find.descendant(of: row(value), matching: find.textContaining(text, findRichText: true));
-    expect(says('http://10.0.1.24:3413', 'Not reachable from this computer'), findsOneWidget);
-    expect(says('http://10.0.1.24:3413', 'Not answering'), findsNothing);
+    expect(says('http://192.168.1.24:3413', 'Not reachable from this computer'), findsOneWidget);
+    expect(says('http://192.168.1.24:3413', 'Not answering'), findsNothing);
     expect(says('https://node.stack.invalid:3413', 'Not answering'), findsOneWidget);
     expect(says('https://node.stack.invalid:3413', 'Not reachable'), findsNothing);
     await end(tester);
   });
 
   testWidgets('an icon where the monitor has one, the monitor name\'s initials where not', (tester) async {
-    await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen));
+    await show(tester, const SettingsNodeScreen(arg: NodeShot.comboOpen));
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
     await settle(tester);
     expect(find.descendant(of: row(_btlabs), matching: find.byKey(ServerTileView.imageKey)), findsOneWidget);
@@ -344,7 +344,7 @@ void main() {
   });
 
   testWidgets('only the rows scroll: the field stays put', (tester) async {
-    await show(tester, const SettingsNodeScreen(arg: NodeDemo.comboOpen), size: const Size(1280, 560));
+    await show(tester, const SettingsNodeScreen(arg: NodeShot.comboOpen), size: const Size(1280, 560));
     final fieldAt = tester.getTopLeft(field);
     final list = find.ancestor(of: row(_btlabs), matching: find.byType(Scrollable)).first;
     final scrollable = tester.state<ScrollableState>(list);
@@ -358,7 +358,7 @@ void main() {
   testWidgets('Epicbox: a pick opens the confirm; Cancel keeps the relay; a relay that does not answer adds nothing; Switch switches', (tester) async {
     // Transactions has the payment methods and Send above the Epicbox panel now: a taller
     // window keeps the panel's foot (Added …, Switch) on screen.
-    await show(tester, const SettingsReceivingScreen(arg: ReceivingDemo.comboOpen), size: const Size(1280, 1500));
+    await show(tester, const SettingsReceivingScreen(arg: ReceivingShot.comboOpen), size: const Size(1280, 1500));
     const warning = 'Switching gives you a new Epicbox address.';
     expect(find.text(warning), findsOneWidget);
     final before = container.read(deskProvider).status!.epicbox.domain;
@@ -425,10 +425,10 @@ void main() {
     expect(field, findsNothing, reason: 'closed');
 
     await tap(tester, find.text('Pick a node'));
-    await type(tester, '10.0.1.30:3413');
+    await type(tester, '192.168.1.30:3413');
     await tap(tester, find.byKey(const ValueKey('server-list-add')));
-    expect(tested, ['http://10.0.1.30:3413'], reason: 'the local network answers plain http');
-    expect(chosen.last, 'http://10.0.1.30:3413');
+    expect(tested, ['http://192.168.1.30:3413'], reason: 'the local network answers plain http');
+    expect(chosen.last, 'http://192.168.1.30:3413');
     await end(tester);
   });
 
@@ -453,16 +453,16 @@ void main() {
       addTearDown(c.dispose);
       final n = c.read(deskServerListProvider(ServerKind.node).notifier);
       await n.add('https://node2.lab.invalid');
-      await n.add('http://10.0.1.24:3413', own: true);
+      await n.add('http://192.168.1.24:3413', own: true);
       final servers = c.read(hostSettingsProvider).nodeServers;
-      expect([for (final s in servers) (s.url, s.operator)], [('https://node2.lab.invalid', 'BT Labs'), ('http://10.0.1.24:3413', null)]);
-      expect(n.state!.isAddedByUser(ServerKind.node, 'http://10.0.1.24:3413'), isTrue);
+      expect([for (final s in servers) (s.url, s.operator)], [('https://node2.lab.invalid', 'BT Labs'), ('http://192.168.1.24:3413', null)]);
+      expect(n.state!.isAddedByUser(ServerKind.node, 'http://192.168.1.24:3413'), isTrue);
     });
 
     test('an own node keeps its label as the row\'s operator', () {
-      final rows = nodePanelRows(const [NodeServer(url: 'http://10.0.1.24:3413', label: 'Home node', own: true)], labels: const {'http://10.0.1.24:3413': 'Garage'});
+      final rows = nodePanelRows(const [NodeServer(url: 'http://192.168.1.24:3413', label: 'Home node', own: true)], labels: const {'http://192.168.1.24:3413': 'Garage'});
       expect(rows.single.operator, 'Garage');
-      expect(nodePanelRows(const [NodeServer(url: 'http://10.0.1.24:3413', label: 'Home node', own: true)]).single.operator, 'Home node');
+      expect(nodePanelRows(const [NodeServer(url: 'http://192.168.1.24:3413', label: 'Home node', own: true)]).single.operator, 'Home node');
     });
   });
 
@@ -492,7 +492,7 @@ void main() {
 
     testWidgets('a host is in mono, a word in the interface face; the chevron stays at the end', (tester) async {
       for (final (text, sub, mono) in [
-        ('10.0.1.24:3413', null, true),
+        ('192.168.1.24:3413', null, true),
         ('node.net.invalid:3413', 'EpicNet', true),
         ('Local node', null, false),
         ('Local node', 'Running', false),

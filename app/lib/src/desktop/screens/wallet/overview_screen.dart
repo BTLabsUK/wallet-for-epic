@@ -34,9 +34,9 @@ import '../../../settings_file/host_settings.dart' show hostSettings;
 import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
 
 /// States the tour can start Overview in.
-enum OverviewDemo { loading, empty, nodeDown, starting, syncing, nodeProblem }
+enum OverviewShot { loading, empty, nodeDown, starting, syncing, nodeProblem }
 
-/// Mock sync state for [OverviewDemo.syncing].
+/// Mock sync state for [OverviewShot.syncing].
 const double _syncPart = 0.62;
 const int _walletTip = 2903118;
 
@@ -89,29 +89,29 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final demo = widget.arg is OverviewDemo ? widget.arg! as OverviewDemo : null;
+    final shot = widget.arg is OverviewShot ? widget.arg! as OverviewShot : null;
     final s = ref.watch(deskProvider);
     final lv = ref.watch(deskLevelUiProvider);
     final shallow = lv.heroSentence;
     final hidden = s.settings.hideAmounts;
-    final loading = demo == OverviewDemo.loading || s.balance == null;
+    final loading = shot == OverviewShot.loading || s.balance == null;
     // The scan a restore owes: its progress, not the empty-wallet state.
-    final restore = demo == null ? s.status?.restoreScan : null;
-    final empty = demo == OverviewDemo.empty || (demo == null && restore == null && s.balance?.total == 0 && (s.txs?.isEmpty ?? false));
-    final starting = demo == OverviewDemo.starting;
-    final syncing = demo == OverviewDemo.syncing;
+    final restore = shot == null ? s.status?.restoreScan : null;
+    final empty = shot == OverviewShot.empty || (shot == null && restore == null && s.balance?.total == 0 && (s.txs?.isEmpty ?? false));
+    final starting = shot == OverviewShot.starting;
+    final syncing = shot == OverviewShot.syncing;
     // Offline (but with a local node) and Tor only: the node is not asked, so its last answer
     // is not news.
-    final netBlock = demo == null ? deskNetBlock(s, nodeOnly: true) : NetBlock.none;
+    final netBlock = shot == null ? deskNetBlock(s, nodeOnly: true) : NetBlock.none;
     final offline = netBlock.byMode;
-    final nodeDown = demo == OverviewDemo.nodeDown || (demo == null && netBlock == NetBlock.none && s.status?.nodeHealth == ServiceHealth.down);
+    final nodeDown = shot == OverviewShot.nodeDown || (shot == null && netBlock == NetBlock.none && s.status?.nodeHealth == ServiceHealth.down);
     // Its notice waits out the connection grace after the start or a return (item 11): the
     // status icon alone says Connecting meanwhile.
-    final nodeDownSaid = nodeDown && (demo != null || !ref.watch(connectionGraceProvider));
+    final nodeDownSaid = nodeDown && (shot != null || !ref.watch(connectionGraceProvider));
     // The wallet's own sync (a refresh or a scan), not the node's.
-    final walletSync = demo == null && s.status?.syncProgress != null;
+    final walletSync = shot == null && s.status?.syncProgress != null;
     final balance = empty ? const Balance(spendable: 0, awaitingConfirmation: 0, locked: 0, awaitingFinalization: 0) : s.balance;
-    final txs = empty ? const <Tx>[] : (demo == OverviewDemo.loading ? null : s.txs);
+    final txs = empty ? const <Tx>[] : (shot == OverviewShot.loading ? null : s.txs);
     final nav = ref.read(deskNavProvider.notifier);
     final nodeUrl = (s.status?.node.url ?? hostSettings.nodeFallback).replaceFirst(RegExp(r'^https?://'), '');
 
@@ -122,7 +122,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
     // A restored wallet's first unlock asks once about its history backup, after the
     // first-run tour, never over it.
     final tour = ref.watch(deskTourProvider);
-    if (demo == null && !_importOffered && tour.seen && !tour.open && (ref.watch(historyBackupProvider).value?.importOffer ?? false)) {
+    if (shot == null && !_importOffered && tour.seen && !tour.open && (ref.watch(historyBackupProvider).value?.importOffer ?? false)) {
       _importOffered = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) unawaited(showHistoryImportOffer(context, ref));
@@ -149,7 +149,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
       if (s.status?.recordsPlain ?? false) ENotice(key: const ValueKey('overview-records-plain'), tone: ETone.info, icon: EIcons.info, title: l.storeRecordsPlain),
       if (ref.watch(historyBackupProvider).value case final backup? when backup.reminder != null && !backup.importOffer) HistoryReminder(state: backup),
       if (starting) const _Steps(),
-      if (demo == OverviewDemo.nodeProblem && !_addressNoteHidden)
+      if (shot == OverviewShot.nodeProblem && !_addressNoteHidden)
         ENotice(
           icon: EIcons.info,
           title: l.deskOvNodeAddrTitle,
@@ -157,7 +157,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
           actionsBelow: true,
           actions: [EButton(label: l.commonOk, kind: EBtnKind.ghost, size: EBtnSize.inline, onPressed: () => setState(() => _addressNoteHidden = true))],
         ),
-      if (demo == OverviewDemo.nodeProblem && !_problemHidden)
+      if (shot == OverviewShot.nodeProblem && !_problemHidden)
         ENotice(
           tone: ETone.risk,
           title: l.deskOvNodeIncompatTitle,
@@ -259,8 +259,8 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
               updating: !offline && !nodeDown && (starting || syncing || loading || walletSync),
               offline: offline,
               asOfBlock: syncing ? _walletTip : null,
-              sendBlocked: syncing || nodeDown || demo == OverviewDemo.nodeProblem,
-              nodeAnswers: !(nodeDown || demo == OverviewDemo.nodeProblem),
+              sendBlocked: syncing || nodeDown || shot == OverviewShot.nodeProblem,
+              nodeAnswers: !(nodeDown || shot == OverviewShot.nodeProblem),
               shallow: shallow,
               casual: lv.casualWords,
             ),

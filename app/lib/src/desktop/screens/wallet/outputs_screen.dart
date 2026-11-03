@@ -186,7 +186,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
     final s = ref.watch(deskProvider);
     final hidden = s.settings.hideAmounts;
     final AsyncValue<List<Output>> value = _args.error
-        ? AsyncValue.error('demo', StackTrace.empty)
+        ? AsyncValue.error('shot', StackTrace.empty)
         : _args.waiting
         ? const AsyncValue.loading()
         : _args.outputs != null

@@ -15,7 +15,7 @@ import 'setup_screen.dart' show SetupFirstRun;
 enum CreateStep { account, creating, failed, phrase, locking }
 
 /// The shots' phrase step with the words shown and the checkbox ticked.
-enum CreateDemo { phraseShown }
+enum CreateShot { phraseShown }
 
 /// New wallet: password, the wallet is made, its phrase, then
 /// Unlock with the new wallet. [arg] is a [CreateStep] to start on.
@@ -35,7 +35,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
   final _confirm = TextEditingController();
   late CreateStep _step = widget.arg is CreateStep
       ? widget.arg as CreateStep
-      : widget.arg == CreateDemo.phraseShown
+      : widget.arg == CreateShot.phraseShown
       ? CreateStep.phrase
       : CreateStep.account;
   List<String>? _phrase;
@@ -47,8 +47,8 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
 
   /// The shots' failed step: the disk-full failure, worded in build (initState has no l10n).
   bool _diskFull = false;
-  late bool _revealed = widget.arg == CreateDemo.phraseShown;
-  late bool _written = widget.arg == CreateDemo.phraseShown;
+  late bool _revealed = widget.arg == CreateShot.phraseShown;
+  late bool _written = widget.arg == CreateShot.phraseShown;
   bool _busy = false;
   Set<String> _before = {};
 

@@ -20,7 +20,7 @@ import 'settings_advanced.dart' show confirmNetworkModeSwitch;
 import '../../../settings_file/status_site.dart' show statusSiteConfigured, statusSiteHost;
 
 /// The tour's Tor states: on, starting, not connected (laid over the mock's status).
-enum PrivacyDemo { torOn, torStarting, torFailed }
+enum PrivacyShot { torOn, torStarting, torFailed }
 
 /// Settings › Network & privacy (B-03): how the wallet reaches the network, on one page in the
 /// phone's order (Deeper and up). Connection mode (Tor only is the one whole-wallet Tor

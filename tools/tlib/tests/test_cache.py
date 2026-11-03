@@ -64,17 +64,17 @@ class KeyTest(unittest.TestCase):
     def test_the_lepic_library_bytes_change_it(self):
         lib = os.path.join(self.root, "liblepic_ffi.so")
         support.write(self.root, "liblepic_ffi.so", "one")
-        k = self.key(env={"WFE_DEMO_LEPIC_LIB": lib})
+        k = self.key(env={"WFE_LEPIC_LIB": lib})
         support.write(self.root, "liblepic_ffi.so", "two")
-        self.assertNotEqual(self.key(env={"WFE_DEMO_LEPIC_LIB": lib}), k)
+        self.assertNotEqual(self.key(env={"WFE_LEPIC_LIB": lib}), k)
 
     def test_the_lepic_library_path_and_the_history_path_do_not(self):
         # the same library in two worktrees is the same inputs; where the history is kept is not an input
         support.write(self.root, "a/liblepic_ffi.so", "same")
         support.write(self.root, "b/liblepic_ffi.so", "same")
         a, b = (os.path.join(self.root, d, "liblepic_ffi.so") for d in "ab")
-        self.assertEqual(self.key(env={"WFE_DEMO_LEPIC_LIB": a}), self.key(env={"WFE_DEMO_LEPIC_LIB": b}))
-        self.assertNotEqual(self.key(env={"WFE_DEMO_LEPIC_LIB": a}), self.key())
+        self.assertEqual(self.key(env={"WFE_LEPIC_LIB": a}), self.key(env={"WFE_LEPIC_LIB": b}))
+        self.assertNotEqual(self.key(env={"WFE_LEPIC_LIB": a}), self.key())
         self.assertEqual(self.key(env={"WFE_TEST_HISTORY": "/x"}), self.key())
 
     def test_store_and_lookup(self):

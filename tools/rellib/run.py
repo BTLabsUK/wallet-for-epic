@@ -202,5 +202,7 @@ class Run:
             rows.append({"id": s.id, "title": s.title, "phase": s.phase, "kind": s.kind, "host": s.host,
                          "status": "warned" if st.get("warned") else st.get("status"), "attempts": st.get("attempts", 0),
                          "duration_s": st.get("duration_s"), "note": st.get("note"), "reason": st.get("reason"),
-                         "hint": st.get("hint"), "bytes": st.get("bytes")})
+                         "hint": st.get("hint"), "bytes": st.get("bytes"),
+                         "flaky": bool(st.get("flaky")), "failed_before": st.get("failed_before"),
+                         "driver_changed": bool(st.get("driver_changed"))})
         return rows

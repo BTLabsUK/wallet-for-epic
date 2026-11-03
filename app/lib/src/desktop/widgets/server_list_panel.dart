@@ -176,8 +176,8 @@ class PanelLocalRow {
 
 /// A state the tour opens the panel in: [query] typed, [submit] pressed, [remove] binned.
 @immutable
-class ServerPanelDemo {
-  const ServerPanelDemo({this.query, this.submit = false, this.remove, this.pick});
+class ServerPanelShot {
+  const ServerPanelShot({this.query, this.submit = false, this.remove, this.pick});
 
   final String? query;
   final bool submit;
@@ -207,7 +207,7 @@ class ServerListPanel extends ConsumerStatefulWidget {
     this.busyTimeout = const Duration(seconds: 20),
     this.error,
     this.openInitially = false,
-    this.demo,
+    this.shot,
     this.selection,
     this.keepBelow = 0,
     this.panelOverhang = 0,
@@ -268,7 +268,7 @@ class ServerListPanel extends ConsumerStatefulWidget {
   /// Under the button (a failed switch).
   final String? error;
   final bool openInitially;
-  final ServerPanelDemo? demo;
+  final ServerPanelShot? shot;
 
   @override
   ConsumerState<ServerListPanel> createState() => ServerListPanelState();
@@ -319,11 +319,11 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
     super.initState();
     _chosen = _sel == null ? null : [..._sel!.chosen];
     if (widget.busy) _startBusy();
-    if (widget.openInitially || widget.demo != null) {
+    if (widget.openInitially || widget.shot != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (!mounted) return;
         open();
-        final d = widget.demo;
+        final d = widget.shot;
         if (d == null) return;
         if (d.query != null) {
           _text.text = d.query!;
