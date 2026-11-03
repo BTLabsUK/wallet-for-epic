@@ -162,7 +162,7 @@ EOF
 trust-android plan (v2, $REL_VARIANT, funds=$REL_FUNDS, required: ${REL_CHECKS:-$(python3 -I "$drv/lane.py" checks)})
   emulator   ${REL_ANDROID_SERIAL:-start AVD $avd headless (writable), emulator-$port; stopped at the end}
   signer     both APKs must carry the same certificate (apksigner); it goes in proof.json and the saved state
-  start      ${REL_TRUST_START:-auto}: a saved $REL_VARIANT state of ${REL_PREVIOUS_VERSION:-?} (emulator snapshot) when one fits, else fresh
+  start      ${REL_TRUST_START:-auto}: the lane seed android-$REL_VARIANT when there is one (Restore from phrase on the previous release, core/lane_seed.py), else a saved $REL_VARIANT state of ${REL_PREVIOUS_VERSION:-?} (emulator snapshot) when one fits, else fresh
   fresh      adb uninstall; adb install $prev_apk; create a wallet (PIN, phrase read off Settings › Security);
              node $REL_NODE and Epicbox $REL_EPICBOX in use, loopback stand-ins added (adb reverse); Light, 1 confirmation, Technical details on
   fund       P pays the wallet (every lane); digest from the app's files (adb root)
