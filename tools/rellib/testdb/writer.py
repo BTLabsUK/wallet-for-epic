@@ -27,6 +27,10 @@ class Bad(Exception):
 
 def connect(path, migrate=True):
     os.makedirs(os.path.dirname(path), exist_ok=True)
+    os.close(os.open(path, os.O_CREAT | os.O_RDWR, 0o600))  # SQLite gives -wal and -shm the same mode
+    for p in (path, path + "-wal", path + "-shm"):
+        if os.path.exists(p):
+            client.private(p, 0o600)
     conn = sqlite3.connect(path, timeout=5, isolation_level=None)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
@@ -325,7 +329,7 @@ def _count_refused(conn):
 
 def _bad(inbox, name, reason):
     bad = os.path.join(inbox, "bad")
-    os.makedirs(bad, exist_ok=True)
+    client.private_dir(bad)
     src = os.path.join(inbox, name)
     with open(os.path.join(bad, name + ".reason"), "w", encoding="utf-8") as f:
         f.write(reason + "\n")
@@ -388,7 +392,8 @@ def drain(db, budget=None, wait=False):
     """Applies the inbox while holding the writer lock. Returns the number of files handled, or None when
     another process holds the lock (it drains them). budget: stop after about this many seconds."""
     os.makedirs(os.path.dirname(db), exist_ok=True)
-    fd = os.open(client.lock_path(db), os.O_CREAT | os.O_RDWR, 0o644)
+    fd = os.open(client.lock_path(db), os.O_CREAT | os.O_RDWR, 0o600)
+    client.private(client.lock_path(db), 0o600)
     try:
         try:
             fcntl.flock(fd, fcntl.LOCK_EX | (0 if wait else fcntl.LOCK_NB))

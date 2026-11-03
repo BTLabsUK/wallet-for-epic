@@ -162,6 +162,16 @@ class WalletTest(TdbCase):
         self.drain()
         self.assertEqual(self.q("SELECT state FROM wallets")[0]["state"], "retired")
 
+    def test_db_and_queue_are_owner_only(self):
+        client.emit("wallet.put", name="w", role="lane", phrase=self.PHRASE)
+        client.drop(client.inbox_dir(self.db), {"eid": "x"})
+        self.drain()
+        for p in (self.db, self.db + "-wal", self.db + "-shm", client.lock_path(self.db)):
+            if os.path.exists(p):
+                self.assertEqual(os.stat(p).st_mode & 0o777, 0o600, p)
+        for d in (client.inbox_dir(self.db), os.path.join(client.inbox_dir(self.db), "bad")):
+            self.assertEqual(os.stat(d).st_mode & 0o777, 0o700, d)
+
     def test_text_that_looks_like_a_phrase_is_kept_in_ordinary_events(self):
         client.emit("step.end", run="r", lane="L", n=1, step="s", detail=self.PHRASE, phrase_screen=True)
         self.drain()

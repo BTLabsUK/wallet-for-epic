@@ -139,12 +139,25 @@ def make_event(kind, source, fields):
     return ev
 
 
+def private(path, mode):
+    """Test wallets' phrases pass through these files: owner only."""
+    try:
+        os.chmod(path, mode)
+    except OSError:
+        pass
+
+
+def private_dir(d):
+    os.makedirs(d, mode=0o700, exist_ok=True)
+    private(d, 0o700)
+
+
 def drop(inbox, ev):
     """Writes one event into an inbox dir: .tmp-* first, then the atomic rename to its final name."""
-    os.makedirs(inbox, exist_ok=True)
+    private_dir(inbox)
     name = "%019d-%s-%d-%d.json" % (ev.get("_ns") or time.time_ns(), ev.get("host", HOST), os.getpid(), ev.get("seq") or 0)
     tmp = os.path.join(inbox, ".tmp-" + name)
-    with open(tmp, "w", encoding="utf-8") as f:
+    with open(os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600), "w", encoding="utf-8") as f:
         json.dump(ev, f, default=str)
     os.rename(tmp, os.path.join(inbox, name))
     return name
