@@ -78,6 +78,11 @@ class JudgeTest(unittest.TestCase):
         # a long job: the task is running, no new run for hours is expected
         self.assertEqual(rig.judge(dict(old, state="Running", last_result=0x41301)), [])
 
+    def test_trigger_refused_while_running_is_busy_not_dead(self):
+        # 0x800710E0: the 2-minute trigger refused because the task still runs a job
+        self.assertEqual(rig.judge(dict(RIG1, state="Running", last_result=0x800710E0)), [])
+        self.assertTrue(any("0x800710E0" in x for x in rig.judge(dict(RIG1, last_result=0x800710E0))))
+
     def test_stuck_queue(self):
         stuck = dict(RIG1, queued=1, oldest_queued="2026-11-01T08:00:00Z")
         self.assertTrue(any("waiting in C:\\EpicRig\\queue" in x for x in rig.judge(stuck)))
@@ -128,6 +133,58 @@ class FakeRig(rig.Rig):
 
     def call(self, op, timeout=120, **kw):
         return {"ok": True, "user": "epicrig2", "profile": "p"}
+
+
+class OrphanRig(FakeRig):
+    """The rig's done folder holds running marks; a stop file ends the agent `stops` checks later."""
+
+    def __init__(self, marks, stops=1):
+        super().__init__()
+        self.marks, self.stops, self.stopped = list(marks), stops, []
+
+    def pwsh(self, script, timeout=120, check=True):
+        if script.startswith("New-Item"):
+            self.stopped.append(script.split("'")[1])
+            return ""
+        if "running.json" in script:
+            if self.stopped:
+                self.stops -= 1
+                if self.stops < 0:
+                    self.marks = [m for m in self.marks if m + "\\stop" not in self.stopped]
+            if "agent.ps1" in script:
+                return "".join("ORPHAN %s\r\n" % m for m in self.marks)
+            return "".join("ORPHAN %s\r\n" % m for m in self.marks + ["C:\\EpicRig5\\other\\job"])
+        return super().pwsh(script, timeout, check)
+
+
+class OrphanTest(unittest.TestCase):
+    OLD = "C:\\EpicRig5\\trust\\runs\\notor-26.10.26-to-26.11.0-20261103-224413"
+
+    def stop(self, r, **kw):
+        c = Clock()
+        with mock.patch.object(rig.time, "time", c.time), mock.patch.object(rig.time, "sleep", c.sleep):
+            return r.stop_orphans(**kw)
+
+    def test_none(self):
+        r = OrphanRig([])
+        self.assertEqual(self.stop(r), [])
+        self.assertEqual(r.stopped, [])
+
+    def test_a_killed_runs_agent_is_stopped_and_waited_for(self):
+        r = OrphanRig([self.OLD], stops=2)
+        self.assertEqual(self.stop(r), [self.OLD])
+        self.assertEqual(r.stopped, [self.OLD + "\\stop"])
+        self.assertTrue(any("leftover agent(s) stopped" in x for x in r.logs))
+
+    def test_our_own_run_and_other_folders_are_left_alone(self):
+        r = OrphanRig([r"C:\EpicRig5\trust\runs\run", r"C:\EpicRig5\elsewhere\x"])
+        self.assertEqual(self.stop(r), [])
+        self.assertEqual(r.stopped, [])
+
+    def test_an_agent_that_does_not_stop_is_a_rig_error(self):
+        r = OrphanRig([self.OLD], stops=10 ** 6)
+        with self.assertRaises(rig.RigError):
+            self.stop(r, wait_s=60)
 
 
 class Clock:
