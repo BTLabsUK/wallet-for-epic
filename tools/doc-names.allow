@@ -1,0 +1,36 @@
+# tools/check-doc-names.py: where the app's old names (Epic Cash Desktop, Epic Cash Mobile, their
+# file names and app ids, up to 26.10.24) may stay, and how many lines name them. Everywhere else
+# the app is BT Wallet. Each entry has its reason above it. tools/check.sh runs the check, and
+# the docs site's own check (btlabs-docs, tools/check-doc-names.py) when that checkout is there.
+
+scan *.md
+scan *.arb
+scan tools/releases/build.py
+
+# Product names, app ids and the Windows and macOS moves from the old app; the registry key and
+# the Linux icon name that still carry the old name (frozen install facts).
+app/README.md 8
+# The macOS update hint and the old-app dialog: the old app's name as Finder shows it.
+app/lib/l10n/app_en.arb 5
+app/lib/l10n/app_de.arb 1
+app/lib/l10n/app_pl.arb 1
+app/lib/l10n/app_ru.arb 1
+app/lib/l10n/app_th.arb 1
+app/lib/l10n/app_zh.arb 1
+# Fixtures: data folders of real 26.10.23 and 26.10.24 installs.
+app/test/fixtures/install_26_10_23/README.md 1
+app/test/fixtures/install_26_10_24_r2/README.md 1
+# Release file names before bt-wallet-…, which the release tooling still reads.
+https://docs.btlabs.uk/developers/releases/ 2
+# The macOS bundle name 26.10.24 shipped.
+docs/apple-port-notes.md 1
+# A dated audit record.
+docs/audit/ux-copy-26.10.25.md 4
+# The Android app before 26.10.25, the app id change.
+https://docs.btlabs.uk/developers/build/variants/ 1
+# Frozen install facts: the old ids, exe and shortcuts.
+docs/install-contract.md 3
+# The test plan for moving from Epic Cash Desktop.app, and its release note.
+tools/apple-release.md 10
+# The old release file patterns, the old macOS bundle, and the changelog's old names.
+tools/releases/build.py 19

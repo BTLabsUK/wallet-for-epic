@@ -80,6 +80,16 @@ step "install contract (docs/install-contract.md)"
 step "no hosts in code (docs/settings-file.md)"
 "$root/tools/check-no-hosts.sh"
 
+step "doc names (tools/doc-names.allow)"
+python3 "$root/tools/check-doc-names.py"
+# The docs site (btlabs-docs) keeps its own allow file; checked when its checkout is here.
+docs_site="${BTLABS_DOCS:-$HOME/btlabs-docs}"
+if [[ -f "$docs_site/tools/check-doc-names.py" ]]; then
+  python3 "$docs_site/tools/check-doc-names.py"
+else
+  echo "docs site: no checkout at $docs_site (BTLABS_DOCS), skipped"
+fi
+
 step "workflows (.github/workflows, tools/check-workflow.py)"
 python3 "$root/tools/check-workflow.py"
 
