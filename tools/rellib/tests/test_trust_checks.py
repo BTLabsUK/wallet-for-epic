@@ -454,6 +454,19 @@ class FundsOff(unittest.TestCase):
         self.assertNotIn("send_ok", lane.results)
 
 
+class PayTo(unittest.TestCase):
+    """P pays the wallet at the relay it listens on: the LEPIC CLI's address carries the CLI's default
+    domain, which is not the relay in use (run-4 of 26.11.0: P posted to epicbox.epiccash.com while the
+    wallet listened on epicbox.stackwallet.com)."""
+
+    def test_the_relay_in_use_replaces_the_cli_domain(self):
+        self.assertEqual(checks.pay_to("esA@epicbox.epiccash.com", "epicbox.stackwallet.com"), "esA@epicbox.stackwallet.com")
+        self.assertEqual(checks.pay_to("esA", "127.0.0.1:43423"), "esA@127.0.0.1:43423")
+
+    def test_no_relay_known_keeps_the_address(self):
+        self.assertEqual(checks.pay_to("esA@epicbox.epiccash.com", ""), "esA@epicbox.epiccash.com")
+
+
 class LaneSeedFunds(unittest.TestCase):
     """A lane seed's wallet keeps its coins: P tops it up when it is low, in the one payment before the
     update, and it sends back only this run's inflow, as an amount on the Send page."""

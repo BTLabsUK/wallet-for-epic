@@ -187,6 +187,11 @@ def _relay_with_p(lane, p):
     return relay
 
 
+def pay_to(address, relay):
+    """[address] at the relay in use, whatever domain it came with; as given when no relay is known."""
+    return "%s@%s" % (address.split("@", 1)[0], relay) if relay else address
+
+
 def _pay(lane, address, amount, tag, what, count_dir="incoming"):
     """P sends [amount] to [address]; the wallet's data must show the new incoming transaction confirmed
     (P's confirmed payment is the proof of receipt). -> (txs before, the new transaction)."""
@@ -199,8 +204,9 @@ def _pay(lane, address, amount, tag, what, count_dir="incoming"):
         if not p.start_listener():
             raise HarnessFault("fund", "P's listener did not start (3 tries)")
         relay = _relay_with_p(lane, p)
-        # the wallet listens on the relay in use only: a bare address would go to P's own default
-        full = address if "@" in address or not relay else "%s@%s" % (address, relay)
+        # the wallet listens on the relay in use only: a bare address, or one with the LEPIC CLI's default
+        # domain, would go to another relay
+        full = pay_to(address, relay)
         ok, out = p.send(full, amount)
         lane.log("P -> %s %s: %s (%s)" % (short(address), amount, "sent" if ok else "FAILED", out))
         if not ok:
