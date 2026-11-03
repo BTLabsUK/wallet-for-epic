@@ -27,6 +27,15 @@ from .faults import HarnessFault, HarnessGone, ProductFault
 SLOW = float(os.environ.get("REL_TRUST_SLOW") or "1")
 
 
+# Moved by any press, so not a sign the press did anything.
+UNCHANGED = frozenset(("focused", "showing"))
+
+
+def look(tree):
+    """What a press can change, in place included: a stepper's value, a switch's checked state."""
+    return [(n.role, n.name, n.value, n.states - UNCHANGED) for n in tree]
+
+
 class Expect:
     """A state of the screen. `test(driver, tree)` truthy when reached; `what` for messages."""
 
@@ -233,10 +242,10 @@ class Driver:
         for attempt in range(2):
             self._clear(target)
             node = self.locate(target, timeout)
-            before = [(n.role, n.name) for n in self.tree()]
+            before = look(self.tree())
             self._act(self.s.press, node)
             want = then or Expect("the screen changed after %s" % target,
-                                  lambda d, tree, b=before: [(n.role, n.name) for n in tree] != b)
+                                  lambda d, tree, b=before: look(tree) != b)
             r = self.wait(want, timeout)
             if r:
                 return r

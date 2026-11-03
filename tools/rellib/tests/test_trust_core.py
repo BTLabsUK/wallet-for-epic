@@ -113,6 +113,27 @@ class CoreTest(unittest.TestCase):
         self.assertEqual(rec[0]["picked"]["name"], "Open my wallet")
         self.assertIn("g4.unlock.submit", open(os.path.join(self.out, "selector-fixes.md")).read())
 
+    def test_in_place_change_counts_as_the_press_taking(self):
+        """A switch that only flips its checked state, or a stepper that only changes its value, is
+        pressed once: the default wait sees the change instead of timing out and pressing again."""
+        sw = tg.Target(id="g4.settings.switch", role="button", keys=("deskTourSkip",))
+        f = Fake({"off": [n(0, "button", "Skip tour")], "on": [n(0, "button", "Skip tour", states=("enabled", "checked"))]},
+                 "off", {("off", "Skip tour"): "on", ("on", "Skip tour"): "off"})
+        self.driver(f).press(sw, step="switch", timeout=1)
+        self.assertEqual((f.cur, f.pressed), ("on", ["Skip tour"]))
+        f = Fake({"1": [n(0, "button", "Skip tour", value="1")], "2": [n(0, "button", "Skip tour", value="2")]},
+                 "1", {("1", "Skip tour"): "2", ("2", "Skip tour"): "3"})
+        self.driver(f).press(sw, step="stepper", timeout=1)
+        self.assertEqual(f.pressed, ["Skip tour"])
+
+    def test_focus_alone_is_not_a_change(self):
+        sw = tg.Target(id="g4.settings.switch", role="button", keys=("deskTourSkip",))
+        f = Fake({"a": [n(0, "button", "Skip tour")], "b": [n(0, "button", "Skip tour", states=("enabled", "focused"))]},
+                 "a", {("a", "Skip tour"): "b"})
+        with self.assertRaises(HarnessFault):
+            self.driver(f).press(sw, step="switch", timeout=0.1)
+        self.assertGreater(len(f.pressed), 1)  # pressed again: the focus ring did not count
+
     def test_secret_screen_never_sent(self):
         phrase = " ".join(["abandon"] * 24)
         f = Fake({"s": [n(0, "text", phrase), n(1, "button", "Next")]}, "s", {})
