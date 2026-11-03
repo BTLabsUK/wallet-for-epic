@@ -41,7 +41,7 @@ void main() {
     expect(i.version, isNotNull);
     expect(i.latencyMs, isNotNull);
     expect(i.poolSize, isNotNull);
-  }, skip: _url == null);
+  }, skip: _url == null ? 'needs WFE_OWN_NODE' : false);
 
   test('owner access: a wrong secret refused, the right one kept, status and peers read', () async {
     final url = _url!;
@@ -59,7 +59,7 @@ void main() {
     // Rotated on the node: refused, not down.
     await store.write(ownerSecretKey(url), 'rotated');
     await expectLater(a.status(url), throwsA(isA<OwnerUnavailable>().having((e) => e.why, 'why', OwnerOff.refused)));
-  }, skip: _url == null || _secretFile == null);
+  }, skip: _url == null || _secretFile == null ? 'needs WFE_OWN_NODE and WFE_OWN_NODE_SECRET' : false);
 
   test('a listed node marked Mine is asked directly, the tip from the status site', () async {
     final directory = HttpRelayDirectory();
@@ -70,7 +70,7 @@ void main() {
     expect(i.nodeClass, NodeClass.ownServer);
     expect(i.tipFrom, TipReference.statusSite);
     expect(i.height, isNotNull);
-  }, skip: _mine == null);
+  }, skip: _mine == null ? 'needs WFE_MINE_NODE' : false);
 }
 
 class _NoNodes implements NodeDirectory {

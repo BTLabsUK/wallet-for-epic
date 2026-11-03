@@ -599,10 +599,12 @@ void main() {
       );
       expect(find.byKey(networkSectionKey), findsOneWidget);
       // Tor only is the one whole-wallet Tor control; there is no Tor switch.
-      expect(find.byKey(networkModeRowKey(NetworkMode.torOnly)), findsOneWidget);
+      // Without Tor there is no Tor only row; Standard heads the modes.
+      final mode = networkModeRowKey(torBuilt ? NetworkMode.torOnly : NetworkMode.standard);
+      expect(find.byKey(mode), findsOneWidget);
       expect(find.byKey(torReceivingSwitchKey), findsNothing);
       expect(
-        tester.getTopLeft(find.byKey(networkModeRowKey(NetworkMode.torOnly))).dy,
+        tester.getTopLeft(find.byKey(mode)).dy,
         greaterThan(tester.getTopLeft(find.byKey(networkSectionKey)).dy),
       );
     });

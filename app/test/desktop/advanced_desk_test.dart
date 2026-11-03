@@ -242,7 +242,7 @@ void main() {
       expect(find.byKey(const ValueKey('send-needs-tor')), findsNothing);
       expect(find.text('Turn on Tor'), findsNothing);
       expect(find.byKey(const ValueKey('send-hold-nodeOnly')), findsOneWidget);
-    });
+    }, skip: !torBuilt);
 
     testWidgets('Node only with a LAN node: a Link send to a LAN address is held too, Pay with a file runs', (tester) async {
       await _open(tester, DeskRoute.send, arg: const SendArgs(recipient: 'http://10.0.1.30:3415', amount: '1'), advanced: _offline, node: 'http://10.100.10.20:3413', peers: 0);

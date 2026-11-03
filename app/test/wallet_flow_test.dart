@@ -445,6 +445,9 @@ void main() {
         'Recovery phrase',
         '  ${service.phrase.toUpperCase()} ',
       );
+      // The error was about the words as they were: an edit takes it away (the field scrolled
+      // into view may push it out of sight, so look past the viewport).
+      expect(find.text('Not in the word list: not (1), a (2).', skipOffstage: false), findsNothing);
       // The start choice is offered to everyone behind a small link.
       await _tapText(tester, 'Start from a month or height');
       await _tapText(tester, 'Block height');

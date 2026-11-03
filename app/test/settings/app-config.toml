@@ -1,5 +1,6 @@
 # Test configuration (test/settings/app-config.toml): the shipped app-config.toml's layout
-# with example hosts only (*.invalid, RFC 5737 addresses, made-up onions).
+# with example hosts only (*.invalid, RFC 5737 addresses, made-up onions). The TLS routes' onions
+# carry a valid v3 checksum: the real LEPIC core (the *_live tests) refuses any other.
 
 # Who runs a server, by its domain, for the server lists (the status site may name others).
 [operators]
@@ -80,10 +81,10 @@ request_timeout_s = 120
 # give them new onions.
 onion_only_domains = ["lab.invalid"]
 onions = [
-  { host = "node.lab.invalid", port = 443, onion = "nodeaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.onion", onion_port = 443, tls = true },
-  { host = "box.lab.invalid", port = 443, onion = "relayaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.onion", onion_port = 443, tls = true },
-  { host = "support.lab.invalid", port = 443, onion = "supportaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.onion", onion_port = 443, tls = true },
-  { host = "releases.lab.invalid", port = 443, onion = "downloadsaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.onion", onion_port = 443, tls = true },
+  { host = "node.lab.invalid", port = 443, onion = "nodeaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaao63ad.onion", onion_port = 443, tls = true },
+  { host = "box.lab.invalid", port = 443, onion = "relayaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaapslyd.onion", onion_port = 443, tls = true },
+  { host = "support.lab.invalid", port = 443, onion = "supportaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaapfnid.onion", onion_port = 443, tls = true },
+  { host = "releases.lab.invalid", port = 443, onion = "downloadsaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaakmayd.onion", onion_port = 443, tls = true },
   { host = "status.lab.invalid", port = 443, onion = "statusaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.onion", onion_port = 80, tls = false },
 ]
 
