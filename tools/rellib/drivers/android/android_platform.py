@@ -229,6 +229,7 @@ class AndroidPlatform(Platform):
         r = self.dev.run("install", "-g", "--no-incremental", self.apks["previous"], timeout=300)
         if "Success" not in r.stdout:
             raise HarnessFault("install", "adb install of the previous APK: %s" % (r.stdout + r.stderr).strip()[-200:])
+        self._sync()
         self.log("installed the previous release: versionCode %s" % self.version())
 
     def version(self):
@@ -264,6 +265,12 @@ class AndroidPlatform(Platform):
         self.dev.sh("am force-stop %s" % PKG)
         self.running = None
         time.sleep(1)
+        self._sync()
+
+    def _sync(self):
+        """What was just written (the app's files, an install) on the emulator's disk: a killed emulator loses
+        writes still in its page cache, and a package whose base.apk is half written is dropped at the next boot."""
+        self.dev.run("shell", "sync", timeout=120)
 
     def update(self):
         if self.running:
@@ -274,6 +281,7 @@ class AndroidPlatform(Platform):
         msg = (r.stdout + r.stderr).strip()[-200:]
         if "Success" not in r.stdout:
             raise ProductFault("update", "adb install -r of the candidate over the previous release failed: %s" % msg)
+        self._sync()
         self.log("update: %s; versionCode %s → %s" % (self.update_method, before, after))
 
     def recover(self):
@@ -344,6 +352,7 @@ class AndroidPlatform(Platform):
         except wd.ReadError as e:
             raise HarnessFault("seed", str(e))
         self.lan_before = files.text(facts.LAN_NODES_FILE)
+        self._sync()
         self.log("seeded into the stopped previous release: contact %r, a note, plain-http agreement for %s" % (
             seed.CONTACT["name"], self.custom_node))
 
@@ -435,6 +444,7 @@ class AndroidPlatform(Platform):
         uid = self.dev.sh("stat -c %%u '%s'" % files.root).strip()
         self.dev.sh("cat /data/local/tmp/break.tmp > '%s' && chown %s:%s '%s' && chmod 600 '%s'; rm -f /data/local/tmp/break.tmp; "
                     "restorecon '%s' 2>/dev/null" % (dest, uid, uid, dest, dest, dest))
+        self._sync()
 
     def break_lose_node(self):
         """The custom node's line goes from the closed previous release's settings.toml."""
