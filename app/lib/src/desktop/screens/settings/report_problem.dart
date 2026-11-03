@@ -194,14 +194,17 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
     if (_empty || _busy || url == null) return;
     setState(() => _busy = true);
     try {
-      await _logRead;
-      final id = await ref.read(feedbackOutletProvider).post(url, await _report());
+      final outlet = ref.read(feedbackOutletProvider);
+      final id = await feedbackSendWithin(() async {
+        await _logRead;
+        return outlet.post(url, await _report());
+      }());
       logInfo('support', 'report sent, $id');
       if (mounted) setState(() => _sentId = id);
     } catch (error) {
       logWarn('support', 'report not sent: $error');
       if (mounted) {
-        setState(() => _error = error is FeedbackSendError ? error.message : l.deskSetReportNotSent);
+        setState(() => _error = error is FeedbackSendError ? error.text(l) : l.deskSetReportNotSent);
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -263,6 +266,16 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
     final block = ref.watch(deskNetBlockProvider);
     final canSend = ref.watch(feedbackUrlProvider) != null && block == NetBlock.none;
     final emptyError = _tried && _empty ? l.deskSetReportDescribe : null;
+    final notices = [
+      if (_saved != null) Semantics(liveRegion: true, child: ENotice(title: _saved!, tone: ETone.ok, icon: EIcons.check)),
+      if (_error != null)
+        Semantics(liveRegion: true, child: ENotice(title: l.deskSetReportNotSentTitle, text: _error, tone: ETone.risk, icon: EIcons.alert)),
+      if (!canSend)
+        ENotice(
+          title: blockMode(block) != null ? l.reportOffMode(networkModeName(l, blockMode(block)!)) : (netBlockReason(l, block) ?? l.deskSetReportOff),
+          tone: ETone.warn,
+        ),
+    ];
     return CallbackShortcuts(
       // The barrier does not close the dialog (a stray click would lose the text); Esc does.
       bindings: {const SingleActivator(LogicalKeyboardKey.escape): () => _busy ? null : nav.maybePop()},
@@ -337,23 +350,11 @@ class _ReportProblemDialogState extends ConsumerState<ReportProblemDialog> {
                 ],
               ),
             ),
-            if (_saved != null) ...[
-              SizedBox(height: Sp.x3),
-              Semantics(liveRegion: true, child: ENotice(title: _saved!, tone: ETone.ok, icon: EIcons.check)),
-            ],
-            if (_error != null) ...[
-              SizedBox(height: Sp.x3),
-              Semantics(liveRegion: true, child: ENotice(title: l.deskSetReportNotSentTitle, text: _error, tone: ETone.risk, icon: EIcons.alert)),
-            ],
-            if (!canSend) ...[
-              SizedBox(height: Sp.x3),
-              ENotice(
-                title: blockMode(block) != null ? l.reportOffMode(networkModeName(l, blockMode(block)!)) : (netBlockReason(l, block) ?? l.deskSetReportOff),
-                tone: ETone.warn,
-              ),
-            ],
           ],
         ),
+        // Beside the buttons, never scrolled out of a short window: what Save or Send did, and
+        // why Send can't run.
+        foot: notices.isEmpty ? null : Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: Sp.x2, children: notices),
         actions: [
           EButton(label: l.commonCancel, onPressed: _busy ? null : nav.pop),
           EButton(label: l.deskSetReportSaveToFile, icon: EIcons.download, busy: _saving, onPressed: _busy ? null : _save),

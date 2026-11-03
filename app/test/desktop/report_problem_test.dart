@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'dart:async';
 import 'dart:io';
 
 import 'package:epic_wallet/src/desktop/app/last_session_offer.dart';
@@ -10,6 +11,7 @@ import 'package:epic_wallet/src/feedback.dart';
 import 'package:epic_wallet/src/last_session.dart';
 import 'package:epic_wallet/src/log.dart';
 import 'package:epic_wallet/src/support_clean.dart';
+import 'package:epic_wallet/src/support_report.dart';
 import 'package:epic_wallet/src/ui/feedback_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -20,7 +22,7 @@ const _phrase = 'abandon ability able about above absent absorb abstract absurd 
 const _address = 'esWn9r2zQj5eKkVh3sT4YpX7cBdF8gHmNaLuRvS6tE1iPo2wZxC9';
 
 class _Harness {
-  final outlet = FakeFeedbackOutlet();
+  FakeFeedbackOutlet outlet = FakeFeedbackOutlet();
   MemoryLogSink log = MemoryLogSink();
 
   /// LEPIC's log ring; null is none, as in a test run, and the log's tail goes instead.
@@ -28,8 +30,11 @@ class _Harness {
   LastSessionSource? lastSession;
   late ProviderContainer container;
 
-  Future<void> pump(WidgetTester tester, {Widget? home, double height = 900}) async {
-    tester.view.physicalSize = Size(1280, height);
+  /// The support intake; null is a build without one.
+  Uri? url = Uri.parse('https://support.example.com/v1/report');
+
+  Future<void> pump(WidgetTester tester, {Widget? home, double width = 1280, double height = 900}) async {
+    tester.view.physicalSize = Size(width, height);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     container = ProviderContainer(overrides: [
@@ -37,7 +42,7 @@ class _Harness {
       feedbackLogProvider.overrideWithValue(log),
       feedbackRingProvider.overrideWithValue(() async => ring),
       lastSessionProvider.overrideWithValue(lastSession),
-      feedbackUrlProvider.overrideWithValue(Uri.parse('https://support.example.com/v1/report')),
+      feedbackUrlProvider.overrideWithValue(url),
       feedbackPlatformProvider.overrideWithValue('linux test'),
       feedbackCleanContextProvider.overrideWithValue(const CleanContext()),
     ]);
@@ -322,6 +327,66 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(ReportProblemDialog), findsNothing);
   });
+
+  // The smallest desktop window (window_placement.dart's deskWindowMinSize) at a large text
+  // size, as a Mac tester had it: Send in view and taken, the body scrolling behind it.
+  testWidgets('at the smallest window and a 1.2 text scale, Send is in view and sends', (tester) async {
+    await tester.runAsync(_loadFonts);
+    tester.platformDispatcher.textScaleFactorTestValue = 1.2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    final h = _Harness();
+    await h.pump(tester, width: 800, height: 700);
+    await tester.tap(find.text('What is sent'));
+    await settle(tester);
+    await describe(tester, 'The balance looks wrong');
+    final view = Offset.zero & const Size(800, 700);
+    final sendButton = find.widgetWithText(EButton, 'Send');
+    expect(view.contains(tester.getRect(sendButton).topLeft) && view.contains(tester.getRect(sendButton).bottomRight), isTrue);
+    expect(tester.widget<EButton>(sendButton).onPressed, isNotNull);
+    await tester.tap(sendButton);
+    await settle(tester);
+    expect(find.text('Report sent'), findsOneWidget);
+  });
+
+  testWidgets('when it cannot send, Send still shows and the reason stands beside it', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 1.2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    final h = _Harness()..url = null;
+    await h.pump(tester, width: 800, height: 700);
+    final sendButton = find.widgetWithText(EButton, 'Send');
+    expect(sendButton, findsOneWidget);
+    expect(tester.widget<EButton>(sendButton).onPressed, isNull);
+    final reason = find.text('Sending is off in this build');
+    expect(reason, findsOneWidget);
+    // Pinned with the buttons, not at the foot of the scrolling body.
+    final body = find.descendant(of: find.byType(EDialog), matching: find.byType(SingleChildScrollView)).last;
+    expect(find.descendant(of: body, matching: reason), findsNothing);
+    final view = Offset.zero & const Size(800, 700);
+    expect(view.contains(tester.getRect(reason).topLeft) && view.contains(tester.getRect(reason).bottomRight), isTrue);
+  });
+
+  testWidgets('a send that never answers ends in Not sent', (tester) async {
+    final h = _Harness()..outlet = _SilentOutlet();
+    await h.pump(tester);
+    await describe(tester, 'The balance looks wrong');
+    // Not settled: the spinner would run the clock past the deadline.
+    await tester.tap(find.widgetWithText(EButton, 'Send'));
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 800)));
+    await tester.pump();
+    expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Send')).busy, isTrue);
+    await tester.pump(feedbackSendDeadline + const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+    expect(find.text('Not sent'), findsOneWidget);
+    expect(find.text('The feedback server did not answer.'), findsOneWidget);
+    expect(tester.widget<EButton>(find.widgetWithText(EButton, 'Send')).busy, isFalse);
+  });
+}
+
+/// An outlet whose post never answers.
+class _SilentOutlet extends FakeFeedbackOutlet {
+  @override
+  Future<String> post(Uri url, SupportReport report) => Completer<String>().future;
 }
 
 /// A memory log that reports files, as the file log does.
