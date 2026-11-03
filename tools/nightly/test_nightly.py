@@ -744,6 +744,35 @@ class LauncherTest(unittest.TestCase):
         self.assertEqual(nightly.runner_info({})["kind"], "direct")
 
 
+class CatchupTest(unittest.TestCase):
+    def test_stale_after_24h_or_never(self):
+        now = nightly.parse_iso("2026-11-04T10:00:00Z")
+        self.assertEqual(nightly.stale_hours({"last_completed": {"ended": "2026-11-03T12:00:00Z"}}, now), (False, 22))
+        self.assertEqual(nightly.stale_hours({"last_completed": {"ended": "2026-11-02T03:40:00Z"}}, now), (True, 54))
+
+    def test_catchup_skips_only_for_a_rel_run(self):
+        noon = dt.datetime(2026, 10, 30, 12, 0)
+        busy = "slot 1: x since 1: y\n"
+        self.assertEqual(nightly.refusal(False, noon, busy, "/nonexistent/*", catchup=False), "daytime")
+        self.assertIsNone(nightly.refusal(False, noon, busy, "/nonexistent/*", catchup=True))
+
+    def test_stale_note_goes_into_the_summary(self):
+        with tempfile.TemporaryDirectory() as d:
+            old = nightly.BASE
+            nightly.BASE = Path(d)
+            try:
+                nightly.stale_note({}, "busy (tools/rel run active: x)", 30)
+                text = (Path(d) / "summary.txt").read_text()
+                self.assertIn("no nightly finished for 30 h", text)
+                self.assertIn("tools/rel run active", text)
+                nightly.stale_note({}, "busy (y)", 31)
+                self.assertEqual((Path(d) / "summary.txt").read_text().count("no nightly finished"), 1)
+                nightly.stale_note({}, "unchanged", 32)
+                self.assertIn("busy (y)", (Path(d) / "summary.txt").read_text())
+            finally:
+                nightly.BASE = old
+
+
 class DriftTest(unittest.TestCase):
     def _run(self, rc, out, lepic_text="  xtask)\n"):
         with tempfile.TemporaryDirectory() as d:

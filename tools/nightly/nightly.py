@@ -9,10 +9,13 @@ which runs THIS file from a fresh worktree at main's sha (~/wfe-worktrees/nightl
 It is not an agent: it runs the full check on main, records the result and reports. It never
 fixes, pushes, starts agents or blocks merges.
 
-  nightly.py                     one attempt, as wfe-nightly.timer runs it (02:30, 03:30, 04:30 and
-                                 05:30 local time). It refuses outside 01:00-06:00 local time
-                                 (`skipped: daytime`), and skips while any build-slot slot is held
-                                 or any tools/rel run is active (`skipped: busy`)
+  nightly.py                     one attempt, as wfe-nightly.timer runs it (every hour at :30). It
+                                 refuses outside 01:00-06:00 local time (`skipped: daytime`), and
+                                 skips while any build-slot slot is held or any tools/rel run is
+                                 active (`skipped: busy`) - unless no run has finished for 24 h
+                                 (catch-up): then it runs at any hour, waits for a build slot
+                                 (CATCHUP_SLOT_WAIT_S) instead of skipping, and a skip for any other
+                                 reason is written into summary.txt ("no nightly finished for Nh")
   python3 ~/.local/lib/wfe-nightly/launch.py --by-hand
                                  the same run started by a person: any time of day, waits for a
                                  build slot, still refuses while a tools/rel run is active
@@ -120,6 +123,8 @@ MAX_ERROR_RUNS = 3  # the first run of a sha and at most two retries after `erro
 CULPRITS_KEPT = 30
 TIMER_SLOT_WAIT_S = 120
 BY_HAND_SLOT_WAIT_S = 12 * 3600
+CATCHUP_AFTER_S = 24 * 3600  # no run finished for this long: any hour, queue for a slot
+CATCHUP_SLOT_WAIT_S = 55 * 60  # shorter than the hourly timer, so tries do not pile up
 NIGHT_HOURS = (1, 6)  # timer runs only from 01:00 to 06:00 local time
 DM_ITEMS, DM_TEST_CHARS, DM_COMMIT_CHARS = 15, 160, 120
 DM_FIELDS = {"kind", "sha", "key", "step", "counts", "duration", "reason", "tests", "commits",
@@ -416,8 +421,36 @@ def slot_status():
         return ""
 
 
-def refusal(by_hand, now_local=None, status_text=None, rel_pattern=None):
-    """Why this attempt must not run now ('daytime', 'busy (...)'), or None."""
+def stale_hours(state, now=None, latest=None):
+    """Hours since the last completed run when that is 24 h or more (or no run is recorded: None
+    means never), else 0 - the catch-up condition. Returns (stale, hours)."""
+    ended = (state.get("last_completed") or {}).get("ended") or (latest or read_json(BASE / "latest.json", {})).get("ended")
+    if not ended:
+        return True, None
+    try:
+        age = ((now or utcnow()) - parse_iso(ended)).total_seconds()
+    except (ValueError, TypeError):
+        return True, None
+    return age >= CATCHUP_AFTER_S, int(age // 3600)
+
+
+def stale_note(state, reason, hours, now=None):
+    """summary.txt with the skip reason appended after the last result, once no run has finished for
+    24 h. Skips for `unchanged` or an existing green record are not a missed night."""
+    if reason.startswith(("unchanged", "already green")):
+        return
+    latest = read_json(BASE / "latest.json", {})
+    base = summary_line(latest) if latest.get("ended") else "no nightly result yet"
+    base = base.split(" | no nightly finished")[0]
+    age = f"{hours} h" if hours is not None else "ever"
+    write_atomic(BASE / "summary.txt",
+                 f"{base} | no nightly finished for {age}; skipped {iso(now or utcnow())[:16]}Z: {_clip(reason, 200)}\n")
+
+
+def refusal(by_hand, now_local=None, status_text=None, rel_pattern=None, catchup=False):
+    """Why this attempt must not run now ('daytime', 'busy (...)'), or None. In catch-up only a
+    tools/rel run refuses; a held build slot is waited for by build-slot, not a reason to skip."""
+    by_hand = by_hand or catchup
     if not by_hand:
         hour = (now_local or dt.datetime.now()).hour
         if not NIGHT_HOURS[0] <= hour < NIGHT_HOURS[1]:
@@ -1100,7 +1133,7 @@ def run_logged(cmd, log, env, cwd, timeout=None, slot_wait=False):
     return rc, tail
 
 
-def check_env(run_dir, by_hand):
+def check_env(run_dir, by_hand, catchup=False):
     env = dict(os.environ)
     for k in ("WAYLAND_DISPLAY", "DISPLAY", "CARGO_TARGET_DIR", "BUILD_SLOT"):
         env.pop(k, None)
@@ -1111,7 +1144,7 @@ def check_env(run_dir, by_hand):
                             "/usr/local/bin", "/usr/bin", "/bin"])
     env["TMPDIR"] = str(scratch)
     env["TMPDIR"] = env["TMP"] = env["TEMP"] = str(tmp)
-    env["BUILD_SLOT_WAIT"] = str(BY_HAND_SLOT_WAIT_S if by_hand else TIMER_SLOT_WAIT_S)
+    env["BUILD_SLOT_WAIT"] = str(BY_HAND_SLOT_WAIT_S if by_hand else CATCHUP_SLOT_WAIT_S if catchup else TIMER_SLOT_WAIT_S)
     env["XDG_DATA_HOME"] = str(run_dir / "xdg-data")
     return env
 
@@ -1200,14 +1233,22 @@ def cmd_run(by_hand, pinned_sha=None):
     except (RuntimeError, subprocess.SubprocessError) as e:
         return broken_run(kind, state, None, f"cannot read main: {e}")
 
-    why = refusal(by_hand)
+    stale, hours = stale_hours(state)
+    catchup = stale and not by_hand
+    why = refusal(by_hand, catchup=catchup)
     if why:
         attempt(kind, sha, f"skipped: {why}")
+        if stale:
+            stale_note(state, why, hours)
         return 0
     verdict, reason = decide(state, sha)
     if verdict == "skip":
         attempt(kind, sha, f"skipped: {reason}")
+        if stale:
+            stale_note(state, reason, hours)
         return 0
+    if catchup:
+        attempt(kind, sha, f"catch-up: no run finished for {hours if hours is not None else 'a long time'} h")
 
     started = utcnow()
     stamp = started.strftime("%Y%m%dT%H%M")
@@ -1216,7 +1257,7 @@ def cmd_run(by_hand, pinned_sha=None):
         shutil.rmtree(run_dir)  # a skipped attempt in the same minute
     run_dir.mkdir(parents=True)
     log_path = run_dir / "check.log"
-    env = check_env(run_dir, by_hand)
+    env = check_env(run_dir, by_hand, catchup)
     env["NIGHTLY_XDG"] = env["XDG_DATA_HOME"]
     error = None
     refused = None
@@ -1227,7 +1268,7 @@ def cmd_run(by_hand, pinned_sha=None):
         log.write(f"{started.strftime('%H:%M:%S')} nightly {kind} run of main {sha}\n")
         try:
             prepare_worktree(sha, log, env)
-            why = refusal(by_hand)
+            why = refusal(by_hand, catchup=catchup)
             if why:
                 raise Refused(why)
             argv, command = check_command(run_dir)
@@ -1245,10 +1286,12 @@ def cmd_run(by_hand, pinned_sha=None):
         if by_hand:
             error = "no build slot came while waiting"
         else:
-            refused = f"busy (no build slot within {TIMER_SLOT_WAIT_S}s)"
+            refused = f"busy (no build slot within {CATCHUP_SLOT_WAIT_S if catchup else TIMER_SLOT_WAIT_S}s)"
     if refused:
         shutil.rmtree(run_dir, ignore_errors=True)
         attempt(kind, sha, f"skipped: {refused}")
+        if stale:
+            stale_note(state, refused, hours)
         return 0
 
     with open(log_path, encoding="utf-8") as f:
