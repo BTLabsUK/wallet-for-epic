@@ -21,6 +21,8 @@ WARN (shown in the gate message, never holds anything):
   empty     an empty-state or error text on a screen that did not show it in the published release
   l10n      keys shown on screens that a translation lacks or leaves in English
   real      real-build screens a trust driver could not take; OCR finds on them (raw keys, debug)
+  key       a key screen (KEY_SCREENS: unlock, wallet, send review; phone and desktop, dark and light)
+            whose pixels changed: the release's pixel goldens, with its before | after | diff image
 INFO: the visual diff (changed / new / unchanged screens) with before | after | diff images.
 
 Writes <stage>/summary.json, <stage>/summary.txt (the gate's lines), <stage>/report/index.html
@@ -48,6 +50,9 @@ DROP_LIMIT = 0.10          # a platform losing more than this share of its scree
 DIFF_PIXELS = 0.001        # a screen whose pixels differ by more than this share counts as changed
 MAX_DIFF_IMAGES = 400      # before | after | diff composites in the report
 LIST_MAX = 12              # findings listed per kind in summary.txt
+# The screens a layout or theme regression must never slip past; each also counts with "-light".
+KEY_SCREENS = ("desktop/unlock/main", "desktop/overview/main", "desktop/send/review",
+               "phone/onboarding/pin-unlock", "phone/home/main", "phone/send/review")
 
 SOFT_AREAS = {"dev", "experimental"}
 HOST = re.compile(r"(?:https?|wss?)://\S+|\b[a-z2-7]{16,56}\.onion\b|\b\d{1,3}(?:\.\d{1,3}){3}(?::\d+)?\b"
@@ -120,6 +125,18 @@ def norm_text(texts, versions):
                 t = t.replace(v, "<version>")
         out.append(re.sub(r"\b[0-9a-f]{9,12}\b", "<commit>", t))
     return out
+
+
+def is_key(code):
+    return code.removesuffix("-light") in KEY_SCREENS
+
+
+def key_changes(changed):
+    """The warnings for key screens among the visual diff's changed ones."""
+    return [{"kind": "key", "code": d["code"], "img": d.get("img"),
+             "text": f"{d['code']}: " + ("not comparable" if d["pixels"] is None else f"{d['pixels'] * 100:.1f}% of pixels")
+                     + (", text too" if d["text"] else "")}
+            for d in changed if is_key(d["code"])]
 
 
 def tour_failures(logdir):
@@ -399,7 +416,13 @@ def main(argv):
                 pass
 
         with ThreadPoolExecutor(max_workers=min(8, os.cpu_count() or 2)) as pool:
+            # Key screens first, so they always get their image.
+            diff["changed"].sort(key=lambda d: not is_key(d["code"]))
             list(pool.map(comp, enumerate(diff["changed"][:MAX_DIFF_IMAGES])))
+        warns.extend(key_changes(diff["changed"]))
+    if cur:
+        warns.extend({"kind": "key", "code": None, "text": f"{k}: not in the catalogue (update KEY_SCREENS)"}
+                     for k in KEY_SCREENS if k not in cur)
     info["diff"] = {"changed": len(diff["changed"]), "new": len(diff["new"]), "unchanged": diff["unchanged"],
                     "text_changed": diff["text_changed"], "gone": sum(1 for w in warns if w["kind"] == "gone" and w["code"])}
 
@@ -407,7 +430,7 @@ def main(argv):
     seen = {}
     for f in fails + warns:
         c = f.get("code")
-        if c and c in cur and seen.get(f["kind"], 0) < 30:
+        if c and c in cur and not f.get("img") and seen.get(f["kind"], 0) < 30:
             seen[f["kind"]] = seen.get(f["kind"], 0) + 1
             out = rep / "img" / ("shot-" + c.replace("/", "_") + ".jpg")
             if not out.exists():
