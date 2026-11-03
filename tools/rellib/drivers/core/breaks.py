@@ -157,9 +157,9 @@ class Broken:
 
     def tree(self):
         t = self._s.tree()
-        folds = [i for i in _arg("fold:") if folded(i) and self._holds(i, t)]
-        if folds:
-            t = [n for n in t if n.id not in folds]
+        gone = [n for i in _arg("fold:") if folded(i) for n in self._holds(i, t)]
+        if gone:
+            t = [n for n in t if not any(n is g for g in gone)]
             t.append(Node(i=len(t) + 900, role="button", name=FOLD_BUTTON, states=frozenset({"enabled", "showing"}),
                           actions=("press",), ref="break-fold"))
         if self.hide_rows is not None:
@@ -171,16 +171,18 @@ class Broken:
 
     @staticmethod
     def _holds(target_id, tree):
-        """The folded control is on this page: by its id, else by the recipe target's label."""
-        if any(n.id == target_id for n in tree):
-            return True
+        """The folded control's nodes on this page: by its id, else by the recipe target's label (a
+        Windows UIA tree has no trust ids)."""
+        by_id = [n for n in tree if n.id == target_id]
+        if by_id:
+            return by_id
         from . import targets as tg
         t = _target(target_id)
         if t is None:
-            return False
+            return []
         _peek.append(1)
         try:
-            return bool(tg.find(t, tree))
+            return list(tg.find(t, tree))
         finally:
             _peek.pop()
 
