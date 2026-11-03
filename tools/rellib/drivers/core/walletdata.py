@@ -129,7 +129,16 @@ class DirFiles:
         self._store = store_fn
         self.store_note = store_note
 
+    @staticmethod
+    def check_rel(rel):
+        """A relative path that stays below the data root (no absolute path, no ..); for the remote readers."""
+        parts = str(rel).replace("\\", "/").split("/")
+        if str(rel).startswith(("/", "\\")) or ".." in parts:
+            raise ReadError("%r is outside the data folder" % rel)
+        return rel
+
     def _path(self, rel):
+        self.check_rel(rel)
         p = os.path.normpath(os.path.join(self.root, rel))
         if p != self.root and not p.startswith(self.root + os.sep):
             raise ReadError("%r is outside the data folder" % rel)
@@ -695,6 +704,9 @@ def read(files, secrets, *, migrate=False, cli=None, tip=None, nodes=(), log=pri
                     len(rd["outputs"]), d["tip"], conf)
                 d["fingerprint"] = rd["settings"].get("wallet.fingerprint")
     d["settings"] = settings_of(store, entry, conf, unread, conf_why)
+    if not store:
+        for k in ("theme", "technical_details"):
+            unread[k] = note
     book, _ = address_book(files)
     d["address_book"] = book
     d["notes"] = notes_of(files, sdir)
