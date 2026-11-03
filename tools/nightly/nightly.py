@@ -56,7 +56,9 @@ A run:
      sends ONE DM (key nightly-<sha8>-trust) naming the failing checks. NIGHTLY_TRUST=0 turns the
      pass off, NIGHTLY_TRUST_PLATFORMS=linux,android limits it, NIGHTLY_TRUST_CHECKS overrides
      REL_CHECKS (default: the driver's eight);
-  7d. after a proved Linux trust pass, one BREAK lane on the same pair: REL_FUNDS=0 (no coins move),
+  7d. after a proved Linux trust pass, one BREAK lane on the same pair, only with drivers that restore
+     the lane's permanent seed (P's payment before the update stays in that wallet when the break
+     fails; without lane seeds it is skipped): REL_FUNDS=0 (no candidate legs),
      REL_TRUST_SAVE_STATE=0, REL_TRUST_BREAK = one break of the night (day number modulo the list:
      hide:<id> for each reachable desktop control of drivers/trust_ids.json, plus one dialog:<id>).
      Scored from <run>/breaks-linux/proof.json and result.txt into <run>/breaks.json, latest.json
@@ -904,6 +906,11 @@ def run_breaks(run_dir, env_base, trust_steps, worktree=None, rel_root=None, run
     env_extra, why = trust_inputs("linux", prev, cand)
     if env_extra is None or not driver.is_file():
         step["reason"] = why or f"no driver {driver}"
+        return step
+    if not (drivers_dir(worktree) / "core" / "lane_seed.py").is_file():
+        # P pays every lane before the update, REL_FUNDS=0 or not, and a break is meant to fail: only a
+        # lane on its permanent seed keeps those coins when it does; a throwaway wallet loses them.
+        step["reason"] = "the drivers have no lane seeds: a failed break would strand P's payment"
         return step
     breaks = break_list(worktree)
     brk = break_for((today or dt.date.today()).toordinal(), breaks)

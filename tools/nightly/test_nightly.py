@@ -407,6 +407,7 @@ class BreakLaneTest(unittest.TestCase):
         (self.drivers / "core" / "surface.py").write_text(
             'COMPATIBLE = {"toggle": {"toggle", "checkbox", "button"}, "tab": {"tab", "button"}}\n')
         (self.drivers / "core" / "desktop.py").write_text('x = 1\nTECH = T("g4.advanced.technical")\n')
+        (self.drivers / "core" / "lane_seed.py").write_text("")
         self.pub = [{"version": v, "run": str(self.root / "rel" / v / "run-1"), "kind": "release"}
                     for v in ("26.10.24", "26.10.25")]
         (self.root / "rel" / "published.json").write_text(json.dumps(self.pub))
@@ -458,7 +459,15 @@ class BreakLaneTest(unittest.TestCase):
         finally:
             os.environ.pop("NIGHTLY_BREAKS") if old is None else os.environ.__setitem__("NIGHTLY_BREAKS", old)
 
-    def test_env_never_moves_coins_and_names_the_break(self):
+    def test_skipped_without_lane_seeds(self):
+        """P pays every lane before the update; a throwaway wallet would lose it when the break fails."""
+        (self.drivers / "core" / "lane_seed.py").unlink()
+        seen = []
+        step = self.lane(0, seen=seen)
+        self.assertEqual((step["status"], seen), ("skipped", []))
+        self.assertIn("lane seeds", step["reason"])
+
+    def test_env_has_no_candidate_legs_and_names_the_break(self):
         seen = []
         self.lane(0, {"checks": {}, "recovered": []}, "PASS", seen=seen)
         e = seen[0]
