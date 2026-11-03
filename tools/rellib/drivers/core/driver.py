@@ -71,6 +71,7 @@ class Driver:
         self.shots = 0
         self.step = "start"
         self.trail = []       # the last steps, for the failure line
+        self.by_label = set() # target ids this build matched by label only: it gives them no id
 
     # ---- reading
 
@@ -220,6 +221,7 @@ class Driver:
         """The node for `target`: by id/label within `timeout`, else the model's pick; HarnessFault when none."""
         n = self.wait(shows(target), timeout)
         if n:
+            self._note_label(target, n)
             return n
         for _ in range(2):
             tree = self.tree()
@@ -234,6 +236,18 @@ class Driver:
             if n:
                 return n
         self.harness("%s not on screen (looked for %s %s)" % (target, target.role, self.texts(target) or "no text"))
+
+    def _note_label(self, target, node):
+        """A target found by its label: once per lane into by-label.txt, so a build whose ids do not
+        reach the platform (a release from before the ids) shows which controls still hang on text."""
+        if node.id or not target.id or target.id in self.by_label:
+            return
+        self.by_label.add(target.id)
+        try:
+            with open(os.path.join(self.out, "by-label.txt"), "a", encoding="utf-8") as f:
+                f.write("%s %s %r\n" % (target.id, node.role, node.name.split("\n")[0][:80]))
+        except OSError:
+            pass
 
     def press(self, target, *, step, then=None, timeout=20, goal=None):
         """Press `target` and wait for `then` (an Expect; default: the screen changed or the target went)."""

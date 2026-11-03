@@ -91,6 +91,16 @@ class CoreTest(unittest.TestCase):
         self.driver(f2, dict(ARB, deskOnbUnlockButton="Open wallet")).press(UNLOCK, step="unlock", then=shows(HOME), timeout=1)
         self.assertEqual(f2.pressed, ["Open wallet"])
 
+    def test_label_only_matches_listed_once(self):
+        f = Fake({"lock": [n(0, "button", "Unlock")], "home": [n(0, "text", "Available to spend")]},
+                 "lock", {("lock", "Unlock"): "home"})
+        d = self.driver(f)
+        d.locate(UNLOCK)
+        d.locate(UNLOCK)
+        d.press(UNLOCK, step="unlock", then=shows(HOME), timeout=1)
+        with open(os.path.join(self.out, "by-label.txt")) as fh:
+            self.assertEqual(fh.read(), "g4.unlock.submit button 'Unlock'\n")
+
     def test_id_wins_over_label(self):
         f = Fake({"lock": [n(0, "button", "Unlock"), n(1, "button", "Something else", id="g4.unlock.submit")],
                   "home": [n(0, "text", "Available to spend")]}, "lock", {("lock", "Something else"): "home"})
