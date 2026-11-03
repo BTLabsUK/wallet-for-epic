@@ -36,10 +36,15 @@ re-run (each starts by finding where the app is). A ProductFault or a false chec
 
 Faults: every failure ends in a cause class (PRODUCT, INFRA or HARNESS-ui), written into proof.json's
 fault next to its kind, and leaves a bundle in REL_OUT/bundles/<n>-<step>/: step.txt (step, cause
-class, what, the recoveries tried), screen.txt (the tree read then: no password's value, never a
-phrase screen), log-tail.txt (the last 200 lines of trust.log) and shot.png (never of a secret
-screen). Each phase sends step.start and step.end events, a fault failure and bundle events
+class, what, the recoveries tried), screen.txt (the tree read then, a password's value with it; a
+phrase screen's words are not written), log-tail.txt (the last 200 lines of trust.log) and shot.png.
+Each phase sends step.start and step.end events, a fault failure and bundle events
 (core/record.py; a no-op without the test DB).
+
+Test wallets (the owner, 2026-11-03): the lane's wallet goes to the local test DB with its phrase and
+password (wallet.put, where it is created or restored), its address (wallet.address) and each digest's
+balance and transactions (wallet.snapshot). The bundle's shot is taken on any screen, a phrase's too:
+they are test wallets and the bundle stays under REL_OUT. trust.log and proof.json stay clean.
 
 Resume (REL_TRUST_RESUME=1): the previous attempt's proof (proof.before-attempt-N.json, the newest, or
 proof.json) names the phases done and the one that failed. When it failed after the previous release
@@ -48,6 +53,11 @@ was installed and its wallet made (RESUMABLE) and the platform can take its stat
 the previous release on that state and starts at the failed phase; the checks that passed are kept.
 Else it starts fresh and logs why. The secrets the resumed lane needs wait in a 0600 file in the
 platform's resume_dir() (outside REL_OUT), read once.
+
+Stop (REL_TRUST_UNTIL=<phase>, --test runs only): the lane runs up to and including that phase and
+ends there, before the next: no payment to P, no update. "STOP after <phase> (REL_TRUST_UNTIL)" in the
+log, proof.json with what ran (until, phases), exit 0 when no fault came up; a fault keeps its cause.
+The break-test runs use it so they move no coins (fund pays P back even with REL_FUNDS=0).
 
 Exit: 0 every required check true, 1 a check false or a product fault, 2 could not run.
 """
@@ -63,11 +73,35 @@ from . import hermetic
 from . import lane_seed as ls
 from . import record
 from . import state as st
-from .recover import Recover, phrase_screen, secret_screen
+from .recover import Recover, phrase_screen
 from .faults import Fault, HarnessFault, HarnessGone, InfraFault, ProductFault
 
 # The phases a lane can be resumed at: the previous release installed, its wallet made and open.
 RESUMABLE = ("previous-setup", "settings-ui-before", "address", "fund")
+# The phases REL_TRUST_UNTIL may name (a typo would run the whole lane, payment and all).
+PHASES = ("prepare", "install", "restore", "previous", "restore-ok", "previous-open", "previous-setup",
+          "settings-ui-before", "address", "fund", "digest-before", "stop-previous", "seed", "snapshot", "update",
+          "candidate", "settings-ui-after", "digest-after", "live-servers", "funds", "save-state", "home")
+
+
+class UntilRefused(RuntimeError):
+    pass
+
+
+def until_phase():
+    """REL_TRUST_UNTIL's phase or None; UntilRefused in a release run or for a phase the lane has not."""
+    until = (os.environ.get("REL_TRUST_UNTIL") or "").strip()
+    if not until:
+        return None
+    if os.environ.get("REL_RUN_KIND") == "release":
+        raise UntilRefused("REL_TRUST_UNTIL is set in a release run: a lane stopped early runs in --test runs only")
+    if until not in PHASES:
+        raise UntilRefused("REL_TRUST_UNTIL: unknown phase %s (known: %s)" % (until, " ".join(PHASES)))
+    return until
+
+
+class _Stop(Exception):
+    """The lane ends cleanly after REL_TRUST_UNTIL's phase."""
 LOG_TAIL = 200
 
 
@@ -113,6 +147,8 @@ class Lane:
         """recipe_for(lane, which, surface) -> the family's recipe on a Driver over that surface, with the
         build's strings (core.labels) and the lane's one Recover (lane.rec)."""
         breaks.refuse_in_release()
+        self.until = until_phase()
+        self.stopped = None
         self.p, self.recipe_for, self.checks_mod = platform, recipe_for, checks
         self.out, self.log, self.required, self.funds, self.funder = out, log, required, funds, p
         self.results, self.details = {}, {}
@@ -162,6 +198,8 @@ class Lane:
             if getattr(self.fault, "sub", None):
                 p["fault"]["sub"] = self.fault.sub
         p["phases"] = {"done": list(self.done), "failed": self.phase if self.fault else None}
+        if self.until:
+            p["until"] = {"phase": self.until, "stopped": bool(self.stopped)}
         if self.fault and self.mode != "create":
             p["resume"] = self._resume_point()
         p.update(extra or {})
@@ -183,6 +221,10 @@ class Lane:
             raise
         record.emit("step.end", step=name, state="recovered" if name in self.retried else "ok")
         self.done.append(name)
+        if name == self.until:
+            self.stopped = name
+            self.log("STOP after %s (REL_TRUST_UNTIL)" % name)
+            raise _Stop(name)
         return r
 
     def skip_phase(self, name, why):
@@ -226,6 +268,8 @@ class Lane:
         code = 2
         try:
             code = body()
+        except _Stop:
+            code = 0
         except Fault as f:
             if isinstance(f, InfraFault) and f.step == "wallet-read":  # the LEPIC CLI's: the phase that read
                 f.step = self.phase or f.step
@@ -247,7 +291,7 @@ class Lane:
             self._non_local()
         except Exception as e:  # noqa: BLE001 — evidence, never the result
             self.log("non_local not recorded: %s" % e)
-        if code == 0 and not all(self.results.get(c) for c in self.required):
+        if code == 0 and not self.stopped and not all(self.results.get(c) for c in self.required):
             code = 1
         missing = [c for c in self.required if c not in self.results]
         if code == 1 and not self.fault and missing:  # a check that never ran says nothing about the app
@@ -271,7 +315,8 @@ class Lane:
     def _result(self, code):
         """proof.json and result.txt for [code]."""
         proof = self.proof()
-        line = self.fault.line() if self.fault else (
+        line = self.fault.line() if self.fault else ("STOP %s %s after %s (REL_TRUST_UNTIL): no fault" % (
+            self.p.name, self.p.variant, self.stopped) if self.stopped and code == 0 else None) or (
             "PASS %s %s %s%s" % (self.p.name, self.p.variant, "create %s" % proof["candidate"] if self.mode == "create"
                                  else "%s → %s" % (proof["previous"], proof["candidate"]),
                                  " (recovered: %s)" % ", ".join(r["step"] for r in self.rec.used) if self.rec.used else "")
@@ -283,6 +328,7 @@ class Lane:
         return code
 
     def _main(self):
+        self._watch_digests()
         plan = self._resume_plan()
         self.run_phase("prepare", self.p.prepare)
         self._hermetic()
@@ -298,6 +344,7 @@ class Lane:
                 self.run_phase("previous-setup", self._setup)
             elif saved:
                 self.secrets = saved.secrets()
+                self._wallet_put("the lane's saved state")
                 self.run_phase("restore", lambda: self.p.restore_state(saved.payload))
                 self.run_phase("previous", lambda: self._open("previous"))
             else:
@@ -308,6 +355,8 @@ class Lane:
         if ui_read and not self._resumed_past("settings-ui-before"):
             self.run_phase("settings-ui-before", lambda: self._ui_confirmations("before"))
         address = self.run_phase("address", lambda: self.ui.address())
+        if address:
+            record.emit("wallet.address", name=self._wallet()[0], role=self._wallet()[1], kind="epicbox", address=address)
         self.details["address"] = address[:8] + "…" + address[-6:] if address else None
         self.run_phase("fund", lambda: self.checks_mod.fund_before(self, address))
         before = self.run_phase("digest-before", lambda: self.p.digest("previous", self.secrets))
@@ -421,6 +470,7 @@ class Lane:
         self.rec.build = os.environ.get("REL_PREVIOUS_VERSION", "previous")
         self.ui = self.recipe_for(self, "previous", surface)
         self.secrets.update(self.ui.create_wallet())
+        self._wallet_put("created by the lane on the previous release")
 
     def _setup(self):
         self.ui.set_servers(self.p.node, self.p.custom_node, self.p.relay, self.p.custom_relay)
@@ -460,6 +510,44 @@ class Lane:
         self.p.digest = digest
         self.log("start mode: seed (lane seed %s, born %s)" % (seed.lane, seed.birth()))
 
+    # ---- test wallets in the test DB
+
+    def _wallet(self):
+        """(name, role) of the lane's wallet in the test DB."""
+        lane = ls.lane_name(self.p.name, self.p.variant)
+        if self.seed:
+            return self.seed.lane, "seed"
+        if self.mode == "create":
+            return "%s-%s-create" % (lane, ls.run_id()), "create"
+        if self.mode == "state":
+            return "%s-state" % lane, "lane"
+        return "%s-%s-sandbox" % (lane, ls.run_id()), "sandbox"
+
+    def _wallet_put(self, origin, phrase=None):
+        name, role = self._wallet()
+        record.emit("wallet.put", name=name, role=role, platform=self.p.name, lane=ls.lane_name(self.p.name, self.p.variant),
+                    phrase=phrase or self.secrets.get("phrase") or "", password=self.secrets.get("password") or "",
+                    origin=origin)
+
+    def _watch_digests(self):
+        """Each digest of the lane's wallet into the test DB as a wallet.snapshot."""
+        read = self.p.digest
+
+        def digest(tag, secrets):
+            d = read(tag, secrets)
+            try:
+                b = (d or {}).get("balance") or {}
+                if b:
+                    name, role = self._wallet()
+                    record.emit("wallet.snapshot", name=name, role=role, origin="digest %s (%s)" % (tag, self.phase),
+                                spendable=ls.epic(b.get("spendable")), total=ls.epic(b.get("total")),
+                                unconfirmed=ls.epic(b.get("unconfirmed")), locked=ls.epic(b.get("locked")),
+                                txs=json.dumps(d.get("txs") or [], default=str))
+            except Exception as e:  # noqa: BLE001 — evidence only
+                self.log("wallet snapshot not sent: %s" % e)
+            return d
+        self.p.digest = digest
+
     # ---- faults: the bundle
 
     def _faulted(self):
@@ -487,8 +575,6 @@ class Lane:
         drv = getattr(self.ui, "d", None)
         if drv is None:
             why = "no app screen (no recipe running)"
-        elif drv.hushed:
-            why = "a secret was being typed: not read"
         else:
             try:
                 tree = drv.s.tree()
@@ -499,7 +585,8 @@ class Lane:
             if tree is not None and phrase_screen(tree):
                 fh.write("(a recovery phrase screen: not kept)\n")
             elif tree is not None:
-                fh.write("\n".join(n.brief() for n in tree) + "\n")
+                fh.write("\n".join(n.brief() + (" value=%r" % n.value if "password" in n.states and n.value else "")
+                                    for n in tree) + "\n")
             else:
                 fh.write("(%s)\n" % why)
         tail = os.path.join(d, "log-tail.txt")
@@ -511,7 +598,7 @@ class Lane:
         with open(tail, "w", encoding="utf-8") as fh:
             fh.writelines(lines)
         shot = None
-        if tree is not None and not secret_screen(tree):
+        if tree is not None:
             p = os.path.join(d, "shot.png")
             try:
                 shot = p if drv.s.screenshot(p) else None
@@ -666,6 +753,7 @@ class Lane:
         got = self.ui.restore_wallet(self.seed.phrase(), birth) or {}
         self.secrets.update({k: got[k] for k in ("pin", "password") if got.get(k)})
         self.secrets["phrase"] = self.seed.phrase()
+        self._wallet_put("the lane seed restored on the previous release")
 
     def _restore_ok(self):
         """The restored wallet's spendable reaches the one the lane seed has on record (the scan may still
@@ -792,6 +880,7 @@ class Lane:
         if hasattr(self.ui, "phrase"):
             self.ui.phrase = None
         self.secrets.update({k: got[k] for k in ("pin", "password") if got.get(k)})
+        self._wallet_put("created on the candidate with no app data", phrase=phrase)
         if not phrase:
             return False, "none read off the screen"
         self.needles = ls.Needles([phrase])

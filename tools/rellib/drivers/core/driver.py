@@ -251,6 +251,11 @@ class Driver:
             tree = self.tree()
             n = self.rec.advance(goal or str(expect), tree, step=self.step)
             if n is None:
+                # the loop may have scrolled or expanded its way there and answered "done"
+                r = expect.test(self, self.tree())
+                if r:
+                    self._reached()
+                    return r
                 break
             self.s.press(n)
             self.tried.append("model advance: %s" % n.brief())
@@ -417,6 +422,9 @@ class Driver:
                 return n
             past = self.rec.advance("the screen with %s" % target, tree, step=self.step)  # a dialog in the way
             if past is None:
+                n = next(iter(self.find_in(target, self.tree())), None)  # the loop may have got there itself
+                if n:
+                    return n
                 break
             self.tried.append("model advance: %s" % past.brief())
             self._act(self.s.press, past)
