@@ -103,6 +103,15 @@ infra_retries = 1
 [sign]
 when = "on-demand"
 
+# Per-lane health of the G4 trust lanes (tools/rellib/health.py; docs/RELEASING.md, "Lane health"),
+# read from metrics.jsonl over the last `runs` runs. A lane whose first try passed in less than
+# min_first_try of its runs (with at least min_runs runs) is weak: summary.md, report.html, the gate
+# message and `tools/rel stats --lanes` show it. A weak lane still gates; nothing is quarantined.
+[health]
+runs = 10
+min_first_try = 0.8
+min_runs = 3
+
 # G4: what "proven" means for a platform. DEFAULT PENDING the owner'S CALL: the previous release
 # with a funded wallet, history, custom nodes and relays and changed settings updates the way
 # users update to the candidate and keeps all of it; then one send and one receive on BT Labs
