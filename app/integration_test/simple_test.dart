@@ -146,14 +146,19 @@ void main() {
     expect(await lepic.walletExists(config: config), isFalse);
   });
 
-  testWidgets('platform secure storage round-trips', (tester) async {
-    const store = PlatformSecretStore();
-    const key = 'integration-test.probe';
-    await store.write(key, 'value');
-    expect(await store.read(key), 'value');
-    await store.delete(key);
-    expect(await store.read(key), isNull);
-  });
+  // tools/build-apple.sh sets WFE_TEST_NO_KEYCHAIN: on macOS this store is the login keychain.
+  testWidgets(
+    'platform secure storage round-trips',
+    skip: const bool.fromEnvironment('WFE_TEST_NO_KEYCHAIN'),
+    (tester) async {
+      const store = PlatformSecretStore();
+      const key = 'integration-test.probe';
+      await store.write(key, 'value');
+      expect(await store.read(key), 'value');
+      await store.delete(key);
+      expect(await store.read(key), isNull);
+    },
+  );
 
   testWidgets('first run through the real core: PIN, then home', (
     tester,

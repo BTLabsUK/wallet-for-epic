@@ -176,17 +176,17 @@ Checks, on the builder's Mac, before the first `.dmg` is published:
 1. **Update test with a funded wallet.** Install the last ad-hoc preview (the last 26.10.x macOS
    `.dmg` on our download page), open a wallet that holds coins, note the balance, quit. Install
    the signed `.dmg` over it (the in-app update if the preview offers it, else drag to
-   Applications). Expected: the wallets in `~/.epic_cash_desktop` are all there. The first unlock
-   shows **one** keychain prompt ("BT Wallet wants to use … in your keychain"), because
-   the preview's items trust only the old ad-hoc build. Enter the login password and choose
-   **Always Allow**. Balance and history match; a small send and a receive work. Quit and start
+   Applications). Expected: the wallets in `~/.epic_cash_desktop` are all there. The first start
+   shows one keychain prompt per stored item ("BT Wallet wants to use … in your keychain"; a
+   tester with several wallets saw 19), because the preview's items trust only the old ad-hoc
+   build. Enter the login password and choose **Always Allow** at each. Balance and history match; a small send and a receive work. Quit and start
    again: **no** prompt. Build and sign the same commit a second time and install it over: still
    no prompt (every later update looks like this). Deny the prompt once as a test: nothing is
    lost, it asks again on the next unlock.
 2. Apple's notarisation logs beside the `.dmg` (`*.notary-log.json`) have no warnings.
 3. iOS: the TestFlight build passes step 5 above on a real iPhone.
 4. Record in the release notes: Team ID, the Developer ID certificate's serial number and expiry,
-   the REPORT. Tell preview testers about the one-time keychain prompt.
+   the REPORT. Tell preview testers about the one-time keychain prompts, one per stored item.
 5. The dev team freezes the Apple items in `tools/install-contract.json` (`macos.bundle_id`,
    `ios.bundle_id`, `ios.macos.keychain` from not frozen to frozen, with the Team ID); from then
    on `tools/check.sh` guards them like the other platforms' ids.

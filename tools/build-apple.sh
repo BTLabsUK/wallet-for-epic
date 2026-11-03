@@ -35,7 +35,8 @@
 #   ipa       flutter build ios --release --no-codesign, zipped as an unsigned .ipa (a device
 #             install needs it signed with a team first)
 #   smoke     integration_test/simple_test.dart (PIN vault through LEPIC, secure storage, first
-#             run) on macOS and on the Simulator, and a start of the built .app
+#             run) on macOS and on the Simulator, and a start of the built .app; neither touches
+#             the login keychain (no secure storage probe on macOS, the .app with its own HOME)
 #   live      integration_test/apple_live_test.dart on macOS and on the Simulator, on mainnet: a
 #             new wallet on node.btlabs.uk (then node.epicnet.us, node.epiccash.com), its scan to
 #             the tip, a restore from its phrase, the Epicbox listener connected (needs internet)
@@ -494,7 +495,7 @@ smoke() {
   test_native
   mkdir -p "$out"
   local status=0 udid
-  if (cd "$app" && flutter test integration_test/simple_test.dart -d macos) > "$out/smoke-macos.log" 2>&1; then
+  if (cd "$app" && flutter test integration_test/simple_test.dart -d macos --dart-define=WFE_TEST_NO_KEYCHAIN=true) > "$out/smoke-macos.log" 2>&1; then
     result PASS smoke-macos simple_test
   else
     result FAIL smoke-macos "simple_test, see smoke-macos.log"; status=1
@@ -510,14 +511,21 @@ smoke() {
   # The release .app starts and stays up; a screenshot when the session allows it.
   local bundle="$out/$desktop_name.app"
   if [ -d "$bundle" ]; then
-    open -n "$bundle"
+    # Started with a home of its own: no keychain in its search list, so the ad-hoc build (a
+    # new identity each build) never asks for the login keychain, and its data folder is there.
+    local home="$out/smoke-home" pid
+    rm -rf "$home"
+    mkdir -p "$home"
+    HOME="$home" CFFIXED_USER_HOME="$home" "$bundle/Contents/MacOS/$desktop_exe" > "$out/smoke-macos-app.log" 2>&1 &
+    pid=$!
     sleep 20
-    if pgrep -f "$desktop_name.app/Contents/MacOS/$desktop_exe" >/dev/null; then
+    if kill -0 "$pid" 2>/dev/null; then
       screencapture -x "$out/macos.png" 2>/dev/null || echo "no screenshot (Screen Recording permission)"
-      osascript -e "quit app \"$desktop_name\"" 2>/dev/null || pkill -f "$desktop_name.app/Contents/MacOS/$desktop_exe" || true
+      kill "$pid" 2>/dev/null || true
+      wait "$pid" 2>/dev/null || true
       result PASS smoke-macos-app "started and stayed up 20 s"
     else
-      result FAIL smoke-macos-app "not running 20 s after open"; status=1
+      result FAIL smoke-macos-app "not running 20 s after start, see smoke-macos-app.log"; status=1
     fi
   fi
   # Tor from the release .app: on its own, then started through LEPIC in the app's code.
@@ -990,7 +998,7 @@ while [ $# -gt 0 ]; do
     handoff) handoff ;;
     dmg-signed) [ $# -gt 0 ] || die "dmg-signed needs the signed .app tar.gz"; dmg_signed "$1"; shift ;;
     gatekeeper) [ $# -gt 0 ] || die "gatekeeper needs the final .dmg"; gatekeeper "$1"; shift ;;
-    *) step=""; sed -n '2,97p' "$0" >&2; exit 2 ;;
+    *) step=""; sed -n '2,98p' "$0" >&2; exit 2 ;;
   esac
 done
 echo "results: $results"
