@@ -28,7 +28,8 @@
 #             variant was built before), so after `all` either variant's tests run with no rebuild:
 #             tools/build-apple.sh smoke live; WFE_TOR=0 tools/build-apple.sh smoke live
 #   macos     flutter build macos --release (arm64); the node and tor go into the bundle, then it
-#             is signed ad hoc
+#             is signed ad hoc. The node is the pinned release, fetched, unless WFE_NODE_BIN_MAC_ARM64
+#             gives one
 #   dmg       the .app in a compressed .dmg with an Applications link
 #   ios-sim   flutter build ios --simulator --debug; installed and started on a Simulator, with
 #             a screenshot; the .app zipped
@@ -78,9 +79,10 @@
 #   LEPIC_REPO, LEPIC_FLUTTER_REPO   where `sources` clones from (a git URL or path)
 #   WFE_NODE_BIN_MAC_ARM64     the built-in node's epic binary (epic 4.1 or newer: the app's
 #                              epic-server.toml has no foundation_path, which 4.0 needs), copied to
-#                              Contents/Resources/bin/epic. Without it the app has no built-in node.
-#   WFE_NODE_FETCH=1           fetch the node release pinned below (by SHA-256) when
-#                              WFE_NODE_BIN_MAC_ARM64 is not set (the release step sets it)
+#                              Contents/Resources/bin/epic. Without it the node release pinned
+#                              below is fetched and checked by its SHA-256.
+#   WFE_NODE_FETCH=0           no fetch: without WFE_NODE_BIN_MAC_ARM64 the app has no built-in node
+#                              (the release steps fetch it all the same)
 #   CARGO_TARGET_DIR           LEPIC's cargo output (default app/third_party/lepic/target)
 #   WFE_TOR=0                  the build without Tor (https://docs.btlabs.uk/developers/build/variants/): LEPIC without its
 #                              tor feature, no tor in the .app, --dart-define=WFE_TOR=false
@@ -287,13 +289,14 @@ fetch_node() {
 # Stages the built-in node and tor in app/build/apple-bin, where the macOS project's build phase
 # "Bundle node and tor" (app/macos/Runner/bundle-bin.sh) copies them to Contents/Resources/bin and
 # signs them before Xcode signs the app: in this script's builds and in an Xcode Archive alike.
+staged_node=""
 stage_bin() {
   local res="$app/build/apple-bin"
   # A tor from an earlier build with Tor must not stay in a build without it.
   rm -rf "$res"
   mkdir -p "$res"
   # The built-in node: Contents/Resources/bin/epic (lib/src/builtin_node_provider.dart).
-  if [ "${WFE_NODE_FETCH:-0}" = 1 ] && [ -z "${WFE_NODE_BIN_MAC_ARM64:-}" ]; then
+  if [ "${WFE_NODE_FETCH:-1}" = 1 ] && [ -z "${WFE_NODE_BIN_MAC_ARM64:-}" ]; then
     fetch_node "$out/node/arm64/epic"
     WFE_NODE_BIN_MAC_ARM64="$out/node/arm64/epic"
   fi
@@ -303,9 +306,8 @@ stage_bin() {
     local nv
     nv="$("$res/epic" --version 2>/dev/null | sed -n 's/^epic \([0-9.]*\).*/\1/p')"
     echo "node version: ${nv:-unknown (cannot run here)}"
+    staged_node="node epic ${nv:-unknown}"
     case "$nv" in 4.0.*|[0-3].*) die "the built-in node is epic $nv; the app needs 4.1 or newer" ;; esac
-  else
-    echo "no WFE_NODE_BIN_MAC_ARM64: no built-in node"
   fi
   # Tor: Contents/Resources/bin/tor-bundle/tor beside its libevent (lib/src/tor_location.dart);
   # tor finds libevent at @executable_path.
@@ -351,7 +353,12 @@ macos() {
   mkdir -p "$out"
   rm -rf "$out/$desktop_name.app"
   ditto "$bundle" "$out/$desktop_name.app"
-  result PASS macos "$(lipo -archs "$bundle/Contents/MacOS/$desktop_exe") $(du -sh "$bundle" | cut -f1)"
+  local node="$staged_node"
+  if [ ! -f "$res/epic" ]; then
+    node="no built-in node"
+    echo "the app has no built-in node (WFE_NODE_FETCH=0 and no WFE_NODE_BIN_MAC_ARM64)"
+  fi
+  result PASS macos "$(lipo -archs "$bundle/Contents/MacOS/$desktop_exe") $(du -sh "$bundle" | cut -f1), $node"
 }
 
 dmg() {
@@ -527,6 +534,9 @@ smoke() {
       result SKIP smoke-macos-app "a home of its own still has the user's default keychain: not started"
     else
       HOME="$home" CFFIXED_USER_HOME="$home" security create-keychain -p "" "$kc"
+      # Never locks by itself (no timeout, not on sleep): a locked one would ask for its password.
+      HOME="$home" CFFIXED_USER_HOME="$home" security set-keychain-settings "$kc"
+      HOME="$home" CFFIXED_USER_HOME="$home" security unlock-keychain -p "" "$kc"
       HOME="$home" CFFIXED_USER_HOME="$home" security list-keychains -d user -s "$kc"
       HOME="$home" CFFIXED_USER_HOME="$home" security default-keychain -d user -s "$kc"
       HOME="$home" CFFIXED_USER_HOME="$home" "$bundle/Contents/MacOS/$desktop_exe" > "$out/smoke-macos-app.log" 2>&1 &
