@@ -38,6 +38,7 @@ ERASE_SECRET = 64   # a password field's text is not readable: this many backspa
 
 class WinSurface:
     platform, family = "windows", "desktop"
+    shows_selection = False   # UI Automation gives a Flutter segmented button no chosen state
 
     def __init__(self, rig, log=print, secret_dir=None):
         self.rig, self.log = rig, log
