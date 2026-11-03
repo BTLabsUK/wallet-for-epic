@@ -22,7 +22,7 @@
 // send, A answers it, the funder finalizes and posts it, so no relay is needed. Confirmations
 // need a floonet miner. Throwaway wallets; prints no phrase, password or address.
 //
-//   WFE_DEMO_LEPIC_LIB=<path to liblepic_ffi.so> WFE_FLOO_FUND=<path to fund.sh> \
+//   WFE_LEPIC_LIB=<path to liblepic_ffi.so> WFE_FLOO_FUND=<path to fund.sh> \
 //   WFE_LIVE_NODE=https://floo-node.btlabs.uk flutter test test/cancel_final_live_test.dart
 //
 // WFE_CASES=w,s runs only those cases (after the funding). Without the first two it is
@@ -44,7 +44,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'support/delegating_session.dart';
 
-final String? _lib = Platform.environment['WFE_DEMO_LEPIC_LIB'];
+final String? _lib = Platform.environment['WFE_LEPIC_LIB'];
 final String? _fund = Platform.environment['WFE_FLOO_FUND'];
 
 /// WFE_CASES=w,s runs only the cases whose names start with one of these (all when unset).
@@ -657,5 +657,5 @@ void main() {
     });
     log('  fees in all ${epic(spent)}');
     expect(results.values.where((v) => v != 'PASS'), isEmpty);
-  }, skip: _lib == null || _fund == null ? 'needs WFE_DEMO_LEPIC_LIB and WFE_FLOO_FUND' : false, timeout: const Timeout(Duration(minutes: 240)));
+  }, skip: _lib == null || _fund == null ? 'needs WFE_LEPIC_LIB and WFE_FLOO_FUND' : false, timeout: const Timeout(Duration(minutes: 240)));
 }

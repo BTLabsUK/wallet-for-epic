@@ -12,7 +12,7 @@ import 'package:epic_wallet/src/desktop/app/desk_window.dart' show PictureDeskWi
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/dialogs.dart' show showRemoveWalletDialog;
 import 'package:epic_wallet/src/desktop/screens/settings/help_pairing.dart' show HelpAt;
-import 'package:epic_wallet/src/desktop/screens/settings/shots.dart' show demoOtherWallet;
+import 'package:epic_wallet/src/desktop/screens/settings/shots.dart' show shotOtherWallet;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +49,7 @@ const _shots = <_Shot>[
   (id: 'select-dialog-remove-wallet', route: DeskRoute.settingsWallets, arg: null, select: 'To delete its files', dx: 400, dy: 18, dialog: _removeWallet),
 ];
 
-Future<void> _removeWallet(BuildContext c) => showRemoveWalletDialog(c, demoOtherWallet);
+Future<void> _removeWallet(BuildContext c) => showRemoveWalletDialog(c, shotOtherWallet);
 
 void main() {
   setUpAll(_loadFonts);

@@ -19,7 +19,7 @@ import subprocess
 import sys
 import tempfile
 
-from . import failures as known, guards, retention
+from . import failures as known, guards, health, retention
 from .config import (ConfigError, PLATFORMS, Pipeline, load_hosts, load_scope, scope_summary, scope_toml,
                      validate_scope)
 from .engine import (EXIT_BUSY, EXIT_DENIED, EXIT_FAILED, EXIT_OK, EXIT_PREFLIGHT, EXIT_USAGE, EXIT_WAITING, Engine, relmsg_state)
@@ -128,7 +128,7 @@ class App:
         if not run.info.get("dry") and not dry:
             rm = Relmsg(run, self.pipeline.relmsg, enabled=relmsg_on and not run.info.get("no_relmsg"))
         return Engine(run, self.pipeline, self.hosts, self.repo, relmsg=rm, dry=dry, echo=self.echo,
-                      failures=self.failures)
+                      failures=self.failures, runner=RUNNER)
 
     def load_run(self, ref=None):
         return Run.find(self.state_root, ref or getattr(self.args, "run", None))
@@ -331,7 +331,7 @@ class App:
         return self.finish(run, eng, code)
 
     def finish(self, run, eng, code):
-        report(run)
+        report(run, self.pipeline.health)
         rows = run.summary_rows()
         waiting = [r for r in rows if r["status"] in ("waiting", "held", "closed")]
         failed = [r for r in rows if r["status"] == "failed"]
@@ -541,6 +541,22 @@ class App:
                                 + (f"; not blocking, failed: {', '.join(warned)}" if warned else ""))
         return code
 
+    def cmd_gate_watch(self, a):
+        """The gate watcher (tools/rellib/gatewatch.py): --foreground runs it here; without, it is
+        started detached, as the gate does when it waits."""
+        from . import gatewatch
+        run = self.load_run()
+        if run.info.get("dry"):
+            return self.out(EXIT_USAGE, "a dry run has no gate to watch", run)
+        if a.foreground:
+            w = gatewatch.Watcher(run, self.pipeline, gatewatch.rel_caller(run, self.pipeline, self.args.hosts),
+                                  every=a.every)
+            code, msg = w.loop()
+            return self.out(code, msg, run)
+        ok, msg = gatewatch.start(run, self.pipeline, self.args.hosts, "gate-watch", every=a.every)
+        return self.out(EXIT_OK if ok else EXIT_USAGE, msg or "not started: REL_GATEWATCH is set", run,
+                        watch=gatewatch.watch_of(run))
+
     # ---- looking ----
 
     def cmd_status(self, a):
@@ -553,6 +569,10 @@ class App:
         print(f"scope: {scope_summary(run.info['scope'])}")
         if run.info.get("tainted"):
             print(f"TAINTED: {run.info['tainted'][-1]['reason']} (never publishable)")
+        from . import gatewatch
+        w = gatewatch.watch_of(run)
+        if w:
+            print(f"gate watcher running: {w.get('unit') or 'pid ' + str(w.get('pid'))}, log {gatewatch.log_path(run)}")
         for r in rows:
             d = f"{r['duration_s']:.0f}s" if r.get("duration_s") is not None else ""
             extra = r.get("note") or r.get("reason") or ""
@@ -706,7 +726,24 @@ class App:
         msg = f"{'would remove' if a.dry_run else 'removed'} {len(res['removed']) if not a.dry_run else len(lines)} run(s); kept: {', '.join(res['kept']) or 'nothing'}"
         return self.out(EXIT_OK, msg, kept=res["kept"], removed=res["removed"] if not a.dry_run else lines)
 
+    def cmd_lanes(self, a):
+        """`stats --lanes`: the lane health table (tools/rellib/health.py)."""
+        lanes = health.lanes_of(os.path.join(self.state_root, "metrics.jsonl"), self.pipeline.health)
+        if a.json:
+            return self.out(EXIT_OK, "lanes", lanes=lanes, health=health.settings(self.pipeline.health))
+        if not lanes:
+            print("no trust lane has run yet")
+            return EXIT_OK
+        print(health.title(self.pipeline.health))
+        t = health.rows(lanes)
+        w = [max(len(r[i]) for r in t) for i in range(len(t[0]))]
+        for r in t:
+            print("  ".join(c.ljust(w[i]) for i, c in enumerate(r)).rstrip())
+        return EXIT_OK
+
     def cmd_stats(self, a):
+        if getattr(a, "lanes", False):
+            return self.cmd_lanes(a)
         path = os.path.join(self.state_root, "metrics.jsonl")
         rows = []
         if os.path.isfile(path):
@@ -739,7 +776,7 @@ class App:
 
     def cmd_report(self, a):
         run = self.load_run()
-        md, html = report(run)
+        md, html = report(run, self.pipeline.health)
         return self.out(EXIT_OK, f"{md}\n{html}", run)
 
     def cmd_runs(self, a):
@@ -761,9 +798,23 @@ def shlex_quote(s):
     return shlex.quote(str(s))
 
 
-def report(run):
-    """summary.md and report.html in the run folder: steps, times, sizes, gates, skips."""
+def tries_cell(r):
+    """The report's tries column: the count, or `flaky (N tries)` for a pass after a failed attempt."""
+    return f"flaky ({r['attempts']} tries)" if r.get("flaky") else str(r["attempts"])
+
+
+def row_note(r):
+    """The report's note column: the note (or skip reason), what the driver was, the known-failure hint."""
+    note = ("DRIVERS CHANGED between attempts; " if r.get("driver_changed") else "") + (r.get("note") or r.get("reason") or "")
+    if r.get("hint"):
+        note += f" — hint: {r['hint']}"
+    return note
+
+
+def report(run, health_conf=None):
+    """summary.md and report.html in the run folder: steps, times, sizes, gates, skips, lane health."""
     rows = run.summary_rows()
+    lanes = health.lanes_of(health.metrics_path(run), health_conf)
     info = run.info
     tot = sum(r["duration_s"] or 0 for r in rows)
     md = [f"# {'TEST ' if info.get('test') else ''}{'DRY RUN ' if info.get('dry') else ''}Epic Wallet {info['version']} — {info['run_id']}",
@@ -779,10 +830,9 @@ def report(run):
     for r in rows:
         d = f"{r['duration_s']:.0f}s" if r.get("duration_s") is not None else ""
         size = f"{r['bytes'] / 1e6:.0f} MB" if r.get("bytes") else ""
-        note = (r.get("note") or r.get("reason") or "").replace("|", "/")
-        if r.get("hint"):
-            note += f" — hint: {r['hint']}"
-        md.append(f"| {r['id']} | {r['status']} | {d} | {r['attempts']} | {size} | {note[:160]} |")
+        note = row_note(r).replace("|", "/")
+        md.append(f"| {r['id']} | {r['status']} | {d} | {tries_cell(r)} | {size} | {note[:160]} |")
+    md += health.markdown(lanes, health_conf)
     text = "\n".join(md) + "\n"
     mdp = os.path.join(run.path, "summary.md")
     with open(mdp, "w", encoding="utf-8") as f:
@@ -791,11 +841,18 @@ def report(run):
     def cell(r):
         d = "" if r.get("duration_s") is None else f"{r['duration_s']:.0f}s"
         size = f"{r['bytes'] / 1e6:.0f} MB" if r.get("bytes") else ""
-        note = (r.get("note") or r.get("reason") or "")[:200]
+        note = row_note(r)[:200]
         return (f"<tr class='{h.escape(r['status'])}'><td>{h.escape(r['id'])}</td><td>{h.escape(r['status'])}</td>"
-                f"<td>{d}</td><td>{r['attempts']}</td><td>{size}</td><td>{h.escape(note)}</td></tr>")
+                f"<td>{d}</td><td>{h.escape(tries_cell(r))}</td><td>{size}</td><td>{h.escape(note)}</td></tr>")
 
     trs = "".join(cell(r) for r in rows)
+    lane_table = ""
+    if lanes:
+        t = health.rows(lanes)
+        lane_table = (f"<h2>{h.escape(health.title(health_conf))}</h2><div class=\"wrap\"><table><tr>"
+                      + "".join(f"<th>{h.escape(c)}</th>" for c in t[0]) + "</tr>"
+                      + "".join("<tr>" + "".join(f"<td>{h.escape(c)}</td>" for c in r) + "</tr>" for r in t[1:])
+                      + "</table></div>")
     page = f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{h.escape(info['run_id'])}</title><style>
 :root{{--bg:#111418;--fg:#e6e8eb;--mut:#9aa3ad;--ok:#3fb950;--bad:#f85149;--wait:#d29922;--line:#2a2f36}}
@@ -805,7 +862,7 @@ table{{border-collapse:collapse;width:100%}}td,th{{border-bottom:1px solid var(-
 .done td:nth-child(2){{color:var(--ok)}}.failed td:nth-child(2){{color:var(--bad)}}.waiting td:nth-child(2),.held td:nth-child(2),.warned td:nth-child(2){{color:var(--wait)}}
 .skipped td:nth-child(2){{color:var(--mut)}}button{{float:right}}.wrap{{overflow-x:auto}}</style></head><body>
 <button onclick="document.documentElement.dataset.theme=document.documentElement.dataset.theme==='light'?'':'light'">Light/dark</button>
-<pre>{h.escape(chr(10).join(md[:12]))}</pre><div class="wrap"><table><tr><th>step</th><th>status</th><th>time</th><th>tries</th><th>size</th><th>note</th></tr>{trs}</table></div></body></html>"""
+<pre>{h.escape(chr(10).join(md[:12]))}</pre><div class="wrap"><table><tr><th>step</th><th>status</th><th>time</th><th>tries</th><th>size</th><th>note</th></tr>{trs}</table></div>{lane_table}</body></html>"""
     hp = os.path.join(run.path, "report.html")
     with open(hp, "w", encoding="utf-8") as f:
         f.write(page)
@@ -901,7 +958,12 @@ def parser():
     sp.add_argument("--live-dir", help="--test: the folder standing in for the live manifests")
     sp = sub.add_parser("cleanup", help="keep the current and the previous release; remove the rest")
     sp.add_argument("--dry-run", action="store_true")
-    sub.add_parser("stats", help="per-step times and failures across runs")
+    sp = sub.add_parser("gate-watch", help="check the gate until it is decided; publish once approved (started by the gate)")
+    sp.add_argument("--run", help="run id, folder or version (default: the newest run)")
+    sp.add_argument("--every", type=float, help="seconds between checks (default [gate] watch_every, 60)")
+    sp.add_argument("--foreground", action="store_true", help="watch here instead of starting a detached watcher")
+    sp = sub.add_parser("stats", help="per-step times and failures across runs")
+    sp.add_argument("--lanes", action="store_true", help="per trust lane: first-try pass rate, tries a run, recoveries, causes")
     sub.add_parser("runs", help="every run kept")
     return p
 

@@ -28,6 +28,15 @@ from .faults import HarnessFault, HarnessGone, ProductFault
 SLOW = float(os.environ.get("REL_TRUST_SLOW") or "1")
 
 
+# Moved by any press, so not a sign the press did anything.
+UNCHANGED = frozenset(("focused", "showing"))
+
+
+def look(tree):
+    """What a press can change, in place included: a stepper's value, a switch's checked state."""
+    return [(n.role, n.name, n.value, n.states - UNCHANGED) for n in tree]
+
+
 class Expect:
     """A state of the screen. `test(driver, tree)` truthy when reached; `what` for messages."""
 
@@ -64,6 +73,7 @@ class Driver:
         self.step = "start"
         self.trail = []       # the last steps, for the failure line
         self.hushed = 0       # inside hush(): no shot, no dump, no model (words being typed)
+        self.by_label = set() # target ids this build matched by label only: it gives them no id
 
     # ---- reading
 
@@ -225,6 +235,7 @@ class Driver:
         """The node for `target`: by id/label within `timeout`, else the model's pick; HarnessFault when none."""
         n = self.wait(shows(target), timeout)
         if n:
+            self._note_label(target, n)
             return n
         for _ in range(0 if self.hushed else 2):
             tree = self.tree()
@@ -240,6 +251,18 @@ class Driver:
                 return n
         self.harness("%s not on screen (looked for %s %s)" % (target, target.role, self.texts(target) or "no text"))
 
+    def _note_label(self, target, node):
+        """A target found by its label: once per lane into by-label.txt, so a build whose ids do not
+        reach the platform (a release from before the ids) shows which controls still hang on text."""
+        if node.id or not target.id or target.id in self.by_label:
+            return
+        self.by_label.add(target.id)
+        try:
+            with open(os.path.join(self.out, "by-label.txt"), "a", encoding="utf-8") as f:
+                f.write("%s %s %r\n" % (target.id, node.role, node.name.split("\n")[0][:80]))
+        except OSError:
+            pass
+
     def press(self, target, *, step, then=None, timeout=20, goal=None):
         """Press `target` and wait for `then` (an Expect; default: the screen changed or the target went)."""
         self.step = step
@@ -247,10 +270,10 @@ class Driver:
         for attempt in range(2):
             self._clear(target)
             node = self.locate(target, timeout)
-            before = [(n.role, n.name) for n in self.tree()]
+            before = look(self.tree())
             self._act(self.s.press, node)
             want = then or Expect("the screen changed after %s" % target,
-                                  lambda d, tree, b=before: [(n.role, n.name) for n in tree] != b)
+                                  lambda d, tree, b=before: look(tree) != b)
             r = self.wait(want, timeout)
             if r:
                 return r

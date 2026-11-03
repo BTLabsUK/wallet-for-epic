@@ -7,7 +7,7 @@
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/help_pairing.dart' show HelpAt;
-import 'package:epic_wallet/src/desktop/screens/settings/settings_phrase.dart' show PhraseDemo;
+import 'package:epic_wallet/src/desktop/screens/settings/settings_phrase.dart' show PhraseShot;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/help/help_content.dart';
 import 'package:epic_wallet/src/l10n.dart';
@@ -178,7 +178,7 @@ void main() {
   });
 
   testWidgets('the recovery phrase never joins a selection', (tester) async {
-    await _pumpApp(tester, DeskRoute.settingsPhrase, arg: PhraseDemo.shown);
+    await _pumpApp(tester, DeskRoute.settingsPhrase, arg: PhraseShot.shown);
     expect(find.text('orbit'), findsOneWidget);
     final intro = find.byWidgetPredicate((w) => w is Text && (w.data ?? '').contains('recovery phrase'));
     expect(intro, findsWidgets);

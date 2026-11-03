@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import '../../../demo_fixtures.dart';
+import '../../../mock_fixtures.dart';
 import '../../../levels/level_providers.dart' show walletLevelProvider;
 import '../../../levels/wallet_level.dart';
 import '../../data/desk_levels.dart' show deskLevelControlProvider;
@@ -32,7 +32,7 @@ import 'prefs.dart';
 import 'report_problem.dart';
 import 'settings_node.dart';
 import 'settings_phrase.dart';
-import 'settings_privacy.dart' show PrivacyDemo;
+import 'settings_privacy.dart' show PrivacyShot;
 import 'settings_http.dart' show InternetGuide, InternetGuideChoice;
 import 'settings_receiving.dart';
 import '../transfer/finalize_screen.dart' show FinalizeArgs;
@@ -41,22 +41,22 @@ import '../transfer/send_screen.dart' show SendArgs;
 import '../../../wallet_service.dart' show FakeWalletSession;
 import '../../../help/help_content.dart' show HelpAnchor, HelpId;
 import 'help_pairing.dart' show HelpAt;
-import 'settings_about.dart' show AboutDemo;
-import 'settings_help.dart' show HelpDemo;
-import 'settings_security.dart' show SecurityDemo;
+import 'settings_about.dart' show AboutShot;
+import 'settings_help.dart' show HelpShot;
+import 'settings_security.dart' show SecurityShot;
 import 'settings_rescan.dart';
 import 'search/search_slot.dart' show settingsQueryProvider;
 import '../../widgets/more_options.dart' show moreOptionsRevealProvider;
-import '../wallet/tx_detail.dart' show txMoreDemoProvider;
+import '../wallet/tx_detail.dart' show txMoreShotProvider;
 import '../../../advanced.dart';
 import '../../../payment_prefs.dart';
 import '../../../settings_file/host_settings.dart' show appConfig;
 
 /// A wallet that is not open, for the remove dialog's shots.
-const demoOtherWallet = WalletEntry(id: '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', name: 'Savings', folder: '~/.epic_cash_desktop/wallets/5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', network: 'mainnet');
+const shotOtherWallet = WalletEntry(id: '5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', name: 'Savings', folder: '~/.epic_cash_desktop/wallets/5a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f', network: 'mainnet');
 
-/// Back to the settings the mock starts with (a demo state turned something on).
-Future<void> resetSettingsDemo(ProviderContainer c) async {
+/// Back to the settings the mock starts with (a shot state turned something on).
+Future<void> resetSettingsShots(ProviderContainer c) async {
   c.read(settingsPrefsProvider.notifier).set(const SettingsPrefs());
   final n = c.read(deskProvider.notifier);
   final now = c.read(deskProvider).settings;
@@ -79,8 +79,8 @@ Future<void> showLocalNode(ProviderContainer c, LocalNodeState state, FallbackCo
 
 /// An update to [phase] for the tour: the next version, from the download folder.
 void _update(ProviderContainer c, DeskUpdatePhase phase, {bool inApp = true}) {
-  final v = demoUpdateVersion;
-  c.read(deskUpdateProvider.notifier).showDemo(DeskUpdateState(
+  final v = mockUpdateVersion;
+  c.read(deskUpdateProvider.notifier).showShot(DeskUpdateState(
     phase,
     version: v,
     page: deskReleasesUrl,
@@ -101,37 +101,37 @@ Future<void> Function(ProviderContainer) _level(WalletLevel level) => (c) async 
 
 final List<DeskShot> settingsShots = [
   const DeskShot(id: '20-node', title: 'Settings › Node: the node card', route: DeskRoute.settingsNode),
-  const DeskShot(id: '20b-node-behind', title: 'Node card, behind', route: DeskRoute.settingsNode, arg: NodeDemo.behind),
-  const DeskShot(id: '20c-node-old', title: 'Node card, older version', route: DeskRoute.settingsNode, arg: NodeDemo.old),
-  const DeskShot(id: '20d-node-limited', title: 'Node card, limited info', route: DeskRoute.settingsNode, arg: NodeDemo.limited),
-  const DeskShot(id: '20e-node-down', title: 'Node card, not answering', route: DeskRoute.settingsNode, arg: NodeDemo.down),
+  const DeskShot(id: '20b-node-behind', title: 'Node card, behind', route: DeskRoute.settingsNode, arg: NodeShot.behind),
+  const DeskShot(id: '20c-node-old', title: 'Node card, older version', route: DeskRoute.settingsNode, arg: NodeShot.old),
+  const DeskShot(id: '20d-node-limited', title: 'Node card, limited info', route: DeskRoute.settingsNode, arg: NodeShot.limited),
+  const DeskShot(id: '20e-node-down', title: 'Node card, not answering', route: DeskRoute.settingsNode, arg: NodeShot.down),
   const DeskShot(id: '22-settings-node', title: 'Settings, node', route: DeskRoute.settingsNode),
   // The user's own node: home network, asked directly; owner access; big screens.
-  const DeskShot(id: '20o-own-node', title: 'Own node, asked directly', route: DeskRoute.settingsNode, arg: NodeDemo.own),
-  const DeskShot(id: '20o-own-node-2474', title: 'Own node, asked directly, 2474x1338', route: DeskRoute.settingsNode, arg: NodeDemo.own, width: 2474, height: 1338),
-  const DeskShot(id: '20p-own-node-access', title: 'Own node with owner access', route: DeskRoute.settingsNode, arg: NodeDemo.ownAccess),
-  const DeskShot(id: '20p-own-node-access-2474', title: 'Own node with owner access, 2474x1338', route: DeskRoute.settingsNode, arg: NodeDemo.ownAccess, width: 2474, height: 1338),
-  const DeskShot(id: '20q-own-node-peers', title: 'Own node, Peers tab', route: DeskRoute.settingsNode, arg: NodeDemo.ownPeers),
-  const DeskShot(id: '20r-own-node-dialog', title: 'Own node, Owner access dialog', route: DeskRoute.settingsNode, arg: NodeDemo.ownDialog),
-  const DeskShot(id: '20s-own-node-syncing', title: 'Own node syncing: the public-node offer', route: DeskRoute.settingsNode, arg: NodeDemo.ownSyncing),
-  const DeskShot(id: '20s-own-node-syncing-2474', title: 'Own node syncing, 2474x1338', route: DeskRoute.settingsNode, arg: NodeDemo.ownSyncing, width: 2474, height: 1338),
-  const DeskShot(id: '20t-own-node-down', title: 'Own node not answering: a public node stands in', route: DeskRoute.settingsNode, arg: NodeDemo.ownDown),
-  const DeskShot(id: '20o-own-node-narrow', title: 'Own node at 1000x700', route: DeskRoute.settingsNode, arg: NodeDemo.ownAccess, width: 1000, height: 700),
+  const DeskShot(id: '20o-own-node', title: 'Own node, asked directly', route: DeskRoute.settingsNode, arg: NodeShot.own),
+  const DeskShot(id: '20o-own-node-2474', title: 'Own node, asked directly, 2474x1338', route: DeskRoute.settingsNode, arg: NodeShot.own, width: 2474, height: 1338),
+  const DeskShot(id: '20p-own-node-access', title: 'Own node with owner access', route: DeskRoute.settingsNode, arg: NodeShot.ownAccess),
+  const DeskShot(id: '20p-own-node-access-2474', title: 'Own node with owner access, 2474x1338', route: DeskRoute.settingsNode, arg: NodeShot.ownAccess, width: 2474, height: 1338),
+  const DeskShot(id: '20q-own-node-peers', title: 'Own node, Peers tab', route: DeskRoute.settingsNode, arg: NodeShot.ownPeers),
+  const DeskShot(id: '20r-own-node-dialog', title: 'Own node, Owner access dialog', route: DeskRoute.settingsNode, arg: NodeShot.ownDialog),
+  const DeskShot(id: '20s-own-node-syncing', title: 'Own node syncing: the public-node offer', route: DeskRoute.settingsNode, arg: NodeShot.ownSyncing),
+  const DeskShot(id: '20s-own-node-syncing-2474', title: 'Own node syncing, 2474x1338', route: DeskRoute.settingsNode, arg: NodeShot.ownSyncing, width: 2474, height: 1338),
+  const DeskShot(id: '20t-own-node-down', title: 'Own node not answering: a public node stands in', route: DeskRoute.settingsNode, arg: NodeShot.ownDown),
+  const DeskShot(id: '20o-own-node-narrow', title: 'Own node at 1000x700', route: DeskRoute.settingsNode, arg: NodeShot.ownAccess, width: 1000, height: 700),
   const DeskShot(id: '22-settings-node-2474', title: 'Settings, node card at 2474x1338', route: DeskRoute.settingsNode, width: 2474, height: 1338),
   const DeskShot(id: '23-settings-receiving-2474', title: 'Settings, Transactions at 2474x1338', route: DeskRoute.settingsReceiving, width: 2474, height: 1338),
   const DeskShot(id: '22-settings-node-narrow', title: 'Settings, node at 1000x700', route: DeskRoute.settingsNode, width: 1000, height: 700),
-  const DeskShot(id: '22b-node-combobox-open', title: 'Node list open', route: DeskRoute.settingsNode, arg: NodeDemo.comboOpen),
-  const DeskShot(id: '22c-node-typed', title: 'Node list, typed address: Add', route: DeskRoute.settingsNode, arg: NodeDemo.typed),
-  const DeskShot(id: '22e-node-bad-address', title: 'Node list, not an address', route: DeskRoute.settingsNode, arg: NodeDemo.badAddress),
-  const DeskShot(id: '22f-node-removed', title: 'Node list, a row removed: Undo and Restore', route: DeskRoute.settingsNode, arg: NodeDemo.removed),
-  const DeskShot(id: '22g-node-picked', title: 'Node list, a row picked: switched', route: DeskRoute.settingsNode, arg: NodeDemo.picked),
-  const DeskShot(id: '22d-node-pick-failed', title: 'Node pick failed', route: DeskRoute.settingsNode, arg: NodeDemo.pickFailed),
+  const DeskShot(id: '22b-node-combobox-open', title: 'Node list open', route: DeskRoute.settingsNode, arg: NodeShot.comboOpen),
+  const DeskShot(id: '22c-node-typed', title: 'Node list, typed address: Add', route: DeskRoute.settingsNode, arg: NodeShot.typed),
+  const DeskShot(id: '22e-node-bad-address', title: 'Node list, not an address', route: DeskRoute.settingsNode, arg: NodeShot.badAddress),
+  const DeskShot(id: '22f-node-removed', title: 'Node list, a row removed: Undo and Restore', route: DeskRoute.settingsNode, arg: NodeShot.removed),
+  const DeskShot(id: '22g-node-picked', title: 'Node list, a row picked: switched', route: DeskRoute.settingsNode, arg: NodeShot.picked),
+  const DeskShot(id: '22d-node-pick-failed', title: 'Node pick failed', route: DeskRoute.settingsNode, arg: NodeShot.pickFailed),
   for (final (id, title, state, consent) in [
     ('21-local-starting', 'Local node, starting', mockLocalNode(LocalNodePhase.starting), FallbackConsent.accepted),
-    ('21-local-syncing', 'Local node, syncing headers with the fallback', mockLocalNode(LocalNodePhase.syncing, overall: 0.12, done: 1480200, total: demoTip, eta: const Duration(hours: 3)), FallbackConsent.accepted),
+    ('21-local-syncing', 'Local node, syncing headers with the fallback', mockLocalNode(LocalNodePhase.syncing, overall: 0.12, done: 1480200, total: mockTip, eta: const Duration(hours: 3)), FallbackConsent.accepted),
     ('21-local-syncing-download', 'Local node, chain state download', mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.chainStateDownload, overall: 0.46, done: 1900000000, total: 4100000000, eta: const Duration(minutes: 40)), FallbackConsent.accepted),
-    ('21-local-syncing-kernels', 'Local node, checking kernels', mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.chainStateKernels, overall: 0.7, done: 2100000, total: demoTip), FallbackConsent.accepted),
-    ('21-local-syncing-nofallback', 'Local node, syncing without the fallback', mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks, overall: 0.96, done: 3702100, total: demoTip, eta: const Duration(minutes: 12)), FallbackConsent.declined),
+    ('21-local-syncing-kernels', 'Local node, checking kernels', mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.chainStateKernels, overall: 0.7, done: 2100000, total: mockTip), FallbackConsent.accepted),
+    ('21-local-syncing-nofallback', 'Local node, syncing without the fallback', mockLocalNode(LocalNodePhase.syncing, stage: SyncStage.blocks, overall: 0.96, done: 3702100, total: mockTip, eta: const Duration(minutes: 12)), FallbackConsent.declined),
     ('21-local-synced', 'Local node, synced', mockLocalNode(LocalNodePhase.synced), FallbackConsent.accepted),
     ('21-local-stalled', 'Local node, stalled', mockLocalNode(LocalNodePhase.error, stalled: true), FallbackConsent.accepted),
     ('21-local-failed-port', 'Local node, port in use', mockLocalNode(LocalNodePhase.error, failure: NodeFailure.portInUse), FallbackConsent.accepted),
@@ -141,14 +141,14 @@ final List<DeskShot> settingsShots = [
     ('21-local-stopped', 'Local node, stopped', mockLocalNode(LocalNodePhase.stopped), FallbackConsent.accepted),
     ('21-local-restart-needed', 'Local node, settings changed', mockLocalNode(LocalNodePhase.synced, restartNeeded: true, userToml: true), FallbackConsent.accepted),
   ])
-    DeskShot(id: id, title: title, route: DeskRoute.settingsNode, arg: NodeDemo.builtin, prepare: (c, _) => showLocalNode(c, state, consent)),
-  DeskShot(id: '21-local-synced-2474', title: 'Local node, synced, 2474x1338', route: DeskRoute.settingsNode, arg: NodeDemo.builtin, width: 2474, height: 1338, prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.synced), FallbackConsent.accepted)),
+    DeskShot(id: id, title: title, route: DeskRoute.settingsNode, arg: NodeShot.builtin, prepare: (c, _) => showLocalNode(c, state, consent)),
+  DeskShot(id: '21-local-synced-2474', title: 'Local node, synced, 2474x1338', route: DeskRoute.settingsNode, arg: NodeShot.builtin, width: 2474, height: 1338, prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.synced), FallbackConsent.accepted)),
   // The Ports row's info popover with its "More in Help" link (WD2-063).
   DeskShot(
     id: '21-local-ports-hint',
     title: 'Local node, the Ports info popover with its Help link',
     route: DeskRoute.settingsNode,
-    arg: NodeDemo.builtin,
+    arg: NodeShot.builtin,
     prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.synced), FallbackConsent.accepted),
     dialog: (c) => openInfoHint(c, title: (l) => l.deskOnbNodePortsWhy),
   ),
@@ -156,22 +156,22 @@ final List<DeskShot> settingsShots = [
     id: '21-local-peers',
     title: 'Local node, Peers tab',
     route: DeskRoute.settingsNode,
-    arg: NodeDemo.peers,
+    arg: NodeShot.peers,
     prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.synced), FallbackConsent.accepted),
   ),
   DeskShot(
     id: '21b-dlg-fallback-ask',
     title: 'Use the public node until synced?',
     route: DeskRoute.settingsNode,
-    arg: NodeDemo.builtin,
-    prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.syncing, overall: 0.12, done: 1480200, total: demoTip), FallbackConsent.unasked),
+    arg: NodeShot.builtin,
+    prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.syncing, overall: 0.12, done: 1480200, total: mockTip), FallbackConsent.unasked),
     dialog: (ctx) => showFallbackAskDialog(ctx, host: Uri.parse(mockNodeAt(0)).host),
   ),
   DeskShot(
     id: '21c-dlg-delete-chain',
     title: 'Delete chain data',
     route: DeskRoute.settingsNode,
-    arg: NodeDemo.builtin,
+    arg: NodeShot.builtin,
     prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.synced), FallbackConsent.accepted),
     dialog: (ctx) => showEDialog<void>(ctx, builder: (_) => DeleteChainDataDialog(api: MockDeskNode(), state: mockLocalNode(LocalNodePhase.synced))),
   ),
@@ -179,7 +179,7 @@ final List<DeskShot> settingsShots = [
     id: '21d-dlg-reuse-chain',
     title: 'Chain data found on this computer',
     route: DeskRoute.settingsNode,
-    arg: NodeDemo.builtin,
+    arg: NodeShot.builtin,
     prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.stopped), FallbackConsent.accepted),
     dialog: (ctx) => showReuseChainDataDialog(ctx, MockDeskNode()),
   ),
@@ -187,7 +187,7 @@ final List<DeskShot> settingsShots = [
     id: '21e-dlg-node-log',
     title: 'Node log',
     route: DeskRoute.settingsNode,
-    arg: NodeDemo.builtin,
+    arg: NodeShot.builtin,
     prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.synced), FallbackConsent.accepted),
     dialog: (ctx) => showNodeLogDialog(ctx, MockDeskNode()),
   ),
@@ -195,7 +195,7 @@ final List<DeskShot> settingsShots = [
     id: '21f-dlg-fallback-picker',
     title: 'Node while syncing: the list',
     route: DeskRoute.settingsNode,
-    arg: NodeDemo.builtin,
+    arg: NodeShot.builtin,
     prepare: (c, _) => showLocalNode(c, mockLocalNode(LocalNodePhase.syncing, overall: 0.12), FallbackConsent.accepted),
     dialog: (ctx) => showFallbackPickerDialog(ctx, current: defaultFallbackNodeUrl),
   ),
@@ -205,43 +205,43 @@ final List<DeskShot> settingsShots = [
     id: '23-settings-receiving',
     title: 'Settings, transactions',
     route: DeskRoute.settingsReceiving,
-    prepare: (c, _) => resetSettingsDemo(c),
+    prepare: (c, _) => resetSettingsShots(c),
   ),
-  const DeskShot(id: '23b-epicbox-combobox-open', title: 'Epicbox list open, the address warning', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.comboOpen),
+  const DeskShot(id: '23b-epicbox-combobox-open', title: 'Epicbox list open, the address warning', route: DeskRoute.settingsReceiving, arg: ReceivingShot.comboOpen),
   // A server the user typed in shows "Added by you" on the Epicbox page too.
-  DeskShot(id: '23k-epicbox-added-by-you', title: 'Epicbox list, a server added by the user', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.comboOpen, prepare: (c, _) => _addedServer(c)),
-  const DeskShot(id: '23j-epicbox-picked', title: 'Epicbox list, a row picked: the confirm', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.picked),
+  DeskShot(id: '23k-epicbox-added-by-you', title: 'Epicbox list, a server added by the user', route: DeskRoute.settingsReceiving, arg: ReceivingShot.comboOpen, prepare: (c, _) => _addedServer(c)),
+  const DeskShot(id: '23j-epicbox-picked', title: 'Epicbox list, a row picked: the confirm', route: DeskRoute.settingsReceiving, arg: ReceivingShot.picked),
   DeskShot(
     id: '23c-receiving-tor-on',
     title: 'Receiving, Tor on',
     route: DeskRoute.settingsReceiving,
-    arg: ReceivingDemo.torOn,
+    arg: ReceivingShot.torOn,
     height: 1200,
   ),
-  const DeskShot(id: '23d-receiving-epicbox-down', title: 'Receiving, Epicbox down', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.epicboxDown),
-  const DeskShot(id: '23e-receiving-http-on', title: 'Receiving, HTTP on', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.httpOn),
-  const DeskShot(id: '23f-receiving-http-failed', title: 'Receiving, HTTP failed', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.httpFailed),
+  const DeskShot(id: '23d-receiving-epicbox-down', title: 'Receiving, Epicbox down', route: DeskRoute.settingsReceiving, arg: ReceivingShot.epicboxDown),
+  const DeskShot(id: '23e-receiving-http-on', title: 'Receiving, HTTP on', route: DeskRoute.settingsReceiving, arg: ReceivingShot.httpOn),
+  const DeskShot(id: '23f-receiving-http-failed', title: 'Receiving, HTTP failed', route: DeskRoute.settingsReceiving, arg: ReceivingShot.httpFailed),
   DeskShot(
     id: '23h-receiving-tor-stopped',
     title: 'Receiving, Tor stopped',
     route: DeskRoute.settingsReceiving,
-    arg: ReceivingDemo.torStopped,
+    arg: ReceivingShot.torStopped,
     height: 1200,
   ),
-  const DeskShot(id: '23i-receiving-http-public', title: 'Receiving, HTTP from the internet', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.httpPublic, height: 1000),
-  const DeskShot(id: '23n-transactions-direct-on', title: 'Transactions, Link · HTTP on', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.directOn, height: 1200),
-  const DeskShot(id: '23o-transactions-send-options', title: 'Transactions, Send options on', route: DeskRoute.settingsReceiving, arg: ReceivingDemo.sendOptions, height: 1400),
+  const DeskShot(id: '23i-receiving-http-public', title: 'Receiving, HTTP from the internet', route: DeskRoute.settingsReceiving, arg: ReceivingShot.httpPublic, height: 1000),
+  const DeskShot(id: '23n-transactions-direct-on', title: 'Transactions, Link · HTTP on', route: DeskRoute.settingsReceiving, arg: ReceivingShot.directOn, height: 1200),
+  const DeskShot(id: '23o-transactions-send-options', title: 'Transactions, Send options on', route: DeskRoute.settingsReceiving, arg: ReceivingShot.sendOptions, height: 1400),
   // Network & privacy (B-03): the mode, Tor and the servers on one page, tall enough for all three.
   const DeskShot(id: '23j-privacy', title: 'Network & privacy, Normal, Tor off', route: DeskRoute.settingsPrivacy, height: 1000),
-  const DeskShot(id: '23k-privacy-tor-starting', title: 'Network & privacy, Tor starting', route: DeskRoute.settingsPrivacy, arg: PrivacyDemo.torStarting, height: 1000),
-  const DeskShot(id: '23l-privacy-tor-on', title: 'Network & privacy, Tor on', route: DeskRoute.settingsPrivacy, arg: PrivacyDemo.torOn, height: 1000),
-  const DeskShot(id: '23m-privacy-tor-failed', title: 'Network & privacy, Tor not connected', route: DeskRoute.settingsPrivacy, arg: PrivacyDemo.torFailed, height: 1000),
+  const DeskShot(id: '23k-privacy-tor-starting', title: 'Network & privacy, Tor starting', route: DeskRoute.settingsPrivacy, arg: PrivacyShot.torStarting, height: 1000),
+  const DeskShot(id: '23l-privacy-tor-on', title: 'Network & privacy, Tor on', route: DeskRoute.settingsPrivacy, arg: PrivacyShot.torOn, height: 1000),
+  const DeskShot(id: '23m-privacy-tor-failed', title: 'Network & privacy, Tor not connected', route: DeskRoute.settingsPrivacy, arg: PrivacyShot.torFailed, height: 1000),
   DeskShot(
     id: '24-settings-appearance',
     title: 'Settings, appearance',
     route: DeskRoute.settingsAppearance,
-    // The receiving demos turned Tor and HTTP on: put them back for the shots after.
-    prepare: (c, _) => resetSettingsDemo(c),
+    // The receiving shots turned Tor and HTTP on: put them back for the shots after.
+    prepare: (c, _) => resetSettingsShots(c),
   ),
   const DeskShot(id: '25-settings-account', title: 'Settings, this wallet', route: DeskRoute.settingsAccount),
   const DeskShot(id: '25n-settings-security', title: 'Settings, security', route: DeskRoute.settingsSecurity),
@@ -254,13 +254,13 @@ final List<DeskShot> settingsShots = [
     height: 1100,
     prepare: (c, _) async => _backup(c, const HistoryBackupState(unbacked: 12, payments: 48, contacts: 6)),
   ),
-  const DeskShot(id: '25m-settings-security-auto-lock', title: 'Settings, security: the auto-lock list, Never last', route: DeskRoute.settingsSecurity, arg: SecurityDemo.autoLockOpen, height: 1000),
+  const DeskShot(id: '25m-settings-security-auto-lock', title: 'Settings, security: the auto-lock list, Never last', route: DeskRoute.settingsSecurity, arg: SecurityShot.autoLockOpen, height: 1000),
   const DeskShot(id: '25d-settings-backup-since', title: 'Settings, this wallet: Backup, payments since', route: DeskRoute.settingsAccount, height: 1100),
   const DeskShot(
     id: '25e-settings-backup-busy',
     title: 'Settings, this wallet: Backup, exporting',
     route: DeskRoute.settingsAccount,
-    arg: BackupDemo.busy,
+    arg: BackupShot.busy,
     height: 1100,
   ),
   DeskShot(id: '25f-dlg-export-history', title: 'Export wallet data', route: DeskRoute.settingsAccount, dialog: showExportHistoryDialog),
@@ -268,7 +268,7 @@ final List<DeskShot> settingsShots = [
     id: '25g-dlg-export-history-saved',
     title: 'Export wallet data, saved',
     route: DeskRoute.settingsAccount,
-    dialog: (c) => showEDialog<void>(c, builder: (_) => const ExportHistoryDialog(savedDemo: '~/Documents/epic-wallet-data-savings-20261022.wfeh')),
+    dialog: (c) => showEDialog<void>(c, builder: (_) => const ExportHistoryDialog(savedShot: '~/Documents/epic-wallet-data-savings-20261022.wfeh')),
   ),
   DeskShot(id: '25h-dlg-import-history', title: 'Import history backup', route: DeskRoute.settingsAccount, dialog: showImportHistoryDialog),
   DeskShot(
@@ -278,7 +278,7 @@ final List<DeskShot> settingsShots = [
     dialog: (c) => showEDialog<void>(
       c,
       builder: (_) => const ImportHistoryDialog(
-        doneDemo: (name: 'epic-wallet-data-savings-20261003.wfeh', result: HistoryImport(merged: 12, added: 3, skipped: 33, contactsAdded: 2), settings: 4, walletName: false),
+        doneShot: (name: 'epic-wallet-data-savings-20261003.wfeh', result: HistoryImport(merged: 12, added: 3, skipped: 33, contactsAdded: 2), settings: 4, walletName: false),
       ),
     ),
   ),
@@ -296,7 +296,7 @@ final List<DeskShot> settingsShots = [
     dialog: (c) => showEDialog<void>(
       c,
       builder: (_) => const ImportHistoryDialog(
-        doneDemo: (name: 'epic-wallet-data-savings-20261003.wfeh', result: HistoryImport(merged: 2, skipped: 44, replaced: 1), settings: 0, walletName: false),
+        doneShot: (name: 'epic-wallet-data-savings-20261003.wfeh', result: HistoryImport(merged: 2, skipped: 44, replaced: 1), settings: 0, walletName: false),
       ),
     ),
   ),
@@ -310,18 +310,18 @@ final List<DeskShot> settingsShots = [
   const DeskShot(id: '26-settings-wallets', title: 'Settings, all wallets', route: DeskRoute.settingsWallets),
   const DeskShot(id: '26-settings-wallets-narrow', title: 'Settings, all wallets at 1000x750', route: DeskRoute.settingsWallets, width: 1000, height: 750),
   const DeskShot(id: '27-settings-phrase', title: 'Recovery phrase', route: DeskRoute.settingsPhrase),
-  const DeskShot(id: '27b-settings-phrase-shown', title: 'Recovery phrase, shown', route: DeskRoute.settingsPhrase, arg: PhraseDemo.shown),
-  const DeskShot(id: '27c-settings-phrase-qr', title: 'Recovery phrase, QR code', route: DeskRoute.settingsPhrase, arg: PhraseDemo.qr),
+  const DeskShot(id: '27b-settings-phrase-shown', title: 'Recovery phrase, shown', route: DeskRoute.settingsPhrase, arg: PhraseShot.shown),
+  const DeskShot(id: '27c-settings-phrase-qr', title: 'Recovery phrase, QR code', route: DeskRoute.settingsPhrase, arg: PhraseShot.qr),
   const DeskShot(id: '28-settings-rescan', title: 'Recheck balance', route: DeskRoute.settingsRescan),
-  const DeskShot(id: '28b-settings-rescan-running', title: 'Recheck balance, running', route: DeskRoute.settingsRescan, arg: RescanDemo.running),
-  // The check's answer is a demo: the tour asks no update server.
+  const DeskShot(id: '28b-settings-rescan-running', title: 'Recheck balance, running', route: DeskRoute.settingsRescan, arg: RescanShot.running),
+  // The check's answer is set by the shot: the tour asks no update server.
   DeskShot(
     id: '29-settings-about',
     title: 'About, up to date',
     route: DeskRoute.settingsAbout,
-    prepare: (c, _) async => c.read(deskUpdateProvider.notifier).showDemo(DeskUpdateState(DeskUpdatePhase.latest, checkedAt: DateTime.now().subtract(const Duration(minutes: 2)))),
+    prepare: (c, _) async => c.read(deskUpdateProvider.notifier).showShot(DeskUpdateState(DeskUpdatePhase.latest, checkedAt: DateTime.now().subtract(const Duration(minutes: 2)))),
   ),
-  const DeskShot(id: '29g-settings-about-licences', title: 'About, Licences unfolded', route: DeskRoute.settingsAbout, arg: AboutDemo.licencesOpen, height: 1000),
+  const DeskShot(id: '29g-settings-about-licences', title: 'About, Licences unfolded', route: DeskRoute.settingsAbout, arg: AboutShot.licencesOpen, height: 1000),
   const DeskShot(id: '26b-settings-files', title: 'Settings › Files & logs', route: DeskRoute.settingsFiles),
   DeskShot(id: '29b-settings-about-update', title: 'About: an update to download and install', route: DeskRoute.settingsAbout, prepare: (c, _) async => _update(c, DeskUpdatePhase.available)),
   DeskShot(
@@ -334,7 +334,7 @@ final List<DeskShot> settingsShots = [
     id: '29f-settings-about-failed',
     title: 'About: the update check failed',
     route: DeskRoute.settingsAbout,
-    prepare: (c, _) async => c.read(deskUpdateProvider.notifier).showDemo(DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdStatus(503), checkedAt: DateTime.now())),
+    prepare: (c, _) async => c.read(deskUpdateProvider.notifier).showShot(DeskUpdateState(DeskUpdatePhase.failed, reason: deskStrings.deskDataUpdStatus(503), checkedAt: DateTime.now())),
   ),
   DeskShot(id: '29d-slot-update', title: 'Sidebar: Update available', route: DeskRoute.overview, prepare: (c, _) async => _update(c, DeskUpdatePhase.available)),
   DeskShot(
@@ -346,15 +346,15 @@ final List<DeskShot> settingsShots = [
   ),
   const DeskShot(id: '30-settings-help', title: 'Help', route: DeskRoute.settingsHelp, height: 1000),
   const DeskShot(id: '30b-settings-help-search', title: 'Help, search', route: DeskRoute.settingsHelp, arg: 'file'),
-  const DeskShot(id: '30d-settings-help-open', title: 'Help, a topic open', route: DeskRoute.settingsHelp, arg: HelpDemo.open),
-  const DeskShot(id: '30e-settings-help-bottom', title: 'Help, the end: Support and Start again', route: DeskRoute.settingsHelp, arg: HelpDemo.bottom),
+  const DeskShot(id: '30d-settings-help-open', title: 'Help, a topic open', route: DeskRoute.settingsHelp, arg: HelpShot.open),
+  const DeskShot(id: '30e-settings-help-bottom', title: 'Help, the end: Support and Start again', route: DeskRoute.settingsHelp, arg: HelpShot.bottom),
   const DeskShot(id: '30f-settings-help-cleanup', title: 'Help › Maintenance: clean up old wallet folders', route: DeskRoute.settingsHelp, arg: HelpAt('maintenance'), height: 1000),
   const DeskShot(id: '30g-settings-help-cancel', title: 'Help › Cancelling a payment, opened at Receiving', route: DeskRoute.settingsHelp, arg: HelpAt.topic(HelpId.cancel, anchor: HelpAnchor.receiving), height: 1000),
   DeskShot(
     id: '23g-dlg-internet-guide',
     title: 'Receive from the internet: the guide',
     route: DeskRoute.settingsReceiving,
-    prepare: (c, _) => resetSettingsDemo(c),
+    prepare: (c, _) => resetSettingsShots(c),
     dialog: (c) => showEDialog<InternetGuideChoice>(c, builder: (_) => InternetGuide(port: appConfig.httpListenPort, isPublic: false)),
   ),
   DeskShot(id: '30c-dlg-report-problem', title: 'Report a problem', route: DeskRoute.settingsHelp, dialog: showReportProblemDialog),
@@ -371,12 +371,12 @@ final List<DeskShot> settingsShots = [
       await openInfoHint(c, title: (l) => l.deskSetReportFullDetails, under: WidgetsBinding.instance.rootElement);
     },
   ),
-  DeskShot(id: '33-dlg-remove-wallet', title: 'Remove wallet', route: DeskRoute.settingsWallets, dialog: (c) => showRemoveWalletDialog(c, demoOtherWallet)),
+  DeskShot(id: '33-dlg-remove-wallet', title: 'Remove wallet', route: DeskRoute.settingsWallets, dialog: (c) => showRemoveWalletDialog(c, shotOtherWallet)),
   DeskShot(
     id: '33b-dlg-remove-wallet-everything',
     title: 'Remove wallet, everything',
     route: DeskRoute.settingsWallets,
-    dialog: (c) => showRemoveWalletDialog(c, demoOtherWallet, mode: RemoveMode.everything),
+    dialog: (c) => showRemoveWalletDialog(c, shotOtherWallet, mode: RemoveMode.everything),
   ),
   DeskShot(id: '38-dlg-change-password', title: 'Change password', route: DeskRoute.settingsSecurity, dialog: showChangePasswordDialog),
   DeskShot(id: '39-dlg-node-synced', title: 'Local node synced', route: DeskRoute.overview, dialog: showNodeSyncedDialog),
@@ -429,7 +429,7 @@ final List<DeskShot> settingsShots = [
     title: 'Transaction detail, More opened with Technical details off',
     route: DeskRoute.activity,
     arg: 36,
-    prepare: (c, _) async => c.read(txMoreDemoProvider.notifier).open(),
+    prepare: (c, _) async => c.read(txMoreShotProvider.notifier).open(),
   ),
   // Settings › Advanced › Balance: the wallet's minimum confirmations at the default (6), set
   // to 3 (Reset and the note under the row), and Overview counting with 3 (the mock's 25 EPIC

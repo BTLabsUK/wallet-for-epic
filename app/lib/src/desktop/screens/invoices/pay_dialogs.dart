@@ -27,10 +27,10 @@ SendAmountGate deskPayGate(int? spendable, {required int amount, int? fee}) => S
 );
 
 /// Approve → password → pay. The only path to [DeskInvoices.pay]. On success the
-/// app goes back to To pay with a toast. [demoPassword] fills and submits the field at once
+/// app goes back to To pay with a toast. [shotPassword] fills and submits the field at once
 /// (the screenshot tour's wrong-password state).
-Future<void> showApproveInvoice(BuildContext context, IncomingInvoice invoice, {String? demoPassword}) async {
-  final paid = await showEDialog<IncomingInvoice>(context, builder: (_) => _ApproveDialog(invoice: invoice, demoPassword: demoPassword));
+Future<void> showApproveInvoice(BuildContext context, IncomingInvoice invoice, {String? shotPassword}) async {
+  final paid = await showEDialog<IncomingInvoice>(context, builder: (_) => _ApproveDialog(invoice: invoice, shotPassword: shotPassword));
   if (paid == null || !context.mounted) return;
   final ref = ProviderScope.containerOf(context, listen: false);
   _afterPay(context, ref, paid);
@@ -47,10 +47,10 @@ void _afterPay(BuildContext context, ProviderContainer c, IncomingInvoice paid) 
 }
 
 class _ApproveDialog extends ConsumerStatefulWidget {
-  const _ApproveDialog({required this.invoice, this.demoPassword});
+  const _ApproveDialog({required this.invoice, this.shotPassword});
 
   final IncomingInvoice invoice;
-  final String? demoPassword;
+  final String? shotPassword;
 
   @override
   ConsumerState<_ApproveDialog> createState() => _ApproveDialogState();
@@ -70,9 +70,9 @@ class _ApproveDialogState extends ConsumerState<_ApproveDialog> {
   @override
   void initState() {
     super.initState();
-    final demo = widget.demoPassword;
-    if (demo != null) {
-      _password.text = demo;
+    final shot = widget.shotPassword;
+    if (shot != null) {
+      _password.text = shot;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _pay();
       });
@@ -244,10 +244,10 @@ class _DeclineDialogState extends ConsumerState<_DeclineDialog> {
 
 /// Cancel payment: always the user's choice; LEPIC asks the node first. The service holds the
 /// signed payment, so the cancel also spends its coins back to this wallet, which makes it
-/// final (cancel_final.dart): one action, no extra step. [demoConfirm] presses Cancel payment
+/// final (cancel_final.dart): one action, no extra step. [shotConfirm] presses Cancel payment
 /// at once (the screenshot tour's error states).
-Future<void> showCancelPaymentDialog(BuildContext context, IncomingInvoice invoice, {bool demoConfirm = false}) async {
-  final done = await showEDialog<CancelResult>(context, builder: (_) => _CancelDialog(invoice: invoice, demoConfirm: demoConfirm));
+Future<void> showCancelPaymentDialog(BuildContext context, IncomingInvoice invoice, {bool shotConfirm = false}) async {
+  final done = await showEDialog<CancelResult>(context, builder: (_) => _CancelDialog(invoice: invoice, shotConfirm: shotConfirm));
   if (done == null || !context.mounted) return;
   final l = context.l10n;
   switch (done) {
@@ -265,10 +265,10 @@ Future<void> showCancelPaymentDialog(BuildContext context, IncomingInvoice invoi
 }
 
 class _CancelDialog extends ConsumerStatefulWidget {
-  const _CancelDialog({required this.invoice, this.demoConfirm = false});
+  const _CancelDialog({required this.invoice, this.shotConfirm = false});
 
   final IncomingInvoice invoice;
-  final bool demoConfirm;
+  final bool shotConfirm;
 
   @override
   ConsumerState<_CancelDialog> createState() => _CancelDialogState();
@@ -284,7 +284,7 @@ class _CancelDialogState extends ConsumerState<_CancelDialog> {
   @override
   void initState() {
     super.initState();
-    if (widget.demoConfirm) {
+    if (widget.shotConfirm) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) _cancel();
       });

@@ -33,7 +33,7 @@ class NodeSyncedDialog extends StatelessWidget {
 }
 
 /// Sample output of a first scan, newest last.
-const firstScanDemoLines = [
+const firstScanSampleLines = [
   'Starting UTXO scan, 0% complete', // l10n-ok: sample of the core's own English output
   'Checking 1000 outputs, up to index 1000 (highest index: 2914414)', // l10n-ok
   'Identified 6 wallet outputs as belonging to this wallet', // l10n-ok
@@ -43,7 +43,7 @@ const firstScanDemoLines = [
 ];
 
 /// The first scan of a wallet and its output; it runs on when closed.
-Future<void> showFirstScanDialog(BuildContext context, {List<String> lines = firstScanDemoLines}) =>
+Future<void> showFirstScanDialog(BuildContext context, {List<String> lines = firstScanSampleLines}) =>
     showEDialog(context, builder: (_) => FirstScanDialog(lines: lines));
 
 /// The latest percentage and the outputs found so far, read from the core's English lines

@@ -41,9 +41,9 @@ import 'contacts_screen.dart' show ContactsArgs;
 import '../../../recipient.dart' show parseRecipient, recipientShaped;
 
 /// The screenshot tour presses More on the open transaction.
-final txMoreDemoProvider = NotifierProvider<TxMoreDemo, bool>(TxMoreDemo.new);
+final txMoreShotProvider = NotifierProvider<TxMoreShot, bool>(TxMoreShot.new);
 
-class TxMoreDemo extends Notifier<bool> {
+class TxMoreShot extends Notifier<bool> {
   @override
   bool build() => false;
 
@@ -291,7 +291,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     final ts = context.ts;
     final l = context.l10n;
     final t = widget.tx;
-    ref.listen(txMoreDemoProvider, (_, open) {
+    ref.listen(txMoreShotProvider, (_, open) {
       if (open && !_more) setState(() => _more = true);
     });
     final total = t.amount + (t.incoming ? 0 : t.fee);

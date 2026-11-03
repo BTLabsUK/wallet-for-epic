@@ -12,7 +12,7 @@ import 'import_wallets_screen.dart';
 import 'onboarding_parts.dart';
 import 'restore_screen.dart';
 import 'same_wallet_dialog.dart';
-import 'local_node_step.dart' show LocalNodeDemo;
+import 'local_node_step.dart' show LocalNodeShot;
 import 'setup_screen.dart';
 import 'unlock_screen.dart';
 
@@ -28,7 +28,7 @@ final List<DeskShot> onboardingShots = [
   const DeskShot(id: '01c-welcome-add', title: 'Add a wallet', route: DeskRoute.welcome, arg: 'add'),
   const DeskShot(id: '02a-create', title: 'Create: password', route: DeskRoute.create, arg: CreateStep.account),
   const DeskShot(id: '02b-create-phrase', title: 'Create: recovery phrase', route: DeskRoute.create, arg: CreateStep.phrase),
-  const DeskShot(id: '02c-create-phrase-shown', title: 'Create: recovery phrase, shown', route: DeskRoute.create, arg: CreateDemo.phraseShown),
+  const DeskShot(id: '02c-create-phrase-shown', title: 'Create: recovery phrase, shown', route: DeskRoute.create, arg: CreateShot.phraseShown),
   const DeskShot(id: '02d-create-creating', title: 'Create: creating', route: DeskRoute.create, arg: CreateStep.creating),
   const DeskShot(id: '02e-create-failed', title: 'Create: failed', route: DeskRoute.create, arg: CreateStep.failed),
   const DeskShot(id: '02f-create-locking', title: 'Create: locking the open wallet', route: DeskRoute.create, arg: CreateStep.locking),
@@ -83,16 +83,16 @@ final List<DeskShot> onboardingShots = [
   const DeskShot(id: '04-setup', title: 'Setup: preferences', route: DeskRoute.setup, arg: SetupStep.prefs),
   const DeskShot(id: '04b-setup-node', title: 'Setup: node', route: DeskRoute.setup, arg: SetupStep.node),
   const DeskShot(id: '03-setup-node', title: 'Setup: choose a node', route: DeskRoute.setup, arg: SetupStep.node),
-  const DeskShot(id: '03b-setup-local', title: 'Setup: the local node step', route: DeskRoute.setup, arg: SetupDemo(SetupStep.local)),
-  const DeskShot(id: '03c-setup-existing', title: 'Setup: a node already running here', route: DeskRoute.setup, arg: SetupDemo(SetupStep.local, local: LocalNodeDemo.found)),
-  const DeskShot(id: '03d-setup-notfound', title: 'Setup: no node answers', route: DeskRoute.setup, arg: SetupDemo(SetupStep.local, local: LocalNodeDemo.notFound)),
-  const DeskShot(id: '03e-setup-review', title: 'Setup: review with the local node', route: DeskRoute.setup, arg: SetupDemo(SetupStep.review, localChosen: true)),
-  const DeskShot(id: '03f-setup-node-list', title: 'Setup: the node list open', route: DeskRoute.setup, arg: SetupDemo(SetupStep.node, listOpen: true)),
+  const DeskShot(id: '03b-setup-local', title: 'Setup: the local node step', route: DeskRoute.setup, arg: SetupShot(SetupStep.local)),
+  const DeskShot(id: '03c-setup-existing', title: 'Setup: a node already running here', route: DeskRoute.setup, arg: SetupShot(SetupStep.local, local: LocalNodeShot.found)),
+  const DeskShot(id: '03d-setup-notfound', title: 'Setup: no node answers', route: DeskRoute.setup, arg: SetupShot(SetupStep.local, local: LocalNodeShot.notFound)),
+  const DeskShot(id: '03e-setup-review', title: 'Setup: review with the local node', route: DeskRoute.setup, arg: SetupShot(SetupStep.review, localChosen: true)),
+  const DeskShot(id: '03f-setup-node-list', title: 'Setup: the node list open', route: DeskRoute.setup, arg: SetupShot(SetupStep.node, listOpen: true)),
   const DeskShot(id: '04c-setup-epicbox', title: 'Setup: Epicbox', route: DeskRoute.setup, arg: SetupStep.epicbox),
-  const DeskShot(id: '04e-setup-epicbox-list', title: 'Setup: the Epicbox list open', route: DeskRoute.setup, arg: SetupDemo(SetupStep.epicbox, listOpen: true)),
+  const DeskShot(id: '04e-setup-epicbox-list', title: 'Setup: the Epicbox list open', route: DeskRoute.setup, arg: SetupShot(SetupStep.epicbox, listOpen: true)),
   const DeskShot(id: '04d-setup-review', title: 'Setup: review', route: DeskRoute.setup, arg: SetupStep.review),
-  const DeskShot(id: '04f-setup-save-failed', title: 'Setup: Save failed on a first run', route: DeskRoute.setup, arg: SetupDemo(SetupStep.review, first: SetupFirstRun(UnlockAdded('Wallet', id: 'demo')), saveFailed: true)),
-  const DeskShot(id: '04g-setup-resumed', title: 'Setup: resumed after a restart', route: DeskRoute.setup, arg: SetupDemo(SetupStep.node, first: SetupFirstRun(UnlockAdded('Wallet', id: 'demo'), resumed: true))),
+  const DeskShot(id: '04f-setup-save-failed', title: 'Setup: Save failed on a first run', route: DeskRoute.setup, arg: SetupShot(SetupStep.review, first: SetupFirstRun(UnlockAdded('Wallet', id: 'shot')), saveFailed: true)),
+  const DeskShot(id: '04g-setup-resumed', title: 'Setup: resumed after a restart', route: DeskRoute.setup, arg: SetupShot(SetupStep.node, first: SetupFirstRun(UnlockAdded('Wallet', id: 'shot'), resumed: true))),
   const DeskShot(id: '05-unlock', title: 'Unlock', route: DeskRoute.unlock),
   const DeskShot(id: '05b-unlock-error', title: 'Unlock: wrong password', route: DeskRoute.unlock, arg: UnlockShow.wrongPassword),
   const DeskShot(id: '05c-unlock-progress', title: 'Unlock: unlocking', route: DeskRoute.unlock, arg: UnlockShow.progress),

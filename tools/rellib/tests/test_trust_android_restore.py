@@ -326,6 +326,16 @@ class SecretTypingTest(unittest.TestCase):
 
 
 class CreateModeTest(unittest.TestCase):
+    def setUp(self):
+        # Linux and Windows have modules of the same names; in one test run theirs may be loaded first.
+        stash = mock.patch.dict(sys.modules)
+        stash.start()
+        self.addCleanup(stash.stop)
+        for name in ("files", "lane", "trust", "uia", "android_platform"):
+            sys.modules.pop(name, None)
+        sys.path.insert(0, os.path.join(DRIVERS, "android"))
+        self.addCleanup(sys.path.remove, os.path.join(DRIVERS, "android"))
+
     def test_install_candidate_fresh(self):
         import android_platform as ap
         out = tempfile.mkdtemp(prefix="trust-create-")

@@ -409,13 +409,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         _toTouched = true;
       case SendStep.review || SendStep.sending:
         WidgetsBinding.instance.addPostFrameCallback((_) => _openReview(startBusy: args.step == SendStep.sending));
-      // The demo result reads the amount, which needs the language: built in
+      // The shot result reads the amount, which needs the language: built in
       // didChangeDependencies, before the first frame.
       case SendStep.done:
-        _demoStep = SendStep.done;
+        _shotStep = SendStep.done;
       case SendStep.fileReady:
         _file = true;
-        _demoStep = SendStep.fileReady;
+        _shotStep = SendStep.fileReady;
       case SendStep.failed:
         _failure = (l) => l.deskSendNoAnswer;
         _submitted = true;
@@ -424,21 +424,21 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     }
   }
 
-  /// A demo step whose result is still to be built ([didChangeDependencies]).
-  SendStep? _demoStep;
+  /// A shot step whose result is still to be built ([didChangeDependencies]).
+  SendStep? _shotStep;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final step = _demoStep;
+    final step = _shotStep;
     if (step == null) return;
-    _demoStep = null;
+    _shotStep = null;
     _result = step == SendStep.done
-        ? SendDone(_demoTx(TxMethod.epicbox, _args.recipient))
-        : SendFileReady(_demoTx(TxMethod.file, null), 'f0e1d2c3.tx');
+        ? SendDone(_shotTx(TxMethod.epicbox, _args.recipient))
+        : SendFileReady(_shotTx(TxMethod.file, null), 'f0e1d2c3.tx');
   }
 
-  Tx _demoTx(TxMethod m, String? to) => Tx(
+  Tx _shotTx(TxMethod m, String? to) => Tx(
     id: 36,
     slateId: 'f0e1d2c3-b4a5-4697-8879-9f3a7c21a0b1',
     direction: TxDirection.sent,

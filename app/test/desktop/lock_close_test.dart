@@ -2,7 +2,7 @@
 // Closing the app after a lock (LNX-4): the wallet's dispose never waits on its streams. The
 // live test needs the Linux library and the network, and is skipped without them:
 //
-//   WFE_DEMO_LEPIC_LIB=.../liblepic_ffi.so flutter test test/desktop/lock_close_test.dart
+//   WFE_LEPIC_LIB=.../liblepic_ffi.so flutter test test/desktop/lock_close_test.dart
 import 'dart:io';
 
 import 'package:epic_wallet/src/desktop/data/lepic_desk_wallet.dart';
@@ -11,7 +11,7 @@ import 'package:epic_wallet/src/secret_store_api.dart';
 import 'package:epic_wallet/src/wallet_registry.dart' show WalletRegistry;
 import 'package:flutter_test/flutter_test.dart';
 
-final String? _lib = Platform.environment['WFE_DEMO_LEPIC_LIB'];
+final String? _lib = Platform.environment['WFE_LEPIC_LIB'];
 
 void main() {
   late Directory tmp;
@@ -65,5 +65,5 @@ void main() {
     // ignore: avoid_print
     print('DISPOSE took ${watch.elapsedMilliseconds} ms');
     expect(watch.elapsed, lessThan(const Duration(seconds: 5)));
-  }, skip: _lib == null ? 'needs WFE_DEMO_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 3)));
+  }, skip: _lib == null ? 'needs WFE_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 3)));
 }

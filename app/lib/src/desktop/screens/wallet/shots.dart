@@ -82,30 +82,30 @@ Future<void> Function(ProviderContainer) _newest(int n) => (c) async {
 
 /// Adds the mock's payment whose sender reports it posted, and shows it.
 Future<void> _senderPosted(ProviderContainer c, BuildContext _) async {
-  mockBehind(c.read(deskApiProvider))?.addSenderPostedDemo();
+  mockBehind(c.read(deskApiProvider))?.addSenderPostedShot();
   await c.read(deskProvider.notifier).refresh();
 }
 
 /// Adds the mock's incoming payment inside its Cancel hold (5 minutes after this wallet
 /// signed), or past it (40 minutes), and shows it.
 Future<void> _receiveHold(ProviderContainer c, BuildContext _) async {
-  mockBehind(c.read(deskApiProvider))?.addReceiveCancelDemo(id: MockDeskWallet.receiveHoldDemoId, ago: const Duration(minutes: 5));
+  mockBehind(c.read(deskApiProvider))?.addReceiveCancelShot(id: MockDeskWallet.receiveHoldShotId, ago: const Duration(minutes: 5));
   await c.read(deskProvider.notifier).refresh();
 }
 
 Future<void> _receiveOffered(ProviderContainer c, BuildContext _) async {
-  mockBehind(c.read(deskApiProvider))?.addReceiveCancelDemo(id: MockDeskWallet.receiveOfferedDemoId, ago: const Duration(minutes: 40));
+  mockBehind(c.read(deskApiProvider))?.addReceiveCancelShot(id: MockDeskWallet.receiveOfferedShotId, ago: const Duration(minutes: 40));
   await c.read(deskProvider.notifier).refresh();
 }
 
 /// A send both wallets signed that the node did not take, or the same send cancelled final.
 Future<void> _signedCancel(ProviderContainer c, BuildContext _) async {
-  mockBehind(c.read(deskApiProvider))?.addSignedCancelDemo(id: MockDeskWallet.signedCancelDemoId);
+  mockBehind(c.read(deskApiProvider))?.addSignedCancelShot(id: MockDeskWallet.signedCancelShotId);
   await c.read(deskProvider.notifier).refresh();
 }
 
 Future<void> _cancelFinal(ProviderContainer c, BuildContext _) async {
-  mockBehind(c.read(deskApiProvider))?.addSignedCancelDemo(id: MockDeskWallet.cancelFinalDemoId);
+  mockBehind(c.read(deskApiProvider))?.addSignedCancelShot(id: MockDeskWallet.cancelFinalShotId);
   await c.read(deskProvider.notifier).refresh();
 }
 
@@ -135,7 +135,7 @@ final List<DeskShot> walletShots = [
   const DeskShot(id: '10-overview', title: 'Overview', route: DeskRoute.overview),
   const DeskShot(id: '10-overview-800', title: 'Overview at 800x700, the smallest window', route: DeskRoute.overview, width: 800, height: 700),
   DeskShot(id: '10-overview-narrow', title: 'Overview at 1000x700', route: DeskRoute.overview, width: 1000, height: 700),
-  const DeskShot(id: '10b-overview-empty', title: 'Overview, new wallet', route: DeskRoute.overview, arg: OverviewDemo.empty),
+  const DeskShot(id: '10b-overview-empty', title: 'Overview, new wallet', route: DeskRoute.overview, arg: OverviewShot.empty),
   // A short history: the BT Labs lattice under Recent activity, at 75 % and 40 %.
   DeskShot(id: '10b-overview-one', title: 'Overview, one payment', route: DeskRoute.overview, before: _newest(1)),
   DeskShot(id: '10b-overview-three', title: 'Overview, three payments', route: DeskRoute.overview, before: _newest(3)),
@@ -150,11 +150,11 @@ final List<DeskShot> walletShots = [
       await c.read(deskProvider.notifier).refresh();
     },
   ),
-  const DeskShot(id: '10c-overview-node-down', title: 'Overview, node down', route: DeskRoute.overview, arg: OverviewDemo.nodeDown),
-  const DeskShot(id: '10d-overview-loading', title: 'Overview, loading', route: DeskRoute.overview, arg: OverviewDemo.loading),
-  const DeskShot(id: '10e-overview-starting', title: 'Overview, just unlocked', route: DeskRoute.overview, arg: OverviewDemo.starting),
-  const DeskShot(id: '10f-overview-syncing', title: 'Overview, node syncing', route: DeskRoute.overview, arg: OverviewDemo.syncing),
-  const DeskShot(id: '10g-overview-node-problem', title: 'Overview, node problem', route: DeskRoute.overview, arg: OverviewDemo.nodeProblem),
+  const DeskShot(id: '10c-overview-node-down', title: 'Overview, node down', route: DeskRoute.overview, arg: OverviewShot.nodeDown),
+  const DeskShot(id: '10d-overview-loading', title: 'Overview, loading', route: DeskRoute.overview, arg: OverviewShot.loading),
+  const DeskShot(id: '10e-overview-starting', title: 'Overview, just unlocked', route: DeskRoute.overview, arg: OverviewShot.starting),
+  const DeskShot(id: '10f-overview-syncing', title: 'Overview, node syncing', route: DeskRoute.overview, arg: OverviewShot.syncing),
+  const DeskShot(id: '10g-overview-node-problem', title: 'Overview, node problem', route: DeskRoute.overview, arg: OverviewShot.nodeProblem),
   DeskShot(
     id: '10h-overview-backup-reminder',
     title: 'Overview, history backup reminder',
@@ -217,37 +217,37 @@ final List<DeskShot> walletShots = [
     id: '12k-tx-detail-sender-posted',
     title: 'Transaction detail, the sender reports it posted',
     route: DeskRoute.activity,
-    arg: MockDeskWallet.senderPostedDemoId,
+    arg: MockDeskWallet.senderPostedShotId,
     prepare: _senderPosted,
   ),
   DeskShot(
     id: '12l-tx-detail-receive-cancel-hold',
     title: 'Transaction detail, an incoming payment inside its Cancel hold',
     route: DeskRoute.activity,
-    arg: MockDeskWallet.receiveHoldDemoId,
+    arg: MockDeskWallet.receiveHoldShotId,
     prepare: _receiveHold,
   ),
   DeskShot(
     id: '12m-tx-detail-receive-cancel-offered',
     title: 'Transaction detail, an incoming payment whose Cancel is offered',
     route: DeskRoute.activity,
-    arg: MockDeskWallet.receiveOfferedDemoId,
+    arg: MockDeskWallet.receiveOfferedShotId,
     prepare: _receiveOffered,
   ),
   DeskShot(
     id: '35c-dlg-cancel-receive',
     title: 'Cancel an incoming payment',
     route: DeskRoute.activity,
-    arg: MockDeskWallet.receiveOfferedDemoId,
+    arg: MockDeskWallet.receiveOfferedShotId,
     prepare: _receiveOffered,
-    dialog: (c) => showCancelTxDialog(c, _tx(c, MockDeskWallet.receiveOfferedDemoId)),
+    dialog: (c) => showCancelTxDialog(c, _tx(c, MockDeskWallet.receiveOfferedShotId)),
   ),
   // WAL-20: a send both wallets signed; Cancel also spends its coins back, for a fee.
   DeskShot(
     id: '12o-tx-detail-signed-cancel',
     title: 'Transaction detail, a send both signed that the node refused: Cancel spends the coins back',
     route: DeskRoute.activity,
-    arg: MockDeskWallet.signedCancelDemoId,
+    arg: MockDeskWallet.signedCancelShotId,
     prepare: _signedCancel,
     height: 1150,
   ),
@@ -255,15 +255,15 @@ final List<DeskShot> walletShots = [
     id: '35f-dlg-cancel-signed',
     title: 'Cancel a send both signed: the spend back and its fee',
     route: DeskRoute.activity,
-    arg: MockDeskWallet.signedCancelDemoId,
+    arg: MockDeskWallet.signedCancelShotId,
     prepare: _signedCancel,
-    dialog: (c) => showCancelTxDialog(c, _tx(c, MockDeskWallet.signedCancelDemoId)),
+    dialog: (c) => showCancelTxDialog(c, _tx(c, MockDeskWallet.signedCancelShotId)),
   ),
   DeskShot(
     id: '12p-tx-detail-cancel-final',
     title: 'Transaction detail, a cancelled send whose coins went back: final',
     route: DeskRoute.activity,
-    arg: MockDeskWallet.cancelFinalDemoId,
+    arg: MockDeskWallet.cancelFinalShotId,
     prepare: _cancelFinal,
   ),
   DeskShot(id: '35d-dlg-tx-details-add', title: 'Add details to a restored payment', route: DeskRoute.activity, arg: 102, dialog: (c) => showTxDetailsDialog(c, _tx(c, 102))),
@@ -296,16 +296,16 @@ final List<DeskShot> walletShots = [
   const DeskShot(id: '19g-outputs-loading', title: 'Outputs, loading', route: DeskRoute.outputs, before: _outputsOn, arg: OutputsArgs(waiting: true)),
   DeskShot(id: '19h-outputs-narrow', title: 'Outputs at 980 wide', route: DeskRoute.outputs, before: _outputsOn, arg: _outputsSix, width: 980, height: 1000),
   DeskShot(id: '19i-dlg-split', title: 'Split outputs', route: DeskRoute.outputs, before: _outputsOn, arg: _outputsSix, dialog: (c) => showSplitDialog(c)),
-  DeskShot(id: '19j-dlg-split-posting', title: 'Split, posting', route: DeskRoute.outputs, before: _outputsOn, arg: _outputsSix, dialog: (c) => showSplitDialog(c, demo: const SelfSendDemo(SelfSendPhase.posting))),
-  DeskShot(id: '19k-dlg-split-done', title: 'Split, done', route: DeskRoute.outputs, before: _outputsOn, arg: _outputsSix, dialog: (c) => showSplitDialog(c, demo: const SelfSendDemo(SelfSendPhase.done))),
-  DeskShot(id: '19l-dlg-split-not-posted', title: 'Split, not posted', route: DeskRoute.outputs, before: _outputsOn, arg: _outputsSix, dialog: (c) => showSplitDialog(c, demo: const SelfSendDemo(SelfSendPhase.notPosted))),
+  DeskShot(id: '19j-dlg-split-posting', title: 'Split, posting', route: DeskRoute.outputs, before: _outputsOn, arg: _outputsSix, dialog: (c) => showSplitDialog(c, shot: const SelfSendShot(SelfSendPhase.posting))),
+  DeskShot(id: '19k-dlg-split-done', title: 'Split, done', route: DeskRoute.outputs, before: _outputsOn, arg: _outputsSix, dialog: (c) => showSplitDialog(c, shot: const SelfSendShot(SelfSendPhase.done))),
+  DeskShot(id: '19l-dlg-split-not-posted', title: 'Split, not posted', route: DeskRoute.outputs, before: _outputsOn, arg: _outputsSix, dialog: (c) => showSplitDialog(c, shot: const SelfSendShot(SelfSendPhase.notPosted))),
   DeskShot(id: '19m-dlg-consolidate', title: 'Consolidate outputs', route: DeskRoute.outputs, before: _outputsOn, arg: _outputsSix, dialog: (c) => showConsolidateDialog(c, spendableCount: 4)),
   DeskShot(
     id: '19n-dlg-consolidate-done',
     title: 'Consolidate, done',
     route: DeskRoute.outputs, before: _outputsOn,
     arg: _outputsSix,
-    dialog: (c) => showConsolidateDialog(c, spendableCount: 4, demo: const SelfSendDemo(SelfSendPhase.done)),
+    dialog: (c) => showConsolidateDialog(c, spendableCount: 4, shot: const SelfSendShot(SelfSendPhase.done)),
   ),
   DeskShot(id: '19o-dlg-consolidate-one', title: 'Consolidate, one output', route: DeskRoute.outputs, before: _outputsOn, arg: _outputsSix, dialog: (c) => showConsolidateDialog(c, spendableCount: 1)),
   const DeskShot(id: '21-contacts', title: 'Contacts', route: DeskRoute.contacts),
