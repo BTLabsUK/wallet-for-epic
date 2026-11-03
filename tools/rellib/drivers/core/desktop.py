@@ -79,7 +79,7 @@ TECHNICAL = T("g4.advanced.technical", role="toggle", keys=("deskSetAdvTechnical
 NODE_PICKER = T("g4.server.node", keys=("deskSetNodeServer",), names=("Node server",), match="starts")
 RELAY_PICKER = T("g4.server.epicbox", keys=("deskSetRecvEpicboxServer",), names=("Epicbox server",), match="starts")
 PICKER_SEARCH = T("g4.server.search", role="text_field", names=("re:.*",))
-SWITCH = T("g4.server.switch", keys=("deskSendEpicboxSwitch",), names=("Switch",), match="starts")
+SWITCH = T("g4.server.switch", keys=("deskSendEpicboxSwitch",), names=("Switch",), match="exact")
 SERVER_REFUSED = T("g4.server.refused", role="text", names=("re:.*(no answer from this server|nothing added|not a node).*",),
                    match="contains")
 
@@ -155,7 +155,7 @@ class Desktop:
             if not fields:
                 d.harness("no password field (wanted %d)" % want_at_least)
             for n in fields:
-                d.s.set_text(n, self.password)
+                d._act(d.s.set_text, n, self.password)
             if submit is None or d.wait(Expect("%s enabled" % submit, lambda dd, tree: any(
                     n.enabled and n.role == "button" for n in dd.find_in(submit, tree))), 4):
                 return len(fields)
@@ -203,7 +203,7 @@ class Desktop:
             return
         btn = [n for n in d.find_in(CREATE_TITLE, d.tree()) if n.role == "button"]
         if btn:
-            d.s.press(btn[0])
+            d._act(d.s.press, btn[0])
         d.must(shows(REVEAL), 180, goal="the recovery phrase screen after creating the wallet")
 
     def _depth_dial(self):
@@ -214,7 +214,7 @@ class Desktop:
         if n is None:
             return
         if "checked" not in n.states and "selected" not in n.states:
-            d.s.press(n)
+            d._act(d.s.press, n)
             time.sleep(1)
         self.log("depth dial: Deep end (level 3)")
 
@@ -287,7 +287,7 @@ class Desktop:
         n = d.wait(shows(t), 4)
         if not n:
             return False
-        d.s.press(n)
+        d._act(d.s.press, n)
         time.sleep(1)
         return True
 
@@ -355,7 +355,7 @@ class Desktop:
         if not n:
             return
         if "checked" not in n.states and "selected" not in n.states:
-            d.s.press(n)
+            d._act(d.s.press, n)
             d.wait(Expect("Deep end chosen", lambda dd, tree: any(("checked" in x.states or "selected" in x.states)
                                                                   for x in dd.find_in(DEEP_END, tree))), 10)
         self.log("Settings › Advanced › View: Deep end")
@@ -391,7 +391,7 @@ class Desktop:
         focused = [n for n in search if "focused" in n.states] or search
         if not focused:
             d.harness("the %s picker has no search field" % picker)
-        d.s.set_text(focused[0], typed)
+        d._act(d.s.set_text, focused[0], typed)
         d.press(self._use_row(entry), step="use-%s" % entry, timeout=30,
                 then=Expect("%s %s" % (entry, "in use" if use else "listed"),
                             lambda dd, tree: (self._in_use(picker, entry, tree) if use else
@@ -405,7 +405,7 @@ class Desktop:
                                    d.shot("server-refused"))
             sw = d.find_in(SWITCH, tree)
             if use and sw:
-                d.s.press(sw[0])
+                d._act(d.s.press, sw[0])
                 time.sleep(1)
                 continue
             if use and self._in_use(picker, entry, tree):
@@ -433,7 +433,7 @@ class Desktop:
         self.find_setting(theme, ("appearance",), "the theme choice")
         d.press(theme, step="theme", timeout=20,
                 then=Expect("%s chosen" % theme, lambda dd, tree: any("selected" in n.states or "checked" in n.states
-                                                                      for n in dd.find_in(theme, tree)) or True))
+                                                                      for n in dd.find_in(theme, tree))))
         self.find_setting(LABEL_SAVE, ("wallet",), "the wallet label")
         d.fill(LABEL_FIELD, want["label"], step="label")
         d.press(LABEL_SAVE, step="label-save", timeout=20)
@@ -492,7 +492,7 @@ class Desktop:
             d.press(SEND_ANOTHER, step="send-another", timeout=20)
         eb, link = d.seen(SEND_METHOD_EPICBOX), d.seen(SEND_METHOD_LINK)
         if eb and link and "selected" not in eb.states:
-            d.s.press(eb)
+            d._act(d.s.press, eb)
             time.sleep(0.8)
         d.fill(SEND_TO, to, step="send-to")
         if amount is None:
@@ -510,7 +510,7 @@ class Desktop:
         d.must(shows(SEND_REVIEW_TITLE), 60, step="send-review")
         pw = [n for n in d.tree() if n.role == "text_field" and "password" in n.states]
         if pw:
-            d.s.set_text(pw[0], self.password)
+            d._act(d.s.set_text, pw[0], self.password)
         d.press(SEND_CONFIRM, step="send-confirm", then=either(gone(SEND_REVIEW_TITLE), shows(SEND_FAILED)), timeout=300)
         d.shot("send-after")
         failed = d.find_in(SEND_FAILED, d.tree())

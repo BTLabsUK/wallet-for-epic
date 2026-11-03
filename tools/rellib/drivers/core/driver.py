@@ -67,7 +67,7 @@ class Driver:
     def tree(self):
         try:
             return self.s.tree()
-        except HarnessGone:
+        except (HarnessFault, ProductFault):  # the sandbox gone, the lane stopped
             raise
         except Exception as e:  # noqa: BLE001 — a read that failed once (the app busy) is read again
             self.log("tree read failed (%s); reading again" % e)
@@ -75,7 +75,14 @@ class Driver:
             return self.s.tree()
 
     def find_in(self, target, tree):
-        return tg.find(target, tree, self.labels)
+        """By id or label; else the name the AI fallback picked for it earlier in this run, so the
+        step's own check (and later steps) see the recovered control too."""
+        hits = tg.find(target, tree, self.labels)
+        known = getattr(self.rec, "learned", {}).get(target.id) if not hits else None
+        if known:
+            ok = tg.COMPATIBLE.get(target.role, {target.role})
+            hits = [n for n in tree if n.name == known and n.role in ok]
+        return hits
 
     def texts(self, target):
         return [p for p in tg.patterns(target, self.labels)]
@@ -155,6 +162,20 @@ class Driver:
                 return r
         self.harness("never reached: %s" % expect)
 
+    def _clear(self):
+        """Known obstacles off the screen before an action: an overlay (the first-run tour) lets a
+        tap through but holds the keyboard focus a control without an action needs."""
+        for _ in range(3):
+            if not self._dismiss(self.tree()):
+                return
+
+    def _act(self, fn, node, *args):
+        """A surface action; its own error (no way to reach the control) becomes this step's harness line."""
+        try:
+            return fn(node, *args)
+        except RuntimeError as e:
+            self.harness(str(e))
+
     def _dismiss(self, tree):
         for t, why in self.obstacles:
             hits = self.find_in(t, tree)
@@ -183,9 +204,10 @@ class Driver:
         self.step = step
         self.trail.append(step)
         for attempt in range(2):
+            self._clear()
             node = self.locate(target, timeout)
             before = [(n.role, n.name) for n in self.tree()]
-            self.s.press(node)
+            self._act(self.s.press, node)
             want = then or Expect("the screen changed after %s" % target,
                                   lambda d, tree, b=before: [(n.role, n.name) for n in tree] != b)
             r = self.wait(want, timeout)
@@ -200,8 +222,9 @@ class Driver:
         self.step = step
         self.trail.append(step)
         for attempt in range(2):
+            self._clear()
             node = self.locate(target, timeout)
-            self.s.set_text(node, text)
+            self._act(self.s.set_text, node, text)
             n = self.wait(shows(target), 5)
             v = (n.value if n else None)
             if v is None or v == text or ("password" in n.states and len(v) in (0, len(text)) and v != ""):
@@ -213,10 +236,11 @@ class Driver:
         """Set a check box or switch to `on`; reads its checked state before and after."""
         self.step = step
         self.trail.append(step)
+        self._clear()
         node = self.locate(target, timeout)
         if ("checked" in node.states) == on:
             return node
-        self.s.press(node)
+        self._act(self.s.press, node)
         r = self.wait(Expect("%s %s" % (target, "on" if on else "off"),
                              lambda d, tree: next((n for n in d.find_in(target, tree) if ("checked" in n.states) == on), None)), timeout)
         return r or self.harness("%s did not turn %s" % (target, "on" if on else "off"))
