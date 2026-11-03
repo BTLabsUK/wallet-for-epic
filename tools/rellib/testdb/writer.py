@@ -65,16 +65,27 @@ def migrate_db(conn):
 
 
 def check_secrets(value):
+    """`value` with phrase-shaped text cut out, and how many cuts. A field named like a secret refuses
+    the whole event (Refused); phrase-shaped text in a note is cut, so the event (an attempt's end)
+    still lands and no attempt stays "running" for a false match."""
     if isinstance(value, dict):
+        out, cuts = {}, 0
         for k, v in value.items():
             if SECRET_KEY.search(str(k)):
                 raise Refused("field %s" % k)
-            check_secrets(v)
-    elif isinstance(value, (list, tuple)):
+            out[k], c = check_secrets(v)
+            cuts += c
+        return out, cuts
+    if isinstance(value, (list, tuple)):
+        out, cuts = [], 0
         for v in value:
-            check_secrets(v)
-    elif isinstance(value, str) and PHRASE.search(value.lower() + " "):
-        raise Refused("phrase-shaped text")
+            x, c = check_secrets(v)
+            out.append(x)
+            cuts += c
+        return out, cuts
+    if isinstance(value, str) and PHRASE.search(value.lower() + " "):
+        return PHRASE.sub("[phrase-shaped text removed] ", value.lower() + " ").strip(), 1
+    return value, 0
 
 
 def norm_ts(ts):
@@ -270,7 +281,9 @@ def ingest(conn, ev, size=0):
     ev = validate(ev, size)
     if not ev["eid"]:
         raise Bad("missing eid")
-    check_secrets(ev["body"])
+    ev["body"], cuts = check_secrets(ev["body"])
+    if cuts:
+        _count_refused(conn)
     conn.execute("BEGIN IMMEDIATE")
     try:
         cur = conn.execute("INSERT OR IGNORE INTO events(eid, ts, host, source, seq, kind, body, received) "
@@ -339,10 +352,10 @@ def _drain_locked(db, budget):
                 _count_refused(conn)  # counted, never stored: the file goes away
             except sqlite3.OperationalError:
                 raise  # busy, locked, disk: the file stays and the next drain tries again
-            except Exception as e:  # noqa: BLE001 - one unusable event must never stall the queue behind it
-                _bad(inbox, name, "%s: %s" % (type(e).__name__, e))
             except FileNotFoundError:
                 continue
+            except Exception as e:  # noqa: BLE001 - one unusable event must never stall the queue behind it
+                _bad(inbox, name, "%s: %s" % (type(e).__name__, e))
             try:
                 os.remove(path)
             except FileNotFoundError:

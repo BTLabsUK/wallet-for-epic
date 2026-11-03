@@ -127,7 +127,7 @@ class QueueTest(TdbCase):
 
 
 class SecretTest(TdbCase):
-    def test_refused_events_are_counted_not_stored(self):
+    def test_secret_fields_refused_phrase_text_cut(self):
         phrase = " ".join("word" for _ in range(12))
         client.emit("step.end", run="r", lane="L", n=1, step="ok11", detail=" ".join("word" for _ in range(11)))
         client.emit("step.end", run="r", lane="L", n=1, step="s", detail={"password": "x"})
@@ -135,7 +135,9 @@ class SecretTest(TdbCase):
         client.emit("step.end", run="r", lane="L", n=1, step="s", seed="abc")
         client.emit("step.end", run="r", lane="L", n=1, step="s", detail="short words only here")
         self.drain()
-        self.assertEqual(self.q("SELECT COUNT(*) c FROM events")[0]["c"], 2)  # the 11-word text and the short one
+        # the 11-word text, the short one and the phrase-shaped one with the phrase cut; the two secret fields refused
+        self.assertEqual(self.q("SELECT COUNT(*) c FROM events")[0]["c"], 3)
+        self.assertIn("[phrase-shaped text removed]", json.dumps(self.q("SELECT body FROM events")))
         self.assertEqual(self.q("SELECT value FROM meta WHERE key='refused'")[0]["value"], "3")
         self.assertNotIn(" ".join(["word"] * 12), json.dumps(self.q("SELECT body FROM events")))
         self.assertEqual(writer.pending(self.db), 0)
