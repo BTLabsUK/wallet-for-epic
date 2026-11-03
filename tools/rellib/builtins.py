@@ -932,7 +932,11 @@ def publish_gate(engine, step, say):
     if state == "approved":
         return {"status": "done", "note": f"approved by {out.get('decided_by') or '?'} via {out.get('via') or '?'} at {out.get('at') or '?'}"}
     if state == "pending":
-        return {"status": "waiting", "note": f"waiting for approval (gate {g['gate_id']}); tools/rel gate to check again"}
+        # A detached watcher checks from now on and publishes once approved (tools/rellib/gatewatch.py).
+        from . import gatewatch
+        _, watch = gatewatch.start(engine.run, engine.pipeline, engine.hosts.get("file"), step.id)
+        return {"status": "waiting", "note": f"waiting for approval (gate {g['gate_id']}); tools/rel gate to check again"
+                + (f"; {watch}" if watch else "")}
     if state == "held":
         return {"status": "held", "note": f"held by {out.get('decided_by') or 'the owner'}" + (f": {out.get('note')}" if out.get("note") else "")}
     return {"status": "closed", "note": "gate status unreadable (relmsg error): not approved (fail closed)"}
