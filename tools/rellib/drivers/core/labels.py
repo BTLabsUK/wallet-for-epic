@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: Apache-2.0
+"""The English strings of one build, by ARB key.
+
+A driver looks a control up by the text the build it is driving shows, so the candidate is read
+with the candidate's strings (REL_CANDIDATE_SRC: the release worktree) and the previous release
+with its own (git tag v<version>, or REL_PREVIOUS_REF). A renamed button in the candidate is then
+found by its key, with no driver change. A key a build does not have gives no text; the target's
+other keys and literal names still apply.
+"""
+import json
+import os
+import re
+import subprocess
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
+ARB = "app/lib/l10n/app_en.arb"
+
+
+def _load_dir(src):
+    try:
+        with open(os.path.join(src, ARB), encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return None
+
+
+def _load_ref(ref, repo=ROOT):
+    try:
+        r = subprocess.run(["git", "-C", repo, "show", "%s:%s" % (ref, ARB)], capture_output=True, text=True, timeout=30)
+        return json.loads(r.stdout) if r.returncode == 0 else None
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return None
+
+
+class Labels:
+    """Strings of one build. `src` a source tree, `ref` a git ref of this checkout; the first that
+    loads wins, else this checkout's own ARB (said in `origin`)."""
+
+    def __init__(self, src=None, ref=None, arb=None):
+        self.arb, self.origin = arb, "given" if arb is not None else None
+        if self.arb is None and src:
+            self.arb, self.origin = _load_dir(src), src
+        if self.arb is None and ref:
+            self.arb, self.origin = _load_ref(ref), "git " + ref
+        if self.arb is None:
+            self.arb, self.origin = _load_dir(ROOT) or {}, "this checkout"
+
+    @classmethod
+    def for_build(cls, which):
+        """`previous` or `candidate`, from the runner's env (tools/rel's contract, trust-*.sh)."""
+        if which == "candidate":
+            return cls(src=os.environ.get("REL_CANDIDATE_SRC"), ref=os.environ.get("REL_CANDIDATE_REF"))
+        v = (os.environ.get("REL_PREVIOUS_VERSION") or "").strip()
+        ref = (os.environ.get("REL_PREVIOUS_REF") or "").strip() or (("v" + v.lstrip("v")) if v else None)
+        return cls(src=os.environ.get("REL_PREVIOUS_SRC"), ref=ref)
+
+    def text(self, key):
+        v = self.arb.get(key)
+        return v if isinstance(v, str) and v else None
+
+    def pattern(self, key):
+        """The key's text as a regex: placeholders ({amount}) match any text; None without the key.
+        ICU plural/select messages match on their literal head only."""
+        t = self.text(key)
+        if t is None:
+            return None
+        if re.search(r"\{\w+,\s*(plural|select)", t):
+            t = t.split("{", 1)[0]
+            return re.escape(t.strip()) + r".*" if t.strip() else None
+        parts = re.split(r"\{\w+\}", t)
+        return ".+?".join(re.escape(p) for p in parts)
