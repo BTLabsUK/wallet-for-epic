@@ -238,6 +238,10 @@ class AndroidPlatform(Platform):
     # ---- the app
 
     def start(self, which):
+        # recover() started it again already: a force-stop now would cut its first launch short
+        if self.running == which and self.surface is not None and self.alive():
+            self.log("%s app already running" % which)
+            return self.surface
         self.dev.sh("am force-stop %s" % PKG)
         self.dev.run("shell", "monkey -p %s -c android.intent.category.LAUNCHER 1" % PKG, timeout=60)
         for _ in range(30):
