@@ -368,7 +368,7 @@ when = ["apple.signed"]
 for_each = "variant"
 host = "apple"
 needs = ["source", "source-check"]
-run = "git fetch job/wfe.bundle HEAD && git checkout --detach FETCH_HEAD && test \"$(git rev-parse HEAD)\" = {commit} && RELEASE_COMMIT={commit} RELEASE_VERSION={version} WFE_TOR={tor} tools/build-apple.sh mac-release  # then build-apple/mac-release/bt-wallet-{version}{notor}-macos.{dmg,dmg.sha256,REPORT.txt} into results/"
+run = "git fetch job/wfe.bundle HEAD && git checkout --detach FETCH_HEAD && test \"$(git rev-parse HEAD)\" = {commit} && RELEASE_COMMIT={commit} RELEASE_VERSION={version} WFE_TOR={tor} tools/build-apple.sh mac-release  # then build-apple/{variant}/mac-release/bt-wallet-{version}{notor}-macos.{dmg,dmg.sha256,REPORT.txt} into results/"
 results = ["bt-wallet-{version}{notor}-macos.dmg", "bt-wallet-{version}{notor}-macos.dmg.sha256", "bt-wallet-{version}{notor}-macos.REPORT.txt"]
 timeout = "48h"
 

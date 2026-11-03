@@ -893,10 +893,10 @@ all_variants() {
   local parent="${APPLE_OUT:-$root/build-apple}" rc_tor=0 rc_notor=0
   say "all: with Tor ($parent/tor)"
   rm -f "$parent/tor/results.txt"
-  env -u WFE_TOR APPLE_OUT="$parent/tor" "$0" doctor sources lepic macos dmg smoke live || rc_tor=$?
+  env -u WFE_TOR APPLE_OUT="$parent/tor" "$root/tools/build-apple.sh" doctor sources lepic macos dmg smoke live || rc_tor=$?
   say "all: without Tor ($parent/notor)"
   rm -f "$parent/notor/results.txt"
-  env WFE_TOR=0 APPLE_OUT="$parent/notor" "$0" doctor sources lepic macos dmg ios-sim smoke live || rc_notor=$?
+  env WFE_TOR=0 APPLE_OUT="$parent/notor" "$root/tools/build-apple.sh" doctor sources lepic macos dmg ios-sim smoke live || rc_notor=$?
   say "all: summary"
   local v
   for v in tor notor; do
