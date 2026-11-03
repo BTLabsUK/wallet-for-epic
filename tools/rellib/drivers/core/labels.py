@@ -14,20 +14,20 @@ import subprocess
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", "..", "..", ".."))
-ARB = "app/lib/l10n/app_en.arb"
+ARB = "app/lib/l10n/app_%s.arb"
 
 
-def _load_dir(src):
+def _load_dir(src, locale="en"):
     try:
-        with open(os.path.join(src, ARB), encoding="utf-8") as f:
+        with open(os.path.join(src, ARB % locale), encoding="utf-8") as f:
             return json.load(f)
     except (OSError, ValueError):
         return None
 
 
-def _load_ref(ref, repo=ROOT):
+def _load_ref(ref, locale="en", repo=ROOT):
     try:
-        r = subprocess.run(["git", "-C", repo, "show", "%s:%s" % (ref, ARB)], capture_output=True, text=True, timeout=30)
+        r = subprocess.run(["git", "-C", repo, "show", "%s:%s" % (ref, ARB % locale)], capture_output=True, text=True, timeout=30)
         return json.loads(r.stdout) if r.returncode == 0 else None
     except (OSError, ValueError, subprocess.SubprocessError):
         return None
@@ -37,7 +37,10 @@ class Labels:
     """Strings of one build. `src` a source tree, `ref` a git ref of this checkout; the first that
     loads wins, else this checkout's own ARB (said in `origin`)."""
 
-    def __init__(self, src=None, ref=None, arb=None):
+    def __init__(self, src=None, ref=None, arb=None, locale=None):
+        """`locale`: the language the app shows (the device's or the rig user's: REL_TRUST_LOCALE), its
+        ARB over the English one, so a key missing from it still matches the English text."""
+        self.locale = locale or os.environ.get("REL_TRUST_LOCALE") or "en"
         self.arb, self.origin = arb, "given" if arb is not None else None
         if self.arb is None and src:
             self.arb, self.origin = _load_dir(src), src
@@ -45,6 +48,10 @@ class Labels:
             self.arb, self.origin = _load_ref(ref), "git " + ref
         if self.arb is None:
             self.arb, self.origin = _load_dir(ROOT) or {}, "this checkout"
+        if self.locale != "en" and arb is None:
+            loc = (_load_dir(src, self.locale) if src else None) or (_load_ref(ref, self.locale) if ref else None) or {}
+            self.arb = dict(self.arb, **{k: v for k, v in loc.items() if isinstance(v, str) and v and not k.startswith("@")})
+            self.origin += " (%s)" % self.locale
 
     @classmethod
     def for_build(cls, which):
