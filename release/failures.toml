@@ -182,3 +182,9 @@ id = "relay-release-finished"
 steps = ["publish-gate"]
 pattern = "this release has finished; no new gates"
 hint = "The run's live message ended (aborted when tools/rel was stopped by a signal) and the relay keeps a finished release closed. `tools/rel resume` reopens a stopped run under a new live message (<run id>+<n>); a superseded run stays closed: start a new run."
+
+[[failure]]
+id = "windows-stale-build-tree"
+steps = ["build-windows"]
+pattern = "(No target \"epic_wallet\"|Unable to generate build files)"
+hint = "CMake ran in a Windows work dir left by an older build (a reused run id): its app\\build names targets that no longer exist. The work dir name carries the commit ({run_id}-{short}-{variant}); check the step's command uses it, then `tools/rel retry <step>`."
