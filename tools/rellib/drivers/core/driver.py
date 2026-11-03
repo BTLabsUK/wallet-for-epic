@@ -17,6 +17,7 @@ alive, that is the product's fault (ProductFault): the app quit by itself.
 Timing: every wait polls the tree for a state, never a fixed sleep; REL_TRUST_SLOW multiplies every
 timeout (a slow emulator or a loaded host), so a slow app is waited for, not failed.
 """
+import contextlib
 import os
 import time
 
@@ -62,6 +63,7 @@ class Driver:
         self.shots = 0
         self.step = "start"
         self.trail = []       # the last steps, for the failure line
+        self.hushed = 0       # inside hush(): no shot, no dump, no model (words being typed)
 
     # ---- reading
 
@@ -94,9 +96,21 @@ class Driver:
 
     # ---- evidence
 
+    @contextlib.contextmanager
+    def hush(self):
+        """While a secret is typed or on screen in a shape the guards may miss (the first words of a
+        phrase): no screenshot, no tree dump and no model call, a failure line only."""
+        self.hushed += 1
+        try:
+            yield self
+        finally:
+            self.hushed -= 1
+
     def shot(self, name):
         """A screenshot, never of a secret screen (the phrase or a password shown)."""
         from .recover import secret_screen
+        if self.hushed:
+            return None
         try:
             if secret_screen(self.s.tree()):
                 return None
@@ -115,7 +129,7 @@ class Driver:
         """The tree as text next to the shots: a password screen's without the field's value
         (Node.brief), never a phrase screen's."""
         from .recover import phrase_screen
-        if phrase_screen(tree):
+        if self.hushed or phrase_screen(tree):
             return
         with open(os.path.join(self.out, "tree-%03d-%s.txt" % (self.shots, name)), "w") as f:
             f.write("\n".join(n.brief() for n in tree))
@@ -160,7 +174,7 @@ class Driver:
         r = self.wait(expect, timeout)
         if r:
             return r
-        for _ in range(3):
+        for _ in range(0 if self.hushed else 3):
             tree = self.tree()
             n = self.rec.advance(goal or str(expect), tree, step=self.step)
             if n is None:
@@ -212,7 +226,7 @@ class Driver:
         n = self.wait(shows(target), timeout)
         if n:
             return n
-        for _ in range(2):
+        for _ in range(0 if self.hushed else 2):
             tree = self.tree()
             n = self.rec.pick(target, tree, step=self.step, texts=self.texts(target))
             if n:
@@ -245,13 +259,18 @@ class Driver:
 
     def fill(self, target, text, *, step, timeout=20):
         """Type `text` into the field `target` and check it took (a password field's value is not
-        readable on every platform: then its length or that it is non-empty)."""
+        readable on every platform: then its length or that it is non-empty). A secret target's
+        text goes to the surface as secret (kept off logs and command lines) and is typed hushed."""
         self.step = step
         self.trail.append(step)
         for attempt in range(2):
             self._clear(target)
             node = self.locate(target, timeout)
-            self._act(self.s.set_text, node, text)
+            if target.secret:
+                with self.hush():
+                    self._act(self.s.set_text, node, text, True)
+            else:
+                self._act(self.s.set_text, node, text)
             n = self.wait(shows(target), 5)
             v = (n.value if n else None)
             if v is None or v == text or ("password" in n.states and len(v) in (0, len(text)) and v != ""):

@@ -68,8 +68,9 @@ class Surface(Protocol):
     def press(self, node: Node) -> None:
         """Activate it the way a user would (the node's own action, else a click at its centre)."""
 
-    def set_text(self, node: Node, text: str) -> None:
-        """Replace the field's text. The text never goes to a log."""
+    def set_text(self, node: Node, text: str, secret: bool = False) -> None:
+        """Replace the field's text. The text never goes to a log; [secret] (a phrase, a PIN, a
+        password) also keeps it off this host's command lines and out of every file."""
 
     def key(self, name: str) -> None:
         """back | escape | enter | tab | page_down: a key press or the system Back."""
