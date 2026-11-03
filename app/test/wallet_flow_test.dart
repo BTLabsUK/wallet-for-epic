@@ -6,6 +6,7 @@ import 'package:epic_wallet/src/settings.dart' show autoLockHoldProvider;
 import 'package:epic_wallet/src/ui/restore_card.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart' show restoreRetryKey, restoreScanKey, restoreStopKey;
 import 'package:epic_wallet/src/ui/scan_screen.dart' show FakeQrScanner, qrScannerProvider;
+import 'package:epic_wallet/src/ui/scan_start.dart' show ScanStart;
 import 'package:epic_wallet/l10n/app_localizations.dart';
 import 'package:epic_wallet/src/connection_state.dart';
 import 'package:epic_wallet/src/dev_networks.dart';
@@ -451,9 +452,9 @@ void main() {
       // The error was about the words as they were: an edit takes it away (the field scrolled
       // into view may push it out of sight, so look past the viewport).
       expect(find.text('Not in the word list: not (1), a (2).', skipOffstage: false), findsNothing);
-      // The start choice is offered to everyone behind a small link.
-      await _tapText(tester, 'Start from a month or height');
-      await _tapText(tester, 'Block height');
+      // The start choice is offered to everyone behind the calendar button.
+      await _tap(tester, find.byKey(ScanStart.changeKey));
+      await _tapText(tester, _l.restoreStartByHeight);
       await _enter(tester, 'Start height (optional)', '1000');
       await _tapText(tester, 'Continue');
       await _enter(tester, 'PIN', _pin);
@@ -1042,7 +1043,9 @@ void main() {
       await _tap(tester, find.byTooltip(_l.homeSettingsTooltip));
       await _tap(tester, find.byKey(settingsGroupKey(SettingsSection.wallet)));
       await _tapText(tester, 'Recheck balance');
-      await _tapText(tester, 'The whole chain');
+      // From the start: the info beside the start line holds it.
+      await _tap(tester, find.byKey(ScanStart.infoKey));
+      await _tapText(tester, _l.restoreScanFromStart);
       await _tapText(tester, 'Recheck');
       expect(service.session.scanCalls, 1);
       await _clearNotices(tester);
@@ -1071,7 +1074,9 @@ void main() {
       await _tap(tester, find.byTooltip(_l.homeSettingsTooltip));
       await _tap(tester, find.byKey(settingsGroupKey(SettingsSection.wallet)));
       await _tapText(tester, 'Recheck balance');
-      await _tapText(tester, 'The whole chain');
+      // From the start: the info beside the start line holds it.
+      await _tap(tester, find.byKey(ScanStart.infoKey));
+      await _tapText(tester, _l.restoreScanFromStart);
       await _tapText(tester, 'Recheck');
       await tester.pageBack();
       await tester.pumpAndSettle();
