@@ -147,8 +147,11 @@ SEND_DONE = T("g4.send.done", role="text", keys=("deskSendDoneViaEpicbox", "desk
 # "<open label>: <state word>" (rail.dart), Tor's and Epicbox's word "Connected" once up.
 MODE_TOR_ONLY = T("g4.privacy.mode.toronly", role="checkbox", keys=("advModeTorOnly",), names=("Tor only",), match="starts")
 MODE_NORMAL = T("g4.privacy.mode.standard", role="checkbox", keys=("advModeStandard",), names=("Normal",), match="starts")
-RAIL_TOR = T("g4.rail.tor", keys=("deskRailOpenNetworkPrivacy",), names=("Open Network & privacy",), match="starts")
-RAIL_EPICBOX = T("g4.rail.epicbox", keys=("deskRailOpenEpicbox",), names=("Open Epicbox receiving",), match="starts")
+# the rail's row ("Open Network & privacy: Connected"), or the title bar's status icon at a wide window
+# ("Tor · Connected", 26.11.0: lvShellStatusTip; Tor shows from View: Advanced on)
+RAIL_TOR = T("g4.rail.tor", keys=("deskRailOpenNetworkPrivacy",), names=("Open Network & privacy", "re:tor · "), match="starts")
+RAIL_EPICBOX = T("g4.rail.epicbox", keys=("deskRailOpenEpicbox",), names=("Open Epicbox receiving", "re:epicbox · "),
+                 match="starts")
 RAIL_UP = "connected"   # ShownState.connected (netStatusConnected): Tor on, Epicbox subscribed
 TOR_START_S = 240       # a Tor start, each of the two tries (before REL_TRUST_SLOW)
 
@@ -623,12 +626,14 @@ class Desktop:
         return any("checked" in n.states or "selected" in n.states for n in self.d.find_in(target, tree))
 
     def tor_state(self, tree=None):
-        """{tor, epicbox}: the status rail's words for Tor and Epicbox (lower case), None where it shows none."""
+        """{tor, epicbox}: the status rail's (or title bar's) words for Tor and Epicbox (lower case), None
+        where it shows none."""
         tree = tree if tree is not None else self.d.tree()
         out = {}
         for k, t in (("tor", RAIL_TOR), ("epicbox", RAIL_EPICBOX)):
             n = next(iter(self.d.find_in(t, tree)), None)
-            out[k] = tg._norm(n.name.split("\n")[0].rsplit(":", 1)[-1]) if n and ":" in n.name else None
+            m = re.search(r"[:·]([^:·]*)$", n.name.split("\n")[0]) if n else None
+            out[k] = tg._norm(m.group(1)) if m else None
         return out
 
     def _tor_up(self, tree):
@@ -664,6 +669,7 @@ class Desktop:
                          "; Normal, then Tor only again" if attempt == 1 else ""))
                 if attempt == 1:
                     self._mode(MODE_NORMAL, "the Normal connection mode")
+            d.dump("tor-on", d.tree())
             raise InfraFault("tor-on", "Tor only chosen, Tor or Epicbox not connected in %d s, twice (rail %s)" % (
                 budget, self.tor_state()), sub="tor", shot=d.shot("tor-on"))
 

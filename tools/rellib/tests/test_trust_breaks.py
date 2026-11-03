@@ -538,9 +538,9 @@ class TorFake(Fake):
     """Settings › Network & privacy's Connection mode beside the status rail: Tor and Epicbox show
     Connected once Tor only is chosen, unless `comes_up` is False."""
 
-    def __init__(self, mode="Normal", comes_up=True):
+    def __init__(self, mode="Normal", comes_up=True, bar=False):
         super().__init__({}, "privacy")
-        self.mode, self.comes_up = mode, comes_up
+        self.mode, self.comes_up, self.bar = mode, comes_up, bar
 
     def tree(self):
         tor = self.mode == "Tor only"
@@ -548,8 +548,10 @@ class TorFake(Fake):
         mark = lambda m: ("enabled", "checked") if self.mode == m else ("enabled",)  # noqa: E731
         return [n(0, "text_field", "Search settings"),
                 n(1, "checkbox", "Normal", states=mark("Normal")), n(2, "checkbox", "Tor only", states=mark("Tor only")),
-                n(3, "button", "Open Network & privacy: %s" % ("Connected" if up else "Starting" if tor else "Off")),
-                n(4, "button", "Open Epicbox receiving: %s" % ("Waiting for Tor" if tor and not up else "Connected"))]
+                n(3, "button", ("Tor · %s" if self.bar else "Open Network & privacy: %s") % (
+                    "Connected" if up else "Starting" if tor else "Off")),
+                n(4, "button", ("Epicbox · %s" if self.bar else "Open Epicbox receiving: %s") % (
+                    "Waiting for Tor" if tor and not up else "Connected"))]
 
     def press(self, node):
         self.pressed.append(node.name)
@@ -572,6 +574,13 @@ class TorRecipeTest(Base):
         desk = self.desk(f)
         self.assertEqual(desk.tor_on(budget=1), "done")
         self.assertEqual(f.pressed, ["Tor only"])
+        self.assertEqual(desk.tor_status(), {"tor": "connected", "epicbox": "connected", "up": True})
+
+    def test_tor_on_reads_the_title_bar_icons(self):
+        f = TorFake(bar=True)
+        desk = self.desk(f)
+        self.assertEqual(desk.tor_status(), {"tor": "off", "epicbox": "connected", "up": False})
+        self.assertEqual(desk.tor_on(budget=1), "done")
         self.assertEqual(desk.tor_status(), {"tor": "connected", "epicbox": "connected", "up": True})
 
     def test_slow_tor_tried_twice_then_infra_tor(self):
