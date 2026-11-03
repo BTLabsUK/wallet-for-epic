@@ -288,7 +288,7 @@ variants = ["tor"]
 host = "signer"
 needs = ["build-android"]
 run = "app/tool/build_android_release.sh {stage}"
-env = { WFE_TOR = "{tor}", WFE_DIST = "play" }
+env = { WFE_TOR = "{tor}", WFE_DIST = "play", WFE_BUILD_ID = "{build_id}" }
 heavy = true
 extras = ["bt-wallet-{version}{notor}-play-android.aab"]
 timeout = "120m"
