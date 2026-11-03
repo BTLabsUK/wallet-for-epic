@@ -19,8 +19,8 @@ import time
 
 from . import targets as tg
 from . import breaks
-from .driver import Expect, either, gone, shows, where
-from .faults import HarnessFault, ProductFault
+from .driver import Expect, Goal, either, gone, shows, where
+from .faults import HarnessFault, InfraFault, ProductFault
 
 T = tg.T
 
@@ -187,6 +187,9 @@ class Desktop:
         d = self.d
         d.obstacles += [(TOUR_SKIP, "the first-run tour"), (SETUP_SKIP, "the setup assistant"),
                         (LAST_SESSION, "the last-session notice (left unsent)")]
+        d.not_folds |= self.section_names()   # Settings › Advanced is a page, not a folded section
+        d.reopen = self._reopen
+        self._picking = None   # (picker, typed) while a server is chosen: the stale-picker rule's context
 
     # ---- helpers
 
@@ -245,7 +248,7 @@ class Desktop:
         return n.role == "text_field" and tg._norm(n.name.split("\n")[0]) == hint
 
     def section_names(self):
-        """Every section name a release has had, in English and as this build shows them (its locale)."""
+        """Every section name a release has had, and this build's own (English) section names."""
         if getattr(self, "_section_names", None) is None:
             self._section_names = {tg._norm(s) for s in (*ALL_SECTIONS, *self.d.labels.localized(ALL_SECTIONS))}
         return self._section_names
@@ -390,7 +393,10 @@ class Desktop:
         n = d.seen(DEEP_END)
         if n is None:
             return
-        if "checked" not in n.states and "selected" not in n.states:
+        if "checked" in n.states or "selected" in n.states:
+            self.log("SKIP view-deep-end: already done")
+            return
+        if True:
             d._act(d.s.press, n)
             time.sleep(1)
         self.log("depth dial: Deep end (level 3)")
@@ -523,6 +529,9 @@ class Desktop:
                 # renamed on the page the recipe expects: the model's pick, before every section is searched
                 if d.rec.pick(target, d.tree(), step="find-%s" % target.id, texts=d.texts(target)):
                     return True
+        d.step = "find-%s" % target.id
+        if d.untangle(target):   # folded, scrolled off, a dialog in the way: the known-trouble rules first
+            return True
         tree = d.tree()
         if self._open_section_list():   # a narrow window: the sections are listed once the selector is open
             tree = d.tree()
@@ -538,7 +547,7 @@ class Desktop:
         n = d.rec.pick(target, d.tree(), step="find-%s" % target.id, texts=d.texts(target))
         if n:
             return True
-        d.harness("%s not found under Settings (tried %s)" % (what, ", ".join(tried + listed)))
+        d.harness("%s not found under Settings (sections %s%s)" % (what, ", ".join(tried + listed) or "none", d._tried_text()))
 
     def leave_settings(self):
         d = self.d
@@ -585,10 +594,12 @@ class Desktop:
         n = d.wait(shows(DEEP_END), 3)
         if not n:
             return
-        if "checked" not in n.states and "selected" not in n.states:
-            d._act(d.s.press, n)
-            d.wait(Expect("Deep end chosen", lambda dd, tree: any(("checked" in x.states or "selected" in x.states)
-                                                                  for x in dd.find_in(DEEP_END, tree))), 10)
+        if "checked" in n.states or "selected" in n.states:
+            self.log("SKIP view-deep-end: already done")
+            return
+        d._act(d.s.press, n)
+        d.wait(Expect("Deep end chosen", lambda dd, tree: any(("checked" in x.states or "selected" in x.states)
+                                                              for x in dd.find_in(DEEP_END, tree))), 10)
         self.log("Settings › Advanced › View: Deep end")
 
     def _in_use(self, picker, entry, tree=None):
@@ -600,20 +611,13 @@ class Desktop:
             rx = re.compile(r":\s*%s\s*(\||,|$)" % re.escape(entry))
             return not any(self._picker_row(x.name) for x in tree) and any(
                 x.role == "text" and rx.search(x.name.replace("\n", " | ")) for x in tree)
-        rest = re.split(r"[:\n]", n.name, 1)[1].strip() if re.search(r"[:\n]", n.name) else ""
-        return rest == entry or rest.startswith(entry + ",") or rest.startswith(entry + " ")
+        # the server in use after the picker's label ("Node server: node.btlabs.uk"), or as its value
+        rests = [re.split(r"[:\n]", n.name, 1)[1].strip() if re.search(r"[:\n]", n.name) else "", (n.value or "").strip()]
+        return any(r == entry or r.startswith(entry + ",") or r.startswith(entry + " ") for r in rests)
 
     def _words(self, verb):
-        """The words a picker row starts with, in English and as this build shows them: "use" / "add"
-        (normalised, no host: the text of every "Use {host}..." message of the build's ARB)."""
-        cache = self.__dict__.setdefault("_verbs", {})
-        if verb not in cache:
-            lab = self.d.labels
-            rx = re.compile(r"^%s \{\w+\}(,|$)" % verb.capitalize())
-            found = {tg._norm(lab.text(k).split("{")[0]) for k, v in lab.en.items()
-                     if isinstance(v, str) and rx.match(v) and lab.text(k)}
-            cache[verb] = {verb} | {w for w in found if w}
-        return cache[verb]
+        """The word a picker row starts with: "use" or "add" (the lanes run the apps in English)."""
+        return {verb}
 
     def _use_row(self, entry):
         verbs = "|".join(re.escape(w) for w in sorted(self._words("use") | self._words("add")))
@@ -637,19 +641,63 @@ class Desktop:
                                                                     and not self._settings_search(n) for n in tree)
                             or any(self._picker_row(n.name) for n in tree)))
 
-    def use_server(self, picker, typed, entry, use, _again=False):
-        """Types `typed` into the picker and presses Use/Add `entry`. Done when listed (use=False) or
-        in use (use=True; a Switch offer is taken)."""
+    def use_server(self, picker, typed, entry, use):
+        """`entry` in use (a goal: SKIP when the picker or the status line already names it) or listed
+        (use=False: typed into the picker and added, SKIP when the open picker lists it already)."""
         d = self.d
-        if use and self._in_use(picker, entry):
-            return
-        self._open_picker(picker)
+        if not use:
+            return self._choose(picker, typed, entry, False)
+        if breaks.selected(picker.id):
+            self.log("BREAK: %s chosen in %s before its step; the step must find it done" % (entry, picker))
+            self._choose(picker, typed, entry, True)
+            d.wait(shows(picker), 3)
+        return d.achieve(Goal("use-%s" % entry, lambda tree: self._in_use(picker, entry, tree),
+                              lambda: self._choose(picker, typed, entry, True)), timeout=5)
+
+    def _type_server(self, picker, typed):
+        d = self.d
         # the picker's own field: Settings' search field is on the page too (and may hold the focus)
         search = [n for n in d.tree() if n.role == "text_field" and "password" not in n.states and not self._settings_search(n)]
         focused = [n for n in search if "focused" in n.states] or search
         if not focused:
             d.harness("the %s picker has no search field" % picker)
         d._act(d.s.set_text, focused[0], typed)
+
+    def _reopen(self, target):
+        """The stale-picker rule (Driver.untangle): a server row the open picker should show is missing,
+        so the picker is closed, opened again and the server typed again."""
+        if not self._picking or target.id != "g4.server.use":
+            return None
+        picker, typed = self._picking
+        self.d.s.key("escape")
+        time.sleep(0.8)
+        self._open_picker(picker)
+        self._type_server(picker, typed)
+        return "closed %s, opened it again and typed %s" % (picker, typed)
+
+    def _choose(self, picker, typed, entry, use, _again=False):
+        """Types `typed` into the picker and presses Use/Add `entry`. Done when listed (use=False) or
+        in use (use=True; a Switch offer is taken)."""
+        d = self.d
+        self._open_picker(picker)
+        if not use and self._listed(entry, d.tree()):
+            self.log("SKIP add-%s: already listed in %s" % (entry, picker))
+            d.s.key("escape")
+            time.sleep(0.8)
+            return "skipped"
+        self._type_server(picker, typed)
+        if breaks.stale_once(picker.id):
+            self.log("BREAK: %s rows read stale after typing %s" % (picker, typed))
+            breaks.stale_rows(d.s, lambda n: n.role == "button" and re.match(r"^(use|add) ", tg._norm(n.name)))
+        self._picking = (picker, typed)
+        try:
+            self._press_server(picker, entry, use)
+        finally:
+            self._picking = None
+        self._settle(picker, typed, entry, use, _again)
+
+    def _press_server(self, picker, entry, use):
+        d = self.d
         for attempt in range(3):
             # an Add is answered only once the app has checked the server: listed, or "No answer ... Nothing added"
             d.press(self._use_row(entry), step="use-%s" % entry, timeout=30,
@@ -664,6 +712,9 @@ class Desktop:
                 break
             self.log("%s %s: no answer from the server; adding again (%d)" % (picker, entry, attempt + 1))
             time.sleep(3)
+
+    def _settle(self, picker, typed, entry, use, _again):
+        d = self.d
         end, gone, rereads = time.time() + 120, None, 0
         while time.time() < end:
             tree = d.tree()
@@ -681,8 +732,8 @@ class Desktop:
             else:
                 gone = None
             if d.find_in(SERVER_REFUSED, tree):
-                raise HarnessFault("server", "%s %s refused by the app (the stand-in or server not answering)" % (picker, entry),
-                                   d.shot("server-refused"))
+                raise InfraFault("server", "%s %s refused by the app (the stand-in or server not answering)" % (picker, entry),
+                                 sub="node" if picker is NODE_PICKER else "relay", shot=d.shot("server-refused"))
             sw = d.find_in(SWITCH, tree)
             if use and sw:
                 d._act(d.s.press, sw[0])
@@ -712,7 +763,7 @@ class Desktop:
             if _again:
                 d.harness("%s %s shown in use in the picker but not once it closed" % (picker, entry))
             self.log("%s %s not in use once the picker closed; choosing it again" % (picker, entry))
-            return self.use_server(picker, typed, entry, use, _again=True)
+            return self._choose(picker, typed, entry, use, _again=True)
 
     def change_settings(self, want):
         """Theme, wallet label, confirmations, Technical details: the choices a user makes that the
@@ -730,7 +781,14 @@ class Desktop:
             blind = not getattr(dd.s, "shows_selection", True) and not any(
                 "selected" in n.states or "checked" in n.states for t in group for n in dd.find_in(t, tree))
             return bool(blind and dd.find_in(theme, tree))
-        d.press(theme, step="theme", timeout=20, then=Expect("%s chosen" % theme, chosen))
+        pressed = []
+
+        def press_theme():
+            d.press(theme, step="theme", timeout=20, then=Expect("%s chosen" % theme, chosen))
+            pressed.append(1)
+        # done: shown chosen; a platform that shows no chosen state: once pressed (settings_kept checks it)
+        d.achieve(Goal("theme", lambda tree: any("selected" in n.states or "checked" in n.states for n in d.find_in(theme, tree))
+                       or (pressed and chosen(d, tree)), press_theme), timeout=5)
         self.find_setting(LABEL_FIELD, ("wallet",), "the wallet label")  # Save label shows once it is edited
         d.fill(LABEL_FIELD, want["label"], step="label")
         d.press(LABEL_SAVE, step="label-save", timeout=20)
