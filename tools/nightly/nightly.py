@@ -108,6 +108,8 @@ TRUST_EPICBOX = "epicbox.stackwallet.com"
 SENT_KEYS_KEPT = 500
 
 STEP_RE = re.compile(r"^== (.+?)\s*$")
+# The line check.sh prints when a step ends: `== bot: ok 4s`, or `== bot: FAILED (exit 1) after 4s`.
+STEP_END_RE = re.compile(r"^== .+?: (?:ok (\d+)s|FAILED \(exit \d+\) after (\d+)s)\s*$")
 PROGRESS_RE = re.compile(r"^\d+:\d\d \+(\d+)(?: ~(\d+))?(?: -(\d+))?: (.*)$")
 STAMP_RE = re.compile(r"^(\d\d):(\d\d):(\d\d) ")
 TEST_FILE_RE = re.compile(r"^(?:loading )?(\S+?\.dart)(?:: (.*))?$")
@@ -218,11 +220,16 @@ def parse_check_log(lines, expected_steps=()):
                 day += 86400  # past midnight
             t += day
             last_t = t
+        e = STEP_END_RE.match(line)
+        if e and steps:
+            # check.sh's own timing of the open step; it is not a step of its own
+            steps[-1]["duration_s"] = int(e.group(1) or e.group(2))
+            continue
         m = STEP_RE.match(line)
         if m:
             if steps:
                 close_run(steps[-1]["name"])
-                if steps[-1]["_t0"] is not None and t is not None:
+                if steps[-1]["duration_s"] is None and steps[-1]["_t0"] is not None and t is not None:
                     steps[-1]["duration_s"] = t - steps[-1]["_t0"]
             steps.append({"name": m.group(1), "status": "running", "duration_s": None, "_t0": t})
             continue

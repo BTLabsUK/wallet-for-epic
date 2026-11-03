@@ -64,6 +64,19 @@ class ParserTest(unittest.TestCase):
                          {"passed": 3, "skipped": 0, "failed": 0})
         self.assertEqual(r["failing_tests"], [])
 
+    def test_step_end_lines_are_timings_not_steps(self):
+        log = """\
+02:31:05 == bot
+02:31:09 == bot: ok 4s
+02:31:09
+02:31:09 == flutter test (all)
+02:41:10 == flutter test (all): FAILED (exit 1) after 601s
+"""
+        r = nightly.parse_check_log(log.splitlines())
+        self.assertEqual([(s["name"], s["status"], s["duration_s"]) for s in r["steps"]],
+                         [("bot", "ok", 4), ("flutter test (all)", "failed", 601)])
+        self.assertEqual(r["failing_step"], "flutter test (all)")
+
     def test_red_run_across_midnight(self):
         r = nightly.parse_check_log(RED_LOG.splitlines(),
                                     expected_steps=["flutter analyze", "flutter test", "bot"])
