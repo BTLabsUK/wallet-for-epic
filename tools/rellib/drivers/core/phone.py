@@ -173,6 +173,7 @@ class Phone:
     def __init__(self, driver, which, log=print):
         self.d, self.which, self.log = driver, which, log
         self.pin = self.password = self.phrase = None
+        self.restoring = None   # a restore's start time while its scan from block 0 still runs on Home
         self.d.obstacles += [(TOUR_SKIP, "the app tour"), (BIOMETRICS_NOT_NOW, "the biometrics offer"),
                              (ANR_WAIT, "Android's not-responding dialog")]
 
@@ -232,8 +233,8 @@ class Phone:
     def restore_wallet(self, phrase, birth=None):
         """The wallet of [phrase] on a fresh install: first run › Restore from phrase › the start (the
         birth month, else its height, else the whole chain) › the phrase › Continue › a new PIN › the
-        scan › Not now (no wallet data file) › Home, until the scan from block 0 that finishes every
-        restore is done (receiving and sending wait for it). Returns {pin, password}. The phrase is
+        scan › Not now (no wallet data file) › Home. The scan from block 0 that finishes every restore
+        goes on there; restore_finish() (address, send) waits for it. Returns {pin, password}. The phrase is
         typed hushed from a file on the emulator: never on a command line, a log, a shot or a dump."""
         d = self.d
         birth = birth or {}
@@ -259,10 +260,27 @@ class Phone:
                 d.harness("the restore screen did not take the phrase (a phrase or start problem shown)")
         self._type_pin("restore-pin-choose", shows(PIN_AGAIN), 30)
         self._type_pin("restore-pin-again", either(shows(RESTORE_SCANNING, RESTORE_DONE, RESTORE_OPEN), self._home()), 300)
+        t0 = time.time()
         self._restore_scan()
-        self._restore_home()
+        self._wait_home("restore-home", 120)
+        d.shot("restore-home")
+        self.restoring = t0
+        self.log("restore timing: the restore screen's scan (from the start chosen) to Home %d s; the scan from "
+                 "block 0 goes on on Home and is waited for before Receive or Send (the app refuses both until it "
+                 "ends)" % (time.time() - t0))
         self.log("wallet restored; the PIN is kept with the lane's secrets, not printed")
         return {"pin": self.pin, "password": self.password}
+
+    def restore_finish(self):
+        """A restore's scan from block 0 waited out on Home (no-op without one): the app refuses
+        receiving, sending and invoices until it ends (restore_scan.dart, restoreScanRequired)."""
+        if self.restoring is None:
+            return
+        t0 = self.restoring
+        self.home()
+        self._restore_home()
+        self.restoring = None
+        self.log("restore timing: the scan from block 0 finished %d s after the restore screen's scan began" % (time.time() - t0))
 
     def _restore_start(self, birth):
         """Where the scan starts: the birth month in the month picker (mainnet's default), else the
@@ -338,8 +356,6 @@ class Phone:
         """Home until its 'Restore not finished' card goes (the scan from block 0), twice in a row:
         the wallet only receives and sends after it. A failed scan is tried again from the card."""
         d = self.d
-        self._wait_home("restore-home", 120)
-        d.shot("restore-home")
         end, gone_n, retries, said = time.time() + timeout * SLOW, 0, 0, set()
         t0 = time.time()
         while True:
@@ -362,8 +378,8 @@ class Phone:
                 if n:
                     retries += 1
                     d._act(d.s.press, n)
-            if not home and not card and not d.s.in_front():
-                d.s.foreground()
+            if not home and not card:
+                self.home()
             if time.time() >= end:
                 d.harness("the restore's scan from block 0 did not finish on Home in %d s" % (timeout * SLOW))
             if not d.s.alive():
@@ -817,6 +833,7 @@ class Phone:
     def address(self):
         """The Epicbox address on the Receive tab (the full one, key@relay)."""
         d = self.d
+        self.restore_finish()
         self.tab(TAB_RECEIVE)
         m = d.seen(RECEIVE_EPICBOX)
         if m and "selected" not in m.states:
@@ -839,6 +856,7 @@ class Phone:
         Continue › Send <amount> › PIN. True when the app took it; its progress is read from the
         wallet's files by the checks, never from these screens."""
         d = self.d
+        self.restore_finish()
         self.tab(TAB_SEND)
         for _ in range(4):  # a send left half-way: back to its first step
             if d.wait(shows(SEND_TO), 3) or not d.seen(SEND_BACK):

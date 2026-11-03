@@ -176,12 +176,17 @@ class RestoreTest(unittest.TestCase):
                     texts.append(fh.read().decode("utf-8", "replace"))
         return [w for w in WORDS if any(w in t for t in texts)]
 
-    def test_restore_with_a_month_reaches_home_after_the_full_scan(self):
+    def test_restore_with_a_month_reaches_home_then_waits_for_the_full_scan(self):
         s = FakeRestore()
-        got = self.recipe(s).restore_wallet(PHRASE, {"height": 2345678, "month": "2026-11"})
+        r = self.recipe(s)
+        got = r.restore_wallet(PHRASE, {"height": 2345678, "month": "2026-11"})
         self.assertEqual(sorted(got), ["password", "pin"])
         self.assertRegex(got["pin"], r"^\d{6}$")
+        self.assertEqual(s.cur, "home-card")   # back at Home after the month scan: the scan from block 0 goes on
+        self.assertFalse(any("scan from block 0 finished" in line for line in self.lines))
+        r.restore_finish()   # what address() and send() do first
         self.assertEqual(s.cur, "home")
+        self.assertIsNone(r.restoring)
         self.assertEqual(s.month, (2026, 11))
         self.assertIn(("Recovery phrase", len(PHRASE), True), s.typed)
         self.assertEqual([t for t in s.typed if t[0] == "PIN"], [("PIN", 6, True), ("PIN", 6, True)])
@@ -206,7 +211,7 @@ class RestoreTest(unittest.TestCase):
         s = FakeRestore()
         self.recipe(s).restore_wallet(PHRASE, {"height": None, "month": None})
         self.assertNotIn("Start from a month or height", s.pressed)
-        self.assertEqual(s.cur, "home")
+        self.assertIn(s.cur, ("home", "home-card"))
 
     def test_a_phrase_problem_fails_hushed(self):
         s = FakeRestore(problem=True)
