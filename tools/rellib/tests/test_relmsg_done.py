@@ -34,6 +34,7 @@ class RelmsgDoneTest(Base):
         app = App.__new__(App)
         app.args = argparse.Namespace(json=False)
         app.state_root = self.root
+        app.repo = self.root  # no release/never-ship.toml here: nothing refused
         app.pipeline = self.pipeline
         return app
 
