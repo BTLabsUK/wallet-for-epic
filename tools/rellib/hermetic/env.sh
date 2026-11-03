@@ -25,6 +25,13 @@ export NODE_API_URL="http://127.0.0.1:${NODE_API_PORT}"
 export NODE_PUBLIC_URL="https://node.btlabs.uk"       # the reference height for health; read only
 export NODE_SYNC_SLACK=5                              # blocks behind the public tip still counted as synced
 export NODE_MAX_GB=25                                 # stop and report if the chain grows past this
+export NODE_LOG="$HERMETIC_ROOT/var/log/epic-server.log"   # the node's debug log, rotated by the node
+export NODE_LOG_MB=16
+export NODE_LOG_FILES=8
+# The node's only peer: our own public node (node.btlabs.uk, P2P 3414). It syncs from it and
+# follows the tip from it, never from public peers (seeding List, peers_allow that one address).
+export NODE_PEER_HOST="${NODE_PEER_HOST:-node.btlabs.uk}"
+export NODE_PEER_PORT="${NODE_PEER_PORT:-3414}"
 
 # Relay: /opt/epic/epic-relay on loopback, its own database on the dev PostgreSQL (dev/pg.sh, 7787).
 export RELAY_SRC="${RELAY_SRC:-$HOME/epic/epic-relay}"
@@ -34,6 +41,8 @@ export RELAY_PORT=43423
 export RELAY_DOMAIN=127.0.0.1
 export RELAY_ALIASES="localhost:${RELAY_PORT}"
 export RELAY_ADDR="${RELAY_DOMAIN}:${RELAY_PORT}"
+export RELAY_LOG_MB=16                                 # relay.log is rotated at this size
+export RELAY_LOG_FILES=8
 export RELAY_PG_PORT=7787
 export RELAY_PG_DB=epicrelay_hermetic
 export RELAY_PG_DSN="postgresql://epicrelay:epicrelay@127.0.0.1:${RELAY_PG_PORT}/${RELAY_PG_DB}"
