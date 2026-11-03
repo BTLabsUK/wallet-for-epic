@@ -57,8 +57,10 @@ run `up.sh` (or the two `health` commands) right before a lane.
 - Runs at `nice 10`, `ionice idle`. The node is a daemon, so it does not hold a `build-slot` slot.
 - `health` writes the node into `status.json` only when synced; `NODE_MAX_GB` (25) is the ceiling it
   warns about.
-- Owner API: `node.sh` writes `node/.api_secret`, yet the 4.1.1 release answers `/v2/owner` and `/v1`
-  without it (seen 2026-11-03). The loopback-only bind is what keeps it off the network.
+- Owner API: `node.sh` writes `node/.api_secret` (0600) before the first start; a relocated config
+  names a secret path that nothing creates, which would leave the owner API open. `health` fails when
+  `/v2/owner get_peers` answers without it. 4.1.1 keeps `GET /v1/status`, `GET /v1/version` and owner
+  `get_status` public by design. The foreign API has no secret: the app (LEPIC) sends none to a node.
 
 ## Relay
 

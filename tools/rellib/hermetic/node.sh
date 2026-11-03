@@ -8,7 +8,8 @@
 #   node.sh health   local height vs the public node's; exit 0 only when synced within NODE_SYNC_SLACK
 #
 # Mainnet only (the app is mainnet-only). Pruned (archive_mode = false). The API is on 127.0.0.1 only
-# and the foreign API is open, as a user's own node is.
+# and the foreign API is open, as a user's own node is (LEPIC sends no credentials to it); the owner
+# API needs node/.api_secret.
 set -euo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/env.sh"
 
@@ -48,9 +49,8 @@ P
 
 write_config() {
     mkdir -p "$NODE_DIR"
-    # A relocated config names an api_secret_path that nothing creates; write one. Seen 2026-11-03:
-    # the 4.1.1 release still answers /v2/owner and /v1 without it, so the loopback-only bind is what
-    # keeps the owner API off the network.
+    # A relocated config names an api_secret_path that nothing creates, which leaves the owner API
+    # open; write the secret first. (4.1.1 keeps GET /v1/status and owner get_status public on purpose.)
     if [ ! -s "$NODE_DIR/.api_secret" ]; then
         (umask 077; head -c 15 /dev/urandom | base64 | tr -d '/+=' > "$NODE_DIR/.api_secret")
     fi
@@ -96,6 +96,11 @@ try: print(json.load(sys.stdin)["result"]["Ok"]["height"])
 except Exception: pass'
 }
 
+owner_locked() {  # the owner API refuses a call without the secret
+    [ "$(curl -s -o /dev/null -w '%{http_code}' -m 10 -X POST "$NODE_API_URL/v2/owner" \
+        -H 'content-type: application/json' -d '{"jsonrpc":"2.0","method":"get_peers","params":[],"id":1}')" = 401 ]
+}
+
 owner_status() {  # sync_status and connections from the owner API, with the node's own secret
     [ -s "$NODE_DIR/.api_secret" ] || return 0
     curl -s -m 10 -u "epic:$(cat "$NODE_DIR/.api_secret")" -X POST "$NODE_API_URL/v2/owner" \
@@ -134,6 +139,11 @@ health)
     echo "local: ${local_h:-none}  public: ${public_h:-none}  sync/peers: $(owner_status || true)  disk: ${gb:-0} GB"
     if awk -v g="${gb:-0}" -v m="$NODE_MAX_GB" 'BEGIN{exit !(g > m)}'; then
         echo "node: chain data over $NODE_MAX_GB GB" >&2
+    fi
+    if ! owner_locked; then
+        status_set node null
+        echo "node: the owner API answers without its secret" >&2
+        exit 1
     fi
     if [ -n "$local_h" ] && [ -n "$public_h" ] && [ $((public_h - local_h)) -le "$NODE_SYNC_SLACK" ]; then
         status_set node "{\"url\": \"$NODE_API_URL\", \"height\": $local_h, \"public\": $public_h}"
