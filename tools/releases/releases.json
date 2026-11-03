@@ -1,58 +1,38 @@
 {
  "releases": [
   {
-   "version": "26.10.25",
-   "date": "2026-11-02",
+   "version": "26.10.26",
+   "date": "2026-11-03",
    "files": [
     {
-     "name": "bt-wallet-26.10.25-android-arm64-v8a.apk",
-     "size": 28970084,
-     "sha256": "58fd1c04ab6f905dfbaaf835621f5c0a0a29897ef710261cb0a566dc84208338"
+     "name": "bt-wallet-26.10.26-android-arm64-v8a.apk",
+     "size": 28920932,
+     "sha256": "021646f794ecf93d44c09270fdf25bee7829731594bd3ee01cfecb152ae2ccb3"
     },
     {
-     "name": "bt-wallet-26.10.25-ios-unsigned.ipa",
-     "size": 23247433,
-     "sha256": "d842a0371dda4449d314667d0767e5b364bb46f9c6c937ac8a5e35882d2749ea"
+     "name": "bt-wallet-26.10.26-linux-x86_64.AppImage",
+     "size": 40589816,
+     "sha256": "f2f5555ace99243a37e0d2cd684d5f1b256693c37dff915ac59c2972e9f3bbf5"
     },
     {
-     "name": "bt-wallet-26.10.25-linux-x86_64.AppImage",
-     "size": 40593912,
-     "sha256": "47cc9b19953f10b88b89e37b31c85f3fa8ec154db246065dd0a747ecd4cb5b17"
+     "name": "bt-wallet-26.10.26-notor-android-arm64-v8a.apk",
+     "size": 24681503,
+     "sha256": "e07525e8e1519dab80561b4a5c18756a0e96ecd85379db83cd3667e88f29b7f5"
     },
     {
-     "name": "bt-wallet-26.10.25-macos.dmg",
-     "size": 45383499,
-     "sha256": "4cdc9d14407d0feb4361775a3ee3ccea6db8b909d0f3c4f90a965f921d548ac5"
+     "name": "bt-wallet-26.10.26-notor-linux-x86_64.AppImage",
+     "size": 36403704,
+     "sha256": "d56b2635c026984d6f5dd24d38fb3861594370963cb16297eda5082cff3a2707"
     },
     {
-     "name": "bt-wallet-26.10.25-notor-android-arm64-v8a.apk",
-     "size": 24734751,
-     "sha256": "025f8b88d9cf4cb65b617d031890e2c394e3bb1bf175320f90eb452e58e8e1b1"
+     "name": "bt-wallet-26.10.26-notor-windows-x64-setup.exe",
+     "size": 35192383,
+     "sha256": "9918f6442e53fc9f4897db91d5c72634d5a0525afcb843c0c8768ce22fa76fe3"
     },
     {
-     "name": "bt-wallet-26.10.25-notor-ios-unsigned.ipa",
-     "size": 22993070,
-     "sha256": "3654fefea6c4ba550b56fa571379bc6d39dee26a75b9ae363d087b71b2f1ab31"
-    },
-    {
-     "name": "bt-wallet-26.10.25-notor-linux-x86_64.AppImage",
-     "size": 36407800,
-     "sha256": "d19f0ddb75faef0c240cd4aeef6cafaa35e9816e9d3a916bb45e121f88a915ba"
-    },
-    {
-     "name": "bt-wallet-26.10.25-notor-macos.dmg",
-     "size": 40899478,
-     "sha256": "d4551e94660413a948bbaf3656bb6ec5f284c8b31c7db2f15fc4cf8b681f5e9d"
-    },
-    {
-     "name": "bt-wallet-26.10.25-notor-windows-x64-setup.exe",
-     "size": 35193579,
-     "sha256": "59e99c8f6d888c0ce882a3f34ceb721e00853aafed8d502d2453fab7cdfb1e85"
-    },
-    {
-     "name": "bt-wallet-26.10.25-windows-x64-setup.exe",
-     "size": 37908084,
-     "sha256": "58f202bd5ffdd8e055bfe7d367de37f7113f76a6c94b224da498669175dc0615"
+     "name": "bt-wallet-26.10.26-windows-x64-setup.exe",
+     "size": 37899145,
+     "sha256": "d15453c49cdff3592813c4d7e516c81017402ee8ce24fb169e91323b32112451"
     }
    ],
    "github": true,
