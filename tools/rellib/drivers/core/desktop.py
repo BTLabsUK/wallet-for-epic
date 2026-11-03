@@ -377,6 +377,7 @@ class Desktop:
                 continue
             if self.section(name) and d.wait(shows(target), 3):
                 self.log("%s found under Settings › %s (not where this release kept it: %s)" % (what, name, ", ".join(kept)))
+                d.rec.moved("find-%s" % target.id, target, name, kept)
                 return True
         n = d.rec.pick(target, d.tree(), step="find-%s" % target.id, texts=d.texts(target))
         if n:

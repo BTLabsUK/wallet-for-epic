@@ -245,12 +245,20 @@ class CoreTest(unittest.TestCase):
                   "app": page("Appearance")}, "pay",
                  {("pay", "Payments"): "list", ("adv", "Advanced"): "list", ("app", "Appearance"): "list",
                   ("list", "Payments"): "pay", ("list", "Advanced"): "adv", ("list", "Appearance"): "app"})
-        desk = Desktop(self.driver(f), "previous", self.logs.append)
+        d = self.driver(f)
+        desk = Desktop(d, "previous", self.logs.append)
         with unittest.mock.patch.dict(os.environ, {"REL_TRUST_BREAK": "move:g4.advanced.technical", "REL_AI": "0"}), \
                 unittest.mock.patch("core.desktop.time.sleep"):
             self.assertTrue(desk.find_setting(TECHNICAL, ("advanced",), "Technical details"))
         self.assertEqual(f.cur, "adv")
         self.assertTrue(any("found under Settings › Advanced" in line for line in self.logs), self.logs)
+        # listed as a recovery (proof.json, recovered.json) with a drafted fix to the recipe
+        self.assertEqual([(r["kind"], r["target"], r["picked"]["name"]) for r in d.rec.used],
+                         [("moved", "g4.advanced.technical", "Advanced")])
+        with open(os.path.join(self.out, "recovered.json")) as fh:
+            self.assertEqual(json.load(fh)[0]["kind"], "moved")
+        with open(os.path.join(self.out, "selector-fixes.md")) as fh:
+            self.assertIn("found under Settings › Advanced", fh.read())
 
 
 if __name__ == "__main__":
