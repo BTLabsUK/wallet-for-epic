@@ -15,6 +15,7 @@
 # macOS library only, smoke and live skip the Simulator, release and handoff carry the macOS app).
 #
 # Usage: tools/build-apple.sh [step...]   default: doctor sources lepic macos dmg (and ios-sim with WFE_TOR=0)
+#        tools/build-apple.sh all         both variants, one after the other, in one command
 #   doctor    print and check the toolchain (Xcode, SDKs, Simulator runtime, Flutter, Rust)
 #   sources   the LEPIC and lepic-flutter clones in app/third_party at tools/lepic.rev and
 #             tools/lepic-flutter.rev (cloned when missing from LEPIC_REPO / LEPIC_FLUTTER_REPO,
@@ -33,7 +34,12 @@
 #   live      integration_test/apple_live_test.dart on macOS and on the Simulator, on mainnet: a
 #             new wallet on node.btlabs.uk (then node.epicnet.us, node.epiccash.com), its scan to
 #             the tip, a restore from its phrase, the Epicbox listener connected (needs internet)
-#   all       every step above but live and the release steps
+#   all       alone, no other step: both variants, each in its own run of this script (own WFE_TOR,
+#             own out dir), the one with Tor first: doctor sources lepic macos dmg smoke live; then
+#             WFE_TOR=0: the same and ios-sim. The without-Tor run happens even when the one with
+#             Tor failed; the exit is non-zero if either failed. Ends with both results.txt.
+#             APPLE_OUT, when set, is the parent: its tor/ and notor/ get the variants. Each
+#             variant's results.txt starts empty. WFE_TOR is ignored (all sets it itself).
 # Release steps (tools/apple-release.md), run on the release Mac from a clean checkout:
 #   mac-release  release-check, a check of the signing set-up (Team ID in app/Signing.xcconfig,
 #             its Developer ID Application certificate in the keychain, the notarytool profile),
@@ -59,8 +65,9 @@
 #             it, as a user's Mac would give it (spctl, stapler, codesign)
 # A failing step leaves a FAIL line in results.txt before the script exits.
 # Env:
-#   APPLE_OUT=<dir>            results (default build-apple/ at the repo root): the .app, .dmg,
-#                              screenshots, logs and results.txt with one PASS/FAIL line per step
+#   APPLE_OUT=<dir>            results (default build-apple/tor, or build-apple/notor with WFE_TOR=0,
+#                              at the repo root): the .app, .dmg, screenshots, logs and results.txt
+#                              with one PASS/FAIL line per step (with `all`: the parent of tor/, notor/)
 #   LEPIC_REPO, LEPIC_FLUTTER_REPO   where `sources` clones from (a git URL or path)
 #   WFE_NODE_BIN_MAC_ARM64     the built-in node's epic binary (epic 4.1 or newer: the app's
 #                              epic-server.toml has no foundation_path, which 4.0 needs), copied to
@@ -89,7 +96,7 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 app="$root/app"
 lepic="$app/third_party/lepic"
 binding="$app/third_party/lepic-flutter"
-out="${APPLE_OUT:-$root/build-apple}"
+out="${APPLE_OUT:-$root/build-apple/$(if [ "${WFE_TOR:-1}" = 0 ]; then echo notor; else echo tor; fi)}"
 results="$out/results.txt"
 flutter_version=3.47.5
 # Must match MACOSX_DEPLOYMENT_TARGET and IPHONEOS_DEPLOYMENT_TARGET in the Xcode projects, so
@@ -879,6 +886,31 @@ ios_prepare() {
   result PASS ios-prepare "team $team; now open app/ios/Runner.xcworkspace in Xcode, scheme Runner, Product > Archive"
 }
 
+# `all`: both variants, each in a run of this script of its own, so nothing of the first variant
+# (WFE_TOR, the dart-define, the out dir, the node it fetched) reaches the second. Both runs
+# happen whatever the first did; the exit is non-zero if either failed.
+all_variants() {
+  local parent="${APPLE_OUT:-$root/build-apple}" rc_tor=0 rc_notor=0
+  say "all: with Tor ($parent/tor)"
+  rm -f "$parent/tor/results.txt"
+  env -u WFE_TOR APPLE_OUT="$parent/tor" "$0" doctor sources lepic macos dmg smoke live || rc_tor=$?
+  say "all: without Tor ($parent/notor)"
+  rm -f "$parent/notor/results.txt"
+  env WFE_TOR=0 APPLE_OUT="$parent/notor" "$0" doctor sources lepic macos dmg ios-sim smoke live || rc_notor=$?
+  say "all: summary"
+  local v
+  for v in tor notor; do
+    echo "-- $v ($parent/$v/results.txt)"
+    cat "$parent/$v/results.txt" 2>/dev/null || echo "(no results.txt)"
+  done
+  echo "with Tor: exit $rc_tor; without Tor: exit $rc_notor"
+  [ "$rc_tor" = 0 ] && [ "$rc_notor" = 0 ]
+}
+if [ $# -ge 1 ] && [ "$1" = all ]; then
+  [ $# -eq 1 ] || die "all runs alone: tools/build-apple.sh all"
+  all_variants && exit 0 || exit 1
+fi
+
 # A step that dies (or fails a command) gets its FAIL line here unless it wrote one itself.
 recorded="" step=""
 trap 'rc=$?; if [ "$rc" != 0 ] && [ -n "$step" ] && [ "$recorded" != "$step" ]; then result FAIL "$step" "exit $rc"; fi' EXIT
@@ -901,7 +933,7 @@ while [ $# -gt 0 ]; do
     ipa) ios_only_without_tor ipa; ipa ;;
     smoke) smoke ;;
     live) live ;;
-    all) doctor; sources; lepic_libs; macos; dmg; if ios_built; then ios_sim; ipa; fi; smoke ;;
+    all) die "all runs alone: tools/build-apple.sh all" ;;
     release-check) release_check ;;
     mac-release) release_check; mac_release_ready; doctor; sources; lepic_libs "$darwin_targets"; macos; mac_release_sign ;;
     ios-prepare)
@@ -912,7 +944,7 @@ while [ $# -gt 0 ]; do
     handoff) handoff ;;
     dmg-signed) [ $# -gt 0 ] || die "dmg-signed needs the signed .app tar.gz"; dmg_signed "$1"; shift ;;
     gatekeeper) [ $# -gt 0 ] || die "gatekeeper needs the final .dmg"; gatekeeper "$1"; shift ;;
-    *) step=""; sed -n '2,84p' "$0" >&2; exit 2 ;;
+    *) step=""; sed -n '2,91p' "$0" >&2; exit 2 ;;
   esac
 done
 echo "results: $results"

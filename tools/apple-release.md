@@ -126,7 +126,8 @@ section Apple. By hand it is:
    One command does all of it: checks the checkout and the toolchain, the Developer ID
    certificate and the notary login, builds, signs every binary with Developer ID (hardened
    runtime, Apple's timestamp, inside out), notarises and staples the app, makes the `.dmg`,
-   signs, notarises and staples it, then runs Gatekeeper on it. In `build-apple/mac-release/`:
+   signs, notarises and staples it, then runs Gatekeeper on it. In `build-apple/tor/mac-release/` or
+   `build-apple/notor/mac-release/` (`$APPLE_OUT/mac-release/` when set):
    `bt-wallet-<v>-macos.dmg`, `.dmg.sha256` and `.REPORT.txt` (`<v>` is `26.10.24` or
    `26.10.24-notor`). Send all three to the owner, and the `.sha256` line also by chat.
 3. **Builder**, iOS:
@@ -242,6 +243,20 @@ proven by the first real run:
 | The iOS Archive embeds the privacy manifest; App Store Connect processes the build | The first upload |
 | The keychain prompt on update from ad-hoc to signed | The funded-wallet test above |
 
+Bob's test build of both variants, no Apple account needed, is one command on the Mac:
+
+```
+git pull
+cp /tmp/live-hosts.json app/integration_test/
+tools/build-apple.sh all
+```
+
+`all` runs the build with Tor (`doctor sources lepic macos dmg smoke live`, out
+`build-apple/tor/`), then, in a second run of the script, the one without Tor (the same steps plus
+`ios-sim`, `WFE_TOR=0`, out `build-apple/notor/`). The second run happens even if the first
+failed; the exit is non-zero if either failed. It ends with both `results.txt` files. `APPLE_OUT`,
+when set, is the parent of `tor/` and `notor/`.
+
 Other commands of `tools/build-apple.sh` (no Apple account needed): `doctor`, `macos` and `dmg`
 (an ad-hoc build to try), `ios-sim`, `smoke`, `live`, `gatekeeper <dmg>`.
 
@@ -282,7 +297,7 @@ hand-off is checked by its SHA-256 (sent by chat) and `SHA256SUMS`, so any chann
 files.
 
 On the Mac, at the tag: `RELEASE_VERSION=<version> [WFE_TOR=0] tools/build-apple.sh release` writes
-`build-apple/handoff/EpicCash-<v>-<commit>/` (both unsigned apps as `.tar.gz`, `PROVENANCE.txt`
+`build-apple/tor/handoff/EpicCash-<v>-<commit>/` (`notor/` with `WFE_TOR=0`) (both unsigned apps as `.tar.gz`, `PROVENANCE.txt`
 with every file's SHA-256, `SHA256SUMS`). Later, `tools/build-apple.sh dmg-signed <signed tar>`
 and `tools/build-apple.sh gatekeeper <final dmg>`.
 
