@@ -18,6 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app_log.dart';
 import 'l10n.dart';
 import 'last_session.dart';
+import 'settings_file/host_settings.dart' show appConfig;
 import 'slate_files.dart';
 import 'support_clean.dart';
 import 'support_report.dart';
@@ -206,6 +207,15 @@ abstract interface class FeedbackOutlet {
   /// Throws [FeedbackSendError] if it was not taken.
   Future<String> post(Uri url, SupportReport report);
 }
+
+/// How long Send waits before the report counts as not sent: the wait for Tor, the request
+/// (`support.timeout_s`) and the sealing around them.
+Duration get feedbackSendDeadline => appConfig.torSendWait + supportTimeout + const Duration(seconds: 10);
+
+/// [send] held to [feedbackSendDeadline]: one that never answers ends as a [FeedbackSendError]
+/// the screen shows, never as a spinner without end.
+Future<String> feedbackSendWithin(Future<String> send) =>
+    send.timeout(feedbackSendDeadline, onTimeout: () => throw FeedbackSendError((l) => l.feedbackServerNoAnswer));
 
 class PlatformFeedbackOutlet implements FeedbackOutlet {
   const PlatformFeedbackOutlet({this._timeout});
