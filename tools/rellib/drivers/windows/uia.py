@@ -36,6 +36,12 @@ SEARCH_HINTS = ("Search settings", "Szukaj w ustawieniach")
 ERASE_SECRET = 64   # a password field's text is not readable: this many backspaces clear it
 
 
+def _once(text):
+    """The engine names a button with a tooltip "Label. Label": the label once."""
+    m = re.match(r"^(.+)\. \1$", text)
+    return m.group(1) if m else text
+
+
 class WinSurface:
     platform, family = "windows", "desktop"
     shows_selection = False   # UI Automation gives a Flutter segmented button no chosen state
@@ -118,7 +124,7 @@ class WinSurface:
             role = "toggle"
         elif "invoke" in pat and role in ("other", "text"):
             role = "button"
-        name, val = d.get("name") or "", d.get("val")
+        name, val = "\n".join(_once(x) for x in (d.get("name") or "").split("\n")), d.get("val")
         if not name and val is None and not pat:
             return None   # the engine's unnamed layout nodes
         st = {"showing"}

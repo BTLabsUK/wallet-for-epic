@@ -14,6 +14,9 @@ sys.path.insert(0, os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(os.path.dirname(HERE), "linux"))   # p_funder
 
+# the rig's app shows a change up to ~20 s after a press (no display in a rig session): waits run twice as long
+os.environ.setdefault("REL_TRUST_SLOW", "2")
+
 from core import checks  # noqa: E402
 from core.desktop import Desktop  # noqa: E402
 from core.driver import Driver  # noqa: E402
