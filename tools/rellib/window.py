@@ -128,9 +128,12 @@ def proof_cause(result, log):
     """Why a G4 driver failed, from what it left: proof.fault.kind, its exit code, its log tail.
     "harness" (the rig or the setup could not run the test: exit 2, a fault of kind harness or a
     `HARNESS ...` line), "harness:crash" (the driver raised: a Python traceback and no proof fault),
+    "infra:driver-<sub>" (the driver named the machine: a fault of kind infra, its sub e.g. node, ssh, rig),
     "product" (a required check is false, or the driver said PRODUCT) or "step"."""
     proof = result.get("proof") if isinstance(result.get("proof"), dict) else {}
     fault = proof.get("fault") if isinstance(proof.get("fault"), dict) else {}
+    if fault.get("kind") == "infra":
+        return "infra:driver-%s" % (re.sub(r"[^\w-]+", "-", str(fault.get("sub") or "rig")) or "rig")
     if fault.get("kind") == "harness":
         return "harness"
     if fault.get("kind") == "product":
@@ -150,7 +153,7 @@ def cause_of(step, result, log):
     signal, a missing proof.json, an ssh drop, no build slot), "timeout" (its own hard limit),
     "error" (tools/rel itself), "check" (a builtin or gate said no), for a proof step what
     proof_cause says ("product", "harness", "harness:crash"), else "step" (a build or script
-    that exited non-zero). Only "infra:*" retries by itself."""
+    that exited non-zero). Only "infra:*" retries by itself (a proof's infra:driver-* too)."""
     if result.get("timed_out"):
         return "timeout"
     if result.get("exception"):

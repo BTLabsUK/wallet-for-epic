@@ -56,7 +56,9 @@ import urllib.request
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 import facts  # noqa: E402
 import migration  # noqa: E402
-from .hermetic import log_hosts  # noqa: E402
+from . import breaks  # noqa: E402
+from .faults import InfraFault  # noqa: E402
+from .hermetic import entry as server_entry, log_hosts  # noqa: E402
 
 D = decimal.Decimal
 NANO = 100000000
@@ -547,19 +549,81 @@ def parse_cli(res):
     return {"info": info, "txs": txs.get("transactions") or [], "address": addr}
 
 
+# The CLI could not reach its node: exit 9 (the node error kind), or the error says so
+NODE_DOWN = re.compile(r'could not connect to the node|"kind"\s*:\s*"node"', re.I)
+UNREACHABLE_NODE = "127.0.0.1:9"   # the discard port: nothing answers (the node-down break)
+
+
+def with_node(text, host):
+    """settings.toml's text with `host` first in [node] servers (in use for the CLI); the other entries
+    and every other table kept. CliError when the result is not TOML."""
+    text = text or ""
+    m = re.search(r"(?m)^\[node\]\s*$", text)
+    if not m:
+        new = text.rstrip("\n") + ("\n\n" if text.strip() else "") + "[node]\nservers = [%s]\n" % json.dumps(host)
+    else:
+        end = re.search(r"(?m)^\[", text[m.end():])
+        sect = text[m.end():m.end() + end.start()] if end else text[m.end():]
+        old = (toml_servers(text) or {}).get("node") or []
+        line = "servers = [%s]" % ", ".join(json.dumps(x) for x in [host] + [x for x in old if x != host])
+        sect2, n = re.subn(r"(?ms)^\s*servers\s*=\s*\[.*?\]", "\n" + line, sect, count=1)
+        if not n:
+            sect2 = "\n" + line + sect
+        new = text[:m.end()] + sect2 + (text[m.end() + end.start():] if end else "")
+    t = toml_servers(new)
+    if not t or (t.get("node") or [None])[0] != host:
+        raise CliError("could not put the node %s into the CLI's settings" % host)
+    return new
+
+
 class LepicCli:
     """The encrypted store, read through the LEPIC CLI on copies. A CLI wallet restored from the run wallet's
     phrase (`wallet restore --no-scan` into a scratch folder) opens the app's store, since the store key comes
     from the seed; the app's wallet.enc.sqlite3 (+ -wal, -shm, .check) are COPIED over the scratch store
     (never the live folder: the running app holds it) and `wallet info`, `tx list` run there. The phrase and
     the wallet password go in on standard input, never as an argument or in the environment. The restore runs
-    once per object; every read copies the store files again."""
+    once per object; every read copies the store files again.
+
+    The node: the app's own (settings.toml's first) first, then the test order (facts.NODE_PICK). A CLI
+    that cannot reach a node (exit 9, "could not connect to the node") moves to the next one and logs
+    it; when none answers, InfraFault (sub node): the network under the test, not the app."""
+
+    step = "wallet-read"
 
     def __init__(self, exe=None, log=print):
         self.exe = exe
         self.log = log
         self.work = None
         self._key = None
+        self.nodes, self.at = [], 0
+
+    def _order(self, settings_text):
+        own = ((toml_servers(settings_text) or {}).get("node") or [])[:1]
+        order = list(dict.fromkeys(server_entry(x) for x in own + list(facts.NODE_PICK) if x))
+        if breaks.node_down():
+            self.log("BREAK: the CLI's first node is %s (nothing answers there)" % UNREACHABLE_NODE)
+            order.insert(0, UNREACHABLE_NODE)
+        return order
+
+    def _use_node(self, host):
+        with open(self.settings) as f:
+            text = f.read()
+        with open(self.settings, "w") as f:
+            f.write(with_node(text, host))
+
+    def _run_node(self, args, stdin, secrets=()):
+        """_run, moved on to the next node while the CLI cannot reach the one it has."""
+        while True:
+            r = self._run(args, stdin)
+            if not (r.returncode == 9 or NODE_DOWN.search((r.stderr or "") + (r.stdout or ""))):
+                return r
+            down = self.nodes[self.at] if self.at < len(self.nodes) else "its node"
+            self.at += 1
+            if self.at >= len(self.nodes):
+                raise InfraFault(self.step, "the LEPIC CLI reached no node (tried %s): %s"
+                                 % (", ".join(self.nodes) or "none", _clean(r.stderr or r.stdout, *secrets)[-160:]), sub="node")
+            self.log("LEPIC CLI: node %s not reachable (exit %d); trying %s" % (down, r.returncode, self.nodes[self.at]))
+            self._use_node(self.nodes[self.at])
 
     def _exe(self):
         if not self.exe:
@@ -584,7 +648,10 @@ class LepicCli:
         with open(self.settings, "w") as f:
             f.write(settings_text or "")
         os.chmod(self.settings, 0o600)
-        r = self._run(COMMANDS["restore"], phrase + "\n" + password + "\n")
+        self.nodes, self.at = self._order(settings_text), 0
+        if self.nodes and ((toml_servers(settings_text) or {}).get("node") or [None])[0] != self.nodes[0]:
+            self._use_node(self.nodes[0])
+        r = self._run_node(COMMANDS["restore"], phrase + "\n" + password + "\n", (phrase, password))
         if r.returncode != 0:
             self.close()
             raise CliError("the CLI restore failed (exit %d): %s" % (r.returncode, _clean(r.stderr or r.stdout, phrase, password)))
@@ -608,7 +675,7 @@ class LepicCli:
             raise CliError("no %s in %s to read" % (facts.STORE_ENC, store_dir))
         res = {}
         for name in ("info", "txs", "address"):
-            r = self._run(COMMANDS[name], password + "\n")
+            r = self._run_node(COMMANDS[name], password + "\n", (phrase, password))
             if r.returncode != 0 and name != "address":
                 raise CliError("`%s` failed (exit %d): %s" % (" ".join(COMMANDS[name]), r.returncode,
                                                             _clean(r.stderr or r.stdout, phrase, password)))
