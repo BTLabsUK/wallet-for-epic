@@ -11,7 +11,6 @@ import 'address_view.dart' show HostText;
 import '../seed_contacts.dart' show projectRepoUrl;
 import 'package:flutter/material.dart';
 import 'status_icons.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../app_info.dart';
@@ -50,8 +49,6 @@ import 'levels/change_level_screen.dart';
 import '../levels/level_features.dart' show AdvancedPageKind;
 import '../levels/level_providers.dart' show currentLevelProvider, levelFeaturesProvider;
 import 'licences_screen.dart';
-import 'month_picker.dart' show StartMonthChoice;
-import '../start_month.dart' show StartMonth, defaultStartMonth;
 import 'network_menu.dart';
 import 'network_mode_phone.dart';
 import 'network_mode_text.dart' show blockMode, networkModeName;
@@ -62,6 +59,7 @@ import 'home_parts.dart' show outputsShown;
 import 'outputs_screen.dart';
 import 'pin.dart';
 import 'restore_screen.dart' show RestoreScreen, ScanSlotLine;
+import 'scan_start.dart';
 import 'server_picker.dart' show showEpicboxPicker, showNodePicker;
 import 'settings_history.dart';
 import 'settings_invoices.dart';
@@ -1373,12 +1371,10 @@ class LinkTile extends StatelessWidget {
   }
 }
 
-enum _RescanFrom { date, height, start }
-
-/// Where a rescan starts. Pops the start height, or null when cancelled. On mainnet, at every
-/// level, a month (January 2025 unless another is picked) or the whole chain, and with
-/// [heights] a block height too (the owner, 2026-11-03). A test network: the whole chain, with
-/// [heights] a height as the other choice; without it the dialog only confirms.
+/// Where a rescan starts: the shared scan-start block (`scan_start.dart`), as on a restore.
+/// Pops the start height, or null when cancelled. On mainnet, at every level, a month
+/// (January 2025 unless another is picked) or the start, and with [heights] a block height
+/// too (the owner, 2026-11-03). A test network: the start, with [heights] a height.
 class _RescanDialog extends StatefulWidget {
   const _RescanDialog({required this.datesSupported, required this.heights});
 
@@ -1387,47 +1383,22 @@ class _RescanDialog extends StatefulWidget {
   /// Advanced › Recheck from a height is on: a block height may be typed.
   final bool heights;
 
-  /// Offer the start; else the whole chain without asking.
-  bool get choice => datesSupported || heights;
-
   @override
   State<_RescanDialog> createState() => _RescanDialogState();
 }
 
 class _RescanDialogState extends State<_RescanDialog> {
-  late _RescanFrom _from = widget.datesSupported ? _RescanFrom.date : _RescanFrom.start;
-
-  /// The month picked; null is [defaultStartMonth].
-  DateTime? _date;
-  final _height = TextEditingController();
-  String? _error;
+  late final _scanStart = ScanStartController(dates: widget.datesSupported);
 
   @override
   void dispose() {
-    _height.dispose();
+    _scanStart.dispose();
     super.dispose();
   }
 
-  void _start() {
-    final l = context.l10n;
-    final BigInt? start;
-    switch (_from) {
-      case _RescanFrom.date:
-        start = (_date == null ? defaultStartMonth : StartMonth.of(_date!)).height;
-      case _RescanFrom.height:
-        final height = BigInt.tryParse(_height.text.trim());
-        if (height == null || height < BigInt.one) {
-          setState(() => _error = l.settingsRescanHeightInvalid);
-          return;
-        }
-        start = height;
-      // Block 0, not 1: only a scan from block 0 finishes a restore (restore_scan.dart), and
-      // it goes on from where a stopped one of the same start left off.
-      case _RescanFrom.start:
-        start = BigInt.zero;
-    }
-    Navigator.pop(context, start);
-  }
+  // Block 0, not 1, for the start: only a scan from block 0 finishes a restore
+  // (restore_scan.dart), and it goes on from where a stopped one of the same start left off.
+  void _start() => Navigator.pop(context, _scanStart.start ?? BigInt.zero);
 
   @override
   Widget build(BuildContext context) {
@@ -1435,52 +1406,8 @@ class _RescanDialogState extends State<_RescanDialog> {
     return AppDialog(
       title: l.settingsRescanTitle,
       icon: Icons.manage_search,
-      description: widget.choice ? l.settingsRescanBody : l.settingsRescanBodyPlain,
-      body: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (widget.choice)
-              RadioGroup<_RescanFrom>(
-                groupValue: _from,
-                onChanged: (value) => setState(() {
-                  _from = value ?? _from;
-                  _error = null;
-                }),
-                // On the dialog's own inset, so the titles line up with its text.
-                child: ListTileTheme.merge(
-                  contentPadding: EdgeInsets.zero,
-                  child: Column(
-                    children: [
-                      if (widget.datesSupported)
-                        RadioRow(value: _RescanFrom.date, title: l.settingsRescanFromMonth),
-                      if (widget.heights) RadioRow(value: _RescanFrom.height, title: l.settingsRescanFromHeight),
-                      RadioRow(value: _RescanFrom.start, title: l.settingsRescanWholeChain),
-                    ],
-                  ),
-                ),
-              ),
-            if (_from == _RescanFrom.date)
-              StartMonthChoice(
-                date: _date ?? defaultStartMonth.firstDay,
-                label: l.restorePickMonthShort,
-                onChanged: (d) => setState(() {
-                  _date = d;
-                  _error = null;
-                }),
-              ),
-            if (_from == _RescanFrom.height)
-              TextField(
-                controller: _height,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: InputDecoration(
-                  labelText: l.settingsRescanStartHeight,
-                ),
-              ),
-            if (_error != null) ErrorText(_error!),
-          ],
-        ),
+      description: l.settingsRescanBody,
+      body: ScanStart(controller: _scanStart, heights: widget.heights),
       actions: [
         DialogButton.secondary(label: l.commonCancel, onPressed: () => Navigator.pop(context)),
         DialogButton.primary(label: l.settingsRescanButton, onPressed: _start),

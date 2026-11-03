@@ -117,6 +117,7 @@ abstract final class TrustIds {
   static const advancedLevel = 'g4.advanced.level';
   static const restorePhrase = 'g4.restore.phrase';
   static const restoreStart = 'g4.restore.start';
+  static const restoreInfo = 'g4.restore.info';
   static const restoreByMonth = 'g4.restore.by.month';
   static const restoreByHeight = 'g4.restore.by.height';
   static const restoreMonth = 'g4.restore.month';
@@ -217,6 +218,7 @@ abstract final class TrustIds {
     'g4.advanced.level',
     'g4.restore.phrase',
     'g4.restore.start',
+    'g4.restore.info',
     'g4.restore.by.month',
     'g4.restore.by.height',
     'g4.restore.month',

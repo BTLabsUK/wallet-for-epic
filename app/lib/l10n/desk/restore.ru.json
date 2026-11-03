@@ -8,10 +8,6 @@
   "deskErrRestoreScanRequired": "Восстановление не завершено. Получение и отправка станут доступны, когда закончится сканирование блокчейна.",
   "deskSetRescanRestoreRunning": "Идёт сканирование после восстановления. Сверка баланса станет доступна после его завершения.",
   "deskSetRescanStartHeading": "Откуда начать",
-  "deskSetRescanFromHeight": "С высоты блока",
-  "deskSetRescanHeightInvalid": "Введите высоту блока от 1.",
-  "deskSetRescanWholeChain": "Весь блокчейн",
-  "deskSetRescanWholeChainHint": "С первого блока. Находит всё, но занимает много времени. Также завершает незаконченное восстановление.",
   "deskOnbForgotLink": "Забыли пароль?",
   "deskOnbForgotTitle": "Новый пароль",
   "deskOnbForgotFailedTitle": "Пароль не изменён",
@@ -30,6 +26,5 @@
   "deskOvRestoredImportLater": "Позже: Настройки › Кошелёк › Резервная копия.",
   "deskOnbForgotNoCheck": "Ничто в файлах этого кошелька не может подтвердить фразу, поэтому пароль остаётся прежним.",
   "deskOnbForgotRestoreHint": "Вместо этого восстановите его по фразе: {name} уйдёт из списка, а его файлы останутся на этом компьютере.",
-  "deskOnbForgotRestoreInstead": "Восстановить по фразе",
-  "deskSetRescanByWholeChain": "Вся цепочка"
+  "deskOnbForgotRestoreInstead": "Восстановить по фразе"
 }

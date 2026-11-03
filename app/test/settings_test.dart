@@ -22,6 +22,7 @@ import 'package:epic_wallet/src/ui/language_flag.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/first_run_screen.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart';
+import 'package:epic_wallet/src/ui/scan_start.dart';
 import 'package:epic_wallet/src/ui/month_picker.dart';
 import 'package:epic_wallet/src/levels/wallet_level.dart' show levelKey;
 import 'package:epic_wallet/src/start_month.dart' show StartMonth, defaultStartMonth;
@@ -288,6 +289,14 @@ Future<void> _reveal(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
+/// A tap on the widget with [key], scrolled into view first.
+Future<void> _tapKey(WidgetTester tester, Key key) async {
+  final finder = find.byKey(key);
+  await _reveal(tester, finder);
+  await tester.tap(finder);
+  await tester.pumpAndSettle();
+}
+
 Future<void> _tapText(WidgetTester tester, String text) async {
   final finder = find.text(text);
   await _reveal(tester, finder);
@@ -400,11 +409,10 @@ void main() {
       await h.pump(tester);
       await _tapText(tester, _l.firstRunRestore);
       await _enter(tester, _l.restorePhraseLabel, h.service.phrase);
-      await _tapText(tester, _l.restoreStartFromMonthLink);
+      await _tapKey(tester, ScanStart.changeKey);
       // January 2025 until another month is picked.
       expect(find.text('January 2025'), findsOneWidget);
-      await tester.tap(find.byKey(StartMonthChoice.buttonKey));
-      await tester.pumpAndSettle();
+      await _tapKey(tester, StartMonthChoice.buttonKey);
       // Year and month, no day: the picker opens on the chosen month's year; four years back, July.
       expect(find.text('2025'), findsOneWidget);
       for (var i = 0; i < 4; i++) {
@@ -1098,7 +1106,7 @@ void main() {
   });
 
   group('wallet', () {
-    testWidgets('Recheck balance without Recheck from a height: January 2025 by default, or the whole chain', (
+    testWidgets('Recheck balance without Recheck from a height: January 2025 by default, or from the start', (
       tester,
     ) async {
       final h = _Harness();
@@ -1107,16 +1115,21 @@ void main() {
       await h.openSettings(tester, SettingsSection.wallet);
 
       await _tapText(tester, _l.settingsRescan);
-      // The month and the whole chain; the from-height stays behind the Advanced switch.
-      expect(find.text('From a block height'), findsNothing);
-      expect(find.text(_l.settingsRescanFromMonth), findsOneWidget);
-      expect(find.text('The whole chain'), findsOneWidget);
-      expect(find.text('January 2025'), findsOneWidget);
+      // The shared scan-start line (scan_start.dart): January 2025; the calendar opens the month
+      // only, the height stays behind the Advanced switch; the info holds Scan from the start.
+      expect(find.text(_l.restoreScanningFrom('January 2025')), findsOneWidget);
+      await _tapKey(tester, ScanStart.changeKey);
+      expect(find.byKey(StartMonthChoice.buttonKey), findsOneWidget);
+      expect(find.byKey(ScanStart.byKey), findsNothing);
+      expect(find.text(_l.restoreStartByHeight), findsNothing);
       await _tapText(tester, _l.settingsRescanButton);
       expect(h.session.lastStart, defaultStartMonth.height);
 
       await _tapText(tester, _l.settingsRescan);
-      await _tapText(tester, 'The whole chain');
+      await _tapKey(tester, ScanStart.infoKey);
+      expect(find.text(_l.scanStartInfo), findsOneWidget);
+      await _tapKey(tester, ScanStart.fromStartKey);
+      expect(find.text(_l.restoreScanningFromStart), findsOneWidget);
       await _tapText(tester, _l.settingsRescanButton);
       expect(h.session.lastStart, BigInt.zero);
       expect(h.session.scanCalls, 2);
@@ -1138,22 +1151,25 @@ void main() {
       expect(h.session.scanCalls, 0);
     });
 
-    testWidgets('rescans from a height or the whole chain', (tester) async {
+    testWidgets('rescans from a height or from the start', (tester) async {
       final h = _Harness(advanced: true);
       await h.pump(tester);
       await h.unlock(tester);
       await h.openSettings(tester, SettingsSection.wallet);
 
       await _tapText(tester, _l.settingsRescan);
-      await _tapText(tester, _l.settingsRescanFromHeight);
-      await _tapText(tester, 'Recheck');
-      expect(find.text(_l.settingsRescanHeightInvalid), findsOneWidget);
-      await _enter(tester, 'Start height', '3000000');
+      await _tapKey(tester, ScanStart.changeKey);
+      await _tapText(tester, _l.restoreStartByHeight);
+      // An empty height is the start; a typed one shows on the line.
+      expect(find.text(_l.restoreScanningFromStart), findsOneWidget);
+      await _enter(tester, _l.restoreStartHeightLabel, '3000000');
+      expect(find.text(_l.restoreScanningFromBlock('3,000,000')), findsOneWidget);
       await _tapText(tester, 'Recheck');
       expect(h.session.lastStart, BigInt.from(3000000));
 
       await _tapText(tester, 'Recheck balance');
-      await _tapText(tester, 'The whole chain');
+      await _tapKey(tester, ScanStart.infoKey);
+      await _tapKey(tester, ScanStart.fromStartKey);
       await _tapText(tester, 'Recheck');
       expect(h.session.lastStart, BigInt.zero);
       expect(h.session.scanCalls, 2);
@@ -1888,7 +1904,8 @@ void main() {
       expect(h.store.values['app.advanced_prefs'], 'recheckFromHeight|standard');
       await h.openSettings(tester, SettingsSection.wallet);
       await _tapText(tester, 'Recheck balance');
-      expect(find.text('From a block height'), findsOneWidget);
+      await _tapKey(tester, ScanStart.changeKey);
+      expect(find.text(_l.restoreStartByHeight), findsOneWidget);
       await _tapText(tester, 'Cancel');
 
       // Off again: the page's own reset.
@@ -1897,7 +1914,8 @@ void main() {
       expect(h.store.values['app.advanced_prefs'], '|standard');
       await h.openSettings(tester, SettingsSection.wallet);
       await _tapText(tester, 'Recheck balance');
-      expect(find.text('From a block height'), findsNothing);
+      await _tapKey(tester, ScanStart.changeKey);
+      expect(find.text(_l.restoreStartByHeight), findsNothing);
     });
 
     // Tester report 26.10.21: Connection servers on the phone, not on the tablet. The tablet had
@@ -1976,10 +1994,12 @@ void main() {
       h.store.values[levelKey] = '1';
       await h.pump(tester);
       await _tapText(tester, _l.firstRunRestore);
-      expect(find.text(_l.restoreStartHeading), findsNothing);
       expect(find.text(_l.restoreScanningFrom('January 2025')), findsOneWidget);
-      expect(find.byKey(restoreStartLinkKey), findsOneWidget);
-      expect(find.byKey(restoreFromStartKey), findsOneWidget);
+      expect(find.byKey(ScanStart.changeKey), findsOneWidget);
+      expect(find.byKey(ScanStart.infoKey), findsOneWidget);
+      // Scan from the start lives in the info sheet; the choices are folded away.
+      expect(find.byKey(ScanStart.fromStartKey), findsNothing);
+      expect(find.byKey(ScanStart.byKey), findsNothing);
       await _enter(tester, _l.restorePhraseLabel, h.service.phrase);
       await _tapText(tester, _l.commonContinue);
       await _enter(tester, 'PIN', _pin);
@@ -1994,16 +2014,23 @@ void main() {
       h.store.values[levelKey] = '1';
       await h.pump(tester);
       await _tapText(tester, _l.firstRunRestore);
-      await tester.tap(find.byKey(restoreFromStartKey));
-      await tester.pumpAndSettle();
+      await _tapKey(tester, ScanStart.infoKey);
+      expect(find.text(_l.scanStartInfoTitle), findsOneWidget);
+      expect(find.text(_l.scanStartInfo), findsOneWidget);
+      await _tapKey(tester, ScanStart.fromStartKey);
       expect(find.text(_l.restoreScanningFromStart), findsOneWidget);
-      expect(find.byKey(restoreFromStartKey), findsNothing);
-      // The way back: the link opens the month, January 2025 again.
-      await _tapText(tester, _l.restoreStartFromMonthLink);
-      expect(find.text('January 2025'), findsOneWidget);
-      await tester.tap(find.byKey(restoreFromStartKey));
-      await tester.pumpAndSettle();
+      // Already from the start: the info sheet offers nothing more.
+      await _tapKey(tester, ScanStart.infoKey);
+      expect(find.byKey(ScanStart.fromStartKey), findsNothing);
+      await _tapText(tester, _l.commonClose);
+      // The way back: the calendar opens the month, January 2025 again.
+      await _tapKey(tester, ScanStart.changeKey);
+      expect(find.text(_l.restoreScanningFrom('January 2025')), findsOneWidget);
+      expect(find.byKey(StartMonthChoice.buttonKey), findsOneWidget);
+      await _tapKey(tester, ScanStart.infoKey);
+      await _tapKey(tester, ScanStart.fromStartKey);
       expect(find.text(_l.restoreScanningFromStart), findsOneWidget);
+      expect(find.byKey(StartMonthChoice.buttonKey), findsNothing, reason: 'the choices fold away');
       await _enter(tester, _l.restorePhraseLabel, h.service.phrase);
       await _tapText(tester, _l.commonContinue);
       await _enter(tester, 'PIN', _pin);
@@ -2014,18 +2041,16 @@ void main() {
       expect(h.session.lastStart, isNull);
     });
 
-    testWidgets('restore offers the month and the height at level 1, behind a link', (tester) async {
+    testWidgets('restore offers the month and the height at level 1, behind the calendar', (tester) async {
       // Advanced is off: Restore is a one-off, so the choice is not behind a switch.
       final h = _Harness(sealed: false, walletExists: false);
       h.store.values[levelKey] = '1';
       await h.pump(tester);
       await _tapText(tester, _l.firstRunRestore);
-      expect(find.byKey(restoreStartLinkKey), findsOneWidget);
-      expect(find.text(_l.restoreStartFromMonthLink), findsOneWidget);
-      expect(find.text(_l.restoreStartHeading), findsNothing);
-      await _tapText(tester, _l.restoreStartFromMonthLink);
-      expect(find.byKey(restoreStartLinkKey), findsNothing);
-      expect(find.text(_l.restoreStartHeading), findsOneWidget);
+      expect(find.byKey(ScanStart.changeKey), findsOneWidget);
+      expect(find.byKey(ScanStart.byKey), findsNothing);
+      await _tapKey(tester, ScanStart.changeKey);
+      expect(find.byKey(ScanStart.byKey), findsOneWidget);
       expect(find.byKey(StartMonthChoice.buttonKey), findsOneWidget);
       expect(find.text('January 2025'), findsOneWidget);
       await _tapText(tester, 'Block height');

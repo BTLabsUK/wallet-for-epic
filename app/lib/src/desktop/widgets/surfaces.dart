@@ -12,6 +12,7 @@ import '../desk_l10n.dart';
 import '../../balanced_text.dart';
 import '../../log.dart' show logWarn;
 import '../../trust_ids.dart' show TrustId;
+import '../../ui/info_action.dart';
 import '../../ui/theme/protocol.dart' show CornerTicksPainter, GridFieldPainter;
 import '../theme/icons.dart';
 import '../../ui/badge.dart';
@@ -1404,7 +1405,7 @@ class _RenderWrapRow extends RenderBox
 /// [title] the popover shows [icon] and the title on its first line, as the phone's info sheet
 /// does; without one, the text alone.
 class EInfoHint extends StatefulWidget {
-  const EInfoHint(this.text, {super.key, this.title, this.icon, this.label, this.glyph = EIcons.info, this.size, this.onHelp, this.onOpen});
+  const EInfoHint(this.text, {super.key, this.title, this.icon, this.label, this.glyph = EIcons.info, this.size, this.onHelp, this.onOpen, this.action});
 
   final String text;
 
@@ -1414,6 +1415,9 @@ class EInfoHint extends StatefulWidget {
   /// Opens a richer explanation in place of the popover (the network-modes dialog) and
   /// completes when it closes; [text] stays what a screen reader hears.
   final Future<void> Function()? onOpen;
+
+  /// A choice the popover holds, as a button under the text ([EInfoPopover.action]).
+  final InfoAction? action;
 
   /// The popover's first line (the row's name), with [icon] before it.
   final String? title;
@@ -1458,7 +1462,7 @@ class EInfoHintState extends State<EInfoHint> {
     if (widget.onOpen case final open?) {
       await open();
     } else {
-      await showEInfoPopover(context, anchor: anchor, text: widget.text, title: widget.title, icon: widget.icon, help: widget.onHelp);
+      await showEInfoPopover(context, anchor: anchor, text: widget.text, title: widget.title, icon: widget.icon, help: widget.onHelp, action: widget.action);
     }
     if (!mounted) return;
     setState(() => _open = false);

@@ -838,9 +838,23 @@
     "desktop",
     "android"
    ],
-   "role": "link",
+   "role": "button",
    "keys": [
-    "restoreStartFromMonthLink"
+    "scanStartChange"
+   ],
+   "match": "line",
+   "secret": false
+  },
+  {
+   "id": "g4.restore.info",
+   "screen": "restore",
+   "family": [
+    "desktop",
+    "android"
+   ],
+   "role": "button",
+   "keys": [
+    "scanStartInfoTitle"
    ],
    "match": "line",
    "secret": false
@@ -894,8 +908,7 @@
    ],
    "role": "text_field",
    "keys": [
-    "restoreStartHeightLabel",
-    "deskOnbRestoreFromLabel"
+    "restoreStartHeightLabel"
    ],
    "match": "line",
    "secret": false
@@ -907,7 +920,7 @@
     "desktop",
     "android"
    ],
-   "role": "link",
+   "role": "button",
    "keys": [
     "restoreScanFromStart"
    ],

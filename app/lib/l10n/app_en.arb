@@ -2271,14 +2271,6 @@
   "@restorePhraseHelper": {
     "description": "Help under the recovery phrase field. The words themselves are always English."
   },
-  "restoreStartHeading": "Where to start scanning",
-  "@restoreStartHeading": {
-    "description": "Heading above the choice of a start date or a start block for the scan of the blockchain for the wallet's funds."
-  },
-  "restoreStartByDate": "Date",
-  "@restoreStartByDate": {
-    "description": "Segment button: give the scan's start as a date. Short."
-  },
   "restoreStartByMonth": "Month",
   "@restoreStartByMonth": {
     "description": "Segment button: give the scan's start as a month and year. Short."
@@ -2292,7 +2284,6 @@
     "description": "Field label: the block number the scan starts from."
   },
   "restoreStartHeightHelper": "Scan from this block. Leave empty to scan the whole chain.",
-  "restoreStartHeightInvalid": "Start height must be a whole number.",
   "restoreBackToPhrase": "Back to the phrase",
   "@restoreBackToPhrase": {
     "description": "Button after a failed restore that returns to the recovery phrase field."
@@ -3664,39 +3655,7 @@
   "@settingsRescanTitle": {
     "description": "Title of the dialog that starts a new search of the blockchain for the wallet's funds."
   },
-  "settingsRescanBody": "Checks the chain again for this wallet’s coins. An earlier start finds more but takes longer.",
-  "settingsRescanFromDate": "From a date",
-  "@settingsRescanFromDate": {
-    "description": "Choice in the rescan dialog: start at the block of a picked day."
-  },
-  "settingsRescanFromMonth": "From a month",
-  "@settingsRescanFromMonth": {
-    "description": "Recheck balance choice: start the scan from a month and year."
-  },
-  "settingsRescanFromHeight": "From a block height",
-  "@settingsRescanFromHeight": {
-    "description": "Choice in the rescan dialog: start at a block number."
-  },
-  "settingsRescanWholeChain": "The whole chain",
-  "@settingsRescanWholeChain": {
-    "description": "Choice in the rescan dialog: start at the first block."
-  },
-  "settingsRescanPickDate": "Pick a date",
-  "@settingsRescanPickDate": {
-    "description": "Button in the rescan dialog that opens a calendar."
-  },
-  "settingsRescanPickDateFirst": "Pick a date first.",
-  "@settingsRescanPickDateFirst": {
-    "description": "Error in the rescan dialog."
-  },
-  "settingsRescanStartHeight": "Start height",
-  "@settingsRescanStartHeight": {
-    "description": "Label of the block number field in the rescan dialog."
-  },
-  "settingsRescanHeightInvalid": "Enter a block height of 1 or more.",
-  "@settingsRescanHeightInvalid": {
-    "description": "Error in the rescan dialog."
-  },
+  "settingsRescanBody": "Checks the chain again for this wallet’s coins.",
   "settingsRescanButton": "Recheck",
   "@settingsRescanButton": {
     "description": "Button that starts the rescan."
@@ -16995,10 +16954,6 @@
   "@restoreStartFromLink": {
     "description": "Small link on Restore that opens the choice of where to start scanning the chain."
   },
-  "restoreStartFromMonthLink": "Start from a month or height",
-  "@restoreStartFromMonthLink": {
-    "description": "Link on Restore that opens the choice of where the scan starts: a month or a block height."
-  },
   "restoreScanningFrom": "Scanning from {month}",
   "@restoreScanningFrom": {
     "description": "Restore, mainnet: where the scan starts, shown above the link that changes it. The month is localised (January 2025).",
@@ -17013,17 +16968,31 @@
   "@restoreScanningFromStart": {
     "description": "Restore: the scan starts from the chain's first block, after the user chose Scan from the start."
   },
-  "restoreOlderCoins": "Older coins?",
-  "@restoreOlderCoins": {
-    "description": "Restore: before the Scan from the start link, for wallets with coins from before the default start month."
-  },
   "restoreScanFromStart": "Scan from the start",
   "@restoreScanFromStart": {
     "description": "Restore: link that makes the scan start from the chain's first block instead of a month."
   },
-  "settingsRescanBodyPlain": "The wallet looks for its coins again, from the first block.",
-  "@settingsRescanBodyPlain": {
-    "description": "Recheck balance dialog text while Recheck from a height is off in Advanced: no start choice, the whole chain is scanned."
+  "restoreScanningFromBlock": "Scanning from block {height}",
+  "@restoreScanningFromBlock": {
+    "description": "The scan-start line when a block height was typed (restore and Recheck balance). The number is localised.",
+    "placeholders": {
+      "height": {
+        "type": "String",
+        "example": "2,800,000"
+      }
+    }
+  },
+  "scanStartChange": "Change the start",
+  "@scanStartChange": {
+    "description": "Tooltip and screen-reader name of the calendar button beside the scan-start line: opens the month or block height choice."
+  },
+  "scanStartInfoTitle": "Scan start",
+  "@scanStartInfoTitle": {
+    "description": "Title of the info sheet or popover behind the scan-start line's info button."
+  },
+  "scanStartInfo": "Only coins from this point on are found. An earlier start finds older coins and takes longer.",
+  "@scanStartInfo": {
+    "description": "Text of the scan-start info sheet or popover; under it the Scan from the start button."
   },
   "slNodeField": "Node address",
   "@slNodeField": {
@@ -17184,22 +17153,6 @@
   "deskSlHelpChoose": "Pick one, or type to filter the list or add a server.",
   "@deskSlHelpChoose": {
     "description": "Under the field of Setup's Node or Epicbox list while nothing is typed: before a wallet exists a pick chooses at once."
-  },
-  "deskOnbRestoreFromLabel": "Start from block",
-  "@deskOnbRestoreFromLabel": {
-    "description": "Label of the optional start block field on Restore."
-  },
-  "deskOnbRestoreFromHint": "Block height",
-  "@deskOnbRestoreFromHint": {
-    "description": "Placeholder of the start block field on Restore."
-  },
-  "deskOnbRestoreFromHelp": "Only if the wallet’s first payment came after this block. Leave it empty to check the whole chain.",
-  "@deskOnbRestoreFromHelp": {
-    "description": "Help line under the start block field on Restore."
-  },
-  "deskOnbRestoreFromInvalid": "Use digits only, or leave it empty.",
-  "@deskOnbRestoreFromInvalid": {
-    "description": "Error under the start block field on Restore when the text is not a number."
   },
   "deskNetWaitingTorReason": "Waiting for Tor. Tor only is on in Advanced.",
   "@deskNetWaitingTorReason": {
@@ -20634,22 +20587,6 @@
   "deskSetRescanStartHeading": "Where to start",
   "@deskSetRescanStartHeading": {
     "description": "Heading of the start-choice radio group on the Recheck page."
-  },
-  "deskSetRescanFromHeight": "From a block height",
-  "@deskSetRescanFromHeight": {
-    "description": "Recheck start choice; same text as the phone's settingsRescanFromHeight."
-  },
-  "deskSetRescanHeightInvalid": "Enter a block height of 1 or more.",
-  "@deskSetRescanHeightInvalid": {
-    "description": "Field error for the Recheck start height; same text as the phone's settingsRescanHeightInvalid."
-  },
-  "deskSetRescanWholeChain": "The whole chain",
-  "@deskSetRescanWholeChain": {
-    "description": "Recheck start choice: from block 0; same text as the phone's settingsRescanWholeChain."
-  },
-  "deskSetRescanWholeChainHint": "From the first block. Finds everything and takes long. Also finishes an unfinished restore.",
-  "@deskSetRescanWholeChainHint": {
-    "description": "Hint under The whole chain."
   },
   "deskOnbForgotLink": "Forgot password?",
   "@deskOnbForgotLink": {
@@ -26158,22 +26095,6 @@
   "@deskSetSynRecheckFrom": {
     "description": "Settings search: other words that find the “Where to start” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
   },
-  "deskSetRowRecheckMonth": "Month",
-  "@deskSetRowRecheckMonth": {
-    "description": "Settings row title: Month (section recheck)."
-  },
-  "deskSetSynRecheckMonth": "month, date, calendar, created, when",
-  "@deskSetSynRecheckMonth": {
-    "description": "Settings search: other words that find the “Month” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
-  },
-  "deskSetRowRecheckHeight": "Start block",
-  "@deskSetRowRecheckHeight": {
-    "description": "Settings row title: Start block (section recheck)."
-  },
-  "deskSetSynRecheckHeight": "height, block",
-  "@deskSetSynRecheckHeight": {
-    "description": "Settings search: other words that find the “Start block” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown."
-  },
   "deskSetRowRecheckDropHint": "Also cancels unconfirmed transactions. A payment on its way may then fail.",
   "@deskSetRowRecheckDropHint": {
     "description": "Settings row “Delete unconfirmed”: its one-line explanation (behind ⓘ on the page, searched and shown under search results)."
@@ -26762,10 +26683,6 @@
   "deskSetSearchKeyEsc": "Esc",
   "@deskSetSearchKeyEsc": {
     "description": "Settings search: the Esc key as its key cap names it, in the key hints over the results."
-  },
-  "deskSetRescanByWholeChain": "Whole chain",
-  "@deskSetRescanByWholeChain": {
-    "description": "Recheck balance › Where to start: the segment that scans from block 0 (short, a segmented control)."
   },
   "deskTorPayOff": "Off",
   "@deskTorPayOff": {

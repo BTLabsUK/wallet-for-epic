@@ -2,7 +2,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show FilteringTextInputFormatter;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../desk_l10n.dart';
@@ -10,8 +9,7 @@ import '../../data/api.dart' show DeskWalletApi;
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/net_mode_view.dart';
 import '../../../network_gate.dart' show NetBlock;
-import '../../../l10n.dart' show localInt;
-import '../../../start_month.dart' show defaultStartMonth, startMonthRecent;
+import '../../../ui/scan_start.dart';
 import '../../widgets/kit.dart';
 import '../wallet/restore_scan_panel.dart' show RestoreScanProgress;
 import '../../data/settings_registry.dart' show settingsEntry;
@@ -27,11 +25,6 @@ enum RescanShot { running }
 /// Why a scan ended, for the result card.
 enum _End { finished, stopped }
 
-/// Where Recheck starts with Advanced › Recheck from a height, as on the phone: a month's
-/// block (mainnet; January 2025 unless another is picked), a typed height, or block 0 (a test
-/// network's first choice). Without the switch it starts a little before the last scan's end.
-enum _From { date, height, wholeChain }
-
 class SettingsRescanScreen extends ConsumerStatefulWidget {
   const SettingsRescanScreen({super.key, this.arg});
 
@@ -46,26 +39,21 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
   bool _stopping = false;
   _End? _end;
   bool _deleteUnconfirmed = false;
-  _From? _fromChoice;
 
-  /// The month picked; null is [defaultStartMonth].
-  DateTime? _fromDate;
+  /// Where the scan starts, as on the phone (`scan_start.dart`): a month's block (mainnet;
+  /// January 2025 unless another is picked), the start, or with Advanced › Recheck from a
+  /// height a typed height. Made on first use: the network comes from the account.
+  late final _scanStart = ScanStartController(dates: _datesOk);
 
-  StartMonth get _fromMonth => _fromDate == null ? defaultStartMonth : StartMonth.of(_fromDate!);
-
-  /// The reveal key of the start rows the view or Advanced › Recheck from a height hides.
+  /// The reveal key of the Delete unconfirmed row the view or Advanced › Recheck from a height
+  /// hides.
   static const _revealKey = 'rescan-start';
 
-  /// The start rows are in use: shown by the view and the switch, or revealed here.
+  /// The hidden options are in use: shown by the view and the switch, or revealed here.
   bool get _choice => advancedHas(ref, AdvancedFeature.recheckFromHeight) || moreOptionsOpen(ref, _revealKey);
 
   /// Dates map to heights only on mainnet.
   bool get _datesOk => (ref.read(deskProvider).account?.network ?? 'mainnet') == 'mainnet'; // l10n-ok: network id
-
-  _From get _from => _fromChoice ?? (_datesOk ? _From.date : _From.wholeChain);
-  set _from(_From v) => _fromChoice = v;
-  final _height = TextEditingController();
-  String? _heightError;
 
   /// Whether the scan that ran had Delete unconfirmed on.
   bool _deleted = false;
@@ -100,7 +88,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
     // Leaving the screen ends the scan: nothing would show its result.
     if (_running) unawaited(_api?.stopRescan());
     _scan?.cancel();
-    _height.dispose();
+    _scanStart.dispose();
     super.dispose();
   }
 
@@ -112,30 +100,11 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
     }
   }
 
-  /// The start the choice asks for; null for the recent blocks. A height that is not a number of
-  /// 1 or more is refused under the field.
-  ({BigInt? start, bool ok}) _startHeight(AppLocalizations l) {
-    if (!_choice) return (start: null, ok: true);
-    switch (_from) {
-      case _From.date:
-        return (start: _fromMonth.height, ok: true);
-      case _From.wholeChain:
-        return (start: BigInt.zero, ok: true);
-      case _From.height:
-        final h = BigInt.tryParse(_height.text.trim());
-        if (h == null || h < BigInt.one) {
-          setState(() => _heightError = l.deskSetRescanHeightInvalid);
-          return (start: null, ok: false);
-        }
-        return (start: h, ok: true);
-    }
-  }
-
   Future<void> _start() async {
     final l = context.l10n;
     final delete = _choice && _deleteUnconfirmed;
-    final from = _startHeight(l);
-    if (!from.ok) return;
+    // Block 0 for the start, as the phone: never the core's "a little before the last scan".
+    final from = _scanStart.start ?? BigInt.zero;
     setState(() {
       _running = true;
       _stopping = false;
@@ -155,7 +124,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
     setState(() => _before = before);
     final api = ref.read(deskApiProvider);
     _api = api;
-    _scan = api.rescan(deleteUnconfirmed: delete, startHeight: from.start).listen(
+    _scan = api.rescan(deleteUnconfirmed: delete, startHeight: from).listen(
       (step) {
         if (!mounted) return;
         setState(() {
@@ -226,7 +195,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
     final restoreRuns = !_running && restore?.state == RestoreScanState.running;
     final shown = advancedHas(ref, AdvancedFeature.recheckFromHeight);
     // Hidden here: what shows the rows, for the ⇕ control and each row's marker.
-    final gate = settingsEntry(SetId.recheckFrom)?.gate ?? SetGate.none;
+    final gate = settingsEntry(SetId.recheckDrop)?.gate ?? SetGate.none;
     final by = shown ? null : setJoinReasons(l, setGateReasons(l, gate, ref.watch(setViewProvider)));
     return SettingsFrame(
       route: DeskRoute.settingsRescan,
@@ -236,7 +205,7 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
           // The page title says Recheck balance; the group needs no second heading.
           ESetGroup(
             revealKey: _revealKey,
-            hidden: !_running && !shown ? _startRows(context, advancedBy: by) : const [],
+            hidden: !_running && !shown ? [_deleteRow(context, advancedBy: by)] : const [],
             rows: [
               if (!_running)
                 ESetRow(
@@ -256,8 +225,15 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
                         )
                       : null,
                 ),
-              // Where to start, then its month or block, aligned with the other rows (item 6).
-              if (!_running && shown) ..._startRows(context),
+              // Where to start: the phone's block, with heights behind the switch (or revealed).
+              if (!_running)
+                ESetRow(
+                  anchor: SetId.recheckFrom,
+                  title: l.deskSetRescanStartHeading,
+                  stacked: true,
+                  control: ScanStart(controller: _scanStart, heights: _choice),
+                ),
+              if (!_running && shown) _deleteRow(context),
               if (_running)
                 ESetRow(
                   text: l.deskSetRescanScanning,
@@ -301,99 +277,22 @@ class _SettingsRescanScreenState extends ConsumerState<SettingsRescanScreen> {
     );
   }
 
-  /// The rows of Advanced › Recheck from a height: Where to start, the month or block it
-  /// needs, and Delete unconfirmed, each a Settings row with its control in the control column.
-  List<Widget> _startRows(BuildContext context, {String? advancedBy}) {
+  /// The Delete unconfirmed row of Advanced › Recheck from a height, with its control in the
+  /// control column.
+  Widget _deleteRow(BuildContext context, {String? advancedBy}) {
     final l = context.l10n;
-    final c = context.dc;
-    final ts = context.ts;
-    final month = _fromMonth;
-    final error = _heightError == null ? null : Text(_heightError!, key: const ValueKey('rescan-start-error'), style: ts.small.copyWith(color: c.risk));
-    return [
-      ESetRow(
-        anchor: SetId.recheckFrom,
-        advancedBy: advancedBy,
-        title: l.deskSetRescanStartHeading,
-        text: _from == _From.wholeChain ? l.deskSetRescanWholeChainHint : null,
-        // Every choice whole (no truncated words): at least the wide control, wider when the
-        // language needs it, under the title when the row has no room (as Appearance › Theme).
-        wrap: true,
-        control: ConstrainedBox(
-          constraints: BoxConstraints(minWidth: Ctl.rowWide),
-          child: IntrinsicWidth(
-          child: ESegmented<_From>(
-            key: const ValueKey('rescan-from'),
-            stretch: true,
-            segments: [
-              if (_datesOk) ESegment(_From.date, l.restoreStartByMonth),
-              ESegment(_From.height, l.restoreStartByHeight),
-              ESegment(_From.wholeChain, l.deskSetRescanByWholeChain),
-            ],
-            value: _from,
-            onChanged: (from) => setState(() {
-              _from = from;
-              _heightError = null;
-            }),
-          ),
-          ),
-        ),
+    return ESetRow(
+      anchor: SetId.recheckDrop,
+      advancedBy: advancedBy,
+      title: l.deskSetRescanDeleteUnconfirmed,
+      hint: l.deskSetRescanDeleteHint,
+      control: ESwitch(
+        key: const ValueKey('rescan-delete-unconfirmed'),
+        value: _deleteUnconfirmed,
+        semanticLabel: l.deskSetRescanDeleteUnconfirmed,
+        onChanged: (v) => setState(() => _deleteUnconfirmed = v),
       ),
-      if (_from == _From.date)
-        ESetRow(
-          anchor: SetId.recheckMonth,
-          advancedBy: advancedBy,
-          title: l.deskSetRowRecheckMonth,
-          text: l.restoreMonthStart(localInt(l, month.height)),
-          control: ERowControl(
-            child: EStartMonthField(
-              month: month,
-              invalid: _heightError != null,
-              semanticLabel: l.deskSetRowRecheckMonth,
-              onChanged: (m) => setState(() {
-                _fromDate = m.firstDay;
-                _heightError = null;
-              }),
-            ),
-          ),
-          below: error != null || startMonthRecent(month, DateTime.now())
-              ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [?error, if (error == null) const EStartMonthRecent(key: EStartDate.recentKey)])
-              : null,
-        ),
-      if (_from == _From.height)
-        ESetRow(
-          anchor: SetId.recheckHeight,
-          advancedBy: advancedBy,
-          title: l.deskSetRowRecheckHeight,
-          control: ERowControl(
-            child: EInput(
-              key: const ValueKey('rescan-height'),
-              controller: _height,
-              mono: true,
-              autofocus: true,
-              size: EBtnSize.sm,
-              semanticLabel: l.deskSetRowRecheckHeight,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              invalid: _heightError != null,
-              onChanged: (_) => setState(() => _heightError = null),
-              onSubmitted: (_) => _start(),
-            ),
-          ),
-          below: error,
-        ),
-      ESetRow(
-        anchor: SetId.recheckDrop,
-        advancedBy: advancedBy,
-        title: l.deskSetRescanDeleteUnconfirmed,
-        hint: l.deskSetRescanDeleteHint,
-        control: ESwitch(
-          key: const ValueKey('rescan-delete-unconfirmed'),
-          value: _deleteUnconfirmed,
-          semanticLabel: l.deskSetRescanDeleteUnconfirmed,
-          onChanged: (v) => setState(() => _deleteUnconfirmed = v),
-        ),
-      ),
-    ];
+    );
   }
 
   /// The Delete unconfirmed outcome. The core counts outputs, not transactions (a send has

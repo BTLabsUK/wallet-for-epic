@@ -8,10 +8,6 @@
   "deskErrRestoreScanRequired": "恢复尚未完成。区块链扫描结束后即可接收和发送。",
   "deskSetRescanRestoreRunning": "恢复扫描正在进行。扫描完成后才能重新核对余额。",
   "deskSetRescanStartHeading": "从哪里开始",
-  "deskSetRescanFromHeight": "从某个区块高度开始",
-  "deskSetRescanHeightInvalid": "请输入 1 或更大的区块高度。",
-  "deskSetRescanWholeChain": "整条链",
-  "deskSetRescanWholeChainHint": "从第一个区块开始。能找到全部，但耗时很长。也会完成未完成的恢复。",
   "deskOnbForgotLink": "忘记密码？",
   "deskOnbForgotTitle": "设置新密码",
   "deskOnbForgotFailedTitle": "密码未更改",
@@ -30,6 +26,5 @@
   "deskOvRestoredImportLater": "以后可在“设置 › 钱包 › 备份”中导入。",
   "deskOnbForgotNoCheck": "此钱包的文件无法确认该助记词，因此密码保持不变。",
   "deskOnbForgotRestoreHint": "请改为用助记词恢复：{name} 会从列表中移除，其文件仍保留在这台电脑上。",
-  "deskOnbForgotRestoreInstead": "用助记词恢复",
-  "deskSetRescanByWholeChain": "整条链"
+  "deskOnbForgotRestoreInstead": "用助记词恢复"
 }

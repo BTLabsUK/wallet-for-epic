@@ -15,6 +15,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart' show SemanticsRole;
 
+import '../../ui/info_action.dart';
 import '../desk_l10n.dart';
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
@@ -29,7 +30,7 @@ double get infoPopoverMaxHeight => 420.u;
 
 /// Opens the popover for [text] (with [title] and [icon] on its first line) next to [anchor],
 /// the icon's rectangle in the root navigator's coordinates. Returns when it closes.
-Future<void> showEInfoPopover(BuildContext context, {required Rect anchor, required String text, String? title, IconData? icon, VoidCallback? help}) =>
+Future<void> showEInfoPopover(BuildContext context, {required Rect anchor, required String text, String? title, IconData? icon, VoidCallback? help, InfoAction? action}) =>
     showGeneralDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -38,7 +39,7 @@ Future<void> showEInfoPopover(BuildContext context, {required Rect anchor, requi
       transitionDuration: Dur.fast,
       pageBuilder: (context, _, _) => CustomSingleChildLayout(
         delegate: InfoPopoverLayout(anchor: anchor, margin: Sp.x2, gap: Sp.x1, maxWidth: infoPopoverMaxWidth, maxHeight: infoPopoverMaxHeight),
-        child: EInfoPopover(title: title, text: text, icon: icon, help: help),
+        child: EInfoPopover(title: title, text: text, icon: icon, help: help, action: action),
       ),
       transitionBuilder: (context, anim, _, child) =>
           MediaQuery.disableAnimationsOf(context) ? child : FadeTransition(opacity: anim, child: child),
@@ -83,7 +84,7 @@ class InfoPopoverLayout extends SingleChildLayoutDelegate {
 /// [text] under it, or [text] alone beside the ✕. The text scrolls when the card is at its
 /// tallest and is selectable. Esc closes it from anywhere inside.
 class EInfoPopover extends StatefulWidget {
-  const EInfoPopover({super.key, required this.text, this.title, this.icon, this.help});
+  const EInfoPopover({super.key, required this.text, this.title, this.icon, this.help, this.action});
 
   final String text;
   final String? title;
@@ -92,6 +93,10 @@ class EInfoPopover extends StatefulWidget {
   /// A Help topic that says more: a "More in Help" link under the text closes the popover
   /// and opens it (WD2-063).
   final VoidCallback? help;
+
+  /// A choice the popover holds ("Scan from the start"): a small button under the text that
+  /// closes the popover and runs.
+  final InfoAction? action;
 
   @override
   State<EInfoPopover> createState() => _EInfoPopoverState();
@@ -120,27 +125,43 @@ class _EInfoPopoverState extends State<EInfoPopover> {
       onPressed: () => Navigator.of(context).pop(),
     );
     final help = widget.help;
+    final action = widget.action;
     Widget body(EdgeInsets padding) => Scrollbar(
       controller: _scroll,
       child: SingleChildScrollView(
         controller: _scroll,
         padding: padding,
-        child: help == null
+        child: help == null && action == null
             ? Text(widget.text, key: const ValueKey('info-popover-text'), style: ts.body)
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(widget.text, key: const ValueKey('info-popover-text'), style: ts.body),
-                  SizedBox(height: Sp.x2),
-                  ELink(
-                    key: const ValueKey('info-popover-help'),
-                    label: l.deskKitMoreInHelp,
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      help();
-                    },
-                  ),
+                  if (action != null) ...[
+                    SizedBox(height: Sp.x3),
+                    EButton(
+                      key: action.key,
+                      label: action.label,
+                      size: EBtnSize.sm,
+                      semanticsId: action.semanticsId,
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        action.onPressed();
+                      },
+                    ),
+                  ],
+                  if (help != null) ...[
+                    SizedBox(height: Sp.x2),
+                    ELink(
+                      key: const ValueKey('info-popover-help'),
+                      label: l.deskKitMoreInHelp,
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        help();
+                      },
+                    ),
+                  ],
                 ],
               ),
       ),
