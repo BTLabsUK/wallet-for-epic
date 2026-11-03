@@ -50,6 +50,11 @@ def relay_json(t, level, conn, msg):
 
 
 class Pieces(unittest.TestCase):
+    def test_settings_hosts_file_over_pipeline_over_defaults(self):
+        s = sl.settings({"ssh": "a", "pad_s": 5}, {"ssh": "b", "known_ips": {"203.0.113.7": "server"}})
+        self.assertEqual((s["ssh"], s["pad_s"], s["known_ips"]), ("b", 5, {"203.0.113.7": "server"}))
+        self.assertEqual(sl.settings(None)["ssh"], "")
+
     def test_window_from_status_with_padding(self):
         t0, t1 = sl.window({"started": iso(T), "ended": iso(T + 600)}, 60)
         self.assertEqual((t0, t1), (T - 60, T + 660))
@@ -63,8 +68,8 @@ class Pieces(unittest.TestCase):
 
     def test_redaction(self):
         marks = [("esAbCdEf", "Qr12St")]
-        r = sl.redact(f"from 81.2.3.4 and 127.0.0.1 and 203.0.113.10 to {LANE} by {OTHER}", marks,
-                      {"203.0.113.10": "server"})
+        r = sl.redact(f"from 81.2.3.4 and 127.0.0.1 and 203.0.113.7 to {LANE} by {OTHER}", marks,
+                      {"203.0.113.7": "server"})
         self.assertEqual(r, "from <ip> and 127.0.0.1 and <server> to esAbCdEf…Qr12St by <other address>")
         self.assertEqual(sl.redact("subscribed as esAbCdEfxxxx… (0 waiting)", marks, {}),
                          "subscribed as esAbCdEf… (0 waiting)")
@@ -152,11 +157,12 @@ class Collect(Base):
             if args.startswith("journalctl"):
                 self.assertIn(f"--since @{int(T - 60)}", args)
                 return JOURNAL, None
-            return None, "ssh demo-vps: TimeoutExpired"
+            return None, "ssh server: TimeoutExpired"
 
         step = types.SimpleNamespace(id="trust-linux-tor", proof=True)
         conf = {"local_node_log": node_log, "local_relay_log": relay_log}
-        sm = sl.collect(step, {"started": iso(T), "ended": iso(T + 100)}, stage, conf, ssh=ssh)
+        sm = sl.collect(step, {"started": iso(T), "ended": iso(T + 100)}, stage, conf, ssh=ssh,
+                        local={"ssh": "server"})
         self.assertEqual(sm["sources"]["remote relay"]["lines"], 7)
         self.assertEqual(sm["sources"]["remote relay"]["other_errors"], 1)
         self.assertFalse(sm["sources"]["remote node"]["read"])
@@ -184,11 +190,9 @@ class Hooks(Base):
         os.makedirs(out, exist_ok=True)
         run = types.SimpleNamespace(steps=[step], status=lambda sid: status, step_dir=lambda sid: os.path.dirname(out))
         echoed = []
-        eng = types.SimpleNamespace(dry=False, run=run, echo=echoed.append,
-                                    pipeline=types.SimpleNamespace(serverlogs={"ssh": "nowhere.invalid",
-                                                                               "local_node_log": "/nonexistent/x.log",
-                                                                               "local_relay_log": "/nonexistent/y.log",
-                                                                               "ssh_timeout_s": 5}))
+        eng = types.SimpleNamespace(dry=False, run=run, echo=echoed.append, hosts={"serverlogs": {}},
+                                    pipeline=types.SimpleNamespace(serverlogs={"local_node_log": "/nonexistent/x.log",
+                                                                               "local_relay_log": "/nonexistent/y.log"}))
         return eng, step, out, echoed
 
     def test_alert_detail_has_server_lines_above_the_log_tail(self):
@@ -200,6 +204,7 @@ class Hooks(Base):
         detail = Engine.server_logs(eng, step, st, log)
         self.assertTrue(detail.startswith("Server logs "), detail)
         self.assertIn("local node: not read (no local node log)", detail)
+        self.assertIn("remote node: not read (no ssh host", detail)
         self.assertTrue(detail.endswith("log line 99"))
         self.assertNotIn("log line 59\n", detail)
         self.assertLessEqual(len(detail), 3000)

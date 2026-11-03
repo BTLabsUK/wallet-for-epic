@@ -28,8 +28,8 @@ export NODE_MAX_GB=25                                 # stop and report if the c
 export NODE_LOG="$HERMETIC_ROOT/var/log/epic-server.log"   # the node's debug log, rotated by the node
 export NODE_LOG_MB=16
 export NODE_LOG_FILES=8
-# The node's only peer: our own public node (node.btlabs.uk, P2P 3414). It syncs from it and
-# follows the tip from it, never from public peers (seeding List, peers_allow that one address).
+# The node finds peers like any mainnet node (the DNS seed); our own public node
+# (node.btlabs.uk, P2P 3414) is one preferred peer among them.
 export NODE_PEER_HOST="${NODE_PEER_HOST:-node.btlabs.uk}"
 export NODE_PEER_PORT="${NODE_PEER_PORT:-3414}"
 

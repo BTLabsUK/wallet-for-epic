@@ -189,7 +189,8 @@ def load_hosts(path=None):
     data = load_toml(path) if os.path.exists(path) else {}
     hosts = {k: {kk: expand(vv) for kk, vv in v.items()} for k, v in data.get("host", {}).items()}
     paths = {k: expand(v) for k, v in data.get("paths", {}).items()}
-    return {"host": hosts, "path": paths, "file": path, "exists": os.path.exists(path)}
+    return {"host": hosts, "path": paths, "serverlogs": data.get("serverlogs", {}), "file": path,
+            "exists": os.path.exists(path)}
 
 
 # ---- scope -------------------------------------------------------------------------------------

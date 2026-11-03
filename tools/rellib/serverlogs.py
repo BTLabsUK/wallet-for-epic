@@ -2,12 +2,12 @@
 """Server-side log lines for a failed G4 lane, so a harness fault can be told apart from a server or
 product fault. Four sources, each read for the step's window (started..ended, padded):
 
-    remote node    the public node's file log, read over ssh (current file and rotated .gz)
-    remote relay   the public Epicbox relay's journal (journalctl -u <unit>), read over ssh
+    remote node       our public node's file log, read over ssh (current file and rotated .gz)
+    remote relay      our public Epicbox relay's journal (journalctl -u <unit>), read over ssh
     local node        the hermetic node's file log (tools/rellib/hermetic, DEBUG)
     local relay       the hermetic epic-relay's JSON log (loguru serialize, DEBUG)
 
-Read only: nothing on the servers is changed, and a source that cannot be read is a note, never a
+Read only: nothing on the server is changed, and a source that cannot be read is a note, never a
 failure. From the relays: the lines that name the lane's address (proof.json details.address,
 first 8…last 6) and every line of those connections (connects, subscribes, slate posts, closes), plus
 server-wide errors; error lines of other connections are only counted. From the nodes: warnings,
@@ -19,7 +19,9 @@ wallet addresses (the lane's is shortened like proof.json, others are <other add
 bodies (long or JSON-looking lines are cut) and nothing that looks like a seed phrase.
 
 Written to steps/<id>/out/server-logs.txt (the lines) and server-logs.json (counts and the few
-quoted lines the failure alert and the gate message show). Settings: [serverlogs] in pipeline.toml."""
+quoted lines the failure alert and the gate message show). Settings: [serverlogs] in pipeline.toml,
+then [serverlogs] in the machine's release-hosts.toml, which names the server (ssh, remote_node_log,
+known_ips); without an ssh host the two remote sources are a note."""
 import gzip
 import json
 import os
@@ -33,12 +35,12 @@ from .run import read_json, write_json
 
 DEFAULTS = {
     "enabled": True,
-    "ssh": "demo-vps",
-    "remote_node_log": "~/.epic/main/epic-server.log",
+    "ssh": "",             # the server's ssh host; release-hosts.toml gives it
+    "remote_node_log": ".epic/main/epic-server.log",  # relative to the ssh user's home
     "remote_relay_unit": "epic-floonet-epicbox",
     "local_node_log": "/tmp/epic-build/rel/hermetic/var/log/epic-server.log",
     "local_relay_log": "/tmp/epic-build/rel/hermetic/var/log/relay.log",
-    "known_ips": {"203.0.113.10": "server"},
+    "known_ips": {},       # IP -> name kept in what is stored; release-hosts.toml gives them
     "pad_s": 60,           # seconds read before the step started and after it ended
     "per_source": 40,      # lines kept per source in server-logs.txt
     "quote": 3,            # lines quoted per source in the alert and the gate
@@ -66,9 +68,9 @@ SEEDISH = re.compile(r"(?:\b[a-z]{3,8}\b[ ,]+){11,}\b[a-z]{3,8}\b")
 MAX_LINE = 300
 
 
-def settings(conf):
-    """[serverlogs] from pipeline.toml with the defaults filled in."""
-    return {k: (conf or {}).get(k, v) for k, v in DEFAULTS.items()}
+def settings(conf, local=None):
+    """[serverlogs] from pipeline.toml, then from release-hosts.toml (local), over the defaults."""
+    return {k: (local or {}).get(k, (conf or {}).get(k, v)) for k, v in DEFAULTS.items()}
 
 
 def is_lane_step(step):
@@ -296,16 +298,11 @@ def read_sources(conf, t0, t1, ssh=_ssh):
     """-> {source: (entries, note)}; entries are already in the window. A source that cannot be read
     gets entries None and a note."""
     out = {}
-    lines, err = ssh(conf, f"journalctl -q -u {shlex.quote(conf['remote_relay_unit'])} --since @{int(t0)} "
-                           f"--until @{int(t1) + 1} -o short-iso --no-pager")
-    out["remote relay"] = ((None, err) if lines is None else
-                              (_within([(ts, None, c, x) for ts, c, x in parse_journal(lines)], t0, t1), None))
-    lines, err = ssh(conf, f"python3 -I - {shlex.quote(conf['remote_node_log'])} {t0:.0f} {t1:.0f}", REMOTE_NODE)
-    if lines is None:
-        out["remote node"] = (None, err)
+    if not conf["ssh"]:
+        note = "no ssh host ([serverlogs] ssh in release-hosts.toml)"
+        out["remote relay"] = out["remote node"] = (None, note)
     else:
-        offset = next((int(x.split()[1]) for x in lines if x.startswith("#offset")), 0)
-        out["remote node"] = (_within(parse_node(lines, offset), t0, t1), None)
+        out.update(_read_remote(conf, t0, t1, ssh))
     lines = read_tail(conf["local_relay_log"], t0)
     out["local relay"] = ((None, "no local relay log") if lines is None
                           else (_within(parse_relay_json(lines), t0, t1), None))
@@ -315,12 +312,27 @@ def read_sources(conf, t0, t1, ssh=_ssh):
     return out
 
 
+def _read_remote(conf, t0, t1, ssh):
+    out = {}
+    lines, err = ssh(conf, f"journalctl -q -u {shlex.quote(conf['remote_relay_unit'])} --since @{int(t0)} "
+                           f"--until @{int(t1) + 1} -o short-iso --no-pager")
+    out["remote relay"] = ((None, err) if lines is None else
+                           (_within([(ts, None, c, x) for ts, c, x in parse_journal(lines)], t0, t1), None))
+    lines, err = ssh(conf, f"python3 -I - {shlex.quote(conf['remote_node_log'])} {t0:.0f} {t1:.0f}", REMOTE_NODE)
+    if lines is None:
+        out["remote node"] = (None, err)
+    else:
+        offset = next((int(x.split()[1]) for x in lines if x.startswith("#offset")), 0)
+        out["remote node"] = (_within(parse_node(lines, offset), t0, t1), None)
+    return out
+
+
 # ---- the report -----------------------------------------------------------------------------------
 
-def collect(step, st, stage, conf, ssh=_ssh):
+def collect(step, st, stage, conf, ssh=_ssh, local=None):
     """Reads the four sources for a failed lane step and writes server-logs.txt and .json into
     stage (the step's out folder). -> the summary dict (also server-logs.json)."""
-    conf = settings(conf)
+    conf = settings(conf, local)
     t0, t1 = window(st, conf["pad_s"])
     marks = lane_marks(stage)
     known = conf["known_ips"]
