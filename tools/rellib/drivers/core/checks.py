@@ -201,12 +201,9 @@ def _nano(s):
 
 
 def fund_before(lane, address):
-    """P pays the previous release's wallet FUND_IN and the data shows it spendable. A lane without funds
-    (REL_TRUST_FUNDS=0) does nothing here: the balances compared are zero."""
+    """P pays the previous release's wallet FUND_IN and the data shows it spendable, on every lane: the
+    update must keep a balance and a history (as v1). REL_FUNDS only adds the candidate's legs."""
     lane.address = address
-    if not lane.funds:
-        lane.log("funds off: nothing sent to the previous release's wallet")
-        return
     d0 = _digest(lane, "previous")
     start = _spendable(d0) or 0
     _, tx = _pay(lane, address, FUND_IN, "previous", "fund the previous release")

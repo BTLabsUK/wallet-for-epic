@@ -24,14 +24,13 @@ from p_funder import P  # noqa: E402
 
 def required(funds):
     """REL_CHECKS, else every check: the migration ones only for a candidate that encrypts the store,
-    the payment ones only with funds."""
+    the candidate's payment ones only with funds (every lane funds the previous release's wallet)."""
     given = [c.strip() for c in (os.environ.get("REL_CHECKS") or "").split(",") if c.strip()]
     if given:
         return given
     migrate = checks.migrating()[0]
-    base = ["wallet_opens", "balance_kept", "custom_nodes_kept", "custom_relays_kept", "settings_kept"]
-    # without funds the wallet has no transaction: history has nothing to compare
-    return base + (checks.MIGRATION_CHECKS if migrate else []) + (["history_kept", "send_ok", "receive_ok"] if funds else [])
+    base = ["wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept", "custom_relays_kept", "settings_kept"]
+    return base + (checks.MIGRATION_CHECKS if migrate else []) + (["send_ok", "receive_ok"] if funds else [])
 
 
 def main():

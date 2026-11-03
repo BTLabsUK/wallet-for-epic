@@ -10,6 +10,7 @@ import sys
 import tempfile
 import textwrap
 import unittest
+from unittest import mock
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DRIVERS = os.path.join(os.path.dirname(HERE), "drivers")
@@ -361,6 +362,29 @@ class SetupNotTaken(unittest.TestCase):
         lane.want_settings = dict(lane.want_settings, label="Another label")
         with self.assertRaises(checks.HarnessFault):
             checks.compare(lane, digest(), digest(), ([], {}))
+
+
+class FundsOff(unittest.TestCase):
+    """A lane without REL_FUNDS (the notor one) still funds the previous release's wallet, so the update
+    has a balance and a history to keep; afterwards the balance goes back to P, not checked."""
+
+    def test_previous_wallet_funded_without_funds(self):
+        lane, paid = FakeLane(funds=False), []
+        with mock.patch.object(checks, "_digest", lambda *a: digest(total=0, txs=[])), \
+             mock.patch.object(checks, "_pay", lambda _l, addr, amount, *a: paid.append((addr, amount)) or (None, {})), \
+             mock.patch.object(checks, "wait_spendable", lambda *a, **k: digest()):
+            checks.fund_before(lane, "esADDR")
+        self.assertEqual(paid, [("esADDR", checks.FUND_IN)])
+
+    def test_balance_returned_without_checks(self):
+        lane, back = FakeLane(funds=False), []
+        lane.ok("wallet_opens", "x")
+        lane.ok("balance_kept", "x")
+        with mock.patch.object(checks, "_send_back", lambda _l, pair: back.append(pair)), \
+             mock.patch.object(checks, "_pay", lambda *a: self.fail("no receive leg without funds")):
+            checks.funds_legs(lane, digest())
+        self.assertEqual(back, [None])
+        self.assertNotIn("send_ok", lane.results)
 
 
 if __name__ == "__main__":
