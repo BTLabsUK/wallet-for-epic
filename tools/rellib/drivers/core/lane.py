@@ -164,6 +164,8 @@ class Lane:
         self.details["address"] = address[:8] + "…" + address[-6:] if address else None
         self.run_phase("fund", lambda: self.checks_mod.fund_before(self, address))
         before = self.run_phase("digest-before", lambda: self.p.digest("previous", self.secrets))
+        if hasattr(self.checks_mod, "setup_took"):
+            self.checks_mod.setup_took(self, before)
         self.run_phase("stop-previous", self.p.stop)
         if not saved:
             self.run_phase("seed", lambda: self.p.seed_previous_files(self.secrets))

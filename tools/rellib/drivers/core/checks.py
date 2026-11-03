@@ -316,6 +316,27 @@ def _history(lane, b, a):
         lane.ok("history_kept", "%d transactions kept with their counterparties (%s)%s" % (len(t0), txs_text(t0), how))
 
 
+def setup_took(lane, b):
+    """The previous release's files show the servers the driver set (read before the update): a choice
+    that did not take is the driver's fault, never counted against the update."""
+    bad = []
+    for kind, key, use in (("node", "nodes", "node_in_use"), ("relay", "relays", "relay_in_use")):
+        sv = b.get("servers") or {}
+        custom = host(getattr(lane.p, "custom_%s" % kind, "") or "")
+        chosen = host(getattr(lane.p, kind, "") or "")
+        listed = [host(x) for x in sv.get(key) or []]
+        if not listed:
+            continue  # not readable before the update: the check itself says so
+        if custom and custom not in listed:
+            bad.append("the added %s %s is not in the previous release's list" % (kind, custom))
+        if chosen and host(sv.get(use) or "") != chosen:
+            bad.append("the %s in use is %s, the driver chose %s" % (kind, host(sv.get(use) or "") or "none", chosen))
+    if bad:
+        from .faults import HarnessFault
+        raise HarnessFault("digest-before", "the driver's setup did not take: %s" % "; ".join(bad))
+    lane.log("setup confirmed in the previous release's files: node and Epicbox in use and added as set")
+
+
 def _servers(lane, kind, b, a):
     check = "custom_nodes_kept" if kind == "node" else "custom_relays_kept"
     custom = host(getattr(lane.p, "custom_node" if kind == "node" else "custom_relay", ""))

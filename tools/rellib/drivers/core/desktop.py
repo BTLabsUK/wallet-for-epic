@@ -394,7 +394,7 @@ class Desktop:
                 then=Expect("the picker open", lambda dd, tree: any(n.role == "text_field" and "focused" in n.states for n in tree)
                             or any(tg._norm(n.name).startswith("use ") for n in tree)))
 
-    def use_server(self, picker, typed, entry, use):
+    def use_server(self, picker, typed, entry, use, _again=False):
         """Types `typed` into the picker and presses Use/Add `entry`. Done when listed (use=False) or
         in use (use=True; a Switch offer is taken)."""
         d = self.d
@@ -434,10 +434,19 @@ class Desktop:
             time.sleep(1.5)
         else:
             d.harness("%s %s never %s" % (picker, entry, "in use" if use else "listed"))
-        tree = d.tree()
-        if any(tg._norm(n.name).startswith("use ") for n in tree):
+        open_ = lambda tree: any(tg._norm(n.name).startswith("use ") for n in tree)
+        if open_(d.tree()) and not d.wait(Expect("the picker closed", lambda dd, tree: not open_(tree)), 3, dismiss=False):
             d.s.key("escape")  # closes the picker (if it closed first, _open_picker finds the page again)
             time.sleep(0.8)
+        if use and not d.wait(shows(picker), 2):  # an Escape too many left the page: back to it to read the choice
+            self.find_setting(picker, PICKER_PAGES[picker.id], str(picker))
+        if use and not (d.wait(Expect("%s in use with the picker closed" % entry,
+                                      lambda dd, tree: self._in_use(picker, entry, tree)), 5, dismiss=False)):
+            # the picker showed it chosen but closing it dropped the choice (26.10.25 once): choose again
+            if _again:
+                d.harness("%s %s shown in use in the picker but not once it closed" % (picker, entry))
+            self.log("%s %s not in use once the picker closed; choosing it again" % (picker, entry))
+            return self.use_server(picker, typed, entry, use, _again=True)
 
     def change_settings(self, want):
         """Theme, wallet label, confirmations, Technical details: the choices a user makes that the
