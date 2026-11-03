@@ -115,6 +115,17 @@ abstract final class TrustIds {
   static const backupDone = 'g4.backup.done';
   static const appearanceTheme = 'g4.appearance.theme';
   static const advancedLevel = 'g4.advanced.level';
+  static const restorePhrase = 'g4.restore.phrase';
+  static const restoreStart = 'g4.restore.start';
+  static const restoreByMonth = 'g4.restore.by.month';
+  static const restoreByHeight = 'g4.restore.by.height';
+  static const restoreMonth = 'g4.restore.month';
+  static const restoreHeight = 'g4.restore.height';
+  static const restoreFromStart = 'g4.restore.fromStart';
+  static const restoreNext = 'g4.restore.next';
+  static const restoreContinue = 'g4.restore.continue';
+  static const restorePassword = 'g4.restore.password';
+  static const restorePasswordConfirm = 'g4.restore.passwordConfirm';
   static const shellNavSettings = navSettings;
   static const epicboxSwitch = serverEpicboxSwitch;
   static const walletLabelField = walletLabel;
@@ -204,5 +215,16 @@ abstract final class TrustIds {
     'g4.settings.section.display',
     'g4.appearance.theme',
     'g4.advanced.level',
+    'g4.restore.phrase',
+    'g4.restore.start',
+    'g4.restore.by.month',
+    'g4.restore.by.height',
+    'g4.restore.month',
+    'g4.restore.height',
+    'g4.restore.fromStart',
+    'g4.restore.next',
+    'g4.restore.continue',
+    'g4.restore.password',
+    'g4.restore.passwordConfirm',
   ];
 }

@@ -191,7 +191,6 @@
   "deskOnbImportStopBody": "กระเป๋าเงินที่นำเข้าไปแล้วจะถูกนำออก โฟลเดอร์เดิมไม่เปลี่ยน",
   "deskOnbImportGoBack": "กลับไป",
   "deskOnbImportStop": "หยุดการนำเข้า",
-  "deskOnbRestoreFromHide": "ตรวจทั้งบล็อกเชน",
   "deskOnbRestoreFromLabel": "เริ่มจากบล็อก",
   "deskOnbRestoreFromHint": "ความสูงบล็อก",
   "deskOnbRestoreFromHelp": "ใช้เมื่อรายการแรกของกระเป๋าเงินเกิดหลังบล็อกนี้เท่านั้น เว้นว่างไว้เพื่อตรวจทั้งบล็อกเชน",

@@ -74,16 +74,16 @@ class PreviewWalletService extends FakeWalletService {
   }
 
   @override
-  Future<WalletSession> create({required WalletConfig config, String? mnemonic, required String password}) async =>
-      _opened(await super.create(config: config, mnemonic: mnemonic, password: password));
+  Future<WalletSession> create({required WalletConfig config, String? mnemonic, required String password, BigInt? restoreFromHeight}) async =>
+      _opened(await super.create(config: config, mnemonic: mnemonic, password: password, restoreFromHeight: restoreFromHeight));
 
   @override
   Future<WalletSession> open({required WalletConfig config, required String password}) async =>
       _opened(await super.open(config: config, password: password));
 
   @override
-  Future<PinWallet> createWithPin({required WalletConfig config, String? mnemonic, required String pin}) async {
-    final wallet = await super.createWithPin(config: config, mnemonic: mnemonic, pin: pin);
+  Future<PinWallet> createWithPin({required WalletConfig config, String? mnemonic, required String pin, BigInt? restoreFromHeight}) async {
+    final wallet = await super.createWithPin(config: config, mnemonic: mnemonic, pin: pin, restoreFromHeight: restoreFromHeight);
     _opened(wallet.session);
     return wallet;
   }

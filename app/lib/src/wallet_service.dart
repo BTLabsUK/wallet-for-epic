@@ -81,10 +81,14 @@ abstract interface class WalletService {
   Future<NodeTip> nodeTip({required WalletConfig config});
 
   /// Creates a wallet. With [mnemonic] it restores that seed; call [WalletSession.scan] next.
+  /// [restoreFromHeight] is where the restore's scan starts (null or 0: block 0): the core
+  /// records it, and a scan from there to the tip finishes the restore
+  /// ([WalletSession.restoreScanRequired]).
   Future<WalletSession> create({
     required WalletConfig config,
     String? mnemonic,
     required String password,
+    BigInt? restoreFromHeight,
   });
 
   /// Opens an existing wallet. A wrong password throws [WalletError] with
@@ -108,11 +112,13 @@ abstract interface class WalletService {
 
   /// Creates a wallet whose password the core generates and seals under [pin]; Dart only ever
   /// holds the sealed text. Store [PinWallet.sealedPassword] before showing the phrase: without
-  /// it the wallet cannot be opened, only deleted and created again.
+  /// it the wallet cannot be opened, only deleted and created again. [restoreFromHeight] as
+  /// in [create].
   Future<PinWallet> createWithPin({
     required WalletConfig config,
     String? mnemonic,
     required String pin,
+    BigInt? restoreFromHeight,
   });
 
   /// Opens a wallet from [createWithPin]. A wrong PIN throws [WalletError] with
@@ -454,9 +460,12 @@ abstract interface class WalletSession {
   /// event. Pages stored so far stay. Nothing happens when no scan runs.
   void cancelScan();
 
-  /// Whether the wallet was rebuilt from its phrase and its scan from block 0 has not finished
-  /// ([WalletErrorKind.restoreScanRequired]). While true, [scan] with no start height scans
-  /// from block 0, resuming a stopped one, and clears it when it finishes.
+  /// Whether the wallet was rebuilt from its phrase and the scan from the restore's start has
+  /// not finished ([WalletErrorKind.restoreScanRequired]). The start is the height the restore
+  /// recorded ([WalletService.create]'s restoreFromHeight), block 0 for a rebuilt database or a
+  /// restore by an older version. While true, [scan] with no start height scans from that
+  /// start, resuming a stopped one; a scan from the start or earlier that reaches the tip
+  /// clears it, one from a later height leaves it.
   Future<bool> restoreScanRequired();
 
   Future<WalletSummary> summary({
@@ -952,6 +961,7 @@ class FakeWalletService implements WalletService {
     required WalletConfig config,
     String? mnemonic,
     required String password,
+    BigInt? restoreFromHeight,
   }) async {
     if (existingWallets.contains(config.dataDir)) {
       throw const WalletError(
@@ -964,10 +974,23 @@ class FakeWalletService implements WalletService {
     this.password = password;
     createdConfig = config;
     createdMnemonic = mnemonic;
+    _restored(mnemonic, restoreFromHeight);
     phraseOf[config.dataDir] = mnemonic ?? phrase;
     openWallets.add(config.dataDir);
     session.openedConfig = config;
     return session..owner = this;
+  }
+
+  /// The restoreFromHeight of the last [create] or [createWithPin] (null: none, or block 0).
+  BigInt? createdRestoreFrom;
+
+  /// A restore leaves the core's flag set at its start, as LEPIC does; a new wallet has none.
+  void _restored(String? mnemonic, BigInt? from) {
+    createdRestoreFrom = from;
+    if (mnemonic == null) return;
+    session
+      ..restoreScanPending = true
+      ..restoreFrom = from ?? BigInt.zero;
   }
 
   /// The recovery phrase of each wallet [create] made, by data directory; [phrase] otherwise.
@@ -1107,6 +1130,7 @@ class FakeWalletService implements WalletService {
     required WalletConfig config,
     String? mnemonic,
     required String pin,
+    BigInt? restoreFromHeight,
   }) async {
     if (existingWallets.contains(config.dataDir)) {
       throw const WalletError(
@@ -1118,6 +1142,7 @@ class FakeWalletService implements WalletService {
     existingWallets.add(config.dataDir);
     createdConfig = config;
     createdMnemonic = mnemonic;
+    _restored(mnemonic, restoreFromHeight);
     createdPin = pin;
     pinFailureCount = 0;
     session.owner = this;
@@ -1142,7 +1167,9 @@ class FakeWalletService implements WalletService {
     if (damageOnNextOpen) {
       // The core sets the damaged database aside; the next open rebuilds it with the flag set.
       damageOnNextOpen = false;
-      session.restoreScanPending = true;
+      session
+        ..restoreScanPending = true
+        ..restoreFrom = BigInt.zero;
       throw const WalletError(kind: WalletErrorKind.damagedDatabase, message: 'database damaged');
     }
     session.owner = this;
@@ -2098,10 +2125,10 @@ class FakeWalletSession implements WalletSession {
   }
 
   Stream<ScanProgress> _scripted(BigInt? startHeight) async* {
+    // No start height: the restore's own start while it is due, as the core does.
+    final from = startHeight ?? BigInt.zero;
     for (final event in scanEvents) {
-      if (event.finished &&
-          (startHeight == null || startHeight == BigInt.zero) &&
-          !event.message.startsWith('Scan failed:')) {
+      if (event.finished && from <= restoreFrom && !event.message.startsWith('Scan failed:')) {
         restoreScanPending = false;
       }
       yield event;
@@ -2111,9 +2138,13 @@ class FakeWalletSession implements WalletSession {
   @override
   void cancelScan() => scanCancels++;
 
-  /// [restoreScanRequired]'s answer. A scan of [scanEvents] with no start height (or 0) that
-  /// finishes clears it, as the core does.
+  /// [restoreScanRequired]'s answer. A scan of [scanEvents] that finishes clears it, as the
+  /// core does, when it starts at [restoreFrom] or earlier (no start height: at [restoreFrom]).
   bool restoreScanPending = false;
+
+  /// The height the restore recorded ([FakeWalletService.create]'s restoreFromHeight); 0 for
+  /// a rebuilt database or an older restore.
+  BigInt restoreFrom = BigInt.zero;
 
   /// The start height of every [scan] call, in order.
   final List<BigInt?> scanStarts = [];

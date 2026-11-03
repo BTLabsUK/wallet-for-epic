@@ -980,10 +980,6 @@
   "@deskOnbImportStop": {
     "description": "Danger button of that dialog."
   },
-  "deskOnbRestoreFromHide": "Check the whole chain",
-  "@deskOnbRestoreFromHide": {
-    "description": "The same link while the field is open: closes it and checks the whole chain again."
-  },
   "deskOnbRestoreFromLabel": "Start from block",
   "@deskOnbRestoreFromLabel": {
     "description": "Label of the optional start block field on Restore."

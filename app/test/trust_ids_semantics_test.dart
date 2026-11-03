@@ -26,6 +26,7 @@ import 'package:epic_wallet/src/ui/backup_screen.dart';
 import 'package:epic_wallet/src/ui/first_run_screen.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/level_step_screen.dart';
+import 'package:epic_wallet/src/ui/restore_screen.dart' show RestoreScreen, restoreStartLinkKey;
 import 'package:epic_wallet/src/ui/scan_screen.dart' show FakeQrScanner, qrScannerProvider;
 import 'package:epic_wallet/src/ui/settings_history.dart' show FakeHistoryFiles, historyFilesProvider;
 import 'package:epic_wallet/src/ui/settings_screen.dart';
@@ -243,6 +244,10 @@ void main() {
     '02a-create': ['g4.account.password', 'g4.account.confirm', 'g4.create.submit'],
     '02b-create-phrase': ['g4.create.reveal'],
     '02c-create-phrase-shown': ['g4.create.written', 'g4.create.continue'],
+    '03-restore': ['g4.restore.phrase', 'g4.restore.next'],
+    '03c-restore-password': [
+      'g4.restore.password', 'g4.restore.passwordConfirm', 'g4.restore.continue', 'g4.restore.start', 'g4.restore.fromStart',
+    ],
     '04g-setup-resumed': ['g4.setup.skip'],
     '05-unlock': ['g4.unlock.password', 'g4.unlock.submit'],
     '10-overview': ['g4.nav.overview', 'g4.nav.settings', 'g4.overview.refresh', 'g4.overview.available'],
@@ -278,6 +283,23 @@ void main() {
       }
 
       await _same(tester, open, () => _closeDesk(tester), ['g4.wallet.label.save']);
+    });
+
+    testWidgets('Restore\u2019s start opened, then by height', (tester) async {
+      Future<void> open(bool height) async {
+        await _openDesk(tester, _shots['03c-restore-password']!);
+        await tester.tap(find.byKey(const ValueKey('restore-from-link')));
+        await tester.pump(const Duration(milliseconds: 400));
+        if (height) {
+          await tester.tap(find.text(englishStrings.restoreStartByHeight));
+          await tester.pump(const Duration(milliseconds: 400));
+        }
+      }
+
+      await _same(tester, () => open(false), () => _closeDesk(tester), [
+        'g4.restore.by.month', 'g4.restore.by.height', 'g4.restore.month', 'g4.restore.fromStart',
+      ]);
+      await _same(tester, () => open(true), () => _closeDesk(tester), ['g4.restore.height']);
     });
 
     testWidgets('the tour: Skip', (tester) async {
@@ -341,6 +363,40 @@ void main() {
         () => _closePhone(tester),
         ['g4.welcome.create', 'g4.welcome.restore'],
       );
+    });
+
+    testWidgets('Restore: the phrase, the start, Continue; opened by month, then by height', (tester) async {
+      Future<void> open({bool start = false, bool height = false}) async {
+        await _openPhone(tester, const RestoreScreen(), open: false);
+        if (start) {
+          await tester.tap(find.byKey(restoreStartLinkKey));
+          await tester.pumpAndSettle();
+        }
+        if (height) {
+          await tester.tap(find.text(englishStrings.restoreStartByHeight));
+          await tester.pumpAndSettle();
+        }
+      }
+
+      await _same(tester, open, () => _closePhone(tester), [
+        'g4.restore.phrase', 'g4.restore.start', 'g4.restore.fromStart', 'g4.restore.continue',
+      ]);
+      await _same(tester, () => open(start: true), () => _closePhone(tester), [
+        'g4.restore.by.month', 'g4.restore.by.height', 'g4.restore.month', 'g4.restore.fromStart',
+      ]);
+      await _same(tester, () => open(start: true, height: true), () => _closePhone(tester), ['g4.restore.height']);
+      // The roles the drivers look for.
+      await open(start: true, height: true);
+      final handle = tester.ensureSemantics();
+      await tester.pump();
+      SemanticsData data(String id) => tester.getSemantics(find.bySemanticsIdentifier(id)).getSemanticsData();
+      expect(data('g4.restore.phrase').flagsCollection.isTextField, isTrue);
+      expect(data('g4.restore.height').flagsCollection.isTextField, isTrue);
+      for (final id in ['g4.restore.by.month', 'g4.restore.by.height', 'g4.restore.fromStart', 'g4.restore.continue']) {
+        expect(data(id).hasAction(SemanticsAction.tap), isTrue, reason: id);
+      }
+      handle.dispose();
+      await _closePhone(tester);
     });
 
     testWidgets('Level step: create, restore and the level stops', (tester) async {

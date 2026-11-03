@@ -128,7 +128,6 @@ class LevelFeatures {
     required this.activityChips,
     required this.balanceTiles,
     required this.hideBalancesInHero,
-    required this.restoreHeightField,
     required this.welcomeServerLink,
     required this.outputs,
     required this.fileTransfer,
@@ -180,7 +179,6 @@ class LevelFeatures {
       activityChips: one ? ActivityChips.basic : ActivityChips.full,
       balanceTiles: one ? BalancePresentation.quietLine : BalancePresentation.tiles,
       hideBalancesInHero: !one,
-      restoreHeightField: !one,
       welcomeServerLink: !one,
       outputs: !one && prefs.has(AdvancedFeature.outputs),
       fileTransfer: !one,
@@ -273,9 +271,6 @@ class LevelFeatures {
   /// The hide-balances eye in the hero (level 1 moves it to Appearance).
   final bool hideBalancesInHero;
 
-  /// The restore-from-height field.
-  final bool restoreHeightField;
-
   /// Welcome's "Node and Epicbox" link.
   final bool welcomeServerLink;
 
@@ -329,7 +324,6 @@ class LevelFeatures {
       other.activityChips == activityChips &&
       other.balanceTiles == balanceTiles &&
       other.hideBalancesInHero == hideBalancesInHero &&
-      other.restoreHeightField == restoreHeightField &&
       other.welcomeServerLink == welcomeServerLink &&
       other.outputs == outputs &&
       other.fileTransfer == fileTransfer &&
@@ -364,7 +358,6 @@ class LevelFeatures {
     activityChips,
     balanceTiles,
     hideBalancesInHero,
-    restoreHeightField,
     welcomeServerLink,
     outputs,
     fileTransfer,

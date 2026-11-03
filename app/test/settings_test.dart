@@ -23,7 +23,8 @@ import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/first_run_screen.dart';
 import 'package:epic_wallet/src/ui/restore_screen.dart';
 import 'package:epic_wallet/src/ui/month_picker.dart';
-import 'package:epic_wallet/src/start_month.dart' show StartMonth;
+import 'package:epic_wallet/src/levels/wallet_level.dart' show levelKey;
+import 'package:epic_wallet/src/start_month.dart' show StartMonth, defaultStartMonth;
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/ui/server_list_sheet.dart'
     show
@@ -400,13 +401,16 @@ void main() {
       await _tapText(tester, _l.firstRunRestore);
       await _enter(tester, _l.restorePhraseLabel, h.service.phrase);
       await _tapText(tester, _l.restoreStartFromMonthLink);
-      await _tapText(tester, 'Pick the month you created the wallet');
-      // Year and month, no day: the picker opens on 2019 (never today); two years on, July.
-      expect(find.text('2019'), findsOneWidget);
-      await tester.tap(find.byKey(StartMonthPicker.laterKey));
-      await tester.pump();
-      await tester.tap(find.byKey(StartMonthPicker.laterKey));
-      await tester.pump();
+      // January 2025 until another month is picked.
+      expect(find.text('January 2025'), findsOneWidget);
+      await tester.tap(find.byKey(StartMonthChoice.buttonKey));
+      await tester.pumpAndSettle();
+      // Year and month, no day: the picker opens on the chosen month's year; four years back, July.
+      expect(find.text('2025'), findsOneWidget);
+      for (var i = 0; i < 4; i++) {
+        await tester.tap(find.byKey(StartMonthPicker.earlierKey));
+        await tester.pump();
+      }
       await tester.tap(find.byKey(StartMonthPicker.monthKey(const StartMonth(2021, 7))));
       await tester.pumpAndSettle();
       final dayStart = DateTime(2021, 7);
@@ -1094,7 +1098,7 @@ void main() {
   });
 
   group('wallet', () {
-    testWidgets('Recheck balance without Recheck from a height only confirms', (
+    testWidgets('Recheck balance without Recheck from a height: January 2025 by default, or the whole chain', (
       tester,
     ) async {
       final h = _Harness();
@@ -1103,14 +1107,19 @@ void main() {
       await h.openSettings(tester, SettingsSection.wallet);
 
       await _tapText(tester, _l.settingsRescan);
-      // No start choice: the from-height stays behind the Advanced switch.
+      // The month and the whole chain; the from-height stays behind the Advanced switch.
       expect(find.text('From a block height'), findsNothing);
-      expect(find.text(_l.settingsRescanFromMonth), findsNothing);
-      expect(find.text('The whole chain'), findsNothing);
-      // Block 0: only a scan from there finishes a restore.
+      expect(find.text(_l.settingsRescanFromMonth), findsOneWidget);
+      expect(find.text('The whole chain'), findsOneWidget);
+      expect(find.text('January 2025'), findsOneWidget);
+      await _tapText(tester, _l.settingsRescanButton);
+      expect(h.session.lastStart, defaultStartMonth.height);
+
+      await _tapText(tester, _l.settingsRescan);
+      await _tapText(tester, 'The whole chain');
       await _tapText(tester, _l.settingsRescanButton);
       expect(h.session.lastStart, BigInt.zero);
-      expect(h.session.scanCalls, 1);
+      expect(h.session.scanCalls, 2);
     });
 
     testWidgets('Kill switch: Recheck balance waits, with the reason', (
@@ -1962,37 +1971,54 @@ void main() {
       }
     });
 
-    testWidgets(
-      'restore scans the whole chain and offers no start without it',
-      (tester) async {
-        final h = _Harness(sealed: false, walletExists: false);
-        await h.pump(tester);
-        // The network choice shows without Advanced too, so a new install can reach floonet.
-        // By its semantics label, as label or icon: network_settings_button_test.dart checks
-        // which form shows, with the real faces.
-        expect(find.bySemanticsLabel(_l.setupNetworkSettingsTooltip), findsOneWidget);
-        await _tapText(tester, _l.firstRunRestore);
-        expect(find.text(_l.restoreStartHeading), findsNothing);
-        expect(find.text('Pick the month you created the wallet'), findsNothing);
-        expect(find.text('Block height'), findsNothing);
-        expect(find.byKey(restoreStartLinkKey), findsOneWidget);
-        await _enter(tester, _l.restorePhraseLabel, h.service.phrase);
-        await _tapText(tester, _l.commonContinue);
-        await _enter(tester, 'PIN', _pin);
-        await _enter(tester, 'Repeat PIN', _pin);
-        expect(h.session.scanCalls, 1);
-        // No start height: the core scans a restored wallet from block 1.
-        expect(h.session.lastStart, isNull);
-      },
-    );
+    testWidgets('restore scans from January 2025 by default, at level 1', (tester) async {
+      final h = _Harness(sealed: false, walletExists: false);
+      h.store.values[levelKey] = '1';
+      await h.pump(tester);
+      await _tapText(tester, _l.firstRunRestore);
+      expect(find.text(_l.restoreStartHeading), findsNothing);
+      expect(find.text(_l.restoreScanningFrom('January 2025')), findsOneWidget);
+      expect(find.byKey(restoreStartLinkKey), findsOneWidget);
+      expect(find.byKey(restoreFromStartKey), findsOneWidget);
+      await _enter(tester, _l.restorePhraseLabel, h.service.phrase);
+      await _tapText(tester, _l.commonContinue);
+      await _enter(tester, 'PIN', _pin);
+      await _enter(tester, 'Repeat PIN', _pin);
+      expect(h.service.createdRestoreFrom, defaultStartMonth.height);
+      expect(h.session.scanCalls, 1);
+      expect(h.session.lastStart, defaultStartMonth.height);
+    });
 
-    testWidgets('restore offers the start to everyone, behind a link', (
-      tester,
-    ) async {
+    testWidgets('Scan from the start restores with no start height, and the month comes back', (tester) async {
+      final h = _Harness(sealed: false, walletExists: false);
+      h.store.values[levelKey] = '1';
+      await h.pump(tester);
+      await _tapText(tester, _l.firstRunRestore);
+      await tester.tap(find.byKey(restoreFromStartKey));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.restoreScanningFromStart), findsOneWidget);
+      expect(find.byKey(restoreFromStartKey), findsNothing);
+      // The way back: the link opens the month, January 2025 again.
+      await _tapText(tester, _l.restoreStartFromMonthLink);
+      expect(find.text('January 2025'), findsOneWidget);
+      await tester.tap(find.byKey(restoreFromStartKey));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.restoreScanningFromStart), findsOneWidget);
+      await _enter(tester, _l.restorePhraseLabel, h.service.phrase);
+      await _tapText(tester, _l.commonContinue);
+      await _enter(tester, 'PIN', _pin);
+      await _enter(tester, 'Repeat PIN', _pin);
+      expect(h.service.createdRestoreFrom, isNull);
+      expect(h.session.scanCalls, 1);
+      // No start height: the core scans a restored wallet from block 1.
+      expect(h.session.lastStart, isNull);
+    });
+
+    testWidgets('restore offers the month and the height at level 1, behind a link', (tester) async {
       // Advanced is off: Restore is a one-off, so the choice is not behind a switch.
       final h = _Harness(sealed: false, walletExists: false);
+      h.store.values[levelKey] = '1';
       await h.pump(tester);
-      expect(find.bySemanticsLabel(_l.setupNetworkSettingsTooltip), findsOneWidget);
       await _tapText(tester, _l.firstRunRestore);
       expect(find.byKey(restoreStartLinkKey), findsOneWidget);
       expect(find.text(_l.restoreStartFromMonthLink), findsOneWidget);
@@ -2000,7 +2026,8 @@ void main() {
       await _tapText(tester, _l.restoreStartFromMonthLink);
       expect(find.byKey(restoreStartLinkKey), findsNothing);
       expect(find.text(_l.restoreStartHeading), findsOneWidget);
-      expect(find.text('Pick the month you created the wallet'), findsOneWidget);
+      expect(find.byKey(StartMonthChoice.buttonKey), findsOneWidget);
+      expect(find.text('January 2025'), findsOneWidget);
       await _tapText(tester, 'Block height');
       expect(
         find.widgetWithText(TextField, _l.restoreStartHeightLabel),

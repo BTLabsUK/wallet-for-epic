@@ -191,7 +191,6 @@
   "deskOnbImportStopBody": "Zaimportowane do tej pory portfele zostaną usunięte. Stare foldery są bez zmian.",
   "deskOnbImportGoBack": "Wróć",
   "deskOnbImportStop": "Przerwij import",
-  "deskOnbRestoreFromHide": "Sprawdź cały łańcuch",
   "deskOnbRestoreFromLabel": "Zacznij od bloku",
   "deskOnbRestoreFromHint": "Wysokość bloku",
   "deskOnbRestoreFromHelp": "Tylko jeśli pierwsza płatność portfela przyszła po tym bloku. Zostaw puste, aby sprawdzić cały łańcuch.",
