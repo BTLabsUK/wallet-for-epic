@@ -188,7 +188,10 @@ class Driver:
             hits = self.find_in(t, tree)
             if hits:
                 self.log("obstacle %s (%s): pressed %s" % (t, why, hits[0].brief()))
-                self.s.press(hits[0])
+                try:
+                    self.s.press(hits[0])
+                except RuntimeError as e:  # the next read shows whether it went
+                    self.log("obstacle %s: %s" % (t, e))
                 time.sleep(self.poll)
                 return True
         return False

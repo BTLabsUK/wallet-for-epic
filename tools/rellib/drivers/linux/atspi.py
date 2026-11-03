@@ -143,6 +143,9 @@ class AtspiSurface:
         r = self._call(self._req(node, "press"))
         if r.get("ok"):
             return
+        if r.get("how") == "gone":  # it left the screen since the read: the step's check decides
+            self.log("AT-SPI: %s is gone from the screen; not pressed" % node.brief())
+            return
         self.log("AT-SPI: %s has no action (%s); reaching it with the keyboard" % (node.brief(), r.get("how")))
         self._keyboard_press(node, "space" if node.role in ("checkbox", "toggle") else "enter")
 
