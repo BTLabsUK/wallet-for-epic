@@ -188,3 +188,9 @@ id = "windows-stale-build-tree"
 steps = ["build-windows"]
 pattern = "(No target \"epic_wallet\"|Unable to generate build files)"
 hint = "CMake ran in a Windows work dir left by an older build (a reused run id): its app\\build names targets that no longer exist. The work dir name carries the commit ({run_id}-{short}-{variant}); check the step's command uses it, then `tools/rel retry <step>`."
+
+[[failure]]
+id = "windows-v1-setup-keys"
+steps = ["trust-windows"]
+pattern = "unlock after setup: no 'wallet opened' in wfe.log"
+hint = "The v1 Windows driver (windows/trust.py, REL_TRUST_DRIVER=v1) presses Setup's keys blind and does not fit a previous release with wallet levels (26.10.25+). Run the default v2 lane (windows/lane.py); unset REL_TRUST_DRIVER, then `tools/rel retry <step>`."

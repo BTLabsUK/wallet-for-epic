@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """The Windows G4 lane on the shared core (core/lane.py): windows_platform.py for the rig, Setup and its
 files, core/desktop.py on UI Automation (uia.py) for the screens, core/checks.py on the wallet's files.
-Called by ../trust-windows.sh (REL_TRUST_V2=1) with the REL_* environment (see there).
+Called by ../trust-windows.sh (the default; REL_TRUST_DRIVER=v1 runs windows/trust.py) with the REL_* environment (see there).
 The rig user's language is Polish: the app's strings come from the Polish ARB (REL_TRUST_LOCALE=pl)."""
 import os
 import signal

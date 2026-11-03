@@ -43,7 +43,7 @@ if [ "${REL_DRY_RUN:-0}" != 1 ]; then
   timeout 40 ssh -o BatchMode=yes -o ConnectTimeout=15 "$host" "exit" >/dev/null 2>&1 ||
     { python3 -I "$here/windows/trust.py" fail "the Windows rig $host does not answer over ssh"; echo "trust-windows: $host does not answer over ssh" >&2; exit 2; }
 fi
-# REL_TRUST_V2=1: the shared-core lane (windows/lane.py: UI Automation by role and name); the driver below stays
-# the default until that lane has passed releases
-if [ "${REL_TRUST_V2:-0}" = 1 ] && [ "${REL_DRY_RUN:-0}" != 1 ]; then exec python3 -I "$here/windows/lane.py"; fi
-exec python3 -I "$here/windows/trust.py"
+# The shared-core lane (windows/lane.py: UI Automation by role and name). REL_TRUST_DRIVER=v1: the key-press
+# driver it replaces (windows/trust.py), kept as a fallback; its Setup key path predates 26.10.25's levels.
+if [ "${REL_TRUST_DRIVER:-v2}" = v1 ] || [ "${REL_DRY_RUN:-0}" = 1 ]; then exec python3 -I "$here/windows/trust.py"; fi
+exec python3 -I "$here/windows/lane.py"
