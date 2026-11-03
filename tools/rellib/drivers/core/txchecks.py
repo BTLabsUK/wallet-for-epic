@@ -167,6 +167,33 @@ def check_payment(method, a0, a1, b0, b1, amount=AMOUNT):
         num(want), method, t["state"], num(t.get("fee") or 0), num(r["credited"]), r["state"], r.get("transport")), facts
 
 
+def check_invoice(a0, a1, b0, b1, amount=AMOUNT):
+    """(ok, why, facts) for an invoice A issued and B paid (B -> A, Epicbox) from both wallets' data.
+    ok None: not there yet; False: what is there is wrong."""
+    want = nano(amount)
+    outs = new_txs(b0, b1, "outgoing")
+    if not outs:
+        return None, "B's data shows no new outgoing", {}
+    t = outs[-1]
+    facts = {"method": "invoice", "b_state": t["state"], "b_transport": t.get("transport"), "sent": num(sent_of(t)),
+             "fee": num(t.get("fee") or 0)}
+    if sent_of(t) != want:
+        return False, "B's outgoing for the invoice sent %s EPIC, not %s (wallet data)" % (num(sent_of(t)), num(want)), facts
+    if (t.get("fee") or 0) > nano(FEE_MAX):
+        return False, "B's fee %s EPIC is over %s (wallet data)" % (num(t["fee"]), FEE_MAX), facts
+    ins = new_txs(a0, a1, "incoming")
+    mine = [x for x in ins if t.get("slate") and x.get("slate") == t["slate"]]
+    if not mine or mine[-1]["state"] not in ("posted", "confirmed"):
+        return None, "B's outgoing is %s; A's data shows %s" % (
+            t["state"], "no incoming of that slate" if not mine else "the incoming %s" % mine[-1]["state"]), facts
+    r = mine[-1]
+    facts.update(a_state=r["state"], a_transport=r.get("transport"), received=num(r.get("credited") or 0))
+    if (r.get("credited") or 0) != want:
+        return False, "A received %s EPIC for its invoice, not %s (wallet data)" % (num(r.get("credited") or 0), num(want)), facts
+    return True, "invoice: A asked %s EPIC, B paid it: B's outgoing %s (fee %s), A's incoming %s EPIC %s (transport %s; wallet data)" % (
+        num(want), t["state"], num(t.get("fee") or 0), num(r["credited"]), r["state"], r.get("transport")), facts
+
+
 # ---- on the lane --------------------------------------------------------------------------------------
 # lane: linux/tx_lane.py's TxLane: lane.w["a"|"b"] (Wallet: ui, pay, secrets, digest), lane.funder (P),
 # lane.ledger, lane.base (A's and B's data when the lane began), lane.log, lane.ok/fail.
@@ -305,6 +332,34 @@ def pay(lane, method, send):
             res, why = False, "%s; but A's Activity detail names the method %r" % (why, label)
         elif label is not None:
             why += "; A's Activity detail: Method %s" % label
+    (lane.ok if res else lane.fail)(check, why)
+
+
+def invoice(lane, amount, names, check="pair_invoice_ok"):
+    """pair-invoice: A issues an invoice for [amount] to B (paired, invoices allowed); B approves and
+    pays it from what A paid it this run; checked in both wallets' data (check_invoice)."""
+    a, b = lane.w["a"], lane.w["b"]
+    wait_for(lane, b, "pair-invoice: B spendable", lambda d: spendable(d) >= nano(D(amount) + FEE_MAX), SPEND_WAIT_S)
+    _awake(lane)
+    a0, b0 = digest(lane, a, "pair-invoice"), digest(lane, b, "pair-invoice")
+    ok, why = a.pair.issue_invoice(names["b"], amount)
+    if not ok:
+        lane.fail(check, "A's invoice was not sent: %s" % why)
+        return
+    b.pair.pay_invoice(b.ui.password)
+    end = time.time() + PAY_WAIT_S["epicbox"]
+    while True:
+        a1, b1 = digest(lane, a, "pair-invoice"), digest(lane, b, "pair-invoice")
+        res, why, facts = check_invoice(a0, a1, b0, b1, D(amount))
+        if res is not None or time.time() >= end:
+            break
+        lane.log("pair-invoice: %s" % why)
+        time.sleep(POLL_S)
+    if res is None:
+        res, why = False, "not there in %d s: %s" % (PAY_WAIT_S["epicbox"], why)
+    if facts.get("fee"):
+        lane.ledger.fees.append(D(facts["fee"]))
+    lane.details.setdefault("payments", {})["invoice"] = facts
     (lane.ok if res else lane.fail)(check, why)
 
 

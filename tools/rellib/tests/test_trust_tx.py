@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """The TX lane's pure parts (drivers/core/txchecks.py, core/payments.py): what P funds and the caps,
 what the sweeps send, when a payment phase is done already, the payment check on fake wallet data,
-the method a history detail names, the transaction file found by its slate, the stand-in portal's
+the invoice check, the pairing words, the method a history detail names, the transaction file found by its slate, the stand-in portal's
 refusal of paths outside the sandbox, and REL_TRUST_UNTIL on the TX lane's phases."""
 import decimal
 import os
@@ -19,6 +19,7 @@ sys.path.insert(0, os.path.join(DRV, "linux"))
 from core import lane as core_lane  # noqa: E402
 from core import txchecks as tx  # noqa: E402
 from core.faults import HarnessFault  # noqa: E402
+from core.pairing import invite_link, words_in  # noqa: E402
 from core.payments import METHOD_LABEL, ONION_RX, file_for, method_of  # noqa: E402
 import portal_stub  # noqa: E402
 
@@ -134,6 +135,44 @@ class PaymentCheckTest(unittest.TestCase):
 
     def test_held_counts_a_payment_on_its_way(self):
         self.assertEqual(tx.held(digest(spendable=0.01, total=0.06)), int(0.06 * N))
+
+
+class InvoiceCheckTest(unittest.TestCase):
+    def setUp(self):
+        self.a0 = digest(t("incoming", credited=0.04, slate="F1"))
+        self.b0 = digest(t("incoming", credited=0.01, slate="AB"))
+
+    def test_paid(self):
+        b1 = digest(*self.b0["txs"], out(0.01, fee=0.006, change=0.02, state="posted", slate="IV"))
+        a1 = digest(*self.a0["txs"], t("incoming", state="posted", credited=0.01, slate="IV"))
+        ok, why, facts = tx.check_invoice(self.a0, a1, self.b0, b1)
+        self.assertTrue(ok, why)
+        self.assertEqual((facts["sent"], facts["fee"], facts["received"]), ("0.01", "0.006", "0.01"))
+
+    def test_not_yet_and_wrong(self):
+        self.assertIsNone(tx.check_invoice(self.a0, self.a0, self.b0, self.b0)[0])
+        b1 = digest(*self.b0["txs"], out(0.01, state="waiting", slate="IV"))
+        self.assertIsNone(tx.check_invoice(self.a0, self.a0, self.b0, b1)[0])  # A has not posted it
+        a_other = digest(*self.a0["txs"], t("incoming", state="posted", credited=0.01, slate="ZZ"))
+        self.assertIsNone(tx.check_invoice(self.a0, a_other, self.b0, b1)[0])  # matched by slate only
+        b2 = digest(*self.b0["txs"], out(0.02, state="posted", slate="IV"))
+        self.assertIs(tx.check_invoice(self.a0, self.a0, self.b0, b2)[0], False)
+        a_less = digest(*self.a0["txs"], t("incoming", state="posted", credited=0.009, slate="IV"))
+        b3 = digest(*self.b0["txs"], out(0.01, state="posted", slate="IV"))
+        ok, why, _ = tx.check_invoice(self.a0, a_less, self.b0, b3)
+        self.assertIs(ok, False)
+        self.assertIn("received 0.009", why)
+
+
+class PairingTest(unittest.TestCase):
+    def test_words_in(self):
+        self.assertEqual(words_in("The four words\n1 apple\n2 Bridge\n3 canal\n4 delta"), ["apple", "bridge", "canal", "delta"])
+        self.assertEqual(words_in("apple, bridge, canal, delta"), ["apple", "bridge", "canal", "delta"])
+        self.assertEqual(words_in(""), [])
+
+    def test_invite_link(self):
+        self.assertEqual(invite_link("Pair with me in BT Wallet: https://x.example/p#abc"), "https://x.example/p#abc")
+        self.assertIsNone(invite_link("no link here"))
 
 
 class RecipesTest(unittest.TestCase):

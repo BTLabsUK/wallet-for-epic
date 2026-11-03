@@ -11,11 +11,19 @@ Phases (each starts by reading where things are, and skips what is done):
   sweep-start   what a run before left in A or B goes back to P
   fund          P pays A what the remaining payments need (core/txchecks.py fund_plan)
   pay-<method>  A pays B 0.01 by epicbox, http, tor, file; tx_<method>_ok from both wallets' data
+  pair-invite   PAIR-1: A's invite copied and pasted on B, the four words read on both and confirmed:
+                Verified on both contact pages (pair_invite_ok)
+  pair-remove   B removes the pairing: Pairing ended on A
+  pair-proven   B pairs A again by a request, A's address proven by this run's Epicbox payment:
+                Verified on both without words (pair_proven_ok)
+  pair-invoice  A asks B for 0.01 (an invoice); B approves it; checked in both wallets' data (pair_invoice_ok)
+  pair-end      A removes the pairing: Pairing ended on B (pair_end_ok)
   sweep-end     B and A send everything to P; returned_ok
-Later lanes (PAIR-1, LINK-1) add phases: PHASES and _pays.
+LINK-1 adds its phases the same way: PHASES and _main.
 
-REL_FUNDS=0: no fund and no payments (sweep-start and sweep-end still return leftovers); no check is
-required. REL_TRUST_UNTIL=<phase> stops after it (--test runs). REL_TX_METHODS=epicbox,file narrows.
+REL_FUNDS=0: no fund and no payments (sweep-start and sweep-end still return leftovers); pair-invite and
+pair-end run, pair-remove, pair-proven and pair-invoice skip (they need the Epicbox payment and coins); no
+check is required. REL_TRUST_UNTIL=<phase> stops after it (--test runs). REL_TX_METHODS=epicbox,file narrows.
 
 File dialogs: each sandbox runs linux/portal_stub.py, the stand-in file-chooser portal on the
 sandbox's own bus; Receive › Transaction files › Open is answered with a file in that sandbox's
@@ -43,7 +51,9 @@ from core.driver import Driver  # noqa: E402
 from core.faults import HarnessFault, ProductFault  # noqa: E402
 from core.labels import Labels  # noqa: E402
 from core.lane import Lane, Platform  # noqa: E402
+from core.pairing import Pairing  # noqa: E402
 from core.payments import METHODS, Payments, file_for  # noqa: E402
+import clipboard  # noqa: E402
 from linux_platform import LinuxPlatform  # noqa: E402
 from p_funder import P  # noqa: E402
 import portal_stub  # noqa: E402
@@ -51,7 +61,11 @@ import portal_stub  # noqa: E402
 LANE = "linux-tx"
 SEEDS = {"a": "linux-tx-a", "b": "linux-tx-b"}
 PHASES = ("prepare", "restore-a", "restore-b", "addresses", "sweep-start", "fund",
-          "pay-epicbox", "pay-http", "pay-tor", "pay-file", "sweep-end")
+          "pay-epicbox", "pay-http", "pay-tor", "pay-file",
+          "pair-invite", "pair-remove", "pair-proven", "pair-invoice", "pair-end", "sweep-end")
+PAIR_NAME = {"a": "Lane A", "b": "Lane B"}  # the name each is seen as, and its contact's name on the other
+PAIR_CHECKS = ("pair_invite_ok", "pair_proven_ok", "pair_invoice_ok", "pair_end_ok")
+INVOICE = "0.01"  # pair-invoice: what A asks B for (B pays it)
 
 
 class PairPlatform(Platform):
@@ -116,7 +130,7 @@ class Wallet:
     def __init__(self, lane, key, plat):
         self.lane, self.key, self.p = lane, key, plat
         self.seed = ls.LaneSeed(SEEDS[key])
-        self.ui = self.pay = None
+        self.ui = self.pay = self.pair = None
         self.secrets = {}
 
     def digest(self, tag):
@@ -131,6 +145,10 @@ class Wallet:
         except Exception as e:  # noqa: BLE001 — evidence only
             self.lane.log("wallet snapshot not sent: %s" % e)
         return d
+
+    def clip(self, text=None):
+        """The app's clipboard on this sandbox's display: read (text None) or set."""
+        return clipboard.read(self.p.sb) if text is None else clipboard.write(self.p.sb, text)
 
     def choose(self, path):
         portal_stub.ensure(self.p.sb)  # the app's restart takes the stand-in with it
@@ -178,6 +196,7 @@ class TxLane(Lane):
         if not self.funds:
             for name in ("fund",) + tuple("pay-" + m for m in self.methods):
                 self.skip_phase(name, "REL_FUNDS=0: no coins from P")
+            self._pairing()
         else:
             try:
                 self._fund_and_pay()
@@ -208,6 +227,90 @@ class TxLane(Lane):
                 self.skip_phase("pay-" + m, "A paid B by %s this run (%s)" % (m, done["state"]))
                 continue
             self.run_phase("pay-" + m, lambda m=m: tx.pay(self, m, self._sender(m)))
+        self._pairing()
+
+    # ---- PAIR-1: pairing between A and B, through the UI
+
+    def _pairing(self):
+        """pair-invite, then (funded) pair-remove, pair-proven and pair-invoice, then pair-end."""
+        self.run_phase("pair-invite", self._pair_invite)
+        why = None
+        if not self.funds:
+            why = "REL_FUNDS=0: needs the Epicbox payment and coins"
+        elif "epicbox" not in self.methods or not self.results.get("tx_epicbox_ok"):
+            why = "needs this run's Epicbox payment (tx_epicbox_ok)"
+        elif not self.results.get("pair_invite_ok"):
+            why = "needs the pairing from pair-invite"
+        if why:
+            for name in ("pair-remove", "pair-proven", "pair-invoice"):
+                self.skip_phase(name, why)
+        else:
+            self.run_phase("pair-remove", self._pair_remove)
+            self.run_phase("pair-proven", self._pair_proven)
+            self.run_phase("pair-invoice", self._pair_invoice)
+        if self.results.get("pair_invite_ok") or self.results.get("pair_proven_ok"):
+            self.run_phase("pair-end", self._pair_end)
+        else:
+            self.skip_phase("pair-end", "A and B are not paired")
+
+    def _both_verified(self, check, how):
+        a, b = self.w["a"].pair, self.w["b"].pair
+        got = {k: p.wait_state(PAIR_NAME[o], "verified") for k, o, p in (("a", "b", a), ("b", "a", b))}
+        too = {k: p.state(PAIR_NAME[o], refresh=False)[1] for k, o, p in (("a", "b", a), ("b", "a", b))}
+        if all(got.values()) and all(too.values()):
+            self.ok(check, "%s: Verified on both contact pages, each with the other confirmed too" % how)
+        else:
+            self.fail(check, "%s: A reads %s, B reads %s" % (how, *(
+                ("Verified" if got[k] else "%s" % (self.w[k].pair.state(PAIR_NAME[o], refresh=False)[0],))
+                + ("" if too[k] else ", the other's confirmation not shown") for k, o in (("a", "b"), ("b", "a")))))
+
+    def _pair_invite(self):
+        """A's invite (Copy invite, the clipboard) into B's Have their invite?; the words read on both."""
+        for k in ("a", "b"):
+            p = self.w[k].pair
+            p.enable(invoices=True)
+            p.open_pair()
+            p.seen_as(PAIR_NAME[k])
+        a, b = self.w["a"].pair, self.w["b"].pair
+        b.enter_invite(a.copy_invite(), PAIR_NAME["a"])
+        wa, wb = a.words(), b.words()
+        if wa != wb:  # the words are no secret, but a mismatch is all the proof needs
+            self.fail("pair_invite_ok", "the four words differ between A and B")
+            return
+        b.confirm_words(allow_invoices=True)
+        a.confirm_words(allow_invoices=True)
+        self._both_verified("pair_invite_ok", "invite by text, the same four words on both")
+
+    def _pair_remove(self):
+        """B removes the pairing: Pairing ended on A (B's contact keeps no pairing)."""
+        self.w["b"].pair.remove(PAIR_NAME["a"])
+        if not self.w["a"].pair.wait_state(PAIR_NAME["b"], "ended"):
+            self.fail("pair_proven_ok", "B removed the pairing; A does not read Pairing ended")
+
+    def _pair_proven(self):
+        """B pairs A again by a request (A's Epicbox address proven by pay-epicbox); A accepts; no words."""
+        if not self.w["b"].pair.request(PAIR_NAME["a"]):
+            self.fail("pair_proven_ok", "B was not offered a request to A after the Epicbox payment (the invite page opened)")
+            return
+        self.w["a"].pair.accept_request()
+        if self.results.get("pair_proven_ok") is False:
+            return  # pair-remove's finding stands
+        self._both_verified("pair_proven_ok", "a request to a proven contact, no words")
+
+    def _pair_invoice(self):
+        """A asks B for INVOICE EPIC; B approves and pays; checked in both wallets' data."""
+        tx.invoice(self, INVOICE, PAIR_NAME)
+
+    def _pair_end(self):
+        """A removes the pairing: Pairing ended on B, and on A."""
+        a, b = self.w["a"].pair, self.w["b"].pair
+        a.remove(PAIR_NAME["b"])
+        ended = b.wait_state(PAIR_NAME["a"], "ended")
+        mine = a.state(PAIR_NAME["b"])[0]
+        if ended and mine in ("ended", "none"):
+            self.ok("pair_end_ok", "A removed the pairing: B reads Pairing ended, A reads %s" % mine)
+        else:
+            self.fail("pair_end_ok", "A removed the pairing: B reads %s, A reads %s" % (b.state(PAIR_NAME["a"])[0], mine))
 
     def _sweep_end(self):
         try:
@@ -236,6 +339,7 @@ class TxLane(Lane):
         self.rec.build = os.environ.get("REL_CANDIDATE_VERSION", "candidate")
         w.ui = self.recipe_for(self, "candidate", surface)
         w.pay = Payments(w.ui, w.choose, self.log)
+        w.pair = Pairing(w.ui, w.clip, self.log)
         birth = w.seed.birth()
         if birth.get("height") is None:
             raise HarnessFault("restore", "lane seed %s has no birth height (lane_seed.py birth %s)" % (w.seed.lane, w.seed.lane))
@@ -391,9 +495,10 @@ def main():
     def stopped(sig, _frame):  # a runner's timeout: the sandboxes and stand-ins still go
         raise HarnessFault(lane.phase or "start", "the lane was stopped (signal %d)" % sig)
     given = [c.strip() for c in (e.get("REL_CHECKS") or "").split(",") if c.strip()]
+    methods = [m.strip() for m in (e.get("REL_TX_METHODS") or ",".join(METHODS)).split(",") if m.strip()]
+    pairs = [c for c in PAIR_CHECKS if "epicbox" in methods or c in ("pair_invite_ok", "pair_end_ok")]
     lane = TxLane(plat, recipe_for, out=out, log=log, funds=funds, p=funder,
-                  required=given or ([("tx_%s_ok" % m) for m in (e.get("REL_TX_METHODS") or ",".join(METHODS)).split(",")
-                                      if m.strip()] + ["returned_ok"] if funds else []))
+                  required=given or (["tx_%s_ok" % m for m in methods] + pairs + ["returned_ok"] if funds else []))
     signal.signal(signal.SIGTERM, stopped)
     return lane.main()
 
