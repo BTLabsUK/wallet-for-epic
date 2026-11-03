@@ -27,6 +27,9 @@ DESTRUCTIVE = re.compile(r"\b(delete|remove|erase|reset|wipe|forget|restore|unin
                          r"cancel (the )?(payment|send)|replace)\b", re.I)
 ACTIONABLE = {"button", "link", "menu_item", "row", "tab", "checkbox", "toggle"}
 PHRASE = re.compile(r"(\b[a-z]{3,8}\b[\s|,]+){11,}")  # 12+ short lower-case words in a row: maybe a recovery phrase
+# A phrase shown one word per node: "Word 3: ghost" (phone), "3. ghost" / "3" + "ghost" (desktop grid)
+WORD_CELL = re.compile(r"(word\s*)?\d{1,2}\s*[:.)]?\s*[a-z]{3,8}", re.I)
+LONE_WORD = re.compile(r"[a-z]{3,8}")
 
 
 def enabled():
@@ -34,10 +37,14 @@ def enabled():
 
 
 def secret_screen(tree):
+    cells = lone = 0
     for n in tree:
         if "password" in n.states or PHRASE.search(" ".join([n.name or "", n.value or ""]).lower()):
             return True
-    return False
+        name = (n.name or "").strip()
+        cells += bool(WORD_CELL.fullmatch(name))
+        lone += bool(LONE_WORD.fullmatch(name))
+    return cells >= 3 or lone >= 6
 
 
 def _ask(prompt, timeout):
