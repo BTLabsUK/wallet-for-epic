@@ -19,7 +19,7 @@ import subprocess
 import sys
 import tempfile
 
-from . import failures as known, retention
+from . import failures as known, guards, retention
 from .config import (ConfigError, PLATFORMS, Pipeline, load_hosts, load_scope, scope_summary, scope_toml,
                      validate_scope)
 from .engine import (EXIT_BUSY, EXIT_DENIED, EXIT_FAILED, EXIT_OK, EXIT_PREFLIGHT, EXIT_USAGE, EXIT_WAITING, Engine, relmsg_state)
@@ -199,8 +199,14 @@ class App:
 
     # ---- start / resume / publish ----
 
+    def run_refusal(self, info):
+        return guards.trust_break_refusal(info) or guards.never_ship_refusal(info, self.repo)
+
     def cmd_start(self, a):
         commit, scope, prev, warns = self.resolve(a)
+        why = self.run_refusal({"commit": commit, "test": scope["test"]})
+        if why:
+            return self.out(EXIT_DENIED, why)
         version = scope["version"]
         path, run_id = Run.next_path(self.state_root, version)
         wt = self.hosts["path"].get("worktrees", os.path.expanduser("~/wfe-worktrees"))
@@ -260,6 +266,9 @@ class App:
             run.save_info()
 
     def drive(self, run, eng, phase, until=None, retry_failed=False):
+        why = self.run_refusal(run.info)
+        if why:
+            return self.out(EXIT_DENIED, why, run)
         if phase == "publish" and not eng.dry:
             # Only the bytes the gate approved are published (tools/rellib/evidence.py).
             from . import evidence

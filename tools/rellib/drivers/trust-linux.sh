@@ -21,6 +21,10 @@
 # Exit: 0 every check in REL_CHECKS true, 1 some false, 2 could not run.
 # Never prints a recovery phrase or password: they stay in the sandbox folder (mode 600).
 set -uo pipefail
+# Break tests (core/breaks.py) never run in a release run; the engine sets REL_RUN_KIND=release for one.
+if [ "${REL_RUN_KIND:-}" = release ] && [ -n "${REL_TRUST_BREAK:-}" ]; then
+  echo "trust-linux: REL_TRUST_BREAK is set in a release run: break tests run in --test runs only" >&2; exit 2
+fi
 here="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
 : "${REL_OUT:?REL_OUT is required}"
 [ "${REL_DRY_RUN:-0}" = 1 ] || mkdir -p "$REL_OUT"

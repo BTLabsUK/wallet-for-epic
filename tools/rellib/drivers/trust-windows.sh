@@ -30,6 +30,10 @@
 # Never prints a recovery phrase or password: the wallet password stays in the local work folder (mode
 # 600) and the run's secret folder on the rig (BT and epicrig only); the phrase is never read.
 set -uo pipefail
+# Break tests (core/breaks.py) never run in a release run; the engine sets REL_RUN_KIND=release for one.
+if [ "${REL_RUN_KIND:-}" = release ] && [ -n "${REL_TRUST_BREAK:-}" ]; then
+  echo "trust-windows: REL_TRUST_BREAK is set in a release run: break tests run in --test runs only" >&2; exit 2
+fi
 here="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
 : "${REL_OUT:?REL_OUT is required}"
 [ "${REL_DRY_RUN:-0}" = 1 ] || mkdir -p "$REL_OUT"

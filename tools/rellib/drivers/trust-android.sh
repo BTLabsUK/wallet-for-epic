@@ -40,6 +40,10 @@
 # Exit: 0 every check in REL_CHECKS true; 1 some false (not proven); 2 could not run.
 # Also writes $REL_OUT/emulator.json (boot time, booted, alive at the end) for the runner's metrics.
 set -uo pipefail
+# Break tests (core/breaks.py) never run in a release run; the engine sets REL_RUN_KIND=release for one.
+if [ "${REL_RUN_KIND:-}" = release ] && [ -n "${REL_TRUST_BREAK:-}" ]; then
+  echo "trust-android: REL_TRUST_BREAK is set in a release run: break tests run in --test runs only" >&2; exit 2
+fi
 here="$(cd "$(dirname "$0")" && pwd)"
 drv="$here/android"
 sdk="${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}"
