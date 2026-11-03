@@ -33,4 +33,6 @@ if [ "${REL_DRY_RUN:-0}" != 1 ]; then
     { echo "trust-linux: python3 needs gi (Atspi 2.0) and PIL" >&2; exit 2; }
 fi
 umask 077
-exec python3 -I "$here/linux/trust.py"
+# REL_TRUST_DRIVER=v1: the screen-reading driver this lane replaces (linux/trust.py), kept while v2 proves itself
+if [ "${REL_TRUST_DRIVER:-v2}" = v1 ] || [ "${REL_DRY_RUN:-0}" = 1 ]; then exec python3 -I "$here/linux/trust.py"; fi
+exec python3 -I "$here/linux/lane.py"
