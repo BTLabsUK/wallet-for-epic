@@ -6,11 +6,13 @@
 # under <run> (the app's USERPROFILE is <run>\home, so its data folder and its per-user install are
 # there); on the way out it stops those processes. Never touches anything outside its session's <work>\trust.
 #
-# The app's window is never shown on this station. Posted mouse messages and WM_CHAR reach
-# FLUTTERVIEW; nothing can be read back from the screen (UIA is off in Flutter's Windows engine, the
-# MSAA root fails with CO_E_NOTINITIALIZED, PrintWindow captures one colour), so the driver reads the
-# app's files instead. Posted Ctrl/Shift do not count (Flutter syncs modifiers from the real key
-# state): only plain keys.
+# The runner creates the app's window hidden and shows it after the first frame, which never counts on
+# this station (IsWindowVisible stays false). The window's accessibility tree is read through UI Automation
+# (the engine builds it on WM_GETOBJECT; roles, names, values, rects, no ids) and pressed through MSAA
+# (accDoDefaultAction; UIA's own Invoke/SetFocus fail in session 0). Typing is posted WM_CHAR and a click
+# is a posted mouse message at a UIA rect's centre, which reach FLUTTERVIEW. PrintWindow captures one
+# colour, so there are no screenshots. Posted Ctrl/Shift do not count (Flutter syncs modifiers from the
+# real key state): only plain keys.
 #
 # Also runs the loopback stand-ins for the user's own servers (as standin.py does on Linux): a node
 # on http://127.0.0.1:<port> forwarding to an https node, a relay on 127.0.0.1:<port> piped into TLS.
@@ -40,6 +42,8 @@ public static class TR {
   [DllImport("user32.dll")] static extern bool GetClientRect(IntPtr h, out RECT r);
   [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr h, out RECT r);
   [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr h, uint m, IntPtr w, IntPtr l);
+  [DllImport("user32.dll")] static extern bool ClientToScreen(IntPtr h, ref POINT p);
+  [StructLayout(LayoutKind.Sequential)] public struct POINT { public int X, Y; }
   [DllImport("user32.dll")] static extern uint MapVirtualKey(uint code, uint type);
   [StructLayout(LayoutKind.Sequential)] public struct RECT { public int L, T, R, B; }
 
@@ -60,6 +64,8 @@ public static class TR {
     EnumChildWindows(parent, (h, l) => { if (Cls(h) == cls) { f = h; return false; } return true; }, IntPtr.Zero);
     return f;
   }
+  /// Where the view's client area starts on the screen (UIA rects are screen coordinates).
+  public static int[] Origin(IntPtr h) { var p = new POINT(); ClientToScreen(h, ref p); return new[] { p.X, p.Y }; }
   public static int[] Client(IntPtr h) { RECT r; GetClientRect(h, out r); return new[] { r.R - r.L, r.B - r.T }; }
 
   static IntPtr XY(int x, int y) { return (IntPtr)((y << 16) | (x & 0xFFFF)); }
@@ -292,6 +298,26 @@ public static class MSAA {
     for (int i = 0; i < got; i++) { var ia = kids[i] as IAccessible; if (ia != null) Walk(ia, path + "." + i, depth + 1, o, max); }
   }
   public static List<Dictionary<string, object>> Tree(IntPtr hwnd, int max) { var o = new List<Dictionary<string, object>>(); Walk(Root(hwnd), "0", 0, o, max); return o; }
+  static void Flat(IAccessible a, int depth, List<IAccessible> o, int max) {
+    if (o.Count >= max) return;
+    o.Add(a);
+    int n = 0; try { n = a.accChildCount; } catch { }
+    if (n == 0 || depth > 40) return;
+    var kids = new object[n]; int got;
+    if (AccessibleChildren(a, 0, n, kids, out got) != 0) return;
+    for (int i = 0; i < got; i++) { var ia = kids[i] as IAccessible; if (ia != null) Flat(ia, depth + 1, o, max); }
+  }
+  /// The node at [idx] of the UIA read (FindAll's order = this walk's, the root excluded), after checking its name.
+  /// what: "press" (accDoDefaultAction) or "focus" (accSelect SELFLAG_TAKEFOCUS).
+  public static string At(IntPtr hwnd, int idx, string name, string what) {
+    var all = new List<IAccessible>(); Flat(Root(hwnd), 0, all, 4000);
+    if (idx + 1 >= all.Count) throw new Exception("msaa has " + (all.Count - 1) + " nodes, wanted #" + idx);
+    var a = all[idx + 1];
+    string got = null; try { got = a.get_accName(0); } catch { }
+    if ((got ?? "") != (name ?? "")) throw new Exception("msaa #" + idx + " is a different node (name differs)");
+    if (what == "focus") { a.accSelect(1, 0); return "focus"; }
+    a.accDoDefaultAction(0); return "press";
+  }
   public static string Do(IntPtr hwnd, string path) {
     IAccessible a = Root(hwnd);
     var parts = path.Split('.');
@@ -439,6 +465,24 @@ function Do-Cmd($c) {
       # text from a file under the run folder (a secret) or inline; never logged
       $t = if ($c.file) { (Get-Content -Raw -LiteralPath (Mine $c.file)).TrimEnd("`r", "`n") } else { [string]$c.text }
       return @{ ok = $true; r = [UIA]::SetValue([string]$c.rid, $t, 15000) }
+    }
+    'ui_at' {
+      # press or focus the node at index idx of the last uia_tree read through MSAA (name checked)
+      $v = NeedView
+      return @{ ok = $true; r = [MSAA]::At($v, [int]$c.idx, [string]$c.name, [string]($c.what ?? 'press')) }
+    }
+    'click_rect' {
+      # a click at the centre of a UIA rect (screen coordinates), when the node has no action of its own
+      $v = NeedView; $o = [TR]::Origin($v); $r = @($c.rect)
+      $x = [int]($r[0] + $r[2] / 2 - $o[0]); $y = [int]($r[1] + $r[3] / 2 - $o[1])
+      [TR]::Click($v, $x, $y)
+      return @{ ok = $true }
+    }
+    'erase' {
+      $v = NeedView
+      [TR]::Key($v, 0x23)
+      for ($i = 0; $i -lt [int]$c.n; $i++) { [TR]::Key($v, 0x08) }
+      return @{ ok = $true }
     }
     'click' { $v = NeedView; [TR]::Click($v, [int]$c.x, [int]$c.y); return @{ ok = $true } }
     'type' {
