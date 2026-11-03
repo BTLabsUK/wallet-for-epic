@@ -13,7 +13,10 @@ REL_TRUST_BREAK is a comma list of:
                             (HarnessGone: the lane rebuilds it and runs the phase again)
     slow@<phase>:<seconds>  the app is frozen for that long as the phase starts
     lose-balance            the previous release's wallet loses its outputs while it is closed (before
-                            the update): balance_kept must come out false, a product fault
+                            the update): balance_kept must come out false, a product fault. Needs a
+                            plain store: 26.10.25 and later encrypt theirs, so use lose-node there
+    lose-node               the custom node is removed from the closed previous release's settings
+                            (before the update): custom_nodes_kept must come out false, a product fault
 """
 import os
 import threading
@@ -60,3 +63,6 @@ def at_phase(lane, phase):
         elif it == "lose-balance" and phase == "snapshot":
             lane.log("BREAK: the previous release's wallet loses its outputs before the update")
             lane.p.break_lose_balance()
+        elif it == "lose-node" and phase == "snapshot":
+            lane.log("BREAK: the previous release's custom node is lost before the update")
+            lane.p.break_lose_node()

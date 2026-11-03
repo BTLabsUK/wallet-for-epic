@@ -294,13 +294,16 @@ class Desktop:
         if not d.wait(shows(t), 4):
             return False
         # 26.10.25 names the back button "Wallet" too: a press that leaves Settings was the wrong one
-        for k in range(3):
+        # the one that stayed is tried first next time
+        first = getattr(self, "_section_hit", {}).get(t.id, 0)
+        for k in [first] + [i for i in range(3) if i != first]:
             hits = d.find_in(t, d.tree())
             if k >= len(hits):
-                break
+                continue
             d._act(d.s.press, hits[k])
             time.sleep(1)
             if d.wait(Expect("still in Settings", lambda dd, tree: self.in_settings(tree)), 4, dismiss=False):
+                self._section_hit = dict(getattr(self, "_section_hit", {}), **{t.id: k})
                 return True
             self.log("Settings › %s: %s left Settings; trying the next one" % (key_or_name, hits[k].brief()))
             self.settings()

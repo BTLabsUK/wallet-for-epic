@@ -131,7 +131,11 @@ class LinuxPlatform(Platform):
 
     def start(self, which):
         """One surface for the whole lane: its AT-SPI worker reads the sandbox's environment when it
-        starts, so it follows a sandbox started again by recover()."""
+        starts, so it follows a sandbox started again by recover(). The app recover() already started
+        again is the one the re-run phase uses: a second copy would quit (one instance per user)."""
+        if self.running == which and self.alive():
+            self.log("%s app already running (started again by the recovery)" % which)
+            return self.surface or AtspiSurface(self.sb, self.log)
         pid = sandbox.app(self.sb, self.roots[which])
         self.running = which
         self.log("%s app started (pid %d)" % (which, pid))
@@ -268,6 +272,19 @@ class LinuxPlatform(Platform):
         finally:
             c.close()
         self.log("BREAK: %d outputs deleted from the closed wallet's database" % n)
+
+    def break_lose_node(self):
+        path = os.path.join(data_root(self.sb), "settings.toml")
+        if not os.path.exists(path):
+            raise HarnessFault("break", "lose-node needs the previous release's settings.toml")
+        with open(path) as f:
+            lines = f.readlines()
+        kept = [ln for ln in lines if self.custom_node not in ln]
+        if len(kept) == len(lines):
+            raise HarnessFault("break", "lose-node: %s is not in settings.toml" % self.custom_node)
+        with open(path, "w") as f:
+            f.writelines(kept)
+        self.log("BREAK: the custom node %s removed from the closed wallet's settings.toml" % self.custom_node)
 
     def logs(self):
         return {"wfe.log": os.path.join(data_root(self.sb), "logs", "wfe.log"), "sandbox": os.path.join(self.sb, "logs")}
