@@ -40,6 +40,8 @@ class FakeLane:
         self.funds, self.funder, self.mode = funds, None, mode
         self.results, self.details, self.lines = {}, {}, []
         self.out = tempfile.mkdtemp(prefix="lane-")
+        # what the driver set on the previous release (the fixtures' settings): its setup took
+        self.want_settings = {"theme": "Light", "label": "Trust 1102 1200", "confirmations": 1, "technical_details": True}
 
     def ok(self, check, why):
         self.results[check] = True
@@ -353,5 +355,14 @@ class Files(unittest.TestCase):
             f.fetch("../x", "/dev/null")
 
 
+class SetupNotTaken(unittest.TestCase):
+    def test_settings_the_driver_did_not_set_are_harness(self):
+        lane = FakeLane()
+        lane.want_settings = dict(lane.want_settings, label="Another label")
+        with self.assertRaises(checks.HarnessFault):
+            checks.compare(lane, digest(), digest(), ([], {}))
+
+
 if __name__ == "__main__":
     unittest.main()
+
