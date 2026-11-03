@@ -2,8 +2,9 @@
 <#
   Read-only health facts of the Windows rig sessions (rig.py health()): one line "RIG <json>" per
   session. Runs as BT over SSH, no admin: the scheduled task (exists, enabled, state, last run and its
-  result), its user (enabled, locked, password expiry), the user's "Log on as a batch job" right (the
-  LSA answers a lookup of one account's rights without admin) and the session's queue. Changes nothing.
+  result), its user (enabled, locked, password expiry, its own Modify grant on the work dir), the user's
+  "Log on as a batch job" right (the LSA answers a lookup of one account's rights without admin) and the
+  session's queue. Changes nothing.
   -Sessions 1,5 checks those; none checks every EpicWalletRig<k> task on the box.
 #>
 param([int[]]$Sessions = @())
@@ -79,6 +80,13 @@ foreach ($k in $Sessions) {
       $r.batch_right = $words -contains 'SeBatchLogonRight'
       $r.batch_denied = $words -contains 'SeDenyBatchLogonRight'
       $r.profile = Test-Path -LiteralPath "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$sid"
+      # the user's own Modify grant on its work dir (setup-test-user.ps1 gives one; null when the folder is missing)
+      $acl = Get-Acl -LiteralPath $work -ErrorAction SilentlyContinue
+      if ($acl) {
+        $r.work_grant = [bool]($acl.Access | Where-Object { $_.AccessControlType -eq 'Allow' -and -not $_.IsInherited -and
+          ($_.FileSystemRights -band [Security.AccessControl.FileSystemRights]::Modify) -eq [Security.AccessControl.FileSystemRights]::Modify -and
+          $(try { $_.IdentityReference.Translate([Security.Principal.SecurityIdentifier]).Value -eq $sid } catch { $false }) })
+      }
     } else { $r.user = $uid }
   }
   $q = Join-Path $work 'queue'
