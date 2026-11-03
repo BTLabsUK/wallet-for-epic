@@ -193,7 +193,12 @@ void main() {
     await _enter(tester, 'Repeat PIN', '123456');
 
     await _pumpUntil(tester, find.byKey(balanceFigureKey));
-    expect(find.text('Phrase not backed up'), findsOneWidget);
+    // Home's own notice: the PIN screen keeps a dock of its own, showing the same notice,
+    // until its route's transition ends.
+    expect(
+      find.descendant(of: find.byType(HomeScreen), matching: find.text('Phrase not backed up')),
+      findsOneWidget,
+    );
 
     final container = ProviderScope.containerOf(
       tester.element(find.byType(HomeScreen)),
