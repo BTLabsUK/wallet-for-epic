@@ -406,11 +406,29 @@ class Desktop:
         rest = re.split(r"[:\n]", n.name, 1)[1].strip() if re.search(r"[:\n]", n.name) else ""
         return rest == entry or rest.startswith(entry + ",") or rest.startswith(entry + " ")
 
+    def _words(self, verb):
+        """The words a picker row starts with, in English and as this build shows them: "use" / "add"
+        (normalised, no host: the text of every "Use {host}..." message of the build's ARB)."""
+        cache = self.__dict__.setdefault("_verbs", {})
+        if verb not in cache:
+            lab = self.d.labels
+            rx = re.compile(r"^%s \{\w+\}(,|$)" % verb.capitalize())
+            found = {tg._norm(lab.text(k).split("{")[0]) for k, v in lab.en.items()
+                     if isinstance(v, str) and rx.match(v) and lab.text(k)}
+            cache[verb] = {verb} | {w for w in found if w}
+        return cache[verb]
+
     def _use_row(self, entry):
-        return T("g4.server.use", names=(r"re:(use|add) %s(,.*)?" % re.escape(tg._norm(entry)),), match="exact")
+        verbs = "|".join(re.escape(w) for w in sorted(self._words("use") | self._words("add")))
+        return T("g4.server.use", names=(r"re:(%s) %s(,.*)?" % (verbs, re.escape(tg._norm(entry))),), match="exact")
+
+    def _picker_row(self, name):
+        n = tg._norm(name)
+        return any(n.startswith(w + " ") for w in self._words("use"))
 
     def _listed(self, entry, tree):
-        rx = re.compile(r"^use %s(,|$)" % re.escape(tg._norm(entry)))
+        verbs = "|".join(re.escape(w) for w in sorted(self._words("use")))
+        rx = re.compile(r"^(%s) %s(,|$)" % (verbs, re.escape(tg._norm(entry))))
         return any(rx.match(tg._norm(n.name)) for n in tree if n.role == "button")
 
     def _open_picker(self, picker):
@@ -419,7 +437,7 @@ class Desktop:
             self.find_setting(picker, PICKER_PAGES[picker.id], str(picker))
         d.press(picker, step="open-%s" % picker.id, timeout=20,
                 then=Expect("the picker open", lambda dd, tree: any(n.role == "text_field" and "focused" in n.states for n in tree)
-                            or any(tg._norm(n.name).startswith("use ") for n in tree)))
+                            or any(self._picker_row(n.name) for n in tree)))
 
     def use_server(self, picker, typed, entry, use, _again=False):
         """Types `typed` into the picker and presses Use/Add `entry`. Done when listed (use=False) or
@@ -440,7 +458,7 @@ class Desktop:
                                 lambda dd, tree: ((self._in_use(picker, entry, tree) or dd.find_in(SWITCH, tree)) if use else
                                                   (self._listed(entry, tree) or self._in_use(picker, entry, tree)
                                                    or dd.find_in(SERVER_REFUSED, tree)
-                                                   or not any(tg._norm(n.name).startswith(("use ", "add ")) for n in tree)))))
+                                                   or not any(self._picker_row(n.name) for n in tree)))))
             if use or not d.find_in(SERVER_REFUSED, d.tree()) or attempt == 2:
                 break
             self.log("%s %s: no answer from the server; adding again (%d)" % (picker, entry, attempt + 1))
@@ -461,14 +479,14 @@ class Desktop:
             if not use:
                 if self._in_use(picker, entry, tree) or self._listed(entry, tree):
                     break
-                if not any(tg._norm(n.name).startswith("use ") for n in tree):
+                if not any(self._picker_row(n.name) for n in tree):
                     self._open_picker(picker)
                     if self._listed(entry, d.tree()):
                         break
             time.sleep(1.5)
         else:
             d.harness("%s %s never %s" % (picker, entry, "in use" if use else "listed"))
-        open_ = lambda tree: any(tg._norm(n.name).startswith("use ") for n in tree)
+        open_ = lambda tree: any(self._picker_row(n.name) for n in tree)
         if open_(d.tree()) and not d.wait(Expect("the picker closed", lambda dd, tree: not open_(tree)), 3, dismiss=False):
             d.s.key("escape")  # closes the picker (if it closed first, _open_picker finds the page again)
             time.sleep(0.8)
