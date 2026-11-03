@@ -36,7 +36,8 @@
 #             install needs it signed with a team first)
 #   smoke     integration_test/simple_test.dart (PIN vault through LEPIC, secure storage, first
 #             run) on macOS and on the Simulator, and a start of the built .app; neither touches
-#             the login keychain (no secure storage probe on macOS, the .app with its own HOME)
+#             the login keychain (no secure storage probe on macOS; the .app with its own HOME and
+#             a throwaway keychain there, so no keychain dialog either)
 #   live      integration_test/apple_live_test.dart on macOS and on the Simulator, on mainnet: a
 #             new wallet on node.btlabs.uk (then node.epicnet.us, node.epiccash.com), its scan to
 #             the tip, a restore from its phrase, the Epicbox listener connected (needs internet)
@@ -508,24 +509,36 @@ smoke() {
   else
     result FAIL smoke-ios-sim "simple_test, see smoke-ios-sim.log"; status=1
   fi
-  # The release .app starts and stays up; a screenshot when the session allows it.
+  # The release .app starts and stays up.
   local bundle="$out/$desktop_name.app"
   if [ -d "$bundle" ]; then
-    # Started with a home of its own: no keychain in its search list, so the ad-hoc build (a
-    # new identity each build) never asks for the login keychain, and its data folder is there.
-    local home="$out/smoke-home" pid
+    # Started with a home of its own, so the ad-hoc build (a new identity each build) never asks
+    # for the login keychain, and its data folder is there. An empty keychain search list is not
+    # enough: the app's first SecItemAdd fails (-25307) and macOS shows "Keychain Not Found". So
+    # the home gets a throwaway keychain, unlocked, as its default. Only when the home's
+    # preferences are its own: if `security` there still sees the user's default keychain, the
+    # start is skipped and nothing is written.
+    local home="$out/smoke-home" kc pid
     rm -rf "$home"
-    mkdir -p "$home"
-    HOME="$home" CFFIXED_USER_HOME="$home" "$bundle/Contents/MacOS/$desktop_exe" > "$out/smoke-macos-app.log" 2>&1 &
-    pid=$!
-    sleep 20
-    if kill -0 "$pid" 2>/dev/null; then
-      screencapture -x "$out/macos.png" 2>/dev/null || echo "no screenshot (Screen Recording permission)"
-      kill "$pid" 2>/dev/null || true
-      wait "$pid" 2>/dev/null || true
-      result PASS smoke-macos-app "started and stayed up 20 s"
+    mkdir -p "$home/Library/Keychains"
+    kc="$home/Library/Keychains/smoke.keychain-db"
+    if [ "$(HOME="$home" CFFIXED_USER_HOME="$home" security default-keychain -d user 2>/dev/null)" \
+        = "$(security default-keychain -d user 2>/dev/null)" ]; then
+      result SKIP smoke-macos-app "a home of its own still has the user's default keychain: not started"
     else
-      result FAIL smoke-macos-app "not running 20 s after start, see smoke-macos-app.log"; status=1
+      HOME="$home" CFFIXED_USER_HOME="$home" security create-keychain -p "" "$kc"
+      HOME="$home" CFFIXED_USER_HOME="$home" security list-keychains -d user -s "$kc"
+      HOME="$home" CFFIXED_USER_HOME="$home" security default-keychain -d user -s "$kc"
+      HOME="$home" CFFIXED_USER_HOME="$home" "$bundle/Contents/MacOS/$desktop_exe" > "$out/smoke-macos-app.log" 2>&1 &
+      pid=$!
+      sleep 20
+      if kill -0 "$pid" 2>/dev/null; then
+        kill "$pid" 2>/dev/null || true
+        wait "$pid" 2>/dev/null || true
+        result PASS smoke-macos-app "started and stayed up 20 s"
+      else
+        result FAIL smoke-macos-app "not running 20 s after start, see smoke-macos-app.log"; status=1
+      fi
     fi
   fi
   # Tor from the release .app: on its own, then started through LEPIC in the app's code.
