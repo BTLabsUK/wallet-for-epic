@@ -6,7 +6,7 @@ A file's key is the sha256 of:
   - KEY_VERSION;
   - the run's context (context_key): app/pubspec.yaml, app/pubspec.lock, app/l10n.yaml, the
     Flutter and Dart versions, the LEPIC pins (tools/lepic.rev, tools/lepic-flutter.rev) and, when
-    WFE_DEMO_LEPIC_LIB names a library, that library's bytes; the dart-defines and the test-name
+    WFE_DEMO_LEPIC_LIB or WFE_LEPIC_LIB names a library, that library's bytes; the dart-defines and the test-name
     filter of the run; the WFE_* and DESK_* environment variables the tests read;
   - the path and content hash of every file the test depends on (graph.Graph.deps): its Dart
     import closure and the data files and folders it names.
@@ -27,7 +27,8 @@ CONTEXT_FILES = ("app/pubspec.yaml", "app/pubspec.lock", "app/l10n.yaml", "tools
 ENV_PREFIXES = ("WFE_", "DESK_")
 # Variables of the runner itself, not read by tests; and the LEPIC library's path, whose bytes
 # are in the key already (the path differs per worktree, the library does not).
-ENV_IGNORED = ("WFE_TEST_RESULTS", "WFE_TEST_TIMES", "WFE_TEST_HISTORY", "WFE_DEMO_LEPIC_LIB")
+LIB_VARS = ("WFE_DEMO_LEPIC_LIB", "WFE_LEPIC_LIB")
+ENV_IGNORED = ("WFE_TEST_RESULTS", "WFE_TEST_TIMES", "WFE_TEST_HISTORY") + LIB_VARS
 
 
 def sha256_file(path):
@@ -59,8 +60,9 @@ def context_key(root, env, flutter_root, defines=(), name_filter=None):
     for rel in CONTEXT_FILES:
         h.update(f"\n{rel}={sha256_file(os.path.join(root, rel))}".encode())
     h.update(f"\nflutter={flutter_version(flutter_root)}".encode())
-    lib = env.get("WFE_DEMO_LEPIC_LIB")
-    h.update(f"\nlepic_lib={sha256_file(lib) if lib else 'none'}".encode())
+    for var in LIB_VARS:
+        lib = env.get(var)
+        h.update(f"\n{var}={sha256_file(lib) if lib else 'none'}".encode())
     for d in sorted(defines):
         h.update(f"\ndefine={d}".encode())
     h.update(f"\nname={name_filter or ''}".encode())
