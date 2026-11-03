@@ -49,10 +49,11 @@ def main():
         with open(os.path.join(out, "trust.log"), "a") as f:
             f.write(line + "\n")
 
-    funds = e.get("REL_FUNDS", "1") == "1"
+    create = e.get("REL_TRUST_MODE") == "create"   # the create-wallet test: the candidate fresh, no funds
+    funds = not create and e.get("REL_FUNDS", "1") == "1"
     os.environ.setdefault("REL_TRUST_LOCALE", "pl")
     os.environ.setdefault("REL_TRUST_SAVE_STATE", "0")   # no saved Windows states yet (windows_platform.save_state)
-    os.environ.setdefault("REL_TRUST_START", "fresh")
+    os.environ.setdefault("REL_TRUST_START", "auto")   # seed when the lane has one, else fresh (no saved states)
     plat = WindowsPlatform(out, log)
     funder = P(e.get("REL_P_TOOL") or os.path.expanduser("/tmp/epic-build/interop/epicpay/p.py"),
                e.get("REL_P_PASS_FILE") or os.path.expanduser("~/.config/btlabs/p-pass-candidates"),
@@ -66,8 +67,8 @@ def main():
     def stopped(sig, _frame):  # a runner's timeout: the sandbox and stand-ins still go
         raise HarnessFault(lane.phase or "start", "the lane was stopped (signal %d)" % sig)
     signal.signal(signal.SIGTERM, stopped)
-    lane = Lane(plat, recipe_for, checks, out=out, log=log, required=required(funds), funds=funds, p=funder)
-    return lane.main()
+    lane = Lane(plat, recipe_for, checks, out=out, log=log, required=["create_ok"] if create else required(funds), funds=funds, p=funder)
+    return lane.create_only() if create else lane.main()
 
 
 if __name__ == "__main__":

@@ -486,10 +486,16 @@ function Do-Cmd($c) {
     }
     'click' { $v = NeedView; [TR]::Click($v, [int]$c.x, [int]$c.y); return @{ ok = $true } }
     'type' {
+      # text from a file under the run folder (a secret: removed once read with drop) or inline; never logged
       $v = NeedView
-      $t = if ($c.file) { (Get-Content -Raw -LiteralPath (Mine $c.file)).TrimEnd("`r", "`n") } else { [string]$c.text }
+      $dropped = $false
+      if ($c.file) {
+        $p = Mine $c.file
+        try { $t = (Get-Content -Raw -LiteralPath $p).TrimEnd("`r", "`n") }
+        finally { if ($c.drop) { Remove-Item -LiteralPath $p -Force -ErrorAction SilentlyContinue; $dropped = -not (Test-Path -LiteralPath $p) } }
+      } else { $t = [string]$c.text }
       [TR]::Chars($v, $t)
-      return @{ ok = $true; n = $t.Length }
+      return @{ ok = $true; n = $t.Length; dropped = $dropped }
     }
     'keys' {
       # plain keys by virtual-key code, with a pause after each

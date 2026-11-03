@@ -9,7 +9,10 @@ setting moved to another page is still found.
 
 Secrets: the password is made here, the recovery phrase read off the reveal screen; both go back to
 the lane (saved state, never a log). Screens that show them are never sent to a model (recover.py).
+A phrase restored is typed word by word as a secret (Surface.set_text) with the driver hushed: no
+screenshot, tree dump or model while words are on screen, and no word in any line.
 """
+import calendar
 import re
 import secrets as _secrets
 import time
@@ -24,6 +27,7 @@ T = tg.T
 # ---- targets (ids: app/lib/src/desktop/trust_ids.dart; keys newest first; names for older builds)
 
 WELCOME_CREATE = T("g4.welcome.create", keys=("deskOnbWelcomeCreate", "firstRunCreate"), names=("Create a new wallet",))
+WELCOME_RESTORE = T("g4.welcome.restore", names=("Restore from phrase",))
 DEEP_END = T("g4.level.stop.3", keys=("lvPickStopThree",), names=("Deep end",))
 CREATE_TITLE = T("g4.create.title", role="text", keys=("deskOnbCreateTitle",), names=("Create wallet",), secret=True)
 PASSWORD = T("g4.account.password", role="text_field", names=("re:.*",), secret=True)
@@ -32,6 +36,23 @@ WRITTEN = T("g4.create.written", role="checkbox", keys=("deskOnbCreateWritten",)
             match="starts", secret=True)
 CONTINUE = T("g4.create.continue", keys=("commonContinue",), names=("Continue",))
 SETUP_SKIP = T("g4.setup.skip", keys=("deskSetupSkip",), names=("Skip setup",))
+
+# restore from phrase (26.10.25 and 26.10.26: restore_screen.dart, phrase_grid.dart). The word fields are
+# "Word N" (deskOnbWordN, Desktop._word); the words step's button is CONTINUE.
+RESTORE_SUBMIT = T("g4.restore.submit", keys=("deskOnbRestoreSide",), names=("Restore wallet",), match="exact", secret=True)
+RESTORE_FROM_OPEN = T("g4.restore.from.open", keys=("restoreStartFromMonthLink",), names=("Start from a month or height",),
+                      secret=True)
+RESTORE_FROM_HIDE = T("g4.restore.from.hide", keys=("deskOnbRestoreFromHide",), names=("Check the whole chain",), secret=True)
+RESTORE_BY_HEIGHT = T("g4.restore.from.by_height", keys=("restoreStartByHeight",), names=("Block height",), match="exact",
+                      secret=True)
+RESTORE_HEIGHT = T("g4.restore.from.height", role="text_field", keys=("deskOnbRestoreFromLabel",), names=("Start from block",),
+                   match="starts", secret=True)
+RESTORE_RESTORING = T("g4.restore.restoring", role="text", keys=("deskOnbRestoreRestoring",), names=("Restoring the wallet",),
+                      secret=True)
+RESTORE_FAILED = T("g4.restore.failed", role="text", keys=("deskOnbRestoreNotRestored",), names=("Wallet not restored",),
+                   secret=True)
+# mainnet block 1's time and the margin app/lib/src/start_month.dart keeps: a birth month as a height
+MAINNET_BLOCK_ONE_UNIX, RESTORE_MARGIN_BLOCKS = 1567476608, 2 * 24 * 60
 UNLOCK_TITLE = T("g4.unlock.title", role="text", keys=("deskOnbUnlockTitle",), names=("Unlock wallet",))
 UNLOCK = T("g4.unlock.submit", keys=("deskOnbUnlockButton",), names=("Unlock",))
 UNLOCK_WRONG = T("g4.unlock.wrong", role="text", keys=("deskOnbUnlockWrong",), match="starts")
@@ -132,6 +153,19 @@ def phrase_words(names):
     return []
 
 
+def birth_height(birth):
+    """The height a restore starts scanning at: the birth height, else the first of the birth month as
+    the app maps it (start_month.dart: from block 1 at 60 s a block, less two days); None: the whole chain."""
+    birth = birth or {}
+    if birth.get("height"):
+        return int(birth["height"])
+    m = re.fullmatch(r"(\d{4})-(\d{2})", birth.get("month") or "")
+    if not m:
+        return None
+    seconds = calendar.timegm((int(m.group(1)), int(m.group(2)), 1, 0, 0, 0)) - MAINNET_BLOCK_ONE_UNIX
+    return max(1, 1 + seconds // 60 - RESTORE_MARGIN_BLOCKS)
+
+
 class Desktop:
     """The recipe on one running app. `which` is previous | candidate."""
 
@@ -176,7 +210,7 @@ class Desktop:
                 self._unflagged_password()
                 d.harness("no password field (wanted %d)" % want_at_least)
             for n in fields:
-                d._act(d.s.set_text, n, self.password)
+                d._act(d.s.set_text, n, self.password, True)
             if submit is None or d.wait(Expect("%s enabled" % submit, lambda dd, tree: any(
                     n.enabled and n.role == "button" for n in dd.find_in(submit, tree))), 4):
                 return len(fields)
@@ -223,6 +257,87 @@ class Desktop:
         d.press(CONTINUE, step="continue", then=either(shows(UNLOCK_TITLE), self._home(), shows(SETUP_SKIP)), timeout=120)
         self.open_wallet({"password": self.password}, after_update=False)
         return {"password": self.password, "phrase": phrase}
+
+    def restore_wallet(self, phrase, birth=None):
+        """The wallet of `phrase` restored on the welcome screen (Restore from phrase): the words typed one
+        field at a time, a new password, the scan from the birth height (`birth`: {"height", "month"}),
+        then to the wallet's Overview. Returns {password}. The words are never logged, shot or dumped."""
+        d = self.d
+        words = phrase.split()
+        if len(words) not in (12, 15, 18, 21, 24):
+            raise HarnessFault("restore", "the lane's phrase has %d words" % len(words))
+        self.password = _secrets.token_urlsafe(16)
+        d.must(shows(WELCOME_RESTORE), 120, step="welcome", goal="the welcome screen with Restore from phrase")
+        self._depth_dial()
+        d.press(WELCOME_RESTORE, step="restore", then=shows(self._word(1)), timeout=30)
+        with d.hush():
+            self._type_words(words)
+            del words
+            d.press(CONTINUE, step="restore-words", timeout=60,
+                    then=Expect("the password step", lambda dd, tree: len(self._passwords(tree)) >= 2))
+        self.log("restore: the phrase took (%d words); the password step" % len(phrase.split()))
+        self._fill_passwords("restore-password", 2, submit=RESTORE_SUBMIT)
+        height = birth_height(birth)
+        if height:
+            self._start_from(height)
+        else:
+            self.log("restore: no birth height: the whole chain is scanned")
+        d.press(RESTORE_SUBMIT, step="restore-submit", timeout=60,
+                then=either(shows(RESTORE_RESTORING), shows(RESTORE_FAILED), shows(SETUP_SKIP), shows(UNLOCK_TITLE), self._home()))
+        d.step = "restoring"
+        end = time.time() + 1800
+        while d.wait(shows(RESTORE_RESTORING), 2, dismiss=False) and not d.find_in(RESTORE_FAILED, d.tree()):
+            if time.time() > end:
+                d.harness("the restore still runs after 30 min")
+            time.sleep(5)
+        failed = d.find_in(RESTORE_FAILED, d.tree())
+        if failed:
+            raise ProductFault("restore_ok", "the app did not restore the wallet: %s" % " | ".join(
+                n.name.replace("\n", " ")[:160] for n in d.tree() if n.role == "text")[:400], d.shot("restore-failed"))
+        self.log("restore: the wallet was restored; opening it")
+        self.open_wallet({"password": self.password}, after_update=False)
+        return {"password": self.password}
+
+    def _word(self, i):
+        """Field `i` (from 1) of the phrase grid: "Word {number}" in the build's language, or in English."""
+        texts = {self.d.labels.text("deskOnbWordN"), "Word {number}"} - {None}
+        pats = tuple(sorted("re:(?:.* )?%s(?: .*)?" % re.escape(tg._norm(t)).replace(re.escape("{number}"), str(i))
+                            for t in texts))
+        return T("g4.restore.word.%d" % i, role="text_field", names=pats, match="exact", secret=True)
+
+    def _type_words(self, words):
+        """Each word into its own field, checked against what the field then holds (a key lost on the way
+        is typed again); the grid's button turns enabled when the phrase checks out. Called hushed."""
+        d = self.d
+        for i, w in enumerate(words, 1):
+            t = self._word(i)
+            d.step = "restore-word-%d" % i
+            for attempt in range(3):
+                node = d.locate(t, 20)
+                d._act(d.s.set_text, node, w, True)
+                took = d.wait(Expect("word %d held" % i, lambda dd, tree, t=t, w=w: next(
+                    (n for n in dd.find_in(t, tree) if n.value is None or n.value.strip().lower() == w), None)), 5)
+                if took:
+                    break
+                self.log("restore: field %d does not hold the word typed (try %d)" % (i, attempt + 1))
+            else:
+                d.harness("field %d of the phrase grid does not take the word typed" % i)
+        ready = Expect("Continue enabled", lambda dd, tree: any(n.enabled and n.role == "button" for n in dd.find_in(CONTINUE, tree)))
+        if not d.wait(ready, 5):
+            d.s.key("tab")   # commits the last field (its word checked), as a person moving on does
+            d.must(ready, 30, step="restore-words", goal="the phrase checked: Continue enabled")
+
+    def _start_from(self, height):
+        """Start from a month or height › Block height › the birth height."""
+        d = self.d
+        if not d.seen(RESTORE_FROM_HIDE):
+            d.press(RESTORE_FROM_OPEN, step="restore-from", then=shows(RESTORE_FROM_HIDE), timeout=20)
+        by = d.wait(shows(RESTORE_BY_HEIGHT), 5)
+        if by:  # mainnet offers a month first
+            d._act(d.s.press, by)
+        d.must(shows(RESTORE_HEIGHT), 20, step="restore-from-height", goal="the Start from block field")
+        d.fill(RESTORE_HEIGHT, str(height), step="restore-height")
+        self.log("restore: scanning from block %d" % height)
 
     def _create_submit(self):
         """The create form's button shares the title's text; Enter in the confirm field submits it."""
@@ -641,7 +756,7 @@ class Desktop:
         d.must(shows(SEND_REVIEW_TITLE), 60, step="send-review")
         pw = [n for n in d.tree() if n.role == "text_field" and "password" in n.states]
         if pw:
-            d._act(d.s.set_text, pw[0], self.password)
+            d._act(d.s.set_text, pw[0], self.password, True)
         d.press(SEND_CONFIRM, step="send-confirm", then=either(gone(SEND_REVIEW_TITLE), shows(SEND_FAILED)), timeout=300)
         d.shot("send-after")
         failed = d.find_in(SEND_FAILED, d.tree())
