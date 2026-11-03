@@ -23,6 +23,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/ui/status_icons.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
+import 'support/real_time.dart';
+
 /// A full-length address, as long as a real one.
 /// The address on the Receive card: a rich text whose server sits on its own line.
 /// The key part of the address; its server is a line of its own under it (UP-033).
@@ -164,12 +166,7 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 /// Pumps until [done], letting real time pass between frames: the share card renders through
 /// the engine, which fake time does not move.
 Future<void> _untilRendered(WidgetTester tester, bool Function() done) async {
-  for (var i = 0; i < 100 && !done(); i++) {
-    await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 20)),
-    );
-    await tester.pump();
-  }
+  await pumpUntil(tester, done);
   expect(done(), isTrue, reason: 'the share card did not render');
 }
 

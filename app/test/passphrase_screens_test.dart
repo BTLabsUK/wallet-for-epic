@@ -18,6 +18,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'support/real_time.dart';
+
 const _mainnetDir = '/fake/wallets/mainnet';
 const _pin = '123456';
 const _passphrase = 'correct horse battery';
@@ -140,10 +142,8 @@ void main() {
       // the explanation. No meter, no verdict.
       expect(find.textContaining('5 characters'), findsOneWidget);
       // The word lists load and rank off the UI thread (real async) before the time shows.
-      for (var i = 0; i < 40 && find.textContaining('to crack').evaluate().isEmpty; i++) {
-        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
-        await tester.pump(const Duration(milliseconds: 200));
-      }
+      await pumpUntil(tester, () => find.textContaining('to crack').evaluate().isNotEmpty,
+          step: const Duration(milliseconds: 200));
       expect(find.textContaining('to crack'), findsOneWidget);
       for (final verdict in ['Weak', 'Fair', 'Strong']) {
         expect(find.text(verdict), findsNothing);

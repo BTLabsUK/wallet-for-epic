@@ -20,6 +20,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../support/real_time.dart';
 import '../support/signed_update.dart';
 
 void main() {
@@ -149,29 +150,19 @@ void main() {
     expect(find.textContaining('LEPIC, the Epic Cash wallet library: Apache-2.0'), findsOneWidget);
     expect(find.textContaining('Flutter and its Dart packages'), findsOneWidget);
     // The note is an asset, read after the first frame.
-    for (var i = 0; i < 10; i++) {
-      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
-      await tester.pump();
-    }
-    await tester.pump();
-    await tester.pump();
+    await pumpUntil(tester, () => find.textContaining('tor 0.4.9.14, unmodified').evaluate().isNotEmpty);
     expect(find.textContaining('tor 0.4.9.14, unmodified'), findsOneWidget, reason: 'the GPL notice with the source');
     expect(find.text('Credits'), findsNothing);
     registerTorLicence();
     await tester.ensureVisible(find.widgetWithText(EButton, 'View'));
     await tester.tap(find.widgetWithText(EButton, 'View'));
     // The licences are read from assets, in real time.
-    for (var i = 0; i < 20; i++) {
-      await tester.pump(const Duration(milliseconds: 50));
-      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
-    }
+    await pumpUntil(tester, () => find.byType(LicenceTextsDialog).evaluate().isNotEmpty,
+        step: const Duration(milliseconds: 50));
     // The app's own dialog (polish #10), not Flutter's stock LicensePage.
     expect(find.byType(LicenceTextsDialog), findsOneWidget);
     expect(find.byType(LicensePage), findsNothing);
-    for (var i = 0; i < 50 && find.text('Tor').evaluate().isEmpty; i++) {
-      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
-      await tester.pump();
-    }
+    await pumpUntil(tester, () => find.text('Tor').evaluate().isNotEmpty);
     await tester.ensureVisible(find.text('Tor'));
     await tester.tap(find.text('Tor'));
     await tester.pump();
