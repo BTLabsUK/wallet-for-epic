@@ -45,7 +45,7 @@ except ImportError:  # run as a script
 
 PLATFORMS = ("android", "linux", "windows")
 VARIANTS = ("tor", "notor")
-LANES = tuple("%s-%s" % (p, v) for p in PLATFORMS for v in VARIANTS)
+LANES = tuple("%s-%s" % (p, v) for p in PLATFORMS for v in VARIANTS) + ("linux-tx-a", "linux-tx-b")  # the TX lane's two wallets (linux/tx_lane.py)
 # sha256 of the BIP39 English list as one word per line with a final newline (bitcoin/bips bip-0039/english.txt)
 BIP39_SHA256 = "2f5eed53a4727b4bf8880d8f3f199efc90e58503646d9ff8eff3a2ed3b24dbda"
 WORDLIST_NAME = "bip39-english.txt"
