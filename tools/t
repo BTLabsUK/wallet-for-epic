@@ -6,6 +6,8 @@
   tools/t file <path>[:<line>|:<name>] ...     one test file, or one test in it
   tools/t full                                 every test/**/*_test.dart, slowest first
   tools/t goldens --update <test or png> ...   rewrite goldens (Linux only), then show what moved
+  tools/t flaky [--days N]                     files and tests that both failed and passed with
+                                               the same inputs (the run history, tlib/history.py)
 
 Options: --no-cache runs files that passed before; --dart-define K=V (repeatable); -j N.
 A file that passed with the same inputs (tools/tlib/cache.py) is not run again: when nothing is
@@ -15,6 +17,7 @@ Exit status: 0 green, 1 red, 2 usage or infrastructure error.
 """
 import argparse
 import contextlib
+import copy
 import fcntl
 import json
 import os
@@ -29,7 +32,7 @@ ROOT = os.path.dirname(TOOLS)
 sys.path.insert(0, TOOLS)
 
 import flutter_test_order as order  # noqa: E402
-from tlib import cache, graph as g, report, select  # noqa: E402
+from tlib import cache, graph as g, history, report, select, variants  # noqa: E402
 
 APP = os.path.join(ROOT, "app")
 RESULTS = os.path.join(ROOT, ".test-results")
@@ -123,6 +126,26 @@ def worktree_lock():
         f.close()
 
 
+def lepic_library():
+    """The Linux LEPIC library the binding's build hook bundles (tools/lepic.sh build linux)."""
+    return os.path.join(APP, "third_party", "lepic-flutter", "native", "x86_64-unknown-linux-gnu",
+                        "liblepic_ffi.so")
+
+
+def use_lepic_library():
+    """For `full`: the tests that open a wallet on the real core (vault_test.dart, the *_live_test.dart
+    files that need no node or funds) run instead of skipping, when WFE_DEMO_LEPIC_LIB (and
+    WFE_LEPIC_LIB, read by device_link_fingerprint_lepic_test.dart) names the library; the live files
+    that also need WFE_LIVE_DIR stay skipped. A path set by the caller is kept. The cache key hashes the library's bytes (tlib/cache.py), so a green result is never reused across libraries."""
+    if "WFE_DEMO_LEPIC_LIB" in os.environ or not sys.platform.startswith("linux"):
+        return
+    env = toolchain_env()
+    prepare(env)  # builds the library when this worktree has none
+    if os.path.exists(lepic_library()):
+        os.environ["WFE_DEMO_LEPIC_LIB"] = lepic_library()
+        os.environ.setdefault("WFE_LEPIC_LIB", lepic_library())
+
+
 def prepare(env):
     """The binding clone and `flutter pub get`, when missing or older than the pubspec."""
     if not os.path.isdir(os.path.join(APP, "third_party", "lepic-flutter")):
@@ -131,8 +154,7 @@ def prepare(env):
                            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
         if r.returncode:
             raise Infra("tools/lepic.sh sync failed:\n" + r.stderr[-2000:])
-    lib = os.path.join(APP, "third_party", "lepic-flutter", "native", "x86_64-unknown-linux-gnu",
-                       "liblepic_ffi.so")
+    lib = lepic_library()
     if sys.platform.startswith("linux") and not os.path.exists(lib):
         # The binding's build hook needs the library to compile any test. From the prebuilt cache
         # this is a copy (docs/TESTING.md, "LEPIC builds are shared"); a miss builds it once.
@@ -170,11 +192,13 @@ def jobs(n_files, wanted):
     return max(1, min(n_files, (os.cpu_count() or 4) * 3 // 4))
 
 
-def run_flutter(files, env, args, name_filter, update_goldens):
-    """Runs flutter test on app-relative `files`; returns (Run, rc, seconds, queue seconds)."""
-    events_path = os.path.join(RESULTS, "latest.events.jsonl")
+def run_flutter(files, env, args, name_filter, update_goldens, run=None, events_name="latest.events.jsonl",
+                jobs_cap=None):
+    """Runs flutter test on app-relative `files`; returns (Run, rc, seconds, queue seconds).
+    With `run`, its events are added to that Run (a retry, ids shifted) and written to `events_name`."""
+    events_path = os.path.join(RESULTS, events_name)
     cmd = ["flutter", "test", "--no-pub", "--reporter", "json",
-           f"--concurrency={jobs(len(files), args.jobs)}"]
+           f"--concurrency={min(jobs(len(files), args.jobs), jobs_cap or 1 << 30)}"]
     if name_filter:
         cmd.append(f"--plain-name={name_filter}")
     if update_goldens:
@@ -184,7 +208,7 @@ def run_flutter(files, env, args, name_filter, update_goldens):
     cmd += files
     wrapped = [*([] if args.no_heavy else heavy(env)),
                "sh", "-c", f'echo {START_MARK}; exec "$@"', "sh", *cmd]
-    run = report.Run(APP)
+    run = run or report.Run(APP)
     t0 = time.time()
     started = None
     proc = subprocess.Popen(wrapped, cwd=APP, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -213,16 +237,45 @@ def run_flutter(files, env, args, name_filter, update_goldens):
     return run, rc, end - started, started - t0
 
 
-def write_latest(data):
+MAX_RETRY_FILES = 20
+RETRY_JOBS = 2
+
+
+def git_sha():
+    try:
+        return select.git(ROOT, "rev-parse", "--short=10", "HEAD").strip()
+    except Exception:  # noqa: BLE001 (history only; any git trouble leaves it blank)
+        return ""
+
+
+def retry_infra(run, rc, ordered, outcomes, env, args, name_filter, update_goldens, tag=""):
+    """Runs the files that failed for infrastructure reasons once more, by themselves (a smaller
+    `--concurrency`), and replaces their results in `run`. Returns (retried {file: reason}, second
+    outcomes {file: outcome}, rc of the retry or None)."""
+    infra = sorted(f for f, o in outcomes.items() if o["result"] == "infra")
+    if not infra or len(infra) > MAX_RETRY_FILES:
+        return {}, {}, None
+    retried = {f: outcomes[f]["reason"] for f in infra}
+    print("tools/t: infrastructure failure, retrying once: " +
+          ", ".join(f"{f} ({r[:80]})" for f, r in retried.items()), file=sys.stderr)
+    run.drop_files(infra)
+    run.offset += 1_000_000
+    _, rc2, _, _ = run_flutter(infra, env, args, name_filter, update_goldens, run=run,
+                               events_name=f"latest{tag}.retry.events.jsonl", jobs_cap=RETRY_JOBS)
+    return retried, run.file_outcomes(infra, rc2), rc2
+
+
+def write_latest(data, tag=""):
     os.makedirs(RESULTS, exist_ok=True)
     tmp = os.path.join(RESULTS, ".latest.json.tmp")
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=1)
-    os.replace(tmp, os.path.join(RESULTS, "latest.json"))
+    os.replace(tmp, os.path.join(RESULTS, f"latest{tag}.json"))
 
 
-def execute(mode, tests, gr, args, extra=(), name_filter=None, update_goldens=False):
-    """Runs the repo-relative `tests` with the cache; prints the summary; returns the exit code."""
+def execute(mode, tests, gr, args, extra=(), name_filter=None, update_goldens=False, tag=""):
+    """Runs the repo-relative `tests` with the cache; prints the summary; returns the exit code.
+    `tag` (".notor") names the result files of a second pass: latest<tag>.json, latest<tag>.events.jsonl."""
     env = toolchain_env()
     flutter_root = env.get("FLUTTER_ROOT", os.path.expanduser("~/flutter"))
     files = select.repo_files(ROOT)
@@ -244,15 +297,29 @@ def execute(mode, tests, gr, args, extra=(), name_filter=None, update_goldens=Fa
     if not to_run:
         latest.update(status="cached", exit=0, counts={"passed": 0, "skipped": 0, "failed": 0},
                       duration_s=0, queue_s=0, failures=[])
-        write_latest(latest)
+        write_latest(latest, tag)
         print(f"cached green ({all_key}): {len(tests)} files passed before with these inputs; --no-cache runs them")
         return 0
 
     prepare(env)
     ordered = order.order([rel_app(t) for t in to_run], order.read_times(TIMES))
-    run, rc, seconds, queue = run_flutter(ordered, env, args, name_filter, update_goldens)
+    run, rc, seconds, queue = run_flutter(ordered, env, args, name_filter, update_goldens,
+                                        events_name=f"latest{tag}.events.jsonl")
+    started_at = time.time() - seconds - queue
+    outcomes = run.file_outcomes(ordered, rc)
+    first_outcomes = dict(outcomes)
+    retried, second, rc2 = ({}, {}, None) if update_goldens else retry_infra(
+        run, rc, ordered, outcomes, env, args, name_filter, update_goldens, tag)
+    if retried:
+        outcomes.update(second)
+        if all(o["result"] == "pass" for o in outcomes.values()) and not run.failures():
+            rc, run.success = 0, True  # the retry settled the only failures: infrastructure
+        extra = [*extra, *(f"retried after an infrastructure failure: {f} ({r})"
+                           for f, r in retried.items())]
+        latest["notes"] = list(extra)
     counts = run.counts()
     failures = run.failures()
+    history.append(history_records(mode, started_at, keys, first_outcomes, second, retried))
     if rc == 79 and not failures:
         # flutter test's "No tests were found": a name that matches nothing, or browser-only files
         status, code = "error", 2
@@ -274,8 +341,8 @@ def execute(mode, tests, gr, args, extra=(), name_filter=None, update_goldens=Fa
                                         "root": ROOT, "filter": name_filter})
         cache.prune()
     latest.update(status=status, exit=code, counts=counts, duration_s=round(seconds, 1),
-                  queue_s=round(queue, 1), failures=failures, events=".test-results/latest.events.jsonl")
-    write_latest(latest)
+                  queue_s=round(queue, 1), failures=failures, events=f".test-results/latest{tag}.events.jsonl")
+    write_latest(latest, tag)
     head = (f"tools/t {mode}: {status.upper()}  {counts['passed']} passed, {counts['skipped']} skipped, "
             f"{counts['failed']} failed; {len(to_run)} files run, {len(cached)} cached; "
             f"{report.clock(seconds)} (queue {round(queue)}s)")
@@ -287,6 +354,35 @@ def execute(mode, tests, gr, args, extra=(), name_filter=None, update_goldens=Fa
     print("\n".join(lines))
     print("details: .test-results/latest.json")
     return code
+
+
+def history_records(mode, started_at, keys, first, second, retried):
+    """One history line per file run; a retried file has its two attempts."""
+    sha, out = git_sha(), []
+    for attempt, outcomes in ((1, first), (2, second)):
+        for f, o in outcomes.items():
+            t = "app/" + f
+            out.append(history.record(started_at, ROOT, sha, mode, keys.get(t, ""), f, o["result"],
+                                      o.get("duration_s", 0), o.get("failing", ()), attempt,
+                                      o.get("reason") or None))
+    return out
+
+
+def cmd_flaky(args):
+    since = time.time() - args.days * 86400
+    recs = history.read(since=since)
+    runs = len(recs)
+    flaky = history.flaky(recs)
+    if not flaky:
+        print(f"tools/t flaky: no flake in {runs} file results of the last {args.days} days "
+              f"({history.path()})")
+        return 0
+    print(f"tools/t flaky: {len(flaky)} entries in {runs} file results of the last {args.days} days "
+          f"(same inputs, both results; {history.path()})")
+    for e in flaky:
+        what = e["test"] or "(any test in the file)"
+        print(f"  {e['fails']} fail / {e['passes']} pass  app/{e['file']}: {what}  last fail {e['last_fail'][:16]}")
+    return 0
 
 
 def cmd_affected(args):
@@ -338,8 +434,34 @@ def cmd_file(args):
 
 
 def cmd_full(args):
-    gr = g.Graph(ROOT, select.repo_files(ROOT))
-    return execute("full", gr.tests(), gr, args)
+    """Every test file in the default build, then the files that read torBuilt in the build without
+    Tor (`--dart-define=WFE_TOR=false`, tlib/variants.py). latest.json has the first pass and,
+    under `notor`, the second; the exit code is the worse of the two."""
+    files = select.repo_files(ROOT)
+    gr = g.Graph(ROOT, files)
+    use_lepic_library()
+    code = execute("full", gr.tests(), gr, args)
+    if args.dart_define and any(d.startswith("WFE_TOR=") for d in args.dart_define):
+        return code  # the caller chose the variant: one pass
+    notor = variants.notor_tests(ROOT, files)
+    if not notor:
+        return code
+    print(f"\ntools/t full: second pass, the build without Tor (--dart-define={variants.NOTOR_DEFINE}), "
+          f"{len(notor)} files that read torBuilt")
+    second = copy.copy(args)
+    second.dart_define = [*args.dart_define, variants.NOTOR_DEFINE]
+    code2 = execute("full-notor", notor, gr, second, tag=".notor")
+    try:
+        with open(os.path.join(RESULTS, "latest.json"), encoding="utf-8") as f:
+            latest = json.load(f)
+        with open(os.path.join(RESULTS, "latest.notor.json"), encoding="utf-8") as f:
+            latest["notor"] = json.load(f)
+        if code2 and not code:
+            latest.update(status="red" if code2 == 1 else "error", exit=code2)
+        write_latest(latest)
+    except (OSError, ValueError):
+        pass
+    return max(code, code2)
 
 
 def cmd_goldens(args):
@@ -371,7 +493,7 @@ def cmd_goldens(args):
 def main(argv):
     p = argparse.ArgumentParser(prog="tools/t", add_help=True,
                                 description="Run the app's Flutter tests (docs/TESTING.md).")
-    p.add_argument("command", nargs="?", default="affected", choices=["affected", "file", "full", "goldens"])
+    p.add_argument("command", nargs="?", default="affected", choices=["affected", "file", "full", "goldens", "flaky"])
     p.add_argument("targets", nargs="*")
     p.add_argument("--base", default=os.environ.get("CHECK_BASE", "main"))
     p.add_argument("--list", action="store_true", help="affected: print the selection, run nothing")
@@ -380,6 +502,7 @@ def main(argv):
     p.add_argument("--update", action="store_true", help="goldens: rewrite them")
     p.add_argument("--dart-define", action="append", default=[])
     p.add_argument("-j", "--jobs", type=int, default=None)
+    p.add_argument("--days", type=int, default=30, help="flaky: how far back to look")
     p.add_argument("--no-heavy", action="store_true", help="do not take a build-slot slot")
     try:
         args = p.parse_args(argv)
@@ -388,7 +511,9 @@ def main(argv):
     try:
         if args.command != "file" and args.command != "goldens" and args.targets:
             raise Usage(f"tools/t {args.command} takes no paths")
-        with worktree_lock() if not args.list else contextlib.nullcontext():
+        with worktree_lock() if not (args.list or args.command == "flaky") else contextlib.nullcontext():
+            if args.command == "flaky":
+                return cmd_flaky(args)
             return {"affected": cmd_affected, "file": cmd_file, "full": cmd_full,
                     "goldens": cmd_goldens}[args.command](args)
     except Usage as e:

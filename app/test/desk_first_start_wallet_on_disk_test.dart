@@ -2,6 +2,9 @@
 // A desktop install with a wallet on disk is past Welcome, the only screen that answers the
 // first-start step, so it is never held: also when the keychain came back empty (a new code
 // signature) or holds a pending step from such a start (desktop/data/desk_levels.dart).
+import 'dart:io';
+
+import 'package:epic_wallet/main_desktop.dart' show deskWalletsOnDisk;
 import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/desktop/data/desk_levels.dart';
 import 'package:epic_wallet/src/levels/wallet_level.dart';
@@ -42,5 +45,22 @@ void main() {
     final store = MemorySecretStore();
     expect(await deskHoldUntilFirstStart(store, walletsOnDisk: () async => throw StateError('x')), isTrue);
     expect(store.values[levelKey], levelPendingValue);
+  });
+
+  group('the check at launch (main_desktop.dart)', () {
+    late Directory data;
+    setUp(() async => data = await Directory.systemTemp.createTemp('desk-wallets-on-disk-'));
+    tearDown(() => data.delete(recursive: true));
+
+    test("no wallets folder, or only the first wallet's empty folder: none", () async {
+      expect(await deskWalletsOnDisk(data), isFalse);
+      await Directory('${data.path}/wallets/mainnet').create(recursive: true);
+      expect(await deskWalletsOnDisk(data), isFalse);
+    });
+
+    test('a file anywhere under wallets: a wallet is there', () async {
+      await File('${data.path}/wallets/mainnet/lepic/wallet.db').create(recursive: true);
+      expect(await deskWalletsOnDisk(data), isTrue);
+    });
   });
 }

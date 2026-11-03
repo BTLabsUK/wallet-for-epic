@@ -119,6 +119,8 @@ void main() {
     expect(answer.state, PairingState.pendingReply);
     await a.pairing.collect(trigger: PairingCollectTrigger.open);
     await b.pairing.collect(trigger: PairingCollectTrigger.pull);
+    // Pairing v3: the inviter stays Waiting until it hears the invitee finished.
+    await a.pairing.collect(trigger: PairingCollectTrigger.open);
     final aView = (await a.pairing.pairing(invite.id))!;
     final bView = (await b.pairing.pairing(answer.id))!;
     expect(aView.state, PairingState.paired);
@@ -136,8 +138,8 @@ void main() {
     final ids = await pair(anna, ben);
     final pairings = await anna.pairing.pairings();
     expect([for (final p in pairings) p.id], [ids.aSide]);
-    // The mailbox is never an address to show (RFC C-21).
-    expect(pairings.single.paymentsAddress, isNull);
+    // Pairing v3 proves the other wallet's own Epicbox address; the mailbox is never shown.
+    expect(pairings.single.paymentsAddress, await ben.epicboxAddress());
     expect(pairings.single.seals, isTrue);
     await anna.pairing.removePairing(ids.aSide);
     expect(await anna.pairing.pairings(), isEmpty);
@@ -157,6 +159,8 @@ void main() {
     }
 
     expect(await failureOf(anna.pairing.openInvite(invite.inviteLink!)), PairingFailure.ownCard);
+    // Fails on LEPIC be49441: pairingsPending leaves out the standing invite, so after a
+    // restart _refuseOwn no longer knows it (product bug, reported).
     final again = LepicWalletSession(w);
     expect(await failureOf(again.pairing.openInvite(invite.inviteLink!)), PairingFailure.ownCard);
     expect((await carl.pairing.openInvite(invite.inviteLink!)).name, 'Anna');

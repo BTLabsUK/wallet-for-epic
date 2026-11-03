@@ -3,6 +3,7 @@ import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/levels/level_features.dart';
 import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/payment_method.dart';
+import 'package:epic_wallet/src/tor_build.dart';
 
 LevelFeatures f(WalletLevel l, [AdvancedPrefs p = AdvancedPrefs.none]) => LevelFeatures.of(l, p, torBuilt: true);
 
@@ -47,7 +48,8 @@ void main() {
     final one = effectiveAdvanced(WalletLevel.justSendReceive, stored);
     expect(one.shownFeatures, isEmpty);
     expect(one.pairingOn && one.invoicesOn, isTrue);
-    expect(one.networkMode, NetworkMode.torOnly);
+    // A build without Tor reads a stored Tor only as Standard.
+    expect(one.networkMode, torBuilt ? NetworkMode.torOnly : NetworkMode.standard);
     expect(one.nodeFailover, isTrue);
     expect(effectiveAdvanced(WalletLevel.everything, stored), stored);
     expect(effectiveAdvanced(WalletLevel.casual, stored), stored);

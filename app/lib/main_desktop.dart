@@ -123,10 +123,12 @@ Future<void> main(List<String> args) async {
   });
 }
 
+Future<bool> _walletsOnDisk() async => deskWalletsOnDisk(await appDataDirectory());
+
 /// Whether `<data>/wallets` holds any file: a wallet was created or restored here (the first
 /// wallet's folder alone may exist empty).
-Future<bool> _walletsOnDisk() async {
-  final dir = Directory('${(await appDataDirectory()).path}${Platform.pathSeparator}wallets');
+Future<bool> deskWalletsOnDisk(Directory data) async {
+  final dir = Directory('${data.path}${Platform.pathSeparator}wallets');
   if (!await dir.exists()) return false;
   return dir.list(recursive: true).any((e) => e is File);
 }

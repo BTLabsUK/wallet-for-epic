@@ -113,6 +113,38 @@ class ParserTest(unittest.TestCase):
                              ["flutter analyze", "flutter test (all)", "bot"])
 
 
+def hist(file, key, result, failing=()):
+    return {"file": file, "key": key, "result": result, "failing": list(failing),
+            "ts": "2026-11-02T01:00:00+0000", "epoch": 1}
+
+
+class FlakyMarkTest(unittest.TestCase):
+    RECORDS = [hist("test/a_test.dart", "k", "pass"), hist("test/a_test.dart", "k", "fail", ["wobbly"]),
+               hist("test/b_test.dart", "k", "fail", ["solid"])]
+    FAILING = [{"file": "app/test/a_test.dart", "name": "wobbly"},
+               {"file": "app/test/a_test.dart", "name": "other test in a flaky file"},
+               {"file": "app/test/b_test.dart", "name": "solid"}]
+
+    def test_a_test_with_a_flake_record_is_marked_and_the_rest_are_kept(self):
+        out = nightly.mark_flaky(self.FAILING, self.RECORDS)
+        self.assertEqual(len(out), 3)
+        self.assertEqual(out[0]["flaky"], {"fails": 1, "passes": 1, "last_fail": "2026-11-02", "scope": "test"})
+        self.assertEqual(out[1]["flaky"]["scope"], "file")
+        self.assertNotIn("flaky", out[2])  # fails every time: a real failure, not a flake
+
+    def test_the_red_message_calls_out_a_flaky_test_and_keeps_its_cap(self):
+        failing = nightly.mark_flaky(self.FAILING, self.RECORDS)
+        failing[0]["name"] = "wobbly " + "x" * 300
+        body = nightly.dm_body({**RED, "failing_tests": failing})
+        self.assertIn("[flaky: 1 fails, 1 passes, last 2026-11-02]", body["tests"][0])
+        self.assertIn("[flaky in its file:", body["tests"][1])
+        self.assertNotIn("flaky", body["tests"][2])
+        self.assertTrue(all(len(t) <= 160 for t in body["tests"]))
+
+    def test_without_history_the_failing_tests_are_unchanged(self):
+        self.assertEqual(nightly.mark_flaky(self.FAILING, []), self.FAILING)
+
+
 class DecisionTest(unittest.TestCase):
     def test_first_run(self):
         self.assertEqual(nightly.decide({}, "a" * 40), ("run", None))
