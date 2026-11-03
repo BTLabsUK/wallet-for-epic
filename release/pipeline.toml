@@ -402,7 +402,7 @@ needs = ["manifests"]
 # Linux 60 min, its slowest was 2,447 s under load); a lane killed by the machine (a signal, no
 # proof.json, an ssh drop) runs once more by itself, a product failure or a timeout never. The drivers wait on the chain and on P, not on the CPU, and P's legs
 # queue on P's own lock. Each Android variant has its own emulator and makes its own wallet there
-# (see trust-android.sh), so the two run at once; each
+# (see trust-android.sh; REL_TRUST_DRIVER=v1 still restores the rel-trust-android/Q wallets), so the two run at once; each
 # Linux variant makes its own wallet in its own sandbox, so they run at once too. G3 and every
 # platform's trust still come before the publish gate (update-trust). Whether trust may start
 # right after its own build is decided later from metrics.jsonl (per-step load, overlaps,
