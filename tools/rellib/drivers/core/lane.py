@@ -152,8 +152,12 @@ class Lane:
         breaks.refuse_in_release()
         self.until = until_phase()
         self.stopped = None
+        self.attempt = time.strftime("%Y%m%d-%H%M%S", time.gmtime())   # a fresh wallet's name in the test DB
         self.p, self.recipe_for, self.checks_mod = platform, recipe_for, checks
         self.out, self.log, self.required, self.funds, self.funder = out, log, required, funds, p
+        if self.until and PHASES.index(self.until) >= PHASES.index("fund"):
+            log("REL_TRUST_UNTIL=%s is at or after fund: P pays this lane's wallet and the stop leaves it there "
+                "(its phrase is in the test DB); stop at address to move no coins" % self.until)
         self.results, self.details = {}, {}
         self.rec = Recover(out, platform.name, log=log)
         self.ui = None  # the recipe on the app that runs now
@@ -552,15 +556,16 @@ class Lane:
     # ---- test wallets in the test DB
 
     def _wallet(self):
-        """(name, role) of the lane's wallet in the test DB."""
+        """(name, role) of the lane's wallet in the test DB. A wallet made by this attempt is named by it: a
+        retry in the same run makes another wallet, and the first one's phrase must stay (it may hold coins)."""
         lane = ls.lane_name(self.p.name, self.p.variant)
         if self.seed:
             return self.seed.lane, "seed"
         if self.mode == "create":
-            return "%s-%s-create" % (lane, ls.run_id()), "create"
+            return "%s-%s-%s-create" % (lane, ls.run_id(), self.attempt), "create"
         if self.mode == "state":
             return "%s-state" % lane, "lane"
-        return "%s-%s-sandbox" % (lane, ls.run_id()), "sandbox"
+        return "%s-%s-%s-sandbox" % (lane, ls.run_id(), self.attempt), "sandbox"
 
     def _wallet_put(self, origin, phrase=None):
         name, role = self._wallet()
