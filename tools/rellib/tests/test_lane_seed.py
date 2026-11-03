@@ -262,10 +262,10 @@ class Doctor(Store):
     def test_p_covers_the_run(self):
         self.make("linux-tor", "linux-notor", last="0.07")
         # balances above the top-up line: 0.01 each, 0.01 more for the funds lane, a fee per payment
-        out = ls.doctor(["linux-tor", "linux-notor"], "0.05", ["linux-tor"])
+        out = ls.doctor(["linux-tor", "linux-notor"], "0.06", ["linux-tor"])
         self.assertEqual(out[-1][0], "ok", out[-1])
-        self.assertIn("covers the lanes' 0.045 EPIC", out[-1][1])
-        out = ls.doctor(["linux-tor", "linux-notor"], "0.04", ["linux-tor"])
+        self.assertIn("covers the lanes' 0.06 EPIC", out[-1][1])
+        out = ls.doctor(["linux-tor", "linux-notor"], "0.05", ["linux-tor"])
         self.assertEqual(out[-1][0], "FAIL")
         self.assertNotIn("warn", self.levels(out))
 
@@ -273,7 +273,7 @@ class Doctor(Store):
         self.make("android-tor")
         out = ls.doctor(["android-tor"], "1", [])
         self.assertIn("warn", self.levels(out))
-        self.assertIn("covers the lanes' 0.055 EPIC", out[-1][1])
+        self.assertIn("covers the lanes' 0.06 EPIC", out[-1][1])
 
     def test_lock_held_fails(self):
         self.make("windows-tor")
@@ -440,7 +440,7 @@ class LaneModes(Store):
         lane.send_pending = __import__("decimal").Decimal("0.02")
         self.assertEqual(lane._run(lambda: 0), 0)
         # a send not seen confirmed counts as gone, with its fee
-        self.assertEqual(seed.meta()["last"], dict(seed.meta()["last"], spendable="0.056", run="26.11.3-run1"))
+        self.assertEqual(seed.meta()["last"], dict(seed.meta()["last"], spendable="0.051", run="26.11.3-run1"))
         self.assertIsNone(seed.lock_holder())
 
     def test_restore_keeps_the_phrase_for_the_encrypted_store_read(self):

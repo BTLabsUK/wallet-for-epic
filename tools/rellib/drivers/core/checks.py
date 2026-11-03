@@ -40,7 +40,7 @@ CAP_JOB = D("1")
 # CAP_SEND (0.01 + 0.04). The top-up stays in the lane; only this run's inflow goes back to P.
 TOPUP_BELOW = D("0.05")
 TOPUP = D("0.05")
-FEE_MAX = D("0.005")  # what the doctor allows for each payment's fee (0.003-0.004 seen)
+FEE_MAX = D("0.01")  # what the doctor allows for each payment's fee (0.003-0.007 seen; 0.006 in 26.11.0 run-4)
 CREATE_CHECKS = ["create_ok"]
 P_ADDR = os.environ.get("REL_P_ADDR") or "esa57kJmWkZyX8fSkKPW2Gu12ENhFF6MXfdsrsY4gqVK58ZwzB4d@epicbox.stackwallet.com"
 POLL_S = 20
