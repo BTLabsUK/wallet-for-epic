@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: Apache-2.0
+# The actions a workflow or local action may use (tools/check-workflow.py), each pinned by its full
+# commit SHA where it is used. Local actions (./.github/actions/*) need no entry.
+actions/checkout
+actions/cache
+actions/cache/restore
+actions/cache/save
+actions/upload-artifact
+actions/attest-build-provenance
+# Used inside actions/attest-build-provenance.
+actions/attest
