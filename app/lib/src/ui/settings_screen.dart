@@ -23,6 +23,7 @@ import 'settings_sections.dart';
 import 'theme/tokens.dart';
 import 'tip.dart';
 import '../levels/level_providers.dart';
+import '../trust_ids.dart';
 
 export 'settings_sections.dart';
 
@@ -213,7 +214,7 @@ class _GroupRow extends StatelessWidget {
     final l = context.l10n;
     final section = this.section;
     final warning = this.warning;
-    return ListTile(
+    final row = ListTile(
       minVerticalPadding: 12,
       leading: _GroupGlyph(section == null ? icon! : settingsSectionIcon(section)),
       title: Row(
@@ -250,5 +251,6 @@ class _GroupRow extends StatelessWidget {
           ? onTap
           : () => openSettingsSection(context, section),
     );
+    return section == null ? row : trustId(TrustIds.settingsSection(section.name), row);
   }
 }

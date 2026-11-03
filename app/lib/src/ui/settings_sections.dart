@@ -35,6 +35,7 @@ import '../settings.dart';
 import '../smart_outputs.dart' show OutputLabel, outputWord;
 import '../tor_phone.dart';
 import '../tor_routes.dart';
+import '../trust_ids.dart';
 import '../updater.dart';
 import '../wallet_service.dart';
 import 'app_dialog.dart';
@@ -1059,14 +1060,17 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       IconData icon,
       String title,
       String hint,
-    ) => HintSwitchTile(
-      key: ValueKey('adv-${f.name}'),
-      icon: icon,
-      title: title,
-      hint: hint,
-      value: adv.has(f),
-      onChanged: (on) => _settings.setFeature(f, on),
-    );
+    ) {
+      final tile = HintSwitchTile(
+        key: ValueKey('adv-${f.name}'),
+        icon: icon,
+        title: title,
+        hint: hint,
+        value: adv.has(f),
+        onChanged: (on) => _settings.setFeature(f, on),
+      );
+      return f == AdvancedFeature.technicalDetails ? trustId(TrustIds.advancedTechnical, tile) : tile;
+    }
     // Pairing and Invoices: on as the rule between them says; an Experimental tag on each.
     Widget experimental(AdvancedFeature f, IconData icon, String title, String hint) => HintSwitchTile(
       key: ValueKey('adv-${f.name}'),
@@ -1084,13 +1088,16 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       onChanged: (on) => _settings.setExperimental(f, on),
     );
     return [
-      ListTile(
-        key: const ValueKey('adv-level'),
-        leading: const Icon(Icons.tune),
-        title: Text(l.levelRowTitle),
-        subtitle: Text(levelTitle(l, ref.watch(currentLevelProvider))),
-        trailing: const NavChevron(),
-        onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ChangeLevelScreen())),
+      trustId(
+        TrustIds.advancedLevel,
+        ListTile(
+          key: const ValueKey('adv-level'),
+          leading: const Icon(Icons.tune),
+          title: Text(l.levelRowTitle),
+          subtitle: Text(levelTitle(l, ref.watch(currentLevelProvider))),
+          trailing: const NavChevron(),
+          onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ChangeLevelScreen())),
+        ),
       ),
       // Level 1: the level row alone, and what more levels do.
       if (ref.watch(levelFeaturesProvider).advancedPage == AdvancedPageKind.changeLevelOnly)
@@ -1178,11 +1185,14 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
   List<Widget> _display(AppLocalizations l) {
     final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     return [
-      ListTile(
-        leading: const Icon(Icons.brightness_6),
-        title: Text(l.settingsTheme),
-        subtitle: Text(themeLabel(l, s.themeMode)),
-        onTap: () => _pickTheme(s),
+      trustId(
+        TrustIds.appearanceTheme,
+        ListTile(
+          leading: const Icon(Icons.brightness_6),
+          title: Text(l.settingsTheme),
+          subtitle: Text(themeLabel(l, s.themeMode)),
+          onTap: () => _pickTheme(s),
+        ),
       ),
       ListTile(
         leading: const Icon(Icons.language),

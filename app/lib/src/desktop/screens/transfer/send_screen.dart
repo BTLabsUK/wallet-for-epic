@@ -14,6 +14,7 @@ import '../../../known_relays.dart';
 import '../../../log.dart';
 import '../../../network.dart' show EpicboxRelay;
 import '../../../devices/device_link_code.dart' show isDeviceLinkText;
+import '../../../trust_ids.dart';
 import '../../data/devices_state.dart' show deskHeldProvider, deskLinkedDevicesOnProvider;
 import '../devices/link_flow.dart' show showDeskLinkDevice;
 import '../../data/desk_errors.dart' show deskErrorText;
@@ -1559,7 +1560,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           ),
           ),
           SizedBox(width: Sp.x4),
-          EButton.primary(label: s.reviewLabel, icon: EIcons.send, busy: s.reviewing, tooltip: s.reviewTip, onPressed: s.onReview),
+          EButton.primary(semanticsId: TrustIds.sendReview, label: s.reviewLabel, icon: EIcons.send, busy: s.reviewing, tooltip: s.reviewTip, onPressed: s.onReview),
         ],
       ),
     );
@@ -1572,7 +1573,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final l = context.l10n;
     final queued = _queuedFor != null;
     final actions = [
-      EButton.primary(label: l.deskSendNewSend, icon: EIcons.send, onPressed: _reset),
+      EButton.primary(semanticsId: TrustIds.sendAnother, label: l.deskSendNewSend, icon: EIcons.send, onPressed: _reset),
       EButton(label: l.deskSendViewTx, onPressed: () => nav.go(DeskRoute.activity, r.tx.id)),
     ];
     if (queued) {
@@ -1896,6 +1897,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               child: picked != null
                   ? _ContactChip(contact: picked, onClear: _clearRecipient)
                   : EInput(
+                      semanticsId: TrustIds.sendTo,
                       controller: _to,
                       focusNode: _toFocus,
                       mono: true,
@@ -1959,6 +1961,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                   style: ts.small.copyWith(color: st.status?.syncProgress != null ? context.dc.faint : context.dc.dim),
                 ),
           child: EInput(
+            semanticsId: TrustIds.sendAmount,
             controller: _amount,
             mono: true,
             invalid: amErr != null,
@@ -1973,7 +1976,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               children: [
                 Text(epicUnit, style: ts.small.copyWith(color: c.dim)),
                 SizedBox(width: Sp.x2),
-                EButton(label: l.deskSendAllButton, size: EBtnSize.inline, busy: _allBusy, onPressed: spendable == null || _allBusy ? null : _sendAll),
+                EButton(semanticsId: TrustIds.sendMax, label: l.deskSendAllButton, size: EBtnSize.inline, busy: _allBusy, onPressed: spendable == null || _allBusy ? null : _sendAll),
               ],
             ),
           ),
@@ -2393,7 +2396,7 @@ class _SendSummary extends StatelessWidget {
           if (updating) Text(l.deskSendUpdating, style: ts.caption),
           SizedBox(height: Sp.x4),
           if (review) ...[
-            EButton.primary(label: reviewLabel, icon: EIcons.send, expand: true, busy: reviewing, tooltip: reviewTip, onPressed: onReview),
+            EButton.primary(semanticsId: TrustIds.sendReview, label: reviewLabel, icon: EIcons.send, expand: true, busy: reviewing, tooltip: reviewTip, onPressed: onReview),
             SizedBox(height: Sp.x3),
           ],
           Semantics(liveRegion: true, child: Text(hint, style: ts.small, textAlign: TextAlign.center)),
@@ -3103,6 +3106,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
                 help: l.deskSendPasswordHelp,
                 error: _wrong,
                 child: EPasswordInput(
+                  semanticsId: TrustIds.sendPassword,
                   controller: _password,
                   autofocus: true,
                   invalid: _wrong != null,
@@ -3113,7 +3117,7 @@ class _ReviewDialogState extends State<_ReviewDialog> {
           : null,
       actions: [
         EButton(label: l.deskSendBack, onPressed: _busy ? null : () => Navigator.of(context).pop()),
-        EButton.primary(label: _busy ? l.deskSendSending : (d.queued ? l.sendQueue : (widget.compact ? l.deskLvSendConfirm : keepNumbersWithUnits(l.deskSendConfirm(formatEpicL(l, d.amount, decimals: exactDecimals))))), icon: EIcons.send, busy: _busy, onPressed: _ready ? _go : null),
+        EButton.primary(semanticsId: TrustIds.sendConfirm, label: _busy ? l.deskSendSending : (d.queued ? l.sendQueue : (widget.compact ? l.deskLvSendConfirm : keepNumbersWithUnits(l.deskSendConfirm(formatEpicL(l, d.amount, decimals: exactDecimals))))), icon: EIcons.send, busy: _busy, onPressed: _ready ? _go : null),
       ],
     );
   }

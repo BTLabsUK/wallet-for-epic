@@ -3,6 +3,7 @@ import 'dart:async';
 
 import '../../../app_info.dart';
 import '../../../l10n.dart' show appLanguages;
+import '../../../trust_ids.dart';
 import '../../../ui/language_flag.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -63,6 +64,7 @@ class AccountForm extends StatelessWidget {
               controller: password,
               invalid: passwordError != null,
               semanticLabel: l.deskOnbStepPassword,
+              semanticsId: TrustIds.accountPassword,
               textInputAction: TextInputAction.next,
               onChanged: (_) => onChanged(),
             ),
@@ -81,6 +83,7 @@ class AccountForm extends StatelessWidget {
           controller: confirm,
           invalid: confirmError != null,
           semanticLabel: l.deskSetupConfirmPassword,
+          semanticsId: TrustIds.accountConfirmPassword,
           textInputAction: TextInputAction.done,
           onChanged: (_) => onChanged(),
         ),
@@ -370,6 +373,7 @@ class PasswordBox extends StatefulWidget {
     this.autofocus = false,
     this.focusNode,
     this.semanticLabel,
+    this.semanticsId,
     this.textInputAction,
   });
 
@@ -380,6 +384,8 @@ class PasswordBox extends StatefulWidget {
   final bool autofocus;
   final FocusNode? focusNode;
   final String? semanticLabel;
+  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  final String? semanticsId;
   final TextInputAction? textInputAction;
 
   @override
@@ -410,6 +416,7 @@ class _PasswordBoxState extends State<PasswordBox> {
         autofocus: widget.autofocus,
         focusNode: _focus,
         semanticLabel: widget.semanticLabel,
+        semanticsId: widget.semanticsId,
         textInputAction: widget.textInputAction,
       ),
       CapsLockNote(focus: _focus),

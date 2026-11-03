@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../../trust_ids.dart';
 import '../../desk_l10n.dart';
 import '../../../app_info.dart';
 import '../../../data_folder_io.dart' show desktopDataFolderName;
@@ -92,6 +93,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
     void toRestore() => nav.go(DeskRoute.restore);
     final create = EChoiceCard(
       key: const ValueKey('door-create'),
+      semanticsId: TrustIds.welcomeCreate,
       title: l.deskOnbWelcomeCreate,
       description: l.deskOnbWelcomeCreateSub,
       icon: EIcons.plus,
@@ -100,6 +102,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
     );
     final import = EChoiceCard(
       key: const ValueKey('door-import'),
+      semanticsId: TrustIds.welcomeImport,
       title: l.deskOnbWelcomeImport,
       description: l.deskOnbWelcomeImportSub,
       icon: EIcons.folderOpen,
@@ -110,6 +113,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
     // line, like the others', so the cards keep one rhythm.
     final restore = EChoiceCard(
       key: const ValueKey('door-restore'),
+      semanticsId: TrustIds.welcomeRestore,
       title: l.deskOnbWelcomeRestore,
       description: l.deskOnbWelcomeRestoreSub,
       icon: EIcons.key,

@@ -13,6 +13,7 @@ import '../l10n.dart';
 import '../min_confirmations.dart';
 import '../models.dart'
     show defaultMinimumConfirmations, maxMinimumConfirmations, minMinimumConfirmations;
+import '../trust_ids.dart';
 import 'badge.dart';
 import 'info_hint.dart';
 import 'notices.dart';
@@ -95,18 +96,24 @@ class ConfirmationsRow extends ConsumerWidget {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              IconButton(
-                key: confirmationsMinusKey,
-                icon: const Icon(Icons.remove),
-                tooltip: l.advConfirmationsFewer,
-                onPressed: ready && shown > minMinimumConfirmations ? () => set(shown - 1) : null,
+              trustId(
+                TrustIds.confirmationsFewer,
+                IconButton(
+                  key: confirmationsMinusKey,
+                  icon: const Icon(Icons.remove),
+                  tooltip: l.advConfirmationsFewer,
+                  onPressed: ready && shown > minMinimumConfirmations ? () => set(shown - 1) : null,
+                ),
               ),
               valueText,
-              IconButton(
-                key: confirmationsPlusKey,
-                icon: const Icon(Icons.add),
-                tooltip: l.advConfirmationsMore,
-                onPressed: ready && shown < maxMinimumConfirmations ? () => set(shown + 1) : null,
+              trustId(
+                TrustIds.confirmationsMore,
+                IconButton(
+                  key: confirmationsPlusKey,
+                  icon: const Icon(Icons.add),
+                  tooltip: l.advConfirmationsMore,
+                  onPressed: ready && shown < maxMinimumConfirmations ? () => set(shown + 1) : null,
+                ),
               ),
             ],
           ),

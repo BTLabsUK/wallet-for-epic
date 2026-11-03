@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../network.dart' show EpicboxRelay;
 import '../../../settings_file/host_settings.dart' show hostSettings;
+import '../../../trust_ids.dart';
 import '../../data/desk_levels.dart' show deskLevelUiProvider;
 import '../../data/desk_node.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
@@ -381,7 +382,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         actions: [
           // A first run can be left from the start: the defaults stay, Settings changes them.
           // What Skip keeps is the button's tooltip and accessible description (UD-016).
-          if (_first != null) EButton.ghost(key: const ValueKey('setup-skip'), label: l.deskSetupSkip, tabStop: false, onPressed: _busy || _checking ? null : _skip),
+          if (_first != null) EButton.ghost(key: const ValueKey('setup-skip'), semanticsId: TrustIds.setupSkip, label: l.deskSetupSkip, tabStop: false, onPressed: _busy || _checking ? null : _skip),
           EButton.primary(label: last ? l.deskSetupSave : l.commonContinue, busy: _busy || _checking, onPressed: _canContinue ? _continue : null),
         ],
         child: body,

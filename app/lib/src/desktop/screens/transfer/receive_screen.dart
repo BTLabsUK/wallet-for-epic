@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../trust_ids.dart';
 import '../../app/relay_offer.dart' show deskRelayMovedProvider;
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
@@ -470,7 +471,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         ? Text(l.deskRecvAddressUnreadable, style: ts.small)
         : Opacity(
             opacity: on ? 1 : 0.6,
-            child: EAddress(addr, large: true, copyLabel: l.deskRecvCopyEpicbox),
+            child: trustId(TrustIds.receiveAddress, EAddress(addr, large: true, copyLabel: l.deskRecvCopyEpicbox)),
           );
     final info = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -610,7 +611,7 @@ class _ReceiveScreenState extends ConsumerState<ReceiveScreen> {
         ? Padding(padding: EdgeInsets.symmetric(vertical: Sp.x4), child: ESpinner(size: 20.u))
         : addr.isEmpty
         ? Text(l.deskRecvAddressUnreadable, style: ts.small)
-        : EAddress(addr, large: true, copyLabel: l.deskRecvCopyEpicbox);
+        : trustId(TrustIds.receiveAddress, EAddress(addr, large: true, copyLabel: l.deskRecvCopyEpicbox));
     final info = Column(
       key: const ValueKey('rx-shallow-address'),
       crossAxisAlignment: CrossAxisAlignment.stretch,

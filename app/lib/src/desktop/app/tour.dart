@@ -19,6 +19,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../log.dart';
+import '../../trust_ids.dart';
 import '../data/desk_store.dart';
 import '../desk_l10n.dart';
 import '../widgets/kit.dart';
@@ -501,7 +502,7 @@ class _DeskTourOverlayState extends ConsumerState<DeskTourOverlay> with SingleTi
                             SizedBox(height: Sp.x4),
                             Row(
                               children: [
-                                EButton(label: l.deskTourSkip, size: EBtnSize.sm, kind: EBtnKind.ghost, hit44: true, onPressed: _end),
+                                EButton(semanticsId: TrustIds.tourSkip, label: l.deskTourSkip, size: EBtnSize.sm, kind: EBtnKind.ghost, hit44: true, onPressed: _end),
                                 SizedBox(width: Sp.x2),
                                 Text(
                                   'Esc', // l10n-ok: key name

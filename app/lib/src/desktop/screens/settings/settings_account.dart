@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../trust_ids.dart';
 import '../../desk_l10n.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../widgets/kit.dart';
@@ -91,11 +92,12 @@ class _SettingsAccountScreenState extends ConsumerState<SettingsAccountScreen> {
                     focusNode: _labelFocus,
                     hint: a.name,
                     semanticLabel: l.deskSetAcctLabel,
+                    semanticsId: TrustIds.walletLabelField,
                     inputFormatters: [LengthLimitingTextInputFormatter(32)],
                     onChanged: (_) => setState(() {}),
                     onSubmitted: (_) => _save(),
                     trailing: _label.text.trim() != a.name && _label.text.trim().isNotEmpty
-                        ? EIconButton(icon: EIcons.check, label: l.deskSetAcctSaveLabel, size: EBtnSize.inline, onPressed: _save)
+                        ? EIconButton(semanticsId: TrustIds.walletSaveLabel, icon: EIcons.check, label: l.deskSetAcctSaveLabel, size: EBtnSize.inline, onPressed: _save)
                         : EIconButton(icon: EIcons.pencil, label: l.deskSetAcctLabel, size: EBtnSize.inline, onPressed: _labelFocus.requestFocus),
                   ),
                 ),

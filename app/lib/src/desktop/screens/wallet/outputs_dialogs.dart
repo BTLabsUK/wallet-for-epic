@@ -398,7 +398,7 @@ class _NothingToConsolidate extends StatelessWidget {
 /// A whole number from [min] to [max]: − and + buttons around an editable value. Arrow keys
 /// step, Home and End jump to the ends; screen readers hear a slider.
 class EStepper extends StatefulWidget {
-  const EStepper({super.key, required this.value, required this.min, required this.max, required this.onChanged, required this.label, this.fewerLabel, this.moreLabel, this.valueText});
+  const EStepper({super.key, required this.value, required this.min, required this.max, required this.onChanged, required this.label, this.fewerLabel, this.moreLabel, this.valueText, this.fewerId, this.moreId});
 
   final int value;
   final int min;
@@ -409,6 +409,10 @@ class EStepper extends StatefulWidget {
   /// The − and + buttons' names; "Fewer" and "More" when null.
   final String? fewerLabel;
   final String? moreLabel;
+
+  /// The test drivers' stable names for the − and + buttons (`TrustIds`, lib/src/trust_ids.dart).
+  final String? fewerId;
+  final String? moreId;
 
   /// What a screen reader hears for a value ("6 confirmations"); the number when null.
   final String Function(int value)? valueText;
@@ -472,7 +476,7 @@ class _EStepperState extends State<EStepper> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            EIconButton(icon: Icons.remove, label: widget.fewerLabel ?? l.deskOutStepperFewer, tabStop: false, onPressed: v > widget.min ? () => _set(v - 1) : null),
+            EIconButton(semanticsId: widget.fewerId, icon: Icons.remove, label: widget.fewerLabel ?? l.deskOutStepperFewer, tabStop: false, onPressed: v > widget.min ? () => _set(v - 1) : null),
             SizedBox(width: Sp.x1),
             SizedBox(
               width: 52.u,
@@ -489,7 +493,7 @@ class _EStepperState extends State<EStepper> {
               ),
             ),
             SizedBox(width: Sp.x1),
-            EIconButton(icon: Icons.add, label: widget.moreLabel ?? l.deskOutStepperMore, tabStop: false, onPressed: v < widget.max ? () => _set(v + 1) : null),
+            EIconButton(semanticsId: widget.moreId, icon: Icons.add, label: widget.moreLabel ?? l.deskOutStepperMore, tabStop: false, onPressed: v < widget.max ? () => _set(v + 1) : null),
           ],
         ),
       ),

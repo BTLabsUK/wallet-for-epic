@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../trust_ids.dart';
 import '../../desk_l10n.dart';
 import '../../data/desk_levels.dart' show deskLevelUiProvider;
 import '../../data/mock_wallet.dart' show MockDeskWallet;
@@ -471,6 +472,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                 autofocus: true,
                 invalid: _error != null,
                 semanticLabel: l.deskOnbStepPassword,
+                semanticsId: TrustIds.unlockPassword,
                 onChanged: (_) {
                   if (_error != null) setState(() => _error = null);
                 },
@@ -532,7 +534,7 @@ class _UnlockScreenState extends ConsumerState<UnlockScreen> {
                 ],
               )
             else
-              EButton.primary(key: _unlockKey, label: l.deskOnbUnlockButton, icon: EIcons.lockOpen, expand: true, onPressed: _unlock),
+              EButton.primary(key: _unlockKey, semanticsId: TrustIds.unlockSubmit, label: l.deskOnbUnlockButton, icon: EIcons.lockOpen, expand: true, onPressed: _unlock),
           ],
         ),
       ),

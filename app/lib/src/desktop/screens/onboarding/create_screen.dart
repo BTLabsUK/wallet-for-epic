@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../trust_ids.dart';
 import '../../desk_l10n.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../../log.dart';
@@ -167,7 +168,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
           lead: l.deskOnbCreateLead,
           back: backButton(() => nav.back()),
           actions: [
-            EButton.primary(label: l.deskOnbCreateTitle, onPressed: _accountOk ? _create : null),
+            EButton.primary(semanticsId: TrustIds.createSubmit, label: l.deskOnbCreateTitle, onPressed: _accountOk ? _create : null),
           ],
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -211,7 +212,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
       lead: l.deskOnbCreatePhraseLead,
       status: _revealed ? null : l.deskOnbCreateRevealFirst,
       actions: [
-        EButton.primary(label: l.commonContinue, busy: _busy, onPressed: _revealed && _written ? _finish : null),
+        EButton.primary(semanticsId: TrustIds.createContinue, label: l.commonContinue, busy: _busy, onPressed: _revealed && _written ? _finish : null),
       ],
       // The words scroll on their own: the warning, the actions and the checkbox stay in view.
       fill: true,
@@ -267,7 +268,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          EButton.primary(label: l.deskOnbCreateReveal, icon: EIcons.eye, onPressed: () => setState(() => _revealed = true)),
+                          EButton.primary(semanticsId: TrustIds.createReveal, label: l.deskOnbCreateReveal, icon: EIcons.eye, onPressed: () => setState(() => _revealed = true)),
                           SizedBox(height: Sp.x2),
                           Text(l.deskOnbCreateCheckScreen, style: ts.small, textAlign: TextAlign.center),
                         ],
@@ -275,6 +276,7 @@ class _CreateScreenState extends ConsumerState<CreateScreen> {
                     ),
               footer: _revealed
                   ? ECheckbox(
+                      semanticsId: TrustIds.createWritten,
                       value: _written,
                       onChanged: (v) => setState(() => _written = v),
                       label: l.deskOnbCreateWritten(phrase.length),

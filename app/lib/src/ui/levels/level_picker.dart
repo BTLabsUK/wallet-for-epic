@@ -9,6 +9,7 @@ import 'package:flutter/semantics.dart';
 
 import '../../l10n.dart';
 import '../../levels/wallet_level.dart';
+import '../../trust_ids.dart';
 import '../level_step_screen.dart' show levelTitle;
 import '../theme/brand.dart';
 import '../theme/tokens.dart';
@@ -163,6 +164,7 @@ class _Stop extends StatelessWidget {
     final border = on ? t.accent : (passed ? t.tick : t.line);
     final ink = on ? t.accentText : (passed ? t.dim : t.faint);
     return Semantics(
+      identifier: TrustIds.levelStop(level.number),
       inMutuallyExclusiveGroup: true,
       checked: on,
       child: InkWell(

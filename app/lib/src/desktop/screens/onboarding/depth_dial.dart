@@ -11,6 +11,7 @@ import 'package:flutter/semantics.dart';
 
 import '../../../app_info.dart' show appName;
 import '../../../levels/wallet_level.dart';
+import '../../../trust_ids.dart';
 import '../../../ui/levels/level_art.dart';
 import '../../../ui/levels/level_picker.dart' show levelLine, levelStopName;
 import '../../../ui/status_icons.dart' show EpicGlyphs;
@@ -297,6 +298,7 @@ class _Stop extends StatelessWidget {
     final ts = context.ts;
     final name = levelStopName(context.l10n, level);
     return Semantics(
+      identifier: TrustIds.levelStop(level.number),
       inMutuallyExclusiveGroup: true,
       checked: on,
       label: name,

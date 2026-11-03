@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../advanced.dart';
+import '../../../trust_ids.dart';
 import '../../../ui/network_mode_text.dart';
 import '../../app/tour.dart' show TourTarget;
 import '../../../levels/wallet_level.dart';
@@ -169,6 +170,7 @@ class _ShowsGroup extends ConsumerWidget {
       hint: hint,
       hintTitle: advancedFeatureName(l, f),
       control: ESwitch(
+        semanticsId: f == AdvancedFeature.technicalDetails ? TrustIds.advancedTechnicalDetails : null,
         value: adv.has(f),
         semanticLabel: advancedFeatureName(l, f),
         onChanged: (v) => set(f, v),

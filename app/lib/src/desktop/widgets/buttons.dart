@@ -59,6 +59,7 @@ class EButton extends StatefulWidget {
     this.tabStop = true,
     this.hit44 = false,
     this.autofocus = false,
+    this.semanticsId,
   });
 
   const EButton.primary({
@@ -73,6 +74,7 @@ class EButton extends StatefulWidget {
     this.tabStop = true,
     this.hit44 = false,
     this.autofocus = false,
+    this.semanticsId,
   }) : kind = EBtnKind.primary;
 
   /// The side padding of a button of [size].
@@ -98,6 +100,7 @@ class EButton extends StatefulWidget {
     this.tabStop = true,
     this.hit44 = false,
     this.autofocus = false,
+    this.semanticsId,
   }) : kind = EBtnKind.ghost;
 
   final String label;
@@ -122,6 +125,9 @@ class EButton extends StatefulWidget {
 
   /// Takes the focus when it appears: the default button of a confirm, so Enter presses it.
   final bool autofocus;
+
+  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  final String? semanticsId;
 
   @override
   State<EButton> createState() => _EButtonState();
@@ -208,6 +214,7 @@ class _EButtonState extends State<EButton> {
     );
     // A label is never selected by a drag over the page (selectable.dart).
     Widget body = Semantics(
+      identifier: widget.semanticsId,
       button: true,
       enabled: enabled,
       label: widget.label,
@@ -271,8 +278,10 @@ class EIconButton extends StatefulWidget {
     this.selected = false,
     this.color,
     this.tabStop = true,
+    this.semanticsId,
   });
 
+  final String? semanticsId;
   final IconData icon;
   final String label;
   final VoidCallback? onPressed;
@@ -310,6 +319,7 @@ class _EIconButtonState extends State<EIconButton> {
       child: ETip(
       widget.label,
       child: Semantics(
+        identifier: widget.semanticsId,
         button: true,
         label: widget.label,
         selected: widget.selected,
@@ -351,7 +361,9 @@ class _EIconButtonState extends State<EIconButton> {
 
 /// A text link styled as the accent, underlined; for "Forgot password?" style actions.
 class ELink extends StatefulWidget {
-  const ELink({super.key, required this.label, this.onPressed, this.dim = false, this.tabStop = true});
+  const ELink({super.key, required this.label, this.onPressed, this.dim = false, this.tabStop = true, this.semanticsId});
+
+  final String? semanticsId;
 
   final String label;
   final VoidCallback? onPressed;
@@ -376,6 +388,7 @@ class _ELinkState extends State<ELink> {
     return ExcludeFocusTraversal(
       excluding: !widget.tabStop,
       child: Semantics(
+      identifier: widget.semanticsId,
       link: true,
       onTap: widget.onPressed,
       child: FocusableActionDetector(

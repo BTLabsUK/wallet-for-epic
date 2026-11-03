@@ -11,6 +11,7 @@ import '../levels/first_run_servers_phone.dart';
 import '../levels/level_providers.dart';
 import '../l10n.dart';
 import '../providers.dart';
+import '../trust_ids.dart';
 import 'centered_body.dart';
 import 'launch_screen.dart';
 import 'levels/tor_wait_screen.dart';
@@ -199,25 +200,31 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              FilledButton.icon(
-                                key: firstRunCreateKey,
-                                style: FilledButton.styleFrom(
-                                  minimumSize: const Size.fromHeight(48),
+                              trustId(
+                                TrustIds.welcomeCreate,
+                                FilledButton.icon(
+                                  key: firstRunCreateKey,
+                                  style: FilledButton.styleFrom(
+                                    minimumSize: const Size.fromHeight(48),
+                                  ),
+                                  icon: const Icon(Icons.add),
+                                  label: Text(l.firstRunCreate),
+                                  onPressed: () =>
+                                      setState(() => _creating = true),
                                 ),
-                                icon: const Icon(Icons.add),
-                                label: Text(l.firstRunCreate),
-                                onPressed: () =>
-                                    setState(() => _creating = true),
                               ),
                               const SizedBox(height: 12),
-                              OutlinedButton.icon(
-                                key: firstRunRestoreKey,
-                                style: OutlinedButton.styleFrom(
-                                  minimumSize: const Size.fromHeight(48),
+                              trustId(
+                                TrustIds.welcomeRestore,
+                                OutlinedButton.icon(
+                                  key: firstRunRestoreKey,
+                                  style: OutlinedButton.styleFrom(
+                                    minimumSize: const Size.fromHeight(48),
+                                  ),
+                                  icon: const Icon(Icons.restore),
+                                  label: Text(l.firstRunRestore),
+                                  onPressed: () => _leave(const RestoreScreen()),
                                 ),
-                                icon: const Icon(Icons.restore),
-                                label: Text(l.firstRunRestore),
-                                onPressed: () => _leave(const RestoreScreen()),
                               ),
                             ],
                           ),

@@ -34,6 +34,7 @@ import '../../net/local_address.dart' show isLocalNodeUrl;
 import '../../node/node_info.dart' show compareVersions;
 import '../../relay_directory.dart' show NodeHealthState;
 import '../../tor_build.dart';
+import '../../trust_ids.dart';
 import '../../ui/server_tile.dart';
 import '../data/desk_node.dart' show nodeHost;
 import '../data/server_lists.dart';
@@ -302,6 +303,9 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
   bool get _busy => widget.busy && !_slow;
   bool get _node => widget.kind == ServerKind.node;
 
+  /// The test drivers' stable names for this list's controls (`TrustIds`, lib/src/trust_ids.dart).
+  TrustServerIds get _ids => _node ? TrustIds.nodeList : TrustIds.epicboxList;
+
   /// The set ticked now in a selection panel; null in the one-server panel.
   List<String>? _chosen;
 
@@ -530,6 +534,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
           // Enter switches, Esc cancels: the primary button holds the focus on open.
           EButton.primary(
             key: const ValueKey('server-list-switch'),
+            semanticsId: TrustIds.epicboxSwitch,
             label: l.slSwitch,
             autofocus: true,
             onPressed: () => Navigator.pop(context, true),
@@ -757,7 +762,9 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
           final isHost = typedServerValue(widget.kind, widget.fieldText.trim().split(RegExp(r'[\s,]+')).first) != null;
           final valueStyle = isHost ? ts.mono(size: 13.u, color: c.text) : ts.body.copyWith(color: c.text);
           return Semantics(
+            identifier: _ids.picker,
             button: true,
+            onTap: open ? collapse : this.open,
             label: '${widget.label}: ${widget.fieldText}${widget.fieldSub != null ? ', ${widget.fieldSub}' : ''}',
             hint: l.deskSetComboOpens,
             expanded: open,
@@ -890,6 +897,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
         _LocalRow(local: local, selected: widget.value == local.value, onTap: () => _pickLocal(local)),
       if (addable)
         _AddRow(
+          semanticsId: _ids.add,
           host: panelHost(widget.kind, typedValue),
           note: _node ? l.slAddTestsNode : l.slAddTestsRelay,
           busy: _adding != null,
@@ -898,6 +906,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
       for (final s in shown)
         _Row(
           key: ValueKey('server-row-${s.value}'),
+          semanticsId: _ids.row,
           kind: widget.kind,
           server: s,
           // Its own icon, else the one the monitor holds for the same operator.
@@ -945,6 +954,7 @@ class ServerListPanelState extends ConsumerState<ServerListPanel> {
             },
             child: EInput(
               key: const ValueKey('server-list-field'),
+              semanticsId: _ids.field,
               controller: _text,
               focusNode: _field,
               mono: true,
@@ -1153,7 +1163,10 @@ class _Row extends StatelessWidget {
     this.dimmed = false,
     required this.onTap,
     required this.onRemove,
+    this.semanticsId,
   });
+
+  final String? semanticsId;
 
   final ServerKind kind;
   final PanelServer server;
@@ -1197,6 +1210,7 @@ class _Row extends StatelessWidget {
       if (kind == ServerKind.node && !down && s.version != null) (s.version!, s.versionOld ? c.warn : dim, false),
     ];
     final row = Semantics(
+      identifier: semanticsId,
       button: ticked == null,
       selected: ticked == null ? selected : null,
       checked: ticked,
@@ -1381,7 +1395,9 @@ class _LocalRow extends StatelessWidget {
 
 /// Add: the first row while nothing matches or the typed address is not listed.
 class _AddRow extends StatelessWidget {
-  const _AddRow({required this.host, required this.note, required this.busy, required this.onTap});
+  const _AddRow({required this.host, required this.note, required this.busy, required this.onTap, this.semanticsId});
+
+  final String? semanticsId;
 
   final String host;
   final String note;
@@ -1396,6 +1412,7 @@ class _AddRow extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(bottom: Sp.x1),
       child: Semantics(
+        identifier: semanticsId,
         button: true,
         label: l.slAddRow(host),
         child: EInkWell(

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../trust_ids.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import 'setting_ids.dart';
@@ -36,9 +37,9 @@ class SettingsAppearanceScreen extends ConsumerWidget {
               child: ESegmented<ThemeChoice>(
               stretch: true,
               segments: [
-                ESegment(ThemeChoice.system, l.deskSetAppearSystem, icon: EIcons.themeSystem),
-                ESegment(ThemeChoice.dark, l.deskSetAppearDark, icon: EIcons.moon),
-                ESegment(ThemeChoice.light, l.deskSetAppearLight, icon: EIcons.sun),
+                ESegment(ThemeChoice.system, l.deskSetAppearSystem, icon: EIcons.themeSystem, semanticsId: TrustIds.appearanceThemeSystem),
+                ESegment(ThemeChoice.dark, l.deskSetAppearDark, icon: EIcons.moon, semanticsId: TrustIds.appearanceThemeDark),
+                ESegment(ThemeChoice.light, l.deskSetAppearLight, icon: EIcons.sun, semanticsId: TrustIds.appearanceThemeLight),
               ],
               value: s.theme,
               onChanged: (v) => n.saveSettings(s.copyWith(theme: v)),

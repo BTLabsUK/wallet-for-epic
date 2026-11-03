@@ -9,6 +9,7 @@ import '../../../models.dart' show defaultMinimumConfirmations, maxMinimumConfir
 import '../../../payment_prefs.dart';
 import '../../../advanced.dart' show NetworkModeRestricted;
 import '../../../tor_pay.dart';
+import '../../../trust_ids.dart';
 import '../../data/method_names.dart';
 import '../../data/net_mode_view.dart' show netTorState;
 import '../../desk_l10n.dart';
@@ -731,6 +732,8 @@ class ReceivingGroup extends ConsumerWidget {
                 label: l.deskSetAdvConfirmations,
                 fewerLabel: l.deskSetAdvConfirmationsFewer,
                 moreLabel: l.deskSetAdvConfirmationsMore,
+                fewerId: TrustIds.paymentsConfirmationsFewer,
+                moreId: TrustIds.paymentsConfirmationsMore,
                 valueText: l.deskSetAdvConfirmationsCount,
                 onChanged: set,
               ),

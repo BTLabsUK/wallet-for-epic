@@ -63,3 +63,7 @@ lepic/crates/lepic-telemetry/src/mobile.rs	epic\.cash
 # addresses the app uses come from the settings files.
 app/lib/l10n/*	status\.btlabs\.uk
 app/lib/src/help/help_*.dart	(?<![0-9])(3413|3414)(?![0-9])
+
+# The test drivers' control id for Send's recipient field (g4.<screen>.<control>): "to" is the
+# control, not a top-level domain.
+app/lib/src/trust_ids.dart	g4\.send\.to

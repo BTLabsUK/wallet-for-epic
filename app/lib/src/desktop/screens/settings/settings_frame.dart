@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../log.dart';
+import '../../../trust_ids.dart';
 import '../../widgets/kit.dart';
 import '../../app/tour.dart';
 import '../../desk_l10n.dart';
@@ -104,6 +105,7 @@ class SettingsColumn extends ConsumerWidget {
                   matches: matches,
                   noMatchLabel: l.deskSetSearchNoResults,
                   onTap: (r) => nav.go(r as DeskRoute),
+                  idOf: (r) => TrustIds.settingsSection((r as DeskRoute).name),
                   wrap: (r, w) => TourTarget(id: 'subnav-${(r as DeskRoute).name}', child: w),
                 ),
               ),
@@ -382,7 +384,9 @@ Future<bool> copyLink(String url) async {
 
 /// A strip entry for the narrow layout.
 class _Chip extends StatelessWidget {
-  const _Chip({required this.icon, required this.label, required this.selected, required this.onTap});
+  const _Chip({required this.icon, required this.label, required this.selected, required this.onTap, this.semanticsId});
+
+  final String? semanticsId;
 
   final IconData icon;
   final String label;
@@ -393,6 +397,7 @@ class _Chip extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.dc;
     return Semantics(
+      identifier: semanticsId,
       button: true,
       selected: selected,
       child: EInkWell(
@@ -466,7 +471,7 @@ class _SectionStrip extends StatelessWidget {
       return Wrap(
         spacing: Sp.x2,
         runSpacing: Sp.x2,
-        children: [for (final i in items) _Chip(icon: i.$3, label: i.$2, selected: i.$1 == current, onTap: () => onTap(i.$1))],
+        children: [for (final i in items) _Chip(semanticsId: TrustIds.settingsSection(i.$1.name), icon: i.$3, label: i.$2, selected: i.$1 == current, onTap: () => onTap(i.$1))],
       );
     });
   }

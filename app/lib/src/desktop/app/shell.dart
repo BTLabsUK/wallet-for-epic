@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../trust_ids.dart';
 import '../desk_l10n.dart';
 import '../data/desk_node.dart' show nodeHost;
 import '../data/desk_update.dart' show deskAppVersion, deskUpdateAutoProvider, deskUpdateProvider;
@@ -591,6 +592,7 @@ class _Sidebar extends ConsumerWidget {
                       TourTarget(
                         id: 'nav-${s.name}',
                         child: ENavItem(
+                          semanticsId: TrustIds.shellNav(s.name),
                           icon: icon,
                           label: deskNavLabel(l, s),
                           selected: section == s,
@@ -610,6 +612,7 @@ class _Sidebar extends ConsumerWidget {
                     TourTarget(
                       id: 'nav-settings',
                       child: ENavItem(
+                        semanticsId: TrustIds.shellNavSettings,
                         icon: EIcons.settings,
                         label: l.deskShellNavSettings,
                         selected: section == DeskSection.settings,

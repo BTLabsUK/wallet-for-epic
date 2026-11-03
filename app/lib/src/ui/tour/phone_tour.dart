@@ -27,6 +27,7 @@ import '../../l10n.dart';
 import '../../pairing_providers.dart' show invoicesShownProvider;
 import '../../providers.dart';
 import '../../settings.dart';
+import '../../trust_ids.dart';
 import '../devices/linked_devices_screen.dart';
 import '../help_screen.dart';
 import '../history_screen.dart';
@@ -701,13 +702,16 @@ class _TourCard extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  TextButton(
-                    style: TextButton.styleFrom(
-                      minimumSize: tap,
-                      foregroundColor: t.dim,
+                  trustId(
+                    TrustIds.tourSkip,
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        minimumSize: tap,
+                        foregroundColor: t.dim,
+                      ),
+                      onPressed: onSkip,
+                      child: Text(l.tourPhoneSkip),
                     ),
-                    onPressed: onSkip,
-                    child: Text(l.tourPhoneSkip),
                   ),
                   const SizedBox(width: 8),
                   // Back and Next wrap under each other rather than overflow at a large font.

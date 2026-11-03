@@ -11,6 +11,7 @@ import 'common.dart';
 import 'pin.dart';
 import '../phrase_clipboard.dart';
 import '../secure_screen.dart' show hidePreview;
+import '../trust_ids.dart';
 
 /// Whether the open wallet's recovery phrase has been written down.
 final backedUpProvider = FutureProvider.autoDispose<bool>((ref) {
@@ -123,18 +124,24 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
         text: '${l.backupConsentWhat} ${l.backupConsentReady}\n\n${l.backupCopyWarning}',
       ),
       const SizedBox(height: 8),
-      CheckboxListTile(
-        contentPadding: EdgeInsets.zero,
-        controlAffinity: ListTileControlAffinity.leading,
-        value: _agreed,
-        onChanged: (value) => setState(() => _agreed = value ?? false),
-        title: Text(l.backupCopyAgree),
+      trustId(
+        TrustIds.backupAgree,
+        CheckboxListTile(
+          contentPadding: EdgeInsets.zero,
+          controlAffinity: ListTileControlAffinity.leading,
+          value: _agreed,
+          onChanged: (value) => setState(() => _agreed = value ?? false),
+          title: Text(l.backupCopyAgree),
+        ),
       ),
       const SizedBox(height: 16),
-      FilledButton(
-        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-        onPressed: _agreed ? _load : null,
-        child: Text(l.backupShowPhrase),
+      trustId(
+        TrustIds.backupShow,
+        FilledButton(
+          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          onPressed: _agreed ? _load : null,
+          child: Text(l.backupShowPhrase),
+        ),
       ),
     ];
   }
@@ -165,7 +172,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen> {
       const SizedBox(height: 8),
     ];
     return ScreenBody(
-      bottom: BusyButton(label: l.commonDone, onPressed: _done),
+      bottom: trustId(TrustIds.backupDone, BusyButton(label: l.commonDone, onPressed: _done)),
       scrolling: _grid(context),
       children: top,
     );

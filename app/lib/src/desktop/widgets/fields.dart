@@ -138,6 +138,7 @@ class EInput extends StatefulWidget {
     this.maxLines = 1,
     this.focusNode,
     this.semanticLabel,
+    this.semanticsId,
     this.textInputAction,
     this.size = EBtnSize.md,
     this.fadeEnd = false,
@@ -174,6 +175,8 @@ class EInput extends StatefulWidget {
 
   /// The name a screen reader reads; by default the label of the [EField] around it, else [hint].
   final String? semanticLabel;
+  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  final String? semanticsId;
 
   /// The soft keyboard's action; in an [EForm] "next", or "done" in its last field.
   final TextInputAction? textInputAction;
@@ -283,6 +286,7 @@ class _EInputState extends State<EInput> {
                 child: _FadeEnd(
                   on: widget.fadeEnd && !multi && widget.trailing != null,
                   child: Semantics(
+                  identifier: widget.semanticsId,
                   label: widget.semanticLabel ?? _EFieldLabel.of(context) ?? widget.hint,
                   child: TextField(
                     controller: widget.controller,
@@ -440,6 +444,7 @@ class EPasswordInput extends StatefulWidget {
     this.autofocus = false,
     this.focusNode,
     this.semanticLabel,
+    this.semanticsId,
     this.textInputAction,
   });
 
@@ -451,6 +456,8 @@ class EPasswordInput extends StatefulWidget {
   final bool autofocus;
   final FocusNode? focusNode;
   final String? semanticLabel;
+  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  final String? semanticsId;
   final TextInputAction? textInputAction;
 
   @override
@@ -481,6 +488,7 @@ class _EPasswordInputState extends State<EPasswordInput> {
       autofocus: widget.autofocus,
       focusNode: widget.focusNode,
       semanticLabel: widget.semanticLabel,
+      semanticsId: widget.semanticsId,
       textInputAction: widget.textInputAction,
       trailing: EIconButton(
         icon: _show ? EIcons.eyeOff : EIcons.eye,
@@ -494,7 +502,7 @@ class _EPasswordInputState extends State<EPasswordInput> {
 
 /// On/off switch: 40×24 track, label and description beside it when given.
 class ESwitch extends StatelessWidget {
-  const ESwitch({super.key, required this.value, this.onChanged, this.label, this.semanticLabel});
+  const ESwitch({super.key, required this.value, this.onChanged, this.label, this.semanticLabel, this.semanticsId});
 
   final bool value;
   final ValueChanged<bool>? onChanged;
@@ -504,6 +512,8 @@ class ESwitch extends StatelessWidget {
 
   /// Read by screen readers only, for a switch whose row already shows its title.
   final String? semanticLabel;
+  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  final String? semanticsId;
 
   @override
   Widget build(BuildContext context) {
@@ -533,6 +543,7 @@ class ESwitch extends StatelessWidget {
       ),
     );
     return Semantics(
+      identifier: semanticsId,
       toggled: value,
       label: label ?? semanticLabel,
       child: FocusableActionDetector(
@@ -566,7 +577,7 @@ class ESwitch extends StatelessWidget {
 
 /// A segment of [ESegmented].
 class ESegment<T> {
-  const ESegment(this.value, this.label, {this.icon, this.count, this.enabled = true, this.tooltip, this.badge});
+  const ESegment(this.value, this.label, {this.icon, this.count, this.enabled = true, this.tooltip, this.badge, this.semanticsId});
 
   final T value;
   final String label;
@@ -579,6 +590,8 @@ class ESegment<T> {
 
   /// After the label: an "Off" badge on a choice that is not available now.
   final Widget? badge;
+  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  final String? semanticsId;
 }
 
 /// Segmented control: the selected segment is raised, neutral (never gold), with a hairline.
@@ -741,6 +754,7 @@ class _SegState<T> extends State<_Seg<T>> {
     final label = TextStyle(fontSize: Fs.sm, fontWeight: FontWeight.w500, color: fg);
     final tip = widget.seg.tooltip;
     final seg = Semantics(
+      identifier: widget.seg.semanticsId,
       button: true,
       selected: sel,
       enabled: !off,
@@ -813,6 +827,7 @@ class EChoiceCard extends StatefulWidget {
     this.icon,
     this.tag,
     this.titleLines,
+    this.semanticsId,
   });
 
   final String title;
@@ -825,6 +840,9 @@ class EChoiceCard extends StatefulWidget {
   /// Reserve this many title lines, so the subtitles of cards in one row share a baseline
   /// whether a title wraps or not (UD-021).
   final int? titleLines;
+
+  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  final String? semanticsId;
 
   @override
   State<EChoiceCard> createState() => _EChoiceCardState();
@@ -839,6 +857,7 @@ class _EChoiceCardState extends State<EChoiceCard> {
     final ts = context.ts;
     final sel = widget.selected;
     return Semantics(
+      identifier: widget.semanticsId,
       inMutuallyExclusiveGroup: true,
       checked: sel,
       button: true,
@@ -901,16 +920,19 @@ class _EChoiceCardState extends State<EChoiceCard> {
 
 /// A checkbox with a label, 20 px box.
 class ECheckbox extends StatelessWidget {
-  const ECheckbox({super.key, required this.value, required this.onChanged, required this.label});
+  const ECheckbox({super.key, required this.value, required this.onChanged, required this.label, this.semanticsId});
 
   final bool value;
   final ValueChanged<bool> onChanged;
   final String label;
+  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  final String? semanticsId;
 
   @override
   Widget build(BuildContext context) {
     final c = context.dc;
     return Semantics(
+      identifier: semanticsId,
       checked: value,
       label: label,
       excludeSemantics: true,

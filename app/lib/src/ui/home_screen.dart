@@ -18,6 +18,7 @@ import '../scan/incoming_link.dart';
 import '../scan/scan_checks.dart' show CodeOrigin;
 import '../settings.dart';
 import '../slate_files.dart';
+import '../trust_ids.dart';
 import '../updater.dart';
 import '../wallet_service.dart';
 import '../watch_mode.dart';
@@ -760,10 +761,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 icon: const Icon(Icons.qr_code_scanner),
                 onPressed: _scan,
               ),
-            IconButton(
-              tooltip: l.homeLockTooltip,
-              icon: const Icon(Icons.lock_outline),
-              onPressed: () => lockWallet(context, ref),
+            trustId(
+              TrustIds.homeLock,
+              IconButton(
+                tooltip: l.homeLockTooltip,
+                icon: const Icon(Icons.lock_outline),
+                onPressed: () => lockWallet(context, ref),
+              ),
             ),
             _SettingsButton(onPressed: () => _open(const SettingsScreen())),
           ],
@@ -1015,11 +1019,14 @@ class _SettingsButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = context.l10n;
     // No update dot: the update notice is the one place an update is offered.
-    return IconButton(
-      key: settingsButtonKey,
-      tooltip: l.homeSettingsTooltip,
-      icon: const Icon(Icons.settings_outlined),
-      onPressed: onPressed,
+    return trustId(
+      TrustIds.homeSettings,
+      IconButton(
+        key: settingsButtonKey,
+        tooltip: l.homeSettingsTooltip,
+        icon: const Icon(Icons.settings_outlined),
+        onPressed: onPressed,
+      ),
     );
   }
 }

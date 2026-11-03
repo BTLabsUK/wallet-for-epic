@@ -591,7 +591,7 @@ class ESubnavGroup {
 /// A vertical list of sub-pages (settings) in groups, each under its heading, with the current
 /// one raised. Every entry is its icon and name only.
 class ESubnav extends StatelessWidget {
-  const ESubnav({super.key, required this.groups, required this.current, required this.onTap, this.wrap, this.matches, this.noMatchLabel});
+  const ESubnav({super.key, required this.groups, required this.current, required this.onTap, this.wrap, this.matches, this.noMatchLabel, this.idOf});
 
   final List<ESubnavGroup> groups;
   final Object current;
@@ -604,6 +604,9 @@ class ESubnav extends StatelessWidget {
   /// [noMatchLabel] to a screen reader. Null: no search, nothing dimmed.
   final Set<Object>? matches;
   final String? noMatchLabel;
+
+  /// The test drivers' stable name for an entry (`TrustIds`, lib/src/trust_ids.dart); null for none.
+  final String? Function(Object id)? idOf;
 
   @override
   Widget build(BuildContext context) {
@@ -618,6 +621,7 @@ class ESubnav extends StatelessWidget {
               (wrap ?? (_, w) => w)(
                 item.$1,
                 ENavItem(
+                  semanticsId: idOf?.call(item.$1),
                   icon: item.$3,
                   label: item.$2,
                   selected: item.$1 == current,
@@ -670,7 +674,7 @@ class ESubnavHeading extends StatelessWidget {
 /// A 40 px navigation entry: icon, label, optional count badge. Used by the sidebar and
 /// sub-navigation. Never a second line: a state belongs on its page.
 class ENavItem extends StatefulWidget {
-  const ENavItem({super.key, required this.icon, required this.label, required this.selected, required this.onTap, this.count, this.compact = false, this.dimmed = false, this.value});
+  const ENavItem({super.key, required this.icon, required this.label, required this.selected, required this.onTap, this.count, this.compact = false, this.dimmed = false, this.value, this.semanticsId});
 
   final IconData icon;
   final String label;
@@ -684,6 +688,8 @@ class ENavItem extends StatefulWidget {
   /// Quieter text and icon (a search found nothing here); [value] says why to a screen reader.
   final bool dimmed;
   final String? value;
+  /// The test drivers' stable name for this control (`TrustIds`, lib/src/trust_ids.dart).
+  final String? semanticsId;
 
   @override
   State<ENavItem> createState() => _ENavItemState();
@@ -750,6 +756,7 @@ class _ENavItemState extends State<ENavItem> {
     );
     if (widget.compact) item = ETip(widget.label, child: item);
     return Semantics(
+      identifier: widget.semanticsId,
       button: true,
       selected: sel,
       label: count > 0

@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../connection_grace.dart' show connectionGraceProvider;
 import '../../../network_gate.dart' show NetBlock, NetBlockByMode, NetGate;
 import '../../../price.dart' show fiatChoiceProvider, fiatText, priceProvider;
+import '../../../trust_ids.dart';
 import '../../app/relay_offer.dart' show DeskRelayNotice;
 import '../../app/shell_notices.dart' show DeskShellNotices, deskShellNoticesShownProvider;
 import '../../app/tour.dart';
@@ -237,6 +238,7 @@ class _OverviewScreenState extends ConsumerState<OverviewScreen> {
                 child: Center(child: ESpinner()),
               )
             : EIconButton(
+                semanticsId: TrustIds.overviewRefresh,
                 icon: EIcons.refresh,
                 label: netBlock == NetBlock.killSwitch ? l.recheckOffKill : (netBlockReason(l, netBlock) ?? l.deskOvRefresh),
                 onPressed: netBlock == NetBlock.none ? _refresh : null,
@@ -460,7 +462,7 @@ class _BalancePanel extends ConsumerWidget {
                       runSpacing: Sp.x1,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        Text(l.deskOvAvailable, style: ts.bodyDim.copyWith(fontWeight: FontWeight.w500)),
+                        trustId(TrustIds.overviewAvailable, Text(l.deskOvAvailable, style: ts.bodyDim.copyWith(fontWeight: FontWeight.w500))),
                         if (asOfBlock != null) EBadge(l.deskOvAsOfBlock(_group(l, asOfBlock!)), tone: ETone.warn),
                         if (updating && asOfBlock == null) const _UpdatingTag(),
                         if (offline) EBadge(l.lastKnownCaption, key: const ValueKey('overview-offline')),
