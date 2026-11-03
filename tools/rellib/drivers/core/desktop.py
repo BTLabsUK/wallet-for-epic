@@ -238,8 +238,11 @@ class Desktop:
         if len(names & self.section_names()) >= 2:
             return True
         # a narrow window shows one section at a time, with no list: the search field is on every Settings page
+        return any(self._settings_search(n) for n in tree)
+
+    def _settings_search(self, n):
         hint = tg._norm(self.d.labels.text("deskSetSearchHint") or "Search settings")
-        return any(n.role == "text_field" and tg._norm(n.name.split("\n")[0]) == hint for n in tree)
+        return n.role == "text_field" and tg._norm(n.name.split("\n")[0]) == hint
 
     def section_names(self):
         """Every section name a release has had, in English and as this build shows them (its locale)."""
@@ -620,7 +623,8 @@ class Desktop:
         if not d.wait(shows(picker), 3):  # a stray Escape or a dialog took the page away: back to it
             self.find_setting(picker, PICKER_PAGES[picker.id], str(picker))
         d.press(picker, step="open-%s" % picker.id, timeout=20,
-                then=Expect("the picker open", lambda dd, tree: any(n.role == "text_field" and "focused" in n.states for n in tree)
+                then=Expect("the picker open", lambda dd, tree: any(n.role == "text_field" and "focused" in n.states
+                                                                    and not self._settings_search(n) for n in tree)
                             or any(self._picker_row(n.name) for n in tree)))
 
     def use_server(self, picker, typed, entry, use, _again=False):
@@ -630,7 +634,8 @@ class Desktop:
         if use and self._in_use(picker, entry):
             return
         self._open_picker(picker)
-        search = [n for n in d.tree() if n.role == "text_field" and "password" not in n.states]
+        # the picker's own field: Settings' search field is on the page too (and may hold the focus)
+        search = [n for n in d.tree() if n.role == "text_field" and "password" not in n.states and not self._settings_search(n)]
         focused = [n for n in search if "focused" in n.states] or search
         if not focused:
             d.harness("the %s picker has no search field" % picker)
