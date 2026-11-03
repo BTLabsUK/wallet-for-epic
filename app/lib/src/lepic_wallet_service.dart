@@ -1244,6 +1244,7 @@ class LepicWalletService implements WalletService {
     required WalletConfig config,
     String? mnemonic,
     required String password,
+    BigInt? restoreFromHeight,
   }) => _guard(
     () async => _session(
       config,
@@ -1253,6 +1254,7 @@ class LepicWalletService implements WalletService {
         store: await _store(config, creating: true),
         mnemonic: mnemonic,
         password: password,
+        // restoreFromHeight: wired when the LEPIC pin moves
       ),
     ),
   );
@@ -1351,6 +1353,7 @@ class LepicWalletService implements WalletService {
     required WalletConfig config,
     String? mnemonic,
     required String pin,
+    BigInt? restoreFromHeight,
   }) => _guard(() async {
     final created = await lepic.EpicWallet.createWithPin(
       runtime: _runtime,
@@ -1358,6 +1361,7 @@ class LepicWalletService implements WalletService {
       store: await _store(config, creating: true),
       mnemonic: mnemonic,
       pin: pin,
+      // restoreFromHeight: wired when the LEPIC pin moves
     );
     return (
       session: await _session(config, created.wallet) as WalletSession,

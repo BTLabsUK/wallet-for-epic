@@ -1587,7 +1587,7 @@ class LepicDeskWallet implements DeskWalletApi {
     try {
       // The scan runs after unlock, in the background, with its progress in the status.
       await _make(name, {'scanPending': true, 'historyOffer': true, if (startHeight != null) 'scanFrom': startHeight.toInt()}, (config) async {
-        final session = await _service.create(config: config, mnemonic: mnemonic, password: password);
+        final session = await _service.create(config: config, mnemonic: mnemonic, password: password, restoreFromHeight: startHeight);
         session.dispose();
       }, walletFingerprintOf: (_) => _walletFingerprint(mnemonic));
     } on core.WalletError catch (e) {
@@ -1985,9 +1985,10 @@ class LepicDeskWallet implements DeskWalletApi {
       _restoreDue = await _restoreFlag(session) || due['scanPending'] == true;
       if (_session != session) return;
       if (!_rescanning && _restoreDue && !_restoreUnfinished) {
-        // A restore from a block height (Restore's start height) scans from there once; while
-        // the core's flag stays, the scan with no height (from block 0, resuming a stopped one)
-        // follows by itself. A rebuild never reuses the height ([_scanEnded]).
+        // A restore scans from its start height (Restore's month or height, recorded by the
+        // core too), which finishes it. Should the core's flag stay (a restore by an older
+        // version owes block 0), the scan with no height (from the restore's start, resuming a
+        // stopped one) follows by itself. A rebuild never reuses the height ([_scanEnded]).
         final from = due['scanFrom'];
         var start = from is int ? BigInt.from(from) : null;
         _restoreFailed = false;
@@ -2021,8 +2022,8 @@ class LepicDeskWallet implements DeskWalletApi {
           await _scanEnded(session, key);
           if (_session != session || !_restoreDue) break;
           if (start == null) {
-            // The core still owes the scan from block 0 after one ran to its end: no loop of
-            // whole-chain scans; the restore state offers Try again.
+            // The core still owes the scan from the restore's start after one ran to its end:
+            // no loop of scans; the restore state offers Try again.
             logWarn('desk', 'restore scan finished, the core still wants one');
             _restoreUnfinished = true;
             break;

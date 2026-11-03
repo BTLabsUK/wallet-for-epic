@@ -124,11 +124,13 @@ class WalletVault {
   /// Creates the wallet of [config] under [pin], restoring [mnemonic] if given, and stores its
   /// sealed text before anything can show the phrase. With [useBiometrics] it also stores the
   /// biometric copy of the PIN, which prompts. A wallet that already opens with a PIN is never
-  /// replaced: that throws [WalletErrorKind.walletAlreadyExists].
+  /// replaced: that throws [WalletErrorKind.walletAlreadyExists]. [restoreFromHeight] is where
+  /// the restore's scan starts ([WalletService.createWithPin]).
   Future<({WalletSession session, bool biometrics})> create(
     WalletConfig config, {
     required String pin,
     String? mnemonic,
+    BigInt? restoreFromHeight,
     bool useBiometrics = false,
   }) async {
     if (!isValidPin(pin)) throw ArgumentError('PIN must be $pinLength digits');
@@ -144,6 +146,7 @@ class WalletVault {
       config: config,
       mnemonic: mnemonic,
       pin: pin,
+      restoreFromHeight: restoreFromHeight,
     );
     try {
       await store.write(_key(config.chain, 'pinSealed'), created.sealedPassword);
