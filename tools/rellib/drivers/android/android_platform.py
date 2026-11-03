@@ -37,6 +37,7 @@ from core import state as st  # noqa: E402
 from core import walletdata as wd  # noqa: E402
 from core.faults import HarnessFault, HarnessGone, ProductFault  # noqa: E402
 from core.lane import Platform  # noqa: E402
+from avd import AVD_DEVICE, AVD_IMAGE, create_avd  # noqa: E402
 from files import PKG, AppFiles  # noqa: E402
 from uia import ADB, Device, Uia  # noqa: E402
 
@@ -113,7 +114,10 @@ class AndroidPlatform(Platform):
             raise HarnessGone("emulator", "emulator %s (REL_ANDROID_SERIAL) is not online" % self.serial)
         self._kill()
         if not os.path.isdir(os.path.join(AVD_HOME, self.avd + ".avd")):
-            raise HarnessFault("prepare", "no AVD %s in %s" % (self.avd, AVD_HOME))
+            err = create_avd(self.avd)
+            if err:
+                raise HarnessFault("prepare", "no AVD %s in %s, and creating it failed: %s" % (self.avd, AVD_HOME, err))
+            self.log("created AVD %s (%s, %s)" % (self.avd, AVD_IMAGE, AVD_DEVICE))
         logf = open(os.path.join(self.out, "emulator.log"), "a")
         t0 = time.time()
         self.emu = subprocess.Popen([os.path.join(SDK, "emulator", "emulator"), "-avd", self.avd, "-no-window", "-no-audio",

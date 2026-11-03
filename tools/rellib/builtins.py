@@ -137,6 +137,64 @@ def resolve_previous(engine):
     return {}
 
 
+# What each G4 lane installs first, per platform: (folders under the previous release, file names). The
+# drivers look the same way (trust-android.sh apk_in, linux_platform.appimage, windows_platform.setup_exe);
+# checked here so a missing input fails G1, not a lane after signing (26.10.26 run-4).
+PREVIOUS_INPUTS = {
+    "android": (("extra/emulator", "dir/emulator"), r"(?:bt-wallet-{v}{sfx}-android|epic-cash-mobile-{v}{sfx})-x86_64\.apk"),
+    "linux": (("dir",), r"(?:bt-wallet-{v}{sfx}-linux|EpicCashDesktop-{v}{sfx})-x86_64\.AppImage"),
+    "windows": (("dir",), r"(?:bt-wallet|epic-cash-desktop)-{v}{sfx}-windows-x64-setup\.exe"),
+}
+
+
+def previous_input(prev, platform, variant):
+    """The previous release's file a G4 lane starts from, or None; -> (path or None, folders looked in)."""
+    where, pattern = PREVIOUS_INPUTS[platform]
+    rx = re.compile("^" + pattern.format(v=re.escape(prev.get("version", "")), sfx="-notor" if variant == "notor" else "") + "$")
+    looked = []
+    for w in where:
+        base, _, sub = w.partition("/")
+        if not prev.get(base):
+            continue
+        d = os.path.join(os.path.expanduser(prev[base]), sub)
+        looked.append(d)
+        hits = sorted(f for f in os.listdir(d) if rx.match(f)) if os.path.isdir(d) else []
+        if hits:
+            return os.path.join(d, hits[0]), looked
+    return None, looked
+
+
+def android_avd_module():
+    spec = importlib.util.spec_from_file_location("trust_avd", os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                                            "drivers", "android", "avd.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def lane_inputs(engine, prev, ok, bad):
+    """Every G4 lane in scope (platform with a driver, not waived; proof variant): the previous release's
+    file it installs, and for Android the emulator AVD it boots."""
+    from .graph import variants_for
+    s, pipe = engine.info["scope"], engine.pipeline
+    drivers = pipe.proof.get("drivers", {})
+    variants = variants_for({"for_each": "proof_variant"}, s, pipe)
+    for plat in PLATFORMS:
+        if not s["platforms"].get(plat) or plat in s["proof"]["waive"] or plat not in drivers or plat not in PREVIOUS_INPUTS:
+            continue
+        for v in variants:
+            f, looked = previous_input(prev, plat, v)
+            if f:
+                ok(f"G4 {plat} {v}: previous {os.path.basename(f)}")
+            else:
+                bad(f"G4 {plat} {v}: no previous {prev.get('version')} file for the lane in {' or '.join(looked) or 'no folder'}")
+            if plat == "android":
+                avd = android_avd_module()
+                name = os.environ.get("REL_ANDROID_AVD") or avd.avd_name(v)
+                err = avd.avd_problem(name)
+                (ok if not err else bad)(f"G4 android {v}: emulator AVD {name}" + (f": {err}" if err else ""))
+
+
 def windows_rig_module():
     spec = importlib.util.spec_from_file_location("win_rig", os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                                                           "drivers", "windows", "rig.py"))
@@ -310,6 +368,7 @@ def preflight(engine, step, say):
         else:
             ok(f"previous release {prev['version']} at {prev['dir']}")
             info["previous"] = prev
+            lane_inputs(engine, prev, ok, bad)
         if not engine.dry:
             # G4 pays from P side by side (the shared P service): at least p_outputs.LOW free outputs.
             from . import p_outputs
