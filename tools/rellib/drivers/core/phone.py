@@ -17,8 +17,8 @@ import time
 
 from . import breaks
 from . import targets as tg
-from .driver import SLOW, Expect, either, gone, shows, where
-from .faults import HarnessFault, ProductFault
+from .driver import SLOW, Expect, Goal, either, gone, shows, where
+from .faults import HarnessFault, InfraFault, ProductFault
 
 T = tg.T
 
@@ -54,6 +54,7 @@ SECTION = {
     "appearance": T("g4.settings.section.display", keys=("settingsSectionDisplay",), names=("Appearance",), match="line"),
     "wallet": T("g4.settings.section.wallet", keys=("settingsSectionWallet",), names=("This wallet",), match="line"),
     "advanced": T("g4.settings.section.advanced", keys=("advTitle",), names=("Advanced",), match="line"),
+    "privacy": T("g4.settings.section.privacy", keys=("settingsSectionNetworkPrivacy",), names=("Network & privacy",), match="line"),
 }
 # every Settings entry a phone release has had (for "a setting moved": the pages are walked when the known ones miss it)
 ALL_SECTIONS = ("Security", "Appearance", "This wallet", "Linked devices", "Help", "Donate", "Advanced", "About",
@@ -83,6 +84,18 @@ SWITCH = T("g4.server.switch", keys=("slSwitch", "lvShellSwitch"), names=("Switc
 CLEAR = T("g4.server.clear", keys=("slClear",), names=("Clear",), match="exact")
 SERVER_REFUSED = T("g4.server.refused", role="text", names=(r"re:.*(no answer from this server|nothing added|not a node|"
                                                             r"could not reach|did not answer).*",), match="contains")
+
+# Tor (26.11.0): Settings › Network & privacy › Network, radio rows adv-mode-<name> (level 2 and up); the
+# page's status card reads its Epicbox row "Epicbox connected, <relay>, …, over Tor" once Tor carries it
+# (network_status.dart: "over Tor" only while Tor is on).
+MODE_TOR_ONLY = T("g4.privacy.mode.toronly", role="checkbox", keys=("advModeTorOnly",), names=("Tor only",), match="starts")
+MODE_NORMAL = T("g4.privacy.mode.standard", role="checkbox", keys=("advModeStandard",), names=("Normal",), match="starts")
+EPICBOX_ROW = T("g4.privacy.status.epicbox", role="other", keys=("statusEpicboxOnline", "statusEpicboxConnecting",
+                "statusEpicboxOffline", "statusEpicboxBlocked"), names=(r"re:epicbox (connected|connecting|not connected|blocked)\b.*",),
+                match="starts")
+EPICBOX_UP = "epicbox connected"
+OVER_TOR = "over tor"   # netStatusOverTor
+TOR_START_S = 240       # a Tor start, each of the two tries (before REL_TRUST_SLOW)
 
 RECEIVE_EPICBOX = T("g4.receive.method.epicbox", keys=("methodEpicbox",), names=("Epicbox",), match="exact")
 SEND_EPICBOX = T("g4.send.method.epicbox", keys=("methodEpicbox",), names=("Epicbox",), match="exact")
@@ -646,6 +659,80 @@ class Phone:
         self.log("live servers in use: node %s, Epicbox %s" % (bare_host(node), relay))
         self.d.shot("%s-live-servers" % self.which)
         self.home()
+
+    # ---- Tor (the Tor lanes' after-update payments)
+
+    def _chosen(self, target, tree):
+        return any("checked" in n.states or "selected" in n.states for n in self.d.find_in(target, tree))
+
+    def tor_state(self, tree=None):
+        """{epicbox, over_tor}: the Network & privacy card's Epicbox row, its state words and whether it
+        says over Tor; None and False when the row does not show."""
+        tree = tree if tree is not None else self.d.tree()
+        n = next(iter(self.d.find_in(EPICBOX_ROW, tree)), None)
+        if not n:
+            return {"epicbox": None, "over_tor": False}
+        parts = [tg._norm(p) for p in n.name.replace("\n", ",").split(",")]
+        return {"epicbox": parts[0], "over_tor": OVER_TOR in parts}
+
+    def _tor_up(self, tree):
+        s = self.tor_state(tree)
+        return s["epicbox"] == EPICBOX_UP and s["over_tor"]
+
+    def _mode(self, target, what):
+        """Settings › Network & privacy › Network: `target` chosen."""
+        d = self.d
+        self.find_setting(target, ("privacy",), what)
+        if not self._chosen(target, d.tree()):
+            d.press(target, step="mode-%s" % target.id.rsplit(".", 1)[-1], timeout=20,
+                    then=Expect("%s chosen" % target, lambda dd, tree: self._chosen(target, tree)))
+
+    def tor_on(self, budget=TOR_START_S):
+        """Tor only, then the page's Epicbox row connected over Tor. A goal: Tor only chosen with Epicbox
+        over Tor is a SKIP. A slow start gets `budget` and one more try (Normal, then Tor only again);
+        still not up is InfraFault tor. -> "skipped" | "done"."""
+        d = self.d
+        self._view_deep_end()   # the Network section shows from level 2
+        self.find_setting(MODE_TOR_ONLY, ("privacy",), "the Tor only network mode")
+        chosen = [self._chosen(MODE_TOR_ONLY, d.tree())]
+        self._look(EPICBOX_ROW, 3)
+
+        def up():
+            for attempt in (1, 2):
+                self._mode(MODE_TOR_ONLY, "the Tor only network mode")
+                chosen[0] = True
+                self._look(EPICBOX_ROW, 3)
+                if d.wait(Expect("Epicbox connected over Tor", lambda dd, tree: self._tor_up(tree)), budget):
+                    self.log("Tor only: Epicbox connected over Tor (%s)" % self.tor_state())
+                    return
+                self.log("tor-on: not connected after %d s (%s)%s" % (budget, self.tor_state(),
+                         "; Normal, then Tor only again" if attempt == 1 else ""))
+                if attempt == 1:
+                    self._mode(MODE_NORMAL, "the Normal network mode")
+            raise InfraFault("tor-on", "Tor only chosen, Epicbox not connected over Tor in %d s, twice (%s)" % (
+                budget, self.tor_state()), sub="tor", shot=d.shot("tor-on"))
+
+        r = d.achieve(Goal("tor-on", lambda tree: chosen[0] and self._tor_up(tree), up), 30)
+        d.shot("%s-tor-on" % self.which)
+        self.home()
+        return r
+
+    def tor_off(self):
+        """Back to Normal (Tor off): the fallback legs run in the clear."""
+        self._mode(MODE_NORMAL, "the Normal network mode")
+        self._look(EPICBOX_ROW, 3)
+        self.log("Network mode Normal: Tor off (%s)" % self.tor_state())
+        self.home()
+
+    def tor_status(self):
+        """tor_state with up and tor_only, read on Settings › Network & privacy: what the lane records."""
+        self.find_setting(MODE_TOR_ONLY, ("privacy",), "the Network & privacy page")
+        self._look(EPICBOX_ROW, 3)
+        tree = self.d.tree()
+        s = self.tor_state(tree)
+        s["up"], s["tor_only"] = self._tor_up(tree), self._chosen(MODE_TOR_ONLY, tree)
+        self.home()
+        return s
 
     def _level_three(self, tree):
         three = tg._norm(self._text("levelThreeTitle", "Let me explore everything"))

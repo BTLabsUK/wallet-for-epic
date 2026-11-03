@@ -379,7 +379,19 @@ def log_flags(files):
             "first_start": [(i, l) for i, l in enumerate(lines) if FIRST_START.search(l)],
             "subscribed": [(i, m.group(1)) for i, l in enumerate(lines)
                            if "epicbox subscribed" in l for m in [re.search(r"relay=(\S+)", l)] if m],
-            "hosts": [(i, h) for i, l in enumerate(lines) for h in log_hosts(l)]}
+            "hosts": [(i, h) for i, l in enumerate(lines) for h in log_hosts(l)],
+            "tor": [(i, tor_line(l)) for i, l in enumerate(lines) if TOR_LINE.search(l)]}
+
+
+# The app's Tor lines (desktop `dart.desk: tor ...`, phone `tor: ...`); an onion is not kept
+TOR_LINE = re.compile(r"(?:^|\s)(?:dart\.\w+: )?tor(?::| on\b| start| failed| ended| stop)|epicbox over tor", re.I)
+ONION = re.compile(r"\b[a-z2-7]{16,56}\.onion\b", re.I)
+
+
+def tor_line(line):
+    """[line] for the proof: from its level on, onions masked, at most 160 characters."""
+    m = re.search(r"\b(?:TRACE|DEBUG|INFO|WARN|ERROR)\b", line)
+    return ONION.sub("<onion>", line[m.start():] if m else line).strip()[:160]
 
 
 # ---- the plain database -----------------------------------------------------------------------------

@@ -95,6 +95,8 @@ SECTION = {
     "appearance": T("g4.settings.section.appearance", keys=("deskSetFrameAppearance",), names=("Appearance",), match="exact"),
     "advanced": T("g4.settings.section.advanced", keys=("deskSetFrameAdvanced",), names=("Advanced",), match="exact"),
     "about": T("g4.settings.section.about", keys=("deskSetFrameAbout",), names=("About",), match="exact"),
+    "privacy": T("g4.settings.section.privacy", keys=("settingsSectionNetworkPrivacy", "deskSetFramePrivacy"),
+                 names=("Network & privacy", "Privacy"), match="exact"),
 }
 # every section a release has had (for "a setting moved": the pages are walked when the known ones miss it)
 ALL_SECTIONS = ("Node", "Transactions", "Receiving", "Privacy", "Appearance", "This wallet", "All wallets",
@@ -139,6 +141,16 @@ SEND_FAILED = T("g4.send.failed", role="text", keys=("deskSendFailedTitle", "des
                 names=("re:.*(send failed|not sent).*",), match="contains")
 SEND_DONE = T("g4.send.done", role="text", keys=("deskSendDoneViaEpicbox", "deskSendDoneViaDirect", "deskSendHintSent"),
               match="starts")
+
+# Tor (26.11.0): Settings › Network & privacy › Connection mode, radio rows adv-mode-<name> (the Tor switch
+# is gone; Tor only is the one whole-wallet Tor control). The status rail says how it went: each item is
+# "<open label>: <state word>" (rail.dart), Tor's and Epicbox's word "Connected" once up.
+MODE_TOR_ONLY = T("g4.privacy.mode.toronly", role="checkbox", keys=("advModeTorOnly",), names=("Tor only",), match="starts")
+MODE_NORMAL = T("g4.privacy.mode.standard", role="checkbox", keys=("advModeStandard",), names=("Normal",), match="starts")
+RAIL_TOR = T("g4.rail.tor", keys=("deskRailOpenNetworkPrivacy",), names=("Open Network & privacy",), match="starts")
+RAIL_EPICBOX = T("g4.rail.epicbox", keys=("deskRailOpenEpicbox",), names=("Open Epicbox receiving",), match="starts")
+RAIL_UP = "connected"   # ShownState.connected (netStatusConnected): Tor on, Epicbox subscribed
+TOR_START_S = 240       # a Tor start, each of the two tries (before REL_TRUST_SLOW)
 
 ADDRESS_RX = re.compile(r"\b([1-9A-HJ-NP-Za-km-z]{48,56})(@[\w.:-]+)?")
 
@@ -601,6 +613,72 @@ class Desktop:
         d.wait(Expect("Deep end chosen", lambda dd, tree: any(("checked" in x.states or "selected" in x.states)
                                                               for x in dd.find_in(DEEP_END, tree))), 10)
         self.log("Settings › Advanced › View: Deep end")
+
+    # ---- Tor (the Tor lanes' after-update payments)
+
+    def _chosen(self, target, tree):
+        return any("checked" in n.states or "selected" in n.states for n in self.d.find_in(target, tree))
+
+    def tor_state(self, tree=None):
+        """{tor, epicbox}: the status rail's words for Tor and Epicbox (lower case), None where it shows none."""
+        tree = tree if tree is not None else self.d.tree()
+        out = {}
+        for k, t in (("tor", RAIL_TOR), ("epicbox", RAIL_EPICBOX)):
+            n = next(iter(self.d.find_in(t, tree)), None)
+            out[k] = tg._norm(n.name.split("\n")[0].rsplit(":", 1)[-1]) if n and ":" in n.name else None
+        return out
+
+    def _tor_up(self, tree):
+        s = self.tor_state(tree)
+        return s["tor"] == RAIL_UP and s["epicbox"] == RAIL_UP
+
+    def _mode(self, target, what):
+        """Settings › Network & privacy › Connection mode: `target` chosen."""
+        d = self.d
+        self.find_setting(target, ("privacy",), what)
+        if not self._chosen(target, d.tree()):
+            d.press(target, step="mode-%s" % target.id.rsplit(".", 1)[-1], timeout=20,
+                    then=Expect("%s chosen" % target, lambda dd, tree: self._chosen(target, tree)))
+
+    def tor_on(self, budget=TOR_START_S):
+        """Tor only, then the rail's Tor and Epicbox Connected. A goal: Tor only chosen with both up is a
+        SKIP. A slow start gets `budget` and one more try (Normal, then Tor only again); still not up is
+        InfraFault tor. -> "skipped" | "done"."""
+        d = self.d
+        self.find_setting(MODE_TOR_ONLY, ("privacy",), "the Tor only connection mode")
+        chosen = [self._chosen(MODE_TOR_ONLY, d.tree())]
+        self.leave_settings()
+
+        def up():
+            for attempt in (1, 2):
+                self._mode(MODE_TOR_ONLY, "the Tor only connection mode")
+                chosen[0] = True
+                self.leave_settings()
+                if d.wait(Expect("Tor and Epicbox connected (status rail)", lambda dd, tree: self._tor_up(tree)), budget):
+                    self.log("Tor only: Tor and Epicbox connected (rail %s)" % self.tor_state())
+                    return
+                self.log("tor-on: not connected after %d s (rail %s)%s" % (budget, self.tor_state(),
+                         "; Normal, then Tor only again" if attempt == 1 else ""))
+                if attempt == 1:
+                    self._mode(MODE_NORMAL, "the Normal connection mode")
+            raise InfraFault("tor-on", "Tor only chosen, Tor or Epicbox not connected in %d s, twice (rail %s)" % (
+                budget, self.tor_state()), sub="tor", shot=d.shot("tor-on"))
+
+        r = d.achieve(Goal("tor-on", lambda tree: chosen[0] and self._tor_up(tree), up), 30)
+        d.shot("%s-tor-on" % self.which)
+        return r
+
+    def tor_off(self):
+        """Back to Normal (Tor off): the fallback legs run in the clear."""
+        self._mode(MODE_NORMAL, "the Normal connection mode")
+        self.leave_settings()
+        self.log("Connection mode Normal: Tor off (rail %s)" % self.tor_state())
+
+    def tor_status(self):
+        """tor_state with up (both Connected): what the lane records (the rail shows outside Settings)."""
+        s = self.tor_state()
+        s["up"] = s["tor"] == RAIL_UP and s["epicbox"] == RAIL_UP
+        return s
 
     def _in_use(self, picker, entry, tree=None):
         tree = tree if tree is not None else self.d.tree()

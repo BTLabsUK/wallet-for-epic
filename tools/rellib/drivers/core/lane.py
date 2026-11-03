@@ -65,23 +65,26 @@ import glob
 import json
 import os
 import re
+import sys
 import time
 import traceback
 
-from . import breaks
-from . import hermetic
-from . import lane_seed as ls
-from . import record
-from . import state as st
-from .recover import Recover, phrase_screen
-from .faults import Fault, HarnessFault, HarnessGone, InfraFault, ProductFault
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+import facts  # noqa: E402
+from . import breaks  # noqa: E402
+from . import hermetic  # noqa: E402
+from . import lane_seed as ls  # noqa: E402
+from . import record  # noqa: E402
+from . import state as st  # noqa: E402
+from .recover import Recover, phrase_screen  # noqa: E402
+from .faults import Fault, HarnessFault, HarnessGone, InfraFault, ProductFault  # noqa: E402
 
 # The phases a lane can be resumed at: the previous release installed, its wallet made and open.
 RESUMABLE = ("previous-setup", "settings-ui-before", "address", "fund")
 # The phases REL_TRUST_UNTIL may name (a typo would run the whole lane, payment and all).
 PHASES = ("prepare", "install", "restore", "previous", "restore-ok", "previous-open", "previous-setup",
           "settings-ui-before", "address", "fund", "digest-before", "stop-previous", "seed", "snapshot", "update",
-          "candidate", "settings-ui-after", "digest-after", "live-servers", "funds", "save-state", "home")
+          "candidate", "settings-ui-after", "digest-after", "live-servers", "tor-on", "funds", "save-state", "home")
 
 
 class UntilRefused(RuntimeError):
@@ -374,8 +377,12 @@ class Lane:
         after = self.run_phase("digest-after", lambda: self.checks_mod.settle(self, before))
         self._ui_settings(after)
         self.checks_mod.compare(self, before, after, snap)
-        if self.funds:
+        # a Tor lane's after-update payments go over Tor (REL_TRUST_UNTIL=tor-on tries it without REL_FUNDS)
+        tor = self.p.variant == "tor" and (self.funds or self.until == "tor-on")
+        if self.funds or tor:
             self.run_phase("live-servers", lambda: self._live_servers(after))
+        if tor:
+            self.run_phase("tor-on", lambda: self._tor_on(after))
         # without REL_FUNDS the legs are not checked; the balance still goes back to P
         self.run_phase("funds", lambda: self.checks_mod.funds_legs(self, after))
         # a passing lane leaves its wallet for the next release (REL_TRUST_SAVE_STATE=0 for trial runs)
@@ -413,6 +420,38 @@ class Lane:
         self.ui.use_servers(node, relay)
         self.p.node, self.p.relay = node, relay
         self.details["live_servers"] = {"node": node, "relay": relay}
+
+    def _tor_on(self, after):
+        """The candidate's Connection mode Tor only before the funds legs, Tor and Epicbox connected (the
+        recipe's tor_on). A relay Tor cannot reach is moved first to the first pick it can. Tor that does
+        not come up is not the lane's: tor_payment_ok false (never required) and the legs run in the
+        clear (checks.funds_legs reads lane.tor)."""
+        info = self.details["tor"] = {"node": self.p.node, "relay": self.p.relay}
+        self.tor = {"on": False}
+        if after is None or not self.results.get("wallet_opens") or not self.results.get("balance_kept"):
+            info["state"] = "not turned on: the funds legs do not run"
+            self.log("tor-on: %s" % info["state"])
+            return
+        if not hermetic.tor_route(self.p.relay):
+            alt = next((h for h in facts.RELAY_PICK if hermetic.tor_route(h)), None)
+            if alt:
+                self.log("tor-on: Tor cannot reach the relay %s; %s in use instead" % (self.p.relay, alt))
+                self.ui.use_servers(self.p.node, alt)
+                info["relay_moved"] = {"from": self.p.relay, "to": alt}
+                self.p.relay = info["relay"] = alt
+        info["route"] = {"node": hermetic.tor_route(self.p.node), "relay": hermetic.tor_route(self.p.relay)}
+        try:
+            info["goal"] = self.ui.tor_on()
+        except HarnessGone:
+            raise
+        except Fault as e:
+            self.checks_mod.tor_failed(self, "Tor did not come up: %s" % e.what, e.cause_class)
+            info["state"] = "off: %s" % e.line()
+            return
+        self.tor = {"on": True}
+        info["mode"] = "Tor only"
+        info["state"] = self.ui.tor_status()
+        self.log("tor-on: Connection mode Tor only; %s" % info["state"])
 
     def _non_local(self):
         """details["non_local"]: the hosts outside this machine the driver and the app (its log's lines, as
