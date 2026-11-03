@@ -579,9 +579,14 @@ class Desktop:
         self.log("Settings › Advanced › View: Deep end")
 
     def _in_use(self, picker, entry, tree=None):
+        tree = tree if tree is not None else self.d.tree()
         n = self.d.seen(picker, tree)
         if not n:
-            return False
+            # 26.10.26 on Windows: a choice closes the picker and takes it out of the UIA tree; the
+            # page's status line ("Synced: node.btlabs.uk") still names the server in use
+            rx = re.compile(r":\s*%s\s*(\||,|$)" % re.escape(entry))
+            return not any(self._picker_row(x.name) for x in tree) and any(
+                x.role == "text" and rx.search(x.name.replace("\n", " | ")) for x in tree)
         rest = re.split(r"[:\n]", n.name, 1)[1].strip() if re.search(r"[:\n]", n.name) else ""
         return rest == entry or rest.startswith(entry + ",") or rest.startswith(entry + " ")
 
@@ -669,7 +674,7 @@ class Desktop:
         if open_(d.tree()) and not d.wait(Expect("the picker closed", lambda dd, tree: not open_(tree)), 3, dismiss=False):
             d.s.key("escape")  # closes the picker (if it closed first, _open_picker finds the page again)
             time.sleep(0.8)
-        if use and not d.wait(shows(picker), 2):  # an Escape too many left the page: back to it to read the choice
+        if use and not d.wait(shows(picker), 2) and not self._in_use(picker, entry):  # an Escape too many left the page: back to it to read the choice
             self.find_setting(picker, PICKER_PAGES[picker.id], str(picker))
         if use and not (d.wait(Expect("%s in use with the picker closed" % entry,
                                       lambda dd, tree: self._in_use(picker, entry, tree)), 5, dismiss=False)):
