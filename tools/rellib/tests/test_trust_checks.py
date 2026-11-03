@@ -170,6 +170,18 @@ class Compare(unittest.TestCase):
         lane = self.run_compare(digest(), after)
         self.assertFalse(lane.results["wallet_opens"])
 
+    def test_phone_one_wallet_without_wallets_json(self):
+        phone = [digest(), digest()]
+        for d in phone:
+            d["wallet"], d["wallet_ids"] = None, []
+        lane = self.run_compare(*phone)
+        self.assertTrue(lane.results["wallet_opens"], lane.details["wallet_opens"])
+        gone = digest()
+        gone["wallet"], gone["wallet_ids"] = None, []
+        self.assertFalse(self.run_compare(digest(), gone).results["wallet_opens"])  # had wallets.json, lost it
+        gone["source"] = "none"
+        self.assertFalse(self.run_compare(phone[0], gone).results["wallet_opens"])  # no store read after
+
     def test_migration_checks_apply_when_candidate_encrypts(self):
         os.environ["REL_CANDIDATE_VERSION"] = "26.10.25"
         os.environ["REL_PREVIOUS_VERSION"] = "26.10.24"

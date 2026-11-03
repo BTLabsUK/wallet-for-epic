@@ -178,6 +178,12 @@ pattern = "send: no Send button on the review"
 hint = "The driver did not recognise the review's button label. Compare the `send: review` dump in steps/<step>/out/screens.log (and shots/*-send-review.png) with the regex in tools/rellib/drivers/android/trust.py send_epicbox: 26.10.25 puts a no-break space before the unit (\"Send 0.01\\u00a0EPIC\"). Fix the driver on main, then `tools/rel retry <step>`."
 
 [[failure]]
+id = "android-v2-send-confirm"
+steps = ["trust-android"]
+pattern = "HARNESS send-confirm: "
+hint = "The v2 driver did not recognise the review's Send button. Compare shots/*-send-review.png and tree-*-fail-send-confirm.txt in steps/<step>/out with SEND_CONFIRM in tools/rellib/drivers/core/phone.py (its id g4.send.confirm, else \"Send <amount> EPIC\"; a no-break space is read as a space). Fix the driver on main, then `tools/rel retry <step>`."
+
+[[failure]]
 id = "relay-release-finished"
 steps = ["publish-gate"]
 pattern = "this release has finished; no new gates"

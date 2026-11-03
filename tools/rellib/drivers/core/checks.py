@@ -262,7 +262,11 @@ def _how(a):
 
 def _wallet_opens(lane, b, a):
     w0, w1 = b.get("wallet"), a.get("wallet")
-    if not w1 or a.get("source") == "none":
+    if not w0 and not w1 and not b.get("wallet_ids") and a.get("source") != "none":
+        # the phone app has one wallet and no wallets.json: its store, read after the update, is the wallet
+        lane.ok("wallet_opens", "the app's one wallet (%s) opened with the candidate; its store was read (%s)" % (
+            a.get("store_dir"), a["source"]))
+    elif not w1 or a.get("source") == "none":
         lane.fail("wallet_opens", "the wallet's data shows no wallet after the update (wallets.json: %s, database: %s)" % (
             w1 and w1.get("id"), a.get("source")))
     elif w0 and w0.get("id") != w1.get("id"):
