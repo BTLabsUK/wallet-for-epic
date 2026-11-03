@@ -310,7 +310,14 @@ class Phone:
     def in_settings(self, tree=None):
         tree = tree if tree is not None else self.d.tree()
         names = {tg._norm(n.name.split("\n")[0]) for n in tree if n.role in ("button", "row", "menu_item", "link")}
-        return len(names & {tg._norm(s) for s in ALL_SECTIONS}) >= 3
+        return len(names & self.section_names()) >= 3
+
+    def section_names(self):
+        """Every section name a release has had, in English and as this build shows them (its locale)."""
+        if getattr(self, "_section_names", None) is None:
+            loc = self.d.labels.localized(ALL_SECTIONS, prefix="settings") if self.d.labels else set()
+            self._section_names = {tg._norm(s) for s in (*ALL_SECTIONS, *loc)}
+        return self._section_names
 
     def settings(self):
         """The Settings list: Back from a Settings page, else from home by the Settings button."""
@@ -370,7 +377,7 @@ class Phone:
                     return True
         self.settings()
         listed = [n.name.split("\n")[0].strip() for n in d.tree() if n.role in ("button", "row", "menu_item")
-                  and n.name.split("\n")[0].strip() in ALL_SECTIONS]
+                  and tg._norm(n.name.split("\n")[0]) in self.section_names()]
         for name in listed:
             if name in [SECTION[p].names[0] for p in tried if p in SECTION]:
                 continue

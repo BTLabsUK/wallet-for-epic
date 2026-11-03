@@ -30,8 +30,9 @@ def required(funds):
     if given:
         return given
     migrate = checks.migrating()[0]
-    base = ["wallet_opens", "balance_kept", "history_kept", "custom_nodes_kept", "custom_relays_kept", "settings_kept"]
-    return base + (checks.MIGRATION_CHECKS if migrate else []) + (["send_ok", "receive_ok"] if funds else [])
+    base = ["wallet_opens", "balance_kept", "custom_nodes_kept", "custom_relays_kept", "settings_kept"]
+    # without funds the wallet has no transaction: history has nothing to compare
+    return base + (checks.MIGRATION_CHECKS if migrate else []) + (["history_kept", "send_ok", "receive_ok"] if funds else [])
 
 
 def main():

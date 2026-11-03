@@ -6,6 +6,7 @@ import os
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DRIVERS = os.path.join(os.path.dirname(HERE), "drivers")
@@ -107,7 +108,9 @@ class FakePhone:
 class PhoneTest(unittest.TestCase):
     def setUp(self):
         self.out = tempfile.mkdtemp(prefix="trust-android-")
-        os.environ["REL_AI"] = "0"
+        env = mock.patch.dict(os.environ, {"REL_AI": "0"})
+        env.start()
+        self.addCleanup(env.stop)
 
     def recipe(self, s):
         d = Driver(s, None, Recover(self.out, "android", log=lambda *_: None), out=self.out, log=lambda *_: None, poll=0.01)
