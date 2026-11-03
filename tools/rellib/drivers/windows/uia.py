@@ -12,6 +12,7 @@ count). No screenshots: PrintWindow returns one colour in this session, so scree
 Never coordinates a person wrote down and never the order of the tree: a click uses the rect the
 node has in the read just made, and a press re-reads when the node is not where it was.
 """
+import dataclasses
 import os
 import re
 import sys
@@ -211,29 +212,50 @@ class WinSurface:
         time.sleep(0.8)
         return self._signature(self.tree()) == before
 
-    def set_text(self, node, text):
-        """Click into the field, clear what it holds, type. A password field's value is not readable,
-        so it is cleared by a fixed run of backspaces and its text goes to the rig as a file."""
-        self._click(node)
+    def set_text(self, node, text, secret=False):
+        """Click into the field (a field outside the view: its default action, which focuses it), clear
+        what it holds, type. A password field's value is not readable, so it is cleared by a fixed run
+        of backspaces. A secret (a password, a phrase word) or a long text goes to the rig as a file the
+        agent deletes as soon as it has read it: never on the ssh command line, in a command file or in
+        a log, and the field is named without its value."""
+        secret = secret or "password" in node.states
+        shown = dataclasses.replace(node, value=None) if secret else node
+        if self._in_view(node):
+            self._click(shown)
+        else:
+            r = self._call("ui_at", idx=node.ref["idx"], name=node.ref["name"], what="press")
+            if not r.get("ok"):
+                raise HarnessFault("ui", "could not reach %s outside the view: %s" % (shown.brief(), (r.get("error") or "")[:120]))
+            self.log("focused %s by its default action: it lies outside the view" % shown.brief())
         time.sleep(0.3)
-        secret = "password" in node.states
-        n = ERASE_SECRET if secret else len(node.value or "")
+        n = ERASE_SECRET if "password" in node.states else len(node.value or "")
         if n:
             self._call("erase", timeout=60 + n, n=n)
         if secret or len(text) > 200:
-            fd, path = tempfile.mkstemp(dir=self.secret_dir, prefix="typed-")
-            try:
-                os.fchmod(fd, 0o600)
-                with os.fdopen(fd, "w") as f:
-                    f.write(text)
-                remote = self.rig.put_secret(path, "typed")
-            finally:
-                os.unlink(path)
-            r = self._call("type", timeout=60 + len(text), file=remote)
+            r = self._type_file(text)
         else:
             r = self._call("type", timeout=60 + len(text), text=text)
         if not r.get("ok"):
-            raise HarnessFault("ui", "typing into %s failed: %s" % (node.brief(), (r.get("error") or "")[:120]))
+            raise HarnessFault("ui", "typing into %s failed: %s" % (shown.brief(), (r.get("error") or "")[:120]))
+
+    def _type_file(self, text):
+        """The text typed from a file in the run's secret folder, removed on the rig right after: by the
+        agent once read (drop), else here by its exact path."""
+        fd, path = tempfile.mkstemp(dir=self.secret_dir, prefix="typed-")
+        try:
+            os.fchmod(fd, 0o600)
+            with os.fdopen(fd, "w") as f:
+                f.write(text)
+            remote = self.rig.put_secret(path, "typed")
+        finally:
+            os.unlink(path)
+        r = {}
+        try:
+            r = self._call("type", timeout=60 + len(text), file=remote, drop=True)
+        finally:
+            if not r.get("dropped"):
+                self.rig.pwsh("Remove-Item -LiteralPath '%s' -Force -ErrorAction SilentlyContinue" % remote, check=False)
+        return r
 
     def key(self, name):
         vk = VK.get(name)

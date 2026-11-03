@@ -47,7 +47,7 @@ class Fake:
         self.pressed.append(node.name)
         self.cur = self.moves.get((self.cur, node.name), self.cur)
 
-    def set_text(self, node, text):
+    def set_text(self, node, text, secret=False):
         pass
 
     def key(self, name):

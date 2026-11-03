@@ -11,6 +11,8 @@
 #   REL_VIA_DIR, REL_VIA_VERSION  optional: a release the user ran in between (opened once, then the candidate)
 #   REL_VARIANT tor|notor        REL_CHECKS comma list (default: all eight, plus store_encrypted,app_files_kept,lan_nodes_kept,contact_note_kept for a candidate from 26.10.25; without send_ok,receive_ok when REL_FUNDS=0)
 #   REL_FUNDS 1|0                1: also receive from and send to P with the candidate
+#   REL_TRUST_MODE create        the create-wallet test instead: the candidate installed fresh, a new wallet
+#                                to home, proof create_ok; no previous release, no funds, the phrase dropped
 #   REL_NODE, REL_EPICBOX        servers to use; picked here (BT Labs first) when unset
 #   REL_OUT                      proof.json, trust.log, digests, shots/ (debug), screens/ (catalogue: screens.json + PNGs), P logs
 #   REL_DRY_RUN=1                print the plan, touch nothing

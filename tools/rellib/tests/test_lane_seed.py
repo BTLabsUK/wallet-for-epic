@@ -381,6 +381,18 @@ class LaneModes(Store):
         self.assertEqual(seed.meta()["last"], dict(seed.meta()["last"], spendable="0.056", run="26.11.3-run1"))
         self.assertIsNone(seed.lock_holder())
 
+    def test_restore_keeps_the_phrase_for_the_encrypted_store_read(self):
+        self.seeded()
+
+        class Restorer:
+            def restore_wallet(self, phrase, birth):
+                return {"password": "pw-not-a-word"}
+        lane = self.lane(FakePlatform([0]), ["restore_ok"], Restorer())
+        lane._pick()
+        lane._restore()
+        # the LEPIC CLI reads a desktop store from 26.10.25 by restoring from the phrase
+        self.assertEqual(lane.secrets, {"password": "pw-not-a-word", "phrase": FAKE})
+
     def test_restore_short_of_the_record_fails_and_keeps_it(self):
         seed = self.seeded(last=6000000)
         lane = self.lane(FakePlatform([1000000]), ["restore_ok"])
