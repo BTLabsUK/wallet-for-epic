@@ -15,6 +15,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(HERE), "drivers"))
 
 from core import state as st  # noqa: E402
 from core import targets as tg  # noqa: E402
+from core.desktop import Desktop  # noqa: E402
 from core.driver import Driver, shows  # noqa: E402
 from core.faults import HarnessFault, ProductFault  # noqa: E402
 from core.labels import Labels  # noqa: E402
@@ -150,6 +151,32 @@ class CoreTest(unittest.TestCase):
             with unittest.mock.patch.dict(os.environ, {"REL_TRUST_START": "fresh"}):
                 self.assertIsNone(st.pick("linux", "tor", "26.10.26"))
 
+
+    def _unlock(self, field):
+        f = Fake({"lock": [n(0, "text", "Odblokuj portfel"), field, n(2, "button", "Odblokuj")]}, "lock", {})
+        d = self.driver(f, arb={"deskOnbStepPassword": "Hasło", "deskOnbUnlockTitle": "Odblokuj portfel"})
+        desk = Desktop(d, "candidate", self.logs.append)
+        desk.password = "x"
+        d.wait = lambda expect, timeout=30, **kw: expect.test(d, f.tree()) or None
+        return desk
+
+    def test_password_field_without_the_flag_is_product(self):
+        # 26.10.26 b1e4540 on Windows: the unlock field had its Semantics id and no IsPassword
+        desk = self._unlock(n(1, "text_field", "Hasło", states=("enabled", "editable", "focused")))
+        with self.assertRaises(ProductFault) as c:
+            desk._fill_passwords("unlock-password", 1)
+        self.assertIn("not exposed as a password", str(c.exception))
+        self.assertTrue([f for f in os.listdir(self.out) if f.endswith("-fail-unlock-password.txt")])
+
+    def test_password_field_with_the_flag_is_typed(self):
+        desk = self._unlock(n(1, "text_field", "Hasło", states=("enabled", "editable", "password")))
+        self.assertEqual(desk._fill_passwords("unlock-password", 1), 1)
+
+    def test_no_password_field_at_all_is_harness(self):
+        desk = self._unlock(n(1, "text_field", "Szukaj", states=("enabled", "editable")))
+        with self.assertRaises(HarnessFault) as c:
+            desk._fill_passwords("unlock-password", 1)
+        self.assertNotIsInstance(c.exception, ProductFault)
 
 if __name__ == "__main__":
     unittest.main()
