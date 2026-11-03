@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 """The shared driver core (drivers/core) on a fake surface: targets found by id, by a build's own
 label and after a rename by the model; obstacles pressed away; a secret screen never sent; the app
-quitting is the product's fault; saved states written and picked; the confirmations stepper set and read
+quitting is the product's fault; a failed step's tree kept
+without a password's value and never a phrase screen's; saved states written and picked; the confirmations stepper set and read
 on a build in Polish; the dialog break's button found in the build's language; a moved setting found
 by walking the sections when a narrow window folds their list into one selector."""
 import json
@@ -120,6 +121,18 @@ class CoreTest(unittest.TestCase):
             with self.assertRaises(HarnessFault):
                 self.driver(f).press(UNLOCK, step="phrase", timeout=0.1)
             ask.assert_not_called()
+
+    def test_failure_dump_keeps_a_password_screen_without_its_value_and_never_a_phrase(self):
+        """A step that fails on a password screen leaves its tree for the report, the field's value
+        left out; a phrase screen leaves none."""
+        d = self.driver(Fake({}, "s", {}))
+        d.dump("pw", [n(0, "text", "Unlock wallet"), n(1, "text_field", "Password", value="hunter2", states=("password",))])
+        with open(os.path.join(self.out, "tree-000-pw.txt")) as f:
+            text = f.read()
+        self.assertIn("Unlock wallet", text)
+        self.assertNotIn("hunter2", text)
+        d.dump("phrase", [n(0, "text", " ".join(["abandon"] * 24)), n(1, "text_field", "Password", states=("password",))])
+        self.assertFalse(os.path.exists(os.path.join(self.out, "tree-000-phrase.txt")))
 
     def test_destructive_pick_refused(self):
         f = Fake({"s": [n(0, "button", "Delete wallet")]}, "s", {})

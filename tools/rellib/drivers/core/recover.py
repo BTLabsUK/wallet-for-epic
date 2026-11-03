@@ -37,9 +37,14 @@ def enabled():
 
 
 def secret_screen(tree):
+    return any("password" in n.states for n in tree) or phrase_screen(tree)
+
+
+def phrase_screen(tree):
+    """What may be a recovery phrase on the screen (a password field alone is not one)."""
     cells = lone = 0
     for n in tree:
-        if "password" in n.states or PHRASE.search(" ".join([n.name or "", n.value or ""]).lower()):
+        if PHRASE.search(" ".join([n.name or "", n.value or ""]).lower()):
             return True
         name = (n.name or "").strip()
         cells += bool(WORD_CELL.fullmatch(name))

@@ -112,9 +112,10 @@ class Driver:
             return None
 
     def dump(self, name, tree):
-        """The tree as text next to the shots (never a secret screen's)."""
-        from .recover import secret_screen
-        if secret_screen(tree):
+        """The tree as text next to the shots: a password screen's without the field's value
+        (Node.brief), never a phrase screen's."""
+        from .recover import phrase_screen
+        if phrase_screen(tree):
             return
         with open(os.path.join(self.out, "tree-%03d-%s.txt" % (self.shots, name)), "w") as f:
             f.write("\n".join(n.brief() for n in tree))
