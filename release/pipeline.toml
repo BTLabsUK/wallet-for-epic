@@ -102,8 +102,9 @@ max_heavy = 2
 shared = true
 apart = [["source-check", "trust-android"], ["source-check", "trust-windows"],
          ["source-check", "create-android"], ["source-check", "create-windows"]]
-apart_shared = [["trust-android", "trust-windows"], ["create-android", "trust-windows"], ["trust-android", "create-windows"],
-                ["create-android", "create-windows"]]
+# The Windows lanes run on the rigs (remote): never held back by Android here (2026-11-03,
+# 26.11.0 run-3 waited 20 min with five healthy rigs).
+apart_shared = []
 external_suites = ["check.sh --full", "flutter-test-all", "source-check.sh"]
 external_wait = "60m"
 infra_retries = 1
@@ -491,8 +492,7 @@ needs = ["manifests"]
 # Update trust runs per platform from when this machine's builds are done (no driver competes
 # with a build for the CPU), Windows and macOS also after their own build, Android and Linux
 # without waiting for them; at most [concurrency] max_heavy at once (Windows runs on its rigs and
-# does not count), Android and Windows never
-# beside each other while the machine is shared nor beside a full suite. Each lane has a hard
+# does not count), Windows beside Android (its app runs on the rig), Android never beside a full suite. Each lane has a hard
 # limit (Android and Windows 50 min, about 2.5x their slowest pass so far, 1,198 s and 1,280 s;
 # Linux 60 min, its slowest was 2,447 s under load); a lane killed by the machine (a signal, no
 # proof.json, an ssh drop) runs once more by itself, a product failure or a timeout never. The drivers wait on the chain and on P, not on the CPU, and P's legs
@@ -539,7 +539,7 @@ needs = ["build-android", "build-play", "build-linux", "build-windows@variant"] 
 proof = true
 # The app runs on the rig; this machine only drives it over ssh (run 26.10.26: local load 1.7-2.75
 # during the Windows lanes). It took a heavy slot anyway and waited 2 h behind the Linux lanes, so
-# it no longer counts toward max_heavy. Still never beside Android while the machine is shared.
+# it no longer counts toward max_heavy, and runs beside the Android lanes.
 remote = true
 timeout = "50m"
 
@@ -602,6 +602,7 @@ host = "build"
 lane = "trust-windows-{variant}"
 needs = ["trust-windows"]
 warn_only = true
+remote = true
 run = "{rel}/tools/rellib/drivers/trust-windows.sh"
 timeout = "30m"
 env = { REL_TRUST_MODE = "create", REL_OUT = "{stage}", REL_CHECKS = "create_ok", REL_FUNDS = "0", REL_CANDIDATE_DIR = "{files}", REL_CANDIDATE_EXTRA = "{extra}", REL_CANDIDATE_SRC = "{src}", REL_CANDIDATE_VERSION = "{version}" }

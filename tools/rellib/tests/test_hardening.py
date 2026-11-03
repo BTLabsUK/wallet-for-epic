@@ -109,16 +109,16 @@ class ConcurrencyTest(Base):
         self.assertEqual(line["max_heavy"], 2)
         self.assertGreater(line.get("waited_s", 0), 0)
 
-    def test_android_and_windows_trust_kept_apart_while_shared_and_from_the_suite(self):
+    def test_android_and_windows_trust_side_by_side_but_never_beside_the_suite(self):
         names = ["source-check", "trust-android", "trust-windows", "trust-linux"]
         run, eng = self.lanes_run(names, '\n[concurrency]\nmax_heavy = 4\n')
         eng.drive([s.id for s in run.steps])
         sp = spans(run)
-        self.assertFalse(overlap(sp["trust-android"], sp["trust-windows"]))
+        self.assertTrue(overlap(sp["trust-android"], sp["trust-windows"]), sp)
         self.assertFalse(overlap(sp["source-check"], sp["trust-android"]))
         self.assertFalse(overlap(sp["source-check"], sp["trust-windows"]))
         self.assertTrue(overlap(sp["source-check"], sp["trust-linux"]))
-        # --exclusive-machine: Android and Windows may run together; never beside the suite.
+        # --exclusive-machine: the same; never beside the suite.
         run, eng = self.lanes_run(names, '\n[concurrency]\nmax_heavy = 4\n')
         run.info["concurrency"] = {"shared": False}
         eng = Engine(run, self.pipeline, self.hosts, REPO)
@@ -141,16 +141,18 @@ class ConcurrencyTest(Base):
         self.assertEqual(eng.drive([s.id for s in run.steps]), 0)
         self.assertTrue(any(e["event"] == "external-suite" for e in run.events()))
 
-    def test_a_remote_lane_takes_no_heavy_slot_but_is_still_kept_apart(self):
+    def test_a_remote_lane_takes_no_heavy_slot_and_runs_beside_android(self):
         """Windows trust runs its app on a rig: with both slots held by local lanes it still starts,
-        though never beside Android while the machine is shared."""
+        and beside Android too."""
         from types import SimpleNamespace as NS
         pol = window.Policy()
         lin = [NS(base="trust-linux", id="trust-linux-%s" % v, heavy=False, proof=True) for v in ("tor", "notor")]
         win = NS(base="trust-windows", id="trust-windows-tor", heavy=False, proof=True, remote=True)
         self.assertIsNone(pol.why_not(win, lin))
         self.assertIn("cap (2)", pol.why_not(NS(base="trust-android", id="trust-android-tor", heavy=False, proof=True), lin))
-        self.assertIn("kept apart", pol.why_not(win, [NS(base="trust-android", id="trust-android-tor", heavy=False, proof=True)]))
+        self.assertIsNone(pol.why_not(win, [NS(base="trust-android", id="trust-android-tor", heavy=False, proof=True)]))
+        kept = window.Policy({"apart_shared": [["trust-android", "trust-windows"]]})
+        self.assertIn("kept apart", kept.why_not(win, [NS(base="trust-android", id="trust-android-tor", heavy=False, proof=True)]))
         self.assertIsNone(pol.why_not(lin[0], [lin[1], win]), "a running remote lane holds no slot")
 
     def test_concurrency_config_is_checked(self):

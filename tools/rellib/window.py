@@ -6,7 +6,7 @@
   builds and builtins never count.
 - Steps kept apart: `apart` pairs never run at the same time (the full suite and the Android and
   Windows trust lanes), `apart_shared` pairs only while the machine is shared with agents
-  (`shared`, default true): then the Android and Windows lanes never run beside each other.
+  (`shared`, default true; none by default: the Windows lanes run on the rigs).
 - A full suite outside the run: a step kept apart from source-check also waits (up to
   `external_wait`) while a build-slot slot runs one (`external_suites`, matched against
   `build-slot --status`), then starts anyway and says so.
@@ -34,7 +34,7 @@ DEFAULTS = {
     "max_heavy": 2,
     "shared": True,
     "apart": [["source-check", "trust-android"], ["source-check", "trust-windows"]],
-    "apart_shared": [["trust-android", "trust-windows"]],
+    "apart_shared": [],
     "external_suites": ["check.sh --full", "flutter-test-all", "source-check.sh"],
     "external_wait": "60m",
     "infra_retries": 1,
