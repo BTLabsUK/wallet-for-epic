@@ -47,8 +47,9 @@ RESTORE_SUBMIT = T("g4.restore.continue", keys=("deskOnbRestoreSide",), names=("
 # phone and desktop): a button "Change the start" opens the Month | Block height panel; "Scan from the start"
 # sits behind the info button "Scan start". The names after the keys are main's interim texts (a link, no info
 # button). A rename is a change to these three targets only.
-# role "other": on 26.10.26 the link is an unnamed node with its label a text of its own on Linux
-RESTORE_FROM_OPEN = T("g4.restore.start", role="other", keys=("scanStartChange",),
+# role "other": on 26.10.26 the link is an unnamed node with its label a text of its own on Linux;
+# restoreStartFromMonthLink is its key, so the link is found in the build's language (Polish on the rigs)
+RESTORE_FROM_OPEN = T("g4.restore.start", role="other", keys=("scanStartChange", "restoreStartFromMonthLink"),
                       names=("Change the start", "Start from a month or height"), match="exact", secret=True)
 RESTORE_INFO = T("g4.restore.info", role="button", keys=("scanStartInfoTitle",), names=("Scan start",),
                  match="exact", secret=True)

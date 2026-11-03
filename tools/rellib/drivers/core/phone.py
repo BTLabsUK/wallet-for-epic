@@ -108,7 +108,7 @@ RESTORE_PHRASE = T("g4.restore.phrase", role="text_field", keys=("restorePhraseL
 # Month | Block height panel; "Scan from the start" (block 0) sits behind the info button "Scan start". The
 # names after the keys are main's interim texts (a link "Start from a month or height", "Scan from the start"
 # shown in the open), so both screens are found. A rename is a change to these four targets only.
-RESTORE_START = T("g4.restore.start", role="button", keys=("scanStartChange",),
+RESTORE_START = T("g4.restore.start", role="button", keys=("scanStartChange", "restoreStartFromMonthLink"),
                   names=("Change the start", "Start from a month or height"), match="exact", secret=True)
 RESTORE_INFO = T("g4.restore.info", role="button", keys=("scanStartInfoTitle",), names=("Scan start",),
                  match="exact", secret=True)
