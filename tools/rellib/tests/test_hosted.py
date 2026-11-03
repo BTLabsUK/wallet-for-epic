@@ -287,6 +287,9 @@ class HostedTest(Base):
         self.assertEqual(hosted.waves_of(c, ["linux-notor"]), [["linux-notor"]])
         self.assertEqual(hosted.waves_of({"waves": []}, ["a-tor", "a-notor"]), [["a-tor", "a-notor"]])
         self.assertEqual(hosted.waves_of({"waves": [["notor"]]}, ["a-tor", "a-notor"]), [["a-notor"], ["a-tor"]])
+        # One wave of both: every build in one dispatch.
+        six = ["android-tor", "android-notor", "linux-tor", "linux-notor", "windows-tor", "windows-notor"]
+        self.assertEqual(hosted.waves_of({"waves": [["tor", "notor"]]}, six), [six])
 
     # ---- failures: the step fails with the reason, nothing local runs ----
 
