@@ -24,7 +24,6 @@ import 'package:epic_wallet/src/settings.dart';
 import 'package:epic_wallet/src/tor_routes.dart';
 import 'package:epic_wallet/src/ui/status.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
-import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,8 +31,6 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'support/settings_modes.dart';
 import 'support/test_settings.dart';
-
-final _l = englishStrings;
 
 const _a = 'https://a.example';
 const _b = 'https://b.example';

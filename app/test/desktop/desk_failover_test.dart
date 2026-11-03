@@ -16,8 +16,6 @@ import 'package:fake_async/fake_async.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-final _l = englishStrings;
-
 const _a = 'https://a.example';
 const _b = 'https://b.example';
 const _c = 'https://c.example';
