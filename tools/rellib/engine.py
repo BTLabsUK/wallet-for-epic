@@ -16,6 +16,7 @@ import queue
 from . import evidence
 from . import failures as known
 from . import guards
+from . import serverlogs
 from . import window as win
 from .load import LoadSampler
 from .run import SETTLED, now_iso, read_json, write_json
@@ -333,10 +334,31 @@ class Engine:
             if st["status"] == "done" and not st.get("warned") and not self.dry:
                 self.forward_messages(step)
             if st["status"] == "failed":
-                self.relmsg.alert(f"{step.id} failed", step=step.id, log=log,
+                self.relmsg.alert(f"{step.id} failed", step=step.id, log=log, detail=self.server_logs(step, st, log),
                                   expects=st.get("hint") or "retry, skip or abort? (tools/rel retry|skip|debug)",
                                   key=f"{self.info['run_id']}/{step.id}/{attempt}")
         return st
+
+    def server_logs(self, step, st, log):
+        """A failed G4 lane: the server-side log lines for its window (tools/rellib/serverlogs.py) go
+        to the step's out folder, and quoted above the log's tail into the alert, so a harness fault
+        reads apart from a server or product fault. Best effort: None leaves the alert as it was."""
+        conf = self.pipeline.serverlogs
+        if self.dry or not serverlogs.is_lane_step(step) or not serverlogs.settings(conf)["enabled"]:
+            return None
+        try:
+            summary = serverlogs.collect(step, st, os.path.join(self.run.step_dir(step.id), "out"), conf)
+        except Exception as e:  # never in the way of the alert
+            self.echo(f"   server logs: {type(e).__name__}: {e}")
+            return None
+        quoted = "\n".join(serverlogs.quote_lines(summary))[:1400]
+        self.echo("   server logs:\n   " + quoted.replace("\n", "\n   "))
+        tail = ""
+        if os.path.exists(log):
+            with open(log, encoding="utf-8", errors="replace") as f:
+                tail = "\n".join(f.read().splitlines()[-40:])
+        head = f"Server logs {'–'.join(summary['window'])} UTC (out/server-logs.txt):\n{quoted}\n--- step log ---\n"
+        return head + tail[-max(0, 2990 - len(head)):]
 
     def forward_messages(self, step):
         """A step may leave, in its stage folder, links.json ([{label, url}]: links on the live

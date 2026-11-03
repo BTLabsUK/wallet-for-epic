@@ -848,6 +848,9 @@ def gate_summary(engine):
     lines.append("Update trust (G4):")
     for p, (state, text) in proof_table(engine).items():
         lines.append(f"- {p}: {text}"[:300])
+    srv = server_log_lines(engine)
+    at_srv = len(lines)
+    lines.extend(srv)
     at_screens = len(lines)
     lines.extend(screens_lines(run))
     prev = info.get("previous", {})
@@ -868,8 +871,14 @@ def gate_summary(engine):
         lines.append("Then, after the read-back: " + ", ".join(after) + " (the gallery and announce never hold the release).")
     text = "\n".join(lines)
     if len(text) > 2900:
-        # Too long for the message: the weak lanes shrink to one line, then the screens part to its first
-        # line and the report link, so the approve line is never cut off.
+        # Too long for the message: the server-log quotes shrink to their count lines, the weak lanes to
+        # one line, then the screens part to its first line and the report link, so the approve line is
+        # never cut off.
+        if srv:
+            short = [x for x in srv if not x.startswith("    ")]
+            lines[at_srv:at_srv + len(srv)] = short
+            shift = len(srv) - len(short)
+            at_screens, at_weak, approve = at_screens - shift, at_weak - shift, approve - shift
         if weak:
             lines[at_weak:approve] = ["Weak trust lanes (they still gate): " + ", ".join(h["lane"] for h in weak)
                                       + " (tools/rel stats --lanes)"]
@@ -884,6 +893,25 @@ def gate_summary(engine):
         tail = "\n".join(lines[approve:])
         text = "\n".join(lines[:approve])[:max(0, 2900 - len(tail) - 1)] + "\n" + tail
     return text[:2900]
+
+
+def server_log_lines(engine):
+    """For each G4 lane that failed an attempt in this run (flaky, failed, skipped or warned): the
+    server-side lines its last failure left (out/server-logs.json, tools/rellib/serverlogs.py)."""
+    from . import serverlogs
+    run, out = engine.run, []
+    for x in run.steps:
+        if not serverlogs.is_lane_step(x):
+            continue
+        st = run.status(x.id)
+        if not (st.get("attempt_causes") or st["status"] != "done" or st.get("warned")):
+            continue
+        sm = read_json(os.path.join(run.step_dir(x.id), "out", "server-logs.json"))
+        if isinstance(sm, dict):
+            out.append(f"- {x.id} at its failure, {'–'.join(sm.get('window') or [])} UTC:")
+            out.extend("    " + q.strip() if q.startswith("  ") else "  " + q
+                       for q in serverlogs.quote_lines(sm, width=200))
+    return ["Server logs for lanes that failed a try:"] + out if out else []
 
 
 def screens_lines(run):

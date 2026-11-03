@@ -91,6 +91,7 @@ class Pipeline:
         self.concurrency = data.get("concurrency", {})
         self.sign = data.get("sign", {})
         self.health = data.get("health", {})  # per-lane health (tools/rellib/health.py)
+        self.serverlogs = data.get("serverlogs", {})  # server-side lines for a failed lane (tools/rellib/serverlogs.py)
         if not self.steps:
             raise ConfigError(f"{path}: no [step.*] tables")
         c = self.concurrency
