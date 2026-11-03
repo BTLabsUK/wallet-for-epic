@@ -31,13 +31,15 @@ def n(i, role, name, value=None, states=("enabled",)):
 
 
 class RestoreApp:
-    """welcome › the phrase grid › password and start block › restoring › Overview (or not restored)."""
+    """welcome › the phrase grid › password and start block › restoring › Overview (or not restored). The
+    start block as the planned final design has it: the button "Change the start" opens the Month | Block
+    height panel; "Scan from the start" sits behind the info button "Scan start"."""
     platform, family = "linux", "desktop"
 
     def __init__(self, word="Word {number}", fails=False):
         self.word, self.fails = word, fails
         self.at, self.values, self.pw, self.height = "welcome", [""] * 24, ["", ""], None
-        self.by_height = self.panel = False
+        self.by_height = self.panel = self.info = self.from_start = False
         self.typed, self.pressed, self.keys, self.reads = [], [], [], 0
 
     def tree(self):
@@ -53,8 +55,10 @@ class RestoreApp:
             t = [n(50, "text", "Restore wallet"),
                  n(51, "text_field", "Password", value="", states=("enabled", "editable", "password")),
                  n(52, "text_field", "Confirm password", value="", states=("enabled", "editable", "password")),
-                 n(53, "link", ""),   # 26.10.25 on Linux: the link unnamed, its label a text of its own
-                 n(57, "text", "Check the whole chain" if self.panel else "Start from a month or height")]
+                 n(57, "text", "Scanning from the start" if self.from_start else "Scanning from January 2025"),
+                 n(53, "button", "Change the start"), n(58, "button", "Scan start")]
+            if self.info:
+                t.append(n(59, "button", "Scan from the start"))
             if self.panel:
                 t += [n(54, "button", "Month", states=("enabled",) if self.by_height else ("enabled", "selected")),
                       n(55, "button", "Block height")]
@@ -79,8 +83,12 @@ class RestoreApp:
         elif self.at == "words" and node.name == "Continue" and "enabled" in node.states:
             self.at = "account"
         elif self.at == "account":
-            if node.name == "Start from a month or height":
-                self.panel = True
+            if node.name == "Change the start":
+                self.panel, self.from_start = True, False
+            elif node.name == "Scan start":
+                self.info = True
+            elif node.name == "Scan from the start":
+                self.info, self.panel, self.from_start = False, False, True
             elif node.name == "Block height":
                 self.by_height = True
             elif node.name == "Restore wallet" and "enabled" in node.states:
@@ -143,6 +151,7 @@ class RestoreTest(unittest.TestCase):
         self.assertEqual(app.height, "3412345")
         self.assertEqual(app.at, "home")
         self.assertIn("Block height", app.pressed)
+        self.assertNotIn("Scan from the start", app.pressed)
         self.assertEqual(app.keys, ["space"] * 23)   # each word committed, as a person typing moves on
         self.assertNoWord()
 
@@ -152,6 +161,8 @@ class RestoreTest(unittest.TestCase):
             self.desk(app, {"deskOnbWordN": "Słowo {number}"}).restore_wallet(" ".join(WORDS), {"height": None, "month": None})
         self.assertEqual(app.values, WORDS)
         self.assertNotIn("Block height", app.pressed)   # no birth: the whole chain
+        self.assertEqual(app.pressed.count("Scan from the start"), 1)   # not left to the January 2025 default
+        self.assertTrue(app.from_start)
         self.assertNoWord()
 
     def test_not_restored_is_the_products_fault(self):

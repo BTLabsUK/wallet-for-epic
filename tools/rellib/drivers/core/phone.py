@@ -95,21 +95,33 @@ SEND_BACK = T("g4.send.back", names=("Back",), match="exact")
 SEND_FAILED = T("g4.send.failed", role="text", names=(r"re:.*(send failed|not sent|nothing was sent|could not send).*",),
                 match="contains")
 
+MONTHS = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
+          "November", "December")
 # Restore from a phrase (restore_screen.dart, month_picker.dart, restore_card.dart): the phrase is on these
 # screens, so every target is secret and the typing is hushed (Driver.hush).
 RESTORE = T("g4.welcome.restore", keys=("firstRunRestore",), names=("Restore from phrase",), secret=True)
 RESTORE_TITLE = T("g4.restore.title", role="text", keys=("restoreTitle",), names=("Restore wallet",), match="exact", secret=True)
 RESTORE_PHRASE = T("g4.restore.phrase", role="text_field", keys=("restorePhraseLabel",), names=("Recovery phrase",),
                    match="starts", secret=True)
-RESTORE_START = T("g4.restore.start", keys=("restoreStartFromMonthLink",), names=("Start from a month or height",),
-                  match="exact", secret=True)
+# The scan starts in January 2025 on mainnet unless told otherwise. Built to the planned final design of the
+# scan-start block (feat/restore-start-ui, same on phone and desktop): a button "Change the start" opens the
+# Month | Block height panel; "Scan from the start" (block 0) sits behind the info button "Scan start". The
+# names after the keys are main's interim texts (a link "Start from a month or height", "Scan from the start"
+# shown in the open), so both screens are found. A rename is a change to these four targets only.
+RESTORE_START = T("g4.restore.start", role="button", keys=("scanStartChange",),
+                  names=("Change the start", "Start from a month or height"), match="exact", secret=True)
+RESTORE_INFO = T("g4.restore.info", role="button", keys=("scanStartInfoTitle",), names=("Scan start",),
+                 match="exact", secret=True)
+RESTORE_FROM_START = T("g4.restore.fromStart", role="button", keys=("restoreScanFromStart",),
+                       names=("Scan from the start",), match="exact", secret=True)
 RESTORE_BY_HEIGHT = T("g4.restore.by.height", keys=("restoreStartByHeight",), names=("Block height",), match="starts",
                       secret=True)
 RESTORE_HEIGHT = T("g4.restore.height", role="text_field", keys=("restoreStartHeightLabel",),
                    names=("Start height (optional)",), match="starts", secret=True)
 RESTORE_CONTINUE = T("g4.restore.continue", keys=("commonContinue",), names=("Continue",), match="exact", secret=True)
-RESTORE_PICK_MONTH = T("g4.restore.month", keys=("restorePickMonth",), names=("Pick the month you created the wallet",),
-                       match="exact", secret=True)
+# The month button shows the chosen month ("January 2025"; the default start is the first choice shown).
+RESTORE_PICK_MONTH = T("g4.restore.month", names=(r"re:(%s) \d{4}" % "|".join(m.casefold() for m in MONTHS),
+                                                  "Pick the month you created the wallet"), match="exact", secret=True)
 MONTH_TITLE = T("g4.restore.month.title", role="text", keys=("restoreDatePickerTitle",),
                 names=("When did you create the wallet?",), match="exact", secret=True)
 MONTH_EARLIER = T("g4.restore.month.earlier", keys=("restoreMonthEarlierYear",), names=("Earlier year",), match="exact",
@@ -135,8 +147,6 @@ RESTORE_OFFLINE = T("g4.restore.offline", role="text", keys=("restoreUnfinishedO
                     names=(r"re:the scan goes on when offline is off.*",), match="starts", secret=True)
 RESTORE_FAILED = T("g4.restore.failed", role="text", keys=("restoreUnfinishedFailed",),
                    names=(r"re:the scan stopped and is retried by itself.*",), match="starts", secret=True)
-MONTHS = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
-          "November", "December")
 # A month from the wallet's birth to a full scan from block 0 on Home (restore_card.dart): the genesis scan
 # takes minutes on an emulator; this is its ceiling before REL_TRUST_SLOW.
 RESTORE_HOME_S = 2400
@@ -285,17 +295,16 @@ class Phone:
 
     def _restore_start(self, birth):
         """Where the scan starts: the birth height in Block height, else the birth month in the month
-        picker. Neither: the whole chain (the link is not opened)."""
+        picker, through "Start from a month or height". Neither: "Scan from the start" (block 0), since
+        leaving the screen alone scans from January 2025 on mainnet. Every level offers the choice."""
         d = self.d
         month, height = birth.get("month"), birth.get("height")
         if not month and height is None:
-            self.log("restore start: the whole chain (no birth month or height)")
+            self._scan_from_start()
+            d.shot("restore-start")
             return
         if not d.wait(shows(RESTORE_START), 5):
-            # 26.10.25: a phone's first run is level 1 (firstStartLevel), and level 1 hides the start: a
-            # restore on a fresh install scans from block 0, whatever the wallet's birth
-            self.log("restore start: the whole chain (level 1 on a fresh install offers no month or height)")
-            return
+            d.harness("the restore screen offers no Start from a month or height")
         d.press(RESTORE_START, step="restore-start", then=shows(RESTORE_PICK_MONTH, RESTORE_HEIGHT), timeout=20)
         if height is None:
             year, mon = (int(x) for x in month.split("-")[:2])
@@ -308,6 +317,19 @@ class Phone:
             d.fill(RESTORE_HEIGHT, str(int(height)), step="restore-height")
             self.log("restore start: block %d" % int(height))
         d.shot("restore-start")
+
+    def _scan_from_start(self):
+        """Scan from the start (block 0): doing nothing scans from January 2025 on mainnet. The button may sit
+        behind the info button; a test network scans from block 0 already and offers neither."""
+        d = self.d
+        if not d.wait(shows(RESTORE_FROM_START), 3):
+            if d.seen(RESTORE_INFO):
+                d.press(RESTORE_INFO, step="restore-start-info", then=shows(RESTORE_FROM_START), timeout=20)
+        if not d.wait(shows(RESTORE_FROM_START), 3):
+            self.log("restore start: the whole chain (no birth month or height; no Scan from the start offered)")
+            return
+        d.press(RESTORE_FROM_START, step="restore-from-start", then=gone(RESTORE_FROM_START), timeout=20)
+        self.log("restore start: the whole chain (no birth month or height; Scan from the start)")
 
     def _pick_month(self, year, mon):
         """The month picker opens on the first year a wallet can be from: Later year (or Earlier) to

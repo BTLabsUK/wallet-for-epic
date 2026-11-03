@@ -42,11 +42,17 @@ SETUP_SKIP = T("g4.setup.skip", keys=("deskSetupSkip",), names=("Skip setup",))
 # the release with restore from a height (trust_ids.dart); older builds are found by label.
 RESTORE_NEXT = T("g4.restore.next", keys=("commonContinue",), names=("Continue",))
 RESTORE_SUBMIT = T("g4.restore.continue", keys=("deskOnbRestoreSide",), names=("Restore wallet",), match="exact", secret=True)
-# the link is an unnamed node with its label a text of its own on Linux (the label's press reaches the link)
-RESTORE_FROM_OPEN = T("g4.restore.start", role="other", keys=("restoreStartFromMonthLink",),
-                      names=("Start from a month or height",), secret=True)
-RESTORE_FROM_HIDE = T("g4.restore.from.hide", role="other", keys=("deskOnbRestoreFromHide",), names=("Check the whole chain",),
-                      secret=True)
+# The start choice (restore_screen.dart, start_date.dart): a mainnet restore scans from January 2025 unless the
+# start is changed. Built to the planned final design of the scan-start block (feat/restore-start-ui, same on
+# phone and desktop): a button "Change the start" opens the Month | Block height panel; "Scan from the start"
+# sits behind the info button "Scan start". The names after the keys are main's interim texts (a link, no info
+# button). A rename is a change to these three targets only.
+RESTORE_FROM_OPEN = T("g4.restore.start", role="button", keys=("scanStartChange",),
+                      names=("Change the start", "Start from a month or height"), match="exact", secret=True)
+RESTORE_INFO = T("g4.restore.info", role="button", keys=("scanStartInfoTitle",), names=("Scan start",),
+                 match="exact", secret=True)
+RESTORE_FROM_START = T("g4.restore.fromStart", role="button", keys=("restoreScanFromStart",),
+                       names=("Scan from the start",), match="exact", secret=True)
 RESTORE_BY_HEIGHT = T("g4.restore.by.height", keys=("restoreStartByHeight",), names=("Block height",), match="exact",
                       secret=True)
 RESTORE_HEIGHT = T("g4.restore.height", role="text_field", keys=("deskOnbRestoreFromLabel",), names=("Start from block",),
@@ -285,7 +291,7 @@ class Desktop:
         if height:
             self._start_from(height)
         else:
-            self.log("restore: no birth height: the whole chain is scanned")
+            self._scan_from_start()
         d.press(RESTORE_SUBMIT, step="restore-submit", timeout=60,
                 then=either(shows(RESTORE_RESTORING), shows(RESTORE_FAILED), shows(SETUP_SKIP), shows(UNLOCK_TITLE), self._home()))
         d.step = "restoring"
@@ -336,18 +342,28 @@ class Desktop:
             d.must(ready, 30, step="restore-words", goal="the phrase checked: Continue enabled")
 
     def _start_from(self, height):
-        """Start from a month or height › Block height › the birth height. 26.10.25 shows Check the whole
-        chain once the choice is open; later builds the month or height choice."""
+        """Start from a month or height › Block height (mainnet offers a month first) › the birth height."""
         d = self.d
-        opened = either(shows(RESTORE_FROM_HIDE), shows(RESTORE_BY_HEIGHT), shows(RESTORE_HEIGHT))
+        opened = either(shows(RESTORE_BY_HEIGHT), shows(RESTORE_HEIGHT))
         if not d.wait(opened, 2, dismiss=False):
             d.press(RESTORE_FROM_OPEN, step="restore-from", then=opened, timeout=20)
         by = d.wait(shows(RESTORE_BY_HEIGHT), 5)
-        if by:  # mainnet offers a month first
+        if by:
             d._act(d.s.press, by)
         d.must(shows(RESTORE_HEIGHT), 20, step="restore-from-height", goal="the Start from block field")
         d.fill(RESTORE_HEIGHT, str(height), step="restore-height")
         self.log("restore: scanning from block %d" % height)
+
+    def _scan_from_start(self):
+        """No birth: Scan from the start (block 0); doing nothing would scan from January 2025."""
+        d = self.d
+        if not d.wait(shows(RESTORE_FROM_START), 3, dismiss=False) and d.seen(RESTORE_INFO):
+            d.press(RESTORE_INFO, step="restore-start-info", then=shows(RESTORE_FROM_START), timeout=20)
+        if not d.wait(shows(RESTORE_FROM_START), 3, dismiss=False):  # a test network scans from block 0: none offered
+            self.log("restore: no birth height; no Scan from the start offered")
+            return
+        d.press(RESTORE_FROM_START, step="restore-from-start", then=gone(RESTORE_FROM_START), timeout=20)
+        self.log("restore: no birth height: Scan from the start (the whole chain)")
 
     def _create_submit(self):
         """The create form's button shares the title's text; Enter in the confirm field submits it."""

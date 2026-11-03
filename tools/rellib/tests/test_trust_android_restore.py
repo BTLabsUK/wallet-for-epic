@@ -50,9 +50,10 @@ class FakeRestore:
     """The phone's restore screens as a small state machine, pressed and typed into by name."""
     platform, family = "android", "phone"
 
-    def __init__(self, scan_reads=2, card_reads=3, problem=False, level=3):
+    def __init__(self, scan_reads=2, card_reads=3, problem=False):
         self.cur, self.phrase, self.height, self.month, self.year = "welcome", "", "", None, 2024
-        self.start_open, self.by_height, self.problem, self.level = False, False, problem, level
+        self.start_open, self.by_height, self.problem = False, False, problem
+        self.info, self.from_start = False, False
         self.scan_reads, self.card_reads = scan_reads, card_reads
         self.typed, self.pressed, self.shots = [], [], []
 
@@ -62,17 +63,20 @@ class FakeRestore:
             return [btn(0, "Create a new wallet"), btn(1, "Restore from phrase")]
         if c == "restore":
             t = [text(0, "Restore wallet"), field(1, "Recovery phrase", self.phrase)]
-            if self.level == 1:
-                pass   # level 1 hides the start: a restore scans from block 0
-            elif not self.start_open:
-                t.append(btn(2, "Start from a month or height"))
+            # The planned final design, every level: "Scanning from January 2025" (the default on mainnet), the
+            # button "Change the start", and "Scan from the start" behind the info button "Scan start".
+            if not self.start_open:
+                t += [text(2, "Scanning from the start" if self.from_start else "Scanning from January 2025"),
+                      btn(10, "Change the start"), btn(11, "Scan start")]
+                if self.info:
+                    t.append(btn(12, "Scan from the start"))
             else:
                 t += [text(3, "Where to start scanning"), btn(4, "Month"), btn(5, "Block height")]
                 if self.by_height:
                     t.append(field(6, "Start height (optional)", self.height))
                 else:
                     t.append(btn(6, "%s %d" % (MONTHS[self.month[1] - 1], self.month[0]) if self.month
-                                 else "Pick the month you created the wallet"))
+                                 else "January 2025"))
                 if self.month and not self.by_height:
                     t.append(text(7, "Scanning starts from block 2,345,678."))
             if self.problem and self.phrase:
@@ -105,11 +109,16 @@ class FakeRestore:
         c, name = self.cur, n.name
         if c == "welcome" and name == "Restore from phrase":
             self.cur = "restore"
-        elif c == "restore" and name == "Start from a month or height":
-            self.start_open = True
+        elif c == "restore" and name == "Change the start":
+            self.start_open, self.from_start = True, False
+        elif c == "restore" and name == "Scan start":
+            self.info = True
+        elif c == "restore" and name == "Scan from the start":
+            self.info, self.from_start = False, True
         elif c == "restore" and name == "Block height":
             self.by_height = True
-        elif c == "restore" and name == "Pick the month you created the wallet":
+        elif c == "restore" and name == "January 2025" or (c == "restore" and self.month and name.endswith(str(self.month[0]))
+                                                          and name.split()[0] in MONTHS):
             self.cur = "months"
         elif c == "restore" and name == "Continue" and self.phrase and not self.problem:
             self.phrase, self.cur = "", "pin1"
@@ -216,18 +225,19 @@ class RestoreTest(unittest.TestCase):
         self.assertIn("Block height", s.pressed)
         self.assertEqual(s.month, None)
 
-    def test_no_birth_scans_the_whole_chain(self):
+    def test_no_birth_presses_scan_from_the_start(self):
         s = FakeRestore()
         self.recipe(s).restore_wallet(PHRASE, {"height": None, "month": None})
-        self.assertNotIn("Start from a month or height", s.pressed)
+        self.assertNotIn("Change the start", s.pressed)
+        self.assertEqual(s.pressed.count("Scan from the start"), 1)   # leaving it alone means January 2025
+        self.assertTrue(s.from_start)
         self.assertIn(s.cur, ("home", "home-card"))
 
-    def test_level_one_restores_from_block_0_whatever_the_birth(self):
-        s = FakeRestore(level=1)   # a phone's fresh install is level 1
-        self.recipe(s).restore_wallet(PHRASE, {"height": 2345678, "month": "2026-11"})
-        self.assertIsNone(s.month)
-        self.assertIn(s.cur, ("home", "home-card"))
-        self.assertTrue(any("level 1 on a fresh install" in line for line in self.lines))
+    def test_a_birth_does_not_press_scan_from_the_start(self):
+        s = FakeRestore()
+        self.recipe(s).restore_wallet(PHRASE, {"height": None, "month": "2025-03"})
+        self.assertNotIn("Scan from the start", s.pressed)
+        self.assertFalse(s.from_start)
 
     def test_a_phrase_problem_fails_hushed(self):
         s = FakeRestore(problem=True)
