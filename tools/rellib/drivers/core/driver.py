@@ -20,6 +20,7 @@ timeout (a slow emulator or a loaded host), so a slow app is waited for, not fai
 import os
 import time
 
+from . import breaks
 from . import targets as tg
 from .faults import HarnessFault, HarnessGone, ProductFault
 
@@ -162,12 +163,18 @@ class Driver:
                 return r
         self.harness("never reached: %s" % expect)
 
-    def _clear(self):
+    def _clear(self, target=None):
         """Known obstacles off the screen before an action: an overlay (the first-run tour) lets a
         tap through but holds the keyboard focus a control without an action needs."""
         for _ in range(3):
             if not self._dismiss(self.tree()):
-                return
+                break
+        if target is not None and breaks.dialog(target.id):
+            info = [n for n in self.tree() if n.role == "button" and n.name == "More information"]
+            if info:
+                self.log("BREAK: a dialog the recipe does not know opened before %s" % target)
+                self._act(self.s.press, info[0])
+                time.sleep(1.5)
 
     def _act(self, fn, node, *args):
         """A surface action; its own error (no way to reach the control) becomes this step's harness line."""
@@ -193,10 +200,18 @@ class Driver:
         n = self.wait(shows(target), timeout)
         if n:
             return n
-        tree = self.tree()
-        n = self.rec.pick(target, tree, step=self.step, texts=self.texts(target))
-        if n:
-            return n
+        for _ in range(2):
+            tree = self.tree()
+            n = self.rec.pick(target, tree, step=self.step, texts=self.texts(target))
+            if n:
+                return n
+            past = self.rec.advance("the screen with %s" % target, tree, step=self.step)  # a dialog in the way
+            if past is None:
+                break
+            self._act(self.s.press, past)
+            n = self.wait(shows(target), 10)
+            if n:
+                return n
         self.harness("%s not on screen (looked for %s %s)" % (target, target.role, self.texts(target) or "no text"))
 
     def press(self, target, *, step, then=None, timeout=20, goal=None):
@@ -204,7 +219,7 @@ class Driver:
         self.step = step
         self.trail.append(step)
         for attempt in range(2):
-            self._clear()
+            self._clear(target)
             node = self.locate(target, timeout)
             before = [(n.role, n.name) for n in self.tree()]
             self._act(self.s.press, node)
@@ -222,7 +237,7 @@ class Driver:
         self.step = step
         self.trail.append(step)
         for attempt in range(2):
-            self._clear()
+            self._clear(target)
             node = self.locate(target, timeout)
             self._act(self.s.set_text, node, text)
             n = self.wait(shows(target), 5)
@@ -236,7 +251,7 @@ class Driver:
         """Set a check box or switch to `on`; reads its checked state before and after."""
         self.step = step
         self.trail.append(step)
-        self._clear()
+        self._clear(target)
         node = self.locate(target, timeout)
         if ("checked" in node.states) == on:
             return node

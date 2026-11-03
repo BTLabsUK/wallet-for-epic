@@ -5,6 +5,8 @@ fail on what they must. Test runs only; a release run never sets REL_TRUST_BREAK
 REL_TRUST_BREAK is a comma list of:
     hide:<target id>        the driver cannot find that control by id or label (a rename it does not
                             know): the step must recover through the AI fallback and say so
+    dialog:<target id>      a dialog the recipe does not know (the page's More information) opens just
+                            before that step, once: the step must get past it (AI advance) and say so
     move:<target id>        a setting is not on the pages the recipe expects (it moved): found by
                             searching every Settings section
     kill@<phase>            the sandbox / emulator / rig session is killed as the phase starts
@@ -23,6 +25,17 @@ def _items():
 
 def hidden(target_id):
     return ("hide:%s" % target_id) in _items()
+
+
+_dialogs = set()
+
+
+def dialog(target_id):
+    """True once per target named by dialog:<id>."""
+    if ("dialog:%s" % target_id) in _items() and target_id not in _dialogs:
+        _dialogs.add(target_id)
+        return True
+    return False
 
 
 def moved(target_id):
