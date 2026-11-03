@@ -30,9 +30,13 @@ def required(funds):
     if given:
         return given
     migrate = checks.migrating()[0]
-    base = ["wallet_opens", "balance_kept", "custom_nodes_kept", "custom_relays_kept", "settings_kept"]
+    base = ["wallet_opens", "balance_kept", "custom_nodes_kept", "custom_relays_kept"]  # settings_kept: see NOT_CHECKED
     # without funds the wallet has no transaction: history has nothing to compare
     return base + (checks.MIGRATION_CHECKS if migrate else []) + (["history_kept", "send_ok", "receive_ok"] if funds else [])
+
+
+NOT_CHECKED = {"settings_kept": "settings_kept not checked on Android: theme/Technical details in Keystore-encrypted "
+                                "storage, confirmations not reported by the LEPIC CLI, no wallets.json label"}
 
 
 def keep_secrets(out, secrets, log):
@@ -91,7 +95,15 @@ def main():
     if paid and not lane.results.get("send_ok"):
         keep_secrets(out, lane.secrets, log)
     lane.details.setdefault("signer", plat.certs.get("previous"))
-    lane.proof({"signer": plat.certs, "emulator": plat.health})
+    gaps = {c: why for c, why in NOT_CHECKED.items() if c not in lane.required}
+    lane.proof({"signer": plat.certs, "emulator": plat.health, "not_checked": gaps})
+    if gaps:  # the summary line says what the lane did not check
+        res = os.path.join(out, "result.txt")
+        with open(res) as f:
+            line = f.read().strip()
+        with open(res, "w") as f:
+            f.write("%s; %s\n" % (line, "; ".join(gaps.values())))
+        log("not checked: " + "; ".join(gaps.values()))
     return rc
 
 

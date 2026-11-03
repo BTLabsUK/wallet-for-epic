@@ -11,7 +11,7 @@
 #   REL_CANDIDATE_DIR, REL_CANDIDATE_VERSION candidate's published files
 #   REL_CANDIDATE_EXTRA                      candidate's non-published folder (emulator/…x86_64.apk)
 #   REL_VARIANT        tor | notor
-#   REL_CHECKS         comma list of checks that must be true (default: all eight, and for a candidate from 26.10.25 the
+#   REL_CHECKS         comma list of checks that must be true (default: all eight but settings_kept, and for a candidate from 26.10.25 the
 #                      four migration checks: store_encrypted, app_files_kept, lan_nodes_kept, contact_note_kept)
 #   REL_FUNDS          1 = also send_ok / receive_ok, 0 = data checks only
 #   REL_NODE           node to type in, e.g. https://node.btlabs.uk (unset: health pick below)
@@ -38,7 +38,9 @@ here="$(cd "$(dirname "$0")" && pwd)"
 drv="$here/android"
 sdk="${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}"
 export ADB="${ADB:-$sdk/platform-tools/adb}"
-CHECKS_ALL=wallet_opens,balance_kept,history_kept,custom_nodes_kept,custom_relays_kept,settings_kept,send_ok,receive_ok
+# settings_kept is not in it: the theme and Technical details are in Keystore-encrypted storage, the LEPIC CLI
+# does not report the confirmations, and the phone has no wallets.json label (the proof says so).
+CHECKS_ALL=wallet_opens,balance_kept,history_kept,custom_nodes_kept,custom_relays_kept,send_ok,receive_ok
 # A candidate that encrypts the wallet database (26.10.25 on) must also pass the migration checks.
 if [[ "$(printf '%s\n' 26.10.25 "${REL_CANDIDATE_VERSION:-0}" | sort -V | head -1)" == 26.10.25 ]]; then
   CHECKS_ALL+=,store_encrypted,app_files_kept,lan_nodes_kept,contact_note_kept
