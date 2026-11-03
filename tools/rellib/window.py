@@ -10,9 +10,9 @@
 - A full suite outside the run: a step kept apart from source-check also waits (up to
   `external_wait`) while a build-slot slot runs one (`external_suites`, matched against
   `build-slot --status`), then starts anyway and says so.
-- Infrastructure retries: a failure whose cause is the machine, not the product (a signal, a
+- Infrastructure retries: a failure whose cause is the machine, not the product or the driver (a signal, a
   missing proof.json, an ssh drop, no build slot), runs once more (`infra_retries`, default 1).
-  Product failures, timeouts, checks and publish steps never retry by themselves.
+  Product and harness failures, timeouts, checks and publish steps never retry by themselves.
 - The release window: while a run drives, a marker file (default
   $XDG_RUNTIME_DIR/wfe-release-window, i.e. /run/user/$UID/wfe-release-window) says so, for
   build-slot and the scheduler to give the release priority. Contract: docs/RELEASING.md, "The release
@@ -65,6 +65,8 @@ class Policy:
 
     @staticmethod
     def counts(step):
+        if getattr(step, "remote", False):
+            return False
         return bool(step.heavy or step.proof or getattr(step, "capped", False))
 
     def why_not(self, step, running):
@@ -118,10 +120,37 @@ def _tail(path, n=50):
         return []
 
 
+HARNESS_LINE = re.compile(r"^\s*(?:\S+:\s+)?HARNESS\b", re.MULTILINE)
+TRACEBACK = re.compile(r"^Traceback \(most recent call last\)", re.MULTILINE)
+
+
+def proof_cause(result, log):
+    """Why a G4 driver failed, from what it left: proof.fault.kind, its exit code, its log tail.
+    "harness" (the rig or the setup could not run the test: exit 2, a fault of kind harness or a
+    `HARNESS ...` line), "harness:crash" (the driver raised: a Python traceback and no proof fault),
+    "product" (a required check is false, or the driver said PRODUCT) or "step"."""
+    proof = result.get("proof") if isinstance(result.get("proof"), dict) else {}
+    fault = proof.get("fault") if isinstance(proof.get("fault"), dict) else {}
+    if fault.get("kind") == "harness":
+        return "harness"
+    if fault.get("kind") == "product":
+        return "product"
+    text = "".join(_tail(log, 120))
+    if TRACEBACK.search(text):
+        return "harness:crash"
+    if result.get("rc") == 2 or HARNESS_LINE.search(text):
+        return "harness"
+    if result.get("failed_checks"):
+        return "product"
+    return "step"
+
+
 def cause_of(step, result, log):
     """Why a step failed, for metrics.jsonl and the retry rule: "infra:<what>" (the machine: a
     signal, a missing proof.json, an ssh drop, no build slot), "timeout" (its own hard limit),
-    "error" (tools/rel itself), "check" (a builtin or gate said no) or "product"."""
+    "error" (tools/rel itself), "check" (a builtin or gate said no), for a proof step what
+    proof_cause says ("product", "harness", "harness:crash"), else "step" (a build or script
+    that exited non-zero). Only "infra:*" retries by itself."""
     if result.get("timed_out"):
         return "timeout"
     if result.get("exception"):
@@ -141,7 +170,9 @@ def cause_of(step, result, log):
         return "infra:ssh"
     if step.proof and result.get("proof_missing"):
         return "infra:no-proof"
-    return "product"
+    if step.proof:
+        return proof_cause(result, log)
+    return "step"
 
 
 # ---- the release window marker -----------------------------------------------------------------

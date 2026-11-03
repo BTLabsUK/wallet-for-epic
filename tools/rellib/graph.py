@@ -33,6 +33,7 @@ class Step:
     scratch: str = None
     warn_only: bool = False
     capped: bool = False  # counts toward [concurrency] max_heavy although not heavy (tools/rellib/window.py)
+    remote: bool = False  # its load is on another machine (a rig): never counts toward max_heavy
 
     @property
     def phase(self):
@@ -157,6 +158,7 @@ def build_graph(pipeline, scope, ctx):
                 scratch=spec.get("scratch"),
                 warn_only=bool(spec.get("warn_only")),
                 capped=bool(spec.get("capped")),
+                remote=bool(spec.get("remote")),
             )
             steps.append(step)
     return topo(steps)

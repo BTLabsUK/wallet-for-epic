@@ -13,6 +13,7 @@ import threading
 import time
 import queue
 
+from . import evidence
 from . import failures as known
 from . import guards
 from . import window as win
@@ -42,6 +43,10 @@ def place(src, dst):
         shutil.copy2(os.path.realpath(src), dst)
 
 
+# The checkout tools/rel runs from: its step scripts and G4 drivers ({rel} in pipeline.toml).
+RUNNER = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
 def relmsg_state(st):
     """A step's state as relmsg shows it: a warn_only step that failed shows as failed (with its
     WARNING note and no alert) although the run carries on."""
@@ -61,8 +66,9 @@ def recovered_note(proof):
     return f"; RECOVERED by AI ({len(rec)}): {', '.join(steps)[:120]} (selector-fixes.md)"
 
 class Engine:
-    def __init__(self, run, pipeline, hosts, repo, *, relmsg=None, dry=False, echo=None, failures=None):
+    def __init__(self, run, pipeline, hosts, repo, *, relmsg=None, dry=False, echo=None, failures=None, runner=None):
         self.run = run
+        self.runner = runner or RUNNER
         self.pipeline = pipeline
         self.hosts = hosts
         self.repo = repo
@@ -187,6 +193,27 @@ class Engine:
             return guards.never_ship_refusal(self.info, self.repo)
         return None
 
+    def pin_driver(self, step, st, attempt):
+        """-> (status fields, the earlier driver record this attempt differs from or None) for a proof
+        step: which driver code this attempt runs (evidence.driver_record of the checkout tools/rel
+        runs from), kept per attempt in status `drivers`. Others -> (None, None)."""
+        if not step.proof:
+            return None, None
+        rec = evidence.driver_record(self.runner)
+        earlier = list(st.get("drivers") or [])
+        differs = [e for e in earlier if (e.get("commit"), e.get("dirty")) != (rec["commit"], rec["dirty"])]
+        return ({"driver": rec, "drivers": earlier + [dict(rec, attempt=attempt)]},
+                {"commit": differs[-1]["commit"], "dirty": differs[-1]["dirty"]} if differs else None)
+
+    def stamp_driver(self, step, stage):
+        """Writes this attempt's driver record into proof.json, before the proof is read, hashed or kept."""
+        rec = self.run.status(step.id).get("driver")
+        path = os.path.join(stage, "proof.json")
+        proof = read_json(path)
+        if rec and isinstance(proof, dict):
+            proof["driver"] = rec
+            write_json(path, proof)
+
     def attempt_log(self, step, attempt):
         d = self.run.step_dir(step.id)
         os.makedirs(d, exist_ok=True)
@@ -203,7 +230,7 @@ class Engine:
     def execute(self, step, infra_try=0):
         """Runs one step to an end state; returns its status dict. A failure whose cause is the
         machine (window.cause_of: a signal, no proof.json, an ssh drop, no build slot) runs once
-        more by itself ([concurrency] infra_retries); a product failure never does."""
+        more by itself ([concurrency] infra_retries); a product or harness failure never does."""
         from . import builtins
         st = self.run.status(step.id)
         attempt = st.get("attempts", 0) + 1
@@ -213,11 +240,14 @@ class Engine:
                 f.write(f"tools/rel: refused: {why}\n")
             self.echo(f"✗ {step.id}  refused: {why}")
             return self.run.set_status(step.id, status="failed", attempts=attempt, note=f"refused: {why}",
-                                       cause="product: refused", ended=now_iso())
+                                       cause="check: refused", ended=now_iso(),
+                                       attempt_causes=(st.get("attempt_causes") or []) + ["check: refused"])
         started = time.time()
         log = self.attempt_log(step, attempt)
+        driver, changed_from = self.pin_driver(step, st, attempt)
         self.run.set_status(step.id, status="running", attempts=attempt, started=now_iso(), ended=None,
-                            note=None, hint=None, rc=None, cause=None, infra_try=infra_try or None)
+                            note=None, hint=None, rc=None, cause=None, infra_try=infra_try or None, flaky=None, failed_before=None, recovered=None,
+                            **(driver or {}), driver_changed=True if changed_from else None)
         self.run.event(step.id, "start", host=step.host, attempt=attempt, dry=self.dry or None,
                        infra_try=infra_try or None)
         self.load.step_started(step.id)
@@ -250,6 +280,7 @@ class Engine:
         will_retry = False
         if result["status"] == "failed":
             result["cause"] = win.cause_of(step, dict(result, exception=exception), log)
+            result["attempt_causes"] = (st.get("attempt_causes") or []) + [result["cause"]]
             # Never a publish step: what reaches the outside world retries only where pipeline.toml
             # says so (`retries`), after a person looked.
             will_retry = (result["cause"].startswith("infra:") and infra_try < self.policy.infra_retries
@@ -266,7 +297,14 @@ class Engine:
         if result["status"] in ("done", "failed", "skipped"):
             result["ended"] = now_iso()
             result["duration_s"] = dur
+        if changed_from:
+            result["note"] = ((result.get("note") or "").rstrip() + "; drivers changed between attempts ("
+                              f"{evidence.driver_label(changed_from)} → {evidence.driver_label(driver['driver'])})").lstrip("; ")
         if result["status"] == "done":
+            earlier = st.get("attempt_causes") or []
+            # Passed after a failed attempt in this run (a warn_only failure is not a pass).
+            result["flaky"] = True if earlier and not result.get("warned") else None
+            result["failed_before"] = list(earlier) if result["flaky"] else None
             result["input_hash"] = self.input_hash(step)
             result["inputs_digest"] = None if self.dry else self.inputs_digest(step)
             if tested is not None:
@@ -343,7 +381,10 @@ class Engine:
         """One line per step end in <state_root>/metrics.jsonl: time, when it started and ended, the
         machine's load meanwhile and the steps beside it (load.py), and the emulator's health when a
         driver wrote {stage}/emulator.json. These are the data for when trust may start (RELEASING.md).
-        A failure carries its cause (window.cause_of: infra:<what>, timeout, product, check, error);
+        A failure carries its cause (window.cause_of: infra:<what>, timeout, product, harness,
+        harness:crash, step, check, error); flaky marks a pass after a failed attempt in the run,
+        driver_changed a proof step whose driver code differed from an earlier attempt's, recovered the
+        number of AI recoveries in the proof (tools/rellib/health.py reads these);
         infra_try counts the automatic retries before this attempt; waited_s is the time the step
         waited for the heavy cap or a step kept apart."""
         line = {"ts": now_iso(), "run": self.info["run_id"], "version": self.info["version"], "step": step.id,
@@ -351,7 +392,9 @@ class Engine:
                 "started": st.get("started"), "ended": st.get("ended"), "reused": bool(st.get("reused_from")) or None,
                 "attempt": st.get("attempts"), "bytes": st.get("bytes"), "dry": self.dry or None,
                 "test": self.info.get("test") or None, "cause": st.get("cause"), "infra_try": infra_try or None,
-                "waited_s": st.get("waited_s"), "max_heavy": self.policy.max_heavy}
+                "waited_s": st.get("waited_s"), "max_heavy": self.policy.max_heavy,
+                "flaky": st.get("flaky") or None, "driver_changed": st.get("driver_changed") or None,
+                "recovered": len(st["recovered"]) if st.get("recovered") else None}
         line.update(load or {})
         emu = read_json(os.path.join(self.run.step_dir(step.id), "out", "emulator.json"))
         if isinstance(emu, dict):
@@ -445,6 +488,7 @@ class Engine:
                 return {"status": "failed", "rc": None, "timed_out": True,
                         "note": f"timed out after {step.timeout:.0f}s (its hard limit)"}
         if step.proof:
+            self.stamp_driver(step, stage)
             return self._check_proof(step, rc)
         if rc != 0:
             return {"status": "failed", "rc": rc, "note": f"exit {rc}"}
@@ -483,7 +527,7 @@ class Engine:
             skip = set(self.pipeline.proof.get("beside_not_applicable", []))
             required = [c for c in required if c not in skip]
         bad = [c for c in required if checks.get(c) is not True]
-        res = {"rc": rc, "proof": proof, "proven": not bad and rc == 0}
+        res = {"rc": rc, "proof": proof, "proven": not bad and rc == 0, "failed_checks": bad or None}
         if bad or rc != 0:
             det = proof.get("details", {})
             note = "not proven: " + ", ".join(
@@ -503,8 +547,7 @@ class Engine:
                                            f"({proof.get('update_method', '?')}; node {proof.get('node')}, epicbox {proof.get('epicbox')}"
                                            + (f"; from saved state" if proof.get("start") == "state" else "") + ")"
                                            + recovered_note(proof))
-            if proof.get("recovered"):
-                res["recovered"] = [r.get("step") for r in proof["recovered"]]
+            res["recovered"] = [r.get("step") for r in proof["recovered"]] if proof.get("recovered") else None
         return res
 
     def collect(self, step, stage):

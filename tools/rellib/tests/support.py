@@ -188,6 +188,8 @@ class Base(unittest.TestCase):
         # needs P reports it missing at once instead of asking the real wallet.
         os.environ["REL_P_TOOL"] = os.path.join(self.tmp, "no-p.py")
         os.environ["REL_P_SERVICE_DIR"] = os.path.join(self.tmp, "p-service")
+        # Never a real detached gate watcher (test_gate_watch replaces the start where it tests it).
+        os.environ["REL_GATEWATCH"] = "off"
         self.pipeline = Pipeline.loads(FAKE_PIPELINE) if hasattr(Pipeline, "loads") else Pipeline(
             __import__("tomllib").loads(FAKE_PIPELINE))
         self.hosts = {"host": {}, "path": {}, "file": "none", "exists": True}
@@ -195,7 +197,8 @@ class Base(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.tmp, ignore_errors=True)
         for k in ("REL_FAKE_DIR", "REL_RELMSG", "REL_FAKE_GATE", "REL_RELMSG_BACKOFF", "REL_FAKE_BUSY", "REL_FAKE_DOWN",
-                  "REL_WINDOW_MARKER", "REL_HEAVY_STATUS_CMD", "WFE_GREEN_DIR", "REL_P_TOOL", "REL_P_SERVICE_DIR"):
+                  "REL_WINDOW_MARKER", "REL_HEAVY_STATUS_CMD", "WFE_GREEN_DIR", "REL_P_TOOL", "REL_P_SERVICE_DIR",
+                  "REL_GATEWATCH"):
             os.environ.pop(k, None)
 
     def make_run(self, version="26.10.25", **scope_kw):

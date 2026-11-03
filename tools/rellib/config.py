@@ -90,6 +90,7 @@ class Pipeline:
         # for the owner's code (tools/rellib/signer.py).
         self.concurrency = data.get("concurrency", {})
         self.sign = data.get("sign", {})
+        self.health = data.get("health", {})  # per-lane health (tools/rellib/health.py)
         if not self.steps:
             raise ConfigError(f"{path}: no [step.*] tables")
         c = self.concurrency
@@ -103,6 +104,11 @@ class Pipeline:
             for pair in c.get(k, []):
                 if not (isinstance(pair, list) and len(pair) == 2 and all(p in self.steps for p in pair)):
                     raise ConfigError(f"{path}: [concurrency] {k}: {pair!r} is not a pair of step names")
+        h = self.health
+        for k, ok in (("runs", lambda v: type(v) is int and v >= 1), ("min_runs", lambda v: type(v) is int and v >= 1),
+                      ("min_first_try", lambda v: type(v) in (int, float) and 0 <= v <= 1)):
+            if k in h and not ok(h[k]):
+                raise ConfigError(f"{path}: [health] {k} = {h[k]!r}: " + ("a number from 0 to 1" if k == "min_first_try" else "a whole number, 1 or more"))
         if self.sign.get("when", "inline") not in ("inline", "on-demand"):
             raise ConfigError(f"{path}: [sign] when = {self.sign.get('when')!r}: inline or on-demand")
         parse_duration(self.defaults.get("timeout"))
