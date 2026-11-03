@@ -40,22 +40,6 @@
   "@deskSetRescanStartHeading": {
     "description": "Heading of the start-choice radio group on the Recheck page."
   },
-  "deskSetRescanFromHeight": "From a block height",
-  "@deskSetRescanFromHeight": {
-    "description": "Recheck start choice; same text as the phone's settingsRescanFromHeight."
-  },
-  "deskSetRescanHeightInvalid": "Enter a block height of 1 or more.",
-  "@deskSetRescanHeightInvalid": {
-    "description": "Field error for the Recheck start height; same text as the phone's settingsRescanHeightInvalid."
-  },
-  "deskSetRescanWholeChain": "The whole chain",
-  "@deskSetRescanWholeChain": {
-    "description": "Recheck start choice: from block 0; same text as the phone's settingsRescanWholeChain."
-  },
-  "deskSetRescanWholeChainHint": "From the first block. Finds everything and takes long. Also finishes an unfinished restore.",
-  "@deskSetRescanWholeChainHint": {
-    "description": "Hint under The whole chain."
-  },
   "deskOnbForgotLink": "Forgot password?",
   "@deskOnbForgotLink": {
     "description": "Text link on Unlock; opens Set a new password."
@@ -151,9 +135,5 @@
   "deskOnbForgotRestoreInstead": "Restore from the phrase",
   "@deskOnbForgotRestoreInstead": {
     "description": "Forgot password: button when the phrase cannot be checked; removes the wallet from the list (files kept) and opens Restore with the phrase."
-  },
-  "deskSetRescanByWholeChain": "Whole chain",
-  "@deskSetRescanByWholeChain": {
-    "description": "Recheck balance › Where to start: the segment that scans from block 0 (short, a segmented control)."
   }
 }

@@ -22,6 +22,7 @@ import 'package:epic_wallet/src/desktop/screens/transfer/send_advanced.dart' sho
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/wallet_service.dart' show FakeWalletSession;
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
+import 'package:epic_wallet/src/ui/scan_start.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -442,19 +443,16 @@ void main() {
     testWidgets('the start height is offered with Advanced off, and reaches the wallet', (tester) async {
       await _open(tester, DeskRoute.restore, arg: RestoreStep.account);
       expect(_advanced.has(AdvancedFeature.recheckFromHeight), isFalse);
-      expect(find.byKey(const ValueKey('restore-from-link')), findsOneWidget);
-      await tester.tap(find.byKey(const ValueKey('restore-from-link')));
+      expect(find.byKey(ScanStart.changeKey), findsOneWidget);
+      await tester.tap(find.byKey(ScanStart.changeKey));
       await _settle(tester);
       // The phone's choice (GP-031): Date first on mainnet, Block height beside it.
       expect(find.byKey(const ValueKey('start-date-pick')), findsOneWidget);
       await tester.tap(find.text(_l.restoreStartByHeight));
       await _settle(tester);
-      await tester.enterText(find.byKey(const ValueKey('restore-from-height')), 'x12');
+      await tester.enterText(find.byKey(ScanStart.heightKey), '2800000');
       await _settle(tester);
-      expect(find.text(_l.deskOnbRestoreFromInvalid), findsOneWidget);
-      await tester.enterText(find.byKey(const ValueKey('restore-from-height')), '2800000');
-      await _settle(tester);
-      expect(find.text(_l.deskOnbRestoreFromInvalid), findsNothing);
+      expect(find.text(_l.restoreScanningFromBlock('2,800,000')), findsOneWidget);
     });
   });
 

@@ -17,6 +17,7 @@ import 'package:epic_wallet/src/desktop/screens/settings/shots.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/shots.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/shots.dart';
 import 'package:epic_wallet/src/trust_ids.dart';
+import 'package:epic_wallet/src/ui/scan_start.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -138,7 +139,7 @@ void main() {
     '02c-create-phrase-shown': ['g4.create.written', 'g4.create.continue'],
     '03-restore': ['g4.restore.phrase', 'g4.restore.next'],
     '03c-restore-password': [
-      'g4.restore.password', 'g4.restore.passwordConfirm', 'g4.restore.continue', 'g4.restore.start', 'g4.restore.fromStart',
+      'g4.restore.password', 'g4.restore.passwordConfirm', 'g4.restore.continue', 'g4.restore.start', 'g4.restore.info',
     ],
     '04g-setup-resumed': ['g4.setup.skip'],
     '05-unlock': ['g4.unlock.password', 'g4.unlock.submit'],
@@ -196,15 +197,25 @@ void main() {
     handle.dispose();
   });
 
-  testWidgets('Restore\u2019s start opened: by month, by height, the month, the height', (tester) async {
+  testWidgets('Restore\u2019s start opened: by month, by height, the month, the height; the info: from the start', (tester) async {
     final handle = tester.ensureSemantics();
     await open(tester, shots['03c-restore-password']!);
-    await tester.tap(find.byKey(const ValueKey('restore-from-link')));
-    await tester.pump(const Duration(milliseconds: 400));
-    expect([for (final id in ['g4.restore.by.month', 'g4.restore.by.height', 'g4.restore.month', 'g4.restore.fromStart']) check(tester, id)].nonNulls, isEmpty);
-    await tester.tap(find.bySemanticsIdentifier('g4.restore.by.height'));
-    await tester.pump(const Duration(milliseconds: 400));
+    // The fold's first frame is at elapsed 0: one frame to start, one to open.
+    Future<void> tap(Finder f) async {
+      await tester.tap(f);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+    }
+
+    await tap(find.byKey(ScanStart.changeKey));
+    expect([for (final id in ['g4.restore.by.month', 'g4.restore.by.height', 'g4.restore.month']) check(tester, id)].nonNulls, isEmpty);
+    await tap(find.bySemanticsIdentifier('g4.restore.by.height'));
     expect(check(tester, 'g4.restore.height'), isNull);
+    // The info holds Scan from the start while a month is the start (by height with nothing
+    // typed is the start already).
+    await tap(find.bySemanticsIdentifier('g4.restore.by.month'));
+    await tap(find.byKey(ScanStart.infoKey));
+    expect(check(tester, 'g4.restore.fromStart'), isNull);
     await close(tester);
     handle.dispose();
   });

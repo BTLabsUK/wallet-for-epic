@@ -11,6 +11,8 @@ import 'import_warning.dart';
 import 'import_wallets_screen.dart';
 import 'onboarding_parts.dart';
 import 'restore_screen.dart';
+import '../settings/shots.dart' show openInfoHint, tapShotKey;
+import '../../../ui/scan_start.dart' show ScanStart;
 import 'same_wallet_dialog.dart';
 import 'local_node_step.dart' show LocalNodeShot;
 import 'setup_screen.dart';
@@ -78,6 +80,28 @@ final List<DeskShot> onboardingShots = [
     ),
   ),
   const DeskShot(id: '03c-restore-password', title: 'Restore: password', route: DeskRoute.restore, arg: RestoreStep.account),
+  DeskShot(
+    id: '03c2-restore-start-open',
+    title: 'Restore: the scan start open (month or height)',
+    route: DeskRoute.restore,
+    arg: RestoreStep.account,
+    prepare: (_, ctx) async => tapShotKey(ctx, ScanStart.changeKey),
+  ),
+  DeskShot(
+    id: '03c3-restore-month-open',
+    title: 'Restore: the month picker open',
+    route: DeskRoute.restore,
+    arg: RestoreStep.account,
+    prepare: (_, ctx) async => tapShotKey(ctx, ScanStart.changeKey),
+    after: (_, ctx) async => tapShotKey(ctx, EStartMonthField.fieldKey),
+  ),
+  DeskShot(
+    id: '03c4-restore-start-info',
+    title: 'Restore: the scan start\u2019s info, with Scan from the start',
+    route: DeskRoute.restore,
+    arg: RestoreStep.account,
+    dialog: (ctx) => openInfoHint(ctx, title: (l) => l.scanStartInfoTitle),
+  ),
   const DeskShot(id: '03d-restore-restoring', title: 'Restore: restoring', route: DeskRoute.restore, arg: RestoreStep.restoring),
   const DeskShot(id: '03e-restore-failed', title: 'Restore: failed', route: DeskRoute.restore, arg: RestoreStep.failed),
   const DeskShot(id: '04-setup', title: 'Setup: preferences', route: DeskRoute.setup, arg: SetupStep.prefs),

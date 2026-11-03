@@ -1782,12 +1782,6 @@ class AppLocalizationsTh extends AppLocalizations {
       'ทุกคำ (12, 15, 18, 21 หรือ 24 คำ) คั่นด้วยช่องว่าง';
 
   @override
-  String get restoreStartHeading => 'เริ่มสแกนจากไหน';
-
-  @override
-  String get restoreStartByDate => 'วันที่';
-
-  @override
   String get restoreStartByMonth => 'เดือน';
 
   @override
@@ -1799,9 +1793,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get restoreStartHeightHelper =>
       'สแกนตั้งแต่บล็อกนี้ เว้นว่างไว้เพื่อสแกนทั้งบล็อกเชน';
-
-  @override
-  String get restoreStartHeightInvalid => 'บล็อกเริ่มต้นต้องเป็นจำนวนเต็ม';
 
   @override
   String get restoreBackToPhrase => 'กลับไปที่วลี';
@@ -2841,31 +2832,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get settingsRescanBody =>
-      'ตรวจสอบบล็อกเชนอีกครั้งเพื่อหาเงินของกระเป๋านี้ เริ่มจากจุดที่เก่ากว่าจะพบมากกว่าแต่ใช้เวลานานกว่า';
-
-  @override
-  String get settingsRescanFromDate => 'จากวันที่';
-
-  @override
-  String get settingsRescanFromMonth => 'จากเดือน';
-
-  @override
-  String get settingsRescanFromHeight => 'จากความสูงบล็อก';
-
-  @override
-  String get settingsRescanWholeChain => 'ทั้งบล็อกเชน';
-
-  @override
-  String get settingsRescanPickDate => 'เลือกวันที่';
-
-  @override
-  String get settingsRescanPickDateFirst => 'เลือกวันที่ก่อน';
-
-  @override
-  String get settingsRescanStartHeight => 'ความสูงเริ่มต้น';
-
-  @override
-  String get settingsRescanHeightInvalid => 'ป้อนความสูงบล็อกตั้งแต่ 1 ขึ้นไป';
+      'ตรวจสอบบล็อกเชนอีกครั้งเพื่อหาเงินของกระเป๋านี้';
 
   @override
   String get settingsRescanButton => 'ตรวจใหม่';
@@ -12475,9 +12442,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get restoreStartFromLink => 'เริ่มจากวันที่หรือความสูงบล็อก';
 
   @override
-  String get restoreStartFromMonthLink => 'เริ่มจากเดือนหรือความสูงบล็อก';
-
-  @override
   String restoreScanningFrom(String month) {
     return 'สแกนตั้งแต่ $month';
   }
@@ -12486,14 +12450,22 @@ class AppLocalizationsTh extends AppLocalizations {
   String get restoreScanningFromStart => 'สแกนตั้งแต่ต้น';
 
   @override
-  String get restoreOlderCoins => 'มีเหรียญที่เก่ากว่านี้ไหม';
-
-  @override
   String get restoreScanFromStart => 'สแกนตั้งแต่ต้นแทน';
 
   @override
-  String get settingsRescanBodyPlain =>
-      'กระเป๋าเงินจะค้นหาเงินของตัวเองอีกครั้ง ตั้งแต่บล็อกแรก';
+  String restoreScanningFromBlock(String height) {
+    return 'สแกนตั้งแต่บล็อก $height';
+  }
+
+  @override
+  String get scanStartChange => 'เปลี่ยนจุดเริ่มต้น';
+
+  @override
+  String get scanStartInfoTitle => 'จุดเริ่มสแกน';
+
+  @override
+  String get scanStartInfo =>
+      'จะพบเฉพาะเหรียญตั้งแต่จุดนี้เป็นต้นไป เริ่มจากจุดที่เก่ากว่าจะพบเหรียญเก่ากว่าแต่ใช้เวลานานกว่า';
 
   @override
   String get slNodeField => 'ที่อยู่โหนด';
@@ -12608,19 +12580,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSlHelpChoose =>
       'เลือกหนึ่งรายการ หรือพิมพ์เพื่อกรองรายการหรือเพิ่มเซิร์ฟเวอร์';
-
-  @override
-  String get deskOnbRestoreFromLabel => 'เริ่มจากบล็อก';
-
-  @override
-  String get deskOnbRestoreFromHint => 'ความสูงบล็อก';
-
-  @override
-  String get deskOnbRestoreFromHelp =>
-      'ใช้เมื่อรายการแรกของกระเป๋าเงินเกิดหลังบล็อกนี้เท่านั้น เว้นว่างไว้เพื่อตรวจทั้งบล็อกเชน';
-
-  @override
-  String get deskOnbRestoreFromInvalid => 'ใช้ตัวเลขเท่านั้น หรือเว้นว่างไว้';
 
   @override
   String get deskNetWaitingTorReason =>
@@ -15034,19 +14993,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetRescanStartHeading => 'เริ่มจากตรงไหน';
-
-  @override
-  String get deskSetRescanFromHeight => 'จากความสูงบล็อก';
-
-  @override
-  String get deskSetRescanHeightInvalid => 'ใส่ความสูงบล็อกตั้งแต่ 1 ขึ้นไป';
-
-  @override
-  String get deskSetRescanWholeChain => 'ทั้งบล็อกเชน';
-
-  @override
-  String get deskSetRescanWholeChainHint =>
-      'ตั้งแต่บล็อกแรก พบทุกอย่างแต่ใช้เวลานาน และทำให้การกู้คืนที่ค้างอยู่เสร็จด้วย';
 
   @override
   String get deskOnbForgotLink => 'ลืมรหัสผ่าน?';
@@ -18870,19 +18816,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetSynRecheckFrom => 'เริ่ม, วันที่, ความสูง, บล็อก';
 
   @override
-  String get deskSetRowRecheckMonth => 'เดือน';
-
-  @override
-  String get deskSetSynRecheckMonth =>
-      'เดือน, วันที่, ปฏิทิน, สร้างเมื่อ, เมื่อไร';
-
-  @override
-  String get deskSetRowRecheckHeight => 'บล็อกเริ่มต้น';
-
-  @override
-  String get deskSetSynRecheckHeight => 'ความสูง, บล็อก';
-
-  @override
   String get deskSetRowRecheckDropHint =>
       'ยกเลิกธุรกรรมที่ยังไม่ยืนยันด้วย การชำระเงินที่กำลังส่งอาจล้มเหลว';
 
@@ -19385,9 +19318,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetSearchKeyEsc => 'Esc';
-
-  @override
-  String get deskSetRescanByWholeChain => 'ทั้งเชน';
 
   @override
   String get deskTorPayOff => 'ปิด';

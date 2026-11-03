@@ -8,10 +8,6 @@
   "deskErrRestoreScanRequired": "Przywracanie nieukończone. Odbieranie i wysyłanie będą dostępne, gdy skanowanie łańcucha się zakończy.",
   "deskSetRescanRestoreRunning": "Trwa skanowanie po przywróceniu. Sprawdź saldo będzie dostępne, gdy się zakończy.",
   "deskSetRescanStartHeading": "Od czego zacząć",
-  "deskSetRescanFromHeight": "Od wysokości bloku",
-  "deskSetRescanHeightInvalid": "Wpisz wysokość bloku 1 lub większą.",
-  "deskSetRescanWholeChain": "Cały łańcuch",
-  "deskSetRescanWholeChainHint": "Od pierwszego bloku. Znajduje wszystko i trwa długo. Kończy też nieukończone przywracanie.",
   "deskOnbForgotLink": "Nie pamiętasz hasła?",
   "deskOnbForgotTitle": "Ustaw nowe hasło",
   "deskOnbForgotFailedTitle": "Hasło nie zostało zmienione",
@@ -30,6 +26,5 @@
   "deskOvRestoredImportLater": "Później w Ustawienia › Portfel › Kopia zapasowa.",
   "deskOnbForgotNoCheck": "Nic w plikach tego portfela nie potwierdzi frazy, więc hasło zostaje.",
   "deskOnbForgotRestoreHint": "Zamiast tego przywróć go z frazy: {name} znika z listy, a jego pliki zostają na tym komputerze.",
-  "deskOnbForgotRestoreInstead": "Przywróć z frazy",
-  "deskSetRescanByWholeChain": "Cały łańcuch"
+  "deskOnbForgotRestoreInstead": "Przywróć z frazy"
 }

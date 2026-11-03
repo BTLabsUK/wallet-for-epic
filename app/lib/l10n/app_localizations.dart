@@ -2929,18 +2929,6 @@ abstract class AppLocalizations {
   /// **'All the words (12, 15, 18, 21 or 24), separated by spaces.'**
   String get restorePhraseHelper;
 
-  /// Heading above the choice of a start date or a start block for the scan of the blockchain for the wallet's funds.
-  ///
-  /// In en, this message translates to:
-  /// **'Where to start scanning'**
-  String get restoreStartHeading;
-
-  /// Segment button: give the scan's start as a date. Short.
-  ///
-  /// In en, this message translates to:
-  /// **'Date'**
-  String get restoreStartByDate;
-
   /// Segment button: give the scan's start as a month and year. Short.
   ///
   /// In en, this message translates to:
@@ -2964,12 +2952,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Scan from this block. Leave empty to scan the whole chain.'**
   String get restoreStartHeightHelper;
-
-  /// No description provided for @restoreStartHeightInvalid.
-  ///
-  /// In en, this message translates to:
-  /// **'Start height must be a whole number.'**
-  String get restoreStartHeightInvalid;
 
   /// Button after a failed restore that returns to the recovery phrase field.
   ///
@@ -4636,56 +4618,8 @@ abstract class AppLocalizations {
   /// No description provided for @settingsRescanBody.
   ///
   /// In en, this message translates to:
-  /// **'Checks the chain again for this wallet’s coins. An earlier start finds more but takes longer.'**
+  /// **'Checks the chain again for this wallet’s coins.'**
   String get settingsRescanBody;
-
-  /// Choice in the rescan dialog: start at the block of a picked day.
-  ///
-  /// In en, this message translates to:
-  /// **'From a date'**
-  String get settingsRescanFromDate;
-
-  /// Recheck balance choice: start the scan from a month and year.
-  ///
-  /// In en, this message translates to:
-  /// **'From a month'**
-  String get settingsRescanFromMonth;
-
-  /// Choice in the rescan dialog: start at a block number.
-  ///
-  /// In en, this message translates to:
-  /// **'From a block height'**
-  String get settingsRescanFromHeight;
-
-  /// Choice in the rescan dialog: start at the first block.
-  ///
-  /// In en, this message translates to:
-  /// **'The whole chain'**
-  String get settingsRescanWholeChain;
-
-  /// Button in the rescan dialog that opens a calendar.
-  ///
-  /// In en, this message translates to:
-  /// **'Pick a date'**
-  String get settingsRescanPickDate;
-
-  /// Error in the rescan dialog.
-  ///
-  /// In en, this message translates to:
-  /// **'Pick a date first.'**
-  String get settingsRescanPickDateFirst;
-
-  /// Label of the block number field in the rescan dialog.
-  ///
-  /// In en, this message translates to:
-  /// **'Start height'**
-  String get settingsRescanStartHeight;
-
-  /// Error in the rescan dialog.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter a block height of 1 or more.'**
-  String get settingsRescanHeightInvalid;
 
   /// Button that starts the rescan.
   ///
@@ -20190,12 +20124,6 @@ abstract class AppLocalizations {
   /// **'Start from a date or height'**
   String get restoreStartFromLink;
 
-  /// Link on Restore that opens the choice of where the scan starts: a month or a block height.
-  ///
-  /// In en, this message translates to:
-  /// **'Start from a month or height'**
-  String get restoreStartFromMonthLink;
-
   /// Restore, mainnet: where the scan starts, shown above the link that changes it. The month is localised (January 2025).
   ///
   /// In en, this message translates to:
@@ -20208,23 +20136,35 @@ abstract class AppLocalizations {
   /// **'Scanning from the start'**
   String get restoreScanningFromStart;
 
-  /// Restore: before the Scan from the start link, for wallets with coins from before the default start month.
-  ///
-  /// In en, this message translates to:
-  /// **'Older coins?'**
-  String get restoreOlderCoins;
-
   /// Restore: link that makes the scan start from the chain's first block instead of a month.
   ///
   /// In en, this message translates to:
   /// **'Scan from the start'**
   String get restoreScanFromStart;
 
-  /// Recheck balance dialog text while Recheck from a height is off in Advanced: no start choice, the whole chain is scanned.
+  /// The scan-start line when a block height was typed (restore and Recheck balance). The number is localised.
   ///
   /// In en, this message translates to:
-  /// **'The wallet looks for its coins again, from the first block.'**
-  String get settingsRescanBodyPlain;
+  /// **'Scanning from block {height}'**
+  String restoreScanningFromBlock(String height);
+
+  /// Tooltip and screen-reader name of the calendar button beside the scan-start line: opens the month or block height choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Change the start'**
+  String get scanStartChange;
+
+  /// Title of the info sheet or popover behind the scan-start line's info button.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan start'**
+  String get scanStartInfoTitle;
+
+  /// Text of the scan-start info sheet or popover; under it the Scan from the start button.
+  ///
+  /// In en, this message translates to:
+  /// **'Only coins from this point on are found. An earlier start finds older coins and takes longer.'**
+  String get scanStartInfo;
 
   /// Label of the one field at the top of the Node sheet: it starts empty, filters the list while typed in, and adds an address that is not listed.
   ///
@@ -20405,30 +20345,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pick one, or type to filter the list or add a server.'**
   String get deskSlHelpChoose;
-
-  /// Label of the optional start block field on Restore.
-  ///
-  /// In en, this message translates to:
-  /// **'Start from block'**
-  String get deskOnbRestoreFromLabel;
-
-  /// Placeholder of the start block field on Restore.
-  ///
-  /// In en, this message translates to:
-  /// **'Block height'**
-  String get deskOnbRestoreFromHint;
-
-  /// Help line under the start block field on Restore.
-  ///
-  /// In en, this message translates to:
-  /// **'Only if the wallet’s first payment came after this block. Leave it empty to check the whole chain.'**
-  String get deskOnbRestoreFromHelp;
-
-  /// Error under the start block field on Restore when the text is not a number.
-  ///
-  /// In en, this message translates to:
-  /// **'Use digits only, or leave it empty.'**
-  String get deskOnbRestoreFromInvalid;
 
   /// Why a network action is disabled in Tor only mode while Tor is not connected yet. One short line.
   ///
@@ -24131,30 +24047,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Where to start'**
   String get deskSetRescanStartHeading;
-
-  /// Recheck start choice; same text as the phone's settingsRescanFromHeight.
-  ///
-  /// In en, this message translates to:
-  /// **'From a block height'**
-  String get deskSetRescanFromHeight;
-
-  /// Field error for the Recheck start height; same text as the phone's settingsRescanHeightInvalid.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter a block height of 1 or more.'**
-  String get deskSetRescanHeightInvalid;
-
-  /// Recheck start choice: from block 0; same text as the phone's settingsRescanWholeChain.
-  ///
-  /// In en, this message translates to:
-  /// **'The whole chain'**
-  String get deskSetRescanWholeChain;
-
-  /// Hint under The whole chain.
-  ///
-  /// In en, this message translates to:
-  /// **'From the first block. Finds everything and takes long. Also finishes an unfinished restore.'**
-  String get deskSetRescanWholeChainHint;
 
   /// Text link on Unlock; opens Set a new password.
   ///
@@ -30078,30 +29970,6 @@ abstract class AppLocalizations {
   /// **'start, date, height, block'**
   String get deskSetSynRecheckFrom;
 
-  /// Settings row title: Month (section recheck).
-  ///
-  /// In en, this message translates to:
-  /// **'Month'**
-  String get deskSetRowRecheckMonth;
-
-  /// Settings search: other words that find the “Month” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
-  ///
-  /// In en, this message translates to:
-  /// **'month, date, calendar, created, when'**
-  String get deskSetSynRecheckMonth;
-
-  /// Settings row title: Start block (section recheck).
-  ///
-  /// In en, this message translates to:
-  /// **'Start block'**
-  String get deskSetRowRecheckHeight;
-
-  /// Settings search: other words that find the “Start block” row, comma-separated, lower case. Use words people type in this language (English ones that are used as they are may stay). Not shown.
-  ///
-  /// In en, this message translates to:
-  /// **'height, block'**
-  String get deskSetSynRecheckHeight;
-
   /// Settings row “Delete unconfirmed”: its one-line explanation (behind ⓘ on the page, searched and shown under search results).
   ///
   /// In en, this message translates to:
@@ -30977,12 +30845,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Esc'**
   String get deskSetSearchKeyEsc;
-
-  /// Recheck balance › Where to start: the segment that scans from block 0 (short, a segmented control).
-  ///
-  /// In en, this message translates to:
-  /// **'Whole chain'**
-  String get deskSetRescanByWholeChain;
 
   /// Payments › Link · Tor state line: the switch is off.
   ///

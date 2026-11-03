@@ -26,7 +26,8 @@ import 'package:epic_wallet/src/ui/backup_screen.dart';
 import 'package:epic_wallet/src/ui/first_run_screen.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/level_step_screen.dart';
-import 'package:epic_wallet/src/ui/restore_screen.dart' show RestoreScreen, restoreStartLinkKey;
+import 'package:epic_wallet/src/ui/restore_screen.dart' show RestoreScreen;
+import 'package:epic_wallet/src/ui/scan_start.dart' show ScanStart;
 import 'package:epic_wallet/src/ui/scan_screen.dart' show FakeQrScanner, qrScannerProvider;
 import 'package:epic_wallet/src/ui/settings_history.dart' show FakeHistoryFiles, historyFilesProvider;
 import 'package:epic_wallet/src/ui/settings_screen.dart';
@@ -246,7 +247,7 @@ void main() {
     '02c-create-phrase-shown': ['g4.create.written', 'g4.create.continue'],
     '03-restore': ['g4.restore.phrase', 'g4.restore.next'],
     '03c-restore-password': [
-      'g4.restore.password', 'g4.restore.passwordConfirm', 'g4.restore.continue', 'g4.restore.start', 'g4.restore.fromStart',
+      'g4.restore.password', 'g4.restore.passwordConfirm', 'g4.restore.continue', 'g4.restore.start', 'g4.restore.info',
     ],
     '04g-setup-resumed': ['g4.setup.skip'],
     '05-unlock': ['g4.unlock.password', 'g4.unlock.submit'],
@@ -285,21 +286,25 @@ void main() {
       await _same(tester, open, () => _closeDesk(tester), ['g4.wallet.label.save']);
     });
 
-    testWidgets('Restore\u2019s start opened, then by height', (tester) async {
-      Future<void> open(bool height) async {
+    testWidgets('Restore\u2019s start opened, then by height; the info popover', (tester) async {
+      Future<void> open({bool height = false, bool info = false}) async {
         await _openDesk(tester, _shots['03c-restore-password']!);
-        await tester.tap(find.byKey(const ValueKey('restore-from-link')));
+        // The fold's first frame is at elapsed 0: one frame to start, one to open.
+        await tester.tap(find.byKey(info ? ScanStart.infoKey : ScanStart.changeKey));
+        await tester.pump();
         await tester.pump(const Duration(milliseconds: 400));
         if (height) {
           await tester.tap(find.text(englishStrings.restoreStartByHeight));
+          await tester.pump();
           await tester.pump(const Duration(milliseconds: 400));
         }
       }
 
-      await _same(tester, () => open(false), () => _closeDesk(tester), [
-        'g4.restore.by.month', 'g4.restore.by.height', 'g4.restore.month', 'g4.restore.fromStart',
+      await _same(tester, open, () => _closeDesk(tester), [
+        'g4.restore.by.month', 'g4.restore.by.height', 'g4.restore.month',
       ]);
-      await _same(tester, () => open(true), () => _closeDesk(tester), ['g4.restore.height']);
+      await _same(tester, () => open(height: true), () => _closeDesk(tester), ['g4.restore.height']);
+      await _same(tester, () => open(info: true), () => _closeDesk(tester), ['g4.restore.fromStart']);
     });
 
     testWidgets('the tour: Skip', (tester) async {
@@ -365,26 +370,30 @@ void main() {
       );
     });
 
-    testWidgets('Restore: the phrase, the start, Continue; opened by month, then by height', (tester) async {
-      Future<void> open({bool start = false, bool height = false}) async {
+    testWidgets('Restore: the phrase, the start, the info, Continue; opened by month, then by height; the info sheet', (tester) async {
+      Future<void> open({bool start = false, bool height = false, bool info = false}) async {
         await _openPhone(tester, const RestoreScreen(), open: false);
-        if (start) {
-          await tester.tap(find.byKey(restoreStartLinkKey));
+        // Scrolled into view first: the choice opens under the line, above the bottom bar.
+        Future<void> tap(Finder f) async {
+          await tester.ensureVisible(f);
+          await tester.pumpAndSettle();
+          await tester.tap(f);
           await tester.pumpAndSettle();
         }
-        if (height) {
-          await tester.tap(find.text(englishStrings.restoreStartByHeight));
-          await tester.pumpAndSettle();
-        }
+
+        if (start) await tap(find.byKey(ScanStart.changeKey));
+        if (height) await tap(find.text(englishStrings.restoreStartByHeight));
+        if (info) await tap(find.byKey(ScanStart.infoKey));
       }
 
       await _same(tester, open, () => _closePhone(tester), [
-        'g4.restore.phrase', 'g4.restore.start', 'g4.restore.fromStart', 'g4.restore.continue',
+        'g4.restore.phrase', 'g4.restore.start', 'g4.restore.info', 'g4.restore.continue',
       ]);
       await _same(tester, () => open(start: true), () => _closePhone(tester), [
-        'g4.restore.by.month', 'g4.restore.by.height', 'g4.restore.month', 'g4.restore.fromStart',
+        'g4.restore.by.month', 'g4.restore.by.height', 'g4.restore.month',
       ]);
       await _same(tester, () => open(start: true, height: true), () => _closePhone(tester), ['g4.restore.height']);
+      await _same(tester, () => open(info: true), () => _closePhone(tester), ['g4.restore.fromStart']);
       // The roles the drivers look for.
       await open(start: true, height: true);
       final handle = tester.ensureSemantics();
@@ -392,9 +401,18 @@ void main() {
       SemanticsData data(String id) => tester.getSemantics(find.bySemanticsIdentifier(id)).getSemanticsData();
       expect(data('g4.restore.phrase').flagsCollection.isTextField, isTrue);
       expect(data('g4.restore.height').flagsCollection.isTextField, isTrue);
-      for (final id in ['g4.restore.by.month', 'g4.restore.by.height', 'g4.restore.fromStart', 'g4.restore.continue']) {
+      for (final id in ['g4.restore.start', 'g4.restore.info', 'g4.restore.by.month', 'g4.restore.by.height', 'g4.restore.continue']) {
         expect(data(id).hasAction(SemanticsAction.tap), isTrue, reason: id);
       }
+      for (final id in ['g4.restore.start', 'g4.restore.info']) {
+        expect(data(id).flagsCollection.isButton, isTrue, reason: id);
+      }
+      // Scan from the start: a button in the info sheet while a month is the start (by height
+      // with nothing typed is the start already, so the sheet holds no button then).
+      await _closePhone(tester);
+      await open(info: true);
+      expect(data('g4.restore.fromStart').hasAction(SemanticsAction.tap), isTrue);
+      expect(data('g4.restore.fromStart').flagsCollection.isButton, isTrue);
       handle.dispose();
       await _closePhone(tester);
     });
