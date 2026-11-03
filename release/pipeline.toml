@@ -356,7 +356,7 @@ when = ["apple.signed"]
 for_each = "variant"
 host = "apple"
 needs = ["source", "source-check"]
-run = "git fetch job/wfe.bundle HEAD && git checkout --detach FETCH_HEAD && test \"$(git rev-parse HEAD)\" = {commit} && RELEASE_COMMIT={commit} WFE_TOR={tor} tools/build-apple.sh mac-release  # then build-apple/mac-release/bt-wallet-{version}{notor}-macos.{dmg,dmg.sha256,REPORT.txt} into results/"
+run = "git fetch job/wfe.bundle HEAD && git checkout --detach FETCH_HEAD && test \"$(git rev-parse HEAD)\" = {commit} && RELEASE_COMMIT={commit} RELEASE_VERSION={version} WFE_TOR={tor} tools/build-apple.sh mac-release  # then build-apple/mac-release/bt-wallet-{version}{notor}-macos.{dmg,dmg.sha256,REPORT.txt} into results/"
 results = ["bt-wallet-{version}{notor}-macos.dmg", "bt-wallet-{version}{notor}-macos.dmg.sha256", "bt-wallet-{version}{notor}-macos.REPORT.txt"]
 timeout = "48h"
 
@@ -380,7 +380,7 @@ platform = "ios"
 when = ["apple.signed"]
 host = "apple"
 needs = ["source", "source-check"]
-run = "git fetch job/wfe.bundle HEAD && git checkout --detach FETCH_HEAD && test \"$(git rev-parse HEAD)\" = {commit} && RELEASE_COMMIT={commit} WFE_TOR=0 tools/build-apple.sh ios-prepare  # then Xcode Archive → Distribute → App Store Connect; results/REPORT.txt: build number + uploaded"
+run = "git fetch job/wfe.bundle HEAD && git checkout --detach FETCH_HEAD && test \"$(git rev-parse HEAD)\" = {commit} && RELEASE_COMMIT={commit} RELEASE_VERSION={version} WFE_TOR=0 WFE_DIST=appstore tools/build-apple.sh ios-prepare  # then Xcode Archive → Distribute → App Store Connect; results/REPORT.txt: build number + uploaded"
 results = ["REPORT.txt"]
 timeout = "48h"
 
@@ -397,7 +397,7 @@ unless = ["apple.signed"]
 for_each = "variant"
 host = "apple"
 needs = ["source", "source-check"]
-run = "rm -rf src out && git clone -q job/wfe.bundle src && cd src && git checkout -q --detach {commit} && RELEASE_COMMIT={commit} WFE_TOR={tor} APPLE_OUT=$PWD/../out tools/build-apple.sh release-check doctor sources lepic macos dmg ipa  # in the folder holding job/: a fresh clone beside job/ (release-check refuses untracked files, and a build changes tracked ones); then out/{bt-wallet-{version}{notor}-macos.dmg,bt-wallet-{version}{notor}-ios-unsigned.ipa,results.txt} into results/ with their SHA256SUMS"
+run = "rm -rf src out && git clone -q job/wfe.bundle src && cd src && git checkout -q --detach {commit} && RELEASE_COMMIT={commit} RELEASE_VERSION={version} WFE_TOR={tor} APPLE_OUT=$PWD/../out tools/build-apple.sh release-check doctor sources lepic macos dmg ipa  # in the folder holding job/: a fresh clone beside job/ (release-check refuses untracked files, and a build changes tracked ones); then out/{bt-wallet-{version}{notor}-macos.dmg,bt-wallet-{version}{notor}-ios-unsigned.ipa,results.txt} into results/ with their SHA256SUMS"
 results = ["bt-wallet-{version}{notor}-macos.dmg", "bt-wallet-{version}{notor}-ios-unsigned.ipa", "results.txt", "SHA256SUMS"]
 timeout = "48h"
 

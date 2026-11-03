@@ -1853,20 +1853,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get restoreWholeChain => 'Scan the whole chain instead';
-
-  @override
   String get restorePickMonth => 'Pick the month you created the wallet';
 
   @override
   String get restorePickMonthShort => 'Pick a month';
-
-  @override
-  String get restorePickMonthFirst => 'Pick a month first.';
-
-  @override
-  String get restoreMonthHint =>
-      'Optional. If unsure, pick an earlier month: a later one can miss coins.';
 
   @override
   String restoreMonthStart(String height) {
@@ -1895,7 +1885,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restoreUnfinishedRunning =>
-      'Looking for this wallet’s coins from block 0. Receiving and sending open when this ends.';
+      'Looking for this wallet’s coins. Receiving and sending open when this ends.';
 
   @override
   String get restoreUnfinishedOffline =>
@@ -11582,7 +11572,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskSetHttpStep2Text(String port) {
-    return 'On the router’s page (often 10.0.1.1), find Port forwarding and forward TCP $port to this computer.';
+    return 'On the router’s page (often 192.168.1.1), find Port forwarding and forward TCP $port to this computer.';
   }
 
   @override
@@ -12826,6 +12816,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restoreStartFromMonthLink => 'Start from a month or height';
 
   @override
+  String restoreScanningFrom(String month) {
+    return 'Scanning from $month';
+  }
+
+  @override
+  String get restoreScanningFromStart => 'Scanning from the start';
+
+  @override
+  String get restoreOlderCoins => 'Older coins?';
+
+  @override
+  String get restoreScanFromStart => 'Scan from the start';
+
+  @override
   String get settingsRescanBodyPlain =>
       'The wallet looks for its coins again, from the first block.';
 
@@ -12943,9 +12947,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskSlHelpChoose =>
       'Pick one, or type to filter the list or add a server.';
-
-  @override
-  String get deskOnbRestoreFromHide => 'Check the whole chain';
 
   @override
   String get deskOnbRestoreFromLabel => 'Start from block';
@@ -15381,7 +15382,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOvRestoreRunning =>
-      'Looking for this wallet’s coins on the chain, from the first block. Received EPIC shows as it is found; receiving and sending open when the scan finishes.';
+      'Looking for this wallet’s coins on the chain. Received EPIC shows as it is found; receiving and sending open when the scan finishes.';
 
   @override
   String deskOvRestoreAfterHeight(String height) {
@@ -15400,7 +15401,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetRescanRestoreRunning =>
-      'The restore scan is running: the chain is read from the first block. Recheck balance is available when it finishes.';
+      'The restore scan is running. Recheck balance is available when it finishes.';
 
   @override
   String get deskSetRescanStartHeading => 'Where to start';

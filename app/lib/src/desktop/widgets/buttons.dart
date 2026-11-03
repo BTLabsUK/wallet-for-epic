@@ -386,8 +386,11 @@ class _ELinkState extends State<ELink> {
     final color = widget.dim ? (_hover ? c.text : c.dim) : c.accentText;
     return ExcludeFocusTraversal(
       excluding: !widget.tabStop,
+      // One node with the label, as EButton: the id names it, not the focus node inside.
       child: TrustId(widget.semanticsId, child: Semantics(
       link: true,
+      label: widget.label,
+      excludeSemantics: true,
       onTap: widget.onPressed,
       child: FocusableActionDetector(
         mouseCursor: SystemMouseCursors.click,

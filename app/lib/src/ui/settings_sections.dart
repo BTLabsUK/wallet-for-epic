@@ -51,6 +51,7 @@ import '../levels/level_features.dart' show AdvancedPageKind;
 import '../levels/level_providers.dart' show currentLevelProvider, levelFeaturesProvider;
 import 'licences_screen.dart';
 import 'month_picker.dart' show StartMonthChoice;
+import '../start_month.dart' show StartMonth, defaultStartMonth;
 import 'network_menu.dart';
 import 'network_mode_phone.dart';
 import 'network_mode_text.dart' show blockMode, networkModeName;
@@ -60,8 +61,7 @@ import 'network_status.dart';
 import 'home_parts.dart' show outputsShown;
 import 'outputs_screen.dart';
 import 'pin.dart';
-import 'restore_screen.dart'
-    show RestoreScreen, ScanSlotLine, mainnetHeightForDate;
+import 'restore_screen.dart' show RestoreScreen, ScanSlotLine;
 import 'server_picker.dart' show showEpicboxPicker, showNodePicker;
 import 'settings_history.dart';
 import 'settings_invoices.dart';
@@ -449,8 +449,8 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       context,
       builder: (_) => _RescanDialog(
         datesSupported: chain == Chain.mainnet,
-        // Advanced › Recheck from a height: without it the dialog only confirms.
-        choice: AdvancedOptions.has(context, AdvancedFeature.recheckFromHeight),
+        // Advanced › Recheck from a height: the height row, and on a test network the choice.
+        heights: AdvancedOptions.has(context, AdvancedFeature.recheckFromHeight),
       ),
     );
     if (start == null || !mounted) return;
@@ -1375,25 +1375,29 @@ class LinkTile extends StatelessWidget {
 
 enum _RescanFrom { date, height, start }
 
-/// Where a rescan starts. Pops the start height, or null when cancelled.
+/// Where a rescan starts. Pops the start height, or null when cancelled. On mainnet, at every
+/// level, a month (January 2025 unless another is picked) or the whole chain, and with
+/// [heights] a block height too (the owner, 2026-11-03). A test network: the whole chain, with
+/// [heights] a height as the other choice; without it the dialog only confirms.
 class _RescanDialog extends StatefulWidget {
-  const _RescanDialog({required this.datesSupported, required this.choice});
+  const _RescanDialog({required this.datesSupported, required this.heights});
 
   final bool datesSupported;
 
-  /// Offer the start (a date, a height, the whole chain); else the whole chain without asking.
-  final bool choice;
+  /// Advanced › Recheck from a height is on: a block height may be typed.
+  final bool heights;
+
+  /// Offer the start; else the whole chain without asking.
+  bool get choice => datesSupported || heights;
 
   @override
   State<_RescanDialog> createState() => _RescanDialogState();
 }
 
 class _RescanDialogState extends State<_RescanDialog> {
-  late _RescanFrom _from = !widget.choice
-      ? _RescanFrom.start
-      : widget.datesSupported
-      ? _RescanFrom.date
-      : _RescanFrom.height;
+  late _RescanFrom _from = widget.datesSupported ? _RescanFrom.date : _RescanFrom.start;
+
+  /// The month picked; null is [defaultStartMonth].
   DateTime? _date;
   final _height = TextEditingController();
   String? _error;
@@ -1409,12 +1413,7 @@ class _RescanDialogState extends State<_RescanDialog> {
     final BigInt? start;
     switch (_from) {
       case _RescanFrom.date:
-        final date = _date;
-        if (date == null) {
-          setState(() => _error = l.restorePickMonthFirst);
-          return;
-        }
-        start = mainnetHeightForDate(date);
+        start = (_date == null ? defaultStartMonth : StartMonth.of(_date!)).height;
       case _RescanFrom.height:
         final height = BigInt.tryParse(_height.text.trim());
         if (height == null || height < BigInt.one) {
@@ -1455,7 +1454,7 @@ class _RescanDialogState extends State<_RescanDialog> {
                     children: [
                       if (widget.datesSupported)
                         RadioRow(value: _RescanFrom.date, title: l.settingsRescanFromMonth),
-                      RadioRow(value: _RescanFrom.height, title: l.settingsRescanFromHeight),
+                      if (widget.heights) RadioRow(value: _RescanFrom.height, title: l.settingsRescanFromHeight),
                       RadioRow(value: _RescanFrom.start, title: l.settingsRescanWholeChain),
                     ],
                   ),
@@ -1463,7 +1462,7 @@ class _RescanDialogState extends State<_RescanDialog> {
               ),
             if (_from == _RescanFrom.date)
               StartMonthChoice(
-                date: _date,
+                date: _date ?? defaultStartMonth.firstDay,
                 label: l.restorePickMonthShort,
                 onChanged: (d) => setState(() {
                   _date = d;

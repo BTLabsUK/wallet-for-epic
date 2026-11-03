@@ -1875,20 +1875,10 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get restoreWholeChain => 'Stattdessen die gesamte Blockchain scannen';
-
-  @override
   String get restorePickMonth => 'Erstellungsmonat der Wallet wählen';
 
   @override
   String get restorePickMonthShort => 'Monat wählen';
-
-  @override
-  String get restorePickMonthFirst => 'Wählen Sie zuerst einen Monat.';
-
-  @override
-  String get restoreMonthHint =>
-      'Optional. Bei Unsicherheit einen früheren Monat wählen: Ein späterer kann Guthaben übersehen.';
 
   @override
   String restoreMonthStart(String height) {
@@ -1917,7 +1907,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get restoreUnfinishedRunning =>
-      'Das Guthaben dieser Wallet wird ab Block 0 gesucht. Empfangen und Senden sind möglich, sobald dies abgeschlossen ist.';
+      'Das Guthaben dieser Wallet wird gesucht. Empfangen und Senden sind möglich, sobald dies abgeschlossen ist.';
 
   @override
   String get restoreUnfinishedOffline =>
@@ -11714,7 +11704,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String deskSetHttpStep2Text(String port) {
-    return 'Suchen Sie auf der Seite des Routers (oft 10.0.1.1) die Portweiterleitung und leiten Sie TCP $port an diesen Computer weiter.';
+    return 'Suchen Sie auf der Seite des Routers (oft 192.168.1.1) die Portweiterleitung und leiten Sie TCP $port an diesen Computer weiter.';
   }
 
   @override
@@ -12970,6 +12960,20 @@ class AppLocalizationsDe extends AppLocalizations {
       'Ab einem Monat oder einer Höhe starten';
 
   @override
+  String restoreScanningFrom(String month) {
+    return 'Scan ab $month';
+  }
+
+  @override
+  String get restoreScanningFromStart => 'Scan ab dem Anfang';
+
+  @override
+  String get restoreOlderCoins => 'Ältere Guthaben?';
+
+  @override
+  String get restoreScanFromStart => 'Ab dem Anfang scannen';
+
+  @override
   String get settingsRescanBodyPlain =>
       'Die Wallet sucht ab dem ersten Block erneut nach ihrem Guthaben.';
 
@@ -13095,9 +13099,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskSlHelpChoose =>
       'Wählen Sie einen aus oder tippen Sie, um die Liste zu filtern oder einen Server hinzuzufügen.';
-
-  @override
-  String get deskOnbRestoreFromHide => 'Gesamte Blockchain prüfen';
 
   @override
   String get deskOnbRestoreFromLabel => 'Ab Block starten';
@@ -15566,7 +15567,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOvRestoreRunning =>
-      'Das Guthaben dieser Wallet wird ab dem ersten Block auf der Blockchain gesucht. Empfangene EPIC erscheinen, sobald sie gefunden werden; Empfangen und Senden sind möglich, sobald der Scan abgeschlossen ist.';
+      'Das Guthaben dieser Wallet wird auf der Blockchain gesucht. Empfangene EPIC erscheinen, sobald sie gefunden werden; Empfangen und Senden sind möglich, sobald der Scan abgeschlossen ist.';
 
   @override
   String deskOvRestoreAfterHeight(String height) {
@@ -15586,7 +15587,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetRescanRestoreRunning =>
-      'Der Scan der Wiederherstellung läuft: Die Blockchain wird ab dem ersten Block gelesen. Guthaben neu prüfen ist verfügbar, sobald er abgeschlossen ist.';
+      'Der Scan der Wiederherstellung läuft. Guthaben neu prüfen ist verfügbar, sobald er abgeschlossen ist.';
 
   @override
   String get deskSetRescanStartHeading => 'Wo beginnen';

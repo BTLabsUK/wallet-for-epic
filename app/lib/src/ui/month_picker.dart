@@ -8,20 +8,19 @@ import 'package:flutter/material.dart';
 
 import '../l10n.dart';
 import '../start_month.dart';
+import '../trust_ids.dart';
 import 'phone_sheet.dart';
 import 'theme/tokens.dart';
-import 'inline_button.dart';
 
 /// The start-month button, the line under it and, once a month is chosen, the warning for a
-/// recent one and [onClear]'s button. [date] is the chosen month's first day, null for none.
+/// recent one. [date] is the chosen month's first day, null for none.
 class StartMonthChoice extends StatelessWidget {
   const StartMonthChoice({
     super.key,
     required this.date,
     required this.onChanged,
     this.label,
-    this.hint,
-    this.clearLabel,
+    this.semanticsId,
   });
 
   final DateTime? date;
@@ -30,12 +29,8 @@ class StartMonthChoice extends StatelessWidget {
   /// The button before a month is chosen; [AppLocalizations.restorePickMonth] when null.
   final String? label;
 
-  /// The line under the button before a month is chosen; none when null.
-  final String? hint;
-
-  /// A button under a chosen month that clears it ("Scan the whole chain instead"); none when
-  /// null.
-  final String? clearLabel;
+  /// The test drivers' stable name for the button (`TrustIds`, lib/src/trust_ids.dart).
+  final String? semanticsId;
 
   /// The key of the button, for tests.
   static const Key buttonKey = ValueKey('start-month-pick');
@@ -50,7 +45,7 @@ class StartMonthChoice extends StatelessWidget {
     final theme = Theme.of(context);
     final chosen = date == null ? null : StartMonth.of(date!);
     final small = theme.textTheme.bodySmall;
-    final line = chosen == null ? hint : l.restoreMonthStart(localInt(l, chosen.height));
+    final line = chosen == null ? null : l.restoreMonthStart(localInt(l, chosen.height));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
@@ -59,7 +54,8 @@ class StartMonthChoice extends StatelessWidget {
           key: buttonKey,
           style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
           icon: const Icon(Icons.calendar_month_outlined),
-          label: Text(chosen == null ? (label ?? l.restorePickMonth) : localMonthYear(l, chosen.firstDay)),
+          // The id on the label: the button makes its own node (trust_ids.dart).
+          label: TrustId(semanticsId, child: Text(chosen == null ? (label ?? l.restorePickMonth) : localMonthYear(l, chosen.firstDay))),
           onPressed: () async {
             final picked = await showStartMonthPicker(context, initial: chosen);
             if (picked != null) onChanged(picked.firstDay);
@@ -87,11 +83,6 @@ class StartMonthChoice extends StatelessWidget {
                 ],
               ),
             ),
-          ),
-        if (chosen != null && clearLabel != null)
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: InlineTextButton(onPressed: () => onChanged(null), child: Text(clearLabel!)),
           ),
       ],
     );

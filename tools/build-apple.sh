@@ -43,8 +43,9 @@
 # Backup route steps (signing on Linux, tools/apple-release.md appendix):
 #   release   the build to sign, from a clean checkout: checks (release-check), then sources,
 #             lepic, macos, ipa and handoff
-#   release-check  the tree is clean and at RELEASE_COMMIT (when set), Flutter is exactly the
-#             pinned version, the built-in node is fetched by its pin
+#   release-check  the tree is clean, at version $RELEASE_VERSION and its tag v<version> (or at
+#             RELEASE_COMMIT when set), Flutter is exactly the pinned version, the built-in
+#             node is fetched by its pin
 #   handoff   handoff/<name>/: the unsigned .app and iOS Runner.app as tar files, PROVENANCE.txt
 #             (commit, toolchain, pins, the SHA-256 of every file in both apps) and SHA256SUMS
 #   dmg-signed <signed .app tar>   the .dmg of the app the signer signed and notarised (the
@@ -70,6 +71,8 @@
 #                              and About says the App Store updates the app. iOS steps only
 #                              (ios-sim, ipa, ios-prepare); unset or web, the builds are as before
 #   SIM_DEVICE=<name or udid>  the Simulator (default: the first available iPhone)
+#   RELEASE_VERSION=<version>  release-check (required): the release, e.g. 26.10.25; the app's
+#                              version must be it, and HEAD its tag v<version> (or RELEASE_COMMIT)
 #   RELEASE_COMMIT=<sha>       release-check: the commit the owner asked for (full or short)
 #   APPLE_TEAM_ID=<id>         the team for mac-release (default: DEVELOPMENT_TEAM in
 #                              app/Signing.xcconfig)
@@ -522,7 +525,7 @@ pack() {
 # the toolchain is the pinned one, and the built-in node comes from its pin.
 release_check() {
   say release-check
-  local head dirty v
+  local head dirty v tag
   head="$(git -C "$root" rev-parse HEAD)"
   dirty="$(git -C "$root" status --porcelain --untracked-files=normal -- . ':!build-apple')"
   if [ -n "$dirty" ]; then
@@ -531,6 +534,17 @@ release_check() {
   fi
   if [ -n "${RELEASE_COMMIT:-}" ]; then
     case "$head" in "$RELEASE_COMMIT"*) ;; *) die "HEAD is $head, not RELEASE_COMMIT $RELEASE_COMMIT" ;; esac
+  fi
+  # One release, one commit: main moves on to the next version right after a publish, so the
+  # Mac and iOS builds both come from the release's tag, never from wherever main is now.
+  [ -n "${RELEASE_VERSION:-}" ] || die "set RELEASE_VERSION=<version> (the release's tag without the v)"
+  [ "$(app_version)" = "$RELEASE_VERSION" ] \
+    || die "the checkout is version $(app_version), not RELEASE_VERSION $RELEASE_VERSION: git fetch --tags origin && git checkout --detach v$RELEASE_VERSION"
+  # Without RELEASE_COMMIT (the release runner's hand-offs give its own commit id), HEAD is the tag.
+  if [ -z "${RELEASE_COMMIT:-}" ]; then
+    tag="$(git -C "$root" rev-parse -q --verify "refs/tags/v$RELEASE_VERSION^{commit}")" \
+      || die "no tag v$RELEASE_VERSION here: git fetch --tags origin && git checkout --detach v$RELEASE_VERSION"
+    [ "$head" = "$tag" ] || die "HEAD is $head, not the tag v$RELEASE_VERSION ($tag): git checkout --detach v$RELEASE_VERSION"
   fi
   v="$(flutter --version 2>/dev/null | sed -n 's/^Flutter \([0-9.]*\).*/\1/p')"
   [ "$v" = "$flutter_version" ] || die "Flutter is $v; release builds use exactly $flutter_version"
@@ -877,7 +891,7 @@ while [ $# -gt 0 ]; do
     handoff) handoff ;;
     dmg-signed) [ $# -gt 0 ] || die "dmg-signed needs the signed .app tar.gz"; dmg_signed "$1"; shift ;;
     gatekeeper) [ $# -gt 0 ] || die "gatekeeper needs the final .dmg"; gatekeeper "$1"; shift ;;
-    *) step=""; sed -n '2,74p' "$0" >&2; exit 2 ;;
+    *) step=""; sed -n '2,79p' "$0" >&2; exit 2 ;;
   esac
 done
 echo "results: $results"

@@ -2326,10 +2326,6 @@
       }
     }
   },
-  "restoreWholeChain": "Scan the whole chain instead",
-  "@restoreWholeChain": {
-    "description": "Button that clears the start date."
-  },
   "restorePickMonth": "Pick the month you created the wallet",
   "@restorePickMonth": {
     "description": "Button that opens the month picker for the scan's start (restore)."
@@ -2337,14 +2333,6 @@
   "restorePickMonthShort": "Pick a month",
   "@restorePickMonthShort": {
     "description": "Button that opens the month picker for a recheck's start. Short."
-  },
-  "restorePickMonthFirst": "Pick a month first.",
-  "@restorePickMonthFirst": {
-    "description": "Error under the month picker: Start was pressed before a month was chosen."
-  },
-  "restoreMonthHint": "Optional. If unsure, pick an earlier month: a later one can miss coins.",
-  "@restoreMonthHint": {
-    "description": "Under the month picker before a month is chosen."
   },
   "restoreMonthStart": "Scanning starts from block {height}.",
   "@restoreMonthStart": {
@@ -2375,9 +2363,9 @@
   },
   "restoreUnfinishedTitle": "Restore not finished",
   "@restoreUnfinishedTitle": {
-    "description": "Heading of the Home card while the core's restore scan from block 0 has not finished; the state's name everywhere."
+    "description": "Heading of the Home card while the core's restore scan has not finished; the state's name everywhere."
   },
-  "restoreUnfinishedRunning": "Looking for this wallet’s coins from block 0. Receiving and sending open when this ends.",
+  "restoreUnfinishedRunning": "Looking for this wallet’s coins. Receiving and sending open when this ends.",
   "@restoreUnfinishedRunning": {
     "description": "Home card line while the restore scan runs or starts; the bar and the percent line follow."
   },
@@ -15348,7 +15336,7 @@
   "@deskSetHttpStep2": {
     "description": "Internet guide dialog: step 2 title."
   },
-  "deskSetHttpStep2Text": "On the router’s page (often 10.0.1.1), find Port forwarding and forward TCP {port} to this computer.",
+  "deskSetHttpStep2Text": "On the router’s page (often 192.168.1.1), find Port forwarding and forward TCP {port} to this computer.",
   "@deskSetHttpStep2Text": {
     "description": "Internet guide dialog: step 2 text.",
     "placeholders": {
@@ -17011,6 +16999,28 @@
   "@restoreStartFromMonthLink": {
     "description": "Link on Restore that opens the choice of where the scan starts: a month or a block height."
   },
+  "restoreScanningFrom": "Scanning from {month}",
+  "@restoreScanningFrom": {
+    "description": "Restore, mainnet: where the scan starts, shown above the link that changes it. The month is localised (January 2025).",
+    "placeholders": {
+      "month": {
+        "type": "String",
+        "example": "January 2025"
+      }
+    }
+  },
+  "restoreScanningFromStart": "Scanning from the start",
+  "@restoreScanningFromStart": {
+    "description": "Restore: the scan starts from the chain's first block, after the user chose Scan from the start."
+  },
+  "restoreOlderCoins": "Older coins?",
+  "@restoreOlderCoins": {
+    "description": "Restore: before the Scan from the start link, for wallets with coins from before the default start month."
+  },
+  "restoreScanFromStart": "Scan from the start",
+  "@restoreScanFromStart": {
+    "description": "Restore: link that makes the scan start from the chain's first block instead of a month."
+  },
   "settingsRescanBodyPlain": "The wallet looks for its coins again, from the first block.",
   "@settingsRescanBodyPlain": {
     "description": "Recheck balance dialog text while Recheck from a height is off in Advanced: no start choice, the whole chain is scanned."
@@ -17174,10 +17184,6 @@
   "deskSlHelpChoose": "Pick one, or type to filter the list or add a server.",
   "@deskSlHelpChoose": {
     "description": "Under the field of Setup's Node or Epicbox list while nothing is typed: before a wallet exists a pick chooses at once."
-  },
-  "deskOnbRestoreFromHide": "Check the whole chain",
-  "@deskOnbRestoreFromHide": {
-    "description": "The same link while the field is open: closes it and checks the whole chain again."
   },
   "deskOnbRestoreFromLabel": "Start from block",
   "@deskOnbRestoreFromLabel": {
@@ -20596,7 +20602,7 @@
   "@deskOvRestoreTitle": {
     "description": "Overview panel title while the core's restore scan from block 0 has not finished."
   },
-  "deskOvRestoreRunning": "Looking for this wallet’s coins on the chain, from the first block. Received EPIC shows as it is found; receiving and sending open when the scan finishes.",
+  "deskOvRestoreRunning": "Looking for this wallet’s coins on the chain. Received EPIC shows as it is found; receiving and sending open when the scan finishes.",
   "@deskOvRestoreRunning": {
     "description": "Overview panel text while the restore scan runs; a progress bar follows."
   },
@@ -20621,7 +20627,7 @@
   "@deskOvRestoreProgress": {
     "description": "Semantics label of the progress bar in the restore panel."
   },
-  "deskSetRescanRestoreRunning": "The restore scan is running: the chain is read from the first block. Recheck balance is available when it finishes.",
+  "deskSetRescanRestoreRunning": "The restore scan is running. Recheck balance is available when it finishes.",
   "@deskSetRescanRestoreRunning": {
     "description": "Recheck page line while the restore scan runs (replaces the generic \"a scan is already running\"); progress follows."
   },

@@ -17,6 +17,7 @@ import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'advanced_on.dart';
 
@@ -81,6 +82,8 @@ class _Fails extends MockDeskWallet {
 }
 
 void main() {
+  // The start month shows as a month and year (localMonthYear).
+  setUpAll(initializeDateFormatting);
   /// [whole]: with Recheck from a height on, From a date comes first and needs a date; the
   /// tests that only run a recheck start from the whole chain.
   Future<void> pump(WidgetTester tester, [MockDeskWallet? api, bool whole = true]) async {
@@ -111,24 +114,25 @@ void main() {
     }
   }
 
-  testWidgets('the phone\u2019s start choices: a date (picked first), a typed height, or the whole chain (0)', (tester) async {
+  testWidgets('the phone\u2019s start choices: a month (January 2025 by default), a typed height, or the whole chain (0)', (tester) async {
     final api = _Starts();
     await pump(tester, api, false);
     expect(find.text(_l.deskSetRescanStartHeading), findsOneWidget);
     expect(find.text('Month'), findsWidgets, reason: 'GP-030: the phone\u2019s choices');
-    // From a month is the first choice on mainnet; Recheck without a month says so.
+    // From a month is the first choice on mainnet, January 2025 until another is picked.
+    expect(find.text('January 2025'), findsOneWidget);
     await tester.tap(find.widgetWithText(EButton, _l.deskSetRescanRecheck));
-    await tester.pump();
-    expect(find.text(_l.restorePickMonthFirst), findsOneWidget);
-    expect(api.starts, isEmpty);
+    await run(tester, const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+    expect(api.starts, [defaultStartMonth.height]);
     await tester.tap(find.text(_l.restoreStartByHeight));
     await tester.pump();
-    await tester.tap(find.widgetWithText(EButton, _l.deskSetRescanRecheck));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetRescanRecheckAgain));
     await tester.pump();
     expect(find.text(_l.deskSetRescanHeightInvalid), findsOneWidget, reason: 'an empty height is refused under the field');
     await tester.enterText(find.byKey(const ValueKey('rescan-height')), '2800000');
     await tester.pump();
-    await tester.tap(find.widgetWithText(EButton, _l.deskSetRescanRecheck));
+    await tester.tap(find.widgetWithText(EButton, _l.deskSetRescanRecheckAgain));
     await run(tester, const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
     await tester.tap(find.text(_l.deskSetRescanByWholeChain));
@@ -136,7 +140,7 @@ void main() {
     await tester.tap(find.widgetWithText(EButton, _l.deskSetRescanRecheckAgain));
     await run(tester, const Duration(milliseconds: 400));
     await tester.pumpAndSettle();
-    expect(api.starts, [BigInt.from(2800000), BigInt.zero]);
+    expect(api.starts, [defaultStartMonth.height, BigInt.from(2800000), BigInt.zero]);
   });
 
   testWidgets('a full scan shows the balance before and after and the counts', (tester) async {
@@ -400,9 +404,20 @@ void main() {
       expect((await wallet.status()).restoreScan, isNull, reason: 'the core says the scan finished');
     });
 
-    test('a restore from a height scans from it once, then from block 0 by itself while the flag stays', () async {
+    test('a restore from a height scans from it once, which finishes it', () async {
       await wallet.restoreWallet(name: 'Main', password: _password, phrase: service.phrase.split(' '), startHeight: BigInt.from(2800000));
-      session.restoreScanPending = true;
+      expect(service.createdRestoreFrom, BigInt.from(2800000), reason: 'the core records the start');
+      expect(await wallet.unlock(_password), isTrue);
+      await wallet.sync();
+      expect(session.scanStarts, [BigInt.from(2800000)]);
+      expect(session.restoreScanPending, isFalse);
+      expect((await meta())['scanFrom'], isNull);
+      expect((await wallet.status()).restoreScan, isNull);
+    });
+
+    test('a core that did not record the height: the scan from block 0 follows by itself while the flag stays', () async {
+      await wallet.restoreWallet(name: 'Main', password: _password, phrase: service.phrase.split(' '), startHeight: BigInt.from(2800000));
+      session.restoreFrom = BigInt.zero;
       expect(await wallet.unlock(_password), isTrue);
       await wallet.sync();
       expect(session.scanStarts, [BigInt.from(2800000), null]);

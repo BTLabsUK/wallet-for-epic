@@ -1183,7 +1183,7 @@ void main() {
 
       expect(session.scanStarts, [null], reason: 'no start height: the core starts at block 0');
       expect(find.text(_l.restoreUnfinishedTitle), findsOneWidget);
-      expect(find.textContaining('from block 0. Receiving and sending open'), findsOneWidget);
+      expect(find.textContaining('this wallet’s coins. Receiving and sending open'), findsOneWidget);
       scan.add(const ScanProgress(percent: 40, message: 'Scanning', finished: false));
       await _pumpFrames(tester);
       expect(find.text('Scanning the chain (40%)'), findsOneWidget);
