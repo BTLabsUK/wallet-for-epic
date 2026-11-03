@@ -27375,5 +27375,18 @@
   "deskKitReachDismiss": "Dismiss",
   "@deskKitReachDismiss": {
     "description": "Button on the \"Not reachable from the internet\" notice: the user knows and hides it for this address and port; the status icon turns green."
+  },
+  "deskErrKeyMissing": "The files of {name} are on this computer, but the key that opens them is no longer in its secure storage (the keychain on a Mac). Enter the wallet’s recovery phrase to open it again; its history stays.",
+  "@deskErrKeyMissing": {
+    "description": "Unlock failure when the wallet's folder is there but the sealed key (the vault that holds the seed, kept in the system keychain or key store) is gone, for example after keychain entries were removed. The way out is the recovery phrase, which seals a new key and keeps the wallet's files.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deskOnbUnlockUsePhrase": "Enter recovery phrase",
+  "@deskOnbUnlockUsePhrase": {
+    "description": "Button on Unlock failed when the wallet's key is gone from the system keychain or key store; opens Set a new password, where the recovery phrase opens the wallet again."
   }
 }

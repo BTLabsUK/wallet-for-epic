@@ -5284,5 +5284,7 @@
   "deskOvInflightView": "Zobacz",
   "deskNoTorSetSynNetMode": "offline, kill switch, tylko węzeł, vpn, ip, prywatność, tryb samolotowy",
   "deskNoTorSetSearchTryWords": "hasło,prywatność,fraza,kopia,opłata,węzeł,blokada",
-  "deskKitReachDismiss": "Ukryj"
+  "deskKitReachDismiss": "Ukryj",
+  "deskErrKeyMissing": "Pliki portfela {name} są na tym komputerze, ale klucza, który je otwiera, nie ma już w jego bezpiecznym magazynie (na Macu w pęku kluczy). Wpisz frazę odzyskiwania portfela, aby otworzyć go ponownie; historia zostaje.",
+  "deskOnbUnlockUsePhrase": "Wpisz frazę odzyskiwania"
 }

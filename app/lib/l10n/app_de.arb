@@ -5284,5 +5284,7 @@
   "deskOvInflightView": "Anzeigen",
   "deskNoTorSetSynNetMode": "offline, kill switch, nur node, vpn, ip, datenschutz, flugmodus",
   "deskNoTorSetSearchTryWords": "passwort,datenschutz,seed,sicherung,gebühr,node,sperre",
-  "deskKitReachDismiss": "Ausblenden"
+  "deskKitReachDismiss": "Ausblenden",
+  "deskErrKeyMissing": "Die Dateien von {name} sind auf diesem Computer, aber der Schlüssel, der sie öffnet, ist nicht mehr in seinem sicheren Speicher (auf einem Mac im Schlüsselbund). Geben Sie die Wiederherstellungsphrase der Wallet ein, um sie wieder zu öffnen; der Verlauf bleibt erhalten.",
+  "deskOnbUnlockUsePhrase": "Wiederherstellungsphrase eingeben"
 }

@@ -209,5 +209,6 @@
   "deskOnbNodePortsSame": "Die beiden Ports müssen sich unterscheiden.",
   "deskOnbNodePortTaken": "Port {port} wird von einem anderen Programm genutzt. {next} ist frei.",
   "deskOnbNodePortUse": "{port} nutzen",
-  "deskOnbFailedTitle": "Nicht abgeschlossen"
+  "deskOnbFailedTitle": "Nicht abgeschlossen",
+  "deskOnbUnlockUsePhrase": "Wiederherstellungsphrase eingeben"
 }

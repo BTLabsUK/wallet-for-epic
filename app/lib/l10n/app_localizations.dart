@@ -31733,6 +31733,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dismiss'**
   String get deskKitReachDismiss;
+
+  /// Unlock failure when the wallet's folder is there but the sealed key (the vault that holds the seed, kept in the system keychain or key store) is gone, for example after keychain entries were removed. The way out is the recovery phrase, which seals a new key and keeps the wallet's files.
+  ///
+  /// In en, this message translates to:
+  /// **'The files of {name} are on this computer, but the key that opens them is no longer in its secure storage (the keychain on a Mac). Enter the wallet’s recovery phrase to open it again; its history stays.'**
+  String deskErrKeyMissing(String name);
+
+  /// Button on Unlock failed when the wallet's key is gone from the system keychain or key store; opens Set a new password, where the recovery phrase opens the wallet again.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter recovery phrase'**
+  String get deskOnbUnlockUsePhrase;
 }
 
 class _AppLocalizationsDelegate

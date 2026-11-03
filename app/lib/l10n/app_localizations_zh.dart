@@ -19087,4 +19087,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskKitReachDismiss => '不再提示';
+
+  @override
+  String deskErrKeyMissing(String name) {
+    return '$name 的文件在这台电脑上，但打开它们的密钥已不在安全存储中（Mac 上为钥匙串）。输入该钱包的助记词即可重新打开；交易记录保留。';
+  }
+
+  @override
+  String get deskOnbUnlockUsePhrase => '输入助记词';
 }

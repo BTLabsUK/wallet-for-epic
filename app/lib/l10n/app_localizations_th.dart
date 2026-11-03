@@ -19826,4 +19826,12 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskKitReachDismiss => 'ปิด';
+
+  @override
+  String deskErrKeyMissing(String name) {
+    return 'ไฟล์ของ $name อยู่บนคอมพิวเตอร์นี้ แต่กุญแจที่ใช้เปิดไม่อยู่ในที่เก็บข้อมูลที่ปลอดภัยแล้ว (บน Mac คือพวงกุญแจ) ใส่วลีกู้คืนของกระเป๋าเงินเพื่อเปิดอีกครั้ง ประวัติยังอยู่';
+  }
+
+  @override
+  String get deskOnbUnlockUsePhrase => 'ใส่วลีกู้คืน';
 }

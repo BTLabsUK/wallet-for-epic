@@ -517,6 +517,7 @@ class ProgressView extends StatelessWidget {
     this.note,
     this.onBack,
     this.onRetry,
+    this.retryLabel,
     this.progress,
     this.progressText,
     this.topAnchored = false,
@@ -543,6 +544,9 @@ class ProgressView extends StatelessWidget {
   final String? note;
   final VoidCallback? onBack;
   final VoidCallback? onRetry;
+
+  /// The primary button's label in place of Try again, for a failure whose way out is elsewhere.
+  final String? retryLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -618,7 +622,10 @@ class ProgressView extends StatelessWidget {
                 children: [
                   if (onBack != null) EButton(label: context.l10n.deskSetupBack, onPressed: onBack),
                   SizedBox(width: Sp.x3),
-                  if (onRetry != null) EButton.primary(label: context.l10n.deskSetupTryAgain, icon: EIcons.refresh, onPressed: onRetry),
+                  if (onRetry != null)
+                    retryLabel != null
+                        ? EButton.primary(label: retryLabel!, onPressed: onRetry)
+                        : EButton.primary(label: context.l10n.deskSetupTryAgain, icon: EIcons.refresh, onPressed: onRetry),
                 ],
               ),
             ] else if (wait != null)

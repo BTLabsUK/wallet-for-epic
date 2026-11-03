@@ -794,6 +794,11 @@ class FakeWalletService implements WalletService {
   /// When set, [deleteWallet] throws it and deletes nothing.
   WalletError? deleteError;
 
+  /// Data directories whose wallet files are there but whose vault the secret store no longer
+  /// holds (keychain entries removed): [open] fails as LEPIC's does, and [resetPassword] seals a
+  /// new vault from the phrase.
+  final Set<String> lostVaults = {};
+
   @override
   bool validateMnemonic({required String phrase}) => phrase == this.phrase;
 
@@ -997,6 +1002,7 @@ class FakeWalletService implements WalletService {
       throw const WalletError(kind: WalletErrorKind.phraseMismatch, message: 'phrase of another wallet');
     }
     password = newPassword;
+    lostVaults.remove(config.dataDir);
     passwordResets.add(config.dataDir);
   }
 
@@ -1050,6 +1056,9 @@ class FakeWalletService implements WalletService {
         kind: WalletErrorKind.walletNotFound,
         message: 'no wallet',
       );
+    }
+    if (lostVaults.contains(config.dataDir)) {
+      throw const WalletError(kind: WalletErrorKind.walletNotFound, message: "the app's store holds no vault");
     }
     if (password != this.password) {
       throw const WalletError(

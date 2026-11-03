@@ -1094,5 +1094,9 @@
   "deskOnbFailedTitle": "Not finished",
   "@deskOnbFailedTitle": {
     "description": "Bold heading of the failure notice on a long setup action (create, restore, new password); the reason follows under it."
+  },
+  "deskOnbUnlockUsePhrase": "Enter recovery phrase",
+  "@deskOnbUnlockUsePhrase": {
+    "description": "Button on Unlock failed when the wallet's key is gone from the system keychain or key store; opens Set a new password, where the recovery phrase opens the wallet again."
   }
 }

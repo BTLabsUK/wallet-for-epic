@@ -20242,4 +20242,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskKitReachDismiss => 'Dismiss';
+
+  @override
+  String deskErrKeyMissing(String name) {
+    return 'The files of $name are on this computer, but the key that opens them is no longer in its secure storage (the keychain on a Mac). Enter the wallet’s recovery phrase to open it again; its history stays.';
+  }
+
+  @override
+  String get deskOnbUnlockUsePhrase => 'Enter recovery phrase';
 }

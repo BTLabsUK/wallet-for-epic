@@ -139,5 +139,6 @@
   "deskErrNotDeliveredRelay": "Nicht zugestellt: {relay} hat nicht geantwortet. Die Zahlung wartet unter Aktivität; stornieren Sie sie dort, um den Betrag freizugeben.",
   "deskErrRelayNoAnswer": "{relay} hat nicht geantwortet.",
   "deskErrInputsSpentElsewhere": "Der Node zeigt diese Coins schon als ausgegeben, und diese Wallet hat sie nicht ausgegeben. Wahrscheinlich hat das eine andere Wallet mit Ihrer Wiederherstellungsphrase getan.",
-  "deskErrMacKeychain": "macOS hat der App nicht erlaubt, ihre gespeicherten Daten im Schlüsselbund zu lesen. Beenden Sie BT Wallet und öffnen Sie es erneut; wenn macOS fragt, geben Sie das Passwort ein, mit dem Sie Ihren Mac entsperren, und wählen Sie „Immer erlauben“."
+  "deskErrMacKeychain": "macOS hat der App nicht erlaubt, ihre gespeicherten Daten im Schlüsselbund zu lesen. Beenden Sie BT Wallet und öffnen Sie es erneut; wenn macOS fragt, geben Sie das Passwort ein, mit dem Sie Ihren Mac entsperren, und wählen Sie „Immer erlauben“.",
+  "deskErrKeyMissing": "Die Dateien von {name} sind auf diesem Computer, aber der Schlüssel, der sie öffnet, ist nicht mehr in seinem sicheren Speicher (auf einem Mac im Schlüsselbund). Geben Sie die Wiederherstellungsphrase der Wallet ein, um sie wieder zu öffnen; der Verlauf bleibt erhalten."
 }

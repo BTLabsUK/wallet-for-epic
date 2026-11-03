@@ -1003,6 +1003,12 @@ class LepicDeskWallet implements DeskWalletApi {
       // The records do not open with this wallet's key: nothing was touched; Unlock words it in
       // the password's error slot and stays ready.
       if (e.kind == core.WalletErrorKind.wrongKey) rethrow;
+      // The store holds no vault for a listed wallet (keychain entries removed): its files stay,
+      // and its recovery phrase seals a new vault through Forgot password.
+      if (e.kind == core.WalletErrorKind.walletNotFound) {
+        logWarn('desk', 'the secret store holds no vault for this wallet');
+        throw DeskError.l10n((l) => l.deskErrKeyMissing(entry.label), keyMissing: true);
+      }
       if (e.kind != core.WalletErrorKind.damagedDatabase) throw _deskError(e);
       // LEPIC set the damaged database aside; opening again rebuilds it from the vault, and a
       // scan brings the funds back.

@@ -139,5 +139,6 @@
   "deskErrNotDeliveredRelay": "未送达：{relay} 没有响应。这笔付款保留在“活动”中；在那里取消即可解锁资金。",
   "deskErrRelayNoAnswer": "{relay} 没有响应。",
   "deskErrInputsSpentElsewhere": "节点显示这些币已被花掉，而本钱包没有花它们。很可能是另一个使用你助记词的钱包花掉的。",
-  "deskErrMacKeychain": "macOS 不允许应用读取其保存在钥匙串中的数据。请退出 BT Wallet 并重新打开；当 macOS 询问时，输入你解锁 Mac 的密码并选择“始终允许”。"
+  "deskErrMacKeychain": "macOS 不允许应用读取其保存在钥匙串中的数据。请退出 BT Wallet 并重新打开；当 macOS 询问时，输入你解锁 Mac 的密码并选择“始终允许”。",
+  "deskErrKeyMissing": "{name} 的文件在这台电脑上，但打开它们的密钥已不在安全存储中（Mac 上为钥匙串）。输入该钱包的助记词即可重新打开；交易记录保留。"
 }

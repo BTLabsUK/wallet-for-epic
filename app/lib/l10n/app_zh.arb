@@ -5284,5 +5284,7 @@
   "deskOvInflightView": "查看",
   "deskNoTorSetSynNetMode": "离线, 断网开关, 仅节点, vpn, ip, 隐私, 飞行模式",
   "deskNoTorSetSearchTryWords": "密码,隐私,助记词,备份,手续费,节点,锁定",
-  "deskKitReachDismiss": "不再提示"
+  "deskKitReachDismiss": "不再提示",
+  "deskErrKeyMissing": "{name} 的文件在这台电脑上，但打开它们的密钥已不在安全存储中（Mac 上为钥匙串）。输入该钱包的助记词即可重新打开；交易记录保留。",
+  "deskOnbUnlockUsePhrase": "输入助记词"
 }

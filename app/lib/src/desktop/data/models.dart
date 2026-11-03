@@ -1200,12 +1200,12 @@ class HistoryFileError implements Exception {
 
 /// A wallet error, in a short sentence for the screen.
 class DeskError implements Exception {
-  const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx, this.wrongPhrase = false, this.resetUnverifiable = false, this.notEnoughFunds = false, this.nothingToMerge = false, this.nodeUnreachable = false, this.unreadable = false, this.wrongType = false, this.unsupported = false, this.cancelRefused = false})
+  const DeskError(this.message, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx, this.wrongPhrase = false, this.resetUnverifiable = false, this.notEnoughFunds = false, this.nothingToMerge = false, this.nodeUnreachable = false, this.unreadable = false, this.wrongType = false, this.unsupported = false, this.cancelRefused = false, this.keyMissing = false})
     : _text = null;
 
   /// An error the user reads in their language: [text] words it when shown ([DeskError.text]),
   /// [message] keeps its English for logs.
-  DeskError.l10n(String Function(AppLocalizations l) text, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx, this.wrongPhrase = false, this.resetUnverifiable = false, this.notEnoughFunds = false, this.nothingToMerge = false, this.nodeUnreachable = false, this.unreadable = false, this.wrongType = false, this.unsupported = false, this.cancelRefused = false})
+  DeskError.l10n(String Function(AppLocalizations l) text, {this.wrongPassword = false, this.locked = false, this.newPasswordNeeded = false, this.sameWallet, this.unbuildable = false, this.notPostedTx, this.wrongPhrase = false, this.resetUnverifiable = false, this.notEnoughFunds = false, this.nothingToMerge = false, this.nodeUnreachable = false, this.unreadable = false, this.wrongType = false, this.unsupported = false, this.cancelRefused = false, this.keyMissing = false})
     : message = text(englishStrings),
       _text = text;
 
@@ -1264,6 +1264,10 @@ class DeskError implements Exception {
 
   /// A cancel the node refused: it already has the payment.
   final bool cancelRefused;
+
+  /// Unlock: the wallet's files are there but the secret store (the keychain on macOS) no
+  /// longer holds its vault. The recovery phrase seals a new one ([DeskWallet.resetPassword]).
+  final bool keyMissing;
 
   @override
   String toString() => message;
