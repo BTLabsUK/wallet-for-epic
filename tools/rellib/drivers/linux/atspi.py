@@ -183,6 +183,16 @@ class AtspiSurface:
                           and not (n.ref["role"] == ref["role"] and n.ref["name"] == ref["name"])}
         tree = self.tree()
         start, rest = state(tree), live(tree)
+        # grab_focus may well land though the box never reports it: Space once, and read the box
+        self._call(self._req(node, "focus"))
+        self.key(key)
+        time.sleep(0.6)
+        tree = self.tree()
+        if state(tree) is not None and state(tree) != start:
+            self.log("AT-SPI: %s toggled after grab_focus (its focus is not reported)" % node.brief())
+            return
+        if live(tree) != rest:
+            self._undo(tree, rest)
         seen, tabs = set(), 1
         for step in range(TAB_LIMIT // 2):
             for _ in range(tabs):

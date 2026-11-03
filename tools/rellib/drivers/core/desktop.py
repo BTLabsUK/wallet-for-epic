@@ -412,11 +412,18 @@ class Desktop:
         if not focused:
             d.harness("the %s picker has no search field" % picker)
         d._act(d.s.set_text, focused[0], typed)
-        d.press(self._use_row(entry), step="use-%s" % entry, timeout=30,
-                then=Expect("%s %s" % (entry, "in use" if use else "listed"),
-                            lambda dd, tree: ((self._in_use(picker, entry, tree) or dd.find_in(SWITCH, tree)) if use else
-                                              (self._listed(entry, tree) or self._in_use(picker, entry, tree)
-                                               or not any(tg._norm(n.name).startswith("use ") for n in tree)))))
+        for attempt in range(3):
+            # an Add is answered only once the app has checked the server: listed, or "No answer ... Nothing added"
+            d.press(self._use_row(entry), step="use-%s" % entry, timeout=30,
+                    then=Expect("%s %s" % (entry, "in use" if use else "listed or refused"),
+                                lambda dd, tree: ((self._in_use(picker, entry, tree) or dd.find_in(SWITCH, tree)) if use else
+                                                  (self._listed(entry, tree) or self._in_use(picker, entry, tree)
+                                                   or dd.find_in(SERVER_REFUSED, tree)
+                                                   or not any(tg._norm(n.name).startswith(("use ", "add ")) for n in tree)))))
+            if use or not d.find_in(SERVER_REFUSED, d.tree()) or attempt == 2:
+                break
+            self.log("%s %s: no answer from the server; adding again (%d)" % (picker, entry, attempt + 1))
+            time.sleep(3)
         end = time.time() + 120
         while time.time() < end:
             tree = d.tree()
