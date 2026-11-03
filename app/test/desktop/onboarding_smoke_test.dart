@@ -14,6 +14,7 @@ import 'package:epic_wallet/src/desktop/screens/onboarding/unlock_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/onboarding/welcome_screen.dart';
 import 'package:epic_wallet/src/desktop/app/routes.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 
 final _l = englishStrings;
@@ -313,6 +314,8 @@ void flows() {
 }
 
 void main() {
+  // The start month shows as a month and year (localMonthYear).
+  setUpAll(initializeDateFormatting);
   flows();
   test('Welcome\'s network reaches the wallet layer, and Welcome opens on the one in use (LNX-6)', () async {
     final container = ProviderContainer();

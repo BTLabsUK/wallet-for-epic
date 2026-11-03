@@ -35,6 +35,8 @@ class AccountForm extends StatelessWidget {
     this.onSubmit,
     this.passwordError,
     this.confirmError,
+    this.passwordId = TrustIds.accountPassword,
+    this.confirmId = TrustIds.accountConfirmPassword,
   });
 
   final TextEditingController password, confirm;
@@ -44,6 +46,9 @@ class AccountForm extends StatelessWidget {
   final VoidCallback? onSubmit;
   final String? passwordError;
   final String? confirmError;
+
+  /// The test drivers' names for the two fields (`TrustIds`): a new wallet's unless given.
+  final String passwordId, confirmId;
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +69,7 @@ class AccountForm extends StatelessWidget {
               controller: password,
               invalid: passwordError != null,
               semanticLabel: l.deskOnbStepPassword,
-              semanticsId: TrustIds.accountPassword,
+              semanticsId: passwordId,
               textInputAction: TextInputAction.next,
               onChanged: (_) => onChanged(),
             ),
@@ -83,7 +88,7 @@ class AccountForm extends StatelessWidget {
           controller: confirm,
           invalid: confirmError != null,
           semanticLabel: l.deskSetupConfirmPassword,
-          semanticsId: TrustIds.accountConfirmPassword,
+          semanticsId: confirmId,
           textInputAction: TextInputAction.done,
           onChanged: (_) => onChanged(),
         ),

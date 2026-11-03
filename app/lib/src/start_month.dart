@@ -74,6 +74,10 @@ class StartMonth implements Comparable<StartMonth> {
 /// The first month a wallet can have been made in: September 2019, block 1's.
 final StartMonth firstStartMonth = StartMonth.of(mainnetFirstDay);
 
+/// Where a restore, and a Recheck balance with a start, scan from on mainnet unless the user
+/// chooses (the owner, 2026-11-03): January 2025. "Scan from the start" is block 0.
+const StartMonth defaultStartMonth = StartMonth(2025, 1);
+
 /// The years a picker offers, oldest first: 2019 to [now]'s.
 List<int> startYears(DateTime now) => [for (var y = firstStartMonth.year; y <= now.year; y++) y];
 

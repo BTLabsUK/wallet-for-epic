@@ -2,10 +2,11 @@
 /// The phone's one "restore not finished" state, driven by the core's flag.
 ///
 /// A wallet rebuilt from its phrase (a restore, or a damaged database the core set aside) gets
-/// no new output keys until a scan from block 0 has finished: receiving, sending and invoices
-/// are refused meanwhile ([WalletErrorKind.restoreScanRequired]). The core keeps the flag
-/// ([WalletSession.restoreScanRequired]); a scan with no start height scans from block 0 while
-/// it is set, goes on from a stopped one's last page, and clears it when it finishes.
+/// no new output keys until a scan from the restore's start has finished: receiving, sending and
+/// invoices are refused meanwhile ([WalletErrorKind.restoreScanRequired]). The start is the
+/// height the restore recorded (block 0 when it recorded none). The core keeps the flag
+/// ([WalletSession.restoreScanRequired]); a scan with no start height scans from the restore's
+/// start while it is set, goes on from a stopped one's last page, and clears it when it finishes.
 ///
 /// This controller reads the flag on every unlock and after every scan, and while it is set
 /// and the network allows, starts that scan by itself: one at a time, and after a failure only
@@ -41,7 +42,7 @@ class RestoreScanState {
     this.error,
   });
 
-  /// The core's flag: the scan from block 0 has not finished.
+  /// The core's flag: the scan from the restore's start has not finished.
   final bool required;
 
   /// Offline mode with a node that is not local: the scan waits until the mode changes.
@@ -83,8 +84,8 @@ class RestoreScanNotifier extends Notifier<RestoreScanState> {
       state = const RestoreScanState();
       if (session != null) unawaited(check());
     });
-    // Every scan's end: a restore scan that finished from a start height leaves the flag set,
-    // and this one then finishes from block 0; a failed one waits.
+    // Every scan's end: a restore scan that finished from above the restore's start leaves the
+    // flag set, and this one then finishes from that start; a failed one waits.
     ref.listen(scanProvider, (before, after) {
       if (before?.running != true || after.running) return;
       final own = _own;
@@ -155,7 +156,7 @@ class RestoreScanNotifier extends Notifier<RestoreScanState> {
       state = const RestoreScanState();
       return;
     }
-    // The scan from block 0 ended without an error and the flag stayed (the core skipped it,
+    // The scan from the restore's start ended without an error and the flag stayed (the core skipped it,
     // or it did not count): a failure to wait out, never a scan straight after a scan.
     if (afterOwn) {
       _failed(const ScanFailed('the restore is still due after its scan'));
@@ -171,10 +172,10 @@ class RestoreScanNotifier extends Notifier<RestoreScanState> {
     if (blocked || waiting || _holds > 0 || ref.read(scanProvider).running) return;
     _retry?.cancel();
     _retry = null;
-    logInfo('restore', 'restore scan due: scanning from block 0');
+    logInfo('restore', 'restore scan due: scanning from the restore\'s start');
     _own = true;
-    // No start height: the core scans from block 0 while the flag is set, and goes on from
-    // the last page a stopped one stored.
+    // No start height: the core scans from the restore's start while the flag is set, and goes
+    // on from the last page a stopped one stored.
     unawaited(ref.read(scanProvider.notifier).run());
     // run() marks the scan running before its first wait, or refused it.
     if (!ref.read(scanProvider).running) _own = false;

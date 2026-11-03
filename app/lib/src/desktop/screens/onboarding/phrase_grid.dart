@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 import '../../desk_l10n.dart';
 import '../../../bip39_words.dart';
+import '../../../trust_ids.dart' show TrustId;
 import '../../data/phrase_check.dart' show bip39List;
 import '../../widgets/kit.dart';
 
@@ -291,11 +292,15 @@ class _WordFormatter extends TextInputFormatter {
 /// [onSubmit]. A paste (keys or menu) takes the clipboard, never the field's text joined with
 /// it. Fields past [PhraseEntry.length] are dimmed, never marked.
 class PhraseGrid extends StatefulWidget {
-  const PhraseGrid({super.key, required this.entry, this.onSubmit, this.autofocus = false});
+  const PhraseGrid({super.key, required this.entry, this.onSubmit, this.autofocus = false, this.firstId});
 
   final PhraseEntry entry;
   final VoidCallback? onSubmit;
   final bool autofocus;
+
+  /// The test drivers' name for the first box, the one a whole pasted phrase goes into
+  /// (`TrustIds`); none when null.
+  final String? firstId;
 
   @override
   State<PhraseGrid> createState() => _PhraseGridState();
@@ -432,6 +437,7 @@ class _PhraseGridState extends State<PhraseGrid> {
                   invalid: entry.invalid.contains(i),
                   unused: i >= length,
                   autofocus: widget.autofocus && i == 0,
+                  semanticsId: i == 0 ? widget.firstId : null,
                   onPaste: () => _paste(i),
                   colors: c,
                   text: ts,
@@ -452,6 +458,7 @@ class _Cell extends StatelessWidget {
     required this.invalid,
     required this.unused,
     required this.autofocus,
+    this.semanticsId,
     required this.onPaste,
     required this.colors,
     required this.text,
@@ -460,6 +467,7 @@ class _Cell extends StatelessWidget {
   final int index;
   final PhraseEntry entry;
   final bool focused, invalid, unused, autofocus;
+  final String? semanticsId;
   final VoidCallback onPaste;
   final DeskColors colors;
   final DeskText text;
@@ -478,7 +486,7 @@ class _Cell extends StatelessWidget {
     final typed = controller.text;
     final suggestion = focused ? entry.suggestion(index) : null;
     final reduce = MediaQuery.of(context).disableAnimations;
-    return Semantics(
+    return TrustId(semanticsId, child: Semantics(
       label: context.l10n.deskOnbWordN(index + 1),
       child: Opacity(
         opacity: unused && !focused ? 0.45 : 1,
@@ -566,6 +574,6 @@ class _Cell extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ));
   }
 }
