@@ -5267,5 +5267,5 @@
   "pairIncomingNoName": "与此钱包配对？",
   "pairUnnamed": "未命名钱包",
   "pairDefaultLabel": "联系人 {n}",
-  "pairBtLabsService": "BT Labs 服务"
+  "pairVerifiedService": "已验证的 BT Labs 服务"
 }

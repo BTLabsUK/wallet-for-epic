@@ -5267,5 +5267,5 @@
   "pairIncomingNoName": "Sparować z tym portfelem?",
   "pairUnnamed": "Portfel bez nazwy",
   "pairDefaultLabel": "Kontakt {n}",
-  "pairBtLabsService": "Usługa BT Labs"
+  "pairVerifiedService": "Zweryfikowana usługa BT Labs"
 }

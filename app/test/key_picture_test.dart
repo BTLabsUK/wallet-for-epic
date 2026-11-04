@@ -5,8 +5,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/key_picture.dart';
+import 'package:epic_wallet/src/ui/key_picture.dart';
 
 Uint8List _bytes(String hex) => Uint8List.fromList([for (var i = 0; i < hex.length; i += 2) int.parse(hex.substring(i, i + 2), radix: 16)]);
 
@@ -65,5 +67,25 @@ void main() {
     final faucet = _bytes(btLabsKeys.first.keyHex);
     expect(btLabsKeyOf(faucet)?.name, 'BT Labs Faucet');
     expect(btLabsKeyOf(Uint8List(32)), isNull);
+  });
+
+  testWidgets('framed grows by the bracket offset on each side; the check is labelled', (tester) async {
+    final picture = KeyPicture.of(Uint8List(32));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Column(
+          children: [
+            KeyPictureView(key: const ValueKey('plain'), picture: picture, size: 72),
+            KeyPictureView(key: const ValueKey('framed'), picture: picture, size: 72, framed: true),
+            const VerifiedCheck(label: 'Verified BT Labs service', colour: Colors.green),
+          ],
+        ),
+      ),
+    );
+    expect(tester.getSize(find.byKey(const ValueKey('plain'))), const Size.square(72));
+    final o = KeyPictureView.frameOffsetOf(72);
+    expect(tester.getSize(find.byKey(const ValueKey('framed'))), Size.square(72 + 2 * o));
+    expect(find.bySemanticsLabel('Verified BT Labs service'), findsOneWidget);
+    expect(find.byTooltip('Verified BT Labs service'), findsOneWidget);
   });
 }

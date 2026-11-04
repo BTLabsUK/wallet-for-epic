@@ -5267,5 +5267,5 @@
   "pairIncomingNoName": "Сопрячь с этим кошельком?",
   "pairUnnamed": "Кошелёк без имени",
   "pairDefaultLabel": "Контакт {n}",
-  "pairBtLabsService": "Сервис BT Labs"
+  "pairVerifiedService": "Проверенный сервис BT Labs"
 }

@@ -14262,7 +14262,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pairNameClaimedShort => 'Имя выбрано собеседником';
 
   @override
-  String get pairBtLabsService => 'Сервис BT Labs';
+  String get pairVerifiedService => 'Проверенный сервис BT Labs';
 
   @override
   String pairCallsThemselves(String name) {

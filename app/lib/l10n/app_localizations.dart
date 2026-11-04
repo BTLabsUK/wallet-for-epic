@@ -21678,11 +21678,11 @@ abstract class AppLocalizations {
   /// **'Name chosen by them'**
   String get pairNameClaimedShort;
 
-  /// Line under the name in the incoming sheet when the invite's key is one of BT Labs' services (next to the BT Labs mark). The name above is the service's own, not a claim.
+  /// Label and tooltip of the green check after the name in the incoming pair sheet, shown only when the invite's key is one of BT Labs' services.
   ///
   /// In en, this message translates to:
-  /// **'BT Labs service'**
-  String get pairBtLabsService;
+  /// **'Verified BT Labs service'**
+  String get pairVerifiedService;
 
   /// Contact page, when the claimed name differs from the label.
   ///

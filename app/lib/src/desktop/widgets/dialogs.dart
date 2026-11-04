@@ -52,6 +52,7 @@ class EDialog extends StatelessWidget {
     super.key,
     required this.title,
     this.description,
+    this.titleTrailing,
     this.icon,
     this.tone = ETone.neutral,
     this.body,
@@ -63,6 +64,9 @@ class EDialog extends StatelessWidget {
   });
 
   final String title;
+
+  /// Inline after the last word of the title (a verified check), wrapping with it.
+  final Widget? titleTrailing;
   final String? description;
   final IconData? icon;
   final ETone tone;
@@ -181,7 +185,18 @@ class EDialog extends StatelessWidget {
                                 constraints: BoxConstraints(minHeight: description == null ? DialogMetrics.iconTile.u : 0),
                                 child: Align(
                                   alignment: AlignmentDirectional.centerStart,
-                                  child: Semantics(header: true, child: Text(title, style: ts.h3)),
+                                  child: Semantics(
+                                    header: true,
+                                    child: titleTrailing == null
+                                        ? Text(title, style: ts.h3)
+                                        : Text.rich(
+                                            TextSpan(
+                                              text: title,
+                                              children: [const TextSpan(text: ' '), WidgetSpan(alignment: PlaceholderAlignment.middle, child: titleTrailing!)],
+                                            ),
+                                            style: ts.h3,
+                                          ),
+                                  ),
                                 ),
                               ),
                               if (description != null) ...[SizedBox(height: DialogMetrics.descriptionGap.u), Text(description!, style: ts.bodyDim)],
