@@ -31,6 +31,7 @@ import 'log.dart';
 import 'net/lan_node_relay.dart';
 import 'net/tor_net.dart' show TorNet;
 import 'net/tor_switch.dart';
+import 'network.dart' show EpicboxRelay;
 import 'network_gate.dart';
 import 'pin_wrap.dart';
 import 'tor_build.dart';
@@ -188,6 +189,8 @@ WalletError mapLepicError(lepic.WalletError error) {
     // A contact that is not in the state the call needs; the screens check it first.
     lepic.WalletErrorKind.invalidContactName ||
     lepic.WalletErrorKind.contactNotFound ||
+    // A relay move the contact did not ask for (or no longer asks for): nothing moved.
+    lepic.WalletErrorKind.relayMoveNotRequested ||
     lepic.WalletErrorKind.contactNotVerified ||
     lepic.WalletErrorKind.sealingOff ||
     lepic.WalletErrorKind.noSlateToSend ||
@@ -3441,6 +3444,38 @@ class _LepicPairing implements PairingApi {
   @override
   void setConnectionServers(List<String>? hosts) {}
 
+  /// Whether [relay] (`host[:port]`) is in the Epicbox server list, compared by host and port.
+  bool _inServerList(String relay) {
+    final r = EpicboxRelay.parse(relay);
+    return r != null && hostSettings.epicboxServers.any((s) => s.host.toLowerCase() == r.host && s.port == r.port);
+  }
+
+  /// Applies the move [relay] that contact [id] asked for. False when the core would not (none
+  /// is pending any more, the pairing ended): nothing moved.
+  Future<bool> _applyMove(String id, String relay) async {
+    try {
+      await _w.contactApplyRelayMove(contactId: id, relay: relay);
+      return true;
+    } on lepic.WalletError {
+      return false;
+    }
+  }
+
+  /// Applies each pending move to a relay in the server list; true when one was made.
+  Future<bool> _followMoves(List<lepic.ContactView> contacts) async {
+    var moved = false;
+    for (final c in contacts) {
+      final relay = c.requestedRelay;
+      if (relay != null && _inServerList(relay) && await _applyMove(c.contactId, relay)) moved = true;
+    }
+    return moved;
+  }
+
+  @override
+  Future<void> followRelayMoves() => _call(() async {
+    if (await _followMoves(await _w.contacts()) && !_events.isClosed) _events.add(const PairingEvent(PairingEventKind.contactUpdated));
+  });
+
   /// What the engine does not list again: an invite's link and words, the answer to send by
   /// hand, the confirmation of a reply pasted by hand, how a pairing was made.
   final Map<String, String> _inviteLinks = {};
@@ -3587,8 +3622,10 @@ class _LepicPairing implements PairingApi {
   @override
   Future<List<PairingRecord>> pairings() => _call(() async {
     final pending = [for (final p in await _w.pairingsPending()) _pending(p)];
+    var contacts = await _w.contacts();
+    if (await _followMoves(contacts)) contacts = await _w.contacts();
     final paired = [
-      for (final c in await _w.contacts())
+      for (final c in contacts)
         if (!_folded.contains(c.contactId)) _record(c),
     ];
     // Newest first, as the app lists them; a new pairing still checking the keys of its
@@ -4193,6 +4230,17 @@ class _LepicPairing implements PairingApi {
   Future<void> onWalletEvent(lepic.WalletEvent e) async {
     final id = e.contactId;
     final slateId = e.slateId;
+    if (e.kind == lepic.WalletEventKind.contactRelayMoveRequested) {
+      final relay = e.relay;
+      if (id == null || relay == null || _events.isClosed) return;
+      // Only to a relay the user lists; otherwise the contact keeps its mailbox and the user is told.
+      if (_inServerList(relay)) {
+        if (await _applyMove(id, relay) && !_events.isClosed) _events.add(PairingEvent(PairingEventKind.contactUpdated, pairingId: id));
+      } else {
+        _events.add(PairingEvent(PairingEventKind.relayMoveRefused, pairingId: id, name: await _nameOf(id), relay: relay));
+      }
+      return;
+    }
     if (e.kind == lepic.WalletEventKind.homeRelayUnreachable && e.relay != null) _relaysDown.add(e.relay!);
     if (e.kind == lepic.WalletEventKind.contactKeysRestored && id != null) {
       // The old pairing [id] has its keys back: the new one checking it was folded into it.

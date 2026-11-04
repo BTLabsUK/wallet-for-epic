@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:epic_wallet/src/models.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
 
@@ -20,6 +21,8 @@ lepic.ContactView _view(
   bool removed = false,
   String? proven,
   lepic.PairingState state = lepic.PairingState.paired,
+  String? requested,
+  String relay = _relay,
 }) => lepic.ContactView(
   contactId: id,
   label: '',
@@ -39,7 +42,8 @@ lepic.ContactView _view(
   allowInvoices: false,
   seal: lepic.SealState.on_,
   appContact: app,
-  homeRelay: _relay,
+  homeRelay: relay,
+  requestedRelay: requested,
   importedFromBackup: false,
   lapsed: false,
   removedByPeer: removed,
@@ -154,6 +158,19 @@ class _PairingWallet implements lepic.EpicWallet {
     calls.add('unpair $contactId');
     paired.removeWhere((c) => c.contactId == contactId);
     return true;
+  }
+
+  final List<String> moved = [];
+
+  /// As LEPIC's `contact_apply_relay_move`: only the relay the contact asked for.
+  @override
+  Future<void> contactApplyRelayMove({required String contactId, required String relay}) async {
+    final i = paired.indexWhere((c) => c.contactId == contactId);
+    if (i < 0 || paired[i].requestedRelay != relay) {
+      throw const lepic.WalletError(kind: lepic.WalletErrorKind.relayMoveNotRequested, code: 92, message: 'not asked');
+    }
+    moved.add('$contactId $relay');
+    paired[i] = _view(contactId, app: paired[i].appContact, relay: relay);
   }
 
   @override
@@ -370,5 +387,70 @@ void main() {
     expect(kept.id, 'new');
     expect(wallet.calls, ['resolve', 'remove older', 'remove old']);
     expect([for (final c in wallet.paired) c.contactId], ['new', 'elsewhere']);
+  });
+
+  group('a contact asks to move to another relay', () {
+    late HostSettings before;
+    setUp(() {
+      before = hostSettings;
+      hostSettings = before.withValues(const {'epicbox.servers': <String>['listed.example.org']});
+    });
+    tearDown(() => hostSettings = before);
+
+    const asked = lepic.WalletEvent(kind: lepic.WalletEventKind.contactRelayMoveRequested, contactId: 'c1', relay: 'listed.example.org:443');
+
+    test('a relay in the server list: the move is applied', () async {
+      wallet.paired.add(_view('c1', requested: 'listed.example.org:443'));
+      wallet.eventSink.add(asked);
+      await _settle();
+
+      expect(wallet.moved, ['c1 listed.example.org:443']);
+      expect(seen.map((e) => e.kind), [PairingEventKind.contactUpdated]);
+      expect((await session.pairing.pairings()).single.homeRelay, 'listed.example.org:443');
+    });
+
+    test('a relay not in the list: not applied, the user is told which relay', () async {
+      wallet.paired.add(_view('c1', requested: 'other.example.org'));
+      wallet.eventSink.add(const lepic.WalletEvent(kind: lepic.WalletEventKind.contactRelayMoveRequested, contactId: 'c1', relay: 'other.example.org'));
+      await _settle();
+
+      expect(wallet.moved, isEmpty);
+      expect(seen.single.kind, PairingEventKind.relayMoveRefused);
+      expect(seen.single.relay, 'other.example.org');
+      expect(seen.single.name, 'Bob');
+      // A pass over the contacts leaves it too.
+      expect((await session.pairing.pairings()).single.homeRelay, _relay);
+      expect(wallet.moved, isEmpty);
+    });
+
+    test('the port counts: the list has the default port only', () async {
+      wallet.paired.add(_view('c1', requested: 'listed.example.org:8443'));
+      wallet.eventSink.add(const lepic.WalletEvent(kind: lepic.WalletEventKind.contactRelayMoveRequested, contactId: 'c1', relay: 'listed.example.org:8443'));
+      await _settle();
+
+      expect(wallet.moved, isEmpty);
+      expect(seen.single.kind, PairingEventKind.relayMoveRefused);
+    });
+
+    test('a pending move is applied once the list gains the host', () async {
+      wallet.paired.add(_view('c1', requested: 'later.example.org'));
+      await session.pairing.followRelayMoves();
+      expect(wallet.moved, isEmpty);
+
+      hostSettings = hostSettings.withValues(const {'epicbox.servers': <String>['listed.example.org', 'later.example.org']});
+      await session.pairing.followRelayMoves();
+
+      await _settle();
+
+      expect(wallet.moved, ['c1 later.example.org']);
+      expect(seen.map((e) => e.kind), [PairingEventKind.contactUpdated]);
+    });
+
+    test('loading the contacts applies a pending move to a listed relay', () async {
+      wallet.paired.add(_view('c1', requested: 'listed.example.org'));
+      final r = (await session.pairing.pairings()).single;
+      expect(r.homeRelay, 'listed.example.org');
+      expect(wallet.moved, ['c1 listed.example.org']);
+    });
   });
 }

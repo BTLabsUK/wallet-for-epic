@@ -3569,6 +3569,10 @@ enum PairingEventKind {
   /// This device answered the request [PairingEvent.requestId] (the first Pair wins): the
   /// linked device hides its copy. Shown nowhere.
   requestAnswered,
+
+  /// A contact asked to move to the relay [PairingEvent.relay], which is not in the Epicbox
+  /// server list: the move was not made.
+  relayMoveRefused,
 }
 
 class PairingEvent {
@@ -3583,6 +3587,7 @@ class PairingEvent {
     this.requestId,
     this.sender,
     this.endedReason,
+    this.relay,
   });
 
   final PairingEventKind kind;
@@ -3597,6 +3602,9 @@ class PairingEvent {
   /// For [PairingEventKind.ended].
   final PairingEndReason? endedReason;
 
+  /// For [PairingEventKind.relayMoveRefused]: the relay asked for, `host` or `host:port`.
+  final String? relay;
+
   /// The contact's name as the app shows it (its label, else its claimed name).
   final String name;
   final PairingFailure? failure;
@@ -3605,7 +3613,7 @@ class PairingEvent {
   final int count;
 
   @override
-  int get hashCode => Object.hash(kind, pairingId, name, failure, slateId, amount, count, requestId, sender, endedReason);
+  int get hashCode => Object.hash(kind, pairingId, name, failure, slateId, amount, count, requestId, sender, endedReason, relay);
 
   @override
   bool operator ==(Object other) =>
@@ -3619,7 +3627,8 @@ class PairingEvent {
       count == other.count &&
       requestId == other.requestId &&
       sender == other.sender &&
-      endedReason == other.endedReason;
+      endedReason == other.endedReason &&
+      relay == other.relay;
 }
 
 /// A notice that came over Epicbox for a slate this wallet holds nothing of

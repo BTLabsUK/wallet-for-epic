@@ -39,6 +39,7 @@ final deskPairingApiProvider = Provider<PairingApi>((ref) {
   ref.watch(deskProvider.select((s) => s.session));
   final api = ref.watch(deskApiProvider).pairing;
   api.setConnectionServers(ref.watch(hostSettingsProvider.select((s) => s.pairingServers)));
+  ref.listen(hostSettingsProvider.select((s) => s.epicboxServers.map((e) => e.label).toList().join(',')), (_, _) => unawaited(api.followRelayMoves().catchError((Object _) {})));
   return api;
 });
 

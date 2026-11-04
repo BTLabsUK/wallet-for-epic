@@ -64,6 +64,10 @@ abstract interface class PairingApi {
   /// servers. Kept for the core's sake; the code carries the wallet's own relay.
   void setConnectionServers(List<String>? hosts);
 
+  /// Applies the relay moves contacts asked for whose relay is in the Epicbox server list.
+  /// Called when the server list changes; the contact list does it when it loads.
+  Future<void> followRelayMoves();
+
   // Your code (RFC 7.1): this wallet is A.
 
   /// The wallet's standing code, carrying [name] (what the other side sees, 1 to 48 bytes). A
@@ -310,6 +314,9 @@ class NoPairing implements PairingApi {
 
   @override
   void setConnectionServers(List<String>? hosts) {}
+
+  @override
+  Future<void> followRelayMoves() async {}
 
   @override
   Future<List<PairingRecord>> pairings() async => const [];

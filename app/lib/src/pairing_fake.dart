@@ -85,6 +85,9 @@ class FakePairing implements PairingApi {
   @override
   void setConnectionServers(List<String>? hosts) => connectionServers = hosts == null ? null : List.unmodifiable(hosts);
 
+  @override
+  Future<void> followRelayMoves() async {}
+
   /// Now, for expiries.
   DateTime Function() clock = DateTime.now;
 
