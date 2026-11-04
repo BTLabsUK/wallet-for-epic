@@ -82,7 +82,7 @@ class _JoinDialogState extends ConsumerState<_JoinDialog> {
       title: l.dirJoinTitle(widget.label),
       titleTrailing: EInfoHint(l.dirJoinInfo(widget.label), title: l.dirJoinTitle(widget.label)),
       icon: EIcons.trusted,
-      description: l.dirJoinBody(widget.host),
+      description: l.dirJoinBody(widget.label, widget.host),
       actions: [
         EButton(key: deskDirNotNowKey, label: l.dirNotNow, onPressed: _busy ? null : () => Navigator.pop(context, false)),
         EButton.primary(key: deskDirJoinKey, label: l.dirJoin, busy: _busy, onPressed: _busy ? null : _join),
@@ -274,7 +274,7 @@ class _DeskDirectoryBlockState extends ConsumerState<DeskDirectoryBlock> {
               if (joined && code != null)
                 ESetRow(
                   title: l.dirListingCode,
-                  hint: l.dirListingCodeInfo,
+                  hint: l.dirListingCodeInfo(widget.label),
                   below: WordTiles(words: codeWords(code), label: l.dirListingCode, size: WordTileSize.small),
                 ),
             ],

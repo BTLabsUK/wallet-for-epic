@@ -108,7 +108,7 @@ class _JoinSheetState extends ConsumerState<_JoinSheet> {
             ],
           ),
           const SizedBox(height: 8),
-          Text(l.dirJoinBody(widget.host), style: theme.textTheme.bodyLarge?.copyWith(color: t.dim)),
+          Text(l.dirJoinBody(widget.label, widget.host), style: theme.textTheme.bodyLarge?.copyWith(color: t.dim)),
           const SizedBox(height: 20),
           FilledButton(
             key: dirJoinKey,
@@ -374,7 +374,7 @@ class _DirectoryBlockState extends ConsumerState<DirectoryBlock> {
                     Row(
                       children: [
                         Expanded(child: Text(l.dirListingCode, style: theme.textTheme.labelLarge?.copyWith(color: t.dim))),
-                        InfoHint(l.dirListingCodeInfo, title: l.dirListingCode, size: InfoHint.inRow),
+                        InfoHint(l.dirListingCodeInfo(widget.label), title: l.dirListingCode, size: InfoHint.inRow),
                       ],
                     ),
                     const SizedBox(height: 8),

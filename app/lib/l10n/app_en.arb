@@ -27383,7 +27383,7 @@
   "@dirCodeTitle": {
     "description": "Title of the step that replaces Check the words for a directory pairing."
   },
-  "dirCodeLead": "{label} shows four pictures in its chat. Compare them.",
+  "dirCodeLead": "{label} shows four pictures. Compare them with these.",
   "@dirCodeLead": {
     "description": "Lead of Check the code: the four pictures below must equal the ones the other side shows.",
     "placeholders": {
@@ -27396,7 +27396,7 @@
   "@dirCodeLabel": {
     "description": "Read by a screen reader before the four pictures of a code."
   },
-  "dirJoin": "Join",
+  "dirJoin": "Get paid by name",
   "@dirJoin": {
     "description": "Button: join a directory so people can pay the user by a name it knows."
   },
@@ -27404,7 +27404,7 @@
   "@dirNotNow": {
     "description": "Button on the Join sheet: leaves the contact verified, with Join on its page."
   },
-  "dirJoinTitle": "Join {label}?",
+  "dirJoinTitle": "Get paid by name with {label}?",
   "@dirJoinTitle": {
     "description": "Title of the Join sheet.",
     "placeholders": {
@@ -27413,16 +27413,19 @@
       }
     }
   },
-  "dirJoinBody": "People can pay you in one tap. Payments come through {host}",
+  "dirJoinBody": "{label} can let people pay you by your name there. Payments come through {host}",
   "@dirJoinBody": {
     "description": "Body of the Join sheet. {host} is the host of the wallet’s own Epicbox server.",
     "placeholders": {
+      "label": {
+        "type": "String"
+      },
       "host": {
         "type": "String"
       }
     }
   },
-  "dirJoinInfo": "It gets a payment address made only for this one and a code it made up, nothing else. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Leave any time in Contacts › {label} › Leave.",
+  "dirJoinInfo": "{label} gets one payment address and one code, both made only for it. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Stop any time in Contacts › {label} › Stop paid by name.",
   "@dirJoinInfo": {
     "description": "Explanation behind the info button on the Join sheet.",
     "placeholders": {
@@ -27431,7 +27434,7 @@
       }
     }
   },
-  "dirJoinedNotice": "Joined {label}",
+  "dirJoinedNotice": "Paid by name is on with {label}",
   "@dirJoinedNotice": {
     "description": "Notice after Join worked.",
     "placeholders": {
@@ -27440,7 +27443,7 @@
       }
     }
   },
-  "dirLeftNotice": "Left {label}",
+  "dirLeftNotice": "Paid by name is off with {label}",
   "@dirLeftNotice": {
     "description": "Notice after Leave worked.",
     "placeholders": {
@@ -27449,7 +27452,7 @@
       }
     }
   },
-  "dirJoined": "Joined · since {date}",
+  "dirJoined": "Paid by name since {date}",
   "@dirJoined": {
     "description": "Status line on the contact page of a directory the user joined. {date} is a short date.",
     "placeholders": {
@@ -27458,11 +27461,11 @@
       }
     }
   },
-  "dirNotListed": "Not listed",
+  "dirNotListed": "Off",
   "@dirNotListed": {
     "description": "Status line on the contact page of a directory that no longer lists the user."
   },
-  "dirNotListedBody": "{label} no longer lists you.",
+  "dirNotListedBody": "{label} removed your name.",
   "@dirNotListedBody": {
     "description": "Line under Not listed.",
     "placeholders": {
@@ -27471,23 +27474,28 @@
       }
     }
   },
-  "dirNotJoined": "Not joined",
+  "dirNotJoined": "Off",
   "@dirNotJoined": {
     "description": "Status line on the contact page of a verified directory the user has not joined."
   },
-  "dirJoinAgain": "Join again",
+  "dirJoinAgain": "Turn on again",
   "@dirJoinAgain": {
     "description": "Button on the contact page of a directory that no longer lists the user, or one the user left."
   },
-  "dirListingCode": "Listing code",
+  "dirListingCode": "Pictures for your name",
   "@dirListingCode": {
     "description": "Label of the four pictures of the user’s listing on the contact page of a directory."
   },
-  "dirListingCodeInfo": "Four pictures made from the key of your listing. A directory can show them next to the listing, so you can check it is the one you joined.",
+  "dirListingCodeInfo": "Four pictures made from the wallet your name pays. {label} can show the same four to compare.",
   "@dirListingCodeInfo": {
-    "description": "Explanation behind the info button of the listing code."
+    "description": "Explanation behind the info button of the listing code. {label} is the name the pairing shows.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
   },
-  "dirLeave": "Leave",
+  "dirLeave": "Stop paid by name",
   "@dirLeave": {
     "description": "Button on the contact page of a joined directory: the listing is taken down."
   },

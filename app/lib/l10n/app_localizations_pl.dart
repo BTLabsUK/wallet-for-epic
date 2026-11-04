@@ -20918,71 +20918,72 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String dirCodeLead(String label) {
-    return '$label shows four pictures in its chat. Compare them.';
+    return '$label shows four pictures. Compare them with these.';
   }
 
   @override
   String get dirCodeLabel => 'The four pictures';
 
   @override
-  String get dirJoin => 'Join';
+  String get dirJoin => 'Get paid by name';
 
   @override
   String get dirNotNow => 'Not now';
 
   @override
   String dirJoinTitle(String label) {
-    return 'Join $label?';
+    return 'Get paid by name with $label?';
   }
 
   @override
-  String dirJoinBody(String host) {
-    return 'People can pay you in one tap. Payments come through $host';
+  String dirJoinBody(String label, String host) {
+    return '$label can let people pay you by your name there. Payments come through $host';
   }
 
   @override
   String dirJoinInfo(String label) {
-    return 'It gets a payment address made only for this one and a code it made up, nothing else. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Leave any time in Contacts › $label › Leave.';
+    return '$label gets one payment address and one code, both made only for it. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Stop any time in Contacts › $label › Stop paid by name.';
   }
 
   @override
   String dirJoinedNotice(String label) {
-    return 'Joined $label';
+    return 'Paid by name is on with $label';
   }
 
   @override
   String dirLeftNotice(String label) {
-    return 'Left $label';
+    return 'Paid by name is off with $label';
   }
 
   @override
   String dirJoined(String date) {
-    return 'Joined · since $date';
+    return 'Paid by name since $date';
   }
 
   @override
-  String get dirNotListed => 'Not listed';
+  String get dirNotListed => 'Off';
 
   @override
   String dirNotListedBody(String label) {
-    return '$label no longer lists you.';
+    return '$label removed your name.';
   }
 
   @override
-  String get dirNotJoined => 'Not joined';
+  String get dirNotJoined => 'Off';
 
   @override
-  String get dirJoinAgain => 'Join again';
+  String get dirJoinAgain => 'Turn on again';
 
   @override
-  String get dirListingCode => 'Listing code';
+  String get dirListingCode => 'Pictures for your name';
 
   @override
-  String get dirListingCodeInfo =>
-      'Four pictures made from the key of your listing. A directory can show them next to the listing, so you can check it is the one you joined.';
+  String dirListingCodeInfo(String label) {
+    return 'Four pictures made from the wallet your name pays. $label can show the same four to compare.';
+  }
 
   @override
-  String get dirLeave => 'Leave';
+  String get dirLeave => 'Stop paid by name';
 
   @override
   String dirRemoveTooTitle(String label) {

@@ -370,7 +370,7 @@ void main() {
       await rig.service.join(_dkeyHex);
       await mount(tester, rig, Scaffold(body: SingleChildScrollView(child: DirectoryBlock(pairingId: r.id, label: 'Anna'))));
       await tester.pump(const Duration(milliseconds: 100));
-      expect(find.textContaining('Joined'), findsOneWidget);
+      expect(find.textContaining('Paid by name since'), findsOneWidget);
       expect(find.text(_l.dirListingCode), findsWidgets);
       await tester.tap(find.byKey(dirLeaveKey));
       await tester.pump(const Duration(milliseconds: 400));

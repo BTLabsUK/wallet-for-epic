@@ -31677,7 +31677,7 @@ abstract class AppLocalizations {
   /// Lead of Check the code: the four pictures below must equal the ones the other side shows.
   ///
   /// In en, this message translates to:
-  /// **'{label} shows four pictures in its chat. Compare them.'**
+  /// **'{label} shows four pictures. Compare them with these.'**
   String dirCodeLead(String label);
 
   /// Read by a screen reader before the four pictures of a code.
@@ -31689,7 +31689,7 @@ abstract class AppLocalizations {
   /// Button: join a directory so people can pay the user by a name it knows.
   ///
   /// In en, this message translates to:
-  /// **'Join'**
+  /// **'Get paid by name'**
   String get dirJoin;
 
   /// Button on the Join sheet: leaves the contact verified, with Join on its page.
@@ -31701,79 +31701,79 @@ abstract class AppLocalizations {
   /// Title of the Join sheet.
   ///
   /// In en, this message translates to:
-  /// **'Join {label}?'**
+  /// **'Get paid by name with {label}?'**
   String dirJoinTitle(String label);
 
   /// Body of the Join sheet. {host} is the host of the wallet’s own Epicbox server.
   ///
   /// In en, this message translates to:
-  /// **'People can pay you in one tap. Payments come through {host}'**
-  String dirJoinBody(String host);
+  /// **'{label} can let people pay you by your name there. Payments come through {host}'**
+  String dirJoinBody(String label, String host);
 
   /// Explanation behind the info button on the Join sheet.
   ///
   /// In en, this message translates to:
-  /// **'It gets a payment address made only for this one and a code it made up, nothing else. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Leave any time in Contacts › {label} › Leave.'**
+  /// **'{label} gets one payment address and one code, both made only for it. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Stop any time in Contacts › {label} › Stop paid by name.'**
   String dirJoinInfo(String label);
 
   /// Notice after Join worked.
   ///
   /// In en, this message translates to:
-  /// **'Joined {label}'**
+  /// **'Paid by name is on with {label}'**
   String dirJoinedNotice(String label);
 
   /// Notice after Leave worked.
   ///
   /// In en, this message translates to:
-  /// **'Left {label}'**
+  /// **'Paid by name is off with {label}'**
   String dirLeftNotice(String label);
 
   /// Status line on the contact page of a directory the user joined. {date} is a short date.
   ///
   /// In en, this message translates to:
-  /// **'Joined · since {date}'**
+  /// **'Paid by name since {date}'**
   String dirJoined(String date);
 
   /// Status line on the contact page of a directory that no longer lists the user.
   ///
   /// In en, this message translates to:
-  /// **'Not listed'**
+  /// **'Off'**
   String get dirNotListed;
 
   /// Line under Not listed.
   ///
   /// In en, this message translates to:
-  /// **'{label} no longer lists you.'**
+  /// **'{label} removed your name.'**
   String dirNotListedBody(String label);
 
   /// Status line on the contact page of a verified directory the user has not joined.
   ///
   /// In en, this message translates to:
-  /// **'Not joined'**
+  /// **'Off'**
   String get dirNotJoined;
 
   /// Button on the contact page of a directory that no longer lists the user, or one the user left.
   ///
   /// In en, this message translates to:
-  /// **'Join again'**
+  /// **'Turn on again'**
   String get dirJoinAgain;
 
   /// Label of the four pictures of the user’s listing on the contact page of a directory.
   ///
   /// In en, this message translates to:
-  /// **'Listing code'**
+  /// **'Pictures for your name'**
   String get dirListingCode;
 
-  /// Explanation behind the info button of the listing code.
+  /// Explanation behind the info button of the listing code. {label} is the name the pairing shows.
   ///
   /// In en, this message translates to:
-  /// **'Four pictures made from the key of your listing. A directory can show them next to the listing, so you can check it is the one you joined.'**
-  String get dirListingCodeInfo;
+  /// **'Four pictures made from the wallet your name pays. {label} can show the same four to compare.'**
+  String dirListingCodeInfo(String label);
 
   /// Button on the contact page of a joined directory: the listing is taken down.
   ///
   /// In en, this message translates to:
-  /// **'Leave'**
+  /// **'Stop paid by name'**
   String get dirLeave;
 
   /// Title of the question after Leave: also end the pairing.
