@@ -18,11 +18,19 @@ Phases (each starts by reading where things are, and skips what is done):
                 Verified on both without words (pair_proven_ok)
   pair-invoice  A asks B for 0.01 (an invoice); B approves it; checked in both wallets' data (pair_invoice_ok)
   pair-end      A removes the pairing: Pairing ended on B (pair_end_ok)
-  sweep-end     B and A send everything to P; returned_ok
-LINK-1 adds its phases the same way: PHASES and _main.
+  sweep-end     B and A send everything to P
+  link-up       LINK-1: A2, a third sandbox, restores A's phrase (named Lane A2) and is linked to A: A's
+                Settings › Linked devices › Link a device › Copy invite, pasted on A2's Paste invite (link_ok)
+  link-pay      P pays A's address 0.01: both installs listen on it; one answer takes, the other's is
+                dropped (wallet data), and both show the receipt in Activity (link_pay_ok)
+  link-end      A removes A2: A offers Link a device again, A2 reads it was removed (link_end_ok); the
+                install that answered sends the 0.01 back to P; A2 is stopped and its folder removed.
+                returned_ok after it.
+An A2 a crashed run left (running or not) is stopped and removed in prepare, before any payment: it holds
+A's phrase and would answer A's payments.
 
-REL_FUNDS=0: no fund and no payments (sweep-start and sweep-end still return leftovers); pair-invite and
-pair-end run, pair-remove, pair-proven and pair-invoice skip (they need the Epicbox payment and coins); no
+REL_FUNDS=0: no fund and no payments (sweep-start and sweep-end still return leftovers); pair-invite,
+pair-end, link-up and link-end run, link-pay, pair-remove, pair-proven and pair-invoice skip (they need the Epicbox payment and coins); no
 check is required. REL_TRUST_UNTIL=<phase> stops after it (--test runs). REL_TX_METHODS=epicbox,file narrows.
 
 File dialogs: each sandbox runs linux/portal_stub.py, the stand-in file-chooser portal on the
@@ -49,23 +57,31 @@ from core import txchecks as tx  # noqa: E402
 from core.desktop import Desktop  # noqa: E402
 from core.driver import Driver  # noqa: E402
 from core.faults import HarnessFault, ProductFault  # noqa: E402
+from core import linking as lk  # noqa: E402
 from core.labels import Labels  # noqa: E402
 from core.lane import Lane, Platform  # noqa: E402
+from core.linking import Linking  # noqa: E402
 from core.pairing import Pairing  # noqa: E402
 from core.payments import METHODS, Payments, file_for  # noqa: E402
 import clipboard  # noqa: E402
+import sandbox  # noqa: E402
 from linux_platform import LinuxPlatform  # noqa: E402
 from p_funder import P  # noqa: E402
 import portal_stub  # noqa: E402
 
 LANE = "linux-tx"
-SEEDS = {"a": "linux-tx-a", "b": "linux-tx-b"}
+SEEDS = {"a": "linux-tx-a", "b": "linux-tx-b", "a2": "linux-tx-a"}  # A2: A's phrase on a second install
 PHASES = ("prepare", "restore-a", "restore-b", "addresses", "sweep-start", "fund",
           "pay-epicbox", "pay-http", "pay-tor", "pay-file",
-          "pair-invite", "pair-remove", "pair-proven", "pair-invoice", "pair-end", "sweep-end")
+          "pair-invite", "pair-remove", "pair-proven", "pair-invoice", "pair-end", "sweep-end",
+          "link-up", "link-pay", "link-end")
 PAIR_NAME = {"a": "Lane A", "b": "Lane B"}  # the name each is seen as, and its contact's name on the other
 PAIR_CHECKS = ("pair_invite_ok", "pair_proven_ok", "pair_invoice_ok", "pair_end_ok")
 INVOICE = "0.01"  # pair-invoice: what A asks B for (B pays it)
+LINK_CHECKS = ("link_ok", "link_pay_ok", "link_end_ok")
+LINK_NAME = "Lane A2"  # A2's device name, as A lists it
+LINK_AMOUNT = tx.AMOUNT  # link-pay: P -> A's address
+LINK_DROP_S = 600  # the losing install's own answer dropped within this after the winner's confirmed
 
 
 class PairPlatform(Platform):
@@ -76,21 +92,26 @@ class PairPlatform(Platform):
 
     def __init__(self, out, log):
         e = os.environ
+        self.out, self.log = out, log
         self.variant = e.get("REL_VARIANT") or "tor"
         root = os.path.join(e.get("REL_WORK") or os.path.join(os.path.expanduser("~"), ".cache", "rel-trust-linux"),
                             "tx-%s-%s-%s" % (self.variant, e.get("REL_CANDIDATE_VERSION", "?"), time.strftime("%Y%m%d-%H%M%S")))
         self.root = root
         self.pair = {}
         for k in ("a", "b"):
-            p = LinuxPlatform(out, lambda s, k=k: log("%s: %s" % (k.upper(), s)))
-            p.create = True  # the candidate alone
-            p.work = os.path.join(root, k)
-            p.sb = os.path.join(p.work, "sandbox")
-            self.pair[k] = p
+            self.pair[k] = self._one(k)
         self.hermetic = None
         self.node = self.relay = None
 
+    def _one(self, k):
+        p = LinuxPlatform(self.out, lambda s, k=k: self.log("%s: %s" % (k.upper(), s)))
+        p.create = True  # the candidate alone
+        p.work = os.path.join(self.root, k)
+        p.sb = os.path.join(p.work, "sandbox")
+        return p
+
     def prepare(self):
+        self.clean_a2()
         for p in self.pair.values():
             p.prepare()
         a = self.pair["a"]
@@ -105,6 +126,48 @@ class PairPlatform(Platform):
 
     def digest(self, tag, secrets):
         raise HarnessFault("digest", "the pair has no one wallet: read A or B (Wallet.digest)")
+
+    # ---- A2 (LINK-1): a third sandbox, only while the link phases run
+
+    def add_a2(self):
+        p = self.pair.get("a2")
+        if p is None:
+            p = self.pair["a2"] = self._one("a2")
+            p.prepare()
+            os.makedirs(inbox(p), exist_ok=True)
+        return p
+
+    def drop_a2(self):
+        """A2 stopped and its folder (A's wallet data on a second install) removed."""
+        p = self.pair.pop("a2", None)
+        if p is None:
+            return
+        try:
+            p.shutdown()
+        finally:
+            shutil.rmtree(p.work, ignore_errors=True)
+            self.log("A2: removed %s" % p.work)
+
+    def clean_a2(self):
+        """Every A2 an earlier run of this lane left under the work folder: stopped (its app, keyring, bus
+        and display, found by the sandbox's runtime folder) and removed. Only <work>/tx-*/a2 folders."""
+        top = os.path.dirname(self.root)
+        try:
+            runs = sorted(os.listdir(top))
+        except OSError:
+            return
+        for n in runs:
+            a2 = os.path.join(top, n, "a2")
+            if not n.startswith("tx-") or not os.path.isdir(a2):
+                continue
+            sb = os.path.join(a2, "sandbox")
+            try:
+                if os.path.isdir(sb):
+                    sandbox.stop(sb)
+            except (Exception, SystemExit) as e:  # noqa: BLE001 — removed all the same
+                self.log("A2 left by a run before: stop: %s" % e)
+            shutil.rmtree(a2, ignore_errors=True)
+            self.log("A2 left by a run before: stopped and removed %s" % a2)
 
     def logs(self):
         out = {}
@@ -130,7 +193,7 @@ class Wallet:
     def __init__(self, lane, key, plat):
         self.lane, self.key, self.p = lane, key, plat
         self.seed = ls.LaneSeed(SEEDS[key])
-        self.ui = self.pay = self.pair = None
+        self.ui = self.pay = self.pair = self.link = None
         self.secrets = {}
 
     def digest(self, tag):
@@ -172,6 +235,7 @@ class TxLane(Lane):
             raise HarnessFault("start", "REL_TX_METHODS: unknown %s (known: %s)" % (", ".join(bad), " ".join(METHODS)))
         self.methods = want or list(METHODS)
         self.p_before = self.p_after = None
+        self.link_answered = None  # link-pay: the install whose answer took ("a" | "a2")
 
     # ---- the lane
 
@@ -180,7 +244,7 @@ class TxLane(Lane):
             return self._run(self._main)
         finally:
             for w in self.w.values():
-                w.seed.unlock()
+                w.seed.unlock()  # A2 shares A's seed (and its lock); unlocking twice is nothing
 
     def _main(self):
         for w in self.w.values():
@@ -197,9 +261,13 @@ class TxLane(Lane):
             for name in ("fund",) + tuple("pay-" + m for m in self.methods):
                 self.skip_phase(name, "REL_FUNDS=0: no coins from P")
             self._pairing()
+            self._sweep_end()
+            self._linking()
         else:
             try:
                 self._fund_and_pay()
+                self._sweep_end(check=False)
+                self._linking()
             except core_lane._Stop:
                 raise  # REL_TRUST_UNTIL: what A holds goes back in the next run's sweep-start
             except BaseException:
@@ -208,7 +276,7 @@ class TxLane(Lane):
                 except BaseException as e:  # noqa: BLE001
                     self.log("sweep-end after the fault: %s" % e)
                 raise
-            self._sweep_end()
+            self._returned()
         self.p_after = self._p_balance()
         return 0
 
@@ -314,17 +382,163 @@ class TxLane(Lane):
         else:
             self.fail("pair_end_ok", "A removed the pairing: B reads %s, A reads %s" % (b.state(PAIR_NAME["a"])[0], mine))
 
-    def _sweep_end(self):
+    def _sweep_end(self, check=True):
+        """sweep-end; returned_ok read after it when [check] (else after the link phases)."""
         try:
             self._sweep_phase("sweep-end", ("b", "a"))
         except core_lane.Fault as e:
             self.log("sweep-end: %s; the next run's sweep-start returns what is left" % e.line())
             raise
         finally:
-            try:
-                tx.returned(self)
-            except Exception as e:  # noqa: BLE001 — evidence; the fault above is the lane's
-                self.log("returned_ok not read: %s" % e)
+            if check:
+                self._returned()
+
+    def _returned(self):
+        try:
+            tx.returned(self)
+        except Exception as e:  # noqa: BLE001 — evidence; a fault before is the lane's
+            self.log("returned_ok not read: %s" % e)
+
+    # ---- LINK-1: A2, a second install of A's phrase, linked to A
+
+    def _linking(self):
+        """link-up, link-pay (funded), link-end; A2 goes whatever happens (its coin, if it holds one, to P first)."""
+        try:
+            self.run_phase("link-up", self._link_up)
+            if self.funds:
+                self.run_phase("link-pay", self._link_pay)
+            else:
+                self.skip_phase("link-pay", "REL_FUNDS=0: no coins from P")
+            self.run_phase("link-end", self._link_end)
+        finally:
+            self._a2_down()
+
+    def _link_up(self):
+        a = self.w["a"]
+        if "a2" not in self.w:
+            plat = self.p.add_a2()
+            w = Wallet(self, "a2", plat)
+            w.seed = a.seed  # the same lane seed: its lock is A's
+            self.w["a2"] = w
+        w = self.w["a2"]
+        if w.ui is None or not w.secrets.get("password"):
+            self._restore_one(w, put=False)
+        addr = w.pay.enable_receive("epicbox")
+        same = bool(addr) and addr.split("@")[0] == (self.address["a"].get("epicbox") or "").split("@")[0]
+        self.details["link_address"] = "A2's Epicbox address %s A's" % ("is" if same else "is NOT")
+        if not same:
+            raise HarnessFault("link-up", "A2's Epicbox address is not A's: not the same phrase")
+        w.link.rename(LINK_NAME)
+        if a.link.linked() and w.link.linked():
+            self.ok("link_ok", "A and A2 linked already")
+            return
+        invite = a.link.show_invite()
+        self.ui = w.ui
+        w.link.paste_invite(invite)
+        got_a2 = w.link.result()
+        self.ui = a.ui
+        got_a = a.link.result(timeout=120)
+        a_lists = a.link.linked()
+        a2_lists = w.link.linked()
+        why = "A: %s; A2: %s; Linked devices lists the other on A: %s, on A2: %s" % (
+            got_a[1], got_a2[1], "yes" if a_lists else "no", "yes" if a2_lists else "no")
+        if got_a[0] and got_a2[0] and a_lists and a2_lists:
+            self.ok("link_ok", "A's invite pasted on A2: " + why)
+        else:
+            for x in (a, w):
+                x.link.cancel()
+            self.fail("link_ok", "A's invite pasted on A2: " + why)
+
+    def _link_pay(self):
+        """P pays A's address LINK_AMOUNT; one install's answer takes, the other's is dropped; both list it."""
+        if not self.results.get("link_ok"):
+            self.fail("link_pay_ok", "A and A2 are not linked (link_ok)")
+            return
+        keys = ("a", "a2")
+        p = tx.checks._p_ready(self)
+        self.ledger.charge(LINK_AMOUNT)
+        with p.exchange("link: P pays A's address"):
+            relay = tx.checks._relay_with_p(self, p)
+            ok, out = p.send(tx.fund_to(self.address["a"]["epicbox"], relay), LINK_AMOUNT)
+            self.log("P -> A's address %s EPIC: %s (%s)" % (LINK_AMOUNT, "sent" if ok else "FAILED", out))
+            if not ok:
+                self.ledger.p_sent.pop()
+                raise HarnessFault("link-pay", "P send failed: %s" % out)
+        slate = p.slate
+        start = time.time()
+        both = set()
+        confirmed_at = None
+        last = None
+        while True:
+            self.awake()
+            data = {k: tx.digest(self, self.w[k], "link-pay") for k in keys}
+            both |= {k for k in keys if lk.answers(slate, data[k])}
+            now = time.time()
+            settled = confirmed_at is not None and now - confirmed_at >= LINK_DROP_S
+            ok, why, facts = lk.check_answers(slate, data, tx.nano(LINK_AMOUNT), settled=settled)
+            if facts.get("confirmed") and confirmed_at is None:
+                confirmed_at = now
+            if why != last:
+                self.log("link-pay: %s" % why)
+                last = why
+            if ok is not None:
+                break
+            if not both and now - start >= tx.PAY_WAIT_S["epicbox"]:
+                raise ProductFault("link-pay", "neither A nor A2 answered P's payment in %d s" % tx.PAY_WAIT_S["epicbox"])
+            if both and not p.finalized() and now - start >= 2 * tx.PAY_WAIT_S["epicbox"]:
+                raise tx.InfraFault("link-pay", "A or A2 answered, P did not finalize in %d s (P's node or listener)" %
+                                    (2 * tx.PAY_WAIT_S["epicbox"]), sub="node")
+            if now - start >= tx.SPEND_WAIT_S + LINK_DROP_S:
+                raise ProductFault("link-pay", "not settled in %d s: %s" % (tx.SPEND_WAIT_S + LINK_DROP_S, why))
+            time.sleep(tx.POLL_S)
+        self.link_answered = facts.get("answered")
+        answered = "both installs answered" if len(both) == 2 else "only %s answered" % "".join(both).upper()
+        self.details["link_pay"] = {"slate": (slate or "")[:8], "answers": answered, "states": {k: facts.get(k) for k in keys}}
+        if not ok:
+            self.fail("link_pay_ok", "%s; %s" % (answered, why))
+            return
+        rows = {}
+        for k in keys:
+            self.ui = self.w[k].ui
+            rows[k] = lk.activity_row(self.w[k].ui, format(LINK_AMOUNT, "f"))
+        shown = "; ".join("%s's Activity: %s" % (k.upper(), rows[k] or "no receipt of %s" % LINK_AMOUNT) for k in keys)
+        if all(rows.values()):
+            self.ok("link_pay_ok", "%s; %s; %s" % (answered, why, shown))
+        else:
+            self.fail("link_pay_ok", "%s; %s; %s" % (answered, why, shown))
+
+    def _link_end(self):
+        """A removes A2: Link a device offered on A again, A2 reads it was removed; the answer's coin back to P."""
+        a, w = self.w["a"], self.w["a2"]
+        if not (a.link.linked() or w.link.linked()):
+            self.fail("link_end_ok", "nothing to remove: neither lists the other")
+        else:
+            self.ui = a.ui
+            gone_a = a.link.remove()
+            self.ui = w.ui
+            ended, why = w.link.ended()
+            a_free = not a.link.linked()
+            text = "A removed %s: A offers Link a device again: %s; A2: %s" % (LINK_NAME, "yes" if gone_a and a_free else "no", why)
+            (self.ok if gone_a and a_free and ended else self.fail)("link_end_ok", text)
+        if self.link_answered:
+            tx.sweep(self, (self.link_answered,), "link-end")
+
+    def _a2_down(self):
+        """A2's coin (the payment it answered, when link-end did not send it back) to P, then A2 stopped and removed."""
+        w = self.w.get("a2")
+        if w is None:
+            self.p.drop_a2()
+            return
+        try:
+            if w.ui is not None and w.secrets.get("password"):
+                d = tx.digest(self, w, "link-back")
+                if ((d.get("balance") or {}).get("total") or 0) >= tx.nano(tx.DUST):
+                    tx.sweep(self, ("a2",), "link-back")
+        except BaseException as e:  # noqa: BLE001 — A2 goes all the same
+            self.log("link-back: %s; A's next restore finds what A2 held (the next run's sweep-start)" % e)
+        finally:
+            del self.w["a2"]
+            self.p.drop_a2()
 
     def _sweep_phase(self, name, keys=("a", "b")):
         held = {k: tx.digest(self, self.w[k], name) for k in keys}
@@ -333,7 +547,7 @@ class TxLane(Lane):
             return
         self.run_phase(name, lambda: tx.sweep(self, keys, name))
 
-    def _restore_one(self, w):
+    def _restore_one(self, w, put=True):
         if w.ui is not None and w.secrets.get("password"):
             w.ui.open_wallet(w.secrets)
             return
@@ -342,6 +556,7 @@ class TxLane(Lane):
         w.ui = self.recipe_for(self, "candidate", surface)
         w.pay = Payments(w.ui, w.choose, self.log)
         w.pair = Pairing(w.ui, w.clip, self.log)
+        w.link = Linking(w.ui, w.clip, self.log)
         birth = w.seed.birth()
         if birth.get("height") is None:
             raise HarnessFault("restore", "lane seed %s has no birth height (lane_seed.py birth %s)" % (w.seed.lane, w.seed.lane))
@@ -349,8 +564,9 @@ class TxLane(Lane):
         got = w.ui.restore_wallet(w.seed.phrase(), birth) or {}
         w.secrets.update({k: got[k] for k in ("pin", "password") if got.get(k)})
         w.secrets["phrase"] = w.seed.phrase()
-        record.emit("wallet.put", name=w.seed.lane, role="lane", platform="linux", lane=LANE, phrase=w.secrets["phrase"],
-                    password=w.secrets.get("password") or "", origin="the lane seed restored on the candidate (TX lane)")
+        if put:  # A2 holds A's phrase: its password is its own sandbox's, kept there, not over A's record
+            record.emit("wallet.put", name=w.seed.lane, role="lane", platform="linux", lane=LANE, phrase=w.secrets["phrase"],
+                        password=w.secrets.get("password") or "", origin="the lane seed restored on the candidate (TX lane)")
         w.ui._view_deep_end()
         portal_stub.ensure(w.p.sb)
         self.ui = w.ui  # the fault bundle reads the screen of the wallet that ran last
@@ -500,7 +716,8 @@ def main():
     methods = [m.strip() for m in (e.get("REL_TX_METHODS") or ",".join(METHODS)).split(",") if m.strip()]
     pairs = [c for c in PAIR_CHECKS if "epicbox" in methods or c in ("pair_invite_ok", "pair_end_ok")]
     lane = TxLane(plat, recipe_for, out=out, log=log, funds=funds, p=funder,
-                  required=given or (["tx_%s_ok" % m for m in methods] + pairs + ["returned_ok"] if funds else []))
+                  required=given or (["tx_%s_ok" % m for m in methods] + pairs + list(LINK_CHECKS) + ["returned_ok"]
+                                     if funds else []))
     signal.signal(signal.SIGTERM, stopped)
     return lane.main()
 

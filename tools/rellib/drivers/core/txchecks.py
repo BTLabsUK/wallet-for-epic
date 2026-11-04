@@ -415,8 +415,8 @@ def returned(lane):
     left = {k: (digest(lane, w, "returned").get("balance") or {}) for k, w in lane.w.items()}
     held = {k: (b.get("total") or 0) for k, b in left.items()}
     led = lane.ledger
-    why = "P sent %s EPIC, %s came back, fees %s; A holds %s, B holds %s (wallet data)" % (
-        led.sent(), led.back(), led.fee(), num(held["a"]), num(held["b"]))
+    why = "P sent %s EPIC, %s came back, fees %s; %s (wallet data)" % (
+        led.sent(), led.back(), led.fee(), ", ".join("%s holds %s" % (k.upper(), num(v)) for k, v in held.items()))
     if all(v < nano(DUST) for v in held.values()):
         lane.ok("returned_ok", why)
     else:

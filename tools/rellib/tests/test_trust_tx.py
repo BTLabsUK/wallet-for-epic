@@ -19,6 +19,7 @@ sys.path.insert(0, os.path.join(DRV, "linux"))
 from core import lane as core_lane  # noqa: E402
 from core import txchecks as tx  # noqa: E402
 from core.faults import HarnessFault  # noqa: E402
+from core import linking as lk  # noqa: E402
 from core.pairing import invite_link, words_in  # noqa: E402
 from core.payments import METHOD_LABEL, ONION_RX, file_for, method_of  # noqa: E402
 import portal_stub  # noqa: E402
@@ -185,6 +186,57 @@ class PairingTest(unittest.TestCase):
     def test_invite_link(self):
         self.assertEqual(invite_link("Pair with me in BT Wallet: https://x.example/p#abc"), "https://x.example/p#abc")
         self.assertIsNone(invite_link("no link here"))
+
+
+class LinkAnswersTest(unittest.TestCase):
+    """LINK-1: P pays the address A and A2 share; exactly one install's answer takes."""
+    S = "04D4C4FE-1111-2222-3333-444455556666"
+
+    def rx(self, state="confirmed", amount=0.01, slate=None):
+        return t("incoming", state=state, credited=amount, slate=slate or self.S.lower())
+
+    def check(self, a, a2, settled=False):
+        return lk.check_answers(self.S, {"a": digest(*a), "a2": digest(*a2)}, nn(0.01), settled=settled)
+
+    def test_slate_key(self):
+        self.assertEqual(lk.slate_key(self.S), lk.slate_key(self.S.lower().replace("-", "")))
+        self.assertEqual(lk.slate_key(None), "")
+
+    def test_one_answer_confirmed(self):
+        ok, why, facts = self.check([self.rx()], [])
+        self.assertTrue(ok, why)
+        self.assertEqual(facts["answered"], "a")
+        self.assertTrue(facts["confirmed"])
+
+    def test_loser_cancelled(self):
+        ok, why, facts = self.check([self.rx(state="cancelled")], [self.rx()])
+        self.assertTrue(ok, why)
+        self.assertEqual(facts["answered"], "a2")
+
+    def test_both_took(self):
+        ok, why, _ = self.check([self.rx()], [self.rx(state="posted")])
+        self.assertIs(ok, False)
+        self.assertIn("a and a2", why)
+
+    def test_loser_open(self):
+        ok, _, facts = self.check([self.rx()], [self.rx(state="pending")])
+        self.assertIsNone(ok)
+        self.assertTrue(facts["confirmed"])
+        ok, why, _ = self.check([self.rx()], [self.rx(state="pending")], settled=True)
+        self.assertIs(ok, False)
+        self.assertIn("still holds", why)
+
+    def test_not_yet(self):
+        self.assertIsNone(self.check([self.rx(state="pending")], [])[0])
+        ok, _, facts = self.check([self.rx(state="posted")], [])
+        self.assertIsNone(ok)
+        self.assertNotIn("confirmed", facts)
+
+    def test_wrong_amount(self):
+        self.assertIs(self.check([self.rx(amount=0.02)], [])[0], False)
+
+    def test_other_slate(self):
+        self.assertIsNone(self.check([self.rx(slate="ffff")], [])[0])
 
 
 class RecipesTest(unittest.TestCase):
