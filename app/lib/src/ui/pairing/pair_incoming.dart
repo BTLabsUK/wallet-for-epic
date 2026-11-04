@@ -145,7 +145,7 @@ Future<void> showIncomingInvite(
 }
 
 /// The sheet, in two forms: from a contact (the request's sender is in Contacts: avatar, "In
-/// your contacts", the sender address) or by code ("Name chosen by them"). When the invite
+/// your contacts", the sender address) or by code (the name alone, no chip). When the invite
 /// has a key, its key picture takes the avatar's place; a BT Labs service shows its listed
 /// name and "BT Labs service" instead of the claimed name. Pair · Not now;
 /// no name field, no invoice switch, no expiry row. Pops with the answered record.
@@ -232,15 +232,13 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Semantics(header: true, child: Text(noName ? l.pairIncomingNoName : l.pairIncomingTitle(name), style: theme.textTheme.titleLarge)),
-                    const SizedBox(height: 6),
-                    if (sender != null)
-                      EBadge(l.pairInContacts, icon: Icons.person_outline, tone: BadgeTone.ok)
-                    else if (btlabs != null)
-                      BtLabsBadge(l.pairBtLabsService)
-                    else if (noName)
-                      EBadge(l.pairNoNameGiven, icon: Icons.person_outline, wrap: true)
-                    else
-                      const ClaimedNameBadge(long: true),
+                    if (sender != null) ...[
+                      const SizedBox(height: 6),
+                      EBadge(l.pairInContacts, icon: Icons.person_outline, tone: BadgeTone.ok),
+                    ] else if (btlabs != null) ...[
+                      const SizedBox(height: 6),
+                      BtLabsBadge(l.pairBtLabsService),
+                    ],
                   ],
                 ),
               ),

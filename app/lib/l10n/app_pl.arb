@@ -3608,7 +3608,6 @@
   "pairCancelInviteTitle": "Anulować zaproszenie dla {name}?",
   "pairCancelInviteBody": "Jeśli drugi portfel otworzy je później, zobaczy „{name} anulował(a) to zaproszenie”.",
   "pairIncomingTitle": "Sparować z: {name}?",
-  "pairNameClaimed": "Nazwa wybrana przez drugą stronę · jeszcze niesprawdzona",
   "pairNameClaimedShort": "Nazwa wybrana przez drugą stronę",
   "pairCallsThemselves": "Przedstawia się jako „{name}”",
   "pairIncomingBody": "Po sparowaniu pliki transakcji i faktury między tobą a {name} są zapieczętowane. Następnie zweryfikujecie razem.",
@@ -5266,7 +5265,6 @@
   "pairSeenAsAdd": "Dodaj nazwę",
   "pairSeenAsOptional": "Zostaw puste, aby sparować bez nazwy.",
   "pairIncomingNoName": "Sparować z tym portfelem?",
-  "pairNoNameGiven": "Brak nazwy",
   "pairUnnamed": "Portfel bez nazwy",
   "pairDefaultLabel": "Kontakt {n}",
   "pairBtLabsService": "Usługa BT Labs"

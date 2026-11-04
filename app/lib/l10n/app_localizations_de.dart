@@ -13923,10 +13923,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get pairNameClaimed =>
-      'Name von der Gegenseite gewählt · noch nicht geprüft';
-
-  @override
   String get pairNameClaimedShort => 'Name von der Gegenseite gewählt';
 
   @override
@@ -20437,9 +20433,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pairIncomingNoName => 'Mit dieser Wallet koppeln?';
-
-  @override
-  String get pairNoNameGiven => 'Kein Name angegeben';
 
   @override
   String get pairUnnamed => 'Wallet ohne Namen';
