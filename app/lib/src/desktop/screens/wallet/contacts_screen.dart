@@ -1387,6 +1387,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
           ENotice(
             key: deskContactNotAnsweringKey,
             title: l.trustNotAnswering,
+            text: l.contactNotAnsweringBody,
             tone: ETone.warn,
             actions: [EButton.primary(key: deskContactPairAgainKey, label: l.pairAgain, icon: EIcons.trusted, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair, x))],
           ),

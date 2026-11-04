@@ -18451,6 +18451,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get trustNotAnswering => 'ไม่ตอบสนอง';
 
   @override
+  String get contactNotAnsweringBody =>
+      'ใบแจ้งหนี้และการชำระเงินอาจไปไม่ถึงพวกเขา';
+
+  @override
   String get pairRequestPair => 'จับคู่';
 
   @override

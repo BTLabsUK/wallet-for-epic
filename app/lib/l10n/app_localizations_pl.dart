@@ -19517,6 +19517,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get trustNotAnswering => 'Brak odpowiedzi';
 
   @override
+  String get contactNotAnsweringBody =>
+      'Faktury i płatności mogą do nich nie dotrzeć.';
+
+  @override
   String get pairRequestPair => 'Paruj';
 
   @override

@@ -19084,6 +19084,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get trustNotAnswering => 'Antwortet nicht';
 
   @override
+  String get contactNotAnsweringBody =>
+      'Rechnungen und Zahlungen erreichen sie womöglich nicht.';
+
+  @override
   String get pairRequestPair => 'Koppeln';
 
   @override

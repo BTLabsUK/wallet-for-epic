@@ -4889,6 +4889,7 @@
   "trustWaiting": "Wartet",
   "trustEnded": "Beendet",
   "trustNotAnswering": "Antwortet nicht",
+  "contactNotAnsweringBody": "Rechnungen und Zahlungen erreichen sie womöglich nicht.",
   "pairRequestPair": "Koppeln",
   "pairCancelPairingTitle": "Diese Kopplung abbrechen?",
   "pairCancelPairingBody": "Die Wallet von {name} erfährt es, falls sie spät antwortet. Nichts wird behalten.",

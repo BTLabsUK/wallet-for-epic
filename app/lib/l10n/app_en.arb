@@ -25604,6 +25604,10 @@
   "@trustNotAnswering": {
     "description": "Badge and notice title on a paired shop or exchange: the check after a long gap got no answer (its server is not answering, or nothing was heard in time). Shown with Pair again, until the contact is heard from."
   },
+  "contactNotAnsweringBody": "Invoices and payments may not reach them.",
+  "@contactNotAnsweringBody": {
+    "description": "Line under the Not answering notice on a paired shop or exchange, above Pair again."
+  },
   "pairRequestPair": "Pair",
   "@pairRequestPair": {
     "description": "Requests list: answers the request."

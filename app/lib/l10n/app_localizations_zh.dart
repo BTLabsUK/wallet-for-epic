@@ -17798,6 +17798,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get trustNotAnswering => '没有响应';
 
   @override
+  String get contactNotAnsweringBody => '账单和付款可能无法送达对方。';
+
+  @override
   String get pairRequestPair => '配对';
 
   @override

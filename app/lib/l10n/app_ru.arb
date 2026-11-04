@@ -4889,6 +4889,7 @@
   "trustWaiting": "Ожидание",
   "trustEnded": "Завершено",
   "trustNotAnswering": "Нет ответа",
+  "contactNotAnsweringBody": "Счета и платежи могут до них не дойти.",
   "pairRequestPair": "Сопрячь",
   "pairCancelPairingTitle": "Отменить это сопряжение?",
   "pairCancelPairingBody": "Кошелёк {name} узнает об этом, если ответит поздно. Ничего не сохраняется.",

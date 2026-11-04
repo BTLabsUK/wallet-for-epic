@@ -29364,6 +29364,12 @@ abstract class AppLocalizations {
   /// **'Not answering'**
   String get trustNotAnswering;
 
+  /// Line under the Not answering notice on a paired shop or exchange, above Pair again.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoices and payments may not reach them.'**
+  String get contactNotAnsweringBody;
+
   /// Requests list: answers the request.
   ///
   /// In en, this message translates to:

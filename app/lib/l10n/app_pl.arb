@@ -4889,6 +4889,7 @@
   "trustWaiting": "Oczekuje",
   "trustEnded": "Zakończone",
   "trustNotAnswering": "Brak odpowiedzi",
+  "contactNotAnsweringBody": "Faktury i płatności mogą do nich nie dotrzeć.",
   "pairRequestPair": "Paruj",
   "pairCancelPairingTitle": "Anulować to parowanie?",
   "pairCancelPairingBody": "Portfel {name} dowie się, jeśli odpowie późno. Nic nie zostanie zachowane.",

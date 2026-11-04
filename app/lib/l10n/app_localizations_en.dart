@@ -18862,6 +18862,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trustNotAnswering => 'Not answering';
 
   @override
+  String get contactNotAnsweringBody =>
+      'Invoices and payments may not reach them.';
+
+  @override
   String get pairRequestPair => 'Pair';
 
   @override

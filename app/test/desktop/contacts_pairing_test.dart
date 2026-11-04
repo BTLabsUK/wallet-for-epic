@@ -127,6 +127,22 @@ void main() {
     expect(find.text(_l.contactSealPayments), findsNothing);
   });
 
+  testWidgets('a shop that did not answer the check: Not answering on its row and page, the line, Pair again', (tester) async {
+    await _contact(tester, 'c6');
+    final piotr = _c.read(deskProvider).contacts!.firstWhere((c) => c.id == 'c6');
+    _fake
+      ..seedPaired(id: 'p-piotr', name: 'Piotr', contactId: 'c6', kind: PairingParty.shop, state: PairingState.paired, paymentsAddress: piotr.epicbox)
+      ..silent.add('p-piotr');
+    await tester.runAsync(() => _fake.checkContacts());
+    _c.invalidate(deskPairingsProvider);
+    await _real(tester);
+    expect(find.byKey(deskContactNotAnsweringKey), findsOneWidget);
+    expect(find.text(_l.contactNotAnsweringBody), findsOneWidget);
+    expect(find.byKey(deskContactPairAgainKey), findsOneWidget);
+    // The row's badge and the notice's title.
+    expect(find.text(_l.trustNotAnswering), findsAtLeastNWidgets(2));
+  });
+
   testWidgets('never finished: Remove drops it, the contact stays with Pair', (tester) async {
     await _contact(tester, 'c6');
     _fake.seedPaired(id: 'p-piotr', name: 'Piotr', contactId: 'c6', state: PairingState.ended, endedReason: PairingEndReason.neverFinished);

@@ -404,6 +404,7 @@ class ContactPairingBlock extends ConsumerWidget {
             key: contactPageNotAnsweringKey,
             tone: BadgeTone.warn,
             title: l.trustNotAnswering,
+            body: l.contactNotAnsweringBody,
             actions: [FilledButton.tonal(key: contactPagePairAgainKey, onPressed: busy ? null : () => _showCode(context), child: Text(l.pairAgain))],
           ),
           const SizedBox(height: 12),

@@ -19504,6 +19504,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get trustNotAnswering => 'Нет ответа';
 
   @override
+  String get contactNotAnsweringBody =>
+      'Счета и платежи могут до них не дойти.';
+
+  @override
   String get pairRequestPair => 'Сопрячь';
 
   @override

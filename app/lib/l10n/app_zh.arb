@@ -4889,6 +4889,7 @@
   "trustWaiting": "等待中",
   "trustEnded": "已结束",
   "trustNotAnswering": "没有响应",
+  "contactNotAnsweringBody": "账单和付款可能无法送达对方。",
   "pairRequestPair": "配对",
   "pairCancelPairingTitle": "取消这次配对？",
   "pairCancelPairingBody": "如果 {name} 的钱包迟来回复，会被告知。不会保留任何内容。",

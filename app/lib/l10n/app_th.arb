@@ -4889,6 +4889,7 @@
   "trustWaiting": "กำลังรอ",
   "trustEnded": "สิ้นสุดแล้ว",
   "trustNotAnswering": "ไม่ตอบสนอง",
+  "contactNotAnsweringBody": "ใบแจ้งหนี้และการชำระเงินอาจไปไม่ถึงพวกเขา",
   "pairRequestPair": "จับคู่",
   "pairCancelPairingTitle": "ยกเลิกการจับคู่นี้หรือไม่",
   "pairCancelPairingBody": "กระเป๋าของ {name} จะได้รับแจ้งหากตอบช้า ไม่มีอะไรถูกเก็บไว้",
