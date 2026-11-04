@@ -2057,6 +2057,33 @@ class AppLocalizationsPl extends AppLocalizations {
   String get firstRunSecuring => 'Zabezpieczanie portfela…';
 
   @override
+  String get workStoppingRecheck => 'Zatrzymywanie sprawdzania salda…';
+
+  @override
+  String get workTellingDevices => 'Powiadamianie połączonych urządzeń…';
+
+  @override
+  String get workRemovingFiles => 'Usuwanie plików portfela…';
+
+  @override
+  String get workClearingKeys => 'Usuwanie kluczy…';
+
+  @override
+  String get workChecking => 'Sprawdzanie…';
+
+  @override
+  String get workOpening => 'Otwieranie portfela…';
+
+  @override
+  String get workCreating => 'Tworzenie portfela…';
+
+  @override
+  String get workRestoring => 'Przywracanie portfela…';
+
+  @override
+  String get workStarting => 'Uruchamianie…';
+
+  @override
   String get firstRunTryAgain => 'Spróbuj ponownie';
 
   @override

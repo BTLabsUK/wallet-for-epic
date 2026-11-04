@@ -2047,6 +2047,33 @@ class AppLocalizationsRu extends AppLocalizations {
   String get firstRunSecuring => 'Защищаем кошелёк…';
 
   @override
+  String get workStoppingRecheck => 'Остановка сверки…';
+
+  @override
+  String get workTellingDevices => 'Уведомление связанных устройств…';
+
+  @override
+  String get workRemovingFiles => 'Удаление файлов кошелька…';
+
+  @override
+  String get workClearingKeys => 'Удаление ключей…';
+
+  @override
+  String get workChecking => 'Проверка…';
+
+  @override
+  String get workOpening => 'Открытие кошелька…';
+
+  @override
+  String get workCreating => 'Создание кошелька…';
+
+  @override
+  String get workRestoring => 'Восстановление кошелька…';
+
+  @override
+  String get workStarting => 'Запуск…';
+
+  @override
   String get firstRunTryAgain => 'Повторить';
 
   @override

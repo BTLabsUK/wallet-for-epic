@@ -24,6 +24,7 @@ import 'src/tor_build.dart';
 import 'src/tor_licence.dart';
 import 'src/tor_phone.dart';
 import 'src/ui/theme/fonts.dart';
+import 'src/ui/work_status.dart' show FrameKeeper;
 import 'src/wallet_backend.dart';
 import 'src/web/splash.dart';
 import 'src/settings_file/host_settings.dart' show appConfig;
@@ -83,6 +84,8 @@ Future<void> main() async {
     registerTorLicence();
     const build = String.fromEnvironment('FLUTTER_BUILD_NAME');
     logInfo('app', 'start ${build.isEmpty ? 'dev' : build}, $platformLabel');
+    // A wait or a touch is drawn even while Android keeps the app on screen with Flutter paused.
+    FrameKeeper.install();
     // Wallet errors are final answers (wrong password, node down); do not retry them silently.
     // The web preview plays Tor and the levels back (web/preview.dart).
     runApp(

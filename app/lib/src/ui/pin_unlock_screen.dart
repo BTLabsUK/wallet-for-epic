@@ -39,6 +39,9 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   String? _pinError;
   String? _error;
   bool _busy = false;
+
+  /// The step of a Forgot PIN delete under way, for the line under the bar.
+  DeleteStep? _deleting;
   bool _biometrics = false;
 
   /// The phone's Keystore did not release the PIN key: the wallet is intact, so Try again
@@ -238,10 +241,19 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     final l = context.l10n;
     final confirmed = await showAppDialog<bool>(context, builder: (_) => const _ResetDialog());
     if (confirmed != true || !mounted) return;
-    setState(() => _busy = true);
+    setState(() {
+      _busy = true;
+      _deleting = DeleteStep.files;
+    });
     try {
       // The same clean-up as Settings › Delete: backup note, shared files.
-      await deleteWalletEverywhere(ref, config);
+      await deleteWalletEverywhere(
+        ref,
+        config,
+        onStep: (step) {
+          if (mounted) setState(() => _deleting = step);
+        },
+      );
       if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute<void>(builder: (_) => const LaunchScreen()),
@@ -251,6 +263,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       if (mounted) {
         setState(() {
           _busy = false;
+          _deleting = null;
           _error = describeError(l, error);
         });
       }
@@ -313,7 +326,14 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
           if (_busy && _copy != null)
             StoreCopyLine(progress: _copy!)
           else
-            PinStepFoot(child: _busy ? const PinCheckBar() : (_error == null ? null : ErrorText(_error!))),
+            PinStepFoot(
+              child: _busy
+                  ? PinCheckBar(
+                      status: _deleting == null ? null : deleteStepText(l, _deleting!),
+                      lines: _deleting == null ? [l.workChecking, l.workOpening] : const [],
+                    )
+                  : (_error == null ? null : ErrorText(_error!)),
+            ),
           if (_busy && checkAt != null) ...[
             const SizedBox(height: 8),
             PinWaitNote(until: checkAt),

@@ -3223,6 +3223,60 @@ abstract class AppLocalizations {
   /// **'Securing your wallet…'**
   String get firstRunSecuring;
 
+  /// Status line under a wallet delete's progress: the running balance check is being stopped first.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopping the recheck…'**
+  String get workStoppingRecheck;
+
+  /// Status line under a wallet delete's progress: linked devices are told the wallet goes.
+  ///
+  /// In en, this message translates to:
+  /// **'Telling linked devices…'**
+  String get workTellingDevices;
+
+  /// Status line under a wallet delete's progress: the wallet's files are being removed.
+  ///
+  /// In en, this message translates to:
+  /// **'Removing wallet files…'**
+  String get workRemovingFiles;
+
+  /// Status line under a wallet delete's progress: the PIN key and other stored keys are being cleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Clearing keys…'**
+  String get workClearingKeys;
+
+  /// Status line under the unlock progress: the PIN or passphrase is being checked.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking…'**
+  String get workChecking;
+
+  /// Status line under the unlock progress: the wallet is being opened.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening wallet…'**
+  String get workOpening;
+
+  /// Status line while a new wallet is being made (first run, restore).
+  ///
+  /// In en, this message translates to:
+  /// **'Creating wallet…'**
+  String get workCreating;
+
+  /// Status line while a wallet is being made from its recovery phrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring wallet…'**
+  String get workRestoring;
+
+  /// Status line on the launch screen while the app finds the wallet to open.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting…'**
+  String get workStarting;
+
   /// Button after making the wallet failed.
   ///
   /// In en, this message translates to:

@@ -1994,6 +1994,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get firstRunSecuring => 'Securing your wallet…';
 
   @override
+  String get workStoppingRecheck => 'Stopping the recheck…';
+
+  @override
+  String get workTellingDevices => 'Telling linked devices…';
+
+  @override
+  String get workRemovingFiles => 'Removing wallet files…';
+
+  @override
+  String get workClearingKeys => 'Clearing keys…';
+
+  @override
+  String get workChecking => 'Checking…';
+
+  @override
+  String get workOpening => 'Opening wallet…';
+
+  @override
+  String get workCreating => 'Creating wallet…';
+
+  @override
+  String get workRestoring => 'Restoring wallet…';
+
+  @override
+  String get workStarting => 'Starting…';
+
+  @override
   String get firstRunTryAgain => 'Try again';
 
   @override

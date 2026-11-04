@@ -292,7 +292,7 @@ void main() {
         await tester.tap(find.text('Use biometrics'));
         await tester.pump();
         await tester.pump();
-        expect(find.text(_l.firstRunSecuring), findsOneWidget);
+        expect(find.text(_l.workCreating), findsOneWidget);
         expect(find.byKey(balanceFigureKey), findsNothing);
 
         service.createGate!.complete();

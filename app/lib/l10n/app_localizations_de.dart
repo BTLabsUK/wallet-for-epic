@@ -2018,6 +2018,33 @@ class AppLocalizationsDe extends AppLocalizations {
   String get firstRunSecuring => 'Ihre Wallet wird gesichert…';
 
   @override
+  String get workStoppingRecheck => 'Neuprüfung wird beendet…';
+
+  @override
+  String get workTellingDevices => 'Verknüpfte Geräte werden benachrichtigt…';
+
+  @override
+  String get workRemovingFiles => 'Wallet-Dateien werden entfernt…';
+
+  @override
+  String get workClearingKeys => 'Schlüssel werden gelöscht…';
+
+  @override
+  String get workChecking => 'Wird geprüft…';
+
+  @override
+  String get workOpening => 'Wallet wird geöffnet…';
+
+  @override
+  String get workCreating => 'Wallet wird erstellt…';
+
+  @override
+  String get workRestoring => 'Wallet wird wiederhergestellt…';
+
+  @override
+  String get workStarting => 'Wird gestartet…';
+
+  @override
   String get firstRunTryAgain => 'Erneut versuchen';
 
   @override

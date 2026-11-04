@@ -10,6 +10,8 @@ import '../onboarding/onboarding_parts.dart' show accountErrors;
 import '../onboarding/unlock_screen.dart' show UnlockPick;
 import '../../data/desk_node.dart' show deskNodeProvider;
 import 'local_node_dialogs.dart' show ReuseChainDataDialog;
+import '../../../ui/wallet_delete.dart' show DeleteStep, deleteStepText;
+import '../../../ui/work_status.dart';
 
 // ---- Existing blockchain data --------------------------------------------------------------
 
@@ -401,6 +403,9 @@ class _DeleteWalletDialogState extends ConsumerState<DeleteWalletDialog> {
   bool _busy = false;
   String? _error;
 
+  /// The step under way while busy, for the line under the form.
+  DeleteStep _step = DeleteStep.files;
+
   @override
   void dispose() {
     _password.clear();
@@ -416,6 +421,7 @@ class _DeleteWalletDialogState extends ConsumerState<DeleteWalletDialog> {
     setState(() {
       _busy = true;
       _error = null;
+      _step = DeleteStep.files;
     });
     final desk = ref.read(deskProvider.notifier);
     final nav = ref.read(deskNavProvider.notifier);
@@ -423,7 +429,12 @@ class _DeleteWalletDialogState extends ConsumerState<DeleteWalletDialog> {
     try {
       if (id == null) throw DeskError.l10n((l) => l.deskSetDlgWalletLocked);
       // The linked device is told first, best effort: its records go with the database.
-      await ref.read(deskDeviceHandleProvider).service?.unlinkAll();
+      final devices = ref.read(deskDeviceHandleProvider).service;
+      if (devices != null && (!devices.loaded || devices.book.devices.isNotEmpty)) {
+        setState(() => _step = DeleteStep.devices);
+      }
+      await devices?.unlinkAll();
+      if (mounted) setState(() => _step = DeleteStep.files);
       await desk.removeWallet(id, WalletRemoval.delete, password: _password.text);
     } on Object catch (e) {
       if (!mounted) return;
@@ -479,6 +490,13 @@ class _DeleteWalletDialogState extends ConsumerState<DeleteWalletDialog> {
           ),
           SizedBox(height: Sp.x4),
           ECheckbox(value: _ack, onChanged: (v) => setState(() => _ack = v), label: l.deskSetDlgPhraseWritten),
+          if (_busy) ...[
+            SizedBox(height: Sp.x2),
+            WorkStatus(
+              text: deleteStepText(l, _step),
+              style: context.ts.small.copyWith(color: context.dc.dim),
+            ),
+          ],
         ],
       ),
       actions: [

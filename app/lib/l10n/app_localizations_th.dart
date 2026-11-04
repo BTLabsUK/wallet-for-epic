@@ -1965,6 +1965,33 @@ class AppLocalizationsTh extends AppLocalizations {
   String get firstRunSecuring => 'กำลังรักษาความปลอดภัยกระเป๋าเงิน…';
 
   @override
+  String get workStoppingRecheck => 'กำลังหยุดตรวจยอดใหม่…';
+
+  @override
+  String get workTellingDevices => 'กำลังแจ้งอุปกรณ์ที่เชื่อมโยง…';
+
+  @override
+  String get workRemovingFiles => 'กำลังลบไฟล์กระเป๋าเงิน…';
+
+  @override
+  String get workClearingKeys => 'กำลังล้างกุญแจ…';
+
+  @override
+  String get workChecking => 'กำลังตรวจสอบ…';
+
+  @override
+  String get workOpening => 'กำลังเปิดกระเป๋าเงิน…';
+
+  @override
+  String get workCreating => 'กำลังสร้างกระเป๋าเงิน…';
+
+  @override
+  String get workRestoring => 'กำลังกู้คืนกระเป๋าเงิน…';
+
+  @override
+  String get workStarting => 'กำลังเริ่มต้น…';
+
+  @override
   String get firstRunTryAgain => 'ลองอีกครั้ง';
 
   @override

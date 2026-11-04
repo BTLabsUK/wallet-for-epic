@@ -2495,6 +2495,42 @@
   "@firstRunSecuring": {
     "description": "Shown after the PIN while the wallet is locked under it."
   },
+  "workStoppingRecheck": "Stopping the recheck…",
+  "@workStoppingRecheck": {
+    "description": "Status line under a wallet delete's progress: the running balance check is being stopped first."
+  },
+  "workTellingDevices": "Telling linked devices…",
+  "@workTellingDevices": {
+    "description": "Status line under a wallet delete's progress: linked devices are told the wallet goes."
+  },
+  "workRemovingFiles": "Removing wallet files…",
+  "@workRemovingFiles": {
+    "description": "Status line under a wallet delete's progress: the wallet's files are being removed."
+  },
+  "workClearingKeys": "Clearing keys…",
+  "@workClearingKeys": {
+    "description": "Status line under a wallet delete's progress: the PIN key and other stored keys are being cleared."
+  },
+  "workChecking": "Checking…",
+  "@workChecking": {
+    "description": "Status line under the unlock progress: the PIN or passphrase is being checked."
+  },
+  "workOpening": "Opening wallet…",
+  "@workOpening": {
+    "description": "Status line under the unlock progress: the wallet is being opened."
+  },
+  "workCreating": "Creating wallet…",
+  "@workCreating": {
+    "description": "Status line while a new wallet is being made (first run, restore)."
+  },
+  "workRestoring": "Restoring wallet…",
+  "@workRestoring": {
+    "description": "Status line while a wallet is being made from its recovery phrase."
+  },
+  "workStarting": "Starting…",
+  "@workStarting": {
+    "description": "Status line on the launch screen while the app finds the wallet to open."
+  },
   "firstRunTryAgain": "Try again",
   "@firstRunTryAgain": {
     "description": "Button after making the wallet failed."
