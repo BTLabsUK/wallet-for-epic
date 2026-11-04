@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-/// A withdrawal from a paired exchange on its payment page: the
-/// exchange sent it sealed, the wallet signed and answered it on its own, and the exchange
-/// posts it. "Received. Waiting for Northwind Exchange to post" until it is on the chain, and
-/// the timeline: the answer delivered to its relay, posted by it, then the confirmations.
+/// A withdrawal from a paired contact on its payment page: the contact sent it sealed, the
+/// wallet signed and answered it on its own, and the contact posts it. "Received. Waiting for
+/// Northwind Exchange to post" until it is on the chain, and the timeline: the answer
+/// delivered over Epicbox, posted by it, then the confirmations.
 library;
 
 import 'package:flutter/material.dart';
@@ -13,6 +13,7 @@ import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../wallet_service.dart';
 import '../common.dart';
+import 'add_to_contacts_button.dart';
 import 'pair_check.dart' show attachPairingTo, pickContactForPairing, savePairingAsNewContact;
 import '../theme/protocol.dart';
 import '../theme/tokens.dart';
@@ -28,9 +29,8 @@ import '../theme/tokens.dart';
   return (slate: slate, name: record == null ? '' : pairingName(record, contacts));
 }
 
-/// "Received from" on a withdrawal: the paired exchange by name. Not in the contacts yet, it
-/// offers Save as a new contact and Add to a contact, as the words result does; nothing is
-/// matched by name or address.
+/// "Received from" on a withdrawal: the paired contact by name. Not in the contacts yet, it
+/// offers Add to contacts, as the words result does; nothing is matched by name or address.
 class WithdrawalFromRow extends ConsumerWidget {
   const WithdrawalFromRow({super.key, required this.pairingId, required this.name});
 
@@ -60,28 +60,15 @@ class WithdrawalFromRow extends ConsumerWidget {
           Text(name, style: theme.textTheme.bodyMedium?.copyWith(color: t.dim)),
           if (record != null && !saved) ...[
             const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: FilledButton.tonal(
-                    onPressed: () async {
-                      final saved = await savePairingAsNewContact(context, record);
-                      if (context.mounted) await _attach(context, ref, record, saved);
-                    },
-                    child: Text(l.pairSaveNewContact, textAlign: TextAlign.center),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () async {
-                      final picked = await pickContactForPairing(context);
-                      if (context.mounted) await _attach(context, ref, record, picked);
-                    },
-                    child: Text(l.pairAddToAContact, textAlign: TextAlign.center),
-                  ),
-                ),
-              ],
+            AddToContactsButton(
+              onNew: () async {
+                final saved = await savePairingAsNewContact(context, record);
+                if (context.mounted) await _attach(context, ref, record, saved);
+              },
+              onExisting: () async {
+                final picked = await pickContactForPairing(context);
+                if (context.mounted) await _attach(context, ref, record, picked);
+              },
             ),
           ],
         ],
@@ -130,12 +117,8 @@ class WithdrawalBlock extends ConsumerWidget {
           ],
           StatusTimeline(
             steps: [
-              TimelineStep(l.reqTlAnswerDelivered(w.name), TimelineState.done),
-              TimelineStep(
-                l.reqTlPosted(w.name),
-                posted ? TimelineState.done : TimelineState.current,
-                detail: posted ? null : l.reqTlPostedHint,
-              ),
+              TimelineStep(l.reqTlAnswerDelivered, TimelineState.done),
+              TimelineStep(l.reqTlPosted(w.name), posted ? TimelineState.done : TimelineState.current),
               if (confirmed)
                 TimelineStep(l.reqTlConfirmed, TimelineState.done)
               else if (posted)

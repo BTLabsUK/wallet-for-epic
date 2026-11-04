@@ -98,8 +98,8 @@ class CodeBanner extends StatelessWidget {
 }
 
 /// The payee's own words from a code: a well ([DeskColors.well], the phone's PayeeClaims has
-/// the same), labelled "not verified", plain text, never a contact's name style. Nothing when
-/// both are absent.
+/// the same), captioned, plain text, never a contact's name style. Nothing when both are
+/// absent.
 class EPayeeClaims extends StatelessWidget {
   const EPayeeClaims({super.key, this.label, this.note});
 
@@ -136,12 +136,7 @@ class EPayeeClaims extends StatelessWidget {
           children: [
             for (final (i, (key, caption, value)) in lines.indexed) ...[
               if (i > 0) SizedBox(height: Sp.x2),
-              Row(
-                children: [
-                  Flexible(child: ExcludeSemantics(child: Text(caption, style: ts.caption.copyWith(color: c.dim)))),
-                  if (i == 0) ...[SizedBox(width: Sp.x1), EInfoHint(l.payeeUnverifiedHint, title: l.payeeUnverifiedTitle)],
-                ],
-              ),
+              ExcludeSemantics(child: Text(caption, style: ts.caption.copyWith(color: c.dim))),
               SizedBox(height: 4.u),
               ExcludeSemantics(child: Text(value, key: key, style: ts.body.copyWith(color: c.text))),
             ],

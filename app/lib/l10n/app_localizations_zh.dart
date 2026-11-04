@@ -4648,7 +4648,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deskInvIssuerWaitingText(String payer) {
-    return '已送达 $payer 的 Epicbox 服务器。在对方批准之前不会付款。';
+    return '已通过 Epicbox 送达。在 $payer 批准之前不会付款。';
   }
 
   @override
@@ -12442,16 +12442,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get sendCodeTooLong => '此码的一部分过长，已忽略。';
 
   @override
-  String get payeeNameLabel => '收款方提供的名称（未验证）';
+  String get payeeNameLabel => '收款方提供的名称';
 
   @override
-  String get payeeNoteLabel => '收款方的留言（未验证）';
-
-  @override
-  String get payeeUnverifiedTitle => '未验证';
-
-  @override
-  String get payeeUnverifiedHint => '名称和备注由制作此码的人写入，没有人核实。请核对地址和金额，而不是名称。';
+  String get payeeNoteLabel => '收款方的留言';
 
   @override
   String get sendNoteFromCodeHelper => '来自付款码。对方也能看到。';
@@ -12959,9 +12953,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String pairIncomingTitle(String name) {
     return '来自 $name 的配对请求';
   }
-
-  @override
-  String get pairNameClaimedShort => '名字由对方选择';
 
   @override
   String get pairVerifiedService => '已验证的 BT Labs 服务';
@@ -13503,28 +13494,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reqPaidWaitingBodyPerson => '你的部分已完成。对方的钱包会完成并发布；此项会自动关闭。';
 
   @override
-  String get reqPaidWaitingBody => '你的部分已完成。交易所会完成并发布；此项会自动关闭。';
+  String get reqPaidWaitingBody => '你的部分已完成。对方会完成并发布；此项会自动关闭。';
 
   @override
   String get reqTlPaid => '已付款';
 
   @override
-  String reqTlDelivered(String name) {
-    return '已送达 $name 的 Epicbox 服务器';
-  }
+  String get reqTlDelivered => '已通过 Epicbox 送达';
 
   @override
-  String reqTlAnswerDelivered(String name) {
-    return '回复已送达 $name 的服务器';
-  }
+  String get reqTlAnswerDelivered => '回复已通过 Epicbox 送达';
 
   @override
   String reqTlPosted(String name) {
     return '已由 $name 发布';
   }
-
-  @override
-  String get reqTlPostedHint => '通常在几分钟内';
 
   @override
   String get reqTlConfirming => '确认中';
@@ -13588,7 +13572,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get reqReceivedWaitingBody => '无需操作。交易所会发布；之后会有确认。';
+  String get reqReceivedWaitingBody => '无需操作。发送方会发布；之后会有确认。';
 
   @override
   String get reqNewTitle => '新建账单';

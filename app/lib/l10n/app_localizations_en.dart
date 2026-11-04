@@ -4905,7 +4905,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deskInvIssuerWaitingText(String payer) {
-    return 'Delivered to $payer’s Epicbox server. Nothing is paid until they approve it.';
+    return 'Delivered over Epicbox. Nothing is paid until $payer approves it.';
   }
 
   @override
@@ -13215,17 +13215,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Part of this code was too long and was ignored.';
 
   @override
-  String get payeeNameLabel => 'Name from the recipient (not verified)';
+  String get payeeNameLabel => 'Name from the recipient';
 
   @override
-  String get payeeNoteLabel => 'Message from the recipient (not verified)';
-
-  @override
-  String get payeeUnverifiedTitle => 'Not verified';
-
-  @override
-  String get payeeUnverifiedHint =>
-      'The name and the note are written into the code by whoever made it. Nobody checks them. Check the address and the amount, not the name.';
+  String get payeeNoteLabel => 'Message from the recipient';
 
   @override
   String get sendNoteFromCodeHelper => 'From the code. They see it too.';
@@ -13774,9 +13767,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String pairIncomingTitle(String name) {
     return 'Pair request from $name';
   }
-
-  @override
-  String get pairNameClaimedShort => 'Name chosen by them';
 
   @override
   String get pairVerifiedService => 'Verified BT Labs service';
@@ -14336,28 +14326,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reqPaidWaitingBody =>
-      'Your part is done. The exchange finalizes and posts; this closes on its own.';
+      'Your part is done. The other side finalizes and posts it; this closes on its own.';
 
   @override
   String get reqTlPaid => 'Paid';
 
   @override
-  String reqTlDelivered(String name) {
-    return 'Delivered to $name’s Epicbox server';
-  }
+  String get reqTlDelivered => 'Delivered over Epicbox';
 
   @override
-  String reqTlAnswerDelivered(String name) {
-    return 'Answer delivered to $name’s server';
-  }
+  String get reqTlAnswerDelivered => 'Answer delivered over Epicbox';
 
   @override
   String reqTlPosted(String name) {
     return 'Posted by $name';
   }
-
-  @override
-  String get reqTlPostedHint => 'Usually within minutes';
 
   @override
   String get reqTlConfirming => 'Confirming';
@@ -14426,7 +14409,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reqReceivedWaitingBody =>
-      'Nothing to do. The exchange posts it; confirmations follow.';
+      'Nothing to do. The sender posts it; confirmations follow.';
 
   @override
   String get reqNewTitle => 'New invoice';

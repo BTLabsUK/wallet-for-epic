@@ -6327,7 +6327,7 @@
       }
     }
   },
-  "deskInvIssuerWaitingText": "Delivered to {payer}’s Epicbox server. Nothing is paid until they approve it.",
+  "deskInvIssuerWaitingText": "Delivered over Epicbox. Nothing is paid until {payer} approves it.",
   "@deskInvIssuerWaitingText": {
     "description": "Detail text of a waiting request.",
     "placeholders": {
@@ -17547,21 +17547,13 @@
   "@sendCodeTooLong": {
     "description": "Payment-request banner line: a part of the code (note, name, amount) was over its length limit and was dropped."
   },
-  "payeeNameLabel": "Name from the recipient (not verified)",
+  "payeeNameLabel": "Name from the recipient",
   "@payeeNameLabel": {
-    "description": "Caption over the payee's name as written in a payment code (label). Not checked by anyone."
+    "description": "Caption over the payee's name as written in a payment code (label)."
   },
-  "payeeNoteLabel": "Message from the recipient (not verified)",
+  "payeeNoteLabel": "Message from the recipient",
   "@payeeNoteLabel": {
-    "description": "Caption over the payee's note as written in a payment code (message). Not checked by anyone."
-  },
-  "payeeUnverifiedTitle": "Not verified",
-  "@payeeUnverifiedTitle": {
-    "description": "Title of the info sheet on the payee block (name and note from a payment code)."
-  },
-  "payeeUnverifiedHint": "The name and the note are written into the code by whoever made it. Nobody checks them. Check the address and the amount, not the name.",
-  "@payeeUnverifiedHint": {
-    "description": "Info sheet text on the payee block: the name and note in a payment code are not verified."
+    "description": "Caption over the payee's note as written in a payment code (message)."
   },
   "sendNoteFromCodeHelper": "From the code. They see it too.",
   "@sendNoteFromCodeHelper": {
@@ -18272,10 +18264,6 @@
         "example": "Anna"
       }
     }
-  },
-  "pairNameClaimedShort": "Name chosen by them",
-  "@pairNameClaimedShort": {
-    "description": "Chip on the words check."
   },
   "pairVerifiedService": "Verified BT Labs service",
   "@pairVerifiedService": {
@@ -19152,33 +19140,21 @@
   "@reqPaidWaitingBodyPerson": {
     "description": "reqPaidWaitingBody for a request from a paired person rather than an exchange or shop: their wallet, not an exchange, finalizes and posts."
   },
-  "reqPaidWaitingBody": "Your part is done. The exchange finalizes and posts; this closes on its own.",
+  "reqPaidWaitingBody": "Your part is done. The other side finalizes and posts it; this closes on its own.",
   "@reqPaidWaitingBody": {
-    "description": "Edge card body."
+    "description": "Edge card body when the request came from a contact that is not a person. Never name the other side's kind."
   },
   "reqTlPaid": "Paid",
   "@reqTlPaid": {
     "description": "Timeline step."
   },
-  "reqTlDelivered": "Delivered to {name}’s Epicbox server",
+  "reqTlDelivered": "Delivered over Epicbox",
   "@reqTlDelivered": {
-    "description": "Timeline step.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Anna"
-      }
-    }
+    "description": "Timeline step: the payment went over Epicbox."
   },
-  "reqTlAnswerDelivered": "Answer delivered to {name}’s server",
+  "reqTlAnswerDelivered": "Answer delivered over Epicbox",
   "@reqTlAnswerDelivered": {
-    "description": "Timeline step for a withdrawal.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Anna"
-      }
-    }
+    "description": "Timeline step for a withdrawal: this wallet's answer went back over Epicbox."
   },
   "reqTlPosted": "Posted by {name}",
   "@reqTlPosted": {
@@ -19189,10 +19165,6 @@
         "example": "Anna"
       }
     }
-  },
-  "reqTlPostedHint": "Usually within minutes",
-  "@reqTlPostedHint": {
-    "description": "Timeline detail while current."
   },
   "reqTlConfirming": "Confirming",
   "@reqTlConfirming": {
@@ -19301,9 +19273,9 @@
       }
     }
   },
-  "reqReceivedWaitingBody": "Nothing to do. The exchange posts it; confirmations follow.",
+  "reqReceivedWaitingBody": "Nothing to do. The sender posts it; confirmations follow.",
   "@reqReceivedWaitingBody": {
-    "description": "Body."
+    "description": "Body under reqReceivedWaiting. The sender's kind (exchange, faucet, person) is unknown: never name it."
   },
   "reqNewTitle": "New invoice",
   "@reqNewTitle": {

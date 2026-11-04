@@ -40,7 +40,7 @@
   "deskInvIssuerSendFile": "Datei verwenden",
   "deskInvIssuerLate": "Nach dem Ende dieser Rechnung kam eine Zahlung an. Sie wurde abgelehnt; nichts hat sich geändert.",
   "deskInvIssuerPaidText": "{payer} hat bezahlt. Ihre Wallet hat die Zahlung abgeschlossen und an das Netzwerk gesendet.",
-  "deskInvIssuerWaitingText": "An den Epicbox-Server von {payer} zugestellt. Nichts ist bezahlt, bis dort zugestimmt wird.",
+  "deskInvIssuerWaitingText": "Über Epicbox zugestellt. Nichts ist bezahlt, bis {payer} zustimmt.",
   "deskInvIssuerCopySlate": "Slate-ID kopieren",
   "deskInvIssuerStepIssued": "Ausgestellt",
   "deskInvIssuerAnother": "Weitere Rechnung"

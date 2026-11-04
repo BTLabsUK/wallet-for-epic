@@ -40,7 +40,7 @@
   "deskInvIssuerSendFile": "ใช้ไฟล์",
   "deskInvIssuerLate": "มีเงินเข้ามาหลังใบแจ้งหนี้นี้สิ้นสุด ถูกปฏิเสธแล้ว ไม่มีสิ่งใดเปลี่ยนแปลง",
   "deskInvIssuerPaidText": "{payer} ชำระแล้ว กระเป๋าของคุณทำรายการให้เสร็จและส่งเข้าเครือข่ายแล้ว",
-  "deskInvIssuerWaitingText": "ส่งถึงเซิร์ฟเวอร์ Epicbox ของ {payer} แล้ว ไม่มีการชำระใดๆ จนกว่าผู้ชำระจะอนุมัติ",
+  "deskInvIssuerWaitingText": "ส่งผ่าน Epicbox แล้ว ไม่มีการชำระใดๆ จนกว่า {payer} จะอนุมัติ",
   "deskInvIssuerCopySlate": "คัดลอก Slate ID",
   "deskInvIssuerStepIssued": "ออกแล้ว",
   "deskInvIssuerAnother": "สร้างใบแจ้งหนี้อีกรายการ"

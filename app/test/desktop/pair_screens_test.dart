@@ -148,7 +148,6 @@ void main() {
     expect(find.text(_l.pairNotACode), findsWidgets);
     await _paste(tester, _l.pairInviteMessage(_pairing.inviteLinkFrom(name: 'Anna')));
     expect(find.text(_l.pairIncomingTitle('Anna')), findsOneWidget);
-    expect(find.text(_l.pairNameClaimedShort), findsNothing);
     expect(find.byKey(deskPairNameKey), findsNothing, reason: 'no name field on the dialog');
     await tester.tap(find.byKey(deskIncomingPairKey));
     await _real(tester);

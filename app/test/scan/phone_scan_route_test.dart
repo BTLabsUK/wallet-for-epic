@@ -304,7 +304,7 @@ void main() {
       expect(_inPayee('Anna'), findsOneWidget);
       expect(_inPayee('Lunch with Anna'), findsOneWidget);
       expect(
-        _inPayee('Name from the recipient (not verified)'),
+        _inPayee(_l.payeeNameLabel),
         findsOneWidget,
       );
       expect(h.session.epicboxSends, isEmpty);
@@ -466,7 +466,7 @@ void main() {
       // The contact's own name above the amount; the code's name line hidden, its note kept.
       expect(find.text('To anna'), findsOneWidget);
       await _back(tester);
-      expect(_inPayee('Name from the recipient (not verified)'), findsNothing);
+      expect(_inPayee(_l.payeeNameLabel), findsNothing);
       expect(_inPayee('Hi'), findsOneWidget);
       expect(_field(tester, sendRecipientFieldKey), _e);
     });
@@ -906,6 +906,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(host.hitTestable(), findsOneWidget);
       expect(tester.takeException(), isNull);
+      // The reach check's "Checking…" timer (send_screen _askReach) runs out before the end.
+      await tester.pump(const Duration(seconds: 2));
     },
   );
 }
