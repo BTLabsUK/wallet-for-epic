@@ -322,7 +322,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       // Pairings in no contact, by the name they chose: waiting or ended with their row, the
       // rest with Add to contacts or Remove pairing.
       for (final r in orphans)
-        if (query.isEmpty || peerLabel(context.l10n, r).toLowerCase().contains(query)) _OrphanRow(record: r, contacts: all),
+        if (query.isEmpty || peerLabel(context.l10n, r).toLowerCase().contains(query)) _OrphanRow(key: ValueKey(r.id), record: r, contacts: all),
     ];
     if (contacts.isEmpty) {
       return ListView(
@@ -361,11 +361,34 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
 /// A pairing of this wallet in no contact: the name it chose, its trust badge and
 /// "Not in contacts"; the menu adds it to the contacts (a contact of its name first, which
 /// starts a re-pair's key check) or removes the pairing.
-class _OrphanRow extends ConsumerWidget {
-  const _OrphanRow({required this.record, required this.contacts});
+class _OrphanRow extends ConsumerStatefulWidget {
+  const _OrphanRow({super.key, required this.record, required this.contacts});
 
   final PairingRecord record;
   final List<Contact> contacts;
+
+  @override
+  ConsumerState<_OrphanRow> createState() => _OrphanRowState();
+}
+
+class _OrphanRowState extends ConsumerState<_OrphanRow> {
+  /// Remove or Cancel is running: the core tells the contact first, waiting up to 10 s for
+  /// the relay, and the row stays until it is done.
+  bool _busy = false;
+
+  PairingRecord get record => widget.record;
+
+  Future<void> _run(Future<void> Function() call) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await call();
+    } catch (error) {
+      if (mounted) ref.read(noticeProvider.notifier).show(describeError(context.l10n, error), level: NoticeLevel.error);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
 
   Future<void> _attach(BuildContext context, WidgetRef ref, Contact? contact) async {
     if (contact == null || !context.mounted) return;
@@ -386,22 +409,22 @@ class _OrphanRow extends ConsumerWidget {
         if (context.mounted) await _attach(context, ref, picked);
       case 'cancel':
         if (await confirmCancelPairing(context, peerLabel(context.l10n, record))) {
-          await pairingCall(ref, (api) => record.state.isPending ? api.cancelInvite(record.id) : api.removePairing(record.id));
+          await _run(() => pairingCall(ref, (api) => record.state.isPending ? api.cancelInvite(record.id) : api.removePairing(record.id)));
         }
       case 'remove':
-        if (record.ended || await confirmRemovePairing(context, peerLabel(context.l10n, record))) await pairingCall(ref, (api) => api.removePairing(record.id));
+        if (record.ended || await confirmRemovePairing(context, peerLabel(context.l10n, record))) await _run(() => pairingCall(ref, (api) => api.removePairing(record.id)));
     }
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final t = context.tokens;
     final l = context.l10n;
     final name = peerLabel(l, record);
     final all = ref.watch(pairingsProvider).value ?? const <PairingRecord>[];
     final suggested = sameNamedContact<Contact>(
       record,
-      contacts,
+      widget.contacts,
       (c) => c.name,
       paired: (c) => all.any((p) => p.id != record.id && p.contactId == c.id && p.state.isPaired),
       epicboxOf: (c) => c.epicbox,
@@ -427,22 +450,24 @@ class _OrphanRow extends ConsumerWidget {
         ],
       ),
       subtitle: Text(subtitle),
-      trailing: PopupMenuButton<String>(
-        key: contactsOrphanMenuKey(r.id),
-        tooltip: l.contactMore,
-        onSelected: (v) => _choose(context, ref, v, suggested),
-        itemBuilder: (context) => [
-          if (!inFlight && !r.ended) ...[
-            if (suggested != null) PopupMenuItem(value: 'named', child: Text(l.pairAddToNamed(suggested.name))),
-            PopupMenuItem(value: 'new', child: Text(l.pairSaveNewContact)),
-            PopupMenuItem(value: 'add', child: Text(l.pairAddToAContact)),
-          ],
-          if (inFlight)
-            PopupMenuItem(key: contactsCancelPairingKey, value: 'cancel', child: Text(l.commonCancel, style: TextStyle(color: t.risk)))
-          else
-            PopupMenuItem(value: 'remove', child: Text(l.contactRemovePairing, style: TextStyle(color: t.risk))),
-        ],
-      ),
+      trailing: _busy
+          ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2))
+          : PopupMenuButton<String>(
+            key: contactsOrphanMenuKey(r.id),
+            tooltip: l.contactMore,
+            onSelected: (v) => _choose(context, ref, v, suggested),
+            itemBuilder: (context) => [
+              if (!inFlight && !r.ended) ...[
+                if (suggested != null) PopupMenuItem(value: 'named', child: Text(l.pairAddToNamed(suggested.name))),
+                PopupMenuItem(value: 'new', child: Text(l.pairSaveNewContact)),
+                PopupMenuItem(value: 'add', child: Text(l.pairAddToAContact)),
+              ],
+              if (inFlight)
+                PopupMenuItem(key: contactsCancelPairingKey, value: 'cancel', child: Text(l.commonCancel, style: TextStyle(color: t.risk)))
+              else
+                PopupMenuItem(value: 'remove', child: Text(l.contactRemovePairing, style: TextStyle(color: t.risk))),
+            ],
+          ),
     );
   }
 }

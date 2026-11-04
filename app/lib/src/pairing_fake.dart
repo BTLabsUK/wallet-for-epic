@@ -126,6 +126,10 @@ class FakePairing implements PairingApi {
   /// When set, [pairings] answers after this long, as the core's call does.
   Duration? listDelay;
 
+  /// When set, [removePairing] takes this long, as the core's does while it tells the contact
+  /// (up to 10 s for the relay).
+  Duration? removeDelay;
+
   /// When set, the other side answers requests and confirms answers on its own after this long.
   Duration? autoAnswerAfter;
 
@@ -907,6 +911,7 @@ class FakePairing implements PairingApi {
   Future<void> removePairing(String id) async {
     _require('removePairing');
     calls.add('remove');
+    if (removeDelay case final delay?) await Future<void>.delayed(delay);
     if (_privateIndex(id) >= 0) return _removePrivate(id);
     records.removeWhere((r) => r.id == id);
   }

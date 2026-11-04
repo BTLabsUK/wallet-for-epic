@@ -90,8 +90,20 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
     ref.read(noticeProvider.notifier).show(l.pairSavedAs(to.name), level: NoticeLevel.success);
   }
 
+  /// The core tells the contact first, waiting up to 10 s for the relay: the row says it is
+  /// working until the pairing is gone.
   Future<void> _remove(PairingRecord r, String name) async {
-    if (await confirmRemovePairing(context, name)) await pairingCall(ref, (api) => api.removePairing(r.id));
+    if (!await confirmRemovePairing(context, name) || !mounted) return;
+    final l = context.l10n;
+    final notices = ref.read(noticeProvider.notifier);
+    setState(() => _busy.add(r.id));
+    try {
+      await pairingCall(ref, (api) => api.removePairing(r.id));
+    } catch (error) {
+      notices.show(describeError(l, error), level: NoticeLevel.error);
+    } finally {
+      if (mounted) setState(() => _busy.remove(r.id));
+    }
   }
 
   @override
@@ -216,6 +228,8 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
               PopupMenuButton<String>(
                 key: invoiceSettingsMenuKey(r.id),
                 tooltip: l.contactMore,
+                enabled: !_busy.contains(r.id),
+                icon: _busy.contains(r.id) ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2)) : null,
                 onSelected: (v) => switch (v) {
                   'named' when suggested != null => _attachTo(r, suggested),
                   'new' => _attach(r, asNew: true),

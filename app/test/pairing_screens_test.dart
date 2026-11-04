@@ -625,6 +625,26 @@ void main() {
       expect(find.byKey(contactsPairingRowKey(invite.id)), findsNothing);
     });
 
+    testWidgets('a pairing in no contact: Remove shows it working until it is gone, its menu shut meanwhile', (tester) async {
+      final h = _Harness();
+      h.api
+        ..seedPaired(id: 'p-lol', name: 'Lol', state: PairingState.paired)
+        ..removeDelay = const Duration(seconds: 3);
+      await h.pump(tester, const ContactsScreen());
+      await tester.tap(find.byKey(contactsOrphanMenuKey('p-lol')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(_l.contactRemovePairing).last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(confirmRemovePairingKey));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.descendant(of: find.byKey(contactsPairingRowKey('p-lol')), matching: find.byType(CircularProgressIndicator)), findsOneWidget);
+      expect(find.byKey(contactsOrphanMenuKey('p-lol')), findsNothing, reason: 'no second Remove while the first runs');
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pumpAndSettle();
+      expect(find.byKey(contactsPairingRowKey('p-lol')), findsNothing);
+      expect(h.api.calls.where((c) => c == 'remove'), hasLength(1));
+    });
+
     testWidgets('Pair requests · 1 for a contact\'s request only; Pair opens the from-a-contact sheet; Not now dismisses', (tester) async {
       final h = _Harness();
       h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));
