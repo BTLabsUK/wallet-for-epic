@@ -14733,6 +14733,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String noticeRelayMoveRefused(String name, String host) {
+    return '$name asks to move to relay $host. It is not in your Epicbox server list, so the move was not made.';
+  }
+
+  @override
   String noticeTooMany(String name) {
     return '$name sent too many invoices.';
   }

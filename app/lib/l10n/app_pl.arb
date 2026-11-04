@@ -3854,6 +3854,7 @@
   "reqSent": "Faktura wysłana do {name}",
   "reqFileTitle": "Faktura",
   "noticeOutboxStuck": "Brak kontaktu z {name}. Ponawianie próby.",
+  "noticeRelayMoveRefused": "{name} prosi o przejście na przekaźnik {host}. Nie ma go na twojej liście serwerów Epicbox, więc zmiany nie wykonano.",
   "noticeTooMany": "{name} wysyła za dużo faktur.",
   "noticeOpen": "Otwórz",
   "noticeCheckWords": "Zweryfikuj",

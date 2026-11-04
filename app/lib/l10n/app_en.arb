@@ -19787,6 +19787,20 @@
       }
     }
   },
+  "noticeRelayMoveRefused": "{name} asks to move to relay {host}. It is not in your Epicbox server list, so the move was not made.",
+  "@noticeRelayMoveRefused": {
+    "description": "Docked warning when a contact asked to move to an Epicbox relay that is not in the user's server list; the contact stays on its current relay.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      },
+      "host": {
+        "type": "String",
+        "example": "relay.example.com"
+      }
+    }
+  },
   "noticeTooMany": "{name} sent too many invoices.",
   "@noticeTooMany": {
     "description": "Docked warning when a contact went over the request cap.",

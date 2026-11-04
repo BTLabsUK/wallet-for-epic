@@ -3854,6 +3854,7 @@
   "reqSent": "ส่งใบแจ้งหนี้ถึง {name} แล้ว",
   "reqFileTitle": "ใบแจ้งหนี้",
   "noticeOutboxStuck": "ยังติดต่อ {name} ไม่ได้ กำลังลองใหม่",
+  "noticeRelayMoveRefused": "{name} ขอย้ายไปยังรีเลย์ {host} รีเลย์นี้ไม่อยู่ในรายการเซิร์ฟเวอร์ Epicbox ของคุณ จึงไม่ได้ย้าย",
   "noticeTooMany": "{name} ส่งใบแจ้งหนี้มากเกินไป",
   "noticeOpen": "เปิด",
   "noticeCheckWords": "ยืนยัน",

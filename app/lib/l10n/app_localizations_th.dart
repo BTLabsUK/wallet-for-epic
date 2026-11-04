@@ -14375,6 +14375,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String noticeRelayMoveRefused(String name, String host) {
+    return '$name ขอย้ายไปยังรีเลย์ $host รีเลย์นี้ไม่อยู่ในรายการเซิร์ฟเวอร์ Epicbox ของคุณ จึงไม่ได้ย้าย';
+  }
+
+  @override
   String noticeTooMany(String name) {
     return '$name ส่งใบแจ้งหนี้มากเกินไป';
   }

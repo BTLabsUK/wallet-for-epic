@@ -23154,6 +23154,12 @@ abstract class AppLocalizations {
   /// **'Cannot reach {name} yet. Retrying.'**
   String noticeOutboxStuck(String name);
 
+  /// Docked warning when a contact asked to move to an Epicbox relay that is not in the user's server list; the contact stays on its current relay.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} asks to move to relay {host}. It is not in your Epicbox server list, so the move was not made.'**
+  String noticeRelayMoveRefused(String name, String host);
+
   /// Docked warning when a contact went over the request cap.
   ///
   /// In en, this message translates to:

@@ -15277,6 +15277,11 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String noticeRelayMoveRefused(String name, String host) {
+    return '$name prosi o przejście na przekaźnik $host. Nie ma go na twojej liście serwerów Epicbox, więc zmiany nie wykonano.';
+  }
+
+  @override
   String noticeTooMany(String name) {
     return '$name wysyła za dużo faktur.';
   }

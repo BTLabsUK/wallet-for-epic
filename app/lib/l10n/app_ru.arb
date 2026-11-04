@@ -3854,6 +3854,7 @@
   "reqSent": "Счёт отправлен: {name}",
   "reqFileTitle": "Счёт на оплату",
   "noticeOutboxStuck": "{name} пока недоступен. Пробуем снова.",
+  "noticeRelayMoveRefused": "{name} просит перейти на реле {host}. Его нет в вашем списке серверов Epicbox, поэтому переход не выполнен.",
   "noticeTooMany": "{name}: слишком много счетов.",
   "noticeOpen": "Открыть",
   "noticeCheckWords": "Проверить",

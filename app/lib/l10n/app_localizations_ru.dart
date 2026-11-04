@@ -15251,6 +15251,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String noticeRelayMoveRefused(String name, String host) {
+    return '$name просит перейти на реле $host. Его нет в вашем списке серверов Epicbox, поэтому переход не выполнен.';
+  }
+
+  @override
   String noticeTooMany(String name) {
     return '$name: слишком много счетов.';
   }

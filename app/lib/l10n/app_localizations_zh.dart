@@ -13884,6 +13884,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String noticeRelayMoveRefused(String name, String host) {
+    return '$name 请求切换到中继 $host。它不在你的 Epicbox 服务器列表中，因此未切换。';
+  }
+
+  @override
   String noticeTooMany(String name) {
     return '$name 发送的账单过多。';
   }

@@ -3854,6 +3854,7 @@
   "reqSent": "Rechnung an {name} gesendet",
   "reqFileTitle": "Rechnung",
   "noticeOutboxStuck": "{name} ist noch nicht erreichbar. Wird erneut versucht.",
+  "noticeRelayMoveRefused": "{name} möchte zum Relay {host} wechseln. Es steht nicht in deiner Epicbox-Serverliste, daher wurde der Wechsel nicht vorgenommen.",
   "noticeTooMany": "{name} hat zu viele Rechnungen gesendet.",
   "noticeOpen": "Öffnen",
   "noticeCheckWords": "Verifizieren",

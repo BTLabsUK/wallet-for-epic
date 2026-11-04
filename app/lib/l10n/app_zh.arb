@@ -3854,6 +3854,7 @@
   "reqSent": "账单已发送给 {name}",
   "reqFileTitle": "账单",
   "noticeOutboxStuck": "暂时无法联系 {name}。正在重试。",
+  "noticeRelayMoveRefused": "{name} 请求切换到中继 {host}。它不在你的 Epicbox 服务器列表中，因此未切换。",
   "noticeTooMany": "{name} 发送的账单过多。",
   "noticeOpen": "打开",
   "noticeCheckWords": "验证",
