@@ -14,6 +14,8 @@ import 'package:epic_wallet/src/secret_store_api.dart' as app;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
 import 'package:lepic/lepic.dart' as lepic;
+// Not exported by package:lepic/lepic.dart.
+import 'package:lepic/src/rust/api/policy.dart' show HostPolicy;
 
 final String? _lib = Platform.environment['WFE_LEPIC_LIB'];
 
@@ -51,7 +53,7 @@ void main() {
 
   /// A mainnet wallet [name] on the Epicbox server [relay], from [mnemonic] (a new one when null).
   Future<LepicWalletSession> install(String name, String relay, {String? mnemonic, bool pin = false}) async {
-    final config = lepic.WalletConfig(torWanted: false, hostFeatures: 0, 
+    final config = lepic.WalletConfig(policy: const HostPolicy(), torWanted: false, hostFeatures: 0, 
       dataDir: (Directory('${dir.path}/$name')..createSync()).path,
       chain: lepic.Chain.mainnet,
       nodeUrl: 'https://node.btlabs.uk',

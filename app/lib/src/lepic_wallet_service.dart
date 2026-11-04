@@ -15,6 +15,9 @@ import 'dart:typed_data';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
     show ExternalLibrary, Uint64List;
 import 'package:lepic/lepic.dart' as lepic;
+// Not exported by package:lepic/lepic.dart.
+// ignore: implementation_imports
+import 'package:lepic/src/rust/api/policy.dart' show HostPolicy;
 import 'package:meta/meta.dart' show visibleForTesting;
 
 import 'history/export.dart';
@@ -280,6 +283,15 @@ WalletError mapLepicError(lepic.WalletError error) {
         ? nothingToConsolidate
         : error.message,
   );
+}
+
+/// The core no longer holds a minimum password length: a new password (create, restore, import,
+/// reset, change) of under 8 characters is refused here, before any call to it. Opening takes
+/// whatever the wallet was made with.
+void _requireNewPassword(String password) {
+  if (password.runes.length < 8) {
+    throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'password has fewer than 8 characters');
+  }
 }
 
 Future<T> _guard<T>(Future<T> Function() call) async {
@@ -1011,6 +1023,7 @@ class LepicWalletService implements WalletService {
   /// replaces them later with [WalletSession.setOnionRoutes] (the signed list).
   static Future<lepic.WalletConfig> _lepicConfig(WalletConfig config, String dataDir) async =>
       lepic.WalletConfig(
+        policy: const HostPolicy(),
         dataDir: dataDir,
         chain: _lepicChain(config.chain),
         nodeUrl: config.nodeUrl.trim().isEmpty ? noNodeUrl : await lanNodeUrl(config.nodeUrl),
@@ -1275,17 +1288,20 @@ class LepicWalletService implements WalletService {
     required String password,
     BigInt? restoreFromHeight,
   }) => _guard(
-    () async => _session(
-      config,
-      await lepic.EpicWallet.create(
-        runtime: _runtime,
-        config: await _config(config),
-        store: await _store(config, creating: true),
-        mnemonic: mnemonic,
-        password: password,
-        restoreFromHeight: restoreFromHeight,
-      ),
-    ),
+    () async {
+      _requireNewPassword(password);
+      return _session(
+        config,
+        await lepic.EpicWallet.create(
+          runtime: _runtime,
+          config: await _config(config),
+          store: await _store(config, creating: true),
+          mnemonic: mnemonic,
+          password: password,
+          restoreFromHeight: restoreFromHeight,
+        ),
+      );
+    },
   );
 
   @override
@@ -1295,17 +1311,20 @@ class LepicWalletService implements WalletService {
     required String seedPassword,
     required String password,
   }) => _guard(
-    () async => _session(
-      config,
-      await lepic.EpicWallet.importWalletSeed(
-        runtime: _runtime,
-        config: await _config(config),
-        store: await _store(config, creating: true),
-        seedFile: seedFile,
-        seedPassword: seedPassword,
-        password: password,
-      ),
-    ),
+    () async {
+      _requireNewPassword(password);
+      return _session(
+        config,
+        await lepic.EpicWallet.importWalletSeed(
+          runtime: _runtime,
+          config: await _config(config),
+          store: await _store(config, creating: true),
+          seedFile: seedFile,
+          seedPassword: seedPassword,
+          password: password,
+        ),
+      );
+    },
   );
 
   @override
@@ -1455,15 +1474,16 @@ class LepicWalletService implements WalletService {
     required WalletConfig config,
     required String mnemonic,
     required String newPassword,
-  }) => _guard(
-    () async => lepic.resetPassword(
+  }) => _guard(() async {
+    _requireNewPassword(newPassword);
+    return lepic.resetPassword(
       runtime: _runtime,
       config: await _config(config),
       store: await _store(config),
       mnemonic: mnemonic,
       newPassword: newPassword,
-    ),
-  );
+    );
+  });
 }
 
 /// What a history file names as the program that wrote it. Informational only.
@@ -1788,12 +1808,13 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,
-  }) => _guard(
-    () => _wallet.changePassword(
+  }) => _guard(() {
+    _requireNewPassword(newPassword);
+    return _wallet.changePassword(
       currentPassword: currentPassword,
       newPassword: newPassword,
-    ),
-  );
+    );
+  });
 
   @override
   Future<String> mnemonicWithPin({
@@ -2470,11 +2491,16 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   Future<int> minimumConfirmations() =>
       _guard(() async => (await _wallet.minimumConfirmations()).toInt());
 
-  /// LEPIC stores the count per wallet, re-splits every balance and emits balance events;
-  /// out of range (1–30) comes back as [WalletErrorKind.invalidArgument].
+  /// LEPIC stores the count per wallet, re-splits every balance and emits balance events. The
+  /// core refuses only 0; the app keeps 1–30 ([minMinimumConfirmations]) and refuses the rest
+  /// as [WalletErrorKind.invalidArgument] before the call.
   @override
-  Future<void> setMinimumConfirmations(int count) =>
-      _guard(() => _wallet.setMinimumConfirmations(count: BigInt.from(count)));
+  Future<void> setMinimumConfirmations(int count) => _guard(() {
+    if (count < minMinimumConfirmations || count > maxMinimumConfirmations) {
+      throw WalletError(kind: WalletErrorKind.invalidArgument, message: 'minimum confirmations $count is not 1 to 30');
+    }
+    return _wallet.setMinimumConfirmations(count: BigInt.from(count));
+  });
 
   /// As the old core: with the node out of reach the refresh still ends with the local balances,
   /// marked as not checked with the node, so Home shows them instead of an error.

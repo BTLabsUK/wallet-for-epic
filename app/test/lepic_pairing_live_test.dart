@@ -20,6 +20,9 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
 import 'package:lepic/lepic.dart' as lepic;
+// Not exported by package:lepic/lepic.dart.
+import 'package:lepic/src/rust/api/policy.dart' show HostPolicy;
+import 'package:lepic/testing.dart' as lepic_testing;
 
 final String? _lib = Platform.environment['WFE_LEPIC_MOCK_LIB'];
 
@@ -46,7 +49,7 @@ Future<void> _settle() => Future<void>.delayed(const Duration(milliseconds: 200)
 
 void main() {
   late Directory root;
-  late lepic.MockChain chain;
+  late lepic_testing.MockChain chain;
   late lepic.LepicRuntime runtime;
   final open = <LepicWalletSession>[];
   var made = 0;
@@ -57,10 +60,10 @@ void main() {
 
   setUp(() {
     root = Directory.systemTemp.createTempSync('wfe-pairing-live-');
-    chain = lepic.MockChain(height: BigInt.one);
+    chain = lepic_testing.MockChain(height: BigInt.one);
     runtime = chain.runtimeWithRelay(
       logLevel: lepic.LogLevel.warn,
-      relay: lepic.MockRelay(chain: lepic.Chain.floonet),
+      relay: lepic_testing.MockRelay(chain: lepic.Chain.floonet),
     );
   });
 
@@ -77,7 +80,7 @@ void main() {
     made++;
     final w = await lepic.EpicWallet.create(
       runtime: runtime,
-      config: lepic.WalletConfig(torWanted: false, hostFeatures: 0, 
+      config: lepic.WalletConfig(policy: const HostPolicy(), torWanted: false, hostFeatures: 0, 
         dataDir: (Directory('${root.path}/w$made')..createSync()).path,
         chain: lepic.Chain.floonet,
         nodeUrl: 'http://127.0.0.1:1',
