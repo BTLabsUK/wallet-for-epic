@@ -1,14 +1,27 @@
 {
  "releases": [
   {
+   "version": "26.11.1",
+   "date": "2026-11-04",
+   "files": [
+    {
+     "name": "bt-wallet-26.11.1-android-arm64-v8a.apk",
+     "size": 28994660,
+     "sha256": "e1d4d5ba312e0574de03999c3ec3e5f7fe979556c5d08742b49d508e074839b6"
+    },
+    {
+     "name": "bt-wallet-26.11.1-notor-android-arm64-v8a.apk",
+     "size": 24751135,
+     "sha256": "6758f5287871222982140c0f0434ec02d676ef6926322a40c07d2a443cd1a38e"
+    }
+   ],
+   "github": true,
+   "sig": true
+  },
+  {
    "version": "26.11.0",
    "date": "2026-11-03",
    "files": [
-    {
-     "name": "bt-wallet-26.11.0-android-arm64-v8a.apk",
-     "size": 28990564,
-     "sha256": "326166b277e1b1951c45984afc99f34024a4ff4e726c021f03a3e45abe3567a4"
-    },
     {
      "name": "bt-wallet-26.11.0-linux-x86_64.AppImage",
      "size": 40655352,
@@ -19,11 +32,6 @@
      "size": 45144871,
      "sha256": "60ea521de517bbf65588c514c8a2099feb00d5f0193770cc22904a491dbc3378",
      "unlisted": true
-    },
-    {
-     "name": "bt-wallet-26.11.0-notor-android-arm64-v8a.apk",
-     "size": 24751135,
-     "sha256": "db92d245e5ac2de58179fe6f4d096b3316d243c244ad465c8ce212f8461380ee"
     },
     {
      "name": "bt-wallet-26.11.0-notor-linux-x86_64.AppImage",
