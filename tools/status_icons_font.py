@@ -21,7 +21,7 @@ import pathops
 
 ICONS = ['tor', 'epicbox', 'http', 'node', 'link',  # code points 0xE000 + index
          'trust-verified', 'trust-paired', 'trust-keys-changed', 'sealed',
-         'node-only', 'unplugged']
+         'node-only', 'unplugged', 'no-payments']
 UPM = 1024
 S = UPM / 24.0
 

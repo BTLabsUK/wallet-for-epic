@@ -10,7 +10,11 @@ import '../../devices/device_model.dart' show DeviceBook;
 import '../../cancel_final.dart' show CancelResult;
 import '../../models.dart' show FinishedPayment, InvoiceEvent, StoreMigrationProgress;
 import '../../devices/device_service.dart' show DeviceHost, ForwardedNotice;
+import '../../directory/directory_service.dart' show DirectoryHost;
+import '../../directory/receipts.dart' show LinkPaymentRecords;
+import '../../directory/directory.dart' show DirectoryMembership, LinkOutcome, Payreq;
 import '../../pairing_api.dart';
+import '../../scan/scan_router.dart' show PaymentLink;
 import '../../trust/policy.dart' show PeerCompat;
 
 import 'backup_settings_desk.dart' show DeskBackupSettings;
@@ -65,6 +69,16 @@ abstract interface class DeskWalletApi {
 
   /// Whether [password] is the open wallet's password.
   Future<bool> checkPassword(String password);
+
+  /// A payment link's checks against the open wallet's network, pins and paid requests
+  /// ([openLink]): the refusal, or the link opened with its standing.
+  Future<LinkOutcome> openPaymentLink(PaymentLink link, {required DirectoryMembership membership, required int nowSeconds});
+
+  /// Records a payment made from a link: the listing pin and the request id.
+  Future<void> recordLinkPayment(Payreq request, int paidAt, {String? txId});
+
+  /// The records of payments made from links; [onChange] runs after one changes.
+  LinkPaymentRecords linkPaymentRecords({void Function()? onChange});
 
   /// Closes the open wallet. A send, finalize, split or consolidate under way finishes first
   /// ([busy]): the lock waits for it, never ends it mid-way.
@@ -500,6 +514,11 @@ abstract interface class DeskWalletApi {
   /// history and the coins every send leaves out; null while locked. [online] says whether the
   /// channel may reach the servers now.
   DeviceHost? deviceHost({required bool Function() online});
+
+  /// What the directories (`directory/`) need from the open wallet: its pairing engine, listing
+  /// keys and signature check; null while locked. [online] says whether the channel may reach
+  /// the servers now.
+  DirectoryHost? directoryHost({required bool Function() online});
 
   /// Where the wallet reads the book of linked devices from, or null for none: the history
   /// merges the other devices' payments ([mergeDeviceHistory]) and the balance and the outputs

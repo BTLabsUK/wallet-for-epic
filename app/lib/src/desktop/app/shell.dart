@@ -18,12 +18,18 @@ import '../../ui/notices.dart' show NoticeLevel;
 import '../../ui/pairing/pairing_notices.dart' show pairingEventOnScreen, pairingNoticeOf;
 import '../../models.dart' show PairingCollectTrigger, PairingEventKind;
 import '../data/devices_state.dart' show deskDeviceServiceProvider;
+import '../data/directory_state.dart' show deskDirectoryServiceProvider;
+import '../../directory/directory_model.dart' show DirectoryEntry;
+import '../../directory/directory_service.dart' show DirectorySyncTrigger;
 import '../../devices/device_service.dart' show DeviceSyncTrigger;
 import '../data/pairing_state.dart' show deskContactKeysOf, deskPairingCall, deskInvoicesShownProvider, deskKeysBackProvider, deskPairRequestsProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
 import '../screens/pairing/pair_screens.dart' show deskOpenPairingText, showDeskCheckWords, showDeskPairRequests;
 import '../../ui/invite_link_gate.dart';
+import '../../scan/incoming_link.dart' show incomingLinkProvider, linkBusyProvider;
+import '../../scan/scan_checks.dart' show CodeOrigin;
+import '../screens/transfer/send_screen.dart' show SendArgs;
 import '../../ui/pairing/invite_links.dart';
 import '../../pairing_providers.dart' show requestFromContact;
 import '../../models.dart' show PairingEvent, epicboxKey;
@@ -95,9 +101,35 @@ class _DeskShellState extends ConsumerState<DeskShell> {
   /// The foreground tick of RFC 8.4: the mailboxes of contacts with something pending.
   Timer? _collectTimer;
 
+  Timer? _linkRetry;
+
+  /// A payment link or code a browser opened (`epiccash://pay/1/…`): Send opens with it, read as
+  /// a paste from a link. Over a dialog or the tour it waits, so nothing in progress is closed.
+  void _openLink() {
+    _linkRetry?.cancel();
+    _linkRetry = null;
+    if (!mounted || ref.read(linkBusyProvider) || ref.read(incomingLinkProvider) == null) return;
+    if (_navHeld(ref)) {
+      _linkRetry = Timer(const Duration(seconds: 2), _openLink);
+      return;
+    }
+    final link = ref.read(incomingLinkProvider.notifier).take();
+    if (link == null) return;
+    ref.read(deskNavProvider.notifier).go(DeskRoute.send, SendArgs(code: link.text, codeOrigin: CodeOrigin.link));
+  }
+
   void _collect(PairingCollectTrigger trigger) {
     final api = ref.read(deskPairingApiProvider);
     if (api.supported) api.collect(trigger: trigger).ignore();
+    // The listings are drained where the contacts' mailboxes are read, never in the background.
+    final dirs = ref.read(deskDirectoryServiceProvider);
+    if (dirs != null) {
+      final t = switch (trigger) {
+        PairingCollectTrigger.open => DirectorySyncTrigger.open,
+        _ => DirectorySyncTrigger.tick,
+      };
+      unawaited(dirs.sync(t));
+    }
   }
 
   /// An incoming pair invite (a tapped link, a scheme open): the confirm dialog, never a
@@ -153,6 +185,8 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     // The shell shows once the wallet is unlocked: every mailbox, then the tick.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _collect(PairingCollectTrigger.open);
+      // A link that came before the unlock.
+      if (mounted) _openLink();
       // After unlock, once: the last session froze or crashed, its log can be sent.
       if (mounted) unawaited(offerDeskLastSessionReport(context, ref));
       // macOS: the app from before the rename is still installed; offer to move it to the Bin.
@@ -167,6 +201,13 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     });
     _collectTimer = Timer.periodic(const Duration(seconds: 45), (_) => _collect(PairingCollectTrigger.foreground));
     _maybeTour();
+    // A hello that comes after the words step: the contact takes no payments, said once.
+    ref.listenManual(deskDirectoryServiceProvider, (_, next) {
+      _lateSub?.cancel();
+      _lateSub = next?.lateNoPayments.listen((e) {
+        if (mounted) showEToast(context, context.l10n.contactNoPaymentsNamed(e.label), tone: ETone.info);
+      });
+    }, fireImmediately: true);
     // Update checks from the first unlock on, for the rest of the run (once).
     if (ref.read(deskUpdateAutoProvider)) ref.read(deskUpdateProvider.notifier).schedule();
     // The clipboard is never read here: a pairing link is pasted on the Pair page by a press.
@@ -174,6 +215,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
       onResume: () {
         // The window came back to the front: the other devices are read at once.
         unawaited(ref.read(deskDeviceServiceProvider)?.sync(DeviceSyncTrigger.resume));
+        unawaited(ref.read(deskDirectoryServiceProvider)?.sync(DirectorySyncTrigger.resume));
         // A node failover that waits longer each time tries again soon.
         ref.read(deskFailoverWatchProvider.notifier).resumed();
       },
@@ -181,6 +223,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
   }
 
   AppLifecycleListener? _focus;
+  StreamSubscription<DirectoryEntry>? _lateSub;
 
   /// The hidden Settings place last answered with a fallback toast (once per place).
   DeskLocation? _fellBack;
@@ -266,8 +309,10 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     HardwareKeyboard.instance.removeHandler(_onKey);
     _tourTimer?.cancel();
     _ownAsk?.cancel();
+    _linkRetry?.cancel();
     _collectTimer?.cancel();
     _focus?.dispose();
+    _lateSub?.cancel();
     _settingsFocus.dispose();
     super.dispose();
   }
@@ -294,6 +339,9 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     final c = context.dc;
     final at = widget.at;
     final width = MediaQuery.sizeOf(context).width;
+    ref.listen(incomingLinkProvider, (_, link) {
+      if (link != null) _openLink();
+    });
     // What the wallet learned of invoices by itself, as a toast.
     ref.listen(deskInvoiceNoticesProvider, (_, next) {
       final n = next.value;
@@ -364,7 +412,9 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     } else {
       shown = const DeskLocation(DeskRoute.overview);
     }
-    final page = KeyedSubtree(key: ValueKey(shown.route), child: deskScreen(shown));
+    // A link opened over Send starts a new Send (its SendArgs is the key), as from any other page.
+    final linked = shown.route == DeskRoute.send && shown.arg is SendArgs && (shown.arg as SendArgs).code != null;
+    final page = KeyedSubtree(key: ValueKey<Object>(linked ? shown.arg! : shown.route), child: deskScreen(shown));
     // The page's text is selectable and copyable (selectable.dart); the sidebar is not.
     final main = Material(color: c.bg, child: DeskSelectable(child: page));
     final tour = ref.watch(deskTourProvider.select((t) => t.open));

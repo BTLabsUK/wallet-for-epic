@@ -70,7 +70,7 @@ String paymentStepWordOf(WidgetRef ref, TxEntry tx, BigInt? tip) {
     target: confirmationsTargetOf(ref),
     now: ref.watch(clockProvider)(),
     who: txPartyName(ref, tx),
-    pairedWith: txMailboxName(ref, tx),
+    pairedWith: txPayeeName(ref, tx),
     paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
   );
 }

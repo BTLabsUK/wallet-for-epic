@@ -5,6 +5,8 @@
 /// The table is LEPIC's: a new version comes with the binding, never edited here.
 library;
 
+import 'dart:typed_data';
+
 import 'models.dart' show SasWord;
 
 const List<SasWord> sasTable = [
@@ -338,4 +340,16 @@ List<SasWord> sasCompletions(String prefix, {int limit = 3}) {
     for (final w in sasTable)
       if (w.name.startsWith(p)) w,
   ].take(limit).toList();
+}
+
+/// The four SAS indexes of [words], or null when one is not in the table.
+Uint8List? sasIndexesOf(List<SasWord> words) {
+  if (words.length != 4) return null;
+  final out = <int>[];
+  for (final w in words) {
+    final i = sasTable.indexOf(w);
+    if (i < 0) return null;
+    out.add(i);
+  }
+  return Uint8List.fromList(out);
 }

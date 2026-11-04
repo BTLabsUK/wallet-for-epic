@@ -2,6 +2,7 @@
 // The phone's Contacts screen and contact page, against
 // FakeWalletSession.
 
+import 'package:epic_wallet/src/directory/directory.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
@@ -42,7 +43,9 @@ class _NoPrice implements PriceSource {
 
 /// Opens [ContactsScreen] in picker mode and keeps what it returns.
 class _Picker extends StatefulWidget {
-  const _Picker();
+  const _Picker({this.forPayment = false});
+
+  final bool forPayment;
 
   @override
   State<_Picker> createState() => _PickerState();
@@ -58,7 +61,7 @@ class _PickerState extends State<_Picker> {
         onPressed: () async {
           final contact = await Navigator.of(context).push<Contact>(
             MaterialPageRoute<Contact>(
-              builder: (_) => const ContactsScreen(pick: true),
+              builder: (_) => ContactsScreen(pick: true, forPayment: widget.forPayment),
             ),
           );
           setState(() => picked = contact);
@@ -70,6 +73,9 @@ class _PickerState extends State<_Picker> {
 }
 
 class _Harness {
+  _Harness({this.refusals});
+
+  final PaymentRefusals? refusals;
   final session = FakeWalletSession();
   late final service = FakeWalletService(session: session);
 
@@ -95,6 +101,7 @@ class _Harness {
           priceSourceProvider.overrideWithValue(_NoPrice()),
           qrScannerProvider.overrideWithValue(FakeQrScanner(supported: false)),
           sessionProvider.overrideWith(() => _OpenSession(session)),
+          if (refusals != null) paymentRefusalsProvider.overrideWithValue(refusals!),
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -105,6 +112,15 @@ class _Harness {
     );
     await tester.pumpAndSettle();
   }
+}
+
+class _RefusesAlice implements PaymentRefusals {
+  @override
+  bool refusesPayments({String? pairingId, String? address}) =>
+      address != null && epicboxKey(address) == epicboxKey(_alice);
+
+  @override
+  String? refusedName({String? pairingId, String? address}) => refusesPayments(pairingId: pairingId, address: address) ? 'Alice' : null;
 }
 
 void main() {
@@ -241,9 +257,39 @@ void main() {
     });
   });
 
+  group('contacts that take no payments', () {
+    testWidgets('the list row carries the bare mark and no words', (tester) async {
+      final h = _Harness(refusals: _RefusesAlice());
+      await h.add('Alice', _alice);
+      await h.add('Bob', _bob);
+      await h.pump(tester, const ContactsScreen());
+      expect(find.byIcon(EpicGlyphs.noPayments), findsOneWidget);
+      expect(find.text(_l.contactNoPayments), findsNothing);
+      expect(find.text(_l.contactTakesNoPayments), findsNothing);
+      expect(find.byWidgetPredicate((w) => w is Semantics && w.properties.label == _l.contactNoPayments), findsOneWidget);
+    });
+
+    testWidgets('the picker for a payment shows the row disabled with why; Bob can be picked', (tester) async {
+      final h = _Harness(refusals: _RefusesAlice());
+      await h.add('Alice', _alice);
+      await h.add('Bob', _bob);
+      await h.pump(tester, const _Picker(forPayment: true));
+      await tester.tap(find.text('pick'));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.contactTakesNoPayments), findsOneWidget);
+      await tester.tap(find.text('Alice'));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.contactsPickTitle), findsOneWidget, reason: 'the disabled row does not pick');
+      await tester.tap(find.text('Bob'));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.contactsPickTitle), findsNothing);
+      expect(find.text('Bob'), findsOneWidget);
+    });
+  });
+
   group('page', () {
-    Future<_Harness> open(WidgetTester tester) async {
-      final h = _Harness();
+    Future<_Harness> open(WidgetTester tester, {PaymentRefusals? refusals}) async {
+      final h = _Harness(refusals: refusals);
       await h.add('Alice Smith', _alice, note: 'Coffee club');
       await h.pump(tester, const ContactsScreen());
       await tester.tap(find.text('Alice Smith'));
@@ -251,6 +297,14 @@ void main() {
       expect(find.byType(ContactPage), findsOneWidget);
       return h;
     }
+
+    testWidgets('a contact that takes no payments has no Send, one line says why', (tester) async {
+      await open(tester, refusals: _RefusesAlice());
+      expect(find.byKey(contactPageSendKey), findsNothing);
+      expect(find.byKey(contactPageNoPaymentsKey), findsOneWidget);
+      expect(find.text(_l.contactNoPayments), findsOneWidget);
+      expect(find.byIcon(EpicGlyphs.noPayments), findsOneWidget);
+    });
 
     testWidgets('shows the full address and the note, the code on request', (
       tester,

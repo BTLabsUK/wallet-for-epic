@@ -20,6 +20,9 @@ import 'package:lepic/lepic.dart' as lepic;
 import 'package:lepic/src/rust/api/policy.dart' show HostPolicy;
 import 'package:meta/meta.dart' show visibleForTesting;
 
+import 'directory/pins.dart' show LinkMemory;
+import 'directory/receipts.dart' show LinkPaymentRecords;
+import 'directory/wire.dart' show Payreq, fromHex, toHex;
 import 'history/export.dart';
 import 'history/meta_store.dart';
 import 'history/wallet_history.dart';
@@ -1268,6 +1271,25 @@ class LepicWalletService implements WalletService {
       .validateEpicboxAddress(address: lepicEpicboxAddress(address), chain: _lepicChain(_chain));
 
   @override
+  Future<bool> verifyListingSignature(
+    String publicKeyText,
+    String domain,
+    Uint8List message,
+    Uint8List der,
+  ) async {
+    try {
+      return lepic.verifyAddressSignatureAt(
+        publicKey: publicKeyText,
+        domain: domain,
+        message: message,
+        signature: toHex(der),
+      );
+    } on Object {
+      return false;
+    }
+  }
+
+  @override
   bool epicboxAddressOtherChain({required String address}) =>
       lepic.validateEpicboxAddress(
         address: lepicEpicboxAddress(address),
@@ -1574,7 +1596,7 @@ class LepicAppDataSealer implements AppDataSealer {
 
 /// An open LEPIC wallet. Public so tests can wrap a stand-in `EpicWallet`; without [history]
 /// it keeps notes and contacts in memory only.
-class LepicWalletSession implements WalletSession, EpicboxDrainAt {
+class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
   LepicWalletSession(
     this._wallet, {
     WalletHistory? history,
@@ -2681,6 +2703,19 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   Future<void> setFavouriteContact({required String id, required bool favourite}) =>
       _history.setFavourite(id, favourite);
 
+  @override
+  Chain get chain => _history.chain;
+
+  @override
+  LinkMemory linkMemory() => _history.linkMemory();
+
+  @override
+  Future<void> recordLinkPayment(Payreq request, int paidAt, {String? txId}) =>
+      _history.recordLinkPayment(request, paidAt, txId: txId);
+
+  @override
+  LinkPaymentRecords linkPaymentRecords({void Function()? onChange}) => _history.linkPaymentRecords(onChange: onChange);
+
   /// The history as a `.wfeh` file LEPIC seals under a key from the seed, so only a wallet
   /// with the same recovery phrase opens it.
   @override
@@ -3432,6 +3467,22 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   /// read and the drainer skips quietly.
   @override
   Future<PaymentsDrainReport?> drainEpicboxAt({required String domain, required int port}) async => null;
+
+  @override
+  Future<String> listingAddress(String dkeyHex, int generation) =>
+      _guard(() => _wallet.epicboxAddressAt(dkey: dkeyHex, generation: generation));
+
+  @override
+  Future<Uint8List> signWithListing(String dkeyHex, int generation, String domain, Uint8List message) =>
+      _guard(() async => fromHex(await _wallet.signWithAddressKeyAt(dkey: dkeyHex, generation: generation, domain: domain, message: message)));
+
+  @override
+  Future<PaymentsDrainReport> drainListing(String dkeyHex, int generation) => _epicboxGuard('listing drain', () async {
+    _watchEvents();
+    final report = await _wallet.drainEpicboxAt(dkey: dkeyHex, generation: generation);
+    await _sweep();
+    return PaymentsDrainReport(received: report.received, finalized: report.finalized, bounced: report.bounced);
+  });
 }
 
 // ---------------------------------------------------------------------------------------

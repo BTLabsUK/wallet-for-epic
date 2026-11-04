@@ -51,7 +51,13 @@ import 'send_advanced.dart';
 import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, confirmNetworkModeSwitch;
 import '../../data/method_names.dart' show methodKindOf;
+import '../../../directory/directory.dart' show DirectoryTrust, LinkOpened, LinkOutcome, LinkRefused, directoryMembershipProvider, paymentRefusalsProvider;
+import '../../../l10n.dart' show localDay;
+import '../../../scan/incoming_link.dart' show linkClockProvider;
 import '../../../scan/scan_router.dart';
+import '../../../ui/link_send.dart' show amountEdited, linkRefusalText;
+import '../wallet/contacts_screen.dart' show ContactsArgs;
+import 'link_trust.dart';
 import '../../../scan/scan_text.dart';
 import 'send_code.dart';
 import 'send_summary_rows.dart';
@@ -1019,6 +1025,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         dialog(EIcons.qr, l.scanNotEpicTitle, l.scanBadAddress, t);
       // An `epic:` code refused as a whole (a part twice, too many parts, too long) says so
       // at once, not only at Review (LNX-2).
+      // A payment link is checked first (it takes a signature check): the refusal, the
+      // question "paid before", or the form filled; a newer paste drops this answer.
+      case PaymentLink():
+        setState(() => _to.text = _lastTo);
+        unawaited(_openLink(code, origin));
       case UnknownCode() when pasted && looksLikeCode(text):
         fieldError((l) => l.scanNotEpicBody);
       case UnknownCode() when pasted:
@@ -1028,6 +1039,75 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         dialog(EIcons.qr, l.scanNotEpicTitle, l.scanNotEpicBody, t);
     }
     return true;
+  }
+
+  /// The link a paste or a scan opened last; an answer for an older one is dropped.
+  int _linkSeq = 0;
+
+  /// The payment link the form was filled from, and the code it filled (the link is current only
+  /// while that code is: another code or To moving off it takes the link with it).
+  LinkOpened? _link;
+  SendCode? _linkCode;
+
+  LinkOpened? get _linkNow => _linkCode != null && identical(_linkCode, _codeNow) ? _link : null;
+
+  /// A payment link: the checks of the open wallet, then a refusal (under To when pasted, else
+  /// in a dialog), "You paid this request on ‹date›" with Pay again, or To and Amount filled.
+  Future<void> _openLink(PaymentLink link, CodeOrigin origin) async {
+    final seq = ++_linkSeq;
+    final LinkOutcome outcome;
+    try {
+      outcome = await ref.read(deskApiProvider).openPaymentLink(
+        link,
+        membership: ref.read(directoryMembershipProvider),
+        nowSeconds: ref.read(linkClockProvider)().millisecondsSinceEpoch ~/ 1000,
+      );
+    } on Object catch (e) {
+      if (mounted && seq == _linkSeq) showEToast(context, deskErrorText(e, context.l10n), tone: ETone.risk);
+      return;
+    }
+    if (!mounted || seq != _linkSeq) return;
+    final l = context.l10n;
+    switch (outcome) {
+      case LinkRefused():
+        final reason = linkRefusalText(l, outcome);
+        if (origin == CodeOrigin.link) {
+          showLinkRefusal(context, reason);
+        } else {
+          setState(() {
+            _to.text = link.text.trim();
+            _lastTo = _to.text;
+            _codeError = (_) => reason;
+            _code = null;
+            _toTouched = false;
+            _contactId = null;
+            _suggestOff = true;
+          });
+        }
+      case LinkOpened(:final request) when ref.read(paymentRefusalsProvider).refusesPayments(address: request.card.address):
+        showLinkNoPayments(context, ref.read(paymentRefusalsProvider).refusedName(address: request.card.address) ?? '');
+      case LinkOpened(:final standing):
+        if (standing.paidBefore != null && !await askPayAgain(context, localDay(l, standing.paidBefore!.toLocal()))) return;
+        if (!mounted || seq != _linkSeq) return;
+        _fillFromLink(outcome, origin);
+    }
+  }
+
+  /// To from the listing, Amount from the request (a zero amount leaves it to the payer); the
+  /// method follows the address, Epicbox. The trust line sits under To, in place of the banner.
+  void _fillFromLink(LinkOpened link, CodeOrigin origin) {
+    final l = context.l10n;
+    final to = link.request.card.address;
+    final asked = link.request.amount;
+    final code = SendCode(origin: origin, address: to, amount: asked > BigInt.zero ? asked.toInt() : null);
+    _fill(to, code, () {
+      if (asked > BigInt.zero) _amount.text = localDecimal(l, shared.formatEpic(asked));
+    });
+    setState(() {
+      _codeBanner = false;
+      _link = link;
+      _linkCode = code;
+    });
   }
 
   /// A transaction text: signed as if its file had been chosen, or finalized when it answers
@@ -1219,9 +1299,21 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return (a.substring(0, at), host.isEmpty ? null : host);
   }
 
+  /// The stop for a contact that takes no payments, by its pairing or its Epicbox address:
+  /// "‹name› takes no payments." under To, and Continue stays off.
+  String? _noPaymentsProblem({String? pairingId, String? address}) {
+    final refusals = ref.read(paymentRefusalsProvider);
+    return refusals.refusesPayments(pairingId: pairingId, address: address)
+        ? context.l10n.contactNoPaymentsNamed(refusals.refusedName(pairingId: pairingId, address: address) ?? '')
+        : null;
+  }
+
   String? _toError(DeskState st) {
     // A pairing recipient has no address: its card says whether it can be paid.
-    if (_viaPairing) return ref.read(deskPairingByIdProvider(_pairingTo!))?.paysByMailbox ?? false ? null : context.l10n.deskSendErrNoAddress;
+    if (_viaPairing) {
+      if (_noPaymentsProblem(pairingId: _pairingTo) case final stop?) return stop;
+      return ref.read(deskPairingByIdProvider(_pairingTo!))?.paysByMailbox ?? false ? null : context.l10n.deskSendErrNoAddress;
+    }
     if (_file) return null;
     final l = context.l10n;
     final r = _read;
@@ -1243,6 +1335,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     // Shallow sends by Epicbox alone.
     if (!_strip && r.kind != RecipientInputKind.epicbox) return l.deskSendErrEpicbox;
     if (_ownAddressError(st) case final own?) return own;
+    if (r.kind == RecipientInputKind.epicbox) {
+      if (_noPaymentsProblem(address: r.address) case final stop?) return stop;
+    }
     // The key's checksum.
     if (r.kind == RecipientInputKind.epicbox && !parseAddress(r.address, ref.read(deskApiProvider)).complete) return l.deskSendErrEpicbox;
     return null;
@@ -1309,6 +1404,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final contacts = st.contacts;
     final n = _amountNano;
     final code = _method == TxMethod.file ? null : _codeNow;
+    final link = _method == TxMethod.file ? null : _linkNow;
     // The relay in the address, when the app knows no such server: the public list, the
     // monitor's, and the one this wallet is on.
     final addressRelay = _method == TxMethod.epicbox ? recipientRelay(_read.address) : null;
@@ -1352,6 +1448,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       );
     }
 
+    // A listing that points to another wallet than when it was paid asks once more.
+    if (link != null && link.standing.trust == DirectoryTrust.changedWallet && !await confirmChangedWalletDesk(context, link)) return;
+    if (!mounted) return;
     final draft = draftOf(_plan);
     // Plain HTTP to another computer goes through without asking; the wallet needs the flag.
     // The review is the consent: the wallet needs the flag for plain http to another device.
@@ -1410,6 +1509,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           _failure = null;
           _result = res;
           if (res is SendDone) {
+            if (link != null) {
+              _paidLink = link;
+              unawaited(api.recordLinkPayment(link.request, ref.read(linkClockProvider)().millisecondsSinceEpoch ~/ 1000, txId: res.tx.slateId));
+            } else {
+              _paidLink = null;
+            }
             _queuedFor = draft.queued ? draft.contactName : null;
             _sentTo = draft.contactName;
             _to.clear();
@@ -1424,6 +1529,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       }
     });
   }
+
+  /// The link the last send paid, for Save as contact on the page after it.
+  LinkOpened? _paidLink;
 
   /// The last send was a mailbox payment queued while Epicbox is off: to whom, for its notice.
   String? _queuedFor;
@@ -1445,6 +1553,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   }
 
   void _reset() => setState(() {
+    _paidLink = null;
     _result = null;
     _failure = null;
     _code = null;
@@ -1572,9 +1681,18 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   Widget _done(SendDone r, DeskNav nav) {
     final l = context.l10n;
     final queued = _queuedFor != null;
+    final paid = _paidLink;
     final actions = [
       EButton.primary(semanticsId: TrustIds.sendAnother, label: l.deskSendNewSend, icon: EIcons.send, onPressed: _reset),
       EButton(label: l.deskSendViewTx, onPressed: () => nav.go(DeskRoute.activity, r.tx.id)),
+      // A payment from a link: its payee as a contact, the address and the listed name filled.
+      if (paid != null)
+        EButton(
+          key: const ValueKey('send-link-save-contact'),
+          label: l.sendSaveContact,
+          icon: EIcons.contacts,
+          onPressed: () => nav.go(DeskRoute.contacts, ContactsArgs(adding: true, address: paid.request.card.address, name: paid.payeeLabel)),
+        ),
     ];
     if (queued) {
       return ConstrainedBox(
@@ -1938,6 +2056,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                     child: CodeBanner(code: _code!, onDismiss: () => setState(() => _codeBanner = false)),
                   ),
           ),
+          // A payment link's trust line: who listed the payee, with the listing code.
+          if (_linkNow case final link?) ...[
+            SizedBox(height: Sp.x3),
+            DeskLinkTrust(link: link),
+          ],
           // The payee's words; the name not when the contact has it already.
           if (code != null && (code.note != null || EPayeeClaims.labelBeside(code.label, contact?.name) != null)) ...[
             SizedBox(height: Sp.x2),
@@ -1950,6 +2073,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           error: amErr,
           // What the code asked for: "requested by the code" while the field holds it.
           help: switch (code?.amount) {
+            // A link's request: only an edited amount says so.
+            _ when _linkNow != null => amountEdited(_linkNow!, _parsed == null ? null : BigInt.from(_parsed!)) ? l.linkAmountEdited : null,
             null => null,
             final asked when asked == _parsed => l.sendAmountFromCode,
             final asked => l.sendAmountCodeAsked(epicTextL(l, asked)),

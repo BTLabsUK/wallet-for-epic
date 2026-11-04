@@ -249,8 +249,8 @@ void main() {
       expect(lepicStoreOpen(const lepic.StoreAtRest(state: lepic.StoreAtRestState.fellBackToPlain, reason: 'disk full', rollbackSetAside: false)), StoreOpenOutcome.plainFallback);
     });
 
-    test('the build claims no host feature bits', () async {
-      expect(appHostFeatures, 0);
+    test('the build claims the directory bit only', () async {
+      expect(appHostFeatures, featureDirectory);
     });
   });
 

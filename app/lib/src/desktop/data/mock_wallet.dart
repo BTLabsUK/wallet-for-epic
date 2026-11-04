@@ -17,6 +17,9 @@ import 'dart:typed_data';
 import '../../advanced.dart' show NetworkMode;
 import '../../devices/device_model.dart' show DeviceBook, HoldState;
 import '../../devices/device_service.dart' show DeviceHost, ForwardedNotice;
+import '../../directory/base58.dart' show netMainnet;
+import '../../directory/directory_service.dart' show DirectoryHost;
+import '../../directory/receipts.dart' show LinkPaymentRecords, MemoryLinkPayments;
 import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus, fakeAddressSignature;
 import '../../network.dart' show EpicboxRelay;
 import '../../models.dart' show epicboxKey, KernelLocation, StoreMigrationProgress, DeviceEnding, FinishedPayment, InvoiceEvent, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations, UnmatchedNotice;
@@ -28,7 +31,11 @@ import '../../providers.dart' show defaultMinimumConfirmations;
 import '../../seed_contacts.dart';
 import '../../slate_files.dart' show responseFileName, sendFileName;
 import '../../finished_payment.dart' show readFinishedPayment;
-import '../../wallet_service.dart' show FakeWalletSession, WalletError, WalletErrorKind, onionAddressFormat;
+import '../../wallet_service.dart' show FakeListingKeys, FakeWalletSession, PaymentsDrainReport, WalletError, WalletErrorKind, onionAddressFormat;
+import '../../directory/directory.dart' show DirectoryMembership, DirectoryVerifier, LinkMemory, LinkOutcome, Payreq, openLink, refusingVerifier;
+import '../../history/directory_pins.dart';
+import '../../history/meta_store.dart' show Meta;
+import '../../scan/scan_router.dart' show PaymentLink;
 import 'api.dart';
 import 'backup_settings_desk.dart';
 import 'features.dart';
@@ -438,6 +445,34 @@ class MockDeskWallet implements DeskWalletApi {
     return true;
   }
 
+  /// The signature check the links use; tests give one that accepts the vectors.
+  DirectoryVerifier linkVerifier = refusingVerifier;
+  /// What the wallet remembers of link payments: tests seed pins here.
+  final Meta linkMeta = Meta();
+
+  @override
+  Future<LinkOutcome> openPaymentLink(PaymentLink link, {required DirectoryMembership membership, required int nowSeconds}) => openLink(
+    request: link.request,
+    error: link.error,
+    net: netMainnet,
+    nowSeconds: nowSeconds,
+    verifier: linkVerifier,
+    membership: membership,
+    memory: LinkMemory(pins: {...linkMeta.directoryPins}, paidRequests: {...linkMeta.paidRequests}),
+  );
+
+  /// The payments recorded from links, for tests.
+  final List<Payreq> linkPaid = [];
+
+  @override
+  Future<void> recordLinkPayment(Payreq request, int paidAt, {String? txId}) async {
+    linkPaid.add(request);
+    linkMeta.recordLinkPayment(request, paidAt, txId: txId);
+  }
+
+  @override
+  LinkPaymentRecords linkPaymentRecords({void Function()? onChange}) => MemoryLinkPayments(linkMeta.linkPayments);
+
   @override
   Future<bool> checkPassword(String password) async {
     await _wait(1);
@@ -582,6 +617,9 @@ class MockDeskWallet implements DeskWalletApi {
 
   @override
   DeviceHost? deviceHost({required bool Function() online}) => _MockDeviceHost(pairing, online, walletOutputs);
+
+  @override
+  DirectoryHost? directoryHost({required bool Function() online}) => _MockDirectoryHost(pairing, online);
 
   /// The canned outputs as the core lists them, for linked devices.
   Future<List<WalletOutput>> walletOutputs() async => [
@@ -1597,6 +1635,34 @@ class MockDeskWallet implements DeskWalletApi {
 }
 
 /// The mock's linked-devices host: the prototype's pairing engine, no coins of its own.
+class _MockDirectoryHost implements DirectoryHost {
+  _MockDirectoryHost(this.pairing, this._online);
+
+  @override
+  final FakePairing pairing;
+  final bool Function() _online;
+  final FakeListingKeys _keys = FakeListingKeys();
+
+  @override
+  bool get online => _online();
+
+  @override
+  int get net => netMainnet;
+
+  @override
+  DirectoryVerifier get verifier => refusingVerifier;
+
+  @override
+  Future<String> listingAddress(String dkeyHex, int generation) => _keys.listingAddress(dkeyHex, generation);
+
+  @override
+  Future<Uint8List> sign(String dkeyHex, int generation, String domain, Uint8List message) =>
+      _keys.signWithListing(dkeyHex, generation, domain, message);
+
+  @override
+  Future<PaymentsDrainReport> drain(String dkeyHex, int generation) => _keys.drainListing(dkeyHex, generation);
+}
+
 class _MockDeviceHost implements DeviceHost {
   _MockDeviceHost(this.pairing, this._online, this._outputs);
 

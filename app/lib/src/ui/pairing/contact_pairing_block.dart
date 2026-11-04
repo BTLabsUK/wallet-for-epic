@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../amount.dart';
 import '../../contacts.dart';
+import '../../directory/payment_refusals.dart' show paymentRefusalsProvider;
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
@@ -262,6 +263,7 @@ class ContactPairingBlock extends ConsumerWidget {
     final changed = p.state == PairingState.keysChanged;
     final verified = p.state == PairingState.verified;
     final waiting = p.state == PairingState.waiting;
+    final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: p.id);
     final notices = ref.read(noticeProvider.notifier);
     final back = ref.watch(keysBackProvider).contains(p.id);
 
@@ -428,6 +430,8 @@ class ContactPairingBlock extends ConsumerWidget {
         PairCard(
           children: [
             status,
+            // A contact that takes no payments has nothing to seal or invoice.
+            if (!noPayments)
             PairSwitchRow(
               switchKey: contactPageSealKey,
               label: l.contactSealPayments,
@@ -437,7 +441,7 @@ class ContactPairingBlock extends ConsumerWidget {
               onChanged: switchesLocked ? null : setSeal,
             ),
             // Invoices off (Settings › Advanced): the switch is not offered; what it holds stays.
-            if (ref.watch(invoicesOnProvider))
+            if (!noPayments && ref.watch(invoicesOnProvider))
               PairSwitchRow(
                 switchKey: contactPageInvoicesKey,
                 label: l.contactAllowInvoices,

@@ -9,6 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../contacts.dart';
+import '../../directory/directory.dart';
+import '../../directory/phone_directory.dart';
+import '../../trust/policy.dart' show featureDirectory;
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
@@ -21,6 +24,7 @@ import '../contacts_screen.dart';
 import '../status_icons.dart';
 import '../theme/brand.dart';
 import '../theme/tokens.dart';
+import 'directory_parts.dart';
 import 'add_to_contacts_button.dart';
 import 'pairing_notices.dart' show pairingWordsOnScreen;
 import 'pairing_parts.dart';
@@ -122,17 +126,46 @@ class CheckWordsScreen extends ConsumerStatefulWidget {
 class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
   bool _allow = false;
   bool _busy = false;
+
+  /// Where the directory's wait stands when the service has not said yet (its answer to
+  /// [DirectoryService.beginHello]); null while asking.
+  HelloStep? _began;
+  DirectoryService? _directory;
   bool _onScreen(PairingEvent e) => e.pairingId == widget.pairingId;
 
   @override
   void initState() {
     super.initState();
     pairingWordsOnScreen.add(_onScreen);
+    // A pairing whose peer claims the directory feature waits for its hello before the words.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _beginDirectory());
+  }
+
+  Future<void> _beginDirectory() async {
+    final service = ref.read(directoryServiceProvider);
+    if (service == null) return;
+    var record = ref.read(pairingByIdProvider(widget.pairingId));
+    if (record == null) {
+      // The records are still being read.
+      try {
+        await ref.read(pairingsProvider.future);
+      } on Object {
+        return;
+      }
+      if (!mounted) return;
+      record = ref.read(pairingByIdProvider(widget.pairingId));
+    }
+    if (record == null || record.peerFeatures & featureDirectory == 0) return;
+    _directory = service;
+    final step = await service.beginHello(widget.pairingId);
+    if (mounted) setState(() => _began = step);
   }
 
   @override
   void dispose() {
     pairingWordsOnScreen.remove(_onScreen);
+    // Leaving the screen stops the wait; the words step is what Back leaves the pairing at.
+    _directory?.cancelHello(widget.pairingId);
     super.dispose();
   }
 
@@ -142,6 +175,15 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
     setState(() => _busy = true);
     try {
       final record = await pairingCall(ref, (api) => api.checkWords(widget.pairingId, check));
+      final directory = _directory != null && _step == HelloStep.check ? _directory : null;
+      if (directory != null) {
+        // The code was compared: the dkey is this contact's, or the directory is forgotten.
+        if (check == PairingCheck.match && record != null) {
+          await directory.pin(widget.pairingId);
+        } else {
+          await directory.dismiss(widget.pairingId);
+        }
+      }
       if (record != null && check == PairingCheck.match && _allow && !record.allowInvoices) {
         await pairingCall(ref, (api) => api.setAllowInvoices(record.id, true));
       }
@@ -153,6 +195,12 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
         Navigator.pop(context);
         return;
       }
+      final entry = directory?.book.byPairing(widget.pairingId);
+      if (entry != null && entry.pinned) {
+        // The Join sheet; Not now leaves a verified directory with Join on its page.
+        await showDirectoryJoinSheet(context, ref, dkey: entry.dkey, label: ref.read(pairingNameProvider(record.id)));
+        if (!mounted) return;
+      }
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(builder: (_) => PairingResultScreen(pairingId: record.id)),
       );
@@ -161,6 +209,13 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  /// Where the directory step stands, null for the ordinary words step.
+  HelloStep? get _step {
+    final service = _directory;
+    if (service == null) return null;
+    return ref.read(phoneDirectories.view)?.steps[widget.pairingId] ?? _began;
   }
 
   Future<void> _noMatch() async {
@@ -189,6 +244,27 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
       return SlotScaffold(appBar: AppBar(title: Text(l.sasTitle)), body: const SizedBox.shrink());
     }
     final name = ref.watch(pairingNameProvider(record.id));
+    if (_directory != null) {
+      final step = ref.watch(phoneDirectories.view)?.steps[widget.pairingId] ?? _began;
+      final helloEntry = ref.watch(phoneDirectories.view)?.book.byPairing(record.id);
+      final dkey = helloEntry?.dkey;
+      if (step == HelloStep.check && dkey != null) {
+        return DirectoryCodeCheck(
+          label: name,
+          kind: record.kind,
+          dkey: dkey,
+          noPayments: helloEntry!.noPayments,
+          busy: _busy,
+          onMatch: () => _answer(PairingCheck.match),
+          onNoMatch: _noMatch,
+          matchKey: checkMatchKey,
+          noMatchKey: checkNoMatchKey,
+        );
+      }
+      if (step == null || step == HelloStep.waiting) {
+        return DirectoryWaiting(label: name, onCancel: () => _directory?.cancelHello(widget.pairingId));
+      }
+    }
     final service = record.kind != PairingParty.person;
     final lead = service ? l.sasLeadExchange(name) : l.sasLead(name);
     final offersInvoices = !widget.recheck && (record.asksInvoices || record.caps.issuesInvoices) && record.state == PairingState.paired;
@@ -357,6 +433,7 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
             paired: (c) => pairings.any((p) => p.id != record.id && p.contactId == c.id && p.state.isPaired),
             epicboxOf: (c) => c.epicbox,
           );
+    final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: record.id);
     final done = FilledButton(
       key: checkDoneKey,
       style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
@@ -405,7 +482,17 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
           ),
           const SizedBox(height: 12),
           // The result's badge is the big one: the same badge, scaled up.
-          Center(child: SizedBox(height: 30, child: FittedBox(child: TrustBadge(record)))),
+          Center(
+            child: SizedBox(
+              height: 30,
+              child: FittedBox(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [TrustBadge(record), if (noPayments) ...[const SizedBox(width: 6), const NoPaymentsBadge()]],
+                ),
+              ),
+            ),
+          ),
           if (verified) ...[
             const SizedBox(height: 8),
             Text(
@@ -445,7 +532,7 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
               ],
             ),
           ],
-          if (verified) ...[
+          if (verified && !noPayments) ...[
             const SizedBox(height: 20),
             PairCard(
               children: [

@@ -34,14 +34,17 @@ import '../../../pairing_api.dart';
 import '../../../pairing_text.dart';
 import '../../../ui/key_picture.dart';
 import '../../../ui/pairing/invite_links.dart';
-import '../../../trust/policy.dart' show mayOfferPair;
+import '../../../directory/directory.dart';
+import '../../../trust/policy.dart' show featureDirectory, mayOfferPair;
 import '../../../ui/pairing/pairing_notices.dart' show pairingWordsOnScreen;
-import '../../../ui/pairing/pairing_parts.dart' show WordTileSize, WordTiles;
+import '../../../ui/pairing/pairing_parts.dart' show NoPaymentsBadge, WordTileSize, WordTiles;
 import '../../data/desk_errors.dart' show deskErrorText;
+import '../../data/directory_state.dart';
 import '../../data/pairing_state.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../devices/link_flow.dart' show showDeskLinkDevice;
+import 'directory_dialogs.dart';
 import 'add_to_contacts_button.dart' show DeskAddToContactsButton;
 import '../transfer/contact_picker.dart' show showContactPicker;
 
@@ -1227,17 +1230,48 @@ class _CheckDialog extends ConsumerStatefulWidget {
 class _CheckDialogState extends ConsumerState<_CheckDialog> {
   bool _busy = false;
   bool _allow = false;
+
+  /// The directory's wait as the service first answered; null while asking.
+  HelloStep? _began;
+  DirectoryService? _directory;
   bool _onScreen(PairingEvent e) => e.pairingId == widget.pairingId;
 
   @override
   void initState() {
     super.initState();
     pairingWordsOnScreen.add(_onScreen);
+    // A pairing whose peer claims the directory feature waits for its hello before the words.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _beginDirectory());
   }
+
+  Future<void> _beginDirectory() async {
+    final service = ref.read(deskDirectoryServiceProvider);
+    if (service == null) return;
+    var record = ref.read(deskPairingByIdProvider(widget.pairingId));
+    if (record == null) {
+      // The records are still being read.
+      try {
+        await ref.read(deskPairingsProvider.future);
+      } on Object {
+        return;
+      }
+      if (!mounted) return;
+      record = ref.read(deskPairingByIdProvider(widget.pairingId));
+    }
+    if (record == null || record.peerFeatures & featureDirectory == 0) return;
+    _directory = service;
+    final step = await service.beginHello(widget.pairingId);
+    if (mounted) setState(() => _began = step);
+  }
+
+  /// Where the directory step stands, null for the ordinary words step.
+  HelloStep? get _step => _directory == null ? null : ref.read(deskDirectories.view)?.steps[widget.pairingId] ?? _began;
 
   @override
   void dispose() {
     pairingWordsOnScreen.remove(_onScreen);
+    // Leaving the dialog stops the wait; the words step is what Back leaves the pairing at.
+    _directory?.cancelHello(widget.pairingId);
     super.dispose();
   }
 
@@ -1262,7 +1296,16 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
     }
     setState(() => _busy = true);
     try {
+      final directory = _directory != null && _step == HelloStep.check ? _directory : null;
       final r = await deskPairingCall(ref, (api) => api.checkWords(widget.pairingId, check));
+      if (directory != null) {
+        // The code was compared: the dkey is this contact's, or the directory is forgotten.
+        if (check == PairingCheck.match && r != null) {
+          await directory.pin(widget.pairingId);
+        } else {
+          await directory.dismiss(widget.pairingId);
+        }
+      }
       if (r != null && check == PairingCheck.match && _allow) await deskPairingCall(ref, (api) => api.setAllowInvoices(r.id, true));
       if (r != null && check == PairingCheck.match) await deskWriteProvenAddress(ref, r);
       if (!mounted) return;
@@ -1273,6 +1316,11 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
       if (check == PairingCheck.mismatch) {
         if (host.mounted) showEToast(host, l.pairEndedNotice, tone: ETone.warn);
         return;
+      }
+      final entry = directory?.book.byPairing(widget.pairingId);
+      if (entry != null && entry.pinned && host.mounted) {
+        // The Join dialog; Not now leaves a verified directory with Join on its page.
+        await showDeskDirectoryJoin(host, ref, dkey: entry.dkey, label: name);
       }
       // Not in the contacts yet: the result asks where it goes, as the phone's Verified screen
       // does; else the toast says it.
@@ -1295,6 +1343,29 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
     final r = ref.watch(deskPairingByIdProvider(widget.pairingId));
     final name = ref.watch(deskPairingNameProvider(widget.pairingId));
     if (r == null) return EDialog(title: l.sasTitle, icon: EIcons.trusted);
+    if (_directory != null) {
+      final view = ref.watch(deskDirectories.view);
+      final step = view?.steps[widget.pairingId] ?? _began;
+      final helloEntry = view?.book.byPairing(r.id);
+      final dkey = helloEntry?.dkey;
+      if (step == HelloStep.check && dkey != null) {
+        return DeskDirectoryCodeCheck(
+          label: name,
+          dkey: dkey,
+          noPayments: helloEntry!.noPayments,
+          busy: _busy,
+          onLater: () => Navigator.pop(context),
+          onMatch: () => _answer(PairingCheck.match),
+          onNoMatch: () => _answer(PairingCheck.mismatch),
+          matchKey: deskCheckMatchKey,
+          noMatchKey: deskCheckNoMatchKey,
+          laterKey: deskCheckLaterKey,
+        );
+      }
+      if (step == null || step == HelloStep.waiting) {
+        return DeskDirectoryWaiting(label: name, onCancel: () => _directory?.cancelHello(widget.pairingId));
+      }
+    }
     final lead = r.kind != PairingParty.person ? l.sasLeadExchange(name) : l.sasLead(name);
     final offersInvoices = !widget.recheck && (r.asksInvoices || r.caps.issuesInvoices) && r.state == PairingState.paired;
     return EDialog(
@@ -1370,6 +1441,10 @@ class DeskPairedSaveDialog extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(verified ? l.sasMatchedBody(name) : l.sasSkippedBody(name), style: ts.bodyDim),
+          if (ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: pairingId)) ...[
+            SizedBox(height: Sp.x3),
+            Align(alignment: AlignmentDirectional.centerStart, child: const NoPaymentsBadge()),
+          ],
           SizedBox(height: Sp.x4),
           Text(l.pairSaveContactTitle(name), style: ts.label),
         ],

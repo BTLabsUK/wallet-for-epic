@@ -550,7 +550,7 @@ class DeviceService {
       return _put(book);
     }
     final done = <String>[];
-    for (final p in list) {
+    for (final p in await _ownPayloads(list)) {
       if (await _receive(p)) done.add(p.id);
     }
     await _applyWaitingAll();
@@ -558,6 +558,23 @@ class DeviceService {
     if (done.isNotEmpty) await _api.ackPayloads(done);
     // Something came: the next read is a whole interval from now.
     if (_pace != null) _schedule();
+  }
+
+  /// The payloads of [list] that belong to this service: those of a linked device, a device
+  /// being removed, the link under way, or any other private pairing. A payload of a contact
+  /// pairing is the directory's (`directory/directory_service.dart`): it stays with the engine
+  /// for that service to read and acknowledge.
+  Future<List<PairingPayload>> _ownPayloads(List<PairingPayload> list) async {
+    bool known(String pairingId) =>
+        _link?.pairingId == pairingId ||
+        book.deviceOfPairing(pairingId) != null ||
+        book.removing.any((d) => d.pairingIds.contains(pairingId));
+    if (list.every((p) => known(p.pairingId))) return list;
+    final private = {for (final r in await _api.privatePairings()) r.id};
+    return [
+      for (final p in list)
+        if (known(p.pairingId) || private.contains(p.pairingId)) p,
+    ];
   }
 
   /// Reads [p]; false leaves it with the engine for a later read (a notice for a link that is

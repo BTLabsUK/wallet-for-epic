@@ -69,8 +69,8 @@
                 <data android:mimeType="application/json"/>
             </intent-filter>
             <!-- Payment links (epic:, epiccash:) and invite links (epiccash://pair/...,
-                 epiccash://device-link/...): the epiccash filter takes every host. No autoVerify
-                 and no https filter: custom schemes cannot be verified. The wallet only opens its
+                 epiccash://device-link/...): the epiccash filter takes every host. Custom schemes
+                 cannot be verified, so there is no autoVerify on them. The wallet only opens its
                  review screen or the invite's confirm sheet for them (lib/src/invite_links.dart). -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
@@ -83,6 +83,25 @@
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="epiccash"/>
+            </intent-filter>
+            <!-- App Links: the link page's https payment link (/p#1/...) and invite (/pair#1/...)
+                 open the wallet when the site's /.well-known/assetlinks.json names it. This host
+                 is the one host the app names (tools/check-no-hosts.sh); the wallet reads the
+                 fragment and never looks at the host. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https"/>
+                <data android:host="epiccash.btlabs.uk"/>
+                <data android:path="/p"/>
+                <data android:path="/pair"/>
+            </intent-filter>
+            <!-- Text shared to the wallet (a link or a message with one in it): the scan router reads it. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="text/plain"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>

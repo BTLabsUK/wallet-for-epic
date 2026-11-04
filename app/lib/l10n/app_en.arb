@@ -5293,6 +5293,27 @@
       }
     }
   },
+  "contactTakesNoPayments": "Takes no payments",
+  "@contactTakesNoPayments": {
+    "description": "Second line of a Send contact picker row for a contact that takes no payments, in place of the address."
+  },
+  "contactNoPayments": "No payments",
+  "@contactNoPayments": {
+    "description": "Badge words (with the no-payments mark) on a contact that takes no payments: contact page header, Check the code head row, pairing result."
+  },
+  "contactNoPaymentsNamed": "{name} takes no payments.",
+  "@contactNoPaymentsNamed": {
+    "description": "Send: error under To, payment-link refusal body, Join sheet second paragraph and late notice when {name} (a contact) takes no payments.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "linkNoPaymentsTitle": "Takes no payments",
+  "@linkNoPaymentsTitle": {
+    "description": "Title of the sheet or dialog that refuses a payment link whose payee is a contact that takes no payments."
+  },
   "contactsSendAction": "Send",
   "@contactsSendAction": {
     "description": "Contact sheet: opens Send with this contact as the recipient."
@@ -25099,6 +25120,71 @@
   "@mailboxKeepWaiting": {
     "description": "The closing button of the Cancel and send by Epicbox dialog and of the unanswered mailbox send's details: nothing changes."
   },
+  "linkPayeeLead": "The payee",
+  "@linkPayeeLead": {
+    "description": "Stands for the payee's name at the start of a sentence when a payment link carried no name."
+  },
+  "linkPayeeMid": "the payee",
+  "@linkPayeeMid": {
+    "description": "Stands for the payee's name inside a sentence when a payment link carried no name."
+  },
+  "linkResendBody": "The waiting payment is cancelled and Send opens with the same amount. Check the address, then send it again.",
+  "@linkResendBody": {
+    "description": "Body of the confirm before Cancel and send by Epicbox on a payment made from a payment link.",
+    "placeholders": {}
+  },
+  "receiptTellSent": "Tell {name} it’s sent",
+  "@receiptTellSent": {
+    "description": "Unticked line on a payment made from a payment link: tell the directory's payee the payment was sent.",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "receiptTellPosted": "Tell {name} it went to the network",
+  "@receiptTellPosted": {
+    "description": "Unticked line after the payment was finished and posted: tell the payee it went to the network.",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "receiptTold": "{name} was told",
+  "@receiptTold": {
+    "description": "The receipt line once the receipt was posted.",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "receiptSeesSent": "{name} will see: request {id}, {amount}, sent {time}. Nothing else goes with it: no address and no transaction id.",
+  "@receiptSeesSent": {
+    "description": "Explanation behind the info icon of the sent receipt line; id is the first 8 characters of the request id.",
+    "placeholders": {
+      "name": {},
+      "id": {},
+      "amount": {},
+      "time": {}
+    }
+  },
+  "receiptSeesPosted": "{name} will see: request {id}, {amount}, it went to the network at {time}. Nothing else goes with it: no address and no transaction id.",
+  "@receiptSeesPosted": {
+    "description": "Explanation behind the info icon of the posted receipt line.",
+    "placeholders": {
+      "name": {},
+      "id": {},
+      "amount": {},
+      "time": {}
+    }
+  },
+  "receiptNotSent": "Could not tell {name} just now. Try again.",
+  "@receiptNotSent": {
+    "description": "Notice when posting the receipt failed; the line stays unticked.",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "receiptHintTitle": "Receipt",
+  "@receiptHintTitle": {
+    "description": "Title of the receipt line's explanation."
+  },
   "mailboxResent": "Cancelled and sent by Epicbox.",
   "@mailboxResent": {
     "description": "Notice after Cancel and send by Epicbox finished: the old send is cancelled and the new one is on its way."
@@ -27369,6 +27455,296 @@
       "n": {
         "type": "int",
         "example": "4"
+      }
+    }
+  },
+  "linkNotALink": "Not a payment link",
+  "@linkNotALink": {
+    "description": "Refusal of a payment link whose text does not decode."
+  },
+  "linkMadeForMainnet": "Made for mainnet",
+  "@linkMadeForMainnet": {
+    "description": "Refusal of a payment link made for the main network."
+  },
+  "linkMadeForFloonet": "Made for floonet",
+  "@linkMadeForFloonet": {
+    "description": "Refusal of a payment link made for the test network."
+  },
+  "linkChanged": "This link was changed after it was made.",
+  "@linkChanged": {
+    "description": "Refusal of a payment link whose signature does not hold."
+  },
+  "linkExpired": "This link expired on {date}",
+  "@linkExpired": {
+    "description": "Refusal of a payment link past its expiry.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "21 Sep 2026"
+      }
+    }
+  },
+  "linkForOther": "Made for someone else",
+  "@linkForOther": {
+    "description": "Refusal of a payment link made for another payer."
+  },
+  "linkPaidTitle": "Already paid",
+  "@linkPaidTitle": {
+    "description": "Title of the sheet shown for a payment link whose request was paid before."
+  },
+  "linkPaidBefore": "You paid this request on {date}",
+  "@linkPaidBefore": {
+    "description": "Body of the sheet for a payment link whose request was paid before.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "21 Sep 2026"
+      }
+    }
+  },
+  "linkPayAgain": "Pay again",
+  "@linkPayAgain": {
+    "description": "Button that opens Send for a payment link already paid."
+  },
+  "linkTrustListed": "{name} · via {directory}",
+  "@linkTrustListed": {
+    "description": "Trust line on Send: the payee's name and the service this wallet is paired with (its contact name) that the link comes from.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "@alice"
+      },
+      "directory": {
+        "type": "String",
+        "example": "Directory"
+      }
+    }
+  },
+  "linkTrustListedBy": "Via {directory}",
+  "@linkTrustListedBy": {
+    "description": "Trust line on Send when the link has no name.",
+    "placeholders": {
+      "directory": {
+        "type": "String",
+        "example": "Directory"
+      }
+    }
+  },
+  "linkTrustDirectory": "From a service you paired with",
+  "@linkTrustDirectory": {
+    "description": "Trust line on Send for a directory this wallet uses that has no label."
+  },
+  "linkTrustOther": "Not from a service you paired with",
+  "@linkTrustOther": {
+    "description": "Trust line on Send for a payment link from any other directory."
+  },
+  "linkTrustChanged": "{name} now gets paid to a different wallet than when you paid on {date}. Pay only if they told you.",
+  "@linkTrustChanged": {
+    "description": "Trust line on Send when the listing key differs from the one paid before.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "@alice"
+      },
+      "date": {
+        "type": "String",
+        "example": "21 Sep 2026"
+      }
+    }
+  },
+  "linkTrustChangedNoName": "This payee now gets paid to a different wallet than when you paid on {date}. Pay only if they told you.",
+  "@linkTrustChangedNoName": {
+    "description": "Trust line on Send for a changed wallet when the link has no name.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "21 Sep 2026"
+      }
+    }
+  },
+  "linkCodeLabel": "Pictures for {name}",
+  "@linkCodeLabel": {
+    "description": "Label of the four pictures that identify the listing key.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "@alice"
+      }
+    }
+  },
+  "linkCodeLabelPlain": "Pictures",
+  "@linkCodeLabelPlain": {
+    "description": "Label of the four pictures when the link has no name."
+  },
+  "linkAmountEdited": "Not the amount requested",
+  "@linkAmountEdited": {
+    "description": "Note on Send when the amount differs from the one in the payment link."
+  },
+  "linkChangedConfirmTitle": "Check before paying",
+  "@linkChangedConfirmTitle": {
+    "description": "Title of the extra confirm before sending to a listing that changed wallet."
+  },
+  "dirWaitingFor": "Waiting for {label}…",
+  "@dirWaitingFor": {
+    "description": "Static line on the Check step while a directory’s message is awaited (no spinner). {label} is the name the pairing shows.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "dirCodeTitle": "Check the code",
+  "@dirCodeTitle": {
+    "description": "Title of the step that replaces Check the words for a directory pairing."
+  },
+  "dirCodeLead": "{label} shows four pictures. Compare them with these.",
+  "@dirCodeLead": {
+    "description": "Lead of Check the code: the four pictures below must equal the ones the other side shows.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "dirCodeLabel": "The four pictures",
+  "@dirCodeLabel": {
+    "description": "Read by a screen reader before the four pictures of a code."
+  },
+  "dirJoin": "{name, select, none{Pay me via {label}} other{Pay me as {name}}}",
+  "@dirJoin": {
+    "description": "Button on the Join sheet and the contact page: the user takes a payment name at this service. {name} is the user's @name from the service's hello, or the word none when it sent none; {label} is the contact name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "dirNotNow": "Not now",
+  "@dirNotNow": {
+    "description": "Button on the Join sheet: leaves the contact verified, with Join on its page."
+  },
+  "dirJoinTitle": "{name, select, none{Pay me via {label}?} other{Pay me as {name}?}}",
+  "@dirJoinTitle": {
+    "description": "Title of the Join sheet. {name} is the user's @name, or the word none; {label} is the contact name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "dirJoinBody": "{name, select, none{People who use {label} can pay you there. Payments come through {host}} other{People who use {label} can pay you as {name}. Payments come through {host}}}",
+  "@dirJoinBody": {
+    "description": "Body of the Join sheet. {name} is the user's @name, or the word none; {label} is the contact name; {host} is the host of the wallet’s own Epicbox server.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      },
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "dirJoinInfo": "{label} gets one payment address and one code, both made only for it. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Leave any time in Contacts › {label}.",
+  "@dirJoinInfo": {
+    "description": "Explanation behind the info button on the Join sheet.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "dirJoinedNotice": "{name, select, none{Pay me via {label}: on} other{Pay me as {name}: on}}",
+  "@dirJoinedNotice": {
+    "description": "Notice after Join worked. {name} is the user's @name, or the word none; {label} is the contact name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "dirLeftNotice": "{name, select, none{Pay me via {label}: off} other{Pay me as {name}: off}}",
+  "@dirLeftNotice": {
+    "description": "Notice after Leave worked. {name} is the user's @name, or the word none; {label} is the contact name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "dirJoined": "{name, select, none{Pay me via {label} · since {date}} other{Pay me as {name} · since {date}}}",
+  "@dirJoined": {
+    "description": "Status line on the contact page of a service the user joined. {name} is the user's @name, or the word none; {label} is the contact name; {date} is a short date.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dirNotListed": "Off",
+  "@dirNotListed": {
+    "description": "Status line on the contact page of a directory that no longer lists the user."
+  },
+  "dirNotListedBody": "{label} removed your name.",
+  "@dirNotListedBody": {
+    "description": "Line under Not listed.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "dirNotJoined": "Off",
+  "@dirNotJoined": {
+    "description": "Status line on the contact page of a verified directory the user has not joined."
+  },
+  "dirJoinAgain": "Turn on again",
+  "@dirJoinAgain": {
+    "description": "Button on the contact page of a directory that no longer lists the user, or one the user left."
+  },
+  "dirListingCode": "Pictures for your name",
+  "@dirListingCode": {
+    "description": "Label of the four pictures of the user’s listing on the contact page of a directory."
+  },
+  "dirListingCodeInfo": "Four pictures made from the wallet your name pays. {label} can show the same four to compare.",
+  "@dirListingCodeInfo": {
+    "description": "Explanation behind the info button of the listing code. {label} is the name the pairing shows.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "dirLeave": "Leave",
+  "@dirLeave": {
+    "description": "Button on the contact page of a joined service: takes the user's name down (opens the confirm)."
+  },
+  "dirRemoveTooTitle": "Remove {label} too?",
+  "@dirRemoveTooTitle": {
+    "description": "Title of the question after Leave: also end the pairing.",
+    "placeholders": {
+      "label": {
+        "type": "String"
       }
     }
   }

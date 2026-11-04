@@ -15,6 +15,7 @@ import 'l10n.dart' show englishStrings;
 import 'network.dart';
 import 'phone_tor.dart';
 import 'scan/scan_checks.dart' show CodeOrigin;
+import 'directory/link_open.dart' show LinkOpened;
 import 'scan/scan_router.dart' show PaymentRequest;
 import 'tor_phone.dart' show phoneTorState;
 import 'tor_routes.dart';
@@ -1403,13 +1404,15 @@ class ShellTabNotifier extends Notifier<ShellTab> {
 /// A recipient handed to the Send tab, from a scanned QR code or Send again. [id] tells two
 /// hand-offs of the same text apart. A payment code ([request]) also brings an amount, a note
 /// and where it came from ([origin]); it only fills the form. [pairingId] is a paired contact
-/// with no address, paid through its mailbox; [text] is empty then.
+/// with no address, paid through its mailbox; [text] is empty then. A payment link ([link]) brings
+/// its listing address, amount and trust line; [text] is the listing address.
 typedef RecipientHandoff = ({
   int id,
   String text,
   PaymentRequest? request,
   CodeOrigin? origin,
   String? pairingId,
+  LinkOpened? link,
 });
 
 /// The latest [RecipientHandoff], until the Send form that took it is cleared.
@@ -1429,11 +1432,11 @@ class SendRecipientNotifier extends Notifier<RecipientHandoff?> {
 
   /// Hands over [text] as the recipient; [origin] when it came from a scan, paste or link.
   void hand(String text, {CodeOrigin? origin}) =>
-      state = (id: _next++, text: text, request: null, origin: origin, pairingId: null);
+      state = (id: _next++, text: text, request: null, origin: origin, pairingId: null, link: null);
 
   /// Hands over the pairing [pairingId] as the recipient: a contact with no address.
   void handPairing(String pairingId) =>
-      state = (id: _next++, text: '', request: null, origin: null, pairingId: pairingId);
+      state = (id: _next++, text: '', request: null, origin: null, pairingId: pairingId, link: null);
 
   /// Hands over a payment code: Send fills the address, the amount and the note.
   void handRequest(PaymentRequest request, CodeOrigin origin) => state = (
@@ -1442,6 +1445,17 @@ class SendRecipientNotifier extends Notifier<RecipientHandoff?> {
     request: request,
     origin: origin,
     pairingId: null,
+    link: null,
+  );
+
+  /// Hands over an opened payment link: Send fills the listing address and the amount.
+  void handLink(LinkOpened link, CodeOrigin origin) => state = (
+    id: _next++,
+    text: link.request.card.address,
+    request: null,
+    origin: origin,
+    pairingId: null,
+    link: link,
   );
 
   void clear() => state = null;

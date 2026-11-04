@@ -5,6 +5,7 @@
 /// keys-changed and relay notices, and Remove pairing. Replaces the contact sheet.
 library;
 
+import '../directory/payment_refusals.dart' show paymentRefusalsProvider;
 import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,6 +27,7 @@ import 'contacts_screen.dart';
 import 'history_screen.dart' show HistoryScreen;
 import 'method_names.dart';
 import 'pairing/contact_pairing_block.dart';
+import 'pairing/directory_parts.dart' show DirectoryBlock;
 import 'pairing/pair_check.dart';
 import 'pairing/pair_screen.dart';
 import 'pairing/pair_way1.dart' show pairWithContact;
@@ -44,6 +46,7 @@ const Key contactPageMoreKey = ValueKey('contact-page-more');
 const Key contactPageDeleteKey = ValueKey('contact-page-delete');
 const Key contactPageHeaderPairKey = ValueKey('contact-page-header-pair');
 const Key contactPageStarKey = ValueKey('contact-page-star');
+const Key contactPageNoPaymentsKey = ValueKey('contact-page-no-payments');
 const Key contactPageSendReasonKey = ValueKey('contact-page-send-reason');
 const Key contactPageViaPairingKey = ValueKey('contact-page-via-pairing');
 
@@ -236,6 +239,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     // A request sent to this contact, or its code answered, waiting for the confirm.
     final pending = pairs && (pairing == null || pairing.ended) ? ref.watch(contactPendingPairingProvider(contact.id)) : null;
     final starred = ref.watch(favouriteContactsProvider).value?.contains(contact.id) ?? false;
+    final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: pairing?.id, address: contact.epicbox);
     return SlotScaffold(
       appBar: AppBar(
         title: Text(l.contactTitle),
@@ -285,12 +289,17 @@ class _ContactPageState extends ConsumerState<ContactPage> {
             onPair: pairs && (pairing == null || pairing.ended) && pending == null ? () => _pair(contact) : null,
             onPending: pairs && (pairing == null || pairing.ended) && pending != null ? () => _showMyCode(contact) : null,
           ),
-          PairSection(l.contactAddresses),
-          _Addresses(contact: contact, pairing: pairing),
+          // A contact that takes no payments: its own card first, then Pairing, Addresses last.
+          if (noPayments && pairs && pairing != null && !pairing.ended) DirectoryBlock(pairingId: pairing.id, label: contact.name),
+          if (!noPayments) ...[PairSection(l.contactAddresses), _Addresses(contact: contact, pairing: pairing)],
           if (pairs) ...[
             PairSection(l.contactPairing),
             ContactPairingBlock(contact: contact, pairing: pairing, pending: pending, busy: _busy, run: _run, onPair: () => _pair(contact)),
+            // A service the user paired with and took a name from: Pay me as @name · since, the
+            // picture code and Leave, or the button that turns it on.
+            if (!noPayments && pairing != null && !pairing.ended) DirectoryBlock(pairingId: pairing.id, label: contact.name),
           ],
+          if (noPayments) ...[PairSection(l.contactAddresses), _Addresses(contact: contact, pairing: pairing)],
           // The compatibility line (trust policy): one sentence, never a badge; a plain
           // contact's key can answer as another wallet app with pairing off too.
           ContactTrustLine(contactId: contact.id, name: contact.name),
@@ -364,6 +373,7 @@ class _Header extends ConsumerWidget {
     final t = context.tokens;
     final theme = Theme.of(context);
     final p = pairing;
+    final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: p?.id, address: contact.epicbox);
     final claimed = p?.name?.trim();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -395,14 +405,16 @@ class _Header extends ConsumerWidget {
                     ),
                   ),
                   // Verified is about the Epicbox address: none beside one the pairing did not bring.
-                  if (p != null && pairingVouchesFor(p, contact.epicbox)) ...[
+                  if ((p != null && pairingVouchesFor(p, contact.epicbox)) || noPayments) ...[
                     const SizedBox(height: 6),
                     Wrap(
                       spacing: 6,
                       runSpacing: 4,
                       children: [
-                        TrustBadge(p),
-                        if (p.allowInvoices && ref.watch(invoicesOnProvider)) EBadge(l.trustAllowsInvoices, icon: Icons.receipt_long_outlined),
+                        if (p != null && pairingVouchesFor(p, contact.epicbox)) TrustBadge(p),
+                        if (noPayments) NoPaymentsBadge(key: contactPageNoPaymentsKey),
+                        if (!noPayments && p != null && p.allowInvoices && ref.watch(invoicesOnProvider))
+                          EBadge(l.trustAllowsInvoices, icon: Icons.receipt_long_outlined),
                       ],
                     ),
                   ],
@@ -426,6 +438,7 @@ class _Header extends ConsumerWidget {
           spacing: 8,
           runSpacing: 8,
           children: [
+            if (!noPayments)
             FilledButton.tonalIcon(
               key: contactPageSendKey,
               style: _headerStyle(context, soft: true),
@@ -468,7 +481,7 @@ class _Header extends ConsumerWidget {
           ],
         ),
         // A contact with only a pairing that cannot take a payment now: why Send is off.
-        if (contact.addresses.isEmpty && p != null && !p.paysByMailbox) ...[
+        if (!noPayments && contact.addresses.isEmpty && p != null && !p.paysByMailbox) ...[
           const SizedBox(height: 4),
           Text(
             p.state == PairingState.keysChanged ? l.contactSendKeysChanged : l.contactSendNoSealed(contact.name),

@@ -4055,6 +4055,20 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String get contactTakesNoPayments => 'ไม่รับการจ่ายเงิน';
+
+  @override
+  String get contactNoPayments => 'ไม่รับเงิน';
+
+  @override
+  String contactNoPaymentsNamed(String name) {
+    return '$name ไม่รับการจ่ายเงิน';
+  }
+
+  @override
+  String get linkNoPaymentsTitle => 'ไม่รับการจ่ายเงิน';
+
+  @override
   String get contactsSendAction => 'ส่ง';
 
   @override
@@ -18124,7 +18138,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String mailboxResendBody(Object name) {
-    return 'รายการที่รออยู่จะถูกยกเลิก และจำนวนเท่าเดิมจะส่งไปยังที่อยู่ Epicbox ของ $name เป็นการชำระเงินปกติ ประวัติจะคงไว้สองแถว';
+    return 'การจ่ายเงินที่รออยู่จะถูกยกเลิก และจำนวนเท่าเดิมจะส่งไปยังที่อยู่ Epicbox ของ $name เป็นการชำระเงินปกติ ประวัติจะคงไว้สองแถว';
   }
 
   @override
@@ -18132,6 +18146,49 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get mailboxKeepWaiting => 'รอต่อ';
+
+  @override
+  String get linkPayeeLead => 'ผู้รับ';
+
+  @override
+  String get linkPayeeMid => 'ผู้รับ';
+
+  @override
+  String get linkResendBody =>
+      'การจ่ายเงินที่รออยู่จะถูกยกเลิก และหน้าส่งจะเปิดด้วยจำนวนเงินเดิม ตรวจสอบที่อยู่ แล้วส่งอีกครั้ง';
+
+  @override
+  String receiptTellSent(Object name) {
+    return 'แจ้ง $name ว่าส่งแล้ว';
+  }
+
+  @override
+  String receiptTellPosted(Object name) {
+    return 'แจ้ง $name ว่าเข้าเครือข่ายแล้ว';
+  }
+
+  @override
+  String receiptTold(Object name) {
+    return 'แจ้ง $name แล้ว';
+  }
+
+  @override
+  String receiptSeesSent(Object name, Object id, Object amount, Object time) {
+    return '$name จะเห็น: คำขอ $id, $amount, ส่งเมื่อ $time ไม่มีข้อมูลอื่นไปด้วย: ไม่มีที่อยู่และไม่มี ID ธุรกรรม';
+  }
+
+  @override
+  String receiptSeesPosted(Object name, Object id, Object amount, Object time) {
+    return '$name จะเห็น: คำขอ $id, $amount, เข้าเครือข่ายเมื่อ $time ไม่มีข้อมูลอื่นไปด้วย: ไม่มีที่อยู่และไม่มี ID ธุรกรรม';
+  }
+
+  @override
+  String receiptNotSent(Object name) {
+    return 'แจ้ง $name ไม่ได้ในตอนนี้ ลองอีกครั้ง';
+  }
+
+  @override
+  String get receiptHintTitle => 'ใบเสร็จ';
 
   @override
   String get mailboxResent => 'ยกเลิกและส่งผ่าน Epicbox แล้ว';
@@ -19813,5 +19870,185 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String pairDefaultLabel(int n) {
     return 'ผู้ติดต่อ $n';
+  }
+
+  @override
+  String get linkNotALink => 'ไม่ใช่ลิงก์ชำระเงิน';
+
+  @override
+  String get linkMadeForMainnet => 'สร้างไว้สำหรับ mainnet';
+
+  @override
+  String get linkMadeForFloonet => 'สร้างไว้สำหรับ floonet';
+
+  @override
+  String get linkChanged => 'ลิงก์นี้ถูกแก้ไขหลังสร้าง';
+
+  @override
+  String linkExpired(String date) {
+    return 'ลิงก์นี้หมดอายุเมื่อ $date';
+  }
+
+  @override
+  String get linkForOther => 'สร้างไว้สำหรับคนอื่น';
+
+  @override
+  String get linkPaidTitle => 'จ่ายแล้ว';
+
+  @override
+  String linkPaidBefore(String date) {
+    return 'คุณจ่ายคำขอนี้เมื่อ $date';
+  }
+
+  @override
+  String get linkPayAgain => 'จ่ายอีกครั้ง';
+
+  @override
+  String linkTrustListed(String name, String directory) {
+    return '$name · ผ่าน $directory';
+  }
+
+  @override
+  String linkTrustListedBy(String directory) {
+    return 'ผ่าน $directory';
+  }
+
+  @override
+  String get linkTrustDirectory => 'จากบริการที่คุณจับคู่ไว้';
+
+  @override
+  String get linkTrustOther => 'ไม่ได้มาจากบริการที่คุณจับคู่ไว้';
+
+  @override
+  String linkTrustChanged(String name, String date) {
+    return 'ตอนนี้ $name รับเงินเข้ากระเป๋าเงินใบอื่น ไม่ใช่ใบที่คุณจ่ายเมื่อ $date จ่ายเฉพาะเมื่อมีคนบอกคุณ';
+  }
+
+  @override
+  String linkTrustChangedNoName(String date) {
+    return 'ตอนนี้ผู้รับรับเงินเข้ากระเป๋าเงินใบอื่น ไม่ใช่ใบที่คุณจ่ายเมื่อ $date จ่ายเฉพาะเมื่อมีคนบอกคุณ';
+  }
+
+  @override
+  String linkCodeLabel(String name) {
+    return 'รูปภาพของ $name';
+  }
+
+  @override
+  String get linkCodeLabelPlain => 'รูปภาพ';
+
+  @override
+  String get linkAmountEdited => 'ไม่ใช่จำนวนเงินที่ขอ';
+
+  @override
+  String get linkChangedConfirmTitle => 'ตรวจสอบก่อนจ่าย';
+
+  @override
+  String dirWaitingFor(String label) {
+    return 'กำลังรอ $label…';
+  }
+
+  @override
+  String get dirCodeTitle => 'ตรวจรหัส';
+
+  @override
+  String dirCodeLead(String label) {
+    return '$label แสดงรูปภาพสี่รูป เทียบกับรูปเหล่านี้';
+  }
+
+  @override
+  String get dirCodeLabel => 'รูปภาพสี่รูป';
+
+  @override
+  String dirJoin(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'รับเงินผ่าน $label',
+      'other': 'รับเงินในชื่อ $name',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get dirNotNow => 'ไว้ก่อน';
+
+  @override
+  String dirJoinTitle(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'รับเงินผ่าน $label ไหม',
+      'other': 'รับเงินในชื่อ $name ไหม',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dirJoinBody(String name, String label, String host) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'คนที่ใช้ $label จ่ายเงินให้คุณที่นั่นได้ เงินจะเข้ามาทาง $host',
+      'other':
+          'คนที่ใช้ $label จ่ายเงินให้คุณในชื่อ $name ได้ เงินจะเข้ามาทาง $host',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dirJoinInfo(String label) {
+    return '$label ได้รับที่อยู่รับเงินหนึ่งที่อยู่และรหัสหนึ่งรหัส ทั้งสองสร้างไว้สำหรับบริการนี้เท่านั้น บริการมองไม่เห็นยอดคงเหลือ ย้ายเหรียญไม่ได้ และอ่านการจ่ายเงินไม่ได้ เงินจะเข้ามาขณะที่ Epic Cash เปิดอยู่ ออกได้ทุกเมื่อที่ ผู้ติดต่อ › $label';
+  }
+
+  @override
+  String dirJoinedNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'รับเงินผ่าน $label: เปิด',
+      'other': 'รับเงินในชื่อ $name: เปิด',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dirLeftNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'รับเงินผ่าน $label: ปิด',
+      'other': 'รับเงินในชื่อ $name: ปิด',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dirJoined(String name, String label, String date) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'รับเงินผ่าน $label · ตั้งแต่ $date',
+      'other': 'รับเงินในชื่อ $name · ตั้งแต่ $date',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get dirNotListed => 'ปิด';
+
+  @override
+  String dirNotListedBody(String label) {
+    return '$label ลบชื่อของคุณแล้ว';
+  }
+
+  @override
+  String get dirNotJoined => 'ปิด';
+
+  @override
+  String get dirJoinAgain => 'เปิดอีกครั้ง';
+
+  @override
+  String get dirListingCode => 'รูปภาพของชื่อคุณ';
+
+  @override
+  String dirListingCodeInfo(String label) {
+    return 'รูปภาพสี่รูปที่สร้างจากกระเป๋าเงินที่ชื่อของคุณรับเงินเข้า $label แสดงสี่รูปเดียวกันเพื่อเทียบได้';
+  }
+
+  @override
+  String get dirLeave => 'ออก';
+
+  @override
+  String dirRemoveTooTitle(String label) {
+    return 'ลบ $label ด้วยไหม';
   }
 }

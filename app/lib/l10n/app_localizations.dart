@@ -6612,6 +6612,30 @@ abstract class AppLocalizations {
   /// **'No contact matches \"{query}\"'**
   String contactsNoMatchQuery(String query);
 
+  /// Second line of a Send contact picker row for a contact that takes no payments, in place of the address.
+  ///
+  /// In en, this message translates to:
+  /// **'Takes no payments'**
+  String get contactTakesNoPayments;
+
+  /// Badge words (with the no-payments mark) on a contact that takes no payments: contact page header, Check the code head row, pairing result.
+  ///
+  /// In en, this message translates to:
+  /// **'No payments'**
+  String get contactNoPayments;
+
+  /// Send: error under To, payment-link refusal body, Join sheet second paragraph and late notice when {name} (a contact) takes no payments.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} takes no payments.'**
+  String contactNoPaymentsNamed(String name);
+
+  /// Title of the sheet or dialog that refuses a payment link whose payee is a contact that takes no payments.
+  ///
+  /// In en, this message translates to:
+  /// **'Takes no payments'**
+  String get linkNoPaymentsTitle;
+
   /// Contact sheet: opens Send with this contact as the recipient.
   ///
   /// In en, this message translates to:
@@ -28896,6 +28920,66 @@ abstract class AppLocalizations {
   /// **'Keep waiting'**
   String get mailboxKeepWaiting;
 
+  /// Stands for the payee's name at the start of a sentence when a payment link carried no name.
+  ///
+  /// In en, this message translates to:
+  /// **'The payee'**
+  String get linkPayeeLead;
+
+  /// Stands for the payee's name inside a sentence when a payment link carried no name.
+  ///
+  /// In en, this message translates to:
+  /// **'the payee'**
+  String get linkPayeeMid;
+
+  /// Body of the confirm before Cancel and send by Epicbox on a payment made from a payment link.
+  ///
+  /// In en, this message translates to:
+  /// **'The waiting payment is cancelled and Send opens with the same amount. Check the address, then send it again.'**
+  String get linkResendBody;
+
+  /// Unticked line on a payment made from a payment link: tell the directory's payee the payment was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell {name} it’s sent'**
+  String receiptTellSent(Object name);
+
+  /// Unticked line after the payment was finished and posted: tell the payee it went to the network.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell {name} it went to the network'**
+  String receiptTellPosted(Object name);
+
+  /// The receipt line once the receipt was posted.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} was told'**
+  String receiptTold(Object name);
+
+  /// Explanation behind the info icon of the sent receipt line; id is the first 8 characters of the request id.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will see: request {id}, {amount}, sent {time}. Nothing else goes with it: no address and no transaction id.'**
+  String receiptSeesSent(Object name, Object id, Object amount, Object time);
+
+  /// Explanation behind the info icon of the posted receipt line.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will see: request {id}, {amount}, it went to the network at {time}. Nothing else goes with it: no address and no transaction id.'**
+  String receiptSeesPosted(Object name, Object id, Object amount, Object time);
+
+  /// Notice when posting the receipt failed; the line stays unticked.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not tell {name} just now. Try again.'**
+  String receiptNotSent(Object name);
+
+  /// Title of the receipt line's explanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt'**
+  String get receiptHintTitle;
+
   /// Notice after Cancel and send by Epicbox finished: the old send is cancelled and the new one is on its way.
   ///
   /// In en, this message translates to:
@@ -31691,6 +31775,240 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Contact {n}'**
   String pairDefaultLabel(int n);
+
+  /// Refusal of a payment link whose text does not decode.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a payment link'**
+  String get linkNotALink;
+
+  /// Refusal of a payment link made for the main network.
+  ///
+  /// In en, this message translates to:
+  /// **'Made for mainnet'**
+  String get linkMadeForMainnet;
+
+  /// Refusal of a payment link made for the test network.
+  ///
+  /// In en, this message translates to:
+  /// **'Made for floonet'**
+  String get linkMadeForFloonet;
+
+  /// Refusal of a payment link whose signature does not hold.
+  ///
+  /// In en, this message translates to:
+  /// **'This link was changed after it was made.'**
+  String get linkChanged;
+
+  /// Refusal of a payment link past its expiry.
+  ///
+  /// In en, this message translates to:
+  /// **'This link expired on {date}'**
+  String linkExpired(String date);
+
+  /// Refusal of a payment link made for another payer.
+  ///
+  /// In en, this message translates to:
+  /// **'Made for someone else'**
+  String get linkForOther;
+
+  /// Title of the sheet shown for a payment link whose request was paid before.
+  ///
+  /// In en, this message translates to:
+  /// **'Already paid'**
+  String get linkPaidTitle;
+
+  /// Body of the sheet for a payment link whose request was paid before.
+  ///
+  /// In en, this message translates to:
+  /// **'You paid this request on {date}'**
+  String linkPaidBefore(String date);
+
+  /// Button that opens Send for a payment link already paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay again'**
+  String get linkPayAgain;
+
+  /// Trust line on Send: the payee's name and the service this wallet is paired with (its contact name) that the link comes from.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · via {directory}'**
+  String linkTrustListed(String name, String directory);
+
+  /// Trust line on Send when the link has no name.
+  ///
+  /// In en, this message translates to:
+  /// **'Via {directory}'**
+  String linkTrustListedBy(String directory);
+
+  /// Trust line on Send for a directory this wallet uses that has no label.
+  ///
+  /// In en, this message translates to:
+  /// **'From a service you paired with'**
+  String get linkTrustDirectory;
+
+  /// Trust line on Send for a payment link from any other directory.
+  ///
+  /// In en, this message translates to:
+  /// **'Not from a service you paired with'**
+  String get linkTrustOther;
+
+  /// Trust line on Send when the listing key differs from the one paid before.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} now gets paid to a different wallet than when you paid on {date}. Pay only if they told you.'**
+  String linkTrustChanged(String name, String date);
+
+  /// Trust line on Send for a changed wallet when the link has no name.
+  ///
+  /// In en, this message translates to:
+  /// **'This payee now gets paid to a different wallet than when you paid on {date}. Pay only if they told you.'**
+  String linkTrustChangedNoName(String date);
+
+  /// Label of the four pictures that identify the listing key.
+  ///
+  /// In en, this message translates to:
+  /// **'Pictures for {name}'**
+  String linkCodeLabel(String name);
+
+  /// Label of the four pictures when the link has no name.
+  ///
+  /// In en, this message translates to:
+  /// **'Pictures'**
+  String get linkCodeLabelPlain;
+
+  /// Note on Send when the amount differs from the one in the payment link.
+  ///
+  /// In en, this message translates to:
+  /// **'Not the amount requested'**
+  String get linkAmountEdited;
+
+  /// Title of the extra confirm before sending to a listing that changed wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Check before paying'**
+  String get linkChangedConfirmTitle;
+
+  /// Static line on the Check step while a directory’s message is awaited (no spinner). {label} is the name the pairing shows.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for {label}…'**
+  String dirWaitingFor(String label);
+
+  /// Title of the step that replaces Check the words for a directory pairing.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the code'**
+  String get dirCodeTitle;
+
+  /// Lead of Check the code: the four pictures below must equal the ones the other side shows.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} shows four pictures. Compare them with these.'**
+  String dirCodeLead(String label);
+
+  /// Read by a screen reader before the four pictures of a code.
+  ///
+  /// In en, this message translates to:
+  /// **'The four pictures'**
+  String get dirCodeLabel;
+
+  /// Button on the Join sheet and the contact page: the user takes a payment name at this service. {name} is the user's @name from the service's hello, or the word none when it sent none; {label} is the contact name.
+  ///
+  /// In en, this message translates to:
+  /// **'{name, select, none{Pay me via {label}} other{Pay me as {name}}}'**
+  String dirJoin(String name, String label);
+
+  /// Button on the Join sheet: leaves the contact verified, with Join on its page.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get dirNotNow;
+
+  /// Title of the Join sheet. {name} is the user's @name, or the word none; {label} is the contact name.
+  ///
+  /// In en, this message translates to:
+  /// **'{name, select, none{Pay me via {label}?} other{Pay me as {name}?}}'**
+  String dirJoinTitle(String name, String label);
+
+  /// Body of the Join sheet. {name} is the user's @name, or the word none; {label} is the contact name; {host} is the host of the wallet’s own Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'{name, select, none{People who use {label} can pay you there. Payments come through {host}} other{People who use {label} can pay you as {name}. Payments come through {host}}}'**
+  String dirJoinBody(String name, String label, String host);
+
+  /// Explanation behind the info button on the Join sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} gets one payment address and one code, both made only for it. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Leave any time in Contacts › {label}.'**
+  String dirJoinInfo(String label);
+
+  /// Notice after Join worked. {name} is the user's @name, or the word none; {label} is the contact name.
+  ///
+  /// In en, this message translates to:
+  /// **'{name, select, none{Pay me via {label}: on} other{Pay me as {name}: on}}'**
+  String dirJoinedNotice(String name, String label);
+
+  /// Notice after Leave worked. {name} is the user's @name, or the word none; {label} is the contact name.
+  ///
+  /// In en, this message translates to:
+  /// **'{name, select, none{Pay me via {label}: off} other{Pay me as {name}: off}}'**
+  String dirLeftNotice(String name, String label);
+
+  /// Status line on the contact page of a service the user joined. {name} is the user's @name, or the word none; {label} is the contact name; {date} is a short date.
+  ///
+  /// In en, this message translates to:
+  /// **'{name, select, none{Pay me via {label} · since {date}} other{Pay me as {name} · since {date}}}'**
+  String dirJoined(String name, String label, String date);
+
+  /// Status line on the contact page of a directory that no longer lists the user.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get dirNotListed;
+
+  /// Line under Not listed.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} removed your name.'**
+  String dirNotListedBody(String label);
+
+  /// Status line on the contact page of a verified directory the user has not joined.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get dirNotJoined;
+
+  /// Button on the contact page of a directory that no longer lists the user, or one the user left.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on again'**
+  String get dirJoinAgain;
+
+  /// Label of the four pictures of the user’s listing on the contact page of a directory.
+  ///
+  /// In en, this message translates to:
+  /// **'Pictures for your name'**
+  String get dirListingCode;
+
+  /// Explanation behind the info button of the listing code. {label} is the name the pairing shows.
+  ///
+  /// In en, this message translates to:
+  /// **'Four pictures made from the wallet your name pays. {label} can show the same four to compare.'**
+  String dirListingCodeInfo(String label);
+
+  /// Button on the contact page of a joined service: takes the user's name down (opens the confirm).
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get dirLeave;
+
+  /// Title of the question after Leave: also end the pairing.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {label} too?'**
+  String dirRemoveTooTitle(String label);
 }
 
 class _AppLocalizationsDelegate

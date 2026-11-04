@@ -14,6 +14,7 @@ import '../../data/invoice_state.dart';
 import '../../data/pairing_state.dart' show DeskPairNet, deskPairNetProvider, deskPairingNameProvider, deskPairingSlateProvider, deskPairsProvider;
 import '../../data/method_names.dart';
 import '../../widgets/kit.dart';
+import '../../../directory/receipts.dart' show directoryReceiptsProvider, linkPayeeName, linkPayeeUnnamed, linkPaymentProvider;
 import '../../../trust/contact_trust.dart' show mailboxStageWord;
 import '../../data/clock.dart' show deskClockProvider;
 import '../invoices/invoice_parts.dart' show payStateWord, requestStateWord;
@@ -87,12 +88,25 @@ String? deskTxMailboxName(WidgetRef ref, Tx t, {bool any = false}) {
   return name.isEmpty ? null : name;
 }
 
+/// The payee of a payment made from a payment link that still waits for its answer: the name
+/// the link or the directory gave it, [linkPayeeUnnamed] when none, null for any other payment.
+String? deskLinkPayee(WidgetRef ref, Tx t) {
+  if (t.incoming || t.slateId.isEmpty || t.state != TxState.waitingRecipient) return null;
+  final rec = ref.watch(linkPaymentProvider(t.slateId));
+  return rec == null ? null : linkPayeeName(ref.watch(directoryReceiptsProvider), rec) ?? linkPayeeUnnamed;
+}
+
 /// [statusOf], with "Waiting for Anna to sign" for a send through [mailbox]'s mailbox, and
 /// "Waiting for Anna" for a payment from it: Anna's wallet finalizes by itself, no file. While
 /// Epicbox is off ([paused]) a send waits in the outbox, and the row says that instead.
 (String, ETone) statusWithMailbox(AppLocalizations l, Tx t, String? mailbox, {bool paused = false, DateTime? now}) {
   if (mailbox == null || t.state != TxState.waitingRecipient || t.undelivered || t.senderPosted || t.senderCancelled) return statusOf(l, t);
   if (t.incoming) return (l.txStatusWaitingFor(mailbox), ETone.info);
+  // A payment link whose payee has no name: the day and week words only.
+  if (mailbox == linkPayeeUnnamed) {
+    final word = now == null ? null : mailboxStageWord(l, t.created, now);
+    return word == null ? statusOf(l, t) : (word, ETone.warn);
+  }
   if (paused) return (l.contactPausedEpicboxOff, ETone.warn);
   // Unanswered for a day, or gone from the relay after seven: the stage, not the name.
   final stage = now == null ? null : mailboxStageWord(l, t.created, now);
@@ -119,7 +133,7 @@ String? deskTxMailboxName(WidgetRef ref, Tx t, {bool any = false}) {
       (t.method == TxMethod.file && t.state == TxState.waitingRecipient);
   if (wording == LevelWording.technical || own) return today;
   final plain = wording == LevelWording.plain;
-  final name = mailbox ?? t.contactName;
+  final name = mailbox == null || mailbox == linkPayeeUnnamed ? t.contactName : mailbox;
   if (t.immature) return (plain ? l.lvPayArriving : l.deskLvPayImmatureCasual, ETone.info);
   switch (t.state) {
     case TxState.waitingRecipient:
@@ -484,7 +498,7 @@ class _TxRowState extends ConsumerState<TxRow> {
     final shallow = ref.watch(deskLevelUiProvider.select((f) => f.shallow));
     final (word, tone) =
         invoiceStatusOf(context, ref, t) ??
-        levelStatusWithMailbox(context.l10n, t, wording, mailbox, paused: mailbox != null && ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff, now: ref.watch(deskClockProvider)());
+        levelStatusWithMailbox(context.l10n, t, wording, mailbox ?? deskLinkPayee(ref, t), paused: mailbox != null && ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff, now: ref.watch(deskClockProvider)());
     final toneColor = switch (tone) {
       ETone.ok => c.dim,
       ETone.warn => c.warn,

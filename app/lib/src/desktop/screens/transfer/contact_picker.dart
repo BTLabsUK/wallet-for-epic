@@ -4,7 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../models.dart' show PairingRecord;
-import '../../../ui/pairing/pairing_parts.dart' show TrustBadge;
+import '../../../directory/payment_refusals.dart' show paymentRefusalsProvider;
+import '../../../ui/pairing/pairing_parts.dart' show NoPaymentsMark, TrustBadge;
 import '../../data/pairing_state.dart' show deskContactPairingProvider, deskPairsProvider;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
@@ -19,6 +20,11 @@ bool contactSendable(Contact c) => switch (addressKindOf(c.address)) {
 /// null for a contact with an address.
 PairingRecord? contactPairingOnly(WidgetRef ref, Contact c) =>
     c.addresses.isEmpty && ref.watch(deskPairsProvider) ? ref.watch(deskContactPairingProvider(c.id)) : null;
+
+/// Whether [c] is a contact that takes no payments: its pairing says so, or its address is one's.
+bool contactRefusesPayments(WidgetRef ref, Contact c) => ref
+    .watch(paymentRefusalsProvider)
+    .refusesPayments(pairingId: ref.watch(deskPairsProvider) ? ref.watch(deskContactPairingProvider(c.id))?.id : null, address: c.epicbox);
 
 /// "Through Anna's pairing" with the trust badge, where a contact with no address shows its
 /// address in a list.
@@ -108,7 +114,12 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
           shrinkWrap: true,
           itemCount: shown.length,
           separatorBuilder: (_, _) => Divider(height: 1, color: c.line),
-          itemBuilder: (_, i) => _PickRow(contact: shown[i], pairing: contactPairingOnly(ref, shown[i]), onTap: () => Navigator.of(context).pop(shown[i])),
+          itemBuilder: (_, i) => _PickRow(
+            contact: shown[i],
+            pairing: contactPairingOnly(ref, shown[i]),
+            noPayments: contactRefusesPayments(ref, shown[i]),
+            onTap: () => Navigator.of(context).pop(shown[i]),
+          ),
         ),
       );
     }
@@ -140,7 +151,8 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
                 autofocus: true,
                 onChanged: (_) => setState(() {}),
                 onSubmitted: (_) {
-                  if (shown.isNotEmpty) Navigator.of(context).pop(shown.first);
+                  final open = shown.where((x) => !contactRefusesPayments(ref, x));
+                  if (open.isNotEmpty) Navigator.of(context).pop(open.first);
                 },
               ),
             ),
@@ -158,10 +170,13 @@ class _ContactPickerDialogState extends ConsumerState<ContactPickerDialog> {
 }
 
 class _PickRow extends StatefulWidget {
-  const _PickRow({required this.contact, required this.onTap, this.pairing});
+  const _PickRow({required this.contact, required this.onTap, this.pairing, this.noPayments = false});
 
   final Contact contact;
   final VoidCallback onTap;
+
+  /// The contact takes no payments: the row stays, dimmed and not pressable, with the reason.
+  final bool noPayments;
 
   /// The pairing of a contact with no address: its row says payments go through it.
   final PairingRecord? pairing;
@@ -177,25 +192,44 @@ class _PickRowState extends State<_PickRow> {
   Widget build(BuildContext context) {
     final c = context.dc;
     final pairing = widget.pairing;
-    return Semantics(
+    final noPayments = widget.noPayments;
+    final row = Semantics(
       button: true,
-      label: pairing == null ? '${widget.contact.name}, ${widget.contact.address}' : '${widget.contact.name}, ${context.l10n.sendRecipientPairing(widget.contact.name)}',
+      enabled: !noPayments,
+      label: noPayments
+          ? '${widget.contact.name}, ${context.l10n.contactTakesNoPayments}'
+          : pairing == null ? '${widget.contact.name}, ${widget.contact.address}' : '${widget.contact.name}, ${context.l10n.sendRecipientPairing(widget.contact.name)}',
       excludeSemantics: true,
       child: MouseRegion(
         onEnter: (_) => setState(() => _hover = true),
         onExit: (_) => setState(() => _hover = false),
-        cursor: SystemMouseCursors.click,
+        cursor: noPayments ? SystemMouseCursors.basic : SystemMouseCursors.click,
         child: EInkWell(
-          onTap: widget.onTap,
+          onTap: noPayments ? null : widget.onTap,
           child: Container(
-            color: _hover ? c.hover : Colors.transparent,
+            color: _hover && !noPayments ? c.hover : Colors.transparent,
             padding: EdgeInsets.symmetric(vertical: Sp.x3, horizontal: Sp.x2),
             child: Row(
               children: [
                 EAvatar(widget.contact.name, size: 40.u),
                 SizedBox(width: 14.u),
                 Expanded(
-                  child: pairing != null
+                  child: noPayments
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Flexible(child: Text(widget.contact.name, style: context.ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                                SizedBox(width: Sp.x2),
+                                const NoPaymentsMark(),
+                              ],
+                            ),
+                            SizedBox(height: Sp.x1),
+                            Text(context.l10n.contactTakesNoPayments, style: context.ts.small),
+                          ],
+                        )
+                      : pairing != null
                       ? Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -222,5 +256,6 @@ class _PickRowState extends State<_PickRow> {
         ),
       ),
     );
+    return noPayments ? Opacity(opacity: 0.5, child: row) : row;
   }
 }

@@ -4126,6 +4126,20 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get contactTakesNoPayments => 'Takes no payments';
+
+  @override
+  String get contactNoPayments => 'No payments';
+
+  @override
+  String contactNoPaymentsNamed(String name) {
+    return '$name takes no payments.';
+  }
+
+  @override
+  String get linkNoPaymentsTitle => 'Takes no payments';
+
+  @override
   String get contactsSendAction => 'Send';
 
   @override
@@ -18546,6 +18560,49 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mailboxKeepWaiting => 'Keep waiting';
 
   @override
+  String get linkPayeeLead => 'The payee';
+
+  @override
+  String get linkPayeeMid => 'the payee';
+
+  @override
+  String get linkResendBody =>
+      'The waiting payment is cancelled and Send opens with the same amount. Check the address, then send it again.';
+
+  @override
+  String receiptTellSent(Object name) {
+    return 'Tell $name it’s sent';
+  }
+
+  @override
+  String receiptTellPosted(Object name) {
+    return 'Tell $name it went to the network';
+  }
+
+  @override
+  String receiptTold(Object name) {
+    return '$name was told';
+  }
+
+  @override
+  String receiptSeesSent(Object name, Object id, Object amount, Object time) {
+    return '$name will see: request $id, $amount, sent $time. Nothing else goes with it: no address and no transaction id.';
+  }
+
+  @override
+  String receiptSeesPosted(Object name, Object id, Object amount, Object time) {
+    return '$name will see: request $id, $amount, it went to the network at $time. Nothing else goes with it: no address and no transaction id.';
+  }
+
+  @override
+  String receiptNotSent(Object name) {
+    return 'Could not tell $name just now. Try again.';
+  }
+
+  @override
+  String get receiptHintTitle => 'Receipt';
+
+  @override
   String get mailboxResent => 'Cancelled and sent by Epicbox.';
 
   @override
@@ -20229,5 +20286,186 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String pairDefaultLabel(int n) {
     return 'Contact $n';
+  }
+
+  @override
+  String get linkNotALink => 'Not a payment link';
+
+  @override
+  String get linkMadeForMainnet => 'Made for mainnet';
+
+  @override
+  String get linkMadeForFloonet => 'Made for floonet';
+
+  @override
+  String get linkChanged => 'This link was changed after it was made.';
+
+  @override
+  String linkExpired(String date) {
+    return 'This link expired on $date';
+  }
+
+  @override
+  String get linkForOther => 'Made for someone else';
+
+  @override
+  String get linkPaidTitle => 'Already paid';
+
+  @override
+  String linkPaidBefore(String date) {
+    return 'You paid this request on $date';
+  }
+
+  @override
+  String get linkPayAgain => 'Pay again';
+
+  @override
+  String linkTrustListed(String name, String directory) {
+    return '$name · via $directory';
+  }
+
+  @override
+  String linkTrustListedBy(String directory) {
+    return 'Via $directory';
+  }
+
+  @override
+  String get linkTrustDirectory => 'From a service you paired with';
+
+  @override
+  String get linkTrustOther => 'Not from a service you paired with';
+
+  @override
+  String linkTrustChanged(String name, String date) {
+    return '$name now gets paid to a different wallet than when you paid on $date. Pay only if they told you.';
+  }
+
+  @override
+  String linkTrustChangedNoName(String date) {
+    return 'This payee now gets paid to a different wallet than when you paid on $date. Pay only if they told you.';
+  }
+
+  @override
+  String linkCodeLabel(String name) {
+    return 'Pictures for $name';
+  }
+
+  @override
+  String get linkCodeLabelPlain => 'Pictures';
+
+  @override
+  String get linkAmountEdited => 'Not the amount requested';
+
+  @override
+  String get linkChangedConfirmTitle => 'Check before paying';
+
+  @override
+  String dirWaitingFor(String label) {
+    return 'Waiting for $label…';
+  }
+
+  @override
+  String get dirCodeTitle => 'Check the code';
+
+  @override
+  String dirCodeLead(String label) {
+    return '$label shows four pictures. Compare them with these.';
+  }
+
+  @override
+  String get dirCodeLabel => 'The four pictures';
+
+  @override
+  String dirJoin(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Pay me via $label',
+      'other': 'Pay me as $name',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get dirNotNow => 'Not now';
+
+  @override
+  String dirJoinTitle(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Pay me via $label?',
+      'other': 'Pay me as $name?',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dirJoinBody(String name, String label, String host) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none':
+          'People who use $label can pay you there. Payments come through $host',
+      'other':
+          'People who use $label can pay you as $name. Payments come through $host',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dirJoinInfo(String label) {
+    return '$label gets one payment address and one code, both made only for it. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Leave any time in Contacts › $label.';
+  }
+
+  @override
+  String dirJoinedNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Pay me via $label: on',
+      'other': 'Pay me as $name: on',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dirLeftNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Pay me via $label: off',
+      'other': 'Pay me as $name: off',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dirJoined(String name, String label, String date) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Pay me via $label · since $date',
+      'other': 'Pay me as $name · since $date',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get dirNotListed => 'Off';
+
+  @override
+  String dirNotListedBody(String label) {
+    return '$label removed your name.';
+  }
+
+  @override
+  String get dirNotJoined => 'Off';
+
+  @override
+  String get dirJoinAgain => 'Turn on again';
+
+  @override
+  String get dirListingCode => 'Pictures for your name';
+
+  @override
+  String dirListingCodeInfo(String label) {
+    return 'Four pictures made from the wallet your name pays. $label can show the same four to compare.';
+  }
+
+  @override
+  String get dirLeave => 'Leave';
+
+  @override
+  String dirRemoveTooTitle(String label) {
+    return 'Remove $label too?';
   }
 }

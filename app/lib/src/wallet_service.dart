@@ -12,6 +12,11 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 
 import 'desktop/data/mock_hosts.dart' show fakeWalletOnion;
+import 'directory/base58.dart' show epicboxKeyText, netMainnet;
+import 'directory/pins.dart' show LinkMemory;
+import 'directory/receipts.dart' show LinkPaymentRecords;
+import 'directory/verify.dart' show refusingVerifier;
+import 'directory/wire.dart' show Payreq;
 import 'history/wallet_history.dart';
 import 'models.dart';
 import 'trust/policy.dart';
@@ -71,6 +76,16 @@ abstract interface class WalletService {
   /// True for an onion v3 address: 56 characters, with or without `.onion`, an `http://`
   /// prefix, a port or a path, whose version and checksum hold.
   bool validateOnionAddress({required String address});
+
+  /// Whether [der] (DER bytes) is the K3 signature of [message] under [domain] by the Epicbox key
+  /// [publicKeyText] (LEPIC's `verifyAddressSignatureAt`). Needs no open wallet; false for
+  /// anything malformed. A core with no LEPIC refuses everything.
+  Future<bool> verifyListingSignature(
+    String publicKeyText,
+    String domain,
+    Uint8List message,
+    Uint8List der,
+  );
 
   /// What the wallet has learned about the software behind [address] (an Epicbox address), or
   /// null when it knows nothing. Feeds the trust policy (lib/src/trust/policy.dart).
@@ -536,6 +551,20 @@ abstract interface class WalletSession {
   /// Stars ([favourite] true) or unstars the contact [id] in this wallet.
   Future<void> setFavouriteContact({required String id, required bool favourite});
 
+  /// The chain of the open wallet.
+  Chain get chain;
+
+  /// What this wallet remembered of payments made from payment links: listing pins and paid
+  /// request ids. Deleting the history deletes them.
+  LinkMemory linkMemory();
+
+  /// Records that the user paid [request] from its link at [paidAt] (unix seconds).
+  Future<void> recordLinkPayment(Payreq request, int paidAt, {String? txId});
+
+  /// The records of payments made from links ([recordLinkPayment]); [onChange] runs after one
+  /// changes.
+  LinkPaymentRecords linkPaymentRecords({void Function()? onChange});
+
   /// Encrypted history file that only a wallet with the same recovery phrase can import. It
   /// carries what the phrase and a scan cannot give back; the app adds the wallet's
   /// [walletName] where it names wallets, and its [settings] (`backup_settings.dart`).
@@ -732,6 +761,55 @@ extension DrainEpicboxAt on WalletSession {
     // call came back here (26.11.0 froze the UI thread until a StackOverflowError).
     if (this case final EpicboxDrainAt core) return core.drainEpicboxAt(domain: domain, port: port);
     return null;
+  }
+}
+
+/// A session that holds the wallet's listing keys: one Epicbox address per (directory key,
+/// generation), derived from the phrase alone, signing under the listing domains and drained
+/// like the wallet's own address. Optional, so a core without them answers null through
+/// [ListingKeysOf.listingKeys].
+abstract interface class ListingKeys {
+  /// The listing address (`<key>@<domain>[:port]`) of [dkeyHex] (33 bytes, hex) at [generation],
+  /// on the wallet's home Epicbox server.
+  Future<String> listingAddress(String dkeyHex, int generation);
+
+  /// The DER signature of [message] under [domain] by that listing key.
+  Future<Uint8List> signWithListing(String dkeyHex, int generation, String domain, Uint8List message);
+
+  /// Reads what is stored for that listing address once, answering as the own address does.
+  Future<PaymentsDrainReport> drainListing(String dkeyHex, int generation);
+}
+
+extension ListingKeysOf on WalletSession {
+  /// The listing keys of this session, or null for one without them.
+  ListingKeys? get listingKeys {
+    // A pattern, not `is`, as in [DrainEpicboxAt].
+    if (this case final ListingKeys keys) return keys;
+    return null;
+  }
+}
+
+/// Listing keys of made-up keys, for the fakes: a real key text (so it parses) on the home
+/// server, and a hash for a signature.
+class FakeListingKeys implements ListingKeys {
+  /// The listings drained: (dkey hex, generation) in call order.
+  final List<(String, int)> drains = [];
+
+  @override
+  Future<String> listingAddress(String dkeyHex, int generation) async {
+    final key = sha256.convert(utf8.encode('listing $dkeyHex $generation')).bytes;
+    final host = hostSettingsLoaded ? hostSettings.epicboxUse : 'relay.example.invalid';
+    return '${epicboxKeyText([2, ...key], netMainnet)}@$host';
+  }
+
+  @override
+  Future<Uint8List> signWithListing(String dkeyHex, int generation, String domain, Uint8List message) async =>
+      Uint8List.fromList(sha256.convert([...utf8.encode('$dkeyHex $generation $domain '), ...message]).bytes);
+
+  @override
+  Future<PaymentsDrainReport> drainListing(String dkeyHex, int generation) async {
+    drains.add((dkeyHex, generation));
+    return const PaymentsDrainReport();
   }
 }
 
@@ -935,6 +1013,14 @@ class FakeWalletService implements WalletService {
 
   @override
   bool epicboxAddressOtherChain({required String address}) => false;
+
+  @override
+  Future<bool> verifyListingSignature(
+    String publicKeyText,
+    String domain,
+    Uint8List message,
+    Uint8List der,
+  ) => refusingVerifier(publicKeyText, domain, message, der);
 
   @override
   bool validateOnionAddress({required String address}) =>
@@ -1249,7 +1335,7 @@ String fakeAddressSignature(String key, List<int> message) =>
     '${sha512.convert([...utf8.encode('fake-address-signature/$key/'), ...message])}';
 
 /// Scripted open wallet for tests. Mutate the public fields to shape each scenario.
-class FakeWalletSession implements WalletSession {
+class FakeWalletSession implements WalletSession, ListingKeys {
   FakeWalletSession({
     WalletSummary? summary,
     List<TxEntry>? transactions,
@@ -1954,6 +2040,19 @@ class FakeWalletSession implements WalletSession {
   Future<bool> verifyDeviceLink({required List<int> transcript, required String signature}) async =>
       signature == fakeAddressSignature(epicboxKey(address), transcript);
 
+  /// The listing keys of the fake: a test reads [FakeListingKeys.drains].
+  final FakeListingKeys fakeListing = FakeListingKeys();
+
+  @override
+  Future<String> listingAddress(String dkeyHex, int generation) => fakeListing.listingAddress(dkeyHex, generation);
+
+  @override
+  Future<Uint8List> signWithListing(String dkeyHex, int generation, String domain, Uint8List message) =>
+      fakeListing.signWithListing(dkeyHex, generation, domain, message);
+
+  @override
+  Future<PaymentsDrainReport> drainListing(String dkeyHex, int generation) => fakeListing.drainListing(dkeyHex, generation);
+
   /// What [unmatchedNotices] streams; a test adds to it as LEPIC's event would.
   final StreamController<UnmatchedNotice> unmatchedController = StreamController<UnmatchedNotice>.broadcast();
 
@@ -2412,6 +2511,19 @@ class FakeWalletSession implements WalletSession {
   Future<void> setFavouriteContact({required String id, required bool favourite}) async {
     favourite ? favourites.add(id) : favourites.remove(id);
   }
+
+  @override
+  Chain get chain => openedConfig?.chain ?? Chain.mainnet;
+
+  @override
+  LinkMemory linkMemory() => invoiceHistory.linkMemory();
+
+  @override
+  Future<void> recordLinkPayment(Payreq request, int paidAt, {String? txId}) =>
+      invoiceHistory.recordLinkPayment(request, paidAt, txId: txId);
+
+  @override
+  LinkPaymentRecords linkPaymentRecords({void Function()? onChange}) => invoiceHistory.linkPaymentRecords(onChange: onChange);
 
   static const _exportMagic = 'FAKE-WFEH';
 

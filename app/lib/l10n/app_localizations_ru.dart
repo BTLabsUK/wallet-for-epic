@@ -4240,6 +4240,20 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get contactTakesNoPayments => 'Не принимает платежи';
+
+  @override
+  String get contactNoPayments => 'Без платежей';
+
+  @override
+  String contactNoPaymentsNamed(String name) {
+    return '$name не принимает платежи.';
+  }
+
+  @override
+  String get linkNoPaymentsTitle => 'Не принимает платежи';
+
+  @override
   String get contactsSendAction => 'Отправить';
 
   @override
@@ -19186,6 +19200,49 @@ class AppLocalizationsRu extends AppLocalizations {
   String get mailboxKeepWaiting => 'Подождать ещё';
 
   @override
+  String get linkPayeeLead => 'Получатель';
+
+  @override
+  String get linkPayeeMid => 'получатель';
+
+  @override
+  String get linkResendBody =>
+      'Ожидающий платёж будет отменён, и «Отправить» откроется с той же суммой. Проверьте адрес и отправьте снова.';
+
+  @override
+  String receiptTellSent(Object name) {
+    return 'Сообщить $name, что отправлено';
+  }
+
+  @override
+  String receiptTellPosted(Object name) {
+    return 'Сообщить $name, что платёж ушёл в сеть';
+  }
+
+  @override
+  String receiptTold(Object name) {
+    return 'Уведомление отправлено: $name';
+  }
+
+  @override
+  String receiptSeesSent(Object name, Object id, Object amount, Object time) {
+    return '$name увидит: запрос $id, $amount, отправлено $time. Больше ничего не передаётся: ни адреса, ни ID транзакции.';
+  }
+
+  @override
+  String receiptSeesPosted(Object name, Object id, Object amount, Object time) {
+    return '$name увидит: запрос $id, $amount, в сети с $time. Больше ничего не передаётся: ни адреса, ни ID транзакции.';
+  }
+
+  @override
+  String receiptNotSent(Object name) {
+    return 'Сейчас не удалось сообщить $name. Попробуйте ещё раз.';
+  }
+
+  @override
+  String get receiptHintTitle => 'Квитанция';
+
+  @override
   String get mailboxResent => 'Отменено и отправлено через Epicbox.';
 
   @override
@@ -20900,5 +20957,186 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String pairDefaultLabel(int n) {
     return 'Контакт $n';
+  }
+
+  @override
+  String get linkNotALink => 'Это не платёжная ссылка';
+
+  @override
+  String get linkMadeForMainnet => 'Ссылка создана для mainnet';
+
+  @override
+  String get linkMadeForFloonet => 'Ссылка создана для floonet';
+
+  @override
+  String get linkChanged => 'Эту ссылку изменили после создания.';
+
+  @override
+  String linkExpired(String date) {
+    return 'Срок действия ссылки истёк $date';
+  }
+
+  @override
+  String get linkForOther => 'Ссылка создана для другого человека';
+
+  @override
+  String get linkPaidTitle => 'Уже оплачено';
+
+  @override
+  String linkPaidBefore(String date) {
+    return 'Вы оплатили этот запрос $date';
+  }
+
+  @override
+  String get linkPayAgain => 'Оплатить снова';
+
+  @override
+  String linkTrustListed(String name, String directory) {
+    return '$name · через $directory';
+  }
+
+  @override
+  String linkTrustListedBy(String directory) {
+    return 'Через $directory';
+  }
+
+  @override
+  String get linkTrustDirectory => 'От сервиса, с которым вы сопряжены';
+
+  @override
+  String get linkTrustOther => 'Не от сервиса, с которым вы сопряжены';
+
+  @override
+  String linkTrustChanged(String name, String date) {
+    return '$name теперь получает платежи на другой кошелёк, чем при вашем платеже $date. Платите, только если вам об этом сказали.';
+  }
+
+  @override
+  String linkTrustChangedNoName(String date) {
+    return 'Получатель теперь получает платежи на другой кошелёк, чем при вашем платеже $date. Платите, только если вам об этом сказали.';
+  }
+
+  @override
+  String linkCodeLabel(String name) {
+    return 'Картинки для $name';
+  }
+
+  @override
+  String get linkCodeLabelPlain => 'Картинки';
+
+  @override
+  String get linkAmountEdited => 'Не запрошенная сумма';
+
+  @override
+  String get linkChangedConfirmTitle => 'Проверьте перед оплатой';
+
+  @override
+  String dirWaitingFor(String label) {
+    return 'Ожидание $label…';
+  }
+
+  @override
+  String get dirCodeTitle => 'Проверьте код';
+
+  @override
+  String dirCodeLead(String label) {
+    return '$label показывает четыре картинки. Сравните их с этими.';
+  }
+
+  @override
+  String get dirCodeLabel => 'Четыре картинки';
+
+  @override
+  String dirJoin(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Платите мне через $label',
+      'other': 'Платите мне как $name',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get dirNotNow => 'Не сейчас';
+
+  @override
+  String dirJoinTitle(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Платите мне через $label?',
+      'other': 'Платите мне как $name?',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dirJoinBody(String name, String label, String host) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none':
+          'Те, кто пользуется $label, могут платить вам там. Платежи приходят через $host',
+      'other':
+          'Те, кто пользуется $label, могут платить вам как $name. Платежи приходят через $host',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dirJoinInfo(String label) {
+    return '$label получает один платёжный адрес и один код, оба созданы только для него. Он не видит ваш баланс, не двигает монеты и не читает платежи. Платежи приходят, пока Epic Cash открыт. Выйти можно в любой момент: Контакты › $label.';
+  }
+
+  @override
+  String dirJoinedNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Платите мне через $label: включено',
+      'other': 'Платите мне как $name: включено',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dirLeftNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Платите мне через $label: выключено',
+      'other': 'Платите мне как $name: выключено',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dirJoined(String name, String label, String date) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Платите мне через $label · с $date',
+      'other': 'Платите мне как $name · с $date',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get dirNotListed => 'Выключено';
+
+  @override
+  String dirNotListedBody(String label) {
+    return '$label: ваше имя удалено.';
+  }
+
+  @override
+  String get dirNotJoined => 'Выключено';
+
+  @override
+  String get dirJoinAgain => 'Включить снова';
+
+  @override
+  String get dirListingCode => 'Картинки для вашего имени';
+
+  @override
+  String dirListingCodeInfo(String label) {
+    return 'Четыре картинки, созданные из кошелька, на который приходят платежи по вашему имени. $label может показать те же четыре для сравнения.';
+  }
+
+  @override
+  String get dirLeave => 'Выйти';
+
+  @override
+  String dirRemoveTooTitle(String label) {
+    return 'Удалить также $label?';
   }
 }

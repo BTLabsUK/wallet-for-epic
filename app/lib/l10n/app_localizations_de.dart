@@ -4188,6 +4188,20 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get contactTakesNoPayments => 'Nimmt keine Zahlungen an';
+
+  @override
+  String get contactNoPayments => 'Keine Zahlungen';
+
+  @override
+  String contactNoPaymentsNamed(String name) {
+    return '$name nimmt keine Zahlungen an.';
+  }
+
+  @override
+  String get linkNoPaymentsTitle => 'Nimmt keine Zahlungen an';
+
+  @override
   String get contactsSendAction => 'Senden';
 
   @override
@@ -18763,6 +18777,49 @@ class AppLocalizationsDe extends AppLocalizations {
   String get mailboxKeepWaiting => 'Weiter warten';
 
   @override
+  String get linkPayeeLead => 'Der Empfänger';
+
+  @override
+  String get linkPayeeMid => 'der Empfänger';
+
+  @override
+  String get linkResendBody =>
+      'Die wartende Zahlung wird storniert und Senden öffnet sich mit demselben Betrag. Prüfen Sie die Adresse und senden Sie dann erneut.';
+
+  @override
+  String receiptTellSent(Object name) {
+    return '$name mitteilen, dass es gesendet ist';
+  }
+
+  @override
+  String receiptTellPosted(Object name) {
+    return '$name mitteilen, dass es im Netzwerk ist';
+  }
+
+  @override
+  String receiptTold(Object name) {
+    return '$name wurde informiert';
+  }
+
+  @override
+  String receiptSeesSent(Object name, Object id, Object amount, Object time) {
+    return '$name sieht: Anfrage $id, $amount, gesendet $time. Mehr wird nicht übermittelt: keine Adresse und keine Transaktions-ID.';
+  }
+
+  @override
+  String receiptSeesPosted(Object name, Object id, Object amount, Object time) {
+    return '$name sieht: Anfrage $id, $amount, im Netzwerk um $time. Mehr wird nicht übermittelt: keine Adresse und keine Transaktions-ID.';
+  }
+
+  @override
+  String receiptNotSent(Object name) {
+    return '$name konnte gerade nicht informiert werden. Versuchen Sie es erneut.';
+  }
+
+  @override
+  String get receiptHintTitle => 'Beleg';
+
+  @override
   String get mailboxResent => 'Storniert und per Epicbox gesendet.';
 
   @override
@@ -20478,5 +20535,188 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String pairDefaultLabel(int n) {
     return 'Kontakt $n';
+  }
+
+  @override
+  String get linkNotALink => 'Kein Zahlungslink';
+
+  @override
+  String get linkMadeForMainnet => 'Für Mainnet erstellt';
+
+  @override
+  String get linkMadeForFloonet => 'Für Floonet erstellt';
+
+  @override
+  String get linkChanged => 'Dieser Link wurde nach der Erstellung geändert.';
+
+  @override
+  String linkExpired(String date) {
+    return 'Dieser Link ist am $date abgelaufen';
+  }
+
+  @override
+  String get linkForOther => 'Für jemand anderen erstellt';
+
+  @override
+  String get linkPaidTitle => 'Bereits bezahlt';
+
+  @override
+  String linkPaidBefore(String date) {
+    return 'Sie haben diese Anfrage am $date bezahlt';
+  }
+
+  @override
+  String get linkPayAgain => 'Erneut bezahlen';
+
+  @override
+  String linkTrustListed(String name, String directory) {
+    return '$name · über $directory';
+  }
+
+  @override
+  String linkTrustListedBy(String directory) {
+    return 'Über $directory';
+  }
+
+  @override
+  String get linkTrustDirectory =>
+      'Von einem Dienst, mit dem Sie gekoppelt sind';
+
+  @override
+  String get linkTrustOther =>
+      'Nicht von einem Dienst, mit dem Sie gekoppelt sind';
+
+  @override
+  String linkTrustChanged(String name, String date) {
+    return '$name erhält Zahlungen jetzt auf eine andere Wallet als bei Ihrer Zahlung am $date. Zahlen Sie nur, wenn es Ihnen gesagt wurde.';
+  }
+
+  @override
+  String linkTrustChangedNoName(String date) {
+    return 'Der Empfänger erhält Zahlungen jetzt auf eine andere Wallet als bei Ihrer Zahlung am $date. Zahlen Sie nur, wenn es Ihnen gesagt wurde.';
+  }
+
+  @override
+  String linkCodeLabel(String name) {
+    return 'Bilder für $name';
+  }
+
+  @override
+  String get linkCodeLabelPlain => 'Bilder';
+
+  @override
+  String get linkAmountEdited => 'Nicht der angefragte Betrag';
+
+  @override
+  String get linkChangedConfirmTitle => 'Vor dem Bezahlen prüfen';
+
+  @override
+  String dirWaitingFor(String label) {
+    return 'Warten auf $label…';
+  }
+
+  @override
+  String get dirCodeTitle => 'Code prüfen';
+
+  @override
+  String dirCodeLead(String label) {
+    return '$label zeigt vier Bilder. Vergleichen Sie sie mit diesen.';
+  }
+
+  @override
+  String get dirCodeLabel => 'Die vier Bilder';
+
+  @override
+  String dirJoin(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Über $label bezahlt werden',
+      'other': 'Als $name bezahlt werden',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get dirNotNow => 'Jetzt nicht';
+
+  @override
+  String dirJoinTitle(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Über $label bezahlt werden?',
+      'other': 'Als $name bezahlt werden?',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dirJoinBody(String name, String label, String host) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none':
+          'Wer $label nutzt, kann Sie dort bezahlen. Zahlungen kommen über $host',
+      'other':
+          'Wer $label nutzt, kann Sie als $name bezahlen. Zahlungen kommen über $host',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dirJoinInfo(String label) {
+    return '$label erhält eine Zahlungsadresse und einen Code, beide nur dafür erstellt. Der Dienst kann weder Ihr Guthaben sehen noch Coins bewegen oder Zahlungen lesen. Zahlungen kommen an, solange Epic Cash geöffnet ist. Jederzeit verlassen unter Kontakte › $label.';
+  }
+
+  @override
+  String dirJoinedNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Über $label bezahlt werden: an',
+      'other': 'Als $name bezahlt werden: an',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dirLeftNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Über $label bezahlt werden: aus',
+      'other': 'Als $name bezahlt werden: aus',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dirJoined(String name, String label, String date) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Über $label bezahlt werden · seit $date',
+      'other': 'Als $name bezahlt werden · seit $date',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get dirNotListed => 'Aus';
+
+  @override
+  String dirNotListedBody(String label) {
+    return '$label hat Ihren Namen entfernt.';
+  }
+
+  @override
+  String get dirNotJoined => 'Aus';
+
+  @override
+  String get dirJoinAgain => 'Wieder einschalten';
+
+  @override
+  String get dirListingCode => 'Bilder für Ihren Namen';
+
+  @override
+  String dirListingCodeInfo(String label) {
+    return 'Vier Bilder, erstellt aus der Wallet, an die Ihr Name Zahlungen leitet. $label kann dieselben vier zum Vergleich zeigen.';
+  }
+
+  @override
+  String get dirLeave => 'Verlassen';
+
+  @override
+  String dirRemoveTooTitle(String label) {
+    return '$label auch entfernen?';
   }
 }

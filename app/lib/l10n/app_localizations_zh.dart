@@ -3903,6 +3903,20 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get contactTakesNoPayments => '不接受付款';
+
+  @override
+  String get contactNoPayments => '不收款';
+
+  @override
+  String contactNoPaymentsNamed(String name) {
+    return '$name 不接受付款。';
+  }
+
+  @override
+  String get linkNoPaymentsTitle => '不接受付款';
+
+  @override
   String get contactsSendAction => '发送';
 
   @override
@@ -17492,6 +17506,48 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mailboxKeepWaiting => '继续等待';
 
   @override
+  String get linkPayeeLead => '收款方';
+
+  @override
+  String get linkPayeeMid => '收款方';
+
+  @override
+  String get linkResendBody => '等待中的付款将被取消，“发送”会以相同金额打开。请核对地址，然后重新发送。';
+
+  @override
+  String receiptTellSent(Object name) {
+    return '告知 $name 已发送';
+  }
+
+  @override
+  String receiptTellPosted(Object name) {
+    return '告知 $name 已发往网络';
+  }
+
+  @override
+  String receiptTold(Object name) {
+    return '已告知 $name';
+  }
+
+  @override
+  String receiptSeesSent(Object name, Object id, Object amount, Object time) {
+    return '$name 将看到：请求 $id、$amount、发送于 $time。不会附带其他内容：没有地址，也没有交易 ID。';
+  }
+
+  @override
+  String receiptSeesPosted(Object name, Object id, Object amount, Object time) {
+    return '$name 将看到：请求 $id、$amount、$time 已发往网络。不会附带其他内容：没有地址，也没有交易 ID。';
+  }
+
+  @override
+  String receiptNotSent(Object name) {
+    return '暂时无法告知 $name，请重试。';
+  }
+
+  @override
+  String get receiptHintTitle => '回执';
+
+  @override
   String get mailboxResent => '已取消并经 Epicbox 发送。';
 
   @override
@@ -19075,5 +19131,184 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String pairDefaultLabel(int n) {
     return '联系人 $n';
+  }
+
+  @override
+  String get linkNotALink => '不是付款链接';
+
+  @override
+  String get linkMadeForMainnet => '为 mainnet 创建';
+
+  @override
+  String get linkMadeForFloonet => '为 floonet 创建';
+
+  @override
+  String get linkChanged => '此链接在创建后被更改过。';
+
+  @override
+  String linkExpired(String date) {
+    return '此链接已于 $date 过期';
+  }
+
+  @override
+  String get linkForOther => '为其他人创建';
+
+  @override
+  String get linkPaidTitle => '已付款';
+
+  @override
+  String linkPaidBefore(String date) {
+    return '你已在 $date 支付此请求';
+  }
+
+  @override
+  String get linkPayAgain => '再次付款';
+
+  @override
+  String linkTrustListed(String name, String directory) {
+    return '$name · 经由 $directory';
+  }
+
+  @override
+  String linkTrustListedBy(String directory) {
+    return '经由 $directory';
+  }
+
+  @override
+  String get linkTrustDirectory => '来自你已配对的服务';
+
+  @override
+  String get linkTrustOther => '不是来自你已配对的服务';
+
+  @override
+  String linkTrustChanged(String name, String date) {
+    return '$name 现在收款到另一个钱包，与你在 $date 付款时不同。仅在对方告知过你时再付款。';
+  }
+
+  @override
+  String linkTrustChangedNoName(String date) {
+    return '收款方现在收款到另一个钱包，与你在 $date 付款时不同。仅在对方告知过你时再付款。';
+  }
+
+  @override
+  String linkCodeLabel(String name) {
+    return '$name 的图案';
+  }
+
+  @override
+  String get linkCodeLabelPlain => '图案';
+
+  @override
+  String get linkAmountEdited => '不是请求的金额';
+
+  @override
+  String get linkChangedConfirmTitle => '付款前请核对';
+
+  @override
+  String dirWaitingFor(String label) {
+    return '正在等待 $label…';
+  }
+
+  @override
+  String get dirCodeTitle => '核对代码';
+
+  @override
+  String dirCodeLead(String label) {
+    return '$label 显示四个图案。请与这里的对比。';
+  }
+
+  @override
+  String get dirCodeLabel => '四个图案';
+
+  @override
+  String dirJoin(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': '通过 $label 收款',
+      'other': '以 $name 收款',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get dirNotNow => '暂不';
+
+  @override
+  String dirJoinTitle(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': '通过 $label 收款？',
+      'other': '以 $name 收款？',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dirJoinBody(String name, String label, String host) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': '使用 $label 的人可以在那里向你付款。款项通过 $host 到达',
+      'other': '使用 $label 的人可以用 $name 向你付款。款项通过 $host 到达',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dirJoinInfo(String label) {
+    return '$label 会得到一个收款地址和一个代码，都仅为它创建。它看不到你的余额，不能动用币，也不能读取付款。Epic Cash 打开时款项才会到达。可随时在 联系人 › $label 中退出。';
+  }
+
+  @override
+  String dirJoinedNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': '通过 $label 收款：已开启',
+      'other': '以 $name 收款：已开启',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dirLeftNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': '通过 $label 收款：已关闭',
+      'other': '以 $name 收款：已关闭',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String dirJoined(String name, String label, String date) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': '通过 $label 收款 · 自 $date 起',
+      'other': '以 $name 收款 · 自 $date 起',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get dirNotListed => '关闭';
+
+  @override
+  String dirNotListedBody(String label) {
+    return '$label 已移除你的名称。';
+  }
+
+  @override
+  String get dirNotJoined => '关闭';
+
+  @override
+  String get dirJoinAgain => '重新开启';
+
+  @override
+  String get dirListingCode => '你的名称的图案';
+
+  @override
+  String dirListingCodeInfo(String label) {
+    return '由你的名称所收款的钱包生成的四个图案。$label 可显示同样的四个供对比。';
+  }
+
+  @override
+  String get dirLeave => '退出';
+
+  @override
+  String dirRemoveTooTitle(String label) {
+    return '也移除 $label？';
   }
 }

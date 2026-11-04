@@ -10,12 +10,16 @@ import 'dart:math';
 import 'package:crypto/crypto.dart';
 
 import '../contact_store.dart';
+import '../directory/pins.dart';
+import '../directory/receipts.dart' show LinkPaymentRecords;
+import '../directory/wire.dart' show Payreq;
 import '../legacy/gui_contacts.dart';
 import '../recipient.dart';
 import '../sealed_file.dart';
 import '../seed_contacts.dart';
 import '../wallet_service.dart';
 import 'export.dart';
+import 'directory_pins.dart';
 import 'merge.dart';
 import 'meta_store.dart';
 
@@ -412,6 +416,17 @@ class WalletHistory {
   /// Saves that the wallet synced to [height] at [at].
   Future<void> recordActivity(DateTime at, BigInt height) =>
       _store.update((m) => m.lastActivity = LastActivity(atUnix: at.toUtc().millisecondsSinceEpoch ~/ 1000, height: height));
+
+  /// The listing pins and paid request ids ([Meta.directoryPins], [Meta.paidRequests]).
+  LinkMemory linkMemory() => LinkMemory(pins: {...meta.directoryPins}, paidRequests: {...meta.paidRequests});
+
+  /// Records a payment made from a link ([DirectoryPinsMeta.recordLinkPayment]).
+  Future<void> recordLinkPayment(Payreq request, int paidAt, {String? txId}) =>
+      _store.update((m) => m.recordLinkPayment(request, paidAt, txId: txId));
+
+  /// The records of payments made from links, over this wallet's meta file; [onChange] runs
+  /// after a change.
+  LinkPaymentRecords linkPaymentRecords({void Function()? onChange}) => MetaLinkPayments(_store, onChange: onChange);
 
   /// Ids of the contacts this wallet starred ([Meta.favourites]).
   Set<String> favourites() => {...meta.favourites};

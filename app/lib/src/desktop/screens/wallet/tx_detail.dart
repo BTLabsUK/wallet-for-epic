@@ -1,4 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../../../amount.dart' show exactEpic;
+import '../../../directory/pins.dart' show LinkPaymentRec;
+import '../../../directory/receipts.dart';
+import '../../../trust/policy.dart' show MailboxSendStage, mailboxSendStage;
+import '../transfer/send_screen.dart' show SendArgs;
+import 'receipt_line.dart';
 import '../../../cancel_choice.dart';
 import '../../../cancel_final.dart' show CancelResult;
 import '../../../connection_grace.dart' show connectionGraceProvider;
@@ -24,7 +30,7 @@ import '../pairing/pair_screens.dart' show deskAttachPairing, deskSuggestedConta
 import '../../desk_l10n.dart';
 import '../../../levels/level_features.dart' show TimelineStyle, TxActionSet;
 import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
-import '../../../trust/contact_trust.dart' show mailboxResendOffer, relationshipOf, trustAddressOf;
+import '../../../trust/contact_trust.dart' show MailboxResendOffer, mailboxResendOffer, relationshipOf, trustAddressOf;
 import '../../widgets/kit.dart';
 import '../../widgets/pay_steps.dart';
 import '../../widgets/server_row.dart' show digitsText;
@@ -247,6 +253,39 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     showEToast(context, l.mailboxResent, tone: ETone.ok);
   }
 
+  /// Cancel and send by Epicbox for a payment made from a payment link nobody answered: one
+  /// confirm, the ordinary cancel, then Send opens with the amount, to the payee's saved contact
+  /// address when there is one, else empty.
+  Future<void> _resendLink(LinkPaymentRec rec, String name) async {
+    final l = context.l10n;
+    final ok = await showEDialog<bool>(
+      context,
+      builder: (ctx) => EDialog(
+        title: l.mailboxResendTitle,
+        description: l.linkResendBody,
+        icon: EIcons.send,
+        actions: [
+          EButton(label: l.mailboxKeepWaiting, onPressed: () => Navigator.of(ctx).pop(false)),
+          EButton.primary(key: deskMailboxResendConfirmKey, label: l.mailboxResendAction, onPressed: () => Navigator.of(ctx).pop(true)),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    final address = contactEpicboxFor(rec, (ref.read(deskProvider.select((s) => s.contacts)) ?? const <Contact>[]).map((c) => c.epicbox));
+    setState(() => _cancelling = true);
+    try {
+      await ref.read(deskProvider.notifier).cancelTx(widget.tx.id, spendBack: false);
+    } on Object catch (e) {
+      if (!mounted) return;
+      setState(() => _cancelling = false);
+      showEToast(context, deskErrorText(e, l), tone: ETone.risk);
+      return;
+    }
+    if (!mounted) return;
+    setState(() => _cancelling = false);
+    ref.read(deskNavProvider.notifier).go(DeskRoute.send, SendArgs(recipient: address, amount: exactEpic(rec.amount)));
+  }
+
   Future<void> _cancel() async {
     final choice = await showCancelTxDialog(context, widget.tx) ?? CancelChoice.keep;
     if (!choice.cancels || !mounted) return;
@@ -345,6 +384,18 @@ class _TxDetailState extends ConsumerState<TxDetail> {
             ref.watch(deskClockProvider)(),
           )
         : null;
+    // A payment made from a payment link: its payee's silent rows and the optional receipt.
+    final linkRec = t.slateId.isEmpty ? null : ref.watch(linkPaymentProvider(t.slateId));
+    final linkName = linkRec == null ? null : linkPayeeName(ref.watch(directoryReceiptsProvider), linkRec);
+    final linkWaiting = linkRec != null && mailboxName == null && !t.incoming && t.state == TxState.waitingRecipient && !t.undelivered;
+    final linkOffer = linkWaiting
+        ? switch (mailboxSendStage(t.created, ref.watch(deskClockProvider)())) {
+            MailboxSendStage.waiting => null,
+            final stage => MailboxResendOffer(stage: stage, resend: true),
+          }
+        : null;
+    final linkPosted = t.state == TxState.posted || t.state == TxState.confirming || t.state == TxState.confirmed;
+    final linkReceipt = linkRec != null && mailboxName == null && !t.incoming && (linkWaiting || linkPosted);
     final finalizable = fullActions && !t.fromBackup && !t.incoming && !t.isInvoice && t.method == TxMethod.file && t.state == TxState.waitingRecipient && mailboxName == null;
     // The node refused it: broadcast it again at once (android-17); the app also does by itself.
     final repostable = fullActions && !t.fromBackup && !t.isInvoice && t.notPosted;
@@ -400,6 +451,24 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                 size: EBtnSize.sm,
                 busy: _cancelling,
                 onPressed: _cancelling ? null : () => _resend(mailboxName!, resendAddress),
+              ),
+      if (linkOffer != null && linkRec != null)
+        linkOffer.resendPrimary
+            ? EButton.primary(
+                key: deskTxResendKey,
+                label: l.mailboxResendTitle,
+                icon: EIcons.send,
+                size: EBtnSize.sm,
+                busy: _cancelling,
+                onPressed: _cancelling ? null : () => _resendLink(linkRec, linkName ?? l.linkPayeeMid),
+              )
+            : EButton(
+                key: deskTxResendKey,
+                label: l.mailboxResendTitle,
+                icon: EIcons.send,
+                size: EBtnSize.sm,
+                busy: _cancelling,
+                onPressed: _cancelling ? null : () => _resendLink(linkRec, linkName ?? l.linkPayeeMid),
               ),
       if (sendAgain)
         EButton.primary(
@@ -520,6 +589,10 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                           ? (resendOffer.gone ? l.mailboxNotPickedUp : l.mailboxNotAnswered)
                           : mailboxName != null && !t.incoming && t.state == TxState.waitingRecipient && !t.undelivered
                           ? l.deskTxStatusWaitingFor(mailboxName)
+                          : linkOffer != null
+                          ? (linkOffer.gone ? l.mailboxNotPickedUp : l.mailboxNotAnswered)
+                          : linkWaiting && linkName != null
+                          ? l.deskTxStatusWaitingFor(linkName)
                           : _now(l, t),
                       style: ts.body,
                     ),
@@ -527,6 +600,10 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                     if (resendOffer?.gone ?? false) ...[
                       SizedBox(height: Sp.x1),
                       Text(l.mailboxNeverPickedUp(mailboxName!), key: const ValueKey('tx-mailbox-gone'), style: ts.small),
+                    ],
+                    if (linkOffer?.gone ?? false) ...[
+                      SizedBox(height: Sp.x1),
+                      Text(l.mailboxNeverPickedUp(linkName ?? l.linkPayeeLead), key: const ValueKey('tx-link-gone'), style: ts.small),
                     ],
                     if (t.otherWallet && !t.fromBackup && t.receivedOn == null) ...[
                       SizedBox(height: Sp.x1),
@@ -550,6 +627,11 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         // Waiting for a paired contact's answer: its keys changed meanwhile, or its relay is
         // silent.
         if (mailboxName != null && !t.incoming && t.state == TxState.waitingRecipient && mailboxPairing != null) ..._mailboxNotices(l, mailboxName, mailboxPairing),
+        // The optional receipt for the payee of a payment link.
+        if (linkReceipt) ...[
+          SizedBox(height: Sp.x3),
+          DeskReceiptLine(slateId: t.slateId, posted: linkPosted),
+        ],
         // A withdrawal from a paired contact, not yet posted by it.
         if (withdrawal != null && !onChain) ...[
           SizedBox(height: Sp.x3),

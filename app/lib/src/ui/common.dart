@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import '../directory/receipts.dart' show directoryReceiptsProvider, linkPayeeName, linkPayeeUnnamed, linkPaymentProvider;
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -821,6 +822,7 @@ String txStatusLabel(
   TxPhase.waitingRecipient when tx.undelivered => l.txStatusNotDelivered,
   TxPhase.waitingRecipient when now != null && invoicePaymentStalled(tx, now) =>
     l.txStatusStalled,
+  TxPhase.waitingRecipient when pairedWith == linkPayeeUnnamed => (now != null && _outgoingKind(tx) ? mailboxStageWord(l, txSentAt(tx), now) : null) ?? l.txStatusWaitingRecipient,
   TxPhase.waitingRecipient when pairedWith != null && paused => l.contactPausedEpicboxOff,
   // Through a paired contact's mailbox, unanswered for a day or gone from the relay after
   // seven: the stage, not the name (trust policy).
@@ -1168,11 +1170,31 @@ String? txPartyName(WidgetRef ref, TxEntry tx) {
   final linked = txPairingName(ref, tx);
   final slate = tx.slateId;
   if (linked != null || slate == null || !txAmount(tx).outgoing) return linked;
-  if (tx.flow != TxFlow.invoice) return txMailboxName(ref, tx);
+  if (tx.flow != TxFlow.invoice) return txMailboxName(ref, tx) ?? linkPayeeOf(ref, tx);
   final pairingId = ref.watch(paidInvoiceProvider(slate)).value?.pairingId;
   if (pairingId == null) return null;
   final name = ref.watch(pairingNameProvider(pairingId));
   return name.isEmpty ? null : name;
+}
+
+/// The payee of a payment made from a payment link, by the name the link or the directory
+/// gave it, or null: not such a payment, or no name.
+String? linkPayeeOf(WidgetRef ref, TxEntry tx) {
+  final slate = tx.slateId;
+  if (slate == null || tx.kind != TxKind.sent) return null;
+  final rec = ref.watch(linkPaymentProvider(slate));
+  return rec == null ? null : linkPayeeName(ref.watch(directoryReceiptsProvider), rec);
+}
+
+/// Who a row waits for, for its status: the paired contact whose mailbox it went through, else
+/// the payee of a payment link ([linkPayeeUnnamed] when it has no name, so the 24 hour and
+/// 7 day words still show).
+String? txPayeeName(WidgetRef ref, TxEntry tx) {
+  final mailbox = txMailboxName(ref, tx);
+  if (mailbox != null) return mailbox;
+  final slate = tx.slateId;
+  if (slate == null || tx.kind != TxKind.sent || ref.watch(linkPaymentProvider(slate)) == null) return null;
+  return linkPayeeOf(ref, tx) ?? linkPayeeUnnamed;
 }
 
 /// The name of the pairing [tx] was exchanged with ([TxEntry.pairingId]), or null; nothing
@@ -1233,7 +1255,7 @@ class TxStatusChip extends ConsumerWidget {
         tip,
         target: target,
         now: now,
-        pairedWith: txMailboxName(ref, tx),
+        pairedWith: txPayeeName(ref, tx),
         paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
       ),
       tone: tone,
@@ -1853,7 +1875,7 @@ class TxTile extends ConsumerWidget {
                 target: confirmationsTargetOf(ref),
                 now: now,
                 who: name,
-                pairedWith: txMailboxName(ref, tx),
+                pairedWith: txPayeeName(ref, tx),
                 paused: ref.watch(pairNetProvider) == PairNet.epicboxOff,
               ),
               hidden: display.hidden,

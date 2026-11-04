@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../contacts.dart';
+import '../directory/payment_refusals.dart' show paymentRefusalsProvider;
 import '../errors.dart';
 import '../l10n.dart';
 import '../tor_build.dart';
@@ -78,9 +79,13 @@ class LiveFieldError extends StatelessWidget {
 /// Where the wallet pairs, the app bar offers Pair; the list starts with Pair requests while
 /// contacts' requests wait, and carries each pairing's badge and the pending rows.
 class ContactsScreen extends ConsumerStatefulWidget {
-  const ContactsScreen({super.key, this.pick = false});
+  const ContactsScreen({super.key, this.pick = false, this.forPayment = false});
 
   final bool pick;
+
+  /// With [pick]: the pick is a recipient. A contact that takes no payments stays in the list,
+  /// dimmed and not pressable, with its reason.
+  final bool forPayment;
 
   @override
   ConsumerState<ContactsScreen> createState() => _ContactsScreenState();
@@ -352,7 +357,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
           rows.add(_LetterHead(head));
         }
       }
-      rows.add(_ContactRow(contact: c, onTap: () => _open(c)));
+      rows.add(_ContactRow(contact: c, onTap: () => _open(c), forPayment: widget.pick && widget.forPayment));
     }
     return ListView(padding: const EdgeInsets.only(bottom: 16), children: rows);
   }
@@ -513,10 +518,13 @@ class _LetterHead extends StatelessWidget {
 /// kind), then what it is reached at: the short address, the kind badges when it has several,
 /// or "Allows invoices"; the note under it.
 class _ContactRow extends ConsumerWidget {
-  const _ContactRow({required this.contact, required this.onTap});
+  const _ContactRow({required this.contact, required this.onTap, this.forPayment = false});
 
   final Contact contact;
   final VoidCallback onTap;
+
+  /// Picking a recipient: a contact that takes no payments is dimmed, not pressable, and says why.
+  final bool forPayment;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -529,8 +537,12 @@ class _ContactRow extends ConsumerWidget {
     final inFlight = pairing == null && ref.watch(pairingSupportedProvider) && ref.watch(contactPendingPairingProvider(contact.id)) != null;
     final starred = ref.watch(favouriteContactsProvider).value?.contains(contact.id) ?? false;
     final several = contact.kinds.length > 1;
+    final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: pairing?.id, address: contact.epicbox);
+    final disabled = forPayment && noPayments;
     final Widget reach;
-    if (pairing != null && pairing.allowInvoices && ref.watch(invoicesOnProvider)) {
+    if (disabled) {
+      reach = Text(l.contactTakesNoPayments, style: theme.textTheme.bodySmall?.copyWith(color: t.dim));
+    } else if (pairing != null && pairing.allowInvoices && ref.watch(invoicesOnProvider)) {
       reach = Text(l.trustAllowsInvoices, style: theme.textTheme.bodySmall?.copyWith(color: t.dim));
     } else if (several) {
       reach = Wrap(spacing: 4, runSpacing: 4, children: [for (final k in contact.kinds) EBadge.kind(k, l: l)]);
@@ -539,8 +551,8 @@ class _ContactRow extends ConsumerWidget {
     } else {
       reach = ShortAddressText(contact.address, style: const TextStyle(fontSize: 13));
     }
-    return InkWell(
-      onTap: onTap,
+    final row = InkWell(
+      onTap: disabled ? null : onTap,
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 64),
         child: Padding(
@@ -574,6 +586,10 @@ class _ContactRow extends ConsumerWidget {
                           const Flexible(child: PairPendingBadge())
                         else if (!several && contact.addresses.isNotEmpty)
                           Flexible(child: EBadge.kind(parseRecipient(contact.address).kind, l: l)),
+                        if (noPayments) ...[
+                          const SizedBox(width: 6),
+                          const NoPaymentsMark(),
+                        ],
                       ],
                     ),
                     const SizedBox(height: 2),
@@ -595,6 +611,7 @@ class _ContactRow extends ConsumerWidget {
         ),
       ),
     );
+    return disabled ? Opacity(opacity: 0.5, child: Semantics(enabled: false, child: row)) : row;
   }
 }
 

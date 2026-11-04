@@ -4,16 +4,29 @@ library;
 
 import 'dart:typed_data';
 
+import 'package:epic_wallet/src/directory/pins.dart' show LinkMemory;
+import 'package:epic_wallet/src/directory/receipts.dart' show LinkPaymentRecords;
+import 'package:epic_wallet/src/directory/wire.dart' show Payreq;
 import 'package:epic_wallet/src/wallet_service.dart';
 
 /// Passes every call to the session it wraps.
-class DelegatingWalletSession implements WalletSession {
+class DelegatingWalletSession implements WalletSession, ListingKeys {
   DelegatingWalletSession(this._inner);
 
   final WalletSession _inner;
 
   @override
   void dispose() => _inner.dispose();
+
+  @override
+  Future<String> listingAddress(String dkeyHex, int generation) => _inner.listingKeys!.listingAddress(dkeyHex, generation);
+
+  @override
+  Future<Uint8List> signWithListing(String dkeyHex, int generation, String domain, Uint8List message) =>
+      _inner.listingKeys!.signWithListing(dkeyHex, generation, domain, message);
+
+  @override
+  Future<PaymentsDrainReport> drainListing(String dkeyHex, int generation) => _inner.listingKeys!.drainListing(dkeyHex, generation);
 
   @override
   StoreOpenOutcome get storeOpen => _inner.storeOpen;
@@ -340,6 +353,19 @@ class DelegatingWalletSession implements WalletSession {
   @override
   Future<void> setFavouriteContact({required String id, required bool favourite}) =>
       _inner.setFavouriteContact(id: id, favourite: favourite);
+
+  @override
+  Chain get chain => _inner.chain;
+
+  @override
+  LinkMemory linkMemory() => _inner.linkMemory();
+
+  @override
+  Future<void> recordLinkPayment(Payreq request, int paidAt, {String? txId}) =>
+      _inner.recordLinkPayment(request, paidAt, txId: txId);
+
+  @override
+  LinkPaymentRecords linkPaymentRecords({void Function()? onChange}) => _inner.linkPaymentRecords(onChange: onChange);
 
   @override
   Future<Uint8List> exportHistory({String? walletName, Map<String, Object?>? settings}) =>
