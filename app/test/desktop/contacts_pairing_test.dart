@@ -143,6 +143,27 @@ void main() {
     expect(_c.read(deskProvider).contacts!.any((x) => x.id == 'c6'), isTrue);
   });
 
+  testWidgets('a pairing in no contact: Remove shows it working until it is gone, and cannot be pressed twice', (tester) async {
+    await _open(tester, const ContactsScreen());
+    _fake.seedPaired(id: 'p-lol', name: 'Lol', state: PairingState.paired);
+    _fake.removeDelay = const Duration(seconds: 3);
+    _c.invalidate(deskPairingsProvider);
+    await _real(tester);
+    await tester.ensureVisible(find.byKey(deskPairingMoreKey('p-lol')));
+    await tester.tap(find.byKey(deskPairingMoreKey('p-lol')));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.byKey(deskPairingRemoveKey));
+    await _real(tester);
+    await tester.tap(find.byKey(deskConfirmRemovePairingKey));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byKey(deskPairingBusyKey('p-lol')), findsOneWidget, reason: 'the core tells the contact first: the row says it is working');
+    expect(find.byKey(deskPairingMoreKey('p-lol')), findsNothing, reason: 'no second Remove while the first runs');
+    await tester.pump(const Duration(seconds: 3));
+    await _real(tester);
+    expect(find.byKey(deskPairingRowKey('p-lol')), findsNothing);
+    expect(_fake.calls.where((c) => c == 'remove'), hasLength(1));
+  });
+
   testWidgets('a pairing made before addresses were proven: the line and Pair again; a proven one has neither', (tester) async {
     await _contact(tester, 'c6');
     _fake.seedPaired(id: 'p-piotr', name: 'Piotr', contactId: 'c6', unproven: true);

@@ -259,7 +259,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
           ],
           // Pairings in no contact, by the name they chose.
           for (final r in orphans)
-            if (q.isEmpty || r.shownName.toLowerCase().contains(q)) _OrphanRow(record: r),
+            if (q.isEmpty || r.shownName.toLowerCase().contains(q)) _OrphanRow(key: ValueKey(r.id), record: r),
           if (shown.isEmpty && _query.text.isEmpty && orphans.isEmpty)
             Padding(
               padding: EdgeInsets.all(Sp.x5),
@@ -459,16 +459,37 @@ class _Pic extends StatelessWidget {
 /// ⋯ menu with Remove pairing. One under way has Cancel instead; one that ended, the menu alone.
 /// The controls sit at the row's end where the row is wide enough, else on one line under the
 /// words: never a stack of buttons.
-class _OrphanRow extends ConsumerWidget {
-  const _OrphanRow({required this.record});
+class _OrphanRow extends ConsumerStatefulWidget {
+  const _OrphanRow({super.key, required this.record});
 
   final PairingRecord record;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_OrphanRow> createState() => _OrphanRowState();
+}
+
+class _OrphanRowState extends ConsumerState<_OrphanRow> {
+  /// Remove or Cancel is running: the core tells the contact first, waiting up to 10 s for
+  /// the relay, and the row stays until it is done.
+  bool _busy = false;
+
+  Future<void> _run(Future<void> Function() call) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await call();
+    } on Object catch (e) {
+      if (mounted) showEToast(context, deskErrorText(e, context.l10n), tone: ETone.risk);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l = context.l10n;
     final ts = context.ts;
-    final r = record;
+    final r = widget.record;
     final suggested = deskSuggestedContact(ref, r);
     final inFlight = r.state.isPending || r.state == PairingState.waiting;
     final line = r.ended
@@ -497,19 +518,25 @@ class _OrphanRow extends ConsumerWidget {
             key: deskPairingCancelKey,
             label: l.commonCancel,
             size: EBtnSize.sm,
-            onPressed: () async {
-              if (await deskConfirmCancelPairing(context, r.shownName)) {
-                await deskPairingCall(ref, (api) => r.state.isPending ? api.cancelInvite(r.id) : api.removePairing(r.id));
-              }
-            },
+            busy: _busy,
+            onPressed: _busy
+                ? null
+                : () async {
+                    if (await deskConfirmCancelPairing(context, r.shownName)) {
+                      await _run(() => deskPairingCall(ref, (api) => r.state.isPending ? api.cancelInvite(r.id) : api.removePairing(r.id)));
+                    }
+                  },
           )
+        // Remove under way: the spinner in the ⋯'s place, so nothing is pressed twice.
+        else if (_busy)
+          SizedBox.square(key: deskPairingBusyKey(r.id), dimension: 20.u, child: const CircularProgressIndicator(strokeWidth: 2))
         else ...[
           if (!r.ended) DeskAddToContactsButton(record: r, suggested: suggested),
           _ContactMoreMenu(
             buttonKey: deskPairingMoreKey(r.id),
             items: [
               (deskPairingRemoveKey, EIcons.trash, l.contactRemovePairing, true, () async {
-                if (r.ended || await deskConfirmRemovePairing(context, r.shownName)) await deskPairingCall(ref, (api) => api.removePairing(r.id));
+                if (r.ended || await deskConfirmRemovePairing(context, r.shownName)) await _run(() => deskPairingCall(ref, (api) => api.removePairing(r.id)));
               }),
             ],
           ),
@@ -1531,6 +1558,7 @@ Key deskPairingRowKey(String id) => ValueKey('desk-pairing-row-$id');
 const Key deskPairingCancelKey = ValueKey('desk-pairing-cancel');
 Key deskPairingMoreKey(String id) => ValueKey('desk-pairing-more-$id');
 const Key deskPairingRemoveKey = ValueKey('desk-pairing-remove');
+Key deskPairingBusyKey(String id) => ValueKey('desk-pairing-busy-$id');
 const Key deskContactMoreKey = ValueKey('desk-contact-more');
 const Key deskContactEditKey = ValueKey('desk-contact-edit');
 const Key deskContactStarKey = ValueKey('desk-contact-star');

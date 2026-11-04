@@ -73,14 +73,7 @@ class InvoiceSettingsBlock extends ConsumerWidget {
                   if (deskSuggestedContact(ref, r) case final c?)
                     EButton.primary(label: l.pairAddToNamed(c.name), size: EBtnSize.sm, onPressed: () => deskAttachPairing(context, ref, r, c)),
                   DeskAddToContactsButton(record: r),
-                  EButton(
-                    label: l.contactRemovePairing,
-                    kind: EBtnKind.danger,
-                    size: EBtnSize.sm,
-                    onPressed: () async {
-                      if (await deskConfirmRemovePairing(context, name)) await deskPairingCall(ref, (api) => api.removePairing(r.id));
-                    },
-                  ),
+                  _RemovePairingButton(key: ValueKey(r.id), record: r, name: name),
                 ],
               )
             : null,
@@ -168,4 +161,41 @@ class InvoiceSettingsBlock extends ConsumerWidget {
       ],
     );
   }
+}
+
+/// Remove pairing for a pairing in no contact. The core tells the contact first, waiting up
+/// to 10 s for the relay: the button says it is working until the pairing is gone.
+class _RemovePairingButton extends ConsumerStatefulWidget {
+  const _RemovePairingButton({super.key, required this.record, required this.name});
+
+  final PairingRecord record;
+  final String name;
+
+  @override
+  ConsumerState<_RemovePairingButton> createState() => _RemovePairingButtonState();
+}
+
+class _RemovePairingButtonState extends ConsumerState<_RemovePairingButton> {
+  bool _busy = false;
+
+  Future<void> _remove() async {
+    if (!await deskConfirmRemovePairing(context, widget.name) || !mounted) return;
+    setState(() => _busy = true);
+    try {
+      await deskPairingCall(ref, (api) => api.removePairing(widget.record.id));
+    } on Object catch (e) {
+      if (mounted) showEToast(context, deskErrorText(e, context.l10n), tone: ETone.risk);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => EButton(
+    label: context.l10n.contactRemovePairing,
+    kind: EBtnKind.danger,
+    size: EBtnSize.sm,
+    busy: _busy,
+    onPressed: _busy ? null : _remove,
+  );
 }
