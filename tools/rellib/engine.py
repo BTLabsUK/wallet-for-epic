@@ -97,6 +97,9 @@ class Engine:
     def base_env(self, step):
         i = self.info
         prev = i.get("previous", {})
+        if step.platforms and (step.proof or step.env.get("REL_TRUST_MODE")):
+            # A platform's G4 steps (trust-*, create-*) update from that platform's own previous release.
+            prev = (i.get("previous_by_platform") or {}).get(step.platforms[0]) or prev
         net = i.get("net", {})
         env = {
             "REL_RUN": self.run.path, "REL_RUN_ID": i["run_id"], "REL_VERSION": i["version"],

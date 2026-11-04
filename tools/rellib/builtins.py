@@ -138,30 +138,69 @@ def pick(candidates, ok, override=None):
     return None, tried
 
 
+def previous_candidates(root, version):
+    """Every release G4 could update from, newest first: published runs, then the releases published
+    by hand (published-by-hand.json: 26.10.23 and 26.10.24-r2 went out that way). [{dir, version, ref,
+    extra?}]; `version` (the one being built) is left out."""
+    from . import retention
+    out = [{"dir": os.path.join(p["run"], "files"), "version": p["version"], "ref": p.get("tag", f"v{p['version']}"),
+            "extra": os.path.join(p["run"], "extra")}
+           for p in reversed(retention.published(root)) if p["version"] != version]
+    out += [{"dir": os.path.expanduser(p["dir"]), "version": p["version"], "ref": p.get("tag", f"v{p['version']}")}
+            for p in reversed(retention.published_by_hand(root))
+            if p.get("version") != version and os.path.isdir(os.path.expanduser(p.get("dir", "")))]
+    return out
+
+
+def state_root_of(engine):
+    # tools/rel doctor's throwaway run lives under .doctor/, not in the state root: it names the root.
+    return engine.info.get("state_root") or os.path.dirname(os.path.dirname(engine.run.path))
+
+
 def resolve_previous(engine):
     """The release G4 updates from: the scope's previous_dir, else the newest published run, else
-    the newest release published by hand (published-by-hand.json: 26.10.23 and 26.10.24-r2 went
-    out that way, so without it every run failed G1 until someone passed --previous)."""
+    the newest release published by hand (without it every run failed G1 until someone passed
+    --previous). This is the overall previous release (prune-downloads, rollback, the version
+    check); a platform the newest one lacks has its own, see previous_by_platform."""
     s = engine.info["scope"]["proof"]
     if s.get("previous_dir"):
         d = os.path.expanduser(s["previous_dir"])
         v = s.get("previous_version") or os.path.basename(d.rstrip("/")).split("-r")[0]
         return {"dir": d, "version": v, "ref": s.get("previous_ref") or f"v{os.path.basename(d.rstrip('/'))}"}
-    from . import retention
-    # tools/rel doctor's throwaway run lives under .doctor/, not in the state root: it names the root.
-    root = engine.info.get("state_root") or os.path.dirname(os.path.dirname(engine.run.path))
-    pubs = retention.published(root)
-    pubs = [p for p in pubs if p["version"] != engine.info["version"]]
-    if pubs:
-        p = pubs[-1]
-        return {"dir": os.path.join(p["run"], "files"), "version": p["version"], "ref": p.get("tag", f"v{p['version']}"),
-                "extra": os.path.join(p["run"], "extra")}
-    by_hand = [p for p in retention.published_by_hand(root)
-               if p.get("version") != engine.info["version"] and os.path.isdir(os.path.expanduser(p.get("dir", "")))]
-    if by_hand:
-        p = by_hand[-1]
-        return {"dir": os.path.expanduser(p["dir"]), "version": p["version"], "ref": p.get("tag", f"v{p['version']}")}
-    return {}
+    cands = previous_candidates(state_root_of(engine), engine.info["version"])
+    return cands[0] if cands else {}
+
+
+def previous_by_platform(scope, pipe, root, version, overall):
+    """{platform: previous release} for every G4 lane platform: the newest published release whose
+    folders hold that platform's input for all its variants in scope (a release without a platform
+    leaves that platform's older release live, as build.py keep does). An explicit previous_dir is one
+    release for every platform: {}. A platform no release serves gets the overall previous (G1 names
+    the missing file)."""
+    if scope["proof"].get("previous_dir"):
+        return {}
+    cands = previous_candidates(root, version)
+    out = {}
+    for plat in dict.fromkeys(p for p, _ in trust_lanes_of(scope, pipe)):
+        vs = [v for p, v in trust_lanes_of(scope, pipe) if p == plat]
+        if plat not in PREVIOUS_INPUTS:
+            continue
+        pick = next((c for c in cands if all(previous_input(c, plat, v)[0] for v in vs)), overall)
+        if pick:
+            out[plat] = pick
+    return out
+
+
+def previous_for(info, platform):
+    """The previous release a platform's G4 steps use: its own choice, else the overall one."""
+    return (info.get("previous_by_platform") or {}).get(platform) or info.get("previous", {})
+
+
+def previous_text(prev, by_platform):
+    """'26.11.1 at DIR', or per platform when they differ: 'android 26.11.1, linux 26.11.0, windows 26.11.0'."""
+    if by_platform and any(b.get("version") != prev.get("version") for b in by_platform.values()):
+        return ", ".join(f"{p} {b.get('version')}" for p, b in by_platform.items())
+    return f"{prev.get('version')}"
 
 
 # What each G4 lane installs first, per platform: (folders under the previous release, file names). The
@@ -200,25 +239,29 @@ def android_avd_module():
 
 
 def trust_lanes(engine):
+    return trust_lanes_of(engine.info["scope"], engine.pipeline)
+
+
+def trust_lanes_of(s, pipe):
     """[(platform, variant)] of every G4 lane in scope: platform with a driver, not waived; proof variant."""
     from .graph import variants_for
-    s, pipe = engine.info["scope"], engine.pipeline
     drivers = pipe.proof.get("drivers", {})
     variants = variants_for({"for_each": "proof_variant"}, s, pipe)
     return [(plat, v) for plat in PLATFORMS if s["platforms"].get(plat) and plat not in s["proof"]["waive"] and plat in drivers
             for v in variants]
 
 
-def lane_inputs(engine, prev, ok, bad):
-    """Every G4 lane in scope: the previous release's file it installs, and for Android the emulator AVD
-    it boots."""
+def lane_inputs(engine, prev, ok, bad, by_platform=None):
+    """Every G4 lane in scope: the previous release's file it installs (its platform's own previous
+    release when by_platform has one), and for Android the emulator AVD it boots."""
     for plat, v in trust_lanes(engine):
         if plat in PREVIOUS_INPUTS:
-            f, looked = previous_input(prev, plat, v)
+            pv = (by_platform or {}).get(plat) or prev
+            f, looked = previous_input(pv, plat, v)
             if f:
-                ok(f"G4 {plat} {v}: previous {os.path.basename(f)}")
+                ok(f"G4 {plat} {v}: previous {os.path.basename(f)} ({pv.get('version')})")
             else:
-                bad(f"G4 {plat} {v}: no previous {prev.get('version')} file for the lane in {' or '.join(looked) or 'no folder'}")
+                bad(f"G4 {plat} {v}: no previous {pv.get('version')} file for the lane in {' or '.join(looked) or 'no folder'}")
             if plat == "android":
                 avd = android_avd_module()
                 name = os.environ.get("REL_ANDROID_AVD") or avd.avd_name(v)
@@ -426,7 +469,11 @@ def preflight(engine, step, say):
         else:
             ok(f"previous release {prev['version']} at {prev['dir']}")
             info["previous"] = prev
-            lane_inputs(engine, prev, ok, bad)
+            by_plat = previous_by_platform(info["scope"], engine.pipeline, state_root_of(engine), info["version"], prev)
+            info["previous_by_platform"] = by_plat
+            if previous_text(prev, by_plat) != prev["version"]:
+                ok("G4 previous release per platform: " + previous_text(prev, by_plat))
+            lane_inputs(engine, prev, ok, bad, by_plat)
         p_spendable = None
         if not engine.dry:
             # G4 pays from P side by side (the shared P service): at least p_outputs.LOW free outputs.
@@ -933,6 +980,9 @@ def gate_summary(engine):
     prev = info.get("previous", {})
     if prev:
         lines.append(f"Server: older files leave downloads/ after the switch (keeps {prev.get('version')} as the rollback backup).")
+        bp = previous_text(prev, info.get("previous_by_platform"))
+        if bp != prev.get("version"):
+            lines.append(f"G4 updates from: {bp}.")
     skips = [x for x in run.steps if run.status(x.id)["status"] == "skipped"]
     if skips:
         lines.append("Skipped (not done, not passed): " + "; ".join(f"{x.id} ({run.status(x.id).get('reason', '')})" for x in skips))
