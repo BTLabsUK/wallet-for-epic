@@ -101,12 +101,14 @@ class _ScanScreenState extends ConsumerState<ScanScreen> {
   void initState() {
     super.initState();
     _codes = _controller.codes.listen(_onCode);
-    _start();
+    // After this frame: the hold is a provider, which a build must not change.
+    Future.microtask(_start);
   }
 
   /// Starts the camera. The first start asks for camera permission, which on some phones
   /// leaves the app; that trip must not count towards auto-lock.
   Future<void> _start() async {
+    if (!mounted) return;
     try {
       await ref.read(autoLockHoldProvider.notifier).during(_controller.start);
     } on ScannerException {
