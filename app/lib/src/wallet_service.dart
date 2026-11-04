@@ -14,7 +14,7 @@ import 'package:crypto/crypto.dart';
 import 'desktop/data/mock_hosts.dart' show fakeWalletOnion;
 import 'directory/base58.dart' show epicboxKeyText, netMainnet;
 import 'directory/pins.dart' show LinkMemory;
-import 'directory/receipts.dart' show LinkPaymentRecords;
+import 'directory/link_payments.dart' show LinkPaymentRecords;
 import 'directory/verify.dart' show refusingVerifier;
 import 'directory/wire.dart' show Payreq;
 import 'history/wallet_history.dart';

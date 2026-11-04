@@ -11,7 +11,7 @@ import 'package:crypto/crypto.dart';
 
 import '../contact_store.dart';
 import '../directory/pins.dart';
-import '../directory/receipts.dart' show LinkPaymentRecords;
+import '../directory/link_payments.dart' show LinkPaymentRecords;
 import '../directory/wire.dart' show Payreq;
 import '../legacy/gui_contacts.dart';
 import '../recipient.dart';
