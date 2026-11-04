@@ -288,9 +288,9 @@ List<TextSpan> _titleSpans(String template, String name) {
   final at = template.indexOf('\u0000');
   if (at < 0) return [TextSpan(text: template.replaceAll('\u0000', name))];
   return [
-    if (at > 0) TextSpan(text: template.substring(0, at)),
+    if (at > 0) TextSpan(text: template.substring(0, at), style: const TextStyle(fontWeight: FontWeight.w400)),
     TextSpan(text: name, style: const TextStyle(fontWeight: FontWeight.w700)),
-    if (at + 1 < template.length) TextSpan(text: template.substring(at + 1)),
+    if (at + 1 < template.length) TextSpan(text: template.substring(at + 1), style: const TextStyle(fontWeight: FontWeight.w400)),
   ];
 }
 
