@@ -14255,7 +14255,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String pairIncomingTitle(String name) {
-    return 'Сопрячь: $name?';
+    return 'Запрос на сопряжение от: $name';
   }
 
   @override
@@ -20848,9 +20848,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pairSeenAsOptional => 'Оставьте пустым, чтобы сопрячь без имени.';
-
-  @override
-  String get pairIncomingNoName => 'Сопрячь с этим кошельком?';
 
   @override
   String get pairUnnamed => 'Кошелёк без имени';

@@ -3607,7 +3607,7 @@
   "pairCancelInvite": "Отменить приглашение",
   "pairCancelInviteTitle": "Отменить приглашение для {name}?",
   "pairCancelInviteBody": "Если другой кошелёк откроет его позже, он увидит «{name}: приглашение отменено».",
-  "pairIncomingTitle": "Сопрячь: {name}?",
+  "pairIncomingTitle": "Запрос на сопряжение от: {name}",
   "pairNameClaimedShort": "Имя выбрано собеседником",
   "pairCallsThemselves": "Называет себя «{name}»",
   "pairIncomingBody": "После сопряжения файлы транзакций и счета между вами и {name} запечатаны. Затем вы вместе проверите.",
@@ -5264,7 +5264,6 @@
   "pairSeenAsNone": "Они не видят имени",
   "pairSeenAsAdd": "Добавить имя",
   "pairSeenAsOptional": "Оставьте пустым, чтобы сопрячь без имени.",
-  "pairIncomingNoName": "Сопрячь с этим кошельком?",
   "pairUnnamed": "Кошелёк без имени",
   "pairDefaultLabel": "Контакт {n}",
   "pairVerifiedService": "Проверенный сервис BT Labs"

@@ -677,7 +677,7 @@ class _IncomingDialogState extends ConsumerState<_IncomingDialog> {
     final name = sender?.name ?? btlabs?.name ?? p.name;
     final noName = sender == null && btlabs == null && isUnnamed(p.name);
     return EDialog(
-      title: noName ? l.pairIncomingNoName : l.pairIncomingTitle(name),
+      title: l.pairIncomingTitle(noName ? l.commonUnknown : name),
       titleTrailing: btlabs != null ? VerifiedCheck(label: l.pairVerifiedService, colour: context.dc.ok, size: 18.u) : null,
       // Wide, as its 520 u width rendered (it snapped up).
       size: DialogWidth.wide,

@@ -12941,7 +12941,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String pairIncomingTitle(String name) {
-    return '与 $name 配对？';
+    return '来自 $name 的配对请求';
   }
 
   @override
@@ -19032,9 +19032,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get pairSeenAsOptional => '留空则不带名字配对。';
-
-  @override
-  String get pairIncomingNoName => '与此钱包配对？';
 
   @override
   String get pairUnnamed => '未命名钱包';

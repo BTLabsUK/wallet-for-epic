@@ -18245,9 +18245,9 @@
       }
     }
   },
-  "pairIncomingTitle": "Pair with {name}?",
+  "pairIncomingTitle": "Pair request from {name}",
   "@pairIncomingTitle": {
-    "description": "Sheet or dialog title when an invite opens.",
+    "description": "Sheet or dialog title when an invite opens; the name is shown bold in the phone sheet. With no name the app passes “Unknown” (commonUnknown).",
     "placeholders": {
       "name": {
         "type": "String",
@@ -27315,10 +27315,6 @@
   "pairSeenAsOptional": "Leave empty to pair without a name.",
   "@pairSeenAsOptional": {
     "description": "Helper line under the name field of the 'They see you as' dialog; an empty name is allowed."
-  },
-  "pairIncomingNoName": "Pair with this wallet?",
-  "@pairIncomingNoName": {
-    "description": "Title of the confirm sheet or dialog when the other wallet sent no name."
   },
   "pairUnnamed": "Unnamed wallet",
   "@pairUnnamed": {

@@ -236,8 +236,8 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
                       header: true,
                       child: Text.rich(
                         TextSpan(
-                          text: noName ? l.pairIncomingNoName : l.pairIncomingTitle(name),
                           children: [
+                            ..._titleSpans(l.pairIncomingTitle('\u0000'), noName ? l.commonUnknown : name),
                             if (btlabs != null) ...[
                               const TextSpan(text: ' '),
                               WidgetSpan(alignment: PlaceholderAlignment.middle, child: VerifiedCheck(label: l.pairVerifiedService, colour: t.ok)),
@@ -280,6 +280,18 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
       ),
     );
   }
+}
+
+/// The sheet title with [name] set in bold: [template] is the localised title formatted with a
+/// NUL in the name's place, so any language puts the name where its grammar wants it.
+List<TextSpan> _titleSpans(String template, String name) {
+  final at = template.indexOf('\u0000');
+  if (at < 0) return [TextSpan(text: template.replaceAll('\u0000', name))];
+  return [
+    if (at > 0) TextSpan(text: template.substring(0, at)),
+    TextSpan(text: name, style: const TextStyle(fontWeight: FontWeight.w700)),
+    if (at + 1 < template.length) TextSpan(text: template.substring(at + 1)),
+  ];
 }
 
 /// The answerer's wait for the confirm (RFC 7.3, 8.2): "Pairing with Anna…", Cancel,

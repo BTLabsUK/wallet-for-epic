@@ -13919,7 +13919,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String pairIncomingTitle(String name) {
-    return 'Mit $name koppeln?';
+    return 'Kopplungsanfrage von $name';
   }
 
   @override
@@ -20430,9 +20430,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get pairSeenAsOptional => 'Leer lassen, um ohne Namen zu koppeln.';
-
-  @override
-  String get pairIncomingNoName => 'Mit dieser Wallet koppeln?';
 
   @override
   String get pairUnnamed => 'Wallet ohne Namen';

@@ -3607,7 +3607,7 @@
   "pairCancelInvite": "Einladung zurückziehen",
   "pairCancelInviteTitle": "Einladung an {name} zurückziehen?",
   "pairCancelInviteBody": "Wenn die andere Wallet sie später öffnet, sieht sie „{name} hat diese Einladung zurückgezogen“.",
-  "pairIncomingTitle": "Mit {name} koppeln?",
+  "pairIncomingTitle": "Kopplungsanfrage von {name}",
   "pairNameClaimedShort": "Name von der Gegenseite gewählt",
   "pairCallsThemselves": "Nennt sich „{name}“",
   "pairIncomingBody": "Nach dem Koppeln sind Transaktionsdateien und Rechnungen zwischen Ihnen und {name} versiegelt. Als Nächstes verifizieren Sie gemeinsam.",
@@ -5264,7 +5264,6 @@
   "pairSeenAsNone": "Sie sehen keinen Namen",
   "pairSeenAsAdd": "Name hinzufügen",
   "pairSeenAsOptional": "Leer lassen, um ohne Namen zu koppeln.",
-  "pairIncomingNoName": "Mit dieser Wallet koppeln?",
   "pairUnnamed": "Wallet ohne Namen",
   "pairDefaultLabel": "Kontakt {n}",
   "pairVerifiedService": "Verifizierter BT-Labs-Dienst"

@@ -13754,7 +13754,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String pairIncomingTitle(String name) {
-    return 'Pair with $name?';
+    return 'Pair request from $name';
   }
 
   @override
@@ -20183,9 +20183,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pairSeenAsOptional => 'Leave empty to pair without a name.';
-
-  @override
-  String get pairIncomingNoName => 'Pair with this wallet?';
 
   @override
   String get pairUnnamed => 'Unnamed wallet';

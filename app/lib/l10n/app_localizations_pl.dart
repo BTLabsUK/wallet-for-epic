@@ -14278,7 +14278,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String pairIncomingTitle(String name) {
-    return 'Sparować z: $name?';
+    return 'Prośba o sparowanie od: $name';
   }
 
   @override
@@ -20863,9 +20863,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pairSeenAsOptional => 'Zostaw puste, aby sparować bez nazwy.';
-
-  @override
-  String get pairIncomingNoName => 'Sparować z tym portfelem?';
 
   @override
   String get pairUnnamed => 'Portfel bez nazwy';

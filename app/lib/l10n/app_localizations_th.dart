@@ -13399,7 +13399,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String pairIncomingTitle(String name) {
-    return 'จับคู่กับ $name หรือไม่';
+    return 'คำขอจับคู่จาก $name';
   }
 
   @override
@@ -19768,9 +19768,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pairSeenAsOptional => 'เว้นว่างไว้เพื่อจับคู่โดยไม่ใช้ชื่อ';
-
-  @override
-  String get pairIncomingNoName => 'จับคู่กับกระเป๋านี้หรือไม่';
 
   @override
   String get pairUnnamed => 'กระเป๋าเงินไม่มีชื่อ';

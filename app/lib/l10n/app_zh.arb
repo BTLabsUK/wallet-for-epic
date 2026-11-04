@@ -3607,7 +3607,7 @@
   "pairCancelInvite": "取消邀请",
   "pairCancelInviteTitle": "取消给 {name} 的邀请？",
   "pairCancelInviteBody": "如果对方的钱包之后打开它，会看到“{name} 已取消此邀请”。",
-  "pairIncomingTitle": "与 {name} 配对？",
+  "pairIncomingTitle": "来自 {name} 的配对请求",
   "pairNameClaimedShort": "名字由对方选择",
   "pairCallsThemselves": "自称“{name}”",
   "pairIncomingBody": "配对后，你与 {name} 之间的交易文件和账单都会被密封。接下来你们一起验证。",
@@ -5264,7 +5264,6 @@
   "pairSeenAsNone": "对方看不到名字",
   "pairSeenAsAdd": "添加名字",
   "pairSeenAsOptional": "留空则不带名字配对。",
-  "pairIncomingNoName": "与此钱包配对？",
   "pairUnnamed": "未命名钱包",
   "pairDefaultLabel": "联系人 {n}",
   "pairVerifiedService": "已验证的 BT Labs 服务"

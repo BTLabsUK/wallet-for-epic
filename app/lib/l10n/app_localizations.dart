@@ -21666,10 +21666,10 @@ abstract class AppLocalizations {
   /// **'Their wallet will see “{name} cancelled this invite” if they open it later.'**
   String pairCancelInviteBody(String name);
 
-  /// Sheet or dialog title when an invite opens.
+  /// Sheet or dialog title when an invite opens; the name is shown bold in the phone sheet. With no name the app passes “Unknown” (commonUnknown).
   ///
   /// In en, this message translates to:
-  /// **'Pair with {name}?'**
+  /// **'Pair request from {name}'**
   String pairIncomingTitle(String name);
 
   /// Chip on the words check.
@@ -31613,12 +31613,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Leave empty to pair without a name.'**
   String get pairSeenAsOptional;
-
-  /// Title of the confirm sheet or dialog when the other wallet sent no name.
-  ///
-  /// In en, this message translates to:
-  /// **'Pair with this wallet?'**
-  String get pairIncomingNoName;
 
   /// What a pairing row is called when the other wallet sent no name and the user gave no label.
   ///
