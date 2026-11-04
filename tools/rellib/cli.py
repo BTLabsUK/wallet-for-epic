@@ -410,8 +410,10 @@ class App:
         return src, k
 
     def cmd_sign(self, a):
-        """the owner is ready for his code: sign-android asks the signer now (or as soon as every build
-        is in), and the run carries on from there. [sign] when = "on-demand" in pipeline.toml."""
+        """sign-android asks the signer now (or as soon as every build is in), and the run carries on
+        from there. With the signer's credential on this machine (signer.auto_approve) the step signs
+        on its own and this only starts it; without it the owner is ready for his code ([sign] when =
+        "on-demand" in pipeline.toml)."""
         run = self.load_run()
         ss = [s for s in run.steps if s.base == "sign-android"]
         if not ss:
@@ -974,7 +976,7 @@ def parser():
             sp.add_argument("--exec", action="store_true")
         if name == "skip":
             sp.add_argument("--reason", required=True)
-    sp = sub.add_parser("sign", help="the owner is ready for the Android signing code: sign now, then carry on")
+    sp = sub.add_parser("sign", help="sign the Android files now (the owner's code only without the signer credential), then carry on")
     sp.add_argument("--run", help="run id, folder or version (default: the newest run)")
     machine_args(sp)
     sp = sub.add_parser("verify", help="G3 checks on any folder of release files")

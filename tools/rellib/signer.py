@@ -8,6 +8,14 @@ SHA256SUMS (step manifests: the follow-up sign-android's request declares, CONTI
 rollback's manifests. Unset, the old path: the keys on this machine (host.signer's signing_key
 and android_key_properties), and sign-android only checks the builds signed themselves.
 
+Approval: with the credential file `approve_token` of [host.signer] (default
+~/.config/btlabs/signer-approve.token, owner-only) the signer approves this machine's requests
+itself (btsign 1.2.0, the owner 2026-11-04: no TOTP code), and sign-android signs as soon as every
+file it needs is in. Without it, the owner's code as before.
+
+A run that never publishes (tainted: a step ran with unmet needs) signs only the Android files in
+hand and declares no manifests.
+
 Preflight writes <run>/signer.json (endpoint, the hosts file, the client; never a secret) so the
 step scripts, which tools/rel does not hand the hosts file, follow the same signer."""
 import importlib.util
@@ -48,6 +56,20 @@ def client_module():
 def client(engine, say):
     """The signer client for this run's hosts file (tests replace this function)."""
     return client_module().Client(settings(engine.hosts), say=say)
+
+
+def approve_token(hosts):
+    return os.path.expanduser(settings(hosts).get("approve_token", "~/.config/btlabs/signer-approve.token"))
+
+
+def auto_approve(engine):
+    """True when the signer approves this machine's requests on its credential (no code)."""
+    return os.path.isfile(approve_token(engine.hosts))
+
+
+def never_published(run):
+    """A tainted run never publishes (tools/rel refuses its gate)."""
+    return bool(run.info.get("tainted"))
 
 
 def write_run_file(engine):
@@ -128,7 +150,7 @@ def manifests_follow(engine):
     """True when the manifests step of this run signs through the signer: then sign-android's
     request declares them and one code covers both. A TEST run signs its manifests with the
     test key, a run without manifests signs none."""
-    return (bool(endpoint(engine.hosts)) and not engine.info.get("test")
+    return (bool(endpoint(engine.hosts)) and not engine.info.get("test") and not never_published(engine.run)
             and any(s.base == "manifests" for s in engine.run.steps))
 
 
@@ -144,7 +166,7 @@ def sign_now(engine):
     (the code is asked as soon as every build is in, and the step waits up to 35 min for it), or a
     run where he said he is ready (`tools/rel sign`, or `tools/rel start --sign-inline`)."""
     when = (getattr(engine.pipeline, "sign", None) or {}).get("when", "inline")
-    return when == "inline" or bool(engine.info.get("sign_requested"))
+    return when == "inline" or bool(engine.info.get("sign_requested")) or auto_approve(engine)
 
 
 def wait_for_sign(engine, step, todo, say):
@@ -175,10 +197,14 @@ def sign_android(engine, step, say):
         for _, key, _ in targets:
             say(f"would sign {key}" if endpoint(engine.hosts) else f"would check {key} is signed")
         return {"status": "done", "note": f"dry run: {len(targets)} Android file(s)", "dry": True}
-    problems, todo = [], []
+    problems, todo, absent = [], [], []
     signed = read_signed(run)
     for s, key, path in targets:
         st = run.status(s.id)
+        if st["status"] != "done" and never_published(run):
+            absent.append(key)  # never published: the Android files in hand are enough
+            say(f"not in this run: {key} ({s.id} is {st['status']})")
+            continue
         if st["status"] != "done":
             problems.append(f"{key}: its step {s.id} is {st['status']}")
             continue
@@ -197,6 +223,9 @@ def sign_android(engine, step, say):
         for p in problems:
             say("FAIL", p)
         return {"status": "failed", "note": f"{len(problems)} problem(s): " + "; ".join(problems)[:300]}
+    targets = [t for t in targets if t[1] not in absent]
+    if not targets:
+        return {"status": "failed", "note": "no Android file in hand to sign"}
     tools = android_tools()
     if not endpoint(engine.hosts):
         # The old path: Gradle signed with the key on this machine. Check, sign nothing.
@@ -230,7 +259,7 @@ def sign_android(engine, step, say):
     # manifests step signs them on this code (CONTINUE_FILE) once the signed hashes are in.
     then = MANIFEST_FOLLOW if manifests_follow(engine) else None
     label = (f"Android + manifests {info['version']}" if then else f"Android {info['version']}") \
-        + (" (TEST run)" if info.get("test") else "")
+        + (" (TEST run)" if info.get("test") else " (never published)" if never_published(run) else "")
     cont = os.path.join(run.path, CONTINUE_FILE)
     if os.path.exists(cont):
         os.remove(cont)
@@ -242,9 +271,9 @@ def sign_android(engine, step, say):
             android = {os.path.basename(key) for _, key, _ in targets}
             expect = sorted(os.path.join(run.files, f) for f in os.listdir(run.files)
                             if f not in android and f not in ("SHA256SUMS", "provenance.json", "sbom.cdx.json"))
-            st = c.sign(info["version"], jobs, outp, label=label, then=then, expect=expect)
+            st = c.sign(info["version"], jobs, outp, label=label, then=then, expect=expect, run_id=info["run_id"])
         else:
-            st = c.sign(info["version"], jobs, outp, label=label)
+            st = c.sign(info["version"], jobs, outp, label=label, run_id=info["run_id"])
     except Exception as e:
         return {"status": "failed", "note": f"signer: {e}"}
     if then and isinstance(st, dict) and st.get("id"):
@@ -263,4 +292,5 @@ def sign_android(engine, step, say):
         write_json(os.path.join(run.path, SIGNED_FILE), signed)
         say(f"signed {key} {h[:16]}")
     shutil.rmtree(work, ignore_errors=True)
-    return {"status": "done", "note": f"{len(todo)} Android file(s) signed by the signer, certificate {cert[:12]}…"}
+    return {"status": "done", "note": f"{len(todo)} Android file(s) signed by the signer, certificate {cert[:12]}…"
+                                      + (f"; not in this run: {', '.join(absent)}" if absent else "")}
