@@ -17,6 +17,24 @@ class _NoNativeWallet implements lepic.EpicWallet {
       throw StateError('reached LEPIC: ${invocation.memberName}');
 }
 
+/// Answers `storeAtRest` with [state] and counts `retirePlainStore`, which throws [failure] when set.
+class _RetiringWallet extends _NoNativeWallet {
+  _RetiringWallet(this.state, {this.failure});
+  final lepic.StoreAtRestState state;
+  final Object? failure;
+  final List<int> retired = [];
+
+  @override
+  Future<lepic.StoreAtRest> storeAtRest() async => lepic.StoreAtRest(state: state, reason: '', rollbackSetAside: false);
+
+  @override
+  Future<lepic.RetiredPlainStore> retirePlainStore({required int olderThanDays}) async {
+    retired.add(olderThanDays);
+    if (failure != null) throw failure!;
+    return const lepic.RetiredPlainStore(deleted: [], kept: []);
+  }
+}
+
 /// Records the message of each send and answers with one stored transaction.
 class _SendingWallet extends _NoNativeWallet {
   final List<String?> messages = [];
@@ -713,6 +731,29 @@ void main() {
     final session = LepicWalletSession(_NoNativeWallet());
     expect(await session.contacts(), isEmpty);
     expect(await session.enrichHistory(), 0);
+  });
+
+  group('plain copies after the move to encryption', () {
+    Future<_RetiringWallet> unlock(lepic.StoreAtRestState state, {Object? failure}) async {
+      final wallet = _RetiringWallet(state, failure: failure);
+      await LepicWalletSession(wallet).readStoreOpen();
+      return wallet;
+    }
+
+    test('are retired once per unlock when the records are encrypted or just migrated', () async {
+      expect((await unlock(lepic.StoreAtRestState.encrypted)).retired, [30]);
+      expect((await unlock(lepic.StoreAtRestState.migratedNow)).retired, [30]);
+    });
+
+    test('are left alone on a plain fallback', () async {
+      expect((await unlock(lepic.StoreAtRestState.fellBackToPlain)).retired, isEmpty);
+    });
+
+    test('a failed retirement does not break the open', () async {
+      final session = LepicWalletSession(_RetiringWallet(lepic.StoreAtRestState.encrypted, failure: StateError('x')));
+      await session.readStoreOpen();
+      expect(session.storeOpen, StoreOpenOutcome.encrypted);
+    });
   });
 
   group('history rows', () {

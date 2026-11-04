@@ -1317,7 +1317,7 @@ class LepicWalletService implements WalletService {
       ))
         ..nodeUrl = config.nodeUrl
         ..nodeApiSecret = config.nodeApiSecret;
-      await session._readStoreOpen();
+      await session.readStoreOpen();
       // The open wallet, for [peerCompat]; forgotten when the session goes.
       _open = session;
       session.onDispose = () {
@@ -1560,13 +1560,36 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   StoreOpenOutcome get storeOpen => _storeOpen;
   StoreOpenOutcome _storeOpen = StoreOpenOutcome.encrypted;
 
-  /// Reads [storeOpen] from LEPIC. A wallet that cannot say (a test double) counts as
-  /// encrypted, which shows no fallback notice.
-  Future<void> _readStoreOpen() async {
+  /// Reads [storeOpen] from LEPIC, then retires the plain copies (see [_retirePlainCopies]). A
+  /// wallet that cannot say (a test double) counts as encrypted, which shows no fallback notice,
+  /// and retires nothing.
+  @visibleForTesting
+  Future<void> readStoreOpen() async {
     try {
       _storeOpen = lepicStoreOpen(await _wallet.storeAtRest());
     } on Object catch (error) {
       logWarn('store', 'open state not read: ${error is lepic.WalletError ? error.kind.name : error.runtimeType}');
+      return;
+    }
+    if (_storeOpen != StoreOpenOutcome.plainFallback) await _retirePlainCopies();
+  }
+
+  /// Days an `after-rollback` plain database is kept before [_retirePlainCopies] deletes it, so
+  /// a downgrade made a few weeks ago can still be looked at. The `pre-encryption` copy goes at
+  /// once: encryption shipped in 26.10.25 and LEPIC ADR 0032 has the app retire it one release on.
+  static const _afterRollbackKeepDays = 30;
+
+  /// Deletes the plaintext database copies left by the move to encryption, once per unlock and
+  /// never on a plain fallback. Never fails or delays the unlock: an error is logged by kind only
+  /// (a message could carry a path).
+  Future<void> _retirePlainCopies() async {
+    try {
+      final r = await _wallet.retirePlainStore(olderThanDays: _afterRollbackKeepDays);
+      if (r.deleted.isNotEmpty || r.kept.isNotEmpty) {
+        logInfo('store', 'plain copies retired: ${r.deleted.length} deleted, ${r.kept.length} kept');
+      }
+    } on Object catch (error) {
+      logWarn('store', 'plain copies not retired: ${error is lepic.WalletError ? error.kind.name : error.runtimeType}');
     }
   }
 
