@@ -12,6 +12,79 @@ import 'wire.dart';
 /// How long a paid request id is kept.
 const Duration paidRequestKept = Duration(days: 30);
 
+/// What the wallet keeps of one payment made from a payment link, by its slate id: for the
+/// optional receipt and the silent-payee rows. Pruned at [paidRequestKept] like the request ids.
+class LinkPaymentRec {
+  const LinkPaymentRec({
+    required this.reqid,
+    required this.dkey,
+    this.label,
+    required this.amount,
+    required this.address,
+    required this.paidAt,
+    this.told = const {},
+  });
+
+  /// 16 bytes, lower-case hex.
+  final String reqid;
+
+  /// 33 bytes, lower-case hex: the directory the card came from.
+  final String dkey;
+
+  /// The card's label, when it has one.
+  final String? label;
+
+  /// Smallest unit.
+  final BigInt amount;
+
+  /// The listing address (`key@server[:port]`) the payment went to.
+  final String address;
+
+  /// Unix seconds.
+  final int paidAt;
+
+  /// Receipt stages already posted (`1` sent, `2` posted).
+  final Set<int> told;
+
+  /// The first 8 hex digits of the request id, as the receipt line shows it.
+  String get shortId => reqid.length < 8 ? reqid : reqid.substring(0, 8);
+
+  LinkPaymentRec withTold(int stage) => LinkPaymentRec(
+    reqid: reqid,
+    dkey: dkey,
+    label: label,
+    amount: amount,
+    address: address,
+    paidAt: paidAt,
+    told: {...told, stage},
+  );
+
+  Map<String, Object?> toJson() => {
+    'reqid': reqid,
+    'dkey': dkey,
+    if (label != null) 'label': label,
+    'amount': amount.toString(),
+    'address': address,
+    'paid_at': paidAt,
+    if (told.isNotEmpty) 'told': ([...told]..sort()),
+  };
+
+  @override
+  bool operator ==(Object other) =>
+      other is LinkPaymentRec &&
+      other.reqid == reqid &&
+      other.dkey == dkey &&
+      other.label == label &&
+      other.amount == amount &&
+      other.address == address &&
+      other.paidAt == paidAt &&
+      other.told.length == told.length &&
+      other.told.containsAll(told);
+
+  @override
+  int get hashCode => Object.hash(reqid, dkey, label, amount, address, paidAt, told.length);
+}
+
 /// The pin of a directory's listing: the listing key (hex) the user last paid for it.
 class ListingPin {
   const ListingPin({required this.listingKey, required this.firstPaid, required this.lastPaid});

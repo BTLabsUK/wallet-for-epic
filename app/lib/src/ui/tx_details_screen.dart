@@ -1,5 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
+import '../directory/pins.dart' show LinkPaymentRec;
+import '../directory/receipts.dart';
+import '../recipient.dart' show parseRecipient;
+import '../scan/scan_checks.dart' show CodeOrigin;
+import '../scan/scan_router.dart' show PaymentRequest;
+import '../trust/policy.dart' show MailboxSendStage, mailboxSendStage;
+import 'receipt_line.dart';
 
 import '../devices/device_ending.dart' show deviceEndingLine;
 import '../devices/phone_devices.dart' show deviceServiceProvider, phoneDevices, watchHistory;
@@ -24,7 +31,7 @@ import '../wallet_service.dart';
 import '../stall_retry.dart' show invoicePaymentStalled;
 import '../watch_mode.dart' show BlockWait;
 import '../contacts.dart' show contactsProvider;
-import '../trust/contact_trust.dart' show mailboxResendOffer, relationshipOf, trustAddressOf;
+import '../trust/contact_trust.dart' show MailboxResendOffer, mailboxResendOffer, relationshipOf, trustAddressOf;
 import 'app_dialog.dart';
 import 'address_view.dart';
 import 'common.dart';
@@ -614,6 +621,48 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
     }
   }
 
+  /// Cancel and send by Epicbox for a payment made from a payment link nobody answered: one
+  /// confirm, the ordinary cancel (inputs unlocked, a late answer refused), then Send opens with
+  /// the amount, to the payee's saved contact address when there is one, else empty.
+  Future<void> _resendLink(TxEntry tx, LinkPaymentRec rec, String name) async {
+    final l = context.l10n;
+    final sure = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l.mailboxResendTitle),
+        content: Text(l.linkResendBody),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l.mailboxKeepWaiting)),
+          FilledButton(
+            key: mailboxResendConfirmKey,
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l.mailboxResendAction),
+          ),
+        ],
+      ),
+    );
+    if (sure != true || !mounted) return;
+    final session = ref.read(sessionProvider);
+    if (session == null) return;
+    final contacts = ref.read(contactsProvider).value ?? const <Contact>[];
+    final address = contactEpicboxFor(rec, contacts.map((c) => c.epicbox));
+    setState(() => _busy = true);
+    try {
+      await ref.read(cancelFinalProvider).cancel(session, tx, spendBack: false);
+      unawaited(ref.read(deviceServiceProvider)?.announceNow());
+      if (!mounted) return;
+      ref
+          .read(sendRecipientProvider.notifier)
+          .handRequest(PaymentRequest(recipient: parseRecipient(address ?? ''), amount: rec.amount), CodeOrigin.link);
+      showShellTab(context, ShellTab.send);
+    } catch (error) {
+      if (!mounted) return;
+      _showMessage(describeError(context.l10n, error), level: NoticeLevel.error);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   /// Cancel and send by Epicbox (trust policy, an unanswered mailbox send): the waiting send
   /// is cancelled through the ordinary cancel, then an ordinary Epicbox send of the same amount
   /// and message goes to [address], the contact's Epicbox address. One confirm first; two rows
@@ -715,6 +764,21 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             now,
           )
         : null;
+    // A payment made from a payment link: its payee's silent rows and the optional receipt.
+    final linkRec = tx.slateId == null ? null : ref.watch(linkPaymentProvider(tx.slateId!));
+    final linkName = linkRec == null ? null : linkPayeeName(ref.watch(directoryReceiptsProvider), linkRec);
+    final linkOffer = linkRec != null && mailboxName == null && outgoing && tx.status == TxStatus.awaitingRecipient && !tx.undelivered
+        ? switch (mailboxSendStage(txSentAt(tx), now)) {
+            MailboxSendStage.waiting => null,
+            final stage => MailboxResendOffer(stage: stage, resend: true),
+          }
+        : null;
+    final linkPosted = tx.finalizedAtUnix != null &&
+        (tx.status == TxStatus.awaitingConfirmation || tx.status == TxStatus.confirmed);
+    final linkReceipt = linkRec != null &&
+        outgoing &&
+        mailboxName == null &&
+        (tx.status == TxStatus.awaitingRecipient || linkPosted);
     final wait = tip == null ? BlockWait.none : ref.read(blockWatchProvider).waitOf(tx, now: now, tip: tip);
     final stuck = isStuck(tx);
     final url = chain == null ? null : explorerUrl(chain, tx);
@@ -914,6 +978,18 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                         onKeepWaiting: () => Navigator.of(context).maybePop(),
                       ),
                     ],
+                    if (linkOffer != null && linkRec != null) ...[
+                      const SizedBox(height: 12),
+                      MailboxResendCard(
+                        offer: linkOffer,
+                        name: linkName ?? l.linkPayeeLead,
+                        busy: _busy,
+                        onResend: () => _resendLink(tx, linkRec, linkName ?? l.linkPayeeMid),
+                        onKeepWaiting: () => Navigator.of(context).maybePop(),
+                      ),
+                    ],
+                    if (linkReceipt)
+                      ReceiptLine(slateId: tx.slateId!, posted: linkPosted, finalizedAtUnix: tx.finalizedAtUnix),
                     if (txTimeline(
                       l,
                       tx,
