@@ -1084,6 +1084,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             _suggestOff = true;
           });
         }
+      case LinkOpened(:final request) when ref.read(paymentRefusalsProvider).refusesPayments(address: request.card.address):
+        showLinkNoPayments(context, ref.read(paymentRefusalsProvider).refusedName(address: request.card.address) ?? '');
       case LinkOpened(:final standing):
         if (standing.paidBefore != null && !await askPayAgain(context, localDay(l, standing.paidBefore!.toLocal()))) return;
         if (!mounted || seq != _linkSeq) return;
@@ -1297,10 +1299,14 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return (a.substring(0, at), host.isEmpty ? null : host);
   }
 
-  /// Placeholder (the designed state replaces it): the stop for a contact that takes no
-  /// payments, by its pairing or its Epicbox address.
-  String? _noPaymentsProblem({String? pairingId, String? address}) =>
-      ref.read(paymentRefusalsProvider).refusesPayments(pairingId: pairingId, address: address) ? context.l10n.sendContactTakesNoPayments : null;
+  /// The stop for a contact that takes no payments, by its pairing or its Epicbox address:
+  /// "‹name› takes no payments." under To, and Continue stays off.
+  String? _noPaymentsProblem({String? pairingId, String? address}) {
+    final refusals = ref.read(paymentRefusalsProvider);
+    return refusals.refusesPayments(pairingId: pairingId, address: address)
+        ? context.l10n.contactNoPaymentsNamed(refusals.refusedName(pairingId: pairingId, address: address) ?? '')
+        : null;
+  }
 
   String? _toError(DeskState st) {
     // A pairing recipient has no address: its card says whether it can be paid.

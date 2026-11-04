@@ -246,12 +246,14 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
     final name = ref.watch(pairingNameProvider(record.id));
     if (_directory != null) {
       final step = ref.watch(phoneDirectories.view)?.steps[widget.pairingId] ?? _began;
-      final dkey = ref.watch(phoneDirectories.view)?.book.byPairing(record.id)?.dkey;
+      final helloEntry = ref.watch(phoneDirectories.view)?.book.byPairing(record.id);
+      final dkey = helloEntry?.dkey;
       if (step == HelloStep.check && dkey != null) {
         return DirectoryCodeCheck(
           label: name,
           kind: record.kind,
           dkey: dkey,
+          noPayments: helloEntry!.noPayments,
           busy: _busy,
           onMatch: () => _answer(PairingCheck.match),
           onNoMatch: _noMatch,
@@ -431,6 +433,7 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
             paired: (c) => pairings.any((p) => p.id != record.id && p.contactId == c.id && p.state.isPaired),
             epicboxOf: (c) => c.epicbox,
           );
+    final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: record.id);
     final done = FilledButton(
       key: checkDoneKey,
       style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
@@ -479,7 +482,17 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
           ),
           const SizedBox(height: 12),
           // The result's badge is the big one: the same badge, scaled up.
-          Center(child: SizedBox(height: 30, child: FittedBox(child: TrustBadge(record)))),
+          Center(
+            child: SizedBox(
+              height: 30,
+              child: FittedBox(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [TrustBadge(record), if (noPayments) ...[const SizedBox(width: 6), const NoPaymentsBadge()]],
+                ),
+              ),
+            ),
+          ),
           if (verified) ...[
             const SizedBox(height: 8),
             Text(
@@ -519,7 +532,7 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
               ],
             ),
           ],
-          if (verified) ...[
+          if (verified && !noPayments) ...[
             const SizedBox(height: 20),
             PairCard(
               children: [

@@ -57,6 +57,18 @@ void showLinkRefusal(BuildContext context, String reason) => showEDialog<void>(
   ),
 );
 
+/// A link whose payee is a contact that takes no payments: one dialog, OK.
+void showLinkNoPayments(BuildContext context, String name) => showEDialog<void>(
+  context,
+  builder: (ctx) => EDialog(
+    key: const ValueKey('send-link-no-payments'),
+    title: ctx.l10n.linkNoPaymentsTitle,
+    description: ctx.l10n.contactNoPaymentsNamed(name),
+    icon: Icons.link_off,
+    actions: [EButton.primary(label: ctx.l10n.commonOk, onPressed: () => Navigator.of(ctx).pop())],
+  ),
+);
+
 /// "You paid this request on ‹date›": true when the user taps Pay again.
 Future<bool> askPayAgain(BuildContext context, String date) async =>
     await showEDialog<bool>(

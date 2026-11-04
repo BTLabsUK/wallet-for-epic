@@ -159,6 +159,16 @@ Future<LinkOpened?> openPaymentLink(
       );
       if (again && scanAgain != null) await scanAgain();
       return null;
+    // The payee is a contact that takes no payments: same shape as a refused link.
+    case LinkOpened(:final request) when ref.read(paymentRefusalsProvider).refusesPayments(address: request.card.address):
+      await showScanResultSheet(
+        context,
+        icon: Icons.link_off,
+        title: l.linkNoPaymentsTitle,
+        text: l.contactNoPaymentsNamed(ref.read(paymentRefusalsProvider).refusedName(address: request.card.address) ?? ''),
+        primary: l.commonOk,
+      );
+      return null;
     case LinkOpened(:final standing) when standing.paidBefore != null:
       final pay = await showScanResultSheet(
         context,

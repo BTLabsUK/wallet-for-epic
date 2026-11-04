@@ -37,7 +37,7 @@ import '../../../ui/pairing/invite_links.dart';
 import '../../../directory/directory.dart';
 import '../../../trust/policy.dart' show featureDirectory, mayOfferPair;
 import '../../../ui/pairing/pairing_notices.dart' show pairingWordsOnScreen;
-import '../../../ui/pairing/pairing_parts.dart' show WordTileSize, WordTiles;
+import '../../../ui/pairing/pairing_parts.dart' show NoPaymentsBadge, WordTileSize, WordTiles;
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/directory_state.dart';
 import '../../data/pairing_state.dart';
@@ -1339,11 +1339,13 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
     if (_directory != null) {
       final view = ref.watch(deskDirectories.view);
       final step = view?.steps[widget.pairingId] ?? _began;
-      final dkey = view?.book.byPairing(r.id)?.dkey;
+      final helloEntry = view?.book.byPairing(r.id);
+      final dkey = helloEntry?.dkey;
       if (step == HelloStep.check && dkey != null) {
         return DeskDirectoryCodeCheck(
           label: name,
           dkey: dkey,
+          noPayments: helloEntry!.noPayments,
           busy: _busy,
           onLater: () => Navigator.pop(context),
           onMatch: () => _answer(PairingCheck.match),
@@ -1432,6 +1434,10 @@ class DeskPairedSaveDialog extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(verified ? l.sasMatchedBody(name) : l.sasSkippedBody(name), style: ts.bodyDim),
+          if (ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: pairingId)) ...[
+            SizedBox(height: Sp.x3),
+            Align(alignment: AlignmentDirectional.centerStart, child: const NoPaymentsBadge()),
+          ],
           SizedBox(height: Sp.x4),
           Text(l.pairSaveContactTitle(name), style: ts.label),
         ],

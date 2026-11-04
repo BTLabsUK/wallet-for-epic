@@ -239,6 +239,7 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     // A request sent to this contact, or its code answered, waiting for the confirm.
     final pending = pairs && (pairing == null || pairing.ended) ? ref.watch(contactPendingPairingProvider(contact.id)) : null;
     final starred = ref.watch(favouriteContactsProvider).value?.contains(contact.id) ?? false;
+    final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: pairing?.id, address: contact.epicbox);
     return SlotScaffold(
       appBar: AppBar(
         title: Text(l.contactTitle),
@@ -288,14 +289,17 @@ class _ContactPageState extends ConsumerState<ContactPage> {
             onPair: pairs && (pairing == null || pairing.ended) && pending == null ? () => _pair(contact) : null,
             onPending: pairs && (pairing == null || pairing.ended) && pending != null ? () => _showMyCode(contact) : null,
           ),
-          PairSection(l.contactAddresses),
-          _Addresses(contact: contact, pairing: pairing),
+          // A contact that takes no payments: its own card first, then Pairing, Addresses last.
+          if (noPayments && pairs && pairing != null && !pairing.ended) DirectoryBlock(pairingId: pairing.id, label: contact.name),
+          if (!noPayments) ...[PairSection(l.contactAddresses), _Addresses(contact: contact, pairing: pairing)],
           if (pairs) ...[
             PairSection(l.contactPairing),
             ContactPairingBlock(contact: contact, pairing: pairing, pending: pending, busy: _busy, run: _run, onPair: () => _pair(contact)),
-            // A directory the user verified: Joined, the listing code and Leave, or Join.
-            if (pairing != null && !pairing.ended) DirectoryBlock(pairingId: pairing.id, label: contact.name),
+            // A service the user paired with and took a name from: Pay me as @name · since, the
+            // picture code and Leave, or the button that turns it on.
+            if (!noPayments && pairing != null && !pairing.ended) DirectoryBlock(pairingId: pairing.id, label: contact.name),
           ],
+          if (noPayments) ...[PairSection(l.contactAddresses), _Addresses(contact: contact, pairing: pairing)],
           // The compatibility line (trust policy): one sentence, never a badge; a plain
           // contact's key can answer as another wallet app with pairing off too.
           ContactTrustLine(contactId: contact.id, name: contact.name),
@@ -401,14 +405,16 @@ class _Header extends ConsumerWidget {
                     ),
                   ),
                   // Verified is about the Epicbox address: none beside one the pairing did not bring.
-                  if (p != null && pairingVouchesFor(p, contact.epicbox)) ...[
+                  if ((p != null && pairingVouchesFor(p, contact.epicbox)) || noPayments) ...[
                     const SizedBox(height: 6),
                     Wrap(
                       spacing: 6,
                       runSpacing: 4,
                       children: [
-                        TrustBadge(p),
-                        if (p.allowInvoices && ref.watch(invoicesOnProvider)) EBadge(l.trustAllowsInvoices, icon: Icons.receipt_long_outlined),
+                        if (p != null && pairingVouchesFor(p, contact.epicbox)) TrustBadge(p),
+                        if (noPayments) NoPaymentsBadge(key: contactPageNoPaymentsKey),
+                        if (!noPayments && p != null && p.allowInvoices && ref.watch(invoicesOnProvider))
+                          EBadge(l.trustAllowsInvoices, icon: Icons.receipt_long_outlined),
                       ],
                     ),
                   ],
@@ -474,12 +480,8 @@ class _Header extends ConsumerWidget {
             ),
           ],
         ),
-        if (noPayments) ...[
-          const SizedBox(height: 4),
-          _NoPaymentsLine(key: contactPageNoPaymentsKey),
-        ] else
         // A contact with only a pairing that cannot take a payment now: why Send is off.
-        if (contact.addresses.isEmpty && p != null && !p.paysByMailbox) ...[
+        if (!noPayments && contact.addresses.isEmpty && p != null && !p.paysByMailbox) ...[
           const SizedBox(height: 4),
           Text(
             p.state == PairingState.keysChanged ? l.contactSendKeysChanged : l.contactSendNoSealed(contact.name),
@@ -490,16 +492,6 @@ class _Header extends ConsumerWidget {
       ],
     );
   }
-}
-
-/// Placeholder (the designed state replaces it): the line that stands in place of Send for a
-/// contact that takes no payments.
-class _NoPaymentsLine extends StatelessWidget {
-  const _NoPaymentsLine({super.key});
-
-  @override
-  Widget build(BuildContext context) =>
-      Text(context.l10n.contactTakesNoPayments, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.tokens.dim));
 }
 
 /// One row per address: the kind badge, the short address in mono, Copy. A contact with only

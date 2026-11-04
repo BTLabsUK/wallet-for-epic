@@ -46,22 +46,29 @@ Future<bool> showDirectoryJoinSheet(BuildContext context, WidgetRef ref, {requir
     return false;
   }
   if (!context.mounted) return false;
+  final entry = service.entryOf(dkey);
   final joined = await showPhoneSheet<bool>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
     showDragHandle: true,
-    builder: (_) => _JoinSheet(dkey: dkey, label: label, host: host),
+    builder: (_) => _JoinSheet(dkey: dkey, label: label, host: host, name: entry?.payAsArg ?? 'none', noPayments: entry?.noPayments ?? false),
   );
   return joined ?? false;
 }
 
 class _JoinSheet extends ConsumerStatefulWidget {
-  const _JoinSheet({required this.dkey, required this.label, required this.host});
+  const _JoinSheet({required this.dkey, required this.label, required this.host, required this.name, required this.noPayments});
 
   final String dkey;
   final String label;
   final String host;
+
+  /// The user's own name at this contact from the hello (`dirJoin*` select argument), `none` without one.
+  final String name;
+
+  /// The contact takes no payments: the sheet says so in a second paragraph.
+  final bool noPayments;
 
   @override
   ConsumerState<_JoinSheet> createState() => _JoinSheetState();
@@ -77,7 +84,7 @@ class _JoinSheetState extends ConsumerState<_JoinSheet> {
     setState(() => _busy = true);
     try {
       await ref.read(directoryServiceProvider)!.join(widget.dkey);
-      notices.show(l.dirJoinedNotice(widget.label), level: NoticeLevel.success);
+      notices.show(l.dirJoinedNotice(widget.name, widget.label), level: NoticeLevel.success);
       if (mounted) Navigator.pop(context, true);
     } catch (error) {
       notices.show(describeError(l, error), level: NoticeLevel.error);
@@ -101,20 +108,24 @@ class _JoinSheetState extends ConsumerState<_JoinSheet> {
               Expanded(
                 child: Semantics(
                   header: true,
-                  child: Text(l.dirJoinTitle(widget.label), style: theme.textTheme.titleLarge?.copyWith(fontFamily: t.headFamily)),
+                  child: Text(l.dirJoinTitle(widget.name, widget.label), style: theme.textTheme.titleLarge?.copyWith(fontFamily: t.headFamily)),
                 ),
               ),
-              InfoHint(l.dirJoinInfo(widget.label), title: l.dirJoinTitle(widget.label)),
+              InfoHint(l.dirJoinInfo(widget.label), title: l.dirJoinTitle(widget.name, widget.label)),
             ],
           ),
           const SizedBox(height: 8),
-          Text(l.dirJoinBody(widget.label, widget.host), style: theme.textTheme.bodyLarge?.copyWith(color: t.dim)),
+          Text(l.dirJoinBody(widget.name, widget.label, widget.host), style: theme.textTheme.bodyLarge?.copyWith(color: t.dim)),
+          if (widget.noPayments) ...[
+            const SizedBox(height: 8),
+            Text(l.contactNoPaymentsNamed(widget.label), style: theme.textTheme.bodyLarge?.copyWith(color: t.dim)),
+          ],
           const SizedBox(height: 20),
           FilledButton(
             key: dirJoinKey,
             style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
             onPressed: _busy ? null : _join,
-            child: Text(l.dirJoin),
+            child: Text(l.dirJoin(widget.name, widget.label)),
           ),
           const SizedBox(height: 8),
           OutlinedButton(
@@ -184,6 +195,7 @@ class DirectoryCodeCheck extends StatelessWidget {
     required this.label,
     required this.kind,
     required this.dkey,
+    this.noPayments = false,
     required this.busy,
     required this.onMatch,
     required this.onNoMatch,
@@ -194,6 +206,9 @@ class DirectoryCodeCheck extends StatelessWidget {
   final String label;
   final PairingParty kind;
   final String dkey;
+
+  /// The hello says the contact takes no payments: its badge sits in the head row.
+  final bool noPayments;
   final bool busy;
   final VoidCallback onMatch;
   final VoidCallback onNoMatch;
@@ -233,6 +248,7 @@ class DirectoryCodeCheck extends StatelessWidget {
               PairAvatar(name: label, kind: kind),
               const SizedBox(width: 12),
               Expanded(child: Text(label, style: theme.textTheme.titleMedium?.copyWith(fontFamily: t.headFamily))),
+              if (noPayments) ...[const SizedBox(width: 8), const NoPaymentsBadge()],
             ],
           ),
           const SizedBox(height: 16),
@@ -284,7 +300,7 @@ class _DirectoryBlockState extends ConsumerState<DirectoryBlock> {
     setState(() => _busy = true);
     try {
       await ref.read(directoryServiceProvider)!.leave(e.dkey);
-      notices.show(l.dirLeftNotice(widget.label), level: NoticeLevel.success);
+      notices.show(l.dirLeftNotice(e.payAsArg, widget.label), level: NoticeLevel.success);
     } catch (error) {
       notices.show(describeError(l, error), level: NoticeLevel.error);
       if (mounted) setState(() => _busy = false);
@@ -339,29 +355,33 @@ class _DirectoryBlockState extends ConsumerState<DirectoryBlock> {
                   Icon(joined ? EpicGlyphs.verified : Icons.person_off_outlined, color: joined ? t.ok : t.dim),
                   const SizedBox(width: 12),
                   Expanded(
+                    flex: 3,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(joined ? l.dirJoined(since0) : (unlisted ? l.dirNotListed : l.dirNotJoined), style: theme.textTheme.bodyLarge),
+                        Text(joined ? l.dirJoined(entry.payAsArg, widget.label, since0) : (unlisted ? l.dirNotListed : l.dirNotJoined), style: theme.textTheme.bodyLarge),
                         if (unlisted) Text(l.dirNotListedBody(widget.label), style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
                       ],
                     ),
                   ),
                   const SizedBox(width: 8),
-                  if (joined)
-                    OutlinedButton(
-                      key: dirLeaveKey,
-                      style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
-                      onPressed: _busy ? null : () => _leave(entry),
-                      child: Text(l.dirLeave),
-                    )
-                  else
-                    FilledButton(
-                      key: dirJoinKey,
-                      style: FilledButton.styleFrom(minimumSize: const Size(0, 44)),
-                      onPressed: _busy ? null : () => _join(entry),
-                      child: Text(unlisted ? l.dirJoinAgain : l.dirJoin),
-                    ),
+                  // Flexible: a long "Pay me as @name" button wraps instead of overflowing.
+                  Flexible(
+                    flex: 2,
+                    child: joined
+                        ? OutlinedButton(
+                            key: dirLeaveKey,
+                            style: OutlinedButton.styleFrom(minimumSize: const Size(0, 44)),
+                            onPressed: _busy ? null : () => _leave(entry),
+                            child: Text(l.dirLeave),
+                          )
+                        : FilledButton(
+                            key: dirJoinKey,
+                            style: FilledButton.styleFrom(minimumSize: const Size(0, 44)),
+                            onPressed: _busy ? null : () => _join(entry),
+                            child: Text(unlisted ? l.dirJoinAgain : l.dirJoin(entry.payAsArg, widget.label), textAlign: TextAlign.center),
+                          ),
+                  ),
                 ],
               ),
             ),

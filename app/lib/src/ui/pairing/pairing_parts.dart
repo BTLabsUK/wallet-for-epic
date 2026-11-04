@@ -264,6 +264,28 @@ class TrustBadge extends StatelessWidget {
   }
 }
 
+/// The No payments badge: the mark and the words, for a contact's page, the Check the code head
+/// row and the pairing result.
+class NoPaymentsBadge extends StatelessWidget {
+  const NoPaymentsBadge({super.key});
+
+  @override
+  Widget build(BuildContext context) =>
+      EBadge(_l10n(context).contactNoPayments, icon: EpicGlyphs.noPayments, tone: BadgeTone.neutral);
+}
+
+/// The bare No payments mark of a list row, after the trust badge: 16 px, dim, no words and no
+/// tooltip; a screen reader reads the words.
+class NoPaymentsMark extends StatelessWidget {
+  const NoPaymentsMark({super.key});
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    label: _l10n(context).contactNoPayments,
+    child: ExcludeSemantics(child: Icon(EpicGlyphs.noPayments, size: 16, color: context.tokens.dim)),
+  );
+}
+
 /// "Waiting": a request sent or a code answered for the contact, not finished yet.
 class PairPendingBadge extends StatelessWidget {
   const PairPendingBadge({super.key});

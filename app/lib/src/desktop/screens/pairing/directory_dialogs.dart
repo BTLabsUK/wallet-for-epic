@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../directory/directory.dart';
-import '../../../ui/pairing/pairing_parts.dart' show WordTileSize, WordTiles;
+import '../../../ui/pairing/pairing_parts.dart' show NoPaymentsBadge, WordTileSize, WordTiles;
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/directory_state.dart';
 import '../../data/pairing_state.dart';
@@ -40,16 +40,26 @@ Future<bool> showDeskDirectoryJoin(BuildContext context, WidgetRef ref, {require
     return false;
   }
   if (!context.mounted) return false;
-  final joined = await showEDialog<bool>(context, builder: (_) => _JoinDialog(dkey: dkey, label: label, host: host));
+  final entry = service.entryOf(dkey);
+  final joined = await showEDialog<bool>(
+    context,
+    builder: (_) => _JoinDialog(dkey: dkey, label: label, host: host, name: entry?.payAsArg ?? 'none', noPayments: entry?.noPayments ?? false),
+  );
   return joined ?? false;
 }
 
 class _JoinDialog extends ConsumerStatefulWidget {
-  const _JoinDialog({required this.dkey, required this.label, required this.host});
+  const _JoinDialog({required this.dkey, required this.label, required this.host, required this.name, required this.noPayments});
 
   final String dkey;
   final String label;
   final String host;
+
+  /// The user's own name at this contact from the hello (`dirJoin*` select argument), `none` without one.
+  final String name;
+
+  /// The contact takes no payments: the dialog says so in a second paragraph.
+  final bool noPayments;
 
   @override
   ConsumerState<_JoinDialog> createState() => _JoinDialogState();
@@ -67,7 +77,7 @@ class _JoinDialogState extends ConsumerState<_JoinDialog> {
       await ref.read(deskDirectoryServiceProvider)!.join(widget.dkey);
       if (!mounted) return;
       Navigator.pop(context, true);
-      if (host.mounted) showEToast(host, l.dirJoinedNotice(widget.label), tone: ETone.ok);
+      if (host.mounted) showEToast(host, l.dirJoinedNotice(widget.name, widget.label), tone: ETone.ok);
     } catch (error) {
       if (!mounted) return;
       showEToast(context, deskErrorText(error, l), tone: ETone.risk);
@@ -79,13 +89,15 @@ class _JoinDialogState extends ConsumerState<_JoinDialog> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     return EDialog(
-      title: l.dirJoinTitle(widget.label),
-      titleTrailing: EInfoHint(l.dirJoinInfo(widget.label), title: l.dirJoinTitle(widget.label)),
+      title: l.dirJoinTitle(widget.name, widget.label),
+      titleTrailing: EInfoHint(l.dirJoinInfo(widget.label), title: l.dirJoinTitle(widget.name, widget.label)),
       icon: EIcons.trusted,
-      description: l.dirJoinBody(widget.label, widget.host),
+      description: widget.noPayments
+          ? '${l.dirJoinBody(widget.name, widget.label, widget.host)}\n\n${l.contactNoPaymentsNamed(widget.label)}'
+          : l.dirJoinBody(widget.name, widget.label, widget.host),
       actions: [
         EButton(key: deskDirNotNowKey, label: l.dirNotNow, onPressed: _busy ? null : () => Navigator.pop(context, false)),
-        EButton.primary(key: deskDirJoinKey, label: l.dirJoin, busy: _busy, onPressed: _busy ? null : _join),
+        EButton.primary(key: deskDirJoinKey, label: l.dirJoin(widget.name, widget.label), busy: _busy, onPressed: _busy ? null : _join),
       ],
     );
   }
@@ -127,6 +139,7 @@ class DeskDirectoryCodeCheck extends StatelessWidget {
     super.key,
     required this.label,
     required this.dkey,
+    this.noPayments = false,
     required this.busy,
     required this.onLater,
     required this.onMatch,
@@ -138,6 +151,9 @@ class DeskDirectoryCodeCheck extends StatelessWidget {
 
   final String label;
   final String dkey;
+
+  /// The hello says the contact takes no payments: its badge sits in the head row.
+  final bool noPayments;
   final bool busy;
   final VoidCallback onLater;
   final VoidCallback onMatch;
@@ -157,7 +173,7 @@ class DeskDirectoryCodeCheck extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(children: [DeskPairAvatar(name: label, size: 48.u), SizedBox(width: Sp.x3), Expanded(child: Text(label, style: ts.h3))]),
+          Row(children: [DeskPairAvatar(name: label, size: 48.u), SizedBox(width: Sp.x3), Expanded(child: Text(label, style: ts.h3)), if (noPayments) ...[SizedBox(width: Sp.x2), const NoPaymentsBadge()]]),
           SizedBox(height: Sp.x3),
           Text(l.dirCodeLead(label), style: ts.bodyDim),
           SizedBox(height: Sp.x4),
@@ -205,7 +221,7 @@ class _DeskDirectoryBlockState extends ConsumerState<DeskDirectoryBlock> {
     setState(() => _busy = true);
     try {
       await ref.read(deskDirectoryServiceProvider)!.leave(e.dkey);
-      if (host.mounted) showEToast(host, l.dirLeftNotice(widget.label), tone: ETone.ok);
+      if (host.mounted) showEToast(host, l.dirLeftNotice(e.payAsArg, widget.label), tone: ETone.ok);
     } catch (error) {
       if (mounted) {
         showEToast(context, deskErrorText(error, l), tone: ETone.risk);
@@ -260,13 +276,13 @@ class _DeskDirectoryBlockState extends ConsumerState<DeskDirectoryBlock> {
             gap: false,
             rows: [
               ESetRow(
-                title: joined ? l.dirJoined(sinceText) : (unlisted ? l.dirNotListed : l.dirNotJoined),
+                title: joined ? l.dirJoined(entry.payAsArg, widget.label, sinceText) : (unlisted ? l.dirNotListed : l.dirNotJoined),
                 text: unlisted ? l.dirNotListedBody(widget.label) : null,
                 control: joined
                     ? EButton(key: deskDirLeaveKey, label: l.dirLeave, size: EBtnSize.sm, onPressed: _busy ? null : () => _leave(entry))
                     : EButton.primary(
                         key: deskDirJoinKey,
-                        label: unlisted ? l.dirJoinAgain : l.dirJoin,
+                        label: unlisted ? l.dirJoinAgain : l.dirJoin(entry.payAsArg, widget.label),
                         size: EBtnSize.sm,
                         onPressed: _busy ? null : () => _join(entry),
                       ),

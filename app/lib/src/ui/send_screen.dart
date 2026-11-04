@@ -694,10 +694,14 @@ class _SendViewState extends ConsumerState<SendView> {
     }
   }
 
-  /// Placeholder (the designed state replaces it): the stop for a contact that takes no
-  /// payments, by its pairing or its Epicbox address.
-  String? _noPaymentsProblem({String? pairingId, String? address}) =>
-      ref.read(paymentRefusalsProvider).refusesPayments(pairingId: pairingId, address: address) ? context.l10n.sendContactTakesNoPayments : null;
+  /// The stop for a contact that takes no payments, by its pairing or its Epicbox address:
+  /// "‹name› takes no payments." under To, and Continue stays off.
+  String? _noPaymentsProblem({String? pairingId, String? address}) {
+    final refusals = ref.read(paymentRefusalsProvider);
+    return refusals.refusesPayments(pairingId: pairingId, address: address)
+        ? context.l10n.contactNoPaymentsNamed(refusals.refusedName(pairingId: pairingId, address: address) ?? '')
+        : null;
+  }
 
   /// [to] is this wallet's own Epicbox address: the key the same (case counts) and the relay
   /// this wallet's.
@@ -979,7 +983,7 @@ class _SendViewState extends ConsumerState<SendView> {
   Future<void> _pickContact() async {
     final contact = await Navigator.of(context).push<Contact>(
       MaterialPageRoute<Contact>(
-        builder: (_) => const ContactsScreen(pick: true),
+        builder: (_) => const ContactsScreen(pick: true, forPayment: true),
       ),
     );
     if (contact == null || !mounted) return;

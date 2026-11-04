@@ -15,7 +15,8 @@ import '../../widgets/kit.dart';
 import '../../../models.dart' show KeysChoice, PairRequest, PairingEndReason, PairingRecord, PairingState, SealMode, contactKinds, pairingVouchesFor;
 import '../../../pairing_text.dart' show pairingEndedText, peerLabel;
 import '../../../ui/method_names.dart' show recipientMethodWord;
-import '../../../ui/pairing/pairing_parts.dart' show PairPendingBadge, TrustBadge;
+import '../../../ui/pairing/pairing_parts.dart' show NoPaymentsBadge, NoPaymentsMark, PairPendingBadge, TrustBadge;
+import '../../data/directory_state.dart' show deskDirectories;
 import '../../data/pairing_state.dart';
 import '../pairing/directory_dialogs.dart' show DeskDirectoryBlock;
 import '../pairing/add_to_contacts_button.dart' show DeskAddToContactsButton;
@@ -600,6 +601,11 @@ class _ContactRowState extends ConsumerState<_ContactRow> {
                           Padding(padding: EdgeInsets.only(left: Sp.x2), child: TrustBadge(p, short: true))
                         else if (ref.watch(deskPairsProvider) && ref.watch(deskContactPendingProvider(x.id)) != null)
                           Padding(padding: EdgeInsets.only(left: Sp.x2), child: const PairPendingBadge()),
+                        if (ref.watch(paymentRefusalsProvider).refusesPayments(
+                          pairingId: ref.watch(deskPairsProvider) ? ref.watch(deskContactPairingProvider(x.id))?.id : null,
+                          address: x.epicbox,
+                        ))
+                          Padding(padding: EdgeInsets.only(left: Sp.x2), child: const NoPaymentsMark()),
                       ],
                     ),
                   ),
@@ -638,6 +644,54 @@ class _ContactDetail extends ConsumerWidget {
     final last = mine.isEmpty ? x.lastUsed : mine.first.created;
     final pairing = pairs ? ref.watch(deskContactPairingProvider(x.id)) : null;
     final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: pairing?.id, address: x.epicbox);
+    // The service's entry, when the user took a name from it: shown beside the header badges.
+    final service = pairing == null ? null : ref.watch(deskDirectories.directoryOfPairing(pairing.id));
+    // The addresses card: last for a contact that takes no payments, else above Pairing.
+    final addressesCard = <Widget>[
+        SizedBox(height: Sp.x6),
+        Text(l.contactAddresses, style: ts.label),
+        SizedBox(height: 6.u),
+        ESetGroup(
+          gap: false,
+          rows: [
+            // A contact with only a pairing: payments go through it.
+            if (x.addresses.isEmpty && pairing != null)
+              Padding(
+                key: const ValueKey('contact-via-pairing'),
+                padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
+                child: Row(
+                  children: [
+                    Icon(EIcons.lock, size: 16.u, color: c.dim),
+                    SizedBox(width: Sp.x3),
+                    Expanded(child: Text(l.contactNoAddressPaired, style: pairing.caps.opensSealed ? ts.body : ts.bodyDim)),
+                  ],
+                ),
+              ),
+            // None at all (a pairing-only contact while Pairing is off): said, not an empty
+            // group, so the greyed Send has its reason (LNX3-3).
+            if (x.addresses.isEmpty && pairing == null)
+              Padding(
+                key: const ValueKey('contact-no-address'),
+                padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
+                child: Text(l.contactNoAddresses, style: ts.bodyDim),
+              ),
+            for (final k in x.kinds)
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
+                // The kind beside the address, or above it in a narrow pane.
+                child: LayoutBuilder(
+                  builder: (context, box) {
+                    final address = EAddress(x.addressOf(k)!, copyLabel: l.contactCopyAddress(recipientMethodWord(l, k)));
+                    if (box.maxWidth < Lay.sm) {
+                      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [EBadge.kind(k, l: l), SizedBox(height: Sp.x2), address]);
+                    }
+                    return Row(children: [EBadge.kind(k, l: l), SizedBox(width: Sp.x3), Expanded(child: address)]);
+                  },
+                ),
+              ),
+          ],
+        ),
+    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -657,6 +711,12 @@ class _ContactDetail extends ConsumerWidget {
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       if (pairing != null && pairingVouchesFor(pairing, x.epicbox)) TrustBadge(pairing),
+                      if (noPayments) const NoPaymentsBadge(),
+                      if (service case final e? when e.joined && e.joinedAt != null)
+                        Text(
+                          l.dirJoined(e.payAsArg, x.name, MaterialLocalizations.of(context).formatMediumDate(e.joinedAt!.toLocal())),
+                          style: ts.small,
+                        ),
                       if (last != null) Text(l.deskConLastTx(whenText(l, last)), style: ts.small),
                     ],
                   ),
@@ -756,11 +816,6 @@ class _ContactDetail extends ConsumerWidget {
             ],
           );
         }),
-        // Placeholder (the designed state replaces it): in place of Send.
-        if (noPayments) ...[
-          SizedBox(height: Sp.x2),
-          Text(l.contactTakesNoPayments, key: const ValueKey('contact-no-payments'), style: ts.small),
-        ],
         // The build without Tor: an onion-only contact (older data) has no way to be paid.
         if (torOnly && !(pairing?.paysByMailbox ?? false)) ...[
           SizedBox(height: Sp.x2),
@@ -774,54 +829,15 @@ class _ContactDetail extends ConsumerWidget {
             style: ts.small,
           ),
         ],
-        SizedBox(height: Sp.x6),
-        Text(l.contactAddresses, style: ts.label),
-        SizedBox(height: 6.u),
-        ESetGroup(
-          gap: false,
-          rows: [
-            // A contact with only a pairing: payments go through it.
-            if (x.addresses.isEmpty && pairing != null)
-              Padding(
-                key: const ValueKey('contact-via-pairing'),
-                padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
-                child: Row(
-                  children: [
-                    Icon(EIcons.lock, size: 16.u, color: c.dim),
-                    SizedBox(width: Sp.x3),
-                    Expanded(child: Text(l.contactNoAddressPaired, style: pairing.caps.opensSealed ? ts.body : ts.bodyDim)),
-                  ],
-                ),
-              ),
-            // None at all (a pairing-only contact while Pairing is off): said, not an empty
-            // group, so the greyed Send has its reason (LNX3-3).
-            if (x.addresses.isEmpty && pairing == null)
-              Padding(
-                key: const ValueKey('contact-no-address'),
-                padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
-                child: Text(l.contactNoAddresses, style: ts.bodyDim),
-              ),
-            for (final k in x.kinds)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
-                // The kind beside the address, or above it in a narrow pane.
-                child: LayoutBuilder(
-                  builder: (context, box) {
-                    final address = EAddress(x.addressOf(k)!, copyLabel: l.contactCopyAddress(recipientMethodWord(l, k)));
-                    if (box.maxWidth < Lay.sm) {
-                      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [EBadge.kind(k, l: l), SizedBox(height: Sp.x2), address]);
-                    }
-                    return Row(children: [EBadge.kind(k, l: l), SizedBox(width: Sp.x3), Expanded(child: address)]);
-                  },
-                ),
-              ),
-          ],
-        ),
+        if (!noPayments) ...addressesCard,
+        // A contact that takes no payments: its own card first, then Pairing, Addresses last.
+        if (noPayments && pairs && pairing != null && !pairing.ended) DeskDirectoryBlock(pairingId: pairing.id, label: x.name),
         if (x.note != null) ...[SizedBox(height: Sp.x5), Text(l.deskConNote, style: ts.label), SizedBox(height: Sp.x1), Text(x.note!, style: ts.body)],
         // Pairing (RFC 0002): trust, Seal payments, Allow invoices, the relay, Remove pairing.
         if (pairs) ...[SizedBox(height: Sp.x6), DeskPairingBlock(contact: x, pairing: pairing, pending: ref.watch(deskContactPendingProvider(x.id)))],
         // The compatibility line (trust policy): one sentence, never a badge.
-        if (pairs && pairing != null && !pairing.ended) DeskDirectoryBlock(pairingId: pairing.id, label: x.name),
+        if (!noPayments && pairs && pairing != null && !pairing.ended) DeskDirectoryBlock(pairingId: pairing.id, label: x.name),
+        if (noPayments) ...addressesCard,
         DeskContactTrustLine(contact: x),
         SizedBox(height: Sp.x6),
         Row(
@@ -1354,6 +1370,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
     }
     final verified = p.state == PairingState.verified;
     final changed = p.state == PairingState.keysChanged;
+    final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: p.id);
     final waiting = p.state == PairingState.waiting;
     final paused = ref.watch(deskPairNetProvider) == DeskPairNet.epicboxOff;
     final locked = _busy || paused || changed || waiting;
@@ -1453,6 +1470,8 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
                   ? EButton(key: deskContactCheckKey, label: l.pairCheckWords, size: EBtnSize.sm, onPressed: () => showDeskCheckWords(context, ref, p.id, recheck: !waiting))
                   : null,
             ),
+            // A contact that takes no payments has nothing to seal or invoice.
+            if (!noPayments)
             ESetRow(
               title: l.contactSealPayments,
               text: changed ? l.contactPausedUntilChecked : (waiting ? l.pairWaitingFor(name) : null),
@@ -1463,7 +1482,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
                 onChanged: locked ? null : (v) => _run(() => deskPairingCall(ref, (api) => api.setSeal(p.id, v))),
               ),
             ),
-            if (ref.watch(deskInvoicesOnProvider))
+            if (!noPayments && ref.watch(deskInvoicesOnProvider))
               ESetRow(
                 title: l.contactAllowInvoices,
                 text: changed ? l.contactPausedUntilChecked : (verified ? null : l.contactCheckWordsFirst),
