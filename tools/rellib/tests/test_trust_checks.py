@@ -528,6 +528,12 @@ class LaneSeedFunds(unittest.TestCase):
         self.assertTrue(lane.results["send_ok"])
         self.assertIn("an amount of 0.02 EPIC (this run's inflow", lane.details["send_ok"])
 
+    def test_lane_seed_sends_earlier_runs_inflow_back_on_its_own(self):
+        with mock.patch.dict(os.environ, {"REL_RETURN_EXTRA": "0.05"}):
+            lane, sent = self.send_back("seed", True)
+        self.assertEqual(sent, [checks.D("0.02"), checks.D("0.05")], "this run's inflow first, then the extra")
+        self.assertIn("an amount of 0.02 EPIC (this run's inflow", lane.details["send_ok"])
+
     def test_lane_seed_without_funds_sends_back_the_first_inflow(self):
         lane, sent = self.send_back("seed", False)
         self.assertEqual(sent, [checks.D("0.01")])

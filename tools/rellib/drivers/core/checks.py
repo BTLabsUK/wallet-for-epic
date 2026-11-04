@@ -748,11 +748,32 @@ def _send_back(lane, pair):
             _set(lane, pair, ok, ("to P via Epicbox, the Send page with %s: %s" % (how, why)) if ok else why)
         else:
             lane.log("returned to P: %s" % why)
+        if ok and amount:
+            _send_extra(lane)
     except ProductFault as e:
         if pair:
             _set(lane, pair, False, "%s: %s" % (e.kind, e.what))
         else:
             lane.log("could not return the funds: %s" % e.what)
+
+
+def _send_extra(lane):
+    """REL_RETURN_EXTRA (EPIC): earlier runs' inflow left in a lane seed's wallet (debug runs stopped
+    before their send back), returned to P in one more send of its own after this run's. Logged only:
+    send_ok is this run's send."""
+    extra = os.environ.get("REL_RETURN_EXTRA")
+    if not extra:
+        return
+    try:
+        a = D(extra)
+    except ArithmeticError:
+        lane.log("REL_RETURN_EXTRA %r is not an amount; nothing more sent back" % extra)
+        return
+    if a <= 0:
+        return
+    d0 = wait_spendable(lane, "candidate", _nano(a), "before sending earlier runs' inflow back", 900)
+    ok, why = _send_to_p(lane, d0, a)
+    lane.log("earlier runs' inflow (REL_RETURN_EXTRA %s EPIC) back to P: %s%s" % (a, "" if ok else "not sent: ", why))
 
 
 def _send_to_p(lane, d0, amount=None, fallback=None):
