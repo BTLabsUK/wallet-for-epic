@@ -13,7 +13,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
-    show ExternalLibrary;
+    show ExternalLibrary, Uint64List;
 import 'package:lepic/lepic.dart' as lepic;
 import 'package:meta/meta.dart' show visibleForTesting;
 
@@ -29,6 +29,8 @@ import 'legacy/gui_contacts.dart' show AddressChecks;
 import 'listener_receives.dart';
 import 'log.dart';
 import 'net/lan_node_relay.dart';
+import 'net/tor_net.dart' show TorNet;
+import 'net/tor_switch.dart';
 import 'network_gate.dart';
 import 'pin_wrap.dart';
 import 'tor_build.dart';
@@ -134,6 +136,23 @@ void logLepicEntry(lepic.LogEntry entry) {
   AppLog.record(level, entry.target, line.toString());
 }
 
+/// How a node check with no wallet open reaches [nodeUrl]: directly for a node on this computer
+/// or network; through the app's tor while that carries the app's requests; directly where the
+/// Tor switch is off. Throws [NetBlocked] when the switch is on (or Tor only) and tor does not
+/// carry yet: nothing leaves the device directly.
+@visibleForTesting
+lepic.NodeRoute nodeRouteFor(String nodeUrl) {
+  if (isLocalAddressUrl(nodeUrl)) return const lepic.NodeRoute();
+  final proxy = TorNet.proxy;
+  if (TorSwitch.carried && proxy != null) {
+    return lepic.NodeRoute(socks: '${proxy.host}:${proxy.port}');
+  }
+  if (TorSwitch.on || NetGate.torOnly) {
+    throw NetBlocked(NetGate.mode, 'direct http ${Uri.tryParse(nodeUrl.trim())?.host ?? ''}');
+  }
+  return const lepic.NodeRoute();
+}
+
 /// LEPIC's error as the app's. The switch is exhaustive, so a kind LEPIC adds breaks the build
 /// here instead of reaching the UI unmapped.
 WalletError mapLepicError(lepic.WalletError error) {
@@ -159,6 +178,7 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.peerNotProven ||
     lepic.WalletErrorKind.pairingInProgress ||
     lepic.WalletErrorKind.pairingCrossed ||
+    lepic.WalletErrorKind.pairingKindDiffers ||
     lepic.WalletErrorKind.inviteDismissed ||
     lepic.WalletErrorKind.pairingEnded ||
     lepic.WalletErrorKind.pairingWaiting => WalletErrorKind.pairingFailed,
@@ -250,6 +270,7 @@ WalletError mapLepicError(lepic.WalletError error) {
       error.kind == lepic.WalletErrorKind.tooHeavy;
   return WalletError(
     kind: kind,
+    txId: error.txId,
     message: split
         ? sendUnbuildable
         : error.kind == lepic.WalletErrorKind.nothingToConsolidate
@@ -1224,14 +1245,18 @@ class LepicWalletService implements WalletService {
 
   @override
   Future<NodeTip> nodeTip({required WalletConfig config}) => _guard(() async {
-    // Node only: the node in use alone, not the others of the list (their checks). No wallet
-    // is open, so no tor carries it: Tor only refuses it unless the node is local.
-    NetGate.dialDirect(NetDial.http, config.nodeUrl);
+    // Node only: the node in use alone, not the others of the list (their checks). Kill
+    // switch asks nothing. No wallet is open, so LEPIC has no tor: the request goes through
+    // the app's tor while that carries the app's requests, directly only where the Tor
+    // switch is off, and never directly to a node off this network while it is on.
+    NetGate.dial(NetDial.http, config.nodeUrl);
+    final route = nodeRouteFor(config.nodeUrl);
     // LEPIC asks the node only: no wallet folder is made (the setup screen's test passes an
     // empty one, which made `/lepic` and failed) and the open wallet's chain stays.
     final tip = await lepic.nodeTip(
       runtime: _runtime,
       config: await _lepicConfig(config, config.dataDir),
+      route: route,
     );
     return NodeTip(
       height: tip.height,
@@ -1961,6 +1986,15 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
     return [for (final o in list) lepicWalletOutput(o)];
   });
 
+  /// Split into [outputs] outputs: all spendable outputs into that many.
+  static lepic.SelfSendRequest _splitRequest(int outputs) => lepic.SelfSendRequest(
+    inputs: lepic.SelfInputs.all,
+    named: const [],
+    outputs: lepic.SelfOutputs.count,
+    count: outputs,
+    amounts: Uint64List(0),
+  );
+
   @override
   Future<FeeEstimate> estimateSplit({
     required int outputs,
@@ -1968,8 +2002,8 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   }) => _nodeGuard('split estimate', () async {
     _noneHeld('split');
     return lepicFeeEstimate(
-      await _wallet.estimateSplit(
-        outputs: outputs,
+      await _wallet.estimateSendToSelf(
+        request: _splitRequest(outputs),
         minimumConfirmations: minimumConfirmations,
       ),
     );
@@ -1982,8 +2016,8 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   }) => _nodeGuard('split', () async {
     _noneHeld('split');
     return lepicSelfSentTx(
-      await _wallet.splitOutputs(
-        outputs: outputs,
+      await _wallet.sendToSelf(
+        request: _splitRequest(outputs),
         minimumConfirmations: minimumConfirmations,
       ),
     );
@@ -1995,7 +2029,8 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   }) => _nodeGuard('consolidate estimate', () async {
     _noneHeld('consolidate');
     return lepicFeeEstimate(
-      await _wallet.estimateConsolidate(
+      await _wallet.estimateSendToSelf(
+        request: _splitRequest(1),
         minimumConfirmations: minimumConfirmations,
       ),
     );
@@ -2007,7 +2042,8 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   }) => _nodeGuard('consolidate', () async {
     _noneHeld('consolidate');
     return lepicSelfSentTx(
-      await _wallet.consolidateOutputs(
+      await _wallet.sendToSelf(
+        request: _splitRequest(1),
         minimumConfirmations: minimumConfirmations,
       ),
     );
@@ -2048,9 +2084,14 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   }) => _nodeGuard('spend to self', () async {
     if (commitments.any(heldOutputs.contains)) _noneHeld('spend to self');
     return lepicSelfSentTx(
-      await _wallet.spendOutputsToSelf(
-        commitments: commitments,
-        outputs: outputs,
+      await _wallet.sendToSelf(
+        request: lepic.SelfSendRequest(
+          inputs: lepic.SelfInputs.named,
+          named: commitments,
+          outputs: lepic.SelfOutputs.count,
+          count: outputs,
+          amounts: Uint64List(0),
+        ),
         minimumConfirmations: minimumConfirmations,
       ),
     );
@@ -2718,6 +2759,14 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   }
 
   Future<void> _onWalletEvent(lepic.WalletEvent e) async {
+    // The node did not take a finalized send: its row reads "Not on the network" at once, with
+    // the repost and cancel the screens already offer, instead of "Posting…" until [postingFor].
+    if (e.kind == lepic.WalletEventKind.notPosted) {
+      final tx = e.txId;
+      if (tx != null) _finalizedSeen[tx] = _settled;
+      logWarn('wallet', 'send not posted: ${e.message ?? ''}');
+      return;
+    }
     // For the linked device only: nothing here holds its slate, and nothing verified it.
     if (e.kind == lepic.WalletEventKind.noticeUnmatched) {
       final (slate, kind, sender, notice) = (e.slateId, e.noticeKind, e.sender, e.notice);
@@ -3371,6 +3420,7 @@ PairingFailure? lepicPairingFailure(lepic.WalletErrorKind k, [String message = '
   lepic.WalletErrorKind.peerNotProven => PairingFailure.peerNotProven,
   lepic.WalletErrorKind.pairingInProgress => PairingFailure.inProgress,
   lepic.WalletErrorKind.pairingCrossed => PairingFailure.crossed,
+  lepic.WalletErrorKind.pairingKindDiffers => PairingFailure.kindDiffers,
   lepic.WalletErrorKind.inviteDismissed => PairingFailure.inviteDismissed,
   lepic.WalletErrorKind.pairingEnded => PairingFailure.ended,
   lepic.WalletErrorKind.pairingWaiting => PairingFailure.waiting,
@@ -4208,6 +4258,7 @@ class _LepicPairing implements PairingApi {
           lepic.PairingFailureReason.otherAddress => PairingFailure.otherWallet,
           lepic.PairingFailureReason.addressProofMissing => PairingFailure.addressProofMissing,
           lepic.PairingFailureReason.crossed => PairingFailure.crossed,
+          lepic.PairingFailureReason.kindDiffers => PairingFailure.kindDiffers,
           null => null,
         },
         slateId: slateId,

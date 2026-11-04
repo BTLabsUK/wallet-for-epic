@@ -258,9 +258,11 @@ class _Wallet implements lepic.EpicWallet {
   ];
 
   @override
-  Future<lepic.SelfSentTx> spendOutputsToSelf({required List<String> commitments, required int outputs, required BigInt minimumConfirmations}) async {
-    spentToSelf.add([...commitments]);
-    return lepic.SelfSentTx(txId: 20, receivedTxId: 21, amount: BigInt.from(19000), fee: BigInt.from(1000), inputCount: commitments.length, outputCount: outputs);
+  Future<lepic.SelfSentTx> sendToSelf({required lepic.SelfSendRequest request, required BigInt minimumConfirmations}) async {
+    expect(request.inputs, lepic.SelfInputs.named);
+    expect(request.outputs, lepic.SelfOutputs.count);
+    spentToSelf.add([...request.named]);
+    return lepic.SelfSentTx(txId: 20, receivedTxId: 21, amount: BigInt.from(19000), fee: BigInt.from(1000), inputCount: request.named.length, outputCount: request.count);
   }
 
   @override

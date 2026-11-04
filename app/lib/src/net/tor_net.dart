@@ -38,6 +38,9 @@ abstract final class TorNet {
   static SocksProxy? _proxy;
   static OnionLookup? _onions;
 
+  /// The SOCKS proxy of the tor that carries the app's requests now; null when none does.
+  static SocksProxy? get proxy => _mode == TorNetMode.tor ? _proxy : null;
+
   /// In Tor only nothing goes direct, even before the switch, forced on, is followed.
   static TorNetMode get mode =>
       NetGate.torOnly && _mode == TorNetMode.direct ? TorNetMode.waiting : _mode;
