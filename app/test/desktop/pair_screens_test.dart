@@ -185,6 +185,17 @@ void main() {
     expect(find.text(_l.sasDialogTitle('Anna')), findsOneWidget);
   });
 
+  testWidgets('the wait: Close leaves the pairing pending', (tester) async {
+    await _open(tester, const DeskPairScreen());
+    await _paste(tester, _pairing.inviteLinkFrom(name: 'Anna'));
+    await tester.tap(find.byKey(deskIncomingPairKey));
+    await _real(tester);
+    await tester.tap(find.byKey(deskWaitingCloseKey));
+    await _real(tester);
+    expect(find.byKey(deskWaitingCloseKey), findsNothing);
+    expect((await tester.runAsync(_pairing.pairings))!.where((r) => r.state == PairingState.pendingReply), hasLength(1));
+  });
+
   testWidgets('the wait: Cancel asks, then forgets the answer', (tester) async {
     await _open(tester, const DeskPairScreen());
     await _paste(tester, _pairing.inviteLinkFrom(name: 'Anna'));
