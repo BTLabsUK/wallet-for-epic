@@ -10,6 +10,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:epic_wallet/src/desktop/data/invoice_state.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/pairing_fake.dart' show FakePairing;
+import 'package:epic_wallet/src/models.dart' show PairingParty;
 import 'package:epic_wallet/src/wallet_service.dart' show PairingApi, PairingEndReason, PairingState;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskPairingsProvider;
