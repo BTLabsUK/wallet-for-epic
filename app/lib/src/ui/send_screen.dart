@@ -26,6 +26,7 @@ import '../price.dart';
 import '../providers.dart';
 import '../connection_state.dart' show walletStatusProvider;
 import 'status.dart' show EpicboxState;
+import '../invite_links.dart' show parseInvite;
 import '../scan/incoming_link.dart' show linkBusyProvider;
 import '../scan/scan_checks.dart';
 import '../scan/scan_router.dart';
@@ -688,6 +689,10 @@ class _SendViewState extends ConsumerState<SendView> {
   /// behind the sheet.
   void _openText(String text, CodeOrigin origin, {String? typedOver, bool open = false}) {
     final l = context.l10n;
+    // An invite page's link (the inviter's QR, Share invite) is read as the bare invite, as
+    // Home's scan reads it.
+    final invite = parseInvite(text);
+    if (invite != null) text = invite.invite;
     final code = classifyFor(ref.read(walletServiceProvider), text);
     final read = _readOf(text);
     switch (code) {
