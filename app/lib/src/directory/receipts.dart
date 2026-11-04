@@ -9,8 +9,11 @@ import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'link_payments.dart';
 import 'pins.dart';
 import 'wire.dart';
+
+export 'link_payments.dart';
 
 /// The wallet's way to the directories it is paired with.
 abstract class DirectoryReceipts {
@@ -39,30 +42,6 @@ class NoDirectoryReceipts implements DirectoryReceipts {
 }
 
 final directoryReceiptsProvider = Provider<DirectoryReceipts>((ref) => const NoDirectoryReceipts());
-
-/// The records of payments made from links, by slate id. The meta file holds them
-/// (`Meta.linkPayments`); [MemoryLinkPayments] stands in until the wallet is wired.
-abstract class LinkPaymentRecords {
-  LinkPaymentRec? of(String slateId);
-
-  /// Remembers that the receipt of [stage] was posted for [slateId].
-  Future<void> markTold(String slateId, int stage);
-}
-
-class MemoryLinkPayments implements LinkPaymentRecords {
-  MemoryLinkPayments([Map<String, LinkPaymentRec>? records]) : records = records ?? {};
-
-  final Map<String, LinkPaymentRec> records;
-
-  @override
-  LinkPaymentRec? of(String slateId) => records[slateId];
-
-  @override
-  Future<void> markTold(String slateId, int stage) async {
-    final r = records[slateId];
-    if (r != null) records[slateId] = r.withTold(stage);
-  }
-}
 
 final linkPaymentRecordsProvider = Provider<LinkPaymentRecords>((ref) => MemoryLinkPayments());
 

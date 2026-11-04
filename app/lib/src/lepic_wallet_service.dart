@@ -18,7 +18,7 @@ import 'package:lepic/lepic.dart' as lepic;
 import 'package:meta/meta.dart' show visibleForTesting;
 
 import 'directory/pins.dart' show LinkMemory;
-import 'directory/receipts.dart' show LinkPaymentRecords;
+import 'directory/link_payments.dart' show LinkPaymentRecords;
 import 'directory/wire.dart' show Payreq, fromHex, toHex;
 import 'history/export.dart';
 import 'history/meta_store.dart';

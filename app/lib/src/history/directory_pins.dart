@@ -4,7 +4,7 @@
 library;
 
 import '../directory/pins.dart';
-import '../directory/receipts.dart' show LinkPaymentRecords;
+import '../directory/link_payments.dart' show LinkPaymentRecords;
 import '../directory/wire.dart';
 import 'meta_store.dart';
 
