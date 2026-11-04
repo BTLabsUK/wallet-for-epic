@@ -332,7 +332,7 @@ def file_row(e):
         f'<li class="f"><a class="fl" href="downloads/{esc(e["name"])}" download>'
         f'<span class="fk">{esc(e["label"])}</span>'
         f'<span class="fn" translate="no">{esc(e["name"])}</span>'
-        f'<span class="fs">{mb(e["size"])}&nbsp;MB</span></a>'
+        f'<span class="fs">{esc(e["version"])} · {mb(e["size"])}&nbsp;MB</span></a>'
         f'<span class="sha"><span class="sha-k">SHA-256</span>'
         f'<code data-copy translate="no">{e["sha256"]}</code></span>'
         + ('<span class="sha-n">Not in the signed SHA256SUMS: added after it was signed.</span>' if e.get('unlisted') else '')
@@ -375,8 +375,8 @@ def platform_row(key, g, latest):
         out.append(f'<div class="r-get"><a class="btn primary" href="downloads/{esc(p["name"])}" download '
                    f'data-label="{esc(p["label"])}" data-size="{mb(p["size"])}&nbsp;MB">{ICONS["down"]}'
                    f'<span>Download<span class="vh"> {APP} for {esc(heading)}</span>'
-                   f'<small>{esc(p["label"])} · {mb(p["size"])}&nbsp;MB</small></span></a>'
-                   + (f'<a class="alt" href="downloads/{esc(nt["name"])}" download>Without Tor · {mb(nt["size"])}&nbsp;MB</a>' if nt else '')
+                   f'<small>{esc(p["label"])} · {esc(p["version"])} · {mb(p["size"])}&nbsp;MB</small></span></a>'
+                   + (f'<a class="alt" href="downloads/{esc(nt["name"])}" download>Without Tor · {esc(nt["version"])} · {mb(nt["size"])}&nbsp;MB</a>' if nt else '')
                    + '</div>')
     out.append('</div><div class="r-folds">')
     if key in BEFORE and p:
