@@ -21,6 +21,7 @@ import '../../wallet_service.dart';
 import '../common.dart';
 import '../contact_page.dart';
 import '../invoices_screen.dart';
+import '../levels/shell_pairing.dart' show offerPairRequest;
 import '../scan_route.dart' show showPairingSheet;
 import '../tx_details_screen.dart';
 import 'invite_links.dart';
@@ -139,6 +140,8 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     if (!mounted) return;
     // A core without pairing: the sheet that says so, never the pairing calls.
     if (!ref.read(pairingSupportedProvider)) return showPairingSheet(context, link.invite, origin: CodeOrigin.link);
+    // Just send and receive: a notice with See request, not the sheet over the screen.
+    if (await offerPairRequest(context, ref, link.invite) || !mounted) return;
     await openPairingLink(context, ref, link.invite);
   }
 

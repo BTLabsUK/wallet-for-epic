@@ -6,8 +6,10 @@
 
 import 'dart:async';
 
-import 'package:epic_wallet/src/invite_links.dart' show InviteKind, clearInviteHandlers, registerInviteHandler;
+import 'package:epic_wallet/src/invite_links.dart'
+    show InviteKind, InviteLink, clearInviteHandlers, inviteInboxProvider, inviteShareText, registerInviteHandler;
 import 'package:epic_wallet/src/l10n.dart';
+import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/payment_prefs.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
@@ -625,6 +627,38 @@ void main() {
       await h.scan(tester, h.session.pairing.inviteLinkFrom(name: 'Anna'));
       expect(find.text('Pair with Anna?'), findsOneWidget);
       expect(find.text(_l.scanPairingUnavailable), findsNothing);
+    });
+  });
+
+  group('a pairing invite at Just send and receive', () {
+    /// The invite as the inviter's QR and Share carry it: the invite page's https link.
+    String pageLink(_Harness h) => inviteShareText(
+      InviteLink(InviteKind.pair, h.session.pairing.inviteLinkFrom(name: 'Anna')),
+      invitePage: 'https://epiccash.btlabs.uk',
+    );
+
+    _Harness levelOne() =>
+        _Harness()..store.values[levelKey] = const LevelChosen(WalletLevel.justSendReceive).encode();
+
+    testWidgets('a link handed to the app: the notice, See request opens the invite', (tester) async {
+      final h = levelOne();
+      await h.pump(tester);
+      h.container.read(inviteInboxProvider).deliver(pageLink(h));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.lvShellPairNotice('Anna')), findsOneWidget);
+      expect(find.text(_l.pairIncomingTitle('Anna')), findsNothing);
+      await _tap(tester, find.text(_l.lvShellSeeRequest));
+      expect(find.text(_l.pairIncomingTitle('Anna')), findsOneWidget);
+    });
+
+    testWidgets('Send › Scan of the inviter\'s QR opens the invite', (tester) async {
+      final h = levelOne();
+      await h.pump(tester);
+      await _tap(tester, find.descendant(of: find.byType(NavigationBar), matching: find.text(_l.homeSendButton)));
+      h.scanner.codes.add(pageLink(h));
+      await _tap(tester, find.text(_l.sendScanButton));
+      expect(find.text(_l.pairIncomingTitle('Anna')), findsOneWidget);
+      expect(find.text(_l.scanNotEpicTitle), findsNothing);
     });
   });
 
