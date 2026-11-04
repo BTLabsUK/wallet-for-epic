@@ -278,6 +278,12 @@ class TxLane(Lane):
                 w.seed.unlock()  # A2 shares A's seed (and its lock); unlocking twice is nothing
 
     def _main(self):
+        try:
+            return self._lane()
+        finally:  # P's balance after, whatever stopped the lane (proof.json's money)
+            self.p_after = self._p_balance()
+
+    def _lane(self):
         for w in self.w.values():
             w.seed.lock()
         self.needles = ls.Needles([w.seed.phrase() for w in self.w.values()])
@@ -308,7 +314,6 @@ class TxLane(Lane):
                     self.log("sweep-end after the fault: %s" % e)
                 raise
             self._returned()
-        self.p_after = self._p_balance()
         return 0
 
     def _fund_and_pay(self):
