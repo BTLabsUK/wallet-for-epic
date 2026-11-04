@@ -1116,14 +1116,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get homeNoticeRepeated => 'รับไปแล้ว ไม่มีรายการที่สอง';
-
-  @override
-  String homeNoticeRepeatedFrom(String who) {
-    return 'รับรายการจาก $who ไปแล้ว';
-  }
-
-  @override
   String get homeNoticeDelayed => 'เชื่อมต่อโหนดไม่ได้ รายการรออยู่';
 
   @override

@@ -293,8 +293,6 @@
   "homeNoticeSenderPostedAmount": "Laut Absender wurden {amount} gesendet.",
   "homeNoticeFinished": "Zahlung fertiggestellt. Wird bestätigt.",
   "homeNoticeFinishedTo": "Zahlung an {who} fertiggestellt. Wird bestätigt.",
-  "homeNoticeRepeated": "Bereits angenommen. Keine zweite Zahlung.",
-  "homeNoticeRepeatedFrom": "Die Zahlung von {who} wurde bereits angenommen.",
   "homeNoticeDelayed": "Der Node ist nicht erreichbar. Die Zahlung wartet.",
   "homeNoticeRelayProblem": "Der Epicbox-Server meldet ein Problem. Wird erneut versucht.",
   "homeNoticePaymentFailed": "Eine Zahlung ist fehlgeschlagen.",

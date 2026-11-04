@@ -1163,14 +1163,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get homeNoticeRepeated => 'Уже принят. Второго платежа нет.';
-
-  @override
-  String homeNoticeRepeatedFrom(String who) {
-    return 'Платёж от $who уже принят.';
-  }
-
-  @override
   String get homeNoticeDelayed => 'Нет связи с узлом. Платёж ждёт.';
 
   @override
