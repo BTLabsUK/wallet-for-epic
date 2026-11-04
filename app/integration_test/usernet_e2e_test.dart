@@ -324,7 +324,7 @@ void main() {
       // 4. Send 0.3 EPIC back to the CLI with a note: Recipient, Amount, Review, Send, then
       // the tracker, waiting for the CLI's wallet or already on the network.
       await _tapText(tester, 'Send');
-      await _enter(tester, 'Epic address', _cliAddress);
+      await _enter(tester, 'Address or contact', _cliAddress);
       await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
       await _enter(tester, 'Amount (EPIC)', '0.3');
       await _tapText(tester, 'Add a message');
@@ -404,7 +404,7 @@ void main() {
       );
 
       // Restore from the phrase, scan, import the backup.
-      await _tapText(tester, 'Restore from a phrase');
+      await _tapText(tester, 'Restore from phrase');
       await _enter(tester, 'Recovery phrase', phrase);
       await _tapText(tester, 'Continue');
       await _pinSetup(tester);

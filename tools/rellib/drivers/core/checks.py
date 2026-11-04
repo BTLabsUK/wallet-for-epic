@@ -598,7 +598,7 @@ def _migration(lane, b, a, b_list, b_hash):
             lane.ok(c, "not applicable: candidate %s keeps the plain database" % _cand_version())
         return
     a_list, a_hash = a.get("files") or [], a.get("hashes") or {}
-    r = migration.store_files(b_list, a_list)
+    r = migration.store_files(b_list, a_list, facts.retires_plain_copy(_cand_version()))
     (lane.ok if r[0] else lane.fail)("store_encrypted", r[1])
     if not seed_files:
         for c in MIGRATION_CHECKS[1:]:

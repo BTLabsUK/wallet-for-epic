@@ -205,6 +205,9 @@ STORE_ENC = "wallet.enc.sqlite3"           # + -wal, -shm
 STORE_CHECK = "wallet.enc.sqlite3.check"   # the key check beside it
 STORE_TMP = "wallet.enc.sqlite3.tmp"       # a migration in progress: never left behind
 STORE_PRE = "wallet.sqlite3.pre-encryption"  # the plain database, set aside after a verified migration
+# The first release that deletes STORE_PRE once the wallet is unlocked on the encrypted database (LEPIC
+# retirePlainStore, e244794f0): right after the migration's own unlock, so the update leaves no STORE_PRE.
+FIRST_RETIRING_RELEASE = "26.11.2"
 # Plain app files stay in place beside their sealed copies until a later release retires them.
 META_PLAIN, META_SEALED = "wfe_meta.json", "wfe_meta.sealed"          # in each wallet's folder
 CONTACTS_PLAIN, CONTACTS_SEALED = "contacts.json", "contacts.sealed"  # in the data folder
@@ -222,3 +225,8 @@ def version_tuple(v):
 def encrypts_store(version):
     """Whether a release at [version] keeps its wallet database encrypted."""
     return bool(version_tuple(version)) and version_tuple(version) >= version_tuple(FIRST_ENCRYPTED_RELEASE)
+
+
+def retires_plain_copy(version):
+    """Whether a release at [version] deletes the plain database's set-aside copy (STORE_PRE) on unlock."""
+    return bool(version_tuple(version)) and version_tuple(version) >= version_tuple(FIRST_RETIRING_RELEASE)

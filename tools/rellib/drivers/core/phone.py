@@ -38,6 +38,8 @@ PIN_FIELD = T("g4.pin.field", role="text_field", keys=("pinLabel", "pinRepeatLab
               match="exact", secret=True)
 PIN_WRONG = T("g4.pin.wrong", role="text", keys=("pinWrong",), names=(r"re:wrong pin\b.*",), match="starts")
 UNLOCK_TITLE = T("g4.unlock.title", role="text", keys=("unlockTitle",), names=("Unlock wallet",))
+# The phone's Keystore held the PIN key back (26.11.2 and later): the PIN stays typed, Try again where Forgot PIN was.
+UNLOCK_RETRY = T("g4.unlock.retry", keys=("unlockTryAgain",), names=("Try again",), match="exact")
 
 LOCK = T("g4.home.lock", keys=("homeLockTooltip",), names=("Lock wallet",), match="exact")
 SETTINGS = T("g4.home.settings", keys=("homeSettingsTooltip",), names=("Settings",), match="exact")
@@ -498,7 +500,20 @@ class Phone:
     def unlock(self):
         d = self.d
         d.must(shows(UNLOCK_TITLE, PIN_FIELD), 120, step="unlock")
-        self._type_pin("unlock-pin", either(self._home(), shows(PIN_WRONG), shows(TOUR_SKIP)), 120)
+        after = either(self._home(), shows(PIN_WRONG), shows(TOUR_SKIP), shows(UNLOCK_RETRY))
+        self._type_pin("unlock-pin", after, 120)
+        for i in range(2):
+            if self._home().test(d, d.tree()) or not d.seen(UNLOCK_RETRY):
+                break
+            self.log("unlock: the app says the phone's Keystore did not release the wallet key; Try again (%d)" % (i + 1))
+            d.step = "unlock-retry"
+            d.trail.append(d.step)
+            d._act(d.s.press, d.locate(UNLOCK_RETRY, 20))
+            d.wait(gone(UNLOCK_RETRY), 5)   # a refusal at once shows it again: no fault here
+            d.wait(after, 120)
+        if d.seen(UNLOCK_RETRY) and not self._home().test(d, d.tree()):
+            raise ProductFault("unlock", "the phone's Keystore did not release the wallet key after Try again twice "
+                               "(errorKeystoreRefused)", d.shot("unlock-keystore"))
         if d.find_in(PIN_WRONG, d.tree()):
             raise ProductFault("unlock", "the app says the PIN is wrong (it is the one the wallet was made with)",
                                d.shot("unlock-wrong"))
