@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 
 /// The status, method and trust glyphs (the Link family is the link), drawn from assets/icons/*.svg
 /// (Tor: Bootstrap Icons, MIT; Epicbox: Carbon, Apache-2.0; Direct · HTTP: Material Symbols,
-/// Apache-2.0; Node, Node only, the plug and the pairing shields and lock: ours, Apache-2.0) and built into
+/// Apache-2.0; Node, Node only, the plug, No payments and the pairing shields and lock: ours, Apache-2.0) and built into
 /// assets/fonts/EpicStatusIcons.ttf by tools/status_icons_font.py.
 /// Plain [IconData], so colour, size and `find.byIcon` work as for any Material icon.
 abstract final class EpicGlyphs {
@@ -31,4 +31,8 @@ abstract final class EpicGlyphs {
 
   /// Kill switch: a plug pulled out.
   static const unplugged = IconData(0xE00A, fontFamily: _family);
+
+  /// No payments: a coin with an E, struck through. The bare mark in lists, with the words
+  /// on a contact's page.
+  static const noPayments = IconData(0xE00B, fontFamily: _family);
 }

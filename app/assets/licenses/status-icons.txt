@@ -22,3 +22,5 @@ unless required by applicable law or agreed to in writing, the work is distribut
 BASIS, without warranties or conditions of any kind.
 
 Node: drawn for this app, Apache License 2.0.
+
+No payments: drawn for this app, Apache License 2.0.
