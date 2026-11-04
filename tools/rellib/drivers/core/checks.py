@@ -18,6 +18,7 @@ import datetime
 import decimal
 import json
 import os
+import re
 import sys
 import time
 
@@ -27,7 +28,7 @@ import migration  # noqa: E402
 import seed  # noqa: E402
 from . import hermetic  # noqa: E402
 from . import walletdata as wd  # noqa: E402
-from .faults import HarnessFault, ProductFault  # noqa: E402
+from .faults import Fault, HarnessFault, HarnessGone, ProductFault  # noqa: E402
 
 D = decimal.Decimal
 NANO = wd.NANO
@@ -53,6 +54,7 @@ WANT_SETTINGS = {"theme": "Light", "label": "Trust " + datetime.datetime.now().s
 # The two payment checks in the names the lane requires them under.
 RECEIVE = ("receive_ok", "receive_after_update")
 SEND = ("send_ok", "send_after_update")
+TOR = "tor_payment_ok"  # the Tor lanes' after-update legs went over Tor: never required (warns only)
 
 num = wd.num
 fmt = wd.fmt
@@ -192,9 +194,19 @@ def pay_to(address, relay):
     return "%s@%s" % (address.split("@", 1)[0], relay) if relay else address
 
 
-def _pay(lane, address, amount, tag, what, count_dir="incoming"):
+def _again(fallback, e):
+    """A leg's next deadline after [fallback] (a leg over Tor: Tor off, then the same payment waited for
+    again in the clear); [e] raised when there is none."""
+    if fallback is None:
+        raise e
+    fallback(e.what)
+    return time.time() + 900
+
+
+def _pay(lane, address, amount, tag, what, count_dir="incoming", fallback=None):
     """P sends [amount] to [address]; the wallet's data must show the new incoming transaction confirmed
-    (P's confirmed payment is the proof of receipt). -> (txs before, the new transaction)."""
+    (P's confirmed payment is the proof of receipt). [fallback](why) is called once when it does not
+    (see _again). -> (txs before, the new transaction)."""
     p = _p_ready(lane)
     _budget(lane, amount)
     d0 = _digest(lane, tag)
@@ -211,30 +223,33 @@ def _pay(lane, address, amount, tag, what, count_dir="incoming"):
         lane.log("P -> %s %s: %s (%s)" % (short(address), amount, "sent" if ok else "FAILED", out))
         if not ok:
             raise HarnessFault("fund", "P send failed: %s" % out)
+        fault = HarnessFault if tag == "previous" else ProductFault
         end = time.time() + 900
         last, posted = None, False
+        while not posted:
+            while time.time() < end:
+                d = _digest(lane, tag)
+                new = [t for t in _txs(d) if t["direction"] == count_dir][n0:]
+                state = [(t["state"], num(t["credited"])) for t in new]
+                if state != last:
+                    lane.log("%s: wallet records %s" % (what, state or "nothing yet"))
+                    last = state
+                if new and new[-1]["state"] == "confirmed":
+                    return d0, new[-1]
+                if new and p.finalized():
+                    posted = True
+                    break
+                time.sleep(POLL_S)
+            if not posted:
+                end, fallback = _again(fallback, fault(what, "P sent %s EPIC and the wallet's data shows no incoming transaction in 15 min (wallet records %s)" % (amount, last))), None
+    while True:
         while time.time() < end:
             d = _digest(lane, tag)
             new = [t for t in _txs(d) if t["direction"] == count_dir][n0:]
-            state = [(t["state"], num(t["credited"])) for t in new]
-            if state != last:
-                lane.log("%s: wallet records %s" % (what, state or "nothing yet"))
-                last = state
             if new and new[-1]["state"] == "confirmed":
                 return d0, new[-1]
-            if new and p.finalized():
-                posted = True
-                break
             time.sleep(POLL_S)
-        if not posted:
-            raise (HarnessFault if tag == "previous" else ProductFault)(what, "P sent %s EPIC and the wallet's data shows no incoming transaction in 15 min (wallet records %s)" % (amount, last))
-    while time.time() < end:
-        d = _digest(lane, tag)
-        new = [t for t in _txs(d) if t["direction"] == count_dir][n0:]
-        if new and new[-1]["state"] == "confirmed":
-            return d0, new[-1]
-        time.sleep(POLL_S)
-    raise (HarnessFault if tag == "previous" else ProductFault)(what, "posted by P, not confirmed in the wallet's data in 15 min (wallet records %s)" % last)
+        end, fallback = _again(fallback, fault(what, "posted by P, not confirmed in the wallet's data in 15 min (wallet records %s)" % last)), None
 
 
 def wait_spendable(lane, tag, at_least, what, timeout=FUND_WAIT_S):
@@ -636,7 +651,8 @@ def funds_legs(lane, after):
     if lane.funds:
         start = _spendable(after) or 0
         try:
-            _, tx = _pay(lane, address, FUND_AFTER, "candidate", "receive with the candidate")
+            _, tx = _pay(lane, address, FUND_AFTER, "candidate", "receive with the candidate",
+                         fallback=_over_tor(lane, "the receive"))
             _funded(lane, FUND_AFTER, tx)
             lane.inflow = getattr(lane, "inflow", D(FUND_IN)) + D(FUND_AFTER)
             d = wait_spendable(lane, "candidate", start + _nano(FUND_AFTER), "receive spendable")
@@ -646,6 +662,77 @@ def funds_legs(lane, after):
         except ProductFault as e:  # a HarnessFault (P, the display) is the lane's, not a false check
             _set(lane, RECEIVE, False, e.what)
     _send_back(lane, SEND if lane.funds else None)
+    if tor_on(lane):
+        _tor_proof(lane)
+
+
+# ---- over Tor (the Tor lanes, core/lane.py's tor-on phase) -------------------------------------------
+
+def tor_on(lane):
+    """True while the candidate's legs run over Tor (lane.tor, set by the tor-on phase)."""
+    return bool((getattr(lane, "tor", None) or {}).get("on"))
+
+
+def tor_failed(lane, why, cause):
+    """Tor, or a leg over it, failed: tor_payment_ok false with [why] and its cause class (the check is
+    never required), Tor off; the legs go on in the clear and gate as ever."""
+    lane.fail(TOR, "%s [%s]" % (why, cause))
+    info = lane.details.setdefault("tor", {})
+    info["cause_class"] = cause
+    lane.tor = {"on": False}
+    try:
+        lane.ui.tor_off()
+        info["off"] = "Normal: the rest in the clear"
+    except HarnessGone:
+        raise
+    except Fault as e:
+        lane.log("Tor off: %s" % e.line())
+        info["off"] = "not turned off: %s" % e.line()
+
+
+def _over_tor(lane, leg):
+    """The fallback of a leg (see _again) while Tor is on, else None. The cause class: INFRA when the
+    app no longer shows Tor connected, else PRODUCT (Tor up, the payment did not go)."""
+    if not tor_on(lane):
+        return None
+
+    def fallback(why):
+        try:
+            state = lane.ui.tor_status()
+        except HarnessGone:
+            raise
+        except Fault as e:
+            state = {"up": False, "read": e.line()}
+        lane.details.setdefault("tor", {})["at_failure"] = state
+        lane.log("%s over Tor: %s (Tor %s); Tor off, the leg goes on in the clear" % (leg, why, state))
+        tor_failed(lane, "%s over Tor: %s" % (leg, why), "PRODUCT" if state.get("up") else "INFRA")
+    return fallback
+
+
+def _tor_proof(lane):
+    """Both legs ended over Tor: tor_payment_ok from the app's own Tor state after them and the app log's
+    Tor lines (no Tor failure while the legs ran)."""
+    info = lane.details.setdefault("tor", {})
+    try:
+        state = lane.ui.tor_status()
+    except HarnessGone:
+        raise
+    except Fault as e:
+        state = {"up": False, "read": e.line()}
+    info["after_legs"] = state
+    log = ((lane.last_digest or {}).get("log") or {})
+    lines = [l for i, l in log.get("tor") or [] if lane.split is None or i >= lane.split]
+    info["log"] = lines[-12:]
+    bad = [l for l in lines if re.search(r"tor(?::)? (?:failed|ended|stop)", l, re.I)]
+    legs = [lane.results.get(_names(lane, pair)[0]) for pair in (RECEIVE, SEND)]
+    if not all(legs):
+        return tor_failed(lane, "the legs over Tor did not both pass (receive %s, send %s)" % tuple(legs), "PRODUCT")
+    if not state.get("up"):
+        return tor_failed(lane, "the app no longer shows Tor connected after the legs (%s)" % state, "INFRA")
+    if bad:
+        return tor_failed(lane, "the app log shows Tor stopping during the legs: %s" % bad[-1], "INFRA")
+    lane.ok(TOR, "receive and send in Connection mode Tor only; after them the app shows %s; app log Tor lines: %d, none failed" % (
+        state, len(lines)))
 
 
 def _send_back(lane, pair):
@@ -655,12 +742,14 @@ def _send_back(lane, pair):
     amount = getattr(lane, "inflow", None) if seeded(lane) else None
     try:
         d0 = wait_spendable(lane, "candidate", _nano(amount) if amount else _nano("0.001"), "before sending back", 900)
-        ok, why = _send_to_p(lane, d0, amount)
+        ok, why = _send_to_p(lane, d0, amount, fallback=_over_tor(lane, "the send"))
         how = "an amount of %s EPIC (this run's inflow; the rest stays in the lane seed's wallet)" % amount if amount else "Max"
         if pair:
             _set(lane, pair, ok, ("to P via Epicbox, the Send page with %s: %s" % (how, why)) if ok else why)
         else:
             lane.log("returned to P: %s" % why)
+        if ok and amount:
+            _send_extra(lane)
     except ProductFault as e:
         if pair:
             _set(lane, pair, False, "%s: %s" % (e.kind, e.what))
@@ -668,9 +757,32 @@ def _send_back(lane, pair):
             lane.log("could not return the funds: %s" % e.what)
 
 
-def _send_to_p(lane, d0, amount=None):
+def _send_extra(lane):
+    """REL_RETURN_EXTRA (EPIC): earlier runs' inflow left in a lane seed's wallet (debug runs stopped
+    before their send back), returned to P after this run's send, in sends of at most CAP_SEND. Logged
+    only: send_ok is this run's send."""
+    extra = os.environ.get("REL_RETURN_EXTRA")
+    if not extra:
+        return
+    try:
+        a = D(extra)
+    except ArithmeticError:
+        lane.log("REL_RETURN_EXTRA %r is not an amount; nothing more sent back" % extra)
+        return
+    while a > 0:
+        part = min(a, CAP_SEND)   # in sends within the per-send cap
+        d0 = wait_spendable(lane, "candidate", _nano(part), "before sending earlier runs' inflow back", 900)
+        ok, why = _send_to_p(lane, d0, part)
+        lane.log("earlier runs' inflow (REL_RETURN_EXTRA %s EPIC): %s EPIC back to P: %s%s" % (extra, part, "" if ok else "not sent: ", why))
+        if not ok:
+            return
+        a -= part
+
+
+def _send_to_p(lane, d0, amount=None, fallback=None):
     """[amount] (EPIC, a Decimal) to P through the recipe's Send page, or everything (Max) when None; True
-    when the data shows the payment posted and confirmed (and of that amount)."""
+    when the data shows the payment posted and confirmed (and of that amount). [fallback](why) is called
+    once at the first miss (see _again): a Send that did not go is tried again, a payment waited for."""
     n0 = len([t for t in _txs(d0) if t["direction"] == "outgoing"])
     avail = _spendable(d0) or 0
     a = D(str(amount)) if amount is not None else D(avail) / NANO
@@ -684,23 +796,35 @@ def _send_to_p(lane, d0, amount=None):
             raise HarnessFault("send", "P's listener did not start (3 tries)")
         lane.send_pending = a  # until the data shows it confirmed: the lane seed's record counts it gone
         ok, why = lane.ui.send(P_ADDR, format(a, "f") if amount is not None else None)
+        if not ok and fallback:
+            fallback("the Send did not go through: %s" % why)
+            fallback = None
+            ok, why = lane.ui.send(P_ADDR, format(a, "f") if amount is not None else None)
         if not ok:
             lane.send_pending = None
             return False, "the Send did not go through: %s" % why
         end = time.time() + 900
-        last = None
-        while time.time() < end:
-            out = [t for t in _txs(_digest(lane, "candidate")) if t["direction"] == "outgoing"][n0:]
-            state = [(t["state"], num(t["debited"]), num(t["fee"] or 0)) for t in out]
-            if state != last:
-                lane.log("send back: wallet records %s" % state)
-                last = state
-            if out and out[-1]["state"] in ("posted", "confirmed"):
-                break  # P answered: the confirmation is waited for below
-            time.sleep(POLL_S)
-        else:
-            return False, "not posted in 15 min (wallet records %s)" % last
-    while time.time() < end:
+        last, posted = None, False
+        while not posted:
+            while time.time() < end:
+                out = [t for t in _txs(_digest(lane, "candidate")) if t["direction"] == "outgoing"][n0:]
+                state = [(t["state"], num(t["debited"]), num(t["fee"] or 0)) for t in out]
+                if state != last:
+                    lane.log("send back: wallet records %s" % state)
+                    last = state
+                if out and out[-1]["state"] in ("posted", "confirmed"):
+                    posted = True  # P answered: the confirmation is waited for below
+                    break
+                time.sleep(POLL_S)
+            if not posted:
+                if fallback is None:
+                    return False, "not posted in 15 min (wallet records %s)" % last
+                fallback("not posted in 15 min (wallet records %s)" % last)
+                fallback, end = None, time.time() + 900
+    while fallback is not None or time.time() < end:
+        if time.time() >= end:
+            fallback("posted, not confirmed in 15 min (wallet records %s)" % last)
+            fallback, end = None, time.time() + 900
         out = [t for t in _txs(_digest(lane, "candidate")) if t["direction"] == "outgoing"][n0:]
         if out and out[-1]["state"] == "confirmed":
             t = out[-1]

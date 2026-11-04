@@ -114,6 +114,47 @@ class PNodeTest(unittest.TestCase):
         self.assertEqual(s.killed, [])
 
 
+class ListenerStallTest(unittest.TestCase):
+    """A listener that lost its Epicbox subscription in silence is started again for an unanswered send."""
+
+    def service(self, spoke, sends):
+        s = p_service.Service.__new__(p_service.Service)
+        d = tempfile.TemporaryDirectory()
+        self.addCleanup(d.cleanup)
+        lp = os.path.join(d.name, "listener.log")
+        open(lp, "w").close()
+        os.utime(lp, (spoke, spoke))
+        s.dir, s.moved_at, s.state_mu, s.sends = d.name, 0.0, p_service.threading.Lock(), sends
+        s.procs = {"listener": (None, lp)}
+        s.killed = []
+        s.kill_remote = lambda kinds=("listen", "owner_api"): s.killed.append(kinds) or True
+        return s
+
+    def test_an_unanswered_send_and_a_silent_listener_restart_it(self):
+        s = self.service(1000, {"aaaaaaaa-1": {"state": "sent", "at": 2000}})
+        self.assertIsNone(s.watch_listener(now=2000 + p_service.STALL_S - 10))
+        self.assertEqual(s.watch_listener(now=2000 + p_service.STALL_S), ["aaaaaaaa-1"])
+        self.assertEqual(s.killed, [("listen",)])
+        self.assertIn("P listener silent", open(os.path.join(s.dir, "service.log")).read())
+
+    def test_a_listener_that_spoke_after_the_send_is_left_alone(self):
+        s = self.service(2100, {"x": {"state": "sent", "at": 2000}})
+        self.assertIsNone(s.watch_listener(now=3000))
+        self.assertEqual(s.killed, [])
+
+    def test_answered_sends_are_left_alone(self):
+        s = self.service(1000, {"x": {"state": "posted", "at": 2000}, "y": {"state": "confirmed", "at": 2000}})
+        self.assertIsNone(s.watch_listener(now=3000))
+
+    def test_at_most_stall_tries_per_send(self):
+        s = self.service(1000, {"x": {"state": "sent", "at": 2000}})
+        t = 2000 + p_service.STALL_S
+        for _ in range(5):
+            s.watch_listener(now=t)
+            t += p_service.MOVE_EVERY_S
+        self.assertEqual(len(s.killed), p_service.STALL_TRIES)
+
+
 class CancelTest(unittest.TestCase):
     """A send of P that can never finalize is cancelled through the service's owner API."""
 

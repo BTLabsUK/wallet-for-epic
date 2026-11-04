@@ -65,6 +65,11 @@ HOME = os.path.expanduser("~")
 PAUSED = "Node not synced, pausing Epicbox message processing"
 PAUSE_S = 60
 MOVE_EVERY_S = 300  # one move or listener restart at most per this many seconds
+# The listener can also lose its Epicbox subscription without a word ("WebSocket protocol error" in
+# owner.log, then nothing): a send unanswered this long while the listener stayed silent restarts it,
+# and Epicbox hands the waiting answers to the new subscription. At most STALL_TRIES per send.
+STALL_S = 180
+STALL_TRIES = 2
 NODE_LINE = re.compile(r'(?m)^check_node_api_http_addr\s*=\s*"([^"]*)"')
 NANO = 100_000_000  # atomic units per EPIC
 MIN_CONF = 1  # P is a test wallet: one confirmation everywhere (the owner 2026-10-31)
@@ -267,7 +272,7 @@ class Service:
         """Restart the listener or owner_api when one quits (node blips), the forward when it drops."""
         while not self.stopping.wait(10):
             try:
-                self.watch_node()
+                self.watch_node() or self.watch_listener()
             except Exception as e:  # noqa: BLE001 - a failed check never stops the supervisor
                 self.log("P node check failed: %s" % e)
             for name in ("listener", "owner", "forward"):
@@ -308,6 +313,30 @@ class Service:
             return None
         self.moved_at = now
         return self.unpause(int(now - self.paused_at))
+
+    def watch_listener(self, now=None):
+        """Called every 10 s: a send unanswered for STALL_S while the listener wrote nothing since it was
+        made restarts the listener. -> the slates it was restarted for, else None."""
+        now = now or time.time()
+        if now - self.moved_at < MOVE_EVERY_S:
+            return None
+        lp = self.procs.get("listener", (None, None))[1]
+        try:
+            spoke = os.path.getmtime(lp)
+        except (OSError, TypeError):
+            return None
+        with self.state_mu:
+            stuck = [(sid, r) for sid, r in self.sends.items() if r["state"] == "sent" and now - r["at"] >= STALL_S
+                     and r["at"] > spoke and r.get("restarts", 0) < STALL_TRIES]
+            for _, r in stuck:
+                r["restarts"] = r.get("restarts", 0) + 1
+        if not stuck:
+            return None
+        self.moved_at = now
+        self.log("P listener silent %d s with %d send(s) unanswered (%s): starting it again" % (
+            now - spoke, len(stuck), ", ".join(sid[:8] for sid, _ in stuck)))
+        self.kill_remote(("listen",))  # the supervisor starts it again when its local side quits
+        return [sid for sid, _ in stuck]
 
     def _p_toml(self):
         r = subprocess.run(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=20", self.host,
