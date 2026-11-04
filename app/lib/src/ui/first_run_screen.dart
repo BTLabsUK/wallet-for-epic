@@ -21,6 +21,7 @@ import 'pin.dart';
 import 'restore_screen.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
+import 'work_status.dart';
 
 /// The first-run screen's "Create a new wallet" button, for tests and the tour.
 const Key firstRunCreateKey = ValueKey('first-run-create');
@@ -242,7 +243,10 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                   else if (waiting) ...[
                     const Center(child: CircularProgressIndicator()),
                     const SizedBox(height: 16),
-                    Text(l.firstRunSecuring, textAlign: TextAlign.center),
+                    WorkStatus(
+                      lines: [l.workCreating, l.firstRunSecuring, l.workOpening],
+                      style: DefaultTextStyle.of(context).style,
+                    ),
                   ] else ...[
                     ErrorText(_error!),
                     BusyButton(label: l.firstRunTryAgain, onPressed: _retry),

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,8 +15,10 @@ import '../restore_scan.dart';
 import '../settings.dart';
 import '../slate_files.dart';
 import '../wallet_service.dart';
+import 'app_dialog.dart';
 import 'common.dart';
 import 'launch_screen.dart';
+import 'work_status.dart';
 
 /// Deletes leftover copies of shared files; uisend's `clearSharedFiles`. Tests replace it.
 final sharedFilesCleanupProvider = Provider<Future<void> Function()>(
@@ -28,13 +31,22 @@ final sharedFilesCleanupProvider = Provider<Future<void> Function()>(
 /// throws; the session is closed by then, so the caller leaves to the launch screen
 /// ([leaveAfterFailedDelete]). With [stopScan] a running scan is stopped first (the user chose
 /// to replace the wallet); else only the automatic restore scan is ([RestoreScanNotifier.scanning]).
-Future<void> deleteWalletEverywhere(WidgetRef ref, WalletConfig config, {bool stopScan = false}) async {
+/// [onStep] hears each step as it starts, for the line under the wait ([deleteStepText]).
+Future<void> deleteWalletEverywhere(
+  WidgetRef ref,
+  WalletConfig config, {
+  bool stopScan = false,
+  void Function(DeleteStep step)? onStep,
+}) async {
   final restoreScan = ref.read(restoreScanProvider.notifier);
   // Held until the wallet is gone, so the stopped restore scan does not start again.
   restoreScan.hold();
   try {
-    if (stopScan || restoreScan.scanning) await _stopRunningScan(ref);
-    await _delete(ref, config);
+    if ((stopScan || restoreScan.scanning) && ref.read(scanProvider).running) {
+      onStep?.call(DeleteStep.scan);
+      await _stopRunningScan(ref);
+    }
+    await _delete(ref, config, onStep ?? (_) {});
   } finally {
     restoreScan.release();
   }
@@ -58,27 +70,88 @@ Future<void> _stopRunningScan(WidgetRef ref) async {
   }
 }
 
-Future<void> _delete(WidgetRef ref, WalletConfig config) async {
+/// The steps of a delete, in order.
+enum DeleteStep { scan, devices, files, keys }
+
+/// The line under a delete's wait for [step].
+String deleteStepText(AppLocalizations l, DeleteStep step) => switch (step) {
+  DeleteStep.scan => l.workStoppingRecheck,
+  DeleteStep.devices => l.workTellingDevices,
+  DeleteStep.files => l.workRemovingFiles,
+  DeleteStep.keys => l.workClearingKeys,
+};
+
+/// A delete under way, for Settings › Delete: the bar and the step, until the next screen
+/// replaces it. Closed only by that screen.
+class DeleteProgressDialog extends StatelessWidget {
+  const DeleteProgressDialog({super.key, required this.step});
+
+  final ValueListenable<DeleteStep?> step;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return PopScope(
+      canPop: false,
+      child: AppDialog(
+        icon: Icons.delete_outline,
+        tone: DialogTone.risk,
+        title: l.settingsDeleteTitle,
+        body: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const LinearProgressIndicator(),
+            const SizedBox(height: 10),
+            ValueListenableBuilder<DeleteStep?>(
+              valueListenable: step,
+              builder: (context, value, _) => WorkStatus(
+                text: deleteStepText(l, value ?? DeleteStep.files),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The most a clean-up after the core's delete may take: a platform call that never answers
+/// cannot hold the screen. The core's own store calls are bounded in `pin_wrap.dart`.
+const Duration deleteStepLimit = Duration(seconds: 20);
+
+Future<void> _delete(WidgetRef ref, WalletConfig config, void Function(DeleteStep step) onStep) async {
   // The linked device is told first, best effort: its records go with the database, and
   // nothing else would tell it.
-  await ref.read(deviceServiceProvider)?.unlinkAll();
+  final devices = ref.read(deviceServiceProvider);
+  if (devices != null && (!devices.loaded || devices.book.devices.isNotEmpty)) {
+    onStep(DeleteStep.devices);
+  }
+  await devices?.unlinkAll();
   ref.read(sessionProvider.notifier).lock();
+  onStep(DeleteStep.files);
   // The core waits until every call on this wallet has ended before it removes the files.
   await ref.read(walletServiceProvider).deleteWallet(config: config);
-  await ref.read(vaultProvider).forget(config.chain);
-  await ref.read(appSettingsProvider.notifier).forgetHistoryBackup(config.chain);
+  onStep(DeleteStep.keys);
+  // Past the limit the delete fails, so the launch screen says so: a sealed PIN left behind
+  // would keep a new wallet off this chain.
+  await ref.read(vaultProvider).forget(config.chain).timeout(deleteStepLimit);
+  await ref.read(appSettingsProvider.notifier).forgetHistoryBackup(config.chain).timeout(deleteStepLimit);
   try {
     // Its linked devices, keyed as phone_devices.dart keys them.
-    await DeviceStore(ref.read(secretStoreProvider), chain: config.chain, walletId: config.walletId).clear();
+    await DeviceStore(ref.read(secretStoreProvider), chain: config.chain, walletId: config.walletId)
+        .clear()
+        .timeout(deleteStepLimit);
   } catch (error) {
     logWarn('delete', 'forgetting linked devices failed: ${error.runtimeType}');
   }
   try {
-    await ref.read(sharedFilesCleanupProvider)();
+    await ref.read(sharedFilesCleanupProvider)().timeout(deleteStepLimit);
   } catch (error) {
     // Leftover copies in the cache are harmless next to a deleted wallet; keep going.
     logWarn('delete', 'clearing shared files failed: $error');
   }
+  logInfo('delete', 'clean-up done');
 }
 
 /// A delete that failed after the session closed: nothing on screen can work without it, so

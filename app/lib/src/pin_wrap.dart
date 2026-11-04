@@ -63,11 +63,13 @@ abstract interface class KeyWrap {
 }
 
 /// [KeyWrap] for tests: sealed text is a handle into a map, [lose] drops a key as a faulty
-/// Keystore would, and [failCreate] makes new keys fail.
+/// Keystore would, [failCreate] makes new keys fail, and while [hold] is set every call waits
+/// for it (a Keystore that does not answer).
 class MemoryKeyWrap implements KeyWrap {
   final Map<String, Map<String, ({String name, String text})>> keys = {};
   bool failCreate = false;
   int created = 0;
+  Completer<void>? hold;
 
   /// How often [open] was asked: each one is a Keystore call on the phone.
   int opened = 0;
@@ -79,8 +81,13 @@ class MemoryKeyWrap implements KeyWrap {
 
   void loseAll() => keys.clear();
 
+  Future<void> _wait() async {
+    if (hold case final hold?) await hold.future;
+  }
+
   @override
   Future<Map<String, bool>> create(String alias) async {
+    await _wait();
     if (failCreate) throw const KeyWrapUnavailable('create failed');
     created++;
     keys[alias] = {};
@@ -89,6 +96,7 @@ class MemoryKeyWrap implements KeyWrap {
 
   @override
   Future<String> seal(String alias, String name, String text) async {
+    await _wait();
     final key = keys[alias];
     if (key == null) throw const PinKeyLost('no key');
     final blob = 'b${_next++}';
@@ -98,6 +106,7 @@ class MemoryKeyWrap implements KeyWrap {
 
   @override
   Future<String> open(String alias, String name, String blob) async {
+    await _wait();
     opened++;
     final sealed = keys[alias]?[blob];
     if (sealed == null || sealed.name != name) throw const PinKeyLost('does not open');
@@ -105,11 +114,16 @@ class MemoryKeyWrap implements KeyWrap {
   }
 
   @override
-  Future<void> delete(String alias) async => keys.remove(alias);
+  Future<void> delete(String alias) async {
+    await _wait();
+    keys.remove(alias);
+  }
 
   @override
-  Future<List<String>> aliases(String prefix) async =>
-      keys.keys.where((a) => a.startsWith(prefix)).toList();
+  Future<List<String>> aliases(String prefix) async {
+    await _wait();
+    return keys.keys.where((a) => a.startsWith(prefix)).toList();
+  }
 }
 
 /// The failure count reported when a sealed wallet's count was removed or replaced with plain
@@ -126,7 +140,15 @@ const String _failuresName = 'lepic.pin-failures';
 /// It sees the store's full keys: [walletId] is the wallet's key prefix
 /// (`LepicWalletService._storePrefix`), so the PIN key is `<walletId>lepic.pin-key`.
 class HardwarePinStore implements SecretStore {
-  HardwarePinStore(this._inner, this._wrap, this.walletId);
+  HardwarePinStore(SecretStore inner, KeyWrap wrap, this.walletId)
+    : _inner = _AnsweringStore(inner),
+      _wrap = _AnsweringKeyWrap(wrap);
+
+  /// How long one call into the store or the Keystore may stay unanswered before it fails
+  /// with [KeyWrapUnavailable]. The calls of a wallet run one after another, so one that never
+  /// answered would hold every later PIN read and write, and the unlock and the delete with
+  /// them. Below LEPIC's 30 s for a store read, so the app's error is the one that shows.
+  static const Duration callLimit = Duration(seconds: 20);
 
   final SecretStore _inner;
   final KeyWrap _wrap;
@@ -277,11 +299,16 @@ class HardwarePinStore implements SecretStore {
   Future<void> _delete(String key) async {
     _forget(key);
     if (key == _key) {
-      // The wallet's PIN is forgotten: its Keystore keys go with it.
+      // The wallet's PIN is forgotten: its Keystore keys go with it. With the entries gone
+      // they open nothing, so a Keystore that cannot delete them now does not stop the delete.
       _spares.remove(walletId);
       await _inner.delete(key);
-      for (final alias in await _wrap.aliases(aliasPrefix)) {
-        await _wrap.delete(alias);
+      try {
+        for (final alias in await _wrap.aliases(aliasPrefix)) {
+          await _wrap.delete(alias);
+        }
+      } on KeyWrapUnavailable catch (error) {
+        logWarn('vault', 'Keystore keys of a forgotten PIN left (${error.code})');
       }
       return;
     }
@@ -373,4 +400,48 @@ class HardwarePinStore implements SecretStore {
       return const [];
     }
   }
+}
+
+/// [call], or [KeyWrapUnavailable] once it has not answered for [HardwarePinStore.callLimit].
+Future<T> _answered<T>(Future<T> call) => call.timeout(
+  HardwarePinStore.callLimit,
+  onTimeout: () => throw const KeyWrapUnavailable('no answer'),
+);
+
+/// [SecretStore] whose calls fail as [_answered] does.
+class _AnsweringStore implements SecretStore {
+  _AnsweringStore(this._inner);
+
+  final SecretStore _inner;
+
+  @override
+  Future<String?> read(String key) => _answered(_inner.read(key));
+
+  @override
+  Future<void> write(String key, String value) => _answered(_inner.write(key, value));
+
+  @override
+  Future<void> delete(String key) => _answered(_inner.delete(key));
+}
+
+/// [KeyWrap] whose calls fail as [_answered] does.
+class _AnsweringKeyWrap implements KeyWrap {
+  _AnsweringKeyWrap(this._inner);
+
+  final KeyWrap _inner;
+
+  @override
+  Future<Map<String, bool>> create(String alias) => _answered(_inner.create(alias));
+
+  @override
+  Future<String> seal(String alias, String name, String text) => _answered(_inner.seal(alias, name, text));
+
+  @override
+  Future<String> open(String alias, String name, String blob) => _answered(_inner.open(alias, name, blob));
+
+  @override
+  Future<void> delete(String alias) => _answered(_inner.delete(alias));
+
+  @override
+  Future<List<String>> aliases(String prefix) => _answered(_inner.aliases(prefix));
 }

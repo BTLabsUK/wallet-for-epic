@@ -8,7 +8,7 @@ import '../app_log.dart';
 import '../dev_networks.dart';
 import '../errors.dart';
 import '../l10n.dart';
-import '../pin_wrap.dart' show PinKeyLost;
+import '../pin_wrap.dart' show KeyWrapUnavailable, PinKeyLost;
 import '../providers.dart';
 import '../restore_scan.dart' show historyImportOfferProvider;
 import '../vault.dart';
@@ -39,7 +39,14 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   String? _pinError;
   String? _error;
   bool _busy = false;
+
+  /// The step of a Forgot PIN delete under way, for the line under the bar.
+  DeleteStep? _deleting;
   bool _biometrics = false;
+
+  /// The phone's Keystore did not release the PIN key: the wallet is intact, so Try again
+  /// stands where Forgot PIN was.
+  bool _keyRefused = false;
 
   /// The biometric prompt is up. The PIN field stays usable meanwhile: a prompt the system
   /// never answers must not hold the screen.
@@ -76,13 +83,17 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     final autoPrompt = ref.read(lockReasonProvider.notifier).takeAutoPrompt();
     final vault = ref.read(vaultProvider);
     // The count survives a restart; say what the next try costs before it is made.
-    final int failures;
+    var failures = 0;
     try {
       failures = await ref.read(walletServiceProvider).pinFailures(config: config);
     } on PinKeyLost catch (error) {
       // The PIN cannot open this wallet any more: said before a PIN is typed, with Forgot PIN.
       if (mounted) setState(() => _error = describeError(context.l10n, error));
       return;
+    } catch (error) {
+      // A Keystore that cannot answer now: the attempt reads the count again, and biometrics
+      // are offered as ever.
+      logWarn('unlock', 'PIN count not read: ${describeError(englishStrings, error)}');
     }
     final biometrics = await vault.biometricsEnabled(config.chain);
     if (!mounted) return;
@@ -139,6 +150,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     setState(() {
       _busy = true;
       _error = null;
+      _keyRefused = false;
     });
     final checkAt = await pinCheckTime(ref);
     if (mounted) setState(() => _checkAt = checkAt);
@@ -185,6 +197,15 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
         _biometrics = still;
         _pinError = describePinRejection(l, rejection);
       });
+    } on KeyWrapUnavailable catch (error) {
+      // The PIN typed stays, for Try again.
+      logWarn('unlock', 'unlock failed: ${describeError(englishStrings, error)}');
+      if (mounted) {
+        setState(() {
+          _error = describeError(l, error);
+          _keyRefused = true;
+        });
+      }
     } catch (error) {
       logWarn('unlock', 'unlock failed: ${describeError(englishStrings, error)}');
       _pin.clear();
@@ -201,16 +222,38 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     }
   }
 
+  /// After a Keystore refusal: the PIN still in the field, else biometrics.
+  Future<void> _tryAgain() async {
+    setState(() {
+      _keyRefused = false;
+      _error = null;
+    });
+    if (_pin.text.isNotEmpty) {
+      await _unlockWithPin(_pin.text);
+    } else if (_biometrics) {
+      await _unlockWithBiometrics();
+    }
+  }
+
   Future<void> _forgotPin() async {
     final config = ref.read(walletConfigProvider);
     if (config == null) return;
     final l = context.l10n;
     final confirmed = await showAppDialog<bool>(context, builder: (_) => const _ResetDialog());
     if (confirmed != true || !mounted) return;
-    setState(() => _busy = true);
+    setState(() {
+      _busy = true;
+      _deleting = DeleteStep.files;
+    });
     try {
       // The same clean-up as Settings › Delete: backup note, shared files.
-      await deleteWalletEverywhere(ref, config);
+      await deleteWalletEverywhere(
+        ref,
+        config,
+        onStep: (step) {
+          if (mounted) setState(() => _deleting = step);
+        },
+      );
       if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute<void>(builder: (_) => const LaunchScreen()),
@@ -220,6 +263,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
       if (mounted) {
         setState(() {
           _busy = false;
+          _deleting = null;
           _error = describeError(l, error);
         });
       }
@@ -282,7 +326,14 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
           if (_busy && _copy != null)
             StoreCopyLine(progress: _copy!)
           else
-            PinStepFoot(child: _busy ? const PinCheckBar() : (_error == null ? null : ErrorText(_error!))),
+            PinStepFoot(
+              child: _busy
+                  ? PinCheckBar(
+                      status: _deleting == null ? null : deleteStepText(l, _deleting!),
+                      lines: _deleting == null ? [l.workChecking, l.workOpening] : const [],
+                    )
+                  : (_error == null ? null : ErrorText(_error!)),
+            ),
           if (_busy && checkAt != null) ...[
             const SizedBox(height: 8),
             PinWaitNote(until: checkAt),
@@ -299,10 +350,17 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
             ),
           ],
           const SizedBox(height: 24),
-          TextButton(
-            onPressed: _busy ? null : _forgotPin,
-            child: Text(passphrase ? l.passphraseForgot : l.pinForgot),
-          ),
+          // A healthy wallet the Keystore holds back is not one to delete.
+          if (_keyRefused)
+            FilledButton(
+              onPressed: _busy || _reading ? null : _tryAgain,
+              child: Text(l.unlockTryAgain),
+            )
+          else
+            TextButton(
+              onPressed: _busy ? null : _forgotPin,
+              child: Text(passphrase ? l.passphraseForgot : l.pinForgot),
+            ),
           // Quiet, under Forgot: the way out when the stored mode and the secret disagree.
           if (canSwitch)
             TextButton(

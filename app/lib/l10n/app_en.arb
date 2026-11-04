@@ -2505,6 +2505,42 @@
   "@firstRunSecuring": {
     "description": "Shown after the PIN while the wallet is locked under it."
   },
+  "workStoppingRecheck": "Stopping the recheck…",
+  "@workStoppingRecheck": {
+    "description": "Status line under a wallet delete's progress: the running balance check is being stopped first."
+  },
+  "workTellingDevices": "Telling linked devices…",
+  "@workTellingDevices": {
+    "description": "Status line under a wallet delete's progress: linked devices are told the wallet goes."
+  },
+  "workRemovingFiles": "Removing wallet files…",
+  "@workRemovingFiles": {
+    "description": "Status line under a wallet delete's progress: the wallet's files are being removed."
+  },
+  "workClearingKeys": "Clearing keys…",
+  "@workClearingKeys": {
+    "description": "Status line under a wallet delete's progress: the PIN key and other stored keys are being cleared."
+  },
+  "workChecking": "Checking…",
+  "@workChecking": {
+    "description": "Status line under the unlock progress: the PIN or passphrase is being checked."
+  },
+  "workOpening": "Opening wallet…",
+  "@workOpening": {
+    "description": "Status line under the unlock progress: the wallet is being opened."
+  },
+  "workCreating": "Creating wallet…",
+  "@workCreating": {
+    "description": "Status line while a new wallet is being made (first run, restore)."
+  },
+  "workRestoring": "Restoring wallet…",
+  "@workRestoring": {
+    "description": "Status line while a wallet is being made from its recovery phrase."
+  },
+  "workStarting": "Starting…",
+  "@workStarting": {
+    "description": "Status line on the launch screen while the app finds the wallet to open."
+  },
   "firstRunTryAgain": "Try again",
   "@firstRunTryAgain": {
     "description": "Button after making the wallet failed."
@@ -23650,6 +23686,14 @@
   "errorPinKeyLost": "The PIN can no longer open this wallet. Your coins are safe: tap Forgot PIN and restore the wallet from its recovery phrase.",
   "@errorPinKeyLost": {
     "description": "Unlock error when the Android Keystore lost the key that seals the PIN key. Forgot PIN must match the pinForgot button text."
+  },
+  "errorKeystoreRefused": "The phone did not release the wallet key. Unlock the phone with its own PIN or fingerprint, then try again.",
+  "@errorKeystoreRefused": {
+    "description": "Unlock error when the Android Keystore refused to release the key that seals the PIN key (for example the phone counts as locked). The wallet is intact; Forgot PIN is hidden while this shows."
+  },
+  "unlockTryAgain": "Try again",
+  "@unlockTryAgain": {
+    "description": "Unlock screen button shown with errorKeystoreRefused: runs the unlock again."
   },
   "settingsUsePassphrase": "Use a passphrase",
   "@settingsUsePassphrase": {

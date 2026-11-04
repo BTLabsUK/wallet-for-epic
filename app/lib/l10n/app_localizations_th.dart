@@ -1975,6 +1975,33 @@ class AppLocalizationsTh extends AppLocalizations {
   String get firstRunSecuring => 'กำลังรักษาความปลอดภัยกระเป๋าเงิน…';
 
   @override
+  String get workStoppingRecheck => 'กำลังหยุดตรวจยอดใหม่…';
+
+  @override
+  String get workTellingDevices => 'กำลังแจ้งอุปกรณ์ที่เชื่อมโยง…';
+
+  @override
+  String get workRemovingFiles => 'กำลังลบไฟล์กระเป๋าเงิน…';
+
+  @override
+  String get workClearingKeys => 'กำลังล้างกุญแจ…';
+
+  @override
+  String get workChecking => 'กำลังตรวจสอบ…';
+
+  @override
+  String get workOpening => 'กำลังเปิดกระเป๋าเงิน…';
+
+  @override
+  String get workCreating => 'กำลังสร้างกระเป๋าเงิน…';
+
+  @override
+  String get workRestoring => 'กำลังกู้คืนกระเป๋าเงิน…';
+
+  @override
+  String get workStarting => 'กำลังเริ่มต้น…';
+
+  @override
   String get firstRunTryAgain => 'ลองอีกครั้ง';
 
   @override
@@ -17152,6 +17179,13 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get errorPinKeyLost =>
       'PIN เปิดกระเป๋าเงินนี้ไม่ได้แล้ว เหรียญของคุณยังปลอดภัย: แตะ \"ลืม PIN\" แล้วกู้คืนกระเป๋าเงินจากวลีกู้คืน';
+
+  @override
+  String get errorKeystoreRefused =>
+      'โทรศัพท์ไม่ได้ปล่อยกุญแจของกระเป๋าเงิน ปลดล็อกโทรศัพท์ด้วย PIN หรือลายนิ้วมือของโทรศัพท์เอง แล้วลองอีกครั้ง';
+
+  @override
+  String get unlockTryAgain => 'ลองอีกครั้ง';
 
   @override
   String get settingsUsePassphrase => 'ใช้วลีรหัสผ่าน';

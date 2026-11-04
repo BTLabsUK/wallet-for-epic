@@ -2064,6 +2064,33 @@ class AppLocalizationsRu extends AppLocalizations {
   String get firstRunSecuring => 'Защищаем кошелёк…';
 
   @override
+  String get workStoppingRecheck => 'Остановка сверки…';
+
+  @override
+  String get workTellingDevices => 'Уведомление связанных устройств…';
+
+  @override
+  String get workRemovingFiles => 'Удаление файлов кошелька…';
+
+  @override
+  String get workClearingKeys => 'Удаление ключей…';
+
+  @override
+  String get workChecking => 'Проверка…';
+
+  @override
+  String get workOpening => 'Открытие кошелька…';
+
+  @override
+  String get workCreating => 'Создание кошелька…';
+
+  @override
+  String get workRestoring => 'Восстановление кошелька…';
+
+  @override
+  String get workStarting => 'Запуск…';
+
+  @override
   String get firstRunTryAgain => 'Повторить';
 
   @override
@@ -18181,6 +18208,13 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get errorPinKeyLost =>
       'PIN-код больше не открывает этот кошелёк. Ваши монеты в безопасности: нажмите «Забыли PIN-код?» и восстановите кошелёк по фразе восстановления.';
+
+  @override
+  String get errorKeystoreRefused =>
+      'Телефон не выдал ключ кошелька. Разблокируйте телефон его собственным PIN-кодом или отпечатком пальца и повторите попытку.';
+
+  @override
+  String get unlockTryAgain => 'Повторить';
 
   @override
   String get settingsUsePassphrase => 'Использовать пароль';

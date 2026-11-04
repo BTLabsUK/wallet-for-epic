@@ -1895,6 +1895,33 @@ class AppLocalizationsZh extends AppLocalizations {
   String get firstRunSecuring => '正在保护你的钱包…';
 
   @override
+  String get workStoppingRecheck => '正在停止核对…';
+
+  @override
+  String get workTellingDevices => '正在通知关联设备…';
+
+  @override
+  String get workRemovingFiles => '正在删除钱包文件…';
+
+  @override
+  String get workClearingKeys => '正在清除密钥…';
+
+  @override
+  String get workChecking => '正在检查…';
+
+  @override
+  String get workOpening => '正在打开钱包…';
+
+  @override
+  String get workCreating => '正在创建钱包…';
+
+  @override
+  String get workRestoring => '正在恢复钱包…';
+
+  @override
+  String get workStarting => '正在启动…';
+
+  @override
   String get firstRunTryAgain => '重试';
 
   @override
@@ -16539,6 +16566,12 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get errorPinKeyLost =>
       'PIN 码已无法打开此钱包。您的币是安全的：点按“忘记 PIN 码？”，用恢复短语恢复钱包。';
+
+  @override
+  String get errorKeystoreRefused => '手机未提供钱包密钥。请先用手机自身的 PIN 码或指纹解锁手机，然后重试。';
+
+  @override
+  String get unlockTryAgain => '重试';
 
   @override
   String get settingsUsePassphrase => '使用密码短语';

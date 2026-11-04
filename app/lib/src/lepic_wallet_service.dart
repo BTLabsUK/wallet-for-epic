@@ -890,6 +890,33 @@ class _PrefixedStore implements lepic.SecretStore {
   Future<void> delete(String key) => _inner.delete('$_prefix$key');
 }
 
+/// [_inner], noting the last [KeyWrapUnavailable] one of its calls threw: LEPIC turns any store
+/// failure into its own error, which no longer says that the Keystore refused.
+class _RefusalWatch implements lepic.SecretStore {
+  _RefusalWatch(this._inner);
+
+  final lepic.SecretStore _inner;
+  KeyWrapUnavailable? refused;
+
+  Future<T> _watch<T>(Future<T> call) async {
+    try {
+      return await call;
+    } on KeyWrapUnavailable catch (error) {
+      refused = error;
+      rethrow;
+    }
+  }
+
+  @override
+  Future<String?> read(String key) => _watch(_inner.read(key));
+
+  @override
+  Future<void> write(String key, String value) => _watch(_inner.write(key, value));
+
+  @override
+  Future<void> delete(String key) => _watch(_inner.delete(key));
+}
+
 class LepicWalletService implements WalletService {
   /// [runtime] is called once, on first use; tests pass a `MockChain` runtime.
   ///
@@ -1417,23 +1444,37 @@ class LepicWalletService implements WalletService {
     );
   });
 
+  /// A store failure while the Keystore refused one of the calls throws that refusal
+  /// ([KeyWrapUnavailable]): the wallet is intact, and the unlock screen says so.
   @override
   Future<WalletSession> openWithPin({
     required WalletConfig config,
     required String pin,
     required String sealedPassword,
-  }) => _guard(
-    () async => _session(
-      config,
-      await lepic.EpicWallet.openWithPin(
-        runtime: _runtime,
-        config: await _config(config),
-        store: await _store(config),
-        pin: pin,
-        sealedPassword: sealedPassword,
-      ),
-    ),
-  );
+  }) async {
+    _RefusalWatch? store;
+    try {
+      return await _guard(() async {
+        final walletConfig = await _config(config);
+        final watched = store = _RefusalWatch(await _storeKeys(config));
+        return _session(
+          config,
+          await lepic.EpicWallet.openWithPin(
+            runtime: _runtime,
+            config: walletConfig,
+            store: lepic.lepicSecretStore(watched),
+            pin: pin,
+            sealedPassword: sealedPassword,
+          ),
+        );
+      });
+    } on WalletError catch (error) {
+      final refused = store?.refused;
+      if (error.kind != WalletErrorKind.io || refused == null) rethrow;
+      logWarn('unlock', 'the Keystore refused the PIN key (${refused.code})');
+      throw refused;
+    }
+  }
 
   /// LEPIC keeps the count in the wallet's store as `lepic.pin-failures` (documented on
   /// `EpicWallet.openWithPin`). A count that does not parse costs LEPIC the longest wait, so it

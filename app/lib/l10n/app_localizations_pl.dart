@@ -2074,6 +2074,33 @@ class AppLocalizationsPl extends AppLocalizations {
   String get firstRunSecuring => 'Zabezpieczanie portfela…';
 
   @override
+  String get workStoppingRecheck => 'Zatrzymywanie sprawdzania salda…';
+
+  @override
+  String get workTellingDevices => 'Powiadamianie połączonych urządzeń…';
+
+  @override
+  String get workRemovingFiles => 'Usuwanie plików portfela…';
+
+  @override
+  String get workClearingKeys => 'Usuwanie kluczy…';
+
+  @override
+  String get workChecking => 'Sprawdzanie…';
+
+  @override
+  String get workOpening => 'Otwieranie portfela…';
+
+  @override
+  String get workCreating => 'Tworzenie portfela…';
+
+  @override
+  String get workRestoring => 'Przywracanie portfela…';
+
+  @override
+  String get workStarting => 'Uruchamianie…';
+
+  @override
   String get firstRunTryAgain => 'Spróbuj ponownie';
 
   @override
@@ -18193,6 +18220,13 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get errorPinKeyLost =>
       'PIN nie otwiera już tego portfela. Twoje monety są bezpieczne: dotknij „Nie pamiętasz kodu PIN?” i przywróć portfel z frazy odzyskiwania.';
+
+  @override
+  String get errorKeystoreRefused =>
+      'Telefon nie udostępnił klucza portfela. Odblokuj telefon jego własnym kodem PIN lub odciskiem palca, a potem spróbuj ponownie.';
+
+  @override
+  String get unlockTryAgain => 'Spróbuj ponownie';
 
   @override
   String get settingsUsePassphrase => 'Użyj hasła';

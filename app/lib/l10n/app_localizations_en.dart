@@ -2005,6 +2005,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get firstRunSecuring => 'Securing your wallet…';
 
   @override
+  String get workStoppingRecheck => 'Stopping the recheck…';
+
+  @override
+  String get workTellingDevices => 'Telling linked devices…';
+
+  @override
+  String get workRemovingFiles => 'Removing wallet files…';
+
+  @override
+  String get workClearingKeys => 'Clearing keys…';
+
+  @override
+  String get workChecking => 'Checking…';
+
+  @override
+  String get workOpening => 'Opening wallet…';
+
+  @override
+  String get workCreating => 'Creating wallet…';
+
+  @override
+  String get workRestoring => 'Restoring wallet…';
+
+  @override
+  String get workStarting => 'Starting…';
+
+  @override
   String get firstRunTryAgain => 'Try again';
 
   @override
@@ -17556,6 +17583,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get errorPinKeyLost =>
       'The PIN can no longer open this wallet. Your coins are safe: tap Forgot PIN and restore the wallet from its recovery phrase.';
+
+  @override
+  String get errorKeystoreRefused =>
+      'The phone did not release the wallet key. Unlock the phone with its own PIN or fingerprint, then try again.';
+
+  @override
+  String get unlockTryAgain => 'Try again';
 
   @override
   String get settingsUsePassphrase => 'Use a passphrase';
