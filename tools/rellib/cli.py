@@ -446,35 +446,44 @@ class App:
         return self.drive(run, eng, phase="publish" if a.publish else "build", until=a.until, retry_failed=True)
 
     def cmd_run(self, a):
-        """One step, and nothing after it."""
+        """One step, and nothing after it. Several steps run side by side across their lanes under one
+        lock; a need among them is waited for, a need outside them must be met (or --ignore-needs).
+        --keep-going: a failed step stops only the steps that need it."""
         run = self.load_run()
-        s = run.step(a.step)
+        sel = [run.step(x) for x in [a.step, *(getattr(a, "more", None) or [])]]
+        ids = [s.id for s in sel]
         eng = self.engine(run, dry=bool(a.dry_run))
-        st = run.status(s.id)
-        if s.publish and st["status"] == "done" and not a.again:
-            return self.out(EXIT_USAGE, f"{s.id} is a publish step and already done: --again to run it again", run)
-        if s.publish and not run.info.get("dry"):
-            gate = [x for x in run.steps if x.kind == "gate"]
-            if gate and run.status(gate[0].id)["status"] != "done":
-                return self.out(EXIT_DENIED, f"{s.id} publishes: the gate {gate[0].id} has not approved this run", run)
-        unmet = [n for n in s.needs if run.status(n)["status"] not in ("done", "skipped")]
-        if unmet and not a.ignore_needs:
-            return self.out(EXIT_USAGE, f"{s.id} needs {', '.join(unmet)} first (or --ignore-needs: the run is then "
-                                        "tainted and can never be published)", run)
-        if unmet:
-            if s.publish:
+        unmet_of = {}
+        for s in sel:
+            st = run.status(s.id)
+            if s.publish and st["status"] == "done" and not a.again:
+                return self.out(EXIT_USAGE, f"{s.id} is a publish step and already done: --again to run it again", run)
+            if s.publish and not run.info.get("dry"):
+                gate = [x for x in run.steps if x.kind == "gate"]
+                if gate and run.status(gate[0].id)["status"] != "done":
+                    return self.out(EXIT_DENIED, f"{s.id} publishes: the gate {gate[0].id} has not approved this run", run)
+            unmet = [n for n in s.needs if n not in ids and run.status(n)["status"] not in ("done", "skipped")]
+            if unmet and not a.ignore_needs:
+                return self.out(EXIT_USAGE, f"{s.id} needs {', '.join(unmet)} first (or --ignore-needs: the run is then "
+                                            "tainted and can never be published)", run)
+            if unmet and s.publish:
                 return self.out(EXIT_USAGE, "a publish step never runs with --ignore-needs", run)
-            run.taint(f"{s.id} run with unmet needs: {', '.join(unmet)}")
+            unmet_of[s.id] = unmet
+        for s in sel:
+            if unmet_of[s.id]:
+                run.taint(f"{s.id} run with unmet needs: {', '.join(unmet_of[s.id])}")
         try:
             run.lock()
         except Busy as e:
             return self.out(EXIT_BUSY, str(e), run)
         try:
-            run.set_status(s.id, status="pending", retry=False)
-            saved = s.needs
-            s.needs = [] if unmet else s.needs
-            code = eng.drive([s.id])
-            s.needs = saved
+            saved = {s.id: s.needs for s in sel}
+            for s in sel:
+                run.set_status(s.id, status="pending", retry=False)
+                s.needs = [n for n in s.needs if n not in unmet_of[s.id]]
+            code = eng.drive(ids, stop_on_fail=not getattr(a, "keep_going", False))
+            for s in sel:
+                s.needs = saved[s.id]
         finally:
             run.unlock()
         return self.finish(run, eng, code)
@@ -966,6 +975,9 @@ def parser():
         if name in ("run", "retry"):
             sp.add_argument("--again", action="store_true", help="also a step that is done (publish steps need it)")
         if name == "run":
+            sp.add_argument("more", nargs="*", metavar="step", help="more steps, run side by side across their lanes")
+            sp.add_argument("--keep-going", action="store_true",
+                            help="a failed step stops only the steps that need it, not the others")
             sp.add_argument("--ignore-needs", action="store_true", help="taints the run: never publishable")
             sp.add_argument("--dry-run", action="store_true")
         if name == "logs":
