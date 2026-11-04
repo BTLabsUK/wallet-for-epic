@@ -1,7 +1,11 @@
 # SPDX-License-Identifier: Apache-2.0
 """Requests and approval: one at a time, hashes the signer's own, TOTP from the bot's reply,
 three wrong codes reject, five failures lock for an hour, a used time step is refused, 30-minute
-expiry, enrolment once; and the Android operations with a throwaway keystore."""
+expiry, enrolment once; approval by the release tool's credential (only its SHA-256 kept, a wrong
+token refused and counted toward the lock, every signature in the ledger with its run and
+approver); and the Android operations with a throwaway keystore."""
+import hashlib
+import json
 import os
 import shutil
 import unittest
@@ -131,6 +135,148 @@ class Approval(SignerCase):
         self.signer._save(meta)
         again = server.Signer(self.data, self.signer.cfg, clock=self.clock, bot=self.bot)
         self.assertEqual(again.status(rid)["state"], "failed")
+
+
+TOKEN = "t" * 20 + "0123456789abcdef"
+
+
+class Credential(SignerCase):
+    def setUp(self):
+        super().setUp()
+        self.signer.set_secret("approve_token", TOKEN)
+
+    def sums(self):
+        return self.file("SHA256SUMS", SUMS)
+
+    def make(self, files, jobs=(MINISIGN,), run="26.11.0-run1", **extra):
+        r = self.signer.create(dict({"version": "26.11.0", "jobs": list(jobs), "run": run,
+                                     "files": [{k: f[k] for k in ("name", "size", "sha256")} for f in files]},
+                                    **extra))
+        for f in files:
+            with open(f["path"], "rb") as fh:
+                self.signer.upload(r["id"], f["name"], fh, f["size"])
+        return r["id"]
+
+    def ledger_rows(self):
+        with open(os.path.join(self.data, "signed.jsonl"), encoding="utf-8") as f:
+            return [json.loads(x) for x in f]
+
+    def test_signs_without_the_bot(self):
+        rid = self.make([self.sums()])
+        self.assertTrue(self.signer.info()["auto_approve"])
+        self.assertEqual(self.signer.submit(rid, TOKEN)["state"], "approved")
+        with self.assertLogs("btsign", "INFO") as logs:
+            self.signer.poll_once()
+        st = self.signer.status(rid)
+        self.assertEqual(st["state"], "done", st["note"])
+        self.assertEqual(self.bot.requests, {})
+        self.assertEqual(self.bot.results, [])
+        sha = st["outputs"]["SHA256SUMS.sig"]["sha256"]
+        self.assertIn(f"signed SHA256SUMS.sig sha256 {sha} request {rid} run 26.11.0-run1 "
+                      "approved by release-tool credential", "\n".join(logs.output))
+        row = self.ledger_rows()[-1]
+        self.assertEqual((row["run"], row["approved_by"], row["request"], row["sha256"]),
+                         ("26.11.0-run1", "release-tool credential", rid, sha))
+        self.assertIn("at", row)
+
+    def test_totp_row_says_totp(self):
+        rid = self.make([self.sums()], run=None)
+        self.signer.submit(rid)
+        self.bot.reply(rid, self.code())
+        self.signer.poll_once()
+        self.assertEqual(self.signer.status(rid)["state"], "done")
+        row = self.ledger_rows()[-1]
+        self.assertEqual((row["run"], row["approved_by"]), (None, "TOTP"))
+
+    def test_wrong_token_refused_and_counted(self):
+        rid = self.make([self.sums()])
+        with self.assertRaises(server.Refused) as e:
+            self.signer.submit(rid, "x" * 40)
+        self.assertEqual(e.exception.status, 403)
+        self.assertEqual(len(self.signer.store.state()["failures"]), 1)
+        self.assertEqual(self.signer.status(rid)["state"], "uploading")
+        self.assertEqual(self.bot.requests, {})
+        self.signer.submit(rid, TOKEN)                       # the right one still approves
+        self.signer.poll_once()
+        self.assertEqual(self.signer.status(rid)["state"], "done")
+
+    def test_wrong_tokens_lock_like_wrong_codes(self):
+        for _ in range(2):
+            rid = self.make([self.sums()])
+            for _ in range(3):
+                with self.assertRaises(server.Refused):
+                    self.signer.submit(rid, "y" * 40)
+            self.assertEqual(self.signer.status(rid)["state"], "rejected")
+        self.assertTrue(self.signer.info()["locked_until"])
+        with self.assertRaises(server.Refused) as e:
+            self.make([self.sums()])
+        self.assertEqual(e.exception.status, 423)
+
+    def test_token_is_stored_only_as_its_sha256(self):
+        s = self.signer.store.secrets()
+        self.assertEqual(s["approve_sha256"], hashlib.sha256(TOKEN.encode()).hexdigest())
+        self.assertNotIn(TOKEN, json.dumps(s))
+        for root, _, names in os.walk(self.data):
+            for n in names:
+                with open(os.path.join(root, n), "rb") as f:
+                    self.assertNotIn(TOKEN.encode(), f.read(), n)
+        with self.assertRaises(server.Refused):
+            self.signer.set_secret("approve_token", "short")
+
+    def test_no_totp_needed_with_the_credential(self):
+        s = self.signer.store.secrets()
+        del s["totp"]
+        self.signer.store.save_secrets(s)
+        rid = self.make([self.sums()])
+        with self.assertRaises(server.Refused) as e:
+            self.signer.submit(rid)                          # no header, no TOTP: nothing to ask
+        self.assertEqual(e.exception.status, 409)
+        self.signer.submit(rid, TOKEN)
+        self.signer.poll_once()
+        self.assertEqual(self.signer.status(rid)["state"], "done")
+
+    def test_cancelled_before_signing_is_not_signed(self):
+        rid = self.make([self.sums()])
+        self.signer.submit(rid, TOKEN)
+        self.signer.cancel(rid)
+        self.signer.poll_once()
+        st = self.signer.status(rid)
+        self.assertEqual((st["state"], st["outputs"]), ("cancelled", {}))
+
+    def test_bad_run(self):
+        for run in ("", "a b", "x" * 61, 7):
+            with self.assertRaisesRegex(server.Refused, "run"):
+                self.make([self.sums()], run=run)
+
+    def test_without_the_token_set_a_header_is_refused(self):
+        s = self.signer.store.secrets()
+        del s["approve_sha256"]
+        self.signer.store.save_secrets(s)
+        self.assertFalse(self.signer.info()["auto_approve"])
+        rid = self.make([self.sums()])
+        with self.assertRaises(server.Refused) as e:
+            self.signer.submit(rid, TOKEN)
+        self.assertEqual(e.exception.status, 403)
+
+    @unittest.skipUnless(sdk_build_tools() and shutil.which("java") and shutil.which("keytool"),
+                         "Android build-tools, java and keytool needed")
+    def test_follow_up_on_a_credential_approval(self):
+        apk = self.file("app-unsigned.apk", open(ops.SELFTEST_APK, "rb").read())
+        rid = self.make([apk], jobs=[{"op": "apk", "file": "app-unsigned.apk", "out": "app.apk"}],
+                        then=[{"op": "minisign", "out": "SHA256SUMS.sig"}])
+        self.signer.submit(rid, TOKEN)
+        self.signer.poll_once()
+        st = self.signer.status(rid)
+        self.assertEqual(st["state"], "continuing", st["note"])
+        sums = self.file("SHA256SUMS", f"{st['outputs']['app.apk']['sha256']}  app.apk\n".encode())
+        self.signer.follow(rid, {"jobs": [MINISIGN], "files": [{k: sums[k] for k in ("name", "size", "sha256")}]})
+        with open(sums["path"], "rb") as fh:
+            self.signer.upload(rid, "SHA256SUMS", fh, sums["size"])
+        self.assertEqual(self.signer.submit(rid, TOKEN)["state"], "done")
+        self.assertEqual(self.bot.requests, {})
+        self.assertEqual([(r["name"], r["approved_by"], r["run"]) for r in self.ledger_rows()],
+                         [("app.apk", "release-tool credential", "26.11.0-run1"),
+                          ("SHA256SUMS.sig", "release-tool credential", "26.11.0-run1")])
 
 
 class Enrolment(SignerCase):
