@@ -105,6 +105,28 @@ class FakePhone:
         return True
 
 
+REFUSED = UNLOCK[:2] + [node(2, "text", "The phone did not release the wallet key. Unlock the phone with its own PIN "
+                                         "or fingerprint, then try again."), node(3, "button", "Try again")]
+
+
+class KeystorePhone(FakePhone):
+    """An unlock the Keystore refuses `refusals` times (unlockTryAgain, the PIN kept typed)."""
+
+    def __init__(self, refusals):
+        super().__init__({"unlock": UNLOCK, "refused": REFUSED, "home": HOME}, "unlock")
+        self.refusals, self.retries = refusals, 0
+
+    def set_text(self, n, text, secret=False):
+        self.typed.append(len(text))
+        self.cur = "refused" if self.refusals else "home"
+
+    def press(self, n):
+        if self.cur == "refused" and n.name == "Try again":
+            self.retries += 1
+            self.refusals -= 1
+            self.cur = "refused" if self.refusals > 0 else "home"
+
+
 class PhoneTest(unittest.TestCase):
     def setUp(self):
         self.out = tempfile.mkdtemp(prefix="trust-android-")
@@ -120,6 +142,17 @@ class PhoneTest(unittest.TestCase):
         s = FakePhone({"unlock": UNLOCK, "home": HOME}, "unlock")
         self.recipe(s).open_wallet({"pin": "135790", "password": "x", "phrase": "y"}, after_update=True)
         self.assertEqual((s.cur, s.typed), ("home", [6]))
+
+    def test_a_keystore_refusal_is_tried_again(self):
+        s = KeystorePhone(refusals=1)
+        self.recipe(s).open_wallet({"pin": "135790"}, after_update=True)
+        self.assertEqual((s.cur, s.typed, s.retries), ("home", [6], 1))
+
+    def test_a_keystore_that_keeps_refusing_is_the_products_fault(self):
+        s = KeystorePhone(refusals=9)
+        with self.assertRaises(ProductFault) as c:
+            self.recipe(s).open_wallet({"pin": "135790"}, after_update=True)
+        self.assertEqual((c.exception.step, s.retries), ("unlock", 2))
 
     def test_welcome_after_the_update_is_the_products_fault(self):
         s = FakePhone({"welcome": WELCOME}, "welcome")
