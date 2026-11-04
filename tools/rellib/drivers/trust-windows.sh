@@ -24,6 +24,7 @@
 # other, a lock in ~/.cache/rel-trust-windows/ctl), REL_WORK (local work folders,
 # default ~/.cache/rel-trust-windows), REL_KEEP_FUNDS=1, REL_P_TOOL, REL_P_PASS_FILE, REL_P_PASS_LINE,
 # REL_P_ADDR, REL_P_SERVICE_DIR (P is the shared P service, tools/rellib/p_service.py: no lock).
+# REL_RETURN_EXTRA (EPIC: a lane seed's earlier runs' inflow, sent back to P after this run's own).
 # Dead rigs: the rig sessions' health is read first (windows/rig-health.ps1, read-only); a dead session,
 # or one that does not pick up the job within REL_WIN_PICKUP_S (default 180 s on an empty queue), is
 # skipped for the next in [host.windows] rigs, then 1, and named in one alert (REL_OUT/notice.json).

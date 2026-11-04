@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0
+# The test database CLI: tools/testdb --help (tools/rellib/testdb/).
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec python3 -I -c 'import sys; sys.path.insert(0, sys.argv[1]); sys.argv = ["testdb"] + sys.argv[2:]
+from testdb.cli import main; sys.exit(main())' "$here/rellib" "$@"

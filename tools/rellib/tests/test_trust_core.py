@@ -3,8 +3,9 @@
 label and after a rename by the model; obstacles pressed away; a secret screen never sent; the app
 quitting is the product's fault; a failed step's tree kept
 without a password's value and never a phrase screen's; saved states written and picked; the confirmations stepper set and read
-on a build in Polish; the dialog break's button found in the build's language; a moved setting found
-by walking the sections when a narrow window folds their list into one selector."""
+whichever way the build names its field; the dialog break's button found by its label; a moved setting
+found by walking the sections when a narrow window folds their list into one selector; a cached AI path
+replayed without the model."""
 import json
 import os
 import stat
@@ -174,14 +175,12 @@ class CoreTest(unittest.TestCase):
         d.dump("phrase", [n(0, "text", " ".join(["abandon"] * 24)), n(1, "text_field", "Password", states=("password",))])
         self.assertFalse(os.path.exists(os.path.join(self.out, "tree-000-phrase.txt")))
 
-    def test_labels_from_this_checkout_in_the_builds_language(self):
-        """A candidate given no source tree or ref reads this checkout's strings in the locale the app
-        shows, as one given a source tree does."""
+    def test_labels_from_this_checkout_are_english(self):
+        """A candidate given no source tree or ref reads this checkout's English strings, whatever REL_TRUST_LOCALE says."""
         with unittest.mock.patch.dict(os.environ, {"REL_TRUST_LOCALE": "pl"}):
             l = Labels()
-        self.assertEqual(l.origin, "this checkout (pl)")
-        self.assertEqual(l.text("deskOnbUnlockTitle"), Labels(src=ROOT, locale="pl").text("deskOnbUnlockTitle"))
-        self.assertNotEqual(l.text("deskOnbUnlockTitle"), l.en.get("deskOnbUnlockTitle"))
+        self.assertEqual(l.origin, "this checkout")
+        self.assertEqual(l.text("deskOnbUnlockTitle"), l.en.get("deskOnbUnlockTitle"))
 
     def test_destructive_pick_refused(self):
         f = Fake({"s": [n(0, "button", "Delete wallet")]}, "s", {})
@@ -217,8 +216,8 @@ class CoreTest(unittest.TestCase):
 
 
     def _unlock(self, field):
-        f = Fake({"lock": [n(0, "text", "Odblokuj portfel"), field, n(2, "button", "Odblokuj")]}, "lock", {})
-        d = self.driver(f, arb={"deskOnbStepPassword": "Hasło", "deskOnbUnlockTitle": "Odblokuj portfel"})
+        f = Fake({"lock": [n(0, "text", "Unlock wallet"), field, n(2, "button", "Unlock")]}, "lock", {})
+        d = self.driver(f, arb={"deskOnbStepPassword": "Password", "deskOnbUnlockTitle": "Unlock wallet"})
         desk = Desktop(d, "candidate", self.logs.append)
         desk.password = "x"
         d.wait = lambda expect, timeout=30, **kw: expect.test(d, f.tree()) or None
@@ -226,55 +225,56 @@ class CoreTest(unittest.TestCase):
 
     def test_password_field_without_the_flag_is_product(self):
         # 26.10.26 b1e4540 on Windows: the unlock field had its Semantics id and no IsPassword
-        desk = self._unlock(n(1, "text_field", "Hasło", states=("enabled", "editable", "focused")))
+        desk = self._unlock(n(1, "text_field", "Password", states=("enabled", "editable", "focused")))
         with self.assertRaises(ProductFault) as c:
             desk._fill_passwords("unlock-password", 1)
         self.assertIn("not exposed as a password", str(c.exception))
         self.assertTrue([f for f in os.listdir(self.out) if f.endswith("-fail-unlock-password.txt")])
 
     def test_password_field_with_the_flag_is_typed(self):
-        desk = self._unlock(n(1, "text_field", "Hasło", states=("enabled", "editable", "password")))
+        desk = self._unlock(n(1, "text_field", "Password", states=("enabled", "editable", "password")))
         self.assertEqual(desk._fill_passwords("unlock-password", 1), 1)
 
     def test_no_password_field_at_all_is_harness(self):
-        desk = self._unlock(n(1, "text_field", "Szukaj", states=("enabled", "editable")))
+        desk = self._unlock(n(1, "text_field", "Search", states=("enabled", "editable")))
         with self.assertRaises(HarnessFault) as c:
             desk._fill_passwords("unlock-password", 1)
         self.assertNotIsInstance(c.exception, ProductFault)
-    def test_stepper_set_both_ways_and_read_in_the_builds_language(self):
+
+    def test_stepper_set_both_ways_and_read(self):
         class Stepper(Fake):
             def __init__(self, v, field):
                 super().__init__({}, "p", {})
                 self.v, self.field = v, field
 
             def tree(self):
-                return [n(0, "button", "Mniej potwierdzeń"), n(1, "text_field", self.field, value=str(self.v)),
-                        n(2, "button", "Więcej potwierdzeń")]
+                return [n(0, "button", "Fewer confirmations"), n(1, "text_field", self.field, value=str(self.v)),
+                        n(2, "button", "More confirmations")]
 
             def press(self, node):
                 self.pressed.append(node.name)
-                self.v += -1 if node.name.startswith("Mniej") else 1
+                self.v += -1 if node.name.startswith("Fewer") else 1
 
-        arb = {"deskSetAdvConfirmations": "Potwierdzenia", "deskSetAdvConfirmationsFewer": "Mniej potwierdzeń",
-               "deskSetAdvConfirmationsMore": "Więcej potwierdzeń"}
+        arb = {"deskSetAdvConfirmations": "Confirmations", "deskSetAdvConfirmationsFewer": "Fewer confirmations",
+               "deskSetAdvConfirmationsMore": "More confirmations"}
         # 26.10.26 named the field with the − button's tooltip after it; the build after it, the label alone
-        for field in ("Potwierdzenia. Mniej potwierdzeń", "Potwierdzenia"):
+        for field in ("Confirmations. Fewer confirmations", "Confirmations"):
             with self.subTest(field):
                 f = Stepper(6, field)
                 desk = Desktop(self.driver(f, arb), "candidate", self.logs.append)
                 self.assertEqual(desk._confirmations(), 6)
                 self.assertEqual(desk.set_confirmations(1), 1)
-                self.assertEqual(f.pressed, ["Mniej potwierdzeń"] * 5)
+                self.assertEqual(f.pressed, ["Fewer confirmations"] * 5)
                 self.assertEqual(desk.set_confirmations(2), 2)
-                self.assertEqual(f.pressed[-1], "Więcej potwierdzeń")
+                self.assertEqual(f.pressed[-1], "More confirmations")
 
-    def test_dialog_break_presses_the_builds_own_info_button(self):
-        f = Fake({"p": [n(0, "button", "Więcej informacji"), n(1, "button", "Unlock")]}, "p", {})
-        d = self.driver(f, dict(ARB, deskKitInfoLabel="Więcej informacji"))
+    def test_dialog_break_presses_the_info_button(self):
+        f = Fake({"p": [n(0, "button", "More information"), n(1, "button", "Unlock")]}, "p", {})
+        d = self.driver(f, dict(ARB, deskKitInfoLabel="More information"))
         with unittest.mock.patch.dict(os.environ, {"REL_TRUST_BREAK": "dialog:g4.unlock.submit"}), \
                 unittest.mock.patch("core.driver.time.sleep"):
             d._clear(UNLOCK)
-        self.assertEqual(f.pressed, ["Więcej informacji"])
+        self.assertEqual(f.pressed, ["More information"])
 
     def test_moved_setting_found_through_the_folded_section_list(self):
         search = n(9, "text_field", "Search settings")
@@ -299,6 +299,27 @@ class CoreTest(unittest.TestCase):
             self.assertEqual(json.load(fh)[0]["kind"], "moved")
         with open(os.path.join(self.out, "selector-fixes.md")) as fh:
             self.assertIn("found under Settings › Advanced", fh.read())
+
+    def test_cached_ai_path_replays_without_the_model(self):
+        """A way past an unknown notice the model found (expand Details, then Continue) is stored once the
+        step's rule holds (rec.reached); the next lane on the same screen replays it with no model call."""
+        sys.path.insert(0, HERE)
+        from test_trust_ai import Fake as Notice, Script, never
+        events = []
+        with unittest.mock.patch("core.record.emit", lambda kind, **f: events.append((kind, f))), \
+                unittest.mock.patch("core.record.read", lambda: None), \
+                unittest.mock.patch.dict(os.environ, {"REL_AI": "1"}):
+            os.environ.pop("REL_AI_CMD", None)
+            home = tg.Target(id="g4.home.available", role="text", names=("Available to spend",), match="starts")
+            for ask in (Script({"do": "expand", "i": 1}, {"do": "click", "i": 3}), never):
+                f = Notice()
+                rec = Recover(self.out, "linux", log=self.logs.append, ask=ask)
+                d = Driver(f, Labels(arb=ARB), rec, out=self.out, log=self.logs.append, poll=0.01)
+                d.must(shows(home), 0.1, step="notice", goal="the home screen")
+                self.assertEqual((f.cur, f.pressed), ("home", ["Details", "Continue"]))
+        self.assertEqual(len([k for k, _ in events if k == "aipath.put"]), 1)
+        self.assertEqual(len([k for k, _ in events if k == "aipath.hit"]), 1)
+        self.assertIn("replay", rec.used[0]["why"])
 
 
 if __name__ == "__main__":

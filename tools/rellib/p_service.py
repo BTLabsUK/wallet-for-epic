@@ -33,7 +33,7 @@ P's folder into memory only.
 The service starts on the first client that needs it (Client.ensure) and stops after REL_P_IDLE_MIN
 (default 40) minutes without a request and without a send of its own still unconfirmed.
 
-    python3 -I p_service.py serve | status | stop | info
+    python3 -I p_service.py serve | status | stop | info | cancel <slate> [why] | kick
 
 Env: REL_P_TOOL (p.py), REL_P_PASS_FILE + REL_P_PASS_LINE (P's password), REL_P_LOCK (the old
 flock), REL_P_SERVICE_DIR (socket, logs; default ~/.cache/rel-p-service), REL_P_OWNER_PORT (P's
@@ -55,7 +55,22 @@ import time
 import urllib.error
 import urllib.request
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "drivers"))
+import facts  # noqa: E402
+import nodehealth  # noqa: E402
+
 HOME = os.path.expanduser("~")
+# P's 4.1.0 listener polls its node's sync state every 10 s and stops reading Epicbox while the node says
+# it is not synced: P then finalizes nothing. A pause this long moves P to the next synced node.
+PAUSED = "Node not synced, pausing Epicbox message processing"
+PAUSE_S = 60
+MOVE_EVERY_S = 300  # one move or listener restart at most per this many seconds
+# The listener can also lose its Epicbox subscription without a word ("WebSocket protocol error" in
+# owner.log, then nothing): a send unanswered this long while the listener stayed silent restarts it,
+# and Epicbox hands the waiting answers to the new subscription. At most STALL_TRIES per send.
+STALL_S = 180
+STALL_TRIES = 2
+NODE_LINE = re.compile(r'(?m)^check_node_api_http_addr\s*=\s*"([^"]*)"')
 NANO = 100_000_000  # atomic units per EPIC
 MIN_CONF = 1  # P is a test wallet: one confirmation everywhere (the owner 2026-10-31)
 
@@ -137,6 +152,8 @@ class Service:
         self.last_request = time.time()
         self.stopping = threading.Event()
         self.rpc_id = 0
+        self.paused_at = None
+        self.moved_at = 0.0
 
     def log(self, msg):
         with open(os.path.join(self.dir, "service.log"), "a") as f:
@@ -254,6 +271,10 @@ class Service:
     def supervise(self):
         """Restart the listener or owner_api when one quits (node blips), the forward when it drops."""
         while not self.stopping.wait(10):
+            try:
+                self.watch_node() or self.watch_listener()
+            except Exception as e:  # noqa: BLE001 - a failed check never stops the supervisor
+                self.log("P node check failed: %s" % e)
             for name in ("listener", "owner", "forward"):
                 proc, _ = self.procs.get(name, (None, None))
                 if proc is None or proc.poll() is None:
@@ -267,6 +288,114 @@ class Service:
                 else:
                     self.kill_remote(("owner_api",))
                     self._start_p("owner", ["owner_api"], r"Starting Owner API|Owner API at")
+
+    # -- P's node: the next synced one when the listener pauses on it
+
+    def _paused(self):
+        """True while the listener's last line is its pause on "Node not synced"."""
+        lp = self.procs.get("listener", (None, None))[1]
+        try:
+            with open(lp, "rb") as f:
+                f.seek(max(0, os.path.getsize(lp) - 4096))
+                lines = clean(f.read().decode(errors="replace")).splitlines()
+        except (OSError, TypeError):
+            return False
+        return bool(lines) and PAUSED in lines[-1]
+
+    def watch_node(self, now=None):
+        """Called every 10 s: after PAUSE_S of the listener's pause, unpause(). -> unpause()'s answer, else None."""
+        now = now or time.time()
+        if not self._paused():
+            self.paused_at = None
+            return None
+        self.paused_at = self.paused_at or now
+        if now - self.paused_at < PAUSE_S or now - self.moved_at < MOVE_EVERY_S:
+            return None
+        self.moved_at = now
+        return self.unpause(int(now - self.paused_at))
+
+    def watch_listener(self, now=None):
+        """Called every 10 s: a send unanswered for STALL_S while the listener wrote nothing since it was
+        made restarts the listener. -> the slates it was restarted for, else None."""
+        now = now or time.time()
+        if now - self.moved_at < MOVE_EVERY_S:
+            return None
+        lp = self.procs.get("listener", (None, None))[1]
+        try:
+            spoke = os.path.getmtime(lp)
+        except (OSError, TypeError):
+            return None
+        with self.state_mu:
+            stuck = [(sid, r) for sid, r in self.sends.items() if r["state"] == "sent" and now - r["at"] >= STALL_S
+                     and r["at"] > spoke and r.get("restarts", 0) < STALL_TRIES]
+            for _, r in stuck:
+                r["restarts"] = r.get("restarts", 0) + 1
+        if not stuck:
+            return None
+        self.moved_at = now
+        self.log("P listener silent %d s with %d send(s) unanswered (%s): starting it again" % (
+            now - spoke, len(stuck), ", ".join(sid[:8] for sid, _ in stuck)))
+        self.kill_remote(("listen",))  # the supervisor starts it again when its local side quits
+        return [sid for sid, _ in stuck]
+
+    def kick(self, why="", now=None):
+        """A lane's send to P went unanswered: the listener is started again when it stayed silent STALL_S
+        (its subscription may be gone; Epicbox hands the waiting slates to the new one). At most one move or
+        restart per MOVE_EVERY_S. A silent listener alone is normal: P can go hours without a payment."""
+        now = now or time.time()
+        lp = self.procs.get("listener", (None, None))[1]
+        try:
+            silent = now - os.path.getmtime(lp)
+        except (OSError, TypeError):
+            return {"ok": False, "note": "no listener log"}
+        if silent < STALL_S or now - self.moved_at < MOVE_EVERY_S:
+            return {"ok": True, "restarted": False, "silent_s": int(silent)}
+        self.moved_at = now
+        self.log("P listener silent %d s and a send to P unanswered%s: starting it again" % (
+            silent, " (" + why + ")" if why else ""))
+        self.kill_remote(("listen",))
+        return {"ok": True, "restarted": True, "silent_s": int(silent)}
+
+    def _p_toml(self):
+        r = subprocess.run(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=20", self.host,
+                            'type "%s\\epic-wallet.toml"' % self.pdir], capture_output=True, text=True, timeout=60)
+        return r.stdout if r.returncode == 0 else ""
+
+    def _set_p_node(self, url):
+        """check_node_api_http_addr in P's epic-wallet.toml = url (a URL of the test order: no quotes)."""
+        q = ("$f = '%s\\epic-wallet.toml'; $t = [IO.File]::ReadAllText($f); "
+             "[IO.File]::WriteAllText($f, ($t -replace '(?m)^check_node_api_http_addr\\s*=\\s*\"[^\"]*\"', "
+             "'check_node_api_http_addr = \"%s\"'))" % (self.pdir, url))
+        subprocess.run(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=20", self.host,
+                        "powershell -NoProfile -Command -"], input=q, capture_output=True, text=True, timeout=90)
+        m = NODE_LINE.search(self._p_toml())
+        return bool(m) and m.group(1) == url
+
+    def unpause(self, paused_s):
+        """P's node not synced, behind or down: P moves to the next synced node of the test order and both
+        processes start again on it. Its node synced: the listener alone starts again (a stuck poll).
+        No node synced: nothing moves. -> the node P is on afterwards, None when nothing changed."""
+        m = NODE_LINE.search(self._p_toml())
+        cur = m.group(1) if m else None
+        picks = ([cur] if cur else []) + [u for u in facts.NODE_PICK if u != cur]
+        why = nodehealth.judge(picks, nodehealth.status)
+        to = next((u for u in picks if not why.get(u)), None)
+        if not to:
+            self.log("P listener paused %d s and no node is synced (%s): leaving it" % (
+                paused_s, "; ".join("%s %s" % (u, why[u]) for u in picks)))
+            return None
+        if to == cur:
+            self.log("P listener paused %d s on 'Node not synced' while its node %s is synced: starting it again"
+                     % (paused_s, cur))
+            self.kill_remote(("listen",))  # the supervisor starts it again
+            return cur
+        if not self._set_p_node(to):
+            self.log("P node could not be moved to %s (its epic-wallet.toml does not say it)" % to)
+            return None
+        self.log("P node moved: %s -> %s (the listener paused %d s on 'Node not synced'; %s %s)" % (
+            cur, to, paused_s, cur, why.get(cur) if cur else "unset"))
+        self.kill_remote()  # listener and owner_api read the node at start; the supervisor starts both again
+        return to
 
     def stop(self):
         self.stopping.set()
@@ -410,10 +539,31 @@ class Service:
             out = clean(r.stdout + r.stderr)
             self.log("p.py %s: exit %d" % (" ".join(args[:6]), r.returncode))
             return {"ok": r.returncode == 0, "rc": r.returncode, "out": out}
+        if op == "cancel":
+            return self.cancel(req["slate"], req.get("why", ""))
+        if op == "kick":
+            return self.kick(req.get("why", ""))
         if op == "stop":
             threading.Thread(target=self.shutdown_soon, daemon=True).start()
             return {"ok": True}
         return {"ok": False, "note": "unknown op %r" % op}
+
+    def cancel(self, slate, why=""):
+        """Cancels a send of P that can never finalize (its slate went where the receiver does not read):
+        P's inputs it holds are spendable again. Refused once the send is confirmed."""
+        with self.send_mu:
+            e = self.tx_entry(slate_id=slate)
+            if not e:
+                return {"ok": False, "note": "P has no send with slate %s" % slate}
+            if e.get("confirmed"):
+                return {"ok": False, "note": "send %s is confirmed" % slate}
+            if e.get("tx_type") != "TxSentCancelled":
+                self.rpc("cancel_tx", [None, slate])
+            with self.state_mu:
+                if slate in self.sends:
+                    self.sends[slate]["state"] = "cancelled"
+        self.log("send %s (tx %s) cancelled%s" % (slate, e.get("id"), ": " + why if why else ""))
+        return {"ok": True, "tx": e.get("id")}
 
     def shutdown_soon(self):
         time.sleep(0.5)
@@ -546,6 +696,9 @@ def main(argv):
     if why:
         print(why, file=sys.stderr)
         return 2
+    if cmd == "cancel":
+        print(json.dumps(c.call("cancel", slate=argv[2], why=" ".join(argv[3:]))))
+        return 0
     print(json.dumps(c.call(cmd)))
     return 0
 

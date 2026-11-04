@@ -389,6 +389,30 @@ function StoreSet([string]$file, $set) {
   @($set.PSObject.Properties | ForEach-Object Name)
 }
 
+# The app's secret store on a rig user that has none yet, holding only the language setting, so the
+# first start shows English whatever the Windows display language is. Same format as the app writes
+# (windows_secret_store.dart): one DPAPI (CurrentUser, the app's entropy) JSON object of string keys,
+# flutter_secure_storage.dat in the data folder. Acts only when no store file (or backup) exists;
+# refuses every key but desk.settings, and a value that is more than {"language":"<code>"}.
+function StoreInit([string]$file, $set) {
+  Add-Type -AssemblyName System.Security
+  $f = Mine $file
+  if ((Split-Path $f -Leaf) -ne 'flutter_secure_storage.dat') { throw "not the app's store file name: $f" }
+  foreach ($x in '', '.bak', '.tmp', '.damaged') { if (Test-Path -LiteralPath "$f$x") { throw "the store already exists ($f$x): left alone" } }
+  $names = @($set.PSObject.Properties | ForEach-Object Name)
+  if ($names.Count -ne 1 -or $names[0] -ne 'desk.settings') { throw "store_init sets only desk.settings (asked: $($names -join ', '))" }
+  $v = [string]$set.'desk.settings'
+  $o = $v | ConvertFrom-Json -AsHashtable -ErrorAction Stop
+  if ($o.Keys.Count -ne 1 -or -not $o.ContainsKey('language') -or [string]$o.language -notmatch '^[a-z]{2,3}(-[A-Za-z]{2,4})?$') { throw 'store_init holds only {"language":"<code>"}' }
+  New-Item -ItemType Directory -Force (Split-Path $f) | Out-Null
+  $entropy = [Text.Encoding]::UTF8.GetBytes('epic-cash-desktop/secret-store/v1')
+  $bytes = [Text.Encoding]::UTF8.GetBytes((@{ 'desk.settings' = $v } | ConvertTo-Json -Compress))
+  $tmp = "$f.tmp"
+  [IO.File]::WriteAllBytes($tmp, [Security.Cryptography.ProtectedData]::Protect($bytes, $entropy, 'CurrentUser'))
+  Move-Item -LiteralPath $tmp -Destination $f
+  @('desk.settings')
+}
+
 function Do-Cmd($c) {
   switch ($c.op) {
     'ping' { return @{ ok = $true; user = $env:USERNAME; profile = $env:USERPROFILE; entry = (Entry) } }
@@ -515,6 +539,7 @@ function Do-Cmd($c) {
     }
     'stop_all' { return @{ ok = $true; stopped = @(StopMine) } }
     'store' { return @{ ok = $true; keys = (StoreKeys $c.file) } }
+    'store_init' { return @{ ok = $true; set = @(StoreInit $c.file $c.set) } }
     'store_set' { return @{ ok = $true; set = @(StoreSet $c.file $c.set) } }
     'put_db' {
       # a wallet database seeded on the build machine (uploaded to the run folder) into place, the app closed;
@@ -540,6 +565,24 @@ function Do-Cmd($c) {
       $p = Start-Process $u -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART' -Wait -PassThru
       Start-Sleep 3
       return @{ ok = ($p.ExitCode -eq 0); exit = $p.ExitCode; entry = (Entry) }
+    }
+    'uninstall_leftover' {
+      # the install a crashed earlier attempt of the same run left: only one under <runs>\<prefix>-<yyyymmdd-hhmmss>\,
+      # where <prefix> is this run's variant-previous-to-candidate; any other install is left alone
+      $e = Entry
+      if (-not $e) { return @{ ok = $true; note = 'nothing installed' } }
+      $prefix = [string]$c.prefix
+      if ($prefix -notmatch '^[A-Za-z0-9.-]+$') { return @{ ok = $false; error = "bad run prefix $prefix" } }
+      $runs = (Split-Path $Run -Parent) + '\'
+      $m = [regex]::Match(([string]$e.location), '^' + [regex]::Escape($runs + $prefix) + '-\d{8}-\d{6}\\', 'IgnoreCase')
+      if (-not $m.Success) { return @{ ok = $false; error = "installed at $($e.location), not an earlier attempt of this run: left alone" } }
+      $folder = $m.Value
+      Get-Process btwallet, epic_wallet, epic, tor, unins000 -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "$folder*" } |
+        ForEach-Object { Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue }
+      $u = ([string]$e.uninstall) -replace '"', ''
+      $p = Start-Process $u -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART' -Wait -PassThru
+      Start-Sleep 3
+      return @{ ok = ($p.ExitCode -eq 0); exit = $p.ExitCode; was = $e.location; entry = (Entry) }
     }
     'ps' {
       # a PowerShell snippet in this job (diagnostics); its output as text

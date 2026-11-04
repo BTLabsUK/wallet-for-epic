@@ -1,0 +1,166 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
+"""Language audit of the shipped languages: what reads badly in each, and what is not translated.
+
+  tools/lang-audit [--dry-run] [--arb-only] [--langs de,pl] [--src <checkout>] [--out <dir>]
+
+For every shipped language (the app/lib/l10n/app_<code>.arb files other than en):
+  - the desktop tour (app/tool/desktop_tour_test.dart) with DESK_SHOTS_LANG=<code> LAYOUT_AUDIT=1,
+    through build-slot, and the findings of every <shot>.layout.json (an address that wraps, text
+    squeezed into a narrow column, text cut off);
+  - an ARB diff: keys the language lacks, and keys whose text is the English one.
+The phone tour (app/tool/screenshot_tour_test.dart) takes a language (TOUR_LOCALE) but writes no
+layout findings, so it is not run here; the ARB diff covers the phone's strings.
+
+Writes report.md and report.json under /tmp/epic-build/lang-audit/<date>/ (or --out). It never gates a
+release: exit 0 whatever it found; exit 2 only when it could not run (no ARB folder, a bad option).
+A tour that fails is recorded in the report as "tour failed" with its log, not as an exit code.
+--dry-run prints the plan and runs nothing. --arb-only skips the tours.
+"""
+import argparse
+import datetime
+import glob
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+ARB_DIR = os.path.join("app", "lib", "l10n")
+TOUR = "tool/desktop_tour_test.dart"
+LETTERS = re.compile(r"[^\W\d_]", re.UNICODE)
+PLACEHOLDER = re.compile(r"\{[^}]*\}")
+
+
+def die(msg):
+    print("lang-audit: %s" % msg, file=sys.stderr)
+    sys.exit(2)
+
+
+def languages(src):
+    found = sorted(os.path.basename(p)[4:-4] for p in glob.glob(os.path.join(src, ARB_DIR, "app_*.arb")))
+    return [c for c in found if c != "en"]
+
+
+def load(src, code):
+    with open(os.path.join(src, ARB_DIR, "app_%s.arb" % code), encoding="utf-8") as f:
+        return json.load(f)
+
+
+def arb_diff(src, code):
+    """Keys missing from the language, and keys whose text equals the English one (a text with no letters
+    once the placeholders go, such as "{n}%", cannot differ and is not counted)."""
+    en, loc = load(src, "en"), load(src, code)
+    keys = [k for k, v in en.items() if not k.startswith("@") and isinstance(v, str)]
+    missing = [k for k in keys if not (isinstance(loc.get(k), str) and loc[k])]
+    same = [k for k in keys if k not in missing and loc[k] == en[k] and LETTERS.search(PLACEHOLDER.sub("", en[k]))]
+    return {"keys": len(keys), "missing": missing, "same_as_english": same}
+
+
+def tour_command(src, code, shots):
+    inner = ('. tools/env.sh && cd app && env DESK_SHOTS_LANG=%s LAYOUT_AUDIT=1 DESK_SHOTS_OUT=%s '
+             'flutter test %s' % (code, shots, TOUR))
+    heavy = ["build-slot"] if shutil.which("build-slot") else []
+    return heavy + ["bash", "-c", inner]
+
+
+def run_tour(src, code, out):
+    shots = os.path.join(out, "shots")
+    log = os.path.join(out, "tour-%s.log" % code)
+    with open(log, "w") as f:
+        r = subprocess.run(tour_command(src, code, shots), cwd=src, stdout=f, stderr=subprocess.STDOUT)
+    res = {"exit": r.returncode, "log": log, "findings": [], "shots": 0}
+    for p in sorted(glob.glob(os.path.join(shots, code, "*.layout.json"))):
+        res["shots"] += 1
+        try:
+            with open(p, encoding="utf-8") as f:
+                for item in json.load(f):
+                    res["findings"].append(dict(item, shot=os.path.basename(p)[:-len(".layout.json")]))
+        except (OSError, ValueError) as e:
+            res["findings"].append({"kind": "unreadable", "text": str(e), "shot": os.path.basename(p)})
+    return res
+
+
+def report_md(date, results):
+    out = ["# Language audit %s" % date, "", "Not a gate: findings are for a person to read.", "",
+           "| language | keys missing | same as English | layout findings | tour |", "|---|---|---|---|---|"]
+    for code, r in results.items():
+        d, t = r["arb"], r.get("tour")
+        tour = "not run" if t is None else ("%d shots%s" % (t["shots"], "" if t["exit"] == 0 else ", tour failed (exit %s)" % t["exit"]))
+        out.append("| %s | %d | %d | %s | %s |" % (code, len(d["missing"]), len(d["same_as_english"]),
+                                                   "-" if t is None else len(t["findings"]), tour))
+    for code, r in results.items():
+        d, t = r["arb"], r.get("tour")
+        out += ["", "## %s" % code, ""]
+        if t:
+            kinds = {}
+            for f in t["findings"]:
+                kinds.setdefault(f["kind"], []).append(f)
+            for kind, items in sorted(kinds.items()):
+                out.append("**%s** (%d)" % (kind, len(items)))
+                out += ["- `%s` %s" % (f["shot"], f["text"]) for f in items[:40]]
+                out.append("")
+            if t["exit"] != 0:
+                out += ["Tour failed, log: `%s`" % t["log"], ""]
+        out.append("**Missing keys** (%d): %s" % (len(d["missing"]), ", ".join("`%s`" % k for k in d["missing"][:60]) or "none"))
+        out.append("")
+        out.append("**Same as English** (%d of %d): %s" % (len(d["same_as_english"]), d["keys"],
+                                                         ", ".join("`%s`" % k for k in d["same_as_english"][:60]) or "none"))
+        if len(d["same_as_english"]) > 60:
+            out.append("... the whole list is in report.json")
+    return "\n".join(out) + "\n"
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap.add_argument("--dry-run", action="store_true", help="print the plan, run nothing")
+    ap.add_argument("--arb-only", action="store_true", help="the ARB diff only, no tours")
+    ap.add_argument("--langs", help="comma list instead of every shipped language")
+    ap.add_argument("--src", default=ROOT, help="checkout to read (default: this one)")
+    ap.add_argument("--out", help="report folder (default /tmp/epic-build/lang-audit/<date>)")
+    a = ap.parse_args()
+    src = os.path.abspath(a.src)
+    if not os.path.isdir(os.path.join(src, ARB_DIR)):
+        die("no %s in %s" % (ARB_DIR, src))
+    langs = [c.strip() for c in a.langs.split(",") if c.strip()] if a.langs else languages(src)
+    shipped = languages(src)
+    bad = [c for c in langs if c not in shipped]
+    if bad or not langs:
+        die("not a shipped language: %s (shipped: %s)" % (", ".join(bad) or "none given", ", ".join(shipped)))
+    date = datetime.date.today().isoformat()
+    out = os.path.abspath(a.out or os.path.expanduser("/tmp/epic-build/lang-audit/%s" % date))
+
+    print("lang-audit: languages %s, source %s, report %s" % (", ".join(langs), src, out))
+    for c in langs:
+        print("  %s: ARB diff against en%s" % (c, "" if a.arb_only else "; " + " ".join(tour_command(src, c, os.path.join(out, "shots")))))
+    if a.dry_run:
+        print("lang-audit: dry run, nothing run")
+        return 0
+
+    os.makedirs(out, exist_ok=True)
+    results = {}
+    for c in langs:
+        try:
+            results[c] = {"arb": arb_diff(src, c)}
+        except (OSError, ValueError) as e:
+            die("cannot read the %s ARB: %s" % (c, e))
+        if not a.arb_only:
+            print("lang-audit: desktop tour in %s ..." % c, flush=True)
+            results[c]["tour"] = run_tour(src, c, out)
+    with open(os.path.join(out, "report.json"), "w", encoding="utf-8") as f:
+        json.dump({"date": date, "source": src, "languages": results}, f, indent=2, ensure_ascii=False)
+    with open(os.path.join(out, "report.md"), "w", encoding="utf-8") as f:
+        f.write(report_md(date, results))
+    print("lang-audit: report in %s" % out)
+    for c, r in results.items():
+        t = r.get("tour")
+        print("  %s: %d missing, %d same as English%s" % (c, len(r["arb"]["missing"]), len(r["arb"]["same_as_english"]),
+                                                       "" if t is None else ", %d layout findings" % len(t["findings"])))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

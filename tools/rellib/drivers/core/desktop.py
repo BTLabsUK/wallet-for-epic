@@ -19,8 +19,8 @@ import time
 
 from . import targets as tg
 from . import breaks
-from .driver import Expect, either, gone, shows, where
-from .faults import HarnessFault, ProductFault
+from .driver import Expect, Goal, either, gone, shows, where
+from .faults import HarnessFault, InfraFault, ProductFault
 
 T = tg.T
 
@@ -95,6 +95,8 @@ SECTION = {
     "appearance": T("g4.settings.section.appearance", keys=("deskSetFrameAppearance",), names=("Appearance",), match="exact"),
     "advanced": T("g4.settings.section.advanced", keys=("deskSetFrameAdvanced",), names=("Advanced",), match="exact"),
     "about": T("g4.settings.section.about", keys=("deskSetFrameAbout",), names=("About",), match="exact"),
+    "privacy": T("g4.settings.section.privacy", keys=("settingsSectionNetworkPrivacy", "deskSetFramePrivacy"),
+                 names=("Network & privacy", "Privacy"), match="exact"),
 }
 # every section a release has had (for "a setting moved": the pages are walked when the known ones miss it)
 ALL_SECTIONS = ("Node", "Transactions", "Receiving", "Privacy", "Appearance", "This wallet", "All wallets",
@@ -139,6 +141,21 @@ SEND_FAILED = T("g4.send.failed", role="text", keys=("deskSendFailedTitle", "des
                 names=("re:.*(send failed|not sent).*",), match="contains")
 SEND_DONE = T("g4.send.done", role="text", keys=("deskSendDoneViaEpicbox", "deskSendDoneViaDirect", "deskSendHintSent"),
               match="starts")
+
+# Tor (26.11.0): Settings › Network & privacy › Connection mode, radio rows adv-mode-<name> (the Tor switch
+# is gone; Tor only is the one whole-wallet Tor control). The rail's and the title bar's Tor and Epicbox
+# status are not in AT-SPI on Linux (26.11.0), so the UI read is Settings: Tor only checked there, and
+# Epicbox's state line on the Transactions page under its server picker, "Connected · <host>, over Tor"
+# (methodStateLine: Epicbox through Tor, subscribed) once Tor is up.
+MODE_TOR_ONLY = T("g4.privacy.mode.toronly", role="checkbox", keys=("advModeTorOnly",), names=("Tor only",), match="starts")
+MODE_NORMAL = T("g4.privacy.mode.standard", role="checkbox", keys=("advModeStandard",), names=("Normal",), match="starts")
+# one line of a node's name: on Linux the line is a line of its group's text ("Epicbox\nReceiving\n
+# Connected · epicbox.stackwallet.com, over Tor\nStart with the wallet")
+EPICBOX_LINE = re.compile(
+    r"(connected|connecting|waiting for tor|not connected|not answering|slow|off|blocked) · [\w.:-]+(, over tor)?")
+EPICBOX_UP = "connected"   # ShownState.connected (netStatusConnected): Epicbox subscribed
+OVER_TOR = ", over tor"    # deskKitMethodOverTor: "{host}, over Tor"
+TOR_START_S = 240       # a Tor start, each of the two tries (before REL_TRUST_SLOW)
 
 ADDRESS_RX = re.compile(r"\b([1-9A-HJ-NP-Za-km-z]{48,56})(@[\w.:-]+)?")
 
@@ -187,6 +204,9 @@ class Desktop:
         d = self.d
         d.obstacles += [(TOUR_SKIP, "the first-run tour"), (SETUP_SKIP, "the setup assistant"),
                         (LAST_SESSION, "the last-session notice (left unsent)")]
+        d.not_folds |= self.section_names()   # Settings › Advanced is a page, not a folded section
+        d.reopen = self._reopen
+        self._picking = None   # (picker, typed) while a server is chosen: the stale-picker rule's context
 
     # ---- helpers
 
@@ -245,7 +265,7 @@ class Desktop:
         return n.role == "text_field" and tg._norm(n.name.split("\n")[0]) == hint
 
     def section_names(self):
-        """Every section name a release has had, in English and as this build shows them (its locale)."""
+        """Every section name a release has had, and this build's own (English) section names."""
         if getattr(self, "_section_names", None) is None:
             self._section_names = {tg._norm(s) for s in (*ALL_SECTIONS, *self.d.labels.localized(ALL_SECTIONS))}
         return self._section_names
@@ -390,7 +410,10 @@ class Desktop:
         n = d.seen(DEEP_END)
         if n is None:
             return
-        if "checked" not in n.states and "selected" not in n.states:
+        if "checked" in n.states or "selected" in n.states:
+            self.log("SKIP view-deep-end: already done")
+            return
+        if True:
             d._act(d.s.press, n)
             time.sleep(1)
         self.log("depth dial: Deep end (level 3)")
@@ -520,9 +543,15 @@ class Desktop:
                 tried.append(p)
                 if d.wait(shows(target), 3):
                     return True
+                d.step = "find-%s" % target.id
+                if d.untangle(target):   # folded, scrolled off, a dialog in the way: the known-trouble rules first
+                    return True
                 # renamed on the page the recipe expects: the model's pick, before every section is searched
                 if d.rec.pick(target, d.tree(), step="find-%s" % target.id, texts=d.texts(target)):
                     return True
+        d.step = "find-%s" % target.id
+        if d.untangle(target):   # folded, scrolled off, a dialog in the way: the known-trouble rules first
+            return True
         tree = d.tree()
         if self._open_section_list():   # a narrow window: the sections are listed once the selector is open
             tree = d.tree()
@@ -538,7 +567,7 @@ class Desktop:
         n = d.rec.pick(target, d.tree(), step="find-%s" % target.id, texts=d.texts(target))
         if n:
             return True
-        d.harness("%s not found under Settings (tried %s)" % (what, ", ".join(tried + listed)))
+        d.harness("%s not found under Settings (sections %s%s)" % (what, ", ".join(tried + listed) or "none", d._tried_text()))
 
     def leave_settings(self):
         d = self.d
@@ -585,11 +614,93 @@ class Desktop:
         n = d.wait(shows(DEEP_END), 3)
         if not n:
             return
-        if "checked" not in n.states and "selected" not in n.states:
-            d._act(d.s.press, n)
-            d.wait(Expect("Deep end chosen", lambda dd, tree: any(("checked" in x.states or "selected" in x.states)
-                                                                  for x in dd.find_in(DEEP_END, tree))), 10)
+        if "checked" in n.states or "selected" in n.states:
+            self.log("SKIP view-deep-end: already done")
+            return
+        d._act(d.s.press, n)
+        d.wait(Expect("Deep end chosen", lambda dd, tree: any(("checked" in x.states or "selected" in x.states)
+                                                              for x in dd.find_in(DEEP_END, tree))), 10)
         self.log("Settings › Advanced › View: Deep end")
+
+    # ---- Tor (the Tor lanes' after-update payments)
+
+    def _chosen(self, target, tree):
+        return any("checked" in n.states or "selected" in n.states for n in self.d.find_in(target, tree))
+
+    def tor_state(self, tree=None):
+        """{tor, epicbox, over_tor}: what the Settings page on screen shows. tor: "tor only" or "normal"
+        where the Connection mode shows (None elsewhere); epicbox: the Epicbox state line's word (lower
+        case, None where it does not show) and over_tor whether it says over Tor."""
+        tree = tree if tree is not None else self.d.tree()
+        tor = "tor only" if self._chosen(MODE_TOR_ONLY, tree) else "normal" if self._chosen(MODE_NORMAL, tree) else None
+        line = next((ln for x in tree for ln in map(tg._norm, (x.name or "").split("\n")) if EPICBOX_LINE.fullmatch(ln)), None)
+        return {"tor": tor, "epicbox": line.split(" · ")[0] if line else None, "over_tor": bool(line) and line.endswith(OVER_TOR)}
+
+    def _tor_up(self, tree):
+        s = self.tor_state(tree)
+        return s["epicbox"] == EPICBOX_UP and s["over_tor"]
+
+    def _epicbox_page(self):
+        """Settings › Transactions, where Epicbox's state line is (under its server picker)."""
+        self.find_setting(RELAY_PICKER, PICKER_PAGES[RELAY_PICKER.id], "the Epicbox state line")
+
+    def _mode(self, target, what):
+        """Settings › Network & privacy › Connection mode: `target` chosen."""
+        d = self.d
+        self.find_setting(target, ("privacy",), what)
+        if not self._chosen(target, d.tree()):
+            d.press(target, step="mode-%s" % target.id.rsplit(".", 1)[-1], timeout=20,
+                    then=Expect("%s chosen" % target, lambda dd, tree: self._chosen(target, tree)))
+
+    def tor_on(self, budget=TOR_START_S):
+        """Tor only, then Epicbox's state line Connected over Tor (Settings). A goal: Tor only chosen with
+        Epicbox over Tor is a SKIP. A slow start gets `budget` and one more try (Normal, then Tor only
+        again); still not up is InfraFault tor. -> "skipped" | "done"."""
+        d = self.d
+        self.find_setting(MODE_TOR_ONLY, ("privacy",), "the Tor only connection mode")
+        chosen = [self._chosen(MODE_TOR_ONLY, d.tree())]
+        self._epicbox_page()
+
+        def up():
+            for attempt in (1, 2):
+                self._mode(MODE_TOR_ONLY, "the Tor only connection mode")
+                chosen[0] = True
+                self._epicbox_page()
+                if d.wait(Expect("Epicbox connected over Tor", lambda dd, tree: self._tor_up(tree)), budget):
+                    self.log("Tor only: Epicbox connected over Tor (%s)" % self.tor_state())
+                    return
+                tree = d.tree()
+                self.log("tor-on: not connected after %d s (%s)%s; Epicbox lines on screen: %s" % (
+                    budget, self.tor_state(tree), "; Normal, then Tor only again" if attempt == 1 else "",
+                    [n.brief()[:120] for n in tree if "epicbox" in tg._norm(n.name)][:10] or "none"))
+                if attempt == 1:
+                    self._mode(MODE_NORMAL, "the Normal connection mode")
+            raise InfraFault("tor-on", "Tor only chosen, Epicbox not connected over Tor in %d s, twice (%s)" % (
+                budget, self.tor_state()), sub="tor", shot=d.shot("tor-on"))
+
+        r = d.achieve(Goal("tor-on", lambda tree: chosen[0] and self._tor_up(tree), up), 30)
+        d.shot("%s-tor-on" % self.which)
+        self.leave_settings()
+        return r
+
+    def tor_off(self):
+        """Back to Normal (Tor off): the fallback legs run in the clear."""
+        self._mode(MODE_NORMAL, "the Normal connection mode")
+        self._epicbox_page()
+        self.log("Connection mode Normal: Tor off (%s)" % self.tor_state())
+        self.leave_settings()
+
+    def tor_status(self):
+        """Read on Settings: the Connection mode (Network & privacy), Epicbox's state line (Transactions),
+        and up (Tor only with Epicbox Connected over Tor): what the lane records."""
+        self.find_setting(MODE_TOR_ONLY, ("privacy",), "the Network & privacy page")
+        tor = self.tor_state()["tor"]
+        self._epicbox_page()
+        s = self.tor_state()
+        s["tor"] = tor
+        s["up"] = tor == "tor only" and s["epicbox"] == EPICBOX_UP and s["over_tor"]
+        self.leave_settings()
+        return s
 
     def _in_use(self, picker, entry, tree=None):
         tree = tree if tree is not None else self.d.tree()
@@ -600,20 +711,13 @@ class Desktop:
             rx = re.compile(r":\s*%s\s*(\||,|$)" % re.escape(entry))
             return not any(self._picker_row(x.name) for x in tree) and any(
                 x.role == "text" and rx.search(x.name.replace("\n", " | ")) for x in tree)
-        rest = re.split(r"[:\n]", n.name, 1)[1].strip() if re.search(r"[:\n]", n.name) else ""
-        return rest == entry or rest.startswith(entry + ",") or rest.startswith(entry + " ")
+        # the server in use after the picker's label ("Node server: node.btlabs.uk"), or as its value
+        rests = [re.split(r"[:\n]", n.name, maxsplit=1)[1].strip() if re.search(r"[:\n]", n.name) else "", (n.value or "").strip()]
+        return any(r == entry or r.startswith(entry + ",") or r.startswith(entry + " ") for r in rests)
 
     def _words(self, verb):
-        """The words a picker row starts with, in English and as this build shows them: "use" / "add"
-        (normalised, no host: the text of every "Use {host}..." message of the build's ARB)."""
-        cache = self.__dict__.setdefault("_verbs", {})
-        if verb not in cache:
-            lab = self.d.labels
-            rx = re.compile(r"^%s \{\w+\}(,|$)" % verb.capitalize())
-            found = {tg._norm(lab.text(k).split("{")[0]) for k, v in lab.en.items()
-                     if isinstance(v, str) and rx.match(v) and lab.text(k)}
-            cache[verb] = {verb} | {w for w in found if w}
-        return cache[verb]
+        """The word a picker row starts with: "use" or "add" (the lanes run the apps in English)."""
+        return {verb}
 
     def _use_row(self, entry):
         verbs = "|".join(re.escape(w) for w in sorted(self._words("use") | self._words("add")))
@@ -637,19 +741,63 @@ class Desktop:
                                                                     and not self._settings_search(n) for n in tree)
                             or any(self._picker_row(n.name) for n in tree)))
 
-    def use_server(self, picker, typed, entry, use, _again=False):
-        """Types `typed` into the picker and presses Use/Add `entry`. Done when listed (use=False) or
-        in use (use=True; a Switch offer is taken)."""
+    def use_server(self, picker, typed, entry, use):
+        """`entry` in use (a goal: SKIP when the picker or the status line already names it) or listed
+        (use=False: typed into the picker and added, SKIP when the open picker lists it already)."""
         d = self.d
-        if use and self._in_use(picker, entry):
-            return
-        self._open_picker(picker)
+        if not use:
+            return self._choose(picker, typed, entry, False)
+        if breaks.selected(picker.id):
+            self.log("BREAK: %s chosen in %s before its step; the step must find it done" % (entry, picker))
+            self._choose(picker, typed, entry, True)
+            d.wait(shows(picker), 3)
+        return d.achieve(Goal("use-%s" % entry, lambda tree: self._in_use(picker, entry, tree),
+                              lambda: self._choose(picker, typed, entry, True)), timeout=5)
+
+    def _type_server(self, picker, typed):
+        d = self.d
         # the picker's own field: Settings' search field is on the page too (and may hold the focus)
         search = [n for n in d.tree() if n.role == "text_field" and "password" not in n.states and not self._settings_search(n)]
         focused = [n for n in search if "focused" in n.states] or search
         if not focused:
             d.harness("the %s picker has no search field" % picker)
         d._act(d.s.set_text, focused[0], typed)
+
+    def _reopen(self, target):
+        """The stale-picker rule (Driver.untangle): a server row the open picker should show is missing,
+        so the picker is closed, opened again and the server typed again."""
+        if not self._picking or target.id != "g4.server.use":
+            return None
+        picker, typed = self._picking
+        self.d.s.key("escape")
+        time.sleep(0.8)
+        self._open_picker(picker)
+        self._type_server(picker, typed)
+        return "closed %s, opened it again and typed %s" % (picker, typed)
+
+    def _choose(self, picker, typed, entry, use, _again=False):
+        """Types `typed` into the picker and presses Use/Add `entry`. Done when listed (use=False) or
+        in use (use=True; a Switch offer is taken)."""
+        d = self.d
+        self._open_picker(picker)
+        if not use and self._listed(entry, d.tree()):
+            self.log("SKIP add-%s: already listed in %s" % (entry, picker))
+            d.s.key("escape")
+            time.sleep(0.8)
+            return "skipped"
+        self._type_server(picker, typed)
+        if breaks.stale_once(picker.id):
+            self.log("BREAK: %s rows read stale after typing %s" % (picker, typed))
+            breaks.stale_rows(d.s, lambda n: n.role == "button" and re.match(r"^(use|add) ", tg._norm(n.name)))
+        self._picking = (picker, typed)
+        try:
+            self._press_server(picker, entry, use)
+        finally:
+            self._picking = None
+        self._settle(picker, typed, entry, use, _again)
+
+    def _press_server(self, picker, entry, use):
+        d = self.d
         for attempt in range(3):
             # an Add is answered only once the app has checked the server: listed, or "No answer ... Nothing added"
             d.press(self._use_row(entry), step="use-%s" % entry, timeout=30,
@@ -664,6 +812,9 @@ class Desktop:
                 break
             self.log("%s %s: no answer from the server; adding again (%d)" % (picker, entry, attempt + 1))
             time.sleep(3)
+
+    def _settle(self, picker, typed, entry, use, _again):
+        d = self.d
         end, gone, rereads = time.time() + 120, None, 0
         while time.time() < end:
             tree = d.tree()
@@ -681,8 +832,8 @@ class Desktop:
             else:
                 gone = None
             if d.find_in(SERVER_REFUSED, tree):
-                raise HarnessFault("server", "%s %s refused by the app (the stand-in or server not answering)" % (picker, entry),
-                                   d.shot("server-refused"))
+                raise InfraFault("server", "%s %s refused by the app (the stand-in or server not answering)" % (picker, entry),
+                                 sub="node" if picker is NODE_PICKER else "relay", shot=d.shot("server-refused"))
             sw = d.find_in(SWITCH, tree)
             if use and sw:
                 d._act(d.s.press, sw[0])
@@ -712,7 +863,7 @@ class Desktop:
             if _again:
                 d.harness("%s %s shown in use in the picker but not once it closed" % (picker, entry))
             self.log("%s %s not in use once the picker closed; choosing it again" % (picker, entry))
-            return self.use_server(picker, typed, entry, use, _again=True)
+            return self._choose(picker, typed, entry, use, _again=True)
 
     def change_settings(self, want):
         """Theme, wallet label, confirmations, Technical details: the choices a user makes that the
@@ -730,7 +881,14 @@ class Desktop:
             blind = not getattr(dd.s, "shows_selection", True) and not any(
                 "selected" in n.states or "checked" in n.states for t in group for n in dd.find_in(t, tree))
             return bool(blind and dd.find_in(theme, tree))
-        d.press(theme, step="theme", timeout=20, then=Expect("%s chosen" % theme, chosen))
+        pressed = []
+
+        def press_theme():
+            d.press(theme, step="theme", timeout=20, then=Expect("%s chosen" % theme, chosen))
+            pressed.append(1)
+        # done: shown chosen; a platform that shows no chosen state: once pressed (settings_kept checks it)
+        d.achieve(Goal("theme", lambda tree: any("selected" in n.states or "checked" in n.states for n in d.find_in(theme, tree))
+                       or (pressed and chosen(d, tree)), press_theme), timeout=5)
         self.find_setting(LABEL_FIELD, ("wallet",), "the wallet label")  # Save label shows once it is edited
         d.fill(LABEL_FIELD, want["label"], step="label")
         d.press(LABEL_SAVE, step="label-save", timeout=20)

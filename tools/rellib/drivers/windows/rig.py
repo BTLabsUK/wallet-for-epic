@@ -37,9 +37,11 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 PICKUP_S = 180
 HEARTBEAT_S = 600
 STUCK_QUEUE_S = 600
-# LastTaskResult: 0 ok, 0x41301 running; 0x41303 "has not yet run"
+# LastTaskResult: 0 ok, 0x41301 running; 0x41303 "has not yet run". 0x800710E0 ("the operator or
+# administrator has refused the request") is the 2-minute trigger refused while a job runs: busy, not dead
 RESULT_OK = (0, 0x41301)
 NEVER_RAN = 0x41303
+REFUSED_WHILE_RUNNING = 0x800710E0
 
 
 def work_dir(session):
@@ -166,7 +168,7 @@ def judge(r, now=None):
     last = _when(r.get("last_run"))
     if res == NEVER_RAN and not last:
         bad.append("task %s has never run (last result 267011 = 0x41303, has not yet run)" % r["task"])
-    elif res not in RESULT_OK and res is not None:
+    elif res not in RESULT_OK and res is not None and not (running and res == REFUSED_WHILE_RUNNING):
         bad.append("task %s last run result %d (0x%X)" % (r["task"], res, res & 0xFFFFFFFF))
     if last and not running and (now - last).total_seconds() > HEARTBEAT_S:
         bad.append("task %s has not run since %s" % (r["task"], r["last_run"]))
@@ -334,6 +336,40 @@ class Rig:
         self.pwsh("New-Item -ItemType Directory -Force '%s\\bin','%s' | Out-Null" % (self.base, self.run))
         for f in ("agent.ps1", "rpc.ps1"):
             self.put(os.path.join(HERE, f), self.base + "\\bin\\" + f)
+
+    def stop_orphans(self, wait_s=300):
+        """Agents of earlier trust runs still on this rig (the running jobs of <base>\\bin\\agent.ps1 for another
+        run folder): with the user's lock held no live run drives them, so their driver died (killed, a lost
+        ssh). Each gets its run's stop file (the agent stops what it started and ends); the wait ends when
+        their running marks are gone. -> the run folders stopped; RigDead (another session may take the run)
+        when one is still running."""
+        done = work_dir(self.session) + "\\queue\\done"
+        out = self.pwsh(
+            "Get-ChildItem '%s' -Filter *.running.json -File -ErrorAction SilentlyContinue | "
+            "Where-Object { $_.LastWriteTime -gt (Get-Date).AddHours(-4) } | ForEach-Object { "
+            "$j = Get-Content -Raw -LiteralPath $_.FullName | ConvertFrom-Json; "
+            "if ($j.script -eq '%s\\bin\\agent.ps1') { 'ORPHAN ' + $j.args[0] } }" % (done, self.base), check=False)
+        runs = [r for r in re.findall(r"^ORPHAN (.+?)\s*$", out, re.M)
+                if r.lower().startswith((self.base + "\\runs\\").lower()) and r.lower() != self.run.lower()]
+        if not runs:
+            return []
+        for r in runs:
+            self.log("rig session %d: the agent of %s is still running with no run behind it: stopping it" % (self.session, r))
+            made = self.pwsh("New-Item -ItemType File -Force -Path '%s\\stop' | Out-Null; Test-Path -LiteralPath '%s\\stop'"
+                             % (r, r), check=False)
+            if "True" not in made:
+                raise RigDead("rig session %d: no stop file could be made for the leftover agent of %s" % (self.session, r))
+        t0 = time.time()
+        while True:
+            left = [r for r in runs if ("ORPHAN " + r) in self.pwsh(
+                "Get-ChildItem '%s' -Filter *.running.json -File -ErrorAction SilentlyContinue | ForEach-Object { "
+                "$j = Get-Content -Raw -LiteralPath $_.FullName | ConvertFrom-Json; 'ORPHAN ' + $j.args[0] }" % done, check=False)]
+            if not left:
+                self.log("rig session %d: %d leftover agent(s) stopped" % (self.session, len(runs)))
+                return runs
+            if time.time() - t0 > wait_s:
+                raise RigDead("rig session %d: the leftover agent of %s did not stop within %d s" % (self.session, left[0], wait_s))
+            time.sleep(10)
 
     def busy(self):
         """Jobs waiting in or running from the rig queue (an agent waits behind them). A running mark

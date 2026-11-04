@@ -101,7 +101,7 @@ class LinuxServersTest(unittest.TestCase):
     def platform(self, plan, node="https://node.pub", relay="box.pub"):
         p = object.__new__(lp.LinuxPlatform)
         p.out, p.log, p.standins, p.hermetic = tempfile.mkdtemp(prefix="hw-linux-"), lambda line: None, [], plan
-        p.node, p.relay = node, relay
+        p.node, p.relay, p.ports = node, relay, {}
         return p
 
     def standins(self, p):
@@ -346,8 +346,8 @@ class LaneServersTest(unittest.TestCase):
         return lane, names
 
     def test_live_servers_runs_with_funds_only_and_before_the_funds_legs(self):
-        _, names = self.phases(funds=True)
-        self.assertEqual(names[names.index("digest-after") + 1:], ["live-servers", "funds"])
+        _, names = self.phases(funds=True)  # FakePlatform is a Tor lane: Tor goes on before the legs
+        self.assertEqual(names[names.index("digest-after") + 1:], ["live-servers", "tor-on", "funds"])
         _, names = self.phases(funds=False)
         self.assertNotIn("live-servers", names)
 

@@ -316,6 +316,7 @@ class WalletData(unittest.TestCase):
 class Cli(unittest.TestCase):
     """The CLI wrapper's stdin handling, on a stub executable: the phrase and password never reach argv or env."""
 
+    @mock.patch.object(wd, "node_status", lambda u: ("ok", 100))
     def test_secrets_on_stdin_only(self):
         tmp = tempfile.mkdtemp(prefix="cli-")
         os.environ["TMPDIR"] = tmp
@@ -511,13 +512,13 @@ class LaneSeedFunds(unittest.TestCase):
         lane.ok("wallet_opens", "x")
         lane.ok("balance_kept", "x")
 
-        def pay(_l, addr, amount, *a):
+        def pay(_l, addr, amount, *a, **k):
             if not received:
                 raise checks.ProductFault("receive", "no incoming")
             return None, tx(amount=1000000)
         with mock.patch.object(checks, "_pay", pay), \
              mock.patch.object(checks, "wait_spendable", lambda *a, **k: digest(total=7000000)), \
-             mock.patch.object(checks, "_send_to_p", lambda _l, d0, amount=None: sent.append(amount) or (True, "confirmed")):
+             mock.patch.object(checks, "_send_to_p", lambda _l, d0, amount=None, **k: sent.append(amount) or (True, "confirmed")):
             checks.funds_legs(lane, digest(total=6000000))
         return lane, sent
 
@@ -525,6 +526,12 @@ class LaneSeedFunds(unittest.TestCase):
         lane, sent = self.send_back("seed", True)
         self.assertEqual(sent, [checks.D("0.02")])
         self.assertTrue(lane.results["send_ok"])
+        self.assertIn("an amount of 0.02 EPIC (this run's inflow", lane.details["send_ok"])
+
+    def test_lane_seed_sends_earlier_runs_inflow_back_on_its_own(self):
+        with mock.patch.dict(os.environ, {"REL_RETURN_EXTRA": "0.06"}):
+            lane, sent = self.send_back("seed", True)
+        self.assertEqual(sent, [checks.D("0.02"), checks.D("0.05"), checks.D("0.01")], "this run's inflow, then the extra within the cap")
         self.assertIn("an amount of 0.02 EPIC (this run's inflow", lane.details["send_ok"])
 
     def test_lane_seed_without_funds_sends_back_the_first_inflow(self):
@@ -583,6 +590,113 @@ class SendAmount(unittest.TestCase):
         self.assertFalse(ok)
         self.assertEqual(asked, [])
         self.assertIn("over the per-send cap", why)
+
+
+class Clock:
+    """checks.time for a leg's 15 min waits: each sleep moves 300 s on."""
+
+    def __init__(self):
+        self.t = 0.0
+
+    def time(self):
+        return self.t
+
+    def sleep(self, s):
+        self.t += 300
+
+
+class TorFunder(FakeFunder):
+    def __init__(self):
+        self.sent = []
+
+    def send(self, address, amount):
+        self.sent.append(amount)
+        return True, "sent"
+
+    def finalized(self):
+        return True
+
+
+class TorLegs(unittest.TestCase):
+    """The Tor lanes' after-update legs (lane.tor on): a leg over Tor that does not go turns Tor off and
+    the same payment is waited for in the clear; tor_payment_ok (never required) says which, with the
+    cause class. Both legs over Tor with the app still showing Tor up and no Tor failure logged: true."""
+
+    def lane(self, up=True):
+        lane = FakeLane(required=["receive_ok", "send_ok"], funds=True)
+        lane.funder, lane.tor, lane.split, lane.last_digest = TorFunder(), {"on": True}, None, None
+        lane.ui = mock.Mock()
+        lane.ui.tor_status.return_value = {"tor": "connected", "epicbox": "connected", "up": up}
+        lane.ui.send.return_value = (True, "")
+        return lane
+
+    def test_send_not_posted_over_tor_waits_for_it_in_the_clear(self):
+        lane = self.lane()
+        out = dict(tx("outgoing", amount=6000000, slate=None), credited=0, fee=4000000, debited=6000000)
+        dig = lambda *a: digest(txs=[out] if lane.ui.tor_off.called else [])  # noqa: E731
+        with mock.patch.object(checks, "_digest", dig), mock.patch.object(checks, "time", Clock()):
+            ok, why = checks._send_to_p(lane, digest(total=7000000, txs=[]), checks.D("0.02"),
+                                        fallback=checks._over_tor(lane, "the send"))
+        self.assertTrue(ok, why)
+        self.assertEqual(lane.ui.send.call_count, 1)   # the same payment, not a second one
+        self.assertEqual(lane.ui.tor_off.call_count, 1)
+        self.assertIs(lane.results["tor_payment_ok"], False)
+        self.assertIn("the send over Tor: not posted in 15 min", lane.details["tor_payment_ok"])
+        self.assertEqual(lane.details["tor"]["cause_class"], "PRODUCT")   # Tor showed up: the payment did not go
+        self.assertFalse(checks.tor_on(lane))
+
+    def test_receive_not_seen_over_tor_waits_for_it_in_the_clear(self):
+        lane = self.lane(up=False)
+        lane.p.relay = "epicbox.stackwallet.com"
+        dig = lambda *a: digest(txs=[tx(amount=1000000)] if lane.ui.tor_off.called else [])  # noqa: E731
+        with mock.patch.object(checks, "_digest", dig), mock.patch.object(checks, "time", Clock()):
+            _, got = checks._pay(lane, "esADDR", "0.01", "candidate", "receive with the candidate",
+                                 fallback=checks._over_tor(lane, "the receive"))
+        self.assertEqual(got["credited"], 1000000)
+        self.assertEqual(lane.funder.sent, ["0.01"])   # P paid once
+        self.assertEqual(lane.details["tor"]["cause_class"], "INFRA")   # the app no longer showed Tor up
+        self.assertIn("the receive over Tor: P sent 0.01 EPIC", lane.details["tor_payment_ok"])
+
+    def test_in_the_clear_a_miss_is_the_legs_as_ever(self):
+        lane = self.lane()
+        lane.tor = {"on": False}
+        self.assertIsNone(checks._over_tor(lane, "the receive"))
+        lane.p.relay = "epicbox.stackwallet.com"
+        with mock.patch.object(checks, "_digest", lambda *a: digest(txs=[])), mock.patch.object(checks, "time", Clock()), \
+                self.assertRaises(checks.ProductFault):
+            checks._pay(lane, "esADDR", "0.01", "candidate", "receive with the candidate", fallback=None)
+        self.assertNotIn("tor_payment_ok", lane.results)
+
+    def legs(self, lane):
+        with mock.patch.object(checks, "_pay", lambda *a, **k: (None, tx(amount=1000000))), \
+             mock.patch.object(checks, "wait_spendable", lambda *a, **k: digest(total=7000000)), \
+             mock.patch.object(checks, "_send_to_p", lambda *a, **k: (True, "confirmed")):
+            lane.ok("wallet_opens", "x")
+            lane.ok("balance_kept", "x")
+            checks.funds_legs(lane, digest(total=6000000))
+
+    def test_both_legs_over_tor(self):
+        lane = self.lane()
+        lane.last_digest = {"log": {"tor": [(3, "INFO  dart.desk: tor on"), (4, "INFO  dart.desk: tor start")]}}
+        self.legs(lane)
+        self.assertTrue(lane.results["receive_ok"] and lane.results["send_ok"])
+        self.assertIs(lane.results["tor_payment_ok"], True, lane.details.get("tor_payment_ok"))
+        self.assertEqual(lane.details["tor"]["log"], ["INFO  dart.desk: tor on", "INFO  dart.desk: tor start"])
+        self.assertFalse(lane.ui.tor_off.called)
+
+    def test_tor_lines_kept_without_onions(self):
+        line = "2026-11-03T19:06:47Z WARN  dart.desk: tor failed: %s.onion unreachable" % ("a" * 56)
+        self.assertTrue(wd.TOR_LINE.search(line))
+        self.assertEqual(wd.tor_line(line), "WARN  dart.desk: tor failed: <onion> unreachable")
+        self.assertFalse(wd.TOR_LINE.search("INFO  dart.send: relay check epicbox.stackwallet.com: answers"))
+
+    def test_tor_failure_in_the_log_is_not_over_tor(self):
+        lane = self.lane()
+        lane.last_digest = {"log": {"tor": [(3, "INFO  dart.desk: tor on"), (9, "WARN  dart.desk: tor failed: timeout")]}}
+        self.legs(lane)
+        self.assertTrue(lane.results["receive_ok"] and lane.results["send_ok"])   # the legs still gate alone
+        self.assertIs(lane.results["tor_payment_ok"], False)
+        self.assertEqual(lane.details["tor"]["cause_class"], "INFRA")
 
 
 class RestoredHistory(unittest.TestCase):

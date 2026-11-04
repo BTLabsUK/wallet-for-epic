@@ -37,10 +37,10 @@ class Labels:
     """Strings of one build. `src` a source tree, `ref` a git ref of this checkout; the first that
     loads wins, else this checkout's own ARB (said in `origin`)."""
 
-    def __init__(self, src=None, ref=None, arb=None, locale=None):
-        """`locale`: the language the app shows (the device's or the rig user's: REL_TRUST_LOCALE), its
-        ARB over the English one, so a key missing from it still matches the English text."""
-        self.locale = locale or os.environ.get("REL_TRUST_LOCALE") or "en"
+    def __init__(self, src=None, ref=None, arb=None):
+        """Always the English strings: the lanes run the apps in English (the rig user's store, the
+        device's language), whatever the machine's own language is."""
+        self.locale = "en"
         self.arb, self.origin = arb, "given" if arb is not None else None
         if self.arb is None and src:
             self.arb, self.origin = _load_dir(src), src
@@ -48,13 +48,21 @@ class Labels:
             self.arb, self.origin = _load_ref(ref), "git " + ref
         if self.arb is None:
             self.arb, self.origin = _load_dir(ROOT) or {}, "this checkout"
-        self.en = self.arb   # the English strings, before a locale's own go over them
-        if self.locale != "en" and arb is None:
-            if self.origin == "this checkout":
-                src, ref = ROOT, None
-            loc = (_load_dir(src, self.locale) if src else None) or (_load_ref(ref, self.locale) if ref else None) or {}
-            self.arb = dict(self.arb, **{k: v for k, v in loc.items() if isinstance(v, str) and v and not k.startswith("@")})
-            self.origin += " (%s)" % self.locale
+        self.en = self.arb
+
+    @classmethod
+    def for_locale(cls, locale, src=None, ref=None):
+        """One build's strings in another language, a key it lacks falling back to the English text. For
+        the language audit (tools/lang-audit) only; no lane uses it."""
+        lab = cls(src=src, ref=ref)
+        if locale == "en":
+            return lab
+        if lab.origin == "this checkout":
+            src, ref = ROOT, None
+        loc = (_load_dir(src, locale) if src else None) or (_load_ref(ref, locale) if ref else None) or {}
+        lab.arb = dict(lab.en, **{k: v for k, v in loc.items() if isinstance(v, str) and v and not k.startswith("@")})
+        lab.locale, lab.origin = locale, lab.origin + " (%s)" % locale
+        return lab
 
     @classmethod
     def for_build(cls, which):
@@ -66,7 +74,7 @@ class Labels:
         return cls(src=os.environ.get("REL_PREVIOUS_SRC"), ref=ref)
 
     def localized(self, english, prefix="deskSet"):
-        """The texts this build shows (its locale) for the English names given: those of every `prefix` key whose
+        """The texts this build shows (English; another language only from for_locale) for the English names given: those of every `prefix` key whose
         English text is one of them. For a name list written in English (a recipe's section names) on a
         build shown in another language."""
         names = set(english)
