@@ -136,6 +136,46 @@ class MoneyTest(unittest.TestCase):
         led.p_fees.pop("S3")
         self.assertEqual(led.doc()["p_change_expected"], "0.013")
 
+    def test_a_send_to_p_unanswered_kicks_p_then_is_infra(self):
+        """run-f8: B's send to P unanswered while P's listener was silent: P kicked once, then P's (infra)."""
+        from core.faults import InfraFault
+
+        class Lane:
+            logs = []
+
+            def log(self, m):
+                self.logs.append(m)
+
+        class P:
+            kicks = 0
+
+            def kick(self, why):
+                self.kicks += 1
+                raise OSError("unknown op")  # an older service: harmless
+
+        calls = []
+
+        def never(lane, w, what, ok, timeout):
+            calls.append(timeout)
+            raise tx.ProductFault(what, "B: not reached in %d s" % timeout)
+
+        lane, p = Lane(), P()
+        with unittest.mock.patch.object(tx, "wait_for", never):
+            with self.assertRaises(InfraFault) as cm:
+                tx.wait_p(lane, p, None, "sweep-start B to P", lambda d: False, 900, "sweep-start")
+        self.assertEqual(p.kicks, 1)
+        self.assertEqual(calls, [tx.KICK_AFTER_S, 900 - tx.KICK_AFTER_S])
+        self.assertEqual(cm.exception.sub, "p")
+        answers = iter([tx.ProductFault("x", "late"), {"balance": {}}])
+
+        def late(lane, w, what, ok, timeout):
+            a = next(answers)
+            if isinstance(a, Exception):
+                raise a
+            return a
+        with unittest.mock.patch.object(tx, "wait_for", late):
+            self.assertEqual(tx.wait_p(lane, p, None, "x", None, 900, "sweep-end"), {"balance": {}})
+
     def test_sweep_plan(self):
         self.assertEqual(tx.sweep_plan(0), [])
         self.assertEqual(tx.sweep_plan(int(0.009 * N)), [])  # below DUST: its fee would eat it

@@ -514,6 +514,7 @@ class TxLane(Lane):
         both = set()
         confirmed_at = None
         last = None
+        kicked = False
         while True:
             self.awake()
             data = {k: tx.digest(self, self.w[k], "link-pay") for k in keys}
@@ -534,9 +535,12 @@ class TxLane(Lane):
                 if wrong:
                     raise HarnessFault("link-pay", "neither A nor A2 answered P's payment: %s" % wrong)
                 raise ProductFault("link-pay", "neither A nor A2 answered P's payment in %d s" % tx.PAY_WAIT_S["epicbox"])
+            if both and not kicked and now - start >= tx.KICK_AFTER_S and not p.finalized():
+                tx.kick(self, p, "link-pay: answered, P has not finalized")
+                kicked = True
             if both and not p.finalized() and now - start >= 2 * tx.PAY_WAIT_S["epicbox"]:
                 raise tx.InfraFault("link-pay", "A or A2 answered, P did not finalize in %d s (P's node or listener)" %
-                                    (2 * tx.PAY_WAIT_S["epicbox"]), sub="node")
+                                    (2 * tx.PAY_WAIT_S["epicbox"]), sub="p")
             if now - start >= tx.SPEND_WAIT_S + LINK_DROP_S:
                 raise ProductFault("link-pay", "not settled in %d s: %s" % (tx.SPEND_WAIT_S + LINK_DROP_S, why))
             time.sleep(tx.POLL_S)

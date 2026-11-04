@@ -74,6 +74,12 @@ class P:
         r = self.client.call("status", slate=self.slate)
         return r.get("state") in ("posted", "confirmed")
 
+    def kick(self, why=""):
+        """P's listener started again by the service when it has been silent long enough. -> {"ok", "restarted"}."""
+        r = self.client.call("kick", why=why)
+        self._note("kick: %s" % r)
+        return r
+
     def cancel(self, slate, why=""):
         """P's send of [slate] cancelled (its inputs spendable again): a send no wallet answered. -> (ok, note)."""
         r = self.client.call("cancel", slate=slate, why=why)

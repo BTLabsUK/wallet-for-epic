@@ -33,6 +33,7 @@ AMOUNT = D("0.01")         # each payment A -> B
 CAP_RUN = D("0.1")         # out of P per run, every lane phase included
 DUST = FEE_MAX             # a balance below this is not worth a send (its fee would eat it)
 PAY_WAIT_S = {"epicbox": 900, "http": 600, "tor": 900, "file": 600}
+KICK_AFTER_S = 180         # a send to P unanswered this long: P's listener kicked once (the service's kick)
 SPEND_WAIT_S = 1800        # A's change and B's receipts confirmed (10 blocks and some)
 CHECKS = ["tx_%s_ok" % m for m in METHODS] + ["returned_ok"]
 
@@ -270,6 +271,30 @@ def wait_for(lane, w, what, ok, timeout, poll=POLL_S):
         time.sleep(poll)
 
 
+def kick(lane, p, what):
+    """The service's kick: P's listener started again when it has been silent KICK_AFTER_S (at most once
+    per 5 min). -> whether it was; False from a service without the op."""
+    try:
+        r = p.kick(what)
+    except Exception as e:  # noqa: BLE001 — an older service: no kick, the wait goes on
+        r = {"ok": False, "note": str(e)}
+    lane.log("%s: P's listener kicked: %s" % (what, r))
+    return bool(r.get("restarted"))
+
+
+def wait_p(lane, p, w, what, ok, timeout, step):
+    """wait_for on an answer from P (a send to P, or P's finalize): after KICK_AFTER_S P's listener is
+    kicked once and the wait goes on; no answer in [timeout] is P's (InfraFault), never the app's."""
+    try:
+        return wait_for(lane, w, what, ok, KICK_AFTER_S)
+    except ProductFault:
+        kick(lane, p, what)
+    try:
+        return wait_for(lane, w, what, ok, max(timeout - KICK_AFTER_S, KICK_AFTER_S))
+    except ProductFault as e:
+        raise InfraFault(step, "%s: P did not answer (its listener)" % e.what, sub="p") from None
+
+
 def _awake(lane):
     f = getattr(lane, "awake", None)
     if callable(f):
@@ -323,13 +348,16 @@ def fund(lane, methods):
             raise
         # A answered; P finalizes and posts. P that does not (its node not synced, its listener paused) is
         # the infrastructure's, never the app's
-        end = time.time() + 900
+        start, kicked = time.time(), False
         while not any(t["state"] in ("posted", "confirmed") for t in mine(digest(lane, a, "fund"))):
             if p.finalized():
                 break
-            if time.time() >= end:
+            if not kicked and time.time() - start >= KICK_AFTER_S:
+                kick(lane, p, "fund: A answered, P has not finalized")
+                kicked = True
+            if time.time() - start >= 900:
                 raise InfraFault("fund", "P sent %s EPIC, A answered, P did not finalize it in 900 s (P's node or "
-                                 "listener)" % amount, sub="node")
+                                 "listener)" % amount, sub="p")
             time.sleep(POLL_S)
     wait_for(lane, a, "fund spendable", lambda d: spendable(d) >= nano(per_pay()), SPEND_WAIT_S)
     lane.details["fund"] = "P -> A %s EPIC in %d sends (A's spendable was %s, %d payments left)" % (
@@ -441,8 +469,8 @@ def sweep(lane, keys, tag, settle=True):
                 ok, why = w.ui.send(P_ADDR, format(amount, "f") if amount is not None else None)
                 if not ok:
                     raise ProductFault(tag, "%s's send to P did not go through: %s" % (k.upper(), why))
-                d1 = wait_for(lane, w, "%s %s to P" % (tag, k.upper()),
-                              lambda x: any(t["state"] in ("posted", "confirmed") for t in new_txs(d0, x, "outgoing")), 900)
+                d1 = wait_p(lane, p, w, "%s %s to P" % (tag, k.upper()),
+                            lambda x: any(t["state"] in ("posted", "confirmed") for t in new_txs(d0, x, "outgoing")), 900, tag)
             t = [t for t in new_txs(d0, d1, "outgoing") if t["state"] in ("posted", "confirmed")][-1]
             got = D(sent_of(t)) / NANO
             lane.ledger.returned.append(got)
