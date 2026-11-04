@@ -14788,10 +14788,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get pairUnnamedInvite => 'Offene Einladung';
 
   @override
-  String get pairSeenAsMissing =>
-      'Geben Sie den Namen ein, den die andere Seite sieht.';
-
-  @override
   String get pairSeenAsTooLong => 'Verwenden Sie einen kürzeren Namen.';
 
   @override
@@ -19142,10 +19138,7 @@ class AppLocalizationsDe extends AppLocalizations {
       'Es öffnet sich, sobald eine Wallet entsperrt wird, die es nutzt.';
 
   @override
-  String get pairSeenAsAskTitle => 'Name, den andere sehen';
-
-  @override
-  String get pairSeenAsHint => 'Ihr Name';
+  String get pairSeenAsHint => 'Optional';
 
   @override
   String devicesNameWithCode(String name, String code) {
@@ -20429,4 +20422,27 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskOnbUnlockUsePhrase => 'Wiederherstellungsphrase eingeben';
+
+  @override
+  String get pairSeenAsNone => 'Sie sehen keinen Namen';
+
+  @override
+  String get pairSeenAsAdd => 'Name hinzufügen';
+
+  @override
+  String get pairSeenAsOptional => 'Leer lassen, um ohne Namen zu koppeln.';
+
+  @override
+  String get pairIncomingNoName => 'Mit dieser Wallet koppeln?';
+
+  @override
+  String get pairNoNameGiven => 'Kein Name angegeben';
+
+  @override
+  String get pairUnnamed => 'Wallet ohne Namen';
+
+  @override
+  String pairDefaultLabel(int n) {
+    return 'Kontakt $n';
+  }
 }

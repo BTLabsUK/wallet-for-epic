@@ -12,7 +12,7 @@ import '../contacts.dart';
 import '../errors.dart';
 import '../l10n.dart';
 import '../pairing_providers.dart';
-import '../pairing_text.dart' show sameNamedContact;
+import '../pairing_text.dart' show peerLabel, sameNamedContact;
 import '../wallet_service.dart';
 import 'common.dart';
 import 'pairing/pair_check.dart';
@@ -162,7 +162,7 @@ class _InvoiceSettingsScreenState extends ConsumerState<InvoiceSettingsScreen> {
   Widget _row(AppLocalizations l, WalletTokens t, PairingRecord r, List<Contact> contacts, bool paused) {
     final theme = Theme.of(context);
     final contact = r.contactId == null ? null : contacts.where((c) => c.id == r.contactId).firstOrNull;
-    final name = contact?.name ?? r.shownName;
+    final name = contact?.name ?? peerLabel(l, r);
     final verified = r.state == PairingState.verified;
     final orphan = contact == null;
     // A contact of the name it chose comes first: a re-pair's key check starts there.

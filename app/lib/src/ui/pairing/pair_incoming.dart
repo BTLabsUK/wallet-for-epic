@@ -17,7 +17,7 @@ import '../../contacts.dart';
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
-import 'pair_screen.dart' show seenAsOrAsk;
+import 'pair_screen.dart' show seenAsForWire;
 import '../../pairing_text.dart';
 import '../../slate_files.dart';
 import '../../tor_build.dart';
@@ -87,7 +87,7 @@ Future<void> openPairingLink(
   bool already(PairingRecord r) {
     if (!doneBefore.contains(r.id)) return false;
     final name = ref.read(pairingNameProvider(r.id));
-    notices.show(l.pairAlreadyPaired(name.isEmpty ? r.shownName : name), level: NoticeLevel.info);
+    notices.show(l.pairAlreadyPaired(name.isEmpty ? peerLabel(l, r) : name), level: NoticeLevel.info);
     return true;
   }
 
@@ -169,8 +169,8 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
 
   Future<void> _pair() async {
     final l = context.l10n;
-    final name = await seenAsOrAsk(context, ref);
-    if (name == null || !mounted) return;
+    final name = await seenAsForWire(ref);
+    if (!mounted) return;
     setState(() => _busy = true);
     try {
       final record = await pairingCall(
@@ -204,6 +204,7 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
     final p = widget.preview;
     final sender = p.isRequest ? _sender() : null;
     final name = sender?.name ?? p.name;
+    final noName = sender == null && isUnnamed(p.name);
     // The keyboard too: a modal sheet is not lifted by it on edge-to-edge Android.
     final media = MediaQuery.of(context);
     final foot = math.max(media.padding.bottom, media.viewInsets.bottom);
@@ -214,16 +215,18 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
         children: [
           Row(
             children: [
-              PairAvatar(name: name, kind: p.kind, size: 72),
+              PairAvatar(name: noName ? l.pairUnnamed : name, kind: p.kind, size: 72),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Semantics(header: true, child: Text(l.pairIncomingTitle(name), style: theme.textTheme.titleLarge)),
+                    Semantics(header: true, child: Text(noName ? l.pairIncomingNoName : l.pairIncomingTitle(name), style: theme.textTheme.titleLarge)),
                     const SizedBox(height: 6),
                     if (sender != null)
                       EBadge(l.pairInContacts, icon: Icons.person_outline, tone: BadgeTone.ok)
+                    else if (noName)
+                      EBadge(l.pairNoNameGiven, icon: Icons.person_outline, wrap: true)
                     else
                       const ClaimedNameBadge(long: true),
                   ],

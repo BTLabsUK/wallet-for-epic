@@ -15156,9 +15156,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get pairUnnamedInvite => 'Otwarte zaproszenie';
 
   @override
-  String get pairSeenAsMissing => 'Wpisz nazwę, którą zobaczy druga strona.';
-
-  @override
   String get pairSeenAsTooLong => 'Użyj krótszej nazwy.';
 
   @override
@@ -19570,10 +19567,7 @@ class AppLocalizationsPl extends AppLocalizations {
       'Otworzy się po odblokowaniu portfela, który z niej korzysta.';
 
   @override
-  String get pairSeenAsAskTitle => 'Nazwa widoczna dla innych';
-
-  @override
-  String get pairSeenAsHint => 'Twoje imię';
+  String get pairSeenAsHint => 'Opcjonalnie';
 
   @override
   String devicesNameWithCode(String name, String code) {
@@ -20861,4 +20855,27 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskOnbUnlockUsePhrase => 'Wpisz frazę odzyskiwania';
+
+  @override
+  String get pairSeenAsNone => 'Nie widzą nazwy';
+
+  @override
+  String get pairSeenAsAdd => 'Dodaj nazwę';
+
+  @override
+  String get pairSeenAsOptional => 'Zostaw puste, aby sparować bez nazwy.';
+
+  @override
+  String get pairIncomingNoName => 'Sparować z tym portfelem?';
+
+  @override
+  String get pairNoNameGiven => 'Brak nazwy';
+
+  @override
+  String get pairUnnamed => 'Portfel bez nazwy';
+
+  @override
+  String pairDefaultLabel(int n) {
+    return 'Kontakt $n';
+  }
 }

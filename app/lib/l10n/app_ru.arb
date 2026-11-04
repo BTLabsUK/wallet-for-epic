@@ -3821,7 +3821,6 @@
   "pairOwnCode": "Это ваш собственный код",
   "pairOwnCodeBody": "Отсканируйте код на другом телефоне.",
   "pairUnnamedInvite": "Открытое приглашение",
-  "pairSeenAsMissing": "Введите имя, которое увидит собеседник.",
   "pairSeenAsTooLong": "Используйте имя покороче.",
   "pairSeenAsEdit": "Изменить имя, которое видит собеседник",
   "pairCodeLabel": "Ваш код сопряжения",
@@ -4908,8 +4907,7 @@
   "errorStoreWrongKey": "Данные этого кошелька не удалось открыть этой фразой. Ничего не изменено.",
   "contactsClosedTitle": "Адресная книга закрыта",
   "contactsClosedText": "Она откроется, когда будет разблокирован кошелёк, который её использует.",
-  "pairSeenAsAskTitle": "Имя, которое видят другие",
-  "pairSeenAsHint": "Ваше имя",
+  "pairSeenAsHint": "Необязательно",
   "devicesNameWithCode": "{name} {code}",
   "deskSetDlgRemoveUnlockHintSecurity": "Чтобы удалить и его файлы, разблокируйте этот кошелёк и выберите «Удалить кошелёк» в разделе «Настройки › Кошелёк».",
   "deskRecvHttpTorHintNet": "Чтобы получить адрес Tor, включите Tor в разделе «Настройки › Сеть и приватность».",
@@ -5263,5 +5261,12 @@
   "deskNoTorSetSearchTryWords": "пароль,приватность,сид,резервная,комиссия,узел,блокировка",
   "deskKitReachDismiss": "Скрыть",
   "deskErrKeyMissing": "Файлы кошелька {name} на этом компьютере, но ключа, который их открывает, больше нет в его защищённом хранилище (на Mac — в связке ключей). Введите фразу восстановления кошелька, чтобы открыть его снова; история сохранится.",
-  "deskOnbUnlockUsePhrase": "Ввести фразу восстановления"
+  "deskOnbUnlockUsePhrase": "Ввести фразу восстановления",
+  "pairSeenAsNone": "Они не видят имени",
+  "pairSeenAsAdd": "Добавить имя",
+  "pairSeenAsOptional": "Оставьте пустым, чтобы сопрячь без имени.",
+  "pairIncomingNoName": "Сопрячь с этим кошельком?",
+  "pairNoNameGiven": "Имя не указано",
+  "pairUnnamed": "Кошелёк без имени",
+  "pairDefaultLabel": "Контакт {n}"
 }

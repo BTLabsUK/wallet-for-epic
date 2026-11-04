@@ -3821,7 +3821,6 @@
   "pairOwnCode": "这是你自己的码",
   "pairOwnCodeBody": "请扫描另一部手机上的码。",
   "pairUnnamedInvite": "公开邀请",
-  "pairSeenAsMissing": "请输入对方会看到的名字。",
   "pairSeenAsTooLong": "请使用更短的名字。",
   "pairSeenAsEdit": "更改对方看到的名字",
   "pairCodeLabel": "你的配对码",
@@ -4908,8 +4907,7 @@
   "errorStoreWrongKey": "无法用此助记词打开该钱包的记录。未做任何更改。",
   "contactsClosedTitle": "通讯录已关闭",
   "contactsClosedText": "解锁使用该通讯录的钱包后即可打开。",
-  "pairSeenAsAskTitle": "他人看到的名字",
-  "pairSeenAsHint": "你的名字",
+  "pairSeenAsHint": "可选",
   "devicesNameWithCode": "{name} {code}",
   "deskSetDlgRemoveUnlockHintSecurity": "如果还要删除它的文件，请解锁此钱包，然后使用“设置 › 钱包”中的“删除钱包”。",
   "deskRecvHttpTorHintNet": "如需 Tor 地址，请在“设置 › 网络与隐私”中开启 Tor。",
@@ -5263,5 +5261,12 @@
   "deskNoTorSetSearchTryWords": "密码,隐私,助记词,备份,手续费,节点,锁定",
   "deskKitReachDismiss": "不再提示",
   "deskErrKeyMissing": "{name} 的文件在这台电脑上，但打开它们的密钥已不在安全存储中（Mac 上为钥匙串）。输入该钱包的助记词即可重新打开；交易记录保留。",
-  "deskOnbUnlockUsePhrase": "输入助记词"
+  "deskOnbUnlockUsePhrase": "输入助记词",
+  "pairSeenAsNone": "对方看不到名字",
+  "pairSeenAsAdd": "添加名字",
+  "pairSeenAsOptional": "留空则不带名字配对。",
+  "pairIncomingNoName": "与此钱包配对？",
+  "pairNoNameGiven": "未提供名字",
+  "pairUnnamed": "未命名钱包",
+  "pairDefaultLabel": "联系人 {n}"
 }

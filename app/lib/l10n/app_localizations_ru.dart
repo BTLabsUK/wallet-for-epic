@@ -15129,9 +15129,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pairUnnamedInvite => 'Открытое приглашение';
 
   @override
-  String get pairSeenAsMissing => 'Введите имя, которое увидит собеседник.';
-
-  @override
   String get pairSeenAsTooLong => 'Используйте имя покороче.';
 
   @override
@@ -19554,10 +19551,7 @@ class AppLocalizationsRu extends AppLocalizations {
       'Она откроется, когда будет разблокирован кошелёк, который её использует.';
 
   @override
-  String get pairSeenAsAskTitle => 'Имя, которое видят другие';
-
-  @override
-  String get pairSeenAsHint => 'Ваше имя';
+  String get pairSeenAsHint => 'Необязательно';
 
   @override
   String devicesNameWithCode(String name, String code) {
@@ -20845,4 +20839,27 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskOnbUnlockUsePhrase => 'Ввести фразу восстановления';
+
+  @override
+  String get pairSeenAsNone => 'Они не видят имени';
+
+  @override
+  String get pairSeenAsAdd => 'Добавить имя';
+
+  @override
+  String get pairSeenAsOptional => 'Оставьте пустым, чтобы сопрячь без имени.';
+
+  @override
+  String get pairIncomingNoName => 'Сопрячь с этим кошельком?';
+
+  @override
+  String get pairNoNameGiven => 'Имя не указано';
+
+  @override
+  String get pairUnnamed => 'Кошелёк без имени';
+
+  @override
+  String pairDefaultLabel(int n) {
+    return 'Контакт $n';
+  }
 }

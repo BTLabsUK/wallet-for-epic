@@ -12,7 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'advanced.dart' show NetworkMode;
 import 'contacts.dart';
 import 'levels/level_providers.dart' show effectiveAdvancedProvider;
-import 'pairing_text.dart' show pairingName;
+import 'pairing_text.dart' show pairingName, pairingStrings, unnamedPeerName;
 import 'providers.dart';
 import 'settings.dart';
 import 'settings_file/settings_providers.dart' show hostSettingsProvider;
@@ -263,12 +263,8 @@ class KeysBack extends Notifier<Set<String>> {
   void close(String id) => state = {...state}..remove(id);
 }
 
-/// The wallet's own name, the default of "They see you as" (one name per wallet, D11).
-/// Overridden where a wallet has one; empty means the app's generic word stands in.
-final pairingWalletNameProvider = Provider<String>((ref) => '');
-
-/// The name the user shows when pairing ("They see you as"), remembered on the device; the
-/// wallet's name until the user changes it.
+/// The name the user shows when pairing ("They see you as"), remembered on the device; empty
+/// means none (the wire then carries [unnamedPeerName]).
 final pairingSeenAsProvider = AsyncNotifierProvider<PairingSeenAs, String>(PairingSeenAs.new);
 
 class PairingSeenAs extends AsyncNotifier<String> {
@@ -276,20 +272,20 @@ class PairingSeenAs extends AsyncNotifier<String> {
 
   @override
   Future<String> build() async {
-    final saved = (await ref.read(secretStoreProvider).read(key) ?? '').trim();
-    return saved.isNotEmpty ? saved : ref.watch(pairingWalletNameProvider);
+    return (await ref.read(secretStoreProvider).read(key) ?? '').trim();
   }
 
   /// Keeps [name] and tells the engine: every later code and request carries it, and the
-  /// paired contacts get a fresh card (L7).
+  /// paired contacts get a fresh card (L7). An empty name is kept as '' and sent as
+  /// [unnamedPeerName], so paired contacts stop seeing the old one.
   Future<void> set(String name) async {
     final text = name.trim();
     state = AsyncData(text);
     await ref.read(secretStoreProvider).write(key, text);
     final api = ref.read(pairingApiProvider);
-    if (api.supported && text.isNotEmpty) {
+    if (api.supported) {
       try {
-        await api.setOwnName(text);
+        await api.setOwnName(text.isEmpty ? unnamedPeerName : text);
       } on Object {
         // Told at the next code; nothing to show.
       }
@@ -301,7 +297,8 @@ class PairingSeenAs extends AsyncNotifier<String> {
 final pairingNameProvider = Provider.family<String, String>((ref, id) {
   final r = ref.watch(pairingByIdProvider(id));
   if (r == null) return '';
-  return pairingName(r, ref.watch(contactsProvider).value ?? const <Contact>[]);
+  final locale = ref.watch(appSettingsProvider.select((s) => s.value?.locale));
+  return pairingName(r, ref.watch(contactsProvider).value ?? const <Contact>[], l: pairingStrings(locale));
 });
 
 /// The trust policy's view of the contact [contactId]: what the user has with it. Used by

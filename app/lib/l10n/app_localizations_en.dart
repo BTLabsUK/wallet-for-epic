@@ -14612,9 +14612,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairUnnamedInvite => 'Open invite';
 
   @override
-  String get pairSeenAsMissing => 'Enter the name they will see.';
-
-  @override
   String get pairSeenAsTooLong => 'Use a shorter name.';
 
   @override
@@ -18918,10 +18915,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'It opens once a wallet that uses it is unlocked.';
 
   @override
-  String get pairSeenAsAskTitle => 'Name others see';
-
-  @override
-  String get pairSeenAsHint => 'Your name';
+  String get pairSeenAsHint => 'Optional';
 
   @override
   String devicesNameWithCode(String name, String code) {
@@ -20180,4 +20174,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskOnbUnlockUsePhrase => 'Enter recovery phrase';
+
+  @override
+  String get pairSeenAsNone => 'They see no name';
+
+  @override
+  String get pairSeenAsAdd => 'Add name';
+
+  @override
+  String get pairSeenAsOptional => 'Leave empty to pair without a name.';
+
+  @override
+  String get pairIncomingNoName => 'Pair with this wallet?';
+
+  @override
+  String get pairNoNameGiven => 'No name given';
+
+  @override
+  String get pairUnnamed => 'Unnamed wallet';
+
+  @override
+  String pairDefaultLabel(int n) {
+    return 'Contact $n';
+  }
 }

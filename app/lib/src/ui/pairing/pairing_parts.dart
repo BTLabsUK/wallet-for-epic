@@ -247,7 +247,7 @@ class TrustBadge extends StatelessWidget {
     if (r == null) return const SizedBox.shrink();
     // Nothing sent through it arrives any more, whatever its trust was.
     if (r.removedByPeer) {
-      final name = r.shownName;
+      final name = pairingName(r, const <Contact>[]);
       return EBadge(short || name.isEmpty ? l.trustRemovedShort : l.trustRemovedBy(name), icon: EpicGlyphs.keysChanged, tone: BadgeTone.risk);
     }
     return switch (r.state) {

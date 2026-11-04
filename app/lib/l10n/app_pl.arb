@@ -3821,7 +3821,6 @@
   "pairOwnCode": "To twój własny kod",
   "pairOwnCodeBody": "Zeskanuj kod na drugim telefonie.",
   "pairUnnamedInvite": "Otwarte zaproszenie",
-  "pairSeenAsMissing": "Wpisz nazwę, którą zobaczy druga strona.",
   "pairSeenAsTooLong": "Użyj krótszej nazwy.",
   "pairSeenAsEdit": "Zmień nazwę widoczną dla drugiej strony",
   "pairCodeLabel": "Twój kod parowania",
@@ -4908,8 +4907,7 @@
   "errorStoreWrongKey": "Danych tego portfela nie udało się otworzyć tą frazą. Nic nie zostało zmienione.",
   "contactsClosedTitle": "Książka adresowa zamknięta",
   "contactsClosedText": "Otworzy się po odblokowaniu portfela, który z niej korzysta.",
-  "pairSeenAsAskTitle": "Nazwa widoczna dla innych",
-  "pairSeenAsHint": "Twoje imię",
+  "pairSeenAsHint": "Opcjonalnie",
   "devicesNameWithCode": "{name} {code}",
   "deskSetDlgRemoveUnlockHintSecurity": "Aby usunąć także jego pliki, odblokuj ten portfel i użyj Usuń portfel w Ustawienia › Portfel.",
   "deskRecvHttpTorHintNet": "Aby zamiast tego mieć adres Tor, włącz Tor w Ustawienia › Sieć i prywatność.",
@@ -5263,5 +5261,12 @@
   "deskNoTorSetSearchTryWords": "hasło,prywatność,fraza,kopia,opłata,węzeł,blokada",
   "deskKitReachDismiss": "Ukryj",
   "deskErrKeyMissing": "Pliki portfela {name} są na tym komputerze, ale klucza, który je otwiera, nie ma już w jego bezpiecznym magazynie (na Macu w pęku kluczy). Wpisz frazę odzyskiwania portfela, aby otworzyć go ponownie; historia zostaje.",
-  "deskOnbUnlockUsePhrase": "Wpisz frazę odzyskiwania"
+  "deskOnbUnlockUsePhrase": "Wpisz frazę odzyskiwania",
+  "pairSeenAsNone": "Nie widzą nazwy",
+  "pairSeenAsAdd": "Dodaj nazwę",
+  "pairSeenAsOptional": "Zostaw puste, aby sparować bez nazwy.",
+  "pairIncomingNoName": "Sparować z tym portfelem?",
+  "pairNoNameGiven": "Brak nazwy",
+  "pairUnnamed": "Portfel bez nazwy",
+  "pairDefaultLabel": "Kontakt {n}"
 }

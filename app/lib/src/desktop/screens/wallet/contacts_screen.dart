@@ -12,7 +12,7 @@ import '../../app/tour.dart';
 import '../../../l10n.dart' show AppLocalizations, localDayMonth;
 import '../../widgets/kit.dart';
 import '../../../models.dart' show KeysChoice, PairRequest, PairingEndReason, PairingRecord, PairingState, SealMode, contactKinds, pairingVouchesFor;
-import '../../../pairing_text.dart' show pairingEndedText;
+import '../../../pairing_text.dart' show pairingEndedText, peerLabel;
 import '../../../ui/method_names.dart' show recipientMethodWord;
 import '../../../ui/pairing/pairing_parts.dart' show PairPendingBadge, TrustBadge;
 import '../../data/pairing_state.dart';
@@ -258,7 +258,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
           ],
           // Pairings in no contact, by the name they chose.
           for (final r in orphans)
-            if (q.isEmpty || r.shownName.toLowerCase().contains(q)) _OrphanRow(record: r),
+            if (q.isEmpty || peerLabel(l, r).toLowerCase().contains(q)) _OrphanRow(record: r),
           if (shown.isEmpty && _query.text.isEmpty && orphans.isEmpty)
             Padding(
               padding: EdgeInsets.all(Sp.x5),
@@ -468,11 +468,11 @@ class _OrphanRow extends ConsumerWidget {
     final suggested = deskSuggestedContact(ref, r);
     final inFlight = r.state.isPending || r.state == PairingState.waiting;
     final line = r.ended
-        ? pairingEndedText(l, r.endedReason ?? PairingEndReason.neverFinished, r.shownName)
+        ? pairingEndedText(l, r.endedReason ?? PairingEndReason.neverFinished, peerLabel(l, r))
         : r.state == PairingState.waiting
             ? l.pairAnsweredNotHeard
             : r.state == PairingState.pendingReply
-                ? l.pairPairingWith(r.shownName)
+                ? l.pairPairingWith(peerLabel(l, r))
                 : l.pairNotInContacts;
     return Padding(
       key: deskPairingRowKey(r.id),
@@ -480,7 +480,7 @@ class _OrphanRow extends ConsumerWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          DeskPairAvatar(name: r.shownName, size: 40.u),
+          DeskPairAvatar(name: peerLabel(l, r), size: 40.u),
           SizedBox(width: 14.u),
           Expanded(
             child: Column(
@@ -488,7 +488,7 @@ class _OrphanRow extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    Flexible(child: Text(r.shownName, style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                    Flexible(child: Text(peerLabel(l, r), style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
                     SizedBox(width: Sp.x2),
                     if (r.state.isPending) const PairPendingBadge() else TrustBadge(r, short: true),
                   ],
@@ -512,7 +512,7 @@ class _OrphanRow extends ConsumerWidget {
                         kind: EBtnKind.danger,
                         size: EBtnSize.sm,
                         onPressed: () async {
-                          if (await deskConfirmCancelPairing(context, r.shownName)) {
+                          if (await deskConfirmCancelPairing(context, peerLabel(l, r))) {
                             await deskPairingCall(ref, (api) => r.state.isPending ? api.cancelInvite(r.id) : api.removePairing(r.id));
                           }
                         },
@@ -523,7 +523,7 @@ class _OrphanRow extends ConsumerWidget {
                         kind: EBtnKind.danger,
                         size: EBtnSize.sm,
                         onPressed: () async {
-                          if (r.ended || await deskConfirmRemovePairing(context, r.shownName)) await deskPairingCall(ref, (api) => api.removePairing(r.id));
+                          if (r.ended || await deskConfirmRemovePairing(context, peerLabel(l, r))) await deskPairingCall(ref, (api) => api.removePairing(r.id));
                         },
                       ),
                   ],

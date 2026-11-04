@@ -185,7 +185,7 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
 
   String get _seenAs {
     final name = ref.read(deskSeenAsProvider).trim();
-    return name.isEmpty ? context.l10n.appTitle : name;
+    return name.isEmpty ? unnamedPeerName : name;
   }
 
   Future<void> _makeInvite() async {
@@ -301,9 +301,9 @@ class _DeskPairScreenState extends ConsumerState<DeskPairScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Flexible(child: Text(l.pairSeenAsLine(seenAs.isEmpty ? l.appTitle : seenAs), style: ts.small, overflow: TextOverflow.ellipsis)),
+              Flexible(child: Text(seenAs.isEmpty ? l.pairSeenAsNone : l.pairSeenAsLine(seenAs), style: ts.small, overflow: TextOverflow.ellipsis)),
               SizedBox(width: Sp.x2),
-              EButton.ghost(key: deskPairChangeNameKey, label: l.pairChange, size: EBtnSize.inline, onPressed: _changeName),
+              EButton.ghost(key: deskPairChangeNameKey, label: seenAs.isEmpty ? l.pairSeenAsAdd : l.pairChange, size: EBtnSize.inline, onPressed: _changeName),
             ],
           ),
           if (_confirmFor != null && _confirmLink != null) ...[
@@ -387,7 +387,7 @@ class _DeskStatusLine extends StatelessWidget {
     final l = context.l10n;
     final ts = context.ts;
     final r = record;
-    final who = name.isEmpty ? r.shownName : name;
+    final who = name.isEmpty ? peerLabel(l, r) : name;
     final text = switch (r.state) {
       PairingState.pendingInvite => l.pairWaitingAnswer,
       PairingState.pendingReply => l.pairPairingWith(who),
@@ -474,8 +474,8 @@ class _NameDialogState extends State<_NameDialog> {
   void _save() {
     final l = context.l10n;
     final name = _text.text.trim();
-    if (name.isEmpty || utf8.encode(name).length > 48) {
-      setState(() => _error = name.isEmpty ? l.pairSeenAsMissing : l.pairSeenAsTooLong);
+    if (utf8.encode(name).length > 48) {
+      setState(() => _error = l.pairSeenAsTooLong);
       return;
     }
     Navigator.pop(context, name);
@@ -489,8 +489,9 @@ class _NameDialogState extends State<_NameDialog> {
       icon: EIcons.pencil,
       body: EField(
         label: l.pairSeenAsField,
+        help: l.pairSeenAsOptional,
         error: _error,
-        child: EInput(key: deskPairNameKey, controller: _text, autofocus: true, onChanged: (_) => setState(() => _error = null), onSubmitted: (_) => _save()),
+        child: EInput(key: deskPairNameKey, controller: _text, hint: l.pairSeenAsHint, autofocus: true, onChanged: (_) => setState(() => _error = null), onSubmitted: (_) => _save()),
       ),
       actions: [
         EButton(label: l.commonCancel, onPressed: () => Navigator.pop(context)),
@@ -537,7 +538,7 @@ Future<void> deskOpenPairingText(BuildContext context, WidgetRef ref, String pas
   bool already(PairingRecord r) {
     if (!doneBefore.contains(r.id) || !context.mounted) return false;
     final name = ref.read(deskPairingNameProvider(r.id));
-    showEToast(context, l.pairAlreadyPaired(name.isEmpty ? r.shownName : name), tone: ETone.info);
+    showEToast(context, l.pairAlreadyPaired(name.isEmpty ? peerLabel(l, r) : name), tone: ETone.info);
     return true;
   }
 
@@ -646,7 +647,7 @@ class _IncomingDialogState extends ConsumerState<_IncomingDialog> {
   Future<void> _pair() async {
     final l = context.l10n;
     var name = ref.read(deskSeenAsProvider).trim();
-    if (name.isEmpty) name = l.appTitle;
+    if (name.isEmpty) name = unnamedPeerName;
     setState(() => _busy = true);
     try {
       final r = await deskPairingCall(
@@ -668,8 +669,9 @@ class _IncomingDialogState extends ConsumerState<_IncomingDialog> {
     final p = widget.preview;
     final sender = p.isRequest ? _sender() : null;
     final name = sender?.name ?? p.name;
+    final noName = sender == null && isUnnamed(p.name);
     return EDialog(
-      title: l.pairIncomingTitle(name),
+      title: noName ? l.pairIncomingNoName : l.pairIncomingTitle(name),
       // Wide, as its 520 u width rendered (it snapped up).
       size: DialogWidth.wide,
       body: Column(
@@ -677,9 +679,12 @@ class _IncomingDialogState extends ConsumerState<_IncomingDialog> {
         children: [
           Row(
             children: [
-              DeskPairAvatar(name: name, size: 56.u),
+              DeskPairAvatar(name: noName ? l.pairUnnamed : name, size: 56.u),
               SizedBox(width: Sp.x3),
-              if (sender != null) EBadge(l.pairInContacts, icon: EIcons.user, tone: ETone.ok) else EBadge(l.pairNameClaimed, icon: EIcons.user),
+              if (sender != null)
+                EBadge(l.pairInContacts, icon: EIcons.user, tone: ETone.ok)
+              else
+                EBadge(noName ? l.pairNoNameGiven : l.pairNameClaimed, icon: EIcons.user),
             ],
           ),
           if (p.fromAddress case final from?) ...[SizedBox(height: Sp.x3), Text(from, style: ts.mono())],
@@ -936,7 +941,7 @@ Future<void> showDeskPairWithContact(BuildContext context, WidgetRef ref, Contac
   if (send == null || !context.mounted) return;
   if (!send) return nav.go(DeskRoute.pair, contact);
   var name = ref.read(deskSeenAsProvider).trim();
-  if (name.isEmpty) name = l.appTitle;
+  if (name.isEmpty) name = unnamedPeerName;
   try {
     await deskPairingCall(ref, (api) => api.requestPairing(toAddress: address!, name: name, contactId: contact.id));
     if (context.mounted) showEToast(context, l.pairRequestSent(localDayMonth(l, DateTime.now())), tone: ETone.ok);
@@ -1057,7 +1062,7 @@ Future<bool> deskPutPairingInContacts(BuildContext context, WidgetRef ref, Pairi
 Future<bool> _deskSaveAsNewContact(BuildContext context, WidgetRef ref, PairingRecord r) async {
   final l = context.l10n;
   // The form owns its field: it is disposed with the dialog, after the close animation.
-  final saved = await showEDialog<String>(context, builder: (_) => _SaveContactDialog(record: r));
+  final saved = await showEDialog<String>(context, builder: (_) => _SaveContactDialog(record: r, defaultName: l.pairDefaultLabel((ref.read(deskProvider).contacts?.length ?? 0) + 1)));
   if (saved == null || saved.isEmpty || !context.mounted) return false;
   final contactId = await ref.read(deskProvider.notifier).saveContact(Contact(id: '', name: saved));
   final attached = await deskPairingCall(ref, (api) => api.attach(r.id, contactId));
@@ -1103,16 +1108,19 @@ const Key deskOtherAddressNewKey = ValueKey('desk-other-address-new');
 
 /// Save as a new contact: the name it claims, to check, and its proven address.
 class _SaveContactDialog extends StatefulWidget {
-  const _SaveContactDialog({required this.record});
+  const _SaveContactDialog({required this.record, required this.defaultName});
 
   final PairingRecord record;
+
+  /// The name offered when the pairing claims none.
+  final String defaultName;
 
   @override
   State<_SaveContactDialog> createState() => _SaveContactDialogState();
 }
 
 class _SaveContactDialogState extends State<_SaveContactDialog> {
-  late final _text = TextEditingController(text: widget.record.shownName);
+  late final _text = TextEditingController(text: isUnnamed(widget.record.name) ? widget.defaultName : widget.record.shownName);
 
   @override
   void dispose() {
@@ -1125,7 +1133,7 @@ class _SaveContactDialogState extends State<_SaveContactDialog> {
     final l = context.l10n;
     final r = widget.record;
     return EDialog(
-      title: l.pairSaveContactTitle(r.shownName),
+      title: l.pairSaveContactTitle(peerLabel(l, r)),
       icon: EIcons.userPlus,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

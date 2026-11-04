@@ -22950,12 +22950,6 @@ abstract class AppLocalizations {
   /// **'Open invite'**
   String get pairUnnamedInvite;
 
-  /// Field error when They will see you as is empty.
-  ///
-  /// In en, this message translates to:
-  /// **'Enter the name they will see.'**
-  String get pairSeenAsMissing;
-
   /// Field error when the name is over 48 bytes.
   ///
   /// In en, this message translates to:
@@ -29472,16 +29466,10 @@ abstract class AppLocalizations {
   /// **'It opens once a wallet that uses it is unlocked.'**
   String get contactsClosedText;
 
-  /// Phone: title of the one-field question asked the first time the Pair screen, a pair request or an answer to an invite needs the name the other side sees, and none is kept yet.
+  /// Hint inside the empty field of the 'They see you as' dialog.
   ///
   /// In en, this message translates to:
-  /// **'Name others see'**
-  String get pairSeenAsAskTitle;
-
-  /// Hint inside the empty field of 'Name others see'.
-  ///
-  /// In en, this message translates to:
-  /// **'Your name'**
+  /// **'Optional'**
   String get pairSeenAsHint;
 
   /// A device's name for linked devices until the user renames it: its kind (Phone, Desktop) and a short code from its id, so two devices of one kind are told apart, as in 'Received on Phone 3F2A'.
@@ -31607,6 +31595,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter recovery phrase'**
   String get deskOnbUnlockUsePhrase;
+
+  /// Line under the invite code on the Pair screen when the user keeps no name.
+  ///
+  /// In en, this message translates to:
+  /// **'They see no name'**
+  String get pairSeenAsNone;
+
+  /// Button beside 'They see no name'; opens the name dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Add name'**
+  String get pairSeenAsAdd;
+
+  /// Helper line under the name field of the 'They see you as' dialog; an empty name is allowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty to pair without a name.'**
+  String get pairSeenAsOptional;
+
+  /// Title of the confirm sheet or dialog when the other wallet sent no name.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair with this wallet?'**
+  String get pairIncomingNoName;
+
+  /// Badge on the confirm sheet when the other wallet sent no name.
+  ///
+  /// In en, this message translates to:
+  /// **'No name given'**
+  String get pairNoNameGiven;
+
+  /// What a pairing row is called when the other wallet sent no name and the user gave no label.
+  ///
+  /// In en, this message translates to:
+  /// **'Unnamed wallet'**
+  String get pairUnnamed;
+
+  /// Default name of a new contact saved from a pairing that has no name; n is the number of contacts plus one.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact {n}'**
+  String pairDefaultLabel(int n);
 }
 
 class _AppLocalizationsDelegate

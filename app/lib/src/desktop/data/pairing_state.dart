@@ -6,6 +6,7 @@
 library;
 
 import 'dart:async';
+import 'dart:ui' show Locale;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,7 +14,9 @@ import '../../advanced.dart' show NetworkModeRestricted;
 import '../../log.dart';
 import '../../models.dart' show PairRequest, PairingEndReason, PairingEvent, PairingEventKind, PairingRecord, PairingSlate, PairingState, contactPairingOf, epicboxKey;
 import '../../pairing_api.dart';
+import '../../l10n.dart' show AppLocalizations;
 import '../../pairing_providers.dart' show dismissStrangers, requestPassOnProvider;
+import '../../pairing_text.dart' show pairingName, pairingStrings, unnamedPeerName;
 import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../../trust/policy.dart';
 import 'invoices.dart' show deskFailureKind;
@@ -187,17 +190,20 @@ class DeskKeysBack extends Notifier<Set<String>> {
   void close(String id) => state = {...state}..remove(id);
 }
 
-/// The name for [record]: its contact's, else the one it chose.
-String deskPairingName(PairingRecord record, Iterable<Contact>? contacts) {
+/// The name for [record]: its contact's, else [peerLabel] (the label, the name it chose, or
+/// "Unnamed wallet"). Without [l] a pairing with no name reads empty.
+String deskPairingName(PairingRecord record, Iterable<Contact>? contacts, {AppLocalizations? l}) {
   final cid = record.contactId;
   final c = cid == null ? null : contacts?.where((c) => c.id == cid).firstOrNull;
-  return c?.name ?? record.shownName;
+  return c?.name ?? pairingName(record, const [], l: l);
 }
 
 final deskPairingNameProvider = Provider.family<String, String>((ref, id) {
   final r = ref.watch(deskPairingByIdProvider(id));
   if (r == null) return '';
-  return deskPairingName(r, ref.watch(deskProvider.select((s) => s.contacts)));
+  final language = ref.watch(deskProvider.select((s) => s.settings.language));
+  final locale = language == null ? null : Locale(language);
+  return deskPairingName(r, ref.watch(deskProvider.select((s) => s.contacts)), l: pairingStrings(locale));
 });
 
 /// The paired contact and purpose of the transaction with slate [slateId] (a withdrawal from
@@ -210,16 +216,14 @@ final deskPairingSlateProvider = FutureProvider.autoDispose.family<PairingSlate?
   return api.slateOf(slateId);
 });
 
-/// The name others see when pairing ("They see you as"), kept in the settings; the wallet's
-/// name until the user changes it (one name per wallet).
+/// The name others see when pairing ("They see you as"), kept in the settings; empty means
+/// none (the wire then carries [unnamedPeerName]).
 final deskSeenAsProvider = NotifierProvider<DeskSeenAs, String>(DeskSeenAs.new);
 
 class DeskSeenAs extends Notifier<String> {
   @override
   String build() {
-    final saved = ref.watch(deskProvider.select((s) => s.settings.pairingSeenAs)).trim();
-    if (saved.isNotEmpty) return saved;
-    return ref.watch(deskProvider.select((s) => s.account?.name)) ?? '';
+    return ref.watch(deskProvider.select((s) => s.settings.pairingSeenAs)).trim();
   }
 
   /// Keeps [name] in the settings and tells the engine: every later code and request carries
@@ -231,9 +235,9 @@ class DeskSeenAs extends Notifier<String> {
     final desk = ref.read(deskProvider.notifier);
     await desk.saveSettings(ref.read(deskProvider).settings.copyWith(pairingSeenAs: shown));
     final api = ref.read(deskPairingApiProvider);
-    if (api.supported && shown.isNotEmpty) {
+    if (api.supported) {
       try {
-        await api.setOwnName(shown);
+        await api.setOwnName(shown.isEmpty ? unnamedPeerName : shown);
       } on Object catch (e) {
         logWarn('pairing', 'own name not set: ${deskFailureKind(e)}');
       }

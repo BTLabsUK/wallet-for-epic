@@ -19604,10 +19604,6 @@
   "@pairUnnamedInvite": {
     "description": "Pending invites row title for an invite made for nobody in particular."
   },
-  "pairSeenAsMissing": "Enter the name they will see.",
-  "@pairSeenAsMissing": {
-    "description": "Field error when They will see you as is empty."
-  },
   "pairSeenAsTooLong": "Use a shorter name.",
   "@pairSeenAsTooLong": {
     "description": "Field error when the name is over 48 bytes."
@@ -25665,13 +25661,9 @@
   "@contactsClosedText": {
     "description": "Under 'Address book closed'."
   },
-  "pairSeenAsAskTitle": "Name others see",
-  "@pairSeenAsAskTitle": {
-    "description": "Phone: title of the one-field question asked the first time the Pair screen, a pair request or an answer to an invite needs the name the other side sees, and none is kept yet."
-  },
-  "pairSeenAsHint": "Your name",
+  "pairSeenAsHint": "Optional",
   "@pairSeenAsHint": {
-    "description": "Hint inside the empty field of 'Name others see'."
+    "description": "Hint inside the empty field of the 'They see you as' dialog."
   },
   "devicesNameWithCode": "{name} {code}",
   "@devicesNameWithCode": {
@@ -27311,5 +27303,39 @@
   "deskOnbUnlockUsePhrase": "Enter recovery phrase",
   "@deskOnbUnlockUsePhrase": {
     "description": "Button on Unlock failed when the wallet's key is gone from the system keychain or key store; opens Set a new password, where the recovery phrase opens the wallet again."
+  },
+  "pairSeenAsNone": "They see no name",
+  "@pairSeenAsNone": {
+    "description": "Line under the invite code on the Pair screen when the user keeps no name."
+  },
+  "pairSeenAsAdd": "Add name",
+  "@pairSeenAsAdd": {
+    "description": "Button beside 'They see no name'; opens the name dialog."
+  },
+  "pairSeenAsOptional": "Leave empty to pair without a name.",
+  "@pairSeenAsOptional": {
+    "description": "Helper line under the name field of the 'They see you as' dialog; an empty name is allowed."
+  },
+  "pairIncomingNoName": "Pair with this wallet?",
+  "@pairIncomingNoName": {
+    "description": "Title of the confirm sheet or dialog when the other wallet sent no name."
+  },
+  "pairNoNameGiven": "No name given",
+  "@pairNoNameGiven": {
+    "description": "Badge on the confirm sheet when the other wallet sent no name."
+  },
+  "pairUnnamed": "Unnamed wallet",
+  "@pairUnnamed": {
+    "description": "What a pairing row is called when the other wallet sent no name and the user gave no label."
+  },
+  "pairDefaultLabel": "Contact {n}",
+  "@pairDefaultLabel": {
+    "description": "Default name of a new contact saved from a pairing that has no name; n is the number of contacts plus one.",
+    "placeholders": {
+      "n": {
+        "type": "int",
+        "example": "4"
+      }
+    }
   }
 }

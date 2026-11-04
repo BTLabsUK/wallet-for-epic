@@ -13766,9 +13766,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairUnnamedInvite => '公开邀请';
 
   @override
-  String get pairSeenAsMissing => '请输入对方会看到的名字。';
-
-  @override
   String get pairSeenAsTooLong => '请使用更短的名字。';
 
   @override
@@ -17852,10 +17849,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get contactsClosedText => '解锁使用该通讯录的钱包后即可打开。';
 
   @override
-  String get pairSeenAsAskTitle => '他人看到的名字';
-
-  @override
-  String get pairSeenAsHint => '你的名字';
+  String get pairSeenAsHint => '可选';
 
   @override
   String devicesNameWithCode(String name, String code) {
@@ -19029,4 +19023,27 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskOnbUnlockUsePhrase => '输入助记词';
+
+  @override
+  String get pairSeenAsNone => '对方看不到名字';
+
+  @override
+  String get pairSeenAsAdd => '添加名字';
+
+  @override
+  String get pairSeenAsOptional => '留空则不带名字配对。';
+
+  @override
+  String get pairIncomingNoName => '与此钱包配对？';
+
+  @override
+  String get pairNoNameGiven => '未提供名字';
+
+  @override
+  String get pairUnnamed => '未命名钱包';
+
+  @override
+  String pairDefaultLabel(int n) {
+    return '联系人 $n';
+  }
 }

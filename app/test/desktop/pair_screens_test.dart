@@ -16,7 +16,7 @@ import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/invite_links.dart' show invitePageProvider;
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/pairing_fake.dart';
-import 'package:epic_wallet/src/pairing_text.dart' show pairReplyFallbackAfter;
+import 'package:epic_wallet/src/pairing_text.dart' show pairReplyFallbackAfter, unnamedPeerName;
 import 'package:epic_wallet/src/trust/policy.dart';
 import 'package:epic_wallet/src/wallet_service.dart' show PairingEndReason, PairingState;
 import 'package:flutter/material.dart';
@@ -117,6 +117,16 @@ void main() {
     expect(_c.read(deskProvider).settings.pairingSeenAs, 'Alexander');
     expect(_pairing.standing!.id, isNot(before));
     expect(find.text(_l.pairSeenAsLine('Alexander')), findsOneWidget);
+  });
+
+  testWidgets('no name by default, even when the wallet has one; an empty name clears it', (tester) async {
+    await _open(tester, const DeskPairScreen());
+    expect(_c.read(deskSeenAsProvider), isEmpty, reason: 'the wallet name is no default');
+    expect(_pairing.standingName, unnamedPeerName);
+    expect(find.text(_l.pairSeenAsNone), findsOneWidget);
+    await _c.read(deskSeenAsProvider.notifier).set('Alexander');
+    await _c.read(deskSeenAsProvider.notifier).set('');
+    expect(_c.read(deskProvider).settings.pairingSeenAs, isEmpty);
   });
 
   testWidgets('framed for a contact: the title, captions and section name it', (tester) async {

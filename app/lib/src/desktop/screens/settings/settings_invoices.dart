@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../models.dart' show PairingRecord, PairingState;
+import '../../../pairing_text.dart' show peerLabel;
 import '../../data/invoice_state.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../../ui/pairing/pairing_parts.dart' show TrustBadge;
@@ -47,7 +48,7 @@ class InvoiceSettingsBlock extends ConsumerWidget {
 
     Widget row(PairingRecord r) {
       final contact = contacts.where((x) => x.id == r.contactId).firstOrNull;
-      final name = contact?.name ?? r.shownName;
+      final name = contact?.name ?? peerLabel(l, r);
       final verified = r.state == PairingState.verified;
       // Keys changed, as the contact shows it: the risk badge, paused until the words match.
       final changed = r.state == PairingState.keysChanged;

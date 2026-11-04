@@ -14254,9 +14254,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairUnnamedInvite => 'คำเชิญที่เปิดอยู่';
 
   @override
-  String get pairSeenAsMissing => 'ใส่ชื่อที่อีกฝ่ายจะเห็น';
-
-  @override
   String get pairSeenAsTooLong => 'ใช้ชื่อที่สั้นกว่านี้';
 
   @override
@@ -18507,10 +18504,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get contactsClosedText => 'จะเปิดเมื่อปลดล็อกกระเป๋าที่ใช้สมุดนี้';
 
   @override
-  String get pairSeenAsAskTitle => 'ชื่อที่ผู้อื่นเห็น';
-
-  @override
-  String get pairSeenAsHint => 'ชื่อของคุณ';
+  String get pairSeenAsHint => 'ไม่บังคับ';
 
   @override
   String devicesNameWithCode(String name, String code) {
@@ -19765,4 +19759,27 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskOnbUnlockUsePhrase => 'ใส่วลีกู้คืน';
+
+  @override
+  String get pairSeenAsNone => 'อีกฝ่ายไม่เห็นชื่อ';
+
+  @override
+  String get pairSeenAsAdd => 'เพิ่มชื่อ';
+
+  @override
+  String get pairSeenAsOptional => 'เว้นว่างไว้เพื่อจับคู่โดยไม่ใช้ชื่อ';
+
+  @override
+  String get pairIncomingNoName => 'จับคู่กับกระเป๋านี้หรือไม่';
+
+  @override
+  String get pairNoNameGiven => 'ไม่ได้ระบุชื่อ';
+
+  @override
+  String get pairUnnamed => 'กระเป๋าเงินไม่มีชื่อ';
+
+  @override
+  String pairDefaultLabel(int n) {
+    return 'ผู้ติดต่อ $n';
+  }
 }

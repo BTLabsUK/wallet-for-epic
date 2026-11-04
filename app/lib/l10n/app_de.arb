@@ -3821,7 +3821,6 @@
   "pairOwnCode": "Das ist Ihr eigener Code",
   "pairOwnCodeBody": "Scannen Sie den Code auf dem anderen Telefon.",
   "pairUnnamedInvite": "Offene Einladung",
-  "pairSeenAsMissing": "Geben Sie den Namen ein, den die andere Seite sieht.",
   "pairSeenAsTooLong": "Verwenden Sie einen kürzeren Namen.",
   "pairSeenAsEdit": "Den angezeigten Namen ändern",
   "pairCodeLabel": "Ihr Kopplungscode",
@@ -4908,8 +4907,7 @@
   "errorStoreWrongKey": "Die Daten dieser Wallet ließen sich mit dieser Phrase nicht öffnen. Nichts wurde geändert.",
   "contactsClosedTitle": "Adressbuch geschlossen",
   "contactsClosedText": "Es öffnet sich, sobald eine Wallet entsperrt wird, die es nutzt.",
-  "pairSeenAsAskTitle": "Name, den andere sehen",
-  "pairSeenAsHint": "Ihr Name",
+  "pairSeenAsHint": "Optional",
   "devicesNameWithCode": "{name} {code}",
   "deskSetDlgRemoveUnlockHintSecurity": "Um auch ihre Dateien zu löschen, entsperren Sie diese Wallet und nutzen Sie „Wallet löschen“ unter Einstellungen › Wallet.",
   "deskRecvHttpTorHintNet": "Schalten Sie Tor unter Einstellungen › Netzwerk & Datenschutz ein, um stattdessen eine Tor-Adresse zu erhalten.",
@@ -5263,5 +5261,12 @@
   "deskNoTorSetSearchTryWords": "passwort,datenschutz,seed,sicherung,gebühr,node,sperre",
   "deskKitReachDismiss": "Ausblenden",
   "deskErrKeyMissing": "Die Dateien von {name} sind auf diesem Computer, aber der Schlüssel, der sie öffnet, ist nicht mehr in seinem sicheren Speicher (auf einem Mac im Schlüsselbund). Geben Sie die Wiederherstellungsphrase der Wallet ein, um sie wieder zu öffnen; der Verlauf bleibt erhalten.",
-  "deskOnbUnlockUsePhrase": "Wiederherstellungsphrase eingeben"
+  "deskOnbUnlockUsePhrase": "Wiederherstellungsphrase eingeben",
+  "pairSeenAsNone": "Sie sehen keinen Namen",
+  "pairSeenAsAdd": "Name hinzufügen",
+  "pairSeenAsOptional": "Leer lassen, um ohne Namen zu koppeln.",
+  "pairIncomingNoName": "Mit dieser Wallet koppeln?",
+  "pairNoNameGiven": "Kein Name angegeben",
+  "pairUnnamed": "Wallet ohne Namen",
+  "pairDefaultLabel": "Kontakt {n}"
 }

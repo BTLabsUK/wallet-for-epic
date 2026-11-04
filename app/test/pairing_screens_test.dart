@@ -9,7 +9,7 @@ import 'package:epic_wallet/src/invite_links.dart' show invitePageProvider;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/pairing_providers.dart';
-import 'package:epic_wallet/src/pairing_text.dart' show pairReplyFallbackAfter, pairingSpan;
+import 'package:epic_wallet/src/pairing_text.dart' show pairReplyFallbackAfter, pairingSpan, unnamedPeerName;
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
@@ -166,36 +166,35 @@ void main() {
       expect(h.store.values['pairing.seen_as'], 'Alexander');
     });
 
-    testWidgets('no name kept yet: asked once, then the invite carries it; asked no more', (tester) async {
+    testWidgets('no name kept: no question, the invite carries the no-name word', (tester) async {
       final h = _Harness(seenAs: null);
       await h.pump(tester, const PairScreen(), settle: false);
-      expect(find.text(_l.pairSeenAsAskTitle), findsOneWidget);
-      expect(h.api.standing, isNull, reason: 'no invite before a name');
-      // Empty is refused: the name is required.
-      await tester.tap(find.byKey(pairNameSaveKey));
-      await _frames(tester, 3);
-      expect(find.text(_l.pairSeenAsMissing), findsOneWidget);
+      expect(find.byKey(pairNameFieldKey), findsNothing, reason: 'nothing is asked');
+      expect(h.api.standingName, unnamedPeerName);
+      expect(find.text(_l.pairSeenAsNone), findsOneWidget);
+      expect(find.text(_l.pairSeenAsAdd), findsOneWidget);
+      expect(h.store.values['pairing.seen_as'], isNull);
+    });
+
+    testWidgets('Add name: a name is kept; Change to an empty name is accepted and stored as empty', (tester) async {
+      final h = _Harness(seenAs: null);
+      await h.pump(tester, const PairScreen(), settle: false);
+      await tester.tap(find.byKey(pairChangeNameKey));
+      await _frames(tester);
       await tester.enterText(find.byKey(pairNameFieldKey), 'Alex Brown');
       await tester.tap(find.byKey(pairNameSaveKey));
       await _frames(tester);
-      expect(find.text(_l.pairSeenAsAskTitle), findsNothing);
       expect(find.text(_l.pairSeenAsLine('Alex Brown')), findsOneWidget);
       expect(h.api.standingName, 'Alex Brown');
-      expect(h.store.values['pairing.seen_as'], 'Alex Brown');
-      expect(find.text(_l.appTitle), findsNothing, reason: 'never the app name in its place');
-    });
-
-    testWidgets('no name kept and the question closed: no invite, the screen goes', (tester) async {
-      final h = _Harness(seenAs: null);
-      await h.pump(tester, Builder(builder: (context) => TextButton(onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const PairScreen())), child: const Text('open'))));
-      await tester.tap(find.text('open'));
+      await tester.tap(find.byKey(pairChangeNameKey));
       await _frames(tester);
-      expect(find.text(_l.pairSeenAsAskTitle), findsOneWidget);
-      await tester.tap(find.text(_l.commonCancel));
+      await tester.enterText(find.byKey(pairNameFieldKey), '  ');
+      await tester.tap(find.byKey(pairNameSaveKey));
       await _frames(tester);
-      expect(find.byType(PairScreen), findsNothing);
-      expect(h.api.standing, isNull);
-      expect(h.store.values['pairing.seen_as'], isNull);
+      expect(find.byKey(pairNameFieldKey), findsNothing, reason: 'an empty name is accepted');
+      expect(find.text(_l.pairSeenAsNone), findsOneWidget);
+      expect(h.api.standingName, unnamedPeerName);
+      expect(h.store.values['pairing.seen_as'], '');
     });
 
     testWidgets('framed for a contact: the title and captions name it', (tester) async {

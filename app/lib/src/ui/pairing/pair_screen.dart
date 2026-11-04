@@ -127,13 +127,8 @@ class _PairScreenState extends ConsumerState<PairScreen> {
 
   Future<void> _makeCode({bool fresh = false}) async {
     final l = context.l10n;
-    final name = await seenAsOrAsk(context, ref);
+    final name = await seenAsForWire(ref);
     if (!mounted) return;
-    // No name given: no code to show.
-    if (name == null) {
-      unawaited(Navigator.of(context).maybePop());
-      return;
-    }
     try {
       final code = await ref.read(pairingApiProvider).standingCode(name: name);
       if (mounted) {
@@ -304,13 +299,13 @@ class _PairScreenState extends ConsumerState<PairScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        l.pairSeenAsLine(seenAs),
+                        seenAs.isEmpty ? l.pairSeenAsNone : l.pairSeenAsLine(seenAs),
                         style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    TextButton(key: pairChangeNameKey, style: TextButton.styleFrom(minimumSize: const Size(0, 40)), onPressed: _changeName, child: Text(l.pairChange)),
+                    TextButton(key: pairChangeNameKey, style: TextButton.styleFrom(minimumSize: const Size(0, 40)), onPressed: _changeName, child: Text(seenAs.isEmpty ? l.pairSeenAsAdd : l.pairChange)),
                   ],
                 ),
               ],
@@ -378,7 +373,7 @@ class _StatusLine extends ConsumerWidget {
     final l = context.l10n;
     final t = context.tokens;
     final r = record;
-    final who = name.isEmpty ? r.shownName : name;
+    final who = name.isEmpty ? peerLabel(l, r) : name;
     final text = switch (r.state) {
       PairingState.pendingInvite => l.pairWaitingAnswer,
       PairingState.pendingReply => l.pairPairingWith(who),
@@ -456,12 +451,9 @@ class _FinishBox extends StatelessWidget {
 /// Change "They see you as": one field, one name per wallet; applies to every later code and
 /// request, and the paired contacts get the new name.
 class _NameDialog extends StatefulWidget {
-  const _NameDialog({required this.initial, this.first = false});
+  const _NameDialog({required this.initial});
 
   final String initial;
-
-  /// Asked the first time a name is needed and none is kept: "Name others see", empty.
-  final bool first;
 
   @override
   State<_NameDialog> createState() => _NameDialogState();
@@ -490,7 +482,7 @@ class _NameDialogState extends State<_NameDialog> {
   Widget build(BuildContext context) {
     final l = context.l10n;
     return AppDialog(
-      title: widget.first ? l.pairSeenAsAskTitle : l.pairSeenAsEdit,
+      title: l.pairSeenAsEdit,
       icon: Icons.badge_outlined,
       body: TextField(
         key: pairNameFieldKey,
@@ -502,37 +494,30 @@ class _NameDialogState extends State<_NameDialog> {
         onChanged: (_) => setState(() => _error = null),
         onSubmitted: (_) => _save(),
         decoration: InputDecoration(
-          labelText: widget.first ? null : l.pairSeenAsField,
-          hintText: widget.first ? l.pairSeenAsHint : null,
+          labelText: l.pairSeenAsField,
+          hintText: l.pairSeenAsHint,
+          helperText: l.pairSeenAsOptional,
           border: const OutlineInputBorder(),
           errorText: _error,
         ),
       ),
       actions: [
         DialogButton.secondary(label: l.commonCancel, onPressed: () => Navigator.pop(context)),
-        DialogButton.primary(key: pairNameSaveKey, label: widget.first ? l.commonContinue : l.commonSave, onPressed: _save),
+        DialogButton.primary(key: pairNameSaveKey, label: l.commonSave, onPressed: _save),
       ],
     );
   }
 }
 
-/// The name others see when pairing: the one kept, or, when none is kept yet, asked once with
-/// one field and kept (D11 on the phone: it has no wallet name to default to). Null when the
-/// user closed the question.
-Future<String?> seenAsOrAsk(BuildContext context, WidgetRef ref) async {
+/// The name that goes on the wire: the one kept, or [unnamedPeerName] when there is none
+/// (LEPIC needs 1 to 48 bytes). Never asks.
+Future<String> seenAsForWire(WidgetRef ref) async {
   final kept = (await readSeenAs(ref)).trim();
-  if (kept.isNotEmpty) return kept;
-  if (!context.mounted) return null;
-  final asked = await showAppDialog<String>(context, builder: (_) => const _NameDialog(initial: '', first: true));
-  if (asked == null || !context.mounted) return null;
-  await ref.read(pairingSeenAsProvider.notifier).set(asked);
-  return asked;
+  return kept.isEmpty ? unnamedPeerName : kept;
 }
 
-/// The name check of the name they see: an error, or null.
+/// The name check of the name they see: an error, or null. Empty is fine (no name).
 String? seenAsError(AppLocalizations l, String name) {
-  final t = name.trim();
-  if (t.isEmpty) return l.pairSeenAsMissing;
-  if (utf8.encode(t).length > 48) return l.pairSeenAsTooLong;
+  if (utf8.encode(name.trim()).length > 48) return l.pairSeenAsTooLong;
   return null;
 }

@@ -4,6 +4,8 @@
 /// an error too.
 library;
 
+import 'dart:ui' show Locale, PlatformDispatcher;
+
 import 'l10n.dart';
 import 'models.dart';
 
@@ -104,7 +106,7 @@ T? sameNamedContact<T>(
   required String? Function(T) epicboxOf,
 }) {
   String norm(String s) => s.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
-  final names = {for (final n in [record.name, record.label]) if (n != null && norm(n).isNotEmpty) norm(n)};
+  final names = {for (final n in [record.name, record.label]) if (n != null && norm(n).isNotEmpty && !isUnnamed(n)) norm(n)};
   if (names.isEmpty) return null;
   final same = [for (final c in contacts) if (names.contains(norm(nameOf(c))) && pairingVouchesFor(record, epicboxOf(c))) c];
   final withPairing = same.where(paired).toList();
@@ -112,13 +114,42 @@ T? sameNamedContact<T>(
   return withPairing.isEmpty && same.length == 1 ? same.single : null;
 }
 
-/// The name the app shows for [record]: the contact's when it is attached, else the name the
-/// other side chose, else the label of an invite.
-String pairingName(PairingRecord record, Iterable<Contact> contacts) {
+/// The name sent on the wire when the user has none: LEPIC needs 1 to 48 bytes. Never translated.
+const String unnamedPeerName = 'BT Wallet';
+
+/// True when a claimed [name] stands for "no name": empty, or [unnamedPeerName] (trimmed, exact).
+bool isUnnamed(String? name) {
+  final t = (name ?? '').trim();
+  return t.isEmpty || t == unnamedPeerName;
+}
+
+/// What a row calls [record]: the label the user gave, else the name the other side chose,
+/// else "Unnamed wallet" when it chose none.
+String peerLabel(AppLocalizations l, PairingRecord record) {
+  final label = record.label;
+  if (label != null && label.isNotEmpty) return label;
+  return isUnnamed(record.name) ? l.pairUnnamed : record.name!.trim();
+}
+
+/// The name the app shows for [record]: the contact's when it is attached, else [peerLabel].
+/// Without [l] (no strings at hand) a pairing with no name reads empty.
+String pairingName(PairingRecord record, Iterable<Contact> contacts, {AppLocalizations? l}) {
   final cid = record.contactId;
   if (cid != null) {
     final c = contacts.where((c) => c.id == cid).firstOrNull;
     if (c != null) return c.name;
   }
-  return record.shownName;
+  if (l != null) return peerLabel(l, record);
+  final label = record.label;
+  if (label != null && label.isNotEmpty) return label;
+  return isUnnamed(record.name) ? '' : record.name!.trim();
+}
+
+/// The app's strings in [locale] (null: the system's), for providers that have no context.
+AppLocalizations pairingStrings(Locale? locale) {
+  try {
+    return lookupAppLocalizations(locale ?? PlatformDispatcher.instance.locale);
+  } on Object {
+    return englishStrings;
+  }
 }

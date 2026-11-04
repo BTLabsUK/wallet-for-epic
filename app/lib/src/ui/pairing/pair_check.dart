@@ -12,7 +12,7 @@ import '../../contacts.dart';
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
-import '../../pairing_text.dart' show sameNamedContact;
+import '../../pairing_text.dart' show isUnnamed, sameNamedContact;
 import '../../wallet_service.dart';
 import '../app_dialog.dart';
 import '../common.dart';
@@ -55,12 +55,16 @@ Future<bool> confirmRemovePairing(BuildContext context, String name) async {
 /// The Remove button of [confirmRemovePairing], for tests.
 const Key confirmRemovePairingKey = ValueKey('confirm-remove-pairing');
 
-/// Save as a new contact: the form with the name the pairing claims and its proven address,
-/// when it has one, for the user to check. The pairing pays the contact, so no address is
-/// needed. The contact saved, or null.
-Future<Contact?> savePairingAsNewContact(BuildContext context, PairingRecord r) => Navigator.of(context).push<Contact>(
-  MaterialPageRoute<Contact>(builder: (_) => ContactEditScreen(name: r.name, address: r.paymentsAddress, addressOptional: true)),
-);
+/// Save as a new contact: the form with the name the pairing claims (or "Contact {n}" when it
+/// claims none) and its proven address, when it has one, for the user to check. The pairing pays
+/// the contact, so no address is needed. The contact saved, or null.
+Future<Contact?> savePairingAsNewContact(BuildContext context, PairingRecord r) {
+  final count = ProviderScope.containerOf(context).read(contactsProvider).value?.length ?? 0;
+  final name = isUnnamed(r.name) ? context.l10n.pairDefaultLabel(count + 1) : r.name;
+  return Navigator.of(context).push<Contact>(
+    MaterialPageRoute<Contact>(builder: (_) => ContactEditScreen(name: name, address: r.paymentsAddress, addressOptional: true)),
+  );
+}
 
 /// Add to a contact: the user picks one of theirs; nothing is matched by name or address.
 Future<Contact?> pickContactForPairing(BuildContext context) => Navigator.of(context).push<Contact>(

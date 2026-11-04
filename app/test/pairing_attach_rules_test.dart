@@ -5,7 +5,7 @@
 // or one the pairing cannot confirm, is refused and never overwritten. A contact with a pairing
 // already attaches through the key check (RFC 7.8).
 import 'package:epic_wallet/src/pairing_fake.dart';
-import 'package:epic_wallet/src/pairing_text.dart' show sameNamedContact;
+import 'package:epic_wallet/src/pairing_text.dart' show isUnnamed, sameNamedContact, unnamedPeerName;
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -106,5 +106,14 @@ void main() {
     expect(sameNamedContact<Contact>(r, [named], (c) => c.name, paired: (_) => false, epicboxOf: (c) => c.epicbox), isNull);
     final bare = Contact(id: 'c2', name: 'BT Labs');
     expect(sameNamedContact<Contact>(r, [bare], (c) => c.name, paired: (_) => false, epicboxOf: (c) => c.epicbox), bare);
+  });
+
+  test('the no-name word is no name, and no contact is suggested by it', () {
+    expect(unnamedPeerName, 'BT Wallet');
+    expect([isUnnamed(null), isUnnamed(''), isUnnamed('  '), isUnnamed(' BT Wallet '), isUnnamed(unnamedPeerName)], everyElement(isTrue));
+    expect([isUnnamed('BT Labs'), isUnnamed('bt wallet'), isUnnamed('BT Wallet 2')], everyElement(isFalse));
+    final r = PairingRecord(id: 'p2', state: PairingState.verified, way: PairingWay.link, inviter: false, createdAt: DateTime(2026, 10, 1), name: unnamedPeerName);
+    final same = Contact(id: 'c3', name: 'BT Wallet');
+    expect(sameNamedContact<Contact>(r, [same], (c) => c.name, paired: (_) => false, epicboxOf: (c) => c.epicbox), isNull);
   });
 }

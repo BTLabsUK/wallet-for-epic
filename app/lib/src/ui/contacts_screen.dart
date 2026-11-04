@@ -8,7 +8,7 @@ import '../errors.dart';
 import '../l10n.dart';
 import '../tor_build.dart';
 import '../pairing_providers.dart';
-import '../pairing_text.dart' show sameNamedContact;
+import '../pairing_text.dart' show peerLabel, sameNamedContact;
 import '../providers.dart';
 import '../scan/scan_checks.dart' show addressOfScan;
 import '../wallet_service.dart';
@@ -322,7 +322,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       // Pairings in no contact, by the name they chose: waiting or ended with their row, the
       // rest with Add to contacts or Remove pairing.
       for (final r in orphans)
-        if (query.isEmpty || r.shownName.toLowerCase().contains(query)) _OrphanRow(record: r, contacts: all),
+        if (query.isEmpty || peerLabel(context.l10n, r).toLowerCase().contains(query)) _OrphanRow(record: r, contacts: all),
     ];
     if (contacts.isEmpty) {
       return ListView(
@@ -385,11 +385,11 @@ class _OrphanRow extends ConsumerWidget {
         final picked = await pickContactForPairing(context);
         if (context.mounted) await _attach(context, ref, picked);
       case 'cancel':
-        if (await confirmCancelPairing(context, record.shownName)) {
+        if (await confirmCancelPairing(context, peerLabel(context.l10n, record))) {
           await pairingCall(ref, (api) => record.state.isPending ? api.cancelInvite(record.id) : api.removePairing(record.id));
         }
       case 'remove':
-        if (record.ended || await confirmRemovePairing(context, record.shownName)) await pairingCall(ref, (api) => api.removePairing(record.id));
+        if (record.ended || await confirmRemovePairing(context, peerLabel(context.l10n, record))) await pairingCall(ref, (api) => api.removePairing(record.id));
     }
   }
 
@@ -397,7 +397,7 @@ class _OrphanRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = context.tokens;
     final l = context.l10n;
-    final name = record.shownName;
+    final name = peerLabel(l, record);
     final all = ref.watch(pairingsProvider).value ?? const <PairingRecord>[];
     final suggested = sameNamedContact<Contact>(
       record,

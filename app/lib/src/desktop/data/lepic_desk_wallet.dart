@@ -5068,7 +5068,7 @@ class LepicDeskWallet implements DeskWalletApi {
     final r = pairings.where((p) => p.id == id).firstOrNull;
     if (r == null) return null;
     final contact = contacts.where((c) => c.id == r.contactId).firstOrNull;
-    final name = contact?.name ?? r.shownName;
+    final name = contact?.name ?? pairingName(r, const <core.Contact>[]);
     return name.isEmpty ? null : name;
   }
 
