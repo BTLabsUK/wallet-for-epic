@@ -473,12 +473,14 @@ void main() {
       expect(find.text(_l.pairNotPaired), findsOneWidget);
     });
 
-    testWidgets('waiting (answered, not heard): the line, Check the words, Cancel; heard: Paired', (tester) async {
+    testWidgets('waiting (answered, not heard): the line, Check the words, Remove pairing; heard: Paired', (tester) async {
       final h = await page(tester, (h) => h.api.seedPaired(name: 'Anna', contactId: 'c1', state: PairingState.waiting, paymentsAddress: _anna));
       expect(find.text(_l.pairWaitingFor('Anna')), findsWidgets);
       expect(find.text(_l.pairAnsweredNotHeard), findsOneWidget);
       expect(find.byKey(contactPageCheckKey), findsOneWidget);
-      expect(find.byKey(contactPageCancelPairingKey), findsOneWidget);
+      // The pairing is stored: it is removed, and the other wallet told, as a paired one is.
+      expect(find.byKey(contactPageCancelPairingKey), findsNothing);
+      expect(find.byKey(contactPageRemovePairingKey), findsOneWidget);
       final seal = tester.widget<Switch>(find.byKey(contactPageSealKey));
       expect(seal.onChanged, isNull, reason: 'nothing is sealed to a wallet not heard');
       h.api.hear(h.api.records.single.id);
@@ -575,7 +577,7 @@ void main() {
       }
     });
 
-    testWidgets('a pending row (an invite answered, not heard) sits in the list with Cancel; an unused invite is no row', (tester) async {
+    testWidgets('a row answered, not heard, sits in the list with Remove pairing; an unused invite is no row', (tester) async {
       final h = _Harness();
       await h.api.standingCode(name: 'Alex');
       final invite = h.api.standing!;
@@ -585,11 +587,13 @@ void main() {
       expect(find.text(_l.pairAnsweredNotHeard), findsOneWidget);
       await tester.tap(find.byKey(contactsOrphanMenuKey(invite.id)));
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(contactsCancelPairingKey));
+      expect(find.byKey(contactsCancelPairingKey), findsNothing);
+      await tester.tap(find.text(_l.contactRemovePairing).last);
       await tester.pumpAndSettle();
-      await tester.tap(find.text(_l.pairCancelPairing));
+      await tester.tap(find.byKey(confirmRemovePairingKey));
       await tester.pumpAndSettle();
       expect(h.api.records, isEmpty);
+      expect(h.api.calls, contains('remove'));
       expect(find.byKey(contactsPairingRowKey(invite.id)), findsNothing);
     });
 
