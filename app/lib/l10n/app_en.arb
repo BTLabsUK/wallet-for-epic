@@ -27369,5 +27369,107 @@
         "example": "4"
       }
     }
+  },
+  "linkNotALink": "Not a payment link",
+  "@linkNotALink": {
+    "description": "Refusal of a payment link whose text does not decode."
+  },
+  "linkMadeForMainnet": "Made for mainnet",
+  "@linkMadeForMainnet": {
+    "description": "Refusal of a payment link made for the main network."
+  },
+  "linkMadeForFloonet": "Made for floonet",
+  "@linkMadeForFloonet": {
+    "description": "Refusal of a payment link made for the test network."
+  },
+  "linkChanged": "This link was changed after it was made.",
+  "@linkChanged": {
+    "description": "Refusal of a payment link whose signature does not hold."
+  },
+  "linkExpired": "This link expired on {date}",
+  "@linkExpired": {
+    "description": "Refusal of a payment link past its expiry.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "21 Sep 2026"
+      }
+    }
+  },
+  "linkForOther": "Made for someone else",
+  "@linkForOther": {
+    "description": "Refusal of a payment link made for another payer."
+  },
+  "linkPaidTitle": "Already paid",
+  "@linkPaidTitle": {
+    "description": "Title of the sheet shown for a payment link whose request was paid before."
+  },
+  "linkPaidBefore": "You paid this request on {date}",
+  "@linkPaidBefore": {
+    "description": "Body of the sheet for a payment link whose request was paid before.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "21 Sep 2026"
+      }
+    }
+  },
+  "linkPayAgain": "Pay again",
+  "@linkPayAgain": {
+    "description": "Button that opens Send for a payment link already paid."
+  },
+  "linkTrustListed": "{name} · listed by {directory}",
+  "@linkTrustListed": {
+    "description": "Trust line on Send: the payee's name and the directory this wallet uses that lists them.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "@alice"
+      },
+      "directory": {
+        "type": "String",
+        "example": "Directory"
+      }
+    }
+  },
+  "linkTrustListedBy": "Listed by {directory}",
+  "@linkTrustListedBy": {
+    "description": "Trust line on Send when the link has no name.",
+    "placeholders": {
+      "directory": {
+        "type": "String",
+        "example": "Directory"
+      }
+    }
+  },
+  "linkTrustDirectory": "From a directory you use",
+  "@linkTrustDirectory": {
+    "description": "Trust line on Send for a directory this wallet uses that has no label."
+  },
+  "linkTrustOther": "Not from a directory you use",
+  "@linkTrustOther": {
+    "description": "Trust line on Send for a payment link from any other directory."
+  },
+  "linkTrustChanged": "This listing now points to a different wallet than when you paid on {date}. Pay only if they told you.",
+  "@linkTrustChanged": {
+    "description": "Trust line on Send when the listing key differs from the one paid before.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "21 Sep 2026"
+      }
+    }
+  },
+  "linkCodeLabel": "Listing code",
+  "@linkCodeLabel": {
+    "description": "Label of the four pictures that identify the listing key."
+  },
+  "linkAmountEdited": "Not the amount requested",
+  "@linkAmountEdited": {
+    "description": "Note on Send when the amount differs from the one in the payment link."
+  },
+  "linkChangedConfirmTitle": "Check before paying",
+  "@linkChangedConfirmTitle": {
+    "description": "Title of the extra confirm before sending to a listing that changed wallet."
   }
 }

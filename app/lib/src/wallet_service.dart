@@ -12,7 +12,9 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 
 import 'desktop/data/mock_hosts.dart' show fakeWalletOnion;
+import 'directory/pins.dart' show LinkMemory;
 import 'directory/verify.dart' show refusingVerifier;
+import 'directory/wire.dart' show Payreq;
 import 'history/wallet_history.dart';
 import 'models.dart';
 import 'trust/policy.dart';
@@ -546,6 +548,16 @@ abstract interface class WalletSession {
 
   /// Stars ([favourite] true) or unstars the contact [id] in this wallet.
   Future<void> setFavouriteContact({required String id, required bool favourite});
+
+  /// The chain of the open wallet.
+  Chain get chain;
+
+  /// What this wallet remembered of payments made from payment links: listing pins and paid
+  /// request ids. Deleting the history deletes them.
+  LinkMemory linkMemory();
+
+  /// Records that the user paid [request] from its link at [paidAt] (unix seconds).
+  Future<void> recordLinkPayment(Payreq request, int paidAt);
 
   /// Encrypted history file that only a wallet with the same recovery phrase can import. It
   /// carries what the phrase and a scan cannot give back; the app adds the wallet's
@@ -2418,6 +2430,15 @@ class FakeWalletSession implements WalletSession {
   Future<void> setFavouriteContact({required String id, required bool favourite}) async {
     favourite ? favourites.add(id) : favourites.remove(id);
   }
+
+  @override
+  Chain get chain => openedConfig?.chain ?? Chain.mainnet;
+
+  @override
+  LinkMemory linkMemory() => invoiceHistory.linkMemory();
+
+  @override
+  Future<void> recordLinkPayment(Payreq request, int paidAt) => invoiceHistory.recordLinkPayment(request, paidAt);
 
   static const _exportMagic = 'FAKE-WFEH';
 

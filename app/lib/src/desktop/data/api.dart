@@ -10,7 +10,9 @@ import '../../devices/device_model.dart' show DeviceBook;
 import '../../cancel_final.dart' show CancelResult;
 import '../../models.dart' show FinishedPayment, InvoiceEvent, StoreMigrationProgress;
 import '../../devices/device_service.dart' show DeviceHost, ForwardedNotice;
+import '../../directory/directory.dart' show DirectoryMembership, LinkOutcome, Payreq;
 import '../../pairing_api.dart';
+import '../../scan/scan_router.dart' show PaymentLink;
 import '../../trust/policy.dart' show PeerCompat;
 
 import 'backup_settings_desk.dart' show DeskBackupSettings;
@@ -65,6 +67,13 @@ abstract interface class DeskWalletApi {
 
   /// Whether [password] is the open wallet's password.
   Future<bool> checkPassword(String password);
+
+  /// A payment link's checks against the open wallet's network, pins and paid requests
+  /// ([openLink]): the refusal, or the link opened with its standing.
+  Future<LinkOutcome> openPaymentLink(PaymentLink link, {required DirectoryMembership membership, required int nowSeconds});
+
+  /// Records a payment made from a link: the listing pin and the request id.
+  Future<void> recordLinkPayment(Payreq request, int paidAt);
 
   /// Closes the open wallet. A send, finalize, split or consolidate under way finishes first
   /// ([busy]): the lock waits for it, never ends it mid-way.

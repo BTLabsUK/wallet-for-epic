@@ -31661,6 +31661,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Contact {n}'**
   String pairDefaultLabel(int n);
+
+  /// Refusal of a payment link whose text does not decode.
+  ///
+  /// In en, this message translates to:
+  /// **'Not a payment link'**
+  String get linkNotALink;
+
+  /// Refusal of a payment link made for the main network.
+  ///
+  /// In en, this message translates to:
+  /// **'Made for mainnet'**
+  String get linkMadeForMainnet;
+
+  /// Refusal of a payment link made for the test network.
+  ///
+  /// In en, this message translates to:
+  /// **'Made for floonet'**
+  String get linkMadeForFloonet;
+
+  /// Refusal of a payment link whose signature does not hold.
+  ///
+  /// In en, this message translates to:
+  /// **'This link was changed after it was made.'**
+  String get linkChanged;
+
+  /// Refusal of a payment link past its expiry.
+  ///
+  /// In en, this message translates to:
+  /// **'This link expired on {date}'**
+  String linkExpired(String date);
+
+  /// Refusal of a payment link made for another payer.
+  ///
+  /// In en, this message translates to:
+  /// **'Made for someone else'**
+  String get linkForOther;
+
+  /// Title of the sheet shown for a payment link whose request was paid before.
+  ///
+  /// In en, this message translates to:
+  /// **'Already paid'**
+  String get linkPaidTitle;
+
+  /// Body of the sheet for a payment link whose request was paid before.
+  ///
+  /// In en, this message translates to:
+  /// **'You paid this request on {date}'**
+  String linkPaidBefore(String date);
+
+  /// Button that opens Send for a payment link already paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay again'**
+  String get linkPayAgain;
+
+  /// Trust line on Send: the payee's name and the directory this wallet uses that lists them.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · listed by {directory}'**
+  String linkTrustListed(String name, String directory);
+
+  /// Trust line on Send when the link has no name.
+  ///
+  /// In en, this message translates to:
+  /// **'Listed by {directory}'**
+  String linkTrustListedBy(String directory);
+
+  /// Trust line on Send for a directory this wallet uses that has no label.
+  ///
+  /// In en, this message translates to:
+  /// **'From a directory you use'**
+  String get linkTrustDirectory;
+
+  /// Trust line on Send for a payment link from any other directory.
+  ///
+  /// In en, this message translates to:
+  /// **'Not from a directory you use'**
+  String get linkTrustOther;
+
+  /// Trust line on Send when the listing key differs from the one paid before.
+  ///
+  /// In en, this message translates to:
+  /// **'This listing now points to a different wallet than when you paid on {date}. Pay only if they told you.'**
+  String linkTrustChanged(String date);
+
+  /// Label of the four pictures that identify the listing key.
+  ///
+  /// In en, this message translates to:
+  /// **'Listing code'**
+  String get linkCodeLabel;
+
+  /// Note on Send when the amount differs from the one in the payment link.
+  ///
+  /// In en, this message translates to:
+  /// **'Not the amount requested'**
+  String get linkAmountEdited;
+
+  /// Title of the extra confirm before sending to a listing that changed wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Check before paying'**
+  String get linkChangedConfirmTitle;
 }
 
 class _AppLocalizationsDelegate

@@ -22,6 +22,7 @@ import '../scan/scan_router.dart';
 import '../settings.dart';
 import '../slate_files.dart';
 import 'devices/device_parts.dart' show openLinkDevice;
+import 'link_send.dart' show openPaymentLink;
 import 'notices.dart';
 import 'pairing/pair_incoming.dart' show openPairingLink;
 import 'receive_screen.dart' show scanSlateQr;
@@ -110,9 +111,13 @@ Future<void> openScannedCode(
         // A link never carries a QR Payment part, and pasting one is near impossible.
         await _showUnknown(context, UnknownCode(text), origin, scanAgain);
       }
-    // Until Send reads payment links, one is shown as a code the wallet does not read.
-    case PaymentLink(:final text):
-      await _showUnknown(context, UnknownCode(text), origin, scanAgain);
+    // A payment link is checked first: a refusal says why, an opened one fills Send.
+    case PaymentLink():
+      final link = await openPaymentLink(context, ref, code, scanAgain: scanAgain);
+      if (link != null && context.mounted) {
+        ref.read(sendRecipientProvider.notifier).handLink(link, origin);
+        showSendTab(context, ref);
+      }
     case SlateText(:final text):
       await _showSlateText(context, text);
     case PairingLink(:final text) when ref.read(pairingSupportedProvider):

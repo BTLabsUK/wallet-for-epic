@@ -100,3 +100,14 @@ LinkStanding linkStanding(
     paidBefore: paidBefore,
   );
 }
+
+/// What the wallet remembers of link payments, as the meta file holds it.
+class LinkMemory {
+  const LinkMemory({this.pins = const {}, this.paidRequests = const {}});
+
+  /// By [pinKey].
+  final Map<String, ListingPin> pins;
+
+  /// Paid request ids (hex) with the unix second each was paid.
+  final Map<String, int> paidRequests;
+}

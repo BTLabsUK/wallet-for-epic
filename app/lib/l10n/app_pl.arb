@@ -5272,5 +5272,22 @@
   "pairSeenAsOptional": "Zostaw puste, aby sparować bez nazwy.",
   "pairUnnamed": "Portfel bez nazwy",
   "pairDefaultLabel": "Kontakt {n}",
-  "pairVerifiedService": "Zweryfikowana usługa BT Labs"
+  "pairVerifiedService": "Zweryfikowana usługa BT Labs",
+  "linkNotALink": "Not a payment link",
+  "linkMadeForMainnet": "Made for mainnet",
+  "linkMadeForFloonet": "Made for floonet",
+  "linkChanged": "This link was changed after it was made.",
+  "linkExpired": "This link expired on {date}",
+  "linkForOther": "Made for someone else",
+  "linkPaidTitle": "Already paid",
+  "linkPaidBefore": "You paid this request on {date}",
+  "linkPayAgain": "Pay again",
+  "linkTrustListed": "{name} · listed by {directory}",
+  "linkTrustListedBy": "Listed by {directory}",
+  "linkTrustDirectory": "From a directory you use",
+  "linkTrustOther": "Not from a directory you use",
+  "linkTrustChanged": "This listing now points to a different wallet than when you paid on {date}. Pay only if they told you.",
+  "linkCodeLabel": "Listing code",
+  "linkAmountEdited": "Not the amount requested",
+  "linkChangedConfirmTitle": "Check before paying"
 }

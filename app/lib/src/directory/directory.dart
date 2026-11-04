@@ -4,6 +4,8 @@ library;
 
 export 'base58.dart';
 export 'codes.dart';
+export 'link_open.dart';
+export 'membership.dart';
 export 'pins.dart';
 export 'verify.dart';
 export 'wire.dart';

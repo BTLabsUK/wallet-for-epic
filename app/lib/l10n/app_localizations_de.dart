@@ -20470,4 +20470,65 @@ class AppLocalizationsDe extends AppLocalizations {
   String pairDefaultLabel(int n) {
     return 'Kontakt $n';
   }
+
+  @override
+  String get linkNotALink => 'Not a payment link';
+
+  @override
+  String get linkMadeForMainnet => 'Made for mainnet';
+
+  @override
+  String get linkMadeForFloonet => 'Made for floonet';
+
+  @override
+  String get linkChanged => 'This link was changed after it was made.';
+
+  @override
+  String linkExpired(String date) {
+    return 'This link expired on $date';
+  }
+
+  @override
+  String get linkForOther => 'Made for someone else';
+
+  @override
+  String get linkPaidTitle => 'Already paid';
+
+  @override
+  String linkPaidBefore(String date) {
+    return 'You paid this request on $date';
+  }
+
+  @override
+  String get linkPayAgain => 'Pay again';
+
+  @override
+  String linkTrustListed(String name, String directory) {
+    return '$name · listed by $directory';
+  }
+
+  @override
+  String linkTrustListedBy(String directory) {
+    return 'Listed by $directory';
+  }
+
+  @override
+  String get linkTrustDirectory => 'From a directory you use';
+
+  @override
+  String get linkTrustOther => 'Not from a directory you use';
+
+  @override
+  String linkTrustChanged(String date) {
+    return 'This listing now points to a different wallet than when you paid on $date. Pay only if they told you.';
+  }
+
+  @override
+  String get linkCodeLabel => 'Listing code';
+
+  @override
+  String get linkAmountEdited => 'Not the amount requested';
+
+  @override
+  String get linkChangedConfirmTitle => 'Check before paying';
 }
