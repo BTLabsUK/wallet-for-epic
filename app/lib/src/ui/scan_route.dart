@@ -4,7 +4,7 @@
 /// a sheet saying why not. Nothing here pays: the review and the PIN stay the only way.
 library;
 
-import '../invite_links.dart' show inviteHandler, parseInvite;
+import '../invite_links.dart' show InviteKind, inviteHandler, parseInvite;
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -50,7 +50,8 @@ bool requestCarriesMore(PaymentRequest request) =>
 /// Opens [text] from Home's scan or a link: a payment code or an address goes to Send, the
 /// rest where it belongs. [scanAgain] reopens the scanner the text came from. An invite (its
 /// https link or the bare `epiccash://` one) goes to the handler its feature registered
-/// (invite_links.dart), else to today's pairing and device-link routes as the bare invite.
+/// (invite_links.dart), else to today's pairing and device-link routes as the bare invite; a
+/// pairing invite scanned or pasted always takes the pairing route.
 Future<void> openScannedText(
   BuildContext context,
   WidgetRef ref,
@@ -61,7 +62,10 @@ Future<void> openScannedText(
   final invite = parseInvite(text);
   if (invite != null) {
     final handler = inviteHandler(invite.kind);
-    if (handler != null) return handler(context, invite);
+    // A pairing invite scanned or pasted opens its sheet below: the handler's level-1 notice is
+    // for one handed to the app.
+    final asked = invite.kind == InviteKind.pair && origin != CodeOrigin.link;
+    if (handler != null && !asked) return handler(context, invite);
     text = invite.invite;
   }
   return isDeviceLinkText(text)

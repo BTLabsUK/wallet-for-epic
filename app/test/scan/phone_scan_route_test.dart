@@ -651,6 +651,14 @@ void main() {
       expect(find.text(_l.pairIncomingTitle('Anna')), findsOneWidget);
     });
 
+    testWidgets('Home\'s scan of the inviter\'s QR opens the invite, no notice first', (tester) async {
+      final h = levelOne();
+      await h.pump(tester);
+      await h.scan(tester, pageLink(h));
+      expect(find.text(_l.pairIncomingTitle('Anna')), findsOneWidget);
+      expect(find.text(_l.lvShellPairNotice('Anna')), findsNothing);
+    });
+
     testWidgets('Send › Scan of the inviter\'s QR opens the invite', (tester) async {
       final h = levelOne();
       await h.pump(tester);
