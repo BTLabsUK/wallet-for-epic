@@ -413,8 +413,9 @@ class _DeskShellState extends ConsumerState<DeskShell> {
       shown = const DeskLocation(DeskRoute.overview);
     }
     // A link opened over Send starts a new Send (its SendArgs is the key), as from any other page.
+    // Otherwise the key stays a ValueKey<DeskRoute>: ValueKey equality compares the type too.
     final linked = shown.route == DeskRoute.send && shown.arg is SendArgs && (shown.arg as SendArgs).code != null;
-    final page = KeyedSubtree(key: ValueKey<Object>(linked ? shown.arg! : shown.route), child: deskScreen(shown));
+    final page = KeyedSubtree(key: linked ? ValueKey<SendArgs>(shown.arg! as SendArgs) : ValueKey<DeskRoute>(shown.route), child: deskScreen(shown));
     // The page's text is selectable and copyable (selectable.dart); the sidebar is not.
     final main = Material(color: c.bg, child: DeskSelectable(child: page));
     final tour = ref.watch(deskTourProvider.select((t) => t.open));
