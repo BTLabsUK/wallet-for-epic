@@ -244,6 +244,21 @@ void main() {
       expect(find.byType(CheckWordsScreen), findsOneWidget);
     });
 
+    testWidgets('Pair keeps the wait open while the records reload slower than a frame', (tester) async {
+      final h = _Harness();
+      _clipboard(tester, h.api.inviteLinkFrom(name: 'Northwind'));
+      await h.pump(tester, const PairScreen(), settle: false);
+      h.api.listDelay = const Duration(milliseconds: 300);
+      await tester.tap(find.byKey(pairPasteKey));
+      await _frames(tester);
+      await tester.tap(find.byKey(incomingPairKey));
+      await _frames(tester);
+      expect(find.byType(PairingWaitingScreen), findsOneWidget);
+      h.api.confirmAnswer(h.api.records.single.id);
+      await _frames(tester);
+      expect(find.byType(CheckWordsScreen), findsOneWidget);
+    });
+
     testWidgets('the wait: Your answer after 30 s with a QR, Share and the confirmation field; at once with Epicbox off', (tester) async {
       final h = _Harness();
       final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));

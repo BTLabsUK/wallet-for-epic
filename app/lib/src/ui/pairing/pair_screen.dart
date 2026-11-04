@@ -383,17 +383,23 @@ class _StatusLine extends ConsumerWidget {
       PairingState.pendingInvite => l.pairWaitingAnswer,
       PairingState.pendingReply => l.pairPairingWith(who),
       PairingState.waiting => l.pairWaitingFor(who),
+      _ when r.state.isPaired => l.pairPairedWith(who),
       _ => l.pairAnsweredFinishing(who),
     };
+    // Heard from: the pairing is on, nothing more to wait for.
+    final done = r.state.isPaired;
     return Semantics(
       key: pairStatusKey,
       liveRegion: true,
       child: Row(
         children: [
-          const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+          if (done)
+            Icon(Icons.check_circle, size: 16, color: t.ok)
+          else
+            const SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2)),
           const SizedBox(width: 10),
           Expanded(child: Text(text, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: t.dim))),
-          if (onCheck != null && (r.state == PairingState.waiting || r.state.isPaired))
+          if (onCheck != null && (r.state == PairingState.waiting || r.state == PairingState.paired || r.state == PairingState.keysChanged))
             TextButton(key: pairCheckWordsKey, onPressed: onCheck, child: Text(l.pairCheckWords)),
         ],
       ),

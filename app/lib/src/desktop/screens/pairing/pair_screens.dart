@@ -391,17 +391,20 @@ class _DeskStatusLine extends StatelessWidget {
       PairingState.pendingInvite => l.pairWaitingAnswer,
       PairingState.pendingReply => l.pairPairingWith(who),
       PairingState.waiting => l.pairWaitingFor(who),
+      _ when r.state.isPaired => l.pairPairedWith(who),
       _ => l.pairAnsweredFinishing(who),
     };
+    // Heard from: the pairing is on, nothing more to wait for.
+    final done = r.state.isPaired;
     return Semantics(
       key: deskPairStatusKey,
       liveRegion: true,
       child: Row(
         children: [
-          const ESpinner(),
+          if (done) Icon(EIcons.okCircle, size: Ctl.iconSm, color: context.dc.ok) else const ESpinner(),
           SizedBox(width: Sp.x3),
           Expanded(child: Text(text, style: ts.bodyDim)),
-          if (onCheck != null && (r.state == PairingState.waiting || r.state.isPaired))
+          if (onCheck != null && (r.state == PairingState.waiting || r.state == PairingState.paired || r.state == PairingState.keysChanged))
             EButton(key: deskPairCheckWordsKey, label: l.pairCheckWords, size: EBtnSize.sm, onPressed: onCheck),
         ],
       ),
@@ -710,6 +713,9 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
   Timer? _slow;
   bool _late = false;
   bool _done = false;
+
+  /// The records were read again after this dialog opened (see the phone's wait).
+  bool _fresh = false;
   String? _link;
   final _finish = TextEditingController();
   StreamSubscription<PairingEvent>? _events;
@@ -737,6 +743,7 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      ref.read(deskPairingsProvider.notifier).reload().then((_) => mounted ? setState(() => _fresh = true) : null).ignore();
       try {
         final link = await api.replyLink(widget.pairingId);
         if (mounted) setState(() => _link = link);
@@ -818,7 +825,7 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
     final c = context.dc;
     final record = ref.watch(deskPairingByIdProvider(widget.pairingId));
     final loaded = ref.watch(deskPairingsProvider).hasValue;
-    if (loaded && !_done && (record == null || record.state != PairingState.pendingReply)) {
+    if (loaded && _fresh && !_done && (record == null || record.state != PairingState.pendingReply)) {
       _done = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;

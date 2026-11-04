@@ -279,6 +279,10 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
   Timer? _slow;
   bool _late = false;
   bool _left = false;
+
+  /// The records were read again after this screen opened. The list from before the answer
+  /// does not hold it yet: its absence there is no sign that the pairing went.
+  bool _fresh = false;
   String? _link;
   final _finish = TextEditingController();
   StreamSubscription<PairingEvent>? _events;
@@ -305,7 +309,10 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
         Navigator.of(context).pushReplacement(MaterialPageRoute<void>(builder: (_) => PairingOutcomeScreen(failure: e.failure!, name: e.name)));
       }
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadLink());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadLink();
+      ref.read(pairingsProvider.notifier).reload().then((_) => mounted ? setState(() => _fresh = true) : null).ignore();
+    });
   }
 
   Future<void> _loadLink() async {
@@ -392,7 +399,7 @@ class _PairingWaitingScreenState extends ConsumerState<PairingWaitingScreen> {
     final loaded = ref.watch(pairingsProvider).hasValue;
     // Nothing to wait for any more (the confirm came another way, or the pairing was
     // cancelled): this screen goes.
-    if (loaded && !_left && (record == null || record.state != PairingState.pendingReply)) {
+    if (loaded && _fresh && !_left && (record == null || record.state != PairingState.pendingReply)) {
       _left = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;

@@ -208,6 +208,12 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     // contact's page still says it.
     if (event.kind == PairingEventKind.homeRelayUnreachable && ref.read(connectionGraceProvider)) return;
     final id = event.pairingId;
+    // An answer or a confirm gives the record its words: the list read before the event does
+    // not have them yet, and the action would be missing.
+    if (id != null && (event.kind == PairingEventKind.replied || event.kind == PairingEventKind.confirmed)) {
+      await ref.read(pairingsProvider.notifier).reload();
+      if (!mounted) return;
+    }
     final contactId = id == null ? null : ref.read(pairingByIdProvider(id))?.contactId;
     final contact = contactId == null
         ? null
