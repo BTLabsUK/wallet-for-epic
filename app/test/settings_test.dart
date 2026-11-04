@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:io' show File;
 
 import 'package:epic_wallet/src/app.dart';
+import 'package:epic_wallet/src/app_log.dart' show AppLog, MemoryLogSink;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/phone_tor.dart';
 import 'package:epic_wallet/src/price.dart';
@@ -835,6 +836,123 @@ void main() {
       hold.complete();
       await tester.pumpAndSettle();
       expect(h.container.read(sessionProvider), isNotNull);
+    });
+
+    testWidgets('closes the wallet in the background once the time passes', (tester) async {
+      final h = _Harness();
+      h.store.values['app.auto_lock'] = '1';
+      (AppLog.sink as MemoryLogSink).entries.clear();
+      await h.pump(tester);
+      await h.unlock(tester);
+      expect(h.session.listenerEvents.hasListener, isTrue);
+
+      // Android keeps the app alive: no resume comes.
+      await _leave(tester, settle: false);
+      await tester.pump(const Duration(seconds: 59));
+      expect(h.container.read(sessionProvider), isNotNull);
+      await tester.pump(const Duration(seconds: 1));
+      expect(h.container.read(sessionProvider), isNull);
+      expect(h.session.disposeCalls, 1);
+      expect(h.container.read(lockReasonProvider), LockReason.timeout);
+      expect(
+        (AppLog.sink as MemoryLogSink).lines.where((l) => l.endsWith('dart.session: auto-lock in background')),
+        hasLength(1),
+      );
+
+      // Nothing of the session runs on: the listener's stream is let go, and a drain or a wake
+      // asked now does nothing.
+      expect(h.session.listenerEvents.hasListener, isFalse);
+      final starts = h.session.listenerStarts;
+      final drains = h.session.drainPaymentCalls;
+      await h.container.read(paymentsDrainProvider.notifier).drain();
+      await h.container.read(listenerProvider.notifier).wake('network');
+      await tester.pump(const Duration(minutes: 1));
+      expect(h.session.listenerStarts, starts);
+      expect(h.session.drainPaymentCalls, drains);
+
+      // Back, the unlock screen.
+      h.now = h.now.add(const Duration(minutes: 2));
+      await _return(tester);
+      expect(h.container.read(sessionProvider), isNull);
+      expect(find.text(_l.unlockTitle), findsOneWidget);
+    });
+
+    testWidgets('no background lock during a trip to the file picker', (tester) async {
+      final h = _Harness();
+      h.store.values['app.auto_lock'] = '1';
+      await h.pump(tester);
+      await h.unlock(tester);
+      final hold = Completer<void>();
+      unawaited(h.container.read(autoLockHoldProvider.notifier).during(() => hold.future));
+      await _leave(tester);
+      h.now = h.now.add(const Duration(minutes: 2));
+      await tester.pump(const Duration(minutes: 2));
+      expect(h.container.read(sessionProvider), isNotNull);
+      expect(h.session.disposeCalls, 0);
+      await _return(tester);
+      hold.complete();
+      await tester.pumpAndSettle();
+      expect(h.container.read(sessionProvider), isNotNull);
+    });
+
+    testWidgets('no background lock mid-scan: it locks once the scan ends', (tester) async {
+      final h = _Harness();
+      h.store.values['app.auto_lock'] = '1';
+      h.session.controller = StreamController<ScanProgress>();
+      await h.pump(tester);
+      await h.unlock(tester);
+      unawaited(h.container.read(scanProvider.notifier).run());
+      await tester.pump();
+
+      await _leave(tester, settle: false);
+      expect(h.container.read(scanProvider).paused, isTrue);
+      h.now = h.now.add(const Duration(minutes: 2));
+      await tester.pump(const Duration(minutes: 2));
+      expect(h.container.read(sessionProvider), isNotNull);
+      expect(h.session.disposeCalls, 0);
+
+      h.session.controller = StreamController<ScanProgress>();
+      await _return(tester, settle: false);
+      await tester.pump();
+      expect(h.container.read(sessionProvider), isNotNull);
+      h.session.controller!.add(const ScanProgress(percent: 100, message: 'Done', finished: true));
+      await h.session.controller!.close();
+      await tester.pumpAndSettle();
+      expect(h.container.read(sessionProvider), isNull);
+      expect(find.text(_l.unlockTitle), findsOneWidget);
+    });
+
+    testWidgets('a return before the time stops the background timer', (tester) async {
+      final h = _Harness();
+      h.store.values['app.auto_lock'] = '1';
+      await h.pump(tester);
+      await h.unlock(tester);
+      await _leave(tester, settle: false);
+      h.now = h.now.add(const Duration(seconds: 50));
+      await tester.pump(const Duration(seconds: 50));
+      await _return(tester);
+      expect(h.container.read(sessionProvider), isNotNull);
+
+      // On screen, the time away is over: nothing fires later.
+      h.now = h.now.add(const Duration(minutes: 2));
+      await tester.pump(const Duration(minutes: 2));
+      expect(h.container.read(sessionProvider), isNotNull);
+      expect(h.session.disposeCalls, 0);
+    });
+
+    testWidgets('the setting at the time of leaving counts', (tester) async {
+      final h = _Harness();
+      h.store.values['app.auto_lock'] = '1';
+      await h.pump(tester);
+      await h.unlock(tester);
+      await _leave(tester, settle: false);
+      // A change while away (another path to the store) waits for the next time away.
+      await h.container.read(appSettingsProvider.notifier).setAutoLockMinutes(15);
+      await tester.pump(const Duration(minutes: 1));
+      expect(h.container.read(sessionProvider), isNull);
+      h.now = h.now.add(const Duration(minutes: 1));
+      await _return(tester);
+      expect(find.text(_l.unlockTitle), findsOneWidget);
     });
   });
 

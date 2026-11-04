@@ -45,6 +45,11 @@ class _WalletAppState extends ConsumerState<WalletApp> {
   /// The timeout passed while a scan was running; lock once it ends.
   bool _lockAfterScan = false;
 
+  /// Runs while the app is away with a wallet open: Android keeps the process, and with it the
+  /// session and its listener, so the wallet closes when the auto-lock time passes there. iOS
+  /// suspends it, and the check on resume locks instead.
+  Timer? _awayTimer;
+
   late final AppLifecycleListener _lifecycle = AppLifecycleListener(
     onStateChange: _onLifecycle,
   );
@@ -106,6 +111,7 @@ class _WalletAppState extends ConsumerState<WalletApp> {
 
   @override
   void dispose() {
+    _awayTimer?.cancel();
     _lifecycle.dispose();
     super.dispose();
   }
@@ -128,8 +134,11 @@ class _WalletAppState extends ConsumerState<WalletApp> {
             ref.read(sessionProvider) != null &&
             ref.read(autoLockHoldProvider) == 0) {
           _leftAt = ref.read(clockProvider)();
+          _armAwayTimer();
         }
       case AppLifecycleState.resumed:
+        _awayTimer?.cancel();
+        _awayTimer = null;
         // An update that waited for the install permission carries on, lock or no lock.
         unawaited(ref.read(updateProvider.notifier).resumed());
         _resumeScan();
@@ -206,16 +215,37 @@ class _WalletAppState extends ConsumerState<WalletApp> {
     return away >= Duration(minutes: minutes);
   }
 
+  /// The setting as it is now; a change while away counts from the next time away.
+  void _armAwayTimer() {
+    _awayTimer?.cancel();
+    _awayTimer = null;
+    final settings = ref.read(appSettingsProvider).value ?? const AppSettings();
+    final minutes = settings.autoLockMinutes;
+    if (minutes == null) return;
+    _awayTimer = Timer(Duration(minutes: minutes), _lockAway);
+  }
+
+  /// The auto-lock time passed in the background. A scan is not cut: it locks once it ends,
+  /// as after a return ([_onScanEnded], and the check on resume).
+  void _lockAway() {
+    _awayTimer = null;
+    if (_leftAt == null || ref.read(autoLockHoldProvider) > 0) return;
+    if (ref.read(scanProvider).running) return;
+    _lock(away: true);
+  }
+
   void _onScanEnded() {
     if (_lockAfterScan || (_leftAt != null && _timedOut())) _lock();
   }
 
-  void _lock() {
+  void _lock({bool away = false}) {
     _lockAfterScan = false;
     _leftAt = null;
+    _awayTimer?.cancel();
+    _awayTimer = null;
     final context = _navigator.currentContext;
     if (context == null || ref.read(sessionProvider) == null) return;
-    logInfo('session', 'auto-lock');
+    logInfo('session', away ? 'auto-lock in background' : 'auto-lock');
     lockWallet(context, ref, reason: LockReason.timeout);
   }
 
@@ -228,6 +258,8 @@ class _WalletAppState extends ConsumerState<WalletApp> {
       if (session == null) {
         _leftAt = null;
         _lockAfterScan = false;
+        _awayTimer?.cancel();
+        _awayTimer = null;
       }
     });
     final settings = ref.watch(appSettingsProvider).value;
