@@ -359,8 +359,9 @@ def platform_row(key, g, latest):
     p = g['primary']
     nt = notor_of(g)
     icon = ICONS.get(key, ICONS['other'])
-    # A platform the current release left out offers its newest release: its version and date
-    # under the requirement, and on the row for page.js (the hero's version line).
+    # Every platform shows its own version and date under the requirement (platforms release
+    # separately); one the current release left out also carries them on the row for page.js
+    # (the hero's version line).
     own = p and p['version'] != latest['version']
     out = [f'<li class="row" data-plat="{key}" id="dl-{key}"{" data-preview" if preview else ""}'
            + (f' data-version="{esc(p["version"])}" data-date="{p["date"]}" data-when="{human_date(p["date"])}"' if own else '') + '>',
@@ -368,7 +369,7 @@ def platform_row(key, g, latest):
            + (' <span class="pill">Preview</span>' if preview else '') + '</h3>'
            f'<p class="req">{esc(req)}</p>'
            + (f'<p class="req r-ver">Version <span translate="no">{esc(p["version"])}</span> · '
-              f'<time datetime="{p["date"]}">{human_date(p["date"])}</time></p>' if own else '')
+              f'<time datetime="{p["date"]}">{human_date(p["date"])}</time></p>' if p else '')
            + '</div>']
     if p:
         out.append(f'<div class="r-get"><a class="btn primary" href="downloads/{esc(p["name"])}" download '
