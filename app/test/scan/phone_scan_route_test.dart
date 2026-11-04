@@ -623,7 +623,7 @@ void main() {
       final h = _Harness();
       await h.pump(tester);
       await h.scan(tester, h.session.pairing.inviteLinkFrom(name: 'Anna'));
-      expect(find.text('Pair with Anna?'), findsOneWidget);
+      expect(find.text(_l.pairIncomingTitle('Anna')), findsOneWidget);
       expect(find.text(_l.scanPairingUnavailable), findsNothing);
     });
   });

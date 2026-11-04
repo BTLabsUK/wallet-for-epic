@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import '../key_picture.dart';
 import 'theme/palette.dart';
 import 'theme/tokens.dart';
+import 'tip.dart';
 
 /// The picture of a pairing key on its 7x7-unit tile, [size] logical pixels square. Decorative
 /// to screen readers: the words around it carry the meaning. A hairline in the theme's line
@@ -145,8 +146,8 @@ class VerifiedCheck extends StatelessWidget {
     final ink = colour.computeLuminance() > 0.3 ? const Color(0xFF08080A) : Colors.white;
     return Semantics(
       label: label,
-      child: Tooltip(
-        message: label,
+      child: Tip(
+        label,
         excludeFromSemantics: true,
         child: ExcludeSemantics(
           child: Container(
