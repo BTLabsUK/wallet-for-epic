@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Help on payment links and being paid by name, for the phone and the desktop, in the app's six
-/// languages: what a payment link is and how the wallet checks it, the line above Send, getting
-/// paid by name, telling the service a payment is sent, and a link payment nobody answers. Each
+/// Help on payment links and paying you as your name, for the phone and the desktop, in the app's
+/// six languages: what a payment link is and how the wallet checks it, the line above Send,
+/// contacts that take no payments, Pay me as @name, telling the service a payment is sent, and a
+/// link payment nobody answers. Each
 /// language's topic list (help_content.dart, help_`<lang>`.dart) ends with these; they show
 /// always, as the wallet pairs with a service and a link can arrive at any time.
 library;
@@ -57,14 +58,25 @@ List<HelpTopic> _en(bool phone) {
       id: HelpId.linkLine,
     ),
     HelpTopic(
-      'network',
-      'Getting paid by name',
-      'A service you paired with can let people pay you by your name. The wallet has none built in. Turning it on sends the service one address made only for it.',
+      'start',
+      'Contacts that take no payments',
+      'Some contacts take no payments.',
       [
-        const HelpBlock.p('Some services, run by someone else, let people pay each other by name through a payment link. The wallet has none built in.'),
-        const HelpBlock.p('Pairing with a service is a contact pairing. Open its invite and **Check the code**: compare the pictures shown by both. Then choose **Get paid by name**. The service appears in [[Contacts]].'),
+        const HelpBlock.p('Some contacts take no payments. A service where people pay you as your @name is one. It says so when you pair.'),
+        const HelpBlock.p('In Contacts and in the list of recipients, such a contact carries a coin struck through; its page says **No payments**. Pasting or scanning its address into Send is refused.'),
+        const HelpBlock.p('A payment sent to such a contact from another wallet is never collected. It stays pending there until the sender cancels it.'),
+      ],
+      id: HelpId.noPayments,
+    ),
+    HelpTopic(
+      'network',
+      'Pay me as @name',
+      'A service you paired with can let people pay you as your @name. The wallet has none built in. Turning it on sends the service one address made only for it.',
+      [
+        const HelpBlock.p('Some services, run by someone else, let people pay each other as an @name through a payment link. The wallet has none built in.'),
+        const HelpBlock.p('Pairing with a service is a contact pairing. Open its invite and **Check the code**: compare the pictures shown by both. Then choose **Pay me as @name**. The service appears in [[Contacts]].'),
         const HelpBlock.p('Turning it on sends the service a payment address made only for it, signed by this wallet. Nothing else: no balance and no other address.'),
-        const HelpBlock.p('**Stop paid by name** on the service’s contact page takes your name off it. The wallet keeps receiving to that address for 7 days, then stops.'),
+        const HelpBlock.p('**Leave** on the service’s contact page takes your name off it. The wallet keeps receiving to that address for 7 days, then stops.'),
       ],
       id: HelpId.directories,
     ),
@@ -133,14 +145,25 @@ List<HelpTopic> _de(bool phone) {
       id: HelpId.linkLine,
     ),
     HelpTopic(
-      'network',
-      'Per Name bezahlt werden',
-      'Ein Dienst, mit dem Sie gekoppelt sind, kann es anderen ermöglichen, Sie per Namen zu bezahlen. Die Wallet hat keinen eingebaut. Beim Einschalten erhält der Dienst eine Adresse, die nur für ihn gemacht ist.',
+      'start',
+      'Kontakte, die keine Zahlungen annehmen',
+      'Manche Kontakte nehmen keine Zahlungen an.',
       [
-        const HelpBlock.p('Manche Dienste, die jemand betreibt, ermöglichen es, sich per Namen über einen Zahlungslink zu bezahlen. Die Wallet hat keinen eingebaut.'),
-        const HelpBlock.p('Die Kopplung mit einem Dienst ist eine Kontaktkopplung. Öffnen Sie seine Einladung und wählen Sie **Code prüfen**: Vergleichen Sie die Bilder, die beide zeigen. Wählen Sie dann **Per Name bezahlt werden**. Der Dienst erscheint unter [[Kontakte|Contacts]].'),
+        const HelpBlock.p('Manche Kontakte nehmen keine Zahlungen an. Ein Dienst, bei dem man Sie als Ihren @name bezahlt, gehört dazu. Er sagt es beim Koppeln.'),
+        const HelpBlock.p('In Kontakte und in der Liste der Empfänger trägt ein solcher Kontakt eine durchgestrichene Münze; seine Seite zeigt **Keine Zahlungen**. Seine Adresse in Senden einzufügen oder zu scannen wird abgelehnt.'),
+        const HelpBlock.p('Eine Zahlung von einer anderen Wallet an einen solchen Kontakt wird nie abgeholt. Sie bleibt dort offen, bis der Absender sie storniert.'),
+      ],
+      id: HelpId.noPayments,
+    ),
+    HelpTopic(
+      'network',
+      'Als @name bezahlt werden',
+      'Ein Dienst, mit dem Sie gekoppelt sind, kann es anderen ermöglichen, Sie als Ihren @name zu bezahlen. Die Wallet hat keinen eingebaut. Beim Einschalten erhält der Dienst eine Adresse, die nur für ihn gemacht ist.',
+      [
+        const HelpBlock.p('Manche Dienste, die jemand betreibt, ermöglichen es, sich über einen Zahlungslink als @name zu bezahlen. Die Wallet hat keinen eingebaut.'),
+        const HelpBlock.p('Die Kopplung mit einem Dienst ist eine Kontaktkopplung. Öffnen Sie seine Einladung und wählen Sie **Code prüfen**: Vergleichen Sie die Bilder, die beide zeigen. Wählen Sie dann **Als @name bezahlt werden**. Der Dienst erscheint unter [[Kontakte|Contacts]].'),
         const HelpBlock.p('Beim Einschalten sendet diese Wallet dem Dienst eine Zahlungsadresse, die nur für ihn gemacht und von der Wallet signiert ist. Sonst nichts: kein Guthaben und keine andere Adresse.'),
-        const HelpBlock.p('**Nicht mehr per Name bezahlt werden** auf der Kontaktseite des Dienstes nimmt Ihren Namen dort heraus. Die Wallet empfängt an dieser Adresse noch 7 Tage lang weiter und hört dann auf.'),
+        const HelpBlock.p('**Verlassen** auf der Kontaktseite des Dienstes nimmt Ihren Namen dort heraus. Die Wallet empfängt an dieser Adresse noch 7 Tage lang weiter und hört dann auf.'),
       ],
       id: HelpId.directories,
     ),
@@ -209,14 +232,25 @@ List<HelpTopic> _pl(bool phone) {
       id: HelpId.linkLine,
     ),
     HelpTopic(
-      'network',
-      'Odbieranie płatności po nazwie',
-      'Usługa, z którą się sparowano, może pozwolić innym płacić Ci po Twojej nazwie. Portfel nie ma żadnej wbudowanej. Włączenie wysyła usłudze jeden adres zrobiony tylko dla niej.',
+      'start',
+      'Kontakty, które nie przyjmują płatności',
+      'Niektóre kontakty nie przyjmują płatności.',
       [
-        const HelpBlock.p('Niektóre usługi, które ktoś prowadzi, pozwalają płacić sobie nawzajem po nazwie przez link płatności. Portfel nie ma żadnej wbudowanej.'),
-        const HelpBlock.p('Parowanie z usługą to parowanie kontaktu. Otwórz jego zaproszenie i **Sprawdź kod**: porównaj obrazki widoczne po obu stronach. Potem wybierz **Odbieraj płatności po nazwie**. Usługa pojawi się w [[Kontakty|Contacts]].'),
+        const HelpBlock.p('Niektóre kontakty nie przyjmują płatności. Należy do nich usługa, w której ludzie płacą Ci jako @name. Mówi o tym przy parowaniu.'),
+        const HelpBlock.p('W Kontaktach i na liście odbiorców taki kontakt ma przekreśloną monetę; jego strona pokazuje **Bez płatności**. Wklejenie lub zeskanowanie jego adresu w Wyślij jest odrzucane.'),
+        const HelpBlock.p('Płatność wysłana do takiego kontaktu z innego portfela nigdy nie zostanie odebrana. Czeka tam, aż nadawca ją anuluje.'),
+      ],
+      id: HelpId.noPayments,
+    ),
+    HelpTopic(
+      'network',
+      'Płać mi jako @name',
+      'Usługa, z którą się sparowano, może pozwolić innym płacić Ci jako @name. Portfel nie ma żadnej wbudowanej. Włączenie wysyła usłudze jeden adres zrobiony tylko dla niej.',
+      [
+        const HelpBlock.p('Niektóre usługi, które ktoś prowadzi, pozwalają płacić sobie nawzajem jako @name przez link płatności. Portfel nie ma żadnej wbudowanej.'),
+        const HelpBlock.p('Parowanie z usługą to parowanie kontaktu. Otwórz jego zaproszenie i **Sprawdź kod**: porównaj obrazki widoczne po obu stronach. Potem wybierz **Płać mi jako @name**. Usługa pojawi się w [[Kontakty|Contacts]].'),
         const HelpBlock.p('Włączenie wysyła usłudze adres płatności zrobiony tylko dla niej i podpisany przez ten portfel. Nic więcej: ani salda, ani żadnego innego adresu.'),
-        const HelpBlock.p('**Przestań odbierać płatności po nazwie** na stronie kontaktu usługi zdejmuje tam Twoją nazwę. Portfel nadal odbiera na ten adres przez 7 dni, a potem przestaje.'),
+        const HelpBlock.p('**Opuść** na stronie kontaktu usługi zdejmuje tam Twoją nazwę. Portfel nadal odbiera na ten adres przez 7 dni, a potem przestaje.'),
       ],
       id: HelpId.directories,
     ),
@@ -285,14 +319,25 @@ List<HelpTopic> _ru(bool phone) {
       id: HelpId.linkLine,
     ),
     HelpTopic(
-      'network',
-      'Получать платежи по имени',
-      'Сервис, с которым вы связались, может позволить другим платить вам по вашему имени. В кошельке нет встроенных. При включении сервису отправляется один адрес, созданный только для него.',
+      'start',
+      'Контакты, которые не принимают платежи',
+      'Некоторые контакты не принимают платежи.',
       [
-        const HelpBlock.p('Некоторые сервисы, которые кто-то ведёт, позволяют платить друг другу по имени через платёжную ссылку. В кошельке нет встроенных сервисов.'),
-        const HelpBlock.p('Сопряжение с сервисом — это сопряжение контакта. Откройте его приглашение и **Проверьте код**: сравните картинки, которые показывают обе стороны. Затем выберите **Получать платежи по имени**. Сервис появится в [[Контакты|Contacts]].'),
+        const HelpBlock.p('Некоторые контакты не принимают платежи. Таков сервис, где люди платят вам как @name. Он сообщает об этом при сопряжении.'),
+        const HelpBlock.p('В Контактах и в списке получателей такой контакт отмечен перечёркнутой монетой; на его странице написано **Без платежей**. Адрес такого контакта, вставленный или отсканированный в «Отправить», отклоняется.'),
+        const HelpBlock.p('Платёж такому контакту из другого кошелька никогда не будет получен. Он остаётся ожидающим, пока отправитель его не отменит.'),
+      ],
+      id: HelpId.noPayments,
+    ),
+    HelpTopic(
+      'network',
+      'Платите мне как @name',
+      'Сервис, с которым вы связались, может позволить другим платить вам как @name. В кошельке нет встроенных. При включении сервису отправляется один адрес, созданный только для него.',
+      [
+        const HelpBlock.p('Некоторые сервисы, которые кто-то ведёт, позволяют платить друг другу как @name через платёжную ссылку. В кошельке нет встроенных сервисов.'),
+        const HelpBlock.p('Сопряжение с сервисом — это сопряжение контакта. Откройте его приглашение и **Проверьте код**: сравните картинки, которые показывают обе стороны. Затем выберите **Платите мне как @name**. Сервис появится в [[Контакты|Contacts]].'),
         const HelpBlock.p('При включении сервису отправляется платёжный адрес, созданный только для него и подписанный этим кошельком. Больше ничего: ни баланса, ни других адресов.'),
-        const HelpBlock.p('**Перестать получать платежи по имени** на странице контакта сервиса снимает там ваше имя. Кошелёк ещё 7 дней принимает платежи на этот адрес, потом перестаёт.'),
+        const HelpBlock.p('**Выйти** на странице контакта сервиса снимает там ваше имя. Кошелёк ещё 7 дней принимает платежи на этот адрес, потом перестаёт.'),
       ],
       id: HelpId.directories,
     ),
@@ -361,14 +406,25 @@ List<HelpTopic> _zh(bool phone) {
       id: HelpId.linkLine,
     ),
     HelpTopic(
-      'network',
-      '按名称收款',
-      '你配对过的服务可以让别人按你的名称向你付款。钱包没有内置服务。开启时只会把一个专为该服务生成的地址发给它。',
+      'start',
+      '不接受付款的联系人',
+      '有些联系人不接受付款。',
       [
-        const HelpBlock.p('有些由他人运营的服务，让人们通过付款链接按名称互相付款。钱包没有内置任何服务。'),
-        const HelpBlock.p('与服务配对属于联系人配对。打开它的邀请并 **核对代码**：比较双方显示的图案。然后选择 **按名称收款**。该服务会出现在[[联系人|Contacts]]中。'),
+        const HelpBlock.p('有些联系人不接受付款。让人以你的 @name 向你付款的服务就是其中之一。配对时它会说明。'),
+        const HelpBlock.p('在联系人和收款人列表中，这样的联系人带有一枚划掉的硬币；它的页面显示 **不收款**。把它的地址粘贴或扫描到发送中会被拒绝。'),
+        const HelpBlock.p('从其他钱包发给这样联系人的付款永远不会被收取。它会一直处于待处理，直到发送方取消。'),
+      ],
+      id: HelpId.noPayments,
+    ),
+    HelpTopic(
+      'network',
+      '以 @name 收款',
+      '你配对过的服务可以让别人以你的 @name 向你付款。钱包没有内置服务。开启时只会把一个专为该服务生成的地址发给它。',
+      [
+        const HelpBlock.p('有些由他人运营的服务，让人们通过付款链接以 @name 互相付款。钱包没有内置任何服务。'),
+        const HelpBlock.p('与服务配对属于联系人配对。打开它的邀请并 **核对代码**：比较双方显示的图案。然后选择 **以 @name 收款**。该服务会出现在[[联系人|Contacts]]中。'),
         const HelpBlock.p('开启时，这个钱包会向服务发送一个专为它生成并由本钱包签名的收款地址。除此之外什么都不发：没有余额，也没有其他地址。'),
-        const HelpBlock.p('在该服务的联系人页面点 **停止按名称收款** 会撤下你在那里的名称。钱包会继续接收该地址的付款 7 天，之后停止。'),
+        const HelpBlock.p('在该服务的联系人页面点 **退出** 会撤下你在那里的名称。钱包会继续接收该地址的付款 7 天，之后停止。'),
       ],
       id: HelpId.directories,
     ),
@@ -437,14 +493,25 @@ List<HelpTopic> _th(bool phone) {
       id: HelpId.linkLine,
     ),
     HelpTopic(
-      'network',
-      'รับเงินด้วยชื่อ',
-      'บริการที่คุณจับคู่ไว้ให้คนอื่นจ่ายเงินให้คุณด้วยชื่อของคุณได้ กระเป๋าเงินไม่มีบริการในตัว เมื่อเปิดใช้ จะส่งที่อยู่หนึ่งที่อยู่ที่สร้างเฉพาะสำหรับบริการนั้น',
+      'start',
+      'ผู้ติดต่อที่ไม่รับการจ่ายเงิน',
+      'ผู้ติดต่อบางรายไม่รับการจ่ายเงิน',
       [
-        const HelpBlock.p('บริการบางแห่งที่มีผู้ดูแลให้คนจ่ายเงินให้กันด้วยชื่อผ่านลิงก์ชำระเงิน กระเป๋าเงินไม่มีบริการในตัว'),
-        const HelpBlock.p('การจับคู่กับบริการเป็นการจับคู่ผู้ติดต่อ เปิดคำเชิญของบริการแล้ว **ตรวจรหัส** เทียบรูปภาพที่ทั้งสองฝั่งแสดง จากนั้นเลือก **รับเงินด้วยชื่อ** บริการจะอยู่ใน [[ผู้ติดต่อ|Contacts]]'),
+        const HelpBlock.p('ผู้ติดต่อบางรายไม่รับการจ่ายเงิน บริการที่คนจ่ายเงินให้คุณในชื่อ @name เป็นหนึ่งในนั้น บริการจะบอกตอนจับคู่'),
+        const HelpBlock.p('ในผู้ติดต่อและในรายชื่อผู้รับ ผู้ติดต่อแบบนี้มีเหรียญที่ขีดฆ่า หน้าของผู้ติดต่อแสดง **ไม่รับเงิน** การวางหรือสแกนที่อยู่ของผู้ติดต่อนี้ในส่งเงินจะถูกปฏิเสธ'),
+        const HelpBlock.p('การจ่ายเงินจากกระเป๋าเงินอื่นให้ผู้ติดต่อแบบนี้จะไม่ถูกรับ ค้างอยู่จนกว่าผู้ส่งจะยกเลิก'),
+      ],
+      id: HelpId.noPayments,
+    ),
+    HelpTopic(
+      'network',
+      'รับเงินในชื่อ @name',
+      'บริการที่คุณจับคู่ไว้ให้คนอื่นจ่ายเงินให้คุณในชื่อ @name ได้ กระเป๋าเงินไม่มีบริการในตัว เมื่อเปิดใช้ จะส่งที่อยู่หนึ่งที่อยู่ที่สร้างเฉพาะสำหรับบริการนั้น',
+      [
+        const HelpBlock.p('บริการบางแห่งที่มีผู้ดูแลให้คนจ่ายเงินให้กันในชื่อ @name ผ่านลิงก์ชำระเงิน กระเป๋าเงินไม่มีบริการในตัว'),
+        const HelpBlock.p('การจับคู่กับบริการเป็นการจับคู่ผู้ติดต่อ เปิดคำเชิญของบริการแล้ว **ตรวจรหัส** เทียบรูปภาพที่ทั้งสองฝั่งแสดง จากนั้นเลือก **รับเงินในชื่อ @name** บริการจะอยู่ใน [[ผู้ติดต่อ|Contacts]]'),
         const HelpBlock.p('เมื่อเปิดใช้ กระเป๋าเงินนี้จะส่งที่อยู่รับเงินที่สร้างเฉพาะสำหรับบริการนั้นและลงนามโดยกระเป๋าเงินนี้ ไม่ส่งอย่างอื่นเลย ไม่มียอดคงเหลือและไม่มีที่อยู่อื่น'),
-        const HelpBlock.p('**หยุดรับเงินด้วยชื่อ** บนหน้าผู้ติดต่อของบริการจะถอนชื่อของคุณออกจากที่นั่น กระเป๋าเงินยังรับเงินเข้าที่อยู่นั้นต่อไปอีก 7 วัน แล้วจึงหยุด'),
+        const HelpBlock.p('**ออก** บนหน้าผู้ติดต่อของบริการจะถอนชื่อของคุณออกจากที่นั่น กระเป๋าเงินยังรับเงินเข้าที่อยู่นั้นต่อไปอีก 7 วัน แล้วจึงหยุด'),
       ],
       id: HelpId.directories,
     ),
