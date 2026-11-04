@@ -17483,6 +17483,49 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mailboxKeepWaiting => '继续等待';
 
   @override
+  String get linkPayeeLead => 'The payee';
+
+  @override
+  String get linkPayeeMid => 'the payee';
+
+  @override
+  String get linkResendBody =>
+      'The waiting payment is cancelled and Send opens with the same amount. Check the address, then send it again.';
+
+  @override
+  String receiptTellSent(Object name) {
+    return 'Tell $name it’s sent';
+  }
+
+  @override
+  String receiptTellPosted(Object name) {
+    return 'Tell $name it went to the network';
+  }
+
+  @override
+  String receiptTold(Object name) {
+    return '$name was told';
+  }
+
+  @override
+  String receiptSeesSent(Object name, Object id, Object amount, Object time) {
+    return '$name will see: request $id, $amount, sent $time. Nothing else goes with it: no address and no transaction id.';
+  }
+
+  @override
+  String receiptSeesPosted(Object name, Object id, Object amount, Object time) {
+    return '$name will see: request $id, $amount, it went to the network at $time. Nothing else goes with it: no address and no transaction id.';
+  }
+
+  @override
+  String receiptNotSent(Object name) {
+    return 'Could not tell $name just now. Try again.';
+  }
+
+  @override
+  String get receiptHintTitle => 'Receipt';
+
+  @override
   String get mailboxResent => '已取消并经 Epicbox 发送。';
 
   @override

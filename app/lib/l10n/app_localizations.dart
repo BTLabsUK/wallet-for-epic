@@ -28866,6 +28866,66 @@ abstract class AppLocalizations {
   /// **'Keep waiting'**
   String get mailboxKeepWaiting;
 
+  /// Stands for the payee's name at the start of a sentence when a payment link carried no name.
+  ///
+  /// In en, this message translates to:
+  /// **'The payee'**
+  String get linkPayeeLead;
+
+  /// Stands for the payee's name inside a sentence when a payment link carried no name.
+  ///
+  /// In en, this message translates to:
+  /// **'the payee'**
+  String get linkPayeeMid;
+
+  /// Body of the confirm before Cancel and send by Epicbox on a payment made from a payment link.
+  ///
+  /// In en, this message translates to:
+  /// **'The waiting payment is cancelled and Send opens with the same amount. Check the address, then send it again.'**
+  String get linkResendBody;
+
+  /// Unticked line on a payment made from a payment link: tell the directory's payee the payment was sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell {name} it’s sent'**
+  String receiptTellSent(Object name);
+
+  /// Unticked line after the payment was finished and posted: tell the payee it went to the network.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell {name} it went to the network'**
+  String receiptTellPosted(Object name);
+
+  /// The receipt line once the receipt was posted.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} was told'**
+  String receiptTold(Object name);
+
+  /// Explanation behind the info icon of the sent receipt line; id is the first 8 characters of the request id.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will see: request {id}, {amount}, sent {time}. Nothing else goes with it: no address and no transaction id.'**
+  String receiptSeesSent(Object name, Object id, Object amount, Object time);
+
+  /// Explanation behind the info icon of the posted receipt line.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will see: request {id}, {amount}, it went to the network at {time}. Nothing else goes with it: no address and no transaction id.'**
+  String receiptSeesPosted(Object name, Object id, Object amount, Object time);
+
+  /// Notice when posting the receipt failed; the line stays unticked.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not tell {name} just now. Try again.'**
+  String receiptNotSent(Object name);
+
+  /// Title of the receipt line's explanation.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt'**
+  String get receiptHintTitle;
+
   /// Notice after Cancel and send by Epicbox finished: the old send is cancelled and the new one is on its way.
   ///
   /// In en, this message translates to:

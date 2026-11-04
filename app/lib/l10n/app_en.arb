@@ -25097,6 +25097,71 @@
   "@mailboxKeepWaiting": {
     "description": "The closing button of the Cancel and send by Epicbox dialog and of the unanswered mailbox send's details: nothing changes."
   },
+  "linkPayeeLead": "The payee",
+  "@linkPayeeLead": {
+    "description": "Stands for the payee's name at the start of a sentence when a payment link carried no name."
+  },
+  "linkPayeeMid": "the payee",
+  "@linkPayeeMid": {
+    "description": "Stands for the payee's name inside a sentence when a payment link carried no name."
+  },
+  "linkResendBody": "The waiting payment is cancelled and Send opens with the same amount. Check the address, then send it again.",
+  "@linkResendBody": {
+    "description": "Body of the confirm before Cancel and send by Epicbox on a payment made from a payment link.",
+    "placeholders": {}
+  },
+  "receiptTellSent": "Tell {name} it’s sent",
+  "@receiptTellSent": {
+    "description": "Unticked line on a payment made from a payment link: tell the directory's payee the payment was sent.",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "receiptTellPosted": "Tell {name} it went to the network",
+  "@receiptTellPosted": {
+    "description": "Unticked line after the payment was finished and posted: tell the payee it went to the network.",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "receiptTold": "{name} was told",
+  "@receiptTold": {
+    "description": "The receipt line once the receipt was posted.",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "receiptSeesSent": "{name} will see: request {id}, {amount}, sent {time}. Nothing else goes with it: no address and no transaction id.",
+  "@receiptSeesSent": {
+    "description": "Explanation behind the info icon of the sent receipt line; id is the first 8 characters of the request id.",
+    "placeholders": {
+      "name": {},
+      "id": {},
+      "amount": {},
+      "time": {}
+    }
+  },
+  "receiptSeesPosted": "{name} will see: request {id}, {amount}, it went to the network at {time}. Nothing else goes with it: no address and no transaction id.",
+  "@receiptSeesPosted": {
+    "description": "Explanation behind the info icon of the posted receipt line.",
+    "placeholders": {
+      "name": {},
+      "id": {},
+      "amount": {},
+      "time": {}
+    }
+  },
+  "receiptNotSent": "Could not tell {name} just now. Try again.",
+  "@receiptNotSent": {
+    "description": "Notice when posting the receipt failed; the line stays unticked.",
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "receiptHintTitle": "Receipt",
+  "@receiptHintTitle": {
+    "description": "Title of the receipt line's explanation."
+  },
   "mailboxResent": "Cancelled and sent by Epicbox.",
   "@mailboxResent": {
     "description": "Notice after Cancel and send by Epicbox finished: the old send is cancelled and the new one is on its way."

@@ -555,6 +555,24 @@ final class ReceiptPayload extends DirectoryPayload {
   @override
   List<_Field> get _schema => _payloadSchemas[5]!.$1;
 
+  /// The bytes of a receipt: [reqid] (16 bytes), [stage] `1` sent or `2` posted, [amount] in
+  /// the smallest unit and [at] unix seconds. Nothing else goes in: no kernel, tx id or address.
+  static Uint8List encode({
+    required Uint8List reqid,
+    required int stage,
+    required BigInt amount,
+    required int at,
+  }) {
+    if (reqid.length != 16 || (stage != 1 && stage != 2)) _malformed();
+    return _encodeStruct(
+      {'reqid': reqid, 'stage': stage, 'amount': amount, 'at': at},
+      const [],
+      null,
+      _payloadSchemas[5]!.$1,
+      lead: 5,
+    );
+  }
+
   Uint8List get reqid => _bytes('reqid');
 
   /// `1` sent, `2` posted.

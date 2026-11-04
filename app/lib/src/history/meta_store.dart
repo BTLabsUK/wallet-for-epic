@@ -15,7 +15,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
-import '../directory/pins.dart' show ListingPin;
+import '../directory/pins.dart' show LinkPaymentRec, ListingPin;
 import '../log.dart';
 import '../recipient.dart';
 import '../sealed_file.dart';
@@ -685,12 +685,14 @@ class Meta {
     Map<String, String>? seededAddresses,
     Map<String, ListingPin>? directoryPins,
     Map<String, int>? paidRequests,
+    Map<String, LinkPaymentRec>? linkPayments,
   }) : manual = SplayTreeMap.of(manual ?? const {}),
        favourites = SplayTreeSet.of(favourites ?? const []),
        seededContacts = SplayTreeSet.of(seededContacts ?? const []),
        seededAddresses = SplayTreeMap.of(seededAddresses ?? const {}),
        directoryPins = SplayTreeMap.of(directoryPins ?? const {}),
        paidRequests = SplayTreeMap.of(paidRequests ?? const {}),
+       linkPayments = SplayTreeMap.of(linkPayments ?? const {}),
        paidInvoices = SplayTreeMap.of(paidInvoices ?? const {}),
        issuedInvoices = SplayTreeMap.of(issuedInvoices ?? const {}),
        notes = SplayTreeMap.of(notes ?? const {}),
@@ -759,6 +761,23 @@ class Meta {
         );
       }),
       paidRequests: map('paid_requests').map((k, v) => MapEntry(k, _i64(v, 'paid request'))),
+      linkPayments: map('link_payments').map((k, v) {
+        final r = asObject(v, 'link payment');
+        return MapEntry(
+          k,
+          LinkPaymentRec(
+            reqid: _str(r['reqid'], 'link payment'),
+            dkey: _str(r['dkey'], 'link payment'),
+            label: _optStr(r['label'], 'link payment'),
+            amount: BigInt.parse(_str(r['amount'], 'link payment')),
+            address: _str(r['address'], 'link payment'),
+            paidAt: _i64(r['paid_at'], 'link payment'),
+            told: {
+              for (final s in (r['told'] as List? ?? const [])) _i64(s, 'link payment'),
+            },
+          ),
+        );
+      }),
     );
   }
 
@@ -824,6 +843,11 @@ class Meta {
   /// when not empty, and not part of a history file.
   final SplayTreeMap<String, int> paidRequests;
 
+  /// Payments made from payment links, by slate id: what the receipt line and the
+  /// silent-payee rows need. Kept 30 days. Written only when not empty, and not part of a
+  /// history file.
+  final SplayTreeMap<String, LinkPaymentRec> linkPayments;
+
   /// The block time at [height], when cached and known.
   int? blockTime(BigInt height) {
     final t = blockTimes['$height'];
@@ -871,6 +895,9 @@ class Meta {
       out['directory_pins'] = {for (final e in directoryPins.entries) e.key: e.value.toJson()};
     }
     if (paidRequests.isNotEmpty) out['paid_requests'] = {...paidRequests};
+    if (linkPayments.isNotEmpty) {
+      out['link_payments'] = {for (final e in linkPayments.entries) e.key: e.value.toJson()};
+    }
     return out;
   }
 
@@ -900,6 +927,7 @@ bool mergePlainMeta(Meta into, Meta plain) {
   maps(into.seededAddresses, plain.seededAddresses);
   maps(into.directoryPins, plain.directoryPins);
   maps(into.paidRequests, plain.paidRequests);
+  maps(into.linkPayments, plain.linkPayments);
   into.lastActivity ??= plain.lastActivity;
   into.favourites.addAll(plain.favourites);
   into.seededContacts.addAll(plain.seededContacts);
