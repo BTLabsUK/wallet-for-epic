@@ -6,7 +6,7 @@ import os
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 
-from support import Base, REPO
+from support import Base, FAKE_PIPELINE, REPO
 from rellib.cli import main, version_at
 
 # The version these runs ask for is the one app/pubspec.yaml carries, as a real run must.
@@ -67,6 +67,33 @@ class CliTest(Base):
         self.assertEqual(code, 64)
         code, out, err = rel(*self.common(), "run", "publish-downloads")
         self.assertIn(code, (40, 64))
+
+    def test_run_several_steps_keep_going(self):
+        pipe = os.path.join(self.tmp, "pipeline.toml")
+        with open(pipe, "w") as f:
+            f.write(FAKE_PIPELINE)
+        run = self.make_run(only="android,linux", sets=["publish.manifests=false"])
+        args = [*self.common(), "--pipeline", pipe, "run", "--run", run.info["version"]]
+        code, out, err = rel(*args, "build-android-tor", "build-linux-tor")
+        self.assertEqual(code, 64)
+        self.assertIn("needs scope", out + err)
+        run.set_status("scope", status="done")
+        open(os.path.join(self.src, "fail-notor"), "w").close()
+        lanes = ["build-android-notor", "build-android-tor", "build-linux-tor", "trust-linux-tor"]
+        code, out, err = rel(*args, *lanes, "--keep-going")
+        self.assertEqual(code, 64)  # trust-linux-tor also needs build-linux-notor, outside the selection
+        self.assertIn("build-linux-notor", out + err)
+        code, out, err = rel(*args, *lanes, "--keep-going", "--ignore-needs")
+        self.assertEqual(code, 20, out + err)
+        run = type(run).find(self.root, run.info["version"])
+        st = {s: run.status(s)["status"] for s in lanes}
+        self.assertEqual(st, {"build-android-notor": "failed", "build-android-tor": "done", "build-linux-tor": "done",
+                              "trust-linux-tor": "pending"})  # a need in the selection failed: it never started
+        self.assertIn("linux tor", self.calls())
+        self.assertNotIn("linux notor", self.calls())
+        self.assertTrue(any("trust-linux-tor" in t["reason"] for t in run.info.get("tainted", [])))
+        self.assertEqual(run.step("trust-linux-tor").needs, ["build-android-tor", "build-android-notor", "build-linux-tor",
+                                                             "build-linux-notor"])
 
 
 if __name__ == "__main__":
