@@ -29,8 +29,8 @@ class FakeClient:
     def __init__(self, refuse=None, problems=()):
         self.requests, self.refuse, self.problems = [], refuse, list(problems)
 
-    def sign(self, version, jobs, out_dir, label="", then=None, expect=None):
-        self.requests.append({"version": version, "jobs": jobs, "label": label, "then": then})
+    def sign(self, version, jobs, out_dir, label="", then=None, expect=None, run_id=None):
+        self.requests.append({"version": version, "jobs": jobs, "label": label, "then": then, "run": run_id})
         if self.refuse:
             raise RuntimeError(self.refuse)
         os.makedirs(out_dir, exist_ok=True)
@@ -95,6 +95,38 @@ class SignerTest(Base):
         res = signer.sign_android(eng, step, self.say)
         self.assertEqual(res["status"], "done", res)
         self.assertEqual(len(self.fake.requests), 1)
+
+    def test_a_run_never_published_signs_the_files_in_hand_without_manifests(self):
+        self.hosts["host"]["signer"] = {"endpoint": "http://100.64.0.9:8797"}
+        run = self.make_run(only="android")
+        eng = self.engine(run, relmsg=False)
+        eng.drive(["scope", "build-android-tor"])
+        step = Step(id="sign-android", base="sign-android", kind="builtin", title="sign", host="local", lane="sign",
+                    platforms=["android"])
+        res = signer.sign_android(eng, step, self.say)
+        self.assertEqual(res["status"], "failed")  # a run that may publish needs every Android file
+        self.assertIn("build-android-notor", res["note"])
+        self.assertEqual(self.fake.requests, [])
+        run.taint("trust-android-tor run with unmet needs: build-android-notor")
+        res = signer.sign_android(eng, step, self.say)
+        self.assertEqual(res["status"], "done", res)
+        req, = self.fake.requests
+        self.assertIsNone(req["then"])  # no manifests declared
+        self.assertEqual(req["run"], run.info["run_id"])
+        self.assertIn("never published", req["label"])
+        self.assertEqual(sorted(j["out"] for j in req["jobs"]), ["bt-wallet-26.10.25-android-arm64-v8a.apk", "x.apk"])
+        self.assertIn("not in this run", res["note"])
+
+    def test_the_signer_credential_signs_without_waiting_for_tools_rel_sign(self):
+        tok = os.path.join(self.tmp, "approve.token")
+        self.hosts["host"]["signer"] = {"endpoint": "http://100.64.0.9:8797", "approve_token": tok}
+        run = self.make_run(only="android", sets=["publish.manifests=false"])
+        eng = self.engine(run, relmsg=False)
+        eng.pipeline.sign = {"when": "on-demand"}
+        self.assertFalse(signer.sign_now(eng))
+        fd = os.open(tok, os.O_WRONLY | os.O_CREAT, 0o600)
+        os.close(fd)
+        self.assertTrue(signer.sign_now(eng))
 
     def test_a_file_changed_after_its_build_is_never_sent(self):
         run, eng, step = self.built()
