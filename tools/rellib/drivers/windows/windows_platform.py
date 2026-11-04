@@ -138,7 +138,7 @@ class WindowsPlatform(Platform):
         self.log("previous %s, candidate %s" % (os.path.basename(prev) if prev else "none (create)", os.path.basename(cand)))
         self._healthy_rig(prev, cand)
         self._servers()
-        self.surface = WinSurface(self.rig, self.log, secret_dir=self.work)
+        self.surface = WinSurface(self.rig, self.log, secret_dir=self.work, app_log=self.data + "\\logs\\wfe.log")
 
     def _servers(self, again=False):
         """The local services forwarded to the rig (once per master; asked again after a recovery), and

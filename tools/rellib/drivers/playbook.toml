@@ -96,3 +96,10 @@ situation = "The Receive page: an address and a copy button that has an icon and
 fix = "click the button whose id or name holds 'copy'. If none, give_up: the recipe's click map is out of date."
 platforms = ["windows"]
 source = "release/failures.toml windows-copy-address"
+
+[[entry]]
+key = "anr-dialog"
+situation = "Android's own dialog '<app> isn't responding' with 'Close app' and 'Wait' buttons covers the wallet."
+fix = "give_up: it is never pressed away. Pressing 'Wait' hid a frozen app and the lane went on (the old g4.system.anr.wait obstacle). The driver's alive_check (core/freeze.py) ends the lane PRODUCT 'the app froze' with a bundle when this dialog, am_anr or a StackOverflowError shows up."
+platforms = ["android"]
+source = "driver-resilience freeze plan: a wallet freezes on a StackOverflowError at unlock; the old obstacle would have waited it out"

@@ -8,6 +8,7 @@ lane. One JSON request per line on stdin, one JSON answer per line on stdout.
     {"op": "press", "path": [..], "role", "name"}    -> {"ok": bool, "how": "..."}
     {"op": "set_text", "path", "role", "name", "text"} -> {"ok": bool, "how": "..."}
     {"op": "focus", "path", "role", "name"}          -> {"ok": bool}
+    {"op": "ping_app"}                               -> {"ok": true, "app": bool}  (asks the app itself)
 
 A node is {"path": child indexes from the app root, "role": AT-SPI role name, "name", "id"
 (accessible id where the toolkit sets one), "desc", "value" (never a password field's), "states",
@@ -205,6 +206,21 @@ def set_text(req):
     return {"ok": False, "how": "no editable text"}
 
 
+def ping_app():
+    """A question only the app's own thread can answer (GetAttributes is not cached by libatspi): a frozen
+    app leaves it unanswered. {"app": false} when the app is not on the bus: not up yet, or a stopped app
+    (its name can no longer be read: the caller knows which from whether this process answered before)."""
+    root = app()
+    if root is None:
+        return {"ok": True, "app": False}
+    root.get_attributes()
+    if root.get_child_count() > 0:
+        win = root.get_child_at_index(0)
+        if win is not None:
+            win.get_attributes()
+    return {"ok": True, "app": True}
+
+
 def main():
     for line in sys.stdin:
         try:
@@ -224,6 +240,8 @@ def main():
                 ans = focus(req)
             elif op == "ping":
                 ans = {"ok": True}
+            elif op == "ping_app":
+                ans = ping_app()
             else:
                 ans = {"ok": False, "error": "unknown op %r" % op}
         except Exception as e:  # noqa: BLE001

@@ -12,6 +12,8 @@ REL_TRUST_BREAK is a comma list of:
     kill@<phase>            the sandbox / emulator / rig session is killed as the phase starts
                             (HarnessGone: the lane rebuilds it and runs the phase again)
     slow@<phase>:<seconds>  the app is frozen for that long as the phase starts
+    freeze@<phase>[:s]      the same freeze (default 10 s), but the lane must END PRODUCT "the app froze"
+                            with a bundle: alive_check (core/freeze.py) sees it before the app resumes
     lose-balance            the previous release's wallet loses its outputs while it is closed (before
                             the update): balance_kept must come out false, a product fault. Needs a
                             plain store: 26.10.25 and later encrypt theirs, so use lose-node there
@@ -41,7 +43,7 @@ import time
 
 from .surface import Node
 
-KINDS = ("hide:", "dialog:", "move:", "kill@", "slow@", "lose-balance", "lose-node", "fold:", "overlay@",
+KINDS = ("hide:", "dialog:", "move:", "kill@", "slow@", "freeze@", "lose-balance", "lose-node", "fold:", "overlay@",
          "stale:", "selected:", "quit@", "node-down", "ssh-timeout@")
 
 
@@ -225,6 +227,7 @@ def wrap(surface):
 
 def stale_rows(surface, pred):
     """stale: rows matching `pred` read gone until the next Escape."""
+    surface = surface.unwrap() if hasattr(surface, "unwrap") else surface
     if isinstance(surface, Broken):
         surface.hide_rows = pred
 
@@ -255,6 +258,13 @@ def at_phase(lane, phase):
             s = float(it.split(":", 1)[1])
             lane.log("BREAK: the app frozen for %d s as %s starts" % (s, phase))
             lane.p.break_freeze(True)
+            threading.Timer(s, lambda: lane.p.break_freeze(False)).start()
+        elif (it == "freeze@%s" % phase or it.startswith("freeze@%s:" % phase)) and _first(it):
+            s = float(it.split(":", 1)[1]) if ":" in it else 10
+            lane.log("BREAK: the app is frozen for %d s as %s starts (alive_check must call it a product fault)" % (s, phase))
+            lane.p.break_freeze(True)
+            if getattr(lane.p, "break_input", None):   # Android raises an ANR only for an input left unanswered
+                lane.p.break_input()
             threading.Timer(s, lambda: lane.p.break_freeze(False)).start()
         elif it == "lose-balance" and phase == "snapshot":
             lane.log("BREAK: the previous release's wallet loses its outputs before the update")

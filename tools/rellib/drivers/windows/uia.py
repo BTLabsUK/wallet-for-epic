@@ -23,6 +23,7 @@ import time
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
 
+from core import freeze  # noqa: E402
 from core.faults import HarnessFault, HarnessGone  # noqa: E402
 from core.surface import Node  # noqa: E402
 
@@ -48,8 +49,11 @@ class WinSurface:
     platform, family = "windows", "desktop"
     shows_selection = False   # UI Automation gives a Flutter segmented button no chosen state
 
-    def __init__(self, rig, log=print, secret_dir=None):
+    def __init__(self, rig, log=print, secret_dir=None, app_log=None):
         self.rig, self.log = rig, log
+        self.app_log = app_log   # the app's wfe.log on the rig (windows_platform sets it: the run's data folder)
+        self.offset = -1         # how much of it was read: the first read marks the end, so only this run's lines count
+        self.pending = []
         self.secret_dir = secret_dir or os.environ.get("TMPDIR") or tempfile.gettempdir()
         self.last = []        # the nodes of the last read, UIA order, unfiltered
         self.last_press = None
@@ -66,10 +70,46 @@ class WinSurface:
             raise HarnessGone("ui", "the rig agent does not answer (%s)" % err[:120])
         return r
 
+    # ---- a frozen app (core/freeze.py)
+
+    def _health(self, **kw):
+        """One agent call: does the app window answer a WM_NULL (within FREEZE_S), and the app log's problem
+        lines since the last call. The log lines wait in self.pending for log_lines()."""
+        extra = {"log": self.app_log, "offset": self.offset} if self.app_log else {}
+        r = self._call("health", timeout=int(freeze.FREEZE_S) + 60, ms=int(freeze.FREEZE_S * 1000), **extra, **kw)
+        if r.get("ok") and self.app_log and r.get("offset") is not None:
+            self.offset = r["offset"]
+            self.pending += r.get("lines") or []
+        return r
+
+    @staticmethod
+    def _hung_text(r):
+        return ("Windows counts the app window as hung (IsHungAppWindow)" if r.get("hung") == 1 else
+                "the app window gave no answer to a WM_NULL in %d s (SendMessageTimeout)" % freeze.FREEZE_S)
+
+    def froze(self):
+        r = self._health()
+        return self._hung_text(r) if r.get("ok") and r.get("app") and r.get("hung") else None
+
+    def log_lines(self):
+        if not self.pending:
+            self._health()
+        out, self.pending = self.pending, []
+        return out
+
+    def evidence(self):
+        r = self._health(procs=True, tail=200)
+        ev = {"processes.txt": "\n".join(r.get("procs") or []) + "\n"}
+        if r.get("tail"):
+            ev["app-log-tail.txt"] = r["tail"] + "\n"
+        return ev
+
     # ---- reading
 
     def tree(self):
         r = self._call("uia_tree", timeout=120, wait_s=0, min=1, max=2500)
+        if r.get("hung"):   # the agent asked the window first: a frozen app is not read for 30 s
+            raise freeze.Frozen("ui", self._hung_text(r), evidence=self.evidence())
         if not r.get("ok"):
             if "no app window" in (r.get("error") or ""):
                 return []
