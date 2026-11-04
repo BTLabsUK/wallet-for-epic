@@ -105,6 +105,21 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('Your invite answered: Waiting for them with Check the words; heard: Paired with them, no spinner', (tester) async {
+    await _open(tester, const DeskPairScreen());
+    final id = _pairing.standing!.id;
+    _pairing.answerInvite(id, name: 'Lol', features: featureStatusNotices);
+    await _real(tester);
+    expect(find.text(_l.pairWaitingFor('Lol')), findsOneWidget);
+    expect(find.byKey(deskPairCheckWordsKey), findsOneWidget);
+    _pairing.hear(id);
+    await _real(tester);
+    expect(find.text(_l.pairPairedWith('Lol')), findsOneWidget);
+    expect(find.text(_l.pairAnsweredFinishing('Lol')), findsNothing);
+    expect(find.byType(ESpinner), findsNothing);
+    expect(find.byKey(deskPairCheckWordsKey), findsOneWidget, reason: 'the words are still to check');
+  });
+
   testWidgets('Change: the name they see is kept in the settings and the invite is made anew', (tester) async {
     await _open(tester, const DeskPairScreen());
     final before = _pairing.standing!.id;

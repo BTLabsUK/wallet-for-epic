@@ -243,6 +243,21 @@ void main() {
       expect(find.byType(CheckWordsScreen), findsOneWidget);
     });
 
+    testWidgets('Pair keeps the wait open while the records reload slower than a frame', (tester) async {
+      final h = _Harness();
+      _clipboard(tester, h.api.inviteLinkFrom(name: 'Northwind'));
+      await h.pump(tester, const PairScreen(), settle: false);
+      h.api.listDelay = const Duration(milliseconds: 300);
+      await tester.tap(find.byKey(pairPasteKey));
+      await _frames(tester);
+      await tester.tap(find.byKey(incomingPairKey));
+      await _frames(tester);
+      expect(find.byType(PairingWaitingScreen), findsOneWidget);
+      h.api.confirmAnswer(h.api.records.single.id);
+      await _frames(tester);
+      expect(find.byType(CheckWordsScreen), findsOneWidget);
+    });
+
     testWidgets('the wait: Your answer after 30 s with a QR, Share and the confirmation field; at once with Epicbox off', (tester) async {
       final h = _Harness();
       final preview = await h.api.openInvite(h.api.inviteLinkFrom(name: 'Anna'));
@@ -478,12 +493,14 @@ void main() {
       expect(find.text(_l.trustNotAnswering), findsNothing);
     });
 
-    testWidgets('waiting (answered, not heard): the line, Check the words, Cancel; heard: Paired', (tester) async {
+    testWidgets('waiting (answered, not heard): the line, Check the words, Remove pairing; heard: Paired', (tester) async {
       final h = await page(tester, (h) => h.api.seedPaired(name: 'Anna', contactId: 'c1', state: PairingState.waiting, paymentsAddress: _anna));
       expect(find.text(_l.pairWaitingFor('Anna')), findsWidgets);
       expect(find.text(_l.pairAnsweredNotHeard), findsOneWidget);
       expect(find.byKey(contactPageCheckKey), findsOneWidget);
-      expect(find.byKey(contactPageCancelPairingKey), findsOneWidget);
+      // The pairing is stored: it is removed, and the other wallet told, as a paired one is.
+      expect(find.byKey(contactPageCancelPairingKey), findsNothing);
+      expect(find.byKey(contactPageRemovePairingKey), findsOneWidget);
       final seal = tester.widget<Switch>(find.byKey(contactPageSealKey));
       expect(seal.onChanged, isNull, reason: 'nothing is sealed to a wallet not heard');
       h.api.hear(h.api.records.single.id);
@@ -592,7 +609,7 @@ void main() {
       expect(find.text(_l.trustPairedShort), findsNothing);
     });
 
-    testWidgets('a pending row (an invite answered, not heard) sits in the list with Cancel; an unused invite is no row', (tester) async {
+    testWidgets('a row answered, not heard, sits in the list with Remove pairing; an unused invite is no row', (tester) async {
       final h = _Harness();
       await h.api.standingCode(name: 'Alex');
       final invite = h.api.standing!;
@@ -602,12 +619,34 @@ void main() {
       expect(find.text(_l.pairAnsweredNotHeard), findsOneWidget);
       await tester.tap(find.byKey(contactsOrphanMenuKey(invite.id)));
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(contactsCancelPairingKey));
+      expect(find.byKey(contactsCancelPairingKey), findsNothing);
+      await tester.tap(find.text(_l.contactRemovePairing).last);
       await tester.pumpAndSettle();
-      await tester.tap(find.text(_l.pairCancelPairing));
+      await tester.tap(find.byKey(confirmRemovePairingKey));
       await tester.pumpAndSettle();
       expect(h.api.records, isEmpty);
+      expect(h.api.calls, contains('remove'));
       expect(find.byKey(contactsPairingRowKey(invite.id)), findsNothing);
+    });
+
+    testWidgets('a pairing in no contact: Remove shows it working until it is gone, its menu shut meanwhile', (tester) async {
+      final h = _Harness();
+      h.api
+        ..seedPaired(id: 'p-lol', name: 'Lol', state: PairingState.paired)
+        ..removeDelay = const Duration(seconds: 3);
+      await h.pump(tester, const ContactsScreen());
+      await tester.tap(find.byKey(contactsOrphanMenuKey('p-lol')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(_l.contactRemovePairing).last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(confirmRemovePairingKey));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.descendant(of: find.byKey(contactsPairingRowKey('p-lol')), matching: find.byType(CircularProgressIndicator)), findsOneWidget);
+      expect(find.byKey(contactsOrphanMenuKey('p-lol')), findsNothing, reason: 'no second Remove while the first runs');
+      await tester.pump(const Duration(seconds: 3));
+      await tester.pumpAndSettle();
+      expect(find.byKey(contactsPairingRowKey('p-lol')), findsNothing);
+      expect(h.api.calls.where((c) => c == 'remove'), hasLength(1));
     });
 
     testWidgets('Pair requests · 1 for a contact\'s request only; Pair opens the from-a-contact sheet; Not now dismisses', (tester) async {

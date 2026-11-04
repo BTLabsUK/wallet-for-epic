@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The contact page's Pairing block, per state: Not paired with Pair; a request sent (the
 /// date, Cancel, Show my code; expired: No answer, Pair again, Remove); Waiting for the
-/// other wallet (Check the words, Cancel); Paired with "has not checked yet" and Check the
+/// other wallet (Check the words, Remove pairing); Paired with "has not checked yet" and Check the
 /// words; Verified with "confirmed too"; Keys changed; Ended with its reason, the sealed sends
 /// still waiting (each with Cancel) and Remove. Seal payments and Allow invoices as before.
 library;
@@ -281,7 +281,7 @@ class ContactPairingBlock extends ConsumerWidget {
       await pairingCall(ref, (api) => api.resolveKeysChanged(p.id, choice));
     });
     Future<void> remove() async {
-      if (waiting ? await confirmCancelPairing(context, name) : await confirmRemovePairing(context, name)) {
+      if (await confirmRemovePairing(context, name)) {
         await run(() => pairingCall(ref, (api) => api.removePairing(p.id)));
       }
     }
@@ -461,10 +461,10 @@ class ContactPairingBlock extends ConsumerWidget {
               OutlinedButton(key: contactPagePairAgainUnprovenKey, onPressed: busy ? null : onPair, child: Text(l.pairAgain)),
             if (waiting) OutlinedButton(key: contactPageShowCodeKey, onPressed: busy ? null : () => _showCode(context), child: Text(l.pairShowMyCode)),
             TextButton(
-              key: waiting ? contactPageCancelPairingKey : contactPageRemovePairingKey,
+              key: contactPageRemovePairingKey,
               style: TextButton.styleFrom(foregroundColor: t.risk, minimumSize: const Size(0, 48)),
               onPressed: busy ? null : remove,
-              child: Text(waiting ? l.commonCancel : l.contactRemovePairing),
+              child: Text(l.contactRemovePairing),
             ),
           ],
         ),

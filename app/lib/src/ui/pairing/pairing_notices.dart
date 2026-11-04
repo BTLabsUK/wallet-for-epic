@@ -21,6 +21,7 @@ import '../../wallet_service.dart';
 import '../common.dart';
 import '../contact_page.dart';
 import '../invoices_screen.dart';
+import '../levels/shell_pairing.dart' show offerPairRequest;
 import '../scan_route.dart' show showPairingSheet;
 import '../tx_details_screen.dart';
 import 'invite_links.dart';
@@ -140,6 +141,8 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     if (!mounted) return;
     // A core without pairing: the sheet that says so, never the pairing calls.
     if (!ref.read(pairingSupportedProvider)) return showPairingSheet(context, link.invite, origin: CodeOrigin.link);
+    // Just send and receive: a notice with See request, not the sheet over the screen.
+    if (await offerPairRequest(context, ref, link.invite) || !mounted) return;
     await openPairingLink(context, ref, link.invite);
   }
 
@@ -209,6 +212,12 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     // contact's page still says it.
     if (event.kind == PairingEventKind.homeRelayUnreachable && ref.read(connectionGraceProvider)) return;
     final id = event.pairingId;
+    // An answer or a confirm gives the record its words: the list read before the event does
+    // not have them yet, and the action would be missing.
+    if (id != null && (event.kind == PairingEventKind.replied || event.kind == PairingEventKind.confirmed)) {
+      await ref.read(pairingsProvider.notifier).reload();
+      if (!mounted) return;
+    }
     final contactId = id == null ? null : ref.read(pairingByIdProvider(id))?.contactId;
     final contact = contactId == null
         ? null
