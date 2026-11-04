@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: Apache-2.0
-# Four tries a night (local time); a try skips when main is unchanged or the machine is busy, so a
-# busy night still gets a later one. Missed tries are not made up (Persistent=false).
+# A try every hour at :30. By day it skips (nightly.py: `daytime`), unless no run has finished for
+# 24 h: then it runs at any hour and waits for a build slot (catch-up). A try also skips when main
+# is unchanged or a tools/rel run is active. Missed tries are not made up (Persistent=false).
 [Unit]
 Description=Epic Wallet nightly full check of main
 
 [Timer]
-OnCalendar=*-*-* 02,03,04,05:30:00
+OnCalendar=*-*-* *:30:00
 Persistent=false
 Unit=wfe-nightly.service
 
