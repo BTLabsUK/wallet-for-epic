@@ -266,7 +266,8 @@ class Pairing:
         return True
 
     def accept_request(self, timeout=300):
-        """Contacts › Pair requests · n › Pair (the newest)."""
+        """Contacts › Pair requests · n › Pair (the newest), then its Pair with <name>? › Pair (desktop opens
+        the same dialog as an invite; no words for a proven contact)."""
         d = self.d
         self.ui.ensure_unlocked()
         self.contacts_list()
@@ -275,6 +276,10 @@ class Pairing:
             d.press(REQUESTS_ROW, step="pair-requests-open", then=shows(REQUESTS_PAIR), timeout=20)
             hits = d.find_in(REQUESTS_PAIR, d.tree())
             d._act(d.s.press, hits[-1])
+            if d.wait(shows(INCOMING_TITLE), 20):
+                hits = d.find_in(INCOMING_PAIR, d.tree())
+                d._act(d.s.press, hits[-1])  # the dialog's Pair (the page's own is under it)
+                d.must(gone(INCOMING_TITLE), 60, step="pair-request-accepted")
 
     # ---- an invoice between paired contacts
 

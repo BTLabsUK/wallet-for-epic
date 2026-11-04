@@ -34,6 +34,7 @@ CAP_RUN = D("0.1")         # out of P per run, every lane phase included
 DUST = FEE_MAX             # a balance below this is not worth a send (its fee would eat it)
 PAY_WAIT_S = {"epicbox": 900, "http": 600, "tor": 900, "file": 600}
 KICK_AFTER_S = 180         # a send to P unanswered this long: P's listener kicked once (the service's kick)
+LOCK_WAIT_S = 600          # returned_ok: the sweeps' posted sends confirmed (their coins no longer locked)
 SPEND_WAIT_S = 1800        # A's change and B's receipts confirmed (10 blocks and some)
 CHECKS = ["tx_%s_ok" % m for m in METHODS] + ["returned_ok"]
 
@@ -506,7 +507,13 @@ def unanswered(lane, p, amount, why):
 def returned(lane):
     """returned_ok: A and B hold less than DUST (all sent to P, wallet data) and what came back is what P
     sent less the fees the wallets paid."""
-    left = {k: (digest(lane, w, "returned").get("balance") or {}) for k, w in lane.w.items()}
+    end = time.time() + LOCK_WAIT_S  # the sweeps' sends posted: their coins locked until they confirm
+    while True:
+        left = {k: (digest(lane, w, "returned").get("balance") or {}) for k, w in lane.w.items()}
+        if not any(b.get("locked") for b in left.values()) or time.time() >= end:
+            break
+        _awake(lane)
+        time.sleep(POLL_S)
     held = {k: (b.get("total") or 0) for k, b in left.items()}
     led = lane.ledger
     lost = led.unaccounted(D(sum(held.values())) / NANO)

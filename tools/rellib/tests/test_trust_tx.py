@@ -105,6 +105,34 @@ class MoneyTest(unittest.TestCase):
             self.assertTrue(lane.results["returned_ok"][0], lane.results["returned_ok"][1])
         self.assertEqual(led.doc()["cancelled_total"], "0.05")
 
+    def test_returned_waits_for_the_sweeps_locked_coins(self):
+        """run-f9: A's last send posted 23 s before: its 0.018 still locked, then gone once confirmed."""
+        class Lane:
+            ledger = tx.Ledger()
+            results = {}
+
+            def log(self, m):
+                pass
+
+            def ok(self, k, why):
+                self.results[k] = (True, why)
+
+            def fail(self, k, why):
+                self.results[k] = (False, why)
+        lane = Lane()
+        lane.ledger.charge("0.02")
+        lane.ledger.returned.append(D("0.015"))
+        lane.ledger.fees.append(D("0.005"))
+        locked = digest(total=0.018)
+        locked["balance"]["locked"] = nn(0.018)
+        reads = iter([locked, digest()])
+        a = object()
+        lane.w = {"a": a}
+        with unittest.mock.patch.object(tx, "digest", lambda lane, w, tag: next(reads)), \
+                unittest.mock.patch.object(tx.time, "sleep", lambda s: None):
+            tx.returned(lane)
+        self.assertTrue(lane.results["returned_ok"][0], lane.results["returned_ok"][1])
+
     def test_ledger_counts_what_runs_before_left(self):
         """run-f6: sweep-start sent B's 0.04 back and A spent its 0.009: not P's coins this run."""
         led = tx.Ledger()
