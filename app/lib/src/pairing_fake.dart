@@ -123,6 +123,9 @@ class FakePairing implements PairingApi {
   /// lower-key rule compares.
   String ownAddress = fakePairedAddress('self');
 
+  /// When set, [pairings] answers after this long, as the core's call does.
+  Duration? listDelay;
+
   /// When set, the other side answers requests and confirms answers on its own after this long.
   Duration? autoAnswerAfter;
 
@@ -538,7 +541,9 @@ class FakePairing implements PairingApi {
   @override
   Future<List<PairingRecord>> pairings() async {
     if (!enabled) return const [];
-    return [...records];
+    final snapshot = [...records];
+    if (listDelay case final delay?) await Future<void>.delayed(delay);
+    return snapshot;
   }
 
   @override
