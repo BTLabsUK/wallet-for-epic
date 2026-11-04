@@ -597,7 +597,7 @@ class TxLane(Lane):
                 return self._file_round_trip(a0)
             to = self.address["b"][method]
             if method == "epicbox":
-                to = tx.pay_to(to, getattr(b.p, "relay", None))
+                to = tx.fund_to(to, getattr(b.p, "relay", None))  # as B's app shows it: B listens there
             return a.pay.send(method, to, format(tx.AMOUNT, "f"))
         return send
 

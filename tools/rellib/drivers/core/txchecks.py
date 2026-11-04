@@ -249,7 +249,7 @@ def remaining(lane):
 
 
 def fund_to(address, relay):
-    """A's address for P's send: as the app shows it (its relay is settings.toml's first server, which
+    """An app wallet's Epicbox address for a send to it: as the app shows it (its relay is settings.toml's first server, which
     need not be the lane's pick); moved to [relay] only when that is a local hermetic relay."""
     if "@" in address and not hermetic.local(relay):
         return address
