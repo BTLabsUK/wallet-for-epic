@@ -280,7 +280,8 @@ def fund(lane, methods):
         before = digest(lane, a, "fund")
         with p.exchange("fund A"):
             relay = checks._relay_with_p(lane, p)
-            ok, out = p.send(fund_to(lane.address["a"]["epicbox"], relay), amount)
+            to = fund_to(lane.address["a"]["epicbox"], relay)
+            ok, out = p.send(to, amount)
             lane.log("P -> A %s EPIC: %s (%s)" % (amount, "sent" if ok else "FAILED", out))
             if not ok:
                 lane.ledger.p_sent.pop()
@@ -288,8 +289,11 @@ def fund(lane, methods):
         mine = lambda d: [t for t in new_txs(before, d, "incoming") if (t.get("credited") or 0) == nano(amount)]  # noqa: E731
         try:
             wait_for(lane, a, "fund", lambda d: bool(mine(d)), 900)
-        except ProductFault:
+        except ProductFault as e:
             unanswered(lane, p, amount, "fund: A did not answer")
+            wrong = wrong_relay(to, getattr(a, "listening", lambda: None)())
+            if wrong:
+                raise HarnessFault("fund", "%s: %s" % (e.what, wrong))
             raise
         # A answered; P finalizes and posts. P that does not (its node not synced, its listener paused) is
         # the infrastructure's, never the app's
@@ -420,6 +424,15 @@ def sweep(lane, keys, tag, settle=True):
             if amount is not None:  # the next send waits for the change
                 wait_for(lane, w, "%s %s change" % (tag, k.upper()), lambda x: spendable(x) >= nano(DUST), SPEND_WAIT_S)
     return back
+
+
+def wrong_relay(to, listening):
+    """Why a send to [to] could not reach a wallet subscribed on [listening] (the harness addressed it to
+    another relay), or None: the same relay, or the wallet's relay unknown (then it is the app's)."""
+    at = to.split("@", 1)[1] if "@" in (to or "") else None
+    if at and listening and at != listening:
+        return "the slate went to %s; the app listens on %s (its log)" % (at, listening)
+    return None
 
 
 def unanswered(lane, p, amount, why):

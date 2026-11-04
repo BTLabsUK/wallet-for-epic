@@ -178,6 +178,15 @@ class FundToTest(unittest.TestCase):
         self.assertEqual(tx.fund_to("es1", "epicbox.stackwallet.com"), "es1@epicbox.stackwallet.com")
 
 
+class WrongRelayTest(unittest.TestCase):
+    def test_another_relay_is_the_harness(self):
+        self.assertIn("epicbox.epiccash.com", tx.wrong_relay("es1@epicbox.stackwallet.com", "epicbox.epiccash.com"))
+
+    def test_the_same_relay_or_unknown_is_the_app(self):
+        self.assertIsNone(tx.wrong_relay("es1@epicbox.epiccash.com", "epicbox.epiccash.com"))
+        self.assertIsNone(tx.wrong_relay("es1@epicbox.epiccash.com", None))
+
+
 class InvoiceCheckTest(unittest.TestCase):
     def setUp(self):
         self.a0 = digest(t("incoming", credited=0.04, slate="F1"))

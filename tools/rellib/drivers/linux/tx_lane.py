@@ -40,6 +40,7 @@ inbox (HOME/inbox), never one outside it.
 The phrases and passwords go to the test DB (wallet.put); trust.log and proof.json name neither, and
 the end-of-lane scan looks for both phrases in REL_OUT."""
 import json
+import re
 import os
 import shutil
 import signal
@@ -189,6 +190,11 @@ def inbox(p):
     return os.path.join(p.sb, "home", "inbox")
 
 
+def short(address):
+    a, _, at = (address or "").partition("@")
+    return "%s…%s%s" % (a[:8], a[-6:], "@" + at if at else "") if len(a) > 16 else address
+
+
 class Wallet:
     """One of the pair: its platform, seed, recipe (ui), payments recipes, secrets."""
 
@@ -228,6 +234,15 @@ class Wallet:
         if not first:
             raise HarnessFault("addresses", "%s: settings.toml names no Epicbox server" % self.key.upper())
         return "%s@%s" % (address, first)
+
+    def listening(self):
+        """The Epicbox relay the app last subscribed on (its logs/wfe.log), or None."""
+        try:
+            with open(os.path.join(data_root(self.p.sb), "logs", "wfe.log"), errors="replace") as f:
+                hits = re.findall(r"epicbox subscribed\b.*?\brelay=(\S+)", f.read())
+        except OSError:
+            return None
+        return hits[-1] if hits else None
 
     def choose(self, path):
         portal_stub.ensure(self.p.sb)  # the app's restart takes the stand-in with it
@@ -475,7 +490,8 @@ class TxLane(Lane):
         self.ledger.charge(LINK_AMOUNT)
         with p.exchange("link: P pays A's address"):
             relay = tx.checks._relay_with_p(self, p)
-            ok, out = p.send(tx.fund_to(self.address["a"]["epicbox"], relay), LINK_AMOUNT)
+            to = tx.fund_to(self.address["a"]["epicbox"], relay)
+            ok, out = p.send(to, LINK_AMOUNT)
             self.log("P -> A's address %s EPIC: %s (%s)" % (LINK_AMOUNT, "sent" if ok else "FAILED", out))
             if not ok:
                 self.ledger.p_sent.pop()
@@ -501,6 +517,9 @@ class TxLane(Lane):
                 break
             if not both and now - start >= tx.PAY_WAIT_S["epicbox"]:
                 tx.unanswered(self, p, LINK_AMOUNT, "link-pay: neither A nor A2 answered")
+                wrong = tx.wrong_relay(to, self.w["a"].listening())
+                if wrong:
+                    raise HarnessFault("link-pay", "neither A nor A2 answered P's payment: %s" % wrong)
                 raise ProductFault("link-pay", "neither A nor A2 answered P's payment in %d s" % tx.PAY_WAIT_S["epicbox"])
             if both and not p.finalized() and now - start >= 2 * tx.PAY_WAIT_S["epicbox"]:
                 raise tx.InfraFault("link-pay", "A or A2 answered, P did not finalize in %d s (P's node or listener)" %
@@ -598,7 +617,11 @@ class TxLane(Lane):
                 self.ui = w.ui
                 addr = w.pay.enable_receive(m)
                 if m == "epicbox":
-                    addr = w.epicbox(addr)
+                    shown, addr = addr, w.epicbox(addr)
+                    self.details.setdefault("epicbox_address", {})[w.key] = {"receive_shows": shown, "paid_at": addr}
+                    if shown != addr:
+                        self.log("%s: Receive shows the Epicbox address without its server (%s); paid at %s (settings.toml's "
+                                 "first server)" % (w.key.upper(), short(shown), short(addr)))
                 self.address[w.key][m] = addr
                 if addr:
                     record.emit("wallet.address", name=w.seed.lane, role="lane", kind=m, address=addr)
