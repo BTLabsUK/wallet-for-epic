@@ -4549,6 +4549,8 @@
   "errorPaymentCancelledCoinsMoved": "Diese Zahlung wurde storniert, und ihre Coins wurden bereits verschoben. Sie kann nicht mehr durchgehen.",
   "errorPaymentAlreadyWentThrough": "Die Coins konnten nicht zurückgeschickt werden: Die Zahlung selbst ist bereits durchgegangen. Sie erscheint als bezahlt.",
   "errorPinKeyLost": "Die PIN öffnet diese Wallet nicht mehr. Ihre Coins sind sicher: Tippen Sie auf „PIN vergessen?“ und stellen Sie die Wallet mit ihrer Wiederherstellungsphrase wieder her.",
+  "errorKeystoreRefused": "Das Telefon hat den Wallet-Schlüssel nicht freigegeben. Entsperren Sie das Telefon mit seiner eigenen PIN oder seinem Fingerabdruck und versuchen Sie es dann erneut.",
+  "unlockTryAgain": "Erneut versuchen",
   "settingsUsePassphrase": "Passphrase verwenden",
   "settingsChangePassphrase": "Passphrase ändern",
   "passphraseLabel": "Passphrase",

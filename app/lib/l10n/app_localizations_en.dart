@@ -17562,6 +17562,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'The PIN can no longer open this wallet. Your coins are safe: tap Forgot PIN and restore the wallet from its recovery phrase.';
 
   @override
+  String get errorKeystoreRefused =>
+      'The phone did not release the wallet key. Unlock the phone with its own PIN or fingerprint, then try again.';
+
+  @override
+  String get unlockTryAgain => 'Try again';
+
+  @override
   String get settingsUsePassphrase => 'Use a passphrase';
 
   @override

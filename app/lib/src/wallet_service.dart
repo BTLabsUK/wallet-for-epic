@@ -1112,6 +1112,10 @@ class FakeWalletService implements WalletService {
   /// When set, reading [pinFailureCount] throws it, as a Keystore that does not answer now.
   Object? pinFailuresError;
 
+  /// When set, the next [openWithPin] throws it before the PIN is checked, as a Keystore that
+  /// does not release the PIN key.
+  Object? nextOpenError;
+
   /// The PIN of the last [createWithPin].
   String? createdPin;
 
@@ -1166,6 +1170,10 @@ class FakeWalletService implements WalletService {
         kind: WalletErrorKind.walletNotFound,
         message: 'no wallet',
       );
+    }
+    if (nextOpenError case final error?) {
+      nextOpenError = null;
+      throw error;
     }
     _checkPin(pin, sealedPassword);
     await _openStore();

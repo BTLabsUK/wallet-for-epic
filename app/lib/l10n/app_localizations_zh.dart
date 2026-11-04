@@ -16545,6 +16545,12 @@ class AppLocalizationsZh extends AppLocalizations {
       'PIN 码已无法打开此钱包。您的币是安全的：点按“忘记 PIN 码？”，用恢复短语恢复钱包。';
 
   @override
+  String get errorKeystoreRefused => '手机未提供钱包密钥。请先用手机自身的 PIN 码或指纹解锁手机，然后重试。';
+
+  @override
+  String get unlockTryAgain => '重试';
+
+  @override
   String get settingsUsePassphrase => '使用密码短语';
 
   @override

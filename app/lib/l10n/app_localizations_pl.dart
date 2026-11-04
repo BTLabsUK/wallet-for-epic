@@ -18194,6 +18194,13 @@ class AppLocalizationsPl extends AppLocalizations {
       'PIN nie otwiera już tego portfela. Twoje monety są bezpieczne: dotknij „Nie pamiętasz kodu PIN?” i przywróć portfel z frazy odzyskiwania.';
 
   @override
+  String get errorKeystoreRefused =>
+      'Telefon nie udostępnił klucza portfela. Odblokuj telefon jego własnym kodem PIN lub odciskiem palca, a potem spróbuj ponownie.';
+
+  @override
+  String get unlockTryAgain => 'Spróbuj ponownie';
+
+  @override
   String get settingsUsePassphrase => 'Użyj hasła';
 
   @override

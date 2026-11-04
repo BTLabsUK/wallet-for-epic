@@ -27318,6 +27318,18 @@ abstract class AppLocalizations {
   /// **'The PIN can no longer open this wallet. Your coins are safe: tap Forgot PIN and restore the wallet from its recovery phrase.'**
   String get errorPinKeyLost;
 
+  /// Unlock error when the Android Keystore refused to release the key that seals the PIN key (for example the phone counts as locked). The wallet is intact; Forgot PIN is hidden while this shows.
+  ///
+  /// In en, this message translates to:
+  /// **'The phone did not release the wallet key. Unlock the phone with its own PIN or fingerprint, then try again.'**
+  String get errorKeystoreRefused;
+
+  /// Unlock screen button shown with errorKeystoreRefused: runs the unlock again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get unlockTryAgain;
+
   /// Settings row: replace the 6-digit PIN with a longer passphrase.
   ///
   /// In en, this message translates to:

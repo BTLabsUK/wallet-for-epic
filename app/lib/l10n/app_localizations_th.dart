@@ -17159,6 +17159,13 @@ class AppLocalizationsTh extends AppLocalizations {
       'PIN เปิดกระเป๋าเงินนี้ไม่ได้แล้ว เหรียญของคุณยังปลอดภัย: แตะ \"ลืม PIN\" แล้วกู้คืนกระเป๋าเงินจากวลีกู้คืน';
 
   @override
+  String get errorKeystoreRefused =>
+      'โทรศัพท์ไม่ได้ปล่อยกุญแจของกระเป๋าเงิน ปลดล็อกโทรศัพท์ด้วย PIN หรือลายนิ้วมือของโทรศัพท์เอง แล้วลองอีกครั้ง';
+
+  @override
+  String get unlockTryAgain => 'ลองอีกครั้ง';
+
+  @override
   String get settingsUsePassphrase => 'ใช้วลีรหัสผ่าน';
 
   @override

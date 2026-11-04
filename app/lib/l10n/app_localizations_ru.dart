@@ -18181,6 +18181,13 @@ class AppLocalizationsRu extends AppLocalizations {
       'PIN-код больше не открывает этот кошелёк. Ваши монеты в безопасности: нажмите «Забыли PIN-код?» и восстановите кошелёк по фразе восстановления.';
 
   @override
+  String get errorKeystoreRefused =>
+      'Телефон не выдал ключ кошелька. Разблокируйте телефон его собственным PIN-кодом или отпечатком пальца и повторите попытку.';
+
+  @override
+  String get unlockTryAgain => 'Повторить';
+
+  @override
   String get settingsUsePassphrase => 'Использовать пароль';
 
   @override

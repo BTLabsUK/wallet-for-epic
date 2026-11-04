@@ -8,7 +8,7 @@ import '../app_log.dart';
 import '../dev_networks.dart';
 import '../errors.dart';
 import '../l10n.dart';
-import '../pin_wrap.dart' show PinKeyLost;
+import '../pin_wrap.dart' show KeyWrapUnavailable, PinKeyLost;
 import '../providers.dart';
 import '../restore_scan.dart' show historyImportOfferProvider;
 import '../vault.dart';
@@ -40,6 +40,10 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
   String? _error;
   bool _busy = false;
   bool _biometrics = false;
+
+  /// The phone's Keystore did not release the PIN key: the wallet is intact, so Try again
+  /// stands where Forgot PIN was.
+  bool _keyRefused = false;
 
   /// The biometric prompt is up. The PIN field stays usable meanwhile: a prompt the system
   /// never answers must not hold the screen.
@@ -143,6 +147,7 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     setState(() {
       _busy = true;
       _error = null;
+      _keyRefused = false;
     });
     final checkAt = await pinCheckTime(ref);
     if (mounted) setState(() => _checkAt = checkAt);
@@ -189,6 +194,15 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
         _biometrics = still;
         _pinError = describePinRejection(l, rejection);
       });
+    } on KeyWrapUnavailable catch (error) {
+      // The PIN typed stays, for Try again.
+      logWarn('unlock', 'unlock failed: ${describeError(englishStrings, error)}');
+      if (mounted) {
+        setState(() {
+          _error = describeError(l, error);
+          _keyRefused = true;
+        });
+      }
     } catch (error) {
       logWarn('unlock', 'unlock failed: ${describeError(englishStrings, error)}');
       _pin.clear();
@@ -202,6 +216,19 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
           _copy = null;
         });
       }
+    }
+  }
+
+  /// After a Keystore refusal: the PIN still in the field, else biometrics.
+  Future<void> _tryAgain() async {
+    setState(() {
+      _keyRefused = false;
+      _error = null;
+    });
+    if (_pin.text.isNotEmpty) {
+      await _unlockWithPin(_pin.text);
+    } else if (_biometrics) {
+      await _unlockWithBiometrics();
     }
   }
 
@@ -303,10 +330,17 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
             ),
           ],
           const SizedBox(height: 24),
-          TextButton(
-            onPressed: _busy ? null : _forgotPin,
-            child: Text(passphrase ? l.passphraseForgot : l.pinForgot),
-          ),
+          // A healthy wallet the Keystore holds back is not one to delete.
+          if (_keyRefused)
+            FilledButton(
+              onPressed: _busy || _reading ? null : _tryAgain,
+              child: Text(l.unlockTryAgain),
+            )
+          else
+            TextButton(
+              onPressed: _busy ? null : _forgotPin,
+              child: Text(passphrase ? l.passphraseForgot : l.pinForgot),
+            ),
           // Quiet, under Forgot: the way out when the stored mode and the secret disagree.
           if (canSwitch)
             TextButton(

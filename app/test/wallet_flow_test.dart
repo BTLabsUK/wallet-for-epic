@@ -620,6 +620,20 @@ void main() {
       expect(find.byKey(balanceFigureKey), findsOneWidget);
     });
 
+    testWidgets('a PIN key the Keystore holds back says so, with Try again in place of Forgot PIN', (
+      tester,
+    ) async {
+      final service = _existing()..nextOpenError = const KeyWrapUnavailable('refused');
+      await _pumpApp(tester, service, _Device(sealedMainnet: true));
+      await _unlockToHome(tester);
+      expect(find.text(_l.errorKeystoreRefused), findsOneWidget);
+      expect(find.text(_l.pinForgot), findsNothing);
+      expect(service.pinFailureCount, 0);
+      await tester.tap(find.text(_l.unlockTryAgain));
+      await tester.pumpAndSettle();
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
+    });
+
     testWidgets('a dismissed biometric prompt leaves the PIN', (tester) async {
       final service = _existing();
       final device = _Device(biometrics: true, sealedMainnet: true);

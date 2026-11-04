@@ -23659,6 +23659,14 @@
   "@errorPinKeyLost": {
     "description": "Unlock error when the Android Keystore lost the key that seals the PIN key. Forgot PIN must match the pinForgot button text."
   },
+  "errorKeystoreRefused": "The phone did not release the wallet key. Unlock the phone with its own PIN or fingerprint, then try again.",
+  "@errorKeystoreRefused": {
+    "description": "Unlock error when the Android Keystore refused to release the key that seals the PIN key (for example the phone counts as locked). The wallet is intact; Forgot PIN is hidden while this shows."
+  },
+  "unlockTryAgain": "Try again",
+  "@unlockTryAgain": {
+    "description": "Unlock screen button shown with errorKeystoreRefused: runs the unlock again."
+  },
   "settingsUsePassphrase": "Use a passphrase",
   "@settingsUsePassphrase": {
     "description": "Settings row: replace the 6-digit PIN with a longer passphrase."

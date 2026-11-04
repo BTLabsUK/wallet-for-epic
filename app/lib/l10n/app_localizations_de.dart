@@ -17769,6 +17769,13 @@ class AppLocalizationsDe extends AppLocalizations {
       'Die PIN öffnet diese Wallet nicht mehr. Ihre Coins sind sicher: Tippen Sie auf „PIN vergessen?“ und stellen Sie die Wallet mit ihrer Wiederherstellungsphrase wieder her.';
 
   @override
+  String get errorKeystoreRefused =>
+      'Das Telefon hat den Wallet-Schlüssel nicht freigegeben. Entsperren Sie das Telefon mit seiner eigenen PIN oder seinem Fingerabdruck und versuchen Sie es dann erneut.';
+
+  @override
+  String get unlockTryAgain => 'Erneut versuchen';
+
+  @override
   String get settingsUsePassphrase => 'Passphrase verwenden';
 
   @override

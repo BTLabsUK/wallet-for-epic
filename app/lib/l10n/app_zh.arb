@@ -4549,6 +4549,8 @@
   "errorPaymentCancelledCoinsMoved": "这笔付款已取消，它的币已被移走。它无法再完成。",
   "errorPaymentAlreadyWentThrough": "无法把币移回：这笔付款本身已经完成。它显示为已付款。",
   "errorPinKeyLost": "PIN 码已无法打开此钱包。您的币是安全的：点按“忘记 PIN 码？”，用恢复短语恢复钱包。",
+  "errorKeystoreRefused": "手机未提供钱包密钥。请先用手机自身的 PIN 码或指纹解锁手机，然后重试。",
+  "unlockTryAgain": "重试",
   "settingsUsePassphrase": "使用密码短语",
   "settingsChangePassphrase": "更改密码短语",
   "passphraseLabel": "密码短语",

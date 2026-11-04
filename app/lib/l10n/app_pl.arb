@@ -4549,6 +4549,8 @@
   "errorPaymentCancelledCoinsMoved": "Ta płatność została anulowana, a jej monety już przeniesiono. Nie może już przejść.",
   "errorPaymentAlreadyWentThrough": "Nie udało się przenieść monet z powrotem: sama płatność już przeszła. Pokazuje się jako zapłacona.",
   "errorPinKeyLost": "PIN nie otwiera już tego portfela. Twoje monety są bezpieczne: dotknij „Nie pamiętasz kodu PIN?” i przywróć portfel z frazy odzyskiwania.",
+  "errorKeystoreRefused": "Telefon nie udostępnił klucza portfela. Odblokuj telefon jego własnym kodem PIN lub odciskiem palca, a potem spróbuj ponownie.",
+  "unlockTryAgain": "Spróbuj ponownie",
   "settingsUsePassphrase": "Użyj hasła",
   "settingsChangePassphrase": "Zmień hasło",
   "passphraseLabel": "Hasło",
