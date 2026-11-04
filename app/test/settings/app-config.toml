@@ -157,3 +157,6 @@ answer_resend_waits_min = [2, 5, 10]
 [contacts]
 # Opening a wallet not opened for more than this many days says so and checks the paired contacts.
 stale_after_days = 7
+# After that check, the contacts are collected every 15 s for this many seconds; one that has not
+# answered by then shows "Not answering".
+check_wait_s = 120

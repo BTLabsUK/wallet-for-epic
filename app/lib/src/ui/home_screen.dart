@@ -57,6 +57,7 @@ import '../levels/level_providers.dart' show levelFeaturesProvider;
 import 'tx_details_screen.dart';
 import 'levels/quiet_invoices.dart';
 import '../settings_file/host_settings.dart' show appConfig;
+import '../pairing_providers.dart' show pairingCall;
 import '../stale_open.dart';
 import 'invite_link_gate.dart';
 
@@ -301,6 +302,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final days = ref.read(staleOpenShownProvider.notifier).take(ref.read(clockProvider)());
     if (days == null) return;
     ref.read(noticeProvider.notifier).show(context.l10n.contactsStaleOpened(days), level: NoticeLevel.info);
+    // The check runs in the background; a contact it gets no answer from shows "Not answering".
+    unawaited(pairingCall(ref, (api) => api.checkContacts()).then<void>((_) {}, onError: (Object _) {}));
   }
 
   /// This opening's recovery phrase reminder was handled (shown, or not due).

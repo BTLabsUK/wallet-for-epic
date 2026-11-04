@@ -4888,6 +4888,7 @@
   "pairNotFoundTitle": "Keine Kopplung passt dazu.",
   "trustWaiting": "Wartet",
   "trustEnded": "Beendet",
+  "trustNotAnswering": "Antwortet nicht",
   "pairRequestPair": "Koppeln",
   "pairCancelPairingTitle": "Diese Kopplung abbrechen?",
   "pairCancelPairingBody": "Die Wallet von {name} erfährt es, falls sie spät antwortet. Nichts wird behalten.",

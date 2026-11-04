@@ -3070,6 +3070,7 @@ class PairingRecord {
     this.endedReason,
     this.endedAt,
     this.relayDown = false,
+    this.notAnswering = false,
     this.otherDevice = false,
     this.checksKeys = false,
   });
@@ -3149,6 +3150,10 @@ class PairingRecord {
   /// The contact's relay is not answering (RFC 8.4 backoff, cases C-05).
   final bool relayDown;
 
+  /// A contact check after a long gap got no answer from this contact (a shop or an exchange):
+  /// "Not answering", until it is heard again or paired again. Not kept across a restart.
+  final bool notAnswering;
+
   /// Imported from a backup whose pairings were in use on another device and not yet taken
   /// over here (RFC 9.5).
   final bool otherDevice;
@@ -3206,6 +3211,7 @@ class PairingRecord {
     DateTime? lastSealedIn,
     DateTime? expiresAt,
     bool? relayDown,
+    bool? notAnswering,
     bool? otherDevice,
     String? homeRelay,
     PairingCaps? caps,
@@ -3246,6 +3252,7 @@ class PairingRecord {
     endedReason: endedReason ?? this.endedReason,
     endedAt: endedAt ?? this.endedAt,
     relayDown: relayDown ?? this.relayDown,
+    notAnswering: notAnswering ?? this.notAnswering,
     otherDevice: otherDevice ?? this.otherDevice,
     checksKeys: checksKeys,
   );
@@ -3746,6 +3753,21 @@ class PaidSealedRequest {
 /// Why the pairing mailboxes are collected now (RFC 8.4): the app opened, resumed or was
 /// unlocked; the foreground tick; a pull to refresh; a push wake-up.
 enum PairingCollectTrigger { open, foreground, pull, push }
+
+/// What a contact check found for one contact (`PairingApi.checkContacts`).
+enum ContactCheckOutcome {
+  /// Heard from after the check was sent.
+  reachable,
+
+  /// Answered with a card on another relay: followed, or the user was told it was refused.
+  moved,
+
+  /// Its home relay did not answer, or nothing was heard before the wait ended.
+  notAnswering,
+
+  /// The check could not be sent; the contact's state is as it was.
+  failed,
+}
 
 /// One opaque payload a private pairing received (`contact_post_payload` on the other side),
 /// kept by the engine until [PairingApi.ackPayloads] takes it off. Only private pairings

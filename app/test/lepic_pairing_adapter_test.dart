@@ -23,10 +23,14 @@ lepic.ContactView _view(
   lepic.PairingState state = lepic.PairingState.paired,
   String? requested,
   String relay = _relay,
+  lepic.ContactKind? kind,
+  int? heard,
 }) => lepic.ContactView(
   contactId: id,
   label: '',
   claimedName: 'Bob',
+  kind: kind,
+  lastSealedInMs: heard,
   state: state,
   status: removed
       ? lepic.PairingStatus.ended
@@ -56,6 +60,15 @@ class _PairingWallet implements lepic.EpicWallet {
   final List<lepic.ContactView> paired = [];
   final StreamController<lepic.WalletEvent> eventSink = StreamController<lepic.WalletEvent>.broadcast();
   final List<String> calls = [];
+
+  /// The contacts a check was sent to, and those whose check fails.
+  final List<String> checked = [];
+  final Set<String> checkFails = {};
+
+  /// What a collect finds: run with the contacts it was limited to.
+  void Function(List<String>? only)? onCollect;
+  final List<List<String>?> collects = [];
+  List<String> unreachable = [];
   lepic.KeyCheckStart keyCheck = lepic.KeyCheckStart.sent;
 
   @override
@@ -72,6 +85,29 @@ class _PairingWallet implements lepic.EpicWallet {
 
   @override
   Stream<lepic.WalletEvent> events() => eventSink.stream;
+
+  @override
+  Future<void> contactCheck({required String contactId}) async {
+    if (checkFails.contains(contactId)) {
+      throw const lepic.WalletError(kind: lepic.WalletErrorKind.contactNotFound, code: 0, message: 'no such contact');
+    }
+    checked.add(contactId);
+  }
+
+  @override
+  Future<lepic.ContactCollectReport> contactsCollect({
+    required lepic.CollectTrigger trigger,
+    required lepic.ContactRelayMode relayMode,
+    List<String>? only,
+  }) async {
+    collects.add(only);
+    onCollect?.call(only);
+    return lepic.ContactCollectReport(mailboxes: 0, messages: 0, paired: 0, failed: const [], delivered: 0, unreachable: unreachable, ended: const []);
+  }
+
+  @override
+  Future<lepic.OutboxReport> contactsOutboxDeliver({required lepic.ContactRelayMode relayMode}) async =>
+      const lepic.OutboxReport(delivered: 0, failed: 0, stuck: 0);
 
   @override
   Future<List<lepic.PendingPairingView>> pairingsPending() async => pending;
@@ -451,6 +487,118 @@ void main() {
       final r = (await session.pairing.pairings()).single;
       expect(r.homeRelay, 'listed.example.org');
       expect(wallet.moved, ['c1 listed.example.org']);
+    });
+  });
+  group('the contact check after a long gap', () {
+    late HostSettings before;
+    setUp(() {
+      before = hostSettings;
+      hostSettings = before.withValues(const {'epicbox.servers': <String>['listed.example.org']});
+    });
+    tearDown(() => hostSettings = before);
+
+    const wait = Duration(milliseconds: 60);
+    const every = Duration(milliseconds: 20);
+    final longAgo = DateTime.now().millisecondsSinceEpoch - 86400000;
+
+    /// Replaces the contact [id] in the stand-in, as a collect would.
+    void hear(String id, {String? requested, String? relay}) {
+      final i = wallet.paired.indexWhere((c) => c.contactId == id);
+      final c = wallet.paired[i];
+      wallet.paired[i] = _view(id, kind: c.kind, heard: DateTime.now().millisecondsSinceEpoch + 5, requested: requested, relay: relay ?? c.homeRelay!);
+    }
+
+    test('asks shops and exchanges that are not ended, not people; heard after is reachable, silence is not answering', () async {
+      wallet.paired.addAll([
+        _view('shop', kind: lepic.ContactKind.shop, heard: longAgo),
+        _view('ex', kind: lepic.ContactKind.exchange, heard: longAgo),
+        _view('anna', kind: lepic.ContactKind.person, heard: longAgo),
+        _view('old', kind: lepic.ContactKind.shop, heard: longAgo, removed: true),
+      ]);
+      wallet.onCollect = (only) => hear('shop');
+
+      final outcomes = await session.pairing.checkContacts(wait: wait, every: every);
+      await _settle();
+
+      expect(wallet.checked, ['shop', 'ex']);
+      expect(outcomes, {'shop': ContactCheckOutcome.reachable, 'ex': ContactCheckOutcome.notAnswering});
+      // Each look is at the contacts still waited for.
+      expect(wallet.collects.first, ['shop', 'ex']);
+      expect(wallet.collects.last, ['ex']);
+      final records = {for (final r in await session.pairing.pairings()) r.id: r};
+      expect(records['ex']!.notAnswering, isTrue);
+      expect(records['shop']!.notAnswering, isFalse);
+      expect(records['anna']!.notAnswering, isFalse);
+      expect(seen.map((e) => e.kind), contains(PairingEventKind.contactUpdated));
+    });
+
+    test('Not answering lasts until the contact is heard again', () async {
+      wallet.paired.add(_view('ex', kind: lepic.ContactKind.exchange, heard: longAgo));
+      await session.pairing.checkContacts(wait: wait, every: every);
+      expect((await session.pairing.pairings()).single.notAnswering, isTrue);
+
+      hear('ex');
+      expect((await session.pairing.pairings()).single.notAnswering, isFalse);
+    });
+
+    test('a later check that is answered clears it', () async {
+      wallet.paired.add(_view('ex', kind: lepic.ContactKind.exchange, heard: longAgo));
+      await session.pairing.checkContacts(wait: wait, every: every);
+      wallet.onCollect = (only) => hear('ex');
+      final outcomes = await session.pairing.checkContacts(wait: wait, every: every);
+
+      expect(outcomes['ex'], ContactCheckOutcome.reachable);
+      expect((await session.pairing.pairings()).single.notAnswering, isFalse);
+    });
+
+    test('a check that cannot be sent leaves the others to go on', () async {
+      wallet.paired.addAll([
+        _view('bad', kind: lepic.ContactKind.shop, heard: longAgo),
+        _view('good', kind: lepic.ContactKind.shop, heard: longAgo),
+      ]);
+      wallet.checkFails.add('bad');
+      wallet.onCollect = (only) => hear('good');
+
+      final outcomes = await session.pairing.checkContacts(wait: wait, every: every);
+
+      expect(wallet.checked, ['good']);
+      expect(outcomes, {'bad': ContactCheckOutcome.failed, 'good': ContactCheckOutcome.reachable});
+      expect((await session.pairing.pairings()).any((r) => r.notAnswering), isFalse);
+    });
+
+    test('a home relay that does not answer is not answering before the wait ends', () async {
+      wallet.paired.add(_view('ex', kind: lepic.ContactKind.exchange, heard: longAgo));
+      wallet.unreachable = [_relay];
+      wallet.eventSink.add(const lepic.WalletEvent(kind: lepic.WalletEventKind.homeRelayUnreachable, relay: _relay));
+      await _settle();
+
+      final outcomes = await session.pairing.checkContacts(wait: const Duration(seconds: 5), every: every);
+
+      expect(outcomes['ex'], ContactCheckOutcome.notAnswering);
+      expect(wallet.collects.length, 1);
+    });
+
+    test('an answer that names a listed relay is followed', () async {
+      wallet.paired.add(_view('shop', kind: lepic.ContactKind.shop, heard: longAgo));
+      wallet.onCollect = (only) => hear('shop', requested: 'listed.example.org:443');
+
+      final outcomes = await session.pairing.checkContacts(wait: wait, every: every);
+
+      expect(outcomes['shop'], ContactCheckOutcome.moved);
+      expect(wallet.moved, ['shop listed.example.org:443']);
+      expect((await session.pairing.pairings()).single.notAnswering, isFalse);
+    });
+
+    test('an answer that names a relay not listed tells the user once', () async {
+      wallet.paired.add(_view('shop', kind: lepic.ContactKind.shop, heard: longAgo));
+      wallet.onCollect = (only) => hear('shop', requested: 'other.example.org');
+
+      final outcomes = await session.pairing.checkContacts(wait: wait, every: every);
+      await _settle();
+
+      expect(outcomes['shop'], ContactCheckOutcome.moved);
+      expect(wallet.moved, isEmpty);
+      expect(seen.where((e) => e.kind == PairingEventKind.relayMoveRefused).single.relay, 'other.example.org');
     });
   });
 }

@@ -4888,6 +4888,7 @@
   "pairNotFoundTitle": "没有与此匹配的配对。",
   "trustWaiting": "等待中",
   "trustEnded": "已结束",
+  "trustNotAnswering": "没有响应",
   "pairRequestPair": "配对",
   "pairCancelPairingTitle": "取消这次配对？",
   "pairCancelPairingBody": "如果 {name} 的钱包迟来回复，会被告知。不会保留任何内容。",

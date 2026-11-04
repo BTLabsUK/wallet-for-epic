@@ -19501,6 +19501,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get trustEnded => 'Завершено';
 
   @override
+  String get trustNotAnswering => 'Нет ответа';
+
+  @override
   String get pairRequestPair => 'Сопрячь';
 
   @override

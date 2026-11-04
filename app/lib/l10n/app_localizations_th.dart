@@ -18448,6 +18448,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get trustEnded => 'สิ้นสุดแล้ว';
 
   @override
+  String get trustNotAnswering => 'ไม่ตอบสนอง';
+
+  @override
   String get pairRequestPair => 'จับคู่';
 
   @override

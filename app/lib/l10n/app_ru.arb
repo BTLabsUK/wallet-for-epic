@@ -4888,6 +4888,7 @@
   "pairNotFoundTitle": "Ни одно сопряжение этому не соответствует.",
   "trustWaiting": "Ожидание",
   "trustEnded": "Завершено",
+  "trustNotAnswering": "Нет ответа",
   "pairRequestPair": "Сопрячь",
   "pairCancelPairingTitle": "Отменить это сопряжение?",
   "pairCancelPairingBody": "Кошелёк {name} узнает об этом, если ответит поздно. Ничего не сохраняется.",

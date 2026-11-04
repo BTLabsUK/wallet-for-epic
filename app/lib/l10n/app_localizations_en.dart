@@ -18859,6 +18859,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trustEnded => 'Ended';
 
   @override
+  String get trustNotAnswering => 'Not answering';
+
+  @override
   String get pairRequestPair => 'Pair';
 
   @override

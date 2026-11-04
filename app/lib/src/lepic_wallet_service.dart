@@ -3530,6 +3530,118 @@ class _LepicPairing implements PairingApi {
     if (await _followMoves(await _w.contacts()) && !_events.isClosed) _events.add(const PairingEvent(PairingEventKind.contactUpdated));
   });
 
+  /// Contacts a check got no answer from, with when it was sent (Unix ms): "Not answering" until
+  /// the contact is heard after that, or checked again. Not kept across a restart.
+  final Map<String, int> _notAnswering = {};
+
+  /// The moves already told as refused (`id relay`), so a check and the event say it once.
+  final Set<String> _refusedMoves = {};
+
+  bool _isNotAnswering(lepic.ContactView c) {
+    final sent = _notAnswering[c.contactId];
+    return sent != null && c.endedReason == null && (c.lastSealedInMs ?? c.createdAtMs).toInt() <= sent;
+  }
+
+  /// A paired shop or exchange whose pairing has not ended: the contacts a check asks. People are
+  /// offline often and are not checked.
+  bool _checkable(lepic.ContactView c) =>
+      (c.kind == lepic.ContactKind.shop || c.kind == lepic.ContactKind.exchange) &&
+      (c.state == lepic.PairingState.paired || c.state == lepic.PairingState.verified) &&
+      c.endedReason == null &&
+      !c.removedByPeer;
+
+  void _contactsChanged() {
+    if (!_events.isClosed) _events.add(const PairingEvent(PairingEventKind.contactUpdated));
+  }
+
+  @override
+  Future<Map<String, ContactCheckOutcome>> checkContacts({Duration? wait, Duration every = contactCheckEvery}) async {
+    final outcomes = <String, ContactCheckOutcome>{};
+    if (!supported || !NetGate.pairing || NetGate.epicboxOff) return outcomes;
+    if (_checkRunning) return outcomes;
+    _checkRunning = true;
+    final window = wait ?? appConfig.contactsCheckWait;
+    // Who was asked, and when (Unix ms, read before the call so an answer is always later).
+    final asked = <String, int>{};
+    final sentAt = <String, int>{};
+    try {
+      for (final c in await _w.contacts()) {
+        if (!_checkable(c)) continue;
+        final at = DateTime.now().millisecondsSinceEpoch;
+        try {
+          await _w.contactCheck(contactId: c.contactId);
+          asked[c.contactId] = at;
+        } on lepic.WalletError catch (error) {
+          logWarn('pairing', 'contact check not sent: ${error.kind.name}');
+          outcomes[c.contactId] = ContactCheckOutcome.failed;
+        }
+      }
+      sentAt.addAll(asked);
+      var waited = Duration.zero;
+      var changed = false;
+      void settle(String id, ContactCheckOutcome outcome) {
+        outcomes[id] = outcome;
+        asked.remove(id);
+        if (outcome == ContactCheckOutcome.notAnswering) {
+          _notAnswering[id] = sentAt[id]!;
+          changed = true;
+        } else if (_notAnswering.remove(id) != null) {
+          changed = true;
+        }
+      }
+      while (asked.isNotEmpty && waited < window && supported) {
+        final step = window - waited < every ? window - waited : every;
+        await Future<void>.delayed(step);
+        waited += step;
+        try {
+          await collectOrFail(PairingCollectTrigger.foreground, only: asked.keys.toList());
+        } on lepic.WalletError catch (error) {
+          logWarn('pairing', 'contact check collect failed: ${error.kind.name}');
+        }
+        final now = {for (final c in await _w.contacts()) c.contactId: c};
+        for (final id in asked.keys.toList()) {
+          final c = now[id];
+          final sent = asked[id]!;
+          final relay = c?.requestedRelay;
+          if (c == null || c.endedReason != null) {
+            // Removed or ended meanwhile: not ours to judge.
+            asked.remove(id);
+            outcomes.remove(id);
+          } else if (relay != null) {
+            await _followCheckedMove(id, relay);
+            settle(id, ContactCheckOutcome.moved);
+          } else if ((c.lastSealedInMs ?? 0).toInt() > sent) {
+            settle(id, ContactCheckOutcome.reachable);
+          } else if (c.homeRelay != null && _relaysDown.contains(c.homeRelay)) {
+            settle(id, ContactCheckOutcome.notAnswering);
+          }
+        }
+      }
+      // No word in the whole wait.
+      for (final id in asked.keys.toList()) {
+        settle(id, ContactCheckOutcome.notAnswering);
+      }
+      if (changed) _contactsChanged();
+    } on lepic.WalletError catch (error) {
+      logWarn('pairing', 'contact check failed: ${error.kind.name}');
+    } finally {
+      _checkRunning = false;
+    }
+    return outcomes;
+  }
+
+  bool _checkRunning = false;
+
+  /// A checked contact's answer named another relay: follow it when the user lists that relay,
+  /// else say so once, as the event path does.
+  Future<void> _followCheckedMove(String id, String relay) async {
+    if (_inServerList(relay)) {
+      if (await _applyMove(id, relay)) _contactsChanged();
+    } else if (_refusedMoves.add('$id $relay') && !_events.isClosed) {
+      _events.add(PairingEvent(PairingEventKind.relayMoveRefused, pairingId: id, name: await _nameOf(id), relay: relay));
+    }
+  }
+
   /// What the engine does not list again: an invite's link and words, the answer to send by
   /// hand, the confirmation of a reply pasted by hand, how a pairing was made.
   final Map<String, String> _inviteLinks = {};
@@ -3614,6 +3726,7 @@ class _LepicPairing implements PairingApi {
     // Since pairing until a sealed message opens, as LEPIC counts it for "lapsed".
     lastSealedIn: _ms((c.lastSealedInMs ?? c.createdAtMs).toInt()),
     relayDown: c.homeRelay != null && _relaysDown.contains(c.homeRelay),
+    notAnswering: _isNotAnswering(c),
     otherDevice: c.importedFromBackup,
     checksKeys: _checking.containsKey(c.contactId),
     // Only from a verified address proof of this pairing; a pairing made before 26.10.25 has
@@ -3957,7 +4070,7 @@ class _LepicPairing implements PairingApi {
 
   /// [collect], failing as LEPIC does: a check the user asked for says when the relay is
   /// down.
-  Future<int> collectOrFail(PairingCollectTrigger trigger) async {
+  Future<int> collectOrFail(PairingCollectTrigger trigger, {List<String>? only}) async {
     // Pairing off (Settings › Advanced › Experimental): no pairing or contact mailbox is opened.
     if (!NetGate.pairing) return 0;
     _s._watchEvents();
@@ -3970,9 +4083,19 @@ class _LepicPairing implements PairingApi {
         PairingCollectTrigger.push => lepic.CollectTrigger.push,
       },
       relayMode: lepicRelayMode(),
+      only: only,
     );
-    // A relay that answers again is no longer down.
-    _relaysDown.retainAll(report.unreachable);
+    // A relay that answers again is no longer down; a look at a few contacts says nothing of
+    // the others' relays.
+    if (only == null) {
+      _relaysDown.retainAll(report.unreachable);
+    } else {
+      final looked = {
+        for (final c in await _w.contacts())
+          if (only.contains(c.contactId) && c.homeRelay != null) c.homeRelay!,
+      };
+      _relaysDown.removeAll(looked.difference(report.unreachable.toSet()));
+    }
     try {
       await _w.contactsOutboxDeliver(relayMode: lepicRelayMode());
     } on lepic.WalletError catch (error) {
@@ -4291,6 +4414,7 @@ class _LepicPairing implements PairingApi {
       if (_inServerList(relay)) {
         if (await _applyMove(id, relay) && !_events.isClosed) _events.add(PairingEvent(PairingEventKind.contactUpdated, pairingId: id));
       } else {
+        _refusedMoves.add('$id $relay');
         _events.add(PairingEvent(PairingEventKind.relayMoveRefused, pairingId: id, name: await _nameOf(id), relay: relay));
       }
       return;

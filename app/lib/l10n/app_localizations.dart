@@ -29358,6 +29358,12 @@ abstract class AppLocalizations {
   /// **'Ended'**
   String get trustEnded;
 
+  /// Badge and notice title on a paired shop or exchange: the check after a long gap got no answer (its server is not answering, or nothing was heard in time). Shown with Pair again, until the contact is heard from.
+  ///
+  /// In en, this message translates to:
+  /// **'Not answering'**
+  String get trustNotAnswering;
+
   /// Requests list: answers the request.
   ///
   /// In en, this message translates to:

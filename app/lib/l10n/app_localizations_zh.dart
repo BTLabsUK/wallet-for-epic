@@ -17795,6 +17795,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get trustEnded => '已结束';
 
   @override
+  String get trustNotAnswering => '没有响应';
+
+  @override
   String get pairRequestPair => '配对';
 
   @override

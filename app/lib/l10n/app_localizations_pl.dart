@@ -19514,6 +19514,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get trustEnded => 'Zakończone';
 
   @override
+  String get trustNotAnswering => 'Brak odpowiedzi';
+
+  @override
   String get pairRequestPair => 'Paruj';
 
   @override
