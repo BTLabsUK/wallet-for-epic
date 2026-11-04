@@ -281,7 +281,7 @@ class TxLane(Lane):
         try:
             return self._lane()
         finally:  # P's balance after, whatever stopped the lane (proof.json's money)
-            self.p_after = self._p_balance()
+            self.p_after = self._p_balance(settle=True)
 
     def _lane(self):
         for w in self.w.values():
@@ -735,9 +735,19 @@ class TxLane(Lane):
     def _save_resume_secrets(self):
         return None
 
-    def _p_balance(self):
+    def _p_balance(self, settle=False):
+        """P's spendable; [settle]: once nothing of P's awaits confirmation (the sweeps' sends to P and
+        P's change), up to tx.LOCK_WAIT_S, so p_change_actual reads what this run moved."""
         try:
             with self.funder.exchange("P's balance"):
+                end = time.time() + tx.LOCK_WAIT_S
+                while settle and time.time() < end:
+                    got = self.funder.settled()
+                    if got is not None:
+                        return got
+                    time.sleep(tx.POLL_S)
+                if settle:
+                    self.log("P's balance: still awaiting confirmation after %d s; read as it is" % tx.LOCK_WAIT_S)
                 return self.funder.info()
         except Exception as e:  # noqa: BLE001 — evidence only
             self.log("P's balance not read: %s" % e)

@@ -98,3 +98,8 @@ class P:
     def info(self):
         r = self.client.call("info")
         return r.get("spendable") if r.get("ok") else None
+
+    def settled(self):
+        """P's spendable once its total is all spendable (nothing awaiting confirmation), else None."""
+        r = self.client.call("info")
+        return r["spendable"] if r.get("ok") and r.get("spendable") == r.get("total") else None
