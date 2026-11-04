@@ -38,7 +38,9 @@ String linkTrustText(AppLocalizations l, LinkOpened link) {
   final standing = link.standing;
   switch (standing.trust) {
     case DirectoryTrust.changedWallet:
-      return l.linkTrustChanged(localDay(l, standing.changedSince!.toLocal()));
+      final day = localDay(l, standing.changedSince!.toLocal());
+      final payee = link.payeeLabel;
+      return payee == null ? l.linkTrustChangedNoName(day) : l.linkTrustChanged(payee, day);
     case DirectoryTrust.notADirectoryYouUse:
       return l.linkTrustOther;
     case DirectoryTrust.directoryYouUse:
@@ -84,7 +86,7 @@ class LinkTrustLine extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           Semantics(
-            label: l.linkCodeLabel,
+            label: link.payeeLabel == null ? l.linkCodeLabelPlain : l.linkCodeLabel(link.payeeLabel!),
             child: Wrap(
               spacing: 6,
               children: [for (final w in codeWords(link.listingCode)) SasPicture(w, size: 24, excludeFromSemantics: true)],

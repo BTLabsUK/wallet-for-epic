@@ -27418,9 +27418,9 @@
   "@linkPayAgain": {
     "description": "Button that opens Send for a payment link already paid."
   },
-  "linkTrustListed": "{name} · listed by {directory}",
+  "linkTrustListed": "{name} · via {directory}",
   "@linkTrustListed": {
-    "description": "Trust line on Send: the payee's name and the directory this wallet uses that lists them.",
+    "description": "Trust line on Send: the payee's name and the service this wallet is paired with (its contact name) that the link comes from.",
     "placeholders": {
       "name": {
         "type": "String",
@@ -27432,7 +27432,7 @@
       }
     }
   },
-  "linkTrustListedBy": "Listed by {directory}",
+  "linkTrustListedBy": "Via {directory}",
   "@linkTrustListedBy": {
     "description": "Trust line on Send when the link has no name.",
     "placeholders": {
@@ -27442,17 +27442,31 @@
       }
     }
   },
-  "linkTrustDirectory": "From a directory you use",
+  "linkTrustDirectory": "From a service you paired with",
   "@linkTrustDirectory": {
     "description": "Trust line on Send for a directory this wallet uses that has no label."
   },
-  "linkTrustOther": "Not from a directory you use",
+  "linkTrustOther": "Not from a service you paired with",
   "@linkTrustOther": {
     "description": "Trust line on Send for a payment link from any other directory."
   },
-  "linkTrustChanged": "This listing now points to a different wallet than when you paid on {date}. Pay only if they told you.",
+  "linkTrustChanged": "{name} now gets paid to a different wallet than when you paid on {date}. Pay only if they told you.",
   "@linkTrustChanged": {
     "description": "Trust line on Send when the listing key differs from the one paid before.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "@alice"
+      },
+      "date": {
+        "type": "String",
+        "example": "21 Sep 2026"
+      }
+    }
+  },
+  "linkTrustChangedNoName": "This payee now gets paid to a different wallet than when you paid on {date}. Pay only if they told you.",
+  "@linkTrustChangedNoName": {
+    "description": "Trust line on Send for a changed wallet when the link has no name.",
     "placeholders": {
       "date": {
         "type": "String",
@@ -27460,9 +27474,19 @@
       }
     }
   },
-  "linkCodeLabel": "Listing code",
+  "linkCodeLabel": "Pictures for {name}",
   "@linkCodeLabel": {
-    "description": "Label of the four pictures that identify the listing key."
+    "description": "Label of the four pictures that identify the listing key.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "@alice"
+      }
+    }
+  },
+  "linkCodeLabelPlain": "Pictures",
+  "@linkCodeLabelPlain": {
+    "description": "Label of the four pictures when the link has no name."
   },
   "linkAmountEdited": "Not the amount requested",
   "@linkAmountEdited": {

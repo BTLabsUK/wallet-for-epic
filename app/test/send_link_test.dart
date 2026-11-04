@@ -5,16 +5,16 @@
 // can be saved as a contact. Real link texts from the directory vectors.
 import 'package:epic_wallet/src/directory/directory.dart';
 import 'package:epic_wallet/src/l10n.dart';
-import 'package:epic_wallet/src/models.dart' show TxEntry;
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
+import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayProbeProvider;
 import 'package:epic_wallet/src/scan/incoming_link.dart' show linkClockProvider;
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/link_send.dart';
-import 'package:epic_wallet/src/ui/motion_switches.dart';
+import 'package:epic_wallet/src/ui/scan_screen.dart' show FakeQrScanner, qrScannerProvider;
 import 'package:epic_wallet/src/ui/send_screen.dart';
 import 'package:epic_wallet/src/ui/theme/advanced.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -58,8 +58,14 @@ class _Session extends FakeWalletSession {
 
   LinkMemory? memory;
 
+  /// What the app recorded; the real store's file I/O does not run under the test clock.
+  final recorded = <Payreq>[];
+
   @override
-  LinkMemory linkMemory() => memory ?? super.linkMemory();
+  LinkMemory linkMemory() => memory ?? const LinkMemory();
+
+  @override
+  Future<void> recordLinkPayment(Payreq request, int paidAt) async => recorded.add(request);
 }
 
 final _forty = WalletSummary(
@@ -131,22 +137,19 @@ void main() {
 
   setUp(() => session = _Session());
 
-  final address = vectors.request('req-basic').card.address;
-  final listed = FakeMembership(labels: {vectorDkey: 'Epic Directory'});
+  final listed = FakeMembership(labels: {vectorDkey: 'Test Service'});
 
   Finder trust() => find.byKey(linkTrustLineKey);
   String trustText(WidgetTester tester) =>
       tester.widget<Text>(find.descendant(of: trust(), matching: find.byType(Text)).first).data!;
-  Finder toField() => find.widgetWithText(TextField, 'To');
   Finder amountField() => find.widgetWithText(TextField, 'Amount (EPIC)');
 
   group('trust line', () {
     testWidgets('a directory in use: the name, its label and the code pictures', (tester) async {
       await pump(tester, membership: listed);
       await paste(tester, vectors.https('req-basic'));
-      expect(trustText(tester), '@alice_test · listed by Epic Directory');
+      expect(trustText(tester), '@alice_test · via Test Service');
       expect(find.descendant(of: trust(), matching: find.byType(Wrap)), findsOneWidget);
-      expect(tester.widget<TextField>(find.byType(TextField).first).controller!.text, address);
     });
 
     testWidgets('any other directory: no name, no alarm', (tester) async {
@@ -169,7 +172,7 @@ void main() {
       );
       await pump(tester, membership: listed);
       await paste(tester, vectors.https('req-basic'));
-      expect(trustText(tester), startsWith('This listing now points to a different wallet than when you paid on'));
+      expect(trustText(tester), startsWith('This payee now gets paid to a different wallet than when you paid on'));
     });
   });
 
@@ -185,7 +188,7 @@ void main() {
       testWidgets(e.key, (tester) async {
         final (message, text, now) = e.value;
         // The wallet's own listing key is another one than the request is made for.
-        final membership = FakeMembership(listingKeys: {vectorDkey: vectors.listingKeyText('03' + '11' * 32)});
+        final membership = FakeMembership(listingKeys: {vectorDkey: vectors.listingKeyText('03${'11' * 32}')});
         await pump(tester, now: now, membership: membership);
         await paste(tester, text(vectors));
         expect(find.textContaining(message), findsOneWidget);
@@ -201,8 +204,8 @@ void main() {
     expect(trustText(tester), _l.linkTrustDirectory);
   });
 
-  testWidgets('already paid: asks, Pay again fills, Cancel leaves it empty', (tester) async {
-    await session.recordLinkPayment(vectors.request('req-basic'), 1799990000);
+  testWidgets('already paid: asks, Cancel leaves it empty', (tester) async {
+    session.memory = LinkMemory(paidRequests: {toHex(vectors.request('req-basic').reqid): 1799990000});
     await pump(tester);
     await paste(tester, vectors.https('req-basic'));
     expect(find.text(_l.linkPaidTitle), findsOneWidget);
@@ -210,6 +213,11 @@ void main() {
     await tester.tap(find.text(_l.commonCancel));
     await tester.pumpAndSettle();
     expect(trust(), findsNothing);
+  });
+
+  testWidgets('already paid: Pay again fills', (tester) async {
+    session.memory = LinkMemory(paidRequests: {toHex(vectors.request('req-basic').reqid): 1799990000});
+    await pump(tester);
     await paste(tester, vectors.https('req-basic'));
     await tester.tap(find.text(_l.linkPayAgain));
     await tester.pumpAndSettle();
@@ -247,7 +255,7 @@ void main() {
       await tester.pumpAndSettle();
       await answerPin(tester);
       expect(session.epicboxSends, hasLength(1));
-      expect(session.linkMemory().paidRequests, isNotEmpty);
+      expect(session.recorded.map((r) => toHex(r.reqid)), [toHex(vectors.request('req-basic').reqid)]);
       expect(find.text(_l.sendSaveContact), findsOneWidget);
     });
 

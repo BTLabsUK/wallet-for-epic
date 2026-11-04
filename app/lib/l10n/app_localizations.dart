@@ -31716,41 +31716,53 @@ abstract class AppLocalizations {
   /// **'Pay again'**
   String get linkPayAgain;
 
-  /// Trust line on Send: the payee's name and the directory this wallet uses that lists them.
+  /// Trust line on Send: the payee's name and the service this wallet is paired with (its contact name) that the link comes from.
   ///
   /// In en, this message translates to:
-  /// **'{name} · listed by {directory}'**
+  /// **'{name} · via {directory}'**
   String linkTrustListed(String name, String directory);
 
   /// Trust line on Send when the link has no name.
   ///
   /// In en, this message translates to:
-  /// **'Listed by {directory}'**
+  /// **'Via {directory}'**
   String linkTrustListedBy(String directory);
 
   /// Trust line on Send for a directory this wallet uses that has no label.
   ///
   /// In en, this message translates to:
-  /// **'From a directory you use'**
+  /// **'From a service you paired with'**
   String get linkTrustDirectory;
 
   /// Trust line on Send for a payment link from any other directory.
   ///
   /// In en, this message translates to:
-  /// **'Not from a directory you use'**
+  /// **'Not from a service you paired with'**
   String get linkTrustOther;
 
   /// Trust line on Send when the listing key differs from the one paid before.
   ///
   /// In en, this message translates to:
-  /// **'This listing now points to a different wallet than when you paid on {date}. Pay only if they told you.'**
-  String linkTrustChanged(String date);
+  /// **'{name} now gets paid to a different wallet than when you paid on {date}. Pay only if they told you.'**
+  String linkTrustChanged(String name, String date);
+
+  /// Trust line on Send for a changed wallet when the link has no name.
+  ///
+  /// In en, this message translates to:
+  /// **'This payee now gets paid to a different wallet than when you paid on {date}. Pay only if they told you.'**
+  String linkTrustChangedNoName(String date);
 
   /// Label of the four pictures that identify the listing key.
   ///
   /// In en, this message translates to:
-  /// **'Listing code'**
-  String get linkCodeLabel;
+  /// **'Pictures for {name}'**
+  String linkCodeLabel(String name);
+
+  /// Label of the four pictures when the link has no name.
+  ///
+  /// In en, this message translates to:
+  /// **'Pictures'**
+  String get linkCodeLabelPlain;
 
   /// Note on Send when the amount differs from the one in the payment link.
   ///

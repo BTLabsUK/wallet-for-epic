@@ -4,7 +4,6 @@
 // link); a request paid before asks; a listing that changed wallet asks once more before the
 // review; a paid link is recorded and its payee can be saved. Real texts from the vectors.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
-import 'package:epic_wallet/src/desktop/data/pairing_state.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/link_trust.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
@@ -96,7 +95,7 @@ void main() {
   }
 
   final address = vectors.request('req-basic').card.address;
-  final listed = FakeMembership(labels: {vectorDkey: 'Epic Directory'});
+  final listed = FakeMembership(labels: {vectorDkey: 'Test Service'});
   final changedPin = {
     pinKey(vectors.request('req-basic').card.dkey, vectors.request('req-basic').card.handle): const ListingPin(
       listingKey: '03aa8c2f48c588fa84ed97a219b9841579c04241c1cef99b69bb19bb5168011df6',
@@ -110,7 +109,7 @@ void main() {
       await show(tester, membership: listed);
       await paste(tester, vectors.https('req-basic'));
       expect(text(tester, 'To'), address);
-      expect(find.text('@alice_test · listed by Epic Directory'), findsOneWidget);
+      expect(find.text('@alice_test · via Test Service'), findsOneWidget);
       expect(find.descendant(of: trust(), matching: find.byType(Wrap)), findsOneWidget);
     });
 
@@ -125,7 +124,7 @@ void main() {
       wallet.linkMeta.directoryPins.addAll(changedPin);
       await show(tester, membership: listed);
       await paste(tester, vectors.https('req-basic'));
-      expect(find.textContaining('This listing now points to a different wallet than when you paid on'), findsOneWidget);
+      expect(find.textContaining('This payee now gets paid to a different wallet than when you paid on'), findsOneWidget);
     });
   });
 
@@ -183,6 +182,10 @@ void main() {
     await tester.enterText(field(_l.deskSendAmount), '1');
     await tester.pumpAndSettle();
     expect(find.text(_l.linkAmountEdited), findsOneWidget);
+  });
+
+  testWidgets('a request for any amount leaves the amount empty', (tester) async {
+    await show(tester);
     await paste(tester, vectors.scheme('req-payee'));
     expect(text(tester, _l.deskSendAmount), isEmpty);
   });

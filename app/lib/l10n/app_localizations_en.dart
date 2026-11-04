@@ -20255,27 +20255,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String linkTrustListed(String name, String directory) {
-    return '$name · listed by $directory';
+    return '$name · via $directory';
   }
 
   @override
   String linkTrustListedBy(String directory) {
-    return 'Listed by $directory';
+    return 'Via $directory';
   }
 
   @override
-  String get linkTrustDirectory => 'From a directory you use';
+  String get linkTrustDirectory => 'From a service you paired with';
 
   @override
-  String get linkTrustOther => 'Not from a directory you use';
+  String get linkTrustOther => 'Not from a service you paired with';
 
   @override
-  String linkTrustChanged(String date) {
-    return 'This listing now points to a different wallet than when you paid on $date. Pay only if they told you.';
+  String linkTrustChanged(String name, String date) {
+    return '$name now gets paid to a different wallet than when you paid on $date. Pay only if they told you.';
   }
 
   @override
-  String get linkCodeLabel => 'Listing code';
+  String linkTrustChangedNoName(String date) {
+    return 'This payee now gets paid to a different wallet than when you paid on $date. Pay only if they told you.';
+  }
+
+  @override
+  String linkCodeLabel(String name) {
+    return 'Pictures for $name';
+  }
+
+  @override
+  String get linkCodeLabelPlain => 'Pictures';
 
   @override
   String get linkAmountEdited => 'Not the amount requested';

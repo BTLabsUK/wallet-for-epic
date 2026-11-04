@@ -34,7 +34,7 @@ class DeskLinkTrust extends StatelessWidget {
         below: Padding(
           padding: EdgeInsets.only(top: Sp.x2),
           child: Semantics(
-            label: l.linkCodeLabel,
+            label: link.payeeLabel == null ? l.linkCodeLabelPlain : l.linkCodeLabel(link.payeeLabel!),
             child: Wrap(
               spacing: Sp.x2,
               children: [for (final w in codeWords(link.listingCode)) SasPicture(w, size: 24, excludeFromSemantics: true)],
