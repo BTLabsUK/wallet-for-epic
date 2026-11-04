@@ -3,9 +3,11 @@
 
 Tailnet listener (config listen/port; never 0.0.0.0): the release tools' API.
   GET  /info                          version, key ids, public keys, Android certificate SHA-256
-  POST /requests                      {version, jobs, files: [{name, size, sha256}]} -> id
+  POST /requests                      {version, jobs, files: [{name, size, sha256}][, run]} -> id
   PUT  /requests/<id>/in/<name>       one file's bytes; the signer hashes its own copy
-  POST /requests/<id>/submit          all files in: ask the owner (Telegram, TOTP); for a follow-up, sign
+  POST /requests/<id>/submit          all files in: with X-Btsign-Approve, approved by the release
+                                      tool's credential; without, ask the owner (Telegram, TOTP); for
+                                      a follow-up, sign
   POST /requests/<id>/continue        {jobs, files}: the follow-up a request declared (`then`)
   GET  /requests/<id>                 state, hashes, outputs
   GET  /requests/<id>/out/<name>      a signed output
@@ -16,19 +18,30 @@ Every route but /info needs the client token (Authorization: Bearer).
 Loopback listener (127.0.0.1:admin_port), for whoever sits at the signer's machine:
   GET/POST /enrol                     the one-time TOTP enrolment page
   POST /admin/import                  a bundle and its key, once, into an empty store
-  POST /admin/secret                  the bot token or the client token
+  POST /admin/secret                  the bot token, the client token or the approval token
   GET  /admin/status
 
-Approval: one request at a time; it expires 30 min after it was made. The bot posts the request
-to the owner; he replies with a 6-digit code; the bot keeps it for that request; the signer reads
-it and checks it (RFC 6238, SHA-1, 30 s, ±1 step), and never takes a time step it already took.
-Three wrong codes reject the request; five failures within an hour lock the signer for an hour.
+Approval: one request at a time; it expires 30 min after it was made.
+
+By the release tool's credential (the owner, 2026-11-04): the runner sends the approval token in
+X-Btsign-Approve on submit. The signer keeps only its SHA-256 (approve_sha256, set once through
+/admin/secret as approve_token) and compares in constant time. A match approves the request once
+every check before asking has passed (files uploaded, not locked, ops.describe), and the approval
+thread signs it at once: no bot message, no code. A header that does not match is refused (403)
+and counts as a failure toward the lock, as a wrong code does.
+
+By TOTP (no header): the bot posts the request to the owner; he replies with a 6-digit code; the
+bot keeps it for that request; the signer reads it and checks it (RFC 6238, SHA-1, 30 s, ±1
+step), and never takes a time step it already took.
+Three wrong codes (or wrong tokens) reject the request; five failures within an hour lock the
+signer for an hour. Every signature is logged and written to signed.jsonl with the request, the
+release run and what approved it.
 
 One code per release: a request of Android jobs (apk, aab) may declare `then`, the update
 manifests and SHA256SUMS signature that follow once the runner has the signed APKs (their hashes
 go into the manifests, so they cannot be in the same upload). the owner's message says so; after
-his code the Android files are signed and the request waits (`continuing`) up to
-continue_minutes for exactly the declared jobs (op and output name). The request also declares
+his code (or the credential) the Android files are signed and the request waits (`continuing`)
+up to continue_minutes for exactly the declared jobs (op and output name). The request also declares
 (`expect`: name, size, SHA-256) the release's other files the manifests will name, the desktop
 builds, and the owner's message lists them. The follow-up is checked as any request's (payload
 schema, links, --prev serial, self-verify) and also bound to what he approved: the manifests
@@ -41,6 +54,7 @@ the runner then asks for a new request (and code) as before.
 from __future__ import annotations
 
 import base64
+import hashlib
 import hmac
 import html
 import http.server
@@ -62,7 +76,7 @@ from datetime import datetime, timezone
 from . import crypto, ops
 from .store import Store, StoreError, atomic_write
 
-VERSION = "1.1.0"
+VERSION = "1.2.0"
 log = logging.getLogger("btsign")
 
 FINAL = ("done", "rejected", "expired", "failed", "cancelled")
@@ -70,9 +84,11 @@ FOLLOW = ("continuing", "uploading2")          # the Android half signed; the fo
 THEN_OPS = ("update-manifest", "minisign")
 FIRST_OPS = ("apk", "aab")                     # what a request that declares `then` may sign first
 VERSION_RE = re.compile(r"[0-9A-Za-z][0-9A-Za-z.+-]{0,39}\Z")
+RUN_RE = re.compile(r"[0-9A-Za-z][0-9A-Za-z.+-]{0,59}\Z")
 ID_RE = re.compile(r"r[0-9a-f]{16}\Z")
 MAX_JSON = 64 * 1024
 WRONG_PER_REQUEST = 3
+BY_TOKEN, BY_TOTP = "release-tool credential", "TOTP"
 FAILS_PER_HOUR = 5
 LOCK_SECONDS = 3600
 
@@ -200,7 +216,8 @@ class Signer:
                 if st.get("locked_until", 0) > self.clock() else None,
                 "active_request": active[0] if active else None,
                 "apk_schemes": self.tools.schemes, "ops": list(ops.OPS),
-                "follow_up": True}   # a request may declare `then` (the client asks before it does)
+                "follow_up": True,   # a request may declare `then` (the client asks before it does)
+                "auto_approve": bool(s.get("approve_sha256"))}
 
     def ledger(self) -> set:
         p = os.path.join(self.dir, "signed.jsonl")
@@ -291,14 +308,17 @@ class Signer:
         return out
 
     def create(self, spec: dict) -> dict:
-        if not isinstance(spec, dict) or set(spec) - {"version", "jobs", "files", "label", "then", "expect"}:
-            raise Refused(400, "body: {version, jobs, files[, label][, then[, expect]]}")
+        if not isinstance(spec, dict) or set(spec) - {"version", "jobs", "files", "label", "then", "expect", "run"}:
+            raise Refused(400, "body: {version, jobs, files[, label][, run][, then[, expect]]}")
         version, jobs, files = spec.get("version"), spec.get("jobs"), spec.get("files")
         if not isinstance(version, str) or not VERSION_RE.match(version):
             raise Refused(400, "version: 1-40 of [0-9A-Za-z.+-]")
         label = spec.get("label") or ""
         if not isinstance(label, str) or not re.fullmatch(r"[ -~]{0,80}", label):
             raise Refused(400, "label: up to 80 printable ASCII characters")
+        run = spec.get("run")
+        if run is not None and (not isinstance(run, str) or not RUN_RE.match(run)):
+            raise Refused(400, "run: 1-60 of [0-9A-Za-z.+-]")
         declared, total = self._check_files(files)
         jobs = self._check_jobs(jobs, declared, total)
         then = self._check_then(spec["then"], jobs) if spec.get("then") is not None else None
@@ -312,21 +332,24 @@ class Signer:
             busy = [m for m in self._all() if m["state"] not in FINAL]
             if busy:
                 raise Refused(409, f"request {busy[0]['id']} is still {busy[0]['state']}: one at a time")
-            if not self.store.secrets().get("totp"):
-                raise Refused(409, "TOTP is not enrolled yet: the owner enrols at the signer's machine first")
+            s = self.store.secrets()
+            if not s.get("totp") and not s.get("approve_sha256"):
+                raise Refused(409, "TOTP is not enrolled yet and no approval token is set: the owner enrols "
+                                   "at the signer's machine first")
             rid = "r" + _secrets.token_hex(8)
             os.makedirs(self._path(rid, "in"))
             os.makedirs(self._path(rid, "out"))
             now = self.clock()
-            meta = {"id": rid, "version": version, "label": label, "jobs": jobs,
+            meta = {"id": rid, "version": version, "label": label, "run": run, "jobs": jobs,
                     "files": {n: {"size": f["size"], "sha256": f["sha256"], "got": None}
                               for n, f in declared.items()},
                     "state": "uploading", "created": now, "expires": now + 60 * int(self.cfg["expiry_minutes"]),
                     "wrong": 0, "seen": 0, "outputs": {}, "note": None, "message_id": None,
-                    "then": then, "expect": expect, "jobs2": None, "files2": {}, "continue_by": None}
+                    "then": then, "expect": expect, "jobs2": None, "files2": {}, "continue_by": None,
+                    "approved_by": None}
             self._save(meta)
-            log.info("request %s: %d job(s), %d file(s), %d bytes, %s%s", rid, len(jobs), len(declared), total,
-                     version, f", then {len(then)} job(s)" if then else "")
+            log.info("request %s: %d job(s), %d file(s), %d bytes, %s%s%s", rid, len(jobs), len(declared), total,
+                     version, f", run {run}" if run else "", f", then {len(then)} job(s)" if then else "")
             return self.public(meta)
 
     def follow(self, rid: str, spec: dict) -> dict:
@@ -366,7 +389,6 @@ class Signer:
                 raise Refused(404, f"{name} is not one of the request's files")
             if length != f["size"]:
                 raise Refused(400, f"{name}: Content-Length {length} is not the declared {f['size']}")
-        import hashlib
         h = hashlib.sha256()
         dst = self._path(rid, sub, name)
         tmp = dst + ".part"
@@ -395,12 +417,30 @@ class Signer:
             self._save(meta)
         return {"name": name, "sha256": got, "size": length}
 
-    def submit(self, rid: str) -> dict:
+    def _check_token(self, meta: dict, token: str) -> None:
+        """Called with self.lock held, once the signer is known not to be locked: returns when
+        token is the approval token; else counts a failure (and a wrong try of this request) and
+        refuses with 403."""
+        want = self.store.secrets().get("approve_sha256") or ""
+        got = hashlib.sha256(token.strip().encode()).hexdigest()
+        if want and hmac.compare_digest(got.encode(), want.encode()):
+            return
+        locked = self._fail("wrong approval token" if want else "approval token sent, none is set")
+        meta["wrong"] = meta.get("wrong", 0) + 1
+        self._save(meta)
+        if locked:
+            self._finish(meta, "rejected", "too many failures: the signer is locked for an hour")
+        elif meta["wrong"] >= WRONG_PER_REQUEST:
+            self._finish(meta, "rejected", f"{WRONG_PER_REQUEST} wrong approvals")
+        raise Refused(403, "wrong approval token" if want else "this signer has no approval token set")
+
+    def submit(self, rid: str, token: str | None = None) -> dict:
+        """token: the X-Btsign-Approve header (None: absent, the TOTP path)."""
         with self.lock:
             self.expire()
             meta = self._meta(rid)
             if meta["state"] == "uploading2":
-                return self._submit_follow(meta)
+                return self._submit_follow(meta, token)
             if meta["state"] != "uploading":
                 raise Refused(409, f"request is {meta['state']}")
             missing = [n for n, f in meta["files"].items() if not f["got"]]
@@ -408,6 +448,10 @@ class Signer:
                 raise Refused(409, "files not uploaded yet: " + ", ".join(missing))
             if self._locked():
                 raise Refused(423, "the signer is locked after too many wrong codes; try later")
+            if token is not None:
+                self._check_token(meta, token)
+            elif not self.store.secrets().get("totp"):
+                raise Refused(409, "TOTP is not enrolled: this request needs the approval token")
             indir = self._path(rid, "in")
             ledger = self.ledger()
             lines = []
@@ -417,6 +461,13 @@ class Signer:
             except (ops.OpError, ValueError, OSError) as e:
                 self._finish(meta, "failed", f"refused before asking: {e}", notify=False)
                 raise Refused(422, str(e)) from None
+            if token is not None:
+                # Approved by the credential: the approval thread signs it now (the client polls).
+                meta["state"], meta["approved_by"] = "approved", BY_TOKEN
+                self._save(meta)
+                log.info("request %s: approved by the %s", rid, BY_TOKEN)
+                self.wake.set()
+                return self.public(meta)
             if meta.get("then"):
                 # First, so the bot never cuts it: what this one code also signs, later.
                 lines[:0] = ["then, on this code, no other: " + ", ".join(
@@ -436,14 +487,17 @@ class Signer:
         self.wake.set()
         return self.public(meta)
 
-    def _submit_follow(self, meta: dict) -> dict:
-        """Called with self.lock held: checks the follow-up and signs it on the request's code."""
+    def _submit_follow(self, meta: dict, token: str | None = None) -> dict:
+        """Called with self.lock held: checks the follow-up and signs it on the request's approval.
+        A token sent with it must still be the right one."""
         rid = meta["id"]
         missing = [n for n, f in meta["files2"].items() if not f["got"]]
         if missing:
             raise Refused(409, "files not uploaded yet: " + ", ".join(missing))
         if self._locked():
             raise Refused(423, "the signer is locked after too many wrong codes; try later")
+        if token is not None:
+            self._check_token(meta, token)
         indir = self._path(rid, "in2")
         lines = []
         try:
@@ -458,7 +512,7 @@ class Signer:
         meta["follow_lines"] = lines[:60]
         meta["state"] = "signing"
         self._save(meta)
-        log.info("request %s: signing the follow-up on the request's code", rid)
+        log.info("request %s: signing the follow-up on the request's approval", rid)
         self.sign(meta, follow=True)
         return self.public(self._meta(rid))
 
@@ -571,7 +625,16 @@ class Signer:
     def poll_once(self) -> None:
         with self.lock:
             self.expire()
+            approved = [m for m in self._all() if m["state"] == "approved"]
             pending = [m for m in self._all() if m["state"] == "pending_approval"]
+        for m in approved:      # by the credential, at submit
+            with self.lock:     # cancelled since?
+                meta = self._meta(m["id"])
+                if meta["state"] != "approved":
+                    continue
+                meta["state"] = "signing"
+                self._save(meta)
+            self.sign(meta)
         for meta in pending:
             try:
                 res = self.bot.call("GET", f"/signer/requests/{meta['id']}/codes?after={meta['seen']}")
@@ -585,9 +648,9 @@ class Signer:
                 meta["seen"] = seq
                 verdict = self.check_code(code)
                 if verdict == "ok":
-                    meta["state"] = "approved"
+                    meta["state"], meta["approved_by"] = "approved", BY_TOTP
                     self._save(meta)
-                    log.info("request %s: approved", meta["id"])
+                    log.info("request %s: approved by %s", meta["id"], BY_TOTP)
                     self.sign(meta)
                     break
                 meta["wrong"] += 1
@@ -612,12 +675,15 @@ class Signer:
         secrets = self.store.secrets()
         indir, outdir = self._path(meta["id"], "in2" if follow else "in"), self._path(meta["id"], "out")
         outputs, rows = dict(meta.get("outputs") or {}) if follow else {}, []
+        run, by = meta.get("run"), meta.get("approved_by") or BY_TOTP
         try:
             for j in meta["jobs2"] if follow else meta["jobs"]:
                 sha = ops.run_job(j, indir, outdir, secrets, self.tools)
                 outputs[j["out"]] = {"sha256": sha, "size": os.path.getsize(os.path.join(outdir, j["out"]))}
-                rows.append({"at": now_iso(), "request": meta["id"], "version": meta["version"],
-                             "op": j["op"], "name": j["out"], "sha256": sha})
+                rows.append({"at": now_iso(), "request": meta["id"], "version": meta["version"], "run": run,
+                             "op": j["op"], "name": j["out"], "sha256": sha, "approved_by": by})
+                log.info("signed %s sha256 %s request %s run %s approved by %s", j["out"], sha, meta["id"],
+                         run or "-", by)
         except (ops.OpError, OSError, ValueError) as e:
             self._finish(meta, "failed", f"signing failed: {e}", notify=not follow)
             if follow:
@@ -629,7 +695,8 @@ class Signer:
         self._ledger_add(rows)
         shutil.rmtree(indir, ignore_errors=True)
         if follow:
-            self._finish(meta, "done", f"signed {len(rows)} follow-up file(s) on the request's code", notify=False)
+            self._finish(meta, "done", f"signed {len(rows)} follow-up file(s) on the request's approval",
+                         notify=False)
             self._tell_bot(meta, "then-done", "; ".join([f"{len(rows)} file(s) on the same code"]
                                                          + meta.get("follow_lines", [])[:12]))
             return
@@ -686,12 +753,18 @@ class Signer:
         return self.info()
 
     def set_secret(self, name: str, value: str) -> dict:
-        if name not in ("bot_token", "client_token"):
-            raise Refused(400, "name is bot_token or client_token")
+        """bot_token and client_token are stored as given; approve_token only as its SHA-256
+        (approve_sha256), never the token."""
+        if name not in ("bot_token", "client_token", "approve_token"):
+            raise Refused(400, "name is bot_token, client_token or approve_token")
         if not isinstance(value, str) or len(value.strip()) < 32:
             raise Refused(400, "a token is at least 32 characters")
-        self.store.update_secrets(**{name: value.strip()})
-        log.info("%s set", name)
+        if name == "approve_token":
+            self.store.update_secrets(approve_sha256=hashlib.sha256(value.strip().encode()).hexdigest())
+            log.info("approve_token set (only its SHA-256 is kept)")
+        else:
+            self.store.update_secrets(**{name: value.strip()})
+            log.info("%s set", name)
         return {"ok": True}
 
     def client_ok(self, header: str) -> bool:
@@ -849,7 +922,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 shutil.copyfileobj(f, self.wfile, 1 << 20)
             return None
         if action == "submit" and method == "POST":
-            return self._json(200, s.submit(rid))
+            return self._json(200, s.submit(rid, self.headers.get("X-Btsign-Approve")))
         if action == "cancel" and method == "POST":
             return self._json(200, s.cancel(rid))
         if action == "continue" and method == "POST":

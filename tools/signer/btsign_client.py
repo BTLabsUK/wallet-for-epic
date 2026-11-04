@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-"""The release tools' side of the signer (stdlib only): find it, check it, send files, wait for
-The owner's approval, fetch the signed files.
+"""The release tools' side of the signer (stdlib only): find it, check it, send files, have
+them approved (this machine's approval token, else the owner's code), fetch the signed files.
 
   btsign_client.py endpoint                     the endpoint from release-hosts.toml (exit 1: none)
   btsign_client.py check [--repo R] [--keyring K]   /info against the repo's keys and certificate
@@ -26,6 +26,9 @@ Settings: [host.signer] of release-hosts.toml ($REL_HOSTS, else ~/.config/btlabs
   key_ids = ["3eb30c1e66220525"]                        the Ed25519 key ids it must hold
   android_cert_sha256 = "59e4…"                         the release certificate it must hold
   client_token = "~/.config/btlabs/signer-client.token" the client token (a file, chmod 600)
+  approve_token = "~/.config/btlabs/signer-approve.token"  the approval token (a file, chmod 600):
+      when it exists, sent on submit (X-Btsign-Approve) so the signer approves without a code;
+      absent, the owner approves with his code as before
 """
 from __future__ import annotations
 
@@ -122,11 +125,28 @@ class Client:
         except FileNotFoundError:
             raise SignerError(f"no signer client token at {p}") from None
 
+    def _approve_token(self) -> str | None:
+        """The approval token, or None when its file is absent (the owner's code then approves)."""
+        p = os.path.expanduser(self.s.get("approve_token", "~/.config/btlabs/signer-approve.token"))
+        try:
+            st = os.stat(p)
+        except FileNotFoundError:
+            return None
+        if st.st_mode & 0o077:
+            raise SignerError(f"{p} is readable or writable by group/other; chmod 600 it (owner only)")
+        token = _text(p).strip()
+        if not token:
+            raise SignerError(f"{p} is empty")
+        return token
+
     def call(self, method: str, path: str, body=None, data: bytes | None = None, stream=None,
-             length: int | None = None, timeout: float = 60, auth: bool = True, raw: bool = False):
+             length: int | None = None, timeout: float = 60, auth: bool = True, raw: bool = False,
+             approve: str | None = None):
         headers = {}
         if auth:
             headers["Authorization"] = f"Bearer {self._token()}"
+        if approve:
+            headers["X-Btsign-Approve"] = approve
         if body is not None:
             data = json.dumps(body).encode()
             headers["Content-Type"] = "application/json"
@@ -142,9 +162,11 @@ class Client:
                 msg = json.loads(e.read()).get("error")
             except ValueError:
                 msg = e.reason
-            raise SignerError(f"signer: {method} {path.split('?')[0]} → {e.code}: {msg}", e.code) from None
+            raise SignerError(_mask(f"signer: {method} {path.split('?')[0]} → {e.code}: {msg}", approve),
+                              e.code) from None
         except (urllib.error.URLError, OSError) as e:
-            raise SignerError(f"signer at {self.url} unreachable ({getattr(e, 'reason', e)})") from None
+            raise SignerError(_mask(f"signer at {self.url} unreachable ({getattr(e, 'reason', e)})",
+                                    approve)) from None
         if raw:
             return r
         with r:
@@ -312,9 +334,11 @@ class Client:
 
     def sign(self, version: str, jobs: list[dict], out_dir: str, label: str = "",
              wait: float = WAIT_SECONDS, then: list[dict] | None = None,
-             expect: list[str] | None = None) -> dict:
+             expect: list[str] | None = None, run_id: str | None = None) -> dict:
         """jobs name local paths; outputs land in out_dir under their out names, checked against
-        the signer's SHA-256. Blocks until the owner approved and the signer signed (or refused).
+        the signer's SHA-256. Blocks until the request was approved (this machine's approval
+        token when its file exists, else the owner's code) and the signer signed (or refused).
+        run_id: the release run, recorded by the signer with every signature.
         then ([{op, out}]): the follow-up this request declares (follow()); the request then
         stays open for it after the outputs are fetched. expect (local paths): the release's
         other files that follow-up may name, declared by name, size and SHA-256. Returns the
@@ -332,7 +356,10 @@ class Client:
             # A signer before 1.1.0 refuses `then`: the follow-up then asks for its own code.
             self.say("the signer does not take a follow-up yet: the manifests will ask for their own code")
             then = None
+        approve = self._approve_token()
         body = {"version": version, "label": label[:80], "jobs": remote_jobs, "files": files}
+        if run_id:
+            body["run"] = run_id
         if then:
             body["then"] = then
             body["expect"] = [{"name": os.path.basename(p), "size": os.path.getsize(p), "sha256": sha256_file(p)}
@@ -343,8 +370,11 @@ class Client:
                  + (f", then {len(then)} on the same code" if then else ""))
         try:
             self._upload(rid, files, paths)
-            self.call("POST", f"/requests/{rid}/submit", body={})
-            self.say(f"signer request {rid}: waiting for the owner's code in Telegram (@BTLABS_BOT)")
+            sub = self.call("POST", f"/requests/{rid}/submit", body={}, approve=approve)
+            if approve and sub.get("state") != "pending_approval":
+                self.say(f"signer request {rid}: approved by this machine's credential")
+            else:   # a signer before 1.2.0 ignores the token and asks the owner
+                self.say(f"signer request {rid}: waiting for the owner's code in Telegram (@BTLABS_BOT)")
             st = self._wait(rid, wait, ("continuing",) if then else ("done",))
             self._fetch(rid, st, names, out_dir)
         except BaseException:
@@ -373,17 +403,22 @@ class Client:
         if st.get("state") != "continuing" or st.get("version") != version:
             raise SignerError(f"signer request {rid} is {st.get('state')} ({st.get('version')}), "
                               "not waiting for this follow-up", 409)
+        approve = self._approve_token()
         self.call("POST", f"/requests/{rid}/continue", body={"jobs": remote_jobs, "files": files})
         self.say(f"signer request {rid}: follow-up of {len(remote_jobs)} job(s) on the same code")
         try:
             self._upload(rid, files, paths)
-            self.call("POST", f"/requests/{rid}/submit", body={}, timeout=300)
+            self.call("POST", f"/requests/{rid}/submit", body={}, timeout=300, approve=approve)
             st = self._wait(rid, wait, ("done",))
             self._fetch(rid, st, names, out_dir)
         except BaseException:
             self._cancel(rid)
             raise
         return self._receipt_write(out_dir, rid, version, remote_jobs, files, paths, st, names)
+
+
+def _mask(text: str, secret: str | None) -> str:
+    return text.replace(secret, "[approval token]") if secret else text
 
 
 def parse_job(text: str) -> dict:

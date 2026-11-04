@@ -1,7 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 """The two listeners end to end with the release tools' client: /info is open, everything else
 needs the client token, a request goes through upload, approval and download; the loopback
-listener answers only to a loopback Host and its enrolment page closes once enrolled."""
+listener answers only to a loopback Host and its enrolment page closes once enrolled; with an
+owner-only approval token file the client gets a request signed without the bot."""
 import json
 import os
 import socket
@@ -37,8 +38,9 @@ class Http(SignerCase):
         with open(tok, "w") as f:
             f.write("c" * 40)
         os.chmod(tok, 0o600)
-        self.client = btsign_client.Client({"endpoint": f"http://127.0.0.1:{self.signer.cfg['port']}",
-                                            "client_token": tok}, say=lambda *a: None)
+        self.settings = {"endpoint": f"http://127.0.0.1:{self.signer.cfg['port']}", "client_token": tok,
+                         "approve_token": os.path.join(self.data, "..", f"{self._testMethodName}.none")}
+        self.client = btsign_client.Client(self.settings, say=lambda *a: None)
 
     def tearDown(self):
         self.signer.stop.set()
@@ -82,6 +84,54 @@ class Http(SignerCase):
         with open(os.path.join(out, "SHA256SUMS.sig")) as f:
             self.assertTrue(f.read().startswith("untrusted comment: "))
         self.assertEqual([r[1] for r in self.bot.results], ["wrong", "done"])
+
+    def approve_file(self, token, mode=0o600):
+        p = os.path.join(self.data, "..", f"{self._testMethodName}.approve")
+        with open(p, "w") as f:
+            f.write(token + "\n")
+        os.chmod(p, mode)
+        said = []
+        return btsign_client.Client(dict(self.settings, approve_token=p), say=lambda *a: said.append(" ".join(a))), said
+
+    def sums_job(self):
+        src = os.path.join(self.data, "..", f"{self._testMethodName}-SHA256SUMS")
+        with open(src, "wb") as f:
+            f.write(SUMS)
+        return [{"op": "minisign", "file": src, "out": "SHA256SUMS.sig",
+                 "trusted_comment": "Epic Cash 26.11.0 SHA256SUMS"}], os.path.join(self.data, "..", f"{self._testMethodName}-out")
+
+    def test_sign_with_the_approval_token(self):
+        token = "k" * 48
+        self.assertEqual(self.admin("/admin/secret", body={"name": "approve_token", "value": token})[0], 200)
+        self.assertTrue(self.client.info()["auto_approve"])
+        client, said = self.approve_file(token)
+        jobs, out = self.sums_job()
+        st = client.sign("26.11.0", jobs, out, run_id="26.11.0-run3")
+        self.assertEqual(st["state"], "done")
+        self.assertEqual(self.bot.requests, {})
+        self.assertEqual(self.signer._meta(st["id"])["run"], "26.11.0-run3")
+        self.assertEqual(self.signer._meta(st["id"])["approved_by"], "release-tool credential")
+        self.assertTrue(any("approved by this machine's credential" in x for x in said), said)
+        self.assertFalse(any(token in x for x in said))
+
+    def test_wrong_approval_token_is_refused_and_masked(self):
+        self.admin("/admin/secret", body={"name": "approve_token", "value": "k" * 48})
+        client, said = self.approve_file("w" * 48)
+        jobs, out = self.sums_job()
+        with self.assertRaises(btsign_client.SignerError) as e:
+            client.sign("26.11.0", jobs, out)
+        self.assertEqual(e.exception.status, 403)
+        self.assertNotIn("w" * 48, str(e.exception))
+        self.assertEqual(len(self.signer.store.state()["failures"]), 1)
+        self.assertEqual(self.signer.info()["active_request"], None)    # the client cancelled it
+
+    def test_client_refuses_a_shared_approval_token_file(self):
+        for mode in (0o640, 0o604, 0o620):
+            client, _ = self.approve_file("k" * 48, mode)
+            jobs, out = self.sums_job()
+            with self.assertRaisesRegex(btsign_client.SignerError, "group/other"):
+                client.sign("26.11.0", jobs, out)
+        self.assertEqual(self.signer.info()["active_request"], None)     # refused before any request
 
     def test_check_compares_with_the_repo(self):
         # The test signer holds btlabs-public's TEST key, so against the real repo keyring it fails.

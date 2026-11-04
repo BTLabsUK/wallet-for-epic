@@ -9,7 +9,8 @@
   btsign.py bundle-open   --bundle BUNDLE --bundle-key-stdin --out-dir DIR
                           (writes the key files back, byte for byte: for checking a bundle)
   btsign.py import        --bundle BUNDLE --bundle-key-stdin [--admin URL]
-  btsign.py set-secret    {bot_token,client_token} --stdin [--admin URL]
+  btsign.py set-secret    {bot_token,client_token,approve_token} --stdin [--admin URL]
+                          (approve_token: the signer keeps only its SHA-256)
   btsign.py status        [--admin URL]
 
 import, set-secret and status talk to the running signer's loopback listener (default
@@ -180,7 +181,7 @@ def main(argv=None) -> int:
     s.add_argument("--admin", default=admin)
     s.set_defaults(fn=cmd_import)
     s = sub.add_parser("set-secret")
-    s.add_argument("name", choices=("bot_token", "client_token"))
+    s.add_argument("name", choices=("bot_token", "client_token", "approve_token"))
     s.add_argument("--stdin", action="store_true", required=True)
     s.add_argument("--admin", default=admin)
     s.set_defaults(fn=cmd_set_secret)
