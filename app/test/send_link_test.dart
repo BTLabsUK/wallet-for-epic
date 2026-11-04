@@ -81,6 +81,9 @@ class _Refuses implements PaymentRefusals {
 
   @override
   bool refusesPayments({String? pairingId, String? address}) => address != null && epicboxKey(address) == epicboxKey(this.address);
+
+  @override
+  String? refusedName({String? pairingId, String? address}) => refusesPayments(pairingId: pairingId, address: address) ? 'BT Labs Bot' : null;
 }
 
 final _forty = WalletSummary(
@@ -264,18 +267,18 @@ void main() {
     testWidgets('an address pasted or typed stops at the field and Continue stays', (tester) async {
       await pump(tester, refusals: _Refuses(address));
       await paste(tester, address);
-      expect(find.text(_l.sendContactTakesNoPayments), findsOneWidget);
+      expect(find.text(_l.contactNoPaymentsNamed('BT Labs Bot')), findsOneWidget);
       await tester.tap(find.widgetWithText(FilledButton, _l.commonContinue));
       await tester.pumpAndSettle();
-      expect(find.text(_l.sendContactTakesNoPayments), findsOneWidget);
+      expect(find.text(_l.contactNoPaymentsNamed('BT Labs Bot')), findsOneWidget);
       expect(find.widgetWithText(FilledButton, _l.commonContinue), findsOneWidget);
       await tester.enterText(find.byType(TextField).first, 'es${'m' * 50}@epicbox.epiccash.com');
       await tester.pumpAndSettle();
-      expect(find.text(_l.sendContactTakesNoPayments), findsNothing);
+      expect(find.text(_l.contactNoPaymentsNamed('BT Labs Bot')), findsNothing);
       await tester.enterText(find.byType(TextField).first, address);
       await tester.tap(find.widgetWithText(FilledButton, _l.commonContinue));
       await tester.pumpAndSettle();
-      expect(find.text(_l.sendContactTakesNoPayments), findsOneWidget);
+      expect(find.text(_l.contactNoPaymentsNamed('BT Labs Bot')), findsOneWidget);
     });
   });
 

@@ -59,7 +59,7 @@ void main() {
     test('the phone and the desktop share the structure and most of the words', () {
       final phone = helpTopics(3, platform: HelpPlatform.phone);
       final desk = helpTopics(3, platform: HelpPlatform.desktop);
-      expect(desk, hasLength(34));
+      expect(desk, hasLength(35));
       // The phone adds "What an address looks like" (and its own QR and passphrase topics)
       // and keeps every desktop id but the desktop-only folder cleanup and local node.
       const deskOnly = {HelpId.cleanup, HelpId.localNode};

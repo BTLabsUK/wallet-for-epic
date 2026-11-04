@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// A contact that takes no payments, on the desktop: its details show one line in place of Send,
+// A contact that takes no payments, on the desktop: its details show the words and no Send,
 // and Send stops at its address, typed or chosen, with Review off.
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/directory/payment_refusals.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/models.dart' show epicboxKey;
+import 'package:epic_wallet/src/ui/status_icons.dart' show EpicGlyphs;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,6 +21,9 @@ const _box = 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK@box.epic.inva
 class _Refuses implements PaymentRefusals {
   @override
   bool refusesPayments({String? pairingId, String? address}) => address != null && epicboxKey(address) == epicboxKey(_box);
+
+  @override
+  String? refusedName({String? pairingId, String? address}) => refusesPayments(pairingId: pairingId, address: address) ? 'BT Labs Bot' : null;
 }
 
 Future<ProviderContainer> _container(WidgetTester tester) async {
@@ -67,12 +71,14 @@ void main() {
     await tester.tap(find.text('Anna Kowalska').first);
     await _settle(tester);
     expect(find.byKey(const ValueKey('contact-send')), findsOneWidget);
-    expect(find.byKey(const ValueKey('contact-no-payments')), findsNothing);
+    // The list row carries the bare mark: no words.
+    expect(find.byIcon(EpicGlyphs.noPayments), findsNWidgets(find.text('BT Labs').evaluate().length));
+    expect(find.text(_l.contactNoPayments), findsNothing);
     await tester.tap(find.text('BT Labs').first);
     await _settle(tester);
     expect(find.byKey(const ValueKey('contact-send')), findsNothing);
-    expect(find.byKey(const ValueKey('contact-no-payments')), findsOneWidget);
-    expect(find.text(_l.contactTakesNoPayments), findsOneWidget);
+    // The details say it in words, on a badge.
+    expect(find.text(_l.contactNoPayments), findsOneWidget);
   });
 
   testWidgets('Send stops at the address typed or pasted: the error shows', (tester) async {
@@ -84,6 +90,6 @@ void main() {
     await _settle(tester);
     FocusManager.instance.primaryFocus?.unfocus();
     await _settle(tester);
-    expect(find.text(_l.sendContactTakesNoPayments), findsOneWidget);
+    expect(find.text(_l.contactNoPaymentsNamed('BT Labs Bot')), findsOneWidget);
   });
 }

@@ -221,6 +221,28 @@ void main() {
       expect(h.takesNoPayments, isFalse);
     });
 
+    test('the label is read, and the encoder writes it back into the signed bytes', () {
+      final h = hello('hello-label');
+      expect(h.label, '@alice_test');
+      final unsigned = dirHelloUnsigned(
+        net: h.net,
+        dkey: h.dkey,
+        handle: h.handle,
+        bind: h.bind,
+        issued: h.issued.toInt(),
+        flags: h.flags,
+        label: h.label,
+      );
+      expect(toHex(unsigned), toHex(h.signedBytes));
+    });
+
+    test('a label without @ is dropped and the hello still decodes', () {
+      final bad = vectorList(v, 'bad').firstWhere((e) => e['id'] == 'hello-label-no-at');
+      final h = DirectoryPayload.decode(fromHex(bad['input_hex']! as String)) as DirHello;
+      expect(h.label, isNull);
+      expect(h.toFields(), bad['fields']);
+    });
+
     test('a reserved bit is malformed', () {
       final bad = vectorList(v, 'bad').firstWhere((e) => e['id'] == 'hello-flags-unknown-bit');
       expect(

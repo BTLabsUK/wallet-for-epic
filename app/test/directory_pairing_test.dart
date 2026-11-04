@@ -217,6 +217,25 @@ void main() {
     });
   });
 
+  group('the label in the hello', () {
+    test('the @name is stored on the entry; a later hello replaces it, one without it clears it', () async {
+      final rig = _Rig();
+      final r = await rig.verified();
+      expect(rig.service.book.byPairing(r.id)?.payAs, isNull);
+      expect(rig.service.book.byPairing(r.id)?.payAsArg, 'none');
+      rig.api.directoryHello(r.id, dkey: _dkey, label: '@alice_test');
+      await rig.service.readPayloads();
+      expect(rig.service.book.byPairing(r.id)?.payAs, '@alice_test');
+      expect(rig.service.book.byPairing(r.id)?.payAsArg, '@alice_test');
+      rig.api.directoryHello(r.id, dkey: _dkey, label: '@bob');
+      await rig.service.readPayloads();
+      expect(rig.service.book.byPairing(r.id)?.payAs, '@bob');
+      rig.api.directoryHello(r.id, dkey: _dkey);
+      await rig.service.readPayloads();
+      expect(rig.service.book.byPairing(r.id)?.payAs, isNull);
+    });
+  });
+
   group('receipts through the service', () {
     test('canTell follows a verified directory; post sends the bytes over its pairing', () async {
       final rig = _Rig();
@@ -377,7 +396,9 @@ void main() {
       await tester.pump(const Duration(milliseconds: 300));
       expect(rig.api.records.single.state, PairingState.verified);
       expect(rig.service.verifiedFor(r.id), isNotNull);
-      expect(find.text(_l.dirJoinTitle('Anna')), findsOneWidget);
+      expect(find.text(_l.dirJoinTitle('none', 'Anna')), findsOneWidget);
+      expect(find.text(_l.dirJoin('none', 'Anna')), findsOneWidget);
+      expect(find.text('Pay me via Anna'), findsOneWidget);
       await tester.tap(find.byKey(dirJoinKey));
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));
@@ -430,13 +451,33 @@ void main() {
       await tester.pumpWidget(const SizedBox());
     });
 
+    testWidgets('with a name in the hello the Join sheet says Pay me as @name', (tester) async {
+      final rig = await pump(tester, const SizedBox());
+      final r = rig.paired();
+      await mount(tester, rig, CheckWordsScreen(pairingId: r.id));
+      await tester.pump(const Duration(milliseconds: 100));
+      rig.api.directoryHello(r.id, dkey: _dkey, label: '@alice_test');
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.tap(find.byKey(checkMatchKey));
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.text('Pay me as @alice_test?'), findsOneWidget);
+      expect(find.text('Pay me as @alice_test'), findsOneWidget);
+      expect(find.textContaining('Pay me via'), findsNothing);
+      await tester.pumpWidget(const SizedBox());
+    });
+
     testWidgets('the contact block: Joined · since, the listing code, Leave posts an unlist', (tester) async {
       final rig = await pump(tester, const SizedBox());
       final r = await rig.verified();
+      rig.api.directoryHello(r.id, dkey: _dkey, label: '@alice_test');
+      await rig.service.readPayloads();
       await rig.service.join(_dkeyHex);
       await mount(tester, rig, Scaffold(body: SingleChildScrollView(child: DirectoryBlock(pairingId: r.id, label: 'Anna'))));
       await tester.pump(const Duration(milliseconds: 100));
-      expect(find.textContaining('Paid by name since'), findsOneWidget);
+      expect(find.textContaining('Pay me as @alice_test · since'), findsOneWidget);
+      expect(find.text(_l.dirLeave), findsOneWidget);
       expect(find.text(_l.dirListingCode), findsWidgets);
       await tester.tap(find.byKey(dirLeaveKey));
       await tester.pump(const Duration(milliseconds: 400));
