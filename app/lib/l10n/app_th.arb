@@ -4875,6 +4875,8 @@
   "pairEndedNotice": "การจับคู่สิ้นสุดแล้ว จับคู่อีกครั้งด้วยคำเชิญใหม่",
   "pairOtherWalletTitle": "คำตอบนี้มาจากกระเป๋าอื่น",
   "pairOtherWalletBody": "ไม่มีอะไรถูกบันทึก",
+  "pairKindDiffersTitle": "คำตอบนี้ไม่ตรงกับคำเชิญ",
+  "pairKindDiffersBody": "ระบุประเภทผู้ติดต่อต่างจากคำเชิญ ไม่ได้บันทึกอะไรไว้ กรุณาจับคู่ใหม่",
   "pairNotProvenBody": "ยังไม่มีการชำระ Epic Cash กับ {name} จึงส่งคำขอไม่ได้",
   "pairInProgressTitle": "การจับคู่กับ {name} กำลังดำเนินอยู่",
   "pairCrossedTitle": "กระเป๋าของ {name} ก็เริ่มจับคู่เช่นกัน กำลังรอคำตอบของฝ่ายนั้น",

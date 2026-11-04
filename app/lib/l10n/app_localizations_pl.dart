@@ -19449,6 +19449,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get pairOtherWalletBody => 'Niczego nie zapisano.';
 
   @override
+  String get pairKindDiffersTitle => 'Ta odpowiedź nie pasuje do zaproszenia.';
+
+  @override
+  String get pairKindDiffersBody =>
+      'Podaje inny rodzaj kontaktu niż zaproszenie. Niczego nie zapisano. Sparuj ponownie.';
+
+  @override
   String pairNotProvenBody(String name) {
     return 'Nie było jeszcze płatności Epic Cash z $name, więc nie można wysłać prośby.';
   }

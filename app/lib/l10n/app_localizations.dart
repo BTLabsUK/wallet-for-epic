@@ -29280,6 +29280,18 @@ abstract class AppLocalizations {
   /// **'Nothing was stored.'**
   String get pairOtherWalletBody;
 
+  /// An invite's answer names another contact kind than the invite did. Nothing was stored.
+  ///
+  /// In en, this message translates to:
+  /// **'This answer does not match the invite.'**
+  String get pairKindDiffersTitle;
+
+  /// Second line of pairKindDiffersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'It names another kind of contact than the invite. Nothing was stored. Pair again.'**
+  String get pairKindDiffersBody;
+
   /// A request refused: the key is not a proven peer.
   ///
   /// In en, this message translates to:

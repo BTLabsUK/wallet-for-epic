@@ -4875,6 +4875,8 @@
   "pairEndedNotice": "Parowanie zakończone. Sparuj ponownie z nowym zaproszeniem.",
   "pairOtherWalletTitle": "Ta odpowiedź przyszła z innego portfela.",
   "pairOtherWalletBody": "Niczego nie zapisano.",
+  "pairKindDiffersTitle": "Ta odpowiedź nie pasuje do zaproszenia.",
+  "pairKindDiffersBody": "Podaje inny rodzaj kontaktu niż zaproszenie. Niczego nie zapisano. Sparuj ponownie.",
   "pairNotProvenBody": "Nie było jeszcze płatności Epic Cash z {name}, więc nie można wysłać prośby.",
   "pairInProgressTitle": "Parowanie z {name} już trwa.",
   "pairCrossedTitle": "Portfel {name} też zaczął parowanie. Czekanie na jego odpowiedź.",

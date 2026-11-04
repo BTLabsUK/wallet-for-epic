@@ -2080,10 +2080,14 @@ class WalletError implements Exception {
   final WalletErrorKind kind;
   final String message;
 
-  const WalletError({required this.kind, required this.message});
+  /// The transaction the failed call stored and left behind, inputs locked, when a later step
+  /// failed or its clean-up cancel failed: cancel it or try its step again. Null when none.
+  final int? txId;
+
+  const WalletError({required this.kind, required this.message, this.txId});
 
   @override
-  int get hashCode => kind.hashCode ^ message.hashCode;
+  int get hashCode => kind.hashCode ^ message.hashCode ^ txId.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2091,7 +2095,8 @@ class WalletError implements Exception {
       other is WalletError &&
           runtimeType == other.runtimeType &&
           kind == other.kind &&
-          message == other.message;
+          message == other.message &&
+          txId == other.txId;
 
   @override
   String toString() => 'WalletError(${kind.name}): $message';
@@ -3452,6 +3457,9 @@ enum PairingFailure {
   /// Both wallets started a pairing with each other; this one lost to the other by the
   /// lower-key rule, and the other survives. Nothing to do.
   crossed,
+
+  /// An invite's answer names another contact kind than the invite did. Nothing was stored.
+  kindDiffers,
 
   /// The request was dismissed here (a copy from the linked device, for instance).
   inviteDismissed,

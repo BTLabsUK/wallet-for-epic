@@ -19020,6 +19020,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get pairOtherWalletBody => 'Nichts wurde gespeichert.';
 
   @override
+  String get pairKindDiffersTitle => 'Diese Antwort passt nicht zur Einladung.';
+
+  @override
+  String get pairKindDiffersBody =>
+      'Sie nennt eine andere Kontaktart als die Einladung. Nichts wurde gespeichert. Kopple erneut.';
+
+  @override
   String pairNotProvenBody(String name) {
     return 'Noch keine Epic-Cash-Zahlung mit $name, daher kann keine Anfrage gesendet werden.';
   }

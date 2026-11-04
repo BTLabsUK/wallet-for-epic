@@ -17739,6 +17739,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairOtherWalletBody => '没有保存任何内容。';
 
   @override
+  String get pairKindDiffersTitle => '此回复与邀请不匹配。';
+
+  @override
+  String get pairKindDiffersBody => '其中的联系人类型与邀请不同。未保存任何内容。请重新配对。';
+
+  @override
   String pairNotProvenBody(String name) {
     return '尚未与 $name 有过 Epic Cash 付款，无法发送请求。';
   }

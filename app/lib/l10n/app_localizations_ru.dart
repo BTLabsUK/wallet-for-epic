@@ -19436,6 +19436,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pairOtherWalletBody => 'Ничего не сохранено.';
 
   @override
+  String get pairKindDiffersTitle => 'Этот ответ не подходит к приглашению.';
+
+  @override
+  String get pairKindDiffersBody =>
+      'В нём указан другой тип контакта, чем в приглашении. Ничего не сохранено. Выполните сопряжение заново.';
+
+  @override
   String pairNotProvenBody(String name) {
     return 'С $name ещё не было платежа Epic Cash, поэтому запрос отправить нельзя.';
   }

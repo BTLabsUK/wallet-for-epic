@@ -4875,6 +4875,8 @@
   "pairEndedNotice": "配对已结束。请用新的邀请重新配对。",
   "pairOtherWalletTitle": "这个回复来自另一个钱包。",
   "pairOtherWalletBody": "没有保存任何内容。",
+  "pairKindDiffersTitle": "此回复与邀请不匹配。",
+  "pairKindDiffersBody": "其中的联系人类型与邀请不同。未保存任何内容。请重新配对。",
   "pairNotProvenBody": "尚未与 {name} 有过 Epic Cash 付款，无法发送请求。",
   "pairInProgressTitle": "与 {name} 的配对正在进行。",
   "pairCrossedTitle": "{name} 的钱包也发起了配对。正在等待其回复。",

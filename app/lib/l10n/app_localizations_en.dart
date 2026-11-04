@@ -18800,6 +18800,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairOtherWalletBody => 'Nothing was stored.';
 
   @override
+  String get pairKindDiffersTitle => 'This answer does not match the invite.';
+
+  @override
+  String get pairKindDiffersBody =>
+      'It names another kind of contact than the invite. Nothing was stored. Pair again.';
+
+  @override
   String pairNotProvenBody(String name) {
     return 'No Epic Cash payment with $name yet, so a request cannot be sent.';
   }

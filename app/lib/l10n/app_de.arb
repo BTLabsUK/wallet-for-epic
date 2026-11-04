@@ -4875,6 +4875,8 @@
   "pairEndedNotice": "Die Kopplung ist beendet. Kopple erneut mit einer frischen Einladung.",
   "pairOtherWalletTitle": "Diese Antwort kam von einer anderen Wallet.",
   "pairOtherWalletBody": "Nichts wurde gespeichert.",
+  "pairKindDiffersTitle": "Diese Antwort passt nicht zur Einladung.",
+  "pairKindDiffersBody": "Sie nennt eine andere Kontaktart als die Einladung. Nichts wurde gespeichert. Kopple erneut.",
   "pairNotProvenBody": "Noch keine Epic-Cash-Zahlung mit {name}, daher kann keine Anfrage gesendet werden.",
   "pairInProgressTitle": "Eine Kopplung mit {name} läuft bereits.",
   "pairCrossedTitle": "Die Wallet von {name} hat ebenfalls eine Kopplung gestartet. Warten auf ihre Antwort.",

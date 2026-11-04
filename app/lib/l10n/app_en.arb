@@ -25512,6 +25512,14 @@
   "@pairOtherWalletBody": {
     "description": "Second line of pairOtherWalletTitle."
   },
+  "pairKindDiffersTitle": "This answer does not match the invite.",
+  "@pairKindDiffersTitle": {
+    "description": "An invite's answer names another contact kind than the invite did. Nothing was stored."
+  },
+  "pairKindDiffersBody": "It names another kind of contact than the invite. Nothing was stored. Pair again.",
+  "@pairKindDiffersBody": {
+    "description": "Second line of pairKindDiffersTitle."
+  },
   "pairNotProvenBody": "No Epic Cash payment with {name} yet, so a request cannot be sent.",
   "@pairNotProvenBody": {
     "description": "A request refused: the key is not a proven peer.",

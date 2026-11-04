@@ -18390,6 +18390,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairOtherWalletBody => 'ไม่มีอะไรถูกบันทึก';
 
   @override
+  String get pairKindDiffersTitle => 'คำตอบนี้ไม่ตรงกับคำเชิญ';
+
+  @override
+  String get pairKindDiffersBody =>
+      'ระบุประเภทผู้ติดต่อต่างจากคำเชิญ ไม่ได้บันทึกอะไรไว้ กรุณาจับคู่ใหม่';
+
+  @override
   String pairNotProvenBody(String name) {
     return 'ยังไม่มีการชำระ Epic Cash กับ $name จึงส่งคำขอไม่ได้';
   }
