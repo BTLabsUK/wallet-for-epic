@@ -24,6 +24,7 @@ import 'seed_contacts.dart';
 import 'advanced.dart' show NetworkMode;
 import 'contact_store.dart';
 import 'finished_payment.dart';
+import 'key_picture.dart' show inviteKeyOf;
 import 'legacy/gui_contacts.dart' show AddressChecks;
 import 'listener_receives.dart';
 import 'log.dart';
@@ -3684,6 +3685,7 @@ class _LepicPairing implements PairingApi {
     wordsAvailable: lepicRelayMode() == lepic.ContactRelayMode.online,
     fromAddress: fromAddress,
     requestId: requestId,
+    inviteKey: inviteKeyOf(link),
   );
 
   @override

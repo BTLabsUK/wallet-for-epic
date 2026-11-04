@@ -5268,5 +5268,6 @@
   "pairIncomingNoName": "Sparować z tym portfelem?",
   "pairNoNameGiven": "Brak nazwy",
   "pairUnnamed": "Portfel bez nazwy",
-  "pairDefaultLabel": "Kontakt {n}"
+  "pairDefaultLabel": "Kontakt {n}",
+  "pairBtLabsService": "Usługa BT Labs"
 }

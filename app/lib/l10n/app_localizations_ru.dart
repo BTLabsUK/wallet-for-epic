@@ -14265,6 +14265,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pairNameClaimedShort => 'Имя выбрано собеседником';
 
   @override
+  String get pairBtLabsService => 'Сервис BT Labs';
+
+  @override
   String pairCallsThemselves(String name) {
     return 'Называет себя «$name»';
   }

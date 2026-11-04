@@ -5268,5 +5268,6 @@
   "pairIncomingNoName": "与此钱包配对？",
   "pairNoNameGiven": "未提供名字",
   "pairUnnamed": "未命名钱包",
-  "pairDefaultLabel": "联系人 {n}"
+  "pairDefaultLabel": "联系人 {n}",
+  "pairBtLabsService": "BT Labs 服务"
 }

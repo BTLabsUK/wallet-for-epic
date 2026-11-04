@@ -18263,6 +18263,10 @@
   "@pairNameClaimedShort": {
     "description": "Chip on the words check."
   },
+  "pairBtLabsService": "BT Labs service",
+  "@pairBtLabsService": {
+    "description": "Line under the name in the incoming sheet when the invite's key is one of BT Labs' services (next to the BT Labs mark). The name above is the service's own, not a claim."
+  },
   "pairCallsThemselves": "Calls themselves “{name}”",
   "@pairCallsThemselves": {
     "description": "Contact page, when the claimed name differs from the label.",

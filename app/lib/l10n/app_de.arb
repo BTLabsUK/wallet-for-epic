@@ -5268,5 +5268,6 @@
   "pairIncomingNoName": "Mit dieser Wallet koppeln?",
   "pairNoNameGiven": "Kein Name angegeben",
   "pairUnnamed": "Wallet ohne Namen",
-  "pairDefaultLabel": "Kontakt {n}"
+  "pairDefaultLabel": "Kontakt {n}",
+  "pairBtLabsService": "BT-Labs-Dienst"
 }
