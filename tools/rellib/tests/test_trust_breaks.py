@@ -535,23 +535,22 @@ class LaneTest(Base):
 # ---- Tor (the Tor lanes' after-update payments)
 
 class TorFake(Fake):
-    """Settings › Network & privacy's Connection mode beside the status rail: Tor and Epicbox show
-    Connected once Tor only is chosen, unless `comes_up` is False."""
+    """Settings' Connection mode and Epicbox's state line on one page: the line says Connected over Tor
+    once Tor only is chosen, unless `comes_up` is False; Connected in the clear under Normal."""
 
-    def __init__(self, mode="Normal", comes_up=True, bar=False):
+    def __init__(self, mode="Normal", comes_up=True):
         super().__init__({}, "privacy")
-        self.mode, self.comes_up, self.bar = mode, comes_up, bar
+        self.mode, self.comes_up = mode, comes_up
 
     def tree(self):
         tor = self.mode == "Tor only"
         up = tor and self.comes_up
         mark = lambda m: ("enabled", "checked") if self.mode == m else ("enabled",)  # noqa: E731
+        line = "Connected\xa0· epicbox.stackwallet.com, over Tor" if up else \
+            "Waiting for Tor\xa0· epicbox.stackwallet.com" if tor else "Connected\xa0· epicbox.stackwallet.com"
         return [n(0, "text_field", "Search settings"),
                 n(1, "checkbox", "Normal", states=mark("Normal")), n(2, "checkbox", "Tor only", states=mark("Tor only")),
-                n(3, "button", ("Tor · %s" if self.bar else "Open Network & privacy: %s") % (
-                    "Connected" if up else "Starting" if tor else "Off")),
-                n(4, "button", ("Epicbox · %s" if self.bar else "Open Epicbox receiving: %s") % (
-                    "Waiting for Tor" if tor and not up else "Connected"))]
+                n(3, "button", "Epicbox server: epicbox.stackwallet.com"), n(4, "text", line)]
 
     def press(self, node):
         self.pressed.append(node.name)
@@ -569,19 +568,13 @@ class TorRecipeTest(Base):
         self.assertEqual(f.pressed, [])
         self.assertTrue(self.logged("SKIP tor-on"), self.logs)
 
-    def test_tor_on_chooses_tor_only_and_waits_for_both(self):
+    def test_tor_on_chooses_tor_only_and_waits_for_epicbox_over_tor(self):
         f = TorFake()
         desk = self.desk(f)
+        self.assertEqual(desk.tor_status(), {"tor": "normal", "epicbox": "connected", "over_tor": False, "up": False})
         self.assertEqual(desk.tor_on(budget=1), "done")
         self.assertEqual(f.pressed, ["Tor only"])
-        self.assertEqual(desk.tor_status(), {"tor": "connected", "epicbox": "connected", "up": True})
-
-    def test_tor_on_reads_the_title_bar_icons(self):
-        f = TorFake(bar=True)
-        desk = self.desk(f)
-        self.assertEqual(desk.tor_status(), {"tor": "off", "epicbox": "connected", "up": False})
-        self.assertEqual(desk.tor_on(budget=1), "done")
-        self.assertEqual(desk.tor_status(), {"tor": "connected", "epicbox": "connected", "up": True})
+        self.assertEqual(desk.tor_status(), {"tor": "tor only", "epicbox": "connected", "over_tor": True, "up": True})
 
     def test_slow_tor_tried_twice_then_infra_tor(self):
         f = TorFake(comes_up=False)
