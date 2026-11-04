@@ -5271,6 +5271,14 @@
       }
     }
   },
+  "contactTakesNoPayments": "This contact doesn’t take payments.",
+  "@contactTakesNoPayments": {
+    "description": "Contact page and desktop Contact Details: the line that stands in place of Send when the contact's wallet said it takes no payments. Placeholder text until the designed state lands."
+  },
+  "sendContactTakesNoPayments": "This contact doesn’t take payments. A payment would not be answered.",
+  "@sendContactTakesNoPayments": {
+    "description": "Send: the error under the address field when the recipient is a contact that takes no payments. Placeholder text until the designed state lands."
+  },
   "contactsSendAction": "Send",
   "@contactsSendAction": {
     "description": "Contact sheet: opens Send with this contact as the recipient."

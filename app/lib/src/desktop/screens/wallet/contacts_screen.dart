@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../connection_grace.dart' show connectionGraceProvider;
+import '../../../directory/payment_refusals.dart' show paymentRefusalsProvider;
 import '../../../recent_activity.dart' show recentActivityCount, showViewAll;
 import '../../../recipient.dart' show RecipientKind, parseRecipient;
 import '../../desk_l10n.dart';
@@ -636,6 +637,7 @@ class _ContactDetail extends ConsumerWidget {
         .toList();
     final last = mine.isEmpty ? x.lastUsed : mine.first.created;
     final pairing = pairs ? ref.watch(deskContactPairingProvider(x.id)) : null;
+    final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: pairing?.id, address: x.epicbox);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -711,6 +713,7 @@ class _ContactDetail extends ConsumerWidget {
             children: [
               // A contact with no address is paid through its pairing, while it can take one.
               // The primary of a row of peers: soft gold, not a filled block (Pairing UX plan 4.2).
+              if (!noPayments)
               EButton(
                 key: const ValueKey('contact-send'),
                 kind: EBtnKind.primarySoft,
@@ -753,6 +756,11 @@ class _ContactDetail extends ConsumerWidget {
             ],
           );
         }),
+        // Placeholder (the designed state replaces it): in place of Send.
+        if (noPayments) ...[
+          SizedBox(height: Sp.x2),
+          Text(l.contactTakesNoPayments, key: const ValueKey('contact-no-payments'), style: ts.small),
+        ],
         // The build without Tor: an onion-only contact (older data) has no way to be paid.
         if (torOnly && !(pairing?.paysByMailbox ?? false)) ...[
           SizedBox(height: Sp.x2),

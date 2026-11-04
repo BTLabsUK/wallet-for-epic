@@ -74,6 +74,15 @@ class _Session extends FakeWalletSession {
   final recordedTxIds = <String?>[];
 }
 
+class _Refuses implements PaymentRefusals {
+  _Refuses(this.address);
+
+  final String address;
+
+  @override
+  bool refusesPayments({String? pairingId, String? address}) => address != null && epicboxKey(address) == epicboxKey(this.address);
+}
+
 final _forty = WalletSummary(
   lastConfirmedHeight: BigInt.from(2499990),
   minimumConfirmations: BigInt.from(3),
@@ -95,6 +104,7 @@ void main() {
     FakeMembership? membership,
     DateTime? now,
     Size size = const Size(1080, 2340),
+    PaymentRefusals? refusals,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 3;
@@ -115,6 +125,7 @@ void main() {
           relayDirectoryProvider.overrideWithValue(_NoRelays()),
           linkClockProvider.overrideWithValue(() => now ?? linkNow),
           directoryMembershipProvider.overrideWithValue(membership ?? FakeMembership()),
+          if (refusals != null) paymentRefusalsProvider.overrideWithValue(refusals),
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -247,6 +258,27 @@ void main() {
     expect(tester.widget<TextField>(amountField()).controller!.text, isEmpty);
   });
 
+  group('a contact that takes no payments', () {
+    final address = 'es${'k' * 50}@epicbox.epiccash.com';
+
+    testWidgets('an address pasted or typed stops at the field and Continue stays', (tester) async {
+      await pump(tester, refusals: _Refuses(address));
+      await paste(tester, address);
+      expect(find.text(_l.sendContactTakesNoPayments), findsOneWidget);
+      await tester.tap(find.widgetWithText(FilledButton, _l.commonContinue));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.sendContactTakesNoPayments), findsOneWidget);
+      expect(find.widgetWithText(FilledButton, _l.commonContinue), findsOneWidget);
+      await tester.enterText(find.byType(TextField).first, 'es${'m' * 50}@epicbox.epiccash.com');
+      await tester.pumpAndSettle();
+      expect(find.text(_l.sendContactTakesNoPayments), findsNothing);
+      await tester.enterText(find.byType(TextField).first, address);
+      await tester.tap(find.widgetWithText(FilledButton, _l.commonContinue));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.sendContactTakesNoPayments), findsOneWidget);
+    });
+  });
+
   group('sending', () {
     Future<void> toReview(WidgetTester tester) async {
       await tester.tap(find.widgetWithText(FilledButton, _l.commonContinue));
@@ -263,6 +295,7 @@ void main() {
       expect(session.epicboxSends, hasLength(1));
       expect(session.recorded.map((r) => toHex(r.reqid)), [toHex(vectors.request('req-basic').reqid)]);
       expect(find.text(_l.sendSaveContact), findsOneWidget);
+      expect(session.recordedTxIds.single, isNotNull, reason: 'the slate id of the payment, for the receipt line');
     });
 
     testWidgets('a changed wallet asks once more, and Cancel does not send', (tester) async {

@@ -5,6 +5,7 @@
 /// keys-changed and relay notices, and Remove pairing. Replaces the contact sheet.
 library;
 
+import '../directory/payment_refusals.dart' show paymentRefusalsProvider;
 import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -45,6 +46,7 @@ const Key contactPageMoreKey = ValueKey('contact-page-more');
 const Key contactPageDeleteKey = ValueKey('contact-page-delete');
 const Key contactPageHeaderPairKey = ValueKey('contact-page-header-pair');
 const Key contactPageStarKey = ValueKey('contact-page-star');
+const Key contactPageNoPaymentsKey = ValueKey('contact-page-no-payments');
 const Key contactPageSendReasonKey = ValueKey('contact-page-send-reason');
 const Key contactPageViaPairingKey = ValueKey('contact-page-via-pairing');
 
@@ -367,6 +369,7 @@ class _Header extends ConsumerWidget {
     final t = context.tokens;
     final theme = Theme.of(context);
     final p = pairing;
+    final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: p?.id, address: contact.epicbox);
     final claimed = p?.name?.trim();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -429,6 +432,7 @@ class _Header extends ConsumerWidget {
           spacing: 8,
           runSpacing: 8,
           children: [
+            if (!noPayments)
             FilledButton.tonalIcon(
               key: contactPageSendKey,
               style: _headerStyle(context, soft: true),
@@ -470,6 +474,10 @@ class _Header extends ConsumerWidget {
             ),
           ],
         ),
+        if (noPayments) ...[
+          const SizedBox(height: 4),
+          _NoPaymentsLine(key: contactPageNoPaymentsKey),
+        ] else
         // A contact with only a pairing that cannot take a payment now: why Send is off.
         if (contact.addresses.isEmpty && p != null && !p.paysByMailbox) ...[
           const SizedBox(height: 4),
@@ -482,6 +490,16 @@ class _Header extends ConsumerWidget {
       ],
     );
   }
+}
+
+/// Placeholder (the designed state replaces it): the line that stands in place of Send for a
+/// contact that takes no payments.
+class _NoPaymentsLine extends StatelessWidget {
+  const _NoPaymentsLine({super.key});
+
+  @override
+  Widget build(BuildContext context) =>
+      Text(context.l10n.contactTakesNoPayments, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.tokens.dim));
 }
 
 /// One row per address: the kind badge, the short address in mono, Copy. A contact with only

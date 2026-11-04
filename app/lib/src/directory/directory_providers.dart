@@ -61,10 +61,11 @@ class DirectoryProviders {
     (ref) => ref.watch(service) ?? const NoDirectoryMembership(),
   );
 
-  /// [PaymentRefusals] over the open wallet's service, for [paymentRefusalsProvider].
-  late final Provider<PaymentRefusals> refusals = Provider<PaymentRefusals>(
-    (ref) => ref.watch(service) ?? const NoPaymentRefusals(),
-  );
+  /// [PaymentRefusals] over the open wallet's book, for [paymentRefusalsProvider].
+  late final Provider<PaymentRefusals> refusals = Provider<PaymentRefusals>((ref) {
+    final v = ref.watch(view);
+    return v == null ? const NoPaymentRefusals() : BookRefusals(v.book);
+  });
 
   /// [DirectoryReceipts] over the open wallet's service, for [directoryReceiptsProvider].
   late final Provider<DirectoryReceipts> receipts = Provider<DirectoryReceipts>(

@@ -172,10 +172,7 @@ class DirectoryService implements DirectoryMembership, PaymentRefusals, Director
 
   @override
   bool refusesPayments({String? pairingId, String? address}) {
-    if (pairingId != null && (_book.byPairing(pairingId)?.noPayments ?? false)) return true;
-    if (address == null || address.trim().isEmpty) return false;
-    final key = epicboxKey(address);
-    return _book.entries.values.any((e) => e.noPayments && e.paymentsKey == key);
+    return BookRefusals(_book).refusesPayments(pairingId: pairingId, address: address);
   }
 
   // Receipts, for a payment made from a link.

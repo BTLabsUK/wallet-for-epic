@@ -20,6 +20,7 @@ import '../pairing_providers.dart'
     show PairNet, contactPairingProvider, pairNetProvider, pairingApiProvider, pairingByIdProvider, pairingName, pairingNameProvider, pairingSupportedProvider, pairingsProvider;
 import '../errors.dart';
 import '../initials.dart';
+import '../directory/payment_refusals.dart' show paymentRefusalsProvider;
 import '../l10n.dart';
 import '../tor_build.dart';
 import '../network.dart';
@@ -661,7 +662,7 @@ class _SendViewState extends ConsumerState<SendView> {
   String? _recipientProblem(String text, {bool required = false}) {
     final l = context.l10n;
     // A pairing recipient has no address to check: its card says whether it can be paid.
-    if (_pairingTo != null) return null;
+    if (_pairingTo != null) return _noPaymentsProblem(pairingId: _pairingTo);
     if (text.trim().isEmpty) return required ? l.sendAddressMissing : null;
     final read = _readOf(text);
     switch (read.kind) {
@@ -684,6 +685,7 @@ class _SendViewState extends ConsumerState<SendView> {
         return ref.read(walletServiceProvider).validateOnionAddress(address: read.address) ? null : l.sendOnionIncomplete;
       case RecipientInputKind.epicbox:
         if (_isOwnAddress(read)) return l.sendProblemOwn;
+        if (_noPaymentsProblem(address: read.address) case final stop?) return stop;
         return ref.read(walletServiceProvider).validateEpicboxAddress(address: read.address)
             ? null
             : (read.key ?? '').length < 52
@@ -691,6 +693,11 @@ class _SendViewState extends ConsumerState<SendView> {
             : l.sendAddressNotEpic;
     }
   }
+
+  /// Placeholder (the designed state replaces it): the stop for a contact that takes no
+  /// payments, by its pairing or its Epicbox address.
+  String? _noPaymentsProblem({String? pairingId, String? address}) =>
+      ref.read(paymentRefusalsProvider).refusesPayments(pairingId: pairingId, address: address) ? context.l10n.sendContactTakesNoPayments : null;
 
   /// [to] is this wallet's own Epicbox address: the key the same (case counts) and the relay
   /// this wallet's.
