@@ -4107,11 +4107,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get contactTakesNoPayments => 'This contact doesn’t take payments.';
+  String get contactTakesNoPayments => 'Takes no payments';
 
   @override
-  String get sendContactTakesNoPayments =>
-      'This contact doesn’t take payments. A payment would not be answered.';
+  String get contactNoPayments => 'No payments';
+
+  @override
+  String contactNoPaymentsNamed(String name) {
+    return '$name takes no payments.';
+  }
+
+  @override
+  String get linkNoPaymentsTitle => 'Takes no payments';
 
   @override
   String get contactsSendAction => 'Send';
@@ -20343,39 +20350,67 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dirCodeLabel => 'The four pictures';
 
   @override
-  String get dirJoin => 'Get paid by name';
+  String dirJoin(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Pay me via $label',
+      'other': 'Pay me as $name',
+    });
+    return '$_temp0';
+  }
 
   @override
   String get dirNotNow => 'Not now';
 
   @override
-  String dirJoinTitle(String label) {
-    return 'Get paid by name with $label?';
+  String dirJoinTitle(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Pay me via $label?',
+      'other': 'Pay me as $name?',
+    });
+    return '$_temp0';
   }
 
   @override
-  String dirJoinBody(String label, String host) {
-    return '$label can let people pay you by your name there. Payments come through $host';
+  String dirJoinBody(String name, String label, String host) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none':
+          'People who use $label can pay you there. Payments come through $host',
+      'other':
+          'People who use $label can pay you as $name. Payments come through $host',
+    });
+    return '$_temp0';
   }
 
   @override
   String dirJoinInfo(String label) {
-    return '$label gets one payment address and one code, both made only for it. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Stop any time in Contacts › $label › Stop paid by name.';
+    return '$label gets one payment address and one code, both made only for it. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Leave any time in Contacts › $label.';
   }
 
   @override
-  String dirJoinedNotice(String label) {
-    return 'Paid by name is on with $label';
+  String dirJoinedNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Pay me via $label: on',
+      'other': 'Pay me as $name: on',
+    });
+    return '$_temp0';
   }
 
   @override
-  String dirLeftNotice(String label) {
-    return 'Paid by name is off with $label';
+  String dirLeftNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Pay me via $label: off',
+      'other': 'Pay me as $name: off',
+    });
+    return '$_temp0';
   }
 
   @override
-  String dirJoined(String date) {
-    return 'Paid by name since $date';
+  String dirJoined(String name, String label, String date) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Pay me via $label · since $date',
+      'other': 'Pay me as $name · since $date',
+    });
+    return '$_temp0';
   }
 
   @override
@@ -20401,7 +20436,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get dirLeave => 'Stop paid by name';
+  String get dirLeave => 'Leave';
 
   @override
   String dirRemoveTooTitle(String label) {

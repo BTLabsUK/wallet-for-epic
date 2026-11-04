@@ -4241,11 +4241,18 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get contactTakesNoPayments => 'Ten kontakt nie przyjmuje płatności.';
+  String get contactTakesNoPayments => 'Nie przyjmuje płatności';
 
   @override
-  String get sendContactTakesNoPayments =>
-      'Ten kontakt nie przyjmuje płatności. Płatność pozostałaby bez odpowiedzi.';
+  String get contactNoPayments => 'Bez płatności';
+
+  @override
+  String contactNoPaymentsNamed(String name) {
+    return '$name nie przyjmuje płatności.';
+  }
+
+  @override
+  String get linkNoPaymentsTitle => 'Nie przyjmuje płatności';
 
   @override
   String get contactsSendAction => 'Wyślij';
@@ -21029,39 +21036,67 @@ class AppLocalizationsPl extends AppLocalizations {
   String get dirCodeLabel => 'Cztery obrazki';
 
   @override
-  String get dirJoin => 'Odbieraj płatności po nazwie';
+  String dirJoin(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Płać mi przez $label',
+      'other': 'Płać mi jako $name',
+    });
+    return '$_temp0';
+  }
 
   @override
   String get dirNotNow => 'Nie teraz';
 
   @override
-  String dirJoinTitle(String label) {
-    return 'Odbierać płatności po nazwie przez $label?';
+  String dirJoinTitle(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Płać mi przez $label?',
+      'other': 'Płać mi jako $name?',
+    });
+    return '$_temp0';
   }
 
   @override
-  String dirJoinBody(String label, String host) {
-    return '$label może tam pozwolić ludziom płacić ci po twojej nazwie. Płatności przychodzą przez $host';
+  String dirJoinBody(String name, String label, String host) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none':
+          'Osoby korzystające z $label mogą tam płacić ci. Płatności przychodzą przez $host',
+      'other':
+          'Osoby korzystające z $label mogą płacić ci jako $name. Płatności przychodzą przez $host',
+    });
+    return '$_temp0';
   }
 
   @override
   String dirJoinInfo(String label) {
-    return '$label dostaje jeden adres płatności i jeden kod, oba utworzone tylko dla niego. Nie widzi twojego salda, nie przenosi monet i nie czyta płatności. Płatności docierają, gdy Epic Cash jest otwarty. Możesz to zakończyć w każdej chwili w Kontakty › $label › Przestań odbierać płatności po nazwie.';
+    return '$label dostaje jeden adres płatności i jeden kod, oba utworzone tylko dla niego. Nie widzi twojego salda, nie przenosi monet i nie czyta płatności. Płatności docierają, gdy Epic Cash jest otwarty. Możesz opuścić w każdej chwili w Kontakty › $label.';
   }
 
   @override
-  String dirJoinedNotice(String label) {
-    return 'Płatności po nazwie włączone: $label';
+  String dirJoinedNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Płać mi przez $label: włączone',
+      'other': 'Płać mi jako $name: włączone',
+    });
+    return '$_temp0';
   }
 
   @override
-  String dirLeftNotice(String label) {
-    return 'Płatności po nazwie wyłączone: $label';
+  String dirLeftNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Płać mi przez $label: wyłączone',
+      'other': 'Płać mi jako $name: wyłączone',
+    });
+    return '$_temp0';
   }
 
   @override
-  String dirJoined(String date) {
-    return 'Płatności po nazwie od $date';
+  String dirJoined(String name, String label, String date) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Płać mi przez $label · od $date',
+      'other': 'Płać mi jako $name · od $date',
+    });
+    return '$_temp0';
   }
 
   @override
@@ -21087,7 +21122,7 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get dirLeave => 'Przestań odbierać płatności po nazwie';
+  String get dirLeave => 'Opuść';
 
   @override
   String dirRemoveTooTitle(String label) {

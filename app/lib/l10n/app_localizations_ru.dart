@@ -4221,11 +4221,18 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get contactTakesNoPayments => 'Этот контакт не принимает платежи.';
+  String get contactTakesNoPayments => 'Не принимает платежи';
 
   @override
-  String get sendContactTakesNoPayments =>
-      'Этот контакт не принимает платежи. На платёж не будет ответа.';
+  String get contactNoPayments => 'Без платежей';
+
+  @override
+  String contactNoPaymentsNamed(String name) {
+    return '$name не принимает платежи.';
+  }
+
+  @override
+  String get linkNoPaymentsTitle => 'Не принимает платежи';
 
   @override
   String get contactsSendAction => 'Отправить';
@@ -21014,39 +21021,67 @@ class AppLocalizationsRu extends AppLocalizations {
   String get dirCodeLabel => 'Четыре картинки';
 
   @override
-  String get dirJoin => 'Получать платежи по имени';
+  String dirJoin(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Платите мне через $label',
+      'other': 'Платите мне как $name',
+    });
+    return '$_temp0';
+  }
 
   @override
   String get dirNotNow => 'Не сейчас';
 
   @override
-  String dirJoinTitle(String label) {
-    return 'Получать платежи по имени через $label?';
+  String dirJoinTitle(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Платите мне через $label?',
+      'other': 'Платите мне как $name?',
+    });
+    return '$_temp0';
   }
 
   @override
-  String dirJoinBody(String label, String host) {
-    return '$label может позволить людям платить вам по вашему имени. Платежи приходят через $host';
+  String dirJoinBody(String name, String label, String host) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none':
+          'Те, кто пользуется $label, могут платить вам там. Платежи приходят через $host',
+      'other':
+          'Те, кто пользуется $label, могут платить вам как $name. Платежи приходят через $host',
+    });
+    return '$_temp0';
   }
 
   @override
   String dirJoinInfo(String label) {
-    return '$label получает один платёжный адрес и один код, оба созданы только для него. Он не видит ваш баланс, не двигает монеты и не читает платежи. Платежи приходят, пока Epic Cash открыт. Отключить можно в любой момент: Контакты › $label › Перестать получать платежи по имени.';
+    return '$label получает один платёжный адрес и один код, оба созданы только для него. Он не видит ваш баланс, не двигает монеты и не читает платежи. Платежи приходят, пока Epic Cash открыт. Выйти можно в любой момент: Контакты › $label.';
   }
 
   @override
-  String dirJoinedNotice(String label) {
-    return 'Платежи по имени включены: $label';
+  String dirJoinedNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Платите мне через $label: включено',
+      'other': 'Платите мне как $name: включено',
+    });
+    return '$_temp0';
   }
 
   @override
-  String dirLeftNotice(String label) {
-    return 'Платежи по имени отключены: $label';
+  String dirLeftNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Платите мне через $label: выключено',
+      'other': 'Платите мне как $name: выключено',
+    });
+    return '$_temp0';
   }
 
   @override
-  String dirJoined(String date) {
-    return 'Платежи по имени с $date';
+  String dirJoined(String name, String label, String date) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Платите мне через $label · с $date',
+      'other': 'Платите мне как $name · с $date',
+    });
+    return '$_temp0';
   }
 
   @override
@@ -21072,7 +21107,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get dirLeave => 'Перестать получать платежи по имени';
+  String get dirLeave => 'Выйти';
 
   @override
   String dirRemoveTooTitle(String label) {

@@ -4036,11 +4036,18 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get contactTakesNoPayments => 'ผู้ติดต่อนี้ไม่รับการชำระเงิน';
+  String get contactTakesNoPayments => 'ไม่รับการจ่ายเงิน';
 
   @override
-  String get sendContactTakesNoPayments =>
-      'ผู้ติดต่อนี้ไม่รับการชำระเงิน การชำระเงินจะไม่ได้รับการตอบ';
+  String get contactNoPayments => 'ไม่รับเงิน';
+
+  @override
+  String contactNoPaymentsNamed(String name) {
+    return '$name ไม่รับการจ่ายเงิน';
+  }
+
+  @override
+  String get linkNoPaymentsTitle => 'ไม่รับการจ่ายเงิน';
 
   @override
   String get contactsSendAction => 'ส่ง';
@@ -19927,39 +19934,66 @@ class AppLocalizationsTh extends AppLocalizations {
   String get dirCodeLabel => 'รูปภาพสี่รูป';
 
   @override
-  String get dirJoin => 'รับเงินด้วยชื่อ';
+  String dirJoin(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'รับเงินผ่าน $label',
+      'other': 'รับเงินในชื่อ $name',
+    });
+    return '$_temp0';
+  }
 
   @override
   String get dirNotNow => 'ไว้ก่อน';
 
   @override
-  String dirJoinTitle(String label) {
-    return 'รับเงินด้วยชื่อกับ $label ไหม';
+  String dirJoinTitle(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'รับเงินผ่าน $label ไหม',
+      'other': 'รับเงินในชื่อ $name ไหม',
+    });
+    return '$_temp0';
   }
 
   @override
-  String dirJoinBody(String label, String host) {
-    return '$label ให้คนจ่ายเงินให้คุณด้วยชื่อของคุณได้ที่นั่น เงินจะเข้ามาทาง $host';
+  String dirJoinBody(String name, String label, String host) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'คนที่ใช้ $label จ่ายเงินให้คุณที่นั่นได้ เงินจะเข้ามาทาง $host',
+      'other':
+          'คนที่ใช้ $label จ่ายเงินให้คุณในชื่อ $name ได้ เงินจะเข้ามาทาง $host',
+    });
+    return '$_temp0';
   }
 
   @override
   String dirJoinInfo(String label) {
-    return '$label ได้รับที่อยู่รับเงินหนึ่งที่อยู่และรหัสหนึ่งรหัส ทั้งสองสร้างไว้สำหรับบริการนี้เท่านั้น บริการมองไม่เห็นยอดคงเหลือ ย้ายเหรียญไม่ได้ และอ่านการจ่ายเงินไม่ได้ เงินจะเข้ามาขณะที่ Epic Cash เปิดอยู่ หยุดได้ทุกเมื่อที่ ผู้ติดต่อ › $label › หยุดรับเงินด้วยชื่อ';
+    return '$label ได้รับที่อยู่รับเงินหนึ่งที่อยู่และรหัสหนึ่งรหัส ทั้งสองสร้างไว้สำหรับบริการนี้เท่านั้น บริการมองไม่เห็นยอดคงเหลือ ย้ายเหรียญไม่ได้ และอ่านการจ่ายเงินไม่ได้ เงินจะเข้ามาขณะที่ Epic Cash เปิดอยู่ ออกได้ทุกเมื่อที่ ผู้ติดต่อ › $label';
   }
 
   @override
-  String dirJoinedNotice(String label) {
-    return 'เปิดรับเงินด้วยชื่อกับ $label แล้ว';
+  String dirJoinedNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'รับเงินผ่าน $label: เปิด',
+      'other': 'รับเงินในชื่อ $name: เปิด',
+    });
+    return '$_temp0';
   }
 
   @override
-  String dirLeftNotice(String label) {
-    return 'ปิดรับเงินด้วยชื่อกับ $label แล้ว';
+  String dirLeftNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'รับเงินผ่าน $label: ปิด',
+      'other': 'รับเงินในชื่อ $name: ปิด',
+    });
+    return '$_temp0';
   }
 
   @override
-  String dirJoined(String date) {
-    return 'รับเงินด้วยชื่อตั้งแต่ $date';
+  String dirJoined(String name, String label, String date) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'รับเงินผ่าน $label · ตั้งแต่ $date',
+      'other': 'รับเงินในชื่อ $name · ตั้งแต่ $date',
+    });
+    return '$_temp0';
   }
 
   @override
@@ -19985,7 +20019,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get dirLeave => 'หยุดรับเงินด้วยชื่อ';
+  String get dirLeave => 'ออก';
 
   @override
   String dirRemoveTooTitle(String label) {

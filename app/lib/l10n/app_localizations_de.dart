@@ -4169,12 +4169,18 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get contactTakesNoPayments =>
-      'Dieser Kontakt nimmt keine Zahlungen an.';
+  String get contactTakesNoPayments => 'Nimmt keine Zahlungen an';
 
   @override
-  String get sendContactTakesNoPayments =>
-      'Dieser Kontakt nimmt keine Zahlungen an. Eine Zahlung würde nicht beantwortet.';
+  String get contactNoPayments => 'Keine Zahlungen';
+
+  @override
+  String contactNoPaymentsNamed(String name) {
+    return '$name nimmt keine Zahlungen an.';
+  }
+
+  @override
+  String get linkNoPaymentsTitle => 'Nimmt keine Zahlungen an';
 
   @override
   String get contactsSendAction => 'Senden';
@@ -20595,39 +20601,67 @@ class AppLocalizationsDe extends AppLocalizations {
   String get dirCodeLabel => 'Die vier Bilder';
 
   @override
-  String get dirJoin => 'Per Name bezahlt werden';
+  String dirJoin(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Über $label bezahlt werden',
+      'other': 'Als $name bezahlt werden',
+    });
+    return '$_temp0';
+  }
 
   @override
   String get dirNotNow => 'Jetzt nicht';
 
   @override
-  String dirJoinTitle(String label) {
-    return 'Per Name bezahlt werden mit $label?';
+  String dirJoinTitle(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Über $label bezahlt werden?',
+      'other': 'Als $name bezahlt werden?',
+    });
+    return '$_temp0';
   }
 
   @override
-  String dirJoinBody(String label, String host) {
-    return 'Über $label können Leute Sie dort mit Ihrem Namen bezahlen. Zahlungen kommen über $host';
+  String dirJoinBody(String name, String label, String host) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none':
+          'Wer $label nutzt, kann Sie dort bezahlen. Zahlungen kommen über $host',
+      'other':
+          'Wer $label nutzt, kann Sie als $name bezahlen. Zahlungen kommen über $host',
+    });
+    return '$_temp0';
   }
 
   @override
   String dirJoinInfo(String label) {
-    return '$label erhält eine Zahlungsadresse und einen Code, beide nur dafür erstellt. Der Dienst kann weder Ihr Guthaben sehen noch Coins bewegen oder Zahlungen lesen. Zahlungen kommen an, solange Epic Cash geöffnet ist. Jederzeit beenden unter Kontakte › $label › Nicht mehr per Name bezahlt werden.';
+    return '$label erhält eine Zahlungsadresse und einen Code, beide nur dafür erstellt. Der Dienst kann weder Ihr Guthaben sehen noch Coins bewegen oder Zahlungen lesen. Zahlungen kommen an, solange Epic Cash geöffnet ist. Jederzeit verlassen unter Kontakte › $label.';
   }
 
   @override
-  String dirJoinedNotice(String label) {
-    return 'Bezahlung per Name ist an für $label';
+  String dirJoinedNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Über $label bezahlt werden: an',
+      'other': 'Als $name bezahlt werden: an',
+    });
+    return '$_temp0';
   }
 
   @override
-  String dirLeftNotice(String label) {
-    return 'Bezahlung per Name ist aus für $label';
+  String dirLeftNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Über $label bezahlt werden: aus',
+      'other': 'Als $name bezahlt werden: aus',
+    });
+    return '$_temp0';
   }
 
   @override
-  String dirJoined(String date) {
-    return 'Per Name bezahlt seit $date';
+  String dirJoined(String name, String label, String date) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': 'Über $label bezahlt werden · seit $date',
+      'other': 'Als $name bezahlt werden · seit $date',
+    });
+    return '$_temp0';
   }
 
   @override
@@ -20653,7 +20687,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get dirLeave => 'Nicht mehr per Name bezahlt werden';
+  String get dirLeave => 'Verlassen';
 
   @override
   String dirRemoveTooTitle(String label) {

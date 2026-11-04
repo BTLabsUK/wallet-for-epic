@@ -3884,10 +3884,18 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get contactTakesNoPayments => '此联系人不接收付款。';
+  String get contactTakesNoPayments => '不接受付款';
 
   @override
-  String get sendContactTakesNoPayments => '此联系人不接收付款。付款不会得到应答。';
+  String get contactNoPayments => '不收款';
+
+  @override
+  String contactNoPaymentsNamed(String name) {
+    return '$name 不接受付款。';
+  }
+
+  @override
+  String get linkNoPaymentsTitle => '不接受付款';
 
   @override
   String get contactsSendAction => '发送';
@@ -19188,39 +19196,65 @@ class AppLocalizationsZh extends AppLocalizations {
   String get dirCodeLabel => '四个图案';
 
   @override
-  String get dirJoin => '按名称收款';
+  String dirJoin(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': '通过 $label 收款',
+      'other': '以 $name 收款',
+    });
+    return '$_temp0';
+  }
 
   @override
   String get dirNotNow => '暂不';
 
   @override
-  String dirJoinTitle(String label) {
-    return '通过 $label 按名称收款？';
+  String dirJoinTitle(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': '通过 $label 收款？',
+      'other': '以 $name 收款？',
+    });
+    return '$_temp0';
   }
 
   @override
-  String dirJoinBody(String label, String host) {
-    return '$label 可在那里让别人按你的名称付款给你。款项通过 $host 到达';
+  String dirJoinBody(String name, String label, String host) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': '使用 $label 的人可以在那里向你付款。款项通过 $host 到达',
+      'other': '使用 $label 的人可以用 $name 向你付款。款项通过 $host 到达',
+    });
+    return '$_temp0';
   }
 
   @override
   String dirJoinInfo(String label) {
-    return '$label 会得到一个收款地址和一个代码，都仅为它创建。它看不到你的余额，不能动用币，也不能读取付款。Epic Cash 打开时款项才会到达。可随时在 联系人 › $label › 停止按名称收款 中停止。';
+    return '$label 会得到一个收款地址和一个代码，都仅为它创建。它看不到你的余额，不能动用币，也不能读取付款。Epic Cash 打开时款项才会到达。可随时在 联系人 › $label 中退出。';
   }
 
   @override
-  String dirJoinedNotice(String label) {
-    return '已为 $label 开启按名称收款';
+  String dirJoinedNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': '通过 $label 收款：已开启',
+      'other': '以 $name 收款：已开启',
+    });
+    return '$_temp0';
   }
 
   @override
-  String dirLeftNotice(String label) {
-    return '已为 $label 停止按名称收款';
+  String dirLeftNotice(String name, String label) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': '通过 $label 收款：已关闭',
+      'other': '以 $name 收款：已关闭',
+    });
+    return '$_temp0';
   }
 
   @override
-  String dirJoined(String date) {
-    return '自 $date 起按名称收款';
+  String dirJoined(String name, String label, String date) {
+    String _temp0 = intl.Intl.selectLogic(name, {
+      'none': '通过 $label 收款 · 自 $date 起',
+      'other': '以 $name 收款 · 自 $date 起',
+    });
+    return '$_temp0';
   }
 
   @override
@@ -19246,7 +19280,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get dirLeave => '停止按名称收款';
+  String get dirLeave => '退出';
 
   @override
   String dirRemoveTooTitle(String label) {

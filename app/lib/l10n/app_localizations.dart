@@ -6570,17 +6570,29 @@ abstract class AppLocalizations {
   /// **'No contact matches \"{query}\"'**
   String contactsNoMatchQuery(String query);
 
-  /// Contact page and desktop Contact Details: the line that stands in place of Send when the contact's wallet said it takes no payments. Placeholder text until the designed state lands.
+  /// Second line of a Send contact picker row for a contact that takes no payments, in place of the address.
   ///
   /// In en, this message translates to:
-  /// **'This contact doesn’t take payments.'**
+  /// **'Takes no payments'**
   String get contactTakesNoPayments;
 
-  /// Send: the error under the address field when the recipient is a contact that takes no payments. Placeholder text until the designed state lands.
+  /// Badge words (with the no-payments mark) on a contact that takes no payments: contact page header, Check the code head row, pairing result.
   ///
   /// In en, this message translates to:
-  /// **'This contact doesn’t take payments. A payment would not be answered.'**
-  String get sendContactTakesNoPayments;
+  /// **'No payments'**
+  String get contactNoPayments;
+
+  /// Send: error under To, payment-link refusal body, Join sheet second paragraph and late notice when {name} (a contact) takes no payments.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} takes no payments.'**
+  String contactNoPaymentsNamed(String name);
+
+  /// Title of the sheet or dialog that refuses a payment link whose payee is a contact that takes no payments.
+  ///
+  /// In en, this message translates to:
+  /// **'Takes no payments'**
+  String get linkNoPaymentsTitle;
 
   /// Contact sheet: opens Send with this contact as the recipient.
   ///
@@ -31848,11 +31860,11 @@ abstract class AppLocalizations {
   /// **'The four pictures'**
   String get dirCodeLabel;
 
-  /// Button: join a directory so people can pay the user by a name it knows.
+  /// Button on the Join sheet and the contact page: the user takes a payment name at this service. {name} is the user's @name from the service's hello, or the word none when it sent none; {label} is the contact name.
   ///
   /// In en, this message translates to:
-  /// **'Get paid by name'**
-  String get dirJoin;
+  /// **'{name, select, none{Pay me via {label}} other{Pay me as {name}}}'**
+  String dirJoin(String name, String label);
 
   /// Button on the Join sheet: leaves the contact verified, with Join on its page.
   ///
@@ -31860,41 +31872,41 @@ abstract class AppLocalizations {
   /// **'Not now'**
   String get dirNotNow;
 
-  /// Title of the Join sheet.
+  /// Title of the Join sheet. {name} is the user's @name, or the word none; {label} is the contact name.
   ///
   /// In en, this message translates to:
-  /// **'Get paid by name with {label}?'**
-  String dirJoinTitle(String label);
+  /// **'{name, select, none{Pay me via {label}?} other{Pay me as {name}?}}'**
+  String dirJoinTitle(String name, String label);
 
-  /// Body of the Join sheet. {host} is the host of the wallet’s own Epicbox server.
+  /// Body of the Join sheet. {name} is the user's @name, or the word none; {label} is the contact name; {host} is the host of the wallet’s own Epicbox server.
   ///
   /// In en, this message translates to:
-  /// **'{label} can let people pay you by your name there. Payments come through {host}'**
-  String dirJoinBody(String label, String host);
+  /// **'{name, select, none{People who use {label} can pay you there. Payments come through {host}} other{People who use {label} can pay you as {name}. Payments come through {host}}}'**
+  String dirJoinBody(String name, String label, String host);
 
   /// Explanation behind the info button on the Join sheet.
   ///
   /// In en, this message translates to:
-  /// **'{label} gets one payment address and one code, both made only for it. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Stop any time in Contacts › {label} › Stop paid by name.'**
+  /// **'{label} gets one payment address and one code, both made only for it. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Leave any time in Contacts › {label}.'**
   String dirJoinInfo(String label);
 
-  /// Notice after Join worked.
+  /// Notice after Join worked. {name} is the user's @name, or the word none; {label} is the contact name.
   ///
   /// In en, this message translates to:
-  /// **'Paid by name is on with {label}'**
-  String dirJoinedNotice(String label);
+  /// **'{name, select, none{Pay me via {label}: on} other{Pay me as {name}: on}}'**
+  String dirJoinedNotice(String name, String label);
 
-  /// Notice after Leave worked.
+  /// Notice after Leave worked. {name} is the user's @name, or the word none; {label} is the contact name.
   ///
   /// In en, this message translates to:
-  /// **'Paid by name is off with {label}'**
-  String dirLeftNotice(String label);
+  /// **'{name, select, none{Pay me via {label}: off} other{Pay me as {name}: off}}'**
+  String dirLeftNotice(String name, String label);
 
-  /// Status line on the contact page of a directory the user joined. {date} is a short date.
+  /// Status line on the contact page of a service the user joined. {name} is the user's @name, or the word none; {label} is the contact name; {date} is a short date.
   ///
   /// In en, this message translates to:
-  /// **'Paid by name since {date}'**
-  String dirJoined(String date);
+  /// **'{name, select, none{Pay me via {label} · since {date}} other{Pay me as {name} · since {date}}}'**
+  String dirJoined(String name, String label, String date);
 
   /// Status line on the contact page of a directory that no longer lists the user.
   ///
@@ -31932,10 +31944,10 @@ abstract class AppLocalizations {
   /// **'Four pictures made from the wallet your name pays. {label} can show the same four to compare.'**
   String dirListingCodeInfo(String label);
 
-  /// Button on the contact page of a joined directory: the listing is taken down.
+  /// Button on the contact page of a joined service: takes the user's name down (opens the confirm).
   ///
   /// In en, this message translates to:
-  /// **'Stop paid by name'**
+  /// **'Leave'**
   String get dirLeave;
 
   /// Title of the question after Leave: also end the pairing.
