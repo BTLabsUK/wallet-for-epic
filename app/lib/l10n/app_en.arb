@@ -1356,20 +1356,6 @@
       }
     }
   },
-  "homeNoticeRepeated": "Already accepted. No second payment.",
-  "@homeNoticeRepeated": {
-    "description": "Notice: an incoming payment the wallet accepted before arrived again and got the same answer; it is not a second payment."
-  },
-  "homeNoticeRepeatedFrom": "{who}’s payment was already accepted.",
-  "@homeNoticeRepeatedFrom": {
-    "description": "Notice: an incoming payment from a saved contact that the wallet accepted before arrived again and got the same answer; it is not a second payment.",
-    "placeholders": {
-      "who": {
-        "type": "String",
-        "example": "Alice"
-      }
-    }
-  },
   "homeNoticeDelayed": "Cannot reach the node. The payment waits.",
   "@homeNoticeDelayed": {
     "description": "Notice: the answer to a payment arrived but the node (the Epic Cash server the wallet reads the chain from) could not be reached; the wallet retries."

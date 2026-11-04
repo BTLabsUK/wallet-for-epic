@@ -1076,14 +1076,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get homeNoticeRepeated => '已接受过。不会有第二笔付款。';
-
-  @override
-  String homeNoticeRepeatedFrom(String who) {
-    return '来自 $who 的付款已接受过。';
-  }
-
-  @override
   String get homeNoticeDelayed => '无法连接节点。付款等待中。';
 
   @override

@@ -1879,18 +1879,6 @@ abstract class AppLocalizations {
   /// **'Payment to {who} finished. Confirming.'**
   String homeNoticeFinishedTo(String who);
 
-  /// Notice: an incoming payment the wallet accepted before arrived again and got the same answer; it is not a second payment.
-  ///
-  /// In en, this message translates to:
-  /// **'Already accepted. No second payment.'**
-  String get homeNoticeRepeated;
-
-  /// Notice: an incoming payment from a saved contact that the wallet accepted before arrived again and got the same answer; it is not a second payment.
-  ///
-  /// In en, this message translates to:
-  /// **'{who}’s payment was already accepted.'**
-  String homeNoticeRepeatedFrom(String who);
-
   /// Notice: the answer to a payment arrived but the node (the Epic Cash server the wallet reads the chain from) could not be reached; the wallet retries.
   ///
   /// In en, this message translates to:

@@ -163,11 +163,6 @@ String paymentNotice(
         (final a?, null) => l.homeNoticeReceivedAmount(a),
         (final a?, final from?) => l.homeNoticeReceivedAmountFrom(a, from),
       };
-    case ListenerEventKind.repeated:
-      // The sender asked again and got the first answer; no second payment is on the way.
-      return contactName == null
-          ? l.homeNoticeRepeated
-          : l.homeNoticeRepeatedFrom(contactName);
     case ListenerEventKind.finalized:
       // Finished and posted, not yet confirmed: "Completed" is kept for the balance's confirmations.
       return who == null ? l.homeNoticeFinished : l.homeNoticeFinishedTo(who);
@@ -184,8 +179,10 @@ String paymentNotice(
           : l.homeNoticePaymentFailed;
     case ListenerEventKind.connected ||
         ListenerEventKind.disconnected ||
+        ListenerEventKind.repeated ||
         ListenerEventKind.stopped:
-      // Never a notice: these change the listener's state, not `ListenerState.last`.
+      // Never a notice: the first three change the listener's state, not `ListenerState.last`;
+      // a repeat is only logged (providers.dart).
       return event.message;
   }
 }
@@ -201,17 +198,17 @@ String senderPostedNotice(AppLocalizations l, TxEntry? tx, {bool hidden = false}
 }
 
 /// The level of a listener event's notice: a payment that arrived or finished is a success, a
-/// repeated slate only informs, a payment that expired or waits on the node is a warning, and a
+/// payment that expired or waits on the node is a warning, and a
 /// relay or payment failure is an error.
 NoticeLevel paymentNoticeLevel(ListenerEventKind kind) => switch (kind) {
   ListenerEventKind.received ||
   ListenerEventKind.finalized => NoticeLevel.success,
-  ListenerEventKind.repeated => NoticeLevel.info,
   ListenerEventKind.expired || ListenerEventKind.delayed => NoticeLevel.warning,
   ListenerEventKind.error => NoticeLevel.error,
   // Never a notice; see [paymentNotice].
   ListenerEventKind.connected ||
   ListenerEventKind.disconnected ||
+  ListenerEventKind.repeated ||
   ListenerEventKind.stopped => NoticeLevel.info,
 };
 
@@ -581,8 +578,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
     final txId = event.txId;
     if (slateId != null || txId != null) {
-      // The listener refreshes home right after this event, except for a repeat; wait for
-      // that list.
+      // The listener refreshes home right after this event; wait for that list.
       await Future<void>.delayed(Duration.zero);
       try {
         final data = await ref.read(homeProvider.future);

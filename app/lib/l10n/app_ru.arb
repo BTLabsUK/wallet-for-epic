@@ -293,8 +293,6 @@
   "homeNoticeSenderPostedAmount": "Отправитель: {amount} отправлено.",
   "homeNoticeFinished": "Платёж завершён. Подтверждается.",
   "homeNoticeFinishedTo": "Платёж для {who} завершён. Подтверждается.",
-  "homeNoticeRepeated": "Уже принят. Второго платежа нет.",
-  "homeNoticeRepeatedFrom": "Платёж от {who} уже принят.",
   "homeNoticeDelayed": "Нет связи с узлом. Платёж ждёт.",
   "homeNoticeRelayProblem": "Сервер epicbox сообщил о проблеме. Пробуем снова.",
   "homeNoticePaymentFailed": "Платёж не удался.",

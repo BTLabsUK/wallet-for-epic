@@ -1731,29 +1731,22 @@ void main() {
       expect(find.text('Rent share'), findsOneWidget);
     });
 
-    test('a repeat says it was already accepted, never "on the way"', () {
-      const repeated = ListenerEvent(
-        kind: ListenerEventKind.repeated,
-        txId: 3,
-        message: 'raw',
-      );
-      final tx = fakeTx(amountCredited: _epic(1.5), counterparty: _bob);
-      expect(
-        paymentNotice(englishStrings, repeated, tx),
-        _l.homeNoticeRepeated,
-      );
-      expect(
-        paymentNotice(englishStrings, repeated, tx, contactName: 'Alice'),
-        'Alice’s payment was already accepted.',
-      );
-    });
-
-    testWidgets('a repeated payment neither reloads home nor counts as new', (
+    testWidgets('a repeat shows no notice and leaves the received one up', (
       tester,
     ) async {
       final h = _Harness();
       await h.pump(tester);
       final loads = h.session.transactionsCalls;
+      h.session.listenerEvents.add(
+        const ListenerEvent(
+          kind: ListenerEventKind.received,
+          txId: 3,
+          message: 'raw',
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.textContaining('on the way'), findsOneWidget);
+      final afterReceived = h.session.transactionsCalls;
       h.session.listenerEvents.add(
         const ListenerEvent(
           kind: ListenerEventKind.repeated,
@@ -1762,17 +1755,10 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(
-        find.textContaining('Already accepted.'),
-        findsOneWidget,
-      );
-      expect(find.textContaining('on the way. It completes'), findsNothing);
-      expect(h.session.transactionsCalls, loads);
-      // The notice still leads to the payment answered the first time.
-      await tester.tap(find.text(_l.homeNoticeView));
-      await tester.pumpAndSettle();
-      expect(find.byType(TxDetailsScreen), findsOneWidget);
-      expect(find.text('Rent share'), findsOneWidget);
+      expect(find.textContaining('on the way'), findsOneWidget);
+      expect(find.textContaining('Already accepted'), findsNothing);
+      expect(h.session.transactionsCalls, afterReceived);
+      expect(afterReceived, greaterThan(loads));
     });
 
     testWidgets('a completed send names the contact', (tester) async {
@@ -1900,7 +1886,6 @@ void main() {
       for (final (kind, level) in [
         (ListenerEventKind.received, NoticeLevel.success),
         (ListenerEventKind.finalized, NoticeLevel.success),
-        (ListenerEventKind.repeated, NoticeLevel.info),
         (ListenerEventKind.expired, NoticeLevel.warning),
         (ListenerEventKind.delayed, NoticeLevel.warning),
         (ListenerEventKind.error, NoticeLevel.error),
