@@ -5,6 +5,7 @@
 library;
 
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:characters/characters.dart';
 
@@ -3347,6 +3348,7 @@ class PairingInvitePreview {
     this.wordsAvailable = true,
     this.fromAddress,
     this.requestId,
+    this.inviteKey,
   });
 
   /// Opaque: hands the opened invite back to [PairingApi.acceptInvite].
@@ -3368,6 +3370,10 @@ class PairingInvitePreview {
   /// stored request's id. Null for a code scanned or pasted.
   final String? fromAddress;
   final String? requestId;
+
+  /// The inviter's pairing key (tag 08 of the link), which the key picture is drawn from; null
+  /// when the link has none or fails its check.
+  final Uint8List? inviteKey;
 
   /// Came as a request to this wallet's address, so its sender is a known key.
   bool get isRequest => fromAddress != null;

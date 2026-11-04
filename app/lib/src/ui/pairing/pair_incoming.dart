@@ -15,6 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../contacts.dart';
 import '../../errors.dart';
+import '../../key_picture.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import 'pair_screen.dart' show seenAsForWire;
@@ -26,6 +27,7 @@ import '../../wallet_service.dart';
 import '../app_dialog.dart';
 import '../common.dart';
 import '../address_view.dart' show ShortAddressText;
+import '../key_picture.dart';
 import '../phone_sheet.dart';
 import '../theme/brand.dart';
 import '../theme/tokens.dart';
@@ -143,7 +145,9 @@ Future<void> showIncomingInvite(
 }
 
 /// The sheet, in two forms: from a contact (the request's sender is in Contacts: avatar, "In
-/// your contacts", the sender address) or by code ("Name chosen by them"). Pair · Not now;
+/// your contacts", the sender address) or by code ("Name chosen by them"). When the invite
+/// has a key, its key picture takes the avatar's place; a BT Labs service shows its listed
+/// name and "BT Labs service" instead of the claimed name. Pair · Not now;
 /// no name field, no invoice switch, no expiry row. Pops with the answered record.
 class IncomingInviteSheet extends ConsumerStatefulWidget {
   const IncomingInviteSheet({super.key, required this.preview, this.contact});
@@ -203,8 +207,11 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
     final theme = Theme.of(context);
     final p = widget.preview;
     final sender = p.isRequest ? _sender() : null;
-    final name = sender?.name ?? p.name;
-    final noName = sender == null && isUnnamed(p.name);
+    // A key on the BT Labs list is a service of ours: its listed name replaces the claimed one.
+    final key = p.inviteKey;
+    final btlabs = sender == null && key != null ? btLabsKeyOf(key) : null;
+    final name = sender?.name ?? btlabs?.name ?? p.name;
+    final noName = sender == null && btlabs == null && isUnnamed(p.name);
     // The keyboard too: a modal sheet is not lifted by it on edge-to-edge Android.
     final media = MediaQuery.of(context);
     final foot = math.max(media.padding.bottom, media.viewInsets.bottom);
@@ -215,7 +222,10 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
         children: [
           Row(
             children: [
-              PairAvatar(name: noName ? l.pairUnnamed : name, kind: p.kind, size: 72),
+              if (key != null)
+                KeyPictureView(picture: KeyPicture.of(key), size: 72)
+              else
+                PairAvatar(name: noName ? l.pairUnnamed : name, kind: p.kind, size: 72),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -225,6 +235,8 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
                     const SizedBox(height: 6),
                     if (sender != null)
                       EBadge(l.pairInContacts, icon: Icons.person_outline, tone: BadgeTone.ok)
+                    else if (btlabs != null)
+                      BtLabsBadge(l.pairBtLabsService)
                     else if (noName)
                       EBadge(l.pairNoNameGiven, icon: Icons.person_outline, wrap: true)
                     else

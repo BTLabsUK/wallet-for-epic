@@ -13764,6 +13764,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairNameClaimedShort => 'Name chosen by them';
 
   @override
+  String get pairBtLabsService => 'BT Labs service';
+
+  @override
   String pairCallsThemselves(String name) {
     return 'Calls themselves “$name”';
   }

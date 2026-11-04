@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../contacts.dart';
 import '../../errors.dart';
+import '../../key_picture.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../pairing_text.dart';
@@ -19,6 +20,7 @@ import '../../trust/policy.dart';
 import '../../wallet_service.dart';
 import '../common.dart';
 import '../address_view.dart' show ShortAddressText;
+import '../key_picture.dart';
 import '../phone_sheet.dart';
 import '../settings_rows.dart' show NavChevron;
 import '../theme/brand.dart';
@@ -187,7 +189,10 @@ class _RequestRow extends ConsumerWidget {
       padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 8),
       child: Row(
         children: [
-          PairAvatar(name: name, kind: request.kind),
+          if (inviteKeyOf(request.inviteLink) case final key?)
+            KeyPictureView(picture: KeyPicture.of(key), size: 48)
+          else
+            PairAvatar(name: name, kind: request.kind),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

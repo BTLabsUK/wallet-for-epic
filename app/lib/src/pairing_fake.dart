@@ -14,6 +14,7 @@ import 'desktop/data/mock_hosts.dart';
 import 'dart:async';
 import 'dart:convert';
 
+import 'key_picture.dart' show inviteKeyOf;
 import 'models.dart';
 import 'pairing_api.dart';
 import 'recipient.dart';
@@ -695,6 +696,7 @@ class FakePairing implements PairingApi {
       wordsAvailable: !relayUnreachable,
       fromAddress: stored?.fromAddress ?? body['from'] as String?,
       requestId: stored?.id,
+      inviteKey: inviteKeyOf(link),
     );
     _previews[token] = preview;
     return preview;

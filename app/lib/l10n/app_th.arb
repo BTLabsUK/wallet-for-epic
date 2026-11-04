@@ -5268,5 +5268,6 @@
   "pairIncomingNoName": "จับคู่กับกระเป๋านี้หรือไม่",
   "pairNoNameGiven": "ไม่ได้ระบุชื่อ",
   "pairUnnamed": "กระเป๋าเงินไม่มีชื่อ",
-  "pairDefaultLabel": "ผู้ติดต่อ {n}"
+  "pairDefaultLabel": "ผู้ติดต่อ {n}",
+  "pairBtLabsService": "บริการของ BT Labs"
 }

@@ -13930,6 +13930,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get pairNameClaimedShort => 'Name von der Gegenseite gewählt';
 
   @override
+  String get pairBtLabsService => 'BT-Labs-Dienst';
+
+  @override
   String pairCallsThemselves(String name) {
     return 'Nennt sich „$name“';
   }
