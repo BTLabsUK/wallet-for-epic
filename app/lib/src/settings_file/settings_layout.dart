@@ -104,7 +104,8 @@ class SettingsKey {
   final ValueKind kind;
 
   /// The value of an optional key a file leaves out (`app-config.toml` only): empty text or an
-  /// empty list, which reads as "not configured" (the feature is hidden). Null: required.
+  /// empty list, which reads as "not configured" (the feature is hidden), or the value of a key
+  /// added after a copy of the file could exist (`[contacts]`). Null: required.
   final Object? byDefault;
 
   /// A key needed only while one of these keys is set (not empty): the timing of a service
@@ -400,9 +401,9 @@ const List<SettingsKey> configKeys = [
   SettingsKey('payments.repost_waits_min', IntListKind(min: 1, max: 1440)),
   SettingsKey('payments.answer_resend_waits_min', IntListKind(min: 1, max: 1440)),
   // [contacts]: a wallet not opened for this many days says so on opening
-  SettingsKey('contacts.stale_after_days', IntKind(min: 1, max: 3650)),
+  SettingsKey('contacts.stale_after_days', IntKind(min: 1, max: 3650), byDefault: 7),
   // ... and, after the check, waits this long for the answers
-  SettingsKey('contacts.check_wait_s', IntKind(min: 15, max: 3600)),
+  SettingsKey('contacts.check_wait_s', IntKind(min: 15, max: 3600), byDefault: 120),
 ];
 
 ValueProblem? _explorerBlock(String v) => checkTemplate('height', optional: true)(v);

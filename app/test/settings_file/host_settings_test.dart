@@ -225,6 +225,11 @@ void main() {
       expect(() => without(['timeout_s']), throwsStateError, reason: 'status, price, updates, support timeouts with their addresses');
       expect(() => without(['[status]', 'reach_timeout_s']), returnsNormally);
     });
+    test('[contacts] reads as 7 days and 120 s', () {
+      final c = without(['[contacts]']);
+      expect(c.contactsStaleAfter, const Duration(days: 7));
+      expect(c.contactsCheckWait, const Duration(seconds: 120));
+    });
     test('a required key is still required', () {
       expect(() => without(['listen_port']), throwsStateError);
     });
