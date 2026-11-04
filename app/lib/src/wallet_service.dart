@@ -721,8 +721,10 @@ abstract interface class EpicboxDrainAt {
 extension DrainEpicboxAt on WalletSession {
   /// [EpicboxDrainAt.drainEpicboxAt], or null (unsupported) for a session without it.
   Future<PaymentsDrainReport?> drainEpicboxAt({required String domain, required int port}) async {
-    final self = this;
-    return self is EpicboxDrainAt ? self.drainEpicboxAt(domain: domain, port: port) : null;
+    // A pattern, not `is`: EpicboxDrainAt is no WalletSession, so `is` does not promote and the
+    // call came back here (26.11.0 froze the UI thread until a StackOverflowError).
+    if (this case final EpicboxDrainAt core) return core.drainEpicboxAt(domain: domain, port: port);
+    return null;
   }
 }
 

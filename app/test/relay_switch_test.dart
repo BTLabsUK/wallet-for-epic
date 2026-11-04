@@ -4,6 +4,7 @@ import 'package:epic_wallet/src/advanced.dart';
 import 'package:epic_wallet/src/levels/relay_switch.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/tor_routes.dart';
+import 'package:epic_wallet/src/wallet_service.dart';
 
 void main() {
   const a = EpicboxRelay(host: 'relay-a.test');
@@ -84,4 +85,17 @@ void main() {
     expect(recordDrainedRelay(list, from: b, to: a, now: t0).single.relay, b);
     expect(decodeDrainedRelays('not json'), isEmpty);
   });
+
+  test('the drainer reaches a core that reads old relays, and answers null for one that cannot', () async {
+    // 26.11.0: the extension called itself, a StackOverflowError on the UI thread.
+    final WalletSession able = _DrainingSession();
+    expect((await able.drainEpicboxAt(domain: 'relay-a.test', port: 443))?.received, 1);
+    expect(await FakeWalletSession().drainEpicboxAt(domain: 'relay-a.test', port: 443), isNull);
+  });
+}
+
+class _DrainingSession extends FakeWalletSession implements EpicboxDrainAt {
+  @override
+  Future<PaymentsDrainReport?> drainEpicboxAt({required String domain, required int port}) async =>
+      const PaymentsDrainReport(received: 1);
 }
