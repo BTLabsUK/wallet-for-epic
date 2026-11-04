@@ -15,6 +15,7 @@ import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
+import 'package:epic_wallet/src/pin_wrap.dart' show KeyWrapUnavailable;
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayProbeProvider;
 import 'package:epic_wallet/src/slate_files.dart';
@@ -604,6 +605,17 @@ void main() {
       device.store.values['wallet.mainnet.pinBiometrics'] = '1';
       device.bio.values['wallet.mainnet.pin'] = _pin;
       await _pumpApp(tester, service, device);
+      expect(device.bio.prompts, 1);
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
+    });
+
+    testWidgets('a PIN count the Keystore cannot read now still starts biometrics', (tester) async {
+      final service = _existing()..pinFailuresError = const KeyWrapUnavailable('no answer');
+      final device = _Device(biometrics: true, sealedMainnet: true);
+      device.store.values['wallet.mainnet.pinBiometrics'] = '1';
+      device.bio.values['wallet.mainnet.pin'] = _pin;
+      await _pumpApp(tester, service, device);
+      expect(tester.takeException(), isNull);
       expect(device.bio.prompts, 1);
       expect(find.byKey(balanceFigureKey), findsOneWidget);
     });

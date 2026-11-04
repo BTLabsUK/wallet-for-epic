@@ -7,6 +7,7 @@
 // waits and sealing), offline, and needs the Linux library:
 //
 //   WFE_LEPIC_LIB=.../liblepic_ffi.so flutter test test/vault_test.dart
+import 'dart:async';
 import 'dart:io';
 
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
@@ -16,6 +17,7 @@ import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/vault.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'support/test_settings.dart';
@@ -238,6 +240,74 @@ void main() {
       expect(wrap.keys, isEmpty);
       expect(inner.values, isEmpty);
     });
+
+    // Each with its own wallet: the store's per-wallet queue must start in the fake clock's zone.
+    test('a Keystore call that never answers fails after the limit; the calls behind it go on', () {
+      fakeAsync((async) {
+        const id = 'lepic:mainnet:id-held1:';
+        const failures = '${id}lepic.pin-failures';
+        final store = HardwarePinStore(inner, wrap, id);
+        unawaited(store.write('${id}lepic.pin-key', 'k'));
+        unawaited(store.write(failures, '1'));
+        async.flushMicrotasks();
+        HardwarePinStore.forgetKept();
+        wrap.hold = Completer<void>();
+        Object? first;
+        Object? second;
+        store.read(failures).then((_) {}, onError: (Object e) {
+          first = e;
+        });
+        // The unlock screen's count, then LEPIC's: the second waits for the first.
+        store.read(failures).then((_) {}, onError: (Object e) {
+          second = e;
+        });
+        async.elapse(HardwarePinStore.callLimit - const Duration(seconds: 1));
+        expect(first, isNull);
+        async.elapse(const Duration(seconds: 1));
+        expect(first, isA<KeyWrapUnavailable>());
+        expect(second, isNull, reason: 'it gets its own wait');
+        async.elapse(HardwarePinStore.callLimit);
+        expect(second, isA<KeyWrapUnavailable>());
+
+        // The Keystore answers again: so do the reads.
+        wrap.hold = null;
+        String? count;
+        store.read(failures).then((v) => count = v);
+        async.flushMicrotasks();
+        expect(count, '1');
+      });
+    });
+
+    test('a store that never answers fails after the limit too', () {
+      fakeAsync((async) {
+        const id = 'lepic:mainnet:id-held2:';
+        final store = HardwarePinStore(_StuckStore(), wrap, id);
+        Object? error;
+        store.read('${id}lepic.pin-failures').then((_) {}, onError: (Object e) {
+          error = e;
+        });
+        async.elapse(HardwarePinStore.callLimit);
+        expect(error, isA<KeyWrapUnavailable>());
+      });
+    });
+
+    test('forgetting the PIN key with a Keystore that does not answer still forgets it', () {
+      fakeAsync((async) {
+        const id = 'lepic:mainnet:id-held3:';
+        const key = '${id}lepic.pin-key';
+        final store = HardwarePinStore(inner, wrap, id);
+        unawaited(store.write(key, 'k'));
+        unawaited(store.write('${id}lepic.pin-failures', '1'));
+        async.flushMicrotasks();
+        expect(inner.values[key], startsWith('wfe-hw1:'));
+        wrap.hold = Completer<void>();
+        var done = false;
+        store.delete(key).then((_) => done = true);
+        async.elapse(HardwarePinStore.callLimit);
+        expect(done, isTrue);
+        expect(inner.values.containsKey(key), isFalse);
+      });
+    });
   });
 
   group('passphrase rules', () {
@@ -400,4 +470,16 @@ void main() {
       expect(bio.prompts, prompts + 1, reason: 'read behind its own prompt');
     }, skip: _lib == null ? 'needs WFE_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 2)));
   });
+}
+
+/// A store whose calls never answer.
+class _StuckStore implements SecretStore {
+  @override
+  Future<String?> read(String key) => Completer<String?>().future;
+
+  @override
+  Future<void> write(String key, String value) => Completer<void>().future;
+
+  @override
+  Future<void> delete(String key) => Completer<void>().future;
 }

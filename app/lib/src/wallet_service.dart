@@ -1109,6 +1109,9 @@ class FakeWalletService implements WalletService {
   /// Wrong PINs since the last right one, as LEPIC counts them. The fake never waits.
   int pinFailureCount = 0;
 
+  /// When set, reading [pinFailureCount] throws it, as a Keystore that does not answer now.
+  Object? pinFailuresError;
+
   /// The PIN of the last [createWithPin].
   String? createdPin;
 
@@ -1216,8 +1219,10 @@ class FakeWalletService implements WalletService {
   }
 
   @override
-  Future<int> pinFailures({required WalletConfig config}) async =>
-      pinFailureCount;
+  Future<int> pinFailures({required WalletConfig config}) async {
+    if (pinFailuresError case final error?) throw error;
+    return pinFailureCount;
+  }
 }
 
 /// The sealed text [FakeWalletService] hands out for [pin]. Not encryption.

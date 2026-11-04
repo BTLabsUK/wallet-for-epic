@@ -76,13 +76,17 @@ class _PinUnlockScreenState extends ConsumerState<PinUnlockScreen> {
     final autoPrompt = ref.read(lockReasonProvider.notifier).takeAutoPrompt();
     final vault = ref.read(vaultProvider);
     // The count survives a restart; say what the next try costs before it is made.
-    final int failures;
+    var failures = 0;
     try {
       failures = await ref.read(walletServiceProvider).pinFailures(config: config);
     } on PinKeyLost catch (error) {
       // The PIN cannot open this wallet any more: said before a PIN is typed, with Forgot PIN.
       if (mounted) setState(() => _error = describeError(context.l10n, error));
       return;
+    } catch (error) {
+      // A Keystore that cannot answer now: the attempt reads the count again, and biometrics
+      // are offered as ever.
+      logWarn('unlock', 'PIN count not read: ${describeError(englishStrings, error)}');
     }
     final biometrics = await vault.biometricsEnabled(config.chain);
     if (!mounted) return;
