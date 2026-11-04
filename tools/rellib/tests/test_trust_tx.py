@@ -77,6 +77,34 @@ class MoneyTest(unittest.TestCase):
         self.assertEqual(doc["p_sent_total"], "0.10")
         self.assertEqual(doc["p_spendable_before"], "5.0")
 
+    def test_returned_counts_every_coin_p_sent(self):
+        class Lane:
+            ledger = tx.Ledger()
+            w = {"a": None, "b": None}
+            results = {}
+
+            def ok(self, k, why):
+                self.results[k] = (True, why)
+
+            def fail(self, k, why):
+                self.results[k] = (False, why)
+        lane = Lane()
+        led = lane.ledger
+        led.charge("0.05")
+        led.charge("0.05")
+        held = {"a": digest(spendable=0.002), "b": digest()}
+        with unittest.mock.patch.object(tx, "digest", lambda lane, w, tag: held[[k for k in lane.w if lane.w[k] is w][0]]):
+            lane.w = {"a": object(), "b": object()}
+            tx.returned(lane)
+            self.assertFalse(lane.results["returned_ok"][0])  # 0.048 not accounted for (run-f3: P's send unanswered)
+            self.assertIn("not accounted for", lane.results["returned_ok"][1])
+            led.cancelled.append(D("0.05"))
+            led.returned.append(D("0.041"))
+            led.fees.append(D("0.007"))
+            tx.returned(lane)
+            self.assertTrue(lane.results["returned_ok"][0], lane.results["returned_ok"][1])
+        self.assertEqual(led.doc()["cancelled_total"], "0.05")
+
     def test_sweep_plan(self):
         self.assertEqual(tx.sweep_plan(0), [])
         self.assertEqual(tx.sweep_plan(int(0.009 * N)), [])  # below DUST: its fee would eat it

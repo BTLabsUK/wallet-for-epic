@@ -54,6 +54,7 @@ from core import lane as core_lane  # noqa: E402
 from core import lane_seed as ls  # noqa: E402
 from core import record  # noqa: E402
 from core import txchecks as tx  # noqa: E402
+from core import walletdata as wd  # noqa: E402
 from core.desktop import Desktop  # noqa: E402
 from core.driver import Driver  # noqa: E402
 from core.faults import HarnessFault, ProductFault  # noqa: E402
@@ -64,6 +65,7 @@ from core.linking import Linking  # noqa: E402
 from core.pairing import Pairing  # noqa: E402
 from core.payments import METHODS, Payments, file_for  # noqa: E402
 import clipboard  # noqa: E402
+from files import data_root  # noqa: E402
 import sandbox  # noqa: E402
 from linux_platform import LinuxPlatform  # noqa: E402
 from p_funder import P  # noqa: E402
@@ -212,6 +214,20 @@ class Wallet:
     def clip(self, text=None):
         """The app's clipboard on this sandbox's display: read (text None) or set."""
         return clipboard.read(self.p.sb) if text is None else clipboard.write(self.p.sb, text)
+
+    def epicbox(self, address):
+        """[address] as other wallets reach it: at settings.toml's first Epicbox server, the one the app
+        listens on (Receive shows the address without it). As read when it names a server already."""
+        if not address or "@" in address:
+            return address
+        try:
+            with open(os.path.join(data_root(self.p.sb), "settings.toml")) as f:
+                first = ((wd.toml_servers(f.read()) or {}).get("epicbox") or [None])[0]
+        except OSError:
+            first = None
+        if not first:
+            raise HarnessFault("addresses", "%s: settings.toml names no Epicbox server" % self.key.upper())
+        return "%s@%s" % (address, first)
 
     def choose(self, path):
         portal_stub.ensure(self.p.sb)  # the app's restart takes the stand-in with it
@@ -484,6 +500,7 @@ class TxLane(Lane):
             if ok is not None:
                 break
             if not both and now - start >= tx.PAY_WAIT_S["epicbox"]:
+                tx.unanswered(self, p, LINK_AMOUNT, "link-pay: neither A nor A2 answered")
                 raise ProductFault("link-pay", "neither A nor A2 answered P's payment in %d s" % tx.PAY_WAIT_S["epicbox"])
             if both and not p.finalized() and now - start >= 2 * tx.PAY_WAIT_S["epicbox"]:
                 raise tx.InfraFault("link-pay", "A or A2 answered, P did not finalize in %d s (P's node or listener)" %
@@ -580,6 +597,8 @@ class TxLane(Lane):
                     continue
                 self.ui = w.ui
                 addr = w.pay.enable_receive(m)
+                if m == "epicbox":
+                    addr = w.epicbox(addr)
                 self.address[w.key][m] = addr
                 if addr:
                     record.emit("wallet.address", name=w.seed.lane, role="lane", kind=m, address=addr)

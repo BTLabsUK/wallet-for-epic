@@ -73,6 +73,12 @@ class P:
         r = self.client.call("status", slate=self.slate)
         return r.get("state") in ("posted", "confirmed")
 
+    def cancel(self, slate, why=""):
+        """P's send of [slate] cancelled (its inputs spendable again): a send no wallet answered. -> (ok, note)."""
+        r = self.client.call("cancel", slate=slate, why=why)
+        self._note("cancel %s: %s" % (slate[:8], r))
+        return bool(r.get("ok")), r.get("note") or "tx %s" % r.get("tx")
+
     def relay(self):
         """The relay P's listener and sender use: its address's domain, as the service's ping reports it
         (None when the service does not answer). The lane's relay in use must be this one when it is local."""

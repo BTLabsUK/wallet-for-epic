@@ -80,6 +80,7 @@ class Ledger:
     def __init__(self, cap_run=CAP_RUN, cap_send=CAP_SEND):
         self.cap_run, self.cap_send = cap_run, cap_send
         self.p_sent, self.returned, self.fees = [], [], []
+        self.cancelled = []  # P's sends no wallet answered, cancelled: they never left P
 
     def charge(self, amount):
         """P is about to send [amount]: HarnessFault over a cap (nothing is sent then)."""
@@ -98,11 +99,19 @@ class Ledger:
     def fee(self):
         return sum(self.fees, D(0))
 
+    def kept(self):
+        return sum(self.cancelled, D(0))
+
+    def unaccounted(self, held=D(0)):
+        """What P sent that neither came back, nor went in fees, nor was cancelled, nor is still [held]."""
+        return self.sent() - self.back() - self.fee() - self.kept() - held
+
     def doc(self, p_before=None, p_after=None):
         f = lambda x: format(x, "f")  # noqa: E731
         d = {"p_sent": [f(a) for a in self.p_sent], "p_sent_total": f(self.sent()),
              "returned": [f(a) for a in self.returned], "returned_total": f(self.back()),
              "fees": [f(a) for a in self.fees], "fees_total": f(self.fee()),
+             "cancelled": [f(a) for a in self.cancelled], "cancelled_total": f(self.kept()),
              "cap_run": f(self.cap_run), "cap_send": f(self.cap_send)}
         # P's info: EPIC text
         if p_before is not None:
@@ -277,7 +286,11 @@ def fund(lane, methods):
                 lane.ledger.p_sent.pop()
                 raise HarnessFault("fund", "P send failed: %s" % out)
         mine = lambda d: [t for t in new_txs(before, d, "incoming") if (t.get("credited") or 0) == nano(amount)]  # noqa: E731
-        wait_for(lane, a, "fund", lambda d: bool(mine(d)), 900)
+        try:
+            wait_for(lane, a, "fund", lambda d: bool(mine(d)), 900)
+        except ProductFault:
+            unanswered(lane, p, amount, "fund: A did not answer")
+            raise
         # A answered; P finalizes and posts. P that does not (its node not synced, its listener paused) is
         # the infrastructure's, never the app's
         end = time.time() + 900
@@ -409,15 +422,28 @@ def sweep(lane, keys, tag, settle=True):
     return back
 
 
+def unanswered(lane, p, amount, why):
+    """P's last send, which no wallet answered, cancelled: its coins never left P (the ledger's cancelled)."""
+    slate = p.slate
+    with p.exchange("cancel %s" % (slate or "")[:8]):
+        ok, note = p.cancel(slate, why)
+    lane.log("P's send %s of %s EPIC: %s (%s)" % ((slate or "")[:8], amount, "cancelled" if ok else "NOT cancelled", note))
+    if ok:
+        lane.ledger.cancelled.append(D(str(amount)))
+    return ok
+
+
 def returned(lane):
     """returned_ok: A and B hold less than DUST (all sent to P, wallet data) and what came back is what P
     sent less the fees the wallets paid."""
     left = {k: (digest(lane, w, "returned").get("balance") or {}) for k, w in lane.w.items()}
     held = {k: (b.get("total") or 0) for k, b in left.items()}
     led = lane.ledger
-    why = "P sent %s EPIC, %s came back, fees %s; %s (wallet data)" % (
-        led.sent(), led.back(), led.fee(), ", ".join("%s holds %s" % (k.upper(), num(v)) for k, v in held.items()))
-    if all(v < nano(DUST) for v in held.values()):
+    lost = led.unaccounted(D(sum(held.values())) / NANO)
+    why = "P sent %s EPIC, %s came back, fees %s, %s cancelled unanswered; %s (wallet data)%s" % (
+        led.sent(), led.back(), led.fee(), led.kept(), ", ".join("%s holds %s" % (k.upper(), num(v)) for k, v in held.items()),
+        "; %s EPIC not accounted for" % lost if lost else "")
+    if all(v < nano(DUST) for v in held.values()) and not lost:
         lane.ok("returned_ok", why)
     else:
         lane.fail("returned_ok", why)
