@@ -60,7 +60,8 @@
 # upstream pin, lepic incrementally. The installed `lepic` is never touched: the run tests
 # interop/.work/bin/lepic. The result table and logs go to <out dir> (default: a new temp dir).
 # The stack takes 127.0.0.1:43413 and :3423 and refuses to start while something holds them; its
-# lock is ~/.cache/wfe-lepic/lepic-acceptance.lock (TMPDIR=~/.cache/wfe-lepic for a run by hand).
+# lock is ~/.cache/lepic-docker-stack.lock, the one every LEPIC Docker stack script takes (LEPIC's
+# interop/lib.sh hold_stack): a second runner waits, naming the holder.
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
@@ -235,13 +236,28 @@ smoke_dir="${LEPIC_SMOKE_DIR:-$shared_dir/smoke}"
 # array $3=( "name:function" ... ) of its step files, with its output in $out/$1.log, and stops
 # it at its first failed step: the scripts log `[hh:mm:ss] <step name>` when a step starts and
 # `[hh:mm:ss] FAIL: <detail>` when it fails. Stopping it runs its own teardown.
+# Takes the host-wide Docker stack lock (LEPIC's interop/lib.sh hold_stack uses the same file) and
+# holds it until this script ends; the stack scripts it starts see LEPIC_DOCKER_STACK_LOCK_HELD
+# and do not take it again. A second holder waits and says who has it.
+smoke_stack_lock() {
+  local lockf="${LEPIC_DOCKER_STACK_LOCK:-$HOME/.cache/lepic-docker-stack.lock}" fd
+  mkdir -p "$(dirname "$lockf")"
+  exec {fd}>>"$lockf"
+  if ! flock -n "$fd"; then
+    echo "waiting for $(head -n 1 "$lockf" 2>/dev/null || echo 'another Docker stack run') (lock $lockf)"
+    flock "$fd"
+    echo "lock acquired"
+  fi
+  printf 'tools/lepic.sh smoke, pid %s, in %s, since %s\n' "$$" "$PWD" "$(date -u +%H:%M:%SZ)" > "$lockf"
+  export LEPIC_DOCKER_STACK_LOCK_HELD=$$
+}
+
 smoke_run() {
   local name="$1" logs="$2/.work/logs" t0=$SECONDS line step="" failed="" rc=0 newest names
   names="$(printf 'setup and funding\n'; sed -n "/^$3=(/,/^)/p" "$2"/*.sh | sed -n 's/^ *"\([^:"]*\):.*/\1/p')"
   shift 3
   echo "== smoke: $name"
-  # The scripts' stack lock is ${TMPDIR}/<project>.lock: one TMPDIR for every smoke run on the host.
-  exec {pipe}< <(TMPDIR="$shared_dir" exec timeout --kill-after=60 "${LEPIC_SMOKE_TIMEOUT:-1800}" "$@" 2>&1; echo "== exit $?")
+  exec {pipe}< <(exec timeout --kill-after=60 "${LEPIC_SMOKE_TIMEOUT:-1800}" "$@" 2>&1; echo "== exit $?")
   while IFS= read -r line <&"$pipe"; do
     printf '%s\n' "$line" >> "$out/$name.log"
     case "$line" in
@@ -336,6 +352,7 @@ case "${1:-}" in
       exit 1
     fi
     echo "== smoke: build done in $((SECONDS - t0))s"
+    smoke_stack_lock
     smoke_run acceptance "$tree/interop/acceptance" STEPS \
       "$tree/interop/acceptance/run.sh" --no-build --lepic "$tree/interop/.work/bin/lepic" || exit 1
     if [ "$interop" = 1 ]; then
