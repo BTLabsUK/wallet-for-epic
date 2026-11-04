@@ -640,7 +640,19 @@ class TxLane(Lane):
             to = self.address["b"][method]
             if method == "epicbox":
                 to = tx.fund_to(to, getattr(b.p, "relay", None))  # as B's app shows it: B listens there
-            return a.pay.send(method, to, format(tx.AMOUNT, "f"))
+            if method == "tor" and "tor" not in self.address["a"]:
+                # the Send page holds Review until the sender's Tor is connected (run-f4): A's own Tor
+                # up first, its onion on Receive the proof
+                self.address["a"]["tor"] = a.pay.enable_receive("tor")
+                self.log("pay-tor: A's Tor up (Link · Tor receiving on, A's onion shown)")
+                self.ui = a.ui
+            try:
+                return a.pay.send(method, to, format(tx.AMOUNT, "f"))
+            except HarnessFault as e:
+                hold = a.pay.send_hold() if method == "tor" else ""
+                if hold:
+                    raise ProductFault(e.step, "the Send page holds Review with A's Tor up: %s" % hold)
+                raise
         return send
 
     def _file_round_trip(self, a0):

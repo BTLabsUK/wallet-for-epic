@@ -98,6 +98,17 @@ class Payments:
             return self.send_file(amount)
         return self.ui.send(to, amount)
 
+    def send_hold(self):
+        """The Send page's lines on Tor (its notice, the hint and the tip under Review: "Waiting for Tor",
+        "Tor not connected", "Turn on Tor …"), the method's name aside; "" when there are none."""
+        rx = re.compile(r"\btor\b", re.I)
+        seen = []
+        for n in self.d.tree():
+            t = (n.name or "").replace("\n", " ").strip()
+            if t and rx.search(t) and t != METHOD_LABEL["tor"] and t not in seen:
+                seen.append(t)
+        return "; ".join(seen)[:300]
+
     def send_file(self, amount):
         """Send › Pay with a file: [amount], its review and confirm; the app saves the file itself (its
         Downloads folder). -> (ok, why); the file is found by its slate id (file_for)."""
