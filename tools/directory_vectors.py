@@ -286,7 +286,8 @@ PAYREQ = [F(1, 'format', 'u', 1), F(2, 'net', 'u', 1), F(3, 'card', 'card'),
 PAYLOADS = {
     1: ('dir-hello', [F(2, 'net', 'u', 1), F(3, 'dkey', 'b', 33), F(4, 'handle', 'b', 16),
                       F(5, 'bind', 'b', 4), F(6, 'issued', 'u', 8),
-                      F(7, 'flags', 'u', 1, optional=True)], True),
+                      F(7, 'flags', 'u', 1, optional=True),
+                      F(8, 'label', 'label', optional=True)], True),
     2: ('listing', [F(2, 'card', 'card')], False),
     3: ('unlist', [F(2, 'net', 'u', 1), F(3, 'address', 'ascii', (1, 128)),
                    F(4, 'dkey', 'b', 33), F(5, 'handle', 'b', 16), F(6, 'issued', 'u', 8)], True),
@@ -782,6 +783,13 @@ def payload_set() -> list:
     out.append(payload_entry('hello-no-payments', 'dir-hello, floonet, takes no payments',
                              hello_np, rec, ctx_of(net=1, bind='01020304')))
     rec = Rec()
+    hello_lab = signed_items(rec, [(1, b'\x01'), (2, u(1, 1)), (3, pub_of(2)),
+                                   (4, bytes.fromhex(h16('handle', 1))), (5, bytes([1, 2, 3, 4])),
+                                   (6, u(NOW - 50, 8)), (7, u(HELLO_NO_PAYMENTS, 1)),
+                                   (8, b'@alice_test')], 2, D_HELLO)
+    out.append(payload_entry('hello-label', 'dir-hello, floonet, no payments, the user\'s @name',
+                             hello_lab, rec, ctx_of(net=1, bind='01020304')))
+    rec = Rec()
     card = make_card(rec)
     out.append(payload_entry('listing', 'listing: the card', tlv([(1, b'\x02'), (2, card)]), rec,
                              ctx_of(dkey=pub_of(1).hex())))
@@ -994,6 +1002,8 @@ def section_bad() -> list:
          signed_items(Rec(), hello_items + [(7, u(2, 1))], 1, D_HELLO), 'malformed')
     addl('hello-flags-short', 'flags of 0 bytes',
          signed_items(Rec(), hello_items + [(7, b'')], 1, D_HELLO), 'malformed')
+    addl('hello-label-no-at', 'bad label (no @): accepted, label dropped',
+         signed_items(Rec(), hello_items + [(8, b'alice_test')], 1, D_HELLO), None)
     addl('hello-trailing', 'a byte after the signature', hello + b'\x00', 'malformed')
     addl('payload-empty', 'no bytes', b'', 'malformed')
     addl('payload-type-not-first', 'tag 02 first', tlv([(2, b'\x00')]), 'malformed')
