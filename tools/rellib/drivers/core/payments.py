@@ -21,8 +21,9 @@ import re
 import time
 
 from .desktop import (NAV_ACTIVITY, NAV_RECEIVE, NAV_SEND, SEND_AMOUNT, SEND_ANOTHER, SEND_CONFIRM, SEND_FAILED,
-                      SEND_REVIEW, SEND_REVIEW_TITLE)
+                      SEND_REVIEW, SEND_REVIEW_TITLE, SEND_TO)
 from .driver import Expect, either, shows
+from .faults import ProductFault
 from .targets import T
 
 METHODS = ("epicbox", "http", "tor", "file")
@@ -48,6 +49,7 @@ FILES_OPENED = T("tx.recv.files", role="text", keys=("deskTfResults",), names=("
 TX_METHOD = T("tx.detail.method", role="text", keys=("deskTxFactMethod",), names=("Method",), match="starts")
 TX_ROW_RX = re.compile(r"^(sent|received) ", re.I)
 
+TOR_WAIT_S = 180   # Review enabled for an onion while the sender's Tor starts ("Tor starts when you send")
 ONION_WAIT_S = 240  # the onion service's first start (Tor bootstrap and descriptor upload)
 
 
@@ -96,7 +98,39 @@ class Payments:
         method from it), a file for file (send_file). -> (ok, why) as Desktop.send."""
         if method == "file":
             return self.send_file(amount)
+        if method == "tor":
+            self.tor_ready(to, amount)
         return self.ui.send(to, amount)
+
+    def tor_ready(self, to, amount, wait_s=TOR_WAIT_S, poll=3):
+        """Send with an onion as a user fills it in (Tor may be off: "Tor starts when you send"), then
+        Review watched until it is enabled, every change of the page's Tor lines logged. ProductFault
+        after [wait_s] with the lines read. -> seconds Review took."""
+        d = self.d
+        self.ui.nav(NAV_SEND)
+        if d.seen(SEND_ANOTHER):
+            d.press(SEND_ANOTHER, step="send-another", timeout=20)
+        d.fill(SEND_TO, to, step="send-to")
+        d.fill(SEND_AMOUNT, amount, step="send-amount")
+        start = time.time()
+        lines, last = [], None
+        while True:
+            hold = self.send_hold()
+            if hold != last:
+                self.log("%s: Send's Tor line after %d s: %s" % (self.ui.which, time.time() - start, hold or "(none)"))
+                if hold:
+                    lines.append(hold)
+                last = hold
+            review = d.find_in(SEND_REVIEW, d.tree())
+            if review and review[0].enabled:
+                took = time.time() - start
+                self.log("%s: Review enabled after %d s" % (self.ui.which, took))
+                return took
+            if time.time() - start >= wait_s:
+                d.shot("send-tor-held")
+                raise ProductFault("send-review", "Review not enabled in %d s for an onion; the Send page's Tor lines: %s" % (
+                    wait_s, " | ".join(lines) or "none"))
+            time.sleep(poll)
 
     def send_hold(self):
         """The Send page's lines on Tor (its notice, the hint and the tip under Review: "Waiting for Tor",
