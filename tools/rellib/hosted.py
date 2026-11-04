@@ -10,7 +10,7 @@ waves before is in; a failed one stops it there. Each build step then runs tools
 for its job (deadline from dispatch), downloads its artifact, verifies it (the run's commit and
 workflow, SHA256SUMS, the build attestation and its commit, the platform's verify script,
 build-info.json), places the files in {stage} as the local build would, writes built_by.json
-and deletes the artifact. A failure or a missed deadline fails the step: no retry, no
+backs the verified download up to [hosted] backup_dir and then deletes the artifact (never before). A failure or a missed deadline fails the step: no retry, no
 re-dispatch, no local build (the owner 2026-11-03: "only try github or fail").
 
 Every gh call runs with GH_CONFIG_DIR from [hosted] gh_config, after a check that `gh api user`
@@ -34,7 +34,7 @@ WORKFLOW_PATH = ".github/workflows/build.yml"
 DEFAULTS = {
     "repo": "BTLabsUK/wallet-for-epic", "workflow": "build.yml", "gh_config": "~/.config/gh-btlabs",
     "account": "btlabs-uk", "commit_map": "~/publish/wallet-for-epic.commit-map",
-    "state": "/tmp/epic-build/rel/hosted-dispatches.jsonl", "max_per_day": 8, "ramp_until": "",
+    "state": "/tmp/epic-build/rel/hosted-dispatches.jsonl", "backup_dir": "/tmp/epic-build/hosted-backup", "max_per_day": 8, "ramp_until": "",
     "ramp_max_per_day": 2, "poll": "30s", "find_wait": "120s", "waves": [],
     "deadline": {"android": "90m", "linux": "90m", "windows": "105m"},
 }
@@ -52,7 +52,7 @@ def conf(pipeline):
     raw = dict(getattr(pipeline, "data", {}).get("hosted", {}))
     c = {**DEFAULTS, **raw}
     c["deadline"] = {**DEFAULTS["deadline"], **raw.get("deadline", {})}
-    for k in ("gh_config", "commit_map", "state"):
+    for k in ("gh_config", "commit_map", "state", "backup_dir"):
         c[k] = expand(c[k])
     out = dict(c)
     out["deadline_s"] = {p: parse_duration(v) for p, v in c["deadline"].items()}
@@ -415,7 +415,7 @@ def send_wave(c, path, i, say):
 
 def _fetch_conf(c):
     return {k: c[k] for k in ("repo", "workflow", "gh_config", "account", "deadline_s", "poll_s", "find_wait_s",
-                              "state", "max_per_day", "ramp_until", "ramp_max_per_day")}
+                              "state", "backup_dir", "max_per_day", "ramp_until", "ramp_max_per_day")}
 
 
 def _read(path):
@@ -572,10 +572,8 @@ class Fetch:
         rc, out, err = gh(self.c, ["run", "download", str(rid), "--repo", repo, "-n", self.name, "-D", dl], timeout=1800)
         if rc != 0:
             raise HostedError(f"gh run download {rid} -n {self.name}: exit {rc}: {err.strip()[-200:]}")
-        try:
-            files = self.verify(dl, d, job)
-        finally:
-            self.delete_artifact(self.name)
+        files = self.verify(dl, d, job)  # a failure keeps the artifact on GitHub
+        backed_up = self.back_up(dl, rid)  # before the move below empties dl
         att_dir = os.path.join(self.stage, "attestations")
         os.makedirs(att_dir, exist_ok=True)
         att = {}
@@ -592,7 +590,27 @@ class Fetch:
                     "attestation": att}
         _write(os.path.join(self.stage, "built_by.json"), built_by)
         shutil.rmtree(dl, ignore_errors=True)
+        if backed_up:  # downloaded, verified, in the stage and backed up: now the artifact may go
+            _write(self.backup_mark(self.name), {"backup": backed_up})
+            self.delete_artifact(self.name)
         return built_by
+
+    def backup_mark(self, name):
+        return os.path.join(self.dir, f"backed-up-{name}.json")
+
+    def back_up(self, dl, rid):
+        """Copies the verified download (files, SHA256SUMS, build-info.json, attestation bundles) to
+        {backup_dir}/<rel run id>-<github run id>/<artifact name>. Returns the folder, or None
+        (with a warning) when the copy failed: the artifact then stays on GitHub."""
+        dst = os.path.join(self.c["backup_dir"], f"{self.run.info['run_id']}-{rid}", self.name)
+        try:
+            if os.path.isdir(dst):
+                shutil.rmtree(dst)
+            shutil.copytree(dl, dst)
+            return dst
+        except OSError as e:
+            self.say(f"warn backup to {dst} failed, the artifact stays on GitHub: {e}")
+            return None
 
     def verify(self, dl, d, job):
         say = self.say
@@ -693,8 +711,9 @@ class Fetch:
         self.d = {**self.all, **self.all["waves"][self.wave]}
 
     def delete_artifact(self, name=None):
-        """Deletes this run's artifact `name` (every artifact when None) on GitHub: unsigned files
-        stay public for minutes, not days. Best effort: retention removes what this misses."""
+        """Deletes this run's artifact `name` (every artifact when None) on GitHub, but only one whose
+        fetch is done and backed up: a failed or not yet run fetch still needs its artifact (26.11.2
+        run2 lost both Windows builds that way). Best effort: retention removes what this misses."""
         repo, rid = self.c["repo"], self.d["run_id"]
         try:
             arts = (gh_json(self.c, ["api", f"repos/{repo}/actions/runs/{rid}/artifacts?per_page=100"]) or {}).get("artifacts") or []
@@ -702,10 +721,14 @@ class Fetch:
             self.say(f"warn could not list the run's artifacts: {e}")
             return
         for a in arts:
-            if name is None or a.get("name") == name:
-                rc, _, err = gh(self.c, ["api", "-X", "DELETE", f"repos/{repo}/actions/artifacts/{a['id']}"])
-                self.say(f"{'deleted' if rc == 0 else 'warn could not delete'} artifact {a.get('name')}"
-                         + ("" if rc == 0 else f": {err.strip()[-120:]}"))
+            if name is not None and a.get("name") != name:
+                continue
+            if not os.path.isfile(self.backup_mark(a.get("name"))):
+                self.say(f"kept artifact {a.get('name')}: not fetched and backed up")
+                continue
+            rc, _, err = gh(self.c, ["api", "-X", "DELETE", f"repos/{repo}/actions/artifacts/{a['id']}"])
+            self.say(f"{'deleted' if rc == 0 else 'warn could not delete'} artifact {a.get('name')}"
+                     + ("" if rc == 0 else f": {err.strip()[-120:]}"))
 
     def others_ended(self):
         for n in self.d.get("expected") or []:

@@ -32,6 +32,7 @@ bin = "relmsg"
 gh_config = "{tmp}/gh"
 commit_map = "{tmp}/commit-map"
 state = "{tmp}/dispatches.jsonl"
+backup_dir = "{tmp}/backup"
 ramp_until = ""
 poll = "0.05s"
 find_wait = "2s"
@@ -303,6 +304,52 @@ class HostedTest(Base):
         self.state(jobs=[job("android", "tor", status="in_progress", conclusion=None)])
         run = self.drive(only="android", deadline="1s")
         self.assertFailed(run, "build-android-tor", "deadline: android-tor not done")
+
+    def deletes(self):
+        return [c for c in self.gh_calls() if c["args"][:2] == ["api", "-X"]]
+
+    def test_verify_fails_keeps_artifact(self):
+        self.artifact("android", "tor", {"bt-wallet-26.10.25-android-arm64-v8a.apk": b"apk",
+                                         "emulator/bt-wallet-26.10.25-android-x86_64.apk": b"emu"},
+                      sums={"bt-wallet-26.10.25-android-arm64-v8a.apk": "0" * 64})
+        run = self.drive(only="android")
+        self.assertFailed(run, "build-android-tor", "SHA256SUMS says")
+        self.assertEqual(self.deletes(), [])
+        self.assertFalse(os.path.exists(os.path.join(self.tmp, "backup")))
+
+    def test_success_backs_up_then_deletes(self):
+        run = self.drive(only="android")
+        self.assertEqual(run.status("build-android-tor")["status"], "done", self.log(run, "build-android-tor"))
+        bdir = os.path.join(self.tmp, "backup", f"{run.info['run_id']}-101", "android-tor")
+        self.assertEqual(text(os.path.join(bdir, "bt-wallet-26.10.25-android-arm64-v8a.apk")), "apk")
+        for f in ("SHA256SUMS", "build-info.json", ".attestation-bt-wallet-26.10.25-android-arm64-v8a.apk.json"):
+            self.assertTrue(os.path.exists(os.path.join(bdir, f)), f)
+        self.assertTrue(self.deletes())
+
+    def test_backup_fails_keeps_artifact(self):
+        os.makedirs(os.path.join(self.tmp, "backup"))
+        os.chmod(os.path.join(self.tmp, "backup"), 0o500)
+        try:
+            if os.access(os.path.join(self.tmp, "backup"), os.W_OK):
+                self.skipTest("running as a user that can write anywhere")
+            run = self.drive(only="android")
+        finally:
+            os.chmod(os.path.join(self.tmp, "backup"), 0o700)
+        self.assertEqual(run.status("build-android-tor")["status"], "done")
+        self.assertIn("backup", self.log(run, "build-android-tor"))
+        self.assertEqual(self.deletes(), [])
+
+    def test_cleanup_keeps_artifact_of_failed_fetch(self):
+        # android-tor verify fails, linux-tor is fine: the linux fetch's cleanup must not take android-tor
+        self.artifact("android", "tor", {"bt-wallet-26.10.25-android-arm64-v8a.apk": b"apk",
+                                         "emulator/bt-wallet-26.10.25-android-x86_64.apk": b"emu"},
+                      sums={"bt-wallet-26.10.25-android-arm64-v8a.apk": "0" * 64})
+        run = self.drive()
+        self.assertEqual(run.status("build-android-tor")["status"], "failed")
+        self.assertEqual(run.status("build-linux-tor")["status"], "done")
+        # fake artifact ids: sorted names, android-tor is 1
+        self.assertEqual({c["args"][-1] for c in self.deletes()},  # the fake keeps listing what it deleted
+                         {"repos/BTLabsUK/wallet-for-epic/actions/artifacts/2"})
 
     def test_sha256_mismatch_fails(self):
         self.artifact("android", "tor", {"bt-wallet-26.10.25-android-arm64-v8a.apk": b"apk",
