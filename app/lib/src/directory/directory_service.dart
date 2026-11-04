@@ -139,10 +139,15 @@ class DirectoryService implements DirectoryMembership, PaymentRefusals, Director
   bool _loaded = false;
   bool _disposed = false;
   final StreamController<void> _changes = StreamController<void>.broadcast();
+  final StreamController<DirectoryEntry> _lateNoPayments = StreamController<DirectoryEntry>.broadcast();
 
   DirectoryBook get book => _book;
   bool get loaded => _loaded;
   Stream<void> get changes => _changes.stream;
+
+  /// A hello that arrived after the words step was over said the contact takes no payments:
+  /// the entry, once per contact (the flag is set when this fires). The screens show one notice.
+  Stream<DirectoryEntry> get lateNoPayments => _lateNoPayments.stream;
 
   /// The directory of the pairing [pairingId] the user compared the code of, or null.
   DirectoryEntry? verifiedFor(String pairingId) {
@@ -174,6 +179,10 @@ class DirectoryService implements DirectoryMembership, PaymentRefusals, Director
   bool refusesPayments({String? pairingId, String? address}) {
     return BookRefusals(_book).refusesPayments(pairingId: pairingId, address: address);
   }
+
+  @override
+  String? refusedName({String? pairingId, String? address}) =>
+      BookRefusals(_book).refusedName(pairingId: pairingId, address: address);
 
   // Receipts, for a payment made from a link.
 
@@ -227,6 +236,7 @@ class DirectoryService implements DirectoryMembership, PaymentRefusals, Director
     _pollTimer?.cancel();
     _pollTimer = null;
     _changes.close();
+    _lateNoPayments.close();
   }
 
   // Reading.
@@ -318,8 +328,8 @@ class DirectoryService implements DirectoryMembership, PaymentRefusals, Director
       if (bind != null) {
         try {
           await verifyPayload(hello, net: _host.net, bind: bind, verifier: _host.verifier);
-          if (hello.takesNoPayments != known.noPayments) {
-            await _put(_book.put(known.copyWith(noPayments: hello.takesNoPayments)));
+          if (hello.takesNoPayments != known.noPayments || hello.label != known.payAs) {
+            await _put(_book.put(known.copyWith(noPayments: hello.takesNoPayments, payAs: () => hello.label)));
           }
         } on DirectoryException {
           // An unreadable repeat changes nothing.
@@ -327,7 +337,10 @@ class DirectoryService implements DirectoryMembership, PaymentRefusals, Director
       }
       return true;
     }
-    if (rec.state != PairingState.paired) return _drop('hello on a pairing that is not waiting for the check');
+    // Paired, or Verified when the hello came after the words step ended without it.
+    if (rec.state != PairingState.paired && rec.state != PairingState.verified) {
+      return _drop('hello on a pairing that is not waiting for the check');
+    }
     final bind = sasIndexesOf(rec.sas);
     if (bind == null) return _drop('hello without words to bind to');
     try {
@@ -347,9 +360,14 @@ class DirectoryService implements DirectoryMembership, PaymentRefusals, Director
       label: _labelOf(rec),
       pinned: existing != null && existing.pairingId == rec.id && existing.pinned,
       noPayments: hello.takesNoPayments,
+      payAs: () => hello.label,
       paymentsKey: () => _keyOf(rec.paymentsAddress),
     );
     await _put(_book.put(next));
+    // A late hello: no words step of this session was waiting for it or showing its code.
+    final step = _steps[rec.id];
+    final late = step == null || step == HelloStep.words;
+    if (late && next.noPayments && !(known?.noPayments ?? false) && !_lateNoPayments.isClosed) _lateNoPayments.add(next);
     return true;
   }
 

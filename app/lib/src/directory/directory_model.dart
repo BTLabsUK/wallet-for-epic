@@ -57,6 +57,7 @@ class DirectoryEntry {
     this.retired = const [],
     this.noPayments = false,
     this.paymentsKey,
+    this.payAs,
   });
 
   final String dkey;
@@ -92,7 +93,14 @@ class DirectoryEntry {
   /// address can be matched without reading the pairing. Null when the contact sent none.
   final String? paymentsKey;
 
+  /// The user's own `@name` at this contact, from the last valid hello's `08 label`; null when
+  /// that hello had none.
+  final String? payAs;
+
   bool get joined => state == ListingState.joined;
+
+  /// [payAs] as the "Pay me as" strings take it: the word `none` when there is no name.
+  String get payAsArg => payAs ?? 'none';
 
   /// The generation a new listing takes.
   int get nextGeneration => maxGeneration + 1;
@@ -111,6 +119,7 @@ class DirectoryEntry {
     List<RetiredListing>? retired,
     bool? noPayments,
     String? Function()? paymentsKey,
+    String? Function()? payAs,
   }) => DirectoryEntry(
     dkey: dkey,
     pairingId: pairingId ?? this.pairingId,
@@ -126,6 +135,7 @@ class DirectoryEntry {
     retired: retired ?? this.retired,
     noPayments: noPayments ?? this.noPayments,
     paymentsKey: paymentsKey == null ? this.paymentsKey : paymentsKey(),
+    payAs: payAs == null ? this.payAs : payAs(),
   );
 
   /// The listings to read now: the joined one and the retired ones within their window.
@@ -150,6 +160,7 @@ class DirectoryEntry {
     'retired': [for (final r in retired) r.toJson()],
     'noPayments': noPayments,
     'paymentsKey': paymentsKey,
+    'payAs': payAs,
   };
 
   static DirectoryEntry? fromJson(Object? j) {
@@ -169,6 +180,7 @@ class DirectoryEntry {
       retired: [for (final r in (j['retired'] as List? ?? const [])) ?RetiredListing.fromJson(r)],
       noPayments: j['noPayments'] == true,
       paymentsKey: j['paymentsKey'] as String?,
+      payAs: j['payAs'] as String?,
     );
   }
 }

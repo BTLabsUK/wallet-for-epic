@@ -1535,10 +1535,12 @@ class FakePairing implements PairingApi {
     int net = 0,
     int issued = 1,
     int flags = 0,
+    String? label,
   }) {
     final r = records.firstWhere((e) => e.id == id);
     final unsigned = dirHelloUnsigned(
       flags: flags,
+      label: label,
       net: net,
       dkey: dkey,
       handle: handle ?? Uint8List.fromList(List.generate(16, (i) => 0x40 + i)),

@@ -101,6 +101,7 @@ const Map<int, (List<_Field>, bool)> _payloadSchemas = {
       _Field(5, 'bind', _Kind.b, size: 4),
       _Field(6, 'issued', _Kind.u, size: 8),
       _Field(7, 'flags', _Kind.u, size: 1, optional: true),
+      _Field(8, 'label', _Kind.label, optional: true),
     ],
     true,
   ),
@@ -513,6 +514,10 @@ final class DirHello extends DirectoryPayload {
 
   /// This contact takes no payments (flags bit 0).
   bool get takesNoPayments => flags & dirHelloNoPayments != 0;
+
+  /// The user's own name at this contact, `@` and up to 32 of `[A-Za-z0-9_]`: what people pay
+  /// the user as. Null when absent or not of that form (the hello still verifies).
+  String? get label => _d.fields['label'] as String?;
 }
 
 /// Type 2, wallet to directory: a card, signed by its own key.
@@ -661,8 +666,17 @@ Uint8List dirHelloUnsigned({
   required Uint8List bind,
   required int issued,
   int flags = 0,
+  String? label,
 }) => _encodeStruct(
-  {'net': net, 'dkey': dkey, 'handle': handle, 'bind': bind, 'issued': issued, if (flags != 0) 'flags': flags},
+  {
+    'net': net,
+    'dkey': dkey,
+    'handle': handle,
+    'bind': bind,
+    'issued': issued,
+    if (flags != 0) 'flags': flags,
+    'label': ?label,
+  },
   const [],
   null,
   _payloadSchemas[1]!.$1,
