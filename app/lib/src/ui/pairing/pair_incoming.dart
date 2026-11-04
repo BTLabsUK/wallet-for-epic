@@ -147,7 +147,7 @@ Future<void> showIncomingInvite(
 /// The sheet, in two forms: from a contact (the request's sender is in Contacts: avatar, "In
 /// your contacts", the sender address) or by code (the name alone, no chip). When the invite
 /// has a key, its key picture takes the avatar's place; a BT Labs service shows its listed
-/// name and "BT Labs service" instead of the claimed name. Pair · Not now;
+/// name and a green check after it instead of the claimed name. Pair · Not now;
 /// no name field, no invoice switch, no expiry row. Pops with the answered record.
 class IncomingInviteSheet extends ConsumerStatefulWidget {
   const IncomingInviteSheet({super.key, required this.preview, this.contact});
@@ -223,21 +223,33 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
           Row(
             children: [
               if (key != null)
-                KeyPictureView(picture: KeyPicture.of(key), size: 72)
+                KeyPictureView(picture: KeyPicture.of(key), size: 72, framed: true)
               else
                 PairAvatar(name: noName ? l.pairUnnamed : name, kind: p.kind, size: 72),
-              const SizedBox(width: 14),
+              // 24, less the bracket offset on a key picture: about 18 from bracket to text.
+              SizedBox(width: key != null ? 24 - KeyPictureView.frameOffsetOf(72) + 1 : 24),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Semantics(header: true, child: Text(noName ? l.pairIncomingNoName : l.pairIncomingTitle(name), style: theme.textTheme.titleLarge)),
+                    Semantics(
+                      header: true,
+                      child: Text.rich(
+                        TextSpan(
+                          text: noName ? l.pairIncomingNoName : l.pairIncomingTitle(name),
+                          children: [
+                            if (btlabs != null) ...[
+                              const TextSpan(text: ' '),
+                              WidgetSpan(alignment: PlaceholderAlignment.middle, child: VerifiedCheck(label: l.pairVerifiedService, colour: t.ok)),
+                            ],
+                          ],
+                        ),
+                        style: theme.textTheme.titleLarge,
+                      ),
+                    ),
                     if (sender != null) ...[
                       const SizedBox(height: 6),
                       EBadge(l.pairInContacts, icon: Icons.person_outline, tone: BadgeTone.ok),
-                    ] else if (btlabs != null) ...[
-                      const SizedBox(height: 6),
-                      BtLabsBadge(l.pairBtLabsService),
                     ],
                   ],
                 ),

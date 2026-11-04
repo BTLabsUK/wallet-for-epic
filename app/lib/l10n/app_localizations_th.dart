@@ -13406,7 +13406,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairNameClaimedShort => 'ชื่อที่อีกฝ่ายเลือกเอง';
 
   @override
-  String get pairBtLabsService => 'บริการของ BT Labs';
+  String get pairVerifiedService => 'บริการของ BT Labs ที่ตรวจสอบแล้ว';
 
   @override
   String pairCallsThemselves(String name) {

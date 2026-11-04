@@ -23,7 +23,7 @@ const List<int> keyPicturePalette = [
   0xFF4fc3f7, 0xFF82a8ff, 0xFFb39dff, 0xFFe59bff, 0xFFff8fc7, 0xFFd0d4dc,
 ];
 
-/// A BT Labs service, known by its key: shown under [name] with the BT Labs badge.
+/// A BT Labs service, known by its key: shown with a verified check after [name].
 class BtLabsKey {
   const BtLabsKey(this.keyHex, this.name, this.logo);
 

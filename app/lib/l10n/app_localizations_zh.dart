@@ -12948,7 +12948,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairNameClaimedShort => '名字由对方选择';
 
   @override
-  String get pairBtLabsService => 'BT Labs 服务';
+  String get pairVerifiedService => '已验证的 BT Labs 服务';
 
   @override
   String pairCallsThemselves(String name) {

@@ -678,6 +678,7 @@ class _IncomingDialogState extends ConsumerState<_IncomingDialog> {
     final noName = sender == null && btlabs == null && isUnnamed(p.name);
     return EDialog(
       title: noName ? l.pairIncomingNoName : l.pairIncomingTitle(name),
+      titleTrailing: btlabs != null ? VerifiedCheck(label: l.pairVerifiedService, colour: context.dc.ok, size: 18.u) : null,
       // Wide, as its 520 u width rendered (it snapped up).
       size: DialogWidth.wide,
       body: Column(
@@ -686,14 +687,12 @@ class _IncomingDialogState extends ConsumerState<_IncomingDialog> {
           Row(
             children: [
               if (key != null)
-                KeyPictureView(picture: KeyPicture.of(key), size: 56.u)
+                KeyPictureView(picture: KeyPicture.of(key), size: 56.u, framed: true)
               else
                 DeskPairAvatar(name: noName ? l.pairUnnamed : name, size: 56.u),
-              SizedBox(width: Sp.x3),
-              if (sender != null)
-                EBadge(l.pairInContacts, icon: EIcons.user, tone: ETone.ok)
-              else if (btlabs != null)
-                BtLabsBadge(l.pairBtLabsService),
+              // 24 u, less the bracket offset on a key picture.
+              SizedBox(width: key != null ? Sp.x6 - KeyPictureView.frameOffsetOf(56.u) + 1 : Sp.x6),
+              if (sender != null) EBadge(l.pairInContacts, icon: EIcons.user, tone: ETone.ok),
             ],
           ),
           if (p.fromAddress case final from?) ...[SizedBox(height: Sp.x3), Text(from, style: ts.mono())],
