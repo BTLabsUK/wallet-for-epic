@@ -1261,8 +1261,11 @@ class ListenerNotifier extends Notifier<ListenerState> {
           status: 'Listener stopped',
           last: state.last,
         );
+      case ListenerEventKind.repeated:
+        // The same message again: LEPIC re-sent the first answer. Log only; it must not take
+        // `last`, or it would replace the received payment's notice.
+        logInfo('listener', 'repeated slate ${event.slateId ?? ''}');
       case ListenerEventKind.received ||
-          ListenerEventKind.repeated ||
           ListenerEventKind.finalized ||
           ListenerEventKind.expired ||
           ListenerEventKind.delayed ||
@@ -1276,8 +1279,6 @@ class ListenerNotifier extends Notifier<ListenerState> {
           last: event,
         );
         // An error about a payment may have changed it too (an expired send is cancelled).
-        // A repeat changed nothing, so it refreshes nothing.
-        if (event.kind == ListenerEventKind.repeated) return;
         if (event.kind != ListenerEventKind.error || event.slateId != null) {
           ref.invalidate(homeProvider);
         }

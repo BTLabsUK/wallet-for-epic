@@ -1168,14 +1168,6 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get homeNoticeRepeated => 'Już przyjęta. Nie ma drugiej płatności.';
-
-  @override
-  String homeNoticeRepeatedFrom(String who) {
-    return 'Płatność od $who została już przyjęta.';
-  }
-
-  @override
   String get homeNoticeDelayed => 'Brak połączenia z węzłem. Płatność czeka.';
 
   @override

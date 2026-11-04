@@ -293,8 +293,6 @@
   "homeNoticeSenderPostedAmount": "ผู้ส่งแจ้งว่าส่ง {amount} เข้าเครือข่ายแล้ว",
   "homeNoticeFinished": "ทำรายการเสร็จแล้ว กำลังยืนยัน",
   "homeNoticeFinishedTo": "รายการถึง {who} เสร็จแล้ว กำลังยืนยัน",
-  "homeNoticeRepeated": "รับไปแล้ว ไม่มีรายการที่สอง",
-  "homeNoticeRepeatedFrom": "รับรายการจาก {who} ไปแล้ว",
   "homeNoticeDelayed": "เชื่อมต่อโหนดไม่ได้ รายการรออยู่",
   "homeNoticeRelayProblem": "เซิร์ฟเวอร์ Epicbox แจ้งว่ามีปัญหา กำลังลองใหม่",
   "homeNoticePaymentFailed": "รายการหนึ่งไม่สำเร็จ",

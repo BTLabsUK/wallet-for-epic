@@ -1138,14 +1138,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get homeNoticeRepeated => 'Bereits angenommen. Keine zweite Zahlung.';
-
-  @override
-  String homeNoticeRepeatedFrom(String who) {
-    return 'Die Zahlung von $who wurde bereits angenommen.';
-  }
-
-  @override
   String get homeNoticeDelayed =>
       'Der Node ist nicht erreichbar. Die Zahlung wartet.';
 

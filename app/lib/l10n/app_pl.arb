@@ -293,8 +293,6 @@
   "homeNoticeSenderPostedAmount": "Według nadawcy opublikowano {amount}.",
   "homeNoticeFinished": "Płatność sfinalizowana. Potwierdzanie.",
   "homeNoticeFinishedTo": "Płatność do {who} sfinalizowana. Potwierdzanie.",
-  "homeNoticeRepeated": "Już przyjęta. Nie ma drugiej płatności.",
-  "homeNoticeRepeatedFrom": "Płatność od {who} została już przyjęta.",
   "homeNoticeDelayed": "Brak połączenia z węzłem. Płatność czeka.",
   "homeNoticeRelayProblem": "Serwer epicbox zgłosił problem. Ponawianie próby.",
   "homeNoticePaymentFailed": "Płatność nie powiodła się.",

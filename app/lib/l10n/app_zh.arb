@@ -293,8 +293,6 @@
   "homeNoticeSenderPostedAmount": "发送方称 {amount} 已广播。",
   "homeNoticeFinished": "付款已完成，正在确认。",
   "homeNoticeFinishedTo": "发给 {who} 的付款已完成，正在确认。",
-  "homeNoticeRepeated": "已接受过。不会有第二笔付款。",
-  "homeNoticeRepeatedFrom": "来自 {who} 的付款已接受过。",
   "homeNoticeDelayed": "无法连接节点。付款等待中。",
   "homeNoticeRelayProblem": "Epicbox 服务器报告了问题，正在重试。",
   "homeNoticePaymentFailed": "有一笔付款失败。",
