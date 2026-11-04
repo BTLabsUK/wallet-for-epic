@@ -77,6 +77,27 @@ class ParserTest(unittest.TestCase):
                          [("bot", "ok", 4), ("flutter test (all)", "failed", 601)])
         self.assertEqual(r["failing_step"], "flutter test (all)")
 
+    def test_a_failed_cheap_check_lets_the_later_steps_run_and_stays_red(self):
+        log = """\
+02:31:05 == doc names (tools/doc-names.allow)
+02:31:05 == doc names: FAILED (exit 1) after 0s
+02:31:05
+02:31:05 == LEPIC at the pin (tools/lepic.rev)
+02:31:40 == LEPIC at the pin: ok 35s
+02:31:40
+02:31:40 == flutter analyze
+02:32:10 == flutter analyze: ok 30s
+02:32:10
+02:32:10 check FAILED (full): doc names
+"""
+        r = nightly.parse_check_log(log.splitlines(), expected_steps=["flutter test (all)"])
+        self.assertFalse(r["passed"])
+        self.assertEqual(r["failing_step"], "doc names (tools/doc-names.allow)")
+        self.assertEqual([(s["name"], s["status"]) for s in r["steps"]],
+                         [("doc names (tools/doc-names.allow)", "failed"),
+                          ("LEPIC at the pin (tools/lepic.rev)", "ok"), ("flutter analyze", "ok"),
+                          ("flutter test (all)", "not_run")])
+
     def test_red_run_across_midnight(self):
         r = nightly.parse_check_log(RED_LOG.splitlines(),
                                     expected_steps=["flutter analyze", "flutter test", "bot"])

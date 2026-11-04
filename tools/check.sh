@@ -52,6 +52,16 @@ on_exit() {
   return 0
 }
 trap on_exit EXIT
+# The checks that take seconds and only read the tree (version, contracts, hosts, doc names,
+# workflows) do not stop the run: a failure prints `== <name>: FAILED (exit N) after Ns`, the
+# later steps still run, and the check fails at the end naming them. A stale doc line then never
+# hides how LEPIC and the tests stand.
+soft_failed=()
+step_failed() {
+  printf '== %s: FAILED (exit %s) after %ss\n' "$(step_label)" "$1" $((SECONDS - step_t0))
+  soft_failed+=("$(step_label)")
+  step_name=""
+}
 
 # The change: files that differ from the merge base with main, untracked ones included.
 base_ref="${CHECK_BASE:-main}"
@@ -72,26 +82,28 @@ fi
 [[ $mode == list ]] && exit 0
 
 step "version (https://docs.btlabs.uk/developers/releases/)"
-"$root/tools/version.sh" check
+"$root/tools/version.sh" check || step_failed $?
 
 step "install contract (docs/install-contract.md)"
-"$root/tools/check-install-contract.sh"
+"$root/tools/check-install-contract.sh" || step_failed $?
 
 step "no hosts in code (docs/settings-file.md)"
-"$root/tools/check-no-hosts.sh"
+"$root/tools/check-no-hosts.sh" || step_failed $?
 
 step "doc names (tools/doc-names.allow)"
-python3 "$root/tools/check-doc-names.py"
+names_rc=0
+python3 "$root/tools/check-doc-names.py" || names_rc=$?
 # The docs site (btlabs-docs) keeps its own allow file; checked when its checkout is here.
 docs_site="${BTLABS_DOCS:-$HOME/btlabs-docs}"
 if [[ -f "$docs_site/tools/check-doc-names.py" ]]; then
-  python3 "$docs_site/tools/check-doc-names.py"
+  python3 "$docs_site/tools/check-doc-names.py" || names_rc=$?
 else
   echo "docs site: no checkout at $docs_site (BTLABS_DOCS), skipped"
 fi
+[[ $names_rc == 0 ]] || step_failed "$names_rc"
 
 step "workflows (.github/workflows, tools/check-workflow.py)"
-python3 "$root/tools/check-workflow.py"
+python3 "$root/tools/check-workflow.py" || step_failed $?
 
 # Everything that takes seconds runs before the minutes: a release run once failed on a lint
 # after the full Flutter suite had passed (docs/TESTING.md, "Order of the steps").
@@ -180,6 +192,10 @@ if [[ $mode == full ]]; then
 fi
 
 step_done
+if (( ${#soft_failed[@]} )); then
+  printf '\ncheck FAILED (%s): %s\n' "$mode" "$(printf '%s; ' "${soft_failed[@]}" | sed 's/; $//')"
+  exit 1
+fi
 printf '\ncheck passed (%s)\n' "$mode"
 if [[ $mode == full ]]; then
   # For tools/rel's G2 (docs/RELEASING.md, "Reused results"); never fails the check.

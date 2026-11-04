@@ -36,8 +36,9 @@ A run:
      `tools/check.sh --full` (or plain `tools/check.sh` before --full existed) inside
      dbus-run-session with an unlocked throwaway keyring; always under
      `nice -n 15 ionice -c3 build-slot`, with a 90 min limit from the slot (then `error`);
-  5. parses the output: `== <step>` lines start steps, `check passed` ends a green run, the step
-     check.sh was in when it failed is the failing one, flutter's progress lines give counts and
+  5. parses the output: `== <step>` lines start steps, `check passed` ends a green run, `== <step>:
+     ok|FAILED` ends a step (a failed cheap check lets the run go on), the first failed step is the
+     failing one, flutter's progress lines give counts and
      `[E]` lines the failing tests;
   6. records /tmp/epic-build/nightly/runs/<UTC stamp>-<sha8>/{check.log,result.json} (last 7 kept),
      latest.json (newest completed run), summary.txt (one line), attempts.log (every attempt,
@@ -225,8 +226,10 @@ def parse_check_log(lines, expected_steps=()):
 
     Returns {passed, steps: [{name, status, duration_s}], tests: {step: {passed, skipped, failed}},
     failing_tests: [{file, name}], failing_step}. `passed` is True only when `check passed` was
-    printed. Without it the last step started is the failing one; steps in expected_steps that
-    never started are not_run.
+    printed. A step check.sh ended with `== <name>: ok Ns` or `FAILED ...` has that status (the
+    cheap checks fail and the run goes on); a step it never ended is ok when a later step started,
+    and the failing one when it is the last of a run that did not pass. failing_step is the first
+    failed step; steps in expected_steps that never started are not_run.
     """
     steps = []
     tests = {}
@@ -259,6 +262,7 @@ def parse_check_log(lines, expected_steps=()):
         if e and steps:
             # check.sh's own timing of the open step; it is not a step of its own
             steps[-1]["duration_s"] = int(e.group(1) or e.group(2))
+            steps[-1]["_end"] = "ok" if e.group(1) else "failed"
             continue
         m = STEP_RE.match(line)
         if m:
@@ -266,7 +270,7 @@ def parse_check_log(lines, expected_steps=()):
                 close_run(steps[-1]["name"])
                 if steps[-1]["duration_s"] is None and steps[-1]["_t0"] is not None and t is not None:
                     steps[-1]["duration_s"] = t - steps[-1]["_t0"]
-            steps.append({"name": m.group(1), "status": "running", "duration_s": None, "_t0": t})
+            steps.append({"name": m.group(1), "status": "running", "duration_s": None, "_t0": t, "_end": None})
             continue
         if line.startswith("check passed"):
             passed = True
@@ -295,12 +299,18 @@ def parse_check_log(lines, expected_steps=()):
             steps[-1]["duration_s"] = last_t - steps[-1]["_t0"]
     failing_step = None
     for i, s in enumerate(steps):
-        if passed or i < len(steps) - 1:
+        if s["_end"]:
+            s["status"] = s["_end"]
+        elif passed or i < len(steps) - 1:
             s["status"] = "ok"
         else:
             s["status"] = "failed"
+        if s["status"] == "failed" and failing_step is None:
             failing_step = s["name"]
-        del s["_t0"]
+        del s["_t0"], s["_end"]
+    if not passed and failing_step is None and steps:
+        steps[-1]["status"] = "failed"  # the run broke after its last step ended
+        failing_step = steps[-1]["name"]
     names = {s["name"] for s in steps}
     for name in expected_steps:
         if name not in names:

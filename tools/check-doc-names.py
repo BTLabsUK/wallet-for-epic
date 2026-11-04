@@ -62,7 +62,10 @@ def main():
         except (UnicodeDecodeError, FileNotFoundError):
             return []
 
+    me = os.path.realpath(__file__)
     for path in files:
+        if os.path.realpath(os.path.join(root, path)) == me:
+            continue  # this file: the old names are its patterns
         if match(path, scan):
             hits = [(n, l) for n, l in lines(path) if OLD.search(l)]
             want = allowed.get(path, 0)
