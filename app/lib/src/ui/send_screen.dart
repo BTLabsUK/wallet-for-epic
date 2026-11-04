@@ -12,6 +12,10 @@ import 'package:intl/intl.dart' show NumberFormat;
 import '../app_log.dart';
 import '../amount.dart';
 import '../contacts.dart';
+import '../directory/link_open.dart' show LinkOpened;
+import '../directory/pins.dart' show DirectoryTrust;
+import '../scan/incoming_link.dart' show linkClockProvider;
+import 'link_send.dart';
 import '../pairing_providers.dart'
     show PairNet, contactPairingProvider, pairNetProvider, pairingApiProvider, pairingByIdProvider, pairingName, pairingNameProvider, pairingSupportedProvider, pairingsProvider;
 import '../errors.dart';
@@ -264,6 +268,7 @@ class _Sent {
     this.noteSaved = true,
     this.pairingId,
     this.queued = false,
+    this.linkLabel,
   });
 
   /// The payment as the send returned it; the tracker follows it in [homeProvider].
@@ -276,6 +281,9 @@ class _Sent {
 
   /// Made while Epicbox was off: it waits in the outbox until Epicbox is on again.
   final bool queued;
+
+  /// The payee's `@name` from the payment link this was sent from, for Save as contact.
+  final String? linkLabel;
 
   /// The fee the review showed, to compare with the one charged.
   final BigInt? reviewedFee;
@@ -438,6 +446,20 @@ class _SendViewState extends ConsumerState<SendView> {
   /// The code's banner is open; × closes it for this code.
   bool _requestBanner = false;
 
+  /// The payment link that filled this form; it holds while To keeps its address
+  /// ([_requestAddress]), as a payment code does.
+  LinkOpened? _link;
+
+  /// A payment link handed over meanwhile, for the next form.
+  ({LinkOpened link, CodeOrigin origin})? _laterLink;
+
+  /// [_link] while the To field still holds its address, else null.
+  LinkOpened? get _activeLink {
+    final link = _link;
+    if (link == null) return null;
+    return parseRecipient(_recipient.text).address == _requestAddress ? link : null;
+  }
+
   /// [_request] while the To field still holds its address, else null.
   PaymentRequest? get _activeRequest {
     final request = _request;
@@ -476,6 +498,16 @@ class _SendViewState extends ConsumerState<SendView> {
       }
       if (request.note != null && _note.text == request.note) _note.clear();
     }
+    final link = _link;
+    if (link != null) {
+      final amount = link.request.amount;
+      if (amount > BigInt.zero && _parsedAmount == amount && !_fiatEntry) {
+        _amount.clear();
+        _parsedAmount = null;
+        _estimate = null;
+      }
+    }
+    _link = null;
     _request = null;
     _origin = null;
     _requestAddress = null;
@@ -502,6 +534,18 @@ class _SendViewState extends ConsumerState<SendView> {
     if (handoff != null && handoff.pairingId != null) {
       _handoff = handoff.id;
       _pairingTo = handoff.pairingId;
+    } else if (handoff != null && handoff.link != null) {
+      _handoff = handoff.id;
+      final link = handoff.link!;
+      final to = parseRecipient(link.request.card.address);
+      _recipient.text = to.address;
+      _lastTo = to.address;
+      _origin = handoff.origin;
+      _requestAddress = to.address;
+      _link = link;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _fillFromLink(link);
+      });
     } else if (handoff != null) {
       _handoff = handoff.id;
       final request = handoff.request;
@@ -697,6 +741,8 @@ class _SendViewState extends ConsumerState<SendView> {
         // A code with a second address fills the one whose method is on.
         final to = code is PaymentRequest ? _requestRecipient(code) : recipient;
         _setRecipient(to.address, origin: origin, given: code is ScannedAddress ? text : null);
+      case PaymentLink():
+        unawaited(_openLink(code, origin, typedOver: typedOver));
       case SlateText() when !open && origin == CodeOrigin.paste:
         _setRecipient(text);
       // An address in text around it, or written another way: Send's own reader takes it.
@@ -814,6 +860,7 @@ class _SendViewState extends ConsumerState<SendView> {
   void _applyRequest(PaymentRequest request, CodeOrigin origin) {
     if (_holdsPayment) {
       _laterRequest = (request: request, origin: origin);
+      _laterLink = null;
       _laterRecipient = null;
       _laterPairing = null;
       return;
@@ -835,6 +882,57 @@ class _SendViewState extends ConsumerState<SendView> {
         _toAmount(focus: false);
       }
     });
+  }
+
+  /// Fills the form from an opened payment link: the listing address (Epicbox) and the amount,
+  /// which stays editable; a link with no amount leaves it to the payer. Nothing is sent.
+  void _applyLink(LinkOpened link, CodeOrigin origin) {
+    if (_holdsPayment) {
+      _laterLink = (link: link, origin: origin);
+      _laterRequest = null;
+      _laterRecipient = null;
+      _laterPairing = null;
+      return;
+    }
+    if (_stage == SendStage.fileAmount) {
+      _viaQr = false;
+      _stage = SendStage.recipient;
+    }
+    _setRecipient(link.request.card.address, origin: origin);
+    _link = link;
+    _requestAddress = parseRecipient(link.request.card.address).address;
+    _fillFromLink(link);
+  }
+
+  /// The amount from [link]; then on to the amount step, as a payment code does.
+  void _fillFromLink(LinkOpened link) {
+    setState(() {
+      _requestBanner = false;
+      _fiatEntry = false;
+      _maxUsed = false;
+      final amount = link.request.amount;
+      _amount.text = amount > BigInt.zero ? localDecimal(context.l10n, formatEpic(amount)) : '';
+      _parsedAmount = amount > BigInt.zero ? amount : null;
+      _amountError = null;
+      _estimate = null;
+    });
+    if (_amount.text.isNotEmpty) _onAmountChanged(_amount.text);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _link != link) return;
+      if (_stage == SendStage.recipient && _recipientError == null && _block == NetBlock.none) {
+        _toAmount(focus: false);
+      }
+    });
+  }
+
+  /// A payment link from a scan or paste inside Send: checked, then it fills the form.
+  Future<void> _openLink(PaymentLink code, CodeOrigin origin, {String? typedOver}) async {
+    if (typedOver != null) {
+      _recipient.text = typedOver;
+      _lastTo = typedOver;
+    }
+    final link = await openPaymentLink(context, ref, code);
+    if (link != null && mounted) _applyLink(link, origin);
   }
 
   /// A payment is under way or held here: a send runs, waits for its tracker or a file, or
@@ -937,6 +1035,7 @@ class _SendViewState extends ConsumerState<SendView> {
       _laterPairing = id;
       _laterRecipient = null;
       _laterRequest = null;
+      _laterLink = null;
       return;
     }
     _closeChecks();
@@ -989,6 +1088,7 @@ class _SendViewState extends ConsumerState<SendView> {
       _laterRecipient = text;
       _laterOrigin = origin;
       _laterRequest = null;
+      _laterLink = null;
       _laterPairing = null;
       return;
     }
@@ -1016,9 +1116,9 @@ class _SendViewState extends ConsumerState<SendView> {
     });
   }
 
-  void _saveContact(String address) => Navigator.of(context).push<Contact>(
+  void _saveContact(String address, {String? name}) => Navigator.of(context).push<Contact>(
     MaterialPageRoute<Contact>(
-      builder: (_) => ContactEditScreen(address: address),
+      builder: (_) => ContactEditScreen(address: address, name: name),
     ),
   );
 
@@ -1472,8 +1572,13 @@ class _SendViewState extends ConsumerState<SendView> {
     }
     final l = context.l10n;
     final to = parseRecipient(_recipient.text);
+    final link = _activeLink;
     _asking = true;
     try {
+      // A listing that now points to another wallet: one more yes, before the PIN.
+      if (link != null && link.standing.trust == DirectoryTrust.changedWallet) {
+        if (!await confirmChangedWallet(context, link) || !mounted) return;
+      }
       final amountText = epicText(l, reviewed.amount);
       if (!await _pinGate(usesPassphrase(ref) ? l.sendPassphraseReason(amountText) : l.sendPinReason(amountText))) {
         return;
@@ -1506,6 +1611,9 @@ class _SendViewState extends ConsumerState<SendView> {
     final pairingApi = ref.read(pairingApiProvider);
     final queued = _queues(watch: false);
     final minimum = ref.read(countedConfirmationsProvider);
+    final linkNow = ref.read(linkClockProvider);
+    // The payment link, when the address sent to is still the one it filled in.
+    final paidLink = link != null && parseRecipient(link.request.card.address).address == to.address ? link : null;
     return _run((session) async {
       // What the wallet held before, to tell the payment a failed send leaves behind.
       final before = await SendBefore.take(
@@ -1567,6 +1675,14 @@ class _SendViewState extends ConsumerState<SendView> {
           noteSaved = false;
         }
       }
+      // The pin and the paid request id of a link: what "paid before" and "changed wallet" read.
+      if (paidLink != null) {
+        try {
+          await session.recordLinkPayment(paidLink.request, linkNow().millisecondsSinceEpoch ~/ 1000);
+        } catch (error) {
+          logWarn('send', 'recording the link payment failed: ${describeError(englishStrings, error)}');
+        }
+      }
       container.invalidate(homeProvider);
       container.read(trackedSendProvider.notifier).track(tx.key);
       if (mounted) {
@@ -1575,6 +1691,7 @@ class _SendViewState extends ConsumerState<SendView> {
           _sent = _Sent(
             tx: tx,
             amount: amount,
+            linkLabel: paidLink?.payeeLabel,
             to: to,
             reviewedFee: reviewed.fee,
             noteSaved: noteSaved,
@@ -2080,6 +2197,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final later = _laterRecipient;
     final laterOrigin = _laterOrigin;
     final laterRequest = _laterRequest;
+    final laterLink = _laterLink;
     final laterPairing = _laterPairing;
     // The shell clears the handoff for a fresh form; one that came meanwhile goes to it.
     final handoff = ref.read(sendRecipientProvider.notifier);
@@ -2087,6 +2205,10 @@ class _SendViewState extends ConsumerState<SendView> {
     if (laterPairing != null) {
       _laterPairing = null;
       handoff.handPairing(laterPairing);
+    } else if (laterLink != null) {
+      _laterLink = null;
+      _laterRecipient = null;
+      handoff.handLink(laterLink.link, laterLink.origin);
     } else if (laterRequest != null) {
       _laterRequest = null;
       _laterRecipient = null;
@@ -2257,6 +2379,8 @@ class _SendViewState extends ConsumerState<SendView> {
       final request = handoff.request;
       if (handoff.pairingId case final id?) {
         _setPairing(id);
+      } else if (handoff.link case final link?) {
+        _applyLink(link, handoff.origin ?? CodeOrigin.qr);
       } else if (request != null) {
         _applyRequest(request, handoff.origin ?? CodeOrigin.qr);
       } else {
@@ -3287,6 +3411,9 @@ class _SendViewState extends ConsumerState<SendView> {
           error: _amountError == null ? null : LiveFieldError(_amountError!),
         ),
       ),
+      if (!file)
+        if (_activeLink case final link? when amountEdited(link, _parsedAmount))
+          const Align(alignment: AlignmentDirectional.centerStart, child: LinkAmountNote()),
       const SizedBox(height: 12),
       if (summary != null)
         Text(
@@ -3432,6 +3559,7 @@ class _SendViewState extends ConsumerState<SendView> {
           name: _pairingTo == null ? _contactName(address) : _pairingNameOf(_pairingTo!),
         ),
       ),
+      if (_activeLink case final link?) LinkTrustLine(link: link),
       _TorNotice(way: _wayOf(_toRoute)),
       ..._payeeClaims(gapBefore: 12),
       const SizedBox(height: 20),
@@ -3516,6 +3644,11 @@ class _SendViewState extends ConsumerState<SendView> {
           child: OriginPill(origin: origin),
         ),
         const SizedBox(height: 12),
+      ],
+      if (_activeLink case final link?) ...[
+        LinkTrustLine(link: link),
+        if (amountEdited(link, estimate.amount)) const LinkAmountNote(),
+        const SizedBox(height: 8),
       ],
       if (pairing != null) ...[
         // The mailbox is never shown as an address.
@@ -3961,7 +4094,7 @@ class _SendViewState extends ConsumerState<SendView> {
           alignment: AlignmentDirectional.centerStart,
           child: InlineTextButton(
             icon: const Icon(Icons.person_add_alt),
-            onPressed: () => _saveContact(sent.to.address),
+            onPressed: () => _saveContact(sent.to.address, name: sent.linkLabel),
             child: Text(l.sendSaveContact),
           ),
         ),

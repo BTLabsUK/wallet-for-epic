@@ -49,6 +49,10 @@ import '../../l10n.dart' show AppLocalizations;
 import '../desk_l10n.dart' show deskStrings;
 import '../../log.dart';
 import '../../node/node_settings.dart' show NodeSettings;
+import '../../directory/directory.dart' show DirectoryMembership, LinkOutcome, Payreq, openLink;
+import '../../directory/base58.dart' show netFloonet, netMainnet;
+import '../../scan/scan_router.dart' show PaymentLink;
+import '../../models.dart' show Chain;
 import '../../known_relays.dart' show recipientRelay;
 import '../../network.dart';
 import '../../ui/network_mode_text.dart' show networkModeName;
@@ -959,6 +963,23 @@ class LepicDeskWallet implements DeskWalletApi {
 
   @override
   bool get openedRemembered => _session != null && _openedRemembered;
+
+  @override
+  Future<LinkOutcome> openPaymentLink(PaymentLink link, {required DirectoryMembership membership, required int nowSeconds}) {
+    final session = _open;
+    return openLink(
+      request: link.request,
+      error: link.error,
+      net: session.chain == Chain.mainnet ? netMainnet : netFloonet,
+      nowSeconds: nowSeconds,
+      verifier: _service.verifyListingSignature,
+      membership: membership,
+      memory: session.linkMemory(),
+    );
+  }
+
+  @override
+  Future<void> recordLinkPayment(Payreq request, int paidAt) => _open.recordLinkPayment(request, paidAt);
 
   @override
   Future<bool> checkPassword(String password) async {

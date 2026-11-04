@@ -20,7 +20,8 @@ import 'package:lepic/lepic.dart' as lepic;
 import 'package:lepic/src/rust/api/policy.dart' show HostPolicy;
 import 'package:meta/meta.dart' show visibleForTesting;
 
-import 'directory/wire.dart' show fromHex, toHex;
+import 'directory/pins.dart' show LinkMemory;
+import 'directory/wire.dart' show Payreq, fromHex, toHex;
 import 'history/export.dart';
 import 'history/meta_store.dart';
 import 'history/wallet_history.dart';
@@ -2659,6 +2660,15 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
   @override
   Future<void> setFavouriteContact({required String id, required bool favourite}) =>
       _history.setFavourite(id, favourite);
+
+  @override
+  Chain get chain => _history.chain;
+
+  @override
+  LinkMemory linkMemory() => _history.linkMemory();
+
+  @override
+  Future<void> recordLinkPayment(Payreq request, int paidAt) => _history.recordLinkPayment(request, paidAt);
 
   /// The history as a `.wfeh` file LEPIC seals under a key from the seed, so only a wallet
   /// with the same recovery phrase opens it.

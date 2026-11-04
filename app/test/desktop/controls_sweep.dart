@@ -7,6 +7,8 @@
 // A press that does nothing, or only shows a toast, fails unless [_allowed] says why. A press
 // that reaches an API method the real wallet (LepicDeskWallet) only stubs fails too.
 import 'package:epic_wallet/src/cancel_final.dart' show CancelResult;
+import 'package:epic_wallet/src/directory/directory.dart' show DirectoryMembership, LinkOutcome, Payreq;
+import 'package:epic_wallet/src/scan/scan_router.dart' show PaymentLink;
 import 'package:epic_wallet/src/trust/policy.dart' show PeerCompat;
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/shell.dart';
@@ -135,6 +137,11 @@ class _Recorder implements DeskWalletApi, MockBacked {
   bool get busy => _m.busy;
   @override
   bool get openedRemembered => _m.openedRemembered;
+  @override
+  Future<LinkOutcome> openPaymentLink(PaymentLink link, {required DirectoryMembership membership, required int nowSeconds}) =>
+      _r('openPaymentLink', () => _m.openPaymentLink(link, membership: membership, nowSeconds: nowSeconds));
+  @override
+  Future<void> recordLinkPayment(Payreq request, int paidAt) => _r('recordLinkPayment', () => _m.recordLinkPayment(request, paidAt));
   @override
   Future<bool> checkPassword(String password) => _r('checkPassword', () => _m.checkPassword(password));
   @override

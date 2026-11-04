@@ -19,7 +19,6 @@ import '../../devices/device_model.dart' show DeviceBook, HoldState;
 import '../../devices/device_service.dart' show DeviceHost, ForwardedNotice;
 import '../../directory/base58.dart' show netMainnet;
 import '../../directory/directory_service.dart' show DirectoryHost;
-import '../../directory/verify.dart' show DirectoryVerifier, refusingVerifier;
 import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus, fakeAddressSignature;
 import '../../network.dart' show EpicboxRelay;
 import '../../models.dart' show epicboxKey, KernelLocation, StoreMigrationProgress, DeviceEnding, FinishedPayment, InvoiceEvent, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations, UnmatchedNotice;
@@ -32,6 +31,10 @@ import '../../seed_contacts.dart';
 import '../../slate_files.dart' show responseFileName, sendFileName;
 import '../../finished_payment.dart' show readFinishedPayment;
 import '../../wallet_service.dart' show FakeListingKeys, FakeWalletSession, PaymentsDrainReport, WalletError, WalletErrorKind, onionAddressFormat;
+import '../../directory/directory.dart' show DirectoryMembership, DirectoryVerifier, LinkMemory, LinkOutcome, Payreq, openLink, refusingVerifier;
+import '../../history/directory_pins.dart';
+import '../../history/meta_store.dart' show Meta;
+import '../../scan/scan_router.dart' show PaymentLink;
 import 'api.dart';
 import 'backup_settings_desk.dart';
 import 'features.dart';
@@ -439,6 +442,31 @@ class MockDeskWallet implements DeskWalletApi {
     await _copyStore();
     openedRemembered = true;
     return true;
+  }
+
+  /// The signature check the links use; tests give one that accepts the vectors.
+  DirectoryVerifier linkVerifier = refusingVerifier;
+  /// What the wallet remembers of link payments: tests seed pins here.
+  final Meta linkMeta = Meta();
+
+  @override
+  Future<LinkOutcome> openPaymentLink(PaymentLink link, {required DirectoryMembership membership, required int nowSeconds}) => openLink(
+    request: link.request,
+    error: link.error,
+    net: netMainnet,
+    nowSeconds: nowSeconds,
+    verifier: linkVerifier,
+    membership: membership,
+    memory: LinkMemory(pins: {...linkMeta.directoryPins}, paidRequests: {...linkMeta.paidRequests}),
+  );
+
+  /// The payments recorded from links, for tests.
+  final List<Payreq> linkPaid = [];
+
+  @override
+  Future<void> recordLinkPayment(Payreq request, int paidAt) async {
+    linkPaid.add(request);
+    linkMeta.recordLinkPayment(request, paidAt);
   }
 
   @override

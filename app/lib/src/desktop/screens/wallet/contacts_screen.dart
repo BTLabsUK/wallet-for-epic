@@ -24,7 +24,7 @@ import 'tx_display.dart';
 
 /// Starts Contacts with one selected, editing, adding, or empty.
 class ContactsArgs {
-  const ContactsArgs({this.selectedId, this.editing = false, this.adding = false, this.empty = false, this.loading = false, this.address, this.fromTx});
+  const ContactsArgs({this.selectedId, this.editing = false, this.adding = false, this.empty = false, this.loading = false, this.address, this.name, this.fromTx});
 
   final String? selectedId;
   final bool editing;
@@ -34,6 +34,9 @@ class ContactsArgs {
 
   /// Adding: the address the new contact starts with (a payment's other side).
   final String? address;
+
+  /// Adding: the name the new contact starts with (a payment link's label).
+  final String? name;
 
   /// Adding from this payment's detail: Save or Cancel goes back to it in Activity.
   final int? fromTx;
@@ -101,6 +104,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
         return _ContactForm(
           contact: _adding ? null : selected,
           address: _adding ? _args.address : null,
+          name: _adding ? _args.name : null,
           onDone: (saved) {
             if (_args.fromTx case final tx? when _adding) return ref.read(deskNavProvider.notifier).go(DeskRoute.activity, tx);
             setState(() {
@@ -848,12 +852,15 @@ class _ContactDetail extends ConsumerWidget {
 }
 
 class _ContactForm extends ConsumerStatefulWidget {
-  const _ContactForm({required this.contact, required this.onDone, this.address});
+  const _ContactForm({required this.contact, required this.onDone, this.address, this.name});
 
   final Contact? contact;
 
   /// A new contact's first address, filled in.
   final String? address;
+
+  /// A new contact's name, filled in.
+  final String? name;
 
   /// The saved contact's id, or null when cancelled.
   final ValueChanged<String?> onDone;
@@ -883,7 +890,7 @@ class _AddrField {
 /// The form in the detail pane: Name, one field per address with its kind
 /// badge and ×, a dashed free field while a kind is free, Note.
 class _ContactFormState extends ConsumerState<_ContactForm> {
-  late final _name = TextEditingController(text: widget.contact?.name);
+  late final _name = TextEditingController(text: widget.contact?.name ?? widget.name);
   late final List<_AddrField> _fields = [
     for (final a in _startAddresses) _AddrField(a),
     _AddrField(),
