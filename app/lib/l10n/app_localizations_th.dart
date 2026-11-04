@@ -1328,6 +1328,16 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String contactsStaleOpened(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'เปิดล่าสุดเมื่อ $days วันก่อน กำลังตรวจสอบผู้ติดต่อที่จับคู่',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String homePendingTitle(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

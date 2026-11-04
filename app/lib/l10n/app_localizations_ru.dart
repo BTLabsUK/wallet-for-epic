@@ -1384,6 +1384,23 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String contactsStaleOpened(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          'Последнее открытие $days дня назад. Проверяем сопряжённые контакты.',
+      many:
+          'Последнее открытие $days дней назад. Проверяем сопряжённые контакты.',
+      few:
+          'Последнее открытие $days дня назад. Проверяем сопряжённые контакты.',
+      one:
+          'Последнее открытие $days день назад. Проверяем сопряжённые контакты.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String homePendingTitle(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

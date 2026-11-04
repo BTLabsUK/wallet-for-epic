@@ -348,6 +348,7 @@
   "homeEpicboxOffline": "กระเป๋าเงินยังไม่ได้เชื่อมต่อกับเซิร์ฟเวอร์ Epicbox และกำลังลองต่อไป",
   "homeEpicboxConnecting": "กำลังเชื่อมต่อ Epicbox…",
   "homeSyncedAtBlock": "ซิงก์ที่บล็อก {height}",
+  "contactsStaleOpened": "{days, plural, other{เปิดล่าสุดเมื่อ {days} วันก่อน กำลังตรวจสอบผู้ติดต่อที่จับคู่}}",
   "homePendingTitle": "{count, plural, other{{count} รายการกำลังรอผู้รับ}}",
   "homePendingWhy": "ทำไมต้องรอ?",
   "homePendingView": "{count, plural, other{ดูรายการ}}",

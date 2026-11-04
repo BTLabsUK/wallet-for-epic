@@ -196,6 +196,11 @@ class AppConfig {
   Duration get nodeFailoverProbe => _s('node.failover_probe_s');
   Duration get ownNodeAsk => _s('node.own_node_ask_s');
 
+  // [contacts]
+
+  /// Opening a wallet last opened longer ago than this checks its paired contacts and says so.
+  Duration get contactsStaleAfter => Duration(days: _int('contacts.stale_after_days'));
+
   // [notices]
 
   /// After start and resume, how long server warnings wait (`connection_grace.dart`).

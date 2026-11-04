@@ -648,6 +648,22 @@ class Record {
   }
 }
 
+/// [Meta.lastActivity]: when this wallet last synced, and the chain height it reached.
+class LastActivity {
+  const LastActivity({required this.atUnix, required this.height});
+
+  factory LastActivity.fromJson(Object? json) {
+    final m = asObject(json, 'last_activity');
+    return LastActivity(atUnix: _i64(m['at_unix'], 'last_activity at_unix'), height: _u64(m['height'], 'last_activity height'));
+  }
+
+  /// UTC seconds.
+  final int atUnix;
+  final BigInt height;
+
+  Map<String, Object?> toJson() => {'at_unix': atUnix, 'height': _u64Json(height)};
+}
+
 class Meta {
   Meta({
     this.version = metaVersion,
@@ -662,6 +678,7 @@ class Meta {
     Map<String, PaidInvoiceRec>? paidInvoices,
     Map<String, IssuedInvoiceRec>? issuedInvoices,
     Map<String, ManualRec>? manual,
+    this.lastActivity,
     Iterable<String>? favourites,
     Iterable<String>? seededContacts,
     Map<String, String>? seededAddresses,
@@ -721,6 +738,7 @@ class Meta {
       issuedInvoices: map('issued_invoices')
           .map((k, v) => MapEntry(k, IssuedInvoiceRec.fromJson(v))),
       manual: map('manual').map((k, v) => MapEntry(k, ManualRec.fromJson(v))),
+      lastActivity: m['last_activity'] == null ? null : LastActivity.fromJson(m['last_activity']),
       favourites: [for (final v in list('favourites')) _str(v, 'favourite')],
       seededContacts: [for (final v in list('seeded_contacts')) _str(v, 'seeded contact')],
       seededAddresses: map('seeded_addresses').map((k, v) => MapEntry(k, _str(v, 'seeded address'))),
@@ -761,6 +779,10 @@ class Meta {
   /// Invoices this wallet issued, by slate id. Written only when not empty, and not part of
   /// a history file, as [paidInvoices].
   final SplayTreeMap<String, IssuedInvoiceRec> issuedInvoices;
+
+  /// When this wallet last synced or refreshed, and its height then. Written only when set, and
+  /// not part of a history file.
+  LastActivity? lastActivity;
 
   /// Ids of the contacts this wallet starred. The address book is shared by every wallet on
   /// the device; the star is this wallet's, as on the desktop. Written only when not empty, and
@@ -816,6 +838,7 @@ class Meta {
     if (manual.isNotEmpty) {
       out['manual'] = {for (final e in manual.entries) e.key: e.value.toJson()};
     }
+    _put(out, 'last_activity', lastActivity?.toJson());
     if (favourites.isNotEmpty) out['favourites'] = [...favourites];
     if (seededContacts.isNotEmpty) out['seeded_contacts'] = [...seededContacts];
     if (seededAddresses.isNotEmpty) out['seeded_addresses'] = {...seededAddresses};
@@ -846,6 +869,7 @@ bool mergePlainMeta(Meta into, Meta plain) {
   maps(into.paidInvoices, plain.paidInvoices);
   maps(into.issuedInvoices, plain.issuedInvoices);
   maps(into.seededAddresses, plain.seededAddresses);
+  into.lastActivity ??= plain.lastActivity;
   into.favourites.addAll(plain.favourites);
   into.seededContacts.addAll(plain.seededContacts);
   for (final c in plain.contacts) {

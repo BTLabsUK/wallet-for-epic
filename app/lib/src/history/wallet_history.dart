@@ -406,6 +406,13 @@ class WalletHistory {
     }
   }
 
+  /// The last sync's record ([Meta.lastActivity]).
+  LastActivity? get lastActivity => meta.lastActivity;
+
+  /// Saves that the wallet synced to [height] at [at].
+  Future<void> recordActivity(DateTime at, BigInt height) =>
+      _store.update((m) => m.lastActivity = LastActivity(atUnix: at.toUtc().millisecondsSinceEpoch ~/ 1000, height: height));
+
   /// Ids of the contacts this wallet starred ([Meta.favourites]).
   Set<String> favourites() => {...meta.favourites};
 

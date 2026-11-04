@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../settings.dart' show clockProvider;
+import '../../stale_open.dart';
 import '../../trust_ids.dart';
 import '../desk_l10n.dart';
 import '../data/desk_node.dart' show nodeHost;
@@ -155,6 +157,9 @@ class _DeskShellState extends ConsumerState<DeskShell> {
       if (mounted) unawaited(offerDeskLastSessionReport(context, ref));
       // macOS: the app from before the rename is still installed; offer to move it to the Bin.
       if (mounted) unawaited(offerDeskOldAppRemoval(context, ref));
+      // A wallet not opened for a while says so, once per open.
+      final stale = mounted ? ref.read(staleOpenShownProvider.notifier).take(ref.read(clockProvider)()) : null;
+      if (stale != null && mounted) showEToast(context, context.l10n.contactsStaleOpened(stale), tone: ETone.info);
     });
     _collectTimer = Timer.periodic(const Duration(seconds: 45), (_) => _collect(PairingCollectTrigger.foreground));
     _maybeTour();

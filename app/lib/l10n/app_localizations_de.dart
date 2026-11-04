@@ -1356,6 +1356,19 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String contactsStaleOpened(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          'Zuletzt vor $days Tagen geöffnet. Gekoppelte Kontakte werden geprüft.',
+      one:
+          'Zuletzt vor $days Tag geöffnet. Gekoppelte Kontakte werden geprüft.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String homePendingTitle(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

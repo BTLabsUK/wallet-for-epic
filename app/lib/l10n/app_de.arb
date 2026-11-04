@@ -348,6 +348,7 @@
   "homeEpicboxOffline": "Ihre Wallet ist nicht mit ihrem Epicbox-Server verbunden und versucht es weiter.",
   "homeEpicboxConnecting": "Verbindung zur Epicbox wird hergestellt…",
   "homeSyncedAtBlock": "Synchronisiert bis Block {height}",
+  "contactsStaleOpened": "{days, plural, one{Zuletzt vor {days} Tag geöffnet. Gekoppelte Kontakte werden geprüft.} other{Zuletzt vor {days} Tagen geöffnet. Gekoppelte Kontakte werden geprüft.}}",
   "homePendingTitle": "{count, plural, =1{Eine Zahlung wartet auf den Empfänger} other{{count} Zahlungen warten auf ihre Empfänger}}",
   "homePendingWhy": "Warum noch offen?",
   "homePendingView": "{count, plural, =1{Zahlung anzeigen} other{Zahlungen anzeigen}}",

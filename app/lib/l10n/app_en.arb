@@ -1642,6 +1642,16 @@
       }
     }
   },
+  "contactsStaleOpened": "{days, plural, one{Last opened {days} day ago. Checking paired contacts.} other{Last opened {days} days ago. Checking paired contacts.}}",
+  "@contactsStaleOpened": {
+    "description": "Toast when a wallet opens after not being opened for a while: whole days since the last open, and that the paired contacts are being checked.",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "example": "9"
+      }
+    }
+  },
   "homePendingTitle": "{count, plural, =1{A payment is waiting for the recipient} other{{count} payments are waiting for their recipients}}",
   "@homePendingTitle": {
     "description": "Title of the card on home about sent payments the recipient has not answered yet. No full stop.",

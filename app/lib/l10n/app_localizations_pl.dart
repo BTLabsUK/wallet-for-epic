@@ -1389,6 +1389,19 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String contactsStaleOpened(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Ostatnio otwarto $days dnia temu. Sprawdzam sparowane kontakty.',
+      many: 'Ostatnio otwarto $days dni temu. Sprawdzam sparowane kontakty.',
+      few: 'Ostatnio otwarto $days dni temu. Sprawdzam sparowane kontakty.',
+      one: 'Ostatnio otwarto $days dzień temu. Sprawdzam sparowane kontakty.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String homePendingTitle(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

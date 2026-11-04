@@ -1537,7 +1537,11 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   LepicWalletSession(
     this._wallet, {
     WalletHistory? history,
-  }) : _history = history ?? WalletHistory.memory();
+  }) : _history = history ?? WalletHistory.memory() {
+    // The record as it was before this session's first refresh replaces it.
+    final at = _history.lastActivity?.atUnix;
+    _lastActivityAtOpen = at == null ? null : DateTime.fromMillisecondsSinceEpoch(at * 1000, isUtc: true);
+  }
 
   /// The node the wallet uses (open, then [setServers]). Offline still lets a refresh, a scan
   /// or the HTTP listener run when it is local ([isLocalAddressUrl]); null counts as not local.
@@ -1643,6 +1647,30 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
 
   @override
   bool get contactsAvailable => _history.contactsAvailable;
+
+  @override
+  DateTime? get lastActivityAtOpen => _lastActivityAtOpen;
+  DateTime? _lastActivityAtOpen;
+
+  /// The least time between two saves of the activity record: refresh runs often.
+  static const _activityEvery = Duration(minutes: 1);
+  DateTime? _activitySavedAt;
+
+  /// Saves that the wallet just synced to [height]: the time (UTC) and the height, in the
+  /// history archive. At most once a [_activityEvery]; a failed write is logged and tried again
+  /// on the next sync. Never delays or fails the sync.
+  void _recordActivity(BigInt height) {
+    final now = DateTime.now().toUtc();
+    final saved = _activitySavedAt;
+    if (saved != null && now.difference(saved) < _activityEvery) return;
+    _activitySavedAt = now;
+    unawaited(
+      _history.recordActivity(now, height).catchError((Object error) {
+        _activitySavedAt = null;
+        logWarn('history', 'last activity not saved (${error.runtimeType})');
+      }),
+    );
+  }
 
   final lepic.EpicWallet _wallet;
   final WalletHistory _history;
@@ -2484,7 +2512,9 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
     required BigInt minimumConfirmations,
   }) => _guard(() async {
     if (refresh) NetGate.checkNode('refresh');
-    return _summary(await _wallet.summary(refresh: refresh));
+    final s = _summary(await _wallet.summary(refresh: refresh));
+    if (refresh && s.validatedWithNode) _recordActivity(s.lastConfirmedHeight);
+    return s;
   });
 
   @override
@@ -2512,11 +2542,9 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
     try {
       // `await for`, not `yield*`: only it raises the stream's error here.
       await for (final p in _guardStream(_wallet.refresh())) {
-        yield RefreshProgress(
-          percent: p.percent,
-          message: p.message,
-          summary: p.summary == null ? null : _summary(p.summary!),
-        );
+        final summary = p.summary == null ? null : _summary(p.summary!);
+        if (summary != null && summary.validatedWithNode) _recordActivity(summary.lastConfirmedHeight);
+        yield RefreshProgress(percent: p.percent, message: p.message, summary: summary);
       }
     } on WalletError catch (error) {
       if (error.kind != WalletErrorKind.nodeUnreachable) rethrow;

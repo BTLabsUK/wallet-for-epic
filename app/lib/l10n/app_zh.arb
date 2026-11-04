@@ -348,6 +348,7 @@
   "homeEpicboxOffline": "钱包未连接到其 Epicbox 服务器，正在继续尝试。",
   "homeEpicboxConnecting": "正在连接 Epicbox…",
   "homeSyncedAtBlock": "已同步至区块 {height}",
+  "contactsStaleOpened": "{days, plural, other{上次打开是 {days} 天前。正在检查已配对的联系人。}}",
   "homePendingTitle": "{count, plural, other{{count} 笔付款正在等待接收方}}",
   "homePendingWhy": "为什么要等待？",
   "homePendingView": "{count, plural, other{查看付款}}",

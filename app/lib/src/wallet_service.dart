@@ -194,6 +194,10 @@ abstract interface class WalletSession {
   /// [contacts] is then not the book's contents, and saving a contact is refused.
   bool get contactsAvailable;
 
+  /// When the wallet last synced (UTC), read as this session opened it, before its first refresh
+  /// replaced the record; null when there is none (a new or restored wallet).
+  DateTime? get lastActivityAtOpen;
+
   Future<String> mnemonic({required String password});
 
   /// Whether [password] opens this wallet, for an action that asks for it again. The attempt
@@ -1324,6 +1328,12 @@ class FakeWalletSession implements WalletSession {
 
   @override
   bool get contactsAvailable => contactsAvailableValue;
+
+  /// What [lastActivityAtOpen] answers.
+  DateTime? lastActivityAtOpenValue;
+
+  @override
+  DateTime? get lastActivityAtOpen => lastActivityAtOpenValue;
 
   @override
   Future<String> mnemonic({required String password}) async => phrase;

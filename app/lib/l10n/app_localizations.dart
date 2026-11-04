@@ -2209,6 +2209,12 @@ abstract class AppLocalizations {
   /// **'Synced at block {height}'**
   String homeSyncedAtBlock(String height);
 
+  /// Toast when a wallet opens after not being opened for a while: whole days since the last open, and that the paired contacts are being checked.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, one{Last opened {days} day ago. Checking paired contacts.} other{Last opened {days} days ago. Checking paired contacts.}}'**
+  String contactsStaleOpened(int days);
+
   /// Title of the card on home about sent payments the recipient has not answered yet. No full stop.
   ///
   /// In en, this message translates to:

@@ -57,6 +57,7 @@ import '../levels/level_providers.dart' show levelFeaturesProvider;
 import 'tx_details_screen.dart';
 import 'levels/quiet_invoices.dart';
 import '../settings_file/host_settings.dart' show appConfig;
+import '../stale_open.dart';
 import 'invite_link_gate.dart';
 
 /// How often home refreshes against the node while it is on screen and the app is in front.
@@ -286,11 +287,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       // After unlock, once: the last session froze or crashed, its log can be sent.
       unawaited(offerLastSessionReport(context, ref));
       unawaited(_offerBackup());
+      _noteStaleOpen();
     });
     // The welcome tour goes first: the reminder waits until it closes.
     ref.listenManual<bool>(phoneTourProvider.select((s) => s.open), (was, open) {
       if (was == true && !open) unawaited(_offerBackup());
     });
+  }
+
+  /// A wallet not opened for a while says so, once per open (`stale_open.dart`).
+  void _noteStaleOpen() {
+    if (!mounted) return;
+    final days = ref.read(staleOpenShownProvider.notifier).take(ref.read(clockProvider)());
+    if (days == null) return;
+    ref.read(noticeProvider.notifier).show(context.l10n.contactsStaleOpened(days), level: NoticeLevel.info);
   }
 
   /// This opening's recovery phrase reminder was handled (shown, or not due).
