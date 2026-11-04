@@ -197,6 +197,23 @@ void main() {
       expect(calls, ['device $_device']);
     });
 
+    testWidgets('a handler registered in a screen\'s initState gets the waiting invite once that is done', (tester) async {
+      final c = ProviderContainer();
+      addTearDown(c.dispose);
+      Widget app(Widget child) => UncontrolledProviderScope(
+            container: c,
+            child: MaterialApp(home: InviteLinkGate(onNoHandler: (_, kind) => calls.add('none ${kind.name}'), child: child)),
+          );
+      await tester.pumpWidget(app(const SizedBox()));
+      c.read(inviteInboxProvider).deliver(_pair);
+      await tester.pump(const Duration(seconds: 1));
+      expect(c.read(inviteInboxProvider).held?.kind, InviteKind.pair, reason: 'held until the wallet screen is up');
+      // As the wallet's notices do: the handler reads the tree from its own context.
+      await tester.pumpWidget(app(_RegistersInInitState(onInvite: (link) => calls.add('pair ${link.invite}'))));
+      await tester.pump();
+      expect(calls, ['pair $_pair']);
+    });
+
     testWidgets('no handler for its kind: a notice, and the invite is dropped', (tester) async {
       final c = await pumpGate(tester);
       c.read(inviteInboxProvider).deliver(_pair);
@@ -249,4 +266,36 @@ void main() {
       expect(c.read(inviteInboxProvider).held, const InviteLink(InviteKind.deviceLink, _device));
     });
   });
+}
+
+/// Registers a pair handler in its initState that reads an inherited widget at once.
+class _RegistersInInitState extends StatefulWidget {
+  const _RegistersInInitState({required this.onInvite});
+
+  final void Function(InviteLink link) onInvite;
+
+  @override
+  State<_RegistersInInitState> createState() => _RegistersInInitStateState();
+}
+
+class _RegistersInInitStateState extends State<_RegistersInInitState> {
+  Future<void> _handle(BuildContext _, InviteLink link) async {
+    Theme.of(context);
+    widget.onInvite(link);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    registerInviteHandler(InviteKind.pair, _handle);
+  }
+
+  @override
+  void dispose() {
+    unregisterInviteHandler(InviteKind.pair, _handle);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => const SizedBox();
 }
