@@ -15,6 +15,7 @@ import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
+import 'package:epic_wallet/src/pin_wrap.dart' show KeyWrapUnavailable;
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayProbeProvider;
 import 'package:epic_wallet/src/slate_files.dart';
@@ -291,7 +292,7 @@ void main() {
         await tester.tap(find.text('Use biometrics'));
         await tester.pump();
         await tester.pump();
-        expect(find.text(_l.firstRunSecuring), findsOneWidget);
+        expect(find.text(_l.workCreating), findsOneWidget);
         expect(find.byKey(balanceFigureKey), findsNothing);
 
         service.createGate!.complete();
@@ -605,6 +606,31 @@ void main() {
       device.bio.values['wallet.mainnet.pin'] = _pin;
       await _pumpApp(tester, service, device);
       expect(device.bio.prompts, 1);
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
+    });
+
+    testWidgets('a PIN count the Keystore cannot read now still starts biometrics', (tester) async {
+      final service = _existing()..pinFailuresError = const KeyWrapUnavailable('no answer');
+      final device = _Device(biometrics: true, sealedMainnet: true);
+      device.store.values['wallet.mainnet.pinBiometrics'] = '1';
+      device.bio.values['wallet.mainnet.pin'] = _pin;
+      await _pumpApp(tester, service, device);
+      expect(tester.takeException(), isNull);
+      expect(device.bio.prompts, 1);
+      expect(find.byKey(balanceFigureKey), findsOneWidget);
+    });
+
+    testWidgets('a PIN key the Keystore holds back says so, with Try again in place of Forgot PIN', (
+      tester,
+    ) async {
+      final service = _existing()..nextOpenError = const KeyWrapUnavailable('refused');
+      await _pumpApp(tester, service, _Device(sealedMainnet: true));
+      await _unlockToHome(tester);
+      expect(find.text(_l.errorKeystoreRefused), findsOneWidget);
+      expect(find.text(_l.pinForgot), findsNothing);
+      expect(service.pinFailureCount, 0);
+      await tester.tap(find.text(_l.unlockTryAgain));
+      await tester.pumpAndSettle();
       expect(find.byKey(balanceFigureKey), findsOneWidget);
     });
 

@@ -14,6 +14,7 @@ import 'level_step_screen.dart';
 import 'pin_unlock_screen.dart';
 import 'restore_screen.dart';
 import 'theme/brand.dart';
+import 'work_status.dart';
 
 /// Where the first-start picker sends a fresh install: the PIN of a new wallet, or the phrase.
 enum FirstRunStart { create, restore }
@@ -85,9 +86,15 @@ class _LaunchScreenState extends ConsumerState<LaunchScreen> {
         children: [
           const BrandHero(),
           const SizedBox(height: 32),
-          if (_error == null)
-            const Center(child: CircularProgressIndicator())
-          else ...[
+          if (_error == null) ...[
+            const Center(child: CircularProgressIndicator()),
+            const SizedBox(height: 16),
+            // Also keeps the screen drawing while it routes ([FrameKeeper]).
+            WorkStatus(
+              lines: [context.l10n.workStarting],
+              showAfter: const Duration(milliseconds: 400),
+            ),
+          ] else ...[
             ErrorText(_error!),
             BusyButton(label: context.l10n.launchTryAgain, onPressed: _route),
           ],

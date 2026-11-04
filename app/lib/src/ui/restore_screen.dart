@@ -26,6 +26,7 @@ import 'scan_start.dart';
 import 'settings_history.dart';
 import 'settings_sections.dart' show DeleteWalletDialog;
 import 'wallet_delete.dart';
+import 'work_status.dart';
 import 'theme/brand.dart';
 import 'theme/tokens.dart';
 import 'devices/device_parts.dart' show LinkDeviceOffer;
@@ -74,6 +75,9 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
   /// [RestoreScreen.replace]: the old wallet is deleted now, so Back and Continue work as on a
   /// first run.
   bool _replaced = false;
+
+  /// The step of the old wallet's delete under way, for the line under the PIN step.
+  DeleteStep? _deleting;
 
   /// The restore runs its own scan; the Home one waits until this screen is gone.
   late final RestoreScanNotifier _restoreScan;
@@ -204,15 +208,24 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
       _height = startHeight;
       _busy = true;
       _step = _RestoreStep.pin;
+      _deleting = DeleteStep.files;
     });
     try {
       // The old wallet's scan writes to its files until it ends; the user chose to replace it.
-      await deleteWalletEverywhere(ref, config, stopScan: true);
+      await deleteWalletEverywhere(
+        ref,
+        config,
+        stopScan: true,
+        onStep: (step) {
+          if (mounted) setState(() => _deleting = step);
+        },
+      );
     } catch (error) {
       if (mounted) leaveAfterFailedDelete(context, ref, error);
       return;
     }
     _replaced = true;
+    if (mounted) setState(() => _deleting = null);
     if (!mounted) {
       // The screen went during the delete: the phrase's wallet still comes, so the phone is
       // never left with none. Home's own scan carries the restore on.
@@ -330,6 +343,14 @@ class _RestoreScreenState extends ConsumerState<RestoreScreen> {
           absorbing: _busy,
           child: PinSetupView(key: ValueKey(_error), onDone: _restore),
         ),
+        // Under the PIN pad, so nothing above it moves: the delete's step, then the restore's.
+        if (_busy)
+          WorkStatus(
+            key: ValueKey(_deleting == null),
+            text: _deleting == null ? null : deleteStepText(l, _deleting!),
+            lines: [l.workRestoring, l.firstRunSecuring, l.workOpening],
+            showAfter: PinCheckBar.showAfter,
+          ),
         if (_error != null) ...[
           ErrorText(_error!),
           TextButton(

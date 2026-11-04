@@ -5,6 +5,8 @@
 /// a page fits a 360 dp phone without a search. Help & feedback opens Help itself.
 library;
 
+import 'dart:async';
+
 import 'phone_sheet.dart';
 import '../address_format.dart' show shownUrl;
 import 'address_view.dart' show HostText;
@@ -494,9 +496,18 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
       _say(context.l10n.settingsDeleteDuringScan, level: NoticeLevel.warning);
       return;
     }
+    final step = ValueNotifier<DeleteStep?>(null);
+    // Closed by the screen that follows: both ways out replace every route.
+    unawaited(
+      showAppDialog<void>(
+        context,
+        dismissible: false,
+        builder: (_) => DeleteProgressDialog(step: step),
+      ),
+    );
     await _run(() async {
       try {
-        await deleteWalletEverywhere(ref, config);
+        await deleteWalletEverywhere(ref, config, onStep: (s) => step.value = s);
         if (!mounted) return;
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute<void>(builder: (_) => const LaunchScreen()),

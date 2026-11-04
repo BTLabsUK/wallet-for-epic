@@ -2018,6 +2018,33 @@ class AppLocalizationsDe extends AppLocalizations {
   String get firstRunSecuring => 'Ihre Wallet wird gesichert…';
 
   @override
+  String get workStoppingRecheck => 'Neuprüfung wird beendet…';
+
+  @override
+  String get workTellingDevices => 'Verknüpfte Geräte werden benachrichtigt…';
+
+  @override
+  String get workRemovingFiles => 'Wallet-Dateien werden entfernt…';
+
+  @override
+  String get workClearingKeys => 'Schlüssel werden gelöscht…';
+
+  @override
+  String get workChecking => 'Wird geprüft…';
+
+  @override
+  String get workOpening => 'Wallet wird geöffnet…';
+
+  @override
+  String get workCreating => 'Wallet wird erstellt…';
+
+  @override
+  String get workRestoring => 'Wallet wird wiederhergestellt…';
+
+  @override
+  String get workStarting => 'Wird gestartet…';
+
+  @override
   String get firstRunTryAgain => 'Erneut versuchen';
 
   @override
@@ -17767,6 +17794,13 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get errorPinKeyLost =>
       'Die PIN öffnet diese Wallet nicht mehr. Ihre Coins sind sicher: Tippen Sie auf „PIN vergessen?“ und stellen Sie die Wallet mit ihrer Wiederherstellungsphrase wieder her.';
+
+  @override
+  String get errorKeystoreRefused =>
+      'Das Telefon hat den Wallet-Schlüssel nicht freigegeben. Entsperren Sie das Telefon mit seiner eigenen PIN oder seinem Fingerabdruck und versuchen Sie es dann erneut.';
+
+  @override
+  String get unlockTryAgain => 'Erneut versuchen';
 
   @override
   String get settingsUsePassphrase => 'Passphrase verwenden';

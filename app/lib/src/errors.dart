@@ -3,7 +3,7 @@ import 'advanced.dart' show NetworkMode;
 import 'l10n.dart';
 import 'network_gate.dart';
 import 'pairing_text.dart';
-import 'pin_wrap.dart' show PinKeyLost;
+import 'pin_wrap.dart' show KeyWrapUnavailable, PinKeyLost;
 import 'wallet_service.dart';
 
 /// Turns anything thrown by the wallet layer into a sentence for the user, in [l]'s language.
@@ -17,6 +17,7 @@ import 'wallet_service.dart';
 /// as detail.
 String describeError(AppLocalizations l, Object error) {
   if (error is PinKeyLost) return l.errorPinKeyLost;
+  if (error is KeyWrapUnavailable) return l.errorKeystoreRefused;
   if (error is WalletError) {
     return switch (error.kind) {
       WalletErrorKind.invalidMnemonic => l.errorInvalidMnemonic,

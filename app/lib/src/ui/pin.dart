@@ -13,6 +13,7 @@ import '../vault.dart';
 import 'app_dialog.dart';
 import 'common.dart';
 import 'theme/tokens.dart';
+import 'work_status.dart';
 
 /// A masked [pinLength]-digit field that calls [onCompleted] once all digits are in. With
 /// [passphrase] (a wallet whose PIN was replaced by a passphrase, Settings) a masked text
@@ -391,9 +392,13 @@ String describePinRejection(AppLocalizations l, PinRejected rejection) {
 
 /// The line under the PIN field while a PIN is checked and the wallet opens (the unlock screen,
 /// the PIN prompt): a thin brand-gold line, not the stock in-progress bar, and only once the
-/// check takes long enough to notice, so a quick unlock shows nothing at all.
+/// check takes long enough to notice, so a quick unlock shows nothing at all. With [status] or
+/// [lines], a quiet line under it says which step runs ([WorkStatus]).
 class PinCheckBar extends StatefulWidget {
-  const PinCheckBar({super.key});
+  const PinCheckBar({super.key, this.status, this.lines = const []});
+
+  final String? status;
+  final List<String> lines;
 
   /// How long a check runs before the line shows.
   static const Duration showAfter = Duration(milliseconds: 400);
@@ -423,7 +428,7 @@ class _PinCheckBarState extends State<PinCheckBar> {
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return SizedBox(
+    final bar = SizedBox(
       height: 4,
       child: Center(
         child: AnimatedOpacity(
@@ -442,6 +447,15 @@ class _PinCheckBarState extends State<PinCheckBar> {
               : const SizedBox(height: 2),
         ),
       ),
+    );
+    if (widget.status == null && widget.lines.isEmpty) return bar;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        bar,
+        const SizedBox(height: 6),
+        WorkStatus(text: widget.status, lines: widget.lines, showAfter: PinCheckBar.showAfter),
+      ],
     );
   }
 }
