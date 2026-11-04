@@ -491,7 +491,10 @@ class _OrphanRowState extends ConsumerState<_OrphanRow> {
     final ts = context.ts;
     final r = widget.record;
     final suggested = deskSuggestedContact(ref, r);
-    final inFlight = r.state.isPending || r.state == PairingState.waiting;
+    // Still being set up: Cancel. A stored pairing, heard or not, is removed (and the other
+    // wallet told); one not heard yet is not added to a contact.
+    final inFlight = r.state.isPending;
+    final waiting = r.state == PairingState.waiting;
     final line = r.ended
         ? pairingEndedText(l, r.endedReason ?? PairingEndReason.neverFinished, peerLabel(l, r))
         : r.state == PairingState.waiting
@@ -523,7 +526,7 @@ class _OrphanRowState extends ConsumerState<_OrphanRow> {
                 ? null
                 : () async {
                     if (await deskConfirmCancelPairing(context, peerLabel(l, r))) {
-                      await _run(() => deskPairingCall(ref, (api) => r.state.isPending ? api.cancelInvite(r.id) : api.removePairing(r.id)));
+                      await _run(() => deskPairingCall(ref, (api) => api.cancelInvite(r.id)));
                     }
                   },
           )
@@ -531,7 +534,7 @@ class _OrphanRowState extends ConsumerState<_OrphanRow> {
         else if (_busy)
           SizedBox.square(key: deskPairingBusyKey(r.id), dimension: 20.u, child: const CircularProgressIndicator(strokeWidth: 2))
         else ...[
-          if (!r.ended) DeskAddToContactsButton(record: r, suggested: suggested),
+          if (!r.ended && !waiting) DeskAddToContactsButton(record: r, suggested: suggested),
           _ContactMoreMenu(
             buttonKey: deskPairingMoreKey(r.id),
             items: [
@@ -1241,7 +1244,7 @@ Future<bool?> showDeleteContactDialog(BuildContext context, Contact x, {bool pai
 
 /// A contact's Pairing block, per state: Not paired with Pair; a request sent (the date,
 /// Cancel, Show my invite; expired: No answer, Pair again, Remove); Waiting for the other
-/// wallet (Check the words, Cancel); Paired with "has not checked yet" and Check the words;
+/// wallet (Check the words, Remove pairing); Paired with "has not checked yet" and Check the words;
 /// Verified with "confirmed too"; Keys changed; Ended with its reason, the sealed sends still
 /// waiting (each with Cancel) and Remove. Seal payments and Allow invoices as before; Issue an
 /// invoice for a verified contact that pays requests.
@@ -1529,15 +1532,14 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
               EButton(label: l.deskInvIssueAction, icon: EIcons.request, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.invoiceIssue, p.id)),
             if (waiting) EButton(key: deskContactShowInviteKey, label: l.pairShowMyCode, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair, x)),
             EButton(
-              key: waiting ? deskContactCancelPairingKey : deskContactRemovePairingKey,
-              label: waiting ? l.commonCancel : l.contactRemovePairing,
+              key: deskContactRemovePairingKey,
+              label: l.contactRemovePairing,
               kind: EBtnKind.danger,
               size: EBtnSize.sm,
               onPressed: _busy
                   ? null
                   : () async {
-                      final ok = waiting ? await deskConfirmCancelPairing(context, name) : await deskConfirmRemovePairing(context, name);
-                      if (ok) await _run(() => deskPairingCall(ref, (api) => api.removePairing(p.id)));
+                      if (await deskConfirmRemovePairing(context, name)) await _run(() => deskPairingCall(ref, (api) => api.removePairing(p.id)));
                     },
             ),
           ],

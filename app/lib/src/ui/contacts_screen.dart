@@ -409,7 +409,7 @@ class _OrphanRowState extends ConsumerState<_OrphanRow> {
         if (context.mounted) await _attach(context, ref, picked);
       case 'cancel':
         if (await confirmCancelPairing(context, peerLabel(context.l10n, record))) {
-          await _run(() => pairingCall(ref, (api) => record.state.isPending ? api.cancelInvite(record.id) : api.removePairing(record.id)));
+          await _run(() => pairingCall(ref, (api) => api.cancelInvite(record.id)));
         }
       case 'remove':
         if (record.ended || await confirmRemovePairing(context, peerLabel(context.l10n, record))) await _run(() => pairingCall(ref, (api) => api.removePairing(record.id)));
@@ -430,7 +430,10 @@ class _OrphanRowState extends ConsumerState<_OrphanRow> {
       epicboxOf: (c) => c.epicbox,
     );
     final r = record;
-    final inFlight = r.state.isPending || r.state == PairingState.waiting;
+    // Still being set up: Cancel. A stored pairing, heard or not, is removed (and the other
+    // wallet told); one not heard yet is not added to a contact.
+    final inFlight = r.state.isPending;
+    final waiting = r.state == PairingState.waiting;
     final subtitle = r.ended
         ? pairingEndedText(l, r.endedReason ?? PairingEndReason.neverFinished, name)
         : r.state == PairingState.waiting
@@ -457,7 +460,7 @@ class _OrphanRowState extends ConsumerState<_OrphanRow> {
             tooltip: l.contactMore,
             onSelected: (v) => _choose(context, ref, v, suggested),
             itemBuilder: (context) => [
-              if (!inFlight && !r.ended) ...[
+              if (!inFlight && !waiting && !r.ended) ...[
                 if (suggested != null) PopupMenuItem(value: 'named', child: Text(l.pairAddToNamed(suggested.name))),
                 PopupMenuItem(value: 'new', child: Text(l.pairSaveNewContact)),
                 PopupMenuItem(value: 'add', child: Text(l.pairAddToAContact)),
