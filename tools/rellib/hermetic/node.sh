@@ -13,9 +13,9 @@
 set -euo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/env.sh"
 
-SRC_BIN="${HERMETIC_NODE_SRC:-$HOME/epic-build/node-bin/4.1.1/linux/epic-v4.1.1-linux-amd64/epic}"
-SRC_BIN_SHA=9e84309c0b397250e16024cbf0738fcffef94798515f48ec02259a59417f135a
-SRC_TGZ_SHA=778a8a08778383bd74d2756a2811f3dcd9fbc3591b10295a6f272674b62f21e4
+SRC_BIN="${HERMETIC_NODE_SRC:-$HOME/epic-build/node-bin/4.1.2/linux/epic-v4.1.2-linux-amd64/epic}"
+SRC_BIN_SHA=ef4055fc5c0114cda511f19db26b66bf0204f1dc8b6dc7fa2ecd62936537e662
+SRC_TGZ_SHA=fec28d85f2fe411d12f4d57113541c1c6c9fcebb3fb3c542ed72392af8552ad0
 SRC_FOUNDATION="${HERMETIC_FOUNDATION_SRC:-$HOME/epic-r1/debian/foundation.json}"
 FOUNDATION_SHA=5a3a7584127dd31fba18eaeff1c551bfaa74b4e50e537a1e1904fe6730b17f5c
 PID="$HERMETIC_RUN/node.pid"
@@ -26,7 +26,7 @@ sha() { sha256sum "$1" | cut -d' ' -f1; }
 install_bin() {
     mkdir -p "$HERMETIC_BIN"
     if [ ! -x "$HERMETIC_EPIC" ] || [ "$(sha "$HERMETIC_EPIC")" != "$SRC_BIN_SHA" ]; then
-        [ "$(sha "$SRC_BIN")" = "$SRC_BIN_SHA" ] || { echo "node: $SRC_BIN is not the 4.1.1 release binary" >&2; exit 1; }
+        [ "$(sha "$SRC_BIN")" = "$SRC_BIN_SHA" ] || { echo "node: $SRC_BIN is not the 4.1.2 release binary" >&2; exit 1; }
         cp "$SRC_BIN" "$HERMETIC_EPIC"
         chmod 755 "$HERMETIC_EPIC"
     fi
@@ -39,7 +39,7 @@ install_bin() {
 
 | File | Version | sha256 | From |
 | --- | --- | --- | --- |
-| epic | $("$HERMETIC_EPIC" --version 2>/dev/null) | $SRC_BIN_SHA | the EpicCash release tarball epic-v4.1.1-linux-amd64.tar.gz (sha256 $SRC_TGZ_SHA, matching its published -sha256sum.txt), unpacked under /tmp/epic-build/node-bin/4.1.1 |
+| epic | $("$HERMETIC_EPIC" --version 2>/dev/null) | $SRC_BIN_SHA | the EpicCash release tarball epic-v4.1.2-linux-amd64.tar.gz (sha256 $SRC_TGZ_SHA, matching its published -sha256sum.txt), unpacked under /tmp/epic-build/node-bin/4.1.2 |
 | foundation.json | mainnet | $FOUNDATION_SHA | debian/foundation.json of the epic node repository (last changed 2020-10-09, b89830c); the same bytes as the wallet repositories' tests/assets/foundation.json |
 
 Checks: node.sh start refuses to copy either file when its sha256 differs from the one above.
@@ -50,7 +50,7 @@ P
 write_config() {
     mkdir -p "$NODE_DIR"
     # A relocated config names an api_secret_path that nothing creates, which leaves the owner API
-    # open; write the secret first. (4.1.1 keeps GET /v1/status and owner get_status public on purpose.)
+    # open; write the secret first. (4.1.2 keeps GET /v1/status and owner get_status public on purpose.)
     if [ ! -s "$NODE_DIR/.api_secret" ]; then
         (umask 077; head -c 15 /dev/urandom | base64 | tr -d '/+=' > "$NODE_DIR/.api_secret")
     fi
