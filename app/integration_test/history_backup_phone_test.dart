@@ -46,8 +46,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
-// Not exported by package:lepic/lepic.dart.
-import 'package:lepic/src/rust/api/policy.dart' show HostPolicy;
 import 'package:path_provider/path_provider.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
 import 'live_hosts.dart';
@@ -400,7 +398,7 @@ Future<HistoryPayload> decodeFile(WidgetTester tester, String phrase, Uint8List 
     final preset = networkPresets.firstWhere((p) => p.chain == chain);
     final w = await lepic.EpicWallet.create(
       runtime: lepic.LepicRuntime(logLevel: lepic.LogLevel.warn),
-      config: lepic.WalletConfig(policy: const HostPolicy(), torWanted: false, hostFeatures: 0, 
+      config: lepic.WalletConfig(policy: const lepic.HostPolicy(), torWanted: false, hostFeatures: 0, 
         dataDir: dir.path,
         chain: chain == Chain.mainnet ? lepic.Chain.mainnet : lepic.Chain.floonet,
         nodeUrl: 'http://127.0.0.1:9',
