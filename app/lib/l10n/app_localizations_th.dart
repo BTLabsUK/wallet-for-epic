@@ -18115,7 +18115,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String mailboxResendBody(Object name) {
-    return 'รายการที่รออยู่จะถูกยกเลิก และจำนวนเท่าเดิมจะส่งไปยังที่อยู่ Epicbox ของ $name เป็นการชำระเงินปกติ ประวัติจะคงไว้สองแถว';
+    return 'การจ่ายเงินที่รออยู่จะถูกยกเลิก และจำนวนเท่าเดิมจะส่งไปยังที่อยู่ Epicbox ของ $name เป็นการชำระเงินปกติ ประวัติจะคงไว้สองแถว';
   }
 
   @override
@@ -18125,47 +18125,47 @@ class AppLocalizationsTh extends AppLocalizations {
   String get mailboxKeepWaiting => 'รอต่อ';
 
   @override
-  String get linkPayeeLead => 'The payee';
+  String get linkPayeeLead => 'ผู้รับ';
 
   @override
-  String get linkPayeeMid => 'the payee';
+  String get linkPayeeMid => 'ผู้รับ';
 
   @override
   String get linkResendBody =>
-      'The waiting payment is cancelled and Send opens with the same amount. Check the address, then send it again.';
+      'การจ่ายเงินที่รออยู่จะถูกยกเลิก และหน้าส่งจะเปิดด้วยจำนวนเงินเดิม ตรวจสอบที่อยู่ แล้วส่งอีกครั้ง';
 
   @override
   String receiptTellSent(Object name) {
-    return 'Tell $name it’s sent';
+    return 'แจ้ง $name ว่าส่งแล้ว';
   }
 
   @override
   String receiptTellPosted(Object name) {
-    return 'Tell $name it went to the network';
+    return 'แจ้ง $name ว่าเข้าเครือข่ายแล้ว';
   }
 
   @override
   String receiptTold(Object name) {
-    return '$name was told';
+    return 'แจ้ง $name แล้ว';
   }
 
   @override
   String receiptSeesSent(Object name, Object id, Object amount, Object time) {
-    return '$name will see: request $id, $amount, sent $time. Nothing else goes with it: no address and no transaction id.';
+    return '$name จะเห็น: คำขอ $id, $amount, ส่งเมื่อ $time ไม่มีข้อมูลอื่นไปด้วย: ไม่มีที่อยู่และไม่มี ID ธุรกรรม';
   }
 
   @override
   String receiptSeesPosted(Object name, Object id, Object amount, Object time) {
-    return '$name will see: request $id, $amount, it went to the network at $time. Nothing else goes with it: no address and no transaction id.';
+    return '$name จะเห็น: คำขอ $id, $amount, เข้าเครือข่ายเมื่อ $time ไม่มีข้อมูลอื่นไปด้วย: ไม่มีที่อยู่และไม่มี ID ธุรกรรม';
   }
 
   @override
   String receiptNotSent(Object name) {
-    return 'Could not tell $name just now. Try again.';
+    return 'แจ้ง $name ไม่ได้ในตอนนี้ ลองอีกครั้ง';
   }
 
   @override
-  String get receiptHintTitle => 'Receipt';
+  String get receiptHintTitle => 'ใบเสร็จ';
 
   @override
   String get mailboxResent => 'ยกเลิกและส่งผ่าน Epicbox แล้ว';
@@ -19850,155 +19850,155 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get linkNotALink => 'Not a payment link';
+  String get linkNotALink => 'ไม่ใช่ลิงก์ชำระเงิน';
 
   @override
-  String get linkMadeForMainnet => 'Made for mainnet';
+  String get linkMadeForMainnet => 'สร้างไว้สำหรับ mainnet';
 
   @override
-  String get linkMadeForFloonet => 'Made for floonet';
+  String get linkMadeForFloonet => 'สร้างไว้สำหรับ floonet';
 
   @override
-  String get linkChanged => 'This link was changed after it was made.';
+  String get linkChanged => 'ลิงก์นี้ถูกแก้ไขหลังสร้าง';
 
   @override
   String linkExpired(String date) {
-    return 'This link expired on $date';
+    return 'ลิงก์นี้หมดอายุเมื่อ $date';
   }
 
   @override
-  String get linkForOther => 'Made for someone else';
+  String get linkForOther => 'สร้างไว้สำหรับคนอื่น';
 
   @override
-  String get linkPaidTitle => 'Already paid';
+  String get linkPaidTitle => 'จ่ายแล้ว';
 
   @override
   String linkPaidBefore(String date) {
-    return 'You paid this request on $date';
+    return 'คุณจ่ายคำขอนี้เมื่อ $date';
   }
 
   @override
-  String get linkPayAgain => 'Pay again';
+  String get linkPayAgain => 'จ่ายอีกครั้ง';
 
   @override
   String linkTrustListed(String name, String directory) {
-    return '$name · via $directory';
+    return '$name · ผ่าน $directory';
   }
 
   @override
   String linkTrustListedBy(String directory) {
-    return 'Via $directory';
+    return 'ผ่าน $directory';
   }
 
   @override
-  String get linkTrustDirectory => 'From a service you paired with';
+  String get linkTrustDirectory => 'จากบริการที่คุณจับคู่ไว้';
 
   @override
-  String get linkTrustOther => 'Not from a service you paired with';
+  String get linkTrustOther => 'ไม่ได้มาจากบริการที่คุณจับคู่ไว้';
 
   @override
   String linkTrustChanged(String name, String date) {
-    return '$name now gets paid to a different wallet than when you paid on $date. Pay only if they told you.';
+    return 'ตอนนี้ $name รับเงินเข้ากระเป๋าเงินใบอื่น ไม่ใช่ใบที่คุณจ่ายเมื่อ $date จ่ายเฉพาะเมื่อมีคนบอกคุณ';
   }
 
   @override
   String linkTrustChangedNoName(String date) {
-    return 'This payee now gets paid to a different wallet than when you paid on $date. Pay only if they told you.';
+    return 'ตอนนี้ผู้รับรับเงินเข้ากระเป๋าเงินใบอื่น ไม่ใช่ใบที่คุณจ่ายเมื่อ $date จ่ายเฉพาะเมื่อมีคนบอกคุณ';
   }
 
   @override
   String linkCodeLabel(String name) {
-    return 'Pictures for $name';
+    return 'รูปภาพของ $name';
   }
 
   @override
-  String get linkCodeLabelPlain => 'Pictures';
+  String get linkCodeLabelPlain => 'รูปภาพ';
 
   @override
-  String get linkAmountEdited => 'Not the amount requested';
+  String get linkAmountEdited => 'ไม่ใช่จำนวนเงินที่ขอ';
 
   @override
-  String get linkChangedConfirmTitle => 'Check before paying';
+  String get linkChangedConfirmTitle => 'ตรวจสอบก่อนจ่าย';
 
   @override
   String dirWaitingFor(String label) {
-    return 'Waiting for $label…';
+    return 'กำลังรอ $label…';
   }
 
   @override
-  String get dirCodeTitle => 'Check the code';
+  String get dirCodeTitle => 'ตรวจรหัส';
 
   @override
   String dirCodeLead(String label) {
-    return '$label shows four pictures. Compare them with these.';
+    return '$label แสดงรูปภาพสี่รูป เทียบกับรูปเหล่านี้';
   }
 
   @override
-  String get dirCodeLabel => 'The four pictures';
+  String get dirCodeLabel => 'รูปภาพสี่รูป';
 
   @override
-  String get dirJoin => 'Get paid by name';
+  String get dirJoin => 'รับเงินด้วยชื่อ';
 
   @override
-  String get dirNotNow => 'Not now';
+  String get dirNotNow => 'ไว้ก่อน';
 
   @override
   String dirJoinTitle(String label) {
-    return 'Get paid by name with $label?';
+    return 'รับเงินด้วยชื่อกับ $label ไหม';
   }
 
   @override
   String dirJoinBody(String label, String host) {
-    return '$label can let people pay you by your name there. Payments come through $host';
+    return '$label ให้คนจ่ายเงินให้คุณด้วยชื่อของคุณได้ที่นั่น เงินจะเข้ามาทาง $host';
   }
 
   @override
   String dirJoinInfo(String label) {
-    return '$label gets one payment address and one code, both made only for it. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Stop any time in Contacts › $label › Stop paid by name.';
+    return '$label ได้รับที่อยู่รับเงินหนึ่งที่อยู่และรหัสหนึ่งรหัส ทั้งสองสร้างไว้สำหรับบริการนี้เท่านั้น บริการมองไม่เห็นยอดคงเหลือ ย้ายเหรียญไม่ได้ และอ่านการจ่ายเงินไม่ได้ เงินจะเข้ามาขณะที่ Epic Cash เปิดอยู่ หยุดได้ทุกเมื่อที่ ผู้ติดต่อ › $label › หยุดรับเงินด้วยชื่อ';
   }
 
   @override
   String dirJoinedNotice(String label) {
-    return 'Paid by name is on with $label';
+    return 'เปิดรับเงินด้วยชื่อกับ $label แล้ว';
   }
 
   @override
   String dirLeftNotice(String label) {
-    return 'Paid by name is off with $label';
+    return 'ปิดรับเงินด้วยชื่อกับ $label แล้ว';
   }
 
   @override
   String dirJoined(String date) {
-    return 'Paid by name since $date';
+    return 'รับเงินด้วยชื่อตั้งแต่ $date';
   }
 
   @override
-  String get dirNotListed => 'Off';
+  String get dirNotListed => 'ปิด';
 
   @override
   String dirNotListedBody(String label) {
-    return '$label removed your name.';
+    return '$label ลบชื่อของคุณแล้ว';
   }
 
   @override
-  String get dirNotJoined => 'Off';
+  String get dirNotJoined => 'ปิด';
 
   @override
-  String get dirJoinAgain => 'Turn on again';
+  String get dirJoinAgain => 'เปิดอีกครั้ง';
 
   @override
-  String get dirListingCode => 'Pictures for your name';
+  String get dirListingCode => 'รูปภาพของชื่อคุณ';
 
   @override
   String dirListingCodeInfo(String label) {
-    return 'Four pictures made from the wallet your name pays. $label can show the same four to compare.';
+    return 'รูปภาพสี่รูปที่สร้างจากกระเป๋าเงินที่ชื่อของคุณรับเงินเข้า $label แสดงสี่รูปเดียวกันเพื่อเทียบได้';
   }
 
   @override
-  String get dirLeave => 'Stop paid by name';
+  String get dirLeave => 'หยุดรับเงินด้วยชื่อ';
 
   @override
   String dirRemoveTooTitle(String label) {
-    return 'Remove $label too?';
+    return 'ลบ $label ด้วยไหม';
   }
 }

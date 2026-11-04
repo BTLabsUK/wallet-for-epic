@@ -17483,47 +17483,46 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mailboxKeepWaiting => '继续等待';
 
   @override
-  String get linkPayeeLead => 'The payee';
+  String get linkPayeeLead => '收款方';
 
   @override
-  String get linkPayeeMid => 'the payee';
+  String get linkPayeeMid => '收款方';
 
   @override
-  String get linkResendBody =>
-      'The waiting payment is cancelled and Send opens with the same amount. Check the address, then send it again.';
+  String get linkResendBody => '等待中的付款将被取消，“发送”会以相同金额打开。请核对地址，然后重新发送。';
 
   @override
   String receiptTellSent(Object name) {
-    return 'Tell $name it’s sent';
+    return '告知 $name 已发送';
   }
 
   @override
   String receiptTellPosted(Object name) {
-    return 'Tell $name it went to the network';
+    return '告知 $name 已发往网络';
   }
 
   @override
   String receiptTold(Object name) {
-    return '$name was told';
+    return '已告知 $name';
   }
 
   @override
   String receiptSeesSent(Object name, Object id, Object amount, Object time) {
-    return '$name will see: request $id, $amount, sent $time. Nothing else goes with it: no address and no transaction id.';
+    return '$name 将看到：请求 $id、$amount、发送于 $time。不会附带其他内容：没有地址，也没有交易 ID。';
   }
 
   @override
   String receiptSeesPosted(Object name, Object id, Object amount, Object time) {
-    return '$name will see: request $id, $amount, it went to the network at $time. Nothing else goes with it: no address and no transaction id.';
+    return '$name 将看到：请求 $id、$amount、$time 已发往网络。不会附带其他内容：没有地址，也没有交易 ID。';
   }
 
   @override
   String receiptNotSent(Object name) {
-    return 'Could not tell $name just now. Try again.';
+    return '暂时无法告知 $name，请重试。';
   }
 
   @override
-  String get receiptHintTitle => 'Receipt';
+  String get receiptHintTitle => '回执';
 
   @override
   String get mailboxResent => '已取消并经 Epicbox 发送。';
@@ -19112,155 +19111,155 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get linkNotALink => 'Not a payment link';
+  String get linkNotALink => '不是付款链接';
 
   @override
-  String get linkMadeForMainnet => 'Made for mainnet';
+  String get linkMadeForMainnet => '为 mainnet 创建';
 
   @override
-  String get linkMadeForFloonet => 'Made for floonet';
+  String get linkMadeForFloonet => '为 floonet 创建';
 
   @override
-  String get linkChanged => 'This link was changed after it was made.';
+  String get linkChanged => '此链接在创建后被更改过。';
 
   @override
   String linkExpired(String date) {
-    return 'This link expired on $date';
+    return '此链接已于 $date 过期';
   }
 
   @override
-  String get linkForOther => 'Made for someone else';
+  String get linkForOther => '为其他人创建';
 
   @override
-  String get linkPaidTitle => 'Already paid';
+  String get linkPaidTitle => '已付款';
 
   @override
   String linkPaidBefore(String date) {
-    return 'You paid this request on $date';
+    return '你已在 $date 支付此请求';
   }
 
   @override
-  String get linkPayAgain => 'Pay again';
+  String get linkPayAgain => '再次付款';
 
   @override
   String linkTrustListed(String name, String directory) {
-    return '$name · via $directory';
+    return '$name · 经由 $directory';
   }
 
   @override
   String linkTrustListedBy(String directory) {
-    return 'Via $directory';
+    return '经由 $directory';
   }
 
   @override
-  String get linkTrustDirectory => 'From a service you paired with';
+  String get linkTrustDirectory => '来自你已配对的服务';
 
   @override
-  String get linkTrustOther => 'Not from a service you paired with';
+  String get linkTrustOther => '不是来自你已配对的服务';
 
   @override
   String linkTrustChanged(String name, String date) {
-    return '$name now gets paid to a different wallet than when you paid on $date. Pay only if they told you.';
+    return '$name 现在收款到另一个钱包，与你在 $date 付款时不同。仅在对方告知过你时再付款。';
   }
 
   @override
   String linkTrustChangedNoName(String date) {
-    return 'This payee now gets paid to a different wallet than when you paid on $date. Pay only if they told you.';
+    return '收款方现在收款到另一个钱包，与你在 $date 付款时不同。仅在对方告知过你时再付款。';
   }
 
   @override
   String linkCodeLabel(String name) {
-    return 'Pictures for $name';
+    return '$name 的图案';
   }
 
   @override
-  String get linkCodeLabelPlain => 'Pictures';
+  String get linkCodeLabelPlain => '图案';
 
   @override
-  String get linkAmountEdited => 'Not the amount requested';
+  String get linkAmountEdited => '不是请求的金额';
 
   @override
-  String get linkChangedConfirmTitle => 'Check before paying';
+  String get linkChangedConfirmTitle => '付款前请核对';
 
   @override
   String dirWaitingFor(String label) {
-    return 'Waiting for $label…';
+    return '正在等待 $label…';
   }
 
   @override
-  String get dirCodeTitle => 'Check the code';
+  String get dirCodeTitle => '核对代码';
 
   @override
   String dirCodeLead(String label) {
-    return '$label shows four pictures. Compare them with these.';
+    return '$label 显示四个图案。请与这里的对比。';
   }
 
   @override
-  String get dirCodeLabel => 'The four pictures';
+  String get dirCodeLabel => '四个图案';
 
   @override
-  String get dirJoin => 'Get paid by name';
+  String get dirJoin => '按名称收款';
 
   @override
-  String get dirNotNow => 'Not now';
+  String get dirNotNow => '暂不';
 
   @override
   String dirJoinTitle(String label) {
-    return 'Get paid by name with $label?';
+    return '通过 $label 按名称收款？';
   }
 
   @override
   String dirJoinBody(String label, String host) {
-    return '$label can let people pay you by your name there. Payments come through $host';
+    return '$label 可在那里让别人按你的名称付款给你。款项通过 $host 到达';
   }
 
   @override
   String dirJoinInfo(String label) {
-    return '$label gets one payment address and one code, both made only for it. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Stop any time in Contacts › $label › Stop paid by name.';
+    return '$label 会得到一个收款地址和一个代码，都仅为它创建。它看不到你的余额，不能动用币，也不能读取付款。Epic Cash 打开时款项才会到达。可随时在 联系人 › $label › 停止按名称收款 中停止。';
   }
 
   @override
   String dirJoinedNotice(String label) {
-    return 'Paid by name is on with $label';
+    return '已为 $label 开启按名称收款';
   }
 
   @override
   String dirLeftNotice(String label) {
-    return 'Paid by name is off with $label';
+    return '已为 $label 停止按名称收款';
   }
 
   @override
   String dirJoined(String date) {
-    return 'Paid by name since $date';
+    return '自 $date 起按名称收款';
   }
 
   @override
-  String get dirNotListed => 'Off';
+  String get dirNotListed => '关闭';
 
   @override
   String dirNotListedBody(String label) {
-    return '$label removed your name.';
+    return '$label 已移除你的名称。';
   }
 
   @override
-  String get dirNotJoined => 'Off';
+  String get dirNotJoined => '关闭';
 
   @override
-  String get dirJoinAgain => 'Turn on again';
+  String get dirJoinAgain => '重新开启';
 
   @override
-  String get dirListingCode => 'Pictures for your name';
+  String get dirListingCode => '你的名称的图案';
 
   @override
   String dirListingCodeInfo(String label) {
-    return 'Four pictures made from the wallet your name pays. $label can show the same four to compare.';
+    return '由你的名称所收款的钱包生成的四个图案。$label 可显示同样的四个供对比。';
   }
 
   @override
-  String get dirLeave => 'Stop paid by name';
+  String get dirLeave => '停止按名称收款';
 
   @override
   String dirRemoveTooTitle(String label) {
-    return 'Remove $label too?';
+    return '也移除 $label？';
   }
 }
