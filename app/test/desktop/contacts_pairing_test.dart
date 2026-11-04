@@ -14,6 +14,7 @@ import 'package:epic_wallet/src/models.dart' show PairingParty;
 import 'package:epic_wallet/src/wallet_service.dart' show PairingApi, PairingEndReason, PairingState;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/pairing_state.dart' show deskPairingsProvider;
+import 'package:epic_wallet/src/desktop/screens/pairing/add_to_contacts_button.dart';
 import 'package:epic_wallet/src/desktop/screens/pairing/pair_screens.dart' show deskConfirmRemovePairingKey, deskSaveContactNameKey, deskWay1SendKey;
 import 'package:epic_wallet/src/desktop/screens/settings/settings_advanced.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
@@ -183,9 +184,11 @@ void main() {
       _fake.seedPaired(id: 'p-zoe', name: 'Zoe', state: verified ? PairingState.verified : PairingState.paired, paymentsAddress: address);
       _c.invalidate(deskPairingsProvider);
       await _real(tester);
-      final save = find.widgetWithText(EButton, _l.pairSaveNewContact);
-      await tester.ensureVisible(save.first);
-      await tester.tap(save.first);
+      final add = find.byKey(deskAddToContactsKey);
+      await tester.ensureVisible(add.first);
+      await tester.tap(add.first);
+      await _real(tester);
+      await tester.tap(find.byKey(deskAddToContactsNewKey));
       await _real(tester);
       await tester.enterText(find.byKey(deskSaveContactNameKey), 'Zoe');
       await tester.tap(find.widgetWithText(EButton, _l.deskConSave));
@@ -195,6 +198,43 @@ void main() {
       expect((await tester.runAsync(() => _pairing.pairing('p-zoe')))!.contactId, zoe.id);
     });
   }
+
+  testWidgets('a pairing not in contacts: Add to contacts and a ⋯ menu, no row of buttons; a contact of its name is offered first; Remove pairing from the menu', (tester) async {
+    await _open(tester, const ContactsScreen());
+    final piotr = _c.read(deskProvider).contacts!.firstWhere((c) => c.id == 'c6');
+    _fake.seedPaired(id: 'p-zoe', name: 'Zoe', paymentsAddress: 'esZoeProvenKey@epicbox.epiccash.com');
+    _fake.seedPaired(id: 'p-piotr', name: 'Piotr Nowak', paymentsAddress: piotr.epicbox);
+    _c.invalidate(deskPairingsProvider);
+    await _real(tester);
+    expect(find.text(_l.pairNotInContacts), findsNWidgets(2));
+    expect(find.byKey(deskAddToContactsKey), findsNWidgets(2));
+    for (final t in [_l.pairSaveNewContact, _l.pairAddToAContact, _l.contactRemovePairing, _l.pairAddToNamed('Piotr Nowak')]) {
+      expect(find.widgetWithText(EButton, t), findsNothing, reason: '$t is in a menu, not a button on the row');
+    }
+    final piotrRow = find.descendant(of: find.byKey(deskPairingRowKey('p-piotr')), matching: find.byKey(deskAddToContactsKey));
+    await tester.ensureVisible(piotrRow);
+    await tester.tap(piotrRow);
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byKey(deskAddToContactsSuggestedKey), findsOneWidget);
+    expect(find.text(_l.pairAddToNamed('Piotr Nowak')), findsOneWidget);
+    expect(find.byKey(deskAddToContactsNewKey), findsOneWidget);
+    expect(find.byKey(deskAddToContactsExistingKey), findsOneWidget);
+    await tester.tapAt(const Offset(900, 600));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byKey(deskAddToContactsSuggestedKey), findsNothing, reason: 'a tap outside closes the menu');
+    await tester.ensureVisible(find.byKey(deskPairingMoreKey('p-zoe')));
+    await tester.tap(find.byKey(deskPairingMoreKey('p-zoe')));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.byKey(deskPairingRemoveKey), findsOneWidget);
+    await tester.tap(find.byKey(deskPairingRemoveKey));
+    await _real(tester);
+    await tester.tap(find.byKey(deskConfirmRemovePairingKey));
+    await _real(tester);
+    expect(find.byKey(deskPairingRowKey('p-zoe')), findsNothing);
+    expect(find.byKey(deskPairingRowKey('p-piotr')), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 1));
+  });
 
   testWidgets('a proven pairing shows no unconfirmed line', (tester) async {
     await _contact(tester, 'c1');

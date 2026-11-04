@@ -16,6 +16,7 @@ import '../../../pairing_text.dart' show pairingEndedText, peerLabel;
 import '../../../ui/method_names.dart' show recipientMethodWord;
 import '../../../ui/pairing/pairing_parts.dart' show PairPendingBadge, TrustBadge;
 import '../../data/pairing_state.dart';
+import '../pairing/add_to_contacts_button.dart' show DeskAddToContactsButton;
 import '../pairing/pair_screens.dart';
 import 'contact_trust_line.dart';
 import 'contacts_transfer.dart';
@@ -454,7 +455,10 @@ class _Pic extends StatelessWidget {
 }
 
 /// A pairing of this wallet in no contact: the name it chose, its badge and "Not in contacts",
-/// with the choices of Settings › Invoices (a contact of its name first).
+/// then Add to contacts (one button; a contact of its name is offered first in its menu) and a
+/// ⋯ menu with Remove pairing. One under way has Cancel instead; one that ended, the menu alone.
+/// The controls sit at the row's end where the row is wide enough, else on one line under the
+/// words: never a stack of buttons.
 class _OrphanRow extends ConsumerWidget {
   const _OrphanRow({required this.record});
 
@@ -474,64 +478,74 @@ class _OrphanRow extends ConsumerWidget {
             : r.state == PairingState.pendingReply
                 ? l.pairPairingWith(peerLabel(l, r))
                 : l.pairNotInContacts;
+    final words = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Flexible(child: Text(peerLabel(l, r), style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
+            SizedBox(width: Sp.x2),
+            if (r.state.isPending) const PairPendingBadge() else TrustBadge(r, short: true),
+          ],
+        ),
+        Text(line, style: ts.small),
+      ],
+    );
+    final controls = [
+        if (inFlight)
+          EButton(
+            key: deskPairingCancelKey,
+            label: l.commonCancel,
+            size: EBtnSize.sm,
+            onPressed: () async {
+              if (await deskConfirmCancelPairing(context, peerLabel(l, r))) {
+                await deskPairingCall(ref, (api) => r.state.isPending ? api.cancelInvite(r.id) : api.removePairing(r.id));
+              }
+            },
+          )
+        else ...[
+          if (!r.ended) DeskAddToContactsButton(record: r, suggested: suggested),
+          _ContactMoreMenu(
+            buttonKey: deskPairingMoreKey(r.id),
+            items: [
+              (deskPairingRemoveKey, EIcons.trash, l.contactRemovePairing, true, () async {
+                if (r.ended || await deskConfirmRemovePairing(context, peerLabel(l, r))) await deskPairingCall(ref, (api) => api.removePairing(r.id));
+              }),
+            ],
+          ),
+        ],
+    ];
     return Padding(
       key: deskPairingRowKey(r.id),
       padding: EdgeInsets.symmetric(horizontal: Sp.x5, vertical: Sp.x3),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          DeskPairAvatar(name: peerLabel(l, r), size: 40.u),
-          SizedBox(width: 14.u),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Flexible(child: Text(peerLabel(l, r), style: ts.strong, maxLines: 1, overflow: TextOverflow.ellipsis)),
-                    SizedBox(width: Sp.x2),
-                    if (r.state.isPending) const PairPendingBadge() else TrustBadge(r, short: true),
-                  ],
-                ),
-                Text(line, style: ts.small),
-                SizedBox(height: Sp.x2),
-                Wrap(
-                  spacing: Sp.x2,
-                  runSpacing: Sp.x2,
-                  children: [
-                    if (!inFlight && !r.ended) ...[
-                      if (suggested != null)
-                        EButton.primary(label: l.pairAddToNamed(suggested.name), size: EBtnSize.sm, onPressed: () => deskAttachPairing(context, ref, r, suggested)),
-                      EButton(label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: true)),
-                      EButton(label: l.pairAddToAContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: false)),
-                    ],
-                    if (inFlight)
-                      EButton(
-                        key: deskPairingCancelKey,
-                        label: l.commonCancel,
-                        kind: EBtnKind.danger,
-                        size: EBtnSize.sm,
-                        onPressed: () async {
-                          if (await deskConfirmCancelPairing(context, peerLabel(l, r))) {
-                            await deskPairingCall(ref, (api) => r.state.isPending ? api.cancelInvite(r.id) : api.removePairing(r.id));
-                          }
-                        },
-                      )
-                    else
-                      EButton(
-                        label: l.contactRemovePairing,
-                        kind: EBtnKind.danger,
-                        size: EBtnSize.sm,
-                        onPressed: () async {
-                          if (r.ended || await deskConfirmRemovePairing(context, peerLabel(l, r))) await deskPairingCall(ref, (api) => api.removePairing(r.id));
-                        },
+      child: LayoutBuilder(
+        builder: (context, box) {
+          final beside = box.maxWidth >= Lay.md;
+          return Row(
+            crossAxisAlignment: beside ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+            children: [
+              DeskPairAvatar(name: peerLabel(l, r), size: 40.u),
+              SizedBox(width: 14.u),
+              Expanded(
+                child: beside
+                    ? words
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          words,
+                          SizedBox(height: Sp.x2),
+                          // A long language puts the ⋯ on a second line rather than past the edge.
+                          Wrap(spacing: Sp.x1, runSpacing: Sp.x1, crossAxisAlignment: WrapCrossAlignment.center, children: controls),
+                        ],
                       ),
-                  ],
-                ),
+              ),
+              if (beside) ...[
+                SizedBox(width: Sp.x3),
+                for (final (i, w) in controls.indexed) ...[if (i > 0) SizedBox(width: Sp.x1), w],
               ],
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
@@ -1527,6 +1541,8 @@ const Key deskContactsRequestsKey = ValueKey('desk-contacts-requests');
 const Key deskContactPairKey = ValueKey('desk-contact-pair');
 Key deskPairingRowKey(String id) => ValueKey('desk-pairing-row-$id');
 const Key deskPairingCancelKey = ValueKey('desk-pairing-cancel');
+Key deskPairingMoreKey(String id) => ValueKey('desk-pairing-more-$id');
+const Key deskPairingRemoveKey = ValueKey('desk-pairing-remove');
 const Key deskContactMoreKey = ValueKey('desk-contact-more');
 const Key deskContactEditKey = ValueKey('desk-contact-edit');
 const Key deskContactStarKey = ValueKey('desk-contact-star');
@@ -1547,11 +1563,13 @@ bool _actionsFit(BuildContext context, List<String> labels, double width) {
   return need <= width;
 }
 
-/// The contact header's ⋯ menu: Edit, Star or Unstar, Delete (in risk ink).
+/// The contact header's ⋯ menu: Edit, Star or Unstar, Delete (in risk ink). A pairing row's
+/// holds Remove pairing, under its own [buttonKey].
 class _ContactMoreMenu extends StatelessWidget {
-  const _ContactMoreMenu({required this.items});
+  const _ContactMoreMenu({required this.items, this.buttonKey = deskContactMoreKey});
 
   final List<(Key, IconData, String, bool, VoidCallback)> items;
+  final Key buttonKey;
 
   @override
   Widget build(BuildContext context) {
@@ -1578,7 +1596,7 @@ class _ContactMoreMenu extends StatelessWidget {
       builder: (context, controller, _) => CallbackShortcuts(
         bindings: {const SingleActivator(LogicalKeyboardKey.escape): controller.close},
         child: EIconButton(
-          key: deskContactMoreKey,
+          key: buttonKey,
           icon: EIcons.dots,
           label: l.contactMore,
           size: EBtnSize.sm,

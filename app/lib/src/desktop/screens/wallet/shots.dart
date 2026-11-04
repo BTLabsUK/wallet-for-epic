@@ -15,6 +15,8 @@ import '../../../levels/wallet_level.dart';
 import '../../data/desk_levels.dart' show deskLevelControlProvider;
 import '../../data/history_files.dart';
 import '../../data/mock_wallet.dart';
+import '../../../models.dart' show PairingState;
+import '../../data/pairing_state.dart' show deskPairingsProvider;
 import '../../widgets/kit.dart';
 import '../settings/backup.dart' show historyBackupProvider;
 import 'activity_screen.dart';
@@ -107,6 +109,16 @@ Future<void> _signedCancel(ProviderContainer c, BuildContext _) async {
 Future<void> _cancelFinal(ProviderContainer c, BuildContext _) async {
   mockBehind(c.read(deskApiProvider))?.addSignedCancelShot(id: MockDeskWallet.cancelFinalShotId);
   await c.read(deskProvider.notifier).refresh();
+}
+
+/// Two pairings in no contact on the Contacts list: a verified one (the faucet), and one that
+/// answered but was not heard from since (Cancel).
+Future<void> _unsavedPairings(ProviderContainer c) async {
+  final api = c.read(deskApiProvider);
+  if (api is! MockDeskWallet) return;
+  api.pairing.seedPaired(id: 'p-faucet', name: 'BT Labs Faucet', paymentsAddress: 'esFaucetKey9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@$mockBox', verifiedAt: DateTime(2026, 10, 28));
+  api.pairing.seedPaired(id: 'p-sam', name: 'Sam', state: PairingState.waiting);
+  c.invalidate(deskPairingsProvider);
 }
 
 /// Anna's or the pool's contact deleted: their payments show Add to contacts.
@@ -319,6 +331,7 @@ final List<DeskShot> walletShots = [
     arg: ContactsArgs(selectedId: 'c1'),
   ),
   const DeskShot(id: '21d-contacts-loading', title: 'Contacts, loading', route: DeskRoute.contacts, arg: ContactsArgs(loading: true)),
+  DeskShot(id: '21f-contacts-pairing-unsaved', title: 'Contacts, pairings not in contacts: Add to contacts, Cancel', route: DeskRoute.contacts, before: _unsavedPairings),
   DeskShot(
     id: '21e-dlg-contacts-import',
     title: 'Import contacts, what it does',

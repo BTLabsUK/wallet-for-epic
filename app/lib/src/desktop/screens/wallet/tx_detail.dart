@@ -19,7 +19,8 @@ import '../../data/clock.dart';
 import '../../data/invoice_state.dart' show PayState, deskInvoicesProvider;
 import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/pairing_state.dart' show DeskPairNet, deskPairNetProvider, deskPairingByIdProvider, deskPairingNameProvider, deskPairingSlateProvider;
-import '../pairing/pair_screens.dart' show deskAttachPairing, deskPutPairingInContacts, deskSuggestedContact;
+import '../pairing/add_to_contacts_button.dart' show DeskAddToContactsButton;
+import '../pairing/pair_screens.dart' show deskAttachPairing, deskSuggestedContact;
 import '../../desk_l10n.dart';
 import '../../../levels/level_features.dart' show TimelineStyle, TxActionSet;
 import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
@@ -348,7 +349,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     // The node refused it: broadcast it again at once (android-17); the app also does by itself.
     final repostable = fullActions && !t.fromBackup && !t.isInvoice && t.notPosted;
     final sendAgain = fullActions && t.undelivered;
-    // A payment to a paired contact's request, or a withdrawal from a paired exchange: the
+    // A payment to a paired contact's request, or a withdrawal from a paired contact: the
     // contact's own steps.
     final paid = !t.incoming ? ref.watch(deskInvoicesProvider)?.invoiceOfTx(t.id) : null;
     final paidTo = paid?.pairingId;
@@ -467,7 +468,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                           // The name sits in its own style: split the sentence at a marker.
                           for (final (i, part) in (t.incoming ? l.deskTxHeadFrom('\u0001') : l.deskTxHeadTo('\u0001')).split('\u0001').indexed) ...[
                             if (i > 0)
-                              // A withdrawal is from the paired exchange, by name.
+                              // A withdrawal is from the paired contact, by name.
                               withdrawal != null && contactName.isNotEmpty
                                   ? TextSpan(text: contactName, style: TextStyle(color: c.text))
                                   : mailboxName != null
@@ -549,7 +550,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         // Waiting for a paired contact's answer: its keys changed meanwhile, or its relay is
         // silent.
         if (mailboxName != null && !t.incoming && t.state == TxState.waitingRecipient && mailboxPairing != null) ..._mailboxNotices(l, mailboxName, mailboxPairing),
-        // A withdrawal from a paired exchange, not yet posted by it.
+        // A withdrawal from a paired contact, not yet posted by it.
         if (withdrawal != null && !onChain) ...[
           SizedBox(height: Sp.x3),
           ENotice(title: l.reqReceivedWaiting(contactName), text: l.reqReceivedWaitingBody, tone: ETone.info),
@@ -602,7 +603,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         ),
         EFacts(labelWidth: 96.u, [
           (l.deskTxFactDate, Text(dateTimeOf(l, t))),
-          // A withdrawal names the paired exchange, never its address (RFC C-21).
+          // A withdrawal names the paired contact, never its address (RFC C-21).
           if (withdrawal != null)
             (l.deskTxFactFrom, _PairedFrom(pairingId: withdrawal.pairingId, name: contactName))
           // Through the pairing: the contact, never the mailbox as an address (DESIGN 1.3).
@@ -787,8 +788,8 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     final done = t.state == TxState.confirmed || state == PayState.completed;
     return [
       _Step(l.reqTlPaid, _S.done, ''),
-      _Step(l.reqTlDelivered(name), delivered ? _S.done : _S.now, '', sub: delivered ? null : l.reqRelayRetrying),
-      _Step(l.reqTlPosted(name), posted ? _S.done : (delivered ? _S.now : _S.todo), '', sub: !posted && delivered ? l.reqTlPostedHint : null),
+      _Step(l.reqTlDelivered, delivered ? _S.done : _S.now, '', sub: delivered ? null : l.reqRelayRetrying),
+      _Step(l.reqTlPosted(name), posted ? _S.done : (delivered ? _S.now : _S.todo), ''),
       _Step(
         done ? l.reqTlConfirmed : l.reqTlConfirming,
         done ? _S.done : (inBlock ? _S.now : _S.todo),
@@ -798,14 +799,14 @@ class _TxDetailState extends ConsumerState<TxDetail> {
     ];
   }
 
-  /// A withdrawal from a paired exchange (RFC 12.5): the answer delivered to its relay, Posted
+  /// A withdrawal from a paired contact (RFC 12.5): the answer delivered over Epicbox, Posted
   /// by it, the confirmations.
   List<_Step> _withdrawalSteps(AppLocalizations l, Tx t, String name) {
     final inBlock = t.state == TxState.confirming || t.state == TxState.confirmed;
     final done = t.state == TxState.confirmed;
     return [
-      _Step(l.reqTlAnswerDelivered(name), _S.done, ''),
-      _Step(l.reqTlPosted(name), inBlock ? _S.done : _S.now, '', sub: inBlock ? null : l.reqTlPostedHint),
+      _Step(l.reqTlAnswerDelivered, _S.done, ''),
+      _Step(l.reqTlPosted(name), inBlock ? _S.done : _S.now, ''),
       _Step(
         done ? l.reqTlConfirmed : l.reqTlConfirming,
         done ? _S.done : (inBlock ? _S.now : _S.todo),
@@ -1061,8 +1062,8 @@ Future<CancelChoice?> showCancelTxDialog(BuildContext context, Tx t) => showEDia
   },
 );
 
-/// "From" on a withdrawal: the paired exchange by name; not in the contacts yet, Save as a
-/// new contact and Add to a contact, as Settings › Invoices offers them.
+/// "From" on a withdrawal: the paired contact by name; not in the contacts yet, Add to
+/// contacts, as Settings › Invoices offers it.
 class _PairedFrom extends ConsumerWidget {
   const _PairedFrom({required this.pairingId, required this.name});
 
@@ -1087,8 +1088,7 @@ class _PairedFrom extends ConsumerWidget {
             children: [
               if (deskSuggestedContact(ref, r) case final c?)
                 EButton.primary(label: l.pairAddToNamed(c.name), size: EBtnSize.sm, onPressed: () => deskAttachPairing(context, ref, r, c)),
-              EButton(label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: true)),
-              EButton(label: l.pairAddToAContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: false)),
+              DeskAddToContactsButton(record: r),
             ],
           ),
         ],
