@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The optional receipt for a payment made from a payment link (the payment-link design,
-/// §5.5): a type 5 payload posted to the directory the card came from, once per stage, only when
-/// the user ticks the line. The directory service implements [DirectoryReceipts]; until then the
-/// default tells nothing, so no receipt line shows.
+/// The optional receipt for a payment made from a payment link: a type 5 payload posted to the
+/// directory the card came from, once per stage, only when the user ticks the line. The directory
+/// service implements [DirectoryReceipts]; until then the default tells nothing, so no receipt
+/// line shows.
 library;
 
 import 'dart:typed_data';
