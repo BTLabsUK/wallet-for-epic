@@ -1073,6 +1073,8 @@
   "contactsEmptyTitle": "还没有联系人",
   "contactsEmptyCaption": "联系人就是一个地址的名称。",
   "contactsNoMatchQuery": "没有与“{query}”匹配的联系人",
+  "contactTakesNoPayments": "此联系人不接收付款。",
+  "sendContactTakesNoPayments": "此联系人不接收付款。付款不会得到应答。",
   "contactsSendAction": "发送",
   "contactsNoteHeading": "备注",
   "contactsShowCode": "显示二维码",

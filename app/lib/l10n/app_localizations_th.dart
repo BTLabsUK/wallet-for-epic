@@ -4036,11 +4036,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get contactTakesNoPayments => 'This contact doesn’t take payments.';
+  String get contactTakesNoPayments => 'ผู้ติดต่อนี้ไม่รับการชำระเงิน';
 
   @override
   String get sendContactTakesNoPayments =>
-      'This contact doesn’t take payments. A payment would not be answered.';
+      'ผู้ติดต่อนี้ไม่รับการชำระเงิน การชำระเงินจะไม่ได้รับการตอบ';
 
   @override
   String get contactsSendAction => 'ส่ง';

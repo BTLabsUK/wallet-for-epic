@@ -1073,6 +1073,8 @@
   "contactsEmptyTitle": "ยังไม่มีผู้ติดต่อ",
   "contactsEmptyCaption": "ผู้ติดต่อคือชื่อที่ตั้งให้ที่อยู่",
   "contactsNoMatchQuery": "ไม่พบผู้ติดต่อที่ตรงกับ \"{query}\"",
+  "contactTakesNoPayments": "ผู้ติดต่อนี้ไม่รับการชำระเงิน",
+  "sendContactTakesNoPayments": "ผู้ติดต่อนี้ไม่รับการชำระเงิน การชำระเงินจะไม่ได้รับการตอบ",
   "contactsSendAction": "ส่ง",
   "contactsNoteHeading": "บันทึก",
   "contactsShowCode": "แสดง QR Code",

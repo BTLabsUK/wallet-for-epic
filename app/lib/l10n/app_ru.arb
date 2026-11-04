@@ -1073,6 +1073,8 @@
   "contactsEmptyTitle": "Контактов пока нет",
   "contactsEmptyCaption": "Контакт — это имя для адреса.",
   "contactsNoMatchQuery": "Нет контактов по запросу «{query}»",
+  "contactTakesNoPayments": "Этот контакт не принимает платежи.",
+  "sendContactTakesNoPayments": "Этот контакт не принимает платежи. На платёж не будет ответа.",
   "contactsSendAction": "Отправить",
   "contactsNoteHeading": "Заметка",
   "contactsShowCode": "Показать код",

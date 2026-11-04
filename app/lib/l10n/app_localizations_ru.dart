@@ -4221,11 +4221,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get contactTakesNoPayments => 'This contact doesn’t take payments.';
+  String get contactTakesNoPayments => 'Этот контакт не принимает платежи.';
 
   @override
   String get sendContactTakesNoPayments =>
-      'This contact doesn’t take payments. A payment would not be answered.';
+      'Этот контакт не принимает платежи. На платёж не будет ответа.';
 
   @override
   String get contactsSendAction => 'Отправить';

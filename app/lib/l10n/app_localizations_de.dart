@@ -4169,11 +4169,12 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get contactTakesNoPayments => 'This contact doesn’t take payments.';
+  String get contactTakesNoPayments =>
+      'Dieser Kontakt nimmt keine Zahlungen an.';
 
   @override
   String get sendContactTakesNoPayments =>
-      'This contact doesn’t take payments. A payment would not be answered.';
+      'Dieser Kontakt nimmt keine Zahlungen an. Eine Zahlung würde nicht beantwortet.';
 
   @override
   String get contactsSendAction => 'Senden';

@@ -1073,6 +1073,8 @@
   "contactsEmptyTitle": "Noch keine Kontakte",
   "contactsEmptyCaption": "Ein Kontakt ist ein Name für eine Adresse.",
   "contactsNoMatchQuery": "Kein Kontakt passt zu „{query}“",
+  "contactTakesNoPayments": "Dieser Kontakt nimmt keine Zahlungen an.",
+  "sendContactTakesNoPayments": "Dieser Kontakt nimmt keine Zahlungen an. Eine Zahlung würde nicht beantwortet.",
   "contactsSendAction": "Senden",
   "contactsNoteHeading": "Notiz",
   "contactsShowCode": "Code zeigen",
