@@ -11,6 +11,7 @@ import 'package:crypto/crypto.dart';
 
 import '../contact_store.dart';
 import '../directory/pins.dart';
+import '../directory/receipts.dart' show LinkPaymentRecords;
 import '../directory/wire.dart' show Payreq;
 import '../legacy/gui_contacts.dart';
 import '../recipient.dart';
@@ -420,8 +421,12 @@ class WalletHistory {
   LinkMemory linkMemory() => LinkMemory(pins: {...meta.directoryPins}, paidRequests: {...meta.paidRequests});
 
   /// Records a payment made from a link ([DirectoryPinsMeta.recordLinkPayment]).
-  Future<void> recordLinkPayment(Payreq request, int paidAt) =>
-      _store.update((m) => m.recordLinkPayment(request, paidAt));
+  Future<void> recordLinkPayment(Payreq request, int paidAt, {String? txId}) =>
+      _store.update((m) => m.recordLinkPayment(request, paidAt, txId: txId));
+
+  /// The records of payments made from links, over this wallet's meta file; [onChange] runs
+  /// after a change.
+  LinkPaymentRecords linkPaymentRecords({void Function()? onChange}) => MetaLinkPayments(_store, onChange: onChange);
 
   /// Ids of the contacts this wallet starred ([Meta.favourites]).
   Set<String> favourites() => {...meta.favourites};

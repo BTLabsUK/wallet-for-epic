@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../directory/directory_providers.dart';
 import '../../directory/directory_service.dart';
 import '../../directory/directory_store.dart';
+import '../../directory/receipts.dart';
 import '../../models.dart' show Chain;
 import '../../network_gate.dart';
 import '../../providers.dart' show secretStoreProvider;
@@ -35,3 +36,11 @@ final deskDirectoryServiceProvider = Provider<DirectoryService?>((ref) {
 });
 
 final deskDirectories = DirectoryProviders(deskDirectoryServiceProvider);
+
+/// The records of payments made from links, over the open wallet's meta file, for
+/// [linkPaymentRecordsProvider]; a change bumps [linkPaymentTickProvider].
+final deskLinkPayments = Provider<LinkPaymentRecords>((ref) {
+  final account = ref.watch(deskProvider.select((s) => s.account == null ? null : (s.account!.id, s.account!.network)));
+  if (account == null) return MemoryLinkPayments();
+  return ref.read(deskApiProvider).linkPaymentRecords(onChange: () => ref.read(linkPaymentTickProvider.notifier).bump());
+});

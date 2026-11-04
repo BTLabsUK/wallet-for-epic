@@ -212,6 +212,7 @@ void main() {
     await sendWithPassword(tester, 'Send 2.5 EPIC');
     expect(wallet.sends, 1);
     expect(wallet.linkPaid, hasLength(1));
+    expect(wallet.linkMeta.linkPayments, hasLength(1), reason: 'kept under the payment slate id for the receipt line');
     expect(find.byKey(const ValueKey('send-link-save-contact')), findsOneWidget);
   });
 

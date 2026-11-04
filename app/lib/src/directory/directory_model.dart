@@ -55,6 +55,8 @@ class DirectoryEntry {
     this.joinedAt,
     this.address,
     this.retired = const [],
+    this.noPayments = false,
+    this.paymentsKey,
   });
 
   final String dkey;
@@ -83,6 +85,13 @@ class DirectoryEntry {
   final String? address;
   final List<RetiredListing> retired;
 
+  /// The last valid hello said this contact takes no payments.
+  final bool noPayments;
+
+  /// The key part of the contact's Epicbox address (the pairing's proven one), kept so the
+  /// address can be matched without reading the pairing. Null when the contact sent none.
+  final String? paymentsKey;
+
   bool get joined => state == ListingState.joined;
 
   /// The generation a new listing takes.
@@ -100,6 +109,8 @@ class DirectoryEntry {
     DateTime? Function()? joinedAt,
     String? Function()? address,
     List<RetiredListing>? retired,
+    bool? noPayments,
+    String? Function()? paymentsKey,
   }) => DirectoryEntry(
     dkey: dkey,
     pairingId: pairingId ?? this.pairingId,
@@ -113,6 +124,8 @@ class DirectoryEntry {
     joinedAt: joinedAt == null ? this.joinedAt : joinedAt(),
     address: address == null ? this.address : address(),
     retired: retired ?? this.retired,
+    noPayments: noPayments ?? this.noPayments,
+    paymentsKey: paymentsKey == null ? this.paymentsKey : paymentsKey(),
   );
 
   /// The listings to read now: the joined one and the retired ones within their window.
@@ -135,6 +148,8 @@ class DirectoryEntry {
     'joinedAt': joinedAt?.millisecondsSinceEpoch,
     'address': address,
     'retired': [for (final r in retired) r.toJson()],
+    'noPayments': noPayments,
+    'paymentsKey': paymentsKey,
   };
 
   static DirectoryEntry? fromJson(Object? j) {
@@ -152,6 +167,8 @@ class DirectoryEntry {
       joinedAt: j['joinedAt'] is num ? DateTime.fromMillisecondsSinceEpoch((j['joinedAt'] as num).toInt()) : null,
       address: j['address'] as String?,
       retired: [for (final r in (j['retired'] as List? ?? const [])) ?RetiredListing.fromJson(r)],
+      noPayments: j['noPayments'] == true,
+      paymentsKey: j['paymentsKey'] as String?,
     );
   }
 }

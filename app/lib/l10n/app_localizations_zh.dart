@@ -3884,6 +3884,13 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get contactTakesNoPayments => 'This contact doesn’t take payments.';
+
+  @override
+  String get sendContactTakesNoPayments =>
+      'This contact doesn’t take payments. A payment would not be answered.';
+
+  @override
   String get contactsSendAction => '发送';
 
   @override

@@ -37,6 +37,7 @@ import '../../devices/device_model.dart' show DeviceBook;
 import '../../devices/device_service.dart' show DeviceHost, ForwardKind, ForwardedNotice, SessionDeviceHost;
 import '../../directory/directory_service.dart' show DirectoryHost, SessionDirectoryHost, netOfChain;
 import '../../directory/verify.dart' show DirectoryVerifier;
+import '../../directory/receipts.dart' show LinkPaymentRecords;
 import '../../devices/device_store.dart' show DeviceStore;
 import '../../btlabs_onions.dart';
 import '../../btlabs_public.dart';
@@ -979,7 +980,11 @@ class LepicDeskWallet implements DeskWalletApi {
   }
 
   @override
-  Future<void> recordLinkPayment(Payreq request, int paidAt) => _open.recordLinkPayment(request, paidAt);
+  Future<void> recordLinkPayment(Payreq request, int paidAt, {String? txId}) =>
+      _open.recordLinkPayment(request, paidAt, txId: txId);
+
+  @override
+  LinkPaymentRecords linkPaymentRecords({void Function()? onChange}) => _open.linkPaymentRecords(onChange: onChange);
 
   @override
   Future<bool> checkPassword(String password) async {

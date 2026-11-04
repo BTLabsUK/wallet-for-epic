@@ -165,6 +165,72 @@ void main() {
     });
   });
 
+  group('contacts that take no payments', () {
+    const address = 'esYeBkJwAuhPNdWBVhu6tk3nvgBfAi3FPfvkAefqGJtV5JFYGfJZ@epicbox.example.com';
+
+    test('the hello flag is stored; lookups answer by pairing and by address', () async {
+      final rig = _Rig();
+      await rig.service.load();
+      final r = rig.api.seedPaired(name: 'Shop', state: PairingState.paired, peerFeatures: _directoryBits, paymentsAddress: address);
+      rig.api.clock = rig.clock.call;
+      rig.api.directoryHello(r.id, dkey: _dkey, flags: dirHelloNoPayments);
+      await rig.service.beginHello(r.id);
+      await rig.service.readPayloads();
+      expect(rig.service.book.byPairing(r.id)?.noPayments, isTrue);
+      expect(rig.service.refusesPayments(pairingId: r.id), isTrue);
+      expect(rig.service.refusesPayments(address: address), isTrue);
+      expect(rig.service.refusesPayments(address: address.replaceFirst('epicbox.example.com', 'other.example.org')), isTrue,
+          reason: 'the key part matches, as the contact screens do');
+      expect(rig.service.refusesPayments(pairingId: 'nobody', address: 'esOther@epicbox.example.com'), isFalse);
+      expect(rig.service.refusesPayments(), isFalse);
+      // Kept in the app's own file and read back.
+      final again = DirectoryService(
+        host: SessionDirectoryHost(rig.session, net: netMainnet, verifier: rig.verifier.call, online: () => true),
+        store: DirectoryStore(rig.store, chain: Chain.mainnet, walletId: 'w1'),
+      );
+      await again.load();
+      expect(again.refusesPayments(address: address), isTrue);
+    });
+
+    test('a hello without the flag takes payments; an old file without it reads as false', () async {
+      final rig = _Rig();
+      await rig.service.load();
+      final r = rig.paired();
+      rig.api.directoryHello(r.id, dkey: _dkey);
+      await rig.service.beginHello(r.id);
+      await rig.service.readPayloads();
+      expect(rig.service.refusesPayments(pairingId: r.id), isFalse);
+      final old = DirectoryEntry.fromJson({'dkey': _dkeyHex, 'pairing': 'p', 'handle': '00'});
+      expect(old?.noPayments, isFalse);
+    });
+
+    test('a later valid hello updates the flag', () async {
+      final rig = _Rig();
+      final r = await rig.verified();
+      expect(rig.service.refusesPayments(pairingId: r.id), isFalse);
+      rig.api.directoryHello(r.id, dkey: _dkey, flags: dirHelloNoPayments);
+      await rig.service.readPayloads();
+      expect(rig.service.refusesPayments(pairingId: r.id), isTrue);
+      rig.api.directoryHello(r.id, dkey: _dkey);
+      await rig.service.readPayloads();
+      expect(rig.service.refusesPayments(pairingId: r.id), isFalse);
+    });
+  });
+
+  group('receipts through the service', () {
+    test('canTell follows a verified directory; post sends the bytes over its pairing', () async {
+      final rig = _Rig();
+      await rig.service.load();
+      expect(rig.service.canTell(_dkeyHex), isFalse);
+      final r = await rig.verified();
+      expect(rig.service.canTell(_dkeyHex), isTrue);
+      expect(await rig.service.post(_dkeyHex, Uint8List.fromList([1, 2, 3])), isTrue);
+      expect(rig.api.posted.last.id, r.id);
+      expect(rig.api.posted.last.bytes, [1, 2, 3]);
+      expect(await rig.service.post('02${'00' * 32}', Uint8List.fromList([1])), isFalse);
+    });
+  });
+
   group('Join and Leave', () {
     test('Join posts a card the codec and the verifier accept', () async {
       final rig = _Rig();

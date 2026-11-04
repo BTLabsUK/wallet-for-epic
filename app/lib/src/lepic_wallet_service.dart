@@ -21,6 +21,7 @@ import 'package:lepic/src/rust/api/policy.dart' show HostPolicy;
 import 'package:meta/meta.dart' show visibleForTesting;
 
 import 'directory/pins.dart' show LinkMemory;
+import 'directory/receipts.dart' show LinkPaymentRecords;
 import 'directory/wire.dart' show Payreq, fromHex, toHex;
 import 'history/export.dart';
 import 'history/meta_store.dart';
@@ -2668,7 +2669,11 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
   LinkMemory linkMemory() => _history.linkMemory();
 
   @override
-  Future<void> recordLinkPayment(Payreq request, int paidAt) => _history.recordLinkPayment(request, paidAt);
+  Future<void> recordLinkPayment(Payreq request, int paidAt, {String? txId}) =>
+      _history.recordLinkPayment(request, paidAt, txId: txId);
+
+  @override
+  LinkPaymentRecords linkPaymentRecords({void Function()? onChange}) => _history.linkPaymentRecords(onChange: onChange);
 
   /// The history as a `.wfeh` file LEPIC seals under a key from the seed, so only a wallet
   /// with the same recovery phrase opens it.

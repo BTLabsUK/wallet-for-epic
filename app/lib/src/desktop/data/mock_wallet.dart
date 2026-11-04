@@ -19,6 +19,7 @@ import '../../devices/device_model.dart' show DeviceBook, HoldState;
 import '../../devices/device_service.dart' show DeviceHost, ForwardedNotice;
 import '../../directory/base58.dart' show netMainnet;
 import '../../directory/directory_service.dart' show DirectoryHost;
+import '../../directory/receipts.dart' show LinkPaymentRecords, MemoryLinkPayments;
 import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus, fakeAddressSignature;
 import '../../network.dart' show EpicboxRelay;
 import '../../models.dart' show epicboxKey, KernelLocation, StoreMigrationProgress, DeviceEnding, FinishedPayment, InvoiceEvent, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations, UnmatchedNotice;
@@ -464,10 +465,13 @@ class MockDeskWallet implements DeskWalletApi {
   final List<Payreq> linkPaid = [];
 
   @override
-  Future<void> recordLinkPayment(Payreq request, int paidAt) async {
+  Future<void> recordLinkPayment(Payreq request, int paidAt, {String? txId}) async {
     linkPaid.add(request);
-    linkMeta.recordLinkPayment(request, paidAt);
+    linkMeta.recordLinkPayment(request, paidAt, txId: txId);
   }
+
+  @override
+  LinkPaymentRecords linkPaymentRecords({void Function()? onChange}) => MemoryLinkPayments(linkMeta.linkPayments);
 
   @override
   Future<bool> checkPassword(String password) async {

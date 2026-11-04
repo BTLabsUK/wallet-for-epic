@@ -23,6 +23,8 @@ import 'codes.dart' show listingCodeIndexes;
 import 'directory_model.dart';
 import 'directory_store.dart';
 import 'membership.dart';
+import 'receipts.dart' show DirectoryReceipts;
+import 'payment_refusals.dart';
 import 'verify.dart';
 import 'wire.dart';
 
@@ -110,7 +112,7 @@ class SessionDirectoryHost implements DirectoryHost {
 /// The net byte of a chain.
 int netOfChain(Chain chain) => chain == Chain.mainnet ? netMainnet : netFloonet;
 
-class DirectoryService implements DirectoryMembership {
+class DirectoryService implements DirectoryMembership, PaymentRefusals, DirectoryReceipts {
   DirectoryService({
     required DirectoryHost host,
     required DirectoryStore store,
@@ -164,6 +166,35 @@ class DirectoryService implements DirectoryMembership {
     final address = e?.joined == true ? e?.address : null;
     if (address == null) return null;
     return parseListingAddress(address)?.keyText;
+  }
+
+  // Payment refusals, for the contact and Send screens.
+
+  @override
+  bool refusesPayments({String? pairingId, String? address}) {
+    return BookRefusals(_book).refusesPayments(pairingId: pairingId, address: address);
+  }
+
+  // Receipts, for a payment made from a link.
+
+  DirectoryEntry? _usable(String dkeyHex) {
+    final e = _book.byDkey(dkeyHex);
+    return e != null && e.pinned ? e : null;
+  }
+
+  @override
+  bool canTell(String dkeyHex) => _usable(dkeyHex) != null;
+
+  @override
+  Future<bool> post(String dkeyHex, Uint8List payload) async {
+    final e = _usable(dkeyHex);
+    if (e == null) return false;
+    try {
+      await _host.pairing.postPayload(id: e.pairingId, bytes: payload);
+      return true;
+    } on Object {
+      return false;
+    }
   }
 
   /// The four indexes of the listing code of a joined directory (the key of this wallet's
@@ -280,8 +311,22 @@ class DirectoryService implements DirectoryMembership {
     if (rec.peerFeatures & featureDirectory == 0) return _drop('hello without the directory feature');
     final dkey = toHex(hello.dkey);
     final known = _book.byPairing(rec.id);
-    // A directory this contact is already verified for: nothing to do.
-    if (rec.state == PairingState.verified && known != null && known.pinned) return true;
+    // A directory this contact is already verified for: only a later valid hello can change
+    // its flags.
+    if (rec.state == PairingState.verified && known != null && known.pinned) {
+      final bind = sasIndexesOf(rec.sas);
+      if (bind != null) {
+        try {
+          await verifyPayload(hello, net: _host.net, bind: bind, verifier: _host.verifier);
+          if (hello.takesNoPayments != known.noPayments) {
+            await _put(_book.put(known.copyWith(noPayments: hello.takesNoPayments)));
+          }
+        } on DirectoryException {
+          // An unreadable repeat changes nothing.
+        }
+      }
+      return true;
+    }
     if (rec.state != PairingState.paired) return _drop('hello on a pairing that is not waiting for the check');
     final bind = sasIndexesOf(rec.sas);
     if (bind == null) return _drop('hello without words to bind to');
@@ -301,6 +346,8 @@ class DirectoryService implements DirectoryMembership {
       handle: toHex(hello.handle),
       label: _labelOf(rec),
       pinned: existing != null && existing.pairingId == rec.id && existing.pinned,
+      noPayments: hello.takesNoPayments,
+      paymentsKey: () => _keyOf(rec.paymentsAddress),
     );
     await _put(_book.put(next));
     return true;
@@ -331,6 +378,11 @@ class DirectoryService implements DirectoryMembership {
     );
   }
 
+  static String? _keyOf(String? address) {
+    final k = address == null ? '' : epicboxKey(address);
+    return k.isEmpty ? null : k;
+  }
+
   String _labelOf(PairingRecord rec) => (rec.name ?? rec.label ?? '').trim();
 
   /// Keeps each entry's label as its pairing shows it; a joined entry whose pairing is gone
@@ -353,8 +405,9 @@ class DirectoryService implements DirectoryMembership {
         continue;
       }
       final label = _labelOf(rec);
-      if (label.isNotEmpty && label != e.label) {
-        next = next.put(e.copyWith(label: label));
+      final key = _keyOf(rec.paymentsAddress);
+      if ((label.isNotEmpty && label != e.label) || key != e.paymentsKey) {
+        next = next.put(e.copyWith(label: label.isNotEmpty ? label : null, paymentsKey: () => key));
         changed = true;
       }
     }

@@ -2,6 +2,7 @@
 // The phone's Contacts screen and contact page, against
 // FakeWalletSession.
 
+import 'package:epic_wallet/src/directory/directory.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
@@ -70,6 +71,9 @@ class _PickerState extends State<_Picker> {
 }
 
 class _Harness {
+  _Harness({this.refusals});
+
+  final PaymentRefusals? refusals;
   final session = FakeWalletSession();
   late final service = FakeWalletService(session: session);
 
@@ -95,6 +99,7 @@ class _Harness {
           priceSourceProvider.overrideWithValue(_NoPrice()),
           qrScannerProvider.overrideWithValue(FakeQrScanner(supported: false)),
           sessionProvider.overrideWith(() => _OpenSession(session)),
+          if (refusals != null) paymentRefusalsProvider.overrideWithValue(refusals!),
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -105,6 +110,12 @@ class _Harness {
     );
     await tester.pumpAndSettle();
   }
+}
+
+class _RefusesAlice implements PaymentRefusals {
+  @override
+  bool refusesPayments({String? pairingId, String? address}) =>
+      address != null && epicboxKey(address) == epicboxKey(_alice);
 }
 
 void main() {
@@ -242,8 +253,8 @@ void main() {
   });
 
   group('page', () {
-    Future<_Harness> open(WidgetTester tester) async {
-      final h = _Harness();
+    Future<_Harness> open(WidgetTester tester, {PaymentRefusals? refusals}) async {
+      final h = _Harness(refusals: refusals);
       await h.add('Alice Smith', _alice, note: 'Coffee club');
       await h.pump(tester, const ContactsScreen());
       await tester.tap(find.text('Alice Smith'));
@@ -251,6 +262,13 @@ void main() {
       expect(find.byType(ContactPage), findsOneWidget);
       return h;
     }
+
+    testWidgets('a contact that takes no payments has no Send, one line says why', (tester) async {
+      await open(tester, refusals: _RefusesAlice());
+      expect(find.byKey(contactPageSendKey), findsNothing);
+      expect(find.byKey(contactPageNoPaymentsKey), findsOneWidget);
+      expect(find.text(englishStrings.contactTakesNoPayments), findsOneWidget);
+    });
 
     testWidgets('shows the full address and the note, the code on request', (
       tester,

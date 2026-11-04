@@ -6570,6 +6570,18 @@ abstract class AppLocalizations {
   /// **'No contact matches \"{query}\"'**
   String contactsNoMatchQuery(String query);
 
+  /// Contact page and desktop Contact Details: the line that stands in place of Send when the contact's wallet said it takes no payments. Placeholder text until the designed state lands.
+  ///
+  /// In en, this message translates to:
+  /// **'This contact doesn’t take payments.'**
+  String get contactTakesNoPayments;
+
+  /// Send: the error under the address field when the recipient is a contact that takes no payments. Placeholder text until the designed state lands.
+  ///
+  /// In en, this message translates to:
+  /// **'This contact doesn’t take payments. A payment would not be answered.'**
+  String get sendContactTakesNoPayments;
+
   /// Contact sheet: opens Send with this contact as the recipient.
   ///
   /// In en, this message translates to:

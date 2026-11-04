@@ -51,7 +51,7 @@ import 'send_advanced.dart';
 import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, confirmNetworkModeSwitch;
 import '../../data/method_names.dart' show methodKindOf;
-import '../../../directory/directory.dart' show DirectoryTrust, LinkOpened, LinkOutcome, LinkRefused, directoryMembershipProvider;
+import '../../../directory/directory.dart' show DirectoryTrust, LinkOpened, LinkOutcome, LinkRefused, directoryMembershipProvider, paymentRefusalsProvider;
 import '../../../l10n.dart' show localDay;
 import '../../../scan/incoming_link.dart' show linkClockProvider;
 import '../../../scan/scan_router.dart';
@@ -1297,9 +1297,17 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return (a.substring(0, at), host.isEmpty ? null : host);
   }
 
+  /// Placeholder (the designed state replaces it): the stop for a contact that takes no
+  /// payments, by its pairing or its Epicbox address.
+  String? _noPaymentsProblem({String? pairingId, String? address}) =>
+      ref.read(paymentRefusalsProvider).refusesPayments(pairingId: pairingId, address: address) ? context.l10n.sendContactTakesNoPayments : null;
+
   String? _toError(DeskState st) {
     // A pairing recipient has no address: its card says whether it can be paid.
-    if (_viaPairing) return ref.read(deskPairingByIdProvider(_pairingTo!))?.paysByMailbox ?? false ? null : context.l10n.deskSendErrNoAddress;
+    if (_viaPairing) {
+      if (_noPaymentsProblem(pairingId: _pairingTo) case final stop?) return stop;
+      return ref.read(deskPairingByIdProvider(_pairingTo!))?.paysByMailbox ?? false ? null : context.l10n.deskSendErrNoAddress;
+    }
     if (_file) return null;
     final l = context.l10n;
     final r = _read;
@@ -1321,6 +1329,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     // Shallow sends by Epicbox alone.
     if (!_strip && r.kind != RecipientInputKind.epicbox) return l.deskSendErrEpicbox;
     if (_ownAddressError(st) case final own?) return own;
+    if (r.kind == RecipientInputKind.epicbox) {
+      if (_noPaymentsProblem(address: r.address) case final stop?) return stop;
+    }
     // The key's checksum.
     if (r.kind == RecipientInputKind.epicbox && !parseAddress(r.address, ref.read(deskApiProvider)).complete) return l.deskSendErrEpicbox;
     return null;
@@ -1494,7 +1505,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           if (res is SendDone) {
             if (link != null) {
               _paidLink = link;
-              unawaited(api.recordLinkPayment(link.request, ref.read(linkClockProvider)().millisecondsSinceEpoch ~/ 1000));
+              unawaited(api.recordLinkPayment(link.request, ref.read(linkClockProvider)().millisecondsSinceEpoch ~/ 1000, txId: res.tx.slateId));
             } else {
               _paidLink = null;
             }

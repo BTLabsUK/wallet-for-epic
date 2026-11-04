@@ -1534,9 +1534,11 @@ class FakePairing implements PairingApi {
     Uint8List? bind,
     int net = 0,
     int issued = 1,
+    int flags = 0,
   }) {
     final r = records.firstWhere((e) => e.id == id);
     final unsigned = dirHelloUnsigned(
+      flags: flags,
       net: net,
       dkey: dkey,
       handle: handle ?? Uint8List.fromList(List.generate(16, (i) => 0x40 + i)),
