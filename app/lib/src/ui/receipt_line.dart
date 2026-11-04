@@ -16,7 +16,6 @@ import 'theme/tokens.dart';
 
 /// Keys for tests.
 const Key receiptLineKey = ValueKey('receipt-line');
-const Key receiptTickKey = ValueKey('receipt-tick');
 const Key receiptToldKey = ValueKey('receipt-told');
 
 /// The words of a receipt line for [rec] at [stage].
