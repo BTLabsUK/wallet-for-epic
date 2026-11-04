@@ -19,7 +19,7 @@ import subprocess
 import sys
 import tempfile
 
-from . import failures as known, guards, health, hosted, retention
+from . import builtins, failures as known, guards, health, hosted, retention
 from .config import (ConfigError, PLATFORMS, Pipeline, load_hosts, load_scope, scope_summary, scope_toml,
                      validate_scope)
 from .engine import (EXIT_BUSY, EXIT_DENIED, EXIT_FAILED, EXIT_OK, EXIT_PREFLIGHT, EXIT_USAGE, EXIT_WAITING, Engine, relmsg_state)
@@ -166,15 +166,14 @@ class App:
             p = pubs[-1]
             prev = {"dir": os.path.join(p["run"], "files"), "version": p["version"], "ref": p.get("tag", "")}
         else:
-            # Releases published by hand (26.10.23, 26.10.24-r2) are the previous release too. Set it in
-            # the scope so G1 and G4 find it from any run folder (doctor's lives in a temp dir).
+            # Releases published by hand (26.10.23, 26.10.24-r2) are the previous release too (G1 finds
+            # them again from the state root, builtins.previous_candidates).
             by_hand = [p for p in retention.published_by_hand(self.state_root)
                        if p["version"] != scope["version"] and os.path.isdir(os.path.expanduser(p.get("dir", "")))]
             if by_hand:
                 p = by_hand[-1]
                 d = os.path.expanduser(p["dir"])
                 prev = {"dir": d, "version": p["version"], "ref": p.get("tag", f"v{p['version']}")}
-                scope["proof"].update(previous_dir=d, previous_version=prev["version"], previous_ref=prev["ref"])
         warns = validate_scope(scope, self.pipeline, vac, prev.get("version"))
         return commit, scope, prev, warns
 
@@ -196,7 +195,10 @@ class App:
         for w in warns:
             print(f"warning: {w}")
         if prev:
-            print(f"previous release (G4): {prev['version']} at {prev['dir']}")
+            by_plat = builtins.previous_by_platform(scope, self.pipeline, self.state_root, scope["version"], prev)
+            text = builtins.previous_text(prev, by_plat)
+            print(f"previous release (G4): {prev['version']} at {prev['dir']}"
+                  + (f" · per platform: {text}" if text != prev["version"] else ""))
         drivers = self.pipeline.proof.get("drivers", {})
         for s in steps:
             waived = s.proof and s.platforms and s.platforms[0] in scope["proof"]["waive"]
