@@ -1,16 +1,16 @@
 {
-  "comment": "External inputs of the hosted builds (.github/workflows/build.yml), pinned. The epic node binaries are epic 4.1.1 as released, kept on our downloads host outside downloads/ (tools/rellib/steps/prune-downloads.sh empties that folder of everything it does not name); tools/fetch-build-inputs.sh downloads them and checks the sha256. Never a patched node or 4.1.2.",
+  "comment": "External inputs of the hosted builds (.github/workflows/build.yml), pinned. The epic node binaries are epic 4.1.2 as released, kept on our downloads host outside downloads/ (tools/rellib/steps/prune-downloads.sh empties that folder of everything it does not name); tools/fetch-build-inputs.sh downloads them and checks the sha256. Official v4.1.2 release assets only (the owner, 2026-11-04), never a patched node or our own build.",
   "node": {
-    "version": "4.1.1",
+    "version": "4.1.2",
     "platforms": {
       "linux": {
-        "url": "https://examples.btlabs.uk/epic-cash-wallets/build-inputs/epic-node/4.1.1/linux/epic",
-        "sha256": "9e84309c0b397250e16024cbf0738fcffef94798515f48ec02259a59417f135a",
+        "url": "https://examples.btlabs.uk/epic-cash-wallets/build-inputs/epic-node/4.1.2/linux/epic",
+        "sha256": "ef4055fc5c0114cda511f19db26b66bf0204f1dc8b6dc7fa2ecd62936537e662",
         "file": "epic"
       },
       "windows": {
-        "url": "https://examples.btlabs.uk/epic-cash-wallets/build-inputs/epic-node/4.1.1/windows/epic.exe",
-        "sha256": "5c23328cc44c7a94aa0933f2027fc6383653fc73f80945a7f08014d3ea0b74a6",
+        "url": "https://examples.btlabs.uk/epic-cash-wallets/build-inputs/epic-node/4.1.2/windows/epic.exe",
+        "sha256": "c1a0b1cba3fae768e310315525590d2a436c5e68125722a345f41d45bd45cc00",
         "file": "epic.exe"
       }
     }

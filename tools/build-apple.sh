@@ -134,12 +134,13 @@ desktop_name="BT Wallet"
 desktop_exe="btwallet"   # CFBundleExecutable: the file in Contents/MacOS
 phone_id=uk.btlabs.btwallet.ios
 # The built-in node for WFE_NODE_FETCH: the Epic Cash node release the Linux and Windows builds
-# bundle (epic 4.1.1), its macOS zip. arm64 only: there is no x86_64 macOS release of 4.1, which
-# is why the macOS app is arm64 only (the GUI 6.1.6's macOS binaries are epic 4.0.0, which stops
-# at once on the app's toml: "missing field `foundation_path`", exit 101).
-node_version=4.1.1
-node_zip_url=https://github.com/EpicCash/epic/releases/download/v4.1.1/MacOS-aarch64-v4.1.1.zip
-node_zip_sha=35bacc695c251723ecb4379b4a50270a8118fc140373723bb80fb73c65e36133
+# bundle (epic 4.1.2, the official release: the owner, 2026-11-04), its macOS zip. arm64 only: there
+# is no x86_64 macOS release of 4.1, which is why the macOS app is arm64 only (the GUI 6.1.6's
+# macOS binaries are epic 4.0.0, which stops at once on the app's toml: "missing field
+# `foundation_path`", exit 101).
+node_version=4.1.2
+node_zip_url=https://github.com/EpicCash/epic/releases/download/v4.1.2/MacOS-aarch64-v4.1.2.zip
+node_zip_sha=33822c8192e5a2cf2ce1d2434018f7586c1cf7658ed5ba644e41e494f97dfbc8
 
 die() { echo "build-apple.sh: $*" >&2; exit 1; }
 say() { printf '\n== %s\n' "$*"; }

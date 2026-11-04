@@ -23,7 +23,7 @@ hint = "The Ubuntu 22.04 container's clang is too old for zxing-cpp: the image m
 id = "node-bin-missing"
 steps = ["build-linux", "build-windows"]
 pattern = "(WFE_NODE_BIN|node binary).*(missing|not found|No such file)"
-hint = "The built-in node's binary is missing: set paths.node_bin_linux / node_bin_windows in ~/.config/btlabs/release-hosts.toml (epic 4.1.1 from /tmp/epic-build/node-bin)."
+hint = "The built-in node's binary is missing: set paths.node_bin_linux / node_bin_windows in ~/.config/btlabs/release-hosts.toml (epic 4.1.2 from /tmp/epic-build/node-bin)."
 
 [[failure]]
 id = "stale-xtask"
