@@ -149,9 +149,10 @@ SEND_DONE = T("g4.send.done", role="text", keys=("deskSendDoneViaEpicbox", "desk
 # (methodStateLine: Epicbox through Tor, subscribed) once Tor is up.
 MODE_TOR_ONLY = T("g4.privacy.mode.toronly", role="checkbox", keys=("advModeTorOnly",), names=("Tor only",), match="starts")
 MODE_NORMAL = T("g4.privacy.mode.standard", role="checkbox", keys=("advModeStandard",), names=("Normal",), match="starts")
-EPICBOX_LINE = T("g4.payments.epicbox.state", role="text", names=(
-    r"re:(connected|connecting|waiting for tor|not connected|not answering|slow|off|blocked) · [\w.:-]+(, over tor)?",),
-    match="exact")
+# one line of a node's name: on Linux the line is a line of its group's text ("Epicbox\nReceiving\n
+# Connected · epicbox.stackwallet.com, over Tor\nStart with the wallet")
+EPICBOX_LINE = re.compile(
+    r"(connected|connecting|waiting for tor|not connected|not answering|slow|off|blocked) · [\w.:-]+(, over tor)?")
 EPICBOX_UP = "connected"   # ShownState.connected (netStatusConnected): Epicbox subscribed
 OVER_TOR = ", over tor"    # deskKitMethodOverTor: "{host}, over Tor"
 TOR_START_S = 240       # a Tor start, each of the two tries (before REL_TRUST_SLOW)
@@ -632,9 +633,8 @@ class Desktop:
         case, None where it does not show) and over_tor whether it says over Tor."""
         tree = tree if tree is not None else self.d.tree()
         tor = "tor only" if self._chosen(MODE_TOR_ONLY, tree) else "normal" if self._chosen(MODE_NORMAL, tree) else None
-        n = next(iter(self.d.find_in(EPICBOX_LINE, tree)), None)
-        line = tg._norm(n.name) if n else ""
-        return {"tor": tor, "epicbox": line.split(" · ")[0] if n else None, "over_tor": line.endswith(OVER_TOR)}
+        line = next((ln for x in tree for ln in map(tg._norm, (x.name or "").split("\n")) if EPICBOX_LINE.fullmatch(ln)), None)
+        return {"tor": tor, "epicbox": line.split(" · ")[0] if line else None, "over_tor": bool(line) and line.endswith(OVER_TOR)}
 
     def _tor_up(self, tree):
         s = self.tor_state(tree)

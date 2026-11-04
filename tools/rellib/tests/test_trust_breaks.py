@@ -550,7 +550,7 @@ class TorFake(Fake):
             "Waiting for Tor\xa0· epicbox.stackwallet.com" if tor else "Connected\xa0· epicbox.stackwallet.com"
         return [n(0, "text_field", "Search settings"),
                 n(1, "checkbox", "Normal", states=mark("Normal")), n(2, "checkbox", "Tor only", states=mark("Tor only")),
-                n(3, "button", "Epicbox server: epicbox.stackwallet.com"), n(4, "text", line)]
+                n(3, "button", "Epicbox server: epicbox.stackwallet.com"), n(4, "text", "Epicbox\nReceiving\n%s\nStart with the wallet" % line)]
 
     def press(self, node):
         self.pressed.append(node.name)
