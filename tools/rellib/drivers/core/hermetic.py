@@ -155,6 +155,29 @@ def pick_live(node_up, relay_up, node_picks, relay_picks, env=None):
     return (node if "://" in node else "https://" + node), relay
 
 
+
+# Over Tor (the Tor lanes' after-update payments): a host under the app's onion-only domain is reached at
+# its built-in onion (app-config.toml [tor] onions); a public host through a Tor exit; a host on this
+# machine or its LAN, or the BT Labs server's bare address (Tor exits are refused there), not at all.
+TOR_ONION_ONLY = "btlabs.uk"
+TOR_ONIONS = ("node.btlabs.uk", "epicbox.btlabs.uk")
+TOR_REFUSED = ("203.0.113.10",)
+
+
+def tor_route(s):
+    """How the app reaches [s] over Tor: "onion", "exit" or None (it cannot)."""
+    name = _host(s or "")
+    if not name or name in TOR_REFUSED:
+        return None
+    if name == TOR_ONION_ONLY or name.endswith("." + TOR_ONION_ONLY):
+        return "onion" if name in TOR_ONIONS else None
+    try:
+        a = ipaddress.ip_address(name)
+        return None if (a.is_private or a.is_loopback or a.is_link_local) else "exit"
+    except ValueError:
+        return None if name == "localhost" or name.endswith(".local") else "exit"
+
+
 HOST_IN_LOG = re.compile(r"\b[a-z][a-z0-9+.-]*://([^/\s'\"<>)]+)|\b(?:relay|node|server|host)=([^\s,;'\"<>)]+)", re.I)
 
 

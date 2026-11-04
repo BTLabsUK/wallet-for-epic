@@ -20,7 +20,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(os.path.dirname(HERE), "drivers"))
 sys.path.insert(0, os.path.dirname(os.path.dirname(HERE)))
 
+import facts  # noqa: E402
 from core import breaks  # noqa: E402
+from core import checks  # noqa: E402
+from core import hermetic  # noqa: E402
 from core import driver as drv  # noqa: E402
 from core import lane as ln  # noqa: E402
 from core import targets as tg  # noqa: E402
@@ -527,6 +530,141 @@ class LaneTest(Base):
             json.dump({"phases": {"done": ["prepare"], "failed": "install"}, "fault": {"kind": "harness"}}, f)
         self.lane().main()
         self.assertTrue(self.logged("RESUME: starting fresh: the previous attempt failed in install"), self.logs)
+
+
+# ---- Tor (the Tor lanes' after-update payments)
+
+class TorFake(Fake):
+    """Settings' Connection mode and Epicbox's state line on one page: the line says Connected over Tor
+    once Tor only is chosen, unless `comes_up` is False; Connected in the clear under Normal."""
+
+    def __init__(self, mode="Normal", comes_up=True):
+        super().__init__({}, "privacy")
+        self.mode, self.comes_up = mode, comes_up
+
+    def tree(self):
+        tor = self.mode == "Tor only"
+        up = tor and self.comes_up
+        mark = lambda m: ("enabled", "checked") if self.mode == m else ("enabled",)  # noqa: E731
+        line = "Connected\xa0· epicbox.stackwallet.com, over Tor" if up else \
+            "Waiting for Tor\xa0· epicbox.stackwallet.com" if tor else "Connected\xa0· epicbox.stackwallet.com"
+        return [n(0, "text_field", "Search settings"),
+                n(1, "checkbox", "Normal", states=mark("Normal")), n(2, "checkbox", "Tor only", states=mark("Tor only")),
+                n(3, "button", "Epicbox server: epicbox.stackwallet.com"), n(4, "text", "Epicbox\nReceiving\n%s\nStart with the wallet" % line)]
+
+    def press(self, node):
+        self.pressed.append(node.name)
+        if node.name in ("Normal", "Tor only"):
+            self.mode = node.name
+
+
+class TorRecipeTest(Base):
+    def desk(self, fake):
+        return Desktop(self.driver(fake), "candidate", self.logs.append)
+
+    def test_tor_on_already_is_skipped(self):
+        f = TorFake("Tor only")
+        self.assertEqual(self.desk(f).tor_on(budget=1), "skipped")
+        self.assertEqual(f.pressed, [])
+        self.assertTrue(self.logged("SKIP tor-on"), self.logs)
+
+    def test_tor_on_chooses_tor_only_and_waits_for_epicbox_over_tor(self):
+        f = TorFake()
+        desk = self.desk(f)
+        self.assertEqual(desk.tor_status(), {"tor": "normal", "epicbox": "connected", "over_tor": False, "up": False})
+        self.assertEqual(desk.tor_on(budget=1), "done")
+        self.assertEqual(f.pressed, ["Tor only"])
+        self.assertEqual(desk.tor_status(), {"tor": "tor only", "epicbox": "connected", "over_tor": True, "up": True})
+
+    def test_slow_tor_tried_twice_then_infra_tor(self):
+        f = TorFake(comes_up=False)
+        with self.assertRaises(InfraFault) as c:
+            self.desk(f).tor_on(budget=1)
+        self.assertEqual((c.exception.sub, c.exception.cause_class), ("tor", "INFRA"))
+        self.assertEqual(f.pressed, ["Tor only", "Normal", "Tor only"])
+
+    def test_tor_off_chooses_normal(self):
+        f = TorFake("Tor only")
+        self.desk(f).tor_off()
+        self.assertEqual(f.mode, "Normal")
+
+
+class TorUi:
+    def __init__(self, fault=None):
+        self.fault, self.calls = fault, []
+
+    def tor_on(self):
+        self.calls.append("on")
+        if self.fault:
+            raise self.fault
+        return "done"
+
+    def tor_off(self):
+        self.calls.append("off")
+
+    def tor_status(self):
+        return {"tor": "connected", "epicbox": "connected", "up": True}
+
+    def use_servers(self, node, relay):
+        self.calls.append(("servers", node, relay))
+
+
+class TorLaneTest(Base):
+    def lane(self, ui):
+        lane = ln.Lane(P(self), None, checks, out=self.out, log=self.logs.append, required=["balance_kept"], funds=True)
+        lane.ui = ui
+        return lane
+
+    def tor_lane(self, ui, relay="epicbox.stackwallet.com"):
+        lane = self.lane(ui)
+        lane.p.node, lane.p.relay = "https://node.btlabs.uk", relay
+        lane.ok("wallet_opens", "x")
+        lane.ok("balance_kept", "x")
+        lane._tor_on({})
+        return lane
+
+    def test_tor_not_up_falls_back_in_the_clear_and_never_gates(self):
+        ui = TorUi(InfraFault("tor-on", "Tor or Epicbox not connected in 240 s, twice", sub="tor"))
+        lane = self.tor_lane(ui)
+        self.assertEqual(ui.calls, ["on", "off"])
+        self.assertFalse(checks.tor_on(lane))
+        self.assertIs(lane.results["tor_payment_ok"], False)
+        self.assertTrue(self.logged("false (not required) tor_payment_ok"), self.logs)
+        p = lane.proof()
+        self.assertNotIn("tor_payment_ok", p["checks"])
+        self.assertEqual(p["details"]["tor"]["cause_class"], "INFRA")
+        self.assertIn("INFRA tor-on", p["details"]["tor"]["state"])
+
+    def test_up_with_the_route_recorded(self):
+        ui = TorUi()
+        lane = self.tor_lane(ui)
+        self.assertEqual(ui.calls, ["on"])
+        self.assertTrue(checks.tor_on(lane))
+        t = lane.details["tor"]
+        self.assertEqual((t["goal"], t["mode"], t["route"]), ("done", "Tor only", {"node": "onion", "relay": "exit"}))
+        self.assertNotIn("tor_payment_ok", lane.results)   # set by the legs
+
+    def test_relay_tor_cannot_reach_is_moved(self):
+        ui = TorUi()
+        lane = self.tor_lane(ui, relay="192.168.1.20:3420")
+        moved_to = next(h for h in facts.RELAY_PICK if hermetic.tor_route(h))
+        self.assertEqual(ui.calls[0], ("servers", "https://node.btlabs.uk", moved_to))
+        self.assertEqual(lane.p.relay, moved_to)
+        self.assertEqual(lane.details["tor"]["relay_moved"], {"from": "192.168.1.20:3420", "to": moved_to})
+        self.assertTrue(self.logged("Tor cannot reach the relay 192.168.1.20:3420"), self.logs)
+
+    def test_not_turned_on_when_the_legs_do_not_run(self):
+        ui = TorUi()
+        lane = self.lane(ui)
+        lane._tor_on(None)
+        self.assertEqual(ui.calls, [])
+        self.assertFalse(checks.tor_on(lane))
+
+    def test_tor_routes(self):
+        self.assertEqual([hermetic.tor_route(h) for h in (
+            "https://node.btlabs.uk", "epicbox.btlabs.uk", "support2.btlabs.uk", "203.0.113.10:3413",
+            "epicbox.stackwallet.com", "127.0.0.1:3420", "192.168.1.20", "")],
+            ["onion", "onion", None, None, "exit", None, None, None])
 
 
 class InfraCauseTest(unittest.TestCase):
