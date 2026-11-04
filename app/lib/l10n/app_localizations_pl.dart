@@ -14282,10 +14282,6 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get pairNameClaimed =>
-      'Nazwa wybrana przez drugą stronę · jeszcze niesprawdzona';
-
-  @override
   String get pairNameClaimedShort => 'Nazwa wybrana przez drugą stronę';
 
   @override
@@ -20870,9 +20866,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pairIncomingNoName => 'Sparować z tym portfelem?';
-
-  @override
-  String get pairNoNameGiven => 'Brak nazwy';
 
   @override
   String get pairUnnamed => 'Portfel bez nazwy';

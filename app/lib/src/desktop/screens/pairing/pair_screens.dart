@@ -693,9 +693,7 @@ class _IncomingDialogState extends ConsumerState<_IncomingDialog> {
               if (sender != null)
                 EBadge(l.pairInContacts, icon: EIcons.user, tone: ETone.ok)
               else if (btlabs != null)
-                BtLabsBadge(l.pairBtLabsService)
-              else
-                EBadge(noName ? l.pairNoNameGiven : l.pairNameClaimed, icon: EIcons.user),
+                BtLabsBadge(l.pairBtLabsService),
             ],
           ),
           if (p.fromAddress case final from?) ...[SizedBox(height: Sp.x3), Text(from, style: ts.mono())],

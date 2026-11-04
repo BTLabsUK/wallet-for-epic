@@ -21672,12 +21672,6 @@ abstract class AppLocalizations {
   /// **'Pair with {name}?'**
   String pairIncomingTitle(String name);
 
-  /// Chip under the name in the incoming sheet.
-  ///
-  /// In en, this message translates to:
-  /// **'Name chosen by them · not checked yet'**
-  String get pairNameClaimed;
-
   /// Chip on the words check.
   ///
   /// In en, this message translates to:
@@ -31625,12 +31619,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pair with this wallet?'**
   String get pairIncomingNoName;
-
-  /// Badge on the confirm sheet when the other wallet sent no name.
-  ///
-  /// In en, this message translates to:
-  /// **'No name given'**
-  String get pairNoNameGiven;
 
   /// What a pairing row is called when the other wallet sent no name and the user gave no label.
   ///

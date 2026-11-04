@@ -18255,10 +18255,6 @@
       }
     }
   },
-  "pairNameClaimed": "Name chosen by them · not checked yet",
-  "@pairNameClaimed": {
-    "description": "Chip under the name in the incoming sheet."
-  },
   "pairNameClaimedShort": "Name chosen by them",
   "@pairNameClaimedShort": {
     "description": "Chip on the words check."
@@ -27323,10 +27319,6 @@
   "pairIncomingNoName": "Pair with this wallet?",
   "@pairIncomingNoName": {
     "description": "Title of the confirm sheet or dialog when the other wallet sent no name."
-  },
-  "pairNoNameGiven": "No name given",
-  "@pairNoNameGiven": {
-    "description": "Badge on the confirm sheet when the other wallet sent no name."
   },
   "pairUnnamed": "Unnamed wallet",
   "@pairUnnamed": {

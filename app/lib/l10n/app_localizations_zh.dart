@@ -12945,9 +12945,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get pairNameClaimed => '名字由对方选择 · 尚未核对';
-
-  @override
   String get pairNameClaimedShort => '名字由对方选择';
 
   @override
@@ -19038,9 +19035,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get pairIncomingNoName => '与此钱包配对？';
-
-  @override
-  String get pairNoNameGiven => '未提供名字';
 
   @override
   String get pairUnnamed => '未命名钱包';

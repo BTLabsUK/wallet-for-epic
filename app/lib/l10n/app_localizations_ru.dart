@@ -14259,9 +14259,6 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get pairNameClaimed => 'Имя выбрано собеседником · ещё не проверено';
-
-  @override
   String get pairNameClaimedShort => 'Имя выбрано собеседником';
 
   @override
@@ -20854,9 +20851,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pairIncomingNoName => 'Сопрячь с этим кошельком?';
-
-  @override
-  String get pairNoNameGiven => 'Имя не указано';
 
   @override
   String get pairUnnamed => 'Кошелёк без имени';

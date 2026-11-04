@@ -13758,9 +13758,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get pairNameClaimed => 'Name chosen by them · not checked yet';
-
-  @override
   String get pairNameClaimedShort => 'Name chosen by them';
 
   @override
@@ -20189,9 +20186,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pairIncomingNoName => 'Pair with this wallet?';
-
-  @override
-  String get pairNoNameGiven => 'No name given';
 
   @override
   String get pairUnnamed => 'Unnamed wallet';

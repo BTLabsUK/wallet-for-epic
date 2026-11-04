@@ -13403,9 +13403,6 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get pairNameClaimed => 'ชื่อที่อีกฝ่ายเลือกเอง · ยังไม่ได้ตรวจ';
-
-  @override
   String get pairNameClaimedShort => 'ชื่อที่อีกฝ่ายเลือกเอง';
 
   @override
@@ -19774,9 +19771,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pairIncomingNoName => 'จับคู่กับกระเป๋านี้หรือไม่';
-
-  @override
-  String get pairNoNameGiven => 'ไม่ได้ระบุชื่อ';
 
   @override
   String get pairUnnamed => 'กระเป๋าเงินไม่มีชื่อ';

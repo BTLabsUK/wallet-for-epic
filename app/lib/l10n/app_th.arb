@@ -3608,7 +3608,6 @@
   "pairCancelInviteTitle": "ยกเลิกคำเชิญถึง {name} หรือไม่",
   "pairCancelInviteBody": "หากกระเป๋าเงินของอีกฝ่ายเปิดภายหลัง จะเห็นว่า “{name} ยกเลิกคำเชิญนี้แล้ว”",
   "pairIncomingTitle": "จับคู่กับ {name} หรือไม่",
-  "pairNameClaimed": "ชื่อที่อีกฝ่ายเลือกเอง · ยังไม่ได้ตรวจ",
   "pairNameClaimedShort": "ชื่อที่อีกฝ่ายเลือกเอง",
   "pairCallsThemselves": "เรียกตัวเองว่า “{name}”",
   "pairIncomingBody": "เมื่อจับคู่แล้ว ไฟล์ธุรกรรมและใบแจ้งหนี้ระหว่างคุณกับ {name} จะถูกปิดผนึก ขั้นต่อไปคือยืนยันด้วยกัน",
@@ -5266,7 +5265,6 @@
   "pairSeenAsAdd": "เพิ่มชื่อ",
   "pairSeenAsOptional": "เว้นว่างไว้เพื่อจับคู่โดยไม่ใช้ชื่อ",
   "pairIncomingNoName": "จับคู่กับกระเป๋านี้หรือไม่",
-  "pairNoNameGiven": "ไม่ได้ระบุชื่อ",
   "pairUnnamed": "กระเป๋าเงินไม่มีชื่อ",
   "pairDefaultLabel": "ผู้ติดต่อ {n}",
   "pairBtLabsService": "บริการของ BT Labs"
