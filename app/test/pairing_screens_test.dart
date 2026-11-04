@@ -9,7 +9,7 @@ import 'package:epic_wallet/src/invite_links.dart' show invitePageProvider;
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/pairing_providers.dart';
-import 'package:epic_wallet/src/pairing_text.dart' show pairReplyFallbackAfter, pairingSpan, unnamedPeerName;
+import 'package:epic_wallet/src/pairing_text.dart' show pairReplyFallbackAfter, pairingEndedText, pairingSpan, unnamedPeerName;
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
@@ -372,6 +372,22 @@ void main() {
       final ended = h.api.records.single;
       expect((ended.state, ended.endedReason), (PairingState.ended, PairingEndReason.mismatch));
       expect(_notice(tester), _l.pairEndedNotice);
+    });
+
+    testWidgets('the other side says they do not match while the words are open: heard within 5 s, the screen closes', (tester) async {
+      final h = _Harness();
+      final r = h.api.seedPaired(name: 'Anna', state: PairingState.waiting);
+      await h.pump(tester, const Scaffold(body: PairingNotices()));
+      final nav = tester.state<NavigatorState>(find.byType(Navigator).first);
+      unawaited(nav.push(MaterialPageRoute<void>(builder: (_) => CheckWordsScreen(pairingId: r.id))));
+      await tester.pumpAndSettle();
+      final before = h.api.collects.length;
+      await tester.pump(const Duration(seconds: 5));
+      expect(h.api.collects.length, greaterThan(before), reason: 'the verdict is collected while the words are open');
+      h.api.peerMismatch(r.id);
+      await tester.pumpAndSettle();
+      expect(find.byKey(checkMatchKey), findsNothing);
+      expect(_notice(tester), pairingEndedText(_l, PairingEndReason.peerMismatch, 'Anna'));
     });
 
     testWidgets('Back is later: the pairing stays Paired', (tester) async {

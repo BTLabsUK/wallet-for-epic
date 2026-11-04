@@ -5,6 +5,8 @@
 /// never decides on its own which address-book entry a pairing belongs to.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -122,16 +124,38 @@ class CheckWordsScreen extends ConsumerStatefulWidget {
 class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
   bool _allow = false;
   bool _busy = false;
+  bool _left = false;
+  PairingCollector? _collector;
+  StreamSubscription<PairingEvent>? _events;
   bool _onScreen(PairingEvent e) => e.pairingId == widget.pairingId;
 
   @override
   void initState() {
     super.initState();
     pairingWordsOnScreen.add(_onScreen);
+    final api = ref.read(pairingApiProvider);
+    // The other wallet's verdict is heard within seconds, as on the desktop, not at the next
+    // foreground tick.
+    if (ref.read(pairNetProvider) == PairNet.online) _collector = PairingCollector(api, every: const Duration(seconds: 5))..start();
+    _events = api.events().listen((e) {
+      // Ended while the words are open (the other wallet said they do not match): nothing is
+      // left to check; the ended notice says why.
+      if (e.kind != PairingEventKind.ended || e.pairingId != widget.pairingId || _busy || _left || !mounted) return;
+      _left = true;
+      final route = ModalRoute.of(context);
+      if (route == null) return;
+      if (route.isCurrent) {
+        Navigator.pop(context);
+      } else {
+        Navigator.of(context).removeRoute(route);
+      }
+    });
   }
 
   @override
   void dispose() {
+    _collector?.stop();
+    _events?.cancel();
     pairingWordsOnScreen.remove(_onScreen);
     super.dispose();
   }
@@ -176,7 +200,7 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
       risk: true,
       confirmKey: checkStopKey,
     );
-    if (stop) await _answer(PairingCheck.mismatch);
+    if (stop && mounted && !_left) await _answer(PairingCheck.mismatch);
   }
 
   @override
