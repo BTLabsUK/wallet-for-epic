@@ -62,6 +62,7 @@ const Key deskPairCheckWordsKey = ValueKey('desk-pair-check-words');
 const Key deskIncomingPairKey = ValueKey('desk-incoming-pair');
 const Key deskIncomingNotNowKey = ValueKey('desk-incoming-not-now');
 const Key deskWaitingCancelKey = ValueKey('desk-waiting-cancel');
+const Key deskWaitingCloseKey = ValueKey('desk-waiting-close');
 const Key deskWaitingAnswerKey = ValueKey('desk-waiting-answer');
 const Key deskWaitingCopyKey = ValueKey('desk-waiting-copy');
 const Key deskWaitingFinishKey = ValueKey('desk-waiting-finish');
@@ -906,7 +907,10 @@ class _DeskPairWaitingDialogState extends ConsumerState<DeskPairWaitingDialog> {
           ],
         ],
       ),
-      actions: [EButton(key: deskWaitingCancelKey, label: l.commonCancel, kind: EBtnKind.danger, onPressed: _cancel)],
+      actions: [
+        EButton(key: deskWaitingCloseKey, label: l.commonClose, onPressed: () => Navigator.pop(context)),
+        EButton(key: deskWaitingCancelKey, label: l.commonCancel, kind: EBtnKind.danger, onPressed: _cancel),
+      ],
     );
   }
 }
