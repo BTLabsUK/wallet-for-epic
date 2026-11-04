@@ -20,6 +20,7 @@ import 'package:lepic/lepic.dart' as lepic;
 import 'package:lepic/src/rust/api/policy.dart' show HostPolicy;
 import 'package:meta/meta.dart' show visibleForTesting;
 
+import 'directory/wire.dart' show toHex;
 import 'history/export.dart';
 import 'history/meta_store.dart';
 import 'history/wallet_history.dart';
@@ -1239,6 +1240,25 @@ class LepicWalletService implements WalletService {
   @override
   bool validateEpicboxAddress({required String address}) => lepic
       .validateEpicboxAddress(address: lepicEpicboxAddress(address), chain: _lepicChain(_chain));
+
+  @override
+  Future<bool> verifyListingSignature(
+    String publicKeyText,
+    String domain,
+    Uint8List message,
+    Uint8List der,
+  ) async {
+    try {
+      return lepic.verifyAddressSignatureAt(
+        publicKey: publicKeyText,
+        domain: domain,
+        message: message,
+        signature: toHex(der),
+      );
+    } on Object {
+      return false;
+    }
+  }
 
   @override
   bool epicboxAddressOtherChain({required String address}) =>

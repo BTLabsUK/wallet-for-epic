@@ -15,6 +15,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
+import '../directory/pins.dart' show ListingPin;
 import '../log.dart';
 import '../recipient.dart';
 import '../sealed_file.dart';
@@ -682,10 +683,14 @@ class Meta {
     Iterable<String>? favourites,
     Iterable<String>? seededContacts,
     Map<String, String>? seededAddresses,
+    Map<String, ListingPin>? directoryPins,
+    Map<String, int>? paidRequests,
   }) : manual = SplayTreeMap.of(manual ?? const {}),
        favourites = SplayTreeSet.of(favourites ?? const []),
        seededContacts = SplayTreeSet.of(seededContacts ?? const []),
        seededAddresses = SplayTreeMap.of(seededAddresses ?? const {}),
+       directoryPins = SplayTreeMap.of(directoryPins ?? const {}),
+       paidRequests = SplayTreeMap.of(paidRequests ?? const {}),
        paidInvoices = SplayTreeMap.of(paidInvoices ?? const {}),
        issuedInvoices = SplayTreeMap.of(issuedInvoices ?? const {}),
        notes = SplayTreeMap.of(notes ?? const {}),
@@ -742,6 +747,18 @@ class Meta {
       favourites: [for (final v in list('favourites')) _str(v, 'favourite')],
       seededContacts: [for (final v in list('seeded_contacts')) _str(v, 'seeded contact')],
       seededAddresses: map('seeded_addresses').map((k, v) => MapEntry(k, _str(v, 'seeded address'))),
+      directoryPins: map('directory_pins').map((k, v) {
+        final pin = asObject(v, 'directory pin');
+        return MapEntry(
+          k,
+          ListingPin(
+            listingKey: _str(pin['listing_key'], 'directory pin'),
+            firstPaid: _i64(pin['first_paid'], 'directory pin'),
+            lastPaid: _i64(pin['last_paid'], 'directory pin'),
+          ),
+        );
+      }),
+      paidRequests: map('paid_requests').map((k, v) => MapEntry(k, _i64(v, 'paid request'))),
     );
   }
 
@@ -799,6 +816,14 @@ class Meta {
   /// when not empty, and not part of a history file.
   final SplayTreeMap<String, String> seededAddresses;
 
+  /// The listing key paid for each directory listing (`<dkey>:<handle>`, hex), from payment
+  /// links. Written only when not empty, and not part of a history file.
+  final SplayTreeMap<String, ListingPin> directoryPins;
+
+  /// Request ids (hex) of payment links paid, with the unix second, kept 30 days. Written only
+  /// when not empty, and not part of a history file.
+  final SplayTreeMap<String, int> paidRequests;
+
   /// The block time at [height], when cached and known.
   int? blockTime(BigInt height) {
     final t = blockTimes['$height'];
@@ -842,6 +867,10 @@ class Meta {
     if (favourites.isNotEmpty) out['favourites'] = [...favourites];
     if (seededContacts.isNotEmpty) out['seeded_contacts'] = [...seededContacts];
     if (seededAddresses.isNotEmpty) out['seeded_addresses'] = {...seededAddresses};
+    if (directoryPins.isNotEmpty) {
+      out['directory_pins'] = {for (final e in directoryPins.entries) e.key: e.value.toJson()};
+    }
+    if (paidRequests.isNotEmpty) out['paid_requests'] = {...paidRequests};
     return out;
   }
 
@@ -869,6 +898,8 @@ bool mergePlainMeta(Meta into, Meta plain) {
   maps(into.paidInvoices, plain.paidInvoices);
   maps(into.issuedInvoices, plain.issuedInvoices);
   maps(into.seededAddresses, plain.seededAddresses);
+  maps(into.directoryPins, plain.directoryPins);
+  maps(into.paidRequests, plain.paidRequests);
   into.lastActivity ??= plain.lastActivity;
   into.favourites.addAll(plain.favourites);
   into.seededContacts.addAll(plain.seededContacts);

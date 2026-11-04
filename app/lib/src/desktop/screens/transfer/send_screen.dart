@@ -1019,6 +1019,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         dialog(EIcons.qr, l.scanNotEpicTitle, l.scanBadAddress, t);
       // An `epic:` code refused as a whole (a part twice, too many parts, too long) says so
       // at once, not only at Review (LNX-2).
+      // Until Send reads payment links, one is a code the wallet does not read.
+      case PaymentLink() when pasted:
+        fieldError((l) => l.scanNotEpicBody);
+      case PaymentLink(text: final t):
+        dialog(EIcons.qr, l.scanNotEpicTitle, l.scanNotEpicBody, t);
       case UnknownCode() when pasted && looksLikeCode(text):
         fieldError((l) => l.scanNotEpicBody);
       case UnknownCode() when pasted:

@@ -12,6 +12,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 
 import 'desktop/data/mock_hosts.dart' show fakeWalletOnion;
+import 'directory/verify.dart' show refusingVerifier;
 import 'history/wallet_history.dart';
 import 'models.dart';
 import 'trust/policy.dart';
@@ -71,6 +72,16 @@ abstract interface class WalletService {
   /// True for an onion v3 address: 56 characters, with or without `.onion`, an `http://`
   /// prefix, a port or a path, whose version and checksum hold.
   bool validateOnionAddress({required String address});
+
+  /// Whether [der] (DER bytes) is the K3 signature of [message] under [domain] by the Epicbox key
+  /// [publicKeyText] (LEPIC's `verifyAddressSignatureAt`). Needs no open wallet; false for
+  /// anything malformed. A core with no LEPIC refuses everything.
+  Future<bool> verifyListingSignature(
+    String publicKeyText,
+    String domain,
+    Uint8List message,
+    Uint8List der,
+  );
 
   /// What the wallet has learned about the software behind [address] (an Epicbox address), or
   /// null when it knows nothing. Feeds the trust policy (lib/src/trust/policy.dart).
@@ -935,6 +946,14 @@ class FakeWalletService implements WalletService {
 
   @override
   bool epicboxAddressOtherChain({required String address}) => false;
+
+  @override
+  Future<bool> verifyListingSignature(
+    String publicKeyText,
+    String domain,
+    Uint8List message,
+    Uint8List der,
+  ) => refusingVerifier(publicKeyText, domain, message, der);
 
   @override
   bool validateOnionAddress({required String address}) =>

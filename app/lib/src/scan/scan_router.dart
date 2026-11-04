@@ -11,6 +11,7 @@ import 'dart:convert';
 
 import '../amount.dart' show atomicPerEpic, epicDecimals, formatEpic;
 import '../bip39_words.dart';
+import '../directory/wire.dart' show DirectoryError, DirectoryException, Payreq;
 import '../payment_method.dart' show MethodKind;
 import '../recipient.dart';
 
@@ -190,6 +191,19 @@ bool looksLikeRecoveryPhrase(String text) {
   return words.where(bip39Words.contains).length >= words.length - 2;
 }
 
+/// A payment link (`epiccash://pay/1/<p>` or any text holding `p#1/<p>`): the request decoded
+/// by structure, not verified (signatures, network, expiry and `for` are the Send screen's,
+/// through `verifyPayreq`). A link that does not decode carries [error] (`checksum` or
+/// `malformed`) and no request.
+final class PaymentLink extends ScannedCode {
+  const PaymentLink(this.text, {this.request, this.error});
+
+  /// The link as read: the marker and what follows it, up to the first space.
+  final String text;
+  final Payreq? request;
+  final DirectoryError? error;
+}
+
 /// Not an Epic code.
 final class UnknownCode extends ScannedCode {
   const UnknownCode(this.text, {this.reason = UnknownReason.notEpic});
@@ -205,7 +219,10 @@ final class UnknownCode extends ScannedCode {
 bool looksLikeCode(String text) =>
     looksLikeRecoveryPhrase(text) ||
     RegExp(r'^\s*(epic|epiccash|ur):', caseSensitive: false).hasMatch(text) ||
-    classifyScan(text, check: (_) => AddressVerdict.invalid) is SlateText;
+    switch (classifyScan(text, check: (_) => AddressVerdict.invalid)) {
+      SlateText() || PaymentLink() => true,
+      _ => false,
+    };
 
 /// What [raw] is. Never throws; never reads more than [maxScanLength] characters of a line.
 ScannedCode classifyScan(String raw, {required AddressCheck check}) {
@@ -249,6 +266,8 @@ ScannedCode _classify(String raw, AddressCheck check) {
     };
     return PairingLink(kind, shared.group(0)!);
   }
+  final link = _paymentLink(whole);
+  if (link != null) return link;
   final text = _firstLine(raw);
   if (text.isEmpty) return UnknownCode(text);
   final lower = text.toLowerCase();
@@ -276,6 +295,28 @@ ScannedCode _classify(String raw, AddressCheck check) {
     }
   }
   return _payment(text, rest, check);
+}
+
+/// A payment link in [whole]: the last `pay/1/` (else `p#1/`) and the link text after it up to
+/// the first space, so a shared message with the link in it reads. The host is never looked at.
+/// An `epic:` code keeps its note, and `epiccash:` only a `pay/1/` link, whatever they hold.
+PaymentLink? _paymentLink(String whole) {
+  final lower = whole.toLowerCase();
+  if (lower.startsWith('epic:')) return null;
+  if (lower.startsWith('epiccash:') && !lower.startsWith('epiccash://pay/1/')) return null;
+  for (final marker in const ['pay/1/', 'p#1/']) {
+    final at = whole.lastIndexOf(marker);
+    if (at < 0) continue;
+    final end = whole.indexOf(RegExp(r'\s'), at);
+    final link = whole.substring(at, end < 0 ? whole.length : end);
+    if (link.length > maxScanLength) return null;
+    try {
+      return PaymentLink(link, request: Payreq.fromText(link));
+    } on DirectoryException catch (e) {
+      return PaymentLink(link, error: e.error);
+    }
+  }
+  return null;
 }
 
 /// A transaction file's text: slate JSON or an armored slatepack.

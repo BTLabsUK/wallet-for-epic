@@ -110,6 +110,9 @@ Future<void> openScannedCode(
         // A link never carries a QR Payment part, and pasting one is near impossible.
         await _showUnknown(context, UnknownCode(text), origin, scanAgain);
       }
+    // Until Send reads payment links, one is shown as a code the wallet does not read.
+    case PaymentLink(:final text):
+      await _showUnknown(context, UnknownCode(text), origin, scanAgain);
     case SlateText(:final text):
       await _showSlateText(context, text);
     case PairingLink(:final text) when ref.read(pairingSupportedProvider):
