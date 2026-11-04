@@ -10,7 +10,8 @@ import 'theme/brand.dart';
 import 'theme/tokens.dart';
 
 /// The picture of a pairing key on its 7x7-unit tile, [size] logical pixels square. Decorative
-/// to screen readers: the words around it carry the meaning.
+/// to screen readers: the words around it carry the meaning. A hairline in the theme's line
+/// colour outlines the tile, which on a dark surface would otherwise not show its edge.
 class KeyPictureView extends StatelessWidget {
   const KeyPictureView({super.key, required this.picture, this.size = 72});
 
@@ -19,8 +20,33 @@ class KeyPictureView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ExcludeSemantics(
-    child: CustomPaint(size: Size.square(size), painter: KeyPicturePainter(picture)),
+    child: CustomPaint(
+      size: Size.square(size),
+      painter: KeyPicturePainter(picture),
+      foregroundPainter: _TileEdge(context.tokens.lineStrong),
+    ),
   );
+}
+
+class _TileEdge extends CustomPainter {
+  const _TileEdge(this.colour);
+
+  final Color colour;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final r = KeyPicturePainter.tileRadius * size.width / KeyPicturePainter.units;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius((Offset.zero & size).deflate(0.5), Radius.circular(r)),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = colour,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_TileEdge old) => old.colour != colour;
 }
 
 /// Draws a [KeyPicture] to fill the canvas' width: tile, then cells at (1 + x, 1 + y) units,

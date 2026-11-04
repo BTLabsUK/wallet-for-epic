@@ -14,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../devices/device_link_code.dart' show isDeviceLinkText;
+import '../../../key_picture.dart';
 import '../../../l10n.dart' show localDayMonth;
 import '../../../models.dart'
     show
@@ -31,6 +32,7 @@ import '../../../models.dart'
         pairingFailureOf;
 import '../../../pairing_api.dart';
 import '../../../pairing_text.dart';
+import '../../../ui/key_picture.dart';
 import '../../../ui/pairing/invite_links.dart';
 import '../../../trust/policy.dart' show mayOfferPair;
 import '../../../ui/pairing/pairing_notices.dart' show pairingWordsOnScreen;
@@ -668,8 +670,12 @@ class _IncomingDialogState extends ConsumerState<_IncomingDialog> {
     final ts = context.ts;
     final p = widget.preview;
     final sender = p.isRequest ? _sender() : null;
-    final name = sender?.name ?? p.name;
-    final noName = sender == null && isUnnamed(p.name);
+    // As on the phone sheet: the key picture when the invite has a key, and a key on the
+    // BT Labs list shows its listed name.
+    final key = p.inviteKey;
+    final btlabs = sender == null && key != null ? btLabsKeyOf(key) : null;
+    final name = sender?.name ?? btlabs?.name ?? p.name;
+    final noName = sender == null && btlabs == null && isUnnamed(p.name);
     return EDialog(
       title: noName ? l.pairIncomingNoName : l.pairIncomingTitle(name),
       // Wide, as its 520 u width rendered (it snapped up).
@@ -679,10 +685,15 @@ class _IncomingDialogState extends ConsumerState<_IncomingDialog> {
         children: [
           Row(
             children: [
-              DeskPairAvatar(name: noName ? l.pairUnnamed : name, size: 56.u),
+              if (key != null)
+                KeyPictureView(picture: KeyPicture.of(key), size: 56.u)
+              else
+                DeskPairAvatar(name: noName ? l.pairUnnamed : name, size: 56.u),
               SizedBox(width: Sp.x3),
               if (sender != null)
                 EBadge(l.pairInContacts, icon: EIcons.user, tone: ETone.ok)
+              else if (btlabs != null)
+                BtLabsBadge(l.pairBtLabsService)
               else
                 EBadge(noName ? l.pairNoNameGiven : l.pairNameClaimed, icon: EIcons.user),
             ],
