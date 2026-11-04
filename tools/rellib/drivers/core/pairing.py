@@ -209,14 +209,20 @@ class Pairing:
         """Contacts › <name>: the contact page with its Pairing block."""
         d = self.d
         self.ui.ensure_unlocked()  # a wallet that waited long enough locked itself
-        self.ui.nav(NAV_CONTACTS)  # keeps a contact page open: its back (an unnamed button) shows the list
+        self.contacts_list()
+        row = T("pair.contact.row.%s" % name.lower().replace(" ", "_"), role="button", names=(name,), match="line")
+        d.press(row, step="contact-open", then=either(*(shows(t) for _, t in STATES)), timeout=30)
+
+    def contacts_list(self):
+        """Contacts, the list (Pair requests · n shows only there); a contact page left open stays open
+        under nav Contacts, its back (an unnamed button) shows the list."""
+        d = self.d
+        self.ui.nav(NAV_CONTACTS)
         if not d.wait(shows(CONTACTS_SEARCH), 5):
             back = [n for n in d.tree() if n.role == "button" and not n.name.strip()]
             if back:
                 d._act(d.s.press, back[-1])
             d.must(shows(CONTACTS_SEARCH), 20, step="contacts-list")
-        row = T("pair.contact.row.%s" % name.lower().replace(" ", "_"), role="button", names=(name,), match="line")
-        d.press(row, step="contact-open", then=either(*(shows(t) for _, t in STATES)), timeout=30)
 
     def state(self, name, refresh=True):
         """The pairing state with <name> on its contact page: verified | paired | ended | none, plus
@@ -256,12 +262,14 @@ class Pairing:
             self.log("%s: no request offered for %s (the invite page opened)" % (self.ui.which, name))
             return False
         d.press(REQUEST_SEND, step="pair-request-send", then=gone(REQUEST_SEND), timeout=60)
+        self.contacts_list()  # the page stays on <name>, whose own Send would stand in for nav Send
         return True
 
     def accept_request(self, timeout=300):
         """Contacts › Pair requests · n › Pair (the newest)."""
         d = self.d
-        self.ui.nav(NAV_CONTACTS)
+        self.ui.ensure_unlocked()
+        self.contacts_list()
         d.must(shows(REQUESTS_ROW), timeout, step="pair-request-seen")
         with self._own_not_now():
             d.press(REQUESTS_ROW, step="pair-requests-open", then=shows(REQUESTS_PAIR), timeout=20)

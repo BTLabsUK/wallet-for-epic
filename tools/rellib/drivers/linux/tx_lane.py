@@ -420,6 +420,13 @@ class TxLane(Lane):
 
     def _sweep_end(self, check=True):
         """sweep-end; returned_ok read after it when [check] (else after the link phases)."""
+        for k in ("a", "b"):  # off the contact pages: their own Send and Receive would stand in for nav's
+            if not (k in self.w and self.w[k].pair):
+                continue
+            try:
+                self.w[k].pair.contacts_list()
+            except Exception as e:  # noqa: BLE001 — sweep-end's nav says the rest
+                self.log("%s: Contacts list not reached: %s" % (k.upper(), e))
         try:
             self._sweep_phase("sweep-end", ("b", "a"))
         except core_lane.Fault as e:
