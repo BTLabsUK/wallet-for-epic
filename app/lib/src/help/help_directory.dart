@@ -126,7 +126,7 @@ List<HelpTopic> _de(bool phone) {
         const HelpBlock.ul([
           '**@name · über** ein Kontaktname: Die Aufforderung kam über einen Dienst, mit dem Sie in dieser Wallet gekoppelt sind.',
           '**Nicht von einem Dienst, mit dem Sie gekoppelt sind**: Die Zahlung kann trotzdem richtig sein. Fragen Sie den Empfänger.',
-          '**Sie haben diese Aufforderung bezahlt am** Datum: Sie haben sie schon bezahlt. **Erneut bezahlen** steht bereit, falls Sie es wollen.',
+          '**Sie haben diese Anfrage bezahlt am** Datum: Sie haben sie schon bezahlt. **Erneut bezahlen** steht bereit, falls Sie es wollen.',
           '**@name wird jetzt auf eine andere Wallet bezahlt als bei Ihrer Zahlung am** Datum: Die Wallet des Empfängers hat sich geändert, seit Sie ihn zuletzt per Link bezahlt haben. Zahlen Sie nur, wenn er es Ihnen gesagt hat.',
         ]),
       ],
@@ -161,7 +161,7 @@ List<HelpTopic> _de(bool phone) {
       [
         const HelpBlock.p('Eine Link-Zahlung wartet auf die Wallet des Empfängers wie jede Epicbox-Zahlung. Der Empfänger muss nicht gerade online sein.'),
         const HelpBlock.ul([
-          'Nach 24 Stunden zeigt sie **Noch nicht beantwortet**, mit **Abbrechen und per Epicbox senden**.',
+          'Nach 24 Stunden zeigt sie **Noch nicht beantwortet**, mit **Stornieren und per Epicbox senden**.',
           'Nach 7 Tagen hat der Epicbox-Server die Zahlung verworfen. Brechen Sie sie ab, um die Coins freizugeben.',
         ]),
       ],
@@ -202,7 +202,7 @@ List<HelpTopic> _pl(bool phone) {
         const HelpBlock.ul([
           '**@nazwa · przez** nazwa kontaktu: prośba przyszła przez usługę, z którą sparowano ten portfel.',
           '**Nie z usługi, z którą się sparowano**: płatność nadal może być właściwa. Zapytaj odbiorcę.',
-          '**Ta prośba została zapłacona dnia** data: już ją zapłacono. **Zapłać ponownie** jest dostępne, jeśli tak chcesz.',
+          '**Tę prośbę opłacono** data: już ją zapłacono. **Zapłać ponownie** jest dostępne, jeśli tak chcesz.',
           '**@nazwa dostaje teraz płatności na inny portfel niż w dniu Twojej płatności** data: portfel odbiorcy zmienił się od Twojej ostatniej płatności linkiem. Płać tylko wtedy, gdy odbiorca Cię o tym poinformował.',
         ]),
       ],
@@ -278,7 +278,7 @@ List<HelpTopic> _ru(bool phone) {
         const HelpBlock.ul([
           '**@имя · через** имя контакта: запрос пришёл через сервис, с которым связан этот кошелёк.',
           '**Не из сервиса, с которым вы связались**: платёж всё равно может быть верным. Спросите получателя.',
-          '**Вы оплатили этот запрос** дата: он уже оплачен. **Заплатить снова** доступно, если это нужно.',
+          '**Вы оплатили этот запрос** дата: он уже оплачен. **Оплатить снова** доступно, если это нужно.',
           '**@имя теперь получает платежи на другой кошелёк, чем когда вы платили** дата: кошелёк получателя изменился с вашей прошлой оплаты по ссылке. Платите, только если он вам об этом сказал.',
         ]),
       ],
@@ -313,7 +313,7 @@ List<HelpTopic> _ru(bool phone) {
       [
         const HelpBlock.p('Платёж по ссылке ждёт кошелёк получателя, как любой платёж через Epicbox. Получателю не нужно быть онлайн прямо сейчас.'),
         const HelpBlock.ul([
-          'Через 24 часа он показывает **Ответа пока нет** с кнопкой **Отменить и отправить через Epicbox**.',
+          'Через 24 часа он показывает **Пока без ответа** с кнопкой **Отменить и отправить через Epicbox**.',
           'Через 7 дней сервер Epicbox отбросил платёж. Отмените его, чтобы освободить монеты.',
         ]),
       ],
@@ -354,7 +354,7 @@ List<HelpTopic> _zh(bool phone) {
         const HelpBlock.ul([
           '**@名称 · 经由** 联系人名称：请求来自这个钱包配对过的服务。',
           '**不是来自你配对过的服务**：付款仍可能是对的。请询问收款方。',
-          '**你已在某日支付过此请求**：你已经付过了。如果确实要再付，可用 **再付一次**。',
+          '**你已在某日支付此请求**：你已经付过了。如果确实要再付，可用 **再次付款**。',
           '**@名称现在收款到的钱包，与你在某日付款时不同**：自你上次通过链接向对方付款以来，对方的钱包变了。只有对方告诉过你时才付款。',
         ]),
       ],
@@ -389,7 +389,7 @@ List<HelpTopic> _zh(bool phone) {
       [
         const HelpBlock.p('链接付款和任何 Epicbox 付款一样，会等待收款方的钱包。对方不必此刻在线。'),
         const HelpBlock.ul([
-          '24 小时后会显示 **尚无回应**，并带有 **取消并通过 Epicbox 发送**。',
+          '24 小时后会显示 **尚未应答**，并带有 **取消并经 Epicbox 发送**。',
           '7 天后 Epicbox 服务器已丢弃该付款。取消它即可释放币。',
         ]),
       ],
