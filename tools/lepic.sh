@@ -19,6 +19,8 @@
 #   tools/lepic.sh lib               print the path of the Linux library
 #   tools/lepic.sh prebuild          sync, then fill the shared cache for linux; keep two keys
 #   tools/lepic.sh prune-shared      remove shared builds (below) unused for LEPIC_SHARED_DAYS (14)
+#   tools/lepic.sh smoke [--interop] [--rev <ref> | --dir <path>] [<out dir>]
+#                                    the LEPIC core smoke: LEPIC's CLI acceptance (below)
 #
 # The Linux library is cached in /tmp/epic-build/lepic-prebuilt/<key>/ (LEPIC_PREBUILT_DIR), keyed by
 # both pins, the target, the Rust toolchain and WFE_TOR. A hit copies and checks it; a miss builds
@@ -41,6 +43,24 @@
 # stays the same from pin to pin, so a new pin rebuilds only the crates it changed, and the three
 # ABIs build at once, each in its own clone and cargo target, with a third of the cores each
 # (LEPIC_ANDROID_JOBS). Same features, targets and flags as one build after another.
+#
+# `smoke` is the LEPIC core smoke, for whoever changes LEPIC: run it after a LEPIC change, before
+# any app or release lane. It runs LEPIC's interop/acceptance/run.sh, which drives the `lepic` CLI
+# against a local Docker stack (reference node, two epic-wallets, the Epicbox relay, a private
+# test chain): sends both ways over Epicbox and files, invoices both ways, cancel, restore, and
+# two LEPIC wallets pairing by invite, then invoicing and paying through contact mailboxes. It
+# stops at the first failing step and names it. --interop then runs interop/run.sh too, the
+# scenarios against the official wallet (as long again).
+#   (default)      LEPIC at the pin, tools/lepic.rev
+#   --rev <ref>    a branch, tag or commit of LEPIC_REPO, else ~/lepic
+#   --dir <path>   a LEPIC checkout as it is, uncommitted changes included
+# The pin and --rev run from one clone per host, ~/.cache/wfe-lepic/smoke (LEPIC_SMOKE_DIR),
+# moved there under its lock; --dir runs in the checkout. The stack's binaries stay in that
+# tree's interop/.work (interop/build.sh, in Docker): the upstream ones are built once per
+# upstream pin, lepic incrementally. The installed `lepic` is never touched: the run tests
+# interop/.work/bin/lepic. The result table and logs go to <out dir> (default: a new temp dir).
+# The stack takes 127.0.0.1:43413 and :3423 and refuses to start while something holds them; its
+# lock is ~/.cache/wfe-lepic/lepic-acceptance.lock (TMPDIR=~/.cache/wfe-lepic for a run by hand).
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
@@ -209,7 +229,121 @@ android_build_shared() {
   [ "$failed" = 0 ] || { echo "LEPIC's Android build failed (above)" >&2; exit 1; }
 }
 
+smoke_dir="${LEPIC_SMOKE_DIR:-$shared_dir/smoke}"
+
+# Runs one of LEPIC's stack scripts ($4...) from the tree $2, whose steps are listed in the
+# array $3=( "name:function" ... ) of its step files, with its output in $out/$1.log, and stops
+# it at its first failed step: the scripts log `[hh:mm:ss] <step name>` when a step starts and
+# `[hh:mm:ss] FAIL: <detail>` when it fails. Stopping it runs its own teardown.
+smoke_run() {
+  local name="$1" logs="$2/.work/logs" t0=$SECONDS line step="" failed="" rc=0 newest names
+  names="$(printf 'setup and funding\n'; sed -n "/^$3=(/,/^)/p" "$2"/*.sh | sed -n 's/^ *"\([^:"]*\):.*/\1/p')"
+  shift 3
+  echo "== smoke: $name"
+  # The scripts' stack lock is ${TMPDIR}/<project>.lock: one TMPDIR for every smoke run on the host.
+  exec {pipe}< <(TMPDIR="$shared_dir" exec timeout --kill-after=60 "${LEPIC_SMOKE_TIMEOUT:-1800}" "$@" 2>&1; echo "== exit $?")
+  while IFS= read -r line <&"$pipe"; do
+    printf '%s\n' "$line" >> "$out/$name.log"
+    case "$line" in
+      "== exit "*) rc="${line#== exit }" ;;
+      "["??:??:??"] FAIL: "*)
+        failed="$step: ${line#*FAIL: }"
+        echo "   FAIL  $failed"
+        pkill -TERM -f -- "$1" 2>/dev/null || true ;;
+      "["??:??:??"] PASS: "*) echo "   ok    $step" ;;
+      "["??:??:??"] "*) grep -qxF -- "${line#\[??:??:??\] }" <<<"$names" && step="${line#\[??:??:??\] }" ;;
+    esac
+  done
+  exec {pipe}<&-
+  newest="$(ls -1d "$logs"/*/ 2>/dev/null | tail -1)"
+  [ -n "$newest" ] && echo "   logs: $newest"
+  if [ -z "$failed" ] && [ "$rc" = 0 ]; then
+    echo "== smoke: $name passed in $((SECONDS - t0))s"
+    [ -f "$newest/results.txt" ] && cat "$newest/results.txt"
+    return 0
+  fi
+  if [ -z "$failed" ]; then
+    [ "$rc" = 124 ] && failed="timed out after ${LEPIC_SMOKE_TIMEOUT:-1800}s" || failed="exit $rc at: $step"
+    tail -n 30 "$out/$name.log"
+  fi
+  echo "LEPIC core smoke FAILED after $((SECONDS - t0))s: $name: $failed (log: $out/$name.log)" >&2
+  return 1
+}
+
+# Copies the smoke clone's upstream binaries (node, epic-wallet, the relay's checker) into the
+# checkout $1 when they are built from the commits its interop/pins.env names and it has none
+# of its own from them, so a new LEPIC worktree does not compile them again.
+smoke_seed() {
+  local from="$smoke_dir/interop/.work/bin" to="$1/interop/.work/bin" b want
+  [ -d "$from" ] || return 0
+  for b in epic:EPIC_COMMIT epic-wallet:EPIC_WALLET_COMMIT epicboxlib:EPICBOX_COMMIT; do
+    want="$(. "$1/interop/pins.env" && eval echo "\${${b#*:}}")"
+    [ "$(cat "$to/${b%%:*}.commit" 2>/dev/null)" != "$want" ] || continue
+    [ "$(cat "$from/${b%%:*}.commit" 2>/dev/null)" = "$want" ] || continue
+    mkdir -p "$to"
+    cp -f "$from/${b%%:*}" "$to/${b%%:*}"
+    cp -f "$from/${b%%:*}.commit" "$to/${b%%:*}.commit"
+    echo "reused ${b%%:*} from $from"
+  done
+}
+
 case "${1:-}" in
+  smoke)
+    shift
+    interop=0 smoke_rev="" tree=""
+    while [ "$#" -gt 0 ]; do
+      case "$1" in
+        --interop) interop=1 ;;
+        --rev) smoke_rev="${2:?--rev needs a branch, tag or commit}"; shift ;;
+        --dir) tree="$(cd "${2:?--dir needs a LEPIC checkout}" && pwd)"; shift ;;
+        -*) sed -n '/^# `smoke`/,/^# The stack takes/p' "$0" >&2; exit 2 ;;
+        *) out="$1" ;;
+      esac
+      shift
+    done
+    out="${out:-$(mktemp -d)}"
+    mkdir -p "$out"
+    out="$(cd "$out" && pwd)"
+    t0=$SECONDS
+    if [ -z "$tree" ]; then
+      tree="$smoke_dir"
+      want="$rev" what="the pin"
+      if [ -n "$smoke_rev" ]; then
+        smoke_repo="${LEPIC_REPO:-$HOME/lepic}"
+        want="$(git -C "$smoke_repo" rev-parse --verify "$smoke_rev^{commit}")" what="$smoke_rev"
+      else
+        smoke_repo="$source_repo"
+      fi
+      exec {lock}>>"$smoke_dir.lock"
+      flock -n "$lock" || { echo "waiting for another smoke run from $smoke_dir"; flock "$lock"; }
+      if [ ! -d "$smoke_dir/.git" ]; then
+        mkdir -p "$(dirname "$smoke_dir")"
+        git clone --quiet --no-checkout "$smoke_repo" "$smoke_dir"
+      fi
+      git -C "$smoke_dir" cat-file -e "$want^{commit}" 2>/dev/null || git -C "$smoke_dir" fetch --quiet "$smoke_repo" "$want"
+      git -C "$smoke_dir" checkout --quiet --force --detach "$want"
+      check_clone "$smoke_dir" "$want"
+      echo "LEPIC core smoke of $what: $(git -C "$tree" log --oneline -1) in $tree"
+    else
+      echo "LEPIC core smoke of the checkout $tree: $(git -C "$tree" describe --always --dirty)"
+      smoke_seed "$tree"
+    fi
+    echo "output: $out"
+    echo "== smoke: build (interop/build.sh: lepic incrementally, the pinned upstream binaries once)"
+    if ! "$tree/interop/build.sh" > "$out/build.log" 2>&1; then
+      tail -n 30 "$out/build.log"
+      echo "LEPIC core smoke FAILED: build (log: $out/build.log)" >&2
+      exit 1
+    fi
+    echo "== smoke: build done in $((SECONDS - t0))s"
+    smoke_run acceptance "$tree/interop/acceptance" STEPS \
+      "$tree/interop/acceptance/run.sh" --no-build --lepic "$tree/interop/.work/bin/lepic" || exit 1
+    if [ "$interop" = 1 ]; then
+      smoke_run interop "$tree/interop" SCENARIOS "$tree/interop/run.sh" --no-build || exit 1
+    fi
+    [ "$tree" != "$smoke_dir" ] || touch "$smoke_dir.used"
+    echo "LEPIC core smoke passed in $((SECONDS - t0))s"
+    ;;
   sync)
     sync_clone "$binding" "$binding_repo" "$binding_rev"
     echo "lepic-flutter at $(git -C "$binding" log --oneline -1)"
