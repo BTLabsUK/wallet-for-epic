@@ -50,7 +50,7 @@ run `up.sh` (or the two `health` commands) right before a lane.
 
 ## Node
 
-- The 4.1.1 release binary (`/tmp/epic-build/node-bin/4.1.1`) and the mainnet `foundation.json`, copied
+- The 4.1.2 release binary (`/tmp/epic-build/node-bin/4.1.2`) and the mainnet `foundation.json`, copied
   into `bin/` with their sha256 in `PROVENANCE.md`.
 - `archive_mode = false`: a pruned node. It fast-syncs headers, downloads the state at the horizon and
   keeps only recent full blocks.
@@ -59,7 +59,7 @@ run `up.sh` (or the two `health` commands) right before a lane.
   warns about.
 - Owner API: `node.sh` writes `node/.api_secret` (0600) before the first start; a relocated config
   names a secret path that nothing creates, which would leave the owner API open. `health` fails when
-  `/v2/owner get_peers` answers without it. 4.1.1 keeps `GET /v1/status`, `GET /v1/version` and owner
+  `/v2/owner get_peers` answers without it. 4.1.2 keeps `GET /v1/status`, `GET /v1/version` and owner
   `get_status` public by design. The foreign API has no secret: the app (LEPIC) sends none to a node.
 
 ## Relay
