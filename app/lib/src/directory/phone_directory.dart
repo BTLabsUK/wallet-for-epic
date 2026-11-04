@@ -11,6 +11,7 @@ import '../providers.dart';
 import 'directory_providers.dart';
 import 'directory_service.dart';
 import 'directory_store.dart';
+import 'receipts.dart';
 
 /// The open wallet's directories, or null while locked. Read on open; the app's foreground tick
 /// and its resume call [DirectoryService.sync].
@@ -36,3 +37,11 @@ final directoryServiceProvider = Provider<DirectoryService?>((ref) {
 });
 
 final phoneDirectories = DirectoryProviders(directoryServiceProvider);
+
+/// The records of payments made from links, over the open wallet's meta file, for
+/// [linkPaymentRecordsProvider]; a change bumps [linkPaymentTickProvider].
+final phoneLinkPayments = Provider<LinkPaymentRecords>((ref) {
+  final session = ref.watch(sessionProvider);
+  if (session == null) return MemoryLinkPayments();
+  return session.linkPaymentRecords(onChange: () => ref.read(linkPaymentTickProvider.notifier).bump());
+});

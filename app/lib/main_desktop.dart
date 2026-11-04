@@ -35,8 +35,10 @@ import 'src/desktop/data/desk_update.dart' show deskUpdateAutoProvider;
 import 'src/desktop/keyring_check.dart';
 import 'src/desktop/screens/settings/local_node_dialogs.dart' show deskPickFolder;
 import 'src/desktop/data/desk_levels.dart';
-import 'src/desktop/data/directory_state.dart' show deskDirectories;
+import 'src/desktop/data/directory_state.dart' show deskDirectories, deskLinkPayments;
 import 'src/directory/membership.dart' show directoryMembershipProvider;
+import 'src/directory/payment_refusals.dart' show paymentRefusalsProvider;
+import 'src/directory/receipts.dart' show directoryReceiptsProvider, linkPaymentRecordsProvider;
 import 'src/desktop/data/desk_store.dart';
 import 'src/desktop/data/file_dialogs.dart';
 import 'src/desktop/data/files.dart';
@@ -76,7 +78,7 @@ Future<void> main(List<String> args) async {
     await loadShippedSettings();
     final window = await SystemDeskWindow.init();
     await placeDeskWindow(null);
-    runApp(ProviderScope(overrides: [launch, directoryMembershipProvider.overrideWith((ref) => ref.watch(deskDirectories.membership)), if (window != null) deskWindowProvider.overrideWithValue(window)], child: const DeskApp()));
+    runApp(ProviderScope(overrides: [launch, directoryMembershipProvider.overrideWith((ref) => ref.watch(deskDirectories.membership)), paymentRefusalsProvider.overrideWith((ref) => ref.watch(deskDirectories.refusals)), directoryReceiptsProvider.overrideWith((ref) => ref.watch(deskDirectories.receipts)), linkPaymentRecordsProvider.overrideWith((ref) => ref.watch(deskLinkPayments)), if (window != null) deskWindowProvider.overrideWithValue(window)], child: const DeskApp()));
     WidgetsBinding.instance.addPostFrameCallback((_) => removeSplash());
     return;
   }
@@ -238,6 +240,9 @@ Future<List<Override>> deskOverrides() async {
     deskApiProvider.overrideWithValue(wallet),
     // What the rest of the app may ask of the directories the open wallet joined.
     directoryMembershipProvider.overrideWith((ref) => ref.watch(deskDirectories.membership)),
+    paymentRefusalsProvider.overrideWith((ref) => ref.watch(deskDirectories.refusals)),
+    directoryReceiptsProvider.overrideWith((ref) => ref.watch(deskDirectories.receipts)),
+    linkPaymentRecordsProvider.overrideWith((ref) => ref.watch(deskLinkPayments)),
     // The balance line's dollars (overview_screen.dart), not the phone's fiat settings; none on
     // a dev build's test network.
     fiatChoiceProvider.overrideWith((ref) async => (show: preset.chain == mainnetPreset.chain, currency: 'usd')),

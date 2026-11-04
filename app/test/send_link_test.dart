@@ -65,7 +65,13 @@ class _Session extends FakeWalletSession {
   LinkMemory linkMemory() => memory ?? const LinkMemory();
 
   @override
-  Future<void> recordLinkPayment(Payreq request, int paidAt) async => recorded.add(request);
+  Future<void> recordLinkPayment(Payreq request, int paidAt, {String? txId}) async {
+    recorded.add(request);
+    recordedTxIds.add(txId);
+  }
+
+  /// The slate ids the app passed, in the order of [recorded].
+  final recordedTxIds = <String?>[];
 }
 
 final _forty = WalletSummary(

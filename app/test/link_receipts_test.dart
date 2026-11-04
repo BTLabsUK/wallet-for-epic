@@ -4,7 +4,6 @@
 import 'dart:io';
 
 import 'package:epic_wallet/src/directory/directory.dart';
-import 'package:epic_wallet/src/directory/receipts.dart';
 import 'package:epic_wallet/src/history/directory_pins.dart';
 import 'package:epic_wallet/src/history/meta_store.dart';
 import 'package:flutter_test/flutter_test.dart';

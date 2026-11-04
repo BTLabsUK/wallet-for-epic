@@ -7,7 +7,7 @@
 // A press that does nothing, or only shows a toast, fails unless [_allowed] says why. A press
 // that reaches an API method the real wallet (LepicDeskWallet) only stubs fails too.
 import 'package:epic_wallet/src/cancel_final.dart' show CancelResult;
-import 'package:epic_wallet/src/directory/directory.dart' show DirectoryMembership, LinkOutcome, Payreq;
+import 'package:epic_wallet/src/directory/directory.dart' show DirectoryMembership, LinkOutcome, LinkPaymentRecords, Payreq;
 import 'package:epic_wallet/src/scan/scan_router.dart' show PaymentLink;
 import 'package:epic_wallet/src/trust/policy.dart' show PeerCompat;
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
@@ -141,7 +141,10 @@ class _Recorder implements DeskWalletApi, MockBacked {
   Future<LinkOutcome> openPaymentLink(PaymentLink link, {required DirectoryMembership membership, required int nowSeconds}) =>
       _r('openPaymentLink', () => _m.openPaymentLink(link, membership: membership, nowSeconds: nowSeconds));
   @override
-  Future<void> recordLinkPayment(Payreq request, int paidAt) => _r('recordLinkPayment', () => _m.recordLinkPayment(request, paidAt));
+  Future<void> recordLinkPayment(Payreq request, int paidAt, {String? txId}) =>
+      _r('recordLinkPayment', () => _m.recordLinkPayment(request, paidAt, txId: txId));
+  @override
+  LinkPaymentRecords linkPaymentRecords({void Function()? onChange}) => _m.linkPaymentRecords(onChange: onChange);
   @override
   Future<bool> checkPassword(String password) => _r('checkPassword', () => _m.checkPassword(password));
   @override

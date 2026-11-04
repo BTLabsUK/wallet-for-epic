@@ -14,6 +14,7 @@ import 'package:crypto/crypto.dart';
 import 'desktop/data/mock_hosts.dart' show fakeWalletOnion;
 import 'directory/base58.dart' show epicboxKeyText, netMainnet;
 import 'directory/pins.dart' show LinkMemory;
+import 'directory/receipts.dart' show LinkPaymentRecords;
 import 'directory/verify.dart' show refusingVerifier;
 import 'directory/wire.dart' show Payreq;
 import 'history/wallet_history.dart';
@@ -558,7 +559,11 @@ abstract interface class WalletSession {
   LinkMemory linkMemory();
 
   /// Records that the user paid [request] from its link at [paidAt] (unix seconds).
-  Future<void> recordLinkPayment(Payreq request, int paidAt);
+  Future<void> recordLinkPayment(Payreq request, int paidAt, {String? txId});
+
+  /// The records of payments made from links ([recordLinkPayment]); [onChange] runs after one
+  /// changes.
+  LinkPaymentRecords linkPaymentRecords({void Function()? onChange});
 
   /// Encrypted history file that only a wallet with the same recovery phrase can import. It
   /// carries what the phrase and a scan cannot give back; the app adds the wallet's
@@ -2501,7 +2506,11 @@ class FakeWalletSession implements WalletSession, ListingKeys {
   LinkMemory linkMemory() => invoiceHistory.linkMemory();
 
   @override
-  Future<void> recordLinkPayment(Payreq request, int paidAt) => invoiceHistory.recordLinkPayment(request, paidAt);
+  Future<void> recordLinkPayment(Payreq request, int paidAt, {String? txId}) =>
+      invoiceHistory.recordLinkPayment(request, paidAt, txId: txId);
+
+  @override
+  LinkPaymentRecords linkPaymentRecords({void Function()? onChange}) => invoiceHistory.linkPaymentRecords(onChange: onChange);
 
   static const _exportMagic = 'FAKE-WFEH';
 

@@ -9,6 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'directory_model.dart';
 import 'directory_service.dart';
 import 'membership.dart';
+import 'payment_refusals.dart';
+import 'receipts.dart';
 
 /// What the screens show of the service: its book and where each words step stands.
 class DirectoryView {
@@ -57,6 +59,16 @@ class DirectoryProviders {
   /// [DirectoryMembership] over the open wallet's service, for [directoryMembershipProvider].
   late final Provider<DirectoryMembership> membership = Provider<DirectoryMembership>(
     (ref) => ref.watch(service) ?? const NoDirectoryMembership(),
+  );
+
+  /// [PaymentRefusals] over the open wallet's service, for [paymentRefusalsProvider].
+  late final Provider<PaymentRefusals> refusals = Provider<PaymentRefusals>(
+    (ref) => ref.watch(service) ?? const NoPaymentRefusals(),
+  );
+
+  /// [DirectoryReceipts] over the open wallet's service, for [directoryReceiptsProvider].
+  late final Provider<DirectoryReceipts> receipts = Provider<DirectoryReceipts>(
+    (ref) => ref.watch(service) ?? const NoDirectoryReceipts(),
   );
 }
 

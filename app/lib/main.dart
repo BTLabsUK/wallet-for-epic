@@ -10,7 +10,9 @@ import 'src/app.dart';
 import 'src/app_log.dart';
 import 'src/data_folder.dart';
 import 'src/directory/membership.dart' show directoryMembershipProvider;
-import 'src/directory/phone_directory.dart' show phoneDirectories;
+import 'src/directory/payment_refusals.dart' show paymentRefusalsProvider;
+import 'src/directory/receipts.dart' show directoryReceiptsProvider, linkPaymentRecordsProvider;
+import 'src/directory/phone_directory.dart' show phoneDirectories, phoneLinkPayments;
 import 'src/password_lists.dart';
 import 'src/phone_tor.dart';
 import 'src/relay_directory.dart' show statusSite;
@@ -96,6 +98,9 @@ Future<void> main() async {
           networkChangesProvider.overrideWithValue(androidNetworkChanges()),
           // What the rest of the app may ask of the directories the open wallet joined.
           directoryMembershipProvider.overrideWith((ref) => ref.watch(phoneDirectories.membership)),
+          paymentRefusalsProvider.overrideWith((ref) => ref.watch(phoneDirectories.refusals)),
+          directoryReceiptsProvider.overrideWith((ref) => ref.watch(phoneDirectories.receipts)),
+          linkPaymentRecordsProvider.overrideWith((ref) => ref.watch(phoneLinkPayments)),
         ],
         child: const WalletApp(),
       ),

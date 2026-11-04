@@ -1494,7 +1494,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           if (res is SendDone) {
             if (link != null) {
               _paidLink = link;
-              unawaited(api.recordLinkPayment(link.request, ref.read(linkClockProvider)().millisecondsSinceEpoch ~/ 1000));
+              unawaited(api.recordLinkPayment(link.request, ref.read(linkClockProvider)().millisecondsSinceEpoch ~/ 1000, txId: res.tx.slateId));
             } else {
               _paidLink = null;
             }

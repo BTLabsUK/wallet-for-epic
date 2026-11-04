@@ -5,6 +5,7 @@ library;
 import 'dart:typed_data';
 
 import 'package:epic_wallet/src/directory/pins.dart' show LinkMemory;
+import 'package:epic_wallet/src/directory/receipts.dart' show LinkPaymentRecords;
 import 'package:epic_wallet/src/directory/wire.dart' show Payreq;
 import 'package:epic_wallet/src/wallet_service.dart';
 
@@ -360,7 +361,11 @@ class DelegatingWalletSession implements WalletSession, ListingKeys {
   LinkMemory linkMemory() => _inner.linkMemory();
 
   @override
-  Future<void> recordLinkPayment(Payreq request, int paidAt) => _inner.recordLinkPayment(request, paidAt);
+  Future<void> recordLinkPayment(Payreq request, int paidAt, {String? txId}) =>
+      _inner.recordLinkPayment(request, paidAt, txId: txId);
+
+  @override
+  LinkPaymentRecords linkPaymentRecords({void Function()? onChange}) => _inner.linkPaymentRecords(onChange: onChange);
 
   @override
   Future<Uint8List> exportHistory({String? walletName, Map<String, Object?>? settings}) =>

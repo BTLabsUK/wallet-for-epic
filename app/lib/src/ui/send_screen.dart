@@ -1678,7 +1678,7 @@ class _SendViewState extends ConsumerState<SendView> {
       // The pin and the paid request id of a link: what "paid before" and "changed wallet" read.
       if (paidLink != null) {
         try {
-          await session.recordLinkPayment(paidLink.request, linkNow().millisecondsSinceEpoch ~/ 1000);
+          await session.recordLinkPayment(paidLink.request, linkNow().millisecondsSinceEpoch ~/ 1000, txId: tx.slateId);
         } catch (error) {
           logWarn('send', 'recording the link payment failed: ${describeError(englishStrings, error)}');
         }
