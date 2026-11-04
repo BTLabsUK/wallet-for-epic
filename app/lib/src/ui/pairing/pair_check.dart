@@ -21,6 +21,7 @@ import '../contacts_screen.dart';
 import '../status_icons.dart';
 import '../theme/brand.dart';
 import '../theme/tokens.dart';
+import 'add_to_contacts_button.dart';
 import 'pairing_notices.dart' show pairingWordsOnScreen;
 import 'pairing_parts.dart';
 
@@ -32,7 +33,6 @@ const Key checkDoneKey = ValueKey('check-done');
 const Key checkAllowKey = ValueKey('check-allow');
 const Key resultAllowKey = ValueKey('result-allow');
 const Key resultSaveNewKey = ValueKey('result-save-new');
-const Key resultAddToKey = ValueKey('result-add-to');
 const Key resultAddToNamedKey = ValueKey('result-add-to-named');
 
 /// Asks before removing the pairing with [name]: Keep, or Remove in risk. Undoing it
@@ -225,8 +225,6 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(name, style: theme.textTheme.titleMedium?.copyWith(fontFamily: t.headFamily)),
-                    const SizedBox(height: 4),
-                    const ClaimedNameBadge(),
                   ],
                 ),
               ),
@@ -436,25 +434,10 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
                         ),
                         const SizedBox(height: 8),
                       ],
-                      // Two halves of the card's width, the same gutter on both sides.
-                      Row(
-                        children: [
-                          Expanded(
-                            child: FilledButton.tonal(
-                              key: resultSaveNewKey,
-                              onPressed: _busy ? null : () => _saveNew(record),
-                              child: Text(l.pairSaveNewContact, textAlign: TextAlign.center),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: OutlinedButton(
-                              key: resultAddToKey,
-                              onPressed: _busy ? null : () => _addTo(record),
-                              child: Text(l.pairAddToAContact, textAlign: TextAlign.center),
-                            ),
-                          ),
-                        ],
+                      AddToContactsButton(
+                        key: resultSaveNewKey,
+                        onNew: _busy ? null : () => _saveNew(record),
+                        onExisting: _busy ? null : () => _addTo(record),
                       ),
                     ],
                   ),

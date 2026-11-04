@@ -5039,7 +5039,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String deskInvIssuerWaitingText(String payer) {
-    return 'Доставлено на сервер Epicbox $payer. Ничего не оплачено, пока плательщик не одобрит.';
+    return 'Доставлено через Epicbox. Ничего не оплачено, пока $payer не одобрит.';
   }
 
   @override
@@ -13705,17 +13705,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Часть этого кода слишком длинная и была пропущена.';
 
   @override
-  String get payeeNameLabel => 'Имя от получателя (не проверено)';
+  String get payeeNameLabel => 'Имя от получателя';
 
   @override
-  String get payeeNoteLabel => 'Сообщение от получателя (не проверено)';
-
-  @override
-  String get payeeUnverifiedTitle => 'Не проверено';
-
-  @override
-  String get payeeUnverifiedHint =>
-      'Имя и заметку записывает в код тот, кто его создал. Их никто не проверяет. Проверяйте адрес и сумму, а не имя.';
+  String get payeeNoteLabel => 'Сообщение от получателя';
 
   @override
   String get sendNoteFromCodeHelper => 'Из кода. Получатель тоже его увидит.';
@@ -14274,9 +14267,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String pairIncomingTitle(String name) {
     return 'Запрос на сопряжение от: $name';
   }
-
-  @override
-  String get pairNameClaimedShort => 'Имя выбрано собеседником';
 
   @override
   String get pairVerifiedService => 'Проверенный сервис BT Labs';
@@ -14844,28 +14834,21 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get reqPaidWaitingBody =>
-      'Ваша часть выполнена. Биржа завершает и публикует; это закроется само.';
+      'Ваша часть выполнена. Другая сторона завершает и публикует; это закроется само.';
 
   @override
   String get reqTlPaid => 'Оплачено';
 
   @override
-  String reqTlDelivered(String name) {
-    return 'Доставлено на сервер Epicbox $name';
-  }
+  String get reqTlDelivered => 'Доставлено через Epicbox';
 
   @override
-  String reqTlAnswerDelivered(String name) {
-    return 'Ответ доставлен на сервер $name';
-  }
+  String get reqTlAnswerDelivered => 'Ответ доставлен через Epicbox';
 
   @override
   String reqTlPosted(String name) {
     return 'Опубликовано: $name';
   }
-
-  @override
-  String get reqTlPostedHint => 'Обычно в течение нескольких минут';
 
   @override
   String get reqTlConfirming => 'Подтверждается';
@@ -14936,7 +14919,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get reqReceivedWaitingBody =>
-      'Ничего делать не нужно. Биржа публикует платёж; подтверждения последуют.';
+      'Ничего делать не нужно. Отправитель публикует платёж; подтверждения последуют.';
 
   @override
   String get reqNewTitle => 'Новый счёт';

@@ -40,7 +40,7 @@
   "deskInvIssuerSendFile": "Через файл",
   "deskInvIssuerLate": "После завершения этого счёта пришёл платёж. Он отклонён; ничего не изменилось.",
   "deskInvIssuerPaidText": "{payer} оплатил. Ваш кошелёк завершил платёж и отправил его в сеть.",
-  "deskInvIssuerWaitingText": "Доставлено на сервер Epicbox {payer}. Ничего не оплачено, пока плательщик не одобрит.",
+  "deskInvIssuerWaitingText": "Доставлено через Epicbox. Ничего не оплачено, пока {payer} не одобрит.",
   "deskInvIssuerCopySlate": "Копировать ID слейта",
   "deskInvIssuerStepIssued": "Выставлен",
   "deskInvIssuerAnother": "Ещё один счёт"

@@ -5058,7 +5058,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String deskInvIssuerWaitingText(String payer) {
-    return 'Dostarczono na serwer Epicbox płacącego ($payer). Nic nie jest zapłacone, dopóki tego nie zatwierdzi.';
+    return 'Dostarczono przez Epicbox. Nic nie jest zapłacone, dopóki $payer tego nie zatwierdzi.';
   }
 
   @override
@@ -13728,17 +13728,10 @@ class AppLocalizationsPl extends AppLocalizations {
       'Część tego kodu była zbyt długa i została pominięta.';
 
   @override
-  String get payeeNameLabel => 'Nazwa od odbiorcy (niezweryfikowana)';
+  String get payeeNameLabel => 'Nazwa od odbiorcy';
 
   @override
-  String get payeeNoteLabel => 'Wiadomość od odbiorcy (niezweryfikowana)';
-
-  @override
-  String get payeeUnverifiedTitle => 'Niezweryfikowane';
-
-  @override
-  String get payeeUnverifiedHint =>
-      'Nazwę i notatkę wpisuje do kodu ten, kto go tworzy. Nikt ich nie sprawdza. Sprawdź adres i kwotę, nie nazwę.';
+  String get payeeNoteLabel => 'Wiadomość od odbiorcy';
 
   @override
   String get sendNoteFromCodeHelper => 'Z kodu. Odbiorca też ją zobaczy.';
@@ -14297,9 +14290,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String pairIncomingTitle(String name) {
     return 'Prośba o sparowanie od: $name';
   }
-
-  @override
-  String get pairNameClaimedShort => 'Nazwa wybrana przez drugą stronę';
 
   @override
   String get pairVerifiedService => 'Zweryfikowana usługa BT Labs';
@@ -14867,28 +14857,21 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get reqPaidWaitingBody =>
-      'Twoja część jest skończona. Giełda finalizuje i publikuje; to zamknie się samo.';
+      'Twoja część jest skończona. Druga strona finalizuje i publikuje; to zamknie się samo.';
 
   @override
   String get reqTlPaid => 'Zapłacono';
 
   @override
-  String reqTlDelivered(String name) {
-    return 'Dostarczono na serwer Epicbox $name';
-  }
+  String get reqTlDelivered => 'Dostarczono przez Epicbox';
 
   @override
-  String reqTlAnswerDelivered(String name) {
-    return 'Odpowiedź dostarczona na serwer $name';
-  }
+  String get reqTlAnswerDelivered => 'Odpowiedź dostarczona przez Epicbox';
 
   @override
   String reqTlPosted(String name) {
     return 'Opublikowane przez $name';
   }
-
-  @override
-  String get reqTlPostedHint => 'Zwykle w ciągu kilku minut';
 
   @override
   String get reqTlConfirming => 'Potwierdzanie';
@@ -14963,7 +14946,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get reqReceivedWaitingBody =>
-      'Nic nie musisz robić. Giełda publikuje płatność; potwierdzenia przyjdą później.';
+      'Nic nie musisz robić. Nadawca publikuje płatność; potwierdzenia przyjdą później.';
 
   @override
   String get reqNewTitle => 'Nowa faktura';
