@@ -690,8 +690,8 @@ final nodeTipProvider = FutureProvider.autoDispose<NodeTip>((ref) {
 });
 
 /// The tip of the node [config] names, for a test of a node typed in: through the open
-/// [session] when there is one, so it follows the wallet's Tor; with none open (first run,
-/// where there is no Tor switch yet) directly.
+/// [session] when there is one, so it follows the wallet's Tor; with none open (first run)
+/// by the app's tor when it carries, else directly where the Tor switch allows it.
 Future<NodeTip> askNodeTip(
   WalletService service,
   WalletSession? session,

@@ -196,6 +196,15 @@ void main() {
     });
   });
 
+  group('core wave binding', () {
+    test('a call that left a transaction behind keeps its id', () {
+      final mapped = mapLepicError(lepic.WalletError(kind: lepic.WalletErrorKind.notPosted, code: 1, message: 'm', txId: 42));
+      expect(mapped.kind, WalletErrorKind.other);
+      expect(mapped.txId, 42);
+      expect(mapLepicError(lepic.WalletError(kind: lepic.WalletErrorKind.other, code: 1, message: 'm')).txId, isNull);
+    });
+  });
+
   group('26.10.25 binding', () {
     test('the pairing v3 kinds say which, and an attach refusal is about the contact', () {
       lepic.WalletError e(lepic.WalletErrorKind k, int code) => lepic.WalletError(kind: k, code: code, message: 'm');
@@ -205,6 +214,8 @@ void main() {
       expect(pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.peerNotProven, 83))), PairingFailure.peerNotProven);
       expect(pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.pairingInProgress, 84))), PairingFailure.inProgress);
       expect(pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.pairingCrossed, 85))), PairingFailure.crossed);
+      expect(pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.pairingKindDiffers, 91))), PairingFailure.kindDiffers);
+      expect(mapLepicError(e(lepic.WalletErrorKind.relayMoveNotRequested, 92)).kind, WalletErrorKind.invalidArgument);
       expect(pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.inviteDismissed, 86))), PairingFailure.inviteDismissed);
       expect(pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.pairingEnded, 87))), PairingFailure.ended);
       expect(pairingFailureOf(mapLepicError(e(lepic.WalletErrorKind.pairingWaiting, 88))), PairingFailure.waiting);

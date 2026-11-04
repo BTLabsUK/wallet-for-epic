@@ -22,6 +22,9 @@ class DelegatingWalletSession implements WalletSession {
   bool get contactsAvailable => _inner.contactsAvailable;
 
   @override
+  DateTime? get lastActivityAtOpen => _inner.lastActivityAtOpen;
+
+  @override
   Future<String> mnemonic({required String password}) =>
       _inner.mnemonic(password: password);
 

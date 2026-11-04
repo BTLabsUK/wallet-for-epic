@@ -1328,6 +1328,16 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String contactsStaleOpened(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'เปิดล่าสุดเมื่อ $days วันก่อน กำลังตรวจสอบผู้ติดต่อที่จับคู่',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String homePendingTitle(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -14375,6 +14385,11 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String noticeRelayMoveRefused(String name, String host) {
+    return '$name ขอย้ายไปยังรีเลย์ $host รีเลย์นี้ไม่อยู่ในรายการเซิร์ฟเวอร์ Epicbox ของคุณ จึงไม่ได้ย้าย';
+  }
+
+  @override
   String noticeTooMany(String name) {
     return '$name ส่งใบแจ้งหนี้มากเกินไป';
   }
@@ -18390,6 +18405,13 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairOtherWalletBody => 'ไม่มีอะไรถูกบันทึก';
 
   @override
+  String get pairKindDiffersTitle => 'คำตอบนี้ไม่ตรงกับคำเชิญ';
+
+  @override
+  String get pairKindDiffersBody =>
+      'ระบุประเภทผู้ติดต่อต่างจากคำเชิญ ไม่ได้บันทึกอะไรไว้ กรุณาจับคู่ใหม่';
+
+  @override
   String pairNotProvenBody(String name) {
     return 'ยังไม่มีการชำระ Epic Cash กับ $name จึงส่งคำขอไม่ได้';
   }
@@ -18424,6 +18446,13 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get trustEnded => 'สิ้นสุดแล้ว';
+
+  @override
+  String get trustNotAnswering => 'ไม่ตอบสนอง';
+
+  @override
+  String get contactNotAnsweringBody =>
+      'ใบแจ้งหนี้และการชำระเงินอาจไปไม่ถึงพวกเขา';
 
   @override
   String get pairRequestPair => 'จับคู่';

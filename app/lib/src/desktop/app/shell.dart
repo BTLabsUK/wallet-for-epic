@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../settings.dart' show clockProvider;
+import '../../stale_open.dart';
 import '../../trust_ids.dart';
 import '../desk_l10n.dart';
 import '../data/desk_node.dart' show nodeHost;
@@ -17,7 +19,7 @@ import '../../ui/pairing/pairing_notices.dart' show pairingEventOnScreen, pairin
 import '../../models.dart' show PairingCollectTrigger, PairingEventKind;
 import '../data/devices_state.dart' show deskDeviceServiceProvider;
 import '../../devices/device_service.dart' show DeviceSyncTrigger;
-import '../data/pairing_state.dart' show deskContactKeysOf, deskInvoicesShownProvider, deskKeysBackProvider, deskPairRequestsProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider;
+import '../data/pairing_state.dart' show deskContactKeysOf, deskPairingCall, deskInvoicesShownProvider, deskKeysBackProvider, deskPairRequestsProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
 import '../screens/pairing/pair_screens.dart' show deskOpenPairingText, showDeskCheckWords, showDeskPairRequests;
@@ -155,6 +157,13 @@ class _DeskShellState extends ConsumerState<DeskShell> {
       if (mounted) unawaited(offerDeskLastSessionReport(context, ref));
       // macOS: the app from before the rename is still installed; offer to move it to the Bin.
       if (mounted) unawaited(offerDeskOldAppRemoval(context, ref));
+      // A wallet not opened for a while says so, once per open.
+      final stale = mounted ? ref.read(staleOpenShownProvider.notifier).take(ref.read(clockProvider)()) : null;
+      if (stale != null && mounted) {
+        showEToast(context, context.l10n.contactsStaleOpened(stale), tone: ETone.info);
+        // The check runs in the background; a contact it gets no answer from shows "Not answering".
+        unawaited(deskPairingCall(ref, (api) => api.checkContacts()).then<void>((_) {}, onError: (Object _) {}));
+      }
     });
     _collectTimer = Timer.periodic(const Duration(seconds: 45), (_) => _collect(PairingCollectTrigger.foreground));
     _maybeTour();

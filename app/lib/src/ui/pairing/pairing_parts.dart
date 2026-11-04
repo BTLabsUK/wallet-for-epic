@@ -233,7 +233,8 @@ AppLocalizations _l10n(BuildContext context) =>
 
 /// The trust badge of [record]: Waiting (info), Verified (ok), Paired, not verified (warn,
 /// "Paired" with [short]), Keys changed (risk), Ended (neutral; "Removed by" when the other
-/// side removed it). Nothing for a pending code or answer.
+/// side removed it), Not answering (warn; [PairingRecord.notAnswering] replaces the trust it
+/// had). Nothing for a pending code or answer.
 class TrustBadge extends StatelessWidget {
   const TrustBadge(this.record, {super.key, this.short = false});
 
@@ -250,6 +251,8 @@ class TrustBadge extends StatelessWidget {
       final name = pairingName(r, const <Contact>[]);
       return EBadge(short || name.isEmpty ? l.trustRemovedShort : l.trustRemovedBy(name), icon: EpicGlyphs.keysChanged, tone: BadgeTone.risk);
     }
+    // The check after a long gap got no answer: this says more than the trust it had.
+    if (r.notAnswering && !r.ended && !r.state.isPending) return EBadge(l.trustNotAnswering, icon: Icons.cloud_off_outlined, tone: BadgeTone.warn);
     return switch (r.state) {
       PairingState.verified => EBadge(l.trustVerified, icon: EpicGlyphs.verified, tone: BadgeTone.ok),
       PairingState.paired => EBadge(short ? l.trustPairedShort : l.trustPaired, icon: EpicGlyphs.paired, tone: BadgeTone.warn),

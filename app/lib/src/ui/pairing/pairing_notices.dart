@@ -82,6 +82,7 @@ final Set<String> _noAnswerSaid = {};
     PairingEventKind.withdrawalFromContact => (text: l.noticeWithdrawal(epic(e.amount), name), level: NoticeLevel.success),
     PairingEventKind.homeRelayUnreachable => (text: l.noticeRelayDown(name), level: NoticeLevel.warning),
     PairingEventKind.outboxStuck => (text: l.noticeOutboxStuck(name), level: NoticeLevel.warning),
+    PairingEventKind.relayMoveRefused => (text: l.noticeRelayMoveRefused(name, e.relay ?? ''), level: NoticeLevel.warning),
     PairingEventKind.sealedUnopenable => (text: l.openSealedOtherTitle, level: NoticeLevel.warning),
     PairingEventKind.secondReply => (text: l.pairSecondReplyTitle(name), level: NoticeLevel.warning),
     PairingEventKind.duplicateRequests => (text: l.reqTwoSame(name, e.count, epic(e.amount)), level: NoticeLevel.warning),
@@ -223,6 +224,7 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
       PairingEventKind.keysChanged ||
       PairingEventKind.keysRestored ||
       PairingEventKind.homeRelayUnreachable ||
+      PairingEventKind.relayMoveRefused ||
       PairingEventKind.heard ||
       PairingEventKind.peerVerified ||
       PairingEventKind.ended ||

@@ -196,6 +196,15 @@ class AppConfig {
   Duration get nodeFailoverProbe => _s('node.failover_probe_s');
   Duration get ownNodeAsk => _s('node.own_node_ask_s');
 
+  // [contacts]
+
+  /// Opening a wallet last opened longer ago than this checks its paired contacts and says so.
+  Duration get contactsStaleAfter => Duration(days: _int('contacts.stale_after_days'));
+
+  /// How long the contact check waits for answers (collected every 15 s) before a contact that
+  /// has not answered shows "Not answering".
+  Duration get contactsCheckWait => _s('contacts.check_wait_s');
+
   // [notices]
 
   /// After start and resume, how long server warnings wait (`connection_grace.dart`).

@@ -399,6 +399,10 @@ const List<SettingsKey> configKeys = [
   SettingsKey('payments.watch_for_s', IntKind(min: 181, max: 86400)),
   SettingsKey('payments.repost_waits_min', IntListKind(min: 1, max: 1440)),
   SettingsKey('payments.answer_resend_waits_min', IntListKind(min: 1, max: 1440)),
+  // [contacts]: a wallet not opened for this many days says so on opening
+  SettingsKey('contacts.stale_after_days', IntKind(min: 1, max: 3650)),
+  // ... and, after the check, waits this long for the answers
+  SettingsKey('contacts.check_wait_s', IntKind(min: 15, max: 3600)),
 ];
 
 ValueProblem? _explorerBlock(String v) => checkTemplate('height', optional: true)(v);

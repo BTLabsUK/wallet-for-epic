@@ -33,6 +33,7 @@ const Key contactPageRemovePairingKey = ValueKey('contact-page-remove-pairing');
 const Key contactPageCheckKey = ValueKey('contact-page-check');
 const Key contactPageCancelPairingKey = ValueKey('contact-page-cancel-pairing');
 const Key contactPageShowCodeKey = ValueKey('contact-page-show-code');
+const Key contactPageNotAnsweringKey = ValueKey('contact-page-not-answering');
 const Key contactPagePairAgainKey = ValueKey('contact-page-pair-again');
 const Key contactPageEndedKey = ValueKey('contact-page-ended');
 const Key contactPageHeldSendKey = ValueKey('contact-page-held-send');
@@ -395,6 +396,17 @@ class ContactPairingBlock extends ConsumerWidget {
         ],
         if (p.relayDown && !paused) ...[
           PairEdgeNotice(tone: BadgeTone.warn, title: l.contactRelayDownTitle(name), body: l.contactRelayDownBody),
+          const SizedBox(height: 12),
+        ],
+        // The check after a long gap got no answer: Pair again, until the contact is heard.
+        if (p.notAnswering && !paused && !changed) ...[
+          PairEdgeNotice(
+            key: contactPageNotAnsweringKey,
+            tone: BadgeTone.warn,
+            title: l.trustNotAnswering,
+            body: l.contactNotAnsweringBody,
+            actions: [FilledButton.tonal(key: contactPagePairAgainKey, onPressed: busy ? null : () => _showCode(context), child: Text(l.pairAgain))],
+          ),
           const SizedBox(height: 12),
         ],
         if (provesOther) ...[

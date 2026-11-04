@@ -28,6 +28,9 @@ const Duration pairingReplyWait = Duration(hours: 1);
 /// finished. Counted in time spent collecting, not wall time.
 const Duration pairingHeardWait = Duration(days: 7);
 
+/// How often the contact check collects the contacts it asked, until the wait ends.
+const Duration contactCheckEvery = Duration(seconds: 15);
+
 /// How long a private invite (a device link's QR) is good for.
 const Duration privateInviteExpiry = Duration(minutes: 15);
 
@@ -63,6 +66,21 @@ abstract interface class PairingApi {
   /// Sets the Epicbox servers (`host[:port]`, up to three) of Settings › Advanced › Connection
   /// servers. Kept for the core's sake; the code carries the wallet's own relay.
   void setConnectionServers(List<String>? hosts);
+
+  /// Applies the relay moves contacts asked for whose relay is in the Epicbox server list.
+  /// Called when the server list changes; the contact list does it when it loads.
+  Future<void> followRelayMoves();
+
+  /// The stale contact check (after a long gap): asks each paired shop and exchange whose
+  /// pairing has not ended to answer (people are not checked), then collects just those
+  /// contacts every [every] for [wait] (default `[contacts] check_wait_s`). Per contact: heard
+  /// after the check was sent is [ContactCheckOutcome.reachable]; a card on another relay is
+  /// [ContactCheckOutcome.moved] (applied when the relay is in the server list, else
+  /// [PairingEventKind.relayMoveRefused]); an unreachable home relay, or no word by the end of
+  /// the wait, is [ContactCheckOutcome.notAnswering] ([PairingRecord.notAnswering], until the
+  /// contact is heard again). A check that cannot be sent for one contact leaves the others
+  /// alone. Returns the outcome by pairing id; empty when nothing was checked.
+  Future<Map<String, ContactCheckOutcome>> checkContacts({Duration? wait, Duration every = contactCheckEvery});
 
   // Your code (RFC 7.1): this wallet is A.
 
@@ -310,6 +328,12 @@ class NoPairing implements PairingApi {
 
   @override
   void setConnectionServers(List<String>? hosts) {}
+
+  @override
+  Future<void> followRelayMoves() async {}
+
+  @override
+  Future<Map<String, ContactCheckOutcome>> checkContacts({Duration? wait, Duration every = contactCheckEvery}) async => const {};
 
   @override
   Future<List<PairingRecord>> pairings() async => const [];

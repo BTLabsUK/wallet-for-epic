@@ -2080,10 +2080,14 @@ class WalletError implements Exception {
   final WalletErrorKind kind;
   final String message;
 
-  const WalletError({required this.kind, required this.message});
+  /// The transaction the failed call stored and left behind, inputs locked, when a later step
+  /// failed or its clean-up cancel failed: cancel it or try its step again. Null when none.
+  final int? txId;
+
+  const WalletError({required this.kind, required this.message, this.txId});
 
   @override
-  int get hashCode => kind.hashCode ^ message.hashCode;
+  int get hashCode => kind.hashCode ^ message.hashCode ^ txId.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2091,7 +2095,8 @@ class WalletError implements Exception {
       other is WalletError &&
           runtimeType == other.runtimeType &&
           kind == other.kind &&
-          message == other.message;
+          message == other.message &&
+          txId == other.txId;
 
   @override
   String toString() => 'WalletError(${kind.name}): $message';
@@ -3065,6 +3070,7 @@ class PairingRecord {
     this.endedReason,
     this.endedAt,
     this.relayDown = false,
+    this.notAnswering = false,
     this.otherDevice = false,
     this.checksKeys = false,
   });
@@ -3144,6 +3150,10 @@ class PairingRecord {
   /// The contact's relay is not answering (RFC 8.4 backoff, cases C-05).
   final bool relayDown;
 
+  /// A contact check after a long gap got no answer from this contact (a shop or an exchange):
+  /// "Not answering", until it is heard again or paired again. Not kept across a restart.
+  final bool notAnswering;
+
   /// Imported from a backup whose pairings were in use on another device and not yet taken
   /// over here (RFC 9.5).
   final bool otherDevice;
@@ -3201,6 +3211,7 @@ class PairingRecord {
     DateTime? lastSealedIn,
     DateTime? expiresAt,
     bool? relayDown,
+    bool? notAnswering,
     bool? otherDevice,
     String? homeRelay,
     PairingCaps? caps,
@@ -3241,6 +3252,7 @@ class PairingRecord {
     endedReason: endedReason ?? this.endedReason,
     endedAt: endedAt ?? this.endedAt,
     relayDown: relayDown ?? this.relayDown,
+    notAnswering: notAnswering ?? this.notAnswering,
     otherDevice: otherDevice ?? this.otherDevice,
     checksKeys: checksKeys,
   );
@@ -3453,6 +3465,9 @@ enum PairingFailure {
   /// lower-key rule, and the other survives. Nothing to do.
   crossed,
 
+  /// An invite's answer names another contact kind than the invite did. Nothing was stored.
+  kindDiffers,
+
   /// The request was dismissed here (a copy from the linked device, for instance).
   inviteDismissed,
 
@@ -3561,6 +3576,10 @@ enum PairingEventKind {
   /// This device answered the request [PairingEvent.requestId] (the first Pair wins): the
   /// linked device hides its copy. Shown nowhere.
   requestAnswered,
+
+  /// A contact asked to move to the relay [PairingEvent.relay], which is not in the Epicbox
+  /// server list: the move was not made.
+  relayMoveRefused,
 }
 
 class PairingEvent {
@@ -3575,6 +3594,7 @@ class PairingEvent {
     this.requestId,
     this.sender,
     this.endedReason,
+    this.relay,
   });
 
   final PairingEventKind kind;
@@ -3589,6 +3609,9 @@ class PairingEvent {
   /// For [PairingEventKind.ended].
   final PairingEndReason? endedReason;
 
+  /// For [PairingEventKind.relayMoveRefused]: the relay asked for, `host` or `host:port`.
+  final String? relay;
+
   /// The contact's name as the app shows it (its label, else its claimed name).
   final String name;
   final PairingFailure? failure;
@@ -3597,7 +3620,7 @@ class PairingEvent {
   final int count;
 
   @override
-  int get hashCode => Object.hash(kind, pairingId, name, failure, slateId, amount, count, requestId, sender, endedReason);
+  int get hashCode => Object.hash(kind, pairingId, name, failure, slateId, amount, count, requestId, sender, endedReason, relay);
 
   @override
   bool operator ==(Object other) =>
@@ -3611,7 +3634,8 @@ class PairingEvent {
       count == other.count &&
       requestId == other.requestId &&
       sender == other.sender &&
-      endedReason == other.endedReason;
+      endedReason == other.endedReason &&
+      relay == other.relay;
 }
 
 /// A notice that came over Epicbox for a slate this wallet holds nothing of
@@ -3729,6 +3753,21 @@ class PaidSealedRequest {
 /// Why the pairing mailboxes are collected now (RFC 8.4): the app opened, resumed or was
 /// unlocked; the foreground tick; a pull to refresh; a push wake-up.
 enum PairingCollectTrigger { open, foreground, pull, push }
+
+/// What a contact check found for one contact (`PairingApi.checkContacts`).
+enum ContactCheckOutcome {
+  /// Heard from after the check was sent.
+  reachable,
+
+  /// Answered with a card on another relay: followed, or the user was told it was refused.
+  moved,
+
+  /// Its home relay did not answer, or nothing was heard before the wait ended.
+  notAnswering,
+
+  /// The check could not be sent; the contact's state is as it was.
+  failed,
+}
 
 /// One opaque payload a private pairing received (`contact_post_payload` on the other side),
 /// kept by the engine until [PairingApi.ackPayloads] takes it off. Only private pairings

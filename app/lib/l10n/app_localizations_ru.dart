@@ -1384,6 +1384,23 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String contactsStaleOpened(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          'Последнее открытие $days дня назад. Проверка сопряжённых контактов.',
+      many:
+          'Последнее открытие $days дней назад. Проверка сопряжённых контактов.',
+      few:
+          'Последнее открытие $days дня назад. Проверка сопряжённых контактов.',
+      one:
+          'Последнее открытие $days день назад. Проверка сопряжённых контактов.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String homePendingTitle(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -15251,6 +15268,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String noticeRelayMoveRefused(String name, String host) {
+    return '$name просит перейти на реле $host. Его нет в вашем списке серверов Epicbox, поэтому переход не выполнен.';
+  }
+
+  @override
   String noticeTooMany(String name) {
     return '$name: слишком много счетов.';
   }
@@ -19436,6 +19458,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pairOtherWalletBody => 'Ничего не сохранено.';
 
   @override
+  String get pairKindDiffersTitle => 'Этот ответ не подходит к приглашению.';
+
+  @override
+  String get pairKindDiffersBody =>
+      'В нём указан другой тип контакта, чем в приглашении. Ничего не сохранено. Выполните сопряжение заново.';
+
+  @override
   String pairNotProvenBody(String name) {
     return 'С $name ещё не было платежа Epic Cash, поэтому запрос отправить нельзя.';
   }
@@ -19470,6 +19499,13 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get trustEnded => 'Завершено';
+
+  @override
+  String get trustNotAnswering => 'Нет ответа';
+
+  @override
+  String get contactNotAnsweringBody =>
+      'Счета и платежи могут до них не дойти.';
 
   @override
   String get pairRequestPair => 'Сопрячь';

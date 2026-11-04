@@ -1356,6 +1356,19 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String contactsStaleOpened(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          'Zuletzt vor $days Tagen geöffnet. Gekoppelte Kontakte werden geprüft.',
+      one:
+          'Zuletzt vor $days Tag geöffnet. Gekoppelte Kontakte werden geprüft.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String homePendingTitle(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -14909,6 +14922,11 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String noticeRelayMoveRefused(String name, String host) {
+    return '$name möchte zum Relay $host wechseln. Es steht nicht in deiner Epicbox-Serverliste, daher wurde der Wechsel nicht vorgenommen.';
+  }
+
+  @override
   String noticeTooMany(String name) {
     return '$name hat zu viele Rechnungen gesendet.';
   }
@@ -19020,6 +19038,13 @@ class AppLocalizationsDe extends AppLocalizations {
   String get pairOtherWalletBody => 'Nichts wurde gespeichert.';
 
   @override
+  String get pairKindDiffersTitle => 'Diese Antwort passt nicht zur Einladung.';
+
+  @override
+  String get pairKindDiffersBody =>
+      'Sie nennt eine andere Kontaktart als die Einladung. Nichts wurde gespeichert. Kopple erneut.';
+
+  @override
   String pairNotProvenBody(String name) {
     return 'Noch keine Epic-Cash-Zahlung mit $name, daher kann keine Anfrage gesendet werden.';
   }
@@ -19054,6 +19079,13 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get trustEnded => 'Beendet';
+
+  @override
+  String get trustNotAnswering => 'Antwortet nicht';
+
+  @override
+  String get contactNotAnsweringBody =>
+      'Rechnungen und Zahlungen erreichen sie womöglich nicht.';
 
   @override
   String get pairRequestPair => 'Koppeln';

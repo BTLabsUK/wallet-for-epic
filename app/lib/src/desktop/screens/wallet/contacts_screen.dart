@@ -1382,6 +1382,17 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
           ENotice(title: l.contactRelayDownTitle(name), text: l.contactRelayDownBody, tone: ETone.warn),
           SizedBox(height: Sp.x4),
         ],
+        // The check after a long gap got no answer: Pair again, until the contact is heard.
+        if (p.notAnswering && !paused && !changed) ...[
+          ENotice(
+            key: deskContactNotAnsweringKey,
+            title: l.trustNotAnswering,
+            text: l.contactNotAnsweringBody,
+            tone: ETone.warn,
+            actions: [EButton.primary(key: deskContactPairAgainKey, label: l.pairAgain, icon: EIcons.trusted, size: EBtnSize.sm, onPressed: () => nav.go(DeskRoute.pair, x))],
+          ),
+          SizedBox(height: Sp.x4),
+        ],
         // A later card proved another address than the contact's: the user decides.
         if (provesOther) ...[
           ENotice(
@@ -1503,6 +1514,7 @@ const Key deskContactCheckKey = ValueKey('desk-contact-check');
 const Key deskContactCancelPairingKey = ValueKey('desk-contact-cancel-pairing');
 const Key deskContactRemovePairingKey = ValueKey('desk-contact-remove-pairing');
 const Key deskContactShowInviteKey = ValueKey('desk-contact-show-invite');
+const Key deskContactNotAnsweringKey = ValueKey('desk-contact-not-answering');
 const Key deskContactPairAgainKey = ValueKey('desk-contact-pair-again');
 const Key deskContactUnprovenKey = ValueKey('desk-contact-unproven');
 const Key deskContactPairAgainUnprovenKey = ValueKey('desk-contact-pair-again-unproven');

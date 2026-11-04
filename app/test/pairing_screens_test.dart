@@ -458,6 +458,27 @@ void main() {
       expect(find.text(_l.pairNotPaired), findsOneWidget);
     });
 
+    testWidgets('a shop that did not answer the check: Not answering, the line, Pair again; heard again: gone', (tester) async {
+      final h = await page(tester, (h) {
+        h.api.seedPaired(id: 's', name: 'Anna', contactId: 'c1', kind: PairingParty.shop, state: PairingState.paired, paymentsAddress: _anna);
+        h.api.silent.add('s');
+      });
+      await h.api.checkContacts();
+      await h.container(tester).read(pairingsProvider.notifier).reload();
+      await _frames(tester);
+      expect(find.byKey(contactPageNotAnsweringKey), findsOneWidget);
+      expect(find.text(_l.trustNotAnswering), findsWidgets);
+      expect(find.text(_l.contactNotAnsweringBody), findsOneWidget);
+      expect(find.byKey(contactPagePairAgainKey), findsOneWidget);
+
+      h.api.silent.clear();
+      await h.api.checkContacts();
+      await h.container(tester).read(pairingsProvider.notifier).reload();
+      await _frames(tester);
+      expect(find.byKey(contactPageNotAnsweringKey), findsNothing);
+      expect(find.text(_l.trustNotAnswering), findsNothing);
+    });
+
     testWidgets('waiting (answered, not heard): the line, Check the words, Cancel; heard: Paired', (tester) async {
       final h = await page(tester, (h) => h.api.seedPaired(name: 'Anna', contactId: 'c1', state: PairingState.waiting, paymentsAddress: _anna));
       expect(find.text(_l.pairWaitingFor('Anna')), findsWidgets);
@@ -558,6 +579,18 @@ void main() {
       for (final t in [_l.trustVerified, _l.trustPairedShort, _l.trustWaiting, _l.trustKeysChanged, _l.trustEnded]) {
         expect(find.text(t), findsOneWidget, reason: t);
       }
+    });
+
+    testWidgets('a shop that did not answer the check: its row says Not answering instead of Paired', (tester) async {
+      final h = _Harness();
+      h.session.contactsValue.add(Contact(id: 'c1', name: 'Anna', address: _anna));
+      h.api
+        ..seedPaired(id: 's', name: 'Anna', contactId: 'c1', kind: PairingParty.shop, state: PairingState.paired, paymentsAddress: _anna)
+        ..silent.add('s');
+      await h.api.checkContacts();
+      await h.pump(tester, const ContactsScreen());
+      expect(find.text(_l.trustNotAnswering), findsOneWidget);
+      expect(find.text(_l.trustPairedShort), findsNothing);
     });
 
     testWidgets('a pending row (an invite answered, not heard) sits in the list with Cancel; an unused invite is no row', (tester) async {

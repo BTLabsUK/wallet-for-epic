@@ -78,6 +78,9 @@ abstract interface class WalletService {
 
   Future<bool> walletExists({required WalletConfig config});
 
+  /// The tip of the node [config] names with no wallet open: through the app's tor while that
+  /// carries the app's requests, directly where the Tor switch is off. Throws [NetBlocked] when
+  /// the switch is on and tor does not carry yet (nothing goes directly).
   Future<NodeTip> nodeTip({required WalletConfig config});
 
   /// Creates a wallet. With [mnemonic] it restores that seed; call [WalletSession.scan] next.
@@ -190,6 +193,10 @@ abstract interface class WalletSession {
   /// False while the shared address book is closed to this wallet (it has no key to it yet):
   /// [contacts] is then not the book's contents, and saving a contact is refused.
   bool get contactsAvailable;
+
+  /// When the wallet last synced (UTC), read as this session opened it, before its first refresh
+  /// replaced the record; null when there is none (a new or restored wallet).
+  DateTime? get lastActivityAtOpen;
 
   Future<String> mnemonic({required String password});
 
@@ -317,7 +324,7 @@ abstract interface class WalletSession {
   /// The tip of the node [config] names (only its node URL and secret count), asked as the
   /// open wallet asks its own node: over Tor while the wallet's Tor routes node requests, else
   /// directly, and a node on this computer always directly. Use it instead of
-  /// [WalletService.nodeTip], which never goes over Tor, while a wallet is open. Throws
+  /// [WalletService.nodeTip], which has no wallet's Tor, while a wallet is open. Throws
   /// [WalletErrorKind.nodeUnreachable] when the node does not answer.
   Future<NodeTip> nodeTipFor({required WalletConfig config});
 
@@ -1321,6 +1328,12 @@ class FakeWalletSession implements WalletSession {
 
   @override
   bool get contactsAvailable => contactsAvailableValue;
+
+  /// What [lastActivityAtOpen] answers.
+  DateTime? lastActivityAtOpenValue;
+
+  @override
+  DateTime? get lastActivityAtOpen => lastActivityAtOpenValue;
 
   @override
   Future<String> mnemonic({required String password}) async => phrase;

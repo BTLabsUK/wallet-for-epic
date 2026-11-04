@@ -40,6 +40,8 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
 import 'package:lepic/lepic.dart' as lepic;
+// Not exported by package:lepic/lepic.dart.
+import 'package:lepic/src/rust/api/policy.dart' show HostPolicy;
 
 final _env = Platform.environment;
 final String? _lib = _env['WFE_LEPIC_LIB'];
@@ -96,7 +98,7 @@ class _EchoSink extends MemoryLogSink {
   }
 }
 
-lepic.WalletConfig _config(String name, {String relay = _relay, bool mainnet = false}) => lepic.WalletConfig(torWanted: false, hostFeatures: 0, 
+lepic.WalletConfig _config(String name, {String relay = _relay, bool mainnet = false}) => lepic.WalletConfig(policy: const HostPolicy(), torWanted: false, hostFeatures: 0, 
   dataDir: (Directory('$_dir/$name')..createSync(recursive: true)).path,
   chain: mainnet ? lepic.Chain.mainnet : lepic.Chain.floonet,
   nodeUrl: mainnet ? _mainnetNode : _node,

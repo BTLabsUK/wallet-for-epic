@@ -2209,6 +2209,12 @@ abstract class AppLocalizations {
   /// **'Synced at block {height}'**
   String homeSyncedAtBlock(String height);
 
+  /// Toast when a wallet opens after not being opened for a while: whole days since the last open, and that the paired contacts are being checked.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, one{Last opened {days} day ago. Checking paired contacts.} other{Last opened {days} days ago. Checking paired contacts.}}'**
+  String contactsStaleOpened(int days);
+
   /// Title of the card on home about sent payments the recipient has not answered yet. No full stop.
   ///
   /// In en, this message translates to:
@@ -23154,6 +23160,12 @@ abstract class AppLocalizations {
   /// **'Cannot reach {name} yet. Retrying.'**
   String noticeOutboxStuck(String name);
 
+  /// Docked warning when a contact asked to move to an Epicbox relay that is not in the user's server list; the contact stays on its current relay.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} asks to move to relay {host}. It is not in your Epicbox server list, so the move was not made.'**
+  String noticeRelayMoveRefused(String name, String host);
+
   /// Docked warning when a contact went over the request cap.
   ///
   /// In en, this message translates to:
@@ -29280,6 +29292,18 @@ abstract class AppLocalizations {
   /// **'Nothing was stored.'**
   String get pairOtherWalletBody;
 
+  /// An invite's answer names another contact kind than the invite did. Nothing was stored.
+  ///
+  /// In en, this message translates to:
+  /// **'This answer does not match the invite.'**
+  String get pairKindDiffersTitle;
+
+  /// Second line of pairKindDiffersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'It names another kind of contact than the invite. Nothing was stored. Pair again.'**
+  String get pairKindDiffersBody;
+
   /// A request refused: the key is not a proven peer.
   ///
   /// In en, this message translates to:
@@ -29333,6 +29357,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ended'**
   String get trustEnded;
+
+  /// Badge and notice title on a paired shop or exchange: the check after a long gap got no answer (its server is not answering, or nothing was heard in time). Shown with Pair again, until the contact is heard from.
+  ///
+  /// In en, this message translates to:
+  /// **'Not answering'**
+  String get trustNotAnswering;
+
+  /// Line under the Not answering notice on a paired shop or exchange, above Pair again.
+  ///
+  /// In en, this message translates to:
+  /// **'Invoices and payments may not reach them.'**
+  String get contactNotAnsweringBody;
 
   /// Requests list: answers the request.
   ///

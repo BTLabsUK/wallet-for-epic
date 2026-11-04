@@ -13,8 +13,11 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
-    show ExternalLibrary;
+    show ExternalLibrary, Uint64List;
 import 'package:lepic/lepic.dart' as lepic;
+// Not exported by package:lepic/lepic.dart.
+// ignore: implementation_imports
+import 'package:lepic/src/rust/api/policy.dart' show HostPolicy;
 import 'package:meta/meta.dart' show visibleForTesting;
 
 import 'history/export.dart';
@@ -29,6 +32,9 @@ import 'legacy/gui_contacts.dart' show AddressChecks;
 import 'listener_receives.dart';
 import 'log.dart';
 import 'net/lan_node_relay.dart';
+import 'net/tor_net.dart' show TorNet;
+import 'net/tor_switch.dart';
+import 'network.dart' show EpicboxRelay;
 import 'network_gate.dart';
 import 'pin_wrap.dart';
 import 'tor_build.dart';
@@ -134,6 +140,23 @@ void logLepicEntry(lepic.LogEntry entry) {
   AppLog.record(level, entry.target, line.toString());
 }
 
+/// How a node check with no wallet open reaches [nodeUrl]: directly for a node on this computer
+/// or network; through the app's tor while that carries the app's requests; directly where the
+/// Tor switch is off. Throws [NetBlocked] when the switch is on (or Tor only) and tor does not
+/// carry yet: nothing leaves the device directly.
+@visibleForTesting
+lepic.NodeRoute nodeRouteFor(String nodeUrl) {
+  if (isLocalAddressUrl(nodeUrl)) return const lepic.NodeRoute();
+  final proxy = TorNet.proxy;
+  if (TorSwitch.carried && proxy != null) {
+    return lepic.NodeRoute(socks: '${proxy.host}:${proxy.port}');
+  }
+  if (TorSwitch.on || NetGate.torOnly) {
+    throw NetBlocked(NetGate.mode, 'direct http ${Uri.tryParse(nodeUrl.trim())?.host ?? ''}');
+  }
+  return const lepic.NodeRoute();
+}
+
 /// LEPIC's error as the app's. The switch is exhaustive, so a kind LEPIC adds breaks the build
 /// here instead of reaching the UI unmapped.
 WalletError mapLepicError(lepic.WalletError error) {
@@ -159,6 +182,7 @@ WalletError mapLepicError(lepic.WalletError error) {
     lepic.WalletErrorKind.peerNotProven ||
     lepic.WalletErrorKind.pairingInProgress ||
     lepic.WalletErrorKind.pairingCrossed ||
+    lepic.WalletErrorKind.pairingKindDiffers ||
     lepic.WalletErrorKind.inviteDismissed ||
     lepic.WalletErrorKind.pairingEnded ||
     lepic.WalletErrorKind.pairingWaiting => WalletErrorKind.pairingFailed,
@@ -168,6 +192,8 @@ WalletError mapLepicError(lepic.WalletError error) {
     // A contact that is not in the state the call needs; the screens check it first.
     lepic.WalletErrorKind.invalidContactName ||
     lepic.WalletErrorKind.contactNotFound ||
+    // A relay move the contact did not ask for (or no longer asks for): nothing moved.
+    lepic.WalletErrorKind.relayMoveNotRequested ||
     lepic.WalletErrorKind.contactNotVerified ||
     lepic.WalletErrorKind.sealingOff ||
     lepic.WalletErrorKind.noSlateToSend ||
@@ -250,12 +276,22 @@ WalletError mapLepicError(lepic.WalletError error) {
       error.kind == lepic.WalletErrorKind.tooHeavy;
   return WalletError(
     kind: kind,
+    txId: error.txId,
     message: split
         ? sendUnbuildable
         : error.kind == lepic.WalletErrorKind.nothingToConsolidate
         ? nothingToConsolidate
         : error.message,
   );
+}
+
+/// The core no longer holds a minimum password length: a new password (create, restore, import,
+/// reset, change) of under 8 characters is refused here, before any call to it. Opening takes
+/// whatever the wallet was made with.
+void _requireNewPassword(String password) {
+  if (password.runes.length < 8) {
+    throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'password has fewer than 8 characters');
+  }
 }
 
 Future<T> _guard<T>(Future<T> Function() call) async {
@@ -987,6 +1023,7 @@ class LepicWalletService implements WalletService {
   /// replaces them later with [WalletSession.setOnionRoutes] (the signed list).
   static Future<lepic.WalletConfig> _lepicConfig(WalletConfig config, String dataDir) async =>
       lepic.WalletConfig(
+        policy: const HostPolicy(),
         dataDir: dataDir,
         chain: _lepicChain(config.chain),
         nodeUrl: config.nodeUrl.trim().isEmpty ? noNodeUrl : await lanNodeUrl(config.nodeUrl),
@@ -1224,14 +1261,18 @@ class LepicWalletService implements WalletService {
 
   @override
   Future<NodeTip> nodeTip({required WalletConfig config}) => _guard(() async {
-    // Node only: the node in use alone, not the others of the list (their checks). No wallet
-    // is open, so no tor carries it: Tor only refuses it unless the node is local.
-    NetGate.dialDirect(NetDial.http, config.nodeUrl);
+    // Node only: the node in use alone, not the others of the list (their checks). Kill
+    // switch asks nothing. No wallet is open, so LEPIC has no tor: the request goes through
+    // the app's tor while that carries the app's requests, directly only where the Tor
+    // switch is off, and never directly to a node off this network while it is on.
+    NetGate.dial(NetDial.http, config.nodeUrl);
+    final route = nodeRouteFor(config.nodeUrl);
     // LEPIC asks the node only: no wallet folder is made (the setup screen's test passes an
     // empty one, which made `/lepic` and failed) and the open wallet's chain stays.
     final tip = await lepic.nodeTip(
       runtime: _runtime,
       config: await _lepicConfig(config, config.dataDir),
+      route: route,
     );
     return NodeTip(
       height: tip.height,
@@ -1247,17 +1288,20 @@ class LepicWalletService implements WalletService {
     required String password,
     BigInt? restoreFromHeight,
   }) => _guard(
-    () async => _session(
-      config,
-      await lepic.EpicWallet.create(
-        runtime: _runtime,
-        config: await _config(config),
-        store: await _store(config, creating: true),
-        mnemonic: mnemonic,
-        password: password,
-        restoreFromHeight: restoreFromHeight,
-      ),
-    ),
+    () async {
+      _requireNewPassword(password);
+      return _session(
+        config,
+        await lepic.EpicWallet.create(
+          runtime: _runtime,
+          config: await _config(config),
+          store: await _store(config, creating: true),
+          mnemonic: mnemonic,
+          password: password,
+          restoreFromHeight: restoreFromHeight,
+        ),
+      );
+    },
   );
 
   @override
@@ -1267,17 +1311,20 @@ class LepicWalletService implements WalletService {
     required String seedPassword,
     required String password,
   }) => _guard(
-    () async => _session(
-      config,
-      await lepic.EpicWallet.importWalletSeed(
-        runtime: _runtime,
-        config: await _config(config),
-        store: await _store(config, creating: true),
-        seedFile: seedFile,
-        seedPassword: seedPassword,
-        password: password,
-      ),
-    ),
+    () async {
+      _requireNewPassword(password);
+      return _session(
+        config,
+        await lepic.EpicWallet.importWalletSeed(
+          runtime: _runtime,
+          config: await _config(config),
+          store: await _store(config, creating: true),
+          seedFile: seedFile,
+          seedPassword: seedPassword,
+          password: password,
+        ),
+      );
+    },
   );
 
   @override
@@ -1427,15 +1474,16 @@ class LepicWalletService implements WalletService {
     required WalletConfig config,
     required String mnemonic,
     required String newPassword,
-  }) => _guard(
-    () async => lepic.resetPassword(
+  }) => _guard(() async {
+    _requireNewPassword(newPassword);
+    return lepic.resetPassword(
       runtime: _runtime,
       config: await _config(config),
       store: await _store(config),
       mnemonic: mnemonic,
       newPassword: newPassword,
-    ),
-  );
+    );
+  });
 }
 
 /// What a history file names as the program that wrote it. Informational only.
@@ -1489,7 +1537,11 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   LepicWalletSession(
     this._wallet, {
     WalletHistory? history,
-  }) : _history = history ?? WalletHistory.memory();
+  }) : _history = history ?? WalletHistory.memory() {
+    // The record as it was before this session's first refresh replaces it.
+    final at = _history.lastActivity?.atUnix;
+    _lastActivityAtOpen = at == null ? null : DateTime.fromMillisecondsSinceEpoch(at * 1000, isUtc: true);
+  }
 
   /// The node the wallet uses (open, then [setServers]). Offline still lets a refresh, a scan
   /// or the HTTP listener run when it is local ([isLocalAddressUrl]); null counts as not local.
@@ -1595,6 +1647,30 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
 
   @override
   bool get contactsAvailable => _history.contactsAvailable;
+
+  @override
+  DateTime? get lastActivityAtOpen => _lastActivityAtOpen;
+  DateTime? _lastActivityAtOpen;
+
+  /// The least time between two saves of the activity record: refresh runs often.
+  static const _activityEvery = Duration(minutes: 1);
+  DateTime? _activitySavedAt;
+
+  /// Saves that the wallet just synced to [height]: the time (UTC) and the height, in the
+  /// history archive. At most once a [_activityEvery]; a failed write is logged and tried again
+  /// on the next sync. Never delays or fails the sync.
+  void _recordActivity(BigInt height) {
+    final now = DateTime.now().toUtc();
+    final saved = _activitySavedAt;
+    if (saved != null && now.difference(saved) < _activityEvery) return;
+    _activitySavedAt = now;
+    unawaited(
+      _history.recordActivity(now, height).catchError((Object error) {
+        _activitySavedAt = null;
+        logWarn('history', 'last activity not saved (${error.runtimeType})');
+      }),
+    );
+  }
 
   final lepic.EpicWallet _wallet;
   final WalletHistory _history;
@@ -1760,12 +1836,13 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,
-  }) => _guard(
-    () => _wallet.changePassword(
+  }) => _guard(() {
+    _requireNewPassword(newPassword);
+    return _wallet.changePassword(
       currentPassword: currentPassword,
       newPassword: newPassword,
-    ),
-  );
+    );
+  });
 
   @override
   Future<String> mnemonicWithPin({
@@ -1961,6 +2038,15 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
     return [for (final o in list) lepicWalletOutput(o)];
   });
 
+  /// Split into [outputs] outputs: all spendable outputs into that many.
+  static lepic.SelfSendRequest _splitRequest(int outputs) => lepic.SelfSendRequest(
+    inputs: lepic.SelfInputs.all,
+    named: const [],
+    outputs: lepic.SelfOutputs.count,
+    count: outputs,
+    amounts: Uint64List(0),
+  );
+
   @override
   Future<FeeEstimate> estimateSplit({
     required int outputs,
@@ -1968,8 +2054,8 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   }) => _nodeGuard('split estimate', () async {
     _noneHeld('split');
     return lepicFeeEstimate(
-      await _wallet.estimateSplit(
-        outputs: outputs,
+      await _wallet.estimateSendToSelf(
+        request: _splitRequest(outputs),
         minimumConfirmations: minimumConfirmations,
       ),
     );
@@ -1982,8 +2068,8 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   }) => _nodeGuard('split', () async {
     _noneHeld('split');
     return lepicSelfSentTx(
-      await _wallet.splitOutputs(
-        outputs: outputs,
+      await _wallet.sendToSelf(
+        request: _splitRequest(outputs),
         minimumConfirmations: minimumConfirmations,
       ),
     );
@@ -1995,7 +2081,8 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   }) => _nodeGuard('consolidate estimate', () async {
     _noneHeld('consolidate');
     return lepicFeeEstimate(
-      await _wallet.estimateConsolidate(
+      await _wallet.estimateSendToSelf(
+        request: _splitRequest(1),
         minimumConfirmations: minimumConfirmations,
       ),
     );
@@ -2007,7 +2094,8 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   }) => _nodeGuard('consolidate', () async {
     _noneHeld('consolidate');
     return lepicSelfSentTx(
-      await _wallet.consolidateOutputs(
+      await _wallet.sendToSelf(
+        request: _splitRequest(1),
         minimumConfirmations: minimumConfirmations,
       ),
     );
@@ -2048,9 +2136,14 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   }) => _nodeGuard('spend to self', () async {
     if (commitments.any(heldOutputs.contains)) _noneHeld('spend to self');
     return lepicSelfSentTx(
-      await _wallet.spendOutputsToSelf(
-        commitments: commitments,
-        outputs: outputs,
+      await _wallet.sendToSelf(
+        request: lepic.SelfSendRequest(
+          inputs: lepic.SelfInputs.named,
+          named: commitments,
+          outputs: lepic.SelfOutputs.count,
+          count: outputs,
+          amounts: Uint64List(0),
+        ),
         minimumConfirmations: minimumConfirmations,
       ),
     );
@@ -2419,18 +2512,25 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
     required BigInt minimumConfirmations,
   }) => _guard(() async {
     if (refresh) NetGate.checkNode('refresh');
-    return _summary(await _wallet.summary(refresh: refresh));
+    final s = _summary(await _wallet.summary(refresh: refresh));
+    if (refresh && s.validatedWithNode) _recordActivity(s.lastConfirmedHeight);
+    return s;
   });
 
   @override
   Future<int> minimumConfirmations() =>
       _guard(() async => (await _wallet.minimumConfirmations()).toInt());
 
-  /// LEPIC stores the count per wallet, re-splits every balance and emits balance events;
-  /// out of range (1–30) comes back as [WalletErrorKind.invalidArgument].
+  /// LEPIC stores the count per wallet, re-splits every balance and emits balance events. The
+  /// core refuses only 0; the app keeps 1–30 ([minMinimumConfirmations]) and refuses the rest
+  /// as [WalletErrorKind.invalidArgument] before the call.
   @override
-  Future<void> setMinimumConfirmations(int count) =>
-      _guard(() => _wallet.setMinimumConfirmations(count: BigInt.from(count)));
+  Future<void> setMinimumConfirmations(int count) => _guard(() {
+    if (count < minMinimumConfirmations || count > maxMinimumConfirmations) {
+      throw WalletError(kind: WalletErrorKind.invalidArgument, message: 'minimum confirmations $count is not 1 to 30');
+    }
+    return _wallet.setMinimumConfirmations(count: BigInt.from(count));
+  });
 
   /// As the old core: with the node out of reach the refresh still ends with the local balances,
   /// marked as not checked with the node, so Home shows them instead of an error.
@@ -2442,11 +2542,9 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
     try {
       // `await for`, not `yield*`: only it raises the stream's error here.
       await for (final p in _guardStream(_wallet.refresh())) {
-        yield RefreshProgress(
-          percent: p.percent,
-          message: p.message,
-          summary: p.summary == null ? null : _summary(p.summary!),
-        );
+        final summary = p.summary == null ? null : _summary(p.summary!);
+        if (summary != null && summary.validatedWithNode) _recordActivity(summary.lastConfirmedHeight);
+        yield RefreshProgress(percent: p.percent, message: p.message, summary: summary);
       }
     } on WalletError catch (error) {
       if (error.kind != WalletErrorKind.nodeUnreachable) rethrow;
@@ -2718,6 +2816,14 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   }
 
   Future<void> _onWalletEvent(lepic.WalletEvent e) async {
+    // The node did not take a finalized send: its row reads "Not on the network" at once, with
+    // the repost and cancel the screens already offer, instead of "Posting…" until [postingFor].
+    if (e.kind == lepic.WalletEventKind.notPosted) {
+      final tx = e.txId;
+      if (tx != null) _finalizedSeen[tx] = _settled;
+      logWarn('wallet', 'send not posted: ${e.message ?? ''}');
+      return;
+    }
     // For the linked device only: nothing here holds its slate, and nothing verified it.
     if (e.kind == lepic.WalletEventKind.noticeUnmatched) {
       final (slate, kind, sender, notice) = (e.slateId, e.noticeKind, e.sender, e.notice);
@@ -3371,6 +3477,7 @@ PairingFailure? lepicPairingFailure(lepic.WalletErrorKind k, [String message = '
   lepic.WalletErrorKind.peerNotProven => PairingFailure.peerNotProven,
   lepic.WalletErrorKind.pairingInProgress => PairingFailure.inProgress,
   lepic.WalletErrorKind.pairingCrossed => PairingFailure.crossed,
+  lepic.WalletErrorKind.pairingKindDiffers => PairingFailure.kindDiffers,
   lepic.WalletErrorKind.inviteDismissed => PairingFailure.inviteDismissed,
   lepic.WalletErrorKind.pairingEnded => PairingFailure.ended,
   lepic.WalletErrorKind.pairingWaiting => PairingFailure.waiting,
@@ -3390,6 +3497,150 @@ class _LepicPairing implements PairingApi {
   // (pairing words are gone), so the Connection servers are not passed to LEPIC.
   @override
   void setConnectionServers(List<String>? hosts) {}
+
+  /// Whether [relay] (`host[:port]`) is in the Epicbox server list, compared by host and port.
+  bool _inServerList(String relay) {
+    final r = EpicboxRelay.parse(relay);
+    return r != null && hostSettings.epicboxServers.any((s) => s.host.toLowerCase() == r.host && s.port == r.port);
+  }
+
+  /// Applies the move [relay] that contact [id] asked for. False when the core would not (none
+  /// is pending any more, the pairing ended): nothing moved.
+  Future<bool> _applyMove(String id, String relay) async {
+    try {
+      await _w.contactApplyRelayMove(contactId: id, relay: relay);
+      return true;
+    } on lepic.WalletError {
+      return false;
+    }
+  }
+
+  /// Applies each pending move to a relay in the server list; true when one was made.
+  Future<bool> _followMoves(List<lepic.ContactView> contacts) async {
+    var moved = false;
+    for (final c in contacts) {
+      final relay = c.requestedRelay;
+      if (relay != null && _inServerList(relay) && await _applyMove(c.contactId, relay)) moved = true;
+    }
+    return moved;
+  }
+
+  @override
+  Future<void> followRelayMoves() => _call(() async {
+    if (await _followMoves(await _w.contacts()) && !_events.isClosed) _events.add(const PairingEvent(PairingEventKind.contactUpdated));
+  });
+
+  /// Contacts a check got no answer from, with when it was sent (Unix ms): "Not answering" until
+  /// the contact is heard after that, or checked again. Not kept across a restart.
+  final Map<String, int> _notAnswering = {};
+
+  /// The moves already told as refused (`id relay`), so a check and the event say it once.
+  final Set<String> _refusedMoves = {};
+
+  bool _isNotAnswering(lepic.ContactView c) {
+    final sent = _notAnswering[c.contactId];
+    return sent != null && c.endedReason == null && (c.lastSealedInMs ?? c.createdAtMs).toInt() <= sent;
+  }
+
+  /// A paired shop or exchange whose pairing has not ended: the contacts a check asks. People are
+  /// offline often and are not checked.
+  bool _checkable(lepic.ContactView c) =>
+      (c.kind == lepic.ContactKind.shop || c.kind == lepic.ContactKind.exchange) &&
+      (c.state == lepic.PairingState.paired || c.state == lepic.PairingState.verified) &&
+      c.endedReason == null &&
+      !c.removedByPeer;
+
+  void _contactsChanged() {
+    if (!_events.isClosed) _events.add(const PairingEvent(PairingEventKind.contactUpdated));
+  }
+
+  @override
+  Future<Map<String, ContactCheckOutcome>> checkContacts({Duration? wait, Duration every = contactCheckEvery}) async {
+    final outcomes = <String, ContactCheckOutcome>{};
+    if (!supported || !NetGate.pairing || NetGate.epicboxOff) return outcomes;
+    if (_checkRunning) return outcomes;
+    _checkRunning = true;
+    final window = wait ?? appConfig.contactsCheckWait;
+    // Who was asked, and when (Unix ms, read before the call so an answer is always later).
+    final asked = <String, int>{};
+    final sentAt = <String, int>{};
+    try {
+      for (final c in await _w.contacts()) {
+        if (!_checkable(c)) continue;
+        final at = DateTime.now().millisecondsSinceEpoch;
+        try {
+          await _w.contactCheck(contactId: c.contactId);
+          asked[c.contactId] = at;
+        } on lepic.WalletError catch (error) {
+          logWarn('pairing', 'contact check not sent: ${error.kind.name}');
+          outcomes[c.contactId] = ContactCheckOutcome.failed;
+        }
+      }
+      sentAt.addAll(asked);
+      var waited = Duration.zero;
+      var changed = false;
+      void settle(String id, ContactCheckOutcome outcome) {
+        outcomes[id] = outcome;
+        asked.remove(id);
+        if (outcome == ContactCheckOutcome.notAnswering) {
+          _notAnswering[id] = sentAt[id]!;
+          changed = true;
+        } else if (_notAnswering.remove(id) != null) {
+          changed = true;
+        }
+      }
+      while (asked.isNotEmpty && waited < window && supported) {
+        final step = window - waited < every ? window - waited : every;
+        await Future<void>.delayed(step);
+        waited += step;
+        try {
+          await collectOrFail(PairingCollectTrigger.foreground, only: asked.keys.toList());
+        } on lepic.WalletError catch (error) {
+          logWarn('pairing', 'contact check collect failed: ${error.kind.name}');
+        }
+        final now = {for (final c in await _w.contacts()) c.contactId: c};
+        for (final id in asked.keys.toList()) {
+          final c = now[id];
+          final sent = asked[id]!;
+          final relay = c?.requestedRelay;
+          if (c == null || c.endedReason != null) {
+            // Removed or ended meanwhile: not ours to judge.
+            asked.remove(id);
+            outcomes.remove(id);
+          } else if (relay != null) {
+            await _followCheckedMove(id, relay);
+            settle(id, ContactCheckOutcome.moved);
+          } else if ((c.lastSealedInMs ?? 0).toInt() > sent) {
+            settle(id, ContactCheckOutcome.reachable);
+          } else if (c.homeRelay != null && _relaysDown.contains(c.homeRelay)) {
+            settle(id, ContactCheckOutcome.notAnswering);
+          }
+        }
+      }
+      // No word in the whole wait.
+      for (final id in asked.keys.toList()) {
+        settle(id, ContactCheckOutcome.notAnswering);
+      }
+      if (changed) _contactsChanged();
+    } on lepic.WalletError catch (error) {
+      logWarn('pairing', 'contact check failed: ${error.kind.name}');
+    } finally {
+      _checkRunning = false;
+    }
+    return outcomes;
+  }
+
+  bool _checkRunning = false;
+
+  /// A checked contact's answer named another relay: follow it when the user lists that relay,
+  /// else say so once, as the event path does.
+  Future<void> _followCheckedMove(String id, String relay) async {
+    if (_inServerList(relay)) {
+      if (await _applyMove(id, relay)) _contactsChanged();
+    } else if (_refusedMoves.add('$id $relay') && !_events.isClosed) {
+      _events.add(PairingEvent(PairingEventKind.relayMoveRefused, pairingId: id, name: await _nameOf(id), relay: relay));
+    }
+  }
 
   /// What the engine does not list again: an invite's link and words, the answer to send by
   /// hand, the confirmation of a reply pasted by hand, how a pairing was made.
@@ -3475,6 +3726,7 @@ class _LepicPairing implements PairingApi {
     // Since pairing until a sealed message opens, as LEPIC counts it for "lapsed".
     lastSealedIn: _ms((c.lastSealedInMs ?? c.createdAtMs).toInt()),
     relayDown: c.homeRelay != null && _relaysDown.contains(c.homeRelay),
+    notAnswering: _isNotAnswering(c),
     otherDevice: c.importedFromBackup,
     checksKeys: _checking.containsKey(c.contactId),
     // Only from a verified address proof of this pairing; a pairing made before 26.10.25 has
@@ -3537,8 +3789,10 @@ class _LepicPairing implements PairingApi {
   @override
   Future<List<PairingRecord>> pairings() => _call(() async {
     final pending = [for (final p in await _w.pairingsPending()) _pending(p)];
+    var contacts = await _w.contacts();
+    if (await _followMoves(contacts)) contacts = await _w.contacts();
     final paired = [
-      for (final c in await _w.contacts())
+      for (final c in contacts)
         if (!_folded.contains(c.contactId)) _record(c),
     ];
     // Newest first, as the app lists them; a new pairing still checking the keys of its
@@ -3816,7 +4070,7 @@ class _LepicPairing implements PairingApi {
 
   /// [collect], failing as LEPIC does: a check the user asked for says when the relay is
   /// down.
-  Future<int> collectOrFail(PairingCollectTrigger trigger) async {
+  Future<int> collectOrFail(PairingCollectTrigger trigger, {List<String>? only}) async {
     // Pairing off (Settings › Advanced › Experimental): no pairing or contact mailbox is opened.
     if (!NetGate.pairing) return 0;
     _s._watchEvents();
@@ -3829,9 +4083,19 @@ class _LepicPairing implements PairingApi {
         PairingCollectTrigger.push => lepic.CollectTrigger.push,
       },
       relayMode: lepicRelayMode(),
+      only: only,
     );
-    // A relay that answers again is no longer down.
-    _relaysDown.retainAll(report.unreachable);
+    // A relay that answers again is no longer down; a look at a few contacts says nothing of
+    // the others' relays.
+    if (only == null) {
+      _relaysDown.retainAll(report.unreachable);
+    } else {
+      final looked = {
+        for (final c in await _w.contacts())
+          if (only.contains(c.contactId) && c.homeRelay != null) c.homeRelay!,
+      };
+      _relaysDown.removeAll(looked.difference(report.unreachable.toSet()));
+    }
     try {
       await _w.contactsOutboxDeliver(relayMode: lepicRelayMode());
     } on lepic.WalletError catch (error) {
@@ -4143,6 +4407,18 @@ class _LepicPairing implements PairingApi {
   Future<void> onWalletEvent(lepic.WalletEvent e) async {
     final id = e.contactId;
     final slateId = e.slateId;
+    if (e.kind == lepic.WalletEventKind.contactRelayMoveRequested) {
+      final relay = e.relay;
+      if (id == null || relay == null || _events.isClosed) return;
+      // Only to a relay the user lists; otherwise the contact keeps its mailbox and the user is told.
+      if (_inServerList(relay)) {
+        if (await _applyMove(id, relay) && !_events.isClosed) _events.add(PairingEvent(PairingEventKind.contactUpdated, pairingId: id));
+      } else {
+        _refusedMoves.add('$id $relay');
+        _events.add(PairingEvent(PairingEventKind.relayMoveRefused, pairingId: id, name: await _nameOf(id), relay: relay));
+      }
+      return;
+    }
     if (e.kind == lepic.WalletEventKind.homeRelayUnreachable && e.relay != null) _relaysDown.add(e.relay!);
     if (e.kind == lepic.WalletEventKind.contactKeysRestored && id != null) {
       // The old pairing [id] has its keys back: the new one checking it was folded into it.
@@ -4208,6 +4484,7 @@ class _LepicPairing implements PairingApi {
           lepic.PairingFailureReason.otherAddress => PairingFailure.otherWallet,
           lepic.PairingFailureReason.addressProofMissing => PairingFailure.addressProofMissing,
           lepic.PairingFailureReason.crossed => PairingFailure.crossed,
+          lepic.PairingFailureReason.kindDiffers => PairingFailure.kindDiffers,
           null => null,
         },
         slateId: slateId,

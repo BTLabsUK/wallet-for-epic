@@ -1389,6 +1389,23 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String contactsStaleOpened(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other:
+          'Ostatnio otwarto $days dnia temu. Sprawdzanie sparowanych kontaktów.',
+      many:
+          'Ostatnio otwarto $days dni temu. Sprawdzanie sparowanych kontaktów.',
+      few:
+          'Ostatnio otwarto $days dni temu. Sprawdzanie sparowanych kontaktów.',
+      one:
+          'Ostatnio otwarto $days dzień temu. Sprawdzanie sparowanych kontaktów.',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String homePendingTitle(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -15277,6 +15294,11 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String noticeRelayMoveRefused(String name, String host) {
+    return '$name prosi o przejście na przekaźnik $host. Nie ma go na twojej liście serwerów Epicbox, więc zmiany nie wykonano.';
+  }
+
+  @override
   String noticeTooMany(String name) {
     return '$name wysyła za dużo faktur.';
   }
@@ -19449,6 +19471,13 @@ class AppLocalizationsPl extends AppLocalizations {
   String get pairOtherWalletBody => 'Niczego nie zapisano.';
 
   @override
+  String get pairKindDiffersTitle => 'Ta odpowiedź nie pasuje do zaproszenia.';
+
+  @override
+  String get pairKindDiffersBody =>
+      'Podaje inny rodzaj kontaktu niż zaproszenie. Niczego nie zapisano. Sparuj ponownie.';
+
+  @override
   String pairNotProvenBody(String name) {
     return 'Nie było jeszcze płatności Epic Cash z $name, więc nie można wysłać prośby.';
   }
@@ -19483,6 +19512,13 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get trustEnded => 'Zakończone';
+
+  @override
+  String get trustNotAnswering => 'Brak odpowiedzi';
+
+  @override
+  String get contactNotAnsweringBody =>
+      'Faktury i płatności mogą do nich nie dotrzeć.';
 
   @override
   String get pairRequestPair => 'Paruj';

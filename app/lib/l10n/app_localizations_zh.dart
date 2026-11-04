@@ -1280,6 +1280,16 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String contactsStaleOpened(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '上次打开是 $days 天前。正在检查已配对的联系人。',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String homePendingTitle(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -13884,6 +13894,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String noticeRelayMoveRefused(String name, String host) {
+    return '$name 请求切换到中继 $host。它不在你的 Epicbox 服务器列表中，因此未切换。';
+  }
+
+  @override
   String noticeTooMany(String name) {
     return '$name 发送的账单过多。';
   }
@@ -17739,6 +17754,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairOtherWalletBody => '没有保存任何内容。';
 
   @override
+  String get pairKindDiffersTitle => '此回复与邀请不匹配。';
+
+  @override
+  String get pairKindDiffersBody => '其中的联系人类型与邀请不同。未保存任何内容。请重新配对。';
+
+  @override
   String pairNotProvenBody(String name) {
     return '尚未与 $name 有过 Epic Cash 付款，无法发送请求。';
   }
@@ -17772,6 +17793,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get trustEnded => '已结束';
+
+  @override
+  String get trustNotAnswering => '没有响应';
+
+  @override
+  String get contactNotAnsweringBody => '账单和付款可能无法送达对方。';
 
   @override
   String get pairRequestPair => '配对';
