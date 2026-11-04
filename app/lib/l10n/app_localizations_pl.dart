@@ -1393,10 +1393,14 @@ class AppLocalizationsPl extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
-      other: 'Ostatnio otwarto $days dnia temu. Sprawdzam sparowane kontakty.',
-      many: 'Ostatnio otwarto $days dni temu. Sprawdzam sparowane kontakty.',
-      few: 'Ostatnio otwarto $days dni temu. Sprawdzam sparowane kontakty.',
-      one: 'Ostatnio otwarto $days dzień temu. Sprawdzam sparowane kontakty.',
+      other:
+          'Ostatnio otwarto $days dnia temu. Sprawdzanie sparowanych kontaktów.',
+      many:
+          'Ostatnio otwarto $days dni temu. Sprawdzanie sparowanych kontaktów.',
+      few:
+          'Ostatnio otwarto $days dni temu. Sprawdzanie sparowanych kontaktów.',
+      one:
+          'Ostatnio otwarto $days dzień temu. Sprawdzanie sparowanych kontaktów.',
     );
     return '$_temp0';
   }

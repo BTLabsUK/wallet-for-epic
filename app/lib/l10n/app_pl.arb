@@ -348,7 +348,7 @@
   "homeEpicboxOffline": "Portfel nie jest połączony ze swoim serwerem Epicbox i próbuje dalej.",
   "homeEpicboxConnecting": "Łączenie z Epicbox…",
   "homeSyncedAtBlock": "Zsynchronizowano do bloku {height}",
-  "contactsStaleOpened": "{days, plural, one{Ostatnio otwarto {days} dzień temu. Sprawdzam sparowane kontakty.} few{Ostatnio otwarto {days} dni temu. Sprawdzam sparowane kontakty.} many{Ostatnio otwarto {days} dni temu. Sprawdzam sparowane kontakty.} other{Ostatnio otwarto {days} dnia temu. Sprawdzam sparowane kontakty.}}",
+  "contactsStaleOpened": "{days, plural, one{Ostatnio otwarto {days} dzień temu. Sprawdzanie sparowanych kontaktów.} few{Ostatnio otwarto {days} dni temu. Sprawdzanie sparowanych kontaktów.} many{Ostatnio otwarto {days} dni temu. Sprawdzanie sparowanych kontaktów.} other{Ostatnio otwarto {days} dnia temu. Sprawdzanie sparowanych kontaktów.}}",
   "homePendingTitle": "{count, plural, one{Płatność czeka na odbiorcę} few{{count} płatności czekają na odbiorców} many{{count} płatności czeka na odbiorców} other{{count} płatności czeka na odbiorców}}",
   "homePendingWhy": "Dlaczego czeka?",
   "homePendingView": "{count, plural, one{Pokaż płatność} few{Pokaż płatności} many{Pokaż płatności} other{Pokaż płatności}}",
