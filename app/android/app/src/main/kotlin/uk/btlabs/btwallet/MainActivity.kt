@@ -30,7 +30,7 @@ class MainActivity : FlutterFragmentActivity() {
 
     private var linkChannel: MethodChannel? = null
 
-    /** An epic: / epiccash: payment link another app opened, before Dart asked for it. */
+    /** A payment link, invite or shared text another app opened, before Dart asked for it. */
     private var pendingLink: String? = null
 
     /** The activity was recreated from saved state: its intent was handled before. */
@@ -146,7 +146,7 @@ class MainActivity : FlutterFragmentActivity() {
         if (!restored && intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY == 0) {
             readLink(intent)?.let {
                 pendingLink = it
-                intent = Intent(intent).setData(null)
+                intent = Intent(intent).setData(null).also { it.removeExtra(Intent.EXTRA_TEXT) }
             }
         }
         // --- tor binary (epic_wallet/tor) ---
@@ -328,20 +328,48 @@ class MainActivity : FlutterFragmentActivity() {
     }
 
     /**
-     * The payment link of a VIEW intent whose scheme is epic or epiccash, or null. Only the data
-     * string is read, never the extras, and never opened as a file.
+     * The link text an intent brings, or null: a VIEW of an epic: or epiccash: link, or of an
+     * https link of the link page (`/p` or `/pair` with a fragment), or a SEND of plain text
+     * with no file (a shared message, read by the scan router). Only the data string or the
+     * shared text is read, never other extras, and never opened as a file. Any other https
+     * link is no business of the wallet.
      */
     private fun readLink(intent: Intent?): String? {
-        if (intent?.action != Intent.ACTION_VIEW) return null
-        val scheme = intent.data?.scheme?.lowercase() ?: return null
-        if (scheme != "epic" && scheme != "epiccash") return null
-        val text = intent.dataString ?: return null
-        return if (text.length > MAX_LINK_CHARS) null else text
+        val text = when (intent?.action) {
+            Intent.ACTION_VIEW -> {
+                val data = intent.data ?: return null
+                when (data.scheme?.lowercase()) {
+                    "epic", "epiccash" -> intent.dataString
+                    "https" -> if (isPageLink(data)) intent.dataString else null
+                    else -> null
+                }
+            }
+            Intent.ACTION_SEND -> if (isSharedText(intent)) intent.getStringExtra(Intent.EXTRA_TEXT) else null
+            else -> null
+        } ?: return null
+        return if (text.isBlank() || text.length > MAX_LINK_CHARS) null else text
     }
 
+    /** An https link of the link page: path /p or /pair, and the code in the fragment. */
+    private fun isPageLink(data: Uri): Boolean {
+        val path = data.path?.trimEnd('/')
+        return (path == "/p" || path == "/pair") && !data.encodedFragment.isNullOrEmpty()
+    }
+
+    private fun isSharedText(intent: Intent): Boolean {
+        if (intent.type?.lowercase()?.startsWith("text/plain") != true) return false
+        val hasStream = if (Build.VERSION.SDK_INT >= 33) {
+            intent.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java) != null
+        } else {
+            @Suppress("DEPRECATION") intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM) != null
+        }
+        return !hasStream
+    }
+
+    /** An intent for the link channel that readLink may refuse: not a file for readIncoming. */
     private fun isLinkScheme(intent: Intent?): Boolean {
         val scheme = intent?.data?.scheme?.lowercase()
-        return intent?.action == Intent.ACTION_VIEW && (scheme == "epic" || scheme == "epiccash")
+        return intent?.action == Intent.ACTION_VIEW && (scheme == "epic" || scheme == "epiccash" || scheme == "https")
     }
 
     /** Name and text of a transaction file from a VIEW or SEND intent, or null. */
