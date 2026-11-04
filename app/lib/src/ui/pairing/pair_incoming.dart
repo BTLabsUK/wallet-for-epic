@@ -143,7 +143,7 @@ Future<void> showIncomingInvite(
 }
 
 /// The sheet, in two forms: from a contact (the request's sender is in Contacts: avatar, "In
-/// your contacts", the sender address) or by code ("Name chosen by them"). Pair · Not now;
+/// your contacts", the sender address) or by code (the name alone, no chip). Pair · Not now;
 /// no name field, no invoice switch, no expiry row. Pops with the answered record.
 class IncomingInviteSheet extends ConsumerStatefulWidget {
   const IncomingInviteSheet({super.key, required this.preview, this.contact});
@@ -221,11 +221,10 @@ class _IncomingInviteSheetState extends ConsumerState<IncomingInviteSheet> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Semantics(header: true, child: Text(l.pairIncomingTitle(name), style: theme.textTheme.titleLarge)),
-                    const SizedBox(height: 6),
-                    if (sender != null)
-                      EBadge(l.pairInContacts, icon: Icons.person_outline, tone: BadgeTone.ok)
-                    else
-                      const ClaimedNameBadge(long: true),
+                    if (sender != null) ...[
+                      const SizedBox(height: 6),
+                      EBadge(l.pairInContacts, icon: Icons.person_outline, tone: BadgeTone.ok),
+                    ],
                   ],
                 ),
               ),

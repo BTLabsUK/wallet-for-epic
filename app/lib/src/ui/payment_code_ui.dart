@@ -11,7 +11,6 @@ import '../scan/scan_checks.dart' show CodeOrigin;
 import '../scan/scan_router.dart' show RequestProblem;
 import '../scan/scan_text.dart';
 import 'badge.dart';
-import 'info_hint.dart';
 import 'notices.dart';
 import 'theme/tokens.dart';
 
@@ -89,9 +88,8 @@ class RequestBanner extends StatelessWidget {
   }
 }
 
-/// The payee's name and note from a code, captioned "not verified", with an info sheet on
-/// what that means, in a well ([WalletTokens.well], as the desktop's EPayeeClaims). Plain
-/// text, wrapped, never cut. Nothing when both are absent.
+/// The payee's name and note from a code, captioned, in a well ([WalletTokens.well], as the
+/// desktop's EPayeeClaims). Plain text, wrapped, never cut. Nothing when both are absent.
 class PayeeClaims extends StatelessWidget {
   const PayeeClaims({super.key, this.name, this.note});
 
@@ -118,7 +116,7 @@ class PayeeClaims extends StatelessWidget {
     return Container(
       key: payeeClaimsKey,
       decoration: t.well,
-      padding: const EdgeInsetsDirectional.fromSTEB(12, 8, 4, 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -139,11 +137,6 @@ class PayeeClaims extends StatelessWidget {
                 ],
               ),
             ),
-          ),
-          InfoHint(
-            l.payeeUnverifiedHint,
-            title: l.payeeUnverifiedTitle,
-            icon: Icons.help_outline,
           ),
         ],
       ),

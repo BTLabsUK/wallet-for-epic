@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n.dart' show localDayMonth;
 import '../../desk_l10n.dart';
-import '../../../ui/pairing/pairing_parts.dart' show ClaimedNameBadge, SealedBadge, TrustBadge;
+import '../../../ui/pairing/pairing_parts.dart' show SealedBadge, TrustBadge;
 import '../../data/invoice_state.dart';
 import '../../data/pairing_state.dart';
 import '../../widgets/kit.dart';
@@ -193,12 +193,10 @@ class _Review extends ConsumerWidget {
                 runSpacing: Sp.x1,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  // Sealed and signed only when it came from a pairing; its name is the
-                  // contact's, or marked as chosen by the other side.
+                  // Sealed and signed only when it came from a pairing.
                   if (pairing != null) ...[
                     const SealedBadge(),
                     TrustBadge(pairing),
-                    if (pairing.contactId == null) const ClaimedNameBadge(),
                     Text(
                       pairing.verifiedAt == null ? l.reqSealedSigned(i.label) : metaLine([l.reqSealedSigned(i.label), l.contactWordsChecked(localDayMonth(l, pairing.verifiedAt!))]),
                       style: ts.small,

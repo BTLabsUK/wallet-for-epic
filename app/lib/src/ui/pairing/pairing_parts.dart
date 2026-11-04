@@ -286,20 +286,6 @@ class SealedBadge extends StatelessWidget {
   }
 }
 
-/// The "Name chosen by them" chip: the name came from the other side and is not checked.
-class ClaimedNameBadge extends StatelessWidget {
-  const ClaimedNameBadge({super.key, this.long = false});
-
-  final bool long;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = _l10n(context);
-    // The long one is a sentence: it wraps in a narrow sheet rather than lose its end.
-    return EBadge(long ? l.pairNameClaimed : l.pairNameClaimedShort, icon: Icons.person_outline, wrap: long);
-  }
-}
-
 /// A contact's avatar: its initials in a corner-ticked tile, in the accent's text colour for
 /// a person and the info colour for a shop or an exchange.
 class PairAvatar extends StatelessWidget {

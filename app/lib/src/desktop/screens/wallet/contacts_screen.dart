@@ -16,6 +16,7 @@ import '../../../pairing_text.dart' show pairingEndedText;
 import '../../../ui/method_names.dart' show recipientMethodWord;
 import '../../../ui/pairing/pairing_parts.dart' show PairPendingBadge, TrustBadge;
 import '../../data/pairing_state.dart';
+import '../pairing/add_to_contacts_button.dart' show DeskAddToContactsButton;
 import '../pairing/pair_screens.dart';
 import 'contact_trust_line.dart';
 import 'contacts_transfer.dart';
@@ -502,8 +503,7 @@ class _OrphanRow extends ConsumerWidget {
                     if (!inFlight && !r.ended) ...[
                       if (suggested != null)
                         EButton.primary(label: l.pairAddToNamed(suggested.name), size: EBtnSize.sm, onPressed: () => deskAttachPairing(context, ref, r, suggested)),
-                      EButton(label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: true)),
-                      EButton(label: l.pairAddToAContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: false)),
+                      DeskAddToContactsButton(record: r),
                     ],
                     if (inFlight)
                       EButton(

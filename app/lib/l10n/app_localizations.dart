@@ -7851,7 +7851,7 @@ abstract class AppLocalizations {
   /// Detail text of a waiting request.
   ///
   /// In en, this message translates to:
-  /// **'Delivered to {payer}’s Epicbox server. Nothing is paid until they approve it.'**
+  /// **'Delivered over Epicbox. Nothing is paid until {payer} approves it.'**
   String deskInvIssuerWaitingText(String payer);
 
   /// Button tooltip: copy the request's technical identifier.
@@ -20814,29 +20814,17 @@ abstract class AppLocalizations {
   /// **'Part of this code was too long and was ignored.'**
   String get sendCodeTooLong;
 
-  /// Caption over the payee's name as written in a payment code (label). Not checked by anyone.
+  /// Caption over the payee's name as written in a payment code (label).
   ///
   /// In en, this message translates to:
-  /// **'Name from the recipient (not verified)'**
+  /// **'Name from the recipient'**
   String get payeeNameLabel;
 
-  /// Caption over the payee's note as written in a payment code (message). Not checked by anyone.
+  /// Caption over the payee's note as written in a payment code (message).
   ///
   /// In en, this message translates to:
-  /// **'Message from the recipient (not verified)'**
+  /// **'Message from the recipient'**
   String get payeeNoteLabel;
-
-  /// Title of the info sheet on the payee block (name and note from a payment code).
-  ///
-  /// In en, this message translates to:
-  /// **'Not verified'**
-  String get payeeUnverifiedTitle;
-
-  /// Info sheet text on the payee block: the name and note in a payment code are not verified.
-  ///
-  /// In en, this message translates to:
-  /// **'The name and the note are written into the code by whoever made it. Nobody checks them. Check the address and the amount, not the name.'**
-  String get payeeUnverifiedHint;
 
   /// Helper under the Note field when the note was filled from a payment code; the receiver sees the note.
   ///
@@ -21714,18 +21702,6 @@ abstract class AppLocalizations {
   /// **'Pair with {name}?'**
   String pairIncomingTitle(String name);
 
-  /// Chip under the name in the incoming sheet.
-  ///
-  /// In en, this message translates to:
-  /// **'Name chosen by them · not checked yet'**
-  String get pairNameClaimed;
-
-  /// Chip on the words check.
-  ///
-  /// In en, this message translates to:
-  /// **'Name chosen by them'**
-  String get pairNameClaimedShort;
-
   /// Contact page, when the claimed name differs from the label.
   ///
   /// In en, this message translates to:
@@ -22572,10 +22548,10 @@ abstract class AppLocalizations {
   /// **'Your part is done. Their wallet finalizes and posts it; this closes on its own.'**
   String get reqPaidWaitingBodyPerson;
 
-  /// Edge card body.
+  /// Edge card body when the request came from a contact that is not a person. Never name the other side's kind.
   ///
   /// In en, this message translates to:
-  /// **'Your part is done. The exchange finalizes and posts; this closes on its own.'**
+  /// **'Your part is done. The other side finalizes and posts it; this closes on its own.'**
   String get reqPaidWaitingBody;
 
   /// Timeline step.
@@ -22584,29 +22560,23 @@ abstract class AppLocalizations {
   /// **'Paid'**
   String get reqTlPaid;
 
-  /// Timeline step.
+  /// Timeline step: the payment went over Epicbox.
   ///
   /// In en, this message translates to:
-  /// **'Delivered to {name}’s Epicbox server'**
-  String reqTlDelivered(String name);
+  /// **'Delivered over Epicbox'**
+  String get reqTlDelivered;
 
-  /// Timeline step for a withdrawal.
+  /// Timeline step for a withdrawal: this wallet's answer went back over Epicbox.
   ///
   /// In en, this message translates to:
-  /// **'Answer delivered to {name}’s server'**
-  String reqTlAnswerDelivered(String name);
+  /// **'Answer delivered over Epicbox'**
+  String get reqTlAnswerDelivered;
 
   /// Timeline step.
   ///
   /// In en, this message translates to:
   /// **'Posted by {name}'**
   String reqTlPosted(String name);
-
-  /// Timeline detail while current.
-  ///
-  /// In en, this message translates to:
-  /// **'Usually within minutes'**
-  String get reqTlPostedHint;
 
   /// Timeline step.
   ///
@@ -22692,10 +22662,10 @@ abstract class AppLocalizations {
   /// **'Received. Waiting for {name} to post'**
   String reqReceivedWaiting(String name);
 
-  /// Body.
+  /// Body under reqReceivedWaiting. The sender's kind (exchange, faucet, person) is unknown: never name it.
   ///
   /// In en, this message translates to:
-  /// **'Nothing to do. The exchange posts it; confirmations follow.'**
+  /// **'Nothing to do. The sender posts it; confirmations follow.'**
   String get reqReceivedWaitingBody;
 
   /// Request form title.

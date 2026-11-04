@@ -40,6 +40,7 @@ import '../../data/pairing_state.dart';
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../devices/link_flow.dart' show showDeskLinkDevice;
+import 'add_to_contacts_button.dart' show DeskAddToContactsButton;
 import '../transfer/contact_picker.dart' show showContactPicker;
 
 /// Keys for tests.
@@ -65,8 +66,6 @@ const Key deskConfirmCheckKey = ValueKey('desk-confirm-check');
 const Key deskCheckMatchKey = ValueKey('desk-check-match');
 const Key deskCheckNoMatchKey = ValueKey('desk-check-no-match');
 const Key deskCheckLaterKey = ValueKey('desk-check-later');
-const Key deskSavedNewKey = ValueKey('desk-saved-new');
-const Key deskSavedAddToKey = ValueKey('desk-saved-add-to');
 const Key deskSavedNotNowKey = ValueKey('desk-saved-not-now');
 const Key deskSavedAddToNamedKey = ValueKey('desk-saved-add-to-named');
 const Key deskWay1SendKey = ValueKey('desk-way1-send');
@@ -678,8 +677,7 @@ class _IncomingDialogState extends ConsumerState<_IncomingDialog> {
           Row(
             children: [
               DeskPairAvatar(name: name, size: 56.u),
-              SizedBox(width: Sp.x3),
-              if (sender != null) EBadge(l.pairInContacts, icon: EIcons.user, tone: ETone.ok) else EBadge(l.pairNameClaimed, icon: EIcons.user),
+              if (sender != null) ...[SizedBox(width: Sp.x3), EBadge(l.pairInContacts, icon: EIcons.user, tone: ETone.ok)],
             ],
           ),
           if (p.fromAddress case final from?) ...[SizedBox(height: Sp.x3), Text(from, style: ts.mono())],
@@ -1283,7 +1281,7 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(children: [DeskPairAvatar(name: name, size: 48.u), SizedBox(width: Sp.x3), EBadge(l.pairNameClaimedShort, icon: EIcons.user)]),
+          Row(children: [DeskPairAvatar(name: name, size: 48.u)]),
           SizedBox(height: Sp.x3),
           Text(lead, style: ts.bodyDim),
           SizedBox(height: Sp.x4),
@@ -1313,7 +1311,7 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
 }
 
 /// After the words check of a pairing that is in no contact yet: Verified and where it goes,
-/// Save as a new contact or Add to a contact, or Not now.
+/// Add to contacts (a new contact or one there), or Not now.
 class DeskPairedSaveDialog extends ConsumerWidget {
   const DeskPairedSaveDialog({super.key, required this.pairingId, required this.verified});
 
@@ -1336,17 +1334,12 @@ class DeskPairedSaveDialog extends ConsumerWidget {
       return const SizedBox.shrink();
     }
     final name = ref.watch(deskPairingNameProvider(pairingId));
-    Future<void> put({required bool asNew}) async {
-      if (r == null) return;
-      if (await deskPutPairingInContacts(context, ref, r, asNew: asNew) && context.mounted) Navigator.pop(context);
-    }
-
     final suggested = r == null ? null : deskSuggestedContact(ref, r);
     return EDialog(
       title: verified ? l.sasMatchedTitle(name) : l.sasSkippedTitle(name),
       tone: verified ? ETone.ok : ETone.warn,
       icon: verified ? EIcons.trusted : EIcons.shield,
-      // Room for the three choices on one line in every language.
+      // Room for the choices on one line in every language.
       width: suggested == null ? 520.u : 680.u,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1358,13 +1351,10 @@ class DeskPairedSaveDialog extends ConsumerWidget {
         ],
       ),
       actions: [
-        // With a contact to offer, the × is Not now: the three choices keep one line.
+        // With a contact to offer, the × is Not now: the choices keep one line.
         if (suggested == null) EButton(key: deskSavedNotNowKey, label: l.pairNotNow, onPressed: () => Navigator.pop(context)),
-        EButton(key: deskSavedAddToKey, label: l.pairAddToAContact, onPressed: () => put(asNew: false)),
-        if (suggested == null)
-          EButton.primary(key: deskSavedNewKey, label: l.pairSaveNewContact, onPressed: () => put(asNew: true))
-        else ...[
-          EButton(key: deskSavedNewKey, label: l.pairSaveNewContact, onPressed: () => put(asNew: true)),
+        if (r != null) DeskAddToContactsButton(record: r, primary: suggested == null, size: EBtnSize.md, onSaved: () => Navigator.pop(context)),
+        if (suggested != null) ...[
           EButton.primary(
             key: deskSavedAddToNamedKey,
             label: l.pairAddToNamed(suggested.name),

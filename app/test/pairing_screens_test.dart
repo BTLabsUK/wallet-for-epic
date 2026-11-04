@@ -222,7 +222,7 @@ void main() {
       expect(find.byType(IncomingInviteSheet), findsNothing);
     });
 
-    testWidgets('Paste an invite: Pair with …? (by invite: name chosen by them); Pair opens the wait', (tester) async {
+    testWidgets('Paste an invite: Pair with …? (by invite: the name plain); Pair opens the wait', (tester) async {
       final h = _Harness();
       _clipboard(tester, 'Pair with me in BT Wallet: ${h.api.inviteLinkFrom(name: 'Northwind')}');
       await h.pump(tester, const PairScreen(), settle: false);
@@ -230,7 +230,6 @@ void main() {
       await _frames(tester);
       expect(find.byType(IncomingInviteSheet), findsOneWidget);
       expect(find.text(_l.pairIncomingTitle('Northwind')), findsOneWidget);
-      expect(find.text(_l.pairNameClaimed), findsOneWidget);
       expect(find.text(_l.pairInContacts), findsNothing);
       expect(find.byKey(pairNameFieldKey), findsNothing, reason: 'no name field on the sheet');
       await tester.tap(find.byKey(incomingPairKey));

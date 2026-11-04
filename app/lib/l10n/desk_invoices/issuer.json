@@ -206,7 +206,7 @@
       }
     }
   },
-  "deskInvIssuerWaitingText": "Delivered to {payer}’s Epicbox server. Nothing is paid until they approve it.",
+  "deskInvIssuerWaitingText": "Delivered over Epicbox. Nothing is paid until {payer} approves it.",
   "@deskInvIssuerWaitingText": {
     "description": "Detail text of a waiting request.",
     "placeholders": {

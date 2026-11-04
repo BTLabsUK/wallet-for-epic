@@ -4821,7 +4821,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String deskInvIssuerWaitingText(String payer) {
-    return 'ส่งถึงเซิร์ฟเวอร์ Epicbox ของ $payer แล้ว ไม่มีการชำระใดๆ จนกว่าผู้ชำระจะอนุมัติ';
+    return 'ส่งผ่าน Epicbox แล้ว ไม่มีการชำระใดๆ จนกว่า $payer จะอนุมัติ';
   }
 
   @override
@@ -12874,17 +12874,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get sendCodeTooLong => 'บางส่วนของโค้ดนี้ยาวเกินไปและถูกข้ามไป';
 
   @override
-  String get payeeNameLabel => 'ชื่อจากผู้รับเงิน (ยังไม่ยืนยัน)';
+  String get payeeNameLabel => 'ชื่อจากผู้รับเงิน';
 
   @override
-  String get payeeNoteLabel => 'ข้อความจากผู้รับเงิน (ยังไม่ยืนยัน)';
-
-  @override
-  String get payeeUnverifiedTitle => 'ยังไม่ยืนยัน';
-
-  @override
-  String get payeeUnverifiedHint =>
-      'ชื่อและบันทึกถูกเขียนลงในโค้ดโดยผู้สร้างโค้ด ไม่มีใครตรวจสอบ ให้ตรวจสอบที่อยู่และจำนวน ไม่ใช่ชื่อ';
+  String get payeeNoteLabel => 'ข้อความจากผู้รับเงิน';
 
   @override
   String get sendNoteFromCodeHelper => 'มาจากโค้ด ผู้รับเห็นข้อความนี้ด้วย';
@@ -13420,12 +13413,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String pairIncomingTitle(String name) {
     return 'จับคู่กับ $name หรือไม่';
   }
-
-  @override
-  String get pairNameClaimed => 'ชื่อที่อีกฝ่ายเลือกเอง · ยังไม่ได้ตรวจ';
-
-  @override
-  String get pairNameClaimedShort => 'ชื่อที่อีกฝ่ายเลือกเอง';
 
   @override
   String pairCallsThemselves(String name) {
@@ -13982,28 +13969,21 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get reqPaidWaitingBody =>
-      'ส่วนของคุณเสร็จแล้ว ศูนย์แลกเปลี่ยนจะทำให้เสร็จและประกาศ รายการนี้จะปิดเอง';
+      'ส่วนของคุณเสร็จแล้ว อีกฝ่ายจะทำให้เสร็จและประกาศ รายการนี้จะปิดเอง';
 
   @override
   String get reqTlPaid => 'ชำระแล้ว';
 
   @override
-  String reqTlDelivered(String name) {
-    return 'ส่งถึงเซิร์ฟเวอร์ Epicbox ของ $name แล้ว';
-  }
+  String get reqTlDelivered => 'ส่งผ่าน Epicbox แล้ว';
 
   @override
-  String reqTlAnswerDelivered(String name) {
-    return 'ส่งคำตอบถึงเซิร์ฟเวอร์ของ $name แล้ว';
-  }
+  String get reqTlAnswerDelivered => 'ส่งคำตอบผ่าน Epicbox แล้ว';
 
   @override
   String reqTlPosted(String name) {
     return 'ประกาศโดย $name';
   }
-
-  @override
-  String get reqTlPostedHint => 'โดยปกติภายในไม่กี่นาที';
 
   @override
   String get reqTlConfirming => 'กำลังยืนยัน';
@@ -14071,7 +14051,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get reqReceivedWaitingBody =>
-      'ไม่ต้องทำอะไร ศูนย์แลกเปลี่ยนจะประกาศ จากนั้นจะมีการยืนยันตามมา';
+      'ไม่ต้องทำอะไร ผู้ส่งจะประกาศ จากนั้นจะมีการยืนยันตามมา';
 
   @override
   String get reqNewTitle => 'ใบแจ้งหนี้ใหม่';

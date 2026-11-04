@@ -17,6 +17,7 @@ import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import 'setting_ids.dart';
 import '../invoices/invoice_parts.dart';
+import '../pairing/add_to_contacts_button.dart' show DeskAddToContactsButton;
 import '../pairing/pair_screens.dart';
 import 'settings_frame.dart' show SettingsFrame;
 
@@ -71,8 +72,7 @@ class InvoiceSettingsBlock extends ConsumerWidget {
                   // A contact of its name comes first: a re-pair's key check starts there.
                   if (deskSuggestedContact(ref, r) case final c?)
                     EButton.primary(label: l.pairAddToNamed(c.name), size: EBtnSize.sm, onPressed: () => deskAttachPairing(context, ref, r, c)),
-                  EButton(label: l.pairSaveNewContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: true)),
-                  EButton(label: l.pairAddToAContact, size: EBtnSize.sm, onPressed: () => deskPutPairingInContacts(context, ref, r, asNew: false)),
+                  DeskAddToContactsButton(record: r),
                   EButton(
                     label: l.contactRemovePairing,
                     kind: EBtnKind.danger,

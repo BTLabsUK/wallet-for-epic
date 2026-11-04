@@ -225,8 +225,6 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
     final pairing = _invoice.pairingId == null ? null : ref.watch(pairingByIdProvider(_invoice.pairingId!));
     final contacts = ref.watch(contactsProvider).value ?? const <Contact>[];
     final service = invoiceSenderName(l, ref.watch(pairingsProvider).value ?? const [], contacts, _invoice.pairingId);
-    // A name the contact chose, not the user's own, is marked as its claim.
-    final claimed = pairing != null && !contacts.any((c) => c.id == pairing.contactId);
     final pending = ref.watch(pendingInvoicesProvider).value;
     final now = ref.watch(invoiceClockProvider)();
     final unsent = _unsent;
@@ -350,7 +348,7 @@ class _InvoiceReviewScreenState extends ConsumerState<InvoiceReviewScreen> {
                         child: Wrap(
                           spacing: 6,
                           runSpacing: 4,
-                          children: [const SealedBadge(), TrustBadge(pairing), if (claimed) const ClaimedNameBadge()],
+                          children: [const SealedBadge(), TrustBadge(pairing)],
                         ),
                       ),
                     // A contact's request names the contact; its mailbox is never shown as an
@@ -670,7 +668,6 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
       );
     }
     final service = invoiceSenderName(l, ref.watch(pairingsProvider).value ?? const [], contacts, widget.pairingId);
-    final claimed = pairing != null && !contacts.any((c) => c.id == pairing.contactId);
     final display = amountDisplay(ref);
     final spendable = ref.watch(homeProvider).value?.summary.spendable;
     final refused = _refused;
@@ -730,7 +727,7 @@ class _RequestFileReviewScreenState extends ConsumerState<RequestFileReviewScree
                         child: Wrap(
                           spacing: 6,
                           runSpacing: 4,
-                          children: [const SealedBadge(), TrustBadge(pairing), if (claimed) const ClaimedNameBadge()],
+                          children: [const SealedBadge(), TrustBadge(pairing)],
                         ),
                       ),
                     ],
@@ -1244,14 +1241,13 @@ class RequestTimeline extends StatelessWidget {
       steps: [
         TimelineStep(l.reqTlPaid, TimelineState.done),
         TimelineStep(
-          l.reqTlDelivered(name),
+          l.reqTlDelivered,
           delivered ? TimelineState.done : TimelineState.current,
           detail: delivered ? null : l.reqRelayRetrying,
         ),
         TimelineStep(
           l.reqTlPosted(name),
           posted ? TimelineState.done : (delivered ? TimelineState.current : TimelineState.todo),
-          detail: !posted && delivered ? l.reqTlPostedHint : null,
         ),
         if (confirmed)
           TimelineStep(l.reqTlConfirmed, TimelineState.done)
