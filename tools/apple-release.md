@@ -82,7 +82,7 @@ Steps marked ⏳ wait for Apple to approve the membership.
 9. **Builder**: developer.apple.com, Identifiers, +, App IDs, App: `uk.btlabs.btwallet.ios`
    (iOS, "BT Wallet") and `uk.btlabs.btwallet.macos` (macOS, "BT Wallet"),
    no capabilities. Then App Store Connect, Apps, +, New App: iOS, "BT Wallet", bundle id
-   `uk.btlabs.btwallet.ios`, SKU `epiccashmobile`.
+   `uk.btlabs.btwallet.ios`, SKU `btwallet-ios`.
 10. **Owner**: decide export compliance and the privacy label (the App Store Connect drafts,
     `docs/apple-app-store.md` in the development repository). If the answer sets
     `ITSAppUsesNonExemptEncryption`, the dev team commits it to `app/ios/Runner/Info.plist`

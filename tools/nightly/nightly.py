@@ -9,10 +9,13 @@ which runs THIS file from a fresh worktree at main's sha (~/wfe-worktrees/nightl
 It is not an agent: it runs the full check on main, records the result and reports. It never
 fixes, pushes, starts agents or blocks merges.
 
-  nightly.py                     one attempt, as wfe-nightly.timer runs it (02:30, 03:30, 04:30 and
-                                 05:30 local time). It refuses outside 01:00-06:00 local time
-                                 (`skipped: daytime`), and skips while any build-slot slot is held
-                                 or any tools/rel run is active (`skipped: busy`)
+  nightly.py                     one attempt, as wfe-nightly.timer runs it (every hour at :30). It
+                                 refuses outside 01:00-06:00 local time (`skipped: daytime`), and
+                                 skips while any build-slot slot is held or any tools/rel run is
+                                 active (`skipped: busy`) - unless no run has finished for 24 h
+                                 (catch-up): then it runs at any hour, waits for a build slot
+                                 (CATCHUP_SLOT_WAIT_S) instead of skipping, and a skip for any other
+                                 reason is written into summary.txt ("no nightly finished for Nh")
   python3 ~/.local/lib/wfe-nightly/launch.py --by-hand
                                  the same run started by a person: any time of day, waits for a
                                  build slot, still refuses while a tools/rel run is active
@@ -44,6 +47,11 @@ A run:
      ~/.config/wfe-nightly/notify_token (without both nothing is sent: "not configured"). The key
      nightly-<sha8>-<red|broken> is sent once: state.json remembers it and the bot dedupes on it.
      A failed send never fails the run; result.json `notified` records it;
+  7a. LEPIC's golden vectors (`cargo xtask vectors verify`, a check.sh --full step, red on failure)
+     and, after the check unless it broke, `cargo xtask upstream-drift` at the wallet's pin
+     (tools/lepic.sh xtask, report only): latest.json `drift` {status: clean|drift|unknown, lines},
+     a `group: drift` step, and the summary line names the modules with upstream changes. Drift or an
+     unreachable upstream never turns the nightly red or sends a DM;
   7b. after a green source check, one fast G4 update-trust pass per platform (linux, android,
      windows) on the LAST TWO PUBLISHED releases (no builds): previous = the one before the last in
      /tmp/epic-build/rel/published.json plus published-by-hand.json (hand releases), candidate = the last, tor variant, REL_FUNDS=1, BT Labs node
@@ -115,6 +123,8 @@ MAX_ERROR_RUNS = 3  # the first run of a sha and at most two retries after `erro
 CULPRITS_KEPT = 30
 TIMER_SLOT_WAIT_S = 120
 BY_HAND_SLOT_WAIT_S = 12 * 3600
+CATCHUP_AFTER_S = 24 * 3600  # no run finished for this long: any hour, queue for a slot
+CATCHUP_SLOT_WAIT_S = 55 * 60  # shorter than the hourly timer, so tries do not pile up
 NIGHT_HOURS = (1, 6)  # timer runs only from 01:00 to 06:00 local time
 DM_ITEMS, DM_TEST_CHARS, DM_COMMIT_CHARS = 15, 160, 120
 DM_FIELDS = {"kind", "sha", "key", "step", "counts", "duration", "reason", "tests", "commits",
@@ -411,8 +421,36 @@ def slot_status():
         return ""
 
 
-def refusal(by_hand, now_local=None, status_text=None, rel_pattern=None):
-    """Why this attempt must not run now ('daytime', 'busy (...)'), or None."""
+def stale_hours(state, now=None, latest=None):
+    """Hours since the last completed run when that is 24 h or more (or no run is recorded: None
+    means never), else 0 - the catch-up condition. Returns (stale, hours)."""
+    ended = (state.get("last_completed") or {}).get("ended") or (latest or read_json(BASE / "latest.json", {})).get("ended")
+    if not ended:
+        return True, None
+    try:
+        age = ((now or utcnow()) - parse_iso(ended)).total_seconds()
+    except (ValueError, TypeError):
+        return True, None
+    return age >= CATCHUP_AFTER_S, int(age // 3600)
+
+
+def stale_note(state, reason, hours, now=None):
+    """summary.txt with the skip reason appended after the last result, once no run has finished for
+    24 h. Skips for `unchanged` or an existing green record are not a missed night."""
+    if reason.startswith(("unchanged", "already green")):
+        return
+    latest = read_json(BASE / "latest.json", {})
+    base = summary_line(latest) if latest.get("ended") else "no nightly result yet"
+    base = base.split(" | no nightly finished")[0]
+    age = f"{hours} h" if hours is not None else "ever"
+    write_atomic(BASE / "summary.txt",
+                 f"{base} | no nightly finished for {age}; skipped {iso(now or utcnow())[:16]}Z: {_clip(reason, 200)}\n")
+
+
+def refusal(by_hand, now_local=None, status_text=None, rel_pattern=None, catchup=False):
+    """Why this attempt must not run now ('daytime', 'busy (...)'), or None. In catch-up only a
+    tools/rel run refuses; a held build slot is waited for by build-slot, not a reason to skip."""
+    by_hand = by_hand or catchup
     if not by_hand:
         hour = (now_local or dt.datetime.now()).hour
         if not NIGHT_HOURS[0] <= hour < NIGHT_HOURS[1]:
@@ -986,6 +1024,47 @@ def rig_step(rigs):
     return step
 
 
+DRIFT_TIMEOUT_S = 15 * 60
+DRIFT_LINES_KEPT = 40
+
+
+def run_drift(run_dir, env, worktree=None, runner=None):
+    """LEPIC's `cargo xtask upstream-drift` at the wallet's pin (tools/lepic.sh xtask), report only:
+    exit 2 is drift, exit 0 none, anything else (offline, a build failure) is unknown. Never turns
+    the nightly red. Returns {status: clean|drift|unknown, lines: [str], reason}."""
+    worktree = Path(worktree or WORKTREE)
+    lepic = worktree / "tools" / "lepic.sh"
+    try:
+        if "  xtask)" not in lepic.read_text(encoding="utf-8"):
+            return {"status": "unknown", "lines": [], "reason": "this commit's tools/lepic.sh has no xtask command"}
+    except OSError as e:
+        return {"status": "unknown", "lines": [], "reason": _clip(str(e), 200)}
+    argv = ["nice", "-n", "15", "ionice", "-c3", "build-slot", str(lepic), "xtask", "upstream-drift"]
+    log_path = Path(run_dir) / "drift.log"
+    try:
+        with open(log_path, "w", encoding="utf-8") as log:
+            rc, tail = (runner or run_logged)(argv, log, env, str(worktree), timeout=DRIFT_TIMEOUT_S, slot_wait=True)
+        lines = [l.split(" ", 1)[-1] if re.match(r"\d\d:\d\d:\d\d ", l) else l
+                 for l in log_path.read_text(encoding="utf-8").splitlines()]
+    except Exception as e:  # report only: never raised
+        return {"status": "unknown", "lines": [], "reason": _clip(f"nightly error: {e}", 200)}
+    lines = [l for l in lines if l.strip() and not l.startswith("build-slot:")][-DRIFT_LINES_KEPT:]
+    if rc == 0:
+        return {"status": "clean", "lines": lines[-3:], "reason": ""}
+    if rc == 2:
+        return {"status": "drift", "lines": lines, "reason": ""}
+    why = "timed out" if rc is None else f"exit {rc}"
+    return {"status": "unknown", "lines": lines[-5:], "reason": f"{why}: " + _clip(" / ".join(lines[-2:]), 160)}
+
+
+def drift_step(drift):
+    step = {"name": "LEPIC upstream drift (report only)", "group": "drift",
+            "status": "skipped" if drift["status"] == "unknown" else "ok", "duration_s": 0}
+    if drift["status"] != "clean":
+        step["reason"] = drift["reason"] or "upstream changed since the recorded pins"
+    return step
+
+
 def trust_summary(steps):
     """{status: red|green|skipped, failed: [str]} for the result; None without trust steps."""
     if not steps:
@@ -1054,7 +1133,7 @@ def run_logged(cmd, log, env, cwd, timeout=None, slot_wait=False):
     return rc, tail
 
 
-def check_env(run_dir, by_hand):
+def check_env(run_dir, by_hand, catchup=False):
     env = dict(os.environ)
     for k in ("WAYLAND_DISPLAY", "DISPLAY", "CARGO_TARGET_DIR", "BUILD_SLOT"):
         env.pop(k, None)
@@ -1065,7 +1144,7 @@ def check_env(run_dir, by_hand):
                             "/usr/local/bin", "/usr/bin", "/bin"])
     env["TMPDIR"] = str(scratch)
     env["TMPDIR"] = env["TMP"] = env["TEMP"] = str(tmp)
-    env["BUILD_SLOT_WAIT"] = str(BY_HAND_SLOT_WAIT_S if by_hand else TIMER_SLOT_WAIT_S)
+    env["BUILD_SLOT_WAIT"] = str(BY_HAND_SLOT_WAIT_S if by_hand else CATCHUP_SLOT_WAIT_S if catchup else TIMER_SLOT_WAIT_S)
     env["XDG_DATA_HOME"] = str(run_dir / "xdg-data")
     return env
 
@@ -1154,14 +1233,22 @@ def cmd_run(by_hand, pinned_sha=None):
     except (RuntimeError, subprocess.SubprocessError) as e:
         return broken_run(kind, state, None, f"cannot read main: {e}")
 
-    why = refusal(by_hand)
+    stale, hours = stale_hours(state)
+    catchup = stale and not by_hand
+    why = refusal(by_hand, catchup=catchup)
     if why:
         attempt(kind, sha, f"skipped: {why}")
+        if stale:
+            stale_note(state, why, hours)
         return 0
     verdict, reason = decide(state, sha)
     if verdict == "skip":
         attempt(kind, sha, f"skipped: {reason}")
+        if stale:
+            stale_note(state, reason, hours)
         return 0
+    if catchup:
+        attempt(kind, sha, f"catch-up: no run finished for {hours if hours is not None else 'a long time'} h")
 
     started = utcnow()
     stamp = started.strftime("%Y%m%dT%H%M")
@@ -1170,7 +1257,7 @@ def cmd_run(by_hand, pinned_sha=None):
         shutil.rmtree(run_dir)  # a skipped attempt in the same minute
     run_dir.mkdir(parents=True)
     log_path = run_dir / "check.log"
-    env = check_env(run_dir, by_hand)
+    env = check_env(run_dir, by_hand, catchup)
     env["NIGHTLY_XDG"] = env["XDG_DATA_HOME"]
     error = None
     refused = None
@@ -1181,7 +1268,7 @@ def cmd_run(by_hand, pinned_sha=None):
         log.write(f"{started.strftime('%H:%M:%S')} nightly {kind} run of main {sha}\n")
         try:
             prepare_worktree(sha, log, env)
-            why = refusal(by_hand)
+            why = refusal(by_hand, catchup=catchup)
             if why:
                 raise Refused(why)
             argv, command = check_command(run_dir)
@@ -1199,10 +1286,12 @@ def cmd_run(by_hand, pinned_sha=None):
         if by_hand:
             error = "no build slot came while waiting"
         else:
-            refused = f"busy (no build slot within {TIMER_SLOT_WAIT_S}s)"
+            refused = f"busy (no build slot within {CATCHUP_SLOT_WAIT_S if catchup else TIMER_SLOT_WAIT_S}s)"
     if refused:
         shutil.rmtree(run_dir, ignore_errors=True)
         attempt(kind, sha, f"skipped: {refused}")
+        if stale:
+            stale_note(state, refused, hours)
         return 0
 
     with open(log_path, encoding="utf-8") as f:
@@ -1231,6 +1320,9 @@ def cmd_run(by_hand, pinned_sha=None):
         except Exception as e:  # the break lane never breaks the run
             break_step = {"name": "G4 break linux", "group": "breaks", "platform": "linux", "status": "skipped",
                           "duration_s": 0, "reason": f"nightly error: {str(e)[:150]}"}
+    drift = None
+    if status != "error":
+        drift = run_drift(run_dir, {k: v for k, v in env.items() if k not in ("XDG_DATA_HOME", "NIGHTLY_XDG")})
     rigs = rig_health()
     last_green = state.get("last_green_sha")
     result = {
@@ -1242,7 +1334,8 @@ def cmd_run(by_hand, pinned_sha=None):
         "kind": kind,
         "command": command,
         "exit": rc,
-        "steps": parsed["steps"] + trust_steps + ([break_step] if break_step else []) + [rig_step(rigs)],
+        "steps": parsed["steps"] + trust_steps + ([break_step] if break_step else []) + ([drift_step(drift)] if drift else []) + [rig_step(rigs)],
+        "drift": drift,
         "trust": trust_summary(trust_steps),
         "breaks": (break_step or {}).get("breaks") or ({"score": "skipped", "why": break_step["reason"]} if break_step else None),
         "rigs": rigs,
@@ -1318,6 +1411,13 @@ def summary_line(r):
     b = r.get("breaks")
     if b:
         line += f" | G4 break {b.get('break', '-')}: {b['score']}" + (f" ({b['why']})" if b.get("why") and b["score"] not in ("recovered right",) else "")
+    d = r.get("drift") or {}
+    if d.get("status") == "drift":
+        found = next((m.group(1) for l in reversed(d.get("lines") or [])
+                      for m in [re.search(r"(\d+ of \d+ module\(s\))", l)] if m), "upstream changes")
+        line += f" | LEPIC upstream drift: {found} (drift.log in the run folder)"
+    elif d.get("status") == "unknown":
+        line += f" | LEPIC drift unknown: {d.get('reason')}"
     rigs = r.get("rigs") or {}
     if rigs.get("status") == "dead":
         line += " | Windows rig dead: " + "; ".join(rigs["dead"])

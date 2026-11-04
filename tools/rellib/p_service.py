@@ -33,7 +33,7 @@ P's folder into memory only.
 The service starts on the first client that needs it (Client.ensure) and stops after REL_P_IDLE_MIN
 (default 40) minutes without a request and without a send of its own still unconfirmed.
 
-    python3 -I p_service.py serve | status | stop | info | cancel <slate> [why]
+    python3 -I p_service.py serve | status | stop | info | cancel <slate> [why] | kick
 
 Env: REL_P_TOOL (p.py), REL_P_PASS_FILE + REL_P_PASS_LINE (P's password), REL_P_LOCK (the old
 flock), REL_P_SERVICE_DIR (socket, logs; default ~/.cache/rel-p-service), REL_P_OWNER_PORT (P's
@@ -338,6 +338,24 @@ class Service:
         self.kill_remote(("listen",))  # the supervisor starts it again when its local side quits
         return [sid for sid, _ in stuck]
 
+    def kick(self, why="", now=None):
+        """A lane's send to P went unanswered: the listener is started again when it stayed silent STALL_S
+        (its subscription may be gone; Epicbox hands the waiting slates to the new one). At most one move or
+        restart per MOVE_EVERY_S. A silent listener alone is normal: P can go hours without a payment."""
+        now = now or time.time()
+        lp = self.procs.get("listener", (None, None))[1]
+        try:
+            silent = now - os.path.getmtime(lp)
+        except (OSError, TypeError):
+            return {"ok": False, "note": "no listener log"}
+        if silent < STALL_S or now - self.moved_at < MOVE_EVERY_S:
+            return {"ok": True, "restarted": False, "silent_s": int(silent)}
+        self.moved_at = now
+        self.log("P listener silent %d s and a send to P unanswered%s: starting it again" % (
+            silent, " (" + why + ")" if why else ""))
+        self.kill_remote(("listen",))
+        return {"ok": True, "restarted": True, "silent_s": int(silent)}
+
     def _p_toml(self):
         r = subprocess.run(["ssh", "-o", "BatchMode=yes", "-o", "ConnectTimeout=20", self.host,
                             'type "%s\\epic-wallet.toml"' % self.pdir], capture_output=True, text=True, timeout=60)
@@ -524,6 +542,8 @@ class Service:
             return {"ok": r.returncode == 0, "rc": r.returncode, "out": out}
         if op == "cancel":
             return self.cancel(req["slate"], req.get("why", ""))
+        if op == "kick":
+            return self.kick(req.get("why", ""))
         if op == "stop":
             threading.Thread(target=self.shutdown_soon, daemon=True).start()
             return {"ok": True}

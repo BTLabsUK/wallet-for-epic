@@ -23,6 +23,8 @@ name, size and sha256), and an earlier record for each platform the current one 
 is a platform and its variant (with Tor, without; iOS has only the one without): the newest version that has a file in a slot
 is the one the page offers there, and the server keeps. What a file is (platform, label, primary or folded) comes
 from its name, see KINDS: a new kind of build needs one line there and nothing else.
+A file added to a release after its SHA256SUMS was signed (the macOS disk images of 26.11.0) says
+"unlisted": true: the page marks it as outside the signed listing.
 
 The page is plain HTML and CSS: every download is a link, every fold a <details>. page.js adds
 the copy buttons, the platform the browser reports (User-Agent Client Hints, then the user
@@ -95,7 +97,7 @@ PLATFORMS = [
     ('windows', 'Windows', 'Desktop', 'Windows 10 and 11, 64-bit', False),
     ('linux', 'Linux', 'Desktop', 'x86_64, AppImage', False),
     ('android', 'Android', 'Mobile', 'Android 7 or newer, arm64', False),
-    ('macos', 'macOS', 'Desktop', 'macOS 12 or newer, Apple silicon and Intel', True),
+    ('macos', 'macOS', 'Desktop', 'macOS 12 or newer, Apple silicon', True),
     ('ios', 'iOS', 'Mobile', 'iPhone and iPad, iOS 15 or newer, sideloaded', True),
 ]
 APP = 'BT Wallet'
@@ -135,13 +137,11 @@ BEFORE = {
         '<p>The app installs for the current user only; no administrator rights are needed.</p>',
         'certutil -hashfile {file} SHA256'),
     'macos': (
-        '<p>The disk image is not signed or notarised by Apple, so Gatekeeper blocks the first start. Open the '
-        'disk image, drag the app to Applications and open it once.{older} When macOS refuses, go to '
-        '<b>System Settings › Privacy &amp; Security</b>, scroll to the Security section and click '
-        '<b>Open Anyway</b>, then confirm with the Mac login password.</p>'
-        '<p>Or in Terminal: <code>xattr -dr com.apple.quarantine "/Applications/{bundle}"</code></p>'
-        '<p>The keychain asks once per version to let the app use its saved data: <b>Always Allow</b>. '
-        'The built-in node runs on Apple silicon only.</p>',
+        '<p>The disk image and the app are signed with BT LABS\' Developer ID and notarised by Apple. Open the '
+        'disk image, drag the app to Applications and open it.{older}</p>'
+        '<p>For Macs with Apple silicon (M1 or newer) only; an Intel Mac cannot run it.</p>'
+        '<p>Coming from an older version, the keychain asks once to let the app use its saved data: '
+        '<b>Always Allow</b>.</p>',
         'shasum -a 256 {file}'),
     'linux': (
         '<p>Nothing to pass. Make the file executable (right-click › Properties › Permissions › '
@@ -334,7 +334,9 @@ def file_row(e):
         f'<span class="fn" translate="no">{esc(e["name"])}</span>'
         f'<span class="fs">{mb(e["size"])}&nbsp;MB</span></a>'
         f'<span class="sha"><span class="sha-k">SHA-256</span>'
-        f'<code data-copy translate="no">{e["sha256"]}</code></span></li>'
+        f'<code data-copy translate="no">{e["sha256"]}</code></span>'
+        + ('<span class="sha-n">Not in the signed SHA256SUMS: added after it was signed.</span>' if e.get('unlisted') else '')
+        + '</li>'
     )
 
 
@@ -420,9 +422,14 @@ def verify(g, latest):
         if key in g and g[key]['primary'] and key in BEFORE:
             cmd = BEFORE[key][1].format(file=g[key]['primary']['name'])
             cmds.append(f'<p class="verify"><span>{esc(PLAT[key][1])}</span><code data-copy translate="no">{esc(cmd)}</code></p>')
+    late = [e for gg in g.values() for e in gg['files'] if e.get('unlisted')]
+    late_note = ('<p>' + ' and '.join(f'<span translate="no">{esc(e["name"])}</span>' for e in late)
+                 + ' came after SHA256SUMS was signed and are not in it: compare them with the SHA-256 under '
+                 'Files and checksums.</p>') if late else ''
     return f'''<details class="fold verify-fold" id="verify"><summary>Verify a download</summary>
   <div class="bt">
-    <p>Every file's SHA-256 is under Files and checksums; <a href="downloads/SHA256SUMS" download translate="no">SHA256SUMS</a> lists them all. Compare it with the file's own:</p>
+    <p>Every file's SHA-256 is under Files and checksums; <a href="downloads/SHA256SUMS" download translate="no">SHA256SUMS</a> lists {'the others' if late else 'them all'}. Compare it with the file's own:</p>
+    {late_note}
     {''.join(cmds)}
     {sig_check(latest)}
   </div>

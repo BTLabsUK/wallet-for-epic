@@ -744,5 +744,67 @@ class LauncherTest(unittest.TestCase):
         self.assertEqual(nightly.runner_info({})["kind"], "direct")
 
 
+class CatchupTest(unittest.TestCase):
+    def test_stale_after_24h_or_never(self):
+        now = nightly.parse_iso("2026-11-04T10:00:00Z")
+        self.assertEqual(nightly.stale_hours({"last_completed": {"ended": "2026-11-03T12:00:00Z"}}, now), (False, 22))
+        self.assertEqual(nightly.stale_hours({"last_completed": {"ended": "2026-11-02T03:40:00Z"}}, now), (True, 54))
+
+    def test_catchup_skips_only_for_a_rel_run(self):
+        noon = dt.datetime(2026, 10, 30, 12, 0)
+        busy = "slot 1: x since 1: y\n"
+        self.assertEqual(nightly.refusal(False, noon, busy, "/nonexistent/*", catchup=False), "daytime")
+        self.assertIsNone(nightly.refusal(False, noon, busy, "/nonexistent/*", catchup=True))
+
+    def test_stale_note_goes_into_the_summary(self):
+        with tempfile.TemporaryDirectory() as d:
+            old = nightly.BASE
+            nightly.BASE = Path(d)
+            try:
+                nightly.stale_note({}, "busy (tools/rel run active: x)", 30)
+                text = (Path(d) / "summary.txt").read_text()
+                self.assertIn("no nightly finished for 30 h", text)
+                self.assertIn("tools/rel run active", text)
+                nightly.stale_note({}, "busy (y)", 31)
+                self.assertEqual((Path(d) / "summary.txt").read_text().count("no nightly finished"), 1)
+                nightly.stale_note({}, "unchanged", 32)
+                self.assertIn("busy (y)", (Path(d) / "summary.txt").read_text())
+            finally:
+                nightly.BASE = old
+
+
+class DriftTest(unittest.TestCase):
+    def _run(self, rc, out, lepic_text="  xtask)\n"):
+        with tempfile.TemporaryDirectory() as d:
+            wt = Path(d) / "wt"
+            (wt / "tools").mkdir(parents=True)
+            (wt / "tools" / "lepic.sh").write_text(lepic_text)
+
+            def runner(argv, log, env, cwd, timeout=None, slot_wait=False):
+                log.write(out)
+                log.flush()
+                return rc, []
+            return nightly.run_drift(d, {}, worktree=wt, runner=runner)
+
+    def test_clean_drift_and_outage(self):
+        self.assertEqual(self._run(0, "upstream-drift: no upstream changes\n")["status"], "clean")
+        d = self._run(2, "epic core/src/ser.rs\n  abc123 change\nError: 1 of 40 module(s) have upstream changes to review\n")
+        self.assertEqual(d["status"], "drift")
+        self.assertEqual(nightly.drift_step(d)["status"], "ok")
+        o = self._run(1, "fatal: unable to access\n")
+        self.assertEqual(o["status"], "unknown")
+        self.assertEqual(nightly.drift_step(o)["status"], "skipped")
+
+    def test_old_commit_without_xtask_is_unknown(self):
+        self.assertEqual(self._run(0, "", lepic_text="nothing\n")["status"], "unknown")
+
+    def test_summary_names_the_drift_but_stays_green(self):
+        r = {"ended": "2026-11-04T03:00:00Z", "status": "green", "sha": "a" * 40, "tests": {}, "duration_s": 5,
+             "steps": [], "drift": {"status": "drift", "lines": ["Error: 3 of 40 module(s) have upstream changes to review"]}}
+        line = nightly.summary_line(r)
+        self.assertIn("green", line)
+        self.assertIn("3 of 40 module(s)", line)
+
+
 if __name__ == "__main__":
     unittest.main()
