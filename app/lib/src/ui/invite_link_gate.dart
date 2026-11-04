@@ -46,7 +46,7 @@ class _InviteLinkGateState extends ConsumerState<InviteLinkGate> {
   @override
   void initState() {
     super.initState();
-    inviteHandlersChanged.addListener(_route);
+    inviteHandlersChanged.addListener(_routeSoon);
     final inbox = ref.read(inviteInboxProvider);
     _arrivals = inbox.arrivals.listen((_) => _route());
     _unreadable = inbox.unreadable.listen((_) {
@@ -71,12 +71,16 @@ class _InviteLinkGateState extends ConsumerState<InviteLinkGate> {
 
   @override
   void dispose() {
-    inviteHandlersChanged.removeListener(_route);
+    inviteHandlersChanged.removeListener(_routeSoon);
     _wait?.cancel();
     _arrivals?.cancel();
     _unreadable?.cancel();
     super.dispose();
   }
+
+  /// A handler just came or went, often from a screen's initState: the held invite goes once
+  /// that is over, so the handler can read the tree (a link taken inside it was lost).
+  void _routeSoon() => scheduleMicrotask(_route);
 
   /// Hands the held invite to its handler: none while a PIN prompt or a send is in progress
   /// (it waits for them). Without a handler for its kind it waits [inviteHandlerWait] for one,
