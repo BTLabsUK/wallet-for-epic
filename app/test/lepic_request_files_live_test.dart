@@ -16,8 +16,6 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
 import 'package:lepic/lepic.dart' as lepic;
-// Not exported by package:lepic/lepic.dart.
-import 'package:lepic/src/rust/api/policy.dart' show HostPolicy;
 import 'package:lepic/testing.dart' as lepic_testing;
 
 final String? _lib = Platform.environment['WFE_LEPIC_MOCK_LIB'];
@@ -72,7 +70,7 @@ void main() {
     made++;
     final w = await lepic.EpicWallet.create(
       runtime: runtime,
-      config: lepic.WalletConfig(policy: const HostPolicy(), torWanted: false, hostFeatures: 0, 
+      config: lepic.WalletConfig(policy: const lepic.HostPolicy(), torWanted: false, hostFeatures: 0, 
         dataDir: (Directory('${root.path}/w$made')..createSync()).path,
         chain: lepic.Chain.floonet,
         nodeUrl: 'http://127.0.0.1:1',

@@ -15,9 +15,6 @@ import 'dart:typed_data';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
     show ExternalLibrary, Uint64List;
 import 'package:lepic/lepic.dart' as lepic;
-// Not exported by package:lepic/lepic.dart.
-// ignore: implementation_imports
-import 'package:lepic/src/rust/api/policy.dart' show HostPolicy;
 import 'package:meta/meta.dart' show visibleForTesting;
 
 import 'history/export.dart';
@@ -1050,7 +1047,7 @@ class LepicWalletService implements WalletService {
   /// replaces them later with [WalletSession.setOnionRoutes] (the signed list).
   static Future<lepic.WalletConfig> _lepicConfig(WalletConfig config, String dataDir) async =>
       lepic.WalletConfig(
-        policy: const HostPolicy(),
+        policy: const lepic.HostPolicy(),
         dataDir: dataDir,
         chain: _lepicChain(config.chain),
         nodeUrl: config.nodeUrl.trim().isEmpty ? noNodeUrl : await lanNodeUrl(config.nodeUrl),

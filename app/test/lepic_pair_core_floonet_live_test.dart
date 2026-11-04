@@ -23,8 +23,6 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/settings_file/host_settings.dart' show appConfig;
 import 'package:lepic/lepic.dart' as lepic;
-// Not exported by package:lepic/lepic.dart.
-import 'package:lepic/src/rust/api/policy.dart' show HostPolicy;
 
 final _env = Platform.environment;
 final String? _lib = _env['WFE_LEPIC_LIB'];
@@ -64,7 +62,7 @@ class _FileStore implements lepic.SecretStore {
 
 late lepic.LepicRuntime _runtime;
 
-lepic.WalletConfig _config(String name, {String relay = _relay}) => lepic.WalletConfig(policy: const HostPolicy(), torWanted: false, hostFeatures: 0, 
+lepic.WalletConfig _config(String name, {String relay = _relay}) => lepic.WalletConfig(policy: const lepic.HostPolicy(), torWanted: false, hostFeatures: 0, 
   dataDir: (Directory('$_dir/$name')..createSync(recursive: true)).path,
   chain: lepic.Chain.floonet,
   nodeUrl: _node,
