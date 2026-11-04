@@ -759,8 +759,8 @@ def _send_back(lane, pair):
 
 def _send_extra(lane):
     """REL_RETURN_EXTRA (EPIC): earlier runs' inflow left in a lane seed's wallet (debug runs stopped
-    before their send back), returned to P in one more send of its own after this run's. Logged only:
-    send_ok is this run's send."""
+    before their send back), returned to P after this run's send, in sends of at most CAP_SEND. Logged
+    only: send_ok is this run's send."""
     extra = os.environ.get("REL_RETURN_EXTRA")
     if not extra:
         return
@@ -769,11 +769,14 @@ def _send_extra(lane):
     except ArithmeticError:
         lane.log("REL_RETURN_EXTRA %r is not an amount; nothing more sent back" % extra)
         return
-    if a <= 0:
-        return
-    d0 = wait_spendable(lane, "candidate", _nano(a), "before sending earlier runs' inflow back", 900)
-    ok, why = _send_to_p(lane, d0, a)
-    lane.log("earlier runs' inflow (REL_RETURN_EXTRA %s EPIC) back to P: %s%s" % (a, "" if ok else "not sent: ", why))
+    while a > 0:
+        part = min(a, CAP_SEND)   # in sends within the per-send cap
+        d0 = wait_spendable(lane, "candidate", _nano(part), "before sending earlier runs' inflow back", 900)
+        ok, why = _send_to_p(lane, d0, part)
+        lane.log("earlier runs' inflow (REL_RETURN_EXTRA %s EPIC): %s EPIC back to P: %s%s" % (extra, part, "" if ok else "not sent: ", why))
+        if not ok:
+            return
+        a -= part
 
 
 def _send_to_p(lane, d0, amount=None, fallback=None):
