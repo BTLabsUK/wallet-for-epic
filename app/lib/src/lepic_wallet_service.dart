@@ -20,7 +20,7 @@ import 'package:lepic/lepic.dart' as lepic;
 import 'package:lepic/src/rust/api/policy.dart' show HostPolicy;
 import 'package:meta/meta.dart' show visibleForTesting;
 
-import 'directory/wire.dart' show toHex;
+import 'directory/wire.dart' show fromHex, toHex;
 import 'history/export.dart';
 import 'history/meta_store.dart';
 import 'history/wallet_history.dart';
@@ -1553,7 +1553,7 @@ class LepicAppDataSealer implements AppDataSealer {
 
 /// An open LEPIC wallet. Public so tests can wrap a stand-in `EpicWallet`; without [history]
 /// it keeps notes and contacts in memory only.
-class LepicWalletSession implements WalletSession, EpicboxDrainAt {
+class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
   LepicWalletSession(
     this._wallet, {
     WalletHistory? history,
@@ -3411,6 +3411,22 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt {
   /// read and the drainer skips quietly.
   @override
   Future<PaymentsDrainReport?> drainEpicboxAt({required String domain, required int port}) async => null;
+
+  @override
+  Future<String> listingAddress(String dkeyHex, int generation) =>
+      _guard(() => _wallet.epicboxAddressAt(dkey: dkeyHex, generation: generation));
+
+  @override
+  Future<Uint8List> signWithListing(String dkeyHex, int generation, String domain, Uint8List message) =>
+      _guard(() async => fromHex(await _wallet.signWithAddressKeyAt(dkey: dkeyHex, generation: generation, domain: domain, message: message)));
+
+  @override
+  Future<PaymentsDrainReport> drainListing(String dkeyHex, int generation) => _epicboxGuard('listing drain', () async {
+    _watchEvents();
+    final report = await _wallet.drainEpicboxAt(dkey: dkeyHex, generation: generation);
+    await _sweep();
+    return PaymentsDrainReport(received: report.received, finalized: report.finalized, bounced: report.bounced);
+  });
 }
 
 // ---------------------------------------------------------------------------------------

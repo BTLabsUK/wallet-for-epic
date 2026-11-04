@@ -118,6 +118,47 @@ void main() {
     }
   });
 
+  group('encoders', () {
+    // A card with an unknown tag keeps it for the signature; the encoder writes the known fields.
+    for (final e in vectorList(v, 'cards').where((e) => (e['fields']! as Map<String, Object?>)['extra'] == null)) {
+      test('card ${e['id']}', () {
+        final card = ListingCard.decode(fromHex(e['hex']! as String));
+        final unsigned = listingCardUnsigned(
+          net: card.net,
+          address: card.address,
+          dkey: card.dkey,
+          handle: card.handle,
+          seq: card.seq,
+          issued: card.issued.toInt(),
+        );
+        expect(toHex(unsigned), toHex(card.signedBytes));
+        expect(toHex(withSignature(unsigned, card.signature!)), e['hex']);
+      });
+    }
+
+    test('listing payload and unlist payload', () {
+      for (final e in vectorList(v, 'payloads')) {
+        final raw = fromHex(e['hex']! as String);
+        final payload = DirectoryPayload.decode(raw);
+        switch (payload) {
+          case ListingPayload():
+            expect(toHex(listingPayloadBytes(payload.card.toBytes())), e['hex']);
+          case UnlistPayload():
+            final unsigned = unlistPayloadUnsigned(
+              net: payload.net,
+              address: payload.address,
+              dkey: payload.dkey,
+              handle: payload.handle,
+              issued: payload.issued.toInt(),
+            );
+            expect(toHex(unsigned), toHex(payload.signedBytes));
+            expect(toHex(withSignature(unsigned, payload.signature!)), e['hex']);
+          default:
+        }
+      }
+    });
+  });
+
   group('good requests', () {
     for (final e in vectorList(v, 'payreqs')) {
       test(e['id']! as String, () async {

@@ -18,6 +18,8 @@ import '../../ui/notices.dart' show NoticeLevel;
 import '../../ui/pairing/pairing_notices.dart' show pairingEventOnScreen, pairingNoticeOf;
 import '../../models.dart' show PairingCollectTrigger, PairingEventKind;
 import '../data/devices_state.dart' show deskDeviceServiceProvider;
+import '../data/directory_state.dart' show deskDirectoryServiceProvider;
+import '../../directory/directory_service.dart' show DirectorySyncTrigger;
 import '../../devices/device_service.dart' show DeviceSyncTrigger;
 import '../data/pairing_state.dart' show deskContactKeysOf, deskPairingCall, deskInvoicesShownProvider, deskKeysBackProvider, deskPairRequestsProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
@@ -98,6 +100,15 @@ class _DeskShellState extends ConsumerState<DeskShell> {
   void _collect(PairingCollectTrigger trigger) {
     final api = ref.read(deskPairingApiProvider);
     if (api.supported) api.collect(trigger: trigger).ignore();
+    // The listings are drained where the contacts' mailboxes are read, never in the background.
+    final dirs = ref.read(deskDirectoryServiceProvider);
+    if (dirs != null) {
+      final t = switch (trigger) {
+        PairingCollectTrigger.open => DirectorySyncTrigger.open,
+        _ => DirectorySyncTrigger.tick,
+      };
+      unawaited(dirs.sync(t));
+    }
   }
 
   /// An incoming pair invite (a tapped link, a scheme open): the confirm dialog, never a
@@ -174,6 +185,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
       onResume: () {
         // The window came back to the front: the other devices are read at once.
         unawaited(ref.read(deskDeviceServiceProvider)?.sync(DeviceSyncTrigger.resume));
+        unawaited(ref.read(deskDirectoryServiceProvider)?.sync(DirectorySyncTrigger.resume));
         // A node failover that waits longer each time tries again soon.
         ref.read(deskFailoverWatchProvider.notifier).resumed();
       },

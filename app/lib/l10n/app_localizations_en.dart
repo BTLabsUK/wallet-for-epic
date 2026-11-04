@@ -20221,4 +20221,85 @@ class AppLocalizationsEn extends AppLocalizations {
   String pairDefaultLabel(int n) {
     return 'Contact $n';
   }
+
+  @override
+  String dirWaitingFor(String label) {
+    return 'Waiting for $label…';
+  }
+
+  @override
+  String get dirCodeTitle => 'Check the code';
+
+  @override
+  String dirCodeLead(String label) {
+    return '$label shows four pictures in its chat. Compare them.';
+  }
+
+  @override
+  String get dirCodeLabel => 'The four pictures';
+
+  @override
+  String get dirJoin => 'Join';
+
+  @override
+  String get dirNotNow => 'Not now';
+
+  @override
+  String dirJoinTitle(String label) {
+    return 'Join $label?';
+  }
+
+  @override
+  String dirJoinBody(String host) {
+    return 'People can pay you in one tap. Payments come through $host';
+  }
+
+  @override
+  String dirJoinInfo(String label) {
+    return 'It gets a payment address made only for this one and a code it made up, nothing else. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Leave any time in Contacts › $label › Leave.';
+  }
+
+  @override
+  String dirJoinedNotice(String label) {
+    return 'Joined $label';
+  }
+
+  @override
+  String dirLeftNotice(String label) {
+    return 'Left $label';
+  }
+
+  @override
+  String dirJoined(String date) {
+    return 'Joined · since $date';
+  }
+
+  @override
+  String get dirNotListed => 'Not listed';
+
+  @override
+  String dirNotListedBody(String label) {
+    return '$label no longer lists you.';
+  }
+
+  @override
+  String get dirNotJoined => 'Not joined';
+
+  @override
+  String get dirJoinAgain => 'Join again';
+
+  @override
+  String get dirListingCode => 'Listing code';
+
+  @override
+  String get dirListingCodeInfo =>
+      'Four pictures made from the key of your listing. A directory can show them next to the listing, so you can check it is the one you joined.';
+
+  @override
+  String get dirLeave => 'Leave';
+
+  @override
+  String dirRemoveTooTitle(String label) {
+    return 'Remove $label too?';
+  }
 }

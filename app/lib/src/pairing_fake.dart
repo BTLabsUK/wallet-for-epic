@@ -13,7 +13,9 @@ library;
 import 'desktop/data/mock_hosts.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
+import 'directory/wire.dart' show dirHelloUnsigned, withSignature;
 import 'key_picture.dart' show inviteKeyOf;
 import 'models.dart';
 import 'pairing_api.dart';
@@ -1490,7 +1492,17 @@ class FakePairing implements PairingApi {
   @override
   Future<void> postPayload({required String id, required List<int> bytes}) async {
     _require('postPayload');
-    // A contact pairing never carries a payload.
+    // A contact pairing carries payloads once Paired or Verified; the fake has no peer to
+    // deliver them to, tests read [posted].
+    final contact = records.where((e) => e.id == id).firstOrNull;
+    if (contact != null) {
+      if (!contact.state.isPaired) throw pairingError(PairingFailure.invalid);
+      if (bytes.length > privatePayloadMaxBytes) {
+        throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'payload too large');
+      }
+      posted.add((id: id, bytes: List.unmodifiable(bytes)));
+      return;
+    }
     final r = _private(id);
     if (!r.state.isPaired) throw pairingError(PairingFailure.invalid);
     // As LEPIC: only once this side confirmed the words.
@@ -1504,6 +1516,34 @@ class FakePairing implements PairingApi {
     final peer = _peers[id];
     if (peer == null) return;
     _deliver(peer.fake, _PrivateMail.payload(to: peer.id, bytes: List.unmodifiable(bytes)));
+  }
+
+  /// The peer of the contact pairing [id] posts [bytes] (a directory's hello, an unlisted):
+  /// they wait for [payloads] like any other.
+  void receiveContactPayload(String id, List<int> bytes) {
+    _payloads.add(PairingPayload(id: privateNet._next('payload'), pairingId: id, bytes: List.unmodifiable(bytes), receivedAt: clock()));
+  }
+
+  /// The peer of the contact pairing [id] is a directory and posts its hello: [bind] is the four
+  /// SAS indexes of the pairing unless given, [handle] 16 bytes; the signature is filler, for a
+  /// host whose verifier accepts it. [dkey] is 33 bytes.
+  void directoryHello(
+    String id, {
+    required Uint8List dkey,
+    Uint8List? handle,
+    Uint8List? bind,
+    int net = 0,
+    int issued = 1,
+  }) {
+    final r = records.firstWhere((e) => e.id == id);
+    final unsigned = dirHelloUnsigned(
+      net: net,
+      dkey: dkey,
+      handle: handle ?? Uint8List.fromList(List.generate(16, (i) => 0x40 + i)),
+      bind: bind ?? sasIndexesOf(r.sas)!,
+      issued: issued,
+    );
+    receiveContactPayload(id, withSignature(unsigned, Uint8List.fromList(List.filled(70, 7))));
   }
 
   @override

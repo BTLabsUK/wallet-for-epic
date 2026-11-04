@@ -27369,5 +27369,135 @@
         "example": "4"
       }
     }
+  },
+  "dirWaitingFor": "Waiting for {label}…",
+  "@dirWaitingFor": {
+    "description": "Static line on the Check step while a directory’s message is awaited (no spinner). {label} is the name the pairing shows.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "dirCodeTitle": "Check the code",
+  "@dirCodeTitle": {
+    "description": "Title of the step that replaces Check the words for a directory pairing."
+  },
+  "dirCodeLead": "{label} shows four pictures in its chat. Compare them.",
+  "@dirCodeLead": {
+    "description": "Lead of Check the code: the four pictures below must equal the ones the other side shows.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "dirCodeLabel": "The four pictures",
+  "@dirCodeLabel": {
+    "description": "Read by a screen reader before the four pictures of a code."
+  },
+  "dirJoin": "Join",
+  "@dirJoin": {
+    "description": "Button: join a directory so people can pay the user by a name it knows."
+  },
+  "dirNotNow": "Not now",
+  "@dirNotNow": {
+    "description": "Button on the Join sheet: leaves the contact verified, with Join on its page."
+  },
+  "dirJoinTitle": "Join {label}?",
+  "@dirJoinTitle": {
+    "description": "Title of the Join sheet.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "dirJoinBody": "People can pay you in one tap. Payments come through {host}",
+  "@dirJoinBody": {
+    "description": "Body of the Join sheet. {host} is the host of the wallet’s own Epicbox server.",
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "dirJoinInfo": "It gets a payment address made only for this one and a code it made up, nothing else. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Leave any time in Contacts › {label} › Leave.",
+  "@dirJoinInfo": {
+    "description": "Explanation behind the info button on the Join sheet.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "dirJoinedNotice": "Joined {label}",
+  "@dirJoinedNotice": {
+    "description": "Notice after Join worked.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "dirLeftNotice": "Left {label}",
+  "@dirLeftNotice": {
+    "description": "Notice after Leave worked.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "dirJoined": "Joined · since {date}",
+  "@dirJoined": {
+    "description": "Status line on the contact page of a directory the user joined. {date} is a short date.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dirNotListed": "Not listed",
+  "@dirNotListed": {
+    "description": "Status line on the contact page of a directory that no longer lists the user."
+  },
+  "dirNotListedBody": "{label} no longer lists you.",
+  "@dirNotListedBody": {
+    "description": "Line under Not listed.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "dirNotJoined": "Not joined",
+  "@dirNotJoined": {
+    "description": "Status line on the contact page of a verified directory the user has not joined."
+  },
+  "dirJoinAgain": "Join again",
+  "@dirJoinAgain": {
+    "description": "Button on the contact page of a directory that no longer lists the user, or one the user left."
+  },
+  "dirListingCode": "Listing code",
+  "@dirListingCode": {
+    "description": "Label of the four pictures of the user’s listing on the contact page of a directory."
+  },
+  "dirListingCodeInfo": "Four pictures made from the key of your listing. A directory can show them next to the listing, so you can check it is the one you joined.",
+  "@dirListingCodeInfo": {
+    "description": "Explanation behind the info button of the listing code."
+  },
+  "dirLeave": "Leave",
+  "@dirLeave": {
+    "description": "Button on the contact page of a joined directory: the listing is taken down."
+  },
+  "dirRemoveTooTitle": "Remove {label} too?",
+  "@dirRemoveTooTitle": {
+    "description": "Title of the question after Leave: also end the pairing.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
   }
 }

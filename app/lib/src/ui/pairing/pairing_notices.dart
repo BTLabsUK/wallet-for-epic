@@ -12,6 +12,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../amount.dart';
 import '../../connection_grace.dart';
 import '../../contacts.dart';
+import '../../directory/directory_service.dart' show DirectorySyncTrigger;
+import '../../directory/phone_directory.dart' show directoryServiceProvider;
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../pairing_text.dart';
@@ -117,6 +119,9 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
   void _collect(PairingCollectTrigger trigger) {
     final api = ref.read(pairingApiProvider);
     if (api.supported) api.collect(trigger: trigger).ignore();
+    // The directories' payloads and listing drains go with every collect.
+    final sync = trigger == PairingCollectTrigger.open ? DirectorySyncTrigger.resume : DirectorySyncTrigger.tick;
+    unawaited(ref.read(directoryServiceProvider)?.sync(sync) ?? Future<void>.value());
   }
 
   void _startTick() {
@@ -258,5 +263,9 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
   }
 
   @override
-  Widget build(BuildContext context) => const SizedBox.shrink();
+  Widget build(BuildContext context) {
+    // Keeps the open wallet's directories alive while Home is up.
+    ref.watch(directoryServiceProvider);
+    return const SizedBox.shrink();
+  }
 }

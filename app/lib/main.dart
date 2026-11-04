@@ -9,6 +9,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'src/app.dart';
 import 'src/app_log.dart';
 import 'src/data_folder.dart';
+import 'src/directory/membership.dart' show directoryMembershipProvider;
+import 'src/directory/phone_directory.dart' show phoneDirectories;
 import 'src/password_lists.dart';
 import 'src/phone_tor.dart';
 import 'src/relay_directory.dart' show statusSite;
@@ -92,6 +94,8 @@ Future<void> main() async {
           ...backendOverrides(),
           // The phone's Tor controller restarts tor when the network returns.
           networkChangesProvider.overrideWithValue(androidNetworkChanges()),
+          // What the rest of the app may ask of the directories the open wallet joined.
+          directoryMembershipProvider.overrideWith((ref) => ref.watch(phoneDirectories.membership)),
         ],
         child: const WalletApp(),
       ),

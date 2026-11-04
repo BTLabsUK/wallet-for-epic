@@ -590,6 +590,73 @@ final class DroppedPayload extends DirectoryPayload {
   Uint8List toBytes() => _d.signedBytes;
 }
 
+// ---------------------------------------------------------------- encoders
+
+/// The bytes of a card before its signature: exactly the message `epic-listing/1` signs. Sign
+/// them, then [withSignature].
+Uint8List listingCardUnsigned({
+  required int net,
+  required String address,
+  required Uint8List dkey,
+  required Uint8List handle,
+  required int seq,
+  required int issued,
+}) => _encodeStruct(
+  {'format': 1, 'net': net, 'address': address, 'dkey': dkey, 'handle': handle, 'seq': seq, 'issued': issued},
+  const [],
+  null,
+  _cardSchema,
+);
+
+/// The bytes of an unlist payload before its signature: the message `epic-unlist/1` signs.
+Uint8List unlistPayloadUnsigned({
+  required int net,
+  required String address,
+  required Uint8List dkey,
+  required Uint8List handle,
+  required int issued,
+}) => _encodeStruct(
+  {'net': net, 'address': address, 'dkey': dkey, 'handle': handle, 'issued': issued},
+  const [],
+  null,
+  _payloadSchemas[3]!.$1,
+  lead: 3,
+);
+
+/// A hello before its signature, as a directory makes it. A wallet only reads hellos; this is
+/// for the fakes and the tests of the wallet side.
+Uint8List dirHelloUnsigned({
+  required int net,
+  required Uint8List dkey,
+  required Uint8List handle,
+  required Uint8List bind,
+  required int issued,
+}) => _encodeStruct(
+  {'net': net, 'dkey': dkey, 'handle': handle, 'bind': bind, 'issued': issued},
+  const [],
+  null,
+  _payloadSchemas[1]!.$1,
+  lead: 1,
+);
+
+/// A type 4 payload (the directory no longer lists the wallet under [handle]); for the fakes
+/// and the tests, as [dirHelloUnsigned].
+Uint8List unlistedPayloadBytes({required Uint8List dkey, required Uint8List handle, required int issued}) =>
+    _encodeStruct({'dkey': dkey, 'handle': handle, 'issued': issued}, const [], null, _payloadSchemas[4]!.$1, lead: 4);
+
+/// [unsigned] with the `FF` signature field after it: the DER [signature] as LEPIC returns it.
+Uint8List withSignature(Uint8List unsigned, Uint8List signature) => Uint8List.fromList([
+  ...unsigned,
+  _sigTag,
+  signature.length >> 8,
+  signature.length & 0xff,
+  ...signature,
+]);
+
+/// A type 2 payload carrying [signedCard] (a card with its signature).
+Uint8List listingPayloadBytes(Uint8List signedCard) =>
+    _encodeStruct({'card': ListingCard.decode(signedCard)}, const [], null, _payloadSchemas[2]!.$1, lead: 2);
+
 // ---------------------------------------------------------------- text forms
 
 final RegExp _base64urlOnly = RegExp(r'^[A-Za-z0-9_\-]*$');

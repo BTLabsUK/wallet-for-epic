@@ -10,6 +10,7 @@ import '../../devices/device_model.dart' show DeviceBook;
 import '../../cancel_final.dart' show CancelResult;
 import '../../models.dart' show FinishedPayment, InvoiceEvent, StoreMigrationProgress;
 import '../../devices/device_service.dart' show DeviceHost, ForwardedNotice;
+import '../../directory/directory_service.dart' show DirectoryHost;
 import '../../pairing_api.dart';
 import '../../trust/policy.dart' show PeerCompat;
 
@@ -500,6 +501,11 @@ abstract interface class DeskWalletApi {
   /// history and the coins every send leaves out; null while locked. [online] says whether the
   /// channel may reach the servers now.
   DeviceHost? deviceHost({required bool Function() online});
+
+  /// What the directories (`directory/`) need from the open wallet: its pairing engine, listing
+  /// keys and signature check; null while locked. [online] says whether the channel may reach
+  /// the servers now.
+  DirectoryHost? directoryHost({required bool Function() online});
 
   /// Where the wallet reads the book of linked devices from, or null for none: the history
   /// merges the other devices' payments ([mergeDeviceHistory]) and the balance and the outputs

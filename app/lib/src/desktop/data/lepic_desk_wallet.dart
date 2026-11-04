@@ -35,6 +35,8 @@ import '../../first_run_servers.dart' show firstRunServersSettled;
 import '../../devices/device_history.dart' show mergeDeviceHistory;
 import '../../devices/device_model.dart' show DeviceBook;
 import '../../devices/device_service.dart' show DeviceHost, ForwardKind, ForwardedNotice, SessionDeviceHost;
+import '../../directory/directory_service.dart' show DirectoryHost, SessionDirectoryHost, netOfChain;
+import '../../directory/verify.dart' show DirectoryVerifier;
 import '../../devices/device_store.dart' show DeviceStore;
 import '../../btlabs_onions.dart';
 import '../../btlabs_public.dart';
@@ -5413,6 +5415,13 @@ class LepicDeskWallet implements DeskWalletApi {
     return _DeskDeviceHost(this, _openEntry?.id, online);
   }
 
+  /// The open wallet's directories host; like [deviceHost] it follows the wallet through a reopen.
+  @override
+  DirectoryHost? directoryHost({required bool Function() online}) {
+    if (_session == null) return null;
+    return _DeskDirectoryHost(this, _openEntry?.id, online);
+  }
+
   /// The open session of the wallet [id], or null while it is not open.
   core.WalletSession? _sessionOf(String? id) => _openEntry?.id == id ? _session : null;
 
@@ -5830,6 +5839,49 @@ Future<void> writeWalletTxt(String dir, {required String label, required String 
   } on Object catch (e) {
     logWarn('desk', 'WALLET.txt not written: ${e.runtimeType}');
   }
+}
+
+/// [LepicDeskWallet.directoryHost]: the session of one wallet, whichever is open now; its calls
+/// fail while the wallet reopens, so a run of the directories waits for the next one.
+class _DeskDirectoryHost implements DirectoryHost {
+  _DeskDirectoryHost(this._wallet, this._id, this._online) : _last = _wallet._sessionOf(_id)!;
+
+  final LepicDeskWallet _wallet;
+  final String? _id;
+  final bool Function() _online;
+  core.WalletSession _last;
+
+  SessionDirectoryHost get _host {
+    _last = _wallet._sessionOf(_id) ?? _last;
+    return SessionDirectoryHost(
+      _last,
+      net: netOfChain(_wallet.preset.chain),
+      verifier: _wallet._service.verifyListingSignature,
+      online: _online,
+    );
+  }
+
+  @override
+  core.PairingApi get pairing => _host.pairing;
+
+  @override
+  bool get online => _online();
+
+  @override
+  int get net => netOfChain(_wallet.preset.chain);
+
+  @override
+  DirectoryVerifier get verifier => _wallet._service.verifyListingSignature;
+
+  @override
+  Future<String> listingAddress(String dkeyHex, int generation) => _host.listingAddress(dkeyHex, generation);
+
+  @override
+  Future<Uint8List> sign(String dkeyHex, int generation, String domain, Uint8List message) =>
+      _host.sign(dkeyHex, generation, domain, message);
+
+  @override
+  Future<core.PaymentsDrainReport> drain(String dkeyHex, int generation) => _host.drain(dkeyHex, generation);
 }
 
 /// [LepicDeskWallet.deviceHost]: the session of one wallet, whichever is open now. While the

@@ -12,6 +12,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 
 import 'desktop/data/mock_hosts.dart' show fakeWalletOnion;
+import 'directory/base58.dart' show epicboxKeyText, netMainnet;
 import 'directory/verify.dart' show refusingVerifier;
 import 'history/wallet_history.dart';
 import 'models.dart';
@@ -746,6 +747,55 @@ extension DrainEpicboxAt on WalletSession {
   }
 }
 
+/// A session that holds the wallet's listing keys: one Epicbox address per (directory key,
+/// generation), derived from the phrase alone, signing under the listing domains and drained
+/// like the wallet's own address. Optional, so a core without them answers null through
+/// [ListingKeysOf.listingKeys].
+abstract interface class ListingKeys {
+  /// The listing address (`<key>@<domain>[:port]`) of [dkeyHex] (33 bytes, hex) at [generation],
+  /// on the wallet's home Epicbox server.
+  Future<String> listingAddress(String dkeyHex, int generation);
+
+  /// The DER signature of [message] under [domain] by that listing key.
+  Future<Uint8List> signWithListing(String dkeyHex, int generation, String domain, Uint8List message);
+
+  /// Reads what is stored for that listing address once, answering as the own address does.
+  Future<PaymentsDrainReport> drainListing(String dkeyHex, int generation);
+}
+
+extension ListingKeysOf on WalletSession {
+  /// The listing keys of this session, or null for one without them.
+  ListingKeys? get listingKeys {
+    // A pattern, not `is`, as in [DrainEpicboxAt].
+    if (this case final ListingKeys keys) return keys;
+    return null;
+  }
+}
+
+/// Listing keys of made-up keys, for the fakes: a real key text (so it parses) on the home
+/// server, and a hash for a signature.
+class FakeListingKeys implements ListingKeys {
+  /// The listings drained: (dkey hex, generation) in call order.
+  final List<(String, int)> drains = [];
+
+  @override
+  Future<String> listingAddress(String dkeyHex, int generation) async {
+    final key = sha256.convert(utf8.encode('listing $dkeyHex $generation')).bytes;
+    final host = hostSettingsLoaded ? hostSettings.epicboxUse : 'relay.example.invalid';
+    return '${epicboxKeyText([2, ...key], netMainnet)}@$host';
+  }
+
+  @override
+  Future<Uint8List> signWithListing(String dkeyHex, int generation, String domain, Uint8List message) async =>
+      Uint8List.fromList(sha256.convert([...utf8.encode('$dkeyHex $generation $domain '), ...message]).bytes);
+
+  @override
+  Future<PaymentsDrainReport> drainListing(String dkeyHex, int generation) async {
+    drains.add((dkeyHex, generation));
+    return const PaymentsDrainReport();
+  }
+}
+
 /// The error of an invoice call on a core without them.
 WalletError invoicesUnsupported(String call) => WalletError(
   kind: WalletErrorKind.other,
@@ -1255,7 +1305,7 @@ String fakeAddressSignature(String key, List<int> message) =>
     '${sha512.convert([...utf8.encode('fake-address-signature/$key/'), ...message])}';
 
 /// Scripted open wallet for tests. Mutate the public fields to shape each scenario.
-class FakeWalletSession implements WalletSession {
+class FakeWalletSession implements WalletSession, ListingKeys {
   FakeWalletSession({
     WalletSummary? summary,
     List<TxEntry>? transactions,
@@ -1959,6 +2009,19 @@ class FakeWalletSession implements WalletSession {
   @override
   Future<bool> verifyDeviceLink({required List<int> transcript, required String signature}) async =>
       signature == fakeAddressSignature(epicboxKey(address), transcript);
+
+  /// The listing keys of the fake: a test reads [FakeListingKeys.drains].
+  final FakeListingKeys fakeListing = FakeListingKeys();
+
+  @override
+  Future<String> listingAddress(String dkeyHex, int generation) => fakeListing.listingAddress(dkeyHex, generation);
+
+  @override
+  Future<Uint8List> signWithListing(String dkeyHex, int generation, String domain, Uint8List message) =>
+      fakeListing.signWithListing(dkeyHex, generation, domain, message);
+
+  @override
+  Future<PaymentsDrainReport> drainListing(String dkeyHex, int generation) => fakeListing.drainListing(dkeyHex, generation);
 
   /// What [unmatchedNotices] streams; a test adds to it as LEPIC's event would.
   final StreamController<UnmatchedNotice> unmatchedController = StreamController<UnmatchedNotice>.broadcast();

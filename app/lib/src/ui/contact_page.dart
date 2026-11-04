@@ -26,6 +26,7 @@ import 'contacts_screen.dart';
 import 'history_screen.dart' show HistoryScreen;
 import 'method_names.dart';
 import 'pairing/contact_pairing_block.dart';
+import 'pairing/directory_parts.dart' show DirectoryBlock;
 import 'pairing/pair_check.dart';
 import 'pairing/pair_screen.dart';
 import 'pairing/pair_way1.dart' show pairWithContact;
@@ -290,6 +291,8 @@ class _ContactPageState extends ConsumerState<ContactPage> {
           if (pairs) ...[
             PairSection(l.contactPairing),
             ContactPairingBlock(contact: contact, pairing: pairing, pending: pending, busy: _busy, run: _run, onPair: () => _pair(contact)),
+            // A directory the user verified: Joined, the listing code and Leave, or Join.
+            if (pairing != null && !pairing.ended) DirectoryBlock(pairingId: pairing.id, label: contact.name),
           ],
           // The compatibility line (trust policy): one sentence, never a badge; a plain
           // contact's key can answer as another wallet app with pairing off too.

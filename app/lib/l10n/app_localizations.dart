@@ -31661,6 +31661,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Contact {n}'**
   String pairDefaultLabel(int n);
+
+  /// Static line on the Check step while a directory’s message is awaited (no spinner). {label} is the name the pairing shows.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for {label}…'**
+  String dirWaitingFor(String label);
+
+  /// Title of the step that replaces Check the words for a directory pairing.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the code'**
+  String get dirCodeTitle;
+
+  /// Lead of Check the code: the four pictures below must equal the ones the other side shows.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} shows four pictures in its chat. Compare them.'**
+  String dirCodeLead(String label);
+
+  /// Read by a screen reader before the four pictures of a code.
+  ///
+  /// In en, this message translates to:
+  /// **'The four pictures'**
+  String get dirCodeLabel;
+
+  /// Button: join a directory so people can pay the user by a name it knows.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get dirJoin;
+
+  /// Button on the Join sheet: leaves the contact verified, with Join on its page.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get dirNotNow;
+
+  /// Title of the Join sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Join {label}?'**
+  String dirJoinTitle(String label);
+
+  /// Body of the Join sheet. {host} is the host of the wallet’s own Epicbox server.
+  ///
+  /// In en, this message translates to:
+  /// **'People can pay you in one tap. Payments come through {host}'**
+  String dirJoinBody(String host);
+
+  /// Explanation behind the info button on the Join sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'It gets a payment address made only for this one and a code it made up, nothing else. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Leave any time in Contacts › {label} › Leave.'**
+  String dirJoinInfo(String label);
+
+  /// Notice after Join worked.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined {label}'**
+  String dirJoinedNotice(String label);
+
+  /// Notice after Leave worked.
+  ///
+  /// In en, this message translates to:
+  /// **'Left {label}'**
+  String dirLeftNotice(String label);
+
+  /// Status line on the contact page of a directory the user joined. {date} is a short date.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined · since {date}'**
+  String dirJoined(String date);
+
+  /// Status line on the contact page of a directory that no longer lists the user.
+  ///
+  /// In en, this message translates to:
+  /// **'Not listed'**
+  String get dirNotListed;
+
+  /// Line under Not listed.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} no longer lists you.'**
+  String dirNotListedBody(String label);
+
+  /// Status line on the contact page of a verified directory the user has not joined.
+  ///
+  /// In en, this message translates to:
+  /// **'Not joined'**
+  String get dirNotJoined;
+
+  /// Button on the contact page of a directory that no longer lists the user, or one the user left.
+  ///
+  /// In en, this message translates to:
+  /// **'Join again'**
+  String get dirJoinAgain;
+
+  /// Label of the four pictures of the user’s listing on the contact page of a directory.
+  ///
+  /// In en, this message translates to:
+  /// **'Listing code'**
+  String get dirListingCode;
+
+  /// Explanation behind the info button of the listing code.
+  ///
+  /// In en, this message translates to:
+  /// **'Four pictures made from the key of your listing. A directory can show them next to the listing, so you can check it is the one you joined.'**
+  String get dirListingCodeInfo;
+
+  /// Button on the contact page of a joined directory: the listing is taken down.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave'**
+  String get dirLeave;
+
+  /// Title of the question after Leave: also end the pairing.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {label} too?'**
+  String dirRemoveTooTitle(String label);
 }
 
 class _AppLocalizationsDelegate

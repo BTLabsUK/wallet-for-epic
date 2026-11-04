@@ -4,6 +4,10 @@ library;
 
 export 'base58.dart';
 export 'codes.dart';
+export 'directory_model.dart';
+export 'directory_service.dart';
+export 'directory_store.dart';
+export 'membership.dart';
 export 'pins.dart';
 export 'verify.dart';
 export 'wire.dart';
