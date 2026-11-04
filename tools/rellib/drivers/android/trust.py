@@ -1379,7 +1379,8 @@ def migration_checks():
     b_list, b_hash = BEFORE_FILES
     FILES.prepare()
     a_list, a_hash = FILES.snapshot()
-    res["store_encrypted"], det["store_encrypted"] = migration.store_files(b_list, a_list)
+    res["store_encrypted"], det["store_encrypted"] = migration.store_files(
+        b_list, a_list, facts.retires_plain_copy(E("REL_CANDIDATE_VERSION", "")))
     if not SEED_FILES:
         for c in MIGRATION_CHECKS[1:]:
             res[c], det[c] = True, "not applicable: the previous release already encrypts (nothing plain to carry over)"
