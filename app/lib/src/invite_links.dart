@@ -25,7 +25,7 @@ import 'package:flutter/widgets.dart' show BuildContext;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app_log.dart';
-import 'scan/incoming_link.dart' show maxLinkChars;
+import 'scan/incoming_link.dart' show incomingLinkProvider, maxLinkChars;
 import 'settings_file/settings_providers.dart' show hostSettingsProvider;
 
 /// What an invite opens: pairing with a contact, or linking a device of the same wallet.
@@ -192,11 +192,29 @@ final inviteInboxProvider = Provider<InviteInbox>((ref) {
   final inbox = InviteInbox();
   ref.onDispose(inbox.dispose);
   for (final arg in ref.read(launchArgumentsProvider)) {
-    if (looksLikeInvite(arg)) inbox.deliver(arg);
+    if (looksLikeInvite(arg)) {
+      inbox.deliver(arg);
+    } else if (_isLinkArgument(arg)) {
+      // After this provider is built: the link notifier reads the inbox.
+      Future.microtask(() => _deliverOther(ref, arg));
+    }
   }
   if (_desktopChannel) _listenDesktop(ref, inbox);
   return inbox;
 });
+
+/// A command-line argument that is a link (`epiccash:`, `epic:`), not a flag or a file.
+bool _isLinkArgument(String arg) => RegExp(r'^(epiccash|epic):', caseSensitive: false).hasMatch(arg);
+
+/// A link that is no invite (a payment link, a pairing answer) goes to the link notifier, which
+/// the desktop shell reads once a wallet is open.
+void _deliverOther(Ref ref, String text) {
+  try {
+    ref.read(incomingLinkProvider.notifier).deliver(text);
+  } on StateError {
+    // The container is gone (tests, closing).
+  }
+}
 
 /// The stream of invites from the system, as they arrive.
 final incomingInvitesProvider = StreamProvider<InviteLink>((ref) => ref.watch(inviteInboxProvider).arrivals);
@@ -215,15 +233,23 @@ bool get _desktopChannel =>
 
 const MethodChannel _linkChannel = MethodChannel('epic_wallet/incoming_link');
 
+void _fromRunner(Ref ref, InviteInbox inbox, String text) {
+  if (looksLikeInvite(text)) {
+    inbox.deliver(text);
+  } else {
+    _deliverOther(ref, text);
+  }
+}
+
 void _listenDesktop(Ref ref, InviteInbox inbox) {
   _linkChannel.setMethodCallHandler((call) async {
     if (call.method != 'link') throw MissingPluginException();
     final text = call.arguments;
-    if (text is String) inbox.deliver(text);
+    if (text is String) _fromRunner(ref, inbox, text);
   });
   ref.onDispose(() => _linkChannel.setMethodCallHandler(null));
   _linkChannel.invokeMethod<Object?>('takePending').then((text) {
-    if (text is String) inbox.deliver(text);
+    if (text is String) _fromRunner(ref, inbox, text);
   }).catchError((Object error) {
     // No native side (tests, an older runner): nothing can have been opened.
     if (error is! MissingPluginException) logWarn('links', 'no pending link: ${error.runtimeType}');

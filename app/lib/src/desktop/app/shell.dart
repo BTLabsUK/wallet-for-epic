@@ -26,6 +26,9 @@ import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskI
 import '../screens/invoices/proto_panel.dart' show ProtoButton;
 import '../screens/pairing/pair_screens.dart' show deskOpenPairingText, showDeskCheckWords, showDeskPairRequests;
 import '../../ui/invite_link_gate.dart';
+import '../../scan/incoming_link.dart' show incomingLinkProvider, linkBusyProvider;
+import '../../scan/scan_checks.dart' show CodeOrigin;
+import '../screens/transfer/send_screen.dart' show SendArgs;
 import '../../ui/pairing/invite_links.dart';
 import '../../pairing_providers.dart' show requestFromContact;
 import '../../models.dart' show PairingEvent, epicboxKey;
@@ -97,6 +100,23 @@ class _DeskShellState extends ConsumerState<DeskShell> {
   /// The foreground tick of RFC 8.4: the mailboxes of contacts with something pending.
   Timer? _collectTimer;
 
+  Timer? _linkRetry;
+
+  /// A payment link or code a browser opened (`epiccash://pay/1/…`): Send opens with it, read as
+  /// a paste from a link. Over a dialog or the tour it waits, so nothing in progress is closed.
+  void _openLink() {
+    _linkRetry?.cancel();
+    _linkRetry = null;
+    if (!mounted || ref.read(linkBusyProvider) || ref.read(incomingLinkProvider) == null) return;
+    if (_navHeld(ref)) {
+      _linkRetry = Timer(const Duration(seconds: 2), _openLink);
+      return;
+    }
+    final link = ref.read(incomingLinkProvider.notifier).take();
+    if (link == null) return;
+    ref.read(deskNavProvider.notifier).go(DeskRoute.send, SendArgs(code: link.text, codeOrigin: CodeOrigin.link));
+  }
+
   void _collect(PairingCollectTrigger trigger) {
     final api = ref.read(deskPairingApiProvider);
     if (api.supported) api.collect(trigger: trigger).ignore();
@@ -164,6 +184,8 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     // The shell shows once the wallet is unlocked: every mailbox, then the tick.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _collect(PairingCollectTrigger.open);
+      // A link that came before the unlock.
+      if (mounted) _openLink();
       // After unlock, once: the last session froze or crashed, its log can be sent.
       if (mounted) unawaited(offerDeskLastSessionReport(context, ref));
       // macOS: the app from before the rename is still installed; offer to move it to the Bin.
@@ -278,6 +300,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     HardwareKeyboard.instance.removeHandler(_onKey);
     _tourTimer?.cancel();
     _ownAsk?.cancel();
+    _linkRetry?.cancel();
     _collectTimer?.cancel();
     _focus?.dispose();
     _settingsFocus.dispose();
@@ -306,6 +329,9 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     final c = context.dc;
     final at = widget.at;
     final width = MediaQuery.sizeOf(context).width;
+    ref.listen(incomingLinkProvider, (_, link) {
+      if (link != null) _openLink();
+    });
     // What the wallet learned of invoices by itself, as a toast.
     ref.listen(deskInvoiceNoticesProvider, (_, next) {
       final n = next.value;
@@ -376,7 +402,9 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     } else {
       shown = const DeskLocation(DeskRoute.overview);
     }
-    final page = KeyedSubtree(key: ValueKey(shown.route), child: deskScreen(shown));
+    // A link opened over Send starts a new Send (its SendArgs is the key), as from any other page.
+    final linked = shown.route == DeskRoute.send && shown.arg is SendArgs && (shown.arg as SendArgs).code != null;
+    final page = KeyedSubtree(key: ValueKey<Object>(linked ? shown.arg! : shown.route), child: deskScreen(shown));
     // The page's text is selectable and copyable (selectable.dart); the sidebar is not.
     final main = Material(color: c.bg, child: DeskSelectable(child: page));
     final tour = ref.watch(deskTourProvider.select((t) => t.open));
