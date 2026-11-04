@@ -4,6 +4,9 @@
 #ifdef GDK_WINDOWING_X11
 #include <gdk/gdkx.h>
 #endif
+#ifdef GDK_WINDOWING_WAYLAND
+#include <gdk/gdkwayland.h>
+#endif
 
 #include <string.h>
 
@@ -16,6 +19,10 @@ struct _MyApplication {
   // and one Dart did not take yet, kept for its takePending.
   FlMethodChannel* link_channel;
   gchar* pending_link;
+  // epic_wallet/window: the window's handle for the file chooser portal
+  // (lib/src/desktop/data/linux_file_dialogs.dart), and the Wayland one once exported.
+  FlMethodChannel* window_channel;
+  gchar* wayland_handle;
 };
 
 // The longest link taken, as the Dart side (lib/src/scan/incoming_link.dart).
@@ -73,6 +80,74 @@ static void deliver_link(MyApplication* self, const gchar* link) {
 }
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
+
+#ifdef GDK_WINDOWING_WAYLAND
+typedef struct {
+  MyApplication* self;
+  FlMethodCall* call;
+} HandleCall;
+
+static void wayland_exported_cb(GdkWindow* window, const char* handle, gpointer user_data) {
+  HandleCall* pending = static_cast<HandleCall*>(user_data);
+  g_free(pending->self->wayland_handle);
+  pending->self->wayland_handle = g_strdup_printf("wayland:%s", handle);
+  g_autoptr(FlValue) value = fl_value_new_string(pending->self->wayland_handle);
+  fl_method_call_respond_success(pending->call, value, nullptr);
+  g_clear_object(&pending->call);
+}
+
+static void handle_call_free(gpointer data) {
+  HandleCall* pending = static_cast<HandleCall*>(data);
+  // Never exported: Dart still gets an answer (no parent, the old behaviour).
+  if (pending->call != nullptr) {
+    fl_method_call_respond_success(pending->call, nullptr, nullptr);
+    g_object_unref(pending->call);
+  }
+  g_free(pending);
+}
+#endif
+
+// parentHandle: the main window as the portal's parent_window ("x11:<xid>" or
+// "wayland:<handle>"), or null. Without it the portal's chooser is no child of the window, and
+// GNOME opened it behind the app.
+static void window_method_cb(FlMethodChannel* channel, FlMethodCall* call, gpointer user_data) {
+  MyApplication* self = MY_APPLICATION(user_data);
+  if (g_strcmp0(fl_method_call_get_name(call), "parentHandle") != 0) {
+    fl_method_call_respond_not_implemented(call, nullptr);
+    return;
+  }
+  GList* windows = gtk_application_get_windows(GTK_APPLICATION(self));
+  GdkWindow* window =
+      windows != nullptr ? gtk_widget_get_window(GTK_WIDGET(windows->data)) : nullptr;
+#ifdef GDK_WINDOWING_X11
+  if (window != nullptr && GDK_IS_X11_WINDOW(window)) {
+    g_autofree gchar* handle =
+        g_strdup_printf("x11:%lx", static_cast<unsigned long>(gdk_x11_window_get_xid(window)));
+    g_autoptr(FlValue) value = fl_value_new_string(handle);
+    fl_method_call_respond_success(call, value, nullptr);
+    return;
+  }
+#endif
+#ifdef GDK_WINDOWING_WAYLAND
+  if (window != nullptr && GDK_IS_WAYLAND_WINDOW(window)) {
+    // Exported once and kept: a window is exported at most once at a time.
+    if (self->wayland_handle != nullptr) {
+      g_autoptr(FlValue) value = fl_value_new_string(self->wayland_handle);
+      fl_method_call_respond_success(call, value, nullptr);
+      return;
+    }
+    HandleCall* pending = g_new0(HandleCall, 1);
+    pending->self = self;
+    pending->call = FL_METHOD_CALL(g_object_ref(call));
+    if (gdk_wayland_window_export_handle(window, wayland_exported_cb, pending, handle_call_free)) {
+      return;
+    }
+    handle_call_free(pending);
+    return;
+  }
+#endif
+  fl_method_call_respond_success(call, nullptr, nullptr);
+}
 
 // ATK key listeners, kept here instead of in GTK. GTK 3.24.52 and older walk their own list
 // unsafely: the AT-SPI bridge removes its listener from inside that listener's call when the
@@ -261,6 +336,10 @@ static void my_application_activate(GApplication* application) {
       fl_engine_get_binary_messenger(fl_view_get_engine(view)), "epic_wallet/incoming_link",
       FL_METHOD_CODEC(codec));
   fl_method_channel_set_method_call_handler(self->link_channel, link_method_cb, self, nullptr);
+  self->window_channel = fl_method_channel_new(
+      fl_engine_get_binary_messenger(fl_view_get_engine(view)), "epic_wallet/window",
+      FL_METHOD_CODEC(codec));
+  fl_method_channel_set_method_call_handler(self->window_channel, window_method_cb, self, nullptr);
 
   gtk_widget_grab_focus(GTK_WIDGET(view));
 }
@@ -345,6 +424,8 @@ static void my_application_dispose(GObject* object) {
   g_clear_pointer(&self->dart_entrypoint_arguments, g_strfreev);
   g_clear_object(&self->link_channel);
   g_clear_pointer(&self->pending_link, g_free);
+  g_clear_object(&self->window_channel);
+  g_clear_pointer(&self->wayland_handle, g_free);
   G_OBJECT_CLASS(my_application_parent_class)->dispose(object);
 }
 
