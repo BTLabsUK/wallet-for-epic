@@ -1212,7 +1212,7 @@ class Run:
             return
         b_list, b_hash = self.before_files
         a_list, a_hash = self.snapshot()
-        (self.ok if (r := migration.store_files(b_list, a_list))[0] else self.fail)("store_encrypted", r[1])
+        (self.ok if (r := migration.store_files(b_list, a_list, facts.retires_plain_copy(self.cand_ver)))[0] else self.fail)("store_encrypted", r[1])
         if not self.seed_files:
             for c in MIGRATION_CHECKS[1:]:
                 self.ok(c, "not applicable: the previous release already encrypts (nothing plain to carry over)")

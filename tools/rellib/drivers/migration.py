@@ -51,8 +51,10 @@ def _names(listing, d):
     return {os.path.basename(p) for p in norm(listing) if os.path.dirname(p) == d}
 
 
-def store_files(before, after):
-    """(ok, why): the wallet database's file set after the update, per wallet folder."""
+def store_files(before, after, retires=False):
+    """(ok, why): the wallet database's file set after the update, per wallet folder. [retires]: the
+    candidate deletes the set-aside plain copy on unlock (facts.retires_plain_copy), so after a migration
+    it may be gone; the result says whether it was retired or kept."""
     dirs = sorted(set(store_dirs(before)) | set(store_dirs(after)))
     if not dirs:
         return False, "no wallet database folder (%s/) in the data folder before or after" % facts.STORE_DIR
@@ -71,16 +73,21 @@ def store_files(before, after):
             miss.append("the plain database is still there (%s)" % ", ".join(left))
         if facts.STORE_TMP in a:
             miss.append("%s was left behind (a migration did not finish)" % facts.STORE_TMP)
-        if was_plain and facts.STORE_PRE not in a:
+        if was_plain and facts.STORE_PRE not in a and not retires:
             miss.append("%s is missing (the plain database was not set aside)" % facts.STORE_PRE)
         if not (was_plain or was_enc):
             miss.append("no database before the update (%s)" % (", ".join(sorted(b)) or "no files"))
         (problems if miss else good).append("%s: %s" % (d, "; ".join(miss)) if miss else d)
     if problems:
         return False, "; ".join(problems)
-    return True, "%s: %s and %s present, no plain database%s" % (
-        ", ".join(good), facts.STORE_ENC, facts.STORE_CHECK,
-        ", %s kept" % facts.STORE_PRE if any(facts.STORE_PLAIN in _names(before, d) for d in good) else "")
+    pre = ""
+    migrated = [d for d in good if facts.STORE_PLAIN in _names(before, d)]
+    if migrated:
+        left = [d for d in migrated if facts.STORE_PRE in _names(after, d)]
+        pre = ", %s kept" % facts.STORE_PRE if not retires else (
+            ", %s retired after the migration" % facts.STORE_PRE if not left else
+            ", %s still there (not retired: %s)" % (facts.STORE_PRE, ", ".join(left)))
+    return True, "%s: %s and %s present, no plain database%s" % (", ".join(good), facts.STORE_ENC, facts.STORE_CHECK, pre)
 
 
 def wallet_dirs(listing):
@@ -233,24 +240,25 @@ def _text(root, rel):
         return None
 
 
-def judge(before_root, after_root):
-    """[(check, ok, why)] for the file-set checks of two data folders (before and after an update)."""
+def judge(before_root, after_root, candidate=None):
+    """[(check, ok, why)] for the file-set checks of two data folders (before and after an update);
+    [candidate]: the version updated to (whether it retires the plain copy)."""
     bl, bh = snapshot_dir(before_root)
     al, ah = snapshot_dir(after_root)
     try:
         ids = [w["id"] for w in json.loads(_text(after_root, "wallets.json") or "{}").get("wallets") or [] if w.get("id")]
     except (ValueError, AttributeError):
         ids = []
-    return [("store_encrypted", *store_files(bl, al)), ("app_files_kept", *app_files(bl, bh, al, ah, ids)),
+    return [("store_encrypted", *store_files(bl, al, facts.retires_plain_copy(candidate))), ("app_files_kept", *app_files(bl, bh, al, ah, ids)),
             ("lan_nodes_kept", *lan_nodes(_text(before_root, facts.LAN_NODES_FILE), bh.get(facts.LAN_NODES_FILE),
                                           ah.get(facts.LAN_NODES_FILE), _text(after_root, facts.SETTINGS_TOML)))]
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        sys.exit("usage: migration.py <data folder before the update> <data folder after it>")
+    if len(sys.argv) not in (3, 4):
+        sys.exit("usage: migration.py <data folder before the update> <data folder after it> [candidate version]")
     bad = 0
-    for check, ok, why in judge(sys.argv[1], sys.argv[2]):
+    for check, ok, why in judge(sys.argv[1], sys.argv[2], sys.argv[3] if len(sys.argv) == 4 else None):
         print("%s %s: %s" % ("ok  " if ok else "FAIL", check, why))
         bad += not ok
     sys.exit(1 if bad else 0)

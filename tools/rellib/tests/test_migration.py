@@ -47,6 +47,27 @@ class StoreFiles(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("wallet.sqlite3.pre-encryption is missing", why)
 
+    def test_retiring_candidate_may_drop_pre_encryption(self):
+        ok, why = m.store_files(BEFORE, [p for p in AFTER if not p.endswith("pre-encryption")], retires=True)
+        self.assertTrue(ok, why)
+        self.assertIn("wallet.sqlite3.pre-encryption retired", why)
+
+    def test_retiring_candidate_says_when_pre_encryption_stays(self):
+        ok, why = m.store_files(BEFORE, AFTER, retires=True)
+        self.assertTrue(ok, why)
+        self.assertIn("not retired", why)
+
+    def test_retiring_candidate_still_needs_encrypted_store(self):
+        ok, why = m.store_files(BEFORE, BEFORE, retires=True)
+        self.assertFalse(ok)
+        self.assertIn("wallet.enc.sqlite3 is missing", why)
+
+    def test_retiring_releases(self):
+        self.assertFalse(facts.retires_plain_copy("26.11.1"))
+        self.assertTrue(facts.retires_plain_copy("26.11.2"))
+        self.assertTrue(facts.retires_plain_copy("26.12.0"))
+        self.assertFalse(facts.retires_plain_copy(None))
+
     def test_encrypted_before_needs_no_pre_encryption(self):
         before = [p for p in AFTER if not p.endswith("pre-encryption")]
         ok, why = m.store_files(before, before)
