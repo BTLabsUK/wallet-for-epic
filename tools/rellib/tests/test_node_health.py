@@ -154,6 +154,14 @@ class ListenerStallTest(unittest.TestCase):
             t += p_service.MOVE_EVERY_S
         self.assertEqual(len(s.killed), p_service.STALL_TRIES)
 
+    def test_a_kick_restarts_a_silent_listener_once_per_move_every(self):
+        s = self.service(1000, {})
+        self.assertFalse(s.kick(now=1000 + p_service.STALL_S - 1)["restarted"])  # it spoke just now
+        self.assertTrue(s.kick("B 0.04", now=1000 + p_service.STALL_S)["restarted"])
+        self.assertFalse(s.kick(now=1000 + p_service.STALL_S + 60)["restarted"])
+        self.assertEqual(s.killed, [("listen",)])
+        self.assertIn("a send to P unanswered (B 0.04)", open(os.path.join(s.dir, "service.log")).read())
+
 
 class CancelTest(unittest.TestCase):
     """A send of P that can never finalize is cancelled through the service's owner API."""
