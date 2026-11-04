@@ -501,6 +501,7 @@ class TxLane(Lane):
             if not ok:
                 self.ledger.p_sent.pop()
                 raise HarnessFault("link-pay", "P send failed: %s" % out)
+            self.ledger.p_sent_by(p)
         slate = p.slate
         start = time.time()
         both = set()

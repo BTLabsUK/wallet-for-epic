@@ -454,7 +454,8 @@ class Service:
             raise RuntimeError("init_send_tx returned no slate")
         entry = self.tx_entry(slate_id=sid)
         rec = {"address": address, "amount": epic_str(atomic), "tx_id": entry and entry.get("id"), "slate": sid,
-               "at": time.time(), "state": "sent", "what": what}
+               "at": time.time(), "state": "sent", "what": what,
+               "fee": epic_str(entry["fee"]) if entry and entry.get("fee") is not None else None}
         with self.state_mu:
             self.sends[sid] = rec
         self.log("send %s %s -> %s (%s): slate %s, tx %s, waited %.0f s for another send" % (

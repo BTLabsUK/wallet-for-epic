@@ -27,6 +27,7 @@ class P:
         self.log_dir = log_dir
         self.log = log
         self.slate = None
+        self.fee = None  # the last send's fee, from P's own tx log (None from a service without it)
         self.host = os.environ.get("P_HOST") or p_service._tool_const(tool, "HOST")
 
     def ready(self):
@@ -63,7 +64,7 @@ class P:
         self._note("send %s -> %s: %s" % (amount, address[:12], r))
         if not r.get("ok"):
             return False, r.get("note", "send failed")
-        self.slate = r["slate"]
+        self.slate, self.fee = r["slate"], r.get("fee")
         return True, "slate %s, tx %s" % (r["slate"][:8], r.get("tx_id"))
 
     def finalized(self):

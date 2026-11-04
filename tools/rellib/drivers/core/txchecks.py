@@ -82,6 +82,7 @@ class Ledger:
         self.cap_run, self.cap_send = cap_run, cap_send
         self.p_sent, self.returned, self.fees = [], [], []
         self.cancelled = []  # P's sends no wallet answered, cancelled: they never left P
+        self.p_fees = {}  # P's slate -> its send's fee (P's tx log); None when the service did not say
         self.carried = {}  # wallet key -> what it held at sweep-start, left by runs before (not P's this run)
 
     def charge(self, amount):
@@ -104,6 +105,13 @@ class Ledger:
     def kept(self):
         return sum(self.cancelled, D(0))
 
+    def p_sent_by(self, p):
+        """P's send just made (p.slate, p.fee) into the ledger's P fees."""
+        self.p_fees[p.slate] = D(str(p.fee)) if p.fee is not None else None
+
+    def p_fee(self):
+        return sum((f for f in self.p_fees.values() if f is not None), D(0))
+
     def carried_in(self):
         return sum(self.carried.values(), D(0))
 
@@ -125,6 +133,16 @@ class Ledger:
             d["p_spendable_before"] = str(p_before)
         if p_after is not None:
             d["p_spendable_after"] = str(p_after)
+        d["p_fees"] = {s[:8]: (f(a) if a is not None else None) for s, a in self.p_fees.items()}
+        d["p_fees_total"] = f(self.p_fee())
+        # what P's balance should have moved by from this run: back - what left P - P's own fees. P is
+        # shared (other lanes send at the same time), so the actual change can differ by theirs.
+        d["p_change_expected"] = f(self.back() - (self.sent() - self.kept()) - self.p_fee())
+        if p_before is not None and p_after is not None:
+            try:
+                d["p_change_actual"] = f((D(str(p_after)) - D(str(p_before))).normalize())
+            except decimal.InvalidOperation:
+                pass
         return d
 
 
@@ -293,6 +311,7 @@ def fund(lane, methods):
             if not ok:
                 lane.ledger.p_sent.pop()
                 raise HarnessFault("fund", "P send failed: %s" % out)
+            lane.ledger.p_sent_by(p)
         mine = lambda d: [t for t in new_txs(before, d, "incoming") if (t.get("credited") or 0) == nano(amount)]  # noqa: E731
         try:
             wait_for(lane, a, "fund", lambda d: bool(mine(d)), 900)
@@ -452,6 +471,7 @@ def unanswered(lane, p, amount, why):
     lane.log("P's send %s of %s EPIC: %s (%s)" % ((slate or "")[:8], amount, "cancelled" if ok else "NOT cancelled", note))
     if ok:
         lane.ledger.cancelled.append(D(str(amount)))
+        lane.ledger.p_fees.pop(slate, None)  # never posted: no fee paid
     return ok
 
 

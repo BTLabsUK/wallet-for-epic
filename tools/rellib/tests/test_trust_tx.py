@@ -116,6 +116,26 @@ class MoneyTest(unittest.TestCase):
         self.assertEqual(led.unaccounted(), 0)
         self.assertEqual(led.doc()["carried_in_total"], "0.049")
 
+    def test_ledger_p_fees_and_the_change_p_should_see(self):
+        """run-f6: P 2.13925 -> 2.15225 is +0.107 back - 0.08 out - P's own two fees of 0.007."""
+        class P:
+            slate, fee = None, None
+        led, p = tx.Ledger(), P()
+        for slate, amount in (("S1", "0.05"), ("S2", "0.03")):
+            led.charge(amount)
+            p.slate, p.fee = slate, "0.007"
+            led.p_sent_by(p)
+        led.returned += [D("0.039"), D("0.017"), D("0.051")]
+        doc = led.doc("2.13925115", "2.15225115")
+        self.assertEqual(doc["p_fees_total"], "0.014")
+        self.assertEqual(doc["p_change_expected"], doc["p_change_actual"])
+        led.charge("0.01")
+        p.slate, p.fee = "S3", None  # a service that does not give the fee
+        led.p_sent_by(p)
+        led.cancelled.append(D("0.01"))
+        led.p_fees.pop("S3")
+        self.assertEqual(led.doc()["p_change_expected"], "0.013")
+
     def test_sweep_plan(self):
         self.assertEqual(tx.sweep_plan(0), [])
         self.assertEqual(tx.sweep_plan(int(0.009 * N)), [])  # below DUST: its fee would eat it
