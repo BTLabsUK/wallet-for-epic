@@ -46,6 +46,8 @@ FILE_READY = T("tx.send.fileready", role="text", keys=("deskSendFileReadyTitle",
                match="starts")
 RECV_OPEN = T("tx.recv.open", keys=("deskRecvOpen",), names=("Open",), match="exact")
 FILES_OPENED = T("tx.recv.files", role="text", keys=("deskTfResults",), names=("Files opened",), match="starts")
+# Send with an onion while Link · Tor is off: "Link · Tor is off in Settings › Transactions." › Turn on Link · Tor
+SEND_TURN_ON = T("tx.send.turnon", keys=("sendTurnOnMethod",), names=("Turn on Link · Tor",), match="exact")
 TX_METHOD = T("tx.detail.method", role="text", keys=("deskTxFactMethod",), names=("Method",), match="starts")
 TX_ROW_RX = re.compile(r"^(sent|received) ", re.I)
 
@@ -104,7 +106,8 @@ class Payments:
 
     def tor_ready(self, to, amount, wait_s=TOR_WAIT_S, poll=3):
         """Send with an onion as a user fills it in (Tor may be off: "Tor starts when you send"), then
-        Review watched until it is enabled, every change of the page's Tor lines logged. ProductFault
+        Review watched until it is enabled, every change of the page's Tor lines logged. The page's
+        Turn on Link · Tor (Link · Tor off in Settings) pressed once, as a user would. ProductFault
         after [wait_s] with the lines read. -> seconds Review took."""
         d = self.d
         self.ui.nav(NAV_SEND)
@@ -113,8 +116,15 @@ class Payments:
         d.fill(SEND_TO, to, step="send-to")
         d.fill(SEND_AMOUNT, amount, step="send-amount")
         start = time.time()
-        lines, last = [], None
+        lines, last, turned = [], None, False
         while True:
+            if not turned:
+                on = [n for n in d.find_in(SEND_TURN_ON, d.tree()) if n.enabled]
+                if on:
+                    self.log("%s: Send offers %s: pressed" % (self.ui.which, on[0].name))
+                    d._act(d.s.press, on[0])
+                    turned = True
+                    start = time.time()  # Tor starts now: the wait is counted from here
             hold = self.send_hold()
             if hold != last:
                 self.log("%s: Send's Tor line after %d s: %s" % (self.ui.which, time.time() - start, hold or "(none)"))

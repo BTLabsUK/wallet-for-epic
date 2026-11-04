@@ -5,7 +5,8 @@ on mainnet by every method, and every coin P put in goes back to P in the same r
 Money (the owner, 2026-11-03): at most CAP_RUN EPIC out of P per run, every send of P's at most
 CAP_SEND. A is funded only up to what its remaining payments need (AMOUNT + FEE_MAX each), split in
 sends of at most CAP_SEND (four payments: 0.05 + 0.03). The sweeps send A's and B's balances to P
-(Max; amounts of CAP_SEND first when a balance is larger). The ledger (what P sent, what came back,
+(Max; amounts of CAP_SEND first when a balance is larger). The ledger (what P sent, what A and B held
+from runs before (sweep-start), what came back,
 the fees paid) goes into proof.json's details["money"].
 
 Each payment check reads both wallets' data, never a screen: A has a new outgoing of exactly AMOUNT
@@ -81,6 +82,7 @@ class Ledger:
         self.cap_run, self.cap_send = cap_run, cap_send
         self.p_sent, self.returned, self.fees = [], [], []
         self.cancelled = []  # P's sends no wallet answered, cancelled: they never left P
+        self.carried = {}  # wallet key -> what it held at sweep-start, left by runs before (not P's this run)
 
     def charge(self, amount):
         """P is about to send [amount]: HarnessFault over a cap (nothing is sent then)."""
@@ -102,9 +104,13 @@ class Ledger:
     def kept(self):
         return sum(self.cancelled, D(0))
 
+    def carried_in(self):
+        return sum(self.carried.values(), D(0))
+
     def unaccounted(self, held=D(0)):
-        """What P sent that neither came back, nor went in fees, nor was cancelled, nor is still [held]."""
-        return self.sent() - self.back() - self.fee() - self.kept() - held
+        """What P sent (and the wallets held from runs before) that neither came back, nor went in fees,
+        nor was cancelled, nor is still [held]."""
+        return self.sent() + self.carried_in() - self.back() - self.fee() - self.kept() - held
 
     def doc(self, p_before=None, p_after=None):
         f = lambda x: format(x, "f")  # noqa: E731
@@ -112,6 +118,7 @@ class Ledger:
              "returned": [f(a) for a in self.returned], "returned_total": f(self.back()),
              "fees": [f(a) for a in self.fees], "fees_total": f(self.fee()),
              "cancelled": [f(a) for a in self.cancelled], "cancelled_total": f(self.kept()),
+             "carried_in": {k: f(a) for k, a in self.carried.items()}, "carried_in_total": f(self.carried_in()),
              "cap_run": f(self.cap_run), "cap_send": f(self.cap_send)}
         # P's info: EPIC text
         if p_before is not None:
@@ -399,6 +406,8 @@ def sweep(lane, keys, tag, settle=True):
     for k in keys:
         w = lane.w[k]
         d = digest(lane, w, tag)
+        if tag == "sweep-start":  # a phase run again keeps the first reading
+            lane.ledger.carried.setdefault(k, D((d.get("balance") or {}).get("total") or 0) / NANO)
         if settle and ((d.get("balance") or {}).get("total") or 0) >= nano(DUST):
             d = wait_for(lane, w, "%s %s settled" % (tag, k.upper()),
                          lambda x: ((x.get("balance") or {}).get("total") or 0) == spendable(x), SPEND_WAIT_S)
@@ -453,8 +462,8 @@ def returned(lane):
     held = {k: (b.get("total") or 0) for k, b in left.items()}
     led = lane.ledger
     lost = led.unaccounted(D(sum(held.values())) / NANO)
-    why = "P sent %s EPIC, %s came back, fees %s, %s cancelled unanswered; %s (wallet data)%s" % (
-        led.sent(), led.back(), led.fee(), led.kept(), ", ".join("%s holds %s" % (k.upper(), num(v)) for k, v in held.items()),
+    why = "P sent %s EPIC, %s held from runs before, %s came back, fees %s, %s cancelled unanswered; %s (wallet data)%s" % (
+        led.sent(), led.carried_in(), led.back(), led.fee(), led.kept(), ", ".join("%s holds %s" % (k.upper(), num(v)) for k, v in held.items()),
         "; %s EPIC not accounted for" % lost if lost else "")
     if all(v < nano(DUST) for v in held.values()) and not lost:
         lane.ok("returned_ok", why)

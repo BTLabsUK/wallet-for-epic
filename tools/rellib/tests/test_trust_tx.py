@@ -105,6 +105,17 @@ class MoneyTest(unittest.TestCase):
             self.assertTrue(lane.results["returned_ok"][0], lane.results["returned_ok"][1])
         self.assertEqual(led.doc()["cancelled_total"], "0.05")
 
+    def test_ledger_counts_what_runs_before_left(self):
+        """run-f6: sweep-start sent B's 0.04 back and A spent its 0.009: not P's coins this run."""
+        led = tx.Ledger()
+        led.carried.update(a=D("0.009"), b=D("0.04"))
+        led.charge("0.05")
+        led.charge("0.03")
+        led.returned += [D("0.039"), D("0.017"), D("0.051")]
+        led.fees += [D("0.001"), D("0.007"), D("0.008"), D("0.003"), D("0.003")]
+        self.assertEqual(led.unaccounted(), 0)
+        self.assertEqual(led.doc()["carried_in_total"], "0.049")
+
     def test_sweep_plan(self):
         self.assertEqual(tx.sweep_plan(0), [])
         self.assertEqual(tx.sweep_plan(int(0.009 * N)), [])  # below DUST: its fee would eat it
