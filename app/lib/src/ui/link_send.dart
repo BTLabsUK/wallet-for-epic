@@ -7,7 +7,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../directory/directory.dart';
+import '../name_service/name_service.dart';
 import '../l10n.dart';
 import '../models.dart' show Chain;
 import '../providers.dart';
@@ -37,17 +37,17 @@ String linkRefusalText(AppLocalizations l, LinkRefused refused) => switch (refus
 String linkTrustText(AppLocalizations l, LinkOpened link) {
   final standing = link.standing;
   switch (standing.trust) {
-    case DirectoryTrust.changedWallet:
+    case NameServiceTrust.changedWallet:
       final day = localDay(l, standing.changedSince!.toLocal());
       final payee = link.payeeLabel;
       return payee == null ? l.linkTrustChangedNoName(day) : l.linkTrustChanged(payee, day);
-    case DirectoryTrust.notADirectoryYouUse:
+    case NameServiceTrust.notANameServiceYouUse:
       return l.linkTrustOther;
-    case DirectoryTrust.directoryYouUse:
-      final directory = link.directoryLabel;
+    case NameServiceTrust.nameServiceYouUse:
+      final nameService = link.nameServiceLabel;
       final name = link.payeeLabel;
-      if (directory == null) return l.linkTrustDirectory;
-      return name == null ? l.linkTrustListedBy(directory) : l.linkTrustListed(name, directory);
+      if (nameService == null) return l.linkTrustNameService;
+      return name == null ? l.linkTrustListedBy(nameService) : l.linkTrustListed(name, nameService);
   }
 }
 
@@ -69,7 +69,7 @@ class LinkTrustLine extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final t = context.tokens;
-    final changed = link.standing.trust == DirectoryTrust.changedWallet;
+    final changed = link.standing.trust == NameServiceTrust.changedWallet;
     final style = Theme.of(context).textTheme.bodyMedium;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -144,7 +144,7 @@ Future<LinkOpened?> openPaymentLink(
     net: session == null ? netMainnet : netOfChain(session.chain),
     nowSeconds: now.millisecondsSinceEpoch ~/ 1000,
     verifier: ref.read(walletServiceProvider).verifyListingSignature,
-    membership: ref.read(directoryMembershipProvider),
+    membership: ref.read(nameServiceMembershipProvider),
     memory: session?.linkMemory() ?? const LinkMemory(),
   );
   if (!context.mounted) return null;

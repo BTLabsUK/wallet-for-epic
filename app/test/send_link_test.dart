@@ -2,8 +2,8 @@
 // Send from a payment link on the phone: a pasted link (any host) opens Send filled, with the
 // trust line; a refused link fills nothing and says why; a request paid before asks first; the
 // changed-wallet listing asks once more before it sends; a paid link is recorded and its payee
-// can be saved as a contact. Real link texts from the directory vectors.
-import 'package:epic_wallet/src/directory/directory.dart';
+// can be saved as a contact. Real link texts from the name service vectors.
+import 'package:epic_wallet/src/name_service/name_service.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
@@ -127,7 +127,7 @@ void main() {
           walletConfigProvider.overrideWith(_Mainnet.new),
           relayDirectoryProvider.overrideWithValue(_NoRelays()),
           linkClockProvider.overrideWithValue(() => now ?? linkNow),
-          directoryMembershipProvider.overrideWithValue(membership ?? FakeMembership()),
+          nameServiceMembershipProvider.overrideWithValue(membership ?? FakeMembership()),
           if (refusals != null) paymentRefusalsProvider.overrideWithValue(refusals),
         ],
         child: MaterialApp(
@@ -157,7 +157,7 @@ void main() {
 
   setUp(() => session = _Session());
 
-  final listed = FakeMembership(labels: {vectorDkey: 'Test Service'});
+  final listed = FakeMembership(labels: {vectorServiceKey: 'Test Service'});
 
   Finder trust() => find.byKey(linkTrustLineKey);
   String trustText(WidgetTester tester) =>
@@ -165,14 +165,14 @@ void main() {
   Finder amountField() => find.widgetWithText(TextField, 'Amount (EPIC)');
 
   group('trust line', () {
-    testWidgets('a directory in use: the name, its label and the code pictures', (tester) async {
+    testWidgets('a name service in use: the name, its label and the code pictures', (tester) async {
       await pump(tester, membership: listed);
       await paste(tester, vectors.https('req-basic'));
       expect(trustText(tester), '@alice_test · via Test Service');
       expect(find.descendant(of: trust(), matching: find.byType(Wrap)), findsOneWidget);
     });
 
-    testWidgets('any other directory: no name, no alarm', (tester) async {
+    testWidgets('any other name service: no name, no alarm', (tester) async {
       await pump(tester);
       await paste(tester, vectors.https('req-basic'));
       expect(trustText(tester), _l.linkTrustOther);
@@ -183,7 +183,7 @@ void main() {
       final request = vectors.request('req-basic');
       session.memory = LinkMemory(
         pins: {
-          pinKey(request.card.dkey, request.card.handle): const ListingPin(
+          pinKey(request.card.serviceKey, request.card.handle): const ListingPin(
             listingKey: '03aa8c2f48c588fa84ed97a219b9841579c04241c1cef99b69bb19bb5168011df6',
             firstPaid: 1790000000,
             lastPaid: 1790000000,
@@ -208,7 +208,7 @@ void main() {
       testWidgets(e.key, (tester) async {
         final (message, text, now) = e.value;
         // The wallet's own listing key is another one than the request is made for.
-        final membership = FakeMembership(listingKeys: {vectorDkey: vectors.listingKeyText('03${'11' * 32}')});
+        final membership = FakeMembership(listingKeys: {vectorServiceKey: vectors.listingKeyText('03${'11' * 32}')});
         await pump(tester, now: now, membership: membership);
         await paste(tester, text(vectors));
         expect(find.textContaining(message), findsOneWidget);
@@ -218,10 +218,10 @@ void main() {
   });
 
   testWidgets('a request made for this wallet opens', (tester) async {
-    final membership = FakeMembership(listingKeys: {vectorDkey: vectors.listingKeyText('026b8c2f48c588fa84ed97a219b9841579c04241c1cef99b69bb19bb5168011df6')});
+    final membership = FakeMembership(listingKeys: {vectorServiceKey: vectors.listingKeyText('026b8c2f48c588fa84ed97a219b9841579c04241c1cef99b69bb19bb5168011df6')});
     await pump(tester, membership: membership);
     await paste(tester, vectors.scheme('req-for'));
-    expect(trustText(tester), _l.linkTrustDirectory);
+    expect(trustText(tester), _l.linkTrustNameService);
   });
 
   testWidgets('already paid: asks, Cancel leaves it empty', (tester) async {
@@ -305,7 +305,7 @@ void main() {
       final request = vectors.request('req-basic');
       session.memory = LinkMemory(
         pins: {
-          pinKey(request.card.dkey, request.card.handle): const ListingPin(
+          pinKey(request.card.serviceKey, request.card.handle): const ListingPin(
             listingKey: '03aa8c2f48c588fa84ed97a219b9841579c04241c1cef99b69bb19bb5168011df6',
             firstPaid: 1790000000,
             lastPaid: 1790000000,

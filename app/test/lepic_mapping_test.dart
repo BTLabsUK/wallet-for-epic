@@ -250,7 +250,7 @@ void main() {
     });
 
     test('the build claims the directory bit only', () async {
-      expect(appHostFeatures, featureDirectory);
+      expect(appHostFeatures, featureNameService);
     });
   });
 

@@ -20954,17 +20954,17 @@ class AppLocalizationsRu extends AppLocalizations {
   String get linkPayAgain => 'Оплатить снова';
 
   @override
-  String linkTrustListed(String name, String directory) {
-    return '$name · через $directory';
+  String linkTrustListed(String name, String service) {
+    return '$name · через $service';
   }
 
   @override
-  String linkTrustListedBy(String directory) {
-    return 'Через $directory';
+  String linkTrustListedBy(String service) {
+    return 'Через $service';
   }
 
   @override
-  String get linkTrustDirectory => 'От сервиса, с которым вы сопряжены';
+  String get linkTrustNameService => 'От сервиса, с которым вы сопряжены';
 
   @override
   String get linkTrustOther => 'Не от сервиса, с которым вы сопряжены';
@@ -20994,23 +20994,23 @@ class AppLocalizationsRu extends AppLocalizations {
   String get linkChangedConfirmTitle => 'Проверьте перед оплатой';
 
   @override
-  String dirWaitingFor(String label) {
+  String nsWaitingFor(String label) {
     return 'Ожидание $label…';
   }
 
   @override
-  String get dirCodeTitle => 'Проверьте код';
+  String get nsCodeTitle => 'Проверьте код';
 
   @override
-  String dirCodeLead(String label) {
+  String nsCodeLead(String label) {
     return '$label показывает четыре картинки. Сравните их с этими.';
   }
 
   @override
-  String get dirCodeLabel => 'Четыре картинки';
+  String get nsCodeLabel => 'Четыре картинки';
 
   @override
-  String dirJoin(String name, String label) {
+  String nsJoin(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': 'Платите мне через $label',
       'other': 'Платите мне как $name',
@@ -21019,10 +21019,10 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get dirNotNow => 'Не сейчас';
+  String get nsNotNow => 'Не сейчас';
 
   @override
-  String dirJoinTitle(String name, String label) {
+  String nsJoinTitle(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': 'Платите мне через $label?',
       'other': 'Платите мне как $name?',
@@ -21031,7 +21031,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String dirJoinBody(String name, String label, String host) {
+  String nsJoinBody(String name, String label, String host) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none':
           'Те, кто пользуется $label, могут платить вам там. Платежи приходят через $host',
@@ -21042,12 +21042,12 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String dirJoinInfo(String label) {
+  String nsJoinInfo(String label) {
     return '$label получает один платёжный адрес и один код, оба созданы только для него. Он не видит ваш баланс, не двигает монеты и не читает платежи. Платежи приходят, пока Epic Cash открыт. Выйти можно в любой момент: Контакты › $label.';
   }
 
   @override
-  String dirJoinedNotice(String name, String label) {
+  String nsJoinedNotice(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': 'Платите мне через $label: включено',
       'other': 'Платите мне как $name: включено',
@@ -21056,7 +21056,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String dirLeftNotice(String name, String label) {
+  String nsLeftNotice(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': 'Платите мне через $label: выключено',
       'other': 'Платите мне как $name: выключено',
@@ -21065,7 +21065,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String dirJoined(String name, String label, String date) {
+  String nsJoined(String name, String label, String date) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': 'Платите мне через $label · с $date',
       'other': 'Платите мне как $name · с $date',
@@ -21074,32 +21074,32 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get dirNotListed => 'Выключено';
+  String get nsNotListed => 'Выключено';
 
   @override
-  String dirNotListedBody(String label) {
+  String nsNotListedBody(String label) {
     return '$label: ваше имя удалено.';
   }
 
   @override
-  String get dirNotJoined => 'Выключено';
+  String get nsNotJoined => 'Выключено';
 
   @override
-  String get dirJoinAgain => 'Включить снова';
+  String get nsJoinAgain => 'Включить снова';
 
   @override
-  String get dirListingCode => 'Картинки для вашего имени';
+  String get nsListingCode => 'Картинки для вашего имени';
 
   @override
-  String dirListingCodeInfo(String label) {
+  String nsListingCodeInfo(String label) {
     return 'Четыре картинки, созданные из кошелька, на который приходят платежи по вашему имени. $label может показать те же четыре для сравнения.';
   }
 
   @override
-  String get dirLeave => 'Выйти';
+  String get nsLeave => 'Выйти';
 
   @override
-  String dirRemoveTooTitle(String label) {
+  String nsRemoveTooTitle(String label) {
     return 'Удалить также $label?';
   }
 

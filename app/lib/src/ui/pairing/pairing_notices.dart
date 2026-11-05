@@ -12,9 +12,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../amount.dart';
 import '../../connection_grace.dart';
 import '../../contacts.dart';
-import '../../directory/directory_model.dart' show DirectoryEntry;
-import '../../directory/directory_service.dart' show DirectorySyncTrigger;
-import '../../directory/phone_directory.dart' show directoryServiceProvider;
+import '../../name_service/name_service_model.dart' show NameServiceEntry;
+import '../../name_service/name_service_service.dart' show NameServiceSyncTrigger;
+import '../../name_service/phone_name_service.dart' show nameServiceProvider;
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../pairing_text.dart';
@@ -117,14 +117,14 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
   /// The foreground tick of RFC 8.4: the mailboxes of contacts with something pending.
   static const _tick = Duration(seconds: 45);
   Timer? _timer;
-  StreamSubscription<DirectoryEntry>? _lateSub;
+  StreamSubscription<NameServiceEntry>? _lateSub;
 
   void _collect(PairingCollectTrigger trigger) {
     final api = ref.read(pairingApiProvider);
     if (api.supported) api.collect(trigger: trigger).ignore();
-    // The directories' payloads and listing drains go with every collect.
-    final sync = trigger == PairingCollectTrigger.open ? DirectorySyncTrigger.resume : DirectorySyncTrigger.tick;
-    unawaited(ref.read(directoryServiceProvider)?.sync(sync) ?? Future<void>.value());
+    // The name services' payloads and listing drains go with every collect.
+    final sync = trigger == PairingCollectTrigger.open ? NameServiceSyncTrigger.resume : NameServiceSyncTrigger.tick;
+    unawaited(ref.read(nameServiceProvider)?.sync(sync) ?? Future<void>.value());
   }
 
   void _startTick() {
@@ -179,7 +179,7 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     // A contact whose keys came back docks the notice on its page, whenever that opens.
     ref.listenManual(keysBackProvider, (_, _) {});
     // A hello that comes after the words step: the contact takes no payments, said once.
-    ref.listenManual(directoryServiceProvider, (_, next) {
+    ref.listenManual(nameServiceProvider, (_, next) {
       _lateSub?.cancel();
       _lateSub = next?.lateNoPayments.listen((e) {
         if (!mounted) return;
@@ -284,8 +284,8 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
 
   @override
   Widget build(BuildContext context) {
-    // Keeps the open wallet's directories alive while Home is up.
-    ref.watch(directoryServiceProvider);
+    // Keeps the open wallet's name services alive while Home is up.
+    ref.watch(nameServiceProvider);
     return const SizedBox.shrink();
   }
 }

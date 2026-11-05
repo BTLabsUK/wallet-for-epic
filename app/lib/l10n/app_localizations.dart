@@ -28842,7 +28842,7 @@ abstract class AppLocalizations {
   /// **'The waiting payment is cancelled and Send opens with the same amount. Check the address, then send it again.'**
   String get linkResendBody;
 
-  /// Unticked line on a payment made from a payment link: tell the directory's payee the payment was sent.
+  /// Unticked line on a payment made from a payment link: tell the name service's payee the payment was sent.
   ///
   /// In en, this message translates to:
   /// **'Tell {name} it’s sent'**
@@ -31755,22 +31755,22 @@ abstract class AppLocalizations {
   /// Trust line on Send: the payee's name and the service this wallet is paired with (its contact name) that the link comes from.
   ///
   /// In en, this message translates to:
-  /// **'{name} · via {directory}'**
-  String linkTrustListed(String name, String directory);
+  /// **'{name} · via {service}'**
+  String linkTrustListed(String name, String service);
 
   /// Trust line on Send when the link has no name.
   ///
   /// In en, this message translates to:
-  /// **'Via {directory}'**
-  String linkTrustListedBy(String directory);
+  /// **'Via {service}'**
+  String linkTrustListedBy(String service);
 
-  /// Trust line on Send for a directory this wallet uses that has no label.
+  /// Trust line on Send for a name service this wallet uses that has no label.
   ///
   /// In en, this message translates to:
   /// **'From a service you paired with'**
-  String get linkTrustDirectory;
+  String get linkTrustNameService;
 
-  /// Trust line on Send for a payment link from any other directory.
+  /// Trust line on Send for a payment link from any other name service.
   ///
   /// In en, this message translates to:
   /// **'Not from a service you paired with'**
@@ -31812,125 +31812,125 @@ abstract class AppLocalizations {
   /// **'Check before paying'**
   String get linkChangedConfirmTitle;
 
-  /// Static line on the Check step while a directory’s message is awaited (no spinner). {label} is the name the pairing shows.
+  /// Static line on the Check step while a name service’s message is awaited (no spinner). {label} is the name the pairing shows.
   ///
   /// In en, this message translates to:
   /// **'Waiting for {label}…'**
-  String dirWaitingFor(String label);
+  String nsWaitingFor(String label);
 
-  /// Title of the step that replaces Check the words for a directory pairing.
+  /// Title of the step that replaces Check the words for a name service pairing.
   ///
   /// In en, this message translates to:
   /// **'Check the code'**
-  String get dirCodeTitle;
+  String get nsCodeTitle;
 
   /// Lead of Check the code: the four pictures below must equal the ones the other side shows.
   ///
   /// In en, this message translates to:
   /// **'{label} shows four pictures. Compare them with these.'**
-  String dirCodeLead(String label);
+  String nsCodeLead(String label);
 
   /// Read by a screen reader before the four pictures of a code.
   ///
   /// In en, this message translates to:
   /// **'The four pictures'**
-  String get dirCodeLabel;
+  String get nsCodeLabel;
 
   /// Button on the Join sheet and the contact page: the user takes a payment name at this service. {name} is the user's @name from the service's hello, or the word none when it sent none; {label} is the contact name.
   ///
   /// In en, this message translates to:
   /// **'{name, select, none{Pay me via {label}} other{Pay me as {name}}}'**
-  String dirJoin(String name, String label);
+  String nsJoin(String name, String label);
 
   /// Button on the Join sheet: leaves the contact verified, with Join on its page.
   ///
   /// In en, this message translates to:
   /// **'Not now'**
-  String get dirNotNow;
+  String get nsNotNow;
 
   /// Title of the Join sheet. {name} is the user's @name, or the word none; {label} is the contact name.
   ///
   /// In en, this message translates to:
   /// **'{name, select, none{Pay me via {label}?} other{Pay me as {name}?}}'**
-  String dirJoinTitle(String name, String label);
+  String nsJoinTitle(String name, String label);
 
   /// Body of the Join sheet. {name} is the user's @name, or the word none; {label} is the contact name; {host} is the host of the wallet’s own Epicbox server.
   ///
   /// In en, this message translates to:
   /// **'{name, select, none{People who use {label} can pay you there. Payments come through {host}} other{People who use {label} can pay you as {name}. Payments come through {host}}}'**
-  String dirJoinBody(String name, String label, String host);
+  String nsJoinBody(String name, String label, String host);
 
   /// Explanation behind the info button on the Join sheet.
   ///
   /// In en, this message translates to:
   /// **'{label} gets one payment address and one code, both made only for it. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Leave any time in Contacts › {label}.'**
-  String dirJoinInfo(String label);
+  String nsJoinInfo(String label);
 
   /// Notice after Join worked. {name} is the user's @name, or the word none; {label} is the contact name.
   ///
   /// In en, this message translates to:
   /// **'{name, select, none{Pay me via {label}: on} other{Pay me as {name}: on}}'**
-  String dirJoinedNotice(String name, String label);
+  String nsJoinedNotice(String name, String label);
 
   /// Notice after Leave worked. {name} is the user's @name, or the word none; {label} is the contact name.
   ///
   /// In en, this message translates to:
   /// **'{name, select, none{Pay me via {label}: off} other{Pay me as {name}: off}}'**
-  String dirLeftNotice(String name, String label);
+  String nsLeftNotice(String name, String label);
 
   /// Status line on the contact page of a service the user joined. {name} is the user's @name, or the word none; {label} is the contact name; {date} is a short date.
   ///
   /// In en, this message translates to:
   /// **'{name, select, none{Pay me via {label} · since {date}} other{Pay me as {name} · since {date}}}'**
-  String dirJoined(String name, String label, String date);
+  String nsJoined(String name, String label, String date);
 
-  /// Status line on the contact page of a directory that no longer lists the user.
+  /// Status line on the contact page of a name service that no longer lists the user.
   ///
   /// In en, this message translates to:
   /// **'Off'**
-  String get dirNotListed;
+  String get nsNotListed;
 
   /// Line under Not listed.
   ///
   /// In en, this message translates to:
   /// **'{label} removed your name.'**
-  String dirNotListedBody(String label);
+  String nsNotListedBody(String label);
 
-  /// Status line on the contact page of a verified directory the user has not joined.
+  /// Status line on the contact page of a verified name service the user has not joined.
   ///
   /// In en, this message translates to:
   /// **'Off'**
-  String get dirNotJoined;
+  String get nsNotJoined;
 
-  /// Button on the contact page of a directory that no longer lists the user, or one the user left.
+  /// Button on the contact page of a name service that no longer lists the user, or one the user left.
   ///
   /// In en, this message translates to:
   /// **'Turn on again'**
-  String get dirJoinAgain;
+  String get nsJoinAgain;
 
-  /// Label of the four pictures of the user’s listing on the contact page of a directory.
+  /// Label of the four pictures of the user’s listing on the contact page of a name service.
   ///
   /// In en, this message translates to:
   /// **'Pictures for your name'**
-  String get dirListingCode;
+  String get nsListingCode;
 
   /// Explanation behind the info button of the listing code. {label} is the name the pairing shows.
   ///
   /// In en, this message translates to:
   /// **'Four pictures made from the wallet your name pays. {label} can show the same four to compare.'**
-  String dirListingCodeInfo(String label);
+  String nsListingCodeInfo(String label);
 
   /// Button on the contact page of a joined service: takes the user's name down (opens the confirm).
   ///
   /// In en, this message translates to:
   /// **'Leave'**
-  String get dirLeave;
+  String get nsLeave;
 
   /// Title of the question after Leave: also end the pairing.
   ///
   /// In en, this message translates to:
   /// **'Remove {label} too?'**
-  String dirRemoveTooTitle(String label);
+  String nsRemoveTooTitle(String label);
 
   /// Error under the To field on Send when the recipient is the wallet open now. {wallet} is its name in the wallet list. The app’s other wallets can be paid; only the open one cannot.
   ///

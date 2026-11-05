@@ -7,7 +7,7 @@
 // A press that does nothing, or only shows a toast, fails unless [_allowed] says why. A press
 // that reaches an API method the real wallet (LepicDeskWallet) only stubs fails too.
 import 'package:epic_wallet/src/cancel_final.dart' show CancelResult;
-import 'package:epic_wallet/src/directory/directory.dart' show DirectoryMembership, LinkOutcome, LinkPaymentRecords, Payreq;
+import 'package:epic_wallet/src/name_service/name_service.dart' show NameServiceMembership, LinkOutcome, LinkPaymentRecords, Payreq;
 import 'package:epic_wallet/src/scan/scan_router.dart' show PaymentLink;
 import 'package:epic_wallet/src/trust/policy.dart' show PeerCompat;
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
@@ -23,7 +23,7 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/models.dart' show FinishedPayment, InvoiceEvent, StoreMigrationProgress;
 import 'package:epic_wallet/src/pairing_api.dart' show PairingApi;
 import 'package:epic_wallet/src/devices/device_model.dart' show DeviceBook;
-import 'package:epic_wallet/src/directory/directory.dart' show DirectoryHost;
+import 'package:epic_wallet/src/name_service/name_service.dart' show NameServiceHost;
 import 'package:epic_wallet/src/devices/device_service.dart' show DeviceHost, ForwardedNotice;
 import 'package:epic_wallet/src/desktop/data/desk_node.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/local_node_dialogs.dart' show deskPickFolder;
@@ -138,7 +138,7 @@ class _Recorder implements DeskWalletApi, MockBacked {
   @override
   bool get openedRemembered => _m.openedRemembered;
   @override
-  Future<LinkOutcome> openPaymentLink(PaymentLink link, {required DirectoryMembership membership, required int nowSeconds}) =>
+  Future<LinkOutcome> openPaymentLink(PaymentLink link, {required NameServiceMembership membership, required int nowSeconds}) =>
       _r('openPaymentLink', () => _m.openPaymentLink(link, membership: membership, nowSeconds: nowSeconds));
   @override
   Future<void> recordLinkPayment(Payreq request, int paidAt, {String? txId}) =>
@@ -393,7 +393,7 @@ class _Recorder implements DeskWalletApi, MockBacked {
   @override
   PairingApi get pairing => _m.pairing;
   @override
-  DirectoryHost? directoryHost({required bool Function() online}) => _m.directoryHost(online: online);
+  NameServiceHost? nameServiceHost({required bool Function() online}) => _m.nameServiceHost(online: online);
 
   @override
   Future<PeerCompat?> peerCompat(String address) => _r('peerCompat', () => _m.peerCompat(address));

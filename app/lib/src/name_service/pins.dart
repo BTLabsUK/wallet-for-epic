@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 /// What the wallet remembers of payments made from payment links: which listing key a
-/// directory's (dkey, handle) pointed to when the user paid, and which requests were paid
-/// (replay). Pure data and decisions; `history/directory_pins.dart` stores them in the meta
+/// name service's (serviceKey, handle) pointed to when the user paid, and which requests were paid
+/// (replay). Pure data and decisions; `history/name_service_pins.dart` stores them in the meta
 /// file, where deleting the history deletes them.
 library;
 
@@ -17,7 +17,7 @@ const Duration paidRequestKept = Duration(days: 30);
 class LinkPaymentRec {
   const LinkPaymentRec({
     required this.reqid,
-    required this.dkey,
+    required this.serviceKey,
     this.label,
     required this.amount,
     required this.address,
@@ -28,8 +28,8 @@ class LinkPaymentRec {
   /// 16 bytes, lower-case hex.
   final String reqid;
 
-  /// 33 bytes, lower-case hex: the directory the card came from.
-  final String dkey;
+  /// 33 bytes, lower-case hex: the name service the card came from.
+  final String serviceKey;
 
   /// The card's label, when it has one.
   final String? label;
@@ -51,7 +51,7 @@ class LinkPaymentRec {
 
   LinkPaymentRec withTold(int stage) => LinkPaymentRec(
     reqid: reqid,
-    dkey: dkey,
+    serviceKey: serviceKey,
     label: label,
     amount: amount,
     address: address,
@@ -61,7 +61,7 @@ class LinkPaymentRec {
 
   Map<String, Object?> toJson() => {
     'reqid': reqid,
-    'dkey': dkey,
+    'dkey': serviceKey,
     if (label != null) 'label': label,
     'amount': amount.toString(),
     'address': address,
@@ -73,7 +73,7 @@ class LinkPaymentRec {
   bool operator ==(Object other) =>
       other is LinkPaymentRec &&
       other.reqid == reqid &&
-      other.dkey == dkey &&
+      other.serviceKey == serviceKey &&
       other.label == label &&
       other.amount == amount &&
       other.address == address &&
@@ -82,10 +82,10 @@ class LinkPaymentRec {
       other.told.containsAll(told);
 
   @override
-  int get hashCode => Object.hash(reqid, dkey, label, amount, address, paidAt, told.length);
+  int get hashCode => Object.hash(reqid, serviceKey, label, amount, address, paidAt, told.length);
 }
 
-/// The pin of a directory's listing: the listing key (hex) the user last paid for it.
+/// The pin of a name service's listing: the listing key (hex) the user last paid for it.
 class ListingPin {
   const ListingPin({required this.listingKey, required this.firstPaid, required this.lastPaid});
 
@@ -113,18 +113,18 @@ class ListingPin {
   int get hashCode => Object.hash(listingKey, firstPaid, lastPaid);
 }
 
-/// The key of a pin: `<dkey hex>:<handle hex>`.
-String pinKey(Uint8List dkey, Uint8List handle) => '${toHex(dkey)}:${toHex(handle)}';
+/// The key of a pin: `<serviceKey hex>:<handle hex>`.
+String pinKey(Uint8List serviceKey, Uint8List handle) => '${toHex(serviceKey)}:${toHex(handle)}';
 
-/// How much the wallet trusts the directory a link comes from (the trust line on Send).
-enum DirectoryTrust {
-  /// The card's `dkey` is a directory the user pairs with.
-  directoryYouUse,
+/// How much the wallet trusts the name service a link comes from (the trust line on Send).
+enum NameServiceTrust {
+  /// The card's `serviceKey` is a name service the user pairs with.
+  nameServiceYouUse,
 
-  /// Any other directory: shown with the listing code only.
-  notADirectoryYouUse,
+  /// Any other name service: shown with the listing code only.
+  notANameServiceYouUse,
 
-  /// The user paid this (dkey, handle) before, to another listing key.
+  /// The user paid this (serviceKey, handle) before, to another listing key.
   changedWallet,
 }
 
@@ -132,44 +132,44 @@ enum DirectoryTrust {
 class LinkStanding {
   const LinkStanding(this.trust, {this.paidBefore, this.changedSince});
 
-  final DirectoryTrust trust;
+  final NameServiceTrust trust;
 
   /// When this request id was paid, within the last [paidRequestKept]; null when it was not.
   final DateTime? paidBefore;
 
-  /// For [DirectoryTrust.changedWallet]: when the user last paid the earlier listing key.
+  /// For [NameServiceTrust.changedWallet]: when the user last paid the earlier listing key.
   final DateTime? changedSince;
 }
 
 DateTime _at(int seconds) => DateTime.fromMillisecondsSinceEpoch(seconds * 1000, isUtc: true);
 
-/// The standing of a verified [request]. [pinnedDkeys] are the directories the user pairs with
-/// (lower-case hex of the 33-byte `dkey`), [pins] the stored pins by [pinKey] and [paidRequests]
+/// The standing of a verified [request]. [pinnedServiceKeys] are the name services the user pairs with
+/// (lower-case hex of the 33-byte `serviceKey`), [pins] the stored pins by [pinKey] and [paidRequests]
 /// the paid request ids (hex) with the unix second each was paid. Changed wallet wins over the
-/// directory's own standing: it is the warning that matters.
+/// name service's own standing: it is the warning that matters.
 LinkStanding linkStanding(
   Payreq request, {
-  required Set<String> pinnedDkeys,
+  required Set<String> pinnedServiceKeys,
   required Map<String, ListingPin> pins,
   required Map<String, int> paidRequests,
   required int nowSeconds,
 }) {
   final card = request.card;
-  final pin = pins[pinKey(card.dkey, card.handle)];
+  final pin = pins[pinKey(card.serviceKey, card.handle)];
   final paid = paidRequests[toHex(request.reqid)];
   final cutoff = nowSeconds - paidRequestKept.inSeconds;
   final paidBefore = paid != null && paid > cutoff ? _at(paid) : null;
   if (pin != null && pin.listingKey != toHex(card.listingKey)) {
     return LinkStanding(
-      DirectoryTrust.changedWallet,
+      NameServiceTrust.changedWallet,
       paidBefore: paidBefore,
       changedSince: _at(pin.lastPaid),
     );
   }
   return LinkStanding(
-    pinnedDkeys.contains(toHex(card.dkey))
-        ? DirectoryTrust.directoryYouUse
-        : DirectoryTrust.notADirectoryYouUse,
+    pinnedServiceKeys.contains(toHex(card.serviceKey))
+        ? NameServiceTrust.nameServiceYouUse
+        : NameServiceTrust.notANameServiceYouUse,
     paidBefore: paidBefore,
   );
 }

@@ -20531,17 +20531,17 @@ class AppLocalizationsDe extends AppLocalizations {
   String get linkPayAgain => 'Erneut bezahlen';
 
   @override
-  String linkTrustListed(String name, String directory) {
-    return '$name · über $directory';
+  String linkTrustListed(String name, String service) {
+    return '$name · über $service';
   }
 
   @override
-  String linkTrustListedBy(String directory) {
-    return 'Über $directory';
+  String linkTrustListedBy(String service) {
+    return 'Über $service';
   }
 
   @override
-  String get linkTrustDirectory =>
+  String get linkTrustNameService =>
       'Von einem Dienst, mit dem Sie gekoppelt sind';
 
   @override
@@ -20573,23 +20573,23 @@ class AppLocalizationsDe extends AppLocalizations {
   String get linkChangedConfirmTitle => 'Vor dem Bezahlen prüfen';
 
   @override
-  String dirWaitingFor(String label) {
+  String nsWaitingFor(String label) {
     return 'Warten auf $label…';
   }
 
   @override
-  String get dirCodeTitle => 'Code prüfen';
+  String get nsCodeTitle => 'Code prüfen';
 
   @override
-  String dirCodeLead(String label) {
+  String nsCodeLead(String label) {
     return '$label zeigt vier Bilder. Vergleichen Sie sie mit diesen.';
   }
 
   @override
-  String get dirCodeLabel => 'Die vier Bilder';
+  String get nsCodeLabel => 'Die vier Bilder';
 
   @override
-  String dirJoin(String name, String label) {
+  String nsJoin(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': 'Über $label bezahlt werden',
       'other': 'Als $name bezahlt werden',
@@ -20598,10 +20598,10 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get dirNotNow => 'Jetzt nicht';
+  String get nsNotNow => 'Jetzt nicht';
 
   @override
-  String dirJoinTitle(String name, String label) {
+  String nsJoinTitle(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': 'Über $label bezahlt werden?',
       'other': 'Als $name bezahlt werden?',
@@ -20610,7 +20610,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String dirJoinBody(String name, String label, String host) {
+  String nsJoinBody(String name, String label, String host) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none':
           'Wer $label nutzt, kann Sie dort bezahlen. Zahlungen kommen über $host',
@@ -20621,12 +20621,12 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String dirJoinInfo(String label) {
+  String nsJoinInfo(String label) {
     return '$label erhält eine Zahlungsadresse und einen Code, beide nur dafür erstellt. Der Dienst kann weder Ihr Guthaben sehen noch Coins bewegen oder Zahlungen lesen. Zahlungen kommen an, solange Epic Cash geöffnet ist. Jederzeit verlassen unter Kontakte › $label.';
   }
 
   @override
-  String dirJoinedNotice(String name, String label) {
+  String nsJoinedNotice(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': 'Über $label bezahlt werden: an',
       'other': 'Als $name bezahlt werden: an',
@@ -20635,7 +20635,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String dirLeftNotice(String name, String label) {
+  String nsLeftNotice(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': 'Über $label bezahlt werden: aus',
       'other': 'Als $name bezahlt werden: aus',
@@ -20644,7 +20644,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String dirJoined(String name, String label, String date) {
+  String nsJoined(String name, String label, String date) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': 'Über $label bezahlt werden · seit $date',
       'other': 'Als $name bezahlt werden · seit $date',
@@ -20653,32 +20653,32 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get dirNotListed => 'Aus';
+  String get nsNotListed => 'Aus';
 
   @override
-  String dirNotListedBody(String label) {
+  String nsNotListedBody(String label) {
     return '$label hat Ihren Namen entfernt.';
   }
 
   @override
-  String get dirNotJoined => 'Aus';
+  String get nsNotJoined => 'Aus';
 
   @override
-  String get dirJoinAgain => 'Wieder einschalten';
+  String get nsJoinAgain => 'Wieder einschalten';
 
   @override
-  String get dirListingCode => 'Bilder für Ihren Namen';
+  String get nsListingCode => 'Bilder für Ihren Namen';
 
   @override
-  String dirListingCodeInfo(String label) {
+  String nsListingCodeInfo(String label) {
     return 'Vier Bilder, erstellt aus der Wallet, an die Ihr Name Zahlungen leitet. $label kann dieselben vier zum Vergleich zeigen.';
   }
 
   @override
-  String get dirLeave => 'Verlassen';
+  String get nsLeave => 'Verlassen';
 
   @override
-  String dirRemoveTooTitle(String label) {
+  String nsRemoveTooTitle(String label) {
     return '$label auch entfernen?';
   }
 

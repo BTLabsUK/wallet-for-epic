@@ -17,9 +17,9 @@ import 'dart:typed_data';
 import '../../advanced.dart' show NetworkMode;
 import '../../devices/device_model.dart' show DeviceBook, HoldState;
 import '../../devices/device_service.dart' show DeviceHost, ForwardedNotice;
-import '../../directory/base58.dart' show netMainnet;
-import '../../directory/directory_service.dart' show DirectoryHost;
-import '../../directory/receipts.dart' show LinkPaymentRecords, MemoryLinkPayments;
+import '../../name_service/base58.dart' show netMainnet;
+import '../../name_service/name_service_service.dart' show NameServiceHost;
+import '../../name_service/receipts.dart' show LinkPaymentRecords, MemoryLinkPayments;
 import '../../wallet_service.dart' show OutputCategory, WalletOutput, WalletOutputStatus, fakeAddressSignature;
 import '../../network.dart' show EpicboxRelay;
 import '../../models.dart' show epicboxKey, KernelLocation, StoreMigrationProgress, DeviceEnding, FinishedPayment, InvoiceEvent, TxEntry, PairingCaps, PairingParty, PairingSlate, PairingState, SealMode, SlatePurpose, maxMinimumConfirmations, minMinimumConfirmations, UnmatchedNotice;
@@ -32,8 +32,8 @@ import '../../seed_contacts.dart';
 import '../../slate_files.dart' show responseFileName, sendFileName;
 import '../../finished_payment.dart' show readFinishedPayment;
 import '../../wallet_service.dart' show FakeListingKeys, FakeWalletSession, PaymentsDrainReport, WalletError, WalletErrorKind, onionAddressFormat;
-import '../../directory/directory.dart' show DirectoryMembership, DirectoryVerifier, LinkMemory, LinkOutcome, Payreq, openLink, refusingVerifier;
-import '../../history/directory_pins.dart';
+import '../../name_service/name_service.dart' show NameServiceMembership, NameServiceVerifier, LinkMemory, LinkOutcome, Payreq, openLink, refusingVerifier;
+import '../../history/name_service_pins.dart';
 import '../../history/meta_store.dart' show Meta;
 import '../../scan/scan_router.dart' show PaymentLink;
 import 'api.dart';
@@ -446,19 +446,19 @@ class MockDeskWallet implements DeskWalletApi {
   }
 
   /// The signature check the links use; tests give one that accepts the vectors.
-  DirectoryVerifier linkVerifier = refusingVerifier;
+  NameServiceVerifier linkVerifier = refusingVerifier;
   /// What the wallet remembers of link payments: tests seed pins here.
   final Meta linkMeta = Meta();
 
   @override
-  Future<LinkOutcome> openPaymentLink(PaymentLink link, {required DirectoryMembership membership, required int nowSeconds}) => openLink(
+  Future<LinkOutcome> openPaymentLink(PaymentLink link, {required NameServiceMembership membership, required int nowSeconds}) => openLink(
     request: link.request,
     error: link.error,
     net: netMainnet,
     nowSeconds: nowSeconds,
     verifier: linkVerifier,
     membership: membership,
-    memory: LinkMemory(pins: {...linkMeta.directoryPins}, paidRequests: {...linkMeta.paidRequests}),
+    memory: LinkMemory(pins: {...linkMeta.nameServicePins}, paidRequests: {...linkMeta.paidRequests}),
   );
 
   /// The payments recorded from links, for tests.
@@ -619,7 +619,7 @@ class MockDeskWallet implements DeskWalletApi {
   DeviceHost? deviceHost({required bool Function() online}) => _MockDeviceHost(pairing, online, walletOutputs);
 
   @override
-  DirectoryHost? directoryHost({required bool Function() online}) => _MockDirectoryHost(pairing, online);
+  NameServiceHost? nameServiceHost({required bool Function() online}) => _MockNameServiceHost(pairing, online);
 
   /// The canned outputs as the core lists them, for linked devices.
   Future<List<WalletOutput>> walletOutputs() async => [
@@ -1635,8 +1635,8 @@ class MockDeskWallet implements DeskWalletApi {
 }
 
 /// The mock's linked-devices host: the prototype's pairing engine, no coins of its own.
-class _MockDirectoryHost implements DirectoryHost {
-  _MockDirectoryHost(this.pairing, this._online);
+class _MockNameServiceHost implements NameServiceHost {
+  _MockNameServiceHost(this.pairing, this._online);
 
   @override
   final FakePairing pairing;
@@ -1650,17 +1650,17 @@ class _MockDirectoryHost implements DirectoryHost {
   int get net => netMainnet;
 
   @override
-  DirectoryVerifier get verifier => refusingVerifier;
+  NameServiceVerifier get verifier => refusingVerifier;
 
   @override
-  Future<String> listingAddress(String dkeyHex, int generation) => _keys.listingAddress(dkeyHex, generation);
+  Future<String> listingAddress(String serviceKeyHex, int generation) => _keys.listingAddress(serviceKeyHex, generation);
 
   @override
-  Future<Uint8List> sign(String dkeyHex, int generation, String domain, Uint8List message) =>
-      _keys.signWithListing(dkeyHex, generation, domain, message);
+  Future<Uint8List> sign(String serviceKeyHex, int generation, String domain, Uint8List message) =>
+      _keys.signWithListing(serviceKeyHex, generation, domain, message);
 
   @override
-  Future<PaymentsDrainReport> drain(String dkeyHex, int generation) => _keys.drainListing(dkeyHex, generation);
+  Future<PaymentsDrainReport> drain(String serviceKeyHex, int generation) => _keys.drainListing(serviceKeyHex, generation);
 }
 
 class _MockDeviceHost implements DeviceHost {

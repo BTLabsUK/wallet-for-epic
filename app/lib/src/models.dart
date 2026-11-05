@@ -3771,7 +3771,7 @@ enum ContactCheckOutcome {
 
 /// One opaque payload a pairing received (`contact_post_payload` on the other side), kept by
 /// the engine until [PairingApi.ackPayloads] takes it off. A private pairing (linked devices)
-/// carries them, and a contact pairing once Paired or Verified (a directory's); the engine
+/// carries them, and a contact pairing once Paired or Verified (a name service's); the engine
 /// reads nothing in [bytes].
 class PairingPayload {
   const PairingPayload({required this.id, required this.pairingId, required this.bytes, required this.receivedAt});

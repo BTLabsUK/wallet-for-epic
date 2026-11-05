@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: Apache-2.0
-// Live: the directory vectors (docs/design/directory-vectors.json) through the real LEPIC
+// Live: the name service vectors (docs/design/name-service-vectors.json) through the real LEPIC
 // signature check, `verifyAddressSignatureAt`, instead of the unit test's oracle. Needs the
 // shipped Linux library (no mock build is needed):
 //
-//   WFE_LEPIC_LIB=<folder>/liblepic_ffi.so flutter test test/directory_wire_live_test.dart
+//   WFE_LEPIC_LIB=<folder>/liblepic_ffi.so flutter test test/name_service_wire_live_test.dart
 //
 // Without it it is skipped.
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:epic_wallet/src/directory/directory.dart';
+import 'package:epic_wallet/src/name_service/name_service.dart';
 import 'package:epic_wallet/src/lepic_wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lepic/lepic.dart' as lepic;
 
-import 'directory_vectors_support.dart';
+import 'name_service_vectors_support.dart';
 
 final String? _lib = Platform.environment['WFE_LEPIC_LIB'];
 
@@ -60,7 +60,7 @@ void main() {
         if (error == null) {
           await run;
         } else {
-          await expectLater(run, throwsA(isA<DirectoryException>().having((x) => x.error.wireName, 'error', error)));
+          await expectLater(run, throwsA(isA<NameServiceException>().having((x) => x.error.wireName, 'error', error)));
         }
       }, skip: skip);
     }

@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Payment links for the Send tests: the real link texts of the directory vectors, a verifier
+/// Payment links for the Send tests: the real link texts of the name service vectors, a verifier
 /// that answers from the signatures the vector file lists, and a membership to set.
 library;
 
 import 'dart:typed_data';
 
-import 'package:epic_wallet/src/directory/directory.dart';
+import 'package:epic_wallet/src/name_service/name_service.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 
-import '../directory_vectors_support.dart';
+import '../name_service_vectors_support.dart';
 
 /// Now for the vector requests: the unix second the vectors were made for.
 final DateTime linkNow = DateTime.fromMillisecondsSinceEpoch(1800000000 * 1000);
@@ -53,18 +53,18 @@ class VectorWalletService extends FakeWalletService {
       listed.contains(callKey(publicKeyText, domain, message, der));
 }
 
-class FakeMembership implements DirectoryMembership {
+class FakeMembership implements NameServiceMembership {
   FakeMembership({this.labels = const {}, this.listingKeys = const {}});
 
   final Map<String, String> labels;
   final Map<String, String> listingKeys;
 
   @override
-  String? labelFor(String dkeyHex) => labels[dkeyHex];
+  String? labelFor(String serviceKeyHex) => labels[serviceKeyHex];
 
   @override
-  String? listingKeyFor(String dkeyHex) => listingKeys[dkeyHex];
+  String? listingKeyFor(String serviceKeyHex) => listingKeys[serviceKeyHex];
 }
 
-/// The directory of the vector requests (their `dkey`).
-const String vectorDkey = '027bc02d1c66a7b3a887de49f7770b16e846a6b7de832c309aa9c1dbaa125f4816';
+/// The name service of the vector requests (their `serviceKey`).
+const String vectorServiceKey = '027bc02d1c66a7b3a887de49f7770b16e846a6b7de832c309aa9c1dbaa125f4816';

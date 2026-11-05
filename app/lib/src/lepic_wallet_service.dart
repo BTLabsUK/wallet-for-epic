@@ -17,9 +17,9 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
 import 'package:lepic/lepic.dart' as lepic;
 import 'package:meta/meta.dart' show visibleForTesting;
 
-import 'directory/pins.dart' show LinkMemory;
-import 'directory/link_payments.dart' show LinkPaymentRecords;
-import 'directory/wire.dart' show Payreq, fromHex, toHex;
+import 'name_service/pins.dart' show LinkMemory;
+import 'name_service/link_payments.dart' show LinkPaymentRecords;
+import 'name_service/wire.dart' show Payreq, fromHex, toHex;
 import 'history/export.dart';
 import 'history/meta_store.dart';
 import 'history/wallet_history.dart';
@@ -3468,17 +3468,17 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
   Future<PaymentsDrainReport?> drainEpicboxAt({required String domain, required int port}) async => null;
 
   @override
-  Future<String> listingAddress(String dkeyHex, int generation) =>
-      _guard(() => _wallet.epicboxAddressAt(dkey: dkeyHex, generation: generation));
+  Future<String> listingAddress(String serviceKeyHex, int generation) =>
+      _guard(() => _wallet.epicboxAddressAt(dkey: serviceKeyHex, generation: generation));
 
   @override
-  Future<Uint8List> signWithListing(String dkeyHex, int generation, String domain, Uint8List message) =>
-      _guard(() async => fromHex(await _wallet.signWithAddressKeyAt(dkey: dkeyHex, generation: generation, domain: domain, message: message)));
+  Future<Uint8List> signWithListing(String serviceKeyHex, int generation, String domain, Uint8List message) =>
+      _guard(() async => fromHex(await _wallet.signWithAddressKeyAt(dkey: serviceKeyHex, generation: generation, domain: domain, message: message)));
 
   @override
-  Future<PaymentsDrainReport> drainListing(String dkeyHex, int generation) => _epicboxGuard('listing drain', () async {
+  Future<PaymentsDrainReport> drainListing(String serviceKeyHex, int generation) => _epicboxGuard('listing drain', () async {
     _watchEvents();
-    final report = await _wallet.drainEpicboxAt(dkey: dkeyHex, generation: generation);
+    final report = await _wallet.drainEpicboxAt(dkey: serviceKeyHex, generation: generation);
     await _sweep();
     return PaymentsDrainReport(received: report.received, finalized: report.finalized, bounced: report.bounced);
   });

@@ -4,9 +4,9 @@ library;
 
 import 'dart:typed_data';
 
-import 'package:epic_wallet/src/directory/pins.dart' show LinkMemory;
-import 'package:epic_wallet/src/directory/receipts.dart' show LinkPaymentRecords;
-import 'package:epic_wallet/src/directory/wire.dart' show Payreq;
+import 'package:epic_wallet/src/name_service/pins.dart' show LinkMemory;
+import 'package:epic_wallet/src/name_service/receipts.dart' show LinkPaymentRecords;
+import 'package:epic_wallet/src/name_service/wire.dart' show Payreq;
 import 'package:epic_wallet/src/wallet_service.dart';
 
 /// Passes every call to the session it wraps.
@@ -19,14 +19,14 @@ class DelegatingWalletSession implements WalletSession, ListingKeys {
   void dispose() => _inner.dispose();
 
   @override
-  Future<String> listingAddress(String dkeyHex, int generation) => _inner.listingKeys!.listingAddress(dkeyHex, generation);
+  Future<String> listingAddress(String serviceKeyHex, int generation) => _inner.listingKeys!.listingAddress(serviceKeyHex, generation);
 
   @override
-  Future<Uint8List> signWithListing(String dkeyHex, int generation, String domain, Uint8List message) =>
-      _inner.listingKeys!.signWithListing(dkeyHex, generation, domain, message);
+  Future<Uint8List> signWithListing(String serviceKeyHex, int generation, String domain, Uint8List message) =>
+      _inner.listingKeys!.signWithListing(serviceKeyHex, generation, domain, message);
 
   @override
-  Future<PaymentsDrainReport> drainListing(String dkeyHex, int generation) => _inner.listingKeys!.drainListing(dkeyHex, generation);
+  Future<PaymentsDrainReport> drainListing(String serviceKeyHex, int generation) => _inner.listingKeys!.drainListing(serviceKeyHex, generation);
 
   @override
   StoreOpenOutcome get storeOpen => _inner.storeOpen;

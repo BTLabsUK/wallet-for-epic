@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The shared directory test vectors (`docs/design/directory-vectors.json`), read from the repo,
-/// and the walk both directory wire tests share.
+/// The shared name service test vectors (`docs/design/name-service-vectors.json`), read from the repo,
+/// and the walk both name service wire tests share.
 library;
 
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:epic_wallet/src/directory/directory.dart';
+import 'package:epic_wallet/src/name_service/name_service.dart';
 
 /// The vector file, from the app folder tests run in.
 Map<String, Object?> loadVectors() =>
-    jsonDecode(File('../docs/design/directory-vectors.json').readAsStringSync()) as Map<String, Object?>;
+    jsonDecode(File('../docs/design/name-service-vectors.json').readAsStringSync()) as Map<String, Object?>;
 
 List<Map<String, Object?>> vectorList(Map<String, Object?> v, String key) =>
     [for (final e in v[key]! as List<Object?>) e! as Map<String, Object?>];
@@ -65,13 +65,13 @@ Set<String> entryCalls(Map<String, Object?> v, Map<String, Object?> entry) {
 }
 
 /// What a bad entry or a good one is run through: the decoder, then the verification its kind
-/// has, with the entry's context. Throws [DirectoryException] as the wallet would.
+/// has, with the entry's context. Throws [NameServiceException] as the wallet would.
 Future<Object> runEntry(
   String kind,
   Uint8List? raw,
   String? text,
   Map<String, Object?> ctx,
-  DirectoryVerifier verifier,
+  NameServiceVerifier verifier,
 ) async {
   final net = ctx['net']! as int;
   final now = ctx['now']! as int;
@@ -88,9 +88,9 @@ Future<Object> runEntry(
       );
     case 'payload':
       return verifyPayload(
-        DirectoryPayload.decode(raw!),
+        NameServicePayload.decode(raw!),
         net: net,
-        dkey: hexOrNull(ctx['dkey']),
+        serviceKey: hexOrNull(ctx['dkey']),
         bind: hexOrNull(ctx['bind']),
         verifier: verifier,
       );

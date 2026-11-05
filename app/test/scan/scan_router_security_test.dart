@@ -758,7 +758,7 @@ void main() {
         r'''^(?:import|export)\s+['"]([^'"]+)['"]''',
         multiLine: true,
       ).allMatches(source).map((m) => m[1]!).toList();
-      expect(imports, ['dart:convert', '../amount.dart', '../bip39_words.dart', '../directory/wire.dart', '../payment_method.dart', '../recipient.dart']);
+      expect(imports, ['dart:convert', '../amount.dart', '../bip39_words.dart', '../name_service/wire.dart', '../payment_method.dart', '../recipient.dart']);
       for (final banned in [
         'dart:io',
         'dart:ffi',

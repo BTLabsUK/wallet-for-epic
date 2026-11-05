@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
-import '../directory/pins.dart' show LinkPaymentRec;
-import '../directory/receipts.dart';
+import '../name_service/pins.dart' show LinkPaymentRec;
+import '../name_service/receipts.dart';
 import '../recipient.dart' show parseRecipient;
 import '../scan/scan_checks.dart' show CodeOrigin;
 import '../scan/scan_router.dart' show PaymentRequest;
@@ -778,7 +778,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
         : null;
     // A payment made from a payment link: its payee's silent rows and the optional receipt.
     final linkRec = tx.slateId == null ? null : ref.watch(linkPaymentProvider(tx.slateId!));
-    final linkName = linkRec == null ? null : linkPayeeName(ref.watch(directoryReceiptsProvider), linkRec);
+    final linkName = linkRec == null ? null : linkPayeeName(ref.watch(nameServiceReceiptsProvider), linkRec);
     final linkOffer = linkRec != null && mailboxName == null && outgoing && tx.status == TxStatus.awaitingRecipient && !tx.undelivered
         ? switch (mailboxSendStage(txSentAt(tx), now)) {
             MailboxSendStage.waiting => null,

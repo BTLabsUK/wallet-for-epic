@@ -18,12 +18,12 @@ const int featureStatusNotices = 1 << 3;
 /// Bit 4 (linked-device forwarding) is reserved and never claimed: both linked devices run the
 /// same release, so forwarding needs no capability check.
 const int featureLinkedDevicesReserved = 1 << 4;
-const int featureDirectory = 1 << 5;
+const int featureNameService = 1 << 5;
 
 /// The host bits (4 and 5) this build claims to other LEPIC wallets: one constant of the build,
 /// the same for every user, never a setting (LEPIC's `WalletConfig.host_features`). Bit 4 stays
-/// unclaimed (above); bit 5 says this wallet can pair with a directory.
-const int appHostFeatures = featureDirectory;
+/// unclaimed (above); bit 5 says this wallet can pair with a name service.
+const int appHostFeatures = featureNameService;
 
 /// A key counts as LEPIC for payments-address traffic only while its last marked message is
 /// this young; an unasked send also needs no unmarked message this young.
@@ -158,9 +158,9 @@ bool mayPairRequest(PeerCompat? c, Relationship r, DateTime now) =>
 bool mayOfferPair(PeerCompat? c, Relationship r, DateTime now) =>
     r.kind == RelationshipKind.contact && mayPairRequest(c, r, now);
 
-/// May a directory payload go to the directory whose pairing claims [directoryClaimed].
-bool mayDirectoryPayload(int directoryClaimed, Relationship r) =>
-    directoryClaimed & featureDirectory != 0 && r.isPaired;
+/// May a name service payload go to the name service whose pairing claims [nameServiceClaimed].
+bool mayNameServicePayload(int nameServiceClaimed, Relationship r) =>
+    nameServiceClaimed & featureNameService != 0 && r.isPaired;
 
 /// How an unanswered mailbox send stands, by the time since it was sent.
 MailboxSendStage mailboxSendStage(DateTime sentAt, DateTime now) {

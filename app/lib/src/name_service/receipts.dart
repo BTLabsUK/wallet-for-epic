@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The optional receipt for a payment made from a payment link: a type 5 payload posted to the
-/// directory the card came from, once per stage, only when the user ticks the line. The directory
-/// service implements [DirectoryReceipts]; until then the default tells nothing, so no receipt
+/// name service the card came from, once per stage, only when the user ticks the line. The name service
+/// service implements [NameServiceReceipts]; until then the default tells nothing, so no receipt
 /// line shows.
 library;
 
@@ -15,33 +15,33 @@ import 'wire.dart';
 
 export 'link_payments.dart';
 
-/// The wallet's way to the directories it is paired with.
-abstract class DirectoryReceipts {
-  /// Whether a receipt can reach the directory [dkeyHex] (a pairing exists and is usable).
-  bool canTell(String dkeyHex);
+/// The wallet's way to the name services it is paired with.
+abstract class NameServiceReceipts {
+  /// Whether a receipt can reach the name service [serviceKeyHex] (a pairing exists and is usable).
+  bool canTell(String serviceKeyHex);
 
-  /// The directory's name for the card, shown as the payee; null when it has none.
-  String? labelFor(String dkeyHex);
+  /// The name service's name for the card, shown as the payee; null when it has none.
+  String? labelFor(String serviceKeyHex);
 
-  /// Posts the payload bytes to the directory contact. True when it was handed over.
-  Future<bool> post(String dkeyHex, Uint8List payload);
+  /// Posts the payload bytes to the name service contact. True when it was handed over.
+  Future<bool> post(String serviceKeyHex, Uint8List payload);
 }
 
-/// Tells nothing: no directory is paired.
-class NoDirectoryReceipts implements DirectoryReceipts {
-  const NoDirectoryReceipts();
+/// Tells nothing: no name service is paired.
+class NoNameServiceReceipts implements NameServiceReceipts {
+  const NoNameServiceReceipts();
 
   @override
-  bool canTell(String dkeyHex) => false;
+  bool canTell(String serviceKeyHex) => false;
 
   @override
-  String? labelFor(String dkeyHex) => null;
+  String? labelFor(String serviceKeyHex) => null;
 
   @override
-  Future<bool> post(String dkeyHex, Uint8List payload) async => false;
+  Future<bool> post(String serviceKeyHex, Uint8List payload) async => false;
 }
 
-final directoryReceiptsProvider = Provider<DirectoryReceipts>((ref) => const NoDirectoryReceipts());
+final nameServiceReceiptsProvider = Provider<NameServiceReceipts>((ref) => const NoNameServiceReceipts());
 
 final linkPaymentRecordsProvider = Provider<LinkPaymentRecords>((ref) => MemoryLinkPayments());
 
@@ -72,10 +72,10 @@ class ReceiptLineState {
   final bool told;
 }
 
-/// The line to show for [rec], or null when none: the directory cannot be told, or the payment
+/// The line to show for [rec], or null when none: the name service cannot be told, or the payment
 /// is not at a stage yet. [posted]: the payment was finalized and posted.
-ReceiptLineState? receiptLineOf(DirectoryReceipts receipts, LinkPaymentRec? rec, {required bool posted}) {
-  if (rec == null || !receipts.canTell(rec.dkey)) return null;
+ReceiptLineState? receiptLineOf(NameServiceReceipts receipts, LinkPaymentRec? rec, {required bool posted}) {
+  if (rec == null || !receipts.canTell(rec.serviceKey)) return null;
   final stage = posted ? 2 : 1;
   return ReceiptLineState(stage: stage, told: rec.told.contains(stage));
 }
@@ -84,16 +84,16 @@ final Set<String> _inFlight = {};
 
 /// Posts the receipt of [stage] for the payment [slateId] once. [at] is the unix second of the
 /// stage (sent: the payment's, posted: when it went to the network). False when it was not
-/// posted: no record, not tellable, already told, a post under way, or the directory refused.
+/// posted: no record, not tellable, already told, a post under way, or the name service refused.
 Future<bool> tellPayee({
-  required DirectoryReceipts receipts,
+  required NameServiceReceipts receipts,
   required LinkPaymentRecords records,
   required String slateId,
   required int stage,
   required int at,
 }) async {
   final rec = records.of(slateId);
-  if (rec == null || !receipts.canTell(rec.dkey) || rec.told.contains(stage)) return false;
+  if (rec == null || !receipts.canTell(rec.serviceKey) || rec.told.contains(stage)) return false;
   final flight = '$slateId:$stage';
   if (!_inFlight.add(flight)) return false;
   try {
@@ -103,7 +103,7 @@ Future<bool> tellPayee({
       amount: rec.amount,
       at: at,
     );
-    if (!await receipts.post(rec.dkey, payload)) return false;
+    if (!await receipts.post(rec.serviceKey, payload)) return false;
     await records.markTold(slateId, stage);
     return true;
   } finally {
@@ -115,9 +115,9 @@ Future<bool> tellPayee({
 /// 24 hour and 7 day words still show.
 const String linkPayeeUnnamed = '';
 
-/// The name to show for the payee: the directory's, else the one on the link.
-String? linkPayeeName(DirectoryReceipts receipts, LinkPaymentRec rec) =>
-    receipts.labelFor(rec.dkey) ?? rec.label;
+/// The name to show for the payee: the name service's, else the one on the link.
+String? linkPayeeName(NameServiceReceipts receipts, LinkPaymentRec rec) =>
+    receipts.labelFor(rec.serviceKey) ?? rec.label;
 
 /// The unix second a receipt of [stage] carries: the payment's for `1`, the time it went to the
 /// network (the finalize) for `2`.

@@ -47,15 +47,15 @@ final class LinkRefused extends LinkOutcome {
 
 /// A verified link, ready to fill Send.
 final class LinkOpened extends LinkOutcome {
-  const LinkOpened({required this.request, required this.standing, this.directoryLabel, this.payeeLabel});
+  const LinkOpened({required this.request, required this.standing, this.nameServiceLabel, this.payeeLabel});
 
   final Payreq request;
   final LinkStanding standing;
 
-  /// The directory contact's label, when the directory is one this wallet uses.
-  final String? directoryLabel;
+  /// The name service contact's label, when the name service is one this wallet uses.
+  final String? nameServiceLabel;
 
-  /// The request's `@name`, shown only when the directory is one this wallet uses.
+  /// The request's `@name`, shown only when the name service is one this wallet uses.
   final String? payeeLabel;
 
   /// This request was paid before ([LinkStanding.paidBefore]): Send asks first.
@@ -69,45 +69,45 @@ final class LinkOpened extends LinkOutcome {
 /// `malformed`). [net] is the wallet's network, [nowSeconds] unix time.
 Future<LinkOutcome> openLink({
   Payreq? request,
-  DirectoryError? error,
+  NameServiceError? error,
   required int net,
   required int nowSeconds,
-  required DirectoryVerifier verifier,
-  required DirectoryMembership membership,
+  required NameServiceVerifier verifier,
+  required NameServiceMembership membership,
   required LinkMemory memory,
 }) async {
   if (request == null) return const LinkRefused(LinkRefusal.notALink);
-  final dkeyHex = toHex(request.card.dkey);
-  final forKeyText = membership.listingKeyFor(dkeyHex);
+  final serviceKeyHex = toHex(request.card.serviceKey);
+  final forKeyText = membership.listingKeyFor(serviceKeyHex);
   final forKey = forKeyText == null ? null : parseEpicboxKeyText(forKeyText)?.$2;
   try {
     await verifyPayreq(request, net: net, nowSeconds: nowSeconds, listingKey: forKey, verifier: verifier);
-  } on DirectoryException catch (e) {
+  } on NameServiceException catch (e) {
     return switch (e.error) {
-      DirectoryError.network => LinkRefused(LinkRefusal.network, madeFor: request.net),
-      DirectoryError.signature => const LinkRefused(LinkRefusal.changed),
-      DirectoryError.expired => LinkRefused(
+      NameServiceError.network => LinkRefused(LinkRefusal.network, madeFor: request.net),
+      NameServiceError.signature => const LinkRefused(LinkRefusal.changed),
+      NameServiceError.expired => LinkRefused(
         LinkRefusal.expired,
         expiredAt: DateTime.fromMillisecondsSinceEpoch(request.expires.toInt() * 1000),
       ),
-      DirectoryError.forOther => const LinkRefused(LinkRefusal.forOther),
+      NameServiceError.forOther => const LinkRefused(LinkRefusal.forOther),
       _ => const LinkRefused(LinkRefusal.notALink),
     };
   }
-  final label = membership.labelFor(dkeyHex);
+  final label = membership.labelFor(serviceKeyHex);
   final inUse = label != null || forKeyText != null;
   final standing = linkStanding(
     request,
-    pinnedDkeys: inUse ? {dkeyHex} : const {},
+    pinnedServiceKeys: inUse ? {serviceKeyHex} : const {},
     pins: memory.pins,
     paidRequests: memory.paidRequests,
     nowSeconds: nowSeconds,
   );
-  final shown = standing.trust == DirectoryTrust.directoryYouUse;
+  final shown = standing.trust == NameServiceTrust.nameServiceYouUse;
   return LinkOpened(
     request: request,
     standing: standing,
-    directoryLabel: shown ? label : null,
+    nameServiceLabel: shown ? label : null,
     payeeLabel: shown ? request.label : null,
   );
 }

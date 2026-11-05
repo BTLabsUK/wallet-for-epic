@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-/// The directory wire format (docs/design/directory-wire.md): the TLV codec of RFC 0002 3.3,
-/// the listing card, the payment request and the directory payloads. Decoding checks structure
+/// The name service wire format (docs/design/name-service-wire.md): the TLV codec of RFC 0002 3.3,
+/// the listing card, the payment request and the name service payloads. Decoding checks structure
 /// only (errors `checksum` and `malformed`); [verify.dart] checks network, signatures, expiry
 /// and the rest, in the spec's order. Pure Dart: no I/O, no wallet.
 library;
@@ -10,7 +10,7 @@ import 'dart:typed_data';
 import 'base58.dart';
 
 /// The named errors of the spec, as the vectors write them (`for_other` is [forOther]).
-enum DirectoryError {
+enum NameServiceError {
   checksum,
   malformed,
   network,
@@ -18,24 +18,24 @@ enum DirectoryError {
   expired,
   forOther,
   bind,
-  dkey;
+  serviceKey;
 
   /// The name in the spec and the vectors.
   String get wireName => this == forOther ? 'for_other' : name;
 }
 
-class DirectoryException implements Exception {
-  const DirectoryException(this.error);
+class NameServiceException implements Exception {
+  const NameServiceException(this.error);
 
-  final DirectoryError error;
+  final NameServiceError error;
 
   @override
-  String toString() => 'DirectoryException: ${error.wireName}';
+  String toString() => 'NameServiceException: ${error.wireName}';
 }
 
-Never _fail(DirectoryError e) => throw DirectoryException(e);
+Never _fail(NameServiceError e) => throw NameServiceException(e);
 
-Never _malformed() => _fail(DirectoryError.malformed);
+Never _malformed() => _fail(NameServiceError.malformed);
 
 String toHex(List<int> bytes) =>
     bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
@@ -357,7 +357,7 @@ bool _compressed(Uint8List key) => key[0] == 2 || key[0] == 3;
 class ListingCard extends WireRecord {
   ListingCard._(super.d) : super._();
 
-  /// Reads a card. Throws [DirectoryException] `malformed`.
+  /// Reads a card. Throws [NameServiceException] `malformed`.
   factory ListingCard.decode(Uint8List raw) {
     final d = _decodeStruct(raw, _cardSchema, true);
     final f = d.fields;
@@ -377,8 +377,8 @@ class ListingCard extends WireRecord {
   /// `key@relay[:port]`.
   String get address => _text('address');
 
-  /// The directory this card is for (33 bytes).
-  Uint8List get dkey => _bytes('dkey');
+  /// The name service this card is for (33 bytes).
+  Uint8List get serviceKey => _bytes('dkey');
   Uint8List get handle => _bytes('handle');
   int get seq => _int('seq');
   BigInt get issued => _big('issued');
@@ -394,7 +394,7 @@ class ListingCard extends WireRecord {
 const int kindPayerMade = 1;
 const int kindPayeeRequest = 2;
 
-/// A payment request (domain `epic-payreq/1`, signed by the card's `dkey`).
+/// A payment request (domain `epic-payreq/1`, signed by the card's `serviceKey`).
 class Payreq extends WireRecord {
   Payreq._(super.d) : super._();
 
@@ -432,7 +432,7 @@ class Payreq extends WireRecord {
   BigInt get expires => _big('expires');
   int get kind => _int('kind');
 
-  /// The directory's claim, `@` and up to 32 of `[A-Za-z0-9_]`, or null when absent or not
+  /// The name service's claim, `@` and up to 32 of `[A-Za-z0-9_]`, or null when absent or not
   /// of that form. Show it only when the wallet can match it.
   String? get label => _d.fields['label'] as String?;
 
@@ -446,10 +446,10 @@ class Payreq extends WireRecord {
   }
 }
 
-/// Anything the wallet receives over a directory pairing, by its type. Decode with
-/// [DirectoryPayload.decode].
-sealed class DirectoryPayload extends WireRecord {
-  DirectoryPayload._(super.d) : super._();
+/// Anything the wallet receives over a name service pairing, by its type. Decode with
+/// [NameServicePayload.decode].
+sealed class NameServicePayload extends WireRecord {
+  NameServicePayload._(super.d) : super._();
 
   int get type;
 
@@ -458,7 +458,7 @@ sealed class DirectoryPayload extends WireRecord {
 
   /// Reads a payload. A type that is not in the table gives [DroppedPayload]: acknowledged,
   /// not parsed. Throws `malformed`.
-  static DirectoryPayload decode(Uint8List raw) {
+  static NameServicePayload decode(Uint8List raw) {
     final items = _parseTlv(raw);
     if (items.isEmpty || items.first.$1 != 1 || items.first.$2.length != 1) _malformed();
     final t = items.first.$2[0];
@@ -470,7 +470,7 @@ sealed class DirectoryPayload extends WireRecord {
     final f = d.fields;
     final net = f['net'];
     if (net != null && net != 0 && net != 1) _malformed();
-    if (t == 1 && ((f['flags'] as int?) ?? 0) & ~dirHelloNoPayments != 0) _malformed();
+    if (t == 1 && ((f['flags'] as int?) ?? 0) & ~nsHelloNoPayments != 0) _malformed();
     if (t == 5 && f['stage'] != 1 && f['stage'] != 2) _malformed();
     for (final name in const ['dkey']) {
       final k = f[name];
@@ -490,10 +490,10 @@ sealed class DirectoryPayload extends WireRecord {
 }
 
 /// Flags bit 0 of a hello: the contact takes no payments. Any other bit is `malformed`.
-const int dirHelloNoPayments = 0x01;
+const int nsHelloNoPayments = 0x01;
 
-/// Type 1, directory to wallet, signed by `dkey` under `epic-dir-hello/1`.
-final class DirHello extends DirectoryPayload {
+/// Type 1, name service to wallet, signed by `serviceKey` under `epic-dir-hello/1`.
+final class DirHello extends NameServicePayload {
   DirHello._(super.d) : super._();
 
   @override
@@ -502,10 +502,10 @@ final class DirHello extends DirectoryPayload {
   List<_Field> get _schema => _payloadSchemas[1]!.$1;
 
   int get net => _int('net');
-  Uint8List get dkey => _bytes('dkey');
+  Uint8List get serviceKey => _bytes('dkey');
   Uint8List get handle => _bytes('handle');
 
-  /// The four SAS-table indexes the directory computed for this pairing.
+  /// The four SAS-table indexes the name service computed for this pairing.
   Uint8List get bind => _bytes('bind');
   BigInt get issued => _big('issued');
 
@@ -513,15 +513,15 @@ final class DirHello extends DirectoryPayload {
   int get flags => (_d.fields['flags'] as int?) ?? 0;
 
   /// This contact takes no payments (flags bit 0).
-  bool get takesNoPayments => flags & dirHelloNoPayments != 0;
+  bool get takesNoPayments => flags & nsHelloNoPayments != 0;
 
   /// The user's own name at this contact, `@` and up to 32 of `[A-Za-z0-9_]`: what people pay
   /// the user as. Null when absent or not of that form (the hello still verifies).
   String? get label => _d.fields['label'] as String?;
 }
 
-/// Type 2, wallet to directory: a card, signed by its own key.
-final class ListingPayload extends DirectoryPayload {
+/// Type 2, wallet to name service: a card, signed by its own key.
+final class ListingPayload extends NameServicePayload {
   ListingPayload._(super.d) : super._();
 
   @override
@@ -532,8 +532,8 @@ final class ListingPayload extends DirectoryPayload {
   ListingCard get card => _d.fields['card']! as ListingCard;
 }
 
-/// Type 3, wallet to directory, signed by the listing key under `epic-unlist/1`.
-final class UnlistPayload extends DirectoryPayload {
+/// Type 3, wallet to name service, signed by the listing key under `epic-unlist/1`.
+final class UnlistPayload extends NameServicePayload {
   UnlistPayload._(super.d) : super._();
 
   @override
@@ -543,13 +543,13 @@ final class UnlistPayload extends DirectoryPayload {
 
   int get net => _int('net');
   String get address => _text('address');
-  Uint8List get dkey => _bytes('dkey');
+  Uint8List get serviceKey => _bytes('dkey');
   Uint8List get handle => _bytes('handle');
   BigInt get issued => _big('issued');
 }
 
-/// Type 4, directory to wallet. Unsigned: the pairing authenticates it.
-final class UnlistedPayload extends DirectoryPayload {
+/// Type 4, name service to wallet. Unsigned: the pairing authenticates it.
+final class UnlistedPayload extends NameServicePayload {
   UnlistedPayload._(super.d) : super._();
 
   @override
@@ -557,13 +557,13 @@ final class UnlistedPayload extends DirectoryPayload {
   @override
   List<_Field> get _schema => _payloadSchemas[4]!.$1;
 
-  Uint8List get dkey => _bytes('dkey');
+  Uint8List get serviceKey => _bytes('dkey');
   Uint8List get handle => _bytes('handle');
   BigInt get issued => _big('issued');
 }
 
-/// Type 5, wallet to directory. Unsigned.
-final class ReceiptPayload extends DirectoryPayload {
+/// Type 5, wallet to name service. Unsigned.
+final class ReceiptPayload extends NameServicePayload {
   ReceiptPayload._(super.d) : super._();
 
   @override
@@ -597,8 +597,8 @@ final class ReceiptPayload extends DirectoryPayload {
   BigInt get at => _big('at');
 }
 
-/// Type 6, wallet to directory, signed by the old listing key under `epic-listing-moved/1`.
-final class MovedPayload extends DirectoryPayload {
+/// Type 6, wallet to name service, signed by the old listing key under `epic-listing-moved/1`.
+final class MovedPayload extends NameServicePayload {
   MovedPayload._(super.d) : super._();
 
   @override
@@ -612,7 +612,7 @@ final class MovedPayload extends DirectoryPayload {
 }
 
 /// A payload of a type this wallet does not know: acknowledged and dropped.
-final class DroppedPayload extends DirectoryPayload {
+final class DroppedPayload extends NameServicePayload {
   DroppedPayload._(super.d, this.type) : super._();
 
   @override
@@ -631,12 +631,12 @@ final class DroppedPayload extends DirectoryPayload {
 Uint8List listingCardUnsigned({
   required int net,
   required String address,
-  required Uint8List dkey,
+  required Uint8List serviceKey,
   required Uint8List handle,
   required int seq,
   required int issued,
 }) => _encodeStruct(
-  {'format': 1, 'net': net, 'address': address, 'dkey': dkey, 'handle': handle, 'seq': seq, 'issued': issued},
+  {'format': 1, 'net': net, 'address': address, 'dkey': serviceKey, 'handle': handle, 'seq': seq, 'issued': issued},
   const [],
   null,
   _cardSchema,
@@ -646,22 +646,22 @@ Uint8List listingCardUnsigned({
 Uint8List unlistPayloadUnsigned({
   required int net,
   required String address,
-  required Uint8List dkey,
+  required Uint8List serviceKey,
   required Uint8List handle,
   required int issued,
 }) => _encodeStruct(
-  {'net': net, 'address': address, 'dkey': dkey, 'handle': handle, 'issued': issued},
+  {'net': net, 'address': address, 'dkey': serviceKey, 'handle': handle, 'issued': issued},
   const [],
   null,
   _payloadSchemas[3]!.$1,
   lead: 3,
 );
 
-/// A hello before its signature, as a directory makes it. A wallet only reads hellos; this is
+/// A hello before its signature, as a name service makes it. A wallet only reads hellos; this is
 /// for the fakes and the tests of the wallet side.
-Uint8List dirHelloUnsigned({
+Uint8List nsHelloUnsigned({
   required int net,
-  required Uint8List dkey,
+  required Uint8List serviceKey,
   required Uint8List handle,
   required Uint8List bind,
   required int issued,
@@ -670,7 +670,7 @@ Uint8List dirHelloUnsigned({
 }) => _encodeStruct(
   {
     'net': net,
-    'dkey': dkey,
+    'dkey': serviceKey,
     'handle': handle,
     'bind': bind,
     'issued': issued,
@@ -683,10 +683,10 @@ Uint8List dirHelloUnsigned({
   lead: 1,
 );
 
-/// A type 4 payload (the directory no longer lists the wallet under [handle]); for the fakes
-/// and the tests, as [dirHelloUnsigned].
-Uint8List unlistedPayloadBytes({required Uint8List dkey, required Uint8List handle, required int issued}) =>
-    _encodeStruct({'dkey': dkey, 'handle': handle, 'issued': issued}, const [], null, _payloadSchemas[4]!.$1, lead: 4);
+/// A type 4 payload (the name service no longer lists the wallet under [handle]); for the fakes
+/// and the tests, as [nsHelloUnsigned].
+Uint8List unlistedPayloadBytes({required Uint8List serviceKey, required Uint8List handle, required int issued}) =>
+    _encodeStruct({'dkey': serviceKey, 'handle': handle, 'issued': issued}, const [], null, _payloadSchemas[4]!.$1, lead: 4);
 
 /// [unsigned] with the `FF` signature field after it: the DER [signature] as LEPIC returns it.
 Uint8List withSignature(Uint8List unsigned, Uint8List signature) => Uint8List.fromList([
@@ -734,7 +734,7 @@ Uint8List payreqBytesOfText(String text) {
   } else {
     _malformed();
   }
-  if (!_base64urlOnly.hasMatch(p) || p.length % 4 == 1) _fail(DirectoryError.checksum);
+  if (!_base64urlOnly.hasMatch(p) || p.length % 4 == 1) _fail(NameServiceError.checksum);
   final raw = <int>[];
   var acc = 0;
   var bits = 0;
@@ -747,11 +747,11 @@ Uint8List payreqBytesOfText(String text) {
       acc &= (1 << bits) - 1;
     }
   }
-  if (raw.length < 5) _fail(DirectoryError.checksum);
+  if (raw.length < 5) _fail(NameServiceError.checksum);
   final body = Uint8List.fromList(raw.sublist(0, raw.length - 4));
   final check = doubleSha256Check(body);
   for (var i = 0; i < 4; i++) {
-    if (raw[raw.length - 4 + i] != check[i]) _fail(DirectoryError.checksum);
+    if (raw[raw.length - 4 + i] != check[i]) _fail(NameServiceError.checksum);
   }
   return body;
 }

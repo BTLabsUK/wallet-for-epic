@@ -5,7 +5,7 @@
 /// keys-changed and relay notices, and Remove pairing. Replaces the contact sheet.
 library;
 
-import '../directory/payment_refusals.dart' show paymentRefusalsProvider;
+import '../name_service/payment_refusals.dart' show paymentRefusalsProvider;
 import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,7 +27,7 @@ import 'contacts_screen.dart';
 import 'history_screen.dart' show HistoryScreen;
 import 'method_names.dart';
 import 'pairing/contact_pairing_block.dart';
-import 'pairing/directory_parts.dart' show DirectoryBlock;
+import 'pairing/name_service_parts.dart' show NameServiceBlock;
 import 'pairing/pair_check.dart';
 import 'pairing/pair_screen.dart';
 import 'pairing/pair_way1.dart' show pairWithContact;
@@ -290,14 +290,14 @@ class _ContactPageState extends ConsumerState<ContactPage> {
             onPending: pairs && (pairing == null || pairing.ended) && pending != null ? () => _showMyCode(contact) : null,
           ),
           // A contact that takes no payments: its own card first, then Pairing, Addresses last.
-          if (noPayments && pairs && pairing != null && !pairing.ended) DirectoryBlock(pairingId: pairing.id, label: contact.name),
+          if (noPayments && pairs && pairing != null && !pairing.ended) NameServiceBlock(pairingId: pairing.id, label: contact.name),
           if (!noPayments) ...[PairSection(l.contactAddresses), _Addresses(contact: contact, pairing: pairing)],
           if (pairs) ...[
             PairSection(l.contactPairing),
             ContactPairingBlock(contact: contact, pairing: pairing, pending: pending, busy: _busy, run: _run, onPair: () => _pair(contact)),
             // A service the user paired with and took a name from: Pay me as @name · since, the
             // picture code and Leave, or the button that turns it on.
-            if (!noPayments && pairing != null && !pairing.ended) DirectoryBlock(pairingId: pairing.id, label: contact.name),
+            if (!noPayments && pairing != null && !pairing.ended) NameServiceBlock(pairingId: pairing.id, label: contact.name),
           ],
           if (noPayments) ...[PairSection(l.contactAddresses), _Addresses(contact: contact, pairing: pairing)],
           // The compatibility line (trust policy): one sentence, never a badge; a plain

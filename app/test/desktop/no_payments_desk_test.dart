@@ -6,7 +6,7 @@ import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/contacts_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
-import 'package:epic_wallet/src/directory/payment_refusals.dart';
+import 'package:epic_wallet/src/name_service/payment_refusals.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/models.dart' show epicboxKey;
 import 'package:epic_wallet/src/ui/status_icons.dart' show EpicGlyphs;

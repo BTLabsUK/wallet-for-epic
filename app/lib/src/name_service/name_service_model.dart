@@ -1,22 +1,22 @@
 // SPDX-License-Identifier: Apache-2.0
-/// What one wallet keeps about the directories it paired with: the book of
-/// `directory_service.dart`, kept by `directory_store.dart`. A directory is an ordinary contact
+/// What one wallet keeps about the name services it paired with: the book of
+/// `name_service_service.dart`, kept by `name_service_store.dart`. A name service is an ordinary contact
 /// pairing whose peer sent a valid hello; nothing here knows which service it is.
 library;
 
 /// How long a retired listing is still read after Leave: payments sent to it before the
-/// directory dropped it can still arrive.
+/// name service dropped it can still arrive.
 const Duration listingDrainWindow = Duration(days: 7);
 
-/// Where the wallet stands in one directory.
+/// Where the wallet stands in one name service.
 enum ListingState {
   /// Not listed: never joined, or left.
   notJoined,
 
-  /// Listed: the directory has the card.
+  /// Listed: the name service has the card.
   joined,
 
-  /// The directory sent `unlisted` for the current handle.
+  /// The name service sent `unlisted` for the current handle.
   unlisted,
 }
 
@@ -40,10 +40,10 @@ class RetiredListing {
   }
 }
 
-/// One directory contact. [dkey] and [handle] are hex (33 and 16 bytes).
-class DirectoryEntry {
-  const DirectoryEntry({
-    required this.dkey,
+/// One name service contact. [serviceKey] and [handle] are hex (33 and 16 bytes).
+class NameServiceEntry {
+  const NameServiceEntry({
+    required this.serviceKey,
     required this.pairingId,
     required this.handle,
     this.label = '',
@@ -61,25 +61,25 @@ class DirectoryEntry {
     this.issued,
   });
 
-  final String dkey;
+  final String serviceKey;
   final String pairingId;
   final String handle;
 
   /// The name the pairing last showed, for readers with no pairing at hand.
   final String label;
 
-  /// The user compared the code (They match): the dkey belongs to this contact.
+  /// The user compared the code (They match): the serviceKey belongs to this contact.
   final bool pinned;
   final ListingState state;
 
-  /// The highest generation ever used for [dkey], -1 for none: a new listing takes one above,
+  /// The highest generation ever used for [serviceKey], -1 for none: a new listing takes one above,
   /// so a Leave never reuses one.
   final int maxGeneration;
 
   /// The generation listed now, null unless [state] is joined.
   final int? generation;
 
-  /// The sequence number of the card the directory has.
+  /// The sequence number of the card the name service has.
   final int seq;
   final DateTime? joinedAt;
 
@@ -110,7 +110,7 @@ class DirectoryEntry {
   /// The generation a new listing takes.
   int get nextGeneration => maxGeneration + 1;
 
-  DirectoryEntry copyWith({
+  NameServiceEntry copyWith({
     String? pairingId,
     String? handle,
     String? label,
@@ -126,8 +126,8 @@ class DirectoryEntry {
     String? Function()? paymentsKey,
     String? Function()? payAs,
     BigInt? issued,
-  }) => DirectoryEntry(
-    dkey: dkey,
+  }) => NameServiceEntry(
+    serviceKey: serviceKey,
     pairingId: pairingId ?? this.pairingId,
     handle: handle ?? this.handle,
     label: label ?? this.label,
@@ -153,7 +153,7 @@ class DirectoryEntry {
   ];
 
   Map<String, Object?> toJson() => {
-    'dkey': dkey,
+    'dkey': serviceKey,
     'pairing': pairingId,
     'handle': handle,
     'label': label,
@@ -171,10 +171,10 @@ class DirectoryEntry {
     'issued': issued?.toString(),
   };
 
-  static DirectoryEntry? fromJson(Object? j) {
+  static NameServiceEntry? fromJson(Object? j) {
     if (j is! Map || j['dkey'] is! String || j['pairing'] is! String || j['handle'] is! String) return null;
-    return DirectoryEntry(
-      dkey: j['dkey'] as String,
+    return NameServiceEntry(
+      serviceKey: j['dkey'] as String,
       pairingId: j['pairing'] as String,
       handle: j['handle'] as String,
       label: j['label'] as String? ?? '',
@@ -194,26 +194,26 @@ class DirectoryEntry {
   }
 }
 
-/// The directories of one wallet, by dkey.
-class DirectoryBook {
-  const DirectoryBook([this.entries = const {}]);
+/// The name services of one wallet, by serviceKey.
+class NameServiceBook {
+  const NameServiceBook([this.entries = const {}]);
 
-  final Map<String, DirectoryEntry> entries;
+  final Map<String, NameServiceEntry> entries;
 
-  DirectoryEntry? byDkey(String dkey) => entries[dkey];
+  NameServiceEntry? byServiceKey(String serviceKey) => entries[serviceKey];
 
-  DirectoryEntry? byPairing(String pairingId) =>
+  NameServiceEntry? byPairing(String pairingId) =>
       entries.values.where((e) => e.pairingId == pairingId).firstOrNull;
 
-  DirectoryBook put(DirectoryEntry e) => DirectoryBook({...entries, e.dkey: e});
+  NameServiceBook put(NameServiceEntry e) => NameServiceBook({...entries, e.serviceKey: e});
 
-  DirectoryBook remove(String dkey) => DirectoryBook({...entries}..remove(dkey));
+  NameServiceBook remove(String serviceKey) => NameServiceBook({...entries}..remove(serviceKey));
 
   Map<String, Object?> toJson() => {'v': 1, 'entries': [for (final e in entries.values) e.toJson()]};
 
-  static DirectoryBook? fromJson(Object? j) {
+  static NameServiceBook? fromJson(Object? j) {
     if (j is! Map || j['v'] != 1) return null;
-    final list = [for (final e in (j['entries'] as List? ?? const [])) ?DirectoryEntry.fromJson(e)];
-    return DirectoryBook({for (final e in list) e.dkey: e});
+    final list = [for (final e in (j['entries'] as List? ?? const [])) ?NameServiceEntry.fromJson(e)];
+    return NameServiceBook({for (final e in list) e.serviceKey: e});
   }
 }

@@ -9,8 +9,8 @@ library;
 
 import 'help_content.dart';
 
-/// The payment link and directory topics in [lang] (`en`, `de`, `pl`, `ru`, `zh`, `th`).
-List<HelpTopic> directoryHelpTopics(String lang, {required bool phone}) => switch (lang) {
+/// The payment link and name service topics in [lang] (`en`, `de`, `pl`, `ru`, `zh`, `th`).
+List<HelpTopic> nameServiceHelpTopics(String lang, {required bool phone}) => switch (lang) {
   'de' => _de(phone),
   'pl' => _pl(phone),
   'ru' => _ru(phone),
@@ -88,7 +88,7 @@ List<HelpTopic> _en(bool phone) {
         const HelpBlock.p('After you pay a link, an unticked line offers to tell the service the payment is sent. It is your choice each time. The wallet never does it by itself.'),
         const HelpBlock.p('If you tick it, the service sees the request’s short id, the amount and the time. It does not see an address or a transaction id.'),
       ],
-      id: HelpId.directoryTell,
+      id: HelpId.nameServiceTell,
     ),
     HelpTopic(
       'trouble',
@@ -175,7 +175,7 @@ List<HelpTopic> _de(bool phone) {
         const HelpBlock.p('Nachdem Sie einen Link bezahlt haben, bietet eine nicht angehakte Zeile an, dem Dienst die Zahlung zu melden. Das entscheiden Sie jedes Mal neu. Die Wallet tut es nie von selbst.'),
         const HelpBlock.p('Wenn Sie es ankreuzen, sieht der Dienst die Kurz-ID der Aufforderung, den Betrag und die Zeit. Eine Adresse oder eine Transaktions-ID sieht es nicht.'),
       ],
-      id: HelpId.directoryTell,
+      id: HelpId.nameServiceTell,
     ),
     HelpTopic(
       'trouble',
@@ -262,7 +262,7 @@ List<HelpTopic> _pl(bool phone) {
         const HelpBlock.p('Po zapłaceniu linku niezaznaczony wiersz proponuje powiadomić usługę, że płatność została wysłana. Decydujesz za każdym razem. Portfel nigdy nie robi tego sam.'),
         const HelpBlock.p('Jeśli to zaznaczysz, usługa widzi krótki identyfikator prośby, kwotę i czas. Nie widzi adresu ani identyfikatora transakcji.'),
       ],
-      id: HelpId.directoryTell,
+      id: HelpId.nameServiceTell,
     ),
     HelpTopic(
       'trouble',
@@ -349,7 +349,7 @@ List<HelpTopic> _ru(bool phone) {
         const HelpBlock.p('После оплаты по ссылке строка без галочки предлагает сообщить сервису, что платёж отправлен. Вы решаете каждый раз. Кошелёк никогда не делает этого сам.'),
         const HelpBlock.p('Если поставить галочку, сервис видит короткий номер запроса, сумму и время. Адрес и идентификатор транзакции он не видит.'),
       ],
-      id: HelpId.directoryTell,
+      id: HelpId.nameServiceTell,
     ),
     HelpTopic(
       'trouble',
@@ -436,7 +436,7 @@ List<HelpTopic> _zh(bool phone) {
         const HelpBlock.p('通过链接付款后，一行未勾选的选项可以让你告知服务付款已发出。每次都由你决定，钱包从不自动这样做。'),
         const HelpBlock.p('勾选后，服务会看到请求的短编号、金额和时间。它看不到地址或交易编号。'),
       ],
-      id: HelpId.directoryTell,
+      id: HelpId.nameServiceTell,
     ),
     HelpTopic(
       'trouble',
@@ -523,7 +523,7 @@ List<HelpTopic> _th(bool phone) {
         const HelpBlock.p('หลังจากจ่ายด้วยลิงก์ จะมีบรรทัดที่ยังไม่ได้ติ๊กให้เลือกแจ้งบริการว่าส่งเงินแล้ว คุณตัดสินใจทุกครั้ง กระเป๋าเงินไม่เคยทำเองโดยอัตโนมัติ'),
         const HelpBlock.p('ถ้าติ๊ก บริการจะเห็นรหัสสั้นของคำขอ จำนวนเงิน และเวลา ไม่เห็นที่อยู่หรือรหัสธุรกรรม'),
       ],
-      id: HelpId.directoryTell,
+      id: HelpId.nameServiceTell,
     ),
     HelpTopic(
       'trouble',

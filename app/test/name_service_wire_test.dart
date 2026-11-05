@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
-// The directory wire codec (docs/design/directory-wire.md) against the shared vectors
-// (docs/design/directory-vectors.json): every good vector parses to its listed fields and
+// The name service wire codec (docs/design/name-service-wire.md) against the shared vectors
+// (docs/design/name-service-vectors.json): every good vector parses to its listed fields and
 // encodes back to the same bytes; every bad one gives its listed error under its context.
 import 'dart:typed_data';
 
-import 'package:epic_wallet/src/directory/directory.dart';
+import 'package:epic_wallet/src/name_service/name_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'directory_vectors_support.dart';
+import 'name_service_vectors_support.dart';
 
 /// The signature oracle. It is sound because the vector file lists every signature a real signer
 /// made, as (key, domain, message, DER) tuples: asking whether a tuple is listed is asking
@@ -18,7 +18,7 @@ import 'directory_vectors_support.dart';
 /// - an entry that passes the check (accepted, or failing a later step) was signed fresh for
 ///   its case and is not listed, so the check is answered true;
 /// - a good entry may only ask for tuples it lists itself.
-/// The live test (directory_wire_live_test.dart) runs the same vectors through the real
+/// The live test (name_service_wire_live_test.dart) runs the same vectors through the real
 /// verifier, which takes the oracle out of the argument.
 class _Oracle {
   _Oracle(this.listed, this.mode, [this.own]);
@@ -50,9 +50,9 @@ void main() {
   final listed = listedValidCalls(v);
 
   test('the vector file is the one the codec was written for', () {
-    expect((v['errors']! as List<Object?>).length, DirectoryError.values.length);
+    expect((v['errors']! as List<Object?>).length, NameServiceError.values.length);
     for (final e in v['errors']! as List<Object?>) {
-      expect(DirectoryError.values.map((x) => x.wireName), contains(e));
+      expect(NameServiceError.values.map((x) => x.wireName), contains(e));
     }
   });
 
@@ -79,10 +79,10 @@ void main() {
   });
 
   group('codes', () {
-    test('directory codes', () {
+    test('service codes', () {
       for (final c in (v['codes']! as Map<String, Object?>)['directory']! as List<Object?>) {
         final m = c! as Map<String, Object?>;
-        final indexes = directoryCodeIndexes(fromHex(m['dkey']! as String));
+        final indexes = nameServiceCodeIndexes(fromHex(m['dkey']! as String));
         expect(indexes, m['indexes']);
         expect(codeEmoji(indexes), m['emoji']);
         expect(codeWords(indexes).map((w) => w.name), m['names']);
@@ -126,7 +126,7 @@ void main() {
         final unsigned = listingCardUnsigned(
           net: card.net,
           address: card.address,
-          dkey: card.dkey,
+          serviceKey: card.serviceKey,
           handle: card.handle,
           seq: card.seq,
           issued: card.issued.toInt(),
@@ -139,7 +139,7 @@ void main() {
     test('listing payload and unlist payload', () {
       for (final e in vectorList(v, 'payloads')) {
         final raw = fromHex(e['hex']! as String);
-        final payload = DirectoryPayload.decode(raw);
+        final payload = NameServicePayload.decode(raw);
         switch (payload) {
           case ListingPayload():
             expect(toHex(listingPayloadBytes(payload.card.toBytes())), e['hex']);
@@ -147,7 +147,7 @@ void main() {
             final unsigned = unlistPayloadUnsigned(
               net: payload.net,
               address: payload.address,
-              dkey: payload.dkey,
+              serviceKey: payload.serviceKey,
               handle: payload.handle,
               issued: payload.issued.toInt(),
             );
@@ -183,7 +183,7 @@ void main() {
     for (final e in vectorList(v, 'payloads')) {
       test(e['id']! as String, () async {
         final raw = fromHex(e['hex']! as String);
-        final payload = DirectoryPayload.decode(raw);
+        final payload = NameServicePayload.decode(raw);
         expect(payload.type, e['type']);
         expect(payload.toFields(), e['fields']);
         expect(toHex(payload.toBytes()), e['hex']);
@@ -196,15 +196,15 @@ void main() {
 
   group('hello flags', () {
     DirHello hello(String id) =>
-        DirectoryPayload.decode(fromHex(vectorList(v, 'payloads').firstWhere((e) => e['id'] == id)['hex']! as String)) as DirHello;
+        NameServicePayload.decode(fromHex(vectorList(v, 'payloads').firstWhere((e) => e['id'] == id)['hex']! as String)) as DirHello;
 
     test('bit 0 is takes no payments, and the encoder writes it back', () {
       final h = hello('hello-no-payments');
       expect(h.flags, 1);
       expect(h.takesNoPayments, isTrue);
-      final unsigned = dirHelloUnsigned(
+      final unsigned = nsHelloUnsigned(
         net: h.net,
-        dkey: h.dkey,
+        serviceKey: h.serviceKey,
         handle: h.handle,
         bind: h.bind,
         issued: h.issued.toInt(),
@@ -214,7 +214,7 @@ void main() {
     });
 
     test('absent flags read as 0', () {
-      final h = DirectoryPayload.decode(
+      final h = NameServicePayload.decode(
         fromHex(vectorList(v, 'payloads').firstWhere((e) => e['type'] == 1 && (e['fields']! as Map).containsKey('flags') == false)['hex']! as String),
       ) as DirHello;
       expect(h.flags, 0);
@@ -224,9 +224,9 @@ void main() {
     test('the label is read, and the encoder writes it back into the signed bytes', () {
       final h = hello('hello-label');
       expect(h.label, '@alice_test');
-      final unsigned = dirHelloUnsigned(
+      final unsigned = nsHelloUnsigned(
         net: h.net,
-        dkey: h.dkey,
+        serviceKey: h.serviceKey,
         handle: h.handle,
         bind: h.bind,
         issued: h.issued.toInt(),
@@ -238,7 +238,7 @@ void main() {
 
     test('a label without @ is dropped and the hello still decodes', () {
       final bad = vectorList(v, 'bad').firstWhere((e) => e['id'] == 'hello-label-no-at');
-      final h = DirectoryPayload.decode(fromHex(bad['input_hex']! as String)) as DirHello;
+      final h = NameServicePayload.decode(fromHex(bad['input_hex']! as String)) as DirHello;
       expect(h.label, isNull);
       expect(h.toFields(), bad['fields']);
     });
@@ -246,8 +246,8 @@ void main() {
     test('a reserved bit is malformed', () {
       final bad = vectorList(v, 'bad').firstWhere((e) => e['id'] == 'hello-flags-unknown-bit');
       expect(
-        () => DirectoryPayload.decode(fromHex(bad['input_hex']! as String)),
-        throwsA(isA<DirectoryException>().having((x) => x.error.wireName, 'error', 'malformed')),
+        () => NameServicePayload.decode(fromHex(bad['input_hex']! as String)),
+        throwsA(isA<NameServiceException>().having((x) => x.error.wireName, 'error', 'malformed')),
       );
     });
   });
@@ -272,7 +272,7 @@ void main() {
         }
         await expectLater(
           runEntry(kind, raw, text, ctx, oracle.call),
-          throwsA(isA<DirectoryException>().having((x) => x.error.wireName, 'error', error)),
+          throwsA(isA<NameServiceException>().having((x) => x.error.wireName, 'error', error)),
         );
       });
     }

@@ -18,9 +18,9 @@ import '../../ui/notices.dart' show NoticeLevel;
 import '../../ui/pairing/pairing_notices.dart' show pairingEventOnScreen, pairingNoticeOf;
 import '../../models.dart' show PairingCollectTrigger, PairingEventKind;
 import '../data/devices_state.dart' show deskDeviceServiceProvider;
-import '../data/directory_state.dart' show deskDirectoryServiceProvider;
-import '../../directory/directory_model.dart' show DirectoryEntry;
-import '../../directory/directory_service.dart' show DirectorySyncTrigger;
+import '../data/name_service_state.dart' show deskNameServiceProvider;
+import '../../name_service/name_service_model.dart' show NameServiceEntry;
+import '../../name_service/name_service_service.dart' show NameServiceSyncTrigger;
 import '../../devices/device_service.dart' show DeviceSyncTrigger;
 import '../data/pairing_state.dart' show deskContactKeysOf, deskPairingCall, deskInvoicesShownProvider, deskKeysBackProvider, deskPairRequestsProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider;
 import '../data/invoice_state.dart' show InvoiceNotice, InvoiceNoticeKind, deskInvoiceBadgeProvider, deskInvoiceNoticesProvider;
@@ -122,11 +122,11 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     final api = ref.read(deskPairingApiProvider);
     if (api.supported) api.collect(trigger: trigger).ignore();
     // The listings are drained where the contacts' mailboxes are read, never in the background.
-    final dirs = ref.read(deskDirectoryServiceProvider);
+    final dirs = ref.read(deskNameServiceProvider);
     if (dirs != null) {
       final t = switch (trigger) {
-        PairingCollectTrigger.open => DirectorySyncTrigger.open,
-        _ => DirectorySyncTrigger.tick,
+        PairingCollectTrigger.open => NameServiceSyncTrigger.open,
+        _ => NameServiceSyncTrigger.tick,
       };
       unawaited(dirs.sync(t));
     }
@@ -202,7 +202,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     _collectTimer = Timer.periodic(const Duration(seconds: 45), (_) => _collect(PairingCollectTrigger.foreground));
     _maybeTour();
     // A hello that comes after the words step: the contact takes no payments, said once.
-    ref.listenManual(deskDirectoryServiceProvider, (_, next) {
+    ref.listenManual(deskNameServiceProvider, (_, next) {
       _lateSub?.cancel();
       _lateSub = next?.lateNoPayments.listen((e) {
         if (mounted) showEToast(context, context.l10n.contactNoPaymentsNamed(e.label), tone: ETone.info);
@@ -215,7 +215,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
       onResume: () {
         // The window came back to the front: the other devices are read at once.
         unawaited(ref.read(deskDeviceServiceProvider)?.sync(DeviceSyncTrigger.resume));
-        unawaited(ref.read(deskDirectoryServiceProvider)?.sync(DirectorySyncTrigger.resume));
+        unawaited(ref.read(deskNameServiceProvider)?.sync(NameServiceSyncTrigger.resume));
         // A node failover that waits longer each time tries again soon.
         ref.read(deskFailoverWatchProvider.notifier).resumed();
       },
@@ -223,7 +223,7 @@ class _DeskShellState extends ConsumerState<DeskShell> {
   }
 
   AppLifecycleListener? _focus;
-  StreamSubscription<DirectoryEntry>? _lateSub;
+  StreamSubscription<NameServiceEntry>? _lateSub;
 
   /// The hidden Settings place last answered with a fallback toast (once per place).
   DeskLocation? _fellBack;

@@ -11,7 +11,7 @@ import 'dart:convert';
 
 import '../amount.dart' show atomicPerEpic, epicDecimals, formatEpic;
 import '../bip39_words.dart';
-import '../directory/wire.dart' show DirectoryError, DirectoryException, Payreq;
+import '../name_service/wire.dart' show NameServiceError, NameServiceException, Payreq;
 import '../payment_method.dart' show MethodKind;
 import '../recipient.dart';
 
@@ -201,7 +201,7 @@ final class PaymentLink extends ScannedCode {
   /// The link as read: the marker and what follows it, up to the first space.
   final String text;
   final Payreq? request;
-  final DirectoryError? error;
+  final NameServiceError? error;
 }
 
 /// Not an Epic code.
@@ -312,7 +312,7 @@ PaymentLink? _paymentLink(String whole) {
     if (link.length > maxScanLength) return null;
     try {
       return PaymentLink(link, request: Payreq.fromText(link));
-    } on DirectoryException catch (e) {
+    } on NameServiceException catch (e) {
       return PaymentLink(link, error: e.error);
     }
   }
