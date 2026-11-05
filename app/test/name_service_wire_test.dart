@@ -194,32 +194,9 @@ void main() {
     }
   });
 
-  group('hello flags', () {
+  group('hello', () {
     DirHello hello(String id) =>
         NameServicePayload.decode(fromHex(vectorList(v, 'payloads').firstWhere((e) => e['id'] == id)['hex']! as String)) as DirHello;
-
-    test('bit 0 is takes no payments, and the encoder writes it back', () {
-      final h = hello('hello-no-payments');
-      expect(h.flags, 1);
-      expect(h.takesNoPayments, isTrue);
-      final unsigned = nsHelloUnsigned(
-        net: h.net,
-        serviceKey: h.serviceKey,
-        handle: h.handle,
-        bind: h.bind,
-        issued: h.issued.toInt(),
-        flags: h.flags,
-      );
-      expect(toHex(unsigned), toHex(h.signedBytes));
-    });
-
-    test('absent flags read as 0', () {
-      final h = NameServicePayload.decode(
-        fromHex(vectorList(v, 'payloads').firstWhere((e) => e['type'] == 1 && (e['fields']! as Map).containsKey('flags') == false)['hex']! as String),
-      ) as DirHello;
-      expect(h.flags, 0);
-      expect(h.takesNoPayments, isFalse);
-    });
 
     test('the label is read, and the encoder writes it back into the signed bytes', () {
       final h = hello('hello-label');
@@ -230,7 +207,6 @@ void main() {
         handle: h.handle,
         bind: h.bind,
         issued: h.issued.toInt(),
-        flags: h.flags,
         label: h.label,
       );
       expect(toHex(unsigned), toHex(h.signedBytes));
@@ -243,8 +219,8 @@ void main() {
       expect(h.toFields(), bad['fields']);
     });
 
-    test('a reserved bit is malformed', () {
-      final bad = vectorList(v, 'bad').firstWhere((e) => e['id'] == 'hello-flags-unknown-bit');
+    test('field 07, the old flags, is malformed', () {
+      final bad = vectorList(v, 'bad').firstWhere((e) => e['id'] == 'hello-field-07');
       expect(
         () => NameServicePayload.decode(fromHex(bad['input_hex']! as String)),
         throwsA(isA<NameServiceException>().having((x) => x.error.wireName, 'error', 'malformed')),

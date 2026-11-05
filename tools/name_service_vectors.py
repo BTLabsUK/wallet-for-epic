@@ -286,7 +286,6 @@ PAYREQ = [F(1, 'format', 'u', 1), F(2, 'net', 'u', 1), F(3, 'card', 'card'),
 PAYLOADS = {
     1: ('dir-hello', [F(2, 'net', 'u', 1), F(3, 'dkey', 'b', 33), F(4, 'handle', 'b', 16),
                       F(5, 'bind', 'b', 4), F(6, 'issued', 'u', 8),
-                      F(7, 'flags', 'u', 1, optional=True),
                       F(8, 'label', 'label', optional=True)], True),
     2: ('listing', [F(2, 'card', 'card')], False),
     3: ('unlist', [F(2, 'net', 'u', 1), F(3, 'address', 'ascii', (1, 128)),
@@ -298,7 +297,6 @@ PAYLOADS = {
     6: ('moved', [F(2, 'net', 'u', 1), F(3, 'old_address', 'ascii', (1, 128)),
                   F(4, 'card', 'card')], True),
 }
-HELLO_NO_PAYMENTS = 0x01   # hello flags bit 0: this contact takes no payments
 LABEL_RE = re.compile(rb'@[A-Za-z0-9_]{1,32}')
 
 
@@ -492,8 +490,6 @@ def verify_payload(raw: bytes, ctx: dict) -> dict:
     if net not in (None, 0, 1):
         raise Err('malformed')
     if t == 5 and f['stage'] not in (1, 2):
-        raise Err('malformed')
-    if t == 1 and f.get('flags', 0) & ~HELLO_NO_PAYMENTS:
         raise Err('malformed')
     for name in ('dkey', 'for'):
         if name in f and bytes.fromhex(f[name])[0] not in (2, 3):
@@ -777,17 +773,10 @@ def payload_set() -> list:
     out.append(payload_entry('hello-floonet', 'dir-hello, floonet', hello_f, rec,
                              ctx_of(net=1, bind='01020304')))
     rec = Rec()
-    hello_np = signed_items(rec, [(1, b'\x01'), (2, u(1, 1)), (3, pub_of(2)),
-                                  (4, bytes.fromhex(h16('handle', 1))), (5, bytes([1, 2, 3, 4])),
-                                  (6, u(NOW - 50, 8)), (7, u(HELLO_NO_PAYMENTS, 1))], 2, D_HELLO)
-    out.append(payload_entry('hello-no-payments', 'dir-hello, floonet, takes no payments',
-                             hello_np, rec, ctx_of(net=1, bind='01020304')))
-    rec = Rec()
     hello_lab = signed_items(rec, [(1, b'\x01'), (2, u(1, 1)), (3, pub_of(2)),
                                    (4, bytes.fromhex(h16('handle', 1))), (5, bytes([1, 2, 3, 4])),
-                                   (6, u(NOW - 50, 8)), (7, u(HELLO_NO_PAYMENTS, 1)),
-                                   (8, b'@alice_test')], 2, D_HELLO)
-    out.append(payload_entry('hello-label', 'dir-hello, floonet, no payments, the user\'s @name',
+                                   (6, u(NOW - 50, 8)), (8, b'@alice_test')], 2, D_HELLO)
+    out.append(payload_entry('hello-label', 'dir-hello, floonet, the user\'s @name',
                              hello_lab, rec, ctx_of(net=1, bind='01020304')))
     rec = Rec()
     card = make_card(rec)
@@ -998,10 +987,8 @@ def section_bad() -> list:
          signed_items(Rec(), hello_items[:4] + [(5, bytes(3))] + hello_items[5:], 1, D_HELLO),
          'malformed')
     addl('hello-no-signature', 'no FF field', tlv(hello_items), 'malformed')
-    addl('hello-flags-unknown-bit', 'flags 0x02: an unknown bit',
-         signed_items(Rec(), hello_items + [(7, u(2, 1))], 1, D_HELLO), 'malformed')
-    addl('hello-flags-short', 'flags of 0 bytes',
-         signed_items(Rec(), hello_items + [(7, b'')], 1, D_HELLO), 'malformed')
+    addl('hello-field-07', 'field 07 (the old flags, 0x01): not in the schema',
+         signed_items(Rec(), hello_items + [(7, u(1, 1))], 1, D_HELLO), 'malformed')
     addl('hello-label-no-at', 'bad label (no @): accepted, label dropped',
          signed_items(Rec(), hello_items + [(8, b'alice_test')], 1, D_HELLO), None)
     addl('hello-trailing', 'a byte after the signature', hello + b'\x00', 'malformed')

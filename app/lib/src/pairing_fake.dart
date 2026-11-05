@@ -1563,12 +1563,10 @@ class FakePairing implements PairingApi {
     Uint8List? bind,
     int net = 0,
     int issued = 1,
-    int flags = 0,
     String? label,
   }) {
     final r = records.firstWhere((e) => e.id == id);
     final unsigned = nsHelloUnsigned(
-      flags: flags,
       label: label,
       net: net,
       serviceKey: serviceKey,
