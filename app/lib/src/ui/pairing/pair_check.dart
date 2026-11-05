@@ -166,18 +166,15 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
   Future<void> _beginNameService() async {
     final service = ref.read(nameServiceProvider);
     if (service == null) return;
-    var record = ref.read(pairingByIdProvider(widget.pairingId));
-    if (record == null) {
-      // The records are still being read.
-      try {
-        await ref.read(pairingsProvider.future);
-      } on Object {
-        return;
-      }
-      if (!mounted) return;
-      record = ref.read(pairingByIdProvider(widget.pairingId));
+    // Read afresh: the one who answered an invite learns the inviter's features from the confirm
+    // that opened this screen, and the listed records may still be from before it.
+    final PairingRecord? record;
+    try {
+      record = await ref.read(pairingApiProvider).pairing(widget.pairingId);
+    } on Object {
+      return;
     }
-    if (record == null || record.peerFeatures & featureNameService == 0) return;
+    if (!mounted || record == null || record.peerFeatures & featureNameService == 0) return;
     _nameService = service;
     final step = await service.beginHello(widget.pairingId);
     if (mounted) setState(() => _began = step);
@@ -289,7 +286,8 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
         return NameServiceWaiting(label: name, onCancel: () => _nameService?.cancelHello(widget.pairingId));
       }
     }
-    final service = record.kind != PairingParty.person;
+    // A name service confirms by itself once this side matched: nothing to confirm on its page.
+    final service = record.kind != PairingParty.person && record.peerFeatures & featureNameService == 0;
     final lead = service ? l.sasLeadExchange(name) : l.sasLead(name);
     final offersInvoices = !widget.recheck && (record.asksInvoices || record.caps.issuesInvoices) && record.state == PairingState.paired;
     return SlotScaffold(

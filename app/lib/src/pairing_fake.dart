@@ -347,8 +347,9 @@ class FakePairing implements PairingApi {
 
   /// The inviter confirmed the answer [id]: the answerer is paired (heard at the confirm), or
   /// verified when it answered a request (both addresses proven), with
-  /// [PairingEventKind.confirmed].
-  PairingRecord confirmAnswer(String id) {
+  /// [PairingEventKind.confirmed]. The inviter's [features] come with the confirm, as in
+  /// LEPIC: the answerer knows nothing of them before.
+  PairingRecord confirmAnswer(String id, {int? features}) {
     final r = _get(id);
     final now = clock();
     final request = r.expectAddress != null;
@@ -357,6 +358,7 @@ class FakePairing implements PairingApi {
       verifiedAt: request ? now : null,
       sas: fakeSasWords(r.id),
       paymentsAddress: r.expectAddress ?? fakePairedAddress(r.id),
+      peerFeatures: features ?? r.peerFeatures,
       peerHeardAt: now,
     );
     _put(paired);

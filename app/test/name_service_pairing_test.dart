@@ -17,6 +17,7 @@ import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/trust/policy.dart';
 import 'package:epic_wallet/src/ui/pairing/name_service_parts.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_check.dart';
+import 'package:epic_wallet/src/ui/pairing/pair_incoming.dart' show PairingWaitingScreen;
 import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart' show WordTiles;
 import 'package:epic_wallet/src/ui/scan_screen.dart';
 import 'package:epic_wallet/src/updater.dart';
@@ -431,6 +432,27 @@ void main() {
       final card = rig.posted.whereType<ListingPayload>().single.card;
       await verifyCard(ListingCard.decode(card.toBytes()), netMainnet, rig.verifier.call);
       expect(rig.service.verifiedFor(r.id)!.joined, isTrue);
+      await tester.pumpWidget(const SizedBox());
+    });
+
+    testWidgets('the features come with the confirm: the wait opens though the records still reload', (tester) async {
+      final rig = await pump(tester, const SizedBox());
+      rig.api.clock = rig.clock.call;
+      final preview = await rig.api.openInvite(rig.api.inviteLinkFrom(name: 'Anna'));
+      final answered = await rig.api.acceptInvite(token: preview.token, name: 'Alex');
+      expect(answered.peerFeatures & _nameServiceBits, 0, reason: 'the answerer learns them from the confirm');
+      await mount(tester, rig, PairingWaitingScreen(pairingId: answered.id, name: 'Anna'));
+      rig.api.listDelay = const Duration(milliseconds: 300);
+      rig.api.confirmAnswer(answered.id, features: _nameServiceBits);
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(find.byType(CheckWordsScreen), findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.text(_l.nsWaitingFor('Anna')), findsOneWidget);
+      rig.api.nameServiceHello(answered.id, serviceKey: _serviceKey);
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(find.text(_l.nsCodeLead('Anna')), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
     });
 
