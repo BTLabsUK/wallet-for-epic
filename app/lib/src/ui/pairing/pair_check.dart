@@ -496,12 +496,15 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
               style: theme.textTheme.titleLarge?.copyWith(fontFamily: t.headFamily, fontSize: 22),
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            verified ? l.sasMatchedBody(name) : l.sasSkippedBody(name),
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
-          ),
+          // Verified needs no line: the badges below say it.
+          if (!verified) ...[
+            const SizedBox(height: 8),
+            Text(
+              l.sasSkippedBody(name),
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+            ),
+          ],
           const SizedBox(height: 12),
           // The result's badge is the big one: the same badge, scaled up.
           Center(
