@@ -540,11 +540,11 @@ class Lane:
         want = os.environ.get("REL_TRUST_START") or "auto"
         if want not in ("auto", "seed", "state", "fresh"):
             raise HarnessFault("start", "REL_TRUST_START=%s: not auto, seed, state or fresh" % want)
-        seed = ls.LaneSeed(ls.lane_name(self.p.name, self.p.variant))
-        if want == "seed" or (want == "auto" and seed.exists()):
-            if not seed.exists():
-                raise HarnessFault("start", "REL_TRUST_START=seed but lane %s has no seed in %s (lane_seed.py init %s)" % (
-                    seed.lane, seed.dir, seed.lane))
+        lane = ls.lane_name(self.p.name, self.p.variant)
+        seed = ls.LaneSeed(lane) if lane in ls.LANES else None   # a platform with no lane seeds yet (iOS)
+        if want == "seed" or (want == "auto" and seed and seed.exists()):
+            if not seed or not seed.exists():
+                raise HarnessFault("start", "REL_TRUST_START=seed but lane %s has no seed (lane_seed.py init %s)" % (lane, lane))
             self._seed_mode(seed)
             return None
         saved = st.pick(self.p.name, self.p.variant, os.environ.get("REL_PREVIOUS_VERSION"),
