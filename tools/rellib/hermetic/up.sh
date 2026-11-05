@@ -4,6 +4,8 @@
 # is left alone. Exits 0 when both are healthy; a node still syncing makes it exit 1 with the relay up.
 set -uo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# A dry run of tools/rel starts nothing here, as its drivers touch nothing.
+if [ "${REL_DRY_RUN:-0}" = 1 ]; then echo "up: dry run: node and relay not started"; exit 0; fi
 . "$HERE/env.sh"
 # Trust lanes start side by side and each runs this (release/pipeline.toml): one at a time, so two
 # never both start a node or a relay.

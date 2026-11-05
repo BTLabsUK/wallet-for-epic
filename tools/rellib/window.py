@@ -171,9 +171,9 @@ def cause_of(step, result, log):
         return "infra:no-slot"
     if rc == 255 or any(SSH_DROP.search(l) for l in _tail(log)):
         return "infra:ssh"
-    if step.proof and result.get("proof_missing"):
+    if step.driven and result.get("proof_missing"):
         return "infra:no-proof"
-    if step.proof:
+    if step.driven:
         return proof_cause(result, log)
     return "step"
 

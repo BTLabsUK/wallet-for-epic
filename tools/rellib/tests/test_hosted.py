@@ -469,7 +469,7 @@ class GraphTest(Base):
         a = g["build-android-tor"]
         self.assertEqual(a.run, "app/tool/build_android_release.sh /r/26.10.25/run-1/steps/build-android-tor/out")
         self.assertEqual((a.host, a.heavy, a.lane), ("signer", True, "heavy"))
-        self.assertEqual(a.needs, ["source", "source-check"])
+        self.assertEqual(a.needs, ["source", "source-check", "flow-lanes"])
         self.assertEqual(a.env["WFE_BUILD_ID"], "a" * 7)
         self.assertNotIn("local_run", a.to_dict())
         self.assertEqual(g["build-linux-notor"].lane, "build-linux")
@@ -478,7 +478,7 @@ class GraphTest(Base):
 
     def test_builds_hosted_graph(self):
         g = self.graph("hosted")
-        self.assertEqual(g["hosted-dispatch"].needs, ["source"])
+        self.assertEqual(g["hosted-dispatch"].needs, ["source", "source-check", "flow-lanes"])
         for plat in ("android", "linux", "windows"):
             for var in ("tor", "notor"):
                 s = g[f"build-{plat}-{var}"]

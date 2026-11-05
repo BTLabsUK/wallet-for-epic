@@ -110,6 +110,8 @@ class Pipeline:
                       ("min_first_try", lambda v: type(v) in (int, float) and 0 <= v <= 1)):
             if k in h and not ok(h[k]):
                 raise ConfigError(f"{path}: [health] {k} = {h[k]!r}: " + ("a number from 0 to 1" if k == "min_first_try" else "a whole number, 1 or more"))
+        if self.proof.get("funds_in", "proof") not in ("proof", "flow"):
+            raise ConfigError(f"{path}: [proof] funds_in = {self.proof.get('funds_in')!r}: proof or flow")
         if self.sign.get("when", "inline") not in ("inline", "on-demand"):
             raise ConfigError(f"{path}: [sign] when = {self.sign.get('when')!r}: inline or on-demand")
         parse_duration(self.defaults.get("timeout"))

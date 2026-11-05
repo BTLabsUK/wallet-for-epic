@@ -669,7 +669,7 @@ class TorLaneTest(Base):
 
 class InfraCauseTest(unittest.TestCase):
     def test_proof_infra_fault_is_an_infra_cause(self):
-        step = types.SimpleNamespace(kind="script", heavy=False, proof=True)
+        step = types.SimpleNamespace(kind="script", heavy=False, proof=True, driven=True)
         log = os.path.join(tempfile.gettempdir(), "no-such-log-%d" % os.getpid())
         res = {"rc": 2, "proof": {"fault": {"kind": "infra", "sub": "node"}}}
         self.assertEqual(window.cause_of(step, res, log), "infra:driver-node")

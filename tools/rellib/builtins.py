@@ -30,7 +30,7 @@ def run(engine, step, log):
         "scratch_downloads": scratch_downloads, "scratch_page": scratch_page, "scratch_source": scratch_source,
         "scratch_manifests": scratch_manifests, "scratch_prune": scratch_prune, "scratch_noop": scratch_noop,
         "rollback-gate": publish_gate, "rollback-resign": _resign, "sign-android": _sign_android,
-        "hosted-dispatch": hosted_dispatch,
+        "hosted-dispatch": hosted_dispatch, "flow-lanes": flow_lanes,
     }.get(name)
     if fn is None:
         return {"status": "failed", "note": f"no builtin {name!r}"}
@@ -39,6 +39,19 @@ def run(engine, step, log):
             f.write(" ".join(str(x) for x in a) + "\n")
             f.flush()
         return fn(engine, step, say)
+
+
+def flow_lanes(engine, step, say):
+    """The flow lanes on the test build passed (a warn-only one may have warned): the release builds
+    and the hosted dispatch may start. The engine runs this only once every need is settled and none
+    failed, so it records what ran."""
+    ran = [x for x in engine.run.steps if x.id in step.needs]
+    warned = [x.id for x in ran if engine.run.status(x.id).get("warned")]
+    for x in ran:
+        st = engine.run.status(x.id)
+        say(f"{x.id:24} {'warned' if st.get('warned') else st['status']:8} {(st.get('note') or '')[:120]}")
+    note = f"{len(ran) - len(warned)} passed" + (f"; warned: {', '.join(warned)}" if warned else "")
+    return {"status": "done", "note": note, "warned_lanes": warned or None, **({"dry": True} if engine.dry else {})}
 
 
 def hosted_dispatch(engine, step, say):

@@ -8,9 +8,11 @@ docs/RELEASING.md "Reused results").
 
 writes ${WFE_GREEN_DIR:-/tmp/epic-build/green}/<sha>.json:
   {"sha", "tree", "status": "green", "clean": true, "command": "tools/check.sh --full",
-   "started", "ended", "duration_s", "host", "by", "checkout"}
+   "suites": ["full", "full-notor"], "started", "ended", "duration_s", "host", "by", "checkout"}
 and keeps the newest KEEP records. A tree with changes (tracked or untracked, ignored files aside)
-gets no record: its result is not that commit's. Never fails the check that called it (exit 0).
+gets no record: its result is not that commit's. Nor does a check whose tools/t result
+(<checkout>/.test-results/latest.json) is not both passes green: the whole suite (mode full) and
+the build without Tor (its `notor` section, mode full-notor), never only the changed test files. Never fails the check that called it (exit 0).
 Python 3 standard library only.
 """
 import argparse
@@ -40,8 +42,27 @@ def green_dir():
     return os.path.expanduser(os.environ.get("WFE_GREEN_DIR") or "/tmp/epic-build/green")
 
 
+def suites(root):
+    """-> (["full", "full-notor"], None) when tools/t's latest result in root is both passes green,
+    else (None, why)."""
+    try:
+        with open(os.path.join(root, ".test-results", "latest.json"), encoding="utf-8") as f:
+            latest = json.load(f)
+    except (OSError, ValueError) as e:
+        return None, f"no tools/t result ({e})"
+    notor = latest.get("notor") if isinstance(latest, dict) else None
+    if latest.get("mode") != "full" or latest.get("status") != "green":
+        return None, f"tools/t's latest run is {latest.get('mode')} {latest.get('status')}, not full green"
+    if not isinstance(notor, dict) or notor.get("mode") != "full-notor" or notor.get("status") != "green":
+        return None, "no green full-notor pass in tools/t's latest run"
+    return ["full", "full-notor"], None
+
+
 def record(root, started, now=None, command="tools/check.sh --full"):
     """-> (path or None, message)."""
+    done, why = suites(root)
+    if not done:
+        return None, f"green record: not written: {why}; G2 takes only the whole suite with and without Tor"
     dirty = git(root, "status", "--porcelain", "--untracked-files=normal").strip()
     sha = git(root, "rev-parse", "HEAD").strip()
     if dirty:
@@ -51,7 +72,7 @@ def record(root, started, now=None, command="tools/check.sh --full"):
     scratch = os.environ.get("TMPDIR", "").rstrip("/")
     rec = {
         "sha": sha, "tree": git(root, "rev-parse", "HEAD^{tree}").strip(), "status": "green", "clean": True,
-        "command": command, "started": iso(started) if started else None, "ended": iso(end),
+        "command": command, "suites": done, "started": iso(started) if started else None, "ended": iso(end),
         "duration_s": int(end - started) if started else None, "host": socket.gethostname(),
         "by": os.path.basename(scratch) if scratch else os.environ.get("USER", "?"), "checkout": root,
     }

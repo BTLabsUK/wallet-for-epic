@@ -7,7 +7,7 @@ import subprocess
 import time
 import unittest
 
-from support import REPO, Base
+from support import FAKE_PIPELINE, REPO, Base
 from rellib import builtins
 from rellib.engine import EXIT_DENIED, EXIT_FAILED, EXIT_OK, EXIT_PREFLIGHT, EXIT_WAITING, Engine
 
@@ -355,6 +355,51 @@ scratch = "scratch_noop"
         self.assertEqual(os.listdir(run.files), [])
         log = open(os.path.join(run.step_dir("build-android-tor"), "log.txt")).read()
         self.assertIn("# run: echo build tor", log)
+
+
+FLOW_PIPELINE = FAKE_PIPELINE.replace('funds_variant = "tor"', 'funds_variant = "tor"\nfunds_in = "flow"').replace(
+    "[step.build-android]", """[step.flow-linux]
+platform = "linux"
+for_each = "proof_variant"
+needs = ["scope"]
+capped = true
+run = "bash {src}/driver.sh"
+env = { REL_TRUST_MODE = "flow" }
+
+[step.build-android]""").replace('needs = ["scope"]\nrun = "echo build', 'needs = ["scope", "flow-linux"]\nrun = "echo build').replace(
+    'needs = ["scope"]\nrun = "echo linux', 'needs = ["scope", "flow-linux"]\nrun = "echo linux')
+
+
+class FlowLaneTest(Base):
+    """A flow lane (REL_TRUST_MODE=flow) on the test build, before the release builds."""
+
+    def setUp(self):
+        super().setUp()
+        import tomllib
+        from rellib.config import Pipeline
+        self.pipeline = Pipeline(tomllib.loads(FLOW_PIPELINE))
+
+    def test_flow_lane_takes_the_funds_legs_and_the_update_lanes_do_not(self):
+        run = self.make_run(only="android,linux", sets=["publish.manifests=false"])
+        self.assertEqual(self.engine(run).drive(self.build_ids(run)), EXIT_WAITING)
+        calls = self.calls()
+        self.assertEqual(calls[0], "driver tor checks=wallet_opens,history_kept,send_ok funds=1")
+        self.assertEqual(calls.count("driver tor checks=wallet_opens,history_kept funds=0"), 2)  # trust-android, trust-linux
+        self.assertIn("flow passed on the test build", run.status("flow-linux-tor")["note"])
+
+    def test_a_failed_flow_lane_fails_closed_before_any_build(self):
+        with open(os.path.join(self.src, "proof-mode"), "w") as f:
+            f.write("liar")  # exit 0, but proof.json lacks a required check
+        run = self.make_run(only="android,linux", sets=["publish.manifests=false"])
+        self.assertEqual(self.engine(run).drive(self.build_ids(run)), EXIT_FAILED)
+        self.assertEqual(run.status("flow-linux-tor")["status"], "failed")
+        self.assertFalse([c for c in self.calls() if c.startswith(("build", "linux"))], "no build started")
+
+    def test_funds_in_is_checked(self):
+        import tomllib
+        from rellib.config import ConfigError, Pipeline
+        with self.assertRaises(ConfigError):
+            Pipeline(tomllib.loads(FLOW_PIPELINE.replace('funds_in = "flow"', 'funds_in = "both"')))
 
 
 if __name__ == "__main__":

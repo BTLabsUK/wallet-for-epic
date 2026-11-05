@@ -13,6 +13,8 @@
 #   REL_FUNDS 1|0                1: also receive from and send to P with the candidate
 #   REL_TRUST_MODE create        the create-wallet test instead: the candidate installed fresh, a new wallet
 #                                to home, proof create_ok; no previous release, no funds, the phrase dropped
+#   REL_TRUST_MODE flow          the same lane on one build: previous and candidate name the run's test build
+#                                (release/pipeline.toml flow-*); the update is a reinstall of that build
 #   REL_NODE, REL_EPICBOX        servers to use; picked here (BT Labs first) when unset
 #   REL_OUT                      proof.json, trust.log, digests, shots/ (debug), screens/ (catalogue: screens.json + PNGs), P logs
 #   REL_DRY_RUN=1                print the plan, touch nothing
