@@ -20062,4 +20062,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String dirRemoveTooTitle(String label) {
     return 'ลบ $label ด้วยไหม';
   }
+
+  @override
+  String deskSendErrOwnNamed(String wallet) {
+    return 'นี่คือ “$wallet” กระเป๋าเงินที่เปิดอยู่ตอนนี้ หากต้องการจ่ายเข้ากระเป๋านี้ ให้เปิดกระเป๋าเงินอื่นก่อน';
+  }
 }

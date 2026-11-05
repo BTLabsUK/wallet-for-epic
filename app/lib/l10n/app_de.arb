@@ -5333,5 +5333,6 @@
   "receiptHintTitle": "Beleg",
   "pairEndedRowPeerMismatch": "Hat gemeldet, dass die Wörter nicht übereinstimmen.",
   "pairEndedRowNeverFinished": "Die Wallet hat nie abgeschlossen.",
-  "pairEndedRowUnpaired": "Hat die Kopplung entfernt."
+  "pairEndedRowUnpaired": "Hat die Kopplung entfernt.",
+  "deskSendErrOwnNamed": "Das ist „{wallet}“, die gerade geöffnete Wallet. Um sie zu bezahlen, öffne zuerst eine andere Wallet."
 }

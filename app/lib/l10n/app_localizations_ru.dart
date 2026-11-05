@@ -21150,4 +21150,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String dirRemoveTooTitle(String label) {
     return 'Удалить также $label?';
   }
+
+  @override
+  String deskSendErrOwnNamed(String wallet) {
+    return 'Это «$wallet», открытый сейчас кошелёк. Чтобы отправить на него, сначала откройте другой кошелёк.';
+  }
 }

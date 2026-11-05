@@ -374,6 +374,13 @@
   "@deskSendErrOwn": {
     "description": "Error under the To field on Send when the recipient is this wallet."
   },
+  "deskSendErrOwnNamed": "This is “{wallet}”, the wallet open now. To pay it, open another wallet first.",
+  "@deskSendErrOwnNamed": {
+    "description": "Error under the To field on Send when the recipient is the wallet open now. {wallet} is its name in the wallet list. The app\u2019s other wallets can be paid; only the open one cannot.",
+    "placeholders": {
+      "wallet": {"type": "String", "example": "local 2"}
+    }
+  },
   "deskSendNoAnswer": "The recipient did not answer. Nothing was sent.",
   "@deskSendNoAnswer": {
     "description": "Sample failure text on Send (used by the guided tour)."

@@ -206,7 +206,7 @@ void main() {
     expect(find.text('Left to spend'), findsNothing);
     await tester.tap(find.text(_l.deskSendReview));
     await tester.pump(const Duration(milliseconds: 600));
-    expect(find.text(_l.deskSendErrOwn), findsOneWidget);
+    expect(find.text(_l.deskSendErrOwnNamed('Main wallet')), findsOneWidget);
     expect(find.text('Send 1.0\u00a0EPIC'), findsNothing, reason: 'no review dialog');
   });
 
@@ -225,7 +225,7 @@ void main() {
       await _pump(tester, SendScreen(arg: SendArgs(recipient: to, amount: '1')), api: api);
       await tester.tap(find.text(_l.deskSendReview));
       await tester.pump(const Duration(milliseconds: 600));
-      expect(find.text(_l.deskSendErrOwn), refused ? findsOneWidget : findsNothing);
+      expect(find.text(_l.deskSendErrOwnNamed('Main wallet')), refused ? findsOneWidget : findsNothing);
       // The review dialog that opens for another address starts a timer of its own.
       await tester.pumpAndSettle();
     });

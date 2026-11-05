@@ -5333,5 +5333,6 @@
   "receiptHintTitle": "Potwierdzenie",
   "pairEndedRowPeerMismatch": "Zgłoszono, że słowa się nie zgadzają.",
   "pairEndedRowNeverFinished": "Portfel nigdy nie dokończył.",
-  "pairEndedRowUnpaired": "Parowanie usunięte po tamtej stronie."
+  "pairEndedRowUnpaired": "Parowanie usunięte po tamtej stronie.",
+  "deskSendErrOwnNamed": "To „{wallet}”, portfel otwarty teraz. Aby na niego zapłacić, najpierw otwórz inny portfel."
 }

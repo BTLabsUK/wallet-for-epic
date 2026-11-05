@@ -20479,4 +20479,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String dirRemoveTooTitle(String label) {
     return 'Remove $label too?';
   }
+
+  @override
+  String deskSendErrOwnNamed(String wallet) {
+    return 'This is “$wallet”, the wallet open now. To pay it, open another wallet first.';
+  }
 }

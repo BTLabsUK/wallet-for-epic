@@ -50,6 +50,7 @@
   "deskSendErrNotDirect": "这不是链接地址。",
   "deskSendErrOnion": "这不是有效的 onion 地址。",
   "deskSendErrOwn": "这是本钱包自己的地址。",
+  "deskSendErrOwnNamed": "这是当前打开的钱包“{wallet}”。要向它付款，请先打开另一个钱包。",
   "deskSendNoAnswer": "接收方没有响应。没有发送任何资金。",
   "deskSendTorOnFailed": "Tor 未开启",
   "deskSendTorOffFailed": "Tor 未关闭",

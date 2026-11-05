@@ -21166,4 +21166,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String dirRemoveTooTitle(String label) {
     return 'Usunąć też $label?';
   }
+
+  @override
+  String deskSendErrOwnNamed(String wallet) {
+    return 'To „$wallet”, portfel otwarty teraz. Aby na niego zapłacić, najpierw otwórz inny portfel.';
+  }
 }

@@ -9,6 +9,7 @@ import '../../../recent_activity.dart' show recentActivityCount, showViewAll;
 import '../../../recipient.dart' show RecipientKind, parseRecipient;
 import '../../desk_l10n.dart';
 import '../../data/desk_errors.dart' show deskErrorText;
+import '../../app/shell.dart' show deskRouteShown;
 import '../../app/tour.dart';
 import '../../../l10n.dart' show AppLocalizations, localDayMonth;
 import '../../widgets/kit.dart';
@@ -184,13 +185,13 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
         child: Container(decoration: panel, child: const _Closed()),
       );
     }
-    final orphans = ref.watch(deskPairsProvider) ? ref.watch(deskOrphanPairingsProvider) : const <PairingRecord>[];
+    final orphans = deskRouteShown(ref, DeskRoute.pair) ? ref.watch(deskOrphanPairingsProvider) : const <PairingRecord>[];
     if (all.isEmpty && orphans.isEmpty && !_adding) {
       return EPage(
         title: l.deskConTitle,
         width: EPageWidth.narrow,
         // Import contacts fills an empty book.
-        actions: [if (ref.watch(deskPairsProvider)) const DeskContactsPairButton(), const ContactsMoreButton()],
+        actions: [if (deskRouteShown(ref, DeskRoute.pair)) const DeskContactsPairButton(), const ContactsMoreButton()],
         child: Container(
           decoration: panel,
           child: _Empty(onAdd: _add),
@@ -314,7 +315,7 @@ class _ContactsScreenState extends ConsumerState<ContactsScreen> {
       actions: [
         // Pair in one place, labelled at every width and never gold (Pairing UX plan 4.3).
         // Requests from contacts show beside it while any wait.
-        if (ref.watch(deskPairsProvider)) ...[
+        if (deskRouteShown(ref, DeskRoute.pair)) ...[
           if ((ref.watch(deskPairRequestsProvider).value ?? const <PairRequest>[]).isNotEmpty)
             EButton.ghost(
               key: deskContactsRequestsKey,
@@ -680,6 +681,8 @@ class _ContactDetail extends ConsumerWidget {
     final torOnly = !DeskFeatures.tor && x.addresses.isNotEmpty && x.kinds.every((k) => k == RecipientKind.tor);
     final nav = ref.read(deskNavProvider.notifier);
     final pairs = ref.watch(deskPairsProvider);
+    // Pair, the Pairing block and their pages: only where the level shows the Pair page.
+    final pairPage = deskRouteShown(ref, DeskRoute.pair);
     // Its payments: to and from its address, and through any pairing attached to it.
     final pairings = pairs ? {for (final r in ref.watch(deskPairingsProvider).value ?? const <PairingRecord>[]) if (r.contactId == x.id) r.id} : const <String>{};
     final mine = (ref.watch(deskProvider.select((s) => s.txs)) ?? const <Tx>[])
@@ -774,7 +777,7 @@ class _ContactDetail extends ConsumerWidget {
         // is too narrow for the row (Pairing UX plan 4.3), so the row never wraps.
         LayoutBuilder(builder: (context, box) {
           final pending = pairs ? ref.watch(deskContactPendingProvider(x.id)) : null;
-          final pairLabel = !pairs || (pairing != null && !pairing.ended)
+          final pairLabel = !pairPage || (pairing != null && !pairing.ended)
               ? null
               : pending != null
                   ? l.trustWaiting
@@ -827,7 +830,7 @@ class _ContactDetail extends ConsumerWidget {
                 onPressed: (x.addresses.isEmpty || torOnly) && !(pairing?.paysByMailbox ?? false) ? null : () => nav.go(DeskRoute.send, x),
               ),
               // Not paired, or the pairing ended: Pair (again). Waiting opens the Pair page.
-              if (pairs && (pairing == null || pairing.ended))
+              if (pairPage && (pairing == null || pairing.ended))
                 pending != null
                     ? EButton(
                         key: deskContactPairKey,
@@ -878,7 +881,7 @@ class _ContactDetail extends ConsumerWidget {
         if (noPayments && pairs && pairing != null && !pairing.ended) DeskDirectoryBlock(pairingId: pairing.id, label: x.name),
         if (x.note != null) ...[SizedBox(height: Sp.x5), Text(l.deskConNote, style: ts.label), SizedBox(height: Sp.x1), Text(x.note!, style: ts.body)],
         // Pairing (RFC 0002): trust, Seal payments, Allow invoices, the relay, Remove pairing.
-        if (pairs) ...[SizedBox(height: Sp.x6), DeskPairingBlock(contact: x, pairing: pairing, pending: ref.watch(deskContactPendingProvider(x.id)))],
+        if (pairPage) ...[SizedBox(height: Sp.x6), DeskPairingBlock(contact: x, pairing: pairing, pending: ref.watch(deskContactPendingProvider(x.id)))],
         // The compatibility line (trust policy): one sentence, never a badge.
         if (!noPayments && pairs && pairing != null && !pairing.ended) DeskDirectoryBlock(pairingId: pairing.id, label: x.name),
         if (noPayments) ...addressesCard,

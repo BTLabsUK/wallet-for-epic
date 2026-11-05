@@ -5333,5 +5333,6 @@
   "receiptHintTitle": "Квитанция",
   "pairEndedRowPeerMismatch": "Сообщено, что слова не совпадают.",
   "pairEndedRowNeverFinished": "Кошелёк так и не завершил.",
-  "pairEndedRowUnpaired": "Сопряжение удалено с той стороны."
+  "pairEndedRowUnpaired": "Сопряжение удалено с той стороны.",
+  "deskSendErrOwnNamed": "Это «{wallet}», открытый сейчас кошелёк. Чтобы отправить на него, сначала откройте другой кошелёк."
 }
