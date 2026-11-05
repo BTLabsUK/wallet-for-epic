@@ -104,6 +104,8 @@ the repository, `app/ios/Runner.xcworkspace` and `app/macos/Runner.xcworkspace`.
 
 ## Each release
 
+The commands alone, for a builder with a clean clone: `tools/apple-from-clone.md`.
+
 When the release runner (`tools/rel`) drives the release, steps 2 to 4 are its hand-offs
 `apple-mac-<tor|notor>` and `ios-testflight` and its check `apple-mac-check-<variant>`: the job
 and the results folders, and where the Team ID for the check is set, are in `docs/RELEASING.md`,
