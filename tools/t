@@ -185,10 +185,11 @@ def jobs(n_files, wanted):
     if wanted:
         return max(1, min(wanted, n_files))
     j = os.environ.get("FLUTTER_TEST_JOBS")
-    if j and j.isdigit():
-        return max(1, int(j))
-    # Three quarters of the logical CPUs (measured on the build machine: 13 % faster than flutter's half).
-    return max(1, min(n_files, (os.cpu_count() or 4) * 3 // 4))
+    if j and j.isdigit() and int(j) > 0:
+        return int(j)
+    # Three quarters of the logical CPUs, at most 8: three quarters of 16 threads kept a 16-thread
+    # machine at 96 % CPU.
+    return max(1, min(n_files, 8, (os.cpu_count() or 4) * 3 // 4))
 
 
 def run_flutter(files, env, args, name_filter, update_goldens, run=None, events_name="latest.events.jsonl",
