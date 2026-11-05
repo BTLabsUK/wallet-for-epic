@@ -335,11 +335,16 @@ def asset_sha256(gh: GitHub, asset: dict) -> str:
     return hashlib.sha256(gh.asset_bytes(asset)).hexdigest()
 
 
+# The assets that list or describe the release files: a release that gains files (tools/rel
+# --follow-up) rewrites them, while every release file keeps its bytes.
+LISTING = ("SHA256SUMS", "SHA256SUMS.sig", "provenance.json", "sbom.cdx.json")
+
+
 def github_plan(gh: GitHub, tag: str, ref: str | None, files: list[Path], sums: dict[str, str],
-                version: str, replace: bool) -> tuple[dict | None, list[tuple]]:
+                version: str, replace: bool, replace_listing: bool = False) -> tuple[dict | None, list[tuple]]:
     """What github_release will do: the release as it is (None when missing) and one step
     (action, asset name, file, asset on GitHub) per asset. Every refusal is raised here, before
-    anything is written."""
+    anything is written. replace_listing swaps only the LISTING assets."""
     rel = gh.call("GET", f"/releases/tags/{urllib.parse.quote(tag, safe='')}", ok404=True)
     if rel is None and gh.call("GET", f"/git/ref/tags/{urllib.parse.quote(tag, safe='')}",
                                ok404=True) is None and not ref:
@@ -353,7 +358,7 @@ def github_plan(gh: GitHub, tag: str, ref: str | None, files: list[Path], sums: 
             plan.append(("+", n, p, None))
         elif asset_sha256(gh, old) == sums[p.name]:
             plan.append(("=" if old.get("label") == p.name else "label", n, p, old))
-        elif replace:
+        elif replace or (replace_listing and n in LISTING):
             plan.append(("~", n, p, old))
         else:
             raise Fail(f"{n} is already on the GitHub release {tag} with other bytes; "
@@ -496,7 +501,7 @@ def cmd_publish(a) -> int:
                 "SHA256SUMS": hashlib.sha256(sums_text.encode()).hexdigest(),
                 "SHA256SUMS.sig": hashlib.sha256(sig_text.encode()).hexdigest()}
     # before anything is written: a refused run leaves no trace
-    gh_rel, gh_steps = github_plan(gh, tag, a.ref, all_files, sums_all, a.version, a.replace)
+    gh_rel, gh_steps = github_plan(gh, tag, a.ref, all_files, sums_all, a.version, a.replace, a.replace_listing)
     for name, text in (("SHA256SUMS", sums_text), ("SHA256SUMS.sig", sig_text)):
         path = folder / name
         same = path.exists() and path.read_text(encoding="utf-8") == text
@@ -593,6 +598,8 @@ def main(argv=None) -> int:
     p.add_argument("--notes", help="release description (default: the fastlane changelog)")
     p.add_argument("--exclude", action="append", default=[], help="file name glob to leave out")
     p.add_argument("--replace", action="store_true", help="swap a file uploaded with other bytes")
+    p.add_argument("--replace-listing", action="store_true",
+                   help="swap only " + ", ".join(LISTING) + " (a release that gains files); never a release file")
     p.add_argument("--key", default=str(DEFAULTS["key"]))
     p.add_argument("--signer", action="store_true",
                    help="sign SHA256SUMS with the release signer ([host.signer] endpoint) instead of --key")

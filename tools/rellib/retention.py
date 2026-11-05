@@ -83,6 +83,14 @@ def plan(state_root, keep_run=None):
         why.append(f"{p['version']} ({'current' if len(seen_versions) == 1 else 'previous, rollback backup'})")
         if len(seen_versions) == 2:
             break
+    # A follow-up run (tools/rel start --follow-up) carries the files of the run it follows: that run
+    # holds their proofs, so it stays while the follow-up does.
+    for p in pubs:
+        if p["run"] in keep:
+            base = (read_json(os.path.join(p["run"], "run.json"), {}).get("follow_up") or {}).get("run")
+            if base and os.path.isdir(base) and base not in keep:
+                keep.add(base)
+                why.append(f"{os.path.basename(base)} (the run {p['run_id']} follows up)")
     current = _vkey(seen_versions[0]) if seen_versions else None
     # Runs of a version newer than the current release (a candidate in progress): its newest run.
     newest = {}

@@ -113,6 +113,7 @@ class Engine:
             "REL_PREVIOUS_REF": prev.get("ref", ""), "REL_PREVIOUS_EXTRA": prev.get("extra", ""),
             "REL_NODE": net.get("node", ""), "REL_EPICBOX": net.get("epicbox", ""),
             "REL_DRY_RUN": "1" if self.dry else "0",
+            "REL_FOLLOW_UP": "1" if i.get("follow_up") else "0",
             "REL_MANIFEST_DAYS": str(self.pipeline.manifest_days()),
         }
         signer = self.hosts["host"].get("signer", {})
@@ -641,11 +642,26 @@ class Engine:
     def exec_handoff(self, step, log):
         """Writes a job for the Apple builder (job.toml, a git bundle of the commit, the files it
         needs) and waits for its results; done when every expected result is there and its
-        SHA256SUMS (when sent) agrees. Never blocks: a missing result = waiting."""
+        SHA256SUMS (when sent) agrees. Never blocks: a missing result = waiting.
+        With run.json handoff_from (tools/rel start --apple-results DIR) the results are already in
+        DIR: no job is written or sent, the expected results are copied from there."""
         hdir = os.path.join(self.run.path, "handoff", step.id)
         job, results = os.path.join(hdir, "job"), os.path.join(hdir, "results")
         os.makedirs(results, exist_ok=True)
         staging = self.hosts["host"].get("apple", {}).get("staging", "")
+        given = self.info.get("handoff_from")
+        if given:
+            staging = ""
+            with open(log, "a", encoding="utf-8") as f:
+                for r in step.results:
+                    src, dest = os.path.join(given, r), os.path.join(results, r)
+                    if os.path.isfile(src) and not os.path.islink(src) and not os.path.exists(dest):
+                        shutil.copy2(src, dest)
+                        f.write(f"result from {src}\n")
+            missing = [r for r in step.results if not os.path.isfile(os.path.join(results, r))]
+            if missing:
+                return {"status": "waiting", "note": f"results from {given}: missing {', '.join(missing)}"}
+            return {"status": "done", "note": f"results from {given} (no job sent)"}
         with open(log, "a", encoding="utf-8") as f:
             if not os.path.exists(os.path.join(job, "job.toml")):
                 os.makedirs(job, exist_ok=True)

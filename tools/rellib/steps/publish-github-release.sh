@@ -23,11 +23,15 @@ rm -rf "$out" && mkdir -p "$out"
 for f in "${files[@]}"; do
   ln "$dir/$f" "$out/$f" 2>/dev/null || cp -p "$dir/$f" "$out/$f"
 done
-# The release notes: the fastlane changelog of the version (release-files.py's default), else
-# the run's update notes, else one line.
+# The release notes: the release source's fastlane changelog of the version, else the run's
+# update notes, else one line. release-files.py is the runner's (like this script), so a tool fix
+# reaches a release whose source is older.
 IFS=. read -r y m p <<<"${v%%-*}"
+changelog="$src/fastlane/metadata/android/en-US/changelogs/$(printf '%02d%02d%02d00' "$((10#$y))" "$((10#$m))" "$((10#$p))").txt"
 notes=()
-if [[ ! -s "$src/fastlane/metadata/android/en-US/changelogs/$(printf '%02d%02d%02d00' "$((10#$y))" "$((10#$m))" "$((10#$p))").txt" ]]; then
+if [[ -s "$changelog" ]]; then
+  notes=(--notes "$changelog")
+else
   if [[ -s "${REL_NOTES_FILE:-}" ]]; then
     notes=(--notes "$REL_NOTES_FILE")
   else
@@ -35,5 +39,9 @@ if [[ ! -s "$src/fastlane/metadata/android/en-US/changelogs/$(printf '%02d%02d%0
     notes=(--notes "$stage/github-notes.txt")
   fi
 fi
-python3 "$src/tools/release-files.py" publish "$v" "$out" --github-repo "$repo" \
-  --key "$key" --keyring "$keyring" "${notes[@]}"
+# A follow-up run (REL_FOLLOW_UP=1) adds files to the published release: the listing assets
+# (SHA256SUMS, its signature, provenance.json, the SBOM) change, every other asset keeps its bytes.
+listing=()
+[[ "${REL_FOLLOW_UP:-0}" == 1 ]] && listing=(--replace-listing)
+python3 "$(cd "$(dirname "$0")/../.." && pwd)/release-files.py" publish "$v" "$out" --github-repo "$repo" \
+  --key "$key" --keyring "$keyring" "${notes[@]}" "${listing[@]}"
