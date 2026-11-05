@@ -321,15 +321,21 @@ class DirectoryService implements DirectoryMembership, PaymentRefusals, Director
     if (rec.peerFeatures & featureDirectory == 0) return _drop('hello without the directory feature');
     final dkey = toHex(hello.dkey);
     final known = _book.byPairing(rec.id);
-    // A directory this contact is already verified for: only a later valid hello can change
-    // its flags.
+    // A directory this contact is already verified for: only a valid hello with a greater `issued`
+    // can change its flags.
     if (rec.state == PairingState.verified && known != null && known.pinned) {
       final bind = sasIndexesOf(rec.sas);
       if (bind != null) {
         try {
           await verifyPayload(hello, net: _host.net, bind: bind, verifier: _host.verifier);
-          if (hello.takesNoPayments != known.noPayments || hello.label != known.payAs) {
-            await _put(_book.put(known.copyWith(noPayments: hello.takesNoPayments, payAs: () => hello.label)));
+          final last = known.issued;
+          if (last != null && hello.issued <= last) {
+            // A replayed or repeated hello must not revert what a later one set.
+            logDebug('directory', 'hello not newer (${hello.issued} <= $last): ignored');
+          } else {
+            await _put(
+              _book.put(known.copyWith(noPayments: hello.takesNoPayments, payAs: () => hello.label, issued: hello.issued)),
+            );
           }
         } on DirectoryException {
           // An unreadable repeat changes nothing.
@@ -361,6 +367,7 @@ class DirectoryService implements DirectoryMembership, PaymentRefusals, Director
       pinned: existing != null && existing.pairingId == rec.id && existing.pinned,
       noPayments: hello.takesNoPayments,
       payAs: () => hello.label,
+      issued: hello.issued,
       paymentsKey: () => _keyOf(rec.paymentsAddress),
     );
     await _put(_book.put(next));

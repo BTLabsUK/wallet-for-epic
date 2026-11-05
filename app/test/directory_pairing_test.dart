@@ -208,12 +208,38 @@ void main() {
       final rig = _Rig();
       final r = await rig.verified();
       expect(rig.service.refusesPayments(pairingId: r.id), isFalse);
-      rig.api.directoryHello(r.id, dkey: _dkey, flags: dirHelloNoPayments);
+      rig.api.directoryHello(r.id, dkey: _dkey, flags: dirHelloNoPayments, issued: 2);
       await rig.service.readPayloads();
       expect(rig.service.refusesPayments(pairingId: r.id), isTrue);
-      rig.api.directoryHello(r.id, dkey: _dkey);
+      rig.api.directoryHello(r.id, dkey: _dkey, issued: 3);
       await rig.service.readPayloads();
       expect(rig.service.refusesPayments(pairingId: r.id), isFalse);
+    });
+
+    test('a replayed older hello, or one with the same issued, changes nothing', () async {
+      final rig = _Rig();
+      final r = await rig.verified();
+      rig.api.directoryHello(r.id, dkey: _dkey, flags: dirHelloNoPayments, label: '@alice_test', issued: 5);
+      await rig.service.readPayloads();
+      expect(rig.service.refusesPayments(pairingId: r.id), isTrue);
+      // The older hello (issued 1 from verified(), then 4) does not revert the flag or the name.
+      rig.api.directoryHello(r.id, dkey: _dkey, issued: 4);
+      await rig.service.readPayloads();
+      expect(rig.service.refusesPayments(pairingId: r.id), isTrue);
+      expect(rig.service.book.byPairing(r.id)?.payAs, '@alice_test');
+      // The same issued with other content is ignored too.
+      rig.api.directoryHello(r.id, dkey: _dkey, label: '@bob', issued: 5);
+      await rig.service.readPayloads();
+      expect(rig.service.refusesPayments(pairingId: r.id), isTrue);
+      expect(rig.service.book.byPairing(r.id)?.payAs, '@alice_test');
+      expect(rig.service.book.byPairing(r.id)?.issued, BigInt.from(5));
+    });
+
+    test('an entry saved before issued was kept accepts the next hello; issued survives a reload', () {
+      final entry = DirectoryEntry.fromJson({'dkey': 'aa', 'pairing': 'p', 'handle': 'bb'})!;
+      expect(entry.issued, isNull);
+      final back = DirectoryEntry.fromJson(entry.copyWith(issued: BigInt.from(7)).toJson())!;
+      expect(back.issued, BigInt.from(7));
     });
   });
 
@@ -223,14 +249,14 @@ void main() {
       final r = await rig.verified();
       expect(rig.service.book.byPairing(r.id)?.payAs, isNull);
       expect(rig.service.book.byPairing(r.id)?.payAsArg, 'none');
-      rig.api.directoryHello(r.id, dkey: _dkey, label: '@alice_test');
+      rig.api.directoryHello(r.id, dkey: _dkey, label: '@alice_test', issued: 2);
       await rig.service.readPayloads();
       expect(rig.service.book.byPairing(r.id)?.payAs, '@alice_test');
       expect(rig.service.book.byPairing(r.id)?.payAsArg, '@alice_test');
-      rig.api.directoryHello(r.id, dkey: _dkey, label: '@bob');
+      rig.api.directoryHello(r.id, dkey: _dkey, label: '@bob', issued: 3);
       await rig.service.readPayloads();
       expect(rig.service.book.byPairing(r.id)?.payAs, '@bob');
-      rig.api.directoryHello(r.id, dkey: _dkey);
+      rig.api.directoryHello(r.id, dkey: _dkey, issued: 4);
       await rig.service.readPayloads();
       expect(rig.service.book.byPairing(r.id)?.payAs, isNull);
     });
@@ -471,7 +497,7 @@ void main() {
     testWidgets('the contact block: Joined · since, the listing code, Leave posts an unlist', (tester) async {
       final rig = await pump(tester, const SizedBox());
       final r = await rig.verified();
-      rig.api.directoryHello(r.id, dkey: _dkey, label: '@alice_test');
+      rig.api.directoryHello(r.id, dkey: _dkey, label: '@alice_test', issued: 2);
       await rig.service.readPayloads();
       await rig.service.join(_dkeyHex);
       await mount(tester, rig, Scaffold(body: SingleChildScrollView(child: DirectoryBlock(pairingId: r.id, label: 'Anna'))));

@@ -58,6 +58,7 @@ class DirectoryEntry {
     this.noPayments = false,
     this.paymentsKey,
     this.payAs,
+    this.issued,
   });
 
   final String dkey;
@@ -97,6 +98,10 @@ class DirectoryEntry {
   /// that hello had none.
   final String? payAs;
 
+  /// The `issued` of the last hello applied to this entry; a later hello counts only when its own
+  /// is greater. Null on data from before it was kept: the next hello is accepted.
+  final BigInt? issued;
+
   bool get joined => state == ListingState.joined;
 
   /// [payAs] as the "Pay me as" strings take it: the word `none` when there is no name.
@@ -120,6 +125,7 @@ class DirectoryEntry {
     bool? noPayments,
     String? Function()? paymentsKey,
     String? Function()? payAs,
+    BigInt? issued,
   }) => DirectoryEntry(
     dkey: dkey,
     pairingId: pairingId ?? this.pairingId,
@@ -136,6 +142,7 @@ class DirectoryEntry {
     noPayments: noPayments ?? this.noPayments,
     paymentsKey: paymentsKey == null ? this.paymentsKey : paymentsKey(),
     payAs: payAs == null ? this.payAs : payAs(),
+    issued: issued ?? this.issued,
   );
 
   /// The listings to read now: the joined one and the retired ones within their window.
@@ -161,6 +168,7 @@ class DirectoryEntry {
     'noPayments': noPayments,
     'paymentsKey': paymentsKey,
     'payAs': payAs,
+    'issued': issued?.toString(),
   };
 
   static DirectoryEntry? fromJson(Object? j) {
@@ -181,6 +189,7 @@ class DirectoryEntry {
       noPayments: j['noPayments'] == true,
       paymentsKey: j['paymentsKey'] as String?,
       payAs: j['payAs'] as String?,
+      issued: BigInt.tryParse('${j['issued']}'),
     );
   }
 }
