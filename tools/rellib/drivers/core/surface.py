@@ -17,10 +17,11 @@ from typing import Any, Optional, Protocol
 ROLES = ("button", "text_field", "checkbox", "toggle", "tab", "row", "text", "link", "menu_item", "dialog", "other")
 
 # Roles that satisfy a target's role: a row or a link can act as a button; a toggle reads as a
-# checkbox on some platforms (Android's Switch is checkable, AT-SPI says "toggle button").
+# checkbox on some platforms (Android's Switch is checkable, AT-SPI says "toggle button"); a radio option
+# is a button on iOS (Selected when chosen). The asked-for role still ranks first (targets._role_fit).
 COMPATIBLE = {
     "button": {"button", "link", "menu_item", "row", "tab"},
-    "checkbox": {"checkbox", "toggle"},
+    "checkbox": {"checkbox", "toggle", "button"},
     "toggle": {"toggle", "checkbox", "button"},
     "row": {"row", "button", "menu_item", "text"},
     "tab": {"tab", "button", "menu_item"},
