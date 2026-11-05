@@ -68,7 +68,19 @@ void main() {
   useShippedSettings();
 
   setUp(() async => support = await Directory.systemTemp.createTemp('desk-public-servers-'));
-  tearDown(() => support.delete(recursive: true));
+  // A file the closing wallet still writes can land in the folder while it is deleted
+  // ("Directory not empty"): the delete is tried again.
+  tearDown(() async {
+    for (var i = 0; ; i++) {
+      try {
+        await support.delete(recursive: true);
+        return;
+      } on FileSystemException {
+        if (i == 10) rethrow;
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }
+    }
+  });
 
   LepicDeskWallet make(Object directory, {Set<String>? existing}) => LepicDeskWallet(
     service: core.FakeWalletService(password: _password, existingWallets: existing),

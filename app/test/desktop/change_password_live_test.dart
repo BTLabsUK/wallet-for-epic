@@ -66,6 +66,10 @@ void main() {
     }
   }
 
+  /// The sync an unlock starts runs on by itself; a lock in the middle of it is not what this
+  /// file tests, and it would race the unreachable node's answer.
+  Future<void> settled(LepicDeskWallet w) => w.sync();
+
   test('after a change only the new password opens the wallet, also after a restart', () async {
     final wallet = app();
     await wallet.createWallet(name: 'Main', password: _old);
@@ -80,9 +84,11 @@ void main() {
     await wallet.changePassword(_old, _new);
     expect(await wallet.isRemembered(id), isFalse);
     expect(await wallet.revealPhrase(_new), phrase, reason: 'the open handle takes the new password');
+    await settled(wallet);
     await wallet.lock();
     expect(await unlock(wallet, _old), isFalse);
     expect(await unlock(wallet, _new), isTrue);
+    await settled(wallet);
     await wallet.lock();
     wallet.dispose();
 
@@ -91,6 +97,7 @@ void main() {
     expect(await unlock(again, _old), isFalse);
     expect(await unlock(again, _new), isTrue);
     expect(await again.revealPhrase(_new), phrase);
+    await settled(again);
     expect(secrets.values.keys.where((k) => k.endsWith('vault-next')), isEmpty, reason: 'the change settled');
   }, skip: _lib == null ? 'needs WFE_LEPIC_LIB' : false, timeout: const Timeout(Duration(minutes: 4)));
 
