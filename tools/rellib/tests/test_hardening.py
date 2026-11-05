@@ -467,6 +467,22 @@ class EvidenceTest(Base):
         self.assertIn("approved rc-manifest", evidence.publish_refusal(run))
         self.assertEqual([sid for sid, _ in evidence.stale_proofs(eng, evidence.read_manifest(run))], ["trust-android-tor"])
 
+    def test_a_run_never_published_lists_only_the_builds_that_ran(self):
+        run, eng = self.built()
+        st = run.status("build-linux-notor")
+        self.assertTrue(st["outputs"])
+        for name in st["outputs"]:
+            os.remove(os.path.join(run.files, name))
+        run.set_status("build-linux-notor", status="pending")
+        h, missing = evidence.write_manifest(eng)
+        self.assertEqual(missing, list(st["outputs"]))  # a run that may publish needs every build
+        run.taint("trust-linux-tor run with unmet needs: build-linux-notor")
+        h, missing = evidence.write_manifest(eng)
+        self.assertEqual(missing, [])
+        files = evidence.read_manifest(run)["files"]
+        self.assertFalse(set(st["outputs"]) & set(files))
+        self.assertIn("bt-wallet-26.10.25-android-arm64-v8a.apk", files)
+
     def test_a_build_that_ran_again_resets_what_depended_on_its_bytes(self):
         run, eng = self.built()
         before = run.status("trust-linux-tor")

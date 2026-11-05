@@ -29,10 +29,13 @@ def manifest_hash(files):
 
 
 def artefact_paths(engine):
-    """{name: path} of every file the run's builds made: outputs in files/, extras in extra/."""
+    """{name: path} of every file the run's builds made: outputs in files/, extras in extra/.
+    A run that never publishes (tainted) lists only the builds that ran: the files in hand."""
+    from .signer import never_published
     out = {}
+    in_hand = never_published(engine.run)
     for s in engine.run.steps:
-        if not engine.is_build(s):
+        if not engine.is_build(s) or (in_hand and engine.run.status(s.id)["status"] != "done"):
             continue
         for o in s.outputs:
             out[os.path.basename(o)] = os.path.join(engine.run.files, os.path.basename(o))

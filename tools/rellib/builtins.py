@@ -575,10 +575,14 @@ def artefacts(engine, step, say):
         for name, (s, _) in expected.items():
             say(f"would check {name} (from {s.id})")
         return {"status": "done", "note": f"dry run: {len(expected)} files expected", "dry": True}
-    problems = []
+    from .signer import never_published
+    problems, absent = [], []
     present = sorted(f for f in os.listdir(run.files) if f not in ("SHA256SUMS", "provenance.json", SBOM))
     for name, (s, stt) in expected.items():
-        if stt != "done":
+        if stt != "done" and never_published(run) and name not in present:
+            absent.append(name)  # never published: the files in hand are checked (as sign-android)
+            say(f"not in this run: {name} ({s.id} is {stt})")
+        elif stt != "done":
             problems.append(f"{name}: its step {s.id} is {stt}")
         elif name not in present:
             problems.append(f"{name}: missing from files/")
@@ -639,7 +643,7 @@ def artefacts(engine, step, say):
                       "built_by": built_by(engine, s) if s else None}
     if "android" in [p for p in PLATFORMS if info["scope"]["platforms"].get(p)]:
         for s in run.steps:
-            if s.base == "build-android":
+            if s.base == "build-android" and not (never_published(run) and run.status(s.id)["status"] != "done"):
                 for e in s.extras:
                     if not os.path.isfile(os.path.join(run.extra, e)):
                         problems.append(f"extra/{e}: missing (G4 needs it)")
@@ -692,7 +696,9 @@ def artefacts(engine, step, say):
     say(f"rc-manifest.json {mhash}")
     total = sum(m["bytes"] for m in meta.values())
     return {"status": "done", "note": f"{len(present)} files, {total / 1e6:.0f} MB, SHA256SUMS + provenance.json + {SBOM}"
-                                      f"; rc-manifest {mhash[:12]}", "bytes": total, "rc_manifest": mhash}
+                                      f"; rc-manifest {mhash[:12]}"
+                                      + (f"; not in this run: {', '.join(absent)}" if absent else ""),
+            "bytes": total, "rc_manifest": mhash}
 
 
 SBOM = "sbom.cdx.json"

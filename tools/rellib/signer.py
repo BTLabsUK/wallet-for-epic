@@ -59,7 +59,10 @@ def client(engine, say):
 
 
 def approve_token(hosts):
-    return os.path.expanduser(settings(hosts).get("approve_token", "~/.config/btlabs/signer-approve.token"))
+    """[host.signer] approve_token, else REL_SIGNER_APPROVE_TOKEN (the tests point it into their
+    temp dir), else the machine's ~/.config/btlabs/signer-approve.token."""
+    return os.path.expanduser(settings(hosts).get("approve_token") or os.environ.get("REL_SIGNER_APPROVE_TOKEN")
+                              or "~/.config/btlabs/signer-approve.token")
 
 
 def auto_approve(engine):
