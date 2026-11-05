@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-// A payment made from a link, on the desktop: the optional receipt line (hidden when the directory
+// A payment made from a link, on the desktop: the optional receipt line (hidden when the name service
 // cannot be told, one post per stage, stage 2 after finalize) and the silent-payee rows at 0 hours,
 // 24 hours and 7 days (Cancel and send by Epicbox: the cancel, then Send with the amount and the
 // payee's saved address).
@@ -11,14 +11,14 @@ import 'package:epic_wallet/src/desktop/screens/wallet/receipt_line.dart';
 import 'package:epic_wallet/src/desktop/screens/wallet/tx_detail.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
-import 'package:epic_wallet/src/directory/directory.dart';
+import 'package:epic_wallet/src/name_service/name_service.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
-import '../directory_vectors_support.dart';
+import '../name_service_vectors_support.dart';
 import '../support/experimental.dart';
 import '../support/fake_receipts.dart';
 
@@ -77,7 +77,7 @@ Future<void> _open(WidgetTester tester, Tx tx, {bool tell = true, String? label 
   _records = MemoryLinkPayments({
     _slate: LinkPaymentRec(
       reqid: toHex(req.reqid),
-      dkey: toHex(req.card.dkey),
+      serviceKey: toHex(req.card.serviceKey),
       amount: BigInt.from(_amount),
       address: matchContact ? anna.epicbox! : 'es${'b' * 50}@epicbox.epiccash.com',
       paidAt: _unix(_ago(const Duration(hours: 1))),
@@ -88,7 +88,7 @@ Future<void> _open(WidgetTester tester, Tx tx, {bool tell = true, String? label 
     overrides: [
       deskApiProvider.overrideWithValue(_mock),
       deskClockProvider.overrideWithValue(() => _now),
-      directoryReceiptsProvider.overrideWithValue(_receipts),
+      nameServiceReceiptsProvider.overrideWithValue(_receipts),
       linkPaymentRecordsProvider.overrideWithValue(_records),
     ],
   );
@@ -118,7 +118,7 @@ void main() {
   setUpAll(initializeDateFormatting);
 
   group('the receipt line', () {
-    testWidgets('hidden while the directory cannot be told', (tester) async {
+    testWidgets('hidden while the name service cannot be told', (tester) async {
       await _open(tester, _payment(_ago(const Duration(hours: 1))), tell: false);
       expect(find.byKey(deskReceiptLineKey), findsNothing);
       expect(find.byKey(deskReceiptToldKey), findsNothing);
@@ -134,7 +134,7 @@ void main() {
       await tester.tap(find.byType(ECheckbox));
       await _real(tester);
       expect(_receipts.posts, hasLength(1));
-      final p = DirectoryPayload.decode(_receipts.posts.single.$2) as ReceiptPayload;
+      final p = NameServicePayload.decode(_receipts.posts.single.$2) as ReceiptPayload;
       expect(p.reqid, fromHex(_records.of(_slate)!.reqid));
       expect(p.stage, 1);
       expect(p.amount, BigInt.from(_amount));
@@ -154,7 +154,7 @@ void main() {
       await tester.tap(find.byType(ECheckbox));
       await _real(tester);
       expect(_receipts.posts, hasLength(1));
-      expect((DirectoryPayload.decode(_receipts.posts.single.$2) as ReceiptPayload).stage, 2);
+      expect((NameServicePayload.decode(_receipts.posts.single.$2) as ReceiptPayload).stage, 2);
       expect(_records.of(_slate)!.told, {1, 2});
       await _end(tester);
     });

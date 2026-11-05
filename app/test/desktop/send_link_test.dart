@@ -8,7 +8,7 @@ import 'package:epic_wallet/src/desktop/screens/transfer/link_trust.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
-import 'package:epic_wallet/src/directory/directory.dart';
+import 'package:epic_wallet/src/name_service/name_service.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
 import 'package:epic_wallet/src/scan/incoming_link.dart' show linkClockProvider;
 import 'package:flutter/material.dart';
@@ -65,7 +65,7 @@ void main() {
       overrides: [
         deskApiProvider.overrideWithValue(wallet),
         linkClockProvider.overrideWithValue(() => now ?? linkNow),
-        directoryMembershipProvider.overrideWithValue(membership ?? FakeMembership()),
+        nameServiceMembershipProvider.overrideWithValue(membership ?? FakeMembership()),
       ],
     );
     addTearDown(container.dispose);
@@ -95,9 +95,9 @@ void main() {
   }
 
   final address = vectors.request('req-basic').card.address;
-  final listed = FakeMembership(labels: {vectorDkey: 'Test Service'});
+  final listed = FakeMembership(labels: {vectorServiceKey: 'Test Service'});
   final changedPin = {
-    pinKey(vectors.request('req-basic').card.dkey, vectors.request('req-basic').card.handle): const ListingPin(
+    pinKey(vectors.request('req-basic').card.serviceKey, vectors.request('req-basic').card.handle): const ListingPin(
       listingKey: '03aa8c2f48c588fa84ed97a219b9841579c04241c1cef99b69bb19bb5168011df6',
       firstPaid: 1790000000,
       lastPaid: 1790000000,
@@ -105,7 +105,7 @@ void main() {
   };
 
   group('trust line', () {
-    testWidgets('a directory in use', (tester) async {
+    testWidgets('a name service in use', (tester) async {
       await show(tester, membership: listed);
       await paste(tester, vectors.https('req-basic'));
       expect(text(tester, 'To'), address);
@@ -113,7 +113,7 @@ void main() {
       expect(find.descendant(of: trust(), matching: find.byType(Wrap)), findsOneWidget);
     });
 
-    testWidgets('another directory: no name', (tester) async {
+    testWidgets('another name service: no name', (tester) async {
       await show(tester);
       await paste(tester, vectors.https('req-basic'));
       expect(find.text(_l.linkTrustOther), findsOneWidget);
@@ -121,7 +121,7 @@ void main() {
     });
 
     testWidgets('a listing that changed wallet', (tester) async {
-      wallet.linkMeta.directoryPins.addAll(changedPin);
+      wallet.linkMeta.nameServicePins.addAll(changedPin);
       await show(tester, membership: listed);
       await paste(tester, vectors.https('req-basic'));
       expect(find.textContaining('This payee now gets paid to a different wallet than when you paid on'), findsOneWidget);
@@ -139,7 +139,7 @@ void main() {
     for (final e in cases.entries) {
       testWidgets('pasted: ${e.key}, under To', (tester) async {
         final (message, link, now) = e.value;
-        await show(tester, now: now, membership: FakeMembership(listingKeys: {vectorDkey: vectors.listingKeyText('03${'11' * 32}')}));
+        await show(tester, now: now, membership: FakeMembership(listingKeys: {vectorServiceKey: vectors.listingKeyText('03${'11' * 32}')}));
         await paste(tester, link(vectors));
         expect(find.textContaining(message), findsOneWidget);
         expect(trust(), findsNothing);
@@ -217,7 +217,7 @@ void main() {
   });
 
   testWidgets('a changed wallet asks once more before the review', (tester) async {
-    wallet.linkMeta.directoryPins.addAll(changedPin);
+    wallet.linkMeta.nameServicePins.addAll(changedPin);
     await show(tester);
     await paste(tester, vectors.https('req-basic'));
     await review(tester);

@@ -10,16 +10,16 @@ import 'dart:math';
 import 'package:crypto/crypto.dart';
 
 import '../contact_store.dart';
-import '../directory/pins.dart';
-import '../directory/link_payments.dart' show LinkPaymentRecords;
-import '../directory/wire.dart' show Payreq;
+import '../name_service/pins.dart';
+import '../name_service/link_payments.dart' show LinkPaymentRecords;
+import '../name_service/wire.dart' show Payreq;
 import '../legacy/gui_contacts.dart';
 import '../recipient.dart';
 import '../sealed_file.dart';
 import '../seed_contacts.dart';
 import '../wallet_service.dart';
 import 'export.dart';
-import 'directory_pins.dart';
+import 'name_service_pins.dart';
 import 'merge.dart';
 import 'meta_store.dart';
 
@@ -417,10 +417,10 @@ class WalletHistory {
   Future<void> recordActivity(DateTime at, BigInt height) =>
       _store.update((m) => m.lastActivity = LastActivity(atUnix: at.toUtc().millisecondsSinceEpoch ~/ 1000, height: height));
 
-  /// The listing pins and paid request ids ([Meta.directoryPins], [Meta.paidRequests]).
-  LinkMemory linkMemory() => LinkMemory(pins: {...meta.directoryPins}, paidRequests: {...meta.paidRequests});
+  /// The listing pins and paid request ids ([Meta.nameServicePins], [Meta.paidRequests]).
+  LinkMemory linkMemory() => LinkMemory(pins: {...meta.nameServicePins}, paidRequests: {...meta.paidRequests});
 
-  /// Records a payment made from a link ([DirectoryPinsMeta.recordLinkPayment]).
+  /// Records a payment made from a link ([NameServicePinsMeta.recordLinkPayment]).
   Future<void> recordLinkPayment(Payreq request, int paidAt, {String? txId}) =>
       _store.update((m) => m.recordLinkPayment(request, paidAt, txId: txId));
 

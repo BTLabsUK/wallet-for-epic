@@ -10,9 +10,9 @@ import '../../devices/device_model.dart' show DeviceBook;
 import '../../cancel_final.dart' show CancelResult;
 import '../../models.dart' show FinishedPayment, InvoiceEvent, StoreMigrationProgress;
 import '../../devices/device_service.dart' show DeviceHost, ForwardedNotice;
-import '../../directory/directory_service.dart' show DirectoryHost;
-import '../../directory/receipts.dart' show LinkPaymentRecords;
-import '../../directory/directory.dart' show DirectoryMembership, LinkOutcome, Payreq;
+import '../../name_service/name_service_service.dart' show NameServiceHost;
+import '../../name_service/receipts.dart' show LinkPaymentRecords;
+import '../../name_service/name_service.dart' show NameServiceMembership, LinkOutcome, Payreq;
 import '../../pairing_api.dart';
 import '../../scan/scan_router.dart' show PaymentLink;
 import '../../trust/policy.dart' show PeerCompat;
@@ -72,7 +72,7 @@ abstract interface class DeskWalletApi {
 
   /// A payment link's checks against the open wallet's network, pins and paid requests
   /// ([openLink]): the refusal, or the link opened with its standing.
-  Future<LinkOutcome> openPaymentLink(PaymentLink link, {required DirectoryMembership membership, required int nowSeconds});
+  Future<LinkOutcome> openPaymentLink(PaymentLink link, {required NameServiceMembership membership, required int nowSeconds});
 
   /// Records a payment made from a link: the listing pin and the request id.
   Future<void> recordLinkPayment(Payreq request, int paidAt, {String? txId});
@@ -515,10 +515,10 @@ abstract interface class DeskWalletApi {
   /// channel may reach the servers now.
   DeviceHost? deviceHost({required bool Function() online});
 
-  /// What the directories (`directory/`) need from the open wallet: its pairing engine, listing
+  /// What the name services (`name_service/`) need from the open wallet: its pairing engine, listing
   /// keys and signature check; null while locked. [online] says whether the channel may reach
   /// the servers now.
-  DirectoryHost? directoryHost({required bool Function() online});
+  NameServiceHost? nameServiceHost({required bool Function() online});
 
   /// Where the wallet reads the book of linked devices from, or null for none: the history
   /// merges the other devices' payments ([mergeDeviceHistory]) and the balance and the outputs

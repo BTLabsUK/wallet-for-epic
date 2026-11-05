@@ -278,7 +278,7 @@ abstract interface class PairingApi {
   // the QR and the answer, so the phrase alone does not find them. They have no pairing words
   // (QR or paste only), are never listed by [pairings] or a backup, and carry only opaque
   // payloads: no slates, invoices or notices. A contact pairing takes payloads only between
-  // Paired and Verified (the directory's).
+  // Paired and Verified (the name service's).
   // [checkWords] and [removePairing] work on both classes.
 
   /// True when this core makes private pairings. The other private calls throw when false.

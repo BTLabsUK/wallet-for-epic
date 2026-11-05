@@ -15,7 +15,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'directory/wire.dart' show dirHelloUnsigned, withSignature;
+import 'name_service/wire.dart' show nsHelloUnsigned, withSignature;
 import 'key_picture.dart' show inviteKeyOf;
 import 'models.dart';
 import 'pairing_api.dart';
@@ -1528,18 +1528,18 @@ class FakePairing implements PairingApi {
     _deliver(peer.fake, _PrivateMail.payload(to: peer.id, bytes: List.unmodifiable(bytes)));
   }
 
-  /// The peer of the contact pairing [id] posts [bytes] (a directory's hello, an unlisted):
+  /// The peer of the contact pairing [id] posts [bytes] (a name service's hello, an unlisted):
   /// they wait for [payloads] like any other.
   void receiveContactPayload(String id, List<int> bytes) {
     _payloads.add(PairingPayload(id: privateNet._next('payload'), pairingId: id, bytes: List.unmodifiable(bytes), receivedAt: clock()));
   }
 
-  /// The peer of the contact pairing [id] is a directory and posts its hello: [bind] is the four
+  /// The peer of the contact pairing [id] is a name service and posts its hello: [bind] is the four
   /// SAS indexes of the pairing unless given, [handle] 16 bytes; the signature is filler, for a
-  /// host whose verifier accepts it. [dkey] is 33 bytes.
-  void directoryHello(
+  /// host whose verifier accepts it. [serviceKey] is 33 bytes.
+  void nameServiceHello(
     String id, {
-    required Uint8List dkey,
+    required Uint8List serviceKey,
     Uint8List? handle,
     Uint8List? bind,
     int net = 0,
@@ -1548,11 +1548,11 @@ class FakePairing implements PairingApi {
     String? label,
   }) {
     final r = records.firstWhere((e) => e.id == id);
-    final unsigned = dirHelloUnsigned(
+    final unsigned = nsHelloUnsigned(
       flags: flags,
       label: label,
       net: net,
-      dkey: dkey,
+      serviceKey: serviceKey,
       handle: handle ?? Uint8List.fromList(List.generate(16, (i) => 0x40 + i)),
       bind: bind ?? sasIndexesOf(r.sas)!,
       issued: issued,

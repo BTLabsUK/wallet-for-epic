@@ -15,7 +15,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
-import '../directory/pins.dart' show LinkPaymentRec, ListingPin;
+import '../name_service/pins.dart' show LinkPaymentRec, ListingPin;
 import '../log.dart';
 import '../recipient.dart';
 import '../sealed_file.dart';
@@ -683,14 +683,14 @@ class Meta {
     Iterable<String>? favourites,
     Iterable<String>? seededContacts,
     Map<String, String>? seededAddresses,
-    Map<String, ListingPin>? directoryPins,
+    Map<String, ListingPin>? nameServicePins,
     Map<String, int>? paidRequests,
     Map<String, LinkPaymentRec>? linkPayments,
   }) : manual = SplayTreeMap.of(manual ?? const {}),
        favourites = SplayTreeSet.of(favourites ?? const []),
        seededContacts = SplayTreeSet.of(seededContacts ?? const []),
        seededAddresses = SplayTreeMap.of(seededAddresses ?? const {}),
-       directoryPins = SplayTreeMap.of(directoryPins ?? const {}),
+       nameServicePins = SplayTreeMap.of(nameServicePins ?? const {}),
        paidRequests = SplayTreeMap.of(paidRequests ?? const {}),
        linkPayments = SplayTreeMap.of(linkPayments ?? const {}),
        paidInvoices = SplayTreeMap.of(paidInvoices ?? const {}),
@@ -749,14 +749,14 @@ class Meta {
       favourites: [for (final v in list('favourites')) _str(v, 'favourite')],
       seededContacts: [for (final v in list('seeded_contacts')) _str(v, 'seeded contact')],
       seededAddresses: map('seeded_addresses').map((k, v) => MapEntry(k, _str(v, 'seeded address'))),
-      directoryPins: map('directory_pins').map((k, v) {
-        final pin = asObject(v, 'directory pin');
+      nameServicePins: map('name_service_pins').map((k, v) {
+        final pin = asObject(v, 'name service pin');
         return MapEntry(
           k,
           ListingPin(
-            listingKey: _str(pin['listing_key'], 'directory pin'),
-            firstPaid: _i64(pin['first_paid'], 'directory pin'),
-            lastPaid: _i64(pin['last_paid'], 'directory pin'),
+            listingKey: _str(pin['listing_key'], 'name service pin'),
+            firstPaid: _i64(pin['first_paid'], 'name service pin'),
+            lastPaid: _i64(pin['last_paid'], 'name service pin'),
           ),
         );
       }),
@@ -767,7 +767,7 @@ class Meta {
           k,
           LinkPaymentRec(
             reqid: _str(r['reqid'], 'link payment'),
-            dkey: _str(r['dkey'], 'link payment'),
+            serviceKey: _str(r['dkey'], 'link payment'),
             label: _optStr(r['label'], 'link payment'),
             amount: BigInt.parse(_str(r['amount'], 'link payment')),
             address: _str(r['address'], 'link payment'),
@@ -835,9 +835,9 @@ class Meta {
   /// when not empty, and not part of a history file.
   final SplayTreeMap<String, String> seededAddresses;
 
-  /// The listing key paid for each directory listing (`<dkey>:<handle>`, hex), from payment
+  /// The listing key paid for each name service listing (`<serviceKey>:<handle>`, hex), from payment
   /// links. Written only when not empty, and not part of a history file.
-  final SplayTreeMap<String, ListingPin> directoryPins;
+  final SplayTreeMap<String, ListingPin> nameServicePins;
 
   /// Request ids (hex) of payment links paid, with the unix second, kept 30 days. Written only
   /// when not empty, and not part of a history file.
@@ -891,8 +891,8 @@ class Meta {
     if (favourites.isNotEmpty) out['favourites'] = [...favourites];
     if (seededContacts.isNotEmpty) out['seeded_contacts'] = [...seededContacts];
     if (seededAddresses.isNotEmpty) out['seeded_addresses'] = {...seededAddresses};
-    if (directoryPins.isNotEmpty) {
-      out['directory_pins'] = {for (final e in directoryPins.entries) e.key: e.value.toJson()};
+    if (nameServicePins.isNotEmpty) {
+      out['name_service_pins'] = {for (final e in nameServicePins.entries) e.key: e.value.toJson()};
     }
     if (paidRequests.isNotEmpty) out['paid_requests'] = {...paidRequests};
     if (linkPayments.isNotEmpty) {
@@ -925,7 +925,7 @@ bool mergePlainMeta(Meta into, Meta plain) {
   maps(into.paidInvoices, plain.paidInvoices);
   maps(into.issuedInvoices, plain.issuedInvoices);
   maps(into.seededAddresses, plain.seededAddresses);
-  maps(into.directoryPins, plain.directoryPins);
+  maps(into.nameServicePins, plain.nameServicePins);
   maps(into.paidRequests, plain.paidRequests);
   maps(into.linkPayments, plain.linkPayments);
   into.lastActivity ??= plain.lastActivity;

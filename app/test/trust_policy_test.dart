@@ -117,12 +117,12 @@ void main() {
     });
   });
 
-  group('directory bit', () {
-    test('directory bit 5 and paired', () {
-      expect(mayDirectoryPayload(featureDirectory, paired), isTrue);
-      expect(mayDirectoryPayload(featureDirectory, verified), isTrue);
-      expect(mayDirectoryPayload(featureDirectory, contact), isFalse);
-      expect(mayDirectoryPayload(featureLinkedDevicesReserved, paired), isFalse);
+  group('name service bit', () {
+    test('name service bit 5 and paired', () {
+      expect(mayNameServicePayload(featureNameService, paired), isTrue);
+      expect(mayNameServicePayload(featureNameService, verified), isTrue);
+      expect(mayNameServicePayload(featureNameService, contact), isFalse);
+      expect(mayNameServicePayload(featureLinkedDevicesReserved, paired), isFalse);
     });
   });
 

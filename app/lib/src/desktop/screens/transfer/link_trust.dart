@@ -6,7 +6,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../../directory/directory.dart';
+import '../../../name_service/name_service.dart';
 import '../../../ui/link_send.dart' show linkTrustText;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
@@ -23,7 +23,7 @@ class DeskLinkTrust extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final changed = link.standing.trust == DirectoryTrust.changedWallet;
+    final changed = link.standing.trust == NameServiceTrust.changedWallet;
     return Semantics(
       container: true,
       child: ENotice(

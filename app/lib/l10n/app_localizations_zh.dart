@@ -19128,17 +19128,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get linkPayAgain => '再次付款';
 
   @override
-  String linkTrustListed(String name, String directory) {
-    return '$name · 经由 $directory';
+  String linkTrustListed(String name, String service) {
+    return '$name · 经由 $service';
   }
 
   @override
-  String linkTrustListedBy(String directory) {
-    return '经由 $directory';
+  String linkTrustListedBy(String service) {
+    return '经由 $service';
   }
 
   @override
-  String get linkTrustDirectory => '来自你已配对的服务';
+  String get linkTrustNameService => '来自你已配对的服务';
 
   @override
   String get linkTrustOther => '不是来自你已配对的服务';
@@ -19168,23 +19168,23 @@ class AppLocalizationsZh extends AppLocalizations {
   String get linkChangedConfirmTitle => '付款前请核对';
 
   @override
-  String dirWaitingFor(String label) {
+  String nsWaitingFor(String label) {
     return '正在等待 $label…';
   }
 
   @override
-  String get dirCodeTitle => '核对代码';
+  String get nsCodeTitle => '核对代码';
 
   @override
-  String dirCodeLead(String label) {
+  String nsCodeLead(String label) {
     return '$label 显示四个图案。请与这里的对比。';
   }
 
   @override
-  String get dirCodeLabel => '四个图案';
+  String get nsCodeLabel => '四个图案';
 
   @override
-  String dirJoin(String name, String label) {
+  String nsJoin(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': '通过 $label 收款',
       'other': '以 $name 收款',
@@ -19193,10 +19193,10 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get dirNotNow => '暂不';
+  String get nsNotNow => '暂不';
 
   @override
-  String dirJoinTitle(String name, String label) {
+  String nsJoinTitle(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': '通过 $label 收款？',
       'other': '以 $name 收款？',
@@ -19205,7 +19205,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String dirJoinBody(String name, String label, String host) {
+  String nsJoinBody(String name, String label, String host) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': '使用 $label 的人可以在那里向你付款。款项通过 $host 到达',
       'other': '使用 $label 的人可以用 $name 向你付款。款项通过 $host 到达',
@@ -19214,12 +19214,12 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String dirJoinInfo(String label) {
+  String nsJoinInfo(String label) {
     return '$label 会得到一个收款地址和一个代码，都仅为它创建。它看不到你的余额，不能动用币，也不能读取付款。Epic Cash 打开时款项才会到达。可随时在 联系人 › $label 中退出。';
   }
 
   @override
-  String dirJoinedNotice(String name, String label) {
+  String nsJoinedNotice(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': '通过 $label 收款：已开启',
       'other': '以 $name 收款：已开启',
@@ -19228,7 +19228,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String dirLeftNotice(String name, String label) {
+  String nsLeftNotice(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': '通过 $label 收款：已关闭',
       'other': '以 $name 收款：已关闭',
@@ -19237,7 +19237,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String dirJoined(String name, String label, String date) {
+  String nsJoined(String name, String label, String date) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': '通过 $label 收款 · 自 $date 起',
       'other': '以 $name 收款 · 自 $date 起',
@@ -19246,32 +19246,32 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get dirNotListed => '关闭';
+  String get nsNotListed => '关闭';
 
   @override
-  String dirNotListedBody(String label) {
+  String nsNotListedBody(String label) {
     return '$label 已移除你的名称。';
   }
 
   @override
-  String get dirNotJoined => '关闭';
+  String get nsNotJoined => '关闭';
 
   @override
-  String get dirJoinAgain => '重新开启';
+  String get nsJoinAgain => '重新开启';
 
   @override
-  String get dirListingCode => '你的名称的图案';
+  String get nsListingCode => '你的名称的图案';
 
   @override
-  String dirListingCodeInfo(String label) {
+  String nsListingCodeInfo(String label) {
     return '由你的名称所收款的钱包生成的四个图案。$label 可显示同样的四个供对比。';
   }
 
   @override
-  String get dirLeave => '退出';
+  String get nsLeave => '退出';
 
   @override
-  String dirRemoveTooTitle(String label) {
+  String nsRemoveTooTitle(String label) {
     return '也移除 $label？';
   }
 

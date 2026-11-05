@@ -11,9 +11,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../contacts.dart';
-import '../../directory/directory.dart';
-import '../../directory/phone_directory.dart';
-import '../../trust/policy.dart' show featureDirectory;
+import '../../name_service/name_service.dart';
+import '../../name_service/phone_name_service.dart';
+import '../../trust/policy.dart' show featureNameService;
 import '../../errors.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
@@ -26,7 +26,7 @@ import '../contacts_screen.dart';
 import '../status_icons.dart';
 import '../theme/brand.dart';
 import '../theme/tokens.dart';
-import 'directory_parts.dart';
+import 'name_service_parts.dart';
 import 'add_to_contacts_button.dart';
 import 'pairing_notices.dart' show pairingWordsOnScreen;
 import 'pairing_parts.dart';
@@ -132,10 +132,10 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
   PairingCollector? _collector;
   StreamSubscription<PairingEvent>? _events;
 
-  /// Where the directory's wait stands when the service has not said yet (its answer to
-  /// [DirectoryService.beginHello]); null while asking.
+  /// Where the name service's wait stands when the service has not said yet (its answer to
+  /// [NameService.beginHello]); null while asking.
   HelloStep? _began;
-  DirectoryService? _directory;
+  NameService? _nameService;
   bool _onScreen(PairingEvent e) => e.pairingId == widget.pairingId;
 
   @override
@@ -159,12 +159,12 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
         Navigator.of(context).removeRoute(route);
       }
     });
-    // A pairing whose peer claims the directory feature waits for its hello before the words.
-    WidgetsBinding.instance.addPostFrameCallback((_) => _beginDirectory());
+    // A pairing whose peer claims the name service feature waits for its hello before the words.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _beginNameService());
   }
 
-  Future<void> _beginDirectory() async {
-    final service = ref.read(directoryServiceProvider);
+  Future<void> _beginNameService() async {
+    final service = ref.read(nameServiceProvider);
     if (service == null) return;
     var record = ref.read(pairingByIdProvider(widget.pairingId));
     if (record == null) {
@@ -177,8 +177,8 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
       if (!mounted) return;
       record = ref.read(pairingByIdProvider(widget.pairingId));
     }
-    if (record == null || record.peerFeatures & featureDirectory == 0) return;
-    _directory = service;
+    if (record == null || record.peerFeatures & featureNameService == 0) return;
+    _nameService = service;
     final step = await service.beginHello(widget.pairingId);
     if (mounted) setState(() => _began = step);
   }
@@ -189,7 +189,7 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
     _events?.cancel();
     pairingWordsOnScreen.remove(_onScreen);
     // Leaving the screen stops the wait; the words step is what Back leaves the pairing at.
-    _directory?.cancelHello(widget.pairingId);
+    _nameService?.cancelHello(widget.pairingId);
     super.dispose();
   }
 
@@ -199,13 +199,13 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
     setState(() => _busy = true);
     try {
       final record = await pairingCall(ref, (api) => api.checkWords(widget.pairingId, check));
-      final directory = _directory != null && _step == HelloStep.check ? _directory : null;
-      if (directory != null) {
-        // The code was compared: the dkey is this contact's, or the directory is forgotten.
+      final nameService = _nameService != null && _step == HelloStep.check ? _nameService : null;
+      if (nameService != null) {
+        // The code was compared: the serviceKey is this contact's, or the name service is forgotten.
         if (check == PairingCheck.match && record != null) {
-          await directory.pin(widget.pairingId);
+          await nameService.pin(widget.pairingId);
         } else {
-          await directory.dismiss(widget.pairingId);
+          await nameService.dismiss(widget.pairingId);
         }
       }
       if (record != null && check == PairingCheck.match && _allow && !record.allowInvoices) {
@@ -219,10 +219,10 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
         Navigator.pop(context);
         return;
       }
-      final entry = directory?.book.byPairing(widget.pairingId);
+      final entry = nameService?.book.byPairing(widget.pairingId);
       if (entry != null && entry.pinned) {
-        // The Join sheet; Not now leaves a verified directory with Join on its page.
-        await showDirectoryJoinSheet(context, ref, dkey: entry.dkey, label: ref.read(pairingNameProvider(record.id)));
+        // The Join sheet; Not now leaves a verified name service with Join on its page.
+        await showNameServiceJoinSheet(context, ref, serviceKey: entry.serviceKey, label: ref.read(pairingNameProvider(record.id)));
         if (!mounted) return;
       }
       await Navigator.of(context).pushReplacement(
@@ -235,11 +235,11 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
     }
   }
 
-  /// Where the directory step stands, null for the ordinary words step.
+  /// Where the name service step stands, null for the ordinary words step.
   HelloStep? get _step {
-    final service = _directory;
+    final service = _nameService;
     if (service == null) return null;
-    return ref.read(phoneDirectories.view)?.steps[widget.pairingId] ?? _began;
+    return ref.read(phoneNameServices.view)?.steps[widget.pairingId] ?? _began;
   }
 
   Future<void> _noMatch() async {
@@ -268,15 +268,15 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
       return SlotScaffold(appBar: AppBar(title: Text(l.sasTitle)), body: const SizedBox.shrink());
     }
     final name = ref.watch(pairingNameProvider(record.id));
-    if (_directory != null) {
-      final step = ref.watch(phoneDirectories.view)?.steps[widget.pairingId] ?? _began;
-      final helloEntry = ref.watch(phoneDirectories.view)?.book.byPairing(record.id);
-      final dkey = helloEntry?.dkey;
-      if (step == HelloStep.check && dkey != null) {
-        return DirectoryCodeCheck(
+    if (_nameService != null) {
+      final step = ref.watch(phoneNameServices.view)?.steps[widget.pairingId] ?? _began;
+      final helloEntry = ref.watch(phoneNameServices.view)?.book.byPairing(record.id);
+      final serviceKey = helloEntry?.serviceKey;
+      if (step == HelloStep.check && serviceKey != null) {
+        return NameServiceCodeCheck(
           label: name,
           kind: record.kind,
-          dkey: dkey,
+          serviceKey: serviceKey,
           noPayments: helloEntry!.noPayments,
           busy: _busy,
           onMatch: () => _answer(PairingCheck.match),
@@ -286,7 +286,7 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
         );
       }
       if (step == null || step == HelloStep.waiting) {
-        return DirectoryWaiting(label: name, onCancel: () => _directory?.cancelHello(widget.pairingId));
+        return NameServiceWaiting(label: name, onCancel: () => _nameService?.cancelHello(widget.pairingId));
       }
     }
     final service = record.kind != PairingParty.person;

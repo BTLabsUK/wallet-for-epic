@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../contacts.dart';
-import '../directory/payment_refusals.dart' show paymentRefusalsProvider;
+import '../name_service/payment_refusals.dart' show paymentRefusalsProvider;
 import '../errors.dart';
 import '../l10n.dart';
 import '../tor_build.dart';

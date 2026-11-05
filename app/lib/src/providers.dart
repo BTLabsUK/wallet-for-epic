@@ -15,7 +15,7 @@ import 'l10n.dart' show englishStrings;
 import 'network.dart';
 import 'phone_tor.dart';
 import 'scan/scan_checks.dart' show CodeOrigin;
-import 'directory/link_open.dart' show LinkOpened;
+import 'name_service/link_open.dart' show LinkOpened;
 import 'scan/scan_router.dart' show PaymentRequest;
 import 'tor_phone.dart' show phoneTorState;
 import 'tor_routes.dart';

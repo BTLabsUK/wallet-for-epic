@@ -12,15 +12,15 @@ import 'package:intl/intl.dart' show NumberFormat;
 import '../app_log.dart';
 import '../amount.dart';
 import '../contacts.dart';
-import '../directory/link_open.dart' show LinkOpened;
-import '../directory/pins.dart' show DirectoryTrust;
+import '../name_service/link_open.dart' show LinkOpened;
+import '../name_service/pins.dart' show NameServiceTrust;
 import '../scan/incoming_link.dart' show linkClockProvider;
 import 'link_send.dart';
 import '../pairing_providers.dart'
     show PairNet, contactPairingProvider, pairNetProvider, pairingApiProvider, pairingByIdProvider, pairingName, pairingNameProvider, pairingSupportedProvider, pairingsProvider;
 import '../errors.dart';
 import '../initials.dart';
-import '../directory/payment_refusals.dart' show paymentRefusalsProvider;
+import '../name_service/payment_refusals.dart' show paymentRefusalsProvider;
 import '../l10n.dart';
 import '../tor_build.dart';
 import '../network.dart';
@@ -1592,7 +1592,7 @@ class _SendViewState extends ConsumerState<SendView> {
     _asking = true;
     try {
       // A listing that now points to another wallet: one more yes, before the PIN.
-      if (link != null && link.standing.trust == DirectoryTrust.changedWallet) {
+      if (link != null && link.standing.trust == NameServiceTrust.changedWallet) {
         if (!await confirmChangedWallet(context, link) || !mounted) return;
       }
       final amountText = epicText(l, reviewed.amount);

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
-"""Writes docs/design/directory-vectors.json: the test vectors of the directory wire format
-(docs/design/directory-wire.md). The wallet's tests and a directory service's tests read copies
+"""Writes docs/design/name-service-vectors.json: the test vectors of the name service wire format
+(docs/design/name-service-wire.md). The wallet's tests and a name service's tests read copies
 of that file; this script is the reference implementation they all match. Python 3.12, stdlib
 only: the secp256k1 ECDSA below is plain and slow on purpose.
 
-Usage: tools/directory_vectors.py [--check] [--lepic <k3check>]
+Usage: tools/name_service_vectors.py [--check] [--lepic <k3check>]
   --check          fail if the file differs
   --lepic <path>   cross-check every signature against LEPIC's own K3 code through the built
                    `k3check` tool (sign: same DER and key texts; verify: true or false)
@@ -21,7 +21,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'docs/design/directory-vectors.json'
+OUT = ROOT / 'docs/design/name-service-vectors.json'
 SAS = ROOT / 'app/lib/src/sas_table.dart'
 
 # ---------------------------------------------------------------- secp256k1 ECDSA
@@ -478,7 +478,7 @@ def verify_payreq_text(text: str, ctx: dict) -> dict:
 
 
 def verify_payload(raw: bytes, ctx: dict) -> dict:
-    """ctx: net; dkey (hex, the directory's, type 2); bind (hex, type 1)."""
+    """ctx: net; dkey (hex, the name service's, type 2); bind (hex, type 1)."""
     items = parse_tlv(raw)
     if not items or items[0][0] != 1 or len(items[0][1]) != 1:
         raise Err('malformed')
@@ -1084,7 +1084,7 @@ def tamper_req(raw: bytes, what: str) -> bytes:
 
 def build() -> str:
     doc = {
-        'spec': 'docs/design/directory-wire.md',
+        'spec': 'docs/design/name-service-wire.md',
         'sas_table': 'app/lib/src/sas_table.dart (LEPIC testdata/sas/emoji-v1.txt)',
         'link_host': 'links.example (a placeholder: the router never checks the host)',
         'key_derivation': 'sk_n = SHA256("directory vector key " || decimal n), as a 32-byte '
@@ -1154,7 +1154,7 @@ def main() -> int:
         return 0 if lepic_check(args.lepic, doc) else 1
     if args.check:
         if OUT.read_text() != text:
-            print(f'{OUT} is out of date: run tools/directory_vectors.py', file=sys.stderr)
+            print(f'{OUT} is out of date: run tools/name_service_vectors.py', file=sys.stderr)
             return 1
         return 0
     OUT.write_text(text)

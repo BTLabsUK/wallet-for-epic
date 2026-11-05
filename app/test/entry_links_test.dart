@@ -11,7 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'directory_vectors_support.dart';
+import 'name_service_vectors_support.dart';
 
 AddressVerdict _invalid(Recipient _) => AddressVerdict.invalid;
 

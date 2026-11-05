@@ -2,7 +2,7 @@
 // The phone's Contacts screen and contact page, against
 // FakeWalletSession.
 
-import 'package:epic_wallet/src/directory/directory.dart';
+import 'package:epic_wallet/src/name_service/name_service.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';

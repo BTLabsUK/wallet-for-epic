@@ -14,7 +14,7 @@ import '../../data/invoice_state.dart';
 import '../../data/pairing_state.dart' show DeskPairNet, deskPairNetProvider, deskPairingNameProvider, deskPairingSlateProvider, deskPairsProvider;
 import '../../data/method_names.dart';
 import '../../widgets/kit.dart';
-import '../../../directory/receipts.dart' show directoryReceiptsProvider, linkPayeeName, linkPayeeUnnamed, linkPaymentProvider;
+import '../../../name_service/receipts.dart' show nameServiceReceiptsProvider, linkPayeeName, linkPayeeUnnamed, linkPaymentProvider;
 import '../../../trust/contact_trust.dart' show mailboxStageWord;
 import '../../data/clock.dart' show deskClockProvider;
 import '../invoices/invoice_parts.dart' show payStateWord, requestStateWord;
@@ -89,11 +89,11 @@ String? deskTxMailboxName(WidgetRef ref, Tx t, {bool any = false}) {
 }
 
 /// The payee of a payment made from a payment link that still waits for its answer: the name
-/// the link or the directory gave it, [linkPayeeUnnamed] when none, null for any other payment.
+/// the link or the name service gave it, [linkPayeeUnnamed] when none, null for any other payment.
 String? deskLinkPayee(WidgetRef ref, Tx t) {
   if (t.incoming || t.slateId.isEmpty || t.state != TxState.waitingRecipient) return null;
   final rec = ref.watch(linkPaymentProvider(t.slateId));
-  return rec == null ? null : linkPayeeName(ref.watch(directoryReceiptsProvider), rec) ?? linkPayeeUnnamed;
+  return rec == null ? null : linkPayeeName(ref.watch(nameServiceReceiptsProvider), rec) ?? linkPayeeUnnamed;
 }
 
 /// [statusOf], with "Waiting for Anna to sign" for a send through [mailbox]'s mailbox, and

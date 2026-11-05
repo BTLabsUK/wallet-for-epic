@@ -19866,17 +19866,17 @@ class AppLocalizationsTh extends AppLocalizations {
   String get linkPayAgain => 'จ่ายอีกครั้ง';
 
   @override
-  String linkTrustListed(String name, String directory) {
-    return '$name · ผ่าน $directory';
+  String linkTrustListed(String name, String service) {
+    return '$name · ผ่าน $service';
   }
 
   @override
-  String linkTrustListedBy(String directory) {
-    return 'ผ่าน $directory';
+  String linkTrustListedBy(String service) {
+    return 'ผ่าน $service';
   }
 
   @override
-  String get linkTrustDirectory => 'จากบริการที่คุณจับคู่ไว้';
+  String get linkTrustNameService => 'จากบริการที่คุณจับคู่ไว้';
 
   @override
   String get linkTrustOther => 'ไม่ได้มาจากบริการที่คุณจับคู่ไว้';
@@ -19906,23 +19906,23 @@ class AppLocalizationsTh extends AppLocalizations {
   String get linkChangedConfirmTitle => 'ตรวจสอบก่อนจ่าย';
 
   @override
-  String dirWaitingFor(String label) {
+  String nsWaitingFor(String label) {
     return 'กำลังรอ $label…';
   }
 
   @override
-  String get dirCodeTitle => 'ตรวจรหัส';
+  String get nsCodeTitle => 'ตรวจรหัส';
 
   @override
-  String dirCodeLead(String label) {
+  String nsCodeLead(String label) {
     return '$label แสดงรูปภาพสี่รูป เทียบกับรูปเหล่านี้';
   }
 
   @override
-  String get dirCodeLabel => 'รูปภาพสี่รูป';
+  String get nsCodeLabel => 'รูปภาพสี่รูป';
 
   @override
-  String dirJoin(String name, String label) {
+  String nsJoin(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': 'รับเงินผ่าน $label',
       'other': 'รับเงินในชื่อ $name',
@@ -19931,10 +19931,10 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get dirNotNow => 'ไว้ก่อน';
+  String get nsNotNow => 'ไว้ก่อน';
 
   @override
-  String dirJoinTitle(String name, String label) {
+  String nsJoinTitle(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': 'รับเงินผ่าน $label ไหม',
       'other': 'รับเงินในชื่อ $name ไหม',
@@ -19943,7 +19943,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String dirJoinBody(String name, String label, String host) {
+  String nsJoinBody(String name, String label, String host) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': 'คนที่ใช้ $label จ่ายเงินให้คุณที่นั่นได้ เงินจะเข้ามาทาง $host',
       'other':
@@ -19953,12 +19953,12 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String dirJoinInfo(String label) {
+  String nsJoinInfo(String label) {
     return '$label ได้รับที่อยู่รับเงินหนึ่งที่อยู่และรหัสหนึ่งรหัส ทั้งสองสร้างไว้สำหรับบริการนี้เท่านั้น บริการมองไม่เห็นยอดคงเหลือ ย้ายเหรียญไม่ได้ และอ่านการจ่ายเงินไม่ได้ เงินจะเข้ามาขณะที่ Epic Cash เปิดอยู่ ออกได้ทุกเมื่อที่ ผู้ติดต่อ › $label';
   }
 
   @override
-  String dirJoinedNotice(String name, String label) {
+  String nsJoinedNotice(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': 'รับเงินผ่าน $label: เปิด',
       'other': 'รับเงินในชื่อ $name: เปิด',
@@ -19967,7 +19967,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String dirLeftNotice(String name, String label) {
+  String nsLeftNotice(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': 'รับเงินผ่าน $label: ปิด',
       'other': 'รับเงินในชื่อ $name: ปิด',
@@ -19976,7 +19976,7 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String dirJoined(String name, String label, String date) {
+  String nsJoined(String name, String label, String date) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': 'รับเงินผ่าน $label · ตั้งแต่ $date',
       'other': 'รับเงินในชื่อ $name · ตั้งแต่ $date',
@@ -19985,32 +19985,32 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get dirNotListed => 'ปิด';
+  String get nsNotListed => 'ปิด';
 
   @override
-  String dirNotListedBody(String label) {
+  String nsNotListedBody(String label) {
     return '$label ลบชื่อของคุณแล้ว';
   }
 
   @override
-  String get dirNotJoined => 'ปิด';
+  String get nsNotJoined => 'ปิด';
 
   @override
-  String get dirJoinAgain => 'เปิดอีกครั้ง';
+  String get nsJoinAgain => 'เปิดอีกครั้ง';
 
   @override
-  String get dirListingCode => 'รูปภาพของชื่อคุณ';
+  String get nsListingCode => 'รูปภาพของชื่อคุณ';
 
   @override
-  String dirListingCodeInfo(String label) {
+  String nsListingCodeInfo(String label) {
     return 'รูปภาพสี่รูปที่สร้างจากกระเป๋าเงินที่ชื่อของคุณรับเงินเข้า $label แสดงสี่รูปเดียวกันเพื่อเทียบได้';
   }
 
   @override
-  String get dirLeave => 'ออก';
+  String get nsLeave => 'ออก';
 
   @override
-  String dirRemoveTooTitle(String label) {
+  String nsRemoveTooTitle(String label) {
     return 'ลบ $label ด้วยไหม';
   }
 

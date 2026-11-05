@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
-// A directory that can be told, for the receipt tests: it records what was posted.
+// A name service that can be told, for the receipt tests: it records what was posted.
 import 'dart:typed_data';
 
-import 'package:epic_wallet/src/directory/receipts.dart';
+import 'package:epic_wallet/src/name_service/receipts.dart';
 
-class FakeReceipts implements DirectoryReceipts {
+class FakeReceipts implements NameServiceReceipts {
   FakeReceipts({this.tell = true, this.accept = true, this.label});
 
   bool tell;
@@ -13,14 +13,14 @@ class FakeReceipts implements DirectoryReceipts {
   final posts = <(String, Uint8List)>[];
 
   @override
-  bool canTell(String dkeyHex) => tell;
+  bool canTell(String serviceKeyHex) => tell;
 
   @override
-  String? labelFor(String dkeyHex) => label;
+  String? labelFor(String serviceKeyHex) => label;
 
   @override
-  Future<bool> post(String dkeyHex, Uint8List payload) async {
-    posts.add((dkeyHex, payload));
+  Future<bool> post(String serviceKeyHex, Uint8List payload) async {
+    posts.add((serviceKeyHex, payload));
     return accept;
   }
 }
