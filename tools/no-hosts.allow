@@ -20,6 +20,11 @@ app/lib/src/legacy/gui_rules.dart	(?<![0-9])(3413|13413|23413)(?![0-9])
 # given is the systems' rule, not a value anyone configures.
 app/lib/src/settings_file/settings_layout.dart	userPortMin = 1024
 
+# The example value of a port placeholder in the strings' metadata (the Link · HTTP port
+# messages): a hint for translators, never shown or dialled.
+app/lib/l10n/app_*	"example": "3415"
+app/lib/l10n/desk/*	"example": "3415"
+
 # Example data in screenshots, the tour and the mock wallets (contacts' Link · HTTP addresses,
 # a home node, peers and node log lines): shown, never connected to.
 app/lib/src/desktop/data/mock_wallet.dart	:(3413|3415)(?![0-9])
