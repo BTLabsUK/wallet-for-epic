@@ -19,6 +19,13 @@ sys.path.insert(0, os.path.join(DRIVERS, "ios"))
 import ios_platform  # noqa: E402
 import wda  # noqa: E402
 
+# The other platforms have their own files.py and lane.py: leave neither the iOS folder on the path
+# nor its modules under those names for the tests that run after this one in the same process.
+sys.path.remove(os.path.join(DRIVERS, "ios"))
+for _name in ("files", "lane", "mac"):
+    if os.path.dirname(getattr(sys.modules.get(_name), "__file__", "") or "") == os.path.join(DRIVERS, "ios"):
+        del sys.modules[_name]
+
 TRUST = os.path.join(DRIVERS, "trust-ios.sh")
 
 

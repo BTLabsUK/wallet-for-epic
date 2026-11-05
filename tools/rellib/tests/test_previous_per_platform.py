@@ -24,7 +24,8 @@ class PreviousPerPlatformTest(unittest.TestCase):
         self.release("26.11.0", "run-4", ["bt-wallet-{v}{s}-linux-x86_64.AppImage", "bt-wallet-{v}{s}-windows-x64-setup.exe"],
                      ["emulator/bt-wallet-{v}{s}-android-x86_64.apk"])
         self.release("26.11.1", "run-1", [], ["emulator/bt-wallet-{v}{s}-android-x86_64.apk"])
-        self.pipe = types.SimpleNamespace(proof={"drivers": {"android": "a", "linux": "l", "windows": "w"}, "variants": ["tor", "notor"]})
+        self.pipe = types.SimpleNamespace(proof={"drivers": {"android": "a", "linux": "l", "windows": "w"}, "variants": ["tor", "notor"]},
+                                          steps={})
         self.scope = {"platforms": {"android": True, "linux": True, "windows": True},
                       "variants": {"tor": True, "notor": True},
                       "proof": {"previous_dir": "", "waive": {}}}
