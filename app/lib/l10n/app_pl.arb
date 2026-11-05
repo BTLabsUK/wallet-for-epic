@@ -5278,7 +5278,7 @@
   "linkTrustListed": "{name} · przez {service}",
   "linkTrustListedBy": "Przez {service}",
   "linkTrustNameService": "Z sparowanej usługi",
-  "linkTrustOther": "Nie z sparowanej usługi",
+  "linkTrustOther": "Sprawdź, czy pasują do wiadomości z płatnością",
   "linkTrustChanged": "{name} otrzymuje teraz płatności na inny portfel niż w dniu płatności {date}. Zapłać tylko wtedy, gdy ktoś ci o tym powiedział.",
   "linkCodeLabel": "Obrazki dla {name}",
   "linkAmountEdited": "To nie jest żądana kwota",

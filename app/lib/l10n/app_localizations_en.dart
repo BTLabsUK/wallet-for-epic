@@ -20295,7 +20295,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get linkTrustNameService => 'From a service you paired with';
 
   @override
-  String get linkTrustOther => 'Not from a service you paired with';
+  String get linkTrustOther => 'Confirm these match the payment message';
 
   @override
   String linkTrustChanged(String name, String date) {

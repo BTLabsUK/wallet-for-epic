@@ -31770,10 +31770,10 @@ abstract class AppLocalizations {
   /// **'From a service you paired with'**
   String get linkTrustNameService;
 
-  /// Trust line on Send for a payment link from any other name service.
+  /// Trust line on Send for a payment link from a name service this wallet is not paired with: the payer compares the four pictures with the payment message.
   ///
   /// In en, this message translates to:
-  /// **'Not from a service you paired with'**
+  /// **'Confirm these match the payment message'**
   String get linkTrustOther;
 
   /// Trust line on Send when the listing key differs from the one paid before.

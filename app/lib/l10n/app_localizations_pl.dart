@@ -20983,7 +20983,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get linkTrustNameService => 'Z sparowanej usługi';
 
   @override
-  String get linkTrustOther => 'Nie z sparowanej usługi';
+  String get linkTrustOther => 'Sprawdź, czy pasują do wiadomości z płatnością';
 
   @override
   String linkTrustChanged(String name, String date) {

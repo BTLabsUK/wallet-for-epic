@@ -5278,7 +5278,7 @@
   "linkTrustListed": "{name} · über {service}",
   "linkTrustListedBy": "Über {service}",
   "linkTrustNameService": "Von einem Dienst, mit dem Sie gekoppelt sind",
-  "linkTrustOther": "Nicht von einem Dienst, mit dem Sie gekoppelt sind",
+  "linkTrustOther": "Prüfen Sie, ob sie zur Zahlungsnachricht passen",
   "linkTrustChanged": "{name} erhält Zahlungen jetzt auf eine andere Wallet als bei Ihrer Zahlung am {date}. Zahlen Sie nur, wenn es Ihnen gesagt wurde.",
   "linkCodeLabel": "Bilder für {name}",
   "linkAmountEdited": "Nicht der angefragte Betrag",

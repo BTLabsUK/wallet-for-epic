@@ -5278,7 +5278,7 @@
   "linkTrustListed": "{name} · 经由 {service}",
   "linkTrustListedBy": "经由 {service}",
   "linkTrustNameService": "来自你已配对的服务",
-  "linkTrustOther": "不是来自你已配对的服务",
+  "linkTrustOther": "请确认与付款消息中的一致",
   "linkTrustChanged": "{name} 现在收款到另一个钱包，与你在 {date} 付款时不同。仅在对方告知过你时再付款。",
   "linkCodeLabel": "{name} 的图案",
   "linkAmountEdited": "不是请求的金额",

@@ -19141,7 +19141,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get linkTrustNameService => '来自你已配对的服务';
 
   @override
-  String get linkTrustOther => '不是来自你已配对的服务';
+  String get linkTrustOther => '请确认与付款消息中的一致';
 
   @override
   String linkTrustChanged(String name, String date) {

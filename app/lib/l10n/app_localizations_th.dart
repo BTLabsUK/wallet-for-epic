@@ -19879,7 +19879,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get linkTrustNameService => 'จากบริการที่คุณจับคู่ไว้';
 
   @override
-  String get linkTrustOther => 'ไม่ได้มาจากบริการที่คุณจับคู่ไว้';
+  String get linkTrustOther => 'ตรวจสอบว่าตรงกับข้อความชำระเงิน';
 
   @override
   String linkTrustChanged(String name, String date) {

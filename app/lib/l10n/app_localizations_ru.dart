@@ -20967,7 +20967,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get linkTrustNameService => 'От сервиса, с которым вы сопряжены';
 
   @override
-  String get linkTrustOther => 'Не от сервиса, с которым вы сопряжены';
+  String get linkTrustOther =>
+      'Проверьте, что они совпадают с сообщением о платеже';
 
   @override
   String linkTrustChanged(String name, String date) {

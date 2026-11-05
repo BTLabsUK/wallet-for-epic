@@ -5278,7 +5278,7 @@
   "linkTrustListed": "{name} · через {service}",
   "linkTrustListedBy": "Через {service}",
   "linkTrustNameService": "От сервиса, с которым вы сопряжены",
-  "linkTrustOther": "Не от сервиса, с которым вы сопряжены",
+  "linkTrustOther": "Проверьте, что они совпадают с сообщением о платеже",
   "linkTrustChanged": "{name} теперь получает платежи на другой кошелёк, чем при вашем платеже {date}. Платите, только если вам об этом сказали.",
   "linkCodeLabel": "Картинки для {name}",
   "linkAmountEdited": "Не запрошенная сумма",

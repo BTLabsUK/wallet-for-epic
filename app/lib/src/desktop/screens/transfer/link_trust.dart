@@ -14,7 +14,8 @@ import '../../widgets/kit.dart';
 const Key deskLinkTrustKey = ValueKey('send-link-trust');
 
 /// Who the link's payee is and where it was listed, with the pictures of the listing code. The
-/// changed-wallet sentence takes the warning tone, the others stay neutral.
+/// changed-wallet sentence takes the warning tone, the others stay neutral; a link from a name
+/// service this wallet is not paired with has the plain notice icon, no shield.
 class DeskLinkTrust extends StatelessWidget {
   const DeskLinkTrust({super.key, required this.link});
 
@@ -30,7 +31,11 @@ class DeskLinkTrust extends StatelessWidget {
         key: deskLinkTrustKey,
         title: linkTrustText(l, link),
         tone: changed ? ETone.warn : ETone.neutral,
-        icon: changed ? Icons.warning_amber_rounded : EIcons.shield,
+        icon: switch (link.standing.trust) {
+          NameServiceTrust.changedWallet => Icons.warning_amber_rounded,
+          NameServiceTrust.nameServiceYouUse => EIcons.shield,
+          NameServiceTrust.notANameServiceYouUse => null,
+        },
         below: Padding(
           padding: EdgeInsets.only(top: Sp.x2),
           child: Semantics(

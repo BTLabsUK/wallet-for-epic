@@ -27488,9 +27488,9 @@
   "@linkTrustNameService": {
     "description": "Trust line on Send for a name service this wallet uses that has no label."
   },
-  "linkTrustOther": "Not from a service you paired with",
+  "linkTrustOther": "Confirm these match the payment message",
   "@linkTrustOther": {
-    "description": "Trust line on Send for a payment link from any other name service."
+    "description": "Trust line on Send for a payment link from a name service this wallet is not paired with: the payer compares the four pictures with the payment message."
   },
   "linkTrustChanged": "{name} now gets paid to a different wallet than when you paid on {date}. Pay only if they told you.",
   "@linkTrustChanged": {

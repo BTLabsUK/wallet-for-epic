@@ -118,6 +118,7 @@ void main() {
       await paste(tester, vectors.https('req-basic'));
       expect(find.text(_l.linkTrustOther), findsOneWidget);
       expect(find.textContaining('alice_test'), findsNothing);
+      expect(find.descendant(of: trust(), matching: find.byIcon(EIcons.shield)), findsNothing);
     });
 
     testWidgets('a listing that changed wallet', (tester) async {

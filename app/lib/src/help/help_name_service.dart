@@ -45,12 +45,12 @@ List<HelpTopic> _en(bool phone) {
     HelpTopic(
       'start',
       'The line above Send',
-      'It says where the request came from. “Not from a service you paired with” can still be right: ask the payee.',
+      'It says where the request came from. With “Confirm these match the payment message”, compare the four pictures with the message the link came from.',
       [
         const HelpBlock.p('When Send opens from a payment link, a line above the amount says where the request came from. The four pictures belong to the payee’s name: the payee can see the same four in the service, so you can compare them.'),
         const HelpBlock.ul([
           '**@name · via** a contact name: the request came through a service you paired with in this wallet.',
-          '**Not from a service you paired with**: the payment can still be right. Ask the payee.',
+          '**Confirm these match the payment message**: this wallet is not paired with the service that made the link. Compare the four pictures with the message the link came from.',
           '**You paid this request on** a date: you already paid it. **Pay again** is there if you mean to.',
           '**@name now gets paid to a different wallet than when you paid on** a date: the payee’s wallet changed since you last paid them by link. Pay only if they told you.',
         ]),
@@ -132,12 +132,12 @@ List<HelpTopic> _de(bool phone) {
     HelpTopic(
       'start',
       'Die Zeile über Senden',
-      'Sie sagt, woher die Aufforderung kommt. „Nicht von einem Dienst, mit dem Sie gekoppelt sind“ kann trotzdem stimmen: Fragen Sie den Empfänger.',
+      'Sie sagt, woher die Aufforderung kommt. Bei „Prüfen Sie, ob sie zur Zahlungsnachricht passen“ vergleichen Sie die vier Bilder mit der Nachricht, aus der der Link stammt.',
       [
         const HelpBlock.p('Wenn Senden aus einem Zahlungslink geöffnet wird, sagt eine Zeile über dem Betrag, woher die Aufforderung kommt. Die vier Bilder gehören zum Namen des Empfängers: Der Empfänger sieht dieselben vier im Dienst, so können Sie vergleichen.'),
         const HelpBlock.ul([
           '**@name · über** ein Kontaktname: Die Aufforderung kam über einen Dienst, mit dem Sie in dieser Wallet gekoppelt sind.',
-          '**Nicht von einem Dienst, mit dem Sie gekoppelt sind**: Die Zahlung kann trotzdem richtig sein. Fragen Sie den Empfänger.',
+          '**Prüfen Sie, ob sie zur Zahlungsnachricht passen**: Diese Wallet ist nicht mit dem Dienst gekoppelt, der den Link erstellt hat. Vergleichen Sie die vier Bilder mit der Nachricht, aus der der Link stammt.',
           '**Sie haben diese Anfrage bezahlt am** Datum: Sie haben sie schon bezahlt. **Erneut bezahlen** steht bereit, falls Sie es wollen.',
           '**@name wird jetzt auf eine andere Wallet bezahlt als bei Ihrer Zahlung am** Datum: Die Wallet des Empfängers hat sich geändert, seit Sie ihn zuletzt per Link bezahlt haben. Zahlen Sie nur, wenn er es Ihnen gesagt hat.',
         ]),
@@ -219,12 +219,12 @@ List<HelpTopic> _pl(bool phone) {
     HelpTopic(
       'start',
       'Wiersz nad Wyślij',
-      'Mówi, skąd pochodzi prośba. „Nie z usługi, z którą się sparowano” może być w porządku: zapytaj odbiorcę.',
+      'Mówi, skąd pochodzi prośba. Przy „Sprawdź, czy pasują do wiadomości z płatnością” porównaj cztery obrazki z wiadomością, z której pochodzi link.',
       [
         const HelpBlock.p('Gdy Wyślij otwiera się z linku płatności, wiersz nad kwotą mówi, skąd pochodzi prośba. Cztery obrazki należą do nazwy odbiorcy: odbiorca widzi te same cztery w usłudze, więc możesz je porównać.'),
         const HelpBlock.ul([
           '**@nazwa · przez** nazwa kontaktu: prośba przyszła przez usługę, z którą sparowano ten portfel.',
-          '**Nie z usługi, z którą się sparowano**: płatność nadal może być właściwa. Zapytaj odbiorcę.',
+          '**Sprawdź, czy pasują do wiadomości z płatnością**: ten portfel nie jest sparowany z usługą, która utworzyła link. Porównaj cztery obrazki z wiadomością, z której pochodzi link.',
           '**Tę prośbę opłacono** data: już ją zapłacono. **Zapłać ponownie** jest dostępne, jeśli tak chcesz.',
           '**@nazwa dostaje teraz płatności na inny portfel niż w dniu Twojej płatności** data: portfel odbiorcy zmienił się od Twojej ostatniej płatności linkiem. Płać tylko wtedy, gdy odbiorca Cię o tym poinformował.',
         ]),
@@ -306,12 +306,12 @@ List<HelpTopic> _ru(bool phone) {
     HelpTopic(
       'start',
       'Строка над «Отправить»',
-      'Она говорит, откуда пришёл запрос. «Не из сервиса, с которым вы связались» тоже может быть верным: спросите получателя.',
+      'Она говорит, откуда пришёл запрос. При «Проверьте, что они совпадают с сообщением о платеже» сравните четыре картинки с сообщением, из которого пришла ссылка.',
       [
         const HelpBlock.p('Когда «Отправить» открывается из платёжной ссылки, строка над суммой говорит, откуда пришёл запрос. Четыре картинки относятся к имени получателя: получатель видит те же четыре в сервисе, и вы можете сравнить.'),
         const HelpBlock.ul([
           '**@имя · через** имя контакта: запрос пришёл через сервис, с которым связан этот кошелёк.',
-          '**Не из сервиса, с которым вы связались**: платёж всё равно может быть верным. Спросите получателя.',
+          '**Проверьте, что они совпадают с сообщением о платеже**: этот кошелёк не связан с сервисом, который создал ссылку. Сравните четыре картинки с сообщением, из которого пришла ссылка.',
           '**Вы оплатили этот запрос** дата: он уже оплачен. **Оплатить снова** доступно, если это нужно.',
           '**@имя теперь получает платежи на другой кошелёк, чем когда вы платили** дата: кошелёк получателя изменился с вашей прошлой оплаты по ссылке. Платите, только если он вам об этом сказал.',
         ]),
@@ -393,12 +393,12 @@ List<HelpTopic> _zh(bool phone) {
     HelpTopic(
       'start',
       '“发送”上方的一行',
-      '它说明请求来自哪里。“不是来自你配对过的服务”也可能没问题：请询问收款方。',
+      '它说明请求来自哪里。看到“请确认与付款消息中的一致”时，请将四个图案与链接所在的消息对比。',
       [
         const HelpBlock.p('从付款链接打开“发送”时，金额上方的一行会说明请求来自哪里。四个图案属于收款方的名称：收款方在服务中能看到同样的四个，你可以对比。'),
         const HelpBlock.ul([
           '**@名称 · 经由** 联系人名称：请求来自这个钱包配对过的服务。',
-          '**不是来自你配对过的服务**：付款仍可能是对的。请询问收款方。',
+          '**请确认与付款消息中的一致**：此钱包未与生成该链接的服务配对。请将四个图案与链接所在的消息对比。',
           '**你已在某日支付此请求**：你已经付过了。如果确实要再付，可用 **再次付款**。',
           '**@名称现在收款到的钱包，与你在某日付款时不同**：自你上次通过链接向对方付款以来，对方的钱包变了。只有对方告诉过你时才付款。',
         ]),
@@ -480,12 +480,12 @@ List<HelpTopic> _th(bool phone) {
     HelpTopic(
       'start',
       'บรรทัดเหนือหน้าส่ง',
-      'บอกว่าคำขอมาจากที่ใด “ไม่ได้มาจากบริการที่คุณจับคู่ไว้” อาจยังถูกต้องได้ ให้ถามผู้รับ',
+      'บอกว่าคำขอมาจากที่ใด เมื่อเห็น “ตรวจสอบว่าตรงกับข้อความชำระเงิน” ให้เทียบรูปภาพสี่รูปกับข้อความที่ลิงก์มาจาก',
       [
         const HelpBlock.p('เมื่อหน้าส่งเปิดจากลิงก์ชำระเงิน บรรทัดเหนือจำนวนเงินจะบอกว่าคำขอมาจากที่ใด รูปภาพสี่รูปเป็นของชื่อผู้รับ ผู้รับเห็นสี่รูปเดียวกันในบริการ คุณจึงเทียบกันได้'),
         const HelpBlock.ul([
           '**@ชื่อ · ผ่าน** ชื่อผู้ติดต่อ คำขอมาจากบริการที่กระเป๋าเงินนี้จับคู่ไว้',
-          '**ไม่ได้มาจากบริการที่คุณจับคู่ไว้** การชำระเงินอาจยังถูกต้องได้ ให้ถามผู้รับ',
+          '**ตรวจสอบว่าตรงกับข้อความชำระเงิน** กระเป๋าเงินนี้ไม่ได้จับคู่กับบริการที่สร้างลิงก์ ให้เทียบรูปภาพสี่รูปกับข้อความที่ลิงก์มาจาก',
           '**คุณชำระคำขอนี้แล้วเมื่อ** วันที่ คุณจ่ายไปแล้ว มี **จ่ายอีกครั้ง** ให้ถ้าคุณตั้งใจจะจ่ายอีก',
           '**@ชื่อ ตอนนี้รับเงินเข้ากระเป๋าเงินอื่น ต่างจากตอนที่คุณจ่ายเมื่อ** วันที่ กระเป๋าเงินของผู้รับเปลี่ยนไปหลังจากที่คุณจ่ายให้ด้วยลิงก์ครั้งล่าสุด ให้จ่ายเมื่อผู้รับบอกคุณเท่านั้น',
         ]),

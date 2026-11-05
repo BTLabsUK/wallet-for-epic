@@ -5278,7 +5278,7 @@
   "linkTrustListed": "{name} · ผ่าน {service}",
   "linkTrustListedBy": "ผ่าน {service}",
   "linkTrustNameService": "จากบริการที่คุณจับคู่ไว้",
-  "linkTrustOther": "ไม่ได้มาจากบริการที่คุณจับคู่ไว้",
+  "linkTrustOther": "ตรวจสอบว่าตรงกับข้อความชำระเงิน",
   "linkTrustChanged": "ตอนนี้ {name} รับเงินเข้ากระเป๋าเงินใบอื่น ไม่ใช่ใบที่คุณจ่ายเมื่อ {date} จ่ายเฉพาะเมื่อมีคนบอกคุณ",
   "linkCodeLabel": "รูปภาพของ {name}",
   "linkAmountEdited": "ไม่ใช่จำนวนเงินที่ขอ",

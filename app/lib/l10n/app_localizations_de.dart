@@ -20546,7 +20546,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get linkTrustOther =>
-      'Nicht von einem Dienst, mit dem Sie gekoppelt sind';
+      'Prüfen Sie, ob sie zur Zahlungsnachricht passen';
 
   @override
   String linkTrustChanged(String name, String date) {
