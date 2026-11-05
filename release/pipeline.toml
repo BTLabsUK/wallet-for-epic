@@ -12,7 +12,7 @@
 #   when       scope switches that must all be on, e.g. ["stores.play"] or ["publish.manifests"]
 #   unless     scope switches that must all be off, e.g. ["apple.signed"]
 #   for_each   "variant" (one step per variant in scope: -tor, -notor) or "proof_variant"
-#              (the variants [proof] update-tests)
+#              (the variants [proof] tests; a step's own `variants` replaces that list)
 #   needs      step names; a name with for_each means all its instances, name@variant the
 #              instance of the same variant. Steps the scope leaves out are dropped from needs.
 #   host       the role that runs it (default build); the signer role holds the keys
@@ -158,7 +158,10 @@ beside_pairs = [["uk.btlabs.epiccash.mobile", "uk.btlabs.btwallet"]]
 beside_not_applicable = ["history_kept", "custom_nodes_kept", "custom_relays_kept", "settings_kept",
                          "store_encrypted", "app_files_kept", "lan_nodes_kept", "contact_note_kept"]
 funds_variant = "tor"
-variants = ["tor", "notor"]
+# The builds tested on rigs and devices (trust-*, create-*), the owner 2026-11-05: Tor only. The notor
+# builds are still built, verified (checksums, attestation, platform verify) and shipped. iOS has only
+# a notor build: trust-ios names it itself.
+variants = ["tor"]
 
 # Each driver first has the hermetic node and relay up on this machine (tools/rellib/hermetic/up.sh:
 # idempotent, a running service is left alone, one lane at a time). It exits 1 while the node still

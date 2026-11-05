@@ -413,7 +413,10 @@ def preflight(engine, step, say):
                             capture_output=True, timeout=40).returncode
         (ok if rc == 0 else bad)(f"ssh {role} ({alias}) reachable")
         if role == "windows" and rc == 0:
-            warns += rig_preflight(alias, [v for v, on in s["variants"].items() if on], hosts["file"], ok, bad, say)
+            # Only the variants a Windows trust lane tests use a rig.
+            rigs = [v for p, v in trust_lanes(engine) if p == "windows"]
+            if rigs:
+                warns += rig_preflight(alias, rigs, hosts["file"], ok, bad, say)
     for k, plat in (("node_bin_linux", "linux"), ("node_bin_windows", "windows")):
         if plat in plats:
             pth = hosts["path"].get(k, "")

@@ -128,6 +128,26 @@ class GraphTest(unittest.TestCase):
         self.assertTrue(next(x for x in steps if x.id == "verify-live").publish)
         self.assertNotIn("store-play-tor", ids)
 
+    def test_only_the_tor_builds_are_tested(self):
+        # The owner 2026-11-05: both variants are built, verified and shipped; rigs and devices test Tor only.
+        s, steps = graph(skip_platform="macos,ios")
+        ids = [x.id for x in steps]
+        for p in ("android", "linux", "windows"):
+            self.assertIn(f"build-{p}-notor", ids)
+            self.assertIn(f"trust-{p}-tor", ids)
+            self.assertIn(f"create-{p}-tor", ids)
+            self.assertNotIn(f"trust-{p}-notor", ids)
+            self.assertNotIn(f"create-{p}-notor", ids)
+        self.assertIn("screens", ids)
+        # The notor files still go through G3 and the manifests.
+        by = {x.id: x for x in steps}
+        self.assertIn("build-linux-notor", by["artefacts"].needs)
+        # iOS has only a notor build: its trust step names that variant itself.
+        s, steps = graph(sets=["apple.signed=false"])
+        ids = [x.id for x in steps]
+        self.assertIn("trust-ios-notor", ids)
+        self.assertNotIn("trust-macos-notor", ids)
+
     def test_update_trust_runs_per_platform_after_the_local_builds(self):
         s, steps = graph()
         by = {x.id: x for x in steps}
@@ -135,14 +155,12 @@ class GraphTest(unittest.TestCase):
         local = ["build-android-tor", "build-android-notor", "sign-android", "build-linux-tor", "build-linux-notor"]
         # The desktop runs need no signature: they start without waiting for the release's code.
         desk = [x for x in local if x != "sign-android"]
-        for v in ("tor", "notor"):
-            self.assertEqual(by[f"trust-android-{v}"].needs, local)
-            self.assertEqual(by[f"trust-linux-{v}"].needs, desk)
-            self.assertEqual(by[f"trust-windows-{v}"].needs, desk + [f"build-windows-{v}"])
-            self.assertEqual(by[f"trust-macos-{v}"].needs, local + [f"apple-mac-check-{v}"])
-        # A test wallet and emulator per Android variant, a sandbox per Linux variant: all at once.
-        self.assertEqual([by[f"trust-android-{v}"].lane for v in ("tor", "notor")], ["trust-android-tor", "trust-android-notor"])
-        self.assertEqual([by[f"trust-linux-{v}"].lane for v in ("tor", "notor")], ["trust-linux-tor", "trust-linux-notor"])
+        self.assertEqual(by["trust-android-tor"].needs, local)
+        self.assertEqual(by["trust-linux-tor"].needs, desk)
+        self.assertEqual(by["trust-windows-tor"].needs, desk + ["build-windows-tor"])
+        self.assertEqual(by["trust-macos-tor"].needs, local + ["apple-mac-check-tor"])
+        # Each lane has its own emulator, sandbox or rig.
+        self.assertEqual([by[f"trust-{p}-tor"].lane for p in ("android", "linux")], ["trust-android-tor", "trust-linux-tor"])
         lanes = [x.lane for x in steps if x.proof]
         self.assertNotIn("local", lanes)
         self.assertNotIn("heavy", lanes)
@@ -164,7 +182,7 @@ class GraphTest(unittest.TestCase):
             self.assertTrue(c.warn_only)
             self.assertFalse(c.proof)
             self.assertEqual(c.lane, f"trust-{plat}-tor")
-            self.assertEqual(c.needs, [f"trust-{plat}-tor", f"trust-{plat}-notor"])
+            self.assertEqual(c.needs, [f"trust-{plat}-tor"])
             self.assertEqual((c.env["REL_TRUST_MODE"], c.env["REL_CHECKS"], c.env["REL_FUNDS"]), ("create", "create_ok", "0"))
             self.assertIn(f"trust-{plat}.sh", c.run)
             self.assertNotIn(c.id, by["update-trust"].needs)
