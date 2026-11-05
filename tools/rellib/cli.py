@@ -267,7 +267,7 @@ class App:
         if eng.relmsg:
             self.supersede(run)
         self.relmsg_start(run, eng)
-        return self.drive(run, eng, phase="build", until=a.until)
+        return self.drive(run, eng, phase="build", until=a.until, keep_going=a.keep_going)
 
     def concurrency_overrides(self, run, a):
         """--max-heavy N / --exclusive-machine: kept in run.json, so a resume keeps them."""
@@ -280,7 +280,7 @@ class App:
             run.info["concurrency"] = over
             run.save_info()
 
-    def drive(self, run, eng, phase, until=None, retry_failed=False):
+    def drive(self, run, eng, phase, until=None, retry_failed=False, keep_going=False):
         why = self.run_refusal(run.info)
         if why:
             return self.out(EXIT_DENIED, why, run)
@@ -335,7 +335,8 @@ class App:
                         run.save_info()
                 if st["status"] == "running":
                     run.set_status(sid, status="pending", note="was running when tools/rel stopped")
-            code = eng.drive(sel)
+            # --keep-going: a failed build-phase step stops only what needs it; publishing always stops.
+            code = eng.drive(sel, stop_on_fail=not (keep_going and phase == "build"))
         except Interrupted as e:
             # Stopped or killed: this run is over (a new run, not this one, is what comes next).
             if eng.relmsg:
@@ -431,7 +432,7 @@ class App:
         if eng.relmsg:
             eng.relmsg.reopen()
         self.relmsg_start(run, eng)
-        return self.drive(run, eng, phase="build")
+        return self.drive(run, eng, phase="build", keep_going=a.keep_going)
 
     def cmd_resume(self, a):
         run = self.load_run()
@@ -443,7 +444,8 @@ class App:
         if eng.relmsg:
             eng.relmsg.reopen()
         self.relmsg_start(run, eng)
-        return self.drive(run, eng, phase="publish" if a.publish else "build", until=a.until, retry_failed=True)
+        return self.drive(run, eng, phase="publish" if a.publish else "build", until=a.until, retry_failed=True,
+                          keep_going=a.keep_going)
 
     def cmd_run(self, a):
         """One step, and nothing after it. Several steps run side by side across their lanes under one
@@ -951,6 +953,8 @@ def parser():
         sp.add_argument("--max-heavy", type=int, help="heavy steps at once (default [concurrency] max_heavy, 2)")
         sp.add_argument("--exclusive-machine", action="store_true",
                         help="no agents share this machine: Android and Windows trust may run side by side")
+        sp.add_argument("--keep-going", action="store_true",
+                        help="a failed step stops only the steps that need it (not the publish phase)")
     machine_args(sp)
     sp = sub.add_parser("doctor", help="G1 preflight alone")
     scope_args(sp, version_required=False)

@@ -95,6 +95,22 @@ class CliTest(Base):
         self.assertEqual(run.step("trust-linux-tor").needs, ["build-android-tor", "build-android-notor", "build-linux-tor",
                                                              "build-linux-notor"])
 
+    def test_resume_keep_going(self):
+        pipe = os.path.join(self.tmp, "pipeline.toml")
+        with open(pipe, "w") as f:
+            f.write(FAKE_PIPELINE)
+        run = self.make_run(only="android,linux", sets=["publish.manifests=false"])
+        run.set_status("scope", status="done")
+        open(os.path.join(self.src, "fail-notor"), "w").close()
+        code, out, err = rel(*self.common(), "--pipeline", pipe, "resume", "--run", run.info["version"], "--keep-going")
+        self.assertEqual(code, 20, out + err)
+        run = type(run).find(self.root, run.info["version"])
+        st = {s: run.status(s)["status"] for s in ("build-android-notor", "build-android-tor", "build-linux-tor",
+                                                   "build-linux-notor", "trust-linux-tor")}
+        self.assertEqual(st, {"build-android-notor": "failed", "build-android-tor": "done", "build-linux-tor": "done",
+                              "build-linux-notor": "done", "trust-linux-tor": "pending"})
+        self.assertFalse(run.info.get("tainted"))
+
 
 if __name__ == "__main__":
     unittest.main()
