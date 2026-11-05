@@ -110,6 +110,7 @@ abstract final class TrustIds {
   static const overviewAvailable = 'g4.overview.available';
   static const homeLock = 'g4.home.lock';
   static const homeSettings = 'g4.home.settings';
+  static const homeContacts = 'g4.home.contacts';
   static const backupAgree = 'g4.backup.agree';
   static const backupShow = 'g4.backup.show';
   static const backupDone = 'g4.backup.done';
@@ -209,6 +210,7 @@ abstract final class TrustIds {
     'g4.overview.available',
     'g4.home.lock',
     'g4.home.settings',
+    'g4.home.contacts',
     'g4.backup.agree',
     'g4.backup.show',
     'g4.backup.done',

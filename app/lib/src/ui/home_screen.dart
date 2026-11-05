@@ -51,7 +51,6 @@ import 'theme/protocol.dart';
 import 'tour/phone_tour.dart';
 import 'levels/relay_down.dart' show RelayDownNotices;
 import 'levels/shell_pairing.dart' show offerPairRequest;
-import 'levels/shell_status.dart' show ShellStatusIcons, shellStatusesShown;
 import '../levels/level_features.dart' show BalancePresentation, LevelWording;
 import '../levels/level_providers.dart' show levelFeaturesProvider;
 import 'tx_details_screen.dart';
@@ -718,7 +717,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
     final tab = ref.watch(shellTabProvider);
     final l = context.l10n;
-    final features = ref.watch(levelFeaturesProvider);
     final scan = offersQrScan(ref);
 
     // The Android back: Send takes its own steps back first, then Send and Receive go to
@@ -761,9 +759,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             const DeviceLifecycle(child: SizedBox.shrink()),
             // Level 1: the Epicbox relay offer as a notice; draws nothing.
             const RelayDownNotices(),
-            // Level 1: Network and Epicbox only, in the bar; the other levels have theirs
-            // under the figure.
-            if (shellStatusesShown(features)) const ShellStatusIcons(),
             if (scan)
               IconButton(
                 tooltip: l.scanQrTooltip,
@@ -867,8 +862,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final data = home.value;
     final backedUp = ref.watch(backedUpProvider).value ?? true;
     final transactions = watchHistory(ref, data?.transactions ?? const <TxEntry>[]);
-    // Level 1: the quiet line under the figure stands for the tiles, and View all for the
-    // destinations (Contacts is in Settings › This wallet).
+    // Level 1: no tiles (the balance sheet has every amount), and of the destinations only
+    // Contacts, as one entry; View all stands for Activity.
     final tiles = ref.watch(levelFeaturesProvider.select((f) => f.balanceTiles)) == BalancePresentation.tiles;
     final plain = ref.watch(levelFeaturesProvider.select((f) => f.wording)) == LevelWording.plain;
     Widget column(Widget child) => Center(
@@ -916,7 +911,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       BalanceTiles(onTap: _openOutputs),
                       const SizedBox(height: homeCardGap),
                       HomeDestinations(onOpen: _openDestination),
-                    ],
+                    ] else
+                      HomeContactsEntry(onTap: () => _openDestination(HomeDestination.contacts)),
                     // An unfinished restore: its own card, with the scan in it.
                     if (restoreUnfinished || importOffer)
                       const Padding(

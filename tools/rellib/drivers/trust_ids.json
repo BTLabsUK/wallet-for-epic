@@ -726,6 +726,19 @@
    "secret": false
   },
   {
+   "id": "g4.home.contacts",
+   "screen": "home",
+   "family": [
+    "android"
+   ],
+   "role": "button",
+   "keys": [
+    "settingsContacts"
+   ],
+   "match": "line",
+   "secret": false
+  },
+  {
    "id": "g4.backup.agree",
    "screen": "backup",
    "family": [

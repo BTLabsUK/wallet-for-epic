@@ -319,12 +319,12 @@ void main() {
   });
 
   group('phone', () {
-    testWidgets('Home with the tour: Lock, Settings, Skip', (tester) async {
+    testWidgets('Home with the tour: Lock, Settings, Contacts, Skip', (tester) async {
       await _same(
         tester,
         () => _openPhone(tester, const HomeScreen(), tour: true),
         () => _closePhone(tester),
-        ['g4.home.lock', 'g4.home.settings', 'g4.tour.skip'],
+        ['g4.home.lock', 'g4.home.settings', 'g4.home.contacts', 'g4.tour.skip'],
       );
     });
 

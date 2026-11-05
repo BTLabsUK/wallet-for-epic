@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-// The level-1 quiet shell on Home: two status icons in the bar, no tiles, the Epicbox sheet on
-// a tap, and the relay offer as a notice whose Switch calls through. Level 3 keeps today's icons.
+// The level-1 shell on Home: the deeper levels' balance block with level 1's two status icons
+// under the figure, no tiles, one Contacts entry, the Epicbox sheet on a tap, and the relay offer
+// as a notice whose Switch calls through. Level 3 keeps its full row of icons and the tiles.
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/levels/relay_switch.dart';
 import 'package:epic_wallet/src/levels/relay_switch_providers.dart';
@@ -9,10 +10,11 @@ import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayProbeProvider;
+import 'package:epic_wallet/src/ui/contacts_screen.dart';
 import 'package:epic_wallet/src/ui/home_parts.dart';
 import 'package:epic_wallet/src/ui/home_screen.dart';
 import 'package:epic_wallet/src/ui/levels/quiet_invoices.dart';
-import 'package:epic_wallet/src/ui/home_status.dart' show connectionsSheetKey;
+import 'package:epic_wallet/src/ui/home_status.dart' show barNodeIconKey, connectionsSheetKey;
 import 'package:epic_wallet/src/ui/levels/shell_status.dart';
 import 'package:epic_wallet/src/ui/levels/status_sheets.dart';
 import 'package:epic_wallet/src/ui/notices.dart';
@@ -126,20 +128,50 @@ Future<void> _pump(WidgetTester tester, {required String level, _Offer? offer, b
 }
 
 void main() {
-  testWidgets('level 1: two status icons in the bar, no tiles, a quiet line', (tester) async {
+  testWidgets('level 1: the balance block as at level 3, two status icons under the figure, no tiles, Contacts', (tester) async {
     await _pump(tester, level: '1');
+    // The same block as the deeper levels: the caption, the figure, the icon row with the fiat
+    // value and the eye; level 1's two icons in it, nothing in the app bar.
+    expect(find.byKey(balanceCaptionKey), findsOneWidget);
     expect(find.byKey(shellNetworkIconKey), findsOneWidget);
     expect(find.byKey(shellEpicboxIconKey), findsOneWidget);
     expect(find.byType(StatusIcon), findsNWidgets(2));
     expect(find.byKey(nodeStatusKey), findsNothing);
-    expect(find.byType(BalanceTiles), findsNothing);
-    expect(find.byType(HomeDestinations), findsNothing);
-    expect(find.byKey(balanceCaptionKey), findsNothing);
-    expect(find.text('+12.5 arriving · 7.5 on hold'), findsOneWidget);
-    // The hide-amounts eye moved to Settings › Appearance.
-    expect(find.byIcon(Icons.visibility_off_outlined), findsNothing);
+    expect(find.byIcon(Icons.visibility_off_outlined), findsOneWidget);
     expect(find.byIcon(Icons.qr_code_scanner), findsNothing);
     expect(tester.widget<StatusIcon>(find.byKey(shellNetworkIconKey)).label, startsWith('Network · '));
+    final icons = tester.getTopLeft(find.byKey(shellNetworkIconKey));
+    final bar = tester.getRect(find.byType(AppBar));
+    expect(icons.dy, greaterThan(bar.bottom), reason: 'the icons are under the figure, not in the bar');
+    // No tiles; of the destinations only Contacts, one entry under the balance.
+    expect(find.byType(BalanceTiles), findsNothing);
+    expect(find.byType(HomeDestinations), findsNothing);
+    expect(find.text('+12.5 arriving · 7.5 on hold'), findsNothing);
+    expect(find.byType(HomeContactsEntry), findsOneWidget);
+    expect(find.byKey(homeDestinationKey(HomeDestination.contacts)), findsOneWidget);
+    expect(find.text(_l.settingsContacts), findsOneWidget);
+    expect(tester.getSize(find.byType(HomeContactsEntry)).height, greaterThanOrEqualTo(48));
+  });
+
+  testWidgets('level 1: the Contacts entry opens Contacts', (tester) async {
+    await _pump(tester, level: '1');
+    await tester.tap(find.byKey(homeDestinationKey(HomeDestination.contacts)));
+    for (var i = 0; i < 5; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.byType(ContactsScreen), findsOneWidget);
+  });
+
+  testWidgets('level 1: Send and Receive carry the two icons in the balance header', (tester) async {
+    await _pump(tester, level: '1');
+    await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text(_l.homeSendButton)));
+    for (var i = 0; i < 8; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.byKey(balanceHeaderKey), findsOneWidget);
+    expect(find.descendant(of: find.byKey(balanceHeaderKey), matching: find.byKey(shellBarNetworkIconKey)), findsOneWidget);
+    expect(find.descendant(of: find.byKey(balanceHeaderKey), matching: find.byKey(shellBarEpicboxIconKey)), findsOneWidget);
+    expect(find.byKey(barNodeIconKey), findsNothing);
   });
 
   testWidgets('level 1: an invoice waiting is a row under Recent activity, never a notice', (tester) async {
@@ -211,9 +243,10 @@ void main() {
     });
   }
 
-  testWidgets("level 3: today's icons under the figure, the tiles, nothing in the bar", (tester) async {
+  testWidgets('level 3: the full row of icons under the figure, the tiles', (tester) async {
     await _pump(tester, level: '3');
     expect(find.byKey(shellNetworkIconKey), findsNothing);
+    expect(find.byType(HomeContactsEntry), findsNothing);
     expect(find.byKey(walletStatusesKey), findsOneWidget);
     expect(find.byKey(nodeStatusKey), findsOneWidget);
     expect(find.byKey(epicboxStatusKey), findsOneWidget);

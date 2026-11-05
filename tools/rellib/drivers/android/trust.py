@@ -816,7 +816,7 @@ def advanced_page():
 
 def set_level_three():
     """Settings › Advanced › Wallet view › Deep end › Save: a fresh install opens at level 1, where
-    home shows no node status or total; the digest reads level 3. Nothing on a build without
+    home shows no Total tile; the digest reads level 3. Nothing on a build without
     levels. Returns whether level 3 is set."""
     if not facts.LEVELS_BUILT:
         return True
