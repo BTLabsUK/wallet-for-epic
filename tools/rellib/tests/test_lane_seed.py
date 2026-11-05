@@ -347,7 +347,7 @@ class Birth(Store):
         self.assertIn("FAIL", [lvl for lvl, line in out if "birth" in line])
 
 
-class FakePlatform:
+class FakePlatform(lane_mod.Platform):
     """The lane's platform with no app: digest() answers the balances given, one per read."""
     name, variant, update_method = "linux", "tor", "fake"
 

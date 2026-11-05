@@ -349,8 +349,9 @@ class FreshCandidateTest(unittest.TestCase):
         p.rig.call = (lambda orig: lambda op, timeout=120, **kw: {"ok": True, "entry": None} if op == "entry"
                       else orig(op, timeout, **kw))(p.rig.call)
         p.install_candidate_fresh()
-        op, kw = p.rig.calls[-1]
-        self.assertEqual((op, kw["exe"]), ("setup", "C:\\rig\\run\\cand-setup.exe"))
+        op, kw = next(c for c in p.rig.calls if c[0] == "setup")
+        self.assertEqual(kw["exe"], "C:\\rig\\run\\cand-setup.exe")
+        self.assertEqual(p.rig.calls[-1][0], "store_init")   # English in the app's store after Setup
         self.assertIn("/LOG=C:\\rig\\run\\setup-candidate.log", kw["args"])
         self.assertTrue(p.exe.endswith("btwallet.exe"))
 
