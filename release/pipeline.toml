@@ -188,7 +188,8 @@ commit_map = "~/publish/wallet-for-epic.commit-map"
 state = "/tmp/epic-build/rel/hosted-dispatches.jsonl"
 max_per_day = 8
 ramp_until = "2026-11-10"
-ramp_max_per_day = 2
+# 10 for the 26.11.2 release night (2026-11-04/05); back to 2 after it.
+ramp_max_per_day = 10
 poll = "30s"
 # Builds go out in waves; each wave is one dispatch and counts toward the cap. One wave: every build
 # in one dispatch (the owner 2026-11-03, 26.11.0). [["tor"], ["notor"]] sends the Tor builds first and
