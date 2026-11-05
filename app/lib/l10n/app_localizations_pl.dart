@@ -21123,4 +21123,27 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskSendErrOwnNamed(String wallet) {
     return 'To „$wallet”, portfel otwarty teraz. Aby na niego zapłacić, najpierw otwórz inny portfel.';
   }
+
+  @override
+  String get deskConLabelTitle => 'Etykieta';
+
+  @override
+  String get deskConLabelWallet => 'Tylko portfel';
+
+  @override
+  String get deskConLabelExchange => 'Giełda';
+
+  @override
+  String get deskConLabelVendor => 'Sprzedawca';
+
+  @override
+  String get deskConLabelService => 'Usługa';
+
+  @override
+  String get deskConLabelDefault => 'Domyślna';
+
+  @override
+  String deskConLabelCurrent(String name) {
+    return 'Etykieta: $name';
+  }
 }

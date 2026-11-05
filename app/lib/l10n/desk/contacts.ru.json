@@ -49,5 +49,12 @@
   "deskConKeep": "Оставить",
   "deskConDeleteAction": "Удалить контакт",
   "deskConPickForPairing": "Сопряжение будет добавлено к выбранному контакту.",
-  "deskConExportDo": "Экспортировать"
+  "deskConExportDo": "Экспортировать",
+  "deskConLabelTitle": "Метка",
+  "deskConLabelWallet": "Просто кошелёк",
+  "deskConLabelExchange": "Биржа",
+  "deskConLabelVendor": "Продавец",
+  "deskConLabelService": "Сервис",
+  "deskConLabelDefault": "По умолчанию",
+  "deskConLabelCurrent": "Метка: {name}"
 }

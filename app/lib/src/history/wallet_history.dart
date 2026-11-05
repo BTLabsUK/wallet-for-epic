@@ -9,6 +9,7 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 
+import '../contact_label.dart';
 import '../contact_store.dart';
 import '../name_service/pins.dart';
 import '../name_service/link_payments.dart' show LinkPaymentRecords;
@@ -50,6 +51,7 @@ Contact _contact(ContactRec c) => Contact(
   http: c.http,
   tor: c.tor,
   note: c.note,
+  label: ContactLabel.fromStored(c.label),
 );
 
 Contact _fromShared(ContactFields c) => Contact(
@@ -59,6 +61,7 @@ Contact _fromShared(ContactFields c) => Contact(
   http: c.http,
   tor: c.tor,
   note: c.note,
+  label: c.label,
 );
 
 ContactRec _recOf(ContactFields c) => ContactRec(
@@ -68,6 +71,7 @@ ContactRec _recOf(ContactFields c) => ContactRec(
   http: c.http,
   tor: c.tor,
   note: c.note,
+  label: c.label.stored,
 );
 
 String? _trimmed(String? s) {
@@ -110,13 +114,13 @@ int mergeBackupContacts(List<ContactFields> book, Iterable<ContactRec> theirs, A
       continue;
     }
     if (c.id.isEmpty || book.any((e) => e.id == c.id)) continue;
-    book.add(ContactFields(id: c.id, name: c.name.trim(), note: _trimmed(c.note)));
+    book.add(ContactFields(id: c.id, name: c.name.trim(), note: _trimmed(c.note), label: ContactLabel.fromStored(c.label)));
     n++;
   }
   final plan = planGuiContacts(
     [
       for (final c in withAddress)
-        GuiContactRow(name: c.name, externalOne: c.epicbox, externalTwo: c.http, onion: c.tor, note: c.note),
+        GuiContactRow(name: c.name, externalOne: c.epicbox, externalTwo: c.http, onion: c.tor, note: c.note, label: ContactLabel.fromStored(c.label)),
     ],
     book,
     checks,
@@ -148,7 +152,7 @@ Set<String> _favouritesIn(HistoryPayload payload, List<ContactFields> book) => {
 };
 
 ContactFields _fieldsOfRec(ContactRec c) =>
-    ContactFields(id: c.id, name: c.name, epicbox: c.epicbox, http: c.http, tor: c.tor, note: c.note);
+    ContactFields(id: c.id, name: c.name, epicbox: c.epicbox, http: c.http, tor: c.tor, note: c.note, label: ContactLabel.fromStored(c.label));
 
 class WalletHistory {
   /// With [contacts], the address book is that store, shared by every wallet on the device
@@ -337,6 +341,7 @@ class WalletHistory {
             http: http,
             tor: tor,
             note: _trimmed(contact.note),
+            label: contact.label,
           ),
         ),
       );
@@ -348,6 +353,7 @@ class WalletHistory {
       http: http,
       tor: tor,
       note: _trimmed(contact.note),
+      label: contact.label.stored,
     );
     await _store.update((m) {
       final i = m.contacts.indexWhere((c) => c.id == rec.id);

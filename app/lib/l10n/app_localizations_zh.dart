@@ -19279,4 +19279,27 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskSendErrOwnNamed(String wallet) {
     return '这是当前打开的钱包“$wallet”。要向它付款，请先打开另一个钱包。';
   }
+
+  @override
+  String get deskConLabelTitle => '标签';
+
+  @override
+  String get deskConLabelWallet => '普通钱包';
+
+  @override
+  String get deskConLabelExchange => '交易所';
+
+  @override
+  String get deskConLabelVendor => '商家';
+
+  @override
+  String get deskConLabelService => '服务';
+
+  @override
+  String get deskConLabelDefault => '默认';
+
+  @override
+  String deskConLabelCurrent(String name) {
+    return '标签：$name';
+  }
 }

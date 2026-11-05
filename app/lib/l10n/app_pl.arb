@@ -5318,5 +5318,12 @@
   "pairEndedRowPeerMismatch": "Zgłoszono, że słowa się nie zgadzają.",
   "pairEndedRowNeverFinished": "Portfel nigdy nie dokończył.",
   "pairEndedRowUnpaired": "Parowanie usunięte po tamtej stronie.",
-  "deskSendErrOwnNamed": "To „{wallet}”, portfel otwarty teraz. Aby na niego zapłacić, najpierw otwórz inny portfel."
+  "deskSendErrOwnNamed": "To „{wallet}”, portfel otwarty teraz. Aby na niego zapłacić, najpierw otwórz inny portfel.",
+  "deskConLabelTitle": "Etykieta",
+  "deskConLabelWallet": "Tylko portfel",
+  "deskConLabelExchange": "Giełda",
+  "deskConLabelVendor": "Sprzedawca",
+  "deskConLabelService": "Usługa",
+  "deskConLabelDefault": "Domyślna",
+  "deskConLabelCurrent": "Etykieta: {name}"
 }

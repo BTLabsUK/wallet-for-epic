@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../contact_label.dart';
 import '../contacts.dart';
 import '../name_service/payment_refusals.dart' show paymentRefusalsProvider;
 import '../errors.dart';
@@ -807,6 +808,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
               http: of(RecipientKind.http),
               tor: of(RecipientKind.tor),
               note: note.isEmpty ? null : note,
+              label: widget.contact?.label ?? ContactLabel.wallet,
             ),
           );
       if (mounted) Navigator.pop(context, saved);

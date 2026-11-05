@@ -321,6 +321,7 @@ Future<void> deskWriteProvenAddress(WidgetRef ref, PairingRecord r) async {
         http: contact.http,
         tor: contact.tor,
         note: contact.note,
+        label: contact.label,
         favourite: contact.favourite,
         lastUsed: contact.lastUsed,
         hasPicture: contact.hasPicture,

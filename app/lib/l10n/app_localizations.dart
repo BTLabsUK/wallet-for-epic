@@ -31937,6 +31937,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This is “{wallet}”, the wallet open now. To pay it, open another wallet first.'**
   String deskSendErrOwnNamed(String wallet);
+
+  /// Title of the contact label picker and name of the Label row: what kind of party a contact is, chosen by the user and shown only to them.
+  ///
+  /// In en, this message translates to:
+  /// **'Label'**
+  String get deskConLabelTitle;
+
+  /// Contact label: an ordinary wallet. The default; nothing is shown for it in lists.
+  ///
+  /// In en, this message translates to:
+  /// **'Just a wallet'**
+  String get deskConLabelWallet;
+
+  /// Contact label: a crypto exchange.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange'**
+  String get deskConLabelExchange;
+
+  /// Contact label: a shop or seller that takes payments.
+  ///
+  /// In en, this message translates to:
+  /// **'Vendor'**
+  String get deskConLabelVendor;
+
+  /// Contact label: an online service or provider.
+  ///
+  /// In en, this message translates to:
+  /// **'Service'**
+  String get deskConLabelService;
+
+  /// Small tag on the Just a wallet row of the label picker: the label a contact has until the user picks another.
+  ///
+  /// In en, this message translates to:
+  /// **'Default'**
+  String get deskConLabelDefault;
+
+  /// Tooltip and screen reader name of a contact's label mark on its avatar; {name} is the label's name, for example Exchange.
+  ///
+  /// In en, this message translates to:
+  /// **'Label: {name}'**
+  String deskConLabelCurrent(String name);
 }
 
 class _AppLocalizationsDelegate

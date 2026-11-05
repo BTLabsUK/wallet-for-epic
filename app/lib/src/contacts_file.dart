@@ -23,6 +23,7 @@ library;
 
 import 'dart:convert';
 
+import 'contact_label.dart';
 import 'contact_store.dart' show ContactFields;
 import 'l10n.dart';
 import 'legacy/gui_contacts.dart';
@@ -69,6 +70,7 @@ String encodeContactsFile(Iterable<ContactFields> contacts, {required String net
           if (c.http != null) 'http': c.http,
           if (c.tor != null) 'tor': c.tor,
           if (c.note != null) 'note': c.note,
+          'label': ?c.label.stored,
         },
     ],
   };
@@ -170,6 +172,7 @@ ContactsFile readContactsFile(List<int> bytes) {
         externalTwo: field(row, 'http', _addressMax),
         onion: field(row, 'tor', _addressMax),
         note: field(row, 'note', 8 * guiContactNoteMax),
+        label: ContactLabel.fromStored(row['label']),
       ),
     );
     if (!row.containsKey('epicbox') && !row.containsKey('http') && !row.containsKey('tor')) nameOnly.add(rows.length - 1);
@@ -260,7 +263,7 @@ ContactsImportPlan planContactsFile(
       continue;
     }
     final note = cleanContactNote(row.note);
-    named.add(ContactFields(name: name, note: note.isEmpty ? null : note));
+    named.add(ContactFields(name: name, note: note.isEmpty ? null : note, label: row.label));
   }
   final plan = planGuiContacts([for (var i = 0; i < file.rows.length; i++) if (!file.nameOnly.contains(i)) file.rows[i]], saved, checks);
   plan.add.addAll(named);

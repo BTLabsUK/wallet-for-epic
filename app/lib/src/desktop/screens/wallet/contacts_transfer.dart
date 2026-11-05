@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../contact_label.dart';
 import '../../../contact_store.dart' show ContactFields;
 import '../../../contacts_file.dart';
 import '../../../legacy/gui_contacts.dart' show AddressChecks;
@@ -29,7 +30,7 @@ const Key deskContactsImportDoKey = ValueKey('desk-contacts-import-do');
 const Key deskContactsExportDoKey = ValueKey('desk-contacts-export-do');
 
 ContactFields _fields(Contact c) =>
-    ContactFields(id: c.id, name: c.name, epicbox: c.epicbox, http: c.http, tor: c.tor, note: c.note);
+    ContactFields(id: c.id, name: c.name, epicbox: c.epicbox, http: c.http, tor: c.tor, note: c.note, label: c.label);
 
 /// The header's More button: Import contacts, Export contacts (off with nothing to export).
 class ContactsMoreButton extends ConsumerWidget {
@@ -171,6 +172,7 @@ Future<void> deskImportContacts(BuildContext context) async {
         http: was?.http ?? c.http,
         tor: was?.tor ?? c.tor,
         note: (was?.note ?? '').trim().isEmpty ? c.note : was!.note,
+        label: was == null || was.label == ContactLabel.wallet ? c.label : was.label,
         favourite: was?.favourite ?? false,
         lastUsed: was?.lastUsed,
         hasPicture: was?.hasPicture ?? false,

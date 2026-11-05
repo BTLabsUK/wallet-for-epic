@@ -5318,5 +5318,12 @@
   "pairEndedRowPeerMismatch": "รายงานว่าคำไม่ตรงกัน",
   "pairEndedRowNeverFinished": "กระเป๋าไม่เคยทำเสร็จ",
   "pairEndedRowUnpaired": "ลบการจับคู่แล้ว",
-  "deskSendErrOwnNamed": "นี่คือ “{wallet}” กระเป๋าเงินที่เปิดอยู่ตอนนี้ หากต้องการจ่ายเข้ากระเป๋านี้ ให้เปิดกระเป๋าเงินอื่นก่อน"
+  "deskSendErrOwnNamed": "นี่คือ “{wallet}” กระเป๋าเงินที่เปิดอยู่ตอนนี้ หากต้องการจ่ายเข้ากระเป๋านี้ ให้เปิดกระเป๋าเงินอื่นก่อน",
+  "deskConLabelTitle": "ป้ายกำกับ",
+  "deskConLabelWallet": "แค่กระเป๋าเงิน",
+  "deskConLabelExchange": "ตลาดแลกเปลี่ยน",
+  "deskConLabelVendor": "ร้านค้า",
+  "deskConLabelService": "บริการ",
+  "deskConLabelDefault": "ค่าเริ่มต้น",
+  "deskConLabelCurrent": "ป้ายกำกับ: {name}"
 }

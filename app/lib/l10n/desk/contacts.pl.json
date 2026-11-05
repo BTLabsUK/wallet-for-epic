@@ -49,5 +49,12 @@
   "deskConKeep": "Zachowaj kontakt",
   "deskConDeleteAction": "Usuń kontakt",
   "deskConPickForPairing": "Parowanie zostanie dodane do wybranego kontaktu.",
-  "deskConExportDo": "Eksportuj"
+  "deskConExportDo": "Eksportuj",
+  "deskConLabelTitle": "Etykieta",
+  "deskConLabelWallet": "Tylko portfel",
+  "deskConLabelExchange": "Giełda",
+  "deskConLabelVendor": "Sprzedawca",
+  "deskConLabelService": "Usługa",
+  "deskConLabelDefault": "Domyślna",
+  "deskConLabelCurrent": "Etykieta: {name}"
 }

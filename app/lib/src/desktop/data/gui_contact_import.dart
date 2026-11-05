@@ -75,7 +75,7 @@ Future<ContactImport> importGuiContacts(core.WalletSession session, gui.LegacyGu
   final byId = {for (final c in saved) c.id: c};
   final plan = planGuiContacts(
     rows,
-    [for (final c in saved) ContactFields(id: c.id, name: c.name, epicbox: c.epicbox, http: c.http, tor: c.tor, note: c.note)],
+    [for (final c in saved) ContactFields(id: c.id, name: c.name, epicbox: c.epicbox, http: c.http, tor: c.tor, note: c.note, label: c.label)],
     checks,
     epicboxDomain: profile.epicboxDomain,
     epicboxPort: profile.epicboxPort,
@@ -98,6 +98,7 @@ Future<ContactImport> importGuiContacts(core.WalletSession session, gui.LegacyGu
           http: was.http ?? c.http,
           tor: was.tor ?? c.tor,
           note: (was.note ?? '').trim().isEmpty ? c.note : was.note,
+          label: was.label,
         ),
       );
       merged++;

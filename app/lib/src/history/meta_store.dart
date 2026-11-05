@@ -16,6 +16,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import '../name_service/pins.dart' show LinkPaymentRec, ListingPin;
+import '../contact_label.dart';
 import '../log.dart';
 import '../recipient.dart';
 import '../sealed_file.dart';
@@ -137,6 +138,7 @@ class ContactRec {
     String? http,
     String? tor,
     this.note,
+    this.label,
   }) : epicbox = epicbox ?? _kindOf(address, RecipientKind.epicbox),
        http = http ?? _kindOf(address, RecipientKind.http),
        tor = tor ?? _kindOf(address, RecipientKind.tor);
@@ -159,6 +161,7 @@ class ContactRec {
       http: byKind ? http : (kind == RecipientKind.http ? address : null),
       tor: byKind ? tor : (kind == RecipientKind.tor ? address : null),
       note: _optStr(m['note'], 'contact note'),
+      label: ContactLabel.fromStored(m['label']).stored,
     );
   }
 
@@ -168,6 +171,9 @@ class ContactRec {
   String? http;
   String? tor;
   String? note;
+
+  /// `exchange`, `vendor` or `service`; null for the default (a wallet).
+  String? label;
 
   String get address => epicbox ?? tor ?? http ?? '';
 
@@ -180,6 +186,7 @@ class ContactRec {
       _put(out, 'tor', tor);
     }
     _put(out, 'note', note);
+    _put(out, 'label', label);
     return out;
   }
 }

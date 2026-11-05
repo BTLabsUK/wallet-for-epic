@@ -12,6 +12,7 @@
 /// `alwaysproof`, `gender`, `country`, `city` (6.1.6 hides them too).
 library;
 
+import '../contact_label.dart';
 import '../contact_store.dart';
 import '../recipient.dart';
 import 'gui_rules.dart' show guiDefaultEpicbox;
@@ -24,13 +25,14 @@ const int guiContactNoteMax = 1000;
 
 /// One GUI contact as read: its fields as typed, untrusted.
 class GuiContactRow {
-  const GuiContactRow({required this.name, this.externalOne, this.externalTwo, this.onion, this.note});
+  const GuiContactRow({required this.name, this.externalOne, this.externalTwo, this.onion, this.note, this.label = ContactLabel.wallet});
 
   final String name;
   final String? externalOne;
   final String? externalTwo;
   final String? onion;
   final String? note;
+  final ContactLabel label;
 }
 
 /// The address checks of the wallet (LEPIC's checksums), passed in so this file stays pure.
@@ -154,7 +156,7 @@ String _cut(String s, int max) {
 
 /// Plans the import of [rows] into [saved]. An old contact matches a saved one (or one added
 /// earlier in this run) that has any of its addresses, an Epicbox address by its key at any
-/// relay. A match gains the kinds it lacks and a note when it had none; its name, its addresses
+/// relay. A match gains the kinds it lacks and a note or label when it had none; its name, its addresses
 /// and its note are never changed. An address already saved on another contact is left out, so
 /// no address ends up on two contacts. A contact with no name is named by its first address.
 GuiContactPlan planGuiContacts(
@@ -195,6 +197,7 @@ GuiContactPlan planGuiContacts(
         http: byKind[RecipientKind.http],
         tor: byKind[RecipientKind.tor],
         note: note.isEmpty ? null : note,
+        label: row.label,
       );
       book.add(_Entry(c, added: plan.add.length));
       plan.add.add(c);
@@ -225,6 +228,10 @@ GuiContactPlan planGuiContacts(
     }
     if (note.isNotEmpty && (c.note ?? '').trim().isEmpty) {
       c = c.copyWith(note: note);
+      changed = true;
+    }
+    if (row.label != ContactLabel.wallet && c.label == ContactLabel.wallet) {
+      c = c.copyWith(label: row.label);
       changed = true;
     }
     if (!changed) {

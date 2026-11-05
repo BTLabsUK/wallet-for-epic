@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../connection_grace.dart' show connectionGraceProvider;
+import '../../../contact_label.dart';
 import '../../../name_service/payment_refusals.dart' show paymentRefusalsProvider;
 import '../../../recent_activity.dart' show recentActivityCount, showViewAll;
 import '../../../recipient.dart' show RecipientKind, parseRecipient;
@@ -1095,6 +1096,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
               http: of(RecipientKind.http),
               tor: of(RecipientKind.tor),
               note: _note.text.trim().isEmpty ? null : _note.text.trim(),
+              label: widget.contact?.label ?? ContactLabel.wallet,
               favourite: widget.contact?.favourite ?? false,
               lastUsed: widget.contact?.lastUsed,
               hasPicture: _picture,
@@ -1488,7 +1490,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
                 size: EBtnSize.sm,
                 onPressed: () => _run(() async {
                   await ref.read(deskProvider.notifier).saveContact(
-                    Contact(id: x.id, name: x.name, epicbox: p.paymentsAddress, http: x.http, tor: x.tor, note: x.note, favourite: x.favourite, lastUsed: x.lastUsed, hasPicture: x.hasPicture),
+                    Contact(id: x.id, name: x.name, epicbox: p.paymentsAddress, http: x.http, tor: x.tor, note: x.note, label: x.label, favourite: x.favourite, lastUsed: x.lastUsed, hasPicture: x.hasPicture),
                   );
                 }),
               ),
