@@ -80,7 +80,11 @@ SERVER = {
     "relay": {"status": T("g4.status.epicbox", names=(r"re:epicbox, .*",), match="starts"),
               "field": T("g4.server.relay.field", role="text_field", keys=("slRelayField",), names=("Epicbox server",), match="exact")},
 }
-STATUS_ANY = T("g4.status.network", names=(r"re:network\b.*",), match="starts")  # level 1 shows one Network icon
+STATUS_ANY = T("g4.status.network", names=(r"re:network\b.*",), match="starts")  # level 1's Network icon ("Network · OK")
+# Home › Contacts: level 1's one entry under the balance, the Contacts tile of the destinations row at
+# levels 2 and 3 (one id for both); the Contacts page has Add contact.
+CONTACTS = T("g4.home.contacts", keys=("settingsContacts",), names=("Contacts",), match="exact")
+CONTACTS_ADD = T("g4.contacts.add", keys=("contactsAdd",), names=("Add contact",), match="exact")
 SWITCH = T("g4.server.switch", keys=("slSwitch", "lvShellSwitch"), names=("Switch",), match="exact")
 CLEAR = T("g4.server.clear", keys=("slClear",), names=("Clear",), match="exact")
 SERVER_REFUSED = T("g4.server.refused", role="text", names=(r"re:.*(no answer from this server|nothing added|not a node|"
@@ -559,6 +563,20 @@ class Phone:
             time.sleep(1)
         self._wait_home("home", 30)
 
+    def contacts(self):
+        """Home › Contacts, until the Contacts page shows (its Add contact), then back to Home. A build
+        before the entry (26.11.2 and older had Contacts in Settings › This wallet at level 1) has none
+        on Home: logged, nothing pressed."""
+        d = self.d
+        self.home()
+        if not d.seen(CONTACTS):
+            self.log("no Contacts on Home: a build before the entry")
+            return False
+        d.press(CONTACTS, step="home-contacts", then=shows(CONTACTS_ADD), timeout=20)
+        self.log("Home › Contacts: the Contacts page")
+        self.home()
+        return True
+
     def tab(self, target):
         d = self.d
         self.home()
@@ -764,8 +782,8 @@ class Phone:
         return any(three in tg._norm(n.name) for n in self.d.find_in(LEVEL_ROW, tree))
 
     def _view_deep_end(self):
-        """A release with levels opens a new install at level 1, where Home hides the node and Epicbox
-        icons and Settings hides more: Settings › Advanced › Wallet view › Deep end › Save."""
+        """A release with levels opens a new install at level 1, where Home has only the Network and
+        Epicbox icons and Settings hides more: Settings › Advanced › Wallet view › Deep end › Save."""
         d = self.d
         if not self.section("advanced") or not self._look(LEVEL_ROW, 1):
             self.log("no Wallet view row: a build without levels")

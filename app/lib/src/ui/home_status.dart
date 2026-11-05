@@ -152,7 +152,7 @@ String statusBrief(String detail, {String? host}) {
 }) {
   final l = context.l10n;
   final t = context.tokens;
-  // The quiet shell carries its own two icons in the app bar ([ShellStatusIcons]).
+  // The quiet shell carries its own two icons under the figure ([ShellStatusIcons]).
   if (shellStatusesShown(ref.watch(levelFeaturesProvider))) {
     return (mode: ref.watch(networkModeProvider), entries: const <StatusEntry>[]);
   }

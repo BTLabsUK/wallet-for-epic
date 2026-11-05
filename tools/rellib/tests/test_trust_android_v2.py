@@ -127,6 +127,27 @@ class KeystorePhone(FakePhone):
             self.cur = "refused" if self.refusals > 0 else "home"
 
 
+HOME_CONTACTS = HOME + [node(5, "button", "Contacts")]
+CONTACTS_PAGE = [node(0, "text", "Contacts"), node(1, "button", "Add contact")]
+
+
+class ContactsPhone(FakePhone):
+    """Home with its Contacts entry (26.11.3 on): a press opens the Contacts page, Back closes it."""
+
+    def __init__(self):
+        super().__init__({"home": HOME_CONTACTS, "contacts": CONTACTS_PAGE}, "home")
+        self.opened = 0
+
+    def press(self, n):
+        if self.cur == "home" and n.name == "Contacts":
+            self.opened += 1
+            self.cur = "contacts"
+
+    def key(self, name):
+        if name == "back":
+            self.cur = "home"
+
+
 class PhoneTest(unittest.TestCase):
     def setUp(self):
         self.out = tempfile.mkdtemp(prefix="trust-android-")
@@ -159,6 +180,16 @@ class PhoneTest(unittest.TestCase):
         with self.assertRaises(ProductFault) as c:
             self.recipe(s).open_wallet({"pin": "135790"}, after_update=True)
         self.assertEqual(c.exception.step, "wallet_opens")
+
+    def test_home_contacts_opens_the_contacts_page_and_comes_back(self):
+        s = ContactsPhone()
+        self.assertTrue(self.recipe(s).contacts())
+        self.assertEqual((s.opened, s.cur), (1, "home"))
+
+    def test_a_build_without_home_contacts_presses_nothing(self):
+        s = FakePhone({"home": HOME}, "home")
+        self.assertFalse(self.recipe(s).contacts())
+        self.assertEqual(s.cur, "home")
 
 
 if __name__ == "__main__":

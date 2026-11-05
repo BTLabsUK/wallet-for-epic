@@ -13,7 +13,7 @@ import '../wallet_service.dart';
 import 'tip.dart';
 import 'common.dart';
 import 'home_status.dart' show StatusIcons, statusEntries;
-import '../levels/level_features.dart' show BalancePresentation;
+import 'levels/shell_status.dart' show ShellStatusIcons, shellStatusesShown;
 import '../levels/level_providers.dart' show levelFeaturesProvider;
 import 'status.dart';
 import 'theme/protocol.dart';
@@ -155,8 +155,10 @@ String _spendableLabel(AppLocalizations l, BigInt spendable, bool hidden) =>
 /// Wallet's balance area, with no panel around it, centred as one column: the caption
 /// "Available to spend", the spendable figure in Montserrat 60 with the gold EPIC at its top
 /// right, the two centred as a unit; under it one row, [statusTarget] high: the status icons
-/// ([StatusIcons]) at its start, the fiat value and the eye at its end. The pending balances
-/// are in the tiles under it (`home_parts.dart`), in the list below.
+/// at its start, the fiat value and the eye at its end. The same at every level: level 1 has
+/// its two icons ([ShellStatusIcons], Network and Epicbox), the others the full row
+/// ([StatusIcons]). The pending balances are in the tiles under it (`home_parts.dart`) at
+/// levels 2 and 3; level 1 has them in the balance sheet a tap on the figure opens.
 ///
 /// Every part has a fixed height for the text scale, so nothing here moves when amounts
 /// change, a payment lands, amounts are hidden or nothing is pending. A figure too wide shrinks
@@ -191,10 +193,7 @@ class WalletBalance extends ConsumerWidget {
       statusTarget,
       _lineHeight(fiatStyle, scaler, context),
     );
-    final features = ref.watch(levelFeaturesProvider);
-    // Level 1: no caption, no icons (they are in the bar), no eye (Hide amounts is in
-    // Settings › Appearance); the fiat value and one quiet line stand for the tiles.
-    final quiet = features.balanceTiles == BalancePresentation.quietLine;
+    final shell = shellStatusesShown(ref.watch(levelFeaturesProvider));
     // The tooltip opens above the eye, over the figure's own row, not over the tiles below.
     final eye = Tip(
       hidden ? l.homeShowBalances : l.homeHideBalances,
@@ -228,7 +227,6 @@ class WalletBalance extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // The caption says what the figure is, as the desktop's Overview does.
-            if (!quiet)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: statusInset),
               child: SizedBox(
@@ -263,9 +261,6 @@ class WalletBalance extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 2),
-            if (quiet)
-              _QuietLines(summary: summary, fiat: fiat, fiatStyle: fiatStyle, captionStyle: captionStyle)
-            else
             // The statuses show before the first balance too: they say why it is not here.
             // The fiat value takes what the icons leave and shrinks rather than wraps, so an
             // icon coming or going (Tor on, the onion published) moves nothing else.
@@ -282,7 +277,7 @@ class WalletBalance extends ConsumerWidget {
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
                       alignment: AlignmentDirectional.centerStart,
-                      child: const StatusIcons(key: walletStatusesKey),
+                      child: shell ? const ShellStatusIcons() : const StatusIcons(key: walletStatusesKey),
                     ),
                   ),
                   Expanded(
@@ -306,7 +301,7 @@ class WalletBalance extends ConsumerWidget {
                             ),
                           ),
                   ),
-                  if (summary != null && features.hideBalancesInHero) eye,
+                  if (summary != null) eye,
                 ],
                 ),
               ),
@@ -317,67 +312,6 @@ class WalletBalance extends ConsumerWidget {
     );
   }
 }
-
-/// Level 1's lines under the figure: the fiat value, then one quiet line of what is coming
-/// in and what a send holds ("+12.5000 arriving · 25.0000 on hold"), each a fixed height so
-/// nothing moves when amounts change.
-class _QuietLines extends ConsumerWidget {
-  const _QuietLines({required this.summary, required this.fiat, required this.fiatStyle, required this.captionStyle});
-
-  final WalletSummary? summary;
-  final String? fiat;
-  final TextStyle fiatStyle;
-  final TextStyle captionStyle;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = context.l10n;
-    final scaler = MediaQuery.textScalerOf(context);
-    final summary = this.summary;
-    final hidden = amountDisplay(ref).hidden;
-    String amount(BigInt v) => hidden ? hiddenAmount : localDigits(l, displayEpic(v));
-    final parts = summary == null
-        ? const <String>[]
-        : [
-            if (comingIn(summary) > BigInt.zero) l.lvShellQuietArriving(amount(comingIn(summary))),
-            if (summary.locked > BigInt.zero) l.lvShellQuietOnHold(amount(summary.locked)),
-          ];
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: statusInset),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(
-            height: _lineHeight(fiatStyle, scaler, context),
-            child: fiat == null
-                ? null
-                : FittedBox(
-                    key: fiatValueKey,
-                    fit: BoxFit.scaleDown,
-                    child: Text(fiat!, maxLines: 1, style: fiatStyle),
-                  ),
-          ),
-          const SizedBox(height: 4),
-          SizedBox(
-            height: _lineHeight(captionStyle, scaler, context),
-            child: parts.isEmpty
-                ? null
-                : FittedBox(
-                    key: quietLineKey,
-                    fit: BoxFit.scaleDown,
-                    child: Text(parts.reduce(l.settingsStateJoin), maxLines: 1, style: captionStyle),
-                  ),
-          ),
-          const SizedBox(height: 8),
-        ],
-      ),
-    );
-  }
-}
-
-/// The key of level 1's quiet line under the figure, for tests.
-const Key quietLineKey = ValueKey('balance-quiet-line');
 
 /// The height of one line of [style] at [scaler].
 double _lineHeight(TextStyle style, TextScaler scaler, BuildContext context) {
@@ -538,7 +472,8 @@ class _Figure extends StatelessWidget {
 /// The balance header at the top of Send and Receive, under the app bar, [statusTarget]
 /// high: at its start the spendable figure at [titleFigureSize] with a small gold EPIC, and
 /// under it the detail line (the [pendingTokens], or their count when they do not fit); at its
-/// end the status icons ([StatusIcons]), the same row as under Wallet's figure. A balance is
+/// end the status icons, the same row as under Wallet's figure ([StatusIcons], or level 1's
+/// [ShellStatusIcons]). A balance is
 /// never clipped (UP-002): on a narrow row the detail line goes under the icons first, then
 /// the figure takes the whole width and the icons a second row, and only then the figure
 /// shrinks, to [titleFigureFloor] at the least. A tap anywhere on the figure opens the
@@ -552,11 +487,16 @@ class BalanceHeader extends ConsumerWidget {
     final l = context.l10n;
     final summary = ref.watch(homeProvider).value?.summary;
     final hidden = amountDisplay(ref).hidden;
-    // The icons are [statusTarget] wide each: their row's width without laying it out.
-    final iconsWidth = statusEntries(context, ref, bar: true).entries.length * statusTarget;
+    // Level 1 has its two icons ([ShellStatusIcons]), the other levels the full row. The
+    // icons are [statusTarget] wide each: their row's width without laying it out.
+    final shell = shellStatusesShown(ref.watch(levelFeaturesProvider));
+    final iconsWidth = statusTarget *
+        (shell
+            ? ref.watch(levelFeaturesProvider.select((f) => f.statusIcons.length))
+            : statusEntries(context, ref, bar: true).entries.length);
     final scaler = MediaQuery.textScalerOf(context);
     final direction = Directionality.of(context);
-    final icons = StatusIcons(key: barStatusesKey, bar: true);
+    final Widget icons = shell ? const ShellStatusIcons(bar: true) : const StatusIcons(key: barStatusesKey, bar: true);
     return Container(
       key: balanceHeaderKey,
       decoration: BoxDecoration(

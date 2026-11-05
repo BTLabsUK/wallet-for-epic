@@ -12,8 +12,10 @@ import '../amount.dart';
 import '../l10n.dart';
 import '../pairing_providers.dart' show invoicesShownProvider;
 import '../providers.dart';
+import '../trust_ids.dart';
 import '../wallet_service.dart';
 import 'common.dart';
+import 'settings_rows.dart' show NavChevron;
 import 'theme/advanced.dart';
 import 'theme/tokens.dart';
 
@@ -405,6 +407,7 @@ class HomeDestinations extends ConsumerWidget {
         key: homeDestinationKey(HomeDestination.contacts),
         icon: Icons.people_outline,
         label: l.settingsContacts,
+        trust: TrustIds.homeContacts,
         onTap: () => onOpen(HomeDestination.contacts),
       ),
       if (invoices)
@@ -434,12 +437,16 @@ class _DestinationTile extends StatelessWidget {
     required this.label,
     required this.onTap,
     this.badge = 0,
+    this.trust,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
   final int badge;
+
+  /// The drivers' id of the tile ([TrustIds]), on its one node.
+  final String? trust;
 
   @override
   Widget build(BuildContext context) {
@@ -450,8 +457,9 @@ class _DestinationTile extends StatelessWidget {
       button: true,
       label: badge > 0 ? '$label, $badge' : label,
       onTap: onTap,
-      excludeSemantics: true,
-      child: Material(
+      child: destinationBody(
+        trust,
+        Material(
         color: t.surface,
         shape: RoundedRectangleBorder(
           side: BorderSide(color: t.line),
@@ -508,6 +516,72 @@ class _DestinationTile extends StatelessWidget {
                   style: theme.textTheme.bodySmall?.copyWith(color: t.text),
                 ),
               ],
+            ),
+          ),
+        ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A destination's body under its one semantics node: silent to screen readers (the node says
+/// it all), with [trust] joined to that node when the drivers know the destination.
+Widget destinationBody(String? trust, Widget child) {
+  final body = ExcludeSemantics(child: child);
+  return trust == null ? body : trustId(trust, body);
+}
+
+/// Level 1's one destination under the balance: Contacts, as a row in the destination tiles'
+/// language (their surface, line and radius): the people icon, the label, a chevron at its end.
+/// One 56 dp target, the width of the list.
+class HomeContactsEntry extends StatelessWidget {
+  const HomeContactsEntry({super.key, required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final t = context.tokens;
+    final theme = Theme.of(context);
+    return Semantics(
+      key: homeDestinationKey(HomeDestination.contacts),
+      container: true,
+      button: true,
+      label: l.settingsContacts,
+      onTap: onTap,
+      child: destinationBody(
+        TrustIds.homeContacts,
+        Material(
+          color: t.surface,
+          shape: RoundedRectangleBorder(
+            side: BorderSide(color: t.line),
+            borderRadius: BorderRadius.circular(t.radiusSmall),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: SizedBox(
+              height: 56,
+              child: Padding(
+                padding: const EdgeInsetsDirectional.only(start: 16, end: 8),
+                child: Row(
+                  children: [
+                    Icon(Icons.people_outline, size: 20, color: t.accentText),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        l.settingsContacts,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodyMedium?.copyWith(color: t.text),
+                      ),
+                    ),
+                    const NavChevron(),
+                  ],
+                ),
+              ),
             ),
           ),
         ),

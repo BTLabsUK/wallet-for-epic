@@ -375,6 +375,8 @@ class Lane:
         if address:
             record.emit("wallet.address", name=self._wallet()[0], role=self._wallet()[1], kind="epicbox", address=address)
         self.details["address"] = address[:8] + "…" + address[-6:] if address else None
+        if hasattr(self.ui, "contacts"):   # the phone's Home › Contacts entry (26.11.3)
+            self.run_phase("contacts", self.ui.contacts)
         self.run_phase("fund", lambda: self.checks_mod.fund_before(self, address))
         before = self.run_phase("digest-before", lambda: self.p.digest("previous", self.secrets))
         self._ui_settings(before)

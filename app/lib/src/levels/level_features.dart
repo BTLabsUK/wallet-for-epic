@@ -68,8 +68,9 @@ enum ActivityChips {
   full,
 }
 
-/// How the balance reads on Home.
-enum BalancePresentation { quietLine, tiles }
+/// What stands under Home's balance figure: nothing but the row of icons and the fiat value
+/// (level 1), or the tiles with every balance that is not spendable.
+enum BalancePresentation { figure, tiles }
 
 /// [prefs] as [level] shows them. Level 1 hides every shown feature, keeps the pairing and
 /// invoices engine on (the listener runs, invoices are quiet), keeps the network mode (Tor only
@@ -127,7 +128,6 @@ class LevelFeatures {
     required this.txActions,
     required this.activityChips,
     required this.balanceTiles,
-    required this.hideBalancesInHero,
     required this.welcomeServerLink,
     required this.outputs,
     required this.fileTransfer,
@@ -177,8 +177,7 @@ class LevelFeatures {
       labels: !one,
       txActions: one ? TxActionSet.cancelOnly : TxActionSet.full,
       activityChips: one ? ActivityChips.basic : ActivityChips.full,
-      balanceTiles: one ? BalancePresentation.quietLine : BalancePresentation.tiles,
-      hideBalancesInHero: !one,
+      balanceTiles: one ? BalancePresentation.figure : BalancePresentation.tiles,
       welcomeServerLink: !one,
       outputs: !one && prefs.has(AdvancedFeature.outputs),
       fileTransfer: !one,
@@ -265,11 +264,8 @@ class LevelFeatures {
   /// The Activity filter chips.
   final ActivityChips activityChips;
 
-  /// A quiet balance line or the tiles.
+  /// The figure alone or the balance tiles under it.
   final BalancePresentation balanceTiles;
-
-  /// The hide-balances eye in the hero (level 1 moves it to Appearance).
-  final bool hideBalancesInHero;
 
   /// Welcome's "Node and Epicbox" link.
   final bool welcomeServerLink;
@@ -323,7 +319,6 @@ class LevelFeatures {
       other.txActions == txActions &&
       other.activityChips == activityChips &&
       other.balanceTiles == balanceTiles &&
-      other.hideBalancesInHero == hideBalancesInHero &&
       other.welcomeServerLink == welcomeServerLink &&
       other.outputs == outputs &&
       other.fileTransfer == fileTransfer &&
@@ -357,7 +352,6 @@ class LevelFeatures {
     txActions,
     activityChips,
     balanceTiles,
-    hideBalancesInHero,
     welcomeServerLink,
     outputs,
     fileTransfer,
