@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-"""tools/check.sh: the order of its steps and the timing line each step prints.
+"""tools/check.sh: the order of its steps, the timing line each step prints, and keep-going.
     python3 -m unittest discover -s tools/tlib/tests"""
 import os
 import re
@@ -60,6 +60,29 @@ class StepTimingTest(unittest.TestCase):
         self.assertEqual(r.returncode, 3)
         self.assertRegex(r.stdout, r"== bot: FAILED \(exit 3\) after \d+s")
         self.assertNotIn("ok", r.stdout.split("== bot\n")[1])
+
+    def test_a_failed_command_keeps_going_and_the_check_names_every_failed_step(self):
+        r = self.run_script('mode=full\nstep "bot"\nfalse || step_failed $?\n(exit 4) || step_failed $?\necho after\n'
+                            'step "release tools (tools/)"\ntrue\nstep "flutter analyze"\n(exit 2) || step_failed $?\n'
+                            'check_end\necho unreachable\n')
+        self.assertEqual(r.returncode, 1, r.stderr)
+        self.assertIn("after", r.stdout)
+        self.assertRegex(r.stdout, r"== bot: FAILED \(exit 1\) after \d+s")
+        self.assertRegex(r.stdout, r"== release tools: ok \d+s")
+        self.assertRegex(r.stdout, r"== flutter analyze: FAILED \(exit 2\) after \d+s")
+        self.assertIn("check FAILED (full): bot; flutter analyze", r.stdout)
+        self.assertNotIn("unreachable", r.stdout)
+
+    def test_every_command_of_the_steps_keeps_going(self):
+        """After the first step, a command that can fail is followed by `|| step_failed`."""
+        t = text()
+        body = t[t.index('step "version'):t.index("check_end\n")]
+        for cmd in ('tools/lepic.sh" build linux', "flutter analyze --no-pub", 'tools/t" full --no-cache',
+                    "dart run bin/core_check.dart", "tool/build_web.sh", "discover -s tools/rellib/tests",
+                    "discover -s tools/tlib/tests", "test-incremental.sh", "vectors verify", "uv run pytest -q"):
+            line = next(x for x in body.splitlines() if cmd in x and not x.lstrip().startswith("step "))
+            self.assertIn("|| step_failed", line, cmd)
+        self.assertNotIn('exit "$rc"', body)
 
 
 if __name__ == "__main__":

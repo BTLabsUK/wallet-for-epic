@@ -36,32 +36,39 @@ case "${1:-}" in
 esac
 
 # Each step prints its time when it ends, one line (`== bot: ok 4s`; the name is the title up to
-# " ("), so the nightly's log and the audit have per-step times. A step that fails prints
-# `== <name>: FAILED after Ns` from the exit trap.
-step_name="" step_t0=0
+# " ("), so the nightly's log and the audit have per-step times.
+# No failure stops the run (keep-going): a failed command marks its step failed, the step's other
+# commands and the later steps still run, the step ends with `== <name>: FAILED (exit N) after Ns`
+# and the check fails at the end naming every failed step. One run then shows every failure, to be
+# fixed in one pass. A step cut short by the shell itself prints its FAILED line from the exit trap.
+step_name="" step_t0=0 step_rc=0
+failed=()
 step_label() { local n="${step_name%% (*}"; printf '%s' "$n"; }
 step_done() {
   [[ -n $step_name ]] || return 0
-  printf '== %s: ok %ss\n' "$(step_label)" $((SECONDS - step_t0))
-  step_name=""
+  if (( step_rc )); then
+    printf '== %s: FAILED (exit %s) after %ss\n' "$(step_label)" "$step_rc" $((SECONDS - step_t0))
+    failed+=("$(step_label)")
+  else
+    printf '== %s: ok %ss\n' "$(step_label)" $((SECONDS - step_t0))
+  fi
+  step_name="" step_rc=0
 }
 step() { step_done; printf '\n== %s\n' "$1"; step_name="$1"; step_t0=$SECONDS; }
+# `<command> || step_failed $?`: the step's first failing exit code is the one it reports.
+step_failed() { (( step_rc )) || step_rc="$1"; }
+check_end() {
+  step_done
+  (( ${#failed[@]} )) || return 0
+  printf '\ncheck FAILED (%s): %s\n' "$mode" "$(printf '%s; ' "${failed[@]}" | sed 's/; $//')"
+  exit 1
+}
 on_exit() {
   local rc=$?
   [[ $rc != 0 && -n $step_name ]] && printf '== %s: FAILED (exit %s) after %ss\n' "$(step_label)" "$rc" $((SECONDS - step_t0))
   return 0
 }
 trap on_exit EXIT
-# The checks that take seconds and only read the tree (version, contracts, hosts, doc names,
-# workflows) do not stop the run: a failure prints `== <name>: FAILED (exit N) after Ns`, the
-# later steps still run, and the check fails at the end naming them. A stale doc line then never
-# hides how LEPIC and the tests stand.
-soft_failed=()
-step_failed() {
-  printf '== %s: FAILED (exit %s) after %ss\n' "$(step_label)" "$1" $((SECONDS - step_t0))
-  soft_failed+=("$(step_label)")
-  step_name=""
-}
 
 # The change: files that differ from the merge base with main, untracked ones included.
 base_ref="${CHECK_BASE:-main}"
@@ -109,20 +116,20 @@ python3 "$root/tools/check-workflow.py" || step_failed $?
 # after the full Flutter suite had passed (docs/TESTING.md, "Order of the steps").
 if [[ $mode == full || $bot_changed == 1 ]]; then
   step "bot"
-  (cd "$root/bot" && uvx ruff check . && uv run pytest -q)
+  (cd "$root/bot" || exit; uvx ruff check .; r=$?; uv run pytest -q || r=$?; exit $r) || step_failed $?
 fi
 
 if [[ $mode == full || $tools_changed == 1 ]]; then
   step "release tools (tools/)"
   # tools/rel's own tests (docs/RELEASING.md), then the single-file ones, each as its file says.
-  (cd "$root" && python3 -m unittest discover -s tools/rellib/tests)
-  (cd "$root" && python3 -m unittest discover -s tools/tlib/tests)
+  (cd "$root" && python3 -m unittest discover -s tools/rellib/tests) || step_failed $?
+  (cd "$root" && python3 -m unittest discover -s tools/tlib/tests) || step_failed $?
   (cd "$root" && python3 -m unittest tools/nightly/test_nightly.py tools/test_sbom.py tools/test_flutter_test_order.py \
-    tools/test_check_workflow.py tools/publish/test_buildcheck.py)
+    tools/test_check_workflow.py tools/publish/test_buildcheck.py) || step_failed $?
   # Says "skip:" and passes without git-filter-repo, gitleaks or trufflehog.
-  "$root/tools/publish/test-incremental.sh"
+  "$root/tools/publish/test-incremental.sh" || step_failed $?
   if command -v node >/dev/null; then
-    (cd "$root" && node --test tools/screens-feedback/feedback.test.mjs)
+    (cd "$root" && node --test tools/screens-feedback/feedback.test.mjs) || step_failed $?
   else
     echo "skip: node is not installed (tools/screens-feedback/feedback.test.mjs)"
   fi
@@ -131,25 +138,25 @@ fi
 step "LEPIC at the pin (tools/lepic.rev)"
 # From the shared clone of the pin (tools/lepic.sh, docs/TESTING.md); LEPIC_SHARED=0 builds in
 # app/third_party/lepic instead.
-LEPIC_SHARED="${LEPIC_SHARED:-1}" "$root/tools/lepic.sh" build linux
+LEPIC_SHARED="${LEPIC_SHARED:-1}" "$root/tools/lepic.sh" build linux || step_failed $?
 
 if [[ $mode == full ]]; then
   step "LEPIC golden vectors (cargo xtask vectors verify)"
   # LEPIC's own replay of its golden vectors, at the pin, in the shared clone (tools/lepic.sh xtask).
   # tools/rel's source gate and the nightly both run this through --full.
-  "$root/tools/lepic.sh" xtask vectors verify
+  "$root/tools/lepic.sh" xtask vectors verify || step_failed $?
 fi
 
 step "wallet core under plain Dart (no Flutter on its path)"
-(cd "$root/app" && dart run bin/core_check.dart)
+(cd "$root/app" && dart run bin/core_check.dart) || step_failed $?
 
 step "flutter analyze"
-(cd "$root/app" && flutter pub get >/dev/null && flutter analyze --no-pub)
+(cd "$root/app" && flutter pub get >/dev/null && flutter analyze --no-pub) || step_failed $?
 
 if [[ $mode == full ]]; then
   step "flutter test (all)"
   # Every test file, slowest first, never from the result cache (green files still fill it).
-  "$root/tools/t" full --no-cache
+  "$root/tools/t" full --no-cache || step_failed $?
 
   step "integration tests on LEPIC (Linux, offline)"
   # One run per file: a second app start in one `flutter test` run fails on Linux now and then.
@@ -179,23 +186,19 @@ if [[ $mode == full ]]; then
       rc=0
       run_integration "$t" || rc=$?
     fi
-    [[ $rc == 0 ]] || { [[ $rc == 124 ]] && echo "integration_test/$t.dart: timed out" >&2; exit "$rc"; }
+    [[ $rc == 0 ]] || { [[ $rc == 124 ]] && echo "integration_test/$t.dart: timed out" >&2; step_failed "$rc"; }
   done
 else
   step "flutter test (affected vs $base_ref)"
-  "$root/tools/t" affected --base "$base_ref"
+  "$root/tools/t" affected --base "$base_ref" || step_failed $?
 fi
 
 if [[ $mode == full ]]; then
   step "web build (the preview, tool/build_web.sh)"
-  (cd "$root/app" && tool/build_web.sh >/dev/null)
+  (cd "$root/app" && tool/build_web.sh >/dev/null) || step_failed $?
 fi
 
-step_done
-if (( ${#soft_failed[@]} )); then
-  printf '\ncheck FAILED (%s): %s\n' "$mode" "$(printf '%s; ' "${soft_failed[@]}" | sed 's/; $//')"
-  exit 1
-fi
+check_end
 printf '\ncheck passed (%s)\n' "$mode"
 if [[ $mode == full ]]; then
   # For tools/rel's G2 (docs/RELEASING.md, "Reused results"); never fails the check.
