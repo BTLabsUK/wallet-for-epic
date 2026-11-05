@@ -2,7 +2,7 @@
 """The checks and money of the TX lane (linux/tx_lane.py): two app wallets, A and B, pay each other
 on mainnet by every method, and every coin P put in goes back to P in the same run.
 
-Money (the owner, 2026-11-03): at most CAP_RUN EPIC out of P per run, every send of P's at most
+Money (rule of 2026-11-03): at most CAP_RUN EPIC out of P per run, every send of P's at most
 CAP_SEND. A is funded only up to what its remaining payments need (AMOUNT + FEE_MAX each), split in
 sends of at most CAP_SEND (four payments: 0.05 + 0.03). The sweeps send A's and B's balances to P
 (Max; amounts of CAP_SEND first when a balance is larger). The ledger (what P sent, what A and B held
