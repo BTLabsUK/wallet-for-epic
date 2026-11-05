@@ -211,7 +211,7 @@ def cap_problem(c, now=None):
 
 def preflight_checks(engine, ok, bad):
     """The candidate is published (commit-map), it is GitHub main's tip, buildcheck is clean, the
-    cap is not reached. Stores run.info["published"]. Reads only: nothing is pushed."""
+    cap is not reached. Stores run.info["source_published"] (run.info["published"] is the live publish). Reads only: nothing is pushed."""
     info = engine.info
     c = conf(engine.pipeline)
     push = "push it first with tools/publish-github.sh --push (the lead runs it)"
@@ -264,7 +264,7 @@ def preflight_checks(engine, ok, bad):
     ok("buildcheck: the published build inputs are the local ones")
     why = cap_problem(c)
     (bad if why else ok)(f"hosted builds: {why}" if why else "hosted dispatch cap not reached")
-    info["published"] = {"commit": pub, "short": pub[:7],
+    info["source_published"] = {"commit": pub, "short": pub[:7],
                          "lepic": (res.get("lepic") or {}).get("published"),
                          "lepic_flutter": (res.get("lepic_flutter") or {}).get("published")}
     engine.run.save_info()
@@ -329,7 +329,7 @@ def dispatch(engine, step, say):
             say(f"{s.id}: reused (an earlier build with the same inputs), not built")
     if not need:
         return {"status": "done", "note": "nothing to build: every build is reused"}
-    pub = (info.get("published") or {}).get("commit")
+    pub = (info.get("source_published") or {}).get("commit")
     build_id = need[0].env.get("WFE_BUILD_ID") or (pub or info["commit"])[:7]
     kind = kind_of(info)
     names = [f"{engine.pipeline.steps[s.base]['hosted']}-{s.variant}" for s in need]

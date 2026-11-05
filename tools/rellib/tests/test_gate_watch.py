@@ -65,6 +65,17 @@ class GateWatchTest(Base):
         self.assertIn("published", [e.get("state") for e in Run(run.path).events() if e["event"] == "gate-watch"])
         self.assertIn("tools/rel publish exit 0", open(gatewatch.log_path(run)).read())
 
+    def test_hosted_builds_source_mark_is_not_a_publish(self):
+        # 26.11.2 run-3: the hosted preflight's record of the GitHub commit once stopped the watcher
+        # as "already published".
+        run = self.asked_run()
+        run.info["source_published"] = {"commit": "6" * 40, "short": "6" * 7}
+        run.save_info()
+        self.set_gate("approved")
+        code, msg = self.watcher(run).loop()
+        self.assertEqual(code, EXIT_OK, msg)
+        self.assertEqual(self.rel_calls, ["publish"])
+
     def test_pending_never_publishes(self):
         run = self.asked_run()
         code, msg = self.watcher(run, hours=0.1).loop()  # 6 minutes of fake time at 60 s

@@ -197,7 +197,7 @@ class HostedTest(Base):
              "files": f"{path}/files", "extra": f"{path}/extra", "src": self.src, "host": {}, "path": {}}
         steps = build_graph(self.pipeline, scope, c)
         info = {"version": "26.10.25", "commit": LOCAL, "scope": scope, "test": test, "src": self.src,
-                "target": scope["publish"]["target"], "published": {"commit": PUB, "short": PUB[:7]}}
+                "target": scope["publish"]["target"], "source_published": {"commit": PUB, "short": PUB[:7]}}
         run = Run.create(self.root, "26.10.25", info, scope_toml(scope), steps)
         rm = Relmsg(run, {"bin": self.fake}, enabled=False)
         return run, Engine(run, self.pipeline, self.hosts, REPO, relmsg=rm)

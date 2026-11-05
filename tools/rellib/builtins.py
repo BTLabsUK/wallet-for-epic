@@ -670,8 +670,8 @@ def artefacts(engine, step, say):
         "version": version, "version_code": want_code, "commit": info["commit"], "run_id": info["run_id"],
         "created": now_iso(), "pins": info.get("pins", {}), "scope": scope_summary(info["scope"]),
         "toolchain": toolchain(engine.repo), "files": meta, "test": bool(info.get("test")),
-        "published_commit": (info.get("published") or {}).get("commit"),
-        "published_pins": {k: (info.get("published") or {}).get(k) for k in ("lepic", "lepic_flutter")},
+        "published_commit": (info.get("source_published") or {}).get("commit"),
+        "published_pins": {k: (info.get("source_published") or {}).get(k) for k in ("lepic", "lepic_flutter")},
     }
     write_json(os.path.join(run.files, "provenance.json"), prov)
     listed = {name: meta[name]["sha256"] for name in present}
