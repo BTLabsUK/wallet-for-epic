@@ -154,7 +154,7 @@ class Cli(Store):
         self.assertIn("linux-tor: refused", out)
         self.assertNoWord(out)
         prints = {ls.fingerprint(ls.LaneSeed(x).phrase()) for x in ls.LANES}
-        self.assertEqual(len(prints), 6, "all six distinct")
+        self.assertEqual(len(prints), len(ls.LANES), "every lane's seed distinct")
         self.assertEqual(ls.LaneSeed("android-notor").birth()["height"], 123456)
         self.assertTrue(os.path.exists(os.path.join(ls.root(), ls.WORDLIST_NAME)))
 
