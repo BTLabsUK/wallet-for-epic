@@ -1,4 +1,5 @@
-"""AtspiSurface.set_text: a secret field that takes focus late is asked again; never set_text."""
+"""AtspiSurface.set_text: a secret field that takes focus late is asked again; never set_text.
+AtspiSurface.press: a button still disabled at the press is pressed once it is enabled."""
 import os
 import sys
 import unittest
@@ -55,6 +56,38 @@ class FocusTest(unittest.TestCase):
         s = Fake(focus_after=10 ** 6)
         s.set_text(Node(0, "text_field", "Label", value=""), "x")
         self.assertEqual(s.calls, ["focus", "set_text"])
+
+
+class LateButton(atspi.AtspiSurface):
+    """A button with no action (disabled) at the first press, enabled from the second tree read."""
+    REF = {"path": [0], "role": "push button", "name": "Review"}
+
+    def __init__(self):
+        self.calls, self.keys, self.reads = [], [], 0
+
+    def _call(self, req, timeout=None):
+        self.calls.append(req["op"])
+        return {"ok": self.reads >= 2} if req["op"] == "press" else {"ok": False, "how": "no action"}
+
+    def tree(self):
+        self.reads += 1
+        st = frozenset({"showing", "enabled"} if self.reads >= 2 else {"showing"})
+        return [Node(0, "button", "Review", states=st, ref=self.REF)]
+
+    def key(self, k):
+        self.keys.append(k)
+
+    def log(self, line):
+        pass
+
+
+class PressTest(unittest.TestCase):
+    def test_a_button_disabled_at_the_press_is_pressed_once_enabled(self):
+        s = LateButton()
+        with unittest.mock.patch.object(atspi.time, "sleep"):
+            s.press(Node(0, "button", "Review", states=frozenset({"showing"}), ref=LateButton.REF))
+        self.assertEqual(s.calls, ["press", "press"])
+        self.assertEqual(s.keys, [])   # no Tab walk
 
 
 if __name__ == "__main__":

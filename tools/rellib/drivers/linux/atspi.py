@@ -41,6 +41,8 @@ KEYS = {"escape": "Escape", "back": "Escape", "enter": "Return", "tab": "Tab", "
         "page_down": "Next", "page_up": "Prior", "space": "space", "ctrl_enter": "ctrl+Return", "end": "End"}
 CALL_S = 45       # one AT-SPI call; Flutter's tree read takes a few seconds on a busy host
 TAB_LIMIT = 60    # focus steps tried to reach a control with no action
+ENABLE_WAIT_S = 10  # a control with no action is read again this long: a disabled button (a form still
+                    # working out its fee) has neither action nor focus until it is enabled
 SECRET_FOCUS_S = 8  # a secret field that does not take focus at once is asked again this long (never set_text)
 DESTRUCTIVE = re.compile(r"(?i)delete|remove|forget|reset|erase|wipe|replace|restore|unlink|clear|send|pay")
 
@@ -149,8 +151,26 @@ class AtspiSurface:
         if r.get("how") == "gone":  # it left the screen since the read: the step's check decides
             self.log("AT-SPI: %s is gone from the screen; not pressed" % node.brief())
             return
+        if self._press_once_enabled(node):
+            return
         self.log("AT-SPI: %s has no action (%s); reaching it with the keyboard" % (node.brief(), r.get("how")))
         self._keyboard_press(node, "space" if node.role in ("checkbox", "toggle") else "enter")
+
+    def _press_once_enabled(self, node):
+        """True when the control, read again, turned enabled within ENABLE_WAIT_S and took the press."""
+        ref = node.ref
+        end = time.monotonic() + ENABLE_WAIT_S
+        while time.monotonic() < end:
+            time.sleep(0.5)
+            n = next((x for x in self.tree() if x.ref["role"] == ref["role"] and x.ref["name"] == ref["name"]), None)
+            if n is None or "enabled" not in n.states:
+                continue
+            if self._call(self._req(n, "press")).get("ok"):
+                if "enabled" not in node.states:
+                    self.log("AT-SPI: %s pressed once it was enabled" % n.brief())
+                return True
+            return False
+        return False
 
     def _focused_is(self, node):
         ref = node.ref
