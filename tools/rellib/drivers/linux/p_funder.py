@@ -27,6 +27,7 @@ class P:
         self.log_dir = log_dir
         self.log = log
         self.slate = None
+        self.fee = None  # the last send's fee, from P's own tx log (None from a service without it)
         self.host = os.environ.get("P_HOST") or p_service._tool_const(tool, "HOST")
 
     def ready(self):
@@ -63,7 +64,7 @@ class P:
         self._note("send %s -> %s: %s" % (amount, address[:12], r))
         if not r.get("ok"):
             return False, r.get("note", "send failed")
-        self.slate = r["slate"]
+        self.slate, self.fee = r["slate"], r.get("fee")
         return True, "slate %s, tx %s" % (r["slate"][:8], r.get("tx_id"))
 
     def finalized(self):
@@ -72,6 +73,18 @@ class P:
             return False
         r = self.client.call("status", slate=self.slate)
         return r.get("state") in ("posted", "confirmed")
+
+    def kick(self, why=""):
+        """P's listener started again by the service when it has been silent long enough. -> {"ok", "restarted"}."""
+        r = self.client.call("kick", why=why)
+        self._note("kick: %s" % r)
+        return r
+
+    def cancel(self, slate, why=""):
+        """P's send of [slate] cancelled (its inputs spendable again): a send no wallet answered. -> (ok, note)."""
+        r = self.client.call("cancel", slate=slate, why=why)
+        self._note("cancel %s: %s" % (slate[:8], r))
+        return bool(r.get("ok")), r.get("note") or "tx %s" % r.get("tx")
 
     def relay(self):
         """The relay P's listener and sender use: its address's domain, as the service's ping reports it
@@ -85,3 +98,8 @@ class P:
     def info(self):
         r = self.client.call("info")
         return r.get("spendable") if r.get("ok") else None
+
+    def settled(self):
+        """P's spendable once its total is all spendable (nothing awaiting confirmation), else None."""
+        r = self.client.call("info")
+        return r["spendable"] if r.get("ok") and r.get("spendable") == r.get("total") else None

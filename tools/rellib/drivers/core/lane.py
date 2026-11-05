@@ -91,15 +91,15 @@ class UntilRefused(RuntimeError):
     pass
 
 
-def until_phase():
+def until_phase(phases=PHASES):
     """REL_TRUST_UNTIL's phase or None; UntilRefused in a release run or for a phase the lane has not."""
     until = (os.environ.get("REL_TRUST_UNTIL") or "").strip()
     if not until:
         return None
     if os.environ.get("REL_RUN_KIND") == "release":
         raise UntilRefused("REL_TRUST_UNTIL is set in a release run: a lane stopped early runs in --test runs only")
-    if until not in PHASES:
-        raise UntilRefused("REL_TRUST_UNTIL: unknown phase %s (known: %s)" % (until, " ".join(PHASES)))
+    if until not in phases:
+        raise UntilRefused("REL_TRUST_UNTIL: unknown phase %s (known: %s)" % (until, " ".join(phases)))
     return until
 
 
@@ -146,16 +146,18 @@ class Platform:
 
 
 class Lane:
+    PHASES = PHASES  # a lane with other phases (linux/tx_lane.py) names its own
+
     def __init__(self, platform, recipe_for, checks, *, out, log, required, funds, p=None):
         """recipe_for(lane, which, surface) -> the family's recipe on a Driver over that surface, with the
         build's strings (core.labels) and the lane's one Recover (lane.rec)."""
         breaks.refuse_in_release()
-        self.until = until_phase()
+        self.until = until_phase(self.PHASES)
         self.stopped = None
         self.attempt = time.strftime("%Y%m%d-%H%M%S", time.gmtime())   # a fresh wallet's name in the test DB
         self.p, self.recipe_for, self.checks_mod = platform, recipe_for, checks
         self.out, self.log, self.required, self.funds, self.funder = out, log, required, funds, p
-        if self.until and PHASES.index(self.until) >= PHASES.index("fund"):
+        if self.until and "fund" in self.PHASES and self.PHASES.index(self.until) >= self.PHASES.index("fund"):
             log("REL_TRUST_UNTIL=%s is at or after fund: P pays this lane's wallet and the stop leaves it there "
                 "(its phrase is in the test DB); stop at address to move no coins" % self.until)
         self.results, self.details = {}, {}
