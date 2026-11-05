@@ -4,6 +4,7 @@
 import datetime as dt
 import hashlib
 import json
+import shutil
 import os
 import stat
 import tomllib
@@ -327,6 +328,21 @@ class HostedTest(Base):
         for f in ("SHA256SUMS", "build-info.json", ".attestation-bt-wallet-26.10.25-android-arm64-v8a.apk.json"):
             self.assertTrue(os.path.exists(os.path.join(bdir, f)), f)
         self.assertTrue(self.deletes())
+
+    def test_fetch_again_uses_the_backup(self):
+        run = self.drive(only="android")
+        self.assertEqual(run.status("build-android-tor")["status"], "done", self.log(run, "build-android-tor"))
+        shutil.rmtree(os.path.join(self.gh, "art", "android-tor"))  # deleted on GitHub after the backup
+        shutil.rmtree(os.path.join(run.step_dir("build-android-tor"), "out"))
+        downloads = len([c for c in self.gh_calls() if c["args"][:2] == ["run", "download"]])
+        run.set_status("build-android-tor", status="pending")
+        eng = Engine(run, self.pipeline, self.hosts, REPO, relmsg=Relmsg(run, {"bin": self.fake}, enabled=False))
+        eng.drive(["build-android-tor"])
+        self.assertEqual(run.status("build-android-tor")["status"], "done", self.log(run, "build-android-tor"))
+        self.assertIn("fetched and backed up before", self.log(run, "build-android-tor"))
+        self.assertEqual(len([c for c in self.gh_calls() if c["args"][:2] == ["run", "download"]]), downloads)
+        self.assertEqual(text(os.path.join(run.step_dir("build-android-tor"), "out",
+                                           "bt-wallet-26.10.25-android-arm64-v8a.apk")), "apk")
 
     def test_backup_fails_keeps_artifact(self):
         os.makedirs(os.path.join(self.tmp, "backup"))

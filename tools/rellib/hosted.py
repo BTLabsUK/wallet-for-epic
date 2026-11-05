@@ -573,10 +573,19 @@ class Fetch:
         dl = os.path.join(self.dir, f"dl-{self.name}")
         if os.path.isdir(dl):
             shutil.rmtree(dl)  # this step's own download folder from an earlier attempt
-        os.makedirs(dl)
-        rc, out, err = gh(self.c, ["run", "download", str(rid), "--repo", repo, "-n", self.name, "-D", dl], timeout=1800)
-        if rc != 0:
-            raise HostedError(f"gh run download {rid} -n {self.name}: exit {rc}: {err.strip()[-200:]}")
+        # Fetched and backed up before (the artifact is gone from GitHub then): the backup is verified
+        # again instead of a download.
+        backup = (_read(self.backup_mark(self.name)) or {}).get("backup")
+        if backup and os.path.basename(os.path.dirname(backup)) == f"{self.run.info['run_id']}-{rid}" \
+                and os.path.isfile(os.path.join(backup, "SHA256SUMS")):
+            shutil.copytree(backup, dl, ignore=shutil.ignore_patterns(".attestation-*"))
+            self.say(f"artifact {self.name} was fetched and backed up before: verifying {backup}")
+        else:
+            os.makedirs(dl)
+            rc, out, err = gh(self.c, ["run", "download", str(rid), "--repo", repo, "-n", self.name, "-D", dl],
+                              timeout=1800)
+            if rc != 0:
+                raise HostedError(f"gh run download {rid} -n {self.name}: exit {rc}: {err.strip()[-200:]}")
         files = self.verify(dl, d, job)  # a failure keeps the artifact on GitHub
         backed_up = self.back_up(dl, rid)  # before the move below empties dl
         att_dir = os.path.join(self.stage, "attestations")
