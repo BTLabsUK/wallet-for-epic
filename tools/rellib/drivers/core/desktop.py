@@ -518,11 +518,12 @@ class Desktop:
 
     def contacts(self):
         """Settings › Contacts, until the Contacts page shows (its Add contact), then back to Overview. A build
-        before the entry has Contacts only in the sidebar: logged, nothing pressed."""
+        before the entry has Contacts only in the sidebar: logged, back to Overview."""
         d = self.d
         self.settings()
         if not d.wait(shows(SETTINGS_CONTACTS), 4) and not (self._open_section_list() and d.wait(shows(SETTINGS_CONTACTS), 4)):
             self.log("no Contacts in Settings: a build before the entry")
+            self.nav(NAV_OVERVIEW)
             return False
         d.press(SETTINGS_CONTACTS, step="settings-contacts", then=shows(CONTACTS_ADD), timeout=20)
         self.log("Settings › Contacts: the Contacts page")
