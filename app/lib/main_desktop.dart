@@ -147,6 +147,9 @@ Future<List<Override>> deskOverrides() async {
   final store = DeskStore(secrets);
   // Before the settings open and before any request: a fresh install opens no connection until
   // Welcome's depth dial is answered (levels/first_start.dart, desk_levels.dart).
+  // First, before this run writes a key: an install that ran before never gets the first-run
+  // tour by itself (first_run_tour.dart).
+  await deskSettleFirstRunTour(store, walletsOnDisk: _walletsOnDisk);
   await deskHoldUntilFirstStart(secrets, walletsOnDisk: _walletsOnDisk);
   // Before the wallet core starts: its runtime takes the log level once.
   await applySavedLogLevel(store);

@@ -23,6 +23,7 @@ import 'src/secret_store_api.dart' show SecretStore;
 import 'src/settings_file/settings_providers.dart';
 import 'src/wallet_service.dart' show Chain;
 import 'src/levels/first_start.dart';
+import 'src/first_run_tour.dart';
 import 'src/net/tor_net.dart';
 import 'src/tor_build.dart';
 import 'src/tor_licence.dart';
@@ -53,6 +54,9 @@ Future<void> main() async {
     };
     await initWalletBackend();
     final store = createSecretStore();
+    // First, before this run writes a key: an install that ran before never gets the first-run
+    // tour by itself (first_run_tour.dart).
+    await settlePhoneFirstRunTour(store);
     // Before the settings open and before any request: a fresh install opens no connection
     // until its first-start step (the level, Undercover) is answered (levels/first_start.dart).
     // The web builds have no first-start step.

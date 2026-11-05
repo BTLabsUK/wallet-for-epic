@@ -3,6 +3,7 @@
 // app's settings), and the compact rail shows the version with the build.
 import 'package:epic_wallet/src/desktop/app/desk_app.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
+import 'package:epic_wallet/src/desktop/data/desk_levels.dart' show deskSettleFirstRunTour;
 import 'package:epic_wallet/src/desktop/data/desk_store.dart';
 import 'package:epic_wallet/src/desktop/data/desk_update.dart' show deskAppVersion;
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
@@ -62,6 +63,50 @@ void main() {
       expect(c.read(deskTourProvider).open, isTrue);
       await pumpEventQueue();
       expect((await store.settings()).tourSeen, isTrue);
+    });
+
+    // As main_desktop.dart launches: the tour settled first, before this run writes a key.
+    Future<bool> launch(DeskStore store, {bool wallets = false}) async {
+      await deskSettleFirstRunTour(store, walletsOnDisk: () async => wallets);
+      return (await _start(store)).read(deskTourProvider.notifier).openIfUnseen();
+    }
+
+    test('a fresh install opens it on the first run, never on the next', () async {
+      final store = DeskStore(MemorySecretStore());
+      expect(await launch(store), isTrue);
+      await pumpEventQueue();
+      expect(await launch(store), isFalse);
+    });
+
+    test('a fresh install whose first run never opened it: not on the second launch', () async {
+      final secrets = MemorySecretStore();
+      final store = DeskStore(secrets);
+      await deskSettleFirstRunTour(store);
+      await store.saveSettings(const DeskSettings(hideAmounts: true));
+      expect(await launch(store), isFalse);
+      expect((await store.settings()).tourSeen, isTrue);
+    });
+
+    test('an update of an install with settings from before the tour: never, and its settings kept', () async {
+      final secrets = MemorySecretStore();
+      final store = DeskStore(secrets);
+      // An older version's settings: no tourSeen key at all, and a key this one does not know.
+      secrets.values[DeskStore.settingsKey] = '{"theme":"dark","hideAmounts":true,"oldKey":7}';
+      expect(await launch(store), isFalse);
+      final saved = (await store.readJson(DeskStore.settingsKey))! as Map<String, dynamic>;
+      expect(saved, {'theme': 'dark', 'hideAmounts': true, 'oldKey': 7, 'tourSeen': true});
+    });
+
+    test('an update with only a wallet on disk or another desk key: never', () async {
+      expect(await launch(DeskStore(MemorySecretStore()), wallets: true), isFalse);
+      expect(await launch(DeskStore(MemorySecretStore()..values['desk.window'] = '{}')), isFalse);
+      expect(await launch(DeskStore(MemorySecretStore()..values['app.level'] = '2')), isFalse);
+    });
+
+    test('settings that are not JSON are left as they are', () async {
+      final secrets = MemorySecretStore()..values[DeskStore.settingsKey] = 'not json';
+      await deskSettleFirstRunTour(DeskStore(secrets));
+      expect(secrets.values[DeskStore.settingsKey], 'not json');
     });
 
     test('a saved value of the wrong type falls back to unseen', () {
