@@ -3067,6 +3067,7 @@ class PairingRecord {
     this.peerHeardAt,
     this.peerVerifiedAt,
     this.peerFeatures = 0,
+    this.peerProfile = 0,
     this.endedReason,
     this.endedAt,
     this.relayDown = false,
@@ -3142,6 +3143,11 @@ class PairingRecord {
   /// The other wallet's feature bits as this pairing holds them (0: none received). The app
   /// reads them through the trust policy only.
   final int peerFeatures;
+
+  /// The profile word of the contact's card (tag `0x80`, 0 when absent): what the contact says
+  /// about itself. Decoded from the stored card on every read, never stored by the app. Read
+  /// through the trust policy only (`statedNoPayments`, `statedAutomated`).
+  final int peerProfile;
 
   /// Set once the pairing ended; the state is then [PairingState.ended].
   final PairingEndReason? endedReason;
@@ -3222,6 +3228,7 @@ class PairingRecord {
     DateTime? peerVerifiedAt,
     bool clearPeerVerified = false,
     int? peerFeatures,
+    int? peerProfile,
     PairingEndReason? endedReason,
     DateTime? endedAt,
   }) => PairingRecord(
@@ -3249,6 +3256,7 @@ class PairingRecord {
     peerHeardAt: peerHeardAt ?? this.peerHeardAt,
     peerVerifiedAt: clearPeerVerified ? null : peerVerifiedAt ?? this.peerVerifiedAt,
     peerFeatures: peerFeatures ?? this.peerFeatures,
+    peerProfile: peerProfile ?? this.peerProfile,
     endedReason: endedReason ?? this.endedReason,
     endedAt: endedAt ?? this.endedAt,
     relayDown: relayDown ?? this.relayDown,

@@ -20,6 +20,18 @@ const int featureStatusNotices = 1 << 3;
 const int featureLinkedDevicesReserved = 1 << 4;
 const int featureNameService = 1 << 5;
 
+/// Profile registry (u32, only grows; a bit is never reused): what a contact's card says about
+/// its owner (card tag `0x80`, docs/design/peer-profile.md 3.3). A bit only takes an offer away
+/// or changes wording; unknown bits are kept and ignored.
+const int profileNoPayments = 1 << 0;
+const int profileAutomated = 1 << 1;
+
+/// The contact's card says it takes no payments: no Send or Request, its address refused.
+bool statedNoPayments(int profile) => profile & profileNoPayments != 0;
+
+/// The contact's card says it is automated: wording only.
+bool statedAutomated(int profile) => profile & profileAutomated != 0;
+
 /// The host bits (4 and 5) this build claims to other LEPIC wallets: one constant of the build,
 /// the same for every user, never a setting (LEPIC's `WalletConfig.host_features`). Bit 4 stays
 /// unclaimed (above); bit 5 says this wallet can pair with a name service.
@@ -79,6 +91,7 @@ class Relationship {
     this.endedReason,
     this.hasEpicboxAddress = false,
     this.peerFeatures = 0,
+    this.peerProfile = 0,
   });
 
   const Relationship.none() : this(RelationshipKind.none);
@@ -96,6 +109,9 @@ class Relationship {
 
   /// The peer's `0x82` kept in the pairing record (0 for a record without one).
   final int peerFeatures;
+
+  /// The profile word of the contact's card (0 for none); see [profileNoPayments].
+  final int peerProfile;
 
   bool get inContacts => kind != RelationshipKind.none;
   bool get isPaired =>

@@ -272,6 +272,7 @@ final deskContactRelationshipProvider = Provider.family<Relationship, String>((r
     },
     hasEpicboxAddress: hasAddress,
     peerFeatures: p.peerFeatures,
+    peerProfile: p.peerProfile,
   );
 });
 

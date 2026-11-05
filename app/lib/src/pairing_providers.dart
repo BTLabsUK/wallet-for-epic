@@ -330,6 +330,7 @@ final contactRelationshipProvider = Provider.family<Relationship, String>((ref, 
     },
     hasEpicboxAddress: hasAddress,
     peerFeatures: p.peerFeatures,
+    peerProfile: p.peerProfile,
   );
 });
 
