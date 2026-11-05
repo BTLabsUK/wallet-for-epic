@@ -9,6 +9,7 @@ sense · 75 another tools/rel is working on that run.
 The run's Telegram release (relmsg) ends exactly once: publish done -> ok, preflight failed (30) ->
 failed, tools/rel stopped by SIGTERM/SIGINT/SIGHUP while driving, or a new run of the same version
 -> aborted. 10, 20, 40, 64 and 75 are not an end: the same run goes on (retry, resume, gate)."""
+import pathlib
 import argparse
 import json
 import os
@@ -883,7 +884,7 @@ class App:
         path = os.path.join(self.state_root, "metrics.jsonl")
         rows = []
         if os.path.isfile(path):
-            for line in open(path):
+            for line in pathlib.Path(path).read_text().splitlines(True):
                 try:
                     rows.append(json.loads(line))
                 except json.JSONDecodeError:

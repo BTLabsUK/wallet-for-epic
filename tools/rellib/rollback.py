@@ -14,6 +14,7 @@ GitHub (release.toml publish.github): when the bad or the good release had it on
 re-signed update-v2.json also replaces the asset on the latest GitHub Release (the bad
 release's, which stays; GitHub only mirrors). The page links the good release's GitHub Release
 only when that release had it on."""
+import pathlib
 import datetime as dt
 import json
 import os
@@ -112,8 +113,8 @@ def resign(engine, step, say):
     src = info["src"]
     cfg = os.path.join(src, "app/assets/config/app-config.toml")
     if not info.get("test"):
-        old = tomllib.load(open(os.path.join(src, "app/tool/config/old-update.toml"), "rb"))["old_update"]
-        new = tomllib.load(open(cfg, "rb"))["updates"]
+        old = tomllib.loads(pathlib.Path(os.path.join(src, "app/tool/config/old-update.toml")).read_text(encoding="utf-8"))["old_update"]
+        new = tomllib.loads(pathlib.Path(cfg).read_text(encoding="utf-8"))["updates"]
         for url in (old["manifest"], new["manifests"][0]):
             try:
                 live = json.loads(fetch(url))

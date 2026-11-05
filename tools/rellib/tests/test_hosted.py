@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """Hosted builds (tools/rellib/hosted.py): the dispatch, build-fetch's checks and the graph of
 `--builds hosted` / `--builds local`, against a fake gh on PATH that answers from a JSON file."""
+import pathlib
 import datetime as dt
 import hashlib
 import json
@@ -72,16 +73,16 @@ timeout = "5m"
 
 # Answers from $FAKE_GH/state.json; every call goes to $FAKE_GH/calls.jsonl.
 FAKE_GH = r'''#!/usr/bin/env python3
-import json, os, shutil, sys
+import json, os, pathlib, shutil, sys
 d = os.environ["FAKE_GH"]
-st = json.load(open(os.path.join(d, "state.json")))
+st = json.loads(pathlib.Path(os.path.join(d, "state.json")).read_text())
 a = sys.argv[1:]
 with open(os.path.join(d, "calls.jsonl"), "a") as f:
     f.write(json.dumps({"args": a, "config": os.environ.get("GH_CONFIG_DIR")}) + "\n")
 def out(x):
     print(json.dumps(x)); sys.exit(0)
 def save():
-    json.dump(st, open(os.path.join(d, "state.json"), "w"))
+    pathlib.Path(os.path.join(d, "state.json")).write_text(json.dumps(st))
 if a[:2] == ["api", "user"]:
     out({"login": st.get("login", "btlabs-uk")})
 if a[:2] == ["workflow", "run"]:

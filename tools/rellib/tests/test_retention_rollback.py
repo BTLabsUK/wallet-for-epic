@@ -2,6 +2,7 @@
 """Cleanup keeps exactly the current and the previous release; rollback re-signs the previous
 release with a serial above the bad one, which an app that read the bad one accepts while the
 old file put back is refused."""
+import pathlib
 import json
 import os
 import subprocess
@@ -99,7 +100,7 @@ class RollbackTest(Base):
         url = "https://examples.btlabs.uk/epic-cash-wallets/downloads/"
         apk = os.path.join(r.files, f"epic-cash-mobile-{version}-arm64-v8a.apk")
         import hashlib
-        sha = hashlib.sha256(open(apk, "rb").read()).hexdigest()
+        sha = hashlib.sha256(pathlib.Path(apk).read_bytes()).hexdigest()
         payload = {"schema": 1, "serial": serial, "issued_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(serial)),
                    "expires_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(serial + 182 * 86400)),
                    "packageName": "uk.btlabs.btwallet", "versionName": version,
@@ -161,7 +162,7 @@ class RollbackTest(Base):
         rc, out = self.verify(os.path.join(run.path, "manifests/update.json"), os.path.join(run.path, "manifests/test-keyring.json"),
                               state=state)
         self.assertEqual(rc, 0, f"the re-signed rollback must be accepted by an app that read the bad one: {out}")
-        self.assertIn("26.10.23", out + json.dumps(json.load(open(os.path.join(run.path, "manifests/update.payload.json")))))
+        self.assertIn("26.10.23", out + json.dumps(json.loads(pathlib.Path(os.path.join(run.path, "manifests/update.payload.json")).read_text())))
         # The gate in front of it fails closed like the publish gate.
         os.environ["REL_FAKE_GATE"] = "held"
         eng2 = self.engine(run)

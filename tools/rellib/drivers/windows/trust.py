@@ -21,6 +21,7 @@ minimum confirmations), wallets.json (wallet id, label, folder, fingerprints), t
 candidate's settings.toml (servers, the first in use), wfe.log (wallet opened, slates, which Epicbox
 server the listener subscribed to) and the data folder's file list.
 """
+import pathlib
 import base64
 import datetime
 import decimal
@@ -610,7 +611,7 @@ class Run:
         with open(os.path.join(sd, "desk-settings-%s.json" % self.prev_ver), "w") as f:
             f.write(keys["desk.settings"] + "\n")
         fx = seed.fixture_for(self.prev_ver)
-        template = open(fx[0]).read().strip() if fx else None
+        template = pathlib.Path(fx[0]).read_text().strip() if fx else None
         self.details["seed"] = ("simple settings seeded into the closed previous release's files; desk.settings "
                                 "over the fixture of %s" % (fx[1] if fx else "none (the release's own file only)"))
         try:

@@ -1,5 +1,6 @@
 """G4 updates each platform from the newest published release that has its file: an Android-only
 release (26.11.1) does not take the desktops' previous release away (26.11.0)."""
+import pathlib
 import json
 import os
 import tempfile
@@ -14,7 +15,7 @@ from rellib.graph import Step
 
 def touch(path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    open(path, "w").close()
+    pathlib.Path(path).touch()
 
 
 class PreviousPerPlatformTest(unittest.TestCase):

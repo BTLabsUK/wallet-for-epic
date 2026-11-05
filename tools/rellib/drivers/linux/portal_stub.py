@@ -13,6 +13,7 @@ it. Each request is one line in <sandbox>/portal/log (method, title, chosen path
 
 ensure(sb) starts it when it is not running: the app's restart (sandbox.app_stop) kills every
 process on the sandbox's runtime dir, this one too."""
+import pathlib
 import json
 import os
 import signal
@@ -95,7 +96,7 @@ def _owner(env, name=NAME):
 def _live(pid):
     """Alive and not a zombie (a killed stub waits for its parent to reap it)."""
     try:
-        return pid is not None and open("/proc/%d/stat" % pid).read().rsplit(")", 1)[1].split()[0] != "Z"
+        return pid is not None and pathlib.Path("/proc/%d/stat" % pid).read_text().rsplit(")", 1)[1].split()[0] != "Z"
     except (OSError, IndexError):
         return False
 
@@ -163,7 +164,7 @@ def serve(sb):
     def chosen(method, opts):
         nxt = os.path.join(_dir(sb), "next")
         try:
-            path = open(nxt).read().strip()
+            path = pathlib.Path(nxt).read_text().strip()
             os.unlink(nxt)
         except OSError:
             return None
@@ -198,7 +199,7 @@ def serve(sb):
         return GLib.Variant("u", 3)
 
     def acquired(conn, name):
-        open(os.path.join(_dir(sb), "ready.%d" % os.getpid()), "w").close()
+        pathlib.Path(os.path.join(_dir(sb), "ready.%d" % os.getpid())).touch()
 
     def bus(conn, name):
         conn.register_object(PATH, node.interfaces[0], call, prop, None)  # noqa: the deprecated form is the one PyGObject wraps

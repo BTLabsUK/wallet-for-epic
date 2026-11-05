@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 """The test DB: parallel emitters, ordering rules, the secret guard, the HTTP intake, the views, the import."""
+import pathlib
 import json
 import os
 import subprocess
@@ -115,7 +116,7 @@ class QueueTest(TdbCase):
         stage = os.path.join(self.tmp, "run", "steps", "trust-x", "out")
         os.makedirs(stage)
         for n in (1, 2):
-            open(os.path.join(os.path.dirname(stage), "attempt-%d.log" % n), "w").close()
+            pathlib.Path(os.path.join(os.path.dirname(stage), "attempt-%d.log" % n)).touch()
         os.environ.update(REL_RUN_ID="rid", REL_STAGE=stage)
         client.emit("step.start", step="open")
         self.drain()

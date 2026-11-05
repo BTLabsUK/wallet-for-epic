@@ -2,6 +2,7 @@
 """The iOS lane on the shared core: WebDriverAgent sources read as core Nodes (ios/wda.py), the phone's
 Back on a fake WDA, the device type and the Simulator zip's app, and trust-ios.sh's plan and its
 fail-closed starts. No Mac, no Simulator."""
+import pathlib
 import json
 import os
 import plistlib
@@ -200,7 +201,7 @@ class TrustIosShTest(unittest.TestCase):
         p = os.path.join(self.d, folder, "ios")
         os.makedirs(p, exist_ok=True)
         f = os.path.join(p, "bt-wallet-%s-notor-ios-simulator.zip" % version)
-        open(f, "wb").close()
+        pathlib.Path(f).touch()
         return f
 
     def test_dry_run_names_both_zips(self):

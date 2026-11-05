@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 """Scope validation and the graph of the real release/pipeline.toml."""
+import pathlib
 import os
 import re
 import tomllib
@@ -429,7 +430,7 @@ class ScriptsTest(unittest.TestCase):
 
     def test_every_script_the_pipeline_runs_is_executable(self):
         # A step whose script lost its exec bit fails with exit 126 mid-release (26.10.24 run 2).
-        raw = tomllib.load(open(os.path.join(REPO, "release/pipeline.toml"), "rb"))
+        raw = tomllib.loads(pathlib.Path(os.path.join(REPO, "release/pipeline.toml")).read_text(encoding="utf-8"))
         cmds = [s.get("run", "") for s in raw["step"].values()] + list(raw["proof"]["drivers"].values())
         paths = sorted({m for c in cmds for m in re.findall(r"\{rel\}/(\S+\.(?:sh|py))", c)})
         self.assertTrue(paths)

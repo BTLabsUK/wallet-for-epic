@@ -3,6 +3,7 @@
 expires_at, in one signer request, verified, published only while the live files are still the
 current release; and the [manifest] validity and the live-expiry warning. Signed with the test
 keys of app/test/fixtures/btlabs/."""
+import pathlib
 import base64
 import copy
 import hashlib
@@ -46,7 +47,7 @@ def sign(payload_path, out, key="test-a", app_config=False):
 
 
 def payload_of(path):
-    return json.loads(base64.b64decode(json.load(open(path))["payload"]))
+    return json.loads(base64.b64decode(json.loads(pathlib.Path(path).read_text())["payload"]))
 
 
 def verifies(path, v2):
@@ -69,7 +70,7 @@ class FakeSigner:
             assert j["op"] == "update-manifest" and j.get("prev"), j
             src = j["payload"]
             if self.tamper:
-                pl = json.load(open(src))
+                pl = json.loads(pathlib.Path(src).read_text())
                 self.tamper(pl)
                 src = os.path.join(out_dir, "tampered-" + j["out"])
                 write_json(src, pl)
@@ -125,7 +126,7 @@ class ResignTest(Base):
         return r
 
     def live_bytes(self):
-        return {n: open(os.path.join(self.live, n), "rb").read() for n in ("update.json", "update-v2.json")}
+        return {n: pathlib.Path(os.path.join(self.live, n)).read_bytes() for n in ("update.json", "update-v2.json")}
 
     def test_only_serial_and_expiry_change_in_one_signer_request(self):
         self.hosts["host"]["signer"] = {"endpoint": "http://100.64.0.9:8797"}
@@ -149,7 +150,7 @@ class ResignTest(Base):
             self.assertEqual(new["serial"], res["serial"])
             self.assertEqual(new["issued_at"], resign.iso(new["serial"]))
             self.assertEqual(resign.parse_iso(new["expires_at"]) - new["serial"], 45 * 86400)
-        rec = json.load(open(os.path.join(res["work"], "resign.json")))
+        rec = json.loads(pathlib.Path(os.path.join(res["work"], "resign.json")).read_text())
         self.assertEqual((rec["status"], rec["old_serial"], rec["days"]), ("published", self.serial, 45))
 
     def test_the_default_validity_and_the_release_setting(self):

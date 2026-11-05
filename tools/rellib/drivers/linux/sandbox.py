@@ -12,6 +12,7 @@ gnome-keyring and the AT-SPI bus switched on, with HOME and the XDG dirs under o
 The app is never started unless HOME, the XDG dirs and DISPLAY are the sandbox's: a failed env
 step once started a release on the real display with the real HOME.
 """
+import pathlib
 import fcntl
 import os
 import pwd
@@ -70,7 +71,7 @@ def _runtime(sb):
 
 def _pid(sb, name):
     try:
-        return int(open(_p(sb, "pids", name)).read().strip())
+        return int(pathlib.Path(_p(sb, "pids", name)).read_text().strip())
     except (OSError, ValueError):
         return None
 
@@ -89,7 +90,7 @@ def _free_display(start=140):
 
 def _lock_pid(n):
     try:
-        return int(open("/tmp/.X%d-lock" % n).read().strip())
+        return int(pathlib.Path("/tmp/.X%d-lock" % n).read_text().strip())
     except (OSError, ValueError):
         return None
 
@@ -203,7 +204,7 @@ def start(sb, size="1400x950x24"):
 
 def _env_of(pid):
     try:
-        raw = open("/proc/%s/environ" % pid, "rb").read().split(b"\0")
+        raw = pathlib.Path("/proc/%s/environ" % pid).read_bytes().split(b"\0")
     except OSError:
         return {}
     out = {}
@@ -229,7 +230,7 @@ def guard(sb, env):
     if not m or int(m.group(1)) < 100:
         raise SystemExit("refusing: DISPLAY %r is not a sandbox display" % disp)
     try:
-        lock_pid = int(open("/tmp/.X%s-lock" % m.group(1)).read().strip())
+        lock_pid = int(pathlib.Path("/tmp/.X%s-lock" % m.group(1)).read_text().strip())
     except (OSError, ValueError):
         lock_pid = None
     if lock_pid != _pid(sb, "xvfb"):

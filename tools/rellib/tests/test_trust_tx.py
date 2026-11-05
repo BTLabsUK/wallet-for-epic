@@ -3,6 +3,7 @@
 what the sweeps send, when a payment phase is done already, the payment check on fake wallet data,
 the invoice check, the pairing words, the method a history detail names, the transaction file found by its slate, the stand-in portal's
 refusal of paths outside the sandbox, and REL_TRUST_UNTIL on the TX lane's phases."""
+import pathlib
 import decimal
 import os
 import sys
@@ -390,7 +391,7 @@ class RecipesTest(unittest.TestCase):
     def test_file_for_by_slate(self):
         with tempfile.TemporaryDirectory() as d:
             for n in ("abcdef12.tx", "abcdef12-1.tx", "abcdef12.response", "ffff0000.tx"):
-                open(os.path.join(d, n), "w").close()
+                pathlib.Path(os.path.join(d, n)).touch()
             os.utime(os.path.join(d, "abcdef12.tx"), (time.time() - 60,) * 2)
             self.assertEqual(os.path.basename(file_for([d], "ABCDEF12-3456-7890", wait_s=0)), "abcdef12-1.tx")
             self.assertEqual(os.path.basename(file_for([d], "abcdef1234567890", ".response", wait_s=0)), "abcdef12.response")

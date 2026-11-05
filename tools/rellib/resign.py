@@ -15,6 +15,7 @@ Then every copy is read back. Its record stays in <state root>/resign/<UTC time>
 
 --test signs with the test key of app/test/fixtures/btlabs/ and reads and writes a folder
 (--live-dir) instead of the server: nothing leaves this machine."""
+import pathlib
 import base64
 import datetime as dt
 import hashlib
@@ -105,8 +106,8 @@ class Resign:
             self.keyring = os.path.join(repo, FIXTURES, "test-keyring.json")
         else:
             self.keyring = os.path.join(self.bp, "keys/btlabs-keyring.json")
-        old = tomllib.load(open(os.path.join(repo, "app/tool/config/old-update.toml"), "rb"))["old_update"]
-        new = tomllib.load(open(self.cfg, "rb"))["updates"]
+        old = tomllib.loads(pathlib.Path(os.path.join(repo, "app/tool/config/old-update.toml")).read_text(encoding="utf-8"))["old_update"]
+        new = tomllib.loads(pathlib.Path(self.cfg).read_text(encoding="utf-8"))["updates"]
         self.urls = {"update.json": old["manifest"], "update-v2.json": new["manifests"][0]}
 
     # ---- I/O ----
@@ -292,12 +293,12 @@ class Resign:
         self.check_live(again, version, release)
         self.publish(files)
         back = self.read_live()
-        bad = [n for n, p in files.items() if back[n] != open(p, "rb").read()]
+        bad = [n for n, p in files.items() if back[n] != pathlib.Path(p).read_bytes()]
         if bad:
             raise ResignError(f"published, but {', '.join(bad)} does not read back as signed (a cache, or another "
                               f"publisher): check {', '.join(self.urls[n] for n in bad)}")
         for n, p in files.items():
-            record.setdefault("sha256", {})[n] = hashlib.sha256(open(p, "rb").read()).hexdigest()
+            record.setdefault("sha256", {})[n] = hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()
         return {"version": version, "serial": serial, "expires": new_expiry, "work": self.work}
 
 
@@ -305,8 +306,8 @@ def live_expiry_warning(repo, warn_days, fetch=None, now=None):
     """None, or a warning when a live manifest expires within warn_days (or cannot be read)."""
     if fetch is None:
         from .builtins import fetch
-    old = tomllib.load(open(os.path.join(repo, "app/tool/config/old-update.toml"), "rb"))["old_update"]
-    new = tomllib.load(open(os.path.join(repo, "app/assets/config/app-config.toml"), "rb"))["updates"]
+    old = tomllib.loads(pathlib.Path(os.path.join(repo, "app/tool/config/old-update.toml")).read_text(encoding="utf-8"))["old_update"]
+    new = tomllib.loads(pathlib.Path(os.path.join(repo, "app/assets/config/app-config.toml")).read_text(encoding="utf-8"))["updates"]
     now = int(time.time()) if now is None else now
     soonest = None
     for name, url in (("update.json", old["manifest"]), ("update-v2.json", new["manifests"][0])):

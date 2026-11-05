@@ -2,6 +2,7 @@
 """The gate watcher: publishes once on an approval, never on anything else; a hold, a new gate
 question or a finished run ends it; a relay error or a busy run does not; one watcher per gate
 question; the gate starts one when it waits (never in a dry run) and its answer does not change."""
+import pathlib
 import os
 import unittest
 
@@ -63,7 +64,7 @@ class GateWatchTest(Base):
         self.assertIn("gate-status 3", self.relmsg_calls())
         self.assertNotIn("approve", self.relmsg_calls().replace("approved", ""))
         self.assertIn("published", [e.get("state") for e in Run(run.path).events() if e["event"] == "gate-watch"])
-        self.assertIn("tools/rel publish exit 0", open(gatewatch.log_path(run)).read())
+        self.assertIn("tools/rel publish exit 0", pathlib.Path(gatewatch.log_path(run)).read_text())
 
     def test_hosted_builds_source_mark_is_not_a_publish(self):
         # 26.11.2 run-3: the hosted preflight's record of the GitHub commit once stopped the watcher

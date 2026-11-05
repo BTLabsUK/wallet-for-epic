@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """The engine on fake steps: order, outputs, failures and hints, resume, proofs, gates (fail
 closed), skips, the publish phase and exit codes."""
+import pathlib
 import json
 import os
 import subprocess
@@ -30,7 +31,7 @@ class EngineTest(Base):
         ev = [e["event"] for e in run.events()]
         self.assertIn("start", ev)
         self.assertIn("end", ev)
-        metrics = open(os.path.join(self.root, "metrics.jsonl")).read()
+        metrics = pathlib.Path(os.path.join(self.root, "metrics.jsonl")).read_text()
         self.assertIn('"base": "build-android"', metrics)
         line = next(json.loads(x) for x in metrics.splitlines() if '"step": "build-android-tor"' in x)
         self.assertTrue(line["started"] and line["ended"] and line["lane"])
@@ -56,7 +57,7 @@ class EngineTest(Base):
         self.assertEqual(ls.step_ended("never"), {})
 
     def test_failure_stops_dependents_gives_hint_and_exit_20(self):
-        open(os.path.join(self.src, "fail-notor"), "w").close()
+        pathlib.Path(os.path.join(self.src, "fail-notor")).touch()
         run = self.make_run(only="android,linux", sets=["publish.manifests=false"])
         eng = self.engine(run)
         eng.failures = [{"id": "fake", "steps": ["build-android"], "pattern": "test ! -e", "hint": "remove the fail file"}]
@@ -81,7 +82,7 @@ class EngineTest(Base):
         self.assertIn("free disk", self.relmsg_calls())
 
     def test_resume_keeps_done_steps_and_reruns_failed(self):
-        open(os.path.join(self.src, "fail-notor"), "w").close()
+        pathlib.Path(os.path.join(self.src, "fail-notor")).touch()
         run = self.make_run(only="android,linux", sets=["publish.manifests=false"])
         eng = self.engine(run)
         self.assertEqual(eng.drive(self.build_ids(run)), EXIT_FAILED)
@@ -301,7 +302,7 @@ scratch = "scratch_noop"
         self.assertEqual(run.status("last")["status"], "done")
         self.assertIn("last", self.calls())
         self.assertEqual(next(r for r in run.summary_rows() if r["id"] == "after")["status"], "warned")
-        relmsg = open(os.path.join(self.tmp, "relmsg.calls")).read()
+        relmsg = pathlib.Path(os.path.join(self.tmp, "relmsg.calls")).read_text()
         self.assertIn("step after failed", relmsg)       # shown as failed in the live message …
         self.assertNotIn("alert after failed", relmsg)   # … with no alert,
         self.assertNotIn("link L", relmsg)                # and a failed step's links are not shown
@@ -353,7 +354,7 @@ scratch = "scratch_noop"
         self.assertNotIn("build tor", self.calls())
         self.assertNotIn("publish", self.calls())
         self.assertEqual(os.listdir(run.files), [])
-        log = open(os.path.join(run.step_dir("build-android-tor"), "log.txt")).read()
+        log = pathlib.Path(os.path.join(run.step_dir("build-android-tor"), "log.txt")).read_text()
         self.assertIn("# run: echo build tor", log)
 
 

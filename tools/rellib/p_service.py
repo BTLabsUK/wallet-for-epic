@@ -39,6 +39,7 @@ Env: REL_P_TOOL (p.py), REL_P_PASS_FILE + REL_P_PASS_LINE (P's password), REL_P_
 flock), REL_P_SERVICE_DIR (socket, logs; default ~/.cache/rel-p-service), REL_P_OWNER_PORT (P's
 owner_api_listen_port, default 23420), REL_P_IDLE_MIN, P_HOST (else p.py's default).
 """
+import pathlib
 import base64
 import contextlib
 import fcntl
@@ -90,7 +91,7 @@ def env_paths(env=os.environ):
 def _tool_const(tool, name):
     """A constant of p.py (HOST, DIR), so P's host and folder are written down in one place."""
     try:
-        src = open(tool).read()
+        src = pathlib.Path(tool).read_text()
     except OSError:
         return None
     if name == "HOST":
@@ -102,7 +103,7 @@ def _tool_const(tool, name):
 
 def password(cfg):
     try:
-        lines = open(cfg["pass_file"]).read().splitlines()
+        lines = pathlib.Path(cfg["pass_file"]).read_text().splitlines()
         return lines[cfg["pass_line"] - 1].strip() if len(lines) >= cfg["pass_line"] else ""
     except OSError:
         return ""
@@ -405,7 +406,7 @@ class Service:
         for name in ("owner", "listener"):
             lp = os.path.join(self.dir, name + ".log")
             with contextlib.suppress(OSError):
-                text = clean(open(lp, errors="replace").read())
+                text = clean(pathlib.Path(lp).read_text(errors="replace"))
                 with open(lp, "w") as f:
                     f.write(text + "\n")
         self.log("P service stopped%s" % ("" if ok else "; P processes may be left on P's side"))

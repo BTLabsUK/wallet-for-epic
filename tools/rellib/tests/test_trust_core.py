@@ -6,6 +6,7 @@ without a password's value and never a phrase screen's; saved states written and
 whichever way the build names its field; the dialog break's button found by its label; a moved setting
 found by walking the sections when a narrow window folds their list into one selector; a cached AI path
 replayed without the model."""
+import pathlib
 import json
 import os
 import stat
@@ -129,9 +130,9 @@ class CoreTest(unittest.TestCase):
                   "home": [n(0, "text", "Available to spend")]}, "lock", {("lock", "Open my wallet"): "home"})
         with unittest.mock.patch.dict(os.environ, {"REL_AI_CMD": "printf '{\"i\": 1, \"why\": \"opens the wallet\"}'"}):
             self.driver(f).press(UNLOCK, step="unlock", then=shows(HOME), timeout=0.2)
-        rec = json.load(open(os.path.join(self.out, "recovered.json")))
+        rec = json.loads(pathlib.Path(os.path.join(self.out, "recovered.json")).read_text())
         self.assertEqual(rec[0]["picked"]["name"], "Open my wallet")
-        self.assertIn("g4.unlock.submit", open(os.path.join(self.out, "selector-fixes.md")).read())
+        self.assertIn("g4.unlock.submit", pathlib.Path(os.path.join(self.out, "selector-fixes.md")).read_text())
 
     def test_in_place_change_counts_as_the_press_taking(self):
         """A switch that only flips its checked state, or a stepper that only changes its value, is
@@ -200,7 +201,7 @@ class CoreTest(unittest.TestCase):
             name, variant = "linux", "tor"
 
             def save_state(self, folder):
-                open(os.path.join(folder, "home.tar"), "w").write("x")
+                pathlib.Path(os.path.join(folder, "home.tar")).write_text("x")
 
         env = {"REL_TRUST_STATE_ROOT": self.out, "REL_CANDIDATE_VERSION": "26.10.26", "REL_TRUST_START": "auto"}
         with unittest.mock.patch.dict(os.environ, env):

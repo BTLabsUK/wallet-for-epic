@@ -14,6 +14,7 @@ the live manifest does not offer either stays out. Writes nothing when every sys
 
 Usage: desktop_keep.py <src checkout> <files dir> <version> <btlabs-public> <out.json>
 Exit: 0 written or not needed; 1 the live manifest could not be read or did not verify."""
+import pathlib
 import base64
 import json
 import os
@@ -39,11 +40,11 @@ def main(src, files, version, bp, out):
     if not any(missing.values()):
         print("every desktop system has a file in this run: nothing kept from the live manifest")
         return 0
-    url = tomllib.load(open(os.path.join(src, "app/tool/config/old-update.toml"), "rb"))["old_update"]["manifest"]
+    url = tomllib.loads(pathlib.Path(os.path.join(src, "app/tool/config/old-update.toml")).read_text(encoding="utf-8"))["old_update"]["manifest"]
     tmp = out + ".live"
     try:
         with urllib.request.urlopen(url, timeout=30) as r:
-            open(tmp, "wb").write(r.read())
+            pathlib.Path(tmp).write_bytes(r.read())
     except Exception as e:  # noqa: BLE001
         print(f"live manifest {url} unreadable: {e}", file=sys.stderr)
         return 1
@@ -52,7 +53,7 @@ def main(src, files, version, bp, out):
     if rc != 0:
         print(f"live manifest {url} does not verify against the real keyring: nothing carried", file=sys.stderr)
         return 1
-    live = json.loads(base64.b64decode(json.load(open(tmp))["payload"]))
+    live = json.loads(base64.b64decode(json.loads(pathlib.Path(tmp).read_text())["payload"]))
     os.remove(tmp)
     keep = {"desktop": {}, "notor": {"desktop": {}}}
     for n, systems in missing.items():
@@ -65,7 +66,7 @@ def main(src, files, version, bp, out):
                 print(f"kept from the live manifest (serial {live.get('serial')}): {s}{n} {e.get('version')} {e['url'].rsplit('/', 1)[-1]}")
             else:
                 print(f"{s}{n}: no file in this run and none in the live manifest: left out")
-    json.dump(keep, open(out, "w"), indent=1)
+    pathlib.Path(out).write_text(json.dumps(keep, indent=1))
     return 0
 
 

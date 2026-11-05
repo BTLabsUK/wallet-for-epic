@@ -4,6 +4,7 @@ here talks to github.com. tools/release-files.py makes the release (latest, ever
 asset, writes a second apart, BT Labs' login only, no token printed) and puts update-v2.json on
 the latest release; tools/publish-update-json.sh runs that step only when switched on and never
 fails on it. The server, the raw reads and tools/push-github.sh are shims."""
+import pathlib
 import base64
 import hashlib
 import json
@@ -341,7 +342,7 @@ class GitHubReleaseTest(unittest.TestCase):
         self.assertEqual([m for m, _, _ in self.gh.writes()[n:]], ["DELETE", "POST"])
         assets = [a for a in latest["assets"] if a["name"] == "update-v2.json"]
         self.assertEqual(len(assets), 1)
-        self.assertEqual(self.gh.blobs[assets[0]["id"]], open(self.envelope(2), "rb").read())
+        self.assertEqual(self.gh.blobs[assets[0]["id"]], pathlib.Path(self.envelope(2)).read_bytes())
         self.assertEqual([r for r in self.gh.releases.values() if r["tag_name"] == "v26.10.24"][0]["assets"], [])
 
     def publish_update_json(self, **env):

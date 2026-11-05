@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 """The next synced node: drivers/nodehealth.py, and P's move off a node its listener pauses on (p_service)."""
+import pathlib
 import os
 import sys
 import tempfile
@@ -122,7 +123,7 @@ class ListenerStallTest(unittest.TestCase):
         d = tempfile.TemporaryDirectory()
         self.addCleanup(d.cleanup)
         lp = os.path.join(d.name, "listener.log")
-        open(lp, "w").close()
+        pathlib.Path(lp).touch()
         os.utime(lp, (spoke, spoke))
         s.dir, s.moved_at, s.state_mu, s.sends = d.name, 0.0, p_service.threading.Lock(), sends
         s.procs = {"listener": (None, lp)}
@@ -135,7 +136,7 @@ class ListenerStallTest(unittest.TestCase):
         self.assertIsNone(s.watch_listener(now=2000 + p_service.STALL_S - 10))
         self.assertEqual(s.watch_listener(now=2000 + p_service.STALL_S), ["aaaaaaaa-1"])
         self.assertEqual(s.killed, [("listen",)])
-        self.assertIn("P listener silent", open(os.path.join(s.dir, "service.log")).read())
+        self.assertIn("P listener silent", pathlib.Path(os.path.join(s.dir, "service.log")).read_text())
 
     def test_a_listener_that_spoke_after_the_send_is_left_alone(self):
         s = self.service(2100, {"x": {"state": "sent", "at": 2000}})
@@ -160,7 +161,7 @@ class ListenerStallTest(unittest.TestCase):
         self.assertTrue(s.kick("B 0.04", now=1000 + p_service.STALL_S)["restarted"])
         self.assertFalse(s.kick(now=1000 + p_service.STALL_S + 60)["restarted"])
         self.assertEqual(s.killed, [("listen",)])
-        self.assertIn("a send to P unanswered (B 0.04)", open(os.path.join(s.dir, "service.log")).read())
+        self.assertIn("a send to P unanswered (B 0.04)", pathlib.Path(os.path.join(s.dir, "service.log")).read_text())
 
 
 class CancelTest(unittest.TestCase):

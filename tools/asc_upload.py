@@ -18,6 +18,7 @@ The request bodies follow Apple's API reference for buildUploads/buildUploadFile
 yet run against Apple when this was written (tools/apple-release.md lists it as a first-run check).
 """
 
+import pathlib
 import argparse
 import base64
 import hashlib
@@ -109,7 +110,7 @@ def main() -> None:
     if info.get("CFBundleIdentifier") != a.bundle_id:
         sys.exit(f"the .ipa is {info.get('CFBundleIdentifier')}, not {a.bundle_id}")
     version, build = info["CFBundleShortVersionString"], info["CFBundleVersion"]
-    data = open(a.ipa, "rb").read()
+    data = pathlib.Path(a.ipa).read_bytes()
     md5 = hashlib.md5(data).hexdigest()
     print(f"{a.ipa}: {a.bundle_id} {version} ({build}), {len(data)} bytes, md5 {md5}")
 

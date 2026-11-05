@@ -4,6 +4,7 @@
 Run them all from the repository root (tools/check.sh does when tools/ changed, and in --full):
     python3 -m unittest discover -s tools/rellib/tests
 without -t: this folder is not a package and the tests import support from it."""
+import pathlib
 import json
 import os
 import shutil
@@ -232,13 +233,13 @@ class Base(unittest.TestCase):
 
     def calls(self):
         try:
-            return open(os.path.join(self.src, "calls")).read().split("\n")
+            return pathlib.Path(os.path.join(self.src, "calls")).read_text().split("\n")
         except FileNotFoundError:
             return []
 
     def relmsg_calls(self):
         try:
-            return open(os.path.join(self.tmp, "relmsg.calls")).read()
+            return pathlib.Path(os.path.join(self.tmp, "relmsg.calls")).read_text()
         except FileNotFoundError:
             return ""
 

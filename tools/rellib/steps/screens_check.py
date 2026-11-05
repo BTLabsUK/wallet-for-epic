@@ -34,6 +34,7 @@ which is built from manifest.json's images only). Tour screens are test renders:
 nothing about an installed update; the trust checks do. Standard library and Pillow only.
 """
 
+import pathlib
 import hashlib
 import html
 import json
@@ -500,7 +501,7 @@ def publish_report(rep, version):
     conf = os.environ.get("SCREENS_PUBLISH_CONF", os.path.expanduser("~/.config/btlabs/screens-publish.env"))
     cmd = os.environ.get("SCREENS_REPORT_PUBLISH", "")
     if not cmd and os.path.isfile(conf):
-        for line in open(conf):
+        for line in pathlib.Path(conf).read_text().splitlines(True):
             if line.startswith("SCREENS_REPORT_PUBLISH="):
                 cmd = line.split("=", 1)[1].strip().strip('"').strip("'")
     if not cmd:

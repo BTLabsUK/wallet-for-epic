@@ -4,6 +4,7 @@ and manifest checks, G5 publish, G6 read back), the source checkout, cleanup, an
 publish target (a folder in the run that stands in for the server, page, GitHub and manifests).
 
 Every gate fails closed: what it cannot check counts as failed, never as passed."""
+import pathlib
 import datetime as dt
 import importlib.util
 import json
@@ -389,7 +390,7 @@ def preflight(engine, step, say):
         rc, _ = sh(["git", "filter-repo", "--version"], lambda *a: None, timeout=30)
         (ok if rc == 0 else bad)("tool git-filter-repo (publish-source, publish-manifests)")
     if "android" in plats and shutil.which("flutter"):
-        want = open(os.path.join(engine.repo, "scripts/linux/flutter.version")).read().strip()
+        want = pathlib.Path(os.path.join(engine.repo, "scripts/linux/flutter.version")).read_text().strip()
         rc, out = sh(["flutter", "--version", "--machine"], lambda *a: None, timeout=120)
         try:
             got = json.loads(out[out.index("{"):])["frameworkVersion"]
@@ -474,7 +475,7 @@ def preflight(engine, step, say):
         page = os.path.expanduser(hosts["path"].get("page_repo", ""))
         log = os.path.join(page, "site/epic-cash/changelog/index.html")
         try:
-            has = f'id="v{info["version"]}"' in open(log, encoding="utf-8").read()
+            has = f'id="v{info["version"]}"' in pathlib.Path(log).read_text(encoding="utf-8")
         except OSError:
             has = False
         if not has:
@@ -550,7 +551,7 @@ def source(engine, step, say):
     rc, _ = sh(["tools/lepic.sh", "sync"], say, cwd=src, timeout=1800)
     if rc != 0:
         return {"status": "failed", "note": "tools/lepic.sh sync failed"}
-    pins = {k: open(os.path.join(src, f"tools/{k}.rev")).read().strip() for k in ("lepic", "lepic-flutter")}
+    pins = {k: pathlib.Path(os.path.join(src, f"tools/{k}.rev")).read_text().strip() for k in ("lepic", "lepic-flutter")}
     info["pins"] = pins
     engine.run.save_info()
     # The worktree path is in run.json; the live message shows only what was checked out.
@@ -751,7 +752,7 @@ def write_sbom(engine, repo, version, out, say):
 def toolchain(repo):
     out = {}
     try:
-        out["flutter_pin"] = open(os.path.join(repo, "scripts/linux/flutter.version")).read().strip()
+        out["flutter_pin"] = pathlib.Path(os.path.join(repo, "scripts/linux/flutter.version")).read_text().strip()
     except OSError:
         pass
     try:
@@ -776,7 +777,7 @@ def keyring_for(engine):
 
 def payload_of(envelope):
     import base64
-    return json.loads(base64.b64decode(json.load(open(envelope))["payload"]))
+    return json.loads(base64.b64decode(json.loads(pathlib.Path(envelope).read_text())["payload"]))
 
 
 def fetch(url, timeout=20):
@@ -805,8 +806,8 @@ def trust_manifest(engine, step, say):
         rc, _ = sh(["python3", tool, "verify", "--type", "update", "--keyring", keyring, "--envelope", env_path] + extra, say)
         if rc != 0:
             problems.append(f"{name}: does not verify against {os.path.basename(keyring)}")
-    old_base = tomllib.load(open(os.path.join(src, "app/tool/config/old-update.toml"), "rb"))["old_update"]
-    new_cfg = tomllib.load(open(cfg, "rb"))["updates"]
+    old_base = tomllib.loads(pathlib.Path(os.path.join(src, "app/tool/config/old-update.toml")).read_text(encoding="utf-8"))["old_update"]
+    new_cfg = tomllib.loads(pathlib.Path(cfg).read_text(encoding="utf-8"))["updates"]
     for name, base in (("update.payload.json", old_base["downloads"]), ("update-v2.payload.json", new_cfg["downloads"])):
         p = os.path.join(mdir, name)
         if os.path.isfile(p):
@@ -815,7 +816,7 @@ def trust_manifest(engine, step, say):
                 problems.append(f"{name}: a file URL is off {base}")
     sums = {}
     try:
-        for line in open(os.path.join(engine.run.files, "SHA256SUMS")):
+        for line in pathlib.Path(os.path.join(engine.run.files, "SHA256SUMS")).read_text().splitlines(True):
             sha, fname = line.split()
             sums[fname] = sha
     except OSError:
@@ -824,7 +825,7 @@ def trust_manifest(engine, step, say):
     kept = {}
     kp = os.path.join(mdir, "desktop-keep.json")
     if os.path.isfile(kp):
-        kept = {e["url"].rsplit("/", 1)[-1]: e for e in walk_objects(json.load(open(kp))) if isinstance(e.get("url"), str)}
+        kept = {e["url"].rsplit("/", 1)[-1]: e for e in walk_objects(json.loads(pathlib.Path(kp).read_text())) if isinstance(e.get("url"), str)}
     serial = None
     for name in ("update.json", "update-v2.json"):
         pth = os.path.join(mdir, name)
@@ -878,11 +879,11 @@ def kept_files(run):
     out = {}
     kp = os.path.join(run.path, "manifests", "desktop-keep.json")
     if os.path.isfile(kp):
-        out.update({e["url"].rsplit("/", 1)[-1]: e.get("sha256") for e in walk_objects(json.load(open(kp)))
+        out.update({e["url"].rsplit("/", 1)[-1]: e.get("sha256") for e in walk_objects(json.loads(pathlib.Path(kp).read_text()))
                     if isinstance(e.get("url"), str)})
     lp = os.path.join(run.path, "manifests", "live-keep.sums")
     if os.path.isfile(lp):
-        for line in open(lp, encoding="utf-8"):
+        for line in pathlib.Path(lp).read_text(encoding="utf-8").splitlines(True):
             sha, _, name = line.rstrip("\n").partition("  ")
             if name:
                 out[name] = sha
@@ -995,7 +996,7 @@ def gate_summary(engine):
     sums = os.path.join(run.files, "SHA256SUMS")
     if os.path.isfile(sums):
         lines.append("Files:")
-        for line in open(sums):
+        for line in pathlib.Path(sums).read_text().splitlines(True):
             sha, name = line.split()
             lines.append(f"- {name} {os.path.getsize(os.path.join(run.files, name)) / 1e6:.1f} MB {sha[:16]}…")
     mp = os.path.join(run.path, "manifests", "update.json")
@@ -1165,7 +1166,7 @@ def verify_live(engine, step, say):
     if engine.dry:
         say("dry run: would read every published copy back")
         return {"status": "done", "note": "dry run", "dry": True}
-    sums = dict((l.split()[1], l.split()[0]) for l in open(os.path.join(run.files, "SHA256SUMS")))
+    sums = dict((l.split()[1], l.split()[0]) for l in pathlib.Path(os.path.join(run.files, "SHA256SUMS")).read_text().splitlines(True))
     problems = []
     if info.get("target") == "scratch":
         tgt = scratch_dir(engine)
@@ -1183,8 +1184,8 @@ def verify_live(engine, step, say):
             problems.append("page/index.html missing")
     else:
         src = info["src"]
-        old = tomllib.load(open(os.path.join(src, "app/tool/config/old-update.toml"), "rb"))["old_update"]
-        new = tomllib.load(open(os.path.join(src, "app/assets/config/app-config.toml"), "rb"))["updates"]
+        old = tomllib.loads(pathlib.Path(os.path.join(src, "app/tool/config/old-update.toml")).read_text(encoding="utf-8"))["old_update"]
+        new = tomllib.loads(pathlib.Path(os.path.join(src, "app/assets/config/app-config.toml")).read_text(encoding="utf-8"))["updates"]
         for base in (old["downloads"], new["downloads"]):
             try:
                 served = fetch(base.rstrip("/") + "/SHA256SUMS").decode()
@@ -1201,7 +1202,7 @@ def verify_live(engine, step, say):
         if info["scope"]["publish"]["manifests"]:
             import hashlib
             for name, url in (("update.json", old["manifest"]), ("update-v2.json", new["manifests"][0])):
-                want = hashlib.sha256(open(os.path.join(run.path, "manifests", name), "rb").read()).hexdigest()
+                want = hashlib.sha256(pathlib.Path(os.path.join(run.path, "manifests", name)).read_bytes()).hexdigest()
                 try:
                     got = hashlib.sha256(fetch(url)).hexdigest()
                 except Exception as e:
@@ -1236,7 +1237,7 @@ def scratch_downloads(engine, step, say):
     tgt = os.path.join(scratch_dir(engine), "downloads")
     os.makedirs(tgt, exist_ok=True)
     from .engine import place, sha256_file
-    names = [l.split()[1] for l in open(os.path.join(engine.run.files, "SHA256SUMS"))]
+    names = [l.split()[1] for l in pathlib.Path(os.path.join(engine.run.files, "SHA256SUMS")).read_text().splitlines(True)]
     for n in names:
         place(os.path.join(engine.run.files, n), os.path.join(tgt, n))
     with open(os.path.join(tgt, "SHA256SUMS"), "w") as f:

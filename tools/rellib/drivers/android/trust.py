@@ -22,6 +22,7 @@ carried-over checks (NOT_CARRIED) are not applicable and not required.
 Secrets (the phrase, the PIN) live in mode-600 files in REL_TRUST_STATE (default
 ~/.config/btlabs/rel-trust-android); they are never printed, logged or screenshotted.
 """
+import pathlib
 import json, os, re, secrets, socket, subprocess, sys, time, traceback, urllib.request
 from decimal import Decimal, InvalidOperation
 
@@ -150,7 +151,7 @@ def read_secret(name):
     p = _secret_path(name)
     if not os.path.exists(p):
         return None
-    return open(p).read().strip() or None
+    return pathlib.Path(p).read_text().strip() or None
 
 
 def write_secret(name, value):

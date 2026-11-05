@@ -4,6 +4,7 @@ fake model: a two-turn way past a screen; an invalid answer and a refused action
 no destructive press and no typing into a secret field; a secret screen never reaches the model;
 a path that worked is stored and replayed without the model, and a replay that fails falls back to
 the model, counts a fail and is rejected after two; the playbook loads with its version."""
+import pathlib
 import json
 import os
 import sqlite3

@@ -14,6 +14,7 @@ app for about 15 s and returns nothing, so it is never called; text fields have 
 fields are found by their order on the screen. Refuses to run unless DISPLAY and HOME are the
 sandbox's.
 """
+import pathlib
 import os
 import re
 import subprocess
@@ -27,7 +28,7 @@ SB = os.path.abspath(os.environ.get("TRUST_SB", "") or ".")
 APP_NAMES = ("uk.btlabs.epiccash.desktop", "btwallet", "com.blacktyger.epicwallet", "epic_wallet")
 
 try:
-    for _l in open(os.path.join(SB, "env")):
+    for _l in pathlib.Path(os.path.join(SB, "env")).read_text().splitlines(True):
         _k, _v = _l.rstrip("\n").split("=", 1)
         os.environ[_k] = _v
 except FileNotFoundError:

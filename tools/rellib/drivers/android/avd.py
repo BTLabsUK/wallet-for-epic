@@ -1,5 +1,6 @@
 """The Android trust lane's AVD (wfe_trust_<variant>): made on first use, and what making one needs.
 No imports beyond the standard library: tools/rel preflight loads it to check a lane's inputs."""
+import pathlib
 import os
 import subprocess
 
@@ -40,7 +41,7 @@ def create_avd(name):
     cfg = os.path.join(AVD_HOME, name + ".avd", "config.ini")
     if r.returncode != 0 or not os.path.isfile(cfg):
         return "avdmanager exit %d: %s" % (r.returncode, (r.stderr or r.stdout).strip()[-300:])
-    lines = [l for l in open(cfg).read().splitlines() if l.split("=", 1)[0] not in AVD_HW]
+    lines = [l for l in pathlib.Path(cfg).read_text().splitlines() if l.split("=", 1)[0] not in AVD_HW]
     lines += ["%s=%s" % kv for kv in AVD_HW.items()]
     with open(cfg, "w") as f:
         f.write("\n".join(lines) + "\n")

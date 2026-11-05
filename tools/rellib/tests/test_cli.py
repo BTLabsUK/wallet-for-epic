@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 """The command line: exit codes and --json for agents, plan without side effects, refusals."""
+import pathlib
 import io
 import json
 import os
@@ -78,7 +79,7 @@ class CliTest(Base):
         self.assertEqual(code, 64)
         self.assertIn("needs scope", out + err)
         run.set_status("scope", status="done")
-        open(os.path.join(self.src, "fail-notor"), "w").close()
+        pathlib.Path(os.path.join(self.src, "fail-notor")).touch()
         lanes = ["build-android-notor", "build-android-tor", "build-linux-tor", "trust-linux-tor"]
         code, out, err = rel(*args, *lanes, "--keep-going")
         self.assertEqual(code, 64)  # trust-linux-tor also needs build-linux-notor, outside the selection
@@ -101,7 +102,7 @@ class CliTest(Base):
             f.write(FAKE_PIPELINE)
         run = self.make_run(only="android,linux", sets=["publish.manifests=false"])
         run.set_status("scope", status="done")
-        open(os.path.join(self.src, "fail-notor"), "w").close()
+        pathlib.Path(os.path.join(self.src, "fail-notor")).touch()
         code, out, err = rel(*self.common(), "--pipeline", pipe, "resume", "--run", run.info["version"], "--keep-going")
         self.assertEqual(code, 20, out + err)
         run = type(run).find(self.root, run.info["version"])

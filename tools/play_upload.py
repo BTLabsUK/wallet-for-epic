@@ -10,6 +10,7 @@ used"), so this is how a release moves from internal testing to the open beta. S
 service account in the key file (OAuth JWT bearer, RS256), so it needs only the standard library
 and `cryptography`. The key is read, never printed.
 """
+import pathlib
 import argparse
 import base64
 import json
@@ -31,7 +32,7 @@ def b64(data: bytes) -> str:
 
 
 def token(key_file: str) -> str:
-    sa = json.load(open(key_file))
+    sa = json.loads(pathlib.Path(key_file).read_text())
     now = int(time.time())
     head = b64(json.dumps({'alg': 'RS256', 'typ': 'JWT'}).encode())
     claims = b64(json.dumps({'iss': sa['client_email'], 'scope': SCOPE, 'aud': sa['token_uri'],
@@ -92,7 +93,7 @@ def main():
         print(f'bundle uploaded: versionCode {code}, sha256 {up.get("sha256", "?")}')
     release = {'name': a.name, 'versionCodes': [str(code)], 'status': 'completed'}
     if a.notes_file:
-        release['releaseNotes'] = [{'language': a.lang, 'text': open(a.notes_file).read().strip()}]
+        release['releaseNotes'] = [{'language': a.lang, 'text': pathlib.Path(a.notes_file).read_text().strip()}]
     call(tok, 'PUT', f'{base}/{edit}/tracks/{a.track}', {'track': a.track, 'releases': [release]})
     print(f'track {a.track}: release "{a.name}" ({code}), completed')
     if a.validate:

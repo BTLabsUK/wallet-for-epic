@@ -1,5 +1,6 @@
 """G1 names a G4 lane's missing previous-release file before the run starts (26.10.26 run-4 found
 it after signing)."""
+import pathlib
 import os
 import tempfile
 import unittest
@@ -16,7 +17,7 @@ class PreviousInputTest(unittest.TestCase):
         self.prev = {"version": "26.10.25", "dir": os.path.join(self.root, "files"), "extra": os.path.join(self.root, "extra")}
 
     def touch(self, rel):
-        open(os.path.join(self.root, rel), "w").close()
+        pathlib.Path(os.path.join(self.root, rel)).touch()
 
     def test_android_apk_in_extra(self):
         self.touch("extra/emulator/bt-wallet-26.10.25-android-x86_64.apk")

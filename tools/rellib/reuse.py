@@ -17,6 +17,7 @@ writes in /tmp/epic-build/green/ after tools/t's full and full-notor passes, the
 included). A candidate none of these covers runs G2 first in its run. A changed key runs the step. Dry runs
 never reuse.
 """
+import pathlib
 import glob
 import hashlib
 import json
@@ -134,8 +135,8 @@ def find_source(repo, root, info, step, paths, nightly=None, green=None, this_ru
         if this_run and os.path.realpath(run_dir) == os.path.realpath(this_run):
             continue
         try:
-            st = json.load(open(st_path))
-            other = json.load(open(os.path.join(run_dir, "run.json")))
+            st = json.loads(pathlib.Path(st_path).read_text())
+            other = json.loads(pathlib.Path(os.path.join(run_dir, "run.json")).read_text())
         except (OSError, ValueError):
             continue
         if st.get("status") != "done" or st.get("dry") or other.get("dry") or other.get("version") != info["version"]:
@@ -156,7 +157,7 @@ def find_source(repo, root, info, step, paths, nightly=None, green=None, this_ru
         for lj in sorted(glob.glob(os.path.join(os.path.expanduser(nightly), "runs", "*", "result.json")), reverse=True) + \
                 [os.path.join(os.path.expanduser(nightly), "latest.json")]:
             try:
-                n = json.load(open(lj))
+                n = json.loads(pathlib.Path(lj).read_text())
             except (OSError, ValueError):
                 continue
             if n.get("status") != "green" or n.get("exit") != 0 or "--full" not in n.get("command", ""):

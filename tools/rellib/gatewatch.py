@@ -11,6 +11,7 @@ One watcher per gate question (a lock file in the run folder). It stops on a hol
 question, a tainted, superseded, ended or published run, or after [gate] watch_hours. A relay
 error is not an answer: it keeps watching, less often. Its log: <run>/gatewatch.log.
 REL_GATEWATCH set to anything starts none (the watcher sets it for its own tools/rel calls)."""
+import pathlib
 import fcntl
 import os
 import random
@@ -82,7 +83,7 @@ def alive(run, gname, gid):
     """Is a watcher on this gate question running? Read from the pid in its lock file, without
     taking the lock (a watcher starting at that moment would find it taken)."""
     try:
-        pid = int(open(lock_path(run, gname, gid)).read().split()[0])
+        pid = int(pathlib.Path(lock_path(run, gname, gid)).read_text().split()[0])
     except (OSError, ValueError, IndexError):
         return False
     try:

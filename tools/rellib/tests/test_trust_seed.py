@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 """The update-trust seed (drivers/seed.py) changes only the seeded values, in the release's own format."""
+import pathlib
 import glob
 import json
 import os
@@ -23,7 +24,7 @@ class SeedTest(unittest.TestCase):
         self.assertTrue(fixtures)
         for path in fixtures:
             with self.subTest(os.path.basename(path)):
-                text = open(path).read().strip()
+                text = pathlib.Path(path).read_text().strip()
                 out = seed.desk_settings(text, "light", True)
                 # nothing to change gives back the release's own text, byte for byte
                 tech = "technicalDetails" in json.loads(text)["advanced"]["features"]
@@ -46,7 +47,7 @@ class SeedTest(unittest.TestCase):
         self.assertEqual(seed.fixture_for("26.10.24-r2")[1], "26.10.24")  # its own, from the release's deskSettingsToJson
         self.assertEqual(seed.fixture_for("26.10.23.1")[1], "26.10.23")
         self.assertIsNone(seed.fixture_for("26.9.1"))
-        template = open(path).read().strip()
+        template = pathlib.Path(path).read_text().strip()
         out = json.loads(seed.desk_settings('{"tourSeen":false,"advanced":{"nodeFailover":false}}', "dark", True, template))
         self.assertEqual(list(out), list(json.loads(template)))
         self.assertEqual((out["theme"], out["tourSeen"], out["advanced"]["nodeFailover"]), ("dark", False, False))

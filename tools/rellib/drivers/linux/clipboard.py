@@ -7,6 +7,7 @@ another app on that display reads it, and set there for the app's Paste.
 
 Only on the sandbox's display (sandbox.guard refuses anything else). The driver calls read(sb),
 write(sb, text) and clear(sb); nothing it reads is logged here."""
+import pathlib
 import os
 import subprocess
 import sys
@@ -49,7 +50,7 @@ def write(sb, text):
 def stop(sb):
     pidf = os.path.join(sb, "clipboard.pid")
     try:
-        pid = int(open(pidf).read().strip())
+        pid = int(pathlib.Path(pidf).read_text().strip())
         os.unlink(pidf)
         os.kill(pid, 15)
     except (OSError, ValueError):

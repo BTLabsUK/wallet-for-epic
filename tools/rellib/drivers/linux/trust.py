@@ -14,6 +14,7 @@ REL_VIA_DIR + REL_VIA_VERSION: the user ran a release in between (26.10.23 -> 26
 candidate, #143). That release only opens the wallet and is read once (digest-via.json); the
 candidate is compared with what the previous release showed.
 """
+import pathlib
 import datetime
 import glob
 import decimal
@@ -311,7 +312,7 @@ class Run:
         self.pass_depth_dial()
         ui.click("re:^Create a new wallet")
         ui.wait("re:^Create wallet$", 30)
-        pw = open(os.path.join(self.sb, "wallet.pw")).read()
+        pw = pathlib.Path(os.path.join(self.sb, "wallet.pw")).read_text()
         pws = [f for f in ui.fields() if "password" in f.role]
         if len(pws) < 2:
             raise CannotRun("create: %d password fields" % len(pws))
@@ -412,7 +413,7 @@ class Run:
     def unlock(self):
         ui = self.ui
         ui.wait("re:^Unlock wallet$", 120)
-        pw = open(os.path.join(self.sb, "wallet.pw")).read()
+        pw = pathlib.Path(os.path.join(self.sb, "wallet.pw")).read_text()
         if not [f for f in ui.fields() if "password" in f.role]:
             raise CannotRun("unlock: no password field")
         ui.fill(0, pw)
@@ -880,7 +881,7 @@ class Run:
             self.shot("send-review")
             pw_fields = [i for i, f in enumerate(ui.fields()) if "password" in f.role]
             if pw_fields:
-                ui.fill(pw_fields[0], open(os.path.join(self.sb, "wallet.pw")).read())
+                ui.fill(pw_fields[0], pathlib.Path(os.path.join(self.sb, "wallet.pw")).read_text())
                 time.sleep(0.5)
             ui.click(re.compile(r"^Send [\d.,]+\sEPIC$"), role="button", timeout=20)
             ui.wait("re:Check and send", 300, gone=True)
