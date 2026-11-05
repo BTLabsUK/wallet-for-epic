@@ -18,7 +18,8 @@ enum NameServiceError {
   expired,
   forOther,
   bind,
-  serviceKey;
+  // The member is named as the spec and the vectors name it: `dkey` (the service key).
+  dkey;
 
   /// The name in the spec and the vectors.
   String get wireName => this == forOther ? 'for_other' : name;

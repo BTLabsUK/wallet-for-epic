@@ -131,7 +131,7 @@ Future<NameServicePayload> verifyPayload(
     case ListingPayload():
       _cardNetwork(payload.card, net);
       await _cardSignature(payload.card, verifier);
-      if (serviceKey == null || !_same(payload.card.serviceKey, serviceKey)) _fail(NameServiceError.serviceKey);
+      if (serviceKey == null || !_same(payload.card.serviceKey, serviceKey)) _fail(NameServiceError.dkey);
     case UnlistPayload():
       final key = parseListingAddress(payload.address)!;
       if (payload.net != net || key.net != net) _fail(NameServiceError.network);
