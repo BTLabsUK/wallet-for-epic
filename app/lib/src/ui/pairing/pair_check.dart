@@ -274,7 +274,7 @@ class _CheckWordsScreenState extends ConsumerState<CheckWordsScreen> {
           label: name,
           kind: record.kind,
           serviceKey: serviceKey,
-          noPayments: helloEntry!.noPayments,
+          noPayments: ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: record.id),
           busy: _busy,
           onMatch: () => _answer(PairingCheck.match),
           onNoMatch: _noMatch,

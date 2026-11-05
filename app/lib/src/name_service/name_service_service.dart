@@ -24,7 +24,6 @@ import 'name_service_model.dart';
 import 'name_service_store.dart';
 import 'membership.dart';
 import 'receipts.dart' show NameServiceReceipts;
-import 'payment_refusals.dart';
 import 'verify.dart';
 import 'wire.dart';
 
@@ -112,7 +111,7 @@ class SessionNameServiceHost implements NameServiceHost {
 /// The net byte of a chain.
 int netOfChain(Chain chain) => chain == Chain.mainnet ? netMainnet : netFloonet;
 
-class NameService implements NameServiceMembership, PaymentRefusals, NameServiceReceipts {
+class NameService implements NameServiceMembership, NameServiceReceipts {
   NameService({
     required NameServiceHost host,
     required NameServiceStore store,
@@ -139,15 +138,10 @@ class NameService implements NameServiceMembership, PaymentRefusals, NameService
   bool _loaded = false;
   bool _disposed = false;
   final StreamController<void> _changes = StreamController<void>.broadcast();
-  final StreamController<NameServiceEntry> _lateNoPayments = StreamController<NameServiceEntry>.broadcast();
 
   NameServiceBook get book => _book;
   bool get loaded => _loaded;
   Stream<void> get changes => _changes.stream;
-
-  /// A hello that arrived after the words step was over said the contact takes no payments:
-  /// the entry, once per contact (the flag is set when this fires). The screens show one notice.
-  Stream<NameServiceEntry> get lateNoPayments => _lateNoPayments.stream;
 
   /// The name service of the pairing [pairingId] the user compared the code of, or null.
   NameServiceEntry? verifiedFor(String pairingId) {
@@ -172,17 +166,6 @@ class NameService implements NameServiceMembership, PaymentRefusals, NameService
     if (address == null) return null;
     return parseListingAddress(address)?.keyText;
   }
-
-  // Payment refusals, for the contact and Send screens.
-
-  @override
-  bool refusesPayments({String? pairingId, String? address}) {
-    return BookRefusals(_book).refusesPayments(pairingId: pairingId, address: address);
-  }
-
-  @override
-  String? refusedName({String? pairingId, String? address}) =>
-      BookRefusals(_book).refusedName(pairingId: pairingId, address: address);
 
   // Receipts, for a payment made from a link.
 
@@ -236,7 +219,6 @@ class NameService implements NameServiceMembership, PaymentRefusals, NameService
     _pollTimer?.cancel();
     _pollTimer = null;
     _changes.close();
-    _lateNoPayments.close();
   }
 
   // Reading.
@@ -322,7 +304,7 @@ class NameService implements NameServiceMembership, PaymentRefusals, NameService
     final serviceKey = toHex(hello.serviceKey);
     final known = _book.byPairing(rec.id);
     // A name service this contact is already verified for: only a valid hello with a greater `issued`
-    // can change its flags.
+    // can change its label.
     if (rec.state == PairingState.verified && known != null && known.pinned) {
       final bind = sasIndexesOf(rec.sas);
       if (bind != null) {
@@ -334,7 +316,7 @@ class NameService implements NameServiceMembership, PaymentRefusals, NameService
             logDebug('name service', 'hello not newer (${hello.issued} <= $last): ignored');
           } else {
             await _put(
-              _book.put(known.copyWith(noPayments: hello.takesNoPayments, payAs: () => hello.label, issued: hello.issued)),
+              _book.put(known.copyWith(payAs: () => hello.label, issued: hello.issued)),
             );
           }
         } on NameServiceException {
@@ -365,16 +347,11 @@ class NameService implements NameServiceMembership, PaymentRefusals, NameService
       handle: toHex(hello.handle),
       label: _labelOf(rec),
       pinned: existing != null && existing.pairingId == rec.id && existing.pinned,
-      noPayments: hello.takesNoPayments,
       payAs: () => hello.label,
       issued: hello.issued,
       paymentsKey: () => _keyOf(rec.paymentsAddress),
     );
     await _put(_book.put(next));
-    // A late hello: no words step of this session was waiting for it or showing its code.
-    final step = _steps[rec.id];
-    final late = step == null || step == HelloStep.words;
-    if (late && next.noPayments && !(known?.noPayments ?? false) && !_lateNoPayments.isClosed) _lateNoPayments.add(next);
     return true;
   }
 

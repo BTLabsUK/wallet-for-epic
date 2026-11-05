@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
-/// What the screens may ask about contacts that take no payments (a name service hello flag, see
-/// docs/design/name-service-wire.md), without knowing the name service service. Each app overrides
-/// [paymentRefusalsProvider] with its open wallet's service.
+/// What the screens may ask about contacts that take no payments (the profile word of a paired
+/// contact's card, see docs/design/peer-profile.md), without knowing where the pairings come
+/// from. Each app overrides [paymentRefusalsProvider] with [PairingRefusals] over its pairings.
 library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models.dart' show epicboxKey;
-import 'name_service_model.dart';
+import '../models.dart' show PairingRecord, epicboxKey;
+import '../trust/policy.dart' show profileNoPayments, statedNoPayments;
 
 abstract class PaymentRefusals {
   /// Whether the contact of [pairingId], or the contact with the Epicbox [address] (matched on
@@ -30,25 +30,29 @@ class NoPaymentRefusals implements PaymentRefusals {
   String? refusedName({String? pairingId, String? address}) => null;
 }
 
-/// The refusals the flags in a [NameServiceBook] say. A new one per book, so a screen that
-/// watches the provider rebuilds when a flag changes.
-class BookRefusals implements PaymentRefusals {
-  const BookRefusals(this.book);
+/// The refusals the pairings say: a contact whose card's profile word has
+/// [profileNoPayments] set. A new one per list of records, so a screen that watches the
+/// provider rebuilds when a card changes.
+class PairingRefusals implements PaymentRefusals {
+  const PairingRefusals(this.pairings);
 
-  final NameServiceBook book;
+  final List<PairingRecord> pairings;
 
   @override
   bool refusesPayments({String? pairingId, String? address}) => _refusing(pairingId, address) != null;
 
   @override
-  String? refusedName({String? pairingId, String? address}) => _refusing(pairingId, address)?.label;
+  String? refusedName({String? pairingId, String? address}) => _refusing(pairingId, address)?.shownName;
 
-  NameServiceEntry? _refusing(String? pairingId, String? address) {
-    final byPairing = pairingId == null ? null : book.byPairing(pairingId);
-    if (byPairing != null && byPairing.noPayments) return byPairing;
+  PairingRecord? _refusing(String? pairingId, String? address) {
+    final refusing = pairings.where((p) => statedNoPayments(p.peerProfile));
+    if (pairingId != null) {
+      final byPairing = refusing.where((p) => p.id == pairingId).firstOrNull;
+      if (byPairing != null) return byPairing;
+    }
     if (address == null || address.trim().isEmpty) return null;
     final key = epicboxKey(address);
-    return book.entries.values.where((e) => e.noPayments && e.paymentsKey == key).firstOrNull;
+    return refusing.where((p) => p.paymentsAddress != null && epicboxKey(p.paymentsAddress!) == key).firstOrNull;
   }
 }
 

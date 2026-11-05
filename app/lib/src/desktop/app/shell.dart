@@ -19,7 +19,6 @@ import '../../ui/pairing/pairing_notices.dart' show pairingEventOnScreen, pairin
 import '../../models.dart' show PairingCollectTrigger, PairingEventKind;
 import '../data/devices_state.dart' show deskDeviceServiceProvider;
 import '../data/name_service_state.dart' show deskNameServiceProvider;
-import '../../name_service/name_service_model.dart' show NameServiceEntry;
 import '../../name_service/name_service_service.dart' show NameServiceSyncTrigger;
 import '../../devices/device_service.dart' show DeviceSyncTrigger;
 import '../data/pairing_state.dart' show deskContactKeysOf, deskPairingCall, deskInvoicesShownProvider, deskKeysBackProvider, deskPairRequestsProvider, deskPairingApiProvider, deskPairingEventsProvider, deskPairsProvider;
@@ -201,13 +200,6 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     });
     _collectTimer = Timer.periodic(const Duration(seconds: 45), (_) => _collect(PairingCollectTrigger.foreground));
     _maybeTour();
-    // A hello that comes after the words step: the contact takes no payments, said once.
-    ref.listenManual(deskNameServiceProvider, (_, next) {
-      _lateSub?.cancel();
-      _lateSub = next?.lateNoPayments.listen((e) {
-        if (mounted) showEToast(context, context.l10n.contactNoPaymentsNamed(e.label), tone: ETone.info);
-      });
-    }, fireImmediately: true);
     // Update checks from the first unlock on, for the rest of the run (once).
     if (ref.read(deskUpdateAutoProvider)) ref.read(deskUpdateProvider.notifier).schedule();
     // The clipboard is never read here: a pairing link is pasted on the Pair page by a press.
@@ -223,7 +215,6 @@ class _DeskShellState extends ConsumerState<DeskShell> {
   }
 
   AppLifecycleListener? _focus;
-  StreamSubscription<NameServiceEntry>? _lateSub;
 
   /// The hidden Settings place last answered with a fallback toast (once per place).
   DeskLocation? _fellBack;
@@ -312,7 +303,6 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     _linkRetry?.cancel();
     _collectTimer?.cancel();
     _focus?.dispose();
-    _lateSub?.cancel();
     _settingsFocus.dispose();
     super.dispose();
   }

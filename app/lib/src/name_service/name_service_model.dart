@@ -55,7 +55,6 @@ class NameServiceEntry {
     this.joinedAt,
     this.address,
     this.retired = const [],
-    this.noPayments = false,
     this.paymentsKey,
     this.payAs,
     this.issued,
@@ -86,9 +85,6 @@ class NameServiceEntry {
   /// The listing address of [generation].
   final String? address;
   final List<RetiredListing> retired;
-
-  /// The last valid hello said this contact takes no payments.
-  final bool noPayments;
 
   /// The key part of the contact's Epicbox address (the pairing's proven one), kept so the
   /// address can be matched without reading the pairing. Null when the contact sent none.
@@ -122,7 +118,6 @@ class NameServiceEntry {
     DateTime? Function()? joinedAt,
     String? Function()? address,
     List<RetiredListing>? retired,
-    bool? noPayments,
     String? Function()? paymentsKey,
     String? Function()? payAs,
     BigInt? issued,
@@ -139,7 +134,6 @@ class NameServiceEntry {
     joinedAt: joinedAt == null ? this.joinedAt : joinedAt(),
     address: address == null ? this.address : address(),
     retired: retired ?? this.retired,
-    noPayments: noPayments ?? this.noPayments,
     paymentsKey: paymentsKey == null ? this.paymentsKey : paymentsKey(),
     payAs: payAs == null ? this.payAs : payAs(),
     issued: issued ?? this.issued,
@@ -165,7 +159,6 @@ class NameServiceEntry {
     'joinedAt': joinedAt?.millisecondsSinceEpoch,
     'address': address,
     'retired': [for (final r in retired) r.toJson()],
-    'noPayments': noPayments,
     'paymentsKey': paymentsKey,
     'payAs': payAs,
     'issued': issued?.toString(),
@@ -186,7 +179,6 @@ class NameServiceEntry {
       joinedAt: j['joinedAt'] is num ? DateTime.fromMillisecondsSinceEpoch((j['joinedAt'] as num).toInt()) : null,
       address: j['address'] as String?,
       retired: [for (final r in (j['retired'] as List? ?? const [])) ?RetiredListing.fromJson(r)],
-      noPayments: j['noPayments'] == true,
       paymentsKey: j['paymentsKey'] as String?,
       payAs: j['payAs'] as String?,
       issued: BigInt.tryParse('${j['issued']}'),

@@ -1356,7 +1356,7 @@ class _CheckDialogState extends ConsumerState<_CheckDialog> {
         return DeskNameServiceCodeCheck(
           label: name,
           serviceKey: serviceKey,
-          noPayments: helloEntry!.noPayments,
+          noPayments: ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: r.id),
           busy: _busy,
           onLater: () => Navigator.pop(context),
           onMatch: () => _answer(PairingCheck.match),

@@ -2,6 +2,7 @@
 // Name service pairing on the fakes: the hello and the Check the code step, Join and Leave, the
 // name service's unlisted, and the payload routing between the devices and the name service services.
 
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
@@ -169,69 +170,60 @@ void main() {
   group('contacts that take no payments', () {
     const address = 'esYeBkJwAuhPNdWBVhu6tk3nvgBfAi3FPfvkAefqGJtV5JFYGfJZ@epicbox.example.com';
 
-    test('the hello flag is stored; lookups answer by pairing and by address', () async {
+    test('the card profile refuses by pairing and by address; a hello changes nothing', () async {
       final rig = _Rig();
       await rig.service.load();
-      final r = rig.api.seedPaired(name: 'Shop', state: PairingState.paired, peerFeatures: _nameServiceBits, paymentsAddress: address);
       rig.api.clock = rig.clock.call;
-      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, flags: nsHelloNoPayments);
-      await rig.service.beginHello(r.id);
-      await rig.service.readPayloads();
-      expect(rig.service.book.byPairing(r.id)?.noPayments, isTrue);
-      expect(rig.service.refusesPayments(pairingId: r.id), isTrue);
-      expect(rig.service.refusesPayments(address: address), isTrue);
-      expect(rig.service.refusesPayments(address: address.replaceFirst('epicbox.example.com', 'other.example.org')), isTrue,
-          reason: 'the key part matches, as the contact screens do');
-      expect(rig.service.refusesPayments(pairingId: 'nobody', address: 'esOther@epicbox.example.com'), isFalse);
-      expect(rig.service.refusesPayments(), isFalse);
-      // Kept in the app's own file and read back.
-      final again = NameService(
-        host: SessionNameServiceHost(rig.session, net: netMainnet, verifier: rig.verifier.call, online: () => true),
-        store: NameServiceStore(rig.store, chain: Chain.mainnet, walletId: 'w1'),
+      final r = rig.api.seedPaired(
+        name: 'Shop',
+        state: PairingState.paired,
+        peerFeatures: _nameServiceBits,
+        peerProfile: profileNoPayments,
+        paymentsAddress: address,
       );
-      await again.load();
-      expect(again.refusesPayments(address: address), isTrue);
-    });
-
-    test('a hello without the flag takes payments; an old file without it reads as false', () async {
-      final rig = _Rig();
-      await rig.service.load();
-      final r = rig.paired();
+      final other = rig.api.seedPaired(name: 'Anna', paymentsAddress: 'esOther@epicbox.example.com', peerProfile: profileAutomated);
       rig.api.nameServiceHello(r.id, serviceKey: _serviceKey);
       await rig.service.beginHello(r.id);
       await rig.service.readPayloads();
-      expect(rig.service.refusesPayments(pairingId: r.id), isFalse);
-      final old = NameServiceEntry.fromJson({'dkey': _serviceKeyHex, 'pairing': 'p', 'handle': '00'});
-      expect(old?.noPayments, isFalse);
+      final refusals = PairingRefusals(await rig.api.pairings());
+      expect(refusals.refusesPayments(pairingId: r.id), isTrue);
+      expect(refusals.refusedName(pairingId: r.id), 'Shop');
+      expect(refusals.refusesPayments(address: address), isTrue);
+      expect(refusals.refusesPayments(address: address.replaceFirst('epicbox.example.com', 'other.example.org')), isTrue,
+          reason: 'the key part matches, as the contact screens do');
+      expect(refusals.refusesPayments(pairingId: other.id, address: 'esOther@epicbox.example.com'), isFalse);
+      expect(refusals.refusesPayments(), isFalse);
     });
 
-    test('a later valid hello updates the flag', () async {
+    test('a book saved with the old noPayments value still loads, and the value is ignored', () async {
       final rig = _Rig();
-      final r = await rig.verified();
-      expect(rig.service.refusesPayments(pairingId: r.id), isFalse);
-      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, flags: nsHelloNoPayments, issued: 2);
-      await rig.service.readPayloads();
-      expect(rig.service.refusesPayments(pairingId: r.id), isTrue);
-      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, issued: 3);
-      await rig.service.readPayloads();
-      expect(rig.service.refusesPayments(pairingId: r.id), isFalse);
+      final old = {
+        'v': 1,
+        'entries': [
+          {'dkey': _serviceKeyHex, 'pairing': 'p1', 'handle': '00', 'label': 'Shop', 'pinned': true, 'noPayments': true, 'payAs': '@alice_test'},
+        ],
+      };
+      await rig.store.write(NameServiceStore.keyFor(Chain.mainnet, 'w1'), jsonEncode(old));
+      await rig.service.load();
+      final e = rig.service.book.byPairing('p1');
+      expect(e?.pinned, isTrue);
+      expect(e?.payAs, '@alice_test');
+      expect(e!.toJson().containsKey('noPayments'), isFalse);
     });
 
     test('a replayed older hello, or one with the same issued, changes nothing', () async {
       final rig = _Rig();
       final r = await rig.verified();
-      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, flags: nsHelloNoPayments, label: '@alice_test', issued: 5);
+      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, label: '@alice_test', issued: 5);
       await rig.service.readPayloads();
-      expect(rig.service.refusesPayments(pairingId: r.id), isTrue);
-      // The older hello (issued 1 from verified(), then 4) does not revert the flag or the name.
+      expect(rig.service.book.byPairing(r.id)?.payAs, '@alice_test');
+      // The older hello (issued 1 from verified(), then 4) does not revert the name.
       rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, issued: 4);
       await rig.service.readPayloads();
-      expect(rig.service.refusesPayments(pairingId: r.id), isTrue);
       expect(rig.service.book.byPairing(r.id)?.payAs, '@alice_test');
       // The same issued with other content is ignored too.
       rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, label: '@bob', issued: 5);
       await rig.service.readPayloads();
-      expect(rig.service.refusesPayments(pairingId: r.id), isTrue);
       expect(rig.service.book.byPairing(r.id)?.payAs, '@alice_test');
       expect(rig.service.book.byPairing(r.id)?.issued, BigInt.from(5));
     });

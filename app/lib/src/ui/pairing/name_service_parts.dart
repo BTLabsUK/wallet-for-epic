@@ -52,7 +52,7 @@ Future<bool> showNameServiceJoinSheet(BuildContext context, WidgetRef ref, {requ
     isScrollControlled: true,
     useSafeArea: true,
     showDragHandle: true,
-    builder: (_) => _JoinSheet(serviceKey: serviceKey, label: label, host: host, name: entry?.payAsArg ?? 'none', noPayments: entry?.noPayments ?? false),
+    builder: (_) => _JoinSheet(serviceKey: serviceKey, label: label, host: host, name: entry?.payAsArg ?? 'none', noPayments: ref.read(paymentRefusalsProvider).refusesPayments(pairingId: entry?.pairingId)),
   );
   return joined ?? false;
 }

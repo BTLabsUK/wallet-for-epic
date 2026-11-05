@@ -12,7 +12,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../amount.dart';
 import '../../connection_grace.dart';
 import '../../contacts.dart';
-import '../../name_service/name_service_model.dart' show NameServiceEntry;
 import '../../name_service/name_service_service.dart' show NameServiceSyncTrigger;
 import '../../name_service/phone_name_service.dart' show nameServiceProvider;
 import '../../l10n.dart';
@@ -117,7 +116,6 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
   /// The foreground tick of RFC 8.4: the mailboxes of contacts with something pending.
   static const _tick = Duration(seconds: 45);
   Timer? _timer;
-  StreamSubscription<NameServiceEntry>? _lateSub;
 
   void _collect(PairingCollectTrigger trigger) {
     final api = ref.read(pairingApiProvider);
@@ -158,7 +156,6 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     WidgetsBinding.instance.removeObserver(this);
     unregisterInviteHandler(InviteKind.pair, _pairInvite);
     _timer?.cancel();
-    _lateSub?.cancel();
     super.dispose();
   }
 
@@ -178,14 +175,6 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     });
     // A contact whose keys came back docks the notice on its page, whenever that opens.
     ref.listenManual(keysBackProvider, (_, _) {});
-    // A hello that comes after the words step: the contact takes no payments, said once.
-    ref.listenManual(nameServiceProvider, (_, next) {
-      _lateSub?.cancel();
-      _lateSub = next?.lateNoPayments.listen((e) {
-        if (!mounted) return;
-        ref.read(noticeProvider.notifier).show(context.l10n.contactNoPaymentsNamed(e.label), level: NoticeLevel.info);
-      });
-    }, fireImmediately: true);
   }
 
   Future<void> _show(PairingEvent e) async {
