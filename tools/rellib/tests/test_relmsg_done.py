@@ -183,12 +183,16 @@ class RelmsgDoneTest(Base):
                 if ends:
                     self.assertIn("done failed", self.dones()[0])
 
-    def test_resume_of_a_run_that_ended_failed_may_end_again_but_aborted_stays_ended(self):
+    def test_resume_of_a_run_that_ended_failed_opens_a_new_relay_release(self):
+        # The relay refuses gates on a finished release, failed included.
         run = self.finished(30)
         rm = Relmsg(Run(run.path), {"bin": self.fake})
         self.assertEqual(rm.ended, "failed")
         rm.reopen()
         self.assertIsNone(rm.ended)
+        self.assertIsNone(rm.release_id)
+        rm.start(["scope"], [])
+        self.assertIn(f"--run-id {run.info['run_id']}+1", self.starts()[-1])
         self.assertTrue(rm.done("ok"))
         rm.reopen()
         self.assertEqual(rm.ended, "ok")

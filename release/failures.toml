@@ -216,3 +216,9 @@ hint = "A name did not resolve (seen once: pypi.org while uv built the bot in G2
 id = "gh-no-attestation"
 pattern = "cannot verify build attestations|gh attestation verify: exit 1"
 hint = "The first gh on PATH is too old for `gh attestation` (Ubuntu's /usr/bin/gh 2.46; it needs 2.49 or newer). Run tools/rel with ~/.local/bin (gh 2.63) first on PATH, check `gh attestation verify --help`, then `tools/rel retry <step>`."
+
+[[failure]]
+id = "relmsg-release-finished"
+steps = ["publish-gate"]
+pattern = "this release has finished; no new gates"
+hint = "The relay release was ended (failed or aborted) earlier in this run. `tools/rel resume` opens a new relay release (run id +N) and asks for the gate there; if run.json has no relmsg \"ended\", record the relay's end there first."

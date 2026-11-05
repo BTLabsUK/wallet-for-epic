@@ -33,14 +33,12 @@ class Relmsg:
         return (self.run.info.get("relmsg") or {}).get("ended")
 
     def reopen(self):
-        """A run that ended failed is resumed: it may end again. A run that was stopped (aborted, not
-        superseded) is resumed under a new relay release, since the relay keeps a finished release
-        and its gates closed; the next start opens it. An ok end, or a superseded run, is final."""
+        """A run that ended failed or was stopped (aborted, not superseded) is resumed under a new relay
+        release, since the relay keeps a finished release and its gates closed ("HTTP 409: this
+        release has finished; no new gates", 26.11.2 run-3); the next start opens it. An ok end, or a
+        superseded run, is final."""
         rm = self.run.info.get("relmsg") or {}
-        if rm.get("ended") == "failed":
-            rm.pop("ended")
-            self.run.save_info()
-        elif rm.get("ended") == "aborted" and not rm.get("superseded_by") and rm.get("release_id") is not None:
+        if rm.get("ended") in ("failed", "aborted") and not rm.get("superseded_by") and rm.get("release_id") is not None:
             rm.setdefault("previous", []).append(rm.pop("release_id"))
             rm.pop("ended")
             self.run.save_info()
