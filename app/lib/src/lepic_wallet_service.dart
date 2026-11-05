@@ -3469,16 +3469,16 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
 
   @override
   Future<String> listingAddress(String serviceKeyHex, int generation) =>
-      _guard(() => _wallet.epicboxAddressAt(dkey: serviceKeyHex, generation: generation));
+      _guard(() => _wallet.epicboxAddressAt(serviceKey: serviceKeyHex, generation: generation));
 
   @override
   Future<Uint8List> signWithListing(String serviceKeyHex, int generation, String domain, Uint8List message) =>
-      _guard(() async => fromHex(await _wallet.signWithAddressKeyAt(dkey: serviceKeyHex, generation: generation, domain: domain, message: message)));
+      _guard(() async => fromHex(await _wallet.signWithAddressKeyAt(serviceKey: serviceKeyHex, generation: generation, domain: domain, message: message)));
 
   @override
   Future<PaymentsDrainReport> drainListing(String serviceKeyHex, int generation) => _epicboxGuard('listing drain', () async {
     _watchEvents();
-    final report = await _wallet.drainEpicboxAt(dkey: serviceKeyHex, generation: generation);
+    final report = await _wallet.drainEpicboxAt(serviceKey: serviceKeyHex, generation: generation);
     await _sweep();
     return PaymentsDrainReport(received: report.received, finalized: report.finalized, bounced: report.bounced);
   });
