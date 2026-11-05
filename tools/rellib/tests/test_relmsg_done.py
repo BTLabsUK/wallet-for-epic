@@ -22,7 +22,7 @@ class DyingEngine:
     def __init__(self, relmsg, signum=signal.SIGTERM):
         self.relmsg, self.signum = relmsg, signum
 
-    def drive(self, sel):
+    def drive(self, sel, stop_on_fail=True):
         raise Interrupted(self.signum)
 
     def input_hash(self, step):
