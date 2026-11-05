@@ -188,7 +188,9 @@ variants = ["tor"]
 android = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rellib/drivers/trust-android.sh"
 linux = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rellib/drivers/trust-linux.sh"
 windows = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rellib/drivers/trust-windows.sh"
-# macos, ios: no driver yet; those platforms are not proven until one exists.
+# ios: an iPhone Simulator on a Mac over ssh (trust-ios.sh; REL_IOS_SSH, default bob-mac), notor only.
+ios = "bash {rel}/tools/rellib/hermetic/up.sh || [ $? -eq 1 ]; {rel}/tools/rellib/drivers/trust-ios.sh"
+# macos: no driver yet; it is not proven until one exists.
 
 # ---- hosted builds ---------------------------------------------------------------------------
 # `tools/rel start --builds hosted`: build-android, build-linux and build-windows (the steps with a

@@ -33,6 +33,7 @@ class Run:
         self.done_time = {}  # test id -> ms
         self.success = None
         self.other = []  # lines that were not events (compile output, crashes)
+        self.aborted = None  # {file, message, count} when tools/t stopped the run (tlib/watch.py)
 
     def rel(self, path):
         if not path:

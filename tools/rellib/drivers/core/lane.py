@@ -375,7 +375,7 @@ class Lane:
         if address:
             record.emit("wallet.address", name=self._wallet()[0], role=self._wallet()[1], kind="epicbox", address=address)
         self.details["address"] = address[:8] + "…" + address[-6:] if address else None
-        if hasattr(self.ui, "contacts"):   # the phone's Home › Contacts entry (26.11.3)
+        if hasattr(self.ui, "contacts"):   # Home › Contacts on the phone, Settings › Contacts on desktop (26.11.3)
             self.run_phase("contacts", self.ui.contacts)
         self.run_phase("fund", lambda: self.checks_mod.fund_before(self, address))
         before = self.run_phase("digest-before", lambda: self.p.digest("previous", self.secrets))
@@ -540,11 +540,11 @@ class Lane:
         want = os.environ.get("REL_TRUST_START") or "auto"
         if want not in ("auto", "seed", "state", "fresh"):
             raise HarnessFault("start", "REL_TRUST_START=%s: not auto, seed, state or fresh" % want)
-        seed = ls.LaneSeed(ls.lane_name(self.p.name, self.p.variant))
-        if want == "seed" or (want == "auto" and seed.exists()):
-            if not seed.exists():
-                raise HarnessFault("start", "REL_TRUST_START=seed but lane %s has no seed in %s (lane_seed.py init %s)" % (
-                    seed.lane, seed.dir, seed.lane))
+        lane = ls.lane_name(self.p.name, self.p.variant)
+        seed = ls.LaneSeed(lane) if lane in ls.LANES else None   # a platform with no lane seeds yet (iOS)
+        if want == "seed" or (want == "auto" and seed and seed.exists()):
+            if not seed or not seed.exists():
+                raise HarnessFault("start", "REL_TRUST_START=seed but lane %s has no seed (lane_seed.py init %s)" % (lane, lane))
             self._seed_mode(seed)
             return None
         saved = st.pick(self.p.name, self.p.variant, os.environ.get("REL_PREVIOUS_VERSION"),

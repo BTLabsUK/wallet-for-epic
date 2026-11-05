@@ -259,9 +259,8 @@ def trust_lanes_of(s, pipe):
     """[(platform, variant)] of every G4 lane in scope: platform with a driver, not waived; proof variant."""
     from .graph import variants_for
     drivers = pipe.proof.get("drivers", {})
-    variants = variants_for({"for_each": "proof_variant"}, s, pipe)
     return [(plat, v) for plat in PLATFORMS if s["platforms"].get(plat) and plat not in s["proof"]["waive"] and plat in drivers
-            for v in variants]
+            for v in variants_for(dict(pipe.steps.get(f"trust-{plat}", {}), for_each="proof_variant"), s, pipe)]
 
 
 def lane_inputs(engine, prev, ok, bad, by_platform=None):

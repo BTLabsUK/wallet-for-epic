@@ -14,6 +14,10 @@ A file that passed with the same inputs (tools/tlib/cache.py) is not run again: 
 left to run it prints `cached green (<key>)`. Results: a short summary on stdout (failures first,
 each `file:line` and the start of its message) and .test-results/latest.json with every failure.
 Exit status: 0 green, 1 red, 2 usage or infrastructure error.
+
+Before a run it checks that app/third_party's clones are at their pins (tools/lepic.sh sync moves
+them). While it runs it prints a progress line every 30 s, and it stops the run when 3 files
+failed to load (WFE_T_FAILFAST=N; 0 never stops): the compiler died or the code does not compile.
 """
 import argparse
 import contextlib
@@ -25,6 +29,7 @@ import shutil
 import signal
 import subprocess
 import sys
+import threading
 import time
 
 TOOLS = os.path.dirname(os.path.abspath(__file__))
@@ -32,7 +37,7 @@ ROOT = os.path.dirname(TOOLS)
 sys.path.insert(0, TOOLS)
 
 import flutter_test_order as order  # noqa: E402
-from tlib import cache, graph as g, history, report, select, variants  # noqa: E402
+from tlib import cache, graph as g, history, report, select, variants, watch  # noqa: E402
 
 APP = os.path.join(ROOT, "app")
 RESULTS = os.path.join(ROOT, ".test-results")
@@ -153,6 +158,10 @@ def prepare(env):
                            stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
         if r.returncode:
             raise Infra("tools/lepic.sh sync failed:\n" + r.stderr[-2000:])
+    stale = watch.stale_pins(ROOT)
+    if stale:
+        # A clone behind its pin fails every file to load ("The Dart compiler exited unexpectedly")
+        raise Infra("\n".join(stale))
     lib = lepic_library()
     if sys.platform.startswith("linux") and not os.path.exists(lib):
         # The binding's build hook needs the library to compile any test. From the prebuilt cache
@@ -195,7 +204,9 @@ def jobs(n_files, wanted):
 def run_flutter(files, env, args, name_filter, update_goldens, run=None, events_name="latest.events.jsonl",
                 jobs_cap=None):
     """Runs flutter test on app-relative `files`; returns (Run, rc, seconds, queue seconds).
-    With `run`, its events are added to that Run (a retry, ids shifted) and written to `events_name`."""
+    With `run`, its events are added to that Run (a retry, ids shifted) and written to `events_name`.
+    Prints a progress line every watch.PROGRESS_S seconds. When watch.failfast_threshold() files
+    have failed to load, stops flutter and sets run.aborted to the first one's (file, message)."""
     events_path = os.path.join(RESULTS, events_name)
     cmd = ["flutter", "test", "--no-pub", "--reporter", "json",
            f"--concurrency={min(jobs(len(files), args.jobs), jobs_cap or 1 << 30)}"]
@@ -209,10 +220,18 @@ def run_flutter(files, env, args, name_filter, update_goldens, run=None, events_
     wrapped = [*([] if args.no_heavy else heavy(env)),
                "sh", "-c", f'echo {START_MARK}; exec "$@"', "sh", *cmd]
     run = run or report.Run(APP)
+    w = watch.Watch(len(files), watch.failfast_threshold())
     t0 = time.time()
     started = None
     proc = subprocess.Popen(wrapped, cwd=APP, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                             text=True, errors="replace", start_new_session=True)
+    stop = threading.Event()
+
+    def progress():
+        while not stop.wait(watch.PROGRESS_S):
+            print(w.line(time.time() - (started or t0)), flush=True)
+
+    threading.Thread(target=progress, daemon=True).start()
     try:
         with open(events_path, "w", encoding="utf-8") as ev:
             for line in proc.stdout:
@@ -221,13 +240,19 @@ def run_flutter(files, env, args, name_filter, update_goldens, run=None, events_
                     continue
                 if line.startswith("{"):
                     ev.write(line)
+                    with contextlib.suppress(ValueError):
+                        e = json.loads(line)
+                        if isinstance(e, dict) and w.feed(e):
+                            run.aborted = {"file": w.load_failures[0][0], "message": w.load_failures[0][1],
+                                           "count": len(w.load_failures)}
+                            stop_group(proc)
                 run.feed_line(line)
         rc = proc.wait()
     except KeyboardInterrupt:
-        with contextlib.suppress(ProcessLookupError):
-            os.killpg(proc.pid, signal.SIGTERM)
-        proc.wait()
+        stop_group(proc)
         raise
+    finally:
+        stop.set()
     end = time.time()
     started = started or t0
     try:
@@ -235,6 +260,18 @@ def run_flutter(files, env, args, name_filter, update_goldens, run=None, events_
     except (OSError, ValueError):
         print("tools/t: could not keep this run's file times", file=sys.stderr)
     return run, rc, end - started, started - t0
+
+
+def stop_group(proc):
+    """SIGTERM to flutter's process group, SIGKILL when it is still there 10 s later."""
+    with contextlib.suppress(ProcessLookupError):
+        os.killpg(proc.pid, signal.SIGTERM)
+    try:
+        proc.wait(timeout=10)
+    except subprocess.TimeoutExpired:
+        with contextlib.suppress(ProcessLookupError):
+            os.killpg(proc.pid, signal.SIGKILL)
+        proc.wait()
 
 
 MAX_RETRY_FILES = 20
@@ -253,7 +290,7 @@ def retry_infra(run, rc, ordered, outcomes, env, args, name_filter, update_golde
     `--concurrency`), and replaces their results in `run`. Returns (retried {file: reason}, second
     outcomes {file: outcome}, rc of the retry or None)."""
     infra = sorted(f for f, o in outcomes.items() if o["result"] == "infra")
-    if not infra or len(infra) > MAX_RETRY_FILES:
+    if run.aborted or not infra or len(infra) > MAX_RETRY_FILES:
         return {}, {}, None
     retried = {f: outcomes[f]["reason"] for f in infra}
     print("tools/t: infrastructure failure, retrying once: " +
@@ -276,6 +313,10 @@ def write_latest(data, tag=""):
 def execute(mode, tests, gr, args, extra=(), name_filter=None, update_goldens=False, tag=""):
     """Runs the repo-relative `tests` with the cache; prints the summary; returns the exit code.
     `tag` (".notor") names the result files of a second pass: latest<tag>.json, latest<tag>.events.jsonl."""
+    try:
+        watch.failfast_threshold()
+    except ValueError as e:
+        raise Usage(str(e)) from None
     env = toolchain_env()
     flutter_root = env.get("FLUTTER_ROOT", os.path.expanduser("~/flutter"))
     files = select.repo_files(ROOT)
@@ -303,10 +344,15 @@ def execute(mode, tests, gr, args, extra=(), name_filter=None, update_goldens=Fa
 
     prepare(env)
     ordered = order.order([rel_app(t) for t in to_run], order.read_times(TIMES))
+    print(f"tools/t {mode}: {len(ordered)} files to run, {len(cached)} cached; "
+          f"events: .test-results/latest{tag}.events.jsonl", flush=True)
     run, rc, seconds, queue = run_flutter(ordered, env, args, name_filter, update_goldens,
                                         events_name=f"latest{tag}.events.jsonl")
     started_at = time.time() - seconds - queue
     outcomes = run.file_outcomes(ordered, rc)
+    if run.aborted:
+        # the files stopped part-way are not results: keep them out of the history
+        outcomes = {f: o for f, o in outcomes.items() if o["result"] != "infra"}
     first_outcomes = dict(outcomes)
     retried, second, rc2 = ({}, {}, None) if update_goldens else retry_infra(
         run, rc, ordered, outcomes, env, args, name_filter, update_goldens, tag)
@@ -320,7 +366,13 @@ def execute(mode, tests, gr, args, extra=(), name_filter=None, update_goldens=Fa
     counts = run.counts()
     failures = run.failures()
     history.append(history_records(mode, started_at, keys, first_outcomes, second, retried))
-    if rc == 79 and not failures:
+    if run.aborted:
+        status, code = "aborted", 2
+        failures.insert(0, {"file": run.rel(run.aborted["file"]), "line": None,
+                            "name": f"run aborted: {run.aborted['count']} files failed to load",
+                            "message": "\n".join(run.aborted["message"].splitlines()[:report.MESSAGE_LINES]),
+                            "fix": None})
+    elif rc == 79 and not failures:
         # flutter test's "No tests were found": a name that matches nothing, or browser-only files
         status, code = "error", 2
         run.other.append("no test ran: the name matches no test, or the file runs only in a browser "
@@ -346,7 +398,13 @@ def execute(mode, tests, gr, args, extra=(), name_filter=None, update_goldens=Fa
     head = (f"tools/t {mode}: {status.upper()}  {counts['passed']} passed, {counts['skipped']} skipped, "
             f"{counts['failed']} failed; {len(to_run)} files run, {len(cached)} cached; "
             f"{report.clock(seconds)} (queue {round(queue)}s)")
-    if status == "error":
+    if status == "aborted":
+        lines = [head, *extra,
+                 f"tools/t: run aborted as a systematic failure: {run.aborted['count']} files failed to load "
+                 f"(WFE_T_FAILFAST={watch.failfast_threshold()}; 0 never stops). The first, "
+                 f"{run.rel(run.aborted['file'])}:"]
+        lines.extend("    " + x[:200] for x in run.aborted["message"].splitlines()[:8])
+    elif status == "error":
         lines = [head, *extra, f"flutter test exited {rc} before any test ran; its last lines:"]
         lines.extend("    " + x[:200] for x in run.other[-12:])
     else:
@@ -441,6 +499,8 @@ def cmd_full(args):
     gr = g.Graph(ROOT, files)
     use_lepic_library()
     code = execute("full", gr.tests(), gr, args)
+    if code == 2:
+        return code  # aborted or an infrastructure error: the second pass would meet the same
     if args.dart_define and any(d.startswith("WFE_TOR=") for d in args.dart_define):
         return code  # the caller chose the variant: one pass
     notor = variants.notor_tests(ROOT, files)
