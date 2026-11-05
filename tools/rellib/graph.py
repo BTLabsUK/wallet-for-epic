@@ -82,8 +82,9 @@ def variants_for(spec, scope, pipeline):
     if fe == "variant":
         return [v for v in VARIANTS if scope["variants"].get(v) and v in only]
     if fe == "proof_variant":
-        allowed = pipeline.proof.get("variants", list(VARIANTS))
-        return [v for v in VARIANTS if scope["variants"].get(v) and v in allowed and v in only]
+        # [proof] variants are the tested builds; a step's own list replaces them (iOS has only notor).
+        allowed = spec.get("variants") or pipeline.proof.get("variants", list(VARIANTS))
+        return [v for v in VARIANTS if scope["variants"].get(v) and v in allowed]
     raise ConfigError(f"for_each {fe!r}: variant or proof_variant")
 
 
