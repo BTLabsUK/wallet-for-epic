@@ -467,6 +467,22 @@ class EvidenceTest(Base):
         self.assertIn("approved rc-manifest", evidence.publish_refusal(run))
         self.assertEqual([sid for sid, _ in evidence.stale_proofs(eng, evidence.read_manifest(run))], ["trust-android-tor"])
 
+    def test_a_proof_is_about_the_builds_it_waited_for(self):
+        run, eng = self.built()
+        evidence.write_manifest(eng)
+        m = evidence.read_manifest(run)
+        notor = list(run.status("build-linux-notor")["outputs"])
+        self.assertTrue(notor)
+        st = run.status("trust-linux-tor")
+        # As trust-windows-notor beside build-windows-tor: started before the other variant's build ended.
+        run.set_status("trust-linux-tor", tested={**st["tested"], **{n: None for n in notor}})
+        self.assertEqual([sid for sid, _ in evidence.stale_proofs(eng, m)], ["trust-linux-tor"])
+        step = run.step("trust-linux-tor")
+        step.needs = [n for n in step.needs if n != "build-linux-notor"]
+        self.assertFalse(set(notor) & set(eng.platform_files(step)))
+        self.assertIn("bt-wallet-26.10.25-linux-x86_64.AppImage", eng.platform_files(step))
+        self.assertEqual(evidence.stale_proofs(eng, m), [])
+
     def test_a_run_never_published_lists_only_the_builds_that_ran(self):
         run, eng = self.built()
         st = run.status("build-linux-notor")

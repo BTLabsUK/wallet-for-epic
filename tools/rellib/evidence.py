@@ -85,7 +85,10 @@ def stale_proofs(engine, manifest):
         st = engine.run.status(s.id)
         if st.get("status") != "done" or st.get("dry") or st.get("tested") is None:
             continue
+        about = engine.platform_files(s)  # a file of a build the proof never waited for is not its business
         for name, sha in st["tested"].items():
+            if name not in about:
+                continue
             want = (manifest["files"].get(name) or {}).get("sha256")
             if sha != want:
                 out.append((s.id, f"{name} tested as {str(sha)[:12]}, the release has {str(want)[:12]}"))

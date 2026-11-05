@@ -173,10 +173,11 @@ class Engine:
         return hashlib.sha256(json.dumps(parts, sort_keys=True).encode()).hexdigest()[:24]
 
     def platform_files(self, step):
-        """{name: path} of the release files a proof step tests: what its platform's builds made."""
+        """{name: path} of the release files a proof step tests: what its platform's builds made, of
+        the builds it waits for (trust-windows-notor never waits for, nor tests, the tor Setup)."""
         out = {}
-        for s in self.run.steps:
-            if self.is_build(s) and set(s.platforms) & set(step.platforms):
+        for s in self.build_closure(step):
+            if set(s.platforms) & set(step.platforms):
                 for o in s.outputs:
                     out[os.path.basename(o)] = os.path.join(self.run.files, os.path.basename(o))
                 for e in s.extras:
