@@ -562,7 +562,7 @@ class DeviceService {
 
   /// The payloads of [list] that belong to this service: those of a linked device, a device
   /// being removed, the link under way, or any other private pairing. A payload of a contact
-  /// pairing is the directory's (`directory/directory_service.dart`): it stays with the engine
+  /// pairing is the name service's (`name_service/name_service_service.dart`): it stays with the engine
   /// for that service to read and acknowledge.
   Future<List<PairingPayload>> _ownPayloads(List<PairingPayload> list) async {
     bool known(String pairingId) =>

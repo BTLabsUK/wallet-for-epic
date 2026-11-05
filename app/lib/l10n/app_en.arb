@@ -995,6 +995,10 @@
   "@txDetailsLinkCopied": {
     "description": "Notice after the block explorer link was copied."
   },
+  "txDetailsExplorerBehind": "The explorer has not reached this block yet.",
+  "@txDetailsExplorerBehind": {
+    "description": "Said after the explorer link was copied, when the block explorer's own record does not have the payment's block yet (its indexer lags the chain)."
+  },
   "txDetailsTechnical": "Technical details",
   "@txDetailsTechnical": {
     "description": "Heading of a collapsed section with the payment's block height, IDs and commitments."
@@ -15729,10 +15733,6 @@
   "@deskSetupStepEpicbox": {
     "description": "Setup step in the side panel's step list (the Epicbox server for receiving), and a section head on the last step. Epicbox is a product name: keep it."
   },
-  "deskSetupStepReview": "Review",
-  "@deskSetupStepReview": {
-    "description": "Setup's last step in the side panel's step list: check everything, then save. One word."
-  },
   "deskSetupAgain": "Running setup again. Nothing changes until Save on the last step.",
   "@deskSetupAgain": {
     "description": "Lead under each step's title when setup is opened again from Settings. 'Save' is the button on the last step (deskSetupSave)."
@@ -15760,14 +15760,6 @@
   "deskSetupEpicboxTitle": "Epicbox",
   "@deskSetupEpicboxTitle": {
     "description": "Title of the setup step about the Epicbox server (address for getting paid)."
-  },
-  "deskSetupReviewTitle": "Review settings",
-  "@deskSetupReviewTitle": {
-    "description": "Title of the setup's last step: a summary of the choices."
-  },
-  "deskSetupReviewLead": "Change anything that is not right, then save.",
-  "@deskSetupReviewLead": {
-    "description": "Lead under the title of the setup's last step."
   },
   "deskSetupSideTitle": "Set up",
   "@deskSetupSideTitle": {
@@ -15813,37 +15805,9 @@
   "@deskSetupEpicboxText": {
     "description": "First paragraph of the setup's Epicbox step."
   },
-  "deskSetupEpicboxPrivacy": "The Epicbox server sees this computer’s IP address.",
-  "@deskSetupEpicboxPrivacy": {
-    "description": "Second paragraph of the setup's Epicbox step: a privacy note."
-  },
   "deskSetupEpicboxServer": "Epicbox server",
   "@deskSetupEpicboxServer": {
     "description": "Label of the Epicbox server field on the setup's Epicbox step."
-  },
-  "deskSetupChangePrefsSem": "Change preferences",
-  "@deskSetupChangePrefsSem": {
-    "description": "Screen reader label of the Change link next to the Preferences section on the setup's summary."
-  },
-  "deskSetupChangeNodeSem": "Change node",
-  "@deskSetupChangeNodeSem": {
-    "description": "Screen reader label of the Change link next to the Node section on the setup's summary."
-  },
-  "deskSetupChangeEpicboxSem": "Change Epicbox",
-  "@deskSetupChangeEpicboxSem": {
-    "description": "Screen reader label of the Change link next to the Epicbox section on the setup's summary."
-  },
-  "deskSetupChange": "Change",
-  "@deskSetupChange": {
-    "description": "Link next to a section on the setup's summary: go back to that step."
-  },
-  "deskSetupType": "Type",
-  "@deskSetupType": {
-    "description": "Row label on the setup's summary: what kind of node. Narrow label column."
-  },
-  "deskSetupAddress": "Address",
-  "@deskSetupAddress": {
-    "description": "Row label on the setup's summary: the node's address. Narrow label column."
   },
   "deskSetupExistingNode": "Existing node at {host}",
   "@deskSetupExistingNode": {
@@ -15854,22 +15818,6 @@
         "example": "127.0.0.1:<port>"
       }
     }
-  },
-  "deskSetupBundledNode": "Local node",
-  "@deskSetupBundledNode": {
-    "description": "Node type on the setup's summary: the Epic node that comes with the app, run on this computer."
-  },
-  "deskSetupWhileSyncing": "While syncing",
-  "@deskSetupWhileSyncing": {
-    "description": "Row label on the setup's summary: which node the wallet uses while the local node syncs. Narrow label column."
-  },
-  "deskSetupWait": "wait",
-  "@deskSetupWait": {
-    "description": "Value of the While syncing row when the wallet waits for the local node instead of using a public one. Lower case, one word."
-  },
-  "deskSetupDataFolder": "Data folder",
-  "@deskSetupDataFolder": {
-    "description": "Row label on the setup's summary: where the local node keeps the chain. Narrow label column."
   },
   "deskSetupSaveStartsFallback": "Save starts the node; {node} stands in until it is synced.",
   "@deskSetupSaveStartsFallback": {
@@ -15884,14 +15832,6 @@
   "deskSetupSaveStarts": "Save starts the node. The first sync takes hours; the wallet opens meanwhile.",
   "@deskSetupSaveStarts": {
     "description": "Note under the Node section of the setup's summary when the local node is chosen and the wallet waits for it."
-  },
-  "deskSetupServer": "Server",
-  "@deskSetupServer": {
-    "description": "Row label on the setup's summary: the Epicbox server. Narrow label column."
-  },
-  "deskSetupOff": "Off",
-  "@deskSetupOff": {
-    "description": "Value of the Epicbox server row when no server is set: receiving through Epicbox is off."
   },
   "deskSetAboutLicencesLead": "Open-source software in this wallet, each under its own licence.",
   "@deskSetAboutLicencesLead": {
@@ -25036,10 +24976,6 @@
       }
     }
   },
-  "deskSetupExistingNodeType": "Existing node",
-  "@deskSetupExistingNodeType": {
-    "description": "Node type on the setup's summary: an Epic node already running on this computer. Its host:port is on the Address row below."
-  },
   "deskLvPayOnEpicbox": "On Epicbox",
   "@deskLvPayOnEpicbox": {
     "description": "Payment steps: sub-line under the current step 'Recipient signed' of a send over Epicbox: the payment waits on the Epicbox server for the recipient's wallet. The server's host is in the tooltip. Short."
@@ -25141,7 +25077,7 @@
   },
   "receiptTellSent": "Tell {name} it’s sent",
   "@receiptTellSent": {
-    "description": "Unticked line on a payment made from a payment link: tell the directory's payee the payment was sent.",
+    "description": "Unticked line on a payment made from a payment link: tell the name service's payee the payment was sent.",
     "placeholders": {
       "name": {}
     }
@@ -27524,7 +27460,7 @@
   "@linkPayAgain": {
     "description": "Button that opens Send for a payment link already paid."
   },
-  "linkTrustListed": "{name} · via {directory}",
+  "linkTrustListed": "{name} · via {service}",
   "@linkTrustListed": {
     "description": "Trust line on Send: the payee's name and the service this wallet is paired with (its contact name) that the link comes from.",
     "placeholders": {
@@ -27532,29 +27468,29 @@
         "type": "String",
         "example": "@alice"
       },
-      "directory": {
+      "service": {
         "type": "String",
-        "example": "Directory"
+        "example": "Name service"
       }
     }
   },
-  "linkTrustListedBy": "Via {directory}",
+  "linkTrustListedBy": "Via {service}",
   "@linkTrustListedBy": {
     "description": "Trust line on Send when the link has no name.",
     "placeholders": {
-      "directory": {
+      "service": {
         "type": "String",
-        "example": "Directory"
+        "example": "Name service"
       }
     }
   },
-  "linkTrustDirectory": "From a service you paired with",
-  "@linkTrustDirectory": {
-    "description": "Trust line on Send for a directory this wallet uses that has no label."
+  "linkTrustNameService": "From a service you paired with",
+  "@linkTrustNameService": {
+    "description": "Trust line on Send for a name service this wallet uses that has no label."
   },
   "linkTrustOther": "Not from a service you paired with",
   "@linkTrustOther": {
-    "description": "Trust line on Send for a payment link from any other directory."
+    "description": "Trust line on Send for a payment link from any other name service."
   },
   "linkTrustChanged": "{name} now gets paid to a different wallet than when you paid on {date}. Pay only if they told you.",
   "@linkTrustChanged": {
@@ -27602,21 +27538,21 @@
   "@linkChangedConfirmTitle": {
     "description": "Title of the extra confirm before sending to a listing that changed wallet."
   },
-  "dirWaitingFor": "Waiting for {label}…",
-  "@dirWaitingFor": {
-    "description": "Static line on the Check step while a directory’s message is awaited (no spinner). {label} is the name the pairing shows.",
+  "nsWaitingFor": "Waiting for {label}…",
+  "@nsWaitingFor": {
+    "description": "Static line on the Check step while a name service’s message is awaited (no spinner). {label} is the name the pairing shows.",
     "placeholders": {
       "label": {
         "type": "String"
       }
     }
   },
-  "dirCodeTitle": "Check the code",
-  "@dirCodeTitle": {
-    "description": "Title of the step that replaces Check the words for a directory pairing."
+  "nsCodeTitle": "Check the code",
+  "@nsCodeTitle": {
+    "description": "Title of the step that replaces Check the words for a name service pairing."
   },
-  "dirCodeLead": "{label} shows four pictures. Compare them with these.",
-  "@dirCodeLead": {
+  "nsCodeLead": "{label} shows four pictures. Compare them with these.",
+  "@nsCodeLead": {
     "description": "Lead of Check the code: the four pictures below must equal the ones the other side shows.",
     "placeholders": {
       "label": {
@@ -27624,12 +27560,12 @@
       }
     }
   },
-  "dirCodeLabel": "The four pictures",
-  "@dirCodeLabel": {
+  "nsCodeLabel": "The four pictures",
+  "@nsCodeLabel": {
     "description": "Read by a screen reader before the four pictures of a code."
   },
-  "dirJoin": "{name, select, none{Pay me via {label}} other{Pay me as {name}}}",
-  "@dirJoin": {
+  "nsJoin": "{name, select, none{Pay me via {label}} other{Pay me as {name}}}",
+  "@nsJoin": {
     "description": "Button on the Join sheet and the contact page: the user takes a payment name at this service. {name} is the user's @name from the service's hello, or the word none when it sent none; {label} is the contact name.",
     "placeholders": {
       "name": {
@@ -27640,12 +27576,12 @@
       }
     }
   },
-  "dirNotNow": "Not now",
-  "@dirNotNow": {
+  "nsNotNow": "Not now",
+  "@nsNotNow": {
     "description": "Button on the Join sheet: leaves the contact verified, with Join on its page."
   },
-  "dirJoinTitle": "{name, select, none{Pay me via {label}?} other{Pay me as {name}?}}",
-  "@dirJoinTitle": {
+  "nsJoinTitle": "{name, select, none{Pay me via {label}?} other{Pay me as {name}?}}",
+  "@nsJoinTitle": {
     "description": "Title of the Join sheet. {name} is the user's @name, or the word none; {label} is the contact name.",
     "placeholders": {
       "name": {
@@ -27656,8 +27592,8 @@
       }
     }
   },
-  "dirJoinBody": "{name, select, none{People who use {label} can pay you there. Payments come through {host}} other{People who use {label} can pay you as {name}. Payments come through {host}}}",
-  "@dirJoinBody": {
+  "nsJoinBody": "{name, select, none{People who use {label} can pay you there. Payments come through {host}} other{People who use {label} can pay you as {name}. Payments come through {host}}}",
+  "@nsJoinBody": {
     "description": "Body of the Join sheet. {name} is the user's @name, or the word none; {label} is the contact name; {host} is the host of the wallet’s own Epicbox server.",
     "placeholders": {
       "name": {
@@ -27671,8 +27607,8 @@
       }
     }
   },
-  "dirJoinInfo": "{label} gets one payment address and one code, both made only for it. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Leave any time in Contacts › {label}.",
-  "@dirJoinInfo": {
+  "nsJoinInfo": "{label} gets one payment address and one code, both made only for it. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Leave any time in Contacts › {label}.",
+  "@nsJoinInfo": {
     "description": "Explanation behind the info button on the Join sheet.",
     "placeholders": {
       "label": {
@@ -27680,8 +27616,8 @@
       }
     }
   },
-  "dirJoinedNotice": "{name, select, none{Pay me via {label}: on} other{Pay me as {name}: on}}",
-  "@dirJoinedNotice": {
+  "nsJoinedNotice": "{name, select, none{Pay me via {label}: on} other{Pay me as {name}: on}}",
+  "@nsJoinedNotice": {
     "description": "Notice after Join worked. {name} is the user's @name, or the word none; {label} is the contact name.",
     "placeholders": {
       "name": {
@@ -27692,8 +27628,8 @@
       }
     }
   },
-  "dirLeftNotice": "{name, select, none{Pay me via {label}: off} other{Pay me as {name}: off}}",
-  "@dirLeftNotice": {
+  "nsLeftNotice": "{name, select, none{Pay me via {label}: off} other{Pay me as {name}: off}}",
+  "@nsLeftNotice": {
     "description": "Notice after Leave worked. {name} is the user's @name, or the word none; {label} is the contact name.",
     "placeholders": {
       "name": {
@@ -27704,8 +27640,8 @@
       }
     }
   },
-  "dirJoined": "{name, select, none{Pay me via {label} · since {date}} other{Pay me as {name} · since {date}}}",
-  "@dirJoined": {
+  "nsJoined": "{name, select, none{Pay me via {label} · since {date}} other{Pay me as {name} · since {date}}}",
+  "@nsJoined": {
     "description": "Status line on the contact page of a service the user joined. {name} is the user's @name, or the word none; {label} is the contact name; {date} is a short date.",
     "placeholders": {
       "name": {
@@ -27719,12 +27655,12 @@
       }
     }
   },
-  "dirNotListed": "Off",
-  "@dirNotListed": {
-    "description": "Status line on the contact page of a directory that no longer lists the user."
+  "nsNotListed": "Off",
+  "@nsNotListed": {
+    "description": "Status line on the contact page of a name service that no longer lists the user."
   },
-  "dirNotListedBody": "{label} removed your name.",
-  "@dirNotListedBody": {
+  "nsNotListedBody": "{label} removed your name.",
+  "@nsNotListedBody": {
     "description": "Line under Not listed.",
     "placeholders": {
       "label": {
@@ -27732,20 +27668,20 @@
       }
     }
   },
-  "dirNotJoined": "Off",
-  "@dirNotJoined": {
-    "description": "Status line on the contact page of a verified directory the user has not joined."
+  "nsNotJoined": "Off",
+  "@nsNotJoined": {
+    "description": "Status line on the contact page of a verified name service the user has not joined."
   },
-  "dirJoinAgain": "Turn on again",
-  "@dirJoinAgain": {
-    "description": "Button on the contact page of a directory that no longer lists the user, or one the user left."
+  "nsJoinAgain": "Turn on again",
+  "@nsJoinAgain": {
+    "description": "Button on the contact page of a name service that no longer lists the user, or one the user left."
   },
-  "dirListingCode": "Pictures for your name",
-  "@dirListingCode": {
-    "description": "Label of the four pictures of the user’s listing on the contact page of a directory."
+  "nsListingCode": "Pictures for your name",
+  "@nsListingCode": {
+    "description": "Label of the four pictures of the user’s listing on the contact page of a name service."
   },
-  "dirListingCodeInfo": "Four pictures made from the wallet your name pays. {label} can show the same four to compare.",
-  "@dirListingCodeInfo": {
+  "nsListingCodeInfo": "Four pictures made from the wallet your name pays. {label} can show the same four to compare.",
+  "@nsListingCodeInfo": {
     "description": "Explanation behind the info button of the listing code. {label} is the name the pairing shows.",
     "placeholders": {
       "label": {
@@ -27753,16 +27689,26 @@
       }
     }
   },
-  "dirLeave": "Leave",
-  "@dirLeave": {
+  "nsLeave": "Leave",
+  "@nsLeave": {
     "description": "Button on the contact page of a joined service: takes the user's name down (opens the confirm)."
   },
-  "dirRemoveTooTitle": "Remove {label} too?",
-  "@dirRemoveTooTitle": {
+  "nsRemoveTooTitle": "Remove {label} too?",
+  "@nsRemoveTooTitle": {
     "description": "Title of the question after Leave: also end the pairing.",
     "placeholders": {
       "label": {
         "type": "String"
+      }
+    }
+  },
+  "deskSendErrOwnNamed": "This is “{wallet}”, the wallet open now. To pay it, open another wallet first.",
+  "@deskSendErrOwnNamed": {
+    "description": "Error under the To field on Send when the recipient is the wallet open now. {wallet} is its name in the wallet list. The app’s other wallets can be paid; only the open one cannot.",
+    "placeholders": {
+      "wallet": {
+        "type": "String",
+        "example": "local 2"
       }
     }
   }

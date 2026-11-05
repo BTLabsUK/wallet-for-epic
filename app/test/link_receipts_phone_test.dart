@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
-// A payment made from a link, on the phone: the optional receipt line (hidden when the directory
+// A payment made from a link, on the phone: the optional receipt line (hidden when the name service
 // cannot be told, one post per stage, stage 2 after finalize, nothing again on a reopen) and the
 // silent-payee rows at 0 hours, 24 hours and 7 days (Cancel and send by Epicbox: the cancel, then
 // Send with the amount and the payee's saved address).
 
-import 'package:epic_wallet/src/directory/directory.dart';
-import 'package:epic_wallet/src/history/directory_pins.dart';
+import 'package:epic_wallet/src/name_service/name_service.dart';
+import 'package:epic_wallet/src/history/name_service_pins.dart';
 import 'package:epic_wallet/src/history/meta_store.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/pairing_providers.dart';
@@ -24,7 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'directory_vectors_support.dart';
+import 'name_service_vectors_support.dart';
 import 'support/fake_receipts.dart';
 import 'support/experimental.dart';
 
@@ -69,9 +69,9 @@ class _Harness {
   _Harness({bool tell = true, String? label = 'Corner Shop'}) : receipts = FakeReceipts(tell: tell, label: label) {
     final meta = Meta()..recordLinkPayment(_req, _at(_ago(const Duration(hours: 1))), txId: 'pay-1');
     final r = meta.linkPayments['pay-1']!;
-    // The link itself names no one: the name is the directory's, or none.
+    // The link itself names no one: the name is the name service's, or none.
     records = MemoryLinkPayments({
-      'pay-1': LinkPaymentRec(reqid: r.reqid, dkey: r.dkey, amount: r.amount, address: r.address, paidAt: r.paidAt),
+      'pay-1': LinkPaymentRec(reqid: r.reqid, serviceKey: r.serviceKey, amount: r.amount, address: r.address, paidAt: r.paidAt),
     });
   }
 
@@ -140,7 +140,7 @@ class _Harness {
           clockProvider.overrideWithValue(() => _now),
           pairNetProvider.overrideWithValue(PairNet.online),
           sessionProvider.overrideWith(() => _Open(session)),
-          directoryReceiptsProvider.overrideWithValue(receipts),
+          nameServiceReceiptsProvider.overrideWithValue(receipts),
           linkPaymentRecordsProvider.overrideWithValue(records),
         ],
         child: MaterialApp(
@@ -162,7 +162,7 @@ Future<void> _tick(WidgetTester tester) async {
 
 void main() {
   group('the receipt line', () {
-    testWidgets('hidden while the directory cannot be told', (tester) async {
+    testWidgets('hidden while the name service cannot be told', (tester) async {
       final h = _Harness(tell: false);
       final tx = h.waiting(const Duration(hours: 1));
       await h.pump(tester, TxDetailsScreen(txKey: tx.key));
@@ -181,7 +181,7 @@ void main() {
 
       await _tick(tester);
       expect(h.receipts.posts, hasLength(1));
-      final p = DirectoryPayload.decode(h.receipts.posts.single.$2) as ReceiptPayload;
+      final p = NameServicePayload.decode(h.receipts.posts.single.$2) as ReceiptPayload;
       expect(p.reqid, _req.reqid);
       expect(p.stage, 1);
       expect(p.amount, h.rec.amount);
@@ -211,7 +211,7 @@ void main() {
       expect(tester.widget<CheckboxListTile>(find.byKey(receiptLineKey)).value, isFalse);
       await _tick(tester);
       expect(h.receipts.posts, hasLength(1));
-      final p = DirectoryPayload.decode(h.receipts.posts.single.$2) as ReceiptPayload;
+      final p = NameServicePayload.decode(h.receipts.posts.single.$2) as ReceiptPayload;
       expect(p.stage, 2);
       expect(p.at, BigInt.from(tx.finalizedAtUnix!));
       expect(h.rec.told, {1, 2});

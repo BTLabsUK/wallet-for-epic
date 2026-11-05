@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
-import '../directory/pins.dart' show LinkPaymentRec;
-import '../directory/receipts.dart';
+import '../name_service/pins.dart' show LinkPaymentRec;
+import '../name_service/receipts.dart';
 import '../recipient.dart' show parseRecipient;
 import '../scan/scan_checks.dart' show CodeOrigin;
 import '../scan/scan_router.dart' show PaymentRequest;
@@ -56,6 +56,7 @@ import 'tx_edit_sheet.dart';
 import 'tx_label.dart';
 import 'settings_rows.dart' show NavChevron;
 import 'inline_button.dart';
+import '../explorer_check.dart' show ExplorerHas, explorerHasBlock;
 
 /// Minutes per Epic block, for rough "about N hours" estimates.
 const int _minutesPerBlock = 1;
@@ -290,6 +291,17 @@ class TxDetailsScreen extends ConsumerStatefulWidget {
 class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
   /// "More" was tapped: the technical rows show for this view although the switch is off.
   bool _more = false;
+
+  /// The block height the explorer had not reached when its link was copied.
+  int? _explorerBehind;
+
+  /// One request after Copy: is the block in the explorer yet ([explorerHasBlock]).
+  Future<void> _checkExplorer(int height) async {
+    final has = await explorerHasBlock(height);
+    if (mounted) {
+      setState(() => _explorerBehind = has == ExplorerHas.notYet ? height : null);
+    }
+  }
 
   /// The page shows its own withdrawal.
   bool _shows(PairingEvent e) {
@@ -766,7 +778,7 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
         : null;
     // A payment made from a payment link: its payee's silent rows and the optional receipt.
     final linkRec = tx.slateId == null ? null : ref.watch(linkPaymentProvider(tx.slateId!));
-    final linkName = linkRec == null ? null : linkPayeeName(ref.watch(directoryReceiptsProvider), linkRec);
+    final linkName = linkRec == null ? null : linkPayeeName(ref.watch(nameServiceReceiptsProvider), linkRec);
     final linkOffer = linkRec != null && mailboxName == null && outgoing && tx.status == TxStatus.awaitingRecipient && !tx.undelivered
         ? switch (mailboxSendStage(txSentAt(tx), now)) {
             MailboxSendStage.waiting => null,
@@ -1254,10 +1266,14 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
             _DetailRow(
               label: l.txDetailsExplorerLink,
               value: url,
+              hint: _explorerBehind != null && _explorerBehind == tx.blockHeight?.toInt()
+                  ? l.txDetailsExplorerBehind
+                  : null,
               copy: (
                 tooltip: l.txDetailsExplorerLinkCopy,
                 notice: l.txDetailsLinkCopied,
               ),
+              onCopied: () => _checkExplorer(tx.blockHeight!.toInt()),
             ),
           // Advanced › Technical details shows the rows; without it a small "More" shows them
           // for this view only (the switch stays off). Send feedback carries the slate id for
@@ -1421,6 +1437,7 @@ class _DetailRow extends StatelessWidget {
     this.tag,
     this.hint,
     this.amount = false,
+    this.onCopied,
   });
 
   final String label;
@@ -1438,12 +1455,18 @@ class _DetailRow extends StatelessWidget {
   /// The copy button's tooltip and the notice after copying, for a value worth copying.
   final ({String tooltip, String notice})? copy;
 
+  /// After [copy] copied the value.
+  final VoidCallback? onCopied;
+
   @override
   Widget build(BuildContext context) {
     final copy = this.copy;
     final VoidCallback? doCopy = copy == null
         ? null
-        : () => copyText(context, value, copy.notice);
+        : () async {
+            await copyText(context, value, copy.notice);
+            onCopied?.call();
+          };
     return ListTile(
       contentPadding: EdgeInsets.zero,
       title: _TitleWithTag(label, tag: tag),

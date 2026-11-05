@@ -135,6 +135,9 @@ privacy = "https://btlabs.uk/privacy/"   # the privacy policy; comment out to hi
 
 [explorer]
 block = "https://explorer.epiccash.com/blockdetail/{height}"   # a block by its height
+# The explorer's record of that block, asked once when the link is copied: its indexer can lag
+# the chain, and its page of a block it has not reached yet says the search term is wrong.
+indexed = "https://explorer.epiccash.com/epic_explorer/v1/blockchain_block/{height}"
 
 [import]
 gui_node = "https://node.epiccash.com:3413"

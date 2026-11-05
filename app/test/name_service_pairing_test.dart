@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
-// Directory pairing on the fakes: the hello and the Check the code step, Join and Leave, the
-// directory's unlisted, and the payload routing between the devices and the directory services.
+// Name service pairing on the fakes: the hello and the Check the code step, Join and Leave, the
+// name service's unlisted, and the payload routing between the devices and the name service services.
 
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
-import 'package:epic_wallet/src/directory/directory.dart';
-import 'package:epic_wallet/src/directory/phone_directory.dart';
+import 'package:epic_wallet/src/name_service/name_service.dart';
+import 'package:epic_wallet/src/name_service/phone_name_service.dart';
 import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/pairing_fake.dart';
 import 'package:epic_wallet/src/pairing_providers.dart' show invoicesOnProvider;
@@ -15,7 +15,7 @@ import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/slate_files.dart';
 import 'package:epic_wallet/src/trust/policy.dart';
-import 'package:epic_wallet/src/ui/pairing/directory_parts.dart';
+import 'package:epic_wallet/src/ui/pairing/name_service_parts.dart';
 import 'package:epic_wallet/src/ui/pairing/pair_check.dart';
 import 'package:epic_wallet/src/ui/pairing/pairing_parts.dart' show WordTiles;
 import 'package:epic_wallet/src/ui/scan_screen.dart';
@@ -29,9 +29,9 @@ import 'devices/two_devices.dart';
 
 final AppLocalizations _l = lookupAppLocalizations(const Locale('en'));
 
-final Uint8List _dkey = Uint8List.fromList([2, ...List.filled(32, 9)]);
-final String _dkeyHex = toHex(_dkey);
-const int _directoryBits = featureStatusNotices | featureDirectory;
+final Uint8List _serviceKey = Uint8List.fromList([2, ...List.filled(32, 9)]);
+final String _serviceKeyHex = toHex(_serviceKey);
+const int _nameServiceBits = featureStatusNotices | featureNameService;
 
 class _Now {
   DateTime now = DateTime.utc(2026, 11, 4, 12);
@@ -46,7 +46,7 @@ class _Verifier {
   Future<bool> call(String keyText, String domain, Uint8List message, Uint8List der) async {
     if (domain == domainListing) {
       listing++;
-      final want = sha256.convert([...'$_dkeyHex 0 $domain '.codeUnits, ...message]).bytes;
+      final want = sha256.convert([...'$_serviceKeyHex 0 $domain '.codeUnits, ...message]).bytes;
       return _same(der, want);
     }
     return domain == domainHello || domain == domainUnlist;
@@ -61,12 +61,12 @@ bool _same(List<int> a, List<int> b) {
   return true;
 }
 
-/// A directory service over [session], with a short wait and a clock the test moves.
+/// A name service service over [session], with a short wait and a clock the test moves.
 class _Rig {
   _Rig({Duration wait = const Duration(seconds: 30)}) {
-    service = DirectoryService(
-      host: SessionDirectoryHost(session, net: netMainnet, verifier: verifier.call, online: () => true),
-      store: DirectoryStore(store, chain: Chain.mainnet, walletId: 'w1'),
+    service = NameService(
+      host: SessionNameServiceHost(session, net: netMainnet, verifier: verifier.call, online: () => true),
+      store: NameServiceStore(store, chain: Chain.mainnet, walletId: 'w1'),
       clock: clock.call,
       wait: wait,
       poll: const Duration(seconds: 1),
@@ -77,21 +77,21 @@ class _Rig {
   final store = MemorySecretStore();
   final clock = _Now();
   final verifier = _Verifier();
-  late final DirectoryService service;
+  late final NameService service;
 
   FakePairing get api => session.pairing;
 
-  /// A Paired pairing whose peer claims the directory feature.
-  PairingRecord paired({String name = 'Anna', int bits = _directoryBits}) {
+  /// A Paired pairing whose peer claims the name service feature.
+  PairingRecord paired({String name = 'Anna', int bits = _nameServiceBits}) {
     api.clock = clock.call;
     return api.seedPaired(name: name, state: PairingState.paired, peerFeatures: bits);
   }
 
-  /// A Verified directory the wallet pinned: hello read, code matched.
+  /// A Verified name service the wallet pinned: hello read, code matched.
   Future<PairingRecord> verified() async {
     await service.load();
     final r = paired();
-    api.directoryHello(r.id, dkey: _dkey);
+    api.nameServiceHello(r.id, serviceKey: _serviceKey);
     await service.beginHello(r.id);
     await service.readPayloads();
     await api.checkWords(r.id, PairingCheck.match);
@@ -99,7 +99,7 @@ class _Rig {
     return api.records.single;
   }
 
-  List<DirectoryPayload> get posted => [for (final p in api.posted) DirectoryPayload.decode(Uint8List.fromList(p.bytes))];
+  List<NameServicePayload> get posted => [for (final p in api.posted) NameServicePayload.decode(Uint8List.fromList(p.bytes))];
 }
 
 void main() {
@@ -109,12 +109,12 @@ void main() {
       await rig.service.load();
       final r = rig.paired();
       expect(await rig.service.beginHello(r.id), HelloStep.waiting);
-      rig.api.directoryHello(r.id, dkey: _dkey);
+      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey);
       await rig.service.readPayloads();
       expect(rig.service.book.byPairing(r.id)?.pinned, isFalse);
       expect(rig.service.stepOf(r.id), HelloStep.waiting);
       await rig.service.pin(r.id);
-      expect(rig.service.verifiedFor(r.id)?.dkey, _dkeyHex);
+      expect(rig.service.verifiedFor(r.id)?.serviceKey, _serviceKeyHex);
       expect(await rig.api.payloads(), isEmpty, reason: 'acknowledged once stored');
     });
 
@@ -123,7 +123,7 @@ void main() {
       await rig.service.load();
       final r = rig.paired();
       await rig.service.beginHello(r.id);
-      rig.api.directoryHello(r.id, dkey: _dkey, bind: Uint8List.fromList([0, 0, 0, 0]));
+      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, bind: Uint8List.fromList([0, 0, 0, 0]));
       await rig.service.readPayloads();
       expect(rig.service.book.byPairing(r.id), isNull);
       expect(await rig.api.payloads(), isEmpty, reason: 'acknowledged and dropped');
@@ -132,12 +132,12 @@ void main() {
       expect(rig.service.stepOf(r.id), HelloStep.words);
     });
 
-    test('a peer without the directory bit is the ordinary words step, its hello dropped', () async {
+    test('a peer without the name service bit is the ordinary words step, its hello dropped', () async {
       final rig = _Rig();
       await rig.service.load();
       final r = rig.paired(bits: featureStatusNotices);
       expect(await rig.service.beginHello(r.id), HelloStep.words);
-      rig.api.directoryHello(r.id, dkey: _dkey);
+      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey);
       await rig.service.readPayloads();
       expect(rig.service.book.byPairing(r.id), isNull);
       expect(await rig.api.payloads(), isEmpty);
@@ -152,12 +152,12 @@ void main() {
       expect(rig.service.stepOf(r.id), HelloStep.words);
     });
 
-    test('a later hello from a Verified directory is acknowledged and ignored', () async {
+    test('a later hello from a Verified name service is acknowledged and ignored', () async {
       final rig = _Rig();
       final r = await rig.verified();
       expect(r.state, PairingState.verified);
       final before = rig.service.book;
-      rig.api.directoryHello(r.id, dkey: _dkey, issued: 99);
+      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, issued: 99);
       await rig.service.readPayloads();
       expect(rig.service.book.byPairing(r.id)?.pinned, isTrue);
       expect(rig.service.book.entries.length, before.entries.length);
@@ -171,9 +171,9 @@ void main() {
     test('the hello flag is stored; lookups answer by pairing and by address', () async {
       final rig = _Rig();
       await rig.service.load();
-      final r = rig.api.seedPaired(name: 'Shop', state: PairingState.paired, peerFeatures: _directoryBits, paymentsAddress: address);
+      final r = rig.api.seedPaired(name: 'Shop', state: PairingState.paired, peerFeatures: _nameServiceBits, paymentsAddress: address);
       rig.api.clock = rig.clock.call;
-      rig.api.directoryHello(r.id, dkey: _dkey, flags: dirHelloNoPayments);
+      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, flags: nsHelloNoPayments);
       await rig.service.beginHello(r.id);
       await rig.service.readPayloads();
       expect(rig.service.book.byPairing(r.id)?.noPayments, isTrue);
@@ -184,9 +184,9 @@ void main() {
       expect(rig.service.refusesPayments(pairingId: 'nobody', address: 'esOther@epicbox.example.com'), isFalse);
       expect(rig.service.refusesPayments(), isFalse);
       // Kept in the app's own file and read back.
-      final again = DirectoryService(
-        host: SessionDirectoryHost(rig.session, net: netMainnet, verifier: rig.verifier.call, online: () => true),
-        store: DirectoryStore(rig.store, chain: Chain.mainnet, walletId: 'w1'),
+      final again = NameService(
+        host: SessionNameServiceHost(rig.session, net: netMainnet, verifier: rig.verifier.call, online: () => true),
+        store: NameServiceStore(rig.store, chain: Chain.mainnet, walletId: 'w1'),
       );
       await again.load();
       expect(again.refusesPayments(address: address), isTrue);
@@ -196,11 +196,11 @@ void main() {
       final rig = _Rig();
       await rig.service.load();
       final r = rig.paired();
-      rig.api.directoryHello(r.id, dkey: _dkey);
+      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey);
       await rig.service.beginHello(r.id);
       await rig.service.readPayloads();
       expect(rig.service.refusesPayments(pairingId: r.id), isFalse);
-      final old = DirectoryEntry.fromJson({'dkey': _dkeyHex, 'pairing': 'p', 'handle': '00'});
+      final old = NameServiceEntry.fromJson({'dkey': _serviceKeyHex, 'pairing': 'p', 'handle': '00'});
       expect(old?.noPayments, isFalse);
     });
 
@@ -208,12 +208,38 @@ void main() {
       final rig = _Rig();
       final r = await rig.verified();
       expect(rig.service.refusesPayments(pairingId: r.id), isFalse);
-      rig.api.directoryHello(r.id, dkey: _dkey, flags: dirHelloNoPayments);
+      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, flags: nsHelloNoPayments, issued: 2);
       await rig.service.readPayloads();
       expect(rig.service.refusesPayments(pairingId: r.id), isTrue);
-      rig.api.directoryHello(r.id, dkey: _dkey);
+      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, issued: 3);
       await rig.service.readPayloads();
       expect(rig.service.refusesPayments(pairingId: r.id), isFalse);
+    });
+
+    test('a replayed older hello, or one with the same issued, changes nothing', () async {
+      final rig = _Rig();
+      final r = await rig.verified();
+      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, flags: nsHelloNoPayments, label: '@alice_test', issued: 5);
+      await rig.service.readPayloads();
+      expect(rig.service.refusesPayments(pairingId: r.id), isTrue);
+      // The older hello (issued 1 from verified(), then 4) does not revert the flag or the name.
+      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, issued: 4);
+      await rig.service.readPayloads();
+      expect(rig.service.refusesPayments(pairingId: r.id), isTrue);
+      expect(rig.service.book.byPairing(r.id)?.payAs, '@alice_test');
+      // The same issued with other content is ignored too.
+      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, label: '@bob', issued: 5);
+      await rig.service.readPayloads();
+      expect(rig.service.refusesPayments(pairingId: r.id), isTrue);
+      expect(rig.service.book.byPairing(r.id)?.payAs, '@alice_test');
+      expect(rig.service.book.byPairing(r.id)?.issued, BigInt.from(5));
+    });
+
+    test('an entry saved before issued was kept accepts the next hello; issued survives a reload', () {
+      final entry = NameServiceEntry.fromJson({'dkey': 'aa', 'pairing': 'p', 'handle': 'bb'})!;
+      expect(entry.issued, isNull);
+      final back = NameServiceEntry.fromJson(entry.copyWith(issued: BigInt.from(7)).toJson())!;
+      expect(back.issued, BigInt.from(7));
     });
   });
 
@@ -223,27 +249,27 @@ void main() {
       final r = await rig.verified();
       expect(rig.service.book.byPairing(r.id)?.payAs, isNull);
       expect(rig.service.book.byPairing(r.id)?.payAsArg, 'none');
-      rig.api.directoryHello(r.id, dkey: _dkey, label: '@alice_test');
+      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, label: '@alice_test', issued: 2);
       await rig.service.readPayloads();
       expect(rig.service.book.byPairing(r.id)?.payAs, '@alice_test');
       expect(rig.service.book.byPairing(r.id)?.payAsArg, '@alice_test');
-      rig.api.directoryHello(r.id, dkey: _dkey, label: '@bob');
+      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, label: '@bob', issued: 3);
       await rig.service.readPayloads();
       expect(rig.service.book.byPairing(r.id)?.payAs, '@bob');
-      rig.api.directoryHello(r.id, dkey: _dkey);
+      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, issued: 4);
       await rig.service.readPayloads();
       expect(rig.service.book.byPairing(r.id)?.payAs, isNull);
     });
   });
 
   group('receipts through the service', () {
-    test('canTell follows a verified directory; post sends the bytes over its pairing', () async {
+    test('canTell follows a verified name service; post sends the bytes over its pairing', () async {
       final rig = _Rig();
       await rig.service.load();
-      expect(rig.service.canTell(_dkeyHex), isFalse);
+      expect(rig.service.canTell(_serviceKeyHex), isFalse);
       final r = await rig.verified();
-      expect(rig.service.canTell(_dkeyHex), isTrue);
-      expect(await rig.service.post(_dkeyHex, Uint8List.fromList([1, 2, 3])), isTrue);
+      expect(rig.service.canTell(_serviceKeyHex), isTrue);
+      expect(await rig.service.post(_serviceKeyHex, Uint8List.fromList([1, 2, 3])), isTrue);
       expect(rig.api.posted.last.id, r.id);
       expect(rig.api.posted.last.bytes, [1, 2, 3]);
       expect(await rig.service.post('02${'00' * 32}', Uint8List.fromList([1])), isFalse);
@@ -254,40 +280,40 @@ void main() {
     test('Join posts a card the codec and the verifier accept', () async {
       final rig = _Rig();
       final r = await rig.verified();
-      await rig.service.join(_dkeyHex);
+      await rig.service.join(_serviceKeyHex);
       final payload = rig.posted.whereType<ListingPayload>().single;
       final card = await verifyCard(ListingCard.decode(payload.card.toBytes()), netMainnet, rig.verifier.call);
-      expect(toHex(card.dkey), _dkeyHex);
+      expect(toHex(card.serviceKey), _serviceKeyHex);
       expect(card.seq, 1);
       expect(rig.verifier.listing, greaterThan(0));
       final e = rig.service.verifiedFor(r.id)!;
       expect((e.joined, e.generation), (true, 0));
       expect(e.address, card.address);
-      expect(rig.service.listingCodeFor(_dkeyHex), listingCodeIndexes(card.listingKey));
+      expect(rig.service.listingCodeFor(_serviceKeyHex), listingCodeIndexes(card.listingKey));
     });
 
     test('Leave posts an unlist and retires the generation; the next Join uses a new one', () async {
       final rig = _Rig();
       await rig.verified();
-      await rig.service.join(_dkeyHex);
-      await rig.service.leave(_dkeyHex);
+      await rig.service.join(_serviceKeyHex);
+      await rig.service.leave(_serviceKeyHex);
       expect(rig.posted.last, isA<UnlistPayload>());
-      var e = rig.service.book.byDkey(_dkeyHex)!;
+      var e = rig.service.book.byServiceKey(_serviceKeyHex)!;
       expect(e.joined, isFalse);
       expect(e.retired.single.generation, 0);
       expect(e.retired.single.drainUntil, rig.clock.now.add(listingDrainWindow));
-      await rig.service.join(_dkeyHex);
-      e = rig.service.book.byDkey(_dkeyHex)!;
+      await rig.service.join(_serviceKeyHex);
+      e = rig.service.book.byServiceKey(_serviceKeyHex)!;
       expect(e.generation, 1);
       expect(e.retired.single.generation, 0);
     });
 
-    test('unlisted from the directory: Not listed, the generation retired', () async {
+    test('unlisted from the name service: Not listed, the generation retired', () async {
       final rig = _Rig();
       final r = await rig.verified();
-      await rig.service.join(_dkeyHex);
+      await rig.service.join(_serviceKeyHex);
       final e = rig.service.verifiedFor(r.id)!;
-      rig.api.receiveContactPayload(r.id, unlistedPayloadBytes(dkey: _dkey, handle: fromHex(e.handle), issued: 5));
+      rig.api.receiveContactPayload(r.id, unlistedPayloadBytes(serviceKey: _serviceKey, handle: fromHex(e.handle), issued: 5));
       await rig.service.readPayloads();
       final after = rig.service.verifiedFor(r.id)!;
       expect(after.state, ListingState.unlisted);
@@ -297,31 +323,31 @@ void main() {
     test('the drains cover the listed generation and the retired ones within their days', () async {
       final rig = _Rig();
       await rig.verified();
-      await rig.service.join(_dkeyHex);
-      await rig.service.leave(_dkeyHex);
-      await rig.service.join(_dkeyHex);
+      await rig.service.join(_serviceKeyHex);
+      await rig.service.leave(_serviceKeyHex);
+      await rig.service.join(_serviceKeyHex);
       rig.session.fakeListing.drains.clear();
-      await rig.service.sync(DirectorySyncTrigger.tick);
+      await rig.service.sync(NameServiceSyncTrigger.tick);
       expect(rig.session.fakeListing.drains.map((d) => d.$2).toSet(), {0, 1});
       rig.clock.now = rig.clock.now.add(listingDrainWindow + const Duration(hours: 1));
       rig.session.fakeListing.drains.clear();
-      await rig.service.sync(DirectorySyncTrigger.tick);
+      await rig.service.sync(NameServiceSyncTrigger.tick);
       expect(rig.session.fakeListing.drains.map((d) => d.$2).toSet(), {1});
     });
   });
 
   group('payload routing', () {
-    test('the devices service leaves a contact payload to the directory service, which takes it', () async {
+    test('the devices service leaves a contact payload to the name service service, which takes it', () async {
       final clock = Clock();
       final b = Side('Desktop', clock: clock, net: FakePrivateNet());
-      final service = DirectoryService(
-        host: SessionDirectoryHost(b.session, net: netMainnet, verifier: _Verifier().call, online: () => true),
-        store: DirectoryStore(b.store, chain: Chain.mainnet, walletId: 'w1'),
+      final service = NameService(
+        host: SessionNameServiceHost(b.session, net: netMainnet, verifier: _Verifier().call, online: () => true),
+        store: NameServiceStore(b.store, chain: Chain.mainnet, walletId: 'w1'),
         clock: clock.call,
       );
       await service.load();
-      final r = b.pairing.seedPaired(name: 'Anna', state: PairingState.paired, peerFeatures: _directoryBits);
-      b.pairing.directoryHello(r.id, dkey: _dkey);
+      final r = b.pairing.seedPaired(name: 'Anna', state: PairingState.paired, peerFeatures: _nameServiceBits);
+      b.pairing.nameServiceHello(r.id, serviceKey: _serviceKey);
       await b.sync();
       expect(await b.pairing.payloads(), hasLength(1), reason: 'the devices service did not ack it');
       await service.readPayloads();
@@ -329,11 +355,11 @@ void main() {
       expect(service.book.byPairing(r.id), isNotNull);
     });
 
-    test('a payload of a contact that is no directory is acknowledged and dropped', () async {
+    test('a payload of a contact that is no name service is acknowledged and dropped', () async {
       final rig = _Rig();
       await rig.service.load();
       final r = rig.paired(bits: featureStatusNotices);
-      rig.api.receiveContactPayload(r.id, unlistedPayloadBytes(dkey: _dkey, handle: Uint8List(16), issued: 1));
+      rig.api.receiveContactPayload(r.id, unlistedPayloadBytes(serviceKey: _serviceKey, handle: Uint8List(16), issued: 1));
       rig.api.receiveContactPayload(r.id, [1, 2, 3]);
       await rig.service.readPayloads();
       expect(await rig.api.payloads(), isEmpty);
@@ -364,7 +390,7 @@ void main() {
             qrScannerProvider.overrideWithValue(FakeQrScanner(supported: false)),
             slateFilesProvider.overrideWithValue(FakeSlateFiles()),
             sessionProvider.overrideWith(() => _OpenSession(rig.session)),
-            directoryServiceProvider.overrideWith((ref) {
+            nameServiceProvider.overrideWith((ref) {
               ref.onDispose(rig.service.dispose);
               return rig.service;
             }),
@@ -384,22 +410,22 @@ void main() {
       final r = rig.paired();
       await mount(tester, rig, CheckWordsScreen(pairingId: r.id));
       await tester.pump(const Duration(milliseconds: 100));
-      expect(find.text(_l.dirWaitingFor('Anna')), findsOneWidget);
-      expect(find.byKey(dirWaitCancelKey), findsOneWidget);
-      rig.api.directoryHello(r.id, dkey: _dkey);
+      expect(find.text(_l.nsWaitingFor('Anna')), findsOneWidget);
+      expect(find.byKey(nsWaitCancelKey), findsOneWidget);
+      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey);
       await tester.pump(const Duration(seconds: 1));
       await tester.pump(const Duration(milliseconds: 100));
-      expect(find.text(_l.dirCodeLead('Anna')), findsOneWidget);
-      expect(find.descendant(of: find.byKey(dirCodeKey), matching: find.byType(WordTiles)), findsOneWidget);
+      expect(find.text(_l.nsCodeLead('Anna')), findsOneWidget);
+      expect(find.descendant(of: find.byKey(nsCodeKey), matching: find.byType(WordTiles)), findsOneWidget);
       await tester.tap(find.byKey(checkMatchKey));
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));
       expect(rig.api.records.single.state, PairingState.verified);
       expect(rig.service.verifiedFor(r.id), isNotNull);
-      expect(find.text(_l.dirJoinTitle('none', 'Anna')), findsOneWidget);
-      expect(find.text(_l.dirJoin('none', 'Anna')), findsOneWidget);
+      expect(find.text(_l.nsJoinTitle('none', 'Anna')), findsOneWidget);
+      expect(find.text(_l.nsJoin('none', 'Anna')), findsOneWidget);
       expect(find.text('Pay me via Anna'), findsOneWidget);
-      await tester.tap(find.byKey(dirJoinKey));
+      await tester.tap(find.byKey(nsJoinKey));
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));
       final card = rig.posted.whereType<ListingPayload>().single.card;
@@ -413,11 +439,11 @@ void main() {
       final r = rig.paired();
       await mount(tester, rig, CheckWordsScreen(pairingId: r.id));
       await tester.pump(const Duration(milliseconds: 100));
-      expect(find.byKey(dirWaitCancelKey), findsOneWidget);
-      await tester.tap(find.byKey(dirWaitCancelKey));
+      expect(find.byKey(nsWaitCancelKey), findsOneWidget);
+      await tester.tap(find.byKey(nsWaitCancelKey));
       await tester.pump(const Duration(milliseconds: 200));
       expect(find.text(_l.sasLead('Anna')), findsOneWidget);
-      expect(find.byKey(dirWaitCancelKey), findsNothing);
+      expect(find.byKey(nsWaitCancelKey), findsNothing);
       await tester.pumpWidget(const SizedBox());
     });
 
@@ -433,12 +459,12 @@ void main() {
       await tester.pumpWidget(const SizedBox());
     });
 
-    testWidgets('They do not match ends the pairing and forgets the directory', (tester) async {
+    testWidgets('They do not match ends the pairing and forgets the name service', (tester) async {
       final rig = await pump(tester, const SizedBox());
       final r = rig.paired();
       await mount(tester, rig, CheckWordsScreen(pairingId: r.id));
       await tester.pump(const Duration(milliseconds: 100));
-      rig.api.directoryHello(r.id, dkey: _dkey);
+      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey);
       await tester.pump(const Duration(seconds: 1));
       await tester.pump(const Duration(milliseconds: 100));
       await tester.tap(find.byKey(checkNoMatchKey));
@@ -447,7 +473,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
       await tester.pump(const Duration(milliseconds: 400));
       expect(rig.api.records.single.state, PairingState.ended);
-      expect(rig.service.book.byDkey(_dkeyHex), isNull);
+      expect(rig.service.book.byServiceKey(_serviceKeyHex), isNull);
       await tester.pumpWidget(const SizedBox());
     });
 
@@ -456,7 +482,7 @@ void main() {
       final r = rig.paired();
       await mount(tester, rig, CheckWordsScreen(pairingId: r.id));
       await tester.pump(const Duration(milliseconds: 100));
-      rig.api.directoryHello(r.id, dkey: _dkey, label: '@alice_test');
+      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, label: '@alice_test');
       await tester.pump(const Duration(seconds: 1));
       await tester.pump(const Duration(milliseconds: 100));
       await tester.tap(find.byKey(checkMatchKey));
@@ -471,37 +497,37 @@ void main() {
     testWidgets('the contact block: Joined · since, the listing code, Leave posts an unlist', (tester) async {
       final rig = await pump(tester, const SizedBox());
       final r = await rig.verified();
-      rig.api.directoryHello(r.id, dkey: _dkey, label: '@alice_test');
+      rig.api.nameServiceHello(r.id, serviceKey: _serviceKey, label: '@alice_test', issued: 2);
       await rig.service.readPayloads();
-      await rig.service.join(_dkeyHex);
-      await mount(tester, rig, Scaffold(body: SingleChildScrollView(child: DirectoryBlock(pairingId: r.id, label: 'Anna'))));
+      await rig.service.join(_serviceKeyHex);
+      await mount(tester, rig, Scaffold(body: SingleChildScrollView(child: NameServiceBlock(pairingId: r.id, label: 'Anna'))));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.textContaining('Pay me as @alice_test · since'), findsOneWidget);
-      expect(find.text(_l.dirLeave), findsOneWidget);
-      expect(find.text(_l.dirListingCode), findsWidgets);
-      await tester.tap(find.byKey(dirLeaveKey));
+      expect(find.text(_l.nsLeave), findsOneWidget);
+      expect(find.text(_l.nsListingCode), findsWidgets);
+      await tester.tap(find.byKey(nsLeaveKey));
       await tester.pump(const Duration(milliseconds: 400));
       await tester.pump(const Duration(milliseconds: 400));
       expect(rig.posted.last, isA<UnlistPayload>());
-      expect(find.text(_l.dirRemoveTooTitle('Anna')), findsOneWidget);
+      expect(find.text(_l.nsRemoveTooTitle('Anna')), findsOneWidget);
       await tester.tap(find.text(_l.contactKeep));
       await tester.pump(const Duration(milliseconds: 400));
       expect(rig.service.verifiedFor(r.id)!.joined, isFalse);
-      expect(find.byKey(dirJoinKey), findsOneWidget);
+      expect(find.byKey(nsJoinKey), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
     });
 
     testWidgets('unlisted: Not listed with Join again', (tester) async {
       final rig = await pump(tester, const SizedBox());
       final r = await rig.verified();
-      await rig.service.join(_dkeyHex);
+      await rig.service.join(_serviceKeyHex);
       final e = rig.service.verifiedFor(r.id)!;
-      rig.api.receiveContactPayload(r.id, unlistedPayloadBytes(dkey: _dkey, handle: fromHex(e.handle), issued: 5));
+      rig.api.receiveContactPayload(r.id, unlistedPayloadBytes(serviceKey: _serviceKey, handle: fromHex(e.handle), issued: 5));
       await rig.service.readPayloads();
-      await mount(tester, rig, Scaffold(body: SingleChildScrollView(child: DirectoryBlock(pairingId: r.id, label: 'Anna'))));
+      await mount(tester, rig, Scaffold(body: SingleChildScrollView(child: NameServiceBlock(pairingId: r.id, label: 'Anna'))));
       await tester.pump(const Duration(milliseconds: 100));
-      expect(find.text(_l.dirNotListed), findsOneWidget);
-      expect(find.text(_l.dirJoinAgain), findsOneWidget);
+      expect(find.text(_l.nsNotListed), findsOneWidget);
+      expect(find.text(_l.nsJoinAgain), findsOneWidget);
       await tester.pumpWidget(const SizedBox());
     });
   });

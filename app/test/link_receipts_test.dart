@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 // The record of a payment made from a link (Meta round-trip, 30 day pruning), the type 5 receipt
-// payload, and tellPayee: once per stage, never when the directory cannot be told.
+// payload, and tellPayee: once per stage, never when the name service cannot be told.
 import 'dart:io';
 
-import 'package:epic_wallet/src/directory/directory.dart';
-import 'package:epic_wallet/src/history/directory_pins.dart';
+import 'package:epic_wallet/src/name_service/name_service.dart';
+import 'package:epic_wallet/src/history/name_service_pins.dart';
 import 'package:epic_wallet/src/history/meta_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'directory_vectors_support.dart';
+import 'name_service_vectors_support.dart';
 import 'support/fake_receipts.dart';
 
 void main() {
@@ -28,7 +28,7 @@ void main() {
       final records = MetaLinkPayments(store);
       final rec = records.of('slate-1')!;
       expect(rec.reqid, toHex(basic.reqid));
-      expect(rec.dkey, toHex(basic.card.dkey));
+      expect(rec.serviceKey, toHex(basic.card.serviceKey));
       expect(rec.shortId, toHex(basic.reqid).substring(0, 8));
       expect(rec.paidAt, now);
       expect(rec.told, isEmpty);
@@ -59,7 +59,7 @@ void main() {
     test('encodes to a type 5 payload that decodes to the same fields', () {
       final reqid = basic.reqid;
       final bytes = ReceiptPayload.encode(reqid: reqid, stage: 2, amount: BigInt.from(500000000), at: now);
-      final back = DirectoryPayload.decode(bytes) as ReceiptPayload;
+      final back = NameServicePayload.decode(bytes) as ReceiptPayload;
       expect(back.reqid, reqid);
       expect(back.stage, 2);
       expect(back.amount, BigInt.from(500000000));
@@ -83,8 +83,8 @@ void main() {
       expect(await tell(r, 1, now), isTrue);
       expect(await tell(r, 1), isFalse);
       expect(r.posts, hasLength(1));
-      final p = DirectoryPayload.decode(r.posts.single.$2) as ReceiptPayload;
-      expect(r.posts.single.$1, toHex(basic.card.dkey));
+      final p = NameServicePayload.decode(r.posts.single.$2) as ReceiptPayload;
+      expect(r.posts.single.$1, toHex(basic.card.serviceKey));
       expect(p.reqid, basic.reqid);
       expect(p.stage, 1);
       expect(p.amount, records.of('s')!.amount);
@@ -92,11 +92,11 @@ void main() {
       // Stage 2 is its own receipt.
       expect(await tell(r, 2), isTrue);
       expect(r.posts, hasLength(2));
-      expect((DirectoryPayload.decode(r.posts.last.$2) as ReceiptPayload).stage, 2);
+      expect((NameServicePayload.decode(r.posts.last.$2) as ReceiptPayload).stage, 2);
       expect(records.of('s')!.told, {1, 2});
     });
 
-    test('nothing when the directory cannot be told, none when it refuses', () async {
+    test('nothing when the name service cannot be told, none when it refuses', () async {
       final r = FakeReceipts(tell: false);
       expect(await tell(r, 1), isFalse);
       expect(r.posts, isEmpty);

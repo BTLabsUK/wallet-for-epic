@@ -875,6 +875,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get txDetailsLinkCopied => 'Link kopiert';
 
   @override
+  String get txDetailsExplorerBehind =>
+      'Der Explorer hat diesen Block noch nicht erreicht.';
+
+  @override
   String get txDetailsTechnical => 'Technische Details';
 
   @override
@@ -11994,9 +11998,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get deskSetupStepEpicbox => 'Epicbox';
 
   @override
-  String get deskSetupStepReview => 'Prüfen';
-
-  @override
   String get deskSetupAgain =>
       'Die Einrichtung läuft erneut. Erst „Einstellungen speichern“ im letzten Schritt ändert etwas.';
 
@@ -12019,13 +12020,6 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get deskSetupEpicboxTitle => 'Epicbox';
-
-  @override
-  String get deskSetupReviewTitle => 'Einstellungen prüfen';
-
-  @override
-  String get deskSetupReviewLead =>
-      'Ändern Sie, was nicht stimmt, und speichern Sie dann.';
 
   @override
   String get deskSetupSideTitle => 'Einrichtung';
@@ -12064,46 +12058,12 @@ class AppLocalizationsDe extends AppLocalizations {
       'Der Epicbox-Server hält Zahlungen, bis die Wallet geöffnet wird.';
 
   @override
-  String get deskSetupEpicboxPrivacy =>
-      'Der Epicbox-Server sieht die IP-Adresse dieses Computers.';
-
-  @override
   String get deskSetupEpicboxServer => 'Epicbox-Server';
-
-  @override
-  String get deskSetupChangePrefsSem => 'Allgemeine Einstellungen ändern';
-
-  @override
-  String get deskSetupChangeNodeSem => 'Node ändern';
-
-  @override
-  String get deskSetupChangeEpicboxSem => 'Epicbox ändern';
-
-  @override
-  String get deskSetupChange => 'Ändern';
-
-  @override
-  String get deskSetupType => 'Art';
-
-  @override
-  String get deskSetupAddress => 'Adresse';
 
   @override
   String deskSetupExistingNode(String host) {
     return 'Vorhandener Node unter $host';
   }
-
-  @override
-  String get deskSetupBundledNode => 'Lokaler Node';
-
-  @override
-  String get deskSetupWhileSyncing => 'Beim Synchronisieren';
-
-  @override
-  String get deskSetupWait => 'warten';
-
-  @override
-  String get deskSetupDataFolder => 'Datenordner';
 
   @override
   String deskSetupSaveStartsFallback(String node) {
@@ -12113,12 +12073,6 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get deskSetupSaveStarts =>
       'Speichern startet den Node. Die erste Synchronisierung dauert Stunden; die Wallet öffnet sich währenddessen.';
-
-  @override
-  String get deskSetupServer => 'Server';
-
-  @override
-  String get deskSetupOff => 'Aus';
 
   @override
   String get deskSetAboutLicencesLead =>
@@ -18706,9 +18660,6 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get deskSetupExistingNodeType => 'Vorhandener Node';
-
-  @override
   String get deskLvPayOnEpicbox => 'Auf Epicbox';
 
   @override
@@ -20580,17 +20531,17 @@ class AppLocalizationsDe extends AppLocalizations {
   String get linkPayAgain => 'Erneut bezahlen';
 
   @override
-  String linkTrustListed(String name, String directory) {
-    return '$name · über $directory';
+  String linkTrustListed(String name, String service) {
+    return '$name · über $service';
   }
 
   @override
-  String linkTrustListedBy(String directory) {
-    return 'Über $directory';
+  String linkTrustListedBy(String service) {
+    return 'Über $service';
   }
 
   @override
-  String get linkTrustDirectory =>
+  String get linkTrustNameService =>
       'Von einem Dienst, mit dem Sie gekoppelt sind';
 
   @override
@@ -20622,23 +20573,23 @@ class AppLocalizationsDe extends AppLocalizations {
   String get linkChangedConfirmTitle => 'Vor dem Bezahlen prüfen';
 
   @override
-  String dirWaitingFor(String label) {
+  String nsWaitingFor(String label) {
     return 'Warten auf $label…';
   }
 
   @override
-  String get dirCodeTitle => 'Code prüfen';
+  String get nsCodeTitle => 'Code prüfen';
 
   @override
-  String dirCodeLead(String label) {
+  String nsCodeLead(String label) {
     return '$label zeigt vier Bilder. Vergleichen Sie sie mit diesen.';
   }
 
   @override
-  String get dirCodeLabel => 'Die vier Bilder';
+  String get nsCodeLabel => 'Die vier Bilder';
 
   @override
-  String dirJoin(String name, String label) {
+  String nsJoin(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': 'Über $label bezahlt werden',
       'other': 'Als $name bezahlt werden',
@@ -20647,10 +20598,10 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get dirNotNow => 'Jetzt nicht';
+  String get nsNotNow => 'Jetzt nicht';
 
   @override
-  String dirJoinTitle(String name, String label) {
+  String nsJoinTitle(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': 'Über $label bezahlt werden?',
       'other': 'Als $name bezahlt werden?',
@@ -20659,7 +20610,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String dirJoinBody(String name, String label, String host) {
+  String nsJoinBody(String name, String label, String host) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none':
           'Wer $label nutzt, kann Sie dort bezahlen. Zahlungen kommen über $host',
@@ -20670,12 +20621,12 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String dirJoinInfo(String label) {
+  String nsJoinInfo(String label) {
     return '$label erhält eine Zahlungsadresse und einen Code, beide nur dafür erstellt. Der Dienst kann weder Ihr Guthaben sehen noch Coins bewegen oder Zahlungen lesen. Zahlungen kommen an, solange Epic Cash geöffnet ist. Jederzeit verlassen unter Kontakte › $label.';
   }
 
   @override
-  String dirJoinedNotice(String name, String label) {
+  String nsJoinedNotice(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': 'Über $label bezahlt werden: an',
       'other': 'Als $name bezahlt werden: an',
@@ -20684,7 +20635,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String dirLeftNotice(String name, String label) {
+  String nsLeftNotice(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': 'Über $label bezahlt werden: aus',
       'other': 'Als $name bezahlt werden: aus',
@@ -20693,7 +20644,7 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String dirJoined(String name, String label, String date) {
+  String nsJoined(String name, String label, String date) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': 'Über $label bezahlt werden · seit $date',
       'other': 'Als $name bezahlt werden · seit $date',
@@ -20702,32 +20653,37 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get dirNotListed => 'Aus';
+  String get nsNotListed => 'Aus';
 
   @override
-  String dirNotListedBody(String label) {
+  String nsNotListedBody(String label) {
     return '$label hat Ihren Namen entfernt.';
   }
 
   @override
-  String get dirNotJoined => 'Aus';
+  String get nsNotJoined => 'Aus';
 
   @override
-  String get dirJoinAgain => 'Wieder einschalten';
+  String get nsJoinAgain => 'Wieder einschalten';
 
   @override
-  String get dirListingCode => 'Bilder für Ihren Namen';
+  String get nsListingCode => 'Bilder für Ihren Namen';
 
   @override
-  String dirListingCodeInfo(String label) {
+  String nsListingCodeInfo(String label) {
     return 'Vier Bilder, erstellt aus der Wallet, an die Ihr Name Zahlungen leitet. $label kann dieselben vier zum Vergleich zeigen.';
   }
 
   @override
-  String get dirLeave => 'Verlassen';
+  String get nsLeave => 'Verlassen';
 
   @override
-  String dirRemoveTooTitle(String label) {
+  String nsRemoveTooTitle(String label) {
     return '$label auch entfernen?';
+  }
+
+  @override
+  String deskSendErrOwnNamed(String wallet) {
+    return 'Das ist „$wallet“, die gerade geöffnete Wallet. Um sie zu bezahlen, öffne zuerst eine andere Wallet.';
   }
 }

@@ -9,7 +9,7 @@ library;
 import '../../l10n/app_localizations.dart';
 import '../advanced.dart';
 import 'help_devices.dart';
-import 'help_directory.dart';
+import 'help_name_service.dart';
 import '../settings_file/host_settings.dart' show appConfig, hostSettings;
 
 /// One block of a topic's body. Inline, `**bold**` marks a term and `[[Settings › Node]]` a
@@ -177,8 +177,8 @@ abstract final class HelpId {
   static const paymentLinks = 'payment-links';
   static const linkLine = 'link-line';
   static const noPayments = 'no-payments';
-  static const directories = 'directories';
-  static const directoryTell = 'directory-tell';
+  static const nameServices = 'name-services';
+  static const nameServiceTell = 'name-service-tell';
   static const linkUnanswered = 'link-unanswered';
 }
 
@@ -711,7 +711,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       id: HelpId.settingsFile,
     ),
     ...deviceHelpTopics('en', phone: phone),
-    ...directoryHelpTopics('en', phone: phone),
+    ...nameServiceHelpTopics('en', phone: phone),
   ];
 }
 

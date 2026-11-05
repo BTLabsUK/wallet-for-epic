@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // After a wallet is created or restored the first run goes password → phrase →
-// Node → Epicbox → Review → Unlock. Setup starts on the node step with no way back to the
+// Node → Epicbox (Save) → Unlock. Setup starts on the node step with no way back to the
 // phrase, preselects only a healthy node, and Save goes to Unlock. A second wallet starts from
 // the current node.
 import 'dart:async';
@@ -171,7 +171,7 @@ void main() {
 
   Finder field(int i) => find.byType(EditableText).at(i);
 
-  /// Node step → pick nothing → Continue → Epicbox → Continue → Review → Save.
+  /// Node step → pick nothing → Continue → Epicbox → Save.
   Future<void> throughSetup(WidgetTester tester, {required String node}) async {
     expect(container.read(deskNavProvider).route, DeskRoute.setup);
     expect(find.text(_l.deskSetupNodeTitle), findsOneWidget, reason: 'the first run starts on the node step');
@@ -182,17 +182,13 @@ void main() {
     await tester.tap(find.text(_l.commonContinue));
     await wait(tester, 1000);
     expect(find.text(_l.deskSetupEpicboxText), findsOneWidget);
-    await tester.tap(find.text(_l.commonContinue));
-    await wait(tester, 300);
-    expect(find.text(_l.deskSetupReviewTitle), findsOneWidget);
-    // host:port on the review; the full URL only in the field.
-    expect(find.text(hostPort(node)), findsOneWidget);
+    expect(find.text(_l.commonContinue), findsNothing, reason: 'the Epicbox step is the last: it saves');
     expect(wallet.calls, isEmpty, reason: 'nothing happens before Save');
     await tester.tap(find.text(_l.deskSetupSave));
     await wait(tester, 800);
   }
 
-  testWidgets('create → node step → pick → Epicbox → Review → Save → Unlock with the new wallet', (tester) async {
+  testWidgets('create → node step → pick → Epicbox → Save → Unlock with the new wallet', (tester) async {
     await pumpApp(tester, DeskRoute.create);
     await tester.enterText(field(0), 'longpassword');
     await tester.enterText(field(1), 'longpassword');
@@ -282,8 +278,6 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     await tester.tap(find.text(_l.commonContinue));
     await wait(tester, 1000);
-    await tester.tap(find.text(_l.commonContinue));
-    await wait(tester, 300);
     await tester.tap(find.text(_l.deskSetupSave));
     await wait(tester, 800);
     expect(await tester.runAsync(() => wallet.setupPending(added.id)), isFalse);
@@ -354,11 +348,9 @@ void main() {
       expect(find.text(l.deskSetupResumeLead), findsOneWidget, reason: 'a resumed Setup says so');
       await tester.tap(find.text(_l.commonContinue));
       await wait(tester, 1000);
-      await tester.tap(find.text(_l.commonContinue));
-      await wait(tester, 300);
       await tester.tap(find.text(_l.deskSetupSave));
       await wait(tester, 800);
-      expect(container.read(deskNavProvider).route, DeskRoute.setup, reason: 'Save failed: still on Review');
+      expect(container.read(deskNavProvider).route, DeskRoute.setup, reason: 'Save failed: still on the Epicbox step');
       expect(find.text(l.deskSetupSaveFailedTitle), findsOneWidget);
       // The failure is in the log, with its kind (item 27).
       expect(log.lines.where((line) => line.contains('setup not saved (first run)')), isNotEmpty, reason: log.lines.join('\n'));

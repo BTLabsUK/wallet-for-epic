@@ -153,7 +153,7 @@ void main() {
     '17-receive': ['g4.receive.address'],
     '22-settings-node': [
       'g4.server.node', 'g4.settings.section.node', 'g4.settings.section.receiving', 'g4.settings.section.appearance',
-      'g4.settings.section.account', 'g4.settings.section.advanced', 'g4.settings.section.about',
+      'g4.settings.section.account', 'g4.settings.section.contacts', 'g4.settings.section.advanced', 'g4.settings.section.about',
     ],
     '22c-node-typed': ['g4.server.search', 'g4.server.node.add'],
     '23-settings-receiving': ['g4.server.epicbox', 'g4.confirmations.fewer', 'g4.confirmations.more'],

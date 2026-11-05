@@ -9,8 +9,8 @@ library;
 
 import 'help_content.dart';
 
-/// The payment link and directory topics in [lang] (`en`, `de`, `pl`, `ru`, `zh`, `th`).
-List<HelpTopic> directoryHelpTopics(String lang, {required bool phone}) => switch (lang) {
+/// The payment link and name service topics in [lang] (`en`, `de`, `pl`, `ru`, `zh`, `th`).
+List<HelpTopic> nameServiceHelpTopics(String lang, {required bool phone}) => switch (lang) {
   'de' => _de(phone),
   'pl' => _pl(phone),
   'ru' => _ru(phone),
@@ -78,7 +78,7 @@ List<HelpTopic> _en(bool phone) {
         const HelpBlock.p('Turning it on sends the service a payment address made only for it, signed by this wallet. Nothing else: no balance and no other address.'),
         const HelpBlock.p('**Leave** on the service’s contact page takes your name off it. The wallet keeps receiving to that address for 7 days, then stops.'),
       ],
-      id: HelpId.directories,
+      id: HelpId.nameServices,
     ),
     HelpTopic(
       'network',
@@ -88,7 +88,7 @@ List<HelpTopic> _en(bool phone) {
         const HelpBlock.p('After you pay a link, an unticked line offers to tell the service the payment is sent. It is your choice each time. The wallet never does it by itself.'),
         const HelpBlock.p('If you tick it, the service sees the request’s short id, the amount and the time. It does not see an address or a transaction id.'),
       ],
-      id: HelpId.directoryTell,
+      id: HelpId.nameServiceTell,
     ),
     HelpTopic(
       'trouble',
@@ -165,7 +165,7 @@ List<HelpTopic> _de(bool phone) {
         const HelpBlock.p('Beim Einschalten sendet diese Wallet dem Dienst eine Zahlungsadresse, die nur für ihn gemacht und von der Wallet signiert ist. Sonst nichts: kein Guthaben und keine andere Adresse.'),
         const HelpBlock.p('**Verlassen** auf der Kontaktseite des Dienstes nimmt Ihren Namen dort heraus. Die Wallet empfängt an dieser Adresse noch 7 Tage lang weiter und hört dann auf.'),
       ],
-      id: HelpId.directories,
+      id: HelpId.nameServices,
     ),
     HelpTopic(
       'network',
@@ -175,7 +175,7 @@ List<HelpTopic> _de(bool phone) {
         const HelpBlock.p('Nachdem Sie einen Link bezahlt haben, bietet eine nicht angehakte Zeile an, dem Dienst die Zahlung zu melden. Das entscheiden Sie jedes Mal neu. Die Wallet tut es nie von selbst.'),
         const HelpBlock.p('Wenn Sie es ankreuzen, sieht der Dienst die Kurz-ID der Aufforderung, den Betrag und die Zeit. Eine Adresse oder eine Transaktions-ID sieht es nicht.'),
       ],
-      id: HelpId.directoryTell,
+      id: HelpId.nameServiceTell,
     ),
     HelpTopic(
       'trouble',
@@ -252,7 +252,7 @@ List<HelpTopic> _pl(bool phone) {
         const HelpBlock.p('Włączenie wysyła usłudze adres płatności zrobiony tylko dla niej i podpisany przez ten portfel. Nic więcej: ani salda, ani żadnego innego adresu.'),
         const HelpBlock.p('**Opuść** na stronie kontaktu usługi zdejmuje tam Twoją nazwę. Portfel nadal odbiera na ten adres przez 7 dni, a potem przestaje.'),
       ],
-      id: HelpId.directories,
+      id: HelpId.nameServices,
     ),
     HelpTopic(
       'network',
@@ -262,7 +262,7 @@ List<HelpTopic> _pl(bool phone) {
         const HelpBlock.p('Po zapłaceniu linku niezaznaczony wiersz proponuje powiadomić usługę, że płatność została wysłana. Decydujesz za każdym razem. Portfel nigdy nie robi tego sam.'),
         const HelpBlock.p('Jeśli to zaznaczysz, usługa widzi krótki identyfikator prośby, kwotę i czas. Nie widzi adresu ani identyfikatora transakcji.'),
       ],
-      id: HelpId.directoryTell,
+      id: HelpId.nameServiceTell,
     ),
     HelpTopic(
       'trouble',
@@ -339,7 +339,7 @@ List<HelpTopic> _ru(bool phone) {
         const HelpBlock.p('При включении сервису отправляется платёжный адрес, созданный только для него и подписанный этим кошельком. Больше ничего: ни баланса, ни других адресов.'),
         const HelpBlock.p('**Выйти** на странице контакта сервиса снимает там ваше имя. Кошелёк ещё 7 дней принимает платежи на этот адрес, потом перестаёт.'),
       ],
-      id: HelpId.directories,
+      id: HelpId.nameServices,
     ),
     HelpTopic(
       'network',
@@ -349,7 +349,7 @@ List<HelpTopic> _ru(bool phone) {
         const HelpBlock.p('После оплаты по ссылке строка без галочки предлагает сообщить сервису, что платёж отправлен. Вы решаете каждый раз. Кошелёк никогда не делает этого сам.'),
         const HelpBlock.p('Если поставить галочку, сервис видит короткий номер запроса, сумму и время. Адрес и идентификатор транзакции он не видит.'),
       ],
-      id: HelpId.directoryTell,
+      id: HelpId.nameServiceTell,
     ),
     HelpTopic(
       'trouble',
@@ -426,7 +426,7 @@ List<HelpTopic> _zh(bool phone) {
         const HelpBlock.p('开启时，这个钱包会向服务发送一个专为它生成并由本钱包签名的收款地址。除此之外什么都不发：没有余额，也没有其他地址。'),
         const HelpBlock.p('在该服务的联系人页面点 **退出** 会撤下你在那里的名称。钱包会继续接收该地址的付款 7 天，之后停止。'),
       ],
-      id: HelpId.directories,
+      id: HelpId.nameServices,
     ),
     HelpTopic(
       'network',
@@ -436,7 +436,7 @@ List<HelpTopic> _zh(bool phone) {
         const HelpBlock.p('通过链接付款后，一行未勾选的选项可以让你告知服务付款已发出。每次都由你决定，钱包从不自动这样做。'),
         const HelpBlock.p('勾选后，服务会看到请求的短编号、金额和时间。它看不到地址或交易编号。'),
       ],
-      id: HelpId.directoryTell,
+      id: HelpId.nameServiceTell,
     ),
     HelpTopic(
       'trouble',
@@ -513,7 +513,7 @@ List<HelpTopic> _th(bool phone) {
         const HelpBlock.p('เมื่อเปิดใช้ กระเป๋าเงินนี้จะส่งที่อยู่รับเงินที่สร้างเฉพาะสำหรับบริการนั้นและลงนามโดยกระเป๋าเงินนี้ ไม่ส่งอย่างอื่นเลย ไม่มียอดคงเหลือและไม่มีที่อยู่อื่น'),
         const HelpBlock.p('**ออก** บนหน้าผู้ติดต่อของบริการจะถอนชื่อของคุณออกจากที่นั่น กระเป๋าเงินยังรับเงินเข้าที่อยู่นั้นต่อไปอีก 7 วัน แล้วจึงหยุด'),
       ],
-      id: HelpId.directories,
+      id: HelpId.nameServices,
     ),
     HelpTopic(
       'network',
@@ -523,7 +523,7 @@ List<HelpTopic> _th(bool phone) {
         const HelpBlock.p('หลังจากจ่ายด้วยลิงก์ จะมีบรรทัดที่ยังไม่ได้ติ๊กให้เลือกแจ้งบริการว่าส่งเงินแล้ว คุณตัดสินใจทุกครั้ง กระเป๋าเงินไม่เคยทำเองโดยอัตโนมัติ'),
         const HelpBlock.p('ถ้าติ๊ก บริการจะเห็นรหัสสั้นของคำขอ จำนวนเงิน และเวลา ไม่เห็นที่อยู่หรือรหัสธุรกรรม'),
       ],
-      id: HelpId.directoryTell,
+      id: HelpId.nameServiceTell,
     ),
     HelpTopic(
       'trouble',

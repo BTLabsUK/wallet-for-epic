@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import '../directory/receipts.dart' show directoryReceiptsProvider, linkPayeeName, linkPayeeUnnamed, linkPaymentProvider;
+import '../name_service/receipts.dart' show nameServiceReceiptsProvider, linkPayeeName, linkPayeeUnnamed, linkPaymentProvider;
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -1177,13 +1177,13 @@ String? txPartyName(WidgetRef ref, TxEntry tx) {
   return name.isEmpty ? null : name;
 }
 
-/// The payee of a payment made from a payment link, by the name the link or the directory
+/// The payee of a payment made from a payment link, by the name the link or the name service
 /// gave it, or null: not such a payment, or no name.
 String? linkPayeeOf(WidgetRef ref, TxEntry tx) {
   final slate = tx.slateId;
   if (slate == null || tx.kind != TxKind.sent) return null;
   final rec = ref.watch(linkPaymentProvider(slate));
-  return rec == null ? null : linkPayeeName(ref.watch(directoryReceiptsProvider), rec);
+  return rec == null ? null : linkPayeeName(ref.watch(nameServiceReceiptsProvider), rec);
 }
 
 /// Who a row waits for, for its status: the paired contact whose mailbox it went through, else

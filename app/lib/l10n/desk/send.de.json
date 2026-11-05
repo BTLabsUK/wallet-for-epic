@@ -50,6 +50,7 @@
   "deskSendErrNotDirect": "Das ist keine Link-Adresse.",
   "deskSendErrOnion": "Das ist keine gültige Onion-Adresse.",
   "deskSendErrOwn": "Das ist die eigene Adresse dieser Wallet.",
+  "deskSendErrOwnNamed": "Das ist „{wallet}“, die gerade geöffnete Wallet. Um sie zu bezahlen, öffne zuerst eine andere Wallet.",
   "deskSendNoAnswer": "Der Empfänger hat nicht geantwortet. Es wurde nichts gesendet.",
   "deskSendTorOnFailed": "Tor nicht eingeschaltet",
   "deskSendTorOffFailed": "Tor nicht ausgeschaltet",

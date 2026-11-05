@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../models.dart' show PairingRecord;
-import '../../../directory/payment_refusals.dart' show paymentRefusalsProvider;
+import '../../../name_service/payment_refusals.dart' show paymentRefusalsProvider;
 import '../../../ui/pairing/pairing_parts.dart' show NoPaymentsMark, TrustBadge;
 import '../../data/pairing_state.dart' show deskContactPairingProvider, deskPairsProvider;
 import '../../desk_l10n.dart';

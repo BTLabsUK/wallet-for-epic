@@ -1423,6 +1423,12 @@ abstract class AppLocalizations {
   /// **'Link copied'**
   String get txDetailsLinkCopied;
 
+  /// Said after the explorer link was copied, when the block explorer's own record does not have the payment's block yet (its indexer lags the chain).
+  ///
+  /// In en, this message translates to:
+  /// **'The explorer has not reached this block yet.'**
+  String get txDetailsExplorerBehind;
+
   /// Heading of a collapsed section with the payment's block height, IDs and commitments.
   ///
   /// In en, this message translates to:
@@ -18642,12 +18648,6 @@ abstract class AppLocalizations {
   /// **'Epicbox'**
   String get deskSetupStepEpicbox;
 
-  /// Setup's last step in the side panel's step list: check everything, then save. One word.
-  ///
-  /// In en, this message translates to:
-  /// **'Review'**
-  String get deskSetupStepReview;
-
   /// Lead under each step's title when setup is opened again from Settings. 'Save' is the button on the last step (deskSetupSave).
   ///
   /// In en, this message translates to:
@@ -18689,18 +18689,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Epicbox'**
   String get deskSetupEpicboxTitle;
-
-  /// Title of the setup's last step: a summary of the choices.
-  ///
-  /// In en, this message translates to:
-  /// **'Review settings'**
-  String get deskSetupReviewTitle;
-
-  /// Lead under the title of the setup's last step.
-  ///
-  /// In en, this message translates to:
-  /// **'Change anything that is not right, then save.'**
-  String get deskSetupReviewLead;
 
   /// Title of the setup's side panel, above its step list. Short.
   ///
@@ -18768,83 +18756,17 @@ abstract class AppLocalizations {
   /// **'The Epicbox server holds payments until the wallet opens.'**
   String get deskSetupEpicboxText;
 
-  /// Second paragraph of the setup's Epicbox step: a privacy note.
-  ///
-  /// In en, this message translates to:
-  /// **'The Epicbox server sees this computer’s IP address.'**
-  String get deskSetupEpicboxPrivacy;
-
   /// Label of the Epicbox server field on the setup's Epicbox step.
   ///
   /// In en, this message translates to:
   /// **'Epicbox server'**
   String get deskSetupEpicboxServer;
 
-  /// Screen reader label of the Change link next to the Preferences section on the setup's summary.
-  ///
-  /// In en, this message translates to:
-  /// **'Change preferences'**
-  String get deskSetupChangePrefsSem;
-
-  /// Screen reader label of the Change link next to the Node section on the setup's summary.
-  ///
-  /// In en, this message translates to:
-  /// **'Change node'**
-  String get deskSetupChangeNodeSem;
-
-  /// Screen reader label of the Change link next to the Epicbox section on the setup's summary.
-  ///
-  /// In en, this message translates to:
-  /// **'Change Epicbox'**
-  String get deskSetupChangeEpicboxSem;
-
-  /// Link next to a section on the setup's summary: go back to that step.
-  ///
-  /// In en, this message translates to:
-  /// **'Change'**
-  String get deskSetupChange;
-
-  /// Row label on the setup's summary: what kind of node. Narrow label column.
-  ///
-  /// In en, this message translates to:
-  /// **'Type'**
-  String get deskSetupType;
-
-  /// Row label on the setup's summary: the node's address. Narrow label column.
-  ///
-  /// In en, this message translates to:
-  /// **'Address'**
-  String get deskSetupAddress;
-
   /// Node type on the setup's summary: an Epic node already running on this computer.
   ///
   /// In en, this message translates to:
   /// **'Existing node at {host}'**
   String deskSetupExistingNode(String host);
-
-  /// Node type on the setup's summary: the Epic node that comes with the app, run on this computer.
-  ///
-  /// In en, this message translates to:
-  /// **'Local node'**
-  String get deskSetupBundledNode;
-
-  /// Row label on the setup's summary: which node the wallet uses while the local node syncs. Narrow label column.
-  ///
-  /// In en, this message translates to:
-  /// **'While syncing'**
-  String get deskSetupWhileSyncing;
-
-  /// Value of the While syncing row when the wallet waits for the local node instead of using a public one. Lower case, one word.
-  ///
-  /// In en, this message translates to:
-  /// **'wait'**
-  String get deskSetupWait;
-
-  /// Row label on the setup's summary: where the local node keeps the chain. Narrow label column.
-  ///
-  /// In en, this message translates to:
-  /// **'Data folder'**
-  String get deskSetupDataFolder;
 
   /// Note under the Node section of the setup's summary when the local node is chosen and a public node is used while it syncs.
   ///
@@ -18857,18 +18779,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save starts the node. The first sync takes hours; the wallet opens meanwhile.'**
   String get deskSetupSaveStarts;
-
-  /// Row label on the setup's summary: the Epicbox server. Narrow label column.
-  ///
-  /// In en, this message translates to:
-  /// **'Server'**
-  String get deskSetupServer;
-
-  /// Value of the Epicbox server row when no server is set: receiving through Epicbox is off.
-  ///
-  /// In en, this message translates to:
-  /// **'Off'**
-  String get deskSetupOff;
 
   /// Settings › About › Licences: the paragraph before the list of components. The phone's version says 'tap' (licencesLead).
   ///
@@ -28812,12 +28722,6 @@ abstract class AppLocalizations {
   /// **'Not in the word list: {words}.'**
   String deskOnbRestoreBadWords(String words);
 
-  /// Node type on the setup's summary: an Epic node already running on this computer. Its host:port is on the Address row below.
-  ///
-  /// In en, this message translates to:
-  /// **'Existing node'**
-  String get deskSetupExistingNodeType;
-
   /// Payment steps: sub-line under the current step 'Recipient signed' of a send over Epicbox: the payment waits on the Epicbox server for the recipient's wallet. The server's host is in the tooltip. Short.
   ///
   /// In en, this message translates to:
@@ -28938,7 +28842,7 @@ abstract class AppLocalizations {
   /// **'The waiting payment is cancelled and Send opens with the same amount. Check the address, then send it again.'**
   String get linkResendBody;
 
-  /// Unticked line on a payment made from a payment link: tell the directory's payee the payment was sent.
+  /// Unticked line on a payment made from a payment link: tell the name service's payee the payment was sent.
   ///
   /// In en, this message translates to:
   /// **'Tell {name} it’s sent'**
@@ -31851,22 +31755,22 @@ abstract class AppLocalizations {
   /// Trust line on Send: the payee's name and the service this wallet is paired with (its contact name) that the link comes from.
   ///
   /// In en, this message translates to:
-  /// **'{name} · via {directory}'**
-  String linkTrustListed(String name, String directory);
+  /// **'{name} · via {service}'**
+  String linkTrustListed(String name, String service);
 
   /// Trust line on Send when the link has no name.
   ///
   /// In en, this message translates to:
-  /// **'Via {directory}'**
-  String linkTrustListedBy(String directory);
+  /// **'Via {service}'**
+  String linkTrustListedBy(String service);
 
-  /// Trust line on Send for a directory this wallet uses that has no label.
+  /// Trust line on Send for a name service this wallet uses that has no label.
   ///
   /// In en, this message translates to:
   /// **'From a service you paired with'**
-  String get linkTrustDirectory;
+  String get linkTrustNameService;
 
-  /// Trust line on Send for a payment link from any other directory.
+  /// Trust line on Send for a payment link from any other name service.
   ///
   /// In en, this message translates to:
   /// **'Not from a service you paired with'**
@@ -31908,125 +31812,131 @@ abstract class AppLocalizations {
   /// **'Check before paying'**
   String get linkChangedConfirmTitle;
 
-  /// Static line on the Check step while a directory’s message is awaited (no spinner). {label} is the name the pairing shows.
+  /// Static line on the Check step while a name service’s message is awaited (no spinner). {label} is the name the pairing shows.
   ///
   /// In en, this message translates to:
   /// **'Waiting for {label}…'**
-  String dirWaitingFor(String label);
+  String nsWaitingFor(String label);
 
-  /// Title of the step that replaces Check the words for a directory pairing.
+  /// Title of the step that replaces Check the words for a name service pairing.
   ///
   /// In en, this message translates to:
   /// **'Check the code'**
-  String get dirCodeTitle;
+  String get nsCodeTitle;
 
   /// Lead of Check the code: the four pictures below must equal the ones the other side shows.
   ///
   /// In en, this message translates to:
   /// **'{label} shows four pictures. Compare them with these.'**
-  String dirCodeLead(String label);
+  String nsCodeLead(String label);
 
   /// Read by a screen reader before the four pictures of a code.
   ///
   /// In en, this message translates to:
   /// **'The four pictures'**
-  String get dirCodeLabel;
+  String get nsCodeLabel;
 
   /// Button on the Join sheet and the contact page: the user takes a payment name at this service. {name} is the user's @name from the service's hello, or the word none when it sent none; {label} is the contact name.
   ///
   /// In en, this message translates to:
   /// **'{name, select, none{Pay me via {label}} other{Pay me as {name}}}'**
-  String dirJoin(String name, String label);
+  String nsJoin(String name, String label);
 
   /// Button on the Join sheet: leaves the contact verified, with Join on its page.
   ///
   /// In en, this message translates to:
   /// **'Not now'**
-  String get dirNotNow;
+  String get nsNotNow;
 
   /// Title of the Join sheet. {name} is the user's @name, or the word none; {label} is the contact name.
   ///
   /// In en, this message translates to:
   /// **'{name, select, none{Pay me via {label}?} other{Pay me as {name}?}}'**
-  String dirJoinTitle(String name, String label);
+  String nsJoinTitle(String name, String label);
 
   /// Body of the Join sheet. {name} is the user's @name, or the word none; {label} is the contact name; {host} is the host of the wallet’s own Epicbox server.
   ///
   /// In en, this message translates to:
   /// **'{name, select, none{People who use {label} can pay you there. Payments come through {host}} other{People who use {label} can pay you as {name}. Payments come through {host}}}'**
-  String dirJoinBody(String name, String label, String host);
+  String nsJoinBody(String name, String label, String host);
 
   /// Explanation behind the info button on the Join sheet.
   ///
   /// In en, this message translates to:
   /// **'{label} gets one payment address and one code, both made only for it. It cannot see your balance, move coins or read payments. Payments arrive while Epic Cash is open. Leave any time in Contacts › {label}.'**
-  String dirJoinInfo(String label);
+  String nsJoinInfo(String label);
 
   /// Notice after Join worked. {name} is the user's @name, or the word none; {label} is the contact name.
   ///
   /// In en, this message translates to:
   /// **'{name, select, none{Pay me via {label}: on} other{Pay me as {name}: on}}'**
-  String dirJoinedNotice(String name, String label);
+  String nsJoinedNotice(String name, String label);
 
   /// Notice after Leave worked. {name} is the user's @name, or the word none; {label} is the contact name.
   ///
   /// In en, this message translates to:
   /// **'{name, select, none{Pay me via {label}: off} other{Pay me as {name}: off}}'**
-  String dirLeftNotice(String name, String label);
+  String nsLeftNotice(String name, String label);
 
   /// Status line on the contact page of a service the user joined. {name} is the user's @name, or the word none; {label} is the contact name; {date} is a short date.
   ///
   /// In en, this message translates to:
   /// **'{name, select, none{Pay me via {label} · since {date}} other{Pay me as {name} · since {date}}}'**
-  String dirJoined(String name, String label, String date);
+  String nsJoined(String name, String label, String date);
 
-  /// Status line on the contact page of a directory that no longer lists the user.
+  /// Status line on the contact page of a name service that no longer lists the user.
   ///
   /// In en, this message translates to:
   /// **'Off'**
-  String get dirNotListed;
+  String get nsNotListed;
 
   /// Line under Not listed.
   ///
   /// In en, this message translates to:
   /// **'{label} removed your name.'**
-  String dirNotListedBody(String label);
+  String nsNotListedBody(String label);
 
-  /// Status line on the contact page of a verified directory the user has not joined.
+  /// Status line on the contact page of a verified name service the user has not joined.
   ///
   /// In en, this message translates to:
   /// **'Off'**
-  String get dirNotJoined;
+  String get nsNotJoined;
 
-  /// Button on the contact page of a directory that no longer lists the user, or one the user left.
+  /// Button on the contact page of a name service that no longer lists the user, or one the user left.
   ///
   /// In en, this message translates to:
   /// **'Turn on again'**
-  String get dirJoinAgain;
+  String get nsJoinAgain;
 
-  /// Label of the four pictures of the user’s listing on the contact page of a directory.
+  /// Label of the four pictures of the user’s listing on the contact page of a name service.
   ///
   /// In en, this message translates to:
   /// **'Pictures for your name'**
-  String get dirListingCode;
+  String get nsListingCode;
 
   /// Explanation behind the info button of the listing code. {label} is the name the pairing shows.
   ///
   /// In en, this message translates to:
   /// **'Four pictures made from the wallet your name pays. {label} can show the same four to compare.'**
-  String dirListingCodeInfo(String label);
+  String nsListingCodeInfo(String label);
 
   /// Button on the contact page of a joined service: takes the user's name down (opens the confirm).
   ///
   /// In en, this message translates to:
   /// **'Leave'**
-  String get dirLeave;
+  String get nsLeave;
 
   /// Title of the question after Leave: also end the pairing.
   ///
   /// In en, this message translates to:
   /// **'Remove {label} too?'**
-  String dirRemoveTooTitle(String label);
+  String nsRemoveTooTitle(String label);
+
+  /// Error under the To field on Send when the recipient is the wallet open now. {wallet} is its name in the wallet list. The app’s other wallets can be paid; only the open one cannot.
+  ///
+  /// In en, this message translates to:
+  /// **'This is “{wallet}”, the wallet open now. To pay it, open another wallet first.'**
+  String deskSendErrOwnNamed(String wallet);
 }
 
 class _AppLocalizationsDelegate

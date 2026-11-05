@@ -35,9 +35,9 @@ import '../../first_run_servers.dart' show firstRunServersSettled;
 import '../../devices/device_history.dart' show mergeDeviceHistory;
 import '../../devices/device_model.dart' show DeviceBook;
 import '../../devices/device_service.dart' show DeviceHost, ForwardKind, ForwardedNotice, SessionDeviceHost;
-import '../../directory/directory_service.dart' show DirectoryHost, SessionDirectoryHost, netOfChain;
-import '../../directory/verify.dart' show DirectoryVerifier;
-import '../../directory/receipts.dart' show LinkPaymentRecords;
+import '../../name_service/name_service_service.dart' show NameServiceHost, SessionNameServiceHost, netOfChain;
+import '../../name_service/verify.dart' show NameServiceVerifier;
+import '../../name_service/receipts.dart' show LinkPaymentRecords;
 import '../../devices/device_store.dart' show DeviceStore;
 import '../../btlabs_onions.dart';
 import '../../btlabs_public.dart';
@@ -50,8 +50,8 @@ import '../../l10n.dart' show AppLocalizations;
 import '../desk_l10n.dart' show deskStrings;
 import '../../log.dart';
 import '../../node/node_settings.dart' show NodeSettings;
-import '../../directory/directory.dart' show DirectoryMembership, LinkOutcome, Payreq, openLink;
-import '../../directory/base58.dart' show netFloonet, netMainnet;
+import '../../name_service/name_service.dart' show NameServiceMembership, LinkOutcome, Payreq, openLink;
+import '../../name_service/base58.dart' show netFloonet, netMainnet;
 import '../../scan/scan_router.dart' show PaymentLink;
 import '../../models.dart' show Chain;
 import '../../known_relays.dart' show recipientRelay;
@@ -966,7 +966,7 @@ class LepicDeskWallet implements DeskWalletApi {
   bool get openedRemembered => _session != null && _openedRemembered;
 
   @override
-  Future<LinkOutcome> openPaymentLink(PaymentLink link, {required DirectoryMembership membership, required int nowSeconds}) {
+  Future<LinkOutcome> openPaymentLink(PaymentLink link, {required NameServiceMembership membership, required int nowSeconds}) {
     final session = _open;
     return openLink(
       request: link.request,
@@ -5441,11 +5441,11 @@ class LepicDeskWallet implements DeskWalletApi {
     return _DeskDeviceHost(this, _openEntry?.id, online);
   }
 
-  /// The open wallet's directories host; like [deviceHost] it follows the wallet through a reopen.
+  /// The open wallet's name services host; like [deviceHost] it follows the wallet through a reopen.
   @override
-  DirectoryHost? directoryHost({required bool Function() online}) {
+  NameServiceHost? nameServiceHost({required bool Function() online}) {
     if (_session == null) return null;
-    return _DeskDirectoryHost(this, _openEntry?.id, online);
+    return _DeskNameServiceHost(this, _openEntry?.id, online);
   }
 
   /// The open session of the wallet [id], or null while it is not open.
@@ -5867,19 +5867,19 @@ Future<void> writeWalletTxt(String dir, {required String label, required String 
   }
 }
 
-/// [LepicDeskWallet.directoryHost]: the session of one wallet, whichever is open now; its calls
-/// fail while the wallet reopens, so a run of the directories waits for the next one.
-class _DeskDirectoryHost implements DirectoryHost {
-  _DeskDirectoryHost(this._wallet, this._id, this._online) : _last = _wallet._sessionOf(_id)!;
+/// [LepicDeskWallet.nameServiceHost]: the session of one wallet, whichever is open now; its calls
+/// fail while the wallet reopens, so a run of the name services waits for the next one.
+class _DeskNameServiceHost implements NameServiceHost {
+  _DeskNameServiceHost(this._wallet, this._id, this._online) : _last = _wallet._sessionOf(_id)!;
 
   final LepicDeskWallet _wallet;
   final String? _id;
   final bool Function() _online;
   core.WalletSession _last;
 
-  SessionDirectoryHost get _host {
+  SessionNameServiceHost get _host {
     _last = _wallet._sessionOf(_id) ?? _last;
-    return SessionDirectoryHost(
+    return SessionNameServiceHost(
       _last,
       net: netOfChain(_wallet.preset.chain),
       verifier: _wallet._service.verifyListingSignature,
@@ -5897,17 +5897,17 @@ class _DeskDirectoryHost implements DirectoryHost {
   int get net => netOfChain(_wallet.preset.chain);
 
   @override
-  DirectoryVerifier get verifier => _wallet._service.verifyListingSignature;
+  NameServiceVerifier get verifier => _wallet._service.verifyListingSignature;
 
   @override
-  Future<String> listingAddress(String dkeyHex, int generation) => _host.listingAddress(dkeyHex, generation);
+  Future<String> listingAddress(String serviceKeyHex, int generation) => _host.listingAddress(serviceKeyHex, generation);
 
   @override
-  Future<Uint8List> sign(String dkeyHex, int generation, String domain, Uint8List message) =>
-      _host.sign(dkeyHex, generation, domain, message);
+  Future<Uint8List> sign(String serviceKeyHex, int generation, String domain, Uint8List message) =>
+      _host.sign(serviceKeyHex, generation, domain, message);
 
   @override
-  Future<core.PaymentsDrainReport> drain(String dkeyHex, int generation) => _host.drain(dkeyHex, generation);
+  Future<core.PaymentsDrainReport> drain(String serviceKeyHex, int generation) => _host.drain(serviceKeyHex, generation);
 }
 
 /// [LepicDeskWallet.deviceHost]: the session of one wallet, whichever is open now. While the

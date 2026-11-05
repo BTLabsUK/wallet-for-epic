@@ -825,6 +825,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsLinkCopied => '链接已复制';
 
   @override
+  String get txDetailsExplorerBehind => '区块浏览器尚未同步到这个区块。';
+
+  @override
   String get txDetailsTechnical => '技术详情';
 
   @override
@@ -11161,9 +11164,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetupStepEpicbox => 'Epicbox';
 
   @override
-  String get deskSetupStepReview => '检查';
-
-  @override
   String get deskSetupAgain => '正在重新运行设置向导。在最后一步点击“保存设置”之前不会有任何更改。';
 
   @override
@@ -11183,12 +11183,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetupEpicboxTitle => 'Epicbox';
-
-  @override
-  String get deskSetupReviewTitle => '检查设置';
-
-  @override
-  String get deskSetupReviewLead => '修改不正确的地方，然后保存。';
 
   @override
   String get deskSetupSideTitle => '设置向导';
@@ -11224,45 +11218,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetupEpicboxText => 'Epicbox 服务器会暂存付款，直到钱包打开。';
 
   @override
-  String get deskSetupEpicboxPrivacy => 'Epicbox 服务器能看到这台电脑的 IP 地址。';
-
-  @override
   String get deskSetupEpicboxServer => 'Epicbox 服务器';
-
-  @override
-  String get deskSetupChangePrefsSem => '更改偏好设置';
-
-  @override
-  String get deskSetupChangeNodeSem => '更改节点';
-
-  @override
-  String get deskSetupChangeEpicboxSem => '更改 Epicbox';
-
-  @override
-  String get deskSetupChange => '更改';
-
-  @override
-  String get deskSetupType => '类型';
-
-  @override
-  String get deskSetupAddress => '地址';
 
   @override
   String deskSetupExistingNode(String host) {
     return '$host 上的现有节点';
   }
-
-  @override
-  String get deskSetupBundledNode => '本地节点';
-
-  @override
-  String get deskSetupWhileSyncing => '同步期间';
-
-  @override
-  String get deskSetupWait => '等待';
-
-  @override
-  String get deskSetupDataFolder => '数据文件夹';
 
   @override
   String deskSetupSaveStartsFallback(String node) {
@@ -11271,12 +11232,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetupSaveStarts => '保存后会启动节点。首次同步需要数小时；期间钱包会打开。';
-
-  @override
-  String get deskSetupServer => '服务器';
-
-  @override
-  String get deskSetupOff => '关闭';
 
   @override
   String get deskSetAboutLicencesLead => '此钱包中的开源软件，各自遵循其许可证。';
@@ -17439,9 +17394,6 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get deskSetupExistingNodeType => '现有节点';
-
-  @override
   String get deskLvPayOnEpicbox => '在 Epicbox 上';
 
   @override
@@ -19176,17 +19128,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get linkPayAgain => '再次付款';
 
   @override
-  String linkTrustListed(String name, String directory) {
-    return '$name · 经由 $directory';
+  String linkTrustListed(String name, String service) {
+    return '$name · 经由 $service';
   }
 
   @override
-  String linkTrustListedBy(String directory) {
-    return '经由 $directory';
+  String linkTrustListedBy(String service) {
+    return '经由 $service';
   }
 
   @override
-  String get linkTrustDirectory => '来自你已配对的服务';
+  String get linkTrustNameService => '来自你已配对的服务';
 
   @override
   String get linkTrustOther => '不是来自你已配对的服务';
@@ -19216,23 +19168,23 @@ class AppLocalizationsZh extends AppLocalizations {
   String get linkChangedConfirmTitle => '付款前请核对';
 
   @override
-  String dirWaitingFor(String label) {
+  String nsWaitingFor(String label) {
     return '正在等待 $label…';
   }
 
   @override
-  String get dirCodeTitle => '核对代码';
+  String get nsCodeTitle => '核对代码';
 
   @override
-  String dirCodeLead(String label) {
+  String nsCodeLead(String label) {
     return '$label 显示四个图案。请与这里的对比。';
   }
 
   @override
-  String get dirCodeLabel => '四个图案';
+  String get nsCodeLabel => '四个图案';
 
   @override
-  String dirJoin(String name, String label) {
+  String nsJoin(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': '通过 $label 收款',
       'other': '以 $name 收款',
@@ -19241,10 +19193,10 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get dirNotNow => '暂不';
+  String get nsNotNow => '暂不';
 
   @override
-  String dirJoinTitle(String name, String label) {
+  String nsJoinTitle(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': '通过 $label 收款？',
       'other': '以 $name 收款？',
@@ -19253,7 +19205,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String dirJoinBody(String name, String label, String host) {
+  String nsJoinBody(String name, String label, String host) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': '使用 $label 的人可以在那里向你付款。款项通过 $host 到达',
       'other': '使用 $label 的人可以用 $name 向你付款。款项通过 $host 到达',
@@ -19262,12 +19214,12 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String dirJoinInfo(String label) {
+  String nsJoinInfo(String label) {
     return '$label 会得到一个收款地址和一个代码，都仅为它创建。它看不到你的余额，不能动用币，也不能读取付款。Epic Cash 打开时款项才会到达。可随时在 联系人 › $label 中退出。';
   }
 
   @override
-  String dirJoinedNotice(String name, String label) {
+  String nsJoinedNotice(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': '通过 $label 收款：已开启',
       'other': '以 $name 收款：已开启',
@@ -19276,7 +19228,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String dirLeftNotice(String name, String label) {
+  String nsLeftNotice(String name, String label) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': '通过 $label 收款：已关闭',
       'other': '以 $name 收款：已关闭',
@@ -19285,7 +19237,7 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String dirJoined(String name, String label, String date) {
+  String nsJoined(String name, String label, String date) {
     String _temp0 = intl.Intl.selectLogic(name, {
       'none': '通过 $label 收款 · 自 $date 起',
       'other': '以 $name 收款 · 自 $date 起',
@@ -19294,32 +19246,37 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get dirNotListed => '关闭';
+  String get nsNotListed => '关闭';
 
   @override
-  String dirNotListedBody(String label) {
+  String nsNotListedBody(String label) {
     return '$label 已移除你的名称。';
   }
 
   @override
-  String get dirNotJoined => '关闭';
+  String get nsNotJoined => '关闭';
 
   @override
-  String get dirJoinAgain => '重新开启';
+  String get nsJoinAgain => '重新开启';
 
   @override
-  String get dirListingCode => '你的名称的图案';
+  String get nsListingCode => '你的名称的图案';
 
   @override
-  String dirListingCodeInfo(String label) {
+  String nsListingCodeInfo(String label) {
     return '由你的名称所收款的钱包生成的四个图案。$label 可显示同样的四个供对比。';
   }
 
   @override
-  String get dirLeave => '退出';
+  String get nsLeave => '退出';
 
   @override
-  String dirRemoveTooTitle(String label) {
+  String nsRemoveTooTitle(String label) {
     return '也移除 $label？';
+  }
+
+  @override
+  String deskSendErrOwnNamed(String wallet) {
+    return '这是当前打开的钱包“$wallet”。要向它付款，请先打开另一个钱包。';
   }
 }

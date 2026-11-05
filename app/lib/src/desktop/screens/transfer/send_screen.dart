@@ -51,7 +51,7 @@ import 'send_advanced.dart';
 import '../settings/prefs.dart' show SettingsJump, settingsPrefsProvider;
 import '../settings/settings_advanced.dart' show advancedHas, AdvancedFeature, confirmNetworkModeSwitch;
 import '../../data/method_names.dart' show methodKindOf;
-import '../../../directory/directory.dart' show DirectoryTrust, LinkOpened, LinkOutcome, LinkRefused, directoryMembershipProvider, paymentRefusalsProvider;
+import '../../../name_service/name_service.dart' show NameServiceTrust, LinkOpened, LinkOutcome, LinkRefused, nameServiceMembershipProvider, paymentRefusalsProvider;
 import '../../../l10n.dart' show localDay;
 import '../../../scan/incoming_link.dart' show linkClockProvider;
 import '../../../scan/scan_router.dart';
@@ -1073,7 +1073,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     try {
       outcome = await ref.read(deskApiProvider).openPaymentLink(
         link,
-        membership: ref.read(directoryMembershipProvider),
+        membership: ref.read(nameServiceMembershipProvider),
         nowSeconds: ref.read(linkClockProvider)().millisecondsSinceEpoch ~/ 1000,
       );
     } on Object catch (e) {
@@ -1292,15 +1292,18 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     }
   }
 
-  /// "This is the wallet's own address." when the Epicbox recipient is this wallet: the
-  /// part before @ the same, exactly (it is case-sensitive), and the server this wallet's or
-  /// left out (":443" is the same server).
+  /// The open wallet's own address, named ("This is “local 2”, the wallet open now."), when
+  /// the Epicbox recipient is this wallet: the part before @ the same, exactly (it is
+  /// case-sensitive), and the server this wallet's or left out (":443" is the same server).
+  /// Only the open wallet counts: the other wallets of the app are paid like anyone else.
   String? _ownAddressError(DeskState st) {
     final own = st.epicboxAddress;
     if (_read.kind != RecipientInputKind.epicbox || own == null || own.isEmpty) return null;
     final (key, host) = _epicboxParts(_read.address);
     final (ownKey, ownHost) = _epicboxParts(own);
-    return key == ownKey && (host == null || host == ownHost) ? context.l10n.deskSendErrOwn : null;
+    if (key != ownKey || (host != null && host != ownHost)) return null;
+    final name = st.wallets?.where((w) => w.current).firstOrNull?.name.trim() ?? '';
+    return name.isEmpty ? context.l10n.deskSendErrOwn : context.l10n.deskSendErrOwnNamed(name);
   }
 
   /// The key and the server (lower-case, without ":443"; null when missing) of an Epicbox address.
@@ -1463,7 +1466,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     }
 
     // A listing that points to another wallet than when it was paid asks once more.
-    if (link != null && link.standing.trust == DirectoryTrust.changedWallet && !await confirmChangedWalletDesk(context, link)) return;
+    if (link != null && link.standing.trust == NameServiceTrust.changedWallet && !await confirmChangedWalletDesk(context, link)) return;
     if (!mounted) return;
     final draft = draftOf(_plan);
     // Plain HTTP to another computer goes through without asking; the wallet needs the flag.

@@ -20,13 +20,18 @@ import '../../../advanced.dart' show AdvancedFeature;
 /// The Settings navigation for the view: the sections of [settingsSections] in their four
 /// groups (the open wallet, under its name; App; This computer; Help), each entry its icon and
 /// name. A section the view hides ([deskLevelHides]) has no entry, Invoices needs a wallet that
-/// takes them, and an empty group has no heading. Sub-pages have no entry of their own.
+/// takes them, and an empty group has no heading. Sub-pages have no entry of their own. The
+/// wallet's group also lists Contacts, which opens the Contacts page outside Settings.
 List<ESubnavGroup> settingsNavGroups(AppLocalizations l, {required String? walletName, required bool invoices, required DeskLevelFeatures ui}) => [
   for (final nav in SetNav.values)
     if ([
       for (final s in settingsSections)
         if (s.nav == nav && s.parent == null && !deskLevelHides(ui, s.route) && (s.route != DeskRoute.settingsInvoices || invoices))
-          (s.route as Object, settingsSectionLabel(l, s.route), s.icon),
+          ...[
+            (s.route as Object, settingsSectionLabel(l, s.route), s.icon),
+            // Contacts, as on the phone: the entry opens the Contacts page itself.
+            if (s.route == DeskRoute.settingsAccount) (DeskRoute.contacts as Object, l.deskShellNavContacts, EIcons.contacts),
+          ],
     ] case final items when items.isNotEmpty)
       ESubnavGroup(heading: settingsNavLabel(l, nav, walletName: walletName == null || walletName.isEmpty ? null : walletName), items: items),
 ];

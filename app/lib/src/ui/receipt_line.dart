@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 /// The optional receipt line of a payment made from a payment link (tg-pay §5.5): one unticked
 /// line, off by default, never automatic. Ticking posts a type 5 receipt for that stage once;
-/// the line then reads as done. Hidden unless the directory can be told.
+/// the line then reads as done. Hidden unless the name service can be told.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../amount.dart' show epicFor;
-import '../directory/pins.dart';
-import '../directory/receipts.dart';
+import '../name_service/pins.dart';
+import '../name_service/receipts.dart';
 import '../l10n.dart';
 import 'info_hint.dart';
 import 'theme/tokens.dart';
@@ -58,7 +58,7 @@ Future<bool> tickReceipt(
   final rec = records.of(slateId);
   if (rec == null) return false;
   final ok = await tellPayee(
-    receipts: ref.read(directoryReceiptsProvider),
+    receipts: ref.read(nameServiceReceiptsProvider),
     records: records,
     slateId: slateId,
     stage: stage,
@@ -102,14 +102,14 @@ class _ReceiptLineState extends ConsumerState<ReceiptLine> {
   @override
   Widget build(BuildContext context) {
     final rec = ref.watch(linkPaymentProvider(widget.slateId));
-    final state = receiptLineOf(ref.watch(directoryReceiptsProvider), rec, posted: widget.posted);
+    final state = receiptLineOf(ref.watch(nameServiceReceiptsProvider), rec, posted: widget.posted);
     if (rec == null || state == null) return const SizedBox.shrink();
     final l = context.l10n;
     final texts = ReceiptTexts(
       l,
       rec,
       state.stage,
-      linkPayeeName(ref.watch(directoryReceiptsProvider), rec),
+      linkPayeeName(ref.watch(nameServiceReceiptsProvider), rec),
       widget.finalizedAtUnix,
     );
     final t = context.tokens;

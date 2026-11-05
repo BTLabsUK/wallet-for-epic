@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import '../../../amount.dart' show exactEpic;
-import '../../../directory/pins.dart' show LinkPaymentRec;
-import '../../../directory/receipts.dart';
+import '../../../name_service/pins.dart' show LinkPaymentRec;
+import '../../../name_service/receipts.dart';
 import '../../../trust/policy.dart' show MailboxSendStage, mailboxSendStage;
 import '../transfer/send_screen.dart' show SendArgs;
 import 'receipt_line.dart';
@@ -9,6 +9,7 @@ import '../../../cancel_choice.dart';
 import '../../../cancel_final.dart' show CancelResult;
 import '../../../connection_grace.dart' show connectionGraceProvider;
 import '../../../network_gate.dart' show NetGate;
+import '../../../explorer_check.dart' show ExplorerHas, explorerHasBlock;
 import '../transfer/finished_payment.dart' show FinishedPaymentActions;
 import 'dart:async';
 
@@ -86,6 +87,15 @@ class _TxDetailState extends ConsumerState<TxDetail> {
 
   /// The node already had this receive when Cancel was asked: Cancel stays away for this visit.
   int? _onNetworkFor;
+
+  /// The block height the explorer had not reached when its link was copied.
+  int? _explorerBehind;
+
+  /// One request on Copy: is the block in the explorer yet ([explorerHasBlock]).
+  Future<void> _checkExplorer(int height) async {
+    final has = await explorerHasBlock(height);
+    if (mounted) setState(() => _explorerBehind = has == ExplorerHas.notYet ? height : null);
+  }
 
   /// Ticks once a minute while an incoming payment waits inside its Cancel hold, so the
   /// "accepted N minutes ago" line and the hold's end move without a refresh.
@@ -386,7 +396,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
         : null;
     // A payment made from a payment link: its payee's silent rows and the optional receipt.
     final linkRec = t.slateId.isEmpty ? null : ref.watch(linkPaymentProvider(t.slateId));
-    final linkName = linkRec == null ? null : linkPayeeName(ref.watch(directoryReceiptsProvider), linkRec);
+    final linkName = linkRec == null ? null : linkPayeeName(ref.watch(nameServiceReceiptsProvider), linkRec);
     final linkWaiting = linkRec != null && mailboxName == null && !t.incoming && t.state == TxState.waitingRecipient && !t.undelivered;
     final linkOffer = linkWaiting
         ? switch (mailboxSendStage(t.created, ref.watch(deskClockProvider)())) {
@@ -784,8 +794,13 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           SizedBox(height: Sp.x3),
           Align(
             alignment: AlignmentDirectional.centerStart,
-            child: ECopyButton(key: const ValueKey('tx-explorer-link'), text: url, label: l.txDetailsExplorerLink, withLabel: true),
+            child: ECopyButton(key: const ValueKey('tx-explorer-link'), text: url, label: l.txDetailsExplorerLink, withLabel: true, onCopied: () => _checkExplorer(t.height!)),
           ),
+          if (_explorerBehind != null && _explorerBehind == t.height)
+            Padding(
+              padding: EdgeInsets.only(top: Sp.x1),
+              child: Semantics(liveRegion: true, child: Text(l.txDetailsExplorerBehind, key: const ValueKey('tx-explorer-behind'), style: ts.small)),
+            ),
         ],
         // Advanced › Technical details: the fold, or a small More link that shows the same rows
         // for this view only (the switch stays off). Report a problem carries the slate id either way.

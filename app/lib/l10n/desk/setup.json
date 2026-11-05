@@ -58,10 +58,6 @@
   "@deskSetupStepEpicbox": {
     "description": "Setup step in the side panel's step list (the Epicbox server for receiving), and a section head on the last step. Epicbox is a product name: keep it."
   },
-  "deskSetupStepReview": "Review",
-  "@deskSetupStepReview": {
-    "description": "Setup's last step in the side panel's step list: check everything, then save. One word."
-  },
   "deskSetupAgain": "Running setup again. Nothing changes until Save on the last step.",
   "@deskSetupAgain": {
     "description": "Lead under each step's title when setup is opened again from Settings. 'Save' is the button on the last step (deskSetupSave)."
@@ -89,14 +85,6 @@
   "deskSetupEpicboxTitle": "Epicbox",
   "@deskSetupEpicboxTitle": {
     "description": "Title of the setup step about the Epicbox server (address for getting paid)."
-  },
-  "deskSetupReviewTitle": "Review settings",
-  "@deskSetupReviewTitle": {
-    "description": "Title of the setup's last step: a summary of the choices."
-  },
-  "deskSetupReviewLead": "Change anything that is not right, then save.",
-  "@deskSetupReviewLead": {
-    "description": "Lead under the title of the setup's last step."
   },
   "deskSetupSideTitle": "Set up",
   "@deskSetupSideTitle": {
@@ -142,37 +130,9 @@
   "@deskSetupEpicboxText": {
     "description": "First paragraph of the setup's Epicbox step."
   },
-  "deskSetupEpicboxPrivacy": "The Epicbox server sees this computer’s IP address.",
-  "@deskSetupEpicboxPrivacy": {
-    "description": "Second paragraph of the setup's Epicbox step: a privacy note."
-  },
   "deskSetupEpicboxServer": "Epicbox server",
   "@deskSetupEpicboxServer": {
     "description": "Label of the Epicbox server field on the setup's Epicbox step."
-  },
-  "deskSetupChangePrefsSem": "Change preferences",
-  "@deskSetupChangePrefsSem": {
-    "description": "Screen reader label of the Change link next to the Preferences section on the setup's summary."
-  },
-  "deskSetupChangeNodeSem": "Change node",
-  "@deskSetupChangeNodeSem": {
-    "description": "Screen reader label of the Change link next to the Node section on the setup's summary."
-  },
-  "deskSetupChangeEpicboxSem": "Change Epicbox",
-  "@deskSetupChangeEpicboxSem": {
-    "description": "Screen reader label of the Change link next to the Epicbox section on the setup's summary."
-  },
-  "deskSetupChange": "Change",
-  "@deskSetupChange": {
-    "description": "Link next to a section on the setup's summary: go back to that step."
-  },
-  "deskSetupType": "Type",
-  "@deskSetupType": {
-    "description": "Row label on the setup's summary: what kind of node. Narrow label column."
-  },
-  "deskSetupAddress": "Address",
-  "@deskSetupAddress": {
-    "description": "Row label on the setup's summary: the node's address. Narrow label column."
   },
   "deskSetupExistingNode": "Existing node at {host}",
   "@deskSetupExistingNode": {
@@ -183,26 +143,6 @@
         "example": "127.0.0.1:<port>"
       }
     }
-  },
-  "deskSetupExistingNodeType": "Existing node",
-  "@deskSetupExistingNodeType": {
-    "description": "Node type on the setup's summary: an Epic node already running on this computer. Its host:port is on the Address row below."
-  },
-  "deskSetupBundledNode": "Local node",
-  "@deskSetupBundledNode": {
-    "description": "Node type on the setup's summary: the Epic node that comes with the app, run on this computer."
-  },
-  "deskSetupWhileSyncing": "While syncing",
-  "@deskSetupWhileSyncing": {
-    "description": "Row label on the setup's summary: which node the wallet uses while the local node syncs. Narrow label column."
-  },
-  "deskSetupWait": "wait",
-  "@deskSetupWait": {
-    "description": "Value of the While syncing row when the wallet waits for the local node instead of using a public one. Lower case, one word."
-  },
-  "deskSetupDataFolder": "Data folder",
-  "@deskSetupDataFolder": {
-    "description": "Row label on the setup's summary: where the local node keeps the chain. Narrow label column."
   },
   "deskSetupSaveStartsFallback": "Save starts the node; {node} stands in until it is synced.",
   "@deskSetupSaveStartsFallback": {
@@ -217,14 +157,6 @@
   "deskSetupSaveStarts": "Save starts the node. The first sync takes hours; the wallet opens meanwhile.",
   "@deskSetupSaveStarts": {
     "description": "Note under the Node section of the setup's summary when the local node is chosen and the wallet waits for it."
-  },
-  "deskSetupServer": "Server",
-  "@deskSetupServer": {
-    "description": "Row label on the setup's summary: the Epicbox server. Narrow label column."
-  },
-  "deskSetupOff": "Off",
-  "@deskSetupOff": {
-    "description": "Value of the Epicbox server row when no server is set: receiving through Epicbox is off."
   },
   "deskSetupSaveFailedTitle": "Settings not saved",
   "@deskSetupSaveFailedTitle": {

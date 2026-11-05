@@ -6,7 +6,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../directory/receipts.dart';
+import '../../../name_service/receipts.dart';
 import '../../../ui/receipt_line.dart' show ReceiptTexts, tickReceipt;
 import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
@@ -49,7 +49,7 @@ class _DeskReceiptLineState extends ConsumerState<DeskReceiptLine> {
 
   @override
   Widget build(BuildContext context) {
-    final receipts = ref.watch(directoryReceiptsProvider);
+    final receipts = ref.watch(nameServiceReceiptsProvider);
     final rec = ref.watch(linkPaymentProvider(widget.slateId));
     final state = receiptLineOf(receipts, rec, posted: widget.posted);
     if (rec == null || state == null) return const SizedBox.shrink();

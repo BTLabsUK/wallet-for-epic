@@ -5,7 +5,7 @@ library;
 
 import 'help_content.dart';
 import 'help_devices.dart';
-import 'help_directory.dart';
+import 'help_name_service.dart';
 import '../settings_file/host_settings.dart' show appConfig, hostSettings;
 
 const List<HelpSection> helpSectionsZh = [
@@ -514,6 +514,6 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       ],
     ], id: HelpId.settingsFile),
     ...deviceHelpTopics('zh', phone: phone),
-    ...directoryHelpTopics('zh', phone: phone),
+    ...nameServiceHelpTopics('zh', phone: phone),
   ];
 }

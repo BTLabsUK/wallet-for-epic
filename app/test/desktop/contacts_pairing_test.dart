@@ -7,8 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:epic_wallet/src/desktop/data/desk_levels.dart' show deskLevelProvider;
 import 'package:epic_wallet/src/desktop/data/invoice_state.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+import 'package:epic_wallet/src/levels/wallet_level.dart';
 import 'package:epic_wallet/src/pairing_fake.dart' show FakePairing;
 import 'package:epic_wallet/src/models.dart' show PairingParty;
 import 'package:epic_wallet/src/wallet_service.dart' show PairingApi, PairingEndReason, PairingState;
@@ -34,11 +36,11 @@ Future<void> _real(WidgetTester tester, [int ms = 400]) async {
   }
 }
 
-Future<void> _open(WidgetTester tester, Widget screen, {Size size = const Size(1280, 1100), bool experimental = true}) async {
+Future<void> _open(WidgetTester tester, Widget screen, {Size size = const Size(1280, 1100), bool experimental = true, WalletLevel? level}) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  _c = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet())]);
+  _c = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(MockDeskWallet()), if (level != null) deskLevelProvider.overrideWithValue(level)]);
   addTearDown(_c.dispose);
   await tester.runAsync(() async {
     await _c.read(deskProvider.notifier).refresh();
@@ -270,6 +272,16 @@ void main() {
     expect(find.text(_l.pairNotPairedHint), findsOneWidget);
     expect(find.byKey(deskContactPairKey), findsOneWidget);
   });
+
+  // The Pair page shows only at Deep end: below it, no Pair that would land on Overview.
+  for (final level in [WalletLevel.justSendReceive, WalletLevel.casual]) {
+    testWidgets('below Deep end ($level) Contacts offers no Pair: no button, no Pairing block, none in the header', (tester) async {
+      await _open(tester, const ContactsScreen(arg: ContactsArgs(selectedId: 'c6')), level: level);
+      expect(find.byKey(deskContactPairKey), findsNothing);
+      expect(find.text(_l.contactPairing), findsNothing);
+      expect(find.byKey(deskContactsPairKey), findsNothing);
+    });
+  }
 
   testWidgets('Pair in the header: labelled, secondary, never gold; no hint card, no Pending', (tester) async {
     await _open(tester, const ContactsScreen());

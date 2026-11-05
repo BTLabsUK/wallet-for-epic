@@ -1,26 +1,26 @@
 // SPDX-License-Identifier: Apache-2.0
-/// Stores the payment-link pins and paid request ids in the meta file ([Meta.directoryPins],
+/// Stores the payment-link pins and paid request ids in the meta file ([Meta.nameServicePins],
 /// [Meta.paidRequests]). The file goes with the history, so deleting the history deletes them.
 library;
 
-import '../directory/pins.dart';
-import '../directory/link_payments.dart' show LinkPaymentRecords;
-import '../directory/wire.dart';
+import '../name_service/pins.dart';
+import '../name_service/link_payments.dart' show LinkPaymentRecords;
+import '../name_service/wire.dart';
 import 'meta_store.dart';
 
-extension DirectoryPinsMeta on Meta {
+extension NameServicePinsMeta on Meta {
   /// Records that the user paid [request] at [paidAt] (unix seconds): pins the card's listing key
-  /// for its (dkey, handle), a key the user paid after the changed-wallet warning replacing the
+  /// for its (serviceKey, handle), a key the user paid after the changed-wallet warning replacing the
   /// old one, and remembers the request id. Request ids older than [paidRequestKept] are dropped.
   ///
   /// With [txId] (the slate id) it also keeps a [LinkPaymentRec] under it, for the receipt line
   /// and the silent-payee rows; those are pruned at the same age, by their `paidAt`.
   void recordLinkPayment(Payreq request, int paidAt, {String? txId}) {
     final card = request.card;
-    final key = pinKey(card.dkey, card.handle);
+    final key = pinKey(card.serviceKey, card.handle);
     final listing = toHex(card.listingKey);
-    final old = directoryPins[key];
-    directoryPins[key] = ListingPin(
+    final old = nameServicePins[key];
+    nameServicePins[key] = ListingPin(
       listingKey: listing,
       firstPaid: old != null && old.listingKey == listing ? old.firstPaid : paidAt,
       lastPaid: paidAt,
@@ -32,7 +32,7 @@ extension DirectoryPinsMeta on Meta {
       final told = linkPayments[txId]?.told;
       linkPayments[txId] = LinkPaymentRec(
         reqid: toHex(request.reqid),
-        dkey: toHex(card.dkey),
+        serviceKey: toHex(card.serviceKey),
         label: request.label,
         amount: request.amount,
         address: card.address,
