@@ -18823,6 +18823,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get pairEndedRowPeerMismatch => 'Reported the words do not match.';
+
+  @override
+  String get pairEndedRowNeverFinished => 'Its wallet never finished.';
+
+  @override
+  String get pairEndedRowUnpaired => 'Removed the pairing.';
+
+  @override
   String pairNoAnswerFrom(String name) {
     return 'No answer from $name’s wallet';
   }

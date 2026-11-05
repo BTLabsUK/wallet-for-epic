@@ -19477,6 +19477,16 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
+  String get pairEndedRowPeerMismatch =>
+      'Zgłoszono, że słowa się nie zgadzają.';
+
+  @override
+  String get pairEndedRowNeverFinished => 'Portfel nigdy nie dokończył.';
+
+  @override
+  String get pairEndedRowUnpaired => 'Parowanie usunięte po tamtej stronie.';
+
+  @override
   String pairNoAnswerFrom(String name) {
     return 'Brak odpowiedzi od portfela $name';
   }

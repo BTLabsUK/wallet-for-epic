@@ -88,7 +88,8 @@ SERVER_REFUSED = T("g4.server.refused", role="text", names=(r"re:.*(no answer fr
 
 # Tor (26.11.0): Settings › Network & privacy › Network, radio rows adv-mode-<name> (level 2 and up); the
 # page's status card reads its Epicbox row "Epicbox connected, <relay>, …, over Tor" once Tor carries it
-# (network_status.dart: "over Tor" only while Tor is on).
+# (network_status.dart: "over Tor" only while Tor is on). Since 26.11.3 the card heads the page (Epicbox,
+# Node, Node failover, then the modes): the Epicbox row is looked for scrolling up (_look_up).
 MODE_TOR_ONLY = T("g4.privacy.mode.toronly", role="checkbox", keys=("advModeTorOnly",), names=("Tor only",), match="starts")
 MODE_NORMAL = T("g4.privacy.mode.standard", role="checkbox", keys=("advModeStandard",), names=("Normal",), match="starts")
 EPICBOX_ROW = T("g4.privacy.status.epicbox", role="other", keys=("statusEpicboxOnline", "statusEpicboxConnecting",
@@ -616,6 +617,17 @@ class Phone:
             time.sleep(0.6)
         return None
 
+    def _look_up(self, target, scrolls=4):
+        """`target` on the page, scrolling up to it (the servers card heads Network & privacy)."""
+        d = self.d
+        for i in range(scrolls + 1):
+            n = d.wait(shows(target), 2 if i else 3)
+            if n:
+                return n
+            d.s.scroll("up")
+            time.sleep(0.6)
+        return None
+
     def find_setting(self, target, pages, what):
         """Opens the Settings page that holds `target`: the known `pages` first, then every entry the
         Settings list shows (a setting moved to another page is found there, and the log says so)."""
@@ -708,13 +720,13 @@ class Phone:
         self._view_deep_end()   # the Network section shows from level 2
         self.find_setting(MODE_TOR_ONLY, ("privacy",), "the Tor only network mode")
         chosen = [self._chosen(MODE_TOR_ONLY, d.tree())]
-        self._look(EPICBOX_ROW, 3)
+        self._look_up(EPICBOX_ROW, 3)
 
         def up():
             for attempt in (1, 2):
                 self._mode(MODE_TOR_ONLY, "the Tor only network mode")
                 chosen[0] = True
-                self._look(EPICBOX_ROW, 3)
+                self._look_up(EPICBOX_ROW, 3)
                 if d.wait(Expect("Epicbox connected over Tor", lambda dd, tree: self._tor_up(tree)), budget):
                     self.log("Tor only: Epicbox connected over Tor (%s)" % self.tor_state())
                     return
@@ -733,14 +745,14 @@ class Phone:
     def tor_off(self):
         """Back to Normal (Tor off): the fallback legs run in the clear."""
         self._mode(MODE_NORMAL, "the Normal network mode")
-        self._look(EPICBOX_ROW, 3)
+        self._look_up(EPICBOX_ROW, 3)
         self.log("Network mode Normal: Tor off (%s)" % self.tor_state())
         self.home()
 
     def tor_status(self):
         """tor_state with up and tor_only, read on Settings › Network & privacy: what the lane records."""
         self.find_setting(MODE_TOR_ONLY, ("privacy",), "the Network & privacy page")
-        self._look(EPICBOX_ROW, 3)
+        self._look_up(EPICBOX_ROW, 3)
         tree = self.d.tree()
         s = self.tor_state(tree)
         s["up"], s["tor_only"] = self._tor_up(tree), self._chosen(MODE_TOR_ONLY, tree)

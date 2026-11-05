@@ -26,7 +26,7 @@ import 'pairing/pair_incoming.dart' show confirmCancelPairing;
 import 'pairing/pair_screen.dart';
 import 'pairing/pair_way1.dart' show PairRequestsRow;
 import 'pairing/pairing_parts.dart';
-import '../pairing_text.dart' show pairingEndedText;
+import '../pairing_text.dart' show pairingEndedRowText;
 import 'scan_screen.dart';
 import 'status_icons.dart';
 import 'theme/brand.dart';
@@ -439,17 +439,21 @@ class _OrphanRowState extends ConsumerState<_OrphanRow> {
     // wallet told); one not heard yet is not added to a contact.
     final inFlight = r.state.isPending;
     final waiting = r.state == PairingState.waiting;
+    // The row is named for the other wallet: the ended line does not repeat the name.
     final subtitle = r.ended
-        ? pairingEndedText(l, r.endedReason ?? PairingEndReason.neverFinished, name)
+        ? pairingEndedRowText(l, r.endedReason ?? PairingEndReason.neverFinished)
         : r.state == PairingState.waiting
             ? l.pairAnsweredNotHeard
             : r.state == PairingState.pendingReply
                 ? l.pairPairingWith(name)
                 : l.pairNotInContacts;
+    // The same tile and text column as a contact's row (_ContactRow): 48 tile, 12 gap.
     return ListTile(
       key: contactsPairingRowKey(r.id),
       minTileHeight: 64,
-      leading: PairAvatar(name: name, kind: r.kind, size: 40),
+      horizontalTitleGap: 12,
+      leading: PairAvatar(name: name, kind: r.kind, size: 48),
+      subtitleTextStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: t.dim),
       title: Row(
         children: [
           Flexible(child: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis)),
@@ -534,7 +538,11 @@ class _ContactRow extends ConsumerWidget {
     final note = contact.note?.trim();
     final pairing = ref.watch(pairingSupportedProvider) ? ref.watch(contactPairingProvider(contact.id)) : null;
     // A request sent to this contact, or its code answered: Waiting until it is paired.
-    final inFlight = pairing == null && ref.watch(pairingSupportedProvider) && ref.watch(contactPendingPairingProvider(contact.id)) != null;
+    final pending = pairing == null && ref.watch(pairingSupportedProvider) ? ref.watch(contactPendingPairingProvider(contact.id)) : null;
+    final inFlight = pending != null;
+    // The tile's colour follows the party of any pairing with the contact (paired, pending or
+    // ended), as a pairing's own row colours it; a contact without one is a person.
+    final party = (pairing ?? pending)?.kind ?? PairingParty.person;
     final starred = ref.watch(favouriteContactsProvider).value?.contains(contact.id) ?? false;
     final several = contact.kinds.length > 1;
     final noPayments = ref.watch(paymentRefusalsProvider).refusesPayments(pairingId: pairing?.id, address: contact.epicbox);
@@ -559,7 +567,7 @@ class _ContactRow extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
-              PairAvatar(name: contact.name, kind: pairing?.kind ?? PairingParty.person, size: 48),
+              PairAvatar(name: contact.name, kind: party, size: 48),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(

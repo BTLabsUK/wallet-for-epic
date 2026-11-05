@@ -5330,5 +5330,8 @@
   "receiptSeesSent": "{name} 将看到：请求 {id}、{amount}、发送于 {time}。不会附带其他内容：没有地址，也没有交易 ID。",
   "receiptSeesPosted": "{name} 将看到：请求 {id}、{amount}、{time} 已发往网络。不会附带其他内容：没有地址，也没有交易 ID。",
   "receiptNotSent": "暂时无法告知 {name}，请重试。",
-  "receiptHintTitle": "回执"
+  "receiptHintTitle": "回执",
+  "pairEndedRowPeerMismatch": "报告了词语不一致。",
+  "pairEndedRowNeverFinished": "其钱包始终未完成。",
+  "pairEndedRowUnpaired": "已移除配对。"
 }

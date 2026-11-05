@@ -18411,6 +18411,15 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String get pairEndedRowPeerMismatch => 'รายงานว่าคำไม่ตรงกัน';
+
+  @override
+  String get pairEndedRowNeverFinished => 'กระเป๋าไม่เคยทำเสร็จ';
+
+  @override
+  String get pairEndedRowUnpaired => 'ลบการจับคู่แล้ว';
+
+  @override
   String pairNoAnswerFrom(String name) {
     return 'ไม่มีคำตอบจากกระเป๋าของ $name';
   }

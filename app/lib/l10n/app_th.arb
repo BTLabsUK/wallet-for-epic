@@ -5330,5 +5330,8 @@
   "receiptSeesSent": "{name} จะเห็น: คำขอ {id}, {amount}, ส่งเมื่อ {time} ไม่มีข้อมูลอื่นไปด้วย: ไม่มีที่อยู่และไม่มี ID ธุรกรรม",
   "receiptSeesPosted": "{name} จะเห็น: คำขอ {id}, {amount}, เข้าเครือข่ายเมื่อ {time} ไม่มีข้อมูลอื่นไปด้วย: ไม่มีที่อยู่และไม่มี ID ธุรกรรม",
   "receiptNotSent": "แจ้ง {name} ไม่ได้ในตอนนี้ ลองอีกครั้ง",
-  "receiptHintTitle": "ใบเสร็จ"
+  "receiptHintTitle": "ใบเสร็จ",
+  "pairEndedRowPeerMismatch": "รายงานว่าคำไม่ตรงกัน",
+  "pairEndedRowNeverFinished": "กระเป๋าไม่เคยทำเสร็จ",
+  "pairEndedRowUnpaired": "ลบการจับคู่แล้ว"
 }

@@ -169,13 +169,10 @@ const Key settingsPrivacyKey = ValueKey('settings-privacy');
 /// The key of the Servers header on the Network & privacy page, for tests.
 const Key settingsServersKey = ValueKey('settings-servers');
 
-/// The Node and Epicbox rows of Privacy & network, for tests: the status card's rows while a
+/// The Epicbox and Node rows of Network & privacy, for tests: the status card's rows while a
 /// wallet is open, the plain rows otherwise.
 const Key settingsNodeKey = netStatusNodeKey;
 const Key settingsEpicboxKey = netStatusEpicboxKey;
-
-/// The Tor caption under the Epicbox row, for tests.
-const Key torRelayCaptionKey = ValueKey('tor-relay-caption');
 
 /// The key of the Node failover switch on the Network & privacy page, for tests.
 const Key advNodeFailoverKey = ValueKey('adv-nodeFailover');
@@ -247,7 +244,7 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     Scrollable.ensureVisible(at, alignment: 0);
   }
 
-  /// The Network section heads the page; the list is built that far first if it ever moves.
+  /// The Network mode section sits under the servers; the list is built that far first.
   void _showNetwork([int tries = 0]) {
     if (!mounted || !_scroll.hasClients) return;
     final at = _networkKey.currentContext;
@@ -635,13 +632,12 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     ];
   }
 
-  /// Network & privacy: the network mode (Tor only is the one whole-wallet Tor control), then
-  /// the servers (the status card from Home, its rows opening the pickers), the status site
-  /// and Node failover.
+  /// Network & privacy: the servers first (Epicbox, then Node, the status card from Home with
+  /// its rows opening the pickers), Node failover under them, then the network mode (Tor only
+  /// is the one whole-wallet Tor control) and the status site.
   List<Widget> _privacyNetwork(AppLocalizations l) {
     final s = ref.watch(appSettingsProvider).value ?? const AppSettings();
     final walletOpen = ref.watch(sessionProvider) != null;
-    final torAvailable = ref.watch(phoneTorProvider.select(torShown));
     final torState = phoneTorState(ref.watch(phoneTorProvider));
     final config = ref.watch(walletConfigProvider);
     final network = ref.watch(networkChoiceProvider).value;
@@ -651,16 +647,10 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
     // Level 2 and up (the levels that had Advanced's Network section): the mode and failover.
     final networkShown = ref.watch(levelFeaturesProvider).serverSettings;
     final adv = s.advanced;
-    // One page for how the wallet reaches the network (B-03), in the desktop's order: the
-    // mode, then the servers (Node and Epicbox with their host and
-    // health, each opening its picker; with no wallet open, plain rows open the same
-    // pickers), the status site and Node failover.
+    // One page for how the wallet reaches the network (B-03): the servers (Epicbox and Node
+    // with their host and health, each opening its picker; with no wallet open, plain rows
+    // open the same pickers), Node failover, the mode, then the status site.
     return [
-      if (networkShown)
-        NetworkModeSection(
-          headerKey: _networkKey,
-          tourId: (rows) => PhoneTourTarget(id: 'tour-privacy-modes', child: rows),
-        ),
       SettingsHeader(l.netPageServers, key: settingsServersKey),
       if (walletOpen)
         const PhoneTourTarget(
@@ -671,16 +661,6 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           ),
         )
       else ...[
-        ListTile(
-          key: settingsNodeKey,
-          leading: const Icon(EpicGlyphs.node),
-          title: Text(l.serverNodeTitle),
-          subtitle: withTorWay(
-            network == null ? null : HostText(serverHost(network.nodeUrl), style: TextStyle(color: context.tokens.dim)),
-            nodeTorWay(network?.nodeUrl, torState),
-          ),
-          onTap: () => showNodePicker(context),
-        ),
         ListTile(
           key: settingsEpicboxKey,
           leading: const Icon(EpicGlyphs.epicbox),
@@ -695,22 +675,17 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           ),
           onTap: () => showEpicboxPicker(context),
         ),
-      ],
-      // While Tor is off: where the relay would not see this phone's address.
-      if (torAvailable && torState == TorState.off && (walletOpen || config != null))
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: Text(l.torRelayCaption, key: torRelayCaptionKey, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.tokens.dim)),
+        ListTile(
+          key: settingsNodeKey,
+          leading: const Icon(EpicGlyphs.node),
+          title: Text(l.serverNodeTitle),
+          subtitle: withTorWay(
+            network == null ? null : HostText(serverHost(network.nodeUrl), style: TextStyle(color: context.tokens.dim)),
+            nodeTorWay(network?.nodeUrl, torState),
+          ),
+          onTap: () => showNodePicker(context),
         ),
-      // No status site in app-config.toml: no switch.
-      if (statusSiteConfigured)
-      HintSwitchTile(
-        icon: Icons.travel_explore,
-        title: l.settingsUseStatusSite(statusSiteHost),
-        hint: l.settingsUseStatusSiteSubtitle,
-        value: s.useStatusSite,
-        onChanged: _settings.setUseStatusSite,
-      ),
+      ],
       // On by default: the one switch here that keeps the simple app working.
       if (networkShown)
         HintSwitchTile(
@@ -721,6 +696,20 @@ class _SettingsSectionScreenState extends ConsumerState<SettingsSectionScreen> {
           value: adv.nodeFailover,
           onChanged: _settings.setNodeFailover,
         ),
+      if (networkShown)
+        NetworkModeSection(
+          headerKey: _networkKey,
+          tourId: (rows) => PhoneTourTarget(id: 'tour-privacy-modes', child: rows),
+        ),
+      // No status site in app-config.toml: no switch.
+      if (statusSiteConfigured)
+      HintSwitchTile(
+        icon: Icons.travel_explore,
+        title: l.settingsUseStatusSite(statusSiteHost),
+        hint: l.settingsUseStatusSiteSubtitle,
+        value: s.useStatusSite,
+        onChanged: _settings.setUseStatusSite,
+      ),
       // Development builds only: the network itself, each with its own wallet.
       if (advanced.has(AdvancedFeature.serverDetails) && devNetworks)
         ListTile(

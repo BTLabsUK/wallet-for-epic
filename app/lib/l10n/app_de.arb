@@ -5330,5 +5330,8 @@
   "receiptSeesSent": "{name} sieht: Anfrage {id}, {amount}, gesendet {time}. Mehr wird nicht übermittelt: keine Adresse und keine Transaktions-ID.",
   "receiptSeesPosted": "{name} sieht: Anfrage {id}, {amount}, im Netzwerk um {time}. Mehr wird nicht übermittelt: keine Adresse und keine Transaktions-ID.",
   "receiptNotSent": "{name} konnte gerade nicht informiert werden. Versuchen Sie es erneut.",
-  "receiptHintTitle": "Beleg"
+  "receiptHintTitle": "Beleg",
+  "pairEndedRowPeerMismatch": "Hat gemeldet, dass die Wörter nicht übereinstimmen.",
+  "pairEndedRowNeverFinished": "Die Wallet hat nie abgeschlossen.",
+  "pairEndedRowUnpaired": "Hat die Kopplung entfernt."
 }
