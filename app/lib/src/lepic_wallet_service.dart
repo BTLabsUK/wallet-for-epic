@@ -2608,6 +2608,8 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
       }
     } on WalletError catch (error) {
       if (error.kind != WalletErrorKind.nodeUnreachable) rethrow;
+      // Locked while the node did not answer: the handle is gone and has nothing left to read.
+      if (_wallet.isDisposed) return;
       final local = _summary(
         await _guard(() => _wallet.summary(refresh: false)),
       );
