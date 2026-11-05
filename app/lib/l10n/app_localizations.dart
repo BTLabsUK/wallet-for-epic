@@ -18093,7 +18093,7 @@ abstract class AppLocalizations {
   /// Settings > Receiving > HTTP: error under the port field.
   ///
   /// In en, this message translates to:
-  /// **'Port must be 1 to 65535'**
+  /// **'Port must be 1024 to 65535'**
   String get deskSetHttpPortError;
 
   /// Tooltip and screen reader label of the help button that opens the internet guide.
@@ -18111,8 +18111,8 @@ abstract class AppLocalizations {
   /// Settings > Receiving > HTTP: hint under the Port row.
   ///
   /// In en, this message translates to:
-  /// **'1 to 65535. Used by the HTTP address.'**
-  String get deskSetHttpPortHint;
+  /// **'1024 to 65535. Default {port}.'**
+  String deskSetHttpPortHint(String port);
 
   /// Screen reader label of the port field.
   ///

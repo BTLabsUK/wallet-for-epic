@@ -12028,7 +12028,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetHttpNotChanged => 'Nie zmieniono';
 
   @override
-  String get deskSetHttpPortError => 'Port musi być od 1 do 65535';
+  String get deskSetHttpPortError => 'Port musi być od 1024 do 65535';
 
   @override
   String get deskSetHttpGuideHelp => 'Odbieranie z internetu: jak to działa';
@@ -12037,7 +12037,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetHttpPort => 'Port';
 
   @override
-  String get deskSetHttpPortHint => 'Od 1 do 65535. Używany przez adres HTTP.';
+  String deskSetHttpPortHint(String port) {
+    return 'Od 1024 do 65535. Domyślnie $port.';
+  }
 
   @override
   String get deskSetHttpPortLabel => 'Port HTTP';

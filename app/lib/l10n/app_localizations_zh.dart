@@ -10863,7 +10863,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetHttpNotChanged => '未更改';
 
   @override
-  String get deskSetHttpPortError => '端口必须在 1 到 65535 之间';
+  String get deskSetHttpPortError => '端口必须在 1024 到 65535 之间';
 
   @override
   String get deskSetHttpGuideHelp => '从互联网接收：如何操作';
@@ -10872,7 +10872,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetHttpPort => '端口';
 
   @override
-  String get deskSetHttpPortHint => '1 到 65535。供 HTTP 地址使用。';
+  String deskSetHttpPortHint(String port) {
+    return '1024 到 65535。默认 $port。';
+  }
 
   @override
   String get deskSetHttpPortLabel => 'HTTP 端口';

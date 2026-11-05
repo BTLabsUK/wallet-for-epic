@@ -11999,7 +11999,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetHttpNotChanged => 'Не изменено';
 
   @override
-  String get deskSetHttpPortError => 'Порт должен быть от 1 до 65535';
+  String get deskSetHttpPortError => 'Порт должен быть от 1024 до 65535';
 
   @override
   String get deskSetHttpGuideHelp => 'Приём из интернета: как это работает';
@@ -12008,7 +12008,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetHttpPort => 'Порт';
 
   @override
-  String get deskSetHttpPortHint => 'От 1 до 65535. Используется адресом HTTP.';
+  String deskSetHttpPortHint(String port) {
+    return 'От 1024 до 65535. По умолчанию $port.';
+  }
 
   @override
   String get deskSetHttpPortLabel => 'Порт HTTP';
