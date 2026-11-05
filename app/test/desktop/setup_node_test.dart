@@ -159,7 +159,7 @@ void main() {
     await end(tester);
   });
 
-  testWidgets('an empty Node list: no fallback is offered, Review says the wallet waits, Save declines it', (tester) async {
+  testWidgets('an empty Node list: no fallback is offered, Save declines it', (tester) async {
     // Audit 26.10.24: the checkbox read "Use  until…" with no host and a yes stored an empty node.
     hostSettings = testSettings().withValues({'node.servers': <String>[]});
     expect(hasFallbackNode, isFalse);
@@ -172,10 +172,7 @@ void main() {
     expect(find.bySemanticsLabel(RegExp('until the local node is synced')), findsNothing);
     await tester.tap(find.text(_l.commonContinue));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(_l.commonContinue));
-    await tester.pumpAndSettle();
-    expect(find.text(_l.deskSetupReviewTitle), findsOneWidget);
-    expect(find.text(_l.deskSetupWait), findsOneWidget);
+    expect(find.text(_l.deskSetupEpicboxText), findsOneWidget);
     expect(find.textContaining('stands in'), findsNothing);
     await tester.tap(find.text(_l.deskSetupSave));
     await tester.pumpAndSettle();
@@ -187,7 +184,7 @@ void main() {
     await end(tester);
   });
 
-  testWidgets('the bundled node: Review names the type, the fallback and the folder; Save is the only start and answers the fallback question', (tester) async {
+  testWidgets('the bundled node: Save says the fallback stands in; Save is the only start and answers the fallback question', (tester) async {
     await show(tester, SetupStep.node);
     await tester.tap(find.text(_l.deskSetupLocalTitle));
     await tester.pumpAndSettle();
@@ -196,12 +193,6 @@ void main() {
     await tester.tap(find.text(_l.commonContinue));
     await tester.pumpAndSettle();
     expect(find.text(_l.deskSetupEpicboxText), findsOneWidget);
-    await tester.tap(find.text(_l.commonContinue));
-    await tester.pumpAndSettle();
-    expect(find.text(_l.deskSetupReviewTitle), findsOneWidget);
-    expect(find.text(_l.deskSetupBundledNode), findsWidgets);
-    expect(find.text(hostPort(defaultFallbackNodeUrl)), findsOneWidget);
-    expect(find.text(mockDataFolder), findsOneWidget);
     expect(find.textContaining('Save starts the node; ${hostPort(defaultFallbackNodeUrl)} stands in'), findsOneWidget);
     expect(wallet.calls, isEmpty);
     expect(node.calls.where((c) => c.startsWith('start')), isEmpty);
@@ -225,10 +216,7 @@ void main() {
     await tester.tap(find.text(_l.commonContinue));
     await tester.pump(const Duration(milliseconds: 700));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(_l.commonContinue));
-    await tester.pumpAndSettle();
-    expect(find.text(_l.deskSetupRemoteNode), findsOneWidget);
-    expect(find.text('node.net.invalid:3413'), findsOneWidget);
+    expect(find.text(_l.deskSetupEpicboxText), findsOneWidget);
     await tester.tap(find.text(_l.deskSetupSave));
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(milliseconds: 500));
@@ -303,8 +291,8 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<void> toReviewAndSave(WidgetTester tester) async {
-    while (find.text(_l.deskSetupReviewTitle).evaluate().isEmpty) {
+  Future<void> toSave(WidgetTester tester) async {
+    while (find.text(_l.deskSetupSave).evaluate().isEmpty) {
       await tester.tap(find.text(_l.commonContinue));
       await tester.pump(const Duration(milliseconds: 700));
       await tester.pumpAndSettle();
@@ -318,7 +306,7 @@ void main() {
     await rerun(tester);
     final current = container.read(deskProvider).status!.node.url;
     expect(tester.widget<ServerListPanel>(find.byType(ServerListPanel)).value, current, reason: 'not a preselection over the node in use');
-    await toReviewAndSave(tester);
+    await toSave(tester);
     expect(wallet.calls, isEmpty, reason: 'same node: no useNode, the local node untouched');
     expect(node.calls.where((c) => c == 'stop'), isEmpty);
     await end(tester);
@@ -328,7 +316,7 @@ void main() {
     container.read(settingsPrefsProvider.notifier).set(container.read(settingsPrefsProvider).copyWith(builtin: true));
     await rerun(tester);
     expect(tester.widget<EChoiceCard>(find.widgetWithText(EChoiceCard, _l.deskSetupLocalTitle)).selected, isTrue);
-    await toReviewAndSave(tester);
+    await toSave(tester);
     expect(wallet.calls, isEmpty, reason: 'no useNode to a public node, no second start');
     expect(container.read(settingsPrefsProvider).builtin, isTrue);
     await end(tester);
@@ -338,7 +326,7 @@ void main() {
     await show(tester, SetupStep.node);
     await tester.tap(find.text(_l.deskSetupLocalTitle));
     await tester.pumpAndSettle();
-    await toReviewAndSave(tester);
+    await toSave(tester);
     expect(find.text(_l.deskSetLndReuseTitle), findsOneWidget);
     expect(node.calls.where((c) => c.startsWith('fallback')), isEmpty, reason: 'nothing answered while the question is open');
     await tester.tap(find.text(_l.commonCancel));

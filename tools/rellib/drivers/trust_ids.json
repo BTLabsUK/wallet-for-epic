@@ -294,6 +294,19 @@
    "secret": false
   },
   {
+   "id": "g4.settings.section.contacts",
+   "screen": "settings",
+   "family": [
+    "desktop"
+   ],
+   "role": "menu_item",
+   "keys": [
+    "deskShellNavContacts"
+   ],
+   "match": "line",
+   "secret": false
+  },
+  {
    "id": "g4.settings.section.advanced",
    "screen": "settings",
    "family": [

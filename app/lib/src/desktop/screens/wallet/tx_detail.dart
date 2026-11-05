@@ -9,6 +9,7 @@ import '../../../cancel_choice.dart';
 import '../../../cancel_final.dart' show CancelResult;
 import '../../../connection_grace.dart' show connectionGraceProvider;
 import '../../../network_gate.dart' show NetGate;
+import '../../../explorer_check.dart' show ExplorerHas, explorerHasBlock;
 import '../transfer/finished_payment.dart' show FinishedPaymentActions;
 import 'dart:async';
 
@@ -86,6 +87,15 @@ class _TxDetailState extends ConsumerState<TxDetail> {
 
   /// The node already had this receive when Cancel was asked: Cancel stays away for this visit.
   int? _onNetworkFor;
+
+  /// The block height the explorer had not reached when its link was copied.
+  int? _explorerBehind;
+
+  /// One request on Copy: is the block in the explorer yet ([explorerHasBlock]).
+  Future<void> _checkExplorer(int height) async {
+    final has = await explorerHasBlock(height);
+    if (mounted) setState(() => _explorerBehind = has == ExplorerHas.notYet ? height : null);
+  }
 
   /// Ticks once a minute while an incoming payment waits inside its Cancel hold, so the
   /// "accepted N minutes ago" line and the hold's end move without a refresh.
@@ -784,8 +794,13 @@ class _TxDetailState extends ConsumerState<TxDetail> {
           SizedBox(height: Sp.x3),
           Align(
             alignment: AlignmentDirectional.centerStart,
-            child: ECopyButton(key: const ValueKey('tx-explorer-link'), text: url, label: l.txDetailsExplorerLink, withLabel: true),
+            child: ECopyButton(key: const ValueKey('tx-explorer-link'), text: url, label: l.txDetailsExplorerLink, withLabel: true, onCopied: () => _checkExplorer(t.height!)),
           ),
+          if (_explorerBehind != null && _explorerBehind == t.height)
+            Padding(
+              padding: EdgeInsets.only(top: Sp.x1),
+              child: Semantics(liveRegion: true, child: Text(l.txDetailsExplorerBehind, key: const ValueKey('tx-explorer-behind'), style: ts.small)),
+            ),
         ],
         // Advanced › Technical details: the fold, or a small More link that shows the same rows
         // for this view only (the switch stays off). Report a problem carries the slate id either way.

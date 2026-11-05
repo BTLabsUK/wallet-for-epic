@@ -98,6 +98,9 @@ SECTION = {
     "privacy": T("g4.settings.section.privacy", keys=("settingsSectionNetworkPrivacy", "deskSetFramePrivacy"),
                  names=("Network & privacy", "Privacy"), match="exact"),
 }
+# Settings › Contacts leaves Settings for the Contacts page: not a section, so not in SECTION
+SETTINGS_CONTACTS = T("g4.settings.section.contacts", keys=("deskShellNavContacts",), names=("Contacts",), match="exact")
+CONTACTS_ADD = T("g4.contacts.add", keys=("deskConAdd",), names=("Add contact",), match="exact")
 # every section a release has had (for "a setting moved": the pages are walked when the known ones miss it)
 ALL_SECTIONS = ("Node", "Transactions", "Receiving", "Privacy", "Appearance", "This wallet", "All wallets",
                 "Advanced", "About", "Wallet", "Security", "Payments", "Network & privacy", "Wallets", "Files & logs")
@@ -512,6 +515,19 @@ class Desktop:
             self.log("Settings › %s: %s left Settings; trying the next one" % (key_or_name, hits[k].brief()))
             self.settings()
         d.harness("Settings › %s: no control of that name opens the section" % key_or_name)
+
+    def contacts(self):
+        """Settings › Contacts, until the Contacts page shows (its Add contact), then back to Overview. A build
+        before the entry has Contacts only in the sidebar: logged, nothing pressed."""
+        d = self.d
+        self.settings()
+        if not d.wait(shows(SETTINGS_CONTACTS), 4) and not (self._open_section_list() and d.wait(shows(SETTINGS_CONTACTS), 4)):
+            self.log("no Contacts in Settings: a build before the entry")
+            return False
+        d.press(SETTINGS_CONTACTS, step="settings-contacts", then=shows(CONTACTS_ADD), timeout=20)
+        self.log("Settings › Contacts: the Contacts page")
+        self.nav(NAV_OVERVIEW)
+        return True
 
     def _open_section_list(self):
         """A narrow window folds the section list into one selector: a button named like the open section,

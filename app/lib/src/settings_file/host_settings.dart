@@ -294,6 +294,10 @@ class AppConfig {
   /// The explorer's page of the block at [height]; null when no explorer is configured.
   String? explorerBlock(int height) => _orNull(_text('explorer.block'))?.replaceAll('{height}', '$height');
 
+  /// The explorer's own record of the block at [height] (`explorer_check.dart`); null when none
+  /// is configured.
+  String? explorerIndexed(int height) => _orNull(_text('explorer.indexed'))?.replaceAll('{height}', '$height');
+
   // [import]
   String get importGuiNode => _text('import.gui_node');
   String get importGuiEpicbox => _text('import.gui_epicbox');
@@ -463,6 +467,7 @@ class HostSettings {
   String? get linkSource => config.linkSource;
   String? get linkPrivacy => config.linkPrivacy;
   String? explorerBlock(int height) => config.explorerBlock(height);
+  String? explorerIndexed(int height) => config.explorerIndexed(height);
   String get importGuiNode => config.importGuiNode;
   String get importGuiEpicbox => config.importGuiEpicbox;
   String get importOldEpicbox => config.importOldEpicbox;

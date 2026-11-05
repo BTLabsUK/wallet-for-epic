@@ -24,7 +24,7 @@ ADV_PAIRING = T("pair.adv.pairing", role="toggle", keys=("expPairing",), names=(
 ADV_INVOICES = T("pair.adv.invoices", role="toggle", keys=("expInvoices",), names=("Invoices",), match="exact")
 
 # Contacts › Pair: Your invite | Have their invite?
-CONTACTS_SEARCH = T("pair.contacts.search", role="text_field", keys=("deskConSearch",), names=("Search contacts",),
+CONTACTS_SEARCH = T("pair.contacts.search", role="text_field", keys=("deskConSearchLabel", "deskConSearch"), names=("Search contacts",),
                     match="starts")
 CONTACTS_PAIR = T("pair.contacts.pair", keys=("pairTitle",), names=("Pair",), match="exact")
 PAIR_YOUR = T("pair.screen.yours", role="text", keys=("pairYourCode",), names=("Your invite",), match="exact")

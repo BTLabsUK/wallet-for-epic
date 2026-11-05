@@ -177,6 +177,7 @@ abstract final class TrustIds {
     'g4.settings.section.receiving',
     'g4.settings.section.appearance',
     'g4.settings.section.account',
+    'g4.settings.section.contacts',
     'g4.settings.section.advanced',
     'g4.settings.section.about',
     'g4.level.stop.1',

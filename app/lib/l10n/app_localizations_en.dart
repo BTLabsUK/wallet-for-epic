@@ -868,6 +868,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get txDetailsLinkCopied => 'Link copied';
 
   @override
+  String get txDetailsExplorerBehind =>
+      'The explorer has not reached this block yet.';
+
+  @override
   String get txDetailsTechnical => 'Technical details';
 
   @override
@@ -11857,9 +11861,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deskSetupStepEpicbox => 'Epicbox';
 
   @override
-  String get deskSetupStepReview => 'Review';
-
-  @override
   String get deskSetupAgain =>
       'Running setup again. Nothing changes until Save on the last step.';
 
@@ -11882,13 +11883,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deskSetupEpicboxTitle => 'Epicbox';
-
-  @override
-  String get deskSetupReviewTitle => 'Review settings';
-
-  @override
-  String get deskSetupReviewLead =>
-      'Change anything that is not right, then save.';
 
   @override
   String get deskSetupSideTitle => 'Set up';
@@ -11926,46 +11920,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'The Epicbox server holds payments until the wallet opens.';
 
   @override
-  String get deskSetupEpicboxPrivacy =>
-      'The Epicbox server sees this computer’s IP address.';
-
-  @override
   String get deskSetupEpicboxServer => 'Epicbox server';
-
-  @override
-  String get deskSetupChangePrefsSem => 'Change preferences';
-
-  @override
-  String get deskSetupChangeNodeSem => 'Change node';
-
-  @override
-  String get deskSetupChangeEpicboxSem => 'Change Epicbox';
-
-  @override
-  String get deskSetupChange => 'Change';
-
-  @override
-  String get deskSetupType => 'Type';
-
-  @override
-  String get deskSetupAddress => 'Address';
 
   @override
   String deskSetupExistingNode(String host) {
     return 'Existing node at $host';
   }
-
-  @override
-  String get deskSetupBundledNode => 'Local node';
-
-  @override
-  String get deskSetupWhileSyncing => 'While syncing';
-
-  @override
-  String get deskSetupWait => 'wait';
-
-  @override
-  String get deskSetupDataFolder => 'Data folder';
 
   @override
   String deskSetupSaveStartsFallback(String node) {
@@ -11975,12 +11935,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deskSetupSaveStarts =>
       'Save starts the node. The first sync takes hours; the wallet opens meanwhile.';
-
-  @override
-  String get deskSetupServer => 'Server';
-
-  @override
-  String get deskSetupOff => 'Off';
 
   @override
   String get deskSetAboutLicencesLead =>
@@ -18489,9 +18443,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskOnbRestoreBadWords(String words) {
     return 'Not in the word list: $words.';
   }
-
-  @override
-  String get deskSetupExistingNodeType => 'Existing node';
 
   @override
   String get deskLvPayOnEpicbox => 'On Epicbox';

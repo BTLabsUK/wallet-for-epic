@@ -825,6 +825,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get txDetailsLinkCopied => '链接已复制';
 
   @override
+  String get txDetailsExplorerBehind => '区块浏览器尚未同步到这个区块。';
+
+  @override
   String get txDetailsTechnical => '技术详情';
 
   @override
@@ -11161,9 +11164,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetupStepEpicbox => 'Epicbox';
 
   @override
-  String get deskSetupStepReview => '检查';
-
-  @override
   String get deskSetupAgain => '正在重新运行设置向导。在最后一步点击“保存设置”之前不会有任何更改。';
 
   @override
@@ -11183,12 +11183,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetupEpicboxTitle => 'Epicbox';
-
-  @override
-  String get deskSetupReviewTitle => '检查设置';
-
-  @override
-  String get deskSetupReviewLead => '修改不正确的地方，然后保存。';
 
   @override
   String get deskSetupSideTitle => '设置向导';
@@ -11224,45 +11218,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deskSetupEpicboxText => 'Epicbox 服务器会暂存付款，直到钱包打开。';
 
   @override
-  String get deskSetupEpicboxPrivacy => 'Epicbox 服务器能看到这台电脑的 IP 地址。';
-
-  @override
   String get deskSetupEpicboxServer => 'Epicbox 服务器';
-
-  @override
-  String get deskSetupChangePrefsSem => '更改偏好设置';
-
-  @override
-  String get deskSetupChangeNodeSem => '更改节点';
-
-  @override
-  String get deskSetupChangeEpicboxSem => '更改 Epicbox';
-
-  @override
-  String get deskSetupChange => '更改';
-
-  @override
-  String get deskSetupType => '类型';
-
-  @override
-  String get deskSetupAddress => '地址';
 
   @override
   String deskSetupExistingNode(String host) {
     return '$host 上的现有节点';
   }
-
-  @override
-  String get deskSetupBundledNode => '本地节点';
-
-  @override
-  String get deskSetupWhileSyncing => '同步期间';
-
-  @override
-  String get deskSetupWait => '等待';
-
-  @override
-  String get deskSetupDataFolder => '数据文件夹';
 
   @override
   String deskSetupSaveStartsFallback(String node) {
@@ -11271,12 +11232,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get deskSetupSaveStarts => '保存后会启动节点。首次同步需要数小时；期间钱包会打开。';
-
-  @override
-  String get deskSetupServer => '服务器';
-
-  @override
-  String get deskSetupOff => '关闭';
 
   @override
   String get deskSetAboutLicencesLead => '此钱包中的开源软件，各自遵循其许可证。';
@@ -17437,9 +17392,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskOnbRestoreBadWords(String words) {
     return '不在词表中：$words。';
   }
-
-  @override
-  String get deskSetupExistingNodeType => '现有节点';
 
   @override
   String get deskLvPayOnEpicbox => '在 Epicbox 上';

@@ -212,7 +212,7 @@ void main() {
       await _end(tester);
     });
 
-    testWidgets('Setup › Epicbox: the server, then Continue, then the switch', (tester) async {
+    testWidgets('Setup › Epicbox: the server, then Save, then the switch', (tester) async {
       await _open(tester, DeskRoute.setup, arg: SetupStep.epicbox);
       await _focusPanel(tester);
       expect(_focused(), 'combo:Epicbox server');
@@ -222,7 +222,7 @@ void main() {
         await tester.pump();
         tabs.add(_focused());
       }
-      expect(tabs, ['button:Continue', 'switch:Receive through Epicbox']);
+      expect(tabs, ['button:${_l.deskSetupSave}', 'switch:Receive through Epicbox']);
       await _end(tester);
     });
 
@@ -307,7 +307,7 @@ void main() {
       await _key(tester, LogicalKeyboardKey.enter);
       await tester.pump();
       expect(find.byKey(const ValueKey('server-list-field')), findsOneWidget, reason: 'the list is open');
-      expect(find.text('Review settings'), findsNothing);
+      expect(find.text(_l.deskSetupEpicboxText), findsOneWidget, reason: 'Enter opened the list, it did not save');
       await _key(tester, LogicalKeyboardKey.escape);
       await _end(tester);
     });
@@ -754,14 +754,14 @@ void main() {
 
     // A plain Enter reaches a single-line field as the platform's text action (the tests above);
     // Ctrl+Enter is a key event the form handles itself.
-    testWidgets('Setup › Epicbox: the Ctrl+Enter key event continues', (tester) async {
-      await _open(tester, DeskRoute.setup, arg: SetupStep.epicbox);
+    testWidgets('Setup › Epicbox: the Ctrl+Enter key event saves', (tester) async {
+      final container = await _open(tester, DeskRoute.setup, arg: SetupStep.epicbox);
       await _focusPanel(tester);
       await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
       await _settle(tester, 6);
-      expect(find.text(_l.deskSetupReviewTitle), findsOneWidget);
+      expect(container.read(deskNavProvider).route, DeskRoute.overview, reason: 'saved: Setup went to the Overview');
       await _end(tester);
     });
 
