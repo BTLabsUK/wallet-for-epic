@@ -77,8 +77,8 @@ def pick_device_type(runtime):
     phones = [t for t in runtime.get("supportedDeviceTypes", []) if t.get("name", "").startswith("iPhone")
               and not t["name"].startswith("iPhone Duo")]
     pro = [t for t in phones if t["name"].endswith(" Pro") and t["name"][len("iPhone "):-len(" Pro")].isdigit()]
-    pick = (pro[-1:] or phones[:1])
-    return pick[0]["identifier"] if pick else None
+    pick = max(pro, key=lambda t: int(t["name"][len("iPhone "):-len(" Pro")]), default=None) or (phones[:1] or [None])[0]
+    return pick["identifier"] if pick else None
 
 
 class Sim:

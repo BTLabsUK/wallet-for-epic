@@ -829,16 +829,17 @@ class Phone:
         if d.seen(field):
             return
         self.home()
-        pressed = []
+        pressed = []  # (name, screen): the Connections sheet's row can carry its status icon's name (iOS)
         for _ in range(4):
             tree = d.tree()
             if d.find_in(field, tree):
                 return
-            hits = [n for n in d.find_in(status, tree) if n.name not in pressed] or \
-                   [n for n in d.find_in(STATUS_ANY, tree) if n.name not in pressed]
+            screen = tuple(sorted(n.name for n in tree))
+            hits = [n for n in d.find_in(status, tree) if (n.name, screen) not in pressed] or \
+                   [n for n in d.find_in(STATUS_ANY, tree) if (n.name, screen) not in pressed]
             if not hits:
                 break
-            pressed.append(hits[0].name)
+            pressed.append((hits[0].name, screen))
             d._act(d.s.press, hits[0])
             d.wait(shows(field), 6)
         d.must(shows(field), 20, step="open-%s-sheet" % kind, goal="the %s sheet with its address field" % kind)
@@ -992,9 +993,10 @@ class Phone:
     def _confirmations(self, tree=None):
         tree = tree if tree is not None else self.d.tree()
         for n in tree:
-            m = CONF_RX.match((n.name or "").strip())
-            if m:
-                return int(m.group(1))
+            for text in (n.name, n.value):   # Android: in the name; iOS: the node's value
+                m = CONF_RX.match((text or "").strip())
+                if m:
+                    return int(m.group(1))
         return None
 
     # ---- reading and paying

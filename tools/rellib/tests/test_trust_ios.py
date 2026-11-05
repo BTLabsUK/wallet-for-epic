@@ -75,6 +75,19 @@ class ParseTest(unittest.TestCase):
         self.assertEqual(wda.keyboard_frame(src), (0, 540, 400, 874))
         self.assertIsNone(wda.keyboard_frame(app(el("Button", 10, 10, 80, 40, label="Next"))))
 
+    def test_a_semantics_value_is_the_nodes_value(self):
+        t = wda.parse(app(el("Button", 0, 100, 402, 70, label="Confirmations", value="10 confirmations", traits="Button"),
+                          el("Switch", 330, 215, 50, 30, value="1", label="Hide balance")))
+        self.assertEqual((t[0].name, t[0].value), ("Confirmations", "10 confirmations"))
+        self.assertIsNone(t[1].value)
+
+    def test_a_tooltip_that_repeats_the_label_is_dropped(self):
+        t = wda.parse(app(el("Button", 0, 200, 134, 44, label="Epicbox\nEpicbox", traits="Button, Selected"),
+                          el("Button", 300, 300, 48, 48, label="Epicbox", traits="Button"),
+                          el("Button", 0, 400, 200, 44, label="Send\nSends the payment", traits="Button")))
+        self.assertEqual([n.name for n in t], ["Epicbox", "Epicbox", "Send\nSends the payment"])
+        self.assertIn("selected", t[0].states)
+
     def test_a_disabled_button_is_not_enabled(self):
         t = wda.parse(app(el("Button", 10, 10, 80, 40, label="Continue", traits="Button, NotEnabled")))
         self.assertNotIn("enabled", t[0].states)
@@ -114,6 +127,14 @@ class BackTest(unittest.TestCase):
         wda.WdaSurface(w, FakeSim(), "b").key("back")
         self.assertEqual(w.calls, [("tap", 22, 72)])
 
+    def test_back_on_a_sheet_presses_close_before_the_barrier_and_the_barrier_at_its_top(self):
+        w = FakeWda(app(el("Other", 0, 0, 402, 874, label="Dismiss"), el("Button", 340, 120, 44, 44, label="Close", traits="Button")))
+        wda.WdaSurface(w, FakeSim(), "b").key("back")
+        self.assertEqual(w.calls, [("tap", 362, 142)])
+        w = FakeWda(app(el("Other", 0, 0, 402, 874, label="Dismiss"), el("StaticText", 60, 600, 200, 20, label="Connections")))
+        wda.WdaSurface(w, FakeSim(), "b").key("back")
+        self.assertEqual(w.calls, [("tap", 201, 80)])
+
     def test_back_with_no_button_swipes_from_the_left_edge(self):
         w = FakeWda(app(el("StaticText", 60, 60, 200, 20, label="Settings")))
         wda.WdaSurface(w, FakeSim(), "b").key("back")
@@ -133,7 +154,7 @@ class BackTest(unittest.TestCase):
 class PlatformBitsTest(unittest.TestCase):
     def test_pick_device_type_skips_iphone_duo(self):
         rt = {"supportedDeviceTypes": [{"name": "iPhone Duo", "identifier": "duo"}, {"name": "iPhone 17", "identifier": "17"},
-                                       {"name": "iPhone 18 Pro", "identifier": "18p"}, {"name": "iPhone 18 Pro Max", "identifier": "18pm"},
+                                       {"name": "iPhone 18 Pro", "identifier": "18p"}, {"name": "iPhone 11 Pro", "identifier": "11p"}, {"name": "iPhone 18 Pro Max", "identifier": "18pm"},
                                        {"name": "iPad Pro", "identifier": "ipad"}]}
         self.assertEqual(ios_platform.pick_device_type(rt), "18p")
         self.assertEqual(ios_platform.pick_device_type({"supportedDeviceTypes": rt["supportedDeviceTypes"][:2]}), "17")

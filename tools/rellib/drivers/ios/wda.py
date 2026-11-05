@@ -30,7 +30,7 @@ FIELDS = ("TextField", "SecureTextField", "SearchField", "TextView")
 # The attributes the lane does not read: WDA works out visibility and accessibility per element, slow on a
 # large tree; frames are given as rect already.
 EXCLUDED = "visible,accessible,frame,nativeFrame,nativeAccessibilityElement,minValue,maxValue"
-BACK_NAMES = ("Back", "Dismiss", "Close")   # Flutter's back button; its modal barrier on iOS (no Back key)
+BACK_NAMES = ("Back", "Close", "Dismiss")   # Flutter's back button, a sheet's Close; its modal barrier on iOS (no Back key)
 
 
 class WdaError(RuntimeError):
@@ -208,6 +208,14 @@ def walk(root):
     return out, kb
 
 
+def _untooltip(label):
+    """Flutter on iOS reads a node's label and its tooltip as one, joined by a newline: a segment
+    whose tooltip repeats its text reads "Epicbox\nEpicbox". The repeat is dropped, as AT-SPI keeps
+    the tooltip apart."""
+    lines = label.split("\n")
+    return "\n".join(x for i, x in enumerate(lines) if i == 0 or x != lines[i - 1])
+
+
 def parse(src):
     """Nodes of a WDA JSON source (the `value` of GET /source?format=json): each element on screen with a
     name, an id, a value or an action. The keyboard is left out (its frame: keyboard_frame(src))."""
@@ -225,7 +233,7 @@ def parse(src):
             continue   # scrolled off the screen (Flutter keeps the cache extent's nodes in the tree)
         field = t in FIELDS
         role = role_of(e)
-        label = (e.get("label") or "").replace("\r", "")
+        label = _untooltip((e.get("label") or "").replace("\r", ""))
         rid = e.get("rawIdentifier") or None
         raw = e.get("value")
         value = None
@@ -234,6 +242,9 @@ def parse(src):
             name = label or (e.get("placeholderValue") or "")
         else:
             name = label
+            # a Semantics value (the confirmations count): its own field, as AT-SPI reads it; a switch's 1/0 is its state
+            if raw not in (None, "") and role not in ("toggle", "checkbox") and str(raw) != label:
+                value = str(raw)
         tr = _traits(e)
         actions = tuple(x for x, on in (("press", role in ("button", "link", "tab", "toggle", "checkbox") or field),
                                         ("set_text", field), ("scroll", t in ("ScrollView", "Table", "CollectionView")))
@@ -424,7 +435,9 @@ class WdaSurface:
             n = next((n for n in nodes if n.name.split("\n")[0] == want and n.role in ("button", "text", "other")), None)
             if n is not None:
                 b = n.ref["bounds"]
-                self.wda.tap((b[0] + b[2]) // 2, (b[1] + b[3]) // 2)
+                # the barrier spans the screen under the sheet: its top, above a tall sheet, not its middle
+                y = b[1] + min(80, (b[3] - b[1]) // 6) if want == "Dismiss" else (b[1] + b[3]) // 2
+                self.wda.tap((b[0] + b[2]) // 2, y)
                 return
         w, h = self.size()
         self.wda.swipe(1, h // 2, int(w * 0.7), h // 2, 250)
