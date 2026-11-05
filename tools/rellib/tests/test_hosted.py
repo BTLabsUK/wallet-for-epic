@@ -95,6 +95,8 @@ if a[:2] == ["run", "cancel"]:
 if a[:2] == ["run", "download"]:
     name, dest = a[a.index("-n") + 1], a[a.index("-D") + 1]
     shutil.copytree(os.path.join(d, "art", name), dest, dirs_exist_ok=True); sys.exit(0)
+if a[:1] == ["attestation"] and st.get("old_gh"):
+    print('unknown command "attestation" for "gh"', file=sys.stderr); sys.exit(1)
 if a[:2] == ["attestation", "verify"]:
     out([{"verificationResult": {"signature": {"certificate": {"sourceRepositoryDigest": st["attested"]}},
           "statement": {"predicate": {"buildDefinition": {"resolvedDependencies": [{"digest": {"gitCommit": st["attested"]}}]}}}}}])
@@ -417,6 +419,14 @@ class HostedTest(Base):
             hosted.reused = real
         self.assertEqual(res["status"], "done")
         self.assertIn("nothing to build", res["note"])
+        self.assertFalse([c for c in self.gh_calls() if c["args"][:2] == ["workflow", "run"]])
+
+    def test_gh_without_attestation_fails_before_dispatch(self):
+        self.state(old_gh=True)
+        run = self.drive(only="android")
+        self.assertIn("cannot verify build attestations", hosted.account_problem(hosted.conf(self.pipeline)))
+        self.assertEqual(run.status("hosted-dispatch")["status"], "failed")
+        self.assertIn("gh 2.49 or newer", run.status("hosted-dispatch")["note"])
         self.assertFalse([c for c in self.gh_calls() if c["args"][:2] == ["workflow", "run"]])
 
     def test_misc(self):

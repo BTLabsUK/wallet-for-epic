@@ -146,7 +146,12 @@ def gh_json(c, args, timeout=120):
 
 
 def account_problem(c):
-    """None when gh is logged in as [hosted] account, else why not."""
+    """None when gh can verify build attestations and is logged in as [hosted] account, else why
+    not. The first gh on PATH decides: an older one (Ubuntu's /usr/bin/gh 2.46) has no `attestation`."""
+    rc, _, err = gh(c, ["attestation", "verify", "--help"], timeout=60)
+    if rc != 0:
+        return (f"{shutil.which('gh') or 'gh'} cannot verify build attestations (exit {rc}: {err.strip()[-120:]}); "
+                "put gh 2.49 or newer first on PATH")
     try:
         who = gh_json(c, ["api", "user"], timeout=60)
     except HostedError as e:

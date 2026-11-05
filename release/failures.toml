@@ -206,3 +206,13 @@ id = "android-previous-apk-missing"
 steps = ["trust-android"]
 pattern = "no previous .* x86_64 APK under"
 hint = "A release tools/rel published keeps its emulator APKs in the previous run's extra/emulator, not in files/. Check run.json `previous.extra` names that folder and holds bt-wallet-<version>[-notor]-android-x86_64.apk (engine passes it as REL_PREVIOUS_EXTRA), then `tools/rel retry <step>`."
+
+[[failure]]
+id = "dns-blip"
+pattern = "Temporary failure in name resolution"
+hint = "A name did not resolve (seen once: pypi.org while uv built the bot in G2). Check `getent hosts pypi.org github.com` a few times; when they resolve, `tools/rel retry <step>`. Fails again: look at the machine's resolver, not the step."
+
+[[failure]]
+id = "gh-no-attestation"
+pattern = "cannot verify build attestations|gh attestation verify: exit 1"
+hint = "The first gh on PATH is too old for `gh attestation` (Ubuntu's /usr/bin/gh 2.46; it needs 2.49 or newer). Run tools/rel with ~/.local/bin (gh 2.63) first on PATH, check `gh attestation verify --help`, then `tools/rel retry <step>`."
