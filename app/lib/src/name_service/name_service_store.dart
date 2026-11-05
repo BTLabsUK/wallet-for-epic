@@ -29,7 +29,7 @@ class NameServiceStore {
     try {
       raw = await _store.read(key);
     } catch (e) {
-      logWarn('name service', 'directories not readable: ${e.runtimeType}');
+      logWarn('name service', 'name services not readable: ${e.runtimeType}');
       _unreadable = true;
       return const NameServiceBook();
     }

@@ -78,7 +78,7 @@ List<HelpTopic> _en(bool phone) {
         const HelpBlock.p('Turning it on sends the service a payment address made only for it, signed by this wallet. Nothing else: no balance and no other address.'),
         const HelpBlock.p('**Leave** on the service’s contact page takes your name off it. The wallet keeps receiving to that address for 7 days, then stops.'),
       ],
-      id: HelpId.directories,
+      id: HelpId.nameServices,
     ),
     HelpTopic(
       'network',
@@ -165,7 +165,7 @@ List<HelpTopic> _de(bool phone) {
         const HelpBlock.p('Beim Einschalten sendet diese Wallet dem Dienst eine Zahlungsadresse, die nur für ihn gemacht und von der Wallet signiert ist. Sonst nichts: kein Guthaben und keine andere Adresse.'),
         const HelpBlock.p('**Verlassen** auf der Kontaktseite des Dienstes nimmt Ihren Namen dort heraus. Die Wallet empfängt an dieser Adresse noch 7 Tage lang weiter und hört dann auf.'),
       ],
-      id: HelpId.directories,
+      id: HelpId.nameServices,
     ),
     HelpTopic(
       'network',
@@ -252,7 +252,7 @@ List<HelpTopic> _pl(bool phone) {
         const HelpBlock.p('Włączenie wysyła usłudze adres płatności zrobiony tylko dla niej i podpisany przez ten portfel. Nic więcej: ani salda, ani żadnego innego adresu.'),
         const HelpBlock.p('**Opuść** na stronie kontaktu usługi zdejmuje tam Twoją nazwę. Portfel nadal odbiera na ten adres przez 7 dni, a potem przestaje.'),
       ],
-      id: HelpId.directories,
+      id: HelpId.nameServices,
     ),
     HelpTopic(
       'network',
@@ -339,7 +339,7 @@ List<HelpTopic> _ru(bool phone) {
         const HelpBlock.p('При включении сервису отправляется платёжный адрес, созданный только для него и подписанный этим кошельком. Больше ничего: ни баланса, ни других адресов.'),
         const HelpBlock.p('**Выйти** на странице контакта сервиса снимает там ваше имя. Кошелёк ещё 7 дней принимает платежи на этот адрес, потом перестаёт.'),
       ],
-      id: HelpId.directories,
+      id: HelpId.nameServices,
     ),
     HelpTopic(
       'network',
@@ -426,7 +426,7 @@ List<HelpTopic> _zh(bool phone) {
         const HelpBlock.p('开启时，这个钱包会向服务发送一个专为它生成并由本钱包签名的收款地址。除此之外什么都不发：没有余额，也没有其他地址。'),
         const HelpBlock.p('在该服务的联系人页面点 **退出** 会撤下你在那里的名称。钱包会继续接收该地址的付款 7 天，之后停止。'),
       ],
-      id: HelpId.directories,
+      id: HelpId.nameServices,
     ),
     HelpTopic(
       'network',
@@ -513,7 +513,7 @@ List<HelpTopic> _th(bool phone) {
         const HelpBlock.p('เมื่อเปิดใช้ กระเป๋าเงินนี้จะส่งที่อยู่รับเงินที่สร้างเฉพาะสำหรับบริการนั้นและลงนามโดยกระเป๋าเงินนี้ ไม่ส่งอย่างอื่นเลย ไม่มียอดคงเหลือและไม่มีที่อยู่อื่น'),
         const HelpBlock.p('**ออก** บนหน้าผู้ติดต่อของบริการจะถอนชื่อของคุณออกจากที่นั่น กระเป๋าเงินยังรับเงินเข้าที่อยู่นั้นต่อไปอีก 7 วัน แล้วจึงหยุด'),
       ],
-      id: HelpId.directories,
+      id: HelpId.nameServices,
     ),
     HelpTopic(
       'network',

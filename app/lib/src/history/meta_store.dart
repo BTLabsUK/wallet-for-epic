@@ -750,13 +750,13 @@ class Meta {
       seededContacts: [for (final v in list('seeded_contacts')) _str(v, 'seeded contact')],
       seededAddresses: map('seeded_addresses').map((k, v) => MapEntry(k, _str(v, 'seeded address'))),
       nameServicePins: map('name_service_pins').map((k, v) {
-        final pin = asObject(v, 'directory pin');
+        final pin = asObject(v, 'name service pin');
         return MapEntry(
           k,
           ListingPin(
             listingKey: _str(pin['listing_key'], 'name service pin'),
-            firstPaid: _i64(pin['first_paid'], 'directory pin'),
-            lastPaid: _i64(pin['last_paid'], 'directory pin'),
+            firstPaid: _i64(pin['first_paid'], 'name service pin'),
+            lastPaid: _i64(pin['last_paid'], 'name service pin'),
           ),
         );
       }),

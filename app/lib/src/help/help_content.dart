@@ -177,7 +177,7 @@ abstract final class HelpId {
   static const paymentLinks = 'payment-links';
   static const linkLine = 'link-line';
   static const noPayments = 'no-payments';
-  static const directories = 'directories';
+  static const nameServices = 'name-services';
   static const nameServiceTell = 'name-service-tell';
   static const linkUnanswered = 'link-unanswered';
 }

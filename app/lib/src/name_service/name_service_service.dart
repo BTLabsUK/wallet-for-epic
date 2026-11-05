@@ -262,7 +262,7 @@ class NameService implements NameServiceMembership, PaymentRefusals, NameService
           await _followHome();
           await _drainAll();
         } on Object catch (e) {
-          logWarn('name service', 'directory read failed: ${e.runtimeType}');
+          logWarn('name service', 'name service read failed: ${e.runtimeType}');
         }
       } while (_again && !_disposed);
     } finally {
