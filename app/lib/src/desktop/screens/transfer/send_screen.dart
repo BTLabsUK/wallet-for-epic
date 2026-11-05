@@ -758,8 +758,22 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     _reachTimer = Timer(const Duration(milliseconds: 1500), () {
       if (mounted && !_reach.containsKey(key)) setState(() => _reachSlow = true);
     });
-    unawaited(checkWalletAnswers(r, mode: mode).then((res) {
-      if (mounted) setState(() => _reach[key] = res);
+    unawaited(checkWalletAnswers(r, mode: mode).then((res) async {
+      // No scheme typed, nothing at https://: plain http:// is asked once ([plainHttpFallback]).
+      final plain = res == ReachResult.noAnswer ? await plainHttpFallback(r, mode: mode, listenPort: appConfig.httpListenPort) : null;
+      if (!mounted) return;
+      setState(() {
+        _reach[key] = res;
+        if (plain != null) {
+          _reach[plain.address] = ReachResult.answers;
+          _reachAsked.add(plain.address);
+          // To shows the address that answered, while it still holds the one asked.
+          if (_read.address == key) {
+            _to.text = plain.address;
+            _lastTo = plain.address;
+          }
+        }
+      });
     }));
   }
 

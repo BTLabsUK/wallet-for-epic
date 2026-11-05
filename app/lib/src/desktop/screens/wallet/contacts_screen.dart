@@ -13,7 +13,7 @@ import '../../app/tour.dart';
 import '../../../l10n.dart' show AppLocalizations, localDayMonth;
 import '../../widgets/kit.dart';
 import '../../../models.dart' show KeysChoice, PairRequest, PairingEndReason, PairingRecord, PairingState, SealMode, contactKinds, pairingVouchesFor;
-import '../../../pairing_text.dart' show pairingEndedText, peerLabel;
+import '../../../pairing_text.dart' show pairingEndedRowText, peerLabel;
 import '../../../ui/method_names.dart' show recipientMethodWord;
 import '../../../ui/pairing/pairing_parts.dart' show NoPaymentsBadge, NoPaymentsMark, PairPendingBadge, TrustBadge;
 import '../../data/directory_state.dart' show deskDirectories;
@@ -503,7 +503,7 @@ class _OrphanRowState extends ConsumerState<_OrphanRow> {
     final inFlight = r.state.isPending;
     final waiting = r.state == PairingState.waiting;
     final line = r.ended
-        ? pairingEndedText(l, r.endedReason ?? PairingEndReason.neverFinished, peerLabel(l, r))
+        ? pairingEndedRowText(l, r.endedReason ?? PairingEndReason.neverFinished)
         : r.state == PairingState.waiting
             ? l.pairAnsweredNotHeard
             : r.state == PairingState.pendingReply
@@ -1376,7 +1376,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
           key: deskContactEndedKey,
           gap: false,
           rows: [
-            ESetRow(title: l.pairEndedShort, text: pairingEndedText(l, p.endedReason ?? PairingEndReason.neverFinished, name)),
+            ESetRow(title: l.pairEndedShort, text: pairingEndedRowText(l, p.endedReason ?? PairingEndReason.neverFinished)),
             for (final t in held)
               ESetRow(
                 key: deskContactHeldSendKey,

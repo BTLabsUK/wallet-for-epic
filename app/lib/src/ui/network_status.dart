@@ -127,6 +127,17 @@ class NetworkStatusCard extends ConsumerWidget {
     final epicboxWords = epicboxStatusWords(context, status.epicbox, config);
     final rows = <Widget>[
       _StatusRow(
+        key: netStatusEpicboxKey,
+        glyph: EpicGlyphs.epicbox,
+        title: l.netStatusEpicbox,
+        host: relay,
+        face: epicbox,
+        spoken: epicboxWords?.label,
+        detail: epicboxWords?.detail,
+        torWay: way(TorRoute.epicbox),
+        onTap: () => showEpicboxPicker(context),
+      ),
+      _StatusRow(
         key: netStatusNodeKey,
         glyph: EpicGlyphs.node,
         title: l.netStatusNode,
@@ -145,17 +156,6 @@ class NetworkStatusCard extends ConsumerWidget {
         pulse: status.node.state == NodeState.syncing,
         torWay: nodeTorWay(nodeUrl, torState),
         onTap: () => showNodePicker(context),
-      ),
-      _StatusRow(
-        key: netStatusEpicboxKey,
-        glyph: EpicGlyphs.epicbox,
-        title: l.netStatusEpicbox,
-        host: relay,
-        face: epicbox,
-        spoken: epicboxWords?.label,
-        detail: epicboxWords?.detail,
-        torWay: way(TorRoute.epicbox),
-        onTap: () => showEpicboxPicker(context),
       ),
       if (showTor && torRowShown(tor))
         _StatusRow(

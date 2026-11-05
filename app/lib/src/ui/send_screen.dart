@@ -2654,12 +2654,22 @@ class _SendViewState extends ConsumerState<SendView> {
       if (mounted && _reachAsking.contains(key)) setState(() => _reachSlow.add(key));
     });
     unawaited(
-      checkWalletAnswers(to, mode: mode).then((result) {
+      checkWalletAnswers(to, mode: mode).then((result) async {
+        // No scheme typed, nothing at https://: plain http:// is asked once ([plainHttpFallback]).
+        final plain = result == ReachResult.noAnswer ? await plainHttpFallback(to, mode: mode, listenPort: appConfig.httpListenPort) : null;
         if (!mounted) return;
         setState(() {
           _reachAsking.remove(key);
           _reachSlow.remove(key);
           _reach[key] = result;
+          if (plain != null) {
+            _reach[plain.address] = ReachResult.answers;
+            // To shows the address that answered, while it still holds the one asked.
+            if (_read.address == key) {
+              _recipient.text = plain.address;
+              _lastTo = plain.address;
+            }
+          }
         });
       }),
     );

@@ -17761,6 +17761,15 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get pairEndedRowPeerMismatch => '报告了词语不一致。';
+
+  @override
+  String get pairEndedRowNeverFinished => '其钱包始终未完成。';
+
+  @override
+  String get pairEndedRowUnpaired => '已移除配对。';
+
+  @override
   String pairNoAnswerFrom(String name) {
     return '$name 的钱包没有回复';
   }

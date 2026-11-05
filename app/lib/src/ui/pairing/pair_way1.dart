@@ -235,7 +235,9 @@ class PairRequestsRow extends ConsumerWidget {
     return ListTile(
       key: contactsRequestsKey,
       minTileHeight: 64,
-      leading: GlyphTile(size: 40, child: Icon(Icons.handshake_outlined, color: t.info)),
+      // The contacts list's one tile size and text column (48 tile, 12 gap).
+      horizontalTitleGap: 12,
+      leading: GlyphTile(size: 48, child: Icon(Icons.handshake_outlined, color: t.info)),
       title: Text(l.pairRequestsRow(count)),
       trailing: const NavChevron(),
       onTap: () => openPairRequests(context),

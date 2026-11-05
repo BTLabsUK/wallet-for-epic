@@ -71,6 +71,17 @@ Future<ReachResult> checkWalletAnswers(RecipientInput to, {required NetworkMode 
   }
 }
 
+/// A name typed without a scheme got `https://`; when no wallet answers there, the same address
+/// over plain `http://` is asked once ([checkWalletAnswers]), unless plain http is held now (Tor
+/// on, Tor only). The plain address when a wallet answers there, else null. Send then shows
+/// the `http://` address in To, and its review says it is not encrypted.
+Future<RecipientInput?> plainHttpFallback(RecipientInput to, {required NetworkMode mode, required int listenPort}) async {
+  if (to.kind != RecipientInputKind.https || !to.notes.contains(RecipientNote.httpsAdded)) return null;
+  final plain = readRecipient('http://${to.unicodeHost ?? to.hostShown}:${to.port}${to.path}', defaultRelay: '', listenPort: listenPort);
+  if (plain.kind != RecipientInputKind.http || plainHttpHeldNow(plain.address)) return null;
+  return await checkWalletAnswers(plain, mode: mode) == ReachResult.answers ? plain : null;
+}
+
 /// A foreign API's answer: `{"result": {"Ok": {"foreign_api_version": …}}}`.
 bool _isWallet(HttpReply reply) {
   if (!reply.ok) return false;

@@ -5330,5 +5330,8 @@
   "receiptSeesSent": "{name} zobaczy: prośba {id}, {amount}, wysłano {time}. Nic więcej nie jest przekazywane: ani adres, ani identyfikator transakcji.",
   "receiptSeesPosted": "{name} zobaczy: prośba {id}, {amount}, w sieci od {time}. Nic więcej nie jest przekazywane: ani adres, ani identyfikator transakcji.",
   "receiptNotSent": "Teraz nie udało się powiadomić {name}. Spróbuj ponownie.",
-  "receiptHintTitle": "Potwierdzenie"
+  "receiptHintTitle": "Potwierdzenie",
+  "pairEndedRowPeerMismatch": "Zgłoszono, że słowa się nie zgadzają.",
+  "pairEndedRowNeverFinished": "Portfel nigdy nie dokończył.",
+  "pairEndedRowUnpaired": "Parowanie usunięte po tamtej stronie."
 }

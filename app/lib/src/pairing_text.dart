@@ -70,12 +70,21 @@ String? pairingFailureBody(AppLocalizations l, PairingFailure failure, {String n
       PairingFailure.waiting => l.pairWaitingSendBody,
     };
 
-/// The reason line of an ended pairing ("Anna reported the words do not match").
+/// The reason line of an ended pairing in a notice ("Anna reported the words do not match").
 String pairingEndedText(AppLocalizations l, PairingEndReason reason, String name) => switch (reason) {
   PairingEndReason.mismatch => l.pairEndedMismatch,
   PairingEndReason.peerMismatch => l.pairEndedPeerMismatch(name),
   PairingEndReason.unpaired => l.noticeUnpaired(name),
   PairingEndReason.neverFinished => l.pairEndedNeverFinished(name),
+};
+
+/// The reason line of an ended pairing under the other wallet's name (a contacts row, a
+/// contact's Ended block): the name is the title, so the line does not repeat it.
+String pairingEndedRowText(AppLocalizations l, PairingEndReason reason) => switch (reason) {
+  PairingEndReason.mismatch => l.pairEndedMismatch,
+  PairingEndReason.peerMismatch => l.pairEndedRowPeerMismatch,
+  PairingEndReason.unpaired => l.pairEndedRowUnpaired,
+  PairingEndReason.neverFinished => l.pairEndedRowNeverFinished,
 };
 
 /// A short time span for countdowns: `6 d 23 h`, `23 h 12 min`, `12 min`, `under a minute`.

@@ -5330,5 +5330,8 @@
   "receiptSeesSent": "{name} увидит: запрос {id}, {amount}, отправлено {time}. Больше ничего не передаётся: ни адреса, ни ID транзакции.",
   "receiptSeesPosted": "{name} увидит: запрос {id}, {amount}, в сети с {time}. Больше ничего не передаётся: ни адреса, ни ID транзакции.",
   "receiptNotSent": "Сейчас не удалось сообщить {name}. Попробуйте ещё раз.",
-  "receiptHintTitle": "Квитанция"
+  "receiptHintTitle": "Квитанция",
+  "pairEndedRowPeerMismatch": "Сообщено, что слова не совпадают.",
+  "pairEndedRowNeverFinished": "Кошелёк так и не завершил.",
+  "pairEndedRowUnpaired": "Сопряжение удалено с той стороны."
 }

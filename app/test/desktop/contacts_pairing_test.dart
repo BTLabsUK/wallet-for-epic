@@ -118,12 +118,11 @@ void main() {
 
   testWidgets('ended by the peer: the reason, Pair again, Remove; no switches', (tester) async {
     await _contact(tester, 'c1');
-    final anna = _c.read(deskProvider).contacts!.firstWhere((c) => c.id == 'c1');
     _fake.peerMismatch(mockAnnaPairing);
     _c.invalidate(deskPairingsProvider);
     await _real(tester);
     expect(find.byKey(deskContactEndedKey), findsOneWidget);
-    expect(find.text(_l.pairEndedPeerMismatch(anna.name)), findsOneWidget);
+    expect(find.text(_l.pairEndedRowPeerMismatch), findsOneWidget);
     expect(find.text(_l.trustEnded), findsWidgets);
     expect(find.byKey(deskContactPairAgainKey), findsOneWidget);
     expect(find.byKey(deskContactRemovePairingKey), findsOneWidget);
@@ -151,7 +150,7 @@ void main() {
     _fake.seedPaired(id: 'p-piotr', name: 'Piotr', contactId: 'c6', state: PairingState.ended, endedReason: PairingEndReason.neverFinished);
     _c.invalidate(deskPairingsProvider);
     await _real(tester);
-    expect(find.text(_l.pairEndedNeverFinished('Piotr Nowak')), findsOneWidget);
+    expect(find.text(_l.pairEndedRowNeverFinished), findsOneWidget);
     await tester.tap(find.byKey(deskContactRemovePairingKey));
     await _real(tester);
     await tester.tap(find.byKey(deskConfirmRemovePairingKey));
@@ -304,7 +303,7 @@ void main() {
     _fake.removedByPeer(mockAnnaPairing);
     _c.invalidate(deskPairingsProvider);
     await _real(tester);
-    expect(find.text(_l.noticeUnpaired('Anna Kowalska')), findsOneWidget);
+    expect(find.text(_l.pairEndedRowUnpaired), findsOneWidget);
     expect(find.text(_l.contactSealPayments), findsNothing);
     expect(find.byKey(deskContactPairAgainKey), findsOneWidget);
     expect(find.byKey(deskContactPairKey), findsOneWidget);

@@ -545,7 +545,7 @@ void main() {
       h.api.peerMismatch('p');
       await tester.pumpAndSettle();
       expect(find.byKey(contactPageEndedKey), findsOneWidget);
-      expect(find.text(_l.pairEndedPeerMismatch('Anna')), findsOneWidget);
+      expect(find.text(_l.pairEndedRowPeerMismatch), findsOneWidget);
       expect(find.byKey(contactPageHeldSendKey), findsOneWidget);
       expect(find.text(_l.pairHeldSend), findsOneWidget);
       expect(find.byKey(contactPagePairAgainKey), findsOneWidget);
@@ -558,7 +558,7 @@ void main() {
 
     testWidgets('never finished: the reason line; Remove drops it, the contact stays', (tester) async {
       final h = await page(tester, (h) => h.api.seedPaired(id: 'p', name: 'Anna', contactId: 'c1', state: PairingState.ended, endedReason: PairingEndReason.neverFinished));
-      expect(find.text(_l.pairEndedNeverFinished('Anna')), findsOneWidget);
+      expect(find.text(_l.pairEndedRowNeverFinished), findsOneWidget);
       await tester.tap(find.byKey(contactPageRemovePairingKey));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(confirmRemovePairingKey));

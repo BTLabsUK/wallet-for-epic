@@ -19465,6 +19465,15 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get pairEndedRowPeerMismatch => 'Сообщено, что слова не совпадают.';
+
+  @override
+  String get pairEndedRowNeverFinished => 'Кошелёк так и не завершил.';
+
+  @override
+  String get pairEndedRowUnpaired => 'Сопряжение удалено с той стороны.';
+
+  @override
   String pairNoAnswerFrom(String name) {
     return 'Нет ответа от кошелька $name';
   }

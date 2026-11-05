@@ -19042,6 +19042,16 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get pairEndedRowPeerMismatch =>
+      'Hat gemeldet, dass die Wörter nicht übereinstimmen.';
+
+  @override
+  String get pairEndedRowNeverFinished => 'Die Wallet hat nie abgeschlossen.';
+
+  @override
+  String get pairEndedRowUnpaired => 'Hat die Kopplung entfernt.';
+
+  @override
   String pairNoAnswerFrom(String name) {
     return 'Keine Antwort von der Wallet von $name';
   }
