@@ -361,7 +361,7 @@ class GreenTest(Base):
         d = os.environ["WFE_GREEN_DIR"]
         os.makedirs(d, exist_ok=True)
         rec = {"sha": sha, "status": "green", "clean": True, "command": "tools/check.sh --full",
-               "ended": "2026-11-02T03:00:00Z", "by": "test"}
+               "suites": ["full", "full-notor"], "ended": "2026-11-02T03:00:00Z", "by": "test"}
         rec.update(kw)
         jdump(rec, os.path.join(d, f"{sha}.json"))
 
@@ -371,9 +371,23 @@ class GreenTest(Base):
         for c in (["init", "-q"], ["-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "--allow-empty", "-m", "x"]):
             subprocess.run(["git", "-C", repo, *c], check=True)
         sha = subprocess.run(["git", "-C", repo, "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+        wtext(os.path.join(repo, ".git", "info", "exclude"), ".test-results/\n")
+        latest = os.path.join(repo, ".test-results", "latest.json")
+        os.makedirs(os.path.dirname(latest))
+        # Only the whole suite with its pass without Tor, both green: never the changed files alone.
+        for res, why in (({"mode": "file", "status": "green"}, "not full green"),
+                         ({"mode": "full", "status": "green"}, "no green full-notor"),
+                         ({"mode": "full", "status": "green", "notor": {"mode": "full-notor", "status": "red"}},
+                          "no green full-notor")):
+            jdump(res, latest)
+            path, msg = green.record(repo, 0)
+            self.assertIsNone(path, res)
+            self.assertIn(why, msg)
+        jdump({"mode": "full", "status": "green", "notor": {"mode": "full-notor", "status": "green"}}, latest)
         path, msg = green.record(repo, time.time() - 900)
         r = jload(path)
         self.assertEqual((r["sha"], r["status"], r["clean"], r["command"]), (sha, "green", True, "tools/check.sh --full"))
+        self.assertEqual(r["suites"], ["full", "full-notor"])
         self.assertGreaterEqual(r["duration_s"], 899)
         os.remove(path)
         wtext(os.path.join(repo, "stray"), "")
@@ -397,6 +411,8 @@ class GreenTest(Base):
         self.assertIsNone(reuse.find_source(REPO, self.root, info, step, spec["reuse"], None, reuse.green_dir(spec))[2])
         self.record(command="tools/check.sh")
         self.assertIsNone(reuse.find_source(REPO, self.root, info, step, spec["reuse"], None, reuse.green_dir(spec))[2])
+        self.record(suites=None)  # a record from before full-notor counted
+        self.assertIsNone(reuse.find_source(REPO, self.root, info, step, spec["reuse"], None, reuse.green_dir(spec))[2])
         self.record()
         k2, _, src = reuse.find_source(REPO, self.root, info, step, spec["reuse"], None, reuse.green_dir(spec))
         self.assertEqual((k2, src["kind"], src["commit"]), (k, "green", HEAD))
@@ -412,14 +428,10 @@ class GreenTest(Base):
                    "--previous", prev,
                    *extra)
 
-    def test_start_refuses_a_candidate_without_a_green_full_check(self):
+    def test_start_without_a_green_full_check_runs_g2_first(self):
         code, out, err = self.start()
-        self.assertEqual(code, 30, out + err)
-        self.assertIn("no green full check", out)
-        self.assertIn("--run-source-check", out)
-        self.assertFalse(os.path.isdir(os.path.join(self.root, V)), "no run made")
-        code, out, err = self.start("--run-source-check")
         self.assertNotEqual(code, 30, out + err)
+        self.assertIn("no green full check", out)
         self.assertIn("g2", self.calls(), "G2 ran in the run")
 
     def test_start_takes_a_green_record_and_g2_is_not_run(self):

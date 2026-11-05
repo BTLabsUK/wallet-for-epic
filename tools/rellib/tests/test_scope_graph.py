@@ -173,7 +173,7 @@ class GraphTest(unittest.TestCase):
         self.assertEqual([x.id for x in steps if x.lane == "build-linux"], ["build-linux-tor", "build-linux-notor"])
         self.assertTrue(all(x.heavy for x in steps if x.lane == "build-linux"))
 
-    def test_create_steps_warn_only_after_the_trust_steps(self):
+    def test_create_steps_warn_only_after_the_flow_lanes(self):
         s, steps = graph()
         by = {x.id: x for x in steps}
         for plat in ("android", "linux", "windows"):
@@ -182,11 +182,71 @@ class GraphTest(unittest.TestCase):
             self.assertTrue(c.warn_only)
             self.assertFalse(c.proof)
             self.assertEqual(c.lane, f"trust-{plat}-tor")
-            self.assertEqual(c.needs, [f"trust-{plat}-tor"])
+            self.assertEqual(c.needs, [f"flow-{plat}-tor"])
             self.assertEqual((c.env["REL_TRUST_MODE"], c.env["REL_CHECKS"], c.env["REL_FUNDS"]), ("create", "create_ok", "0"))
+            self.assertEqual(c.env["REL_CANDIDATE_DIR"], f"/r/26.10.25/run-1/steps/testbuild-{plat}-tor/out")
             self.assertIn(f"trust-{plat}.sh", c.run)
             self.assertNotIn(c.id, by["update-trust"].needs)
         self.assertNotIn("create-macos-tor", by)
+
+    def test_cheapest_first_g2_then_flow_lanes_then_release_builds(self):
+        # 2026-11-05: G2, the flow lanes on a test build, the hosted or local release builds, then the
+        # package lanes on the release files. The send and receive legs run in the flow lanes.
+        self.assertEqual(PIPE.proof["funds_in"], "flow")
+        for builds in (False, True):
+            s = load_scope(None, "26.10.25")
+            validate_scope(s, PIPE)
+            if builds:
+                s["builds"] = {"hosted": True}  # as `tools/rel start --builds hosted`
+            by = {x.id: x for x in build_graph(PIPE, s, ctx(s))}
+            gate = by["flow-lanes"]
+            self.assertEqual(gate.kind, "builtin")
+            for plat in ("android", "linux", "windows"):
+                t, f = by[f"testbuild-{plat}-tor"], by[f"flow-{plat}-tor"]
+                self.assertNotIn(f"testbuild-{plat}-notor", by)
+                self.assertEqual(t.needs, ["source", "source-check"])
+                self.assertFalse(t.outputs or t.extras, "a test build is never shipped")
+                self.assertEqual(f.needs, [t.id])
+                self.assertFalse(f.proof or f.warn_only)
+                self.assertTrue(f.driven)
+                self.assertEqual(f.env["REL_TRUST_MODE"], "flow")
+                d = f"/r/26.10.25/run-1/steps/{t.id}/out"
+                self.assertEqual({f.env[k] for k in ("REL_PREVIOUS_DIR", "REL_PREVIOUS_EXTRA", "REL_CANDIDATE_DIR",
+                                                     "REL_CANDIDATE_EXTRA")}, {d})
+                self.assertEqual(f.run, PIPE.proof["drivers"][plat].replace("{rel}", "/rel"))
+                self.assertTrue({t.id, f.id, f"create-{plat}-tor"} <= set(gate.needs))
+                # One chain per platform, in its trust lane.
+                self.assertEqual({t.lane, f.lane, by[f"create-{plat}-tor"].lane, by[f"trust-{plat}-tor"].lane},
+                                 {f"trust-{plat}-tor"})
+            self.assertEqual(by["trust-tx-linux-tor"].needs, ["create-linux-tor"])
+            self.assertIn("trust-tx-linux-tor", gate.needs)
+            self.assertIn("testbuild-linux-tor", by["trust-tx-linux-tor"].env["REL_CANDIDATE_DIR"])
+            self.assertIn("source-check", gate.needs)
+            for p in ("android", "linux", "windows"):
+                for v in ("tor", "notor"):
+                    self.assertIn("flow-lanes", by[f"build-{p}-{v}"].needs, (builds, p, v))
+            # The Apple builds are hand-offs to the Mac: they wait for the flow lanes too.
+            for x in ("apple-mac-tor", "apple-mac-notor", "ios-testflight"):
+                self.assertIn("flow-lanes", by[x].needs, x)
+            if builds:
+                self.assertEqual(by["hosted-dispatch"].needs, ["source", "source-check", "flow-lanes"])
+                self.assertIn("(hosted)", by["build-android-tor"].title)
+            else:
+                self.assertNotIn("hosted-dispatch", by)
+
+    def test_android_and_linux_chains_take_one_slot_each_and_windows_none(self):
+        from rellib.window import Policy
+        pol = Policy(PIPE.concurrency, None)
+        self.assertEqual(pol.max_heavy, 2)
+        s, steps = graph()
+        by = {x.id: x for x in steps}
+        for plat in ("android", "linux"):
+            chain = [f"testbuild-{plat}-tor", f"flow-{plat}-tor", f"create-{plat}-tor", f"trust-{plat}-tor"]
+            if plat == "linux":
+                chain.append("trust-tx-linux-tor")
+            self.assertTrue(all(pol.counts(by[x]) for x in chain), plat)
+        for x in ("testbuild-windows-tor", "flow-windows-tor", "create-windows-tor", "trust-windows-tor"):
+            self.assertFalse(pol.counts(by[x]), x)
 
     def test_only_android_drops_the_rest_and_their_needs(self):
         s, steps = graph(only="android")

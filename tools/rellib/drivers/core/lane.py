@@ -21,6 +21,12 @@ REL_TRUST_MODE=create (create_only): no update and no funds. The candidate is in
 data, a new wallet is created through its screens and its home reached (check create_ok); the phrase
 it shows is checked and dropped, never stored.
 
+REL_TRUST_MODE=flow: the update lane on one build, the run's quick test build before the release builds
+(release/pipeline.toml flow-*): the step names that build as both previous and candidate, so the lane
+installs it, restores or sets up the wallet through its screens, takes the setup's settings, servers,
+contacts and notes, reinstalls the same build over it and checks all of it kept, then (REL_FUNDS) runs
+the send and receive legs. A flow failure shows before any release build. No trust state is saved.
+
 At its end a lane with a phrase (seed or create) scans its whole REL_OUT for 3 consecutive words of it:
 a hit is a HarnessFault naming only the file (exit 2).
 
@@ -179,6 +185,7 @@ class Lane:
         self.done = []         # the phases that ended, in order (proof.json, for a resume)
         self.bundles = 0
         self.resumed = None    # the resume plan this run started from
+        self.flow = False      # REL_TRUST_MODE=flow: previous and candidate are the same test build
 
     # ---- results
 
@@ -196,7 +203,7 @@ class Lane:
         p = {"platform": self.p.name, "variant": self.p.variant,
              "previous": None if self.mode == "create" else os.environ.get("REL_PREVIOUS_VERSION"),
              "candidate": os.environ.get("REL_CANDIDATE_VERSION"),
-             "update_method": self.p.update_method, "start": self.mode,
+             "update_method": self.p.update_method, "start": self.mode, "trust_mode": "flow" if self.flow else None,
              "node": getattr(self.p, "node", None), "epicbox": getattr(self.p, "relay", None),
              "checks": {c: self.results.get(c, False) for c in self.required},
              "details": self.details, "recovered": self.rec.used}
@@ -262,8 +269,9 @@ class Lane:
         mode = os.environ.get("REL_TRUST_MODE") or "update"
         if mode == "create":
             return self.create_only()
-        if mode != "update":
-            return self._run(lambda: self._refuse("REL_TRUST_MODE=%s: not update or create" % mode))
+        if mode not in ("update", "flow"):
+            return self._run(lambda: self._refuse("REL_TRUST_MODE=%s: not update, flow or create" % mode))
+        self.flow = mode == "flow"
         return self._run(self._main)
 
     def create_only(self):
@@ -327,7 +335,7 @@ class Lane:
         line = self.fault.line() if self.fault else ("STOP %s %s after %s (REL_TRUST_UNTIL): no fault" % (
             self.p.name, self.p.variant, self.stopped) if self.stopped and code == 0 else None) or (
             "PASS %s %s %s%s" % (self.p.name, self.p.variant, "create %s" % proof["candidate"] if self.mode == "create"
-                                 else "%s → %s" % (proof["previous"], proof["candidate"]),
+                                 else "flow %s (test build)" % proof["candidate"] if self.flow else "%s → %s" % (proof["previous"], proof["candidate"]),
                                  " (recovered: %s)" % ", ".join(r["step"] for r in self.rec.used) if self.rec.used else "")
             if code == 0 else "PRODUCT checks false: " + "; ".join(
                 "%s (%s)" % (c, str(self.details.get(c, "not reached"))[:120]) for c in self.required if not self.results.get(c)))
@@ -394,6 +402,8 @@ class Lane:
         # a passing lane leaves its wallet for the next release (REL_TRUST_SAVE_STATE=0 for trial runs)
         if self.mode == "seed":
             self.log("no trust state saved: the lane seed's wallet is restored from its phrase next run")
+        elif self.flow:
+            self.log("no trust state saved: a flow lane's build is a test build, never a release")
         elif all(self.results.get(c) for c in self.required) and os.environ.get("REL_TRUST_SAVE_STATE", "1") != "0":
             self.run_phase("save-state", lambda: st.save(self.p, self.secrets, self.checks_mod.public(after), log=self.log))
         return 0

@@ -119,10 +119,15 @@ class Engine:
         for k in ("signing_key", "btlabs_public", "android_key_properties"):
             if signer.get(k):
                 env[f"REL_SIGNER_{k.upper()}"] = signer[k]
-        if step.proof:
+        # A flow lane (REL_TRUST_MODE=flow) runs the update lane's checks on the run's test build; its
+        # step env names that build as previous and candidate.
+        flow = step.env.get("REL_TRUST_MODE") == "flow"
+        if step.proof or flow:
             proof = self.pipeline.proof
             checks = list(proof.get("checks", []))
-            funds = step.variant == proof.get("funds_variant", "tor")
+            # [proof] funds_in: the lanes that run the send and receive legs, "flow" (the flow lanes, once
+            # per platform before the hosted builds) or "proof" (the update lanes on the release files).
+            funds = step.variant == proof.get("funds_variant", "tor") and flow == (proof.get("funds_in", "proof") == "flow")
             if funds:
                 checks += proof.get("funds_checks", [])
             env.update({"REL_OUT": env["REL_STAGE"], "REL_CHECKS": ",".join(checks), "REL_FUNDS": "1" if funds else "0",
@@ -203,7 +208,7 @@ class Engine:
         """-> (status fields, the earlier driver record this attempt differs from or None) for a proof
         step: which driver code this attempt runs (evidence.driver_record of the checkout tools/rel
         runs from), kept per attempt in status `drivers`. Others -> (None, None)."""
-        if not step.proof:
+        if not step.driven:
             return None, None
         rec = evidence.driver_record(self.runner)
         earlier = list(st.get("drivers") or [])
@@ -517,12 +522,12 @@ class Engine:
         if self.dry:
             with open(log, "a", encoding="utf-8") as f:
                 f.write("# dry run: not run\n")
-            if step.proof:
+            if step.driven:
                 return self._dry_proof(step, cwd, env, log)
             return {"status": "done", "note": "dry run", "dry": True}
         if not os.path.isdir(cwd):
             return {"status": "failed", "note": f"working dir {cwd} does not exist"}
-        if step.proof:
+        if step.driven:
             # A proof from an earlier attempt never counts for this one.
             old = os.path.join(stage, "proof.json")
             if os.path.exists(old):
@@ -544,7 +549,7 @@ class Engine:
                     p.wait()
                 return {"status": "failed", "rc": None, "timed_out": True,
                         "note": f"timed out after {step.timeout:.0f}s (its hard limit)"}
-        if step.proof:
+        if step.driven:
             self.stamp_driver(step, stage)
             return self._check_proof(step, rc)
         if rc != 0:
@@ -599,6 +604,9 @@ class Engine:
                 res.update(status="done", waived=True, note=f"NOT PROVEN (waived: {reason}): {note}")
             else:
                 res.update(status="failed", note=note)
+        elif not step.proof:
+            res.update(status="done", note=f"flow passed on the test build {proof.get('candidate')} "
+                                           f"(node {proof.get('node')}, epicbox {proof.get('epicbox')})" + recovered_note(proof))
         else:
             res.update(status="done", note=f"proven {proof.get('previous')} → {proof.get('candidate')} "
                                            f"({proof.get('update_method', '?')}; node {proof.get('node')}, epicbox {proof.get('epicbox')}"

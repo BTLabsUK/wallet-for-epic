@@ -12,8 +12,9 @@
 #                            the web build and LEPIC's golden-vector replay too. Once per release candidate: tools/rel's source
 #                            gate runs it, or the nightly, or the release lead on the candidate.
 #                            Green on a clean tree, it records /tmp/epic-build/green/<sha>.json
-#                            (tools/rellib/green.py), which G2 reuses for that content: tools/rel
-#                            start refuses a candidate without one unless --run-source-check.
+#                            (tools/rellib/green.py; tools/t full ran both passes, with and
+#                            without Tor), which G2 reuses for that content; without one G2 runs
+#                            first in the release run.
 #                            Between releases nobody else runs --full.
 #   tools/check.sh --list    print the mode, the rule and the tests the fast mode would run; run
 #                            nothing.

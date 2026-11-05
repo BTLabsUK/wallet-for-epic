@@ -228,17 +228,16 @@ class App:
         src = os.path.abspath(a.src) if a.src else os.path.join(wt, f"rel-{version}-{commit[:7]}")
         steps = build_graph(self.pipeline, scope, context(version, commit, path, run_id, src, scope, self.hosts, prev, self.build_id(commit)))
         g2 = next((s for s in steps if s.base == "source-check"), None)
-        if g2 and not a.dry_run and not a.run_source_check and g2.base not in scope["skip"]:
-            # Only a candidate whose content already passed the full suite (any source: an earlier
-            # run, the nightly, a `tools/check.sh --full` on that commit) starts without the flag.
+        if g2 and not a.dry_run and g2.base not in scope["skip"]:
+            # Cheapest first: a candidate whose content passed the whole suite (full and full-notor:
+            # an earlier run, the nightly, a `tools/check.sh --full` on that commit) reuses it; any
+            # other runs G2 here first. Nothing builds or dispatches before G2 and the flow lanes pass.
             found, key = self.green_source(commit, version, g2)
-            if not found:
-                return self.out(EXIT_PREFLIGHT,
-                                f"no green full check for {commit[:12]} (G2 key {key}): from a clean checkout at "
-                                "that commit run `FULL_RUN=release build-slot tools/rellib/steps/source-check.sh "
-                                "<scratch dir>` (tools/check.sh --full; it records /tmp/epic-build/green/<sha>.json), or "
-                                "wait for the nightly; or pass --run-source-check to run G2 in this run")
-            self.echo(f"G2: green full check on this content: {found['label']} ({found['commit'][:12]})")
+            if found:
+                self.echo(f"G2: green full check on this content: {found['label']} ({found['commit'][:12]})")
+            else:
+                self.echo(f"G2: no green full check for {commit[:12]} (key {key}): tools/check.sh --full runs "
+                          "first in this run; no build or hosted dispatch before it passes")
         conc = {k: v for k, v in (("max_heavy", a.max_heavy), ("shared", False if a.exclusive_machine else None))
                 if v is not None}
         info = {"version": version, "commit": commit, "scope": scope, "test": scope["test"], "dry": bool(a.dry_run),
@@ -944,7 +943,7 @@ def parser():
     sp.add_argument("--no-relmsg", action="store_true", help="no Telegram (the publish gate then stays closed)")
     sp.add_argument("--until", help="stop after this step")
     sp.add_argument("--run-source-check", action="store_true",
-                    help="start although no green full check of this content exists: G2 runs in this run")
+                    help="the default: without a green full check of this content G2 runs in this run")
     sp.add_argument("--sign-inline", action="store_true",
                     help="ask for the Android signing code as soon as every build is in (the owner is ready now); "
                          "default: the run waits at sign-android until `tools/rel sign`")

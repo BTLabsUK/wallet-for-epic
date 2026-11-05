@@ -33,6 +33,8 @@
 #                      states (core/state.py; on Android an emulator snapshot of the AVD)
 #   REL_TRUST_MODE     create: only the candidate, installed fresh, and a new wallet made on it (no
 #                      previous release, no update, no funds; v2 only)
+#                      flow: the update lane on one build, the run's test build as previous and
+#                      candidate (release/pipeline.toml flow-*); the update is adb install -r of it
 #   REL_TRUST_BREAK    break tests (core/breaks.py); never in a release run
 #   REL_TRUST_STATE    (v1) where the test wallet's phrase and PIN are kept (mode 600; default
 #                      ~/.config/btlabs/rel-trust-android for tor, ~/.config/btlabs/rel-wallet-q
@@ -159,7 +161,7 @@ EOF
   fi
   if [[ "$dry" == 1 ]]; then
     cat <<EOF
-trust-android plan (v2, $REL_VARIANT, funds=$REL_FUNDS, required: ${REL_CHECKS:-$(python3 -I "$drv/lane.py" checks)})
+trust-android plan (v2, $REL_VARIANT, mode=${REL_TRUST_MODE:-update}, funds=$REL_FUNDS, required: ${REL_CHECKS:-$(python3 -I "$drv/lane.py" checks)})
   emulator   ${REL_ANDROID_SERIAL:-start AVD $avd headless (writable), emulator-$port; stopped at the end}
   signer     both APKs must carry the same certificate (apksigner); it goes in proof.json and the saved state
   start      ${REL_TRUST_START:-auto}: the lane seed android-$REL_VARIANT when there is one (Restore from phrase on the previous release, core/lane_seed.py), else a saved $REL_VARIANT state of ${REL_PREVIOUS_VERSION:-?} (emulator snapshot) when one fits, else fresh

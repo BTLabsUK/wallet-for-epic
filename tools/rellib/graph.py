@@ -37,6 +37,12 @@ class Step:
     local_run: str = None  # a hosted build's local command (runs only if build-fetch's fallback is re-enabled)
 
     @property
+    def driven(self):
+        """A lane run by a trust driver: a proof step, or a flow lane (REL_TRUST_MODE=flow) on the run's
+        test build. Both fail closed on proof.json; only a proof step counts as release proof."""
+        return self.proof or self.env.get("REL_TRUST_MODE") == "flow"
+
+    @property
     def phase(self):
         return "publish" if self.publish else "build"
 

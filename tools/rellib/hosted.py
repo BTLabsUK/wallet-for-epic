@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """Hosted builds: the build-* steps of a run started with `tools/rel start --builds hosted`.
 
-hosted-dispatch (a builtin, right after source) sends a workflow_dispatch of
+hosted-dispatch (a builtin, after G2 and the flow lanes) sends a workflow_dispatch of
 .github/workflows/build.yml on BTLabsUK/wallet-for-epic for the published twin of the release
 commit, with the platforms and variants of the build steps that the reuse check does not cover.
 With [hosted] waves the builds go out in waves (the Tor builds, then the no-Tor ones): the first

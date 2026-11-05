@@ -13,8 +13,8 @@ same key, and its output files are still there with their recorded checksums, th
 run: its files are copied in and it is marked "reused from <run> (<commit>)". For G2 a green
 nightly full check (`reuse_nightly`) of a commit with the same key counts too, and so does any
 green `tools/check.sh --full` on a clean tree (`reuse_green`: the <sha>.json records check.sh
-writes in /tmp/epic-build/green/, the nightly's own run included). `tools/rel start` refuses a
-candidate none of these covers unless --run-source-check. A changed key runs the step. Dry runs
+writes in /tmp/epic-build/green/ after tools/t's full and full-notor passes, the nightly's own run
+included). A candidate none of these covers runs G2 first in its run. A changed key runs the step. Dry runs
 never reuse.
 """
 import glob
@@ -99,7 +99,8 @@ def green_dir(spec):
 
 def green_records(gdir):
     """[(sha, record)] of the green full checks in gdir, newest first. Only a clean tree's
-    `--full` run that ended with `check passed` counts (tools/check.sh writes nothing else)."""
+    `--full` run that ended with `check passed` with both tools/t passes green (suites full and
+    full-notor, tools/rellib/green.py) counts; an older record without suites does not."""
     out = []
     for p in glob.glob(os.path.join(gdir, "*.json")):
         try:
@@ -109,7 +110,8 @@ def green_records(gdir):
         except (OSError, ValueError):
             continue
         if not isinstance(r, dict) or r.get("status") != "green" or r.get("clean") is not True \
-                or "--full" not in str(r.get("command", "")) or not r.get("sha"):
+                or "--full" not in str(r.get("command", "")) or not r.get("sha") \
+                or not {"full", "full-notor"} <= set(r.get("suites") or []):
             continue
         out.append((mtime, r["sha"], r))
     return [(s, r) for _, s, r in sorted(out, key=lambda x: x[0], reverse=True)]
