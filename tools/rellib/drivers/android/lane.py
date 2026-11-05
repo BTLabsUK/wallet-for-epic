@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.dirname(HERE))
 sys.path.insert(0, HERE)
 
 from android_platform import AndroidPlatform  # noqa: E402
-from core import phone_lane  # noqa: E402
+from core import checks, phone_lane  # noqa: E402,F401  (checks: read by the restore tests)
 from core.phone_lane import create_mode, keep_secrets, required  # noqa: E402,F401
 
 NOT_CHECKED = {}  # every check is made on Android: settings_kept reads Settings (Platform.settings_from_ui)
