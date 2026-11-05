@@ -12,6 +12,7 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../advanced.dart';
+import '../../first_run_tour.dart';
 import '../../levels/first_start.dart';
 import '../../levels/level_features.dart';
 import '../../levels/level_providers.dart';
@@ -20,6 +21,7 @@ import '../../log.dart';
 import '../../providers.dart' show secretStoreProvider;
 import '../../secret_store_api.dart';
 import 'desk_first_run_servers.dart';
+import 'desk_store.dart';
 import '../../tor_build.dart';
 import 'state.dart';
 
@@ -70,6 +72,21 @@ Future<bool> deskHoldUntilFirstStart(SecretStore store, {Future<bool> Function()
   }
   return holdUntilFirstStart(store, markers: deskExistingInstallMarkers);
 }
+
+/// At launch, first, before this run writes a key ([settleFirstRunTour]): an install that ran
+/// before (any of [deskExistingInstallMarkers], the level, or a wallet on disk) gets
+/// [DeskSettings.tourSeen] saved and never the first-run tour by itself. Settings that are not
+/// readable JSON are left as they are.
+Future<bool> deskSettleFirstRunTour(DeskStore store, {Future<bool> Function()? walletsOnDisk}) => settleFirstRunTour(
+  read: store.readText,
+  seen: () async => (await store.settings()).tourSeen,
+  markSeen: () async {
+    if (await store.readText(DeskStore.settingsKey) != null && await store.readJson(DeskStore.settingsKey) is! Map) return;
+    await store.saveTourSeen();
+  },
+  markers: const [...deskExistingInstallMarkers, levelKey],
+  hasData: walletsOnDisk,
+);
 
 /// A level given at build time (`--dart-define=WFE_DESK_LEVEL=1|2|3`): the tour, screenshots
 /// and the web preview show that level whatever is stored.
