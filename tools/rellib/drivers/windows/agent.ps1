@@ -42,6 +42,15 @@ public static class TR {
   [DllImport("user32.dll")] static extern bool GetClientRect(IntPtr h, out RECT r);
   [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr h, out RECT r);
   [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr h, uint m, IntPtr w, IntPtr l);
+  [DllImport("user32.dll")] static extern bool IsHungAppWindow(IntPtr h);
+  [DllImport("user32.dll", SetLastError = true)] static extern IntPtr SendMessageTimeout(IntPtr h, uint m, IntPtr w, IntPtr l, uint flags, uint ms, out IntPtr res);
+  /// Does the window's own thread answer? 0 = yes; 1 = Windows already counts the window as hung; 2 = no answer
+  /// to a WM_NULL within ms (SMTO_ABORTIFHUNG). A suspended process or a stuck UI thread gives 1 or 2.
+  public static int Hung(IntPtr h, int ms) {
+    if (IsHungAppWindow(h)) return 1;
+    IntPtr r;
+    return SendMessageTimeout(h, 0, IntPtr.Zero, IntPtr.Zero, 2, (uint)ms, out r) == IntPtr.Zero ? 2 : 0;
+  }
   [DllImport("user32.dll")] static extern bool ClientToScreen(IntPtr h, ref POINT p);
   [StructLayout(LayoutKind.Sequential)] public struct POINT { public int X, Y; }
   [DllImport("user32.dll")] static extern uint MapVirtualKey(uint code, uint type);
@@ -456,9 +465,43 @@ function Do-Cmd($c) {
       return @{ ok = $true; w = $sz[0]; h = $sz[1]; procs = $procs; windows = @($wins) }
     }
     'procs' { return @{ ok = $true; procs = @(Get-Process btwallet, epic_wallet, epic, tor, unins000 -ErrorAction SilentlyContinue | Where-Object { $_.Path -like "$Run\*" } | ForEach-Object { "$($_.Name) $($_.Id) $($_.Path)" }) } }
+    'health' {
+      # does the app's window answer (hung: 0 yes, 1 Windows counts it hung, 2 no WM_NULL answer within ms), and
+      # the lines of its log (log, a file under the run folder) written since byte offset (-1: only the end is
+      # taken, the mark) that are a stack overflow or an unhandled error; tail: the last lines too (evidence)
+      $t = Top
+      $res = @{ ok = $true; app = [bool]$t; hung = 0 }
+      if ($t) { $res.hung = [TR]::Hung($t, [int]($c.ms ?? 5000)) }
+      if ($c.procs) {
+        $res.procs = @(AppProcs | ForEach-Object { "$($_.Name) $($_.Id) responding=$($_.Responding) threads=$($_.Threads.Count) suspended=$(@($_.Threads | Where-Object { $_.WaitReason -eq 'Suspended' }).Count)" })
+      }
+      if ($c.log) {
+        $f = Mine $c.log
+        $res.offset = 0; $res.lines = @()
+        if (Test-Path -LiteralPath $f) {
+          $fs = [IO.File]::Open($f, 'Open', 'Read', 'ReadWrite')
+          try {
+            $from = [long]($c.offset ?? -1)
+            if ($from -lt 0) { $from = $fs.Length } elseif ($from -gt $fs.Length) { $from = 0 }   # a smaller file was rotated
+            [void]$fs.Seek($from, 'Begin')
+            $text = (New-Object IO.StreamReader($fs, [Text.Encoding]::UTF8)).ReadToEnd()
+            $res.offset = $fs.Position
+          } finally { $fs.Dispose() }
+          $all = @($text -split "`r?`n")
+          $res.lines = @($all | Where-Object { $_ -match 'StackOverflowError|(?i:stack ?overflow)|\sERROR\s+dart\.(flutter|platform):|[Uu]nhandled [Ee]xception' } | Select-Object -First 20 | ForEach-Object { if ($_.Length -gt 400) { $_.Substring(0, 400) } else { $_ } })
+          if ($c.tail) { $res.tail = (Get-Content -LiteralPath $f -Tail ([int]$c.tail) -ErrorAction SilentlyContinue) -join "`n" }
+        }
+      }
+      return $res
+    }
     'uia_tree' {
       # the accessibility tree of the app's view, waiting up to wait_s for the engine to build it (it turns
       # semantics on when the first client asks); nodes carry a rid that the other uia_ ops take
+      $t = Top
+      if ($t) {
+        $h = [TR]::Hung($t, 5000)   # a read of a frozen app blocks for the UIA timeout (30 s), longer than a short freeze
+        if ($h -ne 0) { return @{ ok = $false; hung = $h; error = 'app window hung' } }
+      }
       $v = NeedView
       $end = (Get-Date).AddSeconds([int]($c.wait_s ?? 0))
       do {

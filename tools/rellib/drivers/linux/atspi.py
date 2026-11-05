@@ -22,6 +22,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
 
 import sandbox  # noqa: E402
+from core import freeze  # noqa: E402
 from core.faults import HarnessFault, HarnessGone  # noqa: E402
 from core.surface import Node  # noqa: E402
 
@@ -54,6 +55,10 @@ class AtspiSurface:
         self.sb, self.log = os.path.abspath(sb), log
         self.proc = None
         self.lock = threading.Lock()
+        # the app's own log, this run's lines only (marked here: the sandbox may hold an earlier run's)
+        self.seen_pid = None   # the app process that last answered a ping: gone from the bus after that is a freeze
+        self.cursor = freeze.LogCursor(self._read_log)
+        self.cursor.mark()
 
     # ---- the worker
 
@@ -81,9 +86,16 @@ class AtspiSurface:
     def display_alive(self):
         return sandbox._alive(sandbox._pid(self.sb, "xvfb")) and sandbox._alive(sandbox._pid(self.sb, "dbus"))
 
-    def _call(self, req, timeout=CALL_S):
+    def _call(self, req, timeout=CALL_S, once=False):
         """One request; a worker that hangs or dies is started again and asked once more. The display
-        or dbus gone is HarnessGone (the lane rebuilds the sandbox)."""
+        or dbus gone is HarnessGone (the lane rebuilds the sandbox). `once`: no second try, None when
+        the worker gave no answer (froze() asks the app a question and wants that no-answer)."""
+        if req.get("op") != "ping_app":
+            # asked first (a fifth of a second): a call to a frozen app blocks for CALL_S, longer than a short
+            # freeze lasts, and the app may freeze between two calls a moment apart
+            why = self.froze()
+            if why:
+                raise freeze.Frozen("ui", why, evidence=self.evidence())
         for attempt in range(2):
             if not self.display_alive():
                 self._stop()
@@ -110,12 +122,81 @@ class AtspiSurface:
                 if t.is_alive() or not ans[0]:
                     self.log("AT-SPI %s: no answer in %d s; worker restarted (try %d)" % (req.get("op"), timeout, attempt + 1))
                     self._stop()
+                    if once:
+                        return None
                     continue
                 return json.loads(ans[0])
         if not self.display_alive():
             raise HarnessGone("ui", "the sandbox's Xvfb or dbus is gone")
         # the display is up: a rebuild would kill an app that may be busy (a first-start migration)
         raise HarnessFault("ui", "AT-SPI stopped answering (%s twice in %d s)" % (req.get("op"), timeout))
+
+    # ---- frozen app (core/freeze.py)
+
+    def froze(self):
+        """None, or the evidence: the app's own thread answers no AT-SPI question in FREEZE_S while the
+        display, the bus and the app's process are all up. Flutter 3.47 on Linux runs the Dart UI isolate
+        on the platform (GTK) thread, so a stuck Dart isolate (a StackOverflowError recursion) stops
+        these answers too; a stopped process does the same. The preflight in _call asks first, so a
+        freeze shorter than a tree read is still seen."""
+        if not self.display_alive() or not self.alive():
+            return None   # gone, not frozen: the callers' HarnessGone / app-quit paths decide
+        warm = self.proc is not None and self.proc.poll() is None
+        end, err = time.monotonic() + freeze.FREEZE_S, None
+        while True:
+            r = self._call({"op": "ping_app"}, timeout=freeze.FREEZE_S + (0 if warm else 4), once=True)
+            pid = sandbox._pid(self.sb, "app")
+            if r is not None and r.get("ok") and r.get("app"):
+                self.seen_pid = pid
+                return None
+            if r is not None and r.get("ok") and (self.seen_pid is None or self.seen_pid != pid):
+                return None   # not on the bus yet: this process has not answered once
+            # no answer, or an error answer (a stopped app's bus call fails fast): an app still starting
+            # may fail one ping, so only an app failing for FREEZE_S is frozen
+            err = (r or {}).get("error") or ("the app is gone from the accessibility bus" if r and r.get("ok") else None)
+            if r is None or time.monotonic() >= end:
+                break
+            time.sleep(0.5)
+        if not self.display_alive() or not self.alive():
+            return None
+        return "no AT-SPI answer from the app in %d s%s (its process %s, display and bus up)" % (
+            freeze.FREEZE_S, " (%s)" % err[:120] if err else "", self._state() or "state unknown")
+
+    def _state(self):
+        pid = sandbox._pid(self.sb, "app")
+        try:
+            with open("/proc/%d/stat" % pid) as f:
+                st = f.read().rsplit(")", 1)[1].split()[0]
+        except (OSError, TypeError, IndexError):
+            return None
+        return {"T": "stopped", "t": "stopped (traced)", "R": "running", "S": "sleeping", "D": "in disk wait",
+                "Z": "a zombie"}.get(st, st)
+
+    def _log_path(self):
+        return os.path.join(self.sb, "home", ".epic_cash_desktop", "logs", "wfe.log")
+
+    def _read_log(self):
+        try:
+            with open(self._log_path(), encoding="utf-8", errors="replace") as f:
+                return f.read()
+        except OSError:
+            return None
+
+    def log_lines(self):
+        return self.cursor.new()
+
+    def evidence(self):
+        """For the fault bundle: the process and its threads (no tree read: a frozen app does not answer),
+        and the app log's tail."""
+        out = {"app-log-tail.txt": freeze.tail(self._log_path())}
+        pid = sandbox._pid(self.sb, "app")
+        try:
+            r = subprocess.run(["ps", "-L", "-o", "tid,stat,wchan:24,comm", "-p", str(int(pid))], capture_output=True,
+                               text=True, timeout=10)
+            out["threads.txt"] = r.stdout[:20000]
+        except (OSError, subprocess.SubprocessError, TypeError, ValueError):
+            pass
+        return out
 
     # ---- Surface
 

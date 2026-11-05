@@ -281,6 +281,7 @@ class AndroidPlatform(Platform):
         if self.running == which and self.surface is not None and self.alive():
             self.log("%s app already running" % which)
             return self.surface
+        since = self.dev.sh("date '+%m-%d %H:%M:%S.000'").strip()   # the app's log lines of this run start here
         self.dev.sh("am force-stop %s" % PKG)
         self.dev.run("shell", "monkey -p %s -c android.intent.category.LAUNCHER 1" % PKG, timeout=60)
         for _ in range(30):
@@ -292,7 +293,7 @@ class AndroidPlatform(Platform):
         self.running = which
         self.log("%s app started (versionCode %s)" % (which, self.version()))
         if self.surface is None:
-            self.surface = Uia(self.dev, PKG, self.log)
+            self.surface = Uia(self.dev, PKG, self.log, since=since)
         return self.surface
 
     def stop(self):
@@ -475,6 +476,10 @@ class AndroidPlatform(Platform):
         pid = self.dev.sh("pidof %s" % PKG).strip()
         if pid:
             self.dev.sh("kill -%s %s" % ("STOP" if on else "CONT", pid))
+
+    def break_input(self):
+        """An input for the frozen app to not answer: the system raises an ANR only when one waits 5 s."""
+        self.dev.sh("input keyevent 59")   # Shift: nothing for the app to do with it
 
     def _push_bin(self, files, local, rel):
         dest = "%s/%s" % (files.root, rel)

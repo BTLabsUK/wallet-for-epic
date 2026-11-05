@@ -21,6 +21,7 @@ import xml.etree.ElementTree as ET
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+from core import freeze  # noqa: E402
 from core.faults import HarnessGone  # noqa: E402
 from core.surface import Node  # noqa: E402
 
@@ -153,17 +154,95 @@ class Uia:
     platform = "android"
     family = "phone"
 
-    def __init__(self, dev, pkg, log=print, chunk=10):
+    def __init__(self, dev, pkg, log=print, chunk=10, since=None):
         self.dev, self.pkg, self.log, self.chunk = dev, pkg, log, chunk
         self._size = None
+        self.since = since or self._clock()   # the device's clock: the app's log lines of this run start here
+        self.pids = set()                     # every pid the app has had in this run
+
+    # ---- a frozen app (core/freeze.py)
+
+    def _clock(self):
+        return self.dev.sh("date '+%m-%d %H:%M:%S.000'").strip()
+
+    def _anr(self):
+        """The platform's own sign of an app that does not answer: the ANR dialog window, or the activity
+        manager's ANR record (events: am_anr; main: "ANR in <pkg>") for this package since the run began."""
+        out = self.dev.sh("dumpsys window windows | grep -i 'not responding'; echo @@wfe@@; "
+                          "logcat -d -b events,main -v threadtime -T '%s' | grep -E 'am_anr|ANR in'" % self.since, timeout=30)
+        win, _, logs = out.partition("@@wfe@@")
+        mine = [ln for ln in win.splitlines() if self.pkg in ln]
+        if mine:
+            return "the system's 'not responding' window is up for %s: %s" % (self.pkg, freeze.clip(mine[0]))
+        hit = freeze.logcat_problem(logs, self.pkg, set())
+        if hit:
+            return "the system logged an ANR for %s: %s" % (self.pkg, freeze.clip(hit[1]))
+        return None
+
+    def froze(self):
+        if not self.dev.online():
+            raise HarnessGone("alive", "emulator %s gone" % self.dev.serial)
+        if not self.dev.sh("pidof %s" % self.pkg).strip():
+            return None   # the app quit: the caller's alive() decides, not a freeze
+        return self._anr()
+
+    def log_lines(self):
+        """The app's own lines since the last call (main and crash buffers, this app's pids): the Dart VM's
+        "Unhandled Exception", its "Stack Overflow", a Java StackOverflowError."""
+        now = self._clock()
+        pid = self.dev.sh("pidof %s" % self.pkg).split()
+        self.pids.update(pid)
+        out = self.dev.sh("logcat -d -b main,crash -v threadtime -T '%s' | grep -E 'tack ?[Oo]verflow|nhandled [Ee]xception|FATAL EXCEPTION'"
+                          % self.since, timeout=60)
+        self.since = now
+        return [ln for ln in out.splitlines() if freeze._pid_of(ln) in self.pids]
+
+    def evidence(self):
+        """Logcat around the freeze, the ANR traces the system wrote (readable on a rooted emulator)."""
+        out = {}
+        try:
+            out["logcat.txt"] = self.dev.run("logcat", "-d", "-b", "all", "-v", "threadtime", "-t", "1500", timeout=60,
+                                             check_gone=False).stdout[-400000:]
+            anr = self.dev.sh("ls -t /data/anr 2>/dev/null | head -1").strip()
+            if anr:
+                out["anr-trace.txt"] = self.dev.sh("cat /data/anr/%s" % anr, timeout=60)[:400000]
+            out["windows.txt"] = self.dev.sh("dumpsys window windows | grep -i -E 'Window\\{|not responding' | head -30")
+        except Exception as e:  # noqa: BLE001 — evidence only
+            out["evidence-error.txt"] = str(e)
+        return out
 
     # ---- reading
+
+    def _dump(self):
+        """uiautomator's dump, with the app asked about its freezing every few seconds: the dump of a
+        frozen app does not return until it resumes, which is longer than a short freeze."""
+        cmd = [self.dev.adb, "-s", self.dev.serial, "shell", "uiautomator dump %s >/dev/null 2>&1; cat %s; rm -f %s" % (DUMP, DUMP, DUMP)]
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, errors="replace")
+        end, asked = time.time() + 60, time.time()
+        try:
+            while True:
+                try:
+                    return p.communicate(timeout=1)[0]
+                except subprocess.TimeoutExpired:
+                    if time.time() >= end:
+                        p.kill()
+                        raise
+                    if time.time() - asked >= freeze.FREEZE_S / 2:
+                        asked = time.time()
+                        why = self.froze()
+                        if why:
+                            raise freeze.Frozen("ui", why, evidence=self.evidence())
+        finally:
+            if p.poll() is None:
+                p.kill()
 
     def tree(self):
         x = ""
         for _ in range(4):
-            r = self.dev.run("shell", "uiautomator dump %s >/dev/null 2>&1; cat %s; rm -f %s" % (DUMP, DUMP, DUMP), timeout=60)
-            x = r.stdout
+            why = self.froze()
+            if why:
+                raise freeze.Frozen("ui", why, evidence=self.evidence())
+            x = self._dump()
             if "<hierarchy" in x:
                 break
             if not self.dev.online():

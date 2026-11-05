@@ -21,6 +21,13 @@ when the surface itself went away (the display, the session), HarnessGone.
 A Goal is a step that checks the state first: `done(tree)` holding already is a SKIP (logged and
 sent as a step event), else `do()` runs and `done` must hold after it.
 
+A frozen app is the product's fault too (alive_check): the platform's own sign that its UI stopped
+answering (Android's "isn't responding" dialog or am_anr, a hung Windows window, an AT-SPI call to the
+app unanswered for 5 s), or the app's own log for this run holding a StackOverflowError or an unhandled
+error, ends the lane PRODUCT "the app froze: <evidence>" with a screenshot and the evidence in the
+bundle (core/freeze.py). It runs after each step, inside the wait loops (every few seconds) and when a lane
+phase asks for it.
+
 Timing: every wait polls the tree for a state, never a fixed sleep; REL_TRUST_SLOW multiplies every
 timeout (a slow emulator or a loaded host), so a slow app is waited for, not failed.
 """
@@ -30,6 +37,7 @@ import re
 import time
 
 from . import breaks
+from . import freeze
 from . import record
 from . import targets as tg
 from .faults import HarnessFault, HarnessGone, ProductFault
@@ -92,12 +100,36 @@ OVERLAY_CLOSE = ("close", "hide", "run in background", "continue in background")
 FOLD_NAMES = ("show more", "more", "more options", "show all", "advanced", "view", "expand", "show details")
 
 
+class _Watched:
+    """The surface, with the app freezing under any of its calls (freeze.Frozen) made this step's PRODUCT
+    fault: its screenshot, its recoveries tried and the evidence for the bundle."""
+
+    def __init__(self, driver, surface):
+        self.__dict__.update(_d=driver, _s=surface)
+
+    def unwrap(self):
+        return self._s
+
+    def __getattr__(self, k):
+        attr = getattr(self._s, k)
+        if not callable(attr):
+            return attr
+
+        def call(*a, **kw):
+            try:
+                return attr(*a, **kw)
+            except freeze.Frozen as e:
+                raise self._d._frozen(e.detail, e.evidence) from None
+        return call
+
+
 class Driver:
     TROUBLE = ("dialog", "overlay", "folded", "scroll", "stale")
 
     def __init__(self, surface, labels, recover, *, out, log, poll=0.4):
         surface = breaks.wrap(surface)
-        self.s, self.labels, self.rec, self.out, self.log, self.poll = surface, labels, recover, out, log, poll
+        self.s = _Watched(self, surface)
+        self.labels, self.rec, self.out, self.log, self.poll = labels, recover, out, log, poll
         self.obstacles = []   # [(Target to press when it shows, why)]: tours, toasts, notices a step may meet
         self.shots = 0
         self.step = "start"
@@ -108,6 +140,8 @@ class Driver:
         self.not_folds = set()  # names a recipe knows are not folded sections (Settings' own sections)
         self.reopen = None    # the recipe's stale-picker rule: reopen(target) -> what it did, or None
         self.overlay_wait = 30
+        self.last_tree = []   # the newest tree read (a frozen app's screen is judged by it, not read again)
+        self.checked = 0      # when alive_check last ran in full (a step's end and a wait loop share it)
         self._unfolded = set()
         bind = getattr(recover, "bind", None)
         if bind:
@@ -117,13 +151,15 @@ class Driver:
 
     def tree(self):
         try:
-            return self.s.tree()
+            self.last_tree = self.s.tree()
+            return self.last_tree
         except (HarnessFault, ProductFault):  # the sandbox gone, the lane stopped
             raise
         except Exception as e:  # noqa: BLE001 — a read that failed once (the app busy) is read again
             self.log("tree read failed (%s); reading again" % e)
             time.sleep(self.poll)
-            return self.s.tree()
+            self.last_tree = self.s.tree()
+            return self.last_tree
 
     def find_in(self, target, tree):
         """By id or label; else the name the AI fallback picked for it earlier in this run, so the
@@ -154,13 +190,14 @@ class Driver:
         finally:
             self.hushed -= 1
 
-    def shot(self, name):
-        """A screenshot, never of a secret screen (the phrase or a password shown)."""
+    def shot(self, name, tree=None):
+        """A screenshot, never of a secret screen (the phrase or a password shown). [tree]: the screen as
+        last read, for an app that cannot be read now (frozen)."""
         from .recover import secret_screen
         if self.hushed:
             return None
         try:
-            if secret_screen(self.s.tree()):
+            if secret_screen(self.s.tree() if tree is None else tree):
                 return None
         except Exception:  # noqa: BLE001 — a tree that cannot be read is not shot either
             return None
@@ -206,12 +243,53 @@ class Driver:
         shot = self.shot("app-quit-" + self.step)
         raise self._tag(ProductFault(self.step, "the app quit by itself", shot))
 
+    # ---- a frozen app, a stack overflow, an unhandled error (core/freeze.py)
+
+    def _frozen(self, what, evidence=None):
+        """The fault for an app that froze: PRODUCT, the screen as last read shot, the evidence for the bundle."""
+        shot = self.shot("froze-" + self.step, tree=self.last_tree)
+        f = freeze.Frozen(self.step, what, shot, evidence)
+        self.log("step %s: the app froze: %s" % (self.step, what))
+        return self._tag(f)
+
+    def alive_check(self, quit=True):
+        """The app is running and its UI answers; returns within ~5 s (the platform's probe is limited to
+        freeze.FREEZE_S). Raises ProductFault "the app froze: <evidence>" (bundle and screenshot) for a UI that
+        does not answer, or for a StackOverflowError / unhandled error the app's own log wrote in this run; the
+        app having quit stays app_quit() (ProductFault, or HarnessGone when the surface went too). [quit] False:
+        the process being gone is left to the caller (a step that ends the app)."""
+        self.checked = time.time()
+        if quit and not self.s.alive():
+            self.app_quit()
+        froze = getattr(self.s, "froze", None)
+        why = froze() if froze else None
+        if why:
+            raise self._frozen(why, self._evidence())
+        lines = getattr(self.s, "log_lines", None)
+        found = freeze.log_problem(lines()) if lines else None
+        if found:
+            raise self._frozen("the app's log has a %s: %s" % (found[0], freeze.clip(found[1])), self._evidence())
+
+    def _evidence(self):
+        ev = getattr(self.s, "evidence", None)
+        try:
+            return ev() if ev else {}
+        except Exception as e:  # noqa: BLE001 — evidence only
+            self.log("freeze evidence not collected: %s" % e)
+            return {}
+
+    def _tick(self):
+        """alive_check at most every FREEZE_S: the end of a step and the wait loops share it."""
+        if time.time() - self.checked >= freeze.FREEZE_S:
+            self.alive_check(quit=False)
+
     def _begin(self, step):
         self.step = step
         self.trail.append(step)
         self.tried = []
 
     def _reached(self):
+        self._tick()
         hook = getattr(self.rec, "reached", None)
         if hook:
             hook(self.step)
@@ -237,6 +315,7 @@ class Driver:
                 self.log("step %s: %s covers the page; waiting" % (self.step, self.overlay(tree).brief()))
             if not self.s.alive():
                 self.app_quit()
+            self._tick()
             time.sleep(self.poll)
 
     def must(self, expect, timeout=30, *, step=None, goal=None):

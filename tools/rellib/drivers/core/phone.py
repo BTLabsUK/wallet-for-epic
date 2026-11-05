@@ -30,7 +30,6 @@ LEVEL_PICK = T("g4.level.title", role="text", keys=("lvPickTitle",), names=("Pic
 DEEP_END = T("g4.level.stop.3", role="other", keys=("lvPickStopThree",), names=("Deep end",), match="exact")
 TOUR_SKIP = T("g4.tour.skip", keys=("tourPhoneSkip",), names=("Skip tour",))
 BIOMETRICS_NOT_NOW = T("g4.pin.biometrics.notnow", keys=("pinBiometricsNotNow",), names=("Not now",), match="exact")
-ANR_WAIT = T("g4.system.anr.wait", names=("Wait",), match="exact")  # Android's "isn't responding" dialog
 
 PIN_CHOOSE = T("g4.pin.choose", role="text", keys=("pinChooseTitle",), names=(r"re:choose a \d+-digit pin",), secret=True)
 PIN_AGAIN = T("g4.pin.again", role="text", keys=("pinConfirmTitle",), names=("Enter the PIN again",), secret=True)
@@ -200,8 +199,7 @@ class Phone:
         self.d, self.which, self.log = driver, which, log
         self.pin = self.password = self.phrase = None
         self.restoring = None   # a restore's start time while its scan from block 0 still runs on Home
-        self.d.obstacles += [(TOUR_SKIP, "the app tour"), (BIOMETRICS_NOT_NOW, "the biometrics offer"),
-                             (ANR_WAIT, "Android's not-responding dialog")]
+        self.d.obstacles += [(TOUR_SKIP, "the app tour"), (BIOMETRICS_NOT_NOW, "the biometrics offer")]
 
     # ---- helpers
 

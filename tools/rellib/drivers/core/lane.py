@@ -621,9 +621,17 @@ class Lane:
             why = "no app screen (no recipe running)"
         else:
             try:
-                tree = drv.s.tree()
+                # a frozen app does not answer a tree read: the last screen read is its screen
+                if getattr(f, "evidence", None) is not None:
+                    tree = drv.last_tree or None
+                    why = "the app froze before any screen was read"
+                else:
+                    tree = drv.s.tree()
             except Exception as e:  # noqa: BLE001
                 why = "the screen could not be read: %s" % e
+        for name, text in (getattr(f, "evidence", None) or {}).items():   # a freeze's own files (freeze.Frozen)
+            with open(os.path.join(d, os.path.basename(name)), "w", encoding="utf-8") as fh:
+                fh.write(text)
         screen = os.path.join(d, "screen.txt")
         with open(screen, "w", encoding="utf-8") as fh:
             if tree is not None and phrase_screen(tree):
