@@ -5,9 +5,10 @@
 # the old format's download folder from app/tool/config/old-update.toml, the notes from the
 # run), and keeps them with their payloads in the run's manifests/ (tools/rel rollback re-signs
 # those payloads with a higher serial).
-# A TEST run (REL_TEST=1) never touches the real key: release_android.sh is pointed at a key that
-# does not exist, so it stops after writing the payloads, and the payloads are signed with
-# btlabs-public's test key against a test keyring kept in the run (manifests/test-keyring.json).
+# A TEST run or a tainted one (REL_TEST_KEY=1: neither ever publishes) never touches the real key:
+# release_android.sh is pointed at a key that does not exist, so it stops after writing the
+# payloads, and the payloads are signed with btlabs-public's test key against a test keyring kept
+# in the run (manifests/test-keyring.json).
 # With a signer (<run>/signer.json, written by G1 when [host.signer] endpoint is set) the release
 # signer signs both manifests and the downloads folder's SHA256SUMS as it will stand once live
 # (server_sums.py: manifests/SHA256SUMS and SHA256SUMS.sig, installed by publish-downloads; the
@@ -19,7 +20,7 @@
 # manifests it returned again when nothing they were made from changed (the client's receipt,
 # server_sums.py same), and opens no request. The key on this machine is not read.
 # The manifests are valid for REL_MANIFEST_DAYS days (release/pipeline.toml [manifest]).
-# Env (set by tools/rel): REL_VERSION REL_SRC REL_FILES REL_MANIFESTS REL_NOTES_FILE REL_TEST REL_RUN
+# Env (set by tools/rel): REL_VERSION REL_SRC REL_FILES REL_MANIFESTS REL_NOTES_FILE REL_TEST_KEY REL_RUN
 #   REL_MANIFEST_DAYS
 #   REL_SIGNER_BTLABS_PUBLIC REL_SIGNER_SIGNING_KEY (release-hosts.toml host.signer)
 set -euo pipefail
@@ -32,7 +33,8 @@ out="$src/app/build/app/outputs/flutter-apk"
 mkdir -p "$m" "$out"
 sj="${REL_RUN:-/nonexistent}/signer.json"
 reuse=0
-if [[ "${REL_TEST:-0}" != 1 && -f "$sj" && -f "$m/SHA256SUMS" && -f "$out/btsign-receipt.json" ]] \
+test_key="${REL_TEST_KEY:-${REL_TEST:-0}}"
+if [[ "$test_key" != 1 && -f "$sj" && -f "$m/SHA256SUMS" && -f "$out/btsign-receipt.json" ]] \
     && python3 -I "$(jq -r .client "$sj")" receipt --out-dir "$out" \
     && python3 -I "$(dirname "$0")/server_sums.py" same "$files" "$m" "$m/SHA256SUMS"; then
   # Checked again below as if just signed (both envelopes verified, the listing's signature).
@@ -54,7 +56,7 @@ if [[ -f "$m/desktop-keep.json" ]]; then
     exit 1; }
   export WFE_DESKTOP_KEEP="$m/desktop-keep.json"
 fi
-if [[ "${REL_TEST:-0}" == 1 ]]; then
+if [[ "$test_key" == 1 ]]; then
   # Stops before signing ("Not signed": exit 1) with the payloads written.
   BTLABS_SIGNING_KEY="$m/no-such-key" "$src/app/tool/release_android.sh" "$base" "$notes" || true
   [[ -f "$out/update.payload.json" && -f "$out/update-v2.payload.json" ]] \
@@ -66,7 +68,7 @@ if [[ "${REL_TEST:-0}" == 1 ]]; then
   python3 "$tool" sign --type update --app-config "$src/app/assets/config/app-config.toml" \
     --key "$bp/testdata/keys/test-a.key" --keyring "$m/test-keyring.json" \
     --payload "$out/update-v2.payload.json" --out "$out/update-v2.json"
-  echo "TEST run: signed with btlabs-public's test key (never accepted by an installed app)"
+  echo "TEST or tainted run: signed with btlabs-public's test key (never accepted by an installed app)"
 elif [[ "$reuse" == 1 ]]; then
   tool="$bp/tool/btlabs_sign.py" keyring="$bp/keys/btlabs-keyring.json"
   python3 "$tool" verify --type update --keyring "$keyring" --envelope "$out/update.json"

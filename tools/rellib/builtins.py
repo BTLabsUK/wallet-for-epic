@@ -16,7 +16,7 @@ import time
 import tomllib
 import urllib.request
 
-from . import health, hosted
+from . import guards, health, hosted
 from .config import PLATFORMS, scope_summary
 from .run import Run, now_iso, read_json, write_json
 
@@ -733,7 +733,7 @@ def toolchain(repo):
 def keyring_for(engine):
     signer = engine.hosts["host"].get("signer", {})
     bp = signer.get("btlabs_public", os.path.expanduser("~/code/btlabs-public"))
-    if engine.info.get("test"):
+    if guards.test_key(engine.info):
         return os.path.join(engine.run.path, "manifests", "test-keyring.json"), bp
     return os.path.join(bp, "keys/btlabs-keyring.json"), bp
 

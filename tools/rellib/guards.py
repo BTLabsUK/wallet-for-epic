@@ -12,6 +12,13 @@ def run_kind(info):
     return "test" if info.get("test") else "release"
 
 
+def test_key(info):
+    """True when the run's update manifests are signed with btlabs-public's test key and checked
+    against the run's test keyring: a --test run, or a tainted run (it never publishes, so its
+    manifests never take a real serial or the real update key)."""
+    return bool(info.get("test") or info.get("tainted"))
+
+
 def trust_break_refusal(info, env=None):
     """REL_TRUST_BREAK puts faults into the trust lanes on purpose (drivers/core/breaks.py): test runs only."""
     val = (os.environ if env is None else env).get("REL_TRUST_BREAK", "").strip()
