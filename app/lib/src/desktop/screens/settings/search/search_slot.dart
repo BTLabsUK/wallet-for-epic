@@ -29,7 +29,14 @@ final settingsQueryProvider = NotifierProvider<SettingsQuery, String>(SettingsQu
 
 class SettingsQuery extends Notifier<String> {
   @override
-  String build() => '';
+  String build() {
+    // Going to another place (a navigation entry, Back, a link) ends the search, as picking a
+    // result does: its results stand in for every page, so a click seemed to do nothing.
+    ref.listen(deskNavProvider, (from, to) {
+      if (from?.route != to.route || from?.arg != to.arg) state = '';
+    });
+    return '';
+  }
 
   void set(String q) {
     if (q == state) return;

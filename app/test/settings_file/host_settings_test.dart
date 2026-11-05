@@ -38,6 +38,7 @@ void main() {
       expect(c.updateManifests, hasLength(3));
       expect(c.supportDonation, isNotNull);
       expect(c.explorerBlock(3774693), endsWith('/3774693'));
+      expect(c.explorerIndexed(3774693), endsWith('/blockchain_block/3774693'));
       expect(c.statusReach(3415), contains('port=3415'));
       expect(c.localNodeApiPort, isNot(c.localNodeP2pPort));
     });
@@ -195,7 +196,10 @@ void main() {
     AppConfig without(List<String> keys) => AppConfig.fromText(testConfigWithout(keys));
 
     test('donation', () => expect(without(['donation']).supportDonation, isNull));
-    test('explorer', () => expect(without(['[explorer]']).explorerBlock(1), isNull));
+    test('explorer', () {
+      final c = without(['[explorer]']);
+      expect([c.explorerBlock(1), c.explorerIndexed(1)], everyElement(isNull));
+    });
     test('the whole status site', () {
       final c = without(['[status]']);
       expect([c.statusDirectory, c.statusIcons, c.statusPrice, c.statusIp, c.statusReach(1)], everyElement(isNull));

@@ -1423,6 +1423,12 @@ abstract class AppLocalizations {
   /// **'Link copied'**
   String get txDetailsLinkCopied;
 
+  /// Said after the explorer link was copied, when the block explorer's own record does not have the payment's block yet (its indexer lags the chain).
+  ///
+  /// In en, this message translates to:
+  /// **'The explorer has not reached this block yet.'**
+  String get txDetailsExplorerBehind;
+
   /// Heading of a collapsed section with the payment's block height, IDs and commitments.
   ///
   /// In en, this message translates to:
@@ -18642,12 +18648,6 @@ abstract class AppLocalizations {
   /// **'Epicbox'**
   String get deskSetupStepEpicbox;
 
-  /// Setup's last step in the side panel's step list: check everything, then save. One word.
-  ///
-  /// In en, this message translates to:
-  /// **'Review'**
-  String get deskSetupStepReview;
-
   /// Lead under each step's title when setup is opened again from Settings. 'Save' is the button on the last step (deskSetupSave).
   ///
   /// In en, this message translates to:
@@ -18689,18 +18689,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Epicbox'**
   String get deskSetupEpicboxTitle;
-
-  /// Title of the setup's last step: a summary of the choices.
-  ///
-  /// In en, this message translates to:
-  /// **'Review settings'**
-  String get deskSetupReviewTitle;
-
-  /// Lead under the title of the setup's last step.
-  ///
-  /// In en, this message translates to:
-  /// **'Change anything that is not right, then save.'**
-  String get deskSetupReviewLead;
 
   /// Title of the setup's side panel, above its step list. Short.
   ///
@@ -18768,83 +18756,17 @@ abstract class AppLocalizations {
   /// **'The Epicbox server holds payments until the wallet opens.'**
   String get deskSetupEpicboxText;
 
-  /// Second paragraph of the setup's Epicbox step: a privacy note.
-  ///
-  /// In en, this message translates to:
-  /// **'The Epicbox server sees this computer’s IP address.'**
-  String get deskSetupEpicboxPrivacy;
-
   /// Label of the Epicbox server field on the setup's Epicbox step.
   ///
   /// In en, this message translates to:
   /// **'Epicbox server'**
   String get deskSetupEpicboxServer;
 
-  /// Screen reader label of the Change link next to the Preferences section on the setup's summary.
-  ///
-  /// In en, this message translates to:
-  /// **'Change preferences'**
-  String get deskSetupChangePrefsSem;
-
-  /// Screen reader label of the Change link next to the Node section on the setup's summary.
-  ///
-  /// In en, this message translates to:
-  /// **'Change node'**
-  String get deskSetupChangeNodeSem;
-
-  /// Screen reader label of the Change link next to the Epicbox section on the setup's summary.
-  ///
-  /// In en, this message translates to:
-  /// **'Change Epicbox'**
-  String get deskSetupChangeEpicboxSem;
-
-  /// Link next to a section on the setup's summary: go back to that step.
-  ///
-  /// In en, this message translates to:
-  /// **'Change'**
-  String get deskSetupChange;
-
-  /// Row label on the setup's summary: what kind of node. Narrow label column.
-  ///
-  /// In en, this message translates to:
-  /// **'Type'**
-  String get deskSetupType;
-
-  /// Row label on the setup's summary: the node's address. Narrow label column.
-  ///
-  /// In en, this message translates to:
-  /// **'Address'**
-  String get deskSetupAddress;
-
   /// Node type on the setup's summary: an Epic node already running on this computer.
   ///
   /// In en, this message translates to:
   /// **'Existing node at {host}'**
   String deskSetupExistingNode(String host);
-
-  /// Node type on the setup's summary: the Epic node that comes with the app, run on this computer.
-  ///
-  /// In en, this message translates to:
-  /// **'Local node'**
-  String get deskSetupBundledNode;
-
-  /// Row label on the setup's summary: which node the wallet uses while the local node syncs. Narrow label column.
-  ///
-  /// In en, this message translates to:
-  /// **'While syncing'**
-  String get deskSetupWhileSyncing;
-
-  /// Value of the While syncing row when the wallet waits for the local node instead of using a public one. Lower case, one word.
-  ///
-  /// In en, this message translates to:
-  /// **'wait'**
-  String get deskSetupWait;
-
-  /// Row label on the setup's summary: where the local node keeps the chain. Narrow label column.
-  ///
-  /// In en, this message translates to:
-  /// **'Data folder'**
-  String get deskSetupDataFolder;
 
   /// Note under the Node section of the setup's summary when the local node is chosen and a public node is used while it syncs.
   ///
@@ -18857,18 +18779,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save starts the node. The first sync takes hours; the wallet opens meanwhile.'**
   String get deskSetupSaveStarts;
-
-  /// Row label on the setup's summary: the Epicbox server. Narrow label column.
-  ///
-  /// In en, this message translates to:
-  /// **'Server'**
-  String get deskSetupServer;
-
-  /// Value of the Epicbox server row when no server is set: receiving through Epicbox is off.
-  ///
-  /// In en, this message translates to:
-  /// **'Off'**
-  String get deskSetupOff;
 
   /// Settings › About › Licences: the paragraph before the list of components. The phone's version says 'tap' (licencesLead).
   ///
@@ -28811,12 +28721,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not in the word list: {words}.'**
   String deskOnbRestoreBadWords(String words);
-
-  /// Node type on the setup's summary: an Epic node already running on this computer. Its host:port is on the Address row below.
-  ///
-  /// In en, this message translates to:
-  /// **'Existing node'**
-  String get deskSetupExistingNodeType;
 
   /// Payment steps: sub-line under the current step 'Recipient signed' of a send over Epicbox: the payment waits on the Epicbox server for the recipient's wallet. The server's host is in the tooltip. Short.
   ///

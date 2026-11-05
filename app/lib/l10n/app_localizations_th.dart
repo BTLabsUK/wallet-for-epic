@@ -854,6 +854,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get txDetailsLinkCopied => 'คัดลอกลิงก์แล้ว';
 
   @override
+  String get txDetailsExplorerBehind => 'Explorer ยังไปไม่ถึงบล็อกนี้';
+
+  @override
   String get txDetailsTechnical => 'รายละเอียดทางเทคนิค';
 
   @override
@@ -11540,9 +11543,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get deskSetupStepEpicbox => 'Epicbox';
 
   @override
-  String get deskSetupStepReview => 'ตรวจสอบ';
-
-  @override
   String get deskSetupAgain =>
       'กำลังตั้งค่าใหม่ ไม่มีอะไรเปลี่ยนจนกว่าจะกด บันทึก ในขั้นตอนสุดท้าย';
 
@@ -11565,12 +11565,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get deskSetupEpicboxTitle => 'Epicbox';
-
-  @override
-  String get deskSetupReviewTitle => 'ตรวจการตั้งค่า';
-
-  @override
-  String get deskSetupReviewLead => 'แก้สิ่งที่ไม่ถูกต้อง แล้วบันทึก';
 
   @override
   String get deskSetupSideTitle => 'ตั้งค่า';
@@ -11608,46 +11602,12 @@ class AppLocalizationsTh extends AppLocalizations {
       'เซิร์ฟเวอร์ Epicbox เก็บรายการไว้จนกว่ากระเป๋าเงินจะเปิด';
 
   @override
-  String get deskSetupEpicboxPrivacy =>
-      'เซิร์ฟเวอร์ Epicbox เห็นที่อยู่ IP ของคอมพิวเตอร์นี้';
-
-  @override
   String get deskSetupEpicboxServer => 'เซิร์ฟเวอร์ Epicbox';
-
-  @override
-  String get deskSetupChangePrefsSem => 'เปลี่ยนการตั้งค่าแอป';
-
-  @override
-  String get deskSetupChangeNodeSem => 'เปลี่ยนโหนด';
-
-  @override
-  String get deskSetupChangeEpicboxSem => 'เปลี่ยน Epicbox';
-
-  @override
-  String get deskSetupChange => 'เปลี่ยน';
-
-  @override
-  String get deskSetupType => 'ประเภท';
-
-  @override
-  String get deskSetupAddress => 'ที่อยู่';
 
   @override
   String deskSetupExistingNode(String host) {
     return 'โหนดที่มีอยู่ที่ $host';
   }
-
-  @override
-  String get deskSetupBundledNode => 'โหนดในเครื่อง';
-
-  @override
-  String get deskSetupWhileSyncing => 'ระหว่างซิงก์';
-
-  @override
-  String get deskSetupWait => 'รอ';
-
-  @override
-  String get deskSetupDataFolder => 'โฟลเดอร์ข้อมูล';
 
   @override
   String deskSetupSaveStartsFallback(String node) {
@@ -11657,12 +11617,6 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get deskSetupSaveStarts =>
       'บันทึก จะเริ่มโหนด การซิงก์ครั้งแรกใช้เวลาหลายชั่วโมง ระหว่างนั้นกระเป๋าเงินจะเปิดใช้ได้';
-
-  @override
-  String get deskSetupServer => 'เซิร์ฟเวอร์';
-
-  @override
-  String get deskSetupOff => 'ปิด';
 
   @override
   String get deskSetAboutLicencesLead =>
@@ -18078,9 +18032,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String deskOnbRestoreBadWords(String words) {
     return 'ไม่อยู่ในรายการคำ: $words';
   }
-
-  @override
-  String get deskSetupExistingNodeType => 'โหนดที่มีอยู่';
 
   @override
   String get deskLvPayOnEpicbox => 'อยู่บน Epicbox';

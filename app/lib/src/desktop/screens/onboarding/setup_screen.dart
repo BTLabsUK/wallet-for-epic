@@ -24,8 +24,8 @@ import 'local_node_step.dart';
 import 'onboarding_parts.dart';
 
 /// The steps: preferences (only with languages), node, the local node's own step when
-/// Local was chosen (same rail position), Epicbox, review.
-enum SetupStep { prefs, node, local, epicbox, review }
+/// Local was chosen (same rail position), Epicbox, which saves.
+enum SetupStep { prefs, node, local, epicbox }
 
 /// A tour start state: the step, and for the local step which probe answer to show.
 @immutable
@@ -35,7 +35,7 @@ class SetupShot {
   final SetupStep step;
   final LocalNodeShot local;
 
-  /// The Review step with the local node chosen.
+  /// The Epicbox step with the local node chosen.
   final bool localChosen;
 
   /// The node or Epicbox step with its server list open.
@@ -44,12 +44,12 @@ class SetupShot {
   /// A first run (fresh or resumed) instead of Setup run again.
   final SetupFirstRun? first;
 
-  /// Review after a failed Save (the wallet was locked).
+  /// The Epicbox step after a failed Save (the wallet was locked).
   final bool saveFailed;
 }
 
 /// The first run of a wallet just made or restored (password, phrase, Node, Epicbox,
-/// Review, Unlock): setup starts on the node step with no way back to the phrase, and Save goes
+/// Unlock): setup starts on the node step with no way back to the phrase, and Save goes
 /// to Unlock with [added]. [second] marks one more wallet on a computer that has one: the node
 /// is app-wide, so it starts as the current one.
 @immutable
@@ -84,7 +84,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   late String _relay = _startRelay;
   bool _epicboxOn = true;
   SetupFirstRun? get _first => widget.arg is SetupFirstRun ? widget.arg! as SetupFirstRun : _shot?.first;
-  late final List<SetupStep> _steps = [if (_first == null) SetupStep.prefs, SetupStep.node, SetupStep.epicbox, SetupStep.review];
+  late final List<SetupStep> _steps = [if (_first == null) SetupStep.prefs, SetupStep.node, SetupStep.epicbox];
 
   SetupShot? get _shot => widget.arg is SetupShot ? widget.arg! as SetupShot : null;
   SetupStep get _startStep => _shot?.step ?? (widget.arg is SetupStep ? widget.arg! as SetupStep : _steps.first);
@@ -122,7 +122,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   /// A first run at Shallow: no wizard; its defaults are saved ([_saveDefaults]) and Unlock follows.
   late bool _auto = _first != null && _shot == null && !ref.read(deskLevelUiProvider).setupWizard;
 
-  /// Why the last Save failed on a first run: the Review step then offers to skip it.
+  /// Why the last Save failed on a first run: the Epicbox step then offers to skip it.
   String? _saveFailed;
 
   @override
@@ -167,7 +167,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     if (_auto) WidgetsBinding.instance.addPostFrameCallback((_) => _saveDefaults());
   }
 
-  /// Shallow's first run: what Review would save with nothing changed. The node stays automatic
+  /// Shallow's first run: what Save would save with nothing changed. The node stays automatic
   /// (none is picked), Epicbox is the one every wallet uses and listens once Unlock opens the
   /// wallet; the mark is cleared like Save does. A failure shows the wizard instead, where the
   /// user sees the reason and can skip.
@@ -292,7 +292,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       _busy = false;
       if (_first != null) _saveFailed = reason;
     });
-    // A first run shows the notice on Review instead (it offers the way out).
+    // A first run shows the notice on the step instead (Skip setup is the way out).
     if (_first == null) showEToast(context, context.l10n.deskSetupNotSaved, text: reason, tone: ETone.risk);
   }
 
@@ -337,7 +337,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
 
   /// The main button's action on the current step; Enter in a field runs the same one.
   VoidCallback get _continue => switch (_step) {
-    SetupStep.review => _save,
+    SetupStep.epicbox => _save,
     SetupStep.node => _nodeNext,
     SetupStep.local => () => _to(SetupStep.epicbox),
     _ => () => _to(_steps[_steps.indexOf(_step) + 1]),
@@ -349,8 +349,8 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     final nav = ref.read(deskNavProvider.notifier);
     final l = context.l10n;
     final railIndex = _step == SetupStep.local ? _steps.indexOf(SetupStep.node) : _steps.indexOf(_step);
-    final rail = railOf([if (_steps.contains(SetupStep.prefs)) l.deskSetupStepPrefs, l.deskSetupStepNode, l.deskSetupStepEpicbox, l.deskSetupStepReview], railIndex);
-    final last = _step == SetupStep.review;
+    final rail = railOf([if (_steps.contains(SetupStep.prefs)) l.deskSetupStepPrefs, l.deskSetupStepNode, l.deskSetupStepEpicbox], railIndex);
+    final last = _step == SetupStep.epicbox;
     final again = nav.canBack ? l.deskSetupAgain : null;
     final (title, lead, body) = switch (_step) {
       SetupStep.prefs => (l.deskSetupStepPrefs, again ?? l.deskSetupPrefsLead, _prefs(context)),
@@ -361,7 +361,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         LocalNodeStep(shot: _shot?.local ?? LocalNodeShot.none, onChanged: (c) => setState(() => _localChoice = c)),
       ),
       SetupStep.epicbox => (l.deskSetupEpicboxTitle, again ?? l.deskSetupEpicboxText, _epicbox(context)),
-      SetupStep.review => (l.deskSetupReviewTitle, again ?? l.deskSetupReviewLead, _review(context)),
     };
     final first = _step == _steps.first;
     // Back (mouse, Alt+Left) goes one step back first; held while saving.
@@ -498,7 +497,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
   Widget _epicbox(BuildContext context) {
     final ts = context.ts;
     final boxes = _boxes;
+    final local = _local ? _localChoice : null;
+    final bundled = _local && (local == null || local.how == LocalNodeHow.bundled);
+    final fallback = hostPort(defaultFallbackNodeUrl);
     final l = context.l10n;
+    final failed = _first == null ? null : _saveFailed ?? (_shot?.saveFailed ?? false ? l.deskErrWalletLocked : null);
     final rows = relayPanelRows(boxes ?? const [], defaultHost: _startRelay);
     final row = rows.where((r) => r.value == _relay).firstOrNull;
     // Ctrl+Enter is Continue; Enter on the server opens its list.
@@ -507,8 +510,15 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
       child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l.deskSetupEpicboxPrivacy, style: ts.bodyDim),
-        SizedBox(height: Sp.x6),
+        if (failed != null) ...[
+          ENotice(
+            tone: ETone.risk,
+            title: l.deskSetupSaveFailedTitle,
+            // The string adds the full stop.
+            text: l.deskSetupSaveFailedText(_noStop(failed)),
+          ),
+          SizedBox(height: Sp.x4),
+        ],
         ESwitch(
           value: _epicboxOn,
           label: l.deskSlSetupEpicboxOn,
@@ -544,102 +554,13 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
             ),
           ),
         ),
-      ],
-      ),
-    );
-  }
-
-  Widget _section(BuildContext context, String title, String changeLabel, List<(String, Widget)> rows, SetupStep to, {String? caption}) {
-    final ts = context.ts;
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: Sp.x3),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Semantics(header: true, child: Text(title, style: ts.label)),
-                SizedBox(height: Sp.x1),
-                EFacts(rows, labelWidth: 120.u),
-                if (caption != null) ...[SizedBox(height: Sp.x2), Text(caption, style: ts.caption)],
-              ],
-            ),
-          ),
-          Semantics(
-            label: changeLabel,
-            button: true,
-            excludeSemantics: true,
-            onTap: () => _to(to),
-            child: ELink(label: context.l10n.deskSetupChange, onPressed: () => _to(to)),
-          ),
+        // Save starts the bundled node: said where Save is.
+        if (bundled) ...[
+          SizedBox(height: Sp.x6),
+          Text(local?.useFallback ?? hasFallbackNode ? l.deskSetupSaveStartsFallback(fallback) : l.deskSetupSaveStarts, style: ts.caption),
         ],
-      ),
-    );
-  }
-
-  Widget _review(BuildContext context) {
-    final ts = context.ts;
-    final domain = _epicboxOn ? _relay : '';
-    final local = _local ? _localChoice : null;
-    final bundled = local == null ? _local : local.how == LocalNodeHow.bundled;
-    final fallback = hostPort(defaultFallbackNodeUrl);
-    final folder = ref.watch(deskLocalNodeProvider).value?.dataFolder ?? mockDataFolder;
-    final l = context.l10n;
-    final nodeRows = <(String, Widget)>[
-      if (local == null && !_local) ...[
-        (l.deskSetupType, Text(l.deskSetupRemoteNode, style: ts.body)),
-        // host:port, as everywhere the node is shown; the full URL only in its field.
-        (l.deskSetupAddress, Text(_nodeUrl == null ? '–' : hostPort(_nodeUrl!), style: ts.mono())),
-      ] else if (!bundled) ...[
-        (l.deskSetupType, Text(l.deskSetupExistingNodeType, style: ts.body)),
-        (l.deskSetupAddress, Text(hostPort(local!.existingUrl), style: ts.mono())),
-      ] else ...[
-        (l.deskSetupType, Text(l.deskSetupBundledNode, style: ts.body)),
-        (l.deskSetupWhileSyncing, Text(local?.useFallback ?? hasFallbackNode ? fallback : l.deskSetupWait, style: ts.mono())),
-        (l.deskSetupDataFolder, Text(folder, style: ts.mono(), overflow: TextOverflow.ellipsis)),
       ],
-    ];
-    final failed = _first == null ? null : _saveFailed ?? (_shot?.saveFailed ?? false ? l.deskErrWalletLocked : null);
-    final panel = EPanel(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (_steps.contains(SetupStep.prefs)) ...[
-            _section(context, l.deskSetupStepPrefs, l.deskSetupChangePrefsSem, [(l.deskSetupLanguage, Text(deskLanguageName(l, _language), style: ts.body))], SetupStep.prefs),
-            EDivider(space: Sp.x2),
-          ],
-          _section(
-            context,
-            l.deskSetupStepNode,
-            l.deskSetupChangeNodeSem,
-            nodeRows,
-            _local ? SetupStep.local : SetupStep.node,
-            caption: bundled && _local
-                ? (local?.useFallback ?? hasFallbackNode ? l.deskSetupSaveStartsFallback(fallback) : l.deskSetupSaveStarts)
-                : null,
-          ),
-          EDivider(space: Sp.x2),
-          _section(context, l.deskSetupStepEpicbox, l.deskSetupChangeEpicboxSem, [
-            (l.deskSetupServer, domain.isEmpty ? Text(l.deskSetupOff, style: ts.body) : Text(domain, style: ts.mono())),
-          ], SetupStep.epicbox),
-        ],
       ),
-    );
-    if (failed == null) return panel;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        ENotice(
-          tone: ETone.risk,
-          title: l.deskSetupSaveFailedTitle,
-          // The string adds the full stop.
-          text: l.deskSetupSaveFailedText(failed.endsWith('.') || failed.endsWith('。') ? failed.substring(0, failed.length - 1) : failed),
-        ),
-        SizedBox(height: Sp.x4),
-        panel,
-      ],
     );
   }
 }

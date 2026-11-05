@@ -904,6 +904,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get txDetailsLinkCopied => 'Skopiowano link';
 
   @override
+  String get txDetailsExplorerBehind =>
+      'Eksplorator nie dotarł jeszcze do tego bloku.';
+
+  @override
   String get txDetailsTechnical => 'Szczegóły techniczne';
 
   @override
@@ -12343,9 +12347,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get deskSetupStepEpicbox => 'Epicbox';
 
   @override
-  String get deskSetupStepReview => 'Podsumowanie';
-
-  @override
   String get deskSetupAgain =>
       'Ponowna konfiguracja. Nic się nie zmieni przed kliknięciem Zapisz ustawienia na ostatnim kroku.';
 
@@ -12368,12 +12369,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deskSetupEpicboxTitle => 'Epicbox';
-
-  @override
-  String get deskSetupReviewTitle => 'Przegląd ustawień';
-
-  @override
-  String get deskSetupReviewLead => 'Popraw to, co się nie zgadza, i zapisz.';
 
   @override
   String get deskSetupSideTitle => 'Konfiguracja';
@@ -12412,46 +12407,12 @@ class AppLocalizationsPl extends AppLocalizations {
       'Serwer Epicbox przechowuje płatności, dopóki portfel się nie otworzy.';
 
   @override
-  String get deskSetupEpicboxPrivacy =>
-      'Serwer Epicbox widzi adres IP tego komputera.';
-
-  @override
   String get deskSetupEpicboxServer => 'Serwer Epicbox';
-
-  @override
-  String get deskSetupChangePrefsSem => 'Zmień preferencje';
-
-  @override
-  String get deskSetupChangeNodeSem => 'Zmień węzeł';
-
-  @override
-  String get deskSetupChangeEpicboxSem => 'Zmień Epicbox';
-
-  @override
-  String get deskSetupChange => 'Zmień';
-
-  @override
-  String get deskSetupType => 'Typ';
-
-  @override
-  String get deskSetupAddress => 'Adres';
 
   @override
   String deskSetupExistingNode(String host) {
     return 'Istniejący węzeł na $host';
   }
-
-  @override
-  String get deskSetupBundledNode => 'Węzeł lokalny';
-
-  @override
-  String get deskSetupWhileSyncing => 'Do synchronizacji';
-
-  @override
-  String get deskSetupWait => 'czeka';
-
-  @override
-  String get deskSetupDataFolder => 'Folder danych';
 
   @override
   String deskSetupSaveStartsFallback(String node) {
@@ -12461,12 +12422,6 @@ class AppLocalizationsPl extends AppLocalizations {
   @override
   String get deskSetupSaveStarts =>
       'Zapisanie uruchomi węzeł. Pierwsza synchronizacja trwa kilka godzin; portfel otworzy się wcześniej.';
-
-  @override
-  String get deskSetupServer => 'Serwer';
-
-  @override
-  String get deskSetupOff => 'Wyłączony';
 
   @override
   String get deskSetAboutLicencesLead =>
@@ -19140,9 +19095,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskOnbRestoreBadWords(String words) {
     return 'Nie ma na liście słów: $words.';
   }
-
-  @override
-  String get deskSetupExistingNodeType => 'Istniejący węzeł';
 
   @override
   String get deskLvPayOnEpicbox => 'Na Epicbox';

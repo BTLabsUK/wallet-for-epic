@@ -129,6 +129,7 @@ source = "https://git.example.invalid/epic-cash-bt/wallet-for-epic"
 privacy = "https://example.invalid/privacy/"
 [explorer]
 block = "https://explorer.example.invalid/blockdetail/{height}"
+indexed = "https://explorer.example.invalid/epic_explorer/v1/blockchain_block/{height}"
 [import]
 gui_node = "https://node.epic.invalid:3413"
 gui_epicbox = "box.epic.invalid"

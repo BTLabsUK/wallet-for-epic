@@ -378,6 +378,7 @@ const List<SettingsKey> configKeys = [
   SettingsKey('links.privacy', _url, byDefault: ''),
   // [explorer]: a block by its height; no kernel page.
   SettingsKey('explorer.block', TextKind(_explorerBlock), byDefault: ''),
+  SettingsKey('explorer.indexed', TextKind(_explorerBlock), byDefault: ''),
   // [import]
   SettingsKey('import.gui_node', TextKind(checkNodeAddress)),
   SettingsKey('import.gui_epicbox', TextKind(checkEpicboxServer)),

@@ -902,6 +902,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get txDetailsLinkCopied => 'Ссылка скопирована';
 
   @override
+  String get txDetailsExplorerBehind =>
+      'Обозреватель ещё не дошёл до этого блока.';
+
+  @override
   String get txDetailsTechnical => 'Технические сведения';
 
   @override
@@ -12313,9 +12317,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get deskSetupStepEpicbox => 'Epicbox';
 
   @override
-  String get deskSetupStepReview => 'Проверка';
-
-  @override
   String get deskSetupAgain =>
       'Повторная настройка. Ничего не изменится до нажатия «Сохранить настройки» на последнем шаге.';
 
@@ -12338,12 +12339,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get deskSetupEpicboxTitle => 'Epicbox';
-
-  @override
-  String get deskSetupReviewTitle => 'Проверка настроек';
-
-  @override
-  String get deskSetupReviewLead => 'Исправьте то, что не так, и сохраните.';
 
   @override
   String get deskSetupSideTitle => 'Настройка';
@@ -12381,46 +12376,12 @@ class AppLocalizationsRu extends AppLocalizations {
       'Сервер Epicbox хранит платежи, пока кошелёк не откроется.';
 
   @override
-  String get deskSetupEpicboxPrivacy =>
-      'Сервер Epicbox видит IP-адрес этого компьютера.';
-
-  @override
   String get deskSetupEpicboxServer => 'Сервер Epicbox';
-
-  @override
-  String get deskSetupChangePrefsSem => 'Изменить параметры';
-
-  @override
-  String get deskSetupChangeNodeSem => 'Изменить узел';
-
-  @override
-  String get deskSetupChangeEpicboxSem => 'Изменить Epicbox';
-
-  @override
-  String get deskSetupChange => 'Изменить';
-
-  @override
-  String get deskSetupType => 'Тип';
-
-  @override
-  String get deskSetupAddress => 'Адрес';
 
   @override
   String deskSetupExistingNode(String host) {
     return 'Уже запущенный узел на $host';
   }
-
-  @override
-  String get deskSetupBundledNode => 'Локальный узел';
-
-  @override
-  String get deskSetupWhileSyncing => 'Во время синхронизации';
-
-  @override
-  String get deskSetupWait => 'ждать';
-
-  @override
-  String get deskSetupDataFolder => 'Папка данных';
 
   @override
   String deskSetupSaveStartsFallback(String node) {
@@ -12430,12 +12391,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get deskSetupSaveStarts =>
       'Сохранение запустит узел. Первая синхронизация занимает часы; кошелёк тем временем откроется.';
-
-  @override
-  String get deskSetupServer => 'Сервер';
-
-  @override
-  String get deskSetupOff => 'Выкл.';
 
   @override
   String get deskSetAboutLicencesLead =>
@@ -19126,9 +19081,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String deskOnbRestoreBadWords(String words) {
     return 'Нет в списке слов: $words.';
   }
-
-  @override
-  String get deskSetupExistingNodeType => 'Уже запущенный узел';
 
   @override
   String get deskLvPayOnEpicbox => 'На Epicbox';
