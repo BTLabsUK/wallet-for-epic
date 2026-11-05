@@ -140,8 +140,8 @@ android {
 }
 
 // The in-app updater follows WFE_DIST: its Kotlin (or a stub that answers nothing), in the main
-// source set where the Kotlin plugin compiles it, and its manifest, merged into every variant.
-android.sourceSets["main"].java.srcDir(if (distUpdates) "src/updater/kotlin" else "src/noupdater/kotlin")
+// Kotlin source set, which AGP's built-in Kotlin compiles, and its manifest, merged into every variant.
+android.sourceSets["main"].kotlin.srcDir(if (distUpdates) "src/updater/kotlin" else "src/noupdater/kotlin")
 androidComponents {
     onVariants { variant ->
         if (distUpdates) variant.sources.manifests.addStaticManifestFile("src/updater/AndroidManifest.xml")
