@@ -32027,6 +32027,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remove {label} too?'**
   String dirRemoveTooTitle(String label);
+
+  /// Error under the To field on Send when the recipient is the wallet open now. {wallet} is its name in the wallet list. The app’s other wallets can be paid; only the open one cannot.
+  ///
+  /// In en, this message translates to:
+  /// **'This is “{wallet}”, the wallet open now. To pay it, open another wallet first.'**
+  String deskSendErrOwnNamed(String wallet);
 }
 
 class _AppLocalizationsDelegate

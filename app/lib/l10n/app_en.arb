@@ -27765,5 +27765,15 @@
         "type": "String"
       }
     }
+  },
+  "deskSendErrOwnNamed": "This is “{wallet}”, the wallet open now. To pay it, open another wallet first.",
+  "@deskSendErrOwnNamed": {
+    "description": "Error under the To field on Send when the recipient is the wallet open now. {wallet} is its name in the wallet list. The app’s other wallets can be paid; only the open one cannot.",
+    "placeholders": {
+      "wallet": {
+        "type": "String",
+        "example": "local 2"
+      }
+    }
   }
 }

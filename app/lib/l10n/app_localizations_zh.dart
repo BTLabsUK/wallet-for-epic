@@ -19322,4 +19322,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String dirRemoveTooTitle(String label) {
     return '也移除 $label？';
   }
+
+  @override
+  String deskSendErrOwnNamed(String wallet) {
+    return '这是当前打开的钱包“$wallet”。要向它付款，请先打开另一个钱包。';
+  }
 }

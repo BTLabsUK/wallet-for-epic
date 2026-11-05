@@ -50,6 +50,7 @@
   "deskSendErrNotDirect": "To nie jest adres Link.",
   "deskSendErrOnion": "To nie jest prawidłowy adres onion.",
   "deskSendErrOwn": "To własny adres tego portfela.",
+  "deskSendErrOwnNamed": "To „{wallet}”, portfel otwarty teraz. Aby na niego zapłacić, najpierw otwórz inny portfel.",
   "deskSendNoAnswer": "Odbiorca nie odpowiedział. Nic nie zostało wysłane.",
   "deskSendTorOnFailed": "Nie włączono Tora",
   "deskSendTorOffFailed": "Nie wyłączono Tora",

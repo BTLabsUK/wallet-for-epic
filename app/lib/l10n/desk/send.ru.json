@@ -50,6 +50,7 @@
   "deskSendErrNotDirect": "Это не адрес ссылки.",
   "deskSendErrOnion": "Это недействительный адрес .onion.",
   "deskSendErrOwn": "Это собственный адрес кошелька.",
+  "deskSendErrOwnNamed": "Это «{wallet}», открытый сейчас кошелёк. Чтобы отправить на него, сначала откройте другой кошелёк.",
   "deskSendNoAnswer": "Получатель не ответил. Ничего не отправлено.",
   "deskSendTorOnFailed": "Tor не включён",
   "deskSendTorOffFailed": "Tor не выключен",
