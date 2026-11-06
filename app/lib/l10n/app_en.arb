@@ -25257,14 +25257,14 @@
   },
   "mailboxResendBody": "The waiting send is cancelled and the same amount goes to {name}’s public Epicbox address as an ordinary payment. Two rows stay in Activity.",
   "@mailboxResendBody": {
-    "description": "Body of the Cancel and send by Epicbox confirm dialog.",
+    "description": "Body of the Cancel and send to their public Epicbox address confirm dialog.",
     "placeholders": {
       "name": {}
     }
   },
   "mailboxResendAction": "Cancel and send",
   "@mailboxResendAction": {
-    "description": "The confirming button of the Cancel and send by Epicbox dialog."
+    "description": "The confirming button of the Cancel and send to their public Epicbox address dialog."
   },
   "mailboxKeepWaiting": "Keep waiting",
   "@mailboxKeepWaiting": {

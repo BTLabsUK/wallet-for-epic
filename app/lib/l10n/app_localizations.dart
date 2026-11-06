@@ -28968,13 +28968,13 @@ abstract class AppLocalizations {
   /// **'Cancel and send to their public address'**
   String get mailboxResendTitleShort;
 
-  /// Body of the Cancel and send by Epicbox confirm dialog.
+  /// Body of the Cancel and send to their public Epicbox address confirm dialog.
   ///
   /// In en, this message translates to:
   /// **'The waiting send is cancelled and the same amount goes to {name}’s public Epicbox address as an ordinary payment. Two rows stay in Activity.'**
   String mailboxResendBody(Object name);
 
-  /// The confirming button of the Cancel and send by Epicbox dialog.
+  /// The confirming button of the Cancel and send to their public Epicbox address dialog.
   ///
   /// In en, this message translates to:
   /// **'Cancel and send'**
