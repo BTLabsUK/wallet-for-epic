@@ -18702,11 +18702,11 @@
   "@contactCheckWordsAgain": {
     "description": "Phone menu item."
   },
-  "contactSealPayments": "Seal payments",
+  "contactSealPayments": "Seal transaction files",
   "@contactSealPayments": {
     "description": "Switch label. Label only; the info icon explains."
   },
-  "contactSealInfo": "Payments and invoices with {name} are encrypted end to end. Only their wallet can read them.",
+  "contactSealInfo": "Transaction files are encrypted (sealed) and readable only by {name}.",
   "@contactSealInfo": {
     "description": "Info sheet / tooltip for Seal payments. Use the contact’s pronoun where the language has one; English uses the name twice or ‘their’.",
     "placeholders": {
@@ -18982,7 +18982,7 @@
   "@contactKeysBackBody": {
     "description": "Notice body."
   },
-  "contactSealDegradedTitle": "The last payment to {name} went plain",
+  "contactSealDegradedTitle": "The last transaction file to {name} went plain",
   "@contactSealDegradedTitle": {
     "description": "Notice on the contact page.",
     "placeholders": {
@@ -19402,15 +19402,9 @@
   "@reqNewSend": {
     "description": "Primary button."
   },
-  "sendViaMailbox": "Send through {name}’s Epicbox server",
+  "sendViaMailbox": "Send through the pairing",
   "@sendViaMailbox": {
-    "description": "Switch on Send for a paired contact over Epicbox.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Anna"
-      }
-    }
+    "description": "Switch on Send for a paired contact over Epicbox."
   },
   "sendViaMailboxHint": "Sealed. Delivered via {relay}",
   "@sendViaMailboxHint": {
@@ -19421,6 +19415,30 @@
         "example": "epicbox.example.org"
       }
     }
+  },
+  "sendViaPublicHint": "Goes to {name}’s public Epicbox address.",
+  "@sendViaPublicHint": {
+    "description": "Hint under the Send through the pairing switch when the user turned it off: the payment goes to the contact’s public Epicbox address.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sendMailboxUnanswered": "No answer through the pairing since {date}.",
+  "@sendMailboxUnanswered": {
+    "description": "Reason line on Send when the pairing switch starts off: the contact’s wallet has not answered through the pairing; date is a day and month.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "3 Nov"
+      }
+    }
+  },
+  "sendPublicFallback": "Send to their public Epicbox address",
+  "@sendPublicFallback": {
+    "description": "Button on a failed send through the pairing: send the same payment to the contact’s public Epicbox address."
   },
   "sendSealedTitle": "Sealed for {name}",
   "@sendSealedTitle": {
@@ -25141,11 +25159,15 @@
       "name": {}
     }
   },
-  "mailboxResendTitle": "Cancel and send by Epicbox",
+  "mailboxResendTitle": "Cancel and send to their public Epicbox address",
   "@mailboxResendTitle": {
     "description": "Button and dialog title: cancel an unanswered mailbox send and send the same amount to the contact's Epicbox address as an ordinary payment."
   },
-  "mailboxResendBody": "The waiting send is cancelled and the same amount goes to {name}’s Epicbox address as an ordinary payment. Two rows stay in the history.",
+  "mailboxResendTitleShort": "Cancel and send to their public address",
+  "@mailboxResendTitleShort": {
+    "description": "Short form of the Cancel and send to their public Epicbox address button, used only where the full text does not fit."
+  },
+  "mailboxResendBody": "The waiting send is cancelled and the same amount goes to {name}’s public Epicbox address as an ordinary payment. Two rows stay in Activity.",
   "@mailboxResendBody": {
     "description": "Body of the Cancel and send by Epicbox confirm dialog.",
     "placeholders": {
@@ -25225,7 +25247,7 @@
   "@receiptHintTitle": {
     "description": "Title of the receipt line's explanation."
   },
-  "mailboxResent": "Cancelled and sent by Epicbox.",
+  "mailboxResent": "Cancelled and sent to their public Epicbox address.",
   "@mailboxResent": {
     "description": "Notice after Cancel and send by Epicbox finished: the old send is cancelled and the new one is on its way."
   },

@@ -2856,7 +2856,7 @@ class _PairingCard extends StatelessWidget {
                       ? Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(l.sendViaMailbox(name), style: ts.body),
+                            Text(l.sendViaMailbox, style: ts.body),
                             Text(paused ? l.contactPausedEpicboxOff : sendViaMailboxHintOf(l, pairing), style: ts.small),
                           ],
                         )

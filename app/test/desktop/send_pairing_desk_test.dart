@@ -72,7 +72,7 @@ void main() {
   testWidgets('Send: the pairing card and readout; Link off; the review names Zoe, no address', (tester) async {
     await pump(tester, const SendScreen(arg: SendArgs(pairingTo: 'pz', amount: '1', epicboxHealth: ServiceHealth.ok)));
     expect(find.byKey(const ValueKey('send-picked-pairing')), findsOneWidget);
-    expect(find.text(_l.sendViaMailbox('Zoe')), findsOneWidget);
+    expect(find.text(_l.sendViaMailbox), findsOneWidget);
     expect(find.text(_l.sendViaMailboxHint('epicbox.epiccash.com')), findsOneWidget);
     expect(find.text(_l.deskSendToHint), findsNothing);
     await tester.tap(find.widgetWithText(EButton, _l.deskSendReview));
@@ -97,7 +97,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text(_l.contactSendKeysChanged), findsOneWidget);
     expect(find.byKey(const ValueKey('send-pairing-check')), findsOneWidget);
-    expect(find.text(_l.sendViaMailbox('Zoe')), findsNothing);
+    expect(find.text(_l.sendViaMailbox), findsNothing);
   });
 
   testWidgets('Epicbox off: the readout pauses and the review queues the payment', (tester) async {

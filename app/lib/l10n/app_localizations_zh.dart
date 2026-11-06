@@ -13216,11 +13216,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get contactCheckWordsAgain => '再次验证';
 
   @override
-  String get contactSealPayments => '密封付款';
+  String get contactSealPayments => '密封交易文件';
 
   @override
   String contactSealInfo(String name) {
-    return '与 $name 的付款和账单采用端到端加密。只有对方的钱包能读取。';
+    return '交易文件已加密（密封），只有 $name 的钱包能读取。';
   }
 
   @override
@@ -13377,7 +13377,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String contactSealDegradedTitle(String name) {
-    return '上一笔给 $name 的付款为明文';
+    return '上一个给 $name 的交易文件为明文';
   }
 
   @override
@@ -13641,14 +13641,25 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reqNewSend => '发送账单';
 
   @override
-  String sendViaMailbox(String name) {
-    return '通过 $name 的 Epicbox 服务器发送';
-  }
+  String get sendViaMailbox => '通过配对发送';
 
   @override
   String sendViaMailboxHint(String relay) {
     return '已密封。经 $relay 投递';
   }
+
+  @override
+  String sendViaPublicHint(String name) {
+    return '将发送到 $name 的公开 Epicbox 地址。';
+  }
+
+  @override
+  String sendMailboxUnanswered(String date) {
+    return '自 $date 起未通过配对收到应答。';
+  }
+
+  @override
+  String get sendPublicFallback => '发送到对方的公开 Epicbox 地址';
 
   @override
   String sendSealedTitle(String name) {
@@ -17499,11 +17510,14 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get mailboxResendTitle => '取消并经 Epicbox 发送';
+  String get mailboxResendTitle => '取消并发送到对方的公开 Epicbox 地址';
+
+  @override
+  String get mailboxResendTitleShort => '取消并发送到对方的公开地址';
 
   @override
   String mailboxResendBody(Object name) {
-    return '等待中的付款将被取消，相同金额将作为普通付款发送到 $name 的 Epicbox 地址。历史记录中保留两行。';
+    return '等待中的付款将被取消，相同金额将作为普通付款发送到 $name 的公开 Epicbox 地址。“活动”中保留两行。';
   }
 
   @override
@@ -17555,7 +17569,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get receiptHintTitle => '回执';
 
   @override
-  String get mailboxResent => '已取消并经 Epicbox 发送。';
+  String get mailboxResent => '已取消并发送到对方的公开 Epicbox 地址。';
 
   @override
   String get torRelayCaption => '开启 Tor 后，与 Epicbox 服务器的连接经由 Tor。';

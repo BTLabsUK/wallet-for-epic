@@ -129,7 +129,7 @@ class SendPairingLine extends ConsumerWidget {
               children: [
                 PairSwitchRow(
                   switchKey: sendViaMailboxKey,
-                  label: l.sendViaMailbox(contact.name),
+                  label: l.sendViaMailbox,
                   info: '',
                   hint: sendViaMailboxHintOf(l, pairing),
                   value: viaMailbox,
@@ -285,7 +285,7 @@ class SendPairingMailbox extends ConsumerWidget {
           key: sendPairingReadoutKey,
           children: [
             PairReadoutRow(
-              label: l.sendViaMailbox(name),
+              label: l.sendViaMailbox,
               hint: paused ? l.contactPausedEpicboxOff : sendViaMailboxHintOf(l, pairing),
               paused: paused,
             ),

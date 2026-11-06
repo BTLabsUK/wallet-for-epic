@@ -14206,11 +14206,11 @@ class AppLocalizationsDe extends AppLocalizations {
   String get contactCheckWordsAgain => 'Erneut verifizieren';
 
   @override
-  String get contactSealPayments => 'Zahlungen versiegeln';
+  String get contactSealPayments => 'Transaktionsdateien versiegeln';
 
   @override
   String contactSealInfo(String name) {
-    return 'Zahlungen und Rechnungen mit $name sind Ende-zu-Ende verschlüsselt. Nur deren Wallet kann sie lesen.';
+    return 'Transaktionsdateien sind verschlüsselt (versiegelt). Nur die Wallet von $name kann sie lesen.';
   }
 
   @override
@@ -14370,7 +14370,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String contactSealDegradedTitle(String name) {
-    return 'Die letzte Zahlung an $name ging unversiegelt';
+    return 'Die letzte Transaktionsdatei an $name ging unversiegelt';
   }
 
   @override
@@ -14654,14 +14654,26 @@ class AppLocalizationsDe extends AppLocalizations {
   String get reqNewSend => 'Rechnung senden';
 
   @override
-  String sendViaMailbox(String name) {
-    return 'Über den Epicbox-Server von $name senden';
-  }
+  String get sendViaMailbox => 'Über die Kopplung senden';
 
   @override
   String sendViaMailboxHint(String relay) {
     return 'Versiegelt. Zugestellt über $relay';
   }
+
+  @override
+  String sendViaPublicHint(String name) {
+    return 'Geht an die öffentliche Epicbox-Adresse von $name.';
+  }
+
+  @override
+  String sendMailboxUnanswered(String date) {
+    return 'Seit $date keine Antwort über die Kopplung.';
+  }
+
+  @override
+  String get sendPublicFallback =>
+      'An die öffentliche Epicbox-Adresse des Kontakts senden';
 
   @override
   String sendSealedTitle(String name) {
@@ -18768,11 +18780,16 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
-  String get mailboxResendTitle => 'Stornieren und per Epicbox senden';
+  String get mailboxResendTitle =>
+      'Stornieren und an die öffentliche Epicbox-Adresse senden';
+
+  @override
+  String get mailboxResendTitleShort =>
+      'Stornieren und an die öffentliche Adresse senden';
 
   @override
   String mailboxResendBody(Object name) {
-    return 'Die wartende Zahlung wird storniert und derselbe Betrag geht als gewöhnliche Zahlung an die Epicbox-Adresse von $name. Beide Zeilen bleiben im Verlauf.';
+    return 'Die wartende Zahlung wird storniert und derselbe Betrag geht als gewöhnliche Zahlung an die öffentliche Epicbox-Adresse von $name. Beide Zeilen bleiben unter Aktivität.';
   }
 
   @override
@@ -18825,7 +18842,8 @@ class AppLocalizationsDe extends AppLocalizations {
   String get receiptHintTitle => 'Beleg';
 
   @override
-  String get mailboxResent => 'Storniert und per Epicbox gesendet.';
+  String get mailboxResent =>
+      'Storniert und an die öffentliche Epicbox-Adresse gesendet.';
 
   @override
   String get torRelayCaption =>

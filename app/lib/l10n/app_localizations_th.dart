@@ -13682,11 +13682,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get contactCheckWordsAgain => 'ยืนยันอีกครั้ง';
 
   @override
-  String get contactSealPayments => 'ปิดผนึกการชำระเงิน';
+  String get contactSealPayments => 'ปิดผนึกไฟล์ธุรกรรม';
 
   @override
   String contactSealInfo(String name) {
-    return 'การชำระเงินและใบแจ้งหนี้กับ $name เข้ารหัสแบบต้นทางถึงปลายทาง มีเพียงกระเป๋าเงินของอีกฝ่ายที่อ่านได้';
+    return 'ไฟล์ธุรกรรมถูกเข้ารหัส (ปิดผนึก) มีเพียงกระเป๋าเงินของ $name ที่อ่านได้';
   }
 
   @override
@@ -13845,7 +13845,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String contactSealDegradedTitle(String name) {
-    return 'การชำระเงินครั้งล่าสุดถึง $name ไม่ได้ปิดผนึก';
+    return 'ไฟล์ธุรกรรมล่าสุดถึง $name ไม่ได้ปิดผนึก';
   }
 
   @override
@@ -14123,14 +14123,26 @@ class AppLocalizationsTh extends AppLocalizations {
   String get reqNewSend => 'ส่งใบแจ้งหนี้';
 
   @override
-  String sendViaMailbox(String name) {
-    return 'ส่งผ่านเซิร์ฟเวอร์ Epicbox ของ $name';
-  }
+  String get sendViaMailbox => 'ส่งผ่านการจับคู่';
 
   @override
   String sendViaMailboxHint(String relay) {
     return 'ปิดผนึก ส่งผ่าน $relay';
   }
+
+  @override
+  String sendViaPublicHint(String name) {
+    return 'ส่งไปยังที่อยู่ Epicbox สาธารณะของ $name';
+  }
+
+  @override
+  String sendMailboxUnanswered(String date) {
+    return 'ไม่มีการตอบกลับผ่านการจับคู่ตั้งแต่ $date';
+  }
+
+  @override
+  String get sendPublicFallback =>
+      'ส่งไปยังที่อยู่ Epicbox สาธารณะของผู้ติดต่อ';
 
   @override
   String sendSealedTitle(String name) {
@@ -18140,11 +18152,14 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get mailboxResendTitle => 'ยกเลิกและส่งผ่าน Epicbox';
+  String get mailboxResendTitle => 'ยกเลิกและส่งไปยังที่อยู่ Epicbox สาธารณะ';
+
+  @override
+  String get mailboxResendTitleShort => 'ยกเลิกและส่งไปยังที่อยู่สาธารณะ';
 
   @override
   String mailboxResendBody(Object name) {
-    return 'การจ่ายเงินที่รออยู่จะถูกยกเลิก และจำนวนเท่าเดิมจะส่งไปยังที่อยู่ Epicbox ของ $name เป็นการชำระเงินปกติ ประวัติจะคงไว้สองแถว';
+    return 'การจ่ายเงินที่รออยู่จะถูกยกเลิก และจำนวนเท่าเดิมจะส่งไปยังที่อยู่ Epicbox สาธารณะของ $name เป็นการชำระเงินปกติ ประวัติจะคงไว้สองแถว';
   }
 
   @override
@@ -18197,7 +18212,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get receiptHintTitle => 'ใบเสร็จ';
 
   @override
-  String get mailboxResent => 'ยกเลิกและส่งผ่าน Epicbox แล้ว';
+  String get mailboxResent => 'ยกเลิกและส่งไปยังที่อยู่ Epicbox สาธารณะแล้ว';
 
   @override
   String get torRelayCaption =>

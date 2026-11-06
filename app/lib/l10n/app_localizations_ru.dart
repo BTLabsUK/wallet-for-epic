@@ -14547,11 +14547,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get contactCheckWordsAgain => 'Проверить снова';
 
   @override
-  String get contactSealPayments => 'Запечатывать платежи';
+  String get contactSealPayments => 'Запечатывать файлы транзакций';
 
   @override
   String contactSealInfo(String name) {
-    return 'Платежи и счета с $name зашифрованы сквозным шифрованием. Прочитать их может только кошелёк $name.';
+    return 'Файлы транзакций зашифрованы (запечатаны). Прочитать их может только кошелёк $name.';
   }
 
   @override
@@ -14711,7 +14711,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String contactSealDegradedTitle(String name) {
-    return 'Последний платёж для $name ушёл открытым';
+    return 'Последний файл транзакции для $name ушёл открытым';
   }
 
   @override
@@ -14998,14 +14998,26 @@ class AppLocalizationsRu extends AppLocalizations {
   String get reqNewSend => 'Отправить счёт';
 
   @override
-  String sendViaMailbox(String name) {
-    return 'Отправить через сервер Epicbox $name';
-  }
+  String get sendViaMailbox => 'Отправить через сопряжение';
 
   @override
   String sendViaMailboxHint(String relay) {
     return 'Запечатано. Доставка через $relay';
   }
+
+  @override
+  String sendViaPublicHint(String name) {
+    return 'Уйдёт на публичный адрес Epicbox $name.';
+  }
+
+  @override
+  String sendMailboxUnanswered(String date) {
+    return 'Нет ответа через сопряжение с $date.';
+  }
+
+  @override
+  String get sendPublicFallback =>
+      'Отправить на публичный адрес Epicbox контакта';
 
   @override
   String sendSealedTitle(String name) {
@@ -19193,11 +19205,16 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get mailboxResendTitle => 'Отменить и отправить через Epicbox';
+  String get mailboxResendTitle =>
+      'Отменить и отправить на публичный адрес Epicbox';
+
+  @override
+  String get mailboxResendTitleShort =>
+      'Отменить и отправить на публичный адрес';
 
   @override
   String mailboxResendBody(Object name) {
-    return 'Ожидающий платёж отменяется, и та же сумма уходит на адрес Epicbox $name обычным платежом. В истории остаются две строки.';
+    return 'Ожидающий платёж отменяется, и та же сумма уходит на публичный адрес Epicbox $name обычным платежом. В разделе «Активность» остаются две строки.';
   }
 
   @override
@@ -19250,7 +19267,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get receiptHintTitle => 'Квитанция';
 
   @override
-  String get mailboxResent => 'Отменено и отправлено через Epicbox.';
+  String get mailboxResent =>
+      'Отменено и отправлено на публичный адрес Epicbox.';
 
   @override
   String get torRelayCaption =>

@@ -205,7 +205,7 @@ void main() {
       expect(find.byKey(sendPairingCardKey), findsOneWidget);
       expect(find.byKey(sendRecipientFieldKey), findsNothing);
       expect(find.text(_l.sendRecipientPairing('Anna')), findsOneWidget);
-      expect(find.text(_l.sendViaMailbox('Anna')), findsOneWidget);
+      expect(find.text(_l.sendViaMailbox), findsOneWidget);
       expect(find.text(_l.sendViaMailboxHint('epicbox.epiccash.com')), findsOneWidget);
       // No address, and no Link segment.
       expect(find.textContaining('@'), findsNothing);

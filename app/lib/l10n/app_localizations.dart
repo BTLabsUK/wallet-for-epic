@@ -22095,13 +22095,13 @@ abstract class AppLocalizations {
   /// Switch label. Label only; the info icon explains.
   ///
   /// In en, this message translates to:
-  /// **'Seal payments'**
+  /// **'Seal transaction files'**
   String get contactSealPayments;
 
   /// Info sheet / tooltip for Seal payments. Use the contact’s pronoun where the language has one; English uses the name twice or ‘their’.
   ///
   /// In en, this message translates to:
-  /// **'Payments and invoices with {name} are encrypted end to end. Only their wallet can read them.'**
+  /// **'Transaction files are encrypted (sealed) and readable only by {name}.'**
   String contactSealInfo(String name);
 
   /// Second paragraph of the Seal payments info sheet.
@@ -22341,7 +22341,7 @@ abstract class AppLocalizations {
   /// Notice on the contact page.
   ///
   /// In en, this message translates to:
-  /// **'The last payment to {name} went plain'**
+  /// **'The last transaction file to {name} went plain'**
   String contactSealDegradedTitle(String name);
 
   /// Notice body.
@@ -22749,14 +22749,32 @@ abstract class AppLocalizations {
   /// Switch on Send for a paired contact over Epicbox.
   ///
   /// In en, this message translates to:
-  /// **'Send through {name}’s Epicbox server'**
-  String sendViaMailbox(String name);
+  /// **'Send through the pairing'**
+  String get sendViaMailbox;
 
   /// Under that switch.
   ///
   /// In en, this message translates to:
   /// **'Sealed. Delivered via {relay}'**
   String sendViaMailboxHint(String relay);
+
+  /// Hint under the Send through the pairing switch when the user turned it off: the payment goes to the contact’s public Epicbox address.
+  ///
+  /// In en, this message translates to:
+  /// **'Goes to {name}’s public Epicbox address.'**
+  String sendViaPublicHint(String name);
+
+  /// Reason line on Send when the pairing switch starts off: the contact’s wallet has not answered through the pairing; date is a day and month.
+  ///
+  /// In en, this message translates to:
+  /// **'No answer through the pairing since {date}.'**
+  String sendMailboxUnanswered(String date);
+
+  /// Button on a failed send through the pairing: send the same payment to the contact’s public Epicbox address.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to their public Epicbox address'**
+  String get sendPublicFallback;
 
   /// Payment file screen title.
   ///
@@ -28881,13 +28899,19 @@ abstract class AppLocalizations {
   /// Button and dialog title: cancel an unanswered mailbox send and send the same amount to the contact's Epicbox address as an ordinary payment.
   ///
   /// In en, this message translates to:
-  /// **'Cancel and send by Epicbox'**
+  /// **'Cancel and send to their public Epicbox address'**
   String get mailboxResendTitle;
+
+  /// Short form of the Cancel and send to their public Epicbox address button, used only where the full text does not fit.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel and send to their public address'**
+  String get mailboxResendTitleShort;
 
   /// Body of the Cancel and send by Epicbox confirm dialog.
   ///
   /// In en, this message translates to:
-  /// **'The waiting send is cancelled and the same amount goes to {name}’s Epicbox address as an ordinary payment. Two rows stay in the history.'**
+  /// **'The waiting send is cancelled and the same amount goes to {name}’s public Epicbox address as an ordinary payment. Two rows stay in Activity.'**
   String mailboxResendBody(Object name);
 
   /// The confirming button of the Cancel and send by Epicbox dialog.
@@ -28965,7 +28989,7 @@ abstract class AppLocalizations {
   /// Notice after Cancel and send by Epicbox finished: the old send is cancelled and the new one is on its way.
   ///
   /// In en, this message translates to:
-  /// **'Cancelled and sent by Epicbox.'**
+  /// **'Cancelled and sent to their public Epicbox address.'**
   String get mailboxResent;
 
   /// Caption under the Epicbox row in Settings while Tor is off: what Tor does for Epicbox.

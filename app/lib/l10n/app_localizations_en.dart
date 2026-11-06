@@ -14036,11 +14036,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactCheckWordsAgain => 'Verify again';
 
   @override
-  String get contactSealPayments => 'Seal payments';
+  String get contactSealPayments => 'Seal transaction files';
 
   @override
   String contactSealInfo(String name) {
-    return 'Payments and invoices with $name are encrypted end to end. Only their wallet can read them.';
+    return 'Transaction files are encrypted (sealed) and readable only by $name.';
   }
 
   @override
@@ -14199,7 +14199,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String contactSealDegradedTitle(String name) {
-    return 'The last payment to $name went plain';
+    return 'The last transaction file to $name went plain';
   }
 
   @override
@@ -14480,14 +14480,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reqNewSend => 'Send invoice';
 
   @override
-  String sendViaMailbox(String name) {
-    return 'Send through $name’s Epicbox server';
-  }
+  String get sendViaMailbox => 'Send through the pairing';
 
   @override
   String sendViaMailboxHint(String relay) {
     return 'Sealed. Delivered via $relay';
   }
+
+  @override
+  String sendViaPublicHint(String name) {
+    return 'Goes to $name’s public Epicbox address.';
+  }
+
+  @override
+  String sendMailboxUnanswered(String date) {
+    return 'No answer through the pairing since $date.';
+  }
+
+  @override
+  String get sendPublicFallback => 'Send to their public Epicbox address';
 
   @override
   String sendSealedTitle(String name) {
@@ -18552,11 +18563,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get mailboxResendTitle => 'Cancel and send by Epicbox';
+  String get mailboxResendTitle =>
+      'Cancel and send to their public Epicbox address';
+
+  @override
+  String get mailboxResendTitleShort =>
+      'Cancel and send to their public address';
 
   @override
   String mailboxResendBody(Object name) {
-    return 'The waiting send is cancelled and the same amount goes to $name’s Epicbox address as an ordinary payment. Two rows stay in the history.';
+    return 'The waiting send is cancelled and the same amount goes to $name’s public Epicbox address as an ordinary payment. Two rows stay in Activity.';
   }
 
   @override
@@ -18609,7 +18625,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get receiptHintTitle => 'Receipt';
 
   @override
-  String get mailboxResent => 'Cancelled and sent by Epicbox.';
+  String get mailboxResent =>
+      'Cancelled and sent to their public Epicbox address.';
 
   @override
   String get torRelayCaption =>
