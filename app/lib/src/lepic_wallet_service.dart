@@ -31,6 +31,7 @@ import 'finished_payment.dart';
 import 'key_picture.dart' show inviteKeyOf;
 import 'legacy/gui_contacts.dart' show AddressChecks;
 import 'listener_receives.dart';
+import 'coalesce.dart';
 import 'log.dart';
 import 'message_checks.dart';
 import 'net/lan_node_relay.dart';
@@ -4308,11 +4309,14 @@ class _LepicPairing implements PairingApi {
     return _record(await _w.contact(contactId: id));
   });
 
+  final Coalesced _collects = Coalesced();
+
   @override
   Future<int> collect({PairingCollectTrigger trigger = PairingCollectTrigger.foreground}) async {
     if (!supported || NetGate.epicboxOff) return 0;
     try {
-      return await collectOrFail(trigger);
+      // A trigger during a running collect marks one rerun; the later ones add none.
+      return await _collects.run(() => collectOrFail(trigger));
     } on lepic.WalletError catch (error) {
       logWarn('pairing', 'collect failed: ${error.kind.name}');
       return 0;
