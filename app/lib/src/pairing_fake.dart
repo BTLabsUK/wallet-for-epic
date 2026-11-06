@@ -323,7 +323,11 @@ class FakePairing implements PairingApi {
   // Test and preview hooks: the other side.
 
   /// Adds [record] as if it had been paired before (a seeded wallet, a test).
-  void seed(PairingRecord record) => _put(record);
+  void seed(PairingRecord record) {
+    _put(record);
+    // A provider that already read the list reads it again.
+    emit(PairingEvent(PairingEventKind.contactUpdated, pairingId: record.id));
+  }
 
   /// The key of the first BT Labs service, for [seedPaired]'s `peerEncKey`.
   static Uint8List get serviceKey {
@@ -395,7 +399,7 @@ class FakePairing implements PairingApi {
       peerDomain: peerDomain,
       domainStatus: peerDomain == null ? null : domainStatus ?? DomainStatus.claimed,
     );
-    _put(record);
+    seed(record);
     return record;
   }
 
