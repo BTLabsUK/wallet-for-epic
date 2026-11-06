@@ -14,7 +14,7 @@
 // A window that does nothing but host a Flutter view.
 class FlutterWindow : public Win32Window {
  public:
-  // WM_COPYDATA's dwData for an epiccash:// link a second start hands over (main.cpp).
+  // WM_COPYDATA's dwData for a link a second start hands over (main.cpp).
   static constexpr ULONG_PTR kLinkCopyDataId = 0x45504943;  // "EPIC"
   // The longest link taken, as the Dart side (lib/src/scan/incoming_link.dart).
   static constexpr size_t kMaxLinkChars = 4096;

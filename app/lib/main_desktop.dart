@@ -30,6 +30,7 @@ import 'src/desktop/app/desk_window.dart';
 import 'src/desktop/app/window_placement.dart';
 import 'src/desktop/app/shell.dart' show deskVersion;
 import 'src/desktop/data/close_down.dart';
+import 'src/desktop/data/desk_link_handler.dart';
 import 'src/desktop/data/desk_node.dart';
 import 'src/desktop/data/desk_update.dart' show deskUpdateAutoProvider;
 import 'src/desktop/keyring_check.dart';
@@ -70,7 +71,7 @@ AppLifecycleListener? _exitListener;
 /// Keeps the window's size and place (Linux, macOS); saved once more on the way out.
 DeskWindowKeeper? _windowKeeper;
 
-/// [args]: the runner's command line; a browser passes an `epiccash://` invite link there.
+/// [args]: the runner's command line; a browser passes an `epic:` or `epiccash:` link there.
 Future<void> main(List<String> args) async {
   final launch = launchArgumentsProvider.overrideWithValue(List<String>.unmodifiable(args));
   if (_mock) {
@@ -104,6 +105,7 @@ Future<void> main(List<String> args) async {
     registerPasswordListLicences();
     registerTorLicence();
     logInfo('app', 'desktop start $deskVersion, $platformLabel');
+    if (Platform.isLinux) unawaited(registerAppImageLinks());
     // Linux without a keyring to use: say so on the first screen, before libsecret is asked
     // anything (it would hold the window's thread, so no window showed).
     final keyring = await checkLinuxKeyring();

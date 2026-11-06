@@ -73,9 +73,13 @@ else
   else
     grep -q '^squashfs-root/usr/bin/bin/tor-bundle' <<<"$listing" && r=1 || r=0; check "no Tor bundle" $r
   fi
-  files=(usr/bin/btwallet usr/bin/lib/libapp.so usr/bin/lib/liblepic_ffi.so usr/bin/bin/epic)
+  files=(uk.btlabs.epiccash.desktop.desktop usr/bin/btwallet usr/bin/lib/libapp.so usr/bin/lib/liblepic_ffi.so usr/bin/bin/epic)
   [[ $tor == 1 ]] && files+=(usr/bin/bin/tor-bundle/tor)
   unsquashfs -o "$offset" -n -f -q -d "$work/x" "$img" "${files[@]}" >/dev/null
+  for s in epic epiccash; do
+    grep -q "^MimeType=.*x-scheme-handler/$s;" "$work/x/uk.btlabs.epiccash.desktop.desktop" && r=0 || r=1
+    check "the desktop file takes $s: links" $r
+  done
   for f in usr/bin/btwallet usr/bin/lib/libapp.so usr/bin/lib/liblepic_ffi.so usr/bin/bin/epic; do
     [[ -f "$work/x/$f" ]] || continue
     is_x86_64_elf "$work/x/$f" && r=0 || r=1; check "$f is ELF x86-64" $r

@@ -15,7 +15,7 @@
 struct _MyApplication {
   GtkApplication parent_instance;
   char** dart_entrypoint_arguments;
-  // epic_wallet/incoming_link: an epiccash:// link a second start handed over (open below),
+  // epic_wallet/incoming_link: a link a second start handed over (open below),
   // and one Dart did not take yet, kept for its takePending.
   FlMethodChannel* link_channel;
   gchar* pending_link;
@@ -28,10 +28,16 @@ struct _MyApplication {
 // The longest link taken, as the Dart side (lib/src/scan/incoming_link.dart).
 static const gsize kMaxLinkChars = 4096;
 
-// An epiccash:// link (the desktop file's %u, a browser's hand-off).
+// Whether arg starts with scheme (with its colon, any case) and has more after it.
+static gboolean has_scheme(const gchar* arg, const gchar* scheme) {
+  const gsize length = strlen(scheme);
+  return g_ascii_strncasecmp(arg, scheme, length) == 0 && strlen(arg) > length;
+}
+
+// An epic: or epiccash: link (the desktop file's %u, a browser's hand-off).
 static gboolean is_link_argument(const gchar* arg) {
-  return arg != nullptr && g_ascii_strncasecmp(arg, "epiccash:", 9) == 0 &&
-         strlen(arg) > 9 && strlen(arg) <= kMaxLinkChars;
+  return arg != nullptr && strlen(arg) <= kMaxLinkChars &&
+         (has_scheme(arg, "epic:") || has_scheme(arg, "epiccash:"));
 }
 
 static void link_method_cb(FlMethodChannel* channel, FlMethodCall* call, gpointer user_data) {
@@ -359,7 +365,7 @@ static gboolean my_application_local_command_line(GApplication* application,
     return TRUE;
   }
 
-  // A second start with an epiccash:// link (a browser): the running app gets it through
+  // A second start with a link (a browser): the running app gets it through
   // open, which also brings its window to the front. A first start passes it to Dart as an
   // argument instead.
   if (g_application_get_is_remote(application)) {

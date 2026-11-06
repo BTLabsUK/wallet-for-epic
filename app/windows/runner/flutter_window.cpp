@@ -96,7 +96,7 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
   }
 
   switch (message) {
-    // A second start's epiccash:// link (main.cpp).
+    // A second start's link (main.cpp).
     case WM_COPYDATA: {
       const auto* data = reinterpret_cast<const COPYDATASTRUCT*>(lparam);
       if (data != nullptr && data->dwData == kLinkCopyDataId && data->lpData != nullptr &&

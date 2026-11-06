@@ -11,10 +11,10 @@ class AppDelegate: FlutterAppDelegate {
     return true
   }
 
-  // epiccash:// links (CFBundleURLTypes in Info.plist): a cold start's arrive before the window
+  // epic: and epiccash: links (CFBundleURLTypes in Info.plist): a cold start's arrive before the window
   // and its channel exist, and wait in IncomingLink.shared for Dart's takePending.
   override func application(_ application: NSApplication, open urls: [URL]) {
-    for url in urls where url.scheme?.lowercased() == "epiccash" {
+    for url in urls where ["epic", "epiccash"].contains(url.scheme?.lowercased()) {
       IncomingLink.shared.deliver(url.absoluteString)
     }
   }
