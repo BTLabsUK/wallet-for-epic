@@ -75,13 +75,15 @@ String _meaning(AppLocalizations l, OutputLabel w, int need) => switch (w) {
     };
 
 /// The note under a row's state word: the day it came (no clock: the cell is narrow, and the
-/// sheet has the transaction), which send holds it. Confirmations have a column of their own.
+/// sheet has the transaction), which send holds it, how many blocks a maturing reward has to
+/// go. Confirmations have a column of their own.
 String? _rowNote(
   AppLocalizations l,
   WalletOutput o,
   TxEntry? tx,
   DateTime now, {
   String? who,
+  BigInt? tip,
 }) {
   final when = tx == null
       ? null
@@ -103,6 +105,10 @@ String? _rowNote(
       tx?.counterparty == null
           ? l.outputsNoteSendPlain
           : l.outputsNoteSend(who ?? shortAddress(tx!.counterparty!)),
+    OutputLabel.immature => switch (rewardBlocksToGo(o, tip)) {
+      final n? => l.deskTxStepBlocksToGo(n),
+      null => null,
+    },
     _ => null,
   };
 }
@@ -222,6 +228,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
           o,
     ];
     final now = DateTime.now();
+    final tip = tipHeight(ref);
 
     return SlotScaffold(
       appBar: AppBar(title: Text(l.outputsTitle)),
@@ -374,6 +381,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
                   o,
                   txs[o.txId],
                   now,
+                  tip: tip,
                   // The contact's name, else the short address without the own server.
                   who: contactName(ref, txs[o.txId]?.counterparty) ??
                       (txs[o.txId]?.counterparty == null
@@ -755,6 +763,13 @@ class _OutputSheet extends ConsumerWidget {
               _meaning(l, word, need),
               style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
             ),
+            if (rewardBlocksToGo(output, tipHeight(ref)) case final n?) ...[
+              const SizedBox(height: 4),
+              Text(
+                l.deskTxStepBlocksToGo(n),
+                style: theme.textTheme.bodyMedium?.copyWith(color: t.info),
+              ),
+            ],
             const SizedBox(height: 12),
             fact(
               l.outputsFactHeight,

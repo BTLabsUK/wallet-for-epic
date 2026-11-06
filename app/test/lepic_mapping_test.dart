@@ -6,6 +6,8 @@ import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:epic_wallet/src/trust/policy.dart';
 import 'package:lepic/lepic.dart' as lepic;
+import 'package:epic_wallet/src/l10n.dart' show englishStrings;
+import 'package:epic_wallet/src/ui/common.dart' show txTitle;
 
 /// Fails any native call, so a test proves the adapter refused before reaching LEPIC.
 class _NoNativeWallet implements lepic.EpicWallet {
@@ -68,6 +70,7 @@ class _SendingWallet extends _NoNativeWallet {
     outputCommits: const [],
     spentCommits: const [],
     unverified: false,
+    coinbase: false,
   );
 
   @override
@@ -381,6 +384,7 @@ void main() {
       outputCommits: const [],
       spentCommits: const [],
       unverified: false,
+      coinbase: false,
     );
     expect(lepicTxEntry(send()).undelivered, isTrue);
     // The first attempt of a send still running is undelivered for LEPIC too.
@@ -781,6 +785,7 @@ void main() {
       lepic.ImportedTx? imported,
       lepic.ScanFound? found,
       List<String> outputCommits = const [],
+      bool coinbase = false,
     }) => lepic.TransactionDetails(
       txId: 7,
       direction: direction,
@@ -805,6 +810,7 @@ void main() {
       outputCommits: outputCommits,
       spentCommits: const [],
       unverified: false,
+      coinbase: coinbase,
     );
 
     test('a send waiting for its answer can be cancelled', () {
@@ -925,6 +931,28 @@ void main() {
         ),
       );
       expect(row.source, TxSource.restored);
+    });
+
+    test('a block reward is a mining reward, whether built here or found by a scan', () {
+      final built = lepicTxEntry(
+        details(direction: lepic.TxDirection.incoming, status: lepic.TxStatus.confirmed, slateId: null, coinbase: true),
+      );
+      expect(built.kind, TxKind.coinbase);
+      expect(built.source, TxSource.wallet);
+      // A linked phone finds the desktop's reward on the chain: a reward all the same, not a
+      // row the user explains.
+      final found = lepicTxEntry(
+        details(direction: lepic.TxDirection.incoming, status: lepic.TxStatus.confirmed, slateId: null, origin: lepic.TxOrigin.foundByScan, coinbase: true),
+      );
+      expect(found.kind, TxKind.coinbase);
+      expect(found.source, TxSource.wallet);
+      expect(txTitle(englishStrings, found), englishStrings.txMiningReward);
+      // Not a reward: a scan's find stays a restored row.
+      final plain = lepicTxEntry(
+        details(direction: lepic.TxDirection.incoming, status: lepic.TxStatus.confirmed, slateId: null, origin: lepic.TxOrigin.foundByScan),
+      );
+      expect(plain.kind, TxKind.received);
+      expect(plain.source, TxSource.restored);
     });
 
     test('imported coinbase is a mining reward, and chain checks are explained', () {

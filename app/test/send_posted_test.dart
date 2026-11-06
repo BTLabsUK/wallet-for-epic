@@ -132,6 +132,7 @@ void main() {
       outputCommits: const [],
       spentCommits: const [],
       unverified: false,
+      coinbase: false,
       senderReportedPostedAtMs: reportedAtMs,
     );
 

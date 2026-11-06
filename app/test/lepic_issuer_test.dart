@@ -113,6 +113,7 @@ class _IssuerWallet implements lepic.EpicWallet {
     outputCommits: const [],
     spentCommits: const [],
     unverified: false,
+    coinbase: false,
   );
 
   void setStatus(int txId, lepic.TxStatus status) {

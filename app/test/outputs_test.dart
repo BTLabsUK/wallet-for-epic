@@ -41,6 +41,7 @@ WalletOutput _out(
   int confirmations = 10,
   int? txId,
   bool coinbase = false,
+  int lockHeight = 0,
 }) => WalletOutput(
   commitment: commitment,
   value: _epic(value),
@@ -48,7 +49,7 @@ WalletOutput _out(
   category: category,
   isCoinbase: coinbase,
   height: BigInt.from(2499000),
-  lockHeight: BigInt.zero,
+  lockHeight: BigInt.from(lockHeight),
   confirmations: BigInt.from(confirmations),
   txId: txId,
 );
@@ -213,6 +214,18 @@ void main() {
         ),
         OutputLabel.mining,
       );
+    });
+
+    test('blocks to go come from a maturing reward\'s lock height', () {
+      final reward = _out('x', 1, category: OutputCategory.immature, coinbase: true, lockHeight: 2500440);
+      expect(rewardBlocksToGo(reward, BigInt.from(2500000)), 440);
+      expect(rewardBlocksToGo(reward, BigInt.from(2500439)), 1);
+      expect(rewardBlocksToGo(reward, BigInt.from(2500440)), isNull, reason: 'matured');
+      expect(rewardBlocksToGo(reward, null), isNull, reason: 'no tip');
+      expect(rewardMaturity(reward), 1440);
+      // Not in a block yet, or not a reward: nothing to count down.
+      expect(rewardBlocksToGo(_out('y', 1, status: WalletOutputStatus.unconfirmed, category: null, coinbase: true, lockHeight: 2500440), BigInt.from(2500000)), isNull);
+      expect(rewardBlocksToGo(_out('z', 1, category: OutputCategory.awaitingConfirmation, lockHeight: 2500440), BigInt.from(2500000)), isNull);
     });
   });
 

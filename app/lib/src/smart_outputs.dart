@@ -246,6 +246,20 @@ OutputLabel outputWord(WalletOutput output) {
   }
 }
 
+/// For a mining reward in a block the chain has not reached the lock height of (an
+/// [OutputLabel.immature] output): the blocks to go until it can be spent, from the output's
+/// lock height (the core adds the network's maturity to its block). Null for any other output,
+/// for a matured reward and without a tip.
+int? rewardBlocksToGo(WalletOutput output, BigInt? tip) {
+  if (tip == null || outputWord(output) != OutputLabel.immature) return null;
+  if (output.lockHeight <= tip) return null;
+  return (output.lockHeight - tip).toInt();
+}
+
+/// Confirmations a reward needs before it can be spent: the network's maturity as the core
+/// put it in the output's lock height.
+int rewardMaturity(WalletOutput output) => (output.lockHeight - output.height).toInt();
+
 /// The part of the balance an output is in, on both platforms' Outputs pages: the one tile
 /// that counts it and the one filter that lists it (besides All), so a tile and its filter
 /// never disagree. Confirming takes the outputs awaiting finalization too; spent outputs and

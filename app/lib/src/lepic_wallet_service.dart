@@ -781,11 +781,15 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false, bool pos
       (imported != null &&
           imported.kind == lepic.ImportedTxKind.received &&
           d.slateId == null);
+  // A block reward: one this wallet built for a mining node, one a scan found on the chain (a
+  // linked phone learns of the desktop's rewards this way) or one the old wallet imported. It
+  // is this wallet's own however it came: never a row the user explains (restored).
+  final coinbase = d.coinbase || imported?.kind == lepic.ImportedTxKind.coinbase;
   return TxEntry(
     key: 'l:${d.txId}',
     id: d.txId,
     slateId: d.slateId,
-    kind: imported?.kind == lepic.ImportedTxKind.coinbase
+    kind: coinbase
         ? TxKind.coinbase
         : switch ((outgoing, ended)) {
             (true, false) => TxKind.sent,
@@ -794,7 +798,7 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false, bool pos
             (false, true) => TxKind.receivedCancelled,
           },
     status: status,
-    source: foundByScan ? TxSource.restored : TxSource.wallet,
+    source: foundByScan && !coinbase ? TxSource.restored : TxSource.wallet,
     createdAtUnix: createdAt,
     timeUnix: confirmedAt ?? createdAt,
     confirmed: status == TxStatus.confirmed,
@@ -2341,7 +2345,8 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
       : _netStream(
           'HTTP listener',
           () => _wallet
-              .startHttpListener(exposure: _lepicExposure(exposure), port: port)
+              // No coinbase building for a mining node from the phone's listener.
+              .startHttpListener(exposure: _lepicExposure(exposure), port: port, coinbase: false)
               .map(lepicHttpEvent),
         );
 

@@ -540,6 +540,30 @@ void main() {
       expect(restored.id, isNegative, reason: 'no local id: not cancellable');
     });
 
+    test('a mining reward matures by its output\'s lock height, never a fixed count', () async {
+      final s = service.session;
+      const commit = '08aa';
+      s.transactionsValue = [
+        core.fakeTx(id: 9, kind: core.TxKind.coinbase, status: core.TxStatus.confirmed, amountCredited: BigInt.from(800), blockHeight: BigInt.from(2499000), outputCommits: const [commit]),
+      ];
+      // Floonet-sized maturity (30): the core's lock height is what counts.
+      s.outputsValue = [
+        core.WalletOutput(commitment: commit, value: BigInt.from(800), status: core.WalletOutputStatus.unspent, category: core.OutputCategory.immature, isCoinbase: true, height: BigInt.from(2499000), lockHeight: BigInt.from(2499030), confirmations: BigInt.from(1001), txId: 9),
+      ];
+      await wallet.sync();
+      final tx = (await wallet.transactions()).single;
+      expect((tx.coinbase, tx.lockHeight, tx.maturity), (true, 2499030, 30));
+      // The tip is 2500000: past the lock height, so spendable.
+      expect(tx.immature, isFalse);
+      expect(tx.blocksToMature, 0);
+      // Counted at a tip 10 blocks before the lock height: 10 to go.
+      final earlier = deskTx(s.transactionsValue.single, tip: 2499020, minConf: 3, fallbackId: -1, lockHeight: 2499030);
+      expect((earlier.immature, earlier.blocksToMature, earlier.confirmations), (true, 10, 21));
+      // No lock height read yet: not shown as maturing on a guess.
+      final unread = deskTx(s.transactionsValue.single, tip: 2499020, minConf: 3, fallbackId: -1);
+      expect((unread.lockHeight, unread.immature), (null, false));
+    });
+
     test('labels and details: the adapter maps them and writes through the core', () async {
       final s = service.session;
       s.transactionsValue = [
