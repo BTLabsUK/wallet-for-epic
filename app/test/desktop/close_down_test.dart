@@ -2,6 +2,7 @@
 // Closing the app always closes: a wallet lock or a node stop that fails or never ends is
 // skipped after its limit (the window's exit hook waited on them without one).
 import 'dart:async';
+import 'dart:io' show ProcessSignal;
 
 import 'package:epic_wallet/src/desktop/data/close_down.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -33,5 +34,19 @@ void main() {
     );
     expect(watch.elapsed, lessThan(const Duration(seconds: 2)));
     expect(done, isEmpty);
+  });
+
+  test('SIGTERM or SIGINT closes the app once, however many come', () async {
+    final signals = StreamController<ProcessSignal>();
+    var closes = 0;
+    final sub = deskCloseOnSignals(() async => closes++, signals: signals.stream);
+    signals
+      ..add(ProcessSignal.sigterm)
+      ..add(ProcessSignal.sigint)
+      ..add(ProcessSignal.sigterm);
+    await pumpEventQueue();
+    expect(closes, 1);
+    await sub?.cancel();
+    await signals.close();
   });
 }

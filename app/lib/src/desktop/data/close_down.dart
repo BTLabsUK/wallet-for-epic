@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import 'dart:async';
+import 'dart:io' show Platform, ProcessSignal;
 
 import '../../last_session.dart';
 import '../../log.dart';
@@ -31,4 +32,29 @@ Future<void> deskCloseDown({
   logInfo('desk', 'closed after ${watch.elapsedMilliseconds} ms'); // l10n-ok: log text
   // A clean end: the next start offers no report of this session.
   lastSession?.clean();
+}
+
+/// Ends the app cleanly on SIGTERM or SIGINT (a logout, `kill`, Ctrl+C in a terminal) as Quit
+/// does: [close] runs once, however many signals come. Without it the process died at once,
+/// and the next start said the app closed unexpectedly. Windows has no SIGTERM to watch: none
+/// is watched there. [signals] stands in for the process's signals in tests.
+StreamSubscription<ProcessSignal>? deskCloseOnSignals(Future<void> Function() close, {Stream<ProcessSignal>? signals}) {
+  final Stream<ProcessSignal> source;
+  if (signals != null) {
+    source = signals;
+  } else {
+    if (Platform.isWindows) return null;
+    final both = StreamController<ProcessSignal>();
+    for (final s in [ProcessSignal.sigterm, ProcessSignal.sigint]) {
+      s.watch().listen(both.add);
+    }
+    source = both.stream;
+  }
+  var closing = false;
+  return source.listen((signal) {
+    if (closing) return;
+    closing = true;
+    logInfo('desk', 'closing on $signal'); // l10n-ok: log text
+    unawaited(close());
+  });
 }

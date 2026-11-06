@@ -231,6 +231,11 @@ Future<List<Override>> deskOverrides() async {
       return AppExitResponse.exit;
     },
   );
+  deskCloseOnSignals(() async {
+    await _windowKeeper?.save();
+    await deskCloseDown(disposeWallet: wallet.dispose, stopNodes: stopAllBuiltInNodes);
+    exit(0);
+  });
   // Unreadable wallet list: open Unlock, which reads it again and shows why; never Welcome,
   // which would offer to make a new wallet over an existing one.
   bool hasWallet;
