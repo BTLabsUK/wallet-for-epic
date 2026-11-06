@@ -60,18 +60,23 @@ class DomainCheck {
 
   final Set<String> _running = {};
 
-  /// A short hash of the claim [domain] and [attestation]: a changed claim is checked again.
-  static String claimKey(String domain, Uint8List? attestation) {
-    final bytes = [...domain.codeUnits, 0, ...?attestation];
-    return sha256.convert(bytes).bytes.take(6).map((b) => b.toRadixString(16).padLeft(2, '0')).join();
-  }
+  /// A short hash of the claim's [domain], then one of its [attestation]: a changed claim is
+  /// checked again.
+  static String claimKey(String domain, Uint8List? attestation) => _hash(domain.codeUnits) + _hash([...domain.codeUnits, 0, ...?attestation]);
 
-  /// Where [id]'s claim of [domain] stands: the last check of this very claim, else claimed.
-  /// Null for a contact that claims no domain.
-  DomainStatus? statusOf(String id, String? domain, Uint8List? attestation) {
+  static String _hash(List<int> bytes) => sha256.convert(bytes).bytes.take(6).map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+
+  /// Where [id]'s claim of [domain] stands: the last check of a claim of this domain, else
+  /// claimed. Null for a contact that claims no domain.
+  ///
+  /// The peer signs its claim again with the time in each pairing message and contact update,
+  /// so the attestation changes with every update. A new attestation of the same domain keeps
+  /// the last status until its check ([due] at once) has run: the update that brings a relay
+  /// move would otherwise find a proven contact merely claimed, and follow the move unasked.
+  DomainStatus? statusOf(String id, String? domain) {
     if (domain == null) return null;
     final rec = log.book.checks[id];
-    return rec != null && rec.attestation == claimKey(domain, attestation) ? rec.status : DomainStatus.claimed;
+    return rec != null && (rec.attestation?.startsWith(_hash(domain.codeUnits)) ?? false) ? rec.status : DomainStatus.claimed;
   }
 
   /// Why the last check of [id] did not prove the claim (a short code), null when it did or
@@ -94,7 +99,7 @@ class DomainCheck {
   Future<DomainStatus> run(PairingRecord p) async {
     final domain = p.peerDomain;
     if (domain == null) return DomainStatus.claimed;
-    if (!_running.add(p.id)) return statusOf(p.id, domain, p.peerDomainAttestation) ?? DomainStatus.claimed;
+    if (!_running.add(p.id)) return statusOf(p.id, domain) ?? DomainStatus.claimed;
     try {
       final key = claimKey(domain, p.peerDomainAttestation);
       final Uri url;

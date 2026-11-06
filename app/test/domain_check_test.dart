@@ -153,20 +153,34 @@ void main() {
       expect(c.due(claim()), isTrue);
     });
 
-    test('a changed attestation or domain is due at once, and shows claimed until checked', () async {
+    test('a changed attestation or domain is due at once; a changed domain shows claimed until checked', () async {
       final c = check();
       await c.run(claim());
-      expect(c.statusOf('p1', 'shop.example', Uint8List.fromList([1, 2, 3])), DomainStatus.proven);
+      expect(c.statusOf('p1', 'shop.example'), DomainStatus.proven);
       expect(c.due(claim(attestation: const [9])), isTrue);
-      expect(c.statusOf('p1', 'shop.example', Uint8List.fromList([9])), DomainStatus.claimed);
       expect(c.due(claim(domain: 'other.example')), isTrue);
+      expect(c.statusOf('p1', 'other.example'), DomainStatus.claimed);
+    });
+
+    test('a claim of the same domain signed again keeps its status until checked, then takes the new one', () async {
+      // The peer signs its claim again in each contact update, the one that brings a relay
+      // move as well: a proven contact must stay domain-backed while that update is settled.
+      final c = check();
+      await c.run(claim());
+      final resigned = claim(attestation: const [9]);
+      expect(c.statusOf('p1', 'shop.example'), DomainStatus.proven);
+      expect(c.due(resigned), isTrue);
+      verdict = (proven: false, refused: 'domain_mismatch');
+      expect(await c.run(resigned), DomainStatus.refused);
+      expect(c.statusOf('p1', 'shop.example'), DomainStatus.refused);
+      expect(c.due(resigned), isFalse);
     });
 
     test('an ended pairing and a contact with no domain are never due', () {
       final ended = PairingRecord(id: 'p4', state: PairingState.ended, way: PairingWay.link, inviter: false, createdAt: now, peerDomain: 'shop.example');
       expect(check().due(ended), isFalse);
       expect(check().due(PairingRecord(id: 'p3', state: PairingState.verified, way: PairingWay.link, inviter: false, createdAt: now)), isFalse);
-      expect(check().statusOf('p1', null, null), isNull);
+      expect(check().statusOf('p1', null), isNull);
     });
   });
 

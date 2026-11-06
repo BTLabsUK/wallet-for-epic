@@ -17,8 +17,8 @@ enum DomainStatus {
 }
 
 /// One contact's last domain check: [status], when it ran ([checkedAt], Unix ms), why it did not
-/// prove ([reason], a short code or error name) and a short hash of the claim's attestation it
-/// was made for ([attestation]), so a changed claim is checked again.
+/// prove ([reason], a short code or error name) and short hashes of the claim's domain and
+/// attestation it was made for ([attestation]), so a changed claim is checked again.
 class DomainCheckRec {
   const DomainCheckRec({required this.status, required this.checkedAt, this.reason, this.attestation});
 

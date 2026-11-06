@@ -3897,7 +3897,7 @@ class _LepicPairing implements PairingApi {
     peerEncKey: c.peerEncKey,
     peerDomain: c.peerDomain,
     peerDomainAttestation: c.peerDomainAttestation,
-    domainStatus: _domain.statusOf(c.contactId, c.peerDomain, c.peerDomainAttestation),
+    domainStatus: _domain.statusOf(c.contactId, c.peerDomain),
   ), _moves.book, DateTime.now());
 
   PairingRecord _pending(lepic.PendingPairingView p) => PairingRecord(
