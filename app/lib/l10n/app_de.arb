@@ -5336,5 +5336,9 @@
   "deskConLabelVendor": "Händler",
   "deskConLabelService": "Dienst",
   "deskConLabelDefault": "Standard",
-  "deskConLabelCurrent": "Label: {name}"
+  "deskConLabelCurrent": "Label: {name}",
+  "contactDomain": "Domain",
+  "contactDomainVerified": "verified",
+  "contactDomainNotVerified": "not verified yet",
+  "contactDomainRefused": "refused"
 }

@@ -22152,6 +22152,30 @@ abstract class AppLocalizations {
   /// **'Delivered via {relay}'**
   String contactDeliveredVia(String relay);
 
+  /// Label of the contact page row that shows the domain a contact says they own.
+  ///
+  /// In en, this message translates to:
+  /// **'Domain'**
+  String get contactDomain;
+
+  /// One word beside a contact’s domain: the domain’s own file names this contact’s key.
+  ///
+  /// In en, this message translates to:
+  /// **'verified'**
+  String get contactDomainVerified;
+
+  /// One word beside a contact’s domain: not checked yet or the check could not run (offline, no answer).
+  ///
+  /// In en, this message translates to:
+  /// **'not verified yet'**
+  String get contactDomainNotVerified;
+
+  /// One word beside a contact’s domain: the domain answered and its file does not name this contact’s key.
+  ///
+  /// In en, this message translates to:
+  /// **'refused'**
+  String get contactDomainRefused;
+
   /// Title of the dialog (desktop) or sheet (phone) when a BT Labs service contact asks to move to another Epicbox relay.
   ///
   /// In en, this message translates to:

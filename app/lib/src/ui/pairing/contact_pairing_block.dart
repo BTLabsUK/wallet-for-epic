@@ -14,6 +14,7 @@ import '../../contacts.dart';
 import '../../name_service/payment_refusals.dart' show paymentRefusalsProvider;
 import '../../trust/policy.dart' show statedAutomated;
 import '../../errors.dart';
+import '../../history/domain_check_book.dart' show DomainStatus;
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
 import '../../pairing_text.dart';
@@ -49,6 +50,8 @@ const Key contactPageMoveAskedKey = ValueKey('contact-page-move-asked');
 const Key contactPageMoveAcceptKey = ValueKey('contact-page-move-accept');
 const Key contactPageMoveRefuseKey = ValueKey('contact-page-move-refuse');
 const Key contactPageMoveLineKey = ValueKey('contact-page-move-line');
+const Key contactPageDomainKey = ValueKey('contact-page-domain');
+const Key contactPageDomainRowKey = ValueKey('contact-page-domain-row');
 
 /// The Pairing section of [contact]: [pairing] is the record the contact uses (null for
 /// none), [pending] a request sent or an answer waiting for its confirm.
@@ -401,6 +404,37 @@ class ContactPairingBlock extends ConsumerWidget {
         ],
       ),
     );
+    // The domain the contact says they own, with one word: only "verified" is a claim made good.
+    final domainRow = p.peerDomain == null
+        ? null
+        : Padding(
+            key: contactPageDomainRowKey,
+            padding: const EdgeInsetsDirectional.fromSTEB(14, 12, 6, 12),
+            child: Row(
+              children: [
+                Icon(Icons.language, size: 20, color: t.dim),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text.rich(
+                    TextSpan(
+                      text: '${l.contactDomain}: ',
+                      children: [
+                        TextSpan(text: p.peerDomain, style: TextStyle(color: theme.colorScheme.onSurface)),
+                        TextSpan(
+                          text: ' · ${switch (p.domainStatus) {
+                            DomainStatus.proven => l.contactDomainVerified,
+                            DomainStatus.refused => l.contactDomainRefused,
+                            _ => l.contactDomainNotVerified,
+                          }}',
+                        ),
+                      ],
+                    ),
+                    style: theme.textTheme.bodyMedium?.copyWith(color: t.dim),
+                  ),
+                ),
+              ],
+            ),
+          );
     final switchesLocked = busy || paused || changed || waiting;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -496,6 +530,7 @@ class ContactPairingBlock extends ConsumerWidget {
                 onChanged: switchesLocked || !verified ? null : setInvoices,
               ),
             relayRow,
+            ?domainRow,
           ],
         ),
         if (unproven)

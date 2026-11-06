@@ -5336,5 +5336,9 @@
   "deskConLabelVendor": "商家",
   "deskConLabelService": "服务",
   "deskConLabelDefault": "默认",
-  "deskConLabelCurrent": "标签：{name}"
+  "deskConLabelCurrent": "标签：{name}",
+  "contactDomain": "Domain",
+  "contactDomainVerified": "verified",
+  "contactDomainNotVerified": "not verified yet",
+  "contactDomainRefused": "refused"
 }

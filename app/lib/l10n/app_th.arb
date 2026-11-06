@@ -5336,5 +5336,9 @@
   "deskConLabelVendor": "ร้านค้า",
   "deskConLabelService": "บริการ",
   "deskConLabelDefault": "ค่าเริ่มต้น",
-  "deskConLabelCurrent": "ป้ายกำกับ: {name}"
+  "deskConLabelCurrent": "ป้ายกำกับ: {name}",
+  "contactDomain": "Domain",
+  "contactDomainVerified": "verified",
+  "contactDomainNotVerified": "not verified yet",
+  "contactDomainRefused": "refused"
 }

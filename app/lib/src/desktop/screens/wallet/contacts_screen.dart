@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../connection_grace.dart' show connectionGraceProvider;
 import '../../../contact_label.dart';
+import '../../../history/domain_check_book.dart' show DomainStatus;
 import '../../../name_service/payment_refusals.dart' show paymentRefusalsProvider;
 import '../../../trust/policy.dart' show statedAutomated;
 import '../../../recent_activity.dart' show recentActivityCount, showViewAll;
@@ -1318,6 +1321,14 @@ class DeskPairingBlock extends ConsumerStatefulWidget {
 class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
   bool _busy = false;
 
+  @override
+  void initState() {
+    super.initState();
+    // A claimed domain is checked when it is due; the lists read again if the status moved.
+    final p = widget.pairing;
+    if (p?.peerDomain != null) unawaited(ref.read(deskPairingApiProvider).checkDomain(p!.id));
+  }
+
   Future<void> _run(Future<void> Function() call) async {
     if (_busy) return;
     setState(() => _busy = true);
@@ -1601,6 +1612,16 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
                   ? EButton(key: deskContactMoveAcceptKey, label: l.relayMoveAccept, size: EBtnSize.sm, onPressed: _busy ? null : () => _run(() => deskAcceptRelayMove(ref, p, asked)))
                   : null,
             ),
+            if (p.peerDomain != null)
+              ESetRow(
+                key: deskContactDomainKey,
+                title: '${l.contactDomain}: ${p.peerDomain}',
+                text: switch (p.domainStatus) {
+                  DomainStatus.proven => l.contactDomainVerified,
+                  DomainStatus.refused => l.contactDomainRefused,
+                  _ => l.contactDomainNotVerified,
+                },
+              ),
             if (unproven)
               ESetRow(
                 key: deskContactUnprovenKey,
@@ -1659,6 +1680,7 @@ const Key deskContactMoveAskedKey = ValueKey('desk-contact-move-asked');
 const Key deskContactMoveAcceptKey = ValueKey('desk-contact-move-accept');
 const Key deskContactMoveRefuseKey = ValueKey('desk-contact-move-refuse');
 const Key deskContactRelayKey = ValueKey('desk-contact-relay');
+const Key deskContactDomainKey = ValueKey('desk-contact-domain');
 
 /// The Contacts header's Pair (secondary, glyph and label), and its key.
 const Key deskContactsPairKey = ValueKey('desk-contacts-pair');

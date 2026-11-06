@@ -13723,6 +13723,18 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String get contactDomain => 'Domain';
+
+  @override
+  String get contactDomainVerified => 'verified';
+
+  @override
+  String get contactDomainNotVerified => 'not verified yet';
+
+  @override
+  String get contactDomainRefused => 'refused';
+
+  @override
   String relayMoveTitle(String name) {
     return '$name ย้ายไปรีเลย์ใหม่แล้ว';
   }

@@ -18772,6 +18772,22 @@
       }
     }
   },
+  "contactDomain": "Domain",
+  "@contactDomain": {
+    "description": "Label of the contact page row that shows the domain a contact says they own."
+  },
+  "contactDomainVerified": "verified",
+  "@contactDomainVerified": {
+    "description": "One word beside a contact’s domain: the domain’s own file names this contact’s key."
+  },
+  "contactDomainNotVerified": "not verified yet",
+  "@contactDomainNotVerified": {
+    "description": "One word beside a contact’s domain: not checked yet or the check could not run (offline, no answer)."
+  },
+  "contactDomainRefused": "refused",
+  "@contactDomainRefused": {
+    "description": "One word beside a contact’s domain: the domain answered and its file does not name this contact’s key."
+  },
   "relayMoveTitle": "{name} moved to a new relay",
   "@relayMoveTitle": {
     "description": "Title of the dialog (desktop) or sheet (phone) when a BT Labs service contact asks to move to another Epicbox relay.",

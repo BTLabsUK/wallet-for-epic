@@ -5336,5 +5336,9 @@
   "deskConLabelVendor": "Продавец",
   "deskConLabelService": "Сервис",
   "deskConLabelDefault": "По умолчанию",
-  "deskConLabelCurrent": "Метка: {name}"
+  "deskConLabelCurrent": "Метка: {name}",
+  "contactDomain": "Domain",
+  "contactDomainVerified": "verified",
+  "contactDomainNotVerified": "not verified yet",
+  "contactDomainRefused": "refused"
 }

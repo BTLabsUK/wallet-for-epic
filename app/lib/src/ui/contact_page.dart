@@ -5,12 +5,15 @@
 /// keys-changed and relay notices, and Remove pairing. Replaces the contact sheet.
 library;
 
+import 'dart:async';
+
 import '../name_service/payment_refusals.dart' show paymentRefusalsProvider;
 import 'phone_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../contacts.dart';
+import '../history/domain_check_book.dart' show DomainStatus;
 import '../errors.dart';
 import '../initials.dart';
 import '../l10n.dart';
@@ -146,6 +149,12 @@ class _ContactPageState extends ConsumerState<ContactPage> {
     super.initState();
     _notices = ref.read(noticeProvider.notifier);
     pairingNewsOnScreen.add(_shows);
+    // The contact's claimed domain is checked when it is due; the lists read again if it moved.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final pairing = ref.read(contactPairingProvider(widget.contactId));
+      if (pairing?.peerDomain != null) unawaited(ref.read(pairingApiProvider).checkDomain(pairing!.id));
+    });
     // Epicbox off pauses the contact's pairing; say so once on the way in.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -439,6 +448,30 @@ class _Header extends ConsumerWidget {
                   if (claimed != null && claimed.isNotEmpty && claimed != contact.name) ...[
                     const SizedBox(height: 4),
                     Text(l.pairCallsThemselves(claimed), style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                  ],
+                  // Only a proven domain is shown here; claimed or refused is in the details.
+                  if (p != null && p.peerDomain != null && p.domainStatus == DomainStatus.proven) ...[
+                    const SizedBox(height: 4),
+                    Semantics(
+                      label: '${p.peerDomain}, ${l.contactDomainVerified}',
+                      excludeSemantics: true,
+                      child: Row(
+                        key: contactPageDomainKey,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.language, size: 14, color: t.dim),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              p.peerDomain!,
+                              style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ],
               ),

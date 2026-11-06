@@ -5336,5 +5336,9 @@
   "deskConLabelVendor": "Sprzedawca",
   "deskConLabelService": "Usługa",
   "deskConLabelDefault": "Domyślna",
-  "deskConLabelCurrent": "Etykieta: {name}"
+  "deskConLabelCurrent": "Etykieta: {name}",
+  "contactDomain": "Domain",
+  "contactDomainVerified": "verified",
+  "contactDomainNotVerified": "not verified yet",
+  "contactDomainRefused": "refused"
 }

@@ -1,7 +1,32 @@
 {
-  "de": [],
-  "pl": [],
-  "ru": [],
-  "th": [],
-  "zh": []
+  "de": [
+    "contactDomain",
+    "contactDomainNotVerified",
+    "contactDomainRefused",
+    "contactDomainVerified"
+  ],
+  "pl": [
+    "contactDomain",
+    "contactDomainNotVerified",
+    "contactDomainRefused",
+    "contactDomainVerified"
+  ],
+  "ru": [
+    "contactDomain",
+    "contactDomainNotVerified",
+    "contactDomainRefused",
+    "contactDomainVerified"
+  ],
+  "th": [
+    "contactDomain",
+    "contactDomainNotVerified",
+    "contactDomainRefused",
+    "contactDomainVerified"
+  ],
+  "zh": [
+    "contactDomain",
+    "contactDomainNotVerified",
+    "contactDomainRefused",
+    "contactDomainVerified"
+  ]
 }
