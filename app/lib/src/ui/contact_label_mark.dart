@@ -126,7 +126,9 @@ class AvatarLabelMark extends StatelessWidget {
     final onTap = this.onTap;
     // Nothing to draw: the default label in a list or a header.
     if (label == ContactLabel.wallet && onTap == null) return avatar;
-    final l = context.l10n;
+    // The mark sits in every contact header: where no localizations are installed (a bare
+    // test host) it names itself in English instead of throwing.
+    final l = Localizations.of<AppLocalizations>(context, AppLocalizations) ?? lookupAppLocalizations(const Locale('en'));
     final text = contactLabelMarkText(l, label);
     final side = contactLabelMarkSize(size);
     final over = contactLabelMarkOverhang(size);
