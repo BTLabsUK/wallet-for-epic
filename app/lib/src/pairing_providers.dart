@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'advanced.dart' show NetworkMode;
 import 'contacts.dart';
+import 'log.dart' show logWarn;
 import 'levels/level_providers.dart' show effectiveAdvancedProvider;
 import 'name_service/payment_refusals.dart' show PairingRefusals, PaymentRefusals;
 import 'pairing_text.dart' show pairingName, pairingStrings, unnamedPeerName;
@@ -250,6 +251,25 @@ final heldSendsProvider = Provider.family<List<TxEntry>, String>((ref, pairingId
     if (tx.pairingId == pairingId && tx.status == TxStatus.awaitingRecipient && tx.cancellable) tx,
 ]);
 
+/// The keys of the sends through the pairing [pairingId] still waiting for the recipient:
+/// outgoing, awaitingRecipient; answered, cancelled and confirmed ones are not in it.
+List<String> waitingSendKeys(Iterable<TxEntry> txs, String pairingId) => [
+  for (final t in txs)
+    if (t.pairingId == pairingId && t.kind == TxKind.sent && t.status == TxStatus.awaitingRecipient) t.key,
+];
+
+/// Posts each of [txKeys] again to the contact's new mailbox once its keys came back (RFC 10.5).
+/// A failure is logged and never shown: the 24 h card still applies.
+Future<void> repostWaitingSends(PairingApi api, Iterable<String> txKeys) async {
+  for (final key in txKeys) {
+    try {
+      await api.repostViaMailbox(key);
+    } on Object catch (e) {
+      logWarn('pairing', 'repost of a waiting send failed: ${e.runtimeType}');
+    }
+  }
+}
+
 /// The pairings whose keys a re-pair found again this session (RFC 7.8): their contact page
 /// docks "keys are back" until OK. [PairingNotices] keeps it listening.
 final keysBackProvider = NotifierProvider<KeysBack, Set<String>>(KeysBack.new);
@@ -259,7 +279,11 @@ class KeysBack extends Notifier<Set<String>> {
   Set<String> build() {
     final sub = ref.watch(pairingApiProvider).events().listen((e) {
       final id = e.pairingId;
-      if (e.kind == PairingEventKind.keysRestored && id != null) state = {...state, id};
+      if (e.kind == PairingEventKind.keysRestored && id != null) {
+        state = {...state, id};
+        final keys = waitingSendKeys(ref.read(homeProvider).value?.transactions ?? const <TxEntry>[], id);
+        if (keys.isNotEmpty) unawaited(repostWaitingSends(ref.read(pairingApiProvider), keys));
+      }
     });
     ref.onDispose(sub.cancel);
     return const {};

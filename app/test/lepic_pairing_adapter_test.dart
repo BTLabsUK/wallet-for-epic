@@ -133,6 +133,22 @@ class _PairingWallet implements lepic.EpicWallet {
 
   final List<String?> attachAddresses = [];
 
+  /// The posts again of a waiting send: contact and transaction.
+  final List<String> reposted = [];
+
+  @override
+  Future<String?> contactOfTransaction({required int txId}) async => txId == 42 ? 'bob' : null;
+
+  @override
+  Future<void> contactPostSlate({
+    required String contactId,
+    required int txId,
+    lepic.SlatePurpose? purpose,
+    required lepic.ContactRelayMode relayMode,
+  }) async {
+    reposted.add('$contactId $txId ${purpose?.name}');
+  }
+
   /// As LEPIC's `check_attach_address`: with an address, the pairing must prove that key.
   @override
   Future<void> contactAttach({required String contactId, String? appContact, String? appAddress}) async {
@@ -624,5 +640,13 @@ void main() {
       expect(wallet.moved, isEmpty);
       expect((await session.pairing.pairings()).single.relayMove, RelayMoveState.notPublic);
     });
+  });
+
+  test('adapter maps repostViaMailbox to contactPostSlate', () async {
+    await session.pairing.repostViaMailbox('l:42');
+
+    expect(wallet.reposted, ['bob 42 payment']);
+    await expectLater(session.pairing.repostViaMailbox('l:7'), throwsA(isA<WalletError>()));
+    expect(wallet.reposted, hasLength(1));
   });
 }
