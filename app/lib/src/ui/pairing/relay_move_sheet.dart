@@ -22,7 +22,7 @@ const Key relayMoveRefuseKey = ValueKey('relay-move-refuse');
 
 /// Whether [relay] is missing from the Epicbox servers, so Accept adds it.
 bool relayMoveAddsServer(WidgetRef ref, String relay) {
-  final chain = ref.read(networkChoiceProvider).value?.preset.chain;
+  final chain = ref.watch(networkChoiceProvider).value?.preset.chain;
   if (chain == null) return false;
   final list = ref.watch(serverListProvider((ServerKind.relay, chain))).value;
   return list != null && !list.has(ServerKind.relay, relayLabelOf(relay));
