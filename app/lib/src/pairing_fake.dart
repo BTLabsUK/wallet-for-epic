@@ -21,7 +21,7 @@ import 'models.dart';
 import 'pairing_api.dart';
 import 'recipient.dart';
 import 'sas_table.dart';
-import 'trust/policy.dart' show featureStatusNotices;
+import 'trust/policy.dart' show featureStatusNotices, statedAutomated;
 import 'wallet_service.dart' show FakeWalletSession, fakeTx;
 
 /// The fake's links: `epiccash://<path>/1/<base64url of a JSON object>`.
@@ -96,14 +96,14 @@ class FakePairing implements PairingApi {
   /// Contacts that do not answer a check, besides those whose relay is down.
   final Set<String> silent = {};
 
-  /// As the real check without the wait: a paired shop or exchange that is not ended is asked;
+  /// As the real check without the wait: a paired automated contact that is not ended is asked;
   /// one that is silent or on a relay that is down is "Not answering", the rest are reachable.
   @override
   Future<Map<String, ContactCheckOutcome>> checkContacts({Duration? wait, Duration every = contactCheckEvery, Set<String>? only}) async {
     final outcomes = <String, ContactCheckOutcome>{};
     if (!enabled) return outcomes;
     for (final r in [...records]) {
-      if (only != null ? !only.contains(r.id) : r.kind == PairingParty.person) continue;
+      if (only != null ? !only.contains(r.id) : !statedAutomated(r.peerProfile)) continue;
       if (r.ended || !(r.state == PairingState.paired || r.state == PairingState.verified)) continue;
       checked.add(r.id);
       final silentNow = silent.contains(r.id) || r.relayDown;

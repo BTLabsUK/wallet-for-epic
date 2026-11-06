@@ -38,7 +38,7 @@ import 'network.dart' show EpicboxRelay;
 import 'network_gate.dart';
 import 'pin_wrap.dart';
 import 'tor_build.dart';
-import 'trust/policy.dart' show PeerCompat, appHostFeatures;
+import 'trust/policy.dart' show PeerCompat, appHostFeatures, statedAutomated;
 import 'send_route.dart' show HostScope, plainHttpGoesDirect, plainHttpHeldNow, urlHostScope;
 import 'redact.dart';
 import 'sealed_file.dart';
@@ -3634,10 +3634,10 @@ class _LepicPairing implements PairingApi {
     return sent != null && c.endedReason == null && (c.lastSealedInMs ?? c.createdAtMs).toInt() <= sent;
   }
 
-  /// A paired shop or exchange whose pairing has not ended: the contacts a check asks. People are
+  /// A paired automated contact (its card says so) whose pairing has not ended: the contacts a check asks. People are
   /// offline often and are not checked.
   bool _checkable(lepic.ContactView c, {bool anyKind = false}) =>
-      (anyKind || c.kind == lepic.ContactKind.shop || c.kind == lepic.ContactKind.exchange) &&
+      (anyKind || statedAutomated(c.peerProfile)) &&
       (c.state == lepic.PairingState.paired || c.state == lepic.PairingState.verified) &&
       c.endedReason == null &&
       !c.removedByPeer;

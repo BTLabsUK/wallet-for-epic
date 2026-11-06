@@ -372,16 +372,35 @@ void main() {
 
   test('a backup restore checks every restored pairing once, whatever its kind or profile', () async {
     api.seedPaired(id: 'p1', name: 'Anna', contactId: 'c1', peerVerifiedAt: now);
-    api.seedPaired(id: 'p2', name: 'Shop', kind: PairingParty.shop, contactId: 'c2');
+    api.seedPaired(id: 'p2', name: 'Shop', kind: PairingParty.shop, peerProfile: 2, contactId: 'c2');
     api.seedPaired(id: 'p3', name: 'Closed', contactId: 'c3', peerProfile: 3);
     final other = FakeWalletSession().pairing;
     expect(other.importBackup(api.exportBackup()), 3);
     expect(other.checked, ['p1', 'p2', 'p3']);
     expect((await other.pairing('p3'))!.peerProfile, 3);
-    // A routine check keeps its own choice: the shop only.
+    // A routine check keeps its own choice: the contacts whose card says automated.
     other.checked.clear();
     await other.checkContacts();
-    expect(other.checked, ['p2']);
+    expect(other.checked, ['p2', 'p3']);
+  });
+
+  test('an old backup that names a shop or exchange kind, or one this build does not know, still restores', () async {
+    final other = FakeWalletSession().pairing;
+    final restored = other.importBackup({
+      'records': [
+        {'id': 'old-shop', 'state': 'verified', 'name': 'Shop', 'kind': 'shop', 'contact_id': 'c1'},
+        {'id': 'old-ex', 'state': 'paired', 'name': 'Exchange', 'kind': 'exchange', 'contact_id': 'c2'},
+        {'id': 'old-new', 'state': 'paired', 'name': 'Future', 'kind': 'robot', 'contact_id': 'c3'},
+      ],
+    });
+    expect(restored, 3);
+    for (final id in ['old-shop', 'old-ex', 'old-new']) {
+      expect(await other.pairing(id), isNotNull);
+    }
+    // The kind decides nothing: none of them is automated, so a routine check skips them.
+    other.checked.clear();
+    await other.checkContacts();
+    expect(other.checked, isEmpty);
   });
 
   group('which pairing a contact uses', () {

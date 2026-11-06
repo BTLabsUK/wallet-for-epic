@@ -512,15 +512,15 @@ void main() {
     void hear(String id, {String? requested, String? relay}) {
       final i = wallet.paired.indexWhere((c) => c.contactId == id);
       final c = wallet.paired[i];
-      wallet.paired[i] = _view(id, kind: c.kind, heard: DateTime.now().millisecondsSinceEpoch + 5, requested: requested, relay: relay ?? c.homeRelay!);
+      wallet.paired[i] = _view(id, kind: c.kind, peerProfile: c.peerProfile, heard: DateTime.now().millisecondsSinceEpoch + 5, requested: requested, relay: relay ?? c.homeRelay!);
     }
 
-    test('asks shops and exchanges that are not ended, not people; heard after is reachable, silence is not answering', () async {
+    test('asks automated contacts (card profile) that are not ended, not people; heard after is reachable, silence is not answering', () async {
       wallet.paired.addAll([
-        _view('shop', kind: lepic.ContactKind.shop, heard: longAgo),
-        _view('ex', kind: lepic.ContactKind.exchange, heard: longAgo),
+        _view('shop', peerProfile: 2, heard: longAgo),
+        _view('ex', peerProfile: 2, heard: longAgo),
         _view('anna', kind: lepic.ContactKind.person, heard: longAgo),
-        _view('old', kind: lepic.ContactKind.shop, heard: longAgo, removed: true),
+        _view('old', peerProfile: 2, heard: longAgo, removed: true),
       ]);
       wallet.onCollect = (only) => hear('shop');
 
@@ -540,7 +540,7 @@ void main() {
     });
 
     test('Not answering lasts until the contact is heard again', () async {
-      wallet.paired.add(_view('ex', kind: lepic.ContactKind.exchange, heard: longAgo));
+      wallet.paired.add(_view('ex', peerProfile: 2, heard: longAgo));
       await session.pairing.checkContacts(wait: wait, every: every);
       expect((await session.pairing.pairings()).single.notAnswering, isTrue);
 
@@ -549,7 +549,7 @@ void main() {
     });
 
     test('a later check that is answered clears it', () async {
-      wallet.paired.add(_view('ex', kind: lepic.ContactKind.exchange, heard: longAgo));
+      wallet.paired.add(_view('ex', peerProfile: 2, heard: longAgo));
       await session.pairing.checkContacts(wait: wait, every: every);
       wallet.onCollect = (only) => hear('ex');
       final outcomes = await session.pairing.checkContacts(wait: wait, every: every);
@@ -560,8 +560,8 @@ void main() {
 
     test('a check that cannot be sent leaves the others to go on', () async {
       wallet.paired.addAll([
-        _view('bad', kind: lepic.ContactKind.shop, heard: longAgo),
-        _view('good', kind: lepic.ContactKind.shop, heard: longAgo),
+        _view('bad', peerProfile: 2, heard: longAgo),
+        _view('good', peerProfile: 2, heard: longAgo),
       ]);
       wallet.checkFails.add('bad');
       wallet.onCollect = (only) => hear('good');
@@ -574,7 +574,7 @@ void main() {
     });
 
     test('a home relay that does not answer is not answering before the wait ends', () async {
-      wallet.paired.add(_view('ex', kind: lepic.ContactKind.exchange, heard: longAgo));
+      wallet.paired.add(_view('ex', peerProfile: 2, heard: longAgo));
       wallet.unreachable = [_relay];
       wallet.eventSink.add(const lepic.WalletEvent(kind: lepic.WalletEventKind.homeRelayUnreachable, relay: _relay));
       await _settle();
@@ -586,7 +586,7 @@ void main() {
     });
 
     test('an answer that names a listed relay is followed', () async {
-      wallet.paired.add(_view('shop', kind: lepic.ContactKind.shop, heard: longAgo));
+      wallet.paired.add(_view('shop', peerProfile: 2, heard: longAgo));
       wallet.onCollect = (only) => hear('shop', requested: 'listed.example.org:443');
 
       final outcomes = await session.pairing.checkContacts(wait: wait, every: every);
@@ -597,7 +597,7 @@ void main() {
     });
 
     test('an answer that names a relay not listed tells the user once', () async {
-      wallet.paired.add(_view('shop', kind: lepic.ContactKind.shop, heard: longAgo));
+      wallet.paired.add(_view('shop', peerProfile: 2, heard: longAgo));
       wallet.onCollect = (only) => hear('shop', requested: 'other.example.org');
 
       final outcomes = await session.pairing.checkContacts(wait: wait, every: every);
