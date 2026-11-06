@@ -8,6 +8,7 @@ import 'package:epic_wallet/src/levels/relay_switch_providers.dart';
 import 'package:epic_wallet/src/network.dart';
 import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
+import 'package:epic_wallet/src/onion_notice.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart' show FakeRelayProbe, relayProbeProvider;
 import 'package:epic_wallet/src/ui/contacts_screen.dart';
@@ -75,6 +76,7 @@ Future<void> _pump(WidgetTester tester, {required String level, _Offer? offer, b
   final store = MemorySecretStore({
     'app.level': level,
     'wallet.mainnet.backedUp': '1',
+    onionNoticeKey('mainnet', null): onionNoticeSeen,
   });
   final session = FakeWalletSession(
     summary: WalletSummary(

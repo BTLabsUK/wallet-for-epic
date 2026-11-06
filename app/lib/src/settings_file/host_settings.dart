@@ -289,8 +289,6 @@ class AppConfig {
   String? get linkSource => _orNull(_text('links.source'));
   String? get linkPrivacy => _orNull(_text('links.privacy'));
 
-  /// The page behind the one-time notice about the changed Tor address (onion_notice.dart).
-
   // [explorer]
 
   /// The explorer's page of the block at [height]; null when no explorer is configured.
