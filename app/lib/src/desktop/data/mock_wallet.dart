@@ -1053,7 +1053,7 @@ class MockDeskWallet implements DeskWalletApi {
     final id = contact.id.isEmpty ? 'c${DateTime.now().microsecondsSinceEpoch}' : contact.id;
     _contacts.removeWhere((c) => c.id == id);
     _contacts.add(
-      Contact(id: id, name: contact.name, epicbox: contact.epicbox, http: contact.http, tor: contact.tor, note: contact.note, favourite: contact.favourite, lastUsed: contact.lastUsed, hasPicture: contact.hasPicture),
+      Contact(id: id, name: contact.name, epicbox: contact.epicbox, http: contact.http, tor: contact.tor, note: contact.note, label: contact.label, favourite: contact.favourite, lastUsed: contact.lastUsed, hasPicture: contact.hasPicture),
     );
     // A payment to one of its addresses takes its name, as the real wallet's rows do.
     for (final (i, t) in _txs.indexed) {

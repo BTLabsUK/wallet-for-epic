@@ -5320,5 +5320,12 @@
   "pairEndedRowPeerMismatch": "报告了词语不一致。",
   "pairEndedRowNeverFinished": "其钱包始终未完成。",
   "pairEndedRowUnpaired": "已移除配对。",
-  "deskSendErrOwnNamed": "这是当前打开的钱包“{wallet}”。要向它付款，请先打开另一个钱包。"
+  "deskSendErrOwnNamed": "这是当前打开的钱包“{wallet}”。要向它付款，请先打开另一个钱包。",
+  "deskConLabelTitle": "标签",
+  "deskConLabelWallet": "普通钱包",
+  "deskConLabelExchange": "交易所",
+  "deskConLabelVendor": "商家",
+  "deskConLabelService": "服务",
+  "deskConLabelDefault": "默认",
+  "deskConLabelCurrent": "标签：{name}"
 }

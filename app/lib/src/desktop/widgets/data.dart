@@ -9,6 +9,7 @@ import '../desk_l10n.dart';
 import '../../ui/pairing/pairing_parts.dart' show PairAvatar;
 import '../../ui/theme/brand.dart' show MarkedQr;
 import '../../amount.dart' show AmountSurface, epicFor, epicUnit, exactDecimals;
+import '../../contact_label.dart';
 import '../../initials.dart';
 import '../../text_join.dart' show noBreakSpace, withUnit;
 import '../../trust_ids.dart' show TrustId;
@@ -23,9 +24,13 @@ import 'tip.dart';
 /// A contact's or wallet's initials in the phone's avatar tile ([PairAvatar]: the gold corner
 /// brackets, the grid, gold initials), the one standard on both apps (UP-011).
 class EAvatar extends StatelessWidget {
-  const EAvatar(this.name, {super.key, this._size});
+  const EAvatar(this.name, {super.key, this._size, this.label = ContactLabel.wallet, this.onLabelTap});
 
   final String name;
+
+  /// The user's label for the contact: a mark on the avatar's corner (see [PairAvatar]).
+  final ContactLabel label;
+  final VoidCallback? onLabelTap;
   final double? _size;
   double get size => _size ?? 32.u;
 
@@ -36,7 +41,19 @@ class EAvatar extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => ExcludeSemantics(child: PairAvatar(name: name, size: size));
+  Widget build(BuildContext context) {
+    final tapped = onLabelTap != null;
+    final avatar = PairAvatar(
+      name: name,
+      size: size,
+      label: label,
+      onLabelTap: onLabelTap,
+      labelHit: 32.u,
+      labelTip: (message, child) => ETip(message, onClick: false, excludeFromSemantics: true, child: child),
+    );
+    // The mark carries its own name; the tile alone is decoration.
+    return label == ContactLabel.wallet && !tapped ? ExcludeSemantics(child: avatar) : avatar;
+  }
 }
 
 /// Confirmation ring: an arc for the count out of [needed], a check when done, a dashed

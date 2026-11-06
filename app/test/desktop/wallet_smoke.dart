@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:epic_wallet/l10n/app_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:epic_wallet/src/desktop/app/desk_app.dart' show DeskTextScaler;
 import 'package:epic_wallet/src/desktop/app/routes.dart';
@@ -43,6 +44,8 @@ void smokeWalletShots(List<(Size, double)> runs) {
             container: container,
             child: MaterialApp(
               theme: buildDeskTheme(Brightness.dark),
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
               builder: (context, child) {
                 final mq = MediaQuery.of(context);
                 return MediaQuery(data: mq.copyWith(textScaler: DeskTextScaler(mq.textScaler, deskScale)), child: child!);

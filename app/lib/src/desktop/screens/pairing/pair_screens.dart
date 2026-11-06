@@ -10,6 +10,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+
+import '../../../contact_label.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -44,6 +46,7 @@ import '../../desk_l10n.dart';
 import '../../widgets/kit.dart';
 import '../devices/link_flow.dart' show showDeskLinkDevice;
 import 'name_service_dialogs.dart';
+import '../wallet/contact_label_menu.dart' show ContactLabelField;
 import 'add_to_contacts_button.dart' show DeskAddToContactsButton;
 import '../transfer/contact_picker.dart' show showContactPicker;
 
@@ -1082,9 +1085,10 @@ Future<bool> deskPutPairingInContacts(BuildContext context, WidgetRef ref, Pairi
 Future<bool> _deskSaveAsNewContact(BuildContext context, WidgetRef ref, PairingRecord r) async {
   final l = context.l10n;
   // The form owns its field: it is disposed with the dialog, after the close animation.
-  final saved = await showEDialog<String>(context, builder: (_) => _SaveContactDialog(record: r, defaultName: l.pairDefaultLabel((ref.read(deskProvider).contacts?.length ?? 0) + 1)));
-  if (saved == null || saved.isEmpty || !context.mounted) return false;
-  final contactId = await ref.read(deskProvider.notifier).saveContact(Contact(id: '', name: saved));
+  final form = await showEDialog<(String, ContactLabel)>(context, builder: (_) => _SaveContactDialog(record: r, defaultName: l.pairDefaultLabel((ref.read(deskProvider).contacts?.length ?? 0) + 1)));
+  if (form == null || form.$1.isEmpty || !context.mounted) return false;
+  final saved = form.$1;
+  final contactId = await ref.read(deskProvider.notifier).saveContact(Contact(id: '', name: saved, label: form.$2));
   final attached = await deskPairingCall(ref, (api) => api.attach(r.id, contactId));
   await deskWriteProvenAddress(ref, attached);
   if (context.mounted) showEToast(context, l.pairSavedAs(saved), tone: ETone.ok);
@@ -1141,6 +1145,7 @@ class _SaveContactDialog extends StatefulWidget {
 
 class _SaveContactDialogState extends State<_SaveContactDialog> {
   late final _text = TextEditingController(text: isUnnamed(widget.record.name) ? widget.defaultName : widget.record.shownName);
+  var _label = ContactLabel.wallet;
 
   @override
   void dispose() {
@@ -1164,11 +1169,13 @@ class _SaveContactDialogState extends State<_SaveContactDialog> {
             SizedBox(height: Sp.x3),
             EField(label: l.deskConFieldAddress, child: Text(a, style: context.ts.mono())),
           ],
+          SizedBox(height: Sp.x3),
+          EField(label: l.deskConLabelTitle, child: ContactLabelField(value: _label, onChanged: (v) => setState(() => _label = v))),
         ],
       ),
       actions: [
         EButton(label: l.commonCancel, onPressed: () => Navigator.pop(context)),
-        EButton.primary(label: l.deskConSave, onPressed: () => Navigator.pop(context, _text.text.trim())),
+        EButton.primary(label: l.deskConSave, onPressed: () => Navigator.pop(context, (_text.text.trim(), _label))),
       ],
     );
   }

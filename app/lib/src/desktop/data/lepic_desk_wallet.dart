@@ -2392,6 +2392,7 @@ class LepicDeskWallet implements DeskWalletApi {
           http: c.http,
           tor: c.tor,
           note: c.note,
+          label: c.label,
           favourite: favourites.contains(c.id),
           lastUsed: [for (final a in c.addresses) lastUsed(a)].nonNulls.fold<DateTime?>(null, (a, b) => a == null || b.isAfter(a) ? b : a),
         ),
@@ -3198,6 +3199,7 @@ class LepicDeskWallet implements DeskWalletApi {
           http: contact.http,
           tor: contact.tor,
           note: contact.note,
+          label: contact.label,
         ),
       );
       final favourites = await _favourites();
@@ -3350,7 +3352,7 @@ class LepicDeskWallet implements DeskWalletApi {
               (!rec.containsKey('name') || c.name == rec['name']) &&
               (!rec.containsKey('note') || c.note == rec['note']);
           if (untouched && (c.address != s.address || c.name != s.name || c.note != s.note)) {
-            await session.saveContact(contact: core.Contact(id: c.id, name: s.name, address: s.address, note: s.note));
+            await session.saveContact(contact: core.Contact(id: c.id, name: s.name, address: s.address, note: s.note, label: c.label));
             seeds[s.id] = _seedRecord(c.id, s);
             changed = true;
           }

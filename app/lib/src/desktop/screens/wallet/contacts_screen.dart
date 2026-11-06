@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../connection_grace.dart' show connectionGraceProvider;
+import '../../../contact_label.dart';
 import '../../../name_service/payment_refusals.dart' show paymentRefusalsProvider;
 import '../../../trust/policy.dart' show statedAutomated;
 import '../../../recent_activity.dart' show recentActivityCount, showViewAll;
@@ -23,6 +24,7 @@ import '../../data/pairing_state.dart';
 import '../pairing/name_service_dialogs.dart' show DeskNameServiceBlock;
 import '../pairing/add_to_contacts_button.dart' show DeskAddToContactsButton;
 import '../pairing/pair_screens.dart';
+import 'contact_label_menu.dart';
 import 'contact_trust_line.dart';
 import 'contacts_transfer.dart';
 import 'tx_display.dart';
@@ -439,15 +441,17 @@ class _Empty extends ConsumerWidget {
 
 /// The contact's picture (the mock draws a placeholder), else its initials.
 class _Pic extends StatelessWidget {
-  const _Pic({required this.name, required this.picture, required this.size});
+  const _Pic({required this.name, required this.picture, required this.size, this.label = ContactLabel.wallet, this.onLabelTap});
 
   final String name;
   final bool picture;
   final double size;
+  final ContactLabel label;
+  final VoidCallback? onLabelTap;
 
   @override
   Widget build(BuildContext context) {
-    if (!DeskFeatures.contactPictures || !picture) return EAvatar(name, size: size);
+    if (!DeskFeatures.contactPictures || !picture) return EAvatar(name, size: size, label: label, onLabelTap: onLabelTap);
     final c = context.dc;
     return ExcludeSemantics(
       child: Container(
@@ -625,7 +629,7 @@ class _ContactRowState extends ConsumerState<_ContactRow> {
             decoration: BoxDecoration(color: widget.selected ? c.s3 : (_hover ? c.hover : null), borderRadius: BorderRadius.circular(Rad.sm)),
             child: Row(
               children: [
-                _Pic(name: x.name, picture: x.hasPicture, size: 40.u),
+                _Pic(name: x.name, picture: x.hasPicture, size: 40.u, label: x.label),
                 SizedBox(width: 14.u),
                 Expanded(
                   child: EAddressLines(
@@ -745,7 +749,17 @@ class _ContactDetail extends ConsumerWidget {
       children: [
         Row(
           children: [
-            _Pic(name: x.name, picture: x.hasPicture, size: 56.u),
+            ContactLabelMenu(
+              current: x.label,
+              onPicked: (picked) {
+                if (picked == x.label) return;
+                // The contact as it stands: every other field is kept.
+                ref.read(deskProvider.notifier).saveContact(x.copyWith(label: picked)).then<void>((_) {}, onError: (Object e) {
+                  if (context.mounted) showEToast(context, deskErrorText(e, l), tone: ETone.risk);
+                });
+              },
+              builder: (context, open) => _Pic(name: x.name, picture: x.hasPicture, size: 56.u, label: x.label, onLabelTap: open),
+            ),
             SizedBox(width: Sp.x4),
             Expanded(
               child: Column(
@@ -1096,6 +1110,7 @@ class _ContactFormState extends ConsumerState<_ContactForm> {
               http: of(RecipientKind.http),
               tor: of(RecipientKind.tor),
               note: _note.text.trim().isEmpty ? null : _note.text.trim(),
+              label: widget.contact?.label ?? ContactLabel.wallet,
               favourite: widget.contact?.favourite ?? false,
               lastUsed: widget.contact?.lastUsed,
               hasPicture: _picture,
@@ -1491,7 +1506,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
                 size: EBtnSize.sm,
                 onPressed: () => _run(() async {
                   await ref.read(deskProvider.notifier).saveContact(
-                    Contact(id: x.id, name: x.name, epicbox: p.paymentsAddress, http: x.http, tor: x.tor, note: x.note, favourite: x.favourite, lastUsed: x.lastUsed, hasPicture: x.hasPicture),
+                    Contact(id: x.id, name: x.name, epicbox: p.paymentsAddress, http: x.http, tor: x.tor, note: x.note, label: x.label, favourite: x.favourite, lastUsed: x.lastUsed, hasPicture: x.hasPicture),
                   );
                 }),
               ),

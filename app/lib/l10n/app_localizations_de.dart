@@ -20694,4 +20694,27 @@ class AppLocalizationsDe extends AppLocalizations {
   String deskSendErrOwnNamed(String wallet) {
     return 'Das ist „$wallet“, die gerade geöffnete Wallet. Um sie zu bezahlen, öffne zuerst eine andere Wallet.';
   }
+
+  @override
+  String get deskConLabelTitle => 'Label';
+
+  @override
+  String get deskConLabelWallet => 'Nur eine Wallet';
+
+  @override
+  String get deskConLabelExchange => 'Börse';
+
+  @override
+  String get deskConLabelVendor => 'Händler';
+
+  @override
+  String get deskConLabelService => 'Dienst';
+
+  @override
+  String get deskConLabelDefault => 'Standard';
+
+  @override
+  String deskConLabelCurrent(String name) {
+    return 'Label: $name';
+  }
 }

@@ -14,6 +14,8 @@ import '../../pairing_providers.dart';
 import '../../pairing_text.dart';
 import '../../wallet_service.dart';
 import '../badge.dart';
+import '../../contact_label.dart';
+import '../contact_label_mark.dart';
 import '../contact_page.dart' show contactInitials;
 import '../info_hint.dart';
 import '../notices.dart' show InlineNotice, NoticeLevel;
@@ -313,15 +315,33 @@ class SealedBadge extends StatelessWidget {
 
 /// A contact's avatar: its initials in a corner-ticked tile, in the accent's text colour.
 class PairAvatar extends StatelessWidget {
-  const PairAvatar({super.key, required this.name, this.size = 48});
+  const PairAvatar({
+    super.key,
+    required this.name,
+    this.size = 48,
+    this.label = ContactLabel.wallet,
+    this.onLabelTap,
+    this.labelHit = 48,
+    this.labelTip,
+  });
 
   final String name;
   final double size;
 
+  /// The user's label for this contact, drawn as a mark in the bottom-right corner. The
+  /// default draws nothing, unless [onLabelTap] is given.
+  final ContactLabel label;
+
+  /// Makes the mark a button (the faint wallet mark for the default): it opens the picker.
+  /// The widget is then larger than [size] by the part of the hit area past the corner.
+  final VoidCallback? onLabelTap;
+  final double labelHit;
+  final Widget Function(String message, Widget child)? labelTip;
+
   @override
   Widget build(BuildContext context) {
     final t = context.tokens;
-    return GlyphTile(
+    final tile = GlyphTile(
       size: size,
       child: Text(
         contactInitials(name),
@@ -333,6 +353,7 @@ class PairAvatar extends StatelessWidget {
         ),
       ),
     );
+    return AvatarLabelMark(avatar: tile, size: size, label: label, onTap: onLabelTap, hit: labelHit, tip: labelTip);
   }
 }
 

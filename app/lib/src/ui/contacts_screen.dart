@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../contact_label.dart';
 import '../contacts.dart';
 import '../name_service/payment_refusals.dart' show paymentRefusalsProvider;
 import '../errors.dart';
@@ -564,7 +565,7 @@ class _ContactRow extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Row(
             children: [
-              PairAvatar(name: contact.name, size: 48),
+              PairAvatar(name: contact.name, size: 48, label: contact.label),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -804,6 +805,7 @@ class _ContactEditScreenState extends ConsumerState<ContactEditScreen> {
               http: of(RecipientKind.http),
               tor: of(RecipientKind.tor),
               note: note.isEmpty ? null : note,
+              label: widget.contact?.label ?? ContactLabel.wallet,
             ),
           );
       if (mounted) Navigator.pop(context, saved);

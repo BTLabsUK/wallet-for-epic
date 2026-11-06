@@ -20443,4 +20443,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskSendErrOwnNamed(String wallet) {
     return 'This is “$wallet”, the wallet open now. To pay it, open another wallet first.';
   }
+
+  @override
+  String get deskConLabelTitle => 'Label';
+
+  @override
+  String get deskConLabelWallet => 'Just a wallet';
+
+  @override
+  String get deskConLabelExchange => 'Exchange';
+
+  @override
+  String get deskConLabelVendor => 'Vendor';
+
+  @override
+  String get deskConLabelService => 'Service';
+
+  @override
+  String get deskConLabelDefault => 'Default';
+
+  @override
+  String deskConLabelCurrent(String name) {
+    return 'Label: $name';
+  }
 }

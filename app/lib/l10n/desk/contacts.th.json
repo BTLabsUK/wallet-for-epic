@@ -49,5 +49,12 @@
   "deskConKeep": "เก็บไว้",
   "deskConDeleteAction": "ลบผู้ติดต่อ",
   "deskConPickForPairing": "การจับคู่จะเพิ่มไปยังผู้ติดต่อที่คุณเลือก",
-  "deskConExportDo": "ส่งออก"
+  "deskConExportDo": "ส่งออก",
+  "deskConLabelTitle": "ป้ายกำกับ",
+  "deskConLabelWallet": "แค่กระเป๋าเงิน",
+  "deskConLabelExchange": "ตลาดแลกเปลี่ยน",
+  "deskConLabelVendor": "ร้านค้า",
+  "deskConLabelService": "บริการ",
+  "deskConLabelDefault": "ค่าเริ่มต้น",
+  "deskConLabelCurrent": "ป้ายกำกับ: {name}"
 }

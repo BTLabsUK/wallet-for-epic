@@ -10,6 +10,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../contact_label.dart';
 import '../../contacts.dart';
 import '../../name_service/name_service.dart';
 import '../../name_service/phone_name_service.dart';
@@ -22,6 +23,8 @@ import '../../wallet_service.dart';
 import '../app_dialog.dart';
 import '../common.dart';
 import '../contact_page.dart' show ContactPage;
+import '../contact_label_mark.dart' show ContactLabelGlyph, contactLabelName;
+import '../contact_label_picker.dart' show showContactLabelPicker;
 import '../contacts_screen.dart';
 import '../status_icons.dart';
 import '../theme/brand.dart';
@@ -39,6 +42,7 @@ const Key checkDoneKey = ValueKey('check-done');
 const Key checkAllowKey = ValueKey('check-allow');
 const Key resultAllowKey = ValueKey('result-allow');
 const Key resultSaveNewKey = ValueKey('result-save-new');
+const Key resultLabelRowKey = ValueKey('result-label-row');
 const Key resultAddToNamedKey = ValueKey('result-add-to-named');
 
 /// Asks before removing the pairing with [name]: Keep, or Remove in risk. Undoing it
@@ -379,6 +383,14 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
   String? _attachedTo;
   bool _left = false;
 
+  /// The label for the contact this saves; the default writes nothing.
+  ContactLabel _label = ContactLabel.wallet;
+
+  Future<void> _pickLabel() async {
+    final picked = await showContactLabelPicker(context, _label);
+    if (picked != null && mounted) setState(() => _label = picked);
+  }
+
   Future<void> _run(Future<void> Function() call) async {
     if (_busy) return;
     setState(() => _busy = true);
@@ -394,7 +406,9 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
   Future<void> _saveNew(PairingRecord r) async {
     final saved = await savePairingAsNewContact(context, r);
     if (saved == null || !mounted) return;
-    await _attach(r, saved);
+    final stored = _label == ContactLabel.wallet ? saved : await ref.read(contactsProvider.notifier).save(saved.copyWith(label: _label));
+    if (!mounted) return;
+    await _attach(r, stored);
   }
 
   Future<void> _addTo(PairingRecord r) async {
@@ -540,7 +554,18 @@ class _PairingResultScreenState extends ConsumerState<PairingResultScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(l.pairSaveContactTitle(name), style: theme.textTheme.titleSmall),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 6),
+                      ListTile(
+                        key: resultLabelRowKey,
+                        contentPadding: EdgeInsets.zero,
+                        enabled: !_busy,
+                        leading: ContactLabelGlyph(_label, size: 24, color: _label == ContactLabel.wallet ? t.faint : t.dim),
+                        title: Text(l.deskConLabelTitle),
+                        subtitle: Text(contactLabelName(l, _label)),
+                        trailing: Icon(Icons.chevron_right, color: t.faint),
+                        onTap: _pickLabel,
+                      ),
+                      const SizedBox(height: 6),
                       if (suggested != null) ...[
                         FilledButton(
                           key: resultAddToNamedKey,

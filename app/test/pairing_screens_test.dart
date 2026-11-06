@@ -470,6 +470,7 @@ void main() {
       expect(find.byKey(contactPageUnprovenKey), findsOneWidget);
       expect(find.text(_l.pairAddressNotConfirmed), findsOneWidget);
       await tester.ensureVisible(find.byKey(contactPagePairAgainUnprovenKey));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(contactPagePairAgainUnprovenKey));
       await tester.pumpAndSettle();
       expect(find.byType(PairScreen), findsOneWidget, reason: 'not a proven peer: the Pair screen framed for the contact');
