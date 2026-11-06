@@ -18714,19 +18714,9 @@
   "@contactSealPayments": {
     "description": "Switch label. Label only; the info icon explains."
   },
-  "contactSealInfo": "Transaction files are encrypted (sealed) and readable only by {name}.",
-  "@contactSealInfo": {
-    "description": "Info sheet / tooltip for Seal payments. Use the contact’s pronoun where the language has one; English uses the name twice or ‘their’.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Anna"
-      }
-    }
-  },
-  "contactSealInfoMore": "Off, a transaction file to {name} is plain: anyone who gets the file can read it. Turn it off only if {name}’s wallet cannot open sealed files.",
-  "@contactSealInfoMore": {
-    "description": "Second paragraph of the Seal payments info sheet.",
+  "contactSealTip": "Transaction files to {name} are sealed so only {name}’s wallet can read them. Turn this off only if {name}’s wallet cannot open sealed files.",
+  "@contactSealTip": {
+    "description": "Info popover of the Seal transaction files switch (contact page, pairing check, desktop contacts).",
     "placeholders": {
       "name": {
         "type": "String",
@@ -18872,20 +18862,6 @@
   "@contactMovedOn": {
     "description": "Under the contact's relay for 30 days after the contact moved to it. {date} is a day and month.",
     "placeholders": {
-      "date": {
-        "type": "String",
-        "example": "6 Nov"
-      }
-    }
-  },
-  "sendViaMailboxMovedHint": "Sealed. Delivered via {relay}, moved here on {date}",
-  "@sendViaMailboxMovedHint": {
-    "description": "Under the sealed switch before sending, when the contact moved to this relay in the last 30 days. {date} is a day and month.",
-    "placeholders": {
-      "relay": {
-        "type": "String",
-        "example": "relay.example.org"
-      },
       "date": {
         "type": "String",
         "example": "6 Nov"
@@ -19410,13 +19386,21 @@
   "@reqNewSend": {
     "description": "Primary button."
   },
-  "sendViaMailbox": "Send through the pairing",
-  "@sendViaMailbox": {
-    "description": "Switch on Send for a paired contact over Epicbox."
+  "sendRoutePaired": "Paired address",
+  "@sendRoutePaired": {
+    "description": "Send, address selector for a paired contact with a public Epicbox address: the first option. A working name; every other string naming it fills a placeholder from sendRoutePairedInline."
   },
-  "sendViaMailboxHint": "Sealed. Delivered via {relay}",
-  "@sendViaMailboxHint": {
-    "description": "Under that switch.",
+  "sendRoutePublic": "Public address",
+  "@sendRoutePublic": {
+    "description": "Send, address selector: the second option, the contact’s public Epicbox address."
+  },
+  "sendRoutePairedInline": "paired address",
+  "@sendRoutePairedInline": {
+    "description": "The name of the first option mid-sentence (lowercase where the language has case); filled into the {route} placeholders."
+  },
+  "sendRoutePairedLine": "Made when you paired. Delivered via {relay}.",
+  "@sendRoutePairedLine": {
+    "description": "Under the selector while the first option is chosen, and the readout for a paired contact with no public address: the address was made when the two paired; the Epicbox server it goes through.",
     "placeholders": {
       "relay": {
         "type": "String",
@@ -19424,9 +19408,23 @@
       }
     }
   },
-  "sendViaPublicHint": "Goes to {name}’s public Epicbox address.",
-  "@sendViaPublicHint": {
-    "description": "Hint under the Send through the pairing switch when the user turned it off: the payment goes to the contact’s public Epicbox address.",
+  "sendRoutePairedMovedLine": "Made when you paired. Delivered via {relay}, moved here on {date}.",
+  "@sendRoutePairedMovedLine": {
+    "description": "Same, when the contact moved to this Epicbox server in the last 30 days.",
+    "placeholders": {
+      "relay": {
+        "type": "String",
+        "example": "epicbox.example.org"
+      },
+      "date": {
+        "type": "String",
+        "example": "3 Oct"
+      }
+    }
+  },
+  "sendRoutePublicLine": "{name}’s public Epicbox address.",
+  "@sendRoutePublicLine": {
+    "description": "Under the selector while the second option is chosen.",
     "placeholders": {
       "name": {
         "type": "String",
@@ -19434,13 +19432,83 @@
       }
     }
   },
-  "sendMailboxUnanswered": "No answer through the pairing since {date}.",
-  "@sendMailboxUnanswered": {
-    "description": "Reason line on Send when the pairing switch starts off: the contact’s wallet has not answered through the pairing; date is a day and month.",
+  "sendRouteReasonOtherApp": "Picked because {name}’s last payment was answered by another wallet app.",
+  "@sendRouteReasonOtherApp": {
+    "description": "Amber line under the selector when the rule picked the public address: the contact’s last payment was answered by another wallet app.",
     "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sendRouteReasonNotHeard": "Picked because {name}’s wallet has not been heard from since {date}.",
+  "@sendRouteReasonNotHeard": {
+    "description": "Same: nothing heard from the contact’s wallet since a date.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      },
       "date": {
         "type": "String",
-        "example": "3 Nov"
+        "example": "3 Oct"
+      }
+    }
+  },
+  "sendRouteReasonUnanswered": "Picked because {name}’s wallet has not answered through the {route} since {date}.",
+  "@sendRouteReasonUnanswered": {
+    "description": "Same: a payment through the paired address has waited for an answer since a date. {route} is sendRoutePairedInline.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      },
+      "route": {
+        "type": "String",
+        "example": "paired address"
+      },
+      "date": {
+        "type": "String",
+        "example": "3 Oct"
+      }
+    }
+  },
+  "sendRouteReasonNotAnswering": "Picked because {name}’s wallet is not answering through the {route}.",
+  "@sendRouteReasonNotAnswering": {
+    "description": "Same: the contact’s wallet is not answering through the paired address. {route} is sendRoutePairedInline.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      },
+      "route": {
+        "type": "String",
+        "example": "paired address"
+      }
+    }
+  },
+  "sendRouteReasonRelayDown": "Picked because {relay}, the Epicbox server of the {route}, is not answering.",
+  "@sendRouteReasonRelayDown": {
+    "description": "Same: the Epicbox server of the paired address is not answering and the public address uses another one. {route} is sendRoutePairedInline.",
+    "placeholders": {
+      "relay": {
+        "type": "String",
+        "example": "epicbox.example.org"
+      },
+      "route": {
+        "type": "String",
+        "example": "paired address"
+      }
+    }
+  },
+  "sendRouteServerDown": "{relay} is not answering. Both addresses use this Epicbox server.",
+  "@sendRouteServerDown": {
+    "description": "Amber line under the selector on either option: the Epicbox server is not answering and both addresses use it, so the selector stays on the paired address.",
+    "placeholders": {
+      "relay": {
+        "type": "String",
+        "example": "epicbox.example.org"
       }
     }
   },
@@ -20392,13 +20460,17 @@
       }
     }
   },
-  "sendRecipientPairing": "Through {name}’s pairing",
+  "sendRecipientPairing": "{name}’s {route}",
   "@sendRecipientPairing": {
-    "description": "Send recipient card, review and transaction facts: the recipient is a paired contact with no address, reached through the pairing. Never an address.",
+    "description": "Send recipient card, review and transaction facts: the recipient is a paired contact with no public address, reached through the paired address. {route} is sendRoutePairedInline. Never an address.",
     "placeholders": {
       "name": {
         "type": "String",
         "example": "Anna"
+      },
+      "route": {
+        "type": "String",
+        "example": "paired address"
       }
     }
   },

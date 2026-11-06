@@ -1595,7 +1595,7 @@ class _DeskPairingBlockState extends ConsumerState<DeskPairingBlock> {
             ESetRow(
               title: l.contactSealPayments,
               text: changed ? l.contactPausedUntilChecked : (waiting ? l.pairWaitingFor(name) : null),
-              hint: l.contactSealInfo(name),
+              hint: l.contactSealTip(name),
               control: ESwitch(
                 value: !changed && !waiting && p.seal != SealMode.off,
                 semanticLabel: l.contactSealPayments,

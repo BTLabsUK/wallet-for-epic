@@ -216,16 +216,16 @@ void main() {
       await h.openSend(tester, 'p1');
       expect(find.byKey(sendPairingCardKey), findsOneWidget);
       expect(find.byKey(sendRecipientFieldKey), findsNothing);
-      expect(find.text(_l.sendRecipientPairing('Anna')), findsOneWidget);
-      expect(find.text(_l.sendViaMailbox), findsOneWidget);
-      expect(find.text(_l.sendViaMailboxHint('epicbox.epiccash.com')), findsOneWidget);
+      expect(find.text(_l.sendRecipientPairing('Anna', _l.sendRoutePairedInline)), findsOneWidget);
+      expect(find.text(_l.sendRoutePaired), findsOneWidget);
+      expect(find.text(_l.sendRoutePairedLine('epicbox.epiccash.com')), findsOneWidget);
       // No address, and no Link segment.
       expect(find.textContaining('@'), findsNothing);
       expect(find.text(MethodIcons.familyName(_l, MethodFamily.link)), findsNothing);
       expect(_enabled(tester, find.widgetWithText(FilledButton, _l.commonContinue)), isTrue);
       // The review names the contact through the pairing; Send goes through the mailbox.
       await _toReview(tester);
-      expect(find.text(_l.sendRecipientPairing('Anna')), findsOneWidget);
+      expect(find.text(_l.sendRecipientPairing('Anna', _l.sendRoutePairedInline)), findsOneWidget);
       expect(find.textContaining('@'), findsNothing);
       expect(find.byKey(sendQueuedCardKey), findsNothing);
       await _tap(tester, find.widgetWithText(FilledButton, 'Send 1.5\u00a0EPIC'));
@@ -404,8 +404,8 @@ void main() {
       expect(find.byKey(contactPageMoveAskedKey), findsNothing);
 
       await h.openSend(tester, 'p1');
-      expect(find.text(_l.sendViaMailboxMovedHint(moved, date)), findsOneWidget);
-      expect(find.text(_l.sendViaMailboxHint(moved)), findsNothing);
+      expect(find.text(_l.sendRoutePairedMovedLine(moved, date)), findsOneWidget);
+      expect(find.text(_l.sendRoutePairedLine(moved)), findsNothing);
     });
   });
 
@@ -416,7 +416,7 @@ void main() {
     DateTime ago(Duration d) => now.subtract(d);
 
     /// Anna with her Epicbox address, paired with her card naming it.
-    _Harness paired({SealMode seal = SealMode.on, DateTime? lastSealedIn}) {
+    _Harness paired({SealMode seal = SealMode.on, DateTime? lastSealedIn, String homeRelay = relay, bool relayDown = false}) {
       final h = _Harness(address: anna);
       h.session.pairing.clock = () => now;
       h.session.pairing.seedPaired(
@@ -424,9 +424,10 @@ void main() {
         name: 'Anna',
         contactId: 'c1',
         paymentsAddress: anna,
-        relay: relay,
+        relay: homeRelay,
         seal: seal,
         lastSealedIn: lastSealedIn,
+        relayDown: relayDown,
       );
       return h;
     }
@@ -437,21 +438,23 @@ void main() {
       await _enter(tester, _l.sendToLabel, to);
     }
 
-    bool switchOn(WidgetTester tester) => tester.widget<Switch>(find.byKey(sendViaMailboxKey)).value;
+    /// Whether the address selector has Paired address selected.
+    bool pairedOn(WidgetTester tester) => tester.widget<SegmentedButton<bool>>(find.byKey(sendRouteKey)).selected.single;
 
+    /// Taps the option the selector does not have selected.
     Future<void> flip(WidgetTester tester) async {
-      await _reach(tester, find.byKey(sendViaMailboxKey));
-      await tester.tap(find.byKey(sendViaMailboxKey));
+      await _reach(tester, find.byKey(sendRouteKey));
+      await tester.tap(find.text(pairedOn(tester) ? _l.sendRoutePublic : _l.sendRoutePaired));
       await tester.pumpAndSettle();
     }
 
     final sendButton = find.widgetWithText(FilledButton, 'Send 1.5\u00a0EPIC');
 
-    testWidgets('paired contact with an address starts on the pairing', (tester) async {
+    testWidgets('paired contact with an address starts on the paired address', (tester) async {
       final h = paired();
       await open(tester, h, anna);
-      expect(switchOn(tester), isTrue);
-      expect(find.text(_l.sendViaMailboxHint(relay)), findsOneWidget);
+      expect(pairedOn(tester), isTrue);
+      expect(find.text(_l.sendRoutePairedLine(relay)), findsOneWidget);
       await _toReview(tester);
       await _tap(tester, sendButton);
       expect(h.session.pairing.calls, contains('sendViaMailbox'));
@@ -459,26 +462,26 @@ void main() {
       expect(find.text(_l.txStepSentMailbox('Anna')), findsOneWidget);
     });
 
-    testWidgets('Seal off does not hide the switch', (tester) async {
+    testWidgets('Seal off does not hide the selector', (tester) async {
       final h = paired(seal: SealMode.off);
       await open(tester, h, anna);
-      expect(find.byKey(sendViaMailboxKey), findsOneWidget);
-      expect(switchOn(tester), isTrue);
+      expect(find.byKey(sendRouteKey), findsOneWidget);
+      expect(pairedOn(tester), isTrue);
     });
 
-    testWidgets('switch off sends to the address', (tester) async {
+    testWidgets('Public address sends to the address', (tester) async {
       final h = paired();
       await open(tester, h, anna);
       await flip(tester);
-      expect(switchOn(tester), isFalse);
-      expect(find.text(_l.sendViaPublicHint('Anna')), findsOneWidget);
+      expect(pairedOn(tester), isFalse);
+      expect(find.text(_l.sendRoutePublicLine('Anna')), findsOneWidget);
       await _toReview(tester);
       await _tap(tester, sendButton);
       expect(h.session.pairing.calls, isNot(contains('sendViaMailbox')));
       expect(h.session.epicboxSends.single, (amount: _epic(1.5), to: anna));
     });
 
-    testWidgets('unanswered mailbox send starts off with its line', (tester) async {
+    testWidgets('an unanswered send starts on the public address, with the reason', (tester) async {
       // Nothing sealed from Anna since the send went out.
       final h = paired(lastSealedIn: ago(const Duration(days: 2)));
       final sentAt = ago(const Duration(hours: 30));
@@ -498,20 +501,44 @@ void main() {
         ),
       );
       await open(tester, h, anna);
-      expect(switchOn(tester), isFalse);
-      expect(find.text(_l.sendMailboxUnanswered(localDayMonth(_l, sentAt))), findsOneWidget);
+      expect(pairedOn(tester), isFalse);
+      expect(find.text(_l.sendRouteReasonUnanswered('Anna', _l.sendRoutePairedInline, localDayMonth(_l, sentAt))), findsOneWidget);
     });
 
-    testWidgets('answered by another app starts off', (tester) async {
+    testWidgets('answered by another app starts on the public address', (tester) async {
       final h = paired();
       h.service.peerCompats[anna] = PeerCompat(lastMarkedAt: ago(const Duration(days: 40)), lastUnmarkedAt: ago(const Duration(days: 1)));
       await open(tester, h, anna);
-      expect(switchOn(tester), isFalse);
-      expect(find.text(_l.trustLineOtherApp('Anna')), findsOneWidget);
-      // The user's tap wins: on, with the relay line.
+      expect(pairedOn(tester), isFalse);
+      expect(find.text(_l.sendRouteReasonOtherApp('Anna')), findsOneWidget);
+      // The user's tap wins: the paired address, its line, and the reason goes.
       await flip(tester);
-      expect(switchOn(tester), isTrue);
-      expect(find.text(_l.sendViaMailboxHint(relay)), findsOneWidget);
+      expect(pairedOn(tester), isTrue);
+      expect(find.text(_l.sendRoutePairedLine(relay)), findsOneWidget);
+      expect(find.text(_l.sendRouteReasonOtherApp('Anna')), findsNothing);
+    });
+
+    testWidgets('relay down on a shared server keeps the paired address, with the server line', (tester) async {
+      final h = paired(relayDown: true);
+      await open(tester, h, anna);
+      expect(pairedOn(tester), isTrue);
+      expect(find.text(_l.sendRouteServerDown(relay)), findsOneWidget);
+      // The line stays on either option.
+      await flip(tester);
+      expect(pairedOn(tester), isFalse);
+      expect(find.text(_l.sendRouteServerDown(relay)), findsOneWidget);
+    });
+
+    testWidgets('relay down on its own server picks the public address, with the reason', (tester) async {
+      final h = paired(homeRelay: 'box.example.org', relayDown: true);
+      await open(tester, h, anna);
+      expect(pairedOn(tester), isFalse);
+      expect(find.text(_l.sendRouteReasonRelayDown('box.example.org', _l.sendRoutePairedInline)), findsOneWidget);
+      expect(find.text(_l.sendRouteServerDown('box.example.org')), findsNothing);
+      await flip(tester);
+      expect(pairedOn(tester), isTrue);
+      expect(find.text(_l.sendRoutePairedLine('box.example.org')), findsOneWidget);
+      expect(find.text(_l.sendRouteReasonRelayDown('box.example.org', _l.sendRoutePairedInline)), findsNothing);
     });
 
     testWidgets('a failed pairing send offers Send to their public Epicbox address', (tester) async {
@@ -537,16 +564,16 @@ void main() {
       final h = paired();
       await open(tester, h, anna);
       await flip(tester);
-      expect(switchOn(tester), isFalse);
-      // Another address: no switch. Anna again: the default, not the earlier tap.
+      expect(pairedOn(tester), isFalse);
+      // Another address: no selector. Anna again: the default, not the earlier tap.
       await tester.tap(find.byKey(sendRecipientClearKey));
       await tester.pumpAndSettle();
       await _enter(tester, _l.sendToLabel, 'es${'b' * 50}@epicbox.epiccash.com');
-      expect(find.byKey(sendViaMailboxKey), findsNothing);
+      expect(find.byKey(sendRouteKey), findsNothing);
       await tester.tap(find.byKey(sendRecipientClearKey));
       await tester.pumpAndSettle();
       await _enter(tester, _l.sendToLabel, anna);
-      expect(switchOn(tester), isTrue);
+      expect(pairedOn(tester), isTrue);
     });
   });
 }

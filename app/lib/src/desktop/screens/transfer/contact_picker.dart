@@ -41,7 +41,7 @@ class PairingOnlyLine extends StatelessWidget {
     crossAxisAlignment: WrapCrossAlignment.center,
     children: [
       TrustBadge(pairing, short: true),
-      Text(context.l10n.sendRecipientPairing(name), style: context.ts.small),
+      Text(context.l10n.sendRecipientPairing(name, context.l10n.sendRoutePairedInline), style: context.ts.small),
     ],
   );
 }
@@ -198,7 +198,7 @@ class _PickRowState extends State<_PickRow> {
       enabled: !noPayments,
       label: noPayments
           ? '${widget.contact.name}, ${context.l10n.contactTakesNoPayments}'
-          : pairing == null ? '${widget.contact.name}, ${widget.contact.address}' : '${widget.contact.name}, ${context.l10n.sendRecipientPairing(widget.contact.name)}',
+          : pairing == null ? '${widget.contact.name}, ${widget.contact.address}' : '${widget.contact.name}, ${context.l10n.sendRecipientPairing(widget.contact.name, context.l10n.sendRoutePairedInline)}',
       excludeSemantics: true,
       child: MouseRegion(
         onEnter: (_) => setState(() => _hover = true),

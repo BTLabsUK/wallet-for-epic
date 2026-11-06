@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 import '../../data/mock_hosts.dart';
-import 'package:flutter/foundation.dart' show ValueKey;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../levels/wallet_level.dart';
 import '../../data/desk_levels.dart' show deskLevelControlProvider;
 import '../../../tor_routes.dart';
 import '../../app/shots.dart';
-import '../settings/shots.dart' show openInfoHint, tapShotKey;
+import '../settings/shots.dart' show openInfoHint, tapShotTrustId;
 import '../../../trust/policy.dart' show PeerCompat;
+import '../../../trust_ids.dart' show TrustIds;
 import '../../widgets/kit.dart';
 import 'contact_picker.dart';
 import 'finalize_screen.dart';
@@ -49,11 +49,12 @@ final List<DeskShot> transferShots = [
   DeskShot(id: '13-send-l2', title: 'Send, Deeper', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '12.5'), before: _level(WalletLevel.casual)),
   DeskShot(id: '13b-send-node-syncing', title: 'Send, node not synced', route: DeskRoute.send, arg: SendArgs(nodeSync: 0.62, recipient: _anna, amount: '12.5')),
   DeskShot(id: '13w-send-pairing-moved', title: 'Send to a contact that moved relay: Delivered via, moved here on', route: DeskRoute.send, arg: const SendArgs(pairingTo: mockAnnaPairing, amount: '1', epicboxHealth: ServiceHealth.ok), before: annaMovedForShots),
-  // A paired contact's Epicbox address in To: the switch to pay through the pairing, on by
-  // the rule; off with its reason; turned off by the user.
-  DeskShot(id: '13x-send-pairing-address', title: 'Send to a paired contact\'s address: through the pairing', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '12.5', epicboxHealth: ServiceHealth.ok)),
-  DeskShot(id: '13y-send-pairing-address-off', title: 'Send to a paired contact\'s address: the pairing off, another app answered', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '12.5', epicboxHealth: ServiceHealth.ok), before: _annaOtherApp),
-  DeskShot(id: '13z-send-pairing-address-public', title: 'Send to a paired contact\'s address: the user turned the pairing off', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '12.5', epicboxHealth: ServiceHealth.ok), prepare: (_, ctx) async => tapShotKey(ctx, const ValueKey('send-via-mailbox'))),
+  // A paired contact's Epicbox address in To: the address selector (paired address | public
+  // address), on the paired address by the rule; on the public one with its reason; the public
+  // one picked by the user.
+  DeskShot(id: '13x-send-pairing-address', title: 'Send to a paired contact\'s address: the paired address selected', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '12.5', epicboxHealth: ServiceHealth.ok)),
+  DeskShot(id: '13y-send-pairing-address-off', title: 'Send to a paired contact\'s address: the public address picked by the rule, another app answered', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '12.5', epicboxHealth: ServiceHealth.ok), before: _annaOtherApp),
+  DeskShot(id: '13z-send-pairing-address-public', title: 'Send to a paired contact\'s address: the user picked the public address', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '12.5', epicboxHealth: ServiceHealth.ok), prepare: (_, ctx) async => tapShotTrustId(ctx, TrustIds.sendRoutePublic)),
   DeskShot(id: '13c-send-epicbox-off', title: 'Send, Epicbox not connected', route: DeskRoute.send, arg: SendArgs(epicboxHealth: ServiceHealth.off)),
   DeskShot(id: '13d-send-epicbox-down', title: 'Send, Epicbox down', route: DeskRoute.send, arg: SendArgs(epicboxHealth: ServiceHealth.down)),
   DeskShot(id: '13e-send-privacy', title: 'Send, privacy open', route: DeskRoute.send, arg: SendArgs(privacyOpen: true, recipient: _anna, amount: '12.5')),

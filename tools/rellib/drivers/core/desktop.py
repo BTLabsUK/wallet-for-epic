@@ -135,9 +135,10 @@ SEND_METHOD_EPICBOX = T("g4.send.method.epicbox", names=("Epicbox",), match="exa
 SEND_METHOD_LINK = T("g4.send.method.link", names=("Link",), match="exact")
 SEND_ANOTHER = T("g4.send.another", keys=("deskSendNewSend",), names=("Send another",))
 SEND_TO = T("g4.send.to", role="text_field", keys=("deskSendToSem", "deskSendTo"), names=("Recipient", "To"), match="starts")
-SEND_VIA_PAIRING = T("g4.send.viapairing", role="toggle", keys=("sendViaMailbox",),
-                     names=("Send through the pairing",))  # starts on for a paired contact
-VIA_PAIRING_WAIT_S = 4    # for the pairing switch after To is filled
+# The address selector under To for a paired contact: Paired address | Public address.
+SEND_ROUTE_PAIRED = T("g4.send.route.paired", keys=("sendRoutePaired",), names=("Paired address",), match="exact")
+SEND_ROUTE_PUBLIC = T("g4.send.route.public", keys=("sendRoutePublic",), names=("Public address",), match="exact")
+ROUTE_WAIT_S = 4    # for the address selector after To is filled
 SEND_AMOUNT = T("g4.send.amount", role="text_field", keys=("deskSendAmountSem", "deskSendAmount"), names=("Amount",),
                 match="starts")
 SEND_MAX = T("g4.send.max", keys=("deskSendAllButton",), names=("Max",), match="exact")
@@ -992,6 +993,15 @@ class Desktop:
         self.log("%s: Epicbox address %s…%s" % (self.which, a[:8], a[-6:]))
         return a
 
+    def _pick_public_address(self, d):
+        """Select Public address on Send's address selector unless it is selected already."""
+        m = d.seen(SEND_ROUTE_PUBLIC)
+        if m is not None and "selected" in m.states:
+            return
+        d.press(SEND_ROUTE_PUBLIC, step="send-route-public", then=Expect(
+            "Public address selected",
+            lambda dd, tree: next((n for n in dd.find_in(SEND_ROUTE_PUBLIC, tree) if "selected" in n.states), None)))
+
     def send(self, to, amount=None):
         """Sends `amount` (None: Max) to `to` by Epicbox through the Send page and its review; True
         when the app says it was handed over. The payment's progress is read from the wallet's files
@@ -1005,10 +1015,11 @@ class Desktop:
             d._act(d.s.press, eb)
             time.sleep(0.8)
         d.fill(SEND_TO, to, step="send-to")
-        # A paired contact: the pairing switch shows once To resolves and starts on; this send means
-        # the public Epicbox address. Bounded wait, as an unpaired recipient never shows it.
-        if d.wait(shows(SEND_VIA_PAIRING), VIA_PAIRING_WAIT_S):
-            d.toggle(SEND_VIA_PAIRING, False, step="send-via-pairing-off")
+        # A paired contact: the address selector shows once To resolves, on the paired address by
+        # the rule; this send means the public Epicbox address. Bounded wait, as an unpaired
+        # recipient never shows it.
+        if d.wait(shows(SEND_ROUTE_PUBLIC), ROUTE_WAIT_S):
+            self._pick_public_address(d)
         if amount is None:
             d.press(SEND_MAX, step="send-max", timeout=20,
                     then=Expect("an amount filled", lambda dd, tree: next((n for n in dd.find_in(SEND_AMOUNT, tree)

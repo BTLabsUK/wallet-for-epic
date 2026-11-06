@@ -195,9 +195,9 @@ void main() {
     Widget line() => Scaffold(
       body: SendPairingLine(address: _anna, epicbox: true, viaMailbox: null, onViaMailbox: (_) {}, onAddress: (_) {}),
     );
-    bool on(WidgetTester tester) => tester.widget<Switch>(find.byKey(sendViaMailboxKey)).value;
+    bool on(WidgetTester tester) => tester.widget<SegmentedButton<bool>>(find.byKey(sendRouteKey)).selected.single;
 
-    testWidgets('the pairing switch starts off, with the line, while the key answers as another wallet app', (tester) async {
+    testWidgets('the selector starts on the public address, with the reason, while the key answers as another wallet app', (tester) async {
       final h = _Harness()
         ..anna()
         ..pair();
@@ -210,7 +210,7 @@ void main() {
         ..learned(marked: _ago(const Duration(days: 40)), unmarked: _ago(const Duration(days: 1)));
       await g.pump(tester, line());
       expect(on(tester), isFalse);
-      expect(find.text(_l.trustLineOtherApp('Anna')), findsOneWidget);
+      expect(find.text(_l.sendRouteReasonOtherApp('Anna')), findsOneWidget);
     });
   });
 

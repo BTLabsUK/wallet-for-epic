@@ -687,6 +687,34 @@
    "secret": false
   },
   {
+   "id": "g4.send.route.paired",
+   "screen": "send",
+   "family": [
+    "desktop",
+    "android"
+   ],
+   "role": "button",
+   "keys": [
+    "sendRoutePaired"
+   ],
+   "match": "line",
+   "secret": false
+  },
+  {
+   "id": "g4.send.route.public",
+   "screen": "send",
+   "family": [
+    "desktop",
+    "android"
+   ],
+   "role": "button",
+   "keys": [
+    "sendRoutePublic"
+   ],
+   "match": "line",
+   "secret": false
+  },
+  {
    "id": "g4.overview.refresh",
    "screen": "overview",
    "family": [

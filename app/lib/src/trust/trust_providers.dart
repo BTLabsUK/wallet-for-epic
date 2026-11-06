@@ -59,5 +59,6 @@ MailboxDefault mailboxDefaultFor(WidgetRef ref, Contact contact, PairingRecord p
     unansweredSince: mailboxUnansweredSince(txs, pairing.id, pairing.lastSealedIn, now),
     notAnswering: pairing.notAnswering,
     relayDown: pairing.relayDown,
+    relayShared: sameEpicboxServer(contact.epicbox, pairing.homeRelay),
   );
 }

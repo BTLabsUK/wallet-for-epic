@@ -305,6 +305,7 @@ void main() {
       DateTime? unansweredSince,
       bool notAnswering = false,
       bool relayDown = false,
+      bool relayShared = false,
     }) => mailboxDefault(
       r: r,
       opensSealed: opensSealed,
@@ -315,6 +316,7 @@ void main() {
       unansweredSince: unansweredSince,
       notAnswering: notAnswering,
       relayDown: relayDown,
+      relayShared: relayShared,
     );
 
     TxEntry send(Duration age, {TxStatus status = TxStatus.awaitingRecipient, String pairing = 'p1', TxKind kind = TxKind.sent}) => fakeTx(
@@ -369,7 +371,26 @@ void main() {
     test('notAnswering → off(notAnswering)', () => expect(rule(notAnswering: true).reason, PlainReason.notAnswering));
     test('relayDown → off(relayDown)', () {
       expect(rule(relayDown: true).reason, PlainReason.relayDown);
+      expect(rule(relayDown: true).serverDown, isFalse);
       expect(rule(relayDown: true, notAnswering: true).reason, PlainReason.notAnswering);
+    });
+    test('relayDown on a shared server → on, serverDown', () {
+      final d = rule(relayDown: true, relayShared: true);
+      expect(d.on, isTrue);
+      expect(d.reason, PlainReason.none);
+      expect(d.serverDown, isTrue);
+      expect(rule(relayShared: true).serverDown, isFalse);
+      // The earlier reasons still win: the shared server only matters at the relay step.
+      expect(rule(relayDown: true, relayShared: true, notAnswering: true).reason, PlainReason.notAnswering);
+    });
+    test('epicboxServer: host alone, port and case dropped', () {
+      expect(epicboxServer('esYb3k@Epicbox.Example.org:443'), 'epicbox.example.org');
+      expect(epicboxServer('epicbox.example.org:443'), 'epicbox.example.org');
+      expect(epicboxServer(''), '');
+      expect(sameEpicboxServer('k@epicbox.example.org', 'epicbox.example.org:443'), isTrue);
+      expect(sameEpicboxServer('k@box.example.org', 'epicbox.example.org'), isFalse);
+      expect(sameEpicboxServer(null, 'epicbox.example.org'), isFalse);
+      expect(sameEpicboxServer('k@epicbox.example.org', ''), isFalse);
     });
     test('mailboxUnansweredSince: 25 h old counts, 23 h old does not', () {
       final old = send(const Duration(hours: 25));

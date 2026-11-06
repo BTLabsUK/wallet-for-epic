@@ -2955,7 +2955,7 @@ class _SendViewState extends ConsumerState<SendView> {
             name: c.name,
             relay: hosts,
             // A contact with no address: through its pairing, never an empty address.
-            subtitle: _pairingOnly(c, watch: true) == null ? null : l.sendRecipientPairing(c.name),
+            subtitle: _pairingOnly(c, watch: true) == null ? null : l.sendRecipientPairing(c.name, l.sendRoutePairedInline),
             onTap: () => _useContact(c),
           ),
       ],

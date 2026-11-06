@@ -2299,6 +2299,20 @@ class StoreMigrationProgress {
 /// relay checks the signature with the key, never the domain, so the domain proves nothing.
 String epicboxKey(String address) => address.trim().split('@').first;
 
+/// The server of an epicbox address (`key@host[:port]`) or of a bare relay (`host[:port]`):
+/// the host alone, lowercased. '' for an empty value.
+String epicboxServer(String addressOrRelay) {
+  final a = addressOrRelay.trim();
+  final at = a.indexOf('@');
+  return (at < 0 ? a : a.substring(at + 1)).split(':').first.toLowerCase();
+}
+
+/// Whether [address] (a contact's public epicbox address) lives on [relay] (a pairing's home
+/// relay): Send's server-down rule, which keeps the paired address when the public one is no
+/// better.
+bool sameEpicboxServer(String? address, String relay) =>
+    address != null && relay.isNotEmpty && epicboxServer(address) == epicboxServer(relay);
+
 /// The longest an invoice may stay open (UP-14); the default is 24 h. One that asks for more
 /// is dropped.
 const Duration maxInvoiceExpiry = Duration(hours: 48);

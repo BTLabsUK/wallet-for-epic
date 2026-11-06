@@ -2,7 +2,8 @@
 /// What Send shows under the recipient for a saved contact: "Send via" with the
 /// kinds of address the contact has, when it has several (a kind whose method is off in
 /// Settings › Transactions shows disabled, with the reason); for a paired contact its trust and
-/// whether the payment is sealed, and for Epicbox the switch to send through its mailbox.
+/// whether the payment is sealed, and for Epicbox the selector between its paired address and
+/// its public one.
 library;
 
 import 'package:flutter/material.dart';
@@ -11,11 +12,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../contacts.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
-import '../../pairing_text.dart' show plainReasonText, sendViaMailboxHintOf;
+import '../../pairing_text.dart' show sendRoutePairedLineOf, sendRoutePublicLineOf, sendRouteReasonText, sendRouteServerDownText;
 import '../../payment_prefs.dart';
 import '../../settings.dart';
 import '../../trust/policy.dart' show MailboxDefault;
 import '../../trust/trust_providers.dart' show mailboxDefaultFor;
+import '../../trust_ids.dart';
 import '../../wallet_service.dart';
 import '../badge.dart';
 import '../method_names.dart';
@@ -24,11 +26,14 @@ import '../status_icons.dart' show EpicGlyphs;
 import '../theme/tokens.dart';
 import 'pairing_parts.dart';
 
-/// The key of the mailbox switch, for tests.
-const Key sendViaMailboxKey = ValueKey('send-via-mailbox');
+/// The key of the address selector (paired address | public address), for tests.
+const Key sendRouteKey = ValueKey('send-pairing-route');
 
 /// The key of the "Send via" segments, for tests.
 const Key sendViaKey = ValueKey('send-via');
+
+/// The key of the amber line under the address selector, for tests.
+const Key sendRouteWarnKey = ValueKey('send-pairing-route-warn');
 
 /// The pairing a send to [address] would be sealed for, or null: the paired contact the
 /// address belongs to. [watch] false reads once, outside a build.
@@ -68,10 +73,11 @@ class SendPairingLine extends ConsumerWidget {
   /// The recipient as typed or picked.
   final String address;
 
-  /// The Epicbox method is chosen: the pairing switch shows.
+  /// The Epicbox method is chosen: the address selector shows.
   final bool epicbox;
 
-  /// The user's choice on the pairing switch; null follows the rule's default.
+  /// The user's pick on the address selector (true: the paired address); null follows the
+  /// rule's default.
   final bool? viaMailbox;
   final ValueChanged<bool> onViaMailbox;
 
@@ -89,16 +95,16 @@ class SendPairingLine extends ConsumerWidget {
     final current = parseRecipient(address).kind;
     // The phone sends to an http(s) address whatever its stored Link · HTTP switch says.
     final prefs = (ref.watch(appSettingsProvider).value?.payments ?? PaymentPrefs.defaults).copyWith(linkHttp: true);
-    // The rule (trust policy) says whether the pairing route is offered and which way the
-    // switch starts; the user's tap overrides it until the recipient changes.
+    // The rule (trust policy) says whether the paired address is offered and which address the
+    // selector starts on; the user's tap overrides it until the recipient changes.
     final d = pairing == null ? const MailboxDefault.hidden() : mailboxDefaultFor(ref, contact, pairing);
     final mailbox = pairing != null && epicbox && d.offered;
     final on = viaMailbox ?? d.on;
-    final hint = switch (viaMailbox) {
-      false => l.sendViaPublicHint(contact.name),
-      null when !d.on => plainReasonText(l, contact.name, d),
-      _ => pairing == null ? null : sendViaMailboxHintOf(l, pairing),
-    };
+    final line = pairing == null ? null : on ? sendRoutePairedLineOf(l, pairing) : sendRoutePublicLineOf(l, contact.name);
+    // Amber: why the rule picked the public address (gone once the user picks the paired one),
+    // or the server both addresses use not answering (on either option).
+    final warn = pairing == null ? null : !on && viaMailbox == null ? sendRouteReasonText(l, contact.name, pairing, d) : sendRouteServerDownText(l, pairing, d);
+    final small = Theme.of(context).textTheme.bodySmall;
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Column(
@@ -135,18 +141,26 @@ class SendPairingLine extends ConsumerWidget {
             ),
           if (mailbox) ...[
             const SizedBox(height: 8),
-            PairCard(
-              children: [
-                PairSwitchRow(
-                  switchKey: sendViaMailboxKey,
-                  label: l.sendViaMailbox,
-                  info: '',
-                  hint: hint,
-                  value: on,
-                  onChanged: onViaMailbox,
-                ),
+            // Selected is neutral (the theme's segmented button), never gold.
+            SegmentedButton<bool>(
+              key: sendRouteKey,
+              expandedInsets: EdgeInsets.zero,
+              segments: [
+                ButtonSegment(value: true, label: TrustId(TrustIds.sendRoutePaired, child: Text(l.sendRoutePaired))),
+                ButtonSegment(value: false, label: TrustId(TrustIds.sendRoutePublic, child: Text(l.sendRoutePublic))),
               ],
+              selected: {on},
+              showSelectedIcon: false,
+              onSelectionChanged: (s) => onViaMailbox(s.first),
             ),
+            if (line != null) ...[
+              const SizedBox(height: 6),
+              Text(line, style: small?.copyWith(color: t.dim)),
+            ],
+            if (warn != null) ...[
+              const SizedBox(height: 4),
+              Text(warn, key: sendRouteWarnKey, style: small?.copyWith(color: t.warn)),
+            ],
           ],
         ],
       ),
@@ -201,7 +215,7 @@ class PairingRecipientCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 2),
-                Text(l.sendRecipientPairing(name), style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+                Text(l.sendRecipientPairing(name, l.sendRoutePairedInline), style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
               ],
             ),
           ),
@@ -259,8 +273,8 @@ class PairReadoutRow extends StatelessWidget {
   }
 }
 
-/// Under the pairing recipient: the Sealed badge and the mailbox readout ("Send through Anna's
-/// mailbox", "Sealed. Delivered via …", or "Paused while Epicbox is off"). When the pairing
+/// Under the pairing recipient: the Sealed badge and the readout of the paired address (its name,
+/// "Made when you paired. Delivered via …", or "Paused while Epicbox is off"). When the pairing
 /// can no longer take a payment (keys changed meanwhile, or a card that does not open sealed
 /// messages), a warn notice with Check the words instead.
 class SendPairingMailbox extends ConsumerWidget {
@@ -295,8 +309,8 @@ class SendPairingMailbox extends ConsumerWidget {
           key: sendPairingReadoutKey,
           children: [
             PairReadoutRow(
-              label: l.sendViaMailbox,
-              hint: paused ? l.contactPausedEpicboxOff : sendViaMailboxHintOf(l, pairing),
+              label: l.sendRoutePaired,
+              hint: paused ? l.contactPausedEpicboxOff : sendRoutePairedLineOf(l, pairing),
               paused: paused,
             ),
           ],

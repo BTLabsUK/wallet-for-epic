@@ -22110,17 +22110,11 @@ abstract class AppLocalizations {
   /// **'Seal transaction files'**
   String get contactSealPayments;
 
-  /// Info sheet / tooltip for Seal payments. Use the contact’s pronoun where the language has one; English uses the name twice or ‘their’.
+  /// Info popover of the Seal transaction files switch (contact page, pairing check, desktop contacts).
   ///
   /// In en, this message translates to:
-  /// **'Transaction files are encrypted (sealed) and readable only by {name}.'**
-  String contactSealInfo(String name);
-
-  /// Second paragraph of the Seal payments info sheet.
-  ///
-  /// In en, this message translates to:
-  /// **'Off, a transaction file to {name} is plain: anyone who gets the file can read it. Turn it off only if {name}’s wallet cannot open sealed files.'**
-  String contactSealInfoMore(String name);
+  /// **'Transaction files to {name} are sealed so only {name}’s wallet can read them. Turn this off only if {name}’s wallet cannot open sealed files.'**
+  String contactSealTip(String name);
 
   /// Switch label.
   ///
@@ -22241,12 +22235,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Moved here on {date}'**
   String contactMovedOn(String date);
-
-  /// Under the sealed switch before sending, when the contact moved to this relay in the last 30 days. {date} is a day and month.
-  ///
-  /// In en, this message translates to:
-  /// **'Sealed. Delivered via {relay}, moved here on {date}'**
-  String sendViaMailboxMovedHint(String relay, String date);
 
   /// Notice on the contact page (cases file C-05).
   ///
@@ -22758,29 +22746,77 @@ abstract class AppLocalizations {
   /// **'Send invoice'**
   String get reqNewSend;
 
-  /// Switch on Send for a paired contact over Epicbox.
+  /// Send, address selector for a paired contact with a public Epicbox address: the first option. A working name; every other string naming it fills a placeholder from sendRoutePairedInline.
   ///
   /// In en, this message translates to:
-  /// **'Send through the pairing'**
-  String get sendViaMailbox;
+  /// **'Paired address'**
+  String get sendRoutePaired;
 
-  /// Under that switch.
+  /// Send, address selector: the second option, the contact’s public Epicbox address.
   ///
   /// In en, this message translates to:
-  /// **'Sealed. Delivered via {relay}'**
-  String sendViaMailboxHint(String relay);
+  /// **'Public address'**
+  String get sendRoutePublic;
 
-  /// Hint under the Send through the pairing switch when the user turned it off: the payment goes to the contact’s public Epicbox address.
+  /// The name of the first option mid-sentence (lowercase where the language has case); filled into the {route} placeholders.
   ///
   /// In en, this message translates to:
-  /// **'Goes to {name}’s public Epicbox address.'**
-  String sendViaPublicHint(String name);
+  /// **'paired address'**
+  String get sendRoutePairedInline;
 
-  /// Reason line on Send when the pairing switch starts off: the contact’s wallet has not answered through the pairing; date is a day and month.
+  /// Under the selector while the first option is chosen, and the readout for a paired contact with no public address: the address was made when the two paired; the Epicbox server it goes through.
   ///
   /// In en, this message translates to:
-  /// **'No answer through the pairing since {date}.'**
-  String sendMailboxUnanswered(String date);
+  /// **'Made when you paired. Delivered via {relay}.'**
+  String sendRoutePairedLine(String relay);
+
+  /// Same, when the contact moved to this Epicbox server in the last 30 days.
+  ///
+  /// In en, this message translates to:
+  /// **'Made when you paired. Delivered via {relay}, moved here on {date}.'**
+  String sendRoutePairedMovedLine(String relay, String date);
+
+  /// Under the selector while the second option is chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}’s public Epicbox address.'**
+  String sendRoutePublicLine(String name);
+
+  /// Amber line under the selector when the rule picked the public address: the contact’s last payment was answered by another wallet app.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked because {name}’s last payment was answered by another wallet app.'**
+  String sendRouteReasonOtherApp(String name);
+
+  /// Same: nothing heard from the contact’s wallet since a date.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked because {name}’s wallet has not been heard from since {date}.'**
+  String sendRouteReasonNotHeard(String name, String date);
+
+  /// Same: a payment through the paired address has waited for an answer since a date. {route} is sendRoutePairedInline.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked because {name}’s wallet has not answered through the {route} since {date}.'**
+  String sendRouteReasonUnanswered(String name, String route, String date);
+
+  /// Same: the contact’s wallet is not answering through the paired address. {route} is sendRoutePairedInline.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked because {name}’s wallet is not answering through the {route}.'**
+  String sendRouteReasonNotAnswering(String name, String route);
+
+  /// Same: the Epicbox server of the paired address is not answering and the public address uses another one. {route} is sendRoutePairedInline.
+  ///
+  /// In en, this message translates to:
+  /// **'Picked because {relay}, the Epicbox server of the {route}, is not answering.'**
+  String sendRouteReasonRelayDown(String relay, String route);
+
+  /// Amber line under the selector on either option: the Epicbox server is not answering and both addresses use it, so the selector stays on the paired address.
+  ///
+  /// In en, this message translates to:
+  /// **'{relay} is not answering. Both addresses use this Epicbox server.'**
+  String sendRouteServerDown(String relay);
 
   /// Button on a failed send through the pairing: send the same payment to the contact’s public Epicbox address.
   ///
@@ -23790,11 +23826,11 @@ abstract class AppLocalizations {
   /// **'{name}’s wallet does not take payments through the pairing. Ask for an address.'**
   String contactSendNoSealed(String name);
 
-  /// Send recipient card, review and transaction facts: the recipient is a paired contact with no address, reached through the pairing. Never an address.
+  /// Send recipient card, review and transaction facts: the recipient is a paired contact with no public address, reached through the paired address. {route} is sendRoutePairedInline. Never an address.
   ///
   /// In en, this message translates to:
-  /// **'Through {name}’s pairing'**
-  String sendRecipientPairing(String name);
+  /// **'{name}’s {route}'**
+  String sendRecipientPairing(String name, String route);
 
   /// Tooltip of the × on Send's recipient card: back to the empty To field.
   ///

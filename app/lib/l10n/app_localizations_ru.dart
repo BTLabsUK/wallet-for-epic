@@ -14557,13 +14557,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get contactSealPayments => 'Запечатывать файлы транзакций';
 
   @override
-  String contactSealInfo(String name) {
-    return 'Файлы транзакций зашифрованы (запечатаны). Прочитать их может только кошелёк $name.';
-  }
-
-  @override
-  String contactSealInfoMore(String name) {
-    return 'Если выключено, файл транзакции для $name открытый: любой, кто получит файл, может его прочитать. Выключайте, только если кошелёк $name не открывает запечатанные файлы.';
+  String contactSealTip(String name) {
+    return 'Файлы транзакций для $name запечатаны, поэтому прочитать их может только кошелёк $name. Выключайте, только если кошелёк $name не открывает запечатанные файлы.';
   }
 
   @override
@@ -14645,11 +14640,6 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String contactMovedOn(String date) {
     return 'Переход сюда: $date';
-  }
-
-  @override
-  String sendViaMailboxMovedHint(String relay, String date) {
-    return 'Запечатано. Доставка через $relay, переход сюда: $date';
   }
 
   @override
@@ -15005,21 +14995,57 @@ class AppLocalizationsRu extends AppLocalizations {
   String get reqNewSend => 'Отправить счёт';
 
   @override
-  String get sendViaMailbox => 'Отправить через сопряжение';
+  String get sendRoutePaired => 'Сопряжённый адрес';
 
   @override
-  String sendViaMailboxHint(String relay) {
-    return 'Запечатано. Доставка через $relay';
+  String get sendRoutePublic => 'Публичный адрес';
+
+  @override
+  String get sendRoutePairedInline => 'сопряжённый адрес';
+
+  @override
+  String sendRoutePairedLine(String relay) {
+    return 'Создан при сопряжении. Доставка через $relay.';
   }
 
   @override
-  String sendViaPublicHint(String name) {
-    return 'Уйдёт на публичный адрес Epicbox $name.';
+  String sendRoutePairedMovedLine(String relay, String date) {
+    return 'Создан при сопряжении. Доставка через $relay, переход сюда: $date.';
   }
 
   @override
-  String sendMailboxUnanswered(String date) {
-    return 'Нет ответа через сопряжение с $date.';
+  String sendRoutePublicLine(String name) {
+    return 'Публичный адрес Epicbox $name.';
+  }
+
+  @override
+  String sendRouteReasonOtherApp(String name) {
+    return 'Выбран, потому что на последний платёж $name ответило другое приложение-кошелёк.';
+  }
+
+  @override
+  String sendRouteReasonNotHeard(String name, String date) {
+    return 'Выбран, потому что от кошелька $name ничего не слышно с $date.';
+  }
+
+  @override
+  String sendRouteReasonUnanswered(String name, String route, String date) {
+    return 'Выбран, потому что кошелёк $name не отвечает через $route с $date.';
+  }
+
+  @override
+  String sendRouteReasonNotAnswering(String name, String route) {
+    return 'Выбран, потому что кошелёк $name не отвечает через $route.';
+  }
+
+  @override
+  String sendRouteReasonRelayDown(String relay, String route) {
+    return 'Выбран, потому что $relay, сервер Epicbox, обслуживающий $route, не отвечает.';
+  }
+
+  @override
+  String sendRouteServerDown(String relay) {
+    return '$relay не отвечает. Оба адреса используют этот сервер Epicbox.';
   }
 
   @override
@@ -15766,8 +15792,8 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String sendRecipientPairing(String name) {
-    return 'Через сопряжение с $name';
+  String sendRecipientPairing(String name, String route) {
+    return 'На $route $name';
   }
 
   @override
