@@ -18460,7 +18460,7 @@
   },
   "noticeUnpaired": "{name} removed the pairing.",
   "@noticeUnpaired": {
-    "description": "Notice when a paired contact removed the pairing on its side and said so: payments through the pairing no longer arrive.",
+    "description": "Notice when a paired contact removed the pairing on its side and said so: the paired address no longer works.",
     "placeholders": {
       "name": {
         "type": "String",
@@ -20045,7 +20045,7 @@
   "@helpPairWhatP1": {
     "description": "Topic 1."
   },
-  "helpPairWhatP2": "After pairing, payments, transaction files and invoices between the two wallets are **sealed**: only the other wallet can read them, and the contact’s identity is checked. Payments go through the pairing by default; see “Payments after pairing”.",
+  "helpPairWhatP2": "After pairing, payments, transaction files and invoices between the two wallets are **sealed**: only the other wallet can read them, and the contact’s identity is checked. Payments to a paired contact are sealed by default; see “Payments after pairing”.",
   "@helpPairWhatP2": {
     "description": "Topic 1."
   },
@@ -20374,15 +20374,15 @@
   "@expOpenAdvanced": {
     "description": "Button of those sheets: opens Settings › Advanced"
   },
-  "contactNoAddressPaired": "Payments go through the pairing",
+  "contactNoAddressPaired": "No public address",
   "@contactNoAddressPaired": {
-    "description": "Contact page and desktop Contact Details: the Addresses row of a contact that has only a pairing (no address)."
+    "description": "Contact page and desktop Contact Details: the Addresses row of a contact that has only a pairing (no public address)."
   },
   "contactSendKeysChanged": "Verify the contact before sending.",
   "@contactSendKeysChanged": {
     "description": "Line under a disabled Send on the page of a pairing-only contact whose keys changed."
   },
-  "contactSendNoSealed": "{name}’s wallet does not take payments through the pairing. Ask for an address.",
+  "contactSendNoSealed": "{name}’s wallet cannot open sealed messages. Ask for an address.",
   "@contactSendNoSealed": {
     "description": "Line under a disabled Send on the page of a pairing-only contact whose wallet cannot open sealed messages.",
     "placeholders": {
@@ -25188,7 +25188,7 @@
   },
   "mailboxKeepWaiting": "Keep waiting",
   "@mailboxKeepWaiting": {
-    "description": "The closing button of the Cancel and send by Epicbox dialog and of the unanswered mailbox send's details: nothing changes."
+    "description": "The closing button of the Cancel and send to their public Epicbox address dialog and of the unanswered mailbox send's details: nothing changes."
   },
   "linkPayeeLead": "The payee",
   "@linkPayeeLead": {
@@ -25200,7 +25200,7 @@
   },
   "linkResendBody": "The waiting payment is cancelled and Send opens with the same amount. Check the address, then send it again.",
   "@linkResendBody": {
-    "description": "Body of the confirm before Cancel and send by Epicbox on a payment made from a payment link.",
+    "description": "Body of the confirm before Cancel and send to their public Epicbox address on a payment made from a payment link.",
     "placeholders": {}
   },
   "receiptTellSent": "Tell {name} it’s sent",
@@ -25257,7 +25257,7 @@
   },
   "mailboxResent": "Cancelled and sent to their public Epicbox address.",
   "@mailboxResent": {
-    "description": "Notice after Cancel and send by Epicbox finished: the old send is cancelled and the new one is on its way."
+    "description": "Notice after Cancel and send to their public Epicbox address finished: the old send is cancelled and the new one is on its way."
   },
   "torRelayCaption": "With Tor on, the connection to the Epicbox server goes through Tor.",
   "@torRelayCaption": {
@@ -25820,29 +25820,57 @@
   "@helpPairRouteTitle": {
     "description": "Topic 2 title."
   },
-  "helpPairRouteShort": "Payments to a paired contact go through the pairing; the public Epicbox address is the fallback.",
+  "helpPairRouteShort": "A paired contact can be paid with the option {paired} or at the public Epicbox address.",
   "@helpPairRouteShort": {
-    "description": "Topic 2 summary."
+    "description": "Topic 2 summary. {paired} is sendRoutePaired.",
+    "placeholders": {
+      "paired": {
+        "type": "String",
+        "example": "Paired address"
+      }
+    }
   },
-  "helpPairRouteP1": "Once paired, a payment to that contact goes through the pairing, the private route, by default. On [[Send]] the switch **Send through the pairing** starts on.",
+  "helpPairRouteP1": "Once paired, a contact gets two options on [[Send]]: **{paired}** and **Public address**. It starts on **{paired}**, and the payment is sealed: only that contact can read it.",
   "@helpPairRouteP1": {
-    "description": "Topic 2. [[Send]] is the Send tab or page."
+    "description": "Topic 2. [[Send]] is the Send tab or page. {paired} is sendRoutePaired.",
+    "placeholders": {
+      "paired": {
+        "type": "String",
+        "example": "Paired address"
+      }
+    }
   },
-  "helpPairRouteP2": "A payment goes to the contact’s public Epicbox address instead when: the contact is not paired; you turned the switch off; the contact last answered from another wallet app; the contact was not heard from in 90 days; a send through the pairing was left unanswered for a day; or their server is down.",
+  "helpPairRouteP2": "Paired payments still run over Epicbox. The Epicbox server is suggested when you pair. The wallet accepts it only if it is already in its list of servers; otherwise it asks you. A server cannot tell a paired payment from a normal one.",
   "@helpPairRouteP2": {
-    "description": "Topic 2. The cases that use the public Epicbox address."
+    "description": "Topic 2. Paired payments still run over Epicbox: server suggestion and acceptance."
   },
-  "helpPairRouteP3": "A send through the pairing that stays unanswered for a day shows **Cancel and send to their public Epicbox address**. The wallet asks first; later sends to that contact then start on the public address.",
+  "helpPairRouteP3": "The option **{paired}** uses separate keys, and its address is never shown. Only a paired contact can send you an invoice.",
   "@helpPairRouteP3": {
-    "description": "Topic 2."
+    "description": "Topic 2. Separate keys, address never shown, who can send an invoice. {paired} is sendRoutePaired.",
+    "placeholders": {
+      "paired": {
+        "type": "String",
+        "example": "Paired address"
+      }
+    }
   },
-  "helpPairRouteP4": "**Seal transaction files** on the contact page encrypts files sent to that contact. They are sealed and readable only by that contact. The switch covers files only; it does not turn the pairing route on or off.",
+  "helpPairRouteP4": "**Public address** is chosen instead when: the contact last answered from another wallet app; nothing has been heard from the contact in a long while; a payment with **{paired}** went unanswered; or their server is down. A payment that stays unanswered shows **Cancel and send to their public Epicbox address**. The wallet asks first.",
   "@helpPairRouteP4": {
-    "description": "Topic 2. Names the contact page switch contactSealPayments."
+    "description": "Topic 2. The cases where Send starts on Public address, and the Cancel and send to their public Epicbox address button.",
+    "placeholders": {
+      "paired": {
+        "type": "String",
+        "example": "Paired address"
+      }
+    }
   },
-  "helpPairRouteP5": "An invite or QR pairing has no public Epicbox address to fall back to, unless the contact has an Epicbox address in [[Contacts]].",
+  "helpPairRouteP5": "**Seal transaction files** on the contact page encrypts files sent to that contact. It covers files only; it does not change the address. A contact paired by invite or QR has no public Epicbox address unless you add one in [[Contacts]].",
   "@helpPairRouteP5": {
-    "description": "Topic 2. [[Contacts]] is the Contacts tab or page."
+    "description": "Topic 2. Names the contact page switch contactSealPayments; [[Contacts]] is the Contacts tab or page."
+  },
+  "sendRoutePaired": "Paired address",
+  "@sendRoutePaired": {
+    "description": "Name of the Send option that pays a paired contact at the address made for the pairing. Working name: the help topic Payments after pairing and the contact page fill it in, so renaming it is one edit."
   },
   "helpPairTwoWaysTitle": "Two ways to pair",
   "@helpPairTwoWaysTitle": {

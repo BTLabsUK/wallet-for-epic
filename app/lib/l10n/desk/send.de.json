@@ -160,7 +160,7 @@
   "deskSendSending": "Wird gesendet",
   "deskSendConfirm": "{amount} EPIC senden",
   "deskSendFeeChangedTitle": "Die Gebühr hat sich geändert",
-  "deskSendFeeChangedText": "Die Outputs der Wallet haben sich seit dieser Prüfung geändert, daher kostet die Zahlung jetzt {fee} EPIC statt {was} EPIC Gebühr. Prüfe sie und sende erneut.",
+  "deskSendFeeChangedText": "Die Outputs der Wallet haben sich seit dieser Prüfung geändert, daher kostet die Zahlung jetzt {fee} EPIC statt {was} EPIC Gebühr. Prüfen Sie sie und senden Sie erneut.",
   "deskSendMessageBytes": "{used} / {max} Byte",
   "deskSendMessageCount": "{used} / {max}",
   "deskSendMessageTooLong": "Die Nachricht ist länger als {max} Byte. Kürze sie.",
