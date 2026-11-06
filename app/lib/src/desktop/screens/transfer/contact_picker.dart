@@ -211,7 +211,7 @@ class _PickRowState extends State<_PickRow> {
             padding: EdgeInsets.symmetric(vertical: Sp.x3, horizontal: Sp.x2),
             child: Row(
               children: [
-                EAvatar(widget.contact.name, size: 40.u),
+                EAvatar(widget.contact.name, size: 40.u, label: widget.contact.label),
                 SizedBox(width: 14.u),
                 Expanded(
                   child: noPayments
