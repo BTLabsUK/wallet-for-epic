@@ -13734,6 +13734,38 @@ class AppLocalizationsPl extends AppLocalizations {
   String get payeeNoteLabel => 'Wiadomość od odbiorcy';
 
   @override
+  String get sendNoteRequiredHelper =>
+      'Odbiorca potrzebuje tej wiadomości. Zostaw ją bez zmian.';
+
+  @override
+  String sendMinimumAmount(String amount) {
+    return 'Minimum $amount';
+  }
+
+  @override
+  String get sendBelowMinimumTitle => 'Poniżej minimum';
+
+  @override
+  String sendBelowMinimum(String amount) {
+    return 'Minimum to $amount. Odbiorca może nie zaksięgować mniejszej kwoty.';
+  }
+
+  @override
+  String get sendCodeMinimumInvalid =>
+      'Minimum w tym kodzie jest nieprawidłowe i zostało pominięte.';
+
+  @override
+  String get sendNoteMissingTitle => 'Brak wiadomości';
+
+  @override
+  String get sendNoteMissingCode =>
+      'Ten kod wymaga wiadomości. Bez niej odbiorca może nie zaksięgować płatności.';
+
+  @override
+  String get sendNoteMissingExchange =>
+      'To wygląda na adres giełdy. Upewnij się, że wiadomość jest wypełniona. Giełdy mogą nazywać ją notatką on-chain.';
+
+  @override
   String get sendNoteFromCodeHelper => 'Z kodu. Odbiorca też ją zobaczy.';
 
   @override

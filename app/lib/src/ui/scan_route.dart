@@ -40,12 +40,14 @@ PaymentPrefs sendPayments(WidgetRef ref) =>
         // network mode holds it.
         .copyWith(linkHttp: true);
 
-/// Whether [request] carries more than its address: an amount, a note, a name, or a part that
-/// was dropped. A bare `epic:<address>` is handled as the address alone.
+/// Whether [request] carries more than its address: an amount, a note, a name, a minimum, or a
+/// part that was dropped. A bare `epic:<address>` is handled as the address alone.
 bool requestCarriesMore(PaymentRequest request) =>
     request.amount != null ||
     request.note != null ||
     request.label != null ||
+    request.minimum != null ||
+    request.noteRequired ||
     request.problems.isNotEmpty;
 
 /// Opens [text] from Home's scan or a link: a payment code or an address goes to Send, the

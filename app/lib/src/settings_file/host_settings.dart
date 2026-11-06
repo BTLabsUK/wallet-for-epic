@@ -216,6 +216,10 @@ class AppConfig {
   String get epicboxAddressDefault => _text('epicbox.address_default');
   int get pairingServerCount => _int('epicbox.pairing_servers');
   int get linkServerCount => _int('epicbox.link_servers');
+
+  /// Relays whose addresses look like an exchange's: Send warns while the message is empty.
+  /// Empty: no warning.
+  List<String> get noteRelays => _texts('epicbox.note_relays');
   Duration get listenerHealAfter => _s('epicbox.listener_heal_after_s');
   Duration get listenerHealMax => _s('epicbox.listener_heal_max_s');
 
@@ -410,6 +414,8 @@ class HostSettings {
 
   /// The server of an Epicbox address written without one (`app-config.toml`).
   String get epicboxDefault => config.epicboxAddressDefault;
+
+  List<String> get noteRelays => config.noteRelays;
 
   /// Where two wallets meet by spoken words: the first `epicbox.pairing_servers` of the list.
   List<String> get pairingServers => [for (final s in epicboxServers.take(config.pairingServerCount)) s.label];

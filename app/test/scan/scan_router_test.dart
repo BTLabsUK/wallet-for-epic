@@ -3,12 +3,16 @@
 // the vectors of §2.5, the routing table of §3.1, build → parse round trips, the Send
 // address rule, and the strings Stack Wallet and Epic Pay write.
 
+import 'package:epic_wallet/src/known_relays.dart';
 import 'package:epic_wallet/src/payment_method.dart';
 import 'package:epic_wallet/src/recipient.dart';
 import 'package:epic_wallet/src/scan/scan_checks.dart';
 import 'package:epic_wallet/src/scan/scan_router.dart';
+import 'package:epic_wallet/src/settings_file/host_settings.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../support/test_settings.dart';
 
 const _key = 'esWxboBPMgL4RqufRYcGUJ7t6YVWGvyuid6xRM62UkRzSb3jUcNK';
 
@@ -492,6 +496,111 @@ void main() {
       final p = _pay(uri);
       expect(p.note, note);
       expect(p.problems, isEmpty);
+    });
+  });
+
+  group('a code that requires its note', () {
+    const deposit =
+        'epic:$_key@epicbox.exchange.example?message=4827193065148&require=message&min=0.1&label=Example%20Exchange%20deposit';
+
+    test('reads the address as written, the note, the requirement and the minimum', () {
+      final p = _pay(deposit);
+      expect(p.recipient.address, '$_key@epicbox.exchange.example');
+      expect(p.note, '4827193065148');
+      expect(p.noteRequired, isTrue);
+      expect(p.minimum, BigInt.from(10000000));
+      expect(p.label, 'Example Exchange deposit');
+      expect(p.amount, isNull);
+      expect(p.problems, isEmpty);
+    });
+
+    test('a code without them requires nothing', () {
+      final p = _pay('epic:$_e?message=Hi');
+      expect(p.noteRequired, isFalse);
+      expect(p.minimum, isNull);
+    });
+
+    test('require comes before or after message', () {
+      expect(_pay('epic:$_e?require=message&message=Hi').noteRequired, isTrue);
+      expect(_pay('epic:$_e?require=MESSAGE&message=Hi').noteRequired, isTrue);
+    });
+
+    test('a code without its note still opens: Send warns', () {
+      for (final code in ['epic:$_e?require=message', 'epic:$_e?require=message&message=']) {
+        final p = _pay(code);
+        expect(p.noteRequired, isTrue, reason: code);
+        expect(p.note, isNull, reason: code);
+      }
+    });
+
+    test('a note too long for a slate still opens', () {
+      final p = _pay('epic:$_e?require=message&message=${'a' * 257}');
+      expect(p.note?.length, 257);
+      expect(p.noteRequired, isTrue);
+    });
+
+    test('the longest note that fits a slate is taken', () {
+      final p = _pay('epic:$_e?require=message&message=${'a' * 256}');
+      expect(p.note?.length, 256);
+      expect(p.noteRequired, isTrue);
+    });
+
+    test('a bad minimum is dropped and said; the note still counts', () {
+      for (final bad in ['0', '-1', 'x', '']) {
+        final p = _pay('epic:$_e?message=Hi&require=message&min=$bad');
+        expect(p.minimum, isNull, reason: bad);
+        expect(p.problems, {RequestProblem.minimumInvalid}, reason: bad);
+        expect(p.noteRequired, isTrue);
+      }
+    });
+
+    test('another word in require asks nothing', () {
+      expect(_pay('epic:$_e?message=Hi&require=name').noteRequired, isFalse);
+    });
+
+    test('the same payload opens under either scheme', () {
+      final link = _pay(deposit.replaceFirst('epic:', 'epiccash:'));
+      expect(link.recipient.address, '$_key@epicbox.exchange.example');
+      expect(link.note, '4827193065148');
+      expect(link.noteRequired, isTrue);
+      expect(link.minimum, BigInt.from(10000000));
+    });
+
+    test('the host GIO adds on a Linux second start changes nothing', () {
+      final p = _pay(deposit.replaceFirst('epic:', 'epiccash:///'));
+      expect(p.recipient.address, '$_key@epicbox.exchange.example');
+      expect(p.note, '4827193065148');
+      expect(p.noteRequired, isTrue);
+    });
+  });
+
+  group('a message Send expects', () {
+    const relay = 'epicbox.exchange.invalid';
+
+    test('a listed relay warns while the message is empty', () {
+      expect(missingNote('$_key@$relay', '', codeAsks: false), MissingNote.exchange);
+      expect(missingNote('$_key@$relay', '   ', codeAsks: false), MissingNote.exchange);
+      expect(missingNote('$_key@EPICBOX.Exchange.Invalid:443', '', codeAsks: false), MissingNote.exchange);
+      expect(missingNote('$_key@$relay', '1', codeAsks: false), isNull);
+    });
+
+    test('the relay is matched whole', () {
+      expect(missingNote('$_key@$relay.evil.invalid', '', codeAsks: false), isNull);
+      expect(missingNote('$_key@x.$relay', '', codeAsks: false), isNull);
+      expect(missingNote('$_key@box.epic.invalid', '', codeAsks: false), isNull);
+      expect(missingNote('', '', codeAsks: false), isNull);
+    });
+
+    test('a code asks on any relay', () {
+      expect(missingNote('$_key@box.epic.invalid', '', codeAsks: true), MissingNote.code);
+      expect(missingNote('$_key@$relay', '', codeAsks: true), MissingNote.code);
+      expect(missingNote('$_key@box.epic.invalid', '1', codeAsks: true), isNull);
+    });
+
+    test('an empty list warns about no relay', () {
+      hostSettings = testSettings().withValues({'epicbox.note_relays': <String>[]});
+      addTearDown(() => hostSettings = testSettings());
+      expect(missingNote('$_key@$relay', '', codeAsks: false), isNull);
     });
   });
 

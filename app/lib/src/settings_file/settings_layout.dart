@@ -305,6 +305,7 @@ const List<SettingsKey> configKeys = [
   SettingsKey('epicbox.address_default', TextKind(checkEpicboxServer)),
   SettingsKey('epicbox.pairing_servers', IntKind(min: 1, max: 10)),
   SettingsKey('epicbox.link_servers', IntKind(min: 1, max: 10)),
+  SettingsKey('epicbox.note_relays', TextListKind(checkHostName), byDefault: <String>[]),
   SettingsKey('epicbox.connect_timeout_s', _seconds),
   SettingsKey('epicbox.response_timeout_s', _seconds),
   SettingsKey('epicbox.ping_interval_s', _seconds),

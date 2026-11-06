@@ -13213,6 +13213,38 @@ class AppLocalizationsEn extends AppLocalizations {
   String get payeeNoteLabel => 'Message from the recipient';
 
   @override
+  String get sendNoteRequiredHelper =>
+      'The recipient needs this message. Keep it as it is.';
+
+  @override
+  String sendMinimumAmount(String amount) {
+    return 'Minimum $amount';
+  }
+
+  @override
+  String get sendBelowMinimumTitle => 'Below the minimum';
+
+  @override
+  String sendBelowMinimum(String amount) {
+    return 'The minimum is $amount. The recipient may not credit less.';
+  }
+
+  @override
+  String get sendCodeMinimumInvalid =>
+      'The minimum in this code is not valid and was ignored.';
+
+  @override
+  String get sendNoteMissingTitle => 'Message missing';
+
+  @override
+  String get sendNoteMissingCode =>
+      'This code asks for a message. Without it the recipient may not credit the payment.';
+
+  @override
+  String get sendNoteMissingExchange =>
+      'This looks like an exchange address. Make sure the message is filled in. Exchanges may call it the on-chain note.';
+
+  @override
   String get sendNoteFromCodeHelper => 'From the code. They see it too.';
 
   @override

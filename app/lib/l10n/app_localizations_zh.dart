@@ -12443,6 +12443,34 @@ class AppLocalizationsZh extends AppLocalizations {
   String get payeeNoteLabel => '收款方的留言';
 
   @override
+  String get sendNoteRequiredHelper => '对方需要这条留言。请保持原样。';
+
+  @override
+  String sendMinimumAmount(String amount) {
+    return '最低 $amount';
+  }
+
+  @override
+  String get sendBelowMinimumTitle => '低于最低金额';
+
+  @override
+  String sendBelowMinimum(String amount) {
+    return '最低金额为 $amount。低于此金额，对方可能不会入账。';
+  }
+
+  @override
+  String get sendCodeMinimumInvalid => '此码中的最低金额无效，已忽略。';
+
+  @override
+  String get sendNoteMissingTitle => '缺少留言';
+
+  @override
+  String get sendNoteMissingCode => '此码要求填写留言。没有留言，对方可能不会入账。';
+
+  @override
+  String get sendNoteMissingExchange => '这看起来是交易所地址。请确认已填写留言。交易所可能称其为链上备注。';
+
+  @override
   String get sendNoteFromCodeHelper => '来自付款码。对方也能看到。';
 
   @override

@@ -13369,6 +13369,38 @@ class AppLocalizationsDe extends AppLocalizations {
   String get payeeNoteLabel => 'Nachricht vom Empfänger';
 
   @override
+  String get sendNoteRequiredHelper =>
+      'Der Empfänger benötigt diese Nachricht. Lassen Sie sie unverändert.';
+
+  @override
+  String sendMinimumAmount(String amount) {
+    return 'Mindestens $amount';
+  }
+
+  @override
+  String get sendBelowMinimumTitle => 'Unter dem Mindestbetrag';
+
+  @override
+  String sendBelowMinimum(String amount) {
+    return 'Der Mindestbetrag ist $amount. Weniger wird dem Empfänger möglicherweise nicht gutgeschrieben.';
+  }
+
+  @override
+  String get sendCodeMinimumInvalid =>
+      'Der Mindestbetrag in diesem Code ist ungültig und wurde ignoriert.';
+
+  @override
+  String get sendNoteMissingTitle => 'Nachricht fehlt';
+
+  @override
+  String get sendNoteMissingCode =>
+      'Dieser Code verlangt eine Nachricht. Ohne sie wird die Zahlung dem Empfänger möglicherweise nicht gutgeschrieben.';
+
+  @override
+  String get sendNoteMissingExchange =>
+      'Das sieht nach einer Börsenadresse aus. Achten Sie darauf, dass die Nachricht ausgefüllt ist. Börsen nennen sie möglicherweise On-Chain-Notiz.';
+
+  @override
   String get sendNoteFromCodeHelper =>
       'Aus dem Code. Der Empfänger sieht sie auch.';
 

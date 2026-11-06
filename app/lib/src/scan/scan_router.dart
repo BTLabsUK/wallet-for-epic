@@ -69,6 +69,9 @@ enum RequestProblem {
 
   /// A part was longer than its limit.
   tooLong,
+
+  /// The minimum is not a valid amount.
+  minimumInvalid,
 }
 
 /// Which pairing link a text is (pairing RFC 0002).
@@ -129,6 +132,8 @@ final class PaymentRequest extends ScannedCode {
     this.label,
     this.method,
     this.direct,
+    this.noteRequired = false,
+    this.minimum,
     this.problems = const {},
   });
 
@@ -149,6 +154,14 @@ final class PaymentRequest extends ScannedCode {
 
   /// A second, Direct address of the same payee, checked.
   final Recipient? direct;
+
+  /// The code says a payment to this address needs a message (`require=message`): Send warns
+  /// while its message is empty and lets the user send anyway.
+  final bool noteRequired;
+
+  /// Atomic units: the least the payee says it takes, above zero; null when the code has none
+  /// or it was dropped. Send shows it and warns under it.
+  final BigInt? minimum;
 
   final Set<RequestProblem> problems;
 
@@ -280,7 +293,8 @@ ScannedCode _classify(String raw, AddressCheck check) {
   if (scheme == null) return _bare(text, check);
   var rest = text.substring(scheme.end);
   if (rest.startsWith('//')) {
-    rest = rest.substring(2);
+    // A Linux second start hands the running window `scheme:///…` (GIO adds the empty host).
+    rest = rest.substring(rest.startsWith('///') ? 3 : 2);
     final segment = rest.split('/').first.toLowerCase();
     final pairing = switch (segment) {
       'pair' => PairingKind.invite,
@@ -418,6 +432,8 @@ ScannedCode _payment(String text, String rest, AddressCheck check) {
   String? label;
   MethodHint? method;
   Recipient? direct;
+  var noteRequired = false;
+  BigInt? minimum;
   for (final MapEntry(key: name, value: raw) in params.entries) {
     if (!_known.contains(name)) continue;
     if (raw.length > maxUriValueLength) {
@@ -460,6 +476,12 @@ ScannedCode _payment(String text, String rest, AddressCheck check) {
             check(second) == AddressVerdict.valid) {
           direct = second;
         }
+      case 'require':
+        noteRequired = value.toLowerCase() == 'message';
+      case 'min':
+        final (atomic, problem) = parseUriAmount(value);
+        if (problem != null) problems.add(RequestProblem.minimumInvalid);
+        minimum = atomic;
     }
   }
   return PaymentRequest(
@@ -469,11 +491,21 @@ ScannedCode _payment(String text, String rest, AddressCheck check) {
     label: label,
     method: method,
     direct: direct,
+    noteRequired: noteRequired,
+    minimum: minimum,
     problems: problems,
   );
 }
 
-const Set<String> _known = {'amount', 'message', 'label', 'method', 'direct'};
+const Set<String> _known = {
+  'amount',
+  'message',
+  'label',
+  'method',
+  'direct',
+  'require',
+  'min',
+};
 
 /// The query's parameters by lowercase name, raw values; null when the URI must be refused:
 /// more than [maxUriParams], or a name twice.

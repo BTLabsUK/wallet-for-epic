@@ -17548,6 +17548,48 @@
   "@payeeNoteLabel": {
     "description": "Caption over the payee's note as written in a payment code (message)."
   },
+  "sendNoteRequiredHelper": "The recipient needs this message. Keep it as it is.",
+  "@sendNoteRequiredHelper": {
+    "description": "Send, under the message a payment code requires: the code says the payment needs this message. It can still be changed."
+  },
+  "sendMinimumAmount": "Minimum {amount}",
+  "@sendMinimumAmount": {
+    "description": "Send, under the amount: the least the payment code's recipient takes. {amount} is an amount with its unit.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "sendBelowMinimumTitle": "Below the minimum",
+  "@sendBelowMinimumTitle": {
+    "description": "Send: heading of the warning that the amount is under the minimum a payment code gave."
+  },
+  "sendBelowMinimum": "The minimum is {amount}. The recipient may not credit less.",
+  "@sendBelowMinimum": {
+    "description": "Send, amount and review: warning that the amount is under the minimum a payment code gave. Sending is still allowed. {amount} is the minimum with its unit.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "sendCodeMinimumInvalid": "The minimum in this code is not valid and was ignored.",
+  "@sendCodeMinimumInvalid": {
+    "description": "Request banner: the minimum in the payment code was not a valid amount and was dropped."
+  },
+  "sendNoteMissingTitle": "Message missing",
+  "@sendNoteMissingTitle": {
+    "description": "Send: heading of the warning that the message is empty while the code or the address expects one. The user may send anyway."
+  },
+  "sendNoteMissingCode": "This code asks for a message. Without it the recipient may not credit the payment.",
+  "@sendNoteMissingCode": {
+    "description": "Send: the warning when a payment code asks for a message and the field is empty. The user may send anyway."
+  },
+  "sendNoteMissingExchange": "This looks like an exchange address. Make sure the message is filled in. Exchanges may call it the on-chain note.",
+  "@sendNoteMissingExchange": {
+    "description": "Send: the warning when the address's Epicbox server is one the settings list as an exchange's and the message is empty. 'Looks like': the server does not prove who owns the address. The user may send anyway."
+  },
   "sendNoteFromCodeHelper": "From the code. They see it too.",
   "@sendNoteFromCodeHelper": {
     "description": "Helper under the Note field when the note was filled from a payment code; the receiver sees the note."

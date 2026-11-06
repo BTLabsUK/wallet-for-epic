@@ -36,7 +36,8 @@ import '../invite_links.dart' show parseInvite;
 import '../scan/incoming_link.dart' show linkBusyProvider;
 import '../scan/scan_checks.dart';
 import '../scan/scan_router.dart';
-import '../scan/scan_text.dart' show directHostBesideOf;
+import '../known_relays.dart' show MissingNote, missingNote;
+import '../scan/scan_text.dart' show directHostBesideOf, missingNoteText;
 import '../send_amount_gate.dart';
 import '../send_reach.dart';
 import '../send_route.dart';
@@ -122,6 +123,10 @@ const Key sendNotEnoughKey = ValueKey('send-not-enough');
 /// The × in the filled To field, for tests.
 const Key sendRecipientClearKey = ValueKey('send-recipient-clear');
 const Key sendNoteFieldKey = ValueKey('send-note-field');
+const Key sendNoteMissingKey = ValueKey('send-note-missing');
+const Key sendReviewNoteMissingKey = ValueKey('send-review-note-missing');
+const Key sendBelowMinimumKey = ValueKey('send-below-minimum');
+const Key sendReviewBelowMinimumKey = ValueKey('send-review-below-minimum');
 
 /// The review's "Uses all N outputs · change 1 output" line (strategy All).
 const Key sendUsesAllOutputsKey = ValueKey('send-uses-all-outputs');
@@ -474,6 +479,11 @@ class _SendViewState extends ConsumerState<SendView> {
         ? request
         : null;
   }
+
+  /// Why the amount step and the review warn that the message is empty, or null. The user may
+  /// send anyway.
+  MissingNote? get _missingNote =>
+      missingNote(_read.isAddress ? _read.address : _recipient.text.trim(), _note.text, codeAsks: _activeRequest?.noteRequired ?? false);
 
   /// The address the code filled in (the code's own, or its Direct one), or a scanned, pasted
   /// or linked address alone; [_origin] says where from while the To field still holds it.
@@ -3405,6 +3415,11 @@ class _SendViewState extends ConsumerState<SendView> {
           : l.sendAmountCodeAsked(epicText(l, asked));
       amountHelper = amountHelper == null ? marker : metaLine([marker, amountHelper]);
     }
+    final minimum = file ? null : _activeRequest?.minimum;
+    if (minimum != null) {
+      final line = l.sendMinimumAmount(epicText(l, minimum));
+      amountHelper = amountHelper == null ? line : metaLine([line, amountHelper]);
+    }
     // Why nothing is available yet, in the header's words.
     final held = [
       if (summary != null && summary.spendable == BigInt.zero) ...[
@@ -3487,6 +3502,10 @@ class _SendViewState extends ConsumerState<SendView> {
       if (!file)
         if (_activeLink case final link? when amountEdited(link, _parsedAmount))
           const Align(alignment: AlignmentDirectional.centerStart, child: LinkAmountNote()),
+      if (minimum != null && amount != null && amount < minimum) ...[
+        const SizedBox(height: 8),
+        InlineNotice(key: sendBelowMinimumKey, level: NoticeLevel.warning, text: l.sendBelowMinimum(epicText(l, minimum))),
+      ],
       const SizedBox(height: 12),
       if (summary != null)
         Text(
@@ -3537,11 +3556,18 @@ class _SendViewState extends ConsumerState<SendView> {
           contentPadding: EdgeInsets.zero,
           minTileHeight: 56,
           title: Text(l.sendNoteLabel, style: theme.textTheme.bodyMedium),
-          subtitle: Text(
-            _note.text,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _note.text,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall?.copyWith(color: t.dim),
+              ),
+              if (_activeRequest case final request? when request.noteRequired && _note.text == request.note)
+                Text(l.sendNoteRequiredHelper, style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+            ],
           ),
           trailing: Icon(Icons.edit_outlined, color: t.dim),
           onTap: () {
@@ -3590,11 +3616,18 @@ class _SendViewState extends ConsumerState<SendView> {
               helperText:
                   _activeRequest?.note != null &&
                       _note.text == _activeRequest?.note
-                  ? l.sendNoteFromCodeHelper
+                  ? _activeRequest!.noteRequired ? l.sendNoteRequiredHelper : l.sendNoteFromCodeHelper
                   : l.sendNoteHelper,
+              helperMaxLines: 2,
             ),
           ),
         ),
+      if (!file)
+        if (_missingNote case final why?)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: InlineNotice(key: sendNoteMissingKey, level: NoticeLevel.warning, text: missingNoteText(l, why)),
+          ),
     ];
   }
 
@@ -3835,6 +3868,16 @@ class _SendViewState extends ConsumerState<SendView> {
       if (checks.unknownRelay case final unknown? when !_sendFailed) ...[
         const SizedBox(height: 8),
         InlineNotice(key: sendUnknownRelayKey, level: NoticeLevel.warning, text: l.sendRelayUnknown(unknown.label)),
+      ],
+      // The message the code or the address expects is empty: a warning, the user may send.
+      if (_missingNote case final why? when !_sendFailed) ...[
+        const SizedBox(height: 8),
+        InlineNotice(key: sendReviewNoteMissingKey, level: NoticeLevel.warning, text: missingNoteText(l, why)),
+      ],
+      // Under a code's minimum, as Max may land: a warning, the payee decides what it credits.
+      if (_activeRequest?.minimum case final minimum? when estimate.amount < minimum && !_sendFailed) ...[
+        const SizedBox(height: 8),
+        InlineNotice(key: sendReviewBelowMinimumKey, level: NoticeLevel.warning, text: l.sendBelowMinimum(epicText(l, minimum))),
       ],
       // The cancel rule for this method, with the way to the Help topic (CancelNote). After a
       // failed delivery the actions below carry their own line, so this one steps aside.

@@ -20784,6 +20784,54 @@ abstract class AppLocalizations {
   /// **'Message from the recipient'**
   String get payeeNoteLabel;
 
+  /// Send, under the message a payment code requires: the code says the payment needs this message. It can still be changed.
+  ///
+  /// In en, this message translates to:
+  /// **'The recipient needs this message. Keep it as it is.'**
+  String get sendNoteRequiredHelper;
+
+  /// Send, under the amount: the least the payment code's recipient takes. {amount} is an amount with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum {amount}'**
+  String sendMinimumAmount(String amount);
+
+  /// Send: heading of the warning that the amount is under the minimum a payment code gave.
+  ///
+  /// In en, this message translates to:
+  /// **'Below the minimum'**
+  String get sendBelowMinimumTitle;
+
+  /// Send, amount and review: warning that the amount is under the minimum a payment code gave. Sending is still allowed. {amount} is the minimum with its unit.
+  ///
+  /// In en, this message translates to:
+  /// **'The minimum is {amount}. The recipient may not credit less.'**
+  String sendBelowMinimum(String amount);
+
+  /// Request banner: the minimum in the payment code was not a valid amount and was dropped.
+  ///
+  /// In en, this message translates to:
+  /// **'The minimum in this code is not valid and was ignored.'**
+  String get sendCodeMinimumInvalid;
+
+  /// Send: heading of the warning that the message is empty while the code or the address expects one. The user may send anyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Message missing'**
+  String get sendNoteMissingTitle;
+
+  /// Send: the warning when a payment code asks for a message and the field is empty. The user may send anyway.
+  ///
+  /// In en, this message translates to:
+  /// **'This code asks for a message. Without it the recipient may not credit the payment.'**
+  String get sendNoteMissingCode;
+
+  /// Send: the warning when the address's Epicbox server is one the settings list as an exchange's and the message is empty. 'Looks like': the server does not prove who owns the address. The user may send anyway.
+  ///
+  /// In en, this message translates to:
+  /// **'This looks like an exchange address. Make sure the message is filled in. Exchanges may call it the on-chain note.'**
+  String get sendNoteMissingExchange;
+
   /// Helper under the Note field when the note was filled from a payment code; the receiver sees the note.
   ///
   /// In en, this message translates to:

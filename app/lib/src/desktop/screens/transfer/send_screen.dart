@@ -1408,6 +1408,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return null;
   }
 
+  /// Why the form and the review warn that Message is empty, or null. The user may send anyway.
+  MissingNote? _missingNote(SendCode? code) =>
+      missingNote(_read.isAddress ? _read.address : _to.text.trim(), _message.text, codeAsks: code?.noteRequired ?? false);
+
   /// LEPIC signs at most [slateMessageMaxBytes] UTF-8 bytes of a message and cuts the rest
   /// (linux-09): longer text is refused here instead of being cut without a word.
   bool get _messageTooLong => utf8Length(_message.text.trim()) > slateMessageMaxBytes;
@@ -2087,6 +2091,16 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final pairingName = _pairingTo == null ? '' : ref.watch(deskPairingNameProvider(_pairingTo!));
     final shallow = ref.read(deskLevelUiProvider).shallow;
     final empty = _to.text.trim().isEmpty;
+    final missing = file ? null : _missingNote(code);
+    final minimum = code?.minimum;
+    final amountHelp = switch (code?.amount) {
+      // A link's request: only an edited amount says so.
+      _ when _linkNow != null => amountEdited(_linkNow!, _parsed == null ? null : BigInt.from(_parsed!)) ? l.linkAmountEdited : null,
+      null => null,
+      final asked when asked == _parsed => l.sendAmountFromCode,
+      final asked => l.sendAmountCodeAsked(epicTextL(l, asked)),
+    };
+    final minimumHelp = minimum == null ? null : l.sendMinimumAmount(epicTextL(l, minimum));
     return EPanel(
       padding: EdgeInsets.all(Sp.panel),
       child: Column(
@@ -2175,13 +2189,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           label: l.deskSendAmount,
           error: amErr,
           // What the code asked for: "requested by the code" while the field holds it.
-          help: switch (code?.amount) {
-            // A link's request: only an edited amount says so.
-            _ when _linkNow != null => amountEdited(_linkNow!, _parsed == null ? null : BigInt.from(_parsed!)) ? l.linkAmountEdited : null,
-            null => null,
-            final asked when asked == _parsed => l.sendAmountFromCode,
-            final asked => l.sendAmountCodeAsked(epicTextL(l, asked)),
-          },
+          help: amountHelp == null || minimumHelp == null ? minimumHelp ?? amountHelp : metaLine([minimumHelp, amountHelp]),
           aside: spendable == null
               ? Text(l.deskSendAvailableNone, style: ts.small)
               : Text(
@@ -2209,6 +2217,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             ),
           ),
         ),
+        if (minimum != null && _parsed != null && _parsed! < minimum) ...[
+          SizedBox(height: Sp.x3),
+          ENotice(key: const ValueKey('send-below-minimum'), tone: ETone.warn, title: l.sendBelowMinimumTitle, text: l.sendBelowMinimum(epicTextL(l, minimum))),
+        ],
         if ((st.balance?.awaitingConfirmation ?? 0) > 0) ...[
           SizedBox(height: Sp.x2),
           Text(st.settings.hideAmounts ? l.deskSendConfirmingHidden : l.deskSendConfirming(formatEpicL(l, st.balance!.awaitingConfirmation)), style: ts.small),
@@ -2223,9 +2235,12 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             l.deskSendMessageCount(utf8Length(_message.text), slateMessageMaxBytes),
             style: ts.mono(size: Fs.xs, color: _messageTooLong ? c.risk : utf8Length(_message.text) * 10 >= slateMessageMaxBytes * 9 ? c.warn : c.faint),
           ),
-          help: code != null && code.noteFilled && _message.text == code.note ? l.sendNoteFromCodeHelper : l.deskSendMessageHelp,
+          help: code != null && code.noteFilled && _message.text == code.note
+              ? code.noteRequired ? l.sendNoteRequiredHelper : l.sendNoteFromCodeHelper
+              : l.deskSendMessageHelp,
           error: _messageTooLong ? l.deskSendMessageTooLongPlain : null,
           child: EInput(
+            key: const ValueKey('send-message'),
             controller: _message,
             maxLines: 3,
             semanticLabel: l.deskSendMessage,
@@ -2233,6 +2248,10 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             onChanged: (_) => setState(() {}),
           ),
         ),
+        if (missing != null) ...[
+          SizedBox(height: Sp.x3),
+          ENotice(key: const ValueKey('send-note-missing'), tone: ETone.warn, title: l.sendNoteMissingTitle, text: missingNoteText(l, missing)),
+        ],
         // Advanced › Send options; open when a link brought the user here for it.
         if (!shallow && advancedHas(ref, AdvancedFeature.sendOptions, keep: _args.advancedOpen)) ...[
         SizedBox(height: Sp.x5),
@@ -3330,6 +3349,16 @@ class _ReviewDialogState extends State<_ReviewDialog> {
               title: l.deskSendRelayUnknownTitle,
               text: l.deskSendRelayUnknownText(unknown.label),
             ),
+          ],
+          // The message the code or the address expects is empty: a warning, the user may send.
+          if (d.to == null ? null : missingNote(d.to!, d.message, codeAsks: code?.noteRequired ?? false) case final why? when !_busy) ...[
+            SizedBox(height: Sp.x4),
+            ENotice(key: const ValueKey('send-review-note-missing'), tone: ETone.warn, title: l.sendNoteMissingTitle, text: missingNoteText(l, why)),
+          ],
+          // Under a code's minimum, as All may land: a warning, the payee decides what it credits.
+          if (code?.minimum case final minimum? when d.amount < minimum && !_busy) ...[
+            SizedBox(height: Sp.x4),
+            ENotice(key: const ValueKey('send-review-below-minimum'), tone: ETone.warn, title: l.sendBelowMinimumTitle, text: l.sendBelowMinimum(epicTextL(l, minimum))),
           ],
           if (_feeWas != null && !_busy) ...[
             SizedBox(height: Sp.x4),

@@ -12871,6 +12871,37 @@ class AppLocalizationsTh extends AppLocalizations {
   String get payeeNoteLabel => 'ข้อความจากผู้รับเงิน';
 
   @override
+  String get sendNoteRequiredHelper =>
+      'ผู้รับต้องใช้ข้อความนี้ โปรดคงไว้ตามเดิม';
+
+  @override
+  String sendMinimumAmount(String amount) {
+    return 'ขั้นต่ำ $amount';
+  }
+
+  @override
+  String get sendBelowMinimumTitle => 'ต่ำกว่าขั้นต่ำ';
+
+  @override
+  String sendBelowMinimum(String amount) {
+    return 'ขั้นต่ำคือ $amount ผู้รับอาจไม่เข้าบัญชีให้หากน้อยกว่านี้';
+  }
+
+  @override
+  String get sendCodeMinimumInvalid => 'ขั้นต่ำในโค้ดนี้ไม่ถูกต้องและถูกข้ามไป';
+
+  @override
+  String get sendNoteMissingTitle => 'ไม่มีข้อความ';
+
+  @override
+  String get sendNoteMissingCode =>
+      'โค้ดนี้ต้องมีข้อความ หากไม่มี ผู้รับอาจไม่เข้าบัญชีให้';
+
+  @override
+  String get sendNoteMissingExchange =>
+      'ดูเหมือนเป็นที่อยู่ของตลาดแลกเปลี่ยน โปรดตรวจสอบว่ากรอกข้อความแล้ว ตลาดแลกเปลี่ยนอาจเรียกว่าโน้ตบนเชน';
+
+  @override
   String get sendNoteFromCodeHelper => 'มาจากโค้ด ผู้รับเห็นข้อความนี้ด้วย';
 
   @override

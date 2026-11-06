@@ -13711,6 +13711,38 @@ class AppLocalizationsRu extends AppLocalizations {
   String get payeeNoteLabel => 'Сообщение от получателя';
 
   @override
+  String get sendNoteRequiredHelper =>
+      'Получателю нужно это сообщение. Оставьте его без изменений.';
+
+  @override
+  String sendMinimumAmount(String amount) {
+    return 'Минимум $amount';
+  }
+
+  @override
+  String get sendBelowMinimumTitle => 'Меньше минимума';
+
+  @override
+  String sendBelowMinimum(String amount) {
+    return 'Минимум: $amount. Меньшую сумму получатель может не зачислить.';
+  }
+
+  @override
+  String get sendCodeMinimumInvalid =>
+      'Минимум в этом коде недействителен и был пропущен.';
+
+  @override
+  String get sendNoteMissingTitle => 'Нет сообщения';
+
+  @override
+  String get sendNoteMissingCode =>
+      'Этот код требует сообщение. Без него получатель может не зачислить платёж.';
+
+  @override
+  String get sendNoteMissingExchange =>
+      'Похоже, это адрес биржи. Убедитесь, что сообщение заполнено. Биржи могут называть его ончейн-заметкой.';
+
+  @override
   String get sendNoteFromCodeHelper => 'Из кода. Получатель тоже его увидит.';
 
   @override

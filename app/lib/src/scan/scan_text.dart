@@ -4,6 +4,7 @@
 library;
 
 import '../address_format.dart' show hostPort;
+import '../known_relays.dart' show MissingNote;
 import '../l10n.dart';
 import 'scan_checks.dart' show CodeOrigin;
 import 'scan_router.dart' show RequestProblem, untrustedTextForbidden;
@@ -24,7 +25,14 @@ List<String> requestProblemLines(
   if (problems.contains(RequestProblem.amountTooLarge))
     l.sendCodeAmountTooLarge,
   if (problems.contains(RequestProblem.tooLong)) l.sendCodeTooLong,
+  if (problems.contains(RequestProblem.minimumInvalid)) l.sendCodeMinimumInvalid,
 ];
+
+/// The warning for a message Send expects and does not have.
+String missingNoteText(AppLocalizations l, MissingNote why) => switch (why) {
+  MissingNote.code => l.sendNoteMissingCode,
+  MissingNote.exchange => l.sendNoteMissingExchange,
+};
 
 /// The host of a Direct address, with its port: `203.0.113.4:<port>`, `<56 characters>.onion`
 /// ([hostPort]).
