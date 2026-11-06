@@ -653,6 +653,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Cancelled. If the sender posts it later, it still arrives.';
 
   @override
+  String get txStatusReceiverDeclined => 'Declined by the receiver';
+
+  @override
+  String get txDetailsReceiverDeclined =>
+      'The receiver declined this payment. It was cancelled and your balance has not changed.';
+
+  @override
   String get txStatusSenderCancelled => 'Cancelled by the sender';
 
   @override

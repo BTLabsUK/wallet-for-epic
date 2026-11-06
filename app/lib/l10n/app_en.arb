@@ -732,6 +732,14 @@
   "@txDetailsCancelledIncoming": {
     "description": "Payment details, status explanation of a cancelled receive. 'Posts' means the sender publishes it to the network; the wallet keeps looking for it with no end date, so it still arrives whenever that happens."
   },
+  "txStatusReceiverDeclined": "Declined by the receiver",
+  "@txStatusReceiverDeclined": {
+    "description": "Transaction status (phone list, badge, desktop Activity) of an outgoing payment whose receiver refused it unanswered. The wallet cancelled it."
+  },
+  "txDetailsReceiverDeclined": "The receiver declined this payment. It was cancelled and your balance has not changed.",
+  "@txDetailsReceiverDeclined": {
+    "description": "Payment details, explanation of an outgoing payment the receiver declined. The wallet cancelled it; the balance is unchanged."
+  },
   "txStatusSenderCancelled": "Cancelled by the sender",
   "@txStatusSenderCancelled": {
     "description": "Transaction status (phone list, badge, desktop Activity) of an incoming payment whose sender reported that it cancelled it. Uses the same 'Cancelled' word as the plain cancelled status."

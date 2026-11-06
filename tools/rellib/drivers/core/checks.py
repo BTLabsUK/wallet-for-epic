@@ -55,6 +55,8 @@ WANT_SETTINGS = {"theme": "Light", "label": "Trust " + datetime.datetime.now().s
 RECEIVE = ("receive_ok", "receive_after_update")
 SEND = ("send_ok", "send_after_update")
 TOR = "tor_payment_ok"  # the Tor lanes' after-update legs went over Tor: never required (warns only)
+# A send its receiver refused unanswered: LEPIC cancels it, the app says so
+DECLINED = facts.label("txStatusReceiverDeclined", "Declined by the receiver")
 
 num = wd.num
 fmt = wd.fmt
@@ -779,6 +781,14 @@ def _send_extra(lane):
         a -= part
 
 
+def _shows(lane, words):
+    """Whether the recipe's screen holds [words] anywhere (the Send page's card, a row's status)."""
+    try:
+        return any(words in (n.name or "") for n in lane.ui.d.tree())
+    except Exception:  # noqa: BLE001  the reason is a detail: the check's result stands without it
+        return False
+
+
 def _send_to_p(lane, d0, amount=None, fallback=None):
     """[amount] (EPIC, a Decimal) to P through the recipe's Send page, or everything (Max) when None; True
     when the data shows the payment posted and confirmed (and of that amount). [fallback](why) is called
@@ -815,6 +825,11 @@ def _send_to_p(lane, d0, amount=None, fallback=None):
                 if out and out[-1]["state"] in ("posted", "confirmed"):
                     posted = True  # P answered: the confirmation is waited for below
                     break
+                if out and re.search(r"cancel", out[-1]["state"] or "", re.I):
+                    # over: no wait, in the clear or not, posts a cancelled send
+                    lane.send_pending = None
+                    return False, "cancelled before it was posted, %s (wallet records %s)" % (
+                        "the app says %s" % DECLINED if _shows(lane, DECLINED) else "the app gives no reason", last)
                 time.sleep(POLL_S)
             if not posted:
                 if fallback is None:

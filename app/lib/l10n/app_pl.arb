@@ -158,6 +158,8 @@
   "txDetailsCancelledLateAnswer": "Odbiorca odpowiedział po upływie 24 godzin, więc portfel anulował płatność, zamiast ją dokończyć. Nic nie zostało zapłacone, a środki są znów dostępne.",
   "txDetailsCancelledUndelivered": "Nie udało się dostarczyć płatności do odbiorcy, więc portfel od razu ją anulował. Nic nie zostało wysłane, a środki są znów dostępne.",
   "txDetailsCancelledIncoming": "Anulowano. Jeśli nadawca opublikuje płatność później, i tak dotrze.",
+  "txStatusReceiverDeclined": "Odrzucona przez odbiorcę",
+  "txDetailsReceiverDeclined": "Odbiorca odrzucił tę płatność. Została anulowana, a twoje saldo się nie zmieniło.",
   "txStatusSenderCancelled": "Anulowana przez nadawcę",
   "txDetailsSenderCancelledWaiting": "Nadawca anulował tę płatność. Portfel usunie ją tutaj po sprawdzeniu sieci.",
   "txDetailsSenderCancelled": "Nadawca anulował tę płatność. Jeśli została wcześniej opublikowana, i tak dotrze.",

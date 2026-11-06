@@ -158,6 +158,8 @@
   "txDetailsCancelledLateAnswer": "Der Empfänger hat erst nach Ablauf der 24-Stunden-Frist geantwortet, daher hat die Wallet die Zahlung storniert, statt sie abzuschließen. Es wurde nichts bezahlt und der Betrag ist wieder verfügbar.",
   "txDetailsCancelledUndelivered": "Die Zahlung konnte dem Empfänger nicht zugestellt werden, daher hat die Wallet sie sofort storniert. Es wurde nichts gesendet und der Betrag ist wieder verfügbar.",
   "txDetailsCancelledIncoming": "Storniert. Veröffentlicht der Absender sie später doch, trifft sie trotzdem ein.",
+  "txStatusReceiverDeclined": "Vom Empfänger abgelehnt",
+  "txDetailsReceiverDeclined": "Der Empfänger hat diese Zahlung abgelehnt. Sie wurde storniert, und Ihr Guthaben hat sich nicht geändert.",
   "txStatusSenderCancelled": "Vom Absender storniert",
   "txDetailsSenderCancelledWaiting": "Der Absender hat diese Zahlung storniert. Die Wallet entfernt sie hier, nachdem sie das Netzwerk geprüft hat.",
   "txDetailsSenderCancelled": "Der Absender hat diese Zahlung storniert. Wurde sie vorher doch veröffentlicht, trifft sie trotzdem ein.",

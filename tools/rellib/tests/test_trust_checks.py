@@ -585,6 +585,22 @@ class SendAmount(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("the Send page was given 0.02 EPIC", why)
 
+    def test_declined_send_ends_the_wait_with_its_reason(self):
+        """A send its receiver declined is cancelled: no wait, in the clear or not, posts it."""
+        lane, asked, fell = FakeLane(mode="seed"), [], []
+        lane.funder = FakeFunder()
+        lane.ui = mock.Mock()
+        lane.ui.send = lambda to, a: asked.append((to, a)) or (True, "")
+        lane.ui.d.tree.return_value = [mock.NonCallableMock(spec=["name"])]
+        lane.ui.d.tree.return_value[0].name = "Declined by the receiver"
+        out = dict(tx("outgoing", state="cancelled", amount=6000000, slate=None), credited=0, fee=4000000)
+        with mock.patch.object(checks, "_digest", lambda *a: digest(txs=[out])), mock.patch.object(checks, "POLL_S", 0):
+            ok, why = checks._send_to_p(lane, digest(total=7000000, txs=[]), checks.D("0.02"), fallback=fell.append)
+        self.assertFalse(ok)
+        self.assertIn("cancelled before it was posted, the app says Declined by the receiver", why)
+        self.assertEqual((len(asked), fell), (1, []))
+        self.assertIsNone(lane.send_pending)
+
     def test_amount_over_the_cap_refused(self):
         _, asked, ok, why = self.send(0, amount="0.06")
         self.assertFalse(ok)

@@ -62,6 +62,27 @@ const _onNetwork = WalletError(kind: WalletErrorKind.invalidArgument, message: '
 const _noNode = WalletError(kind: WalletErrorKind.nodeUnreachable, message: 'node unreachable');
 
 void main() {
+  test('a send its receiver declined reads Declined by the receiver; a plain cancelled send keeps Cancelled', () {
+    TxEntry sent({int? declinedAtUnix}) => fakeTx(
+      slateId: 'declined-1',
+      id: 10,
+      kind: TxKind.sentCancelled,
+      status: TxStatus.cancelled,
+      createdAtUnix: _unix(_now.subtract(const Duration(minutes: 5))),
+      amountDebited: BigInt.from(100000000),
+      transport: 'epicbox',
+      counterparty: 'esReceiver@epicbox.epiccash.com',
+      receiverDeclinedAtUnix: declinedAtUnix,
+    );
+    final declined = sent(declinedAtUnix: _unix(_now));
+    expect(receiverDeclined(declined), isTrue);
+    expect(txStatusLabel(_l, declined, _tip, now: _now), _l.txStatusReceiverDeclined);
+    expect(txExplanation(_l, declined, _tip), _l.txDetailsReceiverDeclined);
+    final plain = sent();
+    expect(receiverDeclined(plain), isFalse);
+    expect(txStatusLabel(_l, plain, _tip, now: _now), _l.txStatusCancelled);
+  });
+
   group('the rule', () {
     test('a waiting incoming payment its sender cancelled is pending; once cleared it stays cancelled by the sender', () {
       expect(senderCancelPending(_waiting()), isTrue);

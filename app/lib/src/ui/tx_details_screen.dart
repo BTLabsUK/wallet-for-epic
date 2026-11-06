@@ -202,6 +202,8 @@ String txExplanation(
       height == null
           ? l.txDetailsCompleted
           : l.txDetailsCompletedInBlock(groupDigits(l, height)),
+    // The receiver refused it: the core cancelled it, whatever else is recorded.
+    TxPhase.cancelled when receiverDeclined(tx) => l.txDetailsReceiverDeclined,
     // One the other side could have finished (cancel_final.dart): final once its coins were
     // spent again, by Cancel's spend back or a later payment. [cancelFinal] is null until known.
     // Release coins is such a cancel too: the same words, so a released send whose coins

@@ -659,6 +659,8 @@ InvoiceEvent? lepicInvoiceEvent(lepic.WalletEvent e) {
     // The sender of a payment this wallet answered reports it cancelled: LEPIC checked who and
     // cancelled nothing; the app releases it (sender_cancel.dart).
     lepic.WalletEventKind.paymentCancelled => InvoiceEventKind.paymentCancelled,
+    // The receiver of a send this wallet made refused it unanswered: LEPIC cancelled the send.
+    lepic.WalletEventKind.paymentDeclined => InvoiceEventKind.paymentDeclined,
     _ => null,
   };
   if (kind == null) return null;
@@ -849,6 +851,9 @@ TxEntry lepicTxEntry(lepic.TransactionDetails d, {bool sending = false, bool pos
     senderReportedCancelledAtUnix: d.senderReportedCancelledAtMs == null
         ? null
         : d.senderReportedCancelledAtMs! ~/ 1000,
+    receiverDeclinedAtUnix: d.receiverDeclinedAtMs == null
+        ? null
+        : d.receiverDeclinedAtMs! ~/ 1000,
     pairingId: pairingId,
   );
 }
@@ -2971,7 +2976,9 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
             InvoiceEventKind.receiveSuperseded:
           // A relay that did not settle the message delivers it again: one notice per slate.
           if (!_unknownSlates.add(event.slateId)) return;
-        case InvoiceEventKind.paymentPosted || InvoiceEventKind.paymentCancelled:
+        case InvoiceEventKind.paymentPosted ||
+            InvoiceEventKind.paymentCancelled ||
+            InvoiceEventKind.paymentDeclined:
           // LEPIC raises it once per payment and records the report itself.
           break;
       }

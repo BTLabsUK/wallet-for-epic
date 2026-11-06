@@ -206,6 +206,8 @@ Widget deskDeviceStatusInfo(AppLocalizations l, Tx t) => Padding(
         TxState.waitingRecipient when t.undelivered => (l.deskTxStatusUndelivered, ETone.warn),
         // The sender's word: over, and cleared by itself (sender_cancel.dart).
         TxState.waitingRecipient || TxState.cancelled when t.incoming && t.senderCancelled => (l.txStatusSenderCancelled, ETone.neutral),
+        // The receiver refused it: the core cancelled the send.
+        TxState.cancelled when !t.incoming && t.receiverDeclined => (l.txStatusReceiverDeclined, ETone.neutral),
         // The sender's word, not the chain's: in progress, never Received before a block.
         TxState.waitingRecipient when t.incoming && t.senderPosted => (l.deskTxStatusSenderPosted, ETone.info),
         TxState.waitingRecipient => (
