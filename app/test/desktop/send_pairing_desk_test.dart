@@ -11,6 +11,8 @@ import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings, localDayMonth;
 import 'package:epic_wallet/src/models.dart' show PairingState;
+import 'package:epic_wallet/src/name_service/payment_refusals.dart';
+import 'package:epic_wallet/src/trust/policy.dart' show PeerCompat;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -24,11 +26,24 @@ class _Wallet extends MockDeskWallet {
 
   final List<SendRequest> sent = [];
 
+  /// A send through a pairing fails (the mailbox did not take it).
+  bool failPairing = false;
+
   @override
   Future<SendResult> send(SendRequest request) {
     sent.add(request);
+    if (failPairing && request.pairingId != null) return Future.value(const SendFailed('No answer through the pairing.'));
     return super.send(request);
   }
+}
+
+/// Anna's pairing takes no payments.
+class _RefusesAnna implements PaymentRefusals {
+  @override
+  bool refusesPayments({String? pairingId, String? address}) => pairingId == mockAnnaPairing;
+
+  @override
+  String? refusedName({String? pairingId, String? address}) => refusesPayments(pairingId: pairingId, address: address) ? 'Anna' : null;
 }
 
 void main() {
@@ -128,5 +143,129 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text(_l.sendViaMailboxMovedHint('box.example.org', localDayMonth(_l, p.movedAt!))), findsOneWidget);
     expect(find.text(_l.sendViaMailboxHint('epicbox.epiccash.com')), findsNothing);
+  });
+
+  // A paired contact with an Epicbox address in To: the switch under To starts as the rule says
+  // and the send goes through the pairing while it is on.
+  group('mailbox first', () {
+    final viaSwitch = find.byKey(const ValueKey('send-via-mailbox'));
+    final password = find.descendant(of: find.widgetWithText(EField, _l.deskSendPassword), matching: find.byType(TextField));
+
+    /// The mock's contact [id], as the state lists it (Anna 'c1' is paired and verified).
+    Future<Contact> contact(WidgetTester tester, String id) async {
+      await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
+      return container.read(deskProvider).contacts!.firstWhere((c) => c.id == id);
+    }
+
+    Future<void> sendOne(WidgetTester tester) async {
+      await tester.tap(find.widgetWithText(EButton, _l.deskSendReview));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.deskSendReviewTitle), findsOneWidget);
+      await tester.enterText(password, 'secret-pass');
+      await tester.pump();
+      await tester.tap(find.widgetWithText(EButton, 'Send 1.0\u00a0EPIC'));
+      await tester.pumpAndSettle();
+    }
+
+    bool switchOn(WidgetTester tester) => tester.widget<ESwitch>(viaSwitch).value;
+
+    testWidgets('desktop defaults to the pairing for a paired contact with an address', (tester) async {
+      final anna = await contact(tester, 'c1');
+      await pump(tester, SendScreen(arg: SendArgs(contact: anna, amount: '1', epicboxHealth: ServiceHealth.ok)));
+      expect(find.byKey(const ValueKey('send-route-epicbox')), findsOneWidget);
+      expect(switchOn(tester), isTrue);
+      expect(find.text(_l.sendViaMailbox), findsOneWidget);
+      await sendOne(tester);
+      expect(wallet.sent.single.pairingId, mockAnnaPairing);
+      expect(wallet.sent.single.to, isNull);
+    });
+
+    testWidgets('switch off sends by Epicbox', (tester) async {
+      final anna = await contact(tester, 'c1');
+      await pump(tester, SendScreen(arg: SendArgs(contact: anna, amount: '1', epicboxHealth: ServiceHealth.ok)));
+      await tester.tap(viaSwitch);
+      await tester.pumpAndSettle();
+      expect(switchOn(tester), isFalse);
+      expect(find.text(_l.sendViaPublicHint(anna.name)), findsOneWidget);
+      await sendOne(tester);
+      expect(wallet.sent.single.pairingId, isNull);
+      expect(wallet.sent.single.to, anna.address);
+    });
+
+    testWidgets('typed address of a paired contact defaults to the pairing too', (tester) async {
+      final anna = await contact(tester, 'c1');
+      await pump(tester, const SendScreen(arg: SendArgs(amount: '1', epicboxHealth: ServiceHealth.ok)));
+      expect(viaSwitch, findsNothing);
+      await tester.enterText(find.byType(EditableText).first, anna.address);
+      await tester.pumpAndSettle();
+      expect(switchOn(tester), isTrue);
+      await sendOne(tester);
+      expect(wallet.sent.single.pairingId, mockAnnaPairing);
+    });
+
+    testWidgets('a reason the rule knows starts the switch off, with its line', (tester) async {
+      final anna = await contact(tester, 'c1');
+      wallet.peerCompats[anna.address] = PeerCompat(lastMarkedAt: DateTime.now().subtract(const Duration(days: 40)), lastUnmarkedAt: DateTime.now().subtract(const Duration(days: 1)));
+      await pump(tester, SendScreen(arg: SendArgs(contact: anna, amount: '1', epicboxHealth: ServiceHealth.ok)));
+      expect(switchOn(tester), isFalse);
+      expect(find.text(_l.trustLineOtherApp(anna.name)), findsOneWidget);
+      await sendOne(tester);
+      expect(wallet.sent.single.pairingId, isNull);
+      expect(wallet.sent.single.to, anna.address);
+    });
+
+    testWidgets('no-payments contact is refused on the pairing route', (tester) async {
+      container.dispose();
+      container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(wallet), paymentRefusalsProvider.overrideWithValue(_RefusesAnna())]);
+      final anna = await contact(tester, 'c1');
+      await pump(tester, SendScreen(arg: SendArgs(contact: anna, amount: '1', epicboxHealth: ServiceHealth.ok)));
+      expect(switchOn(tester), isTrue);
+      await tester.tap(find.widgetWithText(EButton, _l.deskSendReview));
+      await tester.pumpAndSettle();
+      expect(find.text(_l.contactNoPaymentsNamed('Anna')), findsOneWidget);
+      expect(find.text(_l.deskSendReviewTitle), findsNothing);
+      expect(wallet.sent, isEmpty);
+      // The public address is not refused: off, the send goes by Epicbox.
+      await tester.tap(viaSwitch);
+      await tester.pumpAndSettle();
+      expect(find.text(_l.contactNoPaymentsNamed('Anna')), findsNothing);
+      await sendOne(tester);
+      expect(wallet.sent.single.to, anna.address);
+    });
+
+    testWidgets('failed pairing send offers the public Epicbox address', (tester) async {
+      wallet.failPairing = true;
+      final anna = await contact(tester, 'c1');
+      await pump(tester, SendScreen(arg: SendArgs(contact: anna, amount: '1', epicboxHealth: ServiceHealth.ok)));
+      await sendOne(tester);
+      expect(wallet.sent.single.pairingId, mockAnnaPairing);
+      expect(find.text(_l.deskSendFailedTitle), findsOneWidget);
+      final fallback = find.byKey(const ValueKey('send-public-fallback'));
+      expect(fallback, findsOneWidget);
+      expect(find.text(_l.sendPublicFallback), findsOneWidget);
+      await tester.tap(fallback);
+      await tester.pumpAndSettle();
+      expect(find.text(_l.deskSendReviewTitle), findsOneWidget);
+      await tester.enterText(password, 'secret-pass');
+      await tester.pump();
+      await tester.tap(find.widgetWithText(EButton, 'Send 1.0\u00a0EPIC'));
+      await tester.pumpAndSettle();
+      expect(wallet.sent, hasLength(2));
+      expect(wallet.sent.last.pairingId, isNull);
+      expect(wallet.sent.last.to, anna.address);
+      expect(find.text(_l.deskSendFailedTitle), findsNothing);
+      expect(fallback, findsNothing);
+    });
+
+    testWidgets('unpaired contact shows no switch', (tester) async {
+      final pool = await contact(tester, 'c2');
+      await pump(tester, SendScreen(arg: SendArgs(contact: pool, amount: '1', epicboxHealth: ServiceHealth.ok)));
+      expect(find.byKey(const ValueKey('send-route-epicbox')), findsOneWidget);
+      expect(viaSwitch, findsNothing);
+      expect(find.text(_l.sendViaMailbox), findsNothing);
+      await sendOne(tester);
+      expect(wallet.sent.single.pairingId, isNull);
+      expect(wallet.sent.single.to, pool.address);
+    });
   });
 }
