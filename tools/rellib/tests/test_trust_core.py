@@ -223,6 +223,16 @@ class CoreTest(unittest.TestCase):
         d.wait = lambda expect, timeout=30, **kw: expect.test(d, f.tree()) or None
         return desk
 
+    def test_update_strip_hidden_before_a_step(self):
+        """A newer release out: the strip above the page is hidden (×) so a step never meets its Update."""
+        f = Fake({"strip": [n(0, "text", "Version 26.11.99 is available."), n(1, "button", "Update"),
+                            n(2, "button", "Hide until the next version"), n(3, "text", "Available to spend")],
+                  "home": [n(0, "text", "Available to spend")]}, "strip", {("strip", "Hide until the next version"): "home"})
+        d = self.driver(f, arb={"deskUpdStripHide": "Hide until the next version", "deskOvAvailable": "Available to spend"})
+        Desktop(d, "candidate", self.logs.append)
+        d._clear()
+        self.assertEqual((f.cur, f.pressed), ("home", ["Hide until the next version"]))
+
     def test_password_field_without_the_flag_is_product(self):
         # 26.10.26 b1e4540 on Windows: the unlock field had its Semantics id and no IsPassword
         desk = self._unlock(n(1, "text_field", "Password", states=("enabled", "editable", "focused")))
