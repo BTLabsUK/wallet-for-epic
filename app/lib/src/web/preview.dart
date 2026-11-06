@@ -15,7 +15,7 @@ import '../levels/first_start.dart' show firstStartProvider;
 import '../levels/relay_switch_providers.dart' show relaySwitchProvider;
 import '../net/http_types.dart' show NetError;
 import '../network.dart';
-import '../pairing_fake.dart' show fakePairingLink;
+import '../pairing_fake.dart' show FakePairing, fakePairingLink;
 import '../phone_tor.dart';
 import '../relay_directory.dart';
 import '../wallet_service.dart';
@@ -480,6 +480,13 @@ PreviewSession _previewSession() {
       paymentsAddress: biller,
       relay: 'relay.northwind.example',
     );
+  // `?relaymove`: Tom moved to another relay (followed without a word, "Moved here on"), and
+  // the BT Labs Faucet asks to move (the Accept/Refuse sheet).
+  if (previewRelayMove) {
+    session.pairing.seedPaired(name: 'BT Labs Faucet', contactId: 'c7', peerEncKey: FakePairing.serviceKey, requestedRelay: 'epicbox.stackwallet.com');
+    final tom = session.pairing.records.firstWhere((r) => r.contactId == 'c6');
+    unawaited(session.pairing.askRelayMove(tom.id, 'epicbox.epicnet.us'));
+  }
   Future<void>.value()
       .then((_) {
         session
