@@ -158,6 +158,14 @@ Root: HKCU; Subkey: "Software\Classes\epiccash"; ValueType: string; ValueName: "
 Root: HKCU; Subkey: "Software\Classes\epiccash"; ValueType: string; ValueName: "URL Protocol"; ValueData: ""
 Root: HKCU; Subkey: "Software\Classes\epiccash\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: """{app}\{#AppExe}"",0"
 Root: HKCU; Subkey: "Software\Classes\epiccash\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#AppExe}"" ""%1"""
+; Payment links (epic:<address>?...). Another app may own this name: EpicSchemeFree leaves that
+; one alone, and the uninstall removes the key only when it is still ours (CurUninstallStepChanged),
+; so no uninsdeletekey. Every entry asks EpicSchemeFree again: the command goes first, or the
+; half-written key would read as another app's.
+Root: HKCU; Subkey: "Software\Classes\epic\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#AppExe}"" ""%1"""; Check: EpicSchemeFree
+Root: HKCU; Subkey: "Software\Classes\epic"; ValueType: string; ValueName: ""; ValueData: "URL:Epic Cash payment"; Check: EpicSchemeFree
+Root: HKCU; Subkey: "Software\Classes\epic"; ValueType: string; ValueName: "URL Protocol"; ValueData: ""; Check: EpicSchemeFree
+Root: HKCU; Subkey: "Software\Classes\epic\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: """{app}\{#AppExe}"",0"; Check: EpicSchemeFree
 
 [Run]
 ; "Open BT Wallet" on the finish page (the stock Finish button, renamed). The "Close" link
@@ -219,6 +227,23 @@ var
 function FromApp: Boolean;
 begin
   Result := ExpandConstant('{param:UPDATEFROMAPP|0}') = '1';
+end;
+
+{ Whether the epic: scheme's command is this install's. }
+function EpicSchemeOurs(const Root: Integer; const Key: String): Boolean;
+var
+  Command: String;
+begin
+  Result := RegQueryStringValue(Root, Key + '\shell\open\command', '', Command) and
+    (Pos(Lowercase(ExpandConstant('{app}\{#AppExe}')), Lowercase(Command)) > 0);
+end;
+
+{ Nothing owns epic: yet, or this install does. HKCR is the user's and the machine's together. }
+function EpicSchemeFree: Boolean;
+begin
+  Result := (not RegKeyExists(HKCR, 'epic')) or EpicSchemeOurs(HKCR, 'epic');
+  if not Result then
+    Log('The epic: scheme belongs to another app; it stays as it is');
 end;
 
 function WantStartMenu: Boolean;
@@ -787,6 +812,12 @@ begin
     BarFill.Width := MulDiv(BarTrack.Width, CurProgress, MaxProgress);
     PctLabel.Caption := IntToStr(MulDiv(100, CurProgress, MaxProgress)) + '%';
   end;
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if (CurUninstallStep = usPostUninstall) and EpicSchemeOurs(HKCU, 'Software\Classes\epic') then
+    RegDeleteKeyIncludingSubkeys(HKCU, 'Software\Classes\epic');
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);

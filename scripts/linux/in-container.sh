@@ -62,9 +62,10 @@ HERE="$(dirname "$(readlink -f "$0")")"
 exec "$HERE/usr/bin/btwallet" "$@"
 RUN
 chmod +x "$appdir/AppRun"
-# %u and the MimeType: a browser hands epiccash:// invite links to the app once a desktop
-# integrator (appimaged, AppImageLauncher, Gear Lever) installed this file; the app reads the link
-# from its arguments, and a second start passes it to the running window.
+# %u and the MimeType: a browser hands epic: and epiccash: links to the app once this file is
+# installed, by a desktop integrator (appimaged, AppImageLauncher, Gear Lever); without one the
+# app writes an entry of its own on start (lib/src/desktop/data/desk_link_handler.dart). The app
+# reads the link from its arguments, and a second start passes it to the running window.
 cat > "$appdir/uk.btlabs.epiccash.desktop.desktop" <<'DESK'
 [Desktop Entry]
 Type=Application
@@ -74,7 +75,7 @@ Icon=epic-cash-desktop
 StartupWMClass=uk.btlabs.epiccash.desktop
 Categories=Finance;Utility;
 Terminal=false
-MimeType=x-scheme-handler/epiccash;
+MimeType=x-scheme-handler/epic;x-scheme-handler/epiccash;
 DESK
 # The launcher icon (app/linux/icons, from the brand master): the hicolor set for desktops that
 # integrate the AppImage, and the 512 px one at the root, where appimagetool looks for it.

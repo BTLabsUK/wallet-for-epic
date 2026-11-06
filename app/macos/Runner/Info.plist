@@ -14,8 +14,8 @@
 		<string>zh-Hans</string>
 		<string>th</string>
 	</array>
-	<!-- Invite links (epiccash://pair/..., epiccash://device-link/...), handed to Dart by
-	     IncomingLink in AppDelegate.swift. -->
+	<!-- Payment links (epic:<address>?...) and this wallet's own (epiccash://...), handed to
+	     Dart by IncomingLink in AppDelegate.swift. -->
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -23,6 +23,7 @@
 			<string>uk.btlabs.btwallet.macos.invite</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>epic</string>
 				<string>epiccash</string>
 			</array>
 		</dict>

@@ -51,6 +51,17 @@
             <desktop:ExecutionAlias Alias="btwallet.exe" />
           </uap3:AppExecutionAlias>
         </uap3:Extension>
+        <!-- Links a browser hands over: the package starts with the link as its argument. -->
+        <uap:Extension Category="windows.protocol">
+          <uap:Protocol Name="epic">
+            <uap:DisplayName>Epic Cash payment</uap:DisplayName>
+          </uap:Protocol>
+        </uap:Extension>
+        <uap:Extension Category="windows.protocol">
+          <uap:Protocol Name="epiccash">
+            <uap:DisplayName>Epic Cash link</uap:DisplayName>
+          </uap:Protocol>
+        </uap:Extension>
       </Extensions>
     </Application>
   </Applications>
