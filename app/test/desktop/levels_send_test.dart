@@ -21,21 +21,41 @@ class _Wallet extends MockDeskWallet {
 
   final List<SendRequest> sent = [];
 
+  /// Once set, the send still waiting for its recipient is listed as cancelled, declined by its
+  /// receiver: the core's word after a `declined` notice.
+  bool declined = false;
+
   @override
   Future<SendResult> send(SendRequest request) {
     sent.add(request);
     return super.send(request);
   }
+
+  @override
+  Future<List<Tx>> transactions() async {
+    final rows = await super.transactions();
+    if (!declined) return rows;
+    return [
+      for (final t in rows)
+        if (!t.incoming && t.state == TxState.waitingRecipient)
+          Tx(id: t.id, slateId: t.slateId, direction: t.direction, state: TxState.cancelled, method: t.method, amount: t.amount, fee: t.fee, created: t.created, counterparty: t.counterparty, receiverDeclined: true)
+        else
+          t,
+    ];
+  }
 }
 
 const _to = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@epicbox.epiccash.com';
+
+/// The last [_pump]'s state, for a test that changes the wallet under the page.
+late ProviderContainer _container;
 
 Future<_Wallet> _pump(WidgetTester tester, WalletLevel level, Widget screen) async {
   tester.view.physicalSize = const Size(1280, 1000);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final wallet = _Wallet();
-  final container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(wallet), deskLevelProvider.overrideWithValue(level)]);
+  final container = _container = ProviderContainer(overrides: [deskApiProvider.overrideWithValue(wallet), deskLevelProvider.overrideWithValue(level)]);
   addTearDown(container.dispose);
   await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
   await tester.pumpWidget(
@@ -49,6 +69,14 @@ Future<_Wallet> _pump(WidgetTester tester, WalletLevel level, Widget screen) asy
     await tester.pumpAndSettle();
   }
   return wallet;
+}
+
+/// Types the password the send asks for and confirms it.
+Future<void> _enterPasswordAndSend(WidgetTester tester) async {
+  await tester.enterText(find.descendant(of: find.widgetWithText(EField, _l.deskSendPassword), matching: find.byType(TextField)), 'secret-pass');
+  await tester.pump();
+  await tester.tap(find.widgetWithText(EButton, 'Send').last);
+  await tester.pumpAndSettle();
 }
 
 void main() {
@@ -67,16 +95,34 @@ void main() {
     // The password guards the send; the page was the review.
     expect(find.text(_l.deskSendReviewTitle), findsNothing);
     expect(find.text(_l.deskLvSendPasswordTitle), findsOneWidget);
-    await tester.enterText(find.descendant(of: find.widgetWithText(EField, _l.deskSendPassword), matching: find.byType(TextField)), 'secret-pass');
-    await tester.pump();
-    await tester.tap(find.widgetWithText(EButton, 'Send').last);
-    await tester.pumpAndSettle();
+    await _enterPasswordAndSend(tester);
     expect(wallet.sent, hasLength(1));
     expect(wallet.sent.single.method, TxMethod.epicbox);
     // The page now shows the payment's steps, not the old "Sent" card.
     expect(find.byKey(const ValueKey('send-done')), findsOneWidget);
     expect(find.text(_l.lvPayOnItsWay), findsOneWidget);
     expect(find.text(_l.deskSendDoneViaEpicbox), findsNothing);
+  });
+
+  testWidgets('a send its receiver declines ends the live card: Declined by the receiver, and why', (tester) async {
+    final wallet = await _pump(tester, WalletLevel.justSendReceive, SendScreen(arg: SendArgs(recipient: _to, amount: '1', epicboxHealth: ServiceHealth.ok)));
+    await tester.tap(find.widgetWithText(EButton, 'Send 1.0\u00a0EPIC'));
+    await tester.pumpAndSettle();
+    await _enterPasswordAndSend(tester);
+    expect(find.byKey(const ValueKey('send-done')), findsOneWidget);
+    // The receiver's `declined` notice: the core cancelled the send, the list says so.
+    wallet.declined = true;
+    await tester.runAsync(() => _container.read(deskProvider.notifier).refresh());
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('send-done')), findsNothing);
+    expect(find.byKey(const ValueKey('send-cancelled')), findsOneWidget);
+    expect(find.text(_l.txStatusReceiverDeclined), findsOneWidget);
+    expect(find.text(_l.txDetailsReceiverDeclined), findsOneWidget);
+    expect(find.text(_l.lvPayOnItsWay), findsNothing);
+    expect(find.text(_l.lvPayCloseNote), findsNothing);
+    // The way on stays: a new send, and the row under Activity.
+    expect(find.widgetWithText(EButton, _l.deskSendNewSend), findsOneWidget);
+    expect(find.widgetWithText(EButton, _l.deskSendViewTx), findsOneWidget);
   });
 
   testWidgets('Deeper Send: no method strip, the method line follows the address and Review stays', (tester) async {

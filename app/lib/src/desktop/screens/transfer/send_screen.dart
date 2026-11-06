@@ -58,6 +58,7 @@ import '../../../scan/incoming_link.dart' show linkClockProvider;
 import '../../../scan/scan_router.dart';
 import '../../../ui/link_send.dart' show amountEdited, linkRefusalText;
 import '../wallet/contacts_screen.dart' show ContactsArgs;
+import '../wallet/tx_display.dart' show statusOf;
 import 'link_trust.dart';
 import '../../../scan/scan_text.dart';
 import 'send_code.dart';
@@ -1695,7 +1696,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
 
   /// After a send: the payment's live steps ([DeskPaymentSteps], in the level's words), the way
   /// to a new send and to Activity. A mailbox payment queued while Epicbox is off keeps the
-  /// plain result card: nothing has gone out yet.
+  /// plain result card: nothing has gone out yet. One that ends cancelled meanwhile (its
+  /// receiver declined it) says so in the row's words.
   Widget _done(SendDone r, DeskNav nav) {
     final l = context.l10n;
     final queued = _queuedFor != null;
@@ -1731,6 +1733,22 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final live = ref.watch(deskProvider.select((s) => s.txs))?.where((t) => r.tx.slateId.isNotEmpty ? t.slateId == r.tx.slateId : t.id == r.tx.id).firstOrNull ?? r.tx;
     final name = _sentTo ?? live.contactName;
     final amount = formatEpicL(l, r.tx.amount);
+    // Over before it finished: its receiver declined it, or it was cancelled under Activity.
+    // The row's words for the title; a declined send says what happened to its coins.
+    if (live.state == TxState.cancelled) {
+      final (word, _) = statusOf(l, live);
+      return ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: Max.form),
+        child: ResultPanel(
+          key: const ValueKey('send-cancelled'),
+          glyph: const ResultGlyph(icon: EIcons.cancel, tone: ETone.neutral),
+          title: word,
+          text: name == null ? l.deskLvSendLiveAmount(amount) : l.deskLvSendLiveAmountTo(amount, name),
+          body: live.receiverDeclined ? Text(l.txDetailsReceiverDeclined, style: context.ts.body) : null,
+          actions: actions,
+        ),
+      );
+    }
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: Max.form),
       child: ResultPanel(
