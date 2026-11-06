@@ -537,10 +537,7 @@ class _TxDetailState extends ConsumerState<TxDetail> {
                   const SizedBox(height: 2),
                   if (t.otherWallet || t.deviceName != null)
                     Text(whoOf(l, t), style: ts.small)
-                  else if (t.minedOn != null) ...[
-                    Text(l.deskTxMiningReward, style: ts.small),
-                    Text(l.txDeviceStatusMadeOn(t.minedOn!), style: ts.small),
-                  ] else if (t.foundByScan && t.contactName == null)
+                  else if (t.foundByScan && t.contactName == null)
                     Text(t.foundDuring == FoundDuring.restore ? l.deskTxHeadRestored : l.deskTxHeadFoundOnChain, style: ts.small)
                   else if (t.fromBackup && t.counterparty == null)
                     Text(l.deskTxHeadBackup, style: ts.small)

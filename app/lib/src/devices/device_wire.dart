@@ -30,9 +30,6 @@ const int deviceNoticeMaxBytes = 16 * 1024;
 /// The longest device name.
 const int deviceNameMaxLength = 48;
 
-/// The most reward outputs one `reward` notice names.
-const int rewardNoticeMaxOutputs = 64;
-
 enum NoticeType {
   /// Posted as soon as the sender's side of the link's pairing is made: its device id, name,
   /// wallet and servers, with a proof signed by the wallet's device-link key.
@@ -81,10 +78,6 @@ enum NoticeType {
   /// a slate the sender holds nothing of (`notice`, passed on as it came). The other device
   /// applies what it can and shows the rest.
   fwd,
-
-  /// Block rewards the sender built: the commitments of their outputs, in one batch, well after
-  /// the blocks were found ([DeviceService]). The receiver names these rows after the sender.
-  reward,
 
   // Reserved for a later version: read for their order, not acted on.
   snapshotRequest,
@@ -253,10 +246,5 @@ bool noticeBodyValid(NoticeType type, Map<String, Object?> b) => switch (type) {
   NoticeType.full => _str(b['linked'], max: deviceNameMaxLength),
   NoticeType.fwd => forwardKinds.contains(b['kind']) && _fwd(b),
   NoticeType.recv => _str(b['slateId'], max: 64) && b['outputs'] is List && (b['outputs'] as List).length <= 16 && (b['outputs'] as List).every(_commit),
-  NoticeType.reward =>
-    b['outputs'] is List &&
-        (b['outputs'] as List).isNotEmpty &&
-        (b['outputs'] as List).length <= rewardNoticeMaxOutputs &&
-        (b['outputs'] as List).every(_commit),
   NoticeType.snapshotRequest || NoticeType.snapshot => true,
 };

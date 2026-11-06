@@ -29,7 +29,7 @@ String whoOf(AppLocalizations l, Tx t) {
   if (t.deviceName != null) return l.txSentFromDevice(t.deviceName!);
   if (t.contactName != null) return t.contactName!;
   if (t.toSelf) return l.deskTxThisWallet;
-  if (t.coinbase) return t.minedOn ?? l.deskTxMiningReward;
+  if (t.coinbase) return l.deskTxMiningReward;
   if (t.otherWallet && t.incoming && t.receivedOn != null) return l.txReceivedOnDevice(t.receivedOn!);
   if (t.otherWallet) return t.incoming ? l.txReceivedByOtherWallet : (t.unverified ? l.txSentFromOtherWalletUnverified : l.txSentFromOtherWallet);
   // A scan find names no one until the user types a sender (then the address, as for any row).

@@ -5810,7 +5810,6 @@ Tx deskTx(core.TxEntry e, {required int tip, required int minConf, required int 
     deviceEnding: e.origin == core.TxOrigin.linkedDevice ? e.deviceEnding : null,
     deviceWhy: e.origin == core.TxOrigin.linkedDevice ? e.deviceWhy : null,
     receivedOn: e.origin == core.TxOrigin.otherWallet ? e.deviceName : null,
-    minedOn: e.kind == core.TxKind.coinbase ? e.deviceName : null,
   );
 }
 

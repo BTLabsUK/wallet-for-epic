@@ -29,21 +29,4 @@ void main() {
     expect(whoOf(l, row(direction: TxDirection.sent)), _l.txSentFromOtherWallet);
     expect(whoOf(l, row(direction: TxDirection.received)), _l.txReceivedByOtherWallet);
   });
-
-  test('a reward the linked device mined is titled with its name', () {
-    Tx reward({String? minedOn}) => Tx(
-      id: 8,
-      slateId: '',
-      direction: TxDirection.received,
-      state: TxState.confirmed,
-      method: TxMethod.epicbox,
-      amount: 100000000,
-      fee: 0,
-      created: DateTime(2026, 10, 28),
-      coinbase: true,
-      minedOn: minedOn,
-    );
-    expect(whoOf(englishStrings, reward()), _l.deskTxMiningReward);
-    expect(whoOf(englishStrings, reward(minedOn: 'Desktop C908')), 'Desktop C908');
-  });
 }

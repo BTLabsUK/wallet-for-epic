@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // The other devices' payments in history: a pending row from the notice, merged with the chain
 // check's "another wallet" row once spent, never shown twice; freed coins show nothing.
-import 'dart:convert';
-
 import 'package:epic_wallet/src/devices/device_history.dart';
 import 'package:epic_wallet/src/devices/device_model.dart';
 import 'package:epic_wallet/src/wallet_service.dart';
@@ -159,35 +157,5 @@ void main() {
     final book = DeviceBook(deviceId: 'a' * 32, deviceName: 'Phone', holds: [_hold('s1', [1], state: HoldState.spent).copyWith()]);
     final named = DeviceBook.fromJson({...book.toJson(), 'holds': [{...book.holds.single.toJson(), 'name': 'Old laptop'}]})!;
     expect(mergeDeviceHistory(const [], named).single.deviceName, 'Old laptop');
-  });
-
-  group('rewards of the linked device', () {
-    TxEntry reward(int coin, {TxKind kind = TxKind.coinbase}) => fakeTx(key: 'r$coin', kind: kind, confirmed: true, outputCommits: [_c(coin)]);
-    DeviceBook told(List<int> coins, {String name = 'Desktop C908'}) => DeviceBook(
-      deviceId: 'a' * 32,
-      deviceName: 'Phone',
-      devices: [LinkedDevice(deviceId: _desk, name: name, pairings: const {'s': 'p'}, linkedAt: DateTime.utc(2026))],
-      theirRewards: [for (final c in coins) _c(c)],
-    );
-
-    test('a reward its notice named carries the name, any other stays plain', () {
-      final rows = mergeDeviceHistory([reward(1), reward(2)], told([1]));
-      expect({for (final r in rows) r.key: r.deviceName}, {'r1': 'Desktop C908', 'r2': null});
-    });
-
-    test('a payment on a named output is never relabelled', () {
-      expect(mergeDeviceHistory([reward(1, kind: TxKind.received)], told([1])).single.deviceName, isNull);
-    });
-
-    test('no linked device, no name', () {
-      final book = DeviceBook(deviceId: 'a' * 32, deviceName: 'Phone', theirRewards: [_c(1)]);
-      expect(mergeDeviceHistory([reward(1)], book).single.deviceName, isNull);
-    });
-
-    test('the store reads back, and is left out of the book while empty', () {
-      final book = told([1, 2]);
-      expect(DeviceBook.fromJson(jsonDecode(jsonEncode(book.toJson())))!.theirRewards, book.theirRewards);
-      expect(told([]).toJson().containsKey('theirRewards'), isFalse);
-    });
   });
 }

@@ -951,10 +951,6 @@ class _TxDetailsScreenState extends ConsumerState<TxDetailsScreen> {
                           ? l.deskTxNowImmature(rewardMaturity)
                           : txExplanation(l, tx, tip, now: now, target: target, mailbox: mailboxName != null, wait: wait, cancelFinal: cancelFinalNow),
                     ),
-                    if (tx.kind == TxKind.coinbase && tx.deviceName != null) ...[
-                      const SizedBox(height: 8),
-                      Text(l.txDeviceStatusMadeOn(deviceName)),
-                    ],
                     if (rewardBlocks != null) ...[
                       const SizedBox(height: 8),
                       Text(l.deskTxStepBlocksToGo(rewardBlocks), style: theme.textTheme.bodySmall?.copyWith(color: context.tokens.dim)),

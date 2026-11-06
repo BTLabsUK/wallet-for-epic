@@ -7,7 +7,7 @@ import 'package:epic_wallet/src/l10n.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/secret_store.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
-import 'package:epic_wallet/src/ui/common.dart' show txHeading, txSpokenLabel, txTitle;
+import 'package:epic_wallet/src/ui/common.dart' show txSpokenLabel, txTitle;
 import 'package:epic_wallet/src/ui/history_screen.dart';
 import 'package:epic_wallet/src/ui/sent_from_other_wallet.dart';
 import 'package:epic_wallet/src/ui/tx_details_screen.dart';
@@ -123,17 +123,6 @@ void main() {
     expect(find.text(_l.txDetailsReceivedFrom), findsNothing);
     expect(find.text(_l.txDetailsFee), findsNothing);
     expect(find.byType(SentFromOtherWalletOffer), findsOneWidget);
-  });
-
-  test('a reward the linked device mined: the row names it, details say mining reward', () {
-    final l = lookupAppLocalizations(const Locale('en'));
-    final own = fakeTx(kind: TxKind.coinbase);
-    final mined = own.withDeviceName('Desktop C908');
-    expect(txTitle(l, own), l.txMiningReward);
-    expect(txTitle(l, mined), 'Desktop C908');
-    expect(txHeading(l, mined), l.txMiningReward);
-    final said = txSpokenLabel(l, mined, who: null, date: 'Today', status: 'Completed', hidden: false);
-    expect(said, startsWith('Desktop C908, Mining reward of'));
   });
 
   test('the spoken rows and the error text', () {
