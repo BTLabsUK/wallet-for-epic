@@ -776,6 +776,10 @@ enum TxPhase {
   /// A request this wallet sent that the payer has not paid ([TxEntry.awaitingPayer]).
   waitingPayer,
   confirming,
+
+  /// A mining reward on the chain whose output cannot be spent yet ([TxEntry.rewardLockHeight]
+  /// past [tip]): the desktop's Maturing.
+  maturing,
   completed,
   cancelled,
 
@@ -799,10 +803,31 @@ TxPhase txPhase(TxEntry tx, BigInt? tip, {int? target}) {
                 tx.kind == TxKind.receivedCancelled) =>
       TxPhase.waitingSender,
     TxStatus.awaitingConfirmation => TxPhase.confirming,
+    // A reward is on the chain from its first block; it waits for its lock, not for a count.
+    TxStatus.confirmed when txMaturing(tx, tip) => TxPhase.maturing,
     TxStatus.confirmed when n != null && n < needed => TxPhase.confirming,
     TxStatus.confirmed => TxPhase.completed,
   };
 }
+
+/// Whether [tx] is a mining reward whose output's lock height is past [tip] (null tip: not
+/// known to be).
+bool txMaturing(TxEntry tx, BigInt? tip) =>
+    tx.kind == TxKind.coinbase &&
+    tip != null &&
+    tx.rewardLockHeight != null &&
+    tx.rewardLockHeight! > tip;
+
+/// Blocks a maturing reward still waits for, or null when it is not maturing.
+int? rewardBlocksLeft(TxEntry tx, BigInt? tip) =>
+    txMaturing(tx, tip) ? (tx.rewardLockHeight! - tip!).toInt() : null;
+
+/// Blocks a reward's output locks for, from the block that made it: the maturity the detail
+/// names; null until both heights are known.
+int? rewardMaturityOf(TxEntry tx) =>
+    tx.kind == TxKind.coinbase && tx.rewardLockHeight != null && tx.blockHeight != null
+        ? (tx.rewardLockHeight! - tx.blockHeight!).toInt()
+        : null;
 
 /// `Waiting for recipient`, `Confirming 1/3`, `Completed`, …; `Waiting for Anna` for a
 /// payment to or from the paired contact [pairedWith] through its mailbox ([txMailboxName]),
@@ -853,6 +878,7 @@ String txStatusLabel(
     target ?? confirmationsTarget,
   ),
   // A completed row says which way the money went, as the desktop does.
+  TxPhase.maturing => l.outputsWordImmature,
   TxPhase.completed => _outgoingKind(tx) ? l.txStatusSent : l.txStatusReceived,
   // Another linked device's payment whose coins this device released: it may still send it.
   TxPhase.cancelled when tx.origin == TxOrigin.linkedDevice =>
@@ -870,7 +896,9 @@ String txStatusLabel(
   return switch (phase) {
     TxPhase.completed => (Icons.check_circle_outline, t.ok),
     TxPhase.confirming => (Icons.timelapse, t.info),
-    // Waiting for the other side is work under way, so the in-progress blue.
+    // Waiting for the other side, or for a reward's lock, is work under way, so the
+    // in-progress blue.
+    TxPhase.maturing ||
     TxPhase.waitingRecipient ||
     TxPhase.waitingSender ||
     TxPhase.waitingPayer => (Icons.hourglass_empty, t.info),
@@ -931,6 +959,7 @@ class TxStatusLine extends ConsumerWidget {
     final inProgress = reported ||
         switch (phase) {
           TxPhase.confirming ||
+          TxPhase.maturing ||
           TxPhase.waitingRecipient ||
           TxPhase.waitingSender ||
           TxPhase.waitingPayer => true,
@@ -1245,7 +1274,7 @@ class TxStatusChip extends ConsumerWidget {
       TxPhase.waitingRecipient ||
       TxPhase.waitingSender ||
       TxPhase.waitingPayer => BadgeTone.info,
-      TxPhase.confirming => BadgeTone.info,
+      TxPhase.confirming || TxPhase.maturing => BadgeTone.info,
       // Cancelled is over, not wrong: the same neutral badge as a completed payment.
       TxPhase.completed || TxPhase.fromBackup || TxPhase.cancelled => BadgeTone.neutral,
     };
@@ -1341,6 +1370,7 @@ TxEdgeKind txEdgeKind(TxPhase phase) => switch (phase) {
   TxPhase.waitingRecipient ||
   TxPhase.waitingSender ||
   TxPhase.waitingPayer ||
+  TxPhase.maturing ||
   TxPhase.completed ||
   TxPhase.cancelled ||
   TxPhase.fromBackup => TxEdgeKind.hairline,

@@ -1778,7 +1778,63 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
         lepicTxEntry(d, sending: _sending > 0, posting: _posting(d), pairingId: await _pairingOfTx(d)),
     ];
     _listed = true;
-    return rows;
+    return _withRewardLocks(rows);
+  }
+
+  /// Lock heights of the mining rewards' outputs, by commitment, read from the outputs once
+  /// per reward (as the desktop does): a row says only that it is a reward, its output says
+  /// until when it matures.
+  final Map<String, BigInt> _rewardLocks = {};
+
+  /// Rewards whose output was looked for and not found: not asked for again.
+  final Set<String> _rewardLockMisses = {};
+
+  Future<List<TxEntry>> _withRewardLocks(List<TxEntry> rows) async {
+    final unknown = [
+      for (final t in rows)
+        if (t.kind == TxKind.coinbase && _rewardLockOf(t) == null && !_rewardLockMisses.contains(t.key)) t,
+    ];
+    if (unknown.isNotEmpty) {
+      try {
+        final outputs = await _wallet.outputs();
+        for (final o in outputs) {
+          if (o.isCoinbase) _rewardLocks[o.commitment] = o.lockHeight;
+        }
+        for (final t in unknown) {
+          final byTx = outputs.where((o) => o.isCoinbase && t.id != null && o.txId == t.id);
+          for (final o in byTx) {
+            _rewardLocks[o.commitment] = o.lockHeight;
+          }
+          if (_rewardLockOf(t) == null) {
+            final first = byTx.firstOrNull;
+            if (first != null) {
+              _rewardLocks['tx:${t.key}'] = first.lockHeight;
+            } else {
+              _rewardLockMisses.add(t.key);
+            }
+          }
+        }
+      } on Object catch (e) {
+        logWarn('history', 'reward locks not read: ${e.runtimeType}');
+      }
+    }
+    return [
+      for (final t in rows)
+        if (t.kind != TxKind.coinbase)
+          t
+        else if (_rewardLockOf(t) case final lock?)
+          t.withRewardLockHeight(lock)
+        else
+          t,
+    ];
+  }
+
+  BigInt? _rewardLockOf(TxEntry t) {
+    for (final c in t.outputCommits) {
+      final lock = _rewardLocks[c];
+      if (lock != null) return lock;
+    }
+    return _rewardLocks['tx:${t.key}'];
   }
 
   /// When each finalized row was first read finalized; [_settled] for one whose post is known

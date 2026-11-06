@@ -101,6 +101,12 @@ class _PlainTxDetailsState extends ConsumerState<PlainTxDetails> {
           ),
         ] else ...[
           Text(paymentStepWordOf(ref, tx, tip), style: theme.textTheme.titleMedium?.copyWith(color: t.info)),
+          // A maturing reward has no steps: the maturity line the full screen shows instead.
+          if (rewardBlocksLeft(tx, tip) case final blocks?) ...[
+            const SizedBox(height: 8),
+            if (rewardMaturityOf(tx) case final maturity?) Text(l.deskTxNowImmature(maturity)),
+            Text(l.deskTxStepBlocksToGo(blocks), style: theme.textTheme.bodySmall?.copyWith(color: t.dim)),
+          ],
           const SizedBox(height: 12),
           PaymentTimeline(tx: tx),
         ],

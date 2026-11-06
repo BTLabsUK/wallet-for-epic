@@ -287,9 +287,9 @@ void main() {
     expect(find.text('2.5\u00a0EPIC'), findsNothing, reason: "not the wallet's own total here");
     expect(find.text('4 outputs'), findsOneWidget);
     expect(find.text(_l.outputsFilterAll(4)), findsOneWidget);
-    // Spendable 1 + Confirming 3 + Locked 0 = 4.
+    // Spendable 1 + Confirming 3 + Mining rewards 0 + Locked 0 = 4.
     expect(find.text('1 output'), findsOneWidget);
-    expect(find.text('0 outputs'), findsOneWidget);
+    expect(find.text('0 outputs'), findsNWidgets(2));
   });
 
   testWidgets('the table sits under the tiles, Advanced below it', (

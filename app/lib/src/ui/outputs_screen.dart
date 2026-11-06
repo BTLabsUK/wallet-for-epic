@@ -187,6 +187,7 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
     final nSpendable = listed(OutputsFilter.spendable);
     final nConfirming = listed(OutputsFilter.confirming);
     final nLocked = listed(OutputsFilter.locked);
+    final nImmature = listed(OutputsFilter.immature);
     final nAll = listed(OutputsFilter.all);
     final nSpent =
         list?.where((o) => outputWord(o) == OutputLabel.spent).length ?? 0;
@@ -234,7 +235,8 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
       appBar: AppBar(title: Text(l.outputsTitle)),
       body: ScreenBody(
         children: [
-          // The four balances as a 2 × 2 grid, zero ones dimmed, so the layout never jumps.
+          // The balances as a grid, zero ones dimmed, so the layout never jumps: the desktop's
+          // tiles in its order (Spendable, Confirming, Mining rewards, Locked, Total).
           Row(
             children: [
               Expanded(
@@ -262,30 +264,34 @@ class _OutputsScreenState extends ConsumerState<OutputsScreen> {
             children: [
               Expanded(
                 child: tile(
+                  l.homeBalanceImmature,
+                  summary?.immature,
+                  list == null ? null : nImmature,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: tile(
                   l.outputsLockedTile,
                   summary == null ? null : locked,
                   list == null ? null : nLocked,
                 ),
               ),
-              const SizedBox(width: 12),
-              // Total instead of Immature on a phone: nobody mines to one. Immature
-              // outputs stay in the list and in Total.
-              Expanded(
-                child: tile(
-                  l.homeTileTotal,
-                  // The sum of the parts, as its count is (awaiting finalization and
-                  // immature included); the wallet's own total stays the headline elsewhere.
-                  summary == null
-                      ? null
-                      : summary.spendable +
-                            summary.awaitingConfirmation +
-                            summary.awaitingFinalization +
-                            summary.immature +
-                            summary.locked,
-                  list == null ? null : nTotalTile,
-                ),
-              ),
             ],
+          ),
+          const SizedBox(height: 12),
+          tile(
+            l.homeTileTotal,
+            // The sum of the parts, as its count is (awaiting finalization and
+            // immature included); the wallet's own total stays the headline elsewhere.
+            summary == null
+                ? null
+                : summary.spendable +
+                      summary.awaitingConfirmation +
+                      summary.awaitingFinalization +
+                      summary.immature +
+                      summary.locked,
+            list == null ? null : nTotalTile,
           ),
           const SizedBox(height: 12),
           SegmentedButton<OutputsFilter>(
