@@ -7,7 +7,6 @@ import 'package:epic_wallet/src/desktop/app/app_dialogs.dart';
 import 'package:epic_wallet/src/desktop/app/shell.dart';
 import 'package:epic_wallet/src/desktop/app/tour.dart';
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
-import 'package:epic_wallet/src/desktop/data/state.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/dialogs.dart';
 import 'package:epic_wallet/src/desktop/screens/settings/shots.dart' show shotOtherWallet;
 import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart';
