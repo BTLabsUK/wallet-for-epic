@@ -447,7 +447,7 @@ def cmd_affected(args):
     base = select.merge_base(ROOT, args.base)
     changed = select.changed_files(ROOT, base)
     gr = g.Graph(ROOT, select.repo_files(ROOT))
-    sel = select.select(ROOT, changed, base=base, graph=gr)
+    sel = select.select(ROOT, changed, base=base, graph=gr, closure=args.closure)
     tests = sorted(sel.tests)
     n_sent = sum(1 for r in sel.tests.values() if r == "sentinel")
     line = (f"selection: {len(tests)} tests ({len(tests) - n_sent} reached by the change, {n_sent} sentinels) "
@@ -557,6 +557,8 @@ def main(argv):
     p.add_argument("targets", nargs="*")
     p.add_argument("--base", default=os.environ.get("CHECK_BASE", "main"))
     p.add_argument("--list", action="store_true", help="affected: print the selection, run nothing")
+    p.add_argument("--closure", action="store_true",
+                   help="affected: every test the import graph reaches, no limit (never between releases)")
     p.add_argument("-v", "--verbose", action="store_true", help="--list: every test, not a count per cause")
     p.add_argument("--no-cache", action="store_true")
     p.add_argument("--update", action="store_true", help="goldens: rewrite them")

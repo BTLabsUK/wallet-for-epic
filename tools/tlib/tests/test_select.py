@@ -69,23 +69,69 @@ class SelectTest(unittest.TestCase):
         self.assertEqual(set(sel.tests), {"app/test/home_test.dart"})
         self.assertEqual(sel.tests["app/test/home_test.dart"], "app/lib/src/ui/home.dart")
 
-    def test_a_model_change_selects_every_importer(self):
+    def test_a_file_only_reached_through_screens_selects_no_test(self):
         sel = self.pick(["app/lib/src/model.dart"])
-        self.assertEqual(set(sel.tests), {"app/test/home_test.dart", "app/test/send_test.dart",
-                                          "app/test/lepic_test.dart"})
+        self.assertEqual(sel.tests, {})
+        self.assertTrue(any("model.dart" in n for n in sel.notes))
 
-    def test_the_test_config_reaches_every_test(self):
+    def test_the_test_config_selects_only_direct_importers(self):
         sel = self.pick(["app/test/support/settings.dart"])
-        self.assertEqual(len(sel.tests), len(g.Graph(self.root, support.files_of(self.root)).tests()))
+        self.assertEqual(sel.tests, {})
+        self.assertTrue(any("no test imports" in n for n in sel.notes))
 
-    def test_pubspec_runs_everything(self):
-        sel = self.pick(["app/pubspec.lock"])
+    def test_pubspec_adds_no_test_and_closure_keeps_the_old_rule(self):
+        self.assertEqual(self.pick(["app/pubspec.lock"]).tests, {})
+        sel = s.select(self.root, ["app/pubspec.lock"], sentinels=False, closure=True)
         self.assertTrue(sel.full)
         self.assertIn("app/test/desktop/bye_test.dart", sel.tests)
 
-    def test_a_lepic_pin_selects_the_tests_that_reach_the_binding(self):
-        sel = self.pick(["tools/lepic.rev"])
-        self.assertEqual(sel.tests, {"app/test/lepic_test.dart": "tools/lepic.rev"})
+    def test_a_chain_of_imports_is_not_walked(self):
+        self.assertEqual(self.pick(["app/lib/src/web_io.dart"]).tests, {})
+        self.assertIn("app/test/home_test.dart",
+                      s.select(self.root, ["app/lib/src/web_io.dart"], sentinels=False, closure=True).tests)
+
+    def wide(self, n):
+        support.write(self.root, "app/lib/src/shared.dart", "class Shared {\n  int plain() => 1;\n  int picked() => 1;\n}\n")
+        for i in range(n):
+            support.write(self.root, f"app/test/w{i:03}_test.dart",
+                          "import 'package:epic_wallet/src/shared.dart';\n" + ("// picked()\n" if i < 2 else ""))
+        s.git(self.root, "add", "-A")
+        s.git(self.root, "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "wide")
+        base = s.git(self.root, "rev-parse", "HEAD").strip()
+        support.write(self.root, "app/lib/src/shared.dart", "class Shared {\n  int plain() => 1;\n  int picked() => 2;\n}\n")
+        return base
+
+    def test_a_wide_file_keeps_the_tests_naming_what_the_diff_touched(self):
+        base = self.wide(s.FILE_LIMIT + 5)
+        sel = self.pick(["app/lib/src/shared.dart"], base=base)
+        self.assertEqual(set(sel.tests), {"app/test/w000_test.dart", "app/test/w001_test.dart"})
+        self.assertEqual(len(sel.left), s.FILE_LIMIT + 3)
+
+    def test_a_wide_file_nothing_names_keeps_a_few(self):
+        base = self.wide(s.FILE_LIMIT + 5)
+        support.write(self.root, "app/lib/src/shared.dart", "class Shared {\n  int plain() => 1;\n  int _hidden() => 2;\n}\n")
+        self.assertLessEqual(len(self.pick(["app/lib/src/shared.dart"], base=base).tests), s.FILE_LIMIT)
+
+    def test_no_change_selects_more_than_the_cap(self):
+        names = [f"app/test/m{i:03}_test.dart" for i in range(s.MAX_TESTS + 20)]
+        for n in names:
+            support.write(self.root, n, "void main() {}\n")
+        sel = s.select(self.root, names)
+        self.assertEqual(len(sel.tests), s.MAX_TESTS)
+        self.assertEqual(len(sel.left), 21)  # the sentinel takes one place
+        self.assertTrue(any("left to the nightly" in n for n in sel.notes))
+
+    def test_each_changed_file_gets_a_turn_under_the_cap(self):
+        names = [f"app/test/m{i:03}_test.dart" for i in range(s.MAX_TESTS + 20)]
+        for n in names:
+            support.write(self.root, n, "void main() {}\n")
+        sel = s.select(self.root, [*names, "app/lib/src/ui/home.dart"], sentinels=False)
+        self.assertLessEqual(len(sel.tests), s.MAX_TESTS)
+
+    def test_a_lepic_pin_selects_direct_importers_only(self):
+        self.assertEqual(self.pick(["tools/lepic.rev"]).tests, {})
+        self.assertEqual(s.select(self.root, ["tools/lepic.rev"], sentinels=False, closure=True).tests,
+                         {"app/test/lepic_test.dart": "tools/lepic.rev"})
 
     def test_generated_strings_do_not_reach_every_screen(self):
         sel = self.pick(["app/lib/l10n/app_localizations.dart"])
