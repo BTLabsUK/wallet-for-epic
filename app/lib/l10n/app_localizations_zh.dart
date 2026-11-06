@@ -13102,6 +13102,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pairLateCheck => '正在检查迟到的回复…';
 
   @override
+  String get noticeEventsMissed => '部分更新已错过。列表已重新读取。';
+
+  @override
   String noticeUnpaired(String name) {
     return '$name 已移除配对。';
   }

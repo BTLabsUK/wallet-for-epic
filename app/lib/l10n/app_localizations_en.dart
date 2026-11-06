@@ -13924,6 +13924,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairLateCheck => 'Checking for a late answer…';
 
   @override
+  String get noticeEventsMissed =>
+      'Some updates were missed. The lists were read again.';
+
+  @override
   String noticeUnpaired(String name) {
     return '$name removed the pairing.';
   }

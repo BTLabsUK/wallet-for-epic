@@ -14432,6 +14432,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get pairLateCheck => 'Проверка запоздалого ответа…';
 
   @override
+  String get noticeEventsMissed =>
+      'Часть обновлений пропущена. Списки прочитаны заново.';
+
+  @override
   String noticeUnpaired(String name) {
     return '$name: сопряжение удалено.';
   }

@@ -131,6 +131,7 @@ void main() {
     expect(pairingNoticeOf(_l, const PairingEvent(PairingEventKind.ended, pairingId: 'p', name: 'Anna', endedReason: PairingEndReason.peerMismatch))?.text, _l.pairEndedPeerMismatch('Anna'));
     expect(pairingNoticeOf(_l, const PairingEvent(PairingEventKind.requested, requestId: 'q', sender: 'x', name: 'Anna'))?.text, _l.pairWantsToPair('Anna'));
     expect(pairingNoticeOf(_l, const PairingEvent(PairingEventKind.pairedElsewhere, requestId: 'q', name: 'Desktop'))?.text, _l.pairPairedOn('Desktop'));
+    expect(pairingNoticeOf(_l, const PairingEvent(PairingEventKind.eventsMissed))?.text, _l.noticeEventsMissed);
   });
 
   group('Pair', () {

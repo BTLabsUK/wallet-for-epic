@@ -5372,5 +5372,6 @@
   "deskUpdStripAct": "Aktualisieren",
   "deskUpdStripHide": "Bis zur nächsten Version ausblenden",
   "deskTorAddressChangedTitle": "Ihre Tor-Adresse hat sich geändert",
-  "deskNodeFailoverBehind": "Node liegt zurück. Gewechselt zu {host}."
+  "deskNodeFailoverBehind": "Node liegt zurück. Gewechselt zu {host}.",
+  "noticeEventsMissed": "Einige Updates wurden verpasst. Die Listen wurden neu geladen."
 }

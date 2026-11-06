@@ -4959,7 +4959,8 @@ class LepicDeskWallet implements DeskWalletApi {
     // can find the payment not yet posted ("Not on the network", LNX3-4).
     if (session.pairing.supported) {
       _pairingSub = session.pairing.events().listen((e) {
-        if (e.kind == core.PairingEventKind.paymentFinalized && _session == session) unawaited(_reload());
+        final again = e.kind == core.PairingEventKind.paymentFinalized || e.kind == core.PairingEventKind.eventsMissed;
+        if (again && _session == session) unawaited(_reload());
       });
     }
     if (!session.supportsInvoices) return;

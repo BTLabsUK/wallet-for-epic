@@ -14455,6 +14455,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String get pairLateCheck => 'Sprawdzam, czy przyszła spóźniona odpowiedź…';
 
   @override
+  String get noticeEventsMissed =>
+      'Pominięto część aktualizacji. Listy zostały odczytane ponownie.';
+
+  @override
   String noticeUnpaired(String name) {
     return '$name: parowanie usunięte.';
   }

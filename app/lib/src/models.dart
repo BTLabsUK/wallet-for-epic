@@ -3712,6 +3712,9 @@ enum PairingEventKind {
   /// A message has not reached the contact's relay for a day.
   outboxStuck,
 
+  /// Wallet events were dropped before the app read them: lists must be read again.
+  eventsMissed,
+
   /// A second wallet answered an invite that was already used (C-15).
   secondReply,
 

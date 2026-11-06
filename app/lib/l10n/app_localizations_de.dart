@@ -14089,6 +14089,10 @@ class AppLocalizationsDe extends AppLocalizations {
   String get pairLateCheck => 'Suche nach einer späten Antwort…';
 
   @override
+  String get noticeEventsMissed =>
+      'Einige Updates wurden verpasst. Die Listen wurden neu geladen.';
+
+  @override
   String noticeUnpaired(String name) {
     return '$name hat die Kopplung entfernt.';
   }

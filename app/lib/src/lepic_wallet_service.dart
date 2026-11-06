@@ -2976,6 +2976,12 @@ class LepicWalletSession implements WalletSession, EpicboxDrainAt, ListingKeys {
       logWarn('wallet', 'send not posted: ${e.message ?? ''}');
       return;
     }
+    // The event stream lagged: the lists are read again and one notice says so.
+    if (e.kind == lepic.WalletEventKind.missed) {
+      logWarn('wallet', 'events missed: ${e.missed}');
+      _pairing.eventsMissed();
+      return;
+    }
     // For the linked device only: nothing here holds its slate, and nothing verified it.
     if (e.kind == lepic.WalletEventKind.noticeUnmatched) {
       final (slate, kind, sender, notice) = (e.slateId, e.noticeKind, e.sender, e.notice);
@@ -4732,6 +4738,11 @@ class _LepicPairing implements PairingApi {
         endedReason: e.endedReason == null ? null : lepicPairingEndReason(e.endedReason!),
       ),
     );
+  }
+
+  /// The app missed wallet events: every list is read again.
+  void eventsMissed() {
+    if (!_events.isClosed) _events.add(const PairingEvent(PairingEventKind.eventsMissed));
   }
 
   void close() => _events.close();

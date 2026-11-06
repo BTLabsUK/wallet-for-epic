@@ -5372,5 +5372,6 @@
   "deskUpdStripAct": "Обновить",
   "deskUpdStripHide": "Скрыть до следующей версии",
   "deskTorAddressChangedTitle": "Ваш адрес Tor изменился",
-  "deskNodeFailoverBehind": "Узел отстаёт. Переключено на {host}."
+  "deskNodeFailoverBehind": "Узел отстаёт. Переключено на {host}.",
+  "noticeEventsMissed": "Часть обновлений пропущена. Списки прочитаны заново."
 }

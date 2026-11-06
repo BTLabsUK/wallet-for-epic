@@ -13568,6 +13568,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get pairLateCheck => 'กำลังตรวจหาคำตอบที่มาช้า…';
 
   @override
+  String get noticeEventsMissed => 'พลาดการอัปเดตบางส่วน อ่านรายการใหม่แล้ว';
+
+  @override
   String noticeUnpaired(String name) {
     return '$name ลบการจับคู่แล้ว';
   }

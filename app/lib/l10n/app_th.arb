@@ -5372,5 +5372,6 @@
   "deskUpdStripAct": "อัปเดต",
   "deskUpdStripHide": "ซ่อนจนกว่าจะมีเวอร์ชันถัดไป",
   "deskTorAddressChangedTitle": "ที่อยู่ Tor ของคุณเปลี่ยนแล้ว",
-  "deskNodeFailoverBehind": "โหนดตามหลังอยู่ สลับไปที่ {host} แล้ว"
+  "deskNodeFailoverBehind": "โหนดตามหลังอยู่ สลับไปที่ {host} แล้ว",
+  "noticeEventsMissed": "พลาดการอัปเดตบางส่วน อ่านรายการใหม่แล้ว"
 }

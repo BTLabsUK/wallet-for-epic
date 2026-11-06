@@ -5372,5 +5372,6 @@
   "deskUpdStripAct": "更新",
   "deskUpdStripHide": "隐藏至下一版本",
   "deskTorAddressChangedTitle": "你的 Tor 地址已更改",
-  "deskNodeFailoverBehind": "节点已落后。已切换到 {host}。"
+  "deskNodeFailoverBehind": "节点已落后。已切换到 {host}。",
+  "noticeEventsMissed": "部分更新已错过。列表已重新读取。"
 }

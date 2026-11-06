@@ -94,6 +94,7 @@ final Set<String> _noAnswerSaid = {};
     PairingEventKind.tooManyRequests => (text: l.noticeTooMany(name), level: NoticeLevel.warning),
     PairingEventKind.requestWithdrawn => (text: l.noticeWithdrew(name), level: NoticeLevel.info),
     PairingEventKind.unpaired => (text: l.noticeUnpaired(name), level: NoticeLevel.warning),
+    PairingEventKind.eventsMissed => (text: l.noticeEventsMissed, level: NoticeLevel.info),
     // The payment's row, the contact page and the tracker move on by themselves.
     PairingEventKind.contactUpdated ||
     PairingEventKind.addressUpdated ||
@@ -214,11 +215,14 @@ class _PairingNoticesState extends ConsumerState<PairingNotices> with WidgetsBin
     // transactions.
     if (e.kind == PairingEventKind.withdrawalFromContact ||
         e.kind == PairingEventKind.requestWithdrawn ||
-        e.kind == PairingEventKind.paymentFinalized) {
+        e.kind == PairingEventKind.paymentFinalized ||
+        e.kind == PairingEventKind.eventsMissed) {
       ref.invalidate(homeProvider);
     }
     // A request from a contact: an open Invoices screen lists it now.
-    if (e.kind == PairingEventKind.invoiceFromContact || e.kind == PairingEventKind.requestWithdrawn) {
+    if (e.kind == PairingEventKind.invoiceFromContact ||
+        e.kind == PairingEventKind.requestWithdrawn ||
+        e.kind == PairingEventKind.eventsMissed) {
       ref.read(pendingInvoicesProvider.notifier).reload().ignore();
     }
     // A request to pair: the list reads it again (and dismisses a stranger's once the address

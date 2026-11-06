@@ -21906,6 +21906,12 @@ abstract class AppLocalizations {
   /// **'Checking for a late answer…'**
   String get pairLateCheck;
 
+  /// Notice when the wallet's event stream dropped some events: payments and requests were read again from the wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Some updates were missed. The lists were read again.'**
+  String get noticeEventsMissed;
+
   /// Notice when a paired contact removed the pairing on its side and said so: the paired address no longer works.
   ///
   /// In en, this message translates to:
