@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../state_language.dart';
 import '../../ui/state_mark.dart' show StateMarkDot;
 import '../../ui/status.dart' show OffSlash, StatusGlyph;
+import '../../ui/warn_pulse.dart';
 
 import '../desk_l10n.dart';
 import '../data/models.dart';
@@ -457,7 +458,10 @@ class _DotSwitchState extends State<_DotSwitch> {
     child: _MaybePulse(
       key: ValueKey((widget.state, _changes)),
       active: widget.state == EState.active,
-      child: EStateDot(widget.state, ring: true, dim: widget.dim),
+      child: WarnPulse(
+        active: widget.state == EState.warn,
+        child: EStateDot(widget.state, ring: true, dim: widget.dim),
+      ),
     ),
   );
 }

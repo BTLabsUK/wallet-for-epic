@@ -14,6 +14,7 @@ import '../providers.dart';
 import '../wallet_service.dart';
 import 'state_mark.dart' show StateMarkDot;
 import 'tip.dart';
+import 'warn_pulse.dart';
 import 'common.dart' show groupDigits;
 import 'theme/tokens.dart';
 
@@ -530,7 +531,10 @@ class StatusGlyph extends StatelessWidget {
             Positioned(
               right: -2,
               bottom: -2,
-              child: StateDot(dot: dot, size: statusDotSize, ring: ring),
+              child: WarnPulse(
+                active: dot == StatusDot.warn,
+                child: StateDot(dot: dot, size: statusDotSize, ring: ring),
+              ),
             ),
         ],
       ),
