@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 // A pasted or linked `epic:` code on desktop Send:
-// a payment request fills To, Amount and Message, the payee's words stay in a "not verified"
-// block, and nothing is sent until the review and the password. Pasted codes Send cannot take
+// a payment request fills To, Amount and Message like any send (no Invoice card, no block of
+// the payee's words), and nothing is sent until the review and the password. Pasted codes Send cannot take
 // stay in To with the reason under it; links get dialogs; plain text is typed text.
 import 'package:epic_wallet/src/desktop/data/mock_wallet.dart';
 import 'package:epic_wallet/src/desktop/data/pairing_state.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/finalize_screen.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/import_tx_screen.dart';
-import 'package:epic_wallet/src/desktop/screens/transfer/send_code.dart';
 import 'package:epic_wallet/src/desktop/screens/transfer/send_screen.dart';
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
@@ -148,11 +147,12 @@ void main() {
     expect(text(tester, 'To'), _e);
     expect(text(tester, _l.deskSendAmount), '1.5');
     expect(text(tester, _l.deskSendMessage), 'Lunch with Anna');
-    expect(banner(), findsOneWidget);
-    expect(find.text(_l.sendRequestTitle), findsOneWidget);
-    expect(find.text(_l.sendRequestCheck), findsOneWidget);
-    expect(tester.widget<Text>(find.byKey(const ValueKey('send-code-note'))).data, 'Lunch with Anna');
-    expect(find.text(_l.payeeNoteLabel), findsOneWidget);
+    // A normal send: no Invoice card, no "Message from the recipient" card.
+    expect(banner(), findsNothing);
+    expect(find.text(_l.sendRequestTitle), findsNothing);
+    expect(find.text('Invoice'), findsNothing);
+    expect(find.byKey(const ValueKey('send-code-claims')), findsNothing);
+    expect(find.text(_l.payeeNoteLabel), findsNothing);
     expect(find.text(_l.sendAmountFromCode), findsOneWidget);
     expect(find.text(_l.sendNoteFromCodeHelper), findsOneWidget);
     expect(wallet.sends, 0);
@@ -169,7 +169,10 @@ void main() {
     expect(inDialog(find.byKey(const ValueKey('send-review-origin'))), findsOneWidget);
     expect(inDialog(find.text(_l.sendOriginPasted)), findsOneWidget);
     expect(inDialog(find.byWidgetPredicate((w) => w is EAddress && w.address == _e)), findsOneWidget, reason: 'the whole address, not shortened');
-    expect(inDialog(find.byKey(const ValueKey('send-code-claims'))), findsOneWidget);
+    expect(inDialog(find.byKey(const ValueKey('send-code-claims'))), findsNothing);
+    expect(inDialog(find.text(_l.payeeNoteLabel)), findsNothing);
+    expect(inDialog(find.text('Invoice')), findsNothing);
+    expect(inDialog(find.text('Lunch with Anna')), findsOneWidget, reason: 'the message, in the facts');
 
     final send = find.widgetWithText(EButton, 'Send 1.5\u00a0EPIC');
     expect(tester.widget<EButton>(send).onPressed, isNull, reason: 'the password comes first');
@@ -192,20 +195,18 @@ void main() {
     expect(find.descendant(of: find.byKey(const ValueKey('send-picked')), matching: find.text(_anna)), findsOneWidget);
     expect(text(tester, _l.deskSendAmount), isEmpty);
     expect(text(tester, 'Message'), isEmpty);
-    expect(find.text('Bob'), findsOneWidget);
+    expect(find.text('Bob'), findsNothing);
   });
 
-  testWidgets('a request pasted into To goes the same way; typing "epic:" stays text; × hides the banner only', (tester) async {
+  testWidgets('a request pasted into To goes the same way, its name shown nowhere; typing "epic:" stays text', (tester) async {
     await show(tester);
     await tester.enterText(field('To'), 'epic:$_e?amount=3&label=Bakery');
     await tester.pumpAndSettle();
     expect(text(tester, 'To'), _e);
     expect(text(tester, _l.deskSendAmount), '3');
-    expect(tester.widget<Text>(find.byKey(const ValueKey('send-code-label'))).data, 'Bakery');
-    await tester.tap(find.byKey(const ValueKey('send-code-dismiss')));
-    await tester.pumpAndSettle();
+    expect(find.text('Bakery'), findsNothing);
+    expect(banner(), findsNothing);
     expect(find.text(_l.sendRequestTitle), findsNothing);
-    expect(find.byKey(const ValueKey('send-code-label')), findsOneWidget);
 
     // A different address: the code goes, and the amount it put in with it.
     await clearTo(tester);
@@ -246,24 +247,19 @@ void main() {
     expect(find.byType(Dialog), findsNothing);
   });
 
-  testWidgets("a code's name equal to a contact's selects no contact; the contact's address shows the contact's name", (tester) async {
+  testWidgets("a code's name never shows; a contact's address shows the contact's name", (tester) async {
     await show(tester);
     await paste(tester, 'epic:$_e?label=Anna%20Kowalska');
     expect(find.byKey(const ValueKey('send-picked')), findsNothing, reason: 'a code never selects a contact');
-    expect(tester.widget<Text>(find.byKey(const ValueKey('send-code-label'))).data, _anna);
+    expect(find.text(_anna), findsNothing);
 
     await clearTo(tester);
-    await paste(tester, 'epic:$_annaAddress?label=Mallory');
+    await paste(tester, 'epic:$_annaAddress?label=Mallory&amount=1');
     expect(find.descendant(of: find.byKey(const ValueKey('send-picked')), matching: find.text(_anna)), findsWidgets);
-    expect(tester.widget<Text>(find.byKey(const ValueKey('send-code-label'))).data, 'Mallory', reason: 'shown because it differs');
-
-    await clearTo(tester);
-    await paste(tester, 'epic:$_annaAddress?label=anna%20kowalska%20&amount=1');
-    expect(find.byKey(const ValueKey('send-picked')), findsOneWidget);
-    expect(find.byKey(const ValueKey('send-code-label')), findsNothing, reason: 'the same name is not shown twice');
+    expect(find.text('Mallory'), findsNothing);
     await review(tester);
     expect(inDialog(find.text(_anna)), findsOneWidget);
-    expect(inDialog(find.byKey(const ValueKey('send-code-label'))), findsNothing);
+    expect(inDialog(find.text('Mallory')), findsNothing);
   });
 
   testWidgets('pasted, another network, a bad address, a QR Payment part or a pairing link stay in To with the reason', (tester) async {
@@ -367,7 +363,7 @@ void main() {
     await show(tester, link: 'EPICCASH:$_e?AMOUNT=0.5');
     expect(text(tester, 'To'), _e);
     expect(text(tester, _l.deskSendAmount), '0.5');
-    expect(banner(), findsOneWidget);
+    expect(banner(), findsNothing);
     await review(tester);
     expect(inDialog(find.text(_l.sendOriginLink)), findsOneWidget);
     expect(wallet.sends, 0);
@@ -557,12 +553,12 @@ void main() {
     expect(find.byKey(const ValueKey('send-code-claims')), findsNothing);
   });
 
-  testWidgets('a note over 256 bytes stays in the block in full; Message stays as it was', (tester) async {
+  testWidgets('a note over 256 bytes does not fit Message: it stays empty, no card shows it', (tester) async {
     await show(tester);
     final note = 'ก' * 100; // 300 UTF-8 bytes
     await paste(tester, 'epic:$_e?amount=1&message=${Uri.encodeComponent(note)}');
     expect(text(tester, _l.deskSendMessage), '');
-    expect(tester.widget<Text>(find.byKey(const ValueKey('send-code-note'))).data, note);
+    expect(find.byKey(const ValueKey('send-code-claims')), findsNothing);
   });
 
   // The longest a code may carry: a 255-character Direct URL, a 264-character note, a 64-character name.
@@ -575,7 +571,7 @@ void main() {
       await show(tester, size: size, payments: const PaymentPrefs(linkHttp: true));
       await paste(tester, 'epic:$direct?amount=1&label=${Uri.encodeComponent('L' * 64)}&message=${Uri.encodeComponent(note)}');
       expect(text(tester, 'To'), direct);
-      expect(tester.widget<Text>(find.byKey(const ValueKey('send-code-note'))).data, note);
+      expect(find.byKey(const ValueKey('send-code-claims')), findsNothing);
       expect(text(tester, _l.deskSendMessage), '', reason: '264 bytes do not fit a slate');
       expect(tester.takeException(), isNull);
 
@@ -585,14 +581,7 @@ void main() {
       // The link in full: its host:port marked on the first line, the long path wrapping below.
       expect(inDialog(selectable('https://pay.example.com:3415')), findsOneWidget);
       expect(inDialog(selectable(direct.substring('https://pay.example.com:3415'.length))), findsOneWidget);
-      expect(inDialog(find.byKey(const ValueKey('send-code-note'))), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
   }
-
-  test('the payee name hides only for the same name, trimmed, in any case', () {
-    expect(EPayeeClaims.labelBeside('Anna', null), 'Anna');
-    expect(EPayeeClaims.labelBeside(' anna ', 'Anna'), isNull);
-    expect(EPayeeClaims.labelBeside('Anna K', 'Anna'), 'Anna K');
-  });
 }

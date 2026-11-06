@@ -67,8 +67,8 @@ class SendCode {
   /// The least the payee says it takes, in nanoepic; null when the code has none.
   final int? minimum;
 
-  /// A plain `epic:<address>` (or an address from a link) is an address for the UI: no banner.
-  bool get banner => amount != null || note != null || label != null || minimum != null || noteRequired || problems.isNotEmpty;
+  /// A banner shows only when the app dropped parts of the code.
+  bool get banner => problems.isNotEmpty;
 }
 
 /// The review's origin tag.
@@ -96,62 +96,11 @@ class CodeBanner extends StatelessWidget {
       liveRegion: true,
       child: ENotice(
         key: const ValueKey('send-code-banner'),
-        title: l.sendRequestTitle,
-        text: problems.isEmpty ? l.sendRequestCheck : problems.join('\n'),
-        // Parts the app dropped make it a warning; a clean request only informs (as the phone).
-        tone: problems.isEmpty ? ETone.info : ETone.warn,
+        title: problems.join('\n'),
+        // Only the parts the app dropped from the code; a plain send has no title of its own.
+        tone: ETone.warn,
         icon: codeOriginIcon(code.origin),
         actions: [EIconButton(key: const ValueKey('send-code-dismiss'), icon: EIcons.close, label: l.sendRequestDismiss, size: EBtnSize.inline, onPressed: onDismiss)],
-      ),
-    );
-  }
-}
-
-/// The payee's own words from a code: a well ([DeskColors.well], the phone's PayeeClaims has
-/// the same), captioned, plain text, never a contact's name style. Nothing when both are
-/// absent.
-class EPayeeClaims extends StatelessWidget {
-  const EPayeeClaims({super.key, this.label, this.note});
-
-  /// The payee's name from the code; null when absent or a saved contact has the same name.
-  final String? label;
-  final String? note;
-
-  bool get isEmpty => label == null && note == null;
-
-  /// [label] unless the contact paid has the same name (trimmed, any case).
-  static String? labelBeside(String? label, String? contactName) =>
-      label != null && contactName != null && label.trim().toLowerCase() == contactName.trim().toLowerCase() ? null : label;
-
-  @override
-  Widget build(BuildContext context) {
-    if (isEmpty) return const SizedBox.shrink();
-    final c = context.dc;
-    final ts = context.ts;
-    final l = context.l10n;
-    final lines = [
-      if (label case final name?) (const ValueKey('send-code-label'), l.payeeNameLabel, name),
-      if (note case final text?) (const ValueKey('send-code-note'), l.payeeNoteLabel, text),
-    ];
-    return Container(
-      key: const ValueKey('send-code-claims'),
-      width: double.infinity,
-      padding: EdgeInsets.all(Sp.x3),
-      decoration: c.well,
-      child: Semantics(
-        container: true,
-        label: lines.map((x) => '${x.$2}: ${x.$3}').join('. '),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (final (i, (key, caption, value)) in lines.indexed) ...[
-              if (i > 0) SizedBox(height: Sp.x2),
-              ExcludeSemantics(child: Text(caption, style: ts.caption.copyWith(color: c.dim))),
-              SizedBox(height: 4.u),
-              ExcludeSemantics(child: Text(value, key: key, style: ts.body.copyWith(color: c.text))),
-            ],
-          ],
-        ),
       ),
     );
   }

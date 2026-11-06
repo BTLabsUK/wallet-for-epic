@@ -841,25 +841,6 @@ class _SendViewState extends ConsumerState<SendView> {
   TorWay _wayOf(TorRoute? route, [TorState? state]) =>
       route == null ? TorWay.clearnet : torWay(route, state ?? _torState);
 
-  /// The code's name and note, unverified, after a [gapBefore] gap; nothing without a code.
-  /// The name is left out when a saved contact for the address has that name already.
-  List<Widget> _payeeClaims({required double gapBefore}) {
-    final request = _activeRequest;
-    if (request == null || (request.label == null && request.note == null)) {
-      return const [];
-    }
-    final contact = _contactName(parseRecipient(_recipient.text).address);
-    final label = request.label;
-    final sameName =
-        label != null &&
-        contact != null &&
-        contact.trim().toLowerCase() == label.trim().toLowerCase();
-    return [
-      SizedBox(height: gapBefore),
-      PayeeClaims(name: sameName ? null : label, note: request.note),
-    ];
-  }
-
   /// The way a connection problem leaves: Pay in person (a QR Payment, where this phone
   /// offers it) and Pay with a file, each while its method is on.
   bool get _qrOffered =>
@@ -2559,7 +2540,7 @@ class _SendViewState extends ConsumerState<SendView> {
       child: CenteredBody(
         children: [
           // A code or link that came in still shows it did; the form takes it once coins arrive.
-          if (request != null)
+          if (request != null && request.problems.isNotEmpty)
             RequestBanner(
               open: _requestBanner,
               origin: _origin ?? CodeOrigin.qr,
@@ -2895,8 +2876,6 @@ class _SendViewState extends ConsumerState<SendView> {
             ),
           ),
         ),
-      // The payee's words and a paired contact's trust sit with the address, above any notice.
-      ..._payeeClaims(gapBefore: 8),
       // A saved contact, paired: its trust and the seal, and the mailbox switch.
       if (valid)
         SendPairingLine(
@@ -3659,7 +3638,7 @@ class _SendViewState extends ConsumerState<SendView> {
     final request = _activeRequest;
     return [
       _header(context, l.sendStepAmount, step: 2, onBack: _toRecipient),
-      if (request != null)
+      if (request != null && request.problems.isNotEmpty)
         RequestBanner(
           open: _requestBanner,
           origin: _origin ?? CodeOrigin.qr,
@@ -3675,7 +3654,6 @@ class _SendViewState extends ConsumerState<SendView> {
       ),
       if (_activeLink case final link?) LinkTrustLine(link: link),
       _TorNotice(way: _wayOf(_toRoute)),
-      ..._payeeClaims(gapBefore: 12),
       const SizedBox(height: 20),
       ..._amountFields(context, file: false),
     ];
@@ -3788,7 +3766,6 @@ class _SendViewState extends ConsumerState<SendView> {
               ? directHostBesideOf(to.address)
               : null,
         ),
-      ..._payeeClaims(gapBefore: 12),
       // The message the code or the address expects is empty: a warning, the user may send.
       if (_noteWarning(l) case final warning? when !_sendFailed) ...[
         const SizedBox(height: 8),
