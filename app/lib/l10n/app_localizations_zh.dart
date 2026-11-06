@@ -17976,11 +17976,11 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpPairRouteP2 =>
-      '配对付款仍然通过 Epicbox 发送。配对时会建议一个 Epicbox 服务器。只有它已在钱包的服务器列表中，钱包才会接受；否则会先询问你。服务器无法区分配对付款和普通付款。';
+      '配对付款仍然通过 Epicbox 发送。配对时会建议一个 Epicbox 服务器。只有它已在钱包的服务器列表中，钱包才会接受；否则会先询问你。对 Epicbox 服务器来说，配对付款和其他付款一样，都是加密消息。';
 
   @override
   String helpPairRouteP3(String paired) {
-    return '选项**$paired**使用独立的密钥，其地址从不显示。只有已配对的联系人才能给你发送账单。';
+    return '选项**$paired**使用独立的密钥，其地址不会显示。只有已配对的联系人才能给你发送账单。';
   }
 
   @override

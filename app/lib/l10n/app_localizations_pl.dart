@@ -19697,11 +19697,11 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairRouteP2 =>
-      'Płatności sparowane nadal idą przez Epicbox. Serwer Epicbox jest proponowany przy parowaniu. Portfel przyjmuje go tylko wtedy, gdy jest już na jego liście serwerów; w przeciwnym razie pyta ciebie. Serwer nie odróżni płatności sparowanej od zwykłej.';
+      'Płatności sparowane nadal idą przez Epicbox. Serwer Epicbox jest proponowany przy parowaniu. Portfel przyjmuje go tylko wtedy, gdy jest już na jego liście serwerów; w przeciwnym razie pyta ciebie. Dla serwera Epicbox płatność sparowana jest zaszyfrowaną wiadomością jak każda inna.';
 
   @override
   String helpPairRouteP3(String paired) {
-    return 'Opcja **$paired** używa osobnych kluczy, a jej adres nigdy nie jest pokazywany. Faktura od kontaktu może do ciebie dotrzeć tylko wtedy, gdy kontakt jest sparowany.';
+    return 'Opcja **$paired** używa osobnych kluczy, a jej adres nie jest pokazywany. Faktura od kontaktu może do ciebie dotrzeć tylko wtedy, gdy kontakt jest sparowany.';
   }
 
   @override

@@ -29631,13 +29631,13 @@ abstract class AppLocalizations {
   /// Topic 2. Paired payments still run over Epicbox: server suggestion and acceptance.
   ///
   /// In en, this message translates to:
-  /// **'Paired payments still run over Epicbox. The Epicbox server is suggested when you pair. The wallet accepts it only if it is already in its list of servers; otherwise it asks you. A server cannot tell a paired payment from a normal one.'**
+  /// **'Paired payments still run over Epicbox. The Epicbox server is suggested when you pair. The wallet accepts it only if it is already in its list of servers; otherwise it asks you. To an Epicbox server, a paired payment is an encrypted message like any other.'**
   String get helpPairRouteP2;
 
   /// Topic 2. Separate keys, address never shown, who can send an invoice. {paired} is sendRoutePaired.
   ///
   /// In en, this message translates to:
-  /// **'The option **{paired}** uses separate keys, and its address is never shown. Only a paired contact can send you an invoice.'**
+  /// **'The option **{paired}** uses separate keys, and its address is not shown. Only a paired contact can send you an invoice.'**
   String helpPairRouteP3(String paired);
 
   /// Topic 2. The cases where Send starts on Public address, and the Cancel and send to their public Epicbox address button.
