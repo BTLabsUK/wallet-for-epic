@@ -104,10 +104,28 @@ bool _sharesAddress(ContactRec c, ContactFields e) {
 /// Brings a backup's [theirs] into [book] by the contacts file's rules ([planGuiContacts]):
 /// nothing saved is changed, a contact holding one of the addresses gains the kinds and the
 /// note it lacks, a new one keeps the backup's id when it is free. A contact without an address
-/// (a pairing's) comes in by its id, which the pairing names. Returns the contacts added or
-/// given something.
-int mergeBackupContacts(List<ContactFields> book, Iterable<ContactRec> theirs, AddressChecks checks) {
+/// (a pairing's) comes in by its id, which the pairing names. An entry the app put in from
+/// [stock] and the user never edited holds nothing of theirs: the backup's copy of that
+/// contact (its name, note and label) replaces it. Returns the contacts added or given something.
+int mergeBackupContacts(
+  List<ContactFields> book,
+  Iterable<ContactRec> theirs,
+  AddressChecks checks, {
+  Iterable<SeedContact> stock = const [],
+}) {
   var n = 0;
+  for (var i = 0; i < book.length; i++) {
+    final e = book[i];
+    final box = e.epicbox;
+    if (box == null || e.http != null || e.tor != null) continue;
+    if (!stock.any((s) => s.name == e.name && s.note == e.note && _addressKey(s.address) == _addressKey(box))) continue;
+    final from = theirs.where((c) => c.name.trim().isNotEmpty && _sharesAddress(c, e)).firstOrNull;
+    if (from == null) continue;
+    final next = ContactFields(id: e.id, name: from.name.trim(), epicbox: box, note: _trimmed(from.note), label: ContactLabel.fromStored(from.label));
+    if (next == e) continue;
+    book[i] = next;
+    n++;
+  }
   final withAddress = <ContactRec>[];
   for (final c in theirs) {
     if (c.name.trim().isEmpty) continue;
@@ -580,7 +598,7 @@ class WalletHistory {
     final shared = _shared;
     if (shared == null || !report.applied) return report;
     // The file's contacts go to the shared address book, by the same rule.
-    final added = await shared.update((list) => mergeBackupContacts(list, payload.contacts, addressChecks));
+    final added = await shared.update((list) => mergeBackupContacts(list, payload.contacts, addressChecks, stock: bundledSeedContacts));
     final stars = _favouritesIn(payload, shared.list());
     final starred = stars.isEmpty
         ? 0
@@ -778,7 +796,7 @@ class WalletHistory {
     // [importPayload] adds them there.
     if (_shared == null) {
       final book = [for (final c in m.contacts) _fieldsOfRec(c)];
-      contactsAdded = mergeBackupContacts(book, payload.contacts, checks);
+      contactsAdded = mergeBackupContacts(book, payload.contacts, checks, stock: bundledSeedContacts);
       m.contacts
         ..clear()
         ..addAll([for (final c in book) _recOf(c)]);

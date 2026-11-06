@@ -9,6 +9,7 @@ import 'package:epic_wallet/src/contacts.dart';
 import 'package:epic_wallet/src/history/export.dart';
 import 'package:epic_wallet/src/history/meta_store.dart';
 import 'package:epic_wallet/src/history/wallet_history.dart';
+import 'package:epic_wallet/src/seed_contacts.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const _box = 'esKJdaBi1W1eHJFeV6HAPCM63Us2983Gqa5gFSXNsE3ascRpFxfc@epicbox.epiccash.com';
@@ -118,6 +119,31 @@ void main() {
       expect(here.favourites(), {known.id});
     });
   }
+
+  // A restore seeds the stock contact before the backup comes in: the user's edit in the
+  // backup wins over the copy nobody edited, and a contact the user edited here stays.
+  test('a backup\'s edited stock contact replaces the unedited seed; an edit here stays', () async {
+    final stock = btLabsContact!;
+    final from = WalletHistory.memory(contacts: ContactStore.memory());
+    await from.seedContacts(bundledSeedContacts);
+    final seeded = from.contacts().single;
+    await from.saveContact(Contact(id: seeded.id, name: 'BT Labs team', epicbox: seeded.epicbox, note: 'my note'));
+    final payload = from.exportPayload(const [], walletFp: 'fp', appVersion: 't');
+
+    final here = WalletHistory.memory(contacts: ContactStore.memory());
+    await here.seedContacts(bundledSeedContacts);
+    final report = await here.importPayload(payload, const [], walletFp: 'fp');
+    expect(report.contactsAdded, 1);
+    final after = here.contacts().single;
+    expect([after.name, after.note, after.epicbox], ['BT Labs team', 'my note', stock.address]);
+
+    final edited = WalletHistory.memory(contacts: ContactStore.memory());
+    await edited.seedContacts(bundledSeedContacts);
+    final mine = edited.contacts().single;
+    await edited.saveContact(Contact(id: mine.id, name: 'BT Labs', epicbox: mine.epicbox, note: 'edited here'));
+    await edited.importPayload(payload, const [], walletFp: 'fp');
+    expect(edited.contacts().single.note, 'edited here', reason: 'nothing the user saved is changed');
+  });
 
   test('a file without stars stays as older apps wrote it, and older files read', () {
     final payload = WalletHistory.memory().exportPayload(const [], walletFp: 'fp', appVersion: 't');
