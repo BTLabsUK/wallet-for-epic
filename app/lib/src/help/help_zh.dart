@@ -59,6 +59,7 @@ List<HelpTopic> helpTopicsZh(int confirmations, {required HelpPlatform platform,
       '打开“发送”，粘贴对方的 Epicbox 地址，输入金额，核对手续费后发送。',
       [
         HelpBlock.ol(['打开[[发送|Send]]，粘贴收款方地址，或选择一个联系人。', '输入金额。发送前会显示手续费。', phone ? '点 **继续**，检查无误后点 **发送 … EPIC**。' : '点 **确认**，检查无误后点 **发送 … EPIC**。']),
+        const HelpBlock.p('对于已配对的联系人，开关**通过配对发送**默认开启，付款会被密封。关闭开关或联系人未配对时，付款发到其公开 Epicbox 地址。'),
         const HelpBlock.p('此时需要收款方钱包回复（见“为什么交易需要双方参与？”）。通过 Epicbox 时，对方不必此刻在线：付款会一直等到对方钱包打开。在此期间，所用的币会被锁定，因此无法被花费两次。'),
         HelpBlock.p('收到对方回复后，钱包会自动完成付款并广播到网络。经过 $confirmations 个确认后交易即为最终。'),
         HelpBlock.p('**没有回复？** 几分钟后状态会显示“等待接收方”。请对方打开钱包。如果一直没有回复，请在 $cancelPlace 取消付款以解锁币。无人回复的付款会在大约一天后自动取消。'),

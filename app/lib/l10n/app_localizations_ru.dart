@@ -14554,11 +14554,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get contactCheckWordsAgain => 'Проверить снова';
 
   @override
-  String get contactSealPayments => 'Запечатывать платежи';
+  String get contactSealPayments => 'Запечатывать файлы транзакций';
 
   @override
   String contactSealInfo(String name) {
-    return 'Платежи и счета с $name зашифрованы сквозным шифрованием. Прочитать их может только кошелёк $name.';
+    return 'Файлы транзакций зашифрованы (запечатаны). Прочитать их может только кошелёк $name.';
   }
 
   @override
@@ -14718,7 +14718,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String contactSealDegradedTitle(String name) {
-    return 'Последний платёж для $name ушёл открытым';
+    return 'Последний файл транзакции для $name ушёл открытым';
   }
 
   @override
@@ -15005,14 +15005,26 @@ class AppLocalizationsRu extends AppLocalizations {
   String get reqNewSend => 'Отправить счёт';
 
   @override
-  String sendViaMailbox(String name) {
-    return 'Отправить через сервер Epicbox $name';
-  }
+  String get sendViaMailbox => 'Отправить через сопряжение';
 
   @override
   String sendViaMailboxHint(String relay) {
     return 'Запечатано. Доставка через $relay';
   }
+
+  @override
+  String sendViaPublicHint(String name) {
+    return 'Уйдёт на публичный адрес Epicbox $name.';
+  }
+
+  @override
+  String sendMailboxUnanswered(String date) {
+    return 'Нет ответа через сопряжение с $date.';
+  }
+
+  @override
+  String get sendPublicFallback =>
+      'Отправить на публичный адрес Epicbox контакта';
 
   @override
   String sendSealedTitle(String name) {
@@ -15383,14 +15395,14 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairingLede =>
-      'Сопряжение выполняется один раз; файлы транзакций и счета с этим контактом запечатаны.';
+      'Сопряжение выполняется один раз; платежи, файлы транзакций и счета с этим контактом запечатаны.';
 
   @override
   String get helpPairWhatTitle => 'Что такое сопряжение';
 
   @override
   String get helpPairWhatShort =>
-      'Выполните сопряжение с собеседником один раз; после этого файлы транзакций и счета между двумя кошельками запечатаны.';
+      'Выполните сопряжение с собеседником один раз; после этого платежи, файлы транзакций и счета между двумя кошельками запечатаны.';
 
   @override
   String get helpPairWhatP1 =>
@@ -15398,7 +15410,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairWhatP2 =>
-      'После сопряжения файл транзакции для этого контакта **запечатан**: открыть его может только кошелёк контакта, и в пути его нельзя изменить или подделать. Платежи через Epicbox между людьми работают как прежде.';
+      'После сопряжения платежи, файлы транзакций и счета между двумя кошельками **запечатаны**: прочитать их может только другой кошелёк, а личность контакта проверяется. Платежи по умолчанию идут через сопряжение; см. «Платежи после сопряжения».';
 
   @override
   String get helpPairWhatStep1 =>
@@ -15414,7 +15426,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairWhatP3 =>
-      'Для сопряжения нужен BT Wallet с обеих сторон. Несопряжённый контакт по-прежнему получает обычные файлы транзакций и платежи Epicbox.';
+      'Для сопряжения нужен BT Wallet с обеих сторон. Несопряжённый контакт по-прежнему получает обычные файлы транзакций и платежи на свой публичный адрес Epicbox.';
 
   @override
   String get helpPairWhyTitle => 'Зачем проверять';
@@ -15502,7 +15514,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get helpPairRestoreP2 =>
-      'Без файла сопряжения пропадают из этого кошелька, но ключи нет: они получаются из фразы восстановления. Повторите сопряжение с контактом, у которого оно сохранилось, и его кошелёк найдёт те же ключи. Он сообщит, что ключи вернулись, и контакт сохранит отметку «Проверено». В этом кошельке «Запечатывать платежи» и «Разрешить счета» возвращаются к значениям по умолчанию.';
+      'Без файла сопряжения пропадают из этого кошелька, но ключи нет: они получаются из фразы восстановления. Повторите сопряжение с контактом, у которого оно сохранилось, и его кошелёк найдёт те же ключи. Он сообщит, что ключи вернулись, и контакт сохранит отметку «Проверено». В этом кошельке «Запечатывать файлы транзакций» и «Разрешить счета» возвращаются к значениям по умолчанию.';
 
   @override
   String get helpPairRestoreP3 =>
@@ -19200,11 +19212,16 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get mailboxResendTitle => 'Отменить и отправить через Epicbox';
+  String get mailboxResendTitle =>
+      'Отменить и отправить на публичный адрес Epicbox';
+
+  @override
+  String get mailboxResendTitleShort =>
+      'Отменить и отправить на публичный адрес';
 
   @override
   String mailboxResendBody(Object name) {
-    return 'Ожидающий платёж отменяется, и та же сумма уходит на адрес Epicbox $name обычным платежом. В истории остаются две строки.';
+    return 'Ожидающий платёж отменяется, и та же сумма уходит на публичный адрес Epicbox $name обычным платежом. В разделе «Активность» остаются две строки.';
   }
 
   @override
@@ -19257,7 +19274,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get receiptHintTitle => 'Квитанция';
 
   @override
-  String get mailboxResent => 'Отменено и отправлено через Epicbox.';
+  String get mailboxResent =>
+      'Отменено и отправлено на публичный адрес Epicbox.';
 
   @override
   String get torRelayCaption =>
@@ -19620,6 +19638,33 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get pairBackLater => 'Назад';
+
+  @override
+  String get helpPairRouteTitle => 'Платежи после сопряжения';
+
+  @override
+  String get helpPairRouteShort =>
+      'Платежи сопряжённому контакту идут через сопряжение; публичный адрес Epicbox — запасной путь.';
+
+  @override
+  String get helpPairRouteP1 =>
+      'После сопряжения платёж этому контакту по умолчанию идёт через сопряжение — закрытым маршрутом. В разделе [[Отправить|Send]] переключатель **Отправить через сопряжение** изначально включён.';
+
+  @override
+  String get helpPairRouteP2 =>
+      'Вместо этого платёж уходит на публичный адрес Epicbox контакта, если: контакт не сопряжён; переключатель выключен; контакт в последний раз отвечал из другого приложения кошелька; от контакта не было вестей 90 дней; отправка через сопряжение сутки оставалась без ответа; или его сервер недоступен.';
+
+  @override
+  String get helpPairRouteP3 =>
+      'Если отправка через сопряжение сутки остаётся без ответа, появляется **Отменить и отправить на публичный адрес Epicbox**. Кошелёк сначала спрашивает; следующие отправки этому контакту тогда начинаются с публичного адреса.';
+
+  @override
+  String get helpPairRouteP4 =>
+      '**Запечатывать файлы транзакций** на странице контакта шифрует файлы, отправляемые этому контакту. Они запечатаны, и прочитать их может только этот контакт. Переключатель касается только файлов; он не включает и не выключает маршрут через сопряжение.';
+
+  @override
+  String get helpPairRouteP5 =>
+      'У сопряжения по приглашению или QR-коду нет публичного адреса Epicbox в запасе, если только у контакта нет адреса Epicbox в [[Контакты|Contacts]].';
 
   @override
   String get helpPairTwoWaysTitle => 'Два способа сопряжения';

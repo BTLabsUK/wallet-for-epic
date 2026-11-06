@@ -161,6 +161,7 @@ abstract final class HelpId {
   static const trouble = 'trouble';
   static const pairing = 'pairing';
   static const pairingWays = 'pairing-ways';
+  static const pairingRoute = 'pairing-route';
   static const checkWords = 'check-words';
   static const invoices = 'invoices';
   static const pairingRestore = 'pairing-restore';
@@ -248,6 +249,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
       'Open Send, paste their Epicbox address, enter the amount, check the fee and send.',
       [
         HelpBlock.ol(['Open [[Send]] and paste the recipient’s address, or pick a contact.', 'Enter the amount. The fee is shown before sending.', phone ? 'Tap **Continue**, check, then **Send … EPIC**.' : 'Press **Review**, check, then **Send … EPIC**.']),
+        const HelpBlock.p('To a paired contact, the switch **Send through the pairing** starts on and the payment is sealed. Turned off, or for a contact who is not paired, it goes to their public Epicbox address.'),
         const HelpBlock.p('Now the recipient’s wallet has to answer (see "Why does a transaction need both sides?"). Over Epicbox they do not have to be online right now: the payment waits until their wallet opens. Meanwhile the coins it uses are locked, so they cannot be spent twice.'),
         HelpBlock.p('When their answer comes back, the wallet finishes the payment and posts it to the network by itself. It is final after $confirmations confirmations.'),
         HelpBlock.p('**No answer?** After a few minutes the status says "Waiting for recipient". Ask them to open their wallet. If the answer never comes, cancel the payment in $cancelPlace to unlock the coins. A payment nobody answers cancels by itself after about a day.'),
@@ -715,7 +717,7 @@ List<HelpTopic> helpTopics(int confirmations, {required HelpPlatform platform, b
   ];
 }
 
-/// Help › Pairing's five topics. Localized, unlike the rest, as they were written
+/// Help › Pairing's six topics. Localized, unlike the rest, as they were written
 /// for all six languages with the screens. The strings name the desktop's places; on the phone
 /// [_phonePairingPlace] gives each the phone's own.
 List<HelpTopic> pairingHelpTopics(AppLocalizations l, {HelpPlatform platform = HelpPlatform.desktop}) {
@@ -731,6 +733,13 @@ List<HelpTopic> pairingHelpTopics(AppLocalizations l, {HelpPlatform platform = H
       HelpBlock.ol([t(l.helpPairWhatStep1), t(l.helpPairWhatStep2), t(l.helpPairWhatStep3)]),
       HelpBlock.p(t(l.helpPairWhatP3)),
     ], id: HelpId.pairing),
+    HelpTopic(s, l.helpPairRouteTitle, l.helpPairRouteShort, [
+      HelpBlock.p(t(l.helpPairRouteP1)),
+      HelpBlock.p(t(l.helpPairRouteP2)),
+      HelpBlock.p(t(l.helpPairRouteP3)),
+      HelpBlock.p(t(l.helpPairRouteP4)),
+      HelpBlock.p(t(l.helpPairRouteP5)),
+    ], id: HelpId.pairingRoute),
     HelpTopic(s, l.helpPairTwoWaysTitle, l.helpPairTwoWaysShort, [
       HelpBlock.p(t(l.helpPairTwoWaysP1)),
       HelpBlock.p(t(l.helpPairTwoWaysP2)),

@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 import '../../data/mock_hosts.dart';
+import 'package:flutter/foundation.dart' show ValueKey;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../levels/wallet_level.dart';
 import '../../data/desk_levels.dart' show deskLevelControlProvider;
 import '../../../tor_routes.dart';
 import '../../app/shots.dart';
-import '../settings/shots.dart' show openInfoHint;
+import '../settings/shots.dart' show openInfoHint, tapShotKey;
+import '../../../trust/policy.dart' show PeerCompat;
 import '../../widgets/kit.dart';
 import 'contact_picker.dart';
 import 'finalize_screen.dart';
@@ -15,7 +17,7 @@ import 'receive_screen.dart';
 import 'send_code.dart' show CodeOrigin;
 import 'send_screen.dart';
 import '../wallet/shots.dart' show annaMovedForShots;
-import '../../data/mock_wallet.dart' show mockAnnaPairing;
+import '../../data/mock_wallet.dart' show mockAnnaPairing, mockBehind;
 
 final _onion = 'http://$fakeWalletOnion';
 final _anna = 'esYb3kq9TzWmR8uPfVc2LdN6hJx4gA7sKeQ1oBnC5vD9rHtF3w@$mockBox';
@@ -24,6 +26,15 @@ const _tomLan = 'http://192.168.1.24:3415';
 // No saved contact has it.
 final _payee = 'esTk4wRm8Nq2Vx7Lc5Bh9Jd3Fg6Hs1Ka8Pz4Yu2Wn7Ec5Rt9Q@$mockBox';
 final _request = 'epic:$_payee?amount=12.5&message=Table%204%2C%20lunch%20for%20two&label=Corner%20Caf%C3%A9';
+
+/// Anna's last payment was answered by another wallet app: the pairing switch starts off.
+Future<void> _annaOtherApp(ProviderContainer c) async {
+  final now = DateTime.now();
+  mockBehind(c.read(deskApiProvider))?.peerCompats[_anna] = PeerCompat(
+    lastMarkedAt: now.subtract(const Duration(days: 40)),
+    lastUnmarkedAt: now.subtract(const Duration(days: 1)),
+  );
+}
 
 /// Screenshot tour entries of this group (see app/shots.dart). Ids match the Electron
 /// reference shots.
@@ -38,6 +49,11 @@ final List<DeskShot> transferShots = [
   DeskShot(id: '13-send-l2', title: 'Send, Deeper', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '12.5'), before: _level(WalletLevel.casual)),
   DeskShot(id: '13b-send-node-syncing', title: 'Send, node not synced', route: DeskRoute.send, arg: SendArgs(nodeSync: 0.62, recipient: _anna, amount: '12.5')),
   DeskShot(id: '13w-send-pairing-moved', title: 'Send to a contact that moved relay: Delivered via, moved here on', route: DeskRoute.send, arg: const SendArgs(pairingTo: mockAnnaPairing, amount: '1', epicboxHealth: ServiceHealth.ok), before: annaMovedForShots),
+  // A paired contact's Epicbox address in To: the switch to pay through the pairing, on by
+  // the rule; off with its reason; turned off by the user.
+  DeskShot(id: '13x-send-pairing-address', title: 'Send to a paired contact\'s address: through the pairing', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '12.5', epicboxHealth: ServiceHealth.ok)),
+  DeskShot(id: '13y-send-pairing-address-off', title: 'Send to a paired contact\'s address: the pairing off, another app answered', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '12.5', epicboxHealth: ServiceHealth.ok), before: _annaOtherApp),
+  DeskShot(id: '13z-send-pairing-address-public', title: 'Send to a paired contact\'s address: the user turned the pairing off', route: DeskRoute.send, arg: SendArgs(recipient: _anna, amount: '12.5', epicboxHealth: ServiceHealth.ok), prepare: (_, ctx) async => tapShotKey(ctx, const ValueKey('send-via-mailbox'))),
   DeskShot(id: '13c-send-epicbox-off', title: 'Send, Epicbox not connected', route: DeskRoute.send, arg: SendArgs(epicboxHealth: ServiceHealth.off)),
   DeskShot(id: '13d-send-epicbox-down', title: 'Send, Epicbox down', route: DeskRoute.send, arg: SendArgs(epicboxHealth: ServiceHealth.down)),
   DeskShot(id: '13e-send-privacy', title: 'Send, privacy open', route: DeskRoute.send, arg: SendArgs(privacyOpen: true, recipient: _anna, amount: '12.5')),

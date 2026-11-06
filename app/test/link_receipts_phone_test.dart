@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // A payment made from a link, on the phone: the optional receipt line (hidden when the name service
 // cannot be told, one post per stage, stage 2 after finalize, nothing again on a reopen) and the
-// silent-payee rows at 0 hours, 24 hours and 7 days (Cancel and send by Epicbox: the cancel, then
+// silent-payee rows at 0 hours, 24 hours and 7 days (Cancel and send to their public Epicbox address: the cancel, then
 // Send with the amount and the payee's saved address).
 
 import 'package:epic_wallet/src/name_service/name_service.dart';

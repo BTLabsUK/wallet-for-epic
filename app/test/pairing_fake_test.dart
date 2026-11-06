@@ -4,6 +4,7 @@
 // goes through (Waiting until heard, Paired, Verified, Ended with its reason), the request
 // filter, the mismatch hold, crossed invites, the attach rules, and the backup.
 import 'package:epic_wallet/src/pairing_fake.dart';
+import 'package:epic_wallet/src/pairing_providers.dart' show repostWaitingSends, waitingSendKeys;
 import 'package:epic_wallet/src/trust/policy.dart' show featureStatusNotices;
 import 'package:epic_wallet/src/wallet_service.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -440,5 +441,37 @@ void main() {
     expect(await api.pairings(), isEmpty);
     expect(await api.requests(), isEmpty);
     expect(const NoPairing().supported, isFalse);
+  });
+
+  group('repost when keys come back', () {
+    TxEntry send(String slate, String pairing, {TxStatus status = TxStatus.awaitingRecipient, TxKind kind = TxKind.sent}) =>
+        fakeTx(id: slate.hashCode & 0xffff, slateId: slate, kind: kind, status: status, pairingId: pairing);
+
+    test('keys back reposts waiting sends for that contact only', () async {
+      final txs = [send('a1', 'A'), send('a2', 'A'), send('b1', 'B')];
+      final keys = waitingSendKeys(txs, 'A');
+      await repostWaitingSends(api, keys);
+
+      expect(api.calls.where((c) => c.startsWith('repost:')), ['repost:s:a1', 'repost:s:a2']);
+    });
+
+    test('answered, cancelled and confirmed sends are not reposted', () {
+      final txs = [
+        send('c1', 'A', status: TxStatus.cancelled),
+        send('c2', 'A', status: TxStatus.awaitingConfirmation),
+        send('c3', 'A', status: TxStatus.confirmed),
+        send('c4', 'A', kind: TxKind.sentCancelled, status: TxStatus.cancelled),
+        send('c5', 'A', kind: TxKind.received),
+      ];
+      expect(waitingSendKeys(txs, 'A'), isEmpty);
+    });
+
+    test('a failed repost is skipped and the rest go on', () async {
+      api.enabled = false;
+      await repostWaitingSends(api, ['s:x']);
+      api.enabled = true;
+      await repostWaitingSends(api, ['s:y']);
+      expect(api.calls.where((c) => c.startsWith('repost:')), ['repost:s:y']);
+    });
   });
 }

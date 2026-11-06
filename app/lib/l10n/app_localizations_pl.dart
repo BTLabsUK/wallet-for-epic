@@ -14576,11 +14576,11 @@ class AppLocalizationsPl extends AppLocalizations {
   String get contactCheckWordsAgain => 'Zweryfikuj ponownie';
 
   @override
-  String get contactSealPayments => 'Pieczętuj płatności';
+  String get contactSealPayments => 'Pieczętuj pliki transakcji';
 
   @override
   String contactSealInfo(String name) {
-    return 'Płatności i faktury z $name są szyfrowane od końca do końca. Tylko portfel $name może je odczytać.';
+    return 'Pliki transakcji są szyfrowane (pieczętowane). Tylko portfel $name może je odczytać.';
   }
 
   @override
@@ -14741,7 +14741,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String contactSealDegradedTitle(String name) {
-    return 'Ostatnia płatność dla $name poszła jawnie';
+    return 'Ostatni plik transakcji dla $name poszedł jawnie';
   }
 
   @override
@@ -15032,14 +15032,25 @@ class AppLocalizationsPl extends AppLocalizations {
   String get reqNewSend => 'Wyślij fakturę';
 
   @override
-  String sendViaMailbox(String name) {
-    return 'Wyślij przez serwer Epicbox $name';
-  }
+  String get sendViaMailbox => 'Wyślij przez parowanie';
 
   @override
   String sendViaMailboxHint(String relay) {
     return 'Zapieczętowane. Dostarczane przez $relay';
   }
+
+  @override
+  String sendViaPublicHint(String name) {
+    return 'Trafi na publiczny adres Epicbox $name.';
+  }
+
+  @override
+  String sendMailboxUnanswered(String date) {
+    return 'Brak odpowiedzi przez parowanie od $date.';
+  }
+
+  @override
+  String get sendPublicFallback => 'Wyślij na publiczny adres Epicbox kontaktu';
 
   @override
   String sendSealedTitle(String name) {
@@ -15409,14 +15420,14 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairingLede =>
-      'Sparuj się raz; pliki transakcji i faktury z tym kontaktem są zapieczętowane.';
+      'Sparuj się raz; płatności, pliki transakcji i faktury z tym kontaktem są zapieczętowane.';
 
   @override
   String get helpPairWhatTitle => 'Czym jest parowanie';
 
   @override
   String get helpPairWhatShort =>
-      'Sparuj się raz z drugą osobą; potem pliki transakcji i faktury między dwoma portfelami są zapieczętowane.';
+      'Sparuj się raz z drugą osobą; potem płatności, pliki transakcji i faktury między dwoma portfelami są zapieczętowane.';
 
   @override
   String get helpPairWhatP1 =>
@@ -15424,7 +15435,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairWhatP2 =>
-      'Po sparowaniu plik transakcji dla tego kontaktu jest **zapieczętowany**: tylko jego portfel może go otworzyć i po drodze nie da się go zmienić ani podrobić. Płatności przez Epicbox między osobami działają jak dotąd.';
+      'Po sparowaniu płatności, pliki transakcji i faktury między dwoma portfelami są **zapieczętowane**: odczytać je może tylko drugi portfel, a tożsamość kontaktu jest sprawdzana. Płatności domyślnie idą przez parowanie; zobacz „Płatności po sparowaniu”.';
 
   @override
   String get helpPairWhatStep1 =>
@@ -15440,7 +15451,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairWhatP3 =>
-      'Parowanie wymaga BT Wallet po obu stronach. Niesparowany kontakt nadal dostaje zwykłe pliki transakcji i płatności Epicbox.';
+      'Parowanie wymaga BT Wallet po obu stronach. Niesparowany kontakt nadal dostaje zwykłe pliki transakcji i płatności na swój publiczny adres Epicbox.';
 
   @override
   String get helpPairWhyTitle => 'Po co weryfikować';
@@ -15528,7 +15539,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get helpPairRestoreP2 =>
-      'Bez pliku parowania znikają z tego portfela, ale klucze nie: powstają z frazy odzyskiwania. Sparuj się ponownie z kontaktem, który zachował parowanie, a jego portfel odnajdzie te same klucze. Pokaże, że klucze wróciły, a kontakt zachowa oznaczenie Zweryfikowany. W tym portfelu Pieczętuj płatności i Zezwól na faktury wracają do ustawień domyślnych.';
+      'Bez pliku parowania znikają z tego portfela, ale klucze nie: powstają z frazy odzyskiwania. Sparuj się ponownie z kontaktem, który zachował parowanie, a jego portfel odnajdzie te same klucze. Pokaże, że klucze wróciły, a kontakt zachowa oznaczenie Zweryfikowany. W tym portfelu Pieczętuj pliki transakcji i Zezwól na faktury wracają do ustawień domyślnych.';
 
   @override
   String get helpPairRestoreP3 =>
@@ -19212,11 +19223,14 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String get mailboxResendTitle => 'Anuluj i wyślij przez Epicbox';
+  String get mailboxResendTitle => 'Anuluj i wyślij na publiczny adres Epicbox';
+
+  @override
+  String get mailboxResendTitleShort => 'Anuluj i wyślij na publiczny adres';
 
   @override
   String mailboxResendBody(Object name) {
-    return 'Oczekująca płatność zostanie anulowana, a ta sama kwota trafi na adres Epicbox $name jako zwykła płatność. W historii zostaną dwa wiersze.';
+    return 'Oczekująca płatność zostanie anulowana, a ta sama kwota trafi na publiczny adres Epicbox $name jako zwykła płatność. W Aktywności zostaną dwa wiersze.';
   }
 
   @override
@@ -19269,7 +19283,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get receiptHintTitle => 'Potwierdzenie';
 
   @override
-  String get mailboxResent => 'Anulowano i wysłano przez Epicbox.';
+  String get mailboxResent => 'Anulowano i wysłano na publiczny adres Epicbox.';
 
   @override
   String get torRelayCaption =>
@@ -19634,6 +19648,33 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get pairBackLater => 'Wstecz';
+
+  @override
+  String get helpPairRouteTitle => 'Płatności po sparowaniu';
+
+  @override
+  String get helpPairRouteShort =>
+      'Płatności do sparowanego kontaktu idą przez parowanie; publiczny adres Epicbox jest drogą zapasową.';
+
+  @override
+  String get helpPairRouteP1 =>
+      'Po sparowaniu płatność do tego kontaktu domyślnie idzie przez parowanie, czyli prywatną trasą. W [[Wyślij|Send]] przełącznik **Wyślij przez parowanie** jest na początku włączony.';
+
+  @override
+  String get helpPairRouteP2 =>
+      'Płatność idzie zamiast tego na publiczny adres Epicbox kontaktu, gdy: kontakt nie jest sparowany; przełącznik jest wyłączony; kontakt ostatnio odpowiedział z innej aplikacji portfela; od kontaktu nie było wieści od 90 dni; wysyłka przez parowanie została bez odpowiedzi przez dobę; albo jego serwer nie działa.';
+
+  @override
+  String get helpPairRouteP3 =>
+      'Wysyłka przez parowanie, na którą nikt nie odpowiada przez dobę, pokazuje **Anuluj i wyślij na publiczny adres Epicbox**. Portfel najpierw pyta; kolejne wysyłki do tego kontaktu zaczynają się wtedy od adresu publicznego.';
+
+  @override
+  String get helpPairRouteP4 =>
+      '**Pieczętuj pliki transakcji** na stronie kontaktu szyfruje pliki wysyłane do tego kontaktu. Są zapieczętowane i tylko ten kontakt może je odczytać. Przełącznik dotyczy samych plików; nie włącza ani nie wyłącza trasy przez parowanie.';
+
+  @override
+  String get helpPairRouteP5 =>
+      'Parowanie przez zaproszenie lub kod QR nie ma publicznego adresu Epicbox jako drogi zapasowej, chyba że kontakt ma adres Epicbox w [[Kontakty|Contacts]].';
 
   @override
   String get helpPairTwoWaysTitle => 'Dwa sposoby parowania';

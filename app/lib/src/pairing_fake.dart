@@ -1340,6 +1340,12 @@ class FakePairing implements PairingApi {
     return sent.slateJson;
   }
 
+  @override
+  Future<void> repostViaMailbox(String txKey) async {
+    _require('repostViaMailbox');
+    calls.add('repost:$txKey');
+  }
+
   /// Pairings an import brought in as used on another device.
   int importedOtherDevice = 0;
 

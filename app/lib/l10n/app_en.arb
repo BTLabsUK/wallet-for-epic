@@ -18710,11 +18710,11 @@
   "@contactCheckWordsAgain": {
     "description": "Phone menu item."
   },
-  "contactSealPayments": "Seal payments",
+  "contactSealPayments": "Seal transaction files",
   "@contactSealPayments": {
     "description": "Switch label. Label only; the info icon explains."
   },
-  "contactSealInfo": "Payments and invoices with {name} are encrypted end to end. Only their wallet can read them.",
+  "contactSealInfo": "Transaction files are encrypted (sealed) and readable only by {name}.",
   "@contactSealInfo": {
     "description": "Info sheet / tooltip for Seal payments. Use the contact’s pronoun where the language has one; English uses the name twice or ‘their’.",
     "placeholders": {
@@ -18990,7 +18990,7 @@
   "@contactKeysBackBody": {
     "description": "Notice body."
   },
-  "contactSealDegradedTitle": "The last payment to {name} went plain",
+  "contactSealDegradedTitle": "The last transaction file to {name} went plain",
   "@contactSealDegradedTitle": {
     "description": "Notice on the contact page.",
     "placeholders": {
@@ -19410,15 +19410,9 @@
   "@reqNewSend": {
     "description": "Primary button."
   },
-  "sendViaMailbox": "Send through {name}’s Epicbox server",
+  "sendViaMailbox": "Send through the pairing",
   "@sendViaMailbox": {
-    "description": "Switch on Send for a paired contact over Epicbox.",
-    "placeholders": {
-      "name": {
-        "type": "String",
-        "example": "Anna"
-      }
-    }
+    "description": "Switch on Send for a paired contact over Epicbox."
   },
   "sendViaMailboxHint": "Sealed. Delivered via {relay}",
   "@sendViaMailboxHint": {
@@ -19429,6 +19423,30 @@
         "example": "epicbox.example.org"
       }
     }
+  },
+  "sendViaPublicHint": "Goes to {name}’s public Epicbox address.",
+  "@sendViaPublicHint": {
+    "description": "Hint under the Send through the pairing switch when the user turned it off: the payment goes to the contact’s public Epicbox address.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Anna"
+      }
+    }
+  },
+  "sendMailboxUnanswered": "No answer through the pairing since {date}.",
+  "@sendMailboxUnanswered": {
+    "description": "Reason line on Send when the pairing switch starts off: the contact’s wallet has not answered through the pairing; date is a day and month.",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "3 Nov"
+      }
+    }
+  },
+  "sendPublicFallback": "Send to their public Epicbox address",
+  "@sendPublicFallback": {
+    "description": "Button on a failed send through the pairing: send the same payment to the contact’s public Epicbox address."
   },
   "sendSealedTitle": "Sealed for {name}",
   "@sendSealedTitle": {
@@ -20011,7 +20029,7 @@
   "@helpPairingSection": {
     "description": "Help section title."
   },
-  "helpPairingLede": "Pair once; transaction files and invoices with that contact are sealed.",
+  "helpPairingLede": "Pair once; payments, transaction files and invoices with that contact are sealed.",
   "@helpPairingLede": {
     "description": "Help section lede."
   },
@@ -20019,7 +20037,7 @@
   "@helpPairWhatTitle": {
     "description": "Topic 1 title."
   },
-  "helpPairWhatShort": "Pair once with someone; after that, transaction files and invoices between the two wallets are sealed.",
+  "helpPairWhatShort": "Pair once with someone; after that, payments, transaction files and invoices between the two wallets are sealed.",
   "@helpPairWhatShort": {
     "description": "Topic 1 lede."
   },
@@ -20027,7 +20045,7 @@
   "@helpPairWhatP1": {
     "description": "Topic 1."
   },
-  "helpPairWhatP2": "After pairing, a transaction file to that contact is **sealed**: only their wallet can open it, and it cannot be changed or forged on the way. Payments over Epicbox between people keep working as before.",
+  "helpPairWhatP2": "After pairing, payments, transaction files and invoices between the two wallets are **sealed**: only the other wallet can read them, and the contact’s identity is checked. Payments go through the pairing by default; see “Payments after pairing”.",
   "@helpPairWhatP2": {
     "description": "Topic 1."
   },
@@ -20043,7 +20061,7 @@
   "@helpPairWhatStep3": {
     "description": "Topic 1 step."
   },
-  "helpPairWhatP3": "Pairing needs BT Wallet on both sides. A contact that is not paired still gets ordinary transaction files and Epicbox payments.",
+  "helpPairWhatP3": "Pairing needs BT Wallet on both sides. A contact that is not paired still gets ordinary transaction files and payments to their public Epicbox address.",
   "@helpPairWhatP3": {
     "description": "Topic 1."
   },
@@ -20135,7 +20153,7 @@
   "@helpPairRestoreP1": {
     "description": "Topic 5."
   },
-  "helpPairRestoreP2": "Without the file, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and their wallet finds the same keys. It tells them the keys are back, and the contact keeps its Verified mark. On this wallet, Seal payments and Allow invoices start at their defaults.",
+  "helpPairRestoreP2": "Without the file, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and their wallet finds the same keys. It tells them the keys are back, and the contact keeps its Verified mark. On this wallet, Seal transaction files and Allow invoices start at their defaults.",
   "@helpPairRestoreP2": {
     "description": "Help › Pairing › What a restore does, paragraph 2."
   },
@@ -25149,11 +25167,15 @@
       "name": {}
     }
   },
-  "mailboxResendTitle": "Cancel and send by Epicbox",
+  "mailboxResendTitle": "Cancel and send to their public Epicbox address",
   "@mailboxResendTitle": {
     "description": "Button and dialog title: cancel an unanswered mailbox send and send the same amount to the contact's Epicbox address as an ordinary payment."
   },
-  "mailboxResendBody": "The waiting send is cancelled and the same amount goes to {name}’s Epicbox address as an ordinary payment. Two rows stay in the history.",
+  "mailboxResendTitleShort": "Cancel and send to their public address",
+  "@mailboxResendTitleShort": {
+    "description": "Short form of the Cancel and send to their public Epicbox address button, used only where the full text does not fit."
+  },
+  "mailboxResendBody": "The waiting send is cancelled and the same amount goes to {name}’s public Epicbox address as an ordinary payment. Two rows stay in Activity.",
   "@mailboxResendBody": {
     "description": "Body of the Cancel and send by Epicbox confirm dialog.",
     "placeholders": {
@@ -25233,7 +25255,7 @@
   "@receiptHintTitle": {
     "description": "Title of the receipt line's explanation."
   },
-  "mailboxResent": "Cancelled and sent by Epicbox.",
+  "mailboxResent": "Cancelled and sent to their public Epicbox address.",
   "@mailboxResent": {
     "description": "Notice after Cancel and send by Epicbox finished: the old send is cancelled and the new one is on its way."
   },
@@ -25794,11 +25816,39 @@
   "@pairBackLater": {
     "description": "Words check: leaves it for later (the row stays Paired)."
   },
+  "helpPairRouteTitle": "Payments after pairing",
+  "@helpPairRouteTitle": {
+    "description": "Topic 2 title."
+  },
+  "helpPairRouteShort": "Payments to a paired contact go through the pairing; the public Epicbox address is the fallback.",
+  "@helpPairRouteShort": {
+    "description": "Topic 2 summary."
+  },
+  "helpPairRouteP1": "Once paired, a payment to that contact goes through the pairing, the private route, by default. On [[Send]] the switch **Send through the pairing** starts on.",
+  "@helpPairRouteP1": {
+    "description": "Topic 2. [[Send]] is the Send tab or page."
+  },
+  "helpPairRouteP2": "A payment goes to the contact’s public Epicbox address instead when: the contact is not paired; you turned the switch off; the contact last answered from another wallet app; the contact was not heard from in 90 days; a send through the pairing was left unanswered for a day; or their server is down.",
+  "@helpPairRouteP2": {
+    "description": "Topic 2. The cases that use the public Epicbox address."
+  },
+  "helpPairRouteP3": "A send through the pairing that stays unanswered for a day shows **Cancel and send to their public Epicbox address**. The wallet asks first; later sends to that contact then start on the public address.",
+  "@helpPairRouteP3": {
+    "description": "Topic 2."
+  },
+  "helpPairRouteP4": "**Seal transaction files** on the contact page encrypts files sent to that contact. They are sealed and readable only by that contact. The switch covers files only; it does not turn the pairing route on or off.",
+  "@helpPairRouteP4": {
+    "description": "Topic 2. Names the contact page switch contactSealPayments."
+  },
+  "helpPairRouteP5": "An invite or QR pairing has no public Epicbox address to fall back to, unless the contact has an Epicbox address in [[Contacts]].",
+  "@helpPairRouteP5": {
+    "description": "Topic 2. [[Contacts]] is the Contacts tab or page."
+  },
   "helpPairTwoWaysTitle": "Two ways to pair",
   "@helpPairTwoWaysTitle": {
     "description": "Help topic title."
   },
-  "helpPairTwoWaysShort": "A request to a contact, or your code.",
+  "helpPairTwoWaysShort": "A request to a contact, or your invite.",
   "@helpPairTwoWaysShort": {
     "description": "Help topic lede."
   },
@@ -25806,11 +25856,11 @@
   "@helpPairTwoWaysP1": {
     "description": "Help: Way 1."
   },
-  "helpPairTwoWaysP2": "**Pair by code.** Contacts › Pair shows your code, good for 7 days. The other wallet scans it or opens the link; both finish over Epicbox and then compare the four words. With Epicbox off on either side, the same screen carries the answer and the finish code by hand: Share and Paste.",
+  "helpPairTwoWaysP2": "**Pair by invite.** Contacts › Pair shows your invite, good for 7 days. The other wallet scans it or opens the link; both finish over Epicbox and then compare the four words. With Epicbox off on either side, the same screen carries the answer and the finish link by hand: Share and Paste.",
   "@helpPairTwoWaysP2": {
     "description": "Help: Way 2."
   },
-  "helpPairTwoWaysP3": "A request is sent only to a wallet that has shown it runs BT Wallet: a marked payment between the two addresses within the last 30 days. For anyone else, Pair shows your code.",
+  "helpPairTwoWaysP3": "A request is sent only to a wallet that has shown it runs BT Wallet: a marked payment between the two addresses within the last 30 days. For anyone else, Pair shows your invite.",
   "@helpPairTwoWaysP3": {
     "description": "Help: when a request can be sent."
   },
@@ -25822,11 +25872,11 @@
   "@helpPairWhyShort2": {
     "description": "Help topic lede."
   },
-  "helpPairWhyP1b": "After pairing by code both wallets show the same four pictures and names. Compare them with the other person in person, by voice or on a video call, never in the chat the code came through: whoever could change the code on the way could also change what that chat shows.",
+  "helpPairWhyP1b": "After pairing by invite both wallets show the same four pictures and names. Compare them with the other person in person, by voice or on a video call, never in the chat the invite came through: whoever could change the invite on the way could also change what that chat shows.",
   "@helpPairWhyP1b": {
     "description": "Help: how to compare."
   },
-  "helpPairWhyP2b": "**They match** marks the contact Verified; the other wallet learns of it and shows “confirmed too”. **They do not match** ends the pairing on both sides and nothing sent through it is finished. A mistaken No ends it too: pair again with a fresh code.",
+  "helpPairWhyP2b": "**They match** marks the contact Verified; the other wallet learns of it and shows “confirmed too”. **They do not match** ends the pairing on both sides and nothing sent through it is finished. A mistaken No ends it too: pair again with a fresh invite.",
   "@helpPairWhyP2b": {
     "description": "Help: what the two answers do."
   },

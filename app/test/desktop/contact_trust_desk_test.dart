@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 // The trust policy on the desktop: the contact details' compatibility line (a line, never a
-// badge), and a mailbox send unanswered for 24 hours and 7 days with Cancel and send by Epicbox
+// badge), and a mailbox send unanswered for 24 hours and 7 days with Cancel and send to their public Epicbox address
 // (one confirm, then the ordinary cancel and an ordinary Epicbox send to the contact's address).
 
 import 'package:epic_wallet/src/cancel_final.dart' show CancelResult;
@@ -142,7 +142,7 @@ void main() {
       await _end(tester);
     });
 
-    testWidgets('after 24 hours: Not answered yet, Cancel and send by Epicbox first; the confirm, then cancel and send', (tester) async {
+    testWidgets('after 24 hours: Not answered yet, Cancel and send to their public Epicbox address first; the confirm, then cancel and send', (tester) async {
       final anna = await _open(tester, (_) => _detail(_mailboxSend(_ago(const Duration(hours: 30)))));
       expect(find.text(_l.mailboxNotAnswered), findsOneWidget);
       expect(find.byKey(const ValueKey('tx-mailbox-gone')), findsNothing);

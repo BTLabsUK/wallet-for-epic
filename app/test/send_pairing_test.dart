@@ -14,7 +14,9 @@ import 'package:epic_wallet/src/price.dart';
 import 'package:epic_wallet/src/providers.dart';
 import 'package:epic_wallet/src/relay_directory.dart';
 import 'package:epic_wallet/src/send_preflight.dart';
+import 'package:epic_wallet/src/settings.dart' show clockProvider;
 import 'package:epic_wallet/src/slate_files.dart';
+import 'package:epic_wallet/src/trust/policy.dart' show PeerCompat;
 import 'package:epic_wallet/src/ui/common.dart';
 import 'package:epic_wallet/src/ui/contact_page.dart';
 import 'package:epic_wallet/src/ui/pairing/send_pairing.dart';
@@ -79,9 +81,9 @@ final WalletSummary _forty = WalletSummary(
 );
 
 class _Harness {
-  _Harness({bool pairing = true}) {
+  _Harness({bool pairing = true, String? address}) {
     allowPinCheck(session);
-    session.contactsValue.add(Contact(id: 'c1', name: 'Anna'));
+    session.contactsValue.add(Contact(id: 'c1', name: 'Anna', epicbox: address));
     // Pairing is an experimental switch (Settings › Advanced), off by default.
     if (pairing) store.values[phoneAdvancedPrefsKey] = phoneExperimentalOn;
   }
@@ -92,7 +94,8 @@ class _Harness {
 
   ProviderContainer container(WidgetTester tester) => ProviderScope.containerOf(tester.element(find.byType(Navigator).first));
 
-  Future<void> pump(WidgetTester tester, Widget home, {PairNet? net}) async {
+  Future<void> pump(WidgetTester tester, Widget home, {PairNet? net, DateTime? now}) async {
+    session.owner = service;
     tester.view.physicalSize = const Size(1080, 2340);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
@@ -110,6 +113,7 @@ class _Harness {
           relayDirectoryProvider.overrideWithValue(_NoRelays()),
           relayProbeProvider.overrideWithValue(FakeRelayProbe()),
           if (net != null) pairNetProvider.overrideWithValue(net),
+          if (now != null) clockProvider.overrideWithValue(() => now),
         ],
         child: MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -150,6 +154,14 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 }
 
 /// From the recipient step with a pairing: Continue, 1.5\u00a0EPIC, Continue to the review.
+Future<void> _enter(WidgetTester tester, String label, String text) async {
+  final field = find.widgetWithText(TextField, label);
+  await _reach(tester, field);
+  await tester.enterText(field, text);
+  await tester.pump(const Duration(milliseconds: 500));
+  await tester.pumpAndSettle();
+}
+
 Future<void> _toReview(WidgetTester tester) async {
   await _tap(tester, find.widgetWithText(FilledButton, _l.commonContinue));
   final amount = find.widgetWithText(TextField, 'Amount (EPIC)');
@@ -205,7 +217,7 @@ void main() {
       expect(find.byKey(sendPairingCardKey), findsOneWidget);
       expect(find.byKey(sendRecipientFieldKey), findsNothing);
       expect(find.text(_l.sendRecipientPairing('Anna')), findsOneWidget);
-      expect(find.text(_l.sendViaMailbox('Anna')), findsOneWidget);
+      expect(find.text(_l.sendViaMailbox), findsOneWidget);
       expect(find.text(_l.sendViaMailboxHint('epicbox.epiccash.com')), findsOneWidget);
       // No address, and no Link segment.
       expect(find.textContaining('@'), findsNothing);
@@ -394,6 +406,147 @@ void main() {
       await h.openSend(tester, 'p1');
       expect(find.text(_l.sendViaMailboxMovedHint(moved, date)), findsOneWidget);
       expect(find.text(_l.sendViaMailboxHint(moved)), findsNothing);
+    });
+  });
+
+  group('mailbox first', () {
+    final now = DateTime(2026, 11, 1, 12);
+    final anna = 'es${'a' * 50}@epicbox.epiccash.com';
+    const relay = 'epicbox.epiccash.com';
+    DateTime ago(Duration d) => now.subtract(d);
+
+    /// Anna with her Epicbox address, paired with her card naming it.
+    _Harness paired({SealMode seal = SealMode.on, DateTime? lastSealedIn}) {
+      final h = _Harness(address: anna);
+      h.session.pairing.clock = () => now;
+      h.session.pairing.seedPaired(
+        id: 'p1',
+        name: 'Anna',
+        contactId: 'c1',
+        paymentsAddress: anna,
+        relay: relay,
+        seal: seal,
+        lastSealedIn: lastSealedIn,
+      );
+      return h;
+    }
+
+    /// Send with [to] typed into To, on the recipient step.
+    Future<void> open(WidgetTester tester, _Harness h, String to) async {
+      await h.pump(tester, SlotScaffold(appBar: AppBar(), body: SendView(onDone: () {})), now: now);
+      await _enter(tester, _l.sendToLabel, to);
+    }
+
+    bool switchOn(WidgetTester tester) => tester.widget<Switch>(find.byKey(sendViaMailboxKey)).value;
+
+    Future<void> flip(WidgetTester tester) async {
+      await _reach(tester, find.byKey(sendViaMailboxKey));
+      await tester.tap(find.byKey(sendViaMailboxKey));
+      await tester.pumpAndSettle();
+    }
+
+    final sendButton = find.widgetWithText(FilledButton, 'Send 1.5\u00a0EPIC');
+
+    testWidgets('paired contact with an address starts on the pairing', (tester) async {
+      final h = paired();
+      await open(tester, h, anna);
+      expect(switchOn(tester), isTrue);
+      expect(find.text(_l.sendViaMailboxHint(relay)), findsOneWidget);
+      await _toReview(tester);
+      await _tap(tester, sendButton);
+      expect(h.session.pairing.calls, contains('sendViaMailbox'));
+      expect(h.session.epicboxSends.single.amount, _epic(1.5));
+      expect(find.text(_l.txStepSentMailbox('Anna')), findsOneWidget);
+    });
+
+    testWidgets('Seal off does not hide the switch', (tester) async {
+      final h = paired(seal: SealMode.off);
+      await open(tester, h, anna);
+      expect(find.byKey(sendViaMailboxKey), findsOneWidget);
+      expect(switchOn(tester), isTrue);
+    });
+
+    testWidgets('switch off sends to the address', (tester) async {
+      final h = paired();
+      await open(tester, h, anna);
+      await flip(tester);
+      expect(switchOn(tester), isFalse);
+      expect(find.text(_l.sendViaPublicHint('Anna')), findsOneWidget);
+      await _toReview(tester);
+      await _tap(tester, sendButton);
+      expect(h.session.pairing.calls, isNot(contains('sendViaMailbox')));
+      expect(h.session.epicboxSends.single, (amount: _epic(1.5), to: anna));
+    });
+
+    testWidgets('unanswered mailbox send starts off with its line', (tester) async {
+      // Nothing sealed from Anna since the send went out.
+      final h = paired(lastSealedIn: ago(const Duration(days: 2)));
+      final sentAt = ago(const Duration(hours: 30));
+      h.session.transactionsValue.add(
+        fakeTx(
+          id: 9,
+          slateId: 'pay-1',
+          kind: TxKind.sent,
+          status: TxStatus.awaitingRecipient,
+          createdAtUnix: sentAt.millisecondsSinceEpoch ~/ 1000,
+          amountDebited: _epic(3.007),
+          fee: _epic(0.007),
+          numInputs: 1,
+          transport: 'epicbox',
+          cancellable: true,
+          pairingId: 'p1',
+        ),
+      );
+      await open(tester, h, anna);
+      expect(switchOn(tester), isFalse);
+      expect(find.text(_l.sendMailboxUnanswered(localDayMonth(_l, sentAt))), findsOneWidget);
+    });
+
+    testWidgets('answered by another app starts off', (tester) async {
+      final h = paired();
+      h.service.peerCompats[anna] = PeerCompat(lastMarkedAt: ago(const Duration(days: 40)), lastUnmarkedAt: ago(const Duration(days: 1)));
+      await open(tester, h, anna);
+      expect(switchOn(tester), isFalse);
+      expect(find.text(_l.trustLineOtherApp('Anna')), findsOneWidget);
+      // The user's tap wins: on, with the relay line.
+      await flip(tester);
+      expect(switchOn(tester), isTrue);
+      expect(find.text(_l.sendViaMailboxHint(relay)), findsOneWidget);
+    });
+
+    testWidgets('a failed pairing send offers Send to their public Epicbox address', (tester) async {
+      final h = paired();
+      h.session.sendError = const WalletError(kind: WalletErrorKind.transportFailed, message: 'relay sent nothing in time');
+      await open(tester, h, anna);
+      await _toReview(tester);
+      await _tap(tester, sendButton);
+      expect(h.session.pairing.calls, contains('sendViaMailbox'));
+      expect(h.session.epicboxSends, isEmpty);
+      final fallback = find.byKey(sendPublicFallbackKey);
+      await _reach(tester, fallback);
+      expect(find.widgetWithText(FilledButton, _l.sendPublicFallback), findsOneWidget);
+      // The relay answers this time.
+      h.session.sendError = null;
+      await _tap(tester, fallback);
+      expect(h.session.pairing.calls.where((c) => c == 'sendViaMailbox').length, 1);
+      expect(h.session.epicboxSends.single, (amount: _epic(1.5), to: anna));
+      expect(find.byKey(sendPublicFallbackKey), findsNothing);
+    });
+
+    testWidgets('changing recipient recomputes the default', (tester) async {
+      final h = paired();
+      await open(tester, h, anna);
+      await flip(tester);
+      expect(switchOn(tester), isFalse);
+      // Another address: no switch. Anna again: the default, not the earlier tap.
+      await tester.tap(find.byKey(sendRecipientClearKey));
+      await tester.pumpAndSettle();
+      await _enter(tester, _l.sendToLabel, 'es${'b' * 50}@epicbox.epiccash.com');
+      expect(find.byKey(sendViaMailboxKey), findsNothing);
+      await tester.tap(find.byKey(sendRecipientClearKey));
+      await tester.pumpAndSettle();
+      await _enter(tester, _l.sendToLabel, anna);
+      expect(switchOn(tester), isTrue);
     });
   });
 }

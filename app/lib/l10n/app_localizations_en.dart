@@ -14043,11 +14043,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactCheckWordsAgain => 'Verify again';
 
   @override
-  String get contactSealPayments => 'Seal payments';
+  String get contactSealPayments => 'Seal transaction files';
 
   @override
   String contactSealInfo(String name) {
-    return 'Payments and invoices with $name are encrypted end to end. Only their wallet can read them.';
+    return 'Transaction files are encrypted (sealed) and readable only by $name.';
   }
 
   @override
@@ -14206,7 +14206,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String contactSealDegradedTitle(String name) {
-    return 'The last payment to $name went plain';
+    return 'The last transaction file to $name went plain';
   }
 
   @override
@@ -14487,14 +14487,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reqNewSend => 'Send invoice';
 
   @override
-  String sendViaMailbox(String name) {
-    return 'Send through $name’s Epicbox server';
-  }
+  String get sendViaMailbox => 'Send through the pairing';
 
   @override
   String sendViaMailboxHint(String relay) {
     return 'Sealed. Delivered via $relay';
   }
+
+  @override
+  String sendViaPublicHint(String name) {
+    return 'Goes to $name’s public Epicbox address.';
+  }
+
+  @override
+  String sendMailboxUnanswered(String date) {
+    return 'No answer through the pairing since $date.';
+  }
+
+  @override
+  String get sendPublicFallback => 'Send to their public Epicbox address';
 
   @override
   String sendSealedTitle(String name) {
@@ -14858,14 +14869,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairingLede =>
-      'Pair once; transaction files and invoices with that contact are sealed.';
+      'Pair once; payments, transaction files and invoices with that contact are sealed.';
 
   @override
   String get helpPairWhatTitle => 'What pairing is';
 
   @override
   String get helpPairWhatShort =>
-      'Pair once with someone; after that, transaction files and invoices between the two wallets are sealed.';
+      'Pair once with someone; after that, payments, transaction files and invoices between the two wallets are sealed.';
 
   @override
   String get helpPairWhatP1 =>
@@ -14873,7 +14884,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairWhatP2 =>
-      'After pairing, a transaction file to that contact is **sealed**: only their wallet can open it, and it cannot be changed or forged on the way. Payments over Epicbox between people keep working as before.';
+      'After pairing, payments, transaction files and invoices between the two wallets are **sealed**: only the other wallet can read them, and the contact’s identity is checked. Payments go through the pairing by default; see “Payments after pairing”.';
 
   @override
   String get helpPairWhatStep1 => 'Open [[Contacts]] and choose **Pair**.';
@@ -14888,7 +14899,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairWhatP3 =>
-      'Pairing needs BT Wallet on both sides. A contact that is not paired still gets ordinary transaction files and Epicbox payments.';
+      'Pairing needs BT Wallet on both sides. A contact that is not paired still gets ordinary transaction files and payments to their public Epicbox address.';
 
   @override
   String get helpPairWhyTitle => 'Why verify';
@@ -14976,7 +14987,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairRestoreP2 =>
-      'Without the file, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and their wallet finds the same keys. It tells them the keys are back, and the contact keeps its Verified mark. On this wallet, Seal payments and Allow invoices start at their defaults.';
+      'Without the file, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and their wallet finds the same keys. It tells them the keys are back, and the contact keeps its Verified mark. On this wallet, Seal transaction files and Allow invoices start at their defaults.';
 
   @override
   String get helpPairRestoreP3 =>
@@ -18559,11 +18570,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get mailboxResendTitle => 'Cancel and send by Epicbox';
+  String get mailboxResendTitle =>
+      'Cancel and send to their public Epicbox address';
+
+  @override
+  String get mailboxResendTitleShort =>
+      'Cancel and send to their public address';
 
   @override
   String mailboxResendBody(Object name) {
-    return 'The waiting send is cancelled and the same amount goes to $name’s Epicbox address as an ordinary payment. Two rows stay in the history.';
+    return 'The waiting send is cancelled and the same amount goes to $name’s public Epicbox address as an ordinary payment. Two rows stay in Activity.';
   }
 
   @override
@@ -18616,7 +18632,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get receiptHintTitle => 'Receipt';
 
   @override
-  String get mailboxResent => 'Cancelled and sent by Epicbox.';
+  String get mailboxResent =>
+      'Cancelled and sent to their public Epicbox address.';
 
   @override
   String get torRelayCaption =>
@@ -18979,10 +18996,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pairBackLater => 'Back';
 
   @override
+  String get helpPairRouteTitle => 'Payments after pairing';
+
+  @override
+  String get helpPairRouteShort =>
+      'Payments to a paired contact go through the pairing; the public Epicbox address is the fallback.';
+
+  @override
+  String get helpPairRouteP1 =>
+      'Once paired, a payment to that contact goes through the pairing, the private route, by default. On [[Send]] the switch **Send through the pairing** starts on.';
+
+  @override
+  String get helpPairRouteP2 =>
+      'A payment goes to the contact’s public Epicbox address instead when: the contact is not paired; you turned the switch off; the contact last answered from another wallet app; the contact was not heard from in 90 days; a send through the pairing was left unanswered for a day; or their server is down.';
+
+  @override
+  String get helpPairRouteP3 =>
+      'A send through the pairing that stays unanswered for a day shows **Cancel and send to their public Epicbox address**. The wallet asks first; later sends to that contact then start on the public address.';
+
+  @override
+  String get helpPairRouteP4 =>
+      '**Seal transaction files** on the contact page encrypts files sent to that contact. They are sealed and readable only by that contact. The switch covers files only; it does not turn the pairing route on or off.';
+
+  @override
+  String get helpPairRouteP5 =>
+      'An invite or QR pairing has no public Epicbox address to fall back to, unless the contact has an Epicbox address in [[Contacts]].';
+
+  @override
   String get helpPairTwoWaysTitle => 'Two ways to pair';
 
   @override
-  String get helpPairTwoWaysShort => 'A request to a contact, or your code.';
+  String get helpPairTwoWaysShort => 'A request to a contact, or your invite.';
 
   @override
   String get helpPairTwoWaysP1 =>
@@ -18990,11 +19034,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairTwoWaysP2 =>
-      '**Pair by code.** Contacts › Pair shows your code, good for 7 days. The other wallet scans it or opens the link; both finish over Epicbox and then compare the four words. With Epicbox off on either side, the same screen carries the answer and the finish code by hand: Share and Paste.';
+      '**Pair by invite.** Contacts › Pair shows your invite, good for 7 days. The other wallet scans it or opens the link; both finish over Epicbox and then compare the four words. With Epicbox off on either side, the same screen carries the answer and the finish link by hand: Share and Paste.';
 
   @override
   String get helpPairTwoWaysP3 =>
-      'A request is sent only to a wallet that has shown it runs BT Wallet: a marked payment between the two addresses within the last 30 days. For anyone else, Pair shows your code.';
+      'A request is sent only to a wallet that has shown it runs BT Wallet: a marked payment between the two addresses within the last 30 days. For anyone else, Pair shows your invite.';
 
   @override
   String get helpPairWhyTitle2 => 'Why check the words';
@@ -19004,11 +19048,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpPairWhyP1b =>
-      'After pairing by code both wallets show the same four pictures and names. Compare them with the other person in person, by voice or on a video call, never in the chat the code came through: whoever could change the code on the way could also change what that chat shows.';
+      'After pairing by invite both wallets show the same four pictures and names. Compare them with the other person in person, by voice or on a video call, never in the chat the invite came through: whoever could change the invite on the way could also change what that chat shows.';
 
   @override
   String get helpPairWhyP2b =>
-      '**They match** marks the contact Verified; the other wallet learns of it and shows “confirmed too”. **They do not match** ends the pairing on both sides and nothing sent through it is finished. A mistaken No ends it too: pair again with a fresh code.';
+      '**They match** marks the contact Verified; the other wallet learns of it and shows “confirmed too”. **They do not match** ends the pairing on both sides and nothing sent through it is finished. A mistaken No ends it too: pair again with a fresh invite.';
 
   @override
   String get helpPairWhyP3b =>

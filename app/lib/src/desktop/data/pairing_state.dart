@@ -16,7 +16,7 @@ import '../../name_service/payment_refusals.dart' show PairingRefusals, PaymentR
 import '../../models.dart' show PairRequest, PairingEndReason, PairingEvent, PairingEventKind, PairingRecord, PairingSlate, PairingState, contactPairingOf, epicboxKey;
 import '../../pairing_api.dart';
 import '../../l10n.dart' show AppLocalizations;
-import '../../pairing_providers.dart' show dismissStrangers, requestPassOnProvider;
+import '../../pairing_providers.dart' show dismissStrangers, repostWaitingSends, requestPassOnProvider;
 import '../../pairing_text.dart' show pairingName, pairingStrings, unnamedPeerName;
 import '../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../../trust/policy.dart';
@@ -186,7 +186,14 @@ class DeskKeysBack extends Notifier<Set<String>> {
   Set<String> build() {
     final sub = ref.watch(deskPairingApiProvider).events().listen((e) {
       final id = e.pairingId;
-      if (e.kind == PairingEventKind.keysRestored && id != null) state = {...state, id};
+      if (e.kind == PairingEventKind.keysRestored && id != null) {
+        state = {...state, id};
+        final keys = [
+          for (final t in ref.read(deskProvider.select((s) => s.txs)) ?? const <Tx>[])
+            if (t.pairingId == id && t.direction == TxDirection.sent && t.state == TxState.waitingRecipient) t.key,
+        ];
+        if (keys.isNotEmpty) unawaited(repostWaitingSends(ref.read(deskPairingApiProvider), keys));
+      }
     });
     ref.onDispose(sub.cancel);
     return const {};

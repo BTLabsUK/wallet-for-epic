@@ -106,6 +106,9 @@ TOR_START_S = 240       # a Tor start, each of the two tries (before REL_TRUST_S
 RECEIVE_EPICBOX = T("g4.receive.method.epicbox", keys=("methodEpicbox",), names=("Epicbox",), match="exact")
 SEND_EPICBOX = T("g4.send.method.epicbox", keys=("methodEpicbox",), names=("Epicbox",), match="exact")
 SEND_TO = T("g4.send.to", role="text_field", keys=("sendToHint", "sendToLabel"), names=("Address or contact", "To"), match="exact")
+SEND_VIA_PAIRING = T("g4.send.viapairing", role="toggle", keys=("sendViaMailbox",),
+                     names=("Send through the pairing",))  # starts on for a paired contact
+VIA_PAIRING_WAIT_S = 4    # for the pairing switch after To is filled
 SEND_CLEAR = T("g4.send.clear", keys=("sendClearRecipient",), names=("Clear recipient",), match="exact")
 SEND_AMOUNT = T("g4.send.amount", role="text_field", keys=("sendAmountLabel",), names=(r"re:amount\b.*",), match="starts")
 SEND_MAX = T("g4.send.max", keys=("sendMax",), names=("Max",), match="exact")
@@ -1042,6 +1045,10 @@ class Phone:
         d.fill(SEND_TO, to, step="send-to")
         if hasattr(d.s, "hide_keyboard"):
             d.s.hide_keyboard()
+        # A paired contact: the pairing switch shows once To resolves and starts on; this send means
+        # the public Epicbox address. Bounded wait, as an unpaired recipient never shows it.
+        if d.wait(shows(SEND_VIA_PAIRING), VIA_PAIRING_WAIT_S):
+            d.toggle(SEND_VIA_PAIRING, False, step="send-via-pairing-off")
         d.press(CONTINUE, step="send-to-continue", then=shows(SEND_AMOUNT, SEND_MAX), timeout=30)
         if amount is None:
             d.press(SEND_MAX, step="send-max", timeout=20,

@@ -13222,11 +13222,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get contactCheckWordsAgain => '再次验证';
 
   @override
-  String get contactSealPayments => '密封付款';
+  String get contactSealPayments => '密封交易文件';
 
   @override
   String contactSealInfo(String name) {
-    return '与 $name 的付款和账单采用端到端加密。只有对方的钱包能读取。';
+    return '交易文件已加密（密封），只有 $name 的钱包能读取。';
   }
 
   @override
@@ -13383,7 +13383,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String contactSealDegradedTitle(String name) {
-    return '上一笔给 $name 的付款为明文';
+    return '上一个给 $name 的交易文件为明文';
   }
 
   @override
@@ -13647,14 +13647,25 @@ class AppLocalizationsZh extends AppLocalizations {
   String get reqNewSend => '发送账单';
 
   @override
-  String sendViaMailbox(String name) {
-    return '通过 $name 的 Epicbox 服务器发送';
-  }
+  String get sendViaMailbox => '通过配对发送';
 
   @override
   String sendViaMailboxHint(String relay) {
     return '已密封。经 $relay 投递';
   }
+
+  @override
+  String sendViaPublicHint(String name) {
+    return '将发送到 $name 的公开 Epicbox 地址。';
+  }
+
+  @override
+  String sendMailboxUnanswered(String date) {
+    return '自 $date 起未通过配对收到应答。';
+  }
+
+  @override
+  String get sendPublicFallback => '发送到对方的公开 Epicbox 地址';
 
   @override
   String sendSealedTitle(String name) {
@@ -14007,13 +14018,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get helpPairingSection => '配对';
 
   @override
-  String get helpPairingLede => '配对一次；与该联系人的交易文件和账单都会被密封。';
+  String get helpPairingLede => '配对一次；与该联系人的付款、交易文件和账单都会被密封。';
 
   @override
   String get helpPairWhatTitle => '什么是配对';
 
   @override
-  String get helpPairWhatShort => '与对方配对一次；之后两个钱包之间的交易文件和账单都会被密封。';
+  String get helpPairWhatShort => '与对方配对一次；之后两个钱包之间的付款、交易文件和账单都会被密封。';
 
   @override
   String get helpPairWhatP1 =>
@@ -14021,7 +14032,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpPairWhatP2 =>
-      '配对后，发给该联系人的交易文件是**密封**的：只有对方的钱包能打开，途中也无法被更改或伪造。人与人之间通过 Epicbox 的付款照常进行。';
+      '配对后，两个钱包之间的付款、交易文件和账单都是**密封**的：只有对方的钱包能读取，并且会核实联系人的身份。付款默认通过配对发送，见“配对后的付款”。';
 
   @override
   String get helpPairWhatStep1 => '打开[[联系人|Contacts]]，选择**配对**。';
@@ -14034,7 +14045,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpPairWhatP3 =>
-      '配对需要双方都使用 BT Wallet。未配对的联系人仍会收到普通交易文件和 Epicbox 付款。';
+      '配对需要双方都使用 BT Wallet。未配对的联系人仍会收到普通交易文件，以及发到其公开 Epicbox 地址的付款。';
 
   @override
   String get helpPairWhyTitle => '为什么要验证';
@@ -14114,7 +14125,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get helpPairRestoreP2 =>
-      '没有该文件时，配对会从此钱包中消失，但密钥不会：它们来自助记词。与保留了配对的联系人重新配对，对方的钱包会找到相同的密钥。它会告诉对方密钥已恢复，联系人也会保留“已验证”标记。在此钱包上，“密封付款”和“允许账单”恢复为默认设置。';
+      '没有该文件时，配对会从此钱包中消失，但密钥不会：它们来自助记词。与保留了配对的联系人重新配对，对方的钱包会找到相同的密钥。它会告诉对方密钥已恢复，联系人也会保留“已验证”标记。在此钱包上，“密封交易文件”和“允许账单”恢复为默认设置。';
 
   @override
   String get helpPairRestoreP3 =>
@@ -17505,11 +17516,14 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get mailboxResendTitle => '取消并经 Epicbox 发送';
+  String get mailboxResendTitle => '取消并发送到对方的公开 Epicbox 地址';
+
+  @override
+  String get mailboxResendTitleShort => '取消并发送到对方的公开地址';
 
   @override
   String mailboxResendBody(Object name) {
-    return '等待中的付款将被取消，相同金额将作为普通付款发送到 $name 的 Epicbox 地址。历史记录中保留两行。';
+    return '等待中的付款将被取消，相同金额将作为普通付款发送到 $name 的公开 Epicbox 地址。“活动”中保留两行。';
   }
 
   @override
@@ -17561,7 +17575,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get receiptHintTitle => '回执';
 
   @override
-  String get mailboxResent => '已取消并经 Epicbox 发送。';
+  String get mailboxResent => '已取消并发送到对方的公开 Epicbox 地址。';
 
   @override
   String get torRelayCaption => '开启 Tor 后，与 Epicbox 服务器的连接经由 Tor。';
@@ -17911,6 +17925,32 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get pairBackLater => '返回';
+
+  @override
+  String get helpPairRouteTitle => '配对后的付款';
+
+  @override
+  String get helpPairRouteShort => '发给已配对联系人的付款通过配对发送；公开 Epicbox 地址是备用途径。';
+
+  @override
+  String get helpPairRouteP1 =>
+      '配对后，发给该联系人的付款默认通过配对发送，这是私密路径。在[[发送|Send]]中，开关**通过配对发送**默认开启。';
+
+  @override
+  String get helpPairRouteP2 =>
+      '在以下情况，付款会改为发到联系人的公开 Epicbox 地址：联系人未配对；你关闭了该开关；联系人上次是从另一个钱包应用回复的；90 天内没有收到联系人的消息；通过配对发送的付款一天没有收到应答；或对方的服务器宕机。';
+
+  @override
+  String get helpPairRouteP3 =>
+      '通过配对发送的付款若一天无人应答，会显示**取消并发送到对方的公开 Epicbox 地址**。钱包会先询问；之后发给该联系人的付款默认使用公开地址。';
+
+  @override
+  String get helpPairRouteP4 =>
+      '联系人页面上的**密封交易文件**会加密发给该联系人的文件。文件被密封，只有该联系人能读取。该开关只管文件，不会开启或关闭配对路径。';
+
+  @override
+  String get helpPairRouteP5 =>
+      '通过邀请或二维码完成的配对没有可备用的公开 Epicbox 地址，除非该联系人在[[联系人|Contacts]]中有 Epicbox 地址。';
 
   @override
   String get helpPairTwoWaysTitle => '两种配对方式';

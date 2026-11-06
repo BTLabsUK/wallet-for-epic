@@ -13689,11 +13689,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get contactCheckWordsAgain => 'ยืนยันอีกครั้ง';
 
   @override
-  String get contactSealPayments => 'ปิดผนึกการชำระเงิน';
+  String get contactSealPayments => 'ปิดผนึกไฟล์ธุรกรรม';
 
   @override
   String contactSealInfo(String name) {
-    return 'การชำระเงินและใบแจ้งหนี้กับ $name เข้ารหัสแบบต้นทางถึงปลายทาง มีเพียงกระเป๋าเงินของอีกฝ่ายที่อ่านได้';
+    return 'ไฟล์ธุรกรรมถูกเข้ารหัส (ปิดผนึก) มีเพียงกระเป๋าเงินของ $name ที่อ่านได้';
   }
 
   @override
@@ -13852,7 +13852,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String contactSealDegradedTitle(String name) {
-    return 'การชำระเงินครั้งล่าสุดถึง $name ไม่ได้ปิดผนึก';
+    return 'ไฟล์ธุรกรรมล่าสุดถึง $name ไม่ได้ปิดผนึก';
   }
 
   @override
@@ -14130,14 +14130,26 @@ class AppLocalizationsTh extends AppLocalizations {
   String get reqNewSend => 'ส่งใบแจ้งหนี้';
 
   @override
-  String sendViaMailbox(String name) {
-    return 'ส่งผ่านเซิร์ฟเวอร์ Epicbox ของ $name';
-  }
+  String get sendViaMailbox => 'ส่งผ่านการจับคู่';
 
   @override
   String sendViaMailboxHint(String relay) {
     return 'ปิดผนึก ส่งผ่าน $relay';
   }
+
+  @override
+  String sendViaPublicHint(String name) {
+    return 'ส่งไปยังที่อยู่ Epicbox สาธารณะของ $name';
+  }
+
+  @override
+  String sendMailboxUnanswered(String date) {
+    return 'ไม่มีการตอบกลับผ่านการจับคู่ตั้งแต่ $date';
+  }
+
+  @override
+  String get sendPublicFallback =>
+      'ส่งไปยังที่อยู่ Epicbox สาธารณะของผู้ติดต่อ';
 
   @override
   String sendSealedTitle(String name) {
@@ -14499,14 +14511,14 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairingLede =>
-      'จับคู่ครั้งเดียว ไฟล์ธุรกรรมและใบแจ้งหนี้กับผู้ติดต่อนั้นจะถูกปิดผนึก';
+      'จับคู่ครั้งเดียว การชำระเงิน ไฟล์ธุรกรรม และใบแจ้งหนี้กับผู้ติดต่อนั้นจะถูกปิดผนึก';
 
   @override
   String get helpPairWhatTitle => 'การจับคู่คืออะไร';
 
   @override
   String get helpPairWhatShort =>
-      'จับคู่กับอีกฝ่ายครั้งเดียว หลังจากนั้นไฟล์ธุรกรรมและใบแจ้งหนี้ระหว่างสองกระเป๋าเงินจะถูกปิดผนึก';
+      'จับคู่กับอีกฝ่ายครั้งเดียว หลังจากนั้นการชำระเงิน ไฟล์ธุรกรรม และใบแจ้งหนี้ระหว่างสองกระเป๋าเงินจะถูกปิดผนึก';
 
   @override
   String get helpPairWhatP1 =>
@@ -14514,7 +14526,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairWhatP2 =>
-      'หลังจับคู่ ไฟล์ธุรกรรมถึงผู้ติดต่อนั้นจะ**ปิดผนึก** มีเพียงกระเป๋าเงินของอีกฝ่ายที่เปิดได้ และไม่สามารถถูกเปลี่ยนหรือปลอมระหว่างทาง การชำระเงินผ่าน Epicbox ระหว่างบุคคลยังทำงานเหมือนเดิม';
+      'หลังจับคู่ การชำระเงิน ไฟล์ธุรกรรม และใบแจ้งหนี้ระหว่างสองกระเป๋าเงินจะ**ปิดผนึก** มีเพียงกระเป๋าเงินของอีกฝ่ายที่อ่านได้ และระบบตรวจสอบตัวตนของผู้ติดต่อ โดยค่าเริ่มต้น การชำระเงินจะส่งผ่านการจับคู่ ดู “การชำระเงินหลังจับคู่”';
 
   @override
   String get helpPairWhatStep1 =>
@@ -14530,7 +14542,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairWhatP3 =>
-      'การจับคู่ต้องใช้ BT Wallet ทั้งสองฝั่ง ผู้ติดต่อที่ไม่ได้จับคู่ยังได้รับไฟล์ธุรกรรมปกติและการชำระเงินผ่าน Epicbox';
+      'การจับคู่ต้องใช้ BT Wallet ทั้งสองฝั่ง ผู้ติดต่อที่ไม่ได้จับคู่ยังได้รับไฟล์ธุรกรรมปกติและการชำระเงินที่ส่งไปยังที่อยู่ Epicbox สาธารณะของเขา';
 
   @override
   String get helpPairWhyTitle => 'ทำไมต้องยืนยัน';
@@ -14618,7 +14630,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get helpPairRestoreP2 =>
-      'หากไม่มีไฟล์ การจับคู่จะหายไปจากกระเป๋าเงินนี้ แต่คีย์ไม่หาย เพราะมาจากวลีกู้คืน จับคู่อีกครั้งกับผู้ติดต่อที่ยังเก็บการจับคู่ไว้ แล้วกระเป๋าเงินของอีกฝ่ายจะพบคีย์เดิม และแจ้งว่าคีย์กลับมาแล้ว ผู้ติดต่อยังคงเครื่องหมายยืนยันแล้ว ในกระเป๋าเงินนี้ ปิดผนึกการชำระเงิน และ อนุญาตใบแจ้งหนี้ จะกลับเป็นค่าเริ่มต้น';
+      'หากไม่มีไฟล์ การจับคู่จะหายไปจากกระเป๋าเงินนี้ แต่คีย์ไม่หาย เพราะมาจากวลีกู้คืน จับคู่อีกครั้งกับผู้ติดต่อที่ยังเก็บการจับคู่ไว้ แล้วกระเป๋าเงินของอีกฝ่ายจะพบคีย์เดิม และแจ้งว่าคีย์กลับมาแล้ว ผู้ติดต่อยังคงเครื่องหมายยืนยันแล้ว ในกระเป๋าเงินนี้ ปิดผนึกไฟล์ธุรกรรม และ อนุญาตใบแจ้งหนี้ จะกลับเป็นค่าเริ่มต้น';
 
   @override
   String get helpPairRestoreP3 =>
@@ -18147,11 +18159,14 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
-  String get mailboxResendTitle => 'ยกเลิกและส่งผ่าน Epicbox';
+  String get mailboxResendTitle => 'ยกเลิกและส่งไปยังที่อยู่ Epicbox สาธารณะ';
+
+  @override
+  String get mailboxResendTitleShort => 'ยกเลิกและส่งไปยังที่อยู่สาธารณะ';
 
   @override
   String mailboxResendBody(Object name) {
-    return 'การจ่ายเงินที่รออยู่จะถูกยกเลิก และจำนวนเท่าเดิมจะส่งไปยังที่อยู่ Epicbox ของ $name เป็นการชำระเงินปกติ ประวัติจะคงไว้สองแถว';
+    return 'การจ่ายเงินที่รออยู่จะถูกยกเลิก และจำนวนเท่าเดิมจะส่งไปยังที่อยู่ Epicbox สาธารณะของ $name เป็นการชำระเงินปกติ ประวัติจะคงไว้สองแถว';
   }
 
   @override
@@ -18204,7 +18219,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get receiptHintTitle => 'ใบเสร็จ';
 
   @override
-  String get mailboxResent => 'ยกเลิกและส่งผ่าน Epicbox แล้ว';
+  String get mailboxResent => 'ยกเลิกและส่งไปยังที่อยู่ Epicbox สาธารณะแล้ว';
 
   @override
   String get torRelayCaption =>
@@ -18566,6 +18581,33 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get pairBackLater => 'ย้อนกลับ';
+
+  @override
+  String get helpPairRouteTitle => 'การชำระเงินหลังจับคู่';
+
+  @override
+  String get helpPairRouteShort =>
+      'การชำระเงินถึงผู้ติดต่อที่จับคู่แล้วจะส่งผ่านการจับคู่ ที่อยู่ Epicbox สาธารณะเป็นทางสำรอง';
+
+  @override
+  String get helpPairRouteP1 =>
+      'หลังจับคู่ การชำระเงินถึงผู้ติดต่อนั้นจะส่งผ่านการจับคู่ ซึ่งเป็นเส้นทางส่วนตัว โดยค่าเริ่มต้น ในหน้า [[ส่ง|Send]] สวิตช์ **ส่งผ่านการจับคู่** จะเปิดอยู่ตั้งแต่ต้น';
+
+  @override
+  String get helpPairRouteP2 =>
+      'การชำระเงินจะส่งไปยังที่อยู่ Epicbox สาธารณะของผู้ติดต่อแทน เมื่อ: ผู้ติดต่อไม่ได้จับคู่; คุณปิดสวิตช์; ผู้ติดต่อตอบล่าสุดจากแอปกระเป๋าเงินอื่น; ไม่ได้รับข่าวจากผู้ติดต่อมา 90 วัน; การส่งผ่านการจับคู่ไม่มีการตอบกลับนานหนึ่งวัน; หรือเซิร์ฟเวอร์ของเขาล่ม';
+
+  @override
+  String get helpPairRouteP3 =>
+      'การส่งผ่านการจับคู่ที่ไม่มีการตอบกลับนานหนึ่งวันจะแสดง **ยกเลิกและส่งไปยังที่อยู่ Epicbox สาธารณะ** กระเป๋าเงินจะถามก่อน การส่งครั้งต่อไปถึงผู้ติดต่อนั้นจะเริ่มที่ที่อยู่สาธารณะ';
+
+  @override
+  String get helpPairRouteP4 =>
+      '**ปิดผนึกไฟล์ธุรกรรม** ในหน้าผู้ติดต่อ จะเข้ารหัสไฟล์ที่ส่งถึงผู้ติดต่อนั้น ไฟล์จะถูกปิดผนึกและมีเพียงผู้ติดต่อนั้นที่อ่านได้ สวิตช์นี้ครอบคลุมเฉพาะไฟล์ ไม่ได้เปิดหรือปิดเส้นทางผ่านการจับคู่';
+
+  @override
+  String get helpPairRouteP5 =>
+      'การจับคู่ด้วยคำเชิญหรือ QR ไม่มีที่อยู่ Epicbox สาธารณะให้ใช้สำรอง เว้นแต่ผู้ติดต่อมีที่อยู่ Epicbox ใน [[ผู้ติดต่อ|Contacts]]';
 
   @override
   String get helpPairTwoWaysTitle => 'สองวิธีในการจับคู่';

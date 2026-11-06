@@ -22107,13 +22107,13 @@ abstract class AppLocalizations {
   /// Switch label. Label only; the info icon explains.
   ///
   /// In en, this message translates to:
-  /// **'Seal payments'**
+  /// **'Seal transaction files'**
   String get contactSealPayments;
 
   /// Info sheet / tooltip for Seal payments. Use the contact’s pronoun where the language has one; English uses the name twice or ‘their’.
   ///
   /// In en, this message translates to:
-  /// **'Payments and invoices with {name} are encrypted end to end. Only their wallet can read them.'**
+  /// **'Transaction files are encrypted (sealed) and readable only by {name}.'**
   String contactSealInfo(String name);
 
   /// Second paragraph of the Seal payments info sheet.
@@ -22353,7 +22353,7 @@ abstract class AppLocalizations {
   /// Notice on the contact page.
   ///
   /// In en, this message translates to:
-  /// **'The last payment to {name} went plain'**
+  /// **'The last transaction file to {name} went plain'**
   String contactSealDegradedTitle(String name);
 
   /// Notice body.
@@ -22761,14 +22761,32 @@ abstract class AppLocalizations {
   /// Switch on Send for a paired contact over Epicbox.
   ///
   /// In en, this message translates to:
-  /// **'Send through {name}’s Epicbox server'**
-  String sendViaMailbox(String name);
+  /// **'Send through the pairing'**
+  String get sendViaMailbox;
 
   /// Under that switch.
   ///
   /// In en, this message translates to:
   /// **'Sealed. Delivered via {relay}'**
   String sendViaMailboxHint(String relay);
+
+  /// Hint under the Send through the pairing switch when the user turned it off: the payment goes to the contact’s public Epicbox address.
+  ///
+  /// In en, this message translates to:
+  /// **'Goes to {name}’s public Epicbox address.'**
+  String sendViaPublicHint(String name);
+
+  /// Reason line on Send when the pairing switch starts off: the contact’s wallet has not answered through the pairing; date is a day and month.
+  ///
+  /// In en, this message translates to:
+  /// **'No answer through the pairing since {date}.'**
+  String sendMailboxUnanswered(String date);
+
+  /// Button on a failed send through the pairing: send the same payment to the contact’s public Epicbox address.
+  ///
+  /// In en, this message translates to:
+  /// **'Send to their public Epicbox address'**
+  String get sendPublicFallback;
 
   /// Payment file screen title.
   ///
@@ -23325,7 +23343,7 @@ abstract class AppLocalizations {
   /// Help section lede.
   ///
   /// In en, this message translates to:
-  /// **'Pair once; transaction files and invoices with that contact are sealed.'**
+  /// **'Pair once; payments, transaction files and invoices with that contact are sealed.'**
   String get helpPairingLede;
 
   /// Topic 1 title.
@@ -23337,7 +23355,7 @@ abstract class AppLocalizations {
   /// Topic 1 lede.
   ///
   /// In en, this message translates to:
-  /// **'Pair once with someone; after that, transaction files and invoices between the two wallets are sealed.'**
+  /// **'Pair once with someone; after that, payments, transaction files and invoices between the two wallets are sealed.'**
   String get helpPairWhatShort;
 
   /// Topic 1.
@@ -23349,7 +23367,7 @@ abstract class AppLocalizations {
   /// Topic 1.
   ///
   /// In en, this message translates to:
-  /// **'After pairing, a transaction file to that contact is **sealed**: only their wallet can open it, and it cannot be changed or forged on the way. Payments over Epicbox between people keep working as before.'**
+  /// **'After pairing, payments, transaction files and invoices between the two wallets are **sealed**: only the other wallet can read them, and the contact’s identity is checked. Payments go through the pairing by default; see “Payments after pairing”.'**
   String get helpPairWhatP2;
 
   /// Topic 1 step.
@@ -23373,7 +23391,7 @@ abstract class AppLocalizations {
   /// Topic 1.
   ///
   /// In en, this message translates to:
-  /// **'Pairing needs BT Wallet on both sides. A contact that is not paired still gets ordinary transaction files and Epicbox payments.'**
+  /// **'Pairing needs BT Wallet on both sides. A contact that is not paired still gets ordinary transaction files and payments to their public Epicbox address.'**
   String get helpPairWhatP3;
 
   /// Topic 2 title.
@@ -23511,7 +23529,7 @@ abstract class AppLocalizations {
   /// Help › Pairing › What a restore does, paragraph 2.
   ///
   /// In en, this message translates to:
-  /// **'Without the file, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and their wallet finds the same keys. It tells them the keys are back, and the contact keeps its Verified mark. On this wallet, Seal payments and Allow invoices start at their defaults.'**
+  /// **'Without the file, the pairings are gone from this wallet, but the keys are not: they come from the recovery phrase. Pair again with a contact who kept the pairing, and their wallet finds the same keys. It tells them the keys are back, and the contact keeps its Verified mark. On this wallet, Seal transaction files and Allow invoices start at their defaults.'**
   String get helpPairRestoreP2;
 
   /// Topic 5.
@@ -28893,13 +28911,19 @@ abstract class AppLocalizations {
   /// Button and dialog title: cancel an unanswered mailbox send and send the same amount to the contact's Epicbox address as an ordinary payment.
   ///
   /// In en, this message translates to:
-  /// **'Cancel and send by Epicbox'**
+  /// **'Cancel and send to their public Epicbox address'**
   String get mailboxResendTitle;
+
+  /// Short form of the Cancel and send to their public Epicbox address button, used only where the full text does not fit.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel and send to their public address'**
+  String get mailboxResendTitleShort;
 
   /// Body of the Cancel and send by Epicbox confirm dialog.
   ///
   /// In en, this message translates to:
-  /// **'The waiting send is cancelled and the same amount goes to {name}’s Epicbox address as an ordinary payment. Two rows stay in the history.'**
+  /// **'The waiting send is cancelled and the same amount goes to {name}’s public Epicbox address as an ordinary payment. Two rows stay in Activity.'**
   String mailboxResendBody(Object name);
 
   /// The confirming button of the Cancel and send by Epicbox dialog.
@@ -28977,7 +29001,7 @@ abstract class AppLocalizations {
   /// Notice after Cancel and send by Epicbox finished: the old send is cancelled and the new one is on its way.
   ///
   /// In en, this message translates to:
-  /// **'Cancelled and sent by Epicbox.'**
+  /// **'Cancelled and sent to their public Epicbox address.'**
   String get mailboxResent;
 
   /// Caption under the Epicbox row in Settings while Tor is off: what Tor does for Epicbox.
@@ -29538,6 +29562,48 @@ abstract class AppLocalizations {
   /// **'Back'**
   String get pairBackLater;
 
+  /// Topic 2 title.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments after pairing'**
+  String get helpPairRouteTitle;
+
+  /// Topic 2 summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments to a paired contact go through the pairing; the public Epicbox address is the fallback.'**
+  String get helpPairRouteShort;
+
+  /// Topic 2. [[Send]] is the Send tab or page.
+  ///
+  /// In en, this message translates to:
+  /// **'Once paired, a payment to that contact goes through the pairing, the private route, by default. On [[Send]] the switch **Send through the pairing** starts on.'**
+  String get helpPairRouteP1;
+
+  /// Topic 2. The cases that use the public Epicbox address.
+  ///
+  /// In en, this message translates to:
+  /// **'A payment goes to the contact’s public Epicbox address instead when: the contact is not paired; you turned the switch off; the contact last answered from another wallet app; the contact was not heard from in 90 days; a send through the pairing was left unanswered for a day; or their server is down.'**
+  String get helpPairRouteP2;
+
+  /// Topic 2.
+  ///
+  /// In en, this message translates to:
+  /// **'A send through the pairing that stays unanswered for a day shows **Cancel and send to their public Epicbox address**. The wallet asks first; later sends to that contact then start on the public address.'**
+  String get helpPairRouteP3;
+
+  /// Topic 2. Names the contact page switch contactSealPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'**Seal transaction files** on the contact page encrypts files sent to that contact. They are sealed and readable only by that contact. The switch covers files only; it does not turn the pairing route on or off.'**
+  String get helpPairRouteP4;
+
+  /// Topic 2. [[Contacts]] is the Contacts tab or page.
+  ///
+  /// In en, this message translates to:
+  /// **'An invite or QR pairing has no public Epicbox address to fall back to, unless the contact has an Epicbox address in [[Contacts]].'**
+  String get helpPairRouteP5;
+
   /// Help topic title.
   ///
   /// In en, this message translates to:
@@ -29547,7 +29613,7 @@ abstract class AppLocalizations {
   /// Help topic lede.
   ///
   /// In en, this message translates to:
-  /// **'A request to a contact, or your code.'**
+  /// **'A request to a contact, or your invite.'**
   String get helpPairTwoWaysShort;
 
   /// Help: Way 1.
@@ -29559,13 +29625,13 @@ abstract class AppLocalizations {
   /// Help: Way 2.
   ///
   /// In en, this message translates to:
-  /// **'**Pair by code.** Contacts › Pair shows your code, good for 7 days. The other wallet scans it or opens the link; both finish over Epicbox and then compare the four words. With Epicbox off on either side, the same screen carries the answer and the finish code by hand: Share and Paste.'**
+  /// **'**Pair by invite.** Contacts › Pair shows your invite, good for 7 days. The other wallet scans it or opens the link; both finish over Epicbox and then compare the four words. With Epicbox off on either side, the same screen carries the answer and the finish link by hand: Share and Paste.'**
   String get helpPairTwoWaysP2;
 
   /// Help: when a request can be sent.
   ///
   /// In en, this message translates to:
-  /// **'A request is sent only to a wallet that has shown it runs BT Wallet: a marked payment between the two addresses within the last 30 days. For anyone else, Pair shows your code.'**
+  /// **'A request is sent only to a wallet that has shown it runs BT Wallet: a marked payment between the two addresses within the last 30 days. For anyone else, Pair shows your invite.'**
   String get helpPairTwoWaysP3;
 
   /// Help topic title (words check).
@@ -29583,13 +29649,13 @@ abstract class AppLocalizations {
   /// Help: how to compare.
   ///
   /// In en, this message translates to:
-  /// **'After pairing by code both wallets show the same four pictures and names. Compare them with the other person in person, by voice or on a video call, never in the chat the code came through: whoever could change the code on the way could also change what that chat shows.'**
+  /// **'After pairing by invite both wallets show the same four pictures and names. Compare them with the other person in person, by voice or on a video call, never in the chat the invite came through: whoever could change the invite on the way could also change what that chat shows.'**
   String get helpPairWhyP1b;
 
   /// Help: what the two answers do.
   ///
   /// In en, this message translates to:
-  /// **'**They match** marks the contact Verified; the other wallet learns of it and shows “confirmed too”. **They do not match** ends the pairing on both sides and nothing sent through it is finished. A mistaken No ends it too: pair again with a fresh code.'**
+  /// **'**They match** marks the contact Verified; the other wallet learns of it and shows “confirmed too”. **They do not match** ends the pairing on both sides and nothing sent through it is finished. A mistaken No ends it too: pair again with a fresh invite.'**
   String get helpPairWhyP2b;
 
   /// Help: what Verified means.

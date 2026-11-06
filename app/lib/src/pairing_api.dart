@@ -280,6 +280,11 @@ abstract interface class PairingApi {
   /// slate, so it cannot be paid twice. The contact's seal becomes [SealMode.degraded].
   Future<String> plainSlate(String txKey);
 
+  /// Posts the waiting mailbox send [txKey] again to its contact's current mailbox (RFC 10.5):
+  /// for a send already delivered to the keys the contact lost, which the engine does not
+  /// redirect. A receiver that holds the slate answers again; the engine drops duplicates.
+  Future<void> repostViaMailbox(String txKey);
+
   /// The paired contact and purpose of the transaction with slate [slateId] (a withdrawal
   /// from an exchange, a deposit request it paid, ...), or null when no pairing took part.
   Future<PairingSlate?> slateOf(String slateId);
@@ -487,6 +492,9 @@ class NoPairing implements PairingApi {
 
   @override
   Future<String> plainSlate(String txKey) async => throw pairingUnsupported('plainSlate');
+
+  @override
+  Future<void> repostViaMailbox(String txKey) async => throw pairingUnsupported('repostViaMailbox');
 
   @override
   Future<int> useImportedPairings() async => 0;

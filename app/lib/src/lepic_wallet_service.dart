@@ -4468,6 +4468,14 @@ class _LepicPairing implements PairingApi {
     return _w.contactPlainFallback(txId: txId);
   });
 
+  @override
+  Future<void> repostViaMailbox(String txKey) => _call(() async {
+    final int? txId = txKey.startsWith('s:') ? await _txOfSlate(txKey.substring(2)) : await _s._txIdOf(txKey);
+    final contact = txId == null ? null : await _w.contactOfTransaction(txId: txId);
+    if (txId == null || contact == null) throw const WalletError(kind: WalletErrorKind.invalidArgument, message: 'not a sealed send');
+    await _w.contactPostSlate(contactId: contact, txId: txId, purpose: lepic.SlatePurpose.payment, relayMode: lepicRelayMode());
+  });
+
   // The engine marks pairings restored from a backup; they work here as they are.
   @override
   Future<int> useImportedPairings() => _call(() async => (await _w.contacts()).where((c) => c.importedFromBackup).length);

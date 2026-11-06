@@ -11,10 +11,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../contacts.dart';
 import '../../l10n.dart';
 import '../../pairing_providers.dart';
-import '../../pairing_text.dart' show sendViaMailboxHintOf;
+import '../../pairing_text.dart' show plainReasonText, sendViaMailboxHintOf;
 import '../../payment_prefs.dart';
 import '../../settings.dart';
-import '../../trust/trust_providers.dart' show mailboxRouteOffered;
+import '../../trust/policy.dart' show MailboxDefault;
+import '../../trust/trust_providers.dart' show mailboxDefaultFor;
 import '../../wallet_service.dart';
 import '../badge.dart';
 import '../method_names.dart';
@@ -67,9 +68,11 @@ class SendPairingLine extends ConsumerWidget {
   /// The recipient as typed or picked.
   final String address;
 
-  /// The Epicbox method is chosen: the mailbox switch shows.
+  /// The Epicbox method is chosen: the pairing switch shows.
   final bool epicbox;
-  final bool viaMailbox;
+
+  /// The user's choice on the pairing switch; null follows the rule's default.
+  final bool? viaMailbox;
   final ValueChanged<bool> onViaMailbox;
 
   /// Another of the contact's addresses was chosen under Send via.
@@ -86,9 +89,16 @@ class SendPairingLine extends ConsumerWidget {
     final current = parseRecipient(address).kind;
     // The phone sends to an http(s) address whatever its stored Link · HTTP switch says.
     final prefs = (ref.watch(appSettingsProvider).value?.payments ?? PaymentPrefs.defaults).copyWith(linkHttp: true);
-    // Hidden while the contact's key answers as another wallet app (trust policy): the plain
-    // route is used then.
-    final mailbox = pairing != null && epicbox && pairing.seals && ref.watch(pairNetProvider) == PairNet.online && mailboxRouteOffered(ref, contact, pairing);
+    // The rule (trust policy) says whether the pairing route is offered and which way the
+    // switch starts; the user's tap overrides it until the recipient changes.
+    final d = pairing == null ? const MailboxDefault.hidden() : mailboxDefaultFor(ref, contact, pairing);
+    final mailbox = pairing != null && epicbox && d.offered;
+    final on = viaMailbox ?? d.on;
+    final hint = switch (viaMailbox) {
+      false => l.sendViaPublicHint(contact.name),
+      null when !d.on => plainReasonText(l, contact.name, d),
+      _ => pairing == null ? null : sendViaMailboxHintOf(l, pairing),
+    };
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Column(
@@ -120,7 +130,7 @@ class SendPairingLine extends ConsumerWidget {
               runSpacing: 4,
               children: [
                 TrustBadge(pairing),
-                if (pairing.seals && (!epicbox || viaMailbox)) SealedBadge(name: contact.name),
+                if (pairing.seals && (!epicbox || (mailbox && on))) SealedBadge(name: contact.name),
               ],
             ),
           if (mailbox) ...[
@@ -129,10 +139,10 @@ class SendPairingLine extends ConsumerWidget {
               children: [
                 PairSwitchRow(
                   switchKey: sendViaMailboxKey,
-                  label: l.sendViaMailbox(contact.name),
+                  label: l.sendViaMailbox,
                   info: '',
-                  hint: sendViaMailboxHintOf(l, pairing),
-                  value: viaMailbox,
+                  hint: hint,
+                  value: on,
                   onChanged: onViaMailbox,
                 ),
               ],
@@ -285,7 +295,7 @@ class SendPairingMailbox extends ConsumerWidget {
           key: sendPairingReadoutKey,
           children: [
             PairReadoutRow(
-              label: l.sendViaMailbox(name),
+              label: l.sendViaMailbox,
               hint: paused ? l.contactPausedEpicboxOff : sendViaMailboxHintOf(l, pairing),
               paused: paused,
             ),

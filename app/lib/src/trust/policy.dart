@@ -10,6 +10,8 @@
 /// elsewhere and are never skipped because of anything in this file.
 library;
 
+import '../models.dart' show TxEntry, TxKind, TxStatus;
+
 /// Feature registry (u32, only grows). Values are masks, not bit numbers.
 const int featureMarker = 1 << 0;
 const int featurePairRequests = 1 << 1;
@@ -41,7 +43,7 @@ const int appHostFeatures = featureNameService;
 /// this young; an unasked send also needs no unmarked message this young.
 const Duration compatWindow = Duration(days: 30);
 
-/// A mailbox send with no answer for this long offers "Cancel and send by Epicbox".
+/// A mailbox send with no answer for this long offers "Cancel and send to their public Epicbox address".
 const Duration mailboxUnansweredAfter = Duration(hours: 24);
 
 /// At this age an unanswered mailbox send is gone from the relay; Cancel becomes the main action.
@@ -186,7 +188,7 @@ MailboxSendStage mailboxSendStage(DateTime sentAt, DateTime now) {
   return MailboxSendStage.waiting;
 }
 
-/// Is "Cancel and send by Epicbox" offered for a mailbox send made at [sentAt]: unanswered for
+/// Is "Cancel and send to their public Epicbox address" offered for a mailbox send made at [sentAt]: unanswered for
 /// 24 hours, the contact paired or verified, and an Epicbox address known. No compatibility
 /// needed: the new send is an ordinary slate.
 bool mayCancelAndSendByEpicbox(Relationship r, DateTime sentAt, DateTime now) =>
@@ -194,10 +196,75 @@ bool mayCancelAndSendByEpicbox(Relationship r, DateTime sentAt, DateTime now) =>
     r.hasEpicboxAddress &&
     mailboxSendStage(sentAt, now) != MailboxSendStage.waiting;
 
-/// Is the mailbox route for sends offered: paired or verified, and no contact line shows
-/// (neither "answered by another wallet app" nor "not heard from since").
-bool mayOfferMailboxRoute(PeerCompat? c, Relationship r, DateTime now, {DateTime? lastSealedIn}) =>
-    r.isPaired && contactLine(c, r, now, lastSealedIn: lastSealedIn).kind == ContactLineKind.none;
+/// Why the pairing route starts off for a paired contact, in the order they are checked.
+enum PlainReason { none, otherApp, notHeard, unanswered, notAnswering, relayDown }
+
+/// Where Send stands on the pairing route for a contact: not offered at all, on, or offered but
+/// starting off for [reason]. [since] is the date of [PlainReason.notHeard] and
+/// [PlainReason.unanswered].
+class MailboxDefault {
+  const MailboxDefault.hidden() : offered = false, reason = PlainReason.none, since = null;
+  const MailboxDefault.on() : offered = true, reason = PlainReason.none, since = null;
+  const MailboxDefault.off(this.reason, [this.since]) : offered = true;
+
+  final bool offered;
+  final PlainReason reason;
+  final DateTime? since;
+
+  bool get on => offered && reason == PlainReason.none;
+}
+
+/// The route rule: whether Send offers the pairing for a payment to a contact, and which way the
+/// switch starts. Hidden unless the contact is paired or verified, the card opens sealed and
+/// Epicbox is [online]. The "Seal payments" switch does not gate it.
+MailboxDefault mailboxDefault({
+  required Relationship r,
+  required bool opensSealed,
+  required bool online,
+  PeerCompat? compat,
+  required DateTime now,
+  DateTime? lastSealedIn,
+  DateTime? unansweredSince,
+  bool notAnswering = false,
+  bool relayDown = false,
+}) {
+  if (!r.isPaired || !opensSealed || !online) return const MailboxDefault.hidden();
+  final line = contactLine(compat, r, now, lastSealedIn: lastSealedIn);
+  switch (line.kind) {
+    case ContactLineKind.answeredByOtherApp:
+      return const MailboxDefault.off(PlainReason.otherApp);
+    case ContactLineKind.notHeardSince:
+      return MailboxDefault.off(PlainReason.notHeard, line.since);
+    case ContactLineKind.none:
+      break;
+  }
+  if (unansweredSince != null) return MailboxDefault.off(PlainReason.unanswered, unansweredSince);
+  if (notAnswering) return const MailboxDefault.off(PlainReason.notAnswering);
+  if (relayDown) return const MailboxDefault.off(PlainReason.relayDown);
+  return const MailboxDefault.on();
+}
+
+/// The oldest of [sentAt] (the send times of the sends still waiting through one pairing) that
+/// is at least [mailboxUnansweredAfter] old with no sealed message from the contact since; else null.
+DateTime? mailboxUnansweredAmong(Iterable<DateTime> sentAt, DateTime? lastSealedIn, DateTime now) {
+  DateTime? oldest;
+  for (final at in sentAt) {
+    if (now.difference(at) < mailboxUnansweredAfter) continue;
+    if (lastSealedIn != null && !lastSealedIn.isBefore(at)) continue;
+    if (oldest == null || at.isBefore(oldest)) oldest = at;
+  }
+  return oldest;
+}
+
+/// Send time of the oldest outgoing send through [pairingId] that is awaitingRecipient, at least
+/// [mailboxUnansweredAfter] old, with [lastSealedIn] null or before it; else null. Cancelled,
+/// declined, confirming and confirmed sends never count.
+DateTime? mailboxUnansweredSince(Iterable<TxEntry> txs, String pairingId, DateTime? lastSealedIn, DateTime now) =>
+    mailboxUnansweredAmong([
+      for (final t in txs)
+        if (t.pairingId == pairingId && t.kind == TxKind.sent && t.status == TxStatus.awaitingRecipient)
+          DateTime.fromMillisecondsSinceEpoch(t.createdAtUnix * 1000, isUtc: true),
+    ], lastSealedIn, now);
 
 /// The key's last Epicbox slate came without the marker, after its last marked one.
 bool answeredByOtherApp(PeerCompat? c) {

@@ -4,12 +4,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show ProviderListenable;
 
 import '../../../address_field.dart';
 import '../../../amount.dart' as shared show formatEpic;
 import '../../../amount.dart' show exactDecimals;
 import '../../../l10n.dart' show LocalizedFormatException, localDecimal;
-import '../../../pairing_text.dart' show sendViaMailboxHintOf;
+import '../../../pairing_text.dart' show plainReasonText, sendViaMailboxHintOf;
 import '../../../providers.dart' show defaultMinimumConfirmations;
 import '../../../known_relays.dart';
 import '../../../log.dart';
@@ -22,7 +23,9 @@ import '../../data/desk_errors.dart' show deskErrorText;
 import '../../data/desk_levels.dart' show deskLevelFeaturesProvider, deskLevelUiProvider;
 import '../../data/net_mode_view.dart';
 import '../../data/tor_view.dart';
-import '../../../models.dart' show PairingRecord, PairingState, slateMessageMaxBytes;
+import '../../../models.dart' show PairingRecord, PairingState, epicboxKey, slateMessageMaxBytes;
+import '../../../trust/policy.dart' show MailboxDefault;
+import '../../data/trust_state.dart' show deskMailboxDefaultFor;
 import '../../../settings_file/settings_providers.dart' show hostSettingsProvider;
 import '../../../settings_file/host_settings.dart' show appConfig;
 import '../../../advanced.dart' show NetworkMode;
@@ -332,8 +335,43 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     return ref.read(deskContactPairingProvider(c.id))?.id;
   }
 
-  /// [_pairingTo] goes by its mailbox now (the file form ignores it).
-  bool get _viaPairing => _pairingTo != null && !_file;
+  /// The user's tap on the pairing switch under To (a paired contact's Epicbox address);
+  /// null follows the rule's default. Goes with the recipient.
+  bool? _viaMailboxChoice;
+
+  /// The last send went through the pairing of an address in To and failed: the notice
+  /// offers the public Epicbox address.
+  bool _failedViaPairing = false;
+
+  /// The pairing a paired contact's Epicbox address in To could be paid through, with the
+  /// rule's say on the switch; null when nothing is offered (no such contact, not paired, a
+  /// pairing recipient or the file form). [watch] in a build.
+  ({Contact contact, PairingRecord pairing, MailboxDefault d})? _mailboxOffer(DeskState st, {bool watch = false}) {
+    if (_pairingTo != null || _file) return null;
+    final r = _read;
+    if (r.kind != RecipientInputKind.epicbox) return null;
+    T get<T>(ProviderListenable<T> p) => watch ? ref.watch(p) : ref.read(p);
+    if (!get(deskPairsProvider)) return null;
+    final contact = _contactOf(st.contacts);
+    if (contact == null) return null;
+    final pairing = get(deskContactPairingProvider(contact.id));
+    if (pairing == null) return null;
+    // The pairing proves the Epicbox address it carries, not another the contact has.
+    if (pairing.paymentsAddress case final a? when epicboxKey(a) != epicboxKey(r.address)) return null;
+    final d = deskMailboxDefaultFor(ref, contact, pairing, watch: watch);
+    return d.offered ? (contact: contact, pairing: pairing, d: d) : null;
+  }
+
+  /// The pairing this send goes through: a pairing recipient's, or the one of a paired
+  /// contact's address in To while the switch is on. Null for a plain address.
+  String? get _pairingId {
+    if (_pairingTo != null) return _pairingTo;
+    final o = _mailboxOffer(ref.read(deskProvider));
+    return o != null && (_viaMailboxChoice ?? o.d.on) ? o.pairing.id : null;
+  }
+
+  /// The send goes by a pairing's mailbox now (the file form ignores it).
+  bool get _viaPairing => _pairingId != null && !_file;
 
   /// What To holds, read once per text ([readRecipient]).
   RecipientInput get _read {
@@ -874,6 +912,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         _toTouched = false;
         _suggestOff = false;
         _codeError = null;
+        _viaMailboxChoice = null;
+        _failedViaPairing = false;
         if (_leaveCode()) amount = true;
       }
       if (_result is SendDone) _result = null;
@@ -1187,6 +1227,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       }
       _pairingTo = null;
       _contactId = null;
+      _viaMailboxChoice = null;
+      _failedViaPairing = false;
       _file = false;
       _to.text = to;
       _lastTo = to;
@@ -1231,6 +1273,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
       setState(() {
         _pairingTo = id;
         _contactId = null;
+        _viaMailboxChoice = null;
+        _failedViaPairing = false;
         _to.clear();
         _lastTo = '';
         _code = null;
@@ -1330,8 +1374,9 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   String? _toError(DeskState st) {
     // A pairing recipient has no address: its card says whether it can be paid.
     if (_viaPairing) {
-      if (_noPaymentsProblem(pairingId: _pairingTo) case final stop?) return stop;
-      return ref.read(deskPairingByIdProvider(_pairingTo!))?.paysByMailbox ?? false ? null : context.l10n.deskSendErrNoAddress;
+      final id = _pairingId!;
+      if (_noPaymentsProblem(pairingId: id) case final stop?) return stop;
+      return ref.read(deskPairingByIdProvider(id))?.paysByMailbox ?? false ? null : context.l10n.deskSendErrNoAddress;
     }
     if (_file) return null;
     final l = context.l10n;
@@ -1442,12 +1487,13 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     _Draft draftOf(SmartSendPlan? plan) {
       final balance = ref.read(deskProvider).balance;
       final viaPairing = _viaPairing;
+      final pairingId = viaPairing ? _pairingId : null;
       return _Draft(
         method: _method,
         // The clean form: the field keeps the text as given, the send goes to the method line's.
         to: _method == TxMethod.file || viaPairing ? null : (_read.isAddress ? _read.address : _to.text.trim()),
-        contactName: viaPairing ? ref.read(deskPairingNameProvider(_pairingTo!)) : _contactOf(contacts)?.name,
-        pairingId: viaPairing ? _pairingTo : null,
+        contactName: pairingId != null ? ref.read(deskPairingNameProvider(pairingId)) : _contactOf(contacts)?.name,
+        pairingId: pairingId,
         queued: _queues(),
         amount: n,
         fee: plan?.estimate.fee ?? _fee ?? 0,
@@ -1523,6 +1569,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         case final SendFailed failed:
           _failure = failed.text;
           _failureInActivity = failed.inActivity;
+          // Through the pairing of an address in To: the notice offers the public address.
+          _failedViaPairing = draft.pairingId != null && _pairingTo == null;
           _result = null;
         default:
           _failure = null;
@@ -1544,9 +1592,22 @@ class _SendScreenState extends ConsumerState<SendScreen> {
             _code = null;
             _pairingTo = null;
             _contactId = null;
-              }
+            _viaMailboxChoice = null;
+            _failedViaPairing = false;
+          }
       }
     });
+  }
+
+  /// After a failed send through the pairing: the same payment to the contact's public
+  /// Epicbox address, through the review again.
+  Future<void> _sendPublicFallback() async {
+    setState(() {
+      _viaMailboxChoice = false;
+      _failure = null;
+      _failedViaPairing = false;
+    });
+    await _review();
   }
 
   /// The link the last send paid, for Save as contact on the page after it.
@@ -1578,6 +1639,8 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     _code = null;
     _pairingTo = null;
     _contactId = null;
+    _viaMailboxChoice = null;
+    _failedViaPairing = false;
     _file = false;
     _to.clear();
     _amount.clear();
@@ -1991,8 +2054,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
               // The payment may be waiting already: a second review could pay twice.
               if (_failureInActivity)
                 EButton(label: l.deskFinViewActivity, size: EBtnSize.inline, onPressed: () => ref.read(deskNavProvider.notifier).go(DeskRoute.activity))
-              else
+              else ...[
                 EButton(label: l.deskSendReviewAgain, size: EBtnSize.inline, onPressed: _review),
+                if (_failedViaPairing && _mailboxOffer(st) != null)
+                  EButton.ghost(key: const ValueKey('send-public-fallback'), label: l.sendPublicFallback, size: EBtnSize.inline, onPressed: _sendPublicFallback),
+              ],
             ],
           ),
           SizedBox(height: Sp.x5),
@@ -2271,6 +2337,47 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         gap: Sp.x1,
       );
     }
+    // A paired contact's address: the switch to pay through the pairing, sealed, as the rule
+    // sets it (trust policy); the user's tap holds until the recipient changes.
+    if (_mailboxOffer(st, watch: true) case final o?) {
+      final on = _viaMailboxChoice ?? o.d.on;
+      final hint = switch (_viaMailboxChoice) {
+        false => l.sendViaPublicHint(o.contact.name),
+        null when !o.d.on => plainReasonText(l, o.contact.name, o.d),
+        _ => sendViaMailboxHintOf(l, o.pairing),
+      };
+      add(Container(
+        key: const ValueKey('send-via-pairing'),
+        decoration: c.well,
+        padding: EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x3),
+        child: Row(
+          children: [
+            Icon(on ? EIcons.lock : EIcons.lockOpen, size: 16.u, color: c.dim),
+            SizedBox(width: Sp.x3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l.sendViaMailbox, style: ts.body),
+                  if (hint != null) Text(hint, style: ts.small),
+                ],
+              ),
+            ),
+            SizedBox(width: Sp.x3),
+            ESwitch(
+              key: const ValueKey('send-via-mailbox'),
+              value: on,
+              semanticLabel: l.sendViaMailbox,
+              onChanged: (v) => setState(() {
+                _viaMailboxChoice = v;
+                _failure = null;
+                _failedViaPairing = false;
+              }),
+            ),
+          ],
+        ),
+      ));
+    }
     if (hold != null) {
       add(ENotice(
         key: ValueKey('send-hold-${hold.name}'),
@@ -2389,7 +2496,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
     final (String? via, String? viaSub) = switch (null) {
       _ when !_strip => (null, null),
       _ when _file => (MethodIcons.fullName(l, MethodKind.directFile), null),
-      _ when _viaPairing => (l.methodEpicbox, ref.watch(deskPairingNameProvider(_pairingTo!))),
+      _ when _viaPairing => (l.methodEpicbox, ref.watch(deskPairingNameProvider(_pairingId!))),
       _ when _methodOf(r) == null || _onionNoTor => ('—', null), // l10n-ok: nothing yet
       _ => (sendMethodName(l, r), switch (r.kind) {
         RecipientInputKind.epicbox => r.host,
@@ -2419,7 +2526,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         // Shallow: the button is the Send itself, naming the amount and whom it goes to.
         _ when !_reviewStep => n <= 0
             ? l.deskLvSendButton
-            : switch (_viaPairing ? ref.watch(deskPairingNameProvider(_pairingTo!)) : _contactOf(st.contacts)?.name) {
+            : switch (_viaPairing ? ref.watch(deskPairingNameProvider(_pairingId!)) : _contactOf(st.contacts)?.name) {
                 final who? => keepNumbersWithUnits(l.deskLvSendButtonTo(formatEpicL(l, n), who)),
                 null => keepNumbersWithUnits(l.deskLvSendButtonAmount(formatEpicL(l, n))),
               },
@@ -2874,7 +2981,7 @@ class _PairingCard extends StatelessWidget {
                       ? Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(l.sendViaMailbox(name), style: ts.body),
+                            Text(l.sendViaMailbox, style: ts.body),
                             Text(paused ? l.contactPausedEpicboxOff : sendViaMailboxHintOf(l, pairing), style: ts.small),
                           ],
                         )
