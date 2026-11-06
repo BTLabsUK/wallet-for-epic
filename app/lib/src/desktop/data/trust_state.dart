@@ -9,7 +9,7 @@ import '../../models.dart' show PairingRecord;
 import '../../trust/contact_trust.dart';
 import '../../trust/policy.dart';
 import 'clock.dart';
-import 'models.dart' show Contact;
+import 'models.dart' show Contact, Tx, TxDirection, TxState;
 import 'pairing_state.dart';
 import 'state.dart';
 
@@ -38,5 +38,26 @@ ContactLine deskContactLine(WidgetRef ref, Contact contact) {
     deskRelationship(contact, pairing),
     ref.watch(deskClockProvider)(),
     lastSealedIn: pairing?.lastSealedIn,
+  );
+}
+
+/// Where desktop Send stands on the pairing route for [contact] (paired through [pairing]):
+/// hidden, on, or off with the reason (`trust/policy.dart`).
+MailboxDefault deskMailboxDefaultFor(WidgetRef ref, Contact contact, PairingRecord pairing) {
+  final now = ref.watch(deskClockProvider)();
+  final sent = [
+    for (final t in ref.watch(deskProvider.select((s) => s.txs)) ?? const <Tx>[])
+      if (t.pairingId == pairing.id && t.direction == TxDirection.sent && t.state == TxState.waitingRecipient) t.created,
+  ];
+  return mailboxDefault(
+    r: deskRelationship(contact, pairing),
+    opensSealed: pairing.caps.opensSealed,
+    online: ref.watch(deskPairNetProvider) == DeskPairNet.online,
+    compat: deskPeerCompatOf(ref, contact, pairing),
+    now: now,
+    lastSealedIn: pairing.lastSealedIn,
+    unansweredSince: mailboxUnansweredAmong(sent, pairing.lastSealedIn, now),
+    notAnswering: pairing.notAnswering,
+    relayDown: pairing.relayDown,
   );
 }

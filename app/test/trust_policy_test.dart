@@ -295,6 +295,104 @@ void main() {
     });
   });
 
+  group('mailbox default', () {
+    MailboxDefault rule({
+      Relationship r = paired,
+      bool opensSealed = true,
+      bool online = true,
+      PeerCompat? c,
+      DateTime? lastSealedIn,
+      DateTime? unansweredSince,
+      bool notAnswering = false,
+      bool relayDown = false,
+    }) => mailboxDefault(
+      r: r,
+      opensSealed: opensSealed,
+      online: online,
+      compat: c,
+      now: now,
+      lastSealedIn: lastSealedIn,
+      unansweredSince: unansweredSince,
+      notAnswering: notAnswering,
+      relayDown: relayDown,
+    );
+
+    TxEntry send(Duration age, {TxStatus status = TxStatus.awaitingRecipient, String pairing = 'p1', TxKind kind = TxKind.sent}) => fakeTx(
+      id: 1,
+      slateId: 's',
+      kind: kind,
+      status: status,
+      createdAtUnix: ago(age).millisecondsSinceEpoch ~/ 1000,
+      pairingId: pairing,
+    );
+
+    test('paired, opens sealed, online → on', () {
+      final d = rule(c: compat(marked: day));
+      expect(d.offered, isTrue);
+      expect(d.on, isTrue);
+      expect(d.reason, PlainReason.none);
+      expect(rule(r: verified).on, isTrue);
+    });
+    test('keys changed, ended, contact-only, waiting → hidden', () {
+      for (final r in const [
+        Relationship(RelationshipKind.keysChanged),
+        Relationship(RelationshipKind.ended, endedReason: EndedReason.unpaired),
+        contact,
+        Relationship(RelationshipKind.contact, waiting: true),
+        Relationship.none(),
+      ]) {
+        expect(rule(r: r).offered, isFalse, reason: r.kind.name);
+      }
+    });
+    test('opensSealed false → hidden', () => expect(rule(opensSealed: false).offered, isFalse));
+    test('online false → hidden', () => expect(rule(online: false).offered, isFalse));
+    test('answered by another app → off(otherApp)', () {
+      final d = rule(c: compat(marked: day * 2, unmarked: day), unansweredSince: ago(day * 2));
+      expect(d.offered, isTrue);
+      expect(d.reason, PlainReason.otherApp);
+      expect(d.on, isFalse);
+      final both = rule(c: compat(marked: day * 100, unmarked: day), lastSealedIn: ago(day * 100));
+      expect(both.reason, PlainReason.otherApp);
+    });
+    test('not heard 91 days → off(notHeard, since: latest)', () {
+      final d = rule(c: compat(marked: day * 95), lastSealedIn: ago(day * 91), unansweredSince: ago(day * 2));
+      expect(d.reason, PlainReason.notHeard);
+      expect(d.since, ago(day * 91));
+    });
+    test('unanswered send turns the default off', () {
+      final since = ago(const Duration(hours: 25));
+      final d = rule(c: compat(marked: day), unansweredSince: since);
+      expect(d.reason, PlainReason.unanswered);
+      expect(d.since, since);
+      expect(d.on, isFalse);
+    });
+    test('notAnswering → off(notAnswering)', () => expect(rule(notAnswering: true).reason, PlainReason.notAnswering));
+    test('relayDown → off(relayDown)', () {
+      expect(rule(relayDown: true).reason, PlainReason.relayDown);
+      expect(rule(relayDown: true, notAnswering: true).reason, PlainReason.notAnswering);
+    });
+    test('mailboxUnansweredSince: 25 h old counts, 23 h old does not', () {
+      final old = send(const Duration(hours: 25));
+      expect(mailboxUnansweredSince([old], 'p1', null, now), ago(const Duration(hours: 25)));
+      expect(mailboxUnansweredSince([send(const Duration(hours: 23))], 'p1', null, now), isNull);
+      expect(mailboxUnansweredSince([send(const Duration(hours: 30)), old], 'p1', null, now), ago(const Duration(hours: 30)));
+    });
+    test('sealed message after the send clears it', () {
+      final t = [send(const Duration(hours: 25))];
+      expect(mailboxUnansweredSince(t, 'p1', ago(const Duration(hours: 1)), now), isNull);
+      expect(mailboxUnansweredSince(t, 'p1', ago(const Duration(hours: 26)), now), isNotNull);
+    });
+    test('cancelled sends are not unanswered', () {
+      for (final s in [TxStatus.cancelled, TxStatus.confirmed, TxStatus.awaitingConfirmation]) {
+        expect(mailboxUnansweredSince([send(day * 2, status: s)], 'p1', null, now), isNull, reason: s.name);
+      }
+      expect(mailboxUnansweredSince([send(day * 2, kind: TxKind.sentCancelled)], 'p1', null, now), isNull);
+    });
+    test('another pairing id → null', () {
+      expect(mailboxUnansweredSince([send(day * 2, pairing: 'p2')], 'p1', null, now), isNull);
+    });
+  });
+
   group('downgrade of proven', () {
     test('proven, then an unmarked slate', () {
       final before = compat(marked: day * 2);
@@ -302,11 +400,13 @@ void main() {
       final after = compat(marked: day * 2, unmarked: day);
       expect(isProven(after, now), isFalse);
       expect(isFresh(after, now), isFalse);
-      expect(mayOfferMailboxRoute(after, paired, now), isFalse);
-      expect(mayOfferMailboxRoute(before, paired, now, lastSealedIn: now), isTrue);
-      expect(mayOfferMailboxRoute(before, contact, now), isFalse);
-      // Not heard from for over 90 days: the route is hidden too.
-      expect(mayOfferMailboxRoute(compat(marked: day * 100), paired, now, lastSealedIn: now.subtract(day * 100)), isFalse);
+      MailboxDefault route(PeerCompat c, Relationship r, {DateTime? sealed}) =>
+          mailboxDefault(r: r, opensSealed: true, online: true, compat: c, now: now, lastSealedIn: sealed);
+      expect(route(after, paired).on, isFalse);
+      expect(route(before, paired, sealed: now).on, isTrue);
+      expect(route(before, contact).offered, isFalse);
+      // Not heard from for over 90 days: the default is off.
+      expect(route(compat(marked: day * 100), paired, sealed: now.subtract(day * 100)).on, isFalse);
     });
     test('recovery by a newer marked slate', () {
       expect(isProven(compat(marked: day, unmarked: day * 2), now), isTrue);

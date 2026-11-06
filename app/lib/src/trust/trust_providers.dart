@@ -39,15 +39,27 @@ final contactLineProvider = Provider.autoDispose.family<ContactLine, String>((re
   );
 });
 
-/// Whether Send offers the pairing mailbox route for [contact] (paired through [pairing]):
-/// not while the contact page shows a trust line for it.
-bool mailboxRouteOffered(WidgetRef ref, Contact contact, PairingRecord pairing) {
+/// Where Send stands on the pairing route for [contact] (paired through [pairing]): hidden,
+/// on, or off with the reason (`trust/policy.dart`).
+MailboxDefault mailboxDefaultFor(WidgetRef ref, Contact contact, PairingRecord pairing) {
   final address = trustAddressOf(contact.epicbox, pairing);
   final compat = address == null ? null : ref.watch(peerCompatProvider(address)).value;
-  return mayOfferMailboxRoute(
-    compat,
-    relationshipOf(inContacts: true, epicboxAddress: contact.epicbox, pairing: pairing),
-    ref.watch(clockProvider)(),
+  final now = ref.watch(clockProvider)();
+  final txs = ref.watch(homeProvider).value?.transactions ?? const <TxEntry>[];
+  return mailboxDefault(
+    r: relationshipOf(inContacts: true, epicboxAddress: contact.epicbox, pairing: pairing),
+    opensSealed: pairing.caps.opensSealed,
+    online: ref.watch(pairNetProvider) == PairNet.online,
+    compat: compat,
+    now: now,
     lastSealedIn: pairing.lastSealedIn,
+    unansweredSince: mailboxUnansweredSince(txs, pairing.id, pairing.lastSealedIn, now),
+    notAnswering: pairing.notAnswering,
+    relayDown: pairing.relayDown,
   );
 }
+
+/// Whether Send offers the pairing route for [contact]. The Seal switch no longer gates it.
+@Deprecated('Use mailboxDefaultFor; the route is offered whenever the default is not hidden.')
+bool mailboxRouteOffered(WidgetRef ref, Contact contact, PairingRecord pairing) =>
+    mailboxDefaultFor(ref, contact, pairing).offered;
