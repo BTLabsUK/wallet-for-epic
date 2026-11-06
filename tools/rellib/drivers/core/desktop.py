@@ -134,6 +134,7 @@ SEND_ANOTHER = T("g4.send.another", keys=("deskSendNewSend",), names=("Send anot
 SEND_TO = T("g4.send.to", role="text_field", keys=("deskSendToSem", "deskSendTo"), names=("Recipient", "To"), match="starts")
 SEND_VIA_PAIRING = T("g4.send.viapairing", role="toggle", keys=("sendViaMailbox",),
                      names=("Send through the pairing",))  # starts on for a paired contact
+VIA_PAIRING_WAIT_S = 4    # for the pairing switch after To is filled
 SEND_AMOUNT = T("g4.send.amount", role="text_field", keys=("deskSendAmountSem", "deskSendAmount"), names=("Amount",),
                 match="starts")
 SEND_MAX = T("g4.send.max", keys=("deskSendAllButton",), names=("Max",), match="exact")
@@ -1001,7 +1002,9 @@ class Desktop:
             d._act(d.s.press, eb)
             time.sleep(0.8)
         d.fill(SEND_TO, to, step="send-to")
-        if d.seen(SEND_VIA_PAIRING):  # a paired contact: this send means the public Epicbox address
+        # A paired contact: the pairing switch shows once To resolves and starts on; this send means
+        # the public Epicbox address. Bounded wait, as an unpaired recipient never shows it.
+        if d.wait(shows(SEND_VIA_PAIRING), VIA_PAIRING_WAIT_S):
             d.toggle(SEND_VIA_PAIRING, False, step="send-via-pairing-off")
         if amount is None:
             d.press(SEND_MAX, step="send-max", timeout=20,
