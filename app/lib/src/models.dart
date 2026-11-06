@@ -1465,7 +1465,9 @@ class TxEntry {
   /// Epicbox address or URL of the other side, when known.
   final String? counterparty;
 
-  /// The linked device that made this send, for a row of [TxOrigin.linkedDevice]; null else.
+  /// The linked device that made this send, for a row of [TxOrigin.linkedDevice], received these
+  /// coins, for a row of [TxOrigin.otherWallet], or mined this [TxKind.coinbase] reward; null
+  /// else.
   final String? deviceName;
 
   /// A mining reward's output lock height, read from the output once known; null for other
@@ -1628,7 +1630,7 @@ class TxEntry {
     this.unverified = false,
   });
 
-  /// This row as one the linked device [name] received (Linked devices).
+  /// This row as one the linked device [name] received or mined (Linked devices).
   TxEntry withDeviceName(String name) => TxEntry(
     key: key,
     id: id,

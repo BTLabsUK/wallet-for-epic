@@ -135,6 +135,8 @@ class LinkedDevice {
     this.early = const {},
     this.otherVersion,
     this.kind,
+    this.rewardsMark,
+    this.rewardsDueAt,
   });
 
   final String deviceId;
@@ -172,6 +174,13 @@ class LinkedDevice {
   /// Pairings being made with it over the channel.
   final List<PendingPairing> pending;
 
+  /// The block height of the newest reward of this device it was told about; null until the
+  /// first `reward` notice to it.
+  final int? rewardsMark;
+
+  /// When the next `reward` notice to it goes; null with none waiting.
+  final DateTime? rewardsDueAt;
+
   List<String> get servers => pairings.keys.toList();
 
   /// Every pairing it is reached and read through, the pending ones included.
@@ -194,6 +203,9 @@ class LinkedDevice {
     Set<int>? early,
     int? otherVersion,
     bool clearOtherVersion = false,
+    int? rewardsMark,
+    DateTime? rewardsDueAt,
+    bool clearRewardsDue = false,
   }) => LinkedDevice(
     deviceId: deviceId,
     name: name ?? this.name,
@@ -208,6 +220,8 @@ class LinkedDevice {
     pending: pending ?? this.pending,
     early: early ?? this.early,
     otherVersion: clearOtherVersion ? null : otherVersion ?? this.otherVersion,
+    rewardsMark: rewardsMark ?? this.rewardsMark,
+    rewardsDueAt: clearRewardsDue ? null : rewardsDueAt ?? this.rewardsDueAt,
   );
 
   Map<String, Object?> toJson() => {
@@ -224,6 +238,8 @@ class LinkedDevice {
     'early': early.toList(),
     'ver': otherVersion,
     'kind': kind?.name,
+    if (rewardsMark != null) 'rewardsMark': rewardsMark,
+    if (rewardsDueAt != null) 'rewardsDue': rewardsDueAt!.millisecondsSinceEpoch,
   };
 
   static LinkedDevice? fromJson(Object? j) {
@@ -238,6 +254,8 @@ class LinkedDevice {
       lastSeen: _time(j['seen']),
       seqOut: (j['out'] as num?)?.toInt() ?? 0,
       seqIn: (j['in'] as num?)?.toInt() ?? 0,
+      rewardsMark: (j['rewardsMark'] as num?)?.toInt(),
+      rewardsDueAt: _time(j['rewardsDue']),
       waiting: {
         if (waiting is Map)
           for (final e in waiting.entries)
@@ -485,6 +503,7 @@ class DeviceBook {
     this.outbox = const [],
     this.removedBy,
     this.theirReceives = const {},
+    this.theirRewards = const [],
   });
 
   /// A fresh book: a new random device id, [name] as this device's name. With [withCode] the
@@ -530,6 +549,11 @@ class DeviceBook {
   /// wallet's one address: the sender takes the first answer and refuses the second.
   final Map<String, List<String>> theirReceives;
 
+  /// The outputs of block rewards the linked device built, as its `reward` notices named them,
+  /// oldest first. Their rows carry its name ([mergeDeviceHistory]). Apart from [theirReceives]:
+  /// rewards never push out a payment.
+  final List<String> theirRewards;
+
   /// The one linked device, or null ([maxLinkedDevices]).
   LinkedDevice? get linked => devices.firstOrNull;
 
@@ -562,6 +586,7 @@ class DeviceBook {
     String? removedBy,
     bool clearRemovedBy = false,
     Map<String, List<String>>? theirReceives,
+    List<String>? theirRewards,
   }) => DeviceBook(
     deviceId: deviceId,
     deviceName: deviceName ?? this.deviceName,
@@ -576,6 +601,7 @@ class DeviceBook {
     outbox: outbox ?? this.outbox,
     removedBy: clearRemovedBy ? null : removedBy ?? this.removedBy,
     theirReceives: theirReceives ?? this.theirReceives,
+    theirRewards: theirRewards ?? this.theirRewards,
   );
 
   /// [device] put in place of the one with its id, or added.
@@ -601,6 +627,7 @@ class DeviceBook {
     'outbox': [for (final o in outbox) {'dev': o.deviceId, 'json': o.json}],
     'removedBy': removedBy,
     'theirReceives': theirReceives,
+    if (theirRewards.isNotEmpty) 'theirRewards': theirRewards,
   };
 
   static DeviceBook? fromJson(Object? j) {
@@ -626,6 +653,11 @@ class DeviceBook {
           if (o is Map && o['dev'] is String && o['json'] is String) (deviceId: o['dev'] as String, json: o['json'] as String),
       ],
       removedBy: j['removedBy'] as String?,
+      theirRewards: [
+        if (j['theirRewards'] case final List l)
+          for (final c in l)
+            if (c is String) c,
+      ],
       theirReceives: {
         if (j['theirReceives'] case final Map m)
           for (final e in m.entries)

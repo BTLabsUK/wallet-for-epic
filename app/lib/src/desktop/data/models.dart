@@ -318,6 +318,7 @@ class Tx {
     this.deviceEnding,
     this.deviceWhy,
     this.receivedOn,
+    this.minedOn,
   });
 
   final int id;
@@ -339,6 +340,9 @@ class Tx {
   /// (a payment its `recv` notice named); the row reads "Received on `<device>`". The change of
   /// its sends is part of their rows, never a receive.
   final String? receivedOn;
+
+  /// The linked device that mined this reward: the row reads `<device>`, its details say mined.
+  final String? minedOn;
 
   /// The row's stable key as the core names it (`s:<slate>`, `k:<kernel>`, `c:<commitment>`,
   /// `l:<id>`); what labels and details are stored under.
@@ -562,6 +566,7 @@ class Tx {
       deviceEnding: deviceEnding,
       deviceWhy: deviceWhy,
       receivedOn: receivedOn,
+      minedOn: minedOn,
     );
   }
 
@@ -625,6 +630,7 @@ class Tx {
     deviceEnding: deviceEnding,
     deviceWhy: deviceWhy,
     receivedOn: receivedOn,
+    minedOn: minedOn,
   );
 
   /// A mining reward in a block the chain has not reached [lockHeight] for.
