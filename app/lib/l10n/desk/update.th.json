@@ -21,5 +21,7 @@
   "deskUpdRestartNow": "รีสตาร์ทตอนนี้",
   "deskUpdLater": "ภายหลัง",
   "deskUpdOpenDmg": "เปิดดิสก์อิมเมจ",
-  "deskUpdDmgHint": "แอปจะปิดและดิสก์อิมเมจจะเปิดขึ้น: ลาก BT Wallet ไปไว้ในโฟลเดอร์แอปพลิเคชันแทนที่เวอร์ชันเก่า ถ้ามี Epic Cash Desktop อยู่ ให้ย้ายไปที่ถังขยะ"
+  "deskUpdDmgHint": "แอปจะปิดและดิสก์อิมเมจจะเปิดขึ้น: ลาก BT Wallet ไปไว้ในโฟลเดอร์แอปพลิเคชันแทนที่เวอร์ชันเก่า ถ้ามี Epic Cash Desktop อยู่ ให้ย้ายไปที่ถังขยะ",
+  "deskUpdStripAct": "อัปเดต",
+  "deskUpdStripHide": "ซ่อนจนกว่าจะมีเวอร์ชันถัดไป"
 }

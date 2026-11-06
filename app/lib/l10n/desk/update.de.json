@@ -21,5 +21,7 @@
   "deskUpdRestartNow": "Jetzt neu starten",
   "deskUpdLater": "Später",
   "deskUpdOpenDmg": "Disk-Image öffnen",
-  "deskUpdDmgHint": "Die App schließt sich und das Disk-Image öffnet sich: Ziehen Sie BT Wallet in „Programme“ und ersetzen Sie die alte App. Legen Sie Epic Cash Desktop, falls vorhanden, in den Papierkorb."
+  "deskUpdDmgHint": "Die App schließt sich und das Disk-Image öffnet sich: Ziehen Sie BT Wallet in „Programme“ und ersetzen Sie die alte App. Legen Sie Epic Cash Desktop, falls vorhanden, in den Papierkorb.",
+  "deskUpdStripAct": "Aktualisieren",
+  "deskUpdStripHide": "Bis zur nächsten Version ausblenden"
 }

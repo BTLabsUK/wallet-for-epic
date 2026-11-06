@@ -56,6 +56,7 @@ class SettingsPrefs {
     this.mineNodes = const {},
     this.ownFallback = const {},
     this.plainHttpSeen = const {},
+    this.updateSeen,
     this.jump,
   });
 
@@ -88,6 +89,10 @@ class SettingsPrefs {
   /// Own nodes whose plain-http owner secret warning is not shown again.
   final Set<String> plainHttpSeen;
 
+  /// The newest version whose update strip (`app/update_strip.dart`) was closed: the strip
+  /// stays away for it and comes back for a newer one. The sidebar's slot shows regardless.
+  final String? updateSeen;
+
   final JumpTo? jump;
 
   /// The part that is saved: choices, not run state.
@@ -102,6 +107,7 @@ class SettingsPrefs {
     'mineNodes': mineNodes.toList(),
     'ownFallback': ownFallback,
     'plainHttpSeen': plainHttpSeen.toList(),
+    'updateSeen': updateSeen,
   };
 
   factory SettingsPrefs.fromJson(Map<String, dynamic> j) {
@@ -121,6 +127,7 @@ class SettingsPrefs {
       mineNodes: names('mineNodes'),
       ownFallback: fallback is Map ? {for (final e in fallback.entries) if (e.value is bool) '${e.key}': e.value as bool} : const {},
       plainHttpSeen: names('plainHttpSeen'),
+      updateSeen: j['updateSeen'] is String ? j['updateSeen'] as String : null,
     );
   }
 
@@ -137,6 +144,7 @@ class SettingsPrefs {
     Set<String>? mineNodes,
     Map<String, bool>? ownFallback,
     Set<String>? plainHttpSeen,
+    String? updateSeen,
     JumpTo? jump,
   }) => SettingsPrefs(
     epicboxOnStart: epicboxOnStart ?? this.epicboxOnStart,
@@ -150,6 +158,7 @@ class SettingsPrefs {
     mineNodes: mineNodes ?? this.mineNodes,
     ownFallback: ownFallback ?? this.ownFallback,
     plainHttpSeen: plainHttpSeen ?? this.plainHttpSeen,
+    updateSeen: updateSeen ?? this.updateSeen,
     jump: jump ?? this.jump,
   );
 }
@@ -171,6 +180,9 @@ class SettingsPrefsController extends Notifier<SettingsPrefs> {
   void set(SettingsPrefs p) => state = p;
 
   void removeWallet(String folder) => state = state.copyWith(removedWallets: {...state.removedWallets, folder});
+
+  /// The update strip was closed for [version]: not again until a newer one.
+  void hideUpdateStrip(String version) => state = state.copyWith(updateSeen: version);
 
   /// Opens the page of row [id] ([SetId]) and shows the row there: scrolled into view, its
   /// control focused, the gold outline fading ([ESetAnchors]). A row that sits under another

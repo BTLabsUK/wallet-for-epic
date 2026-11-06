@@ -51,6 +51,7 @@ import 'screens.dart';
 import 'close_guard.dart';
 import 'last_session_offer.dart';
 import 'now_slot.dart';
+import 'update_strip.dart' show DeskUpdateStrip;
 import 'old_app_offer.dart';
 import 'title_bar.dart' show showDeskShortcuts;
 import 'tour.dart';
@@ -440,7 +441,16 @@ class _DeskShellState extends ConsumerState<DeskShell> {
     final page = KeyedSubtree(key: linked ? ValueKey<SendArgs>(shown.arg! as SendArgs) : ValueKey<DeskRoute>(shown.route), child: deskScreen(shown));
     // The page's text is selectable and copyable (selectable.dart); the sidebar is not.
     // The light backdrop sits under the page and stays put while the page scrolls.
-    final main = Material(color: c.bg, child: DeskBackdrop(child: DeskSelectable(child: page)));
+    // The update strip (update_strip.dart) sits above the page in every frame and pushes it down.
+    final main = Material(
+      color: c.bg,
+      child: DeskBackdrop(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [const DeskUpdateStrip(), Expanded(child: DeskSelectable(child: page))],
+        ),
+      ),
+    );
     final tour = ref.watch(deskTourProvider.select((t) => t.open));
     final tourStart = ref.watch(deskTourProvider.select((t) => t.start));
     final Widget frame;

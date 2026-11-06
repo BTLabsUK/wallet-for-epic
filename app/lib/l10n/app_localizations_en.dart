@@ -20519,4 +20519,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String deskConLabelCurrent(String name) {
     return 'Label: $name';
   }
+
+  @override
+  String get deskUpdStripAct => 'Update';
+
+  @override
+  String get deskUpdStripHide => 'Hide until the next version';
 }

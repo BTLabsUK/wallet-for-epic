@@ -32069,6 +32069,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Label: {name}'**
   String deskConLabelCurrent(String name);
+
+  /// The update strip's button at the top of the content area (one word): starts the download of the version the strip names, the same step as the sidebar's slot.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get deskUpdStripAct;
+
+  /// The update strip's close button (×): its tooltip and screen-reader name. The strip stays away for this version and comes back for a newer one; the sidebar's slot stays.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide until the next version'**
+  String get deskUpdStripHide;
 }
 
 class _AppLocalizationsDelegate

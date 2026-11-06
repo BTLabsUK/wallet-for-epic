@@ -21207,4 +21207,10 @@ class AppLocalizationsPl extends AppLocalizations {
   String deskConLabelCurrent(String name) {
     return 'Etykieta: $name';
   }
+
+  @override
+  String get deskUpdStripAct => 'Aktualizuj';
+
+  @override
+  String get deskUpdStripHide => 'Ukryj do następnej wersji';
 }

@@ -19363,4 +19363,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String deskConLabelCurrent(String name) {
     return '标签：$name';
   }
+
+  @override
+  String get deskUpdStripAct => '更新';
+
+  @override
+  String get deskUpdStripHide => '隐藏至下一版本';
 }

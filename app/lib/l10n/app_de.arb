@@ -5340,5 +5340,7 @@
   "contactDomain": "Domain",
   "contactDomainVerified": "verifiziert",
   "contactDomainNotVerified": "noch nicht verifiziert",
-  "contactDomainRefused": "abgelehnt"
+  "contactDomainRefused": "abgelehnt",
+  "deskUpdStripAct": "Aktualisieren",
+  "deskUpdStripHide": "Bis zur nächsten Version ausblenden"
 }

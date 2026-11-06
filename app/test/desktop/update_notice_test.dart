@@ -4,6 +4,8 @@
 // Downloading 42 % → "Epic Cash … is ready" (Restart now / Later) → … is ready · Restart now; a failed
 // step says so and offers the next way; a copy that cannot install updates opens the download
 // page at every step and says so; About carries the button for the step and the page's address.
+// The update strip (app/update_strip.dart) above the page: Update available only, Update
+// downloads, × hides it for that version and a newer one brings it back; the slot stays.
 import 'dart:async';
 import 'dart:io';
 
@@ -11,9 +13,11 @@ import 'package:epic_wallet/src/tor_build.dart';
 import 'package:epic_wallet/src/btlabs_public.dart' show WalletDesktopFile, walletUpdateDownloads;
 import 'package:epic_wallet/src/desktop/app/shell.dart';
 import 'package:epic_wallet/src/desktop/data/desk_update.dart';
+import 'package:epic_wallet/src/desktop/data/desk_store.dart' show DeskBoot, deskBootProvider;
 import 'package:epic_wallet/src/desktop/data/desk_update_apply.dart' show DeskUpdateApplier, DmgApplier, deskUpdateApplierProvider;
 import 'package:epic_wallet/src/desktop/data/files.dart' show deskOpenUrlProvider;
 import 'package:epic_wallet/src/desktop/screens/settings/settings_about.dart';
+import 'package:epic_wallet/src/desktop/screens/settings/prefs.dart' show settingsPrefsProvider;
 import 'package:epic_wallet/src/desktop/theme/theme.dart';
 import 'package:epic_wallet/src/desktop/widgets/kit.dart';
 import 'package:epic_wallet/src/l10n.dart' show englishStrings;
@@ -102,6 +106,7 @@ void main() {
     bool restartOk = false,
     DeskUpdateState? downloadEnds,
     DeskUpdateApplier? applier,
+    Map<String, dynamic>? prefs,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -117,6 +122,7 @@ void main() {
       }),
       deskQuitProvider.overrideWithValue(() async => quits++),
       if (applier != null) deskUpdateApplierProvider.overrideWithValue(applier),
+      if (prefs != null) deskBootProvider.overrideWithValue(DeskBoot(prefs: prefs)),
     ]);
     addTearDown(container.dispose);
     await tester.runAsync(() => container.read(deskProvider.notifier).refresh());
@@ -131,6 +137,7 @@ void main() {
   Finder line() => find.byKey(const ValueKey('now-update'));
   Finder act() => find.byKey(const ValueKey('about-update-act'));
   Finder ready() => find.byKey(const ValueKey('update-ready'));
+  Finder strip() => find.byKey(const ValueKey('update-strip'));
   String tip(WidgetTester tester) => tester.widget<Tooltip>(find.descendant(of: line(), matching: find.byType(Tooltip)).first).message!;
 
   /// Taps [target] and lets the restart's real awaits (the quit) run.
@@ -344,5 +351,60 @@ void main() {
   test('checks 20 s after the wallet opens, then every hour', () {
     expect(deskUpdateFirst, const Duration(seconds: 20));
     expect(deskUpdateEvery, const Duration(hours: 1));
+  });
+
+  group('the update strip', () {
+    testWidgets('Update available: the strip above the page names the version; Update downloads; the slot stays', (tester) async {
+      await pump(tester, _state(DeskUpdatePhase.available));
+      expect(strip(), findsOneWidget);
+      expect(find.descendant(of: strip(), matching: find.text(_l.updateAvailable(_v))), findsOneWidget);
+      expect(line(), findsOneWidget);
+      // Above the page (the selectable area holds the page and its title), inside the content column.
+      final stripBox = tester.getRect(strip());
+      final pageBox = tester.getRect(find.byType(DeskSelectable));
+      expect(stripBox.bottom, lessThanOrEqualTo(pageBox.top));
+      expect(stripBox.left, pageBox.left);
+      expect(stripBox.height, lessThan(64));
+      await tester.tap(find.byKey(const ValueKey('update-strip-act')));
+      await tester.pumpAndSettle();
+      expect(fake.downloads, 1);
+      expect(opened, isEmpty);
+    });
+
+    testWidgets('only while an update is available: not downloading, ready, failed or without one', (tester) async {
+      for (final s in [
+        DeskUpdateState(DeskUpdatePhase.idle),
+        DeskUpdateState(DeskUpdatePhase.latest),
+        _state(DeskUpdatePhase.downloading, progress: 0.42),
+        _state(DeskUpdatePhase.ready),
+        _state(DeskUpdatePhase.available, problem: 'nope'),
+      ]) {
+        await pump(tester, s);
+        expect(strip(), findsNothing, reason: '${s.phase} ${s.problem}');
+        await tester.pumpWidget(const SizedBox());
+      }
+    });
+
+    testWidgets('× hides the strip for this version and keeps it hidden on the next start; the slot stays', (tester) async {
+      final c = await pump(tester, _state(DeskUpdatePhase.available));
+      final close = find.byKey(const ValueKey('update-strip-close'));
+      expect(tester.widget<Tooltip>(find.descendant(of: close, matching: find.byType(Tooltip)).first).message, _l.deskUpdStripHide);
+      await tester.tap(close);
+      await tester.pumpAndSettle();
+      expect(strip(), findsNothing);
+      expect(line(), findsOneWidget);
+      expect(c.read(settingsPrefsProvider).updateSeen, _v);
+      expect(c.read(settingsPrefsProvider).toJson()['updateSeen'], _v);
+      await tester.pumpWidget(const SizedBox());
+
+      await pump(tester, _state(DeskUpdatePhase.available), prefs: {'updateSeen': _v});
+      expect(strip(), findsNothing);
+      expect(line(), findsOneWidget);
+    });
+
+    testWidgets('a newer version than the hidden one brings the strip back', (tester) async {
+      await pump(tester, _state(DeskUpdatePhase.available), prefs: {'updateSeen': '99.0.9'});
+      expect(strip(), findsOneWidget);
+    });
   });
 }
